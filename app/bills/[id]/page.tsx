@@ -1,5 +1,4 @@
 'use client';
-export const revalidate = 86400; // 24 hours in seconds
 
 
 import { useState, useEffect } from 'react';
