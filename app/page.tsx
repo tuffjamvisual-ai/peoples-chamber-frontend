@@ -1,81 +1,13 @@
-'use client';
-
-import { useState, useEffect } from 'react';
+import { getAllBills } from '@/lib/data';
 import BillsGrid from './components/BillsGrid';
 
-type Bill = {
-  id: number;
-  title: string;
-  description: string;
-  category: string;
-  current_stage: string;
-  stage_date: string | null;
-  sponsor_name: string | null;
-  sponsor_party: string | null;
-  sponsor_party_colour: string | null;
-  sponsor_photo: string | null;
-  votes: {
-    yes: number;
-    no: number;
-    abstain: number;
-  };
-};
+// Server Component - fetches data at build time
+// Rebuilds every 24 hours (86400 seconds)
+export const revalidate = 86400;
 
-type ApiResponse = {
-  bills: Bill[];
-  pagination: {
-    page: number;
-    per_page: number;
-    total: number;
-    pages: number;
-  };
-};
-
-export default function HomePage() {
-  const [bills, setBills] = useState<Bill[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchAllBills() {
-      try {
-        // Fetch from Next.js API (serverless, fast!)
-        const allBills: Bill[] = [];
-        
-        for (let page = 1; page <= 10; page++) {
-          const response = await fetch(
-            `/api/bills?page=${page}&per_page=21`
-          );
-          
-          if (response.ok) {
-            const data: ApiResponse = await response.json();
-            allBills.push(...data.bills);
-            
-            // Stop if we've fetched all bills
-            if (data.bills.length < 21) break;
-          }
-        }
-        
-        setBills(allBills);
-      } catch (error) {
-        console.error('Error fetching bills:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchAllBills();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0a0f1a] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="text-gray-400 mt-6">Loading bills...</p>
-        </div>
-      </div>
-    );
-  }
+export default async function HomePage() {
+  // Fetch ALL bills at build time - fast, single query
+  const bills = await getAllBills();
 
   return (
     <div className="min-h-screen bg-[#0a0f1a]">
