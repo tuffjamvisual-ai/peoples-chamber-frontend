@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     
     // Check if user already exists
     const { data: existingUser } = await supabase
-      .from('user')
+      .from('users')
       .select('id')
       .eq('email', email)
       .single();
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     
     // Create user
     const { data: newUser, error } = await supabase
-      .from('user')
+      .from('users')
       .insert({
         email,
         password: hashedPassword,
