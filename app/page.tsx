@@ -31,6 +31,9 @@ type ApiResponse = {
   };
 };
 
+// This tells Next.js to cache this page and rebuild it every 24 hours
+export const revalidate = 86400; // 24 hours in seconds
+
 export default function HomePage() {
   const router = useRouter();
   const [bills, setBills] = useState<Bill[]>([]);
@@ -53,7 +56,7 @@ export default function HomePage() {
         if (searchTerm) url += `&search=${encodeURIComponent(searchTerm)}`;
         if (categoryFilter) url += `&category=${encodeURIComponent(categoryFilter)}`;
         
-        const response = await fetch(url);
+        const response = await fetch(url, { next: { revalidate: 86400 } });
         
         if (!response.ok) {
           throw new Error('Failed to fetch bills');
