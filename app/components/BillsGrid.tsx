@@ -2,6 +2,8 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '../context/AuthContext';
+import AuthModal from './AuthModal';
 
 type Bill = {
   id: number;
@@ -27,28 +29,30 @@ type Props = {
 
 export default function BillsGrid({ initialBills }: Props) {
   const router = useRouter();
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  const [bills, setBills] = useState(initialBills);
+  const [userVotes, setUserVotes] = useState<Record<number, string>>({});
   const billsPerPage = 21;
 
-  // Filter bills client-side
   const filteredBills = useMemo(() => {
-    return initialBills.filter(bill => {
+    return bills.filter(bill => {
       const matchesSearch = !searchTerm || 
         bill.title.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = !categoryFilter || 
         bill.category === categoryFilter;
       return matchesSearch && matchesCategory;
     });
-  }, [initialBills, searchTerm, categoryFilter]);
+  }, [bills, searchTerm, categoryFilter]);
 
-  // Paginate filtered bills
   const totalPages = Math.ceil(filteredBills.length / billsPerPage);
   const startIndex = (currentPage - 1) * billsPerPage;
   const paginatedBills = filteredBills.slice(startIndex, startIndex + billsPerPage);
 
-  // Reset to page 1 when filters change
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
     setCurrentPage(1);
@@ -65,9 +69,52 @@ export default function BillsGrid({ initialBills }: Props) {
     setCurrentPage(1);
   };
 
+  const handleVote = async (billId: number, choice: 'yes' | 'no') => {
+    if (!user) {
+      setAuthMode('signup');
+      setShowAuthModal(true);
+      return;
+    }
+
+    if (userVotes[billId]) {
+      alert('You have already voted on this bill');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/vote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          billId,
+          choice
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.error || 'Failed to submit vote');
+        return;
+      }
+
+      // Update local state
+      setUserVotes(prev => ({ ...prev, [billId]: choice }));
+      setBills(prev => prev.map(bill =>
+        bill.id === billId
+          ? { ...bill, votes: data.votes }
+          : bill
+      ));
+
+    } catch (error) {
+      console.error('Vote error:', error);
+      alert('Failed to submit vote');
+    }
+  };
+
   return (
     <>
-      {/* Search and Filters */}
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-4">
           <div className="flex-1 relative">
@@ -109,99 +156,117 @@ export default function BillsGrid({ initialBills }: Props) {
         
         <div className="text-sm text-gray-500">
           Showing {paginatedBills.length} of {filteredBills.length} bills
-          {(searchTerm || categoryFilter) && ` (filtered from ${initialBills.length} total)`}
+          {(searchTerm || categoryFilter) && ` (filtered from ${bills.length} total)`}
         </div>
       </div>
 
-      {/* Bills Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {paginatedBills.map((bill) => {
           const totalVotes = bill.votes.yes + bill.votes.no + bill.votes.abstain;
           const yesPercent = totalVotes > 0 ? Math.round((bill.votes.yes / totalVotes) * 100) : 0;
+          const hasVoted = !!userVotes[bill.id];
           
           return (
             <div
               key={bill.id}
-              onClick={() => router.push(`/bills/${bill.id}`)}
-              className="bg-[#1a1f2e] rounded-lg p-4 border border-gray-800/50 hover:border-gray-700 transition-all cursor-pointer group"
+              className="bg-[#1a1f2e] rounded-lg p-4 border border-gray-800/50 hover:border-gray-700 transition-all"
             >
-              <div className="flex justify-between items-start mb-3">
-                <h2 className="text-white font-semibold text-sm leading-tight flex-1 pr-2 group-hover:text-blue-300 transition-colors line-clamp-2">
-                  {bill.title}
-                </h2>
-                <span className="text-xs px-2 py-0.5 bg-blue-900/40 text-blue-300 rounded whitespace-nowrap ml-2">
-                  {bill.category}
-                </span>
-              </div>
+              <div 
+                onClick={() => router.push(`/bills/${bill.id}`)}
+                className="cursor-pointer"
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <h2 className="text-white font-semibold text-sm leading-tight flex-1 pr-2 group-hover:text-blue-300 transition-colors line-clamp-2">
+                    {bill.title}
+                  </h2>
+                  <span className="text-xs px-2 py-0.5 bg-blue-900/40 text-blue-300 rounded whitespace-nowrap ml-2">
+                    {bill.category}
+                  </span>
+                </div>
 
-              <div className="text-xs text-gray-500 mb-3">
-                {bill.current_stage || 'Unknown stage'}
-                {bill.stage_date && ` · ${bill.stage_date}`}
-              </div>
+                <div className="text-xs text-gray-500 mb-3">
+                  {bill.current_stage || 'Unknown stage'}
+                  {bill.stage_date && ` · ${bill.stage_date}`}
+                </div>
 
-              {bill.sponsor_name && (
-                <div className="flex items-center gap-2 mb-3">
-                  {bill.sponsor_photo ? (
-                    <img src={bill.sponsor_photo} alt={bill.sponsor_name} className="w-6 h-6 rounded-full" />
-                  ) : (
-                    <div className="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center text-[9px] text-gray-400">
-                      {bill.sponsor_name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                    </div>
-                  )}
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className="text-xs text-gray-400 truncate">{bill.sponsor_name}</span>
-                    {bill.sponsor_party && (
-                      <span
-                        className="text-[10px] px-1.5 py-0.5 rounded text-white shrink-0"
-                        style={{ backgroundColor: bill.sponsor_party_colour || '#6b7280' }}
-                      >
-                        {bill.sponsor_party}
-                      </span>
+                {bill.sponsor_name && (
+                  <div className="flex items-center gap-2 mb-3">
+                    {bill.sponsor_photo ? (
+                      <img src={bill.sponsor_photo} alt={bill.sponsor_name} className="w-6 h-6 rounded-full" />
+                    ) : (
+                      <div className="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center text-[9px] text-gray-400">
+                        {bill.sponsor_name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                      </div>
                     )}
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-xs text-gray-400 truncate">{bill.sponsor_name}</span>
+                      {bill.sponsor_party && (
+                        <span
+                          className="text-[10px] px-1.5 py-0.5 rounded text-white shrink-0"
+                          style={{ backgroundColor: bill.sponsor_party_colour || '#6b7280' }}
+                        >
+                          {bill.sponsor_party}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div className="mb-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[10px] text-gray-500">People's Chamber</span>
+                    <span className="text-[10px] font-medium text-gray-400">{yesPercent}%</span>
+                  </div>
+                  <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-teal-600"
+                      style={{ width: `${yesPercent}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between mt-1 text-[10px]">
+                    <span className="text-teal-400">{bill.votes.yes} Support</span>
+                    <span className="text-rose-400">{bill.votes.no} Oppose</span>
                   </div>
                 </div>
-              )}
 
-              <div className="mb-3">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[10px] text-gray-500">People's Chamber</span>
-                  <span className="text-[10px] font-medium text-gray-400">{yesPercent}%</span>
-                </div>
-                <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-teal-600"
-                    style={{ width: `${yesPercent}%` }}
-                  />
-                </div>
-                <div className="flex justify-between mt-1 text-[10px]">
-                  <span className="text-teal-400">{bill.votes.yes} Support</span>
-                  <span className="text-rose-400">{bill.votes.no} Oppose</span>
-                </div>
-              </div>
-
-              <div className="mb-3">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[10px] text-gray-500">House of Commons</span>
-                  <span className="text-[10px] text-gray-600">No data</span>
-                </div>
-                <div className="h-1.5 bg-gray-800 rounded-full" />
-                <div className="text-center mt-1 text-[9px] text-gray-600">
-                  Passed on voice vote
+                <div className="mb-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[10px] text-gray-500">House of Commons</span>
+                    <span className="text-[10px] text-gray-600">No data</span>
+                  </div>
+                  <div className="h-1.5 bg-gray-800 rounded-full" />
+                  <div className="text-center mt-1 text-[9px] text-gray-600">
+                    Passed on voice vote
+                  </div>
                 </div>
               </div>
 
               <div className="flex gap-2 mt-4">
                 <button 
-                  onClick={(e) => { e.stopPropagation(); }}
-                  className="flex-1 bg-teal-800 hover:bg-teal-700 text-white py-2 rounded text-xs font-medium transition-colors"
+                  onClick={(e) => { e.stopPropagation(); handleVote(bill.id, 'yes'); }}
+                  disabled={hasVoted}
+                  className={`flex-1 py-2 rounded text-xs font-medium transition-colors ${
+                    hasVoted 
+                      ? userVotes[bill.id] === 'yes' 
+                        ? 'bg-teal-700 text-white cursor-default'
+                        : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                      : 'bg-teal-800 hover:bg-teal-700 text-white'
+                  }`}
                 >
-                  Support
+                  {hasVoted && userVotes[bill.id] === 'yes' ? '✓ Supported' : 'Support'}
                 </button>
                 <button 
-                  onClick={(e) => { e.stopPropagation(); }}
-                  className="flex-1 bg-rose-800 hover:bg-rose-700 text-white py-2 rounded text-xs font-medium transition-colors"
+                  onClick={(e) => { e.stopPropagation(); handleVote(bill.id, 'no'); }}
+                  disabled={hasVoted}
+                  className={`flex-1 py-2 rounded text-xs font-medium transition-colors ${
+                    hasVoted 
+                      ? userVotes[bill.id] === 'no'
+                        ? 'bg-rose-700 text-white cursor-default'
+                        : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                      : 'bg-rose-800 hover:bg-rose-700 text-white'
+                  }`}
                 >
-                  Oppose
+                  {hasVoted && userVotes[bill.id] === 'no' ? '✓ Opposed' : 'Oppose'}
                 </button>
               </div>
             </div>
@@ -215,7 +280,6 @@ export default function BillsGrid({ initialBills }: Props) {
         </div>
       )}
 
-      {/* Pagination */}
       {paginatedBills.length > 0 && totalPages > 1 && (
         <div className="mt-8 flex items-center justify-center gap-2">
           <button
@@ -255,6 +319,12 @@ export default function BillsGrid({ initialBills }: Props) {
           </button>
         </div>
       )}
+
+      <AuthModal 
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        mode={authMode}
+      />
     </>
   );
 }

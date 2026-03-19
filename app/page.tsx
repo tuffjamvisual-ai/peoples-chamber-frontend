@@ -1,13 +1,64 @@
-import { getAllBills } from '@/lib/data';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import BillsGrid from './components/BillsGrid';
+import { useAuth } from './context/AuthContext';
+import AuthModal from './components/AuthModal';
 
-// Server Component - fetches data at build time
-// Rebuilds every 24 hours (86400 seconds)
-export const revalidate = 86400;
+export default function HomePage() {
+  const { user, logout } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  const [bills, setBills] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default async function HomePage() {
-  // Fetch ALL bills at build time - fast, single query
-  const bills = await getAllBills();
+  useEffect(() => {
+    async function fetchBills() {
+      try {
+        const allBills: any[] = [];
+        
+        for (let page = 1; page <= 50; page++) {
+          const response = await fetch(`/api/bills?page=${page}&per_page=21`);
+          
+          if (response.ok) {
+            const data = await response.json();
+            allBills.push(...data.bills);
+            
+            if (data.bills.length < 21) break;
+          }
+        }
+        
+        setBills(allBills);
+      } catch (error) {
+        console.error('Error fetching bills:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchBills();
+  }, []);
+
+  const openLogin = () => {
+    setAuthMode('login');
+    setShowAuthModal(true);
+  };
+
+  const openSignup = () => {
+    setAuthMode('signup');
+    setShowAuthModal(true);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0a0f1a] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="text-gray-400 mt-6">Loading bills...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0a0f1a]">
@@ -28,8 +79,32 @@ export default async function HomePage() {
             </div>
 
             <div className="flex items-center space-x-3">
-              <button className="px-3 py-1.5 text-gray-300 text-sm">Login</button>
-              <button className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium">Sign Up</button>
+              {user ? (
+                <>
+                  <span className="text-gray-400 text-sm">{user.email}</span>
+                  <button 
+                    onClick={logout}
+                    className="px-3 py-1.5 text-gray-300 hover:text-white text-sm"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button 
+                    onClick={openLogin}
+                    className="px-3 py-1.5 text-gray-300 hover:text-white text-sm"
+                  >
+                    Login
+                  </button>
+                  <button 
+                    onClick={openSignup}
+                    className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium"
+                  >
+                    Sign Up
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -38,6 +113,12 @@ export default async function HomePage() {
       <main className="max-w-7xl mx-auto px-6 py-6">
         <BillsGrid initialBills={bills} />
       </main>
+
+      <AuthModal 
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        mode={authMode}
+      />
     </div>
   );
 }
