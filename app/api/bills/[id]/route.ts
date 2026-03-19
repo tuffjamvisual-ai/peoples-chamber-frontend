@@ -3,11 +3,16 @@ import { supabase } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
+type RouteContext = {
+  params: Promise<{ id: string }>;
+};
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: RouteContext
 ) {
   try {
+    const params = await context.params;
     const billId = parseInt(params.id);
     
     if (isNaN(billId)) {
