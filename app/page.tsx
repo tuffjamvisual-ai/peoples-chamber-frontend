@@ -38,17 +38,20 @@ export default function HomePage() {
   useEffect(() => {
     async function fetchAllBills() {
       try {
-        // Fetch first 100 bills (5 pages)
+        // Fetch from Next.js API (serverless, fast!)
         const allBills: Bill[] = [];
         
-        for (let page = 1; page <= 5; page++) {
+        for (let page = 1; page <= 10; page++) {
           const response = await fetch(
-            `https://peoples-chamber-1.onrender.com/api/bills?page=${page}&per_page=21`
+            `/api/bills?page=${page}&per_page=21`
           );
           
           if (response.ok) {
             const data: ApiResponse = await response.json();
             allBills.push(...data.bills);
+            
+            // Stop if we've fetched all bills
+            if (data.bills.length < 21) break;
           }
         }
         

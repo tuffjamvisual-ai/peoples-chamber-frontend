@@ -1,6 +1,5 @@
 'use client';
 
-
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 
@@ -39,9 +38,7 @@ export default function BillDetailPage() {
     async function fetchBill() {
       try {
         setLoading(true);
-        const response = await fetch(
-          `https://peoples-chamber-1.onrender.com/api/bills/${billId}`
-        );
+        const response = await fetch(`/api/bills/${billId}`);
         
         if (!response.ok) {
           throw new Error('Bill not found');
@@ -97,7 +94,6 @@ export default function BillDetailPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0f1a]">
-      {/* Top Navigation */}
       <nav className="bg-black/40 backdrop-blur-sm border-b border-gray-800/50">
         <div className="max-w-5xl mx-auto px-6">
           <div className="flex items-center justify-between h-14">
@@ -122,29 +118,23 @@ export default function BillDetailPage() {
         </div>
       </nav>
 
-      {/* Main Content */}
       <main className="max-w-5xl mx-auto px-6 py-8">
-        
-        {/* Category Badge */}
         <div className="mb-4">
           <span className="inline-block px-3 py-1 bg-blue-900/40 text-blue-300 rounded text-sm">
             {bill.category}
           </span>
         </div>
 
-        {/* Title */}
         <h1 className="text-3xl font-bold text-white mb-4 leading-tight">
           {bill.title}
         </h1>
 
-        {/* Long Title */}
         {bill.long_title && (
           <p className="text-lg text-gray-400 mb-6 leading-relaxed">
             {bill.long_title}
           </p>
         )}
 
-        {/* Meta Info */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="bg-gray-800/30 rounded-lg p-4 border border-gray-700/50">
             <div className="text-xs text-gray-500 mb-1">Current Stage</div>
@@ -159,7 +149,6 @@ export default function BillDetailPage() {
           )}
         </div>
 
-        {/* Sponsor Info */}
         {bill.sponsor_name && (
           <div className="bg-gray-800/30 rounded-lg p-4 border border-gray-700/50 mb-6">
             <div className="text-xs text-gray-500 mb-3">Sponsored by</div>
@@ -191,7 +180,6 @@ export default function BillDetailPage() {
           </div>
         )}
 
-        {/* Description */}
         <div className="bg-gray-800/30 rounded-lg p-6 border border-gray-700/50 mb-6">
           <h2 className="text-lg font-semibold text-white mb-4">Bill Description</h2>
           <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">
@@ -199,11 +187,9 @@ export default function BillDetailPage() {
           </p>
         </div>
 
-        {/* Voting Section */}
         <div className="bg-gray-800/30 rounded-lg p-6 border border-gray-700/50 mb-6">
           <h2 className="text-lg font-semibold text-white mb-4">Public Opinion</h2>
           
-          {/* Vote Stats */}
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="text-center">
               <div className="text-2xl font-bold text-teal-400">{bill.votes.yes}</div>
@@ -221,7 +207,6 @@ export default function BillDetailPage() {
             </div>
           </div>
 
-          {/* Vote Bar */}
           <div className="h-3 bg-gray-800 rounded-full overflow-hidden mb-6">
             <div className="h-full flex">
               {yesPercent > 0 && (
@@ -233,7 +218,6 @@ export default function BillDetailPage() {
             </div>
           </div>
 
-          {/* Vote Buttons */}
           <div className="grid grid-cols-3 gap-3">
             <button className="bg-teal-700 hover:bg-teal-600 text-white py-3 rounded-lg font-medium transition-colors">
               Support
@@ -245,20 +229,12 @@ export default function BillDetailPage() {
               Abstain
             </button>
           </div>
-
-          {bill.user_vote && (
-            <div className="mt-4 text-center text-sm text-gray-400">
-              You voted: <span className="text-white font-medium">{bill.user_vote}</span>
-            </div>
-          )}
         </div>
 
-        {/* House of Commons Placeholder */}
         <div className="bg-gray-800/30 rounded-lg p-6 border border-gray-700/50">
           <h2 className="text-lg font-semibold text-white mb-2">House of Commons Vote</h2>
           <p className="text-sm text-gray-500">MP voting data not yet available for this bill.</p>
         </div>
-
       </main>
     </div>
   );
