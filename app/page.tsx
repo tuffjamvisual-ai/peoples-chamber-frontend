@@ -17,7 +17,7 @@ export default function HomePage() {
       try {
         const allBills: any[] = [];
         
-        for (let page = 1; page <= 50; page++) {
+        for (let page = 1; page <= 200; page++) {
           const response = await fetch(`/api/bills?page=${page}&per_page=21`);
           
           if (response.ok) {
