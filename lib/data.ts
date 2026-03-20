@@ -16,6 +16,10 @@ export type Bill = {
     no: number;
     abstain: number;
   };
+  commons_votes: {
+    ayes: number;
+    noes: number;
+  } | null;
 };
 
 export async function getAllBills(): Promise<Bill[]> {
@@ -23,7 +27,7 @@ export async function getAllBills(): Promise<Bill[]> {
     // Fetch ALL bills in one query (Supabase is fast!)
     const { data: bills, error } = await supabase
       .from('bill')
-      .select('id, title, description, category, current_stage, stage_date, sponsor_name, sponsor_party, sponsor_party_colour, sponsor_photo, vote_count_yes, vote_count_no, vote_count_abstain')
+      .select('id, title, description, category, current_stage, stage_date, sponsor_name, sponsor_party, sponsor_party_colour, sponsor_photo, vote_count_yes, vote_count_no, vote_count_abstain, commons_ayes, commons_noes')
       .eq('status', 'Active')
       .order('id', { ascending: true });
     
@@ -48,7 +52,11 @@ export async function getAllBills(): Promise<Bill[]> {
         yes: bill.vote_count_yes || 0,
         no: bill.vote_count_no || 0,
         abstain: bill.vote_count_abstain || 0
-      }
+      },
+      commons_votes: (bill.commons_ayes || bill.commons_noes) ? {
+        ayes: bill.commons_ayes || 0,
+        noes: bill.commons_noes || 0
+      } : null
     })) || [];
     
   } catch (error) {

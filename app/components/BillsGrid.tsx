@@ -21,6 +21,10 @@ type Bill = {
     no: number;
     abstain: number;
   };
+  commons_votes?: {
+    ayes: number;
+    noes: number;
+  } | null;
 };
 
 type Props = {
@@ -99,7 +103,6 @@ export default function BillsGrid({ initialBills }: Props) {
         return;
       }
 
-      // Update local state
       setUserVotes(prev => ({ ...prev, [billId]: choice }));
       setBills(prev => prev.map(bill =>
         bill.id === billId
@@ -164,6 +167,10 @@ export default function BillsGrid({ initialBills }: Props) {
         {paginatedBills.map((bill) => {
           const totalVotes = bill.votes.yes + bill.votes.no + bill.votes.abstain;
           const yesPercent = totalVotes > 0 ? Math.round((bill.votes.yes / totalVotes) * 100) : 0;
+          
+          const commonsTotal = bill.commons_votes ? bill.commons_votes.ayes + bill.commons_votes.noes : 0;
+          const commonsAyesPercent = commonsTotal > 0 ? Math.round((bill.commons_votes!.ayes / commonsTotal) * 100) : 0;
+          
           const hasVoted = !!userVotes[bill.id];
           
           return (
@@ -232,12 +239,33 @@ export default function BillsGrid({ initialBills }: Props) {
                 <div className="mb-3">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-[10px] text-gray-500">House of Commons</span>
-                    <span className="text-[10px] text-gray-600">No data</span>
+                    {bill.commons_votes ? (
+                      <span className="text-[10px] font-medium text-gray-400">{commonsAyesPercent}%</span>
+                    ) : (
+                      <span className="text-[10px] text-gray-600">No data</span>
+                    )}
                   </div>
-                  <div className="h-1.5 bg-gray-800 rounded-full" />
-                  <div className="text-center mt-1 text-[9px] text-gray-600">
-                    Passed on voice vote
-                  </div>
+                  {bill.commons_votes ? (
+                    <>
+                      <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-green-600"
+                          style={{ width: `${commonsAyesPercent}%` }}
+                        />
+                      </div>
+                      <div className="flex justify-between mt-1 text-[10px]">
+                        <span className="text-green-400">{bill.commons_votes.ayes} Ayes</span>
+                        <span className="text-red-400">{bill.commons_votes.noes} Noes</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="h-1.5 bg-gray-800 rounded-full" />
+                      <div className="text-center mt-1 text-[9px] text-gray-600">
+                        Passed on voice vote
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 

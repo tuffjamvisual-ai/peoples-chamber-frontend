@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
     
-    // Format response to match Flask API
+    // Format response
     const billsData = bills?.map(bill => ({
       id: bill.id,
       title: bill.title,
@@ -56,7 +56,11 @@ export async function GET(request: NextRequest) {
         yes: bill.vote_count_yes || 0,
         no: bill.vote_count_no || 0,
         abstain: bill.vote_count_abstain || 0
-      }
+      },
+      commons_votes: (bill.commons_ayes || bill.commons_noes) ? {
+        ayes: bill.commons_ayes || 0,
+        noes: bill.commons_noes || 0
+      } : null
     })) || [];
     
     const totalPages = count ? Math.ceil(count / perPage) : 0;
