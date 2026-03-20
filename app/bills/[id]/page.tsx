@@ -126,8 +126,7 @@ export default function BillDetailPage() {
         </div>
 
         <h1 className="text-3xl font-bold text-white mb-4 leading-tight">
-          {bill.title}
-        </h1>
+          {bill.title}        </h1>
 
         {bill.long_title && (
           <p className="text-lg text-gray-400 mb-6 leading-relaxed">
