@@ -36,6 +36,9 @@ export default function BillsGrid({ initialBills }: Props) {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
+  const [stageFilter, setStageFilter] = useState('');
+  const [showParliamentVoted, setShowParliamentVoted] = useState(false);
+  const [showYouVoted, setShowYouVoted] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
@@ -49,9 +52,16 @@ export default function BillsGrid({ initialBills }: Props) {
         bill.title.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = !categoryFilter || 
         bill.category === categoryFilter;
-      return matchesSearch && matchesCategory;
+      const matchesStage = !stageFilter || 
+        bill.current_stage === stageFilter;
+      const matchesParliamentVoted = !showParliamentVoted || 
+        (bill.commons_votes && (bill.commons_votes.ayes > 0 || bill.commons_votes.noes > 0));
+      const matchesYouVoted = !showYouVoted || 
+        !!userVotes[bill.id];
+      
+      return matchesSearch && matchesCategory && matchesStage && matchesParliamentVoted && matchesYouVoted;
     });
-  }, [bills, searchTerm, categoryFilter]);
+  }, [bills, searchTerm, categoryFilter, stageFilter, showParliamentVoted, showYouVoted, userVotes]);
 
   const totalPages = Math.ceil(filteredBills.length / billsPerPage);
   const startIndex = (currentPage - 1) * billsPerPage;
@@ -67,9 +77,17 @@ export default function BillsGrid({ initialBills }: Props) {
     setCurrentPage(1);
   };
 
+  const handleStageChange = (value: string) => {
+    setStageFilter(value);
+    setCurrentPage(1);
+  };
+
   const handleClear = () => {
     setSearchTerm('');
     setCategoryFilter('');
+    setStageFilter('');
+    setShowParliamentVoted(false);
+    setShowYouVoted(false);
     setCurrentPage(1);
   };
 
@@ -116,6 +134,8 @@ export default function BillsGrid({ initialBills }: Props) {
     }
   };
 
+  const hasActiveFilters = searchTerm || categoryFilter || stageFilter || showParliamentVoted || showYouVoted;
+
   return (
     <>
       <div className="mb-6">
@@ -146,20 +166,63 @@ export default function BillsGrid({ initialBills }: Props) {
             <option value="Other">Other</option>
           </select>
           
-          {(searchTerm || categoryFilter) && (
+          {hasActiveFilters && (
             <button
               type="button"
               onClick={handleClear}
               className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm"
             >
-              Clear
+              Clear All
             </button>
           )}
+        </div>
+
+        {/* NEW FILTER BAR */}
+        <div className="flex items-center gap-3 mb-4 flex-wrap">
+          <select
+            value={stageFilter}
+            onChange={(e) => handleStageChange(e.target.value)}
+            className="bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-blue-500"
+          >
+            <option value="">All Stages</option>
+            <option value="Royal Assent">Royal Assent (Law)</option>
+            <option value="3rd reading">3rd Reading</option>
+            <option value="2nd reading">2nd Reading</option>
+            <option value="1st reading">1st Reading</option>
+            <option value="Committee stage">Committee Stage</option>
+            <option value="Report stage">Report Stage</option>
+          </select>
+
+          <label className="flex items-center gap-2 bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-1.5 cursor-pointer hover:bg-gray-800">
+            <input
+              type="checkbox"
+              checked={showParliamentVoted}
+              onChange={(e) => {
+                setShowParliamentVoted(e.target.checked);
+                setCurrentPage(1);
+              }}
+              className="w-4 h-4"
+            />
+            <span className="text-sm text-white">Parliament Voted</span>
+          </label>
+
+          <label className="flex items-center gap-2 bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-1.5 cursor-pointer hover:bg-gray-800">
+            <input
+              type="checkbox"
+              checked={showYouVoted}
+              onChange={(e) => {
+                setShowYouVoted(e.target.checked);
+                setCurrentPage(1);
+              }}
+              className="w-4 h-4"
+            />
+            <span className="text-sm text-white">You Voted</span>
+          </label>
         </div>
         
         <div className="text-sm text-gray-500">
           Showing {paginatedBills.length} of {filteredBills.length} bills
-          {(searchTerm || categoryFilter) && ` (filtered from ${bills.length} total)`}
+          {hasActiveFilters && ` (filtered from ${bills.length} total)`}
         </div>
       </div>
 
@@ -191,7 +254,6 @@ export default function BillsGrid({ initialBills }: Props) {
                   </span>
                 </div>
 
-                {/* STAGE - NOW MORE PROMINENT */}
                 <div className="mb-3 p-2 bg-gray-800/40 rounded">
                   <div className="text-xs text-gray-400">
                     {bill.current_stage || 'Unknown stage'}
@@ -311,7 +373,7 @@ export default function BillsGrid({ initialBills }: Props) {
 
       {paginatedBills.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-gray-400">No bills found matching your search.</p>
+          <p className="text-gray-400">No bills found matching your filters.</p>
         </div>
       )}
 
