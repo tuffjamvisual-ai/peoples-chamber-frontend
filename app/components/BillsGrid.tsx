@@ -182,7 +182,7 @@ export default function BillsGrid({ initialBills }: Props) {
                 onClick={() => router.push(`/bills/${bill.id}`)}
                 className="cursor-pointer"
               >
-                <div className="flex justify-between items-start mb-3">
+                <div className="flex justify-between items-start mb-2">
                   <h2 className="text-white font-semibold text-sm leading-tight flex-1 pr-2 group-hover:text-blue-300 transition-colors line-clamp-2">
                     {bill.title}
                   </h2>
@@ -191,9 +191,16 @@ export default function BillsGrid({ initialBills }: Props) {
                   </span>
                 </div>
 
-                <div className="text-xs text-gray-500 mb-3">
-                  {bill.current_stage || 'Unknown stage'}
-                  {bill.stage_date && ` · ${bill.stage_date}`}
+                {/* STAGE - NOW MORE PROMINENT */}
+                <div className="mb-3 p-2 bg-gray-800/40 rounded">
+                  <div className="text-xs text-gray-400">
+                    {bill.current_stage || 'Unknown stage'}
+                  </div>
+                  {bill.stage_date && (
+                    <div className="text-[10px] text-gray-500 mt-0.5">
+                      {bill.stage_date}
+                    </div>
+                  )}
                 </div>
 
                 {bill.sponsor_name && (
