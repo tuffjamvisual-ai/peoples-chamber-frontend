@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import AuthModal from './AuthModal';
@@ -46,17 +46,39 @@ export default function BillsGrid({ initialBills }: Props) {
   const [userVotes, setUserVotes] = useState<Record<number, string>>({});
   const billsPerPage = 22;
 
+  // Fetch user's existing votes when they log in
+  useEffect(() => {
+    async function fetchUserVotes() {
+      if (!user) {
+        setUserVotes({});
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/vote?userId=${user.id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setUserVotes(data.votes || {});
+        }
+      } catch (error) {
+        console.error('Error fetching user votes:', error);
+      }
+    }
+
+    fetchUserVotes();
+  }, [user]);
+
   const filteredBills = useMemo(() => {
     return bills.filter(bill => {
-      const matchesSearch = !searchTerm || 
+      const matchesSearch = !searchTerm ||
         bill.title.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = !categoryFilter || 
+      const matchesCategory = !categoryFilter ||
         bill.category === categoryFilter;
-      const matchesStage = !stageFilter || 
+      const matchesStage = !stageFilter ||
         bill.current_stage === stageFilter;
-      const matchesParliamentVoted = !showParliamentVoted || 
+      const matchesParliamentVoted = !showParliamentVoted ||
         (bill.commons_votes && (bill.commons_votes.ayes > 0 || bill.commons_votes.noes > 0));
-      const matchesYouVoted = !showYouVoted || 
+      const matchesYouVoted = !showYouVoted ||
         !!userVotes[bill.id];
       
       return matchesSearch && matchesCategory && matchesStage && matchesParliamentVoted && matchesYouVoted;
@@ -241,7 +263,7 @@ export default function BillsGrid({ initialBills }: Props) {
               key={bill.id}
               className="bg-[#1a1f2e] rounded-lg p-4 border border-gray-800/50 hover:border-gray-700 transition-all"
             >
-              <div 
+              <div
                 onClick={() => router.push(`/bills/${bill.id}`)}
                 className="cursor-pointer"
               >
@@ -339,12 +361,12 @@ export default function BillsGrid({ initialBills }: Props) {
               </div>
 
               <div className="flex gap-2 mt-4">
-                <button 
+                <button
                   onClick={(e) => { e.stopPropagation(); handleVote(bill.id, 'yes'); }}
                   disabled={hasVoted}
                   className={`flex-1 py-2 rounded text-xs font-medium transition-colors ${
-                    hasVoted 
-                      ? userVotes[bill.id] === 'yes' 
+                    hasVoted
+                      ? userVotes[bill.id] === 'yes'
                         ? 'bg-teal-700 text-white cursor-default'
                         : 'bg-gray-700 text-gray-500 cursor-not-allowed'
                       : 'bg-teal-800 hover:bg-teal-700 text-white'
@@ -352,11 +374,11 @@ export default function BillsGrid({ initialBills }: Props) {
                 >
                   {hasVoted && userVotes[bill.id] === 'yes' ? '✓ Supported' : 'Support'}
                 </button>
-                <button 
+                <button
                   onClick={(e) => { e.stopPropagation(); handleVote(bill.id, 'no'); }}
                   disabled={hasVoted}
                   className={`flex-1 py-2 rounded text-xs font-medium transition-colors ${
-                    hasVoted 
+                    hasVoted
                       ? userVotes[bill.id] === 'no'
                         ? 'bg-rose-700 text-white cursor-default'
                         : 'bg-gray-700 text-gray-500 cursor-not-allowed'
@@ -417,7 +439,7 @@ export default function BillsGrid({ initialBills }: Props) {
         </div>
       )}
 
-      <AuthModal 
+      <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
         mode={authMode}

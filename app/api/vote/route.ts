@@ -1,6 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+    
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'userId is required' },
+        { status: 400 }
+      );
+    }
+    
+    // Fetch all votes for this user
+    const { data: votes, error } = await supabase
+      .from('vote')
+      .select('bill_id, choice')
+      .eq('user_id', userId);
+    
+    if (error) {
+      console.error('Error fetching votes:', error);
+      return NextResponse.json(
+        { error: 'Failed to fetch votes' },
+        { status: 500 }
+      );
+    }
+    
+    // Convert to a map for easy lookup: { billId: choice }
+    const votesMap = votes.reduce((acc: any, vote: any) => {
+      acc[vote.bill_id] = vote.choice;
+      return acc;
+    }, {});
+    
+    return NextResponse.json({ votes: votesMap });
+    
+  } catch (error) {
+    console.error('Vote fetch error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { userId, billId, choice } = await request.json();
