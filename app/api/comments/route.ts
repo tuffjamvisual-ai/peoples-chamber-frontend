@@ -35,11 +35,11 @@ export async function GET(request: NextRequest) {
       );
     }
     
-    // Format comments
-    const formattedComments = comments.map((comment: any) => ({
+    // Format comments - handle the nested users object properly
+    const formattedComments = (comments || []).map((comment: any) => ({
       id: comment.id,
       text: comment.comment_text,
-      username: comment.users.username,
+      username: comment.users?.username || 'Anonymous',
       userId: comment.user_id,
       createdAt: comment.created_at,
       updatedAt: comment.updated_at
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
     const formattedComment = {
       id: comment.id,
       text: comment.comment_text,
-      username: comment.users.username,
+      username: comment.users?.username || 'Anonymous',
       userId: comment.user_id,
       createdAt: comment.created_at,
       updatedAt: comment.updated_at
@@ -181,7 +181,7 @@ export async function PUT(request: NextRequest) {
     const formattedComment = {
       id: comment.id,
       text: comment.comment_text,
-      username: comment.users.username,
+      username: comment.users?.username || 'Anonymous',
       userId: comment.user_id,
       createdAt: comment.created_at,
       updatedAt: comment.updated_at
