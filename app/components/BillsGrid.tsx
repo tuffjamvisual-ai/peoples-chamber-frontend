@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import AuthModal from './AuthModal';
+import CommentsModal from './CommentsModal';
 
 type Bill = {
   id: number;
@@ -44,6 +45,8 @@ export default function BillsGrid({ initialBills }: Props) {
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [bills, setBills] = useState(initialBills);
   const [userVotes, setUserVotes] = useState<Record<number, string>>({});
+  const [showCommentsModal, setShowCommentsModal] = useState(false);
+  const [selectedBill, setSelectedBill] = useState<any>(null);
   const billsPerPage = 22;
 
   // Fetch user's existing votes when they log in
@@ -154,6 +157,12 @@ export default function BillsGrid({ initialBills }: Props) {
       console.error('Vote error:', error);
       alert('Failed to submit vote');
     }
+  };
+
+  const handleCommentClick = (bill: Bill, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedBill(bill);
+    setShowCommentsModal(true);
   };
 
   const hasActiveFilters = searchTerm || categoryFilter || stageFilter || showParliamentVoted || showYouVoted;
@@ -271,9 +280,20 @@ export default function BillsGrid({ initialBills }: Props) {
                   <h2 className="text-white font-semibold text-sm leading-tight flex-1 pr-2 group-hover:text-blue-300 transition-colors line-clamp-2">
                     {bill.title}
                   </h2>
-                  <span className="text-xs px-2 py-0.5 bg-blue-900/40 text-blue-300 rounded whitespace-nowrap ml-2">
-                    {bill.category}
-                  </span>
+                  <div className="flex items-center gap-2 ml-2">
+                    <button
+                      onClick={(e) => handleCommentClick(bill, e)}
+                      className="text-gray-400 hover:text-blue-400 transition-colors"
+                      title="Comments"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>
+                    </button>
+                    <span className="text-xs px-2 py-0.5 bg-blue-900/40 text-blue-300 rounded whitespace-nowrap">
+                      {bill.category}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="mb-3 p-2 bg-gray-800/40 rounded">
@@ -444,6 +464,18 @@ export default function BillsGrid({ initialBills }: Props) {
         onClose={() => setShowAuthModal(false)}
         mode={authMode}
       />
+
+      {showCommentsModal && selectedBill && (
+        <CommentsModal
+          isOpen={showCommentsModal}
+          onClose={() => {
+            setShowCommentsModal(false);
+            setSelectedBill(null);
+          }}
+          billId={selectedBill.id}
+          billTitle={selectedBill.title}
+        />
+      )}
     </>
   );
 }
