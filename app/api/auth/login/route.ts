@@ -13,10 +13,9 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Find user
     const { data: user, error } = await supabase
       .from('users')
-      .select('id, email, password')
+      .select('id, email, password, username, postcode')
       .eq('email', email)
       .single();
     
@@ -27,24 +26,18 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Verify password
-    const passwordMatch = await bcrypt.compare(password, user.password);
+    const validPassword = await bcrypt.compare(password, user.password);
     
-    if (!passwordMatch) {
+    if (!validPassword) {
       return NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 401 }
       );
     }
     
-    // Return user data (in production, you'd set a session cookie here)
-    return NextResponse.json({
-      success: true,
-      user: {
-        id: user.id,
-        email: user.email
-      }
-    });
+    const { password: _, ...userWithoutPassword } = user;
+    
+    return NextResponse.json({ user: userWithoutPassword });
     
   } catch (error) {
     console.error('Login error:', error);

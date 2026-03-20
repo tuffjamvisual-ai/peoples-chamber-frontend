@@ -10,13 +10,15 @@ type Props = {
 };
 
 export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props) {
-  const [mode, setMode] = useState(initialMode);
+  const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>(initialMode);
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [postcode, setPostcode] = useState('');
   const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   
   const { login, signup } = useAuth();
@@ -26,6 +28,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     setLoading(true);
 
     try {
@@ -40,15 +43,27 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
           setLoading(false);
           return;
         }
-        await signup(email, password, postcode);
-      } else {
+        if (!username.trim()) {
+          setError('Username is required');
+          setLoading(false);
+          return;
+        }
+        await signup(email, password, postcode, username);
+        onClose();
+      } else if (mode === 'login') {
         await login(email, password);
+        onClose();
+      } else if (mode === 'forgot') {
+        // Password reset - we'll implement this next
+        setSuccess('Password reset instructions sent to your email (feature coming soon)');
+        setLoading(false);
       }
-      onClose();
     } catch (err: any) {
       setError(err.message);
     } finally {
-      setLoading(false);
+      if (mode !== 'forgot') {
+        setLoading(false);
+      }
     }
   };
 
@@ -56,12 +71,18 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
       <div className="bg-[#1a1f2e] rounded-lg p-8 max-w-md w-full mx-4 border border-gray-800" onClick={(e) => e.stopPropagation()}>
         <h2 className="text-2xl font-bold text-white mb-6">
-          {mode === 'login' ? 'Sign in' : 'Create your account'}
+          {mode === 'login' ? 'Sign in' : mode === 'signup' ? 'Create your account' : 'Reset password'}
         </h2>
 
         {error && (
           <div className="mb-4 p-3 bg-red-900/20 border border-red-900/50 rounded text-red-400 text-sm">
             {error}
+          </div>
+        )}
+
+        {success && (
+          <div className="mb-4 p-3 bg-green-900/20 border border-green-900/50 rounded text-green-400 text-sm">
+            {success}
           </div>
         )}
 
@@ -77,20 +98,35 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
             />
           </div>
 
-          <div>
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={8}
-              className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
-            />
-          </div>
+          {mode !== 'forgot' && (
+            <div>
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={8}
+                className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+              />
+            </div>
+          )}
 
           {mode === 'signup' && (
             <>
+              <div>
+                <input
+                  type="text"
+                  placeholder="Username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  minLength={3}
+                  maxLength={20}
+                  className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                />
+              </div>
+
               <div>
                 <input
                   type="password"
@@ -132,9 +168,20 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
             disabled={loading}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition-colors disabled:opacity-50"
           >
-            {loading ? 'Please wait...' : mode === 'login' ? 'Sign in' : 'Sign up'}
+            {loading ? 'Please wait...' : mode === 'login' ? 'Sign in' : mode === 'signup' ? 'Sign up' : 'Send reset link'}
           </button>
         </form>
+
+        {mode === 'login' && (
+          <div className="mt-4 text-center">
+            <button 
+              onClick={() => setMode('forgot')} 
+              className="text-sm text-blue-400 hover:text-blue-300"
+            >
+              Forgot password?
+            </button>
+          </div>
+        )}
 
         <div className="mt-6 text-center text-sm text-gray-400">
           {mode === 'login' ? (
@@ -144,9 +191,16 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
                 Sign up
               </button>
             </>
-          ) : (
+          ) : mode === 'signup' ? (
             <>
               Already have an account?{' '}
+              <button onClick={() => setMode('login')} className="text-blue-400 hover:text-blue-300">
+                Sign in
+              </button>
+            </>
+          ) : (
+            <>
+              Remember your password?{' '}
               <button onClick={() => setMode('login')} className="text-blue-400 hover:text-blue-300">
                 Sign in
               </button>

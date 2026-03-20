@@ -4,49 +4,54 @@ import bcrypt from 'bcryptjs';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password, postcode } = await request.json();
+    const { email, password, postcode, username } = await request.json();
     
-    // Validate input
-    if (!email || !password) {
+    if (!email || !password || !username) {
       return NextResponse.json(
-        { error: 'Email and password are required' },
+        { error: 'Email, password, and username are required' },
         { status: 400 }
       );
     }
-    
-    if (password.length < 8) {
-      return NextResponse.json(
-        { error: 'Password must be at least 8 characters' },
-        { status: 400 }
-      );
-    }
-    
-    // Check if user already exists
-    const { data: existingUser } = await supabase
+
+    // Check if email already exists
+    const { data: existingEmail } = await supabase
       .from('users')
       .select('id')
       .eq('email', email)
       .single();
     
-    if (existingUser) {
+    if (existingEmail) {
       return NextResponse.json(
         { error: 'Email already registered' },
         { status: 400 }
       );
     }
+
+    // Check if username already exists
+    const { data: existingUsername } = await supabase
+      .from('users')
+      .select('id')
+      .eq('username', username)
+      .single();
     
-    // Hash password
+    if (existingUsername) {
+      return NextResponse.json(
+        { error: 'Username already taken' },
+        { status: 400 }
+      );
+    }
+    
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    // Create user
-    const { data: newUser, error } = await supabase
+    const { data: user, error } = await supabase
       .from('users')
       .insert({
         email,
         password: hashedPassword,
-        postcode: postcode || null
+        postcode: postcode || null,
+        username
       })
-      .select('id, email, created_at')
+      .select('id, email, username, postcode')
       .single();
     
     if (error) {
@@ -57,13 +62,7 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    return NextResponse.json({
-      success: true,
-      user: {
-        id: newUser.id,
-        email: newUser.email
-      }
-    });
+    return NextResponse.json({ user });
     
   } catch (error) {
     console.error('Signup error:', error);
