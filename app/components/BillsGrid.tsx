@@ -44,7 +44,7 @@ export default function BillsGrid({ initialBills }: Props) {
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [bills, setBills] = useState(initialBills);
   const [userVotes, setUserVotes] = useState<Record<number, string>>({});
-  const billsPerPage = 21;
+  const billsPerPage = 22;
 
   const filteredBills = useMemo(() => {
     return bills.filter(bill => {

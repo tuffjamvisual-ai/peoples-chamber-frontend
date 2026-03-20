@@ -18,13 +18,13 @@ export default function HomePage() {
         const allBills: any[] = [];
         
         for (let page = 1; page <= 200; page++) {
-          const response = await fetch(`/api/bills?page=${page}&per_page=21`);
+          const response = await fetch(`/api/bills?page=${page}&per_page=22`);
           
           if (response.ok) {
             const data = await response.json();
             allBills.push(...data.bills);
             
-            if (data.bills.length < 21) break;
+            if (data.bills.length < 22) break;
           }
         }
         
