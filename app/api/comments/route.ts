@@ -35,15 +35,18 @@ export async function GET(request: NextRequest) {
       );
     }
     
-    // Format comments - handle the nested users object properly
-    const formattedComments = (comments || []).map((comment: any) => ({
-      id: comment.id,
-      text: comment.comment_text,
-      username: comment.users?.username || 'Anonymous',
-      userId: comment.user_id,
-      createdAt: comment.created_at,
-      updatedAt: comment.updated_at
-    }));
+    // Format comments with explicit type casting
+    const formattedComments = (comments || []).map((comment: any) => {
+      const userData = comment.users as { username: string } | null;
+      return {
+        id: comment.id,
+        text: comment.comment_text,
+        username: userData?.username || 'Anonymous',
+        userId: comment.user_id,
+        createdAt: comment.created_at,
+        updatedAt: comment.updated_at
+      };
+    });
     
     return NextResponse.json({ comments: formattedComments });
     
@@ -100,10 +103,11 @@ export async function POST(request: NextRequest) {
       );
     }
     
+    const userData = (comment as any).users as { username: string } | null;
     const formattedComment = {
       id: comment.id,
       text: comment.comment_text,
-      username: comment.users?.username || 'Anonymous',
+      username: userData?.username || 'Anonymous',
       userId: comment.user_id,
       createdAt: comment.created_at,
       updatedAt: comment.updated_at
@@ -178,10 +182,11 @@ export async function PUT(request: NextRequest) {
       );
     }
     
+    const userData = (comment as any).users as { username: string } | null;
     const formattedComment = {
       id: comment.id,
       text: comment.comment_text,
-      username: comment.users?.username || 'Anonymous',
+      username: userData?.username || 'Anonymous',
       userId: comment.user_id,
       createdAt: comment.created_at,
       updatedAt: comment.updated_at
