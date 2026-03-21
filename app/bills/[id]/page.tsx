@@ -17,6 +17,10 @@ type Bill = {
   sponsor_photo: string | null;
   sponsor_constituency: string | null;
   originating_house: string | null;
+  plain_summary: string | null;
+  support_explanation: string | null;
+  oppose_explanation: string | null;
+  ai_generated: boolean | null;
   votes: {
     yes: number;
     no: number;
@@ -126,12 +130,47 @@ export default function BillDetailPage() {
         </div>
 
         <h1 className="text-3xl font-bold text-white mb-4 leading-tight">
-          {bill.title}        </h1>
+          {bill.title}
+        </h1>
 
-        {bill.long_title && (
-          <p className="text-lg text-gray-400 mb-6 leading-relaxed">
-            {bill.long_title}
-          </p>
+        {bill.plain_summary && (
+          <div className="bg-blue-900/20 border border-blue-800/30 rounded-lg p-5 mb-6">
+            <div className="flex items-start gap-3">
+              <div className="text-2xl">📝</div>
+              <div>
+                <h3 className="text-sm font-semibold text-blue-300 mb-2">What this bill does</h3>
+                <p className="text-gray-300 leading-relaxed">{bill.plain_summary}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {(bill.support_explanation || bill.oppose_explanation) && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            {bill.support_explanation && (
+              <div className="bg-teal-900/20 border border-teal-800/30 rounded-lg p-5">
+                <div className="flex items-start gap-3">
+                  <div className="text-xl">✅</div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-teal-300 mb-2">A vote to support means</h3>
+                    <p className="text-gray-300 text-sm leading-relaxed">{bill.support_explanation}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {bill.oppose_explanation && (
+              <div className="bg-rose-900/20 border border-rose-800/30 rounded-lg p-5">
+                <div className="flex items-start gap-3">
+                  <div className="text-xl">❌</div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-rose-300 mb-2">A vote to oppose means</h3>
+                    <p className="text-gray-300 text-sm leading-relaxed">{bill.oppose_explanation}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         )}
 
         <div className="grid grid-cols-2 gap-4 mb-6">
@@ -180,7 +219,7 @@ export default function BillDetailPage() {
         )}
 
         <div className="bg-gray-800/30 rounded-lg p-6 border border-gray-700/50 mb-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Bill Description</h2>
+          <h2 className="text-lg font-semibold text-white mb-4">Full Bill Description</h2>
           <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">
             {bill.description}
           </p>

@@ -45,6 +45,10 @@ export async function GET(
       sponsor_photo: bill.sponsor_photo,
       sponsor_constituency: bill.sponsor_constituency,
       originating_house: bill.originating_house,
+      plain_summary: bill.plain_summary,
+      support_explanation: bill.support_explanation,
+      oppose_explanation: bill.oppose_explanation,
+      ai_generated: bill.ai_generated,
       votes: {
         yes: bill.vote_count_yes || 0,
         no: bill.vote_count_no || 0,
