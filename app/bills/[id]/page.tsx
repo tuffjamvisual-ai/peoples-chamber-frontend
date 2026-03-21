@@ -218,12 +218,17 @@ export default function BillDetailPage() {
           </div>
         )}
 
-        <div className="bg-gray-800/30 rounded-lg p-6 border border-gray-700/50 mb-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Full Bill Description</h2>
-          <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">
-            {bill.description}
-          </p>
-        </div>
+        <details className="bg-gray-800/30 rounded-lg border border-gray-700/50 mb-6">
+          <summary className="px-6 py-4 cursor-pointer hover:bg-gray-800/50 transition-colors">
+            <span className="text-lg font-semibold text-white">Full Bill Description</span>
+            <span className="text-gray-500 text-sm ml-2">(click to expand)</span>
+          </summary>
+          <div className="px-6 pb-6">
+            <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">
+              {bill.description}
+            </p>
+          </div>
+        </details>
 
         <div className="bg-gray-800/30 rounded-lg p-6 border border-gray-700/50 mb-6">
           <h2 className="text-lg font-semibold text-white mb-4">Public Opinion</h2>
