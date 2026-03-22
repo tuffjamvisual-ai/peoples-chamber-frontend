@@ -5,8 +5,13 @@ import { notFound } from 'next/navigation'
 
 export const revalidate = 3600
 
-export default async function MPProfilePage({ params }: { params: { id: string } }) {
-  const memberId = parseInt(params.id)
+interface PageProps {
+  params: Promise<{ id: string }>
+}
+
+export default async function MPProfilePage({ params }: PageProps) {
+  const resolvedParams = await params
+  const memberId = parseInt(resolvedParams.id)
   
   // Fetch MP data
   const { data: mp, error: mpError } = await supabase
