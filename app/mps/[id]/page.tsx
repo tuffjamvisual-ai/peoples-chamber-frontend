@@ -55,9 +55,6 @@ export default async function MPProfilePage({ params }: PageProps) {
   const ayeVotes = votes?.filter(v => v.vote_type === 'aye').length || 0
   const noVotes = votes?.filter(v => v.vote_type === 'no').length || 0
 
-  // Get party votes for loyalty calculation (simplified - would need more data for accurate calc)
-  const partyLoyalty = totalVotes > 0 ? Math.round((ayeVotes / totalVotes) * 100) : 0
-
   const representations = bio?.representations || []
   const governmentPosts = bio?.government_posts || []
   const oppositionPosts = bio?.opposition_posts || []
@@ -68,6 +65,15 @@ export default async function MPProfilePage({ params }: PageProps) {
       <Navigation />
       
       <main className="max-w-7xl mx-auto px-6 py-6">
+        {/* Back Button */}
+        <Link 
+          href="/mps"
+          className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition"
+        >
+          <span>←</span>
+          <span>Back to all MPs</span>
+        </Link>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
           {/* Left Column - MP Info */}
