@@ -30,7 +30,7 @@ export async function getAllBills(): Promise<Bill[]> {
       .select('id, title, description, category, current_stage, stage_date, sponsor_name, sponsor_party, sponsor_party_colour, sponsor_photo, vote_count_yes, vote_count_no, vote_count_abstain, commons_ayes, commons_noes')
       .eq('status', 'Active')
       .order('id', { ascending: true })
-      .limit(5000);
+      .range(0, 4999);
     
     if (error) {
       console.error('Error fetching bills:', error);
