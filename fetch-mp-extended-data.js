@@ -51,18 +51,22 @@ async function fetchMPExtendedData() {
           if (contact.type === 'X (formerly Twitter)' && contact.line1) twitter = contact.line1;
         });
         
-        // Save contact info
+        // Save contact info (simple insert, not upsert)
         if (email || phone || website || twitter) {
-          await supabase
+          const { error: insertError } = await supabase
             .from('mp_contact')
-            .upsert({
+            .insert({
               member_id: mp.member_id,
               contact_type: 'primary',
               email,
               phone,
               website,
               twitter
-            }, { onConflict: 'member_id,contact_type', ignoreDuplicates: false });
+            });
+          
+          if (insertError) {
+            console.log(`  ⚠️  Contact insert error: ${insertError.message}`);
+          }
         }
       }
       
@@ -75,7 +79,7 @@ async function fetchMPExtendedData() {
         const bioData = await bioResponse.json();
         const bio = bioData.value || {};
         
-        // Save biography
+        // Save biography (upsert on member_id which has unique constraint)
         await supabase
           .from('mp_biography')
           .upsert({
