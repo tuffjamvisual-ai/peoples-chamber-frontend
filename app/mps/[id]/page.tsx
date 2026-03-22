@@ -6,6 +6,18 @@ import MPProfileClient from './MPProfileClient'
 
 export const revalidate = 3600
 
+// Generate static pages for all MPs at build time
+export async function generateStaticParams() {
+  const { data: mps } = await supabase
+    .from('mps')
+    .select('member_id')
+    .eq('current_member', true)
+  
+  return (mps || []).map((mp) => ({
+    id: mp.member_id.toString()
+  }))
+}
+
 interface PageProps {
   params: Promise<{ id: string }>
 }
