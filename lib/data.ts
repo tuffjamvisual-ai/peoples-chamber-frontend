@@ -24,21 +24,38 @@ export type Bill = {
 
 export async function getAllBills(): Promise<Bill[]> {
   try {
-    // Fetch ALL bills in one query (Supabase is fast!)
-    const { data: bills, error } = await supabase
-      .from('bill')
-      .select('id, title, description, category, current_stage, stage_date, sponsor_name, sponsor_party, sponsor_party_colour, sponsor_photo, vote_count_yes, vote_count_no, vote_count_abstain, commons_ayes, commons_noes')
-      .eq('status', 'Active')
-      .order('id', { ascending: true })
-      .range(0, 4999);
-    
-    if (error) {
-      console.error('Error fetching bills:', error);
-      return [];
+    const allBills: any[] = [];
+    let hasMore = true;
+    let rangeStart = 0;
+    const rangeSize = 1000;
+
+    // Fetch in batches of 1000 until we have all bills
+    while (hasMore) {
+      const { data: bills, error } = await supabase
+        .from('bill')
+        .select('id, title, description, category, current_stage, stage_date, sponsor_name, sponsor_party, sponsor_party_colour, sponsor_photo, vote_count_yes, vote_count_no, vote_count_abstain, commons_ayes, commons_noes')
+        .eq('status', 'Active')
+        .order('id', { ascending: true })
+        .range(rangeStart, rangeStart + rangeSize - 1);
+      
+      if (error) {
+        console.error('Error fetching bills:', error);
+        break;
+      }
+      
+      if (bills && bills.length > 0) {
+        allBills.push(...bills);
+        rangeStart += rangeSize;
+        hasMore = bills.length === rangeSize;
+      } else {
+        hasMore = false;
+      }
     }
     
+    console.log(`Fetched ${allBills.length} bills total`);
+    
     // Format the data
-    return bills?.map(bill => ({
+    return allBills.map(bill => ({
       id: bill.id,
       title: bill.title,
       description: bill.description,
@@ -58,7 +75,7 @@ export async function getAllBills(): Promise<Bill[]> {
         ayes: bill.commons_ayes || 0,
         noes: bill.commons_noes || 0
       } : null
-    })) || [];
+    }));
     
   } catch (error) {
     console.error('Failed to fetch bills:', error);
