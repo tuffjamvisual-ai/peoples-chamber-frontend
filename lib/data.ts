@@ -29,7 +29,8 @@ export async function getAllBills(): Promise<Bill[]> {
       .from('bill')
       .select('id, title, description, category, current_stage, stage_date, sponsor_name, sponsor_party, sponsor_party_colour, sponsor_photo, vote_count_yes, vote_count_no, vote_count_abstain, commons_ayes, commons_noes')
       .eq('status', 'Active')
-      .order('id', { ascending: true });
+      .order('id', { ascending: true })
+      .limit(5000);
     
     if (error) {
       console.error('Error fetching bills:', error);
