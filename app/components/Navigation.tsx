@@ -3,11 +3,14 @@
 import { useAuth } from '../context/AuthContext';
 import AuthModal from './AuthModal';
 import { useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export default function Navigation() {
   const { user, logout } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  const pathname = usePathname();
 
   const openLogin = () => {
     setAuthMode('login');
@@ -17,6 +20,12 @@ export default function Navigation() {
   const openSignup = () => {
     setAuthMode('signup');
     setShowAuthModal(true);
+  };
+
+  // Helper to check if link is active
+  const isActive = (path: string) => {
+    if (path === '/') return pathname === '/';
+    return pathname?.startsWith(path);
   };
 
   return (
@@ -30,18 +39,50 @@ export default function Navigation() {
             </div>
             
             <div className="flex space-x-1">
-              <a href="#" className="px-3 py-1.5 text-blue-400 font-medium text-sm">Bills</a>
-              <a href="#" className="px-3 py-1.5 text-gray-400 hover:text-white text-sm">Laws</a>
-              <a href="#" className="px-3 py-1.5 text-gray-400 hover:text-white text-sm">Polls</a>
-              <a href="#" className="px-3 py-1.5 text-gray-400 hover:text-white text-sm">MPs</a>
-              <a href="#" className="px-3 py-1.5 text-gray-400 hover:text-white text-sm">About</a>
+              <Link 
+                href="/" 
+                className={`px-3 py-1.5 text-sm font-medium ${
+                  isActive('/') && !isActive('/laws') && !isActive('/mps') && !isActive('/about')
+                    ? 'text-blue-400' 
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                Bills
+              </Link>
+              <Link 
+                href="/laws" 
+                className={`px-3 py-1.5 text-sm ${
+                  isActive('/laws') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                Laws
+              </Link>
+              <span className="px-3 py-1.5 text-gray-600 text-sm cursor-not-allowed">
+                Polls
+              </span>
+              <Link 
+                href="/mps" 
+                className={`px-3 py-1.5 text-sm ${
+                  isActive('/mps') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                MPs
+              </Link>
+              <Link 
+                href="/about" 
+                className={`px-3 py-1.5 text-sm ${
+                  isActive('/about') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                About
+              </Link>
             </div>
 
             <div className="flex items-center space-x-3">
               {user ? (
                 <>
                   <span className="text-gray-400 text-sm">{user.email}</span>
-                  <button 
+                  <button
                     onClick={logout}
                     className="px-3 py-1.5 text-gray-300 hover:text-white text-sm"
                   >
@@ -50,13 +91,13 @@ export default function Navigation() {
                 </>
               ) : (
                 <>
-                  <button 
+                  <button
                     onClick={openLogin}
                     className="px-3 py-1.5 text-gray-300 hover:text-white text-sm"
                   >
                     Login
                   </button>
-                  <button 
+                  <button
                     onClick={openSignup}
                     className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium"
                   >
@@ -69,7 +110,7 @@ export default function Navigation() {
         </div>
       </nav>
 
-      <AuthModal 
+      <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
         mode={authMode}
