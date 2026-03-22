@@ -1,11 +1,9 @@
-import { createClient } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 
 export const revalidate = 3600 // Revalidate every hour
 
 export default async function LawsPage() {
-  const supabase = createClient()
-  
   // Fetch bills that have reached Royal Assent (became laws)
   const { data: laws, error } = await supabase
     .from('bill')

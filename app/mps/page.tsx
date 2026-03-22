@@ -1,11 +1,9 @@
-import { createClient } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 
 export const revalidate = 3600 // Revalidate every hour
 
 export default async function MPsPage() {
-  const supabase = createClient()
-  
   // Fetch all current MPs
   const { data: mps, error } = await supabase
     .from('mps')
