@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { use } from 'react'
 import Link from 'next/link'
 import Navigation from '../../components/Navigation'
 
@@ -13,47 +14,83 @@ interface MPData {
   interests: any[]
 }
 
-export default function MPProfilePage({ params }: { params: { id: string } }) {
+export default function MPProfilePage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params)
   const [data, setData] = useState<MPData | null>(null)
   const [activeSection, setActiveSection] = useState('contact')
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await fetch(`/api/mps/${params.id}`)
+        console.log('Fetching MP data for ID:', resolvedParams.id)
+        const response = await fetch(`/api/mps/${resolvedParams.id}`)
+        console.log('API response status:', response.status)
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch: ${response.status}`)
+        }
+        
         const result = await response.json()
+        console.log('API data received:', result)
         setData(result)
       } catch (error) {
         console.error('Error fetching MP data:', error)
+        setError(error instanceof Error ? error.message : 'Unknown error')
       } finally {
         setLoading(false)
       }
     }
-    fetchData()
-  }, [params.id])
+    
+    if (resolvedParams.id) {
+      fetchData()
+    }
+  }, [resolvedParams.id])
 
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0a0f1a]">
         <Navigation />
-        <div className="max-w-7xl mx-auto px-6 py-6 text-white">Loading...</div>
+        <div className="max-w-7xl mx-auto px-6 py-6">
+          <Link 
+            href="/mps"
+            className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition"
+          >
+            <span>←</span>
+            <span>Back to all MPs</span>
+          </Link>
+          <div className="text-white">Loading MP profile...</div>
+        </div>
       </div>
     )
   }
 
-  if (!data || !data.mp) {
+  if (error || !data || !data.mp) {
     return (
       <div className="min-h-screen bg-[#0a0f1a]">
         <Navigation />
-        <div className="max-w-7xl mx-auto px-6 py-6 text-white">MP not found</div>
+        <div className="max-w-7xl mx-auto px-6 py-6">
+          <Link 
+            href="/mps"
+            className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition"
+          >
+            <span>←</span>
+            <span>Back to all MPs</span>
+          </Link>
+          <div className="text-white">
+            <p>MP not found</p>
+            {error && <p className="text-sm text-gray-400 mt-2">Error: {error}</p>}
+            <p className="text-sm text-gray-400 mt-2">Member ID: {resolvedParams.id}</p>
+          </div>
+        </div>
       </div>
     )
   }
 
   const { mp, contact, bio, sponsoredBills, votes, interests } = data
 
-  // Group interests by category
+  // Rest of the component code stays the same...
   const interestsByCategory = interests?.reduce((acc: any, interest) => {
     if (!acc[interest.category_name]) {
       acc[interest.category_name] = []
@@ -85,7 +122,6 @@ export default function MPProfilePage({ params }: { params: { id: string } }) {
       <Navigation />
       
       <main className="max-w-7xl mx-auto px-6 py-6">
-        {/* Back Button */}
         <Link 
           href="/mps"
           className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition"
@@ -94,7 +130,6 @@ export default function MPProfilePage({ params }: { params: { id: string } }) {
           <span>Back to all MPs</span>
         </Link>
 
-        {/* Header */}
         <div className="bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 p-6 mb-6">
           <div className="flex items-start gap-6">
             {mp.photo_url ? (
@@ -139,10 +174,8 @@ export default function MPProfilePage({ params }: { params: { id: string } }) {
           </div>
         </div>
 
-        {/* Two Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           
-          {/* Left Sidebar Menu */}
           <div className="lg:col-span-1">
             <div className="bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 p-4 sticky top-20">
               <nav className="space-y-1">
@@ -163,18 +196,15 @@ export default function MPProfilePage({ params }: { params: { id: string } }) {
             </div>
           </div>
 
-          {/* Main Content Area */}
           <div className="lg:col-span-3">
             <div className="bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 p-6">
               
-              {/* Contact Information Section */}
               {activeSection === 'contact' && (
                 <div>
                   <h2 className="text-2xl font-bold text-white mb-6">Contact {mp.display_name || mp.name}</h2>
                   
                   {contact ? (
                     <div className="space-y-6">
-                      {/* Parliamentary Office */}
                       <div className="bg-white/5 rounded-lg p-4">
                         <h3 className="text-lg font-semibold text-white mb-3">Parliamentary office</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -201,7 +231,6 @@ export default function MPProfilePage({ params }: { params: { id: string } }) {
                         </div>
                       </div>
 
-                      {/* Website */}
                       {contact.website && (
                         <div className="bg-white/5 rounded-lg p-4">
                           <h3 className="text-lg font-semibold text-white mb-3">Website</h3>
@@ -216,7 +245,6 @@ export default function MPProfilePage({ params }: { params: { id: string } }) {
                         </div>
                       )}
 
-                      {/* Twitter */}
                       {contact.twitter && (
                         <div className="bg-white/5 rounded-lg p-4">
                           <h3 className="text-lg font-semibold text-white mb-3">X (formerly Twitter)</h3>
@@ -237,7 +265,6 @@ export default function MPProfilePage({ params }: { params: { id: string } }) {
                 </div>
               )}
 
-              {/* Parliamentary Career Section */}
               {activeSection === 'parliamentary' && (
                 <div>
                   <h2 className="text-2xl font-bold text-white mb-6">Parliamentary Career</h2>
@@ -270,12 +297,10 @@ export default function MPProfilePage({ params }: { params: { id: string } }) {
                 </div>
               )}
 
-              {/* Voting Record Section */}
               {activeSection === 'voting' && (
                 <div>
                   <h2 className="text-2xl font-bold text-white mb-6">Voting Record</h2>
                   
-                  {/* Stats */}
                   <div className="grid grid-cols-3 gap-4 mb-6">
                     <div className="bg-white/5 rounded-lg p-4 text-center">
                       <div className="text-3xl font-bold text-white">{totalVotes}</div>
@@ -291,7 +316,6 @@ export default function MPProfilePage({ params }: { params: { id: string } }) {
                     </div>
                   </div>
 
-                  {/* Recent Votes */}
                   {votes && votes.length > 0 ? (
                     <div className="space-y-3">
                       {votes.slice(0, 20).map((vote: any) => (
@@ -320,7 +344,6 @@ export default function MPProfilePage({ params }: { params: { id: string } }) {
                 </div>
               )}
 
-              {/* Bills Sponsored Section */}
               {activeSection === 'bills' && (
                 <div>
                   <h2 className="text-2xl font-bold text-white mb-6">Bills Sponsored</h2>
@@ -351,7 +374,6 @@ export default function MPProfilePage({ params }: { params: { id: string } }) {
                 </div>
               )}
 
-              {/* Registered Interests Section */}
               {activeSection === 'interests' && (
                 <div>
                   <h2 className="text-2xl font-bold text-white mb-6">Registered Interests</h2>
@@ -396,7 +418,6 @@ export default function MPProfilePage({ params }: { params: { id: string } }) {
                 </div>
               )}
 
-              {/* Roles & Committees Section */}
               {activeSection === 'roles' && (
                 <div>
                   <h2 className="text-2xl font-bold text-white mb-6">Roles & Committees</h2>
