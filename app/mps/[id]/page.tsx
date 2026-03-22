@@ -50,6 +50,22 @@ export default async function MPProfilePage({ params }: PageProps) {
     .eq('member_id', memberId)
     .order('division_date', { ascending: false })
 
+  // Fetch registered interests
+  const { data: interests } = await supabase
+    .from('mp_registered_interests')
+    .select('*')
+    .eq('member_id', memberId)
+    .order('category_sort_order', { ascending: true })
+
+  // Group interests by category
+  const interestsByCategory = interests?.reduce((acc: any, interest) => {
+    if (!acc[interest.category_name]) {
+      acc[interest.category_name] = []
+    }
+    acc[interest.category_name].push(interest)
+    return acc
+  }, {})
+
   // Calculate voting stats
   const totalVotes = votes?.length || 0
   const ayeVotes = votes?.filter(v => v.vote_type === 'aye').length || 0
@@ -229,6 +245,48 @@ export default async function MPProfilePage({ params }: PageProps) {
                 </div>
               )}
             </div>
+
+            {/* Registered Interests */}
+            {interests && interests.length > 0 && (
+              <div className="bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 p-6">
+                <h2 className="text-xl font-bold text-white mb-4">Registered Interests</h2>
+                
+                <div className="space-y-6">
+                  {Object.keys(interestsByCategory).map((categoryName) => (
+                    <div key={categoryName}>
+                      <h3 className="text-sm font-semibold text-gray-300 mb-3 pb-2 border-b border-white/10">
+                        {categoryName}
+                      </h3>
+                      
+                      <div className="space-y-3">
+                        {interestsByCategory[categoryName].map((interest: any) => (
+                          <div key={interest.id} className="bg-white/5 rounded p-3">
+                            <p className="text-sm text-gray-300 whitespace-pre-wrap">
+                              {interest.interest_text}
+                            </p>
+                            
+                            {/* Child Interests (detailed payments) */}
+                            {interest.child_interests && interest.child_interests.length > 0 && (
+                              <div className="mt-2 ml-4 space-y-2">
+                                {interest.child_interests.map((child: any, idx: number) => (
+                                  <div key={idx} className="text-xs text-gray-400 bg-white/5 rounded p-2">
+                                    {child.interest}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            
+                            <p className="text-xs text-gray-500 mt-2">
+                              Registered: {new Date(interest.created_when).toLocaleDateString('en-GB')}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Posts & Committees */}
             {(governmentPosts.length > 0 || oppositionPosts.length > 0 || committeeMemberships.length > 0) && (
