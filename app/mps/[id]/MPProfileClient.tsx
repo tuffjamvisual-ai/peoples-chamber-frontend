@@ -33,6 +33,8 @@ export default function MPProfileClient({
   const totalVotes = votes?.length || 0
   const ayeVotes = votes?.filter((v: any) => v.vote_type === 'aye').length || 0
   const noVotes = votes?.filter((v: any) => v.vote_type === 'no').length || 0
+  const rebellions = votes?.filter((v: any) => v.is_rebellion === true).length || 0
+  const partyLoyalty = totalVotes > 0 ? ((totalVotes - rebellions) / totalVotes * 100).toFixed(1) : '100.0'
 
   const representations = bio?.representations || []
   const governmentPosts = bio?.government_posts || []
@@ -181,7 +183,8 @@ export default function MPProfileClient({
             <div>
               <h2 className="text-2xl font-bold text-white mb-6">Voting Record</h2>
               
-              <div className="grid grid-cols-3 gap-4 mb-6">
+              {/* Stats with Party Loyalty */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 <div className="bg-white/5 rounded-lg p-4 text-center">
                   <div className="text-3xl font-bold text-white">{totalVotes}</div>
                   <div className="text-sm text-gray-400">Votes Cast</div>
@@ -194,8 +197,24 @@ export default function MPProfileClient({
                   <div className="text-3xl font-bold text-white">{noVotes}</div>
                   <div className="text-sm text-gray-400">Noes</div>
                 </div>
+                {mp.party !== 'Independent' && (
+                  <div className="bg-white/5 rounded-lg p-4 text-center">
+                    <div className="text-3xl font-bold text-white">{partyLoyalty}%</div>
+                    <div className="text-sm text-gray-400">Party Loyalty</div>
+                  </div>
+                )}
               </div>
 
+              {/* Rebellions Banner */}
+              {mp.party !== 'Independent' && rebellions > 0 && (
+                <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4 mb-6">
+                  <p className="text-orange-400 text-sm">
+                    <span className="font-semibold">⚠️ {rebellions} rebellion{rebellions !== 1 ? 's' : ''}</span> - voted against {mp.party} party line
+                  </p>
+                </div>
+              )}
+
+              {/* Recent Votes */}
               {votes && votes.length > 0 ? (
                 <div className="space-y-3">
                   {votes.slice(0, 20).map((vote: any) => (
@@ -210,11 +229,18 @@ export default function MPProfileClient({
                           })}
                         </p>
                       </div>
-                      <span className={`px-3 py-1 rounded text-xs font-semibold ml-4 ${
-                        vote.vote_type === 'aye' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'
-                      }`}>
-                        {vote.vote_type.toUpperCase()}
-                      </span>
+                      <div className="flex gap-2 ml-4">
+                        <span className={`px-3 py-1 rounded text-xs font-semibold ${
+                          vote.vote_type === 'aye' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                        }`}>
+                          {vote.vote_type.toUpperCase()}
+                        </span>
+                        {vote.is_rebellion && (
+                          <span className="px-3 py-1 rounded text-xs font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30">
+                            REBEL
+                          </span>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
