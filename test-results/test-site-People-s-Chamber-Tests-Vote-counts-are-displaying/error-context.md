@@ -1,0 +1,612 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e5]:
+        - heading "People's Chamber" [level=1] [ref=e8]
+        - generic [ref=e9]:
+          - link "Bills" [ref=e10] [cursor=pointer]:
+            - /url: /
+          - link "Laws" [ref=e11] [cursor=pointer]:
+            - /url: /laws
+          - generic [ref=e12]: Polls
+          - link "MPs" [ref=e13] [cursor=pointer]:
+            - /url: /mps
+          - link "About" [ref=e14] [cursor=pointer]:
+            - /url: /about
+        - generic [ref=e15]:
+          - button "Login" [ref=e16]
+          - button "Sign Up" [ref=e17]
+    - main [ref=e18]:
+      - generic [ref=e19]:
+        - generic [ref=e20]:
+          - textbox "Search bills..." [ref=e22]
+          - combobox [ref=e23]:
+            - option "All Categories" [selected]
+            - option "Constitutional and political"
+            - option "Health"
+            - option "Social welfare"
+            - option "Education"
+            - option "Transport"
+            - option "Environment"
+            - option "Justice"
+            - option "Other"
+        - generic [ref=e24]:
+          - combobox [ref=e25]:
+            - option "All Stages" [selected]
+            - option "Royal Assent (Law)"
+            - option "3rd Reading"
+            - option "2nd Reading"
+            - option "1st Reading"
+            - option "Committee Stage"
+            - option "Report Stage"
+          - generic [ref=e26] [cursor=pointer]:
+            - checkbox "Parliament Voted" [ref=e27]
+            - generic [ref=e28]: Parliament Voted
+          - generic [ref=e29] [cursor=pointer]:
+            - checkbox "You Voted" [ref=e30]
+            - generic [ref=e31]: You Voted
+        - generic [ref=e32]: Showing 22 of 3865 bills
+      - generic [ref=e33]:
+        - generic [ref=e34]:
+          - generic [ref=e35] [cursor=pointer]:
+            - generic [ref=e36]:
+              - heading "A34 Slip Road Safety (East Ilsley and Beedon) Bill" [level=2] [ref=e37]
+              - generic [ref=e38]:
+                - button "Comments" [ref=e39]:
+                  - img [ref=e40]
+                - generic [ref=e42]: Other
+            - generic [ref=e43]:
+              - generic [ref=e44]: Withdrawn
+              - generic [ref=e45]: 2025-07-11T00:00:00
+            - generic [ref=e46]:
+              - generic [ref=e47]:
+                - generic [ref=e48]: People's Chamber
+                - generic [ref=e49]: 96%
+              - generic [ref=e52]:
+                - generic [ref=e53]: 146 Support
+                - generic [ref=e54]: 6 Oppose
+            - generic [ref=e55]:
+              - generic [ref=e56]:
+                - generic [ref=e57]: House of Commons
+                - generic [ref=e58]: No data
+              - generic [ref=e60]: Passed on voice vote
+          - generic [ref=e61]:
+            - button "Support" [ref=e62]
+            - button "Oppose" [ref=e63]
+        - generic [ref=e64]:
+          - generic [ref=e65] [cursor=pointer]:
+            - generic [ref=e66]:
+              - heading "Abolition of Business Rates Bill" [level=2] [ref=e67]
+              - generic [ref=e68]:
+                - button "Comments" [ref=e69]:
+                  - img [ref=e70]
+                - generic [ref=e72]: Other
+            - generic [ref=e74]: 2nd reading
+            - generic [ref=e75]:
+              - generic [ref=e76]:
+                - generic [ref=e77]: People's Chamber
+                - generic [ref=e78]: 47%
+              - generic [ref=e81]:
+                - generic [ref=e82]: 15 Support
+                - generic [ref=e83]: 17 Oppose
+            - generic [ref=e84]:
+              - generic [ref=e85]:
+                - generic [ref=e86]: House of Commons
+                - generic [ref=e87]: No data
+              - generic [ref=e89]: Passed on voice vote
+          - generic [ref=e90]:
+            - button "Support" [ref=e91]
+            - button "Oppose" [ref=e92]
+        - generic [ref=e93]:
+          - generic [ref=e94] [cursor=pointer]:
+            - generic [ref=e95]:
+              - heading "Abortion Bill" [level=2] [ref=e96]
+              - generic [ref=e97]:
+                - button "Comments" [ref=e98]:
+                  - img [ref=e99]
+                - generic [ref=e101]: Other
+            - generic [ref=e103]: 2nd reading
+            - generic [ref=e104]:
+              - generic [ref=e105]:
+                - generic [ref=e106]: People's Chamber
+                - generic [ref=e107]: 18%
+              - generic [ref=e110]:
+                - generic [ref=e111]: 3 Support
+                - generic [ref=e112]: 14 Oppose
+            - generic [ref=e113]:
+              - generic [ref=e114]:
+                - generic [ref=e115]: House of Commons
+                - generic [ref=e116]: 75%
+              - generic [ref=e119]:
+                - generic [ref=e120]: 215 Ayes
+                - generic [ref=e121]: 70 Noes
+          - generic [ref=e122]:
+            - button "Support" [ref=e123]
+            - button "Oppose" [ref=e124]
+        - generic [ref=e125]:
+          - generic [ref=e126] [cursor=pointer]:
+            - generic [ref=e127]:
+              - heading "Abortion Bill [HL]" [level=2] [ref=e128]
+              - generic [ref=e129]:
+                - button "Comments" [ref=e130]:
+                  - img [ref=e131]
+                - generic [ref=e133]: Other
+            - generic [ref=e135]: 2nd reading
+            - generic [ref=e136]:
+              - generic [ref=e137]:
+                - generic [ref=e138]: People's Chamber
+                - generic [ref=e139]: 10%
+              - generic [ref=e142]:
+                - generic [ref=e143]: 2 Support
+                - generic [ref=e144]: 18 Oppose
+            - generic [ref=e145]:
+              - generic [ref=e146]:
+                - generic [ref=e147]: House of Commons
+                - generic [ref=e148]: No data
+              - generic [ref=e150]: Passed on voice vote
+          - generic [ref=e151]:
+            - button "Support" [ref=e152]
+            - button "Oppose" [ref=e153]
+        - generic [ref=e154]:
+          - generic [ref=e155] [cursor=pointer]:
+            - generic [ref=e156]:
+              - heading "Abortion (Cleft Lip, Cleft Palate and Clubfoot) Bill" [level=2] [ref=e157]
+              - generic [ref=e158]:
+                - button "Comments" [ref=e159]:
+                  - img [ref=e160]
+                - generic [ref=e162]: Other
+            - generic [ref=e164]: 2nd reading
+            - generic [ref=e165]:
+              - generic [ref=e166]:
+                - generic [ref=e167]: People's Chamber
+                - generic [ref=e168]: 75%
+              - generic [ref=e171]:
+                - generic [ref=e172]: 125 Support
+                - generic [ref=e173]: 41 Oppose
+            - generic [ref=e174]:
+              - generic [ref=e175]:
+                - generic [ref=e176]: House of Commons
+                - generic [ref=e177]: 75%
+              - generic [ref=e180]:
+                - generic [ref=e181]: 215 Ayes
+                - generic [ref=e182]: 70 Noes
+          - generic [ref=e183]:
+            - button "Support" [ref=e184]
+            - button "Oppose" [ref=e185]
+        - generic [ref=e186]:
+          - generic [ref=e187] [cursor=pointer]:
+            - generic [ref=e188]:
+              - heading "Abortion (Disability Equality) Bill [HL]" [level=2] [ref=e189]
+              - generic [ref=e190]:
+                - button "Comments" [ref=e191]:
+                  - img [ref=e192]
+                - generic [ref=e194]: Other
+            - generic [ref=e195]:
+              - generic [ref=e196]: Report stage
+              - generic [ref=e197]: 2017-02-24T00:00:00
+            - generic [ref=e198]:
+              - generic [ref=e199]:
+                - generic [ref=e200]: People's Chamber
+                - generic [ref=e201]: 0%
+              - generic [ref=e203]:
+                - generic [ref=e204]: 0 Support
+                - generic [ref=e205]: 0 Oppose
+            - generic [ref=e206]:
+              - generic [ref=e207]:
+                - generic [ref=e208]: House of Commons
+                - generic [ref=e209]: No data
+              - generic [ref=e211]: Passed on voice vote
+          - generic [ref=e212]:
+            - button "Support" [ref=e213]
+            - button "Oppose" [ref=e214]
+        - generic [ref=e215]:
+          - generic [ref=e216] [cursor=pointer]:
+            - generic [ref=e217]:
+              - heading "Abortion (Disability Equality) Bill [HL]" [level=2] [ref=e218]
+              - generic [ref=e219]:
+                - button "Comments" [ref=e220]:
+                  - img [ref=e221]
+                - generic [ref=e223]: Other
+            - generic [ref=e225]: 2nd reading
+            - generic [ref=e226]:
+              - generic [ref=e227]:
+                - generic [ref=e228]: People's Chamber
+                - generic [ref=e229]: 0%
+              - generic [ref=e231]:
+                - generic [ref=e232]: 0 Support
+                - generic [ref=e233]: 0 Oppose
+            - generic [ref=e234]:
+              - generic [ref=e235]:
+                - generic [ref=e236]: House of Commons
+                - generic [ref=e237]: No data
+              - generic [ref=e239]: Passed on voice vote
+          - generic [ref=e240]:
+            - button "Support" [ref=e241]
+            - button "Oppose" [ref=e242]
+        - generic [ref=e243]:
+          - generic [ref=e244] [cursor=pointer]:
+            - generic [ref=e245]:
+              - heading "Abortion (Foetus Protection) Bill [HL]" [level=2] [ref=e246]
+              - generic [ref=e247]:
+                - button "Comments" [ref=e248]:
+                  - img [ref=e249]
+                - generic [ref=e251]: Other
+            - generic [ref=e253]: 2nd reading
+            - generic [ref=e254]:
+              - generic [ref=e255]:
+                - generic [ref=e256]: People's Chamber
+                - generic [ref=e257]: 80%
+              - generic [ref=e260]:
+                - generic [ref=e261]: 4 Support
+                - generic [ref=e262]: 1 Oppose
+            - generic [ref=e263]:
+              - generic [ref=e264]:
+                - generic [ref=e265]: House of Commons
+                - generic [ref=e266]: No data
+              - generic [ref=e268]: Passed on voice vote
+          - generic [ref=e269]:
+            - button "Support" [ref=e270]
+            - button "Oppose" [ref=e271]
+        - generic [ref=e272]:
+          - generic [ref=e273] [cursor=pointer]:
+            - generic [ref=e274]:
+              - heading "Abortion (Gestational Time Limit Reduction) Bill [HL]" [level=2] [ref=e275]
+              - generic [ref=e276]:
+                - button "Comments" [ref=e277]:
+                  - img [ref=e278]
+                - generic [ref=e280]: Other
+            - generic [ref=e281]:
+              - generic [ref=e282]: 1st reading
+              - generic [ref=e283]: 2023-12-07T00:00:00
+            - generic [ref=e284]:
+              - generic [ref=e285]:
+                - generic [ref=e286]: People's Chamber
+                - generic [ref=e287]: 100%
+              - generic [ref=e290]:
+                - generic [ref=e291]: 4 Support
+                - generic [ref=e292]: 0 Oppose
+            - generic [ref=e293]:
+              - generic [ref=e294]:
+                - generic [ref=e295]: House of Commons
+                - generic [ref=e296]: No data
+              - generic [ref=e298]: Passed on voice vote
+          - generic [ref=e299]:
+            - button "Support" [ref=e300]
+            - button "Oppose" [ref=e301]
+        - generic [ref=e302]:
+          - generic [ref=e303] [cursor=pointer]:
+            - generic [ref=e304]:
+              - heading "Abortion (Sex-Selection) Bill" [level=2] [ref=e305]
+              - generic [ref=e306]:
+                - button "Comments" [ref=e307]:
+                  - img [ref=e308]
+                - generic [ref=e310]: Other
+            - generic [ref=e312]: 2nd reading
+            - generic [ref=e313]:
+              - generic [ref=e314]:
+                - generic [ref=e315]: People's Chamber
+                - generic [ref=e316]: 20%
+              - generic [ref=e319]:
+                - generic [ref=e320]: 1 Support
+                - generic [ref=e321]: 4 Oppose
+            - generic [ref=e322]:
+              - generic [ref=e323]:
+                - generic [ref=e324]: House of Commons
+                - generic [ref=e325]: 75%
+              - generic [ref=e328]:
+                - generic [ref=e329]: 215 Ayes
+                - generic [ref=e330]: 70 Noes
+          - generic [ref=e331]:
+            - button "Support" [ref=e332]
+            - button "Oppose" [ref=e333]
+        - generic [ref=e334]:
+          - generic [ref=e335] [cursor=pointer]:
+            - generic [ref=e336]:
+              - heading "Abortion Act 1967 (Amendment) Bill [HL]" [level=2] [ref=e337]
+              - generic [ref=e338]:
+                - button "Comments" [ref=e339]:
+                  - img [ref=e340]
+                - generic [ref=e342]: Other
+            - generic [ref=e344]: 2nd reading
+            - generic [ref=e345]:
+              - generic [ref=e346]:
+                - generic [ref=e347]: People's Chamber
+                - generic [ref=e348]: 0%
+              - generic [ref=e350]:
+                - generic [ref=e351]: 0 Support
+                - generic [ref=e352]: 2 Oppose
+            - generic [ref=e353]:
+              - generic [ref=e354]:
+                - generic [ref=e355]: House of Commons
+                - generic [ref=e356]: No data
+              - generic [ref=e358]: Passed on voice vote
+          - generic [ref=e359]:
+            - button "Support" [ref=e360]
+            - button "Oppose" [ref=e361]
+        - generic [ref=e362]:
+          - generic [ref=e363] [cursor=pointer]:
+            - generic [ref=e364]:
+              - heading "Abortion Statistics Bill" [level=2] [ref=e365]
+              - generic [ref=e366]:
+                - button "Comments" [ref=e367]:
+                  - img [ref=e368]
+                - generic [ref=e370]: Other
+            - generic [ref=e372]: 2nd reading
+            - generic [ref=e373]:
+              - generic [ref=e374]:
+                - generic [ref=e375]: People's Chamber
+                - generic [ref=e376]: 0%
+              - generic [ref=e378]:
+                - generic [ref=e379]: 0 Support
+                - generic [ref=e380]: 4 Oppose
+            - generic [ref=e381]:
+              - generic [ref=e382]:
+                - generic [ref=e383]: House of Commons
+                - generic [ref=e384]: No data
+              - generic [ref=e386]: Passed on voice vote
+          - generic [ref=e387]:
+            - button "Support" [ref=e388]
+            - button "Oppose" [ref=e389]
+        - generic [ref=e390]:
+          - generic [ref=e391] [cursor=pointer]:
+            - generic [ref=e392]:
+              - heading "Absent Voting (Elections in Scotland and Wales) Act 2025" [level=2] [ref=e393]
+              - generic [ref=e394]:
+                - button "Comments" [ref=e395]:
+                  - img [ref=e396]
+                - generic [ref=e398]: Other
+            - generic [ref=e399]:
+              - generic [ref=e400]: Royal Assent
+              - generic [ref=e401]: 2025-10-27T00:00:00
+            - generic [ref=e402]:
+              - generic [ref=e403]:
+                - generic [ref=e404]: People's Chamber
+                - generic [ref=e405]: 30%
+              - generic [ref=e408]:
+                - generic [ref=e409]: 26 Support
+                - generic [ref=e410]: 62 Oppose
+            - generic [ref=e411]:
+              - generic [ref=e412]:
+                - generic [ref=e413]: House of Commons
+                - generic [ref=e414]: No data
+              - generic [ref=e416]: Passed on voice vote
+          - generic [ref=e417]:
+            - button "Support" [ref=e418]
+            - button "Oppose" [ref=e419]
+        - generic [ref=e420]:
+          - generic [ref=e421] [cursor=pointer]:
+            - generic [ref=e422]:
+              - heading "Abuse of Public-facing Workers (Offences) Bill" [level=2] [ref=e423]
+              - generic [ref=e424]:
+                - button "Comments" [ref=e425]:
+                  - img [ref=e426]
+                - generic [ref=e428]: Other
+            - generic [ref=e429]:
+              - generic [ref=e430]: 2nd reading
+              - generic [ref=e431]: 2022-05-06T00:00:00
+            - generic [ref=e432]:
+              - generic [ref=e433]:
+                - generic [ref=e434]: People's Chamber
+                - generic [ref=e435]: 67%
+              - generic [ref=e438]:
+                - generic [ref=e439]: 2 Support
+                - generic [ref=e440]: 1 Oppose
+            - generic [ref=e441]:
+              - generic [ref=e442]:
+                - generic [ref=e443]: House of Commons
+                - generic [ref=e444]: No data
+              - generic [ref=e446]: Passed on voice vote
+          - generic [ref=e447]:
+            - button "Support" [ref=e448]
+            - button "Oppose" [ref=e449]
+        - generic [ref=e450]:
+          - generic [ref=e451] [cursor=pointer]:
+            - generic [ref=e452]:
+              - heading "Academies Act 2010" [level=2] [ref=e453]
+              - generic [ref=e454]:
+                - button "Comments" [ref=e455]:
+                  - img [ref=e456]
+                - generic [ref=e458]: Other
+            - generic [ref=e459]:
+              - generic [ref=e460]: Royal Assent
+              - generic [ref=e461]: 2010-07-27T00:00:00
+            - generic [ref=e462]:
+              - generic [ref=e463]:
+                - generic [ref=e464]: People's Chamber
+                - generic [ref=e465]: 82%
+              - generic [ref=e468]:
+                - generic [ref=e469]: 37 Support
+                - generic [ref=e470]: 8 Oppose
+            - generic [ref=e471]:
+              - generic [ref=e472]:
+                - generic [ref=e473]: House of Commons
+                - generic [ref=e474]: No data
+              - generic [ref=e476]: Passed on voice vote
+          - generic [ref=e477]:
+            - button "Support" [ref=e478]
+            - button "Oppose" [ref=e479]
+        - generic [ref=e480]:
+          - generic [ref=e481] [cursor=pointer]:
+            - generic [ref=e482]:
+              - heading "Access to Banking Services Bill" [level=2] [ref=e483]
+              - generic [ref=e484]:
+                - button "Comments" [ref=e485]:
+                  - img [ref=e486]
+                - generic [ref=e488]: Other
+            - generic [ref=e490]: 2nd reading
+            - generic [ref=e491]:
+              - generic [ref=e492]:
+                - generic [ref=e493]: People's Chamber
+                - generic [ref=e494]: 100%
+              - generic [ref=e497]:
+                - generic [ref=e498]: 1 Support
+                - generic [ref=e499]: 0 Oppose
+            - generic [ref=e500]:
+              - generic [ref=e501]:
+                - generic [ref=e502]: House of Commons
+                - generic [ref=e503]: No data
+              - generic [ref=e505]: Passed on voice vote
+          - generic [ref=e506]:
+            - button "Support" [ref=e507]
+            - button "Oppose" [ref=e508]
+        - generic [ref=e509]:
+          - generic [ref=e510] [cursor=pointer]:
+            - generic [ref=e511]:
+              - heading "Access To Contraceptive Services Bill" [level=2] [ref=e512]
+              - generic [ref=e513]:
+                - button "Comments" [ref=e514]:
+                  - img [ref=e515]
+                - generic [ref=e517]: Other
+            - generic [ref=e519]: 2nd reading
+            - generic [ref=e520]:
+              - generic [ref=e521]:
+                - generic [ref=e522]: People's Chamber
+                - generic [ref=e523]: 0%
+              - generic [ref=e525]:
+                - generic [ref=e526]: 0 Support
+                - generic [ref=e527]: 1 Oppose
+            - generic [ref=e528]:
+              - generic [ref=e529]:
+                - generic [ref=e530]: House of Commons
+                - generic [ref=e531]: No data
+              - generic [ref=e533]: Passed on voice vote
+          - generic [ref=e534]:
+            - button "Support" [ref=e535]
+            - button "Oppose" [ref=e536]
+        - generic [ref=e537]:
+          - generic [ref=e538] [cursor=pointer]:
+            - generic [ref=e539]:
+              - heading "Access to Elected Office Fund (Report) Bill" [level=2] [ref=e540]
+              - generic [ref=e541]:
+                - button "Comments" [ref=e542]:
+                  - img [ref=e543]
+                - generic [ref=e545]: Other
+            - generic [ref=e546]:
+              - generic [ref=e547]: 1st reading
+              - generic [ref=e548]: 2022-06-20T00:00:00
+            - generic [ref=e549]:
+              - generic [ref=e550]:
+                - generic [ref=e551]: People's Chamber
+                - generic [ref=e552]: 0%
+              - generic [ref=e554]:
+                - generic [ref=e555]: 0 Support
+                - generic [ref=e556]: 3 Oppose
+            - generic [ref=e557]:
+              - generic [ref=e558]:
+                - generic [ref=e559]: House of Commons
+                - generic [ref=e560]: No data
+              - generic [ref=e562]: Passed on voice vote
+          - generic [ref=e563]:
+            - button "Support" [ref=e564]
+            - button "Oppose" [ref=e565]
+        - generic [ref=e566]:
+          - generic [ref=e567] [cursor=pointer]:
+            - generic [ref=e568]:
+              - heading "Access to Fertility Services Bill" [level=2] [ref=e569]
+              - generic [ref=e570]:
+                - button "Comments" [ref=e571]:
+                  - img [ref=e572]
+                - generic [ref=e574]: Other
+            - generic [ref=e576]: 2nd reading
+            - generic [ref=e577]:
+              - generic [ref=e578]:
+                - generic [ref=e579]: People's Chamber
+                - generic [ref=e580]: 100%
+              - generic [ref=e583]:
+                - generic [ref=e584]: 1 Support
+                - generic [ref=e585]: 0 Oppose
+            - generic [ref=e586]:
+              - generic [ref=e587]:
+                - generic [ref=e588]: House of Commons
+                - generic [ref=e589]: No data
+              - generic [ref=e591]: Passed on voice vote
+          - generic [ref=e592]:
+            - button "Support" [ref=e593]
+            - button "Oppose" [ref=e594]
+        - generic [ref=e595]:
+          - generic [ref=e596] [cursor=pointer]:
+            - generic [ref=e597]:
+              - heading "Access to Finance for Women in Business Bill" [level=2] [ref=e598]
+              - generic [ref=e599]:
+                - button "Comments" [ref=e600]:
+                  - img [ref=e601]
+                - generic [ref=e603]: Other
+            - generic [ref=e604]:
+              - generic [ref=e605]: 2nd reading
+              - generic [ref=e606]: 2026-02-27T00:00:00
+            - generic [ref=e607]:
+              - generic [ref=e608]:
+                - generic [ref=e609]: People's Chamber
+                - generic [ref=e610]: 8%
+              - generic [ref=e613]:
+                - generic [ref=e614]: 4 Support
+                - generic [ref=e615]: 49 Oppose
+            - generic [ref=e616]:
+              - generic [ref=e617]:
+                - generic [ref=e618]: House of Commons
+                - generic [ref=e619]: No data
+              - generic [ref=e621]: Passed on voice vote
+          - generic [ref=e622]:
+            - button "Support" [ref=e623]
+            - button "Oppose" [ref=e624]
+        - generic [ref=e625]:
+          - generic [ref=e626] [cursor=pointer]:
+            - generic [ref=e627]:
+              - heading "Access To Inland Waterways Bill" [level=2] [ref=e628]
+              - generic [ref=e629]:
+                - button "Comments" [ref=e630]:
+                  - img [ref=e631]
+                - generic [ref=e633]: Other
+            - generic [ref=e635]: 2nd reading
+            - generic [ref=e636]:
+              - generic [ref=e637]:
+                - generic [ref=e638]: People's Chamber
+                - generic [ref=e639]: 0%
+              - generic [ref=e641]:
+                - generic [ref=e642]: 0 Support
+                - generic [ref=e643]: 0 Oppose
+            - generic [ref=e644]:
+              - generic [ref=e645]:
+                - generic [ref=e646]: House of Commons
+                - generic [ref=e647]: No data
+              - generic [ref=e649]: Passed on voice vote
+          - generic [ref=e650]:
+            - button "Support" [ref=e651]
+            - button "Oppose" [ref=e652]
+        - generic [ref=e653]:
+          - generic [ref=e654] [cursor=pointer]:
+            - generic [ref=e655]:
+              - heading "Access to Medical Treatments (Innovation) Act 2016" [level=2] [ref=e656]
+              - generic [ref=e657]:
+                - button "Comments" [ref=e658]:
+                  - img [ref=e659]
+                - generic [ref=e661]: Other
+            - generic [ref=e662]:
+              - generic [ref=e663]: Royal Assent
+              - generic [ref=e664]: 2016-03-23T00:00:00
+            - generic [ref=e665]:
+              - generic [ref=e666]:
+                - generic [ref=e667]: People's Chamber
+                - generic [ref=e668]: 0%
+              - generic [ref=e670]:
+                - generic [ref=e671]: 0 Support
+                - generic [ref=e672]: 2 Oppose
+            - generic [ref=e673]:
+              - generic [ref=e674]:
+                - generic [ref=e675]: House of Commons
+                - generic [ref=e676]: No data
+              - generic [ref=e678]: Passed on voice vote
+          - generic [ref=e679]:
+            - button "Support" [ref=e680]
+            - button "Oppose" [ref=e681]
+      - generic [ref=e682]:
+        - button "First" [disabled] [ref=e683]
+        - button "Previous" [disabled] [ref=e684]
+        - generic [ref=e685]: 1 / 176
+        - button "Next" [ref=e686]
+        - button "Last" [ref=e687]
+  - alert [ref=e688]
+```

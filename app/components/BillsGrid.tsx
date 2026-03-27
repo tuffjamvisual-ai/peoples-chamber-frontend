@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import AuthModal from './AuthModal';
 import CommentsModal from './CommentsModal';
+import FilterBar from './FilterBar';
 
 type Bill = {
   id: number;
@@ -37,9 +38,6 @@ export default function BillsGrid({ initialBills }: Props) {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
-  const [stageFilter, setStageFilter] = useState('');
-  const [showParliamentVoted, setShowParliamentVoted] = useState(false);
-  const [showYouVoted, setShowYouVoted] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
@@ -47,6 +45,17 @@ export default function BillsGrid({ initialBills }: Props) {
   const [userVotes, setUserVotes] = useState<Record<number, string>>({});
   const [showCommentsModal, setShowCommentsModal] = useState(false);
   const [selectedBill, setSelectedBill] = useState<any>(null);
+  
+  // New filter states
+  const [houseFilter, setHouseFilter] = useState('');
+  const [sessionFilter, setSessionFilter] = useState('');
+  const [stageFilter, setStageFilter] = useState('');
+  const [sortBy, setSortBy] = useState('newest');
+  const [parliamentVotedFilter, setParliamentVotedFilter] = useState(false);
+  const [youVotedFilter, setYouVotedFilter] = useState(false);
+  const [notVotedFilter, setNotVotedFilter] = useState(false);
+  const [hasSummaryFilter, setHasSummaryFilter] = useState(false);
+  
   const billsPerPage = 22;
 
   // Fetch user's existing votes when they log in
@@ -71,22 +80,47 @@ export default function BillsGrid({ initialBills }: Props) {
     fetchUserVotes();
   }, [user]);
 
+  const handleFiltersChange = (filters: any) => {
+    setHouseFilter(filters.house);
+    setSessionFilter(filters.session);
+    setStageFilter(filters.stage);
+    setSortBy(filters.sortBy);
+    setParliamentVotedFilter(filters.parliamentVoted);
+    setYouVotedFilter(filters.youVoted);
+    setNotVotedFilter(filters.notVoted);
+    setHasSummaryFilter(filters.hasSummary);
+    setCurrentPage(1);
+  };
+
   const filteredBills = useMemo(() => {
-    return bills.filter(bill => {
+    let filtered = bills.filter(bill => {
       const matchesSearch = !searchTerm ||
         bill.title.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = !categoryFilter ||
         bill.category === categoryFilter;
       const matchesStage = !stageFilter ||
         bill.current_stage === stageFilter;
-      const matchesParliamentVoted = !showParliamentVoted ||
+      const matchesParliamentVoted = !parliamentVotedFilter ||
         (bill.commons_votes && (bill.commons_votes.ayes > 0 || bill.commons_votes.noes > 0));
-      const matchesYouVoted = !showYouVoted ||
+      const matchesYouVoted = !youVotedFilter ||
         !!userVotes[bill.id];
+      const matchesNotVoted = !notVotedFilter ||
+        !userVotes[bill.id];
       
-      return matchesSearch && matchesCategory && matchesStage && matchesParliamentVoted && matchesYouVoted;
+      return matchesSearch && matchesCategory && matchesStage && 
+             matchesParliamentVoted && matchesYouVoted && matchesNotVoted;
     });
-  }, [bills, searchTerm, categoryFilter, stageFilter, showParliamentVoted, showYouVoted, userVotes]);
+
+    // Sort
+    if (sortBy === 'newest') {
+      filtered.sort((a, b) => b.id - a.id);
+    } else if (sortBy === 'oldest') {
+      filtered.sort((a, b) => a.id - b.id);
+    }
+
+    return filtered;
+  }, [bills, searchTerm, categoryFilter, stageFilter, sortBy, 
+      parliamentVotedFilter, youVotedFilter, notVotedFilter, userVotes]);
 
   const totalPages = Math.ceil(filteredBills.length / billsPerPage);
   const startIndex = (currentPage - 1) * billsPerPage;
@@ -102,17 +136,17 @@ export default function BillsGrid({ initialBills }: Props) {
     setCurrentPage(1);
   };
 
-  const handleStageChange = (value: string) => {
-    setStageFilter(value);
-    setCurrentPage(1);
-  };
-
   const handleClear = () => {
     setSearchTerm('');
     setCategoryFilter('');
+    setHouseFilter('');
+    setSessionFilter('');
     setStageFilter('');
-    setShowParliamentVoted(false);
-    setShowYouVoted(false);
+    setParliamentVotedFilter(false);
+    setYouVotedFilter(false);
+    setNotVotedFilter(false);
+    setHasSummaryFilter(false);
+    setSortBy('newest');
     setCurrentPage(1);
   };
 
@@ -128,8 +162,7 @@ export default function BillsGrid({ initialBills }: Props) {
       return;
     }
 
-    try {
-      const response = await fetch('/api/vote', {
+    try {{
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -165,10 +198,15 @@ export default function BillsGrid({ initialBills }: Props) {
     setShowCommentsModal(true);
   };
 
-  const hasActiveFilters = searchTerm || categoryFilter || stageFilter || showParliamentVoted || showYouVoted;
+  const hasActiveFilters = searchTerm || categoryFilter || stageFilter || 
+                          houseFilter || sessionFilter || parliamentVotedFilter || 
+                          youVotedFilter || notVotedFilter || hasSummaryFilter;
 
   return (
     <>
+      {/* New Comprehensive Filter Bar */}
+      <FilterBar onFiltersChange={handleFiltersChange} />
+
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-4">
           <div className="flex-1 relative">
@@ -206,49 +244,6 @@ export default function BillsGrid({ initialBills }: Props) {
               Clear All
             </button>
           )}
-        </div>
-
-        {/* NEW FILTER BAR */}
-        <div className="flex items-center gap-3 mb-4 flex-wrap">
-          <select
-            value={stageFilter}
-            onChange={(e) => handleStageChange(e.target.value)}
-            className="bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-blue-500"
-          >
-            <option value="">All Stages</option>
-            <option value="Royal Assent">Royal Assent (Law)</option>
-            <option value="3rd reading">3rd Reading</option>
-            <option value="2nd reading">2nd Reading</option>
-            <option value="1st reading">1st Reading</option>
-            <option value="Committee stage">Committee Stage</option>
-            <option value="Report stage">Report Stage</option>
-          </select>
-
-          <label className="flex items-center gap-2 bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-1.5 cursor-pointer hover:bg-gray-800">
-            <input
-              type="checkbox"
-              checked={showParliamentVoted}
-              onChange={(e) => {
-                setShowParliamentVoted(e.target.checked);
-                setCurrentPage(1);
-              }}
-              className="w-4 h-4"
-            />
-            <span className="text-sm text-white">Parliament Voted</span>
-          </label>
-
-          <label className="flex items-center gap-2 bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-1.5 cursor-pointer hover:bg-gray-800">
-            <input
-              type="checkbox"
-              checked={showYouVoted}
-              onChange={(e) => {
-                setShowYouVoted(e.target.checked);
-                setCurrentPage(1);
-              }}
-              className="w-4 h-4"
-            />
-            <span className="text-sm text-white">You Voted</span>
-          </label>
         </div>
         
         <div className="text-sm text-gray-500">
