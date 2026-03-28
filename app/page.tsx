@@ -14,15 +14,21 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-[#0a0f1a]">
-      <Navigation />
-      
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
-        {isMobile ? (
-          <BillsGridMobile initialBills={bills} />
-        ) : (
-          <BillsGrid initialBills={bills} />
-        )}
-      </main>
+      {isMobile ? (
+        <>
+          <Navigation />
+          <main className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+            <BillsGridMobile initialBills={bills} />
+          </main>
+        </>
+      ) : (
+        <>
+          <Navigation showFilters={true} />
+          <main className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+            <BillsGrid initialBills={bills} hideFilters={true} />
+          </main>
+        </>
+      )}
     </div>
   );
 }
