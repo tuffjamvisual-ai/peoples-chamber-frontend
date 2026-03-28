@@ -35,10 +35,10 @@ export default function Navigation() {
     <>
       <nav className="bg-black/40 backdrop-blur-sm border-b border-gray-800/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-20 sm:h-24">
+          <div className="flex items-center justify-between h-32 sm:h-40">
             {/* Logo with text beside it */}
             <Link href="/" className="flex items-center space-x-4 flex-shrink-0">
-              <div className="relative w-48 h-48 sm:w-64 sm:h-64 flex-shrink-0">
+              <div className="relative w-96 h-96 sm:w-[512px] sm:h-[512px] flex-shrink-0">
                 <Image
                   src="/logo.png"
                   alt="People's Chamber"
@@ -47,7 +47,7 @@ export default function Navigation() {
                   priority
                 />
               </div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-white">
+              <h1 className="text-3xl sm:text-4xl font-bold text-white">
                 People's Chamber
               </h1>
             </Link>
