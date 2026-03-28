@@ -35,15 +35,16 @@ export default function Navigation() {
     <>
       <nav className="bg-black/40 backdrop-blur-sm border-b border-gray-800/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-32 sm:h-36">
-            {/* Logo - Much bigger for readability */}
-            <Link href="/" className="flex items-center space-x-4 flex-shrink-0">
-              <div className="relative w-28 h-28 sm:w-36 sm:h-36 flex-shrink-0">
+          <div className="flex items-center justify-between min-h-[200px] sm:min-h-[240px] py-4">
+            {/* Massive logo - 5x bigger */}
+            <Link href="/" className="flex items-center flex-shrink-0">
+              <div className="relative w-48 h-48 sm:w-60 sm:h-60">
                 <Image
                   src="/logo.png"
-                  alt="People's Chamber"
+                  alt="People's Chamber - Voting on UK Parliament Bills"
                   fill
                   className="object-contain"
+                  priority
                 />
               </div>
             </Link>
