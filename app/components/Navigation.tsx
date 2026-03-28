@@ -33,21 +33,21 @@ export default function Navigation() {
 
   return (
     <>
-      <nav className="bg-black/40 backdrop-blur-sm border-b border-gray-800/50 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between py-4">
+      <nav className="bg-black/40 backdrop-blur-sm border-b border-gray-800/50 relative mb-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+          <div className="flex items-center justify-between">
             <Link href="/" className="flex-shrink-0">
               <Image
                 src="/logo.png"
                 alt="People's Chamber"
                 width={512}
                 height={512}
-                className="w-96 sm:w-[512px] h-auto"
+                className="w-80 sm:w-96 h-auto"
                 priority
               />
             </Link>
             
-            <div className="hidden lg:flex items-center space-x-3 ml-8">
+            <div className="hidden lg:flex items-center space-x-3">
               <Link href="/" className={`px-3 py-1.5 text-sm font-medium ${isActive('/') && !isActive('/laws') && !isActive('/mps') && !isActive('/about') ? 'text-blue-400' : 'text-gray-400 hover:text-white'}`}>
                 Bills
               </Link>
