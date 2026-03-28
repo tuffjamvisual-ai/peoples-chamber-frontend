@@ -5,6 +5,7 @@ import Link from 'next/link'
 
 type MP = {
   id: number
+  member_id: number
   name: string
   party: string
   party_colour: string | null
@@ -75,7 +76,7 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
                 {mpsByParty[party].map((mp: MP) => (
                   <Link
                     key={mp.id}
-                    href={`/mps/${mp.id}`}
+                    href={`/mps/${mp.member_id}`}
                     className="bg-gray-900 border border-gray-800 rounded-lg p-4 hover:border-blue-500 transition-colors"
                   >
                     <div className="flex items-start gap-3">
