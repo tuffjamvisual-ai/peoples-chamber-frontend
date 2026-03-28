@@ -125,7 +125,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
           placeholder="Search bills..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-xl mx-auto w-full px-4 py-2 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none"
+          className="max-w-xl mx-auto block px-4 py-2 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none"
         />
       </div>
 
@@ -139,7 +139,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
                 : 'text-gray-400'
             }`}
           >
-            🆕 Latest
+            Latest
           </button>
           <button
             onClick={() => setActiveTab('trending')}
@@ -149,7 +149,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
                 : 'text-gray-400'
             }`}
           >
-            🔥 Trending
+            Trending
           </button>
           <button
             onClick={() => setActiveTab('controversial')}
@@ -159,7 +159,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
                 : 'text-gray-400'
             }`}
           >
-            📊 Controversial
+            Controversial
           </button>
           <button
             onClick={() => setActiveTab('voted')}
@@ -169,7 +169,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
                 : 'text-gray-400'
             }`}
           >
-            ✅ You Voted
+            You Voted
           </button>
         </div>
         
