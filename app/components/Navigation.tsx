@@ -36,14 +36,15 @@ export default function Navigation() {
       <nav className="bg-black/40 backdrop-blur-sm border-b border-gray-800/50 relative mb-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
           <div className="flex items-center justify-between">
-            <Link href="/" className="flex-shrink-0">
+            <Link href="/" className="flex-shrink-0 bg-transparent">
               <Image
                 src="/logo.png"
                 alt="People's Chamber"
                 width={512}
                 height={512}
-                className="w-80 sm:w-96 h-auto"
+                className="w-80 sm:w-96 h-auto bg-transparent"
                 priority
+                unoptimized
               />
             </Link>
             
