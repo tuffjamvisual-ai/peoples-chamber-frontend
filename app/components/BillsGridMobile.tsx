@@ -19,10 +19,15 @@ type Bill = {
   commons_ayes: number | null;
   commons_noes: number | null;
   last_update: string;
+  votes?: {
+    yes: number;
+    no: number;
+    abstain: number;
+  };
 };
 
 type Props = {
-  initialBills: Bill[];
+  initialBills: any[];
 };
 
 type TabType = 'trending' | 'controversial' | 'latest' | 'voted';
@@ -59,34 +64,34 @@ export default function BillsGridMobile({ initialBills }: Props) {
     let filtered = bills;
 
     if (searchTerm) {
-      filtered = filtered.filter(bill =>
+      filtered = filtered.filter((bill: any) =>
         bill.title.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     if (activeTab === 'trending') {
-      filtered = filtered.sort((a, b) => {
+      filtered = filtered.sort((a: any, b: any) => {
         const totalA = a.vote_count_yes + a.vote_count_no + a.vote_count_abstain;
         const totalB = b.vote_count_yes + b.vote_count_no + b.vote_count_abstain;
         return totalB - totalA;
       });
     } else if (activeTab === 'controversial') {
       filtered = filtered
-        .filter(bill => {
+        .filter((bill: any) => {
           const total = bill.vote_count_yes + bill.vote_count_no;
           return total > 100;
         })
-        .sort((a, b) => {
+        .sort((a: any, b: any) => {
           const ratioA = Math.abs(0.5 - (a.vote_count_yes / (a.vote_count_yes + a.vote_count_no)));
           const ratioB = Math.abs(0.5 - (b.vote_count_yes / (b.vote_count_yes + b.vote_count_no)));
           return ratioA - ratioB;
         });
     } else if (activeTab === 'latest') {
-      filtered = filtered.sort((a, b) => 
+      filtered = filtered.sort((a: any, b: any) => 
         new Date(b.last_update).getTime() - new Date(a.last_update).getTime()
       );
     } else if (activeTab === 'voted') {
-      filtered = filtered.filter(bill => userVotes[bill.id]);
+      filtered = filtered.filter((bill: any) => userVotes[bill.id]);
     }
 
     return filtered.slice(0, 50);
@@ -108,7 +113,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
       if (response.ok) {
         setUserVotes(prev => ({ ...prev, [billId]: choice }));
         
-        setBills(prev => prev.map(bill => {
+        setBills((prev: any) => prev.map((bill: any) => {
           if (bill.id !== billId) return bill;
           return {
             ...bill,
@@ -181,7 +186,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
       </div>
 
       <div className="p-4 space-y-3">
-        {filteredBills.map(bill => {
+        {filteredBills.map((bill: any) => {
           const totalVotes = bill.vote_count_yes + bill.vote_count_no + bill.vote_count_abstain;
           const yesPercent = totalVotes > 0 ? Math.round((bill.vote_count_yes / totalVotes) * 100) : 0;
           const noPercent = totalVotes > 0 ? Math.round((bill.vote_count_no / totalVotes) * 100) : 0;
