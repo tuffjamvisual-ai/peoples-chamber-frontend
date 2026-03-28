@@ -40,26 +40,21 @@ export default function BillsGridMobile({ initialBills }: Props) {
   }, [user]);
 
   const filteredBills = useMemo(() => {
-    // Start fresh each time
     let filtered = [...bills];
 
-    // Filter out withdrawn bills and Acts
     filtered = filtered.filter((bill: any) => 
       !bill.bill_withdrawn && 
       !bill.is_act &&
       bill.current_stage !== 'Royal Assent'
     );
 
-    // Search filter
     if (searchTerm) {
       filtered = filtered.filter((bill: any) =>
         bill.title.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    // Tab-specific sorting/filtering
     if (activeTab === 'trending') {
-      // Sort by total votes descending
       filtered = filtered
         .map((bill: any) => ({
           ...bill,
@@ -67,7 +62,6 @@ export default function BillsGridMobile({ initialBills }: Props) {
         }))
         .sort((a, b) => b.totalVotes - a.totalVotes);
     } else if (activeTab === 'controversial') {
-      // Close to 50/50 split, minimum 100 votes
       filtered = filtered
         .filter((bill: any) => {
           const total = bill.vote_count_yes + bill.vote_count_no;
@@ -79,7 +73,6 @@ export default function BillsGridMobile({ initialBills }: Props) {
         }))
         .sort((a, b) => a.controversyScore - b.controversyScore);
     } else if (activeTab === 'latest') {
-      // Sort by last_update descending (newest first)
       filtered = filtered
         .sort((a: any, b: any) => {
           const dateA = new Date(a.last_update).getTime();
@@ -87,7 +80,6 @@ export default function BillsGridMobile({ initialBills }: Props) {
           return dateB - dateA;
         });
     } else if (activeTab === 'voted') {
-      // Only bills user has voted on
       filtered = filtered.filter((bill: any) => userVotes[bill.id]);
     }
 
@@ -180,10 +172,15 @@ export default function BillsGridMobile({ initialBills }: Props) {
             ✅ You Voted
           </button>
         </div>
+        
+        {/* Debug indicator - shows which tab is active and bill count */}
+        <div className="px-4 py-1 text-xs text-gray-500">
+          Active: {activeTab} | Showing {filteredBills.length} bills
+        </div>
       </div>
 
       <div className="p-4 space-y-3" key={activeTab}>
-        {filteredBills.map((bill: any) => {
+        {filteredBills.map((bill: any, index: number) => {
           const totalVotes = bill.vote_count_yes + bill.vote_count_no + bill.vote_count_abstain;
           const yesPercent = totalVotes > 0 ? Math.round((bill.vote_count_yes / totalVotes) * 100) : 0;
           const noPercent = totalVotes > 0 ? Math.round((bill.vote_count_no / totalVotes) * 100) : 0;
@@ -195,6 +192,11 @@ export default function BillsGridMobile({ initialBills }: Props) {
               onClick={() => router.push(`/bills/${bill.id}`)}
               className="bg-gray-900 border border-gray-800 rounded-lg p-4 active:bg-gray-800"
             >
+              {/* Show position number and total votes for debugging */}
+              <div className="text-xs text-gray-600 mb-1">
+                #{index + 1} | {totalVotes} total votes | Updated: {new Date(bill.last_update).toLocaleDateString()}
+              </div>
+              
               <h3 className="text-white font-medium text-sm leading-snug mb-3">
                 {bill.title}
               </h3>
