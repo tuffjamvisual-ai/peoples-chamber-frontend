@@ -38,11 +38,11 @@ export default function Navigation() {
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-2 flex-shrink-0">
               <div className="w-7 h-7 bg-blue-600 rounded"></div>
-              <h1 className="text-base sm:text-lg font-bold text-white">People's Chamber</h1>
+              <h1 className="text-base sm:text-lg font-bold text-white whitespace-nowrap">People's Chamber</h1>
             </Link>
             
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex space-x-1">
+            {/* Desktop Navigation - Hidden on mobile */}
+            <div className="hidden lg:flex space-x-1">
               <Link href="/" className={`px-3 py-1.5 text-sm font-medium ${isActive('/') && !isActive('/laws') && !isActive('/mps') && !isActive('/about') ? 'text-blue-400' : 'text-gray-400 hover:text-white'}`}>
                 Bills
               </Link>
@@ -58,8 +58,8 @@ export default function Navigation() {
               </Link>
             </div>
 
-            {/* Desktop Auth */}
-            <div className="hidden md:flex items-center space-x-3">
+            {/* Desktop Auth - Hidden on mobile */}
+            <div className="hidden lg:flex items-center space-x-3">
               {user ? (
                 <>
                   <span className="text-gray-400 text-sm truncate max-w-[150px]">{user.email}</span>
@@ -79,10 +79,10 @@ export default function Navigation() {
               )}
             </div>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile Menu Button - Always visible on mobile */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 text-gray-400 hover:text-white"
+              className="lg:hidden p-2 text-gray-400 hover:text-white"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {mobileMenuOpen ? (
@@ -96,7 +96,7 @@ export default function Navigation() {
 
           {/* Mobile Menu */}
           {mobileMenuOpen && (
-            <div className="md:hidden pb-4 border-t border-gray-800/50 mt-2">
+            <div className="lg:hidden pb-4 border-t border-gray-800/50 mt-2">
               <div className="flex flex-col space-y-1 py-2">
                 <Link href="/" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/') && !isActive('/laws') && !isActive('/mps') && !isActive('/about') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-400'}`}>
                   Bills
@@ -115,7 +115,7 @@ export default function Navigation() {
                 <div className="border-t border-gray-800/50 mt-2 pt-2">
                   {user ? (
                     <>
-                      <div className="px-3 py-2 text-gray-400 text-sm">{user.email}</div>
+                      <div className="px-3 py-2 text-gray-400 text-sm truncate">{user.email}</div>
                       <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="w-full text-left px-3 py-2 text-gray-300 text-sm">
                         Logout
                       </button>
