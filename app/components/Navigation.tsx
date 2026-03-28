@@ -5,7 +5,6 @@ import AuthModal from './AuthModal';
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import Image from 'next/image';
 
 export default function Navigation() {
   const { user, logout } = useAuth();
@@ -36,15 +35,11 @@ export default function Navigation() {
       <nav className="bg-black/40 backdrop-blur-sm border-b border-gray-800/50 relative mb-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
           <div className="flex items-center justify-between">
-            <Link href="/" className="flex-shrink-0 bg-transparent">
-              <Image
+            <Link href="/" className="flex-shrink-0">
+              <img
                 src="/logo.png"
                 alt="People's Chamber"
-                width={512}
-                height={512}
-                className="w-80 sm:w-96 h-auto bg-transparent"
-                priority
-                unoptimized
+                className="w-80 sm:w-96 h-auto"
               />
             </Link>
             
