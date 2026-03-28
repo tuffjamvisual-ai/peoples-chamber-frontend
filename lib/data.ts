@@ -16,10 +16,16 @@ export type Bill = {
     no: number;
     abstain: number;
   };
-  commons_votes: {
+  commons_votes?: {
     ayes: number;
     noes: number;
   } | null;
+  vote_count_yes: number;
+  vote_count_no: number;
+  vote_count_abstain: number;
+  last_update: string;
+  bill_withdrawn: string | null;
+  is_act: boolean;
 };
 
 export async function getAllBills(): Promise<Bill[]> {
@@ -29,11 +35,10 @@ export async function getAllBills(): Promise<Bill[]> {
     let rangeStart = 0;
     const rangeSize = 1000;
 
-    // Fetch in batches of 1000 until we have all bills
     while (hasMore) {
       const { data: bills, error } = await supabase
         .from('bill')
-        .select('id, title, description, category, current_stage, stage_date, sponsor_name, sponsor_party, sponsor_party_colour, sponsor_photo, vote_count_yes, vote_count_no, vote_count_abstain, commons_ayes, commons_noes')
+        .select('id, title, description, category, current_stage, stage_date, sponsor_name, sponsor_party, sponsor_party_colour, sponsor_photo, vote_count_yes, vote_count_no, vote_count_abstain, commons_ayes, commons_noes, last_update, bill_withdrawn, is_act')
         .eq('status', 'Active')
         .order('id', { ascending: true })
         .range(rangeStart, rangeStart + rangeSize - 1);
@@ -43,42 +48,36 @@ export async function getAllBills(): Promise<Bill[]> {
         break;
       }
       
-      if (bills && bills.length > 0) {
-        allBills.push(...bills);
-        rangeStart += rangeSize;
-        hasMore = bills.length === rangeSize;
-      } else {
+      if (!bills || bills.length === 0) {
         hasMore = false;
+        break;
+      }
+
+      const transformedBills = bills.map((bill: any) => ({
+        ...bill,
+        votes: {
+          yes: bill.vote_count_yes || 0,
+          no: bill.vote_count_no || 0,
+          abstain: bill.vote_count_abstain || 0,
+        },
+        commons_votes: bill.commons_ayes !== null ? {
+          ayes: bill.commons_ayes,
+          noes: bill.commons_noes,
+        } : null,
+      }));
+
+      allBills.push(...transformedBills);
+      
+      if (bills.length < rangeSize) {
+        hasMore = false;
+      } else {
+        rangeStart += rangeSize;
       }
     }
-    
-    console.log(`Fetched ${allBills.length} bills total`);
-    
-    // Format the data
-    return allBills.map(bill => ({
-      id: bill.id,
-      title: bill.title,
-      description: bill.description,
-      category: bill.category,
-      current_stage: bill.current_stage,
-      stage_date: bill.stage_date,
-      sponsor_name: bill.sponsor_name,
-      sponsor_party: bill.sponsor_party,
-      sponsor_party_colour: bill.sponsor_party_colour,
-      sponsor_photo: bill.sponsor_photo,
-      votes: {
-        yes: bill.vote_count_yes || 0,
-        no: bill.vote_count_no || 0,
-        abstain: bill.vote_count_abstain || 0
-      },
-      commons_votes: (bill.commons_ayes || bill.commons_noes) ? {
-        ayes: bill.commons_ayes || 0,
-        noes: bill.commons_noes || 0
-      } : null
-    }));
-    
+
+    return allBills;
   } catch (error) {
-    console.error('Failed to fetch bills:', error);
+    console.error('Error in getAllBills:', error);
     return [];
   }
 }
