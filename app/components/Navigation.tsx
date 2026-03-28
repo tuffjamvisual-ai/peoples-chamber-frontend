@@ -35,13 +35,16 @@ export default function Navigation() {
       <nav className="bg-black/40 backdrop-blur-sm border-b border-gray-800/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-14">
-            {/* Logo */}
+            {/* Logo - Shorter on mobile */}
             <Link href="/" className="flex items-center space-x-2 flex-shrink-0">
-              <div className="w-7 h-7 bg-blue-600 rounded"></div>
-              <h1 className="text-base sm:text-lg font-bold text-white whitespace-nowrap">People's Chamber</h1>
+              <div className="w-7 h-7 bg-blue-600 rounded flex-shrink-0"></div>
+              <h1 className="text-base sm:text-lg font-bold text-white">
+                <span className="hidden sm:inline">People's Chamber</span>
+                <span className="sm:hidden">PC</span>
+              </h1>
             </Link>
             
-            {/* Desktop Navigation - Hidden on mobile */}
+            {/* Desktop Navigation */}
             <div className="hidden lg:flex space-x-1">
               <Link href="/" className={`px-3 py-1.5 text-sm font-medium ${isActive('/') && !isActive('/laws') && !isActive('/mps') && !isActive('/about') ? 'text-blue-400' : 'text-gray-400 hover:text-white'}`}>
                 Bills
@@ -58,7 +61,7 @@ export default function Navigation() {
               </Link>
             </div>
 
-            {/* Desktop Auth - Hidden on mobile */}
+            {/* Desktop Auth */}
             <div className="hidden lg:flex items-center space-x-3">
               {user ? (
                 <>
@@ -79,10 +82,11 @@ export default function Navigation() {
               )}
             </div>
 
-            {/* Mobile Menu Button - Always visible on mobile */}
+            {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 text-gray-400 hover:text-white"
+              className="lg:hidden p-2 -mr-2 text-gray-400 hover:text-white flex-shrink-0"
+              aria-label="Menu"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {mobileMenuOpen ? (
@@ -125,7 +129,7 @@ export default function Navigation() {
                       <button onClick={openLogin} className="w-full text-left px-3 py-2 text-gray-300 text-sm">
                         Login
                       </button>
-                      <button onClick={openSignup} className="w-full text-left px-3 py-2 bg-blue-600 text-white rounded mx-3 mt-2 text-sm font-medium">
+                      <button onClick={openSignup} className="w-full text-center px-3 py-2 bg-blue-600 text-white rounded mx-3 mt-2 text-sm font-medium">
                         Sign Up
                       </button>
                     </>
