@@ -119,7 +119,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
 
   return (
     <>
-      <div className="sticky top-52 z-40 bg-[#0a0f1a] px-4 py-3 border-b border-gray-800">
+      <div className="sticky top-20 z-40 bg-[#0a0f1a] px-4 py-3 border-b border-gray-800">
         <input
           type="text"
           placeholder="Search bills..."
@@ -129,7 +129,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
         />
       </div>
 
-      <div className="sticky top-[240px] z-40 bg-[#0a0f1a] border-b border-gray-800 overflow-x-auto">
+      <div className="sticky top-[108px] z-40 bg-[#0a0f1a] border-b border-gray-800 overflow-x-auto">
         <div className="flex space-x-1 px-4 min-w-max">
           <button
             onClick={() => setActiveTab('latest')}

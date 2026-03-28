@@ -35,63 +35,10 @@ export default function Navigation() {
     <>
       <nav className="bg-black/40 backdrop-blur-sm border-b border-gray-800/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          {/* Desktop: Logo on left, menu on right at same height */}
-          <div className="hidden lg:flex items-center justify-between py-4">
-            <Link href="/" className="flex-shrink-0">
-              <div className="relative w-80 h-80">
-                <Image
-                  src="/logo.png"
-                  alt="People's Chamber - Voting on UK Parliament Bills"
-                  fill
-                  className="object-contain"
-                  priority
-                />
-              </div>
-            </Link>
-            
-            <div className="flex flex-col items-end gap-4">
-              <div className="flex space-x-1">
-                <Link href="/" className={`px-3 py-1.5 text-sm font-medium ${isActive('/') && !isActive('/laws') && !isActive('/mps') && !isActive('/about') ? 'text-blue-400' : 'text-gray-400 hover:text-white'}`}>
-                  Bills
-                </Link>
-                <Link href="/laws" className={`px-3 py-1.5 text-sm ${isActive('/laws') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
-                  Laws
-                </Link>
-                <span className="px-3 py-1.5 text-gray-600 text-sm cursor-not-allowed">Polls</span>
-                <Link href="/mps" className={`px-3 py-1.5 text-sm ${isActive('/mps') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
-                  MPs
-                </Link>
-                <Link href="/about" className={`px-3 py-1.5 text-sm ${isActive('/about') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
-                  About
-                </Link>
-              </div>
-
-              <div className="flex items-center space-x-3">
-                {user ? (
-                  <>
-                    <span className="text-gray-400 text-sm truncate max-w-[150px]">{user.email}</span>
-                    <button onClick={logout} className="px-3 py-1.5 text-gray-300 hover:text-white text-sm">
-                      Logout
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button onClick={openLogin} className="px-3 py-1.5 text-gray-300 hover:text-white text-sm">
-                      Login
-                    </button>
-                    <button onClick={openSignup} className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium">
-                      Sign Up
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Mobile: Stacked logo and menu */}
-          <div className="lg:hidden flex items-center justify-between py-4">
-            <Link href="/" className="flex-shrink-0">
-              <div className="relative w-64 h-64">
+          <div className="flex items-center justify-between h-20 sm:h-24">
+            {/* Logo with text beside it */}
+            <Link href="/" className="flex items-center space-x-4 flex-shrink-0">
+              <div className="relative w-32 h-32 sm:w-40 sm:h-40 flex-shrink-0">
                 <Image
                   src="/logo.png"
                   alt="People's Chamber"
@@ -100,11 +47,53 @@ export default function Navigation() {
                   priority
                 />
               </div>
+              <h1 className="text-xl sm:text-2xl font-bold text-white hidden sm:block">
+                People's Chamber
+              </h1>
             </Link>
+            
+            {/* Desktop Navigation */}
+            <div className="hidden lg:flex space-x-1">
+              <Link href="/" className={`px-3 py-1.5 text-sm font-medium ${isActive('/') && !isActive('/laws') && !isActive('/mps') && !isActive('/about') ? 'text-blue-400' : 'text-gray-400 hover:text-white'}`}>
+                Bills
+              </Link>
+              <Link href="/laws" className={`px-3 py-1.5 text-sm ${isActive('/laws') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
+                Laws
+              </Link>
+              <span className="px-3 py-1.5 text-gray-600 text-sm cursor-not-allowed">Polls</span>
+              <Link href="/mps" className={`px-3 py-1.5 text-sm ${isActive('/mps') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
+                MPs
+              </Link>
+              <Link href="/about" className={`px-3 py-1.5 text-sm ${isActive('/about') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
+                About
+              </Link>
+            </div>
 
+            {/* Desktop Auth */}
+            <div className="hidden lg:flex items-center space-x-3">
+              {user ? (
+                <>
+                  <span className="text-gray-400 text-sm truncate max-w-[150px]">{user.email}</span>
+                  <button onClick={logout} className="px-3 py-1.5 text-gray-300 hover:text-white text-sm">
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button onClick={openLogin} className="px-3 py-1.5 text-gray-300 hover:text-white text-sm">
+                    Login
+                  </button>
+                  <button onClick={openSignup} className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium">
+                    Sign Up
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 -mr-2 text-gray-400 hover:text-white flex-shrink-0"
+              className="lg:hidden p-2 -mr-2 text-gray-400 hover:text-white flex-shrink-0"
               aria-label="Menu"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
