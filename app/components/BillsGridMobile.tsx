@@ -5,27 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import AuthModal from './AuthModal';
 
-type Bill = {
-  id: number;
-  title: string;
-  description: string;
-  category: string;
-  current_stage: string;
-  sponsor_name: string | null;
-  sponsor_party: string | null;
-  vote_count_yes: number;
-  vote_count_no: number;
-  vote_count_abstain: number;
-  commons_ayes: number | null;
-  commons_noes: number | null;
-  last_update: string;
-  votes?: {
-    yes: number;
-    no: number;
-    abstain: number;
-  };
-};
-
 type Props = {
   initialBills: any[];
 };
@@ -35,7 +14,7 @@ type TabType = 'trending' | 'controversial' | 'latest' | 'voted';
 export default function BillsGridMobile({ initialBills }: Props) {
   const router = useRouter();
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<TabType>('trending');
+  const [activeTab, setActiveTab] = useState<TabType>('latest');
   const [searchTerm, setSearchTerm] = useState('');
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [userVotes, setUserVotes] = useState<Record<number, string>>({});
@@ -62,6 +41,13 @@ export default function BillsGridMobile({ initialBills }: Props) {
 
   const filteredBills = useMemo(() => {
     let filtered = bills;
+
+    // Filter out withdrawn bills and Acts (no longer active)
+    filtered = filtered.filter((bill: any) => 
+      !bill.bill_withdrawn && 
+      !bill.is_act &&
+      bill.current_stage !== 'Royal Assent'
+    );
 
     if (searchTerm) {
       filtered = filtered.filter((bill: any) =>
@@ -130,7 +116,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
 
   return (
     <>
-      <div className="sticky top-14 z-40 bg-[#0a0f1a] px-4 py-3 border-b border-gray-800">
+      <div className="sticky top-16 z-40 bg-[#0a0f1a] px-4 py-3 border-b border-gray-800">
         <input
           type="text"
           placeholder="Search bills..."
@@ -140,8 +126,18 @@ export default function BillsGridMobile({ initialBills }: Props) {
         />
       </div>
 
-      <div className="sticky top-[108px] z-40 bg-[#0a0f1a] border-b border-gray-800 overflow-x-auto">
+      <div className="sticky top-[124px] z-40 bg-[#0a0f1a] border-b border-gray-800 overflow-x-auto">
         <div className="flex space-x-1 px-4 min-w-max">
+          <button
+            onClick={() => setActiveTab('latest')}
+            className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
+              activeTab === 'latest'
+                ? 'text-blue-400 border-b-2 border-blue-400'
+                : 'text-gray-400'
+            }`}
+          >
+            🆕 Latest
+          </button>
           <button
             onClick={() => setActiveTab('trending')}
             className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
@@ -161,16 +157,6 @@ export default function BillsGridMobile({ initialBills }: Props) {
             }`}
           >
             📊 Controversial
-          </button>
-          <button
-            onClick={() => setActiveTab('latest')}
-            className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
-              activeTab === 'latest'
-                ? 'text-blue-400 border-b-2 border-blue-400'
-                : 'text-gray-400'
-            }`}
-          >
-            🆕 Latest
           </button>
           <button
             onClick={() => setActiveTab('voted')}
@@ -249,7 +235,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
 
       {filteredBills.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-gray-400">No bills found.</p>
+          <p className="text-gray-400">No active bills found.</p>
         </div>
       )}
 
