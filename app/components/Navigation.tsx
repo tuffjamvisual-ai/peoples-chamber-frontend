@@ -35,10 +35,10 @@ export default function Navigation() {
     <>
       <nav className="bg-black/40 backdrop-blur-sm border-b border-gray-800/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-24 sm:h-28">
-            {/* Logo - 3x bigger */}
-            <Link href="/" className="flex items-center space-x-3 flex-shrink-0">
-              <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0">
+          <div className="flex items-center justify-between h-32 sm:h-36">
+            {/* Logo - Much bigger for readability */}
+            <Link href="/" className="flex items-center space-x-4 flex-shrink-0">
+              <div className="relative w-28 h-28 sm:w-36 sm:h-36 flex-shrink-0">
                 <Image
                   src="/logo.png"
                   alt="People's Chamber"
@@ -46,9 +46,6 @@ export default function Navigation() {
                   className="object-contain"
                 />
               </div>
-              <h1 className="text-lg sm:text-xl font-bold text-white hidden sm:block">
-                People's Chamber
-              </h1>
             </Link>
             
             {/* Desktop Navigation */}
