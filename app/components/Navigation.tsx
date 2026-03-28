@@ -40,11 +40,12 @@ export default function Navigation() {
                 <img
                   src="/logo.png"
                   alt="People's Chamber"
-                  className="w-[480px] sm:w-[576px] h-auto"
+                  className="w-[480px] sm:w-[576px] h-auto mb-2"
                 />
-                <h1 className="text-3xl sm:text-4xl font-bold text-white mt-4">
-                  THE PEOPLES CHAMBER
-                </h1>
+                <div className="text-center">
+                  <div className="text-3xl sm:text-4xl font-bold text-white leading-tight">THE PEOPLES</div>
+                  <div className="text-3xl sm:text-4xl font-bold text-white leading-tight">CHAMBER</div>
+                </div>
               </div>
             </Link>
             
