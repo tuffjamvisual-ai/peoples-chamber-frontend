@@ -36,13 +36,13 @@ export default function Navigation() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex-shrink-0">
-              <div className="flex flex-col items-center gap-0">
+              <div className="flex flex-col items-start gap-0">
                 <img
                   src="/logo.png"
                   alt="People's Chamber"
                   className="w-[480px] sm:w-[576px] h-auto"
                 />
-                <div className="text-center">
+                <div className="text-left">
                   <div className="text-3xl sm:text-4xl font-bold text-white leading-tight">THE PEOPLES</div>
                   <div className="text-3xl sm:text-4xl font-bold text-white leading-tight">CHAMBER</div>
                 </div>
