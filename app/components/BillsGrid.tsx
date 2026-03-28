@@ -174,7 +174,7 @@ export default function BillsGrid({ initialBills }: Props) {
           placeholder="Search bills..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none"
+          className="max-w-2xl w-full px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none"
         />
       </div>
 
