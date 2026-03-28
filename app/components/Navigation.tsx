@@ -37,18 +37,17 @@ export default function Navigation() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between py-4">
             <Link href="/" className="flex-shrink-0">
-              <div className="relative w-96 h-96 sm:w-[512px] sm:h-[512px]">
-                <Image
-                  src="/logo.png"
-                  alt="People's Chamber"
-                  fill
-                  className="object-contain"
-                  priority
-                />
-              </div>
+              <Image
+                src="/logo.png"
+                alt="People's Chamber"
+                width={512}
+                height={512}
+                className="w-96 sm:w-[512px] h-auto"
+                priority
+              />
             </Link>
             
-            <div className="hidden lg:flex items-center space-x-3">
+            <div className="hidden lg:flex items-center space-x-3 ml-8">
               <Link href="/" className={`px-3 py-1.5 text-sm font-medium ${isActive('/') && !isActive('/laws') && !isActive('/mps') && !isActive('/about') ? 'text-blue-400' : 'text-gray-400 hover:text-white'}`}>
                 Bills
               </Link>
