@@ -46,8 +46,8 @@ export default function FilterBar({ onFiltersChange }: FilterBarProps) {
           onChange={(e) => setSortBy(e.target.value)}
           className="px-3 py-2 bg-gray-800 text-white text-sm rounded border border-gray-700 focus:border-blue-500 focus:outline-none"
         >
-          <option value="newest">📅 Date Updated (Newest First)</option>
-          <option value="oldest">📅 Date Updated (Oldest First)</option>
+          <option value="newest">Date Updated (Newest First)</option>
+          <option value="oldest">Date Updated (Oldest First)</option>
         </select>
 
         <select
@@ -55,7 +55,7 @@ export default function FilterBar({ onFiltersChange }: FilterBarProps) {
           onChange={(e) => setHouse(e.target.value)}
           className="px-3 py-2 bg-gray-800 text-white text-sm rounded border border-gray-700 focus:border-blue-500 focus:outline-none"
         >
-          <option value="">🏛️ House: All</option>
+          <option value="">House: All</option>
           <option value="Commons">Commons</option>
           <option value="Lords">Lords</option>
         </select>
@@ -65,7 +65,7 @@ export default function FilterBar({ onFiltersChange }: FilterBarProps) {
           onChange={(e) => setSession(e.target.value)}
           className="px-3 py-2 bg-gray-800 text-white text-sm rounded border border-gray-700 focus:border-blue-500 focus:outline-none"
         >
-          <option value="">📊 Session: All</option>
+          <option value="">Session: All</option>
           <option value="39">Session 39</option>
           <option value="38">Session 38</option>
           <option value="37">Session 37</option>
@@ -78,7 +78,7 @@ export default function FilterBar({ onFiltersChange }: FilterBarProps) {
           onChange={(e) => setStage(e.target.value)}
           className="px-3 py-2 bg-gray-800 text-white text-sm rounded border border-gray-700 focus:border-blue-500 focus:outline-none"
         >
-          <option value="">🎯 Stage: All</option>
+          <option value="">Stage: All</option>
           <option value="1st reading">1st Reading</option>
           <option value="2nd reading">2nd Reading</option>
           <option value="Committee stage">Committee Stage</option>
@@ -96,7 +96,7 @@ export default function FilterBar({ onFiltersChange }: FilterBarProps) {
               : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
           }`}
         >
-          ✓ Parliament Voted
+          Parliament Voted
         </button>
 
         <button
@@ -107,7 +107,7 @@ export default function FilterBar({ onFiltersChange }: FilterBarProps) {
               : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
           }`}
         >
-          ✓ You Voted
+          You Voted
         </button>
       </div>
     </div>
