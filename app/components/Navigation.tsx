@@ -35,10 +35,9 @@ export default function Navigation() {
     <>
       <nav className="bg-black/40 backdrop-blur-sm border-b border-gray-800/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-auto py-4">
-            {/* Logo - left side */}
+          <div className="flex items-center justify-between py-4">
             <Link href="/" className="flex-shrink-0">
-              <div className="relative w-64 h-64 sm:w-80 sm:h-80">
+              <div className="relative w-96 h-96 sm:w-[512px] sm:h-[512px]">
                 <Image
                   src="/logo.png"
                   alt="People's Chamber"
@@ -49,8 +48,7 @@ export default function Navigation() {
               </div>
             </Link>
             
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex space-x-1">
+            <div className="hidden lg:flex items-center space-x-3">
               <Link href="/" className={`px-3 py-1.5 text-sm font-medium ${isActive('/') && !isActive('/laws') && !isActive('/mps') && !isActive('/about') ? 'text-blue-400' : 'text-gray-400 hover:text-white'}`}>
                 Bills
               </Link>
@@ -64,10 +62,7 @@ export default function Navigation() {
               <Link href="/about" className={`px-3 py-1.5 text-sm ${isActive('/about') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
                 About
               </Link>
-            </div>
-
-            {/* Desktop Auth */}
-            <div className="hidden lg:flex items-center space-x-3">
+              
               {user ? (
                 <>
                   <span className="text-gray-400 text-sm truncate max-w-[150px]">{user.email}</span>
@@ -87,7 +82,6 @@ export default function Navigation() {
               )}
             </div>
 
-            {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="lg:hidden p-2 -mr-2 text-gray-400 hover:text-white flex-shrink-0"
@@ -103,7 +97,6 @@ export default function Navigation() {
             </button>
           </div>
 
-          {/* Mobile Menu */}
           {mobileMenuOpen && (
             <div className="lg:hidden pb-4 border-t border-gray-800/50 mt-2">
               <div className="flex flex-col space-y-1 py-2">
