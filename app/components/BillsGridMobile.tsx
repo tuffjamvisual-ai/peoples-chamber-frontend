@@ -40,43 +40,54 @@ export default function BillsGridMobile({ initialBills }: Props) {
   }, [user]);
 
   const filteredBills = useMemo(() => {
-    let filtered = bills;
+    // Start fresh each time
+    let filtered = [...bills];
 
-    // Filter out withdrawn bills and Acts (no longer active)
+    // Filter out withdrawn bills and Acts
     filtered = filtered.filter((bill: any) => 
       !bill.bill_withdrawn && 
       !bill.is_act &&
       bill.current_stage !== 'Royal Assent'
     );
 
+    // Search filter
     if (searchTerm) {
       filtered = filtered.filter((bill: any) =>
         bill.title.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
+    // Tab-specific sorting/filtering
     if (activeTab === 'trending') {
-      filtered = filtered.sort((a: any, b: any) => {
-        const totalA = a.vote_count_yes + a.vote_count_no + a.vote_count_abstain;
-        const totalB = b.vote_count_yes + b.vote_count_no + b.vote_count_abstain;
-        return totalB - totalA;
-      });
+      // Sort by total votes descending
+      filtered = filtered
+        .map((bill: any) => ({
+          ...bill,
+          totalVotes: bill.vote_count_yes + bill.vote_count_no + bill.vote_count_abstain
+        }))
+        .sort((a, b) => b.totalVotes - a.totalVotes);
     } else if (activeTab === 'controversial') {
+      // Close to 50/50 split, minimum 100 votes
       filtered = filtered
         .filter((bill: any) => {
           const total = bill.vote_count_yes + bill.vote_count_no;
           return total > 100;
         })
-        .sort((a: any, b: any) => {
-          const ratioA = Math.abs(0.5 - (a.vote_count_yes / (a.vote_count_yes + a.vote_count_no)));
-          const ratioB = Math.abs(0.5 - (b.vote_count_yes / (b.vote_count_yes + b.vote_count_no)));
-          return ratioA - ratioB;
-        });
+        .map((bill: any) => ({
+          ...bill,
+          controversyScore: Math.abs(0.5 - (bill.vote_count_yes / (bill.vote_count_yes + bill.vote_count_no)))
+        }))
+        .sort((a, b) => a.controversyScore - b.controversyScore);
     } else if (activeTab === 'latest') {
-      filtered = filtered.sort((a: any, b: any) => 
-        new Date(b.last_update).getTime() - new Date(a.last_update).getTime()
-      );
+      // Sort by last_update descending (newest first)
+      filtered = filtered
+        .sort((a: any, b: any) => {
+          const dateA = new Date(a.last_update).getTime();
+          const dateB = new Date(b.last_update).getTime();
+          return dateB - dateA;
+        });
     } else if (activeTab === 'voted') {
+      // Only bills user has voted on
       filtered = filtered.filter((bill: any) => userVotes[bill.id]);
     }
 
@@ -171,7 +182,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
         </div>
       </div>
 
-      <div className="p-4 space-y-3">
+      <div className="p-4 space-y-3" key={activeTab}>
         {filteredBills.map((bill: any) => {
           const totalVotes = bill.vote_count_yes + bill.vote_count_no + bill.vote_count_abstain;
           const yesPercent = totalVotes > 0 ? Math.round((bill.vote_count_yes / totalVotes) * 100) : 0;
