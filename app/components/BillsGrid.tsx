@@ -8,10 +8,9 @@ import FilterBar from './FilterBar';
 
 type Props = {
   initialBills: any[];
-  hideFilters?: boolean;
 };
 
-export default function BillsGrid({ initialBills, hideFilters = false }: Props) {
+export default function BillsGrid({ initialBills }: Props) {
   const router = useRouter();
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
@@ -179,20 +178,18 @@ export default function BillsGrid({ initialBills, hideFilters = false }: Props) 
         />
       </div>
 
-      {!hideFilters && (
-        <FilterBar
-          onFiltersChange={(filters) => {
-            setHouseFilter(filters.house);
-            setSessionFilter(filters.session);
-            setStageFilter(filters.stage);
-            setSortBy(filters.sortBy);
-            setParliamentVotedFilter(filters.parliamentVoted);
-            setYouVotedFilter(filters.youVoted);
-            setNotVotedFilter(filters.notVoted);
-            setHasSummaryFilter(filters.hasSummary);
-          }}
-        />
-      )}
+      <FilterBar
+        onFiltersChange={(filters) => {
+          setHouseFilter(filters.house);
+          setSessionFilter(filters.session);
+          setStageFilter(filters.stage);
+          setSortBy(filters.sortBy);
+          setParliamentVotedFilter(filters.parliamentVoted);
+          setYouVotedFilter(filters.youVoted);
+          setNotVotedFilter(filters.notVoted);
+          setHasSummaryFilter(filters.hasSummary);
+        }}
+      />
 
       <div className="flex items-center justify-between mb-4 text-sm text-gray-400">
         <div>
