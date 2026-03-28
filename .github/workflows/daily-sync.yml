@@ -1,0 +1,34 @@
+name: Daily Data Sync
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Runs daily at 2 AM UTC
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  sync-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Install dependencies
+        run: npm install
+      
+      - name: Sync bills from Parliament API
+        run: node sync-bills-smart.js
+      
+      - name: Generate AI explanations
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node generate-ai-explanations.js
+      
+      - name: Download MP voting data (weekly on Sundays)
+        if: github.event.schedule == '0 2 * * 0'
+        run: node download-all-divisions-fixed.js
