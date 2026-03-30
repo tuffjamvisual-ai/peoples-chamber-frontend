@@ -39,18 +39,20 @@ export default function Navigation() {
               <img
                 src="/logo.png"
                 alt="People's Chamber"
-                style={{ height: '240px', width: 'auto', objectFit: 'contain' }}
+                style={{ height: '80px', width: 'auto', objectFit: 'contain' }}
               />
             </Link>
             
             <div className="hidden lg:flex items-center space-x-3">
-              <Link href="/" className={`px-3 py-1.5 text-sm font-medium ${isActive('/') && !isActive('/laws') && !isActive('/mps') && !isActive('/about') ? 'text-blue-400' : 'text-gray-400 hover:text-white'}`}>
+              <Link href="/" className={`px-3 py-1.5 text-sm font-medium ${isActive('/') && !isActive('/laws') && !isActive('/mps') && !isActive('/about') && !isActive('/polls') ? 'text-blue-400' : 'text-gray-400 hover:text-white'}`}>
                 Bills
               </Link>
               <Link href="/laws" className={`px-3 py-1.5 text-sm ${isActive('/laws') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
                 Laws
               </Link>
-              <span className="px-3 py-1.5 text-gray-600 text-sm cursor-not-allowed">Polls</span>
+              <Link href="/polls" className={`px-3 py-1.5 text-sm ${isActive('/polls') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
+                Polls
+              </Link>
               <Link href="/mps" className={`px-3 py-1.5 text-sm ${isActive('/mps') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
                 MPs
               </Link>
@@ -95,13 +97,15 @@ export default function Navigation() {
           {mobileMenuOpen && (
             <div className="lg:hidden pb-4 border-t border-gray-800/50 mt-2">
               <div className="flex flex-col space-y-1 py-2">
-                <Link href="/" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/') && !isActive('/laws') && !isActive('/mps') && !isActive('/about') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-400'}`}>
+                <Link href="/" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/') && !isActive('/laws') && !isActive('/mps') && !isActive('/about') && !isActive('/polls') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-400'}`}>
                   Bills
                 </Link>
                 <Link href="/laws" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/laws') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-400'}`}>
                   Laws
                 </Link>
-                <span className="px-3 py-2 text-gray-600 text-sm">Polls (Coming Soon)</span>
+                <Link href="/polls" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/polls') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-400'}`}>
+                  Polls
+                </Link>
                 <Link href="/mps" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/mps') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-400'}`}>
                   MPs
                 </Link>
