@@ -12,6 +12,7 @@ type FilterBarProps = {
     youVoted: boolean;
     notVoted: boolean;
     hasSummary: boolean;
+    search: string;
   }) => void;
 };
 
@@ -24,19 +25,11 @@ export default function FilterBar({ onFiltersChange }: FilterBarProps) {
   const [youVoted, setYouVoted] = useState(false);
   const [notVoted, setNotVoted] = useState(false);
   const [hasSummary, setHasSummary] = useState(false);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
-    onFiltersChange({
-      house,
-      session,
-      stage,
-      sortBy,
-      parliamentVoted,
-      youVoted,
-      notVoted,
-      hasSummary
-    });
-  }, [house, session, stage, sortBy, parliamentVoted, youVoted, notVoted, hasSummary]);
+    onFiltersChange({ house, session, stage, sortBy, parliamentVoted, youVoted, notVoted, hasSummary, search });
+  }, [house, session, stage, sortBy, parliamentVoted, youVoted, notVoted, hasSummary, search]);
 
   return (
     <div className="mb-6">
@@ -87,29 +80,28 @@ export default function FilterBar({ onFiltersChange }: FilterBarProps) {
         </select>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 mb-3">
         <button
           onClick={() => setParliamentVoted(!parliamentVoted)}
-          className={`px-3 py-1.5 text-xs rounded transition-colors ${
-            parliamentVoted
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-          }`}
+          className={`px-3 py-1.5 text-xs rounded transition-colors ${parliamentVoted ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
         >
           Parliament Voted
         </button>
-
         <button
           onClick={() => setYouVoted(!youVoted)}
-          className={`px-3 py-1.5 text-xs rounded transition-colors ${
-            youVoted
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-          }`}
+          className={`px-3 py-1.5 text-xs rounded transition-colors ${youVoted ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
         >
           You Voted
         </button>
       </div>
+
+      <input
+        type="text"
+        placeholder="Search bills..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="w-full px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none"
+      />
     </div>
   );
 }
