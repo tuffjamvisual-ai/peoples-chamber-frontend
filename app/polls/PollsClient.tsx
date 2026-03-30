@@ -124,7 +124,7 @@ export default function PollsClient() {
             const hasVoted = !!userVotes[poll.id]
 
             return (
-              <div key={poll.id} className="bg-gray-900 border border-gray-800 rounded-lg p-5">
+              <div key={poll.id} className="bg-gray-900 border border-gray-800 rounded-lg p-5 flex flex-col min-h-[180px]">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-xs px-2 py-0.5 bg-blue-900/40 text-blue-300 rounded border border-blue-800/40">Poll</span>
                   {poll.constituency && (
@@ -134,44 +134,34 @@ export default function PollsClient() {
                   )}
                 </div>
 
-                <h3 className="text-white font-semibold text-sm mb-4 leading-snug">{poll.question}</h3>
+                <h3 className="text-white font-semibold text-sm mb-4 leading-snug flex-1">{poll.question}</h3>
 
-                {total > 0 && (
-                  <>
-                    <div className="h-8 bg-gray-800 rounded-full overflow-hidden flex mb-2">
-                      <div className="bg-green-500 h-full flex items-center justify-center text-xs font-bold text-white" style={{ width: yesPercent + '%' }}>
-                        {yesPercent}%
-                      </div>
-                      <div className="bg-rose-500 h-full flex items-center justify-center text-xs font-bold text-white" style={{ width: noPercent + '%' }}>
-                        {noPercent}%
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between text-xs text-gray-400 mb-4">
-                      <span className="flex items-center gap-1">
-                        <span className="w-2 h-2 rounded-full bg-green-500 inline-block"></span>
-                        Yes ({poll.vote_count_yes.toLocaleString()})
-                      </span>
-                      <span className="text-gray-500">{total.toLocaleString()} votes</span>
-                      <span className="flex items-center gap-1">
-                        No ({poll.vote_count_no.toLocaleString()})
-                        <span className="w-2 h-2 rounded-full bg-rose-500 inline-block"></span>
-                      </span>
-                    </div>
-                  </>
-                )}
+                {/* Vote bar */}
+                <div className="mb-1">
+                  <div className="h-2 bg-gray-800 rounded-full overflow-hidden flex">
+                    <div className="bg-green-500 h-full transition-all" style={{ width: yesPercent + '%' }} />
+                    <div className="bg-rose-500 h-full transition-all" style={{ width: noPercent + '%' }} />
+                  </div>
+                  <div className="flex justify-between text-xs text-gray-500 mt-1 mb-3">
+                    <span>Yes {yesPercent}% · {poll.vote_count_yes.toLocaleString()}</span>
+                    <span>{total.toLocaleString()} votes</span>
+                    <span>{poll.vote_count_no.toLocaleString()} · No {noPercent}%</span>
+                  </div>
+                </div>
 
+                {/* Vote buttons */}
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleVote(poll.id, 'yes')}
                     disabled={hasVoted}
-                    className={'flex-1 py-2 rounded text-xs font-medium transition-colors ' + (hasVoted ? (userVotes[poll.id] === 'yes' ? 'bg-green-700 text-white' : 'bg-gray-700 text-gray-500 cursor-not-allowed') : 'bg-green-800 hover:bg-green-700 text-white')}
+                    className={'px-4 py-1.5 rounded text-xs font-medium transition-colors ' + (hasVoted ? (userVotes[poll.id] === 'yes' ? 'bg-green-700 text-white' : 'bg-gray-700 text-gray-500 cursor-not-allowed') : 'bg-green-800 hover:bg-green-700 text-white')}
                   >
                     {hasVoted && userVotes[poll.id] === 'yes' ? '✓ Yes' : 'Yes'}
                   </button>
                   <button
                     onClick={() => handleVote(poll.id, 'no')}
                     disabled={hasVoted}
-                    className={'flex-1 py-2 rounded text-xs font-medium transition-colors ' + (hasVoted ? (userVotes[poll.id] === 'no' ? 'bg-rose-700 text-white' : 'bg-gray-700 text-gray-500 cursor-not-allowed') : 'bg-rose-800 hover:bg-rose-700 text-white')}
+                    className={'px-4 py-1.5 rounded text-xs font-medium transition-colors ' + (hasVoted ? (userVotes[poll.id] === 'no' ? 'bg-rose-700 text-white' : 'bg-gray-700 text-gray-500 cursor-not-allowed') : 'bg-rose-800 hover:bg-rose-700 text-white')}
                   >
                     {hasVoted && userVotes[poll.id] === 'no' ? '✓ No' : 'No'}
                   </button>
