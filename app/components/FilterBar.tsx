@@ -98,7 +98,7 @@ export default function FilterBar({ onFiltersChange }: FilterBarProps) {
           placeholder="Search bills..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 min-w-[200px] px-4 py-2 bg-gray-800 text-white rounded border border-gray-700 focus:border-blue-500 focus:outline-none text-sm"
+          style={{width: '340px'}} className=" px-4 py-2 bg-gray-800 text-white rounded border border-gray-700 focus:border-blue-500 focus:outline-none text-sm"
         />
       </div>
     </div>
