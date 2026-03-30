@@ -39,7 +39,7 @@ export default function Navigation() {
               <img
                 src="/logo.png"
                 alt="People's Chamber"
-                style={{ height: '80px', width: 'auto', objectFit: 'contain' }}
+                style={{ height: '240px', width: 'auto', objectFit: 'contain' }}
               />
             </Link>
             
