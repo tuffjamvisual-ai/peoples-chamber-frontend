@@ -39,7 +39,7 @@ export default function FilterBar({ onFiltersChange }: FilterBarProps) {
           onChange={(e) => setSortBy(e.target.value)}
           className="px-3 py-2 bg-gray-800 text-white text-sm rounded border border-gray-700 focus:border-blue-500 focus:outline-none"
         >
-          <option value="trending">🔥 Trending</option>
+          <option value="trending">Trending</option>
           <option value="newest">Date Updated (Newest First)</option>
           <option value="oldest">Date Updated (Oldest First)</option>
         </select>
