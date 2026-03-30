@@ -23,7 +23,7 @@ export default function BillsGrid({ initialBills }: Props) {
   const [houseFilter, setHouseFilter] = useState('');
   const [sessionFilter, setSessionFilter] = useState('');
   const [stageFilter, setStageFilter] = useState('');
-  const [sortBy, setSortBy] = useState('newest');
+  const [sortBy, setSortBy] = useState('trending');
   const [parliamentVotedFilter, setParliamentVotedFilter] = useState(false);
   const [youVotedFilter, setYouVotedFilter] = useState(false);
   const [notVotedFilter, setNotVotedFilter] = useState(false);
@@ -90,7 +90,11 @@ export default function BillsGrid({ initialBills }: Props) {
     if (notVotedFilter) filtered = filtered.filter((bill: any) => !userVotes[bill.id]);
     if (hasSummaryFilter) filtered = filtered.filter((bill: any) => bill.plain_summary);
 
-    if (sortBy === 'newest') {
+    if (sortBy === 'trending') {
+      filtered.sort((a: any, b: any) => 
+        (b.vote_count_yes + b.vote_count_no + b.vote_count_abstain) - (a.vote_count_yes + a.vote_count_no + a.vote_count_abstain)
+      );
+    } else if (sortBy === 'newest') {
       filtered.sort((a: any, b: any) => new Date(b.last_update).getTime() - new Date(a.last_update).getTime());
     } else {
       filtered.sort((a: any, b: any) => new Date(a.last_update).getTime() - new Date(b.last_update).getTime());

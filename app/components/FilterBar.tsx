@@ -20,7 +20,7 @@ export default function FilterBar({ onFiltersChange }: FilterBarProps) {
   const [house, setHouse] = useState('');
   const [session, setSession] = useState('');
   const [stage, setStage] = useState('');
-  const [sortBy, setSortBy] = useState('newest');
+  const [sortBy, setSortBy] = useState('trending');
   const [parliamentVoted, setParliamentVoted] = useState(false);
   const [youVoted, setYouVoted] = useState(false);
   const [notVoted, setNotVoted] = useState(false);
@@ -39,6 +39,7 @@ export default function FilterBar({ onFiltersChange }: FilterBarProps) {
           onChange={(e) => setSortBy(e.target.value)}
           className="px-3 py-2 bg-gray-800 text-white text-sm rounded border border-gray-700 focus:border-blue-500 focus:outline-none"
         >
+          <option value="trending">🔥 Trending</option>
           <option value="newest">Date Updated (Newest First)</option>
           <option value="oldest">Date Updated (Oldest First)</option>
         </select>
@@ -83,13 +84,13 @@ export default function FilterBar({ onFiltersChange }: FilterBarProps) {
       <div className="flex flex-wrap items-center gap-3">
         <button
           onClick={() => setParliamentVoted(!parliamentVoted)}
-          className={`px-3 py-2 text-xs rounded transition-colors ${parliamentVoted ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+          className={'px-3 py-2 text-xs rounded transition-colors ' + (parliamentVoted ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600')}
         >
           Parliament Voted
         </button>
         <button
           onClick={() => setYouVoted(!youVoted)}
-          className={`px-3 py-2 text-xs rounded transition-colors ${youVoted ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+          className={'px-3 py-2 text-xs rounded transition-colors ' + (youVoted ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600')}
         >
           You Voted
         </button>
@@ -98,7 +99,8 @@ export default function FilterBar({ onFiltersChange }: FilterBarProps) {
           placeholder="Search bills..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          style={{width: '340px'}} className=" px-4 py-2 bg-gray-800 text-white rounded border border-gray-700 focus:border-blue-500 focus:outline-none text-sm"
+          style={{width: '340px'}}
+          className="px-4 py-2 bg-gray-800 text-white rounded border border-gray-700 focus:border-blue-500 focus:outline-none text-sm"
         />
       </div>
     </div>
