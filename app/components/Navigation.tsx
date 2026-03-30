@@ -36,17 +36,11 @@ export default function Navigation() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex-shrink-0">
-              <div className="flex items-center gap-3">
-                <img
-                  src="/logo.png"
-                  alt="People's Chamber"
-                  style={{ width: '96px', height: '96px', objectFit: 'contain' }}
-                />
-                <div className="text-left">
-                  <div className="text-3xl font-bold text-white leading-tight">THE PEOPLES</div>
-                  <div className="text-3xl font-bold text-white leading-tight">CHAMBER</div>
-                </div>
-              </div>
+              <img
+                src="/logo.png"
+                alt="People's Chamber"
+                style={{ height: '80px', width: 'auto', objectFit: 'contain' }}
+              />
             </Link>
             
             <div className="hidden lg:flex items-center space-x-3">
