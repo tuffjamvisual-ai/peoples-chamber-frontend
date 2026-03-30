@@ -1,3 +1,4 @@
+cat > ~/peoples-chamber-frontend/lib/data.ts << 'EOF'
 import { supabase } from './supabase';
 
 export type Bill = {
@@ -39,7 +40,6 @@ export async function getAllBills(): Promise<Bill[]> {
       const { data: bills, error } = await supabase
         .from('bill')
         .select('id, title, description, category, current_stage, stage_date, sponsor_name, sponsor_party, sponsor_party_colour, sponsor_photo, vote_count_yes, vote_count_no, vote_count_abstain, commons_ayes, commons_noes, last_update, bill_withdrawn, is_act')
-        .eq('status', 'Active')
         .order('id', { ascending: true })
         .range(rangeStart, rangeStart + rangeSize - 1);
       
@@ -81,3 +81,4 @@ export async function getAllBills(): Promise<Bill[]> {
     return [];
   }
 }
+EOF
