@@ -80,28 +80,27 @@ export default function FilterBar({ onFiltersChange }: FilterBarProps) {
         </select>
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-3">
+      <div className="flex flex-wrap items-center gap-3">
         <button
           onClick={() => setParliamentVoted(!parliamentVoted)}
-          className={`px-3 py-1.5 text-xs rounded transition-colors ${parliamentVoted ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+          className={`px-3 py-2 text-xs rounded transition-colors ${parliamentVoted ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
         >
           Parliament Voted
         </button>
         <button
           onClick={() => setYouVoted(!youVoted)}
-          className={`px-3 py-1.5 text-xs rounded transition-colors ${youVoted ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+          className={`px-3 py-2 text-xs rounded transition-colors ${youVoted ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
         >
           You Voted
         </button>
+        <input
+          type="text"
+          placeholder="Search bills..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="flex-1 min-w-[200px] px-4 py-2 bg-gray-800 text-white rounded border border-gray-700 focus:border-blue-500 focus:outline-none text-sm"
+        />
       </div>
-
-      <input
-        type="text"
-        placeholder="Search bills..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="w-full px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none"
-      />
     </div>
   );
 }
