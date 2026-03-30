@@ -33,18 +33,18 @@ export default function Navigation() {
   return (
     <>
       <nav className="bg-black/40 backdrop-blur-sm border-b border-gray-800/50 relative mb-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex-shrink-0">
-              <div className="flex flex-col items-start gap-0">
+              <div className="flex items-center gap-3">
                 <img
                   src="/logo.png"
                   alt="People's Chamber"
-                  className="w-[480px] sm:w-[576px] h-auto"
+                  className="w-20 h-20 object-contain"
                 />
                 <div className="text-left">
-                  <div className="text-3xl sm:text-4xl font-bold text-white leading-tight">THE PEOPLES</div>
-                  <div className="text-3xl sm:text-4xl font-bold text-white leading-tight">CHAMBER</div>
+                  <div className="text-2xl sm:text-3xl font-bold text-white leading-tight">THE PEOPLES</div>
+                  <div className="text-2xl sm:text-3xl font-bold text-white leading-tight">CHAMBER</div>
                 </div>
               </div>
             </Link>
