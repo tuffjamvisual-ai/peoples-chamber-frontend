@@ -40,11 +40,11 @@ export default function Navigation() {
                 <img
                   src="/logo.png"
                   alt="People's Chamber"
-                  className="w-16 h-16 sm:w-24 sm:h-24 object-contain"
+                  style={{ width: '96px', height: '96px', objectFit: 'contain' }}
                 />
                 <div className="text-left">
-                  <div className="text-xl sm:text-3xl font-bold text-white leading-tight">THE PEOPLES</div>
-                  <div className="text-xl sm:text-3xl font-bold text-white leading-tight">CHAMBER</div>
+                  <div className="text-3xl font-bold text-white leading-tight">THE PEOPLES</div>
+                  <div className="text-3xl font-bold text-white leading-tight">CHAMBER</div>
                 </div>
               </div>
             </Link>
