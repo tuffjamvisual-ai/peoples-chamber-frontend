@@ -4,7 +4,7 @@ import BillsGridMobile from './components/BillsGridMobile';
 import Navigation from './components/Navigation';
 import { headers } from 'next/headers';
 
-export const revalidate = 86400;
+export const revalidate = 0;
 
 export default async function HomePage() {
   const bills = await getAllBills();
