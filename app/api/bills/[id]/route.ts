@@ -28,10 +28,22 @@ export async function GET(
     if (error || !bill) {
       return NextResponse.json({ error: 'Bill not found' }, { status: 404 });
     }
+
+    // Fetch stages from Parliament API
+    let stages = [];
+    if (bill.parliament_id) {
+      try {
+        const stagesRes = await fetch(`https://bills-api.parliament.uk/api/v1/Bills/${bill.parliament_id}/Stages`);
+        const stagesData = await stagesRes.json();
+        stages = stagesData.items || [];
+      } catch (e) {
+        stages = [];
+      }
+    }
     
-    // Format response to match Flask API
     return NextResponse.json({
       id: bill.id,
+      parliament_id: bill.parliament_id,
       title: bill.title,
       long_title: bill.long_title,
       description: bill.description,
@@ -45,15 +57,21 @@ export async function GET(
       sponsor_photo: bill.sponsor_photo,
       sponsor_constituency: bill.sponsor_constituency,
       originating_house: bill.originating_house,
+      is_act: bill.is_act,
+      is_defeated: bill.is_defeated,
+      bill_withdrawn: bill.bill_withdrawn,
       plain_summary: bill.plain_summary,
       support_explanation: bill.support_explanation,
       oppose_explanation: bill.oppose_explanation,
       ai_generated: bill.ai_generated,
+      commons_ayes: bill.commons_ayes,
+      commons_noes: bill.commons_noes,
       votes: {
         yes: bill.vote_count_yes || 0,
         no: bill.vote_count_no || 0,
         abstain: bill.vote_count_abstain || 0
       },
+      stages: stages,
       user_vote: null
     });
     

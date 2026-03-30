@@ -7,8 +7,12 @@ type Law = {
   id: number
   title: string
   description: string
+  plain_summary: string | null
   stage_date: string | null
+  last_update: string | null
   sponsor_name: string | null
+  sponsor_party: string | null
+  sponsor_party_colour: string | null
   originating_house: string
 }
 
@@ -17,7 +21,7 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
 
   const filteredLaws = laws.filter(law =>
     law.title.toLowerCase().includes(search.toLowerCase()) ||
-    law.description.toLowerCase().includes(search.toLowerCase())
+    (law.plain_summary && law.plain_summary.toLowerCase().includes(search.toLowerCase()))
   )
 
   return (
@@ -32,7 +36,6 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
         </p>
       </div>
 
-      {/* Search Bar */}
       <div className="mb-6">
         <input
           type="text"
@@ -46,7 +49,7 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
       {filteredLaws.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-400">
-            {search ? `No laws found matching "${search}"` : 'No laws found with Royal Assent status'}
+            {search ? `No laws found matching "${search}"` : 'No laws found'}
           </p>
         </div>
       ) : (
@@ -55,20 +58,41 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
             <Link
               key={law.id}
               href={`/bills/${law.id}`}
-              className="bg-gray-900 border border-gray-800 rounded-lg p-4 sm:p-6 hover:border-blue-500 transition-colors"
+              className="bg-gray-900 border border-gray-800 rounded-lg p-4 sm:p-6 hover:border-blue-500 transition-colors flex flex-col"
             >
-              <h3 className="font-semibold text-base sm:text-lg text-white mb-3 line-clamp-2">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xs px-2 py-0.5 bg-green-900/40 text-green-300 rounded border border-green-800/40">
+                  ✓ Law
+                </span>
+                {law.originating_house && (
+                  <span className="text-xs text-gray-500">{law.originating_house}</span>
+                )}
+              </div>
+
+              <h3 className="font-semibold text-base text-white mb-3 line-clamp-2">
                 {law.title}
               </h3>
-              
-              <p className="text-gray-400 text-xs sm:text-sm mb-4 line-clamp-3">
-                {law.description}
-              </p>
 
-              <div className="flex items-center justify-between text-xs text-gray-500">
-                <span>{law.originating_house}</span>
-                {law.stage_date && (
-                  <span>{new Date(law.stage_date).toLocaleDateString()}</span>
+              {law.plain_summary && (
+                <p className="text-gray-400 text-xs mb-4 line-clamp-3 flex-1">
+                  {law.plain_summary}
+                </p>
+              )}
+
+              <div className="flex items-center justify-between text-xs text-gray-500 mt-auto">
+                {law.sponsor_name && (
+                  <span className="flex items-center gap-1">
+                    {law.sponsor_party && (
+                      <span
+                        className="inline-block w-2 h-2 rounded-full"
+                        style={{ backgroundColor: `#${law.sponsor_party_colour}` || '#6b7280' }}
+                      />
+                    )}
+                    {law.sponsor_name}
+                  </span>
+                )}
+                {law.last_update && (
+                  <span>{new Date(law.last_update).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                 )}
               </div>
             </Link>
