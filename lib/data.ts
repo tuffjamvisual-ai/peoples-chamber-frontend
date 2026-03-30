@@ -1,4 +1,3 @@
-cat > ~/peoples-chamber-frontend/lib/data.ts << 'EOF'
 import { supabase } from './supabase';
 
 export type Bill = {
@@ -81,4 +80,3 @@ export async function getAllBills(): Promise<Bill[]> {
     return [];
   }
 }
-EOF
