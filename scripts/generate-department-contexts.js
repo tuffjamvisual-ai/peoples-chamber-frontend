@@ -44,7 +44,7 @@ async function generateContext(dept) {
       tools: [{ type: 'web_search_20250305', name: 'web_search' }],
       messages: [{
         role: 'user',
-        content: `Search for the latest UK news about ${dept.name} covering: ${dept.topics}. Then write a 3-4 sentence street view paragraph for a UK politics app. Plain English, what ordinary people are experiencing right now. No specific dates or months — use currently or right now. Return ONLY the paragraph.`
+        content: `Search for the very latest UK news about ${dept.name} covering: ${dept.topics}. Find 3-4 specific current controversies, figures or issues that are happening right now. Then write a punchy 4-5 sentence street view paragraph for a UK politics app that: names the specific issues people are angry or worried about, includes specific figures where known (e.g. £1,738 energy bills, 3.7 million dragged into higher tax), explains the real impact on ordinary people, uses plain English anyone can understand, does NOT mention specific months or years. Return ONLY the paragraph, no intro or sign-off.`
       }]
     });
 
