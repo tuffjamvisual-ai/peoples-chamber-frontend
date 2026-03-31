@@ -11,6 +11,7 @@ type Poll = {
   vote_count_yes: number
   vote_count_no: number
   created_at: string
+  explainer: string | null
 }
 
 type SortOption = 'newest' | 'popular'
@@ -134,7 +135,10 @@ export default function PollsClient() {
                   )}
                 </div>
 
-                <h3 className="text-white font-semibold text-sm mb-4 leading-snug flex-1">{poll.question}</h3>
+                <h3 className="text-white font-semibold text-sm mb-2 leading-snug">{poll.question}</h3>
+                {poll.explainer && (
+                  <p className="text-gray-400 text-xs mb-4 leading-relaxed">{poll.explainer}</p>
+                )}
 
                 {/* Vote bar */}
                 <div className="mb-1">
