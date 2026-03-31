@@ -131,7 +131,7 @@ export default function PollsClient() {
 
                 <h3 className="text-white font-semibold text-sm mb-2 leading-snug">{poll.question}</h3>
                 {poll.explainer && (
-                  <p className="text-gray-400 text-xs mb-4 leading-relaxed">{poll.explainer}</p>
+                  <p className="text-gray-300 text-sm mb-4 leading-relaxed">{poll.explainer}</p>
                 )}
 
                 {/* Vote bar */}
