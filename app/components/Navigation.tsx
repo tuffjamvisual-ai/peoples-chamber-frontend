@@ -148,10 +148,10 @@ export default function Navigation() {
   
       </div>
 
+      <TrendingPoll />
       </nav>
 
 
-      <TrendingPoll />
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
