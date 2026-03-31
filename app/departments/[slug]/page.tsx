@@ -61,9 +61,9 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
             )}
             <div className="flex-1">
               <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">{dept.name}</h1>
-              <p className="text-gray-400 text-sm mb-3">{dept.description}</p>
+              <p className="text-gray-200 text-sm mb-3">{dept.description}</p>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-gray-500 text-sm">Secretary of State:</span>
+                <span className="text-gray-300 text-sm">Secretary of State:</span>
                 <span className="text-white font-medium text-sm">{dept.minister}</span>
               </div>
             </div>
@@ -106,13 +106,13 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
         {/* Street Context */}
         <div className="bg-blue-900/20 border border-blue-800/30 rounded-xl p-5 mb-6">
           <h2 className="text-sm font-semibold text-blue-300 mb-2">The Street View — March 2026</h2>
-          <p className="text-gray-300 text-sm leading-relaxed">{dept.streetContext}</p>
+          <p className="text-gray-200 text-sm leading-relaxed">{dept.streetContext}</p>
         </div>
 
         {/* Control Zones */}
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-6">
           <h2 className="text-lg font-semibold text-white mb-2">What This Department Controls</h2>
-          <p className="text-gray-500 text-xs mb-4">Click any topic to see every party's position on it</p>
+          <p className="text-gray-300 text-xs mb-4">Click any topic to see every party's position on it</p>
           <div className="flex flex-wrap gap-2">
             {dept.controlZones.map((zone) => {
               const hasDetail = dept.controlZonePositions?.some(z => z.zone === zone);
@@ -142,7 +142,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
               <h2 className="text-lg font-semibold text-yellow-300">{activeZone}</h2>
               <button onClick={() => setActiveZone(null)} className="text-gray-400 hover:text-white text-sm">✕ Close</button>
             </div>
-            <p className="text-gray-400 text-sm leading-relaxed mb-6">{activeZoneData.context}</p>
+            <p className="text-gray-200 text-sm leading-relaxed mb-6">{activeZoneData.context}</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {activeZoneData.positions.map((pos) => {
                 const party = parties.find(p => p.id === pos.partyId);
@@ -153,7 +153,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
                       <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: party.colour, color: party.textColour }}>{party.name}</span>
                     </div>
                     <p className="text-white font-medium text-xs mb-1">{pos.headline}</p>
-                    <p className="text-gray-300 text-xs leading-relaxed">{pos.position}</p>
+                    <p className="text-gray-200 text-xs leading-relaxed">{pos.position}</p>
                   </div>
                 );
               })}
@@ -171,7 +171,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
                   <h3 className="text-white font-medium text-sm">{issue.title}</h3>
                   {issue.hot && <span className="text-xs px-1.5 py-0.5 bg-red-900/40 text-red-400 rounded border border-red-800/40">Hot</span>}
                 </div>
-                <p className="text-gray-400 text-xs leading-relaxed">{issue.description}</p>
+                <p className="text-gray-200 text-xs leading-relaxed">{issue.description}</p>
               </div>
             ))}
           </div>
