@@ -224,14 +224,32 @@ export default function BillDetailPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             {bill.support_explanation && (
               <div className="bg-teal-900/20 border border-teal-800/30 rounded-lg p-5">
-                <h3 className="text-sm font-semibold text-teal-300 mb-2">A vote to support means</h3>
-                <p className="text-gray-300 text-sm leading-relaxed">{bill.support_explanation}</p>
+                <h3 className="text-sm font-semibold text-teal-300 mb-3">A vote to support means</h3>
+                <ul className="space-y-2">
+                  {((() => {
+                    try { const p = JSON.parse(bill.support_explanation!); return Array.isArray(p) ? p : [bill.support_explanation!]; } catch { return bill.support_explanation!.split('\n').filter(Boolean); }
+                  })()).map((point: string, i: number) => (
+                    <li key={i} className="flex gap-2 text-sm text-gray-300">
+                      <span className="text-teal-400 flex-shrink-0 mt-0.5">—</span>
+                      <span>{point.replace(/^[-–]\s*/, '')}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
             {bill.oppose_explanation && (
               <div className="bg-rose-900/20 border border-rose-800/30 rounded-lg p-5">
-                <h3 className="text-sm font-semibold text-rose-300 mb-2">A vote to oppose means</h3>
-                <p className="text-gray-300 text-sm leading-relaxed">{bill.oppose_explanation}</p>
+                <h3 className="text-sm font-semibold text-rose-300 mb-3">A vote to oppose means</h3>
+                <ul className="space-y-2">
+                  {((() => {
+                    try { const p = JSON.parse(bill.oppose_explanation!); return Array.isArray(p) ? p : [bill.oppose_explanation!]; } catch { return bill.oppose_explanation!.split('\n').filter(Boolean); }
+                  })()).map((point: string, i: number) => (
+                    <li key={i} className="flex gap-2 text-sm text-gray-300">
+                      <span className="text-rose-400 flex-shrink-0 mt-0.5">—</span>
+                      <span>{point.replace(/^[-–]\s*/, '')}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
           </div>
