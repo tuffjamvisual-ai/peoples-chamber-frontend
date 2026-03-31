@@ -102,6 +102,11 @@ export default function Navigation() {
             </button>
           </div>
 
+          {/* Trending Poll Row */}
+          <div className="hidden lg:block border-t border-gray-800/50 mt-3 pt-3">
+            <TrendingPoll />
+          </div>
+
           {mobileMenuOpen && (
             <div className="lg:hidden pb-4 border-t border-gray-800/50 mt-2">
               <div className="flex flex-col space-y-1 py-2">
@@ -148,7 +153,6 @@ export default function Navigation() {
   
       </div>
 
-      <TrendingPoll />
       </nav>
 
 
