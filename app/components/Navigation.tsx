@@ -146,6 +146,7 @@ export default function Navigation() {
       <div className="border-b border-gray-800/50">
   
       </div>
+      <TrendingPoll />
       </nav>
 
 
