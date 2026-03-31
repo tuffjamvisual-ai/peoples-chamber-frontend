@@ -51,7 +51,8 @@ export default function Navigation() {
               </div>
             </Link>
             
-            <div className="hidden lg:flex items-center space-x-3">
+            <div className="hidden lg:flex flex-col items-end gap-2">
+              <div className="flex items-center space-x-3">
               <Link href="/" className={`px-3 py-1.5 text-sm font-medium ${isActive('/') && !isActive('/laws') && !isActive('/mps') && !isActive('/about') && !isActive('/polls') ? 'text-blue-400' : 'text-gray-400 hover:text-white'}`}>
                 Bills
               </Link>
@@ -85,6 +86,8 @@ export default function Navigation() {
                   </button>
                 </>
               )}
+              </div>
+              <TrendingPoll />
             </div>
 
             <button
@@ -100,11 +103,6 @@ export default function Navigation() {
                 )}
               </svg>
             </button>
-          </div>
-
-          {/* Trending Poll Row */}
-          <div className="hidden lg:block border-t border-gray-800/50 mt-3 pt-3">
-            <TrendingPoll />
           </div>
 
           {mobileMenuOpen && (
