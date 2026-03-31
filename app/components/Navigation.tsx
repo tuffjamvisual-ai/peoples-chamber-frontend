@@ -32,15 +32,21 @@ export default function Navigation() {
 
   return (
     <>
-      <nav className="bg-black/40 backdrop-blur-sm border-b border-gray-800/50 relative mb-10">
+      <nav className="bg-black border-b border-gray-800/50 relative mb-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex-shrink-0">
-              <img
-                src="/logo.png"
-                alt="People's Chamber"
-                style={{ height: '400px', width: 'auto', objectFit: 'contain' }}
-              />
+              <div className="flex flex-col items-center">
+                <img
+                  src="/logo.png"
+                  alt="People's Chamber"
+                  style={{ height: '300px', width: 'auto', objectFit: 'contain' }}
+                />
+                <div className="text-center -mt-4">
+                  <div className="text-2xl font-bold text-white tracking-widest">THE PEOPLES CHAMBER</div>
+                  <div className="text-xs text-gray-400 tracking-wider mt-0.5">VOTING ON UK PARLIAMENT BILLS</div>
+                </div>
+              </div>
             </Link>
             
             <div className="hidden lg:flex items-center space-x-3">
@@ -51,7 +57,7 @@ export default function Navigation() {
                 Laws
               </Link>
               <Link href="/polls" className={`px-3 py-1.5 text-sm ${isActive('/polls') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
-                Polls
+                People's Polls
               </Link>
               <Link href="/mps" className={`px-3 py-1.5 text-sm ${isActive('/mps') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
                 MPs
@@ -104,7 +110,7 @@ export default function Navigation() {
                   Laws
                 </Link>
                 <Link href="/polls" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/polls') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-400'}`}>
-                  Polls
+                  People's Polls
                 </Link>
                 <Link href="/mps" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/mps') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-400'}`}>
                   MPs
