@@ -81,15 +81,9 @@ export default function PollsClient() {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="bg-gray-800/30 border border-gray-700/50 rounded-lg p-6 text-center">
-          <div className="text-3xl font-bold text-white">{polls.length}</div>
-          <div className="text-gray-400 text-sm mt-1">Total Polls</div>
-        </div>
-        <div className="bg-gray-800/30 border border-gray-700/50 rounded-lg p-6 text-center">
-          <div className="text-3xl font-bold text-white">{totalVotesAll.toLocaleString()}</div>
-          <div className="text-gray-400 text-sm mt-1">Total Votes</div>
-        </div>
+      <div className="flex gap-6 mb-4">
+        <div className="text-sm text-gray-400"><span className="text-white font-semibold">{polls.length}</span> polls</div>
+        <div className="text-sm text-gray-400"><span className="text-white font-semibold">{totalVotesAll.toLocaleString()}</span> total votes</div>
       </div>
 
       <div className="flex items-center gap-3 mb-4">
