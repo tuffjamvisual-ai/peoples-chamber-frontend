@@ -65,6 +65,7 @@ export default function Navigation() {
               <Link href="/mps" className={`px-3 py-1.5 text-sm ${isActive('/mps') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
                 MPs
               </Link>
+              <Link href="/departments" className={`px-3 py-1.5 text-sm ${isActive('/departments') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>Departments</Link>
               <Link href="/about" className={`px-3 py-1.5 text-sm ${isActive('/about') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
                 About
               </Link>
@@ -120,7 +121,8 @@ export default function Navigation() {
                 <Link href="/mps" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/mps') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-400'}`}>
                   MPs
                 </Link>
-                <Link href="/about" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/about') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-400'}`}>
+                <Link href="/departments" className={`px-3 py-1.5 text-sm ${isActive('/departments') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>Departments</Link>
+              <Link href="/about" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/about') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-400'}`}>
                   About
                 </Link>
                 
