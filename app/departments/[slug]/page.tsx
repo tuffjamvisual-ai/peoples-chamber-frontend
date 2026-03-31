@@ -22,6 +22,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
   const dept = departments.find((d) => d.slug === slug);
   const [activeZone, setActiveZone] = useState<string | null>(null);
   const [stats, setStats] = useState<EconomicStats | null>(null);
+  const [streetContext, setStreetContext] = useState<string | null>(null);
 
   useEffect(() => {
     if (slug === 'treasury') {
@@ -30,6 +31,10 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
         .then(d => setStats(d))
         .catch(() => {});
     }
+    fetch(`/api/department-context?slug=${slug}`)
+      .then(r => r.json())
+      .then(d => { if (d.street_context) setStreetContext(d.street_context); })
+      .catch(() => {});
   }, [slug]);
 
   if (!dept) return (
@@ -106,7 +111,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
         {/* Street Context */}
         <div className="bg-blue-900/20 border border-blue-800/30 rounded-xl p-5 mb-6">
           <h2 className="text-sm font-semibold text-blue-300 mb-2">The Street View — March 2026</h2>
-          <p className="text-gray-200 text-sm leading-relaxed">{dept.streetContext}</p>
+          <p className="text-gray-200 text-sm leading-relaxed">{streetContext || dept.streetContext}</p>
         </div>
 
         {/* Control Zones */}

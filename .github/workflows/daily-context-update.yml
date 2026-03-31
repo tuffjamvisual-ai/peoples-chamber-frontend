@@ -1,0 +1,21 @@
+name: Daily Department Context Update
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # midnight every day
+  workflow_dispatch:  # allow manual trigger
+
+jobs:
+  update-contexts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: npm install @anthropic-ai/sdk @supabase/supabase-js
+      - name: Run context generation
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node scripts/generate-department-contexts.js
