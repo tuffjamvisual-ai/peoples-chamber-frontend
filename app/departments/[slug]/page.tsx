@@ -2,7 +2,6 @@ import { departments } from '@/lib/departments';
 import Navigation from '../../components/Navigation';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
 
 export async function generateStaticParams() {
   return departments.map((d) => ({ slug: d.slug }));
@@ -17,11 +16,6 @@ export default async function DepartmentPage({ params }: PageProps) {
   const dept = departments.find((d) => d.slug === slug);
   if (!dept) notFound();
 
-  const { data: relatedBills } = await supabase
-    .from('bill')
-    .select('id, title, current_stage, vote_count_yes, vote_count_no')
-    .or(dept.controlZones.slice(0, 3).map(z => `title.ilike.%${z}%`).join(','))
-    .limit(6);
 
   return (
     <div className="min-h-screen bg-[#0a0f1a]">
