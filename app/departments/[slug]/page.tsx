@@ -4,10 +4,11 @@ import { departments } from '@/lib/departments';
 import { parties } from '@/lib/parties';
 import Navigation from '../../components/Navigation';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, use } from 'react';
 
-export default function DepartmentPage({ params }: { params: { slug: string } }) {
-  const dept = departments.find((d) => d.slug === params.slug);
+export default function DepartmentPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params);
+  const dept = departments.find((d) => d.slug === slug);
   const [activeZone, setActiveZone] = useState<string | null>(null);
 
   if (!dept) return (
@@ -54,7 +55,7 @@ export default function DepartmentPage({ params }: { params: { slug: string } })
           <p className="text-gray-300 text-sm leading-relaxed">{dept.streetContext}</p>
         </div>
 
-        {/* Control Zones — clickable */}
+        {/* Control Zones */}
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-6">
           <h2 className="text-lg font-semibold text-white mb-2">What This Department Controls</h2>
           <p className="text-gray-500 text-xs mb-4">Click any topic to see every party's position on it</p>
