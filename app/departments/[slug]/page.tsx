@@ -4,12 +4,33 @@ import { departments } from '@/lib/departments';
 import { parties } from '@/lib/parties';
 import Navigation from '../../components/Navigation';
 import Link from 'next/link';
-import { useState, use } from 'react';
+import { useState, use, useEffect } from 'react';
+
+type EconomicStats = {
+  cpi: string;
+  cpiDate: string;
+  bankRate: string;
+  nationalDebt: string;
+  annualBorrowing: string;
+  gdpGrowth: string;
+  debtGDP: string;
+  lastUpdated: string;
+};
 
 export default function DepartmentPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
   const dept = departments.find((d) => d.slug === slug);
   const [activeZone, setActiveZone] = useState<string | null>(null);
+  const [stats, setStats] = useState<EconomicStats | null>(null);
+
+  useEffect(() => {
+    if (slug === 'treasury') {
+      fetch('/api/economic-stats')
+        .then(r => r.json())
+        .then(d => setStats(d))
+        .catch(() => {});
+    }
+  }, [slug]);
 
   if (!dept) return (
     <div className="min-h-screen bg-[#0a0f1a] flex items-center justify-center">
@@ -48,6 +69,39 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
             </div>
           </div>
         </div>
+
+        {/* Live Stats — Treasury only */}
+        {slug === 'treasury' && (
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-semibold text-white">Live Economic Data</h2>
+              {stats && (
+                <span className="text-xs text-gray-500">
+                  CPI from ONS · Updated {stats.cpiDate}
+                </span>
+              )}
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+              {[
+                { label: 'CPI Inflation', value: stats ? stats.cpi + '%' : '...', color: 'text-amber-400', live: true },
+                { label: 'Bank Rate', value: stats ? stats.bankRate + '%' : '3.75%', color: 'text-blue-400', live: false },
+                { label: 'National Debt', value: stats ? stats.nationalDebt : '93% of GDP', color: 'text-red-400', live: false },
+                { label: 'Annual Borrowing', value: stats ? stats.annualBorrowing : '£133bn', color: 'text-orange-400', live: false },
+                { label: 'GDP Growth', value: stats ? stats.gdpGrowth : '1.1%', color: 'text-green-400', live: false },
+                { label: 'Debt/GDP', value: stats ? stats.debtGDP : '95%', color: 'text-purple-400', live: false },
+              ].map((stat) => (
+                <div key={stat.label} className="bg-gray-900 border border-gray-800 rounded-lg p-3 text-center">
+                  <div className={`text-xl font-bold ${stat.color}`}>{stat.value}</div>
+                  <div className="text-xs text-gray-500 mt-1">{stat.label}</div>
+                  {stat.live && <div className="text-xs text-green-600 mt-0.5">● live</div>}
+                </div>
+              ))}
+            </div>
+            <div className="mt-2 text-xs text-gray-600">
+              CPI: <a href="https://www.ons.gov.uk" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">ONS</a> · Other figures: <a href="https://obr.uk/efo/economic-and-fiscal-outlook-march-2026/" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">OBR March 2026</a>
+            </div>
+          </div>
+        )}
 
         {/* Street Context */}
         <div className="bg-blue-900/20 border border-blue-800/30 rounded-xl p-5 mb-6">
@@ -120,27 +174,6 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
                 <p className="text-gray-400 text-xs leading-relaxed">{issue.description}</p>
               </div>
             ))}
-          </div>
-        </div>
-
-        {/* Overall Party Positions */}
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Overall Party Positions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {dept.partyPositions.map((pos) => {
-              const party = parties.find(p => p.id === pos.partyId);
-              if (!party) return null;
-              return (
-                <div key={pos.partyId} className="bg-gray-900 border border-gray-800 rounded-xl p-5" style={{ borderLeftColor: party.colour, borderLeftWidth: '4px' }}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ backgroundColor: party.colour, color: party.textColour }}>{party.name}</span>
-                    {!party.hasMP && <span className="text-xs text-gray-500">No MPs</span>}
-                  </div>
-                  <p className="text-white font-medium text-sm mb-2">{pos.headline}</p>
-                  <p className="text-gray-300 text-sm leading-relaxed">{pos.position}</p>
-                </div>
-              );
-            })}
           </div>
         </div>
 
