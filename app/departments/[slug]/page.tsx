@@ -1,21 +1,22 @@
+'use client';
+
 import { departments } from '@/lib/departments';
 import { parties } from '@/lib/parties';
 import Navigation from '../../components/Navigation';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { useState } from 'react';
 
-export async function generateStaticParams() {
-  return departments.map((d) => ({ slug: d.slug }));
-}
+export default function DepartmentPage({ params }: { params: { slug: string } }) {
+  const dept = departments.find((d) => d.slug === params.slug);
+  const [activeZone, setActiveZone] = useState<string | null>(null);
 
-interface PageProps {
-  params: Promise<{ slug: string }>;
-}
+  if (!dept) return (
+    <div className="min-h-screen bg-[#0a0f1a] flex items-center justify-center">
+      <div className="text-white">Department not found</div>
+    </div>
+  );
 
-export default async function DepartmentPage({ params }: PageProps) {
-  const { slug } = await params;
-  const dept = departments.find((d) => d.slug === slug);
-  if (!dept) notFound();
+  const activeZoneData = dept.controlZonePositions?.find(z => z.zone === activeZone);
 
   return (
     <div className="min-h-screen bg-[#0a0f1a]">
@@ -53,15 +54,57 @@ export default async function DepartmentPage({ params }: PageProps) {
           <p className="text-gray-300 text-sm leading-relaxed">{dept.streetContext}</p>
         </div>
 
-        {/* Control Zones */}
+        {/* Control Zones — clickable */}
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-6">
-          <h2 className="text-lg font-semibold text-white mb-4">What This Department Controls</h2>
+          <h2 className="text-lg font-semibold text-white mb-2">What This Department Controls</h2>
+          <p className="text-gray-500 text-xs mb-4">Click any topic to see every party's position on it</p>
           <div className="flex flex-wrap gap-2">
-            {dept.controlZones.map((zone) => (
-              <span key={zone} className="px-3 py-1.5 bg-yellow-900/20 text-yellow-300 rounded-lg text-sm border border-yellow-800/30">{zone}</span>
-            ))}
+            {dept.controlZones.map((zone) => {
+              const hasDetail = dept.controlZonePositions?.some(z => z.zone === zone);
+              return (
+                <button
+                  key={zone}
+                  onClick={() => setActiveZone(activeZone === zone ? null : zone)}
+                  className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${
+                    activeZone === zone
+                      ? 'bg-yellow-600 text-white border-yellow-500'
+                      : hasDetail
+                      ? 'bg-yellow-900/20 text-yellow-300 border-yellow-800/30 hover:bg-yellow-900/40 cursor-pointer'
+                      : 'bg-gray-800/40 text-gray-500 border-gray-700/30 cursor-default'
+                  }`}
+                >
+                  {zone} {hasDetail && activeZone !== zone && <span className="text-xs opacity-60">↓</span>}
+                </button>
+              );
+            })}
           </div>
         </div>
+
+        {/* Control Zone Detail */}
+        {activeZone && activeZoneData && (
+          <div className="bg-gray-900 border border-yellow-700/40 rounded-xl p-6 mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-semibold text-yellow-300">{activeZone}</h2>
+              <button onClick={() => setActiveZone(null)} className="text-gray-400 hover:text-white text-sm">✕ Close</button>
+            </div>
+            <p className="text-gray-400 text-sm leading-relaxed mb-6">{activeZoneData.context}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {activeZoneData.positions.map((pos) => {
+                const party = parties.find(p => p.id === pos.partyId);
+                if (!party) return null;
+                return (
+                  <div key={pos.partyId} className="bg-gray-800/50 border border-gray-700 rounded-xl p-4" style={{ borderLeftColor: party.colour, borderLeftWidth: '4px' }}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: party.colour, color: party.textColour }}>{party.name}</span>
+                    </div>
+                    <p className="text-white font-medium text-xs mb-1">{pos.headline}</p>
+                    <p className="text-gray-300 text-xs leading-relaxed">{pos.position}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Current Issues */}
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-6">
@@ -79,9 +122,9 @@ export default async function DepartmentPage({ params }: PageProps) {
           </div>
         </div>
 
-        {/* Party Positions */}
+        {/* Overall Party Positions */}
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Where Every Party Stands</h2>
+          <h2 className="text-lg font-semibold text-white mb-4">Overall Party Positions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {dept.partyPositions.map((pos) => {
               const party = parties.find(p => p.id === pos.partyId);
