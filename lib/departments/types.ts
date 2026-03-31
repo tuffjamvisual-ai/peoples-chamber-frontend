@@ -10,13 +10,13 @@ export type PartyPosition = {
   position: string;
 };
 
-export type ControlZonePosition = {
+export type ControlZoneData = {
   zone: string;
   context: string;
   positions: PartyPosition[];
 };
 
-export type DepartmentData = {
+export type DepartmentMeta = {
   slug: string;
   name: string;
   shortName: string;
@@ -27,6 +27,9 @@ export type DepartmentData = {
   description: string;
   streetContext: string;
   currentIssues: CurrentIssue[];
+};
+
+export type DepartmentData = DepartmentMeta & {
   partyPositions: PartyPosition[];
-  controlZonePositions?: ControlZonePosition[];
+  controlZonePositions?: ControlZoneData[];
 };

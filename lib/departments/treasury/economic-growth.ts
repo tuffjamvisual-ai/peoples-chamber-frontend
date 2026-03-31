@@ -1,0 +1,26 @@
+import type { ControlZoneData } from '../types';
+
+const economicGrowth: ControlZoneData = {
+  zone: 'Economic Growth',
+  context: 'UK GDP growth has been sluggish since 2008. The OBR forecasts 1.1% growth for 2026. The UK has grown more slowly than the US and most European countries since Brexit. Labour growth mission — to achieve the highest sustained growth in the G7 — has stalled. Productivity growth remains the key long-term challenge.',
+  positions: [
+    { partyId: 'labour', headline: 'Growth mission — fixing the foundations for long-term growth', position: 'Labour growth mission aims for the highest sustained growth in the G7. Investment in clean energy, housing, transport and skills. Planning reform to unlock housebuilding. National Wealth Fund investing £7.3bn. But OBR has already revised down growth forecasts and business confidence has been hit by the NI rise.' },
+    { partyId: 'conservative', headline: 'Deregulate, cut taxes, invest — only way to grow', position: 'Conservatives argue growth comes from the private sector being freed to invest. Cut corporation tax, scrap net zero regulations, reform planning faster, cut red tape. Labour NI rise has damaged business investment.' },
+    { partyId: 'reform', headline: 'Supply-side revolution — cut taxes and regulation', position: 'Reform UK want a Thatcher-style supply-side revolution — radical tax cuts, mass deregulation, scrapping net zero obligations and reforming planning. Cite Ireland low corporation tax model as an example.' },
+    { partyId: 'libdem', headline: 'EU single market access — growth through trade', position: 'Lib Dems argue rejoining the EU single market is the single biggest thing the UK could do to boost growth. Brexit has reduced UK trade intensity by an estimated 15% according to the OBR.' },
+    { partyId: 'green', headline: 'Green New Deal — 1 million jobs, sustainable growth', position: 'Greens argue green investment is the growth opportunity of the century. Their Green New Deal would create 1 million new jobs in clean energy, insulation, public transport and sustainable agriculture.' },
+    { partyId: 'snp', headline: 'Scotland grows faster with the right powers', position: 'SNP argue Scotland could grow faster with independence — setting its own economic policies, rejoining the EU single market and controlling North Sea revenues.' },
+    { partyId: 'plaid', headline: 'Wales can grow with fair investment and devolved powers', position: 'Plaid argue Wales has enormous potential in renewable energy, tourism and advanced manufacturing held back by Westminster approach. Fair funding and full economic powers are needed.' },
+    { partyId: 'yourparty', headline: 'Public investment not private profit — real growth', position: 'Your Party argue growth driven by private sector profit extraction does not benefit workers. Real growth means rising wages, better public services and improved living standards.' },
+    { partyId: 'dup', headline: 'NI unique position can drive growth — if done right', position: 'DUP argue Northern Ireland dual access to UK and EU markets could drive growth — attracting investment from companies that want access to both. Only if Windsor Framework issues are resolved.' },
+    { partyId: 'sinnfein', headline: 'All-Ireland economy would drive growth on both sides', position: 'Sinn Féin argue Irish unity would create a powerful all-Ireland economy with £110bn combined GDP and full EU single market access.' },
+    { partyId: 'sdlp', headline: 'Investment in NI — peace dividend still not realised', position: 'SDLP argue Northern Ireland has not fully realised the economic peace dividend from the Good Friday Agreement. Continued investment in skills, infrastructure and cross-border cooperation is needed.' },
+    { partyId: 'alliance', headline: 'NI as innovation hub — dual market access is an asset', position: 'Alliance want to leverage NI unique dual access to UK and EU markets to attract investment. They support investment in tech, life sciences and renewable energy as NI growth sectors.' },
+    { partyId: 'tuv', headline: 'Economic freedom drives growth — cut state intervention', position: 'TUV believe economic growth comes from cutting state intervention, reducing taxes and allowing businesses to thrive. Free markets allocate capital more efficiently than politicians.' },
+    { partyId: 'uup', headline: 'NI growth potential needs proper UK government support', position: 'UUP want the UK government to properly invest in Northern Ireland growth potential — infrastructure, skills, research and development.' },
+    { partyId: 'restore', headline: 'Economic freedom — slash red tape and taxes to grow', position: 'Restore Britain want radical supply-side reform. Cut corporation tax to 15%, raise income tax threshold to £20,000, scrap net zero regulations, reform planning.' },
+    { partyId: 'others', headline: 'UKIP: Brexit dividend through deregulation. Alba: Scottish growth through independence.', position: 'UKIP argue Brexit has not yet delivered its growth dividend because governments have not been bold enough in deregulation. Alba want independence to allow Scotland to pursue its own growth strategy.' },
+  ]
+};
+
+export default economicGrowth;

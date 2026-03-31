@@ -1,0 +1,26 @@
+import type { ControlZoneData } from '../types';
+
+const mortgageRules: ControlZoneData = {
+  zone: 'Mortgage Rules',
+  context: 'UK average mortgage rates rose sharply from 2022 as the Bank Rate increased from 0.1% to 5.25%. They have since fallen to around 4.5% on 2-year fixes as the Bank Rate has been cut to 3.75%. 1.5 million households face remortgaging in 2026. The average mortgage payment has increased by £300-500/month compared to 2021 for many homeowners.',
+  positions: [
+    { partyId: 'labour', headline: 'Mortgage charter and first homes — helping buyers', position: 'Labour worked with banks on a Mortgage Charter — banks committed to support struggling mortgage holders through payment holidays and switching to interest-only. First Homes scheme at 30-50% discount. Planning reform to increase housing supply long-term.' },
+    { partyId: 'conservative', headline: 'Abolish stamp duty — help first-time buyers', position: 'Conservatives want to abolish stamp duty on primary residences to help first-time buyers. Also want to scrap real interest rates on Plan 2 student loans to improve young people ability to save for a deposit.' },
+    { partyId: 'reform', headline: 'Cut immigration to ease housing demand and mortgage pressure', position: 'Reform UK argue mass immigration is a primary cause of high house prices and stretched mortgage affordability. Reducing net migration to zero would ease housing demand and make mortgages more affordable.' },
+    { partyId: 'libdem', headline: 'Mortgage victims need urgent support', position: 'Lib Dems want mortgage lenders required to offer longer-term fixed rates at more competitive prices. Support the mortgage charter but argue it does not go far enough. Rent to Own scheme for first-time buyers.' },
+    { partyId: 'green', headline: 'Build social homes — end mortgage trap through tenure reform', position: 'Greens argue the mortgage crisis is a symptom of a housing system built around property speculation. Their solution is building 150,000 social homes per year and introducing rent controls.' },
+    { partyId: 'snp', headline: 'Scottish Government supporting mortgage holders', position: 'SNP have introduced additional support through the Scottish Government Mortgage to Rent and Mortgage to Shared Equity schemes. An independent Scotland would have full control of housing and mortgage policy.' },
+    { partyId: 'plaid', headline: 'Welsh mortgage holders hit by UK interest rate decisions', position: 'Plaid want the Welsh Government to have more powers to support Welsh homeowners and first-time buyers including a Welsh first-time buyer scheme.' },
+    { partyId: 'yourparty', headline: 'End mortgage profiteering — banks must pass on cuts', position: 'Your Party want banks legally required to pass on Bank Rate cuts to mortgage holders within one month. A public mortgage lender offering below-market rates should be established.' },
+    { partyId: 'dup', headline: 'NI mortgage market needs specific support', position: 'DUP note Northern Ireland mortgage market has unique characteristics — lower house prices but also lower wages, and legacy issues from the 2008 crash. Specific support for NI homeowners is needed.' },
+    { partyId: 'sinnfein', headline: 'Mortgage holders need protection — banks are profiteering', position: 'Sinn Féin want strong action to ensure banks pass on interest rate cuts to mortgage holders. They support the Mortgage Charter but want it to have legal force.' },
+    { partyId: 'sdlp', headline: 'Protect mortgage holders — NI families under pressure', position: 'SDLP want the mortgage charter strengthened with legal teeth. Northern Ireland families are under severe financial pressure from high mortgage costs combined with high energy bills.' },
+    { partyId: 'alliance', headline: 'Mortgage support and first-time buyer help essential', position: 'Alliance support the mortgage charter and want it strengthened. They want first-time buyer support that reflects NI specific housing market conditions.' },
+    { partyId: 'tuv', headline: 'Government interference in mortgages makes things worse', position: 'TUV are sceptical of government intervention in the mortgage market. The solution to high mortgage costs is lower interest rates through sound monetary policy and reducing government spending.' },
+    { partyId: 'uup', headline: 'First-time buyers in NI need specific support', position: 'UUP want a dedicated first-time buyer scheme for Northern Ireland recognising that NI unique housing market requires specific policies.' },
+    { partyId: 'restore', headline: 'Cut interest rates through sound money — help mortgage holders', position: 'Restore Britain argue the best mortgage support is sound fiscal policy that keeps inflation low and interest rates falling. Oppose specific mortgage interventions as market distortions.' },
+    { partyId: 'others', headline: 'UKIP: Cut immigration to ease housing pressure. Alba: Scottish mortgage scheme post-independence.', position: 'UKIP want immigration cuts to reduce housing demand and bring mortgage affordability back. Alba want an independent Scotland to have its own mortgage guarantee scheme.' },
+  ]
+};
+
+export default mortgageRules;

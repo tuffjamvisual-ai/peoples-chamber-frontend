@@ -1,0 +1,26 @@
+import type { ControlZoneData } from '../types';
+
+const costOfLiving: ControlZoneData = {
+  zone: 'Cost of Living',
+  context: 'The UK cost of living crisis began in 2021 with energy price rises. Food prices are 25% higher than 2021. Energy bills average £1,738/year — down from the £2,500 cap peak but still well above pre-2021 levels of £1,100. Mortgage costs have risen sharply. Real wages only recovered to 2008 levels in 2024.',
+  positions: [
+    { partyId: 'labour', headline: 'Inflation falling, wages rising — but people still struggle', position: 'Labour argue their economic plan is working — inflation falling, wages rising above inflation. But they acknowledge the cost of living crisis is not over. The £300 winter fuel cut caused major backlash. Energy bill support being reviewed as Middle East conflict pushes prices up again.' },
+    { partyId: 'conservative', headline: 'Labour making things worse — NI rise and green taxes', position: 'Conservatives argue Labour NI rise is causing redundancies and reducing take-home pay. Green levies on energy bills are adding hundreds of pounds unnecessarily. Cut taxes, scrap green levies and let people keep more of their money.' },
+    { partyId: 'reform', headline: 'Cost of living crisis is political failure — radical change needed', position: 'Reform UK argue the crisis is the result of net zero policies pushing up energy costs, mass immigration depressing wages, and excessive government spending causing inflation. Scrap green levies, control immigration, cut taxes.' },
+    { partyId: 'libdem', headline: 'Cost of living package — emergency fund for poorest', position: 'Lib Dems want an emergency cost of living package — a £500 one-off payment to the lowest-income households. Free school meals for all primary children. Cut energy bills through home insulation programme.' },
+    { partyId: 'green', headline: 'Insulate Britain — cut bills permanently not temporarily', position: 'Greens argue the only permanent solution to high energy bills is home insulation and renewable energy. Their £30bn insulation programme would cut average bills by £500/year permanently. Short-term support payments are sticking plasters.' },
+    { partyId: 'snp', headline: 'Scottish Government doing more — Westminster not enough', position: 'SNP point to Scotland Child Payment, free prescriptions, free school meals and council tax freeze as evidence Scotland is doing more. An independent Scotland would have full tools to tackle the crisis.' },
+    { partyId: 'plaid', headline: 'Welsh families hit hardest — need immediate support', position: 'Plaid note Welsh incomes are lower and housing quality worse than the UK average meaning the cost of living crisis has hit Wales harder. Want targeted support for Welsh families.' },
+    { partyId: 'yourparty', headline: 'End the crisis — nationalise energy now', position: 'Your Party argue the crisis is caused by privatised energy companies putting profits before people. Nationalise energy, cap profits, and ensure everyone can afford to heat their home. Emergency food price controls.' },
+    { partyId: 'dup', headline: 'NI cost of living made worse by Windsor Framework', position: 'DUP argue Northern Ireland faces additional cost of living pressures from the Windsor Framework — goods cost more in NI than GB due to the Irish Sea border. This unique burden requires specific Treasury support.' },
+    { partyId: 'sinnfein', headline: 'Emergency measures needed — people cannot wait', position: 'Sinn Féin want emergency cost of living measures now — price caps on essential foods, energy bill support and emergency welfare payments.' },
+    { partyId: 'sdlp', headline: 'Cost of living crisis devastating NI communities', position: 'SDLP argue Northern Ireland communities are particularly hard hit — high energy bills, food poverty and low wages are causing real hardship.' },
+    { partyId: 'alliance', headline: 'Practical help for families — targeted support', position: 'Alliance support targeted cost of living support for the most vulnerable households and energy efficiency investment to reduce bills permanently.' },
+    { partyId: 'tuv', headline: 'Cut taxes to help families — government takes too much', position: 'TUV argue the best cost of living support is cutting taxes — letting families keep more of their own money. Scrap green levies, reduce income tax, cut VAT on essentials.' },
+    { partyId: 'uup', headline: 'Cost of living support must reach NI families', position: 'UUP want cost of living support properly targeted at NI families who face unique pressures from the Windsor Framework, poor housing stock and lower average wages.' },
+    { partyId: 'restore', headline: 'Cut taxes and green levies — return money to people', position: 'Restore Britain want to cut the taxes and green levies adding to the cost of living. Raise income tax threshold, scrap green energy levies, cut fuel duty.' },
+    { partyId: 'others', headline: 'UKIP: Cut green levies. Alba: Scottish cost of living fund.', position: 'UKIP want all green levies removed from energy bills immediately. Alba want a Scottish cost of living fund funded from North Sea revenues.' },
+  ]
+};
+
+export default costOfLiving;
