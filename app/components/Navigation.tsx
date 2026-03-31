@@ -42,7 +42,7 @@ export default function Navigation() {
                   alt="People's Chamber"
                   style={{ height: '300px', width: 'auto', objectFit: 'contain' }}
                 />
-                <div className="text-center -mt-4">
+                <div className="text-center -mt-6">
                   <div className="text-2xl font-bold text-white tracking-widest">THE PEOPLES CHAMBER</div>
                   <div className="text-xs text-gray-400 tracking-wider mt-0.5">VOTING ON UK PARLIAMENT BILLS</div>
                 </div>
