@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import AuthModal from './AuthModal';
 import { useState } from 'react';
 import Link from 'next/link';
+import TrendingPoll from './TrendingPoll';
 import { usePathname } from 'next/navigation';
 
 export default function Navigation() {
