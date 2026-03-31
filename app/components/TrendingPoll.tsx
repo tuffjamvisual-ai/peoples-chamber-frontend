@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext'
 type Poll = {
   id: number
   question: string
+  constituency: string | null
   vote_count_yes: number
   vote_count_no: number
 }
@@ -14,7 +15,6 @@ export default function TrendingPoll() {
   const { user } = useAuth()
   const [poll, setPoll] = useState<Poll | null>(null)
   const [userVote, setUserVote] = useState<string | null>(null)
-  const [showAuth, setShowAuth] = useState(false)
 
   useEffect(() => {
     fetch('/api/polls')
@@ -37,7 +37,7 @@ export default function TrendingPoll() {
   }, [user, poll])
 
   const handleVote = async (choice: 'yes' | 'no') => {
-    if (!user) { window.dispatchEvent(new CustomEvent('openAuth', { detail: 'signup' })); return; }
+    if (!user) { return; }
     if (userVote) return
     const res = await fetch('/api/polls/vote', {
       method: 'POST',
@@ -61,32 +61,45 @@ export default function TrendingPoll() {
   const noPercent = 100 - yesPercent
 
   return (
-    <div className="bg-gray-900 border-b border-gray-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3">
-        <div className="flex items-center gap-4 flex-wrap">
-          <span className="text-xs px-2 py-0.5 bg-blue-900/40 text-blue-300 rounded border border-blue-800/40 whitespace-nowrap">Trending Poll</span>
-          <p className="text-sm text-white flex-1 min-w-[200px]">{poll.question}</p>
-          <div className="flex items-center gap-3 flex-shrink-0">
-            {total > 0 && (
-              <div className="flex items-center gap-1 text-xs text-gray-400">
-                <div className="w-16 h-1.5 bg-gray-700 rounded-full overflow-hidden flex">
-                  <div className="bg-green-500 h-full" style={{ width: yesPercent + '%' }} />
-                  <div className="bg-rose-500 h-full" style={{ width: noPercent + '%' }} />
-                </div>
-                <span>{total} votes</span>
-              </div>
+    <div className="bg-gray-900 border-b border-gray-800 py-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="text-xs text-gray-500 uppercase tracking-wider mb-3">Trending People's Poll</div>
+        <div className="bg-gray-800 border border-gray-700 rounded-lg p-5 max-w-2xl">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs px-2 py-0.5 bg-blue-900/40 text-blue-300 rounded border border-blue-800/40">Poll</span>
+            {poll.constituency && (
+              <span className="text-xs px-2 py-0.5 bg-purple-900/40 text-purple-300 rounded border border-purple-800/40">{poll.constituency}</span>
             )}
+          </div>
+
+          <h3 className="text-white font-semibold text-sm mb-4 leading-snug">{poll.question}</h3>
+
+          {total > 0 && (
+            <>
+              <div className="h-2 bg-gray-700 rounded-full overflow-hidden flex mb-1">
+                <div className="bg-green-500 h-full transition-all" style={{ width: yesPercent + '%' }} />
+                <div className="bg-rose-500 h-full transition-all" style={{ width: noPercent + '%' }} />
+              </div>
+              <div className="flex justify-between text-xs text-gray-400 mb-4">
+                <span>Yes {yesPercent}% · {poll.vote_count_yes}</span>
+                <span>{total} votes</span>
+                <span>{poll.vote_count_no} · No {noPercent}%</span>
+              </div>
+            </>
+          )}
+
+          <div className="flex gap-2">
             <button
               onClick={() => handleVote('yes')}
               disabled={!!userVote}
-              className={'px-3 py-1 rounded text-xs font-medium transition-colors ' + (userVote === 'yes' ? 'bg-green-700 text-white' : userVote ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-green-800 hover:bg-green-700 text-white')}
+              className={'px-4 py-1.5 rounded text-xs font-medium transition-colors ' + (userVote === 'yes' ? 'bg-green-700 text-white' : userVote ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-green-800 hover:bg-green-700 text-white')}
             >
               {userVote === 'yes' ? '✓ Yes' : 'Yes'}
             </button>
             <button
               onClick={() => handleVote('no')}
               disabled={!!userVote}
-              className={'px-3 py-1 rounded text-xs font-medium transition-colors ' + (userVote === 'no' ? 'bg-rose-700 text-white' : userVote ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-rose-800 hover:bg-rose-700 text-white')}
+              className={'px-4 py-1.5 rounded text-xs font-medium transition-colors ' + (userVote === 'no' ? 'bg-rose-700 text-white' : userVote ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-rose-800 hover:bg-rose-700 text-white')}
             >
               {userVote === 'no' ? '✓ No' : 'No'}
             </button>
