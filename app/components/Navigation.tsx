@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import AuthModal from './AuthModal';
 import { useState } from 'react';
 import Link from 'next/link';
-import TrendingPoll from './TrendingPoll';
+
 import { usePathname } from 'next/navigation';
 
 export default function Navigation() {
@@ -146,7 +146,7 @@ export default function Navigation() {
       <div className="border-b border-gray-800/50">
   
       </div>
-      <TrendingPoll />
+
       </nav>
 
 
