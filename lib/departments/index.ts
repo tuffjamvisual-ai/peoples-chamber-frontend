@@ -6,3 +6,4 @@ export const departments: DepartmentData[] = [
 ];
 
 export type { DepartmentData };
+
