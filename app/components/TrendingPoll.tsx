@@ -76,7 +76,7 @@ export default function TrendingPoll() {
 
         {total > 0 && (
           <>
-            <div className="h-2 bg-gray-800 rounded-full overflow-hidden flex mb-1">
+            <div className="h-8 bg-gray-800 rounded-full overflow-hidden flex mb-2">
               <div className="bg-green-500 h-full transition-all" style={{ width: yesPercent + '%' }} />
               <div className="bg-rose-500 h-full transition-all" style={{ width: noPercent + '%' }} />
             </div>
