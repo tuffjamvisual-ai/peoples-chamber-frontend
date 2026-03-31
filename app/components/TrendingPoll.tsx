@@ -61,7 +61,7 @@ export default function TrendingPoll() {
   const noPercent = 100 - yesPercent
 
   return (
-    <div className="bg-gray-900 border-b border-gray-800 py-4">
+    <div className="py-4">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-xs text-gray-500 uppercase tracking-wider mb-3">Trending People's Poll</div>
         <div className="bg-gray-800 border border-gray-700 rounded-lg p-5 max-w-2xl">
