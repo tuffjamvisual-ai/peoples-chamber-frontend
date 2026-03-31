@@ -143,9 +143,12 @@ export default function Navigation() {
             </div>
           )}
         </div>
+      <div className="border-b border-gray-800/50">
+  
+      </div>
       </nav>
 
-      <TrendingPoll />
+
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
