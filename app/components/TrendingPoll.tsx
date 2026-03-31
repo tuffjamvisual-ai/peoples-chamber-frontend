@@ -69,12 +69,12 @@ export default function TrendingPoll() {
           <span className="text-xs px-2 py-0.5 bg-blue-900/40 text-blue-300 rounded border border-blue-800/40">Poll</span>
           {poll.constituency && (
             <span className="text-xs px-2 py-0.5 bg-purple-900/40 text-purple-300 rounded border border-purple-800/40">{poll.constituency}</span>
-          )}
+        )}
         </div>
 
         <h3 className="text-white font-semibold text-sm mb-3 leading-snug">{poll.question}</h3>
 
-        {total > 0 && (
+        {(
           <>
             <div className="h-8 bg-gray-800 rounded-full overflow-hidden flex mb-2">
               <div className="bg-green-500 h-full transition-all" style={{ width: yesPercent + '%' }} />
