@@ -1,12 +1,12 @@
-name: Daily Department Context Update
+name: Daily Department Updates
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # midnight every day
-  workflow_dispatch:  # allow manual trigger
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
-  update-contexts:
+  update-departments:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -15,7 +15,10 @@ jobs:
           node-version: '18'
       - name: Install dependencies
         run: npm install @anthropic-ai/sdk @supabase/supabase-js
-      - name: Run context generation
+      - name: Update street contexts
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: node scripts/generate-department-contexts.js
+      - name: Trigger Vercel redeploy
+        run: |
+          curl -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
