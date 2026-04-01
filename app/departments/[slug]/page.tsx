@@ -80,38 +80,63 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
           </div>
         </div>
 
-        {/* Live Stats — Treasury only */}
-        {slug === 'treasury' && (
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-lg font-semibold text-white">Live Economic Data</h2>
-              {stats && (
-                <span className="text-xs text-gray-500">
-                  CPI from ONS · Updated {stats.cpiDate}
-                </span>
+        {/* Two column row — stats + search */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+
+          {/* Left — Live Stats (Treasury only) or placeholder */}
+          {slug === 'treasury' ? (
+            <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-sm font-semibold text-white">Live Economic Data</h2>
+                {stats && <span className="text-xs text-gray-500">Updated {stats.cpiDate}</span>}
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { label: 'CPI Inflation', value: stats ? stats.cpi + '%' : '...', color: 'text-amber-400', live: true },
+                  { label: 'Bank Rate', value: stats ? stats.bankRate + '%' : '3.75%', color: 'text-blue-400', live: false },
+                  { label: 'Nat. Debt', value: stats ? stats.nationalDebt : '93% GDP', color: 'text-red-400', live: false },
+                  { label: 'Borrowing', value: stats ? stats.annualBorrowing : '£133bn', color: 'text-orange-400', live: false },
+                  { label: 'GDP Growth', value: stats ? stats.gdpGrowth : '1.1%', color: 'text-green-400', live: false },
+                  { label: 'Debt/GDP', value: stats ? stats.debtGDP : '95%', color: 'text-purple-400', live: false },
+                ].map((stat) => (
+                  <div key={stat.label} className="bg-gray-800/50 rounded-lg p-2 text-center">
+                    <div className={`text-base font-bold ${stat.color}`}>{stat.value}</div>
+                    <div className="text-xs text-gray-500 mt-0.5">{stat.label}</div>
+                    {stat.live && <div className="text-xs text-green-600">● live</div>}
+                  </div>
+                ))}
+              </div>
+              <div className="mt-2 text-xs text-gray-600">
+                <a href="https://www.ons.gov.uk" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">ONS</a> · <a href="https://obr.uk" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">OBR</a>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 flex items-center justify-center">
+              <p className="text-gray-600 text-sm">Live data coming soon</p>
+            </div>
+          )}
+
+          {/* Right — Zone Search */}
+          <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+            <h2 className="text-sm font-semibold text-white mb-1">Search Topics</h2>
+            <p className="text-gray-500 text-xs mb-3">Type any issue to find what every party says about it</p>
+            <div className="relative">
+              <input
+                type="text"
+                value={zoneSearch}
+                onChange={(e) => setZoneSearch(e.target.value)}
+                placeholder={`Search ${dept.controlZones.length} topics...`}
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-yellow-500"
+              />
+              {zoneSearch && (
+                <button onClick={() => setZoneSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white text-xs">✕</button>
               )}
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-              {[
-                { label: 'CPI Inflation', value: stats ? stats.cpi + '%' : '...', color: 'text-amber-400', live: true },
-                { label: 'Bank Rate', value: stats ? stats.bankRate + '%' : '3.75%', color: 'text-blue-400', live: false },
-                { label: 'National Debt', value: stats ? stats.nationalDebt : '93% of GDP', color: 'text-red-400', live: false },
-                { label: 'Annual Borrowing', value: stats ? stats.annualBorrowing : '£133bn', color: 'text-orange-400', live: false },
-                { label: 'GDP Growth', value: stats ? stats.gdpGrowth : '1.1%', color: 'text-green-400', live: false },
-                { label: 'Debt/GDP', value: stats ? stats.debtGDP : '95%', color: 'text-purple-400', live: false },
-              ].map((stat) => (
-                <div key={stat.label} className="bg-gray-900 border border-gray-800 rounded-lg p-3 text-center">
-                  <div className={`text-xl font-bold ${stat.color}`}>{stat.value}</div>
-                  <div className="text-xs text-gray-500 mt-1">{stat.label}</div>
-                  {stat.live && <div className="text-xs text-green-600 mt-0.5">● live</div>}
-                </div>
-              ))}
-            </div>
-            <div className="mt-2 text-xs text-gray-600">
-              CPI: <a href="https://www.ons.gov.uk" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">ONS</a> · Other figures: <a href="https://obr.uk/efo/economic-and-fiscal-outlook-march-2026/" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">OBR March 2026</a>
-            </div>
+            {zoneSearch && filteredZones.length === 0 && (
+              <p className="text-gray-500 text-xs mt-2">No topics match "{zoneSearch}" — try a different term</p>
+            )}
           </div>
-        )}
+        </div>
 
         {/* Street Context */}
         <div className="bg-blue-900/20 border border-blue-800/30 rounded-xl p-5 mb-6">
@@ -120,53 +145,41 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
         </div>
 
         {/* Control Zones */}
+        {/* Topic List */}
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-6">
-          <h2 className="text-lg font-semibold text-white mb-1">What This Department Controls</h2>
-          <p className="text-gray-400 text-xs mb-4">Search any topic or browse A-Z — click a topic to see what every party says about it</p>
-
-          <div className="relative mb-4">
-            <input
-              type="text"
-              value={zoneSearch}
-              onChange={(e) => setZoneSearch(e.target.value)}
-              placeholder={`Search ${dept.controlZones.length} topics — e.g. tax, mortgage, pension...`}
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-yellow-500"
-            />
-            {zoneSearch && (
-              <button onClick={() => setZoneSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white text-xs">✕</button>
-            )}
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-white">All Topics A-Z</h2>
+            <span className="text-xs text-gray-500">{dept.controlZones.length} topics</span>
           </div>
 
           {zoneSearch && filteredZones.length === 0 && (
-            <div className="bg-gray-800/50 rounded-lg p-4 mb-4 text-center">
+            <div className="text-center py-4 mb-4">
               <p className="text-gray-300 text-sm">No topics match "{zoneSearch}"</p>
-              <p className="text-gray-500 text-xs mt-1">Try a different term or browse all topics below</p>
-              <button onClick={() => setZoneSearch('')} className="text-yellow-400 text-xs mt-2 hover:underline">Show all topics</button>
+              <button onClick={() => setZoneSearch('')} className="text-yellow-400 text-xs mt-1 hover:underline">Clear search</button>
             </div>
           )}
 
-          <div className="flex flex-wrap gap-2">
+          <div className="columns-2 sm:columns-3 lg:columns-4 gap-x-6">
             {(zoneSearch ? filteredZones : [...dept.controlZones].sort()).map((zone) => {
               const hasDetail = dept.controlZonePositions?.some(z => z.zone === zone);
               return (
                 <button
                   key={zone}
                   onClick={() => { setActiveZone(activeZone === zone ? null : zone); setZoneSearch(''); }}
-                  className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${
+                  className={`block w-full text-left py-1.5 text-sm border-b border-gray-800/50 transition-colors ${
                     activeZone === zone
-                      ? 'bg-yellow-600 text-white border-yellow-500'
+                      ? 'text-yellow-400 font-medium'
                       : hasDetail
-                      ? 'bg-yellow-900/20 text-yellow-300 border-yellow-800/30 hover:bg-yellow-900/40 cursor-pointer'
-                      : 'bg-gray-800/40 text-gray-400 border-gray-700/30 hover:bg-gray-700/40 cursor-pointer'
+                      ? 'text-gray-200 hover:text-yellow-300'
+                      : 'text-gray-400 hover:text-gray-200'
                   }`}
                 >
-                  {zone}{hasDetail && activeZone !== zone && <span className="text-xs opacity-60 ml-1">↓</span>}
+                  {zone}{hasDetail && <span className="text-yellow-600 ml-1 text-xs">●</span>}
                 </button>
               );
             })}
           </div>
-
-          <p className="text-gray-600 text-xs mt-3">{dept.controlZones.length} topics · {dept.controlZonePositions?.length || 0} with full party analysis · sorted A-Z</p>
+          <p className="text-gray-600 text-xs mt-4">● = full party analysis available</p>
         </div>
 
         {/* Control Zone Detail */}
