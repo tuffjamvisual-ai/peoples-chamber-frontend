@@ -7,6 +7,22 @@ import Link from 'next/link';
 import { useState, use, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 
+type GovukMinister = {
+  name: string;
+  photo: string;
+  role: string;
+  responsibilities: string;
+  url: string;
+};
+
+type GovukData = {
+  title: string;
+  description: string;
+  ministers: GovukMinister[];
+  childOrgs: { name: string; url: string; status: string }[];
+  featuredDocs: { title: string; url: string; summary: string }[];
+};
+
 type EconomicStats = {
   cpi: string;
   cpiDate: string;
@@ -28,6 +44,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
   const filteredZones = dept ? dept.controlZones.filter(z => z.toLowerCase().includes(zoneSearch.toLowerCase())) : [];
   const [stats, setStats] = useState<EconomicStats | null>(null);
   const [streetContext, setStreetContext] = useState<string | null>(null);
+  const [govukData, setGovukData] = useState<GovukData | null>(null);
 
   useEffect(() => {
     if (slug === 'treasury') {
@@ -36,6 +53,10 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
         .then(d => setStats(d))
         .catch(() => {});
     }
+    fetch(`/api/govuk-dept?slug=${slug}`)
+      .then(r => r.json())
+      .then(d => { if (d.ministers) setGovukData(d); })
+      .catch(() => {});
     fetch(`/api/department-context?slug=${slug}`)
       .then(r => r.json())
       .then(d => { if (d.street_context) setStreetContext(d.street_context); })
@@ -61,23 +82,42 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
 
         {/* Header */}
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-6" style={{ borderLeftColor: '#d4af37', borderLeftWidth: '4px' }}>
-          <div className="flex items-start gap-6">
-            {dept.ministerPhoto ? (
-              <img src={dept.ministerPhoto} alt={dept.minister} className="w-24 h-24 rounded-full object-cover flex-shrink-0 border-2 border-yellow-600" />
-            ) : (
-              <div className="w-24 h-24 rounded-full bg-gray-700 flex items-center justify-center text-2xl font-bold text-gray-400 flex-shrink-0">
-                {dept.minister.charAt(0)}
+          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">{dept.name}</h1>
+          <p className="text-gray-200 text-sm mb-4">{dept.description}</p>
+
+          {/* Ministers from GOV.UK API */}
+          <div className="flex flex-wrap gap-4">
+            {(govukData?.ministers || [{ name: dept.minister, photo: dept.ministerPhoto, role: 'Secretary of State', responsibilities: '', url: '' }]).map((minister, i) => (
+              <div key={i} className="flex items-center gap-3">
+                {minister.photo ? (
+                  <img src={minister.photo} alt={minister.name} className="w-12 h-12 rounded-full object-cover border-2 border-yellow-600/50" />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-gray-700 flex items-center justify-center text-lg font-bold text-gray-400 border-2 border-yellow-600/50">
+                    {minister.name.charAt(0)}
+                  </div>
+                )}
+                <div>
+                  <div className="text-white text-sm font-medium">{minister.name}</div>
+                  <div className="text-gray-400 text-xs">{minister.role}</div>
+                </div>
               </div>
-            )}
-            <div className="flex-1">
-              <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">{dept.name}</h1>
-              <p className="text-gray-200 text-sm mb-3">{dept.description}</p>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-gray-300 text-sm">Secretary of State:</span>
-                <span className="text-white font-medium text-sm">{dept.minister}</span>
+            ))}
+          </div>
+
+          {/* Child organisations */}
+          {govukData?.childOrgs && govukData.childOrgs.length > 0 && (
+            <div className="mt-4 pt-4 border-t border-gray-800">
+              <p className="text-xs text-gray-500 mb-2">Agencies & arm's length bodies:</p>
+              <div className="flex flex-wrap gap-2">
+                {govukData.childOrgs.filter(o => o.status === 'live').map((org, i) => (
+                  <a key={i} href={org.url} target="_blank" rel="noopener noreferrer"
+                    className="text-xs px-2 py-1 bg-gray-800 text-gray-300 rounded hover:text-white hover:bg-gray-700 transition-colors">
+                    {org.name}
+                  </a>
+                ))}
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Two column row — stats + search */}
