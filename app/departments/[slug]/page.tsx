@@ -105,39 +105,101 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
             )}
           </div>
 
-          {/* Ministers grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
-            {(govukData?.ministers || [{ name: dept.minister, photo: dept.ministerPhoto, role: 'Secretary of State', responsibilities: '', url: '' }]).map((minister, i) => (
-              <a key={i} href={minister.url || '#'} target="_blank" rel="noopener noreferrer"
-                className="flex flex-col items-center text-center p-3 bg-gray-800/50 rounded-xl hover:bg-gray-800 transition-colors group">
-                {minister.photo ? (
-                  <img src={minister.photo} alt={minister.name}
-                    className="w-16 h-16 rounded-full object-cover border-2 border-yellow-600/40 group-hover:border-yellow-500 transition-colors mb-2" />
+          {/* Secretary of State — large prominent card */}
+          {(() => {
+            const sos = govukData?.ministers?.[0] || { name: dept.minister, photo: dept.ministerPhoto, role: 'Secretary of State', responsibilities: '', url: '' };
+            return (
+              <a href={sos.url || '#'} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-5 p-4 bg-gray-800/50 rounded-xl hover:bg-gray-800 transition-colors group mb-4">
+                {sos.photo ? (
+                  <img src={sos.photo} alt={sos.name}
+                    className="w-24 h-24 rounded-full object-cover border-2 border-yellow-500 flex-shrink-0" />
                 ) : (
-                  <div className="w-16 h-16 rounded-full bg-gray-700 flex items-center justify-center text-xl font-bold text-gray-400 border-2 border-yellow-600/40 mb-2">
-                    {minister.name.charAt(0)}
+                  <div className="w-24 h-24 rounded-full bg-gray-700 flex items-center justify-center text-3xl font-bold text-gray-400 border-2 border-yellow-500 flex-shrink-0">
+                    {sos.name.charAt(0)}
                   </div>
                 )}
-                <div className="text-white text-xs font-medium leading-tight">{minister.name}</div>
-                <div className="text-gray-400 text-xs mt-0.5 leading-tight">{minister.role}</div>
-              </a>
-            ))}
-          </div>
-
-          {/* Permanent Secretary */}
-          {govukData?.boardMembers && govukData.boardMembers.length > 0 && (
-            <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-800">
-              {govukData.boardMembers[0].photo ? (
-                <img src={govukData.boardMembers[0].photo} alt={govukData.boardMembers[0].name}
-                  className="w-10 h-10 rounded-full object-cover border border-gray-600" />
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-sm font-bold text-gray-400">
-                  {govukData.boardMembers[0].name.charAt(0)}
+                <div>
+                  <div className="text-yellow-400 text-xs font-medium mb-1">Secretary of State</div>
+                  <div className="text-white text-lg font-semibold group-hover:text-yellow-300 transition-colors">{sos.name}</div>
+                  <div className="text-gray-400 text-sm mt-0.5">{sos.role}</div>
+                  <div className="text-blue-400 text-xs mt-2 group-hover:underline">View bio on GOV.UK →</div>
                 </div>
-              )}
-              <div>
-                <div className="text-gray-400 text-xs">Permanent Secretary</div>
-                <div className="text-white text-sm font-medium">{govukData.boardMembers[0].name}</div>
+              </a>
+            );
+          })()}
+
+          {/* Junior Ministers */}
+          {govukData?.ministers && govukData.ministers.length > 1 && (
+            <div className="mb-4">
+              <p className="text-xs text-gray-500 mb-2">Ministers</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                {govukData.ministers.slice(1).map((minister, i) => (
+                  <a key={i} href={minister.url || '#'} target="_blank" rel="noopener noreferrer"
+                    className="flex flex-col items-center text-center p-3 bg-gray-800/50 rounded-xl hover:bg-gray-800 transition-colors group">
+                    {minister.photo ? (
+                      <img src={minister.photo} alt={minister.name}
+                        className="w-14 h-14 rounded-full object-cover border-2 border-gray-600 group-hover:border-blue-500 transition-colors mb-2" />
+                    ) : (
+                      <div className="w-14 h-14 rounded-full bg-gray-700 flex items-center justify-center text-lg font-bold text-gray-400 border-2 border-gray-600 mb-2">
+                        {minister.name.charAt(0)}
+                      </div>
+                    )}
+                    <div className="text-white text-xs font-medium leading-tight">{minister.name}</div>
+                    <div className="text-gray-500 text-xs mt-0.5 leading-tight">{minister.role}</div>
+                    <div className="text-blue-400 text-xs mt-1 opacity-0 group-hover:opacity-100 transition-opacity">Bio →</div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Permanent Secretary + Senior Civil Servants */}
+          {govukData?.boardMembers && govukData.boardMembers.length > 0 && (
+            <div className="mb-4">
+              <p className="text-xs text-gray-500 mb-2">Senior Officials</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                {govukData.boardMembers.filter(m => m.role.toLowerCase().includes('permanent') || m.role.toLowerCase().includes('director general') || m.role.toLowerCase().includes('chief')).map((member, i) => (
+                  <a key={i} href={member.url || '#'} target="_blank" rel="noopener noreferrer"
+                    className="flex flex-col items-center text-center p-3 bg-gray-800/50 rounded-xl hover:bg-gray-800 transition-colors group">
+                    {member.photo ? (
+                      <img src={member.photo} alt={member.name}
+                        className="w-14 h-14 rounded-full object-cover border-2 border-gray-600 group-hover:border-blue-500 transition-colors mb-2" />
+                    ) : (
+                      <div className="w-14 h-14 rounded-full bg-gray-700 flex items-center justify-center text-lg font-bold text-gray-400 border-2 border-gray-600 mb-2">
+                        {member.name.charAt(0)}
+                      </div>
+                    )}
+                    <div className="text-white text-xs font-medium leading-tight">{member.name}</div>
+                    <div className="text-gray-500 text-xs mt-0.5 leading-tight">{member.role}</div>
+                    <div className="text-blue-400 text-xs mt-1 opacity-0 group-hover:opacity-100 transition-opacity">Bio →</div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Management Team — Non-Executive Board Members */}
+          {govukData?.boardMembers && govukData.boardMembers.filter(m => m.role.toLowerCase().includes('non-executive') || m.role.toLowerCase().includes('board member')).length > 0 && (
+            <div className="mb-4">
+              <p className="text-xs text-gray-500 mb-2">Board Members</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                {govukData.boardMembers.filter(m => m.role.toLowerCase().includes('non-executive') || m.role.toLowerCase().includes('board member')).map((member, i) => (
+                  <a key={i} href={member.url || '#'} target="_blank" rel="noopener noreferrer"
+                    className="flex flex-col items-center text-center p-3 bg-gray-800/50 rounded-xl hover:bg-gray-800 transition-colors group">
+                    {member.photo ? (
+                      <img src={member.photo} alt={member.name}
+                        className="w-14 h-14 rounded-full object-cover border-2 border-gray-600 group-hover:border-blue-500 transition-colors mb-2" />
+                    ) : (
+                      <div className="w-14 h-14 rounded-full bg-gray-700 flex items-center justify-center text-lg font-bold text-gray-400 border-2 border-gray-600 mb-2">
+                        {member.name.charAt(0)}
+                      </div>
+                    )}
+                    <div className="text-white text-xs font-medium leading-tight">{member.name}</div>
+                    <div className="text-gray-500 text-xs mt-0.5 leading-tight">{member.role}</div>
+                    <div className="text-blue-400 text-xs mt-1 opacity-0 group-hover:opacity-100 transition-opacity">Bio →</div>
+                  </a>
+                ))}
               </div>
             </div>
           )}
