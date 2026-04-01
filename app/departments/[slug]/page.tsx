@@ -20,7 +20,7 @@ type GovukData = {
   title: string;
   description: string;
   ministers: GovukMinister[];
-  boardMembers: { name: string; photo: string; role: string; url: string }[];
+  boardMembers: { name: string; photo: string; role: string; url: string; slug: string; category?: string }[];
   childOrgs: { name: string; url: string; acronym: string }[];
   featuredDocs: { title: string; url: string; summary: string; type: string; date: string; image: string }[];
   featuredLinks: { title: string; url: string }[];
