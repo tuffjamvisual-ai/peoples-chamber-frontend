@@ -113,9 +113,9 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
                 className="flex items-center gap-6 mb-6 group">
                 {sos.photo ? (
                   <img src={sos.photo} alt={sos.name}
-                    className="w-36 h-36 rounded-full object-cover border-4 border-yellow-500 flex-shrink-0 shadow-lg" />
+                    className="w-36 h-36 rounded-full object-cover border-4 border-yellow-500 flex-shrink-0" />
                 ) : (
-                  <div className="w-36 h-36 rounded-full bg-gray-700 flex items-center justify-center text-4xl font-bold text-gray-400 border-4 border-yellow-500 flex-shrink-0">
+                  <div className="w-36 h-36 rounded-full bg-gray-800 flex items-center justify-center text-4xl font-bold text-yellow-500 border-4 border-yellow-500 flex-shrink-0">
                     {sos.name.charAt(0)}
                   </div>
                 )}
@@ -133,22 +133,15 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
           {govukData?.ministers && govukData.ministers.length > 1 && (
             <div className="mb-4">
               <p className="text-xs text-gray-500 mb-2">Ministers</p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              <div className="divide-y divide-gray-800">
                 {govukData.ministers.slice(1).map((minister, i) => (
-                  <a key={i} href={minister.url || '#'} target="_blank" rel="noopener noreferrer"
-                    className="flex flex-col items-center text-center group">
-                    {minister.photo ? (
-                      <img src={minister.photo} alt={minister.name}
-                        className="w-14 h-14 rounded-full object-cover border-2 border-gray-600 group-hover:border-blue-500 transition-colors mb-2" />
-                    ) : (
-                      <div className="w-14 h-14 rounded-full bg-gray-700 flex items-center justify-center text-lg font-bold text-gray-400 border-2 border-gray-600 mb-2">
-                        {minister.name.charAt(0)}
-                      </div>
-                    )}
-                    <div className="text-white text-xs font-medium leading-tight">{minister.name}</div>
-                    <div className="text-gray-500 text-xs mt-0.5 leading-tight">{minister.role}</div>
-                    <div className="text-blue-400 text-xs mt-1 opacity-0 group-hover:opacity-100 transition-opacity">Bio →</div>
-                  </a>
+                  <div key={i} className="py-2.5 flex items-center justify-between gap-4">
+                    <div>
+                      <div className="text-white text-sm font-medium">{minister.name}</div>
+                      <div className="text-gray-400 text-xs mt-0.5">{minister.role}</div>
+                    </div>
+                    <span className="text-blue-400 text-xs flex-shrink-0 cursor-pointer hover:underline">Bio →</span>
+                  </div>
                 ))}
               </div>
             </div>
@@ -158,22 +151,15 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
           {govukData?.boardMembers && govukData.boardMembers.length > 0 && (
             <div className="mb-4">
               <p className="text-xs text-gray-500 mb-2">Senior Officials</p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              <div className="divide-y divide-gray-800">
                 {govukData.boardMembers.filter(m => m.role.toLowerCase().includes('permanent') || m.role.toLowerCase().includes('director general') || m.role.toLowerCase().includes('chief')).map((member, i) => (
-                  <a key={i} href={member.url || '#'} target="_blank" rel="noopener noreferrer"
-                    className="flex flex-col items-center text-center group">
-                    {member.photo ? (
-                      <img src={member.photo} alt={member.name}
-                        className="w-14 h-14 rounded-full object-cover border-2 border-gray-600 group-hover:border-blue-500 transition-colors mb-2" />
-                    ) : (
-                      <div className="w-14 h-14 rounded-full bg-gray-700 flex items-center justify-center text-lg font-bold text-gray-400 border-2 border-gray-600 mb-2">
-                        {member.name.charAt(0)}
-                      </div>
-                    )}
-                    <div className="text-white text-xs font-medium leading-tight">{member.name}</div>
-                    <div className="text-gray-500 text-xs mt-0.5 leading-tight">{member.role}</div>
-                    <div className="text-blue-400 text-xs mt-1 opacity-0 group-hover:opacity-100 transition-opacity">Bio →</div>
-                  </a>
+                  <div key={i} className="py-2.5 flex items-center justify-between gap-4">
+                    <div>
+                      <div className="text-white text-sm font-medium">{member.name}</div>
+                      <div className="text-gray-400 text-xs mt-0.5">{member.role}</div>
+                    </div>
+                    <span className="text-blue-400 text-xs flex-shrink-0 cursor-pointer hover:underline">Bio →</span>
+                  </div>
                 ))}
               </div>
             </div>
@@ -183,22 +169,15 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
           {govukData?.boardMembers && govukData.boardMembers.filter(m => m.role.toLowerCase().includes('non-executive') || m.role.toLowerCase().includes('board member')).length > 0 && (
             <div className="mb-4">
               <p className="text-xs text-gray-500 mb-2">Board Members</p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              <div className="divide-y divide-gray-800">
                 {govukData.boardMembers.filter(m => m.role.toLowerCase().includes('non-executive') || m.role.toLowerCase().includes('board member')).map((member, i) => (
-                  <a key={i} href={member.url || '#'} target="_blank" rel="noopener noreferrer"
-                    className="flex flex-col items-center text-center group">
-                    {member.photo ? (
-                      <img src={member.photo} alt={member.name}
-                        className="w-14 h-14 rounded-full object-cover border-2 border-gray-600 group-hover:border-blue-500 transition-colors mb-2" />
-                    ) : (
-                      <div className="w-14 h-14 rounded-full bg-gray-700 flex items-center justify-center text-lg font-bold text-gray-400 border-2 border-gray-600 mb-2">
-                        {member.name.charAt(0)}
-                      </div>
-                    )}
-                    <div className="text-white text-xs font-medium leading-tight">{member.name}</div>
-                    <div className="text-gray-500 text-xs mt-0.5 leading-tight">{member.role}</div>
-                    <div className="text-blue-400 text-xs mt-1 opacity-0 group-hover:opacity-100 transition-opacity">Bio →</div>
-                  </a>
+                  <div key={i} className="py-2.5 flex items-center justify-between gap-4">
+                    <div>
+                      <div className="text-white text-sm font-medium">{member.name}</div>
+                      <div className="text-gray-400 text-xs mt-0.5">{member.role}</div>
+                    </div>
+                    <span className="text-blue-400 text-xs flex-shrink-0 cursor-pointer hover:underline">Bio →</span>
+                  </div>
                 ))}
               </div>
             </div>
