@@ -13,6 +13,7 @@ type GovukMinister = {
   role: string;
   responsibilities: string;
   url: string;
+  slug: string;
 };
 
 type GovukData = {
@@ -110,7 +111,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
             const sos = govukData?.ministers?.[0] || { name: dept.minister, photo: dept.ministerPhoto, role: 'Secretary of State', responsibilities: '', url: '' };
             return (
               <a href={sos.url || '#'} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-6 mb-6 group">
+className="flex items-center gap-6 mb-6 group" onClick={(e) => { e.preventDefault(); window.location.href=`/people/${sos.slug}`; }}>
                 {sos.photo ? (
                   <img src={sos.photo} alt={sos.name}
                     className="w-36 h-36 rounded-full object-cover border-4 border-yellow-500 flex-shrink-0" />
@@ -136,7 +137,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
                 {govukData.ministers.slice(1).map((minister, i) => (
                   <div key={i} className="py-2 border-b border-gray-800/50">
-                    <a href="#" className="text-white text-sm font-medium hover:text-yellow-300 transition-colors">{minister.name}</a>
+                    <a href={`/people/${minister.slug}`} className="text-white text-sm font-medium hover:text-yellow-300 transition-colors">{minister.name}</a>
                     <div className="text-gray-400 text-xs mt-0.5">{minister.role}</div>
                   </div>
                 ))}
@@ -151,7 +152,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
                 {govukData.boardMembers.filter(m => m.role.toLowerCase().includes('permanent') || m.role.toLowerCase().includes('director general') || m.role.toLowerCase().includes('chief')).map((member, i) => (
                   <div key={i} className="py-2 border-b border-gray-800/50">
-                    <a href="#" className="text-white text-sm font-medium hover:text-yellow-300 transition-colors">{member.name}</a>
+                    <a href={`/people/${member.slug}`} className="text-white text-sm font-medium hover:text-yellow-300 transition-colors">{member.name}</a>
                     <div className="text-gray-400 text-xs mt-0.5">{member.role}</div>
                   </div>
                 ))}
@@ -166,7 +167,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
                 {govukData.boardMembers.filter(m => m.role.toLowerCase().includes('non-executive') || m.role.toLowerCase().includes('board member')).map((member, i) => (
                   <div key={i} className="py-2 border-b border-gray-800/50">
-                    <a href="#" className="text-white text-sm font-medium hover:text-yellow-300 transition-colors">{member.name}</a>
+                    <a href={`/people/${member.slug}`} className="text-white text-sm font-medium hover:text-yellow-300 transition-colors">{member.name}</a>
                     <div className="text-gray-400 text-xs mt-0.5">{member.role}</div>
                   </div>
                 ))}

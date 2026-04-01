@@ -27,6 +27,7 @@ export async function GET(request: Request) {
         role: currentRole?.links?.role?.[0]?.title || '',
         responsibilities: currentRole?.links?.role?.[0]?.details?.body || '',
         url: m.web_url,
+        slug: m.base_path?.replace('/government/people/', '') || '',
       };
     }).filter((m: any) => m.role);
 
@@ -37,6 +38,7 @@ export async function GET(request: Request) {
         photo: m.details?.image?.url || '',
         role: currentRole?.links?.role?.[0]?.title || '',
         url: m.web_url,
+        slug: m.base_path?.replace('/government/people/', '') || '',
       };
     }).filter((m: any) => m.role);
 
