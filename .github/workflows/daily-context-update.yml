@@ -15,10 +15,11 @@ jobs:
           node-version: '18'
       - name: Install dependencies
         run: npm install @anthropic-ai/sdk @supabase/supabase-js
+      - name: Sync GOV.UK department data
+        run: node scripts/sync-govuk-data.js
       - name: Update street contexts
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: node scripts/generate-department-contexts.js
       - name: Trigger Vercel redeploy
-        run: |
-          curl -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
+        run: curl -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
