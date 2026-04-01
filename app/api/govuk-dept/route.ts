@@ -10,45 +10,80 @@ export async function GET(request: Request) {
   if (!slug) return NextResponse.json({ error: 'slug required' }, { status: 400 });
 
   const govukSlug = govukSlugs[slug];
-  if (!govukSlug) return NextResponse.json({ error: 'department not found' }, { status: 404 });
+  if (!govukSlug) return NextResponse.json({ error: 'not found' }, { status: 404 });
 
   try {
-    const res = await fetch(`https://www.gov.uk/api/content/government/organisations/${govukSlug}`, {
-      next: { revalidate: 3600 }
-    });
+    const res = await fetch(
+      `https://www.gov.uk/api/content/government/organisations/${govukSlug}`,
+      { next: { revalidate: 3600 } }
+    );
     const data = await res.json();
 
     const ministers = (data.links?.ordered_ministers || []).map((m: any) => {
       const currentRole = m.links?.role_appointments?.find((r: any) => r.details?.current);
-      const roleTitle = currentRole?.links?.role?.[0]?.title || '';
-      const roleBody = currentRole?.links?.role?.[0]?.details?.body || '';
       return {
         name: m.title,
         photo: m.details?.image?.url || '',
-        role: roleTitle,
-        responsibilities: roleBody,
+        role: currentRole?.links?.role?.[0]?.title || '',
+        responsibilities: currentRole?.links?.role?.[0]?.details?.body || '',
         url: m.web_url,
       };
     }).filter((m: any) => m.role);
 
-    const childOrgs = (data.links?.ordered_child_organisations || []).map((o: any) => ({
-      name: o.title,
-      url: o.web_url,
-      status: o.details?.organisation_govuk_status?.status || 'live',
-    }));
+    const boardMembers = (data.links?.ordered_board_members || []).map((m: any) => {
+      const currentRole = m.links?.role_appointments?.find((r: any) => r.details?.current);
+      return {
+        name: m.title,
+        photo: m.details?.image?.url || '',
+        role: currentRole?.links?.role?.[0]?.title || '',
+        url: m.web_url,
+      };
+    }).filter((m: any) => m.role);
+
+    const childOrgs = (data.links?.ordered_child_organisations || [])
+      .filter((o: any) => o.details?.organisation_govuk_status?.status === 'live')
+      .map((o: any) => ({
+        name: o.title,
+        url: o.web_url,
+        acronym: o.details?.acronym || '',
+      }));
 
     const featuredDocs = (data.details?.ordered_featured_documents || []).map((d: any) => ({
       title: d.title,
-      url: d.href,
-      summary: d.summary,
+      url: `https://www.gov.uk${d.href}`,
+      summary: d.summary?.replace(/<[^>]+>/g, '').trim() || '',
+      type: d.document_type,
+      date: d.public_updated_at,
+      image: d.image?.url || '',
     }));
+
+    const featuredLinks = (data.details?.ordered_featured_links || []).map((l: any) => ({
+      title: l.title,
+      url: l.href,
+    }));
+
+    const socialMedia = (data.details?.social_media_links || []).map((s: any) => ({
+      service: s.service_type,
+      url: s.href,
+      title: s.title,
+    }));
+
+    const foiContact = data.links?.ordered_foi_contacts?.[0];
+    const pressContact = data.links?.ordered_contacts?.find((c: any) =>
+      c.title?.toLowerCase().includes('media') || c.title?.toLowerCase().includes('press')
+    );
 
     return NextResponse.json({
       title: data.title,
       description: data.description,
       ministers,
+      boardMembers,
       childOrgs,
       featuredDocs,
+      featuredLinks,
+      socialMedia,
+      foiEmail: foiContact?.details?.email_addresses?.[0]?.email || '',
+      pressPhone: pressContact?.details?.phone_numbers?.[0]?.number || '',
       updatedAt: data.public_updated_at,
     });
 

@@ -19,8 +19,13 @@ type GovukData = {
   title: string;
   description: string;
   ministers: GovukMinister[];
-  childOrgs: { name: string; url: string; status: string }[];
-  featuredDocs: { title: string; url: string; summary: string }[];
+  boardMembers: { name: string; photo: string; role: string; url: string }[];
+  childOrgs: { name: string; url: string; acronym: string }[];
+  featuredDocs: { title: string; url: string; summary: string; type: string; date: string; image: string }[];
+  featuredLinks: { title: string; url: string }[];
+  socialMedia: { service: string; url: string; title: string }[];
+  foiEmail: string;
+  pressPhone: string;
 };
 
 type EconomicStats = {
@@ -82,42 +87,115 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
 
         {/* Header */}
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-6" style={{ borderLeftColor: '#d4af37', borderLeftWidth: '4px' }}>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">{dept.name}</h1>
-          <p className="text-gray-200 text-sm mb-4">{dept.description}</p>
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">{dept.name}</h1>
+              <p className="text-gray-300 text-sm">{dept.description}</p>
+            </div>
+            {/* Social media */}
+            {govukData?.socialMedia && govukData.socialMedia.length > 0 && (
+              <div className="flex gap-2 flex-shrink-0">
+                {govukData.socialMedia.map((s, i) => (
+                  <a key={i} href={s.url} target="_blank" rel="noopener noreferrer"
+                    className="text-xs px-2 py-1 bg-gray-800 text-gray-400 rounded hover:text-white transition-colors">
+                    {s.service === 'twitter' ? 'X' : s.service === 'youtube' ? 'YT' : s.service.charAt(0).toUpperCase() + s.service.slice(1, 3)}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
 
-          {/* Ministers from GOV.UK API */}
-          <div className="flex flex-wrap gap-4">
+          {/* Ministers grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
             {(govukData?.ministers || [{ name: dept.minister, photo: dept.ministerPhoto, role: 'Secretary of State', responsibilities: '', url: '' }]).map((minister, i) => (
-              <div key={i} className="flex items-center gap-3">
+              <a key={i} href={minister.url || '#'} target="_blank" rel="noopener noreferrer"
+                className="flex flex-col items-center text-center p-3 bg-gray-800/50 rounded-xl hover:bg-gray-800 transition-colors group">
                 {minister.photo ? (
-                  <img src={minister.photo} alt={minister.name} className="w-12 h-12 rounded-full object-cover border-2 border-yellow-600/50" />
+                  <img src={minister.photo} alt={minister.name}
+                    className="w-16 h-16 rounded-full object-cover border-2 border-yellow-600/40 group-hover:border-yellow-500 transition-colors mb-2" />
                 ) : (
-                  <div className="w-12 h-12 rounded-full bg-gray-700 flex items-center justify-center text-lg font-bold text-gray-400 border-2 border-yellow-600/50">
+                  <div className="w-16 h-16 rounded-full bg-gray-700 flex items-center justify-center text-xl font-bold text-gray-400 border-2 border-yellow-600/40 mb-2">
                     {minister.name.charAt(0)}
                   </div>
                 )}
-                <div>
-                  <div className="text-white text-sm font-medium">{minister.name}</div>
-                  <div className="text-gray-400 text-xs">{minister.role}</div>
-                </div>
-              </div>
+                <div className="text-white text-xs font-medium leading-tight">{minister.name}</div>
+                <div className="text-gray-400 text-xs mt-0.5 leading-tight">{minister.role}</div>
+              </a>
             ))}
           </div>
 
-          {/* Child organisations */}
+          {/* Permanent Secretary */}
+          {govukData?.boardMembers && govukData.boardMembers.length > 0 && (
+            <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-800">
+              {govukData.boardMembers[0].photo ? (
+                <img src={govukData.boardMembers[0].photo} alt={govukData.boardMembers[0].name}
+                  className="w-10 h-10 rounded-full object-cover border border-gray-600" />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-sm font-bold text-gray-400">
+                  {govukData.boardMembers[0].name.charAt(0)}
+                </div>
+              )}
+              <div>
+                <div className="text-gray-400 text-xs">Permanent Secretary</div>
+                <div className="text-white text-sm font-medium">{govukData.boardMembers[0].name}</div>
+              </div>
+            </div>
+          )}
+
+          {/* Agencies */}
           {govukData?.childOrgs && govukData.childOrgs.length > 0 && (
-            <div className="mt-4 pt-4 border-t border-gray-800">
-              <p className="text-xs text-gray-500 mb-2">Agencies & arm's length bodies:</p>
-              <div className="flex flex-wrap gap-2">
-                {govukData.childOrgs.filter(o => o.status === 'live').map((org, i) => (
+            <div className="mb-4">
+              <p className="text-xs text-gray-500 mb-2">Agencies & arm's length bodies ({govukData.childOrgs.length})</p>
+              <div className="flex flex-wrap gap-1.5">
+                {govukData.childOrgs.map((org, i) => (
                   <a key={i} href={org.url} target="_blank" rel="noopener noreferrer"
                     className="text-xs px-2 py-1 bg-gray-800 text-gray-300 rounded hover:text-white hover:bg-gray-700 transition-colors">
-                    {org.name}
+                    {org.acronym || org.name}
                   </a>
                 ))}
               </div>
             </div>
           )}
+
+          {/* Latest publications */}
+          {govukData?.featuredDocs && govukData.featuredDocs.length > 0 && (
+            <div className="mb-4">
+              <p className="text-xs text-gray-500 mb-2">Latest publications</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {govukData.featuredDocs.slice(0, 4).map((doc, i) => (
+                  <a key={i} href={doc.url} target="_blank" rel="noopener noreferrer"
+                    className="flex gap-2 p-2 bg-gray-800/50 rounded-lg hover:bg-gray-800 transition-colors group">
+                    {doc.image && (
+                      <img src={doc.image} alt="" className="w-12 h-12 object-cover rounded flex-shrink-0" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="text-white text-xs font-medium line-clamp-2 group-hover:text-yellow-300 transition-colors">{doc.title}</div>
+                      <div className="text-gray-500 text-xs mt-0.5">{doc.type}</div>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* FOI and Press contacts */}
+          <div className="flex flex-wrap gap-3 pt-3 border-t border-gray-800">
+            {govukData?.foiEmail && (
+              <a href={`mailto:${govukData.foiEmail}`}
+                className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
+                FOI Request
+              </a>
+            )}
+            {govukData?.pressPhone && (
+              <span className="text-xs text-gray-500">Press: {govukData.pressPhone}</span>
+            )}
+            {govukData?.featuredLinks && govukData.featuredLinks.map((l, i) => (
+              <a key={i} href={l.url} target="_blank" rel="noopener noreferrer"
+                className="text-xs text-yellow-500 hover:text-yellow-300">
+                {l.title} →
+              </a>
+            ))}
+          </div>
         </div>
 
         {/* Two column row — stats + search */}
