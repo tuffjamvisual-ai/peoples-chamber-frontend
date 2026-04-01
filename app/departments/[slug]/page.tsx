@@ -5,6 +5,7 @@ import { parties } from '@/lib/parties';
 import Navigation from '../../components/Navigation';
 import Link from 'next/link';
 import { useState, use, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 type EconomicStats = {
   cpi: string;
@@ -20,7 +21,9 @@ type EconomicStats = {
 export default function DepartmentPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
   const dept = departments.find((d) => d.slug === slug);
-  const [activeZone, setActiveZone] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const zoneParam = searchParams.get('zone');
+  const [activeZone, setActiveZone] = useState<string | null>(zoneParam || null);
   const [stats, setStats] = useState<EconomicStats | null>(null);
   const [streetContext, setStreetContext] = useState<string | null>(null);
 
