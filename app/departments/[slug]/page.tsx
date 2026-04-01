@@ -121,28 +121,52 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
 
         {/* Control Zones */}
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-6">
-          <h2 className="text-lg font-semibold text-white mb-2">What This Department Controls</h2>
-          <p className="text-gray-300 text-xs mb-4">Click any topic to see every party's position on it</p>
+          <h2 className="text-lg font-semibold text-white mb-1">What This Department Controls</h2>
+          <p className="text-gray-400 text-xs mb-4">Search any topic or browse A-Z — click a topic to see what every party says about it</p>
+
+          <div className="relative mb-4">
+            <input
+              type="text"
+              value={zoneSearch}
+              onChange={(e) => setZoneSearch(e.target.value)}
+              placeholder={`Search ${dept.controlZones.length} topics — e.g. tax, mortgage, pension...`}
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-yellow-500"
+            />
+            {zoneSearch && (
+              <button onClick={() => setZoneSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white text-xs">✕</button>
+            )}
+          </div>
+
+          {zoneSearch && filteredZones.length === 0 && (
+            <div className="bg-gray-800/50 rounded-lg p-4 mb-4 text-center">
+              <p className="text-gray-300 text-sm">No topics match "{zoneSearch}"</p>
+              <p className="text-gray-500 text-xs mt-1">Try a different term or browse all topics below</p>
+              <button onClick={() => setZoneSearch('')} className="text-yellow-400 text-xs mt-2 hover:underline">Show all topics</button>
+            </div>
+          )}
+
           <div className="flex flex-wrap gap-2">
-            {dept.controlZones.map((zone) => {
+            {(zoneSearch ? filteredZones : [...dept.controlZones].sort()).map((zone) => {
               const hasDetail = dept.controlZonePositions?.some(z => z.zone === zone);
               return (
                 <button
                   key={zone}
-                  onClick={() => setActiveZone(activeZone === zone ? null : zone)}
+                  onClick={() => { setActiveZone(activeZone === zone ? null : zone); setZoneSearch(''); }}
                   className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${
                     activeZone === zone
                       ? 'bg-yellow-600 text-white border-yellow-500'
                       : hasDetail
                       ? 'bg-yellow-900/20 text-yellow-300 border-yellow-800/30 hover:bg-yellow-900/40 cursor-pointer'
-                      : 'bg-gray-800/40 text-gray-500 border-gray-700/30 cursor-default'
+                      : 'bg-gray-800/40 text-gray-400 border-gray-700/30 hover:bg-gray-700/40 cursor-pointer'
                   }`}
                 >
-                  {zone} {hasDetail && activeZone !== zone && <span className="text-xs opacity-60">↓</span>}
+                  {zone}{hasDetail && activeZone !== zone && <span className="text-xs opacity-60 ml-1">↓</span>}
                 </button>
               );
             })}
           </div>
+
+          <p className="text-gray-600 text-xs mt-3">{dept.controlZones.length} topics · {dept.controlZonePositions?.length || 0} with full party analysis · sorted A-Z</p>
         </div>
 
         {/* Control Zone Detail */}
