@@ -110,7 +110,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
             const sos = govukData?.ministers?.[0] || { name: dept.minister, photo: dept.ministerPhoto, role: 'Secretary of State', responsibilities: '', url: '' };
             return (
               <a href={sos.url || '#'} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-5 p-4 bg-gray-800/50 rounded-xl hover:bg-gray-800 transition-colors group mb-4">
+                className="flex items-center gap-5 mb-4 group">
                 {sos.photo ? (
                   <img src={sos.photo} alt={sos.name}
                     className="w-24 h-24 rounded-full object-cover border-2 border-yellow-500 flex-shrink-0" />
@@ -136,7 +136,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                 {govukData.ministers.slice(1).map((minister, i) => (
                   <a key={i} href={minister.url || '#'} target="_blank" rel="noopener noreferrer"
-                    className="flex flex-col items-center text-center p-3 bg-gray-800/50 rounded-xl hover:bg-gray-800 transition-colors group">
+                    className="flex flex-col items-center text-center group">
                     {minister.photo ? (
                       <img src={minister.photo} alt={minister.name}
                         className="w-14 h-14 rounded-full object-cover border-2 border-gray-600 group-hover:border-blue-500 transition-colors mb-2" />
@@ -161,7 +161,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                 {govukData.boardMembers.filter(m => m.role.toLowerCase().includes('permanent') || m.role.toLowerCase().includes('director general') || m.role.toLowerCase().includes('chief')).map((member, i) => (
                   <a key={i} href={member.url || '#'} target="_blank" rel="noopener noreferrer"
-                    className="flex flex-col items-center text-center p-3 bg-gray-800/50 rounded-xl hover:bg-gray-800 transition-colors group">
+                    className="flex flex-col items-center text-center group">
                     {member.photo ? (
                       <img src={member.photo} alt={member.name}
                         className="w-14 h-14 rounded-full object-cover border-2 border-gray-600 group-hover:border-blue-500 transition-colors mb-2" />
@@ -186,7 +186,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                 {govukData.boardMembers.filter(m => m.role.toLowerCase().includes('non-executive') || m.role.toLowerCase().includes('board member')).map((member, i) => (
                   <a key={i} href={member.url || '#'} target="_blank" rel="noopener noreferrer"
-                    className="flex flex-col items-center text-center p-3 bg-gray-800/50 rounded-xl hover:bg-gray-800 transition-colors group">
+                    className="flex flex-col items-center text-center group">
                     {member.photo ? (
                       <img src={member.photo} alt={member.name}
                         className="w-14 h-14 rounded-full object-cover border-2 border-gray-600 group-hover:border-blue-500 transition-colors mb-2" />
