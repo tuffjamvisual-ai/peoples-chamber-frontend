@@ -133,14 +133,11 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
           {govukData?.ministers && govukData.ministers.length > 1 && (
             <div className="mb-4">
               <p className="text-xs text-gray-500 mb-2">Ministers</p>
-              <div className="divide-y divide-gray-800">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
                 {govukData.ministers.slice(1).map((minister, i) => (
-                  <div key={i} className="py-2.5 flex items-center justify-between gap-4">
-                    <div>
-                      <div className="text-white text-sm font-medium">{minister.name}</div>
-                      <div className="text-gray-400 text-xs mt-0.5">{minister.role}</div>
-                    </div>
-                    <span className="text-blue-400 text-xs flex-shrink-0 cursor-pointer hover:underline">Bio →</span>
+                  <div key={i} className="py-2 border-b border-gray-800/50">
+                    <a href="#" className="text-white text-sm font-medium hover:text-yellow-300 transition-colors">{minister.name}</a>
+                    <div className="text-gray-400 text-xs mt-0.5">{minister.role}</div>
                   </div>
                 ))}
               </div>
@@ -151,14 +148,11 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
           {govukData?.boardMembers && govukData.boardMembers.length > 0 && (
             <div className="mb-4">
               <p className="text-xs text-gray-500 mb-2">Senior Officials</p>
-              <div className="divide-y divide-gray-800">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
                 {govukData.boardMembers.filter(m => m.role.toLowerCase().includes('permanent') || m.role.toLowerCase().includes('director general') || m.role.toLowerCase().includes('chief')).map((member, i) => (
-                  <div key={i} className="py-2.5 flex items-center justify-between gap-4">
-                    <div>
-                      <div className="text-white text-sm font-medium">{member.name}</div>
-                      <div className="text-gray-400 text-xs mt-0.5">{member.role}</div>
-                    </div>
-                    <span className="text-blue-400 text-xs flex-shrink-0 cursor-pointer hover:underline">Bio →</span>
+                  <div key={i} className="py-2 border-b border-gray-800/50">
+                    <a href="#" className="text-white text-sm font-medium hover:text-yellow-300 transition-colors">{member.name}</a>
+                    <div className="text-gray-400 text-xs mt-0.5">{member.role}</div>
                   </div>
                 ))}
               </div>
@@ -169,14 +163,11 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
           {govukData?.boardMembers && govukData.boardMembers.filter(m => m.role.toLowerCase().includes('non-executive') || m.role.toLowerCase().includes('board member')).length > 0 && (
             <div className="mb-4">
               <p className="text-xs text-gray-500 mb-2">Board Members</p>
-              <div className="divide-y divide-gray-800">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
                 {govukData.boardMembers.filter(m => m.role.toLowerCase().includes('non-executive') || m.role.toLowerCase().includes('board member')).map((member, i) => (
-                  <div key={i} className="py-2.5 flex items-center justify-between gap-4">
-                    <div>
-                      <div className="text-white text-sm font-medium">{member.name}</div>
-                      <div className="text-gray-400 text-xs mt-0.5">{member.role}</div>
-                    </div>
-                    <span className="text-blue-400 text-xs flex-shrink-0 cursor-pointer hover:underline">Bio →</span>
+                  <div key={i} className="py-2 border-b border-gray-800/50">
+                    <a href="#" className="text-white text-sm font-medium hover:text-yellow-300 transition-colors">{member.name}</a>
+                    <div className="text-gray-400 text-xs mt-0.5">{member.role}</div>
                   </div>
                 ))}
               </div>
