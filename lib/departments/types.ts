@@ -1,9 +1,3 @@
-export type CurrentIssue = {
-  title: string;
-  description: string;
-  hot: boolean;
-};
-
 export type PartyPosition = {
   partyId: string;
   headline: string;
@@ -26,7 +20,6 @@ export type DepartmentMeta = {
   controlZones: string[];
   description: string;
   streetContext: string;
-  currentIssues: CurrentIssue[];
 };
 
 export type DepartmentData = DepartmentMeta & {
