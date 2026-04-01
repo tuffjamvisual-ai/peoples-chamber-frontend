@@ -110,20 +110,20 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
             const sos = govukData?.ministers?.[0] || { name: dept.minister, photo: dept.ministerPhoto, role: 'Secretary of State', responsibilities: '', url: '' };
             return (
               <a href={sos.url || '#'} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-5 mb-4 group">
+                className="flex items-center gap-6 mb-6 group">
                 {sos.photo ? (
                   <img src={sos.photo} alt={sos.name}
-                    className="w-24 h-24 rounded-full object-cover border-2 border-yellow-500 flex-shrink-0" />
+                    className="w-36 h-36 rounded-full object-cover border-4 border-yellow-500 flex-shrink-0 shadow-lg" />
                 ) : (
-                  <div className="w-24 h-24 rounded-full bg-gray-700 flex items-center justify-center text-3xl font-bold text-gray-400 border-2 border-yellow-500 flex-shrink-0">
+                  <div className="w-36 h-36 rounded-full bg-gray-700 flex items-center justify-center text-4xl font-bold text-gray-400 border-4 border-yellow-500 flex-shrink-0">
                     {sos.name.charAt(0)}
                   </div>
                 )}
                 <div>
-                  <div className="text-yellow-400 text-xs font-medium mb-1">Secretary of State</div>
-                  <div className="text-white text-lg font-semibold group-hover:text-yellow-300 transition-colors">{sos.name}</div>
-                  <div className="text-gray-400 text-sm mt-0.5">{sos.role}</div>
-                  <div className="text-blue-400 text-xs mt-2 group-hover:underline">View bio on GOV.UK →</div>
+                  <div className="text-yellow-400 text-sm font-medium mb-1">Secretary of State</div>
+                  <div className="text-white text-2xl font-bold group-hover:text-yellow-300 transition-colors">{sos.name}</div>
+                  <div className="text-gray-300 text-base mt-1">{sos.role}</div>
+                  <div className="text-blue-400 text-sm mt-3 group-hover:underline">View bio on GOV.UK →</div>
                 </div>
               </a>
             );
