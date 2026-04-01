@@ -24,6 +24,8 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
   const searchParams = useSearchParams();
   const zoneParam = searchParams.get('zone');
   const [activeZone, setActiveZone] = useState<string | null>(zoneParam || null);
+  const [zoneSearch, setZoneSearch] = useState('');
+  const filteredZones = dept ? dept.controlZones.filter(z => z.toLowerCase().includes(zoneSearch.toLowerCase())) : [];
   const [stats, setStats] = useState<EconomicStats | null>(null);
   const [streetContext, setStreetContext] = useState<string | null>(null);
 
