@@ -108,7 +108,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
 
           {/* Secretary of State — large prominent card */}
           {(() => {
-            const sos = govukData?.ministers?.[0] || { name: dept.minister, photo: dept.ministerPhoto, role: 'Secretary of State', responsibilities: '', url: '' };
+            const sos = govukData?.ministers?.[0] || { name: dept.minister, photo: dept.ministerPhoto, role: 'Secretary of State', responsibilities: '', url: '', slug: '' };
             return (
               <a href={sos.url || '#'} target="_blank" rel="noopener noreferrer"
 className="flex items-center gap-6 mb-6 group" onClick={(e) => { e.preventDefault(); window.location.href=`/people/${sos.slug}`; }}>
