@@ -277,34 +277,98 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
           </div>
         )}
 
-        {/* 6. LATEST PUBLICATIONS */}
-        {govukData?.featuredDocs && govukData.featuredDocs.length > 0 && (
+        {/* 7. AGENCIES */}
+        {govukData?.childOrgs && govukData.childOrgs.length > 0 && (
           <div className="mb-6 pb-6 border-b border-gray-800">
-            <h2 className="text-sm font-semibold text-gray-400 mb-3">Latest Publications</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
-              {govukData.featuredDocs.slice(0, 6).map((doc, i) => (
-                <a key={i} href={doc.url} target="_blank" rel="noopener noreferrer"
-                  className="py-2 border-b border-gray-800/50 group flex items-center justify-between gap-4">
-                  <div>
-                    <div className="text-white text-sm group-hover:text-yellow-300 transition-colors">{doc.title}</div>
-                    <div className="text-gray-500 text-xs mt-0.5">{doc.type}</div>
-                  </div>
-                  <span className="text-gray-600 text-xs flex-shrink-0">→</span>
-                </a>
-              ))}
+            <h2 className="text-sm font-semibold text-gray-400 mb-3">Agencies & Arm's Length Bodies ({govukData.childOrgs.length})</h2>
+            <div className="flex flex-wrap gap-2">
+              {govukData.childOrgs.map((org, i) => {
+                const agencySlug = org.url.replace('https://www.gov.uk/government/organisations/', '');
+                return (
+                  <Link key={i} href={'/agencies/' + agencySlug}
+                    className="text-xs text-gray-300 hover:text-white transition-colors">
+                    {org.acronym || org.name}
+                  </Link>
+                );
+              })}
             </div>
-            {govukData.featuredLinks && govukData.featuredLinks.length > 0 && (
-              <div className="flex flex-wrap gap-3 mt-3">
-                {govukData.featuredLinks.map((l, i) => (
-                  <a key={i} href={l.url} target="_blank" rel="noopener noreferrer"
-                    className="text-xs text-yellow-500 hover:text-yellow-300">{l.title} →</a>
-                ))}
-              </div>
-            )}
           </div>
         )}
 
-        {/* 7. AGENCIES */}
+        {/* 8. STAFF — at the bottom */}
+        <div className="mb-6">
+          <h2 className="text-sm font-semibold text-gray-400 mb-4">Department Staff</h2>
+
+          {/* Junior Ministers */}
+          {juniorMinisters.length > 0 && (
+            <div className="mb-4">
+              <p className="text-xs text-gray-600 mb-2">Ministers</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
+                {juniorMinisters.map((minister, i) => (
+                  <div key={i} className="py-2 border-b border-gray-800/50">
+                    <Link href={`/people/${minister.slug}`} className="text-white text-sm font-medium hover:text-yellow-300 transition-colors">
+                      {minister.name}
+                    </Link>
+                    <div className="text-gray-400 text-xs mt-0.5">{minister.role}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Senior Officials */}
+          {seniorOfficials.length > 0 && (
+            <div className="mb-4">
+              <p className="text-xs text-gray-600 mb-2">Senior Officials</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
+                {seniorOfficials.map((member, i) => (
+                  <div key={i} className="py-2 border-b border-gray-800/50">
+                    <Link href={`/people/${member.slug}`} className="text-white text-sm font-medium hover:text-yellow-300 transition-colors">
+                      {member.name}
+                    </Link>
+                    <div className="text-gray-400 text-xs mt-0.5">{member.role}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Board Members */}
+          {boardMembers.length > 0 && (
+            <div className="mb-4">
+              <p className="text-xs text-gray-600 mb-2">Board Members</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
+                {boardMembers.map((member, i) => (
+                  <div key={i} className="py-2 border-b border-gray-800/50">
+                    <Link href={`/people/${member.slug}`} className="text-white text-sm font-medium hover:text-yellow-300 transition-colors">
+                      {member.name}
+                    </Link>
+                    <div className="text-gray-400 text-xs mt-0.5">{member.role}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* FOI and Press */}
+          {(govukData?.foiEmail || govukData?.pressPhone) && (
+            <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-gray-800">
+              {govukData.foiEmail && (
+                <a href={`mailto:${govukData.foiEmail}`} className="text-xs text-blue-400 hover:text-blue-300">
+                  FOI Request: {govukData.foiEmail}
+                </a>
+              )}
+              {govukData.pressPhone && (
+                <span className="text-xs text-gray-500">Press: {govukData.pressPhone}</span>
+              )}
+            </div>
+          )}
+        </div>
+
+      </main>
+    </div>
+  );
+}        {/* 7. AGENCIES */}
         {govukData?.childOrgs && govukData.childOrgs.length > 0 && (
           <div className="mb-6 pb-6 border-b border-gray-800">
             <h2 className="text-sm font-semibold text-gray-400 mb-3">Agencies & Arm's Length Bodies ({govukData.childOrgs.length})</h2>
