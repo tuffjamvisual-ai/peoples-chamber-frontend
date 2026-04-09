@@ -24,8 +24,8 @@ const meta: DepartmentMeta = {
     'Vaccines',
     'Obesity Strategy',
     'Alcohol & Drug Treatment',
-    'Women's Health',
-    'Children's Health',
+    'Women\'s Health',
+    'Children\'s Health',
     'NHS Workforce',
     'Patient Safety'
   ],

@@ -12,7 +12,7 @@ const meta: DepartmentMeta = {
     'Planning Reform',
     'Affordable Housing',
     'Social Housing',
-    'Renters' Rights',
+    'Renters\' Rights',
     'Leasehold Reform',
     'Local Government Funding',
     'Council Tax',

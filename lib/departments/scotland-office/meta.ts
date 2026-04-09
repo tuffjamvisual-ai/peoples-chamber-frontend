@@ -15,7 +15,7 @@ const meta: DepartmentMeta = {
     'UK-Scotland Relations',
     'Reserved Matters',
     'Scottish Parliament Liaison',
-    'Scotland's Budget',
+    'Scotland\'s Budget',
     'Cross-Border Issues',
     'Scotland in the Union'
   ],

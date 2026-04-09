@@ -11,7 +11,7 @@ const meta: DepartmentMeta = {
     'Trade Deals',
     'Export Support',
     'Business Regulation',
-    'Workers' Rights',
+    'Workers\' Rights',
     'Minimum Wage',
     'Employment Law',
     'Small Business Support',

@@ -15,7 +15,7 @@ const meta: DepartmentMeta = {
     'Cross-Border Relations',
     'NI Budget',
     'Legacy Issues',
-    'Victims' Issues',
+    'Victims\' Issues',
     'NI Security',
     'NI in the Union'
   ],

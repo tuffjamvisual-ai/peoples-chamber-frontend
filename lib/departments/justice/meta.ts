@@ -20,7 +20,7 @@ const meta: DepartmentMeta = {
     'Judicial Appointments',
     'Human Rights Act',
     'ECHR',
-    'Victims' Rights',
+    'Victims\' Rights',
     'Family Courts',
     'Civil Courts',
     'Magistrates',

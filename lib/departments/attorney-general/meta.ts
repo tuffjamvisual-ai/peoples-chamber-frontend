@@ -2,7 +2,7 @@ import type { DepartmentMeta } from '../types';
 
 const meta: DepartmentMeta = {
   slug: 'attorney-general',
-  name: 'Attorney General's Office',
+  name: 'Attorney General\'s Office',
   shortName: 'AGO',
   minister: 'Lord Hermer KC',
   ministerParty: 'labour',

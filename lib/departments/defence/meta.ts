@@ -16,7 +16,7 @@ const meta: DepartmentMeta = {
     'Army',
     'Royal Navy',
     'RAF',
-    'Veterans' Support',
+    'Veterans\' Support',
     'Defence Procurement',
     'Cyber Warfare',
     'Intelligence Services',
