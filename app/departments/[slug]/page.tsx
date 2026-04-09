@@ -283,7 +283,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
             <h2 className="text-sm font-semibold text-gray-400 mb-3">Agencies & Arm's Length Bodies ({govukData.childOrgs.length})</h2>
             <div className="flex flex-wrap gap-2">
               {govukData.childOrgs.map((org, i) => {
-                const agencySlug = org.url.replace('https://www.gov.uk/government/organisations/', '');
+                const agencySlug = org.url.split('/government/organisations/')[1] || '';
                 return (
                   <Link key={i} href={'/agencies/' + agencySlug}
                     className="text-xs text-gray-300 hover:text-white transition-colors">
