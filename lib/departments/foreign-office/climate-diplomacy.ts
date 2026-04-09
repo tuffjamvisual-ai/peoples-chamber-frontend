@@ -1,0 +1,9 @@
+import type { ControlZoneData } from '../types';
+
+const data: ControlZoneData = {
+  zone: 'Climate Diplomacy',
+  context: 'An FCDO spokesperson said: DPRK’s ballistic missile launches on 8 April are another breach of UN Security Council resolutions (UNSCRs), destabilising regional peace and security. The UK continues to urge DPRK to stop provocations, to engage in meaningful diplomacy and return to dialogue.',
+  positions: [],
+};
+
+export default data;
