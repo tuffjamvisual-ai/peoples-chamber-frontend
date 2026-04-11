@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { supabase } from '@/lib/supabase';
 
 export const revalidate = 3600;
 
@@ -9,6 +10,28 @@ export async function GET(request: Request) {
   if (!slug) return NextResponse.json({ error: 'slug required' }, { status: 400 });
 
   try {
+    // Try Supabase first
+    const { data: cached } = await supabase
+      .from('agency_cache')
+      .select('*')
+      .eq('slug', slug)
+      .single();
+
+    if (cached) {
+      return NextResponse.json({
+        name: cached.name,
+        description: cached.description,
+        body: cached.body,
+        acronym: cached.acronym,
+        ministers: cached.ministers || [],
+        boardMembers: cached.board_members || [],
+        parentOrgs: cached.parent_orgs || [],
+        featuredDocs: [],
+        socialMedia: [],
+      });
+    }
+
+    // Fallback to GOV.UK API
     const res = await fetch(`https://www.gov.uk/api/content/government/organisations/${slug}`, { next: { revalidate: 3600 } });
     const data = await res.json();
 
@@ -16,7 +39,6 @@ export async function GET(request: Request) {
     const description = data.description || '';
     const body = data.details?.body?.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() || '';
     const acronym = data.details?.acronym || '';
-    const status = data.details?.organisation_govuk_status?.status || 'live';
 
     const ministers = (data.links?.ordered_ministers || []).map((m: any) => {
       const currentRole = m.links?.role_appointments?.find((r: any) => r.details?.current);
@@ -53,7 +75,7 @@ export async function GET(request: Request) {
       slug: o.base_path?.replace('/government/organisations/', '') || '',
     }));
 
-    return NextResponse.json({ name, description, body, acronym, status, ministers, boardMembers, featuredDocs, socialMedia, parentOrgs });
+    return NextResponse.json({ name, description, body, acronym, ministers, boardMembers, featuredDocs, socialMedia, parentOrgs });
 
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch' }, { status: 500 });
