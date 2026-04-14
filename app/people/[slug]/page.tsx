@@ -56,6 +56,13 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
                 {person.currentRoles.length > 0 && (
                   <p className="text-yellow-400 text-sm">{person.currentRoles[0].title}</p>
                 )}
+                <Link
+                  href={`/interests/${slug}`}
+                  className="inline-block mt-3 text-sm"
+                  style={{ color: '#d4af37' }}
+                >
+                  View financial interests →
+                </Link>
               </div>
             </div>
 
