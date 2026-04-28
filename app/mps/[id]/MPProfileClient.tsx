@@ -54,8 +54,6 @@ export default function MPProfileClient({
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-      {/* TEMP DEBUG — remove after confirming prop arrives on production */}
-      <p className="col-span-full text-yellow-400 font-mono text-xs">[fi-debug] financialInterests?.length = {financialInterests?.length ?? 'undefined'} interests</p>
 
       {/* Sidebar */}
       <div className="lg:col-span-1">
@@ -312,7 +310,7 @@ export default function MPProfileClient({
                   {cat.items.map((item, i) => (
                     <li key={i} className="text-gray-300 text-sm leading-relaxed">
                       <div>{item.summary}</div>
-                      {item.detail && item.detail !== item.summary && (
+                      {item.detail && (
                         <div className="text-gray-500 text-xs mt-1 whitespace-pre-line">{item.detail}</div>
                       )}
                     </li>
