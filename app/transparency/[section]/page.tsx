@@ -38,8 +38,12 @@ export default async function TransparencySectionPage({
     .select('*')
     .limit(2000)
 
+  // Build-time visibility: log row count (and any error) for each section.
+  // Visible in Vercel deployment logs when this page is statically generated.
   if (error) {
-    console.error(`[transparency/${section}] supabase error:`, error)
+    console.error(`[transparency/${section}] supabase error querying '${config.table}':`, error.message || error)
+  } else {
+    console.log(`[transparency/${section}] table '${config.table}' returned ${rows?.length ?? 0} rows`)
   }
 
   return (
