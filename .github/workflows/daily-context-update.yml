@@ -23,5 +23,23 @@ jobs:
         run: node scripts/generate-department-contexts.js
       - name: Sync agency data
         run: node scripts/sync-agency-data.js
+      - name: Sync ministers' meetings
+        run: node scripts/sync-ministers-meetings.js
+        continue-on-error: true
+      - name: Sync APPGs
+        run: node scripts/sync-appgs.js
+        continue-on-error: true
+      - name: Sync ministers' hospitality
+        run: node scripts/sync-ministers-hospitality.js
+        continue-on-error: true
+      - name: Sync revolving door (ACOBA)
+        run: node scripts/sync-revolving-door.js
+        continue-on-error: true
+      - name: Sync political donations
+        run: node scripts/sync-political-donations.js
+        continue-on-error: true
+      - name: Sync government contracts
+        run: node scripts/sync-government-contracts.js
+        continue-on-error: true
       - name: Trigger Vercel redeploy
         run: curl -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
