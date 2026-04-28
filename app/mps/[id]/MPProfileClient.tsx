@@ -54,7 +54,9 @@ export default function MPProfileClient({
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-      
+      {/* TEMP DEBUG — remove after confirming prop arrives on production */}
+      <p className="col-span-full text-yellow-400 font-mono text-xs">[fi-debug] financialInterests?.length = {financialInterests?.length ?? 'undefined'} interests</p>
+
       {/* Sidebar */}
       <div className="lg:col-span-1">
         <div className="bg-gray-900 rounded-xl border border-gray-800 p-2 sticky top-20">
