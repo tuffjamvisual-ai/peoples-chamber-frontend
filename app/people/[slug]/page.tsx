@@ -11,9 +11,18 @@ type PersonData = {
   pastRoles: { title: string; organisation: string; startDate: string; endDate: string }[];
 };
 
+type Interest = {
+  summary: string;
+  detail: string;
+  registered_date: string | null;
+};
+
+type InterestCategory = { name: string; items: Interest[] };
+
 export default function PersonPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
   const [person, setPerson] = useState<PersonData | null>(null);
+  const [interests, setInterests] = useState<InterestCategory[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,6 +30,13 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
       .then(r => r.json())
       .then(d => { setPerson(d); setLoading(false); })
       .catch(() => setLoading(false));
+  }, [slug]);
+
+  useEffect(() => {
+    fetch(`/api/mp-interests?slug=${slug}`)
+      .then(r => r.json())
+      .then(d => setInterests(d.categories || []))
+      .catch(() => {});
   }, [slug]);
 
   return (
@@ -56,13 +72,6 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
                 {person.currentRoles.length > 0 && (
                   <p className="text-yellow-400 text-sm">{person.currentRoles[0].title}</p>
                 )}
-                <Link
-                  href={`/interests/${slug}`}
-                  className="inline-block mt-3 text-sm"
-                  style={{ color: '#d4af37' }}
-                >
-                  View financial interests →
-                </Link>
               </div>
             </div>
 
@@ -81,6 +90,30 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
                       <div className="text-gray-300 text-sm mt-3 leading-relaxed prose prose-invert max-w-none"
                         dangerouslySetInnerHTML={{ __html: role.body }} />
                     )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Financial Interests — flat layout, gold category headings, sits on page bg */}
+            {interests.length > 0 && (
+              <div className="mb-6">
+                <h2 className="text-lg font-semibold text-white mb-4">Financial Interests</h2>
+                {interests.map((cat) => (
+                  <div key={cat.name} className="mb-6 last:mb-0">
+                    <h3 className="text-sm font-semibold mb-2" style={{ color: '#d4af37' }}>
+                      {cat.name}
+                    </h3>
+                    <ul className="space-y-2">
+                      {cat.items.map((item, i) => (
+                        <li key={i} className="text-gray-300 text-sm leading-relaxed">
+                          <div>{item.summary}</div>
+                          {item.detail && item.detail !== item.summary && (
+                            <div className="text-gray-500 text-xs mt-1 whitespace-pre-line">{item.detail}</div>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 ))}
               </div>
