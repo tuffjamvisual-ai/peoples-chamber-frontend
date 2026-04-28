@@ -10,12 +10,17 @@ interface Props {
 }
 
 // Pick the most "title-like" field to use as each row's headline.
+// Person-identifying fields take priority over institutional fields when
+// both are present (e.g. on revolving_door rows the person_name is the
+// natural headline, not the organisation).
 // Falls back to the first string field if none of the preferred keys exist.
 const TITLE_KEYS = [
-  'title', 'name', 'subject', 'description',
-  'minister', 'minister_name', 'organisation', 'organisation_name',
-  'company', 'company_name', 'donor', 'donor_name',
-  'mp_name', 'person_name', 'lobbyist_name', 'group_name',
+  // Explicit headline fields
+  'title', 'name', 'subject',
+  // Person-identifying fields (preferred over institutional when both exist)
+  'person_name', 'mp_name', 'donor_name', 'lobbyist_name', 'minister_name', 'minister', 'donor',
+  // Institutional fields
+  'organisation', 'organisation_name', 'company', 'company_name', 'group_name',
 ]
 
 const HIDE_KEYS = new Set(['id', 'created_at', 'updated_at', 'inserted_at'])

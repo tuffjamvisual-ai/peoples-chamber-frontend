@@ -37,6 +37,49 @@ function normaliseName(seg) {
   return s;
 }
 
+// Match an org-name leading token; used to find the role/org boundary
+// inside a comma-joined string when there's no explicit "at" separator.
+// Token list covers the common starting words of UK central-gov bodies
+// (Home Office, Treasury, Crown Prosecution Service, National Audit Office,
+// Government Legal Department, etc.) plus the obvious leaders.
+const ORG_LEAD = /^(the\b|Department\b|Ministry\b|Office\b|Cabinet\b|Foreign\b|HM\b|His Majesty\b|Her Majesty\b|Home\b|Treasury\b|Crown\b|National\b|Government\b)/i;
+
+// "<role-text> at <org-text>" — the org-text must itself start with a
+// known org leader, otherwise we'd snap on the first preposition.
+const AT_SPLIT = /^(.*?)\s+at\s+((?:the|Department|Ministry|Office|Cabinet|Foreign|HM|His Majesty|Her Majesty|Home|Treasury|Crown|National|Government)\b.+)$/i;
+
+function splitRoleAndOrg(joined) {
+  const t = String(joined || '').trim();
+  if (!t) return { previous_role: null, organisation: null };
+
+  // 1. Prefer the explicit "<role> at <org>" form when present
+  const atMatch = t.match(AT_SPLIT);
+  if (atMatch) {
+    return { previous_role: atMatch[1].trim(), organisation: atMatch[2].trim() };
+  }
+
+  // 2. Comma-split, then find the first segment that LOOKS like the start
+  //    of an organisation name (preserves multi-comma org names like
+  //    "the Foreign, Commonwealth and Development Office").
+  const segs = t.split(',').map(s => s.trim()).filter(Boolean);
+  if (segs.length < 2) return { previous_role: t, organisation: null };
+  for (let i = 1; i < segs.length; i++) {
+    if (ORG_LEAD.test(segs[i])) {
+      return {
+        previous_role: segs.slice(0, i).join(', '),
+        organisation: segs.slice(i).join(', '),
+      };
+    }
+  }
+
+  // 3. No org-leader marker found anywhere: keep the entire string as the
+  //    role and leave organisation null. Avoids the Tariq-Ahmad case
+  //    where multi-comma role titles (e.g. ministerial portfolios spanning
+  //    several geographic regions) get a tail segment misclassified as an
+  //    organisation. Better null than wrong.
+  return { previous_role: t, organisation: null };
+}
+
 function parseTitle(title) {
   const t = String(title || '').trim();
   if (!t) return null;
@@ -55,20 +98,11 @@ function parseTitle(title) {
   const person_name = normaliseName(parts.shift());
   if (!person_name) return null;
 
-  // Remaining segments collectively describe the previous role.
-  // The trailing comma-segment of that joined string is usually the
-  // organisation.
-  let previous_role = parts.join(' - ').trim() || null;
-  let organisation = null;
-  if (previous_role) {
-    const segs = previous_role.split(',').map(s => s.trim()).filter(Boolean);
-    if (segs.length >= 2) {
-      organisation = segs[segs.length - 1];
-      previous_role = segs.slice(0, -1).join(', ');
-    }
-  }
+  // Remaining segments collectively describe the role + organisation.
+  const joined = parts.join(' - ').trim();
+  const { previous_role, organisation } = splitRoleAndOrg(joined);
 
-  return { person_name, previous_role, organisation };
+  return { person_name, previous_role: previous_role || null, organisation: organisation || null };
 }
 
 async function fetchAll() {
