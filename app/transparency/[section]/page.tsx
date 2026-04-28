@@ -6,17 +6,19 @@ import TransparencyClient from './TransparencyClient'
 
 export const revalidate = 3600
 
-// Route slug → { display title, Supabase table name }.
+// Route slug → { display title, Supabase table name, optional date column }.
 // NOTE: route 'appgs' maps to Supabase table 'appg_register' — the table name in
 // Supabase, route name preserved per spec.
-const SECTIONS: Record<string, { title: string; table: string }> = {
-  'ministers-meetings':  { title: "Ministers' Meetings",                table: 'ministers_meetings' },
+// `orderBy` is per-section because each table's date column has a different name;
+// omitted for sections whose tables have no natural date column or are empty.
+const SECTIONS: Record<string, { title: string; table: string; orderBy?: string }> = {
+  'ministers-meetings':  { title: "Ministers' Meetings",                table: 'ministers_meetings',   orderBy: 'meeting_date' },
   'lobbyists':           { title: 'Lobbyist Register',                  table: 'lobbyist_register' },
   'appgs':               { title: 'All-Party Parliamentary Groups',     table: 'appg_register' },
-  'hospitality':         { title: "Ministers' Hospitality",             table: 'ministers_hospitality' },
-  'revolving-door':      { title: 'Revolving Door',                     table: 'revolving_door' },
-  'donations':           { title: 'Political Donations',                table: 'political_donations' },
-  'contracts':           { title: 'Government Contracts',               table: 'government_contracts' },
+  'hospitality':         { title: "Ministers' Hospitality",             table: 'ministers_hospitality', orderBy: 'hospitality_date' },
+  'revolving-door':      { title: 'Revolving Door',                     table: 'revolving_door',       orderBy: 'approval_date' },
+  'donations':           { title: 'Political Donations',                table: 'political_donations',  orderBy: 'received_date' },
+  'contracts':           { title: 'Government Contracts',               table: 'government_contracts', orderBy: 'awarded_date' },
   'companies':           { title: 'Companies House',                    table: 'companies_house' },
 }
 
@@ -33,10 +35,11 @@ export default async function TransparencySectionPage({
   const config = SECTIONS[section]
   if (!config) notFound()
 
-  const { data: rows, error } = await supabase
-    .from(config.table)
-    .select('*')
-    .limit(2000)
+  const baseQuery = supabase.from(config.table).select('*').limit(2000)
+  const finalQuery = config.orderBy
+    ? baseQuery.order(config.orderBy, { ascending: false, nullsFirst: false })
+    : baseQuery
+  const { data: rows, error } = await finalQuery
 
   // Build-time visibility: log row count (and any error) for each section.
   // Visible in Vercel deployment logs when this page is statically generated.
