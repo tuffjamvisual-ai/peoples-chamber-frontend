@@ -63,16 +63,13 @@ export default async function MPProfilePage({ params }: PageProps) {
     .eq('member_id', memberId)
     .order('category_sort_order', { ascending: true })
 
-  // Financial interests — separate table keyed by member_slug. Slug derivation
-  // prefers mp.slug if the column exists, else kebab-case from mp.name.
-  const mpSlug = (mp.slug as string | undefined)
-    || ((mp.name as string | undefined)?.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''))
-    || ''
-
+  // Financial interests — separate table keyed by member_id (matches the route param).
+  // member_slug exists in the table but mp.name often includes honorifics/suffixes
+  // ("Rt Hon … MP") that make slug derivation unreliable; member_id is the natural key.
   const { data: financialInterestRows } = await supabase
     .from('mp_interests')
     .select('category, summary, detail, registered_date')
-    .eq('member_slug', mpSlug)
+    .eq('member_id', memberId)
     .order('registered_date', { ascending: false })
 
   const grouped: Record<string, { summary: string; detail: string; registered_date: string | null }[]> = {}
