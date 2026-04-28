@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 
 type FinancialInterest = {
@@ -18,27 +18,13 @@ interface MPProfileClientProps {
   votes: any[]
   interests: any[]
   partyColour: string
+  financialInterests: FinancialCategory[]
 }
 
 export default function MPProfileClient({
-  mp, contact, bio, sponsoredBills, votes, interests, partyColour
+  mp, contact, bio, sponsoredBills, votes, interests, partyColour, financialInterests
 }: MPProfileClientProps) {
   const [activeSection, setActiveSection] = useState('contact')
-
-  // Slug derivation for /api/mp-interests — prefer mp.slug if present, else kebab-case from name.
-  const mpSlug: string = (mp?.slug as string | undefined)
-    || ((mp?.name as string | undefined)?.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''))
-    || ''
-
-  const [financialInterests, setFinancialInterests] = useState<FinancialCategory[]>([])
-
-  useEffect(() => {
-    if (!mpSlug) return
-    fetch(`/api/mp-interests?slug=${mpSlug}`)
-      .then(r => r.json())
-      .then(d => setFinancialInterests(d.categories || []))
-      .catch(() => {})
-  }, [mpSlug])
 
   const interestsByCategory = interests?.reduce((acc: any, interest) => {
     if (!acc[interest.category_name]) acc[interest.category_name] = []
@@ -133,30 +119,6 @@ export default function MPProfileClient({
                 </div>
               ) : (
                 <p className="text-gray-400">No contact information available</p>
-              )}
-
-              {/* Financial Interests — flat layout, gold category headings, fetched from /api/mp-interests */}
-              {financialInterests.length > 0 && (
-                <div className="mt-8">
-                  <h2 className="text-lg font-semibold text-white mb-4">Financial Interests</h2>
-                  {financialInterests.map((cat) => (
-                    <div key={cat.name} className="mb-6 last:mb-0">
-                      <h3 className="text-sm font-semibold mb-2" style={{ color: '#d4af37' }}>
-                        {cat.name}
-                      </h3>
-                      <ul className="space-y-2">
-                        {cat.items.map((item, i) => (
-                          <li key={i} className="text-gray-300 text-sm leading-relaxed">
-                            <div>{item.summary}</div>
-                            {item.detail && item.detail !== item.summary && (
-                              <div className="text-gray-500 text-xs mt-1 whitespace-pre-line">{item.detail}</div>
-                            )}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
               )}
             </div>
           )}
@@ -334,6 +296,30 @@ export default function MPProfileClient({
           )}
 
         </div>
+
+        {/* Financial Interests — visible on every tab; flat layout, gold category headings on page bg */}
+        {financialInterests.length > 0 && (
+          <div className="mt-6">
+            <h2 className="text-lg font-semibold text-white mb-4">Financial Interests</h2>
+            {financialInterests.map((cat) => (
+              <div key={cat.name} className="mb-6 last:mb-0">
+                <h3 className="text-sm font-semibold mb-2" style={{ color: '#d4af37' }}>
+                  {cat.name}
+                </h3>
+                <ul className="space-y-2">
+                  {cat.items.map((item, i) => (
+                    <li key={i} className="text-gray-300 text-sm leading-relaxed">
+                      <div>{item.summary}</div>
+                      {item.detail && item.detail !== item.summary && (
+                        <div className="text-gray-500 text-xs mt-1 whitespace-pre-line">{item.detail}</div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
