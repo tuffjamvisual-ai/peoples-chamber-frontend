@@ -17,7 +17,7 @@ const SITE_URL = "https://www.thepeopleschamber.uk";
 const SITE_NAME = "The Peoples Chamber";
 const SITE_DESCRIPTION =
   "The UK politics transparency app — see what every government department controls, what every party says, and who runs Britain.";
-const OG_IMAGE = `${SITE_URL}/og-image.png`;
+const OG_IMAGE = `${SITE_URL}/logo.png`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
