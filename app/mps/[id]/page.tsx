@@ -63,23 +63,6 @@ export default async function MPProfilePage({ params }: PageProps) {
     .eq('member_id', memberId)
     .order('category_sort_order', { ascending: true })
 
-  // Financial interests — separate table keyed by member_id (matches the route param).
-  // member_slug exists in the table but mp.name often includes honorifics/suffixes
-  // ("Rt Hon … MP") that make slug derivation unreliable; member_id is the natural key.
-  const { data: financialInterestRows } = await supabase
-    .from('mp_interests')
-    .select('category, summary, detail, registered_date')
-    .eq('member_id', memberId)
-    .order('registered_date', { ascending: false })
-
-  const grouped: Record<string, { summary: string; detail: string; registered_date: string | null }[]> = {}
-  for (const row of financialInterestRows || []) {
-    const cat = row.category || 'Other'
-    if (!grouped[cat]) grouped[cat] = []
-    grouped[cat].push({ summary: row.summary, detail: row.detail, registered_date: row.registered_date })
-  }
-  const financialInterests = Object.keys(grouped).sort().map(name => ({ name, items: grouped[name] }))
-
   const partyColour = mp.party_colour ? '#' + mp.party_colour.replace('#', '') : '#3b82f6'
 
   return (
@@ -138,7 +121,6 @@ export default async function MPProfilePage({ params }: PageProps) {
           votes={votes || []}
           interests={interests || []}
           partyColour={partyColour}
-          financialInterests={financialInterests}
         />
       </main>
     </div>

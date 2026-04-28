@@ -3,13 +3,6 @@
 import { useState } from 'react'
 import Link from 'next/link'
 
-type FinancialInterest = {
-  summary: string
-  detail: string
-  registered_date: string | null
-}
-type FinancialCategory = { name: string; items: FinancialInterest[] }
-
 interface MPProfileClientProps {
   mp: any
   contact: any
@@ -18,11 +11,10 @@ interface MPProfileClientProps {
   votes: any[]
   interests: any[]
   partyColour: string
-  financialInterests: FinancialCategory[]
 }
 
 export default function MPProfileClient({
-  mp, contact, bio, sponsoredBills, votes, interests, partyColour, financialInterests
+  mp, contact, bio, sponsoredBills, votes, interests, partyColour
 }: MPProfileClientProps) {
   const [activeSection, setActiveSection] = useState('contact')
 
@@ -296,30 +288,6 @@ export default function MPProfileClient({
           )}
 
         </div>
-
-        {/* Financial Interests — visible on every tab; flat layout, gold category headings on page bg */}
-        {financialInterests.length > 0 && (
-          <div className="mt-6">
-            <h2 className="text-lg font-semibold text-white mb-4">Financial Interests</h2>
-            {financialInterests.map((cat) => (
-              <div key={cat.name} className="mb-6 last:mb-0">
-                <h3 className="text-sm font-semibold mb-2" style={{ color: '#d4af37' }}>
-                  {cat.name}
-                </h3>
-                <ul className="space-y-2">
-                  {cat.items.map((item, i) => (
-                    <li key={i} className="text-gray-300 text-sm leading-relaxed">
-                      <div>{item.summary}</div>
-                      {item.detail && (
-                        <div className="text-gray-500 text-xs mt-1 whitespace-pre-line">{item.detail}</div>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   )
