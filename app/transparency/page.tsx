@@ -1,7 +1,15 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import Navigation from '../components/Navigation'
 
 export const revalidate = 3600
+
+export const metadata: Metadata = {
+  title: 'Transparency Hub',
+  description:
+    'Government contracts, revolving door appointments, ministerial meetings, political donations and lobbying data in one place.',
+  alternates: { canonical: '/transparency' },
+}
 
 const SECTIONS = [
   {

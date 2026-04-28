@@ -1,6 +1,14 @@
+import type { Metadata } from 'next';
 import { departments } from '@/lib/departments';
 import Navigation from '../components/Navigation';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: 'Departments',
+  description:
+    'Explore all 24 UK government departments, their ministers, control zones and what every party says about each topic.',
+  alternates: { canonical: '/departments' },
+};
 
 export default function DepartmentsPage() {
   return (

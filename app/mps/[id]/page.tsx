@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import Navigation from '../../components/Navigation'
@@ -11,7 +12,7 @@ export async function generateStaticParams() {
     .from('mps')
     .select('member_id')
     .eq('current_member', true)
-  
+
   return (mps || []).map((mp) => ({
     id: mp.member_id.toString()
   }))
@@ -19,6 +20,24 @@ export async function generateStaticParams() {
 
 interface PageProps {
   params: Promise<{ id: string }>
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { id } = await params
+  const memberId = parseInt(id)
+  const { data: mp } = await supabase
+    .from('mps')
+    .select('name, display_name, constituency, party')
+    .eq('member_id', memberId)
+    .single()
+  if (!mp) return { title: 'MP profile' }
+  const name = mp.display_name || mp.name
+  const subtitle = [mp.party, mp.constituency].filter(Boolean).join(' · ')
+  return {
+    title: name,
+    description: `${name}${subtitle ? ` — ${subtitle}.` : '.'} Voting record, registered interests, sponsored bills and contact details.`,
+    alternates: { canonical: `/mps/${memberId}` },
+  }
 }
 
 export default async function MPProfilePage({ params }: PageProps) {
