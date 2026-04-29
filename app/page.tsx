@@ -1,34 +1,34 @@
 import Link from 'next/link';
-import Anthropic from '@anthropic-ai/sdk';
 import { supabase } from '@/lib/supabase';
 import Navigation from './components/Navigation';
 
-// Cache the whole page for an hour. The Anthropic calls in section 4 are
-// expensive and the source data (bills + GOV.UK feed) doesn't move faster
-// than that.
 export const revalidate = 3600;
 
-const GOLD = '#60a5fa';
-
-const SECTIONS = [
-  { title: 'Bills',           body: 'Every bill going through Parliament. How MPs voted. How you voted. The gap between the two.' },
-  { title: 'MPs',             body: 'All 650 current MPs. Their voting record, financial interests, and contact details. Searchable.' },
-  { title: 'Departments',     body: 'All 24 government departments. Who runs them, what they control, what every party says about each topic.' },
-  { title: 'Transparency Hub',body: 'Government contracts. Revolving door appointments. Who meets whom. The paper trail.' },
-  { title: 'Laws',            body: 'Acts of Parliament already on the statute book. What passed and what it means.' },
-  { title: "People's Polls",  body: "Public votes on live legislation. Parliament's position vs yours. No spin applied." },
-];
+const ACCENT = '#60a5fa'; // blue-400 — site-wide accent
 
 type GovukItem = { title: string; organisation: string | null; date: string | null };
-type ContrastBill = {
+type SpotlightBill = {
   id: number;
   title: string;
-  commons_ayes: number;
-  commons_noes: number;
   vote_count_yes: number;
   vote_count_no: number;
-  observation: string | null;
+  commons_ayes: number;
+  commons_noes: number;
+  total_public: number;
 };
+type RevolvingRow = { person_name: string; previous_role: string | null; organisation: string | null; approval_date: string | null };
+type ContractRow = { title: string | null; supplier: string | null; value: number | null; awarded_date: string | null };
+
+const EXPLORE = [
+  { emoji: '📜', title: 'Bills',          href: '/bills',        body: 'Every bill in Parliament. How MPs voted. How you voted.' },
+  { emoji: '🏛️', title: 'MPs',            href: '/mps',          body: 'All 650 current MPs, their voting record and interests.' },
+  { emoji: '🏢', title: 'Departments',    href: '/departments',  body: '24 government departments and what every party says.' },
+  { emoji: '🔍', title: 'Transparency',   href: '/transparency', body: 'Contracts, revolving door, meetings, lobbying.' },
+  { emoji: '⚖️', title: 'Laws',           href: '/laws',         body: 'Acts of Parliament already on the statute book.' },
+  { emoji: '🗳️', title: "People's Polls", href: '/polls',        body: 'Public votes on live legislation. Parliament vs you.' },
+];
+
+// ─── data fetchers ──────────────────────────────────────────────────────
 
 async function fetchGovukPressReleases(): Promise<GovukItem[]> {
   try {
@@ -46,69 +46,64 @@ async function fetchGovukPressReleases(): Promise<GovukItem[]> {
   }
 }
 
-const SATIRE_SYSTEM = 'You write one dry, deadpan factual observation about the gap between how Parliament voted and how the public voted on a UK bill. Maximum 20 words. No jokes. No editorialising. State the gap as fact. Private Eye tone. Never use the word irony or contrast.';
-
-async function generateObservation(bill: ContrastBill): Promise<string | null> {
-  if (!process.env.ANTHROPIC_API_KEY) return null;
-  try {
-    const client = new Anthropic();
-    const totalCommons = bill.commons_ayes + bill.commons_noes;
-    const totalPublic = bill.vote_count_yes + bill.vote_count_no;
-    const commonsAyePct = totalCommons > 0 ? Math.round((bill.commons_ayes / totalCommons) * 100) : 0;
-    const publicYesPct = totalPublic > 0 ? Math.round((bill.vote_count_yes / totalPublic) * 100) : 0;
-    const userText = `Bill: "${bill.title}"\nParliament voted: ${bill.commons_ayes} ayes vs ${bill.commons_noes} noes (${commonsAyePct}% in favour).\nPublic voted: ${bill.vote_count_yes} support vs ${bill.vote_count_no} oppose (${publicYesPct}% in favour).`;
-    const resp = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 50,
-      system: SATIRE_SYSTEM,
-      messages: [{ role: 'user', content: userText }],
-    });
-    const block = resp.content[0];
-    if (block?.type === 'text') return block.text.trim();
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-async function fetchContrastBills(): Promise<ContrastBill[]> {
+async function fetchSpotlightBills(): Promise<SpotlightBill[]> {
+  // Order by raw yes-count to get the most-engaged bills cheaply, then
+  // re-sort by total (yes+no) client-side for the final headline metric.
   const { data } = await supabase
     .from('bill')
-    .select('id, title, commons_ayes, commons_noes, vote_count_yes, vote_count_no, last_update')
+    .select('id, title, vote_count_yes, vote_count_no, commons_ayes, commons_noes')
     .gt('vote_count_yes', 0)
-    .order('last_update', { ascending: false })
-    .limit(50);
-  const candidates = (data || [])
-    .filter((b) => (b.vote_count_yes + b.vote_count_no) > 100)
-    .slice(0, 3)
+    .order('vote_count_yes', { ascending: false })
+    .limit(30);
+  return (data || [])
     .map((b) => ({
       id: b.id,
       title: b.title,
-      commons_ayes: b.commons_ayes || 0,
-      commons_noes: b.commons_noes || 0,
       vote_count_yes: b.vote_count_yes || 0,
       vote_count_no: b.vote_count_no || 0,
-      observation: null as string | null,
-    }));
-  // Generate observations in parallel.
-  const observations = await Promise.all(candidates.map(generateObservation));
-  return candidates.map((b, i) => ({ ...b, observation: observations[i] }));
+      commons_ayes: b.commons_ayes || 0,
+      commons_noes: b.commons_noes || 0,
+      total_public: (b.vote_count_yes || 0) + (b.vote_count_no || 0),
+    }))
+    .sort((a, b) => b.total_public - a.total_public)
+    .slice(0, 3);
 }
 
-async function fetchFooterCounts() {
-  const [billsRes, mpsRes, contractsRes, doorRes] = await Promise.all([
+async function fetchRecentRevolving(): Promise<RevolvingRow[]> {
+  const { data } = await supabase
+    .from('revolving_door')
+    .select('person_name, previous_role, organisation, approval_date')
+    .order('approval_date', { ascending: false, nullsFirst: false })
+    .limit(3);
+  return data || [];
+}
+
+async function fetchRecentContracts(): Promise<ContractRow[]> {
+  const { data } = await supabase
+    .from('government_contracts')
+    .select('title, supplier, value, awarded_date')
+    .order('awarded_date', { ascending: false, nullsFirst: false })
+    .limit(3);
+  return data || [];
+}
+
+async function fetchCounts() {
+  const [billsRes, mpsRes, contractsRes, doorRes, meetingsRes] = await Promise.all([
     supabase.from('bill').select('id', { count: 'exact', head: true }),
     supabase.from('mps').select('member_id', { count: 'exact', head: true }).eq('current_member', true),
     supabase.from('government_contracts').select('title', { count: 'exact', head: true }),
     supabase.from('revolving_door').select('person_name', { count: 'exact', head: true }),
+    supabase.from('ministers_meetings').select('minister_name', { count: 'exact', head: true }),
   ]);
   return {
     bills: billsRes.count ?? 0,
     mps: mpsRes.count ?? 0,
     contracts: contractsRes.count ?? 0,
-    revolvingDoor: doorRes.count ?? 0,
+    transparency: (doorRes.count ?? 0) + (meetingsRes.count ?? 0),
   };
 }
+
+// ─── formatters ─────────────────────────────────────────────────────────
 
 function formatDate(iso: string | null): string {
   if (!iso) return '';
@@ -119,17 +114,28 @@ function formatDate(iso: string | null): string {
   }
 }
 
-function formatPercent(num: number, denom: number): string {
-  if (denom <= 0) return '0%';
-  return `${Math.round((num / denom) * 100)}%`;
+function formatMoney(v: number | null): string {
+  if (v == null || !Number.isFinite(v)) return '—';
+  if (v >= 1_000_000_000) return `£${(v / 1_000_000_000).toFixed(1)}bn`;
+  if (v >= 1_000_000) return `£${(v / 1_000_000).toFixed(1)}m`;
+  if (v >= 1_000) return `£${Math.round(v / 1_000)}k`;
+  return `£${Math.round(v)}`;
 }
 
+function pct(num: number, denom: number): number {
+  if (denom <= 0) return 0;
+  return Math.round((num / denom) * 100);
+}
+
+// ─── component ──────────────────────────────────────────────────────────
+
 export default async function HomePage() {
-  // Run the four data sources in parallel — Anthropic latency dominates.
-  const [press, contrast, counts] = await Promise.all([
+  const [press, bills, revolving, contracts, counts] = await Promise.all([
     fetchGovukPressReleases(),
-    fetchContrastBills(),
-    fetchFooterCounts(),
+    fetchSpotlightBills(),
+    fetchRecentRevolving(),
+    fetchRecentContracts(),
+    fetchCounts(),
   ]);
 
   return (
@@ -137,112 +143,184 @@ export default async function HomePage() {
       <Navigation />
 
       {/* 1. HERO */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 pt-4 pb-20">
-        <h1 className="text-5xl sm:text-6xl font-bold leading-tight mb-6" style={{ color: GOLD }}>
-          UK Government, Observed.
-        </h1>
-        <p className="text-lg sm:text-xl text-gray-300 leading-relaxed max-w-3xl mb-10">
-          A factual account of what Parliament does. Accompanied by a record of what everyone else thinks about it. Readers may draw their own conclusions.
-        </p>
-        <div className="flex flex-wrap gap-4">
-          <Link
-            href="/departments"
-            className="px-6 py-3 font-semibold rounded transition-opacity hover:opacity-80"
-            style={{ backgroundColor: GOLD, color: '#0a0f1a' }}
-          >
-            Explore Departments
-          </Link>
-          <Link
-            href="/mps"
-            className="px-6 py-3 font-semibold rounded transition-opacity hover:opacity-80"
-            style={{ backgroundColor: GOLD, color: '#0a0f1a' }}
-          >
-            View MPs
-          </Link>
+      <section className="border-b border-gray-800">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-8 pb-16">
+          <p className="text-xs uppercase tracking-[0.3em] text-gray-500 mb-6">UK Parliament · Government · Politics</p>
+          <h1 className="text-5xl sm:text-7xl font-black leading-[0.95] tracking-tight mb-8" style={{ color: ACCENT }}>
+            UK Government,<br />Observed.
+          </h1>
+          <p className="text-lg sm:text-xl text-gray-300 leading-relaxed max-w-3xl mb-10">
+            A factual account of what Parliament does. Accompanied by a record of what everyone else thinks about it. Readers may draw their own conclusions.
+          </p>
+          <div className="flex flex-wrap gap-4">
+            <Link
+              href="/departments"
+              className="px-6 py-3 font-semibold rounded transition-opacity hover:opacity-80"
+              style={{ backgroundColor: ACCENT, color: '#0a0f1a' }}
+            >
+              Explore Departments
+            </Link>
+            <Link
+              href="/mps"
+              className="px-6 py-3 font-semibold rounded border-2 transition-colors hover:bg-gray-900"
+              style={{ borderColor: ACCENT, color: ACCENT }}
+            >
+              View MPs
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* 2. WHAT YOU'LL FIND */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 pb-20">
-        <h2 className="text-sm uppercase tracking-widest text-gray-500 mb-8">What you&apos;ll find</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-8">
-          {SECTIONS.map((s) => (
-            <div key={s.title}>
-              <h3 className="text-lg font-semibold mb-2" style={{ color: GOLD }}>{s.title}</h3>
-              <p className="text-gray-300 text-sm leading-relaxed">{s.body}</p>
-            </div>
-          ))}
+      {/* 2. LIVE STATS BAR */}
+      <section className="border-b border-gray-800">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-gray-800">
+            {[
+              { value: counts.bills,        label: 'Bills tracked' },
+              { value: counts.mps,          label: 'Current MPs' },
+              { value: counts.contracts,    label: 'Govt contracts' },
+              { value: counts.transparency, label: 'Transparency records' },
+            ].map((s, i) => (
+              <div key={s.label} className={`px-4 sm:px-6 ${i === 0 ? 'pl-0' : ''}`}>
+                <div className="text-3xl sm:text-4xl font-bold font-mono" style={{ color: ACCENT }}>
+                  {s.value.toLocaleString()}
+                </div>
+                <div className="text-xs uppercase tracking-wider text-gray-400 mt-2">{s.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* 3. THE RECORD (latest GOV.UK press releases) */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 pb-20">
-        <h2 className="text-sm uppercase tracking-widest text-gray-500 mb-8">The Record</h2>
+      {/* 3. LATEST GOVERNMENT NEWS */}
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 py-16">
+        <h2 className="text-sm uppercase tracking-[0.3em] text-gray-500 mb-8">The Record</h2>
         {press.length === 0 ? (
           <p className="text-gray-500 text-sm">No releases available right now.</p>
         ) : (
-          <ul className="divide-y divide-gray-800">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {press.map((p, i) => (
-              <li key={i} className="py-4">
-                <div className="flex items-baseline justify-between gap-4">
-                  <h3 className="text-white text-base leading-snug">{p.title}</h3>
-                  {p.date && <span className="text-gray-500 text-xs whitespace-nowrap font-mono">{formatDate(p.date)}</span>}
-                </div>
+              <article key={i} className="pl-4 py-1 border-l-2" style={{ borderColor: ACCENT }}>
                 {p.organisation && (
-                  <p className="text-xs mt-1" style={{ color: GOLD }}>{p.organisation}</p>
+                  <p className="text-xs uppercase tracking-wider mb-2" style={{ color: ACCENT }}>{p.organisation}</p>
                 )}
-              </li>
+                <h3 className="text-white text-base leading-snug mb-2">{p.title}</h3>
+                {p.date && <p className="text-xs text-gray-500 font-mono">{formatDate(p.date)}</p>}
+              </article>
             ))}
-          </ul>
+          </div>
         )}
       </section>
 
-      {/* 4. PROCEEDINGS AND REACTIONS (satire by juxtaposition) */}
-      {contrast.length > 0 && (
-        <section className="max-w-5xl mx-auto px-4 sm:px-6 pb-20">
-          <h2 className="text-sm uppercase tracking-widest text-gray-500 mb-8">Proceedings and Reactions</h2>
-          <ul className="divide-y divide-gray-800">
-            {contrast.map((b) => {
-              const totalCommons = b.commons_ayes + b.commons_noes;
-              const totalPublic = b.vote_count_yes + b.vote_count_no;
-              return (
-                <li key={b.id} className="py-6">
-                  <h3 className="text-white text-base font-medium leading-snug mb-3">{b.title}</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1 text-sm mb-3">
-                    <div className="text-gray-400">
-                      <span className="text-gray-500">Parliament:</span> {b.commons_ayes.toLocaleString()} ayes, {b.commons_noes.toLocaleString()} noes
-                      {totalCommons > 0 && <span className="text-gray-600"> ({formatPercent(b.commons_ayes, totalCommons)} in favour)</span>}
+      {/* 4. BILLS IN THE SPOTLIGHT */}
+      {bills.length > 0 && (
+        <section className="border-t border-gray-800">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-16">
+            <div className="flex items-baseline justify-between mb-8">
+              <h2 className="text-sm uppercase tracking-[0.3em] text-gray-500">Bills in the spotlight</h2>
+              <Link href="/bills" className="text-sm hover:underline" style={{ color: ACCENT }}>
+                View all bills →
+              </Link>
+            </div>
+            <div className="space-y-8">
+              {bills.map((b) => {
+                const yesPct = pct(b.vote_count_yes, b.total_public);
+                const noPct = pct(b.vote_count_no, b.total_public);
+                const commonsTotal = b.commons_ayes + b.commons_noes;
+                return (
+                  <div key={b.id}>
+                    <h3 className="text-white text-lg font-medium leading-snug mb-3">{b.title}</h3>
+                    <div className="mb-2">
+                      <div className="flex h-2 w-full overflow-hidden rounded bg-gray-800">
+                        <div className="bg-green-600" style={{ width: `${yesPct}%` }} />
+                        <div className="bg-red-600" style={{ width: `${noPct}%` }} />
+                      </div>
+                      <div className="flex justify-between text-xs mt-2 font-mono">
+                        <span className="text-green-400">{yesPct}% support · {b.vote_count_yes.toLocaleString()} yes</span>
+                        <span className="text-red-400">{noPct}% oppose · {b.vote_count_no.toLocaleString()} no</span>
+                      </div>
                     </div>
-                    <div className="text-gray-400">
-                      <span className="text-gray-500">Public:</span> {formatPercent(b.vote_count_yes, totalPublic)} support, {formatPercent(b.vote_count_no, totalPublic)} oppose
-                    </div>
+                    {commonsTotal > 0 && (
+                      <p className="text-xs text-gray-500 mt-2">
+                        Parliament: {b.commons_ayes.toLocaleString()} ayes · {b.commons_noes.toLocaleString()} noes ({pct(b.commons_ayes, commonsTotal)}% in favour)
+                      </p>
+                    )}
                   </div>
-                  {b.observation && (
-                    <p className="text-gray-500 italic text-sm leading-relaxed">{b.observation}</p>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
+                );
+              })}
+            </div>
+          </div>
         </section>
       )}
 
-      {/* 5. FOOTER STATS */}
-      <section className="border-t border-gray-800 mt-12">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-y-6 gap-x-8">
-            {[
-              { label: 'Bills', value: counts.bills },
-              { label: 'MPs', value: counts.mps },
-              { label: 'Government contracts', value: counts.contracts },
-              { label: 'Revolving door cases', value: counts.revolvingDoor },
-            ].map((s) => (
-              <div key={s.label}>
-                <div className="text-3xl font-bold font-mono" style={{ color: GOLD }}>
-                  {s.value.toLocaleString()}
-                </div>
-                <div className="text-xs uppercase tracking-wider text-gray-500 mt-1">{s.label}</div>
-              </div>
+      {/* 5. RECENT TRANSPARENCY */}
+      <section className="border-t border-gray-800">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-16">
+          <div className="flex items-baseline justify-between mb-8">
+            <h2 className="text-sm uppercase tracking-[0.3em] text-gray-500">Recent transparency</h2>
+            <Link href="/transparency" className="text-sm hover:underline" style={{ color: ACCENT }}>
+              Transparency hub →
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            {/* Revolving Door */}
+            <div>
+              <h3 className="text-xs uppercase tracking-widest mb-4" style={{ color: ACCENT }}>Revolving door</h3>
+              {revolving.length === 0 ? (
+                <p className="text-gray-500 text-sm">No records yet.</p>
+              ) : (
+                <ul className="space-y-5">
+                  {revolving.map((r, i) => (
+                    <li key={i}>
+                      <div className="text-white text-sm font-medium">{r.person_name}</div>
+                      {r.previous_role && <div className="text-xs text-gray-400 mt-0.5">{r.previous_role}</div>}
+                      {r.organisation && <div className="text-xs text-gray-500 mt-0.5">{r.organisation}</div>}
+                      {r.approval_date && <div className="text-xs text-gray-600 mt-1 font-mono">{formatDate(r.approval_date)}</div>}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* Contracts */}
+            <div>
+              <h3 className="text-xs uppercase tracking-widest mb-4" style={{ color: ACCENT }}>Government contracts</h3>
+              {contracts.length === 0 ? (
+                <p className="text-gray-500 text-sm">No records yet.</p>
+              ) : (
+                <ul className="space-y-5">
+                  {contracts.map((c, i) => (
+                    <li key={i}>
+                      <div className="text-white text-sm font-medium leading-snug">{c.title || '(untitled)'}</div>
+                      {c.supplier && <div className="text-xs text-gray-400 mt-0.5">{c.supplier}</div>}
+                      <div className="flex items-baseline gap-3 mt-1">
+                        <span className="text-sm font-mono" style={{ color: ACCENT }}>{formatMoney(c.value)}</span>
+                        {c.awarded_date && <span className="text-xs text-gray-600 font-mono">{formatDate(c.awarded_date)}</span>}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. EXPLORE SECTIONS */}
+      <section className="border-t border-gray-800">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-16">
+          <h2 className="text-sm uppercase tracking-[0.3em] text-gray-500 mb-8">Explore</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {EXPLORE.map((e) => (
+              <Link
+                key={e.title}
+                href={e.href}
+                className="block p-6 border border-gray-800 rounded-lg transition-colors hover:border-gray-700 hover:bg-gray-900/40"
+              >
+                <div className="text-3xl mb-3" aria-hidden="true">{e.emoji}</div>
+                <h3 className="text-lg font-semibold mb-1" style={{ color: ACCENT }}>{e.title}</h3>
+                <p className="text-sm text-gray-400 leading-relaxed">{e.body}</p>
+              </Link>
             ))}
           </div>
         </div>
