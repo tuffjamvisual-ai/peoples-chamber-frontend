@@ -53,7 +53,10 @@ export default function Navigation() {
             
             <div className="hidden lg:flex flex-col items-end gap-2">
               <div className="flex items-center space-x-3">
-              <Link href="/bills" className={`px-3 py-1.5 text-sm font-medium ${isActive('/bills') ? 'text-blue-400' : 'text-gray-400 hover:text-white'}`}>
+              <Link href="/" className={`px-3 py-1.5 text-sm ${isActive('/') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
+                Home
+              </Link>
+              <Link href="/bills" className={`px-3 py-1.5 text-sm ${isActive('/bills') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
                 Bills
               </Link>
               <Link href="/laws" className={`px-3 py-1.5 text-sm ${isActive('/laws') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
@@ -111,6 +114,9 @@ export default function Navigation() {
           {mobileMenuOpen && (
             <div className="lg:hidden pb-4 border-t border-gray-800/50 mt-2">
               <div className="flex flex-col space-y-1 py-2">
+                <Link href="/" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-400'}`}>
+                  Home
+                </Link>
                 <Link href="/bills" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/bills') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-400'}`}>
                   Bills
                 </Link>
