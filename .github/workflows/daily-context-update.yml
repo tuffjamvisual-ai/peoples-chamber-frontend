@@ -26,6 +26,11 @@ jobs:
       - name: Sync ministers' meetings
         run: node scripts/sync-ministers-meetings.js
         continue-on-error: true
+      - name: Enrich ministers' meetings (Haiku org descriptions)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node scripts/enrich-ministers-meetings.js
+        continue-on-error: true
       - name: Sync APPGs
         run: node scripts/sync-appgs.js
         continue-on-error: true
