@@ -14,7 +14,9 @@ jobs:
         with:
           node-version: '18'
       - name: Install dependencies
-        run: npm install @anthropic-ai/sdk @supabase/supabase-js
+        run: npm install @anthropic-ai/sdk @supabase/supabase-js csv-parse playwright
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
       - name: Sync GOV.UK department data
         run: node scripts/sync-govuk-data.js
       - name: Update street contexts
@@ -39,6 +41,9 @@ jobs:
         continue-on-error: true
       - name: Sync revolving door (ACOBA)
         run: node scripts/sync-revolving-door.js
+        continue-on-error: true
+      - name: Sync committee proceedings (Playwright)
+        run: node scripts/sync-committee-proceedings.js
         continue-on-error: true
       - name: Sync political donations
         run: node scripts/sync-political-donations.js
