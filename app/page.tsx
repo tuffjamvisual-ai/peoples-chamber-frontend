@@ -6,7 +6,7 @@ export const revalidate = 3600;
 
 const ACCENT = '#60a5fa'; // blue-400 — site-wide accent
 
-type GovukItem = { title: string; organisation: string | null; date: string | null };
+type GovukItem = { title: string; organisation: string | null; date: string | null; link: string | null };
 type SpotlightBill = {
   id: number;
   title: string;
@@ -36,10 +36,11 @@ async function fetchGovukPressReleases(): Promise<GovukItem[]> {
     const res = await fetch(url, { next: { revalidate: 3600 } });
     if (!res.ok) return [];
     const data = await res.json();
-    return (data.results || []).map((r: { title?: string; organisations?: { title?: string }[]; public_timestamp?: string }) => ({
+    return (data.results || []).map((r: { title?: string; organisations?: { title?: string }[]; public_timestamp?: string; link?: string }) => ({
       title: r.title || '(untitled)',
       organisation: r.organisations?.[0]?.title || null,
       date: r.public_timestamp ? r.public_timestamp.slice(0, 10) : null,
+      link: r.link || null,
     }));
   } catch {
     return [];
@@ -199,15 +200,31 @@ export default async function HomePage() {
           <p className="text-gray-500 text-sm">No releases available right now.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {press.map((p, i) => (
-              <article key={i} className="pl-4 py-1 border-l-2" style={{ borderColor: ACCENT }}>
-                {p.organisation && (
-                  <p className="text-xs uppercase tracking-wider mb-2" style={{ color: ACCENT }}>{p.organisation}</p>
-                )}
-                <h3 className="text-white text-base leading-snug mb-2">{p.title}</h3>
-                {p.date && <p className="text-xs text-gray-500 font-mono">{formatDate(p.date)}</p>}
-              </article>
-            ))}
+            {press.map((p, i) => {
+              const href = p.link ? `https://www.gov.uk${p.link}` : null;
+              return (
+                <article key={i} className="pl-4 py-1 border-l-2" style={{ borderColor: ACCENT }}>
+                  {p.organisation && (
+                    <p className="text-xs uppercase tracking-wider mb-2" style={{ color: ACCENT }}>{p.organisation}</p>
+                  )}
+                  {href ? (
+                    <h3 className="text-base leading-snug mb-2">
+                      <a
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-white hover:text-blue-300 transition-colors"
+                      >
+                        {p.title}
+                      </a>
+                    </h3>
+                  ) : (
+                    <h3 className="text-white text-base leading-snug mb-2">{p.title}</h3>
+                  )}
+                  {p.date && <p className="text-xs text-gray-500 font-mono">{formatDate(p.date)}</p>}
+                </article>
+              );
+            })}
           </div>
         )}
       </section>
