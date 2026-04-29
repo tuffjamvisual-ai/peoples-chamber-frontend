@@ -27,6 +27,13 @@ const CONTENT = 'https://www.gov.uk/api/content';
 // Department slugs to pilot. Add more as the parser proves out per-dept.
 const DEPT_SLUGS = ['cabinet-office'];
 
+// Cut-off — UK general election date that brought the current Labour
+// government in. Used both as a server-side filter on the GOV.UK search
+// (skip publications dated before this) and as a client-side filter on
+// individual meeting rows (skip rows whose meeting_date < cutoff even if
+// they appear in a more recent publication).
+const CUTOFF_ISO = '2024-07-04';
+
 // CSV header → target-column mapping. We accept several header spellings
 // since departments aren't fully consistent. Match is case-insensitive
 // and whitespace-tolerant.
@@ -110,21 +117,35 @@ function deptFromCsvTitle(title) {
   return s || null;
 }
 
-async function findLatestMeetingsPublication(deptSlug) {
-  // Search for the dept's quarterly "ministerial gifts hospitality... meetings"
-  // returns. The most recently PUBLISHED one is the target.
-  const url = `${SEARCH}?filter_format=transparency&filter_organisations=${deptSlug}` +
-    `&q=${encodeURIComponent('ministers meetings hospitality')}` +
-    `&order=-public_timestamp&count=10`;
-  const res = await fetch(url);
-  if (!res.ok) return null;
-  const data = await res.json();
-  // Pick the first result whose title contains both "ministerial" and "meetings"
-  const candidates = (data.results || []).filter((r) => {
+// Pull every transparency publication for a dept that looks like a
+// quarterly meetings/hospitality return. No year filter — we want the
+// full historical span so users see 2024 + 2025 + 2026 data, not just
+// the most recent quarter. Ordered by -public_timestamp so newest are
+// handled first; the upstream cap is 30 pages × 100 each = 3,000 results
+// max but in practice each dept has at most a few dozen.
+async function findMeetingsPublications(deptSlug) {
+  const all = [];
+  let start = 0;
+  const PAGE = 100;
+  while (start < 1000) {
+    const url = `${SEARCH}?filter_format=transparency&filter_organisations=${deptSlug}` +
+      `&q=${encodeURIComponent('ministers meetings hospitality')}` +
+      `&filter_public_timestamp=${encodeURIComponent('from:' + CUTOFF_ISO)}` +
+      `&order=-public_timestamp&count=${PAGE}&start=${start}`;
+    const res = await fetch(url);
+    if (!res.ok) break;
+    const data = await res.json();
+    const results = data.results || [];
+    if (results.length === 0) break;
+    all.push(...results);
+    start += results.length;
+    if (start >= (data.total || 0)) break;
+    await sleep(DELAY_MS);
+  }
+  return all.filter((r) => {
     const t = String(r.title || '').toLowerCase();
     return t.includes('ministerial') && t.includes('meetings');
   });
-  return candidates[0] || null;
 }
 
 async function fetchPublicationAttachments(publicationLink) {
@@ -169,6 +190,9 @@ async function parseCsvAttachment(att, publicationSlug) {
     const organisation = idx.organisation !== undefined ? vals[idx.organisation] : null;
     const purpose = idx.purpose !== undefined ? vals[idx.purpose] : null;
     if (!minister_name || !date) continue;
+    // Drop meetings before the cutoff — defensive against publications
+    // that include pre-Labour quarters.
+    if (date < CUTOFF_ISO) continue;
     rows.push({
       minister_name: String(minister_name).trim(),
       minister_dept,
@@ -197,38 +221,62 @@ async function insertBatched(rows) {
   return inserted;
 }
 
-async function syncDept(deptSlug) {
+async function collectDeptRows(deptSlug) {
   console.log(`[ministers-meetings] dept: ${deptSlug}`);
-  const pub = await findLatestMeetingsPublication(deptSlug);
-  if (!pub) { console.log(`  no publication found`); return 0; }
-  console.log(`  publication: ${pub.title}`);
-  console.log(`  link: ${pub.link}`);
-  const slug = pub.link.replace(/^.*\/publications\//, '');
-  const atts = await fetchPublicationAttachments(pub.link);
-  const meetingsCsvs = atts.filter((a) =>
-    a.content_type === 'text/csv' &&
-    /meetings/i.test(a.title || '') &&
-    !/hospitality|gifts|travel|expenses/i.test(a.title || '')
-  );
-  console.log(`  found ${meetingsCsvs.length} meetings CSV attachments`);
-
+  const pubs = await findMeetingsPublications(deptSlug);
+  console.log(`  found ${pubs.length} matching publications`);
   let allRows = [];
-  for (const att of meetingsCsvs) {
-    const rows = await parseCsvAttachment(att, slug);
-    allRows = allRows.concat(rows);
-    await sleep(DELAY_MS);
+  for (const pub of pubs) {
+    const slug = pub.link.replace(/^.*\/publications\//, '');
+    console.log(`  → ${pub.title} (${(pub.public_timestamp || '').slice(0,10)})`);
+    let atts;
+    try {
+      atts = await fetchPublicationAttachments(pub.link);
+    } catch (e) {
+      console.error(`    publication fetch failed: ${e.message}`);
+      continue;
+    }
+    const meetingsCsvs = atts.filter((a) =>
+      a.content_type === 'text/csv' &&
+      /meetings/i.test(a.title || '') &&
+      !/hospitality|gifts|travel|expenses/i.test(a.title || '')
+    );
+    if (meetingsCsvs.length === 0) continue;
+    for (const att of meetingsCsvs) {
+      const rows = await parseCsvAttachment(att, slug);
+      allRows = allRows.concat(rows);
+      await sleep(DELAY_MS);
+    }
   }
-  console.log(`[ministers-meetings] dept '${deptSlug}': ${allRows.length} total rows to insert`);
-  if (allRows.length === 0) return 0;
-  return insertBatched(allRows);
+  console.log(`[ministers-meetings] dept '${deptSlug}': ${allRows.length} parsed meeting rows`);
+  return allRows;
+}
+
+async function wipeTable() {
+  // The table has no natural unique key, so re-runs need a wipe to avoid
+  // unbounded duplicate growth. Each cron run re-fetches the full
+  // historical span and rewrites the table.
+  const { error } = await supabase
+    .from('ministers_meetings')
+    .delete()
+    .not('minister_name', 'is', null);
+  if (error) console.error(`[ministers-meetings] wipe error: ${error.message || error}`);
+  else console.log('[ministers-meetings] wiped existing rows');
 }
 
 async function main() {
-  let totalInserted = 0;
+  let allRows = [];
   for (const dept of DEPT_SLUGS) {
-    totalInserted += await syncDept(dept);
+    const rows = await collectDeptRows(dept);
+    allRows = allRows.concat(rows);
   }
-  console.log(`[ministers-meetings] inserted ${totalInserted} rows total`);
+  if (allRows.length === 0) {
+    console.log('[ministers-meetings] no rows collected — leaving table untouched');
+    return;
+  }
+  await wipeTable();
+  const inserted = await insertBatched(allRows);
+  console.log(`[ministers-meetings] inserted ${inserted} rows total`);
 }
 
 main().catch((e) => { console.error('[ministers-meetings] fatal:', e?.message || e); process.exit(0); });
