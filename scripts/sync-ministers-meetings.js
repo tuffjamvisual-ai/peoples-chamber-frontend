@@ -36,7 +36,9 @@ const CUTOFF_ISO = '2024-07-04';
 
 // CSV header → target-column mapping. We accept several header spellings
 // since departments aren't fully consistent. Match is case-insensitive
-// and whitespace-tolerant.
+// and whitespace-tolerant. The `purpose` field is no longer mapped to a
+// single column — it's built from every non-mapped CSV column so any
+// extra fields (Subject, Topics Discussed, Notes, etc.) ride along.
 const HEADER_MAP = {
   minister_name:  ['minister', 'minister name', 'name of minister'],
   meeting_date:   ['date', 'date of meeting', 'meeting date', 'month'],
@@ -49,8 +51,12 @@ const HEADER_MAP = {
     'individual or organisation',
     'name of external organisation',
   ],
-  purpose:        ['purpose of meeting', 'purpose', 'reason'],
 };
+
+// Headers we treat as the canonical "purpose" field — when the CSV has
+// only one of these and nothing else, we emit the value alone (no
+// "Header: " prefix) to keep simple cases clean.
+const PURPOSE_HEADERS = new Set(['purpose', 'purpose of meeting', 'reason']);
 
 function normaliseHeader(h) {
   return String(h || '').trim().toLowerCase().replace(/\s+/g, ' ');
@@ -182,23 +188,50 @@ async function parseCsvAttachment(att, publicationSlug) {
   const minister_dept = deptFromCsvTitle(att.title);
   const quarter = quarterFromSlug(publicationSlug);
 
+  // Indices that have already been claimed by minister/date/organisation
+  // — everything else is folded into the purpose field.
+  const usedIndices = new Set();
+  for (const k of ['minister_name', 'meeting_date', 'organisation']) {
+    if (idx[k] !== undefined) usedIndices.add(idx[k]);
+  }
+
   const rows = [];
   for (const rec of records) {
     const vals = Object.values(rec);
     const minister_name = vals[idx.minister_name];
     const date = isoDate(vals[idx.meeting_date]);
     const organisation = idx.organisation !== undefined ? vals[idx.organisation] : null;
-    const purpose = idx.purpose !== undefined ? vals[idx.purpose] : null;
     if (!minister_name || !date) continue;
     // Drop meetings before the cutoff — defensive against publications
     // that include pre-Labour quarters.
     if (date < CUTOFF_ISO) continue;
+
+    // Build a richer `purpose` by concatenating every non-mapped CSV
+    // column. Canonical "purpose" headers contribute their value bare;
+    // everything else (Subject, Topics Discussed, Notes, …) is prefixed
+    // with its column name so the output is self-describing.
+    const purposeParts = [];
+    for (let i = 0; i < headers.length; i++) {
+      if (usedIndices.has(i)) continue;
+      const headerNorm = String(headers[i] || '').trim().toLowerCase().replace(/\s+/g, ' ');
+      const value = String(vals[i] || '').trim();
+      if (!value) continue;
+      if (PURPOSE_HEADERS.has(headerNorm)) {
+        purposeParts.push(value);
+      } else {
+        const headerDisplay = String(headers[i] || '').trim();
+        if (!headerDisplay) continue;
+        purposeParts.push(`${headerDisplay}: ${value}`);
+      }
+    }
+    const purpose = purposeParts.length > 0 ? purposeParts.join(' | ') : null;
+
     rows.push({
       minister_name: String(minister_name).trim(),
       minister_dept,
       meeting_date: date,
       organisation: organisation ? String(organisation).trim() : null,
-      purpose: purpose ? String(purpose).trim() : null,
+      purpose,
       quarter,
     });
   }
