@@ -79,7 +79,19 @@ async function scrape() {
       const out = [];
       document.querySelectorAll('.card-publication').forEach((card) => {
         const titleEl = card.querySelector('.primary-info');
-        const title = titleEl ? (titleEl.textContent || '').trim().replace(/\s+/g, ' ') : '';
+        const fullText = titleEl ? (titleEl.textContent || '').trim().replace(/\s+/g, ' ') : '';
+
+        // Most cards encode "Short Title - Long description" in the
+        // primary-info string. Split on the first " - " to give us a
+        // clean title + summary pair. If there's no dash, the whole
+        // thing is the title and summary stays null.
+        let title = fullText;
+        let summary = null;
+        const dashIdx = fullText.indexOf(' - ');
+        if (dashIdx > 0 && dashIdx < 80) {
+          title = fullText.slice(0, dashIdx).trim();
+          summary = fullText.slice(dashIdx + 3).trim();
+        }
 
         // Prefer the HTML link over PDF — readable in the user's browser.
         const links = Array.from(card.querySelectorAll('.dropdown-menu a[href]'));
@@ -101,7 +113,7 @@ async function scrape() {
         const timeEl = card.querySelector('.indicator-label time, time[datetime]');
         const isoDate = timeEl ? timeEl.getAttribute('datetime') : null;
 
-        out.push({ url, title, committee, isoDate });
+        out.push({ url, title, summary, committee, isoDate });
       });
       return out;
     });
@@ -140,8 +152,10 @@ async function upsert(rows) {
       committee_name: r.committee || null,
       title: r.title || null,
       publication_date: r.isoDate || null,
-      publication_type: classifyTitle(r.title),
+      publication_type: classifyTitle(r.title) || classifyTitle(r.summary),
       url: r.url,
+      summary: r.summary || null,
+      publication_url: r.url, // mirror — kept as a stable reference even if `url` semantics ever change
     });
   }
   if (payload.length === 0) return 0;
@@ -155,17 +169,104 @@ async function upsert(rows) {
   return count ?? payload.length;
 }
 
+// ── Phase 2: per-publication full-content extraction ───────────────────
+// For each row whose content_attempted is still false, navigate to the
+// publication URL and try to extract the body text. publications.parliament.uk
+// HTML pages wrap their report inside an iframe — we use Playwright's
+// frames API to read it. PDFs are skipped (Playwright can't render them
+// to text). content_attempted is set to true regardless of outcome so
+// that later cron runs only target genuinely new rows.
+async function extractFullContentFromUrl(page, url) {
+  if (!url) return null;
+  if (!/\.html?(?:[?#]|$)/i.test(url)) return null; // skip PDFs / direct downloads
+  try {
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30_000 });
+    await page.waitForTimeout(3000); // give iframe time to populate
+    // Try every frame attached to the page (excluding main) — for
+    // publications.parliament.uk this is where the report HTML lives.
+    for (const f of page.frames()) {
+      if (f === page.mainFrame()) continue;
+      try {
+        await f.waitForLoadState('domcontentloaded', { timeout: 5000 });
+        const txt = await f.evaluate(() => {
+          const main = document.querySelector('main, article, #content, .content') || document.body;
+          return (main.innerText || '').trim();
+        });
+        if (txt && txt.length > 500) return txt.slice(0, 100_000); // cap at 100KB
+      } catch { /* try next frame */ }
+    }
+    // Fallback — main page body, in case the page is not iframe-based.
+    const txt = await page.evaluate(() => {
+      const main = document.querySelector('main, article, #content, .content');
+      return main ? (main.innerText || '').trim() : '';
+    });
+    if (txt && txt.length > 500) return txt.slice(0, 100_000);
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+async function runContentExtraction() {
+  // Pick up rows where content_attempted is still false, regardless of
+  // whether we wrote them in this run or a previous one.
+  const { data: pending } = await supabase
+    .from('committee_proceedings')
+    .select('id, url')
+    .eq('content_attempted', false)
+    .limit(50);
+  if (!pending || pending.length === 0) {
+    console.log('[committee] no rows pending content extraction');
+    return { attempted: 0, succeeded: 0 };
+  }
+  console.log(`[committee] starting content-extraction pass on ${pending.length} rows`);
+
+  const browser = await chromium.launch({ headless: true });
+  let attempted = 0, succeeded = 0;
+  try {
+    const ctx = await browser.newContext({
+      userAgent: REALISTIC_UA,
+      viewport: { width: 1280, height: 800 },
+      locale: 'en-GB',
+      timezoneId: 'Europe/London',
+    });
+    const page = await ctx.newPage();
+    for (const row of pending) {
+      attempted++;
+      const content = await extractFullContentFromUrl(page, row.url);
+      const { error } = await supabase
+        .from('committee_proceedings')
+        .update({ full_content: content, content_attempted: true })
+        .eq('id', row.id);
+      if (error) {
+        console.error(`  row ${row.id} update error: ${error.message}`);
+      } else if (content) {
+        succeeded++;
+        console.log(`  ✓ row ${row.id}: extracted ${content.length} chars`);
+      } else {
+        console.log(`  – row ${row.id}: no content extracted (PDF or iframe-blocked)`);
+      }
+    }
+  } finally {
+    await browser.close();
+  }
+  return { attempted, succeeded };
+}
+
 async function main() {
   const items = await scrape();
   if (items.length === 0) {
     console.log('[committee] nothing scraped — leaving table untouched');
-    return;
+  } else {
+    console.log('[committee] sample items:');
+    console.log(JSON.stringify(items.slice(0, 2), null, 2));
+    const written = await upsert(items);
+    console.log(`[committee] upserted ${written} rows`);
   }
-  // Show 2 sample items so we can see what we got before writing.
-  console.log('[committee] sample items:');
-  console.log(JSON.stringify(items.slice(0, 2), null, 2));
-  const written = await upsert(items);
-  console.log(`[committee] upserted ${written} rows`);
+  // Phase 2 — runs whether or not phase 1 wrote anything new, so a
+  // partial earlier run still gets its content backfilled.
+  const { attempted, succeeded } = await runContentExtraction();
+  console.log(`[committee] content extraction: ${succeeded}/${attempted} succeeded`);
 }
 
 main().catch((e) => { console.error('[committee] fatal:', e?.message || e); process.exit(0); });

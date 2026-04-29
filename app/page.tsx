@@ -7,7 +7,7 @@ export const revalidate = 3600;
 const ACCENT = '#60a5fa'; // blue-400 — site-wide accent
 
 type GovukItem = { title: string; organisation: string | null; date: string | null; link: string | null };
-type CommitteeItem = { committee_name: string | null; title: string | null; publication_date: string | null; publication_type: string | null; url: string | null };
+type CommitteeItem = { id: number; committee_name: string | null; title: string | null; publication_date: string | null; publication_type: string | null; summary: string | null };
 type SpotlightBill = {
   id: number;
   title: string;
@@ -51,7 +51,7 @@ async function fetchGovukPressReleases(): Promise<GovukItem[]> {
 async function fetchCommitteeProceedings(): Promise<CommitteeItem[]> {
   const { data } = await supabase
     .from('committee_proceedings')
-    .select('committee_name, title, publication_date, publication_type, url')
+    .select('id, committee_name, title, publication_date, publication_type, summary')
     .order('publication_date', { ascending: false, nullsFirst: false })
     .limit(6);
   return data || [];
@@ -246,25 +246,19 @@ export default async function HomePage() {
           <div className="max-w-5xl mx-auto px-4 sm:px-6 py-16">
             <h2 className="text-sm uppercase tracking-[0.3em] text-gray-500 mb-8">Committee watch</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {committee.map((c, i) => (
-                <article key={i} className="pl-4 py-1 border-l-2" style={{ borderColor: ACCENT }}>
+              {committee.map((c) => (
+                <article key={c.id} className="pl-4 py-1 border-l-2" style={{ borderColor: ACCENT }}>
                   {c.committee_name && (
                     <p className="text-xs uppercase tracking-wider mb-2" style={{ color: ACCENT }}>{c.committee_name}</p>
                   )}
-                  {c.url ? (
-                    <h3 className="text-base leading-snug mb-2">
-                      <a
-                        href={c.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-white hover:text-blue-300 transition-colors"
-                      >
-                        {c.title || '(untitled)'}
-                      </a>
-                    </h3>
-                  ) : (
-                    <h3 className="text-white text-base leading-snug mb-2">{c.title || '(untitled)'}</h3>
-                  )}
+                  <h3 className="text-base leading-snug mb-2">
+                    <Link
+                      href={`/committees/${c.id}`}
+                      className="text-white hover:text-blue-300 transition-colors"
+                    >
+                      {c.title || '(untitled)'}
+                    </Link>
+                  </h3>
                   <div className="flex items-center gap-3 text-xs">
                     {c.publication_date && <span className="text-gray-500 font-mono">{formatDate(c.publication_date)}</span>}
                     {c.publication_type && <span className="text-gray-600">· {c.publication_type}</span>}
