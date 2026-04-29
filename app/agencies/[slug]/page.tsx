@@ -45,7 +45,7 @@ export default function AgencyPage({ params }: { params: Promise<{ slug: string 
         {agency && (
           <>
             {/* Header */}
-            <div className="mb-6" style={{ borderLeft: '4px solid #d4af37', paddingLeft: '1rem' }}>
+            <div className="mb-6" style={{ borderLeft: '4px solid #60a5fa', paddingLeft: '1rem' }}>
               <div className="flex items-center gap-3 mb-1">
                 <h1 className="text-2xl sm:text-3xl font-bold text-white">{agency.name}</h1>
                 {agency.acronym && (

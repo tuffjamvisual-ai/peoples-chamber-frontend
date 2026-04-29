@@ -71,7 +71,7 @@ export default function TransparencyHubPage() {
               href={`/transparency/${s.slug}`}
               className="block group"
             >
-              <h2 className="text-xl font-semibold mb-1" style={{ color: '#d4af37' }}>
+              <h2 className="text-xl font-semibold mb-1" style={{ color: '#60a5fa' }}>
                 {s.title} <span className="ml-1 transition-transform inline-block group-hover:translate-x-1">→</span>
               </h2>
               <p className="text-gray-400 text-sm leading-relaxed">{s.description}</p>

@@ -129,7 +129,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
         </Link>
 
         {/* 1. HEADER */}
-        <div className="mb-6" style={{ borderLeft: '4px solid #d4af37', paddingLeft: '1rem' }}>
+        <div className="mb-6" style={{ borderLeft: '4px solid #60a5fa', paddingLeft: '1rem' }}>
           <div className="flex items-start justify-between gap-4 mb-1">
             <h1 className="text-2xl sm:text-3xl font-bold text-white">{dept.name}</h1>
             {govukData?.socialMedia && govukData.socialMedia.length > 0 && (

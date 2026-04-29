@@ -8,7 +8,7 @@ import Navigation from './components/Navigation';
 // than that.
 export const revalidate = 3600;
 
-const GOLD = '#d4af37';
+const GOLD = '#60a5fa';
 
 const SECTIONS = [
   { title: 'Bills',           body: 'Every bill going through Parliament. How MPs voted. How you voted. The gap between the two.' },
