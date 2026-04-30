@@ -212,28 +212,19 @@ export default async function HomePage() {
           <p className="text-[#9ca3af] text-sm">No releases available right now.</p>
         ) : (
           <ul className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#1e2a3a] border border-[#1e2a3a]">
-            {press.map((p, i) => {
-              const href = p.link ? `https://www.gov.uk${p.link}` : null;
-              return (
-                <li key={i} className="bg-[#0d1520] p-5 border-l-2 border-l-[#60a5fa]">
-                  {p.organisation && (
-                    <p className="text-[10px] uppercase tracking-[0.25em] mb-2 font-medium" style={{ color: ACCENT }}>
-                      {p.organisation}
-                    </p>
-                  )}
-                  <h3 className="text-[14px] leading-snug mb-2 font-semibold">
-                    {href ? (
-                      <a href={href} target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#60a5fa] transition-colors">
-                        {p.title}
-                      </a>
-                    ) : (
-                      <span className="text-white">{p.title}</span>
-                    )}
-                  </h3>
-                  {p.date && <p className="text-[11px] text-[#4b5563] font-mono">{formatDate(p.date)}</p>}
-                </li>
-              );
-            })}
+            {press.map((p, i) => (
+              <li key={i} className="bg-[#0d1520] p-5 border-l-2 border-l-[#60a5fa]">
+                {p.organisation && (
+                  <p className="text-[10px] uppercase tracking-[0.25em] mb-2 font-medium" style={{ color: ACCENT }}>
+                    {p.organisation}
+                  </p>
+                )}
+                <h3 className="text-[14px] leading-snug mb-2 font-semibold text-white">
+                  {p.title}
+                </h3>
+                {p.date && <p className="text-[11px] text-[#4b5563] font-mono">{formatDate(p.date)}</p>}
+              </li>
+            ))}
           </ul>
         )}
       </section>
