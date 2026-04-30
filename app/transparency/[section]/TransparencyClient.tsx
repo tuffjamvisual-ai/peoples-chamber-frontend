@@ -25,17 +25,9 @@ function formatUkDate(iso: unknown): string | null {
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
-// Pick the most "title-like" field to use as each row's headline.
-// Person-identifying fields take priority over institutional fields when
-// both are present (e.g. on revolving_door rows the person_name is the
-// natural headline, not the organisation).
-// Falls back to the first string field if none of the preferred keys exist.
 const TITLE_KEYS = [
-  // Explicit headline fields
   'title', 'name', 'subject',
-  // Person-identifying fields (preferred over institutional when both exist)
   'person_name', 'mp_name', 'donor_name', 'lobbyist_name', 'minister_name', 'minister', 'donor',
-  // Institutional fields
   'organisation', 'organisation_name', 'company', 'company_name', 'group_name',
 ]
 
@@ -75,14 +67,12 @@ export default function TransparencyClient({ rows, sectionTitle, section }: Prop
   const filtered = useMemo(() => {
     if (!query.trim()) return rows
     const q = query.toLowerCase()
-    return rows.filter((row) =>
-      Object.values(row).some((v) => formatValue(v).toLowerCase().includes(q))
-    )
+    return rows.filter((row) => Object.values(row).some((v) => formatValue(v).toLowerCase().includes(q)))
   }, [rows, query])
 
   if (rows.length === 0) {
     return (
-      <p className="text-gray-400 text-sm leading-relaxed">
+      <p className="text-[#9ca3af] text-[13px] leading-[1.7] border-t border-[#1e2a3a] pt-8">
         No records have been synced into the {sectionTitle.toLowerCase()} table yet. The page will populate once the sync job runs.
       </p>
     )
@@ -90,23 +80,27 @@ export default function TransparencyClient({ rows, sectionTitle, section }: Prop
 
   return (
     <>
-      <div className="mb-6">
+      <div className="mb-8">
+        <label htmlFor="transparency-search" className="block text-[10px] uppercase tracking-[0.25em] text-[#9ca3af] font-medium mb-2">
+          Search
+        </label>
         <input
+          id="transparency-search"
           type="search"
           placeholder={`Search ${rows.length.toLocaleString()} records…`}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full max-w-md bg-[#0a0f1a] border border-gray-800 text-white text-sm rounded px-3 py-2 focus:outline-none focus:border-gray-600"
+          className="w-full max-w-md bg-[#0d1520] border border-[#1e2a3a] text-white text-[13px] rounded-sm px-4 py-3 leading-[1.7] placeholder:text-[#4b5563] focus:outline-none focus:border-[#60a5fa] transition-colors"
         />
         {query && (
-          <p className="text-gray-500 text-xs mt-2">
+          <p className="text-[#4b5563] text-[11px] mt-2 font-mono uppercase tracking-[0.15em]">
             {filtered.length.toLocaleString()} of {rows.length.toLocaleString()} matching
           </p>
         )}
       </div>
 
       {section === 'donations' ? (
-        <ul className="divide-y divide-gray-800">
+        <ul className="space-y-px bg-[#1e2a3a] border border-[#1e2a3a]">
           {filtered.map((row, i) => {
             const recipient = (row.recipient_name as string) || '(unknown recipient)'
             const donor = (row.donor_name as string) || '(unknown donor)'
@@ -115,20 +109,20 @@ export default function TransparencyClient({ rows, sectionTitle, section }: Prop
             const nature = row.nature as string | null
             const receivedDate = formatUkDate(row.received_date)
             return (
-              <li key={i} className="py-5">
+              <li key={i} className="bg-[#0d1520] p-5 border-l-2 border-l-[#60a5fa]">
                 <div className="flex items-baseline justify-between gap-4 mb-1.5">
-                  <h3 className="text-white text-lg font-semibold leading-snug">{recipient}</h3>
+                  <h3 className="text-white text-base sm:text-lg font-bold leading-snug tracking-tight">{recipient}</h3>
                   {amount && (
-                    <span className="font-mono text-base font-semibold whitespace-nowrap" style={{ color: ACCENT }}>
+                    <span className="font-mono text-base font-black whitespace-nowrap" style={{ color: ACCENT }}>
                       {amount}
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-gray-300 leading-snug mb-1">
-                  from <span className="text-white">{donor}</span>
-                  {donorType && <span className="text-gray-500"> · {donorType}</span>}
+                <p className="text-[13px] text-[#9ca3af] leading-[1.7] mb-1">
+                  from <span className="text-white font-semibold">{donor}</span>
+                  {donorType && <span className="text-[#4b5563]"> · {donorType}</span>}
                 </p>
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 font-mono">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[#4b5563] font-mono uppercase tracking-[0.15em]">
                   {receivedDate && <span>{receivedDate}</span>}
                   {nature && <span>· {nature}</span>}
                 </div>
@@ -137,31 +131,30 @@ export default function TransparencyClient({ rows, sectionTitle, section }: Prop
           })}
         </ul>
       ) : (
-        <ul className="divide-y divide-gray-800">
+        <ul className="space-y-px bg-[#1e2a3a] border border-[#1e2a3a]">
           {filtered.map((row, i) => {
             const { key: titleKey, value: titleValue } = pickTitle(row)
             const dateValue = pickDate(row)
             const otherEntries = Object.entries(row).filter(
-              ([k, v]) =>
-                k !== titleKey &&
-                !HIDE_KEYS.has(k) &&
-                v !== null &&
-                v !== '' &&
-                !(typeof v === 'string' && v.trim() === '')
+              ([k, v]) => k !== titleKey && !HIDE_KEYS.has(k) && v !== null && v !== '' && !(typeof v === 'string' && v.trim() === ''),
             )
 
             return (
-              <li key={i} className="py-4">
-                <div className="flex items-baseline justify-between gap-4 mb-2">
-                  <h3 className="text-white text-base font-medium leading-snug">{titleValue}</h3>
-                  {dateValue && <span className="text-gray-500 text-xs whitespace-nowrap font-mono">{dateValue}</span>}
+              <li key={i} className="bg-[#0d1520] p-5 border-l-2 border-l-transparent hover:border-l-[#60a5fa] transition-colors">
+                <div className="flex items-baseline justify-between gap-4 mb-3">
+                  <h3 className="text-white text-[14px] font-bold leading-snug">{titleValue}</h3>
+                  {dateValue && (
+                    <span className="text-[#4b5563] text-[11px] font-mono whitespace-nowrap uppercase tracking-[0.15em]">
+                      {dateValue}
+                    </span>
+                  )}
                 </div>
                 {otherEntries.length > 0 && (
-                  <dl className="grid grid-cols-1 sm:grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-xs">
+                  <dl className="grid grid-cols-1 sm:grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-[12px] leading-[1.7]">
                     {otherEntries.map(([k, v]) => (
                       <div key={k} className="contents">
-                        <dt className="text-gray-500 font-mono">{k}</dt>
-                        <dd className="text-gray-300 whitespace-pre-line break-words">{formatValue(v)}</dd>
+                        <dt className="text-[10px] uppercase tracking-[0.2em] text-[#4b5563] font-mono pt-0.5">{k}</dt>
+                        <dd className="text-[#9ca3af] whitespace-pre-line break-words">{formatValue(v)}</dd>
                       </div>
                     ))}
                   </dl>

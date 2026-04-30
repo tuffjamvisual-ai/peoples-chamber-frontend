@@ -13,8 +13,19 @@ interface MPProfileClientProps {
   partyColour: string
 }
 
+const ACCENT = '#60a5fa'
+const SUCCESS = '#34d399'
+const DANGER = '#f87171'
+const WARN = '#fbbf24'
+
 export default function MPProfileClient({
-  mp, contact, bio, sponsoredBills, votes, interests, partyColour
+  mp,
+  contact,
+  bio,
+  sponsoredBills,
+  votes,
+  interests,
+  partyColour,
 }: MPProfileClientProps) {
   const [activeSection, setActiveSection] = useState('contact')
 
@@ -36,259 +47,331 @@ export default function MPProfileClient({
   const committeeMemberships = bio?.committee_memberships || []
 
   const menuItems = [
-    { id: 'contact', label: 'Contact information' },
-    { id: 'parliamentary', label: 'Parliamentary career' },
+    { id: 'contact', label: 'Contact' },
+    { id: 'parliamentary', label: 'Career' },
     { id: 'voting', label: 'Voting record' },
     { id: 'bills', label: 'Bills sponsored' },
-    { id: 'interests', label: 'Registered Interests' },
-    { id: 'roles', label: 'Roles & Committees' }
+    { id: 'interests', label: 'Interests' },
+    { id: 'roles', label: 'Roles' },
   ]
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-px bg-[#1e2a3a] border border-[#1e2a3a]">
       {/* Sidebar */}
-      <div className="lg:col-span-1">
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-2 sticky top-20">
-          <nav className="space-y-1">
-            {menuItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveSection(item.id)}
-                className="w-full text-left px-4 py-2.5 rounded-lg text-sm transition-all"
-                style={activeSection === item.id ? {
-                  backgroundColor: partyColour + '22',
-                  color: partyColour,
-                  borderLeft: `3px solid ${partyColour}`
-                } : {
-                  color: '#9ca3af',
-                  borderLeft: '3px solid transparent'
-                }}
-              >
-                {item.label}
-              </button>
-            ))}
+      <aside className="lg:col-span-1 bg-[#0d1520]">
+        <div className="lg:sticky lg:top-16">
+          <p className="text-[10px] uppercase tracking-[0.25em] text-[#9ca3af] font-medium px-4 pt-5 pb-3">
+            Sections
+          </p>
+          <nav>
+            {menuItems.map((item) => {
+              const active = activeSection === item.id
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveSection(item.id)}
+                  className={
+                    'w-full text-left px-4 py-3 text-[12px] uppercase tracking-[0.15em] transition-colors border-l-2 ' +
+                    (active
+                      ? 'text-white bg-[#111827] border-l-[#60a5fa] font-semibold'
+                      : 'text-[#9ca3af] border-l-transparent hover:text-white hover:bg-[#111827]')
+                  }
+                >
+                  {item.label}
+                </button>
+              )
+            })}
           </nav>
         </div>
-      </div>
+      </aside>
 
-      {/* Main Content */}
-      <div className="lg:col-span-3">
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
-
-          {/* Contact */}
-          {activeSection === 'contact' && (
-            <div>
-              <h2 className="text-2xl font-bold text-white mb-6">Contact {mp.display_name || mp.name}</h2>
-              {contact ? (
-                <div className="space-y-4">
-                  <div className="rounded-lg p-4 border border-gray-700" style={{ borderLeftColor: partyColour, borderLeftWidth: '3px' }}>
-                    <h3 className="text-base font-semibold text-white mb-3">Parliamentary office</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                      <div className="text-gray-300 space-y-1">
-                        <p>House of Commons</p>
-                        <p>London</p>
-                        <p>SW1A 0AA</p>
-                      </div>
-                      <div className="space-y-1">
-                        {contact.phone && <p className="text-gray-300"><span className="text-gray-500">Phone:</span> {contact.phone}</p>}
-                        {contact.email && <p className="text-gray-300"><span className="text-gray-500">Email:</span> <a href={'mailto:' + contact.email} className="text-blue-400 hover:underline">{contact.email}</a></p>}
-                      </div>
+      {/* Main */}
+      <div className="lg:col-span-3 bg-[#0d1520] p-6 sm:p-8">
+        {activeSection === 'contact' && (
+          <Section title={`Contact ${mp.display_name || mp.name}`}>
+            {contact ? (
+              <div className="space-y-px bg-[#1e2a3a] border border-[#1e2a3a]">
+                <Card title="Parliamentary office" partyColour={partyColour}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[13px] leading-[1.7]">
+                    <div className="text-[#9ca3af] space-y-0.5">
+                      <p>House of Commons</p>
+                      <p>London</p>
+                      <p className="font-mono">SW1A 0AA</p>
+                    </div>
+                    <div className="space-y-1">
+                      {contact.phone && (
+                        <p className="text-[#9ca3af]">
+                          <span className="text-[10px] uppercase tracking-[0.25em] text-[#4b5563] mr-2">Phone</span>
+                          <span className="text-white font-mono text-[13px]">{contact.phone}</span>
+                        </p>
+                      )}
+                      {contact.email && (
+                        <p className="text-[#9ca3af]">
+                          <span className="text-[10px] uppercase tracking-[0.25em] text-[#4b5563] mr-2 block sm:inline">Email</span>
+                          <a href={'mailto:' + contact.email} className="text-[#60a5fa] hover:underline break-all">
+                            {contact.email}
+                          </a>
+                        </p>
+                      )}
                     </div>
                   </div>
-                  {contact.website && (
-                    <div className="rounded-lg p-4 border border-gray-700" style={{ borderLeftColor: partyColour, borderLeftWidth: '3px' }}>
-                      <h3 className="text-base font-semibold text-white mb-2">Website</h3>
-                      <a href={contact.website} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline text-sm">{contact.website}</a>
-                    </div>
-                  )}
-                  {contact.twitter && (
-                    <div className="rounded-lg p-4 border border-gray-700" style={{ borderLeftColor: partyColour, borderLeftWidth: '3px' }}>
-                      <h3 className="text-base font-semibold text-white mb-2">X (formerly Twitter)</h3>
-                      <a href={contact.twitter} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline text-sm">{contact.twitter}</a>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <p className="text-gray-400">No contact information available</p>
-              )}
-            </div>
-          )}
+                </Card>
+                {contact.website && (
+                  <Card title="Website" partyColour={partyColour}>
+                    <a href={contact.website} target="_blank" rel="noopener noreferrer" className="text-[#60a5fa] hover:underline text-[13px] break-all">
+                      {contact.website}
+                    </a>
+                  </Card>
+                )}
+                {contact.twitter && (
+                  <Card title="X (formerly Twitter)" partyColour={partyColour}>
+                    <a href={contact.twitter} target="_blank" rel="noopener noreferrer" className="text-[#60a5fa] hover:underline text-[13px] break-all">
+                      {contact.twitter}
+                    </a>
+                  </Card>
+                )}
+              </div>
+            ) : (
+              <Empty>No contact information available</Empty>
+            )}
+          </Section>
+        )}
 
-          {/* Parliamentary Career */}
-          {activeSection === 'parliamentary' && (
-            <div>
-              <h2 className="text-2xl font-bold text-white mb-6">Parliamentary Career</h2>
-              {representations.length > 0 ? (
-                <div className="space-y-3">
-                  {representations.map((rep: any, idx: number) => (
-                    <div key={idx} className="rounded-lg p-4 border border-gray-700" style={{ borderLeftColor: partyColour, borderLeftWidth: '3px' }}>
-                      <h3 className="text-base font-semibold text-white mb-1">{rep.name}</h3>
-                      <p className="text-sm text-gray-400">
-                        {new Date(rep.startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} — {rep.endDate ? new Date(rep.endDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'present'}
+        {activeSection === 'parliamentary' && (
+          <Section title="Parliamentary Career">
+            {representations.length > 0 ? (
+              <div className="space-y-px bg-[#1e2a3a] border border-[#1e2a3a]">
+                {representations.map((rep: any, idx: number) => (
+                  <Card key={idx} title={rep.name} partyColour={partyColour}>
+                    <p className="text-[12px] text-[#9ca3af] font-mono leading-[1.7]">
+                      {new Date(rep.startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} —{' '}
+                      {rep.endDate ? new Date(rep.endDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'present'}
+                    </p>
+                    {rep.additionalInfo && <p className="text-[13px] text-[#9ca3af] mt-2 leading-[1.7]">{rep.additionalInfo}</p>}
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Empty>No parliamentary career information available</Empty>
+            )}
+          </Section>
+        )}
+
+        {activeSection === 'voting' && (
+          <Section title="Voting Record">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-[#1e2a3a] border border-[#1e2a3a] mb-8">
+              <Stat label="Votes Cast" value={totalVotes} />
+              <Stat label="Ayes" value={ayeVotes} colour={SUCCESS} />
+              <Stat label="Noes" value={noVotes} colour={DANGER} />
+              {mp.party !== 'Independent' && <Stat label="Party Loyalty" value={`${partyLoyalty}%`} colour={ACCENT} />}
+            </div>
+
+            {mp.party !== 'Independent' && rebellions > 0 && (
+              <div className="border-l-2 px-4 py-3 mb-8 bg-[#111827]" style={{ borderLeftColor: WARN }}>
+                <p className="text-[10px] uppercase tracking-[0.25em] mb-1 font-semibold" style={{ color: WARN }}>Rebellion Notice</p>
+                <p className="text-[13px] text-white leading-[1.7]">
+                  <span className="font-semibold">{rebellions} rebellion{rebellions !== 1 ? 's' : ''}</span> against the {mp.party} party line.
+                </p>
+              </div>
+            )}
+
+            {votes && votes.length > 0 ? (
+              <ul className="space-y-px bg-[#1e2a3a] border border-[#1e2a3a]">
+                {votes.slice(0, 20).map((vote: any) => (
+                  <li
+                    key={vote.id}
+                    className="flex items-start justify-between gap-4 bg-[#0d1520] p-4 border-l-2"
+                    style={{ borderLeftColor: vote.vote_type === 'aye' ? SUCCESS : DANGER }}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] text-white font-semibold leading-snug mb-1">{vote.division_title}</p>
+                      <p className="text-[11px] text-[#4b5563] font-mono">
+                        {new Date(vote.division_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                       </p>
-                      {rep.additionalInfo && <p className="text-sm text-gray-300 mt-1">{rep.additionalInfo}</p>}
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-400">No parliamentary career information available</p>
-              )}
-            </div>
-          )}
+                    <div className="flex gap-2 flex-shrink-0">
+                      <Tag colour={vote.vote_type === 'aye' ? SUCCESS : DANGER}>{vote.vote_type.toUpperCase()}</Tag>
+                      {vote.is_rebellion && <Tag colour={WARN}>REBEL</Tag>}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <Empty>No voting record available</Empty>
+            )}
+          </Section>
+        )}
 
-          {/* Voting Record */}
-          {activeSection === 'voting' && (
-            <div>
-              <h2 className="text-2xl font-bold text-white mb-6">Voting Record</h2>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                {[
-                  { label: 'Votes Cast', value: totalVotes },
-                  { label: 'Ayes', value: ayeVotes },
-                  { label: 'Noes', value: noVotes },
-                  ...(mp.party !== 'Independent' ? [{ label: 'Party Loyalty', value: partyLoyalty + '%' }] : [])
-                ].map((stat, i) => (
-                  <div key={i} className="rounded-lg p-4 text-center border border-gray-700" style={{ borderTopColor: partyColour, borderTopWidth: '2px' }}>
-                    <div className="text-2xl font-bold text-white">{stat.value}</div>
-                    <div className="text-xs text-gray-400 mt-1">{stat.label}</div>
+        {activeSection === 'bills' && (
+          <Section title="Bills Sponsored">
+            {sponsoredBills && sponsoredBills.length > 0 ? (
+              <ul className="space-y-px bg-[#1e2a3a] border border-[#1e2a3a]">
+                {sponsoredBills.map((bill) => (
+                  <li key={bill.id} className="bg-[#0d1520]">
+                    <Link
+                      href={'/bills/' + bill.id}
+                      className="block p-4 border-l-2 hover:bg-[#111827] transition-colors"
+                      style={{ borderLeftColor: partyColour }}
+                    >
+                      <h3 className="text-[13px] font-semibold text-white mb-1 leading-snug">{bill.title}</h3>
+                      <div className="flex items-center gap-3 text-[11px]">
+                        <span className="text-[#9ca3af] font-mono uppercase tracking-[0.15em]">{bill.current_stage || 'Unknown'}</span>
+                        {bill.category && <Tag colour={ACCENT}>{bill.category}</Tag>}
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <Empty>This MP has not sponsored any bills</Empty>
+            )}
+          </Section>
+        )}
+
+        {activeSection === 'interests' && (
+          <Section title="Registered Interests">
+            {interests && interests.length > 0 ? (
+              <div className="space-y-10">
+                {Object.keys(interestsByCategory).map((categoryName) => (
+                  <div key={categoryName}>
+                    <h3 className="text-[10px] uppercase tracking-[0.25em] mb-4 pb-3 border-b border-[#1e2a3a] font-semibold" style={{ color: ACCENT }}>
+                      {categoryName}
+                    </h3>
+                    <ul className="space-y-px bg-[#1e2a3a] border border-[#1e2a3a]">
+                      {interestsByCategory[categoryName].map((interest: any) => (
+                        <li key={interest.id} className="bg-[#0d1520] p-4 border-l-2" style={{ borderLeftColor: partyColour }}>
+                          <p className="text-[13px] text-[#9ca3af] whitespace-pre-wrap leading-[1.7] mb-2">{interest.interest_text}</p>
+                          {interest.child_interests && interest.child_interests.length > 0 && (
+                            <ul className="mt-2 ml-3 space-y-1">
+                              {interest.child_interests.map((child: any, idx: number) => (
+                                <li
+                                  key={idx}
+                                  className="text-[12px] text-[#9ca3af] bg-[#111827] p-2 border-l-2 leading-[1.7]"
+                                  style={{ borderLeftColor: partyColour + '60' }}
+                                >
+                                  {child.interest}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                          <p className="text-[11px] text-[#4b5563] mt-2 font-mono">
+                            Registered: {new Date(interest.created_when).toLocaleDateString('en-GB')}
+                          </p>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 ))}
               </div>
-              {mp.party !== 'Independent' && rebellions > 0 && (
-                <div className="rounded-lg p-4 mb-6 bg-orange-900/20 border border-orange-700/40">
-                  <p className="text-orange-400 text-sm">⚠️ <span className="font-semibold">{rebellions} rebellion{rebellions !== 1 ? 's' : ''}</span> — voted against {mp.party} party line</p>
+            ) : (
+              <Empty>No registered interests</Empty>
+            )}
+          </Section>
+        )}
+
+        {activeSection === 'roles' && (
+          <Section title="Roles & Committees">
+            <div className="space-y-10">
+              {governmentPosts.length > 0 && (
+                <div>
+                  <h3 className="text-[10px] uppercase tracking-[0.25em] mb-4 pb-3 border-b border-[#1e2a3a] font-semibold" style={{ color: ACCENT }}>
+                    Government Posts
+                  </h3>
+                  <ul className="space-y-px bg-[#1e2a3a] border border-[#1e2a3a]">
+                    {governmentPosts.map((post: any, idx: number) => (
+                      <RolesRow key={idx} post={post} partyColour={partyColour} />
+                    ))}
+                  </ul>
                 </div>
               )}
-              {votes && votes.length > 0 ? (
-                <div className="space-y-2">
-                  {votes.slice(0, 20).map((vote: any) => (
-                    <div key={vote.id} className="rounded-lg p-4 border border-gray-700 flex justify-between items-start">
-                      <div className="flex-1">
-                        <p className="text-sm text-white mb-1">{vote.division_title}</p>
-                        <p className="text-xs text-gray-400">{new Date(vote.division_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                      </div>
-                      <div className="flex gap-2 ml-4">
-                        <span className={'px-3 py-1 rounded text-xs font-semibold ' + (vote.vote_type === 'aye' ? 'bg-green-900/40 text-green-400 border border-green-700/40' : 'bg-red-900/40 text-red-400 border border-red-700/40')}>
-                          {vote.vote_type.toUpperCase()}
-                        </span>
-                        {vote.is_rebellion && <span className="px-3 py-1 rounded text-xs font-semibold bg-orange-900/40 text-orange-400 border border-orange-700/40">REBEL</span>}
-                      </div>
-                    </div>
-                  ))}
+              {oppositionPosts.length > 0 && (
+                <div>
+                  <h3 className="text-[10px] uppercase tracking-[0.25em] mb-4 pb-3 border-b border-[#1e2a3a] font-semibold" style={{ color: ACCENT }}>
+                    Opposition Posts
+                  </h3>
+                  <ul className="space-y-px bg-[#1e2a3a] border border-[#1e2a3a]">
+                    {oppositionPosts.map((post: any, idx: number) => (
+                      <RolesRow key={idx} post={post} partyColour={partyColour} />
+                    ))}
+                  </ul>
                 </div>
-              ) : (
-                <p className="text-gray-400">No voting record available</p>
+              )}
+              {committeeMemberships.length > 0 && (
+                <div>
+                  <h3 className="text-[10px] uppercase tracking-[0.25em] mb-4 pb-3 border-b border-[#1e2a3a] font-semibold" style={{ color: ACCENT }}>
+                    Committee Memberships
+                  </h3>
+                  <ul className="space-y-px bg-[#1e2a3a] border border-[#1e2a3a]">
+                    {committeeMemberships.map((committee: any, idx: number) => (
+                      <li key={idx} className="bg-[#0d1520] p-4 border-l-2" style={{ borderLeftColor: partyColour }}>
+                        <p className="text-[13px] text-white font-semibold leading-snug">{committee.name}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {governmentPosts.length === 0 && oppositionPosts.length === 0 && committeeMemberships.length === 0 && (
+                <Empty>No roles or committee memberships</Empty>
               )}
             </div>
-          )}
-
-          {/* Bills Sponsored */}
-          {activeSection === 'bills' && (
-            <div>
-              <h2 className="text-2xl font-bold text-white mb-6">Bills Sponsored</h2>
-              {sponsoredBills && sponsoredBills.length > 0 ? (
-                <div className="space-y-3">
-                  {sponsoredBills.map((bill) => (
-                    <Link key={bill.id} href={'/bills/' + bill.id} className="block rounded-lg p-4 border border-gray-700 hover:border-gray-500 transition" style={{ borderLeftColor: partyColour, borderLeftWidth: '3px' }}>
-                      <h3 className="font-semibold text-white mb-1 text-sm">{bill.title}</h3>
-                      <div className="flex gap-3 text-xs text-gray-400">
-                        <span>{bill.current_stage || 'Unknown'}</span>
-                        {bill.category && <span className="px-2 py-0.5 bg-blue-900/30 text-blue-400 rounded">{bill.category}</span>}
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-400">This MP has not sponsored any bills</p>
-              )}
-            </div>
-          )}
-
-          {/* Registered Interests */}
-          {activeSection === 'interests' && (
-            <div>
-              <h2 className="text-2xl font-bold text-white mb-6">Registered Interests</h2>
-              {interests && interests.length > 0 ? (
-                <div className="space-y-6">
-                  {Object.keys(interestsByCategory).map((categoryName) => (
-                    <div key={categoryName}>
-                      <h3 className="text-base font-semibold mb-3 pb-2 border-b border-gray-700" style={{ color: partyColour }}>{categoryName}</h3>
-                      <div className="space-y-2">
-                        {interestsByCategory[categoryName].map((interest: any) => (
-                          <div key={interest.id} className="rounded-lg p-4 border border-gray-700">
-                            <p className="text-sm text-gray-300 whitespace-pre-wrap mb-2">{interest.interest_text}</p>
-                            {interest.child_interests && interest.child_interests.length > 0 && (
-                              <div className="mt-2 ml-4 space-y-1">
-                                {interest.child_interests.map((child: any, idx: number) => (
-                                  <div key={idx} className="text-xs text-gray-400 bg-gray-800 rounded p-2" style={{ borderLeft: '2px solid ' + partyColour + '60' }}>{child.interest}</div>
-                                ))}
-                              </div>
-                            )}
-                            <p className="text-xs text-gray-500 mt-2">Registered: {new Date(interest.created_when).toLocaleDateString('en-GB')}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-400">No registered interests</p>
-              )}
-            </div>
-          )}
-
-          {/* Roles & Committees */}
-          {activeSection === 'roles' && (
-            <div>
-              <h2 className="text-2xl font-bold text-white mb-6">Roles & Committees</h2>
-              <div className="space-y-6">
-                {governmentPosts.length > 0 && (
-                  <div>
-                    <h3 className="text-base font-semibold mb-3" style={{ color: partyColour }}>Government Posts</h3>
-                    <div className="space-y-2">
-                      {governmentPosts.map((post: any, idx: number) => (
-                        <div key={idx} className="rounded-lg p-3 border border-gray-700" style={{ borderLeftColor: partyColour, borderLeftWidth: '3px' }}>
-                          <p className="text-sm text-white">{post.name}</p>
-                          <p className="text-xs text-gray-400">{new Date(post.startDate).getFullYear()} — {post.endDate ? new Date(post.endDate).getFullYear() : 'present'}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {oppositionPosts.length > 0 && (
-                  <div>
-                    <h3 className="text-base font-semibold mb-3" style={{ color: partyColour }}>Opposition Posts</h3>
-                    <div className="space-y-2">
-                      {oppositionPosts.map((post: any, idx: number) => (
-                        <div key={idx} className="rounded-lg p-3 border border-gray-700" style={{ borderLeftColor: partyColour, borderLeftWidth: '3px' }}>
-                          <p className="text-sm text-white">{post.name}</p>
-                          <p className="text-xs text-gray-400">{new Date(post.startDate).getFullYear()} — {post.endDate ? new Date(post.endDate).getFullYear() : 'present'}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {committeeMemberships.length > 0 && (
-                  <div>
-                    <h3 className="text-base font-semibold mb-3" style={{ color: partyColour }}>Committee Memberships</h3>
-                    <div className="space-y-2">
-                      {committeeMemberships.map((committee: any, idx: number) => (
-                        <div key={idx} className="rounded-lg p-3 border border-gray-700" style={{ borderLeftColor: partyColour, borderLeftWidth: '3px' }}>
-                          <p className="text-sm text-white">{committee.name}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {governmentPosts.length === 0 && oppositionPosts.length === 0 && committeeMemberships.length === 0 && (
-                  <p className="text-gray-400">No roles or committee memberships</p>
-                )}
-              </div>
-            </div>
-          )}
-
-        </div>
+          </Section>
+        )}
       </div>
     </div>
+  )
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white mb-8 leading-tight">{title}</h2>
+      {children}
+    </div>
+  )
+}
+
+function Card({ title, children, partyColour }: { title: string; children: React.ReactNode; partyColour: string }) {
+  return (
+    <div className="bg-[#0d1520] p-5 border-l-2" style={{ borderLeftColor: partyColour }}>
+      <p className="text-[10px] uppercase tracking-[0.25em] mb-3 font-semibold text-white">{title}</p>
+      {children}
+    </div>
+  )
+}
+
+function Stat({ label, value, colour }: { label: string; value: string | number; colour?: string }) {
+  return (
+    <div className="bg-[#0d1520] px-4 py-5">
+      <p className="text-[10px] uppercase tracking-[0.25em] text-[#9ca3af] font-medium mb-2">{label}</p>
+      <p className="text-2xl sm:text-3xl font-black leading-none tracking-tight" style={{ color: colour || '#ffffff' }}>
+        {typeof value === 'number' ? value.toLocaleString() : value}
+      </p>
+    </div>
+  )
+}
+
+function Tag({ colour, children }: { colour: string; children: React.ReactNode }) {
+  return (
+    <span
+      className="px-2 py-0.5 text-[10px] uppercase tracking-[0.15em] font-semibold rounded-sm"
+      style={{ color: colour, backgroundColor: colour + '22', border: `1px solid ${colour}55` }}
+    >
+      {children}
+    </span>
+  )
+}
+
+function Empty({ children }: { children: React.ReactNode }) {
+  return <p className="text-[#9ca3af] text-[13px] leading-[1.7]">{children}</p>
+}
+
+function RolesRow({ post, partyColour }: { post: any; partyColour: string }) {
+  return (
+    <li className="bg-[#0d1520] p-4 border-l-2" style={{ borderLeftColor: partyColour }}>
+      <p className="text-[13px] text-white font-semibold leading-snug">{post.name}</p>
+      <p className="text-[11px] text-[#9ca3af] font-mono mt-1">
+        {new Date(post.startDate).getFullYear()} — {post.endDate ? new Date(post.endDate).getFullYear() : 'present'}
+      </p>
+    </li>
   )
 }

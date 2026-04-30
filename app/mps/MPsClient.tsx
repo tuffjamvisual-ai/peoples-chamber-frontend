@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
 
 type MP = {
@@ -16,94 +16,159 @@ type MP = {
 export default function MPsClient({ mps }: { mps: MP[] }) {
   const [search, setSearch] = useState('')
 
-  const filteredMPs = mps.filter(mp =>
-    mp.name.toLowerCase().includes(search.toLowerCase()) ||
-    mp.constituency.toLowerCase().includes(search.toLowerCase()) ||
-    mp.party.toLowerCase().includes(search.toLowerCase())
-  )
+  const filtered = useMemo(() => {
+    if (!search.trim()) return mps
+    const q = search.toLowerCase()
+    return mps.filter(
+      (mp) =>
+        mp.name.toLowerCase().includes(q) ||
+        mp.constituency.toLowerCase().includes(q) ||
+        mp.party.toLowerCase().includes(q),
+    )
+  }, [mps, search])
 
-  const mpsByParty = filteredMPs.reduce((acc: any, mp) => {
-    const party = mp.party || 'Independent'
-    if (!acc[party]) acc[party] = []
-    acc[party].push(mp)
+  const byParty = useMemo(() => {
+    const acc: Record<string, MP[]> = {}
+    for (const mp of filtered) {
+      const p = mp.party || 'Independent'
+      ;(acc[p] ||= []).push(mp)
+    }
     return acc
-  }, {})
+  }, [filtered])
 
-  const parties = Object.keys(mpsByParty).sort((a, b) =>
-    mpsByParty[b].length - mpsByParty[a].length
+  const parties = Object.keys(byParty).sort(
+    (a, b) => byParty[b].length - byParty[a].length,
   )
 
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
-      <div className="mb-6">
-        <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">Members of Parliament</h1>
-        <p className="text-gray-400 text-sm sm:text-base">
-          All current MPs in the House of Commons
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
+      <header className="border-b border-[#1e2a3a] pb-10 mb-10">
+        <p className="text-[10px] uppercase tracking-[0.3em] text-[#60a5fa] font-medium mb-4">
+          The People&apos;s Chamber · Members
         </p>
-        <p className="text-sm text-gray-500 mt-2">
-          {filteredMPs.length} MPs • {parties.length} parties
+        <h1 className="text-4xl sm:text-6xl font-black leading-[1.05] tracking-tight text-white mb-4">
+          Members of Parliament
+        </h1>
+        <p className="text-[#9ca3af] text-[14px] leading-[1.7] max-w-2xl">
+          All {mps.length.toLocaleString()} sitting MPs in the House of Commons.
+          Search by name, constituency, or party. Tap an MP for voting record,
+          financial interests, sponsored bills, and contact details.
         </p>
-      </div>
 
-      {/* Search Bar */}
-      <div className="mb-6">
+        <div className="grid grid-cols-3 gap-px bg-[#1e2a3a] border border-[#1e2a3a] mt-10">
+          <Stat label="Sitting MPs" value={mps.length} />
+          <Stat label="Parties Represented" value={parties.length} />
+          <Stat label="Filtered Result" value={filtered.length} accent />
+        </div>
+      </header>
+
+      <div className="mb-12">
+        <label
+          htmlFor="mp-search"
+          className="block text-[10px] uppercase tracking-[0.25em] text-[#9ca3af] font-medium mb-2"
+        >
+          Search
+        </label>
         <input
-          type="text"
-          placeholder="Search by name, constituency, or party..."
+          id="mp-search"
+          type="search"
+          placeholder="Name, constituency, or party…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none"
+          className="w-full bg-[#0d1520] text-white text-sm leading-[1.7] border border-[#1e2a3a] rounded-sm px-4 py-3 placeholder:text-[#4b5563] focus:outline-none focus:border-[#60a5fa] transition-colors"
         />
       </div>
 
-      {filteredMPs.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-400">No MPs found matching "{search}"</p>
-        </div>
+      {filtered.length === 0 ? (
+        <p className="text-[#9ca3af] text-sm border-t border-[#1e2a3a] pt-10">
+          No MPs match &ldquo;{search}&rdquo;.
+        </p>
       ) : (
-        <div className="space-y-8">
-          {parties.map(party => (
-            <div key={party}>
-              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-                <span
-                  className="w-4 h-4 rounded-full"
-                  style={{ backgroundColor: mpsByParty[party][0]?.party_colour || '#6b7280' }}
-                />
-                {party} ({mpsByParty[party].length})
-              </h2>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {mpsByParty[party].map((mp: MP) => (
-                  <Link
-                    key={mp.id}
-                    href={`/mps/${mp.member_id}`}
-                    className="bg-gray-900 border border-gray-800 rounded-lg p-4 hover:border-blue-500 transition-colors"
-                  >
-                    <div className="flex items-start gap-3">
-                      {mp.photo_url ? (
-                        <img
-                          src={mp.photo_url}
-                          alt={mp.name}
-                          className="w-12 h-12 rounded-full object-cover bg-gray-800"
-                        />
-                      ) : (
-                        <div className="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 text-xs">
-                          No Photo
+        <div className="space-y-16">
+          {parties.map((party) => {
+            const partyColour = byParty[party][0]?.party_colour || '#60a5fa'
+            const count = byParty[party].length
+            return (
+              <section key={party} className="border-t border-[#1e2a3a] pt-8">
+                <div className="flex items-baseline gap-4 mb-6">
+                  <span
+                    className="inline-block w-2 h-2 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: partyColour }}
+                    aria-hidden
+                  />
+                  <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                    {party}
+                  </h2>
+                  <span className="ml-auto text-[10px] uppercase tracking-[0.3em] text-[#9ca3af] font-mono">
+                    {count} MP{count === 1 ? '' : 's'}
+                  </span>
+                </div>
+
+                <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-[#1e2a3a] border border-[#1e2a3a]">
+                  {byParty[party].map((mp) => (
+                    <li key={mp.id} className="bg-[#0a0f1a]">
+                      <Link
+                        href={`/mps/${mp.member_id}`}
+                        className="group flex items-start gap-3 bg-[#0d1520] hover:bg-[#111827] transition-colors p-4 border-l-2 border-transparent hover:border-l-[#60a5fa]"
+                      >
+                        {mp.photo_url ? (
+                          <img
+                            src={mp.photo_url}
+                            alt={mp.name}
+                            className="w-12 h-12 rounded-full object-cover bg-[#111827] flex-shrink-0"
+                            style={{ border: `1px solid ${partyColour}` }}
+                          />
+                        ) : (
+                          <div
+                            className="w-12 h-12 rounded-full bg-[#111827] flex items-center justify-center text-[#9ca3af] text-[10px] uppercase tracking-wider flex-shrink-0"
+                            style={{ border: `1px solid ${partyColour}` }}
+                          >
+                            {mp.name?.charAt(0)}
+                          </div>
+                        )}
+
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-white text-[14px] leading-snug truncate group-hover:text-[#60a5fa] transition-colors">
+                            {mp.name}
+                          </h3>
+                          <p className="text-[#9ca3af] text-[12px] leading-[1.7] truncate">
+                            {mp.constituency}
+                          </p>
                         </div>
-                      )}
-                      
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-white text-sm truncate">{mp.name}</h3>
-                        <p className="text-gray-400 text-xs truncate">{mp.constituency}</p>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          ))}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )
+          })}
         </div>
       )}
     </main>
+  )
+}
+
+function Stat({
+  label,
+  value,
+  accent = false,
+}: {
+  label: string
+  value: number
+  accent?: boolean
+}) {
+  return (
+    <div className="bg-[#0d1520] px-4 py-5">
+      <p className="text-[10px] uppercase tracking-[0.25em] text-[#9ca3af] font-medium mb-2">
+        {label}
+      </p>
+      <p
+        className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${
+          accent ? 'text-[#60a5fa]' : 'text-white'
+        }`}
+      >
+        {value.toLocaleString()}
+      </p>
+    </div>
   )
 }

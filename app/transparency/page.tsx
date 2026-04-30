@@ -11,74 +11,77 @@ export const metadata: Metadata = {
   alternates: { canonical: '/transparency' },
 }
 
+const ACCENT = '#60a5fa'
+const ACCENT_2 = '#818cf8'
+
 const SECTIONS = [
-  {
-    slug: 'ministers-meetings',
-    title: "Ministers' Meetings",
-    description: 'Records of meetings ministers have held with external organisations and lobbyists, published quarterly under GOV.UK transparency releases.',
-  },
-  {
-    slug: 'lobbyists',
-    title: 'Lobbyist Register',
-    description: 'The statutory register of consultant lobbyists who engage ministers and permanent secretaries on behalf of clients.',
-  },
-  {
-    slug: 'appgs',
-    title: 'All-Party Parliamentary Groups',
-    description: 'Cross-party informal interest groups in Parliament, the funding they receive, and the secretariat support behind them.',
-  },
-  {
-    slug: 'hospitality',
-    title: "Ministers' Hospitality",
-    description: 'Gifts, hospitality and overseas travel accepted by ministers, published quarterly by every department.',
-  },
-  {
-    slug: 'revolving-door',
-    title: 'Revolving Door',
-    description: 'Senior officials and ministers taking up post-government roles, including ACOBA recommendations and conditions attached.',
-  },
-  {
-    slug: 'donations',
-    title: 'Political Donations',
-    description: 'Reportable donations to political parties and individual MPs, sourced from the Electoral Commission register.',
-  },
-  {
-    slug: 'contracts',
-    title: 'Government Contracts',
-    description: 'Awarded public-sector contracts above the disclosure threshold, published via Contracts Finder.',
-  },
-  {
-    slug: 'companies',
-    title: 'Companies House',
-    description: 'Company directorships and persons of significant control connected to MPs, ministers, and senior officials.',
-  },
+  { slug: 'ministers-meetings', title: "Ministers' Meetings", description: 'Records of meetings ministers have held with external organisations and lobbyists, published quarterly under GOV.UK transparency releases.' },
+  { slug: 'lobbyists',          title: 'Lobbyist Register',                description: 'The statutory register of consultant lobbyists who engage ministers and permanent secretaries on behalf of clients.' },
+  { slug: 'appgs',              title: 'All-Party Parliamentary Groups',   description: 'Cross-party informal interest groups in Parliament, the funding they receive, and the secretariat support behind them.' },
+  { slug: 'hospitality',        title: "Ministers' Hospitality",           description: 'Gifts, hospitality and overseas travel accepted by ministers, published quarterly by every department.' },
+  { slug: 'revolving-door',     title: 'Revolving Door',                   description: 'Senior officials and ministers taking up post-government roles, including ACOBA recommendations and conditions attached.' },
+  { slug: 'donations',          title: 'Political Donations',              description: 'Reportable donations to political parties and individual MPs, sourced from the Electoral Commission register.' },
+  { slug: 'contracts',          title: 'Government Contracts',             description: 'Awarded public-sector contracts above the disclosure threshold, published via Contracts Finder.' },
+  { slug: 'companies',          title: 'Companies House',                  description: 'Company directorships and persons of significant control connected to MPs, ministers, and senior officials.' },
 ]
 
 export default function TransparencyHubPage() {
   return (
-    <div className="min-h-screen bg-[#0a0f1a]">
+    <div className="min-h-screen bg-[#0a0f1a] text-white">
       <Navigation />
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 pb-12">
-        <h1 className="text-3xl font-bold text-white mb-2">Transparency Hub</h1>
-        <p className="text-gray-400 text-sm mb-10 max-w-2xl">
-          Eight datasets covering how ministers, MPs, lobbyists, donors, contractors and former officials interact with the UK state. Each section links through to a searchable list of the underlying records.
-        </p>
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
+        <header className="border-b border-[#1e2a3a] pb-10 mb-10">
+          <p className="text-[10px] uppercase tracking-[0.3em] font-medium mb-4" style={{ color: ACCENT }}>
+            The People&apos;s Chamber · Transparency
+          </p>
+          <h1 className="text-4xl sm:text-6xl font-black leading-[1.05] tracking-tight text-white mb-4">
+            Transparency Hub
+          </h1>
+          <p className="text-[#9ca3af] text-[14px] leading-[1.7] max-w-2xl">
+            Eight datasets covering how ministers, MPs, lobbyists, donors, contractors and former officials interact with the UK state. Each section links to a searchable list of the underlying records.
+          </p>
 
-        <div className="space-y-8">
-          {SECTIONS.map((s) => (
-            <Link
-              key={s.slug}
-              href={`/transparency/${s.slug}`}
-              className="block group"
-            >
-              <h2 className="text-xl font-semibold mb-1" style={{ color: '#60a5fa' }}>
-                {s.title} <span className="ml-1 transition-transform inline-block group-hover:translate-x-1">→</span>
-              </h2>
-              <p className="text-gray-400 text-sm leading-relaxed">{s.description}</p>
-            </Link>
-          ))}
-        </div>
+          <div className="grid grid-cols-3 gap-px bg-[#1e2a3a] border border-[#1e2a3a] mt-10">
+            <Stat label="Datasets" value={SECTIONS.length} />
+            <Stat label="Sources" value="6" />
+            <Stat label="Refresh" value="Daily" accent />
+          </div>
+        </header>
+
+        <ul className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#1e2a3a] border border-[#1e2a3a]">
+          {SECTIONS.map((s, i) => {
+            const colour = i % 2 === 0 ? ACCENT : ACCENT_2
+            return (
+              <li key={s.slug} className="bg-[#0d1520]">
+                <Link
+                  href={`/transparency/${s.slug}`}
+                  className="group block p-6 hover:bg-[#111827] transition-colors border-l-2 border-transparent hover:border-l-[#60a5fa]"
+                >
+                  <p className="text-[10px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: colour }}>
+                    Dataset · {String(i + 1).padStart(2, '0')}
+                  </p>
+                  <h2 className="text-xl font-black tracking-tight mb-2 leading-tight text-white group-hover:text-[#60a5fa] transition-colors">
+                    {s.title}
+                    <span className="ml-2 text-base text-[#4b5563] inline-block transition-transform group-hover:translate-x-1 group-hover:text-[#60a5fa]">→</span>
+                  </h2>
+                  <p className="text-[#9ca3af] text-[13px] leading-[1.7]">{s.description}</p>
+                </Link>
+              </li>
+            )
+          })}
+        </ul>
       </main>
+    </div>
+  )
+}
+
+function Stat({ label, value, accent = false }: { label: string; value: number | string; accent?: boolean }) {
+  return (
+    <div className="bg-[#0d1520] px-4 py-5">
+      <p className="text-[10px] uppercase tracking-[0.25em] text-[#9ca3af] font-medium mb-2">{label}</p>
+      <p className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#60a5fa]' : 'text-white'}`}>
+        {typeof value === 'number' ? value.toLocaleString() : value}
+      </p>
     </div>
   )
 }

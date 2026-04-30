@@ -18,13 +18,11 @@ export default async function MPsPage() {
     .select('*')
     .eq('current_member', true)
     .order('name', { ascending: true })
-  
-  if (error) {
-    console.error('Error fetching MPs:', error)
-  }
+
+  if (error) console.error('Error fetching MPs:', error)
 
   return (
-    <div className="min-h-screen bg-[#0a0f1a]">
+    <div className="min-h-screen bg-[#0a0f1a] text-white">
       <Navigation />
       <MPsClient mps={mps || []} />
     </div>

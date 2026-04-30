@@ -10,46 +10,98 @@ export const metadata: Metadata = {
   alternates: { canonical: '/departments' },
 };
 
+const ACCENT = '#60a5fa';
+
 export default function DepartmentsPage() {
+  const totalZones = departments.reduce((sum, d) => sum + d.controlZones.length, 0);
+
   return (
-    <div className="min-h-screen bg-[#0a0f1a]">
+    <div className="min-h-screen bg-[#0a0f1a] text-white">
       <Navigation />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 pb-12">
-        <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">Government Departments</h1>
-          <p className="text-gray-400">Find out what each department controls and where every party stands on the issues that matter to you.</p>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
+        <header className="border-b border-[#1e2a3a] pb-10 mb-10">
+          <p className="text-[10px] uppercase tracking-[0.3em] font-medium mb-4" style={{ color: ACCENT }}>
+            The People&apos;s Chamber · Departments
+          </p>
+          <h1 className="text-4xl sm:text-6xl font-black leading-[1.05] tracking-tight text-white mb-4">
+            Government Departments
+          </h1>
+          <p className="text-[#9ca3af] text-[14px] leading-[1.7] max-w-2xl">
+            What every department controls and where every party stands on the issues that matter to you. Tap any department for live ministers, agencies, and topic-by-topic positions.
+          </p>
+
+          <div className="grid grid-cols-3 gap-px bg-[#1e2a3a] border border-[#1e2a3a] mt-10">
+            <Stat label="Departments" value={departments.length} />
+            <Stat label="Control Zones" value={totalZones} />
+            <Stat label="Live Data" value="Daily" accent />
+          </div>
+        </header>
+
+        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px bg-[#1e2a3a] border border-[#1e2a3a]">
           {departments.map((dept) => (
-            <Link
-              key={dept.slug}
-              href={`/departments/${dept.slug}`}
-              className="bg-gray-900 border border-gray-800 rounded-lg p-4 hover:border-blue-500 transition-colors"
-            >
-              <h2 className="text-white font-semibold text-sm mb-1">{dept.name}</h2>
-              <p className="text-gray-500 text-xs mb-3 line-clamp-2">{dept.description}</p>
-              <div className="flex items-center gap-2">
-                {dept.ministerPhoto ? (
-                  <img src={dept.ministerPhoto} alt={dept.minister} className="w-6 h-6 rounded-full object-cover" />
-                ) : (
-                  <div className="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center text-xs text-gray-400">
-                    {dept.minister.charAt(0)}
-                  </div>
-                )}
-                <span className="text-xs text-gray-400">{dept.minister}</span>
-              </div>
-              <div className="flex flex-wrap gap-1 mt-2">
-                {dept.controlZones.slice(0, 3).map((zone) => (
-                  <span key={zone} className="text-xs px-1.5 py-0.5 bg-blue-900/30 text-blue-400 rounded">{zone}</span>
-                ))}
-                {dept.controlZones.length > 3 && (
-                  <span className="text-xs px-1.5 py-0.5 bg-gray-800 text-gray-500 rounded">+{dept.controlZones.length - 3}</span>
-                )}
-              </div>
-            </Link>
+            <li key={dept.slug} className="bg-[#0d1520]">
+              <Link
+                href={`/departments/${dept.slug}`}
+                className="group block h-full p-5 hover:bg-[#111827] transition-colors border-l-2 border-transparent hover:border-l-[#60a5fa]"
+              >
+                <h2 className="text-white font-bold text-[14px] leading-snug mb-1.5 group-hover:text-[#60a5fa] transition-colors">
+                  {dept.name}
+                </h2>
+                <p className="text-[#9ca3af] text-[12px] leading-[1.7] mb-4 line-clamp-2">{dept.description}</p>
+
+                <div className="flex items-center gap-2 mb-3">
+                  {dept.ministerPhoto ? (
+                    <img
+                      src={dept.ministerPhoto}
+                      alt={dept.minister}
+                      className="w-6 h-6 rounded-full object-cover bg-[#111827]"
+                      style={{ border: `1px solid ${ACCENT}55` }}
+                    />
+                  ) : (
+                    <div
+                      className="w-6 h-6 rounded-full bg-[#111827] flex items-center justify-center text-[10px] text-[#9ca3af]"
+                      style={{ border: `1px solid ${ACCENT}55` }}
+                    >
+                      {dept.minister.charAt(0)}
+                    </div>
+                  )}
+                  <span className="text-[11px] text-[#9ca3af] truncate font-mono">{dept.minister}</span>
+                </div>
+
+                <div className="flex flex-wrap gap-1">
+                  {dept.controlZones.slice(0, 3).map((zone) => (
+                    <span
+                      key={zone}
+                      className="text-[10px] px-1.5 py-0.5 uppercase tracking-[0.1em] font-semibold rounded-sm"
+                      style={{ color: ACCENT, backgroundColor: ACCENT + '15', border: `1px solid ${ACCENT}33` }}
+                    >
+                      {zone}
+                    </span>
+                  ))}
+                  {dept.controlZones.length > 3 && (
+                    <span className="text-[10px] px-1.5 py-0.5 uppercase tracking-[0.1em] font-semibold rounded-sm text-[#9ca3af] bg-[#111827] border border-[#1e2a3a]">
+                      +{dept.controlZones.length - 3}
+                    </span>
+                  )}
+                </div>
+              </Link>
+            </li>
           ))}
-        </div>
+        </ul>
       </main>
+    </div>
+  );
+}
+
+function Stat({ label, value, accent = false }: { label: string; value: number | string; accent?: boolean }) {
+  return (
+    <div className="bg-[#0d1520] px-4 py-5">
+      <p className="text-[10px] uppercase tracking-[0.25em] text-[#9ca3af] font-medium mb-2">{label}</p>
+      <p
+        className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#60a5fa]' : 'text-white'}`}
+      >
+        {typeof value === 'number' ? value.toLocaleString() : value}
+      </p>
     </div>
   );
 }

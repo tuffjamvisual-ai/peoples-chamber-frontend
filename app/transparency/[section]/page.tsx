@@ -6,20 +6,18 @@ import TransparencyClient from './TransparencyClient'
 
 export const revalidate = 3600
 
+const ACCENT = '#60a5fa'
+
 // Route slug → { display title, Supabase table name, optional date column }.
-// NOTE: route 'appgs' maps to Supabase table 'appg_register' — the table name in
-// Supabase, route name preserved per spec.
-// `orderBy` is per-section because each table's date column has a different name;
-// omitted for sections whose tables have no natural date column or are empty.
 const SECTIONS: Record<string, { title: string; table: string; orderBy?: string }> = {
-  'ministers-meetings':  { title: "Ministers' Meetings",                table: 'ministers_meetings',   orderBy: 'meeting_date' },
-  'lobbyists':           { title: 'Lobbyist Register',                  table: 'lobbyist_register' },
-  'appgs':               { title: 'All-Party Parliamentary Groups',     table: 'appg_register' },
-  'hospitality':         { title: "Ministers' Hospitality",             table: 'ministers_hospitality', orderBy: 'hospitality_date' },
-  'revolving-door':      { title: 'Revolving Door',                     table: 'revolving_door',       orderBy: 'approval_date' },
-  'donations':           { title: 'Political Donations',                table: 'political_donations',  orderBy: 'received_date' },
-  'contracts':           { title: 'Government Contracts',               table: 'government_contracts', orderBy: 'awarded_date' },
-  'companies':           { title: 'Companies House',                    table: 'companies_house' },
+  'ministers-meetings': { title: "Ministers' Meetings", table: 'ministers_meetings', orderBy: 'meeting_date' },
+  'lobbyists':          { title: 'Lobbyist Register', table: 'lobbyist_register' },
+  'appgs':              { title: 'All-Party Parliamentary Groups', table: 'appg_register' },
+  'hospitality':        { title: "Ministers' Hospitality", table: 'ministers_hospitality', orderBy: 'hospitality_date' },
+  'revolving-door':     { title: 'Revolving Door', table: 'revolving_door', orderBy: 'approval_date' },
+  'donations':          { title: 'Political Donations', table: 'political_donations', orderBy: 'received_date' },
+  'contracts':          { title: 'Government Contracts', table: 'government_contracts', orderBy: 'awarded_date' },
+  'companies':          { title: 'Companies House', table: 'companies_house' },
 }
 
 export function generateStaticParams() {
@@ -41,8 +39,6 @@ export default async function TransparencySectionPage({
     : baseQuery
   const { data: rows, error } = await finalQuery
 
-  // Build-time visibility: log row count (and any error) for each section.
-  // Visible in Vercel deployment logs when this page is statically generated.
   if (error) {
     console.error(`[transparency/${section}] supabase error querying '${config.table}':`, error.message || error)
   } else {
@@ -50,14 +46,28 @@ export default async function TransparencySectionPage({
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0f1a]">
+    <div className="min-h-screen bg-[#0a0f1a] text-white">
       <Navigation />
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 pb-12">
-        <Link href="/transparency" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 text-sm">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
+        <Link
+          href="/transparency"
+          className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-[#9ca3af] hover:text-white mb-8 transition-colors"
+        >
           ← Transparency Hub
         </Link>
 
-        <h1 className="text-3xl font-bold mb-6" style={{ color: '#60a5fa' }}>{config.title}</h1>
+        <header className="border-b border-[#1e2a3a] pb-10 mb-10">
+          <p className="text-[10px] uppercase tracking-[0.3em] font-medium mb-4" style={{ color: ACCENT }}>
+            Dataset
+          </p>
+          <h1 className="text-4xl sm:text-6xl font-black leading-[1.05] tracking-tight text-white mb-4">
+            {config.title}
+          </h1>
+          <p className="text-[#9ca3af] text-[14px] leading-[1.7] max-w-2xl">
+            <span className="font-mono text-white text-base font-bold">{(rows?.length ?? 0).toLocaleString()}</span>{' '}
+            record{rows?.length === 1 ? '' : 's'} in this dataset. Use the search to filter live.
+          </p>
+        </header>
 
         <TransparencyClient rows={rows || []} sectionTitle={config.title} section={section} />
       </main>

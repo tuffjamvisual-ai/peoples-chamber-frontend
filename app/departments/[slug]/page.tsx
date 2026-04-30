@@ -7,6 +7,12 @@ import { departments } from '@/lib/departments';
 import { parties } from '@/lib/parties';
 import { useSearchParams } from 'next/navigation';
 
+const ACCENT = '#60a5fa';
+const ACCENT_2 = '#818cf8';
+const SUCCESS = '#34d399';
+const WARN = '#fbbf24';
+const DANGER = '#f87171';
+
 type GovukMinister = {
   name: string;
   photo: string;
@@ -55,317 +61,322 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
   const [sosPhoto, setSosPhoto] = useState<string | null>(null);
   const searchRef = useRef<HTMLDivElement>(null);
 
-  const filteredZones = dept ? dept.controlZones.filter(z => z.toLowerCase().includes(zoneSearch.toLowerCase())) : [];
+  const filteredZones = dept ? dept.controlZones.filter((z) => z.toLowerCase().includes(zoneSearch.toLowerCase())) : [];
 
   useEffect(() => {
     if (!dept) return;
 
     if (slug === 'treasury') {
-      fetch('/api/economic-stats')
-        .then(r => r.json())
-        .then(d => setStats(d))
-        .catch(() => {});
+      fetch('/api/economic-stats').then((r) => r.json()).then((d) => setStats(d)).catch(() => {});
     }
 
     fetch(`/api/department-context?slug=${slug}`)
-      .then(r => r.json())
-      .then(d => { if (d.street_context) setStreetContext(d.street_context); })
+      .then((r) => r.json())
+      .then((d) => { if (d.street_context) setStreetContext(d.street_context); })
       .catch(() => {});
 
     fetch(`/api/govuk-dept?slug=${slug}`)
-      .then(r => r.json())
-      .then(d => {
+      .then((r) => r.json())
+      .then((d) => {
         if (d.ministers) {
           setGovukData(d);
-          // Fetch SoS photo separately from GOV.UK
           const sosSlug = d.ministers[0]?.slug;
           if (sosSlug) {
             fetch(`/api/person?slug=${sosSlug}`)
-              .then(r => r.json())
-              .then(p => { if (p.photo) setSosPhoto(p.photo); })
+              .then((r) => r.json())
+              .then((p) => { if (p.photo) setSosPhoto(p.photo); })
               .catch(() => {});
           }
         }
       })
       .catch(() => {});
-  }, [slug]);
+  }, [slug, dept]);
 
-  // Close topics dropdown when clicking outside
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
-        setShowTopics(false);
-      }
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) setShowTopics(false);
     }
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  if (!dept) return (
-    <div className="min-h-screen bg-[#0a0f1a] flex items-center justify-center">
-      <div className="text-white">Department not found</div>
-    </div>
-  );
+  if (!dept)
+    return (
+      <div className="min-h-screen bg-[#0a0f1a] flex items-center justify-center">
+        <p className="text-[#9ca3af] text-sm">Department not found</p>
+      </div>
+    );
 
-  const activeZoneData = dept.controlZonePositions?.find(z => z.zone === activeZone);
+  const activeZoneData = dept.controlZonePositions?.find((z) => z.zone === activeZone);
   const sos = govukData?.ministers?.[0] || { name: dept.minister, photo: '', role: 'Secretary of State', responsibilities: '', url: '', slug: '' };
   const juniorMinisters = govukData?.ministers?.slice(1) || [];
-  const seniorOfficials = govukData?.boardMembers?.filter(m => {
+  const seniorOfficials = govukData?.boardMembers?.filter((m) => {
     const r = m.role.toLowerCase();
     return r.includes('permanent') || r.includes('director general') || r.includes('chief');
   }) || [];
-  const boardMembers = govukData?.boardMembers?.filter(m => {
+  const boardMembers = govukData?.boardMembers?.filter((m) => {
     const r = m.role.toLowerCase();
     return r.includes('non-executive') || r.includes('board member');
   }) || [];
 
   return (
-    <div className="min-h-screen bg-[#0a0f1a]">
+    <div className="min-h-screen bg-[#0a0f1a] text-white">
       <Navigation />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 pb-12">
-
-        <Link href="/departments" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 text-sm">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
+        <Link href="/departments" className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-[#9ca3af] hover:text-white mb-8 transition-colors">
           ← Back to Departments
         </Link>
 
-        {/* 1. HEADER */}
-        <div className="mb-6" style={{ borderLeft: '4px solid #60a5fa', paddingLeft: '1rem' }}>
-          <div className="flex items-start justify-between gap-4 mb-1">
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">{dept.name}</h1>
+        {/* Header */}
+        <header className="border-b border-[#1e2a3a] pb-8 mb-8">
+          <p className="text-[10px] uppercase tracking-[0.3em] font-medium mb-3" style={{ color: ACCENT }}>
+            UK Government · Department
+          </p>
+          <div className="flex items-start justify-between gap-4 mb-3">
+            <h1 className="text-3xl sm:text-5xl font-black leading-[1.05] tracking-tight text-white">{dept.name}</h1>
             {govukData?.socialMedia && govukData.socialMedia.length > 0 && (
-              <div className="flex gap-2 flex-shrink-0">
+              <div className="flex gap-1.5 flex-shrink-0 mt-2">
                 {govukData.socialMedia.map((s, i) => (
-                  <a key={i} href={s.url} target="_blank" rel="noopener noreferrer"
-                    className="text-xs px-2 py-1 bg-gray-800 text-gray-400 rounded hover:text-white transition-colors">
-                    {s.service === 'twitter' ? 'X' : s.service === 'youtube' ? 'YT' : s.service.slice(0,3)}
+                  <a
+                    key={i}
+                    href={s.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[10px] uppercase tracking-[0.15em] px-2 py-1 bg-[#0d1520] text-[#9ca3af] rounded-sm border border-[#1e2a3a] hover:text-white hover:border-[#60a5fa] transition-colors"
+                  >
+                    {s.service === 'twitter' ? 'X' : s.service === 'youtube' ? 'YT' : s.service.slice(0, 3)}
                   </a>
                 ))}
               </div>
             )}
           </div>
-          <p className="text-gray-300 text-sm">{dept.description}</p>
-        </div>
+          <p className="text-[#9ca3af] text-[14px] leading-[1.7] max-w-3xl">{dept.description}</p>
+        </header>
 
-        {/* 2. SECRETARY OF STATE */}
-        <div className="flex items-center gap-6 mb-8 pb-6 border-b border-gray-800">
-          {sosPhoto ? (
-            <img src={sosPhoto} alt={sos.name}
-              className="w-32 h-32 rounded-full object-cover border-4 border-yellow-500 flex-shrink-0" />
-          ) : (
-            <div className="w-32 h-32 rounded-full bg-gray-800 flex items-center justify-center text-4xl font-bold text-yellow-500 border-4 border-yellow-500 flex-shrink-0">
-              {sos.name.charAt(0)}
-            </div>
-          )}
-          <div>
-            <div className="text-yellow-400 text-sm font-medium mb-1">Secretary of State</div>
-            <div className="text-white text-2xl font-bold mb-1">{sos.name}</div>
-            <div className="text-gray-300 text-base mb-3">{sos.role}</div>
-            {sos.slug && (
-              <Link href={`/people/${sos.slug}`} className="text-blue-400 text-sm hover:underline">
-                View bio →
-              </Link>
-            )}
-          </div>
-        </div>
-
-        {/* 3. LIVE STATS + SEARCH */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-
-          {slug === 'treasury' ? (
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-sm font-semibold text-white">Live Economic Data</h2>
-                {stats && <span className="text-xs text-gray-500">CPI from ONS · {stats.cpiDate}</span>}
+        {/* Secretary of State */}
+        <section className="border-b border-[#1e2a3a] pb-8 mb-8">
+          <p className="text-[10px] uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: ACCENT }}>Secretary of State</p>
+          <div className="flex items-center gap-6">
+            {sosPhoto ? (
+              <img
+                src={sosPhoto}
+                alt={sos.name}
+                className="w-28 h-28 rounded-full object-cover flex-shrink-0"
+                style={{ border: `2px solid ${ACCENT}` }}
+              />
+            ) : (
+              <div
+                className="w-28 h-28 rounded-full bg-[#0d1520] flex items-center justify-center text-4xl font-black flex-shrink-0"
+                style={{ border: `2px solid ${ACCENT}`, color: ACCENT }}
+              >
+                {sos.name.charAt(0)}
               </div>
-              <div className="grid grid-cols-3 gap-2">
+            )}
+            <div>
+              <h2 className="text-white text-2xl sm:text-3xl font-black tracking-tight mb-1">{sos.name}</h2>
+              <p className="text-[#9ca3af] text-[13px] leading-[1.7] mb-2">{sos.role}</p>
+              {sos.slug && (
+                <Link
+                  href={`/people/${sos.slug}`}
+                  className="inline-block text-[10px] uppercase tracking-[0.2em] hover:underline font-semibold"
+                  style={{ color: ACCENT }}
+                >
+                  View bio →
+                </Link>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* Stats + Search */}
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-px bg-[#1e2a3a] border border-[#1e2a3a] mb-8">
+          {slug === 'treasury' ? (
+            <div className="bg-[#0d1520] p-5">
+              <div className="flex items-baseline justify-between mb-4">
+                <h3 className="text-[10px] uppercase tracking-[0.25em] font-semibold text-white">Live Economic Data</h3>
+                {stats && <span className="text-[10px] uppercase tracking-[0.15em] text-[#4b5563] font-mono">CPI · ONS · {stats.cpiDate}</span>}
+              </div>
+              <div className="grid grid-cols-3 gap-px bg-[#1e2a3a] border border-[#1e2a3a]">
                 {[
-                  { label: 'CPI Inflation', value: stats ? stats.cpi + '%' : '...', color: 'text-amber-400', live: true },
-                  { label: 'Bank Rate', value: stats ? stats.bankRate + '%' : '3.75%', color: 'text-blue-400' },
-                  { label: 'Nat. Debt', value: stats ? stats.nationalDebt : '93% GDP', color: 'text-red-400' },
-                  { label: 'Borrowing', value: stats ? stats.annualBorrowing : '£133bn', color: 'text-orange-400' },
-                  { label: 'GDP Growth', value: stats ? stats.gdpGrowth : '1.1%', color: 'text-green-400' },
-                  { label: 'Debt/GDP', value: stats ? stats.debtGDP : '95%', color: 'text-purple-400' },
-                ].map((stat: any) => (
-                  <div key={stat.label} className="text-center py-2 border-b border-gray-800">
-                    <div className={`text-base font-bold ${stat.color}`}>{stat.value}</div>
-                    <div className="text-xs text-gray-500 mt-0.5">{stat.label}</div>
-                    {stat.live && <div className="text-xs text-green-600">● live</div>}
+                  { label: 'CPI Inflation', value: stats ? stats.cpi + '%' : '...', colour: WARN, live: true },
+                  { label: 'Bank Rate', value: stats ? stats.bankRate + '%' : '3.75%', colour: ACCENT },
+                  { label: 'Nat. Debt', value: stats ? stats.nationalDebt : '93% GDP', colour: DANGER },
+                  { label: 'Borrowing', value: stats ? stats.annualBorrowing : '£133bn', colour: '#fb923c' },
+                  { label: 'GDP Growth', value: stats ? stats.gdpGrowth : '1.1%', colour: SUCCESS },
+                  { label: 'Debt/GDP', value: stats ? stats.debtGDP : '95%', colour: ACCENT_2 },
+                ].map((stat) => (
+                  <div key={stat.label} className="bg-[#0d1520] px-3 py-3">
+                    <p className="text-[9px] uppercase tracking-[0.2em] text-[#9ca3af] mb-1">{stat.label}</p>
+                    <p className="text-base font-black tracking-tight" style={{ color: stat.colour }}>
+                      {stat.value}
+                    </p>
+                    {stat.live && (
+                      <p className="text-[9px] uppercase tracking-[0.2em] mt-0.5 font-semibold" style={{ color: SUCCESS }}>● live</p>
+                    )}
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <div className="flex items-center">
-              <p className="text-gray-600 text-sm">Live data coming soon for this department</p>
+            <div className="bg-[#0d1520] p-5 flex items-center justify-center">
+              <p className="text-[#4b5563] text-[13px] leading-[1.7]">Live data coming soon for this department</p>
             </div>
           )}
 
-          {/* Search with topic popout */}
-          <div ref={searchRef} className="relative">
-            <h2 className="text-sm font-semibold text-white mb-1">Search Topics</h2>
-            <p className="text-gray-500 text-xs mb-3">Type any issue to see what every party says about it</p>
+          <div ref={searchRef} className="bg-[#0d1520] p-5 relative">
+            <h3 className="text-[10px] uppercase tracking-[0.25em] mb-1 font-semibold text-white">Search Topics</h3>
+            <p className="text-[#9ca3af] text-[12px] mb-3 leading-[1.7]">Type any issue to see what every party says about it</p>
             <div className="relative">
               <input
                 type="text"
                 value={zoneSearch}
                 onChange={(e) => { setZoneSearch(e.target.value); setShowTopics(true); }}
                 onFocus={() => setShowTopics(true)}
-                placeholder={`Search ${dept.controlZones.length} topics...`}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-yellow-500"
+                placeholder={`Search ${dept.controlZones.length} topics…`}
+                className="w-full bg-[#0a0f1a] border border-[#1e2a3a] rounded-sm px-4 py-2.5 text-white text-[13px] placeholder:text-[#4b5563] focus:outline-none focus:border-[#60a5fa] transition-colors"
               />
               {zoneSearch && (
-                <button onClick={() => { setZoneSearch(''); setShowTopics(false); }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white text-xs">✕</button>
+                <button
+                  onClick={() => { setZoneSearch(''); setShowTopics(false); }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#4b5563] hover:text-white text-xs"
+                >
+                  ✕
+                </button>
               )}
             </div>
-
-            {/* Topic dropdown */}
             {showTopics && (
-              <div className="absolute z-50 w-full mt-1 bg-gray-900 border border-gray-700 rounded-lg shadow-xl max-h-64 overflow-y-auto">
+              <div className="absolute z-50 left-5 right-5 mt-1 bg-[#0d1520] border border-[#1e2a3a] rounded-sm shadow-xl max-h-64 overflow-y-auto">
                 {(zoneSearch ? filteredZones : [...dept.controlZones].sort()).map((zone) => {
-                  const hasDetail = dept.controlZonePositions?.some(z => z.zone === zone);
+                  const hasDetail = dept.controlZonePositions?.some((z) => z.zone === zone);
                   return (
                     <button
                       key={zone}
                       onClick={() => { setActiveZone(activeZone === zone ? null : zone); setZoneSearch(''); setShowTopics(false); }}
-                      className={`block w-full text-left px-4 py-2.5 text-sm border-b border-gray-800 last:border-0 transition-colors ${
-                        activeZone === zone ? 'text-yellow-400 bg-gray-800' : 'text-gray-200 hover:bg-gray-800 hover:text-yellow-300'
-                      }`}
+                      className={
+                        'block w-full text-left px-4 py-2.5 text-[13px] border-b border-[#1e2a3a] last:border-0 transition-colors ' +
+                        (activeZone === zone ? 'text-[#60a5fa] bg-[#111827]' : 'text-[#9ca3af] hover:bg-[#111827] hover:text-white')
+                      }
                     >
                       {zone}
-                      {hasDetail && <span className="text-yellow-600 ml-2 text-xs">●</span>}
+                      {hasDetail && <span className="ml-2 text-[10px]" style={{ color: ACCENT }}>●</span>}
                     </button>
                   );
                 })}
                 {zoneSearch && filteredZones.length === 0 && (
-                  <div className="px-4 py-3 text-gray-500 text-sm">No topics match "{zoneSearch}"</div>
+                  <div className="px-4 py-3 text-[#4b5563] text-[13px]">No topics match &ldquo;{zoneSearch}&rdquo;</div>
                 )}
               </div>
             )}
           </div>
-        </div>
+        </section>
 
-        {/* 4. STREET VIEW */}
-        <div className="mb-6 pb-6 border-b border-gray-800">
-          <h2 className="text-sm font-semibold text-blue-300 mb-2">The Street View</h2>
-          <p className="text-gray-200 text-sm leading-relaxed">{streetContext || dept.streetContext}</p>
-        </div>
+        {/* Street View */}
+        <section className="border-b border-[#1e2a3a] pb-8 mb-8">
+          <h2 className="text-[10px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>The Street View</h2>
+          <p className="text-white text-[14px] leading-[1.7]">{streetContext || dept.streetContext}</p>
+        </section>
 
-        {/* 5. TOPIC DETAIL — shows when zone selected */}
+        {/* Topic detail */}
         {activeZone && activeZoneData && (
-          <div className="mb-6 pb-6 border-b border-gray-800">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-lg font-semibold text-yellow-300">{activeZone}</h2>
-              <button onClick={() => setActiveZone(null)} className="text-gray-400 hover:text-white text-sm">✕ Close</button>
+          <section className="border-b border-[#1e2a3a] pb-8 mb-8">
+            <div className="flex items-baseline justify-between mb-4">
+              <h2 className="text-2xl font-black tracking-tight text-white">{activeZone}</h2>
+              <button
+                onClick={() => setActiveZone(null)}
+                className="text-[10px] uppercase tracking-[0.25em] text-[#9ca3af] hover:text-white transition-colors"
+              >
+                ✕ Close
+              </button>
             </div>
-            <p className="text-gray-300 text-sm leading-relaxed mb-6">{activeZoneData.context}</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <p className="text-[#9ca3af] text-[14px] leading-[1.7] mb-6">{activeZoneData.context}</p>
+            <ul className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#1e2a3a] border border-[#1e2a3a]">
               {activeZoneData.positions.map((pos) => {
-                const party = parties.find(p => p.id === pos.partyId);
+                const party = parties.find((p) => p.id === pos.partyId);
                 if (!party) return null;
                 return (
-                  <div key={pos.partyId} style={{ borderLeft: `4px solid ${party.colour}`, paddingLeft: '1rem' }}>
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: party.colour, color: party.textColour }}>{party.name}</span>
-                    </div>
-                    <p className="text-white font-medium text-xs mb-1">{pos.headline}</p>
-                    <p className="text-gray-200 text-xs leading-relaxed">{pos.position}</p>
-                  </div>
+                  <li key={pos.partyId} className="bg-[#0d1520] p-4 border-l-2" style={{ borderLeftColor: party.colour }}>
+                    <span
+                      className="inline-block text-[10px] uppercase tracking-[0.15em] font-bold px-2 py-0.5 rounded-sm mb-2"
+                      style={{ backgroundColor: party.colour, color: party.textColour }}
+                    >
+                      {party.name}
+                    </span>
+                    <p className="text-white font-semibold text-[13px] mb-1 leading-snug">{pos.headline}</p>
+                    <p className="text-[#9ca3af] text-[12px] leading-[1.7]">{pos.position}</p>
+                  </li>
                 );
               })}
-            </div>
-          </div>
+            </ul>
+          </section>
         )}
 
-        {/* 7. AGENCIES */}
+        {/* Agencies */}
         {govukData?.childOrgs && govukData.childOrgs.length > 0 && (
-          <div className="mb-6 pb-6 border-b border-gray-800">
-            <h2 className="text-sm font-semibold text-gray-400 mb-3">Agencies & Arm's Length Bodies ({govukData.childOrgs.length})</h2>
-            <div className="flex flex-wrap gap-2">
+          <section className="border-b border-[#1e2a3a] pb-8 mb-8">
+            <h2 className="text-[10px] uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: ACCENT }}>
+              Agencies & Arm&apos;s Length Bodies ({govukData.childOrgs.length})
+            </h2>
+            <div className="flex flex-wrap gap-x-4 gap-y-2">
               {govukData.childOrgs.map((org, i) => {
                 const agencySlug = org.url.split('/government/organisations/')[1] || '';
                 return (
-                  <Link key={i} href={'/agencies/' + agencySlug}
-                    className="text-xs text-gray-300 hover:text-white transition-colors">
+                  <Link
+                    key={i}
+                    href={'/agencies/' + agencySlug}
+                    className="text-[12px] uppercase tracking-[0.15em] text-[#9ca3af] hover:text-[#60a5fa] transition-colors"
+                  >
                     {org.acronym || org.name}
                   </Link>
                 );
               })}
             </div>
-          </div>
+          </section>
         )}
 
-        {/* 8. STAFF — at the bottom */}
-        <div className="mb-6">
-          <h2 className="text-sm font-semibold text-gray-400 mb-4">Department Staff</h2>
+        {/* Staff */}
+        <section>
+          <h2 className="text-[10px] uppercase tracking-[0.25em] mb-6 font-semibold" style={{ color: ACCENT }}>Department Staff</h2>
 
-          {/* Junior Ministers */}
-          {juniorMinisters.length > 0 && (
-            <div className="mb-4">
-              <p className="text-xs text-gray-600 mb-2">Ministers</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
-                {juniorMinisters.map((minister, i) => (
-                  <div key={i} className="py-2 border-b border-gray-800/50">
-                    <Link href={`/people/${minister.slug}`} className="text-white text-sm font-medium hover:text-yellow-300 transition-colors">
-                      {minister.name}
-                    </Link>
-                    <div className="text-gray-400 text-xs mt-0.5">{minister.role}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          {juniorMinisters.length > 0 && <StaffGroup label="Ministers" people={juniorMinisters} />}
+          {seniorOfficials.length > 0 && <StaffGroup label="Senior Officials" people={seniorOfficials} />}
+          {boardMembers.length > 0 && <StaffGroup label="Board Members" people={boardMembers} />}
 
-          {/* Senior Officials */}
-          {seniorOfficials.length > 0 && (
-            <div className="mb-4">
-              <p className="text-xs text-gray-600 mb-2">Senior Officials</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
-                {seniorOfficials.map((member, i) => (
-                  <div key={i} className="py-2 border-b border-gray-800/50">
-                    <Link href={`/people/${member.slug}`} className="text-white text-sm font-medium hover:text-yellow-300 transition-colors">
-                      {member.name}
-                    </Link>
-                    <div className="text-gray-400 text-xs mt-0.5">{member.role}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Board Members */}
-          {boardMembers.length > 0 && (
-            <div className="mb-4">
-              <p className="text-xs text-gray-600 mb-2">Board Members</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
-                {boardMembers.map((member, i) => (
-                  <div key={i} className="py-2 border-b border-gray-800/50">
-                    <Link href={`/people/${member.slug}`} className="text-white text-sm font-medium hover:text-yellow-300 transition-colors">
-                      {member.name}
-                    </Link>
-                    <div className="text-gray-400 text-xs mt-0.5">{member.role}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* FOI and Press */}
           {(govukData?.foiEmail || govukData?.pressPhone) && (
-            <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-gray-800">
+            <div className="flex flex-wrap gap-6 mt-6 pt-6 border-t border-[#1e2a3a]">
               {govukData.foiEmail && (
-                <a href={`mailto:${govukData.foiEmail}`} className="text-xs text-blue-400 hover:text-blue-300">
+                <a
+                  href={`mailto:${govukData.foiEmail}`}
+                  className="text-[11px] uppercase tracking-[0.15em] hover:underline"
+                  style={{ color: ACCENT }}
+                >
                   FOI Request: {govukData.foiEmail}
                 </a>
               )}
               {govukData.pressPhone && (
-                <span className="text-xs text-gray-500">Press: {govukData.pressPhone}</span>
+                <span className="text-[11px] uppercase tracking-[0.15em] text-[#4b5563] font-mono">Press: {govukData.pressPhone}</span>
               )}
             </div>
           )}
-        </div>
-
+        </section>
       </main>
+    </div>
+  );
+}
+
+function StaffGroup({ label, people }: { label: string; people: { name: string; role: string; slug: string }[] }) {
+  return (
+    <div className="mb-8">
+      <p className="text-[10px] uppercase tracking-[0.2em] text-[#4b5563] mb-3 font-semibold">{label}</p>
+      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[#1e2a3a] border border-[#1e2a3a]">
+        {people.map((person, i) => (
+          <li key={i} className="bg-[#0d1520] p-3 border-l-2 border-l-transparent hover:border-l-[#60a5fa] hover:bg-[#111827] transition-colors">
+            <Link href={`/people/${person.slug}`} className="block">
+              <p className="text-white text-[13px] font-semibold hover:text-[#60a5fa] transition-colors">{person.name}</p>
+              <p className="text-[#9ca3af] text-[11px] mt-0.5 leading-[1.7]">{person.role}</p>
+            </Link>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
