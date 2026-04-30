@@ -135,26 +135,6 @@ async function fetchSpotlightBills(): Promise<SpotlightBill[]> {
     .slice(0, 3);
 }
 
-async function fetchCounts() {
-  const [billsRes, mpsRes, doorRes, meetingsRes, contractsRes, donationsRes] = await Promise.all([
-    supabase.from('bill').select('id', { count: 'exact', head: true }),
-    supabase.from('mps').select('member_id', { count: 'exact', head: true }).eq('current_member', true),
-    supabase.from('revolving_door').select('person_name', { count: 'exact', head: true }),
-    supabase.from('ministers_meetings').select('minister_name', { count: 'exact', head: true }),
-    supabase.from('government_contracts').select('title', { count: 'exact', head: true }),
-    supabase.from('political_donations').select('id', { count: 'exact', head: true }),
-  ]);
-  return {
-    bills: billsRes.count ?? 0,
-    mps: mpsRes.count ?? 0,
-    transparency:
-      (doorRes.count ?? 0) +
-      (meetingsRes.count ?? 0) +
-      (contractsRes.count ?? 0) +
-      (donationsRes.count ?? 0),
-  };
-}
-
 // ─── Formatters ────────────────────────────────────────────────────────────
 
 function formatDate(iso: string | null): string {
@@ -164,10 +144,6 @@ function formatDate(iso: string | null): string {
   } catch {
     return iso;
   }
-}
-
-function formatLongDate(d: Date): string {
-  return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 function formatMoney(v: number | null): string {
@@ -197,54 +173,26 @@ function firstTwoSentences(text: string): string {
 // ─── Component ─────────────────────────────────────────────────────────────
 
 export default async function HomePage() {
-  const [pressAll, committee, revolving, contracts, donations, bills, counts] = await Promise.all([
+  const [pressAll, committee, revolving, contracts, donations, bills] = await Promise.all([
     fetchGovukPressReleases(4),
     fetchCommitteeProceedings(),
     fetchRecentRevolving(),
     fetchRecentContracts(),
     fetchRecentDonations(),
     fetchSpotlightBills(),
-    fetchCounts(),
   ]);
 
   const lead: GovukItem | null = pressAll[0] || null;
   const press: GovukItem[] = pressAll.slice(1, 4);
-
-  const today = formatLongDate(new Date());
 
   return (
     <div className="min-h-screen bg-[#0a0f1a] text-white">
       <Navigation />
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6">
-        {/* ── Masthead ────────────────────────────────────────────────── */}
-        <header className="pt-12 pb-6 mb-10 border-b-4 border-double border-[#1e2a3a] text-center">
-          <h1 className="text-4xl sm:text-7xl font-black uppercase tracking-tight leading-[0.95] mb-4">
-            The People&apos;s Chamber
-          </h1>
-          <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.4em] text-[#9ca3af] font-semibold mb-6">
-            UK Government · Observed · Unfiltered
-          </p>
-          <div className="flex flex-wrap justify-center items-baseline gap-x-4 sm:gap-x-6 gap-y-2 pt-4 border-t border-[#1e2a3a] text-[10px] uppercase tracking-[0.25em] font-mono">
-            <span className="text-[#9ca3af]">{today}</span>
-            <span className="text-[#4b5563]">·</span>
-            <span style={{ color: ACCENT }}>
-              {counts.bills.toLocaleString()} bills
-            </span>
-            <span className="text-[#4b5563]">·</span>
-            <span style={{ color: ACCENT }}>
-              {counts.mps.toLocaleString()} MPs
-            </span>
-            <span className="text-[#4b5563]">·</span>
-            <span style={{ color: ACCENT }}>
-              {counts.transparency.toLocaleString()} transparency records
-            </span>
-          </div>
-        </header>
-
         {/* ── Lead Story ──────────────────────────────────────────────── */}
         {lead && (
-          <section className="border-b border-[#1e2a3a] pb-12 mb-12">
+          <section className="pt-12 border-b border-[#1e2a3a] pb-12 mb-12">
             {lead.organisation && (
               <p className="text-[10px] uppercase tracking-[0.3em] mb-4 font-semibold" style={{ color: ACCENT }}>
                 {lead.organisation}
