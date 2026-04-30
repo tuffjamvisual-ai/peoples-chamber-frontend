@@ -57,5 +57,10 @@ jobs:
       - name: Sync MP division votes
         run: node scripts/sync-mp-votes.js
         continue-on-error: true
+      - name: Sync Companies House
+        env:
+          COMPANIES_HOUSE_API_KEY: ${{ secrets.COMPANIES_HOUSE_API_KEY }}
+        run: node scripts/sync-companies-house.js
+        continue-on-error: true
       - name: Trigger Vercel redeploy
         run: curl -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
