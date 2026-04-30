@@ -31,7 +31,7 @@ export default function AboutPage() {
 
         <p>
           At its core, The People&apos;s Chamber exists to test a quiet
-          suspicion: are the public and their government broadly aligned…
+          suspicion: are the public and their government broadly aligned,
           or just politely nodding past each other?
         </p>
 
@@ -59,8 +59,8 @@ export default function AboutPage() {
           headline, maybe the argument, and every few years, a ballot
           paper. The rest happens somewhere else. The People&apos;s
           Chamber closes that gap. It creates a continuous, visible record
-          of how the public reacts to the laws that govern them —
-          alongside how those laws are actually made. Not every few years.
+          of how the public reacts to the laws that govern them, alongside
+          how those laws are actually made. Not every few years.
           Every day. Yes, even on the days when it all feels slightly
           surreal.
         </p>
@@ -71,7 +71,7 @@ export default function AboutPage() {
           at full volume. Instead, it does something simpler: it shows
           what&apos;s happening, who&apos;s doing it, and how people
           respond. Transparency, accessibility, participation,
-          accountability — all the words you&apos;d expect. Just applied
+          accountability. All the words you&apos;d expect. Just applied
           properly. It sits somewhere between a public record, a civic
           tool, and a raised eyebrow. Now, admittedly, with quite a lot of
           data behind it.
@@ -81,17 +81,17 @@ export default function AboutPage() {
           The People&apos;s Chamber is an ongoing experiment in civic
           awareness. A system where decisions aren&apos;t just recorded,
           but reflected back in real time. A place where you can observe,
-          question, and engage with the process — not from the sidelines,
+          question, and engage with the process, not from the sidelines,
           but while it&apos;s actually happening. And occasionally, to
-          look at a voting record or an expense claim and think:
-          right… that explains a lot.
+          look at a voting record or an expense claim and think: right,
+          that explains a lot.
         </p>
 
         <p>
           We&apos;re not here to speak for the public. We&apos;re here to
           show it. Clear. Visible. Unfiltered. Because understanding
           what&apos;s happening is the first step to changing it. And if
-          nothing else, at least now you can see the whole picture — not
+          nothing else, at least now you can see the whole picture. Not
           just the press release.
         </p>
       </main>
