@@ -9,7 +9,7 @@ const ACCENT_2 = '#818cf8';
 const SUCCESS = '#34d399';
 const DANGER = '#f87171';
 
-type GovukItem = { title: string; organisation: string | null; date: string | null; link: string | null };
+type RecentBill = { id: number; title: string; current_stage: string | null; stage_date: string | null; originating_house: string | null; is_act: boolean | null };
 type CommitteeItem = { id: number; committee_name: string | null; title: string | null; publication_date: string | null; publication_type: string | null; summary: string | null };
 type SpotlightBill = {
   id: number;
@@ -32,21 +32,15 @@ const EXPLORE = [
   { title: "People's Polls", href: '/polls',        body: 'Public votes on live legislation. Parliament vs you.' },
 ];
 
-async function fetchGovukPressReleases(): Promise<GovukItem[]> {
-  try {
-    const url = 'https://www.gov.uk/api/search.json?filter_content_store_document_type=press_release&order=-public_timestamp&count=6';
-    const res = await fetch(url, { next: { revalidate: 3600 } });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return (data.results || []).map((r: { title?: string; organisations?: { title?: string }[]; public_timestamp?: string; link?: string }) => ({
-      title: r.title || '(untitled)',
-      organisation: r.organisations?.[0]?.title || null,
-      date: r.public_timestamp ? r.public_timestamp.slice(0, 10) : null,
-      link: r.link || null,
-    }));
-  } catch {
-    return [];
-  }
+async function fetchRecentBills(): Promise<RecentBill[]> {
+  // The Record surfaces bills that have most-recently moved through a
+  // parliamentary stage. Each links to the internal /bills/[id] page.
+  const { data } = await supabase
+    .from('bill')
+    .select('id, title, current_stage, stage_date, originating_house, is_act')
+    .order('stage_date', { ascending: false, nullsFirst: false })
+    .limit(6);
+  return data || [];
 }
 
 async function fetchCommitteeProceedings(): Promise<CommitteeItem[]> {
@@ -136,8 +130,8 @@ function pct(num: number, denom: number): number {
 }
 
 export default async function HomePage() {
-  const [press, committee, bills, revolving, contracts, counts] = await Promise.all([
-    fetchGovukPressReleases(),
+  const [recent, committee, bills, revolving, contracts, counts] = await Promise.all([
+    fetchRecentBills(),
     fetchCommitteeProceedings(),
     fetchSpotlightBills(),
     fetchRecentRevolving(),
@@ -202,27 +196,32 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* The Record */}
+      {/* The Record — recent bill activity, internal links to /bills/[id] */}
       <section className="max-w-5xl mx-auto px-4 sm:px-6 py-16 border-b border-[#1e2a3a]">
         <div className="flex items-baseline justify-between mb-10">
           <h2 className="text-[10px] uppercase tracking-[0.3em] text-[#9ca3af] font-semibold">The Record</h2>
-          <span className="text-[10px] uppercase tracking-[0.3em] text-[#4b5563] font-mono">Latest from gov.uk</span>
+          <Link href="/bills" className="text-[10px] uppercase tracking-[0.3em] hover:underline" style={{ color: ACCENT }}>
+            All bills →
+          </Link>
         </div>
-        {press.length === 0 ? (
-          <p className="text-[#9ca3af] text-sm">No releases available right now.</p>
+        {recent.length === 0 ? (
+          <p className="text-[#9ca3af] text-sm">No bill activity available right now.</p>
         ) : (
           <ul className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#1e2a3a] border border-[#1e2a3a]">
-            {press.map((p, i) => (
-              <li key={i} className="bg-[#0d1520] p-5 border-l-2 border-l-[#60a5fa]">
-                {p.organisation && (
+            {recent.map((b) => (
+              <li key={b.id} className="bg-[#0d1520] p-5 border-l-2 border-l-[#60a5fa]">
+                {b.current_stage && (
                   <p className="text-[10px] uppercase tracking-[0.25em] mb-2 font-medium" style={{ color: ACCENT }}>
-                    {p.organisation}
+                    {b.is_act ? 'Act of Parliament' : b.current_stage}
+                    {b.originating_house && <span className="text-[#4b5563]"> · {b.originating_house}</span>}
                   </p>
                 )}
-                <h3 className="text-[14px] leading-snug mb-2 font-semibold text-white">
-                  {p.title}
+                <h3 className="text-[14px] leading-snug mb-2 font-semibold">
+                  <Link href={`/bills/${b.id}`} className="text-white hover:text-[#60a5fa] transition-colors">
+                    {b.title}
+                  </Link>
                 </h3>
-                {p.date && <p className="text-[11px] text-[#4b5563] font-mono">{formatDate(p.date)}</p>}
+                {b.stage_date && <p className="text-[11px] text-[#4b5563] font-mono">{formatDate(b.stage_date)}</p>}
               </li>
             ))}
           </ul>
