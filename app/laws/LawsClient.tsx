@@ -28,7 +28,7 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
     <main className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
       <div className="mb-6">
         <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">Laws</h1>
-        <p className="text-[#9ca3af] text-sm sm:text-base">
+        <p className="text-gray-400 text-sm sm:text-base">
           Bills that have received Royal Assent and become law
         </p>
         <p className="text-sm text-gray-500 mt-2">
@@ -48,7 +48,7 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
 
       {filteredLaws.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-[#9ca3af]">
+          <p className="text-gray-400">
             {search ? `No laws found matching "${search}"` : 'No laws found'}
           </p>
         </div>
@@ -58,7 +58,7 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
             <Link
               key={law.id}
               href={`/bills/${law.id}`}
-              className="bg-[#0d1520] border border-[#1e2a3a] rounded-lg p-4 sm:p-6 hover:border-blue-500 transition-colors flex flex-col"
+              className="bg-gray-900 border border-gray-800 rounded-lg p-4 sm:p-6 hover:border-blue-500 transition-colors flex flex-col"
             >
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-xs px-2 py-0.5 bg-green-900/40 text-green-300 rounded border border-green-800/40">
@@ -74,7 +74,7 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
               </h3>
 
               {law.plain_summary && (
-                <p className="text-[#9ca3af] text-xs mb-4 line-clamp-3 flex-1">
+                <p className="text-gray-400 text-xs mb-4 line-clamp-3 flex-1">
                   {law.plain_summary}
                 </p>
               )}

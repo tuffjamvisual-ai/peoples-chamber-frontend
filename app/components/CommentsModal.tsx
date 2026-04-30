@@ -139,18 +139,18 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={onClose}>
       <div 
-        className="bg-[#1a1f2e] rounded-lg w-full max-w-2xl max-h-[80vh] flex flex-col border border-[#1e2a3a]"
+        className="bg-[#1a1f2e] rounded-lg w-full max-w-2xl max-h-[80vh] flex flex-col border border-gray-800"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-4 border-b border-[#1e2a3a] flex justify-between items-start">
+        <div className="p-4 border-b border-gray-800 flex justify-between items-start">
           <div className="flex-1 pr-4">
             <h2 className="text-lg font-semibold text-white mb-1">Comments</h2>
-            <p className="text-sm text-[#9ca3af] line-clamp-2">{billTitle}</p>
+            <p className="text-sm text-gray-400 line-clamp-2">{billTitle}</p>
           </div>
           <button
             onClick={onClose}
-            className="text-[#9ca3af] hover:text-white text-2xl leading-none"
+            className="text-gray-400 hover:text-white text-2xl leading-none"
           >
             ×
           </button>
@@ -199,7 +199,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
                     <textarea
                       value={editText}
                       onChange={(e) => setEditText(e.target.value)}
-                      className="w-full bg-[#0d1520] border border-gray-700 rounded px-3 py-2 text-white text-sm resize-none"
+                      className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-sm resize-none"
                       rows={3}
                     />
                     <div className="flex gap-2">
@@ -230,7 +230,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
 
         {/* Comment Input */}
         {user ? (
-          <div className="p-4 border-t border-[#1e2a3a]">
+          <div className="p-4 border-t border-gray-800">
             {error && (
               <div className="mb-3 p-2 bg-red-900/20 border border-red-900/50 rounded text-red-400 text-xs">
                 {error}
@@ -254,8 +254,8 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
             </form>
           </div>
         ) : (
-          <div className="p-4 border-t border-[#1e2a3a] text-center">
-            <p className="text-[#9ca3af] text-sm">Log in to leave a comment</p>
+          <div className="p-4 border-t border-gray-800 text-center">
+            <p className="text-gray-400 text-sm">Log in to leave a comment</p>
           </div>
         )}
       </div>

@@ -24,7 +24,7 @@ export default function SearchPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Try: knife crime, energy bills, small boats, income tax..."
-            className="w-full bg-[#0d1520] border border-gray-700 rounded-xl px-5 py-4 text-white text-lg placeholder-gray-500 focus:outline-none focus:border-blue-500"
+            className="w-full bg-gray-900 border border-gray-700 rounded-xl px-5 py-4 text-white text-lg placeholder-gray-500 focus:outline-none focus:border-blue-500"
             autoFocus
           />
           {query && (
@@ -39,7 +39,7 @@ export default function SearchPage() {
 
         {query.length >= 2 && results.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-[#9ca3af] text-lg mb-2">No results for "{query}"</p>
+            <p className="text-gray-400 text-lg mb-2">No results for "{query}"</p>
             <p className="text-gray-600 text-sm">Try a different term or browse departments directly</p>
             <Link href="/departments" className="inline-block mt-4 text-blue-400 hover:underline text-sm">Browse all departments →</Link>
           </div>
@@ -51,13 +51,13 @@ export default function SearchPage() {
               <Link
                 key={i}
                 href={`/departments/${result.departmentSlug}?zone=${encodeURIComponent(result.zone)}`}
-                className="block bg-[#0d1520] border border-[#1e2a3a] rounded-xl p-5 hover:border-blue-500 transition-colors"
+                className="block bg-gray-900 border border-gray-800 rounded-xl p-5 hover:border-blue-500 transition-colors"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <div className="text-xs text-gray-500 mb-1">{result.department}</div>
                     <div className="text-white font-semibold text-lg">{result.zone}</div>
-                    <div className="text-[#9ca3af] text-sm mt-1">See what every party says about this →</div>
+                    <div className="text-gray-400 text-sm mt-1">See what every party says about this →</div>
                   </div>
                   <div className="text-blue-400 text-2xl flex-shrink-0">→</div>
                 </div>

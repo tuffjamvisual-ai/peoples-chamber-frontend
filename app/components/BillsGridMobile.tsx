@@ -119,7 +119,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
 
   return (
     <>
-      <div className="sticky top-20 z-40 bg-[#0a0f1a] px-4 py-3 border-b border-[#1e2a3a]">
+      <div className="sticky top-20 z-40 bg-[#0a0f1a] px-4 py-3 border-b border-gray-800">
         <input
           type="text"
           placeholder="Search bills..."
@@ -129,14 +129,14 @@ export default function BillsGridMobile({ initialBills }: Props) {
         />
       </div>
 
-      <div className="sticky top-[108px] z-40 bg-[#0a0f1a] border-b border-[#1e2a3a] overflow-x-auto">
+      <div className="sticky top-[108px] z-40 bg-[#0a0f1a] border-b border-gray-800 overflow-x-auto">
         <div className="flex space-x-1 px-4 min-w-max">
           <button
             onClick={() => setActiveTab('latest')}
             className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
               activeTab === 'latest'
                 ? 'text-blue-400 border-b-2 border-blue-400'
-                : 'text-[#9ca3af]'
+                : 'text-gray-400'
             }`}
           >
             Latest
@@ -146,7 +146,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
             className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
               activeTab === 'trending'
                 ? 'text-blue-400 border-b-2 border-blue-400'
-                : 'text-[#9ca3af]'
+                : 'text-gray-400'
             }`}
           >
             Trending
@@ -156,7 +156,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
             className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
               activeTab === 'controversial'
                 ? 'text-blue-400 border-b-2 border-blue-400'
-                : 'text-[#9ca3af]'
+                : 'text-gray-400'
             }`}
           >
             Controversial
@@ -166,7 +166,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
             className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
               activeTab === 'voted'
                 ? 'text-blue-400 border-b-2 border-blue-400'
-                : 'text-[#9ca3af]'
+                : 'text-gray-400'
             }`}
           >
             You Voted
@@ -190,7 +190,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
             <div
               key={bill.id}
               onClick={() => router.push(`/bills/${bill.id}`)}
-              className="bg-[#0d1520] border border-[#1e2a3a] rounded-lg p-4 active:bg-gray-800"
+              className="bg-gray-900 border border-gray-800 rounded-lg p-4 active:bg-gray-800"
             >
               {/* Show position number and total votes for debugging */}
               <div className="text-xs text-gray-600 mb-1">
@@ -206,7 +206,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
                   <div className="bg-green-600" style={{ width: `${yesPercent}%` }} />
                   <div className="bg-red-600" style={{ width: `${noPercent}%` }} />
                 </div>
-                <div className="flex justify-between text-xs text-[#9ca3af] mt-1">
+                <div className="flex justify-between text-xs text-gray-400 mt-1">
                   <span>✓ {yesPercent}%</span>
                   <span>{totalVotes.toLocaleString()} votes</span>
                   <span>✗ {noPercent}%</span>
@@ -248,7 +248,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
 
       {filteredBills.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-[#9ca3af]">No active bills found.</p>
+          <p className="text-gray-400">No active bills found.</p>
         </div>
       )}
 
