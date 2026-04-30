@@ -7,6 +7,22 @@ type Row = Record<string, unknown>
 interface Props {
   rows: Row[]
   sectionTitle: string
+  section?: string
+}
+
+const ACCENT = '#60a5fa'
+
+function formatAmount(v: unknown): string | null {
+  const n = typeof v === 'number' ? v : typeof v === 'string' && v.trim() ? Number(v) : NaN
+  if (!Number.isFinite(n)) return null
+  return `£${Math.round(n).toLocaleString('en-GB')}`
+}
+
+function formatUkDate(iso: unknown): string | null {
+  if (typeof iso !== 'string' || !iso) return null
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return null
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 // Pick the most "title-like" field to use as each row's headline.
@@ -53,7 +69,7 @@ function formatValue(v: unknown): string {
   return JSON.stringify(v)
 }
 
-export default function TransparencyClient({ rows, sectionTitle }: Props) {
+export default function TransparencyClient({ rows, sectionTitle, section }: Props) {
   const [query, setQuery] = useState('')
 
   const filtered = useMemo(() => {
@@ -89,39 +105,72 @@ export default function TransparencyClient({ rows, sectionTitle }: Props) {
         )}
       </div>
 
-      <ul className="divide-y divide-gray-800">
-        {filtered.map((row, i) => {
-          const { key: titleKey, value: titleValue } = pickTitle(row)
-          const dateValue = pickDate(row)
-          const otherEntries = Object.entries(row).filter(
-            ([k, v]) =>
-              k !== titleKey &&
-              !HIDE_KEYS.has(k) &&
-              v !== null &&
-              v !== '' &&
-              !(typeof v === 'string' && v.trim() === '')
-          )
+      {section === 'donations' ? (
+        <ul className="divide-y divide-gray-800">
+          {filtered.map((row, i) => {
+            const recipient = (row.recipient_name as string) || '(unknown recipient)'
+            const donor = (row.donor_name as string) || '(unknown donor)'
+            const donorType = row.donor_type as string | null
+            const amount = formatAmount(row.amount)
+            const nature = row.nature as string | null
+            const receivedDate = formatUkDate(row.received_date)
+            return (
+              <li key={i} className="py-5">
+                <div className="flex items-baseline justify-between gap-4 mb-1.5">
+                  <h3 className="text-white text-lg font-semibold leading-snug">{recipient}</h3>
+                  {amount && (
+                    <span className="font-mono text-base font-semibold whitespace-nowrap" style={{ color: ACCENT }}>
+                      {amount}
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm text-gray-300 leading-snug mb-1">
+                  from <span className="text-white">{donor}</span>
+                  {donorType && <span className="text-gray-500"> · {donorType}</span>}
+                </p>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 font-mono">
+                  {receivedDate && <span>{receivedDate}</span>}
+                  {nature && <span>· {nature}</span>}
+                </div>
+              </li>
+            )
+          })}
+        </ul>
+      ) : (
+        <ul className="divide-y divide-gray-800">
+          {filtered.map((row, i) => {
+            const { key: titleKey, value: titleValue } = pickTitle(row)
+            const dateValue = pickDate(row)
+            const otherEntries = Object.entries(row).filter(
+              ([k, v]) =>
+                k !== titleKey &&
+                !HIDE_KEYS.has(k) &&
+                v !== null &&
+                v !== '' &&
+                !(typeof v === 'string' && v.trim() === '')
+            )
 
-          return (
-            <li key={i} className="py-4">
-              <div className="flex items-baseline justify-between gap-4 mb-2">
-                <h3 className="text-white text-base font-medium leading-snug">{titleValue}</h3>
-                {dateValue && <span className="text-gray-500 text-xs whitespace-nowrap font-mono">{dateValue}</span>}
-              </div>
-              {otherEntries.length > 0 && (
-                <dl className="grid grid-cols-1 sm:grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-xs">
-                  {otherEntries.map(([k, v]) => (
-                    <div key={k} className="contents">
-                      <dt className="text-gray-500 font-mono">{k}</dt>
-                      <dd className="text-gray-300 whitespace-pre-line break-words">{formatValue(v)}</dd>
-                    </div>
-                  ))}
-                </dl>
-              )}
-            </li>
-          )
-        })}
-      </ul>
+            return (
+              <li key={i} className="py-4">
+                <div className="flex items-baseline justify-between gap-4 mb-2">
+                  <h3 className="text-white text-base font-medium leading-snug">{titleValue}</h3>
+                  {dateValue && <span className="text-gray-500 text-xs whitespace-nowrap font-mono">{dateValue}</span>}
+                </div>
+                {otherEntries.length > 0 && (
+                  <dl className="grid grid-cols-1 sm:grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-xs">
+                    {otherEntries.map(([k, v]) => (
+                      <div key={k} className="contents">
+                        <dt className="text-gray-500 font-mono">{k}</dt>
+                        <dd className="text-gray-300 whitespace-pre-line break-words">{formatValue(v)}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+              </li>
+            )
+          })}
+        </ul>
+      )}
     </>
   )
 }

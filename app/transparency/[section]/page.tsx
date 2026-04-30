@@ -59,7 +59,7 @@ export default async function TransparencySectionPage({
 
         <h1 className="text-3xl font-bold mb-6" style={{ color: '#60a5fa' }}>{config.title}</h1>
 
-        <TransparencyClient rows={rows || []} sectionTitle={config.title} />
+        <TransparencyClient rows={rows || []} sectionTitle={config.title} section={section} />
       </main>
     </div>
   )
