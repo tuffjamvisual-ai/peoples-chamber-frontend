@@ -69,7 +69,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-[#1a1f2e] rounded-lg p-8 max-w-md w-full mx-4 border border-gray-800" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-[#1a1f2e] rounded-lg p-8 max-w-md w-full mx-4 border border-[#1e2a3a]" onClick={(e) => e.stopPropagation()}>
         <h2 className="text-2xl font-bold text-white mb-6">
           {mode === 'login' ? 'Sign in' : mode === 'signup' ? 'Create your account' : 'Reset password'}
         </h2>
@@ -156,7 +156,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
                   onChange={(e) => setAgeConfirmed(e.target.checked)}
                   className="mt-1"
                 />
-                <label htmlFor="ageConfirm" className="text-sm text-gray-400">
+                <label htmlFor="ageConfirm" className="text-sm text-[#9ca3af]">
                   I confirm I am 18 years of age or older
                 </label>
               </div>
@@ -183,7 +183,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
           </div>
         )}
 
-        <div className="mt-6 text-center text-sm text-gray-400">
+        <div className="mt-6 text-center text-sm text-[#9ca3af]">
           {mode === 'login' ? (
             <>
               Don't have an account?{' '}

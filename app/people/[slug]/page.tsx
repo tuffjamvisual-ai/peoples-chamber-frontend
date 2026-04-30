@@ -43,27 +43,27 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
     <div className="min-h-screen bg-[#0a0f1a]">
       <Navigation />
       <main className="max-w-3xl mx-auto px-4 sm:px-6 pb-12">
-        <Link href="/departments" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 text-sm">
+        <Link href="/departments" className="inline-flex items-center gap-2 text-[#9ca3af] hover:text-white mb-6 text-sm">
           ← Back to Departments
         </Link>
 
         {loading && (
-          <div className="text-gray-400 text-sm">Loading...</div>
+          <div className="text-[#9ca3af] text-sm">Loading...</div>
         )}
 
         {!loading && !person && (
-          <div className="text-gray-400 text-sm">Person not found.</div>
+          <div className="text-[#9ca3af] text-sm">Person not found.</div>
         )}
 
         {person && (
           <>
             {/* Header */}
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-6 flex items-start gap-6">
+            <div className="bg-[#0d1520] border border-[#1e2a3a] rounded-xl p-6 mb-6 flex items-start gap-6">
               {person.photo ? (
                 <img src={person.photo} alt={person.name}
                   className="w-32 h-32 rounded-full object-cover border-2 border-gray-700 flex-shrink-0" />
               ) : (
-                <div className="w-32 h-32 rounded-full bg-gray-800 flex items-center justify-center text-3xl font-bold text-gray-400 flex-shrink-0">
+                <div className="w-32 h-32 rounded-full bg-gray-800 flex items-center justify-center text-3xl font-bold text-[#9ca3af] flex-shrink-0">
                   {person.name.charAt(0)}
                 </div>
               )}
@@ -77,12 +77,12 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
 
             {/* Current Roles */}
             {person.currentRoles.length > 0 && (
-              <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-6">
+              <div className="bg-[#0d1520] border border-[#1e2a3a] rounded-xl p-6 mb-6">
                 <h2 className="text-lg font-semibold text-white mb-4">Current Role{person.currentRoles.length > 1 ? 's' : ''}</h2>
                 {person.currentRoles.map((role, i) => (
                   <div key={i} className="mb-4 last:mb-0">
                     <div className="text-white font-medium">{role.title}</div>
-                    <div className="text-gray-400 text-sm">{role.organisation}</div>
+                    <div className="text-[#9ca3af] text-sm">{role.organisation}</div>
                     {role.startDate && (
                       <div className="text-gray-600 text-xs mt-0.5">Since {new Date(role.startDate).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</div>
                     )}
@@ -121,13 +121,13 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
 
             {/* Past Roles */}
             {person.pastRoles.length > 0 && (
-              <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+              <div className="bg-[#0d1520] border border-[#1e2a3a] rounded-xl p-6">
                 <h2 className="text-lg font-semibold text-white mb-4">Previous Roles</h2>
-                <div className="divide-y divide-gray-800">
+                <div className="divide-y divide-[#1e2a3a]">
                   {person.pastRoles.map((role, i) => (
                     <div key={i} className="py-3">
                       <div className="text-white text-sm font-medium">{role.title}</div>
-                      <div className="text-gray-400 text-xs">{role.organisation}</div>
+                      <div className="text-[#9ca3af] text-xs">{role.organisation}</div>
                       {role.startDate && role.endDate && (
                         <div className="text-gray-600 text-xs mt-0.5">
                           {new Date(role.startDate).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })} — {new Date(role.endDate).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}

@@ -76,14 +76,14 @@ export default function PollsClient() {
 
       <div className="mb-6">
         <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">People's Polls</h1>
-        <p className="text-gray-400 text-sm sm:text-base">
+        <p className="text-[#9ca3af] text-sm sm:text-base">
           Have your say on the issues that matter. Vote on questions about policy, politics and public life.
         </p>
       </div>
 
       <div className="flex gap-6 mb-4">
-        <div className="text-sm text-gray-400"><span className="text-white font-semibold">{polls.length}</span> polls</div>
-        <div className="text-sm text-gray-400"><span className="text-white font-semibold">{totalVotesAll.toLocaleString()}</span> total votes</div>
+        <div className="text-sm text-[#9ca3af]"><span className="text-white font-semibold">{polls.length}</span> polls</div>
+        <div className="text-sm text-[#9ca3af]"><span className="text-white font-semibold">{totalVotesAll.toLocaleString()}</span> total votes</div>
       </div>
 
       <div className="flex items-center gap-3 mb-4">
@@ -119,7 +119,7 @@ export default function PollsClient() {
             const hasVoted = !!userVotes[poll.id]
 
             return (
-              <div key={poll.id} className="bg-gray-900 border border-gray-800 rounded-lg p-5 flex flex-col min-h-[180px]">
+              <div key={poll.id} className="bg-[#0d1520] border border-[#1e2a3a] rounded-lg p-5 flex flex-col min-h-[180px]">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-xs px-2 py-0.5 bg-blue-900/40 text-blue-300 rounded border border-blue-800/40">Poll</span>
                   {poll.constituency && (

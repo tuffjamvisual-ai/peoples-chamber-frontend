@@ -64,7 +64,7 @@ export default function TrendingPoll() {
   return (
     <div className="w-full">
       <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">Trending People's Poll</div>
-      <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
+      <div className="bg-[#0d1520] border border-[#1e2a3a] rounded-lg p-4">
         <div className="flex items-center justify-between mb-3">
           <span className="text-xs px-2 py-0.5 bg-blue-900/40 text-blue-300 rounded border border-blue-800/40">Poll</span>
           {poll.constituency && (
@@ -80,7 +80,7 @@ export default function TrendingPoll() {
               <div className="bg-green-500 h-full transition-all" style={{ width: yesPercent + '%' }} />
               <div className="bg-rose-500 h-full transition-all" style={{ width: noPercent + '%' }} />
             </div>
-            <div className="flex justify-between text-xs text-gray-400 mb-3">
+            <div className="flex justify-between text-xs text-[#9ca3af] mb-3">
               <span>Yes {yesPercent}% · {poll.vote_count_yes}</span>
               <span>{total} votes</span>
               <span>{poll.vote_count_no} · No {noPercent}%</span>

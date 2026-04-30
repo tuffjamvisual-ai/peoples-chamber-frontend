@@ -126,7 +126,7 @@ export default function BillsGrid({ initialBills }: Props) {
         }}
       />
 
-      <div className="flex items-center justify-between mb-4 text-sm text-gray-400">
+      <div className="flex items-center justify-between mb-4 text-sm text-[#9ca3af]">
         <div>Showing {paginatedBills.length} of {filteredBills.length} bills</div>
       </div>
 
@@ -141,7 +141,7 @@ export default function BillsGrid({ initialBills }: Props) {
             <div
               key={bill.id}
               onClick={() => router.push(`/bills/${bill.id}`)}
-              className="bg-gray-900 border border-gray-800 rounded-lg p-4 cursor-pointer hover:border-blue-500 transition-colors"
+              className="bg-[#0d1520] border border-[#1e2a3a] rounded-lg p-4 cursor-pointer hover:border-blue-500 transition-colors"
             >
               <h3 className="text-white font-medium text-sm mb-3 line-clamp-2">{bill.title}</h3>
 
@@ -150,7 +150,7 @@ export default function BillsGrid({ initialBills }: Props) {
                   <div className="bg-green-600" style={{ width: `${yesPercent}%` }} />
                   <div className="bg-red-600" style={{ width: `${noPercent}%` }} />
                 </div>
-                <div className="flex justify-between text-xs text-gray-400 mt-1">
+                <div className="flex justify-between text-xs text-[#9ca3af] mt-1">
                   <span>✓ {yesPercent}%</span>
                   <span>{totalVotes.toLocaleString()} votes</span>
                   <span>✗ {noPercent}%</span>
@@ -180,7 +180,7 @@ export default function BillsGrid({ initialBills }: Props) {
 
       {paginatedBills.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-gray-400">No bills found matching your filters.</p>
+          <p className="text-[#9ca3af]">No bills found matching your filters.</p>
         </div>
       )}
 
