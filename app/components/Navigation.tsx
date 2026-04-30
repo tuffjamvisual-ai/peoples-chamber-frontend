@@ -4,19 +4,9 @@ import { useAuth } from '../context/AuthContext';
 import AuthModal from './AuthModal';
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 
-const NAV_LINKS = [
-  { href: '/', label: 'Home' },
-  { href: '/bills', label: 'Bills' },
-  { href: '/laws', label: 'Laws' },
-  { href: '/polls', label: "People's Polls" },
-  { href: '/mps', label: 'MPs' },
-  { href: '/departments', label: 'Departments' },
-  { href: '/transparency', label: 'Transparency' },
-  { href: '/search', label: 'Search' },
-  { href: '/about', label: 'About' },
-];
+
+import { usePathname } from 'next/navigation';
 
 export default function Navigation() {
   const { user, logout } = useAuth();
@@ -30,6 +20,7 @@ export default function Navigation() {
     setShowAuthModal(true);
     setMobileMenuOpen(false);
   };
+
   const openSignup = () => {
     setAuthMode('signup');
     setShowAuthModal(true);
@@ -43,156 +34,122 @@ export default function Navigation() {
 
   return (
     <>
-      <nav className="bg-[#0a0f1a] border-b border-[#1e2a3a] sticky top-0 z-40 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-14">
-            {/* Logo / brand — left */}
-            <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-              <img
-                src="/logo.png"
-                alt="People's Chamber"
-                style={{ height: '300px', width: 'auto', objectFit: 'contain' }}
-              />
-              <span className="text-[11px] uppercase tracking-[0.25em] font-semibold text-white">
-                The People&apos;s Chamber
-              </span>
+      <nav className="bg-black border-b border-gray-800/50 relative mb-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+          <div className="flex items-center justify-between">
+            <Link href="/" className="flex-shrink-0" style={{marginLeft: "-16px"}}>
+              <div className="flex flex-col items-center">
+                <img
+                  src="/logo.png"
+                  alt="People's Chamber"
+                  style={{ height: '300px', width: 'auto', objectFit: 'contain' }}
+                />
+                <div className="text-center -mt-12">
+                  <div className="text-2xl font-bold text-white tracking-widest">THE PEOPLES CHAMBER</div>
+                  <div className="text-xs text-gray-400 tracking-wider mt-0.5">VOTING ON UK PARLIAMENT BILLS</div>
+                </div>
+              </div>
             </Link>
-
-            {/* Links — centre */}
-            <div className="hidden lg:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
-              {NAV_LINKS.map((link) => {
-                const active = isActive(link.href);
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={
-                      'px-3 py-1.5 text-[12px] uppercase tracking-[0.15em] transition-colors ' +
-                      (active
-                        ? 'text-[#60a5fa] font-semibold'
-                        : 'text-[#9ca3af] hover:text-white')
-                    }
-                  >
-                    {link.label}
-                  </Link>
-                );
-              })}
-            </div>
-
-            {/* Auth — right */}
-            <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
+            
+            <div className="hidden lg:flex flex-col items-end gap-2">
+              <div className="flex items-center space-x-3">
+              <Link href="/" className={`px-3 py-1.5 text-sm ${isActive('/') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
+                Home
+              </Link>
+              <Link href="/bills" className={`px-3 py-1.5 text-sm ${isActive('/bills') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
+                Bills
+              </Link>
+              <Link href="/laws" className={`px-3 py-1.5 text-sm ${isActive('/laws') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
+                Laws
+              </Link>
+              <Link href="/polls" className={`px-3 py-1.5 text-sm ${isActive('/polls') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
+                People's Polls
+              </Link>
+              <Link href="/mps" className={`px-3 py-1.5 text-sm ${isActive('/mps') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
+                MPs
+              </Link>
+              <Link href="/departments" className={`px-3 py-1.5 text-sm ${isActive('/departments') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>Departments</Link>
+              <Link href="/transparency" className={`px-3 py-1.5 text-sm ${isActive('/transparency') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>Transparency</Link>
+              <Link href="/search" className={`px-3 py-1.5 text-sm ${isActive('/search') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>Search</Link>
+              <Link href="/about" className={`px-3 py-1.5 text-sm ${isActive('/about') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
+                About
+              </Link>
+              
               {user ? (
                 <>
-                  <span className="text-[#9ca3af] text-[12px] truncate max-w-[160px]">
-                    {user.email}
-                  </span>
-                  <button
-                    onClick={logout}
-                    className="px-3 py-1.5 text-[12px] uppercase tracking-[0.15em] text-[#9ca3af] hover:text-white transition-colors"
-                  >
+                  <span className="text-gray-400 text-sm truncate max-w-[150px]">{user.email}</span>
+                  <button onClick={logout} className="px-3 py-1.5 text-gray-300 hover:text-white text-sm">
                     Logout
                   </button>
                 </>
               ) : (
                 <>
-                  <button
-                    onClick={openLogin}
-                    className="px-3 py-1.5 text-[12px] uppercase tracking-[0.15em] text-[#9ca3af] hover:text-white transition-colors"
-                  >
+                  <button onClick={openLogin} className="px-3 py-1.5 text-gray-300 hover:text-white text-sm">
                     Login
                   </button>
-                  <button
-                    onClick={openSignup}
-                    className="px-4 py-1.5 bg-[#60a5fa] hover:bg-[#7ab4fb] text-[#0a0f1a] text-[12px] uppercase tracking-[0.15em] font-bold transition-colors rounded-sm"
-                  >
+                  <button onClick={openSignup} className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium">
                     Sign Up
                   </button>
                 </>
               )}
+              </div>
+        
             </div>
 
-            {/* Mobile burger */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 -mr-2 text-[#9ca3af] hover:text-white flex-shrink-0"
+              className="lg:hidden p-2 -mr-2 text-gray-400 hover:text-white flex-shrink-0"
               aria-label="Menu"
             >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {mobileMenuOpen ? (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 ) : (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 )}
               </svg>
             </button>
           </div>
 
-          {/* Mobile menu */}
           {mobileMenuOpen && (
-            <div className="lg:hidden pb-4 border-t border-[#1e2a3a] mt-0">
-              <div className="flex flex-col py-2">
-                {NAV_LINKS.map((link) => {
-                  const active = isActive(link.href);
-                  return (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={
-                        'px-3 py-2.5 text-[12px] uppercase tracking-[0.15em] border-l-2 ' +
-                        (active
-                          ? 'text-[#60a5fa] border-l-[#60a5fa] bg-[#0d1520]'
-                          : 'text-[#9ca3af] border-l-transparent hover:text-white')
-                      }
-                    >
-                      {link.label}
-                    </Link>
-                  );
-                })}
-
-                <div className="border-t border-[#1e2a3a] mt-2 pt-2">
+            <div className="lg:hidden pb-4 border-t border-gray-800/50 mt-2">
+              <div className="flex flex-col space-y-1 py-2">
+                <Link href="/" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-400'}`}>
+                  Home
+                </Link>
+                <Link href="/bills" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/bills') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-400'}`}>
+                  Bills
+                </Link>
+                <Link href="/laws" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/laws') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-400'}`}>
+                  Laws
+                </Link>
+                <Link href="/polls" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/polls') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-400'}`}>
+                  People's Polls
+                </Link>
+                <Link href="/mps" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/mps') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-400'}`}>
+                  MPs
+                </Link>
+                <Link href="/departments" className={`px-3 py-1.5 text-sm ${isActive('/departments') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>Departments</Link>
+              <Link href="/transparency" className={`px-3 py-1.5 text-sm ${isActive('/transparency') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>Transparency</Link>
+              <Link href="/search" className={`px-3 py-1.5 text-sm ${isActive('/search') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>Search</Link>
+              <Link href="/about" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/about') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-400'}`}>
+                  About
+                </Link>
+                
+                <div className="border-t border-gray-800/50 mt-2 pt-2">
                   {user ? (
                     <>
-                      <div className="px-3 py-2 text-[#9ca3af] text-[12px] truncate">
-                        {user.email}
-                      </div>
-                      <button
-                        onClick={() => {
-                          logout();
-                          setMobileMenuOpen(false);
-                        }}
-                        className="w-full text-left px-3 py-2 text-[#9ca3af] text-[12px] uppercase tracking-[0.15em] hover:text-white"
-                      >
+                      <div className="px-3 py-2 text-gray-400 text-sm truncate">{user.email}</div>
+                      <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="w-full text-left px-3 py-2 text-gray-300 text-sm">
                         Logout
                       </button>
                     </>
                   ) : (
                     <>
-                      <button
-                        onClick={openLogin}
-                        className="w-full text-left px-3 py-2 text-[#9ca3af] text-[12px] uppercase tracking-[0.15em] hover:text-white"
-                      >
+                      <button onClick={openLogin} className="w-full text-left px-3 py-2 text-gray-300 text-sm">
                         Login
                       </button>
-                      <button
-                        onClick={openSignup}
-                        className="w-[calc(100%-1.5rem)] mx-3 mt-2 text-center px-3 py-2 bg-[#60a5fa] text-[#0a0f1a] text-[12px] uppercase tracking-[0.15em] font-bold rounded-sm"
-                      >
+                      <button onClick={openSignup} className="w-full text-center px-3 py-2 bg-blue-600 text-white rounded mx-3 mt-2 text-sm font-medium">
                         Sign Up
                       </button>
                     </>
@@ -202,7 +159,12 @@ export default function Navigation() {
             </div>
           )}
         </div>
+      <div className="border-b border-gray-800/50">
+  
+      </div>
+
       </nav>
+
 
       <AuthModal
         isOpen={showAuthModal}
