@@ -48,9 +48,10 @@ export default function Navigation() {
           <div className="flex items-center justify-between h-14">
             {/* Logo / brand — left */}
             <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-              <span
-                className="inline-block w-2 h-2 bg-[#60a5fa]"
-                aria-hidden
+              <img
+                src="/logo.png"
+                alt="People's Chamber"
+                className="h-8 w-auto object-contain"
               />
               <span className="text-[11px] uppercase tracking-[0.25em] font-semibold text-white">
                 The People&apos;s Chamber
