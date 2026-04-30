@@ -51,7 +51,7 @@ export default function Navigation() {
               <img
                 src="/logo.png"
                 alt="People's Chamber"
-                className="h-8 w-auto object-contain"
+                style={{ height: '300px', width: 'auto', objectFit: 'contain' }}
               />
               <span className="text-[11px] uppercase tracking-[0.25em] font-semibold text-white">
                 The People&apos;s Chamber
