@@ -45,6 +45,9 @@ jobs:
       - name: Sync committee proceedings (Playwright)
         run: node scripts/sync-committee-proceedings.js
         continue-on-error: true
+      - name: Sync Register of Consultant Lobbyists (Playwright)
+        run: node scripts/sync-lobbyist-register.js
+        continue-on-error: true
       - name: Sync political donations
         run: node scripts/sync-political-donations.js
         continue-on-error: true
