@@ -9,8 +9,36 @@ const ACCENT_2 = '#818cf8';
 const SUCCESS = '#34d399';
 const DANGER = '#f87171';
 
-type RecentBill = { id: number; title: string; current_stage: string | null; stage_date: string | null; originating_house: string | null; is_act: boolean | null };
-type CommitteeItem = { id: number; committee_name: string | null; title: string | null; publication_date: string | null; publication_type: string | null; summary: string | null };
+type GovukItem = {
+  title: string;
+  organisation: string | null;
+  date: string | null;
+  summary: string | null;
+};
+type CommitteeItem = {
+  id: number;
+  committee_name: string | null;
+  title: string | null;
+  publication_date: string | null;
+};
+type RevolvingRow = {
+  person_name: string;
+  previous_role: string | null;
+  organisation: string | null;
+  approval_date: string | null;
+};
+type ContractRow = {
+  title: string | null;
+  supplier: string | null;
+  value: number | null;
+  awarded_date: string | null;
+};
+type DonationRow = {
+  donor_name: string | null;
+  recipient_name: string | null;
+  amount: number | null;
+  received_date: string | null;
+};
 type SpotlightBill = {
   id: number;
   title: string;
@@ -20,35 +48,69 @@ type SpotlightBill = {
   commons_noes: number;
   total_public: number;
 };
-type RevolvingRow = { person_name: string; previous_role: string | null; organisation: string | null; approval_date: string | null };
-type ContractRow = { title: string | null; supplier: string | null; value: number | null; awarded_date: string | null };
 
-const EXPLORE = [
-  { title: 'Bills',          href: '/bills',        body: 'Every bill in Parliament. How MPs voted. How you voted.' },
-  { title: 'MPs',            href: '/mps',          body: 'All 650 current MPs, their voting record and interests.' },
-  { title: 'Departments',    href: '/departments',  body: '24 government departments and what every party says.' },
-  { title: 'Transparency',   href: '/transparency', body: 'Contracts, revolving door, meetings, lobbying.' },
-  { title: 'Laws',           href: '/laws',         body: 'Acts of Parliament already on the statute book.' },
-  { title: "People's Polls", href: '/polls',        body: 'Public votes on live legislation. Parliament vs you.' },
+const SECTIONS = [
+  { title: 'MPs',            href: '/mps',          body: 'All 650 sitting Members and their record.' },
+  { title: 'Departments',    href: '/departments',  body: '24 departments and where every party stands.' },
+  { title: 'Transparency',   href: '/transparency', body: 'Contracts, donations, lobbying, the lot.' },
+  { title: 'Laws',           href: '/laws',         body: 'Acts of Parliament already on the books.' },
+  { title: "People's Polls", href: '/polls',        body: 'Public votes on live legislation.' },
 ];
 
-async function fetchRecentBills(): Promise<RecentBill[]> {
-  // The Record surfaces bills that have most-recently moved through a
-  // parliamentary stage. Each links to the internal /bills/[id] page.
-  const { data } = await supabase
-    .from('bill')
-    .select('id, title, current_stage, stage_date, originating_house, is_act')
-    .order('stage_date', { ascending: false, nullsFirst: false })
-    .limit(6);
-  return data || [];
+// ─── Data fetchers ─────────────────────────────────────────────────────────
+
+async function fetchGovukPressReleases(count = 4): Promise<GovukItem[]> {
+  // Fetched server-side and rendered as text-only headlines (no anchor),
+  // since gov.uk press releases have no internal counterpart on this site.
+  try {
+    const url = `https://www.gov.uk/api/search.json?filter_content_store_document_type=press_release&order=-public_timestamp&count=${count}`;
+    const res = await fetch(url, { next: { revalidate: 3600 } });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.results || []).map((r: { title?: string; description?: string; organisations?: { title?: string }[]; public_timestamp?: string }) => ({
+      title: r.title || '(untitled)',
+      organisation: r.organisations?.[0]?.title || null,
+      date: r.public_timestamp ? r.public_timestamp.slice(0, 10) : null,
+      summary: r.description || null,
+    }));
+  } catch {
+    return [];
+  }
 }
 
 async function fetchCommitteeProceedings(): Promise<CommitteeItem[]> {
   const { data } = await supabase
     .from('committee_proceedings')
-    .select('id, committee_name, title, publication_date, publication_type, summary')
+    .select('id, committee_name, title, publication_date')
     .order('publication_date', { ascending: false, nullsFirst: false })
-    .limit(6);
+    .limit(3);
+  return data || [];
+}
+
+async function fetchRecentRevolving(): Promise<RevolvingRow[]> {
+  const { data } = await supabase
+    .from('revolving_door')
+    .select('person_name, previous_role, organisation, approval_date')
+    .order('approval_date', { ascending: false, nullsFirst: false })
+    .limit(3);
+  return data || [];
+}
+
+async function fetchRecentContracts(): Promise<ContractRow[]> {
+  const { data } = await supabase
+    .from('government_contracts')
+    .select('title, supplier, value, awarded_date')
+    .order('awarded_date', { ascending: false, nullsFirst: false })
+    .limit(3);
+  return data || [];
+}
+
+async function fetchRecentDonations(): Promise<DonationRow[]> {
+  const { data } = await supabase
+    .from('political_donations')
+    .select('donor_name, recipient_name, amount, received_date')
+    .order('received_date', { ascending: false, nullsFirst: false })
+    .limit(3);
   return data || [];
 }
 
@@ -73,39 +135,27 @@ async function fetchSpotlightBills(): Promise<SpotlightBill[]> {
     .slice(0, 3);
 }
 
-async function fetchRecentRevolving(): Promise<RevolvingRow[]> {
-  const { data } = await supabase
-    .from('revolving_door')
-    .select('person_name, previous_role, organisation, approval_date')
-    .order('approval_date', { ascending: false, nullsFirst: false })
-    .limit(3);
-  return data || [];
-}
-
-async function fetchRecentContracts(): Promise<ContractRow[]> {
-  const { data } = await supabase
-    .from('government_contracts')
-    .select('title, supplier, value, awarded_date')
-    .order('awarded_date', { ascending: false, nullsFirst: false })
-    .limit(3);
-  return data || [];
-}
-
 async function fetchCounts() {
-  const [billsRes, mpsRes, contractsRes, doorRes, meetingsRes] = await Promise.all([
+  const [billsRes, mpsRes, doorRes, meetingsRes, contractsRes, donationsRes] = await Promise.all([
     supabase.from('bill').select('id', { count: 'exact', head: true }),
     supabase.from('mps').select('member_id', { count: 'exact', head: true }).eq('current_member', true),
-    supabase.from('government_contracts').select('title', { count: 'exact', head: true }),
     supabase.from('revolving_door').select('person_name', { count: 'exact', head: true }),
     supabase.from('ministers_meetings').select('minister_name', { count: 'exact', head: true }),
+    supabase.from('government_contracts').select('title', { count: 'exact', head: true }),
+    supabase.from('political_donations').select('id', { count: 'exact', head: true }),
   ]);
   return {
     bills: billsRes.count ?? 0,
     mps: mpsRes.count ?? 0,
-    contracts: contractsRes.count ?? 0,
-    transparency: (doorRes.count ?? 0) + (meetingsRes.count ?? 0),
+    transparency:
+      (doorRes.count ?? 0) +
+      (meetingsRes.count ?? 0) +
+      (contractsRes.count ?? 0) +
+      (donationsRes.count ?? 0),
   };
 }
+
+// ─── Formatters ────────────────────────────────────────────────────────────
 
 function formatDate(iso: string | null): string {
   if (!iso) return '';
@@ -116,6 +166,10 @@ function formatDate(iso: string | null): string {
   }
 }
 
+function formatLongDate(d: Date): string {
+  return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+}
+
 function formatMoney(v: number | null): string {
   if (v == null || !Number.isFinite(v)) return '—';
   if (v >= 1_000_000_000) return `£${(v / 1_000_000_000).toFixed(1)}bn`;
@@ -124,247 +178,364 @@ function formatMoney(v: number | null): string {
   return `£${Math.round(v)}`;
 }
 
+function formatAmountFull(v: number | null): string {
+  if (v == null || !Number.isFinite(v)) return '—';
+  return `£${Math.round(v).toLocaleString('en-GB')}`;
+}
+
 function pct(num: number, denom: number): number {
   if (denom <= 0) return 0;
   return Math.round((num / denom) * 100);
 }
 
+function firstTwoSentences(text: string): string {
+  const matches = text.match(/[^.!?]+[.!?]+/g);
+  if (!matches) return text.trim();
+  return matches.slice(0, 2).join(' ').trim();
+}
+
+// ─── Component ─────────────────────────────────────────────────────────────
+
 export default async function HomePage() {
-  const [recent, committee, bills, revolving, contracts, counts] = await Promise.all([
-    fetchRecentBills(),
+  const [pressAll, committee, revolving, contracts, donations, bills, counts] = await Promise.all([
+    fetchGovukPressReleases(4),
     fetchCommitteeProceedings(),
-    fetchSpotlightBills(),
     fetchRecentRevolving(),
     fetchRecentContracts(),
+    fetchRecentDonations(),
+    fetchSpotlightBills(),
     fetchCounts(),
   ]);
+
+  const lead: GovukItem | null = pressAll[0] || null;
+  const press: GovukItem[] = pressAll.slice(1, 4);
+
+  const today = formatLongDate(new Date());
 
   return (
     <div className="min-h-screen bg-[#0a0f1a] text-white">
       <Navigation />
 
-      {/* Hero */}
-      <section className="border-b border-[#1e2a3a]">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
-          <p className="text-[10px] uppercase tracking-[0.3em] mb-6 font-medium" style={{ color: ACCENT }}>
-            UK Parliament · Government · Politics
-          </p>
-          <h1 className="text-5xl sm:text-7xl font-black leading-[1.0] tracking-tight mb-8 text-white">
-            UK Government,<br />
-            <span style={{ color: ACCENT }}>Observed.</span>
+      <main className="max-w-6xl mx-auto px-4 sm:px-6">
+        {/* ── Masthead ────────────────────────────────────────────────── */}
+        <header className="pt-12 pb-6 mb-10 border-b-4 border-double border-[#1e2a3a] text-center">
+          <h1 className="text-4xl sm:text-7xl font-black uppercase tracking-tight leading-[0.95] mb-4">
+            The People&apos;s Chamber
           </h1>
-          <p className="text-base sm:text-lg text-[#9ca3af] leading-[1.7] max-w-2xl mb-10">
-            A factual account of what Parliament does. Accompanied by a record of what everyone else thinks about it. Readers may draw their own conclusions.
+          <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.4em] text-[#9ca3af] font-semibold mb-6">
+            UK Government · Observed · Unfiltered
           </p>
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/departments"
-              className="px-5 py-3 text-[12px] uppercase tracking-[0.2em] font-bold rounded-sm transition-opacity hover:opacity-90"
-              style={{ backgroundColor: ACCENT, color: '#0a0f1a' }}
-            >
-              Explore Departments
-            </Link>
-            <Link
-              href="/mps"
-              className="px-5 py-3 text-[12px] uppercase tracking-[0.2em] font-bold rounded-sm border transition-colors hover:bg-[#0d1520]"
-              style={{ borderColor: ACCENT, color: ACCENT }}
-            >
-              View MPs
-            </Link>
+          <div className="flex flex-wrap justify-center items-baseline gap-x-4 sm:gap-x-6 gap-y-2 pt-4 border-t border-[#1e2a3a] text-[10px] uppercase tracking-[0.25em] font-mono">
+            <span className="text-[#9ca3af]">{today}</span>
+            <span className="text-[#4b5563]">·</span>
+            <span style={{ color: ACCENT }}>
+              {counts.bills.toLocaleString()} bills
+            </span>
+            <span className="text-[#4b5563]">·</span>
+            <span style={{ color: ACCENT }}>
+              {counts.mps.toLocaleString()} MPs
+            </span>
+            <span className="text-[#4b5563]">·</span>
+            <span style={{ color: ACCENT }}>
+              {counts.transparency.toLocaleString()} transparency records
+            </span>
           </div>
-        </div>
-      </section>
+        </header>
 
-      {/* Live Stats */}
-      <section className="border-b border-[#1e2a3a]">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-[#1e2a3a]">
-            {[
-              { value: counts.bills,        label: 'Bills tracked' },
-              { value: counts.mps,          label: 'Current MPs' },
-              { value: counts.contracts,    label: 'Govt contracts' },
-              { value: counts.transparency, label: 'Transparency records' },
-            ].map((s) => (
-              <div key={s.label} className="bg-[#0a0f1a] px-4 sm:px-6 py-8">
-                <p className="text-[10px] uppercase tracking-[0.25em] text-[#9ca3af] font-medium mb-2">{s.label}</p>
-                <p className="text-3xl sm:text-4xl font-black leading-none tracking-tight font-mono" style={{ color: ACCENT }}>
-                  {s.value.toLocaleString()}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* The Record — recent bill activity, internal links to /bills/[id] */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 py-16 border-b border-[#1e2a3a]">
-        <div className="flex items-baseline justify-between mb-10">
-          <h2 className="text-[10px] uppercase tracking-[0.3em] text-[#9ca3af] font-semibold">The Record</h2>
-          <Link href="/bills" className="text-[10px] uppercase tracking-[0.3em] hover:underline" style={{ color: ACCENT }}>
-            All bills →
-          </Link>
-        </div>
-        {recent.length === 0 ? (
-          <p className="text-[#9ca3af] text-sm">No bill activity available right now.</p>
-        ) : (
-          <ul className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#1e2a3a] border border-[#1e2a3a]">
-            {recent.map((b) => (
-              <li key={b.id} className="bg-[#0d1520] p-5 border-l-2 border-l-[#60a5fa]">
-                {b.current_stage && (
-                  <p className="text-[10px] uppercase tracking-[0.25em] mb-2 font-medium" style={{ color: ACCENT }}>
-                    {b.is_act ? 'Act of Parliament' : b.current_stage}
-                    {b.originating_house && <span className="text-[#4b5563]"> · {b.originating_house}</span>}
-                  </p>
-                )}
-                <h3 className="text-[14px] leading-snug mb-2 font-semibold">
-                  <Link href={`/bills/${b.id}`} className="text-white hover:text-[#60a5fa] transition-colors">
-                    {b.title}
-                  </Link>
-                </h3>
-                {b.stage_date && <p className="text-[11px] text-[#4b5563] font-mono">{formatDate(b.stage_date)}</p>}
-              </li>
-            ))}
-          </ul>
+        {/* ── Lead Story ──────────────────────────────────────────────── */}
+        {lead && (
+          <section className="border-b border-[#1e2a3a] pb-12 mb-12">
+            {lead.organisation && (
+              <p className="text-[10px] uppercase tracking-[0.3em] mb-4 font-semibold" style={{ color: ACCENT }}>
+                {lead.organisation}
+              </p>
+            )}
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black leading-[1.0] tracking-tight mb-6 max-w-5xl">
+              {lead.title}
+            </h2>
+            {lead.summary && (
+              <p className="text-base sm:text-lg text-[#9ca3af] leading-[1.7] max-w-4xl mb-5">
+                {firstTwoSentences(lead.summary)}
+              </p>
+            )}
+            {lead.date && (
+              <p className="text-[11px] text-[#4b5563] font-mono uppercase tracking-[0.2em]">
+                {formatDate(lead.date)}
+              </p>
+            )}
+          </section>
         )}
-      </section>
 
-      {/* Committee Watch */}
-      {committee.length > 0 && (
-        <section className="max-w-5xl mx-auto px-4 sm:px-6 py-16 border-b border-[#1e2a3a]">
-          <div className="flex items-baseline justify-between mb-10">
-            <h2 className="text-[10px] uppercase tracking-[0.3em] text-[#9ca3af] font-semibold">Committee Watch</h2>
-            <span className="text-[10px] uppercase tracking-[0.3em] text-[#4b5563] font-mono">Parliament committees</span>
+        {/* ── Second Tier — 3 columns ─────────────────────────────────── */}
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[#1e2a3a] border border-[#1e2a3a] mb-12">
+          {/* Press Releases */}
+          <div className="bg-[#0d1520] p-5">
+            <h3 className="text-[10px] uppercase tracking-[0.3em] mb-5 pb-3 border-b border-[#1e2a3a] font-semibold" style={{ color: ACCENT }}>
+              Press Releases
+            </h3>
+            {press.length === 0 ? (
+              <p className="text-[#4b5563] text-[12px]">No press releases.</p>
+            ) : (
+              <ul className="space-y-5">
+                {press.map((p, i) => (
+                  <li key={i}>
+                    {p.organisation && (
+                      <p className="text-[9px] uppercase tracking-[0.25em] mb-1.5 text-[#4b5563] font-mono">
+                        {p.organisation}
+                      </p>
+                    )}
+                    <h4 className="text-[13px] text-white font-semibold leading-snug mb-1.5">
+                      {p.title}
+                    </h4>
+                    {p.date && (
+                      <p className="text-[10px] text-[#4b5563] font-mono uppercase tracking-[0.15em]">
+                        {formatDate(p.date)}
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
-          <ul className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#1e2a3a] border border-[#1e2a3a]">
-            {committee.map((c) => (
-              <li key={c.id} className="bg-[#0d1520] p-5 border-l-2" style={{ borderLeftColor: ACCENT_2 }}>
-                {c.committee_name && (
-                  <p className="text-[10px] uppercase tracking-[0.25em] mb-2 font-medium" style={{ color: ACCENT_2 }}>
-                    {c.committee_name}
-                  </p>
-                )}
-                <h3 className="text-[14px] leading-snug mb-2 font-semibold">
-                  <Link href={`/committees/${c.id}`} className="text-white hover:text-[#60a5fa] transition-colors">
-                    {c.title || '(untitled)'}
-                  </Link>
-                </h3>
-                <div className="flex items-center gap-3 text-[11px]">
-                  {c.publication_date && <span className="text-[#4b5563] font-mono">{formatDate(c.publication_date)}</span>}
-                  {c.publication_type && <span className="text-[#4b5563]">· {c.publication_type}</span>}
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
 
-      {/* Bills in spotlight */}
-      {bills.length > 0 && (
-        <section className="max-w-5xl mx-auto px-4 sm:px-6 py-16 border-b border-[#1e2a3a]">
-          <div className="flex items-baseline justify-between mb-10">
-            <h2 className="text-[10px] uppercase tracking-[0.3em] text-[#9ca3af] font-semibold">Bills in the Spotlight</h2>
-            <Link href="/bills" className="text-[10px] uppercase tracking-[0.3em] hover:underline" style={{ color: ACCENT }}>
-              All bills →
-            </Link>
+          {/* Committee Watch */}
+          <div className="bg-[#0d1520] p-5">
+            <h3 className="text-[10px] uppercase tracking-[0.3em] mb-5 pb-3 border-b border-[#1e2a3a] font-semibold" style={{ color: ACCENT_2 }}>
+              Committee Watch
+            </h3>
+            {committee.length === 0 ? (
+              <p className="text-[#4b5563] text-[12px]">No committee proceedings.</p>
+            ) : (
+              <ul className="space-y-5">
+                {committee.map((c) => (
+                  <li key={c.id}>
+                    {c.committee_name && (
+                      <p className="text-[9px] uppercase tracking-[0.25em] mb-1.5 text-[#4b5563] font-mono">
+                        {c.committee_name}
+                      </p>
+                    )}
+                    <h4 className="text-[13px] font-semibold leading-snug mb-1.5">
+                      <Link href={`/committees/${c.id}`} className="text-white hover:text-[#60a5fa] transition-colors">
+                        {c.title || '(untitled)'}
+                      </Link>
+                    </h4>
+                    {c.publication_date && (
+                      <p className="text-[10px] text-[#4b5563] font-mono uppercase tracking-[0.15em]">
+                        {formatDate(c.publication_date)}
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
-          <div className="space-y-10">
-            {bills.map((b) => {
-              const yesPct = pct(b.vote_count_yes, b.total_public);
-              const noPct = pct(b.vote_count_no, b.total_public);
-              const commonsTotal = b.commons_ayes + b.commons_noes;
-              return (
-                <div key={b.id} className="border-l-2 pl-4" style={{ borderLeftColor: ACCENT }}>
-                  <h3 className="text-white text-base sm:text-lg font-bold leading-snug mb-3">{b.title}</h3>
-                  <div className="mb-2">
-                    <div className="flex h-2 w-full overflow-hidden bg-[#1e2a3a]">
-                      <div style={{ width: `${yesPct}%`, backgroundColor: SUCCESS }} />
-                      <div style={{ width: `${noPct}%`, backgroundColor: DANGER }} />
-                    </div>
-                    <div className="flex justify-between text-[11px] mt-2 font-mono">
-                      <span style={{ color: SUCCESS }}>{yesPct}% support · {b.vote_count_yes.toLocaleString()} yes</span>
-                      <span style={{ color: DANGER }}>{noPct}% oppose · {b.vote_count_no.toLocaleString()} no</span>
-                    </div>
-                  </div>
-                  {commonsTotal > 0 && (
-                    <p className="text-[11px] text-[#4b5563] mt-2 font-mono">
-                      Parliament: {b.commons_ayes.toLocaleString()} ayes · {b.commons_noes.toLocaleString()} noes ({pct(b.commons_ayes, commonsTotal)}% in favour)
-                    </p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      )}
 
-      {/* Recent Transparency */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 py-16 border-b border-[#1e2a3a]">
-        <div className="flex items-baseline justify-between mb-10">
-          <h2 className="text-[10px] uppercase tracking-[0.3em] text-[#9ca3af] font-semibold">Recent Transparency</h2>
-          <Link href="/transparency" className="text-[10px] uppercase tracking-[0.3em] hover:underline" style={{ color: ACCENT }}>
-            Hub →
-          </Link>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          <div>
-            <h3 className="text-[10px] uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: ACCENT }}>Revolving Door</h3>
+          {/* Revolving Door */}
+          <div className="bg-[#0d1520] p-5">
+            <h3 className="text-[10px] uppercase tracking-[0.3em] mb-5 pb-3 border-b border-[#1e2a3a] font-semibold flex items-center justify-between" style={{ color: ACCENT }}>
+              <span>Revolving Door</span>
+              <Link href="/transparency/revolving-door" className="text-[9px] tracking-[0.25em] hover:underline">
+                More →
+              </Link>
+            </h3>
             {revolving.length === 0 ? (
-              <p className="text-[#9ca3af] text-sm">No records yet.</p>
+              <p className="text-[#4b5563] text-[12px]">No appointments.</p>
             ) : (
               <ul className="space-y-5">
                 {revolving.map((r, i) => (
-                  <li key={i} className="border-l-2 pl-3 py-1" style={{ borderLeftColor: ACCENT }}>
-                    <div className="text-white text-sm font-semibold">{r.person_name}</div>
-                    {r.previous_role && <div className="text-[12px] text-[#9ca3af] mt-0.5 leading-[1.7]">{r.previous_role}</div>}
-                    {r.organisation && <div className="text-[12px] text-[#4b5563] mt-0.5 leading-[1.7]">{r.organisation}</div>}
-                    {r.approval_date && <div className="text-[11px] text-[#4b5563] mt-1 font-mono">{formatDate(r.approval_date)}</div>}
+                  <li key={i}>
+                    <h4 className="text-[13px] text-white font-semibold leading-snug mb-1">
+                      {r.person_name}
+                    </h4>
+                    {r.organisation && (
+                      <p className="text-[12px] text-[#9ca3af] leading-[1.7] mb-1.5">
+                        {r.organisation}
+                      </p>
+                    )}
+                    {r.approval_date && (
+                      <p className="text-[10px] text-[#4b5563] font-mono uppercase tracking-[0.15em]">
+                        {formatDate(r.approval_date)}
+                      </p>
+                    )}
                   </li>
                 ))}
               </ul>
             )}
           </div>
+        </section>
 
-          <div>
-            <h3 className="text-[10px] uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: ACCENT_2 }}>Government Contracts</h3>
+        {/* ── Third Tier — 2 columns ──────────────────────────────────── */}
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#1e2a3a] border border-[#1e2a3a] mb-12">
+          {/* Government Contracts */}
+          <div className="bg-[#0d1520] p-5">
+            <h3 className="text-[10px] uppercase tracking-[0.3em] mb-5 pb-3 border-b border-[#1e2a3a] font-semibold flex items-center justify-between" style={{ color: ACCENT }}>
+              <span>Government Contracts</span>
+              <Link href="/transparency/contracts" className="text-[9px] tracking-[0.25em] hover:underline">
+                More →
+              </Link>
+            </h3>
             {contracts.length === 0 ? (
-              <p className="text-[#9ca3af] text-sm">No records yet.</p>
+              <p className="text-[#4b5563] text-[12px]">No contracts.</p>
             ) : (
               <ul className="space-y-5">
                 {contracts.map((c, i) => (
-                  <li key={i} className="border-l-2 pl-3 py-1" style={{ borderLeftColor: ACCENT_2 }}>
-                    <div className="text-white text-sm font-semibold leading-snug">{c.title || '(untitled)'}</div>
-                    {c.supplier && <div className="text-[12px] text-[#9ca3af] mt-0.5 leading-[1.7]">{c.supplier}</div>}
-                    <div className="flex items-baseline gap-3 mt-1">
-                      <span className="text-sm font-mono font-semibold" style={{ color: ACCENT_2 }}>{formatMoney(c.value)}</span>
-                      {c.awarded_date && <span className="text-[11px] text-[#4b5563] font-mono">{formatDate(c.awarded_date)}</span>}
+                  <li key={i}>
+                    <h4 className="text-[13px] text-white font-semibold leading-snug mb-1">
+                      {c.title || '(untitled)'}
+                    </h4>
+                    {c.supplier && (
+                      <p className="text-[12px] text-[#9ca3af] leading-[1.7] mb-1">
+                        {c.supplier}
+                      </p>
+                    )}
+                    <div className="flex items-baseline gap-3">
+                      <span className="font-mono text-sm font-bold" style={{ color: ACCENT }}>
+                        {formatMoney(c.value)}
+                      </span>
+                      {c.awarded_date && (
+                        <span className="text-[10px] text-[#4b5563] font-mono uppercase tracking-[0.15em]">
+                          {formatDate(c.awarded_date)}
+                        </span>
+                      )}
                     </div>
                   </li>
                 ))}
               </ul>
             )}
           </div>
-        </div>
-      </section>
 
-      {/* Explore */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 py-16">
-        <h2 className="text-[10px] uppercase tracking-[0.3em] text-[#9ca3af] font-semibold mb-10">Explore</h2>
-        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-[#1e2a3a] border border-[#1e2a3a]">
-          {EXPLORE.map((e) => (
-            <li key={e.title} className="bg-[#0d1520]">
-              <Link
-                href={e.href}
-                className="group block p-6 hover:bg-[#111827] transition-colors border-l-2 border-transparent hover:border-l-[#60a5fa]"
-              >
-                <h3 className="text-base font-bold mb-2 group-hover:text-[#60a5fa] transition-colors" style={{ color: ACCENT }}>
-                  {e.title}
-                </h3>
-                <p className="text-[13px] text-[#9ca3af] leading-[1.7]">{e.body}</p>
+          {/* Political Donations */}
+          <div className="bg-[#0d1520] p-5">
+            <h3 className="text-[10px] uppercase tracking-[0.3em] mb-5 pb-3 border-b border-[#1e2a3a] font-semibold flex items-center justify-between" style={{ color: ACCENT_2 }}>
+              <span>Political Donations</span>
+              <Link href="/transparency/donations" className="text-[9px] tracking-[0.25em] hover:underline">
+                More →
               </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
+            </h3>
+            {donations.length === 0 ? (
+              <p className="text-[#4b5563] text-[12px]">No donations.</p>
+            ) : (
+              <ul className="space-y-5">
+                {donations.map((d, i) => (
+                  <li key={i}>
+                    <h4 className="text-[13px] text-white font-semibold leading-snug mb-1">
+                      {d.donor_name || '(unknown donor)'}
+                    </h4>
+                    {d.recipient_name && (
+                      <p className="text-[12px] text-[#9ca3af] leading-[1.7] mb-1">
+                        to <span className="text-white">{d.recipient_name}</span>
+                      </p>
+                    )}
+                    <div className="flex items-baseline gap-3">
+                      <span className="font-mono text-sm font-bold" style={{ color: ACCENT_2 }}>
+                        {formatAmountFull(d.amount)}
+                      </span>
+                      {d.received_date && (
+                        <span className="text-[10px] text-[#4b5563] font-mono uppercase tracking-[0.15em]">
+                          {formatDate(d.received_date)}
+                        </span>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </section>
+
+        {/* ── Fourth Tier — Public vs Parliament ──────────────────────── */}
+        {bills.length > 0 && (
+          <section className="border-y border-[#1e2a3a] py-12 mb-12">
+            <p className="text-[10px] uppercase tracking-[0.3em] mb-3 font-semibold" style={{ color: ACCENT }}>
+              The Public vs Parliament
+            </p>
+            <div className="flex items-baseline justify-between mb-10">
+              <h2 className="text-3xl sm:text-4xl font-black leading-tight tracking-tight">
+                Bills in the Spotlight
+              </h2>
+              <Link href="/bills" className="text-[10px] uppercase tracking-[0.3em] hover:underline" style={{ color: ACCENT }}>
+                All bills →
+              </Link>
+            </div>
+
+            <div className="space-y-10">
+              {bills.map((b) => {
+                const yesPct = pct(b.vote_count_yes, b.total_public);
+                const noPct = pct(b.vote_count_no, b.total_public);
+                const commonsTotal = b.commons_ayes + b.commons_noes;
+                const commonsAyePct = pct(b.commons_ayes, commonsTotal);
+                return (
+                  <article key={b.id} className="border-l-2 pl-5" style={{ borderLeftColor: ACCENT }}>
+                    <h3 className="text-base sm:text-xl font-bold leading-snug mb-4">
+                      <Link href={`/bills/${b.id}`} className="text-white hover:text-[#60a5fa] transition-colors">
+                        {b.title}
+                      </Link>
+                    </h3>
+
+                    <p className="text-[10px] uppercase tracking-[0.25em] text-[#4b5563] font-mono mb-1.5">
+                      Public · {b.total_public.toLocaleString()} votes
+                    </p>
+                    <div className="flex h-2 w-full bg-[#1e2a3a] mb-1.5">
+                      <div style={{ width: `${yesPct}%`, backgroundColor: SUCCESS }} />
+                      <div style={{ width: `${noPct}%`, backgroundColor: DANGER }} />
+                    </div>
+                    <div className="flex justify-between text-[11px] font-mono mb-4">
+                      <span style={{ color: SUCCESS }}>
+                        {yesPct}% support · {b.vote_count_yes.toLocaleString()}
+                      </span>
+                      <span style={{ color: DANGER }}>
+                        {noPct}% oppose · {b.vote_count_no.toLocaleString()}
+                      </span>
+                    </div>
+
+                    {commonsTotal > 0 && (
+                      <>
+                        <p className="text-[10px] uppercase tracking-[0.25em] text-[#4b5563] font-mono mb-1.5">
+                          Parliament · {commonsTotal.toLocaleString()} MPs
+                        </p>
+                        <div className="flex h-2 w-full bg-[#1e2a3a] mb-1.5">
+                          <div style={{ width: `${commonsAyePct}%`, backgroundColor: SUCCESS, opacity: 0.55 }} />
+                          <div style={{ width: `${100 - commonsAyePct}%`, backgroundColor: DANGER, opacity: 0.55 }} />
+                        </div>
+                        <div className="flex justify-between text-[11px] font-mono">
+                          <span style={{ color: SUCCESS }}>
+                            {commonsAyePct}% ayes · {b.commons_ayes.toLocaleString()}
+                          </span>
+                          <span style={{ color: DANGER }}>
+                            {100 - commonsAyePct}% noes · {b.commons_noes.toLocaleString()}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* ── Bottom Bar — section directory ──────────────────────────── */}
+        <section className="border-t-4 border-double border-[#1e2a3a] pt-10 pb-16">
+          <p className="text-[10px] uppercase tracking-[0.3em] mb-6 font-semibold text-[#9ca3af]">
+            Sections
+          </p>
+          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-px bg-[#1e2a3a] border border-[#1e2a3a]">
+            {SECTIONS.map((s) => (
+              <li key={s.title} className="bg-[#0d1520]">
+                <Link
+                  href={s.href}
+                  className="group block h-full p-5 hover:bg-[#111827] transition-colors border-l-2 border-transparent hover:border-l-[#60a5fa]"
+                >
+                  <h3 className="text-base font-bold mb-2 group-hover:text-[#60a5fa] transition-colors" style={{ color: ACCENT }}>
+                    {s.title}
+                  </h3>
+                  <p className="text-[12px] text-[#9ca3af] leading-[1.7]">{s.body}</p>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </main>
     </div>
   );
 }
