@@ -22,6 +22,8 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 const TARGET = 'https://committees.parliament.uk/publications/';
 const REALISTIC_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15';
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
 function parseUkDate(s) {
   if (!s) return null;
   const trimmed = String(s).trim();
@@ -170,46 +172,67 @@ async function upsert(rows) {
 }
 
 // ── Phase 2: per-publication full-content extraction ───────────────────
-// For each row whose content_attempted is still false, navigate to the
-// publication URL and try to extract the body text. publications.parliament.uk
-// HTML pages wrap their report inside an iframe — we use Playwright's
-// frames API to read it. PDFs are skipped (Playwright can't render them
-// to text). content_attempted is set to true regardless of outcome so
-// that later cron runs only target genuinely new rows.
-async function extractFullContentFromUrl(page, url) {
-  if (!url) return null;
-  if (!/\.html?(?:[?#]|$)/i.test(url)) return null; // skip PDFs / direct downloads
+// publications.parliament.uk publishes each report as a stack of HTML
+// files: a Table-of-Contents page (the URL we get from the listing)
+// links to chapter pages via <p class="ToC1"><a href="…">. Real text
+// lives in `#shellcontent` on each page. Cloudflare 403s repeated
+// navigations within a single browser context, so we open a FRESH
+// context for every page and sleep 6 seconds between requests — that
+// pattern reliably passes the challenge.
+//
+// PDFs and /default/ download URLs are skipped (set null, mark
+// content_attempted=true so the row isn't retried indefinitely).
+const REQUEST_DELAY_MS = 6000;
+const MAX_CHAPTERS_PER_PUB = 8;
+const CONTENT_CAP_CHARS = 100_000;
+
+async function fetchShellContent(browser, url) {
+  const ctx = await browser.newContext({ userAgent: REALISTIC_UA, locale: 'en-GB' });
   try {
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30_000 });
-    await page.waitForTimeout(3000); // give iframe time to populate
-    // Try every frame attached to the page (excluding main) — for
-    // publications.parliament.uk this is where the report HTML lives.
-    for (const f of page.frames()) {
-      if (f === page.mainFrame()) continue;
-      try {
-        await f.waitForLoadState('domcontentloaded', { timeout: 5000 });
-        const txt = await f.evaluate(() => {
-          const main = document.querySelector('main, article, #content, .content') || document.body;
-          return (main.innerText || '').trim();
-        });
-        if (txt && txt.length > 500) return txt.slice(0, 100_000); // cap at 100KB
-      } catch { /* try next frame */ }
-    }
-    // Fallback — main page body, in case the page is not iframe-based.
-    const txt = await page.evaluate(() => {
-      const main = document.querySelector('main, article, #content, .content');
-      return main ? (main.innerText || '').trim() : '';
+    const page = await ctx.newPage();
+    const res = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30_000 });
+    if (!res || !res.ok()) return { content: '', tocLinks: [], status: res?.status() ?? 0 };
+    await page.waitForTimeout(800);
+    return await page.evaluate(() => {
+      const sc = document.querySelector('#shellcontent');
+      const content = sc ? (sc.innerText || '').trim() : '';
+      const tocLinks = Array.from(document.querySelectorAll('p.ToC1 a, .ToC1 a'))
+        .map((a) => a.href)
+        .filter(Boolean);
+      return { content, tocLinks, status: 200 };
     });
-    if (txt && txt.length > 500) return txt.slice(0, 100_000);
-    return null;
-  } catch {
-    return null;
+  } catch (e) {
+    return { content: '', tocLinks: [], error: e.message };
+  } finally {
+    await ctx.close();
   }
 }
 
+async function extractFullContentFromUrl(browser, startUrl) {
+  if (!startUrl) return null;
+  if (!/\.html?(?:[?#]|$)/i.test(startUrl)) return null; // PDFs / /default/ wrappers — skip
+
+  // 1. Fetch the ToC page itself
+  const toc = await fetchShellContent(browser, startUrl);
+  if (!toc.content && (!toc.tocLinks || toc.tocLinks.length === 0)) return null;
+
+  let full = toc.content || '';
+  const chapters = (toc.tocLinks || []).slice(0, MAX_CHAPTERS_PER_PUB);
+
+  // 2. Follow each chapter link with a fresh context + 6s delay
+  for (const chUrl of chapters) {
+    if (full.length >= CONTENT_CAP_CHARS) break;
+    await sleep(REQUEST_DELAY_MS);
+    const ch = await fetchShellContent(browser, chUrl);
+    if (ch.content) {
+      const remaining = CONTENT_CAP_CHARS - full.length;
+      full += '\n\n' + ch.content.slice(0, remaining);
+    }
+  }
+  return full.length > 0 ? full : null;
+}
+
 async function runContentExtraction() {
-  // Pick up rows where content_attempted is still false, regardless of
-  // whether we wrote them in this run or a previous one.
   const { data: pending } = await supabase
     .from('committee_proceedings')
     .select('id, url')
@@ -222,18 +245,11 @@ async function runContentExtraction() {
   console.log(`[committee] starting content-extraction pass on ${pending.length} rows`);
 
   const browser = await chromium.launch({ headless: true });
-  let attempted = 0, succeeded = 0;
+  let attempted = 0, succeeded = 0, totalChars = 0;
   try {
-    const ctx = await browser.newContext({
-      userAgent: REALISTIC_UA,
-      viewport: { width: 1280, height: 800 },
-      locale: 'en-GB',
-      timezoneId: 'Europe/London',
-    });
-    const page = await ctx.newPage();
     for (const row of pending) {
       attempted++;
-      const content = await extractFullContentFromUrl(page, row.url);
+      const content = await extractFullContentFromUrl(browser, row.url);
       const { error } = await supabase
         .from('committee_proceedings')
         .update({ full_content: content, content_attempted: true })
@@ -242,14 +258,17 @@ async function runContentExtraction() {
         console.error(`  row ${row.id} update error: ${error.message}`);
       } else if (content) {
         succeeded++;
+        totalChars += content.length;
         console.log(`  ✓ row ${row.id}: extracted ${content.length} chars`);
       } else {
-        console.log(`  – row ${row.id}: no content extracted (PDF or iframe-blocked)`);
+        console.log(`  – row ${row.id}: no content extracted (PDF, blocked, or empty)`);
       }
+      await sleep(REQUEST_DELAY_MS); // also pause between publications
     }
   } finally {
     await browser.close();
   }
+  if (succeeded > 0) console.log(`[committee] avg extracted: ${Math.round(totalChars / succeeded).toLocaleString()} chars per success`);
   return { attempted, succeeded };
 }
 
