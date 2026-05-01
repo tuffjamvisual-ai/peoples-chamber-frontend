@@ -33,6 +33,11 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
 
     try {
       if (mode === 'signup') {
+        const passwordStrong = password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password)
+        if (!passwordStrong) {
+          setError('Password must be at least 8 characters with one uppercase letter and one number')
+          return
+        }
         if (password !== confirmPassword) {
           setError('Passwords do not match');
           setLoading(false);
