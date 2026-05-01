@@ -92,7 +92,7 @@ export default function PollsClient() {
           placeholder="Search polls..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 px-4 py-2 bg-[#222222] text-white rounded border border-[#333333] focus:border-[#ffffff] focus:outline-none text-sm"
+          className="w-[40%] px-4 py-2 bg-[#222222] text-white rounded border border-[#333333] focus:border-[#ffffff] focus:outline-none text-sm"
         />
         <select
           value={sort}
