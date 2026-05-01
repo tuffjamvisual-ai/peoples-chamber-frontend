@@ -13,7 +13,7 @@ interface MPProfileClientProps {
   partyColour: string
 }
 
-const ACCENT = '#a8ff3e'
+const ACCENT = '#6b9e3e'
 const SUCCESS = '#34d399'
 const DANGER = '#f87171'
 const WARN = '#fbbf24'
@@ -73,7 +73,7 @@ export default function MPProfileClient({
                   className={
                     'w-full text-left px-4 py-3 text-[12px] uppercase tracking-[0.15em] transition-colors border-l-2 ' +
                     (active
-                      ? 'text-white bg-[#111827] border-l-[#a8ff3e] font-semibold'
+                      ? 'text-white bg-[#111827] border-l-[#6b9e3e] font-semibold'
                       : 'text-gray-200 border-l-transparent hover:text-white hover:bg-[#111827]')
                   }
                 >
@@ -108,7 +108,7 @@ export default function MPProfileClient({
                       {contact.email && (
                         <p className="text-gray-200">
                           <span className="text-[10px] uppercase tracking-[0.25em] text-gray-200 mr-2 block sm:inline">Email</span>
-                          <a href={'mailto:' + contact.email} className="text-[#a8ff3e] hover:underline break-all">
+                          <a href={'mailto:' + contact.email} className="text-[#6b9e3e] hover:underline break-all">
                             {contact.email}
                           </a>
                         </p>
@@ -118,14 +118,14 @@ export default function MPProfileClient({
                 </Card>
                 {contact.website && (
                   <Card title="Website" partyColour={partyColour}>
-                    <a href={contact.website} target="_blank" rel="noopener noreferrer" className="text-[#a8ff3e] hover:underline text-[13px] break-all">
+                    <a href={contact.website} target="_blank" rel="noopener noreferrer" className="text-[#6b9e3e] hover:underline text-[13px] break-all">
                       {contact.website}
                     </a>
                   </Card>
                 )}
                 {contact.twitter && (
                   <Card title="X (formerly Twitter)" partyColour={partyColour}>
-                    <a href={contact.twitter} target="_blank" rel="noopener noreferrer" className="text-[#a8ff3e] hover:underline text-[13px] break-all">
+                    <a href={contact.twitter} target="_blank" rel="noopener noreferrer" className="text-[#6b9e3e] hover:underline text-[13px] break-all">
                       {contact.twitter}
                     </a>
                   </Card>

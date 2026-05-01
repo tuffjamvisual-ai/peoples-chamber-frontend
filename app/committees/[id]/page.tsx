@@ -6,7 +6,7 @@ import Navigation from '../../components/Navigation';
 
 export const revalidate = 3600;
 
-const ACCENT = '#a8ff3e';
+const ACCENT = '#6b9e3e';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -78,7 +78,7 @@ export default async function CommitteePublicationPage({ params }: Props) {
                 href={externalUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-[#a8ff3e] transition-colors"
+                className="hover:text-[#6b9e3e] transition-colors"
                 style={{ color: ACCENT }}
               >
                 Read on Parliament.uk →

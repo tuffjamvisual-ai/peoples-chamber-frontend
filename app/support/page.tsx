@@ -9,22 +9,22 @@ export default function SupportPage() {
 
         <h2 className="text-xl font-bold mt-6 mb-3">Frequently Asked Questions</h2>
         
-        <h3 className="font-bold mt-4 mb-2 text-[#a8ff3e]">How does voting work?</h3>
+        <h3 className="font-bold mt-4 mb-2 text-[#6b9e3e]">How does voting work?</h3>
         <p className="text-gray-300 mb-4">
           Create an account, browse bills, and click Support, Oppose, or Abstain. Your vote is recorded and contributes to public opinion statistics.
         </p>
 
-        <h3 className="font-bold mt-4 mb-2 text-[#a8ff3e]">Where does the data come from?</h3>
+        <h3 className="font-bold mt-4 mb-2 text-[#6b9e3e]">Where does the data come from?</h3>
         <p className="text-gray-300 mb-4">
           All bill and MP data comes from official UK Parliament APIs at parliament.uk
         </p>
 
-        <h3 className="font-bold mt-4 mb-2 text-[#a8ff3e]">Can I change my vote?</h3>
+        <h3 className="font-bold mt-4 mb-2 text-[#6b9e3e]">Can I change my vote?</h3>
         <p className="text-gray-300 mb-4">
           No, votes are final once submitted to maintain data integrity.
         </p>
 
-        <h3 className="font-bold mt-4 mb-2 text-[#a8ff3e]">Is this official?</h3>
+        <h3 className="font-bold mt-4 mb-2 text-[#6b9e3e]">Is this official?</h3>
         <p className="text-gray-300 mb-4">
           No, People's Chamber is an independent platform for civic engagement, not affiliated with UK Parliament.
         </p>

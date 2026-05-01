@@ -180,7 +180,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
                           setEditingId(comment.id);
                           setEditText(comment.text);
                         }}
-                        className="text-xs text-[#a8ff3e] hover:text-[#a8ff3e]"
+                        className="text-xs text-[#6b9e3e] hover:text-[#6b9e3e]"
                       >
                         Edit
                       </button>
@@ -205,7 +205,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleEdit(comment.id)}
-                        className="px-3 py-1 bg-[#a8ff3e] hover:bg-[#8edb2f] text-white text-xs rounded"
+                        className="px-3 py-1 bg-[#6b9e3e] hover:bg-[#4d7a22] text-white text-xs rounded"
                       >
                         Save
                       </button>
@@ -241,13 +241,13 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 placeholder="Write a comment..."
-                className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 text-sm resize-none focus:outline-none focus:border-[#a8ff3e]"
+                className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 text-sm resize-none focus:outline-none focus:border-[#6b9e3e]"
                 rows={3}
               />
               <button
                 type="submit"
                 disabled={loading || !newComment.trim()}
-                className="w-full bg-[#a8ff3e] hover:bg-[#8edb2f] text-white py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-[#6b9e3e] hover:bg-[#4d7a22] text-white py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Posting...' : 'Post Comment'}
               </button>

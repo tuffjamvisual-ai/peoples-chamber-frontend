@@ -7,7 +7,7 @@ import { departments } from '@/lib/departments';
 import { parties } from '@/lib/parties';
 import { useSearchParams } from 'next/navigation';
 
-const ACCENT = '#a8ff3e';
+const ACCENT = '#6b9e3e';
 const ACCENT_2 = '#818cf8';
 const SUCCESS = '#34d399';
 const WARN = '#fbbf24';
@@ -142,7 +142,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
                     href={s.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[10px] uppercase tracking-[0.15em] px-2 py-1 bg-[#0f1a0f] text-gray-200 rounded-sm border border-[#1a2e1a] hover:text-white hover:border-[#a8ff3e] transition-colors"
+                    className="text-[10px] uppercase tracking-[0.15em] px-2 py-1 bg-[#0f1a0f] text-gray-200 rounded-sm border border-[#1a2e1a] hover:text-white hover:border-[#6b9e3e] transition-colors"
                   >
                     {s.service === 'twitter' ? 'X' : s.service === 'youtube' ? 'YT' : s.service.slice(0, 3)}
                   </a>
@@ -233,7 +233,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
                 onChange={(e) => { setZoneSearch(e.target.value); setShowTopics(true); }}
                 onFocus={() => setShowTopics(true)}
                 placeholder={`Search ${dept.controlZones.length} topics…`}
-                className="w-full bg-[#0a140a] border border-[#1a2e1a] rounded-sm px-4 py-2.5 text-white text-[13px] placeholder:text-gray-200 focus:outline-none focus:border-[#a8ff3e] transition-colors"
+                className="w-full bg-[#0a140a] border border-[#1a2e1a] rounded-sm px-4 py-2.5 text-white text-[13px] placeholder:text-gray-200 focus:outline-none focus:border-[#6b9e3e] transition-colors"
               />
               {zoneSearch && (
                 <button
@@ -254,7 +254,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
                       onClick={() => { setActiveZone(activeZone === zone ? null : zone); setZoneSearch(''); setShowTopics(false); }}
                       className={
                         'block w-full text-left px-4 py-2.5 text-[13px] border-b border-[#1a2e1a] last:border-0 transition-colors ' +
-                        (activeZone === zone ? 'text-[#a8ff3e] bg-[#111827]' : 'text-gray-200 hover:bg-[#111827] hover:text-white')
+                        (activeZone === zone ? 'text-[#6b9e3e] bg-[#111827]' : 'text-gray-200 hover:bg-[#111827] hover:text-white')
                       }
                     >
                       {zone}
@@ -323,7 +323,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
                   <Link
                     key={i}
                     href={'/agencies/' + agencySlug}
-                    className="text-[12px] uppercase tracking-[0.15em] text-gray-200 hover:text-[#a8ff3e] transition-colors"
+                    className="text-[12px] uppercase tracking-[0.15em] text-gray-200 hover:text-[#6b9e3e] transition-colors"
                   >
                     {org.acronym || org.name}
                   </Link>
@@ -369,9 +369,9 @@ function StaffGroup({ label, people }: { label: string; people: { name: string; 
       <p className="text-[10px] uppercase tracking-[0.2em] text-gray-200 mb-3 font-semibold">{label}</p>
       <ul className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[#1a2e1a] border border-[#1a2e1a]">
         {people.map((person, i) => (
-          <li key={i} className="bg-[#0f1a0f] p-3 border-l-2 border-l-transparent hover:border-l-[#a8ff3e] hover:bg-[#111827] transition-colors">
+          <li key={i} className="bg-[#0f1a0f] p-3 border-l-2 border-l-transparent hover:border-l-[#6b9e3e] hover:bg-[#111827] transition-colors">
             <Link href={`/people/${person.slug}`} className="block">
-              <p className="text-white text-[13px] font-semibold hover:text-[#a8ff3e] transition-colors">{person.name}</p>
+              <p className="text-white text-[13px] font-semibold hover:text-[#6b9e3e] transition-colors">{person.name}</p>
               <p className="text-gray-200 text-[11px] mt-0.5 leading-[1.7]">{person.role}</p>
             </Link>
           </li>

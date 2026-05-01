@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import AuthModal from '../../components/AuthModal';
 import Navigation from '../../components/Navigation';
 
-const ACCENT = '#a8ff3e';
+const ACCENT = '#6b9e3e';
 const SUCCESS = '#34d399';
 const DANGER = '#f87171';
 const WARN = '#fbbf24';
@@ -131,7 +131,7 @@ export default function BillDetailPage() {
     return (
       <div className="min-h-screen bg-[#0a140a] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-2 border-t-[#a8ff3e] border-[#1a2e1a] mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-2 border-t-[#6b9e3e] border-[#1a2e1a] mx-auto"></div>
           <p className="text-gray-200 text-[10px] uppercase tracking-[0.25em] mt-6">Loading bill…</p>
         </div>
       </div>
@@ -147,7 +147,7 @@ export default function BillDetailPage() {
           <p className="text-gray-200 text-[13px] leading-[1.7] mb-4">{error || 'Bill not found'}</p>
           <button
             onClick={() => router.push('/bills')}
-            className="px-4 py-2 bg-[#a8ff3e] text-[#0a140a] text-[12px] uppercase tracking-[0.2em] font-bold rounded-sm"
+            className="px-4 py-2 bg-[#6b9e3e] text-[#0a140a] text-[12px] uppercase tracking-[0.2em] font-bold rounded-sm"
           >
             Back to Bills
           </button>
@@ -248,7 +248,7 @@ export default function BillDetailPage() {
 
         {/* Sponsor */}
         {bill.sponsor_name && (
-          <section className="bg-[#0f1a0f] border border-[#1a2e1a] border-l-2 border-l-[#a8ff3e] p-5 mb-8">
+          <section className="bg-[#0f1a0f] border border-[#1a2e1a] border-l-2 border-l-[#6b9e3e] p-5 mb-8">
             <p className="text-[10px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>Sponsored by</p>
             <div className="flex items-center gap-4">
               {bill.sponsor_photo ? (

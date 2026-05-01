@@ -6,7 +6,7 @@ export default function AboutPage() {
       <Navigation />
 
       <main className="max-w-2xl mx-auto px-6 py-20 text-gray-200 leading-loose space-y-8">
-        <h1 className="text-4xl sm:text-5xl font-semibold text-[#a8ff3e] mb-6 tracking-tight">
+        <h1 className="text-4xl sm:text-5xl font-semibold text-[#6b9e3e] mb-6 tracking-tight">
           About
         </h1>
 

@@ -43,7 +43,7 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
       <header className="border-b border-[#1a2e1a] pb-10 mb-10">
-        <p className="text-[10px] uppercase tracking-[0.3em] text-[#a8ff3e] font-medium mb-4">
+        <p className="text-[10px] uppercase tracking-[0.3em] text-[#6b9e3e] font-medium mb-4">
           The People&apos;s Chamber · Members
         </p>
         <h1 className="text-4xl sm:text-6xl font-black leading-[1.05] tracking-tight text-white mb-4">
@@ -75,7 +75,7 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
           placeholder="Name, constituency, or party…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full bg-[#0f1a0f] text-white text-sm leading-[1.7] border border-[#1a2e1a] rounded-sm px-4 py-3 placeholder:text-gray-200 focus:outline-none focus:border-[#a8ff3e] transition-colors"
+          className="w-full bg-[#0f1a0f] text-white text-sm leading-[1.7] border border-[#1a2e1a] rounded-sm px-4 py-3 placeholder:text-gray-200 focus:outline-none focus:border-[#6b9e3e] transition-colors"
         />
       </div>
 
@@ -86,7 +86,7 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
       ) : (
         <div className="space-y-16">
           {parties.map((party) => {
-            const partyColour = byParty[party][0]?.party_colour || '#a8ff3e'
+            const partyColour = byParty[party][0]?.party_colour || '#6b9e3e'
             const count = byParty[party].length
             return (
               <section key={party} className="border-t border-[#1a2e1a] pt-8">
@@ -109,7 +109,7 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
                     <li key={mp.id} className="bg-[#0a140a]">
                       <Link
                         href={`/mps/${mp.member_id}`}
-                        className="group flex items-start gap-3 bg-[#0f1a0f] hover:bg-[#111827] transition-colors p-4 border-l-2 border-transparent hover:border-l-[#a8ff3e]"
+                        className="group flex items-start gap-3 bg-[#0f1a0f] hover:bg-[#111827] transition-colors p-4 border-l-2 border-transparent hover:border-l-[#6b9e3e]"
                       >
                         {mp.photo_url ? (
                           <img
@@ -128,7 +128,7 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
                         )}
 
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-white text-[14px] leading-snug truncate group-hover:text-[#a8ff3e] transition-colors">
+                          <h3 className="font-semibold text-white text-[14px] leading-snug truncate group-hover:text-[#6b9e3e] transition-colors">
                             {mp.name}
                           </h3>
                           <p className="text-gray-200 text-[12px] leading-[1.7] truncate">
@@ -164,7 +164,7 @@ function Stat({
       </p>
       <p
         className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${
-          accent ? 'text-[#a8ff3e]' : 'text-white'
+          accent ? 'text-[#6b9e3e]' : 'text-white'
         }`}
       >
         {value.toLocaleString()}

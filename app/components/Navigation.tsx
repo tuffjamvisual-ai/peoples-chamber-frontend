@@ -53,25 +53,25 @@ export default function Navigation() {
             
             <div className="hidden lg:flex flex-col items-end gap-2">
               <div className="flex items-center space-x-3">
-              <Link href="/" className={`px-3 py-1.5 text-sm ${isActive('/') ? 'text-[#a8ff3e] font-medium' : 'text-gray-200 hover:text-white'}`}>
+              <Link href="/" className={`px-3 py-1.5 text-sm ${isActive('/') ? 'text-[#6b9e3e] font-medium' : 'text-gray-200 hover:text-white'}`}>
                 Home
               </Link>
-              <Link href="/bills" className={`px-3 py-1.5 text-sm ${isActive('/bills') ? 'text-[#a8ff3e] font-medium' : 'text-gray-200 hover:text-white'}`}>
+              <Link href="/bills" className={`px-3 py-1.5 text-sm ${isActive('/bills') ? 'text-[#6b9e3e] font-medium' : 'text-gray-200 hover:text-white'}`}>
                 Bills
               </Link>
-              <Link href="/laws" className={`px-3 py-1.5 text-sm ${isActive('/laws') ? 'text-[#a8ff3e] font-medium' : 'text-gray-200 hover:text-white'}`}>
+              <Link href="/laws" className={`px-3 py-1.5 text-sm ${isActive('/laws') ? 'text-[#6b9e3e] font-medium' : 'text-gray-200 hover:text-white'}`}>
                 Laws
               </Link>
-              <Link href="/polls" className={`px-3 py-1.5 text-sm ${isActive('/polls') ? 'text-[#a8ff3e] font-medium' : 'text-gray-200 hover:text-white'}`}>
+              <Link href="/polls" className={`px-3 py-1.5 text-sm ${isActive('/polls') ? 'text-[#6b9e3e] font-medium' : 'text-gray-200 hover:text-white'}`}>
                 People's Polls
               </Link>
-              <Link href="/mps" className={`px-3 py-1.5 text-sm ${isActive('/mps') ? 'text-[#a8ff3e] font-medium' : 'text-gray-200 hover:text-white'}`}>
+              <Link href="/mps" className={`px-3 py-1.5 text-sm ${isActive('/mps') ? 'text-[#6b9e3e] font-medium' : 'text-gray-200 hover:text-white'}`}>
                 MPs
               </Link>
-              <Link href="/departments" className={`px-3 py-1.5 text-sm ${isActive('/departments') ? 'text-[#a8ff3e] font-medium' : 'text-gray-200 hover:text-white'}`}>Departments</Link>
-              <Link href="/transparency" className={`px-3 py-1.5 text-sm ${isActive('/transparency') ? 'text-[#a8ff3e] font-medium' : 'text-gray-200 hover:text-white'}`}>Transparency</Link>
-              <Link href="/search" className={`px-3 py-1.5 text-sm ${isActive('/search') ? 'text-[#a8ff3e] font-medium' : 'text-gray-200 hover:text-white'}`}>Search</Link>
-              <Link href="/about" className={`px-3 py-1.5 text-sm ${isActive('/about') ? 'text-[#a8ff3e] font-medium' : 'text-gray-200 hover:text-white'}`}>
+              <Link href="/departments" className={`px-3 py-1.5 text-sm ${isActive('/departments') ? 'text-[#6b9e3e] font-medium' : 'text-gray-200 hover:text-white'}`}>Departments</Link>
+              <Link href="/transparency" className={`px-3 py-1.5 text-sm ${isActive('/transparency') ? 'text-[#6b9e3e] font-medium' : 'text-gray-200 hover:text-white'}`}>Transparency</Link>
+              <Link href="/search" className={`px-3 py-1.5 text-sm ${isActive('/search') ? 'text-[#6b9e3e] font-medium' : 'text-gray-200 hover:text-white'}`}>Search</Link>
+              <Link href="/about" className={`px-3 py-1.5 text-sm ${isActive('/about') ? 'text-[#6b9e3e] font-medium' : 'text-gray-200 hover:text-white'}`}>
                 About
               </Link>
               
@@ -87,7 +87,7 @@ export default function Navigation() {
                   <button onClick={openLogin} className="px-3 py-1.5 text-gray-300 hover:text-white text-sm">
                     Login
                   </button>
-                  <button onClick={openSignup} className="px-4 py-1.5 bg-[#a8ff3e] hover:bg-[#8edb2f] text-white rounded text-sm font-medium">
+                  <button onClick={openSignup} className="px-4 py-1.5 bg-[#6b9e3e] hover:bg-[#4d7a22] text-white rounded text-sm font-medium">
                     Sign Up
                   </button>
                 </>
@@ -114,25 +114,25 @@ export default function Navigation() {
           {mobileMenuOpen && (
             <div className="lg:hidden pb-4 border-t border-gray-800/50 mt-2">
               <div className="flex flex-col space-y-1 py-2">
-                <Link href="/" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/') ? 'text-[#a8ff3e] bg-[#a8ff3e]/10' : 'text-gray-200'}`}>
+                <Link href="/" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/') ? 'text-[#6b9e3e] bg-[#6b9e3e]/10' : 'text-gray-200'}`}>
                   Home
                 </Link>
-                <Link href="/bills" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/bills') ? 'text-[#a8ff3e] bg-[#a8ff3e]/10' : 'text-gray-200'}`}>
+                <Link href="/bills" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/bills') ? 'text-[#6b9e3e] bg-[#6b9e3e]/10' : 'text-gray-200'}`}>
                   Bills
                 </Link>
-                <Link href="/laws" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/laws') ? 'text-[#a8ff3e] bg-[#a8ff3e]/10' : 'text-gray-200'}`}>
+                <Link href="/laws" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/laws') ? 'text-[#6b9e3e] bg-[#6b9e3e]/10' : 'text-gray-200'}`}>
                   Laws
                 </Link>
-                <Link href="/polls" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/polls') ? 'text-[#a8ff3e] bg-[#a8ff3e]/10' : 'text-gray-200'}`}>
+                <Link href="/polls" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/polls') ? 'text-[#6b9e3e] bg-[#6b9e3e]/10' : 'text-gray-200'}`}>
                   People's Polls
                 </Link>
-                <Link href="/mps" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/mps') ? 'text-[#a8ff3e] bg-[#a8ff3e]/10' : 'text-gray-200'}`}>
+                <Link href="/mps" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/mps') ? 'text-[#6b9e3e] bg-[#6b9e3e]/10' : 'text-gray-200'}`}>
                   MPs
                 </Link>
-                <Link href="/departments" className={`px-3 py-1.5 text-sm ${isActive('/departments') ? 'text-[#a8ff3e] font-medium' : 'text-gray-200 hover:text-white'}`}>Departments</Link>
-              <Link href="/transparency" className={`px-3 py-1.5 text-sm ${isActive('/transparency') ? 'text-[#a8ff3e] font-medium' : 'text-gray-200 hover:text-white'}`}>Transparency</Link>
-              <Link href="/search" className={`px-3 py-1.5 text-sm ${isActive('/search') ? 'text-[#a8ff3e] font-medium' : 'text-gray-200 hover:text-white'}`}>Search</Link>
-              <Link href="/about" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/about') ? 'text-[#a8ff3e] bg-[#a8ff3e]/10' : 'text-gray-200'}`}>
+                <Link href="/departments" className={`px-3 py-1.5 text-sm ${isActive('/departments') ? 'text-[#6b9e3e] font-medium' : 'text-gray-200 hover:text-white'}`}>Departments</Link>
+              <Link href="/transparency" className={`px-3 py-1.5 text-sm ${isActive('/transparency') ? 'text-[#6b9e3e] font-medium' : 'text-gray-200 hover:text-white'}`}>Transparency</Link>
+              <Link href="/search" className={`px-3 py-1.5 text-sm ${isActive('/search') ? 'text-[#6b9e3e] font-medium' : 'text-gray-200 hover:text-white'}`}>Search</Link>
+              <Link href="/about" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/about') ? 'text-[#6b9e3e] bg-[#6b9e3e]/10' : 'text-gray-200'}`}>
                   About
                 </Link>
                 
@@ -149,7 +149,7 @@ export default function Navigation() {
                       <button onClick={openLogin} className="w-full text-left px-3 py-2 text-gray-300 text-sm">
                         Login
                       </button>
-                      <button onClick={openSignup} className="w-full text-center px-3 py-2 bg-[#a8ff3e] text-white rounded mx-3 mt-2 text-sm font-medium">
+                      <button onClick={openSignup} className="w-full text-center px-3 py-2 bg-[#6b9e3e] text-white rounded mx-3 mt-2 text-sm font-medium">
                         Sign Up
                       </button>
                     </>
