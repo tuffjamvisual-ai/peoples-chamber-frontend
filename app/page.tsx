@@ -6,10 +6,15 @@ export const revalidate = 3600
 
 async function getGovUKNews() {
   try {
-    const res = await fetch('https://www.gov.uk/api/search.json?count=4&order=-public_timestamp&filter_content_store_document_type=press_release', { next: { revalidate: 3600 } })
+    const res = await fetch('https://www.gov.uk/api/search.json?count=4&order=-public_timestamp&filter_content_store_document_type=press_release', { 
+      next: { revalidate: 3600 },
+      headers: { 'Accept': 'application/json', 'User-Agent': 'PeoplesChamber/1.0' }
+    })
+    if (!res.ok) return []
     const data = await res.json()
     return data.results || []
-  } catch {
+  } catch (e) {
+    console.error('GOV.UK fetch error:', e)
     return []
   }
 }
