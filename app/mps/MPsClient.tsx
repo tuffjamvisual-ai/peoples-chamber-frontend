@@ -86,19 +86,19 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
           No MPs match &ldquo;{search}&rdquo;.
         </p>
       ) : (
-        <div className="space-y-16">
+        <div className="space-y-0">
           {parties.map((party) => {
             const partyColour = byParty[party][0]?.party_colour || '#ffffff'
             const count = byParty[party].length
             return (
-              <section key={party} className="border-t border-[#333333] pt-8">
-                <button onClick={() => toggleParty(party)} className="w-full flex items-center gap-4 mb-6 text-left">
+              <section key={party} className="border-t border-[#333333]">
+                <button onClick={() => toggleParty(party)} className="w-full flex items-center gap-3 py-3 px-2 text-left hover:bg-[#2e2e2e] transition-colors">
                   <span
                     className="inline-block w-2 h-2 rounded-full flex-shrink-0"
                     style={{ backgroundColor: partyColour }}
                     aria-hidden
                   />
-                  <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                  <h2 className="text-base font-bold text-white tracking-tight">
                     {party}
                   </h2>
                   <span className="ml-auto text-[13px] uppercase tracking-[0.3em] text-white font-mono">
