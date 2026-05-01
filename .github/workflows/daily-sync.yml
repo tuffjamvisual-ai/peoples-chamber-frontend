@@ -23,6 +23,9 @@ jobs:
       
       - name: Sync bills (incremental)
         run: node sync-bills-incremental.js
+
+      - name: Match bill divisions
+        run: node scripts/sync-bill-divisions.js
       
       - name: Generate AI explanations
         env:

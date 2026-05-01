@@ -10,6 +10,7 @@
 // Teller voter lists. That's typically a few dozen requests per night,
 // vs 650 if we went per-MP.
 const fs = require('fs');
+const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
 
 const SUPABASE_URL = 'https://nwnsvnbudmfkhhwcjwwr.supabase.co';
@@ -20,6 +21,11 @@ const SEARCH_URL = 'https://commonsvotes-api.parliament.uk/data/divisions.json/s
 const DIVISION_URL = (id) => `https://commonsvotes-api.parliament.uk/data/division/${id}.json`;
 const DELAY_MS = 300;
 const PROGRESS_FILE = '/tmp/mp-votes-progress.json';
+const MAP_FILE = path.join(__dirname, '../data/division-bill-map.json');
+
+function loadDivisionBillMap() {
+  try { return JSON.parse(fs.readFileSync(MAP_FILE, 'utf8')); } catch { return {}; }
+}
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -90,6 +96,9 @@ async function main() {
   const sinceIso = sinceDate.toISOString().slice(0, 10);
   console.log(`[mp-votes] scanning divisions since ${sinceIso} (${lookbackDays}-day window)`);
 
+  const divisionBillMap = loadDivisionBillMap();
+  console.log(`[mp-votes] loaded division→bill map: ${Object.keys(divisionBillMap).length} entries`);
+
   const latestInDb = await getLatestDivisionDate();
   console.log(`[mp-votes] latest division_date already in DB: ${latestInDb.toISOString()}`);
   const existingIds = await getExistingDivisionIds(sinceIso);
@@ -130,13 +139,14 @@ async function main() {
 
     // Tellers don't appear in the regular Aye/No lists — include them.
     const all = [...ayes, ...noes, ...ayeTellers, ...noTellers];
+    const billId = divisionBillMap[detail.DivisionId] ?? null;
 
     for (const v of all) {
       progress.rows.push({
         member_id: v.member_id,
         division_id: detail.DivisionId,
         vote_type: v.vote_type,
-        bill_id: null,
+        bill_id: billId,
         division_date: dateIso,
         division_title: title,
         is_rebellion: false,
