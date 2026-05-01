@@ -17,8 +17,14 @@ export function middleware(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith('/api/')) {
     const apiKey = request.headers.get('x-internal-key')
     const referer = request.headers.get('referer') || ''
+    const origin = request.headers.get('origin') || ''
+    const host = request.headers.get('host') || ''
     const isInternal = referer.includes('thepeopleschamber.uk') || 
-                       referer.includes('localhost:3000') ||
+                       referer.includes('localhost') ||
+                       origin.includes('thepeopleschamber.uk') ||
+                       origin.includes('localhost') ||
+                       host.includes('thepeopleschamber.uk') ||
+                       host.includes('localhost') ||
                        apiKey === INTERNAL_API_KEY
     if (!isInternal) {
       return new NextResponse('Forbidden', { status: 403 })
