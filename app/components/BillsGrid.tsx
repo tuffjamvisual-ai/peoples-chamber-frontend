@@ -126,7 +126,7 @@ export default function BillsGrid({ initialBills }: Props) {
         }}
       />
 
-      <div className="flex items-center justify-between mb-4 text-sm text-gray-200">
+      <div className="flex items-center justify-between mb-4 text-sm text-[#999999]">
         <div>Showing {paginatedBills.length} of {filteredBills.length} bills</div>
       </div>
 
@@ -141,16 +141,16 @@ export default function BillsGrid({ initialBills }: Props) {
             <div
               key={bill.id}
               onClick={() => router.push(`/bills/${bill.id}`)}
-              className="bg-gray-900 border border-gray-800 rounded-lg p-4 cursor-pointer hover:border-[#4a7a3a] transition-colors"
+              className="bg-[#111111] border border-[#2a2a2a] rounded-lg p-4 cursor-pointer hover:border-[#ffffff] transition-colors"
             >
               <h3 className="text-white font-medium text-sm mb-3 line-clamp-2">{bill.title}</h3>
 
               <div className="mb-3">
-                <div className="h-2 bg-gray-800 rounded-full overflow-hidden flex">
+                <div className="h-2 bg-[#2a2a2a] rounded-full overflow-hidden flex">
                   <div className="bg-green-600" style={{ width: `${yesPercent}%` }} />
                   <div className="bg-red-600" style={{ width: `${noPercent}%` }} />
                 </div>
-                <div className="flex justify-between text-xs text-gray-200 mt-1">
+                <div className="flex justify-between text-xs text-[#999999] mt-1">
                   <span>✓ {yesPercent}%</span>
                   <span>{totalVotes.toLocaleString()} votes</span>
                   <span>✗ {noPercent}%</span>
@@ -161,14 +161,14 @@ export default function BillsGrid({ initialBills }: Props) {
                 <button
                   onClick={() => handleVote(bill.id, 'yes')}
                   disabled={hasVoted}
-                  className={`flex-1 py-2 rounded text-xs font-medium ${hasVoted ? userVotes[bill.id] === 'yes' ? 'bg-green-700 text-white' : 'bg-gray-700 text-gray-200' : 'bg-green-800 hover:bg-green-700 text-white'}`}
+                  className={`flex-1 py-2 rounded text-xs font-medium ${hasVoted ? userVotes[bill.id] === 'yes' ? 'bg-green-700 text-white' : 'bg-[#333333] text-[#999999]' : 'bg-green-800 hover:bg-green-700 text-white'}`}
                 >
                   {hasVoted && userVotes[bill.id] === 'yes' ? '✓ Supported' : 'Support'}
                 </button>
                 <button
                   onClick={() => handleVote(bill.id, 'no')}
                   disabled={hasVoted}
-                  className={`flex-1 py-2 rounded text-xs font-medium ${hasVoted ? userVotes[bill.id] === 'no' ? 'bg-red-700 text-white' : 'bg-gray-700 text-gray-200' : 'bg-red-800 hover:bg-red-700 text-white'}`}
+                  className={`flex-1 py-2 rounded text-xs font-medium ${hasVoted ? userVotes[bill.id] === 'no' ? 'bg-red-700 text-white' : 'bg-[#333333] text-[#999999]' : 'bg-red-800 hover:bg-red-700 text-white'}`}
                 >
                   {hasVoted && userVotes[bill.id] === 'no' ? '✓ Opposed' : 'Oppose'}
                 </button>
@@ -180,17 +180,17 @@ export default function BillsGrid({ initialBills }: Props) {
 
       {paginatedBills.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-gray-200">No bills found matching your filters.</p>
+          <p className="text-[#999999]">No bills found matching your filters.</p>
         </div>
       )}
 
       {paginatedBills.length > 0 && totalPages > 1 && (
         <div className="flex items-center justify-center gap-2">
-          <button onClick={() => setCurrentPage(1)} disabled={currentPage === 1} className="px-3 py-1.5 bg-gray-800 text-gray-300 rounded text-sm hover:bg-gray-700 disabled:opacity-30">First</button>
-          <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="px-3 py-1.5 bg-gray-800 text-gray-300 rounded text-sm hover:bg-gray-700 disabled:opacity-30">Previous</button>
-          <div className="px-4 py-1.5 bg-[#4a7a3a] text-white rounded text-sm font-medium">{currentPage} / {totalPages}</div>
-          <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="px-3 py-1.5 bg-gray-800 text-gray-300 rounded text-sm hover:bg-gray-700 disabled:opacity-30">Next</button>
-          <button onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} className="px-3 py-1.5 bg-gray-800 text-gray-300 rounded text-sm hover:bg-gray-700 disabled:opacity-30">Last</button>
+          <button onClick={() => setCurrentPage(1)} disabled={currentPage === 1} className="px-3 py-1.5 bg-[#2a2a2a] text-[#cccccc] rounded text-sm hover:bg-[#333333] disabled:opacity-30">First</button>
+          <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="px-3 py-1.5 bg-[#2a2a2a] text-[#cccccc] rounded text-sm hover:bg-[#333333] disabled:opacity-30">Previous</button>
+          <div className="px-4 py-1.5 bg-[#ffffff] text-white rounded text-sm font-medium">{currentPage} / {totalPages}</div>
+          <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="px-3 py-1.5 bg-[#2a2a2a] text-[#cccccc] rounded text-sm hover:bg-[#333333] disabled:opacity-30">Next</button>
+          <button onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} className="px-3 py-1.5 bg-[#2a2a2a] text-[#cccccc] rounded text-sm hover:bg-[#333333] disabled:opacity-30">Last</button>
         </div>
       )}
 

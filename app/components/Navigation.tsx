@@ -34,7 +34,7 @@ export default function Navigation() {
 
   return (
     <>
-      <nav className="bg-black border-b border-gray-800/50 relative mb-10">
+      <nav className="bg-black border-b border-[#2a2a2a]/50 relative mb-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex-shrink-0" style={{marginLeft: "-16px"}}>
@@ -46,48 +46,48 @@ export default function Navigation() {
                 />
                 <div className="text-center -mt-12">
                   <div className="text-2xl font-bold text-white tracking-widest">THE PEOPLES CHAMBER</div>
-                  <div className="text-xs text-gray-200 tracking-wider mt-0.5">VOTING ON UK PARLIAMENT BILLS</div>
+                  <div className="text-xs text-[#999999] tracking-wider mt-0.5">VOTING ON UK PARLIAMENT BILLS</div>
                 </div>
               </div>
             </Link>
             
             <div className="hidden lg:flex flex-col items-end gap-2">
               <div className="flex items-center space-x-3">
-              <Link href="/" className={`px-3 py-1.5 text-sm ${isActive('/') ? 'text-[#4a7a3a] font-medium' : 'text-gray-200 hover:text-white'}`}>
+              <Link href="/" className={`px-3 py-1.5 text-sm ${isActive('/') ? 'text-[#ffffff] font-medium' : 'text-[#999999] hover:text-white'}`}>
                 Home
               </Link>
-              <Link href="/bills" className={`px-3 py-1.5 text-sm ${isActive('/bills') ? 'text-[#4a7a3a] font-medium' : 'text-gray-200 hover:text-white'}`}>
+              <Link href="/bills" className={`px-3 py-1.5 text-sm ${isActive('/bills') ? 'text-[#ffffff] font-medium' : 'text-[#999999] hover:text-white'}`}>
                 Bills
               </Link>
-              <Link href="/laws" className={`px-3 py-1.5 text-sm ${isActive('/laws') ? 'text-[#4a7a3a] font-medium' : 'text-gray-200 hover:text-white'}`}>
+              <Link href="/laws" className={`px-3 py-1.5 text-sm ${isActive('/laws') ? 'text-[#ffffff] font-medium' : 'text-[#999999] hover:text-white'}`}>
                 Laws
               </Link>
-              <Link href="/polls" className={`px-3 py-1.5 text-sm ${isActive('/polls') ? 'text-[#4a7a3a] font-medium' : 'text-gray-200 hover:text-white'}`}>
+              <Link href="/polls" className={`px-3 py-1.5 text-sm ${isActive('/polls') ? 'text-[#ffffff] font-medium' : 'text-[#999999] hover:text-white'}`}>
                 People's Polls
               </Link>
-              <Link href="/mps" className={`px-3 py-1.5 text-sm ${isActive('/mps') ? 'text-[#4a7a3a] font-medium' : 'text-gray-200 hover:text-white'}`}>
+              <Link href="/mps" className={`px-3 py-1.5 text-sm ${isActive('/mps') ? 'text-[#ffffff] font-medium' : 'text-[#999999] hover:text-white'}`}>
                 MPs
               </Link>
-              <Link href="/departments" className={`px-3 py-1.5 text-sm ${isActive('/departments') ? 'text-[#4a7a3a] font-medium' : 'text-gray-200 hover:text-white'}`}>Departments</Link>
-              <Link href="/transparency" className={`px-3 py-1.5 text-sm ${isActive('/transparency') ? 'text-[#4a7a3a] font-medium' : 'text-gray-200 hover:text-white'}`}>Transparency</Link>
-              <Link href="/search" className={`px-3 py-1.5 text-sm ${isActive('/search') ? 'text-[#4a7a3a] font-medium' : 'text-gray-200 hover:text-white'}`}>Search</Link>
-              <Link href="/about" className={`px-3 py-1.5 text-sm ${isActive('/about') ? 'text-[#4a7a3a] font-medium' : 'text-gray-200 hover:text-white'}`}>
+              <Link href="/departments" className={`px-3 py-1.5 text-sm ${isActive('/departments') ? 'text-[#ffffff] font-medium' : 'text-[#999999] hover:text-white'}`}>Departments</Link>
+              <Link href="/transparency" className={`px-3 py-1.5 text-sm ${isActive('/transparency') ? 'text-[#ffffff] font-medium' : 'text-[#999999] hover:text-white'}`}>Transparency</Link>
+              <Link href="/search" className={`px-3 py-1.5 text-sm ${isActive('/search') ? 'text-[#ffffff] font-medium' : 'text-[#999999] hover:text-white'}`}>Search</Link>
+              <Link href="/about" className={`px-3 py-1.5 text-sm ${isActive('/about') ? 'text-[#ffffff] font-medium' : 'text-[#999999] hover:text-white'}`}>
                 About
               </Link>
               
               {user ? (
                 <>
-                  <span className="text-gray-200 text-sm truncate max-w-[150px]">{user.email}</span>
-                  <button onClick={logout} className="px-3 py-1.5 text-gray-300 hover:text-white text-sm">
+                  <span className="text-[#999999] text-sm truncate max-w-[150px]">{user.email}</span>
+                  <button onClick={logout} className="px-3 py-1.5 text-[#cccccc] hover:text-white text-sm">
                     Logout
                   </button>
                 </>
               ) : (
                 <>
-                  <button onClick={openLogin} className="px-3 py-1.5 text-gray-300 hover:text-white text-sm">
+                  <button onClick={openLogin} className="px-3 py-1.5 text-[#cccccc] hover:text-white text-sm">
                     Login
                   </button>
-                  <button onClick={openSignup} className="px-4 py-1.5 bg-[#4a7a3a] hover:bg-[#4d7a22] text-white rounded text-sm font-medium">
+                  <button onClick={openSignup} className="px-4 py-1.5 bg-[#ffffff] hover:bg-[#cccccc] text-white rounded text-sm font-medium">
                     Sign Up
                   </button>
                 </>
@@ -98,7 +98,7 @@ export default function Navigation() {
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 -mr-2 text-gray-200 hover:text-white flex-shrink-0"
+              className="lg:hidden p-2 -mr-2 text-[#999999] hover:text-white flex-shrink-0"
               aria-label="Menu"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,44 +112,44 @@ export default function Navigation() {
           </div>
 
           {mobileMenuOpen && (
-            <div className="lg:hidden pb-4 border-t border-gray-800/50 mt-2">
+            <div className="lg:hidden pb-4 border-t border-[#2a2a2a]/50 mt-2">
               <div className="flex flex-col space-y-1 py-2">
-                <Link href="/" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/') ? 'text-[#4a7a3a] bg-[#4a7a3a]/10' : 'text-gray-200'}`}>
+                <Link href="/" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/') ? 'text-[#ffffff] bg-white/10' : 'text-[#999999]'}`}>
                   Home
                 </Link>
-                <Link href="/bills" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/bills') ? 'text-[#4a7a3a] bg-[#4a7a3a]/10' : 'text-gray-200'}`}>
+                <Link href="/bills" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/bills') ? 'text-[#ffffff] bg-white/10' : 'text-[#999999]'}`}>
                   Bills
                 </Link>
-                <Link href="/laws" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/laws') ? 'text-[#4a7a3a] bg-[#4a7a3a]/10' : 'text-gray-200'}`}>
+                <Link href="/laws" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/laws') ? 'text-[#ffffff] bg-white/10' : 'text-[#999999]'}`}>
                   Laws
                 </Link>
-                <Link href="/polls" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/polls') ? 'text-[#4a7a3a] bg-[#4a7a3a]/10' : 'text-gray-200'}`}>
+                <Link href="/polls" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/polls') ? 'text-[#ffffff] bg-white/10' : 'text-[#999999]'}`}>
                   People's Polls
                 </Link>
-                <Link href="/mps" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/mps') ? 'text-[#4a7a3a] bg-[#4a7a3a]/10' : 'text-gray-200'}`}>
+                <Link href="/mps" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/mps') ? 'text-[#ffffff] bg-white/10' : 'text-[#999999]'}`}>
                   MPs
                 </Link>
-                <Link href="/departments" className={`px-3 py-1.5 text-sm ${isActive('/departments') ? 'text-[#4a7a3a] font-medium' : 'text-gray-200 hover:text-white'}`}>Departments</Link>
-              <Link href="/transparency" className={`px-3 py-1.5 text-sm ${isActive('/transparency') ? 'text-[#4a7a3a] font-medium' : 'text-gray-200 hover:text-white'}`}>Transparency</Link>
-              <Link href="/search" className={`px-3 py-1.5 text-sm ${isActive('/search') ? 'text-[#4a7a3a] font-medium' : 'text-gray-200 hover:text-white'}`}>Search</Link>
-              <Link href="/about" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/about') ? 'text-[#4a7a3a] bg-[#4a7a3a]/10' : 'text-gray-200'}`}>
+                <Link href="/departments" className={`px-3 py-1.5 text-sm ${isActive('/departments') ? 'text-[#ffffff] font-medium' : 'text-[#999999] hover:text-white'}`}>Departments</Link>
+              <Link href="/transparency" className={`px-3 py-1.5 text-sm ${isActive('/transparency') ? 'text-[#ffffff] font-medium' : 'text-[#999999] hover:text-white'}`}>Transparency</Link>
+              <Link href="/search" className={`px-3 py-1.5 text-sm ${isActive('/search') ? 'text-[#ffffff] font-medium' : 'text-[#999999] hover:text-white'}`}>Search</Link>
+              <Link href="/about" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/about') ? 'text-[#ffffff] bg-white/10' : 'text-[#999999]'}`}>
                   About
                 </Link>
                 
-                <div className="border-t border-gray-800/50 mt-2 pt-2">
+                <div className="border-t border-[#2a2a2a]/50 mt-2 pt-2">
                   {user ? (
                     <>
-                      <div className="px-3 py-2 text-gray-200 text-sm truncate">{user.email}</div>
-                      <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="w-full text-left px-3 py-2 text-gray-300 text-sm">
+                      <div className="px-3 py-2 text-[#999999] text-sm truncate">{user.email}</div>
+                      <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="w-full text-left px-3 py-2 text-[#cccccc] text-sm">
                         Logout
                       </button>
                     </>
                   ) : (
                     <>
-                      <button onClick={openLogin} className="w-full text-left px-3 py-2 text-gray-300 text-sm">
+                      <button onClick={openLogin} className="w-full text-left px-3 py-2 text-[#cccccc] text-sm">
                         Login
                       </button>
-                      <button onClick={openSignup} className="w-full text-center px-3 py-2 bg-[#4a7a3a] text-white rounded mx-3 mt-2 text-sm font-medium">
+                      <button onClick={openSignup} className="w-full text-center px-3 py-2 bg-[#ffffff] text-white rounded mx-3 mt-2 text-sm font-medium">
                         Sign Up
                       </button>
                     </>
@@ -159,7 +159,7 @@ export default function Navigation() {
             </div>
           )}
         </div>
-      <div className="border-b border-gray-800/50">
+      <div className="border-b border-[#2a2a2a]/50">
   
       </div>
 

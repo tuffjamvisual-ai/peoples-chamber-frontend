@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import AuthModal from '../../components/AuthModal';
 import Navigation from '../../components/Navigation';
 
-const ACCENT = '#4a7a3a';
+const ACCENT = '#ffffff';
 const SUCCESS = '#34d399';
 const DANGER = '#f87171';
 const WARN = '#fbbf24';
@@ -129,10 +129,10 @@ export default function BillDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a140a] flex items-center justify-center">
+      <div className="min-h-screen bg-[#111111] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-2 border-t-[#4a7a3a] border-[#1a2e1a] mx-auto"></div>
-          <p className="text-gray-200 text-[10px] uppercase tracking-[0.25em] mt-6">Loading bill…</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-2 border-t-[#ffffff] border-[#2a2a2a] mx-auto"></div>
+          <p className="text-[#999999] text-[10px] uppercase tracking-[0.25em] mt-6">Loading bill…</p>
         </div>
       </div>
     );
@@ -140,14 +140,14 @@ export default function BillDetailPage() {
 
   if (error || !bill) {
     return (
-      <div className="min-h-screen bg-[#0a140a] text-white flex items-center justify-center">
-        <div className="bg-[#0f1a0f] border border-[#1a2e1a] border-l-2 border-l-[#f87171] p-6 max-w-md">
+      <div className="min-h-screen bg-[#111111] text-white flex items-center justify-center">
+        <div className="bg-[#1a1a1a] border border-[#2a2a2a] border-l-2 border-l-[#f87171] p-6 max-w-md">
           <p className="text-[10px] uppercase tracking-[0.25em] mb-2 font-semibold" style={{ color: DANGER }}>Error</p>
           <h2 className="text-xl font-black tracking-tight text-white mb-2">Bill unavailable</h2>
-          <p className="text-gray-200 text-[13px] leading-[1.7] mb-4">{error || 'Bill not found'}</p>
+          <p className="text-[#999999] text-[13px] leading-[1.7] mb-4">{error || 'Bill not found'}</p>
           <button
             onClick={() => router.push('/bills')}
-            className="px-4 py-2 bg-[#4a7a3a] text-[#0a140a] text-[12px] uppercase tracking-[0.2em] font-bold rounded-sm"
+            className="px-4 py-2 bg-[#ffffff] text-[#111111] text-[12px] uppercase tracking-[0.2em] font-bold rounded-sm"
           >
             Back to Bills
           </button>
@@ -176,7 +176,7 @@ export default function BillDetailPage() {
   const royalAssent = bill.stages.find((s) => s.description === 'Royal Assent');
 
   return (
-    <div className="min-h-screen bg-[#0a140a] text-white">
+    <div className="min-h-screen bg-[#111111] text-white">
       <Navigation />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
@@ -191,7 +191,7 @@ export default function BillDetailPage() {
         </div>
 
         {/* Title */}
-        <header className="border-b border-[#1a2e1a] pb-8 mb-8">
+        <header className="border-b border-[#2a2a2a] pb-8 mb-8">
           <p className="text-[10px] uppercase tracking-[0.3em] font-medium mb-3" style={{ color: ACCENT }}>
             UK Parliament · Bill
           </p>
@@ -200,7 +200,7 @@ export default function BillDetailPage() {
 
         {/* Plain Summary */}
         {bill.plain_summary && (
-          <section className="bg-[#0f1a0f] border-l-2 p-5 mb-8" style={{ borderLeftColor: ACCENT }}>
+          <section className="bg-[#1a1a1a] border-l-2 p-5 mb-8" style={{ borderLeftColor: ACCENT }}>
             <p className="text-[10px] uppercase tracking-[0.25em] mb-2 font-semibold" style={{ color: ACCENT }}>Summary</p>
             <p className="text-white text-[14px] leading-[1.7]">{bill.plain_summary}</p>
           </section>
@@ -208,9 +208,9 @@ export default function BillDetailPage() {
 
         {/* Support / Oppose */}
         {(bill.support_explanation || bill.oppose_explanation) && (
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#1a2e1a] border border-[#1a2e1a] mb-8">
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#2a2a2a] border border-[#2a2a2a] mb-8">
             {bill.support_explanation && (
-              <div className="bg-[#0f1a0f] p-5 border-l-2" style={{ borderLeftColor: SUCCESS }}>
+              <div className="bg-[#1a1a1a] p-5 border-l-2" style={{ borderLeftColor: SUCCESS }}>
                 <p className="text-[10px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: SUCCESS }}>
                   A vote to support means
                 </p>
@@ -218,7 +218,7 @@ export default function BillDetailPage() {
                   {((() => {
                     try { const p = JSON.parse(bill.support_explanation!); return Array.isArray(p) ? p : [bill.support_explanation!]; } catch { return bill.support_explanation!.split('\n').filter(Boolean); }
                   })()).map((point: string, i: number) => (
-                    <li key={i} className="flex gap-2 text-[13px] text-gray-200 leading-[1.7]">
+                    <li key={i} className="flex gap-2 text-[13px] text-[#999999] leading-[1.7]">
                       <span className="flex-shrink-0 mt-0.5" style={{ color: SUCCESS }}>—</span>
                       <span>{point.replace(/^[-–]\s*/, '')}</span>
                     </li>
@@ -227,7 +227,7 @@ export default function BillDetailPage() {
               </div>
             )}
             {bill.oppose_explanation && (
-              <div className="bg-[#0f1a0f] p-5 border-l-2" style={{ borderLeftColor: DANGER }}>
+              <div className="bg-[#1a1a1a] p-5 border-l-2" style={{ borderLeftColor: DANGER }}>
                 <p className="text-[10px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: DANGER }}>
                   A vote to oppose means
                 </p>
@@ -235,7 +235,7 @@ export default function BillDetailPage() {
                   {((() => {
                     try { const p = JSON.parse(bill.oppose_explanation!); return Array.isArray(p) ? p : [bill.oppose_explanation!]; } catch { return bill.oppose_explanation!.split('\n').filter(Boolean); }
                   })()).map((point: string, i: number) => (
-                    <li key={i} className="flex gap-2 text-[13px] text-gray-200 leading-[1.7]">
+                    <li key={i} className="flex gap-2 text-[13px] text-[#999999] leading-[1.7]">
                       <span className="flex-shrink-0 mt-0.5" style={{ color: DANGER }}>—</span>
                       <span>{point.replace(/^[-–]\s*/, '')}</span>
                     </li>
@@ -248,13 +248,13 @@ export default function BillDetailPage() {
 
         {/* Sponsor */}
         {bill.sponsor_name && (
-          <section className="bg-[#0f1a0f] border border-[#1a2e1a] border-l-2 border-l-[#4a7a3a] p-5 mb-8">
+          <section className="bg-[#1a1a1a] border border-[#2a2a2a] border-l-2 border-l-[#ffffff] p-5 mb-8">
             <p className="text-[10px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>Sponsored by</p>
             <div className="flex items-center gap-4">
               {bill.sponsor_photo ? (
                 <img src={bill.sponsor_photo} alt={bill.sponsor_name} className="w-12 h-12 rounded-full bg-[#111827]" style={{ border: `1px solid ${ACCENT}` }} />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-[#111827] flex items-center justify-center text-[10px] uppercase tracking-wider text-gray-200" style={{ border: `1px solid ${ACCENT}` }}>
+                <div className="w-12 h-12 rounded-full bg-[#111827] flex items-center justify-center text-[10px] uppercase tracking-wider text-[#999999]" style={{ border: `1px solid ${ACCENT}` }}>
                   {bill.sponsor_name.split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
                 </div>
               )}
@@ -270,7 +270,7 @@ export default function BillDetailPage() {
                     </span>
                   )}
                   {bill.sponsor_constituency && (
-                    <span className="text-[11px] text-gray-200 font-mono">{bill.sponsor_constituency}</span>
+                    <span className="text-[11px] text-[#999999] font-mono">{bill.sponsor_constituency}</span>
                   )}
                 </div>
               </div>
@@ -279,15 +279,15 @@ export default function BillDetailPage() {
         )}
 
         {/* Cast Your Vote */}
-        <section className="bg-[#0f1a0f] border border-[#1a2e1a] p-6 mb-8">
+        <section className="bg-[#1a1a1a] border border-[#2a2a2a] p-6 mb-8">
           <h2 className="text-2xl font-black tracking-tight text-white mb-6">Cast Your Vote</h2>
 
           <div className="mb-4">
-            <div className="flex justify-between text-[10px] uppercase tracking-[0.2em] text-gray-200 mb-1.5 font-mono">
+            <div className="flex justify-between text-[10px] uppercase tracking-[0.2em] text-[#999999] mb-1.5 font-mono">
               <span>People&apos;s Vote</span>
               <span>{totalVotes.toLocaleString()} votes</span>
             </div>
-            <div className="h-2 bg-[#1a2e1a] flex">
+            <div className="h-2 bg-[#2a2a2a] flex">
               {yesPercent > 0 && <div className="h-full" style={{ width: `${yesPercent}%`, backgroundColor: SUCCESS }} />}
               {noPercent > 0 && <div className="h-full" style={{ width: `${noPercent}%`, backgroundColor: DANGER }} />}
             </div>
@@ -299,11 +299,11 @@ export default function BillDetailPage() {
 
           {totalMPVotes > 0 && (
             <div className="mb-6">
-              <div className="flex justify-between text-[10px] uppercase tracking-[0.2em] text-gray-200 mb-1.5 font-mono">
+              <div className="flex justify-between text-[10px] uppercase tracking-[0.2em] text-[#999999] mb-1.5 font-mono">
                 <span>Parliament&apos;s Vote</span>
                 <span>{totalMPVotes.toLocaleString()} MPs</span>
               </div>
-              <div className="h-2 bg-[#1a2e1a] flex">
+              <div className="h-2 bg-[#2a2a2a] flex">
                 {mpAyePercent > 0 && <div className="h-full" style={{ width: `${mpAyePercent}%`, backgroundColor: SUCCESS, opacity: 0.7 }} />}
                 {mpNoePercent > 0 && <div className="h-full" style={{ width: `${mpNoePercent}%`, backgroundColor: DANGER, opacity: 0.7 }} />}
               </div>
@@ -363,7 +363,7 @@ export default function BillDetailPage() {
 
         {/* Bill Passage Timeline */}
         {bill.stages.length > 0 && (
-          <section className="bg-[#0f1a0f] border border-[#1a2e1a] p-6 mb-8">
+          <section className="bg-[#1a1a1a] border border-[#2a2a2a] p-6 mb-8">
             <h2 className="text-2xl font-black tracking-tight text-white mb-6">Bill Passage</h2>
             <div className="space-y-6">
               {commonsStages.length > 0 && (
@@ -373,12 +373,12 @@ export default function BillDetailPage() {
                 <StageGroup label="Lords" colour={DANGER} stages={lordsStages} />
               )}
               {royalAssent && (
-                <div className="flex items-center gap-3 pt-4 border-t border-[#1a2e1a]">
+                <div className="flex items-center gap-3 pt-4 border-t border-[#2a2a2a]">
                   <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: SUCCESS }} />
                   <div className="flex-1 flex items-center justify-between">
                     <span className="text-[13px] font-bold" style={{ color: SUCCESS }}>Royal Assent</span>
                     {royalAssent.stageSittings[0]?.date && (
-                      <span className="text-[11px] text-gray-200 font-mono uppercase tracking-[0.15em]">
+                      <span className="text-[11px] text-[#999999] font-mono uppercase tracking-[0.15em]">
                         {new Date(royalAssent.stageSittings[0].date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </span>
                     )}
@@ -391,13 +391,13 @@ export default function BillDetailPage() {
 
         {/* Full Description */}
         {bill.description && bill.description !== bill.title && (
-          <details className="bg-[#0f1a0f] border border-[#1a2e1a]">
+          <details className="bg-[#1a1a1a] border border-[#2a2a2a]">
             <summary className="px-6 py-4 cursor-pointer hover:bg-[#111827] transition-colors text-[12px] uppercase tracking-[0.2em] font-semibold text-white">
               Full Bill Description
-              <span className="text-gray-200 text-[11px] ml-2 normal-case tracking-normal">(click to expand)</span>
+              <span className="text-[#999999] text-[11px] ml-2 normal-case tracking-normal">(click to expand)</span>
             </summary>
             <div className="px-6 pb-6">
-              <p className="text-gray-200 text-[13px] leading-[1.7] whitespace-pre-wrap">{bill.description}</p>
+              <p className="text-[#999999] text-[13px] leading-[1.7] whitespace-pre-wrap">{bill.description}</p>
             </div>
           </details>
         )}
@@ -436,9 +436,9 @@ function VoteButton({
 }) {
   const baseClasses = 'py-3 text-[12px] uppercase tracking-[0.2em] font-bold transition-colors rounded-sm';
   const style: React.CSSProperties = active
-    ? { backgroundColor: colour, color: '#0a140a' }
+    ? { backgroundColor: colour, color: '#111111' }
     : disabled
-    ? { backgroundColor: '#1a2e1a', color: '#4b5563', cursor: 'not-allowed' }
+    ? { backgroundColor: '#2a2a2a', color: '#4b5563', cursor: 'not-allowed' }
     : { backgroundColor: colour + '22', color: colour, border: `1px solid ${colour}55` };
 
   return (
@@ -459,7 +459,7 @@ function StageGroup({ label, colour, stages }: { label: string; colour: string; 
             <div className="flex-1 flex items-center justify-between">
               <span className="text-[13px] text-white">{stage.description}</span>
               {stage.stageSittings[0]?.date && (
-                <span className="text-[11px] text-gray-200 font-mono uppercase tracking-[0.15em]">
+                <span className="text-[11px] text-[#999999] font-mono uppercase tracking-[0.15em]">
                   {new Date(stage.stageSittings[0].date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </span>
               )}
