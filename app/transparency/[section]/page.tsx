@@ -6,7 +6,7 @@ import TransparencyClient from './TransparencyClient'
 
 export const revalidate = 3600
 
-const ACCENT = '#6b9e3e'
+const ACCENT = '#4a7a3a'
 
 // Route slug → { display title, Supabase table name, optional date column }.
 const SECTIONS: Record<string, { title: string; table: string; orderBy?: string }> = {

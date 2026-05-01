@@ -37,7 +37,7 @@ export default function FilterBar({ onFiltersChange }: FilterBarProps) {
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
-          className="px-3 py-2 bg-gray-800 text-white text-sm rounded border border-gray-700 focus:border-[#6b9e3e] focus:outline-none"
+          className="px-3 py-2 bg-gray-800 text-white text-sm rounded border border-gray-700 focus:border-[#4a7a3a] focus:outline-none"
         >
           <option value="trending">Trending</option>
           <option value="newest">Date Updated (Newest First)</option>
@@ -47,7 +47,7 @@ export default function FilterBar({ onFiltersChange }: FilterBarProps) {
         <select
           value={house}
           onChange={(e) => setHouse(e.target.value)}
-          className="px-3 py-2 bg-gray-800 text-white text-sm rounded border border-gray-700 focus:border-[#6b9e3e] focus:outline-none"
+          className="px-3 py-2 bg-gray-800 text-white text-sm rounded border border-gray-700 focus:border-[#4a7a3a] focus:outline-none"
         >
           <option value="">House: All</option>
           <option value="Commons">Commons</option>
@@ -57,7 +57,7 @@ export default function FilterBar({ onFiltersChange }: FilterBarProps) {
         <select
           value={session}
           onChange={(e) => setSession(e.target.value)}
-          className="px-3 py-2 bg-gray-800 text-white text-sm rounded border border-gray-700 focus:border-[#6b9e3e] focus:outline-none"
+          className="px-3 py-2 bg-gray-800 text-white text-sm rounded border border-gray-700 focus:border-[#4a7a3a] focus:outline-none"
         >
           <option value="">Session: All</option>
           <option value="39">Session 39</option>
@@ -70,7 +70,7 @@ export default function FilterBar({ onFiltersChange }: FilterBarProps) {
         <select
           value={stage}
           onChange={(e) => setStage(e.target.value)}
-          className="px-3 py-2 bg-gray-800 text-white text-sm rounded border border-gray-700 focus:border-[#6b9e3e] focus:outline-none"
+          className="px-3 py-2 bg-gray-800 text-white text-sm rounded border border-gray-700 focus:border-[#4a7a3a] focus:outline-none"
         >
           <option value="">Stage: All</option>
           <option value="1st reading">1st Reading</option>
@@ -84,13 +84,13 @@ export default function FilterBar({ onFiltersChange }: FilterBarProps) {
       <div className="flex flex-wrap items-center gap-3">
         <button
           onClick={() => setParliamentVoted(!parliamentVoted)}
-          className={'px-3 py-2 text-xs rounded transition-colors ' + (parliamentVoted ? 'bg-[#6b9e3e] text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600')}
+          className={'px-3 py-2 text-xs rounded transition-colors ' + (parliamentVoted ? 'bg-[#4a7a3a] text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600')}
         >
           Parliament Voted
         </button>
         <button
           onClick={() => setYouVoted(!youVoted)}
-          className={'px-3 py-2 text-xs rounded transition-colors ' + (youVoted ? 'bg-[#6b9e3e] text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600')}
+          className={'px-3 py-2 text-xs rounded transition-colors ' + (youVoted ? 'bg-[#4a7a3a] text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600')}
         >
           You Voted
         </button>
@@ -100,7 +100,7 @@ export default function FilterBar({ onFiltersChange }: FilterBarProps) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           style={{width: '340px'}}
-          className="px-4 py-2 bg-gray-800 text-white rounded border border-gray-700 focus:border-[#6b9e3e] focus:outline-none text-sm"
+          className="px-4 py-2 bg-gray-800 text-white rounded border border-gray-700 focus:border-[#4a7a3a] focus:outline-none text-sm"
         />
       </div>
     </div>

@@ -4,7 +4,7 @@ import Navigation from './components/Navigation';
 
 export const revalidate = 3600;
 
-const ACCENT = '#6b9e3e';
+const ACCENT = '#4a7a3a';
 const ACCENT_2 = '#818cf8';
 const SUCCESS = '#34d399';
 const DANGER = '#f87171';
@@ -263,7 +263,7 @@ export default async function HomePage() {
                       </p>
                     )}
                     <h4 className="text-[13px] font-semibold leading-snug mb-1.5">
-                      <Link href={`/committees/${c.id}`} className="text-white hover:text-[#6b9e3e] transition-colors">
+                      <Link href={`/committees/${c.id}`} className="text-white hover:text-[#4a7a3a] transition-colors">
                         {c.title || '(untitled)'}
                       </Link>
                     </h4>
@@ -415,7 +415,7 @@ export default async function HomePage() {
                 return (
                   <article key={b.id} className="border-l-2 pl-5" style={{ borderLeftColor: ACCENT }}>
                     <h3 className="text-base sm:text-xl font-bold leading-snug mb-4">
-                      <Link href={`/bills/${b.id}`} className="text-white hover:text-[#6b9e3e] transition-colors">
+                      <Link href={`/bills/${b.id}`} className="text-white hover:text-[#4a7a3a] transition-colors">
                         {b.title}
                       </Link>
                     </h3>
@@ -472,9 +472,9 @@ export default async function HomePage() {
               <li key={s.title} className="bg-[#0f1a0f]">
                 <Link
                   href={s.href}
-                  className="group block h-full p-5 hover:bg-[#111827] transition-colors border-l-2 border-transparent hover:border-l-[#6b9e3e]"
+                  className="group block h-full p-5 hover:bg-[#111827] transition-colors border-l-2 border-transparent hover:border-l-[#4a7a3a]"
                 >
-                  <h3 className="text-base font-bold mb-2 group-hover:text-[#6b9e3e] transition-colors" style={{ color: ACCENT }}>
+                  <h3 className="text-base font-bold mb-2 group-hover:text-[#4a7a3a] transition-colors" style={{ color: ACCENT }}>
                     {s.title}
                   </h3>
                   <p className="text-[12px] text-gray-200 leading-[1.7]">{s.body}</p>

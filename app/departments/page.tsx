@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/departments' },
 };
 
-const ACCENT = '#6b9e3e';
+const ACCENT = '#4a7a3a';
 
 export default function DepartmentsPage() {
   const totalZones = departments.reduce((sum, d) => sum + d.controlZones.length, 0);
@@ -42,9 +42,9 @@ export default function DepartmentsPage() {
             <li key={dept.slug} className="bg-[#0f1a0f]">
               <Link
                 href={`/departments/${dept.slug}`}
-                className="group block h-full p-5 hover:bg-[#111827] transition-colors border-l-2 border-transparent hover:border-l-[#6b9e3e]"
+                className="group block h-full p-5 hover:bg-[#111827] transition-colors border-l-2 border-transparent hover:border-l-[#4a7a3a]"
               >
-                <h2 className="text-white font-bold text-[14px] leading-snug mb-1.5 group-hover:text-[#6b9e3e] transition-colors">
+                <h2 className="text-white font-bold text-[14px] leading-snug mb-1.5 group-hover:text-[#4a7a3a] transition-colors">
                   {dept.name}
                 </h2>
                 <p className="text-gray-200 text-[12px] leading-[1.7] mb-4 line-clamp-2">{dept.description}</p>
@@ -98,7 +98,7 @@ function Stat({ label, value, accent = false }: { label: string; value: number |
     <div className="bg-[#0f1a0f] px-4 py-5">
       <p className="text-[10px] uppercase tracking-[0.25em] text-gray-200 font-medium mb-2">{label}</p>
       <p
-        className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#6b9e3e]' : 'text-white'}`}
+        className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#4a7a3a]' : 'text-white'}`}
       >
         {typeof value === 'number' ? value.toLocaleString() : value}
       </p>

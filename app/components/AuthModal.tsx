@@ -94,7 +94,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#6b9e3e]"
+              className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#4a7a3a]"
             />
           </div>
 
@@ -107,7 +107,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={8}
-                className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#6b9e3e]"
+                className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#4a7a3a]"
               />
             </div>
           )}
@@ -123,7 +123,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
                   required
                   minLength={3}
                   maxLength={20}
-                  className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#6b9e3e]"
+                  className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#4a7a3a]"
                 />
               </div>
 
@@ -134,7 +134,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#6b9e3e]"
+                  className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#4a7a3a]"
                 />
               </div>
 
@@ -144,7 +144,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
                   placeholder="Your postcode (optional)"
                   value={postcode}
                   onChange={(e) => setPostcode(e.target.value)}
-                  className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#6b9e3e]"
+                  className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#4a7a3a]"
                 />
               </div>
 
@@ -166,7 +166,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#6b9e3e] hover:bg-[#4d7a22] text-white py-3 rounded-lg font-medium transition-colors disabled:opacity-50"
+            className="w-full bg-[#4a7a3a] hover:bg-[#4d7a22] text-white py-3 rounded-lg font-medium transition-colors disabled:opacity-50"
           >
             {loading ? 'Please wait...' : mode === 'login' ? 'Sign in' : mode === 'signup' ? 'Sign up' : 'Send reset link'}
           </button>
@@ -176,7 +176,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
           <div className="mt-4 text-center">
             <button 
               onClick={() => setMode('forgot')} 
-              className="text-sm text-[#6b9e3e] hover:text-[#6b9e3e]"
+              className="text-sm text-[#4a7a3a] hover:text-[#4a7a3a]"
             >
               Forgot password?
             </button>
@@ -187,21 +187,21 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
           {mode === 'login' ? (
             <>
               Don't have an account?{' '}
-              <button onClick={() => setMode('signup')} className="text-[#6b9e3e] hover:text-[#6b9e3e]">
+              <button onClick={() => setMode('signup')} className="text-[#4a7a3a] hover:text-[#4a7a3a]">
                 Sign up
               </button>
             </>
           ) : mode === 'signup' ? (
             <>
               Already have an account?{' '}
-              <button onClick={() => setMode('login')} className="text-[#6b9e3e] hover:text-[#6b9e3e]">
+              <button onClick={() => setMode('login')} className="text-[#4a7a3a] hover:text-[#4a7a3a]">
                 Sign in
               </button>
             </>
           ) : (
             <>
               Remember your password?{' '}
-              <button onClick={() => setMode('login')} className="text-[#6b9e3e] hover:text-[#6b9e3e]">
+              <button onClick={() => setMode('login')} className="text-[#4a7a3a] hover:text-[#4a7a3a]">
                 Sign in
               </button>
             </>

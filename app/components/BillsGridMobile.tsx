@@ -125,7 +125,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
           placeholder="Search bills..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-xl mx-auto block px-4 py-2 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-[#6b9e3e] focus:outline-none"
+          className="max-w-xl mx-auto block px-4 py-2 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-[#4a7a3a] focus:outline-none"
         />
       </div>
 
@@ -135,7 +135,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
             onClick={() => setActiveTab('latest')}
             className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
               activeTab === 'latest'
-                ? 'text-[#6b9e3e] border-b-2 border-[#6b9e3e]'
+                ? 'text-[#4a7a3a] border-b-2 border-[#4a7a3a]'
                 : 'text-gray-200'
             }`}
           >
@@ -145,7 +145,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
             onClick={() => setActiveTab('trending')}
             className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
               activeTab === 'trending'
-                ? 'text-[#6b9e3e] border-b-2 border-[#6b9e3e]'
+                ? 'text-[#4a7a3a] border-b-2 border-[#4a7a3a]'
                 : 'text-gray-200'
             }`}
           >
@@ -155,7 +155,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
             onClick={() => setActiveTab('controversial')}
             className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
               activeTab === 'controversial'
-                ? 'text-[#6b9e3e] border-b-2 border-[#6b9e3e]'
+                ? 'text-[#4a7a3a] border-b-2 border-[#4a7a3a]'
                 : 'text-gray-200'
             }`}
           >
@@ -165,7 +165,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
             onClick={() => setActiveTab('voted')}
             className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
               activeTab === 'voted'
-                ? 'text-[#6b9e3e] border-b-2 border-[#6b9e3e]'
+                ? 'text-[#4a7a3a] border-b-2 border-[#4a7a3a]'
                 : 'text-gray-200'
             }`}
           >

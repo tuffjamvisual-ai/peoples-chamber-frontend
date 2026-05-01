@@ -10,7 +10,7 @@ interface Props {
   section?: string
 }
 
-const ACCENT = '#6b9e3e'
+const ACCENT = '#4a7a3a'
 
 function formatAmount(v: unknown): string | null {
   const n = typeof v === 'number' ? v : typeof v === 'string' && v.trim() ? Number(v) : NaN
@@ -90,7 +90,7 @@ export default function TransparencyClient({ rows, sectionTitle, section }: Prop
           placeholder={`Search ${rows.length.toLocaleString()} records…`}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full max-w-md bg-[#0f1a0f] border border-[#1a2e1a] text-white text-[13px] rounded-sm px-4 py-3 leading-[1.7] placeholder:text-gray-200 focus:outline-none focus:border-[#6b9e3e] transition-colors"
+          className="w-full max-w-md bg-[#0f1a0f] border border-[#1a2e1a] text-white text-[13px] rounded-sm px-4 py-3 leading-[1.7] placeholder:text-gray-200 focus:outline-none focus:border-[#4a7a3a] transition-colors"
         />
         {query && (
           <p className="text-gray-200 text-[11px] mt-2 font-mono uppercase tracking-[0.15em]">
@@ -109,7 +109,7 @@ export default function TransparencyClient({ rows, sectionTitle, section }: Prop
             const approvalDate = formatUkDate(row.approval_date)
             const newRoleLine = [newRole || 'New role: pending ACOBA publication', organisation].filter(Boolean).join(' · ')
             return (
-              <li key={i} className="bg-[#0f1a0f] p-5 border-l-2 border-l-[#6b9e3e]">
+              <li key={i} className="bg-[#0f1a0f] p-5 border-l-2 border-l-[#4a7a3a]">
                 <div className="flex items-baseline justify-between gap-4 mb-1.5">
                   <h3 className="text-white text-base font-bold leading-snug tracking-tight">{personName}</h3>
                   {approvalDate && (
@@ -138,7 +138,7 @@ export default function TransparencyClient({ rows, sectionTitle, section }: Prop
             const nature = row.nature as string | null
             const receivedDate = formatUkDate(row.received_date)
             return (
-              <li key={i} className="bg-[#0f1a0f] p-5 border-l-2 border-l-[#6b9e3e]">
+              <li key={i} className="bg-[#0f1a0f] p-5 border-l-2 border-l-[#4a7a3a]">
                 <div className="flex items-baseline justify-between gap-4 mb-1.5">
                   <h3 className="text-white text-base sm:text-lg font-bold leading-snug tracking-tight">{recipient}</h3>
                   {amount && (
@@ -169,7 +169,7 @@ export default function TransparencyClient({ rows, sectionTitle, section }: Prop
             )
 
             return (
-              <li key={i} className="bg-[#0f1a0f] p-5 border-l-2 border-l-transparent hover:border-l-[#6b9e3e] transition-colors">
+              <li key={i} className="bg-[#0f1a0f] p-5 border-l-2 border-l-transparent hover:border-l-[#4a7a3a] transition-colors">
                 <div className="flex items-baseline justify-between gap-4 mb-3">
                   <h3 className="text-white text-[14px] font-bold leading-snug">{titleValue}</h3>
                   {dateValue && (

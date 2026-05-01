@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/bills' },
 };
 
-const ACCENT = '#6b9e3e';
+const ACCENT = '#4a7a3a';
 
 export default async function BillsPage() {
   const bills = await getAllBills();
@@ -59,7 +59,7 @@ function Stat({ label, value, accent = false }: { label: string; value: number |
   return (
     <div className="bg-[#0f1a0f] px-4 py-5">
       <p className="text-[10px] uppercase tracking-[0.25em] text-gray-200 font-medium mb-2">{label}</p>
-      <p className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#6b9e3e]' : 'text-white'}`}>
+      <p className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#4a7a3a]' : 'text-white'}`}>
         {typeof value === 'number' ? value.toLocaleString() : value}
       </p>
     </div>

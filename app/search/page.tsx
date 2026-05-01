@@ -24,7 +24,7 @@ export default function SearchPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Try: knife crime, energy bills, small boats, income tax..."
-            className="w-full bg-gray-900 border border-gray-700 rounded-xl px-5 py-4 text-white text-lg placeholder-gray-500 focus:outline-none focus:border-[#6b9e3e]"
+            className="w-full bg-gray-900 border border-gray-700 rounded-xl px-5 py-4 text-white text-lg placeholder-gray-500 focus:outline-none focus:border-[#4a7a3a]"
             autoFocus
           />
           {query && (
@@ -41,7 +41,7 @@ export default function SearchPage() {
           <div className="text-center py-12">
             <p className="text-gray-200 text-lg mb-2">No results for "{query}"</p>
             <p className="text-gray-200 text-sm">Try a different term or browse departments directly</p>
-            <Link href="/departments" className="inline-block mt-4 text-[#6b9e3e] hover:underline text-sm">Browse all departments →</Link>
+            <Link href="/departments" className="inline-block mt-4 text-[#4a7a3a] hover:underline text-sm">Browse all departments →</Link>
           </div>
         )}
 
@@ -51,7 +51,7 @@ export default function SearchPage() {
               <Link
                 key={i}
                 href={`/departments/${result.departmentSlug}?zone=${encodeURIComponent(result.zone)}`}
-                className="block bg-gray-900 border border-gray-800 rounded-xl p-5 hover:border-[#6b9e3e] transition-colors"
+                className="block bg-gray-900 border border-gray-800 rounded-xl p-5 hover:border-[#4a7a3a] transition-colors"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -59,7 +59,7 @@ export default function SearchPage() {
                     <div className="text-white font-semibold text-lg">{result.zone}</div>
                     <div className="text-gray-200 text-sm mt-1">See what every party says about this →</div>
                   </div>
-                  <div className="text-[#6b9e3e] text-2xl flex-shrink-0">→</div>
+                  <div className="text-[#4a7a3a] text-2xl flex-shrink-0">→</div>
                 </div>
               </Link>
             ))}

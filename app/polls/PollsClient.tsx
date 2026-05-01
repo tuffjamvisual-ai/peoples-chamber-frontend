@@ -92,12 +92,12 @@ export default function PollsClient() {
           placeholder="Search polls..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 px-4 py-2 bg-gray-800 text-white rounded border border-gray-700 focus:border-[#6b9e3e] focus:outline-none text-sm"
+          className="flex-1 px-4 py-2 bg-gray-800 text-white rounded border border-gray-700 focus:border-[#4a7a3a] focus:outline-none text-sm"
         />
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value as SortOption)}
-          className="px-3 py-2 bg-gray-800 text-white text-sm rounded border border-gray-700 focus:border-[#6b9e3e] focus:outline-none"
+          className="px-3 py-2 bg-gray-800 text-white text-sm rounded border border-gray-700 focus:border-[#4a7a3a] focus:outline-none"
         >
           <option value="popular">Most Popular</option>
           <option value="newest">Newest</option>
@@ -108,7 +108,7 @@ export default function PollsClient() {
 
       {loading ? (
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#6b9e3e] mx-auto"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#4a7a3a] mx-auto"></div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -121,7 +121,7 @@ export default function PollsClient() {
             return (
               <div key={poll.id} className="bg-gray-900 border border-gray-800 rounded-lg p-5 flex flex-col min-h-[180px]">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs px-2 py-0.5 bg-[#6b9e3e]/10 text-[#6b9e3e] rounded border border-[#6b9e3e]/30">Poll</span>
+                  <span className="text-xs px-2 py-0.5 bg-[#4a7a3a]/10 text-[#4a7a3a] rounded border border-[#4a7a3a]/30">Poll</span>
                   {poll.constituency && (
                     <span className="text-xs px-2 py-0.5 bg-purple-900/40 text-purple-300 rounded border border-purple-800/40">
                       {poll.constituency}

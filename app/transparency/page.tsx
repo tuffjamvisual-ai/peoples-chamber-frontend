@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/transparency' },
 }
 
-const ACCENT = '#6b9e3e'
+const ACCENT = '#4a7a3a'
 const ACCENT_2 = '#818cf8'
 
 const SECTIONS = [
@@ -55,14 +55,14 @@ export default function TransparencyHubPage() {
               <li key={s.slug} className="bg-[#0f1a0f]">
                 <Link
                   href={`/transparency/${s.slug}`}
-                  className="group block p-6 hover:bg-[#111827] transition-colors border-l-2 border-transparent hover:border-l-[#6b9e3e]"
+                  className="group block p-6 hover:bg-[#111827] transition-colors border-l-2 border-transparent hover:border-l-[#4a7a3a]"
                 >
                   <p className="text-[10px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: colour }}>
                     Dataset · {String(i + 1).padStart(2, '0')}
                   </p>
-                  <h2 className="text-xl font-black tracking-tight mb-2 leading-tight text-white group-hover:text-[#6b9e3e] transition-colors">
+                  <h2 className="text-xl font-black tracking-tight mb-2 leading-tight text-white group-hover:text-[#4a7a3a] transition-colors">
                     {s.title}
-                    <span className="ml-2 text-base text-gray-200 inline-block transition-transform group-hover:translate-x-1 group-hover:text-[#6b9e3e]">→</span>
+                    <span className="ml-2 text-base text-gray-200 inline-block transition-transform group-hover:translate-x-1 group-hover:text-[#4a7a3a]">→</span>
                   </h2>
                   <p className="text-gray-200 text-[13px] leading-[1.7]">{s.description}</p>
                 </Link>
@@ -79,7 +79,7 @@ function Stat({ label, value, accent = false }: { label: string; value: number |
   return (
     <div className="bg-[#0f1a0f] px-4 py-5">
       <p className="text-[10px] uppercase tracking-[0.25em] text-gray-200 font-medium mb-2">{label}</p>
-      <p className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#6b9e3e]' : 'text-white'}`}>
+      <p className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#4a7a3a]' : 'text-white'}`}>
         {typeof value === 'number' ? value.toLocaleString() : value}
       </p>
     </div>

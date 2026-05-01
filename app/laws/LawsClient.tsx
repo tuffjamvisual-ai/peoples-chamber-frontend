@@ -42,7 +42,7 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
           placeholder="Search laws..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-[#6b9e3e] focus:outline-none"
+          className="w-full px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-[#4a7a3a] focus:outline-none"
         />
       </div>
 
@@ -58,7 +58,7 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
             <Link
               key={law.id}
               href={`/bills/${law.id}`}
-              className="bg-gray-900 border border-gray-800 rounded-lg p-4 sm:p-6 hover:border-[#6b9e3e] transition-colors flex flex-col"
+              className="bg-gray-900 border border-gray-800 rounded-lg p-4 sm:p-6 hover:border-[#4a7a3a] transition-colors flex flex-col"
             >
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-xs px-2 py-0.5 bg-green-900/40 text-green-300 rounded border border-green-800/40">
