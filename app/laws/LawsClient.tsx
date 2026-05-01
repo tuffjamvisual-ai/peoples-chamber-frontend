@@ -42,7 +42,7 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
           placeholder="Search laws..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full px-4 py-3 bg-[#1c3849] text-white rounded-lg border border-[#1c3849] focus:border-[#ffffff] focus:outline-none"
+          className="w-[30%] px-4 py-2 bg-[#1c3849] text-white rounded-lg border border-[#1c3849] focus:border-[#ffffff] focus:outline-none"
         />
       </div>
 
