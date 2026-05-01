@@ -82,7 +82,7 @@ export default async function MPProfilePage({ params }: PageProps) {
     .eq('member_id', memberId)
     .order('category_sort_order', { ascending: true })
 
-  const partyColour = mp.party_colour ? '#' + mp.party_colour.replace('#', '') : '#3b82f6'
+  const partyColour = mp.party_colour ? '#' + mp.party_colour.replace('#', '') : '#7697a2'
 
   return (
     <div className="min-h-screen bg-[#001520]">

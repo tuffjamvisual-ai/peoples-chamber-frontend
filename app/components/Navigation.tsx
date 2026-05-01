@@ -87,7 +87,7 @@ export default function Navigation() {
                   <button onClick={openLogin} className="px-3 py-1.5 text-[#c9c9c9] hover:text-white text-sm">
                     Login
                   </button>
-                  <button onClick={openSignup} className="px-4 py-1.5 bg-[#ffffff] hover:bg-[#c9c9c9] text-white rounded text-sm font-medium">
+                  <button onClick={openSignup} className="px-4 py-1.5 border border-[#ffffff] bg-transparent text-[#ffffff] hover:bg-[#ffffff] hover:text-[#001520] rounded text-sm font-medium transition-colors">
                     Sign Up
                   </button>
                 </>
@@ -149,7 +149,7 @@ export default function Navigation() {
                       <button onClick={openLogin} className="w-full text-left px-3 py-2 text-[#c9c9c9] text-sm">
                         Login
                       </button>
-                      <button onClick={openSignup} className="w-full text-center px-3 py-2 bg-[#ffffff] text-white rounded mx-3 mt-2 text-sm font-medium">
+                      <button onClick={openSignup} className="w-full text-center px-3 py-2 border border-[#ffffff] bg-transparent text-[#ffffff] hover:bg-[#ffffff] hover:text-[#001520] rounded mx-3 mt-2 text-sm font-medium transition-colors">
                         Sign Up
                       </button>
                     </>
