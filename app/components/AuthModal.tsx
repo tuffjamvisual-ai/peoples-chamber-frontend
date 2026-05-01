@@ -16,6 +16,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [postcode, setPostcode] = useState('');
+  const [honeypot, setHoneypot] = useState('');
   const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -33,6 +34,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
 
     try {
       if (mode === 'signup') {
+        if (honeypot) return
         const passwordStrong = password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password)
         if (!passwordStrong) {
           setError('Password must be at least 8 characters with one uppercase letter and one number')
@@ -168,6 +170,15 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
             </>
           )}
 
+          <input
+            type="text"
+            value={honeypot}
+            onChange={(e) => setHoneypot(e.target.value)}
+            style={{ display: 'none' }}
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+          />
           <button
             type="submit"
             disabled={loading}
