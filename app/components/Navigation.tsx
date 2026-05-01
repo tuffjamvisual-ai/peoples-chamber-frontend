@@ -10,6 +10,15 @@ import { usePathname } from 'next/navigation';
 
 export default function Navigation() {
   const { user, logout } = useAuth();
+  
+  if (typeof window !== 'undefined' && user) {
+    const lastActive = localStorage.getItem('lastActive')
+    const now = Date.now()
+    if (lastActive && now - parseInt(lastActive) > 2 * 60 * 60 * 1000) {
+      logout()
+    }
+    localStorage.setItem('lastActive', now.toString())
+  }
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
