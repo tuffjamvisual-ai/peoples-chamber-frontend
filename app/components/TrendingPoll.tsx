@@ -63,12 +63,12 @@ export default function TrendingPoll() {
 
   return (
     <div className="w-full">
-      <div className="text-xs text-white uppercase tracking-wider mb-2">Trending People's Poll</div>
+      <div className="text-sm text-white uppercase tracking-wider mb-2">Trending People's Poll</div>
       <div className="bg-[#001520] border border-[#1c3849] rounded-lg p-4">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-xs px-2 py-0.5 bg-white/10 text-[#ffffff] rounded border border-white/30">Poll</span>
+          <span className="text-sm px-2 py-0.5 bg-white/10 text-[#ffffff] rounded border border-white/30">Poll</span>
           {poll.constituency && (
-            <span className="text-xs px-2 py-0.5 bg-[#1c3849] text-white rounded border border-[#405b6b]">{poll.constituency}</span>
+            <span className="text-sm px-2 py-0.5 bg-[#1c3849] text-white rounded border border-[#405b6b]">{poll.constituency}</span>
         )}
         </div>
 
@@ -80,7 +80,7 @@ export default function TrendingPoll() {
               <div className="bg-[#4a8a3a] h-full transition-all" style={{ width: yesPercent + '%' }} />
               <div className="bg-[#8a3a3a] h-full transition-all" style={{ width: noPercent + '%' }} />
             </div>
-            <div className="flex justify-between text-xs text-white mb-3">
+            <div className="flex justify-between text-sm text-white mb-3">
               <span>Yes {yesPercent}% · {poll.vote_count_yes}</span>
               <span>{total} votes</span>
               <span>{poll.vote_count_no} · No {noPercent}%</span>
@@ -92,14 +92,14 @@ export default function TrendingPoll() {
           <button
             onClick={() => handleVote('yes')}
             disabled={hasVoted}
-            className={'px-4 py-1.5 rounded text-xs font-medium transition-colors ' + (hasVoted ? (userVote === 'yes' ? 'bg-[#405b6b] text-white' : 'bg-[#405b6b] text-white cursor-not-allowed') : 'bg-[#1c3849] hover:bg-[#405b6b] text-white')}
+            className={'px-4 py-1.5 rounded text-sm font-medium transition-colors ' + (hasVoted ? (userVote === 'yes' ? 'bg-[#405b6b] text-white' : 'bg-[#405b6b] text-white cursor-not-allowed') : 'bg-[#1c3849] hover:bg-[#405b6b] text-white')}
           >
             {userVote === 'yes' ? '✓ Yes' : 'Yes'}
           </button>
           <button
             onClick={() => handleVote('no')}
             disabled={hasVoted}
-            className={'px-4 py-1.5 rounded text-xs font-medium transition-colors ' + (hasVoted ? (userVote === 'no' ? 'bg-[#8a3a3a] text-white' : 'bg-[#405b6b] text-white cursor-not-allowed') : 'bg-[#8a3a3a] hover:bg-[#8a3a3a] text-white')}
+            className={'px-4 py-1.5 rounded text-sm font-medium transition-colors ' + (hasVoted ? (userVote === 'no' ? 'bg-[#8a3a3a] text-white' : 'bg-[#405b6b] text-white cursor-not-allowed') : 'bg-[#8a3a3a] hover:bg-[#8a3a3a] text-white')}
           >
             {userVote === 'no' ? '✓ No' : 'No'}
           </button>

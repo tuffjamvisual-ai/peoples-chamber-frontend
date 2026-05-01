@@ -84,7 +84,7 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
                     <div className="text-white font-medium">{role.title}</div>
                     <div className="text-white text-sm">{role.organisation}</div>
                     {role.startDate && (
-                      <div className="text-white text-xs mt-0.5">Since {new Date(role.startDate).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</div>
+                      <div className="text-white text-sm mt-0.5">Since {new Date(role.startDate).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</div>
                     )}
                     {role.body && (
                       <div className="text-[#c9c9c9] text-sm mt-3 leading-relaxed prose prose-invert max-w-none"
@@ -109,7 +109,7 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
                         <li key={i} className="text-[#c9c9c9] text-sm leading-relaxed">
                           <div>{item.summary}</div>
                           {item.detail && item.detail !== item.summary && (
-                            <div className="text-white text-xs mt-1 whitespace-pre-line">{item.detail}</div>
+                            <div className="text-white text-sm mt-1 whitespace-pre-line">{item.detail}</div>
                           )}
                         </li>
                       ))}
@@ -127,9 +127,9 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
                   {person.pastRoles.map((role, i) => (
                     <div key={i} className="py-3">
                       <div className="text-white text-sm font-medium">{role.title}</div>
-                      <div className="text-white text-xs">{role.organisation}</div>
+                      <div className="text-white text-sm">{role.organisation}</div>
                       {role.startDate && role.endDate && (
-                        <div className="text-white text-xs mt-0.5">
+                        <div className="text-white text-sm mt-0.5">
                           {new Date(role.startDate).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })} — {new Date(role.endDate).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}
                         </div>
                       )}

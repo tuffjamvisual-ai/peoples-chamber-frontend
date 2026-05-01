@@ -55,7 +55,7 @@ export default function SearchPage() {
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <div className="text-xs text-white mb-1">{result.department}</div>
+                    <div className="text-sm text-white mb-1">{result.department}</div>
                     <div className="text-white font-semibold text-lg">{result.zone}</div>
                     <div className="text-white text-sm mt-1">See what every party says about this →</div>
                   </div>

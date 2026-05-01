@@ -28,7 +28,7 @@ export default async function BillsPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
         <header className="border-b border-[#1c3849] pb-10 mb-10">
-          <p className="text-[10px] uppercase tracking-[0.3em] font-medium mb-4" style={{ color: ACCENT }}>
+          <p className="text-[13px] uppercase tracking-[0.3em] font-medium mb-4" style={{ color: ACCENT }}>
             The People&apos;s Chamber · Bills
           </p>
           <h1 className="text-4xl sm:text-6xl font-black leading-[1.05] tracking-tight text-white mb-4">
@@ -58,7 +58,7 @@ export default async function BillsPage() {
 function Stat({ label, value, accent = false }: { label: string; value: number | string; accent?: boolean }) {
   return (
     <div className="px-4 py-5">
-      <p className="text-[10px] uppercase tracking-[0.25em] text-white font-medium mb-2">{label}</p>
+      <p className="text-[13px] uppercase tracking-[0.25em] text-white font-medium mb-2">{label}</p>
       <p className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#ffffff]' : 'text-white'}`}>
         {typeof value === 'number' ? value.toLocaleString() : value}
       </p>

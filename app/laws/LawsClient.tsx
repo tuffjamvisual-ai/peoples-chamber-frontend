@@ -61,11 +61,11 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
               className="bg-[#001520] border border-[#1c3849] rounded-lg p-4 sm:p-6 hover:border-[#ffffff] transition-colors flex flex-col"
             >
               <div className="flex items-center gap-2 mb-3">
-                <span className="text-xs px-2 py-0.5 bg-white/10 text-white rounded border border-white/20">
+                <span className="text-sm px-2 py-0.5 bg-white/10 text-white rounded border border-white/20">
                   ✓ Law
                 </span>
                 {law.originating_house && (
-                  <span className="text-xs text-white">{law.originating_house}</span>
+                  <span className="text-sm text-white">{law.originating_house}</span>
                 )}
               </div>
 
@@ -74,12 +74,12 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
               </h3>
 
               {law.plain_summary && (
-                <p className="text-white text-xs mb-4 line-clamp-3 flex-1">
+                <p className="text-white text-sm mb-4 line-clamp-3 flex-1">
                   {law.plain_summary}
                 </p>
               )}
 
-              <div className="flex items-center justify-between text-xs text-white mt-auto">
+              <div className="flex items-center justify-between text-sm text-white mt-auto">
                 {law.sponsor_name && (
                   <span className="flex items-center gap-1">
                     {law.sponsor_party && (

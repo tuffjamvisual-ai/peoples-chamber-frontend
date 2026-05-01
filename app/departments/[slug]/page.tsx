@@ -123,13 +123,13 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
     <div className="min-h-screen bg-[#001520] text-white">
       <Navigation />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
-        <Link href="/departments" className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-white hover:text-white mb-8 transition-colors">
+        <Link href="/departments" className="inline-flex items-center gap-2 text-[13px] uppercase tracking-[0.25em] text-white hover:text-white mb-8 transition-colors">
           ← Back to Departments
         </Link>
 
         {/* Header */}
         <header className="border-b border-[#1c3849] pb-8 mb-8">
-          <p className="text-[10px] uppercase tracking-[0.3em] font-medium mb-3" style={{ color: ACCENT }}>
+          <p className="text-[13px] uppercase tracking-[0.3em] font-medium mb-3" style={{ color: ACCENT }}>
             UK Government · Department
           </p>
           <div className="flex items-start justify-between gap-4 mb-3">
@@ -142,7 +142,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
                     href={s.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[10px] uppercase tracking-[0.15em] px-2 py-1 bg-[#1c3849] text-white rounded-sm border border-[#1c3849] hover:text-white hover:border-[#ffffff] transition-colors"
+                    className="text-[13px] uppercase tracking-[0.15em] px-2 py-1 bg-[#1c3849] text-white rounded-sm border border-[#1c3849] hover:text-white hover:border-[#ffffff] transition-colors"
                   >
                     {s.service === 'twitter' ? 'X' : s.service === 'youtube' ? 'YT' : s.service.slice(0, 3)}
                   </a>
@@ -155,7 +155,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
 
         {/* Secretary of State */}
         <section className="border-b border-[#1c3849] pb-8 mb-8">
-          <p className="text-[10px] uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: ACCENT }}>Secretary of State</p>
+          <p className="text-[13px] uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: ACCENT }}>Secretary of State</p>
           <div className="flex items-center gap-6">
             {sosPhoto ? (
               <img
@@ -178,7 +178,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
               {sos.slug && (
                 <Link
                   href={`/people/${sos.slug}`}
-                  className="inline-block text-[10px] uppercase tracking-[0.2em] hover:underline font-semibold"
+                  className="inline-block text-[13px] uppercase tracking-[0.2em] hover:underline font-semibold"
                   style={{ color: ACCENT }}
                 >
                   View bio →
@@ -193,8 +193,8 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
           {slug === 'treasury' ? (
             <div className="bg-[#1c3849] p-5">
               <div className="flex items-baseline justify-between mb-4">
-                <h3 className="text-[10px] uppercase tracking-[0.25em] font-semibold text-white">Live Economic Data</h3>
-                {stats && <span className="text-[10px] uppercase tracking-[0.15em] text-white font-mono">CPI · ONS · {stats.cpiDate}</span>}
+                <h3 className="text-[13px] uppercase tracking-[0.25em] font-semibold text-white">Live Economic Data</h3>
+                {stats && <span className="text-[13px] uppercase tracking-[0.15em] text-white font-mono">CPI · ONS · {stats.cpiDate}</span>}
               </div>
               <div className="grid grid-cols-3 gap-px bg-[#1c3849] border border-[#1c3849]">
                 {[
@@ -224,8 +224,8 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
           )}
 
           <div ref={searchRef} className="bg-[#1c3849] p-5 relative">
-            <h3 className="text-[10px] uppercase tracking-[0.25em] mb-1 font-semibold text-white">Search Topics</h3>
-            <p className="text-white text-[12px] mb-3 leading-[1.7]">Type any issue to see what every party says about it</p>
+            <h3 className="text-[13px] uppercase tracking-[0.25em] mb-1 font-semibold text-white">Search Topics</h3>
+            <p className="text-white text-[15px] mb-3 leading-[1.7]">Type any issue to see what every party says about it</p>
             <div className="relative">
               <input
                 type="text"
@@ -238,7 +238,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
               {zoneSearch && (
                 <button
                   onClick={() => { setZoneSearch(''); setShowTopics(false); }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white hover:text-white text-xs"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white hover:text-white text-sm"
                 >
                   ✕
                 </button>
@@ -258,7 +258,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
                       }
                     >
                       {zone}
-                      {hasDetail && <span className="ml-2 text-[10px]" style={{ color: ACCENT }}>●</span>}
+                      {hasDetail && <span className="ml-2 text-[13px]" style={{ color: ACCENT }}>●</span>}
                     </button>
                   );
                 })}
@@ -272,7 +272,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
 
         {/* Street View */}
         <section className="border-b border-[#1c3849] pb-8 mb-8">
-          <h2 className="text-[10px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>The Street View</h2>
+          <h2 className="text-[13px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>The Street View</h2>
           <p className="text-white text-[14px] leading-[1.7]">{streetContext || dept.streetContext}</p>
         </section>
 
@@ -283,7 +283,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
               <h2 className="text-2xl font-black tracking-tight text-white">{activeZone}</h2>
               <button
                 onClick={() => setActiveZone(null)}
-                className="text-[10px] uppercase tracking-[0.25em] text-white hover:text-white transition-colors"
+                className="text-[13px] uppercase tracking-[0.25em] text-white hover:text-white transition-colors"
               >
                 ✕ Close
               </button>
@@ -296,13 +296,13 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
                 return (
                   <li key={pos.partyId} className="bg-[#1c3849] p-4 border-l-2" style={{ borderLeftColor: party.colour }}>
                     <span
-                      className="inline-block text-[10px] uppercase tracking-[0.15em] font-bold px-2 py-0.5 rounded-sm mb-2"
+                      className="inline-block text-[13px] uppercase tracking-[0.15em] font-bold px-2 py-0.5 rounded-sm mb-2"
                       style={{ backgroundColor: party.colour, color: party.textColour }}
                     >
                       {party.name}
                     </span>
                     <p className="text-white font-semibold text-[13px] mb-1 leading-snug">{pos.headline}</p>
-                    <p className="text-white text-[12px] leading-[1.7]">{pos.position}</p>
+                    <p className="text-white text-[15px] leading-[1.7]">{pos.position}</p>
                   </li>
                 );
               })}
@@ -313,7 +313,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
         {/* Agencies */}
         {govukData?.childOrgs && govukData.childOrgs.length > 0 && (
           <section className="border-b border-[#1c3849] pb-8 mb-8">
-            <h2 className="text-[10px] uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: ACCENT }}>
+            <h2 className="text-[13px] uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: ACCENT }}>
               Agencies & Arm&apos;s Length Bodies ({govukData.childOrgs.length})
             </h2>
             <div className="flex flex-wrap gap-x-4 gap-y-2">
@@ -323,7 +323,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
                   <Link
                     key={i}
                     href={'/agencies/' + agencySlug}
-                    className="text-[12px] uppercase tracking-[0.15em] text-white hover:text-[#ffffff] transition-colors"
+                    className="text-[15px] uppercase tracking-[0.15em] text-white hover:text-[#ffffff] transition-colors"
                   >
                     {org.acronym || org.name}
                   </Link>
@@ -335,7 +335,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
 
         {/* Staff */}
         <section>
-          <h2 className="text-[10px] uppercase tracking-[0.25em] mb-6 font-semibold" style={{ color: ACCENT }}>Department Staff</h2>
+          <h2 className="text-[13px] uppercase tracking-[0.25em] mb-6 font-semibold" style={{ color: ACCENT }}>Department Staff</h2>
 
           {juniorMinisters.length > 0 && <StaffGroup label="Ministers" people={juniorMinisters} />}
           {seniorOfficials.length > 0 && <StaffGroup label="Senior Officials" people={seniorOfficials} />}
@@ -346,14 +346,14 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
               {govukData.foiEmail && (
                 <a
                   href={`mailto:${govukData.foiEmail}`}
-                  className="text-[11px] uppercase tracking-[0.15em] hover:underline"
+                  className="text-[14px] uppercase tracking-[0.15em] hover:underline"
                   style={{ color: ACCENT }}
                 >
                   FOI Request: {govukData.foiEmail}
                 </a>
               )}
               {govukData.pressPhone && (
-                <span className="text-[11px] uppercase tracking-[0.15em] text-white font-mono">Press: {govukData.pressPhone}</span>
+                <span className="text-[14px] uppercase tracking-[0.15em] text-white font-mono">Press: {govukData.pressPhone}</span>
               )}
             </div>
           )}
@@ -366,13 +366,13 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
 function StaffGroup({ label, people }: { label: string; people: { name: string; role: string; slug: string }[] }) {
   return (
     <div className="mb-8">
-      <p className="text-[10px] uppercase tracking-[0.2em] text-white mb-3 font-semibold">{label}</p>
+      <p className="text-[13px] uppercase tracking-[0.2em] text-white mb-3 font-semibold">{label}</p>
       <ul className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[#1c3849] border border-[#1c3849]">
         {people.map((person, i) => (
           <li key={i} className="bg-[#1c3849] p-3 border-l-2 border-l-transparent hover:border-l-[#ffffff] hover:bg-[#001520] transition-colors">
             <Link href={`/people/${person.slug}`} className="block">
               <p className="text-white text-[13px] font-semibold hover:text-[#ffffff] transition-colors">{person.name}</p>
-              <p className="text-white text-[11px] mt-0.5 leading-[1.7]">{person.role}</p>
+              <p className="text-white text-[14px] mt-0.5 leading-[1.7]">{person.role}</p>
             </Link>
           </li>
         ))}

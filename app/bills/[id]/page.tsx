@@ -132,7 +132,7 @@ export default function BillDetailPage() {
       <div className="min-h-screen bg-[#001520] flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-2 border-t-[#ffffff] border-[#1c3849] mx-auto"></div>
-          <p className="text-white text-[10px] uppercase tracking-[0.25em] mt-6">Loading bill…</p>
+          <p className="text-white text-[13px] uppercase tracking-[0.25em] mt-6">Loading bill…</p>
         </div>
       </div>
     );
@@ -142,12 +142,12 @@ export default function BillDetailPage() {
     return (
       <div className="min-h-screen bg-[#001520] text-white flex items-center justify-center">
         <div className="border border-[#1c3849] border-l-2 border-l-[#8a3a3a] p-6 max-w-md">
-          <p className="text-[10px] uppercase tracking-[0.25em] mb-2 font-semibold" style={{ color: DANGER }}>Error</p>
+          <p className="text-[13px] uppercase tracking-[0.25em] mb-2 font-semibold" style={{ color: DANGER }}>Error</p>
           <h2 className="text-xl font-black tracking-tight text-white mb-2">Bill unavailable</h2>
           <p className="text-white text-[13px] leading-[1.7] mb-4">{error || 'Bill not found'}</p>
           <button
             onClick={() => router.push('/bills')}
-            className="px-4 py-2 bg-[#ffffff] text-[#001520] text-[12px] uppercase tracking-[0.2em] font-bold rounded-sm"
+            className="px-4 py-2 bg-[#ffffff] text-[#001520] text-[15px] uppercase tracking-[0.2em] font-bold rounded-sm"
           >
             Back to Bills
           </button>
@@ -192,7 +192,7 @@ export default function BillDetailPage() {
 
         {/* Title */}
         <header className="border-b border-[#1c3849] pb-8 mb-8">
-          <p className="text-[10px] uppercase tracking-[0.3em] font-medium mb-3" style={{ color: ACCENT }}>
+          <p className="text-[13px] uppercase tracking-[0.3em] font-medium mb-3" style={{ color: ACCENT }}>
             UK Parliament · Bill
           </p>
           <h1 className="text-3xl sm:text-5xl font-black leading-[1.05] tracking-tight text-white">{bill.title}</h1>
@@ -201,7 +201,7 @@ export default function BillDetailPage() {
         {/* Plain Summary */}
         {bill.plain_summary && (
           <section className="border-l-2 p-5 mb-8" style={{ borderLeftColor: ACCENT }}>
-            <p className="text-[10px] uppercase tracking-[0.25em] mb-2 font-semibold" style={{ color: ACCENT }}>Summary</p>
+            <p className="text-[13px] uppercase tracking-[0.25em] mb-2 font-semibold" style={{ color: ACCENT }}>Summary</p>
             <p className="text-white text-[14px] leading-[1.7]">{bill.plain_summary}</p>
           </section>
         )}
@@ -211,7 +211,7 @@ export default function BillDetailPage() {
           <section className="grid grid-cols-1 md:grid-cols-2 gap-px border border-[#1c3849] mb-8">
             {bill.support_explanation && (
               <div className="p-5 border-l-2" style={{ borderLeftColor: SUCCESS }}>
-                <p className="text-[10px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: SUCCESS }}>
+                <p className="text-[13px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: SUCCESS }}>
                   A vote to support means
                 </p>
                 <ul className="space-y-2">
@@ -228,7 +228,7 @@ export default function BillDetailPage() {
             )}
             {bill.oppose_explanation && (
               <div className="p-5 border-l-2" style={{ borderLeftColor: DANGER }}>
-                <p className="text-[10px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: DANGER }}>
+                <p className="text-[13px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: DANGER }}>
                   A vote to oppose means
                 </p>
                 <ul className="space-y-2">
@@ -249,12 +249,12 @@ export default function BillDetailPage() {
         {/* Sponsor */}
         {bill.sponsor_name && (
           <section className="border border-[#1c3849] border-l-2 border-l-[#ffffff] p-5 mb-8">
-            <p className="text-[10px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>Sponsored by</p>
+            <p className="text-[13px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>Sponsored by</p>
             <div className="flex items-center gap-4">
               {bill.sponsor_photo ? (
                 <img src={bill.sponsor_photo} alt={bill.sponsor_name} className="w-12 h-12 rounded-full bg-[#001520]" style={{ border: `1px solid ${ACCENT}` }} />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-[#001520] flex items-center justify-center text-[10px] uppercase tracking-wider text-white" style={{ border: `1px solid ${ACCENT}` }}>
+                <div className="w-12 h-12 rounded-full bg-[#001520] flex items-center justify-center text-[13px] uppercase tracking-wider text-white" style={{ border: `1px solid ${ACCENT}` }}>
                   {bill.sponsor_name.split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
                 </div>
               )}
@@ -263,14 +263,14 @@ export default function BillDetailPage() {
                 <div className="flex items-center gap-2 mt-1">
                   {bill.sponsor_party && (
                     <span
-                      className="text-[10px] uppercase tracking-[0.15em] font-bold px-2 py-0.5 rounded-sm text-white"
+                      className="text-[13px] uppercase tracking-[0.15em] font-bold px-2 py-0.5 rounded-sm text-white"
                       style={{ backgroundColor: `#${bill.sponsor_party_colour}` || '#7697a2' }}
                     >
                       {bill.sponsor_party}
                     </span>
                   )}
                   {bill.sponsor_constituency && (
-                    <span className="text-[11px] text-white font-mono">{bill.sponsor_constituency}</span>
+                    <span className="text-[14px] text-white font-mono">{bill.sponsor_constituency}</span>
                   )}
                 </div>
               </div>
@@ -283,7 +283,7 @@ export default function BillDetailPage() {
           <h2 className="text-2xl font-black tracking-tight text-white mb-6">Cast Your Vote</h2>
 
           <div className="mb-4">
-            <div className="flex justify-between text-[10px] uppercase tracking-[0.2em] text-white mb-1.5 font-mono">
+            <div className="flex justify-between text-[13px] uppercase tracking-[0.2em] text-white mb-1.5 font-mono">
               <span>People&apos;s Vote</span>
               <span>{totalVotes.toLocaleString()} votes</span>
             </div>
@@ -291,7 +291,7 @@ export default function BillDetailPage() {
               {yesPercent > 0 && <div className="h-full" style={{ width: `${yesPercent}%`, backgroundColor: SUCCESS }} />}
               {noPercent > 0 && <div className="h-full" style={{ width: `${noPercent}%`, backgroundColor: DANGER }} />}
             </div>
-            <div className="flex justify-between text-[11px] mt-1.5 font-mono">
+            <div className="flex justify-between text-[14px] mt-1.5 font-mono">
               <span style={{ color: SUCCESS }}>{yesPercent}% Support · {bill.votes.yes.toLocaleString()}</span>
               <span style={{ color: DANGER }}>{noPercent}% Oppose · {bill.votes.no.toLocaleString()}</span>
             </div>
@@ -299,7 +299,7 @@ export default function BillDetailPage() {
 
           {totalMPVotes > 0 && (
             <div className="mb-6">
-              <div className="flex justify-between text-[10px] uppercase tracking-[0.2em] text-white mb-1.5 font-mono">
+              <div className="flex justify-between text-[13px] uppercase tracking-[0.2em] text-white mb-1.5 font-mono">
                 <span>Parliament&apos;s Vote</span>
                 <span>{totalMPVotes.toLocaleString()} MPs</span>
               </div>
@@ -307,7 +307,7 @@ export default function BillDetailPage() {
                 {mpAyePercent > 0 && <div className="h-full" style={{ width: `${mpAyePercent}%`, backgroundColor: SUCCESS, opacity: 0.7 }} />}
                 {mpNoePercent > 0 && <div className="h-full" style={{ width: `${mpNoePercent}%`, backgroundColor: DANGER, opacity: 0.7 }} />}
               </div>
-              <div className="flex justify-between text-[11px] mt-1.5 font-mono">
+              <div className="flex justify-between text-[14px] mt-1.5 font-mono">
                 <span style={{ color: SUCCESS }}>{mpAyePercent}% Ayes · {bill.commons_ayes?.toLocaleString()}</span>
                 <span style={{ color: DANGER }}>{mpNoePercent}% Noes · {bill.commons_noes?.toLocaleString()}</span>
               </div>
@@ -319,14 +319,14 @@ export default function BillDetailPage() {
               className="border-l-2 px-4 py-3 mb-6 bg-[#001520]"
               style={{ borderLeftColor: outcomeMismatch ? WARN : ACCENT }}
             >
-              <p className="text-[10px] uppercase tracking-[0.25em] mb-1 font-semibold" style={{ color: outcomeMismatch ? WARN : ACCENT }}>
+              <p className="text-[13px] uppercase tracking-[0.25em] mb-1 font-semibold" style={{ color: outcomeMismatch ? WARN : ACCENT }}>
                 Democratic Gap
               </p>
               <p className="text-white text-[13px] font-semibold leading-snug">
                 {democraticGap}% {democraticGap > 20 ? '— Large gap' : democraticGap > 10 ? '— Moderate gap' : '— Small gap'}
               </p>
               {outcomeMismatch && (
-                <p className="text-[12px] mt-1 leading-[1.7]" style={{ color: WARN }}>
+                <p className="text-[15px] mt-1 leading-[1.7]" style={{ color: WARN }}>
                   Outcome mismatch — the public would {yesPercent > 50 ? 'pass' : 'block'} this bill, but Parliament {mpAyePercent > 50 ? 'passed' : 'rejected'} it
                 </p>
               )}
@@ -378,7 +378,7 @@ export default function BillDetailPage() {
                   <div className="flex-1 flex items-center justify-between">
                     <span className="text-[13px] font-bold" style={{ color: SUCCESS }}>Royal Assent</span>
                     {royalAssent.stageSittings[0]?.date && (
-                      <span className="text-[11px] text-white font-mono uppercase tracking-[0.15em]">
+                      <span className="text-[14px] text-white font-mono uppercase tracking-[0.15em]">
                         {new Date(royalAssent.stageSittings[0].date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </span>
                     )}
@@ -392,9 +392,9 @@ export default function BillDetailPage() {
         {/* Full Description */}
         {bill.description && bill.description !== bill.title && (
           <details className="border border-[#1c3849]">
-            <summary className="px-6 py-4 cursor-pointer hover:bg-[#001520] transition-colors text-[12px] uppercase tracking-[0.2em] font-semibold text-white">
+            <summary className="px-6 py-4 cursor-pointer hover:bg-[#001520] transition-colors text-[15px] uppercase tracking-[0.2em] font-semibold text-white">
               Full Bill Description
-              <span className="text-white text-[11px] ml-2 normal-case tracking-normal">(click to expand)</span>
+              <span className="text-white text-[14px] ml-2 normal-case tracking-normal">(click to expand)</span>
             </summary>
             <div className="px-6 pb-6">
               <p className="text-white text-[13px] leading-[1.7] whitespace-pre-wrap">{bill.description}</p>
@@ -411,7 +411,7 @@ export default function BillDetailPage() {
 function Tag({ colour, children }: { colour: string; children: React.ReactNode }) {
   return (
     <span
-      className="inline-block px-2 py-1 text-[10px] uppercase tracking-[0.15em] font-semibold rounded-sm"
+      className="inline-block px-2 py-1 text-[13px] uppercase tracking-[0.15em] font-semibold rounded-sm"
       style={{ color: colour, backgroundColor: colour + '22', border: `1px solid ${colour}55` }}
     >
       {children}
@@ -434,7 +434,7 @@ function VoteButton({
   active: boolean;
   colour: string;
 }) {
-  const baseClasses = 'py-3 text-[12px] uppercase tracking-[0.2em] font-bold transition-colors rounded-sm';
+  const baseClasses = 'py-3 text-[15px] uppercase tracking-[0.2em] font-bold transition-colors rounded-sm';
   const style: React.CSSProperties = active
     ? { backgroundColor: colour, color: '#001520' }
     : disabled
@@ -451,7 +451,7 @@ function VoteButton({
 function StageGroup({ label, colour, stages }: { label: string; colour: string; stages: Stage[] }) {
   return (
     <div>
-      <p className="text-[10px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: colour }}>{label}</p>
+      <p className="text-[13px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: colour }}>{label}</p>
       <ul className="space-y-2">
         {stages.map((stage) => (
           <li key={stage.id} className="flex items-center gap-3">
@@ -459,7 +459,7 @@ function StageGroup({ label, colour, stages }: { label: string; colour: string; 
             <div className="flex-1 flex items-center justify-between">
               <span className="text-[13px] text-white">{stage.description}</span>
               {stage.stageSittings[0]?.date && (
-                <span className="text-[11px] text-white font-mono uppercase tracking-[0.15em]">
+                <span className="text-[14px] text-white font-mono uppercase tracking-[0.15em]">
                   {new Date(stage.stageSittings[0].date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </span>
               )}

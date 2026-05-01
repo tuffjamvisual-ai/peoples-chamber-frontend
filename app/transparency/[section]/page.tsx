@@ -69,13 +69,13 @@ export default async function TransparencySectionPage({
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
         <Link
           href="/transparency"
-          className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-white hover:text-white mb-8 transition-colors"
+          className="inline-flex items-center gap-2 text-[13px] uppercase tracking-[0.25em] text-white hover:text-white mb-8 transition-colors"
         >
           ← Transparency Hub
         </Link>
 
         <header className="border-b border-[#1c3849] pb-10 mb-10">
-          <p className="text-[10px] uppercase tracking-[0.3em] font-medium mb-4" style={{ color: ACCENT }}>
+          <p className="text-[13px] uppercase tracking-[0.3em] font-medium mb-4" style={{ color: ACCENT }}>
             Dataset
           </p>
           <h1 className="text-4xl sm:text-6xl font-black leading-[1.05] tracking-tight text-white mb-4">

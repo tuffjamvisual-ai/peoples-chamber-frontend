@@ -174,7 +174,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
         </div>
         
         {/* Debug indicator - shows which tab is active and bill count */}
-        <div className="px-4 py-1 text-xs text-white">
+        <div className="px-4 py-1 text-sm text-white">
           Active: {activeTab} | Showing {filteredBills.length} bills
         </div>
       </div>
@@ -193,7 +193,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
               className="bg-[#001520] border border-[#1c3849] rounded-lg p-4 active:bg-[#1c3849]"
             >
               {/* Show position number and total votes for debugging */}
-              <div className="text-xs text-white mb-1">
+              <div className="text-sm text-white mb-1">
                 #{index + 1} | {totalVotes} total votes | Updated: {new Date(bill.last_update).toLocaleDateString()}
               </div>
               
@@ -206,7 +206,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
                   <div className="bg-[#4a8a3a]" style={{ width: `${yesPercent}%` }} />
                   <div className="bg-[#8a3a3a]" style={{ width: `${noPercent}%` }} />
                 </div>
-                <div className="flex justify-between text-xs text-white mt-1">
+                <div className="flex justify-between text-sm text-white mt-1">
                   <span>✓ {yesPercent}%</span>
                   <span>{totalVotes.toLocaleString()} votes</span>
                   <span>✗ {noPercent}%</span>
@@ -217,7 +217,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
                 <button
                   onClick={() => handleVote(bill.id, 'yes')}
                   disabled={hasVoted}
-                  className={`flex-1 py-2 rounded text-xs font-medium ${
+                  className={`flex-1 py-2 rounded text-sm font-medium ${
                     hasVoted
                       ? userVotes[bill.id] === 'yes'
                         ? 'bg-[#405b6b] text-white'
@@ -230,7 +230,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
                 <button
                   onClick={() => handleVote(bill.id, 'no')}
                   disabled={hasVoted}
-                  className={`flex-1 py-2 rounded text-xs font-medium ${
+                  className={`flex-1 py-2 rounded text-sm font-medium ${
                     hasVoted
                       ? userVotes[bill.id] === 'no'
                         ? 'bg-[#8a3a3a] text-white'

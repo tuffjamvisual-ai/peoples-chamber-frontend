@@ -150,7 +150,7 @@ export default function BillsGrid({ initialBills }: Props) {
                   <div className="bg-[#4a8a3a]" style={{ width: `${yesPercent}%` }} />
                   <div className="bg-[#8a3a3a]" style={{ width: `${noPercent}%` }} />
                 </div>
-                <div className="flex justify-between text-xs text-white mt-1">
+                <div className="flex justify-between text-sm text-white mt-1">
                   <span>✓ {yesPercent}%</span>
                   <span>{totalVotes.toLocaleString()} votes</span>
                   <span>✗ {noPercent}%</span>
@@ -161,14 +161,14 @@ export default function BillsGrid({ initialBills }: Props) {
                 <button
                   onClick={() => handleVote(bill.id, 'yes')}
                   disabled={hasVoted}
-                  className={`flex-1 py-2 rounded text-xs font-medium ${hasVoted ? userVotes[bill.id] === 'yes' ? 'bg-[#405b6b] text-white' : 'bg-[#405b6b] text-white' : 'bg-[#1c3849] hover:bg-[#405b6b] text-white'}`}
+                  className={`flex-1 py-2 rounded text-sm font-medium ${hasVoted ? userVotes[bill.id] === 'yes' ? 'bg-[#405b6b] text-white' : 'bg-[#405b6b] text-white' : 'bg-[#1c3849] hover:bg-[#405b6b] text-white'}`}
                 >
                   {hasVoted && userVotes[bill.id] === 'yes' ? '✓ Supported' : 'Support'}
                 </button>
                 <button
                   onClick={() => handleVote(bill.id, 'no')}
                   disabled={hasVoted}
-                  className={`flex-1 py-2 rounded text-xs font-medium ${hasVoted ? userVotes[bill.id] === 'no' ? 'bg-[#8a3a3a] text-white' : 'bg-[#405b6b] text-white' : 'bg-[#8a3a3a] hover:bg-[#8a3a3a] text-white'}`}
+                  className={`flex-1 py-2 rounded text-sm font-medium ${hasVoted ? userVotes[bill.id] === 'no' ? 'bg-[#8a3a3a] text-white' : 'bg-[#405b6b] text-white' : 'bg-[#8a3a3a] hover:bg-[#8a3a3a] text-white'}`}
                 >
                   {hasVoted && userVotes[bill.id] === 'no' ? '✓ Opposed' : 'Oppose'}
                 </button>

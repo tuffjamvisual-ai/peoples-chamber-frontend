@@ -61,14 +61,14 @@ export default async function CommitteePublicationPage({ params }: Props) {
         </Link>
 
         {row.committee_name && (
-          <p className="text-xs uppercase tracking-[0.3em] mb-3" style={{ color: ACCENT }}>
+          <p className="text-sm uppercase tracking-[0.3em] mb-3" style={{ color: ACCENT }}>
             {row.committee_name}
           </p>
         )}
 
         <h1 className="text-3xl sm:text-4xl font-bold leading-tight text-white mb-4">{row.title}</h1>
 
-        <div className="flex flex-wrap items-center gap-3 text-xs text-white mb-8 font-mono">
+        <div className="flex flex-wrap items-center gap-3 text-sm text-white mb-8 font-mono">
           {row.publication_date && <span>{formatDate(row.publication_date)}</span>}
           {row.publication_type && <span>· {row.publication_type}</span>}
           {externalUrl && (

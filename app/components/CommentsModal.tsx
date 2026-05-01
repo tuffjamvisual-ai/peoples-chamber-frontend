@@ -168,7 +168,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-white text-sm">{comment.username}</span>
-                    <span className="text-xs text-white">
+                    <span className="text-sm text-white">
                       {formatTime(comment.createdAt)}
                       {comment.updatedAt !== comment.createdAt && ' (edited)'}
                     </span>
@@ -180,13 +180,13 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
                           setEditingId(comment.id);
                           setEditText(comment.text);
                         }}
-                        className="text-xs text-[#ffffff] hover:text-[#ffffff]"
+                        className="text-sm text-[#ffffff] hover:text-[#ffffff]"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => handleDelete(comment.id)}
-                        className="text-xs text-[#8a3a3a] hover:text-[#8a3a3a]"
+                        className="text-sm text-[#8a3a3a] hover:text-[#8a3a3a]"
                       >
                         Delete
                       </button>
@@ -205,7 +205,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleEdit(comment.id)}
-                        className="px-3 py-1 bg-[#ffffff] hover:bg-[#c9c9c9] text-white text-xs rounded"
+                        className="px-3 py-1 bg-[#ffffff] hover:bg-[#c9c9c9] text-white text-sm rounded"
                       >
                         Save
                       </button>
@@ -214,7 +214,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
                           setEditingId(null);
                           setEditText('');
                         }}
-                        className="px-3 py-1 bg-[#405b6b] hover:bg-[#405b6b] text-white text-xs rounded"
+                        className="px-3 py-1 bg-[#405b6b] hover:bg-[#405b6b] text-white text-sm rounded"
                       >
                         Cancel
                       </button>
@@ -232,7 +232,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
         {user ? (
           <div className="p-4 border-t border-[#1c3849]">
             {error && (
-              <div className="mb-3 p-2 bg-[#8a3a3a]/20 border border-[#8a3a3a]/50 rounded text-[#8a3a3a] text-xs">
+              <div className="mb-3 p-2 bg-[#8a3a3a]/20 border border-[#8a3a3a]/50 rounded text-[#8a3a3a] text-sm">
                 {error}
               </div>
             )}

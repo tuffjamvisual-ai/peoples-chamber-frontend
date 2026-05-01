@@ -31,7 +31,7 @@ export default function TransparencyHubPage() {
       <Navigation />
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
         <header className="border-b border-[#1c3849] pb-10 mb-10">
-          <p className="text-[10px] uppercase tracking-[0.3em] font-medium mb-4" style={{ color: ACCENT }}>
+          <p className="text-[13px] uppercase tracking-[0.3em] font-medium mb-4" style={{ color: ACCENT }}>
             The People&apos;s Chamber · Transparency
           </p>
           <h1 className="text-4xl sm:text-6xl font-black leading-[1.05] tracking-tight text-white mb-4">
@@ -57,7 +57,7 @@ export default function TransparencyHubPage() {
                   href={`/transparency/${s.slug}`}
                   className="group block p-6 hover:bg-[#001520] transition-colors border-l-2 border-transparent hover:border-l-[#ffffff]"
                 >
-                  <p className="text-[10px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: colour }}>
+                  <p className="text-[13px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: colour }}>
                     Dataset · {String(i + 1).padStart(2, '0')}
                   </p>
                   <h2 className="text-xl font-black tracking-tight mb-2 leading-tight text-white group-hover:text-[#ffffff] transition-colors">
@@ -78,7 +78,7 @@ export default function TransparencyHubPage() {
 function Stat({ label, value, accent = false }: { label: string; value: number | string; accent?: boolean }) {
   return (
     <div className="bg-[#1c3849] px-4 py-5">
-      <p className="text-[10px] uppercase tracking-[0.25em] text-white font-medium mb-2">{label}</p>
+      <p className="text-[13px] uppercase tracking-[0.25em] text-white font-medium mb-2">{label}</p>
       <p className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#ffffff]' : 'text-white'}`}>
         {typeof value === 'number' ? value.toLocaleString() : value}
       </p>

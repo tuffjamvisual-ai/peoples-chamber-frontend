@@ -43,7 +43,7 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
       <header className="border-b border-[#1c3849] pb-10 mb-10">
-        <p className="text-[10px] uppercase tracking-[0.3em] text-[#ffffff] font-medium mb-4">
+        <p className="text-[13px] uppercase tracking-[0.3em] text-[#ffffff] font-medium mb-4">
           The People&apos;s Chamber · Members
         </p>
         <h1 className="text-4xl sm:text-6xl font-black leading-[1.05] tracking-tight text-white mb-4">
@@ -65,7 +65,7 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
       <div className="mb-12">
         <label
           htmlFor="mp-search"
-          className="block text-[10px] uppercase tracking-[0.25em] text-white font-medium mb-2"
+          className="block text-[13px] uppercase tracking-[0.25em] text-white font-medium mb-2"
         >
           Search
         </label>
@@ -99,7 +99,7 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
                   <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
                     {party}
                   </h2>
-                  <span className="ml-auto text-[10px] uppercase tracking-[0.3em] text-white font-mono">
+                  <span className="ml-auto text-[13px] uppercase tracking-[0.3em] text-white font-mono">
                     {count} MP{count === 1 ? '' : 's'}
                   </span>
                 </div>
@@ -120,7 +120,7 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
                           />
                         ) : (
                           <div
-                            className="w-12 h-12 rounded-full bg-[#001520] flex items-center justify-center text-white text-[10px] uppercase tracking-wider flex-shrink-0"
+                            className="w-12 h-12 rounded-full bg-[#001520] flex items-center justify-center text-white text-[13px] uppercase tracking-wider flex-shrink-0"
                             style={{ border: `1px solid ${partyColour}` }}
                           >
                             {mp.name?.charAt(0)}
@@ -131,7 +131,7 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
                           <h3 className="font-semibold text-white text-[14px] leading-snug truncate group-hover:text-[#ffffff] transition-colors">
                             {mp.name}
                           </h3>
-                          <p className="text-white text-[12px] leading-[1.7] truncate">
+                          <p className="text-white text-[15px] leading-[1.7] truncate">
                             {mp.constituency}
                           </p>
                         </div>
@@ -159,7 +159,7 @@ function Stat({
 }) {
   return (
     <div className="px-4 py-5">
-      <p className="text-[10px] uppercase tracking-[0.25em] text-white font-medium mb-2">
+      <p className="text-[13px] uppercase tracking-[0.25em] text-white font-medium mb-2">
         {label}
       </p>
       <p

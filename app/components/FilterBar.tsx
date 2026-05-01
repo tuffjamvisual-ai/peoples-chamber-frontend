@@ -84,13 +84,13 @@ export default function FilterBar({ onFiltersChange }: FilterBarProps) {
       <div className="flex flex-wrap items-center gap-3">
         <button
           onClick={() => setParliamentVoted(!parliamentVoted)}
-          className={'px-3 py-2 text-xs rounded transition-colors ' + (parliamentVoted ? 'bg-[#ffffff] text-white' : 'bg-[#405b6b] text-[#c9c9c9] hover:bg-[#405b6b]')}
+          className={'px-3 py-2 text-sm rounded transition-colors ' + (parliamentVoted ? 'bg-[#ffffff] text-white' : 'bg-[#405b6b] text-[#c9c9c9] hover:bg-[#405b6b]')}
         >
           Parliament Voted
         </button>
         <button
           onClick={() => setYouVoted(!youVoted)}
-          className={'px-3 py-2 text-xs rounded transition-colors ' + (youVoted ? 'bg-[#ffffff] text-white' : 'bg-[#405b6b] text-[#c9c9c9] hover:bg-[#405b6b]')}
+          className={'px-3 py-2 text-sm rounded transition-colors ' + (youVoted ? 'bg-[#ffffff] text-white' : 'bg-[#405b6b] text-[#c9c9c9] hover:bg-[#405b6b]')}
         >
           You Voted
         </button>
