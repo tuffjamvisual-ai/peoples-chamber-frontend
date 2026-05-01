@@ -164,7 +164,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
             </p>
           ) : (
             comments.map((comment) => (
-              <div key={comment.id} className="bg-[#1c3849]/40 rounded-lg p-3">
+              <div key={comment.id} className="rounded-lg p-3">
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-white text-sm">{comment.username}</span>

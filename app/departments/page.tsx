@@ -30,16 +30,16 @@ export default function DepartmentsPage() {
             What every department controls and where every party stands on the issues that matter to you. Tap any department for live ministers, agencies, and topic-by-topic positions.
           </p>
 
-          <div className="grid grid-cols-3 gap-px bg-[#1c3849] border border-[#1c3849] mt-10">
+          <div className="grid grid-cols-3 gap-px border border-[#1c3849] mt-10">
             <Stat label="Departments" value={departments.length} />
             <Stat label="Control Zones" value={totalZones} />
             <Stat label="Live Data" value="Daily" accent />
           </div>
         </header>
 
-        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px bg-[#1c3849] border border-[#1c3849]">
+        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px border border-[#1c3849]">
           {departments.map((dept) => (
-            <li key={dept.slug} className="bg-[#1c3849]">
+            <li key={dept.slug} className="">
               <Link
                 href={`/departments/${dept.slug}`}
                 className="group block h-full p-5 hover:bg-[#001520] transition-colors border-l-2 border-transparent hover:border-l-[#ffffff]"
@@ -95,7 +95,7 @@ export default function DepartmentsPage() {
 
 function Stat({ label, value, accent = false }: { label: string; value: number | string; accent?: boolean }) {
   return (
-    <div className="bg-[#1c3849] px-4 py-5">
+    <div className="px-4 py-5">
       <p className="text-[10px] uppercase tracking-[0.25em] text-[#7697a2] font-medium mb-2">{label}</p>
       <p
         className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#ffffff]' : 'text-white'}`}

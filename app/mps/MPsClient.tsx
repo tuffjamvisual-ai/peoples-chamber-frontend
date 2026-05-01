@@ -55,7 +55,7 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
           financial interests, sponsored bills, and contact details.
         </p>
 
-        <div className="grid grid-cols-3 gap-px bg-[#1c3849] border border-[#1c3849] mt-10">
+        <div className="grid grid-cols-3 gap-px border border-[#1c3849] mt-10">
           <Stat label="Sitting MPs" value={mps.length} />
           <Stat label="Parties Represented" value={parties.length} />
           <Stat label="Filtered Result" value={filtered.length} accent />
@@ -104,7 +104,7 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
                   </span>
                 </div>
 
-                <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-[#1c3849] border border-[#1c3849]">
+                <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px border border-[#1c3849]">
                   {byParty[party].map((mp) => (
                     <li key={mp.id} className="bg-[#001520]">
                       <Link
@@ -158,7 +158,7 @@ function Stat({
   accent?: boolean
 }) {
   return (
-    <div className="bg-[#1c3849] px-4 py-5">
+    <div className="px-4 py-5">
       <p className="text-[10px] uppercase tracking-[0.25em] text-[#7697a2] font-medium mb-2">
         {label}
       </p>

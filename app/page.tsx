@@ -224,9 +224,9 @@ export default async function HomePage() {
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-12">
         {/* ── Second Tier — 3 columns ─────────────────────────────────── */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[#1c3849] border border-[#1c3849] mb-12">
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-px border border-[#1c3849] mb-12">
           {/* Press Releases */}
-          <div className="bg-[#1c3849] p-5">
+          <div className="p-5">
             <h3 className="text-[10px] uppercase tracking-[0.3em] mb-5 pb-3 border-b border-[#1c3849] font-semibold" style={{ color: ACCENT }}>
               Press Releases
             </h3>
@@ -256,7 +256,7 @@ export default async function HomePage() {
           </div>
 
           {/* Committee Watch */}
-          <div className="bg-[#1c3849] p-5">
+          <div className="p-5">
             <h3 className="text-[10px] uppercase tracking-[0.3em] mb-5 pb-3 border-b border-[#1c3849] font-semibold" style={{ color: ACCENT_2 }}>
               Committee Watch
             </h3>
@@ -288,7 +288,7 @@ export default async function HomePage() {
           </div>
 
           {/* Revolving Door */}
-          <div className="bg-[#1c3849] p-5">
+          <div className="p-5">
             <h3 className="text-[10px] uppercase tracking-[0.3em] mb-5 pb-3 border-b border-[#1c3849] font-semibold flex items-center justify-between" style={{ color: ACCENT }}>
               <span>Revolving Door</span>
               <Link href="/transparency/revolving-door" className="text-[9px] tracking-[0.25em] hover:underline">
@@ -322,9 +322,9 @@ export default async function HomePage() {
         </section>
 
         {/* ── Third Tier — 2 columns ──────────────────────────────────── */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#1c3849] border border-[#1c3849] mb-12">
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-px border border-[#1c3849] mb-12">
           {/* Government Contracts */}
-          <div className="bg-[#1c3849] p-5">
+          <div className="p-5">
             <h3 className="text-[10px] uppercase tracking-[0.3em] mb-5 pb-3 border-b border-[#1c3849] font-semibold flex items-center justify-between" style={{ color: ACCENT }}>
               <span>Government Contracts</span>
               <Link href="/transparency/contracts" className="text-[9px] tracking-[0.25em] hover:underline">
@@ -362,7 +362,7 @@ export default async function HomePage() {
           </div>
 
           {/* Political Donations */}
-          <div className="bg-[#1c3849] p-5">
+          <div className="p-5">
             <h3 className="text-[10px] uppercase tracking-[0.3em] mb-5 pb-3 border-b border-[#1c3849] font-semibold flex items-center justify-between" style={{ color: ACCENT_2 }}>
               <span>Political Donations</span>
               <Link href="/transparency/donations" className="text-[9px] tracking-[0.25em] hover:underline">
@@ -476,9 +476,9 @@ export default async function HomePage() {
           <p className="text-[10px] uppercase tracking-[0.3em] mb-6 font-semibold text-[#7697a2]">
             Sections
           </p>
-          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-px bg-[#1c3849] border border-[#1c3849]">
+          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-px border border-[#1c3849]">
             {SECTIONS.map((s) => (
-              <li key={s.title} className="bg-[#1c3849]">
+              <li key={s.title} className="">
                 <Link
                   href={s.href}
                   className="group block h-full p-5 hover:bg-[#001520] transition-colors border-l-2 border-transparent hover:border-l-[#ffffff]"

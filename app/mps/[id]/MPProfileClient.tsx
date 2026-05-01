@@ -56,9 +56,9 @@ export default function MPProfileClient({
   ]
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-px bg-[#1c3849] border border-[#1c3849]">
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-px border border-[#1c3849]">
       {/* Sidebar */}
-      <aside className="lg:col-span-1 bg-[#1c3849]">
+      <aside className="lg:col-span-1">
         <div className="lg:sticky lg:top-16">
           <p className="text-[10px] uppercase tracking-[0.25em] text-[#7697a2] font-medium px-4 pt-5 pb-3">
             Sections
@@ -86,11 +86,11 @@ export default function MPProfileClient({
       </aside>
 
       {/* Main */}
-      <div className="lg:col-span-3 bg-[#1c3849] p-6 sm:p-8">
+      <div className="lg:col-span-3 p-6 sm:p-8">
         {activeSection === 'contact' && (
           <Section title={`Contact ${mp.display_name || mp.name}`}>
             {contact ? (
-              <div className="space-y-px bg-[#1c3849] border border-[#1c3849]">
+              <div className="space-y-px border border-[#1c3849]">
                 <Card title="Parliamentary office" partyColour={partyColour}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[13px] leading-[1.7]">
                     <div className="text-[#7697a2] space-y-0.5">
@@ -140,7 +140,7 @@ export default function MPProfileClient({
         {activeSection === 'parliamentary' && (
           <Section title="Parliamentary Career">
             {representations.length > 0 ? (
-              <div className="space-y-px bg-[#1c3849] border border-[#1c3849]">
+              <div className="space-y-px border border-[#1c3849]">
                 {representations.map((rep: any, idx: number) => (
                   <Card key={idx} title={rep.name} partyColour={partyColour}>
                     <p className="text-[12px] text-[#7697a2] font-mono leading-[1.7]">
@@ -159,7 +159,7 @@ export default function MPProfileClient({
 
         {activeSection === 'voting' && (
           <Section title="Voting Record">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-[#1c3849] border border-[#1c3849] mb-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-px border border-[#1c3849] mb-8">
               <Stat label="Votes Cast" value={totalVotes} />
               <Stat label="Ayes" value={ayeVotes} colour={SUCCESS} />
               <Stat label="Noes" value={noVotes} colour={DANGER} />
@@ -176,11 +176,11 @@ export default function MPProfileClient({
             )}
 
             {votes && votes.length > 0 ? (
-              <ul className="space-y-px bg-[#1c3849] border border-[#1c3849]">
+              <ul className="space-y-px border border-[#1c3849]">
                 {votes.slice(0, 20).map((vote: any) => (
                   <li
                     key={vote.id}
-                    className="flex items-start justify-between gap-4 bg-[#1c3849] p-4 border-l-2"
+                    className="flex items-start justify-between gap-4 p-4 border-l-2"
                     style={{ borderLeftColor: vote.vote_type === 'aye' ? SUCCESS : DANGER }}
                   >
                     <div className="flex-1 min-w-0">
@@ -205,9 +205,9 @@ export default function MPProfileClient({
         {activeSection === 'bills' && (
           <Section title="Bills Sponsored">
             {sponsoredBills && sponsoredBills.length > 0 ? (
-              <ul className="space-y-px bg-[#1c3849] border border-[#1c3849]">
+              <ul className="space-y-px border border-[#1c3849]">
                 {sponsoredBills.map((bill) => (
-                  <li key={bill.id} className="bg-[#1c3849]">
+                  <li key={bill.id} className="">
                     <Link
                       href={'/bills/' + bill.id}
                       className="block p-4 border-l-2 hover:bg-[#001520] transition-colors"
@@ -237,9 +237,9 @@ export default function MPProfileClient({
                     <h3 className="text-[10px] uppercase tracking-[0.25em] mb-4 pb-3 border-b border-[#1c3849] font-semibold" style={{ color: ACCENT }}>
                       {categoryName}
                     </h3>
-                    <ul className="space-y-px bg-[#1c3849] border border-[#1c3849]">
+                    <ul className="space-y-px border border-[#1c3849]">
                       {interestsByCategory[categoryName].map((interest: any) => (
-                        <li key={interest.id} className="bg-[#1c3849] p-4 border-l-2" style={{ borderLeftColor: partyColour }}>
+                        <li key={interest.id} className="p-4 border-l-2" style={{ borderLeftColor: partyColour }}>
                           <p className="text-[13px] text-[#7697a2] whitespace-pre-wrap leading-[1.7] mb-2">{interest.interest_text}</p>
                           {interest.child_interests && interest.child_interests.length > 0 && (
                             <ul className="mt-2 ml-3 space-y-1">
@@ -277,7 +277,7 @@ export default function MPProfileClient({
                   <h3 className="text-[10px] uppercase tracking-[0.25em] mb-4 pb-3 border-b border-[#1c3849] font-semibold" style={{ color: ACCENT }}>
                     Government Posts
                   </h3>
-                  <ul className="space-y-px bg-[#1c3849] border border-[#1c3849]">
+                  <ul className="space-y-px border border-[#1c3849]">
                     {governmentPosts.map((post: any, idx: number) => (
                       <RolesRow key={idx} post={post} partyColour={partyColour} />
                     ))}
@@ -289,7 +289,7 @@ export default function MPProfileClient({
                   <h3 className="text-[10px] uppercase tracking-[0.25em] mb-4 pb-3 border-b border-[#1c3849] font-semibold" style={{ color: ACCENT }}>
                     Opposition Posts
                   </h3>
-                  <ul className="space-y-px bg-[#1c3849] border border-[#1c3849]">
+                  <ul className="space-y-px border border-[#1c3849]">
                     {oppositionPosts.map((post: any, idx: number) => (
                       <RolesRow key={idx} post={post} partyColour={partyColour} />
                     ))}
@@ -301,9 +301,9 @@ export default function MPProfileClient({
                   <h3 className="text-[10px] uppercase tracking-[0.25em] mb-4 pb-3 border-b border-[#1c3849] font-semibold" style={{ color: ACCENT }}>
                     Committee Memberships
                   </h3>
-                  <ul className="space-y-px bg-[#1c3849] border border-[#1c3849]">
+                  <ul className="space-y-px border border-[#1c3849]">
                     {committeeMemberships.map((committee: any, idx: number) => (
-                      <li key={idx} className="bg-[#1c3849] p-4 border-l-2" style={{ borderLeftColor: partyColour }}>
+                      <li key={idx} className="p-4 border-l-2" style={{ borderLeftColor: partyColour }}>
                         <p className="text-[13px] text-white font-semibold leading-snug">{committee.name}</p>
                       </li>
                     ))}
@@ -332,7 +332,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function Card({ title, children, partyColour }: { title: string; children: React.ReactNode; partyColour: string }) {
   return (
-    <div className="bg-[#1c3849] p-5 border-l-2" style={{ borderLeftColor: partyColour }}>
+    <div className="p-5 border-l-2" style={{ borderLeftColor: partyColour }}>
       <p className="text-[10px] uppercase tracking-[0.25em] mb-3 font-semibold text-white">{title}</p>
       {children}
     </div>
@@ -341,7 +341,7 @@ function Card({ title, children, partyColour }: { title: string; children: React
 
 function Stat({ label, value, colour }: { label: string; value: string | number; colour?: string }) {
   return (
-    <div className="bg-[#1c3849] px-4 py-5">
+    <div className="px-4 py-5">
       <p className="text-[10px] uppercase tracking-[0.25em] text-[#7697a2] font-medium mb-2">{label}</p>
       <p className="text-2xl sm:text-3xl font-black leading-none tracking-tight" style={{ color: colour || '#ffffff' }}>
         {typeof value === 'number' ? value.toLocaleString() : value}
@@ -367,7 +367,7 @@ function Empty({ children }: { children: React.ReactNode }) {
 
 function RolesRow({ post, partyColour }: { post: any; partyColour: string }) {
   return (
-    <li className="bg-[#1c3849] p-4 border-l-2" style={{ borderLeftColor: partyColour }}>
+    <li className="p-4 border-l-2" style={{ borderLeftColor: partyColour }}>
       <p className="text-[13px] text-white font-semibold leading-snug">{post.name}</p>
       <p className="text-[11px] text-[#7697a2] font-mono mt-1">
         {new Date(post.startDate).getFullYear()} — {post.endDate ? new Date(post.endDate).getFullYear() : 'present'}

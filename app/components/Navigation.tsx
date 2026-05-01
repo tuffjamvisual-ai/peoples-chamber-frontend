@@ -114,25 +114,25 @@ export default function Navigation() {
           {mobileMenuOpen && (
             <div className="lg:hidden pb-4 border-t border-[#1c3849]/50 mt-2">
               <div className="flex flex-col space-y-1 py-2">
-                <Link href="/" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/') ? 'text-[#ffffff] bg-white/10' : 'text-[#7697a2]'}`}>
+                <Link href="/" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/') ? 'text-[#ffffff] bg-transparent/10' : 'text-[#7697a2]'}`}>
                   Home
                 </Link>
-                <Link href="/bills" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/bills') ? 'text-[#ffffff] bg-white/10' : 'text-[#7697a2]'}`}>
+                <Link href="/bills" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/bills') ? 'text-[#ffffff] bg-transparent/10' : 'text-[#7697a2]'}`}>
                   Bills
                 </Link>
-                <Link href="/laws" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/laws') ? 'text-[#ffffff] bg-white/10' : 'text-[#7697a2]'}`}>
+                <Link href="/laws" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/laws') ? 'text-[#ffffff] bg-transparent/10' : 'text-[#7697a2]'}`}>
                   Laws
                 </Link>
-                <Link href="/polls" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/polls') ? 'text-[#ffffff] bg-white/10' : 'text-[#7697a2]'}`}>
+                <Link href="/polls" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/polls') ? 'text-[#ffffff] bg-transparent/10' : 'text-[#7697a2]'}`}>
                   People's Polls
                 </Link>
-                <Link href="/mps" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/mps') ? 'text-[#ffffff] bg-white/10' : 'text-[#7697a2]'}`}>
+                <Link href="/mps" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/mps') ? 'text-[#ffffff] bg-transparent/10' : 'text-[#7697a2]'}`}>
                   MPs
                 </Link>
                 <Link href="/departments" className={`px-3 py-1.5 text-sm ${isActive('/departments') ? 'text-[#ffffff] font-medium' : 'text-[#7697a2] hover:text-white'}`}>Departments</Link>
               <Link href="/transparency" className={`px-3 py-1.5 text-sm ${isActive('/transparency') ? 'text-[#ffffff] font-medium' : 'text-[#7697a2] hover:text-white'}`}>Transparency</Link>
               <Link href="/search" className={`px-3 py-1.5 text-sm ${isActive('/search') ? 'text-[#ffffff] font-medium' : 'text-[#7697a2] hover:text-white'}`}>Search</Link>
-              <Link href="/about" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/about') ? 'text-[#ffffff] bg-white/10' : 'text-[#7697a2]'}`}>
+              <Link href="/about" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/about') ? 'text-[#ffffff] bg-transparent/10' : 'text-[#7697a2]'}`}>
                   About
                 </Link>
                 

@@ -38,7 +38,7 @@ export default async function BillsPage() {
             Every bill going through UK Parliament. How MPs voted. How you voted. The gap between the two.
           </p>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-px bg-[#1c3849] border border-[#1c3849] mt-10">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-px border border-[#1c3849] mt-10">
             <Stat label="Bills tracked" value={bills.length} />
             <Stat label="Acts" value={bills.filter((b: any) => b.is_act).length} />
             <Stat label="Refresh" value="Daily" accent />
@@ -57,7 +57,7 @@ export default async function BillsPage() {
 
 function Stat({ label, value, accent = false }: { label: string; value: number | string; accent?: boolean }) {
   return (
-    <div className="bg-[#1c3849] px-4 py-5">
+    <div className="px-4 py-5">
       <p className="text-[10px] uppercase tracking-[0.25em] text-[#7697a2] font-medium mb-2">{label}</p>
       <p className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#ffffff]' : 'text-white'}`}>
         {typeof value === 'number' ? value.toLocaleString() : value}

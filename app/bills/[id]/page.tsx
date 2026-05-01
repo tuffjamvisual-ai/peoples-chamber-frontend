@@ -141,7 +141,7 @@ export default function BillDetailPage() {
   if (error || !bill) {
     return (
       <div className="min-h-screen bg-[#001520] text-white flex items-center justify-center">
-        <div className="bg-[#1c3849] border border-[#1c3849] border-l-2 border-l-[#8a3a3a] p-6 max-w-md">
+        <div className="border border-[#1c3849] border-l-2 border-l-[#8a3a3a] p-6 max-w-md">
           <p className="text-[10px] uppercase tracking-[0.25em] mb-2 font-semibold" style={{ color: DANGER }}>Error</p>
           <h2 className="text-xl font-black tracking-tight text-white mb-2">Bill unavailable</h2>
           <p className="text-[#7697a2] text-[13px] leading-[1.7] mb-4">{error || 'Bill not found'}</p>
@@ -200,7 +200,7 @@ export default function BillDetailPage() {
 
         {/* Plain Summary */}
         {bill.plain_summary && (
-          <section className="bg-[#1c3849] border-l-2 p-5 mb-8" style={{ borderLeftColor: ACCENT }}>
+          <section className="border-l-2 p-5 mb-8" style={{ borderLeftColor: ACCENT }}>
             <p className="text-[10px] uppercase tracking-[0.25em] mb-2 font-semibold" style={{ color: ACCENT }}>Summary</p>
             <p className="text-white text-[14px] leading-[1.7]">{bill.plain_summary}</p>
           </section>
@@ -208,9 +208,9 @@ export default function BillDetailPage() {
 
         {/* Support / Oppose */}
         {(bill.support_explanation || bill.oppose_explanation) && (
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#1c3849] border border-[#1c3849] mb-8">
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-px border border-[#1c3849] mb-8">
             {bill.support_explanation && (
-              <div className="bg-[#1c3849] p-5 border-l-2" style={{ borderLeftColor: SUCCESS }}>
+              <div className="p-5 border-l-2" style={{ borderLeftColor: SUCCESS }}>
                 <p className="text-[10px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: SUCCESS }}>
                   A vote to support means
                 </p>
@@ -227,7 +227,7 @@ export default function BillDetailPage() {
               </div>
             )}
             {bill.oppose_explanation && (
-              <div className="bg-[#1c3849] p-5 border-l-2" style={{ borderLeftColor: DANGER }}>
+              <div className="p-5 border-l-2" style={{ borderLeftColor: DANGER }}>
                 <p className="text-[10px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: DANGER }}>
                   A vote to oppose means
                 </p>
@@ -248,7 +248,7 @@ export default function BillDetailPage() {
 
         {/* Sponsor */}
         {bill.sponsor_name && (
-          <section className="bg-[#1c3849] border border-[#1c3849] border-l-2 border-l-[#ffffff] p-5 mb-8">
+          <section className="border border-[#1c3849] border-l-2 border-l-[#ffffff] p-5 mb-8">
             <p className="text-[10px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>Sponsored by</p>
             <div className="flex items-center gap-4">
               {bill.sponsor_photo ? (
@@ -279,7 +279,7 @@ export default function BillDetailPage() {
         )}
 
         {/* Cast Your Vote */}
-        <section className="bg-[#1c3849] border border-[#1c3849] p-6 mb-8">
+        <section className="border border-[#1c3849] p-6 mb-8">
           <h2 className="text-2xl font-black tracking-tight text-white mb-6">Cast Your Vote</h2>
 
           <div className="mb-4">
@@ -363,7 +363,7 @@ export default function BillDetailPage() {
 
         {/* Bill Passage Timeline */}
         {bill.stages.length > 0 && (
-          <section className="bg-[#1c3849] border border-[#1c3849] p-6 mb-8">
+          <section className="border border-[#1c3849] p-6 mb-8">
             <h2 className="text-2xl font-black tracking-tight text-white mb-6">Bill Passage</h2>
             <div className="space-y-6">
               {commonsStages.length > 0 && (
@@ -391,7 +391,7 @@ export default function BillDetailPage() {
 
         {/* Full Description */}
         {bill.description && bill.description !== bill.title && (
-          <details className="bg-[#1c3849] border border-[#1c3849]">
+          <details className="border border-[#1c3849]">
             <summary className="px-6 py-4 cursor-pointer hover:bg-[#001520] transition-colors text-[12px] uppercase tracking-[0.2em] font-semibold text-white">
               Full Bill Description
               <span className="text-[#7697a2] text-[11px] ml-2 normal-case tracking-normal">(click to expand)</span>
