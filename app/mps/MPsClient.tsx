@@ -92,7 +92,7 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
             const count = byParty[party].length
             return (
               <section key={party} className="border-t border-[#333333] pt-8">
-                <div className="flex items-baseline gap-4 mb-6">
+                <button onClick={() => toggleParty(party)} className="w-full flex items-center gap-4 mb-6 text-left">
                   <span
                     className="inline-block w-2 h-2 rounded-full flex-shrink-0"
                     style={{ backgroundColor: partyColour }}
@@ -102,11 +102,11 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
                     {party}
                   </h2>
                   <span className="ml-auto text-[13px] uppercase tracking-[0.3em] text-white font-mono">
-                    {count} MP{count === 1 ? '' : 's'}
+                    {count} MP{count === 1 ? '' : 's'} {expanded === party ? '▲' : '▼'}
                   </span>
-                </div>
+                </button>
 
-                <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px border border-[#333333]">
+                {expanded === party && <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px border border-[#333333]">
                   {byParty[party].map((mp) => (
                     <li key={mp.id} className="bg-[#1a1a1a]">
                       <Link
@@ -140,7 +140,7 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
                       </Link>
                     </li>
                   ))}
-                </ul>
+                </ul>}
               </section>
             )
           })}
