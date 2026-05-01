@@ -30,7 +30,7 @@ export default function AgencyPage({ params }: { params: Promise<{ slug: string 
   }, [slug]);
 
   return (
-    <div className="min-h-screen bg-[#001520]">
+    <div className="min-h-screen bg-[#1a1a1a]">
       <Navigation />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 pb-12">
 
@@ -49,7 +49,7 @@ export default function AgencyPage({ params }: { params: Promise<{ slug: string 
               <div className="flex items-center gap-3 mb-1">
                 <h1 className="text-2xl sm:text-3xl font-bold text-white">{agency.name}</h1>
                 {agency.acronym && (
-                  <span className="text-sm px-2 py-1 bg-[#1c3849] text-white rounded font-mono">{agency.acronym}</span>
+                  <span className="text-sm px-2 py-1 bg-[#2e2e2e] text-white rounded font-mono">{agency.acronym}</span>
                 )}
               </div>
               {agency.parentOrgs.length > 0 && (
@@ -93,18 +93,18 @@ export default function AgencyPage({ params }: { params: Promise<{ slug: string 
 
             {/* Body */}
             {agency.body && (
-              <div className="mb-6 pb-6 border-b border-[#1c3849]">
+              <div className="mb-6 pb-6 border-b border-[#2e2e2e]">
                 <p className="text-[#c9c9c9] text-sm leading-relaxed">{agency.body}</p>
               </div>
             )}
 
             {/* Ministers */}
             {agency.ministers.length > 0 && (
-              <div className="mb-6 pb-6 border-b border-[#1c3849]">
+              <div className="mb-6 pb-6 border-b border-[#2e2e2e]">
                 <h2 className="text-sm font-semibold text-white mb-3">Ministers</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
                   {agency.ministers.map((m, i) => (
-                    <div key={i} className="py-2 border-b border-[#1c3849]/50">
+                    <div key={i} className="py-2 border-b border-[#2e2e2e]/50">
                       <Link href={`/people/${m.slug}`} className="text-white text-sm font-medium hover:text-white transition-colors">{m.name}</Link>
                       <div className="text-white text-sm mt-0.5">{m.role}</div>
                     </div>
@@ -115,11 +115,11 @@ export default function AgencyPage({ params }: { params: Promise<{ slug: string 
 
             {/* Board Members */}
             {agency.boardMembers.length > 0 && (
-              <div className="mb-6 pb-6 border-b border-[#1c3849]">
+              <div className="mb-6 pb-6 border-b border-[#2e2e2e]">
                 <h2 className="text-sm font-semibold text-white mb-3">Senior Staff</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
                   {agency.boardMembers.map((m, i) => (
-                    <div key={i} className="py-2 border-b border-[#1c3849]/50">
+                    <div key={i} className="py-2 border-b border-[#2e2e2e]/50">
                       <Link href={`/people/${m.slug}`} className="text-white text-sm font-medium hover:text-white transition-colors">{m.name}</Link>
                       <div className="text-white text-sm mt-0.5">{m.role}</div>
                     </div>
@@ -130,11 +130,11 @@ export default function AgencyPage({ params }: { params: Promise<{ slug: string 
 
             {/* Latest Publications */}
             {agency.featuredDocs.length > 0 && (
-              <div className="mb-6 pb-6 border-b border-[#1c3849]">
+              <div className="mb-6 pb-6 border-b border-[#2e2e2e]">
                 <h2 className="text-sm font-semibold text-white mb-3">Latest Publications</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
                   {agency.featuredDocs.map((doc, i) => (
-                    <div key={i} className="py-2 border-b border-[#1c3849]/50">
+                    <div key={i} className="py-2 border-b border-[#2e2e2e]/50">
                       <div className="text-white text-sm">{doc.title}</div>
                       <div className="text-white text-sm mt-0.5">{doc.type}</div>
                     </div>

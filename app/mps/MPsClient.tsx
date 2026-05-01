@@ -42,7 +42,7 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
-      <header className="border-b border-[#1c3849] pb-10 mb-10">
+      <header className="border-b border-[#2e2e2e] pb-10 mb-10">
         <p className="text-[13px] uppercase tracking-[0.3em] text-[#ffffff] font-medium mb-4">
           The People&apos;s Chamber · Members
         </p>
@@ -55,7 +55,7 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
           financial interests, sponsored bills, and contact details.
         </p>
 
-        <div className="grid grid-cols-3 gap-px border border-[#1c3849] mt-10">
+        <div className="grid grid-cols-3 gap-px border border-[#2e2e2e] mt-10">
           <Stat label="Sitting MPs" value={mps.length} />
           <Stat label="Parties Represented" value={parties.length} />
           <Stat label="Filtered Result" value={filtered.length} accent />
@@ -75,12 +75,12 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
           placeholder="Name, constituency, or party…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full bg-[#1c3849] text-white text-sm leading-[1.7] border border-[#1c3849] rounded-sm px-4 py-3 placeholder:text-white focus:outline-none focus:border-[#ffffff] transition-colors"
+          className="w-full bg-[#2e2e2e] text-white text-sm leading-[1.7] border border-[#2e2e2e] rounded-sm px-4 py-3 placeholder:text-white focus:outline-none focus:border-[#ffffff] transition-colors"
         />
       </div>
 
       {filtered.length === 0 ? (
-        <p className="text-white text-sm border-t border-[#1c3849] pt-10">
+        <p className="text-white text-sm border-t border-[#2e2e2e] pt-10">
           No MPs match &ldquo;{search}&rdquo;.
         </p>
       ) : (
@@ -89,7 +89,7 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
             const partyColour = byParty[party][0]?.party_colour || '#ffffff'
             const count = byParty[party].length
             return (
-              <section key={party} className="border-t border-[#1c3849] pt-8">
+              <section key={party} className="border-t border-[#2e2e2e] pt-8">
                 <div className="flex items-baseline gap-4 mb-6">
                   <span
                     className="inline-block w-2 h-2 rounded-full flex-shrink-0"
@@ -104,23 +104,23 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
                   </span>
                 </div>
 
-                <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px border border-[#1c3849]">
+                <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px border border-[#2e2e2e]">
                   {byParty[party].map((mp) => (
-                    <li key={mp.id} className="bg-[#001520]">
+                    <li key={mp.id} className="bg-[#1a1a1a]">
                       <Link
                         href={`/mps/${mp.member_id}`}
-                        className="group flex items-start gap-3 bg-[#002633] hover:bg-[#001520] transition-colors p-4 border-l-2 border-transparent hover:border-l-[#ffffff]"
+                        className="group flex items-start gap-3 bg-[#222222] hover:bg-[#1a1a1a] transition-colors p-4 border-l-2 border-transparent hover:border-l-[#ffffff]"
                       >
                         {mp.photo_url ? (
                           <img
                             src={mp.photo_url}
                             alt={mp.name}
-                            className="w-12 h-12 rounded-full object-cover bg-[#001520] flex-shrink-0"
+                            className="w-12 h-12 rounded-full object-cover bg-[#1a1a1a] flex-shrink-0"
                             style={{ border: `1px solid ${partyColour}` }}
                           />
                         ) : (
                           <div
-                            className="w-12 h-12 rounded-full bg-[#001520] flex items-center justify-center text-white text-[13px] uppercase tracking-wider flex-shrink-0"
+                            className="w-12 h-12 rounded-full bg-[#1a1a1a] flex items-center justify-center text-white text-[13px] uppercase tracking-wider flex-shrink-0"
                             style={{ border: `1px solid ${partyColour}` }}
                           >
                             {mp.name?.charAt(0)}

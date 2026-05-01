@@ -1,6 +1,6 @@
 export default function SupportPage() {
   return (
-    <div className="min-h-screen bg-[#001520] text-white p-8">
+    <div className="min-h-screen bg-[#1a1a1a] text-white p-8">
       <div className="max-w-3xl mx-auto">
         <h1 className="text-3xl font-bold mb-8">Support</h1>
         

@@ -22,7 +22,7 @@ export default async function MPsPage() {
   if (error) console.error('Error fetching MPs:', error)
 
   return (
-    <div className="min-h-screen bg-[#001520] text-white">
+    <div className="min-h-screen bg-[#1a1a1a] text-white">
       <Navigation />
       <MPsClient mps={mps || []} />
     </div>

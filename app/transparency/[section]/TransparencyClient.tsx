@@ -81,11 +81,11 @@ function Pagination({
   const start = page * PAGE_SIZE + 1
   const end = Math.min((page + 1) * PAGE_SIZE, filteredCount)
   return (
-    <div className="flex items-center justify-between mt-8 pt-6 border-t border-[#1c3849]">
+    <div className="flex items-center justify-between mt-8 pt-6 border-t border-[#2e2e2e]">
       <button
         onClick={onPrev}
         disabled={page === 0}
-        className="px-4 py-2 text-[14px] uppercase tracking-[0.2em] font-mono border border-[#1c3849] text-white hover:border-[#ffffff] hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+        className="px-4 py-2 text-[14px] uppercase tracking-[0.2em] font-mono border border-[#2e2e2e] text-white hover:border-[#ffffff] hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
       >
         ← Previous
       </button>
@@ -95,7 +95,7 @@ function Pagination({
       <button
         onClick={onNext}
         disabled={page >= totalPages - 1}
-        className="px-4 py-2 text-[14px] uppercase tracking-[0.2em] font-mono border border-[#1c3849] text-white hover:border-[#ffffff] hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+        className="px-4 py-2 text-[14px] uppercase tracking-[0.2em] font-mono border border-[#2e2e2e] text-white hover:border-[#ffffff] hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
       >
         Next →
       </button>
@@ -124,7 +124,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
 
   if (rows.length === 0 && !searchQuery) {
     return (
-      <p className="text-white text-[13px] leading-[1.7] border-t border-[#1c3849] pt-8">
+      <p className="text-white text-[13px] leading-[1.7] border-t border-[#2e2e2e] pt-8">
         No records have been synced into the {sectionTitle.toLowerCase()} table yet. The page will populate once the sync job runs.
       </p>
     )
@@ -145,11 +145,11 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
               type="search"
               defaultValue={searchQuery}
               placeholder="Search by donor or recipient…"
-              className="flex-1 bg-[#1c3849] border border-[#1c3849] text-white text-[13px] rounded-sm px-4 py-3 leading-[1.7] placeholder:text-white focus:outline-none focus:border-[#ffffff] transition-colors"
+              className="flex-1 bg-[#2e2e2e] border border-[#2e2e2e] text-white text-[13px] rounded-sm px-4 py-3 leading-[1.7] placeholder:text-white focus:outline-none focus:border-[#ffffff] transition-colors"
             />
             <button
               type="submit"
-              className="px-4 py-3 text-[14px] uppercase tracking-[0.2em] font-mono border border-[#1c3849] text-white hover:border-[#ffffff] hover:text-white transition-colors whitespace-nowrap"
+              className="px-4 py-3 text-[14px] uppercase tracking-[0.2em] font-mono border border-[#2e2e2e] text-white hover:border-[#ffffff] hover:text-white transition-colors whitespace-nowrap"
             >
               Search
             </button>
@@ -162,7 +162,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
               placeholder={`Search ${rows.length.toLocaleString()} records…`}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full max-w-md bg-[#1c3849] border border-[#1c3849] text-white text-[13px] rounded-sm px-4 py-3 leading-[1.7] placeholder:text-white focus:outline-none focus:border-[#ffffff] transition-colors"
+              className="w-full max-w-md bg-[#2e2e2e] border border-[#2e2e2e] text-white text-[13px] rounded-sm px-4 py-3 leading-[1.7] placeholder:text-white focus:outline-none focus:border-[#ffffff] transition-colors"
             />
             {query && (
               <p className="text-white text-[14px] mt-2 font-mono uppercase tracking-[0.15em]">
@@ -174,12 +174,12 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
       </div>
 
       {rows.length === 0 && searchQuery ? (
-        <p className="text-white text-[13px] leading-[1.7] border-t border-[#1c3849] pt-8">
+        <p className="text-white text-[13px] leading-[1.7] border-t border-[#2e2e2e] pt-8">
           No results found for &ldquo;{searchQuery}&rdquo;.
         </p>
       ) : section === 'revolving-door' ? (
         <>
-          <ul className="space-y-px bg-[#1c3849] border border-[#1c3849]">
+          <ul className="space-y-px bg-[#2e2e2e] border border-[#2e2e2e]">
             {paged.map((row, i) => {
               const personName = (row.person_name as string) || '(unknown)'
               const previousRole = row.previous_role as string | null
@@ -188,7 +188,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
               const approvalDate = formatUkDate(row.approval_date)
               const newRoleLine = [newRole || 'New role: pending ACOBA publication', organisation].filter(Boolean).join(' · ')
               return (
-                <li key={i} className="bg-[#1c3849] p-5 border-l-2 border-l-[#ffffff]">
+                <li key={i} className="bg-[#2e2e2e] p-5 border-l-2 border-l-[#ffffff]">
                   <div className="flex items-baseline justify-between gap-4 mb-1.5">
                     <h3 className="text-white text-base font-bold leading-snug tracking-tight">{personName}</h3>
                     {approvalDate && (
@@ -210,7 +210,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
           <Pagination page={page} totalPages={totalPages} onPrev={() => setPage(p => p - 1)} onNext={() => setPage(p => p + 1)} filteredCount={filtered.length} />
         </>
       ) : section === 'donations' ? (
-        <ul className="space-y-px bg-[#1c3849] border border-[#1c3849]">
+        <ul className="space-y-px bg-[#2e2e2e] border border-[#2e2e2e]">
           {rows.map((row, i) => {
             const recipient = (row.recipient_name as string) || '(unknown recipient)'
             const donor = (row.donor_name as string) || '(unknown donor)'
@@ -219,7 +219,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
             const nature = row.nature as string | null
             const receivedDate = formatUkDate(row.received_date)
             return (
-              <li key={i} className="bg-[#1c3849] p-5 border-l-2 border-l-[#ffffff]">
+              <li key={i} className="bg-[#2e2e2e] p-5 border-l-2 border-l-[#ffffff]">
                 <div className="flex items-baseline justify-between gap-4 mb-1.5">
                   <h3 className="text-white text-base sm:text-lg font-bold leading-snug tracking-tight">{recipient}</h3>
                   {amount && (
@@ -242,7 +242,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
         </ul>
       ) : (
         <>
-          <ul className="space-y-px bg-[#1c3849] border border-[#1c3849]">
+          <ul className="space-y-px bg-[#2e2e2e] border border-[#2e2e2e]">
             {paged.map((row, i) => {
               const { key: titleKey, value: titleValue } = pickTitle(row)
               const dateValue = pickDate(row)
@@ -251,7 +251,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
               )
 
               return (
-                <li key={i} className="bg-[#1c3849] p-5 border-l-2 border-l-transparent hover:border-l-[#ffffff] transition-colors">
+                <li key={i} className="bg-[#2e2e2e] p-5 border-l-2 border-l-transparent hover:border-l-[#ffffff] transition-colors">
                   <div className="flex items-baseline justify-between gap-4 mb-3">
                     <h3 className="text-white text-[14px] font-bold leading-snug">{titleValue}</h3>
                     {dateValue && (

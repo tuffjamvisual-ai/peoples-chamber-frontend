@@ -27,10 +27,10 @@ const SECTIONS = [
 
 export default function TransparencyHubPage() {
   return (
-    <div className="min-h-screen bg-[#001520] text-white">
+    <div className="min-h-screen bg-[#1a1a1a] text-white">
       <Navigation />
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
-        <header className="border-b border-[#1c3849] pb-10 mb-10">
+        <header className="border-b border-[#2e2e2e] pb-10 mb-10">
           <p className="text-[13px] uppercase tracking-[0.3em] font-medium mb-4" style={{ color: ACCENT }}>
             The People&apos;s Chamber · Transparency
           </p>
@@ -41,21 +41,21 @@ export default function TransparencyHubPage() {
             Eight datasets covering how ministers, MPs, lobbyists, donors, contractors and former officials interact with the UK state. Each section links to a searchable list of the underlying records.
           </p>
 
-          <div className="grid grid-cols-3 gap-px bg-[#1c3849] border border-[#1c3849] mt-10">
+          <div className="grid grid-cols-3 gap-px bg-[#2e2e2e] border border-[#2e2e2e] mt-10">
             <Stat label="Datasets" value={SECTIONS.length} />
             <Stat label="Sources" value="6" />
             <Stat label="Refresh" value="Daily" accent />
           </div>
         </header>
 
-        <ul className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#1c3849] border border-[#1c3849]">
+        <ul className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#2e2e2e] border border-[#2e2e2e]">
           {SECTIONS.map((s, i) => {
             const colour = i % 2 === 0 ? ACCENT : ACCENT_2
             return (
-              <li key={s.slug} className="bg-[#1c3849]">
+              <li key={s.slug} className="bg-[#2e2e2e]">
                 <Link
                   href={`/transparency/${s.slug}`}
-                  className="group block p-6 hover:bg-[#001520] transition-colors border-l-2 border-transparent hover:border-l-[#ffffff]"
+                  className="group block p-6 hover:bg-[#1a1a1a] transition-colors border-l-2 border-transparent hover:border-l-[#ffffff]"
                 >
                   <p className="text-[13px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: colour }}>
                     Dataset · {String(i + 1).padStart(2, '0')}
@@ -77,7 +77,7 @@ export default function TransparencyHubPage() {
 
 function Stat({ label, value, accent = false }: { label: string; value: number | string; accent?: boolean }) {
   return (
-    <div className="bg-[#1c3849] px-4 py-5">
+    <div className="bg-[#2e2e2e] px-4 py-5">
       <p className="text-[13px] uppercase tracking-[0.25em] text-white font-medium mb-2">{label}</p>
       <p className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#ffffff]' : 'text-white'}`}>
         {typeof value === 'number' ? value.toLocaleString() : value}
