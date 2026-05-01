@@ -19,7 +19,7 @@ export default function DepartmentsPage() {
     <div className="min-h-screen bg-[#1a1a1a] text-white">
       <Navigation />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
-        <header className="border-b border-[#2e2e2e] pb-10 mb-10">
+        <header className="border-b border-[#333333] pb-10 mb-10">
           <p className="text-[13px] uppercase tracking-[0.3em] font-medium mb-4" style={{ color: ACCENT }}>
             The People&apos;s Chamber · Departments
           </p>
@@ -30,14 +30,14 @@ export default function DepartmentsPage() {
             What every department controls and where every party stands on the issues that matter to you. Tap any department for live ministers, agencies, and topic-by-topic positions.
           </p>
 
-          <div className="grid grid-cols-3 gap-px border border-[#2e2e2e] mt-10">
+          <div className="grid grid-cols-3 gap-px border border-[#333333] mt-10">
             <Stat label="Departments" value={departments.length} />
             <Stat label="Control Zones" value={totalZones} />
             <Stat label="Live Data" value="Daily" accent />
           </div>
         </header>
 
-        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px border border-[#2e2e2e]">
+        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px border border-[#333333]">
           {departments.map((dept) => (
             <li key={dept.slug} className="">
               <Link
@@ -79,7 +79,7 @@ export default function DepartmentsPage() {
                     </span>
                   ))}
                   {dept.controlZones.length > 3 && (
-                    <span className="text-[13px] px-1.5 py-0.5 uppercase tracking-[0.1em] font-semibold rounded-sm text-white bg-[#1a1a1a] border border-[#2e2e2e]">
+                    <span className="text-[13px] px-1.5 py-0.5 uppercase tracking-[0.1em] font-semibold rounded-sm text-white bg-[#1a1a1a] border border-[#333333]">
                       +{dept.controlZones.length - 3}
                     </span>
                   )}

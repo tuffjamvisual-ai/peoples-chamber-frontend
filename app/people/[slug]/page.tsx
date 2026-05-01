@@ -58,12 +58,12 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
         {person && (
           <>
             {/* Header */}
-            <div className="bg-[#1a1a1a] border border-[#2e2e2e] rounded-xl p-6 mb-6 flex items-start gap-6">
+            <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-6 mb-6 flex items-start gap-6">
               {person.photo ? (
                 <img src={person.photo} alt={person.name}
-                  className="w-32 h-32 rounded-full object-cover border-2 border-[#2e2e2e] flex-shrink-0" />
+                  className="w-32 h-32 rounded-full object-cover border-2 border-[#333333] flex-shrink-0" />
               ) : (
-                <div className="w-32 h-32 rounded-full bg-[#2e2e2e] flex items-center justify-center text-3xl font-bold text-white flex-shrink-0">
+                <div className="w-32 h-32 rounded-full bg-[#222222] flex items-center justify-center text-3xl font-bold text-white flex-shrink-0">
                   {person.name.charAt(0)}
                 </div>
               )}
@@ -77,7 +77,7 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
 
             {/* Current Roles */}
             {person.currentRoles.length > 0 && (
-              <div className="bg-[#1a1a1a] border border-[#2e2e2e] rounded-xl p-6 mb-6">
+              <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-6 mb-6">
                 <h2 className="text-lg font-semibold text-white mb-4">Current Role{person.currentRoles.length > 1 ? 's' : ''}</h2>
                 {person.currentRoles.map((role, i) => (
                   <div key={i} className="mb-4 last:mb-0">
@@ -121,7 +121,7 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
 
             {/* Past Roles */}
             {person.pastRoles.length > 0 && (
-              <div className="bg-[#1a1a1a] border border-[#2e2e2e] rounded-xl p-6">
+              <div className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-6">
                 <h2 className="text-lg font-semibold text-white mb-4">Previous Roles</h2>
                 <div className="divide-y divide-[#2e2e2e]">
                   {person.pastRoles.map((role, i) => (

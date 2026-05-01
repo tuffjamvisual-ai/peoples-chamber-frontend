@@ -139,11 +139,11 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
   return (
     <div className="fixed inset-0 bg-[#1a1a1a]/90 flex items-center justify-center z-50 p-4" onClick={onClose}>
       <div 
-        className="bg-[#1a1a1a] rounded-lg w-full max-w-2xl max-h-[80vh] flex flex-col border border-[#2e2e2e]"
+        className="bg-[#1a1a1a] rounded-lg w-full max-w-2xl max-h-[80vh] flex flex-col border border-[#333333]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-4 border-b border-[#2e2e2e] flex justify-between items-start">
+        <div className="p-4 border-b border-[#333333] flex justify-between items-start">
           <div className="flex-1 pr-4">
             <h2 className="text-lg font-semibold text-white mb-1">Comments</h2>
             <p className="text-sm text-white line-clamp-2">{billTitle}</p>
@@ -199,7 +199,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
                     <textarea
                       value={editText}
                       onChange={(e) => setEditText(e.target.value)}
-                      className="w-full bg-[#1a1a1a] border border-[#2e2e2e] rounded px-3 py-2 text-white text-sm resize-none"
+                      className="w-full bg-[#1a1a1a] border border-[#333333] rounded px-3 py-2 text-white text-sm resize-none"
                       rows={3}
                     />
                     <div className="flex gap-2">
@@ -214,7 +214,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
                           setEditingId(null);
                           setEditText('');
                         }}
-                        className="px-3 py-1 bg-[#383838] hover:bg-[#383838] text-white text-sm rounded"
+                        className="px-3 py-1 bg-[#222222] hover:bg-[#222222] text-white text-sm rounded"
                       >
                         Cancel
                       </button>
@@ -230,7 +230,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
 
         {/* Comment Input */}
         {user ? (
-          <div className="p-4 border-t border-[#2e2e2e]">
+          <div className="p-4 border-t border-[#333333]">
             {error && (
               <div className="mb-3 p-2 bg-[#8a3a3a]/20 border border-[#8a3a3a]/50 rounded text-[#8a3a3a] text-sm">
                 {error}
@@ -241,7 +241,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 placeholder="Write a comment..."
-                className="w-full bg-[#2e2e2e]/50 border border-[#2e2e2e] rounded-lg px-3 py-2 text-white placeholder-[#7697a2] text-sm resize-none focus:outline-none focus:border-[#ffffff]"
+                className="w-full bg-[#222222]/50 border border-[#333333] rounded-lg px-3 py-2 text-white placeholder-[#7697a2] text-sm resize-none focus:outline-none focus:border-[#ffffff]"
                 rows={3}
               />
               <button
@@ -254,7 +254,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
             </form>
           </div>
         ) : (
-          <div className="p-4 border-t border-[#2e2e2e] text-center">
+          <div className="p-4 border-t border-[#333333] text-center">
             <p className="text-white text-sm">Log in to leave a comment</p>
           </div>
         )}

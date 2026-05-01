@@ -69,7 +69,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
 
   return (
     <div className="fixed inset-0 bg-[#1a1a1a]/80 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-[#1a1a1a] rounded-lg p-8 max-w-md w-full mx-4 border border-[#2e2e2e]" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-[#1a1a1a] rounded-lg p-8 max-w-md w-full mx-4 border border-[#333333]" onClick={(e) => e.stopPropagation()}>
         <h2 className="text-2xl font-bold text-white mb-6">
           {mode === 'login' ? 'Sign in' : mode === 'signup' ? 'Create your account' : 'Reset password'}
         </h2>
@@ -94,7 +94,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full bg-[#2e2e2e]/50 border border-[#2e2e2e] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#ffffff]"
+              className="w-full bg-[#222222]/50 border border-[#333333] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#ffffff]"
             />
           </div>
 
@@ -107,7 +107,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={8}
-                className="w-full bg-[#2e2e2e]/50 border border-[#2e2e2e] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#ffffff]"
+                className="w-full bg-[#222222]/50 border border-[#333333] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#ffffff]"
               />
             </div>
           )}
@@ -121,7 +121,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  className="w-full bg-[#2e2e2e]/50 border border-[#2e2e2e] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#ffffff]"
+                  className="w-full bg-[#222222]/50 border border-[#333333] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#ffffff]"
                 />
               </div>
 
@@ -134,7 +134,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
                   required
                   minLength={3}
                   maxLength={20}
-                  className="w-full bg-[#2e2e2e]/50 border border-[#2e2e2e] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#ffffff]"
+                  className="w-full bg-[#222222]/50 border border-[#333333] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#ffffff]"
                 />
               </div>
 
@@ -144,7 +144,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
                   placeholder="Your postcode (optional)"
                   value={postcode}
                   onChange={(e) => setPostcode(e.target.value)}
-                  className="w-full bg-[#2e2e2e]/50 border border-[#2e2e2e] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#ffffff]"
+                  className="w-full bg-[#222222]/50 border border-[#333333] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#ffffff]"
                 />
               </div>
 
@@ -166,7 +166,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#2e2e2e] hover:bg-[#383838] text-white py-3 rounded-lg font-medium transition-colors disabled:opacity-50 border border-white"
+            className="w-full bg-[#222222] hover:bg-[#222222] text-white py-3 rounded-lg font-medium transition-colors disabled:opacity-50 border border-white"
           >
             {loading ? 'Please wait...' : mode === 'login' ? 'Sign in' : mode === 'signup' ? 'Sign up' : 'Send reset link'}
           </button>

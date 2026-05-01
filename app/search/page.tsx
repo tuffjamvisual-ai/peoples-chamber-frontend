@@ -24,7 +24,7 @@ export default function SearchPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Try: knife crime, energy bills, small boats, income tax..."
-            className="w-full bg-[#1a1a1a] border border-[#2e2e2e] rounded-xl px-5 py-4 text-white text-lg placeholder-[#7697a2] focus:outline-none focus:border-[#ffffff]"
+            className="w-full bg-[#1a1a1a] border border-[#333333] rounded-xl px-5 py-4 text-white text-lg placeholder-[#7697a2] focus:outline-none focus:border-[#ffffff]"
             autoFocus
           />
           {query && (
@@ -51,7 +51,7 @@ export default function SearchPage() {
               <Link
                 key={i}
                 href={`/departments/${result.departmentSlug}?zone=${encodeURIComponent(result.zone)}`}
-                className="block bg-[#1a1a1a] border border-[#2e2e2e] rounded-xl p-5 hover:border-[#ffffff] transition-colors"
+                className="block bg-[#1a1a1a] border border-[#333333] rounded-xl p-5 hover:border-[#ffffff] transition-colors"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -74,7 +74,7 @@ export default function SearchPage() {
                 <button
                   key={term}
                   onClick={() => setQuery(term)}
-                  className="px-3 py-1.5 bg-[#2e2e2e] text-[#c9c9c9] rounded-lg text-sm hover:bg-[#383838] transition-colors"
+                  className="px-3 py-1.5 bg-[#222222] text-[#c9c9c9] rounded-lg text-sm hover:bg-[#222222] transition-colors"
                 >
                   {term}
                 </button>

@@ -74,7 +74,7 @@ export default async function TransparencySectionPage({
           ← Transparency Hub
         </Link>
 
-        <header className="border-b border-[#2e2e2e] pb-10 mb-10">
+        <header className="border-b border-[#333333] pb-10 mb-10">
           <p className="text-[13px] uppercase tracking-[0.3em] font-medium mb-4" style={{ color: ACCENT }}>
             Dataset
           </p>

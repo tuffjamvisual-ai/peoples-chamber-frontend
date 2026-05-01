@@ -98,7 +98,7 @@ export default async function CommitteePublicationPage({ params }: Props) {
             {row.full_content}
           </article>
         ) : (
-          <div className="border-t border-[#2e2e2e] pt-8 mt-8">
+          <div className="border-t border-[#333333] pt-8 mt-8">
             <p className="text-white text-sm leading-relaxed">
               The full text of this publication has not been mirrored locally. Use the link above to read it on the UK Parliament site.
             </p>

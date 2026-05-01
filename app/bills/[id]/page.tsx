@@ -131,7 +131,7 @@ export default function BillDetailPage() {
     return (
       <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-2 border-t-[#ffffff] border-[#2e2e2e] mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-2 border-t-[#ffffff] border-[#333333] mx-auto"></div>
           <p className="text-white text-[13px] uppercase tracking-[0.25em] mt-6">Loading bill…</p>
         </div>
       </div>
@@ -141,7 +141,7 @@ export default function BillDetailPage() {
   if (error || !bill) {
     return (
       <div className="min-h-screen bg-[#1a1a1a] text-white flex items-center justify-center">
-        <div className="border border-[#2e2e2e] border-l-2 border-l-[#8a3a3a] p-6 max-w-md">
+        <div className="border border-[#333333] border-l-2 border-l-[#8a3a3a] p-6 max-w-md">
           <p className="text-[13px] uppercase tracking-[0.25em] mb-2 font-semibold" style={{ color: DANGER }}>Error</p>
           <h2 className="text-xl font-black tracking-tight text-white mb-2">Bill unavailable</h2>
           <p className="text-white text-[13px] leading-[1.7] mb-4">{error || 'Bill not found'}</p>
@@ -191,7 +191,7 @@ export default function BillDetailPage() {
         </div>
 
         {/* Title */}
-        <header className="border-b border-[#2e2e2e] pb-8 mb-8">
+        <header className="border-b border-[#333333] pb-8 mb-8">
           <p className="text-[13px] uppercase tracking-[0.3em] font-medium mb-3" style={{ color: ACCENT }}>
             UK Parliament · Bill
           </p>
@@ -208,7 +208,7 @@ export default function BillDetailPage() {
 
         {/* Support / Oppose */}
         {(bill.support_explanation || bill.oppose_explanation) && (
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-px border border-[#2e2e2e] mb-8">
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-px border border-[#333333] mb-8">
             {bill.support_explanation && (
               <div className="p-5 border-l-2" style={{ borderLeftColor: SUCCESS }}>
                 <p className="text-[13px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: SUCCESS }}>
@@ -248,7 +248,7 @@ export default function BillDetailPage() {
 
         {/* Sponsor */}
         {bill.sponsor_name && (
-          <section className="border border-[#2e2e2e] border-l-2 border-l-[#ffffff] p-5 mb-8">
+          <section className="border border-[#333333] border-l-2 border-l-[#ffffff] p-5 mb-8">
             <p className="text-[13px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>Sponsored by</p>
             <div className="flex items-center gap-4">
               {bill.sponsor_photo ? (
@@ -279,7 +279,7 @@ export default function BillDetailPage() {
         )}
 
         {/* Cast Your Vote */}
-        <section className="border border-[#2e2e2e] p-6 mb-8">
+        <section className="border border-[#333333] p-6 mb-8">
           <h2 className="text-2xl font-black tracking-tight text-white mb-6">Cast Your Vote</h2>
 
           <div className="mb-4">
@@ -287,7 +287,7 @@ export default function BillDetailPage() {
               <span>People&apos;s Vote</span>
               <span>{totalVotes.toLocaleString()} votes</span>
             </div>
-            <div className="h-2 bg-[#2e2e2e] flex">
+            <div className="h-2 bg-[#222222] flex">
               {yesPercent > 0 && <div className="h-full" style={{ width: `${yesPercent}%`, backgroundColor: SUCCESS }} />}
               {noPercent > 0 && <div className="h-full" style={{ width: `${noPercent}%`, backgroundColor: DANGER }} />}
             </div>
@@ -303,7 +303,7 @@ export default function BillDetailPage() {
                 <span>Parliament&apos;s Vote</span>
                 <span>{totalMPVotes.toLocaleString()} MPs</span>
               </div>
-              <div className="h-2 bg-[#2e2e2e] flex">
+              <div className="h-2 bg-[#222222] flex">
                 {mpAyePercent > 0 && <div className="h-full" style={{ width: `${mpAyePercent}%`, backgroundColor: SUCCESS, opacity: 0.7 }} />}
                 {mpNoePercent > 0 && <div className="h-full" style={{ width: `${mpNoePercent}%`, backgroundColor: DANGER, opacity: 0.7 }} />}
               </div>
@@ -363,7 +363,7 @@ export default function BillDetailPage() {
 
         {/* Bill Passage Timeline */}
         {bill.stages.length > 0 && (
-          <section className="border border-[#2e2e2e] p-6 mb-8">
+          <section className="border border-[#333333] p-6 mb-8">
             <h2 className="text-2xl font-black tracking-tight text-white mb-6">Bill Passage</h2>
             <div className="space-y-6">
               {commonsStages.length > 0 && (
@@ -373,7 +373,7 @@ export default function BillDetailPage() {
                 <StageGroup label="Lords" colour={DANGER} stages={lordsStages} />
               )}
               {royalAssent && (
-                <div className="flex items-center gap-3 pt-4 border-t border-[#2e2e2e]">
+                <div className="flex items-center gap-3 pt-4 border-t border-[#333333]">
                   <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: SUCCESS }} />
                   <div className="flex-1 flex items-center justify-between">
                     <span className="text-[13px] font-bold" style={{ color: SUCCESS }}>Royal Assent</span>
@@ -391,7 +391,7 @@ export default function BillDetailPage() {
 
         {/* Full Description */}
         {bill.description && bill.description !== bill.title && (
-          <details className="border border-[#2e2e2e]">
+          <details className="border border-[#333333]">
             <summary className="px-6 py-4 cursor-pointer hover:bg-[#1a1a1a] transition-colors text-[15px] uppercase tracking-[0.2em] font-semibold text-white">
               Full Bill Description
               <span className="text-white text-[14px] ml-2 normal-case tracking-normal">(click to expand)</span>

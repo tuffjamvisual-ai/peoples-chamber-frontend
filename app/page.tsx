@@ -38,13 +38,13 @@ export default async function HomePage() {
       <main className="max-w-7xl mx-auto px-4 py-6">
 
         {/* TOP SPLIT */}
-        <div className="grid grid-cols-2 gap-px mb-px" style={{ background: '#2e2e2e' }}>
+        <div className="grid grid-cols-2 gap-px mb-px" style={{ background: '#222222' }}>
 
           {/* Latest GOV.UK news */}
           <div style={{ background: '#1a1a1a', padding: '1rem' }}>
             <div style={{ fontSize: '12px', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.75rem' }}>Latest from GOV.UK</div>
             {leadStory && (
-              <div style={{ marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid #2e2e2e' }}>
+              <div style={{ marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid #333333' }}>
                 <div style={{ fontSize: '16px', fontWeight: 700, color: '#fff', lineHeight: 1.3, marginBottom: '4px' }}>{leadStory.title}</div>
                 <div style={{ fontSize: '14px', color: '#ffffff' }}>{leadStory.organisations?.[0]?.title || 'GOV.UK'} · {new Date(leadStory.public_timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</div>
               </div>
@@ -66,7 +66,7 @@ export default async function HomePage() {
               return (
                 <Link href={`/bills/${bill.id}`} key={bill.id} style={{ display: 'block', marginBottom: '1rem', textDecoration: 'none' }}>
                   <div style={{ fontSize: '15px', color: '#fff', marginBottom: '4px', lineHeight: 1.3 }}>{bill.title}</div>
-                  <div style={{ height: '3px', background: '#2e2e2e', borderRadius: '2px', marginBottom: '3px' }}>
+                  <div style={{ height: '3px', background: '#222222', borderRadius: '2px', marginBottom: '3px' }}>
                     <div style={{ height: '3px', width: `${pct}%`, background: '#4a8a3a', borderRadius: '2px' }}></div>
                   </div>
                   <div style={{ fontSize: '10px', color: '#ffffff' }}>{pct}% public support · {total.toLocaleString()} votes</div>
@@ -77,7 +77,7 @@ export default async function HomePage() {
         </div>
 
         {/* LIVE ACTIVITY FEED */}
-        <div style={{ background: '#1a1a1a', padding: '1rem', borderTop: '1px solid #2e2e2e', marginBottom: '1px' }}>
+        <div style={{ background: '#1a1a1a', padding: '1rem', borderTop: '1px solid #333333', marginBottom: '1px' }}>
           <div style={{ fontSize: '12px', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.75rem' }}>Live Activity</div>
           <div>
             {activity?.map((item, i) => (
@@ -93,7 +93,7 @@ export default async function HomePage() {
         </div>
 
         {/* CONTRACTS + DONATIONS */}
-        <div className="grid grid-cols-2 gap-px mb-px" style={{ background: '#2e2e2e' }}>
+        <div className="grid grid-cols-2 gap-px mb-px" style={{ background: '#222222' }}>
           <div style={{ background: '#1a1a1a', padding: '1rem' }}>
             <div style={{ fontSize: '12px', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.75rem' }}>Latest Contracts</div>
             {contracts?.map((c, i) => (
@@ -115,7 +115,7 @@ export default async function HomePage() {
         </div>
 
         {/* STATS BAR */}
-        <div className="grid grid-cols-4 gap-px" style={{ background: '#2e2e2e' }}>
+        <div className="grid grid-cols-4 gap-px" style={{ background: '#222222' }}>
           {[
             { num: '3,884', label: 'Bills tracked' },
             { num: '650', label: 'MPs' },
@@ -130,7 +130,7 @@ export default async function HomePage() {
         </div>
 
         {/* BOTTOM NAV */}
-        <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #2e2e2e', display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+        <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #333333', display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
           {[
             { href: '/mps', label: 'MPs' },
             { href: '/departments', label: 'Departments' },

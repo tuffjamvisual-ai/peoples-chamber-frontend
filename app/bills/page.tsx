@@ -27,7 +27,7 @@ export default async function BillsPage() {
       <Navigation />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
-        <header className="border-b border-[#2e2e2e] pb-10 mb-10">
+        <header className="border-b border-[#333333] pb-10 mb-10">
           <p className="text-[13px] uppercase tracking-[0.3em] font-medium mb-4" style={{ color: ACCENT }}>
             The People&apos;s Chamber · Bills
           </p>
@@ -38,7 +38,7 @@ export default async function BillsPage() {
             Every bill going through UK Parliament. How MPs voted. How you voted. The gap between the two.
           </p>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-px border border-[#2e2e2e] mt-10">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-px border border-[#333333] mt-10">
             <Stat label="Bills tracked" value={bills.length} />
             <Stat label="Acts" value={bills.filter((b: any) => b.is_act).length} />
             <Stat label="Refresh" value="Daily" accent />
