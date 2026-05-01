@@ -42,10 +42,10 @@ export default function Navigation() {
                 <img
                   src="/logo.png"
                   alt="People's Chamber"
-                  style={{ height: '300px', width: 'auto', objectFit: 'contain' }}
+                  style={{ height: '60px', width: 'auto', objectFit: 'contain' }}
                 />
-                <div className="text-center -mt-12">
-                  <div className="text-2xl font-bold text-white tracking-widest">THE PEOPLES CHAMBER</div>
+                <div className="text-center -mt-2">
+                  <div className="text-sm font-bold text-white tracking-widest">THE PEOPLES CHAMBER</div>
                 </div>
               </div>
             </Link>
