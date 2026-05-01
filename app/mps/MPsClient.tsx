@@ -75,7 +75,7 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
           placeholder="Name, constituency, or party…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full bg-[#222222] text-white text-sm leading-[1.7] border border-[#333333] rounded-sm px-4 py-3 placeholder:text-white focus:outline-none focus:border-[#ffffff] transition-colors"
+          className="w-[40%] bg-[#222222] text-white text-sm leading-[1.7] border border-[#333333] rounded-sm px-4 py-3 placeholder:text-white focus:outline-none focus:border-[#ffffff] transition-colors"
         />
       </div>
 
