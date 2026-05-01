@@ -22,7 +22,7 @@ async function getGovUKNews() {
 export default async function HomePage() {
   const [news, { data: bills }, { data: activity }, { data: contracts }, { data: donations }, { data: stats }] = await Promise.all([
     getGovUKNews(),
-    supabase.from('bill').select('id, title, vote_count_yes, vote_count_no').order('vote_count_yes', { ascending: false }).limit(3),
+    supabase.from('bill').select('id, title, vote_count_yes, vote_count_no, vote_count_abstain').order('vote_count_yes', { ascending: false }).limit(3),
     supabase.from('ministers_hospitality').select('minister_name, donor, amount, date').order('date', { ascending: false }).limit(5),
     supabase.from('government_contracts').select('title, supplier, value').order('id', { ascending: false }).limit(3),
     supabase.from('political_donations').select('donor_name, recipient_name, amount').order('id', { ascending: false }).limit(3),
