@@ -46,7 +46,6 @@ export default function Navigation() {
                 />
                 <div className="text-center -mt-12">
                   <div className="text-2xl font-bold text-white tracking-widest">THE PEOPLES CHAMBER</div>
-                  <div className="text-xs text-[#7697a2] tracking-wider mt-0.5">VOTING ON UK PARLIAMENT BILLS</div>
                 </div>
               </div>
             </Link>
