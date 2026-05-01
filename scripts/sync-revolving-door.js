@@ -20,6 +20,9 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 const DELAY_MS = 300;
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
+// Cover the full current government period (Labour, July 2024 onwards)
+const FROM_DATE = '2024-07-04';
+
 const SEARCH_URL = 'https://www.gov.uk/api/search.json';
 const ACOBA = 'advisory-committee-on-business-appointments';
 const PAGE_SIZE = 100;
@@ -119,6 +122,8 @@ async function fetchAll() {
     const results = data.results || [];
     if (results.length === 0) break;
     for (const r of results) {
+      const pubDate = r.public_timestamp ? r.public_timestamp.slice(0, 10) : null;
+      if (pubDate && pubDate < FROM_DATE) continue;
       const parsed = parseTitle(r.title);
       if (!parsed) continue;
       out.push({
@@ -143,23 +148,24 @@ async function insertBatched(rows) {
     const batch = rows.slice(i, i + 100);
     const { error } = await supabase.from('revolving_door').insert(batch);
     if (error) {
-      // Duplicate-key conflicts are expected on subsequent runs since
-      // GOV.UK doesn't expose a stable per-publication ID. We surface
-      // the first such error and stop the batch loop.
-      console.error(`[revolving-door] insert error at batch ${i}:`, error.message || error);
-      return inserted;
+      // Duplicate-key conflicts are expected on re-runs; log and continue
+      // rather than stopping so all new batches are still processed.
+      console.warn(`[revolving-door] insert warning at batch ${i} (skipped):`, error.message || error);
+    } else {
+      inserted += batch.length;
     }
-    inserted += batch.length;
     await sleep(DELAY_MS);
   }
   return inserted;
 }
 
 async function main() {
-  console.log('[revolving-door] fetching ACOBA publications from GOV.UK…');
+  console.log(`[revolving-door] fetching ACOBA publications from GOV.UK (${FROM_DATE} onwards)…`);
   const rows = await fetchAll();
   console.log(`[revolving-door] parsed ${rows.length} case-decision titles`);
   if (rows.length === 0) { console.log('Nothing to insert.'); return; }
+  const dates = rows.map(r => r.approval_date).filter(Boolean).sort();
+  console.log(`[revolving-door] date range: ${dates[0]} → ${dates[dates.length - 1]}`);
   console.log('[revolving-door] sample row:', JSON.stringify(rows[0]));
   const n = await insertBatched(rows);
   console.log(`[revolving-door] inserted ${n} rows`);
