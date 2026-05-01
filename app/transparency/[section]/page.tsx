@@ -67,6 +67,11 @@ export default async function TransparencySectionPage({
             <span className="font-mono text-white text-base font-bold">{(rows?.length ?? 0).toLocaleString()}</span>{' '}
             record{rows?.length === 1 ? '' : 's'} in this dataset. Use the search to filter live.
           </p>
+          {section === 'revolving-door' && (
+            <p className="text-gray-200 text-[14px] leading-[1.7] max-w-2xl mt-6">
+              The revolving door refers to senior government officials and ministers leaving public service to take up roles in the private sector — often in industries they previously regulated or had influence over. These appointments are reviewed by the Advisory Committee on Business Appointments (ACOBA), which can attach conditions such as waiting periods or restrictions on lobbying former colleagues.
+            </p>
+          )}
         </header>
 
         <TransparencyClient rows={rows || []} sectionTitle={config.title} section={section} />
