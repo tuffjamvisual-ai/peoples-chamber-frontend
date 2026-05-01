@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/transparency' },
 }
 
-const ACCENT = '#ffffff'
+const ACCENT = '#9bdd42'
 const ACCENT_2 = '#818cf8'
 
 const SECTIONS = [
@@ -27,44 +27,44 @@ const SECTIONS = [
 
 export default function TransparencyHubPage() {
   return (
-    <div className="min-h-screen bg-[#111111] text-white">
+    <div className="min-h-screen bg-[#002633] text-white">
       <Navigation />
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
-        <header className="border-b border-[#2a2a2a] pb-10 mb-10">
+        <header className="border-b border-[#1c3849] pb-10 mb-10">
           <p className="text-[10px] uppercase tracking-[0.3em] font-medium mb-4" style={{ color: ACCENT }}>
             The People&apos;s Chamber · Transparency
           </p>
           <h1 className="text-4xl sm:text-6xl font-black leading-[1.05] tracking-tight text-white mb-4">
             Transparency Hub
           </h1>
-          <p className="text-[#999999] text-[14px] leading-[1.7] max-w-2xl">
+          <p className="text-[#7697a2] text-[14px] leading-[1.7] max-w-2xl">
             Eight datasets covering how ministers, MPs, lobbyists, donors, contractors and former officials interact with the UK state. Each section links to a searchable list of the underlying records.
           </p>
 
-          <div className="grid grid-cols-3 gap-px bg-[#2a2a2a] border border-[#2a2a2a] mt-10">
+          <div className="grid grid-cols-3 gap-px bg-[#1c3849] border border-[#1c3849] mt-10">
             <Stat label="Datasets" value={SECTIONS.length} />
             <Stat label="Sources" value="6" />
             <Stat label="Refresh" value="Daily" accent />
           </div>
         </header>
 
-        <ul className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#2a2a2a] border border-[#2a2a2a]">
+        <ul className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#1c3849] border border-[#1c3849]">
           {SECTIONS.map((s, i) => {
             const colour = i % 2 === 0 ? ACCENT : ACCENT_2
             return (
-              <li key={s.slug} className="bg-[#1a1a1a]">
+              <li key={s.slug} className="bg-[#1c3849]">
                 <Link
                   href={`/transparency/${s.slug}`}
-                  className="group block p-6 hover:bg-[#111827] transition-colors border-l-2 border-transparent hover:border-l-[#ffffff]"
+                  className="group block p-6 hover:bg-[#002633] transition-colors border-l-2 border-transparent hover:border-l-[#9bdd42]"
                 >
                   <p className="text-[10px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: colour }}>
                     Dataset · {String(i + 1).padStart(2, '0')}
                   </p>
-                  <h2 className="text-xl font-black tracking-tight mb-2 leading-tight text-white group-hover:text-[#ffffff] transition-colors">
+                  <h2 className="text-xl font-black tracking-tight mb-2 leading-tight text-white group-hover:text-[#9bdd42] transition-colors">
                     {s.title}
-                    <span className="ml-2 text-base text-[#999999] inline-block transition-transform group-hover:translate-x-1 group-hover:text-[#ffffff]">→</span>
+                    <span className="ml-2 text-base text-[#7697a2] inline-block transition-transform group-hover:translate-x-1 group-hover:text-[#9bdd42]">→</span>
                   </h2>
-                  <p className="text-[#999999] text-[13px] leading-[1.7]">{s.description}</p>
+                  <p className="text-[#7697a2] text-[13px] leading-[1.7]">{s.description}</p>
                 </Link>
               </li>
             )
@@ -77,9 +77,9 @@ export default function TransparencyHubPage() {
 
 function Stat({ label, value, accent = false }: { label: string; value: number | string; accent?: boolean }) {
   return (
-    <div className="bg-[#1a1a1a] px-4 py-5">
-      <p className="text-[10px] uppercase tracking-[0.25em] text-[#999999] font-medium mb-2">{label}</p>
-      <p className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#ffffff]' : 'text-white'}`}>
+    <div className="bg-[#1c3849] px-4 py-5">
+      <p className="text-[10px] uppercase tracking-[0.25em] text-[#7697a2] font-medium mb-2">{label}</p>
+      <p className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#9bdd42]' : 'text-white'}`}>
         {typeof value === 'number' ? value.toLocaleString() : value}
       </p>
     </div>

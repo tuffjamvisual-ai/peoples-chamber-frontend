@@ -6,7 +6,7 @@ import Navigation from '../../components/Navigation';
 
 export const revalidate = 3600;
 
-const ACCENT = '#ffffff';
+const ACCENT = '#9bdd42';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -53,10 +53,10 @@ export default async function CommitteePublicationPage({ params }: Props) {
   const externalUrl = row.publication_url || row.url || null;
 
   return (
-    <div className="min-h-screen bg-[#111111] text-[#999999]">
+    <div className="min-h-screen bg-[#002633] text-[#7697a2]">
       <Navigation />
       <main className="max-w-3xl mx-auto px-4 sm:px-6 pb-16">
-        <Link href="/" className="inline-flex items-center gap-2 text-[#999999] hover:text-white mb-8 text-sm">
+        <Link href="/" className="inline-flex items-center gap-2 text-[#7697a2] hover:text-white mb-8 text-sm">
           ← Home
         </Link>
 
@@ -68,7 +68,7 @@ export default async function CommitteePublicationPage({ params }: Props) {
 
         <h1 className="text-3xl sm:text-4xl font-bold leading-tight text-white mb-4">{row.title}</h1>
 
-        <div className="flex flex-wrap items-center gap-3 text-xs text-[#999999] mb-8 font-mono">
+        <div className="flex flex-wrap items-center gap-3 text-xs text-[#7697a2] mb-8 font-mono">
           {row.publication_date && <span>{formatDate(row.publication_date)}</span>}
           {row.publication_type && <span>· {row.publication_type}</span>}
           {externalUrl && (
@@ -78,7 +78,7 @@ export default async function CommitteePublicationPage({ params }: Props) {
                 href={externalUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-[#ffffff] transition-colors"
+                className="hover:text-[#9bdd42] transition-colors"
                 style={{ color: ACCENT }}
               >
                 Read on Parliament.uk →
@@ -88,18 +88,18 @@ export default async function CommitteePublicationPage({ params }: Props) {
         </div>
 
         {row.summary && (
-          <p className="text-base sm:text-lg text-[#cccccc] leading-relaxed mb-10 pl-4 border-l-2" style={{ borderColor: ACCENT }}>
+          <p className="text-base sm:text-lg text-[#c9c9c9] leading-relaxed mb-10 pl-4 border-l-2" style={{ borderColor: ACCENT }}>
             {row.summary}
           </p>
         )}
 
         {row.full_content ? (
-          <article className="text-[#cccccc] text-sm sm:text-base leading-relaxed whitespace-pre-line">
+          <article className="text-[#c9c9c9] text-sm sm:text-base leading-relaxed whitespace-pre-line">
             {row.full_content}
           </article>
         ) : (
-          <div className="border-t border-[#2a2a2a] pt-8 mt-8">
-            <p className="text-[#999999] text-sm leading-relaxed">
+          <div className="border-t border-[#1c3849] pt-8 mt-8">
+            <p className="text-[#7697a2] text-sm leading-relaxed">
               The full text of this publication has not been mirrored locally. Use the link above to read it on the UK Parliament site.
             </p>
           </div>

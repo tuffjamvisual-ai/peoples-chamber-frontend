@@ -6,7 +6,7 @@ import TransparencyClient from './TransparencyClient'
 
 export const revalidate = 3600
 
-const ACCENT = '#ffffff'
+const ACCENT = '#9bdd42'
 const PAGE_LIMIT = 100
 
 const SECTIONS: Record<string, { title: string; table: string; orderBy?: string }> = {
@@ -64,24 +64,24 @@ export default async function TransparencySectionPage({
   const totalCount = total ?? 0
 
   return (
-    <div className="min-h-screen bg-[#111111] text-white">
+    <div className="min-h-screen bg-[#002633] text-white">
       <Navigation />
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
         <Link
           href="/transparency"
-          className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-[#999999] hover:text-white mb-8 transition-colors"
+          className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-[#7697a2] hover:text-white mb-8 transition-colors"
         >
           ← Transparency Hub
         </Link>
 
-        <header className="border-b border-[#2a2a2a] pb-10 mb-10">
+        <header className="border-b border-[#1c3849] pb-10 mb-10">
           <p className="text-[10px] uppercase tracking-[0.3em] font-medium mb-4" style={{ color: ACCENT }}>
             Dataset
           </p>
           <h1 className="text-4xl sm:text-6xl font-black leading-[1.05] tracking-tight text-white mb-4">
             {config.title}
           </h1>
-          <p className="text-[#999999] text-[14px] leading-[1.7] max-w-2xl">
+          <p className="text-[#7697a2] text-[14px] leading-[1.7] max-w-2xl">
             {searchTerm ? (
               <>
                 <span className="font-mono text-white text-base font-bold">{rowCount.toLocaleString()}</span>
@@ -107,7 +107,7 @@ export default async function TransparencySectionPage({
             )}
           </p>
           {section === 'revolving-door' && (
-            <p className="text-[#999999] text-[14px] leading-[1.7] max-w-2xl mt-6">
+            <p className="text-[#7697a2] text-[14px] leading-[1.7] max-w-2xl mt-6">
               The revolving door refers to senior government officials and ministers leaving public service to take up roles in the private sector — often in industries they previously regulated or had influence over. These appointments are reviewed by the Advisory Committee on Business Appointments (ACOBA), which can attach conditions such as waiting periods or restrictions on lobbying former colleagues.
             </p>
           )}

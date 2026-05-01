@@ -2,11 +2,11 @@ import Navigation from '../components/Navigation'
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-[#111111] text-white">
+    <div className="min-h-screen bg-[#002633] text-white">
       <Navigation />
 
-      <main className="max-w-2xl mx-auto px-6 py-20 text-[#999999] leading-loose space-y-8">
-        <h1 className="text-4xl sm:text-5xl font-semibold text-[#ffffff] mb-6 tracking-tight">
+      <main className="max-w-2xl mx-auto px-6 py-20 text-[#7697a2] leading-loose space-y-8">
+        <h1 className="text-4xl sm:text-5xl font-semibold text-[#9bdd42] mb-6 tracking-tight">
           About
         </h1>
 

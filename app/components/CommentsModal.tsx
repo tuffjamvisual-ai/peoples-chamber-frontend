@@ -139,18 +139,18 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={onClose}>
       <div 
-        className="bg-[#1a1f2e] rounded-lg w-full max-w-2xl max-h-[80vh] flex flex-col border border-[#2a2a2a]"
+        className="bg-[#002633] rounded-lg w-full max-w-2xl max-h-[80vh] flex flex-col border border-[#1c3849]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-4 border-b border-[#2a2a2a] flex justify-between items-start">
+        <div className="p-4 border-b border-[#1c3849] flex justify-between items-start">
           <div className="flex-1 pr-4">
             <h2 className="text-lg font-semibold text-white mb-1">Comments</h2>
-            <p className="text-sm text-[#999999] line-clamp-2">{billTitle}</p>
+            <p className="text-sm text-[#7697a2] line-clamp-2">{billTitle}</p>
           </div>
           <button
             onClick={onClose}
-            className="text-[#999999] hover:text-white text-2xl leading-none"
+            className="text-[#7697a2] hover:text-white text-2xl leading-none"
           >
             ×
           </button>
@@ -159,16 +159,16 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
         {/* Comments List */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {comments.length === 0 ? (
-            <p className="text-center text-[#999999] py-8">
+            <p className="text-center text-[#7697a2] py-8">
               No comments yet. {user ? 'Be the first to comment!' : 'Log in to comment.'}
             </p>
           ) : (
             comments.map((comment) => (
-              <div key={comment.id} className="bg-[#2a2a2a]/40 rounded-lg p-3">
+              <div key={comment.id} className="bg-[#1c3849]/40 rounded-lg p-3">
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-white text-sm">{comment.username}</span>
-                    <span className="text-xs text-[#999999]">
+                    <span className="text-xs text-[#7697a2]">
                       {formatTime(comment.createdAt)}
                       {comment.updatedAt !== comment.createdAt && ' (edited)'}
                     </span>
@@ -180,7 +180,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
                           setEditingId(comment.id);
                           setEditText(comment.text);
                         }}
-                        className="text-xs text-[#ffffff] hover:text-[#ffffff]"
+                        className="text-xs text-[#9bdd42] hover:text-[#9bdd42]"
                       >
                         Edit
                       </button>
@@ -199,13 +199,13 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
                     <textarea
                       value={editText}
                       onChange={(e) => setEditText(e.target.value)}
-                      className="w-full bg-[#111111] border border-[#2a2a2a] rounded px-3 py-2 text-white text-sm resize-none"
+                      className="w-full bg-[#002633] border border-[#1c3849] rounded px-3 py-2 text-white text-sm resize-none"
                       rows={3}
                     />
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleEdit(comment.id)}
-                        className="px-3 py-1 bg-[#ffffff] hover:bg-[#cccccc] text-white text-xs rounded"
+                        className="px-3 py-1 bg-[#9bdd42] hover:bg-[#c9c9c9] text-white text-xs rounded"
                       >
                         Save
                       </button>
@@ -214,14 +214,14 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
                           setEditingId(null);
                           setEditText('');
                         }}
-                        className="px-3 py-1 bg-[#333333] hover:bg-[#3a3a3a] text-white text-xs rounded"
+                        className="px-3 py-1 bg-[#405b6b] hover:bg-[#405b6b] text-white text-xs rounded"
                       >
                         Cancel
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <p className="text-[#cccccc] text-sm whitespace-pre-wrap">{comment.text}</p>
+                  <p className="text-[#c9c9c9] text-sm whitespace-pre-wrap">{comment.text}</p>
                 )}
               </div>
             ))
@@ -230,7 +230,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
 
         {/* Comment Input */}
         {user ? (
-          <div className="p-4 border-t border-[#2a2a2a]">
+          <div className="p-4 border-t border-[#1c3849]">
             {error && (
               <div className="mb-3 p-2 bg-red-900/20 border border-red-900/50 rounded text-red-400 text-xs">
                 {error}
@@ -241,21 +241,21 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 placeholder="Write a comment..."
-                className="w-full bg-[#2a2a2a]/50 border border-[#2a2a2a] rounded-lg px-3 py-2 text-white placeholder-[#666666] text-sm resize-none focus:outline-none focus:border-[#ffffff]"
+                className="w-full bg-[#1c3849]/50 border border-[#1c3849] rounded-lg px-3 py-2 text-white placeholder-[#7697a2] text-sm resize-none focus:outline-none focus:border-[#9bdd42]"
                 rows={3}
               />
               <button
                 type="submit"
                 disabled={loading || !newComment.trim()}
-                className="w-full bg-[#ffffff] hover:bg-[#cccccc] text-white py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-[#9bdd42] hover:bg-[#c9c9c9] text-white py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Posting...' : 'Post Comment'}
               </button>
             </form>
           </div>
         ) : (
-          <div className="p-4 border-t border-[#2a2a2a] text-center">
-            <p className="text-[#999999] text-sm">Log in to leave a comment</p>
+          <div className="p-4 border-t border-[#1c3849] text-center">
+            <p className="text-[#7697a2] text-sm">Log in to leave a comment</p>
           </div>
         )}
       </div>

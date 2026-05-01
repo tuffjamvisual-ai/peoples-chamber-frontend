@@ -76,14 +76,14 @@ export default function PollsClient() {
 
       <div className="mb-6">
         <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">People's Polls</h1>
-        <p className="text-[#999999] text-sm sm:text-base">
+        <p className="text-[#7697a2] text-sm sm:text-base">
           Have your say on the issues that matter. Vote on questions about policy, politics and public life.
         </p>
       </div>
 
       <div className="flex gap-6 mb-4">
-        <div className="text-sm text-[#999999]"><span className="text-white font-semibold">{polls.length}</span> polls</div>
-        <div className="text-sm text-[#999999]"><span className="text-white font-semibold">{totalVotesAll.toLocaleString()}</span> total votes</div>
+        <div className="text-sm text-[#7697a2]"><span className="text-white font-semibold">{polls.length}</span> polls</div>
+        <div className="text-sm text-[#7697a2]"><span className="text-white font-semibold">{totalVotesAll.toLocaleString()}</span> total votes</div>
       </div>
 
       <div className="flex items-center gap-3 mb-4">
@@ -92,23 +92,23 @@ export default function PollsClient() {
           placeholder="Search polls..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 px-4 py-2 bg-[#2a2a2a] text-white rounded border border-[#2a2a2a] focus:border-[#ffffff] focus:outline-none text-sm"
+          className="flex-1 px-4 py-2 bg-[#1c3849] text-white rounded border border-[#1c3849] focus:border-[#9bdd42] focus:outline-none text-sm"
         />
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value as SortOption)}
-          className="px-3 py-2 bg-[#2a2a2a] text-white text-sm rounded border border-[#2a2a2a] focus:border-[#ffffff] focus:outline-none"
+          className="px-3 py-2 bg-[#1c3849] text-white text-sm rounded border border-[#1c3849] focus:border-[#9bdd42] focus:outline-none"
         >
           <option value="popular">Most Popular</option>
           <option value="newest">Newest</option>
         </select>
       </div>
 
-      <div className="text-[#999999] text-sm mb-4">{filtered.length} polls</div>
+      <div className="text-[#7697a2] text-sm mb-4">{filtered.length} polls</div>
 
       {loading ? (
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#ffffff] mx-auto"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#9bdd42] mx-auto"></div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -119,9 +119,9 @@ export default function PollsClient() {
             const hasVoted = !!userVotes[poll.id]
 
             return (
-              <div key={poll.id} className="bg-[#111111] border border-[#2a2a2a] rounded-lg p-5 flex flex-col min-h-[180px]">
+              <div key={poll.id} className="bg-[#002633] border border-[#1c3849] rounded-lg p-5 flex flex-col min-h-[180px]">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs px-2 py-0.5 bg-white/10 text-[#ffffff] rounded border border-white/30">Poll</span>
+                  <span className="text-xs px-2 py-0.5 bg-white/10 text-[#9bdd42] rounded border border-white/30">Poll</span>
                   {poll.constituency && (
                     <span className="text-xs px-2 py-0.5 bg-purple-900/40 text-purple-300 rounded border border-purple-800/40">
                       {poll.constituency}
@@ -131,16 +131,16 @@ export default function PollsClient() {
 
                 <h3 className="text-white font-semibold text-sm mb-2 leading-snug">{poll.question}</h3>
                 {poll.explainer && (
-                  <p className="text-[#cccccc] text-sm mb-4 leading-relaxed">{poll.explainer}</p>
+                  <p className="text-[#c9c9c9] text-sm mb-4 leading-relaxed">{poll.explainer}</p>
                 )}
 
                 {/* Vote bar */}
                 <div className="mb-1">
-                  <div className="h-2 bg-[#2a2a2a] rounded-full overflow-hidden flex">
+                  <div className="h-2 bg-[#1c3849] rounded-full overflow-hidden flex">
                     <div className="bg-green-500 h-full transition-all" style={{ width: yesPercent + '%' }} />
                     <div className="bg-rose-500 h-full transition-all" style={{ width: noPercent + '%' }} />
                   </div>
-                  <div className="flex justify-between text-xs text-[#999999] mt-1 mb-3">
+                  <div className="flex justify-between text-xs text-[#7697a2] mt-1 mb-3">
                     <span>Yes {yesPercent}% · {poll.vote_count_yes.toLocaleString()}</span>
                     <span>{total.toLocaleString()} votes</span>
                     <span>{poll.vote_count_no.toLocaleString()} · No {noPercent}%</span>
@@ -152,14 +152,14 @@ export default function PollsClient() {
                   <button
                     onClick={() => handleVote(poll.id, 'yes')}
                     disabled={hasVoted}
-                    className={'px-4 py-1.5 rounded text-xs font-medium transition-colors ' + (hasVoted ? (userVotes[poll.id] === 'yes' ? 'bg-green-700 text-white' : 'bg-[#333333] text-[#999999] cursor-not-allowed') : 'bg-green-800 hover:bg-green-700 text-white')}
+                    className={'px-4 py-1.5 rounded text-xs font-medium transition-colors ' + (hasVoted ? (userVotes[poll.id] === 'yes' ? 'bg-green-700 text-white' : 'bg-[#405b6b] text-[#7697a2] cursor-not-allowed') : 'bg-green-800 hover:bg-green-700 text-white')}
                   >
                     {hasVoted && userVotes[poll.id] === 'yes' ? '✓ Yes' : 'Yes'}
                   </button>
                   <button
                     onClick={() => handleVote(poll.id, 'no')}
                     disabled={hasVoted}
-                    className={'px-4 py-1.5 rounded text-xs font-medium transition-colors ' + (hasVoted ? (userVotes[poll.id] === 'no' ? 'bg-rose-700 text-white' : 'bg-[#333333] text-[#999999] cursor-not-allowed') : 'bg-rose-800 hover:bg-rose-700 text-white')}
+                    className={'px-4 py-1.5 rounded text-xs font-medium transition-colors ' + (hasVoted ? (userVotes[poll.id] === 'no' ? 'bg-rose-700 text-white' : 'bg-[#405b6b] text-[#7697a2] cursor-not-allowed') : 'bg-rose-800 hover:bg-rose-700 text-white')}
                   >
                     {hasVoted && userVotes[poll.id] === 'no' ? '✓ No' : 'No'}
                   </button>

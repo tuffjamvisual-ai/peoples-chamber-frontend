@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/bills' },
 };
 
-const ACCENT = '#ffffff';
+const ACCENT = '#9bdd42';
 
 export default async function BillsPage() {
   const bills = await getAllBills();
@@ -23,22 +23,22 @@ export default async function BillsPage() {
   const isMobile = /Mobile|Android|iPhone/i.test(userAgent);
 
   return (
-    <div className="min-h-screen bg-[#111111] text-white">
+    <div className="min-h-screen bg-[#002633] text-white">
       <Navigation />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
-        <header className="border-b border-[#2a2a2a] pb-10 mb-10">
+        <header className="border-b border-[#1c3849] pb-10 mb-10">
           <p className="text-[10px] uppercase tracking-[0.3em] font-medium mb-4" style={{ color: ACCENT }}>
             The People&apos;s Chamber · Bills
           </p>
           <h1 className="text-4xl sm:text-6xl font-black leading-[1.05] tracking-tight text-white mb-4">
             Bills in Parliament
           </h1>
-          <p className="text-[#999999] text-[14px] leading-[1.7] max-w-2xl">
+          <p className="text-[#7697a2] text-[14px] leading-[1.7] max-w-2xl">
             Every bill going through UK Parliament. How MPs voted. How you voted. The gap between the two.
           </p>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-px bg-[#2a2a2a] border border-[#2a2a2a] mt-10">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-px bg-[#1c3849] border border-[#1c3849] mt-10">
             <Stat label="Bills tracked" value={bills.length} />
             <Stat label="Acts" value={bills.filter((b: any) => b.is_act).length} />
             <Stat label="Refresh" value="Daily" accent />
@@ -57,9 +57,9 @@ export default async function BillsPage() {
 
 function Stat({ label, value, accent = false }: { label: string; value: number | string; accent?: boolean }) {
   return (
-    <div className="bg-[#1a1a1a] px-4 py-5">
-      <p className="text-[10px] uppercase tracking-[0.25em] text-[#999999] font-medium mb-2">{label}</p>
-      <p className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#ffffff]' : 'text-white'}`}>
+    <div className="bg-[#1c3849] px-4 py-5">
+      <p className="text-[10px] uppercase tracking-[0.25em] text-[#7697a2] font-medium mb-2">{label}</p>
+      <p className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#9bdd42]' : 'text-white'}`}>
         {typeof value === 'number' ? value.toLocaleString() : value}
       </p>
     </div>
