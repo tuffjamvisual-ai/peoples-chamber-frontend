@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/bills' },
 };
 
-const ACCENT = '#60a5fa';
+const ACCENT = '#a8ff3e';
 
 export default async function BillsPage() {
   const bills = await getAllBills();
@@ -23,11 +23,11 @@ export default async function BillsPage() {
   const isMobile = /Mobile|Android|iPhone/i.test(userAgent);
 
   return (
-    <div className="min-h-screen bg-[#0a0f1a] text-white">
+    <div className="min-h-screen bg-[#0a140a] text-white">
       <Navigation />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
-        <header className="border-b border-[#1e2a3a] pb-10 mb-10">
+        <header className="border-b border-[#1a2e1a] pb-10 mb-10">
           <p className="text-[10px] uppercase tracking-[0.3em] font-medium mb-4" style={{ color: ACCENT }}>
             The People&apos;s Chamber · Bills
           </p>
@@ -38,7 +38,7 @@ export default async function BillsPage() {
             Every bill going through UK Parliament. How MPs voted. How you voted. The gap between the two.
           </p>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-px bg-[#1e2a3a] border border-[#1e2a3a] mt-10">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-px bg-[#1a2e1a] border border-[#1a2e1a] mt-10">
             <Stat label="Bills tracked" value={bills.length} />
             <Stat label="Acts" value={bills.filter((b: any) => b.is_act).length} />
             <Stat label="Refresh" value="Daily" accent />
@@ -57,9 +57,9 @@ export default async function BillsPage() {
 
 function Stat({ label, value, accent = false }: { label: string; value: number | string; accent?: boolean }) {
   return (
-    <div className="bg-[#0d1520] px-4 py-5">
+    <div className="bg-[#0f1a0f] px-4 py-5">
       <p className="text-[10px] uppercase tracking-[0.25em] text-gray-200 font-medium mb-2">{label}</p>
-      <p className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#60a5fa]' : 'text-white'}`}>
+      <p className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#a8ff3e]' : 'text-white'}`}>
         {typeof value === 'number' ? value.toLocaleString() : value}
       </p>
     </div>

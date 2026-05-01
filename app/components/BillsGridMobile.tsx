@@ -119,23 +119,23 @@ export default function BillsGridMobile({ initialBills }: Props) {
 
   return (
     <>
-      <div className="sticky top-20 z-40 bg-[#0a0f1a] px-4 py-3 border-b border-gray-800">
+      <div className="sticky top-20 z-40 bg-[#0a140a] px-4 py-3 border-b border-gray-800">
         <input
           type="text"
           placeholder="Search bills..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-xl mx-auto block px-4 py-2 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-blue-500 focus:outline-none"
+          className="max-w-xl mx-auto block px-4 py-2 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-[#a8ff3e] focus:outline-none"
         />
       </div>
 
-      <div className="sticky top-[108px] z-40 bg-[#0a0f1a] border-b border-gray-800 overflow-x-auto">
+      <div className="sticky top-[108px] z-40 bg-[#0a140a] border-b border-gray-800 overflow-x-auto">
         <div className="flex space-x-1 px-4 min-w-max">
           <button
             onClick={() => setActiveTab('latest')}
             className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
               activeTab === 'latest'
-                ? 'text-blue-400 border-b-2 border-blue-400'
+                ? 'text-[#a8ff3e] border-b-2 border-[#a8ff3e]'
                 : 'text-gray-200'
             }`}
           >
@@ -145,7 +145,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
             onClick={() => setActiveTab('trending')}
             className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
               activeTab === 'trending'
-                ? 'text-blue-400 border-b-2 border-blue-400'
+                ? 'text-[#a8ff3e] border-b-2 border-[#a8ff3e]'
                 : 'text-gray-200'
             }`}
           >
@@ -155,7 +155,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
             onClick={() => setActiveTab('controversial')}
             className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
               activeTab === 'controversial'
-                ? 'text-blue-400 border-b-2 border-blue-400'
+                ? 'text-[#a8ff3e] border-b-2 border-[#a8ff3e]'
                 : 'text-gray-200'
             }`}
           >
@@ -165,7 +165,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
             onClick={() => setActiveTab('voted')}
             className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
               activeTab === 'voted'
-                ? 'text-blue-400 border-b-2 border-blue-400'
+                ? 'text-[#a8ff3e] border-b-2 border-[#a8ff3e]'
                 : 'text-gray-200'
             }`}
           >

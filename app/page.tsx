@@ -4,7 +4,7 @@ import Navigation from './components/Navigation';
 
 export const revalidate = 3600;
 
-const ACCENT = '#60a5fa';
+const ACCENT = '#a8ff3e';
 const ACCENT_2 = '#818cf8';
 const SUCCESS = '#34d399';
 const DANGER = '#f87171';
@@ -186,13 +186,13 @@ export default async function HomePage() {
   const press: GovukItem[] = pressAll.slice(1, 4);
 
   return (
-    <div className="min-h-screen bg-[#0a0f1a] text-white">
+    <div className="min-h-screen bg-[#0a140a] text-white">
       <Navigation />
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6">
         {/* ── Lead Story ──────────────────────────────────────────────── */}
         {lead && (
-          <section className="pt-12 border-b border-[#1e2a3a] pb-12 mb-12">
+          <section className="pt-12 border-b border-[#1a2e1a] pb-12 mb-12">
             {lead.organisation && (
               <p className="text-[10px] uppercase tracking-[0.3em] mb-4 font-semibold" style={{ color: ACCENT }}>
                 {lead.organisation}
@@ -215,10 +215,10 @@ export default async function HomePage() {
         )}
 
         {/* ── Second Tier — 3 columns ─────────────────────────────────── */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[#1e2a3a] border border-[#1e2a3a] mb-12">
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[#1a2e1a] border border-[#1a2e1a] mb-12">
           {/* Press Releases */}
-          <div className="bg-[#0d1520] p-5">
-            <h3 className="text-[10px] uppercase tracking-[0.3em] mb-5 pb-3 border-b border-[#1e2a3a] font-semibold" style={{ color: ACCENT }}>
+          <div className="bg-[#0f1a0f] p-5">
+            <h3 className="text-[10px] uppercase tracking-[0.3em] mb-5 pb-3 border-b border-[#1a2e1a] font-semibold" style={{ color: ACCENT }}>
               Press Releases
             </h3>
             {press.length === 0 ? (
@@ -247,8 +247,8 @@ export default async function HomePage() {
           </div>
 
           {/* Committee Watch */}
-          <div className="bg-[#0d1520] p-5">
-            <h3 className="text-[10px] uppercase tracking-[0.3em] mb-5 pb-3 border-b border-[#1e2a3a] font-semibold" style={{ color: ACCENT_2 }}>
+          <div className="bg-[#0f1a0f] p-5">
+            <h3 className="text-[10px] uppercase tracking-[0.3em] mb-5 pb-3 border-b border-[#1a2e1a] font-semibold" style={{ color: ACCENT_2 }}>
               Committee Watch
             </h3>
             {committee.length === 0 ? (
@@ -263,7 +263,7 @@ export default async function HomePage() {
                       </p>
                     )}
                     <h4 className="text-[13px] font-semibold leading-snug mb-1.5">
-                      <Link href={`/committees/${c.id}`} className="text-white hover:text-[#60a5fa] transition-colors">
+                      <Link href={`/committees/${c.id}`} className="text-white hover:text-[#a8ff3e] transition-colors">
                         {c.title || '(untitled)'}
                       </Link>
                     </h4>
@@ -279,8 +279,8 @@ export default async function HomePage() {
           </div>
 
           {/* Revolving Door */}
-          <div className="bg-[#0d1520] p-5">
-            <h3 className="text-[10px] uppercase tracking-[0.3em] mb-5 pb-3 border-b border-[#1e2a3a] font-semibold flex items-center justify-between" style={{ color: ACCENT }}>
+          <div className="bg-[#0f1a0f] p-5">
+            <h3 className="text-[10px] uppercase tracking-[0.3em] mb-5 pb-3 border-b border-[#1a2e1a] font-semibold flex items-center justify-between" style={{ color: ACCENT }}>
               <span>Revolving Door</span>
               <Link href="/transparency/revolving-door" className="text-[9px] tracking-[0.25em] hover:underline">
                 More →
@@ -313,10 +313,10 @@ export default async function HomePage() {
         </section>
 
         {/* ── Third Tier — 2 columns ──────────────────────────────────── */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#1e2a3a] border border-[#1e2a3a] mb-12">
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#1a2e1a] border border-[#1a2e1a] mb-12">
           {/* Government Contracts */}
-          <div className="bg-[#0d1520] p-5">
-            <h3 className="text-[10px] uppercase tracking-[0.3em] mb-5 pb-3 border-b border-[#1e2a3a] font-semibold flex items-center justify-between" style={{ color: ACCENT }}>
+          <div className="bg-[#0f1a0f] p-5">
+            <h3 className="text-[10px] uppercase tracking-[0.3em] mb-5 pb-3 border-b border-[#1a2e1a] font-semibold flex items-center justify-between" style={{ color: ACCENT }}>
               <span>Government Contracts</span>
               <Link href="/transparency/contracts" className="text-[9px] tracking-[0.25em] hover:underline">
                 More →
@@ -353,8 +353,8 @@ export default async function HomePage() {
           </div>
 
           {/* Political Donations */}
-          <div className="bg-[#0d1520] p-5">
-            <h3 className="text-[10px] uppercase tracking-[0.3em] mb-5 pb-3 border-b border-[#1e2a3a] font-semibold flex items-center justify-between" style={{ color: ACCENT_2 }}>
+          <div className="bg-[#0f1a0f] p-5">
+            <h3 className="text-[10px] uppercase tracking-[0.3em] mb-5 pb-3 border-b border-[#1a2e1a] font-semibold flex items-center justify-between" style={{ color: ACCENT_2 }}>
               <span>Political Donations</span>
               <Link href="/transparency/donations" className="text-[9px] tracking-[0.25em] hover:underline">
                 More →
@@ -393,7 +393,7 @@ export default async function HomePage() {
 
         {/* ── Fourth Tier — Public vs Parliament ──────────────────────── */}
         {bills.length > 0 && (
-          <section className="border-y border-[#1e2a3a] py-12 mb-12">
+          <section className="border-y border-[#1a2e1a] py-12 mb-12">
             <p className="text-[10px] uppercase tracking-[0.3em] mb-3 font-semibold" style={{ color: ACCENT }}>
               The Public vs Parliament
             </p>
@@ -415,7 +415,7 @@ export default async function HomePage() {
                 return (
                   <article key={b.id} className="border-l-2 pl-5" style={{ borderLeftColor: ACCENT }}>
                     <h3 className="text-base sm:text-xl font-bold leading-snug mb-4">
-                      <Link href={`/bills/${b.id}`} className="text-white hover:text-[#60a5fa] transition-colors">
+                      <Link href={`/bills/${b.id}`} className="text-white hover:text-[#a8ff3e] transition-colors">
                         {b.title}
                       </Link>
                     </h3>
@@ -423,7 +423,7 @@ export default async function HomePage() {
                     <p className="text-[10px] uppercase tracking-[0.25em] text-gray-200 font-mono mb-1.5">
                       Public · {b.total_public.toLocaleString()} votes
                     </p>
-                    <div className="flex h-2 w-full bg-[#1e2a3a] mb-1.5">
+                    <div className="flex h-2 w-full bg-[#1a2e1a] mb-1.5">
                       <div style={{ width: `${yesPct}%`, backgroundColor: SUCCESS }} />
                       <div style={{ width: `${noPct}%`, backgroundColor: DANGER }} />
                     </div>
@@ -441,7 +441,7 @@ export default async function HomePage() {
                         <p className="text-[10px] uppercase tracking-[0.25em] text-gray-200 font-mono mb-1.5">
                           Parliament · {commonsTotal.toLocaleString()} MPs
                         </p>
-                        <div className="flex h-2 w-full bg-[#1e2a3a] mb-1.5">
+                        <div className="flex h-2 w-full bg-[#1a2e1a] mb-1.5">
                           <div style={{ width: `${commonsAyePct}%`, backgroundColor: SUCCESS, opacity: 0.55 }} />
                           <div style={{ width: `${100 - commonsAyePct}%`, backgroundColor: DANGER, opacity: 0.55 }} />
                         </div>
@@ -463,18 +463,18 @@ export default async function HomePage() {
         )}
 
         {/* ── Bottom Bar — section directory ──────────────────────────── */}
-        <section className="border-t-4 border-double border-[#1e2a3a] pt-10 pb-16">
+        <section className="border-t-4 border-double border-[#1a2e1a] pt-10 pb-16">
           <p className="text-[10px] uppercase tracking-[0.3em] mb-6 font-semibold text-gray-200">
             Sections
           </p>
-          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-px bg-[#1e2a3a] border border-[#1e2a3a]">
+          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-px bg-[#1a2e1a] border border-[#1a2e1a]">
             {SECTIONS.map((s) => (
-              <li key={s.title} className="bg-[#0d1520]">
+              <li key={s.title} className="bg-[#0f1a0f]">
                 <Link
                   href={s.href}
-                  className="group block h-full p-5 hover:bg-[#111827] transition-colors border-l-2 border-transparent hover:border-l-[#60a5fa]"
+                  className="group block h-full p-5 hover:bg-[#111827] transition-colors border-l-2 border-transparent hover:border-l-[#a8ff3e]"
                 >
-                  <h3 className="text-base font-bold mb-2 group-hover:text-[#60a5fa] transition-colors" style={{ color: ACCENT }}>
+                  <h3 className="text-base font-bold mb-2 group-hover:text-[#a8ff3e] transition-colors" style={{ color: ACCENT }}>
                     {s.title}
                   </h3>
                   <p className="text-[12px] text-gray-200 leading-[1.7]">{s.body}</p>

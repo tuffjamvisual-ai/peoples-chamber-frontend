@@ -10,7 +10,7 @@ interface Props {
   section?: string
 }
 
-const ACCENT = '#60a5fa'
+const ACCENT = '#a8ff3e'
 
 function formatAmount(v: unknown): string | null {
   const n = typeof v === 'number' ? v : typeof v === 'string' && v.trim() ? Number(v) : NaN
@@ -72,7 +72,7 @@ export default function TransparencyClient({ rows, sectionTitle, section }: Prop
 
   if (rows.length === 0) {
     return (
-      <p className="text-gray-200 text-[13px] leading-[1.7] border-t border-[#1e2a3a] pt-8">
+      <p className="text-gray-200 text-[13px] leading-[1.7] border-t border-[#1a2e1a] pt-8">
         No records have been synced into the {sectionTitle.toLowerCase()} table yet. The page will populate once the sync job runs.
       </p>
     )
@@ -90,7 +90,7 @@ export default function TransparencyClient({ rows, sectionTitle, section }: Prop
           placeholder={`Search ${rows.length.toLocaleString()} records…`}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full max-w-md bg-[#0d1520] border border-[#1e2a3a] text-white text-[13px] rounded-sm px-4 py-3 leading-[1.7] placeholder:text-gray-200 focus:outline-none focus:border-[#60a5fa] transition-colors"
+          className="w-full max-w-md bg-[#0f1a0f] border border-[#1a2e1a] text-white text-[13px] rounded-sm px-4 py-3 leading-[1.7] placeholder:text-gray-200 focus:outline-none focus:border-[#a8ff3e] transition-colors"
         />
         {query && (
           <p className="text-gray-200 text-[11px] mt-2 font-mono uppercase tracking-[0.15em]">
@@ -100,7 +100,7 @@ export default function TransparencyClient({ rows, sectionTitle, section }: Prop
       </div>
 
       {section === 'donations' ? (
-        <ul className="space-y-px bg-[#1e2a3a] border border-[#1e2a3a]">
+        <ul className="space-y-px bg-[#1a2e1a] border border-[#1a2e1a]">
           {filtered.map((row, i) => {
             const recipient = (row.recipient_name as string) || '(unknown recipient)'
             const donor = (row.donor_name as string) || '(unknown donor)'
@@ -109,7 +109,7 @@ export default function TransparencyClient({ rows, sectionTitle, section }: Prop
             const nature = row.nature as string | null
             const receivedDate = formatUkDate(row.received_date)
             return (
-              <li key={i} className="bg-[#0d1520] p-5 border-l-2 border-l-[#60a5fa]">
+              <li key={i} className="bg-[#0f1a0f] p-5 border-l-2 border-l-[#a8ff3e]">
                 <div className="flex items-baseline justify-between gap-4 mb-1.5">
                   <h3 className="text-white text-base sm:text-lg font-bold leading-snug tracking-tight">{recipient}</h3>
                   {amount && (
@@ -131,7 +131,7 @@ export default function TransparencyClient({ rows, sectionTitle, section }: Prop
           })}
         </ul>
       ) : (
-        <ul className="space-y-px bg-[#1e2a3a] border border-[#1e2a3a]">
+        <ul className="space-y-px bg-[#1a2e1a] border border-[#1a2e1a]">
           {filtered.map((row, i) => {
             const { key: titleKey, value: titleValue } = pickTitle(row)
             const dateValue = pickDate(row)
@@ -140,7 +140,7 @@ export default function TransparencyClient({ rows, sectionTitle, section }: Prop
             )
 
             return (
-              <li key={i} className="bg-[#0d1520] p-5 border-l-2 border-l-transparent hover:border-l-[#60a5fa] transition-colors">
+              <li key={i} className="bg-[#0f1a0f] p-5 border-l-2 border-l-transparent hover:border-l-[#a8ff3e] transition-colors">
                 <div className="flex items-baseline justify-between gap-4 mb-3">
                   <h3 className="text-white text-[14px] font-bold leading-snug">{titleValue}</h3>
                   {dateValue && (

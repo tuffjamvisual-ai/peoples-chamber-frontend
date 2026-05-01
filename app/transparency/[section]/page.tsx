@@ -6,7 +6,7 @@ import TransparencyClient from './TransparencyClient'
 
 export const revalidate = 3600
 
-const ACCENT = '#60a5fa'
+const ACCENT = '#a8ff3e'
 
 // Route slug → { display title, Supabase table name, optional date column }.
 const SECTIONS: Record<string, { title: string; table: string; orderBy?: string }> = {
@@ -46,7 +46,7 @@ export default async function TransparencySectionPage({
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0f1a] text-white">
+    <div className="min-h-screen bg-[#0a140a] text-white">
       <Navigation />
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
         <Link
@@ -56,7 +56,7 @@ export default async function TransparencySectionPage({
           ← Transparency Hub
         </Link>
 
-        <header className="border-b border-[#1e2a3a] pb-10 mb-10">
+        <header className="border-b border-[#1a2e1a] pb-10 mb-10">
           <p className="text-[10px] uppercase tracking-[0.3em] font-medium mb-4" style={{ color: ACCENT }}>
             Dataset
           </p>

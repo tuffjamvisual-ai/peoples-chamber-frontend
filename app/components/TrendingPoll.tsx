@@ -66,7 +66,7 @@ export default function TrendingPoll() {
       <div className="text-xs text-gray-200 uppercase tracking-wider mb-2">Trending People's Poll</div>
       <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-xs px-2 py-0.5 bg-blue-900/40 text-blue-300 rounded border border-blue-800/40">Poll</span>
+          <span className="text-xs px-2 py-0.5 bg-[#a8ff3e]/10 text-[#a8ff3e] rounded border border-[#a8ff3e]/30">Poll</span>
           {poll.constituency && (
             <span className="text-xs px-2 py-0.5 bg-purple-900/40 text-purple-300 rounded border border-purple-800/40">{poll.constituency}</span>
         )}

@@ -10,7 +10,7 @@ export default function SearchPage() {
   const results = searchTopics(query);
 
   return (
-    <div className="min-h-screen bg-[#0a0f1a]">
+    <div className="min-h-screen bg-[#0a140a]">
       <Navigation />
       <main className="max-w-3xl mx-auto px-4 sm:px-6 pb-12">
         <div className="mb-8">
@@ -24,7 +24,7 @@ export default function SearchPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Try: knife crime, energy bills, small boats, income tax..."
-            className="w-full bg-gray-900 border border-gray-700 rounded-xl px-5 py-4 text-white text-lg placeholder-gray-500 focus:outline-none focus:border-blue-500"
+            className="w-full bg-gray-900 border border-gray-700 rounded-xl px-5 py-4 text-white text-lg placeholder-gray-500 focus:outline-none focus:border-[#a8ff3e]"
             autoFocus
           />
           {query && (
@@ -41,7 +41,7 @@ export default function SearchPage() {
           <div className="text-center py-12">
             <p className="text-gray-200 text-lg mb-2">No results for "{query}"</p>
             <p className="text-gray-200 text-sm">Try a different term or browse departments directly</p>
-            <Link href="/departments" className="inline-block mt-4 text-blue-400 hover:underline text-sm">Browse all departments →</Link>
+            <Link href="/departments" className="inline-block mt-4 text-[#a8ff3e] hover:underline text-sm">Browse all departments →</Link>
           </div>
         )}
 
@@ -51,7 +51,7 @@ export default function SearchPage() {
               <Link
                 key={i}
                 href={`/departments/${result.departmentSlug}?zone=${encodeURIComponent(result.zone)}`}
-                className="block bg-gray-900 border border-gray-800 rounded-xl p-5 hover:border-blue-500 transition-colors"
+                className="block bg-gray-900 border border-gray-800 rounded-xl p-5 hover:border-[#a8ff3e] transition-colors"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -59,7 +59,7 @@ export default function SearchPage() {
                     <div className="text-white font-semibold text-lg">{result.zone}</div>
                     <div className="text-gray-200 text-sm mt-1">See what every party says about this →</div>
                   </div>
-                  <div className="text-blue-400 text-2xl flex-shrink-0">→</div>
+                  <div className="text-[#a8ff3e] text-2xl flex-shrink-0">→</div>
                 </div>
               </Link>
             ))}

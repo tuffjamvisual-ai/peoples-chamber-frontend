@@ -141,7 +141,7 @@ export default function BillsGrid({ initialBills }: Props) {
             <div
               key={bill.id}
               onClick={() => router.push(`/bills/${bill.id}`)}
-              className="bg-gray-900 border border-gray-800 rounded-lg p-4 cursor-pointer hover:border-blue-500 transition-colors"
+              className="bg-gray-900 border border-gray-800 rounded-lg p-4 cursor-pointer hover:border-[#a8ff3e] transition-colors"
             >
               <h3 className="text-white font-medium text-sm mb-3 line-clamp-2">{bill.title}</h3>
 
@@ -188,7 +188,7 @@ export default function BillsGrid({ initialBills }: Props) {
         <div className="flex items-center justify-center gap-2">
           <button onClick={() => setCurrentPage(1)} disabled={currentPage === 1} className="px-3 py-1.5 bg-gray-800 text-gray-300 rounded text-sm hover:bg-gray-700 disabled:opacity-30">First</button>
           <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="px-3 py-1.5 bg-gray-800 text-gray-300 rounded text-sm hover:bg-gray-700 disabled:opacity-30">Previous</button>
-          <div className="px-4 py-1.5 bg-blue-600 text-white rounded text-sm font-medium">{currentPage} / {totalPages}</div>
+          <div className="px-4 py-1.5 bg-[#a8ff3e] text-white rounded text-sm font-medium">{currentPage} / {totalPages}</div>
           <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="px-3 py-1.5 bg-gray-800 text-gray-300 rounded text-sm hover:bg-gray-700 disabled:opacity-30">Next</button>
           <button onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} className="px-3 py-1.5 bg-gray-800 text-gray-300 rounded text-sm hover:bg-gray-700 disabled:opacity-30">Last</button>
         </div>

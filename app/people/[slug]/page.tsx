@@ -40,7 +40,7 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
   }, [slug]);
 
   return (
-    <div className="min-h-screen bg-[#0a0f1a]">
+    <div className="min-h-screen bg-[#0a140a]">
       <Navigation />
       <main className="max-w-3xl mx-auto px-4 sm:px-6 pb-12">
         <Link href="/departments" className="inline-flex items-center gap-2 text-gray-200 hover:text-white mb-6 text-sm">
@@ -101,7 +101,7 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
                 <h2 className="text-lg font-semibold text-white mb-4">Financial Interests</h2>
                 {interests.map((cat) => (
                   <div key={cat.name} className="mb-6 last:mb-0">
-                    <h3 className="text-sm font-semibold mb-2" style={{ color: '#60a5fa' }}>
+                    <h3 className="text-sm font-semibold mb-2" style={{ color: '#a8ff3e' }}>
                       {cat.name}
                     </h3>
                     <ul className="space-y-2">

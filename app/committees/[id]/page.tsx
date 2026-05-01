@@ -6,7 +6,7 @@ import Navigation from '../../components/Navigation';
 
 export const revalidate = 3600;
 
-const ACCENT = '#60a5fa';
+const ACCENT = '#a8ff3e';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -53,7 +53,7 @@ export default async function CommitteePublicationPage({ params }: Props) {
   const externalUrl = row.publication_url || row.url || null;
 
   return (
-    <div className="min-h-screen bg-[#0a0f1a] text-gray-200">
+    <div className="min-h-screen bg-[#0a140a] text-gray-200">
       <Navigation />
       <main className="max-w-3xl mx-auto px-4 sm:px-6 pb-16">
         <Link href="/" className="inline-flex items-center gap-2 text-gray-200 hover:text-white mb-8 text-sm">
@@ -78,7 +78,7 @@ export default async function CommitteePublicationPage({ params }: Props) {
                 href={externalUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-blue-300 transition-colors"
+                className="hover:text-[#a8ff3e] transition-colors"
                 style={{ color: ACCENT }}
               >
                 Read on Parliament.uk →

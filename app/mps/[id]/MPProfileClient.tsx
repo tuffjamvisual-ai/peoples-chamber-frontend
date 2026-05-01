@@ -13,7 +13,7 @@ interface MPProfileClientProps {
   partyColour: string
 }
 
-const ACCENT = '#60a5fa'
+const ACCENT = '#a8ff3e'
 const SUCCESS = '#34d399'
 const DANGER = '#f87171'
 const WARN = '#fbbf24'
@@ -56,9 +56,9 @@ export default function MPProfileClient({
   ]
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-px bg-[#1e2a3a] border border-[#1e2a3a]">
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-px bg-[#1a2e1a] border border-[#1a2e1a]">
       {/* Sidebar */}
-      <aside className="lg:col-span-1 bg-[#0d1520]">
+      <aside className="lg:col-span-1 bg-[#0f1a0f]">
         <div className="lg:sticky lg:top-16">
           <p className="text-[10px] uppercase tracking-[0.25em] text-gray-200 font-medium px-4 pt-5 pb-3">
             Sections
@@ -73,7 +73,7 @@ export default function MPProfileClient({
                   className={
                     'w-full text-left px-4 py-3 text-[12px] uppercase tracking-[0.15em] transition-colors border-l-2 ' +
                     (active
-                      ? 'text-white bg-[#111827] border-l-[#60a5fa] font-semibold'
+                      ? 'text-white bg-[#111827] border-l-[#a8ff3e] font-semibold'
                       : 'text-gray-200 border-l-transparent hover:text-white hover:bg-[#111827]')
                   }
                 >
@@ -86,11 +86,11 @@ export default function MPProfileClient({
       </aside>
 
       {/* Main */}
-      <div className="lg:col-span-3 bg-[#0d1520] p-6 sm:p-8">
+      <div className="lg:col-span-3 bg-[#0f1a0f] p-6 sm:p-8">
         {activeSection === 'contact' && (
           <Section title={`Contact ${mp.display_name || mp.name}`}>
             {contact ? (
-              <div className="space-y-px bg-[#1e2a3a] border border-[#1e2a3a]">
+              <div className="space-y-px bg-[#1a2e1a] border border-[#1a2e1a]">
                 <Card title="Parliamentary office" partyColour={partyColour}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[13px] leading-[1.7]">
                     <div className="text-gray-200 space-y-0.5">
@@ -108,7 +108,7 @@ export default function MPProfileClient({
                       {contact.email && (
                         <p className="text-gray-200">
                           <span className="text-[10px] uppercase tracking-[0.25em] text-gray-200 mr-2 block sm:inline">Email</span>
-                          <a href={'mailto:' + contact.email} className="text-[#60a5fa] hover:underline break-all">
+                          <a href={'mailto:' + contact.email} className="text-[#a8ff3e] hover:underline break-all">
                             {contact.email}
                           </a>
                         </p>
@@ -118,14 +118,14 @@ export default function MPProfileClient({
                 </Card>
                 {contact.website && (
                   <Card title="Website" partyColour={partyColour}>
-                    <a href={contact.website} target="_blank" rel="noopener noreferrer" className="text-[#60a5fa] hover:underline text-[13px] break-all">
+                    <a href={contact.website} target="_blank" rel="noopener noreferrer" className="text-[#a8ff3e] hover:underline text-[13px] break-all">
                       {contact.website}
                     </a>
                   </Card>
                 )}
                 {contact.twitter && (
                   <Card title="X (formerly Twitter)" partyColour={partyColour}>
-                    <a href={contact.twitter} target="_blank" rel="noopener noreferrer" className="text-[#60a5fa] hover:underline text-[13px] break-all">
+                    <a href={contact.twitter} target="_blank" rel="noopener noreferrer" className="text-[#a8ff3e] hover:underline text-[13px] break-all">
                       {contact.twitter}
                     </a>
                   </Card>
@@ -140,7 +140,7 @@ export default function MPProfileClient({
         {activeSection === 'parliamentary' && (
           <Section title="Parliamentary Career">
             {representations.length > 0 ? (
-              <div className="space-y-px bg-[#1e2a3a] border border-[#1e2a3a]">
+              <div className="space-y-px bg-[#1a2e1a] border border-[#1a2e1a]">
                 {representations.map((rep: any, idx: number) => (
                   <Card key={idx} title={rep.name} partyColour={partyColour}>
                     <p className="text-[12px] text-gray-200 font-mono leading-[1.7]">
@@ -159,7 +159,7 @@ export default function MPProfileClient({
 
         {activeSection === 'voting' && (
           <Section title="Voting Record">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-[#1e2a3a] border border-[#1e2a3a] mb-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-[#1a2e1a] border border-[#1a2e1a] mb-8">
               <Stat label="Votes Cast" value={totalVotes} />
               <Stat label="Ayes" value={ayeVotes} colour={SUCCESS} />
               <Stat label="Noes" value={noVotes} colour={DANGER} />
@@ -176,11 +176,11 @@ export default function MPProfileClient({
             )}
 
             {votes && votes.length > 0 ? (
-              <ul className="space-y-px bg-[#1e2a3a] border border-[#1e2a3a]">
+              <ul className="space-y-px bg-[#1a2e1a] border border-[#1a2e1a]">
                 {votes.slice(0, 20).map((vote: any) => (
                   <li
                     key={vote.id}
-                    className="flex items-start justify-between gap-4 bg-[#0d1520] p-4 border-l-2"
+                    className="flex items-start justify-between gap-4 bg-[#0f1a0f] p-4 border-l-2"
                     style={{ borderLeftColor: vote.vote_type === 'aye' ? SUCCESS : DANGER }}
                   >
                     <div className="flex-1 min-w-0">
@@ -205,9 +205,9 @@ export default function MPProfileClient({
         {activeSection === 'bills' && (
           <Section title="Bills Sponsored">
             {sponsoredBills && sponsoredBills.length > 0 ? (
-              <ul className="space-y-px bg-[#1e2a3a] border border-[#1e2a3a]">
+              <ul className="space-y-px bg-[#1a2e1a] border border-[#1a2e1a]">
                 {sponsoredBills.map((bill) => (
-                  <li key={bill.id} className="bg-[#0d1520]">
+                  <li key={bill.id} className="bg-[#0f1a0f]">
                     <Link
                       href={'/bills/' + bill.id}
                       className="block p-4 border-l-2 hover:bg-[#111827] transition-colors"
@@ -234,12 +234,12 @@ export default function MPProfileClient({
               <div className="space-y-10">
                 {Object.keys(interestsByCategory).map((categoryName) => (
                   <div key={categoryName}>
-                    <h3 className="text-[10px] uppercase tracking-[0.25em] mb-4 pb-3 border-b border-[#1e2a3a] font-semibold" style={{ color: ACCENT }}>
+                    <h3 className="text-[10px] uppercase tracking-[0.25em] mb-4 pb-3 border-b border-[#1a2e1a] font-semibold" style={{ color: ACCENT }}>
                       {categoryName}
                     </h3>
-                    <ul className="space-y-px bg-[#1e2a3a] border border-[#1e2a3a]">
+                    <ul className="space-y-px bg-[#1a2e1a] border border-[#1a2e1a]">
                       {interestsByCategory[categoryName].map((interest: any) => (
-                        <li key={interest.id} className="bg-[#0d1520] p-4 border-l-2" style={{ borderLeftColor: partyColour }}>
+                        <li key={interest.id} className="bg-[#0f1a0f] p-4 border-l-2" style={{ borderLeftColor: partyColour }}>
                           <p className="text-[13px] text-gray-200 whitespace-pre-wrap leading-[1.7] mb-2">{interest.interest_text}</p>
                           {interest.child_interests && interest.child_interests.length > 0 && (
                             <ul className="mt-2 ml-3 space-y-1">
@@ -274,10 +274,10 @@ export default function MPProfileClient({
             <div className="space-y-10">
               {governmentPosts.length > 0 && (
                 <div>
-                  <h3 className="text-[10px] uppercase tracking-[0.25em] mb-4 pb-3 border-b border-[#1e2a3a] font-semibold" style={{ color: ACCENT }}>
+                  <h3 className="text-[10px] uppercase tracking-[0.25em] mb-4 pb-3 border-b border-[#1a2e1a] font-semibold" style={{ color: ACCENT }}>
                     Government Posts
                   </h3>
-                  <ul className="space-y-px bg-[#1e2a3a] border border-[#1e2a3a]">
+                  <ul className="space-y-px bg-[#1a2e1a] border border-[#1a2e1a]">
                     {governmentPosts.map((post: any, idx: number) => (
                       <RolesRow key={idx} post={post} partyColour={partyColour} />
                     ))}
@@ -286,10 +286,10 @@ export default function MPProfileClient({
               )}
               {oppositionPosts.length > 0 && (
                 <div>
-                  <h3 className="text-[10px] uppercase tracking-[0.25em] mb-4 pb-3 border-b border-[#1e2a3a] font-semibold" style={{ color: ACCENT }}>
+                  <h3 className="text-[10px] uppercase tracking-[0.25em] mb-4 pb-3 border-b border-[#1a2e1a] font-semibold" style={{ color: ACCENT }}>
                     Opposition Posts
                   </h3>
-                  <ul className="space-y-px bg-[#1e2a3a] border border-[#1e2a3a]">
+                  <ul className="space-y-px bg-[#1a2e1a] border border-[#1a2e1a]">
                     {oppositionPosts.map((post: any, idx: number) => (
                       <RolesRow key={idx} post={post} partyColour={partyColour} />
                     ))}
@@ -298,12 +298,12 @@ export default function MPProfileClient({
               )}
               {committeeMemberships.length > 0 && (
                 <div>
-                  <h3 className="text-[10px] uppercase tracking-[0.25em] mb-4 pb-3 border-b border-[#1e2a3a] font-semibold" style={{ color: ACCENT }}>
+                  <h3 className="text-[10px] uppercase tracking-[0.25em] mb-4 pb-3 border-b border-[#1a2e1a] font-semibold" style={{ color: ACCENT }}>
                     Committee Memberships
                   </h3>
-                  <ul className="space-y-px bg-[#1e2a3a] border border-[#1e2a3a]">
+                  <ul className="space-y-px bg-[#1a2e1a] border border-[#1a2e1a]">
                     {committeeMemberships.map((committee: any, idx: number) => (
-                      <li key={idx} className="bg-[#0d1520] p-4 border-l-2" style={{ borderLeftColor: partyColour }}>
+                      <li key={idx} className="bg-[#0f1a0f] p-4 border-l-2" style={{ borderLeftColor: partyColour }}>
                         <p className="text-[13px] text-white font-semibold leading-snug">{committee.name}</p>
                       </li>
                     ))}
@@ -332,7 +332,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function Card({ title, children, partyColour }: { title: string; children: React.ReactNode; partyColour: string }) {
   return (
-    <div className="bg-[#0d1520] p-5 border-l-2" style={{ borderLeftColor: partyColour }}>
+    <div className="bg-[#0f1a0f] p-5 border-l-2" style={{ borderLeftColor: partyColour }}>
       <p className="text-[10px] uppercase tracking-[0.25em] mb-3 font-semibold text-white">{title}</p>
       {children}
     </div>
@@ -341,7 +341,7 @@ function Card({ title, children, partyColour }: { title: string; children: React
 
 function Stat({ label, value, colour }: { label: string; value: string | number; colour?: string }) {
   return (
-    <div className="bg-[#0d1520] px-4 py-5">
+    <div className="bg-[#0f1a0f] px-4 py-5">
       <p className="text-[10px] uppercase tracking-[0.25em] text-gray-200 font-medium mb-2">{label}</p>
       <p className="text-2xl sm:text-3xl font-black leading-none tracking-tight" style={{ color: colour || '#ffffff' }}>
         {typeof value === 'number' ? value.toLocaleString() : value}
@@ -367,7 +367,7 @@ function Empty({ children }: { children: React.ReactNode }) {
 
 function RolesRow({ post, partyColour }: { post: any; partyColour: string }) {
   return (
-    <li className="bg-[#0d1520] p-4 border-l-2" style={{ borderLeftColor: partyColour }}>
+    <li className="bg-[#0f1a0f] p-4 border-l-2" style={{ borderLeftColor: partyColour }}>
       <p className="text-[13px] text-white font-semibold leading-snug">{post.name}</p>
       <p className="text-[11px] text-gray-200 font-mono mt-1">
         {new Date(post.startDate).getFullYear()} — {post.endDate ? new Date(post.endDate).getFullYear() : 'present'}
