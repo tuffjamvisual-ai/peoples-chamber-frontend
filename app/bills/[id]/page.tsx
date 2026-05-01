@@ -132,7 +132,7 @@ export default function BillDetailPage() {
       <div className="min-h-screen bg-[#001520] flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-2 border-t-[#ffffff] border-[#1c3849] mx-auto"></div>
-          <p className="text-[#7697a2] text-[10px] uppercase tracking-[0.25em] mt-6">Loading bill…</p>
+          <p className="text-white text-[10px] uppercase tracking-[0.25em] mt-6">Loading bill…</p>
         </div>
       </div>
     );
@@ -144,7 +144,7 @@ export default function BillDetailPage() {
         <div className="border border-[#1c3849] border-l-2 border-l-[#8a3a3a] p-6 max-w-md">
           <p className="text-[10px] uppercase tracking-[0.25em] mb-2 font-semibold" style={{ color: DANGER }}>Error</p>
           <h2 className="text-xl font-black tracking-tight text-white mb-2">Bill unavailable</h2>
-          <p className="text-[#7697a2] text-[13px] leading-[1.7] mb-4">{error || 'Bill not found'}</p>
+          <p className="text-white text-[13px] leading-[1.7] mb-4">{error || 'Bill not found'}</p>
           <button
             onClick={() => router.push('/bills')}
             className="px-4 py-2 bg-[#ffffff] text-[#001520] text-[12px] uppercase tracking-[0.2em] font-bold rounded-sm"
@@ -218,7 +218,7 @@ export default function BillDetailPage() {
                   {((() => {
                     try { const p = JSON.parse(bill.support_explanation!); return Array.isArray(p) ? p : [bill.support_explanation!]; } catch { return bill.support_explanation!.split('\n').filter(Boolean); }
                   })()).map((point: string, i: number) => (
-                    <li key={i} className="flex gap-2 text-[13px] text-[#7697a2] leading-[1.7]">
+                    <li key={i} className="flex gap-2 text-[13px] text-white leading-[1.7]">
                       <span className="flex-shrink-0 mt-0.5" style={{ color: SUCCESS }}>—</span>
                       <span>{point.replace(/^[-–]\s*/, '')}</span>
                     </li>
@@ -235,7 +235,7 @@ export default function BillDetailPage() {
                   {((() => {
                     try { const p = JSON.parse(bill.oppose_explanation!); return Array.isArray(p) ? p : [bill.oppose_explanation!]; } catch { return bill.oppose_explanation!.split('\n').filter(Boolean); }
                   })()).map((point: string, i: number) => (
-                    <li key={i} className="flex gap-2 text-[13px] text-[#7697a2] leading-[1.7]">
+                    <li key={i} className="flex gap-2 text-[13px] text-white leading-[1.7]">
                       <span className="flex-shrink-0 mt-0.5" style={{ color: DANGER }}>—</span>
                       <span>{point.replace(/^[-–]\s*/, '')}</span>
                     </li>
@@ -254,7 +254,7 @@ export default function BillDetailPage() {
               {bill.sponsor_photo ? (
                 <img src={bill.sponsor_photo} alt={bill.sponsor_name} className="w-12 h-12 rounded-full bg-[#001520]" style={{ border: `1px solid ${ACCENT}` }} />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-[#001520] flex items-center justify-center text-[10px] uppercase tracking-wider text-[#7697a2]" style={{ border: `1px solid ${ACCENT}` }}>
+                <div className="w-12 h-12 rounded-full bg-[#001520] flex items-center justify-center text-[10px] uppercase tracking-wider text-white" style={{ border: `1px solid ${ACCENT}` }}>
                   {bill.sponsor_name.split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
                 </div>
               )}
@@ -270,7 +270,7 @@ export default function BillDetailPage() {
                     </span>
                   )}
                   {bill.sponsor_constituency && (
-                    <span className="text-[11px] text-[#7697a2] font-mono">{bill.sponsor_constituency}</span>
+                    <span className="text-[11px] text-white font-mono">{bill.sponsor_constituency}</span>
                   )}
                 </div>
               </div>
@@ -283,7 +283,7 @@ export default function BillDetailPage() {
           <h2 className="text-2xl font-black tracking-tight text-white mb-6">Cast Your Vote</h2>
 
           <div className="mb-4">
-            <div className="flex justify-between text-[10px] uppercase tracking-[0.2em] text-[#7697a2] mb-1.5 font-mono">
+            <div className="flex justify-between text-[10px] uppercase tracking-[0.2em] text-white mb-1.5 font-mono">
               <span>People&apos;s Vote</span>
               <span>{totalVotes.toLocaleString()} votes</span>
             </div>
@@ -299,7 +299,7 @@ export default function BillDetailPage() {
 
           {totalMPVotes > 0 && (
             <div className="mb-6">
-              <div className="flex justify-between text-[10px] uppercase tracking-[0.2em] text-[#7697a2] mb-1.5 font-mono">
+              <div className="flex justify-between text-[10px] uppercase tracking-[0.2em] text-white mb-1.5 font-mono">
                 <span>Parliament&apos;s Vote</span>
                 <span>{totalMPVotes.toLocaleString()} MPs</span>
               </div>
@@ -378,7 +378,7 @@ export default function BillDetailPage() {
                   <div className="flex-1 flex items-center justify-between">
                     <span className="text-[13px] font-bold" style={{ color: SUCCESS }}>Royal Assent</span>
                     {royalAssent.stageSittings[0]?.date && (
-                      <span className="text-[11px] text-[#7697a2] font-mono uppercase tracking-[0.15em]">
+                      <span className="text-[11px] text-white font-mono uppercase tracking-[0.15em]">
                         {new Date(royalAssent.stageSittings[0].date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </span>
                     )}
@@ -394,10 +394,10 @@ export default function BillDetailPage() {
           <details className="border border-[#1c3849]">
             <summary className="px-6 py-4 cursor-pointer hover:bg-[#001520] transition-colors text-[12px] uppercase tracking-[0.2em] font-semibold text-white">
               Full Bill Description
-              <span className="text-[#7697a2] text-[11px] ml-2 normal-case tracking-normal">(click to expand)</span>
+              <span className="text-white text-[11px] ml-2 normal-case tracking-normal">(click to expand)</span>
             </summary>
             <div className="px-6 pb-6">
-              <p className="text-[#7697a2] text-[13px] leading-[1.7] whitespace-pre-wrap">{bill.description}</p>
+              <p className="text-white text-[13px] leading-[1.7] whitespace-pre-wrap">{bill.description}</p>
             </div>
           </details>
         )}
@@ -438,7 +438,7 @@ function VoteButton({
   const style: React.CSSProperties = active
     ? { backgroundColor: colour, color: '#001520' }
     : disabled
-    ? { backgroundColor: '#1c3849', color: '#7697a2', cursor: 'not-allowed' }
+    ? { backgroundColor: '#1c3849', color: '#ffffff', cursor: 'not-allowed' }
     : { backgroundColor: colour + '22', color: colour, border: `1px solid ${colour}55` };
 
   return (
@@ -459,7 +459,7 @@ function StageGroup({ label, colour, stages }: { label: string; colour: string; 
             <div className="flex-1 flex items-center justify-between">
               <span className="text-[13px] text-white">{stage.description}</span>
               {stage.stageSittings[0]?.date && (
-                <span className="text-[11px] text-[#7697a2] font-mono uppercase tracking-[0.15em]">
+                <span className="text-[11px] text-white font-mono uppercase tracking-[0.15em]">
                   {new Date(stage.stageSittings[0].date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </span>
               )}

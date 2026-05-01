@@ -146,11 +146,11 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
         <div className="p-4 border-b border-[#1c3849] flex justify-between items-start">
           <div className="flex-1 pr-4">
             <h2 className="text-lg font-semibold text-white mb-1">Comments</h2>
-            <p className="text-sm text-[#7697a2] line-clamp-2">{billTitle}</p>
+            <p className="text-sm text-white line-clamp-2">{billTitle}</p>
           </div>
           <button
             onClick={onClose}
-            className="text-[#7697a2] hover:text-white text-2xl leading-none"
+            className="text-white hover:text-white text-2xl leading-none"
           >
             ×
           </button>
@@ -159,7 +159,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
         {/* Comments List */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {comments.length === 0 ? (
-            <p className="text-center text-[#7697a2] py-8">
+            <p className="text-center text-white py-8">
               No comments yet. {user ? 'Be the first to comment!' : 'Log in to comment.'}
             </p>
           ) : (
@@ -168,7 +168,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-white text-sm">{comment.username}</span>
-                    <span className="text-xs text-[#7697a2]">
+                    <span className="text-xs text-white">
                       {formatTime(comment.createdAt)}
                       {comment.updatedAt !== comment.createdAt && ' (edited)'}
                     </span>
@@ -255,7 +255,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
           </div>
         ) : (
           <div className="p-4 border-t border-[#1c3849] text-center">
-            <p className="text-[#7697a2] text-sm">Log in to leave a comment</p>
+            <p className="text-white text-sm">Log in to leave a comment</p>
           </div>
         )}
       </div>

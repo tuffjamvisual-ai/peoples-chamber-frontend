@@ -53,10 +53,10 @@ export default async function CommitteePublicationPage({ params }: Props) {
   const externalUrl = row.publication_url || row.url || null;
 
   return (
-    <div className="min-h-screen bg-[#001520] text-[#7697a2]">
+    <div className="min-h-screen bg-[#001520] text-white">
       <Navigation />
       <main className="max-w-3xl mx-auto px-4 sm:px-6 pb-16">
-        <Link href="/" className="inline-flex items-center gap-2 text-[#7697a2] hover:text-white mb-8 text-sm">
+        <Link href="/" className="inline-flex items-center gap-2 text-white hover:text-white mb-8 text-sm">
           ← Home
         </Link>
 
@@ -68,7 +68,7 @@ export default async function CommitteePublicationPage({ params }: Props) {
 
         <h1 className="text-3xl sm:text-4xl font-bold leading-tight text-white mb-4">{row.title}</h1>
 
-        <div className="flex flex-wrap items-center gap-3 text-xs text-[#7697a2] mb-8 font-mono">
+        <div className="flex flex-wrap items-center gap-3 text-xs text-white mb-8 font-mono">
           {row.publication_date && <span>{formatDate(row.publication_date)}</span>}
           {row.publication_type && <span>· {row.publication_type}</span>}
           {externalUrl && (
@@ -99,7 +99,7 @@ export default async function CommitteePublicationPage({ params }: Props) {
           </article>
         ) : (
           <div className="border-t border-[#1c3849] pt-8 mt-8">
-            <p className="text-[#7697a2] text-sm leading-relaxed">
+            <p className="text-white text-sm leading-relaxed">
               The full text of this publication has not been mirrored locally. Use the link above to read it on the UK Parliament site.
             </p>
           </div>

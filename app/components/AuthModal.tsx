@@ -156,7 +156,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
                   onChange={(e) => setAgeConfirmed(e.target.checked)}
                   className="mt-1"
                 />
-                <label htmlFor="ageConfirm" className="text-sm text-[#7697a2]">
+                <label htmlFor="ageConfirm" className="text-sm text-white">
                   I confirm I am 18 years of age or older
                 </label>
               </div>
@@ -183,7 +183,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
           </div>
         )}
 
-        <div className="mt-6 text-center text-sm text-[#7697a2]">
+        <div className="mt-6 text-center text-sm text-white">
           {mode === 'login' ? (
             <>
               Don't have an account?{' '}

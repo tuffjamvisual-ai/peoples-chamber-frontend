@@ -37,7 +37,7 @@ export default function TransparencyHubPage() {
           <h1 className="text-4xl sm:text-6xl font-black leading-[1.05] tracking-tight text-white mb-4">
             Transparency Hub
           </h1>
-          <p className="text-[#7697a2] text-[14px] leading-[1.7] max-w-2xl">
+          <p className="text-white text-[14px] leading-[1.7] max-w-2xl">
             Eight datasets covering how ministers, MPs, lobbyists, donors, contractors and former officials interact with the UK state. Each section links to a searchable list of the underlying records.
           </p>
 
@@ -62,9 +62,9 @@ export default function TransparencyHubPage() {
                   </p>
                   <h2 className="text-xl font-black tracking-tight mb-2 leading-tight text-white group-hover:text-[#ffffff] transition-colors">
                     {s.title}
-                    <span className="ml-2 text-base text-[#7697a2] inline-block transition-transform group-hover:translate-x-1 group-hover:text-[#ffffff]">→</span>
+                    <span className="ml-2 text-base text-white inline-block transition-transform group-hover:translate-x-1 group-hover:text-[#ffffff]">→</span>
                   </h2>
-                  <p className="text-[#7697a2] text-[13px] leading-[1.7]">{s.description}</p>
+                  <p className="text-white text-[13px] leading-[1.7]">{s.description}</p>
                 </Link>
               </li>
             )
@@ -78,7 +78,7 @@ export default function TransparencyHubPage() {
 function Stat({ label, value, accent = false }: { label: string; value: number | string; accent?: boolean }) {
   return (
     <div className="bg-[#1c3849] px-4 py-5">
-      <p className="text-[10px] uppercase tracking-[0.25em] text-[#7697a2] font-medium mb-2">{label}</p>
+      <p className="text-[10px] uppercase tracking-[0.25em] text-white font-medium mb-2">{label}</p>
       <p className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#ffffff]' : 'text-white'}`}>
         {typeof value === 'number' ? value.toLocaleString() : value}
       </p>

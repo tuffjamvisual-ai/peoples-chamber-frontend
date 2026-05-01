@@ -42,24 +42,24 @@ export default async function HomePage() {
 
           {/* Latest GOV.UK news */}
           <div style={{ background: '#001520', padding: '1rem' }}>
-            <div style={{ fontSize: '9px', color: '#7697a2', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.75rem' }}>Latest from GOV.UK</div>
+            <div style={{ fontSize: '9px', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.75rem' }}>Latest from GOV.UK</div>
             {leadStory && (
               <div style={{ marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid #1c3849' }}>
                 <div style={{ fontSize: '16px', fontWeight: 700, color: '#fff', lineHeight: 1.3, marginBottom: '4px' }}>{leadStory.title}</div>
-                <div style={{ fontSize: '11px', color: '#7697a2' }}>{leadStory.organisations?.[0]?.title || 'GOV.UK'} · {new Date(leadStory.public_timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</div>
+                <div style={{ fontSize: '11px', color: '#ffffff' }}>{leadStory.organisations?.[0]?.title || 'GOV.UK'} · {new Date(leadStory.public_timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</div>
               </div>
             )}
             {otherNews.map((item: any, i: number) => (
               <div key={i} style={{ paddingBottom: '8px', marginBottom: '8px', borderBottom: '0.5px solid #1c3849' }}>
-                <div style={{ fontSize: '12px', color: '#C9C9C9', lineHeight: 1.3 }}>{item.title}</div>
-                <div style={{ fontSize: '10px', color: '#7697a2', marginTop: '2px' }}>{item.organisations?.[0]?.title || 'GOV.UK'}</div>
+                <div style={{ fontSize: '12px', color: '#ffffff', lineHeight: 1.3 }}>{item.title}</div>
+                <div style={{ fontSize: '10px', color: '#ffffff', marginTop: '2px' }}>{item.organisations?.[0]?.title || 'GOV.UK'}</div>
               </div>
             ))}
           </div>
 
           {/* Bills voting bars */}
           <div style={{ background: '#001520', padding: '1rem' }}>
-            <div style={{ fontSize: '9px', color: '#7697a2', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.75rem' }}>The Public vs Parliament</div>
+            <div style={{ fontSize: '9px', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.75rem' }}>The Public vs Parliament</div>
             {bills?.map((bill) => {
               const total = (bill.support_count || 0) + (bill.oppose_count || 0)
               const pct = total > 0 ? Math.round((bill.support_count / total) * 100) : 0
@@ -69,7 +69,7 @@ export default async function HomePage() {
                   <div style={{ height: '3px', background: '#1c3849', borderRadius: '2px', marginBottom: '3px' }}>
                     <div style={{ height: '3px', width: `${pct}%`, background: '#4a8a3a', borderRadius: '2px' }}></div>
                   </div>
-                  <div style={{ fontSize: '10px', color: '#7697a2' }}>{pct}% public support · {total.toLocaleString()} votes</div>
+                  <div style={{ fontSize: '10px', color: '#ffffff' }}>{pct}% public support · {total.toLocaleString()} votes</div>
                 </Link>
               )
             })}
@@ -78,14 +78,14 @@ export default async function HomePage() {
 
         {/* LIVE ACTIVITY FEED */}
         <div style={{ background: '#001520', padding: '1rem', borderTop: '1px solid #1c3849', marginBottom: '1px' }}>
-          <div style={{ fontSize: '9px', color: '#7697a2', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.75rem' }}>Live Activity</div>
+          <div style={{ fontSize: '9px', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.75rem' }}>Live Activity</div>
           <div>
             {activity?.map((item, i) => (
               <Link href="/transparency/ministers-hospitality" key={i} style={{ display: 'flex', gap: '10px', padding: '6px 0', borderBottom: '0.5px solid #1c3849', textDecoration: 'none', alignItems: 'flex-start' }}>
                 <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#fff', marginTop: '5px', flexShrink: 0 }}></div>
                 <div>
-                  <div style={{ fontSize: '12px', color: '#C9C9C9', lineHeight: 1.4 }}>{item.minister_name} — {item.donor} · £{Number(item.amount).toLocaleString()}</div>
-                  <div style={{ fontSize: '10px', color: '#7697a2', marginTop: '1px' }}>Ministerial Hospitality · {item.date ? new Date(item.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : ''}</div>
+                  <div style={{ fontSize: '12px', color: '#ffffff', lineHeight: 1.4 }}>{item.minister_name} — {item.donor} · £{Number(item.amount).toLocaleString()}</div>
+                  <div style={{ fontSize: '10px', color: '#ffffff', marginTop: '1px' }}>Ministerial Hospitality · {item.date ? new Date(item.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : ''}</div>
                 </div>
               </Link>
             ))}
@@ -95,20 +95,20 @@ export default async function HomePage() {
         {/* CONTRACTS + DONATIONS */}
         <div className="grid grid-cols-2 gap-px mb-px" style={{ background: '#1c3849' }}>
           <div style={{ background: '#001520', padding: '1rem' }}>
-            <div style={{ fontSize: '9px', color: '#7697a2', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.75rem' }}>Latest Contracts</div>
+            <div style={{ fontSize: '9px', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.75rem' }}>Latest Contracts</div>
             {contracts?.map((c, i) => (
               <Link href="/transparency/government-contracts" key={i} style={{ display: 'block', padding: '6px 0', borderBottom: '0.5px solid #1c3849', textDecoration: 'none' }}>
                 <div style={{ fontSize: '12px', color: '#fff', lineHeight: 1.3 }}>{c.title}</div>
-                <div style={{ fontSize: '10px', color: '#7697a2', marginTop: '2px' }}>{c.supplier} · £{c.value ? Number(c.value).toLocaleString() : 'undisclosed'}</div>
+                <div style={{ fontSize: '10px', color: '#ffffff', marginTop: '2px' }}>{c.supplier} · £{c.value ? Number(c.value).toLocaleString() : 'undisclosed'}</div>
               </Link>
             ))}
           </div>
           <div style={{ background: '#001520', padding: '1rem' }}>
-            <div style={{ fontSize: '9px', color: '#7697a2', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.75rem' }}>Latest Donations</div>
+            <div style={{ fontSize: '9px', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.75rem' }}>Latest Donations</div>
             {donations?.map((d, i) => (
               <Link href="/transparency/political-donations" key={i} style={{ display: 'block', padding: '6px 0', borderBottom: '0.5px solid #1c3849', textDecoration: 'none' }}>
                 <div style={{ fontSize: '12px', color: '#fff', lineHeight: 1.3 }}>{d.donor_name}</div>
-                <div style={{ fontSize: '10px', color: '#7697a2', marginTop: '2px' }}>{d.recipient_name} · £{Number(d.amount).toLocaleString()}</div>
+                <div style={{ fontSize: '10px', color: '#ffffff', marginTop: '2px' }}>{d.recipient_name} · £{Number(d.amount).toLocaleString()}</div>
               </Link>
             ))}
           </div>
@@ -124,7 +124,7 @@ export default async function HomePage() {
           ].map((s, i) => (
             <div key={i} style={{ background: '#001520', padding: '0.75rem' }}>
               <div style={{ fontSize: '20px', fontWeight: 700, color: '#fff' }}>{s.num}</div>
-              <div style={{ fontSize: '9px', color: '#7697a2', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{s.label}</div>
+              <div style={{ fontSize: '9px', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -139,7 +139,7 @@ export default async function HomePage() {
             { href: '/polls', label: "People's Polls" },
             { href: '/bills', label: 'Bills' },
           ].map((link) => (
-            <Link key={link.href} href={link.href} style={{ fontSize: '12px', color: '#C9C9C9', textDecoration: 'none' }}>{link.label} →</Link>
+            <Link key={link.href} href={link.href} style={{ fontSize: '12px', color: '#ffffff', textDecoration: 'none' }}>{link.label} →</Link>
           ))}
         </div>
 

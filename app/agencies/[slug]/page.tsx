@@ -34,13 +34,13 @@ export default function AgencyPage({ params }: { params: Promise<{ slug: string 
       <Navigation />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 pb-12">
 
-        <Link href="/departments" className="inline-flex items-center gap-2 text-[#7697a2] hover:text-white mb-6 text-sm">
+        <Link href="/departments" className="inline-flex items-center gap-2 text-white hover:text-white mb-6 text-sm">
           ← Back to Departments
         </Link>
 
-        {loading && <div className="text-[#7697a2] text-sm">Loading...</div>}
+        {loading && <div className="text-white text-sm">Loading...</div>}
 
-        {!loading && !agency && <div className="text-[#7697a2] text-sm">Agency not found.</div>}
+        {!loading && !agency && <div className="text-white text-sm">Agency not found.</div>}
 
         {agency && (
           <>
@@ -49,12 +49,12 @@ export default function AgencyPage({ params }: { params: Promise<{ slug: string 
               <div className="flex items-center gap-3 mb-1">
                 <h1 className="text-2xl sm:text-3xl font-bold text-white">{agency.name}</h1>
                 {agency.acronym && (
-                  <span className="text-xs px-2 py-1 bg-[#1c3849] text-[#7697a2] rounded font-mono">{agency.acronym}</span>
+                  <span className="text-xs px-2 py-1 bg-[#1c3849] text-white rounded font-mono">{agency.acronym}</span>
                 )}
               </div>
               {agency.parentOrgs.length > 0 && (
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-[#7697a2] text-xs">Part of:</span>
+                  <span className="text-white text-xs">Part of:</span>
                   {agency.parentOrgs.map((org, i) => {
                     const deptSlugs: Record<string, string> = {
                       'hm-treasury': 'treasury',
@@ -81,9 +81,9 @@ export default function AgencyPage({ params }: { params: Promise<{ slug: string 
                     };
                     const deptSlug = deptSlugs[org.slug];
                     return deptSlug ? (
-                      <Link key={i} href={`/departments/${deptSlug}`} className="text-[#7697a2] text-xs hover:underline">{org.name}</Link>
+                      <Link key={i} href={`/departments/${deptSlug}`} className="text-white text-xs hover:underline">{org.name}</Link>
                     ) : (
-                      <span key={i} className="text-[#7697a2] text-xs">{org.name}</span>
+                      <span key={i} className="text-white text-xs">{org.name}</span>
                     );
                   })}
                 </div>
@@ -101,12 +101,12 @@ export default function AgencyPage({ params }: { params: Promise<{ slug: string 
             {/* Ministers */}
             {agency.ministers.length > 0 && (
               <div className="mb-6 pb-6 border-b border-[#1c3849]">
-                <h2 className="text-sm font-semibold text-[#7697a2] mb-3">Ministers</h2>
+                <h2 className="text-sm font-semibold text-white mb-3">Ministers</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
                   {agency.ministers.map((m, i) => (
                     <div key={i} className="py-2 border-b border-[#1c3849]/50">
                       <Link href={`/people/${m.slug}`} className="text-white text-sm font-medium hover:text-white transition-colors">{m.name}</Link>
-                      <div className="text-[#7697a2] text-xs mt-0.5">{m.role}</div>
+                      <div className="text-white text-xs mt-0.5">{m.role}</div>
                     </div>
                   ))}
                 </div>
@@ -116,12 +116,12 @@ export default function AgencyPage({ params }: { params: Promise<{ slug: string 
             {/* Board Members */}
             {agency.boardMembers.length > 0 && (
               <div className="mb-6 pb-6 border-b border-[#1c3849]">
-                <h2 className="text-sm font-semibold text-[#7697a2] mb-3">Senior Staff</h2>
+                <h2 className="text-sm font-semibold text-white mb-3">Senior Staff</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
                   {agency.boardMembers.map((m, i) => (
                     <div key={i} className="py-2 border-b border-[#1c3849]/50">
                       <Link href={`/people/${m.slug}`} className="text-white text-sm font-medium hover:text-white transition-colors">{m.name}</Link>
-                      <div className="text-[#7697a2] text-xs mt-0.5">{m.role}</div>
+                      <div className="text-white text-xs mt-0.5">{m.role}</div>
                     </div>
                   ))}
                 </div>
@@ -131,12 +131,12 @@ export default function AgencyPage({ params }: { params: Promise<{ slug: string 
             {/* Latest Publications */}
             {agency.featuredDocs.length > 0 && (
               <div className="mb-6 pb-6 border-b border-[#1c3849]">
-                <h2 className="text-sm font-semibold text-[#7697a2] mb-3">Latest Publications</h2>
+                <h2 className="text-sm font-semibold text-white mb-3">Latest Publications</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
                   {agency.featuredDocs.map((doc, i) => (
                     <div key={i} className="py-2 border-b border-[#1c3849]/50">
                       <div className="text-white text-sm">{doc.title}</div>
-                      <div className="text-[#7697a2] text-xs mt-0.5">{doc.type}</div>
+                      <div className="text-white text-xs mt-0.5">{doc.type}</div>
                     </div>
                   ))}
                 </div>

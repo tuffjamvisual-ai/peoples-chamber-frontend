@@ -43,16 +43,16 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
     <div className="min-h-screen bg-[#001520]">
       <Navigation />
       <main className="max-w-3xl mx-auto px-4 sm:px-6 pb-12">
-        <Link href="/departments" className="inline-flex items-center gap-2 text-[#7697a2] hover:text-white mb-6 text-sm">
+        <Link href="/departments" className="inline-flex items-center gap-2 text-white hover:text-white mb-6 text-sm">
           ← Back to Departments
         </Link>
 
         {loading && (
-          <div className="text-[#7697a2] text-sm">Loading...</div>
+          <div className="text-white text-sm">Loading...</div>
         )}
 
         {!loading && !person && (
-          <div className="text-[#7697a2] text-sm">Person not found.</div>
+          <div className="text-white text-sm">Person not found.</div>
         )}
 
         {person && (
@@ -63,7 +63,7 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
                 <img src={person.photo} alt={person.name}
                   className="w-32 h-32 rounded-full object-cover border-2 border-[#1c3849] flex-shrink-0" />
               ) : (
-                <div className="w-32 h-32 rounded-full bg-[#1c3849] flex items-center justify-center text-3xl font-bold text-[#7697a2] flex-shrink-0">
+                <div className="w-32 h-32 rounded-full bg-[#1c3849] flex items-center justify-center text-3xl font-bold text-white flex-shrink-0">
                   {person.name.charAt(0)}
                 </div>
               )}
@@ -82,9 +82,9 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
                 {person.currentRoles.map((role, i) => (
                   <div key={i} className="mb-4 last:mb-0">
                     <div className="text-white font-medium">{role.title}</div>
-                    <div className="text-[#7697a2] text-sm">{role.organisation}</div>
+                    <div className="text-white text-sm">{role.organisation}</div>
                     {role.startDate && (
-                      <div className="text-[#7697a2] text-xs mt-0.5">Since {new Date(role.startDate).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</div>
+                      <div className="text-white text-xs mt-0.5">Since {new Date(role.startDate).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</div>
                     )}
                     {role.body && (
                       <div className="text-[#c9c9c9] text-sm mt-3 leading-relaxed prose prose-invert max-w-none"
@@ -109,7 +109,7 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
                         <li key={i} className="text-[#c9c9c9] text-sm leading-relaxed">
                           <div>{item.summary}</div>
                           {item.detail && item.detail !== item.summary && (
-                            <div className="text-[#7697a2] text-xs mt-1 whitespace-pre-line">{item.detail}</div>
+                            <div className="text-white text-xs mt-1 whitespace-pre-line">{item.detail}</div>
                           )}
                         </li>
                       ))}
@@ -127,9 +127,9 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
                   {person.pastRoles.map((role, i) => (
                     <div key={i} className="py-3">
                       <div className="text-white text-sm font-medium">{role.title}</div>
-                      <div className="text-[#7697a2] text-xs">{role.organisation}</div>
+                      <div className="text-white text-xs">{role.organisation}</div>
                       {role.startDate && role.endDate && (
-                        <div className="text-[#7697a2] text-xs mt-0.5">
+                        <div className="text-white text-xs mt-0.5">
                           {new Date(role.startDate).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })} — {new Date(role.endDate).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}
                         </div>
                       )}

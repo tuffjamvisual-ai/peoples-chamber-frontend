@@ -103,7 +103,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
   if (!dept)
     return (
       <div className="min-h-screen bg-[#001520] flex items-center justify-center">
-        <p className="text-[#7697a2] text-sm">Department not found</p>
+        <p className="text-white text-sm">Department not found</p>
       </div>
     );
 
@@ -123,7 +123,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
     <div className="min-h-screen bg-[#001520] text-white">
       <Navigation />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
-        <Link href="/departments" className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-[#7697a2] hover:text-white mb-8 transition-colors">
+        <Link href="/departments" className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-white hover:text-white mb-8 transition-colors">
           ← Back to Departments
         </Link>
 
@@ -142,7 +142,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
                     href={s.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[10px] uppercase tracking-[0.15em] px-2 py-1 bg-[#1c3849] text-[#7697a2] rounded-sm border border-[#1c3849] hover:text-white hover:border-[#ffffff] transition-colors"
+                    className="text-[10px] uppercase tracking-[0.15em] px-2 py-1 bg-[#1c3849] text-white rounded-sm border border-[#1c3849] hover:text-white hover:border-[#ffffff] transition-colors"
                   >
                     {s.service === 'twitter' ? 'X' : s.service === 'youtube' ? 'YT' : s.service.slice(0, 3)}
                   </a>
@@ -150,7 +150,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
               </div>
             )}
           </div>
-          <p className="text-[#7697a2] text-[14px] leading-[1.7] max-w-3xl">{dept.description}</p>
+          <p className="text-white text-[14px] leading-[1.7] max-w-3xl">{dept.description}</p>
         </header>
 
         {/* Secretary of State */}
@@ -174,7 +174,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
             )}
             <div>
               <h2 className="text-white text-2xl sm:text-3xl font-black tracking-tight mb-1">{sos.name}</h2>
-              <p className="text-[#7697a2] text-[13px] leading-[1.7] mb-2">{sos.role}</p>
+              <p className="text-white text-[13px] leading-[1.7] mb-2">{sos.role}</p>
               {sos.slug && (
                 <Link
                   href={`/people/${sos.slug}`}
@@ -194,7 +194,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
             <div className="bg-[#1c3849] p-5">
               <div className="flex items-baseline justify-between mb-4">
                 <h3 className="text-[10px] uppercase tracking-[0.25em] font-semibold text-white">Live Economic Data</h3>
-                {stats && <span className="text-[10px] uppercase tracking-[0.15em] text-[#7697a2] font-mono">CPI · ONS · {stats.cpiDate}</span>}
+                {stats && <span className="text-[10px] uppercase tracking-[0.15em] text-white font-mono">CPI · ONS · {stats.cpiDate}</span>}
               </div>
               <div className="grid grid-cols-3 gap-px bg-[#1c3849] border border-[#1c3849]">
                 {[
@@ -206,7 +206,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
                   { label: 'Debt/GDP', value: stats ? stats.debtGDP : '95%', colour: ACCENT_2 },
                 ].map((stat) => (
                   <div key={stat.label} className="bg-[#1c3849] px-3 py-3">
-                    <p className="text-[9px] uppercase tracking-[0.2em] text-[#7697a2] mb-1">{stat.label}</p>
+                    <p className="text-[9px] uppercase tracking-[0.2em] text-white mb-1">{stat.label}</p>
                     <p className="text-base font-black tracking-tight" style={{ color: stat.colour }}>
                       {stat.value}
                     </p>
@@ -219,13 +219,13 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
             </div>
           ) : (
             <div className="bg-[#1c3849] p-5 flex items-center justify-center">
-              <p className="text-[#7697a2] text-[13px] leading-[1.7]">Live data coming soon for this department</p>
+              <p className="text-white text-[13px] leading-[1.7]">Live data coming soon for this department</p>
             </div>
           )}
 
           <div ref={searchRef} className="bg-[#1c3849] p-5 relative">
             <h3 className="text-[10px] uppercase tracking-[0.25em] mb-1 font-semibold text-white">Search Topics</h3>
-            <p className="text-[#7697a2] text-[12px] mb-3 leading-[1.7]">Type any issue to see what every party says about it</p>
+            <p className="text-white text-[12px] mb-3 leading-[1.7]">Type any issue to see what every party says about it</p>
             <div className="relative">
               <input
                 type="text"
@@ -233,12 +233,12 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
                 onChange={(e) => { setZoneSearch(e.target.value); setShowTopics(true); }}
                 onFocus={() => setShowTopics(true)}
                 placeholder={`Search ${dept.controlZones.length} topics…`}
-                className="w-full bg-[#001520] border border-[#1c3849] rounded-sm px-4 py-2.5 text-white text-[13px] placeholder:text-[#7697a2] focus:outline-none focus:border-[#ffffff] transition-colors"
+                className="w-full bg-[#001520] border border-[#1c3849] rounded-sm px-4 py-2.5 text-white text-[13px] placeholder:text-white focus:outline-none focus:border-[#ffffff] transition-colors"
               />
               {zoneSearch && (
                 <button
                   onClick={() => { setZoneSearch(''); setShowTopics(false); }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7697a2] hover:text-white text-xs"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white hover:text-white text-xs"
                 >
                   ✕
                 </button>
@@ -254,7 +254,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
                       onClick={() => { setActiveZone(activeZone === zone ? null : zone); setZoneSearch(''); setShowTopics(false); }}
                       className={
                         'block w-full text-left px-4 py-2.5 text-[13px] border-b border-[#1c3849] last:border-0 transition-colors ' +
-                        (activeZone === zone ? 'text-[#ffffff] bg-[#001520]' : 'text-[#7697a2] hover:bg-[#001520] hover:text-white')
+                        (activeZone === zone ? 'text-[#ffffff] bg-[#001520]' : 'text-white hover:bg-[#001520] hover:text-white')
                       }
                     >
                       {zone}
@@ -263,7 +263,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
                   );
                 })}
                 {zoneSearch && filteredZones.length === 0 && (
-                  <div className="px-4 py-3 text-[#7697a2] text-[13px]">No topics match &ldquo;{zoneSearch}&rdquo;</div>
+                  <div className="px-4 py-3 text-white text-[13px]">No topics match &ldquo;{zoneSearch}&rdquo;</div>
                 )}
               </div>
             )}
@@ -283,12 +283,12 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
               <h2 className="text-2xl font-black tracking-tight text-white">{activeZone}</h2>
               <button
                 onClick={() => setActiveZone(null)}
-                className="text-[10px] uppercase tracking-[0.25em] text-[#7697a2] hover:text-white transition-colors"
+                className="text-[10px] uppercase tracking-[0.25em] text-white hover:text-white transition-colors"
               >
                 ✕ Close
               </button>
             </div>
-            <p className="text-[#7697a2] text-[14px] leading-[1.7] mb-6">{activeZoneData.context}</p>
+            <p className="text-white text-[14px] leading-[1.7] mb-6">{activeZoneData.context}</p>
             <ul className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#1c3849] border border-[#1c3849]">
               {activeZoneData.positions.map((pos) => {
                 const party = parties.find((p) => p.id === pos.partyId);
@@ -302,7 +302,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
                       {party.name}
                     </span>
                     <p className="text-white font-semibold text-[13px] mb-1 leading-snug">{pos.headline}</p>
-                    <p className="text-[#7697a2] text-[12px] leading-[1.7]">{pos.position}</p>
+                    <p className="text-white text-[12px] leading-[1.7]">{pos.position}</p>
                   </li>
                 );
               })}
@@ -323,7 +323,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
                   <Link
                     key={i}
                     href={'/agencies/' + agencySlug}
-                    className="text-[12px] uppercase tracking-[0.15em] text-[#7697a2] hover:text-[#ffffff] transition-colors"
+                    className="text-[12px] uppercase tracking-[0.15em] text-white hover:text-[#ffffff] transition-colors"
                   >
                     {org.acronym || org.name}
                   </Link>
@@ -353,7 +353,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
                 </a>
               )}
               {govukData.pressPhone && (
-                <span className="text-[11px] uppercase tracking-[0.15em] text-[#7697a2] font-mono">Press: {govukData.pressPhone}</span>
+                <span className="text-[11px] uppercase tracking-[0.15em] text-white font-mono">Press: {govukData.pressPhone}</span>
               )}
             </div>
           )}
@@ -366,13 +366,13 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
 function StaffGroup({ label, people }: { label: string; people: { name: string; role: string; slug: string }[] }) {
   return (
     <div className="mb-8">
-      <p className="text-[10px] uppercase tracking-[0.2em] text-[#7697a2] mb-3 font-semibold">{label}</p>
+      <p className="text-[10px] uppercase tracking-[0.2em] text-white mb-3 font-semibold">{label}</p>
       <ul className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[#1c3849] border border-[#1c3849]">
         {people.map((person, i) => (
           <li key={i} className="bg-[#1c3849] p-3 border-l-2 border-l-transparent hover:border-l-[#ffffff] hover:bg-[#001520] transition-colors">
             <Link href={`/people/${person.slug}`} className="block">
               <p className="text-white text-[13px] font-semibold hover:text-[#ffffff] transition-colors">{person.name}</p>
-              <p className="text-[#7697a2] text-[11px] mt-0.5 leading-[1.7]">{person.role}</p>
+              <p className="text-white text-[11px] mt-0.5 leading-[1.7]">{person.role}</p>
             </Link>
           </li>
         ))}

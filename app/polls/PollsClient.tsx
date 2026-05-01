@@ -76,14 +76,14 @@ export default function PollsClient() {
 
       <div className="mb-6">
         <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">People's Polls</h1>
-        <p className="text-[#7697a2] text-sm sm:text-base">
+        <p className="text-white text-sm sm:text-base">
           Have your say on the issues that matter. Vote on questions about policy, politics and public life.
         </p>
       </div>
 
       <div className="flex gap-6 mb-4">
-        <div className="text-sm text-[#7697a2]"><span className="text-white font-semibold">{polls.length}</span> polls</div>
-        <div className="text-sm text-[#7697a2]"><span className="text-white font-semibold">{totalVotesAll.toLocaleString()}</span> total votes</div>
+        <div className="text-sm text-white"><span className="text-white font-semibold">{polls.length}</span> polls</div>
+        <div className="text-sm text-white"><span className="text-white font-semibold">{totalVotesAll.toLocaleString()}</span> total votes</div>
       </div>
 
       <div className="flex items-center gap-3 mb-4">
@@ -104,7 +104,7 @@ export default function PollsClient() {
         </select>
       </div>
 
-      <div className="text-[#7697a2] text-sm mb-4">{filtered.length} polls</div>
+      <div className="text-white text-sm mb-4">{filtered.length} polls</div>
 
       {loading ? (
         <div className="text-center py-12">
@@ -123,7 +123,7 @@ export default function PollsClient() {
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-xs px-2 py-0.5 bg-white/10 text-[#ffffff] rounded border border-white/30">Poll</span>
                   {poll.constituency && (
-                    <span className="text-xs px-2 py-0.5 bg-[#1c3849] text-[#7697a2] rounded border border-[#405b6b]">
+                    <span className="text-xs px-2 py-0.5 bg-[#1c3849] text-white rounded border border-[#405b6b]">
                       {poll.constituency}
                     </span>
                   )}
@@ -140,7 +140,7 @@ export default function PollsClient() {
                     <div className="bg-[#4a8a3a] h-full transition-all" style={{ width: yesPercent + '%' }} />
                     <div className="bg-[#8a3a3a] h-full transition-all" style={{ width: noPercent + '%' }} />
                   </div>
-                  <div className="flex justify-between text-xs text-[#7697a2] mt-1 mb-3">
+                  <div className="flex justify-between text-xs text-white mt-1 mb-3">
                     <span>Yes {yesPercent}% · {poll.vote_count_yes.toLocaleString()}</span>
                     <span>{total.toLocaleString()} votes</span>
                     <span>{poll.vote_count_no.toLocaleString()} · No {noPercent}%</span>
@@ -152,14 +152,14 @@ export default function PollsClient() {
                   <button
                     onClick={() => handleVote(poll.id, 'yes')}
                     disabled={hasVoted}
-                    className={'px-4 py-1.5 rounded text-xs font-medium transition-colors ' + (hasVoted ? (userVotes[poll.id] === 'yes' ? 'bg-[#405b6b] text-white' : 'bg-[#405b6b] text-[#7697a2] cursor-not-allowed') : 'bg-[#1c3849] hover:bg-[#405b6b] text-white')}
+                    className={'px-4 py-1.5 rounded text-xs font-medium transition-colors ' + (hasVoted ? (userVotes[poll.id] === 'yes' ? 'bg-[#405b6b] text-white' : 'bg-[#405b6b] text-white cursor-not-allowed') : 'bg-[#1c3849] hover:bg-[#405b6b] text-white')}
                   >
                     {hasVoted && userVotes[poll.id] === 'yes' ? '✓ Yes' : 'Yes'}
                   </button>
                   <button
                     onClick={() => handleVote(poll.id, 'no')}
                     disabled={hasVoted}
-                    className={'px-4 py-1.5 rounded text-xs font-medium transition-colors ' + (hasVoted ? (userVotes[poll.id] === 'no' ? 'bg-[#8a3a3a] text-white' : 'bg-[#405b6b] text-[#7697a2] cursor-not-allowed') : 'bg-[#8a3a3a] hover:bg-[#8a3a3a] text-white')}
+                    className={'px-4 py-1.5 rounded text-xs font-medium transition-colors ' + (hasVoted ? (userVotes[poll.id] === 'no' ? 'bg-[#8a3a3a] text-white' : 'bg-[#405b6b] text-white cursor-not-allowed') : 'bg-[#8a3a3a] hover:bg-[#8a3a3a] text-white')}
                   >
                     {hasVoted && userVotes[poll.id] === 'no' ? '✓ No' : 'No'}
                   </button>

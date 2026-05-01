@@ -85,17 +85,17 @@ function Pagination({
       <button
         onClick={onPrev}
         disabled={page === 0}
-        className="px-4 py-2 text-[11px] uppercase tracking-[0.2em] font-mono border border-[#1c3849] text-[#7697a2] hover:border-[#ffffff] hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+        className="px-4 py-2 text-[11px] uppercase tracking-[0.2em] font-mono border border-[#1c3849] text-white hover:border-[#ffffff] hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
       >
         ← Previous
       </button>
-      <span className="text-[11px] font-mono text-[#7697a2] uppercase tracking-[0.15em]">
+      <span className="text-[11px] font-mono text-white uppercase tracking-[0.15em]">
         {start}–{end} of {filteredCount.toLocaleString()}
       </span>
       <button
         onClick={onNext}
         disabled={page >= totalPages - 1}
-        className="px-4 py-2 text-[11px] uppercase tracking-[0.2em] font-mono border border-[#1c3849] text-[#7697a2] hover:border-[#ffffff] hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+        className="px-4 py-2 text-[11px] uppercase tracking-[0.2em] font-mono border border-[#1c3849] text-white hover:border-[#ffffff] hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
       >
         Next →
       </button>
@@ -124,7 +124,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
 
   if (rows.length === 0 && !searchQuery) {
     return (
-      <p className="text-[#7697a2] text-[13px] leading-[1.7] border-t border-[#1c3849] pt-8">
+      <p className="text-white text-[13px] leading-[1.7] border-t border-[#1c3849] pt-8">
         No records have been synced into the {sectionTitle.toLowerCase()} table yet. The page will populate once the sync job runs.
       </p>
     )
@@ -134,7 +134,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
     <>
       {/* Search — server-side form for donations, client-side input for others */}
       <div className="mb-8">
-        <label htmlFor="transparency-search" className="block text-[10px] uppercase tracking-[0.25em] text-[#7697a2] font-medium mb-2">
+        <label htmlFor="transparency-search" className="block text-[10px] uppercase tracking-[0.25em] text-white font-medium mb-2">
           Search
         </label>
         {isDonations ? (
@@ -145,11 +145,11 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
               type="search"
               defaultValue={searchQuery}
               placeholder="Search by donor or recipient…"
-              className="flex-1 bg-[#1c3849] border border-[#1c3849] text-white text-[13px] rounded-sm px-4 py-3 leading-[1.7] placeholder:text-[#7697a2] focus:outline-none focus:border-[#ffffff] transition-colors"
+              className="flex-1 bg-[#1c3849] border border-[#1c3849] text-white text-[13px] rounded-sm px-4 py-3 leading-[1.7] placeholder:text-white focus:outline-none focus:border-[#ffffff] transition-colors"
             />
             <button
               type="submit"
-              className="px-4 py-3 text-[11px] uppercase tracking-[0.2em] font-mono border border-[#1c3849] text-[#7697a2] hover:border-[#ffffff] hover:text-white transition-colors whitespace-nowrap"
+              className="px-4 py-3 text-[11px] uppercase tracking-[0.2em] font-mono border border-[#1c3849] text-white hover:border-[#ffffff] hover:text-white transition-colors whitespace-nowrap"
             >
               Search
             </button>
@@ -162,10 +162,10 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
               placeholder={`Search ${rows.length.toLocaleString()} records…`}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full max-w-md bg-[#1c3849] border border-[#1c3849] text-white text-[13px] rounded-sm px-4 py-3 leading-[1.7] placeholder:text-[#7697a2] focus:outline-none focus:border-[#ffffff] transition-colors"
+              className="w-full max-w-md bg-[#1c3849] border border-[#1c3849] text-white text-[13px] rounded-sm px-4 py-3 leading-[1.7] placeholder:text-white focus:outline-none focus:border-[#ffffff] transition-colors"
             />
             {query && (
-              <p className="text-[#7697a2] text-[11px] mt-2 font-mono uppercase tracking-[0.15em]">
+              <p className="text-white text-[11px] mt-2 font-mono uppercase tracking-[0.15em]">
                 {filtered.length.toLocaleString()} of {rows.length.toLocaleString()} matching
               </p>
             )}
@@ -174,7 +174,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
       </div>
 
       {rows.length === 0 && searchQuery ? (
-        <p className="text-[#7697a2] text-[13px] leading-[1.7] border-t border-[#1c3849] pt-8">
+        <p className="text-white text-[13px] leading-[1.7] border-t border-[#1c3849] pt-8">
           No results found for &ldquo;{searchQuery}&rdquo;.
         </p>
       ) : section === 'revolving-door' ? (
@@ -192,13 +192,13 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                   <div className="flex items-baseline justify-between gap-4 mb-1.5">
                     <h3 className="text-white text-base font-bold leading-snug tracking-tight">{personName}</h3>
                     {approvalDate && (
-                      <span className="text-[#7697a2] text-[11px] font-mono whitespace-nowrap uppercase tracking-[0.15em]">
+                      <span className="text-white text-[11px] font-mono whitespace-nowrap uppercase tracking-[0.15em]">
                         {approvalDate}
                       </span>
                     )}
                   </div>
                   {previousRole && (
-                    <p className="text-[#7697a2] text-[13px] leading-[1.7] mb-1">{previousRole}</p>
+                    <p className="text-white text-[13px] leading-[1.7] mb-1">{previousRole}</p>
                   )}
                   <p className="text-[13px] leading-[1.7] font-semibold" style={{ color: ACCENT }}>
                     {newRoleLine}
@@ -228,11 +228,11 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                     </span>
                   )}
                 </div>
-                <p className="text-[13px] text-[#7697a2] leading-[1.7] mb-1">
+                <p className="text-[13px] text-white leading-[1.7] mb-1">
                   from <span className="text-white font-semibold">{donor}</span>
-                  {donorType && <span className="text-[#7697a2]"> · {donorType}</span>}
+                  {donorType && <span className="text-white"> · {donorType}</span>}
                 </p>
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[#7697a2] font-mono uppercase tracking-[0.15em]">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-white font-mono uppercase tracking-[0.15em]">
                   {receivedDate && <span>{receivedDate}</span>}
                   {nature && <span>· {nature}</span>}
                 </div>
@@ -255,7 +255,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                   <div className="flex items-baseline justify-between gap-4 mb-3">
                     <h3 className="text-white text-[14px] font-bold leading-snug">{titleValue}</h3>
                     {dateValue && (
-                      <span className="text-[#7697a2] text-[11px] font-mono whitespace-nowrap uppercase tracking-[0.15em]">
+                      <span className="text-white text-[11px] font-mono whitespace-nowrap uppercase tracking-[0.15em]">
                         {dateValue}
                       </span>
                     )}
@@ -264,8 +264,8 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                     <dl className="grid grid-cols-1 sm:grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-[12px] leading-[1.7]">
                       {otherEntries.map(([k, v]) => (
                         <div key={k} className="contents">
-                          <dt className="text-[10px] uppercase tracking-[0.2em] text-[#7697a2] font-mono pt-0.5">{k}</dt>
-                          <dd className="text-[#7697a2] whitespace-pre-line break-words">{formatValue(v)}</dd>
+                          <dt className="text-[10px] uppercase tracking-[0.2em] text-white font-mono pt-0.5">{k}</dt>
+                          <dd className="text-white whitespace-pre-line break-words">{formatValue(v)}</dd>
                         </div>
                       ))}
                     </dl>

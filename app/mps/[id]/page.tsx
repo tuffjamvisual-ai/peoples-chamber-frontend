@@ -91,7 +91,7 @@ export default async function MPProfilePage({ params }: PageProps) {
       <main className="max-w-7xl mx-auto px-6 py-6">
         <Link 
           href="/mps"
-          className="inline-flex items-center gap-2 text-[#7697a2] hover:text-white mb-6 transition"
+          className="inline-flex items-center gap-2 text-white hover:text-white mb-6 transition"
         >
           <span>←</span>
           <span>Back to all MPs</span>
