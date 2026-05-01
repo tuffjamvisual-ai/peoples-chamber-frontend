@@ -119,23 +119,23 @@ export default function BillsGridMobile({ initialBills }: Props) {
 
   return (
     <>
-      <div className="sticky top-20 z-40 bg-[#002633] px-4 py-3 border-b border-[#1c3849]">
+      <div className="sticky top-20 z-40 bg-[#001520] px-4 py-3 border-b border-[#1c3849]">
         <input
           type="text"
           placeholder="Search bills..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-xl mx-auto block px-4 py-2 bg-[#1c3849] text-white rounded-lg border border-[#1c3849] focus:border-[#9bdd42] focus:outline-none"
+          className="max-w-xl mx-auto block px-4 py-2 bg-[#1c3849] text-white rounded-lg border border-[#1c3849] focus:border-[#ffffff] focus:outline-none"
         />
       </div>
 
-      <div className="sticky top-[108px] z-40 bg-[#002633] border-b border-[#1c3849] overflow-x-auto">
+      <div className="sticky top-[108px] z-40 bg-[#001520] border-b border-[#1c3849] overflow-x-auto">
         <div className="flex space-x-1 px-4 min-w-max">
           <button
             onClick={() => setActiveTab('latest')}
             className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
               activeTab === 'latest'
-                ? 'text-[#9bdd42] border-b-2 border-[#9bdd42]'
+                ? 'text-[#ffffff] border-b-2 border-[#ffffff]'
                 : 'text-[#7697a2]'
             }`}
           >
@@ -145,7 +145,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
             onClick={() => setActiveTab('trending')}
             className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
               activeTab === 'trending'
-                ? 'text-[#9bdd42] border-b-2 border-[#9bdd42]'
+                ? 'text-[#ffffff] border-b-2 border-[#ffffff]'
                 : 'text-[#7697a2]'
             }`}
           >
@@ -155,7 +155,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
             onClick={() => setActiveTab('controversial')}
             className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
               activeTab === 'controversial'
-                ? 'text-[#9bdd42] border-b-2 border-[#9bdd42]'
+                ? 'text-[#ffffff] border-b-2 border-[#ffffff]'
                 : 'text-[#7697a2]'
             }`}
           >
@@ -165,7 +165,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
             onClick={() => setActiveTab('voted')}
             className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
               activeTab === 'voted'
-                ? 'text-[#9bdd42] border-b-2 border-[#9bdd42]'
+                ? 'text-[#ffffff] border-b-2 border-[#ffffff]'
                 : 'text-[#7697a2]'
             }`}
           >
@@ -190,7 +190,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
             <div
               key={bill.id}
               onClick={() => router.push(`/bills/${bill.id}`)}
-              className="bg-[#002633] border border-[#1c3849] rounded-lg p-4 active:bg-[#1c3849]"
+              className="bg-[#001520] border border-[#1c3849] rounded-lg p-4 active:bg-[#1c3849]"
             >
               {/* Show position number and total votes for debugging */}
               <div className="text-xs text-[#7697a2] mb-1">
@@ -220,9 +220,9 @@ export default function BillsGridMobile({ initialBills }: Props) {
                   className={`flex-1 py-2 rounded text-xs font-medium ${
                     hasVoted
                       ? userVotes[bill.id] === 'yes'
-                        ? 'bg-green-700 text-white'
+                        ? 'bg-[#405b6b] text-white'
                         : 'bg-[#405b6b] text-[#7697a2]'
-                      : 'bg-green-800 active:bg-green-700 text-white'
+                      : 'bg-[#1c3849] active:bg-[#405b6b] text-white'
                   }`}
                 >
                   {hasVoted && userVotes[bill.id] === 'yes' ? '✓ Supported' : 'Support'}

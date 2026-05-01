@@ -38,7 +38,7 @@ export default async function LawsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#002633]">
+    <div className="min-h-screen bg-[#001520]">
       <Navigation />
       <LawsClient laws={allLaws} />
     </div>

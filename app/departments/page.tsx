@@ -10,13 +10,13 @@ export const metadata: Metadata = {
   alternates: { canonical: '/departments' },
 };
 
-const ACCENT = '#9bdd42';
+const ACCENT = '#ffffff';
 
 export default function DepartmentsPage() {
   const totalZones = departments.reduce((sum, d) => sum + d.controlZones.length, 0);
 
   return (
-    <div className="min-h-screen bg-[#002633] text-white">
+    <div className="min-h-screen bg-[#001520] text-white">
       <Navigation />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
         <header className="border-b border-[#1c3849] pb-10 mb-10">
@@ -42,9 +42,9 @@ export default function DepartmentsPage() {
             <li key={dept.slug} className="bg-[#1c3849]">
               <Link
                 href={`/departments/${dept.slug}`}
-                className="group block h-full p-5 hover:bg-[#002633] transition-colors border-l-2 border-transparent hover:border-l-[#9bdd42]"
+                className="group block h-full p-5 hover:bg-[#001520] transition-colors border-l-2 border-transparent hover:border-l-[#ffffff]"
               >
-                <h2 className="text-white font-bold text-[14px] leading-snug mb-1.5 group-hover:text-[#9bdd42] transition-colors">
+                <h2 className="text-white font-bold text-[14px] leading-snug mb-1.5 group-hover:text-[#ffffff] transition-colors">
                   {dept.name}
                 </h2>
                 <p className="text-[#7697a2] text-[12px] leading-[1.7] mb-4 line-clamp-2">{dept.description}</p>
@@ -54,12 +54,12 @@ export default function DepartmentsPage() {
                     <img
                       src={dept.ministerPhoto}
                       alt={dept.minister}
-                      className="w-6 h-6 rounded-full object-cover bg-[#002633]"
+                      className="w-6 h-6 rounded-full object-cover bg-[#001520]"
                       style={{ border: `1px solid ${ACCENT}55` }}
                     />
                   ) : (
                     <div
-                      className="w-6 h-6 rounded-full bg-[#002633] flex items-center justify-center text-[10px] text-[#7697a2]"
+                      className="w-6 h-6 rounded-full bg-[#001520] flex items-center justify-center text-[10px] text-[#7697a2]"
                       style={{ border: `1px solid ${ACCENT}55` }}
                     >
                       {dept.minister.charAt(0)}
@@ -79,7 +79,7 @@ export default function DepartmentsPage() {
                     </span>
                   ))}
                   {dept.controlZones.length > 3 && (
-                    <span className="text-[10px] px-1.5 py-0.5 uppercase tracking-[0.1em] font-semibold rounded-sm text-[#7697a2] bg-[#002633] border border-[#1c3849]">
+                    <span className="text-[10px] px-1.5 py-0.5 uppercase tracking-[0.1em] font-semibold rounded-sm text-[#7697a2] bg-[#001520] border border-[#1c3849]">
                       +{dept.controlZones.length - 3}
                     </span>
                   )}
@@ -98,7 +98,7 @@ function Stat({ label, value, accent = false }: { label: string; value: number |
     <div className="bg-[#1c3849] px-4 py-5">
       <p className="text-[10px] uppercase tracking-[0.25em] text-[#7697a2] font-medium mb-2">{label}</p>
       <p
-        className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#9bdd42]' : 'text-white'}`}
+        className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#ffffff]' : 'text-white'}`}
       >
         {typeof value === 'number' ? value.toLocaleString() : value}
       </p>

@@ -85,7 +85,7 @@ export default async function MPProfilePage({ params }: PageProps) {
   const partyColour = mp.party_colour ? '#' + mp.party_colour.replace('#', '') : '#3b82f6'
 
   return (
-    <div className="min-h-screen bg-[#002633]">
+    <div className="min-h-screen bg-[#001520]">
       <Navigation />
       
       <main className="max-w-7xl mx-auto px-6 py-6">
@@ -98,7 +98,7 @@ export default async function MPProfilePage({ params }: PageProps) {
         </Link>
 
         {/* Header with party colour gradient */}
-        <div className="rounded-xl overflow-hidden mb-6 relative" style={{ background: `linear-gradient(135deg, ${partyColour}33 0%, #002633 60%)`, border: `1px solid ${partyColour}40` }}>
+        <div className="rounded-xl overflow-hidden mb-6 relative" style={{ background: `linear-gradient(135deg, ${partyColour}33 0%, #001520 60%)`, border: `1px solid ${partyColour}40` }}>
           <div className="absolute inset-0 opacity-5" style={{ background: `radial-gradient(circle at top left, ${partyColour}, transparent 60%)` }} />
           <div className="relative p-6 flex items-center gap-6">
             <div className="relative flex-shrink-0">

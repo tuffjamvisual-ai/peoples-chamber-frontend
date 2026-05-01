@@ -6,7 +6,7 @@ import TransparencyClient from './TransparencyClient'
 
 export const revalidate = 3600
 
-const ACCENT = '#9bdd42'
+const ACCENT = '#ffffff'
 const PAGE_LIMIT = 100
 
 const SECTIONS: Record<string, { title: string; table: string; orderBy?: string }> = {
@@ -64,7 +64,7 @@ export default async function TransparencySectionPage({
   const totalCount = total ?? 0
 
   return (
-    <div className="min-h-screen bg-[#002633] text-white">
+    <div className="min-h-screen bg-[#001520] text-white">
       <Navigation />
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
         <Link

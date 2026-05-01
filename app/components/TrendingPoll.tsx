@@ -64,9 +64,9 @@ export default function TrendingPoll() {
   return (
     <div className="w-full">
       <div className="text-xs text-[#7697a2] uppercase tracking-wider mb-2">Trending People's Poll</div>
-      <div className="bg-[#002633] border border-[#1c3849] rounded-lg p-4">
+      <div className="bg-[#001520] border border-[#1c3849] rounded-lg p-4">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-xs px-2 py-0.5 bg-white/10 text-[#9bdd42] rounded border border-white/30">Poll</span>
+          <span className="text-xs px-2 py-0.5 bg-white/10 text-[#ffffff] rounded border border-white/30">Poll</span>
           {poll.constituency && (
             <span className="text-xs px-2 py-0.5 bg-purple-900/40 text-purple-300 rounded border border-purple-800/40">{poll.constituency}</span>
         )}
@@ -92,7 +92,7 @@ export default function TrendingPoll() {
           <button
             onClick={() => handleVote('yes')}
             disabled={hasVoted}
-            className={'px-4 py-1.5 rounded text-xs font-medium transition-colors ' + (hasVoted ? (userVote === 'yes' ? 'bg-green-700 text-white' : 'bg-[#405b6b] text-[#7697a2] cursor-not-allowed') : 'bg-green-800 hover:bg-green-700 text-white')}
+            className={'px-4 py-1.5 rounded text-xs font-medium transition-colors ' + (hasVoted ? (userVote === 'yes' ? 'bg-[#405b6b] text-white' : 'bg-[#405b6b] text-[#7697a2] cursor-not-allowed') : 'bg-[#1c3849] hover:bg-[#405b6b] text-white')}
           >
             {userVote === 'yes' ? '✓ Yes' : 'Yes'}
           </button>

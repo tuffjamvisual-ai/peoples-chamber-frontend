@@ -92,12 +92,12 @@ export default function PollsClient() {
           placeholder="Search polls..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 px-4 py-2 bg-[#1c3849] text-white rounded border border-[#1c3849] focus:border-[#9bdd42] focus:outline-none text-sm"
+          className="flex-1 px-4 py-2 bg-[#1c3849] text-white rounded border border-[#1c3849] focus:border-[#ffffff] focus:outline-none text-sm"
         />
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value as SortOption)}
-          className="px-3 py-2 bg-[#1c3849] text-white text-sm rounded border border-[#1c3849] focus:border-[#9bdd42] focus:outline-none"
+          className="px-3 py-2 bg-[#1c3849] text-white text-sm rounded border border-[#1c3849] focus:border-[#ffffff] focus:outline-none"
         >
           <option value="popular">Most Popular</option>
           <option value="newest">Newest</option>
@@ -108,7 +108,7 @@ export default function PollsClient() {
 
       {loading ? (
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#9bdd42] mx-auto"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#ffffff] mx-auto"></div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -119,9 +119,9 @@ export default function PollsClient() {
             const hasVoted = !!userVotes[poll.id]
 
             return (
-              <div key={poll.id} className="bg-[#002633] border border-[#1c3849] rounded-lg p-5 flex flex-col min-h-[180px]">
+              <div key={poll.id} className="bg-[#001520] border border-[#1c3849] rounded-lg p-5 flex flex-col min-h-[180px]">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs px-2 py-0.5 bg-white/10 text-[#9bdd42] rounded border border-white/30">Poll</span>
+                  <span className="text-xs px-2 py-0.5 bg-white/10 text-[#ffffff] rounded border border-white/30">Poll</span>
                   {poll.constituency && (
                     <span className="text-xs px-2 py-0.5 bg-purple-900/40 text-purple-300 rounded border border-purple-800/40">
                       {poll.constituency}
@@ -152,7 +152,7 @@ export default function PollsClient() {
                   <button
                     onClick={() => handleVote(poll.id, 'yes')}
                     disabled={hasVoted}
-                    className={'px-4 py-1.5 rounded text-xs font-medium transition-colors ' + (hasVoted ? (userVotes[poll.id] === 'yes' ? 'bg-green-700 text-white' : 'bg-[#405b6b] text-[#7697a2] cursor-not-allowed') : 'bg-green-800 hover:bg-green-700 text-white')}
+                    className={'px-4 py-1.5 rounded text-xs font-medium transition-colors ' + (hasVoted ? (userVotes[poll.id] === 'yes' ? 'bg-[#405b6b] text-white' : 'bg-[#405b6b] text-[#7697a2] cursor-not-allowed') : 'bg-[#1c3849] hover:bg-[#405b6b] text-white')}
                   >
                     {hasVoted && userVotes[poll.id] === 'yes' ? '✓ Yes' : 'Yes'}
                   </button>

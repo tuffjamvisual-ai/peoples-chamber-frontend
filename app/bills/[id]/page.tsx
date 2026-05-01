@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import AuthModal from '../../components/AuthModal';
 import Navigation from '../../components/Navigation';
 
-const ACCENT = '#9bdd42';
+const ACCENT = '#ffffff';
 const SUCCESS = '#4a8a3a';
 const DANGER = '#8a3a3a';
 const WARN = '#fbbf24';
@@ -129,9 +129,9 @@ export default function BillDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#002633] flex items-center justify-center">
+      <div className="min-h-screen bg-[#001520] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-2 border-t-[#9bdd42] border-[#1c3849] mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-2 border-t-[#ffffff] border-[#1c3849] mx-auto"></div>
           <p className="text-[#7697a2] text-[10px] uppercase tracking-[0.25em] mt-6">Loading bill…</p>
         </div>
       </div>
@@ -140,14 +140,14 @@ export default function BillDetailPage() {
 
   if (error || !bill) {
     return (
-      <div className="min-h-screen bg-[#002633] text-white flex items-center justify-center">
+      <div className="min-h-screen bg-[#001520] text-white flex items-center justify-center">
         <div className="bg-[#1c3849] border border-[#1c3849] border-l-2 border-l-[#8a3a3a] p-6 max-w-md">
           <p className="text-[10px] uppercase tracking-[0.25em] mb-2 font-semibold" style={{ color: DANGER }}>Error</p>
           <h2 className="text-xl font-black tracking-tight text-white mb-2">Bill unavailable</h2>
           <p className="text-[#7697a2] text-[13px] leading-[1.7] mb-4">{error || 'Bill not found'}</p>
           <button
             onClick={() => router.push('/bills')}
-            className="px-4 py-2 bg-[#9bdd42] text-[#002633] text-[12px] uppercase tracking-[0.2em] font-bold rounded-sm"
+            className="px-4 py-2 bg-[#ffffff] text-[#001520] text-[12px] uppercase tracking-[0.2em] font-bold rounded-sm"
           >
             Back to Bills
           </button>
@@ -176,7 +176,7 @@ export default function BillDetailPage() {
   const royalAssent = bill.stages.find((s) => s.description === 'Royal Assent');
 
   return (
-    <div className="min-h-screen bg-[#002633] text-white">
+    <div className="min-h-screen bg-[#001520] text-white">
       <Navigation />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
@@ -248,13 +248,13 @@ export default function BillDetailPage() {
 
         {/* Sponsor */}
         {bill.sponsor_name && (
-          <section className="bg-[#1c3849] border border-[#1c3849] border-l-2 border-l-[#9bdd42] p-5 mb-8">
+          <section className="bg-[#1c3849] border border-[#1c3849] border-l-2 border-l-[#ffffff] p-5 mb-8">
             <p className="text-[10px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>Sponsored by</p>
             <div className="flex items-center gap-4">
               {bill.sponsor_photo ? (
-                <img src={bill.sponsor_photo} alt={bill.sponsor_name} className="w-12 h-12 rounded-full bg-[#002633]" style={{ border: `1px solid ${ACCENT}` }} />
+                <img src={bill.sponsor_photo} alt={bill.sponsor_name} className="w-12 h-12 rounded-full bg-[#001520]" style={{ border: `1px solid ${ACCENT}` }} />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-[#002633] flex items-center justify-center text-[10px] uppercase tracking-wider text-[#7697a2]" style={{ border: `1px solid ${ACCENT}` }}>
+                <div className="w-12 h-12 rounded-full bg-[#001520] flex items-center justify-center text-[10px] uppercase tracking-wider text-[#7697a2]" style={{ border: `1px solid ${ACCENT}` }}>
                   {bill.sponsor_name.split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
                 </div>
               )}
@@ -316,7 +316,7 @@ export default function BillDetailPage() {
 
           {democraticGap !== null && (
             <div
-              className="border-l-2 px-4 py-3 mb-6 bg-[#002633]"
+              className="border-l-2 px-4 py-3 mb-6 bg-[#001520]"
               style={{ borderLeftColor: outcomeMismatch ? WARN : ACCENT }}
             >
               <p className="text-[10px] uppercase tracking-[0.25em] mb-1 font-semibold" style={{ color: outcomeMismatch ? WARN : ACCENT }}>
@@ -392,7 +392,7 @@ export default function BillDetailPage() {
         {/* Full Description */}
         {bill.description && bill.description !== bill.title && (
           <details className="bg-[#1c3849] border border-[#1c3849]">
-            <summary className="px-6 py-4 cursor-pointer hover:bg-[#002633] transition-colors text-[12px] uppercase tracking-[0.2em] font-semibold text-white">
+            <summary className="px-6 py-4 cursor-pointer hover:bg-[#001520] transition-colors text-[12px] uppercase tracking-[0.2em] font-semibold text-white">
               Full Bill Description
               <span className="text-[#7697a2] text-[11px] ml-2 normal-case tracking-normal">(click to expand)</span>
             </summary>
@@ -436,7 +436,7 @@ function VoteButton({
 }) {
   const baseClasses = 'py-3 text-[12px] uppercase tracking-[0.2em] font-bold transition-colors rounded-sm';
   const style: React.CSSProperties = active
-    ? { backgroundColor: colour, color: '#002633' }
+    ? { backgroundColor: colour, color: '#001520' }
     : disabled
     ? { backgroundColor: '#1c3849', color: '#4b5563', cursor: 'not-allowed' }
     : { backgroundColor: colour + '22', color: colour, border: `1px solid ${colour}55` };

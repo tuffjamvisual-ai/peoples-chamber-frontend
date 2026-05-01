@@ -12,7 +12,7 @@ interface Props {
   searchQuery: string
 }
 
-const ACCENT = '#9bdd42'
+const ACCENT = '#ffffff'
 const PAGE_SIZE = 50
 
 function formatAmount(v: unknown): string | null {
@@ -85,7 +85,7 @@ function Pagination({
       <button
         onClick={onPrev}
         disabled={page === 0}
-        className="px-4 py-2 text-[11px] uppercase tracking-[0.2em] font-mono border border-[#1c3849] text-[#7697a2] hover:border-[#9bdd42] hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+        className="px-4 py-2 text-[11px] uppercase tracking-[0.2em] font-mono border border-[#1c3849] text-[#7697a2] hover:border-[#ffffff] hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
       >
         ← Previous
       </button>
@@ -95,7 +95,7 @@ function Pagination({
       <button
         onClick={onNext}
         disabled={page >= totalPages - 1}
-        className="px-4 py-2 text-[11px] uppercase tracking-[0.2em] font-mono border border-[#1c3849] text-[#7697a2] hover:border-[#9bdd42] hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+        className="px-4 py-2 text-[11px] uppercase tracking-[0.2em] font-mono border border-[#1c3849] text-[#7697a2] hover:border-[#ffffff] hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
       >
         Next →
       </button>
@@ -145,11 +145,11 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
               type="search"
               defaultValue={searchQuery}
               placeholder="Search by donor or recipient…"
-              className="flex-1 bg-[#1c3849] border border-[#1c3849] text-white text-[13px] rounded-sm px-4 py-3 leading-[1.7] placeholder:text-[#7697a2] focus:outline-none focus:border-[#9bdd42] transition-colors"
+              className="flex-1 bg-[#1c3849] border border-[#1c3849] text-white text-[13px] rounded-sm px-4 py-3 leading-[1.7] placeholder:text-[#7697a2] focus:outline-none focus:border-[#ffffff] transition-colors"
             />
             <button
               type="submit"
-              className="px-4 py-3 text-[11px] uppercase tracking-[0.2em] font-mono border border-[#1c3849] text-[#7697a2] hover:border-[#9bdd42] hover:text-white transition-colors whitespace-nowrap"
+              className="px-4 py-3 text-[11px] uppercase tracking-[0.2em] font-mono border border-[#1c3849] text-[#7697a2] hover:border-[#ffffff] hover:text-white transition-colors whitespace-nowrap"
             >
               Search
             </button>
@@ -162,7 +162,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
               placeholder={`Search ${rows.length.toLocaleString()} records…`}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full max-w-md bg-[#1c3849] border border-[#1c3849] text-white text-[13px] rounded-sm px-4 py-3 leading-[1.7] placeholder:text-[#7697a2] focus:outline-none focus:border-[#9bdd42] transition-colors"
+              className="w-full max-w-md bg-[#1c3849] border border-[#1c3849] text-white text-[13px] rounded-sm px-4 py-3 leading-[1.7] placeholder:text-[#7697a2] focus:outline-none focus:border-[#ffffff] transition-colors"
             />
             {query && (
               <p className="text-[#7697a2] text-[11px] mt-2 font-mono uppercase tracking-[0.15em]">
@@ -188,7 +188,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
               const approvalDate = formatUkDate(row.approval_date)
               const newRoleLine = [newRole || 'New role: pending ACOBA publication', organisation].filter(Boolean).join(' · ')
               return (
-                <li key={i} className="bg-[#1c3849] p-5 border-l-2 border-l-[#9bdd42]">
+                <li key={i} className="bg-[#1c3849] p-5 border-l-2 border-l-[#ffffff]">
                   <div className="flex items-baseline justify-between gap-4 mb-1.5">
                     <h3 className="text-white text-base font-bold leading-snug tracking-tight">{personName}</h3>
                     {approvalDate && (
@@ -219,7 +219,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
             const nature = row.nature as string | null
             const receivedDate = formatUkDate(row.received_date)
             return (
-              <li key={i} className="bg-[#1c3849] p-5 border-l-2 border-l-[#9bdd42]">
+              <li key={i} className="bg-[#1c3849] p-5 border-l-2 border-l-[#ffffff]">
                 <div className="flex items-baseline justify-between gap-4 mb-1.5">
                   <h3 className="text-white text-base sm:text-lg font-bold leading-snug tracking-tight">{recipient}</h3>
                   {amount && (
@@ -251,7 +251,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
               )
 
               return (
-                <li key={i} className="bg-[#1c3849] p-5 border-l-2 border-l-transparent hover:border-l-[#9bdd42] transition-colors">
+                <li key={i} className="bg-[#1c3849] p-5 border-l-2 border-l-transparent hover:border-l-[#ffffff] transition-colors">
                   <div className="flex items-baseline justify-between gap-4 mb-3">
                     <h3 className="text-white text-[14px] font-bold leading-snug">{titleValue}</h3>
                     {dateValue && (

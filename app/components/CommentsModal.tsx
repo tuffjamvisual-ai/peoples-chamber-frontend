@@ -139,7 +139,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={onClose}>
       <div 
-        className="bg-[#002633] rounded-lg w-full max-w-2xl max-h-[80vh] flex flex-col border border-[#1c3849]"
+        className="bg-[#001520] rounded-lg w-full max-w-2xl max-h-[80vh] flex flex-col border border-[#1c3849]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -180,7 +180,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
                           setEditingId(comment.id);
                           setEditText(comment.text);
                         }}
-                        className="text-xs text-[#9bdd42] hover:text-[#9bdd42]"
+                        className="text-xs text-[#ffffff] hover:text-[#ffffff]"
                       >
                         Edit
                       </button>
@@ -199,13 +199,13 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
                     <textarea
                       value={editText}
                       onChange={(e) => setEditText(e.target.value)}
-                      className="w-full bg-[#002633] border border-[#1c3849] rounded px-3 py-2 text-white text-sm resize-none"
+                      className="w-full bg-[#001520] border border-[#1c3849] rounded px-3 py-2 text-white text-sm resize-none"
                       rows={3}
                     />
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleEdit(comment.id)}
-                        className="px-3 py-1 bg-[#9bdd42] hover:bg-[#c9c9c9] text-white text-xs rounded"
+                        className="px-3 py-1 bg-[#ffffff] hover:bg-[#c9c9c9] text-white text-xs rounded"
                       >
                         Save
                       </button>
@@ -241,13 +241,13 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 placeholder="Write a comment..."
-                className="w-full bg-[#1c3849]/50 border border-[#1c3849] rounded-lg px-3 py-2 text-white placeholder-[#7697a2] text-sm resize-none focus:outline-none focus:border-[#9bdd42]"
+                className="w-full bg-[#1c3849]/50 border border-[#1c3849] rounded-lg px-3 py-2 text-white placeholder-[#7697a2] text-sm resize-none focus:outline-none focus:border-[#ffffff]"
                 rows={3}
               />
               <button
                 type="submit"
                 disabled={loading || !newComment.trim()}
-                className="w-full bg-[#9bdd42] hover:bg-[#c9c9c9] text-white py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-[#ffffff] hover:bg-[#c9c9c9] text-white py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Posting...' : 'Post Comment'}
               </button>

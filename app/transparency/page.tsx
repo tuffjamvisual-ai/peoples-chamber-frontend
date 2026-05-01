@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/transparency' },
 }
 
-const ACCENT = '#9bdd42'
+const ACCENT = '#ffffff'
 const ACCENT_2 = '#818cf8'
 
 const SECTIONS = [
@@ -27,7 +27,7 @@ const SECTIONS = [
 
 export default function TransparencyHubPage() {
   return (
-    <div className="min-h-screen bg-[#002633] text-white">
+    <div className="min-h-screen bg-[#001520] text-white">
       <Navigation />
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
         <header className="border-b border-[#1c3849] pb-10 mb-10">
@@ -55,14 +55,14 @@ export default function TransparencyHubPage() {
               <li key={s.slug} className="bg-[#1c3849]">
                 <Link
                   href={`/transparency/${s.slug}`}
-                  className="group block p-6 hover:bg-[#002633] transition-colors border-l-2 border-transparent hover:border-l-[#9bdd42]"
+                  className="group block p-6 hover:bg-[#001520] transition-colors border-l-2 border-transparent hover:border-l-[#ffffff]"
                 >
                   <p className="text-[10px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: colour }}>
                     Dataset · {String(i + 1).padStart(2, '0')}
                   </p>
-                  <h2 className="text-xl font-black tracking-tight mb-2 leading-tight text-white group-hover:text-[#9bdd42] transition-colors">
+                  <h2 className="text-xl font-black tracking-tight mb-2 leading-tight text-white group-hover:text-[#ffffff] transition-colors">
                     {s.title}
-                    <span className="ml-2 text-base text-[#7697a2] inline-block transition-transform group-hover:translate-x-1 group-hover:text-[#9bdd42]">→</span>
+                    <span className="ml-2 text-base text-[#7697a2] inline-block transition-transform group-hover:translate-x-1 group-hover:text-[#ffffff]">→</span>
                   </h2>
                   <p className="text-[#7697a2] text-[13px] leading-[1.7]">{s.description}</p>
                 </Link>
@@ -79,7 +79,7 @@ function Stat({ label, value, accent = false }: { label: string; value: number |
   return (
     <div className="bg-[#1c3849] px-4 py-5">
       <p className="text-[10px] uppercase tracking-[0.25em] text-[#7697a2] font-medium mb-2">{label}</p>
-      <p className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#9bdd42]' : 'text-white'}`}>
+      <p className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#ffffff]' : 'text-white'}`}>
         {typeof value === 'number' ? value.toLocaleString() : value}
       </p>
     </div>

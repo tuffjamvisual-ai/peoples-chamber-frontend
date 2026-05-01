@@ -40,7 +40,7 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
   }, [slug]);
 
   return (
-    <div className="min-h-screen bg-[#002633]">
+    <div className="min-h-screen bg-[#001520]">
       <Navigation />
       <main className="max-w-3xl mx-auto px-4 sm:px-6 pb-12">
         <Link href="/departments" className="inline-flex items-center gap-2 text-[#7697a2] hover:text-white mb-6 text-sm">
@@ -58,7 +58,7 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
         {person && (
           <>
             {/* Header */}
-            <div className="bg-[#002633] border border-[#1c3849] rounded-xl p-6 mb-6 flex items-start gap-6">
+            <div className="bg-[#001520] border border-[#1c3849] rounded-xl p-6 mb-6 flex items-start gap-6">
               {person.photo ? (
                 <img src={person.photo} alt={person.name}
                   className="w-32 h-32 rounded-full object-cover border-2 border-[#1c3849] flex-shrink-0" />
@@ -77,7 +77,7 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
 
             {/* Current Roles */}
             {person.currentRoles.length > 0 && (
-              <div className="bg-[#002633] border border-[#1c3849] rounded-xl p-6 mb-6">
+              <div className="bg-[#001520] border border-[#1c3849] rounded-xl p-6 mb-6">
                 <h2 className="text-lg font-semibold text-white mb-4">Current Role{person.currentRoles.length > 1 ? 's' : ''}</h2>
                 {person.currentRoles.map((role, i) => (
                   <div key={i} className="mb-4 last:mb-0">
@@ -101,7 +101,7 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
                 <h2 className="text-lg font-semibold text-white mb-4">Financial Interests</h2>
                 {interests.map((cat) => (
                   <div key={cat.name} className="mb-6 last:mb-0">
-                    <h3 className="text-sm font-semibold mb-2" style={{ color: '#9bdd42' }}>
+                    <h3 className="text-sm font-semibold mb-2" style={{ color: '#ffffff' }}>
                       {cat.name}
                     </h3>
                     <ul className="space-y-2">
@@ -121,7 +121,7 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
 
             {/* Past Roles */}
             {person.pastRoles.length > 0 && (
-              <div className="bg-[#002633] border border-[#1c3849] rounded-xl p-6">
+              <div className="bg-[#001520] border border-[#1c3849] rounded-xl p-6">
                 <h2 className="text-lg font-semibold text-white mb-4">Previous Roles</h2>
                 <div className="divide-y divide-gray-800">
                   {person.pastRoles.map((role, i) => (

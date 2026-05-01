@@ -13,7 +13,7 @@ interface MPProfileClientProps {
   partyColour: string
 }
 
-const ACCENT = '#9bdd42'
+const ACCENT = '#ffffff'
 const SUCCESS = '#4a8a3a'
 const DANGER = '#8a3a3a'
 const WARN = '#fbbf24'
@@ -73,8 +73,8 @@ export default function MPProfileClient({
                   className={
                     'w-full text-left px-4 py-3 text-[12px] uppercase tracking-[0.15em] transition-colors border-l-2 ' +
                     (active
-                      ? 'text-white bg-[#002633] border-l-[#9bdd42] font-semibold'
-                      : 'text-[#7697a2] border-l-transparent hover:text-white hover:bg-[#002633]')
+                      ? 'text-white bg-[#001520] border-l-[#ffffff] font-semibold'
+                      : 'text-[#7697a2] border-l-transparent hover:text-white hover:bg-[#001520]')
                   }
                 >
                   {item.label}
@@ -108,7 +108,7 @@ export default function MPProfileClient({
                       {contact.email && (
                         <p className="text-[#7697a2]">
                           <span className="text-[10px] uppercase tracking-[0.25em] text-[#7697a2] mr-2 block sm:inline">Email</span>
-                          <a href={'mailto:' + contact.email} className="text-[#9bdd42] hover:underline break-all">
+                          <a href={'mailto:' + contact.email} className="text-[#ffffff] hover:underline break-all">
                             {contact.email}
                           </a>
                         </p>
@@ -118,14 +118,14 @@ export default function MPProfileClient({
                 </Card>
                 {contact.website && (
                   <Card title="Website" partyColour={partyColour}>
-                    <a href={contact.website} target="_blank" rel="noopener noreferrer" className="text-[#9bdd42] hover:underline text-[13px] break-all">
+                    <a href={contact.website} target="_blank" rel="noopener noreferrer" className="text-[#ffffff] hover:underline text-[13px] break-all">
                       {contact.website}
                     </a>
                   </Card>
                 )}
                 {contact.twitter && (
                   <Card title="X (formerly Twitter)" partyColour={partyColour}>
-                    <a href={contact.twitter} target="_blank" rel="noopener noreferrer" className="text-[#9bdd42] hover:underline text-[13px] break-all">
+                    <a href={contact.twitter} target="_blank" rel="noopener noreferrer" className="text-[#ffffff] hover:underline text-[13px] break-all">
                       {contact.twitter}
                     </a>
                   </Card>
@@ -167,7 +167,7 @@ export default function MPProfileClient({
             </div>
 
             {mp.party !== 'Independent' && rebellions > 0 && (
-              <div className="border-l-2 px-4 py-3 mb-8 bg-[#002633]" style={{ borderLeftColor: WARN }}>
+              <div className="border-l-2 px-4 py-3 mb-8 bg-[#001520]" style={{ borderLeftColor: WARN }}>
                 <p className="text-[10px] uppercase tracking-[0.25em] mb-1 font-semibold" style={{ color: WARN }}>Rebellion Notice</p>
                 <p className="text-[13px] text-white leading-[1.7]">
                   <span className="font-semibold">{rebellions} rebellion{rebellions !== 1 ? 's' : ''}</span> against the {mp.party} party line.
@@ -210,7 +210,7 @@ export default function MPProfileClient({
                   <li key={bill.id} className="bg-[#1c3849]">
                     <Link
                       href={'/bills/' + bill.id}
-                      className="block p-4 border-l-2 hover:bg-[#002633] transition-colors"
+                      className="block p-4 border-l-2 hover:bg-[#001520] transition-colors"
                       style={{ borderLeftColor: partyColour }}
                     >
                       <h3 className="text-[13px] font-semibold text-white mb-1 leading-snug">{bill.title}</h3>
@@ -246,7 +246,7 @@ export default function MPProfileClient({
                               {interest.child_interests.map((child: any, idx: number) => (
                                 <li
                                   key={idx}
-                                  className="text-[12px] text-[#7697a2] bg-[#002633] p-2 border-l-2 leading-[1.7]"
+                                  className="text-[12px] text-[#7697a2] bg-[#001520] p-2 border-l-2 leading-[1.7]"
                                   style={{ borderLeftColor: partyColour + '60' }}
                                 >
                                   {child.interest}
@@ -343,7 +343,7 @@ function Stat({ label, value, colour }: { label: string; value: string | number;
   return (
     <div className="bg-[#1c3849] px-4 py-5">
       <p className="text-[10px] uppercase tracking-[0.25em] text-[#7697a2] font-medium mb-2">{label}</p>
-      <p className="text-2xl sm:text-3xl font-black leading-none tracking-tight" style={{ color: colour || '#9bdd42' }}>
+      <p className="text-2xl sm:text-3xl font-black leading-none tracking-tight" style={{ color: colour || '#ffffff' }}>
         {typeof value === 'number' ? value.toLocaleString() : value}
       </p>
     </div>

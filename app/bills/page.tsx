@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/bills' },
 };
 
-const ACCENT = '#9bdd42';
+const ACCENT = '#ffffff';
 
 export default async function BillsPage() {
   const bills = await getAllBills();
@@ -23,7 +23,7 @@ export default async function BillsPage() {
   const isMobile = /Mobile|Android|iPhone/i.test(userAgent);
 
   return (
-    <div className="min-h-screen bg-[#002633] text-white">
+    <div className="min-h-screen bg-[#001520] text-white">
       <Navigation />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
@@ -59,7 +59,7 @@ function Stat({ label, value, accent = false }: { label: string; value: number |
   return (
     <div className="bg-[#1c3849] px-4 py-5">
       <p className="text-[10px] uppercase tracking-[0.25em] text-[#7697a2] font-medium mb-2">{label}</p>
-      <p className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#9bdd42]' : 'text-white'}`}>
+      <p className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#ffffff]' : 'text-white'}`}>
         {typeof value === 'number' ? value.toLocaleString() : value}
       </p>
     </div>

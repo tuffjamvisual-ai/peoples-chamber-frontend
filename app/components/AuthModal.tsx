@@ -69,7 +69,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-[#002633] rounded-lg p-8 max-w-md w-full mx-4 border border-[#1c3849]" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-[#001520] rounded-lg p-8 max-w-md w-full mx-4 border border-[#1c3849]" onClick={(e) => e.stopPropagation()}>
         <h2 className="text-2xl font-bold text-white mb-6">
           {mode === 'login' ? 'Sign in' : mode === 'signup' ? 'Create your account' : 'Reset password'}
         </h2>
@@ -81,7 +81,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
         )}
 
         {success && (
-          <div className="mb-4 p-3 bg-green-900/20 border border-green-900/50 rounded text-green-400 text-sm">
+          <div className="mb-4 p-3 bg-white/10 border border-white/20 rounded text-white text-sm">
             {success}
           </div>
         )}
@@ -94,7 +94,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full bg-[#1c3849]/50 border border-[#1c3849] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#9bdd42]"
+              className="w-full bg-[#1c3849]/50 border border-[#1c3849] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#ffffff]"
             />
           </div>
 
@@ -107,7 +107,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={8}
-                className="w-full bg-[#1c3849]/50 border border-[#1c3849] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#9bdd42]"
+                className="w-full bg-[#1c3849]/50 border border-[#1c3849] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#ffffff]"
               />
             </div>
           )}
@@ -123,7 +123,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
                   required
                   minLength={3}
                   maxLength={20}
-                  className="w-full bg-[#1c3849]/50 border border-[#1c3849] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#9bdd42]"
+                  className="w-full bg-[#1c3849]/50 border border-[#1c3849] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#ffffff]"
                 />
               </div>
 
@@ -134,7 +134,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  className="w-full bg-[#1c3849]/50 border border-[#1c3849] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#9bdd42]"
+                  className="w-full bg-[#1c3849]/50 border border-[#1c3849] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#ffffff]"
                 />
               </div>
 
@@ -144,7 +144,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
                   placeholder="Your postcode (optional)"
                   value={postcode}
                   onChange={(e) => setPostcode(e.target.value)}
-                  className="w-full bg-[#1c3849]/50 border border-[#1c3849] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#9bdd42]"
+                  className="w-full bg-[#1c3849]/50 border border-[#1c3849] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#ffffff]"
                 />
               </div>
 
@@ -166,7 +166,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#9bdd42] hover:bg-[#c9c9c9] text-white py-3 rounded-lg font-medium transition-colors disabled:opacity-50"
+            className="w-full bg-[#ffffff] hover:bg-[#c9c9c9] text-white py-3 rounded-lg font-medium transition-colors disabled:opacity-50"
           >
             {loading ? 'Please wait...' : mode === 'login' ? 'Sign in' : mode === 'signup' ? 'Sign up' : 'Send reset link'}
           </button>
@@ -176,7 +176,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
           <div className="mt-4 text-center">
             <button 
               onClick={() => setMode('forgot')} 
-              className="text-sm text-[#9bdd42] hover:text-[#9bdd42]"
+              className="text-sm text-[#ffffff] hover:text-[#ffffff]"
             >
               Forgot password?
             </button>
@@ -187,21 +187,21 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
           {mode === 'login' ? (
             <>
               Don't have an account?{' '}
-              <button onClick={() => setMode('signup')} className="text-[#9bdd42] hover:text-[#9bdd42]">
+              <button onClick={() => setMode('signup')} className="text-[#ffffff] hover:text-[#ffffff]">
                 Sign up
               </button>
             </>
           ) : mode === 'signup' ? (
             <>
               Already have an account?{' '}
-              <button onClick={() => setMode('login')} className="text-[#9bdd42] hover:text-[#9bdd42]">
+              <button onClick={() => setMode('login')} className="text-[#ffffff] hover:text-[#ffffff]">
                 Sign in
               </button>
             </>
           ) : (
             <>
               Remember your password?{' '}
-              <button onClick={() => setMode('login')} className="text-[#9bdd42] hover:text-[#9bdd42]">
+              <button onClick={() => setMode('login')} className="text-[#ffffff] hover:text-[#ffffff]">
                 Sign in
               </button>
             </>
