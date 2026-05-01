@@ -34,7 +34,7 @@ export default function Navigation() {
 
   return (
     <>
-      <nav className="bg-black border-b border-[#1c3849]/50 relative mb-10">
+      <nav className="bg-[#001520] border-b border-[#1c3849]/50 relative mb-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex-shrink-0" style={{marginLeft: "-16px"}}>
