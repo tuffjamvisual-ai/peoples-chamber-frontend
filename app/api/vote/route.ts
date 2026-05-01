@@ -63,6 +63,20 @@ export async function POST(request: NextRequest) {
       );
     }
     
+    // Verify user exists
+    const { data: userExists } = await supabase
+      .from('users')
+      .select('id')
+      .eq('id', userId)
+      .single()
+    
+    if (!userExists) {
+      return NextResponse.json(
+        { error: 'Unauthorised' },
+        { status: 401 }
+      )
+    }
+
     // Check if user already voted on this bill
     const { data: existingVote } = await supabase
       .from('vote')
