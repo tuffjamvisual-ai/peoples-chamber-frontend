@@ -166,7 +166,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#ffffff] hover:bg-[#c9c9c9] text-white py-3 rounded-lg font-medium transition-colors disabled:opacity-50"
+            className="w-full bg-[#1c3849] hover:bg-[#405b6b] text-white py-3 rounded-lg font-medium transition-colors disabled:opacity-50 border border-white"
           >
             {loading ? 'Please wait...' : mode === 'login' ? 'Sign in' : mode === 'signup' ? 'Sign up' : 'Send reset link'}
           </button>
