@@ -28,10 +28,10 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
     <main className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
       <div className="mb-6">
         <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">Laws</h1>
-        <p className="text-gray-400 text-sm sm:text-base">
+        <p className="text-gray-200 text-sm sm:text-base">
           Bills that have received Royal Assent and become law
         </p>
-        <p className="text-sm text-gray-500 mt-2">
+        <p className="text-sm text-gray-200 mt-2">
           {filteredLaws.length} laws found
         </p>
       </div>
@@ -48,7 +48,7 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
 
       {filteredLaws.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-400">
+          <p className="text-gray-200">
             {search ? `No laws found matching "${search}"` : 'No laws found'}
           </p>
         </div>
@@ -65,7 +65,7 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
                   ✓ Law
                 </span>
                 {law.originating_house && (
-                  <span className="text-xs text-gray-500">{law.originating_house}</span>
+                  <span className="text-xs text-gray-200">{law.originating_house}</span>
                 )}
               </div>
 
@@ -74,12 +74,12 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
               </h3>
 
               {law.plain_summary && (
-                <p className="text-gray-400 text-xs mb-4 line-clamp-3 flex-1">
+                <p className="text-gray-200 text-xs mb-4 line-clamp-3 flex-1">
                   {law.plain_summary}
                 </p>
               )}
 
-              <div className="flex items-center justify-between text-xs text-gray-500 mt-auto">
+              <div className="flex items-center justify-between text-xs text-gray-200 mt-auto">
                 {law.sponsor_name && (
                   <span className="flex items-center gap-1">
                     {law.sponsor_party && (

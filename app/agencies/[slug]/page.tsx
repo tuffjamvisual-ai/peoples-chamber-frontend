@@ -34,13 +34,13 @@ export default function AgencyPage({ params }: { params: Promise<{ slug: string 
       <Navigation />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 pb-12">
 
-        <Link href="/departments" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 text-sm">
+        <Link href="/departments" className="inline-flex items-center gap-2 text-gray-200 hover:text-white mb-6 text-sm">
           ← Back to Departments
         </Link>
 
-        {loading && <div className="text-gray-400 text-sm">Loading...</div>}
+        {loading && <div className="text-gray-200 text-sm">Loading...</div>}
 
-        {!loading && !agency && <div className="text-gray-400 text-sm">Agency not found.</div>}
+        {!loading && !agency && <div className="text-gray-200 text-sm">Agency not found.</div>}
 
         {agency && (
           <>
@@ -54,7 +54,7 @@ export default function AgencyPage({ params }: { params: Promise<{ slug: string 
               </div>
               {agency.parentOrgs.length > 0 && (
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-gray-500 text-xs">Part of:</span>
+                  <span className="text-gray-200 text-xs">Part of:</span>
                   {agency.parentOrgs.map((org, i) => {
                     const deptSlugs: Record<string, string> = {
                       'hm-treasury': 'treasury',
@@ -83,7 +83,7 @@ export default function AgencyPage({ params }: { params: Promise<{ slug: string 
                     return deptSlug ? (
                       <Link key={i} href={`/departments/${deptSlug}`} className="text-yellow-400 text-xs hover:underline">{org.name}</Link>
                     ) : (
-                      <span key={i} className="text-gray-400 text-xs">{org.name}</span>
+                      <span key={i} className="text-gray-200 text-xs">{org.name}</span>
                     );
                   })}
                 </div>
@@ -101,12 +101,12 @@ export default function AgencyPage({ params }: { params: Promise<{ slug: string 
             {/* Ministers */}
             {agency.ministers.length > 0 && (
               <div className="mb-6 pb-6 border-b border-gray-800">
-                <h2 className="text-sm font-semibold text-gray-400 mb-3">Ministers</h2>
+                <h2 className="text-sm font-semibold text-gray-200 mb-3">Ministers</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
                   {agency.ministers.map((m, i) => (
                     <div key={i} className="py-2 border-b border-gray-800/50">
                       <Link href={`/people/${m.slug}`} className="text-white text-sm font-medium hover:text-yellow-300 transition-colors">{m.name}</Link>
-                      <div className="text-gray-400 text-xs mt-0.5">{m.role}</div>
+                      <div className="text-gray-200 text-xs mt-0.5">{m.role}</div>
                     </div>
                   ))}
                 </div>
@@ -116,12 +116,12 @@ export default function AgencyPage({ params }: { params: Promise<{ slug: string 
             {/* Board Members */}
             {agency.boardMembers.length > 0 && (
               <div className="mb-6 pb-6 border-b border-gray-800">
-                <h2 className="text-sm font-semibold text-gray-400 mb-3">Senior Staff</h2>
+                <h2 className="text-sm font-semibold text-gray-200 mb-3">Senior Staff</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
                   {agency.boardMembers.map((m, i) => (
                     <div key={i} className="py-2 border-b border-gray-800/50">
                       <Link href={`/people/${m.slug}`} className="text-white text-sm font-medium hover:text-yellow-300 transition-colors">{m.name}</Link>
-                      <div className="text-gray-400 text-xs mt-0.5">{m.role}</div>
+                      <div className="text-gray-200 text-xs mt-0.5">{m.role}</div>
                     </div>
                   ))}
                 </div>
@@ -131,12 +131,12 @@ export default function AgencyPage({ params }: { params: Promise<{ slug: string 
             {/* Latest Publications */}
             {agency.featuredDocs.length > 0 && (
               <div className="mb-6 pb-6 border-b border-gray-800">
-                <h2 className="text-sm font-semibold text-gray-400 mb-3">Latest Publications</h2>
+                <h2 className="text-sm font-semibold text-gray-200 mb-3">Latest Publications</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
                   {agency.featuredDocs.map((doc, i) => (
                     <div key={i} className="py-2 border-b border-gray-800/50">
                       <div className="text-white text-sm">{doc.title}</div>
-                      <div className="text-gray-500 text-xs mt-0.5">{doc.type}</div>
+                      <div className="text-gray-200 text-xs mt-0.5">{doc.type}</div>
                     </div>
                   ))}
                 </div>

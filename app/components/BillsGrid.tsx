@@ -126,7 +126,7 @@ export default function BillsGrid({ initialBills }: Props) {
         }}
       />
 
-      <div className="flex items-center justify-between mb-4 text-sm text-gray-400">
+      <div className="flex items-center justify-between mb-4 text-sm text-gray-200">
         <div>Showing {paginatedBills.length} of {filteredBills.length} bills</div>
       </div>
 
@@ -150,7 +150,7 @@ export default function BillsGrid({ initialBills }: Props) {
                   <div className="bg-green-600" style={{ width: `${yesPercent}%` }} />
                   <div className="bg-red-600" style={{ width: `${noPercent}%` }} />
                 </div>
-                <div className="flex justify-between text-xs text-gray-400 mt-1">
+                <div className="flex justify-between text-xs text-gray-200 mt-1">
                   <span>✓ {yesPercent}%</span>
                   <span>{totalVotes.toLocaleString()} votes</span>
                   <span>✗ {noPercent}%</span>
@@ -161,14 +161,14 @@ export default function BillsGrid({ initialBills }: Props) {
                 <button
                   onClick={() => handleVote(bill.id, 'yes')}
                   disabled={hasVoted}
-                  className={`flex-1 py-2 rounded text-xs font-medium ${hasVoted ? userVotes[bill.id] === 'yes' ? 'bg-green-700 text-white' : 'bg-gray-700 text-gray-500' : 'bg-green-800 hover:bg-green-700 text-white'}`}
+                  className={`flex-1 py-2 rounded text-xs font-medium ${hasVoted ? userVotes[bill.id] === 'yes' ? 'bg-green-700 text-white' : 'bg-gray-700 text-gray-200' : 'bg-green-800 hover:bg-green-700 text-white'}`}
                 >
                   {hasVoted && userVotes[bill.id] === 'yes' ? '✓ Supported' : 'Support'}
                 </button>
                 <button
                   onClick={() => handleVote(bill.id, 'no')}
                   disabled={hasVoted}
-                  className={`flex-1 py-2 rounded text-xs font-medium ${hasVoted ? userVotes[bill.id] === 'no' ? 'bg-red-700 text-white' : 'bg-gray-700 text-gray-500' : 'bg-red-800 hover:bg-red-700 text-white'}`}
+                  className={`flex-1 py-2 rounded text-xs font-medium ${hasVoted ? userVotes[bill.id] === 'no' ? 'bg-red-700 text-white' : 'bg-gray-700 text-gray-200' : 'bg-red-800 hover:bg-red-700 text-white'}`}
                 >
                   {hasVoted && userVotes[bill.id] === 'no' ? '✓ Opposed' : 'Oppose'}
                 </button>
@@ -180,7 +180,7 @@ export default function BillsGrid({ initialBills }: Props) {
 
       {paginatedBills.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-gray-400">No bills found matching your filters.</p>
+          <p className="text-gray-200">No bills found matching your filters.</p>
         </div>
       )}
 

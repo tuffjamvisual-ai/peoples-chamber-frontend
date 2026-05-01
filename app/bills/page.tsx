@@ -34,7 +34,7 @@ export default async function BillsPage() {
           <h1 className="text-4xl sm:text-6xl font-black leading-[1.05] tracking-tight text-white mb-4">
             Bills in Parliament
           </h1>
-          <p className="text-[#9ca3af] text-[14px] leading-[1.7] max-w-2xl">
+          <p className="text-gray-200 text-[14px] leading-[1.7] max-w-2xl">
             Every bill going through UK Parliament. How MPs voted. How you voted. The gap between the two.
           </p>
 
@@ -58,7 +58,7 @@ export default async function BillsPage() {
 function Stat({ label, value, accent = false }: { label: string; value: number | string; accent?: boolean }) {
   return (
     <div className="bg-[#0d1520] px-4 py-5">
-      <p className="text-[10px] uppercase tracking-[0.25em] text-[#9ca3af] font-medium mb-2">{label}</p>
+      <p className="text-[10px] uppercase tracking-[0.25em] text-gray-200 font-medium mb-2">{label}</p>
       <p className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#60a5fa]' : 'text-white'}`}>
         {typeof value === 'number' ? value.toLocaleString() : value}
       </p>

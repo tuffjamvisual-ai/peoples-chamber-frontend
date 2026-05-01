@@ -49,7 +49,7 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
         <h1 className="text-4xl sm:text-6xl font-black leading-[1.05] tracking-tight text-white mb-4">
           Members of Parliament
         </h1>
-        <p className="text-[#9ca3af] text-[14px] leading-[1.7] max-w-2xl">
+        <p className="text-gray-200 text-[14px] leading-[1.7] max-w-2xl">
           All {mps.length.toLocaleString()} sitting MPs in the House of Commons.
           Search by name, constituency, or party. Tap an MP for voting record,
           financial interests, sponsored bills, and contact details.
@@ -65,7 +65,7 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
       <div className="mb-12">
         <label
           htmlFor="mp-search"
-          className="block text-[10px] uppercase tracking-[0.25em] text-[#9ca3af] font-medium mb-2"
+          className="block text-[10px] uppercase tracking-[0.25em] text-gray-200 font-medium mb-2"
         >
           Search
         </label>
@@ -75,12 +75,12 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
           placeholder="Name, constituency, or party…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full bg-[#0d1520] text-white text-sm leading-[1.7] border border-[#1e2a3a] rounded-sm px-4 py-3 placeholder:text-[#4b5563] focus:outline-none focus:border-[#60a5fa] transition-colors"
+          className="w-full bg-[#0d1520] text-white text-sm leading-[1.7] border border-[#1e2a3a] rounded-sm px-4 py-3 placeholder:text-gray-200 focus:outline-none focus:border-[#60a5fa] transition-colors"
         />
       </div>
 
       {filtered.length === 0 ? (
-        <p className="text-[#9ca3af] text-sm border-t border-[#1e2a3a] pt-10">
+        <p className="text-gray-200 text-sm border-t border-[#1e2a3a] pt-10">
           No MPs match &ldquo;{search}&rdquo;.
         </p>
       ) : (
@@ -99,7 +99,7 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
                   <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
                     {party}
                   </h2>
-                  <span className="ml-auto text-[10px] uppercase tracking-[0.3em] text-[#9ca3af] font-mono">
+                  <span className="ml-auto text-[10px] uppercase tracking-[0.3em] text-gray-200 font-mono">
                     {count} MP{count === 1 ? '' : 's'}
                   </span>
                 </div>
@@ -120,7 +120,7 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
                           />
                         ) : (
                           <div
-                            className="w-12 h-12 rounded-full bg-[#111827] flex items-center justify-center text-[#9ca3af] text-[10px] uppercase tracking-wider flex-shrink-0"
+                            className="w-12 h-12 rounded-full bg-[#111827] flex items-center justify-center text-gray-200 text-[10px] uppercase tracking-wider flex-shrink-0"
                             style={{ border: `1px solid ${partyColour}` }}
                           >
                             {mp.name?.charAt(0)}
@@ -131,7 +131,7 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
                           <h3 className="font-semibold text-white text-[14px] leading-snug truncate group-hover:text-[#60a5fa] transition-colors">
                             {mp.name}
                           </h3>
-                          <p className="text-[#9ca3af] text-[12px] leading-[1.7] truncate">
+                          <p className="text-gray-200 text-[12px] leading-[1.7] truncate">
                             {mp.constituency}
                           </p>
                         </div>
@@ -159,7 +159,7 @@ function Stat({
 }) {
   return (
     <div className="bg-[#0d1520] px-4 py-5">
-      <p className="text-[10px] uppercase tracking-[0.25em] text-[#9ca3af] font-medium mb-2">
+      <p className="text-[10px] uppercase tracking-[0.25em] text-gray-200 font-medium mb-2">
         {label}
       </p>
       <p

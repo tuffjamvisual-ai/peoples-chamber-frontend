@@ -136,7 +136,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
             className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
               activeTab === 'latest'
                 ? 'text-blue-400 border-b-2 border-blue-400'
-                : 'text-gray-400'
+                : 'text-gray-200'
             }`}
           >
             Latest
@@ -146,7 +146,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
             className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
               activeTab === 'trending'
                 ? 'text-blue-400 border-b-2 border-blue-400'
-                : 'text-gray-400'
+                : 'text-gray-200'
             }`}
           >
             Trending
@@ -156,7 +156,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
             className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
               activeTab === 'controversial'
                 ? 'text-blue-400 border-b-2 border-blue-400'
-                : 'text-gray-400'
+                : 'text-gray-200'
             }`}
           >
             Controversial
@@ -166,7 +166,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
             className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
               activeTab === 'voted'
                 ? 'text-blue-400 border-b-2 border-blue-400'
-                : 'text-gray-400'
+                : 'text-gray-200'
             }`}
           >
             You Voted
@@ -174,7 +174,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
         </div>
         
         {/* Debug indicator - shows which tab is active and bill count */}
-        <div className="px-4 py-1 text-xs text-gray-500">
+        <div className="px-4 py-1 text-xs text-gray-200">
           Active: {activeTab} | Showing {filteredBills.length} bills
         </div>
       </div>
@@ -193,7 +193,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
               className="bg-gray-900 border border-gray-800 rounded-lg p-4 active:bg-gray-800"
             >
               {/* Show position number and total votes for debugging */}
-              <div className="text-xs text-gray-600 mb-1">
+              <div className="text-xs text-gray-200 mb-1">
                 #{index + 1} | {totalVotes} total votes | Updated: {new Date(bill.last_update).toLocaleDateString()}
               </div>
               
@@ -206,7 +206,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
                   <div className="bg-green-600" style={{ width: `${yesPercent}%` }} />
                   <div className="bg-red-600" style={{ width: `${noPercent}%` }} />
                 </div>
-                <div className="flex justify-between text-xs text-gray-400 mt-1">
+                <div className="flex justify-between text-xs text-gray-200 mt-1">
                   <span>✓ {yesPercent}%</span>
                   <span>{totalVotes.toLocaleString()} votes</span>
                   <span>✗ {noPercent}%</span>
@@ -221,7 +221,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
                     hasVoted
                       ? userVotes[bill.id] === 'yes'
                         ? 'bg-green-700 text-white'
-                        : 'bg-gray-700 text-gray-500'
+                        : 'bg-gray-700 text-gray-200'
                       : 'bg-green-800 active:bg-green-700 text-white'
                   }`}
                 >
@@ -234,7 +234,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
                     hasVoted
                       ? userVotes[bill.id] === 'no'
                         ? 'bg-red-700 text-white'
-                        : 'bg-gray-700 text-gray-500'
+                        : 'bg-gray-700 text-gray-200'
                       : 'bg-red-800 active:bg-red-700 text-white'
                   }`}
                 >
@@ -248,7 +248,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
 
       {filteredBills.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-gray-400">No active bills found.</p>
+          <p className="text-gray-200">No active bills found.</p>
         </div>
       )}
 

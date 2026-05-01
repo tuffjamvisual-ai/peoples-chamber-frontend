@@ -51,7 +51,7 @@ export default async function TransparencySectionPage({
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
         <Link
           href="/transparency"
-          className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-[#9ca3af] hover:text-white mb-8 transition-colors"
+          className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-gray-200 hover:text-white mb-8 transition-colors"
         >
           ← Transparency Hub
         </Link>
@@ -63,7 +63,7 @@ export default async function TransparencySectionPage({
           <h1 className="text-4xl sm:text-6xl font-black leading-[1.05] tracking-tight text-white mb-4">
             {config.title}
           </h1>
-          <p className="text-[#9ca3af] text-[14px] leading-[1.7] max-w-2xl">
+          <p className="text-gray-200 text-[14px] leading-[1.7] max-w-2xl">
             <span className="font-mono text-white text-base font-bold">{(rows?.length ?? 0).toLocaleString()}</span>{' '}
             record{rows?.length === 1 ? '' : 's'} in this dataset. Use the search to filter live.
           </p>

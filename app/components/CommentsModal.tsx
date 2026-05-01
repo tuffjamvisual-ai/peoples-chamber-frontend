@@ -146,11 +146,11 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
         <div className="p-4 border-b border-gray-800 flex justify-between items-start">
           <div className="flex-1 pr-4">
             <h2 className="text-lg font-semibold text-white mb-1">Comments</h2>
-            <p className="text-sm text-gray-400 line-clamp-2">{billTitle}</p>
+            <p className="text-sm text-gray-200 line-clamp-2">{billTitle}</p>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white text-2xl leading-none"
+            className="text-gray-200 hover:text-white text-2xl leading-none"
           >
             ×
           </button>
@@ -159,7 +159,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
         {/* Comments List */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {comments.length === 0 ? (
-            <p className="text-center text-gray-500 py-8">
+            <p className="text-center text-gray-200 py-8">
               No comments yet. {user ? 'Be the first to comment!' : 'Log in to comment.'}
             </p>
           ) : (
@@ -168,7 +168,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-white text-sm">{comment.username}</span>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-gray-200">
                       {formatTime(comment.createdAt)}
                       {comment.updatedAt !== comment.createdAt && ' (edited)'}
                     </span>
@@ -255,7 +255,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
           </div>
         ) : (
           <div className="p-4 border-t border-gray-800 text-center">
-            <p className="text-gray-400 text-sm">Log in to leave a comment</p>
+            <p className="text-gray-200 text-sm">Log in to leave a comment</p>
           </div>
         )}
       </div>

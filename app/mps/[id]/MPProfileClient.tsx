@@ -60,7 +60,7 @@ export default function MPProfileClient({
       {/* Sidebar */}
       <aside className="lg:col-span-1 bg-[#0d1520]">
         <div className="lg:sticky lg:top-16">
-          <p className="text-[10px] uppercase tracking-[0.25em] text-[#9ca3af] font-medium px-4 pt-5 pb-3">
+          <p className="text-[10px] uppercase tracking-[0.25em] text-gray-200 font-medium px-4 pt-5 pb-3">
             Sections
           </p>
           <nav>
@@ -74,7 +74,7 @@ export default function MPProfileClient({
                     'w-full text-left px-4 py-3 text-[12px] uppercase tracking-[0.15em] transition-colors border-l-2 ' +
                     (active
                       ? 'text-white bg-[#111827] border-l-[#60a5fa] font-semibold'
-                      : 'text-[#9ca3af] border-l-transparent hover:text-white hover:bg-[#111827]')
+                      : 'text-gray-200 border-l-transparent hover:text-white hover:bg-[#111827]')
                   }
                 >
                   {item.label}
@@ -93,21 +93,21 @@ export default function MPProfileClient({
               <div className="space-y-px bg-[#1e2a3a] border border-[#1e2a3a]">
                 <Card title="Parliamentary office" partyColour={partyColour}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[13px] leading-[1.7]">
-                    <div className="text-[#9ca3af] space-y-0.5">
+                    <div className="text-gray-200 space-y-0.5">
                       <p>House of Commons</p>
                       <p>London</p>
                       <p className="font-mono">SW1A 0AA</p>
                     </div>
                     <div className="space-y-1">
                       {contact.phone && (
-                        <p className="text-[#9ca3af]">
-                          <span className="text-[10px] uppercase tracking-[0.25em] text-[#4b5563] mr-2">Phone</span>
+                        <p className="text-gray-200">
+                          <span className="text-[10px] uppercase tracking-[0.25em] text-gray-200 mr-2">Phone</span>
                           <span className="text-white font-mono text-[13px]">{contact.phone}</span>
                         </p>
                       )}
                       {contact.email && (
-                        <p className="text-[#9ca3af]">
-                          <span className="text-[10px] uppercase tracking-[0.25em] text-[#4b5563] mr-2 block sm:inline">Email</span>
+                        <p className="text-gray-200">
+                          <span className="text-[10px] uppercase tracking-[0.25em] text-gray-200 mr-2 block sm:inline">Email</span>
                           <a href={'mailto:' + contact.email} className="text-[#60a5fa] hover:underline break-all">
                             {contact.email}
                           </a>
@@ -143,11 +143,11 @@ export default function MPProfileClient({
               <div className="space-y-px bg-[#1e2a3a] border border-[#1e2a3a]">
                 {representations.map((rep: any, idx: number) => (
                   <Card key={idx} title={rep.name} partyColour={partyColour}>
-                    <p className="text-[12px] text-[#9ca3af] font-mono leading-[1.7]">
+                    <p className="text-[12px] text-gray-200 font-mono leading-[1.7]">
                       {new Date(rep.startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} —{' '}
                       {rep.endDate ? new Date(rep.endDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'present'}
                     </p>
-                    {rep.additionalInfo && <p className="text-[13px] text-[#9ca3af] mt-2 leading-[1.7]">{rep.additionalInfo}</p>}
+                    {rep.additionalInfo && <p className="text-[13px] text-gray-200 mt-2 leading-[1.7]">{rep.additionalInfo}</p>}
                   </Card>
                 ))}
               </div>
@@ -185,7 +185,7 @@ export default function MPProfileClient({
                   >
                     <div className="flex-1 min-w-0">
                       <p className="text-[13px] text-white font-semibold leading-snug mb-1">{vote.division_title}</p>
-                      <p className="text-[11px] text-[#4b5563] font-mono">
+                      <p className="text-[11px] text-gray-200 font-mono">
                         {new Date(vote.division_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                       </p>
                     </div>
@@ -215,7 +215,7 @@ export default function MPProfileClient({
                     >
                       <h3 className="text-[13px] font-semibold text-white mb-1 leading-snug">{bill.title}</h3>
                       <div className="flex items-center gap-3 text-[11px]">
-                        <span className="text-[#9ca3af] font-mono uppercase tracking-[0.15em]">{bill.current_stage || 'Unknown'}</span>
+                        <span className="text-gray-200 font-mono uppercase tracking-[0.15em]">{bill.current_stage || 'Unknown'}</span>
                         {bill.category && <Tag colour={ACCENT}>{bill.category}</Tag>}
                       </div>
                     </Link>
@@ -240,13 +240,13 @@ export default function MPProfileClient({
                     <ul className="space-y-px bg-[#1e2a3a] border border-[#1e2a3a]">
                       {interestsByCategory[categoryName].map((interest: any) => (
                         <li key={interest.id} className="bg-[#0d1520] p-4 border-l-2" style={{ borderLeftColor: partyColour }}>
-                          <p className="text-[13px] text-[#9ca3af] whitespace-pre-wrap leading-[1.7] mb-2">{interest.interest_text}</p>
+                          <p className="text-[13px] text-gray-200 whitespace-pre-wrap leading-[1.7] mb-2">{interest.interest_text}</p>
                           {interest.child_interests && interest.child_interests.length > 0 && (
                             <ul className="mt-2 ml-3 space-y-1">
                               {interest.child_interests.map((child: any, idx: number) => (
                                 <li
                                   key={idx}
-                                  className="text-[12px] text-[#9ca3af] bg-[#111827] p-2 border-l-2 leading-[1.7]"
+                                  className="text-[12px] text-gray-200 bg-[#111827] p-2 border-l-2 leading-[1.7]"
                                   style={{ borderLeftColor: partyColour + '60' }}
                                 >
                                   {child.interest}
@@ -254,7 +254,7 @@ export default function MPProfileClient({
                               ))}
                             </ul>
                           )}
-                          <p className="text-[11px] text-[#4b5563] mt-2 font-mono">
+                          <p className="text-[11px] text-gray-200 mt-2 font-mono">
                             Registered: {new Date(interest.created_when).toLocaleDateString('en-GB')}
                           </p>
                         </li>
@@ -342,7 +342,7 @@ function Card({ title, children, partyColour }: { title: string; children: React
 function Stat({ label, value, colour }: { label: string; value: string | number; colour?: string }) {
   return (
     <div className="bg-[#0d1520] px-4 py-5">
-      <p className="text-[10px] uppercase tracking-[0.25em] text-[#9ca3af] font-medium mb-2">{label}</p>
+      <p className="text-[10px] uppercase tracking-[0.25em] text-gray-200 font-medium mb-2">{label}</p>
       <p className="text-2xl sm:text-3xl font-black leading-none tracking-tight" style={{ color: colour || '#ffffff' }}>
         {typeof value === 'number' ? value.toLocaleString() : value}
       </p>
@@ -362,14 +362,14 @@ function Tag({ colour, children }: { colour: string; children: React.ReactNode }
 }
 
 function Empty({ children }: { children: React.ReactNode }) {
-  return <p className="text-[#9ca3af] text-[13px] leading-[1.7]">{children}</p>
+  return <p className="text-gray-200 text-[13px] leading-[1.7]">{children}</p>
 }
 
 function RolesRow({ post, partyColour }: { post: any; partyColour: string }) {
   return (
     <li className="bg-[#0d1520] p-4 border-l-2" style={{ borderLeftColor: partyColour }}>
       <p className="text-[13px] text-white font-semibold leading-snug">{post.name}</p>
-      <p className="text-[11px] text-[#9ca3af] font-mono mt-1">
+      <p className="text-[11px] text-gray-200 font-mono mt-1">
         {new Date(post.startDate).getFullYear()} — {post.endDate ? new Date(post.endDate).getFullYear() : 'present'}
       </p>
     </li>

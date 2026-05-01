@@ -46,38 +46,38 @@ export default function Navigation() {
                 />
                 <div className="text-center -mt-12">
                   <div className="text-2xl font-bold text-white tracking-widest">THE PEOPLES CHAMBER</div>
-                  <div className="text-xs text-gray-400 tracking-wider mt-0.5">VOTING ON UK PARLIAMENT BILLS</div>
+                  <div className="text-xs text-gray-200 tracking-wider mt-0.5">VOTING ON UK PARLIAMENT BILLS</div>
                 </div>
               </div>
             </Link>
             
             <div className="hidden lg:flex flex-col items-end gap-2">
               <div className="flex items-center space-x-3">
-              <Link href="/" className={`px-3 py-1.5 text-sm ${isActive('/') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
+              <Link href="/" className={`px-3 py-1.5 text-sm ${isActive('/') ? 'text-blue-400 font-medium' : 'text-gray-200 hover:text-white'}`}>
                 Home
               </Link>
-              <Link href="/bills" className={`px-3 py-1.5 text-sm ${isActive('/bills') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
+              <Link href="/bills" className={`px-3 py-1.5 text-sm ${isActive('/bills') ? 'text-blue-400 font-medium' : 'text-gray-200 hover:text-white'}`}>
                 Bills
               </Link>
-              <Link href="/laws" className={`px-3 py-1.5 text-sm ${isActive('/laws') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
+              <Link href="/laws" className={`px-3 py-1.5 text-sm ${isActive('/laws') ? 'text-blue-400 font-medium' : 'text-gray-200 hover:text-white'}`}>
                 Laws
               </Link>
-              <Link href="/polls" className={`px-3 py-1.5 text-sm ${isActive('/polls') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
+              <Link href="/polls" className={`px-3 py-1.5 text-sm ${isActive('/polls') ? 'text-blue-400 font-medium' : 'text-gray-200 hover:text-white'}`}>
                 People's Polls
               </Link>
-              <Link href="/mps" className={`px-3 py-1.5 text-sm ${isActive('/mps') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
+              <Link href="/mps" className={`px-3 py-1.5 text-sm ${isActive('/mps') ? 'text-blue-400 font-medium' : 'text-gray-200 hover:text-white'}`}>
                 MPs
               </Link>
-              <Link href="/departments" className={`px-3 py-1.5 text-sm ${isActive('/departments') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>Departments</Link>
-              <Link href="/transparency" className={`px-3 py-1.5 text-sm ${isActive('/transparency') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>Transparency</Link>
-              <Link href="/search" className={`px-3 py-1.5 text-sm ${isActive('/search') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>Search</Link>
-              <Link href="/about" className={`px-3 py-1.5 text-sm ${isActive('/about') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>
+              <Link href="/departments" className={`px-3 py-1.5 text-sm ${isActive('/departments') ? 'text-blue-400 font-medium' : 'text-gray-200 hover:text-white'}`}>Departments</Link>
+              <Link href="/transparency" className={`px-3 py-1.5 text-sm ${isActive('/transparency') ? 'text-blue-400 font-medium' : 'text-gray-200 hover:text-white'}`}>Transparency</Link>
+              <Link href="/search" className={`px-3 py-1.5 text-sm ${isActive('/search') ? 'text-blue-400 font-medium' : 'text-gray-200 hover:text-white'}`}>Search</Link>
+              <Link href="/about" className={`px-3 py-1.5 text-sm ${isActive('/about') ? 'text-blue-400 font-medium' : 'text-gray-200 hover:text-white'}`}>
                 About
               </Link>
               
               {user ? (
                 <>
-                  <span className="text-gray-400 text-sm truncate max-w-[150px]">{user.email}</span>
+                  <span className="text-gray-200 text-sm truncate max-w-[150px]">{user.email}</span>
                   <button onClick={logout} className="px-3 py-1.5 text-gray-300 hover:text-white text-sm">
                     Logout
                   </button>
@@ -98,7 +98,7 @@ export default function Navigation() {
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 -mr-2 text-gray-400 hover:text-white flex-shrink-0"
+              className="lg:hidden p-2 -mr-2 text-gray-200 hover:text-white flex-shrink-0"
               aria-label="Menu"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -114,32 +114,32 @@ export default function Navigation() {
           {mobileMenuOpen && (
             <div className="lg:hidden pb-4 border-t border-gray-800/50 mt-2">
               <div className="flex flex-col space-y-1 py-2">
-                <Link href="/" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-400'}`}>
+                <Link href="/" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-200'}`}>
                   Home
                 </Link>
-                <Link href="/bills" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/bills') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-400'}`}>
+                <Link href="/bills" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/bills') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-200'}`}>
                   Bills
                 </Link>
-                <Link href="/laws" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/laws') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-400'}`}>
+                <Link href="/laws" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/laws') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-200'}`}>
                   Laws
                 </Link>
-                <Link href="/polls" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/polls') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-400'}`}>
+                <Link href="/polls" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/polls') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-200'}`}>
                   People's Polls
                 </Link>
-                <Link href="/mps" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/mps') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-400'}`}>
+                <Link href="/mps" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/mps') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-200'}`}>
                   MPs
                 </Link>
-                <Link href="/departments" className={`px-3 py-1.5 text-sm ${isActive('/departments') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>Departments</Link>
-              <Link href="/transparency" className={`px-3 py-1.5 text-sm ${isActive('/transparency') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>Transparency</Link>
-              <Link href="/search" className={`px-3 py-1.5 text-sm ${isActive('/search') ? 'text-blue-400 font-medium' : 'text-gray-400 hover:text-white'}`}>Search</Link>
-              <Link href="/about" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/about') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-400'}`}>
+                <Link href="/departments" className={`px-3 py-1.5 text-sm ${isActive('/departments') ? 'text-blue-400 font-medium' : 'text-gray-200 hover:text-white'}`}>Departments</Link>
+              <Link href="/transparency" className={`px-3 py-1.5 text-sm ${isActive('/transparency') ? 'text-blue-400 font-medium' : 'text-gray-200 hover:text-white'}`}>Transparency</Link>
+              <Link href="/search" className={`px-3 py-1.5 text-sm ${isActive('/search') ? 'text-blue-400 font-medium' : 'text-gray-200 hover:text-white'}`}>Search</Link>
+              <Link href="/about" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/about') ? 'text-blue-400 bg-blue-900/20' : 'text-gray-200'}`}>
                   About
                 </Link>
                 
                 <div className="border-t border-gray-800/50 mt-2 pt-2">
                   {user ? (
                     <>
-                      <div className="px-3 py-2 text-gray-400 text-sm truncate">{user.email}</div>
+                      <div className="px-3 py-2 text-gray-200 text-sm truncate">{user.email}</div>
                       <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="w-full text-left px-3 py-2 text-gray-300 text-sm">
                         Logout
                       </button>

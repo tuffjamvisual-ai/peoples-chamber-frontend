@@ -72,7 +72,7 @@ export default function TransparencyClient({ rows, sectionTitle, section }: Prop
 
   if (rows.length === 0) {
     return (
-      <p className="text-[#9ca3af] text-[13px] leading-[1.7] border-t border-[#1e2a3a] pt-8">
+      <p className="text-gray-200 text-[13px] leading-[1.7] border-t border-[#1e2a3a] pt-8">
         No records have been synced into the {sectionTitle.toLowerCase()} table yet. The page will populate once the sync job runs.
       </p>
     )
@@ -81,7 +81,7 @@ export default function TransparencyClient({ rows, sectionTitle, section }: Prop
   return (
     <>
       <div className="mb-8">
-        <label htmlFor="transparency-search" className="block text-[10px] uppercase tracking-[0.25em] text-[#9ca3af] font-medium mb-2">
+        <label htmlFor="transparency-search" className="block text-[10px] uppercase tracking-[0.25em] text-gray-200 font-medium mb-2">
           Search
         </label>
         <input
@@ -90,10 +90,10 @@ export default function TransparencyClient({ rows, sectionTitle, section }: Prop
           placeholder={`Search ${rows.length.toLocaleString()} records…`}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full max-w-md bg-[#0d1520] border border-[#1e2a3a] text-white text-[13px] rounded-sm px-4 py-3 leading-[1.7] placeholder:text-[#4b5563] focus:outline-none focus:border-[#60a5fa] transition-colors"
+          className="w-full max-w-md bg-[#0d1520] border border-[#1e2a3a] text-white text-[13px] rounded-sm px-4 py-3 leading-[1.7] placeholder:text-gray-200 focus:outline-none focus:border-[#60a5fa] transition-colors"
         />
         {query && (
-          <p className="text-[#4b5563] text-[11px] mt-2 font-mono uppercase tracking-[0.15em]">
+          <p className="text-gray-200 text-[11px] mt-2 font-mono uppercase tracking-[0.15em]">
             {filtered.length.toLocaleString()} of {rows.length.toLocaleString()} matching
           </p>
         )}
@@ -118,11 +118,11 @@ export default function TransparencyClient({ rows, sectionTitle, section }: Prop
                     </span>
                   )}
                 </div>
-                <p className="text-[13px] text-[#9ca3af] leading-[1.7] mb-1">
+                <p className="text-[13px] text-gray-200 leading-[1.7] mb-1">
                   from <span className="text-white font-semibold">{donor}</span>
-                  {donorType && <span className="text-[#4b5563]"> · {donorType}</span>}
+                  {donorType && <span className="text-gray-200"> · {donorType}</span>}
                 </p>
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[#4b5563] font-mono uppercase tracking-[0.15em]">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-gray-200 font-mono uppercase tracking-[0.15em]">
                   {receivedDate && <span>{receivedDate}</span>}
                   {nature && <span>· {nature}</span>}
                 </div>
@@ -144,7 +144,7 @@ export default function TransparencyClient({ rows, sectionTitle, section }: Prop
                 <div className="flex items-baseline justify-between gap-4 mb-3">
                   <h3 className="text-white text-[14px] font-bold leading-snug">{titleValue}</h3>
                   {dateValue && (
-                    <span className="text-[#4b5563] text-[11px] font-mono whitespace-nowrap uppercase tracking-[0.15em]">
+                    <span className="text-gray-200 text-[11px] font-mono whitespace-nowrap uppercase tracking-[0.15em]">
                       {dateValue}
                     </span>
                   )}
@@ -153,8 +153,8 @@ export default function TransparencyClient({ rows, sectionTitle, section }: Prop
                   <dl className="grid grid-cols-1 sm:grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-[12px] leading-[1.7]">
                     {otherEntries.map(([k, v]) => (
                       <div key={k} className="contents">
-                        <dt className="text-[10px] uppercase tracking-[0.2em] text-[#4b5563] font-mono pt-0.5">{k}</dt>
-                        <dd className="text-[#9ca3af] whitespace-pre-line break-words">{formatValue(v)}</dd>
+                        <dt className="text-[10px] uppercase tracking-[0.2em] text-gray-200 font-mono pt-0.5">{k}</dt>
+                        <dd className="text-gray-200 whitespace-pre-line break-words">{formatValue(v)}</dd>
                       </div>
                     ))}
                   </dl>

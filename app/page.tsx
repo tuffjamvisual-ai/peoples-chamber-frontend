@@ -202,12 +202,12 @@ export default async function HomePage() {
               {lead.title}
             </h2>
             {lead.summary && (
-              <p className="text-base sm:text-lg text-[#9ca3af] leading-[1.7] max-w-4xl mb-5">
+              <p className="text-base sm:text-lg text-gray-200 leading-[1.7] max-w-4xl mb-5">
                 {firstTwoSentences(lead.summary)}
               </p>
             )}
             {lead.date && (
-              <p className="text-[11px] text-[#4b5563] font-mono uppercase tracking-[0.2em]">
+              <p className="text-[11px] text-gray-200 font-mono uppercase tracking-[0.2em]">
                 {formatDate(lead.date)}
               </p>
             )}
@@ -222,13 +222,13 @@ export default async function HomePage() {
               Press Releases
             </h3>
             {press.length === 0 ? (
-              <p className="text-[#4b5563] text-[12px]">No press releases.</p>
+              <p className="text-gray-200 text-[12px]">No press releases.</p>
             ) : (
               <ul className="space-y-5">
                 {press.map((p, i) => (
                   <li key={i}>
                     {p.organisation && (
-                      <p className="text-[9px] uppercase tracking-[0.25em] mb-1.5 text-[#4b5563] font-mono">
+                      <p className="text-[9px] uppercase tracking-[0.25em] mb-1.5 text-gray-200 font-mono">
                         {p.organisation}
                       </p>
                     )}
@@ -236,7 +236,7 @@ export default async function HomePage() {
                       {p.title}
                     </h4>
                     {p.date && (
-                      <p className="text-[10px] text-[#4b5563] font-mono uppercase tracking-[0.15em]">
+                      <p className="text-[10px] text-gray-200 font-mono uppercase tracking-[0.15em]">
                         {formatDate(p.date)}
                       </p>
                     )}
@@ -252,13 +252,13 @@ export default async function HomePage() {
               Committee Watch
             </h3>
             {committee.length === 0 ? (
-              <p className="text-[#4b5563] text-[12px]">No committee proceedings.</p>
+              <p className="text-gray-200 text-[12px]">No committee proceedings.</p>
             ) : (
               <ul className="space-y-5">
                 {committee.map((c) => (
                   <li key={c.id}>
                     {c.committee_name && (
-                      <p className="text-[9px] uppercase tracking-[0.25em] mb-1.5 text-[#4b5563] font-mono">
+                      <p className="text-[9px] uppercase tracking-[0.25em] mb-1.5 text-gray-200 font-mono">
                         {c.committee_name}
                       </p>
                     )}
@@ -268,7 +268,7 @@ export default async function HomePage() {
                       </Link>
                     </h4>
                     {c.publication_date && (
-                      <p className="text-[10px] text-[#4b5563] font-mono uppercase tracking-[0.15em]">
+                      <p className="text-[10px] text-gray-200 font-mono uppercase tracking-[0.15em]">
                         {formatDate(c.publication_date)}
                       </p>
                     )}
@@ -287,7 +287,7 @@ export default async function HomePage() {
               </Link>
             </h3>
             {revolving.length === 0 ? (
-              <p className="text-[#4b5563] text-[12px]">No appointments.</p>
+              <p className="text-gray-200 text-[12px]">No appointments.</p>
             ) : (
               <ul className="space-y-5">
                 {revolving.map((r, i) => (
@@ -296,12 +296,12 @@ export default async function HomePage() {
                       {r.person_name}
                     </h4>
                     {r.organisation && (
-                      <p className="text-[12px] text-[#9ca3af] leading-[1.7] mb-1.5">
+                      <p className="text-[12px] text-gray-200 leading-[1.7] mb-1.5">
                         {r.organisation}
                       </p>
                     )}
                     {r.approval_date && (
-                      <p className="text-[10px] text-[#4b5563] font-mono uppercase tracking-[0.15em]">
+                      <p className="text-[10px] text-gray-200 font-mono uppercase tracking-[0.15em]">
                         {formatDate(r.approval_date)}
                       </p>
                     )}
@@ -323,7 +323,7 @@ export default async function HomePage() {
               </Link>
             </h3>
             {contracts.length === 0 ? (
-              <p className="text-[#4b5563] text-[12px]">No contracts.</p>
+              <p className="text-gray-200 text-[12px]">No contracts.</p>
             ) : (
               <ul className="space-y-5">
                 {contracts.map((c, i) => (
@@ -332,7 +332,7 @@ export default async function HomePage() {
                       {c.title || '(untitled)'}
                     </h4>
                     {c.supplier && (
-                      <p className="text-[12px] text-[#9ca3af] leading-[1.7] mb-1">
+                      <p className="text-[12px] text-gray-200 leading-[1.7] mb-1">
                         {c.supplier}
                       </p>
                     )}
@@ -341,7 +341,7 @@ export default async function HomePage() {
                         {formatMoney(c.value)}
                       </span>
                       {c.awarded_date && (
-                        <span className="text-[10px] text-[#4b5563] font-mono uppercase tracking-[0.15em]">
+                        <span className="text-[10px] text-gray-200 font-mono uppercase tracking-[0.15em]">
                           {formatDate(c.awarded_date)}
                         </span>
                       )}
@@ -361,7 +361,7 @@ export default async function HomePage() {
               </Link>
             </h3>
             {donations.length === 0 ? (
-              <p className="text-[#4b5563] text-[12px]">No donations.</p>
+              <p className="text-gray-200 text-[12px]">No donations.</p>
             ) : (
               <ul className="space-y-5">
                 {donations.map((d, i) => (
@@ -370,7 +370,7 @@ export default async function HomePage() {
                       {d.donor_name || '(unknown donor)'}
                     </h4>
                     {d.recipient_name && (
-                      <p className="text-[12px] text-[#9ca3af] leading-[1.7] mb-1">
+                      <p className="text-[12px] text-gray-200 leading-[1.7] mb-1">
                         to <span className="text-white">{d.recipient_name}</span>
                       </p>
                     )}
@@ -379,7 +379,7 @@ export default async function HomePage() {
                         {formatAmountFull(d.amount)}
                       </span>
                       {d.received_date && (
-                        <span className="text-[10px] text-[#4b5563] font-mono uppercase tracking-[0.15em]">
+                        <span className="text-[10px] text-gray-200 font-mono uppercase tracking-[0.15em]">
                           {formatDate(d.received_date)}
                         </span>
                       )}
@@ -420,7 +420,7 @@ export default async function HomePage() {
                       </Link>
                     </h3>
 
-                    <p className="text-[10px] uppercase tracking-[0.25em] text-[#4b5563] font-mono mb-1.5">
+                    <p className="text-[10px] uppercase tracking-[0.25em] text-gray-200 font-mono mb-1.5">
                       Public · {b.total_public.toLocaleString()} votes
                     </p>
                     <div className="flex h-2 w-full bg-[#1e2a3a] mb-1.5">
@@ -438,7 +438,7 @@ export default async function HomePage() {
 
                     {commonsTotal > 0 && (
                       <>
-                        <p className="text-[10px] uppercase tracking-[0.25em] text-[#4b5563] font-mono mb-1.5">
+                        <p className="text-[10px] uppercase tracking-[0.25em] text-gray-200 font-mono mb-1.5">
                           Parliament · {commonsTotal.toLocaleString()} MPs
                         </p>
                         <div className="flex h-2 w-full bg-[#1e2a3a] mb-1.5">
@@ -464,7 +464,7 @@ export default async function HomePage() {
 
         {/* ── Bottom Bar — section directory ──────────────────────────── */}
         <section className="border-t-4 border-double border-[#1e2a3a] pt-10 pb-16">
-          <p className="text-[10px] uppercase tracking-[0.3em] mb-6 font-semibold text-[#9ca3af]">
+          <p className="text-[10px] uppercase tracking-[0.3em] mb-6 font-semibold text-gray-200">
             Sections
           </p>
           <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-px bg-[#1e2a3a] border border-[#1e2a3a]">
@@ -477,7 +477,7 @@ export default async function HomePage() {
                   <h3 className="text-base font-bold mb-2 group-hover:text-[#60a5fa] transition-colors" style={{ color: ACCENT }}>
                     {s.title}
                   </h3>
-                  <p className="text-[12px] text-[#9ca3af] leading-[1.7]">{s.body}</p>
+                  <p className="text-[12px] text-gray-200 leading-[1.7]">{s.body}</p>
                 </Link>
               </li>
             ))}

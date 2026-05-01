@@ -26,7 +26,7 @@ export default function DepartmentsPage() {
           <h1 className="text-4xl sm:text-6xl font-black leading-[1.05] tracking-tight text-white mb-4">
             Government Departments
           </h1>
-          <p className="text-[#9ca3af] text-[14px] leading-[1.7] max-w-2xl">
+          <p className="text-gray-200 text-[14px] leading-[1.7] max-w-2xl">
             What every department controls and where every party stands on the issues that matter to you. Tap any department for live ministers, agencies, and topic-by-topic positions.
           </p>
 
@@ -47,7 +47,7 @@ export default function DepartmentsPage() {
                 <h2 className="text-white font-bold text-[14px] leading-snug mb-1.5 group-hover:text-[#60a5fa] transition-colors">
                   {dept.name}
                 </h2>
-                <p className="text-[#9ca3af] text-[12px] leading-[1.7] mb-4 line-clamp-2">{dept.description}</p>
+                <p className="text-gray-200 text-[12px] leading-[1.7] mb-4 line-clamp-2">{dept.description}</p>
 
                 <div className="flex items-center gap-2 mb-3">
                   {dept.ministerPhoto ? (
@@ -59,13 +59,13 @@ export default function DepartmentsPage() {
                     />
                   ) : (
                     <div
-                      className="w-6 h-6 rounded-full bg-[#111827] flex items-center justify-center text-[10px] text-[#9ca3af]"
+                      className="w-6 h-6 rounded-full bg-[#111827] flex items-center justify-center text-[10px] text-gray-200"
                       style={{ border: `1px solid ${ACCENT}55` }}
                     >
                       {dept.minister.charAt(0)}
                     </div>
                   )}
-                  <span className="text-[11px] text-[#9ca3af] truncate font-mono">{dept.minister}</span>
+                  <span className="text-[11px] text-gray-200 truncate font-mono">{dept.minister}</span>
                 </div>
 
                 <div className="flex flex-wrap gap-1">
@@ -79,7 +79,7 @@ export default function DepartmentsPage() {
                     </span>
                   ))}
                   {dept.controlZones.length > 3 && (
-                    <span className="text-[10px] px-1.5 py-0.5 uppercase tracking-[0.1em] font-semibold rounded-sm text-[#9ca3af] bg-[#111827] border border-[#1e2a3a]">
+                    <span className="text-[10px] px-1.5 py-0.5 uppercase tracking-[0.1em] font-semibold rounded-sm text-gray-200 bg-[#111827] border border-[#1e2a3a]">
                       +{dept.controlZones.length - 3}
                     </span>
                   )}
@@ -96,7 +96,7 @@ export default function DepartmentsPage() {
 function Stat({ label, value, accent = false }: { label: string; value: number | string; accent?: boolean }) {
   return (
     <div className="bg-[#0d1520] px-4 py-5">
-      <p className="text-[10px] uppercase tracking-[0.25em] text-[#9ca3af] font-medium mb-2">{label}</p>
+      <p className="text-[10px] uppercase tracking-[0.25em] text-gray-200 font-medium mb-2">{label}</p>
       <p
         className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#60a5fa]' : 'text-white'}`}
       >
