@@ -68,14 +68,14 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
+    <div className="fixed inset-0 bg-[#001520]/80 flex items-center justify-center z-50" onClick={onClose}>
       <div className="bg-[#001520] rounded-lg p-8 max-w-md w-full mx-4 border border-[#1c3849]" onClick={(e) => e.stopPropagation()}>
         <h2 className="text-2xl font-bold text-white mb-6">
           {mode === 'login' ? 'Sign in' : mode === 'signup' ? 'Create your account' : 'Reset password'}
         </h2>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-900/20 border border-red-900/50 rounded text-[#8a3a3a] text-sm">
+          <div className="mb-4 p-3 bg-[#8a3a3a]/20 border border-[#8a3a3a]/50 rounded text-[#8a3a3a] text-sm">
             {error}
           </div>
         )}

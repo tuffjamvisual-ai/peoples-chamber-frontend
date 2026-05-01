@@ -16,7 +16,7 @@ interface MPProfileClientProps {
 const ACCENT = '#ffffff'
 const SUCCESS = '#4a8a3a'
 const DANGER = '#8a3a3a'
-const WARN = '#fbbf24'
+const WARN = '#c9c9c9'
 
 export default function MPProfileClient({
   mp,

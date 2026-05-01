@@ -9,7 +9,7 @@ import Navigation from '../../components/Navigation';
 const ACCENT = '#ffffff';
 const SUCCESS = '#4a8a3a';
 const DANGER = '#8a3a3a';
-const WARN = '#fbbf24';
+const WARN = '#c9c9c9';
 
 type Stage = {
   id: number;
@@ -264,7 +264,7 @@ export default function BillDetailPage() {
                   {bill.sponsor_party && (
                     <span
                       className="text-[10px] uppercase tracking-[0.15em] font-bold px-2 py-0.5 rounded-sm text-white"
-                      style={{ backgroundColor: `#${bill.sponsor_party_colour}` || '#6b7280' }}
+                      style={{ backgroundColor: `#${bill.sponsor_party_colour}` || '#7697a2' }}
                     >
                       {bill.sponsor_party}
                     </span>

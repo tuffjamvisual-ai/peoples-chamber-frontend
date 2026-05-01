@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 }
 
 const ACCENT = '#ffffff'
-const ACCENT_2 = '#818cf8'
+const ACCENT_2 = '#7697a2'
 
 const SECTIONS = [
   { slug: 'ministers-meetings', title: "Ministers' Meetings", description: 'Records of meetings ministers have held with external organisations and lobbyists, published quarterly under GOV.UK transparency releases.' },

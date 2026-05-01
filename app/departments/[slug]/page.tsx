@@ -8,9 +8,9 @@ import { parties } from '@/lib/parties';
 import { useSearchParams } from 'next/navigation';
 
 const ACCENT = '#ffffff';
-const ACCENT_2 = '#818cf8';
+const ACCENT_2 = '#7697a2';
 const SUCCESS = '#4a8a3a';
-const WARN = '#fbbf24';
+const WARN = '#c9c9c9';
 const DANGER = '#8a3a3a';
 
 type GovukMinister = {
@@ -201,7 +201,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
                   { label: 'CPI Inflation', value: stats ? stats.cpi + '%' : '...', colour: WARN, live: true },
                   { label: 'Bank Rate', value: stats ? stats.bankRate + '%' : '3.75%', colour: ACCENT },
                   { label: 'Nat. Debt', value: stats ? stats.nationalDebt : '93% GDP', colour: DANGER },
-                  { label: 'Borrowing', value: stats ? stats.annualBorrowing : '£133bn', colour: '#fb923c' },
+                  { label: 'Borrowing', value: stats ? stats.annualBorrowing : '£133bn', colour: '#c9c9c9' },
                   { label: 'GDP Growth', value: stats ? stats.gdpGrowth : '1.1%', colour: SUCCESS },
                   { label: 'Debt/GDP', value: stats ? stats.debtGDP : '95%', colour: ACCENT_2 },
                 ].map((stat) => (

@@ -70,7 +70,7 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
               <div>
                 <h1 className="text-2xl font-bold text-white mb-1">{person.name}</h1>
                 {person.currentRoles.length > 0 && (
-                  <p className="text-yellow-400 text-sm">{person.currentRoles[0].title}</p>
+                  <p className="text-[#c9c9c9] text-sm">{person.currentRoles[0].title}</p>
                 )}
               </div>
             </div>
@@ -123,7 +123,7 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
             {person.pastRoles.length > 0 && (
               <div className="bg-[#001520] border border-[#1c3849] rounded-xl p-6">
                 <h2 className="text-lg font-semibold text-white mb-4">Previous Roles</h2>
-                <div className="divide-y divide-gray-800">
+                <div className="divide-y divide-[#1c3849]">
                   {person.pastRoles.map((role, i) => (
                     <div key={i} className="py-3">
                       <div className="text-white text-sm font-medium">{role.title}</div>

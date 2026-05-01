@@ -137,7 +137,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={onClose}>
+    <div className="fixed inset-0 bg-[#001520]/90 flex items-center justify-center z-50 p-4" onClick={onClose}>
       <div 
         className="bg-[#001520] rounded-lg w-full max-w-2xl max-h-[80vh] flex flex-col border border-[#1c3849]"
         onClick={(e) => e.stopPropagation()}
@@ -232,7 +232,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
         {user ? (
           <div className="p-4 border-t border-[#1c3849]">
             {error && (
-              <div className="mb-3 p-2 bg-red-900/20 border border-red-900/50 rounded text-[#8a3a3a] text-xs">
+              <div className="mb-3 p-2 bg-[#8a3a3a]/20 border border-[#8a3a3a]/50 rounded text-[#8a3a3a] text-xs">
                 {error}
               </div>
             )}

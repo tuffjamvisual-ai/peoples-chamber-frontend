@@ -5,7 +5,7 @@ import Navigation from './components/Navigation';
 export const revalidate = 3600;
 
 const ACCENT = '#ffffff';
-const ACCENT_2 = '#818cf8';
+const ACCENT_2 = '#7697a2';
 const SUCCESS = '#4a8a3a';
 const DANGER = '#8a3a3a';
 

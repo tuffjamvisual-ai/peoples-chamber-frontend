@@ -85,7 +85,7 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
                     {law.sponsor_party && (
                       <span
                         className="inline-block w-2 h-2 rounded-full"
-                        style={{ backgroundColor: `#${law.sponsor_party_colour}` || '#6b7280' }}
+                        style={{ backgroundColor: `#${law.sponsor_party_colour}` || '#7697a2' }}
                       />
                     )}
                     {law.sponsor_name}

@@ -168,7 +168,7 @@ export default function BillsGrid({ initialBills }: Props) {
                 <button
                   onClick={() => handleVote(bill.id, 'no')}
                   disabled={hasVoted}
-                  className={`flex-1 py-2 rounded text-xs font-medium ${hasVoted ? userVotes[bill.id] === 'no' ? 'bg-red-700 text-white' : 'bg-[#405b6b] text-[#7697a2]' : 'bg-red-800 hover:bg-red-700 text-white'}`}
+                  className={`flex-1 py-2 rounded text-xs font-medium ${hasVoted ? userVotes[bill.id] === 'no' ? 'bg-[#8a3a3a] text-white' : 'bg-[#405b6b] text-[#7697a2]' : 'bg-[#8a3a3a] hover:bg-[#8a3a3a] text-white'}`}
                 >
                   {hasVoted && userVotes[bill.id] === 'no' ? '✓ Opposed' : 'Oppose'}
                 </button>

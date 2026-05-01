@@ -123,7 +123,7 @@ export default function PollsClient() {
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-xs px-2 py-0.5 bg-white/10 text-[#ffffff] rounded border border-white/30">Poll</span>
                   {poll.constituency && (
-                    <span className="text-xs px-2 py-0.5 bg-purple-900/40 text-purple-300 rounded border border-purple-800/40">
+                    <span className="text-xs px-2 py-0.5 bg-[#1c3849] text-[#7697a2] rounded border border-[#405b6b]">
                       {poll.constituency}
                     </span>
                   )}
@@ -138,7 +138,7 @@ export default function PollsClient() {
                 <div className="mb-1">
                   <div className="h-2 bg-[#1c3849] rounded-full overflow-hidden flex">
                     <div className="bg-[#4a8a3a] h-full transition-all" style={{ width: yesPercent + '%' }} />
-                    <div className="bg-rose-500 h-full transition-all" style={{ width: noPercent + '%' }} />
+                    <div className="bg-[#8a3a3a] h-full transition-all" style={{ width: noPercent + '%' }} />
                   </div>
                   <div className="flex justify-between text-xs text-[#7697a2] mt-1 mb-3">
                     <span>Yes {yesPercent}% · {poll.vote_count_yes.toLocaleString()}</span>
@@ -159,7 +159,7 @@ export default function PollsClient() {
                   <button
                     onClick={() => handleVote(poll.id, 'no')}
                     disabled={hasVoted}
-                    className={'px-4 py-1.5 rounded text-xs font-medium transition-colors ' + (hasVoted ? (userVotes[poll.id] === 'no' ? 'bg-rose-700 text-white' : 'bg-[#405b6b] text-[#7697a2] cursor-not-allowed') : 'bg-rose-800 hover:bg-rose-700 text-white')}
+                    className={'px-4 py-1.5 rounded text-xs font-medium transition-colors ' + (hasVoted ? (userVotes[poll.id] === 'no' ? 'bg-[#8a3a3a] text-white' : 'bg-[#405b6b] text-[#7697a2] cursor-not-allowed') : 'bg-[#8a3a3a] hover:bg-[#8a3a3a] text-white')}
                   >
                     {hasVoted && userVotes[poll.id] === 'no' ? '✓ No' : 'No'}
                   </button>
