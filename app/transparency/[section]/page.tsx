@@ -7,8 +7,8 @@ import TransparencyClient from './TransparencyClient'
 export const revalidate = 3600
 
 const ACCENT = '#4a7a3a'
+const PAGE_LIMIT = 100
 
-// Route slug → { display title, Supabase table name, optional date column }.
 const SECTIONS: Record<string, { title: string; table: string; orderBy?: string }> = {
   'ministers-meetings': { title: "Ministers' Meetings", table: 'ministers_meetings', orderBy: 'meeting_date' },
   'lobbyists':          { title: 'Lobbyist Register', table: 'lobbyist_register' },
@@ -26,24 +26,42 @@ export function generateStaticParams() {
 
 export default async function TransparencySectionPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ section: string }>
+  searchParams: Promise<{ q?: string }>
 }) {
   const { section } = await params
+  const { q } = await searchParams
   const config = SECTIONS[section]
   if (!config) notFound()
 
-  const baseQuery = supabase.from(config.table).select('*').limit(2000)
-  const finalQuery = config.orderBy
-    ? baseQuery.order(config.orderBy, { ascending: false, nullsFirst: false })
-    : baseQuery
-  const { data: rows, error } = await finalQuery
+  // Donations uses server-side search; all other sections ignore q.
+  const searchTerm = section === 'donations' && q?.trim() ? q.trim() : null
+
+  // Total count (with search filter applied for donations).
+  let countQ = supabase.from(config.table).select('*', { count: 'exact', head: true })
+  if (searchTerm) {
+    const like = `%${searchTerm}%`
+    countQ = countQ.or(`donor_name.ilike.${like},recipient_name.ilike.${like}`)
+  }
+  const { count: total } = await countQ
+
+  // Data rows — hard-capped at PAGE_LIMIT.
+  let dataQ = supabase.from(config.table).select('*').limit(PAGE_LIMIT)
+  if (config.orderBy) dataQ = dataQ.order(config.orderBy, { ascending: false, nullsFirst: false })
+  if (searchTerm) {
+    const like = `%${searchTerm}%`
+    dataQ = dataQ.or(`donor_name.ilike.${like},recipient_name.ilike.${like}`)
+  }
+  const { data: rows, error } = await dataQ
 
   if (error) {
     console.error(`[transparency/${section}] supabase error querying '${config.table}':`, error.message || error)
-  } else {
-    console.log(`[transparency/${section}] table '${config.table}' returned ${rows?.length ?? 0} rows`)
   }
+
+  const rowCount = rows?.length ?? 0
+  const totalCount = total ?? 0
 
   return (
     <div className="min-h-screen bg-[#0a140a] text-white">
@@ -64,8 +82,29 @@ export default async function TransparencySectionPage({
             {config.title}
           </h1>
           <p className="text-gray-200 text-[14px] leading-[1.7] max-w-2xl">
-            <span className="font-mono text-white text-base font-bold">{(rows?.length ?? 0).toLocaleString()}</span>{' '}
-            record{rows?.length === 1 ? '' : 's'} in this dataset. Use the search to filter live.
+            {searchTerm ? (
+              <>
+                <span className="font-mono text-white text-base font-bold">{rowCount.toLocaleString()}</span>
+                {' '}result{rowCount === 1 ? '' : 's'} for &ldquo;{searchTerm}&rdquo;
+                {totalCount > rowCount && (
+                  <> — showing first {rowCount.toLocaleString()} of {totalCount.toLocaleString()} matches</>
+                )}
+                .{' '}
+                <Link href={`/transparency/${section}`} className="underline hover:text-white">
+                  Clear search
+                </Link>
+              </>
+            ) : (
+              <>
+                <span className="font-mono text-white text-base font-bold">{totalCount.toLocaleString()}</span>
+                {' '}record{totalCount === 1 ? '' : 's'} in this dataset.
+                {section === 'donations'
+                  ? ' Search by donor or recipient name to filter.'
+                  : rowCount < totalCount
+                    ? ` Showing the most recent ${rowCount.toLocaleString()}. Use search to filter.`
+                    : ' Use the search to filter live.'}
+              </>
+            )}
           </p>
           {section === 'revolving-door' && (
             <p className="text-gray-200 text-[14px] leading-[1.7] max-w-2xl mt-6">
@@ -74,7 +113,13 @@ export default async function TransparencySectionPage({
           )}
         </header>
 
-        <TransparencyClient rows={rows || []} sectionTitle={config.title} section={section} />
+        <TransparencyClient
+          rows={rows || []}
+          sectionTitle={config.title}
+          section={section}
+          total={totalCount}
+          searchQuery={searchTerm ?? ''}
+        />
       </main>
     </div>
   )
