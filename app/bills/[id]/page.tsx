@@ -184,10 +184,10 @@ export default function BillDetailPage() {
         <div className="flex flex-wrap gap-2 mb-6">
           {bill.is_act && <Tag colour={SUCCESS}>✓ Passed into Law</Tag>}
           {bill.is_defeated && <Tag colour={DANGER}>✗ Defeated</Tag>}
-          {bill.bill_withdrawn && <Tag colour="#9ca3af">Withdrawn</Tag>}
+          {bill.bill_withdrawn && <Tag colour="#7697a2">Withdrawn</Tag>}
           {!bill.is_act && !bill.is_defeated && !bill.bill_withdrawn && <Tag colour={ACCENT}>{bill.category}</Tag>}
-          {bill.originating_house && <Tag colour="#9ca3af">{bill.originating_house}</Tag>}
-          {bill.current_stage && <Tag colour="#9ca3af">{bill.current_stage}</Tag>}
+          {bill.originating_house && <Tag colour="#7697a2">{bill.originating_house}</Tag>}
+          {bill.current_stage && <Tag colour="#7697a2">{bill.current_stage}</Tag>}
         </div>
 
         {/* Title */}
@@ -356,7 +356,7 @@ export default function BillDetailPage() {
               onClick={() => handleVote('abstain')}
               disabled={!!userVote || voting}
               active={userVote === 'abstain'}
-              colour="#9ca3af"
+              colour="#7697a2"
             />
           </div>
         </section>
@@ -438,7 +438,7 @@ function VoteButton({
   const style: React.CSSProperties = active
     ? { backgroundColor: colour, color: '#001520' }
     : disabled
-    ? { backgroundColor: '#1c3849', color: '#4b5563', cursor: 'not-allowed' }
+    ? { backgroundColor: '#1c3849', color: '#7697a2', cursor: 'not-allowed' }
     : { backgroundColor: colour + '22', color: colour, border: `1px solid ${colour}55` };
 
   return (
