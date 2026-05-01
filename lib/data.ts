@@ -33,14 +33,15 @@ export async function getAllBills(): Promise<Bill[]> {
     const allBills: any[] = [];
     let hasMore = true;
     let rangeStart = 0;
-    const rangeSize = 1000;
+    const rangeSize = 200;
 
     while (hasMore) {
       const { data: bills, error } = await supabase
         .from('bill')
         .select('id, title, description, category, current_stage, stage_date, sponsor_name, sponsor_party, sponsor_party_colour, sponsor_photo, vote_count_yes, vote_count_no, vote_count_abstain, commons_ayes, commons_noes, last_update, bill_withdrawn, is_act')
-        .order('id', { ascending: true })
-        .range(rangeStart, rangeStart + rangeSize - 1);
+        .order('vote_count_yes', { ascending: false })
+        .range(rangeStart, rangeStart + rangeSize - 1)
+        .limit(200);
       
       if (error) {
         console.error('Error fetching bills:', error);
