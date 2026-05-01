@@ -203,8 +203,8 @@ export default function BillsGridMobile({ initialBills }: Props) {
 
               <div className="mb-3">
                 <div className="h-2 bg-[#1c3849] rounded-full overflow-hidden flex">
-                  <div className="bg-green-600" style={{ width: `${yesPercent}%` }} />
-                  <div className="bg-red-600" style={{ width: `${noPercent}%` }} />
+                  <div className="bg-[#4a8a3a]" style={{ width: `${yesPercent}%` }} />
+                  <div className="bg-[#8a3a3a]" style={{ width: `${noPercent}%` }} />
                 </div>
                 <div className="flex justify-between text-xs text-[#7697a2] mt-1">
                   <span>✓ {yesPercent}%</span>

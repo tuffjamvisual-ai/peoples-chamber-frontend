@@ -137,7 +137,7 @@ export default function PollsClient() {
                 {/* Vote bar */}
                 <div className="mb-1">
                   <div className="h-2 bg-[#1c3849] rounded-full overflow-hidden flex">
-                    <div className="bg-green-500 h-full transition-all" style={{ width: yesPercent + '%' }} />
+                    <div className="bg-[#4a8a3a] h-full transition-all" style={{ width: yesPercent + '%' }} />
                     <div className="bg-rose-500 h-full transition-all" style={{ width: noPercent + '%' }} />
                   </div>
                   <div className="flex justify-between text-xs text-[#7697a2] mt-1 mb-3">

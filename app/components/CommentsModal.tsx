@@ -186,7 +186,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
                       </button>
                       <button
                         onClick={() => handleDelete(comment.id)}
-                        className="text-xs text-red-400 hover:text-red-300"
+                        className="text-xs text-[#8a3a3a] hover:text-[#8a3a3a]"
                       >
                         Delete
                       </button>
@@ -232,7 +232,7 @@ export default function CommentsModal({ isOpen, onClose, billId, billTitle }: Pr
         {user ? (
           <div className="p-4 border-t border-[#1c3849]">
             {error && (
-              <div className="mb-3 p-2 bg-red-900/20 border border-red-900/50 rounded text-red-400 text-xs">
+              <div className="mb-3 p-2 bg-red-900/20 border border-red-900/50 rounded text-[#8a3a3a] text-xs">
                 {error}
               </div>
             )}

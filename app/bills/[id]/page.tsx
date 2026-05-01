@@ -7,8 +7,8 @@ import AuthModal from '../../components/AuthModal';
 import Navigation from '../../components/Navigation';
 
 const ACCENT = '#9bdd42';
-const SUCCESS = '#34d399';
-const DANGER = '#f87171';
+const SUCCESS = '#4a8a3a';
+const DANGER = '#8a3a3a';
 const WARN = '#fbbf24';
 
 type Stage = {
@@ -141,7 +141,7 @@ export default function BillDetailPage() {
   if (error || !bill) {
     return (
       <div className="min-h-screen bg-[#002633] text-white flex items-center justify-center">
-        <div className="bg-[#1c3849] border border-[#1c3849] border-l-2 border-l-[#f87171] p-6 max-w-md">
+        <div className="bg-[#1c3849] border border-[#1c3849] border-l-2 border-l-[#8a3a3a] p-6 max-w-md">
           <p className="text-[10px] uppercase tracking-[0.25em] mb-2 font-semibold" style={{ color: DANGER }}>Error</p>
           <h2 className="text-xl font-black tracking-tight text-white mb-2">Bill unavailable</h2>
           <p className="text-[#7697a2] text-[13px] leading-[1.7] mb-4">{error || 'Bill not found'}</p>

@@ -9,9 +9,9 @@ import { useSearchParams } from 'next/navigation';
 
 const ACCENT = '#9bdd42';
 const ACCENT_2 = '#818cf8';
-const SUCCESS = '#34d399';
+const SUCCESS = '#4a8a3a';
 const WARN = '#fbbf24';
-const DANGER = '#f87171';
+const DANGER = '#8a3a3a';
 
 type GovukMinister = {
   name: string;

@@ -75,7 +75,7 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
         </h2>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-900/20 border border-red-900/50 rounded text-red-400 text-sm">
+          <div className="mb-4 p-3 bg-red-900/20 border border-red-900/50 rounded text-[#8a3a3a] text-sm">
             {error}
           </div>
         )}
