@@ -109,7 +109,7 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
                     <li key={mp.id} className="bg-[#001520]">
                       <Link
                         href={`/mps/${mp.member_id}`}
-                        className="group flex items-start gap-3 bg-[#1c3849] hover:bg-[#001520] transition-colors p-4 border-l-2 border-transparent hover:border-l-[#ffffff]"
+                        className="group flex items-start gap-3 bg-[#002633] hover:bg-[#001520] transition-colors p-4 border-l-2 border-transparent hover:border-l-[#ffffff]"
                       >
                         {mp.photo_url ? (
                           <img
