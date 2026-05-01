@@ -116,6 +116,17 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
             <>
               <div>
                 <input
+                  type="password"
+                  placeholder="Confirm password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  className="w-full bg-[#1c3849]/50 border border-[#1c3849] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#ffffff]"
+                />
+              </div>
+
+              <div>
+                <input
                   type="text"
                   placeholder="Username"
                   value={username}
@@ -123,17 +134,6 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
                   required
                   minLength={3}
                   maxLength={20}
-                  className="w-full bg-[#1c3849]/50 border border-[#1c3849] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#ffffff]"
-                />
-              </div>
-
-              <div>
-                <input
-                  type="password"
-                  placeholder="Confirm password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
                   className="w-full bg-[#1c3849]/50 border border-[#1c3849] rounded-lg px-4 py-3 text-white placeholder-[#7697a2] focus:outline-none focus:border-[#ffffff]"
                 />
               </div>
