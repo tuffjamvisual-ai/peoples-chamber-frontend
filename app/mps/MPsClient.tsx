@@ -15,6 +15,8 @@ type MP = {
 
 export default function MPsClient({ mps }: { mps: MP[] }) {
   const [search, setSearch] = useState('')
+  const [expanded, setExpanded] = useState<string | null>(null)
+  const toggleParty = (party: string) => setExpanded(prev => prev === party ? null : party)
 
   const filtered = useMemo(() => {
     if (!search.trim()) return mps
