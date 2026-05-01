@@ -61,15 +61,21 @@ export default async function HomePage() {
           <div style={{ background: '#1a1a1a', padding: '1rem' }}>
             <div style={{ fontSize: '12px', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.75rem' }}>The Public vs Parliament</div>
             {bills?.map((bill) => {
-              const total = (bill.vote_count_yes || 0) + (bill.vote_count_no || 0)
-              const pct = total > 0 ? Math.round((bill.vote_count_yes / total) * 100) : 0
+              const total = (bill.vote_count_yes || 0) + (bill.vote_count_no || 0) + (bill.vote_count_abstain || 0)
+              const yesPct = total > 0 ? Math.round((bill.vote_count_yes || 0) / total * 100) : 0
+              const noPct = total > 0 ? Math.round((bill.vote_count_no || 0) / total * 100) : 0
               return (
-                <Link href={`/bills/${bill.id}`} key={bill.id} style={{ display: 'block', marginBottom: '1rem', textDecoration: 'none' }}>
-                  <div style={{ fontSize: '15px', color: '#fff', marginBottom: '4px', lineHeight: 1.3 }}>{bill.title}</div>
-                  <div style={{ height: '3px', background: '#222222', borderRadius: '2px', marginBottom: '3px' }}>
-                    <div style={{ height: '3px', width: `${pct}%`, background: '#4a8a3a', borderRadius: '2px' }}></div>
+                <Link href={`/bills/${bill.id}`} key={bill.id} style={{ display: 'block', marginBottom: '1.25rem', textDecoration: 'none' }}>
+                  <div style={{ fontSize: '14px', color: '#fff', marginBottom: '6px', lineHeight: 1.3, fontWeight: 600 }}>{bill.title}</div>
+                  <div style={{ height: '6px', background: '#2e2e2e', display: 'flex', marginBottom: '4px' }}>
+                    {yesPct > 0 && <div style={{ height: '100%', width: `${yesPct}%`, background: '#4a8a3a' }}></div>}
+                    {noPct > 0 && <div style={{ height: '100%', width: `${noPct}%`, background: '#8a3a3a' }}></div>}
                   </div>
-                  <div style={{ fontSize: '10px', color: '#ffffff' }}>{pct}% public support · {total.toLocaleString()} votes</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontFamily: 'monospace' }}>
+                    <span style={{ color: '#4a8a3a' }}>{yesPct}% Support · {(bill.vote_count_yes || 0).toLocaleString()}</span>
+                    <span style={{ color: '#8a3a3a' }}>{noPct}% Oppose · {(bill.vote_count_no || 0).toLocaleString()}</span>
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#ffffff', marginTop: '2px', fontFamily: 'monospace' }}>{total.toLocaleString()} total votes</div>
                 </Link>
               )
             })}
