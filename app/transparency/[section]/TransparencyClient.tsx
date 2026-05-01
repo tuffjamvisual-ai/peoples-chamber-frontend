@@ -99,7 +99,36 @@ export default function TransparencyClient({ rows, sectionTitle, section }: Prop
         )}
       </div>
 
-      {section === 'donations' ? (
+      {section === 'revolving-door' ? (
+        <ul className="space-y-px bg-[#1a2e1a] border border-[#1a2e1a]">
+          {filtered.map((row, i) => {
+            const personName = (row.person_name as string) || '(unknown)'
+            const previousRole = row.previous_role as string | null
+            const newRole = row.new_role as string | null
+            const organisation = row.organisation as string | null
+            const approvalDate = formatUkDate(row.approval_date)
+            const newRoleLine = [newRole || 'New role: pending ACOBA publication', organisation].filter(Boolean).join(' · ')
+            return (
+              <li key={i} className="bg-[#0f1a0f] p-5 border-l-2 border-l-[#a8ff3e]">
+                <div className="flex items-baseline justify-between gap-4 mb-1.5">
+                  <h3 className="text-white text-base font-bold leading-snug tracking-tight">{personName}</h3>
+                  {approvalDate && (
+                    <span className="text-gray-200 text-[11px] font-mono whitespace-nowrap uppercase tracking-[0.15em]">
+                      {approvalDate}
+                    </span>
+                  )}
+                </div>
+                {previousRole && (
+                  <p className="text-gray-200 text-[13px] leading-[1.7] mb-1">{previousRole}</p>
+                )}
+                <p className="text-[13px] leading-[1.7] font-semibold" style={{ color: ACCENT }}>
+                  {newRoleLine}
+                </p>
+              </li>
+            )
+          })}
+        </ul>
+      ) : section === 'donations' ? (
         <ul className="space-y-px bg-[#1a2e1a] border border-[#1a2e1a]">
           {filtered.map((row, i) => {
             const recipient = (row.recipient_name as string) || '(unknown recipient)'
