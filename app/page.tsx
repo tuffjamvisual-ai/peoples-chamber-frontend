@@ -22,7 +22,7 @@ async function getGovUKNews() {
 export default async function HomePage() {
   const [news, { data: bills }, { data: activity }, { data: contracts }, { data: donations }, { data: stats }] = await Promise.all([
     getGovUKNews(),
-    supabase.from('bill').select('id, title, support_count, oppose_count').order('support_count', { ascending: false }).limit(3),
+    supabase.from('bill').select('id, title, vote_count_yes, vote_count_no').order('vote_count_yes', { ascending: false }).limit(3),
     supabase.from('ministers_hospitality').select('minister_name, donor, amount, date').order('date', { ascending: false }).limit(5),
     supabase.from('government_contracts').select('title, supplier, value').order('id', { ascending: false }).limit(3),
     supabase.from('political_donations').select('donor_name, recipient_name, amount').order('id', { ascending: false }).limit(3),
@@ -61,8 +61,8 @@ export default async function HomePage() {
           <div style={{ background: '#001520', padding: '1rem' }}>
             <div style={{ fontSize: '9px', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.75rem' }}>The Public vs Parliament</div>
             {bills?.map((bill) => {
-              const total = (bill.support_count || 0) + (bill.oppose_count || 0)
-              const pct = total > 0 ? Math.round((bill.support_count / total) * 100) : 0
+              const total = (bill.vote_count_yes || 0) + (bill.vote_count_no || 0)
+              const pct = total > 0 ? Math.round((bill.vote_count_yes / total) * 100) : 0
               return (
                 <Link href={`/bills/${bill.id}`} key={bill.id} style={{ display: 'block', marginBottom: '1rem', textDecoration: 'none' }}>
                   <div style={{ fontSize: '12px', color: '#fff', marginBottom: '4px', lineHeight: 1.3 }}>{bill.title}</div>
