@@ -6,15 +6,14 @@ export const revalidate = 3600
 
 async function getGovUKNews() {
   try {
-    const res = await fetch('https://www.gov.uk/api/search.json?count=4&order=-public_timestamp&filter_content_store_document_type=press_release', { 
-      next: { revalidate: 3600 },
-      headers: { 'Accept': 'application/json', 'User-Agent': 'PeoplesChamber/1.0' }
-    })
-    if (!res.ok) return []
-    const data = await res.json()
-    return data.results || []
+    const { data } = await supabase
+      .from('press_releases')
+      .select('title, description, organisation, published_at, gov_url')
+      .order('published_at', { ascending: false })
+      .limit(4)
+    return data || []
   } catch (e) {
-    console.error('GOV.UK fetch error:', e)
+    console.error('News fetch error:', e)
     return []
   }
 }
@@ -46,13 +45,13 @@ export default async function HomePage() {
             {leadStory && (
               <div style={{ marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid #333333' }}>
                 <div style={{ fontSize: '16px', fontWeight: 700, color: '#fff', lineHeight: 1.3, marginBottom: '4px' }}>{leadStory.title}</div>
-                <div style={{ fontSize: '14px', color: '#ffffff' }}>{leadStory.organisations?.[0]?.title || 'GOV.UK'} · {new Date(leadStory.public_timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</div>
+                <div style={{ fontSize: '14px', color: '#ffffff' }}>{leadStory.organisation || 'GOV.UK'} · {leadStory.published_at ? new Date(leadStory.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : ''}</div>
               </div>
             )}
             {otherNews.map((item: any, i: number) => (
               <div key={i} style={{ paddingBottom: '8px', marginBottom: '8px', borderBottom: '0.5px solid #2e2e2e' }}>
                 <div style={{ fontSize: '15px', color: '#ffffff', lineHeight: 1.3 }}>{item.title}</div>
-                <div style={{ fontSize: '14px', color: '#ffffff', marginTop: '2px' }}>{item.organisations?.[0]?.title || 'GOV.UK'}</div>
+                <div style={{ fontSize: '14px', color: '#ffffff', marginTop: '2px' }}>{item.organisation || 'GOV.UK'}</div>
               </div>
             ))}
           </div>
