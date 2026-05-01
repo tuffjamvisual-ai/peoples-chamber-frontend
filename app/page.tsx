@@ -6,7 +6,7 @@ export const revalidate = 3600
 
 async function getGovUKNews() {
   try {
-    const res = await fetch('https://www.gov.uk/api/content/search?count=4&order=-public_timestamp&filter_content_store_document_type=press_release', { next: { revalidate: 3600 } })
+    const res = await fetch('https://www.gov.uk/api/search.json?count=4&order=-public_timestamp&filter_content_store_document_type=press_release', { next: { revalidate: 3600 } })
     const data = await res.json()
     return data.results || []
   } catch {
