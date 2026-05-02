@@ -234,7 +234,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                 </p>
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[14px] text-white font-mono uppercase tracking-[0.15em]">
                   {receivedDate && <span>{receivedDate}</span>}
-                  {nature && <span>· {nature}</span>}
+                  {nature && <span>· Type: {nature}</span>}
                 </div>
               </li>
             )
