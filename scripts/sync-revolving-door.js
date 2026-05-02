@@ -146,7 +146,7 @@ async function insertBatched(rows) {
   let inserted = 0;
   for (let i = 0; i < rows.length; i += 100) {
     const batch = rows.slice(i, i + 100);
-    const { error } = await supabase.from('revolving_door').insert(batch);
+    const { error } = await supabase.from('revolving_door').upsert(batch, { onConflict: 'person_name,previous_role,approval_date', ignoreDuplicates: true });
     if (error) {
       // Duplicate-key conflicts are expected on re-runs; log and continue
       // rather than stopping so all new batches are still processed.
