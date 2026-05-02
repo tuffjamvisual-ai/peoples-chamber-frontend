@@ -19,133 +19,174 @@ async function getGovUKNews() {
 }
 
 export default async function HomePage() {
-  const [news, { data: bills }, { data: activity }, { data: contracts }, { data: donations }, { data: stats }] = await Promise.all([
+  const [news, { data: bills }, { data: activity }, { data: contracts }, { data: donations }] = await Promise.all([
     getGovUKNews(),
     supabase.from('bill').select('id, title, vote_count_yes, vote_count_no, vote_count_abstain').order('vote_count_yes', { ascending: false }).limit(3),
-    supabase.from('ministers_hospitality').select('minister_name, donor, amount, date').order('date', { ascending: false }).limit(5),
-    supabase.from('government_contracts').select('title, supplier, value').order('id', { ascending: false }).limit(3),
-    supabase.from('political_donations').select('donor_name, recipient_name, amount').order('id', { ascending: false }).limit(3),
-    supabase.from('bill').select('id', { count: 'exact', head: true }),
+    supabase.from('ministers_hospitality').select('minister_name, donor, value, hospitality_date').order('hospitality_date', { ascending: false }).limit(5),
+    supabase.from('government_contracts').select('id, title, supplier, value').order('id', { ascending: false }).limit(3),
+    supabase.from('political_donations').select('id, donor_name, recipient_name, amount').order('id', { ascending: false }).limit(3),
   ])
 
   const leadStory = news[0]
   const otherNews = news.slice(1, 4)
 
+  const now = new Date()
+  const dateString = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+
   return (
     <div className="min-h-screen" style={{ background: '#1a1a1a', color: '#ffffff' }}>
       <Navigation />
-      <main className="max-w-7xl mx-auto px-4 py-6">
+      <main className="max-w-7xl mx-auto px-4 pb-10">
 
-        {/* TOP SPLIT */}
-        <div className="grid grid-cols-2 gap-px mb-px" style={{ background: '#222222' }}>
+        {/* MASTHEAD */}
+        <div style={{ borderTop: '3px solid #ffffff', borderBottom: '1px solid #444444', padding: '0.75rem 0', marginBottom: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+          <div style={{ fontSize: '22px', fontWeight: 700, color: '#ffffff', letterSpacing: '0.06em' }}>THE PEOPLES CHAMBER</div>
+          <div style={{ fontSize: '12px', color: '#7697a2', letterSpacing: '0.05em' }}>{dateString} · thepeopleschamber.uk</div>
+        </div>
 
-          {/* Latest GOV.UK news */}
-          <div style={{ background: '#1a1a1a', padding: '1rem' }}>
-            <div style={{ fontSize: '14px', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.75rem' }}>Latest from GOV.UK</div>
+        {/* MAIN EDITORIAL GRID — News 2/3 + Bills 1/3 */}
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '0', marginBottom: '1px', background: '#333333' }}>
+
+          {/* LEFT — GOV.UK News */}
+          <div style={{ background: '#1a1a1a', padding: '1rem 1.25rem 1rem 0' }}>
+            <div style={{ fontSize: '10px', color: '#7697a2', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.75rem', borderBottom: '0.5px solid #333333', paddingBottom: '6px' }}>Latest from GOV.UK</div>
+
             {leadStory && (
-              <div style={{ marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid #333333' }}>
-                <div style={{ fontSize: '16px', fontWeight: 700, color: '#fff', lineHeight: 1.3, marginBottom: '4px' }}>{leadStory.title}</div>
-                <div style={{ fontSize: '14px', color: '#ffffff' }}>{leadStory.organisation || 'GOV.UK'} · {leadStory.published_at ? new Date(leadStory.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : ''}</div>
-              </div>
+              
+                href={leadStory.gov_url || '#'}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ display: 'block', textDecoration: 'none', marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid #333333' }}
+              >
+                <div style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff', lineHeight: 1.25, marginBottom: '0.4rem' }}>{leadStory.title}</div>
+                <div style={{ fontSize: '12px', color: '#7697a2' }}>
+                  {leadStory.organisation || 'GOV.UK'} · {leadStory.published_at ? new Date(leadStory.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : ''}
+                </div>
+              </a>
             )}
-            {otherNews.map((item: any, i: number) => (
-              <div key={i} style={{ paddingBottom: '8px', marginBottom: '8px', borderBottom: '0.5px solid #2e2e2e' }}>
-                <div style={{ fontSize: '15px', color: '#ffffff', lineHeight: 1.3 }}>{item.title}</div>
-                <div style={{ fontSize: '14px', color: '#ffffff', marginTop: '2px' }}>{item.organisation || 'GOV.UK'}</div>
-              </div>
-            ))}
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+              {otherNews.map((item: any, i: number) => (
+                
+                  key={i}
+                  href={item.gov_url || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ display: 'block', textDecoration: 'none', padding: '0.6rem 0', borderBottom: '0.5px solid #2e2e2e' }}
+                >
+                  <div style={{ fontSize: '14px', fontWeight: 600, color: '#ffffff', lineHeight: 1.35, marginBottom: '2px' }}>{item.title}</div>
+                  <div style={{ fontSize: '12px', color: '#7697a2' }}>{item.organisation || 'GOV.UK'}</div>
+                </a>
+              ))}
+            </div>
           </div>
 
-          {/* Bills voting bars */}
-          <div style={{ background: '#1a1a1a', padding: '1rem' }}>
-            <div style={{ fontSize: '14px', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.75rem' }}>The Public vs Parliament</div>
+          {/* RIGHT — Public vs Parliament */}
+          <div style={{ background: '#1a1a1a', padding: '1rem 0 1rem 1.25rem', borderLeft: '1px solid #333333' }}>
+            <div style={{ fontSize: '10px', color: '#7697a2', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.75rem', borderBottom: '0.5px solid #333333', paddingBottom: '6px' }}>The Public vs Parliament</div>
+
             {bills?.map((bill) => {
               const total = (bill.vote_count_yes || 0) + (bill.vote_count_no || 0) + (bill.vote_count_abstain || 0)
               const yesPct = total > 0 ? Math.round((bill.vote_count_yes || 0) / total * 100) : 0
               const noPct = total > 0 ? Math.round((bill.vote_count_no || 0) / total * 100) : 0
               return (
-                <Link href={`/bills/${bill.id}`} key={bill.id} style={{ display: 'block', marginBottom: '1.25rem', textDecoration: 'none' }}>
-                  <div style={{ fontSize: '14px', color: '#fff', marginBottom: '6px', lineHeight: 1.3, fontWeight: 600 }}>{bill.title}</div>
+                <Link
+                  href={`/bills/${bill.id}`}
+                  key={bill.id}
+                  style={{ display: 'block', textDecoration: 'none', marginBottom: '1.1rem', paddingBottom: '1.1rem', borderBottom: '0.5px solid #2e2e2e' }}
+                >
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#ffffff', lineHeight: 1.35, marginBottom: '6px' }}>{bill.title}</div>
                   <div style={{ height: '6px', background: '#2e2e2e', display: 'flex', marginBottom: '4px' }}>
                     {yesPct > 0 && <div style={{ height: '100%', width: `${yesPct}%`, background: '#4a8a3a' }}></div>}
                     {noPct > 0 && <div style={{ height: '100%', width: `${noPct}%`, background: '#8a3a3a' }}></div>}
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontFamily: 'monospace' }}>
-                    <span style={{ color: '#4a8a3a' }}>{yesPct}% Support · {(bill.vote_count_yes || 0).toLocaleString()}</span>
-                    <span style={{ color: '#8a3a3a' }}>{noPct}% Oppose · {(bill.vote_count_no || 0).toLocaleString()}</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontFamily: 'monospace' }}>
+                    <span style={{ color: '#4a8a3a' }}>{yesPct}% Support</span>
+                    <span style={{ color: '#8a3a3a' }}>{noPct}% Oppose</span>
                   </div>
-                  <div style={{ fontSize: '14px', color: '#ffffff', marginTop: '2px', fontFamily: 'monospace' }}>{total.toLocaleString()} total votes</div>
+                  <div style={{ fontSize: '11px', color: '#7697a2', marginTop: '2px', fontFamily: 'monospace' }}>{total.toLocaleString()} votes cast</div>
                 </Link>
               )
             })}
           </div>
         </div>
 
-        {/* LIVE ACTIVITY FEED */}
-        <div style={{ background: '#1a1a1a', padding: '1rem', borderTop: '1px solid #333333', marginBottom: '1px' }}>
-          <div style={{ fontSize: '14px', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.75rem' }}>Live Activity</div>
-          <div>
+        {/* STATS RULE */}
+        <div style={{ borderTop: '1px solid #444444', borderBottom: '1px solid #444444', padding: '0.6rem 0', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.25rem' }}>
+          <Link href="/bills" style={{ textDecoration: 'none', display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+            <span style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff' }}>3,884</span>
+            <span style={{ fontSize: '11px', color: '#7697a2', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Bills tracked</span>
+          </Link>
+          <Link href="/mps" style={{ textDecoration: 'none', display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+            <span style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff' }}>650</span>
+            <span style={{ fontSize: '11px', color: '#7697a2', textTransform: 'uppercase', letterSpacing: '0.1em' }}>MPs</span>
+          </Link>
+          <Link href="/transparency/government-contracts" style={{ textDecoration: 'none', display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+            <span style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff' }}>8,011</span>
+            <span style={{ fontSize: '11px', color: '#7697a2', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Contracts</span>
+          </Link>
+          <Link href="/transparency" style={{ textDecoration: 'none', display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+            <span style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff' }}>21k+</span>
+            <span style={{ fontSize: '11px', color: '#7697a2', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Records</span>
+          </Link>
+        </div>
+
+        {/* BOTTOM THREE COLUMNS — Activity · Contracts · Donations */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0', background: '#333333' }}>
+
+          {/* Live Hospitality */}
+          <div style={{ background: '#1a1a1a', padding: '1rem 1.25rem 1rem 0' }}>
+            <div style={{ fontSize: '10px', color: '#7697a2', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.6rem', borderBottom: '0.5px solid #333333', paddingBottom: '6px' }}>Ministerial Hospitality</div>
             {activity?.map((item, i) => (
-              <Link href="/transparency/ministers-hospitality" key={i} style={{ display: 'flex', gap: '10px', padding: '6px 0', borderBottom: '0.5px solid #2e2e2e', textDecoration: 'none', alignItems: 'flex-start' }}>
-                <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#fff', marginTop: '5px', flexShrink: 0 }}></div>
+              <Link
+                href="/transparency/ministers-hospitality"
+                key={i}
+                style={{ display: 'flex', gap: '8px', padding: '0.5rem 0', borderBottom: '0.5px solid #2e2e2e', textDecoration: 'none', alignItems: 'flex-start' }}
+              >
+                <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#7697a2', marginTop: '5px', flexShrink: 0 }}></div>
                 <div>
-                  <div style={{ fontSize: '15px', color: '#ffffff', lineHeight: 1.4 }}>{item.minister_name} — {item.donor} · £{Number(item.amount).toLocaleString()}</div>
-                  <div style={{ fontSize: '14px', color: '#ffffff', marginTop: '1px' }}>Ministerial Hospitality · {item.date ? new Date(item.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : ''}</div>
+                  <div style={{ fontSize: '13px', color: '#ffffff', lineHeight: 1.35, fontWeight: 600 }}>{item.minister_name}</div>
+                  <div style={{ fontSize: '12px', color: '#C9C9C9', marginTop: '1px' }}>{item.donor} · £{Number(item.value).toLocaleString()}</div>
+                  <div style={{ fontSize: '11px', color: '#7697a2', marginTop: '1px' }}>
+                    {item.hospitality_date ? new Date(item.hospitality_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
+                  </div>
                 </div>
               </Link>
             ))}
           </div>
-        </div>
 
-        {/* CONTRACTS + DONATIONS */}
-        <div className="grid grid-cols-2 gap-px mb-px" style={{ background: '#222222' }}>
-          <div style={{ background: '#1a1a1a', padding: '1rem' }}>
-            <div style={{ fontSize: '14px', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.75rem' }}>Latest Contracts</div>
+          {/* Latest Contracts */}
+          <div style={{ background: '#1a1a1a', padding: '1rem 1.25rem', borderLeft: '1px solid #333333' }}>
+            <div style={{ fontSize: '10px', color: '#7697a2', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.6rem', borderBottom: '0.5px solid #333333', paddingBottom: '6px' }}>Latest Contracts</div>
             {contracts?.map((c, i) => (
-              <Link href="/transparency/government-contracts" key={i} style={{ display: 'block', padding: '6px 0', borderBottom: '0.5px solid #2e2e2e', textDecoration: 'none' }}>
-                <div style={{ fontSize: '15px', color: '#fff', lineHeight: 1.3 }}>{c.title}</div>
-                <div style={{ fontSize: '14px', color: '#ffffff', marginTop: '2px' }}>{c.supplier} · £{c.value ? Number(c.value).toLocaleString() : 'undisclosed'}</div>
+              <Link
+                href="/transparency/government-contracts"
+                key={i}
+                style={{ display: 'block', padding: '0.5rem 0', borderBottom: '0.5px solid #2e2e2e', textDecoration: 'none' }}
+              >
+                <div style={{ fontSize: '13px', color: '#ffffff', lineHeight: 1.35, fontWeight: 600 }}>{c.title}</div>
+                <div style={{ fontSize: '12px', color: '#C9C9C9', marginTop: '2px' }}>{c.supplier}</div>
+                <div style={{ fontSize: '11px', color: '#7697a2', marginTop: '1px', fontFamily: 'monospace' }}>£{c.value ? Number(c.value).toLocaleString() : 'undisclosed'}</div>
               </Link>
             ))}
           </div>
-          <div style={{ background: '#1a1a1a', padding: '1rem' }}>
-            <div style={{ fontSize: '14px', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.75rem' }}>Latest Donations</div>
+
+          {/* Latest Donations */}
+          <div style={{ background: '#1a1a1a', padding: '1rem 0 1rem 1.25rem', borderLeft: '1px solid #333333' }}>
+            <div style={{ fontSize: '10px', color: '#7697a2', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.6rem', borderBottom: '0.5px solid #333333', paddingBottom: '6px' }}>Latest Donations</div>
             {donations?.map((d, i) => (
-              <Link href="/transparency/political-donations" key={i} style={{ display: 'block', padding: '6px 0', borderBottom: '0.5px solid #2e2e2e', textDecoration: 'none' }}>
-                <div style={{ fontSize: '15px', color: '#fff', lineHeight: 1.3 }}>{d.donor_name}</div>
-                <div style={{ fontSize: '14px', color: '#ffffff', marginTop: '2px' }}>{d.recipient_name} · £{Number(d.amount).toLocaleString()}</div>
+              <Link
+                href="/transparency/political-donations"
+                key={i}
+                style={{ display: 'block', padding: '0.5rem 0', borderBottom: '0.5px solid #2e2e2e', textDecoration: 'none' }}
+              >
+                <div style={{ fontSize: '13px', color: '#ffffff', lineHeight: 1.35, fontWeight: 600 }}>{d.donor_name}</div>
+                <div style={{ fontSize: '12px', color: '#C9C9C9', marginTop: '2px' }}>{d.recipient_name}</div>
+                <div style={{ fontSize: '11px', color: '#7697a2', marginTop: '1px', fontFamily: 'monospace' }}>£{Number(d.amount).toLocaleString()}</div>
               </Link>
             ))}
           </div>
-        </div>
 
-        {/* STATS BAR */}
-        <div className="grid grid-cols-4 gap-px" style={{ background: '#222222' }}>
-          {[
-            { num: '3,884', label: 'Bills tracked' },
-            { num: '650', label: 'MPs' },
-            { num: '8,011', label: 'Contracts' },
-            { num: '21k+', label: 'Records' },
-          ].map((s, i) => (
-            <div key={i} style={{ background: '#1a1a1a', padding: '0.75rem' }}>
-              <div style={{ fontSize: '20px', fontWeight: 700, color: '#fff' }}>{s.num}</div>
-              <div style={{ fontSize: '14px', color: '#ffffff', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{s.label}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* BOTTOM NAV */}
-        <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #333333', display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-          {[
-            { href: '/mps', label: 'MPs' },
-            { href: '/departments', label: 'Departments' },
-            { href: '/transparency', label: 'Transparency' },
-            { href: '/laws', label: 'Laws' },
-            { href: '/polls', label: "People's Polls" },
-            { href: '/bills', label: 'Bills' },
-          ].map((link) => (
-            <Link key={link.href} href={link.href} style={{ fontSize: '15px', color: '#ffffff', textDecoration: 'none' }}>{link.label} →</Link>
-          ))}
         </div>
 
       </main>
