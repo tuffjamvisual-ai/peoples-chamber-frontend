@@ -22,7 +22,7 @@ export async function GET(request: Request) {
       // Supabase has data — use it
       const ministers = ministersRes.data.map(m => ({
         name: m.name,
-        photo: '',
+        photo: m.photo_url || '',
         role: m.role,
         slug: m.slug,
         url: '',
