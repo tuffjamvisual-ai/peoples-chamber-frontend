@@ -80,13 +80,8 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
       .then((d) => {
         if (d.ministers) {
           setGovukData(d);
-          const sosSlug = d.ministers[0]?.slug;
-          if (sosSlug) {
-            fetch(`/api/person?slug=${sosSlug}`)
-              .then((r) => r.json())
-              .then((p) => { if (p.photo) setSosPhoto(p.photo); })
-              .catch(() => {});
-          }
+          const sosPhotoUrl = d.ministers[0]?.photo;
+          if (sosPhotoUrl) setSosPhoto(sosPhotoUrl);
         }
       })
       .catch(() => {});
