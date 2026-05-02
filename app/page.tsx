@@ -76,7 +76,7 @@ export default async function HomePage() {
               <div>
                 <div style={{ fontSize: '9px', color: '#555', textTransform: 'uppercase', letterSpacing: '0.2em', borderBottom: '1px solid #333', paddingBottom: '6px', marginBottom: '8px' }}>Latest Contracts</div>
                 {contracts?.map((c, i) => (
-                  <Link href="/transparency/government-contracts" key={i} style={{ display: 'block', marginBottom: '10px', textDecoration: 'none', borderLeft: '2px solid #333', paddingLeft: '0.75rem' }}>
+                  <Link href="/transparency/contracts" key={i} style={{ display: 'block', marginBottom: '10px', textDecoration: 'none', borderLeft: '2px solid #333', paddingLeft: '0.75rem' }}>
                     <div style={{ fontSize: '13px', color: '#ddd', lineHeight: 1.3 }}>{c.title}</div>
                     <div style={{ fontSize: '11px', color: '#555', marginTop: '2px' }}>{c.supplier} · £{c.value ? Number(c.value).toLocaleString() : 'undisclosed'}</div>
                   </Link>
@@ -85,7 +85,7 @@ export default async function HomePage() {
               <div>
                 <div style={{ fontSize: '9px', color: '#555', textTransform: 'uppercase', letterSpacing: '0.2em', borderBottom: '1px solid #333', paddingBottom: '6px', marginBottom: '8px' }}>Latest Donations</div>
                 {donations?.map((d, i) => (
-                  <Link href="/transparency/political-donations" key={i} style={{ display: 'block', marginBottom: '10px', textDecoration: 'none', borderLeft: '2px solid #333', paddingLeft: '0.75rem' }}>
+                  <Link href="/transparency/donations" key={i} style={{ display: 'block', marginBottom: '10px', textDecoration: 'none', borderLeft: '2px solid #333', paddingLeft: '0.75rem' }}>
                     <div style={{ fontSize: '13px', color: '#ddd', lineHeight: 1.3 }}>{d.donor_name}</div>
                     <div style={{ fontSize: '11px', color: '#555', marginTop: '2px' }}>{d.recipient_name} · £{Number(d.amount).toLocaleString()}</div>
                   </Link>
