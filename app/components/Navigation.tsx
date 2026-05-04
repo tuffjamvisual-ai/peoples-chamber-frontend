@@ -53,9 +53,6 @@ export default function Navigation() {
                   alt="People's Chamber"
                   style={{ height: '240px', width: 'auto', objectFit: 'contain' }}
                 />
-                <div className="text-center -mt-2">
-                  <div className="text-sm font-bold text-white tracking-widest">THE PEOPLES CHAMBER</div>
-                </div>
               </div>
             </Link>
             

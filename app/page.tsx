@@ -21,28 +21,11 @@ export default async function HomePage() {
 
   const leadStory = news?.[0]
   const otherStories = news?.slice(1, 5) || []
-  const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 
   return (
     <div style={{ minHeight: '100vh', background: '#1a1a1a', color: '#fff' }}>
       <Navigation />
       <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 1.5rem 3rem' }}>
-
-        {/* MASTHEAD */}
-        <div style={{ padding: '1.25rem 0', borderBottom: '3px solid #fff', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0' }}>
-          <div style={{ fontSize: '11px', color: '#cccccc', letterSpacing: '0.2em', textTransform: 'uppercase' }}>{today}</div>
-          <div style={{ display: 'flex', gap: '2rem' }}>
-            {[
-              { href: '/bills', label: 'Bills' },
-              { href: '/mps', label: 'MPs' },
-              { href: '/transparency', label: 'Transparency' },
-              { href: '/polls', label: "People's Polls" },
-              { href: '/departments', label: 'Departments' },
-            ].map(l => (
-              <Link key={l.href} href={l.href} style={{ fontSize: '11px', color: '#ffffff', textDecoration: 'none', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{l.label}</Link>
-            ))}
-          </div>
-        </div>
 
         {/* MAIN BODY */}
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1px', background: '#333', borderBottom: '1px solid #333' }}>
