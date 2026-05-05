@@ -43,18 +43,8 @@ export default function Navigation() {
 
   return (
     <>
-      <nav className="bg-[#1a1a1a] border-b border-[#333333]/50 relative mb-10 overflow-hidden">
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 800 200"
-          preserveAspectRatio="xMaxYMid meet"
-          className="absolute inset-y-0 right-0 h-full w-auto pointer-events-none"
-          style={{ opacity: 0.06 }}
-          fill="#ffffff"
-        >
-          <path d="M 0,200 L 0,140 L 30,140 L 30,128 L 50,128 L 50,140 L 70,140 L 70,134 L 78,134 L 78,140 L 80,140 L 80,55 L 85,55 L 85,50 L 90,50 L 90,55 L 95,55 L 95,50 L 100,50 L 100,55 L 105,55 L 105,50 L 110,50 L 110,55 L 115,55 L 115,50 L 120,50 L 120,55 L 125,55 L 125,50 L 130,50 L 130,55 L 135,55 L 135,50 L 140,50 L 140,55 L 145,55 L 145,50 L 150,50 L 150,55 L 155,55 L 155,50 L 160,50 L 160,55 L 160,140 L 200,140 L 200,132 L 240,132 L 240,140 L 280,140 L 280,126 L 340,126 L 340,140 L 360,140 L 360,115 L 380,115 L 380,108 L 388,108 L 388,55 L 400,15 L 412,55 L 412,108 L 420,108 L 420,115 L 440,115 L 440,140 L 480,140 L 480,134 L 540,134 L 540,140 L 580,140 L 580,128 L 640,128 L 640,140 L 670,140 L 670,85 L 665,85 L 665,55 L 685,15 L 705,55 L 705,85 L 700,85 L 700,140 L 720,140 L 720,135 L 760,135 L 760,140 L 800,140 L 800,200 Z" />
-        </svg>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 relative z-10">
+      <nav className="bg-[#1a1a1a] border-b border-[#333333]/50 relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex-shrink-0" style={{marginLeft: "-16px"}}>
               <div className="flex flex-col items-center">
@@ -63,7 +53,7 @@ export default function Navigation() {
                   alt="People's Chamber"
                   style={{ height: '240px', width: 'auto', objectFit: 'contain' }}
                 />
-                <span className="text-xs uppercase tracking-widest text-white text-center">
+                <span className="text-2xl uppercase tracking-widest text-white text-center">
                   The People&apos;s Chamber
                 </span>
               </div>

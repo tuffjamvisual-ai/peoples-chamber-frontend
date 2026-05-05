@@ -28,7 +28,7 @@ export default async function HomePage() {
       <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 1.5rem 3rem' }}>
 
         {/* WELCOME HERO */}
-        <section style={{ background: '#1a1a1a', padding: '1.75rem 2rem', borderBottom: '1px solid #333', textAlign: 'center' }}>
+        <section style={{ background: '#1a1a1a', padding: '0.5rem 2rem 1.5rem', borderBottom: '1px solid #333', textAlign: 'center' }}>
           <h1 style={{ fontSize: '28px', fontWeight: 900, color: '#fff', margin: '0 0 0.5rem', letterSpacing: '-0.01em', lineHeight: 1.15 }}>
             UK Government. Observed. Your Vote. Counted.
           </h1>
