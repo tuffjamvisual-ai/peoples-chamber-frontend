@@ -20,10 +20,15 @@ export default async function DepartmentsPage() {
 
   const { data: sosRows } = await supabase
     .from('dept_ministers')
-    .select('dept_slug, photo_url')
+    .select('dept_slug, photo_url, member_id')
     .eq('is_secretary_of_state', true);
   const photoBySlug = new Map<string, string>(
     (sosRows || []).map((r: { dept_slug: string; photo_url: string | null }) => [r.dept_slug, r.photo_url || ''])
+  );
+  const memberIdBySlug = new Map<string, number>(
+    (sosRows || [])
+      .filter((r: { member_id: number | null }) => r.member_id != null)
+      .map((r: { dept_slug: string; member_id: number }) => [r.dept_slug, r.member_id])
   );
 
   return (
@@ -49,55 +54,72 @@ export default async function DepartmentsPage() {
         </header>
 
         <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px border border-[#333333]">
-          {departments.map((dept) => (
-            <li key={dept.slug} className="">
-              <Link
-                href={`/departments/${dept.slug}`}
-                className="group block h-full p-5 hover:bg-[#1a1a1a] transition-colors border-l-2 border-transparent hover:border-l-[#ffffff]"
-              >
-                <h2 className="text-white font-bold text-[14px] leading-snug mb-1.5 group-hover:text-[#ffffff] transition-colors">
-                  {dept.name}
-                </h2>
-                <p className="text-white text-[15px] leading-[1.7] mb-4 line-clamp-2">{dept.description}</p>
+          {departments.map((dept) => {
+            const photo = photoBySlug.get(dept.slug);
+            const memberId = memberIdBySlug.get(dept.slug);
+            const ministerInner = (
+              <div className="flex items-center gap-2">
+                {photo ? (
+                  <img
+                    src={photo}
+                    alt={dept.minister}
+                    className="w-6 h-6 rounded-full object-cover bg-[#1a1a1a]"
+                    style={{ border: `1px solid ${ACCENT}55` }}
+                  />
+                ) : (
+                  <div
+                    className="w-6 h-6 rounded-full bg-[#1a1a1a] flex items-center justify-center text-[13px] text-white"
+                    style={{ border: `1px solid ${ACCENT}55` }}
+                  >
+                    {dept.minister.charAt(0)}
+                  </div>
+                )}
+                <span className={`text-[14px] truncate font-mono ${memberId ? 'text-white hover:text-[#ffffff] hover:underline' : 'text-white'}`}>
+                  {dept.minister}
+                </span>
+              </div>
+            );
 
-                <div className="flex items-center gap-2 mb-3">
-                  {photoBySlug.get(dept.slug) ? (
-                    <img
-                      src={photoBySlug.get(dept.slug)!}
-                      alt={dept.minister}
-                      className="w-6 h-6 rounded-full object-cover bg-[#1a1a1a]"
-                      style={{ border: `1px solid ${ACCENT}55` }}
-                    />
+            return (
+              <li key={dept.slug} className="h-full border-l-2 border-transparent hover:border-l-[#ffffff] hover:bg-[#1a1a1a] transition-colors">
+                <div className="flex flex-col h-full">
+                  <Link href={`/departments/${dept.slug}`} className="block px-5 pt-5">
+                    <h2 className="text-white font-bold text-[14px] leading-snug mb-1.5 hover:text-[#ffffff] transition-colors">
+                      {dept.name}
+                    </h2>
+                    <p className="text-white text-[15px] leading-[1.7] mb-4 line-clamp-2">{dept.description}</p>
+                  </Link>
+
+                  {memberId ? (
+                    <Link href={`/mps/${memberId}`} className="block px-5 mb-3" aria-label={`View bio for ${dept.minister}`}>
+                      {ministerInner}
+                    </Link>
                   ) : (
-                    <div
-                      className="w-6 h-6 rounded-full bg-[#1a1a1a] flex items-center justify-center text-[13px] text-white"
-                      style={{ border: `1px solid ${ACCENT}55` }}
-                    >
-                      {dept.minister.charAt(0)}
-                    </div>
+                    <div className="px-5 mb-3">{ministerInner}</div>
                   )}
-                  <span className="text-[14px] text-white truncate font-mono">{dept.minister}</span>
-                </div>
 
-                <div className="flex flex-wrap gap-1">
-                  {dept.controlZones.slice(0, 3).map((zone) => (
-                    <span
-                      key={zone}
-                      className="text-[13px] px-1.5 py-0.5 uppercase tracking-[0.1em] font-semibold rounded-sm"
-                      style={{ color: ACCENT, backgroundColor: ACCENT + '15', border: `1px solid ${ACCENT}33` }}
-                    >
-                      {zone}
-                    </span>
-                  ))}
-                  {dept.controlZones.length > 3 && (
-                    <span className="text-[13px] px-1.5 py-0.5 uppercase tracking-[0.1em] font-semibold rounded-sm text-white bg-[#1a1a1a] border border-[#333333]">
-                      +{dept.controlZones.length - 3}
-                    </span>
-                  )}
+                  <Link href={`/departments/${dept.slug}`} className="block px-5 pb-5 mt-auto">
+                    <div className="flex flex-wrap gap-1">
+                      {dept.controlZones.slice(0, 3).map((zone) => (
+                        <span
+                          key={zone}
+                          className="text-[13px] px-1.5 py-0.5 uppercase tracking-[0.1em] font-semibold rounded-sm"
+                          style={{ color: ACCENT, backgroundColor: ACCENT + '15', border: `1px solid ${ACCENT}33` }}
+                        >
+                          {zone}
+                        </span>
+                      ))}
+                      {dept.controlZones.length > 3 && (
+                        <span className="text-[13px] px-1.5 py-0.5 uppercase tracking-[0.1em] font-semibold rounded-sm text-white bg-[#1a1a1a] border border-[#333333]">
+                          +{dept.controlZones.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  </Link>
                 </div>
-              </Link>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ul>
       </main>
     </div>

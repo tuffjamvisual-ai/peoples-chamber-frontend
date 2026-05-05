@@ -21,13 +21,14 @@ type GovukMinister = {
   url: string;
   slug: string;
   is_secretary_of_state?: boolean;
+  member_id?: number | null;
 };
 
 type GovukData = {
   title: string;
   description: string;
   ministers: GovukMinister[];
-  boardMembers: { name: string; photo: string; role: string; url: string; slug: string; category?: string }[];
+  boardMembers: { name: string; photo: string; role: string; url: string; slug: string; category?: string; member_id?: number | null }[];
   childOrgs: { name: string; url: string; acronym: string }[];
   featuredDocs: { title: string; url: string; summary: string; type: string; date: string; image: string }[];
   featuredLinks: { title: string; url: string }[];
@@ -165,7 +166,15 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
             <div>
               <h2 className="text-white text-2xl sm:text-3xl font-black tracking-tight mb-1">{sos.name}</h2>
               <p className="text-white text-[13px] leading-[1.7] mb-2">{sos.role}</p>
-              {sos.slug && (
+              {sos.member_id ? (
+                <Link
+                  href={`/mps/${sos.member_id}`}
+                  className="inline-block text-[13px] uppercase tracking-[0.2em] hover:underline font-semibold"
+                  style={{ color: ACCENT }}
+                >
+                  View bio →
+                </Link>
+              ) : sos.slug ? (
                 <Link
                   href={`/people/${sos.slug}`}
                   className="inline-block text-[13px] uppercase tracking-[0.2em] hover:underline font-semibold"
@@ -173,7 +182,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
                 >
                   View bio →
                 </Link>
-              )}
+              ) : null}
             </div>
           </div>
         </section>
@@ -353,19 +362,25 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
   );
 }
 
-function StaffGroup({ label, people }: { label: string; people: { name: string; role: string; slug: string }[] }) {
+function StaffGroup({ label, people }: { label: string; people: { name: string; role: string; slug: string; member_id?: number | null }[] }) {
   return (
     <div className="mb-8">
       <p className="text-[13px] uppercase tracking-[0.2em] text-white mb-3 font-semibold">{label}</p>
       <ul className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[#222222] border border-[#333333]">
-        {people.map((person, i) => (
-          <li key={i} className="bg-[#222222] p-3 border-l-2 border-l-transparent hover:border-l-[#ffffff] hover:bg-[#1a1a1a] transition-colors">
-            <Link href={`/people/${person.slug}`} className="block">
+        {people.map((person, i) => {
+          const href = person.member_id ? `/mps/${person.member_id}` : person.slug ? `/people/${person.slug}` : null;
+          const inner = (
+            <>
               <p className="text-white text-[13px] font-semibold hover:text-[#ffffff] transition-colors">{person.name}</p>
               <p className="text-white text-[14px] mt-0.5 leading-[1.7]">{person.role}</p>
-            </Link>
-          </li>
-        ))}
+            </>
+          );
+          return (
+            <li key={i} className="bg-[#222222] p-3 border-l-2 border-l-transparent hover:border-l-[#ffffff] hover:bg-[#1a1a1a] transition-colors">
+              {href ? <Link href={href} className="block">{inner}</Link> : <div className="block">{inner}</div>}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

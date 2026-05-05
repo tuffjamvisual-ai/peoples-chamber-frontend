@@ -27,6 +27,7 @@ export async function GET(request: Request) {
         slug: m.slug,
         url: '',
         is_secretary_of_state: m.is_secretary_of_state,
+        member_id: m.member_id ?? null,
       }));
 
       const boardMembers = officialsRes.data?.map(m => ({
@@ -36,6 +37,7 @@ export async function GET(request: Request) {
         slug: m.slug,
         url: '',
         category: m.category,
+        member_id: m.member_id ?? null,
       })) || [];
 
       const childOrgs = agenciesRes.data?.map(o => ({
