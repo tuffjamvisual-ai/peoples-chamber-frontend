@@ -17,6 +17,8 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
   const [search, setSearch] = useState('')
   const [expanded, setExpanded] = useState<string | null>(null)
   const toggleParty = (party: string) => setExpanded(prev => prev === party ? null : party)
+  const isSearching = search.trim() !== ''
+  const isOpen = (party: string) => isSearching || expanded === party
 
   const filtered = useMemo(() => {
     if (!search.trim()) return mps
@@ -102,11 +104,11 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
                     {party}
                   </h2>
                   <span className="ml-auto text-[13px] uppercase tracking-[0.3em] text-white font-mono">
-                    {count} MP{count === 1 ? '' : 's'} {expanded === party ? '▲' : '▼'}
+                    {count} MP{count === 1 ? '' : 's'} {isOpen(party) ? '▲' : '▼'}
                   </span>
                 </button>
 
-                {expanded === party && <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px border border-[#333333]">
+                {isOpen(party) && <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px border border-[#333333]">
                   {byParty[party].map((mp) => (
                     <li key={mp.id} className="bg-[#1a1a1a]">
                       <Link
