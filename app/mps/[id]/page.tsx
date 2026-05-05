@@ -112,11 +112,11 @@ export default async function MPProfilePage({ params }: PageProps) {
                 <img
                   src={mp.photo_url}
                   alt={mp.name}
-                  className="w-28 h-28 rounded-full object-cover"
+                  className="w-[134px] h-[134px] rounded-full object-cover"
                   style={{ border: `3px solid ${partyColour}` }}
                 />
               ) : (
-                <div className="w-28 h-28 rounded-full flex items-center justify-center text-4xl font-bold text-white" style={{ border: `3px solid ${partyColour}`, background: partyColour + '33' }}>
+                <div className="w-[134px] h-[134px] rounded-full flex items-center justify-center text-4xl font-bold text-white" style={{ border: `3px solid ${partyColour}`, background: partyColour + '33' }}>
                   {mp.name?.charAt(0)}
                 </div>
               )}
