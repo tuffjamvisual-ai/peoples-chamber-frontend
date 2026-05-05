@@ -27,7 +27,7 @@ export default function MPProfileClient({
   interests,
   partyColour,
 }: MPProfileClientProps) {
-  const [activeSection, setActiveSection] = useState('contact')
+  const [activeSection, setActiveSection] = useState(bio?.political_bio ? 'bio' : 'contact')
 
   const interestsByCategory = interests?.reduce((acc: any, interest) => {
     if (!acc[interest.category_name]) acc[interest.category_name] = []
@@ -46,7 +46,10 @@ export default function MPProfileClient({
   const oppositionPosts = bio?.opposition_posts || []
   const committeeMemberships = bio?.committee_memberships || []
 
+  const politicalBio: string = bio?.political_bio || ''
+
   const menuItems = [
+    ...(politicalBio ? [{ id: 'bio', label: 'Political Bio' }] : []),
     { id: 'contact', label: 'Contact' },
     { id: 'parliamentary', label: 'Career' },
     { id: 'voting', label: 'Voting record' },
@@ -87,6 +90,12 @@ export default function MPProfileClient({
 
       {/* Main */}
       <div className="lg:col-span-3 p-6 sm:p-8">
+        {activeSection === 'bio' && politicalBio && (
+          <Section title="Political Bio">
+            <PoliticalBio text={politicalBio} partyColour={partyColour} />
+          </Section>
+        )}
+
         {activeSection === 'contact' && (
           <Section title={`Contact ${mp.display_name || mp.name}`}>
             {contact ? (
@@ -363,6 +372,50 @@ function Tag({ colour, children }: { colour: string; children: React.ReactNode }
 
 function Empty({ children }: { children: React.ReactNode }) {
   return <p className="text-white text-[13px] leading-[1.7]">{children}</p>
+}
+
+function PoliticalBio({ text, partyColour }: { text: string; partyColour: string }) {
+  const escape = (s: string) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c] as string))
+  const inline = (s: string) => escape(s).replace(/\*\*(.+?)\*\*/g, '<strong class="text-white">$1</strong>')
+  const blocks = text.trim().split(/\n\s*\n/)
+  const headingOnly = (line: string) => /^\*\*(.+?)\*\*\s*:?\s*$/.exec(line.trim())
+
+  return (
+    <div className="space-y-6">
+      {blocks.map((block, i) => {
+        const lines = block.split('\n').map((l) => l.trim()).filter(Boolean)
+        if (lines.length === 0) return null
+        const headingMatch = headingOnly(lines[0])
+        const heading = headingMatch ? headingMatch[1].replace(/:$/, '') : null
+        const bodyLines = headingMatch ? lines.slice(1) : lines
+        const isBulletBody = bodyLines.length > 0 && bodyLines.every((l) => l.startsWith('- '))
+
+        return (
+          <div key={i} className="border-l-2 pl-4" style={{ borderLeftColor: partyColour }}>
+            {heading && (
+              <h3 className="text-[13px] uppercase tracking-[0.25em] font-semibold mb-2" style={{ color: '#ffffff' }}>
+                {heading}
+              </h3>
+            )}
+            {bodyLines.length > 0 && (
+              isBulletBody ? (
+                <ul className="space-y-1.5 text-[14px] text-white leading-[1.7] list-disc pl-5">
+                  {bodyLines.map((l, j) => (
+                    <li key={j} dangerouslySetInnerHTML={{ __html: inline(l.slice(2)) }} />
+                  ))}
+                </ul>
+              ) : (
+                <p
+                  className="text-[14px] text-white leading-[1.7]"
+                  dangerouslySetInnerHTML={{ __html: inline(bodyLines.join(' ')) }}
+                />
+              )
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
 }
 
 function RolesRow({ post, partyColour }: { post: any; partyColour: string }) {
