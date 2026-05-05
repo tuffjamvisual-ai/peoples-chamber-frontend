@@ -196,26 +196,54 @@ export default async function HomePage() {
             {/* PRESS RELEASES */}
             <section>
               <SectionHead label="Latest Press Releases" sub="This week's official line, straight from the press offices." />
-              {leadStory && (
-                <article style={{ marginBottom: '1.5rem' }}>
-                  <h2 style={{ fontSize: '30px', fontWeight: 700, color: '#fff', lineHeight: 1.15, margin: '0 0 0.6rem', letterSpacing: '-0.01em' }}>{leadStory.title}</h2>
-                  {leadStory.description && (
-                    <p style={{ fontSize: '14px', color: '#fff', lineHeight: 1.6, margin: '0 0 0.6rem', opacity: 0.92 }}>{leadStory.description}</p>
-                  )}
-                  <div style={{ fontSize: '11px', color: MUTED, letterSpacing: '0.05em' }}>
-                    <span style={{ color: '#fff' }}>{leadStory.organisation}</span>
-                    {leadStory.published_at ? ` · ${new Date(leadStory.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}` : ''}
-                  </div>
-                </article>
-              )}
+              {leadStory && (() => {
+                const slug = leadStory.gov_url ? leadStory.gov_url.split('/').filter(Boolean).pop() : null
+                return (
+                  <article style={{ marginBottom: '1.5rem' }}>
+                    <h2 style={{ fontSize: '30px', fontWeight: 700, lineHeight: 1.15, margin: '0 0 0.6rem', letterSpacing: '-0.01em' }}>
+                      {slug ? (
+                        <Link
+                          href={`/news/${slug}`}
+                          style={{ color: '#fff', textDecoration: 'none' }}
+                          className="hover:underline"
+                        >
+                          {leadStory.title}
+                        </Link>
+                      ) : (
+                        <span style={{ color: '#fff' }}>{leadStory.title}</span>
+                      )}
+                    </h2>
+                    {leadStory.description && (
+                      <p style={{ fontSize: '14px', color: '#fff', lineHeight: 1.6, margin: '0 0 0.6rem', opacity: 0.92 }}>{leadStory.description}</p>
+                    )}
+                    <div style={{ fontSize: '11px', color: MUTED, letterSpacing: '0.05em' }}>
+                      <span style={{ color: '#fff' }}>{leadStory.organisation}</span>
+                      {leadStory.published_at ? ` · ${new Date(leadStory.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}` : ''}
+                    </div>
+                  </article>
+                )
+              })()}
               {otherStories.length > 0 && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem', borderTop: `1px solid ${RULE}`, paddingTop: '1.25rem' }}>
-                  {otherStories.map((story, i) => (
-                    <div key={i}>
-                      <div style={{ fontSize: '10px', color: MUTED, textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: '4px' }}>{story.organisation}</div>
-                      <div style={{ fontSize: '15px', color: '#fff', lineHeight: 1.35 }}>{story.title}</div>
-                    </div>
-                  ))}
+                  {otherStories.map((story, i) => {
+                    const slug = story.gov_url ? story.gov_url.split('/').filter(Boolean).pop() : null
+                    return (
+                      <div key={i}>
+                        <div style={{ fontSize: '10px', color: MUTED, textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: '4px' }}>{story.organisation}</div>
+                        {slug ? (
+                          <Link
+                            href={`/news/${slug}`}
+                            style={{ fontSize: '15px', color: '#fff', lineHeight: 1.35, textDecoration: 'none', display: 'block' }}
+                            className="hover:underline"
+                          >
+                            {story.title}
+                          </Link>
+                        ) : (
+                          <div style={{ fontSize: '15px', color: '#fff', lineHeight: 1.35 }}>{story.title}</div>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
               )}
             </section>
