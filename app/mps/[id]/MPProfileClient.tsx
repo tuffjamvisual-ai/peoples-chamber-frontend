@@ -3,6 +3,19 @@
 import { useState } from 'react'
 import Link from 'next/link'
 
+type EarningsSummary = {
+  base: number
+  band: 'pm' | 'sos' | 'minister_of_state' | 'puss' | null
+  band_label: string | null
+  ministerial: number
+  outside: number
+  outside_claim_count: number
+  outside_source_count: number
+  personal_total: number
+  public_spend: number
+  public_spend_year: string | null
+}
+
 interface MPProfileClientProps {
   mp: any
   contact: any
@@ -12,6 +25,7 @@ interface MPProfileClientProps {
   interests: any[]
   expenses: any[]
   expensesDetail?: any[]
+  earnings?: EarningsSummary
   partyColour: string
 }
 
@@ -29,6 +43,7 @@ export default function MPProfileClient({
   interests,
   expenses,
   expensesDetail,
+  earnings,
   partyColour,
 }: MPProfileClientProps) {
   const [activeSection, setActiveSection] = useState(bio?.political_bio ? 'bio' : 'contact')
@@ -53,6 +68,7 @@ export default function MPProfileClient({
   const politicalBio: string = bio?.political_bio || ''
 
   const hasExpenses = (expenses || []).length > 0
+  const hasEarnings = Boolean(earnings)
 
   const menuItems = [
     ...(politicalBio ? [{ id: 'bio', label: 'Political Bio' }] : []),
@@ -62,6 +78,7 @@ export default function MPProfileClient({
     { id: 'bills', label: 'Bills sponsored' },
     { id: 'interests', label: 'Interests' },
     { id: 'roles', label: 'Roles' },
+    ...(hasEarnings ? [{ id: 'earnings', label: 'Earnings' }] : []),
     ...(hasExpenses ? [{ id: 'expenses', label: 'Expenses' }] : []),
   ]
 
@@ -333,6 +350,83 @@ export default function MPProfileClient({
           </Section>
         )}
 
+        {activeSection === 'earnings' && earnings && (
+          <Section title="Earnings">
+            <p className="text-white text-[13px] leading-[1.7] mb-6 opacity-80 max-w-3xl">
+              What this MP actually earns. Base salary plus any ministerial top-up plus declared outside earnings.
+              Public spend on running their office is shown separately below — that money is paid out to
+              staff, landlords and travel suppliers, not to the MP.
+            </p>
+
+            <div className="border border-[#333333]">
+              <EarningsRow label="Base MP Salary"      sub="Set by IPSA · from 1 April 2026"               amount={earnings.base}        partyColour={partyColour} />
+              <EarningsRow
+                label="Ministerial Salary"
+                sub={earnings.band_label ? `${earnings.band_label} · 2010-frozen rate, paid on top of base` : 'No current ministerial post'}
+                amount={earnings.ministerial}
+                muted={!earnings.ministerial}
+                partyColour={partyColour}
+              />
+              <EarningsRow
+                label="Outside Earnings"
+                sub={
+                  earnings.outside
+                    ? `${earnings.outside_claim_count} declared payment${earnings.outside_claim_count === 1 ? '' : 's'} from ${earnings.outside_source_count} source${earnings.outside_source_count === 1 ? '' : 's'} · extracted from the Register of Members' Financial Interests`
+                    : 'No payment-coded outside earnings extracted from the register'
+                }
+                amount={earnings.outside}
+                muted={!earnings.outside}
+                partyColour={partyColour}
+                onJump={() => setActiveSection('interests')}
+                jumpLabel="View register entries →"
+              />
+              <div className="bg-[#1a1a1a] p-5 border-t-2" style={{ borderTopColor: partyColour }}>
+                <div className="flex items-baseline justify-between gap-4">
+                  <p className="text-[13px] uppercase tracking-[0.25em] text-white font-bold">Total Personal Earnings</p>
+                  <p
+                    className="text-2xl sm:text-3xl font-black tracking-tight text-white tabular-nums"
+                    style={{ color: ACCENT }}
+                  >
+                    {fmtMoney(earnings.personal_total)}
+                  </p>
+                </div>
+                <p className="text-[12px] text-white opacity-70 mt-1.5">
+                  Money the MP receives. Excludes pensions and capital gains; outside earnings are a conservative
+                  lower bound (only entries with explicit &ldquo;Payment: £X&rdquo; figures are summed).
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-8 border border-[#333333] border-l-2" style={{ borderLeftColor: '#666' }}>
+              <div className="bg-[#1a1a1a] p-5">
+                <div className="flex items-baseline justify-between gap-4 mb-1.5">
+                  <p className="text-[13px] uppercase tracking-[0.25em] text-white font-semibold">
+                    Public Spend (IPSA expenses)
+                  </p>
+                  <p className="text-2xl font-bold tracking-tight text-white tabular-nums">
+                    {fmtMoney(earnings.public_spend)}
+                  </p>
+                </div>
+                <p className="text-[12px] text-white opacity-70 leading-[1.6]">
+                  <strong className="text-white">This is not personal income.</strong> It is the total reimbursed
+                  by IPSA for staff salaries, office rent, accommodation, travel and other costs of running the
+                  MP&apos;s parliamentary work
+                  {earnings.public_spend_year ? ` in ${fmtFinancialYear(earnings.public_spend_year)}` : ''}.
+                  None of it goes into the MP&apos;s pocket.
+                </p>
+                {earnings.public_spend > 0 && (
+                  <button
+                    onClick={() => setActiveSection('expenses')}
+                    className="mt-3 text-[11px] uppercase tracking-[0.2em] text-white opacity-90 hover:opacity-100 hover:underline font-semibold"
+                  >
+                    See full expense breakdown →
+                  </button>
+                )}
+              </div>
+            </div>
+          </Section>
+        )}
+
         {activeSection === 'expenses' && hasExpenses && (
           <Section title="Business costs and expenses">
             <p className="text-white text-[13px] leading-[1.7] mb-6 opacity-80">
@@ -390,6 +484,50 @@ function fmtMoney(v: any): string {
   const n = typeof v === 'number' ? v : Number(v)
   if (!Number.isFinite(n)) return '£0'
   return '£' + Math.round(n).toLocaleString('en-GB')
+}
+
+function EarningsRow({
+  label,
+  sub,
+  amount,
+  muted,
+  partyColour,
+  onJump,
+  jumpLabel,
+}: {
+  label: string
+  sub?: string
+  amount: number
+  muted?: boolean
+  partyColour: string
+  onJump?: () => void
+  jumpLabel?: string
+}) {
+  return (
+    <div className="bg-[#1a1a1a] px-5 py-4 border-b border-[#333333] last:border-b-0 border-l-2" style={{ borderLeftColor: muted ? '#333' : partyColour }}>
+      <div className="flex items-baseline justify-between gap-4">
+        <div className="min-w-0">
+          <p className={`text-[13px] uppercase tracking-[0.18em] font-semibold ${muted ? 'text-white opacity-50' : 'text-white'}`}>{label}</p>
+          {sub && <p className={`text-[12px] mt-1 leading-[1.55] ${muted ? 'text-white opacity-50' : 'text-white opacity-75'}`}>{sub}</p>}
+          {onJump && jumpLabel && amount > 0 && (
+            <button
+              onClick={onJump}
+              className="mt-2 text-[11px] uppercase tracking-[0.18em] text-white opacity-90 hover:opacity-100 hover:underline font-semibold"
+            >
+              {jumpLabel}
+            </button>
+          )}
+        </div>
+        <p
+          className={`text-xl sm:text-2xl font-bold tracking-tight tabular-nums whitespace-nowrap ${
+            muted ? 'text-white opacity-40' : 'text-white'
+          }`}
+        >
+          {amount > 0 ? fmtMoney(amount) : '—'}
+        </p>
+      </div>
+    </div>
+  )
 }
 
 function ClaimsForYear({ year, claims, partyColour }: { year: string; claims: any[]; partyColour: string }) {

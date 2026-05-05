@@ -4,6 +4,14 @@ import Link from 'next/link'
 import Navigation from '../../components/Navigation'
 import { notFound } from 'next/navigation'
 import MPProfileClient from './MPProfileClient'
+import {
+  MP_BASE_SALARY_2026,
+  MINISTERIAL_SUPPLEMENT,
+  SALARY_BAND_LABEL,
+  type SalaryBand,
+} from '@/lib/ministerial-salaries'
+
+const BAND_RANK: Record<SalaryBand, number> = { pm: 4, sos: 3, minister_of_state: 2, puss: 1 }
 
 export const revalidate = 60
 
@@ -95,6 +103,42 @@ export default async function MPProfilePage({ params }: PageProps) {
     .order('claim_date', { ascending: false })
     .range(0, 4999)
 
+  const { data: ministerialRows } = await supabase
+    .from('dept_ministers')
+    .select('salary_band')
+    .eq('member_id', memberId)
+    .not('salary_band', 'is', null)
+
+  const { data: outsideRow } = await supabase
+    .from('mp_outside_earnings_summary')
+    .select('total_extracted, claim_count, source_count')
+    .eq('member_id', memberId)
+    .maybeSingle()
+
+  // Highest band (an MP holding multiple roles is paid only the top single salary)
+  let highestBand: SalaryBand | null = null
+  for (const r of ministerialRows || []) {
+    const b = r.salary_band as SalaryBand | null
+    if (!b) continue
+    if (!highestBand || BAND_RANK[b] > BAND_RANK[highestBand]) highestBand = b
+  }
+
+  const ministerialAmount = highestBand ? MINISTERIAL_SUPPLEMENT[highestBand] : 0
+  const outsideAmount = outsideRow?.total_extracted ? Number(outsideRow.total_extracted) : 0
+  const latestExpense = (expenses && expenses[0]) || null
+  const earnings = {
+    base: MP_BASE_SALARY_2026,
+    band: highestBand,
+    band_label: highestBand ? SALARY_BAND_LABEL[highestBand] : null,
+    ministerial: ministerialAmount,
+    outside: outsideAmount,
+    outside_claim_count: outsideRow?.claim_count || 0,
+    outside_source_count: outsideRow?.source_count || 0,
+    personal_total: MP_BASE_SALARY_2026 + ministerialAmount + outsideAmount,
+    public_spend: latestExpense?.total_spend ? Number(latestExpense.total_spend) : 0,
+    public_spend_year: latestExpense?.year || null,
+  }
+
   const partyColour = mp.party_colour ? '#' + mp.party_colour.replace('#', '') : '#7697a2'
 
   return (
@@ -154,6 +198,7 @@ export default async function MPProfilePage({ params }: PageProps) {
           interests={interests || []}
           expenses={expenses || []}
           expensesDetail={expensesDetail || []}
+          earnings={earnings}
           partyColour={partyColour}
         />
       </main>

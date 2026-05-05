@@ -88,7 +88,7 @@ export default async function HomePage() {
       <section style={{
         width: '100%',
         minHeight: '380px',
-        backgroundImage: `linear-gradient(to right, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.5) 55%, rgba(0,0,0,0.88) 100%), url('https://images.unsplash.com/photo-1529655683826-aba9b3e77383?w=1920&q=80')`,
+        backgroundImage: `linear-gradient(to right, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.5) 55%, rgba(0,0,0,0.88) 100%), url('/hero-parliament.png')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         display: 'flex',
