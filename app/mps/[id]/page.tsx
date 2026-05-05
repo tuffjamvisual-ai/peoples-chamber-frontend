@@ -5,7 +5,7 @@ import Navigation from '../../components/Navigation'
 import { notFound } from 'next/navigation'
 import MPProfileClient from './MPProfileClient'
 
-export const revalidate = 3600
+export const revalidate = 60
 
 export async function generateStaticParams() {
   const { data: mps } = await supabase
