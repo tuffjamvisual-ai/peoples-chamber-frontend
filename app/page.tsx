@@ -34,6 +34,7 @@ export default async function HomePage() {
     { count: contractCount },
     { count: donationCount },
     { count: revolvingCount },
+    { data: topExpenseRows },
   ] = await Promise.all([
     supabase.from('press_releases').select('title, description, organisation, published_at, gov_url').order('published_at', { ascending: false }).limit(5),
     supabase.from('bill').select('id, title, vote_count_yes, vote_count_no, vote_count_abstain').order('vote_count_yes', { ascending: false }).limit(3),
@@ -45,7 +46,25 @@ export default async function HomePage() {
     supabase.from('government_contracts').select('id', { count: 'exact', head: true }),
     supabase.from('political_donations').select('id', { count: 'exact', head: true }),
     supabase.from('revolving_door').select('id', { count: 'exact', head: true }),
+    supabase.from('mp_expenses_summary').select('member_id, total_spend').eq('year', '24_25').order('total_spend', { ascending: false, nullsFirst: false }).limit(10),
   ])
+
+  const expenseIds = (topExpenseRows || []).map((r: { member_id: number }) => r.member_id)
+  const { data: expenseMps } = expenseIds.length
+    ? await supabase.from('mps').select('member_id, name, display_name, constituency, current_member').in('member_id', expenseIds)
+    : { data: [] as Array<{ member_id: number; name: string | null; display_name: string | null; constituency: string | null; current_member: boolean | null }> }
+  const expenseMpById = new Map<number, { name: string | null; display_name: string | null; constituency: string | null; current_member: boolean | null }>(
+    (expenseMps || []).map((m) => [m.member_id, m])
+  )
+  const topSpenders = (topExpenseRows || [])
+    .map((r: { member_id: number; total_spend: number | null }) => {
+      const m = expenseMpById.get(r.member_id)
+      return m && m.current_member
+        ? { member_id: r.member_id, total_spend: r.total_spend, name: m.display_name || m.name || '', constituency: m.constituency || '' }
+        : null
+    })
+    .filter((x): x is { member_id: number; total_spend: number | null; name: string; constituency: string } => x !== null)
+    .slice(0, 3)
 
   const leadStory = news?.[0]
   const otherStories = news?.slice(1, 5) || []
@@ -121,6 +140,53 @@ export default async function HomePage() {
       )}
 
       <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '2.5rem 1.5rem 4rem' }}>
+
+        {/* BIG SPENDERS — top-3 teaser linking to /expenses */}
+        {topSpenders.length > 0 && (
+          <section style={{ background: PANEL, border: `1px solid ${BORDER}`, padding: '1.5rem 2rem', marginBottom: '2.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: '1.5rem', alignItems: 'baseline', marginBottom: '1.25rem' }}>
+              <div>
+                <div style={{ fontSize: '10px', color: '#fff', letterSpacing: '0.25em', textTransform: 'uppercase', fontWeight: 700, opacity: 0.85, marginBottom: '6px' }}>
+                  The Big Spenders · 2024 / 2025
+                </div>
+                <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 32px)', fontWeight: 700, color: '#fff', letterSpacing: '-0.01em', lineHeight: 1.15, margin: 0 }}>
+                  Who&apos;s spending your money?
+                </h2>
+                <p style={{ fontStyle: 'italic', fontSize: '14px', color: MUTED, marginTop: '6px', lineHeight: 1.55, maxWidth: '640px' }}>
+                  The ten MPs with the biggest business-cost claims this year. Mostly the ones whose constituencies are furthest from Westminster — make of that what you will.
+                </p>
+              </div>
+              <Link href="/expenses" style={{ background: '#fff', color: '#000', padding: '11px 20px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                See top 10 →
+              </Link>
+            </div>
+            <ol style={{ listStyle: 'none', margin: 0, padding: 0, borderTop: `1px solid ${BORDER}` }}>
+              {topSpenders.map((s, i) => (
+                <li
+                  key={s.member_id}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '24px minmax(0, 1.4fr) minmax(0, 2fr) auto',
+                    gap: '1.25rem',
+                    alignItems: 'baseline',
+                    padding: '0.85rem 0',
+                    borderBottom: i < topSpenders.length - 1 ? `1px solid ${RULE}` : 'none',
+                  }}
+                >
+                  <span style={{ fontSize: '14px', color: MUTED, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>{i + 1}</span>
+                  <Link
+                    href={`/mps/${s.member_id}`}
+                    style={{ fontSize: '15px', color: '#fff', textDecoration: 'none', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                  >
+                    {s.name}
+                  </Link>
+                  <span style={{ fontSize: '13px', color: MUTED, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.constituency}</span>
+                  <span style={{ fontSize: '17px', fontWeight: 700, color: '#fff', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{fmtMoney(s.total_spend)}</span>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
 
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2.5rem' }}>
 
