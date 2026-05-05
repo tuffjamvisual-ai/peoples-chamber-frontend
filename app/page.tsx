@@ -27,6 +27,27 @@ export default async function HomePage() {
       <Navigation />
       <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 1.5rem 3rem' }}>
 
+        {/* WELCOME HERO */}
+        <section style={{ background: '#1a1a1a', padding: '1.75rem 2rem', borderBottom: '1px solid #333', textAlign: 'center' }}>
+          <h1 style={{ fontSize: '28px', fontWeight: 900, color: '#fff', margin: '0 0 0.5rem', letterSpacing: '-0.01em', lineHeight: 1.15 }}>
+            UK Government. Observed. Your Vote. Counted.
+          </h1>
+          <p style={{ fontSize: '14px', color: '#cccccc', margin: '0 0 1rem', lineHeight: 1.5 }}>
+            Track every bill, every MP, every contract and every donation — then have your say.
+          </p>
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '0.85rem' }}>
+            <Link href="/bills" style={{ background: '#fff', color: '#000', padding: '8px 18px', fontSize: '12px', fontWeight: 700, textDecoration: 'none', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+              Vote on Bills
+            </Link>
+            <Link href="/transparency" style={{ background: 'transparent', color: '#fff', padding: '8px 18px', fontSize: '12px', fontWeight: 700, textDecoration: 'none', letterSpacing: '0.1em', textTransform: 'uppercase', border: '1px solid #fff' }}>
+              Explore Transparency
+            </Link>
+          </div>
+          <div style={{ fontSize: '11px', color: '#cccccc', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+            3,884 bills · 650 MPs · 21,000+ transparency records
+          </div>
+        </section>
+
         {/* MAIN BODY */}
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1px', background: '#333', borderBottom: '1px solid #333' }}>
 
