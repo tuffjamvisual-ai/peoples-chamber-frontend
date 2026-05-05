@@ -19,7 +19,7 @@ const meta: DepartmentMeta = {
     'Welsh Language Policy',
     'Infrastructure in Wales'
   ],
-  description: 'Represents Wales\'s interests in Westminster and manages the relationship between the UK and Welsh governments.',
+  description: 'Communicates Welsh views to Westminster, and Westminster\'s views back to Cardiff Bay — often with a small adjustment in tone each way.',
   streetContext: '',
 };
 

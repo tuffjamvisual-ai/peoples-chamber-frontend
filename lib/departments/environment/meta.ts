@@ -29,7 +29,7 @@ const meta: DepartmentMeta = {
     'Veterinary Services',
     'Climate Adaptation'
   ],
-  description: 'Controls farming, food, the natural environment and animal welfare. Farmer protests and sewage in rivers have made this one of the most contested departments.',
+  description: 'Looks after farms, food, wildlife, and the rivers — currently best known for the state of the rivers.',
   streetContext: '',
 };
 

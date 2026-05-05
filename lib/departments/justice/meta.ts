@@ -29,7 +29,7 @@ const meta: DepartmentMeta = {
     'Prison Staff',
     'Crown Prosecution Service Liaison'
   ],
-  description: 'Controls prisons, courts, probation and legal aid. Prison overcrowding and the courts backlog are the defining crises facing the justice system.',
+  description: 'Runs prisons, courts and probation. Currently best known for prisons that are full and courts that are not.',
   streetContext: '',
 };
 

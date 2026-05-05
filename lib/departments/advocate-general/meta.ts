@@ -19,7 +19,7 @@ const meta: DepartmentMeta = {
     'Scottish Bar Relations',
     'Constitutional Law Scotland'
   ],
-  description: 'The UK government\'s legal adviser on Scots law. Handles legal questions where Scottish and UK law intersect.',
+  description: 'Legal adviser to UK Government on Scots law — the place where two perfectly clear legal systems meet and immediately stop agreeing with each other.',
   streetContext: '',
 };
 

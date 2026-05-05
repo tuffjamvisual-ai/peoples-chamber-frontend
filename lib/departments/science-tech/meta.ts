@@ -29,7 +29,7 @@ const meta: DepartmentMeta = {
     'Digital Identity',
     'Tech Skills'
   ],
-  description: 'Controls AI policy, R&D spending and digital infrastructure. The department shaping Britain\'s economic future in the technology age.',
+  description: 'AI policy, R&D spending, broadband. The department charged with persuading the rest of Whitehall that the future will, in fact, arrive.',
   streetContext: '',
 };
 

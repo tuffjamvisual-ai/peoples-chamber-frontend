@@ -19,7 +19,7 @@ const meta: DepartmentMeta = {
     'Cross-Border Issues',
     'Scotland in the Union'
   ],
-  description: 'Represents Scotland\'s interests in Westminster and Westminster\'s interests in Scotland. Independence and devolution are the defining questions.',
+  description: 'Represents Scotland in Westminster and Westminster in Scotland — in roughly that order on Mondays, and the other order on Tuesdays.',
   streetContext: '',
 };
 

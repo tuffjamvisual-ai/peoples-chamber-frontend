@@ -19,7 +19,7 @@ const meta: DepartmentMeta = {
     'Lords Attendance',
     'Lords Expenses'
   ],
-  description: 'Manages government business in the House of Lords. Lords reform and the role of unelected peers in blocking legislation are the defining issues.',
+  description: 'Steers government business through the House of Lords, where everyone is appointed, nobody can be voted out, and reform has been imminent since 1911.',
   streetContext: '',
 };
 

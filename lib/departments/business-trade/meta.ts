@@ -29,7 +29,7 @@ const meta: DepartmentMeta = {
     'Automotive Sector',
     'Tech Sector Support'
   ],
-  description: 'Drives UK trade, business regulation and investment. Trade deals post-Brexit and US tariffs make this department central to Britain\'s economic future.',
+  description: 'Negotiates trade deals, sets business regulation, and explains to anyone who\'ll listen why Britain is open for business. Now slightly busier than usual.',
   streetContext: '',
 };
 

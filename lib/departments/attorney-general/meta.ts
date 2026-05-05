@@ -19,7 +19,7 @@ const meta: DepartmentMeta = {
     'Unduly Lenient Sentences',
     'Law Officers'
   ],
-  description: 'The government\'s chief legal adviser. Oversees the Crown Prosecution Service and Serious Fraud Office.',
+  description: 'The government\'s chief lawyer, in charge of advising ministers what they\'re allowed to do — and, in practice, what they\'ve already done.',
   streetContext: '',
 };
 

@@ -19,7 +19,7 @@ const meta: DepartmentMeta = {
     'NI Security',
     'NI in the Union'
   ],
-  description: 'Manages the relationship between Westminster and Stormont. The Windsor Framework, legacy issues and the fragility of the Good Friday Agreement define this role.',
+  description: 'Liaises between Westminster and Stormont — a brief that is either entirely manageable or impossibly delicate, depending on the week.',
   streetContext: '',
 };
 

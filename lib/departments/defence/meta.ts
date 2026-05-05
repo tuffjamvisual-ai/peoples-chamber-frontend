@@ -29,7 +29,7 @@ const meta: DepartmentMeta = {
     'Military Justice',
     'Overseas Bases'
   ],
-  description: 'Controls Britain\'s armed forces, nuclear deterrent and defence spending. The war in Ukraine and NATO\'s 2% GDP target dominate the agenda.',
+  description: 'In charge of Britain\'s armed forces, the nuclear deterrent, and the running argument about whether 2% of GDP is enough.',
   streetContext: '',
 };
 

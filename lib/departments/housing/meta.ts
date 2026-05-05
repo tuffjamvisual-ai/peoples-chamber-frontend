@@ -29,7 +29,7 @@ const meta: DepartmentMeta = {
     'First Homes Scheme',
     'Housing Benefits Oversight'
   ],
-  description: 'Controls planning, housebuilding and local government. The housing crisis — with 300,000 homes needed per year — makes this one of the most urgent departments in government.',
+  description: 'In charge of planning, housebuilding, and the local councils that handle most of it. The 300,000-homes-a-year target has been agreed by every government since the war and met by none.',
   streetContext: '',
 };
 

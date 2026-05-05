@@ -30,7 +30,7 @@ const meta: DepartmentMeta = {
     'NatWest Government Shareholding', 'Post Office Financial Services',
     'HMRC Oversight', 'Customs & Excise',
   ],
-  description: 'The Ultimate Power Centre. Controls the nation\'s finances — every other department answers to the Treasury for money.',
+  description: 'Holds the purse strings. Every other department in this list spends most of its career trying to prise them open.',
   streetContext: 'With inflation at 2.3%, national debt at 93% of GDP and energy bills still high, most people feel they are working harder for less. The tax trap — frozen thresholds dragging millions into higher rates — is the biggest grievance on the street right now.'
 };
 

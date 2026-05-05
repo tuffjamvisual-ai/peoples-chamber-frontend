@@ -29,7 +29,7 @@ const meta: DepartmentMeta = {
     'Copyright',
     'Public Monuments'
   ],
-  description: 'Controls broadcasting, arts, sport and gambling. The BBC licence fee and football regulation are the most contested issues.',
+  description: 'Oversees broadcasting, the arts, sport and gambling — the four things politicians insist they have no opinions about, then issue opinions on.',
   streetContext: '',
 };
 

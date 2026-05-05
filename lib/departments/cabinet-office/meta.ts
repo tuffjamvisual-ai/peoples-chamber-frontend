@@ -29,7 +29,7 @@ const meta: DepartmentMeta = {
     'Data Sharing',
     'AI in Government'
   ],
-  description: 'The engine room of government. Controls the civil service, elections, national security coordination and how government itself works.',
+  description: 'The engine room of government — and the room where government remembers how to be a government. Runs the civil service, elections, and the bits no other department wants to own.',
   streetContext: '',
 };
 

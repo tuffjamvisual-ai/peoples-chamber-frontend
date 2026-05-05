@@ -19,7 +19,7 @@ const meta: DepartmentMeta = {
     'Commons Reform',
     'Speaker Relations'
   ],
-  description: 'Manages the government\'s business in the House of Commons. Controls what gets debated, when, and in what order.',
+  description: 'Decides what the Commons debates, in what order, and — crucially — what it doesn\'t get round to.',
   streetContext: '',
 };
 

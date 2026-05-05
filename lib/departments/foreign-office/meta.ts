@@ -29,7 +29,7 @@ const meta: DepartmentMeta = {
     'Gibraltar',
     'Falklands'
   ],
-  description: 'Manages Britain\'s relationships with every country in the world. Brexit, Ukraine, Gaza and relations with the US define the current agenda.',
+  description: 'Manages Britain\'s relationships with every country on Earth — and remembers fondly the years when most of those relationships ran themselves.',
   streetContext: '',
 };
 

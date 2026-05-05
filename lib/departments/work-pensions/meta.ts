@@ -29,7 +29,7 @@ const meta: DepartmentMeta = {
     'Auto-Enrolment Oversight',
     'Retirement Age'
   ],
-  description: 'Controls the benefits system, state pension and employment support. Decisions here directly affect millions of the most vulnerable people in Britain.',
+  description: 'Pays out the state pension, runs the benefits system, and is reminded fairly often that, for millions of households, the small print here decides the month.',
   streetContext: '',
 };
 

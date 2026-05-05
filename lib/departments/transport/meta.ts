@@ -29,7 +29,7 @@ const meta: DepartmentMeta = {
     'Drones',
     'Transport Decarbonisation'
   ],
-  description: 'Controls how Britain moves — roads, rail, aviation and the shift to electric transport. HS2 and rail nationalisation are the defining issues.',
+  description: 'Roads, rail, aviation and electric vehicles. Has spent two decades building HS2 and is now spending the next decade explaining why parts of it aren\'t being built.',
   streetContext: '',
 };
 

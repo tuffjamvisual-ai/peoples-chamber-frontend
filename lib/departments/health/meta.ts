@@ -29,7 +29,7 @@ const meta: DepartmentMeta = {
     'NHS Workforce',
     'Patient Safety'
   ],
-  description: 'Oversees the NHS and social care system. Controls the biggest domestic budget in government and decisions that affect every person in the country.',
+  description: 'Runs the NHS and social care, which between them touch every voter, swallow the largest single departmental budget, and never quite have enough beds.',
   streetContext: '',
 };
 

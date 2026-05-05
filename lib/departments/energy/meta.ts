@@ -29,7 +29,7 @@ const meta: DepartmentMeta = {
     'Energy Security',
     'International Climate Finance'
   ],
-  description: 'Controls Britain\'s energy supply, bills, and the path to net zero. Every household energy bill and climate target runs through this department.',
+  description: 'Keeps the lights on, the bills moving, and the 2030 net zero target technically still in the diary.',
   streetContext: '',
 };
 

@@ -29,7 +29,7 @@ const meta: DepartmentMeta = {
     'Teacher Recruitment',
     'Exam Reform'
   ],
-  description: 'Sets curriculum, funds schools and universities, and shapes the life chances of every child in England.',
+  description: 'Decides what England\'s children learn, who pays for it, and which exam reform we\'re definitely committing to this time.',
   streetContext: '',
 };
 
