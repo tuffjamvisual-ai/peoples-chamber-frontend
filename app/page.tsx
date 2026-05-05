@@ -55,12 +55,12 @@ export default async function HomePage() {
 
   const contractValue = topContract?.value ? Number(topContract.value) : 0
   const donationValue = topDonation?.amount ? Number(topDonation.amount) : 0
-  const scandal: { kind: 'contract' | 'donation' | null; value: number; line1: string; line2: string; href: string } =
+  const featured: { kind: 'contract' | 'donation' | null; value: number; line1: string; line2: string; sub: string; href: string } =
     contractValue >= donationValue && topContract
-      ? { kind: 'contract', value: contractValue, line1: topContract.title || 'Untitled contract', line2: 'Awarded to ' + (topContract.supplier || 'undisclosed supplier'), href: '/transparency/contracts' }
+      ? { kind: 'contract', value: contractValue, line1: topContract.title || 'Untitled contract', line2: 'Awarded to ' + (topContract.supplier || 'undisclosed supplier'), sub: 'Largest contract on record.', href: '/transparency/contracts' }
       : topDonation
-        ? { kind: 'donation', value: donationValue, line1: topDonation.donor_name || 'Anonymous donor', line2: 'Paid to ' + (topDonation.recipient_name || 'undisclosed recipient'), href: '/transparency/donations' }
-        : { kind: null, value: 0, line1: '', line2: '', href: '/transparency' }
+        ? { kind: 'donation', value: donationValue, line1: topDonation.donor_name || 'Anonymous donor', line2: 'Paid to ' + (topDonation.recipient_name || 'undisclosed recipient'), sub: 'Largest donation on record.', href: '/transparency/donations' }
+        : { kind: null, value: 0, line1: '', line2: '', sub: '', href: '/transparency' }
 
   return (
     <div style={{ minHeight: '100vh', background: BG, color: '#fff', fontFamily: SANS }}>
@@ -82,42 +82,40 @@ export default async function HomePage() {
       }}>
         <div style={{ maxWidth: '880px', width: '100%' }}>
           <div style={{ fontSize: '11px', color: '#fff', letterSpacing: '0.3em', textTransform: 'uppercase', marginBottom: '1.25rem', opacity: 0.85 }}>
-            The People&apos;s Chamber · Receipts Department
+            The People&apos;s Chamber · Public Transparency
           </div>
           <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(38px, 5.5vw, 60px)', fontWeight: 700, color: '#fff', margin: '0 0 1rem', letterSpacing: '-0.015em', lineHeight: 1.05 }}>
-            Watching Westminster.<br />So you don&apos;t have to.
+            UK Government.<br />In public view.
           </h1>
-          <p style={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: '17px', color: '#fff', margin: '0 auto 1.75rem', maxWidth: '680px', lineHeight: 1.5, opacity: 0.92 }}>
-            Bills they hoped you&apos;d ignore. Cash they hoped you wouldn&apos;t see. Contracts to mates. Doors revolving fast enough to power the Grid. The receipts are inside.
+          <p style={{ fontSize: '17px', color: '#fff', margin: '0 auto 1.75rem', maxWidth: '680px', lineHeight: 1.55, opacity: 0.92 }}>
+            Track every bill, MP, contract and donation across UK Government. Add your vote to the public record — it doesn&apos;t unmake the law, but at least someone counted.
           </p>
           <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link href="/transparency" style={{ background: '#fff', color: '#000', padding: '11px 22px', fontSize: '12px', fontWeight: 700, textDecoration: 'none', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
-              See the Damage
+              Explore Records
             </Link>
             <Link href="/bills" style={{ background: 'transparent', color: '#fff', padding: '11px 22px', fontSize: '12px', fontWeight: 700, textDecoration: 'none', letterSpacing: '0.15em', textTransform: 'uppercase', border: '1px solid #fff' }}>
-              Vote Anyway
+              Vote on Bills
             </Link>
           </div>
         </div>
       </section>
 
-      {/* SCANDAL OF THE WEEK */}
-      {scandal.kind && (
+      {/* NOTABLE TRANSACTION */}
+      {featured.kind && (
         <section style={{ background: PANEL, borderBottom: `1px solid ${BORDER}` }}>
           <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '1.5rem 1.5rem', display: 'grid', gridTemplateColumns: '160px 1fr auto', gap: '1.75rem', alignItems: 'center' }}>
             <div style={{ borderRight: `1px solid ${BORDER}`, paddingRight: '1.5rem' }}>
-              <div style={{ fontSize: '10px', color: '#fff', letterSpacing: '0.25em', textTransform: 'uppercase', fontWeight: 700, opacity: 0.85 }}>Scandal of the Week</div>
-              <div style={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: '12px', color: MUTED, marginTop: '4px' }}>
-                {scandal.kind === 'contract' ? 'Largest contract on record.' : 'Largest donation on record.'}
-              </div>
+              <div style={{ fontSize: '10px', color: '#fff', letterSpacing: '0.25em', textTransform: 'uppercase', fontWeight: 700, opacity: 0.85 }}>Notable Transaction</div>
+              <div style={{ fontSize: '12px', color: MUTED, marginTop: '4px' }}>{featured.sub}</div>
             </div>
             <div>
-              <div style={{ fontFamily: SERIF, fontSize: '22px', fontWeight: 700, color: '#fff', lineHeight: 1.2, marginBottom: '4px' }}>{scandal.line1}</div>
-              <div style={{ fontSize: '13px', color: '#fff' }}>{scandal.line2}. <span style={{ fontFamily: SERIF, fontStyle: 'italic', color: MUTED }}>You weren&apos;t consulted.</span></div>
+              <div style={{ fontFamily: SERIF, fontSize: '22px', fontWeight: 700, color: '#fff', lineHeight: 1.2, marginBottom: '4px' }}>{featured.line1}</div>
+              <div style={{ fontSize: '13px', color: '#fff' }}>{featured.line2}.</div>
             </div>
-            <Link href={scandal.href} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textDecoration: 'none', borderLeft: `1px solid ${BORDER}`, paddingLeft: '1.5rem' }}>
-              <span style={{ fontFamily: SERIF, fontSize: '32px', fontWeight: 700, color: '#fff', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{fmtMoney(scandal.value)}</span>
-              <span style={{ fontSize: '10px', color: '#fff', letterSpacing: '0.2em', textTransform: 'uppercase', marginTop: '6px', opacity: 0.7 }}>read the file →</span>
+            <Link href={featured.href} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textDecoration: 'none', borderLeft: `1px solid ${BORDER}`, paddingLeft: '1.5rem' }}>
+              <span style={{ fontFamily: SERIF, fontSize: '32px', fontWeight: 700, color: '#fff', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{fmtMoney(featured.value)}</span>
+              <span style={{ fontSize: '10px', color: '#fff', letterSpacing: '0.2em', textTransform: 'uppercase', marginTop: '6px', opacity: 0.7 }}>view details →</span>
             </Link>
           </div>
         </section>
@@ -130,9 +128,9 @@ export default async function HomePage() {
           {/* LEFT */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
 
-            {/* TODAY'S SPIN */}
+            {/* PRESS RELEASES */}
             <section>
-              <SectionHead label="Today's Spin" sub="Whatever the press office wants you to read." />
+              <SectionHead label="Latest Press Releases" sub="This week's official line, straight from the press offices." />
               {leadStory && (
                 <article style={{ marginBottom: '1.5rem' }}>
                   <h2 style={{ fontFamily: SERIF, fontSize: '30px', fontWeight: 700, color: '#fff', lineHeight: 1.15, margin: '0 0 0.6rem', letterSpacing: '-0.01em' }}>{leadStory.title}</h2>
@@ -140,9 +138,8 @@ export default async function HomePage() {
                     <p style={{ fontSize: '14px', color: '#fff', lineHeight: 1.6, margin: '0 0 0.6rem', opacity: 0.92 }}>{leadStory.description}</p>
                   )}
                   <div style={{ fontSize: '11px', color: MUTED, letterSpacing: '0.05em' }}>
-                    Filed by <span style={{ color: '#fff' }}>{leadStory.organisation}</span>
+                    <span style={{ color: '#fff' }}>{leadStory.organisation}</span>
                     {leadStory.published_at ? ` · ${new Date(leadStory.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}` : ''}
-                    <span style={{ fontFamily: SERIF, fontStyle: 'italic' }}> — read it here so they can&apos;t pretend they didn&apos;t say it.</span>
                   </div>
                 </article>
               )}
@@ -161,8 +158,8 @@ export default async function HomePage() {
             {/* CONTRACTS */}
             <section>
               <SectionHead
-                label="Contracts handed out (to their mates)"
-                sub={contractCount ? `${contractCount.toLocaleString()} on file. Bring your own envelope.` : 'Bring your own envelope.'}
+                label="Recent Government Contracts"
+                sub={contractCount ? `${contractCount.toLocaleString()} on file. And counting.` : 'And counting.'}
               />
               <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
                 {contracts?.map((c, i) => (
@@ -170,7 +167,7 @@ export default async function HomePage() {
                     <Link href="/transparency/contracts" style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '1.5rem', textDecoration: 'none', padding: '0.85rem 0', alignItems: 'baseline' }}>
                       <div>
                         <div style={{ fontFamily: SERIF, fontSize: '15px', color: '#fff', lineHeight: 1.3 }}>{c.title}</div>
-                        <div style={{ fontSize: '11px', color: MUTED, marginTop: '3px' }}>To <span style={{ color: '#fff' }}>{c.supplier || 'undisclosed'}</span></div>
+                        <div style={{ fontSize: '11px', color: MUTED, marginTop: '3px' }}>Awarded to <span style={{ color: '#fff' }}>{c.supplier || 'undisclosed'}</span></div>
                       </div>
                       <div style={{ fontFamily: SERIF, fontSize: '17px', fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>{fmtMoney(c.value)}</div>
                     </Link>
@@ -182,8 +179,8 @@ export default async function HomePage() {
             {/* DONATIONS */}
             <section>
               <SectionHead
-                label="Who owns your MP"
-                sub={donationCount ? `${donationCount.toLocaleString()} payments declared. The rest, who knows.` : 'The rest, who knows.'}
+                label="Recent Political Donations"
+                sub={donationCount ? `${donationCount.toLocaleString()} declared. So far.` : 'So far.'}
               />
               <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
                 {donations?.map((d, i) => (
@@ -191,7 +188,7 @@ export default async function HomePage() {
                     <Link href="/transparency/donations" style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '1.5rem', textDecoration: 'none', padding: '0.85rem 0', alignItems: 'baseline' }}>
                       <div>
                         <div style={{ fontFamily: SERIF, fontSize: '15px', color: '#fff', lineHeight: 1.3 }}>{d.donor_name}</div>
-                        <div style={{ fontSize: '11px', color: MUTED, marginTop: '3px' }}>→ <span style={{ color: '#fff' }}>{d.recipient_name}</span></div>
+                        <div style={{ fontSize: '11px', color: MUTED, marginTop: '3px' }}>To <span style={{ color: '#fff' }}>{d.recipient_name}</span></div>
                       </div>
                       <div style={{ fontFamily: SERIF, fontSize: '17px', fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>{fmtMoney(d.amount)}</div>
                     </Link>
@@ -204,9 +201,9 @@ export default async function HomePage() {
           {/* RIGHT */}
           <aside style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
 
-            {/* PUBLIC vs PARLIAMENT */}
+            {/* PUBLIC BILL VOTES */}
             <section>
-              <SectionHead label="Public vs Parliament" sub="Where they sold you out this week." compact />
+              <SectionHead label="Public Bill Votes" sub="Live tally of public votes. Parliament's may differ." compact />
               {bills?.map((bill) => {
                 const yes = bill.vote_count_yes || 0
                 const no = bill.vote_count_no || 0
@@ -214,7 +211,6 @@ export default async function HomePage() {
                 const total = yes + no + abs
                 const yesPct = total > 0 ? Math.round((yes / total) * 100) : 0
                 const noPct = total > 0 ? Math.round((no / total) * 100) : 0
-                const verdict = yesPct >= 60 ? 'Public says yes.' : noPct >= 60 ? 'Public says no.' : 'Public is split. As per usual.'
                 return (
                   <Link href={`/bills/${bill.id}`} key={bill.id} style={{ display: 'block', marginBottom: '1.1rem', textDecoration: 'none' }}>
                     <div style={{ fontFamily: SERIF, fontSize: '14px', color: '#fff', lineHeight: 1.3, marginBottom: '6px' }}>{bill.title}</div>
@@ -222,8 +218,8 @@ export default async function HomePage() {
                       {yesPct > 0 && <div style={{ height: '100%', width: `${yesPct}%`, background: '#fff' }} />}
                       {noPct > 0 && <div style={{ height: '100%', width: `${noPct}%`, background: '#666' }} />}
                     </div>
-                    <div style={{ fontSize: '10px', color: '#fff', letterSpacing: '0.05em', textTransform: 'uppercase', fontWeight: 600 }}>
-                      {verdict} <span style={{ color: MUTED, fontWeight: 400, textTransform: 'none', fontFamily: SERIF, fontStyle: 'italic' }}>· {total.toLocaleString()} votes</span>
+                    <div style={{ fontSize: '11px', color: MUTED, fontVariantNumeric: 'tabular-nums' }}>
+                      {yesPct}% support · {total.toLocaleString()} votes
                     </div>
                   </Link>
                 )
@@ -232,7 +228,7 @@ export default async function HomePage() {
 
             {/* REVOLVING DOOR */}
             <section>
-              <SectionHead label="The Revolving Door of Shame" sub={revolvingCount ? `${revolvingCount.toLocaleString()} round-trips logged.` : 'Spinning since forever.'} compact />
+              <SectionHead label="Revolving Door" sub={revolvingCount ? `${revolvingCount.toLocaleString()} moves between Whitehall and the private sector. Some quicker than others.` : 'Some quicker than others.'} compact />
               <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
                 {revolving?.map((r, i) => (
                   <li key={i} style={{ borderTop: i === 0 ? 'none' : `1px solid ${RULE}` }}>
@@ -245,14 +241,14 @@ export default async function HomePage() {
               </ul>
             </section>
 
-            {/* BROKEN PROMISES COUNTER */}
+            {/* DATABASE TOTALS */}
             <section>
-              <SectionHead label="Broken Promises Counter" sub="Updated daily. Could be hourly." compact />
+              <SectionHead label="Database Totals" sub="Refreshed daily. Growing weekly." compact />
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1px', background: BORDER, border: `1px solid ${BORDER}` }}>
-                <Counter big="3,884" label="Bills introduced" hint="Not all read." />
-                <Counter big="650" label="MPs in the room" hint="Varying attendance." />
-                <Counter big={(contractCount || 0).toLocaleString()} label="Contracts on file" hint="Some to friends." />
-                <Counter big={(donationCount || 0).toLocaleString()} label="Donations logged" hint="More off the books." />
+                <Counter big="3,884" label="Bills tracked" />
+                <Counter big="650" label="Sitting MPs" />
+                <Counter big={(contractCount || 0).toLocaleString()} label="Contracts" />
+                <Counter big={(donationCount || 0).toLocaleString()} label="Donations" />
               </div>
             </section>
           </aside>
@@ -261,13 +257,13 @@ export default async function HomePage() {
         {/* CTA STRIP */}
         <section style={{ marginTop: '3rem', background: PANEL, border: `1px solid ${BORDER}`, padding: '1.75rem 2rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', alignItems: 'center' }}>
           <div>
-            <div style={{ fontSize: '10px', color: '#fff', fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', marginBottom: '8px', opacity: 0.85 }}>If you don&apos;t watch them</div>
-            <div style={{ fontFamily: SERIF, fontSize: '26px', fontWeight: 700, color: '#fff', letterSpacing: '-0.01em', lineHeight: 1.2 }}>nobody else is going to.</div>
-            <div style={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: '14px', color: MUTED, marginTop: '6px' }}>Cast a public vote on every bill. Pin a name to every contract. Track every door that revolves.</div>
+            <div style={{ fontSize: '10px', color: '#fff', fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', marginBottom: '8px', opacity: 0.85 }}>Take part</div>
+            <div style={{ fontFamily: SERIF, fontSize: '26px', fontWeight: 700, color: '#fff', letterSpacing: '-0.01em', lineHeight: 1.2 }}>Add your voice to the public record.</div>
+            <div style={{ fontSize: '14px', color: MUTED, marginTop: '6px', lineHeight: 1.5 }}>Vote on bills, browse contracts, and keep an eye on who&apos;s coming and going through the Westminster door. We track it. You decide what to make of it.</div>
           </div>
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
             <Link href="/bills" style={{ background: '#fff', color: '#000', padding: '11px 20px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', textDecoration: 'none' }}>Vote on Bills</Link>
-            <Link href="/transparency" style={{ background: 'transparent', color: '#fff', padding: '11px 20px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', textDecoration: 'none', border: '1px solid #fff' }}>The Receipts</Link>
+            <Link href="/transparency" style={{ background: 'transparent', color: '#fff', padding: '11px 20px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', textDecoration: 'none', border: '1px solid #fff' }}>Transparency Records</Link>
           </div>
         </section>
       </main>
@@ -284,12 +280,11 @@ function SectionHead({ label, sub, compact = false }: { label: string; sub?: str
   )
 }
 
-function Counter({ big, label, hint }: { big: string; label: string; hint?: string }) {
+function Counter({ big, label }: { big: string; label: string }) {
   return (
     <div style={{ background: BG, padding: '14px 16px' }}>
       <div style={{ fontFamily: SERIF, fontSize: '26px', fontWeight: 700, color: '#fff', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{big}</div>
       <div style={{ fontSize: '10px', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.18em', marginTop: '6px', fontWeight: 600 }}>{label}</div>
-      {hint && <div style={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: '11px', color: MUTED, marginTop: '3px' }}>{hint}</div>}
     </div>
   )
 }
