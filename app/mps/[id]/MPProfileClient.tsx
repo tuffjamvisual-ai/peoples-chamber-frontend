@@ -11,6 +11,7 @@ interface MPProfileClientProps {
   votes: any[]
   interests: any[]
   expenses: any[]
+  expensesDetail?: any[]
   partyColour: string
 }
 
@@ -27,6 +28,7 @@ export default function MPProfileClient({
   votes,
   interests,
   expenses,
+  expensesDetail,
   partyColour,
 }: MPProfileClientProps) {
   const [activeSection, setActiveSection] = useState(bio?.political_bio ? 'bio' : 'contact')
@@ -361,6 +363,11 @@ export default function MPProfileClient({
                     <ExpenseCell label="Other costs"   spend={y.other_costs_spend}      uncapped />
                     <ExpenseCell label="Winding-up"    spend={y.winding_up_spend}       budget={y.winding_up_budget} />
                   </div>
+                  <ClaimsForYear
+                    year={y.year}
+                    claims={(expensesDetail || []).filter((c: any) => c.year === y.year)}
+                    partyColour={partyColour}
+                  />
                 </li>
               ))}
             </ul>
@@ -383,6 +390,83 @@ function fmtMoney(v: any): string {
   const n = typeof v === 'number' ? v : Number(v)
   if (!Number.isFinite(n)) return '£0'
   return '£' + Math.round(n).toLocaleString('en-GB')
+}
+
+function ClaimsForYear({ year, claims, partyColour }: { year: string; claims: any[]; partyColour: string }) {
+  if (!claims || claims.length === 0) return null
+  // group by category
+  const byCategory: Record<string, any[]> = {}
+  for (const c of claims) {
+    const k = c.category || 'Uncategorised'
+    if (!byCategory[k]) byCategory[k] = []
+    byCategory[k].push(c)
+  }
+  const categoryOrder = Object.keys(byCategory).sort((a, b) => {
+    const ta = byCategory[a].reduce((s, c) => s + (Number(c.amount_paid) || 0), 0)
+    const tb = byCategory[b].reduce((s, c) => s + (Number(c.amount_paid) || 0), 0)
+    return tb - ta
+  })
+
+  return (
+    <div className="mt-4 pt-4 border-t border-[#333333]">
+      <p className="text-[10px] uppercase tracking-[0.18em] text-white opacity-70 mb-2">
+        Itemised claims · {claims.length}
+      </p>
+      <div className="space-y-px border border-[#333333]">
+        {categoryOrder.map((cat) => {
+          const items = byCategory[cat]
+          const total = items.reduce((s, c) => s + (Number(c.amount_paid) || 0), 0)
+          return (
+            <details key={`${year}-${cat}`} className="bg-[#1a1a1a] group">
+              <summary
+                className="cursor-pointer list-none flex items-center justify-between gap-3 px-3 py-2 hover:bg-[#222222] transition-colors border-l-2"
+                style={{ borderLeftColor: partyColour }}
+              >
+                <span className="flex-1 min-w-0 flex items-center gap-2">
+                  <span className="text-white opacity-60 text-[11px] group-open:rotate-90 inline-block transition-transform">▶</span>
+                  <span className="text-[13px] font-semibold text-white truncate">{cat}</span>
+                  <span className="text-[11px] text-white opacity-60 whitespace-nowrap">
+                    {items.length} claim{items.length === 1 ? '' : 's'}
+                  </span>
+                </span>
+                <span className="text-[14px] font-semibold text-white tabular-nums whitespace-nowrap">
+                  {fmtMoney(total)}
+                </span>
+              </summary>
+              <ul className="bg-[#0e0e0e] border-t border-[#222222]">
+                {items.map((c) => (
+                  <li
+                    key={c.claim_number || `${c.claim_date}-${c.cost_type}-${c.amount_paid}`}
+                    className="grid grid-cols-[90px_1fr_auto] gap-3 px-3 py-2 border-t border-[#1a1a1a] first:border-t-0 text-[12px]"
+                  >
+                    <span className="text-white opacity-60 tabular-nums">
+                      {fmtClaimDate(c.claim_date)}
+                    </span>
+                    <span className="text-white truncate" title={c.short_description || c.details || c.cost_type || ''}>
+                      <span className="opacity-90">{c.cost_type || c.short_description || '—'}</span>
+                      {c.short_description && c.cost_type && c.short_description !== c.cost_type ? (
+                        <span className="opacity-60"> · {c.short_description}</span>
+                      ) : null}
+                    </span>
+                    <span className="text-white tabular-nums whitespace-nowrap">
+                      {fmtMoney(c.amount_paid)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function fmtClaimDate(d: any): string {
+  if (!d) return ''
+  const dt = new Date(d)
+  if (Number.isNaN(dt.getTime())) return ''
+  return dt.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' })
 }
 
 function ExpenseCell({ label, spend, budget, uncapped }: { label: string; spend: any; budget?: any; uncapped?: boolean }) {

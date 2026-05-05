@@ -88,6 +88,13 @@ export default async function MPProfilePage({ params }: PageProps) {
     .eq('member_id', memberId)
     .order('year', { ascending: false })
 
+  const { data: expensesDetail } = await supabase
+    .from('mp_expenses_detail')
+    .select('claim_number, year, claim_date, category, cost_type, short_description, details, amount_paid, status')
+    .eq('member_id', memberId)
+    .order('claim_date', { ascending: false })
+    .range(0, 4999)
+
   const partyColour = mp.party_colour ? '#' + mp.party_colour.replace('#', '') : '#7697a2'
 
   return (
@@ -146,6 +153,7 @@ export default async function MPProfilePage({ params }: PageProps) {
           votes={votes || []}
           interests={interests || []}
           expenses={expenses || []}
+          expensesDetail={expensesDetail || []}
           partyColour={partyColour}
         />
       </main>
