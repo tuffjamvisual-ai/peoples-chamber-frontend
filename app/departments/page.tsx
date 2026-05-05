@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { departments } from '@/lib/departments';
+import { supabase } from '@/lib/supabase';
 import Navigation from '../components/Navigation';
 import Link from 'next/link';
 
@@ -10,10 +11,20 @@ export const metadata: Metadata = {
   alternates: { canonical: '/departments' },
 };
 
+export const revalidate = 3600;
+
 const ACCENT = '#ffffff';
 
-export default function DepartmentsPage() {
+export default async function DepartmentsPage() {
   const totalZones = departments.reduce((sum, d) => sum + d.controlZones.length, 0);
+
+  const { data: sosRows } = await supabase
+    .from('dept_ministers')
+    .select('dept_slug, photo_url')
+    .eq('is_secretary_of_state', true);
+  const photoBySlug = new Map<string, string>(
+    (sosRows || []).map((r: { dept_slug: string; photo_url: string | null }) => [r.dept_slug, r.photo_url || ''])
+  );
 
   return (
     <div className="min-h-screen bg-[#1a1a1a] text-white">
@@ -50,9 +61,9 @@ export default function DepartmentsPage() {
                 <p className="text-white text-[15px] leading-[1.7] mb-4 line-clamp-2">{dept.description}</p>
 
                 <div className="flex items-center gap-2 mb-3">
-                  {dept.ministerPhoto ? (
+                  {photoBySlug.get(dept.slug) ? (
                     <img
-                      src={dept.ministerPhoto}
+                      src={photoBySlug.get(dept.slug)!}
                       alt={dept.minister}
                       className="w-6 h-6 rounded-full object-cover bg-[#1a1a1a]"
                       style={{ border: `1px solid ${ACCENT}55` }}

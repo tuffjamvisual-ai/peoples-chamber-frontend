@@ -58,7 +58,6 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
   const [stats, setStats] = useState<EconomicStats | null>(null);
   const [streetContext, setStreetContext] = useState<string | null>(null);
   const [govukData, setGovukData] = useState<GovukData | null>(null);
-  const [sosPhoto, setSosPhoto] = useState<string | null>(null);
   const searchRef = useRef<HTMLDivElement>(null);
 
   const filteredZones = dept ? dept.controlZones.filter((z) => z.toLowerCase().includes(zoneSearch.toLowerCase())) : [];
@@ -78,11 +77,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
     fetch(`/api/govuk-dept?slug=${slug}`)
       .then((r) => r.json())
       .then((d) => {
-        if (d.ministers) {
-          setGovukData(d);
-          const sosPhotoUrl = d.ministers[0]?.photo;
-          if (sosPhotoUrl) setSosPhoto(sosPhotoUrl);
-        }
+        if (d.ministers) setGovukData(d);
       })
       .catch(() => {});
   }, [slug, dept]);
@@ -152,9 +147,9 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
         <section className="border-b border-[#333333] pb-8 mb-8">
           <p className="text-[13px] uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: ACCENT }}>Secretary of State</p>
           <div className="flex items-center gap-6">
-            {sosPhoto ? (
+            {sos.photo ? (
               <img
-                src={sosPhoto}
+                src={sos.photo}
                 alt={sos.name}
                 className="w-28 h-28 rounded-full object-cover flex-shrink-0"
                 style={{ border: `2px solid ${ACCENT}` }}
