@@ -82,6 +82,12 @@ export default async function MPProfilePage({ params }: PageProps) {
     .eq('member_id', memberId)
     .order('category_sort_order', { ascending: true })
 
+  const { data: expenses } = await supabase
+    .from('mp_expenses_summary')
+    .select('*')
+    .eq('member_id', memberId)
+    .order('year', { ascending: false })
+
   const partyColour = mp.party_colour ? '#' + mp.party_colour.replace('#', '') : '#7697a2'
 
   return (
@@ -139,6 +145,7 @@ export default async function MPProfilePage({ params }: PageProps) {
           sponsoredBills={sponsoredBills || []}
           votes={votes || []}
           interests={interests || []}
+          expenses={expenses || []}
           partyColour={partyColour}
         />
       </main>

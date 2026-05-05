@@ -10,6 +10,7 @@ interface MPProfileClientProps {
   sponsoredBills: any[]
   votes: any[]
   interests: any[]
+  expenses: any[]
   partyColour: string
 }
 
@@ -25,6 +26,7 @@ export default function MPProfileClient({
   sponsoredBills,
   votes,
   interests,
+  expenses,
   partyColour,
 }: MPProfileClientProps) {
   const [activeSection, setActiveSection] = useState(bio?.political_bio ? 'bio' : 'contact')
@@ -48,6 +50,8 @@ export default function MPProfileClient({
 
   const politicalBio: string = bio?.political_bio || ''
 
+  const hasExpenses = (expenses || []).length > 0
+
   const menuItems = [
     ...(politicalBio ? [{ id: 'bio', label: 'Political Bio' }] : []),
     { id: 'contact', label: 'Contact' },
@@ -56,6 +60,7 @@ export default function MPProfileClient({
     { id: 'bills', label: 'Bills sponsored' },
     { id: 'interests', label: 'Interests' },
     { id: 'roles', label: 'Roles' },
+    ...(hasExpenses ? [{ id: 'expenses', label: 'Expenses' }] : []),
   ]
 
   return (
@@ -325,7 +330,76 @@ export default function MPProfileClient({
             </div>
           </Section>
         )}
+
+        {activeSection === 'expenses' && hasExpenses && (
+          <Section title="Business costs and expenses">
+            <p className="text-white text-[13px] leading-[1.7] mb-6 opacity-80">
+              Annual claims for staffing, office, accommodation, travel and other costs.
+              Source: <a href="https://www.theipsa.org.uk" target="_blank" rel="noopener noreferrer" className="text-white hover:underline">IPSA</a> total-spend annual data.
+            </p>
+
+            <ul className="space-y-px border border-[#333333]">
+              {(expenses as any[]).map((y, idx) => (
+                <li
+                  key={`${y.year}-${idx}`}
+                  className="bg-[#1a1a1a] p-5 border-l-2"
+                  style={{ borderLeftColor: partyColour }}
+                >
+                  <div className="flex items-baseline justify-between mb-3">
+                    <p className="text-[13px] uppercase tracking-[0.25em] text-white font-semibold">
+                      {fmtFinancialYear(y.year)}
+                    </p>
+                    <p className="text-2xl font-black tracking-tight text-white tabular-nums">
+                      {fmtMoney(y.total_spend)}
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-px bg-[#222222] border border-[#333333]">
+                    <ExpenseCell label="Staffing"      spend={y.staffing_spend}        budget={y.staffing_budget} />
+                    <ExpenseCell label="Office"        spend={y.office_spend}          budget={y.office_budget} />
+                    <ExpenseCell label="Accommodation" spend={y.accommodation_spend}    budget={y.accommodation_budget} />
+                    <ExpenseCell label="Travel"        spend={y.travel_subsistence_spend} uncapped />
+                    <ExpenseCell label="Other costs"   spend={y.other_costs_spend}      uncapped />
+                    <ExpenseCell label="Winding-up"    spend={y.winding_up_spend}       budget={y.winding_up_budget} />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </Section>
+        )}
       </div>
+    </div>
+  )
+}
+
+function fmtFinancialYear(yy: string): string {
+  // '24_25' -> '2024 / 2025'
+  const m = /^(\d{2})_(\d{2})$/.exec(yy || '')
+  if (!m) return yy || ''
+  return `20${m[1]} / 20${m[2]}`
+}
+
+function fmtMoney(v: any): string {
+  if (v === null || v === undefined || v === '') return '£0'
+  const n = typeof v === 'number' ? v : Number(v)
+  if (!Number.isFinite(n)) return '£0'
+  return '£' + Math.round(n).toLocaleString('en-GB')
+}
+
+function ExpenseCell({ label, spend, budget, uncapped }: { label: string; spend: any; budget?: any; uncapped?: boolean }) {
+  const s = spend == null ? 0 : Number(spend)
+  const b = budget == null ? null : Number(budget)
+  const pct = b && b > 0 ? Math.min(100, Math.round((s / b) * 100)) : null
+  return (
+    <div className="bg-[#1a1a1a] p-3">
+      <p className="text-[10px] uppercase tracking-[0.18em] text-white opacity-80 mb-1.5">{label}</p>
+      <p className="text-[15px] font-semibold text-white tabular-nums">{fmtMoney(s)}</p>
+      {uncapped ? (
+        <p className="text-[10px] uppercase tracking-[0.18em] text-white opacity-50 mt-1">Uncapped</p>
+      ) : b != null ? (
+        <p className="text-[10px] uppercase tracking-[0.18em] text-white opacity-50 mt-1 tabular-nums">
+          of {fmtMoney(b)}{pct != null ? ` · ${pct}%` : ''}
+        </p>
+      ) : null}
     </div>
   )
 }
