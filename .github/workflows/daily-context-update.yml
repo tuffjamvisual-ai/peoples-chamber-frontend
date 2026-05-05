@@ -17,8 +17,14 @@ jobs:
         run: npm install @anthropic-ai/sdk @supabase/supabase-js csv-parse playwright
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
+      - name: Install PostgreSQL client (for psql backfills)
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
       - name: Sync GOV.UK department data
         run: node scripts/sync-govuk-data.js
+      - name: Backfill ministerial salary bands (preserves the dept_ministers.salary_band column that sync-govuk-data wipes via delete+insert)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/backfill-dept-ministers-bands.sql
       - name: Update street contexts
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -61,6 +67,39 @@ jobs:
         env:
           COMPANIES_HOUSE_API_KEY: ${{ secrets.COMPANIES_HOUSE_API_KEY }}
         run: node scripts/sync-companies-house.js
+        continue-on-error: true
+      - name: Sync GOV.UK press releases (powers the homepage news strip)
+        run: node scripts/sync-press-releases.js
+        continue-on-error: true
+      - name: Sync MP registered interests (powers the Interests tab + outside earnings)
+        run: node scripts/sync-mp-interests.js
+        continue-on-error: true
+      - name: Sync IPSA expenses (annual totals — cheap, ~1k rows)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: node scripts/sync-ipsa-expenses.js 24_25 23_24
+        continue-on-error: true
+      - name: Recompute outside-earnings summary (depends on mp_registered_interests)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
+          TRUNCATE mp_outside_earnings_summary;
+          WITH payments AS (
+            SELECT i.member_id, i.id AS parent_row_id,
+              substring(c->>'interest' FROM 'Payment:\s*£([0-9][0-9,]*(?:\.[0-9]+)?)') AS amt_text
+            FROM mp_registered_interests i
+            CROSS JOIN LATERAL jsonb_array_elements(coalesce(i.child_interests, '[]'::jsonb)) AS c
+            WHERE i.category_name = '1. Employment and earnings'
+              AND coalesce((c->>'isCorrection')::boolean, false) = false
+          )
+          INSERT INTO mp_outside_earnings_summary (member_id, total_extracted, claim_count, source_count)
+          SELECT member_id,
+            SUM(replace(amt_text, ',', '')::numeric),
+            COUNT(*) FILTER (WHERE amt_text IS NOT NULL),
+            COUNT(DISTINCT parent_row_id) FILTER (WHERE amt_text IS NOT NULL)
+          FROM payments WHERE amt_text IS NOT NULL GROUP BY member_id;
+          SQL
         continue-on-error: true
       - name: Trigger Vercel redeploy
         run: curl -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
