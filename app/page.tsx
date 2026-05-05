@@ -10,8 +10,7 @@ const BORDER = '#333333'
 const RULE = '#262626'
 const MUTED = '#9a9a9a'
 
-const SERIF = '"Georgia", "Charter", "Times New Roman", serif'
-const SANS = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif'
+const FONT = 'var(--font-geist-sans), Arial, Helvetica, sans-serif'
 
 function fmtMoney(v: number | string | null | undefined): string {
   if (v === null || v === undefined || v === '') return 'undisclosed'
@@ -63,7 +62,7 @@ export default async function HomePage() {
         : { kind: null, value: 0, line1: '', line2: '', sub: '', href: '/transparency' }
 
   return (
-    <div style={{ minHeight: '100vh', background: BG, color: '#fff', fontFamily: SANS }}>
+    <div style={{ minHeight: '100vh', background: BG, color: '#fff', fontFamily: FONT }}>
       <Navigation />
 
       {/* HERO */}
@@ -84,7 +83,7 @@ export default async function HomePage() {
           <div style={{ fontSize: '11px', color: '#fff', letterSpacing: '0.3em', textTransform: 'uppercase', marginBottom: '1.25rem', opacity: 0.85 }}>
             The People&apos;s Chamber · Public Transparency
           </div>
-          <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(38px, 5.5vw, 60px)', fontWeight: 700, color: '#fff', margin: '0 0 1rem', letterSpacing: '-0.015em', lineHeight: 1.05 }}>
+          <h1 style={{ fontSize: 'clamp(38px, 5.5vw, 60px)', fontWeight: 700, color: '#fff', margin: '0 0 1rem', letterSpacing: '-0.015em', lineHeight: 1.05 }}>
             UK Government.<br />In public view.
           </h1>
           <p style={{ fontSize: '17px', color: '#fff', margin: '0 auto 1.75rem', maxWidth: '680px', lineHeight: 1.55, opacity: 0.92 }}>
@@ -110,11 +109,11 @@ export default async function HomePage() {
               <div style={{ fontSize: '12px', color: MUTED, marginTop: '4px' }}>{featured.sub}</div>
             </div>
             <div>
-              <div style={{ fontFamily: SERIF, fontSize: '22px', fontWeight: 700, color: '#fff', lineHeight: 1.2, marginBottom: '4px' }}>{featured.line1}</div>
+              <div style={{ fontSize: '22px', fontWeight: 700, color: '#fff', lineHeight: 1.2, marginBottom: '4px' }}>{featured.line1}</div>
               <div style={{ fontSize: '13px', color: '#fff' }}>{featured.line2}.</div>
             </div>
             <Link href={featured.href} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textDecoration: 'none', borderLeft: `1px solid ${BORDER}`, paddingLeft: '1.5rem' }}>
-              <span style={{ fontFamily: SERIF, fontSize: '32px', fontWeight: 700, color: '#fff', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{fmtMoney(featured.value)}</span>
+              <span style={{ fontSize: '32px', fontWeight: 700, color: '#fff', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{fmtMoney(featured.value)}</span>
               <span style={{ fontSize: '10px', color: '#fff', letterSpacing: '0.2em', textTransform: 'uppercase', marginTop: '6px', opacity: 0.7 }}>view details →</span>
             </Link>
           </div>
@@ -133,7 +132,7 @@ export default async function HomePage() {
               <SectionHead label="Latest Press Releases" sub="This week's official line, straight from the press offices." />
               {leadStory && (
                 <article style={{ marginBottom: '1.5rem' }}>
-                  <h2 style={{ fontFamily: SERIF, fontSize: '30px', fontWeight: 700, color: '#fff', lineHeight: 1.15, margin: '0 0 0.6rem', letterSpacing: '-0.01em' }}>{leadStory.title}</h2>
+                  <h2 style={{ fontSize: '30px', fontWeight: 700, color: '#fff', lineHeight: 1.15, margin: '0 0 0.6rem', letterSpacing: '-0.01em' }}>{leadStory.title}</h2>
                   {leadStory.description && (
                     <p style={{ fontSize: '14px', color: '#fff', lineHeight: 1.6, margin: '0 0 0.6rem', opacity: 0.92 }}>{leadStory.description}</p>
                   )}
@@ -148,7 +147,7 @@ export default async function HomePage() {
                   {otherStories.map((story, i) => (
                     <div key={i}>
                       <div style={{ fontSize: '10px', color: MUTED, textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: '4px' }}>{story.organisation}</div>
-                      <div style={{ fontFamily: SERIF, fontSize: '15px', color: '#fff', lineHeight: 1.35 }}>{story.title}</div>
+                      <div style={{ fontSize: '15px', color: '#fff', lineHeight: 1.35 }}>{story.title}</div>
                     </div>
                   ))}
                 </div>
@@ -166,10 +165,10 @@ export default async function HomePage() {
                   <li key={i} style={{ borderTop: i === 0 ? 'none' : `1px solid ${RULE}` }}>
                     <Link href="/transparency/contracts" style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '1.5rem', textDecoration: 'none', padding: '0.85rem 0', alignItems: 'baseline' }}>
                       <div>
-                        <div style={{ fontFamily: SERIF, fontSize: '15px', color: '#fff', lineHeight: 1.3 }}>{c.title}</div>
+                        <div style={{ fontSize: '15px', color: '#fff', lineHeight: 1.3 }}>{c.title}</div>
                         <div style={{ fontSize: '11px', color: MUTED, marginTop: '3px' }}>Awarded to <span style={{ color: '#fff' }}>{c.supplier || 'undisclosed'}</span></div>
                       </div>
-                      <div style={{ fontFamily: SERIF, fontSize: '17px', fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>{fmtMoney(c.value)}</div>
+                      <div style={{ fontSize: '17px', fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>{fmtMoney(c.value)}</div>
                     </Link>
                   </li>
                 ))}
@@ -187,10 +186,10 @@ export default async function HomePage() {
                   <li key={i} style={{ borderTop: i === 0 ? 'none' : `1px solid ${RULE}` }}>
                     <Link href="/transparency/donations" style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '1.5rem', textDecoration: 'none', padding: '0.85rem 0', alignItems: 'baseline' }}>
                       <div>
-                        <div style={{ fontFamily: SERIF, fontSize: '15px', color: '#fff', lineHeight: 1.3 }}>{d.donor_name}</div>
+                        <div style={{ fontSize: '15px', color: '#fff', lineHeight: 1.3 }}>{d.donor_name}</div>
                         <div style={{ fontSize: '11px', color: MUTED, marginTop: '3px' }}>To <span style={{ color: '#fff' }}>{d.recipient_name}</span></div>
                       </div>
-                      <div style={{ fontFamily: SERIF, fontSize: '17px', fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>{fmtMoney(d.amount)}</div>
+                      <div style={{ fontSize: '17px', fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>{fmtMoney(d.amount)}</div>
                     </Link>
                   </li>
                 ))}
@@ -213,7 +212,7 @@ export default async function HomePage() {
                 const noPct = total > 0 ? Math.round((no / total) * 100) : 0
                 return (
                   <Link href={`/bills/${bill.id}`} key={bill.id} style={{ display: 'block', marginBottom: '1.1rem', textDecoration: 'none' }}>
-                    <div style={{ fontFamily: SERIF, fontSize: '14px', color: '#fff', lineHeight: 1.3, marginBottom: '6px' }}>{bill.title}</div>
+                    <div style={{ fontSize: '14px', color: '#fff', lineHeight: 1.3, marginBottom: '6px' }}>{bill.title}</div>
                     <div style={{ height: '3px', background: RULE, display: 'flex', marginBottom: '5px' }}>
                       {yesPct > 0 && <div style={{ height: '100%', width: `${yesPct}%`, background: '#fff' }} />}
                       {noPct > 0 && <div style={{ height: '100%', width: `${noPct}%`, background: '#666' }} />}
@@ -233,7 +232,7 @@ export default async function HomePage() {
                 {revolving?.map((r, i) => (
                   <li key={i} style={{ borderTop: i === 0 ? 'none' : `1px solid ${RULE}` }}>
                     <Link href="/transparency/revolving-door" style={{ display: 'block', textDecoration: 'none', padding: '0.7rem 0' }}>
-                      <div style={{ fontFamily: SERIF, fontSize: '14px', color: '#fff', lineHeight: 1.3 }}>{r.person_name}</div>
+                      <div style={{ fontSize: '14px', color: '#fff', lineHeight: 1.3 }}>{r.person_name}</div>
                       <div style={{ fontSize: '11px', color: MUTED, marginTop: '3px' }}>{r.previous_role}{r.organisation ? ` → ${r.organisation}` : ''}</div>
                     </Link>
                   </li>
@@ -258,7 +257,7 @@ export default async function HomePage() {
         <section style={{ marginTop: '3rem', background: PANEL, border: `1px solid ${BORDER}`, padding: '1.75rem 2rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', alignItems: 'center' }}>
           <div>
             <div style={{ fontSize: '10px', color: '#fff', fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', marginBottom: '8px', opacity: 0.85 }}>Take part</div>
-            <div style={{ fontFamily: SERIF, fontSize: '26px', fontWeight: 700, color: '#fff', letterSpacing: '-0.01em', lineHeight: 1.2 }}>Add your voice to the public record.</div>
+            <div style={{ fontSize: '26px', fontWeight: 700, color: '#fff', letterSpacing: '-0.01em', lineHeight: 1.2 }}>Add your voice to the public record.</div>
             <div style={{ fontSize: '14px', color: MUTED, marginTop: '6px', lineHeight: 1.5 }}>Vote on bills, browse contracts, and keep an eye on who&apos;s coming and going through the Westminster door. We track it. You decide what to make of it.</div>
           </div>
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
@@ -275,7 +274,7 @@ function SectionHead({ label, sub, compact = false }: { label: string; sub?: str
   return (
     <header style={{ borderBottom: `1px solid ${BORDER}`, paddingBottom: compact ? '8px' : '10px', marginBottom: compact ? '0.85rem' : '1.1rem' }}>
       <div style={{ fontSize: compact ? '10px' : '11px', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.22em', fontWeight: 700 }}>{label}</div>
-      {sub && <div style={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: '12px', color: MUTED, marginTop: '4px' }}>{sub}</div>}
+      {sub && <div style={{ fontStyle: 'italic', fontSize: '12px', color: MUTED, marginTop: '4px' }}>{sub}</div>}
     </header>
   )
 }
@@ -283,7 +282,7 @@ function SectionHead({ label, sub, compact = false }: { label: string; sub?: str
 function Counter({ big, label }: { big: string; label: string }) {
   return (
     <div style={{ background: BG, padding: '14px 16px' }}>
-      <div style={{ fontFamily: SERIF, fontSize: '26px', fontWeight: 700, color: '#fff', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{big}</div>
+      <div style={{ fontSize: '26px', fontWeight: 700, color: '#fff', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{big}</div>
       <div style={{ fontSize: '10px', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.18em', marginTop: '6px', fontWeight: 600 }}>{label}</div>
     </div>
   )
