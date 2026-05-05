@@ -43,8 +43,8 @@ export default function Navigation() {
 
   return (
     <>
-      <nav className="bg-[#1a1a1a] border-b border-[#333333]/50 relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2">
+      <nav className="bg-[#1a1a1a] border-b border-[#333333]/50 relative mb-2">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 relative z-10">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex-shrink-0" style={{marginLeft: "-16px"}}>
               <div className="flex flex-col items-center">
