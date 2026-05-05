@@ -67,7 +67,7 @@ export default async function MPProfilePage({ params }: PageProps) {
   const { data: sponsoredBills } = await supabase
     .from('bill')
     .select('*')
-    .eq('sponsor_name', mp.name)
+    .eq('sponsor_member_id', memberId)
     .order('created_at', { ascending: false })
 
   const { data: votes } = await supabase
