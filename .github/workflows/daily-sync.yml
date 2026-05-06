@@ -8,6 +8,8 @@ on:
 jobs:
   sync-data:
     runs-on: ubuntu-latest
+    env:
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
     
     steps:
       - name: Checkout code
