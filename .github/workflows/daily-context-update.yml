@@ -14,7 +14,7 @@ jobs:
         with:
           node-version: '20.x'
       - name: Install dependencies
-        run: npm install @anthropic-ai/sdk @supabase/supabase-js csv-parse playwright
+        run: npm install @anthropic-ai/sdk @supabase/supabase-js csv-parse playwright ws
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
       - name: Install PostgreSQL client (for psql backfills)
