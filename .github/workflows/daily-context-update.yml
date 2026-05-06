@@ -21,6 +21,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
       - name: Sync GOV.UK department data
         run: node scripts/sync-govuk-data.js
+        continue-on-error: true   # temporary — under investigation; do not let this kill the rest of the pipeline
       - name: Backfill ministerial salary bands (preserves the dept_ministers.salary_band column that sync-govuk-data wipes via delete+insert)
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
