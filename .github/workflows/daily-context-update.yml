@@ -28,6 +28,7 @@ jobs:
         run: |
           export DATABASE_URL="$(printf '%s' "$DATABASE_URL_RAW" | tr -d '[:space:]')"
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/backfill-dept-ministers-bands.sql
+        continue-on-error: true
       - name: Update street contexts
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
