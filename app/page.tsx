@@ -9,6 +9,8 @@ const PANEL = '#111111'
 const BORDER = '#333333'
 const RULE = '#262626'
 const MUTED = '#9a9a9a'
+const VOTE_YES = '#4a8a3a'   // public-vote support (green)
+const VOTE_NO  = '#c8302e'   // public-vote oppose (red)
 
 const FONT = 'var(--font-geist-sans), Arial, Helvetica, sans-serif'
 
@@ -49,6 +51,15 @@ export default async function HomePage() {
     supabase.from('mp_expenses_summary').select('member_id, total_spend').eq('year', '24_25').order('total_spend', { ascending: false, nullsFirst: false }).limit(10),
   ])
 
+  const { data: coverageRows } = await supabase
+    .from('uk_political_news')
+    .select('id, source_url, source_outlet, source_title, published_at, commentary, related_link_href, related_link_label')
+    .eq('is_published', true)
+    .not('commentary', 'is', null)
+    .order('published_at', { ascending: false, nullsFirst: false })
+    .limit(5)
+  const coverageStories = coverageRows || []
+
   const expenseIds = (topExpenseRows || []).map((r: { member_id: number }) => r.member_id)
   const { data: expenseMps } = expenseIds.length
     ? await supabase.from('mps').select('member_id, name, display_name, constituency, current_member').in('member_id', expenseIds)
@@ -88,7 +99,7 @@ export default async function HomePage() {
       <section style={{
         width: '100%',
         minHeight: '380px',
-        backgroundImage: `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), linear-gradient(to right, rgba(0,0,0,0.96) 0%, rgba(0,0,0,0.8) 55%, rgba(0,0,0,0.96) 100%), url('/hero-parliament.jpg')`,
+        backgroundImage: `linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0.85) 100%), url('/hero-parliament.jpg')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         display: 'flex',
@@ -192,6 +203,47 @@ export default async function HomePage() {
 
           {/* LEFT */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+
+            {/* INDEPENDENT COVERAGE — headline aggregator with our own commentary */}
+            {coverageStories.length > 0 && (
+              <section>
+                <SectionHead label="Independent Coverage" sub="What the press is reporting · with our take." />
+                <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+                  {coverageStories.map((s, i) => {
+                    const date = s.published_at ? new Date(s.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : ''
+                    return (
+                      <li key={s.id} style={{ borderTop: i === 0 ? 'none' : `1px solid ${RULE}`, padding: '1rem 0' }}>
+                        <div style={{ fontSize: '10px', color: MUTED, textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: '6px' }}>
+                          {s.source_outlet}{date ? ` · ${date}` : ''}
+                        </div>
+                        <Link
+                          href={`/coverage/${s.id}`}
+                          className="hover:underline"
+                          style={{ display: 'block', fontSize: '18px', color: '#fff', lineHeight: 1.3, fontWeight: 700, textDecoration: 'none', marginBottom: '8px' }}
+                        >
+                          {s.source_title}
+                        </Link>
+                        {s.commentary && (
+                          <p style={{ fontSize: '13px', color: '#fff', opacity: 0.92, lineHeight: 1.55, marginBottom: '6px', borderLeft: `3px solid ${BORDER}`, paddingLeft: '0.75rem' }}>
+                            {s.commentary}
+                          </p>
+                        )}
+                        <div style={{ fontSize: '11px', color: MUTED, display: 'flex', gap: '0.85rem', flexWrap: 'wrap', marginTop: '6px' }}>
+                          {s.related_link_href && s.related_link_label && (
+                            <Link href={s.related_link_href} className="hover:underline" style={{ color: '#fff', textDecoration: 'none', fontWeight: 600 }}>
+                              {s.related_link_label} →
+                            </Link>
+                          )}
+                          <a href={s.source_url} target="_blank" rel="noopener noreferrer" style={{ color: MUTED, textDecoration: 'none' }} className="hover:underline">
+                            Read at {(() => { try { return new URL(s.source_url).hostname.replace(/^www\./, '') } catch { return 'source' } })()} ↗
+                          </a>
+                        </div>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </section>
+            )}
 
             {/* PRESS RELEASES */}
             <section>
@@ -305,14 +357,33 @@ export default async function HomePage() {
                 const yesPct = total > 0 ? Math.round((yes / total) * 100) : 0
                 const noPct = total > 0 ? Math.round((no / total) * 100) : 0
                 return (
-                  <Link href={`/bills/${bill.id}`} key={bill.id} style={{ display: 'block', marginBottom: '1.1rem', textDecoration: 'none' }}>
-                    <div style={{ fontSize: '14px', color: '#fff', lineHeight: 1.3, marginBottom: '6px' }}>{bill.title}</div>
-                    <div style={{ height: '3px', background: RULE, display: 'flex', marginBottom: '5px' }}>
-                      {yesPct > 0 && <div style={{ height: '100%', width: `${yesPct}%`, background: '#fff' }} />}
-                      {noPct > 0 && <div style={{ height: '100%', width: `${noPct}%`, background: '#666' }} />}
+                  <Link
+                    href={`/bills/${bill.id}`}
+                    key={bill.id}
+                    className="group"
+                    style={{ display: 'block', marginBottom: '1.1rem', textDecoration: 'none' }}
+                  >
+                    <div
+                      style={{ fontSize: '14px', color: '#fff', lineHeight: 1.3, marginBottom: '6px' }}
+                      className="group-hover:underline"
+                    >
+                      {bill.title}
+                      <span style={{ color: MUTED, marginLeft: '4px' }} className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                    </div>
+                    <div style={{ height: '6px', background: RULE, display: 'flex', marginBottom: '5px', borderRadius: '1px', overflow: 'hidden' }}>
+                      {yesPct > 0 && <div style={{ height: '100%', width: `${yesPct}%`, background: VOTE_YES }} title={`${yesPct}% support`} />}
+                      {noPct > 0 && <div style={{ height: '100%', width: `${noPct}%`, background: VOTE_NO }} title={`${noPct}% oppose`} />}
                     </div>
                     <div style={{ fontSize: '11px', color: MUTED, fontVariantNumeric: 'tabular-nums' }}>
-                      {yesPct}% support · {total.toLocaleString()} votes
+                      <span style={{ color: VOTE_YES, fontWeight: 600 }}>{yesPct}% support</span>
+                      {noPct > 0 && (
+                        <>
+                          {' · '}
+                          <span style={{ color: VOTE_NO, fontWeight: 600 }}>{noPct}% oppose</span>
+                        </>
+                      )}
+                      {' · '}
+                      {total.toLocaleString()} votes
                     </div>
                   </Link>
                 )

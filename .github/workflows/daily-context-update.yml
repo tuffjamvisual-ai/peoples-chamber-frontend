@@ -71,6 +71,12 @@ jobs:
       - name: Sync GOV.UK press releases (powers the homepage news strip)
         run: node scripts/sync-press-releases.js
         continue-on-error: true
+      - name: Sync independent UK political coverage with People's Chamber commentary (Haiku)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: node scripts/sync-political-news.js --limit=8
+        continue-on-error: true
       - name: Sync MP registered interests (powers the Interests tab + outside earnings)
         run: node scripts/sync-mp-interests.js
         continue-on-error: true
