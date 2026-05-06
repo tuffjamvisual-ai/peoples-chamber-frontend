@@ -24,8 +24,10 @@ jobs:
         continue-on-error: true   # temporary — under investigation; do not let this kill the rest of the pipeline
       - name: Backfill ministerial salary bands (preserves the dept_ministers.salary_band column that sync-govuk-data wipes via delete+insert)
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/backfill-dept-ministers-bands.sql
+          DATABASE_URL_RAW: ${{ secrets.DATABASE_URL }}
+        run: |
+          export DATABASE_URL="$(printf '%s' "$DATABASE_URL_RAW" | tr -d '[:space:]')"
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/backfill-dept-ministers-bands.sql
       - name: Update street contexts
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -75,21 +77,26 @@ jobs:
       - name: Sync independent UK political coverage with People's Chamber commentary (Haiku)
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: node scripts/sync-political-news.js --limit=8
+          DATABASE_URL_RAW: ${{ secrets.DATABASE_URL }}
+        run: |
+          export DATABASE_URL="$(printf '%s' "$DATABASE_URL_RAW" | tr -d '[:space:]')"
+          node scripts/sync-political-news.js --limit=8
         continue-on-error: true
       - name: Sync MP registered interests (powers the Interests tab + outside earnings)
         run: node scripts/sync-mp-interests.js
         continue-on-error: true
       - name: Sync IPSA expenses (annual totals — cheap, ~1k rows)
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: node scripts/sync-ipsa-expenses.js 24_25 23_24
+          DATABASE_URL_RAW: ${{ secrets.DATABASE_URL }}
+        run: |
+          export DATABASE_URL="$(printf '%s' "$DATABASE_URL_RAW" | tr -d '[:space:]')"
+          node scripts/sync-ipsa-expenses.js 24_25 23_24
         continue-on-error: true
       - name: Recompute outside-earnings summary (depends on mp_registered_interests)
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL_RAW: ${{ secrets.DATABASE_URL }}
         run: |
+          export DATABASE_URL="$(printf '%s' "$DATABASE_URL_RAW" | tr -d '[:space:]')"
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
           TRUNCATE mp_outside_earnings_summary;
           WITH payments AS (
