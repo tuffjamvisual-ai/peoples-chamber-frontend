@@ -6,7 +6,7 @@ const Anthropic = require('@anthropic-ai/sdk');
 const supabase = createClient(
   'https://nwnsvnbudmfkhhwcjwwr.supabase.co',
   SUPABASE_KEY,
-, { realtime: { transport: ws } });
+  { realtime: { transport: ws } });
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 

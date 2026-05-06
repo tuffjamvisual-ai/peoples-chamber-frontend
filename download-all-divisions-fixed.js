@@ -5,7 +5,7 @@ const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_P
 const supabase = createClient(
   'https://nwnsvnbudmfkhhwcjwwr.supabase.co',
   SUPABASE_KEY,
-, { realtime: { transport: ws } });
+  { realtime: { transport: ws } });
 
 async function downloadAllDivisions() {
   console.log('Downloading ALL divisions from Commons API...\n');
