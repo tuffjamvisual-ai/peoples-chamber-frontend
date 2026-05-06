@@ -1,9 +1,10 @@
 const { createClient } = require('@supabase/supabase-js');
+const ws = require('ws');
 const Anthropic = require('@anthropic-ai/sdk');
 
 const supabaseUrl = 'https://nwnsvnbudmfkhhwcjwwr.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53bnN2bmJ1ZG1ma2hod2Nqd3dyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NTkyNTUsImV4cCI6MjA4OTQzNTI1NX0.8PW8OHPr08zcXy-tGq0R9O04ZmKwt9twfnmagClDnuw';
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(supabaseUrl, supabaseKey, { realtime: { transport: ws } });
 
 const anthropicApiKey = process.env.ANTHROPIC_API_KEY;
 

@@ -19,6 +19,7 @@ const fs = require('fs')
 const path = require('path')
 const { execFileSync } = require('child_process')
 const { createClient } = require('@supabase/supabase-js')
+const ws = require('ws');
 
 const DRY_RUN = process.argv.includes('--dry-run')
 const LIMIT = (() => {
@@ -35,7 +36,7 @@ if (!SUPABASE_URL || !ANON_KEY) { console.error('Supabase env missing'); process
 if (!DATABASE_URL) { console.error('DATABASE_URL required (psql writes bypass anon RLS)'); process.exit(1) }
 if (!DRY_RUN && !ANTHROPIC_API_KEY) { console.error('ANTHROPIC_API_KEY required for live mode (use --dry-run to skip)'); process.exit(1) }
 
-const sb = createClient(SUPABASE_URL, ANON_KEY)
+const sb = createClient(SUPABASE_URL, ANON_KEY, { realtime: { transport: ws } })
 
 // Haiku 4.5 pricing (Nov 2025): $1.00 / 1M input tokens, $5.00 / 1M output tokens.
 const HAIKU_MODEL = 'claude-haiku-4-5-20251001'

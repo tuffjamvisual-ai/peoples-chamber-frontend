@@ -16,6 +16,7 @@
 
 const fs = require('fs');
 const { createClient } = require('@supabase/supabase-js');
+const ws = require('ws');
 
 const API_KEY = process.env.COMPANIES_HOUSE_API_KEY;
 if (!API_KEY) {
@@ -26,7 +27,7 @@ if (!API_KEY) {
 
 const SUPABASE_URL = 'https://nwnsvnbudmfkhhwcjwwr.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53bnN2bmJ1ZG1ma2hod2Nqd3dyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NTkyNTUsImV4cCI6MjA4OTQzNTI1NX0.8PW8OHPr08zcXy-tGq0R9O04ZmKwt9twfnmagClDnuw';
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, { realtime: { transport: ws } });
 
 const API_BASE = 'https://api.company-information.service.gov.uk';
 const AUTH_HEADER = 'Basic ' + Buffer.from(API_KEY + ':').toString('base64');

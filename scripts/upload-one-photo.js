@@ -2,6 +2,7 @@ require('dotenv').config({ path: '.env.local' });
 const fs = require('fs');
 const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
+const ws = require('ws');
 
 function arg(name) {
   const eq = `--${name}=`;
@@ -37,7 +38,7 @@ if (!SUPABASE_URL || !ANON_KEY) {
   process.exit(1);
 }
 
-const s = createClient(SUPABASE_URL, ANON_KEY);
+const s = createClient(SUPABASE_URL, ANON_KEY, { realtime: { transport: ws } });
 
 async function readBytes() {
   if (fileArg) {
