@@ -38,6 +38,16 @@ function fmtMoney(v: number | string | null | undefined): string {
   return '£' + Math.round(n).toLocaleString()
 }
 
+const NAV_LINKS: [string, string][] = [
+  ['Bills', '/bills'],
+  ['MPs', '/mps'],
+  ['Departments', '/departments'],
+  ['Transparency', '/transparency'],
+  ['Expenses', '/expenses'],
+  ['Polls', '/polls'],
+  ['News & Analysis', '/coverage'],
+]
+
 function fmtCompact(n: number): string {
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M'
   if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, '') + 'K'
@@ -150,6 +160,58 @@ export default async function HomePage() {
         @media (prefers-reduced-motion: reduce) { .pc-ticker-track { animation: none; } }
         .pc-link { color: inherit; text-decoration: none; }
         .pc-link:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+        /* ─── responsive grids ─── */
+        .pc-mast        { display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem; align-items: center; }
+        .pc-hero        { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 6fr); gap: 0; min-height: 460px; }
+        .pc-hero-img    { min-height: 460px; }
+        .pc-hero-stats  { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.5rem; }
+        .pc-edit        { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) minmax(0, 1fr); gap: clamp(1.75rem, 3vw, 3rem); padding-bottom: 4rem; }
+        .pc-stats-grid  { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.85rem; }
+        .pc-news-grid   { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.5rem; }
+        .pc-foot-main   { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr); gap: clamp(2rem, 4vw, 4rem); margin-bottom: 3rem; }
+        .pc-foot-cols   { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.5rem; }
+
+        /* ─── nav (mobile hamburger via <details>) ─── */
+        .pc-nav-desktop { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.75rem 1.5rem; max-width: 1280px; margin: 0 auto; }
+        .pc-nav-mobile  { display: none; }
+
+        /* ─── tablet: 768-1024 ─── */
+        @media (max-width: 1024px) {
+          .pc-edit       { grid-template-columns: 1fr 1fr; }
+          .pc-edit > article:nth-child(2) { grid-column: span 2; }   /* Editorial spans both */
+          .pc-stats-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+          .pc-news-grid  { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
+        /* ─── mobile: < 768 ─── */
+        @media (max-width: 768px) {
+          .pc-mast       { grid-template-columns: 1fr; gap: 0.5rem; text-align: center; }
+          .pc-mast > *:nth-child(1), .pc-mast > *:nth-child(3) { display: none; }
+          .pc-hero       { grid-template-columns: 1fr; min-height: auto; }
+          .pc-hero-img   { min-height: 240px !important; aspect-ratio: 16 / 9; }
+          .pc-hero-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+          .pc-edit       { grid-template-columns: 1fr; padding-bottom: 3rem; }
+          .pc-edit > article:nth-child(2) { grid-column: auto; }
+          .pc-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+          .pc-news-grid  { grid-template-columns: 1fr; }
+          .pc-foot-main  { grid-template-columns: 1fr; }
+          .pc-foot-cols  { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+          .pc-nav-desktop { display: none; }
+          .pc-nav-mobile  { display: block; padding: 0.5rem 1rem; }
+        }
+
+        /* ─── hamburger toggle (native <details>/<summary>) ─── */
+        .pc-nav-mobile summary { list-style: none; cursor: pointer; padding: 0.65rem 0.75rem; display: flex; align-items: center; justify-content: space-between; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; color: ${C.ink}; }
+        .pc-nav-mobile summary::-webkit-details-marker { display: none; }
+        .pc-nav-mobile[open] summary .pc-burger-bars span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+        .pc-nav-mobile[open] summary .pc-burger-bars span:nth-child(2) { opacity: 0; }
+        .pc-nav-mobile[open] summary .pc-burger-bars span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+        .pc-burger-bars { display: inline-flex; flex-direction: column; gap: 4px; width: 22px; }
+        .pc-burger-bars span { display: block; height: 2px; background: ${C.ink}; transition: transform 0.18s, opacity 0.18s; }
+        .pc-nav-mobile-list { display: flex; flex-direction: column; gap: 0; padding: 0.5rem 0 1rem; border-top: 1px solid ${C.rule}; }
+        .pc-nav-mobile-list a { display: block; padding: 0.85rem 0.75rem; font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; color: ${C.ink}; text-decoration: none; border-bottom: 1px solid ${C.rule}; }
       `}</style>
 
       {/* ─────────────── RED TICKER ─────────────── */}
@@ -170,7 +232,7 @@ export default async function HomePage() {
       {/* ─────────────── MASTHEAD ─────────────── */}
       <header style={{ borderBottom: `1px solid ${C.rule}` }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '1.75rem 1.5rem 1.5rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '1rem', alignItems: 'center' }}>
+          <div className="pc-mast">
             <div className="pc-italic" style={{ fontSize: '13px', color: C.muted, fontStyle: 'italic' }}>
               The government speaks.<br />The public replies.
             </div>
@@ -201,28 +263,10 @@ export default async function HomePage() {
 
         {/* NAV BAR */}
         <nav style={{ borderTop: `1px solid ${C.rule}`, borderBottom: `1px solid ${C.rule}`, background: C.bg }}>
-          <div
-            style={{
-              maxWidth: '1280px',
-              margin: '0 auto',
-              padding: '0.75rem 1.5rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: '1rem',
-              flexWrap: 'wrap',
-            }}
-          >
+          {/* Desktop nav */}
+          <div className="pc-nav-desktop">
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
-              {[
-                ['Bills', '/bills'],
-                ['MPs', '/mps'],
-                ['Departments', '/departments'],
-                ['Transparency', '/transparency'],
-                ['Expenses', '/expenses'],
-                ['Polls', '/polls'],
-                ['News & Analysis', '/coverage'],
-              ].map(([label, href]) => (
+              {NAV_LINKS.map(([label, href]) => (
                 <Link
                   key={href}
                   href={href}
@@ -254,26 +298,41 @@ export default async function HomePage() {
               </Link>
             </div>
           </div>
+
+          {/* Mobile nav — native <details> hamburger, no client component */}
+          <details className="pc-nav-mobile">
+            <summary>
+              <span>Menu</span>
+              <span className="pc-burger-bars" aria-hidden="true">
+                <span /><span /><span />
+              </span>
+            </summary>
+            <div className="pc-nav-mobile-list">
+              {NAV_LINKS.map(([label, href]) => (
+                <Link key={href} href={href}>{label}</Link>
+              ))}
+              <Link href="/search">Search</Link>
+              <Link
+                href="/about#join"
+                style={{ background: C.green, color: '#fff', textAlign: 'center', marginTop: '0.5rem', borderBottom: 'none' }}
+              >
+                Join the Chamber →
+              </Link>
+            </div>
+          </details>
         </nav>
       </header>
 
       {/* ─────────────── DARK HERO ─────────────── */}
       <section style={{ background: C.ink, color: '#fff' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: 0 }}>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'minmax(0, 4fr) minmax(0, 6fr)',
-              gap: 0,
-              minHeight: '460px',
-            }}
-          >
+          <div className="pc-hero">
             <div
+              className="pc-hero-img"
               style={{
                 backgroundImage: `linear-gradient(to right, rgba(0,0,0,0) 65%, rgba(24,28,31,1) 100%), url('/hero-parliament.jpg')`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
-                minHeight: '460px',
               }}
               aria-label="The Palace of Westminster"
             />
@@ -303,7 +362,7 @@ export default async function HomePage() {
               </div>
 
               {featuredBill && fbTotal > 0 ? (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '0.5rem' }}>
+                <div className="pc-hero-stats">
                   <HeroStat value={`${fbNoPct}%`} label="Oppose" tint={C.redBright} />
                   <HeroStat value={`${fbYesPct}%`} label="Support" tint={C.greenLite} />
                   <HeroStat value={fmtCompact(fbTotal)} label="Public votes" tint="#fff" />
@@ -345,15 +404,7 @@ export default async function HomePage() {
       <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '4rem 1.5rem 0' }}>
 
         {/* ─────────────── THREE EDITORIAL COLUMNS ─────────────── */}
-        <section
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.6fr) minmax(0, 1fr)',
-            gap: 'clamp(1.75rem, 3vw, 3rem)',
-            paddingBottom: '4rem',
-            borderBottom: `1px solid ${C.rule}`,
-          }}
-        >
+        <section className="pc-edit" style={{ borderBottom: `1px solid ${C.rule}` }}>
           <article>
             <ColKicker color={C.red}>The Public Chamber</ColKicker>
             <ColHead>Live sentiment on key issues.</ColHead>
@@ -451,7 +502,7 @@ export default async function HomePage() {
               Explore the full dashboard →
             </Link>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.85rem' }}>
+          <div className="pc-stats-grid">
             <CircleStat icon={<TrendDown />} value={`${fbNoPct}%`} label="Public opposition" tint={C.red} />
             <CircleStat icon={<TrendUp />}   value={`${fbYesPct}%`} label="Public support" tint={C.green} />
             <CircleStat icon={<DocIcon />}   value={'3,884'} label="Bills tracked" tint={C.ink} />
@@ -475,7 +526,7 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.5rem' }}>
+          <div className="pc-news-grid">
             {newsItems.map((item, i) => {
               const skin = cardSkins[i % cardSkins.length]
               if (item.kind === 'coverage') {
@@ -516,7 +567,7 @@ export default async function HomePage() {
       <footer style={{ background: C.ink, color: '#fff', borderTop: `4px solid ${C.gold}`, marginTop: '2rem' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '4rem 1.5rem 2rem' }}>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 2fr)', gap: 'clamp(2rem, 4vw, 4rem)', marginBottom: '3rem' }}>
+          <div className="pc-foot-main">
             <div>
               <LionEngraving />
               <div className="pc-serif" style={{ fontFamily: 'var(--pc-serif), Georgia, serif', fontSize: '28px', fontWeight: 800, letterSpacing: '-0.012em', marginTop: '1rem', color: '#fff' }}>
@@ -535,7 +586,7 @@ export default async function HomePage() {
             </div>
 
             <div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1.5rem' }}>
+              <div className="pc-foot-cols">
                 <FootCol heading="Explore" links={[
                   ['Bills', '/bills'],
                   ['MPs', '/mps'],
