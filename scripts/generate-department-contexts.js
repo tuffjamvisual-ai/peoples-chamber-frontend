@@ -63,9 +63,33 @@ async function generateContext(dept) {
   }
 }
 
+// Refresh throttle: a department's "current controversies" street view
+// is genuinely time-sensitive but daily regeneration is wasteful — politics
+// rarely shifts inside a week. Default to weekly; --force overrides.
+const MIN_REFRESH_HOURS = parseInt(process.env.MIN_REFRESH_HOURS || '168', 10);
+const FORCE = process.argv.includes('--force');
+
 async function main() {
-  console.log('Starting department context generation...');
+  console.log(`Starting department context generation (refresh threshold: ${MIN_REFRESH_HOURS}h${FORCE ? ', --force' : ''})`);
+
+  let recent = new Set();
+  if (!FORCE) {
+    const cutoff = new Date(Date.now() - MIN_REFRESH_HOURS * 3600 * 1000).toISOString();
+    const { data, error } = await supabase
+      .from('department_context')
+      .select('slug, generated_at')
+      .gte('generated_at', cutoff);
+    if (error) {
+      console.error('Could not check existing rows, proceeding without throttle:', error.message);
+    } else {
+      recent = new Set((data || []).map(r => r.slug));
+      console.log(`Skipping ${recent.size} of ${departments.length} departments — refreshed within last ${MIN_REFRESH_HOURS}h.`);
+    }
+  }
+
+  let generated = 0, skipped = 0, failed = 0;
   for (const dept of departments) {
+    if (recent.has(dept.slug)) { skipped++; continue; }
     const context = await generateContext(dept);
     if (context) {
       const { error } = await supabase
@@ -73,13 +97,17 @@ async function main() {
         .upsert({ slug: dept.slug, street_context: context, generated_at: new Date().toISOString() }, { onConflict: 'slug' });
       if (error) {
         console.error(`Failed to save ${dept.slug}:`, error.message);
+        failed++;
       } else {
         console.log(`✓ ${dept.name} saved`);
+        generated++;
       }
+      await new Promise(r => setTimeout(r, 2000));
+    } else {
+      failed++;
     }
-    await new Promise(r => setTimeout(r, 2000));
   }
-  console.log('Done!');
+  console.log(`Done. Generated ${generated}, skipped ${skipped}, failed ${failed}.`);
 }
 
 main();
