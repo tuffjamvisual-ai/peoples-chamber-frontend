@@ -44,8 +44,9 @@ const PRICE_IN_PER_TOK  = 1.00 / 1_000_000
 const PRICE_OUT_PER_TOK = 5.00 / 1_000_000
 
 const SOURCES = [
-  { outlet: 'The Guardian',    rss: 'https://www.theguardian.com/politics/rss' },
-  { outlet: 'The Independent', rss: 'https://www.independent.co.uk/news/uk/politics/rss' },
+  { outlet: 'UnHerd',          rss: 'https://unherd.com/feed/' },
+  { outlet: 'Byline Times',    rss: 'https://bylinetimes.com/feed/' },
+  { outlet: 'openDemocracy',   rss: 'https://www.opendemocracy.net/en/rss/' },
 ]
 
 const ALLOWED_RELATED_LINKS = new Set([
