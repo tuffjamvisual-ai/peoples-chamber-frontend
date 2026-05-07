@@ -83,7 +83,7 @@ export default async function HomePage() {
     .eq('is_published', true)
     .not('commentary', 'is', null)
     .order('published_at', { ascending: false, nullsFirst: false })
-    .limit(4)
+    .limit(5)
   const stories = coverageRows || []
 
   const expenseIds = (topExpenseRows || []).map((r: { member_id: number }) => r.member_id)
@@ -128,11 +128,15 @@ export default async function HomePage() {
 
   const todayLabel = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 
-  const newsItems = stories.length >= 4
-    ? stories.slice(0, 4).map((s) => ({ kind: 'coverage' as const, ...s }))
+  // Editorial column shows stories[0]; news grid shows stories[1..4] (no
+  // duplication). When fewer than 5 commentary stories exist, the grid
+  // back-fills from press_releases so it always renders 4 cards.
+  const gridSource = stories.slice(1)
+  const newsItems = gridSource.length >= 4
+    ? gridSource.slice(0, 4).map((s) => ({ kind: 'coverage' as const, ...s }))
     : [
-        ...stories.map((s) => ({ kind: 'coverage' as const, ...s })),
-        ...((news?.slice(0, 4 - stories.length) || []).map((p) => ({ kind: 'press' as const, ...p }))),
+        ...gridSource.map((s) => ({ kind: 'coverage' as const, ...s })),
+        ...((news?.slice(0, 4 - gridSource.length) || []).map((p) => ({ kind: 'press' as const, ...p }))),
       ].slice(0, 4)
 
   const cardSkins = [
