@@ -1,777 +1,628 @@
-// Editorial preview — pixel-targeted at the design at:
-// /Users/johnnybot/Downloads/f206adcc-6842-4be8-919f-e7781a7f0f70.png (7 May 22:44).
-//
-// Differences from the current live editorial page:
-//  - "LIVE FROM WESTMINSTER" sub-strip below the dark hero (mini-news + countdown)
-//  - TOP STORIES: 70/30 split — 4-up news grid + sidebar (Public Hub donut + Transparency Desk)
-//  - LATEST FROM WESTMINSTER: 70/30 split — 4-up news grid + Today's Editorial panel
-//  - Footer: lion + signup on left + "Join the Chamber" callout on right
-//  - Nav adds "Satire Desk" item
-//
-// Renders at /preview — does NOT touch the live app/page.tsx.
+// Editorial preview — provided by user 7 May, dropped in verbatim with one
+// adjustment: default export renamed `HomePageNew` so app/preview/page.tsx
+// keeps importing it cleanly. NOTE: this implementation uses static mocks
+// (polls, stories, stats, hero figures) — no DB queries. See preview only.
 
-import { supabase } from '@/lib/supabase'
-import { Playfair_Display, Inter } from 'next/font/google'
-import Link from 'next/link'
-import NewsletterForm from './components/NewsletterForm'
+import Image from "next/image";
+import {
+  Search,
+  ArrowRight,
+  Radio,
+  Cloud,
+  PoundSterling,
+  Users,
+  Clock3,
+  Landmark,
+} from "lucide-react";
 
-export const revalidate = 3600
+const polls = [
+  {
+    title: "Winter Fuel Payment Bill",
+    oppose: 68,
+    support: 21,
+  },
+  {
+    title: "Online Safety (Amendment) Bill",
+    oppose: 54,
+    support: 32,
+  },
+  {
+    title: "Renters' Rights Bill",
+    oppose: 41,
+    support: 46,
+  },
+];
 
-const serif = Playfair_Display({ subsets: ['latin'], weight: ['400', '700', '800', '900'], style: ['normal', 'italic'], display: 'swap', variable: '--pc-serif' })
-const sans = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'], display: 'swap', variable: '--pc-sans' })
+const stories = [
+  {
+    category: "POLITICS",
+    title: "Labour rebellion over welfare cuts grows",
+    time: "12m ago",
+    image:
+      "https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?q=80&w=1200&auto=format&fit=crop",
+  },
+  {
+    category: "BILLS",
+    title: "Transport Bill passes second reading",
+    time: "28m ago",
+    image:
+      "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?q=80&w=1200&auto=format&fit=crop",
+  },
+  {
+    category: "INVESTIGATION",
+    title: "Ex-minister's lobbying emails revealed",
+    time: "1h ago",
+    image:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1200&auto=format&fit=crop",
+  },
+  {
+    category: "SOCIETY",
+    title: "Renters rally across major UK cities",
+    time: "2h ago",
+    image:
+      "https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=1200&auto=format&fit=crop",
+  },
+];
 
-const C = {
-  bg:    '#F4EFE5',
-  ink:   '#181C1F',
-  inkPanel: '#1F2428',
-  green: '#2F4F3E',
-  greenLite: '#3F6A55',
-  red:   '#B02A2A',
-  redBright: '#C8302A',
-  gold:  '#C8A76A',
-  rule:  '#E0DACE',
-  muted: '#5C5C58',
-  inkMuted: '#9b9586',
-}
+const stats = [
+  {
+    icon: Landmark,
+    value: "23%",
+    label: "Government Approval",
+    sub: "↓ 3% this week",
+  },
+  {
+    icon: Users,
+    value: "68%",
+    label: "Public Trust",
+    sub: "in decline",
+  },
+  {
+    icon: Radio,
+    value: "312",
+    label: "Rebellious MPs",
+    sub: "this parliament",
+  },
+  {
+    icon: Clock3,
+    value: "47",
+    label: "Days To Election",
+    sub: "(estimated)",
+  },
+  {
+    icon: PoundSterling,
+    value: "£4.2B",
+    label: "Taxpayer Waste",
+    sub: "on declared expenses",
+  },
+];
 
-const NAV_LINKS: [string, string][] = [
-  ['Bills', '/bills'],
-  ['MPs', '/mps'],
-  ['Departments', '/departments'],
-  ['Transparency', '/transparency'],
-  ['Expenses', '/expenses'],
-  ['Polls', '/polls'],
-  ['Satire Desk', '/coverage'],
-  ['News & Analysis', '/coverage'],
-]
-
-function fmtMoney(v: number | string | null | undefined): string {
-  if (v === null || v === undefined || v === '') return '—'
-  const n = typeof v === 'number' ? v : Number(v)
-  if (!Number.isFinite(n)) return '—'
-  if (n >= 1_000_000_000) return '£' + (n / 1_000_000_000).toFixed(1).replace(/\.0$/, '') + 'bn'
-  if (n >= 1_000_000) return '£' + (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'm'
-  if (n >= 1_000) return '£' + Math.round(n / 1_000).toLocaleString() + 'k'
-  return '£' + Math.round(n).toLocaleString()
-}
-
-function fmtCompact(n: number): string {
-  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M'
-  if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, '') + 'K'
-  return n.toLocaleString()
-}
-
-export default async function HomePageNew() {
-  const [
-    { data: news },
-    { data: bills },
-    { data: topContractRows },
-    { data: topDonationRows },
-    { count: contractCount },
-    { count: donationCount },
-    { count: revolvingCount },
-    { data: topExpenseRows },
-    { data: latestRevolving },
-  ] = await Promise.all([
-    supabase.from('press_releases').select('title, description, organisation, published_at, gov_url').order('published_at', { ascending: false }).limit(8),
-    supabase.from('bill').select('id, title, vote_count_yes, vote_count_no, vote_count_abstain').order('vote_count_yes', { ascending: false }).limit(4),
-    supabase.from('government_contracts').select('title, supplier, value').not('value', 'is', null).order('value', { ascending: false }).limit(1),
-    supabase.from('political_donations').select('donor_name, recipient_name, amount').not('amount', 'is', null).order('amount', { ascending: false }).limit(1),
-    supabase.from('government_contracts').select('id', { count: 'exact', head: true }),
-    supabase.from('political_donations').select('id', { count: 'exact', head: true }),
-    supabase.from('revolving_door').select('id', { count: 'exact', head: true }),
-    supabase.from('mp_expenses_summary').select('member_id, total_spend').eq('year', '24_25').order('total_spend', { ascending: false, nullsFirst: false }).limit(2),
-    supabase.from('revolving_door').select('person_name, previous_role, organisation').order('id', { ascending: false }).limit(1),
-  ])
-
-  const { data: coverageRows } = await supabase
-    .from('uk_political_news')
-    .select('id, source_url, source_outlet, source_title, published_at, commentary, related_link_href, related_link_label')
-    .eq('is_published', true)
-    .not('commentary', 'is', null)
-    .order('published_at', { ascending: false, nullsFirst: false })
-    .limit(8)
-  const stories = coverageRows || []
-
-  const expenseIds = (topExpenseRows || []).map((r: { member_id: number }) => r.member_id)
-  const { data: expenseMps } = expenseIds.length
-    ? await supabase.from('mps').select('member_id, name, display_name, constituency').in('member_id', expenseIds)
-    : { data: [] as Array<{ member_id: number; name: string | null; display_name: string | null; constituency: string | null }> }
-  const mpById = new Map((expenseMps || []).map((m) => [m.member_id, m]))
-  const topSpender = (() => {
-    const r = topExpenseRows?.[0]
-    if (!r) return null
-    const m = mpById.get(r.member_id)
-    return m ? { name: m.display_name || m.name || '', total: r.total_spend, constituency: m.constituency || '' } : null
-  })()
-
-  const lead = news?.[0]
-  const leadSlug = lead?.gov_url ? lead.gov_url.split('/').filter(Boolean).pop() : null
-
-  const featuredBill = (bills || []).find((b) => (b.vote_count_yes || 0) + (b.vote_count_no || 0) + (b.vote_count_abstain || 0) > 0)
-  const fbYes = featuredBill?.vote_count_yes || 0
-  const fbNo  = featuredBill?.vote_count_no || 0
-  const fbAbs = featuredBill?.vote_count_abstain || 0
-  const fbTotal = fbYes + fbNo + fbAbs
-  const fbYesPct = fbTotal > 0 ? Math.round((fbYes / fbTotal) * 100) : 0
-  const fbNoPct  = fbTotal > 0 ? Math.round((fbNo  / fbTotal) * 100) : 0
-
-  const topContract = topContractRows?.[0]
-  const topDonation = topDonationRows?.[0]
-  const recentRevolving = latestRevolving?.[0]
-
-  const editorialPick = stories[0]
-  const topStories = stories.slice(0, 4)
-  const laterStories = stories.slice(4, 8)
-  const pressForGrid = (news?.slice(0, 4) || [])
-
-  // Sub-strip headlines below the hero
-  const liveStripItems: string[] = []
-  if (featuredBill) liveStripItems.push(`${featuredBill.title} progressing`)
-  if (lead) liveStripItems.push(`${lead.organisation}: ${lead.title.slice(0, 60)}…`)
-  if (recentRevolving) liveStripItems.push(`Revolving door: ${recentRevolving.person_name}`)
-
-  // Ticker
-  const tickerSegments: string[] = []
-  if (featuredBill && fbTotal > 0) tickerSegments.push(`${featuredBill.title}: Public opposition at ${fbNoPct}%`)
-  if (lead) tickerSegments.push(`${lead.organisation}: ${lead.title}`)
-  if (topContract) tickerSegments.push(`Top contract — ${fmtMoney(topContract.value)} to ${topContract.supplier || 'undisclosed'}`)
-  if (topDonation) tickerSegments.push(`Top donation — ${fmtMoney(topDonation.amount)} from ${topDonation.donor_name}`)
-  if (topSpender) tickerSegments.push(`Top expense claim — ${topSpender.name} (${fmtMoney(topSpender.total)})`)
-  const tickerText = tickerSegments.length ? tickerSegments.join('     ◆     ') : 'Updating from the public record…'
-
-  const cardSkins = [
-    { category: 'Politics',      tint: 'rgba(176, 42, 42, 0.55)' },
-    { category: 'Bills',         tint: 'rgba(47, 79, 62, 0.65)'  },
-    { category: 'Investigation', tint: 'rgba(24, 28, 31, 0.78)'  },
-    { category: 'Housing',       tint: 'rgba(200, 167, 106, 0.55)' },
-  ]
-
+export default function HomePageNew() {
   return (
-    <div
-      className={`${serif.variable} ${sans.variable}`}
-      style={{
-        background: C.bg,
-        color: C.ink,
-        fontFamily: 'var(--pc-sans), Inter, ui-sans-serif, system-ui, sans-serif',
-        minHeight: '100vh',
-      }}
-    >
-      <style>{`
-        @keyframes pcTicker { from { transform: translateX(0) } to { transform: translateX(-50%) } }
-        .pc-ticker-track { display: inline-flex; gap: 4rem; white-space: nowrap; animation: pcTicker 90s linear infinite; }
-        .pc-serif { font-family: var(--pc-serif), 'Playfair Display', Georgia, serif; }
-        .pc-italic { font-family: var(--pc-serif), Georgia, serif; font-style: italic; }
-        @media (prefers-reduced-motion: reduce) { .pc-ticker-track { animation: none; } }
-        .pc-link { color: inherit; text-decoration: none; }
-        .pc-link:hover { text-decoration: underline; text-underline-offset: 4px; }
+    <main className="bg-[#f5f2ed] text-[#111] min-h-screen">
+      {/* TOP BAR */}
 
-        .pc-mast        { display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem; align-items: center; }
-        .pc-hero        { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 5fr); gap: 0; min-height: 480px; }
-        .pc-hero-img    { min-height: 480px; }
-        .pc-hero-stats  { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.5rem; }
-        .pc-2col        { display: grid; grid-template-columns: minmax(0, 2.3fr) minmax(0, 1fr); gap: clamp(1.75rem, 3vw, 3rem); }
-        .pc-news-grid   { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
-        .pc-stats-grid  { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.85rem; }
-        .pc-foot-main   { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: clamp(2rem, 4vw, 4rem); }
-        .pc-nav-desktop { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.75rem 1.5rem; max-width: 1280px; margin: 0 auto; }
-        .pc-nav-mobile  { display: none; }
+      <div className="bg-[#0d1117] text-white border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-6 h-12 flex items-center justify-between text-sm">
+          <div className="flex items-center gap-8 overflow-hidden">
+            <div className="flex items-center gap-2 text-red-500 font-medium">
+              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              LIVE
+            </div>
 
-        @media (max-width: 1024px) {
-          .pc-2col       { grid-template-columns: 1fr; }
-          .pc-news-grid  { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-          .pc-stats-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-        }
-        @media (max-width: 768px) {
-          .pc-mast       { grid-template-columns: 1fr; gap: 0.5rem; text-align: center; }
-          .pc-mast > *:nth-child(1), .pc-mast > *:nth-child(3) { display: none; }
-          .pc-hero       { grid-template-columns: 1fr; min-height: auto; }
-          .pc-hero-img   { min-height: 240px !important; aspect-ratio: 16 / 9; }
-          .pc-hero-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-          .pc-news-grid  { grid-template-columns: 1fr; }
-          .pc-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-          .pc-foot-main  { grid-template-columns: 1fr; }
-          .pc-nav-desktop { display: none; }
-          .pc-nav-mobile  { display: block; padding: 0.5rem 1rem; }
-        }
-        .pc-nav-mobile summary { list-style: none; cursor: pointer; padding: 0.65rem 0.75rem; display: flex; align-items: center; justify-content: space-between; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; color: ${C.ink}; }
-        .pc-nav-mobile summary::-webkit-details-marker { display: none; }
-        .pc-nav-mobile[open] summary .pc-burger-bars span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
-        .pc-nav-mobile[open] summary .pc-burger-bars span:nth-child(2) { opacity: 0; }
-        .pc-nav-mobile[open] summary .pc-burger-bars span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
-        .pc-burger-bars { display: inline-flex; flex-direction: column; gap: 4px; width: 22px; }
-        .pc-burger-bars span { display: block; height: 2px; background: ${C.ink}; transition: transform 0.18s, opacity 0.18s; }
-        .pc-nav-mobile-list { display: flex; flex-direction: column; gap: 0; padding: 0.5rem 0 1rem; border-top: 1px solid ${C.rule}; }
-        .pc-nav-mobile-list a { display: block; padding: 0.85rem 0.75rem; font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; color: ${C.ink}; text-decoration: none; border-bottom: 1px solid ${C.rule}; }
-      `}</style>
+            <div className="text-white/80 whitespace-nowrap">
+              Winter Fuel Payment Bill: Public opposition at 68%
+            </div>
 
-      {/* ─── RED TICKER ─── */}
-      <div style={{ background: C.red, color: '#fff', fontSize: '12px', borderBottom: `1px solid ${C.gold}` }}>
-        <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', alignItems: 'center' }}>
-          <div style={{ overflow: 'hidden', flex: 1, padding: '7px 1.5rem' }}>
-            <div className="pc-ticker-track">
-              <span>{tickerText}</span>
-              <span aria-hidden="true">{tickerText}</span>
+            <div className="text-white/50">•</div>
+
+            <div className="text-white/80 whitespace-nowrap">
+              MP Expenses updated 12 mins ago
+            </div>
+
+            <div className="text-white/50">•</div>
+
+            <div className="text-white/80 whitespace-nowrap">
+              Transport Bill enters committee stage
             </div>
           </div>
-          <div style={{ padding: '7px 1.5rem', borderLeft: '1px solid rgba(255,255,255,0.3)', fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', flexShrink: 0, fontWeight: 600 }}>
-            Westminster · 14°C
+
+          <div className="hidden md:flex items-center gap-4 text-white/70">
+            <span>Westminster</span>
+            <span>14°C</span>
+            <Cloud size={18} />
           </div>
         </div>
       </div>
 
-      {/* ─── MASTHEAD ─── */}
-      <header style={{ borderBottom: `1px solid ${C.rule}` }}>
-        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '1.75rem 1.5rem 1.5rem' }}>
-          <div className="pc-mast">
-            <div className="pc-italic" style={{ fontSize: '13px', color: C.muted, fontStyle: 'italic' }}>
-              The government speaks.<br />The public replies.
+      {/* HEADER */}
+
+      <header className="border-b border-black/10 bg-[#f7f4ef]">
+        <div className="max-w-7xl mx-auto px-6 py-10">
+          <div className="grid grid-cols-3 items-center">
+            <div className="text-[20px] leading-relaxed text-black/70 max-w-[220px]">
+              <p>The government speaks.</p>
+              <p>The public replies.</p>
             </div>
-            <h1
-              className="pc-serif"
-              style={{
-                fontFamily: 'var(--pc-serif), Georgia, serif',
-                fontWeight: 800,
-                fontSize: 'clamp(36px, 5vw, 68px)',
-                lineHeight: 0.95,
-                letterSpacing: '-0.015em',
-                margin: 0,
-                color: C.ink,
-                textAlign: 'center',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              The People&apos;s Chamber
-            </h1>
-            <div className="pc-italic" style={{ fontSize: '13px', color: C.muted, fontStyle: 'italic', textAlign: 'right' }}>
-              A modern public chamber<br />for a modern democracy
+
+            <div className="text-center">
+              <h1 className="font-serif text-6xl tracking-tight">
+                The People&apos;s Chamber
+              </h1>
+
+              <p className="uppercase tracking-[0.45em] text-xs mt-4 text-black/60">
+                Holding power to account
+              </p>
             </div>
-          </div>
-          <div style={{ textAlign: 'center', marginTop: '0.85rem', fontSize: '11px', letterSpacing: '0.32em', textTransform: 'uppercase', color: C.green, fontWeight: 600 }}>
-            ◆ Holding Power to Account ◆
+
+            <div className="ml-auto text-right text-[20px] leading-relaxed text-black/70 max-w-[220px]">
+              <p>A modern public chamber</p>
+              <p>for a modern democracy.</p>
+            </div>
           </div>
         </div>
 
         {/* NAV */}
-        <nav style={{ borderTop: `1px solid ${C.rule}`, borderBottom: `1px solid ${C.rule}`, background: C.bg }}>
-          <div className="pc-nav-desktop">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1.4rem', flexWrap: 'wrap' }}>
-              {NAV_LINKS.map(([label, href]) => (
-                <Link key={label} href={href} className="pc-link" style={{ fontSize: '12px', letterSpacing: '0.18em', textTransform: 'uppercase', color: C.ink, fontWeight: 600 }}>
-                  {label}
-                </Link>
+
+        <div className="border-t border-black/10">
+          <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <nav className="flex items-center gap-10 font-medium text-[15px]">
+              {[
+                "Bills",
+                "MPs",
+                "Departments",
+                "Transparency",
+                "Expenses",
+                "Polls",
+                "News & Analysis",
+              ].map((item) => (
+                <a
+                  key={item}
+                  href="#"
+                  className="uppercase tracking-wide hover:text-green-800 transition-colors"
+                >
+                  {item}
+                </a>
               ))}
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-              <Link href="/search" aria-label="Search" style={{ color: C.ink, textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
-                <SearchGlyph />
-              </Link>
-              <Link
-                href="/about#join"
-                style={{ background: C.green, color: '#fff', padding: '9px 16px', fontSize: '11px', letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 700, textDecoration: 'none' }}
-              >
-                Join the Chamber
-              </Link>
+            </nav>
+
+            <div className="flex items-center gap-6">
+              <button className="text-black/70 hover:text-black">
+                <Search size={24} />
+              </button>
+
+              <button className="bg-[#23422d] hover:bg-[#1d3625] transition-colors text-white px-8 py-4 uppercase tracking-wide text-sm font-semibold">
+                Join The Chamber
+              </button>
             </div>
           </div>
-          <details className="pc-nav-mobile">
-            <summary>
-              <span>Menu</span>
-              <span className="pc-burger-bars" aria-hidden="true"><span /><span /><span /></span>
-            </summary>
-            <div className="pc-nav-mobile-list">
-              {NAV_LINKS.map(([label, href]) => (<Link key={label} href={href}>{label}</Link>))}
-              <Link href="/search">Search</Link>
-              <Link href="/about#join" style={{ background: C.green, color: '#fff', textAlign: 'center', marginTop: '0.5rem', borderBottom: 'none' }}>Join the Chamber →</Link>
-            </div>
-          </details>
-        </nav>
+        </div>
       </header>
 
-      {/* ─── DARK HERO ─── */}
-      <section style={{ background: C.ink, color: '#fff' }}>
-        <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-          <div className="pc-hero">
-            <div
-              className="pc-hero-img"
-              style={{
-                backgroundImage: `linear-gradient(to right, rgba(0,0,0,0) 70%, rgba(24,28,31,1) 100%), url('/hero-parliament.jpg')`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-              }}
-              aria-label="The Palace of Westminster"
+      {/* HERO */}
+
+      <section className="max-w-7xl mx-auto px-6 mt-6">
+        <div className="grid lg:grid-cols-[1.1fr_0.9fr] overflow-hidden bg-black rounded-sm">
+          {/* IMAGE */}
+
+          <div className="relative min-h-[700px]">
+            <Image
+              src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?q=80&w=2000&auto=format&fit=crop"
+              alt="Westminster"
+              fill
+              className="object-cover"
             />
-            <div style={{ padding: 'clamp(2rem, 4vw, 3.5rem) clamp(2rem, 4vw, 3rem) 2rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '1.75rem' }}>
+          </div>
+
+          {/* CONTENT */}
+
+          <div className="bg-[radial-gradient(circle_at_top,#1e3b2a_0%,#0d1117_40%,#0d1117_100%)] text-white p-14 flex flex-col justify-center">
+            <div className="uppercase tracking-[0.25em] text-sm text-green-400 font-semibold">
+              Top Story
+            </div>
+
+            <h2 className="font-serif text-7xl leading-[1.02] mt-6">
+              Winter fuel cuts spark public backlash
+            </h2>
+
+            <p className="text-white/75 text-2xl leading-relaxed mt-8 max-w-xl">
+              Ministers call it &ldquo;necessary discipline&rdquo;. Pensioners call it
+              something considerably less printable.
+            </p>
+
+            {/* STATS */}
+
+            <div className="grid grid-cols-4 gap-10 mt-14">
               <div>
-                <div style={{ fontSize: '11px', letterSpacing: '0.32em', textTransform: 'uppercase', color: C.redBright, fontWeight: 700, marginBottom: '1.25rem' }}>
-                  ● Top Story
+                <div className="text-red-500 text-6xl font-light">68%</div>
+                <div className="uppercase text-sm tracking-wide mt-2">
+                  Oppose
                 </div>
-                <h2
-                  className="pc-serif"
-                  style={{
-                    fontFamily: 'var(--pc-serif), Georgia, serif',
-                    fontWeight: 700,
-                    fontSize: 'clamp(34px, 4.4vw, 56px)',
-                    lineHeight: 1.04,
-                    letterSpacing: '-0.018em',
-                    margin: '0 0 1.25rem',
-                    color: '#fff',
-                  }}
-                >
-                  {featuredBill?.title || lead?.title || 'The week in plain view.'}
-                </h2>
-                <p className="pc-italic" style={{ fontFamily: 'var(--pc-serif), Georgia, serif', fontStyle: 'italic', fontSize: '17px', lineHeight: 1.55, color: '#cfc8b8', maxWidth: '560px', margin: 0 }}>
-                  {lead?.description?.slice(0, 220) || 'Track every bill, MP, contract and donation across UK Government — and add your verdict to the public record.'}
-                </p>
+                <div className="text-red-400 text-sm mt-1">
+                  ↓ 5% since yesterday
+                </div>
               </div>
 
-              {featuredBill && fbTotal > 0 ? (
-                <div className="pc-hero-stats">
-                  <HeroStat value={`${fbNoPct}%`} label="Oppose" sub="↑ since last week" tint={C.redBright} />
-                  <HeroStat value={`${fbYesPct}%`} label="Support" sub="↓ since last week" tint={C.greenLite} />
-                  <HeroStat value={fmtCompact(fbTotal)} label="Public votes" tint="#fff" />
-                  <HeroStat value={fbAbs.toLocaleString()} label="Abstain" tint="#fff" />
+              <div>
+                <div className="text-green-500 text-6xl font-light">21%</div>
+                <div className="uppercase text-sm tracking-wide mt-2">
+                  Support
                 </div>
-              ) : null}
-
-              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                <Link
-                  href={featuredBill ? `/bills/${featuredBill.id}` : (leadSlug ? `/news/${leadSlug}` : '/transparency')}
-                  style={{ background: C.redBright, color: '#fff', padding: '14px 24px', fontSize: '11px', letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700, textDecoration: 'none' }}
-                >
-                  Read the full story
-                </Link>
-                <Link
-                  href={featuredBill ? `/bills/${featuredBill.id}#votes` : '/bills'}
-                  style={{ background: 'transparent', color: '#fff', padding: '13px 24px', fontSize: '11px', letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700, textDecoration: 'none', border: '1px solid #fff' }}
-                >
-                  See how MPs voted
-                </Link>
+                <div className="text-green-400 text-sm mt-1">
+                  ↑ 2% since yesterday
+                </div>
               </div>
+
+              <div>
+                <div className="text-5xl font-light">342</div>
+                <div className="uppercase text-sm tracking-wide mt-2">
+                  MPs Voted
+                </div>
+              </div>
+
+              <div>
+                <div className="text-5xl font-light">12.4K</div>
+                <div className="uppercase text-sm tracking-wide mt-2">
+                  Comments
+                </div>
+              </div>
+            </div>
+
+            {/* BUTTONS */}
+
+            <div className="flex gap-6 mt-14">
+              <button className="bg-[#23422d] hover:bg-[#1b3222] transition-colors text-white px-8 py-5 uppercase tracking-wide text-sm font-semibold flex items-center gap-3">
+                Read The Full Story
+                <ArrowRight size={18} />
+              </button>
+
+              <button className="border border-white/20 hover:bg-white/5 transition-colors text-white px-8 py-5 uppercase tracking-wide text-sm font-semibold">
+                See How MPs Voted
+              </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ─── LIVE FROM WESTMINSTER sub-strip ─── */}
-      <div style={{ background: C.inkPanel, color: C.inkMuted, fontSize: '11px', letterSpacing: '0.18em', textTransform: 'uppercase', borderBottom: `1px solid #2a2f33`, fontWeight: 600 }}>
-        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0.85rem 1.5rem', display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
-          <span style={{ color: C.redBright, display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-            <span style={{ width: '7px', height: '7px', background: C.redBright, borderRadius: '50%' }} />
-            Live from Westminster
-          </span>
-          {liveStripItems.slice(0, 3).map((s, i) => (
-            <span key={i} style={{ color: '#fff', textTransform: 'none', letterSpacing: 'normal', fontWeight: 400 }}>
-              {s}
-            </span>
+      {/* LIVE STRIP */}
+
+      <section className="border-y border-black/10 bg-white mt-8">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center gap-10 overflow-hidden">
+          <div className="flex items-center gap-3 text-red-600 font-semibold uppercase tracking-wide whitespace-nowrap">
+            <Radio size={18} />
+            Live From Westminster
+          </div>
+
+          {[
+            "Pensions Bill progressing",
+            "Public Accounts Committee hearing now live",
+            "Labour rebellion grows",
+            "PMQs in 23m",
+          ].map((item) => (
+            <div
+              key={item}
+              className="text-black/70 whitespace-nowrap border-l border-black/10 pl-10"
+            >
+              {item}
+            </div>
           ))}
-          <span style={{ marginLeft: 'auto' }}>PMQs in 1h 22m</span>
-          <Link href="/coverage" style={{ color: '#fff', textDecoration: 'none' }}>View all →</Link>
+
+          <button className="ml-auto flex items-center gap-2 uppercase tracking-wide text-sm font-semibold">
+            View All
+            <ArrowRight size={18} />
+          </button>
         </div>
-      </div>
+      </section>
 
-      <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '3rem 1.5rem 0' }}>
+      {/* THREE COLUMN SECTION */}
 
-        {/* ─── TOP STORIES + sidebar ─── */}
-        <section style={{ paddingBottom: '3rem', borderBottom: `1px solid ${C.rule}` }}>
-          <SectionHead label="Top Stories" right={<Link href="/coverage" className="pc-link" style={{ fontSize: '11px', letterSpacing: '0.22em', textTransform: 'uppercase', color: C.green, fontWeight: 700, borderBottom: `2px solid ${C.gold}`, paddingBottom: '2px' }}>View all →</Link>} />
-          <div className="pc-2col">
-            <div className="pc-news-grid">
-              {topStories.length === 0 && pressForGrid.slice(0, 4).map((p, i) => {
-                const skin = cardSkins[i % cardSkins.length]
-                const date = p.published_at ? new Date(p.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : ''
-                const slug = p.gov_url ? p.gov_url.split('/').filter(Boolean).pop() : null
-                return (
-                  <NewsCard key={`p-${i}`} href={slug ? `/news/${slug}` : '#'} category={skin.category} headline={p.title} excerpt={p.description || ''} date={date} tint={skin.tint} bgPos={['center top', 'left center', 'right center', 'center bottom'][i % 4]} />
-                )
-              })}
-              {topStories.map((s, i) => {
-                const skin = cardSkins[i % cardSkins.length]
-                const date = s.published_at ? new Date(s.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : ''
-                return (
-                  <NewsCard key={`s-${i}`} href={`/coverage/${s.id}`} category={skin.category} headline={s.source_title} excerpt={s.commentary || ''} date={date} tint={skin.tint} bgPos={['center top', 'left center', 'right center', 'center bottom'][i % 4]} />
-                )
-              })}
+      <section className="max-w-7xl mx-auto px-6 py-10">
+        <div className="grid lg:grid-cols-[0.28fr_0.44fr_0.28fr] gap-6">
+          {/* POLLS */}
+
+          <div className="bg-white border border-black/10 p-8">
+            <div className="uppercase tracking-wide text-sm font-semibold text-black/60">
+              The Public Chamber
             </div>
 
-            <aside style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
-              {/* PUBLIC HUB */}
-              <div style={{ background: '#fff', border: `1px solid ${C.rule}`, padding: '1.5rem' }}>
-                <ColKicker color={C.green}>The Public Hub</ColKicker>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginTop: '1rem' }}>
-                  <Donut pct={23} color={C.green} />
-                  <div>
-                    <div style={{ fontSize: '11px', letterSpacing: '0.22em', textTransform: 'uppercase', color: C.muted, fontWeight: 600, marginBottom: '4px' }}>
-                      Government approval
-                    </div>
-                    <div className="pc-serif" style={{ fontFamily: 'var(--pc-serif), Georgia, serif', fontSize: '13px', color: C.ink, lineHeight: 1.45, fontStyle: 'italic' }}>
-                      Lowest in 18 months. The remaining 77% are tired and waiting.
-                    </div>
+            <h3 className="font-serif text-3xl mt-4">
+              Live sentiment on key issues
+            </h3>
+
+            <div className="space-y-8 mt-10">
+              {polls.map((poll) => (
+                <div key={poll.title}>
+                  <div className="font-medium">{poll.title}</div>
+
+                  <div className="flex justify-between text-sm mt-3">
+                    <span className="text-red-600">
+                      {poll.oppose}% oppose
+                    </span>
+
+                    <span className="text-green-700">
+                      {poll.support}% support
+                    </span>
+                  </div>
+
+                  <div className="flex h-2 rounded-full overflow-hidden mt-3 bg-black/5">
+                    <div
+                      className="bg-red-500"
+                      style={{ width: `${poll.oppose}%` }}
+                    />
+
+                    <div
+                      className="bg-green-700"
+                      style={{ width: `${poll.support}%` }}
+                    />
                   </div>
                 </div>
-                <div style={{ marginTop: '1.25rem', height: '40px', position: 'relative' }}>
-                  <Sparkline color={C.red} />
-                </div>
-              </div>
-
-              {/* TRANSPARENCY DESK */}
-              <div style={{ background: '#fff', border: `1px solid ${C.rule}`, padding: '1.5rem' }}>
-                <ColKicker color={C.gold}>Transparency Desk</ColKicker>
-                <div style={{ marginTop: '1rem' }}>
-                  <div style={{ fontSize: '10px', letterSpacing: '0.24em', textTransform: 'uppercase', color: C.muted, fontWeight: 600, marginBottom: '0.5rem' }}>
-                    Top expense claim · 24/25
-                  </div>
-                  <div className="pc-serif" style={{ fontFamily: 'var(--pc-serif), Georgia, serif', fontSize: 'clamp(28px, 3vw, 36px)', fontWeight: 800, lineHeight: 1, color: C.ink, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}>
-                    {topSpender ? fmtMoney(topSpender.total) : '—'}
-                  </div>
-                  <div style={{ fontSize: '12px', color: C.green, marginTop: '6px', fontWeight: 700 }}>
-                    {topSpender?.name || ''}
-                  </div>
-                </div>
-                <DeskLine label="Largest contract" value={fmtMoney(topContract?.value)} sub={topContract?.supplier || ''} href="/transparency/contracts" />
-                <DeskLine label="Largest donation" value={fmtMoney(topDonation?.amount)} sub={`${topDonation?.donor_name || '—'} → ${topDonation?.recipient_name || ''}`} href="/transparency/donations" />
-                <Link href="/expenses" className="pc-link" style={{ display: 'inline-block', marginTop: '1rem', fontSize: '11px', letterSpacing: '0.22em', textTransform: 'uppercase', color: C.gold, fontWeight: 700, borderBottom: `2px solid ${C.gold}`, paddingBottom: '2px' }}>
-                  View all expenses →
-                </Link>
-              </div>
-            </aside>
-          </div>
-        </section>
-
-        {/* ─── AT A GLANCE ─── */}
-        <section style={{ padding: '3rem 0', borderBottom: `1px solid ${C.rule}` }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '1.75rem', flexWrap: 'wrap', gap: '1rem' }}>
-            <div style={{ fontSize: '11px', letterSpacing: '0.28em', textTransform: 'uppercase', color: C.green, fontWeight: 700 }}>
-              ◆ At a Glance
-            </div>
-          </div>
-          <div className="pc-stats-grid">
-            <CircleStat icon={<TrendUp />} value={`${fbYesPct}%`} label="Today's polls" tint={C.green} />
-            <CircleStat icon={<DocIcon />} value={'3,884'} label="Bills tracked" tint={C.ink} />
-            <CircleStat icon={<HouseIcon />} value={(contractCount || 0).toLocaleString()} label="Contracts logged" tint={C.gold} />
-            <CircleStat icon={<DoorIcon />} value={(revolvingCount || 0).toLocaleString()} label="Revolving moves" tint={C.red} />
-            <ExploreCard />
-          </div>
-        </section>
-
-        {/* ─── LATEST FROM WESTMINSTER + Today's Editorial ─── */}
-        <section style={{ padding: '3rem 0' }}>
-          <SectionHead label="Latest from Westminster" right={<Link href="/coverage" className="pc-link" style={{ fontSize: '11px', letterSpacing: '0.22em', textTransform: 'uppercase', color: C.green, fontWeight: 700, borderBottom: `2px solid ${C.gold}`, paddingBottom: '2px' }}>View all →</Link>} />
-          <div className="pc-2col">
-            <div className="pc-news-grid">
-              {(laterStories.length ? laterStories : pressForGrid).slice(0, 4).map((item, i) => {
-                const skin = cardSkins[i % cardSkins.length]
-                if ('commentary' in item) {
-                  const date = item.published_at ? new Date(item.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : ''
-                  return <NewsCard key={`l-s-${i}`} href={`/coverage/${item.id}`} category={skin.category} headline={item.source_title} excerpt={item.commentary || ''} date={date} tint={skin.tint} bgPos={['center top', 'left center', 'right center', 'center bottom'][i % 4]} />
-                }
-                const slug = item.gov_url ? item.gov_url.split('/').filter(Boolean).pop() : null
-                const date = item.published_at ? new Date(item.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : ''
-                return <NewsCard key={`l-p-${i}`} href={slug ? `/news/${slug}` : '#'} category={skin.category} headline={item.title} excerpt={item.description || ''} date={date} tint={skin.tint} bgPos={['center top', 'left center', 'right center', 'center bottom'][i % 4]} />
-              })}
+              ))}
             </div>
 
-            <aside>
-              <article>
-                <ColKicker color={C.green}>Today&apos;s Editorial</ColKicker>
-                <h3
-                  className="pc-serif"
-                  style={{
-                    fontFamily: 'var(--pc-serif), Georgia, serif',
-                    fontSize: 'clamp(24px, 2.4vw, 32px)',
-                    fontWeight: 700,
-                    lineHeight: 1.15,
-                    letterSpacing: '-0.012em',
-                    margin: '0.75rem 0 1.25rem',
-                    color: C.ink,
-                  }}
-                >
-                  {editorialPick?.source_title || 'A nation of experts in everything and accountable for nothing.'}
+            <button className="mt-10 flex items-center gap-2 uppercase tracking-wide text-sm font-semibold">
+              View All Polls
+              <ArrowRight size={18} />
+            </button>
+          </div>
+
+          {/* EDITORIAL */}
+
+          <div className="bg-white border border-black/10 p-10 relative overflow-hidden">
+            <div className="uppercase tracking-wide text-sm font-semibold text-[#7c4c38]">
+              Today&apos;s Editorial
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-10 mt-8 items-center">
+              <div>
+                <h3 className="font-serif text-5xl leading-tight">
+                  Westminster: a nation of experts in everything and accountable
+                  for nothing
                 </h3>
-                <p className="pc-italic" style={{ fontFamily: 'var(--pc-serif), Georgia, serif', fontStyle: 'italic', fontSize: '14px', lineHeight: 1.65, color: C.ink, margin: '0 0 1.25rem' }}>
-                  {editorialPick?.commentary?.slice(0, 240) || 'Another day, another announcement, another “in due course”, another promise waiting quietly for its funeral.'}
+
+                <p className="mt-8 text-black/70 leading-relaxed text-lg">
+                  Another day, another announcement, another U-turn denied,
+                  another promise waiting quietly for its funeral.
                 </p>
-                <div style={{ background: '#EAE3D2', border: `1px solid ${C.rule}`, padding: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '160px', marginBottom: '1rem' }}>
-                  <CabinetIllustration />
-                </div>
-                <Link href={editorialPick ? `/coverage/${editorialPick.id}` : '/coverage'} className="pc-link" style={{ fontSize: '11px', letterSpacing: '0.22em', textTransform: 'uppercase', color: C.green, fontWeight: 700, borderBottom: `2px solid ${C.gold}`, paddingBottom: '2px' }}>
-                  Read editorial →
-                </Link>
-              </article>
-            </aside>
+
+                <button className="mt-8 flex items-center gap-2 uppercase tracking-wide text-sm font-semibold">
+                  Read Editorial
+                  <ArrowRight size={18} />
+                </button>
+              </div>
+
+              <div className="relative h-[420px]">
+                <Image
+                  src="https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?q=80&w=1200&auto=format&fit=crop"
+                  alt="Editorial"
+                  fill
+                  className="object-cover rounded-sm"
+                />
+              </div>
+            </div>
           </div>
-        </section>
-      </main>
 
-      {/* ─── FOOTER ─── */}
-      <footer style={{ background: C.ink, color: '#fff', borderTop: `4px solid ${C.gold}`, marginTop: '2rem' }}>
-        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '4rem 1.5rem 2rem' }}>
-          <div className="pc-foot-main" style={{ marginBottom: '3rem' }}>
+          {/* TRANSPARENCY */}
 
-            {/* LEFT — lion + signup */}
+          <div className="bg-white border border-black/10 p-8">
+            <div className="uppercase tracking-wide text-sm font-semibold text-black/60">
+              Transparency Desk
+            </div>
+
+            <h3 className="font-serif text-4xl mt-4">
+              Following the money
+            </h3>
+
+            <div className="mt-10 space-y-10">
+              <div>
+                <div className="text-sm uppercase tracking-wide text-black/50">
+                  Total MP expenses this month
+                </div>
+
+                <div className="flex items-end gap-4 mt-3">
+                  <div className="text-5xl font-light">£2,873,761</div>
+
+                  <div className="text-green-700">↑ 4.7%</div>
+                </div>
+              </div>
+
+              <div className="border-t border-black/10 pt-8">
+                <div className="text-sm uppercase tracking-wide text-black/50">
+                  Top expense claim
+                </div>
+
+                <div className="text-2xl font-medium mt-3">
+                  2nd home mortgage
+                </div>
+
+                <div className="text-black/60 mt-2">£24,990</div>
+              </div>
+
+              <div className="border-t border-black/10 pt-8">
+                <div className="text-sm uppercase tracking-wide text-black/50">
+                  Most frequent claimant
+                </div>
+
+                <div className="text-2xl font-medium mt-3">
+                  Sir M. Fabricant
+                </div>
+
+                <div className="text-black/60 mt-2">
+                  Conservative | Lichfield
+                </div>
+
+                <div className="mt-2">£27,842 this month</div>
+              </div>
+            </div>
+
+            <button className="mt-10 flex items-center gap-2 uppercase tracking-wide text-sm font-semibold">
+              View All Expenses
+              <ArrowRight size={18} />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* STATS ROW */}
+
+      <section className="max-w-7xl mx-auto px-6">
+        <div className="grid md:grid-cols-5 border border-black/10 bg-white">
+          {stats.map((stat, index) => {
+            const Icon = stat.icon;
+
+            return (
+              <div
+                key={stat.label}
+                className={`p-8 ${
+                  index !== stats.length - 1
+                    ? "border-r border-black/10"
+                    : ""
+                }`}
+              >
+                <div className="w-14 h-14 rounded-full bg-[#23422d] text-white flex items-center justify-center">
+                  <Icon size={24} />
+                </div>
+
+                <div className="text-5xl mt-6 font-light">{stat.value}</div>
+
+                <div className="uppercase tracking-wide text-sm mt-4 text-black/60">
+                  {stat.label}
+                </div>
+
+                <div className="mt-2 text-black/70">{stat.sub}</div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* STORIES */}
+
+      <section className="max-w-7xl mx-auto px-6 py-12">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="uppercase tracking-wide text-sm font-semibold">
+            Latest From The Chamber
+          </h2>
+
+          <button className="flex items-center gap-2 uppercase tracking-wide text-sm font-semibold">
+            View All Stories
+            <ArrowRight size={18} />
+          </button>
+        </div>
+
+        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
+          {stories.map((story) => (
+            <article
+              key={story.title}
+              className="bg-white border border-black/10 overflow-hidden group"
+            >
+              <div className="relative h-[220px] overflow-hidden">
+                <Image
+                  src={story.image}
+                  alt={story.title}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+              </div>
+
+              <div className="p-6">
+                <div className="flex justify-between items-center text-xs uppercase tracking-wide text-black/50">
+                  <span>{story.category}</span>
+                  <span>{story.time}</span>
+                </div>
+
+                <h3 className="font-serif text-3xl leading-tight mt-5">
+                  {story.title}
+                </h3>
+
+                <button className="mt-8 flex items-center gap-2 text-sm uppercase tracking-wide font-semibold">
+                  Read Story
+                  <ArrowRight size={18} />
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      {/* FOOTER */}
+
+      <footer className="bg-[#11161d] text-white mt-20">
+        <div className="max-w-7xl mx-auto px-6 py-20">
+          <div className="grid lg:grid-cols-[0.45fr_0.55fr] gap-20">
             <div>
-              <LionEngraving />
-              <div className="pc-serif" style={{ fontFamily: 'var(--pc-serif), Georgia, serif', fontSize: '24px', fontWeight: 800, letterSpacing: '-0.012em', marginTop: '1rem', color: '#fff' }}>
+              <h2 className="font-serif text-6xl leading-tight">
+                Stay informed.
+                <br />
+                Stay powerful.
+              </h2>
+
+              <p className="text-white/70 text-xl leading-relaxed mt-8 max-w-xl">
+                Your weekly digest of politics, transparency and the stories
+                they don&apos;t want you to miss.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <input
+                type="email"
+                placeholder="Enter your email address"
+                className="flex-1 h-16 px-6 bg-white/5 border border-white/10 text-white placeholder:text-white/40 outline-none"
+              />
+
+              <button className="h-16 px-10 bg-[#23422d] hover:bg-[#1b3222] transition-colors uppercase tracking-wide text-sm font-semibold">
+                Subscribe
+              </button>
+            </div>
+          </div>
+
+          <div className="border-t border-white/10 mt-20 pt-10 flex flex-col lg:flex-row gap-10 justify-between">
+            <div>
+              <div className="font-serif text-4xl">
                 The People&apos;s Chamber
               </div>
-              <p style={{ fontSize: '13px', color: C.inkMuted, lineHeight: 1.6, margin: '0.5rem 0 1.5rem' }}>
-                A modern public chamber for a modern democracy. Built from official sources. Edited with raised eyebrows.
-              </p>
-              <div className="pc-serif" style={{ fontFamily: 'var(--pc-serif), Georgia, serif', fontSize: '18px', fontWeight: 700, color: '#fff', marginBottom: '0.5rem' }}>
-                Stay informed. Stay powerful.
+
+              <div className="text-white/50 mt-4 max-w-sm leading-relaxed">
+                A modern public chamber for a modern democracy.
               </div>
-              <p style={{ fontSize: '12px', color: C.inkMuted, lineHeight: 1.5, margin: '0 0 1rem' }}>
-                Saturday mornings: the week&apos;s biggest contracts, donations, and revolving-door moves.
-              </p>
-              <NewsletterForm />
             </div>
 
-            {/* RIGHT — Join the Chamber callout */}
-            <div style={{ background: C.inkPanel, border: `1px solid ${C.gold}66`, padding: '1.75rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <div>
-                <div style={{ fontSize: '11px', letterSpacing: '0.28em', textTransform: 'uppercase', color: C.gold, fontWeight: 700, marginBottom: '0.85rem' }}>
-                  ◆ Join the Chamber
+            <div className="grid grid-cols-3 gap-16 text-white/70">
+              <div className="space-y-3">
+                <div className="text-white font-semibold uppercase tracking-wide text-sm">
+                  Explore
                 </div>
-                <div className="pc-serif" style={{ fontFamily: 'var(--pc-serif), Georgia, serif', fontSize: '22px', fontWeight: 800, lineHeight: 1.15, color: '#fff', marginBottom: '1rem' }}>
-                  Be part of the public&apos;s response to power.
-                </div>
-                <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <BulletItem>Vote on every UK Parliament bill</BulletItem>
-                  <BulletItem>Track contracts, donations & revolving doors</BulletItem>
-                  <BulletItem>Join the public record</BulletItem>
-                </ul>
-              </div>
-              <Link
-                href="/about#join"
-                style={{ background: C.green, color: '#fff', textAlign: 'center', padding: '12px 22px', fontSize: '11px', letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700, textDecoration: 'none', marginTop: '1.5rem', display: 'inline-block' }}
-              >
-                Sign up — free →
-              </Link>
-            </div>
-          </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '1.5rem', borderTop: `1px solid #2a2f33`, fontSize: '11px', color: C.inkMuted, flexWrap: 'wrap', gap: '0.75rem' }}>
-            <div>© {new Date().getFullYear()} The People&apos;s Chamber · Public-record reporting</div>
-            <div style={{ letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 600 }}>peopleschamber.uk</div>
+                <div>Bills</div>
+                <div>MPs</div>
+                <div>Departments</div>
+                <div>Transparency</div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="text-white font-semibold uppercase tracking-wide text-sm">
+                  About
+                </div>
+
+                <div>Our Mission</div>
+                <div>Methodology</div>
+                <div>Support</div>
+                <div>Donate</div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="text-white font-semibold uppercase tracking-wide text-sm">
+                  Join
+                </div>
+
+                <div>Membership</div>
+                <div>Public Votes</div>
+                <div>Newsletter</div>
+                <div>Community</div>
+              </div>
+            </div>
           </div>
         </div>
       </footer>
-    </div>
-  )
-}
-
-/* ───────── HELPERS ───────── */
-
-function HeroStat({ value, label, sub, tint }: { value: string; label: string; sub?: string; tint: string }) {
-  return (
-    <div style={{ borderTop: `2px solid ${tint}`, paddingTop: '0.85rem' }}>
-      <div className="pc-serif" style={{ fontFamily: 'var(--pc-serif), Georgia, serif', fontSize: 'clamp(28px, 3.4vw, 42px)', fontWeight: 800, color: tint, lineHeight: 0.95, letterSpacing: '-0.022em', fontVariantNumeric: 'tabular-nums' }}>
-        {value}
-      </div>
-      <div style={{ fontSize: '10px', letterSpacing: '0.22em', textTransform: 'uppercase', color: C.inkMuted, marginTop: '6px', fontWeight: 600 }}>
-        {label}
-      </div>
-      {sub && <div style={{ fontSize: '10px', color: C.inkMuted, marginTop: '3px', fontStyle: 'italic' }}>{sub}</div>}
-    </div>
-  )
-}
-
-function ColKicker({ children, color }: { children: React.ReactNode; color: string }) {
-  return (
-    <div style={{ fontSize: '11px', letterSpacing: '0.28em', textTransform: 'uppercase', color, fontWeight: 700, marginBottom: '0.65rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-      <span aria-hidden="true" style={{ width: '20px', height: '2px', background: color, display: 'inline-block' }} />
-      {children}
-    </div>
-  )
-}
-
-function SectionHead({ label, right }: { label: string; right?: React.ReactNode }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem' }}>
-        <span style={{ width: '32px', height: '3px', background: C.red, display: 'inline-block' }} />
-        <span style={{ fontSize: '11px', letterSpacing: '0.28em', textTransform: 'uppercase', color: C.ink, fontWeight: 700 }}>
-          {label}
-        </span>
-      </div>
-      {right}
-    </div>
-  )
-}
-
-function DeskLine({ label, value, sub, href }: { label: string; value: string; sub: string; href: string }) {
-  return (
-    <Link href={href} className="pc-link" style={{ display: 'block', borderTop: `1px solid ${C.rule}`, paddingTop: '0.85rem', marginTop: '0.85rem' }}>
-      <div style={{ fontSize: '10px', letterSpacing: '0.22em', textTransform: 'uppercase', color: C.muted, fontWeight: 600, marginBottom: '4px' }}>
-        {label}
-      </div>
-      <div className="pc-serif" style={{ fontFamily: 'var(--pc-serif), Georgia, serif', fontSize: '18px', fontWeight: 700, lineHeight: 1.15, color: C.ink, marginBottom: '4px', fontVariantNumeric: 'tabular-nums' }}>
-        {value}
-      </div>
-      <div style={{ fontSize: '12px', color: C.muted, lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-        {sub}
-      </div>
-    </Link>
-  )
-}
-
-function CircleStat({ icon, value, label, tint }: { icon: React.ReactNode; value: string; label: string; tint: string }) {
-  return (
-    <div style={{ background: '#fff', border: `1px solid ${C.rule}`, padding: '1.25rem 1rem', textAlign: 'center', boxShadow: '0 1px 2px rgba(29, 34, 38, 0.04)' }}>
-      <div style={{ width: '46px', height: '46px', borderRadius: '50%', background: tint + '14', color: tint, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.85rem', border: `1px solid ${tint}33` }} aria-hidden="true">
-        {icon}
-      </div>
-      <div className="pc-serif" style={{ fontFamily: 'var(--pc-serif), Georgia, serif', fontSize: 'clamp(22px, 2.4vw, 28px)', fontWeight: 800, color: C.ink, lineHeight: 1, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.015em' }}>
-        {value}
-      </div>
-      <div style={{ fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: C.muted, fontWeight: 600, marginTop: '0.6rem' }}>
-        {label}
-      </div>
-    </div>
-  )
-}
-
-function ExploreCard() {
-  return (
-    <Link href="/transparency" className="pc-link" style={{ background: C.ink, color: '#fff', padding: '1.25rem 1rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', textDecoration: 'none' }}>
-      <div style={{ height: '32px', position: 'relative', marginBottom: '0.5rem' }}>
-        <Sparkline color={C.gold} />
-      </div>
-      <div style={{ fontSize: '12px', letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 700, lineHeight: 1.3 }}>
-        Explore the full dashboard
-      </div>
-      <div style={{ fontSize: '11px', color: C.gold, marginTop: '0.5rem' }}>→</div>
-    </Link>
-  )
-}
-
-function NewsCard({ href, category, headline, excerpt, date, tint, bgPos }: { href: string; category: string; headline: string; excerpt: string; date: string; tint: string; bgPos: string }) {
-  return (
-    <Link href={href} className="pc-link" style={{ display: 'block', background: '#fff', border: `1px solid ${C.rule}` }}>
-      <div
-        style={{
-          width: '100%',
-          aspectRatio: '5 / 3',
-          backgroundImage: `linear-gradient(${tint}, ${tint}), url('/hero-parliament.jpg')`,
-          backgroundBlendMode: 'multiply',
-          backgroundSize: 'cover',
-          backgroundPosition: bgPos,
-        }}
-        aria-hidden="true"
-      />
-      <div style={{ padding: '1rem 1.25rem 1.25rem' }}>
-        <div style={{ fontSize: '10px', letterSpacing: '0.22em', textTransform: 'uppercase', color: C.red, fontWeight: 700, marginBottom: '0.6rem' }}>
-          {category}{date && ` · ${date}`}
-        </div>
-        <h4 className="pc-serif" style={{ fontFamily: 'var(--pc-serif), Georgia, serif', fontSize: '18px', fontWeight: 700, letterSpacing: '-0.012em', lineHeight: 1.25, margin: '0 0 0.6rem', color: C.ink }}>
-          {headline}
-        </h4>
-        {excerpt && (
-          <p style={{ fontSize: '13px', lineHeight: 1.55, color: C.muted, margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-            {excerpt}
-          </p>
-        )}
-      </div>
-    </Link>
-  )
-}
-
-function BulletItem({ children }: { children: React.ReactNode }) {
-  return (
-    <li style={{ fontSize: '13px', color: '#cfc8b8', lineHeight: 1.55, paddingLeft: '1.25rem', position: 'relative' }}>
-      <span aria-hidden="true" style={{ position: 'absolute', left: 0, top: '8px', width: '7px', height: '7px', background: C.gold, display: 'inline-block' }} />
-      {children}
-    </li>
-  )
-}
-
-/* ───────── SVG GLYPHS ───────── */
-
-function SearchGlyph() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.6">
-      <circle cx="8" cy="8" r="5" /><path d="m12 12 4 4" strokeLinecap="round" />
-    </svg>
-  )
-}
-function TrendUp() { return (<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="2,15 8,9 12,13 18,5" /><polyline points="14,5 18,5 18,9" /></svg>) }
-function DocIcon() { return (<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M5 2h7l3 3v13H5z" /><path d="M12 2v3h3" /><path d="M7 10h6M7 13h6M7 7h3" /></svg>) }
-function HouseIcon() { return (<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9 10 3l7 6v8H3z" /><path d="M8 17v-5h4v5" /></svg>) }
-function DoorIcon() { return (<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3h8v14H6z" /><path d="M11 10h.01" /><path d="M2 17h16" /></svg>) }
-
-function Donut({ pct, color }: { pct: number; color: string }) {
-  const r = 32
-  const c = 2 * Math.PI * r
-  const dash = (pct / 100) * c
-  return (
-    <svg viewBox="0 0 80 80" width="84" height="84" aria-label={`${pct}% government approval`}>
-      <circle cx="40" cy="40" r={r} fill="none" stroke={C.rule} strokeWidth="8" />
-      <circle cx="40" cy="40" r={r} fill="none" stroke={color} strokeWidth="8" strokeLinecap="round"
-        strokeDasharray={`${dash} ${c - dash}`} transform="rotate(-90 40 40)" />
-      <text x="40" y="46" textAnchor="middle" fontFamily="var(--pc-serif), Georgia, serif" fontWeight="800" fontSize="20" fill={C.ink}>
-        {pct}%
-      </text>
-    </svg>
-  )
-}
-
-function Sparkline({ color }: { color: string }) {
-  // Stylized falling line — placeholder for real time-series later.
-  const points = '0,28 14,22 28,24 42,18 56,20 70,12 84,15 98,8 112,10 126,5 140,7 154,2'
-  return (
-    <svg viewBox="0 0 154 32" width="100%" height="100%" preserveAspectRatio="none">
-      <polyline points={points} fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="154" cy="2" r="2.5" fill={color} />
-    </svg>
-  )
-}
-
-function CabinetIllustration() {
-  return (
-    <svg viewBox="0 0 320 180" width="100%" style={{ maxWidth: '300px', display: 'block' }} role="img" aria-label="Editorial illustration of a cabinet meeting">
-      <g fill="#1F2428" stroke="#1F2428" strokeWidth="1">
-        <g opacity="0.18">
-          <rect x="20" y="40" width="14" height="60" />
-          <rect x="34" y="50" width="40" height="50" />
-          <rect x="74" y="35" width="10" height="65" />
-          <rect x="84" y="55" width="50" height="45" />
-          <rect x="220" y="45" width="14" height="55" />
-          <rect x="234" y="55" width="60" height="45" />
-          <line x1="20" y1="100" x2="300" y2="100" stroke="#1F2428" />
-        </g>
-      </g>
-      <ellipse cx="160" cy="135" rx="110" ry="22" fill="#5C5C58" opacity="0.25" />
-      <ellipse cx="160" cy="130" rx="110" ry="20" fill="#3F3A30" />
-      {[40, 80, 120, 160, 200, 240, 280].map((x, i) => (
-        <g key={i}>
-          <circle cx={x} cy={i % 2 === 0 ? 95 : 100} r="9" fill="#1F2428" />
-          <path d={`M${x-14},${i % 2 === 0 ? 130 : 135} q14,-22 28,0 z`} fill="#1F2428" />
-          <path d={`M${x-1},${i % 2 === 0 ? 110 : 115} l2,15 l-2,5 l-2,-5 z`} fill={i % 3 === 0 ? '#B02A2A' : '#C8A76A'} />
-        </g>
-      ))}
-      <g>
-        <path d="M178 28 q0 -16 18 -16 h60 q18 0 18 16 v18 q0 16 -18 16 h-32 l-12 14 v-14 h-16 q-18 0 -18 -16 z" fill="#fff" stroke="#1F2428" strokeWidth="1.4" />
-        <text x="186" y="40" fontFamily="Georgia, serif" fontStyle="italic" fontSize="13" fill="#1F2428">Order!</text>
-        <text x="186" y="55" fontFamily="Georgia, serif" fontStyle="italic" fontSize="13" fill="#1F2428">Order!</text>
-      </g>
-    </svg>
-  )
-}
-
-function LionEngraving() {
-  return (
-    <svg viewBox="0 0 220 130" width="160" height="auto" role="img" aria-label="Heraldic lion engraving">
-      <g fill="none" stroke={C.gold} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M30 96 q0 -12 14 -16 q-2 -10 6 -16 q-4 -10 4 -14 q6 -2 10 4 q4 -8 14 -8 q12 0 16 10 q12 -2 18 6 q22 4 30 18 q14 4 18 16 q4 10 -2 18 q-6 6 -16 6 q-2 6 -10 6 q-6 0 -10 -4 q-12 6 -28 6 q-14 0 -22 -4 q-6 4 -16 4 q-12 0 -18 -8 q-8 -2 -8 -14 z" />
-        <path d="M44 80 q4 -4 8 0 m-2 -8 q4 -4 8 0 m-4 -8 q4 -4 8 0 m-2 -10 q4 -4 8 0 m4 -6 q4 -4 8 0" opacity="0.7" />
-        <circle cx="74" cy="62" r="1.4" fill={C.gold} stroke="none" />
-        <path d="M82 70 q3 -2 6 0" />
-        <path d="M192 92 q14 -4 18 -16 q4 -10 -2 -16" />
-        <line x1="20" y1="110" x2="200" y2="110" />
-        <circle cx="100" cy="38" r="1.6" fill={C.gold} stroke="none" />
-        <circle cx="110" cy="32" r="1.6" fill={C.gold} stroke="none" />
-        <circle cx="120" cy="38" r="1.6" fill={C.gold} stroke="none" />
-      </g>
-    </svg>
-  )
+    </main>
+  );
 }
