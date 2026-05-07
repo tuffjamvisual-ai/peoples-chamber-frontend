@@ -33,6 +33,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const transparencySections = [
     'ministers-meetings',
     'lobbyists',
+    'appgs',
     'hospitality',
     'revolving-door',
     'donations',
