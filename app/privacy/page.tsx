@@ -1,3 +1,11 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy',
+  description: 'Privacy policy for The People’s Chamber — what data we collect, how we use it, and your rights under UK GDPR.',
+  alternates: { canonical: '/privacy' },
+}
+
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-[#1a1a1a] text-white p-8">

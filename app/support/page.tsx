@@ -1,3 +1,11 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Support',
+  description: 'Get help with The People’s Chamber — contact us, report a data issue, or suggest a feature.',
+  alternates: { canonical: '/support' },
+}
+
 export default function SupportPage() {
   return (
     <div className="min-h-screen bg-[#1a1a1a] text-white p-8">

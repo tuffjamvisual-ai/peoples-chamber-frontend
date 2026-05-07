@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -22,6 +23,17 @@ const SECTIONS: Record<string, { title: string; table: string; orderBy?: string 
 
 export function generateStaticParams() {
   return Object.keys(SECTIONS).map((section) => ({ section }))
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ section: string }> }): Promise<Metadata> {
+  const { section } = await params
+  const config = SECTIONS[section]
+  if (!config) return { title: 'Transparency' }
+  return {
+    title: config.title,
+    description: `${config.title} — public-record data for UK government transparency.`,
+    alternates: { canonical: `/transparency/${section}` },
+  }
 }
 
 export default async function TransparencySectionPage({

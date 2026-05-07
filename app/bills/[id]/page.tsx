@@ -1,179 +1,72 @@
-'use client';
+// Server component — renders bill metadata, summary, support/oppose
+// explanations, sponsor, vote bars, and stage timeline directly in
+// the initial HTML so Googlebot indexes the content. Vote buttons
+// + auth flow live in a small client island (BillVotingClient).
 
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { useAuth } from '../../context/AuthContext';
-import AuthModal from '../../components/AuthModal';
-import Navigation from '../../components/Navigation';
+import { supabase } from '@/lib/supabase'
+import { notFound } from 'next/navigation'
+import Link from 'next/link'
+import Navigation from '../../components/Navigation'
+import BillVotingClient from './BillVotingClient'
 
-const ACCENT = '#ffffff';
-const SUCCESS = '#4a8a3a';
-const DANGER = '#8a3a3a';
-const WARN = '#c9c9c9';
+export const revalidate = 3600
+
+const ACCENT = '#ffffff'
+const SUCCESS = '#4a8a3a'
+const DANGER = '#8a3a3a'
+const WARN = '#c9c9c9'
 
 type Stage = {
-  id: number;
-  description: string;
-  house: string;
-  stageSittings: { date: string }[];
-  sortOrder: number;
-};
+  id: number
+  description: string
+  house: string
+  stageSittings: { date: string }[]
+  sortOrder: number
+}
 
-type Bill = {
-  id: number;
-  parliament_id: number | null;
-  title: string;
-  long_title: string | null;
-  description: string;
-  category: string;
-  current_stage: string;
-  stage_date: string | null;
-  sponsor_name: string | null;
-  sponsor_party: string | null;
-  sponsor_party_colour: string | null;
-  sponsor_photo: string | null;
-  sponsor_constituency: string | null;
-  originating_house: string | null;
-  is_act: boolean;
-  is_defeated: boolean;
-  bill_withdrawn: string | null;
-  plain_summary: string | null;
-  support_explanation: string | null;
-  oppose_explanation: string | null;
-  ai_generated: boolean | null;
-  commons_ayes: number | null;
-  commons_noes: number | null;
-  votes: { yes: number; no: number; abstain: number };
-  stages: Stage[];
-  user_vote: string | null;
-};
-
-export default function BillDetailPage() {
-  const params = useParams();
-  const router = useRouter();
-  const { user } = useAuth();
-  const billId = params.id as string;
-
-  const [bill, setBill] = useState<Bill | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [userVote, setUserVote] = useState<string | null>(null);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
-  const [voting, setVoting] = useState(false);
-
-  useEffect(() => {
-    async function fetchBill() {
-      try {
-        setLoading(true);
-        const response = await fetch(`/api/bills/${billId}`);
-        if (!response.ok) throw new Error('Bill not found');
-        const data: Bill = await response.json();
-        setBill(data);
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error');
-      } finally {
-        setLoading(false);
-      }
-    }
-    if (billId) fetchBill();
-  }, [billId]);
-
-  useEffect(() => {
-    async function fetchUserVote() {
-      if (!user || !billId) return;
-      try {
-        const response = await fetch(`/api/vote?userId=${user.id}`);
-        if (response.ok) {
-          const data = await response.json();
-          setUserVote(data.votes?.[parseInt(billId)] || null);
-        }
-      } catch {}
-    }
-    fetchUserVote();
-  }, [user, billId]);
-
-  const handleVote = async (choice: 'yes' | 'no' | 'abstain') => {
-    if (!user) {
-      setAuthMode('signup');
-      setShowAuthModal(true);
-      return;
-    }
-    if (userVote || voting) return;
-    setVoting(true);
-    try {
-      const response = await fetch('/api/vote', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id, billId: parseInt(billId), choice }),
-      });
-      if (response.ok) {
-        setUserVote(choice);
-        setBill((prev) => {
-          if (!prev) return prev;
-          return {
-            ...prev,
-            votes: {
-              ...prev.votes,
-              yes: prev.votes.yes + (choice === 'yes' ? 1 : 0),
-              no: prev.votes.no + (choice === 'no' ? 1 : 0),
-              abstain: prev.votes.abstain + (choice === 'abstain' ? 1 : 0),
-            },
-          };
-        });
-      }
-    } catch {}
-    setVoting(false);
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-2 border-t-[#ffffff] border-[#333333] mx-auto"></div>
-          <p className="text-white text-[13px] uppercase tracking-[0.25em] mt-6">Loading bill…</p>
-        </div>
-      </div>
-    );
+async function fetchStages(parliamentId: number | null): Promise<Stage[]> {
+  if (!parliamentId) return []
+  try {
+    const res = await fetch(`https://bills-api.parliament.uk/api/v1/Bills/${parliamentId}/Stages`, {
+      next: { revalidate: 3600 },
+    })
+    if (!res.ok) return []
+    const data = await res.json()
+    return (data.items || []) as Stage[]
+  } catch {
+    return []
   }
+}
 
-  if (error || !bill) {
-    return (
-      <div className="min-h-screen bg-[#1a1a1a] text-white flex items-center justify-center">
-        <div className="border border-[#333333] border-l-2 border-l-[#8a3a3a] p-6 max-w-md">
-          <p className="text-[13px] uppercase tracking-[0.25em] mb-2 font-semibold" style={{ color: DANGER }}>Error</p>
-          <h2 className="text-xl font-black tracking-tight text-white mb-2">Bill unavailable</h2>
-          <p className="text-white text-[13px] leading-[1.7] mb-4">{error || 'Bill not found'}</p>
-          <button
-            onClick={() => router.push('/bills')}
-            className="px-4 py-2 bg-[#ffffff] text-[#1a1a1a] text-[15px] uppercase tracking-[0.2em] font-bold rounded-sm"
-          >
-            Back to Bills
-          </button>
-        </div>
-      </div>
-    );
-  }
+export default async function BillDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const billId = parseInt(id, 10)
+  if (!Number.isFinite(billId)) notFound()
 
-  const totalVotes = bill.votes.yes + bill.votes.no + bill.votes.abstain;
-  const yesPercent = totalVotes > 0 ? Math.round((bill.votes.yes / totalVotes) * 100) : 0;
-  const noPercent = totalVotes > 0 ? Math.round((bill.votes.no / totalVotes) * 100) : 0;
+  const { data: bill } = await supabase.from('bill').select('*').eq('id', billId).single()
+  if (!bill) notFound()
 
-  const totalMPVotes = (bill.commons_ayes || 0) + (bill.commons_noes || 0);
-  const mpAyePercent = totalMPVotes > 0 ? Math.round(((bill.commons_ayes || 0) / totalMPVotes) * 100) : 0;
-  const mpNoePercent = totalMPVotes > 0 ? Math.round(((bill.commons_noes || 0) / totalMPVotes) * 100) : 0;
+  const stages: Stage[] = await fetchStages(bill.parliament_id)
 
-  const democraticGap = totalMPVotes > 0 && totalVotes > 0 ? Math.abs(yesPercent - mpAyePercent) : null;
-  const outcomeMismatch = democraticGap !== null && ((yesPercent > 50 && mpAyePercent < 50) || (yesPercent < 50 && mpAyePercent > 50));
+  const yesVotes = bill.vote_count_yes || 0
+  const noVotes  = bill.vote_count_no  || 0
+  const absVotes = bill.vote_count_abstain || 0
+  const totalVotes = yesVotes + noVotes + absVotes
+  const yesPercent = totalVotes > 0 ? Math.round((yesVotes / totalVotes) * 100) : 0
+  const noPercent  = totalVotes > 0 ? Math.round((noVotes  / totalVotes) * 100) : 0
 
-  const keyStages = bill.stages.filter((s) =>
-    ['1st reading', '2nd reading', 'Committee stage', 'Report stage', '3rd reading', 'Royal Assent'].includes(s.description),
-  );
+  const totalMPVotes = (bill.commons_ayes || 0) + (bill.commons_noes || 0)
+  const mpAyePercent = totalMPVotes > 0 ? Math.round(((bill.commons_ayes || 0) / totalMPVotes) * 100) : 0
+  const mpNoePercent = totalMPVotes > 0 ? Math.round(((bill.commons_noes || 0) / totalMPVotes) * 100) : 0
 
-  const commonsStages = keyStages.filter((s) => s.house === 'Commons');
-  const lordsStages = keyStages.filter((s) => s.house === 'Lords');
-  const royalAssent = bill.stages.find((s) => s.description === 'Royal Assent');
+  const democraticGap = totalMPVotes > 0 && totalVotes > 0 ? Math.abs(yesPercent - mpAyePercent) : null
+  const outcomeMismatch = democraticGap !== null && ((yesPercent > 50 && mpAyePercent < 50) || (yesPercent < 50 && mpAyePercent > 50))
+
+  const keyStageNames = ['1st reading', '2nd reading', 'Committee stage', 'Report stage', '3rd reading', 'Royal Assent']
+  const keyStages = stages.filter((s) => keyStageNames.includes(s.description))
+  const commonsStages = keyStages.filter((s) => s.house === 'Commons')
+  const lordsStages = keyStages.filter((s) => s.house === 'Lords')
+  const royalAssent = stages.find((s) => s.description === 'Royal Assent')
 
   return (
     <div className="min-h-screen bg-[#1a1a1a] text-white">
@@ -215,9 +108,7 @@ export default function BillDetailPage() {
                   A vote to support means
                 </p>
                 <ul className="space-y-2">
-                  {((() => {
-                    try { const p = JSON.parse(bill.support_explanation!); return Array.isArray(p) ? p : [bill.support_explanation!]; } catch { return bill.support_explanation!.split('\n').filter(Boolean); }
-                  })()).map((point: string, i: number) => (
+                  {explanationPoints(bill.support_explanation).map((point, i) => (
                     <li key={i} className="flex gap-2 text-[13px] text-white leading-[1.7]">
                       <span className="flex-shrink-0 mt-0.5" style={{ color: SUCCESS }}>—</span>
                       <span>{point.replace(/^[-–]\s*/, '')}</span>
@@ -232,9 +123,7 @@ export default function BillDetailPage() {
                   A vote to oppose means
                 </p>
                 <ul className="space-y-2">
-                  {((() => {
-                    try { const p = JSON.parse(bill.oppose_explanation!); return Array.isArray(p) ? p : [bill.oppose_explanation!]; } catch { return bill.oppose_explanation!.split('\n').filter(Boolean); }
-                  })()).map((point: string, i: number) => (
+                  {explanationPoints(bill.oppose_explanation).map((point, i) => (
                     <li key={i} className="flex gap-2 text-[13px] text-white leading-[1.7]">
                       <span className="flex-shrink-0 mt-0.5" style={{ color: DANGER }}>—</span>
                       <span>{point.replace(/^[-–]\s*/, '')}</span>
@@ -252,6 +141,7 @@ export default function BillDetailPage() {
             <p className="text-[13px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>Sponsored by</p>
             <div className="flex items-center gap-4">
               {bill.sponsor_photo ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
                 <img src={bill.sponsor_photo} alt={bill.sponsor_name} className="w-12 h-12 rounded-full bg-[#1a1a1a]" style={{ border: `1px solid ${ACCENT}` }} />
               ) : (
                 <div className="w-12 h-12 rounded-full bg-[#1a1a1a] flex items-center justify-center text-[13px] uppercase tracking-wider text-white" style={{ border: `1px solid ${ACCENT}` }}>
@@ -292,8 +182,8 @@ export default function BillDetailPage() {
               {noPercent > 0 && <div className="h-full" style={{ width: `${noPercent}%`, backgroundColor: DANGER }} />}
             </div>
             <div className="flex justify-between text-[14px] mt-1.5 font-mono">
-              <span style={{ color: SUCCESS }}>{yesPercent}% Support · {bill.votes.yes.toLocaleString()}</span>
-              <span style={{ color: DANGER }}>{noPercent}% Oppose · {bill.votes.no.toLocaleString()}</span>
+              <span style={{ color: SUCCESS }}>{yesPercent}% Support · {yesVotes.toLocaleString()}</span>
+              <span style={{ color: DANGER }}>{noPercent}% Oppose · {noVotes.toLocaleString()}</span>
             </div>
           </div>
 
@@ -333,45 +223,16 @@ export default function BillDetailPage() {
             </div>
           )}
 
-          <div className="grid grid-cols-3 gap-3">
-            <VoteButton
-              label="Support"
-              activeLabel="✓ Supported"
-              onClick={() => handleVote('yes')}
-              disabled={!!userVote || voting}
-              active={userVote === 'yes'}
-              colour={SUCCESS}
-            />
-            <VoteButton
-              label="Oppose"
-              activeLabel="✓ Opposed"
-              onClick={() => handleVote('no')}
-              disabled={!!userVote || voting}
-              active={userVote === 'no'}
-              colour={DANGER}
-            />
-            <VoteButton
-              label="Abstain"
-              activeLabel="✓ Abstained"
-              onClick={() => handleVote('abstain')}
-              disabled={!!userVote || voting}
-              active={userVote === 'abstain'}
-              colour="#7697a2"
-            />
-          </div>
+          <BillVotingClient billId={billId} />
         </section>
 
         {/* Bill Passage Timeline */}
-        {bill.stages.length > 0 && (
+        {stages.length > 0 && (
           <section className="border border-[#333333] p-6 mb-8">
             <h2 className="text-2xl font-black tracking-tight text-white mb-6">Bill Passage</h2>
             <div className="space-y-6">
-              {commonsStages.length > 0 && (
-                <StageGroup label="Commons" colour={ACCENT} stages={commonsStages} />
-              )}
-              {lordsStages.length > 0 && (
-                <StageGroup label="Lords" colour={DANGER} stages={lordsStages} />
-              )}
+              {commonsStages.length > 0 && <StageGroup label="Commons" colour={ACCENT} stages={commonsStages} />}
+              {lordsStages.length > 0 && <StageGroup label="Lords" colour={DANGER} stages={lordsStages} />}
               {royalAssent && (
                 <div className="flex items-center gap-3 pt-4 border-t border-[#333333]">
                   <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: SUCCESS }} />
@@ -401,11 +262,21 @@ export default function BillDetailPage() {
             </div>
           </details>
         )}
-      </main>
 
-      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} mode={authMode} />
+        <div className="mt-10 text-[13px] uppercase tracking-[0.2em]">
+          <Link href="/bills" className="text-white opacity-70 hover:opacity-100">← Back to all bills</Link>
+        </div>
+      </main>
     </div>
-  );
+  )
+}
+
+function explanationPoints(raw: string): string[] {
+  try {
+    const parsed = JSON.parse(raw)
+    if (Array.isArray(parsed)) return parsed.map((p) => String(p))
+  } catch {}
+  return raw.split('\n').filter(Boolean)
 }
 
 function Tag({ colour, children }: { colour: string; children: React.ReactNode }) {
@@ -416,36 +287,7 @@ function Tag({ colour, children }: { colour: string; children: React.ReactNode }
     >
       {children}
     </span>
-  );
-}
-
-function VoteButton({
-  label,
-  activeLabel,
-  onClick,
-  disabled,
-  active,
-  colour,
-}: {
-  label: string;
-  activeLabel: string;
-  onClick: () => void;
-  disabled: boolean;
-  active: boolean;
-  colour: string;
-}) {
-  const baseClasses = 'py-3 text-[15px] uppercase tracking-[0.2em] font-bold transition-colors rounded-sm';
-  const style: React.CSSProperties = active
-    ? { backgroundColor: colour, color: '#1a1a1a' }
-    : disabled
-    ? { backgroundColor: '#2e2e2e', color: '#ffffff', cursor: 'not-allowed' }
-    : { backgroundColor: colour + '22', color: colour, border: `1px solid ${colour}55` };
-
-  return (
-    <button onClick={onClick} disabled={disabled} className={baseClasses} style={style}>
-      {active ? activeLabel : label}
-    </button>
-  );
+  )
 }
 
 function StageGroup({ label, colour, stages }: { label: string; colour: string; stages: Stage[] }) {
@@ -468,5 +310,5 @@ function StageGroup({ label, colour, stages }: { label: string; colour: string; 
         ))}
       </ul>
     </div>
-  );
+  )
 }

@@ -1,8 +1,15 @@
+import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import LawsClient from './LawsClient'
 import Navigation from '../components/Navigation'
 
 export const revalidate = 0
+
+export const metadata: Metadata = {
+  title: 'UK Laws — every Act of Parliament',
+  description: 'Browse Acts of the UK Parliament that have received Royal Assent — searchable, filterable, with original sponsor and stage history.',
+  alternates: { canonical: '/laws' },
+}
 
 export default async function LawsPage() {
   const allLaws: any[] = []
