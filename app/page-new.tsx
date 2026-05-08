@@ -122,7 +122,7 @@ export default function HomePageNew() {
             {/* LEFT — Westminster photo. Container is aspect-locked to the
                  design's hero-photo proportion (~16/9). Right panel inherits
                  this height via CSS grid — see panel below. */}
-            <div className="relative aspect-[1496/1051]">
+            <div className="relative min-h-[300px] h-full">
               <Image
                 src="/design-extracts/hero-westminster.png"
                 alt="The Palace of Westminster"
