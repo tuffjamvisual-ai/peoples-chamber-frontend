@@ -221,7 +221,7 @@ export default function HomePageNew() {
               ◆ The Public Chamber
             </div>
             <h3 className={`${playfair.className} text-[22px] leading-tight mb-5`} style={{ fontWeight: 700 }}>
-              Live sentiment on key issues.
+              Popular polls
             </h3>
 
             <div className="flex flex-col gap-7">
