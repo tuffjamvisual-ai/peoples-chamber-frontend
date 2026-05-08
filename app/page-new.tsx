@@ -161,6 +161,12 @@ export default function HomePageNew() {
                 >
                   MP claims £367,659 in expenses, insists it&apos;s &ldquo;terribly efficient&rdquo; compared to last year
                 </h2>
+                <a
+                  href="/coverage"
+                  className="inline-flex items-center gap-1 mt-4 uppercase tracking-[0.18em] text-[10px] font-bold text-[#C8A76A] border-b-2 border-[#C8A76A] pb-0.5 hover:text-white hover:border-white transition-colors"
+                >
+                  Read the full story <ArrowRight size={11} />
+                </a>
               </div>
 
             </div>
