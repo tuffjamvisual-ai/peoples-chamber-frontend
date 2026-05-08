@@ -425,78 +425,62 @@ export default function HomePageNew() {
         </div>
       </section>
 
-      {/* ─────────── SECTION 8: FOOTER — lion + brand + signup left | social + Join right ─────────── */}
-      <footer className="bg-[#0D1117] text-white border-t-4 border-[#C8A76A] mt-8">
-        <div className="max-w-7xl mx-auto px-6 py-12">
+      {/* ─────────── SECTION 8: FOOTER — single horizontal row ─────────── */}
+      <footer className="bg-[#0D1117] text-white mt-8">
+        <div className="max-w-7xl mx-auto px-6 py-8">
 
-          <div className="grid lg:grid-cols-[1fr_1.2fr_1fr] gap-8 items-start">
+          <div className="flex items-center gap-8 flex-wrap">
 
-            {/* LEFT — lion + brand */}
-            <div>
-              <div className="relative h-24 w-40">
-                <Image src="/design-extracts/lion.png" alt="Heraldic lion" fill className="object-contain object-left" sizes="160px" />
-              </div>
-              <div className={`${playfair.className} text-[22px] mt-3`} style={{ fontWeight: 700 }}>The People&apos;s Chamber</div>
-              <p className="text-white/55 text-[11px] leading-relaxed mt-2 max-w-xs">
-                A modern public chamber for a modern democracy.
-              </p>
+            {/* lion */}
+            <div className="relative h-14 w-14 flex-shrink-0">
+              <Image src="/design-extracts/lion.png" alt="Heraldic lion" fill className="object-contain" sizes="56px" />
             </div>
 
-            {/* CENTER — Stay informed signup */}
-            <div>
-              <h3 className={`${playfair.className} text-[26px] leading-tight mb-2`} style={{ fontWeight: 700 }}>
+            {/* Stay informed copy */}
+            <div className="flex-shrink-0">
+              <h3 className={`${playfair.className} text-[22px] leading-[1.1]`} style={{ fontWeight: 700 }}>
                 Stay informed.<br />Stay powerful.
               </h3>
-              <p className="text-white/55 text-[12px] leading-relaxed mb-4 max-w-md">
-                Saturday mornings: the week&apos;s biggest contracts, donations, and revolving-door moves.
+              <p className="text-white/50 text-[10px] leading-relaxed mt-2 max-w-[220px]">
+                Your weekly digest of politics, transparency and the stories they don&apos;t want you to miss.
               </p>
-              <form className="flex gap-2">
-                <input
-                  type="email"
-                  placeholder="Enter your email address"
-                  className="flex-1 h-11 px-4 bg-[#F3F0EA] text-black placeholder:text-black/40 outline-none text-[12px]"
-                />
-                <button type="button" className="h-11 px-5 bg-[#B02A2A] hover:bg-[#8E2222] text-white uppercase tracking-[0.16em] text-[10px] font-bold transition-colors">
-                  Subscribe
-                </button>
-              </form>
             </div>
 
-            {/* RIGHT — social + Join the Chamber */}
-            <div>
-              <div className="uppercase tracking-[0.22em] text-[10px] font-bold text-[#C8A76A] mb-3">
+            {/* signup form */}
+            <form className="flex gap-0 flex-1 min-w-[280px] max-w-[480px]">
+              <input
+                type="email"
+                placeholder="Enter your email address"
+                className="flex-1 h-11 px-4 bg-[#F3F0EA] text-black placeholder:text-black/40 outline-none text-[12px]"
+              />
+              <button type="button" className="h-11 px-6 bg-[#2F4F3E] hover:bg-[#1F3829] text-white uppercase tracking-[0.18em] text-[10px] font-bold transition-colors">
+                Subscribe
+              </button>
+            </form>
+
+            {/* social */}
+            <div className="flex flex-col items-start flex-shrink-0">
+              <div className="uppercase tracking-[0.24em] text-[9px] font-semibold text-white/55 mb-2">
                 Follow us
               </div>
-              <div className="flex items-center gap-2 mb-6">
+              <div className="flex items-center gap-2">
                 {['X', 'FB', 'IG', 'YT', 'RSS'].map((label) => (
                   <a
                     key={label}
                     href="#"
                     aria-label={label}
-                    className="w-9 h-9 rounded-full border border-[#C8A76A]/40 hover:border-[#C8A76A] hover:bg-white/5 flex items-center justify-center text-[9px] font-bold tracking-wider transition-colors"
+                    className="w-7 h-7 rounded-full border border-white/30 hover:border-white hover:bg-white/5 flex items-center justify-center text-[8px] font-bold tracking-wider transition-colors"
                   >
                     {label}
                   </a>
                 ))}
               </div>
-
-              <div className="bg-[#1F2428] border border-[#C8A76A]/40 p-5">
-                <div className="uppercase tracking-[0.22em] text-[10px] font-bold text-[#C8A76A] mb-2">
-                  ◆ Join the Chamber
-                </div>
-                <p className="text-[12px] text-white/75 leading-relaxed mb-4">
-                  Be part of the public&apos;s response to power.
-                </p>
-                <a href="/about#join" className="inline-flex items-center gap-2 bg-[#2F4F3E] hover:bg-[#1F3829] text-white px-4 py-2.5 uppercase tracking-[0.16em] text-[10px] font-bold transition-colors">
-                  Sign up — free <ArrowRight size={11} />
-                </a>
-              </div>
             </div>
           </div>
 
-          <div className="border-t border-white/10 mt-10 pt-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 text-[10px] text-white/40">
-            <div>© {new Date().getFullYear()} The People&apos;s Chamber · Public-record reporting</div>
-            <div className="uppercase tracking-[0.22em] font-semibold">peopleschamber.uk</div>
+          {/* sub-line */}
+          <div className="mt-4 text-[10px] text-white/35">
+            No spam. Just democracy.
           </div>
         </div>
       </footer>
