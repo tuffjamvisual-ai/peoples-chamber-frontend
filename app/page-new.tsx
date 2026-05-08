@@ -425,29 +425,34 @@ export default function HomePageNew() {
         </div>
       </section>
 
-      {/* ─────────── SECTION 8: FOOTER — minimal: brand + social ─────────── */}
-      <footer className="bg-[#181C1F] text-white mt-8">
+      {/* ─────────── SECTION 8: FOOTER ─────────── */}
+      <footer className="bg-[#E5E5E5] text-[#181C1F] mt-8">
         <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="flex items-center justify-between gap-6 flex-wrap">
+          <div className="flex items-center gap-8 flex-wrap">
 
-            {/* LEFT — brand */}
+            {/* lion */}
+            <div className="relative h-20 w-20 flex-shrink-0">
+              <Image src="/design-extracts/lion.png" alt="Heraldic lion" fill className="object-contain" sizes="80px" />
+            </div>
+
+            {/* brand */}
             <div>
               <div className={`${playfair.className} text-[20px] leading-tight`} style={{ fontWeight: 700 }}>
                 The People&apos;s Chamber
               </div>
-              <p className="text-white/50 text-[11px] leading-relaxed mt-1">
+              <p className="text-black/55 text-[11px] leading-relaxed mt-1">
                 A modern public chamber for a modern democracy.
               </p>
             </div>
 
-            {/* RIGHT — social */}
-            <div className="flex items-center gap-2">
+            {/* social — pushed right */}
+            <div className="flex items-center gap-2 ml-auto">
               {['X', 'FB', 'IG', 'YT', 'RSS'].map((label) => (
                 <a
                   key={label}
                   href="#"
                   aria-label={label}
-                  className="w-8 h-8 rounded-full border border-white/30 hover:border-white hover:bg-white/5 flex items-center justify-center text-[8px] font-bold tracking-wider transition-colors"
+                  className="w-8 h-8 rounded-full border border-black/30 hover:border-black hover:bg-black/5 flex items-center justify-center text-[8px] font-bold tracking-wider transition-colors"
                 >
                   {label}
                 </a>
@@ -455,7 +460,7 @@ export default function HomePageNew() {
             </div>
           </div>
 
-          <div className="mt-6 pt-4 border-t border-white/10 flex justify-between text-[10px] text-white/35">
+          <div className="mt-6 pt-4 border-t border-black/15 flex justify-between text-[10px] text-black/45">
             <span>© {new Date().getFullYear()} The People&apos;s Chamber</span>
             <span className="uppercase tracking-[0.22em] font-semibold">peopleschamber.uk</span>
           </div>
