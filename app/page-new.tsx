@@ -349,9 +349,9 @@ export default function HomePageNew() {
         </div>
       </section>
 
-      {/* ─────────── SECTION 6: AT A GLANCE (5 stat cards) ─────────── */}
+      {/* ─────────── SECTION 6: AT A GLANCE — 4 stats + 1 CTA card ─────────── */}
       <section className="max-w-7xl mx-auto px-6 pb-10">
-        <SectionHeader label="At a Glance" right={<RightLink href="/transparency">Explore the full dashboard</RightLink>} />
+        <SectionHeader label="At a Glance" />
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
           {[
@@ -359,19 +359,44 @@ export default function HomePageNew() {
             { val: '312', lab: 'Rebellious MPs', sub: 'this Parliament', tint: '#181C1F' },
             { val: '47', lab: 'Days to next election', sub: '(estimated)', tint: '#2F4F3E' },
             { val: '£4.2B', lab: 'Taxpayer waste', sub: 'this year', tint: '#B02A2A' },
-            { val: '23%', lab: 'Trust in Westminster', sub: 'lowest in 18 months', tint: '#C8A76A' },
           ].map((s) => (
             <div key={s.lab} className="bg-white border border-black/10 p-5 text-center">
-              <div className={`${playfair.className} text-[clamp(22px,2.4vw,28px)] tabular-nums`} style={{ fontWeight: 400 }}>
+              <div className={`${playfair.className} text-[clamp(28px,3vw,36px)] tabular-nums leading-none`} style={{ fontWeight: 400 }}>
                 {s.val}
               </div>
-              <div className="uppercase tracking-wider text-[10px] mt-2 text-black/55 font-semibold">{s.lab}</div>
+              <div className="uppercase tracking-wider text-[10px] mt-3 text-black/55 font-semibold">{s.lab}</div>
               <div className="mt-1 text-[10px] text-black/50">{s.sub}</div>
               <div className="mt-3 h-6">
                 <Sparkline color={s.tint} />
               </div>
             </div>
           ))}
+
+          {/* 5th card — Explore the full dashboard CTA */}
+          <a
+            href="/transparency"
+            className="bg-white border border-black/10 p-5 flex flex-col justify-between text-left hover:border-[#C8A76A] transition-colors group"
+          >
+            <div>
+              <div className="uppercase tracking-[0.18em] text-[10px] text-black/55 font-semibold mb-2">
+                Explore
+              </div>
+              <div className={`${playfair.className} text-[16px] leading-[1.25]`} style={{ fontWeight: 700 }}>
+                The full dashboard
+              </div>
+              <p className="text-[10px] text-black/55 mt-2 leading-snug">
+                Live data, trends and historical insights.
+              </p>
+            </div>
+            <div className="flex items-center justify-between mt-3">
+              <div className="h-6 flex-1 mr-3">
+                <Sparkline color="#C8A76A" />
+              </div>
+              <span className="text-[#C8A76A] group-hover:translate-x-0.5 transition-transform">
+                <ArrowRight size={14} />
+              </span>
+            </div>
+          </a>
         </div>
       </section>
 
