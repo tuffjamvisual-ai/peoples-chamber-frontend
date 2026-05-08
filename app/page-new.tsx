@@ -27,16 +27,15 @@ export default function HomePageNew() {
               The public replies.
             </div>
 
-            {/* CENTER — crown + masthead title + caption */}
+            {/* CENTER — masthead title + caption (no crown — not in design) */}
             <div className="text-center">
-              <CrownGlyph />
               <h1
-                className={`${playfair.className} text-[clamp(40px,5vw,68px)] leading-[0.95] tracking-tight text-black mt-3`}
+                className={`${playfair.className} text-[clamp(40px,5vw,68px)] leading-[0.95] tracking-tight text-black`}
                 style={{ fontWeight: 800 }}
               >
                 The People&apos;s Chamber
               </h1>
-              <p className="uppercase tracking-[0.42em] text-[10px] mt-4 text-[#2F4F3E] font-semibold">
+              <p className="uppercase tracking-[0.42em] text-[10px] mt-4 text-black font-semibold">
                 Holding power to account
               </p>
             </div>
@@ -56,29 +55,3 @@ export default function HomePageNew() {
   )
 }
 
-/* Small heraldic crown — flat-line drawing inspired by Royal Standard.
-   Sized small (24px) to sit above the masthead title. */
-function CrownGlyph() {
-  return (
-    <svg
-      viewBox="0 0 64 32"
-      width="36"
-      height="18"
-      role="img"
-      aria-label="Crown"
-      className="mx-auto"
-    >
-      <g fill="none" stroke="#2F4F3E" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-        {/* Base band */}
-        <line x1="6" y1="26" x2="58" y2="26" />
-        <line x1="6" y1="22" x2="58" y2="22" />
-        {/* Three peaks */}
-        <path d="M8 22 L18 8 L24 18 L32 4 L40 18 L46 8 L56 22" />
-        {/* Three small finials at peaks */}
-        <circle cx="18" cy="6" r="1.6" fill="#2F4F3E" stroke="none" />
-        <circle cx="32" cy="2" r="1.8" fill="#2F4F3E" stroke="none" />
-        <circle cx="46" cy="6" r="1.6" fill="#2F4F3E" stroke="none" />
-      </g>
-    </svg>
-  )
-}
