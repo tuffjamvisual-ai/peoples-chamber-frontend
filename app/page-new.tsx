@@ -28,6 +28,10 @@ const NAV_LINKS = [
 export default function HomePageNew() {
   return (
     <main className="bg-[#F3F0EA] min-h-screen text-[#181C1F]">
+      {/* Override the global body bg (#1a1a1a from globals.css) so the
+          cream design shows edge-to-edge with no dark gutters. */}
+      <style>{`html, body { background: #F3F0EA !important; }`}</style>
+
       {/* ─────────── SECTION 1: MASTHEAD ─────────── */}
       <header className="border-b border-black/10">
         <div className="max-w-7xl mx-auto px-6 py-12">
