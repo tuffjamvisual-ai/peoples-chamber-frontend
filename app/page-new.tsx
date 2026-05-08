@@ -14,6 +14,8 @@ import {
   Clock3,
   PoundSterling,
   TrendingUp,
+  Frown,
+  Smile,
 } from 'lucide-react'
 
 const playfair = Playfair_Display({
@@ -250,23 +252,20 @@ export default function HomePageNew() {
               Live sentiment on key issues.
             </h3>
 
-            <div className="space-y-6">
+            <div className="grid grid-cols-3 gap-3">
               {[
                 { title: 'Winter Fuel Payment Bill', oppose: 68, support: 22 },
                 { title: 'Online Safety (Amendment) Bill', oppose: 54, support: 35 },
                 { title: "Renters' Rights Bill", oppose: 38, support: 14 },
               ].map((p) => (
-                <div key={p.title}>
-                  <div className={`${playfair.className} text-[15px] leading-snug mb-2`} style={{ fontWeight: 700 }}>
+                <div key={p.title} className="text-center">
+                  <div className="flex items-center justify-center gap-1">
+                    <Frown size={14} className="text-[#B02A2A] flex-shrink-0" strokeWidth={1.8} />
+                    <PollGauge oppose={p.oppose} support={p.support} />
+                    <Smile size={14} className="text-[#2F4F3E] flex-shrink-0" strokeWidth={1.8} />
+                  </div>
+                  <div className={`${playfair.className} text-[12px] leading-tight mt-2 text-black`} style={{ fontWeight: 700 }}>
                     {p.title}
-                  </div>
-                  <div className="flex justify-between text-[11px] mb-1.5 font-semibold tabular-nums">
-                    <span className="text-[#B02A2A]">{p.oppose}% <span className="text-[8px] uppercase tracking-wider text-black/50 font-medium">oppose</span></span>
-                    <span className="text-[#2F4F3E]">{p.support}% <span className="text-[8px] uppercase tracking-wider text-black/50 font-medium">support</span></span>
-                  </div>
-                  <div className="flex h-1.5 rounded-full overflow-hidden bg-black/5">
-                    <div className="bg-[#B02A2A]" style={{ width: `${p.oppose}%` }} />
-                    <div className="bg-[#2F4F3E]" style={{ width: `${p.support}%` }} />
                   </div>
                 </div>
               ))}
@@ -513,6 +512,38 @@ function Sparkline({ color }: { color: string }) {
     <svg viewBox="0 0 120 22" width="100%" height="100%" preserveAspectRatio="none">
       <polyline points={points} fill="none" stroke={color} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
       <circle cx="120" cy="3" r="2" fill={color} />
+    </svg>
+  )
+}
+
+function PollGauge({ oppose, support }: { oppose: number; support: number }) {
+  const r = 26
+  const c = 2 * Math.PI * r
+  const opposeDash = (oppose / 100) * c
+  const supportDash = (support / 100) * c
+  // start of support arc — sits after the oppose arc on the same circle
+  const supportOffset = -opposeDash
+  return (
+    <svg viewBox="0 0 64 64" width="60" height="60" aria-label={`${oppose}% oppose, ${support}% support`}>
+      {/* track */}
+      <circle cx="32" cy="32" r={r} fill="none" stroke="#E5E5E5" strokeWidth="6" />
+      {/* support arc (green, drawn first so it sits underneath) */}
+      <circle
+        cx="32" cy="32" r={r} fill="none" stroke="#2F4F3E" strokeWidth="6" strokeLinecap="butt"
+        strokeDasharray={`${supportDash} ${c - supportDash}`}
+        strokeDashoffset={supportOffset}
+        transform="rotate(-90 32 32)"
+      />
+      {/* oppose arc (red) */}
+      <circle
+        cx="32" cy="32" r={r} fill="none" stroke="#B02A2A" strokeWidth="6" strokeLinecap="butt"
+        strokeDasharray={`${opposeDash} ${c - opposeDash}`}
+        transform="rotate(-90 32 32)"
+      />
+      {/* centre: dominant percentage (oppose, since it's the prominent number for all 3 bills) */}
+      <text x="32" y="38" textAnchor="middle" fontFamily="ui-serif, Georgia, serif" fontWeight="700" fontSize="18" fill="#181C1F">
+        {oppose}%
+      </text>
     </svg>
   )
 }
