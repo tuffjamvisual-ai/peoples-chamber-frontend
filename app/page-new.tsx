@@ -118,22 +118,24 @@ export default function HomePageNew() {
               <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-transparent via-transparent to-[#0D1117]/40" />
             </div>
 
-            {/* RIGHT — story panel */}
-            <div className="text-white p-10 lg:p-14 flex flex-col justify-between gap-8">
+            {/* RIGHT — story panel. Typography sized to fit the photo's
+                 16:9 aspect height — bigger sizes overflow and force the
+                 hero band taller than the design. */}
+            <div className="text-white px-8 py-7 lg:px-10 lg:py-8 flex flex-col justify-between gap-4">
 
               <div>
-                <div className="uppercase tracking-[0.32em] text-[11px] text-[#B02A2A] font-bold mb-5 flex items-center gap-2">
+                <div className="uppercase tracking-[0.32em] text-[10px] text-[#B02A2A] font-bold mb-3 flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#B02A2A]" />
                   Top Story
                 </div>
                 <h2
-                  className={`${playfair.className} text-[clamp(34px,4.4vw,56px)] leading-[1.05] tracking-tight`}
+                  className={`${playfair.className} text-[clamp(24px,2.6vw,36px)] leading-[1.06] tracking-tight`}
                   style={{ fontWeight: 700 }}
                 >
                   Winter fuel cuts<br />spark public<br />backlash
                 </h2>
                 <p
-                  className={`${playfair.className} italic text-[17px] leading-[1.55] text-white/70 mt-6 max-w-[480px]`}
+                  className={`${playfair.className} italic text-[13px] leading-[1.5] text-white/70 mt-3 max-w-[420px]`}
                   style={{ fontStyle: 'italic' }}
                 >
                   Ministers call it &ldquo;necessary discipline.&rdquo; Pensioners call it
@@ -142,68 +144,41 @@ export default function HomePageNew() {
               </div>
 
               {/* 4-stat row */}
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-4 gap-3">
                 <div>
-                  <div
-                    className={`${playfair.className} text-[#E74C3C] text-[clamp(34px,4vw,52px)] leading-none`}
-                    style={{ fontWeight: 400 }}
-                  >
+                  <div className={`${playfair.className} text-[#E74C3C] text-[clamp(22px,2.4vw,32px)] leading-none`} style={{ fontWeight: 400 }}>
                     68%
                   </div>
-                  <div className="uppercase text-[10px] tracking-[0.18em] mt-2 text-white/85 font-semibold">
-                    Oppose
-                  </div>
-                  <div className="text-[10px] text-[#E74C3C]/80 mt-1">↑ 5% this week</div>
+                  <div className="uppercase text-[9px] tracking-[0.16em] mt-1 text-white/80 font-semibold">Oppose</div>
+                  <div className="text-[9px] text-[#E74C3C]/80 mt-0.5">↑ 5% this week</div>
                 </div>
                 <div>
-                  <div
-                    className={`${playfair.className} text-[#3F6A55] text-[clamp(34px,4vw,52px)] leading-none`}
-                    style={{ fontWeight: 400 }}
-                  >
+                  <div className={`${playfair.className} text-[#3F6A55] text-[clamp(22px,2.4vw,32px)] leading-none`} style={{ fontWeight: 400 }}>
                     21%
                   </div>
-                  <div className="uppercase text-[10px] tracking-[0.18em] mt-2 text-white/85 font-semibold">
-                    Support
-                  </div>
-                  <div className="text-[10px] text-[#3F6A55] mt-1">↓ 2% this week</div>
+                  <div className="uppercase text-[9px] tracking-[0.16em] mt-1 text-white/80 font-semibold">Support</div>
+                  <div className="text-[9px] text-[#3F6A55] mt-0.5">↓ 2% this week</div>
                 </div>
                 <div>
-                  <div
-                    className={`${playfair.className} text-[clamp(28px,3.4vw,40px)] leading-none`}
-                    style={{ fontWeight: 400 }}
-                  >
+                  <div className={`${playfair.className} text-[clamp(18px,2vw,26px)] leading-none`} style={{ fontWeight: 400 }}>
                     342
                   </div>
-                  <div className="uppercase text-[10px] tracking-[0.18em] mt-2 text-white/85 font-semibold">
-                    MPs voted
-                  </div>
+                  <div className="uppercase text-[9px] tracking-[0.16em] mt-1 text-white/80 font-semibold">MPs voted</div>
                 </div>
                 <div>
-                  <div
-                    className={`${playfair.className} text-[clamp(28px,3.4vw,40px)] leading-none`}
-                    style={{ fontWeight: 400 }}
-                  >
+                  <div className={`${playfair.className} text-[clamp(18px,2vw,26px)] leading-none`} style={{ fontWeight: 400 }}>
                     12.4K
                   </div>
-                  <div className="uppercase text-[10px] tracking-[0.18em] mt-2 text-white/85 font-semibold">
-                    Comments
-                  </div>
+                  <div className="uppercase text-[9px] tracking-[0.16em] mt-1 text-white/80 font-semibold">Comments</div>
                 </div>
               </div>
 
               {/* CTAs */}
-              <div className="flex gap-3 flex-wrap">
-                <a
-                  href="/bills"
-                  className="bg-[#B02A2A] hover:bg-[#8E2222] text-white px-6 py-3.5 uppercase tracking-[0.18em] text-[11px] font-bold flex items-center gap-2 transition-colors"
-                >
-                  Read the full story
-                  <ArrowRight size={14} />
+              <div className="flex gap-2 flex-wrap">
+                <a href="/bills" className="bg-[#B02A2A] hover:bg-[#8E2222] text-white px-4 py-2.5 uppercase tracking-[0.16em] text-[10px] font-bold flex items-center gap-2 transition-colors">
+                  Read the full story <ArrowRight size={12} />
                 </a>
-                <a
-                  href="/bills"
-                  className="border border-white/30 hover:bg-white/5 text-white px-6 py-3.5 uppercase tracking-[0.18em] text-[11px] font-bold transition-colors"
-                >
+                <a href="/bills" className="border border-white/30 hover:bg-white/5 text-white px-4 py-2.5 uppercase tracking-[0.16em] text-[10px] font-bold transition-colors">
                   See how MPs voted
                 </a>
               </div>
