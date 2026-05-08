@@ -231,10 +231,10 @@ export default function HomePageNew() {
                 { title: "Renters' Rights Bill", approval: 14, change: -3 },
               ].map((p) => (
                 <div key={p.title} className="text-center">
-                  <div className="flex items-center justify-center gap-3">
-                    <Frown size={28} className="text-[#B02A2A] flex-shrink-0" strokeWidth={1.6} />
+                  <div className="flex items-end justify-center gap-3">
+                    <FaceDisc kind="sad" />
                     <PollGauge approval={p.approval} />
-                    <Smile size={28} className="text-[#2F4F3E] flex-shrink-0" strokeWidth={1.6} />
+                    <FaceDisc kind="happy" />
                   </div>
                   <div
                     className="text-[12px] mt-3 font-semibold"
@@ -495,22 +495,73 @@ function Sparkline({ color }: { color: string }) {
 }
 
 function PollGauge({ approval }: { approval: number }) {
-  const r = 50
-  const c = 2 * Math.PI * r
-  const dash = (approval / 100) * c
+  // Semicircle gauge (speedometer style). Arc has a red→green gradient.
+  // 0% sits at the left end of the arc, 100% at the right end.
+  const cx = 80
+  const cy = 90
+  const r = 60
+  const arcLen = Math.PI * r // full semicircle path length
+  const dash = (approval / 100) * arcLen
+  // Indicator position along the arc
+  const angle = Math.PI * (1 - approval / 100) // radians from positive x-axis
+  const ix = cx + r * Math.cos(angle)
+  const iy = cy - r * Math.sin(angle)
   return (
-    <svg viewBox="0 0 120 120" width="120" height="120" aria-label={`${approval}% approval`}>
+    <svg viewBox="0 0 160 110" width="160" height="110" aria-label={`${approval}% approval`}>
+      <defs>
+        <linearGradient id={`pg-grad-${approval}`} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#B02A2A" />
+          <stop offset="50%" stopColor="#C8A76A" />
+          <stop offset="100%" stopColor="#2F4F3E" />
+        </linearGradient>
+      </defs>
       {/* track */}
-      <circle cx="60" cy="60" r={r} fill="none" stroke="#E5E5E5" strokeWidth="10" />
-      {/* approval arc — green */}
-      <circle
-        cx="60" cy="60" r={r} fill="none" stroke="#2F4F3E" strokeWidth="10" strokeLinecap="round"
-        strokeDasharray={`${dash} ${c - dash}`}
-        transform="rotate(-90 60 60)"
+      <path
+        d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`}
+        fill="none"
+        stroke="#E5E5E5"
+        strokeWidth="12"
+        strokeLinecap="round"
       />
-      <text x="60" y="70" textAnchor="middle" fontFamily="ui-serif, Georgia, serif" fontWeight="700" fontSize="36" fill="#181C1F">
+      {/* gradient approval arc */}
+      <path
+        d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`}
+        fill="none"
+        stroke={`url(#pg-grad-${approval})`}
+        strokeWidth="12"
+        strokeLinecap="round"
+        strokeDasharray={`${dash} ${arcLen - dash}`}
+      />
+      {/* indicator notch where the value sits */}
+      <circle cx={ix} cy={iy} r="6" fill="#181C1F" stroke="#fff" strokeWidth="2" />
+      {/* big percentage text */}
+      <text
+        x={cx}
+        y={cy - 6}
+        textAnchor="middle"
+        fontFamily="ui-serif, Georgia, serif"
+        fontWeight="800"
+        fontSize="36"
+        fill="#181C1F"
+      >
         {approval}%
       </text>
+    </svg>
+  )
+}
+
+function FaceDisc({ kind }: { kind: 'sad' | 'happy' }) {
+  const colour = kind === 'sad' ? '#B02A2A' : '#2F4F3E'
+  return (
+    <svg viewBox="0 0 32 32" width="36" height="36" aria-hidden="true">
+      <circle cx="16" cy="16" r="15" fill={colour} />
+      <circle cx="11" cy="13" r="1.6" fill="#fff" />
+      <circle cx="21" cy="13" r="1.6" fill="#fff" />
+      {kind === 'sad' ? (
+        <path d="M 10 22 Q 16 17 22 22" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" />
+      ) : (
+        <path d="M 10 19 Q 16 24 22 19" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" />
+      )}
     </svg>
   )
 }
