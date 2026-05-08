@@ -5,16 +5,7 @@
 
 import Image from 'next/image'
 import { Playfair_Display } from 'next/font/google'
-import {
-  Search,
-  ArrowRight,
-  Landmark,
-  Users,
-  FileText,
-  Clock3,
-  PoundSterling,
-  TrendingUp,
-} from 'lucide-react'
+import { Search, ArrowRight } from 'lucide-react'
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -238,262 +229,307 @@ export default function HomePageNew() {
         </div>
       </section>
 
-      {/* ─────────── SECTION 5: 3 EDITORIAL COLUMNS ─────────── */}
+      {/* ─────────── SECTION 5: TOP STORIES (3-col) ─────────── */}
       <section className="max-w-7xl mx-auto px-6 py-10">
-        <div className="grid lg:grid-cols-[1fr_1.4fr_1fr] gap-5">
+        <SectionHeader label="Top Stories" right={<RightLink href="/coverage">View all</RightLink>} />
 
-          {/* LEFT — The Public Chamber polls */}
-          <article className="bg-white border border-black/10 p-6">
-            <div className="uppercase tracking-[0.22em] text-[10px] font-bold text-[#B02A2A] mb-1">
-              ◆ The Public Chamber
+        <div className="grid lg:grid-cols-[2fr_1fr_1fr] gap-5">
+
+          {/* LEFT — big featured card with photo overlay
+               Aspect 16:10 to match design's landscape framing. */}
+          <a href="/coverage" className="group relative block aspect-[16/10] overflow-hidden">
+            <Image
+              src="/design-extracts/featured-rebellion.png"
+              alt="Labour rebellion over welfare cuts grows"
+              fill
+              className="object-cover group-hover:scale-[1.02] transition-transform duration-700"
+              sizes="(max-width: 1024px) 100vw, 640px"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+              <div className="uppercase tracking-[0.2em] text-[10px] font-bold text-[#E74C3C] mb-2">
+                Politics
+              </div>
+              <h3 className={`${playfair.className} text-[clamp(22px,2.4vw,32px)] leading-[1.15] mb-2`} style={{ fontWeight: 700 }}>
+                Labour rebellion over welfare cuts grows
+              </h3>
+              <p className="text-white/80 text-[13px] leading-relaxed max-w-md">
+                More than 40 MPs expected to vote against government whip.
+              </p>
+              <div className="text-white/55 text-[10px] mt-2 uppercase tracking-wider">12m ago</div>
             </div>
-            <h3 className={`${playfair.className} text-[22px] leading-tight mb-5`} style={{ fontWeight: 700 }}>
-              Live sentiment on key issues.
-            </h3>
+          </a>
 
-            <div className="space-y-6">
-              {[
-                { title: 'Winter Fuel Payment Bill', oppose: 68, support: 22 },
-                { title: 'Online Safety (Amendment) Bill', oppose: 54, support: 35 },
-                { title: "Renters' Rights Bill", oppose: 38, support: 14 },
-              ].map((p) => (
-                <div key={p.title}>
-                  <div className={`${playfair.className} text-[15px] leading-snug mb-2`} style={{ fontWeight: 700 }}>
-                    {p.title}
-                  </div>
-                  <div className="flex justify-between text-[11px] mb-1.5 font-semibold tabular-nums">
-                    <span className="text-[#B02A2A]">{p.oppose}% <span className="text-[8px] uppercase tracking-wider text-black/50 font-medium">oppose</span></span>
-                    <span className="text-[#2F4F3E]">{p.support}% <span className="text-[8px] uppercase tracking-wider text-black/50 font-medium">support</span></span>
-                  </div>
-                  <div className="flex h-1.5 rounded-full overflow-hidden bg-black/5">
-                    <div className="bg-[#B02A2A]" style={{ width: `${p.oppose}%` }} />
-                    <div className="bg-[#2F4F3E]" style={{ width: `${p.support}%` }} />
+          {/* MIDDLE — stack of 3 small cards */}
+          <div className="flex flex-col gap-3">
+            {[
+              { img: '/design-extracts/stack-1-transport.png', cat: 'Bills', title: 'Transport Bill passes second reading' },
+              { img: '/design-extracts/stack-2-lobbying.png', cat: 'Investigation', title: "Ex-minister's lobbying emails revealed" },
+              { img: '/design-extracts/stack-3-housing.png', cat: 'Housing', title: 'Renters rally across major UK cities' },
+            ].map((s) => (
+              <a key={s.title} href="/coverage" className="bg-white border border-black/10 flex gap-3 p-3 hover:border-black/30 transition-colors group">
+                <div className="relative w-20 h-20 flex-shrink-0">
+                  <Image src={s.img} alt={s.title} fill className="object-cover" sizes="80px" />
+                </div>
+                <div className="flex flex-col justify-between min-w-0">
+                  <div className="uppercase tracking-[0.18em] text-[9px] font-bold text-[#B02A2A]">{s.cat}</div>
+                  <h4 className={`${playfair.className} text-[15px] leading-[1.25] group-hover:text-[#B02A2A] transition-colors`} style={{ fontWeight: 700 }}>
+                    {s.title}
+                  </h4>
+                  <div className="flex items-center gap-1 text-[9px] uppercase tracking-wider text-black/50 font-semibold">
+                    Read <ArrowRight size={9} />
                   </div>
                 </div>
-              ))}
+              </a>
+            ))}
+          </div>
+
+          {/* RIGHT — Public Hub donut + Transparency Desk */}
+          <div className="flex flex-col gap-4">
+
+            {/* PUBLIC HUB — donut prominent + centered, caption below, sparkline at base */}
+            <div className="bg-white border border-black/10 p-5 text-center">
+              <div className="uppercase tracking-[0.2em] text-[10px] font-bold text-[#2F4F3E] mb-1 text-left">
+                ◆ Public Hub
+              </div>
+              <div className={`${playfair.className} italic text-[11px] text-black/55 mb-3 text-left`} style={{ fontStyle: 'italic' }}>
+                How the public feels right now
+              </div>
+              <div className="flex justify-center my-2">
+                <Donut pct={23} />
+              </div>
+              <div className="uppercase tracking-[0.18em] text-[9px] text-black/55 font-semibold mt-1">
+                Government approval
+              </div>
+              <div className="text-[#B02A2A] text-[11px] font-semibold mt-1">↓ 3% this week</div>
+              <div className="mt-3 h-7">
+                <Sparkline color="#B02A2A" />
+              </div>
+              <a href="/polls" className="mt-3 inline-flex items-center gap-1 uppercase tracking-[0.16em] text-[10px] font-bold text-[#2F4F3E]">
+                View full poll <ArrowRight size={10} />
+              </a>
             </div>
 
-            <a href="/polls" className="mt-6 inline-flex items-center gap-1 uppercase tracking-[0.16em] text-[10px] font-bold text-[#B02A2A]">
-              View all polls <ArrowRight size={10} />
-            </a>
-          </article>
+            {/* TRANSPARENCY DESK — bigger £ figure, dominant headline */}
+            <div className="bg-white border border-black/10 p-5">
+              <div className="uppercase tracking-[0.2em] text-[10px] font-bold text-[#C8A76A] mb-1">
+                ◆ Transparency Desk
+              </div>
+              <h4 className={`${playfair.className} italic text-[18px] leading-tight mb-4`} style={{ fontWeight: 400, fontStyle: 'italic' }}>
+                Following the money
+              </h4>
 
-          {/* CENTER — Today's Editorial */}
-          <article className="bg-white border border-black/10 p-7">
-            <div className="uppercase tracking-[0.22em] text-[10px] font-bold text-[#2F4F3E] mb-2">
-              ◆ Today&apos;s Editorial
-            </div>
-            <h3 className={`${playfair.className} text-[clamp(22px,2.4vw,30px)] leading-[1.18] mb-4`} style={{ fontWeight: 700 }}>
-              Westminster: a nation of experts in everything and accountable for nothing.
-            </h3>
-            <p className={`${playfair.className} italic text-[13px] text-black/70 leading-[1.6] mb-4`} style={{ fontStyle: 'italic' }}>
-              Another day, another announcement, another &ldquo;in due course&rdquo;, another promise waiting quietly for its funeral. The committee meets. The minutes are taken.
-            </p>
-            <div className="relative aspect-[4/3] bg-[#EAE3D2] border border-black/10 overflow-hidden mb-4">
-              <Image
-                src="/design-extracts/cabinet-illustration.png"
-                alt="Cabinet meeting illustration"
-                fill
-                className="object-contain"
-                sizes="(max-width: 1024px) 100vw, 400px"
-              />
-            </div>
-            <a href="/coverage" className="inline-flex items-center gap-1 uppercase tracking-[0.16em] text-[10px] font-bold text-[#2F4F3E]">
-              Read editorial <ArrowRight size={10} />
-            </a>
-          </article>
+              <div className="text-[9px] uppercase tracking-wider text-black/50 font-semibold">
+                Total MP expenses this month
+              </div>
+              <div className="flex items-baseline gap-2 mt-1">
+                <span className={`${playfair.className} text-[clamp(28px,2.6vw,36px)] tabular-nums leading-none`} style={{ fontWeight: 400 }}>
+                  £2,873,761
+                </span>
+                <span className="text-[#3F6A55] text-[11px] font-semibold whitespace-nowrap">↑ 4.7%</span>
+              </div>
 
-          {/* RIGHT — Transparency Desk */}
-          <article className="bg-white border border-black/10 p-6">
-            <div className="uppercase tracking-[0.22em] text-[10px] font-bold text-[#C8A76A] mb-1">
-              ◆ Transparency Desk
-            </div>
-            <h3 className={`${playfair.className} italic text-[18px] leading-tight mb-5`} style={{ fontWeight: 400, fontStyle: 'italic' }}>
-              Following the money
-            </h3>
+              <div className="border-t border-black/10 mt-4 pt-3">
+                <div className="text-[9px] uppercase tracking-wider text-black/50 font-semibold">Top expense claim</div>
+                <div className={`${playfair.className} text-[15px] mt-1`} style={{ fontWeight: 700 }}>2nd home mortgage</div>
+                <div className="text-black/60 text-[11px]">£24,990</div>
+              </div>
 
-            <div className="text-[9px] uppercase tracking-wider text-black/50 font-semibold">
-              Total MP expenses this month
-            </div>
-            <div className="flex items-baseline gap-2 mt-1">
-              <span className={`${playfair.className} text-[clamp(24px,2.4vw,32px)] tabular-nums leading-none`} style={{ fontWeight: 400 }}>
-                £2,873,761
-              </span>
-              <span className="text-[#3F6A55] text-[11px] font-semibold">↑ 4.7%</span>
-            </div>
+              <div className="border-t border-black/10 mt-3 pt-3">
+                <div className="text-[9px] uppercase tracking-wider text-black/50 font-semibold">Most frequent claimant</div>
+                <div className={`${playfair.className} text-[15px] mt-1`} style={{ fontWeight: 700 }}>Sir M. Fabricant</div>
+                <div className="text-black/60 text-[11px]">Conservative · Lichfield · £27,842 this month</div>
+              </div>
 
-            <div className="border-t border-black/10 mt-4 pt-3">
-              <div className="text-[9px] uppercase tracking-wider text-black/50 font-semibold">Top expense claim</div>
-              <div className={`${playfair.className} text-[14px] mt-1`} style={{ fontWeight: 700 }}>2nd home mortgage</div>
-              <div className="text-black/60 text-[11px]">£24,990</div>
+              <a href="/expenses" className="mt-3 inline-flex items-center gap-1 uppercase tracking-[0.16em] text-[10px] font-bold text-[#C8A76A]">
+                View all expenses <ArrowRight size={10} />
+              </a>
             </div>
-
-            <div className="border-t border-black/10 mt-3 pt-3">
-              <div className="text-[9px] uppercase tracking-wider text-black/50 font-semibold">Most frequent claimant</div>
-              <div className={`${playfair.className} text-[14px] mt-1`} style={{ fontWeight: 700 }}>Sir M. Fabricant</div>
-              <div className="text-black/60 text-[11px]">Conservative · Lichfield · £27,842 this month</div>
-            </div>
-
-            <a href="/expenses" className="mt-4 inline-flex items-center gap-1 uppercase tracking-[0.16em] text-[10px] font-bold text-[#C8A76A]">
-              View all expenses <ArrowRight size={10} />
-            </a>
-          </article>
+          </div>
         </div>
       </section>
 
-      {/* ─────────── SECTION 6: AT A GLANCE — 5 stats + 1 CTA, with circular icons ─────────── */}
+      {/* ─────────── SECTION 6: AT A GLANCE — 4 stats + 1 CTA card ─────────── */}
       <section className="max-w-7xl mx-auto px-6 pb-10">
         <SectionHeader label="At a Glance" />
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
           {[
-            { Icon: Landmark, val: '23%', lab: 'Government approval', sub: '↓ 3% this week', tint: '#2F4F3E' },
-            { Icon: Users, val: '68%', lab: "Today's polls", sub: '↑ 4% this week', tint: '#B02A2A' },
-            { Icon: FileText, val: '312', lab: 'Bills tracked', sub: 'this Parliament', tint: '#181C1F' },
-            { Icon: Clock3, val: '47', lab: 'Days to election', sub: '(estimated)', tint: '#B02A2A' },
-            { Icon: PoundSterling, val: '£4.2B', lab: 'Taxpayer waste', sub: 'this year', tint: '#C8A76A' },
+            { val: '68%', lab: "Today's polls", sub: '↓ 4% week-on-week', tint: '#B02A2A' },
+            { val: '312', lab: 'Rebellious MPs', sub: 'this Parliament', tint: '#181C1F' },
+            { val: '47', lab: 'Days to next election', sub: '(estimated)', tint: '#2F4F3E' },
+            { val: '£4.2B', lab: 'Taxpayer waste', sub: 'this year', tint: '#B02A2A' },
           ].map((s) => (
-            <div key={s.lab} className="bg-white border border-black/10 p-4 text-center">
-              <div
-                className="w-10 h-10 rounded-full mx-auto flex items-center justify-center mb-3"
-                style={{ background: s.tint + '14', color: s.tint, border: `1px solid ${s.tint}33` }}
-              >
-                <s.Icon size={18} />
-              </div>
-              <div className={`${playfair.className} text-[clamp(22px,2.2vw,28px)] tabular-nums leading-none`} style={{ fontWeight: 400 }}>
+            <div key={s.lab} className="bg-white border border-black/10 p-5 text-center">
+              <div className={`${playfair.className} text-[clamp(28px,3vw,36px)] tabular-nums leading-none`} style={{ fontWeight: 400 }}>
                 {s.val}
               </div>
-              <div className="uppercase tracking-wider text-[9px] mt-2 text-black/55 font-semibold">{s.lab}</div>
-              <div className="mt-0.5 text-[9px] text-black/50">{s.sub}</div>
-              <div className="mt-2 h-5">
+              <div className="uppercase tracking-wider text-[10px] mt-3 text-black/55 font-semibold">{s.lab}</div>
+              <div className="mt-1 text-[10px] text-black/50">{s.sub}</div>
+              <div className="mt-3 h-6">
                 <Sparkline color={s.tint} />
               </div>
             </div>
           ))}
 
-          {/* Explore CTA card */}
+          {/* 5th card — Explore the full dashboard CTA */}
           <a
             href="/transparency"
-            className="bg-white border border-black/10 p-4 flex flex-col justify-between text-left hover:border-[#C8A76A] transition-colors group"
+            className="bg-white border border-black/10 p-5 flex flex-col justify-between text-left hover:border-[#C8A76A] transition-colors group"
           >
             <div>
-              <div
-                className="w-10 h-10 rounded-full mx-auto flex items-center justify-center mb-3"
-                style={{ background: '#C8A76A14', color: '#C8A76A', border: '1px solid #C8A76A33' }}
-              >
-                <TrendingUp size={18} />
+              <div className="uppercase tracking-[0.18em] text-[10px] text-black/55 font-semibold mb-2">
+                Explore
               </div>
-              <div className={`${playfair.className} text-[14px] leading-[1.25] text-center`} style={{ fontWeight: 700 }}>
-                Explore the full dashboard
+              <div className={`${playfair.className} text-[16px] leading-[1.25]`} style={{ fontWeight: 700 }}>
+                The full dashboard
               </div>
-              <p className="text-[9px] text-black/55 mt-2 leading-snug text-center">
+              <p className="text-[10px] text-black/55 mt-2 leading-snug">
                 Live data, trends and historical insights.
               </p>
             </div>
-            <div className="mt-2 h-5">
-              <Sparkline color="#C8A76A" />
+            <div className="flex items-center justify-between mt-3">
+              <div className="h-6 flex-1 mr-3">
+                <Sparkline color="#C8A76A" />
+              </div>
+              <span className="text-[#C8A76A] group-hover:translate-x-0.5 transition-transform">
+                <ArrowRight size={14} />
+              </span>
             </div>
           </a>
         </div>
       </section>
 
-      {/* ─────────── SECTION 7: LATEST FROM THE CHAMBER — 4 cards full width ─────────── */}
+      {/* ─────────── SECTION 7: LATEST FROM WESTMINSTER + Today's Editorial ─────────── */}
       <section className="max-w-7xl mx-auto px-6 py-10 border-t border-black/10">
-        <SectionHeader label="Latest from the Chamber" right={<RightLink href="/coverage">View all stories</RightLink>} />
+        <SectionHeader label="Latest from Westminster" right={<RightLink href="/coverage">View all stories</RightLink>} />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { img: '/design-extracts/featured-rebellion.png', cat: 'Politics', title: 'Labour rebellion over welfare cuts grows', excerpt: 'More than 40 MPs expected to vote against government whip.', time: '12m ago' },
-            { img: '/design-extracts/stack-1-transport.png', cat: 'Bills', title: 'Transport Bill passes second reading', excerpt: 'Committee stage scheduled for next month.', time: '28m ago' },
-            { img: '/design-extracts/stack-2-lobbying.png', cat: 'Investigation', title: "Ex-minister's lobbying emails revealed", excerpt: 'Undisclosed correspondence with industry contacts.', time: '1h ago' },
-            { img: '/design-extracts/stack-3-housing.png', cat: 'Housing', title: 'Renters rally across major UK cities', excerpt: 'Demonstrations call for stronger eviction protections.', time: '2h ago' },
-          ].map((s) => (
-            <a key={s.title} href="/coverage" className="bg-white border border-black/10 group overflow-hidden block">
-              <div className="relative aspect-[4/3] overflow-hidden">
-                <Image src={s.img} alt={s.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" sizes="(max-width: 1024px) 50vw, 250px" />
-              </div>
-              <div className="p-4">
-                <div className="flex justify-between items-baseline mb-2">
-                  <span className="uppercase tracking-[0.18em] text-[9px] font-bold text-[#B02A2A]">{s.cat}</span>
-                  <span className="text-[9px] text-black/50 uppercase">{s.time}</span>
+        <div className="grid lg:grid-cols-[3fr_1fr] gap-6">
+
+          {/* LEFT — 4 cards in a row */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { img: '/design-extracts/latest-1-ppe.png', cat: 'Politics', title: 'Public Accounts Committee demands answers over PPE contracts', time: '1h ago' },
+              { img: '/design-extracts/latest-2-nhs.png', cat: 'Health', title: 'NHS waiting list hits new record as ministers trade blame', time: '2h ago' },
+              { img: '/design-extracts/latest-3-mps.png', cat: 'Investigation', title: "MPs' restaurant claims rise 34% in just three months", time: '3h ago' },
+              { img: '/design-extracts/latest-4-treasury.png', cat: 'Economy', title: "Treasury insists 'everything is fine' despite leaked memo", time: '4h ago' },
+            ].map((s) => (
+              <a key={s.title} href="/coverage" className="bg-white border border-black/10 group overflow-hidden block">
+                <div className="relative aspect-[4/3] overflow-hidden">
+                  <Image src={s.img} alt={s.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" sizes="(max-width: 1024px) 50vw, 200px" />
                 </div>
-                <h4 className={`${playfair.className} text-[17px] leading-[1.25] mb-2`} style={{ fontWeight: 700 }}>{s.title}</h4>
-                <p className="text-[12px] text-black/60 leading-relaxed line-clamp-2">{s.excerpt}</p>
-              </div>
+                <div className="p-4">
+                  <div className="flex justify-between items-baseline mb-2">
+                    <span className="uppercase tracking-[0.18em] text-[9px] font-bold text-[#B02A2A]">{s.cat}</span>
+                    <span className="text-[9px] text-black/50 uppercase">{s.time}</span>
+                  </div>
+                  <h4 className={`${playfair.className} text-[16px] leading-[1.25]`} style={{ fontWeight: 700 }}>{s.title}</h4>
+                </div>
+              </a>
+            ))}
+          </div>
+
+          {/* RIGHT — Today's Editorial sidebar */}
+          <aside className="bg-white border border-black/10 p-5">
+            <div className="uppercase tracking-[0.2em] text-[10px] font-bold text-[#2F4F3E] mb-3">
+              ◆ Today&apos;s Editorial
+            </div>
+            <h3 className={`${playfair.className} text-[22px] leading-[1.2]`} style={{ fontWeight: 700 }}>
+              A nation of experts in everything and accountable for nothing.
+            </h3>
+            <p className={`${playfair.className} italic text-[12px] text-black/70 leading-[1.6] mt-3`} style={{ fontStyle: 'italic' }}>
+              Another day, another announcement, another &ldquo;in due course&rdquo;, another promise waiting quietly for its funeral. The committee meets. The minutes are taken.
+            </p>
+            <div className="mt-3 relative aspect-[4/3] bg-[#EAE3D2] border border-black/10 overflow-hidden">
+              <Image
+                src="/design-extracts/cabinet-illustration.png"
+                alt="Cabinet meeting illustration"
+                fill
+                className="object-contain"
+                sizes="220px"
+              />
+            </div>
+            <a href="/coverage" className="mt-3 flex items-center gap-1 uppercase tracking-[0.16em] text-[10px] font-bold text-[#2F4F3E]">
+              Read editorial <ArrowRight size={10} />
             </a>
-          ))}
+          </aside>
         </div>
       </section>
 
-      {/* ─────────── SECTION 8: FOOTER — lion + brand + signup left | social + Join right ─────────── */}
+      {/* ─────────── SECTION 8: FOOTER ─────────── */}
       <footer className="bg-[#0D1117] text-white border-t-4 border-[#C8A76A] mt-8">
         <div className="max-w-7xl mx-auto px-6 py-12">
 
-          <div className="grid lg:grid-cols-[1fr_1.2fr_1fr] gap-8 items-start">
+          <div className="grid lg:grid-cols-[1.2fr_1fr] gap-10">
 
-            {/* LEFT — lion + brand */}
+            {/* LEFT — lion + brand + signup */}
             <div>
               <div className="relative h-24 w-40">
                 <Image src="/design-extracts/lion.png" alt="Heraldic lion" fill className="object-contain object-left" sizes="160px" />
               </div>
-              <div className={`${playfair.className} text-[22px] mt-3`} style={{ fontWeight: 700 }}>The People&apos;s Chamber</div>
-              <p className="text-white/55 text-[11px] leading-relaxed mt-2 max-w-xs">
-                A modern public chamber for a modern democracy.
+              <div className={`${playfair.className} text-[26px] mt-3`} style={{ fontWeight: 700 }}>The People&apos;s Chamber</div>
+              <p className="text-white/55 text-[12px] leading-relaxed mt-2 max-w-md">
+                A modern public chamber for a modern democracy. Built from official sources. Edited with raised eyebrows.
               </p>
-            </div>
 
-            {/* CENTER — Stay informed signup */}
-            <div>
-              <h3 className={`${playfair.className} text-[26px] leading-tight mb-2`} style={{ fontWeight: 700 }}>
-                Stay informed.<br />Stay powerful.
+              <h3 className={`${playfair.className} text-[20px] mt-6 mb-2`} style={{ fontWeight: 700 }}>
+                Stay informed. Stay powerful.
               </h3>
-              <p className="text-white/55 text-[12px] leading-relaxed mb-4 max-w-md">
+              <p className="text-white/55 text-[11px] leading-relaxed max-w-md mb-3">
                 Saturday mornings: the week&apos;s biggest contracts, donations, and revolving-door moves.
               </p>
-              <form className="flex gap-2">
+              <form className="flex gap-2 max-w-md">
                 <input
                   type="email"
                   placeholder="Enter your email address"
-                  className="flex-1 h-11 px-4 bg-[#F3F0EA] text-black placeholder:text-black/40 outline-none text-[12px]"
+                  className="flex-1 h-10 px-4 bg-[#F3F0EA] text-black placeholder:text-black/40 outline-none text-[12px]"
                 />
-                <button type="button" className="h-11 px-5 bg-[#B02A2A] hover:bg-[#8E2222] text-white uppercase tracking-[0.16em] text-[10px] font-bold transition-colors">
+                <button type="button" className="h-10 px-5 bg-[#B02A2A] hover:bg-[#8E2222] text-white uppercase tracking-[0.16em] text-[10px] font-bold transition-colors">
                   Subscribe
                 </button>
               </form>
-            </div>
 
-            {/* RIGHT — social + Join the Chamber */}
-            <div>
-              <div className="uppercase tracking-[0.22em] text-[10px] font-bold text-[#C8A76A] mb-3">
-                Follow us
-              </div>
-              <div className="flex items-center gap-2 mb-6">
+              <div className="flex items-center gap-2 mt-4">
                 {['X', 'FB', 'IG', 'YT', 'RSS'].map((label) => (
                   <a
                     key={label}
                     href="#"
                     aria-label={label}
-                    className="w-9 h-9 rounded-full border border-[#C8A76A]/40 hover:border-[#C8A76A] hover:bg-white/5 flex items-center justify-center text-[9px] font-bold tracking-wider transition-colors"
+                    className="w-8 h-8 rounded-full border border-[#C8A76A]/40 hover:border-[#C8A76A] hover:bg-white/5 flex items-center justify-center text-[9px] font-bold tracking-wider transition-colors"
                   >
                     {label}
                   </a>
                 ))}
               </div>
+            </div>
 
-              <div className="bg-[#1F2428] border border-[#C8A76A]/40 p-5">
-                <div className="uppercase tracking-[0.22em] text-[10px] font-bold text-[#C8A76A] mb-2">
-                  ◆ Join the Chamber
-                </div>
-                <p className="text-[12px] text-white/75 leading-relaxed mb-4">
-                  Be part of the public&apos;s response to power.
-                </p>
-                <a href="/about#join" className="inline-flex items-center gap-2 bg-[#2F4F3E] hover:bg-[#1F3829] text-white px-4 py-2.5 uppercase tracking-[0.16em] text-[10px] font-bold transition-colors">
-                  Sign up — free <ArrowRight size={11} />
-                </a>
+            {/* RIGHT — Join the Chamber callout */}
+            <div className="bg-[#1F2428] border border-[#C8A76A]/40 p-6 flex flex-col">
+              <div className="uppercase tracking-[0.22em] text-[10px] font-bold text-[#C8A76A] mb-3">
+                ◆ Join the Chamber
               </div>
+              <h3 className={`${playfair.className} text-[22px] leading-tight mb-3`} style={{ fontWeight: 700 }}>
+                Be part of the public&apos;s response to power.
+              </h3>
+              <ul className="space-y-2 text-[12px] text-white/80">
+                {[
+                  'Vote on every UK Parliament bill',
+                  'Track contracts, donations & revolving doors',
+                  'Join the public record',
+                ].map((b) => (
+                  <li key={b} className="flex items-start gap-2 leading-snug">
+                    <span className="text-[#C8A76A] mt-[2px]">◆</span>
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
+              <a href="/about#join" className="mt-5 self-start bg-[#2F4F3E] hover:bg-[#1F3829] text-white px-5 py-2.5 uppercase tracking-[0.16em] text-[10px] font-bold transition-colors flex items-center gap-2">
+                Sign up — free <ArrowRight size={11} />
+              </a>
             </div>
           </div>
 
+          {/* Bottom strip */}
           <div className="border-t border-white/10 mt-10 pt-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 text-[10px] text-white/40">
             <div>© {new Date().getFullYear()} The People&apos;s Chamber · Public-record reporting</div>
             <div className="uppercase tracking-[0.22em] font-semibold">peopleschamber.uk</div>
