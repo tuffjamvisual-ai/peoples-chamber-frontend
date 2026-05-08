@@ -224,25 +224,25 @@ export default function HomePageNew() {
               Live sentiment on key issues.
             </h3>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="flex flex-col gap-7">
               {[
                 { title: 'Winter Fuel Payment Bill', approval: 22, change: -5 },
                 { title: 'Online Safety (Amendment) Bill', approval: 35, change: -2 },
                 { title: "Renters' Rights Bill", approval: 14, change: -3 },
               ].map((p) => (
                 <div key={p.title} className="text-center">
-                  <div className="flex items-center justify-center gap-1">
-                    <Frown size={14} className="text-[#B02A2A] flex-shrink-0" strokeWidth={1.8} />
+                  <div className="flex items-center justify-center gap-3">
+                    <Frown size={28} className="text-[#B02A2A] flex-shrink-0" strokeWidth={1.6} />
                     <PollGauge approval={p.approval} />
-                    <Smile size={14} className="text-[#2F4F3E] flex-shrink-0" strokeWidth={1.8} />
+                    <Smile size={28} className="text-[#2F4F3E] flex-shrink-0" strokeWidth={1.6} />
                   </div>
                   <div
-                    className="text-[10px] mt-2 font-semibold"
+                    className="text-[12px] mt-3 font-semibold"
                     style={{ color: p.change < 0 ? '#B02A2A' : '#2F4F3E' }}
                   >
                     {p.change < 0 ? '↓' : '↑'} {Math.abs(p.change)}% this week
                   </div>
-                  <div className={`${playfair.className} text-[12px] leading-tight mt-2 text-black`} style={{ fontWeight: 700 }}>
+                  <div className={`${playfair.className} text-[15px] leading-tight mt-2 text-black`} style={{ fontWeight: 700 }}>
                     {p.title}
                   </div>
                 </div>
@@ -495,20 +495,20 @@ function Sparkline({ color }: { color: string }) {
 }
 
 function PollGauge({ approval }: { approval: number }) {
-  const r = 26
+  const r = 50
   const c = 2 * Math.PI * r
   const dash = (approval / 100) * c
   return (
-    <svg viewBox="0 0 64 64" width="60" height="60" aria-label={`${approval}% approval`}>
+    <svg viewBox="0 0 120 120" width="120" height="120" aria-label={`${approval}% approval`}>
       {/* track */}
-      <circle cx="32" cy="32" r={r} fill="none" stroke="#E5E5E5" strokeWidth="6" />
+      <circle cx="60" cy="60" r={r} fill="none" stroke="#E5E5E5" strokeWidth="10" />
       {/* approval arc — green */}
       <circle
-        cx="32" cy="32" r={r} fill="none" stroke="#2F4F3E" strokeWidth="6" strokeLinecap="round"
+        cx="60" cy="60" r={r} fill="none" stroke="#2F4F3E" strokeWidth="10" strokeLinecap="round"
         strokeDasharray={`${dash} ${c - dash}`}
-        transform="rotate(-90 32 32)"
+        transform="rotate(-90 60 60)"
       />
-      <text x="32" y="38" textAnchor="middle" fontFamily="ui-serif, Georgia, serif" fontWeight="700" fontSize="18" fill="#181C1F">
+      <text x="60" y="70" textAnchor="middle" fontFamily="ui-serif, Georgia, serif" fontWeight="700" fontSize="36" fill="#181C1F">
         {approval}%
       </text>
     </svg>
