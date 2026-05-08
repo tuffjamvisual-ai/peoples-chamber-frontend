@@ -235,8 +235,9 @@ export default function HomePageNew() {
 
         <div className="grid lg:grid-cols-[2fr_1fr_1fr] gap-5">
 
-          {/* LEFT — big featured card with photo overlay */}
-          <a href="/coverage" className="group relative block aspect-[4/3] overflow-hidden">
+          {/* LEFT — big featured card with photo overlay
+               Aspect 16:10 to match design's landscape framing. */}
+          <a href="/coverage" className="group relative block aspect-[16/10] overflow-hidden">
             <Image
               src="/design-extracts/featured-rebellion.png"
               alt="Labour rebellion over welfare cuts grows"
