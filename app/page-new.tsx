@@ -104,8 +104,8 @@ export default function HomePageNew() {
       </nav>
 
       {/* ─────────── SECTION 3: DARK HERO ─────────── */}
-      <section className="bg-[#0D1117]">
-        <div className="max-w-7xl mx-auto">
+      <section>
+        <div className="max-w-7xl mx-auto bg-[#0D1117]">
           <div className="grid lg:grid-cols-2">
 
             {/* LEFT — Westminster photo. Container is aspect-locked to the
