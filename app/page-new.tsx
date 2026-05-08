@@ -122,10 +122,10 @@ export default function HomePageNew() {
             {/* LEFT — Westminster photo. Container is aspect-locked to the
                  design's hero-photo proportion (~16/9). Right panel inherits
                  this height via CSS grid — see panel below. */}
-            <div className="relative aspect-[1496/1051]">
+            <div className="relative aspect-[1402/1122]">
               <Image
-                src="/design-extracts/hero-westminster.png"
-                alt="The Palace of Westminster"
+                src="/design-extracts/hero-mp-expenses.png"
+                alt="MP claims £367,659 in expenses"
                 fill
                 priority
                 className="object-cover"
@@ -157,36 +157,6 @@ export default function HomePageNew() {
                   is &ldquo;terribly efficient&rdquo; compared to last year. Daventry, for the
                   record, sits 78 miles from Westminster.
                 </p>
-              </div>
-
-              {/* 4-stat row */}
-              <div className="grid grid-cols-4 gap-3">
-                <div>
-                  <div className={`${playfair.className} text-[#E74C3C] text-[clamp(22px,2.4vw,32px)] leading-none`} style={{ fontWeight: 400 }}>
-                    68%
-                  </div>
-                  <div className="uppercase text-[9px] tracking-[0.16em] mt-1 text-white/80 font-semibold">Oppose</div>
-                  <div className="text-[9px] text-[#E74C3C]/80 mt-0.5">↑ 5% this week</div>
-                </div>
-                <div>
-                  <div className={`${playfair.className} text-[#3F6A55] text-[clamp(22px,2.4vw,32px)] leading-none`} style={{ fontWeight: 400 }}>
-                    21%
-                  </div>
-                  <div className="uppercase text-[9px] tracking-[0.16em] mt-1 text-white/80 font-semibold">Support</div>
-                  <div className="text-[9px] text-[#3F6A55] mt-0.5">↓ 2% this week</div>
-                </div>
-                <div>
-                  <div className={`${playfair.className} text-[clamp(18px,2vw,26px)] leading-none`} style={{ fontWeight: 400 }}>
-                    342
-                  </div>
-                  <div className="uppercase text-[9px] tracking-[0.16em] mt-1 text-white/80 font-semibold">MPs voted</div>
-                </div>
-                <div>
-                  <div className={`${playfair.className} text-[clamp(18px,2vw,26px)] leading-none`} style={{ fontWeight: 400 }}>
-                    12.4K
-                  </div>
-                  <div className="uppercase text-[9px] tracking-[0.16em] mt-1 text-white/80 font-semibold">Comments</div>
-                </div>
               </div>
 
               {/* CTAs */}
