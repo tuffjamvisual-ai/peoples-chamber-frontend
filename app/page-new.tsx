@@ -120,7 +120,7 @@ export default function HomePageNew() {
             {/* LEFT — Westminster photo. Container is aspect-locked to the
                  design's hero-photo proportion (~16/9). Right panel inherits
                  this height via CSS grid — see panel below. */}
-            <div className="relative aspect-[16/9]">
+            <div className="relative aspect-[1496/1051]">
               <Image
                 src="/design-extracts/hero-westminster.png"
                 alt="The Palace of Westminster"
@@ -129,7 +129,6 @@ export default function HomePageNew() {
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 50vw"
               />
-              <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-transparent via-transparent to-[#0D1117]/40" />
             </div>
 
             {/* RIGHT — story panel. Typography sized to fit the photo's
