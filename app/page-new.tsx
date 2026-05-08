@@ -1,5 +1,5 @@
-// /preview rebuild — Sections 1 + 2 + 3 of N.
-// Section 1: cream masthead. Section 2: nav bar. Section 3: dark hero.
+// /preview rebuild — Sections 1–4 of N.
+// 1: masthead · 2: nav · 3: dark hero · 4: Live from Westminster strip.
 // Each section added incrementally with screenshot sign-off in between.
 
 import Image from 'next/image'
@@ -184,6 +184,43 @@ export default function HomePageNew() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ─────────── SECTION 4: LIVE FROM WESTMINSTER STRIP ─────────── */}
+      <section className="bg-[#1F2428] border-y border-black/30">
+        <div className="max-w-7xl mx-auto px-6 h-12 flex items-center gap-6 text-[12px] text-white/75 overflow-hidden">
+
+          {/* LEFT — red live label */}
+          <div className="flex items-center gap-2 text-[#B02A2A] font-bold uppercase tracking-[0.2em] text-[10px] whitespace-nowrap">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#B02A2A] animate-pulse" />
+            Live from Westminster
+          </div>
+
+          {/* MIDDLE — scrolling items separated by hairline dividers */}
+          {[
+            'Pensions Bill progressing',
+            'Public Accounts Committee hearing now live',
+            'Labour rebellion grows',
+          ].map((item) => (
+            <span
+              key={item}
+              className="whitespace-nowrap border-l border-white/15 pl-6 hidden md:inline"
+            >
+              {item}
+            </span>
+          ))}
+
+          {/* RIGHT — PMQs countdown + view-all */}
+          <span className="ml-auto text-white/60 text-[11px] uppercase tracking-[0.15em] whitespace-nowrap">
+            PMQs in 1h 22m
+          </span>
+          <a
+            href="/coverage"
+            className="flex items-center gap-1 uppercase tracking-[0.18em] text-[10px] font-bold text-white whitespace-nowrap hover:text-[#B02A2A] transition-colors"
+          >
+            View all <ArrowRight size={12} />
+          </a>
         </div>
       </section>
     </main>
