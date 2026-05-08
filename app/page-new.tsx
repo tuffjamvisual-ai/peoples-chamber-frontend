@@ -287,49 +287,61 @@ export default function HomePageNew() {
           {/* RIGHT — Public Hub donut + Transparency Desk */}
           <div className="flex flex-col gap-4">
 
-            <div className="bg-white border border-black/10 p-5">
-              <div className="uppercase tracking-[0.2em] text-[10px] font-bold text-[#2F4F3E] mb-3">
+            {/* PUBLIC HUB — donut prominent + centered, caption below, sparkline at base */}
+            <div className="bg-white border border-black/10 p-5 text-center">
+              <div className="uppercase tracking-[0.2em] text-[10px] font-bold text-[#2F4F3E] mb-1 text-left">
                 ◆ Public Hub
               </div>
-              <div className="flex items-center gap-3">
-                <Donut pct={23} />
-                <div>
-                  <div className="uppercase tracking-wider text-[9px] text-black/50 font-semibold">Government approval</div>
-                  <p className={`${playfair.className} italic text-[12px] text-black/80 leading-snug mt-1`} style={{ fontStyle: 'italic' }}>
-                    Lowest in 18 months. The other 77% are tired and waiting.
-                  </p>
-                </div>
+              <div className={`${playfair.className} italic text-[11px] text-black/55 mb-3 text-left`} style={{ fontStyle: 'italic' }}>
+                How the public feels right now
               </div>
-              <div className="mt-3 h-8">
+              <div className="flex justify-center my-2">
+                <Donut pct={23} />
+              </div>
+              <div className="uppercase tracking-[0.18em] text-[9px] text-black/55 font-semibold mt-1">
+                Government approval
+              </div>
+              <div className="text-[#B02A2A] text-[11px] font-semibold mt-1">↓ 3% this week</div>
+              <div className="mt-3 h-7">
                 <Sparkline color="#B02A2A" />
               </div>
+              <a href="/polls" className="mt-3 inline-flex items-center gap-1 uppercase tracking-[0.16em] text-[10px] font-bold text-[#2F4F3E]">
+                View full poll <ArrowRight size={10} />
+              </a>
             </div>
 
+            {/* TRANSPARENCY DESK — bigger £ figure, dominant headline */}
             <div className="bg-white border border-black/10 p-5">
-              <div className="uppercase tracking-[0.2em] text-[10px] font-bold text-[#C8A76A] mb-3">
+              <div className="uppercase tracking-[0.2em] text-[10px] font-bold text-[#C8A76A] mb-1">
                 ◆ Transparency Desk
               </div>
-              <h4 className={`${playfair.className} text-[20px] leading-tight mb-3`} style={{ fontWeight: 700 }}>Following the money</h4>
+              <h4 className={`${playfair.className} italic text-[18px] leading-tight mb-4`} style={{ fontWeight: 400, fontStyle: 'italic' }}>
+                Following the money
+              </h4>
 
-              <div className="text-[9px] uppercase tracking-wider text-black/50 font-semibold">Total MP expenses this month</div>
+              <div className="text-[9px] uppercase tracking-wider text-black/50 font-semibold">
+                Total MP expenses this month
+              </div>
               <div className="flex items-baseline gap-2 mt-1">
-                <span className={`${playfair.className} text-[26px] tabular-nums`} style={{ fontWeight: 400 }}>£2,873,761</span>
-                <span className="text-[#3F6A55] text-[11px] font-semibold">↑ 4.7%</span>
+                <span className={`${playfair.className} text-[clamp(28px,2.6vw,36px)] tabular-nums leading-none`} style={{ fontWeight: 400 }}>
+                  £2,873,761
+                </span>
+                <span className="text-[#3F6A55] text-[11px] font-semibold whitespace-nowrap">↑ 4.7%</span>
               </div>
 
-              <div className="border-t border-black/10 mt-3 pt-3">
+              <div className="border-t border-black/10 mt-4 pt-3">
                 <div className="text-[9px] uppercase tracking-wider text-black/50 font-semibold">Top expense claim</div>
-                <div className={`${playfair.className} text-[14px] mt-1`}>2nd home mortgage</div>
+                <div className={`${playfair.className} text-[15px] mt-1`} style={{ fontWeight: 700 }}>2nd home mortgage</div>
                 <div className="text-black/60 text-[11px]">£24,990</div>
               </div>
 
               <div className="border-t border-black/10 mt-3 pt-3">
                 <div className="text-[9px] uppercase tracking-wider text-black/50 font-semibold">Most frequent claimant</div>
-                <div className={`${playfair.className} text-[14px] mt-1`}>Sir M. Fabricant</div>
+                <div className={`${playfair.className} text-[15px] mt-1`} style={{ fontWeight: 700 }}>Sir M. Fabricant</div>
                 <div className="text-black/60 text-[11px]">Conservative · Lichfield · £27,842 this month</div>
               </div>
 
-              <a href="/expenses" className="mt-3 flex items-center gap-1 uppercase tracking-[0.16em] text-[10px] font-bold text-[#C8A76A]">
+              <a href="/expenses" className="mt-3 inline-flex items-center gap-1 uppercase tracking-[0.16em] text-[10px] font-bold text-[#C8A76A]">
                 View all expenses <ArrowRight size={10} />
               </a>
             </div>
@@ -526,15 +538,15 @@ function RightLink({ href, children }: { href: string; children: React.ReactNode
 }
 
 function Donut({ pct }: { pct: number }) {
-  const r = 26
+  const r = 48
   const c = 2 * Math.PI * r
   const dash = (pct / 100) * c
   return (
-    <svg viewBox="0 0 64 64" width="64" height="64" aria-label={`${pct}% government approval`}>
-      <circle cx="32" cy="32" r={r} fill="none" stroke="#E0DACE" strokeWidth="6" />
-      <circle cx="32" cy="32" r={r} fill="none" stroke="#2F4F3E" strokeWidth="6" strokeLinecap="round"
-        strokeDasharray={`${dash} ${c - dash}`} transform="rotate(-90 32 32)" />
-      <text x="32" y="38" textAnchor="middle" fontFamily="ui-serif, Georgia, serif" fontWeight="700" fontSize="16" fill="#181C1F">
+    <svg viewBox="0 0 120 120" width="110" height="110" aria-label={`${pct}% government approval`}>
+      <circle cx="60" cy="60" r={r} fill="none" stroke="#E0DACE" strokeWidth="10" />
+      <circle cx="60" cy="60" r={r} fill="none" stroke="#2F4F3E" strokeWidth="10" strokeLinecap="round"
+        strokeDasharray={`${dash} ${c - dash}`} transform="rotate(-90 60 60)" />
+      <text x="60" y="68" textAnchor="middle" fontFamily="ui-serif, Georgia, serif" fontWeight="700" fontSize="28" fill="#181C1F">
         {pct}%
       </text>
     </svg>
