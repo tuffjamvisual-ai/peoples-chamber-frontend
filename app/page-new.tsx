@@ -169,17 +169,14 @@ export default function HomePageNew() {
                   is &ldquo;terribly efficient&rdquo; compared to last year. Daventry, for the
                   record, sits 78 miles from Westminster.
                 </p>
+                <a
+                  href="/coverage"
+                  className="inline-flex items-center gap-1 mt-3 uppercase tracking-[0.18em] text-[10px] font-bold text-[#C8A76A] border-b-2 border-[#C8A76A] pb-0.5 hover:text-white hover:border-white transition-colors"
+                >
+                  Read the full story <ArrowRight size={11} />
+                </a>
               </div>
 
-              {/* CTAs */}
-              <div className="flex gap-2 flex-wrap">
-                <a href="/bills" className="bg-[#B02A2A] hover:bg-[#8E2222] text-white px-4 py-2.5 uppercase tracking-[0.16em] text-[10px] font-bold flex items-center gap-2 transition-colors">
-                  Read the full story <ArrowRight size={12} />
-                </a>
-                <a href="/bills" className="border border-white/30 hover:bg-white/5 text-white px-4 py-2.5 uppercase tracking-[0.16em] text-[10px] font-bold transition-colors">
-                  See how MPs voted
-                </a>
-              </div>
             </div>
           </div>
         </div>
