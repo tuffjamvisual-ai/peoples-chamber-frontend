@@ -193,8 +193,8 @@ export default function HomePageNew() {
       </section>
 
       {/* ─────────── SECTION 4: LIVE FROM WESTMINSTER STRIP ─────────── */}
-      <section className="bg-[#1F2428] border-y border-black/30">
-        <div className="max-w-7xl mx-auto px-6 h-12 flex items-center gap-6 text-[12px] text-white/75 overflow-hidden">
+      <section className="bg-[#F3F0EA] border-y border-black/15">
+        <div className="max-w-7xl mx-auto px-6 h-12 flex items-center gap-6 text-[12px] text-black/75 overflow-hidden">
 
           {/* LEFT — red live label */}
           <div className="flex items-center gap-2 text-[#B02A2A] font-bold uppercase tracking-[0.2em] text-[10px] whitespace-nowrap">
@@ -210,19 +210,19 @@ export default function HomePageNew() {
           ].map((item) => (
             <span
               key={item}
-              className="whitespace-nowrap border-l border-white/15 pl-6 hidden md:inline"
+              className="whitespace-nowrap border-l border-black/15 pl-6 hidden md:inline"
             >
               {item}
             </span>
           ))}
 
           {/* RIGHT — PMQs countdown + view-all */}
-          <span className="ml-auto text-white/60 text-[11px] uppercase tracking-[0.15em] whitespace-nowrap">
+          <span className="ml-auto text-black/60 text-[11px] uppercase tracking-[0.15em] whitespace-nowrap">
             PMQs in 1h 22m
           </span>
           <a
             href="/coverage"
-            className="flex items-center gap-1 uppercase tracking-[0.18em] text-[10px] font-bold text-white whitespace-nowrap hover:text-[#B02A2A] transition-colors"
+            className="flex items-center gap-1 uppercase tracking-[0.18em] text-[10px] font-bold text-black whitespace-nowrap hover:text-[#B02A2A] transition-colors"
           >
             View all <ArrowRight size={12} />
           </a>
