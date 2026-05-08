@@ -16,7 +16,7 @@ export default function HomePageNew() {
     <main className="bg-[#F3F0EA] min-h-screen text-[#181C1F]">
       <header className="border-b border-black/10">
         <div className="max-w-7xl mx-auto px-6 py-12">
-          <div className="grid grid-cols-3 items-center gap-6">
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-8">
 
             {/* LEFT — italic tagline */}
             <div
@@ -30,7 +30,7 @@ export default function HomePageNew() {
             {/* CENTER — masthead title + caption (no crown — not in design) */}
             <div className="text-center">
               <h1
-                className={`${playfair.className} text-[clamp(40px,5vw,68px)] leading-[0.95] tracking-tight text-black`}
+                className={`${playfair.className} text-[clamp(40px,5vw,68px)] leading-[0.95] tracking-tight text-black whitespace-nowrap`}
                 style={{ fontWeight: 700 }}
               >
                 The People&apos;s Chamber
