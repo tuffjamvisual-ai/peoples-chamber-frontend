@@ -103,19 +103,19 @@ export default function HomePageNew() {
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2">
 
-            {/* LEFT — Westminster photo (cropped from design PNG)
-                 Container aspect tuned to the source crop's aspect (~16/9)
-                 so the photo isn't zoomed in by object-cover. */}
-            <div className="relative bg-[#0D1117] lg:aspect-auto aspect-[16/9] lg:min-h-[460px]">
+            {/* LEFT — Westminster photo. Container is aspect-locked to the
+                 design's hero-photo proportion (~16/9). Right panel inherits
+                 this height via CSS grid — see panel below. */}
+            <div className="relative aspect-[16/9]">
               <Image
                 src="/design-extracts/hero-westminster.png"
                 alt="The Palace of Westminster"
                 fill
                 priority
-                className="object-contain object-center"
+                className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 50vw"
               />
-              <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-transparent via-transparent to-[#0D1117]/80" />
+              <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-transparent via-transparent to-[#0D1117]/40" />
             </div>
 
             {/* RIGHT — story panel */}
