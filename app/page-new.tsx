@@ -425,62 +425,39 @@ export default function HomePageNew() {
         </div>
       </section>
 
-      {/* ─────────── SECTION 8: FOOTER — single horizontal row ─────────── */}
-      <footer className="bg-[#0D1117] text-white mt-8">
+      {/* ─────────── SECTION 8: FOOTER — minimal: brand + social ─────────── */}
+      <footer className="bg-[#181C1F] text-white mt-8">
         <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="flex items-center justify-between gap-6 flex-wrap">
 
-          <div className="flex items-center gap-8 flex-wrap">
-
-            {/* lion */}
-            <div className="relative h-14 w-14 flex-shrink-0">
-              <Image src="/design-extracts/lion.png" alt="Heraldic lion" fill className="object-contain" sizes="56px" />
-            </div>
-
-            {/* Stay informed copy */}
-            <div className="flex-shrink-0">
-              <h3 className={`${playfair.className} text-[22px] leading-[1.1]`} style={{ fontWeight: 700 }}>
-                Stay informed.<br />Stay powerful.
-              </h3>
-              <p className="text-white/50 text-[10px] leading-relaxed mt-2 max-w-[220px]">
-                Your weekly digest of politics, transparency and the stories they don&apos;t want you to miss.
+            {/* LEFT — brand */}
+            <div>
+              <div className={`${playfair.className} text-[20px] leading-tight`} style={{ fontWeight: 700 }}>
+                The People&apos;s Chamber
+              </div>
+              <p className="text-white/50 text-[11px] leading-relaxed mt-1">
+                A modern public chamber for a modern democracy.
               </p>
             </div>
 
-            {/* signup form */}
-            <form className="flex gap-0 flex-1 min-w-[280px] max-w-[480px]">
-              <input
-                type="email"
-                placeholder="Enter your email address"
-                className="flex-1 h-11 px-4 bg-[#F3F0EA] text-black placeholder:text-black/40 outline-none text-[12px]"
-              />
-              <button type="button" className="h-11 px-6 bg-[#2F4F3E] hover:bg-[#1F3829] text-white uppercase tracking-[0.18em] text-[10px] font-bold transition-colors">
-                Subscribe
-              </button>
-            </form>
-
-            {/* social */}
-            <div className="flex flex-col items-start flex-shrink-0">
-              <div className="uppercase tracking-[0.24em] text-[9px] font-semibold text-white/55 mb-2">
-                Follow us
-              </div>
-              <div className="flex items-center gap-2">
-                {['X', 'FB', 'IG', 'YT', 'RSS'].map((label) => (
-                  <a
-                    key={label}
-                    href="#"
-                    aria-label={label}
-                    className="w-7 h-7 rounded-full border border-white/30 hover:border-white hover:bg-white/5 flex items-center justify-center text-[8px] font-bold tracking-wider transition-colors"
-                  >
-                    {label}
-                  </a>
-                ))}
-              </div>
+            {/* RIGHT — social */}
+            <div className="flex items-center gap-2">
+              {['X', 'FB', 'IG', 'YT', 'RSS'].map((label) => (
+                <a
+                  key={label}
+                  href="#"
+                  aria-label={label}
+                  className="w-8 h-8 rounded-full border border-white/30 hover:border-white hover:bg-white/5 flex items-center justify-center text-[8px] font-bold tracking-wider transition-colors"
+                >
+                  {label}
+                </a>
+              ))}
             </div>
           </div>
 
-          {/* sub-line */}
-          <div className="mt-4 text-[10px] text-white/35">
-            No spam. Just democracy.
+          <div className="mt-6 pt-4 border-t border-white/10 flex justify-between text-[10px] text-white/35">
+            <span>© {new Date().getFullYear()} The People&apos;s Chamber</span>
+            <span className="uppercase tracking-[0.22em] font-semibold">peopleschamber.uk</span>
           </div>
         </div>
       </footer>
