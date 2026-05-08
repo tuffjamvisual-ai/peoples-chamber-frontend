@@ -31,7 +31,7 @@ export default function HomePageNew() {
             <div className="text-center">
               <h1
                 className={`${playfair.className} text-[clamp(40px,5vw,68px)] leading-[0.95] tracking-tight text-black`}
-                style={{ fontWeight: 800 }}
+                style={{ fontWeight: 700 }}
               >
                 The People&apos;s Chamber
               </h1>
