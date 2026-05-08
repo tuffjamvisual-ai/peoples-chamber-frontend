@@ -161,20 +161,6 @@ export default function HomePageNew() {
                 >
                   MP claims £367,659 in expenses, insists it&apos;s &ldquo;terribly efficient&rdquo; compared to last year
                 </h2>
-                <p
-                  className={`${playfair.className} italic text-[13px] leading-[1.5] text-white/70 mt-3 max-w-[420px]`}
-                  style={{ fontStyle: 'italic' }}
-                >
-                  Stuart Andrew tops the Big Spenders league. His office insists the figure
-                  is &ldquo;terribly efficient&rdquo; compared to last year. Daventry, for the
-                  record, sits 78 miles from Westminster.
-                </p>
-                <a
-                  href="/coverage"
-                  className="inline-flex items-center gap-1 mt-3 uppercase tracking-[0.18em] text-[10px] font-bold text-[#C8A76A] border-b-2 border-[#C8A76A] pb-0.5 hover:text-white hover:border-white transition-colors"
-                >
-                  Read the full story <ArrowRight size={11} />
-                </a>
               </div>
 
             </div>
