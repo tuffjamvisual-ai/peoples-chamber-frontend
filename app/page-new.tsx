@@ -426,8 +426,8 @@ export default function HomePageNew() {
       </section>
 
       {/* ─────────── SECTION 8: FOOTER ─────────── */}
-      <footer className="bg-[#E5E5E5] text-[#181C1F] mt-8">
-        <div className="max-w-7xl mx-auto px-6 py-8">
+      <footer className="text-[#181C1F] mt-8">
+        <div className="max-w-7xl mx-auto px-6 py-8 bg-[#E5E5E5]">
           <div className="flex items-center gap-8 flex-wrap">
 
             {/* lion */}
