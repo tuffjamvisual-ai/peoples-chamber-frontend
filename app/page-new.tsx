@@ -145,7 +145,7 @@ export default function HomePageNew() {
                 </div>
 
                 {/* Story photo */}
-                <div className="relative aspect-[1402/1122] w-full max-w-[280px] mb-4">
+                <div className="relative aspect-[1672/941] w-full max-w-[360px] mb-4">
                   <Image
                     src="/design-extracts/hero-mp-expenses.png"
                     alt="MP claims £367,659 in expenses"
