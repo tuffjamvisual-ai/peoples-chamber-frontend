@@ -122,10 +122,10 @@ export default function HomePageNew() {
             {/* LEFT — Westminster photo. Container is aspect-locked to the
                  design's hero-photo proportion (~16/9). Right panel inherits
                  this height via CSS grid — see panel below. */}
-            <div className="relative aspect-[1402/1122]">
+            <div className="relative aspect-[1496/1051]">
               <Image
-                src="/design-extracts/hero-mp-expenses.png"
-                alt="MP claims £367,659 in expenses"
+                src="/design-extracts/hero-westminster.png"
+                alt="The Palace of Westminster"
                 fill
                 priority
                 className="object-cover"
@@ -143,6 +143,18 @@ export default function HomePageNew() {
                   <span className="w-1.5 h-1.5 rounded-full bg-[#B02A2A]" />
                   Top Story
                 </div>
+
+                {/* Story photo */}
+                <div className="relative aspect-[1402/1122] w-full max-w-[280px] mb-4">
+                  <Image
+                    src="/design-extracts/hero-mp-expenses.png"
+                    alt="MP claims £367,659 in expenses"
+                    fill
+                    className="object-cover"
+                    sizes="280px"
+                  />
+                </div>
+
                 <h2
                   className={`${playfair.className} text-[clamp(24px,2.6vw,36px)] leading-[1.06] tracking-tight`}
                   style={{ fontWeight: 700 }}
