@@ -147,14 +147,15 @@ export default function HomePageNew() {
                   className={`${playfair.className} text-[clamp(24px,2.6vw,36px)] leading-[1.06] tracking-tight`}
                   style={{ fontWeight: 700 }}
                 >
-                  Winter fuel cuts<br />spark public<br />backlash
+                  MP claims £367,659 in expenses, insists it&apos;s &ldquo;terribly efficient&rdquo; compared to last year
                 </h2>
                 <p
                   className={`${playfair.className} italic text-[13px] leading-[1.5] text-white/70 mt-3 max-w-[420px]`}
                   style={{ fontStyle: 'italic' }}
                 >
-                  Ministers call it &ldquo;necessary discipline.&rdquo; Pensioners call it
-                  something considerably less printable.
+                  Stuart Andrew tops the Big Spenders league. His office insists the figure
+                  is &ldquo;terribly efficient&rdquo; compared to last year. Daventry, for the
+                  record, sits 78 miles from Westminster.
                 </p>
               </div>
 
