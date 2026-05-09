@@ -4,15 +4,17 @@ import bcrypt from 'bcryptjs';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
-    
+    const body = await request.json();
+    const password = body.password as string | undefined;
+    const email = (body.email as string | undefined)?.trim().toLowerCase();
+
     if (!email || !password) {
       return NextResponse.json(
         { error: 'Email and password are required' },
         { status: 400 }
       );
     }
-    
+
     const { data: user, error } = await supabase
       .from('users')
       .select('id, email, password, username, postcode')
