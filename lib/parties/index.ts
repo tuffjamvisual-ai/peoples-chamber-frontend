@@ -18,7 +18,7 @@ export const parties: Party[] = [
   { id: 'plaid', name: 'Plaid Cymru', colour: '#005b54', textColour: '#ffffff', leader: 'Rhun ap Iorwerth', description: 'Welsh nationalist party', hasMP: true },
   { id: 'yourparty', name: 'Your Party', colour: '#8b0000', textColour: '#ffffff', leader: 'Jeremy Corbyn', description: 'Socialist left party', hasMP: true },
   { id: 'dup', name: 'DUP', colour: '#d46a4c', textColour: '#ffffff', leader: 'Gavin Robinson', description: 'Northern Ireland unionist party', hasMP: true },
-  { id: 'sinnfein', name: 'Sinn Féin', colour: '#326760', textColour: '#ffffff', leader: 'Michelle O\'Neill', description: 'Irish republican party', hasMP: true },
+  { id: 'sinnfein', name: 'Sinn Féin', colour: '#326760', textColour: '#ffffff', leader: 'Michelle O\'Neill', description: 'Irish republican party. Sinn Féin MPs do not take their seats in Westminster as part of their abstentionist policy, refusing to swear allegiance to the British monarch.', hasMP: true },
   { id: 'sdlp', name: 'SDLP', colour: '#2aa82c', textColour: '#ffffff', leader: 'Colum Eastwood', description: 'Nationalist social democratic party', hasMP: true },
   { id: 'alliance', name: 'Alliance', colour: '#f6cb2f', textColour: '#000000', leader: 'Naomi Long', description: 'Cross-community centrist party', hasMP: true },
   { id: 'tuv', name: 'TUV', colour: '#0c3a6e', textColour: '#ffffff', leader: 'Jim Allister', description: 'Traditional unionist party', hasMP: true },

@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { parties as partyMeta } from '@/lib/parties'
 
 type MP = {
   id: number
@@ -93,6 +94,7 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
           {parties.map((party) => {
             const partyColour = byParty[party][0]?.party_colour || '#ffffff'
             const count = byParty[party].length
+            const meta = partyMeta.find((p) => p.name === party)
             return (
               <section key={party} className="border-t border-[#333333]">
                 <button onClick={() => toggleParty(party)} className="w-full flex items-center gap-3 py-3 px-2 text-left hover:bg-[#2e2e2e] transition-colors">
@@ -108,6 +110,12 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
                     {count} MP{count === 1 ? '' : 's'} {isOpen(party) ? '▲' : '▼'}
                   </span>
                 </button>
+
+                {isOpen(party) && meta?.description && (
+                  <p className="px-2 pb-3 text-[#a0a0a0] text-[13px] leading-relaxed">
+                    {meta.description}
+                  </p>
+                )}
 
                 {isOpen(party) && <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px border border-[#333333]">
                   {byParty[party].map((mp) => (
