@@ -29,21 +29,42 @@ export type Bill = {
 };
 
 export async function getAllBills(): Promise<Bill[]> {
-  try {
-    const { data: bills, error } = await supabase
-      .from('bill')
-      .select(
-        'id, title, category, current_stage, stage_date, sponsor_name, sponsor_party, sponsor_party_colour, vote_count_yes, vote_count_no, vote_count_abstain, commons_ayes, commons_noes, last_update, bill_withdrawn, is_act'
-      )
-      .order('vote_count_yes', { ascending: false })
-      .range(0, 4999);
+  // Supabase project-level db-max-rows caps each response at 1000 even
+  // when .range() asks for more, so we issue four parallel range queries
+  // and concatenate. This holds 4000 bills; revisit when the table grows
+  // past that.
+  const cols =
+    'id, title, category, current_stage, stage_date, sponsor_name, sponsor_party, sponsor_party_colour, vote_count_yes, vote_count_no, vote_count_abstain, commons_ayes, commons_noes, last_update, bill_withdrawn, is_act';
 
-    if (error) {
-      console.error('Error fetching bills:', error);
+  const batch = (from: number, to: number) =>
+    supabase
+      .from('bill')
+      .select(cols)
+      .order('vote_count_yes', { ascending: false })
+      .range(from, to);
+
+  try {
+    const [b1, b2, b3, b4] = await Promise.all([
+      batch(0, 999),
+      batch(1000, 1999),
+      batch(2000, 2999),
+      batch(3000, 3999),
+    ]);
+
+    const firstError = b1.error || b2.error || b3.error || b4.error;
+    if (firstError) {
+      console.error('Error fetching bills:', firstError);
       return [];
     }
 
-    return (bills || []).map((bill: any) => ({
+    const bills = [
+      ...(b1.data || []),
+      ...(b2.data || []),
+      ...(b3.data || []),
+      ...(b4.data || []),
+    ];
+
+    return bills.map((bill: any) => ({
       ...bill,
       votes: {
         yes: bill.vote_count_yes || 0,
