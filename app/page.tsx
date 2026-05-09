@@ -286,7 +286,7 @@ export default async function HomePage() {
                 <SearchGlyph />
               </Link>
               <Link
-                href="/about#join"
+                href="/signup"
                 style={{
                   background: C.green,
                   color: '#fff',
@@ -317,7 +317,7 @@ export default async function HomePage() {
               ))}
               <Link href="/search">Search</Link>
               <Link
-                href="/about#join"
+                href="/signup"
                 style={{ background: C.green, color: '#fff', textAlign: 'center', marginTop: '0.5rem', borderBottom: 'none' }}
               >
                 Join the Chamber →
@@ -627,7 +627,7 @@ export default async function HomePage() {
                     <p style={{ fontSize: '12px', color: C.inkMuted, margin: '0 0 0.75rem', lineHeight: 1.5 }}>
                       Be part of the public&apos;s response to power.
                     </p>
-                    <Link href="/about#join" style={{ fontSize: '11px', letterSpacing: '0.22em', textTransform: 'uppercase', color: '#fff', fontWeight: 700, textDecoration: 'none', borderBottom: `1px solid ${C.gold}`, paddingBottom: '2px' }}>
+                    <Link href="/signup" style={{ fontSize: '11px', letterSpacing: '0.22em', textTransform: 'uppercase', color: '#fff', fontWeight: 700, textDecoration: 'none', borderBottom: `1px solid ${C.gold}`, paddingBottom: '2px' }}>
                       Sign up →
                     </Link>
                   </div>

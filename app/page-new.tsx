@@ -105,7 +105,7 @@ export default function HomePageNew() {
               <Search size={18} strokeWidth={1.8} />
             </button>
             <a
-              href="/about#join"
+              href="/signup"
               className="bg-[#B02A2A] hover:bg-[#8E2222] text-white px-5 py-2.5 uppercase tracking-[0.18em] text-[11px] font-bold transition-colors"
             >
               Join the Chamber
