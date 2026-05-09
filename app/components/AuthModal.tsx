@@ -75,8 +75,27 @@ export default function AuthModal({ isOpen, onClose, mode: initialMode }: Props)
   };
 
   return (
-    <div className="fixed inset-0 bg-[#1a1a1a]/80 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-[#1a1a1a] rounded-lg p-8 max-w-md w-full mx-4 border border-[#333333]" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 bg-[#1a1a1a]/80 flex items-center justify-center z-50"
+      onMouseDown={(e) => {
+        // Only close when the press *starts* on the overlay itself.
+        // This prevents drag-select inside the modal (mousedown on
+        // input → mouseup outside) from firing a click on the
+        // overlay's common ancestor and closing the modal.
+        const startedOnOverlay = e.target === e.currentTarget
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('[AuthModal] overlay mousedown — startedOnOverlay:', startedOnOverlay, 'target:', (e.target as Element)?.tagName)
+        }
+        if (startedOnOverlay) onClose()
+      }}
+    >
+      <div
+        className="bg-[#1a1a1a] rounded-lg p-8 max-w-md w-full mx-4 border border-[#333333]"
+        onMouseDown={(e) => {
+          // Stop the press from reaching the overlay's onMouseDown.
+          e.stopPropagation()
+        }}
+      >
         <h2 className="text-2xl font-bold text-white mb-6">
           {mode === 'login' ? 'Sign in' : mode === 'signup' ? 'Create your account' : 'Reset password'}
         </h2>
