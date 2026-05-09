@@ -124,7 +124,7 @@ export default function HomePageNew() {
                  this height via CSS grid — see panel below. */}
             <div className="relative min-h-[300px] h-full">
               <Image
-                src="/design-extracts/hero-westminster.png"
+                src="/design-extracts/hero-westminster.webp"
                 alt="The Palace of Westminster"
                 fill
                 priority
@@ -147,7 +147,7 @@ export default function HomePageNew() {
                 {/* Story photo */}
                 <div className="relative aspect-[1672/941] w-full max-w-[360px] mb-4">
                   <Image
-                    src="/design-extracts/hero-mp-expenses.png"
+                    src="/design-extracts/hero-mp-expenses.webp"
                     alt="MP claims £367,659 in expenses"
                     fill
                     className="object-cover"
