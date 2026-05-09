@@ -3,9 +3,8 @@ import { getAllBills } from '@/lib/data';
 import BillsGrid from '../components/BillsGrid';
 import BillsGridMobile from '../components/BillsGridMobile';
 import Navigation from '../components/Navigation';
-import { headers } from 'next/headers';
 
-export const revalidate = 0;
+export const revalidate = 600;
 
 export const metadata: Metadata = {
   title: 'Bills',
@@ -18,9 +17,6 @@ const ACCENT = '#ffffff';
 
 export default async function BillsPage() {
   const bills = await getAllBills();
-  const headersList = await headers();
-  const userAgent = headersList.get('user-agent') || '';
-  const isMobile = /Mobile|Android|iPhone/i.test(userAgent);
 
   return (
     <div className="min-h-screen bg-[#1a1a1a] text-white">
@@ -45,11 +41,12 @@ export default async function BillsPage() {
           </div>
         </header>
 
-        {isMobile ? (
+        <div className="md:hidden">
           <BillsGridMobile initialBills={bills} />
-        ) : (
+        </div>
+        <div className="hidden md:block">
           <BillsGrid initialBills={bills} />
-        )}
+        </div>
       </main>
     </div>
   );

@@ -2,8 +2,6 @@ import type { Metadata } from 'next'
 import Navigation from '../components/Navigation'
 import PollsClient from './PollsClient'
 
-export const revalidate = 0
-
 export const metadata: Metadata = {
   title: 'Public Polls',
   description: 'Live public polls on every UK Parliament bill — see how the public would vote, then compare it to the official Commons tally.',

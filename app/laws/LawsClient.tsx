@@ -6,9 +6,7 @@ import Link from 'next/link'
 type Law = {
   id: number
   title: string
-  description: string
   plain_summary: string | null
-  stage_date: string | null
   last_update: string | null
   sponsor_name: string | null
   sponsor_party: string | null
