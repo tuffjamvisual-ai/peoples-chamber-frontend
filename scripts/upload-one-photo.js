@@ -32,13 +32,14 @@ if (!Number.isFinite(memberId)) {
 }
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-if (!SUPABASE_URL || !ANON_KEY) {
-  console.error('NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY missing in env');
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  console.error('NEXT_PUBLIC_SUPABASE_URL missing, or both SUPABASE_SERVICE_ROLE_KEY and NEXT_PUBLIC_SUPABASE_ANON_KEY missing in env');
   process.exit(1);
 }
+const usingServiceRole = !!process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-const s = createClient(SUPABASE_URL, ANON_KEY, { realtime: { transport: ws } });
+const s = createClient(SUPABASE_URL, SUPABASE_KEY, { realtime: { transport: ws } });
 
 async function readBytes() {
   if (fileArg) {
@@ -74,11 +75,17 @@ async function main() {
   }
 
   const { data: { publicUrl } } = s.storage.from('photos').getPublicUrl(storagePath);
+  // Append a unix-timestamp query string so Vercel's image optimiser sees
+  // a new URL and re-fetches the bytes from Supabase Storage. Without
+  // this, images.minimumCacheTTL (1 year) holds the old image at the
+  // edge after we replace bytes at the same path.
+  const versionedUrl = `${publicUrl}?v=${Math.floor(Date.now() / 1000)}`;
   console.log(`Public URL: ${publicUrl}`);
+  console.log(`Versioned URL (will be written to DB): ${versionedUrl}`);
 
   const { data: updated, error: dbErr } = await s
     .from(targetTable)
-    .update({ photo_url: publicUrl })
+    .update({ photo_url: versionedUrl })
     .eq('member_id', memberId)
     .select('member_id, name, photo_url');
   if (dbErr) {
@@ -86,7 +93,12 @@ async function main() {
     process.exit(1);
   }
   if (!updated || updated.length === 0) {
-    console.error(`No ${targetTable} row updated for member_id=${memberId} — likely RLS denial (silent) or the row does not exist.`);
+    console.error(
+      `No ${targetTable} row updated for member_id=${memberId}. ` +
+      (usingServiceRole
+        ? 'Row probably does not exist for that member_id.'
+        : 'Likely RLS denial (anon key cannot write to this table). Set SUPABASE_SERVICE_ROLE_KEY in env and re-run.')
+    );
     process.exit(1);
   }
   console.log('DB row after update:', updated[0]);
