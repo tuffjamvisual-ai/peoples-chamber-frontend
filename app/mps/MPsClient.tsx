@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 type MP = {
   id: number
@@ -116,9 +117,12 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
                         className="group flex items-start gap-3 bg-[#222222] hover:bg-[#1a1a1a] transition-colors p-4 border-l-2 border-transparent hover:border-l-[#ffffff]"
                       >
                         {mp.photo_url ? (
-                          <img
+                          <Image
                             src={mp.photo_url}
                             alt={mp.name}
+                            width={48}
+                            height={48}
+                            loading="lazy"
                             className="w-12 h-12 rounded-full object-cover bg-[#1a1a1a] flex-shrink-0"
                             style={{ border: `1px solid ${partyColour}` }}
                           />

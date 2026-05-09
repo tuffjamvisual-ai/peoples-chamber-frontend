@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import Image from 'next/image'
 import Navigation from '../../components/Navigation'
 import { notFound } from 'next/navigation'
 import MPProfileClient from './MPProfileClient'
@@ -160,9 +161,12 @@ export default async function MPProfilePage({ params }: PageProps) {
           <div className="relative p-6 flex items-center gap-6">
             <div className="relative flex-shrink-0">
               {mp.photo_url ? (
-                <img
+                <Image
                   src={mp.photo_url}
                   alt={mp.name}
+                  width={134}
+                  height={134}
+                  priority
                   className="w-[134px] h-[134px] rounded-full object-cover"
                   style={{ border: `3px solid ${partyColour}` }}
                 />

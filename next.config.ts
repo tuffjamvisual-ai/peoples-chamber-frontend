@@ -4,7 +4,12 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'nwnsvnbudmfkhhwcjwwr.supabase.co' },
     ],
+    // Override the source's Cache-Control so Vercel holds the optimised
+    // image at the edge for a year. Supabase Storage returns no-cache,
+    // which would otherwise force re-fetch every minute.
+    minimumCacheTTL: 31536000,
   },
   async headers() {
     return [
