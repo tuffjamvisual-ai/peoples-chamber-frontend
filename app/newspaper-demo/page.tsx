@@ -321,8 +321,10 @@ export default function NewspaperDemo() {
           style={{
             maxWidth: '1280px',
             margin: '0 auto',
-            background: BG,
+            background: '#242424',
             border: '1px solid rgba(255,255,255,0.06)',
+            borderRadius: '0.75rem',
+            overflow: 'hidden',
             boxShadow: '0 25px 80px -10px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.04)',
           }}
         >
