@@ -100,12 +100,12 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
                       <img
                         src={r.photo_url}
                         alt={r.name}
-                        className="w-9 h-9 rounded-full object-cover flex-shrink-0"
+                        className="w-12 h-12 rounded-full object-cover flex-shrink-0"
                         style={{ border: `1px solid ${partyColour}` }}
                       />
                     ) : (
                       <div
-                        className="w-9 h-9 rounded-full flex items-center justify-center text-[12px] font-bold text-white flex-shrink-0"
+                        className="w-12 h-12 rounded-full flex items-center justify-center text-[12px] font-bold text-white flex-shrink-0"
                         style={{ border: `1px solid ${partyColour}`, background: partyColour + '33' }}
                       >
                         {r.name.charAt(0)}

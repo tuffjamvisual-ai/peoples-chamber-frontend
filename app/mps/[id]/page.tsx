@@ -164,14 +164,14 @@ export default async function MPProfilePage({ params }: PageProps) {
                 <Image
                   src={mp.photo_url}
                   alt={mp.name}
-                  width={134}
-                  height={134}
+                  width={176}
+                  height={176}
                   priority
-                  className="w-[134px] h-[134px] rounded-full object-cover"
+                  className="w-44 h-44 rounded-full object-cover"
                   style={{ border: `3px solid ${partyColour}` }}
                 />
               ) : (
-                <div className="w-[134px] h-[134px] rounded-full flex items-center justify-center text-4xl font-bold text-white" style={{ border: `3px solid ${partyColour}`, background: partyColour + '33' }}>
+                <div className="w-44 h-44 rounded-full flex items-center justify-center text-4xl font-bold text-white" style={{ border: `3px solid ${partyColour}`, background: partyColour + '33' }}>
                   {mp.name?.charAt(0)}
                 </div>
               )}

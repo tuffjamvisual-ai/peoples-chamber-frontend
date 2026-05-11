@@ -63,12 +63,12 @@ export default async function DepartmentsPage() {
                   <img
                     src={photo}
                     alt={dept.minister}
-                    className="w-6 h-6 rounded-full object-cover bg-[#1a1a1a]"
+                    className="w-8 h-8 rounded-full object-cover bg-[#1a1a1a]"
                     style={{ border: `1px solid ${ACCENT}55` }}
                   />
                 ) : (
                   <div
-                    className="w-6 h-6 rounded-full bg-[#1a1a1a] flex items-center justify-center text-[13px] text-white"
+                    className="w-8 h-8 rounded-full bg-[#1a1a1a] flex items-center justify-center text-[13px] text-white"
                     style={{ border: `1px solid ${ACCENT}55` }}
                   >
                     {dept.minister.charAt(0)}

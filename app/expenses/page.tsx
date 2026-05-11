@@ -137,12 +137,12 @@ function Row({ rank, row, mp }: { rank: number; row: ExpenseRow; mp: MpRow }) {
             <img
               src={mp.photo_url}
               alt={name}
-              className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover"
+              className="w-[72px] h-[72px] sm:w-20 sm:h-20 rounded-full object-cover"
               style={{ border: `2px solid ${partyColour}` }}
             />
           ) : (
             <div
-              className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-xl font-bold text-white"
+              className="w-[72px] h-[72px] sm:w-20 sm:h-20 rounded-full flex items-center justify-center text-xl font-bold text-white"
               style={{ border: `2px solid ${partyColour}`, background: partyColour + '33' }}
             >
               {name.charAt(0)}

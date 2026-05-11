@@ -142,9 +142,9 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
             <div className="flex items-center gap-4">
               {bill.sponsor_photo ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={bill.sponsor_photo} alt={bill.sponsor_name} className="w-12 h-12 rounded-full bg-[#1a1a1a]" style={{ border: `1px solid ${ACCENT}` }} />
+                <img src={bill.sponsor_photo} alt={bill.sponsor_name} className="w-16 h-16 rounded-full bg-[#1a1a1a]" style={{ border: `1px solid ${ACCENT}` }} />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-[#1a1a1a] flex items-center justify-center text-[13px] uppercase tracking-wider text-white" style={{ border: `1px solid ${ACCENT}` }}>
+                <div className="w-16 h-16 rounded-full bg-[#1a1a1a] flex items-center justify-center text-[13px] uppercase tracking-wider text-white" style={{ border: `1px solid ${ACCENT}` }}>
                   {bill.sponsor_name.split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
                 </div>
               )}

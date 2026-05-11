@@ -128,15 +128,15 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
                           <Image
                             src={mp.photo_url}
                             alt={mp.name}
-                            width={48}
-                            height={48}
+                            width={64}
+                            height={64}
                             loading="lazy"
-                            className="w-12 h-12 rounded-full object-cover bg-[#1a1a1a] flex-shrink-0"
+                            className="w-16 h-16 rounded-full object-cover bg-[#1a1a1a] flex-shrink-0"
                             style={{ border: `1px solid ${partyColour}` }}
                           />
                         ) : (
                           <div
-                            className="w-12 h-12 rounded-full bg-[#1a1a1a] flex items-center justify-center text-white text-[13px] uppercase tracking-wider flex-shrink-0"
+                            className="w-16 h-16 rounded-full bg-[#1a1a1a] flex items-center justify-center text-white text-[13px] uppercase tracking-wider flex-shrink-0"
                             style={{ border: `1px solid ${partyColour}` }}
                           >
                             {mp.name?.charAt(0)}
