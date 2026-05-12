@@ -27,7 +27,7 @@ export default function HomePage() {
         <Link href="/mps"          className="hot n-mps"   aria-label="MPs" />
         <Link href="/departments"  className="hot n-depts" aria-label="Departments" />
         <Link href="/signup"       className="hot n-login" aria-label="Login" />
-        <Link href="/support"      className="hot n-about" aria-label="About" />
+        <Link href="/about"        className="hot n-about" aria-label="About" />
 
         {/* Hero */}
         <Link href="/bills"        className="hot hero-headline" aria-label="Power isn't hidden. It's published." />
