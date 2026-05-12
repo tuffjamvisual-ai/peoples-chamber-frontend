@@ -19,20 +19,21 @@
   --font-body:      Georgia, 'Times New Roman', serif;
 }
 
-/* Magazine chrome — opt-in via MagazineNav / MagazineFooter */
+/* Magazine chrome — opt-in via MagazineNav / MagazineFooter.
+   No own background — meant to nest inside a single cream-paper column. */
 
 .mag-chrome-stage {
   width: 100%;
-  background: var(--mag-oxblood);
+  background: transparent;
   padding: 0;
-  display: grid;
-  place-items: center;
+  display: block;
 }
 
 .mag-chrome-wrap {
   position: relative;
   width: 100%;
   max-width: 1024px;
+  margin: 0 auto;
 }
 
 .mag-chrome-wrap img {

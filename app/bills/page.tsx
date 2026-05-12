@@ -18,27 +18,29 @@ export default async function BillsPage() {
   const bills = await getAllBills();
 
   return (
-    <main style={{ background: '#7a1612', minHeight: '100vh' }}>
-      <MagazineNav />
-
+    <main style={{ background: '#7a1612', minHeight: '100vh', padding: '24px 16px' }}>
       <div
         style={{
           width: '100%',
           maxWidth: '1024px',
           margin: '0 auto',
-          background: '#f4e8d4',
-          padding: '32px 28px 48px',
+          background: '#f5e7cd',
+          boxShadow: '0 30px 70px rgba(0, 0, 0, 0.45)',
         }}
       >
-        <div className="md:hidden">
-          <BillsGridMobile initialBills={bills} />
-        </div>
-        <div className="hidden md:block">
-          <BillsGrid initialBills={bills} />
-        </div>
-      </div>
+        <MagazineNav />
 
-      <MagazineFooter />
+        <div style={{ padding: '24px 28px 40px' }}>
+          <div className="md:hidden">
+            <BillsGridMobile initialBills={bills} />
+          </div>
+          <div className="hidden md:block">
+            <BillsGrid initialBills={bills} />
+          </div>
+        </div>
+
+        <MagazineFooter />
+      </div>
     </main>
   );
 }
