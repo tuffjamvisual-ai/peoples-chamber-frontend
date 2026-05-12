@@ -55,21 +55,21 @@ body {
 /* Page-specific body slot */
 .pix-body { position: relative; width: 100%; }
 
-/* ───── Header hotspots (% of cropped header 1055 × 340) ───── */
-.hot.h-issue    { top: 2%;   left: 1%;  width: 16%; height: 10%; }
-.hot.h-truth    { top: 4%;   left: 72%; width: 24%; height: 22%; }
-.hot.h-masthead { top: 14%;  left: 6%;  width: 65%; height: 50%; }
-.hot.h-bubble   { top: 26%;  left: 73%; width: 25%; height: 28%; }
+/* ───── Header hotspots (% of cropped header 1055 × 315) ───── */
+.hot.h-issue    { top: 2%;   left: 1%;  width: 16%; height: 9%; }
+.hot.h-truth    { top: 2%;   left: 72%; width: 24%; height: 28%; }
+.hot.h-masthead { top: 13%;  left: 5%;  width: 65%; height: 57%; }
+.hot.h-bubble   { top: 27%;  left: 73%; width: 25%; height: 31%; }
 
-/* Nav strip — all on the same Y band at the bottom of the header crop */
-.hot.h-n-cover  { top: 80%; left: 4%;  width: 11%; height: 12%; }
-.hot.h-n-street { top: 80%; left: 16%; width: 11%; height: 12%; }
-.hot.h-n-bills  { top: 80%; left: 28%; width: 13%; height: 12%; }
-.hot.h-n-money  { top: 80%; left: 42%; width: 14%; height: 12%; }
-.hot.h-n-who    { top: 80%; left: 57%; width: 10%; height: 12%; }
-.hot.h-n-pulse  { top: 80%; left: 67%; width: 17%; height: 12%; }
-.hot.h-n-search { top: 80%; left: 86%; width: 4%;  height: 12%; }
-.hot.h-n-about  { top: 80%; left: 91%; width: 6%;  height: 12%; }
+/* Nav strip — bottom band of the header crop */
+.hot.h-n-cover  { top: 81%; left: 4%;  width: 11%; height: 9%; }
+.hot.h-n-street { top: 81%; left: 16%; width: 11%; height: 9%; }
+.hot.h-n-bills  { top: 81%; left: 28%; width: 13%; height: 9%; }
+.hot.h-n-money  { top: 81%; left: 42%; width: 14%; height: 9%; }
+.hot.h-n-who    { top: 81%; left: 57%; width: 10%; height: 9%; }
+.hot.h-n-pulse  { top: 81%; left: 67%; width: 17%; height: 9%; }
+.hot.h-n-search { top: 81%; left: 86%; width: 4%;  height: 9%; }
+.hot.h-n-about  { top: 81%; left: 91%; width: 6%;  height: 9%; }
 
 /* ───── Footer hotspots (% of cropped footer 1055 × 60) ───── */
 .hot.f-brand   { top: 10%; left: 1%;  width: 17%; height: 80%; }
@@ -101,44 +101,44 @@ body {
   outline-offset: -2px;
 }
 
-/* All values are % of cropped middle image (1055 × 1151).
+/* All values are % of cropped middle image (1055 × 1156).
    Converted from full-image positions, where full pixel y = full% × 14.91
-   and middle% = (full_px - 340) / 1151 × 100. */
+   and middle% = (full_px - 315) / 1156 × 100. */
 
 /* Hero */
-.hot.hero-headline { top: 3%;   left: 3%;  width: 38%; height: 18%; }
-.hot.b-explore     { top: 19%;  left: 4%;  width: 17%; height: 4%; }
-.hot.b-money       { top: 19%;  left: 24%; width: 17%; height: 4%; }
-.hot.bubble-money  { top: 1%;   left: 46%; width: 14%; height: 6%; }
-.hot.bubble-right  { top: 10%;  left: 78%; width: 19%; height: 8%; }
+.hot.hero-headline { top: 6%;   left: 3%;  width: 38%; height: 18%; }
+.hot.b-explore     { top: 21%;  left: 4%;  width: 17%; height: 4%; }
+.hot.b-money       { top: 21%;  left: 24%; width: 17%; height: 4%; }
+.hot.bubble-money  { top: 2%;   left: 46%; width: 14%; height: 5%; }
+.hot.bubble-right  { top: 12%;  left: 78%; width: 19%; height: 7%; }
 
 /* Cover Story */
-.hot.c-cover-card { top: 31%; left: 1.5%; width: 30%; height: 23%; }
-.hot.c-cover-cta  { top: 53%; left: 4%;   width: 16%; height: 4%; }
+.hot.c-cover-card { top: 32%; left: 1.5%; width: 30%; height: 22%; }
+.hot.c-cover-cta  { top: 53%; left: 4%;   width: 16%; height: 3.5%; }
 
 /* Street View */
-.hot.c-street { top: 31%; left: 33.5%; width: 32%; height: 23%; }
+.hot.c-street { top: 32%; left: 33.5%; width: 32%; height: 22%; }
 
 /* Bills to Watch */
-.hot.c-bills-card { top: 31%; left: 67%; width: 30%; height: 23%; }
-.hot.bills-row-1  { top: 36%; left: 68%; width: 28%; height: 3.5%; }
-.hot.bills-row-2  { top: 39.5%; left: 68%; width: 28%; height: 3.5%; }
-.hot.bills-row-3  { top: 43%; left: 68%; width: 28%; height: 3.5%; }
-.hot.bills-row-4  { top: 46.5%; left: 68%; width: 28%; height: 3.5%; }
-.hot.bills-row-5  { top: 50%; left: 68%; width: 28%; height: 3.5%; }
-.hot.bills-all    { top: 54%; left: 84%; width: 12%; height: 3.5%; }
+.hot.c-bills-card { top: 32%; left: 67%;  width: 30%; height: 22%; }
+.hot.bills-row-1  { top: 36.5%; left: 68%; width: 28%; height: 3%; }
+.hot.bills-row-2  { top: 39.5%; left: 68%; width: 28%; height: 3%; }
+.hot.bills-row-3  { top: 42.5%; left: 68%; width: 28%; height: 3%; }
+.hot.bills-row-4  { top: 45.5%; left: 68%; width: 28%; height: 3%; }
+.hot.bills-row-5  { top: 48.5%; left: 68%; width: 28%; height: 3%; }
+.hot.bills-all    { top: 53.5%; left: 84%; width: 12%; height: 3%; }
 
 /* Follow the Money pie */
-.hot.c-money-card { top: 60%; left: 1.5%; width: 31%; height: 25%; }
+.hot.c-money-card { top: 60%; left: 1.5%; width: 31%; height: 24%; }
 
 /* Who's Who */
-.hot.c-who-card { top: 60%; left: 33.5%; width: 38%; height: 25%; }
-.hot.who-more   { top: 80%; left: 65%; width: 12%; height: 3.5%; }
+.hot.c-who-card { top: 60%; left: 33.5%; width: 38%; height: 24%; }
+.hot.who-more   { top: 80%; left: 65%; width: 12%; height: 3%; }
 
 /* Poll callout */
-.hot.c-poll     { top: 60%; left: 74%; width: 23%; height: 18%; }
-.hot.c-takepart { top: 86%; left: 80%; width: 17%; height: 10%; }
+.hot.c-poll     { top: 60%; left: 74%; width: 23%; height: 17%; }
+.hot.c-takepart { top: 85%; left: 80%; width: 17%; height: 9%; }
 
 /* 72% stat strip */
-.hot.stat-72   { top: 84%; left: 3%;  width: 50%; height: 9%; }
-.hot.stat-said { top: 86%; left: 54%; width: 24%; height: 6%; }
+.hot.stat-72   { top: 83%; left: 3%;  width: 50%; height: 8%; }
+.hot.stat-said { top: 85%; left: 54%; width: 24%; height: 5%; }
