@@ -29,7 +29,7 @@ export default function PreviewEightLayout({ children }: { children: ReactNode }
           <Link href="/polls"        className="hot h-n-street" aria-label="Street View" />
           <Link href="/bills"        className="hot h-n-bills"  aria-label="Bills to Watch" />
           <Link href="/transparency" className="hot h-n-money"  aria-label="Follow the Money" />
-          <Link href="/mps"          className="hot h-n-who"    aria-label="Who's Who" />
+          <Link href="/mps"          className="hot h-n-who"    aria-label="MPs">MP&apos;s</Link>
           <Link href="/polls"        className="hot h-n-pulse"  aria-label="The People's Pulse" />
           <Link href="/search"       className="hot h-n-search" aria-label="Search" />
           <Link href="/support"      className="hot h-n-about"  aria-label="About" />
