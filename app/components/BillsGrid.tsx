@@ -188,7 +188,7 @@ export default function BillsGrid({ initialBills }: Props) {
         <div className="flex items-center justify-center gap-2">
           <button onClick={() => setCurrentPage(1)} disabled={currentPage === 1} className="px-3 py-1.5 bg-[#222222] text-[#c9c9c9] rounded text-sm hover:bg-[#222222] disabled:opacity-30">First</button>
           <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="px-3 py-1.5 bg-[#222222] text-[#c9c9c9] rounded text-sm hover:bg-[#222222] disabled:opacity-30">Previous</button>
-          <div className="px-4 py-1.5 bg-[#ffffff] text-white rounded text-sm font-medium">{currentPage} / {totalPages}</div>
+          <div className="px-4 py-1.5 bg-[#0a0a0a] text-white rounded text-sm font-medium border border-[#333333]">{currentPage} / {totalPages}</div>
           <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="px-3 py-1.5 bg-[#222222] text-[#c9c9c9] rounded text-sm hover:bg-[#222222] disabled:opacity-30">Next</button>
           <button onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} className="px-3 py-1.5 bg-[#222222] text-[#c9c9c9] rounded text-sm hover:bg-[#222222] disabled:opacity-30">Last</button>
         </div>
