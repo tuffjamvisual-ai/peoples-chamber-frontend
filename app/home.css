@@ -52,14 +52,14 @@ body {
 .hot.h-bubble { top: 8%; left: 73%; width: 23%; height: 7%; }
 
 /* ───── Nav strip ───── */
-.hot.n-home   { top: 16%; left: 5%;  width: 6%;  height: 3%; }
-.hot.n-bills  { top: 16%; left: 12%; width: 7%;  height: 3%; }
-.hot.n-laws   { top: 16%; left: 20%; width: 7%;  height: 3%; }
-.hot.n-polls  { top: 16%; left: 28%; width: 13%; height: 3%; }
-.hot.n-mps    { top: 16%; left: 41%; width: 7%;  height: 3%; }
-.hot.n-depts  { top: 16%; left: 49%; width: 13%; height: 3%; }
-.hot.n-login  { top: 16%; left: 69%; width: 9%;  height: 3%; }
-.hot.n-about  { top: 16%; left: 83%; width: 9%;  height: 3%; }
+.hot.n-home   { top: 19%; left: 5%;  width: 7%;  height: 3%; z-index: 5; }
+.hot.n-bills  { top: 19%; left: 12%; width: 7%;  height: 3%; z-index: 5; }
+.hot.n-laws   { top: 19%; left: 20%; width: 7%;  height: 3%; z-index: 5; }
+.hot.n-polls  { top: 19%; left: 28%; width: 13%; height: 3%; z-index: 5; }
+.hot.n-mps    { top: 19%; left: 42%; width: 7%;  height: 3%; z-index: 5; }
+.hot.n-depts  { top: 19%; left: 50%; width: 13%; height: 3%; z-index: 5; }
+.hot.n-login  { top: 19%; left: 69%; width: 9%;  height: 3%; z-index: 5; }
+.hot.n-about  { top: 19%; left: 83%; width: 9%;  height: 3%; z-index: 5; }
 
 /* ───── Hero ───── */
 .hot.hero-headline { top: 21%; left: 3%; width: 40%; height: 10%; }
