@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import './bills-template.css';
+import '../preview-8/preview-8.css';
 
-export const revalidate = 600;
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: 'Bills',
@@ -36,8 +37,46 @@ export default function BillsPage() {
           <Link href="/support"      className="hot h-n-about"  aria-label="About" />
         </div>
 
-        {/* ────── Body (empty — to be populated) ────── */}
-        <div className="bt-body" />
+        {/* ────── Body: landing-page middle content ────── */}
+        <div className="bt-body">
+          <div className="pix-mid">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/landing-v2-middle.png"
+              alt="The People's Chamber — body"
+            />
+
+            <Link href="/bills"        className="hot hero-headline" aria-label="Power isn't hidden. It's published." />
+            <Link href="/bills"        className="hot b-explore"     aria-label="Explore Parliament" />
+            <Link href="/transparency" className="hot b-money"       aria-label="Follow the Money" />
+            <Link href="/transparency" className="hot bubble-money"  aria-label="Where's our money?" />
+            <Link href="/about"        className="hot bubble-right"  aria-label="Accountability isn't a favour, it's a right" />
+
+            <Link href="/bills"        className="hot c-cover-card"  aria-label="The Bill of Their Lives" />
+            <Link href="/bills"        className="hot c-cover-cta"   aria-label="Read the story" />
+
+            <Link href="/polls"        className="hot c-street"      aria-label="Street View — public voices" />
+
+            <Link href="/bills"        className="hot c-bills-card"  aria-label="Bills to watch" />
+            <Link href="/bills"        className="hot bills-row-1"   aria-label="Bill row 1" />
+            <Link href="/bills"        className="hot bills-row-2"   aria-label="Bill row 2" />
+            <Link href="/bills"        className="hot bills-row-3"   aria-label="Bill row 3" />
+            <Link href="/bills"        className="hot bills-row-4"   aria-label="Bill row 4" />
+            <Link href="/bills"        className="hot bills-row-5"   aria-label="Bill row 5" />
+            <Link href="/bills"        className="hot bills-all"     aria-label="See all bills" />
+
+            <Link href="/transparency" className="hot c-money-card"  aria-label="Where your tax really goes" />
+
+            <Link href="/mps"          className="hot c-who-card"    aria-label="MPs" />
+            <Link href="/mps"          className="hot who-more"      aria-label="More faces, more records" />
+
+            <Link href="/polls"        className="hot c-poll"        aria-label="Public poll callout" />
+            <Link href="/polls"        className="hot c-takepart"    aria-label="Take part in our weekly poll" />
+
+            <Link href="/polls"        className="hot stat-72"       aria-label="72% of people think the government doesn't listen" />
+            <Link href="/polls"        className="hot stat-said"     aria-label="You said it, we're publishing it" />
+          </div>
+        </div>
 
         {/* ────── Template FOOTER ────── */}
         <div className="bt-footer">
