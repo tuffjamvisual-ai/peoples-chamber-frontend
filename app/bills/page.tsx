@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { getAllBills } from '@/lib/data';
-import BillsGrid from '../components/BillsGrid';
-import BillsGridMobile from '../components/BillsGridMobile';
 import MagazineNav from '../components/MagazineNav';
 import MagazineFooter from '../components/MagazineFooter';
+import './bills-magazine.css';
 
 export const revalidate = 600;
+const PAGE_SIZE = 20;
 
 export const metadata: Metadata = {
   title: 'Bills',
@@ -14,54 +15,127 @@ export const metadata: Metadata = {
   alternates: { canonical: '/bills' },
 };
 
-const ACCENT = '#ffffff';
+export default async function BillsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const { page: pageRaw } = await searchParams;
+  const page = Math.max(1, parseInt(pageRaw || '1', 10) || 1);
 
-export default async function BillsPage() {
   const bills = await getAllBills();
+  const acts = bills.filter((b) => b.is_act).length;
+  const totalVotes = bills.reduce(
+    (s, b) => s + (b.vote_count_yes || 0) + (b.vote_count_no || 0) + (b.vote_count_abstain || 0),
+    0,
+  );
+
+  const totalPages = Math.max(1, Math.ceil(bills.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const start = (safePage - 1) * PAGE_SIZE;
+  const pageBills = bills.slice(start, start + PAGE_SIZE);
 
   return (
-    <div className="min-h-screen bg-[#606060] text-white">
+    <main className="mag-bills-stage">
       <MagazineNav />
 
-      <main className="bg-[#505050] shadow-[0_0_40px_rgba(0,0,0,0.4)] max-w-[1200px] mx-auto px-4 sm:px-6 py-10 sm:py-16">
-        <header className="border-b border-[#5a5a5a] pb-10 mb-10">
-          <p className="text-[13px] uppercase tracking-[0.3em] font-medium mb-4" style={{ color: ACCENT }}>
-            The People&apos;s Chamber · Bills
-          </p>
-          <h1 className="text-4xl sm:text-6xl font-black leading-[1.05] tracking-tight text-white mb-4">
-            Bills in Parliament
-          </h1>
-          <p className="text-white text-[14px] leading-[1.7] max-w-2xl">
-            Every bill going through UK Parliament. How MPs voted. How you voted. The gap between the two.
-          </p>
+      <div className="mag-bills-body">
+        <header className="mag-bills-header">
+          <div>
+            <span className="kicker">Bills · Issue 23</span>
+            <h1>
+              Every bill. <em>Every vote.</em>
+            </h1>
+            <p className="lede">
+              Every bill going through UK Parliament. How MPs voted, how you
+              voted, and the gap between the two. Updated daily from official
+              Parliament feeds.
+            </p>
+          </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-px border border-[#5a5a5a] mt-10">
-            <Stat label="Bills tracked" value={bills.length} />
-            <Stat label="Acts" value={bills.filter((b: any) => b.is_act).length} />
-            <Stat label="Refresh" value="Daily" accent />
+          <div className="mag-bills-stats">
+            <div>
+              <strong>{bills.length.toLocaleString()}</strong>
+              <span>Bills tracked</span>
+            </div>
+            <div>
+              <strong>{acts.toLocaleString()}</strong>
+              <span>Acts passed</span>
+            </div>
+            <div>
+              <strong>{totalVotes.toLocaleString()}</strong>
+              <span>Public votes</span>
+            </div>
           </div>
         </header>
 
-        <div className="md:hidden">
-          <BillsGridMobile initialBills={bills} />
-        </div>
-        <div className="hidden md:block">
-          <BillsGrid initialBills={bills} />
-        </div>
-      </main>
+        <section className="mag-bills-grid">
+          {pageBills.map((bill) => {
+            const yes = bill.vote_count_yes || 0;
+            const no = bill.vote_count_no || 0;
+            const abs = bill.vote_count_abstain || 0;
+            const total = yes + no + abs;
+            const yesPct = total > 0 ? Math.round((yes / total) * 100) : 0;
+            const noPct = total > 0 ? Math.round((no / total) * 100) : 0;
+            const absPct = total > 0 ? Math.max(0, 100 - yesPct - noPct) : 0;
+
+            return (
+              <Link key={bill.id} href={`/bills/${bill.id}`} className="mag-bill">
+                <span className="tab">
+                  {bill.is_act ? 'Act' : bill.bill_withdrawn ? 'Withdrawn' : 'Bill File'}
+                </span>
+                {bill.current_stage && <span className="stage">{bill.current_stage}</span>}
+                <h3>{bill.title}</h3>
+
+                <div className="tally-bar">
+                  {yesPct > 0 && <span className="yes" style={{ width: `${yesPct}%` }} />}
+                  {noPct > 0 && <span className="no" style={{ width: `${noPct}%` }} />}
+                  {absPct > 0 && <span className="abs" style={{ width: `${absPct}%` }} />}
+                </div>
+                <div className="tally-nums">
+                  <span>✓ {yesPct}%</span>
+                  <span>{total.toLocaleString()} votes</span>
+                  <span>✗ {noPct}%</span>
+                </div>
+              </Link>
+            );
+          })}
+        </section>
+
+        <Pagination page={safePage} totalPages={totalPages} />
+      </div>
 
       <MagazineFooter />
-    </div>
+    </main>
   );
 }
 
-function Stat({ label, value, accent = false }: { label: string; value: number | string; accent?: boolean }) {
+function Pagination({ page, totalPages }: { page: number; totalPages: number }) {
+  if (totalPages <= 1) return null;
+  const pageHref = (p: number) => (p === 1 ? '/bills' : `/bills?page=${p}`);
+
+  const pages: (number | 'gap')[] = [];
+  for (let p = 1; p <= totalPages; p++) {
+    if (p === 1 || p === totalPages || (p >= page - 2 && p <= page + 2)) {
+      pages.push(p);
+    } else if (pages[pages.length - 1] !== 'gap') {
+      pages.push('gap');
+    }
+  }
+
   return (
-    <div className="px-4 py-5">
-      <p className="text-[13px] uppercase tracking-[0.25em] text-white font-medium mb-2">{label}</p>
-      <p className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#ffffff]' : 'text-white'}`}>
-        {typeof value === 'number' ? value.toLocaleString() : value}
-      </p>
-    </div>
+    <nav className="mag-pagination" aria-label="Bills pagination">
+      {page > 1 && <Link href={pageHref(page - 1)}>← Prev</Link>}
+      {pages.map((p, i) =>
+        p === 'gap' ? (
+          <span key={`g${i}`} className="gap">…</span>
+        ) : p === page ? (
+          <span key={p} className="current" aria-current="page">{p}</span>
+        ) : (
+          <Link key={p} href={pageHref(p)}>{p}</Link>
+        ),
+      )}
+      {page < totalPages && <Link href={pageHref(page + 1)}>Next →</Link>}
+    </nav>
   );
 }

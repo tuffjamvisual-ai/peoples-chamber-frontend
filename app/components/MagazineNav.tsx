@@ -6,11 +6,11 @@ export default function MagazineNav() {
     <div className="mag-chrome-stage">
       <div className="mag-chrome-wrap">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/home-header.png" alt="The People's Chamber — masthead" />
+        <img src="/empty-template-header.png" alt="The People's Chamber — masthead" />
 
         <Link href="/about" className="hot mag-h-issue" aria-label="Issue 23" />
         <Link href="/about" className="hot mag-h-truth" aria-label="No spin, no paywall, just the truth" />
-        <Link href="/"       className="hot mag-h-masthead" aria-label="The People's Chamber — home" />
+        <Link href="/"      className="hot mag-h-masthead" aria-label="The People's Chamber — home" />
         <Link href="/about" className="hot mag-h-bubble" aria-label="Democracy works better when people watch" />
 
         <Link href="/"             className="hot mag-n-home"  aria-label="Home" />
