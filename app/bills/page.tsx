@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { getAllBills } from '@/lib/data';
 import BillsGrid from '../components/BillsGrid';
 import BillsGridMobile from '../components/BillsGridMobile';
-import MagazineNav from '../components/MagazineNav';
-import MagazineFooter from '../components/MagazineFooter';
+import './bills-template.css';
 
 export const revalidate = 600;
 
@@ -18,19 +18,24 @@ export default async function BillsPage() {
   const bills = await getAllBills();
 
   return (
-    <main style={{ background: '#7a1612', minHeight: '100vh', padding: '24px 16px' }}>
-      <div
-        style={{
-          width: '100%',
-          maxWidth: '1024px',
-          margin: '0 auto',
-          background: '#f5e7cd',
-          boxShadow: '0 30px 70px rgba(0, 0, 0, 0.45)',
-        }}
-      >
-        <MagazineNav />
+    <main className="bills-template-page">
+      <div className="bills-template-frame">
+        {/* Header image (top of empty.png) */}
+        <div className="bt-header">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/empty-template-header.png" alt="The People's Chamber — masthead" />
+          <Link href="/"             aria-label="Home"            className="bt-hot bt-n-home" />
+          <Link href="/bills"        aria-label="Bills"           className="bt-hot bt-n-bills" />
+          <Link href="/laws"         aria-label="Laws"            className="bt-hot bt-n-laws" />
+          <Link href="/polls"        aria-label="People's Polls"  className="bt-hot bt-n-polls" />
+          <Link href="/mps"          aria-label="MPs"             className="bt-hot bt-n-mps" />
+          <Link href="/departments"  aria-label="Departments"     className="bt-hot bt-n-depts" />
+          <Link href="/signup"       aria-label="Login"           className="bt-hot bt-n-login" />
+          <Link href="/about"        aria-label="About"           className="bt-hot bt-n-about" />
+        </div>
 
-        <div style={{ padding: '24px 28px 40px' }}>
+        {/* Bills content flows on the same cream sheet, between header and footer */}
+        <div className="bt-content">
           <div className="md:hidden">
             <BillsGridMobile initialBills={bills} />
           </div>
@@ -39,7 +44,16 @@ export default async function BillsPage() {
           </div>
         </div>
 
-        <MagazineFooter />
+        {/* Footer image (bottom of empty.png) */}
+        <div className="bt-footer">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/empty-template-footer.png" alt="The People's Chamber — footer" />
+          <Link href="/"         aria-label="The People's Chamber" className="bt-hot bt-f-brand" />
+          <Link href="/bills"    aria-label="Bills"                className="bt-hot bt-f-col1" />
+          <Link href="/expenses" aria-label="Expenses"             className="bt-hot bt-f-col2" />
+          <Link href="/about"    aria-label="About"                className="bt-hot bt-f-col3" />
+          <Link href="/support"  aria-label="Contact"              className="bt-hot bt-f-col4" />
+        </div>
       </div>
     </main>
   );
