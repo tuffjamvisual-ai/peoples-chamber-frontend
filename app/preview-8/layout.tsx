@@ -25,8 +25,8 @@ export default function PreviewEightLayout({ children }: { children: ReactNode }
           <Link href="/about" className="hot h-bubble" aria-label="Democracy works better when people watch" />
 
           {/* Nav strip */}
-          <Link href="/news"         className="hot h-n-cover"  aria-label="Cover Story" />
-          <Link href="/news"         className="hot h-n-street" aria-label="Street View" />
+          <Link href="/bills"        className="hot h-n-cover"  aria-label="Cover Story" />
+          <Link href="/polls"        className="hot h-n-street" aria-label="Street View" />
           <Link href="/bills"        className="hot h-n-bills"  aria-label="Bills to Watch" />
           <Link href="/transparency" className="hot h-n-money"  aria-label="Follow the Money" />
           <Link href="/mps"          className="hot h-n-who"    aria-label="Who's Who" />

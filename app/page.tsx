@@ -20,8 +20,8 @@ export default function HomePage() {
           <Link href="/" className="hot h-masthead" aria-label="The People's Chamber — home" />
           <Link href="/about" className="hot h-bubble" aria-label="Democracy works better when people watch" />
 
-          <Link href="/news"         className="hot h-n-cover"  aria-label="Cover Story" />
-          <Link href="/news"         className="hot h-n-street" aria-label="Street View" />
+          <Link href="/bills"        className="hot h-n-cover"  aria-label="Cover Story" />
+          <Link href="/polls"        className="hot h-n-street" aria-label="Street View" />
           <Link href="/bills"        className="hot h-n-bills"  aria-label="Bills to Watch" />
           <Link href="/transparency" className="hot h-n-money"  aria-label="Follow the Money" />
           <Link href="/mps"          className="hot h-n-who"    aria-label="Who's Who" />
@@ -47,7 +47,7 @@ export default function HomePage() {
           <Link href="/bills"        className="hot c-cover-card"  aria-label="The Bill of Their Lives" />
           <Link href="/bills"        className="hot c-cover-cta"   aria-label="Read the story" />
 
-          <Link href="/news"         className="hot c-street"      aria-label="Street View — public voices" />
+          <Link href="/polls"        className="hot c-street"      aria-label="Street View — public voices" />
 
           <Link href="/bills"        className="hot c-bills-card"  aria-label="Bills to watch" />
           <Link href="/bills"        className="hot bills-row-1"   aria-label="Bill row 1" />

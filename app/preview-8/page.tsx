@@ -21,7 +21,7 @@ export default function PreviewEightLandingPage() {
       <Link href="/bills"        className="hot c-cover-cta"   aria-label="Read the story" />
 
       {/* ───── Street View ───── */}
-      <Link href="/news"         className="hot c-street"      aria-label="Street View — public voices" />
+      <Link href="/polls"        className="hot c-street"      aria-label="Street View — public voices" />
 
       {/* ───── Bills to Watch ───── */}
       <Link href="/bills"        className="hot c-bills-card"  aria-label="Bills to watch" />
