@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,700;1,900&family=Oswald:wght@500;600;700&family=Special+Elite&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=Caveat:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@0,400;0,700;0,900;1,700;1,900&family=Permanent+Marker&family=Special+Elite&display=swap');
 
 :root {
   --paper:        #f4e8d4;
@@ -12,6 +12,11 @@
   --oxblood-deep: #8a1f12;
   --blue:         #1c4c78;
   --green-stamp:  #2f6b2c;
+
+  --font-masthead:  'Libre Bodoni', Georgia, serif;
+  --font-strapline: 'Permanent Marker', cursive;
+  --font-nav:       'Special Elite', 'Courier New', monospace;
+  --font-body:      Georgia, 'Times New Roman', serif;
 }
 
 .bills-template-stage {
@@ -31,7 +36,7 @@
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45);
   overflow: hidden;
   color: var(--ink);
-  font-family: 'PT Serif', Georgia, serif;
+  font-family: var(--font-body);
 }
 
 .bills-template-shell * { box-sizing: border-box; }
@@ -126,7 +131,7 @@
   padding: 3px 9px;
   background: var(--oxblood);
   color: var(--paper);
-  font-family: 'Special Elite', monospace;
+  font-family: var(--font-nav);
   font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -135,7 +140,7 @@
 
 .bt-page-head h1 {
   margin: 0;
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-masthead);
   font-weight: 900;
   font-size: clamp(40px, 6vw, 72px);
   line-height: 0.94;
@@ -150,7 +155,7 @@
 }
 
 .bt-page-head .meta {
-  font-family: 'Special Elite', monospace;
+  font-family: var(--font-nav);
   font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -159,7 +164,7 @@
 
 .bt-page-head .meta strong {
   display: block;
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-masthead);
   font-weight: 900;
   font-size: 36px;
   line-height: 1;
@@ -204,7 +209,7 @@
   background: var(--paper-aged);
   border: 2px solid var(--ink);
   border-bottom: 0;
-  font-family: 'Special Elite', monospace;
+  font-family: var(--font-nav);
   font-size: 10px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -217,7 +222,7 @@
   padding: 3px 8px;
   border: 1px solid var(--ink);
   background: rgba(243, 214, 91, 0.55);
-  font-family: 'Special Elite', monospace;
+  font-family: var(--font-nav);
   font-size: 10px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -225,7 +230,7 @@
 
 .bt-bill h3 {
   margin: 2px 0 10px;
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-masthead);
   font-weight: 700;
   font-size: 18px;
   line-height: 1.18;
@@ -250,7 +255,7 @@
 .bt-bill .tally-nums {
   display: flex;
   justify-content: space-between;
-  font-family: 'Special Elite', monospace;
+  font-family: var(--font-nav);
   font-size: 10px;
   letter-spacing: 0.04em;
   color: var(--ink-soft);
@@ -267,7 +272,7 @@
   margin-top: 28px;
   padding-top: 18px;
   border-top: 2px solid var(--ink);
-  font-family: 'Special Elite', monospace;
+  font-family: var(--font-nav);
   font-size: 13px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
