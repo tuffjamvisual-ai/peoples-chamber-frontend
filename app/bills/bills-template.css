@@ -1,0 +1,267 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,700;1,900&family=Oswald:wght@500;600;700&family=Special+Elite&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=Caveat:wght@400;700&display=swap');
+
+:root {
+  --paper:        #f4e8d4;
+  --paper-deep:   #ead9b6;
+  --paper-aged:   #e3cea0;
+  --yellow:       #f3d65b;
+  --yellow-deep:  #e6a82c;
+  --ink:          #1a1410;
+  --ink-soft:     #4a3d2f;
+  --oxblood:      #b22b1a;
+  --oxblood-deep: #8a1f12;
+  --blue:         #1c4c78;
+  --green-stamp:  #2f6b2c;
+}
+
+.bills-template-stage {
+  margin: 0;
+  padding: 24px 16px 48px;
+  min-height: 100vh;
+  display: grid;
+  place-items: start center;
+  background: linear-gradient(135deg, #4a2f1d, #6b3c20 45%, #8b5230);
+}
+
+.bills-template-shell {
+  position: relative;
+  width: 100%;
+  max-width: 1086px;
+  background: var(--paper);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  color: var(--ink);
+  font-family: 'PT Serif', Georgia, serif;
+}
+
+.bills-template-shell * { box-sizing: border-box; }
+.bills-template-shell a { color: inherit; text-decoration: none; }
+
+.bt-header,
+.bt-footer {
+  position: relative;
+  width: 100%;
+}
+
+.bt-header img,
+.bt-footer img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.bt-header a.hot,
+.bt-footer a.hot {
+  position: absolute;
+  display: block;
+  cursor: pointer;
+}
+
+.bt-header a.hot:focus-visible,
+.bt-footer a.hot:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: -2px;
+}
+
+/* Header hotspots (% of 1086 × 320) */
+.bt-header .h-issue    { top: 2%;  left: 1%;  width: 13%; height: 18%; }
+.bt-header .h-truth    { top: 3%;  left: 75%; width: 22%; height: 28%; }
+.bt-header .h-masthead { top: 8%;  left: 6%;  width: 65%; height: 60%; }
+.bt-header .h-bubble   { top: 38%; left: 73%; width: 25%; height: 30%; }
+.bt-header .h-n-home   { top: 84%; left: 4%;  width: 6%;  height: 9%; }
+.bt-header .h-n-bills  { top: 84%; left: 11%; width: 7%;  height: 9%; }
+.bt-header .h-n-laws   { top: 84%; left: 19%; width: 7%;  height: 9%; }
+.bt-header .h-n-polls  { top: 84%; left: 27%; width: 14%; height: 9%; }
+.bt-header .h-n-mps    { top: 84%; left: 42%; width: 6%;  height: 9%; }
+.bt-header .h-n-depts  { top: 84%; left: 49%; width: 14%; height: 9%; }
+.bt-header .h-n-trans  { top: 84%; left: 64%; width: 16%; height: 9%; }
+.bt-header .h-n-search { top: 84%; left: 81%; width: 9%;  height: 9%; }
+.bt-header .h-n-about  { top: 84%; left: 91%; width: 7%;  height: 9%; }
+
+/* Footer hotspots (% of 1086 × 270) */
+.bt-footer .f-brand     { top: 4%;  left: 1%;  width: 17%; height: 50%; }
+.bt-footer .f-bills     { top: 4%;  left: 41%; width: 8%;  height: 7%; }
+.bt-footer .f-mps       { top: 12%; left: 41%; width: 8%;  height: 7%; }
+.bt-footer .f-depts     { top: 20%; left: 41%; width: 14%; height: 7%; }
+.bt-footer .f-trans     { top: 28%; left: 41%; width: 14%; height: 7%; }
+.bt-footer .f-expenses  { top: 4%;  left: 56%; width: 10%; height: 7%; }
+.bt-footer .f-earnings  { top: 12%; left: 56%; width: 10%; height: 7%; }
+.bt-footer .f-donations { top: 20%; left: 56%; width: 10%; height: 7%; }
+.bt-footer .f-contracts { top: 28%; left: 56%; width: 10%; height: 7%; }
+.bt-footer .f-about     { top: 4%;  left: 70%; width: 10%; height: 7%; }
+.bt-footer .f-sources   { top: 20%; left: 70%; width: 8%;  height: 7%; }
+.bt-footer .f-privacy   { top: 28%; left: 70%; width: 8%;  height: 7%; }
+.bt-footer .f-terms     { top: 4%;  left: 84%; width: 8%;  height: 7%; }
+.bt-footer .f-contact   { top: 12%; left: 84%; width: 8%;  height: 7%; }
+.bt-footer .f-github    { top: 20%; left: 84%; width: 8%;  height: 7%; }
+
+/* ─────── Body content ─────── */
+.bt-body {
+  position: relative;
+  padding: 28px 28px 32px;
+  background: var(--paper);
+}
+
+.bt-body::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image:
+    repeating-linear-gradient(95deg, rgba(0,0,0,0.012) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(5deg, rgba(0,0,0,0.012) 0 1px, transparent 1px 5px);
+  pointer-events: none;
+}
+
+.bt-page-head {
+  position: relative; z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.bt-page-head .kicker {
+  display: inline-block;
+  padding: 3px 9px;
+  background: var(--oxblood);
+  color: var(--paper);
+  font-family: 'Special Elite', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.bt-page-head h1 {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: clamp(40px, 6vw, 72px);
+  line-height: 0.94;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.bt-page-head h1 em {
+  font-style: italic;
+  color: var(--oxblood);
+}
+
+.bt-page-head .meta {
+  font-family: 'Special Elite', monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.bt-page-head .meta strong {
+  display: block;
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: 36px;
+  line-height: 1;
+  color: var(--oxblood);
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+
+/* ─────── Bill cards grid ─────── */
+.bt-bills-grid {
+  position: relative; z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.bt-bill {
+  position: relative;
+  padding: 16px 18px 14px;
+  background:
+    linear-gradient(rgba(255,255,255,0.35), rgba(255,255,255,0.05)),
+    var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px 0 rgba(26, 20, 16, 0.14);
+  display: flex;
+  flex-direction: column;
+  min-height: 220px;
+  color: var(--ink);
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+
+.bt-bill:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 rgba(26, 20, 16, 0.2);
+}
+
+.bt-bill .tab {
+  position: absolute;
+  top: -12px;
+  left: 14px;
+  padding: 3px 9px 5px;
+  background: var(--paper-aged);
+  border: 2px solid var(--ink);
+  border-bottom: 0;
+  font-family: 'Special Elite', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--oxblood);
+}
+
+.bt-bill .stage {
+  align-self: flex-start;
+  margin-bottom: 8px;
+  padding: 3px 8px;
+  border: 1px solid var(--ink);
+  background: rgba(243, 214, 91, 0.55);
+  font-family: 'Special Elite', monospace;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.bt-bill h3 {
+  margin: 2px 0 10px;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.18;
+  letter-spacing: -0.005em;
+}
+
+.bt-bill .tally-bar {
+  display: flex;
+  height: 10px;
+  margin-top: auto;
+  margin-bottom: 4px;
+  border: 1px solid var(--ink);
+  background: var(--paper-aged);
+  overflow: hidden;
+}
+
+.bt-bill .tally-bar span { display: block; height: 100%; }
+.bt-bill .tally-bar .yes { background: var(--green-stamp); }
+.bt-bill .tally-bar .no  { background: var(--oxblood); }
+.bt-bill .tally-bar .abs { background: var(--ink-soft); opacity: 0.45; }
+
+.bt-bill .tally-nums {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Special Elite', monospace;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 920px) {
+  .bt-bills-grid { grid-template-columns: repeat(2, 1fr); }
+  .bt-page-head { grid-template-columns: 1fr; gap: 8px; }
+}
+
+@media (max-width: 580px) {
+  .bt-bills-grid { grid-template-columns: 1fr; }
+  .bt-page-head h1 { font-size: 38px; }
+}
