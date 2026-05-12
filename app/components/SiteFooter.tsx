@@ -8,7 +8,7 @@ const FONT = 'var(--font-geist-sans), Arial, Helvetica, sans-serif'
 export default function SiteFooter() {
   return (
     <footer style={{ background: BG, borderTop: `1px solid ${BORDER}`, color: '#fff', fontFamily: FONT, marginTop: '4rem' }}>
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '3rem 1.5rem 2rem' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '3rem 1.5rem 2rem' }}>
         <div
           style={{
             display: 'grid',

@@ -113,7 +113,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
   return (
     <div className="min-h-screen bg-[#1a1a1a] text-white">
       <Navigation />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
+      <main className="max-w-[1200px] mx-auto px-4 sm:px-6 py-10 sm:py-16">
         <Link href="/departments" className="inline-flex items-center gap-2 text-[13px] uppercase tracking-[0.25em] text-white hover:text-white mb-8 transition-colors">
           ← Back to Departments
         </Link>

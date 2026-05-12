@@ -114,7 +114,7 @@ export default async function HomePage() {
           borderBottom: `1px solid ${BORDER}`,
         }}
       >
-        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '4.5rem 1.5rem 5rem' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '4.5rem 1.5rem 5rem' }}>
           <div style={{ maxWidth: '760px' }}>
             <div style={{ fontSize: '11px', color: '#fff', letterSpacing: '0.3em', textTransform: 'uppercase', marginBottom: '1.25rem', opacity: 0.85, fontWeight: 700 }}>
               {leadStory ? `Top story · ${leadStory.organisation}` : "The People's Chamber · UK Public Transparency"}
@@ -141,7 +141,7 @@ export default async function HomePage() {
       {/* ─────────────────── NOTABLE TRANSACTION ─────────────────── */}
       {featured.kind && (
         <section style={{ background: PANEL, borderBottom: `1px solid ${BORDER}` }}>
-          <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '1.5rem 1.5rem', display: 'grid', gridTemplateColumns: '160px 1fr auto', gap: '1.75rem', alignItems: 'center' }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1.5rem 1.5rem', display: 'grid', gridTemplateColumns: '160px 1fr auto', gap: '1.75rem', alignItems: 'center' }}>
             <div style={{ borderRight: `1px solid ${BORDER}`, paddingRight: '1.5rem' }}>
               <div style={{ fontSize: '10px', color: '#fff', letterSpacing: '0.25em', textTransform: 'uppercase', fontWeight: 700, opacity: 0.85 }}>Notable Transaction</div>
               <div style={{ fontSize: '12px', color: MUTED, marginTop: '4px' }}>{featured.sub}</div>
@@ -158,7 +158,7 @@ export default async function HomePage() {
         </section>
       )}
 
-      <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '3rem 1.5rem 4rem' }}>
+      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '3rem 1.5rem 4rem' }}>
 
         {/* ─────────────────── FEATURED VOTE ─────────────────── */}
         {featuredBill && fbTotal > 0 && (

@@ -34,7 +34,7 @@ export default async function DepartmentsPage() {
   return (
     <div className="min-h-screen bg-[#1a1a1a] text-white">
       <Navigation />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
+      <main className="max-w-[1200px] mx-auto px-4 sm:px-6 py-10 sm:py-16">
         <header className="border-b border-[#333333] pb-10 mb-10">
           <p className="text-[13px] uppercase tracking-[0.3em] font-medium mb-4" style={{ color: ACCENT }}>
             The People&apos;s Chamber · Departments

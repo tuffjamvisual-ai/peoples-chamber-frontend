@@ -146,7 +146,7 @@ export default async function MPProfilePage({ params }: PageProps) {
     <div className="min-h-screen bg-[#1a1a1a]">
       <Navigation />
       
-      <main className="max-w-7xl mx-auto px-6 py-6">
+      <main className="max-w-[1200px] mx-auto px-6 py-6">
         <Link 
           href="/mps"
           className="inline-flex items-center gap-2 text-white hover:text-white mb-6 transition"
