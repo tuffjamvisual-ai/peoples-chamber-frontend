@@ -18,16 +18,8 @@ const navItems = [
 export default async function PreviewEightBillsPage() {
   const allBills = await getAllBills();
   const active = allBills.filter((b: any) => !b.bill_withdrawn && !b.is_act);
-  const bills = active.slice(0, 9);
-
+  const bills = active.slice(0, 12);
   const totalActive = active.length;
-  const totalActs = allBills.filter((b: any) => b.is_act).length;
-  const totalWithdrawn = allBills.filter((b: any) => b.bill_withdrawn).length;
-  const totalVotes = bills.reduce(
-    (s: number, b: any) =>
-      s + (b.vote_count_yes || 0) + (b.vote_count_no || 0) + (b.vote_count_abstain || 0),
-    0,
-  );
 
   return (
     <main className="mag-stage">
@@ -76,75 +68,49 @@ export default async function PreviewEightBillsPage() {
           </div>
         </section>
 
-        <section className="bills-toolbar">
-          <input placeholder="Search bills by title, number, or topic..." />
-          <div className="filter">
-            <strong>House</strong>
-            <span>All</span>
+        <section className="bills-watch">
+          <div className="watch-tabs" aria-hidden>
+            <span className="tab-on">Bills</span>
+            <span>Watch</span>
+            <span>Tally</span>
           </div>
-          <div className="filter">
-            <strong>Stage</strong>
-            <span>All stages</span>
-          </div>
-          <div className="filter">
-            <strong>Sort</strong>
-            <span>Trending</span>
-          </div>
-          <div className="filter-cta">Filter →</div>
-        </section>
 
-        <section className="bills-stats">
-          <div>
-            <strong>{totalActive.toLocaleString()}</strong>
-            <span>Bills tracked</span>
+          <div className="watch-head">
+            <h2>Bills to Watch</h2>
+            <span className="meta">Top {bills.length} by public tally</span>
           </div>
-          <div>
-            <strong>{totalActs.toLocaleString()}</strong>
-            <span>Acts passed</span>
-          </div>
-          <div>
-            <strong>{totalWithdrawn.toLocaleString()}</strong>
-            <span>Withdrawn</span>
-          </div>
-          <div>
-            <strong>{totalVotes.toLocaleString()}</strong>
-            <span>Public votes (top 9)</span>
-          </div>
-        </section>
 
-        <section className="bills-grid">
-          {bills.map((bill: any) => {
-            const yes = bill.vote_count_yes || 0;
-            const no = bill.vote_count_no || 0;
-            const abs = bill.vote_count_abstain || 0;
-            const total = yes + no + abs;
-            const yesPct = total > 0 ? Math.round((yes / total) * 100) : 0;
-            const noPct = total > 0 ? Math.round((no / total) * 100) : 0;
-            const absPct = total > 0 ? Math.max(0, 100 - yesPct - noPct) : 0;
+          <ol>
+            {bills.map((bill: any, idx: number) => {
+              const yes = bill.vote_count_yes || 0;
+              const no = bill.vote_count_no || 0;
+              const abs = bill.vote_count_abstain || 0;
+              const total = yes + no + abs;
+              const yesPct = total > 0 ? Math.round((yes / total) * 100) : 0;
+              const sub = bill.current_stage || bill.category || 'Before Parliament';
 
-            return (
-              <Link key={bill.id} href={`/bills/${bill.id}`} className="bill-card">
-                <span className="tab">Bill File</span>
-                {bill.current_stage && <span className="stage">{bill.current_stage}</span>}
-                <h3>{bill.title}</h3>
-
-                <div className="tally">
-                  <div className="tally-bar">
-                    {yesPct > 0 && <span className="yes" style={{ width: `${yesPct}%` }} />}
-                    {noPct > 0 && <span className="no" style={{ width: `${noPct}%` }} />}
-                    {absPct > 0 && <span className="abs" style={{ width: `${absPct}%` }} />}
+              return (
+                <li key={bill.id}>
+                  <span className="bullet" aria-hidden>{idx + 1}</span>
+                  <div>
+                    <Link href={`/bills/${bill.id}`} className="title">{bill.title}</Link>
+                    <span className="sub">{sub}</span>
                   </div>
-                  <div className="tally-numbers">
-                    <span>✓ {yesPct}%</span>
-                    <span>{total.toLocaleString()} votes</span>
-                    <span>✗ {noPct}%</span>
-                  </div>
-                </div>
+                  <span className="tally">
+                    <strong>{yesPct}%</strong>
+                    {total.toLocaleString()} votes
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
 
-                <span className="read">Read the bill →</span>
-              </Link>
-            );
-          })}
+          <div className="watch-foot">
+            <span className="count">
+              {totalActive.toLocaleString()} bills tracked · updated daily
+            </span>
+            <Link href="/bills" className="see-all">See all bills →</Link>
+          </div>
         </section>
 
         <section className="callout">
