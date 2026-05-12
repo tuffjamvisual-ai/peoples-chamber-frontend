@@ -1,0 +1,57 @@
+/* Magazine chrome — opt-in via MagazineNav/MagazineFooter components.
+   Only applied to /bills as a test (other pages keep dark Navigation/SiteFooter). */
+
+.mag-chrome-stage {
+  width: 100%;
+  background: #7a1612;
+  padding: 16px;
+  display: grid;
+  place-items: center;
+}
+
+.mag-chrome-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 1086px;
+}
+
+.mag-chrome-wrap img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.mag-chrome-wrap a.hot {
+  position: absolute;
+  display: block;
+  cursor: pointer;
+}
+
+.mag-chrome-wrap a.hot:focus-visible {
+  outline: 2px solid #1c4c78;
+  outline-offset: -2px;
+}
+
+/* ───── HEADER hotspots (% of 1086 × 300 crop) ───── */
+.mag-h-issue    { top: 2%;  left: 1%;  width: 14%; height: 16%; }
+.mag-h-truth    { top: 2%;  left: 74%; width: 20%; height: 18%; }
+.mag-h-masthead { top: 4%;  left: 10%; width: 62%; height: 62%; }
+.mag-h-bubble   { top: 28%; left: 73%; width: 23%; height: 30%; }
+
+/* nav row (sits in bottom of header crop, ~85-94%) */
+.mag-n-home   { top: 87%; left: 7%;  width: 6%;  height: 10%; z-index: 5; }
+.mag-n-bills  { top: 87%; left: 16%; width: 6%;  height: 10%; z-index: 5; }
+.mag-n-laws   { top: 87%; left: 26%; width: 5%;  height: 10%; z-index: 5; }
+.mag-n-polls  { top: 87%; left: 35%; width: 12%; height: 10%; z-index: 5; }
+.mag-n-mps    { top: 87%; left: 51%; width: 5%;  height: 10%; z-index: 5; }
+.mag-n-depts  { top: 87%; left: 59%; width: 12%; height: 10%; z-index: 5; }
+.mag-n-login  { top: 87%; left: 80%; width: 6%;  height: 10%; z-index: 5; }
+.mag-n-about  { top: 87%; left: 90%; width: 6%;  height: 10%; z-index: 5; }
+
+/* ───── FOOTER hotspots (% of 1086 × 150 crop) ───── */
+.mag-f-brand { top: 4%;  left: 1%;  width: 25%; height: 40%; }
+.mag-f-col1  { top: 8%;  left: 40%; width: 11%; height: 60%; }
+.mag-f-col2  { top: 8%;  left: 52%; width: 11%; height: 60%; }
+.mag-f-col3  { top: 8%;  left: 65%; width: 18%; height: 60%; }
+.mag-f-col4  { top: 8%;  left: 84%; width: 14%; height: 60%; }
+.mag-f-stamps { top: 60%; left: 1%; width: 98%; height: 38%; }

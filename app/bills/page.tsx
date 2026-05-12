@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { getAllBills } from '@/lib/data';
 import BillsGrid from '../components/BillsGrid';
 import BillsGridMobile from '../components/BillsGridMobile';
-import Navigation from '../components/Navigation';
+import MagazineNav from '../components/MagazineNav';
+import MagazineFooter from '../components/MagazineFooter';
 
 export const revalidate = 600;
 
@@ -20,7 +21,7 @@ export default async function BillsPage() {
 
   return (
     <div className="min-h-screen bg-[#606060] text-white">
-      <Navigation />
+      <MagazineNav />
 
       <main className="bg-[#505050] shadow-[0_0_40px_rgba(0,0,0,0.4)] max-w-[1200px] mx-auto px-4 sm:px-6 py-10 sm:py-16">
         <header className="border-b border-[#5a5a5a] pb-10 mb-10">
@@ -48,6 +49,8 @@ export default async function BillsPage() {
           <BillsGrid initialBills={bills} />
         </div>
       </main>
+
+      <MagazineFooter />
     </div>
   );
 }
