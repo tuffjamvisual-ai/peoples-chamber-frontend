@@ -5,7 +5,7 @@ import Link from 'next/link'
 
 export const revalidate = 3600
 
-const BG = '#1a1a1a'
+const BG = '#1f1f1f'
 const PANEL = '#111111'
 const PANEL_DEEP = '#0a0a0a'
 const BORDER = '#333333'
