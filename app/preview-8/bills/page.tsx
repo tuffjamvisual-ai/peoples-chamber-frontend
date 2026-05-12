@@ -43,12 +43,9 @@ export default async function PreviewEightBillsPage() {
           </div>
         </div>
 
-        <div className="hero-aside" aria-hidden>
-          <span>Bills</span>
-          <span className="label">Now in Parliament</span>
-          <div className="hero-bubble money">
-            Where&apos;s our<br /><strong>money?</strong>
-          </div>
+        <div className="hero-illo">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/bills-hero.png" alt="Courts and Tribunals Bill — public vote tally" />
           <div className="hero-bubble right-acc">
             Accountability isn&apos;t a favour <strong>— it&apos;s a right.</strong>
           </div>
