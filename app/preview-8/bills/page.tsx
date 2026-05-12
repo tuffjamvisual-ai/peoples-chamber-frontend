@@ -1,15 +1,7 @@
 import '../preview-8.css';
 import Link from 'next/link';
-import { getAllBills } from '@/lib/data';
 
-export const revalidate = 600;
-
-export default async function PreviewEightBillsPage() {
-  const allBills = await getAllBills();
-  const active = allBills.filter((b: any) => !b.bill_withdrawn && !b.is_act);
-  const top = active.slice(0, 5);
-  const href = (i: number) => (top[i] ? `/bills/${top[i].id}` : '/bills');
-
+export default function PreviewEightBillsPage() {
   return (
     <main className="pixel-stage">
       <div className="pixel-shell">
@@ -20,7 +12,7 @@ export default async function PreviewEightBillsPage() {
         />
 
         {/* ───── Top stamps ───── */}
-        <Link href="/bills" className="hot s-issue" aria-label="Issue 13" />
+        <Link href="/about" className="hot s-issue" aria-label="Issue 13" />
         <Link href="/about" className="hot s-truth" aria-label="No spin, no paywall, just the truth" />
 
         {/* ───── Masthead ───── */}
@@ -46,20 +38,20 @@ export default async function PreviewEightBillsPage() {
         <Link href="/transparency" className="hot bubble-money"  aria-label="Where's our money?" />
         <Link href="/about"        className="hot bubble-right"  aria-label="Accountability isn't a favour, it's a right" />
 
-        {/* ───── Cover Story (bills card) ───── */}
-        <Link href="/bills"        className="hot c-cover-card"  aria-label="The Bill of Their Lives — feature" />
+        {/* ───── Cover Story ───── */}
+        <Link href="/bills"        className="hot c-cover-card"  aria-label="The Bill of Their Lives — Health & Care Bill" />
         <Link href="/bills"        className="hot c-cover-cta"   aria-label="Read the story" />
 
         {/* ───── Street View ───── */}
         <Link href="/news"         className="hot c-street"      aria-label="Street View — public voices" />
 
-        {/* ───── Bills to Watch — each row linked to a real bill ───── */}
+        {/* ───── Bills to Watch ───── */}
         <Link href="/bills"        className="hot c-bills-card"  aria-label="Bills to watch" />
-        <Link href={href(0)}       className="hot bills-row-1"   aria-label={top[0]?.title || 'Bill row 1'} />
-        <Link href={href(1)}       className="hot bills-row-2"   aria-label={top[1]?.title || 'Bill row 2'} />
-        <Link href={href(2)}       className="hot bills-row-3"   aria-label={top[2]?.title || 'Bill row 3'} />
-        <Link href={href(3)}       className="hot bills-row-4"   aria-label={top[3]?.title || 'Bill row 4'} />
-        <Link href={href(4)}       className="hot bills-row-5"   aria-label={top[4]?.title || 'Bill row 5'} />
+        <Link href="/bills"        className="hot bills-row-1"   aria-label="Bill row 1" />
+        <Link href="/bills"        className="hot bills-row-2"   aria-label="Bill row 2" />
+        <Link href="/bills"        className="hot bills-row-3"   aria-label="Bill row 3" />
+        <Link href="/bills"        className="hot bills-row-4"   aria-label="Bill row 4" />
+        <Link href="/bills"        className="hot bills-row-5"   aria-label="Bill row 5" />
         <Link href="/bills"        className="hot bills-all"     aria-label="See all bills" />
 
         {/* ───── Follow the Money pie ───── */}
