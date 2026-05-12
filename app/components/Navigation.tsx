@@ -43,7 +43,7 @@ export default function Navigation() {
 
   return (
     <>
-      <nav className="bg-[#1a1a1a] border-b border-[#333333]/50 relative mb-2">
+      <nav className="bg-[#505050] border-b border-[#5a5a5a]/50 relative mb-2">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-3 relative z-10">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex-shrink-0" style={{marginLeft: "-16px"}}>
@@ -118,7 +118,7 @@ export default function Navigation() {
           </div>
 
           {mobileMenuOpen && (
-            <div className="lg:hidden pb-4 border-t border-[#333333]/50 mt-2">
+            <div className="lg:hidden pb-4 border-t border-[#5a5a5a]/50 mt-2">
               <div className="flex flex-col space-y-1 py-2">
                 <Link href="/" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/') ? 'text-[#ffffff] bg-transparent/10' : 'text-white'}`}>
                   Home
@@ -142,7 +142,7 @@ export default function Navigation() {
                   About
                 </Link>
                 
-                <div className="border-t border-[#333333]/50 mt-2 pt-2">
+                <div className="border-t border-[#5a5a5a]/50 mt-2 pt-2">
                   {user ? (
                     <>
                       <div className="px-3 py-2 text-white text-sm truncate">{user.email}</div>
@@ -163,7 +163,7 @@ export default function Navigation() {
             </div>
           )}
         </div>
-      <div className="border-b border-[#333333]/50">
+      <div className="border-b border-[#5a5a5a]/50">
   
       </div>
 

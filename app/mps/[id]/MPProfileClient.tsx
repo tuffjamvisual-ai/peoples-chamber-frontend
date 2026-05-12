@@ -83,7 +83,7 @@ export default function MPProfileClient({
   ]
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-px border border-[#333333]">
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-px border border-[#5a5a5a]">
       {/* Sidebar */}
       <aside className="lg:col-span-1">
         <div className="lg:sticky lg:top-16">
@@ -100,8 +100,8 @@ export default function MPProfileClient({
                   className={
                     'w-full text-left px-4 py-3 text-[15px] uppercase tracking-[0.15em] transition-colors border-l-2 ' +
                     (active
-                      ? 'text-white bg-[#1a1a1a] border-l-[#ffffff] font-semibold'
-                      : 'text-white border-l-transparent hover:text-white hover:bg-[#1a1a1a]')
+                      ? 'text-white bg-[#505050] border-l-[#ffffff] font-semibold'
+                      : 'text-white border-l-transparent hover:text-white hover:bg-[#505050]')
                   }
                 >
                   {item.label}
@@ -123,7 +123,7 @@ export default function MPProfileClient({
         {activeSection === 'contact' && (
           <Section title={`Contact ${mp.display_name || mp.name}`}>
             {contact ? (
-              <div className="space-y-px border border-[#333333]">
+              <div className="space-y-px border border-[#5a5a5a]">
                 <Card title="Parliamentary office" partyColour={partyColour}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[13px] leading-[1.7]">
                     <div className="text-white space-y-0.5">
@@ -173,7 +173,7 @@ export default function MPProfileClient({
         {activeSection === 'parliamentary' && (
           <Section title="Parliamentary Career">
             {representations.length > 0 ? (
-              <div className="space-y-px border border-[#333333]">
+              <div className="space-y-px border border-[#5a5a5a]">
                 {representations.map((rep: any, idx: number) => (
                   <Card key={idx} title={rep.name} partyColour={partyColour}>
                     <p className="text-[15px] text-white font-mono leading-[1.7]">
@@ -192,7 +192,7 @@ export default function MPProfileClient({
 
         {activeSection === 'voting' && (
           <Section title="Voting Record">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-px border border-[#333333] mb-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-px border border-[#5a5a5a] mb-8">
               <Stat label="Votes Cast" value={totalVotes} />
               <Stat label="Ayes" value={ayeVotes} colour={SUCCESS} />
               <Stat label="Noes" value={noVotes} colour={DANGER} />
@@ -200,7 +200,7 @@ export default function MPProfileClient({
             </div>
 
             {mp.party !== 'Independent' && rebellions > 0 && (
-              <div className="border-l-2 px-4 py-3 mb-8 bg-[#1a1a1a]" style={{ borderLeftColor: WARN }}>
+              <div className="border-l-2 px-4 py-3 mb-8 bg-[#505050]" style={{ borderLeftColor: WARN }}>
                 <p className="text-[13px] uppercase tracking-[0.25em] mb-1 font-semibold" style={{ color: WARN }}>Rebellion Notice</p>
                 <p className="text-[13px] text-white leading-[1.7]">
                   <span className="font-semibold">{rebellions} rebellion{rebellions !== 1 ? 's' : ''}</span> against the {mp.party} party line.
@@ -209,7 +209,7 @@ export default function MPProfileClient({
             )}
 
             {votes && votes.length > 0 ? (
-              <ul className="space-y-px border border-[#333333]">
+              <ul className="space-y-px border border-[#5a5a5a]">
                 {votes.slice(0, 20).map((vote: any) => (
                   <li
                     key={vote.id}
@@ -238,12 +238,12 @@ export default function MPProfileClient({
         {activeSection === 'bills' && (
           <Section title="Bills Sponsored">
             {sponsoredBills && sponsoredBills.length > 0 ? (
-              <ul className="space-y-px border border-[#333333]">
+              <ul className="space-y-px border border-[#5a5a5a]">
                 {sponsoredBills.map((bill) => (
                   <li key={bill.id} className="">
                     <Link
                       href={'/bills/' + bill.id}
-                      className="block p-4 border-l-2 hover:bg-[#1a1a1a] transition-colors"
+                      className="block p-4 border-l-2 hover:bg-[#505050] transition-colors"
                       style={{ borderLeftColor: partyColour }}
                     >
                       <h3 className="text-[13px] font-semibold text-white mb-1 leading-snug">{bill.title}</h3>
@@ -267,10 +267,10 @@ export default function MPProfileClient({
               <div className="space-y-10">
                 {Object.keys(interestsByCategory).map((categoryName) => (
                   <div key={categoryName}>
-                    <h3 className="text-[13px] uppercase tracking-[0.25em] mb-4 pb-3 border-b border-[#333333] font-semibold" style={{ color: ACCENT }}>
+                    <h3 className="text-[13px] uppercase tracking-[0.25em] mb-4 pb-3 border-b border-[#5a5a5a] font-semibold" style={{ color: ACCENT }}>
                       {categoryName}
                     </h3>
-                    <ul className="space-y-px border border-[#333333]">
+                    <ul className="space-y-px border border-[#5a5a5a]">
                       {interestsByCategory[categoryName].map((interest: any) => (
                         <li key={interest.id} className="p-4 border-l-2" style={{ borderLeftColor: partyColour }}>
                           <p className="text-[13px] text-white whitespace-pre-wrap leading-[1.7] mb-2">{interest.interest_text}</p>
@@ -279,7 +279,7 @@ export default function MPProfileClient({
                               {interest.child_interests.map((child: any, idx: number) => (
                                 <li
                                   key={idx}
-                                  className="text-[15px] text-white bg-[#1a1a1a] p-2 border-l-2 leading-[1.7]"
+                                  className="text-[15px] text-white bg-[#505050] p-2 border-l-2 leading-[1.7]"
                                   style={{ borderLeftColor: partyColour + '60' }}
                                 >
                                   {child.interest}
@@ -307,10 +307,10 @@ export default function MPProfileClient({
             <div className="space-y-10">
               {governmentPosts.length > 0 && (
                 <div>
-                  <h3 className="text-[13px] uppercase tracking-[0.25em] mb-4 pb-3 border-b border-[#333333] font-semibold" style={{ color: ACCENT }}>
+                  <h3 className="text-[13px] uppercase tracking-[0.25em] mb-4 pb-3 border-b border-[#5a5a5a] font-semibold" style={{ color: ACCENT }}>
                     Government Posts
                   </h3>
-                  <ul className="space-y-px border border-[#333333]">
+                  <ul className="space-y-px border border-[#5a5a5a]">
                     {governmentPosts.map((post: any, idx: number) => (
                       <RolesRow key={idx} post={post} partyColour={partyColour} />
                     ))}
@@ -319,10 +319,10 @@ export default function MPProfileClient({
               )}
               {oppositionPosts.length > 0 && (
                 <div>
-                  <h3 className="text-[13px] uppercase tracking-[0.25em] mb-4 pb-3 border-b border-[#333333] font-semibold" style={{ color: ACCENT }}>
+                  <h3 className="text-[13px] uppercase tracking-[0.25em] mb-4 pb-3 border-b border-[#5a5a5a] font-semibold" style={{ color: ACCENT }}>
                     Opposition Posts
                   </h3>
-                  <ul className="space-y-px border border-[#333333]">
+                  <ul className="space-y-px border border-[#5a5a5a]">
                     {oppositionPosts.map((post: any, idx: number) => (
                       <RolesRow key={idx} post={post} partyColour={partyColour} />
                     ))}
@@ -331,10 +331,10 @@ export default function MPProfileClient({
               )}
               {committeeMemberships.length > 0 && (
                 <div>
-                  <h3 className="text-[13px] uppercase tracking-[0.25em] mb-4 pb-3 border-b border-[#333333] font-semibold" style={{ color: ACCENT }}>
+                  <h3 className="text-[13px] uppercase tracking-[0.25em] mb-4 pb-3 border-b border-[#5a5a5a] font-semibold" style={{ color: ACCENT }}>
                     Committee Memberships
                   </h3>
-                  <ul className="space-y-px border border-[#333333]">
+                  <ul className="space-y-px border border-[#5a5a5a]">
                     {committeeMemberships.map((committee: any, idx: number) => (
                       <li key={idx} className="p-4 border-l-2" style={{ borderLeftColor: partyColour }}>
                         <p className="text-[13px] text-white font-semibold leading-snug">{committee.name}</p>
@@ -358,7 +358,7 @@ export default function MPProfileClient({
               staff, landlords and travel suppliers, not to the MP.
             </p>
 
-            <div className="border border-[#333333]">
+            <div className="border border-[#5a5a5a]">
               <EarningsRow label="Base MP Salary"      sub="Set by IPSA · from 1 April 2026"               amount={earnings.base}        partyColour={partyColour} />
               <EarningsRow
                 label="Ministerial Salary"
@@ -380,7 +380,7 @@ export default function MPProfileClient({
                 onJump={() => setActiveSection('interests')}
                 jumpLabel="View register entries →"
               />
-              <div className="bg-[#1a1a1a] p-5 border-t-2" style={{ borderTopColor: partyColour }}>
+              <div className="bg-[#505050] p-5 border-t-2" style={{ borderTopColor: partyColour }}>
                 <div className="flex items-baseline justify-between gap-4">
                   <p className="text-[13px] uppercase tracking-[0.25em] text-white font-bold">Total Personal Earnings</p>
                   <p
@@ -397,8 +397,8 @@ export default function MPProfileClient({
               </div>
             </div>
 
-            <div className="mt-8 border border-[#333333] border-l-2" style={{ borderLeftColor: '#666' }}>
-              <div className="bg-[#1a1a1a] p-5">
+            <div className="mt-8 border border-[#5a5a5a] border-l-2" style={{ borderLeftColor: '#666' }}>
+              <div className="bg-[#505050] p-5">
                 <div className="flex items-baseline justify-between gap-4 mb-1.5">
                   <p className="text-[13px] uppercase tracking-[0.25em] text-white font-semibold">
                     Public Spend (IPSA expenses)
@@ -434,11 +434,11 @@ export default function MPProfileClient({
               Source: <a href="https://www.theipsa.org.uk" target="_blank" rel="noopener noreferrer" className="text-white hover:underline">IPSA</a> total-spend annual data.
             </p>
 
-            <ul className="space-y-px border border-[#333333]">
+            <ul className="space-y-px border border-[#5a5a5a]">
               {(expenses as any[]).map((y, idx) => (
                 <li
                   key={`${y.year}-${idx}`}
-                  className="bg-[#1a1a1a] p-5 border-l-2"
+                  className="bg-[#505050] p-5 border-l-2"
                   style={{ borderLeftColor: partyColour }}
                 >
                   <div className="flex items-baseline justify-between mb-3">
@@ -449,7 +449,7 @@ export default function MPProfileClient({
                       {fmtMoney(y.total_spend)}
                     </p>
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-px bg-[#222222] border border-[#333333]">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-px bg-[#404040] border border-[#5a5a5a]">
                     <ExpenseCell label="Staffing"      spend={y.staffing_spend}        budget={y.staffing_budget} />
                     <ExpenseCell label="Office"        spend={y.office_spend}          budget={y.office_budget} />
                     <ExpenseCell label="Accommodation" spend={y.accommodation_spend}    budget={y.accommodation_budget} />
@@ -504,7 +504,7 @@ function EarningsRow({
   jumpLabel?: string
 }) {
   return (
-    <div className="bg-[#1a1a1a] px-5 py-4 border-b border-[#333333] last:border-b-0 border-l-2" style={{ borderLeftColor: muted ? '#333' : partyColour }}>
+    <div className="bg-[#505050] px-5 py-4 border-b border-[#5a5a5a] last:border-b-0 border-l-2" style={{ borderLeftColor: muted ? '#333' : partyColour }}>
       <div className="flex items-baseline justify-between gap-4">
         <div className="min-w-0">
           <p className={`text-[13px] uppercase tracking-[0.18em] font-semibold ${muted ? 'text-white opacity-50' : 'text-white'}`}>{label}</p>
@@ -546,18 +546,18 @@ function ClaimsForYear({ year, claims, partyColour }: { year: string; claims: an
   })
 
   return (
-    <div className="mt-4 pt-4 border-t border-[#333333]">
+    <div className="mt-4 pt-4 border-t border-[#5a5a5a]">
       <p className="text-[10px] uppercase tracking-[0.18em] text-white opacity-70 mb-2">
         Itemised claims · {claims.length}
       </p>
-      <div className="space-y-px border border-[#333333]">
+      <div className="space-y-px border border-[#5a5a5a]">
         {categoryOrder.map((cat) => {
           const items = byCategory[cat]
           const total = items.reduce((s, c) => s + (Number(c.amount_paid) || 0), 0)
           return (
-            <details key={`${year}-${cat}`} className="bg-[#1a1a1a] group">
+            <details key={`${year}-${cat}`} className="bg-[#505050] group">
               <summary
-                className="cursor-pointer list-none flex items-center justify-between gap-3 px-3 py-2 hover:bg-[#222222] transition-colors border-l-2"
+                className="cursor-pointer list-none flex items-center justify-between gap-3 px-3 py-2 hover:bg-[#404040] transition-colors border-l-2"
                 style={{ borderLeftColor: partyColour }}
               >
                 <span className="flex-1 min-w-0 flex items-center gap-2">
@@ -571,11 +571,11 @@ function ClaimsForYear({ year, claims, partyColour }: { year: string; claims: an
                   {fmtMoney(total)}
                 </span>
               </summary>
-              <ul className="bg-[#0e0e0e] border-t border-[#222222]">
+              <ul className="bg-[#353535] border-t border-[#404040]">
                 {items.map((c) => (
                   <li
                     key={c.claim_number || `${c.claim_date}-${c.cost_type}-${c.amount_paid}`}
-                    className="grid grid-cols-[90px_1fr_auto] gap-3 px-3 py-2 border-t border-[#1a1a1a] first:border-t-0 text-[12px]"
+                    className="grid grid-cols-[90px_1fr_auto] gap-3 px-3 py-2 border-t border-[#505050] first:border-t-0 text-[12px]"
                   >
                     <span className="text-white opacity-60 tabular-nums">
                       {fmtClaimDate(c.claim_date)}
@@ -612,7 +612,7 @@ function ExpenseCell({ label, spend, budget, uncapped }: { label: string; spend:
   const b = budget == null ? null : Number(budget)
   const pct = b && b > 0 ? Math.min(100, Math.round((s / b) * 100)) : null
   return (
-    <div className="bg-[#1a1a1a] p-3">
+    <div className="bg-[#505050] p-3">
       <p className="text-[10px] uppercase tracking-[0.18em] text-white opacity-80 mb-1.5">{label}</p>
       <p className="text-[15px] font-semibold text-white tabular-nums">{fmtMoney(s)}</p>
       {uncapped ? (

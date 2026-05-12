@@ -5,11 +5,11 @@ import Link from 'next/link'
 
 export const revalidate = 3600
 
-const BG = '#1f1f1f'
-const PANEL = '#111111'
-const PANEL_DEEP = '#0a0a0a'
-const BORDER = '#333333'
-const RULE = '#262626'
+const BG = '#505050'
+const PANEL = '#353535'
+const PANEL_DEEP = '#353535'
+const BORDER = '#5a5a5a'
+const RULE = '#4a4a4a'
 const MUTED = '#9a9a9a'
 const VOTE_YES = '#4a8a3a'
 const VOTE_NO  = '#c8302e'

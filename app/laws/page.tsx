@@ -24,7 +24,7 @@ export default async function LawsPage() {
   if (error) console.error('Error fetching laws:', error)
 
   return (
-    <div className="min-h-screen bg-[#1a1a1a]">
+    <div className="min-h-screen bg-[#505050]">
       <Navigation />
       <LawsClient laws={laws || []} />
     </div>

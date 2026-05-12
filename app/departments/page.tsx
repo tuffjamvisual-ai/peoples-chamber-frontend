@@ -61,10 +61,10 @@ export default async function DepartmentsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#1a1a1a] text-white">
+    <div className="min-h-screen bg-[#505050] text-white">
       <Navigation />
       <main className="max-w-[1200px] mx-auto px-4 sm:px-6 py-10 sm:py-16">
-        <header className="border-b border-[#333333] pb-10 mb-10">
+        <header className="border-b border-[#5a5a5a] pb-10 mb-10">
           <p className="text-[13px] uppercase tracking-[0.3em] font-medium mb-4" style={{ color: ACCENT }}>
             The People&apos;s Chamber · Departments
           </p>
@@ -75,14 +75,14 @@ export default async function DepartmentsPage() {
             What every department controls and where every party stands on the issues that matter to you. Tap any department for live ministers, agencies, and topic-by-topic positions.
           </p>
 
-          <div className="grid grid-cols-3 gap-px border border-[#333333] mt-10">
+          <div className="grid grid-cols-3 gap-px border border-[#5a5a5a] mt-10">
             <Stat label="Departments" value={departments.length} />
             <Stat label="Control Zones" value={totalZones} />
             <Stat label="Live Data" value="Daily" accent />
           </div>
         </header>
 
-        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px border border-[#333333]">
+        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px border border-[#5a5a5a]">
           {departments.map((dept) => {
             const photo = photoBySlug.get(dept.slug);
             const memberId = memberIdBySlug.get(dept.slug);
@@ -92,12 +92,12 @@ export default async function DepartmentsPage() {
                   <img
                     src={photo}
                     alt={dept.minister}
-                    className="w-8 h-8 rounded-full object-cover bg-[#1a1a1a]"
+                    className="w-8 h-8 rounded-full object-cover bg-[#505050]"
                     style={{ border: `1px solid ${ACCENT}55` }}
                   />
                 ) : (
                   <div
-                    className="w-8 h-8 rounded-full bg-[#1a1a1a] flex items-center justify-center text-[13px] text-white"
+                    className="w-8 h-8 rounded-full bg-[#505050] flex items-center justify-center text-[13px] text-white"
                     style={{ border: `1px solid ${ACCENT}55` }}
                   >
                     {dept.minister.charAt(0)}
@@ -110,7 +110,7 @@ export default async function DepartmentsPage() {
             );
 
             return (
-              <li key={dept.slug} className="h-full border-l-2 border-transparent hover:border-l-[#ffffff] hover:bg-[#1a1a1a] transition-colors">
+              <li key={dept.slug} className="h-full border-l-2 border-transparent hover:border-l-[#ffffff] hover:bg-[#505050] transition-colors">
                 <div className="flex flex-col h-full">
                   <Link href={`/departments/${dept.slug}`} className="block px-5 pt-5">
                     <h2 className="text-white font-bold text-[14px] leading-snug mb-1.5 hover:text-[#ffffff] transition-colors">
@@ -139,7 +139,7 @@ export default async function DepartmentsPage() {
                         </span>
                       ))}
                       {dept.controlZones.length > 3 && (
-                        <span className="text-[13px] px-1.5 py-0.5 uppercase tracking-[0.1em] font-semibold rounded-sm text-white bg-[#1a1a1a] border border-[#333333]">
+                        <span className="text-[13px] px-1.5 py-0.5 uppercase tracking-[0.1em] font-semibold rounded-sm text-white bg-[#505050] border border-[#5a5a5a]">
                           +{dept.controlZones.length - 3}
                         </span>
                       )}

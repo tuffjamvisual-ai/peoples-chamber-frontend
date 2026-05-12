@@ -111,11 +111,11 @@ export default async function EarningsPage() {
   const top = rows.slice(0, 50)
 
   return (
-    <div className="min-h-screen bg-[#1a1a1a] text-white">
+    <div className="min-h-screen bg-[#505050] text-white">
       <Navigation />
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-        <header className="border-b border-[#333333] pb-6 mb-6">
+        <header className="border-b border-[#5a5a5a] pb-6 mb-6">
           <p className="text-[11px] uppercase tracking-[0.3em] font-semibold mb-3 text-white">
             The People&apos;s Chamber · MP Earnings
           </p>

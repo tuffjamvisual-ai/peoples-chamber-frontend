@@ -53,7 +53,7 @@ export default async function CommitteePublicationPage({ params }: Props) {
   const externalUrl = row.publication_url || row.url || null;
 
   return (
-    <div className="min-h-screen bg-[#1a1a1a] text-white">
+    <div className="min-h-screen bg-[#505050] text-white">
       <Navigation />
       <main className="max-w-3xl mx-auto px-4 sm:px-6 pb-16">
         <Link href="/" className="inline-flex items-center gap-2 text-white hover:text-white mb-8 text-sm">
@@ -98,7 +98,7 @@ export default async function CommitteePublicationPage({ params }: Props) {
             {row.full_content}
           </article>
         ) : (
-          <div className="border-t border-[#333333] pt-8 mt-8">
+          <div className="border-t border-[#5a5a5a] pt-8 mt-8">
             <p className="text-white text-sm leading-relaxed">
               The full text of this publication has not been mirrored locally. Use the link above to read it on the UK Parliament site.
             </p>

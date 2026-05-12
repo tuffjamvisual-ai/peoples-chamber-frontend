@@ -7,7 +7,7 @@ import Navigation from '../../components/Navigation'
 export const revalidate = 60
 
 const SERIF = '"Georgia", "Charter", "Times New Roman", serif'
-const BORDER = '#333333'
+const BORDER = '#5a5a5a'
 const MUTED = '#9a9a9a'
 
 type CoverageRow = {
@@ -57,7 +57,7 @@ export default async function CoveragePage({ params }: { params: Promise<{ id: s
     : ''
 
   return (
-    <div style={{ minHeight: '100vh', background: '#1a1a1a', color: '#fff' }}>
+    <div style={{ minHeight: '100vh', background: '#505050', color: '#fff' }}>
       <Navigation />
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
@@ -69,7 +69,7 @@ export default async function CoveragePage({ params }: { params: Promise<{ id: s
         </Link>
 
         <article>
-          <header className="mb-6 pb-6 border-b border-[#333333]">
+          <header className="mb-6 pb-6 border-b border-[#5a5a5a]">
             <p className="text-[11px] uppercase tracking-[0.25em] mb-3 font-semibold text-white">
               {row.source_outlet}{dateLabel ? ` · ${dateLabel}` : ''}
             </p>
@@ -91,7 +91,7 @@ export default async function CoveragePage({ params }: { params: Promise<{ id: s
           {/* People's Chamber commentary — our editorial */}
           {row.commentary && (
             <section
-              className="my-8 p-6 border-l-4 bg-[#111111]"
+              className="my-8 p-6 border-l-4 bg-[#353535]"
               style={{ borderLeftColor: '#fff' }}
               aria-label="People's Chamber commentary"
             >

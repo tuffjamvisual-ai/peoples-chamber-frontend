@@ -1,7 +1,7 @@
 import Link from 'next/link'
 
 const BG = '#0d0d0d'
-const BORDER = '#262626'
+const BORDER = '#4a4a4a'
 const MUTED = '#9a9a9a'
 const FONT = 'var(--font-geist-sans), Arial, Helvetica, sans-serif'
 

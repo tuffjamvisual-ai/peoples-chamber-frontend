@@ -4,7 +4,7 @@ import { useState } from 'react'
 
 const C = {
   bg:   '#F4EFE5',
-  ink:  '#181C1F',
+  ink:  '#404040',
   red:  '#B02A2A',
   gold: '#C8A76A',
 }

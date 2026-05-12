@@ -68,10 +68,10 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
   }
 
   return (
-    <div className="overflow-x-auto border border-[#333333]">
+    <div className="overflow-x-auto border border-[#5a5a5a]">
       <table className="w-full text-[13px] border-collapse" style={{ minWidth: '900px' }}>
         <thead>
-          <tr className="bg-[#111] border-b border-[#333333] text-left">
+          <tr className="bg-[#111] border-b border-[#5a5a5a] text-left">
             <Th label="#"        active={sortKey === 'rank'}           dir={sortDir} onClick={() => toggle('rank')}           align="right" width={48} />
             <Th label="MP"       active={sortKey === 'name'}           dir={sortDir} onClick={() => toggle('name')}           />
             <Th label="Base"     active={sortKey === 'base'}           dir={sortDir} onClick={() => toggle('base')}           align="right" />
@@ -88,7 +88,7 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
             return (
               <tr
                 key={r.member_id}
-                className="border-b border-[#222] hover:bg-[#0e0e0e] transition-colors"
+                className="border-b border-[#222] hover:bg-[#353535] transition-colors"
               >
                 <td className="px-3 py-3 text-right text-white opacity-60 tabular-nums" style={{ borderLeft: `2px solid ${partyColour}` }}>
                   {rank}

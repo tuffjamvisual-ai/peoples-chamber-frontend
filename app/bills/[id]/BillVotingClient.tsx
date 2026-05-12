@@ -76,9 +76,9 @@ function VoteButton({
 }) {
   const baseClasses = 'py-3 text-[15px] uppercase tracking-[0.2em] font-bold transition-colors rounded-sm'
   const style: React.CSSProperties = active
-    ? { backgroundColor: colour, color: '#1a1a1a' }
+    ? { backgroundColor: colour, color: '#505050' }
     : disabled
-    ? { backgroundColor: '#2e2e2e', color: '#ffffff', cursor: 'not-allowed' }
+    ? { backgroundColor: '#404040', color: '#ffffff', cursor: 'not-allowed' }
     : { backgroundColor: colour + '22', color: colour, border: `1px solid ${colour}55` }
   return (
     <button onClick={onClick} disabled={disabled} className={baseClasses} style={style}>

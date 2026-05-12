@@ -14,7 +14,7 @@ export const revalidate = 3600;
 const YEAR = '24_25';
 const YEAR_LABEL = '2024 / 2025';
 const ACCENT = '#ffffff';
-const BORDER = '#333333';
+const BORDER = '#5a5a5a';
 const MUTED = '#9a9a9a';
 
 function fmtMoney(v: number | string | null | undefined): string {
@@ -77,12 +77,12 @@ export default async function ExpensesPage() {
   const grandTotal = top.reduce((s, x) => s + (Number(x.row.total_spend) || 0), 0);
 
   return (
-    <div className="min-h-screen bg-[#1a1a1a] text-white">
+    <div className="min-h-screen bg-[#505050] text-white">
       <Navigation />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
         {/* Header */}
-        <header className="border-b border-[#333333] pb-8 mb-8">
+        <header className="border-b border-[#5a5a5a] pb-8 mb-8">
           <p className="text-[11px] uppercase tracking-[0.3em] font-medium mb-3" style={{ color: ACCENT }}>
             The People&apos;s Chamber · Expenses
           </p>
@@ -96,7 +96,7 @@ export default async function ExpensesPage() {
             Ranked by total business costs claimed across staffing, office, accommodation, travel and other categories.
             Source: <a href="https://www.theipsa.org.uk" target="_blank" rel="noopener noreferrer" className="text-white hover:underline">IPSA total-spend data</a>.
           </p>
-          <div className="grid grid-cols-3 gap-px border border-[#333333]">
+          <div className="grid grid-cols-3 gap-px border border-[#5a5a5a]">
             <Stat label="Top 10 combined" value={fmtMoney(grandTotal)} />
             <Stat label="Average" value={top.length ? fmtMoney(grandTotal / top.length) : '£0'} />
             <Stat label="Year" value={YEAR_LABEL} />
@@ -104,7 +104,7 @@ export default async function ExpensesPage() {
         </header>
 
         {/* Ranked list */}
-        <ol className="space-y-px border border-[#333333]">
+        <ol className="space-y-px border border-[#5a5a5a]">
           {top.map((x, i) => (
             <Row key={x.mp.member_id} rank={i + 1} row={x.row} mp={x.mp} />
           ))}
@@ -122,7 +122,7 @@ function Row({ rank, row, mp }: { rank: number; row: ExpenseRow; mp: MpRow }) {
   const partyColour = mp.party_colour ? '#' + mp.party_colour.replace('#', '') : '#7697a2';
   const name = mp.display_name || mp.name || '';
   return (
-    <li className="bg-[#1a1a1a] p-5 border-l-2 hover:bg-[#0e0e0e] transition-colors" style={{ borderLeftColor: partyColour }}>
+    <li className="bg-[#505050] p-5 border-l-2 hover:bg-[#353535] transition-colors" style={{ borderLeftColor: partyColour }}>
       <div className="grid grid-cols-[auto_auto_1fr_auto] gap-4 sm:gap-5 items-center mb-4">
         <div
           className="text-3xl sm:text-4xl font-bold tabular-nums w-10 text-center"
@@ -183,7 +183,7 @@ function Row({ rank, row, mp }: { rank: number; row: ExpenseRow; mp: MpRow }) {
       </div>
 
       {/* Category breakdown */}
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-px bg-[#222222] border border-[#333333]">
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-px bg-[#404040] border border-[#5a5a5a]">
         <Cell label="Staffing"      v={row.staffing_spend} />
         <Cell label="Office"        v={row.office_spend} />
         <Cell label="Accommodation" v={row.accommodation_spend} />
@@ -197,7 +197,7 @@ function Row({ rank, row, mp }: { rank: number; row: ExpenseRow; mp: MpRow }) {
 
 function Cell({ label, v }: { label: string; v: number | null | undefined }) {
   return (
-    <div className="bg-[#1a1a1a] px-2.5 py-2">
+    <div className="bg-[#505050] px-2.5 py-2">
       <p className="text-[9px] uppercase tracking-[0.15em] text-white opacity-70 mb-1">{label}</p>
       <p className="text-[13px] font-semibold text-white tabular-nums leading-none">{fmtMoney(v)}</p>
     </div>
@@ -206,7 +206,7 @@ function Cell({ label, v }: { label: string; v: number | null | undefined }) {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-[#1a1a1a] px-4 py-4">
+    <div className="bg-[#505050] px-4 py-4">
       <p className="text-[10px] uppercase tracking-[0.22em] text-white opacity-70 mb-1.5 font-medium">{label}</p>
       <p
         className="text-2xl font-bold leading-none tracking-tight text-white tabular-nums"

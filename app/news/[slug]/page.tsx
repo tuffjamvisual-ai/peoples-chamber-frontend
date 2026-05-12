@@ -8,7 +8,7 @@ export const revalidate = 3600
 
 const SERIF = '"Georgia", "Charter", "Times New Roman", serif'
 const ACCENT = '#ffffff'
-const BORDER = '#333333'
+const BORDER = '#5a5a5a'
 const MUTED = '#9a9a9a'
 
 type PressRelease = {
@@ -75,7 +75,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
     : ''
 
   return (
-    <div style={{ minHeight: '100vh', background: '#1a1a1a', color: '#fff' }}>
+    <div style={{ minHeight: '100vh', background: '#505050', color: '#fff' }}>
       <Navigation />
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
@@ -87,7 +87,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
         </Link>
 
         <article>
-          <header className="mb-6 pb-6 border-b border-[#333333]">
+          <header className="mb-6 pb-6 border-b border-[#5a5a5a]">
             <p className="text-[11px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>
               {release.organisation || 'UK Government'}{dateLabel ? ` · ${dateLabel}` : ''}
             </p>

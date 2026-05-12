@@ -92,12 +92,12 @@ export default function PollsClient() {
           placeholder="Search polls..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-[40%] px-4 py-2 bg-[#222222] text-white rounded border border-[#333333] focus:border-[#ffffff] focus:outline-none text-sm"
+          className="w-[40%] px-4 py-2 bg-[#404040] text-white rounded border border-[#5a5a5a] focus:border-[#ffffff] focus:outline-none text-sm"
         />
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value as SortOption)}
-          className="px-3 py-2 bg-[#222222] text-white text-sm rounded border border-[#333333] focus:border-[#ffffff] focus:outline-none"
+          className="px-3 py-2 bg-[#404040] text-white text-sm rounded border border-[#5a5a5a] focus:border-[#ffffff] focus:outline-none"
         >
           <option value="popular">Most Popular</option>
           <option value="newest">Newest</option>
@@ -119,11 +119,11 @@ export default function PollsClient() {
             const hasVoted = !!userVotes[poll.id]
 
             return (
-              <div key={poll.id} className="bg-[#1a1a1a] border border-[#333333] rounded-lg p-5 flex flex-col min-h-[180px]">
+              <div key={poll.id} className="bg-[#505050] border border-[#5a5a5a] rounded-lg p-5 flex flex-col min-h-[180px]">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm px-2 py-0.5 bg-white/10 text-[#ffffff] rounded border border-white/30">Poll</span>
                   {poll.constituency && (
-                    <span className="text-sm px-2 py-0.5 bg-[#222222] text-white rounded border border-[#383838]">
+                    <span className="text-sm px-2 py-0.5 bg-[#404040] text-white rounded border border-[#383838]">
                       {poll.constituency}
                     </span>
                   )}
@@ -136,7 +136,7 @@ export default function PollsClient() {
 
                 {/* Vote bar */}
                 <div className="mb-1">
-                  <div className="h-2 bg-[#222222] rounded-full overflow-hidden flex">
+                  <div className="h-2 bg-[#404040] rounded-full overflow-hidden flex">
                     <div className="bg-[#4a8a3a] h-full transition-all" style={{ width: yesPercent + '%' }} />
                     <div className="bg-[#8a3a3a] h-full transition-all" style={{ width: noPercent + '%' }} />
                   </div>
@@ -152,14 +152,14 @@ export default function PollsClient() {
                   <button
                     onClick={() => handleVote(poll.id, 'yes')}
                     disabled={hasVoted}
-                    className={'px-4 py-1.5 rounded text-sm font-medium transition-colors ' + (hasVoted ? (userVotes[poll.id] === 'yes' ? 'bg-[#222222] text-white' : 'bg-[#222222] text-white cursor-not-allowed') : 'bg-[#222222] hover:bg-[#222222] text-white')}
+                    className={'px-4 py-1.5 rounded text-sm font-medium transition-colors ' + (hasVoted ? (userVotes[poll.id] === 'yes' ? 'bg-[#404040] text-white' : 'bg-[#404040] text-white cursor-not-allowed') : 'bg-[#404040] hover:bg-[#404040] text-white')}
                   >
                     {hasVoted && userVotes[poll.id] === 'yes' ? '✓ Yes' : 'Yes'}
                   </button>
                   <button
                     onClick={() => handleVote(poll.id, 'no')}
                     disabled={hasVoted}
-                    className={'px-4 py-1.5 rounded text-sm font-medium transition-colors ' + (hasVoted ? (userVotes[poll.id] === 'no' ? 'bg-[#8a3a3a] text-white' : 'bg-[#222222] text-white cursor-not-allowed') : 'bg-[#8a3a3a] hover:bg-[#8a3a3a] text-white')}
+                    className={'px-4 py-1.5 rounded text-sm font-medium transition-colors ' + (hasVoted ? (userVotes[poll.id] === 'no' ? 'bg-[#8a3a3a] text-white' : 'bg-[#404040] text-white cursor-not-allowed') : 'bg-[#8a3a3a] hover:bg-[#8a3a3a] text-white')}
                   >
                     {hasVoted && userVotes[poll.id] === 'no' ? '✓ No' : 'No'}
                   </button>
