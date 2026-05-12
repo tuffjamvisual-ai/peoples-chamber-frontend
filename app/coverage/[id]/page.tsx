@@ -60,7 +60,7 @@ export default async function CoveragePage({ params }: { params: Promise<{ id: s
     <div style={{ minHeight: '100vh', background: '#505050', color: '#fff' }}>
       <Navigation />
 
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
+      <main className="bg-[#505050] shadow-[0_0_40px_rgba(0,0,0,0.4)] max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
         <Link
           href="/"
           className="inline-flex items-center gap-2 text-[12px] uppercase tracking-[0.2em] text-white opacity-80 hover:opacity-100 mb-8"

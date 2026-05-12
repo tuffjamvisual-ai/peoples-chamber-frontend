@@ -47,7 +47,7 @@ export default function MPsClient({ mps }: { mps: MP[] }) {
   )
 
   return (
-    <main className="max-w-[1200px] mx-auto px-4 sm:px-6 py-10 sm:py-16">
+    <main className="bg-[#505050] shadow-[0_0_40px_rgba(0,0,0,0.4)] max-w-[1200px] mx-auto px-4 sm:px-6 py-10 sm:py-16">
       <header className="border-b border-[#5a5a5a] pb-10 mb-10">
         <p className="text-[13px] uppercase tracking-[0.3em] text-[#ffffff] font-medium mb-4">
           The People&apos;s Chamber · Members

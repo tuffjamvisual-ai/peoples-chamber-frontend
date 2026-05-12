@@ -77,10 +77,10 @@ export default async function ExpensesPage() {
   const grandTotal = top.reduce((s, x) => s + (Number(x.row.total_spend) || 0), 0);
 
   return (
-    <div className="min-h-screen bg-[#505050] text-white">
+    <div className="min-h-screen bg-[#606060] text-white">
       <Navigation />
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
+      <main className="bg-[#505050] shadow-[0_0_40px_rgba(0,0,0,0.4)] max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
         {/* Header */}
         <header className="border-b border-[#5a5a5a] pb-8 mb-8">
           <p className="text-[11px] uppercase tracking-[0.3em] font-medium mb-3" style={{ color: ACCENT }}>

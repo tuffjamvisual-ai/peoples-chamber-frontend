@@ -9,10 +9,10 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-[#505050] text-white">
+    <div className="min-h-screen bg-[#606060] text-white">
       <Navigation />
 
-      <main className="max-w-2xl mx-auto px-6 py-20 text-white leading-loose space-y-8">
+      <main className="bg-[#505050] shadow-[0_0_40px_rgba(0,0,0,0.4)] max-w-2xl mx-auto px-6 py-20 text-white leading-loose space-y-8">
         <h1 className="text-4xl sm:text-5xl font-semibold text-[#ffffff] mb-6 tracking-tight">
           About
         </h1>

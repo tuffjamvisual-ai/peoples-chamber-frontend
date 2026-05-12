@@ -76,9 +76,9 @@ export default async function TransparencySectionPage({
   const totalCount = total ?? 0
 
   return (
-    <div className="min-h-screen bg-[#505050] text-white">
+    <div className="min-h-screen bg-[#606060] text-white">
       <Navigation />
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
+      <main className="bg-[#505050] shadow-[0_0_40px_rgba(0,0,0,0.4)] max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
         <Link
           href="/transparency"
           className="inline-flex items-center gap-2 text-[13px] uppercase tracking-[0.25em] text-white hover:text-white mb-8 transition-colors"

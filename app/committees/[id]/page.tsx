@@ -53,9 +53,9 @@ export default async function CommitteePublicationPage({ params }: Props) {
   const externalUrl = row.publication_url || row.url || null;
 
   return (
-    <div className="min-h-screen bg-[#505050] text-white">
+    <div className="min-h-screen bg-[#606060] text-white">
       <Navigation />
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 pb-16">
+      <main className="bg-[#505050] shadow-[0_0_40px_rgba(0,0,0,0.4)] max-w-3xl mx-auto px-4 sm:px-6 pb-16">
         <Link href="/" className="inline-flex items-center gap-2 text-white hover:text-white mb-8 text-sm">
           ← Home
         </Link>

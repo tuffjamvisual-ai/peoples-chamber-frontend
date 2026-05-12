@@ -40,9 +40,9 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
   }, [slug]);
 
   return (
-    <div className="min-h-screen bg-[#505050]">
+    <div className="min-h-screen bg-[#606060]">
       <Navigation />
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 pb-12">
+      <main className="bg-[#505050] shadow-[0_0_40px_rgba(0,0,0,0.4)] max-w-3xl mx-auto px-4 sm:px-6 pb-12">
         <Link href="/departments" className="inline-flex items-center gap-2 text-white hover:text-white mb-6 text-sm">
           ← Back to Departments
         </Link>

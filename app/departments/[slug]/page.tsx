@@ -93,7 +93,7 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
 
   if (!dept)
     return (
-      <div className="min-h-screen bg-[#505050] flex items-center justify-center">
+      <div className="min-h-screen bg-[#606060] flex items-center justify-center">
         <p className="text-white text-sm">Department not found</p>
       </div>
     );
@@ -111,9 +111,9 @@ export default function DepartmentPage({ params }: { params: Promise<{ slug: str
   }) || [];
 
   return (
-    <div className="min-h-screen bg-[#505050] text-white">
+    <div className="min-h-screen bg-[#606060] text-white">
       <Navigation />
-      <main className="max-w-[1200px] mx-auto px-4 sm:px-6 py-10 sm:py-16">
+      <main className="bg-[#505050] shadow-[0_0_40px_rgba(0,0,0,0.4)] max-w-[1200px] mx-auto px-4 sm:px-6 py-10 sm:py-16">
         <Link href="/departments" className="inline-flex items-center gap-2 text-[13px] uppercase tracking-[0.25em] text-white hover:text-white mb-8 transition-colors">
           ← Back to Departments
         </Link>

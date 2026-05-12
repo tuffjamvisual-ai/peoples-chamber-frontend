@@ -5,7 +5,8 @@ import Link from 'next/link'
 
 export const revalidate = 3600
 
-const BG = '#505050'
+const BG = '#606060'
+const CONTENT_BG = '#505050'
 const PANEL = '#353535'
 const PANEL_DEEP = '#353535'
 const BORDER = '#5a5a5a'
@@ -158,7 +159,7 @@ export default async function HomePage() {
         </section>
       )}
 
-      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '3rem 1.5rem 4rem' }}>
+      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '3rem 1.5rem 4rem', background: CONTENT_BG, boxShadow: '0 0 40px rgba(0,0,0,0.4)' }}>
 
         {/* ─────────────────── FEATURED VOTE ─────────────────── */}
         {featuredBill && fbTotal > 0 && (

@@ -23,7 +23,7 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
   )
 
   return (
-    <main className="max-w-[1200px] mx-auto px-4 sm:px-6 py-4 sm:py-6">
+    <main className="bg-[#505050] shadow-[0_0_40px_rgba(0,0,0,0.4)] max-w-[1200px] mx-auto px-4 sm:px-6 py-4 sm:py-6">
       <div className="mb-6">
         <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">Laws</h1>
         <p className="text-white text-sm sm:text-base">

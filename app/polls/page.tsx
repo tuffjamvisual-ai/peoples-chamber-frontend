@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function PollsPage() {
   return (
-    <div className="min-h-screen bg-[#505050]">
+    <div className="min-h-screen bg-[#606060]">
       <Navigation />
       <PollsClient />
     </div>

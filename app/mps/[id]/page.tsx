@@ -143,10 +143,10 @@ export default async function MPProfilePage({ params }: PageProps) {
   const partyColour = mp.party_colour ? '#' + mp.party_colour.replace('#', '') : '#7697a2'
 
   return (
-    <div className="min-h-screen bg-[#505050]">
+    <div className="min-h-screen bg-[#606060]">
       <Navigation />
       
-      <main className="max-w-[1200px] mx-auto px-6 py-6">
+      <main className="bg-[#505050] shadow-[0_0_40px_rgba(0,0,0,0.4)] max-w-[1200px] mx-auto px-6 py-6">
         <Link 
           href="/mps"
           className="inline-flex items-center gap-2 text-white hover:text-white mb-6 transition"

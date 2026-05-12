@@ -69,10 +69,10 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
   const royalAssent = stages.find((s) => s.description === 'Royal Assent')
 
   return (
-    <div className="min-h-screen bg-[#505050] text-white">
+    <div className="min-h-screen bg-[#606060] text-white">
       <Navigation />
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
+      <main className="bg-[#505050] shadow-[0_0_40px_rgba(0,0,0,0.4)] max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
         {/* Status badges */}
         <div className="flex flex-wrap gap-2 mb-6">
           {bill.is_act && <Tag colour={SUCCESS}>✓ Passed into Law</Tag>}

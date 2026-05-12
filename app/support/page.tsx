@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function SupportPage() {
   return (
-    <div className="min-h-screen bg-[#505050] text-white p-8">
+    <div className="min-h-screen bg-[#606060] text-white p-8">
       <div className="max-w-3xl mx-auto">
         <h1 className="text-3xl font-bold mb-8">Support</h1>
         
