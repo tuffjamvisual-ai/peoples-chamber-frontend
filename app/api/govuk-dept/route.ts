@@ -19,26 +19,60 @@ export async function GET(request: Request) {
     ]);
 
     if (ministersRes.data && ministersRes.data.length > 0) {
-      // Supabase has data — use it
-      const ministers = ministersRes.data.map(m => ({
-        name: m.name,
-        photo: m.photo_url || '',
-        role: m.role,
-        slug: m.slug,
-        url: '',
-        is_secretary_of_state: m.is_secretary_of_state,
-        member_id: m.member_id ?? null,
-      }));
+      // dept_ministers has no photos populated; resolve them from mps by name match.
+      // Lords/Baronesses won't resolve (not in mps); MPs will.
+      const normalize = (s: string | null | undefined): string => {
+        if (!s) return '';
+        return s
+          .toLowerCase()
+          .replace(/^(the rt hon|rt hon|sir|dame|dr|mr|mrs|ms|miss|lord|baroness|baron)\s+/i, '')
+          .replace(/\s+(mp|mbe|obe|kbe|dbe|cbe|kcb|gcb|dso|mc|qc|kc|bt)\b/gi, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+      };
 
-      const boardMembers = officialsRes.data?.map(m => ({
-        name: m.name,
-        photo: '',
-        role: m.role,
-        slug: m.slug,
-        url: '',
-        category: m.category,
-        member_id: m.member_id ?? null,
-      })) || [];
+      const { data: mpRows } = await supabase
+        .from('mps')
+        .select('member_id, name, display_name, photo_url')
+        .eq('current_member', true);
+
+      const mpByName = new Map<string, { member_id: number; photo_url: string | null }>();
+      (mpRows || []).forEach((mp) => {
+        const keys = [normalize(mp.display_name), normalize(mp.name)];
+        keys.forEach((k) => {
+          if (k && !mpByName.has(k)) {
+            mpByName.set(k, { member_id: mp.member_id, photo_url: mp.photo_url });
+          }
+        });
+      });
+
+      const resolveMp = (rawName: string | null | undefined) => mpByName.get(normalize(rawName));
+
+      const ministers = ministersRes.data.map(m => {
+        const mp = resolveMp(m.name);
+        return {
+          name: m.name,
+          photo: m.photo_url || mp?.photo_url || '',
+          role: m.role,
+          slug: m.slug,
+          url: '',
+          is_secretary_of_state: m.is_secretary_of_state,
+          member_id: m.member_id ?? mp?.member_id ?? null,
+        };
+      });
+
+      const boardMembers = officialsRes.data?.map(m => {
+        const mp = resolveMp(m.name);
+        return {
+          name: m.name,
+          photo: mp?.photo_url || '',
+          role: m.role,
+          slug: m.slug,
+          url: '',
+          category: m.category,
+          member_id: m.member_id ?? mp?.member_id ?? null,
+        };
+      }) || [];
 
       const childOrgs = agenciesRes.data?.map(o => ({
         name: o.name,

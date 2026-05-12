@@ -18,17 +18,46 @@ const ACCENT = '#ffffff';
 export default async function DepartmentsPage() {
   const totalZones = departments.reduce((sum, d) => sum + d.controlZones.length, 0);
 
-  const { data: sosRows } = await supabase
-    .from('dept_ministers')
-    .select('dept_slug, photo_url, member_id')
-    .eq('is_secretary_of_state', true);
+  // dept_ministers has photo_url and member_id largely empty; resolve from mps by
+  // normalised name match. Lords/Baronesses won't resolve (not in mps).
+  const normalize = (s: string | null | undefined): string => {
+    if (!s) return '';
+    return s
+      .toLowerCase()
+      .replace(/^(the rt hon|rt hon|sir|dame|dr|mr|mrs|ms|miss|lord|baroness|baron)\s+/i, '')
+      .replace(/\s+(mp|mbe|obe|kbe|dbe|cbe|kcb|gcb|dso|mc|qc|kc|bt)\b/gi, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
+  const [{ data: sosRows }, { data: mpRows }] = await Promise.all([
+    supabase
+      .from('dept_ministers')
+      .select('dept_slug, name, photo_url, member_id')
+      .eq('is_secretary_of_state', true),
+    supabase.from('mps').select('member_id, name, display_name, photo_url').eq('current_member', true),
+  ]);
+
+  const mpByName = new Map<string, { member_id: number; photo_url: string | null }>();
+  (mpRows || []).forEach((mp) => {
+    [normalize(mp.display_name), normalize(mp.name)].forEach((k) => {
+      if (k && !mpByName.has(k)) mpByName.set(k, { member_id: mp.member_id, photo_url: mp.photo_url });
+    });
+  });
+
   const photoBySlug = new Map<string, string>(
-    (sosRows || []).map((r: { dept_slug: string; photo_url: string | null }) => [r.dept_slug, r.photo_url || ''])
+    (sosRows || []).map((r: { dept_slug: string; name: string | null; photo_url: string | null }) => [
+      r.dept_slug,
+      r.photo_url || mpByName.get(normalize(r.name))?.photo_url || '',
+    ])
   );
   const memberIdBySlug = new Map<string, number>(
     (sosRows || [])
-      .filter((r: { member_id: number | null }) => r.member_id != null)
-      .map((r: { dept_slug: string; member_id: number }) => [r.dept_slug, r.member_id])
+      .map((r: { dept_slug: string; name: string | null; member_id: number | null }) => {
+        const mid = r.member_id ?? mpByName.get(normalize(r.name))?.member_id ?? null;
+        return mid != null ? ([r.dept_slug, mid] as [string, number]) : null;
+      })
+      .filter((x): x is [string, number] => x !== null)
   );
 
   return (
