@@ -69,48 +69,22 @@ export default async function PreviewEightBillsPage() {
         </section>
 
         <section className="bills-watch">
-          <div className="watch-tabs" aria-hidden>
-            <span className="tab-on">Bills</span>
-            <span>Watch</span>
-            <span>Tally</span>
-          </div>
-
-          <div className="watch-head">
-            <h2>Bills to Watch</h2>
-            <span className="meta">Top {bills.length} by public tally</span>
-          </div>
-
-          <ol>
-            {bills.map((bill: any, idx: number) => {
-              const yes = bill.vote_count_yes || 0;
-              const no = bill.vote_count_no || 0;
-              const abs = bill.vote_count_abstain || 0;
-              const total = yes + no + abs;
-              const yesPct = total > 0 ? Math.round((yes / total) * 100) : 0;
+          <h2>Bills to Watch</h2>
+          <ul>
+            {bills.map((bill: any) => {
               const sub = bill.current_stage || bill.category || 'Before Parliament';
-
               return (
                 <li key={bill.id}>
-                  <span className="bullet" aria-hidden>{idx + 1}</span>
+                  <span className="check" aria-hidden>✓</span>
                   <div>
                     <Link href={`/bills/${bill.id}`} className="title">{bill.title}</Link>
                     <span className="sub">{sub}</span>
                   </div>
-                  <span className="tally">
-                    <strong>{yesPct}%</strong>
-                    {total.toLocaleString()} votes
-                  </span>
                 </li>
               );
             })}
-          </ol>
-
-          <div className="watch-foot">
-            <span className="count">
-              {totalActive.toLocaleString()} bills tracked · updated daily
-            </span>
-            <Link href="/bills" className="see-all">See all bills →</Link>
-          </div>
+          </ul>
+          <Link href="/bills" className="see-all">See all bills →</Link>
         </section>
 
         <section className="callout">
