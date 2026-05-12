@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { getAllBills } from '@/lib/data';
 import './bills-template.css';
-import '../preview-8/preview-8.css';
+import '../preview-8/bills/bills.css';
 
-export const revalidate = 3600;
+export const revalidate = 600;
 
 export const metadata: Metadata = {
   title: 'Bills',
@@ -12,11 +13,29 @@ export const metadata: Metadata = {
   alternates: { canonical: '/bills' },
 };
 
-export default function BillsPage() {
+export default async function BillsPage() {
+  const allBills = await getAllBills();
+  const active = allBills.filter((b) => !b.bill_withdrawn && !b.is_act);
+  const top = active.slice(0, 5);
+  const featured = active[0];
+  const totalActive = active.length;
+  const totalVotes = active
+    .slice(0, 20)
+    .reduce(
+      (s, b) =>
+        s + (b.vote_count_yes || 0) + (b.vote_count_no || 0) + (b.vote_count_abstain || 0),
+      0,
+    );
+
+  const sponsors = active
+    .filter((b) => b.sponsor_name)
+    .slice(0, 4)
+    .map((b) => b.sponsor_name!);
+
   return (
     <main className="bills-template-stage">
       <div className="bills-template-shell">
-        {/* ────── Template HEADER ────── */}
+        {/* ────── Template HEADER (untouched) ────── */}
         <div className="bt-header">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/bills-template-header.png" alt="The People's Chamber — masthead" />
@@ -37,48 +56,157 @@ export default function BillsPage() {
           <Link href="/support"      className="hot h-n-about"  aria-label="About" />
         </div>
 
-        {/* ────── Body: landing-page middle content ────── */}
-        <div className="bt-body">
-          <div className="pix-mid">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/landing-v2-middle.png"
-              alt="The People's Chamber — body"
-            />
+        {/* ────── Body: landing magazine content as HTML ────── */}
+        <div className="bills-body">
+          <section className="hero">
+            <div>
+              <h2>
+                Every bill.
+                <br />
+                <em>Every vote.</em>
+                <span className="red">No filter.</span>
+              </h2>
+              <p className="lede">
+                We shine a light on Westminster, so you can see what they&apos;re
+                really up to. Because sunlight is the best disinfectant.
+              </p>
+              <div className="cta-row">
+                <Link href="/bills" className="btn red">Explore Bills</Link>
+                <Link href="/transparency" className="btn blue">Follow the Money</Link>
+              </div>
+            </div>
 
-            <Link href="/bills"        className="hot hero-headline" aria-label="Power isn't hidden. It's published." />
-            <Link href="/bills"        className="hot b-explore"     aria-label="Explore Parliament" />
-            <Link href="/transparency" className="hot b-money"       aria-label="Follow the Money" />
-            <Link href="/transparency" className="hot bubble-money"  aria-label="Where's our money?" />
-            <Link href="/about"        className="hot bubble-right"  aria-label="Accountability isn't a favour, it's a right" />
+            <div className="hero-illo">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/bills-hero.png" alt="Courts and Tribunals Bill — public vote tally" />
+              <div className="hero-bubble right-acc">
+                Accountability isn&apos;t a favour <strong>— it&apos;s a right.</strong>
+              </div>
+            </div>
+          </section>
 
-            <Link href="/bills"        className="hot c-cover-card"  aria-label="The Bill of Their Lives" />
-            <Link href="/bills"        className="hot c-cover-cta"   aria-label="Read the story" />
+          <section className="tile-grid">
+            <article className="tile cover">
+              <span className="tile-kicker">Cover Story</span>
+              <div className="feature-illo">
+                {featured ? featured.title : 'Featured Bill'}
+              </div>
+              <h3>The Bill of <em className="red">Their Lives</em></h3>
+              <p>
+                {featured?.current_stage ? `Currently at ${featured.current_stage}. ` : ''}
+                Inside the headline bill of the week. Big words, bigger
+                consequences.
+              </p>
+              <Link
+                href={featured ? `/bills/${featured.id}` : '/bills'}
+                className="tile-cta"
+              >
+                Read the story →
+              </Link>
+            </article>
 
-            <Link href="/polls"        className="hot c-street"      aria-label="Street View — public voices" />
+            <article className="tile street">
+              <span className="tile-kicker">Street View</span>
+              <p className="quote">They&apos;ve got majorities, we&apos;ve got memories.</p>
+              <p className="attrib">Real voices · Real opinions · No filter</p>
+              <Link href="/polls" className="tile-cta">Add your view →</Link>
+            </article>
 
-            <Link href="/bills"        className="hot c-bills-card"  aria-label="Bills to watch" />
-            <Link href="/bills"        className="hot bills-row-1"   aria-label="Bill row 1" />
-            <Link href="/bills"        className="hot bills-row-2"   aria-label="Bill row 2" />
-            <Link href="/bills"        className="hot bills-row-3"   aria-label="Bill row 3" />
-            <Link href="/bills"        className="hot bills-row-4"   aria-label="Bill row 4" />
-            <Link href="/bills"        className="hot bills-row-5"   aria-label="Bill row 5" />
-            <Link href="/bills"        className="hot bills-all"     aria-label="See all bills" />
+            <article className="tile bills-watch">
+              <h3>Bills to Watch</h3>
+              <ul>
+                {top.map((bill) => (
+                  <li key={bill.id}>
+                    <span className="check" aria-hidden>✓</span>
+                    <div>
+                      <Link href={`/bills/${bill.id}`} className="title">
+                        {bill.title}
+                      </Link>
+                      <span className="sub">
+                        {bill.current_stage || bill.category || 'Before Parliament'}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <Link href="/bills" className="tile-cta">See all bills →</Link>
+            </article>
 
-            <Link href="/transparency" className="hot c-money-card"  aria-label="Where your tax really goes" />
+            <article className="tile money">
+              <div>
+                <span className="tile-kicker">Bills Tracker</span>
+                <h3>{totalActive.toLocaleString()} live bills</h3>
+                <p>
+                  Active legislation moving through both Houses. Updated daily
+                  from official Parliament feeds.
+                </p>
+                <Link href="/bills" className="tile-cta">View all →</Link>
+              </div>
+              <div className="pie" aria-hidden>
+                <span>{totalActive >= 1000 ? `${Math.round(totalActive / 1000)}k` : totalActive}</span>
+              </div>
+            </article>
 
-            <Link href="/mps"          className="hot c-who-card"    aria-label="MPs" />
-            <Link href="/mps"          className="hot who-more"      aria-label="More faces, more records" />
+            <article className="tile who">
+              <span className="tile-kicker">MPs</span>
+              <h3>Behind the bills</h3>
+              <div className="sponsors" aria-hidden>
+                {sponsors.length > 0 ? (
+                  sponsors.map((name, i) => (
+                    <div key={i}>
+                      <span>{name.split(' ').slice(-1)[0]}</span>
+                    </div>
+                  ))
+                ) : (
+                  <>
+                    <div><span>MP</span></div>
+                    <div><span>MP</span></div>
+                    <div><span>MP</span></div>
+                    <div><span>MP</span></div>
+                  </>
+                )}
+              </div>
+              <Link href="/mps" className="tile-cta">All MPs →</Link>
+            </article>
 
-            <Link href="/polls"        className="hot c-poll"        aria-label="Public poll callout" />
-            <Link href="/polls"        className="hot c-takepart"    aria-label="Take part in our weekly poll" />
+            <article className="tile">
+              <span className="tile-kicker">Take Part</span>
+              <h3><em>Vote</em> on the bill</h3>
+              <p>
+                {totalVotes.toLocaleString()} public votes recorded on the top
+                twenty bills. Add yours — Parliament&apos;s tally may differ.
+              </p>
+              <Link
+                href={featured ? `/bills/${featured.id}` : '/bills'}
+                className="tile-cta"
+              >
+                Cast your vote →
+              </Link>
+            </article>
+          </section>
 
-            <Link href="/polls"        className="hot stat-72"       aria-label="72% of people think the government doesn't listen" />
-            <Link href="/polls"        className="hot stat-said"     aria-label="You said it, we're publishing it" />
-          </div>
+          <section className="stat-band">
+            <div className="big">
+              72%
+              <small>
+                of people think the government doesn&apos;t listen to them anymore.
+              </small>
+            </div>
+            <div className="pull">
+              <h3>You said it. <br />We&apos;re publishing it.</h3>
+              <p>
+                Every public vote logged. Every result on file. Westminster has
+                its tally — now you&apos;ve got yours.
+              </p>
+            </div>
+            <div className="take-part">
+              <strong>Take part in our weekly poll</strong>
+              <Link href="/polls">See full results →</Link>
+            </div>
+          </section>
         </div>
 
-        {/* ────── Template FOOTER ────── */}
+        {/* ────── Template FOOTER (untouched) ────── */}
         <div className="bt-footer">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/bills-template-footer.png" alt="The People's Chamber — footer" />
