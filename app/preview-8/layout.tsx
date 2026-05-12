@@ -6,7 +6,7 @@ export default function PreviewEightLayout({ children }: { children: ReactNode }
   return (
     <main className="pixel-stage">
       <div className="pixel-shell">
-        {/* ────── Shared pixel-perfect HEADER ────── */}
+        {/* ────── Shared pixel-perfect HEADER (cropped from landing-v2.png) ────── */}
         <div className="pix-header">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -24,10 +24,10 @@ export default function PreviewEightLayout({ children }: { children: ReactNode }
           {/* Speech bubble */}
           <Link href="/about" className="hot h-bubble" aria-label="Democracy works better when people watch" />
 
-          {/* Nav strip (inside the header image) */}
+          {/* Nav strip */}
           <Link href="/news"         className="hot h-n-cover"  aria-label="Cover Story" />
           <Link href="/news"         className="hot h-n-street" aria-label="Street View" />
-          <Link href="/bills"        className="hot h-n-bills"  aria-label="Bills in Watch" />
+          <Link href="/bills"        className="hot h-n-bills"  aria-label="Bills to Watch" />
           <Link href="/transparency" className="hot h-n-money"  aria-label="Follow the Money" />
           <Link href="/mps"          className="hot h-n-who"    aria-label="Who's Who" />
           <Link href="/polls"        className="hot h-n-pulse"  aria-label="The People's Pulse" />
@@ -38,7 +38,7 @@ export default function PreviewEightLayout({ children }: { children: ReactNode }
         {/* ────── Page-specific body ────── */}
         <div className="pix-body">{children}</div>
 
-        {/* ────── Shared pixel-perfect FOOTER ────── */}
+        {/* ────── Shared pixel-perfect FOOTER (cropped from landing-v2.png) ────── */}
         <div className="pix-footer">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
