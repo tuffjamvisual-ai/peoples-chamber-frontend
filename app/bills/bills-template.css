@@ -256,6 +256,57 @@
   color: var(--ink-soft);
 }
 
+/* ─────── Pagination ─────── */
+.bt-pagination {
+  position: relative; z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 2px solid var(--ink);
+  font-family: 'Special Elite', monospace;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.bt-pagination .bt-page-num,
+.bt-pagination .bt-page-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  padding: 6px 10px;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  text-decoration: none;
+  box-shadow: 2px 2px 0 rgba(26, 20, 16, 0.16);
+}
+
+.bt-pagination .bt-page-num:hover,
+.bt-pagination .bt-page-arrow:hover {
+  background: var(--yellow);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 rgba(26, 20, 16, 0.22);
+}
+
+.bt-pagination .bt-page-num.is-current {
+  background: var(--oxblood);
+  color: var(--paper);
+  border-color: var(--ink);
+  box-shadow: none;
+  cursor: default;
+}
+
+.bt-pagination .bt-page-ellipsis {
+  padding: 0 4px;
+  color: var(--ink-soft);
+}
+
 @media (max-width: 920px) {
   .bt-bills-grid { grid-template-columns: repeat(2, 1fr); }
   .bt-page-head { grid-template-columns: 1fr; gap: 8px; }
@@ -264,4 +315,7 @@
 @media (max-width: 580px) {
   .bt-bills-grid { grid-template-columns: 1fr; }
   .bt-page-head h1 { font-size: 38px; }
+  .bt-pagination { font-size: 11px; }
+  .bt-pagination .bt-page-num,
+  .bt-pagination .bt-page-arrow { min-width: 30px; padding: 4px 8px; }
 }

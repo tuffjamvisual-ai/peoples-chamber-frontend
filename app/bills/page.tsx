@@ -4,6 +4,7 @@ import { getAllBills } from '@/lib/data';
 import './bills-template.css';
 
 export const revalidate = 600;
+const PAGE_SIZE = 20;
 
 export const metadata: Metadata = {
   title: 'Bills',
@@ -12,7 +13,14 @@ export const metadata: Metadata = {
   alternates: { canonical: '/bills' },
 };
 
-export default async function BillsPage() {
+export default async function BillsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const { page: pageRaw } = await searchParams;
+  const page = Math.max(1, parseInt(pageRaw || '1', 10) || 1);
+
   const bills = await getAllBills();
   const active = bills.filter((b) => !b.bill_withdrawn && !b.is_act);
   const acts = bills.filter((b) => b.is_act);
@@ -20,6 +28,11 @@ export default async function BillsPage() {
     (s, b) => s + (b.vote_count_yes || 0) + (b.vote_count_no || 0) + (b.vote_count_abstain || 0),
     0,
   );
+
+  const totalPages = Math.max(1, Math.ceil(bills.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const start = (safePage - 1) * PAGE_SIZE;
+  const pageBills = bills.slice(start, start + PAGE_SIZE);
 
   return (
     <main className="bills-template-stage">
@@ -62,7 +75,7 @@ export default async function BillsPage() {
           </header>
 
           <section className="bt-bills-grid">
-            {bills.map((bill) => {
+            {pageBills.map((bill) => {
               const yes = bill.vote_count_yes || 0;
               const no = bill.vote_count_no || 0;
               const abs = bill.vote_count_abstain || 0;
@@ -91,6 +104,8 @@ export default async function BillsPage() {
               );
             })}
           </section>
+
+          <Pagination page={safePage} totalPages={totalPages} />
         </div>
 
         {/* ────── Template FOOTER ────── */}
@@ -116,5 +131,55 @@ export default async function BillsPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+function Pagination({ page, totalPages }: { page: number; totalPages: number }) {
+  if (totalPages <= 1) return null;
+  const pageHref = (p: number) => (p === 1 ? '/bills' : `/bills?page=${p}`);
+
+  const windowSize = 2;
+  const pages: (number | 'ellipsis')[] = [];
+  for (let p = 1; p <= totalPages; p++) {
+    if (
+      p === 1 ||
+      p === totalPages ||
+      (p >= page - windowSize && p <= page + windowSize)
+    ) {
+      pages.push(p);
+    } else if (pages[pages.length - 1] !== 'ellipsis') {
+      pages.push('ellipsis');
+    }
+  }
+
+  return (
+    <nav className="bt-pagination" aria-label="Bills pagination">
+      {page > 1 && (
+        <Link href={pageHref(page - 1)} className="bt-page-arrow">
+          ← Prev
+        </Link>
+      )}
+
+      {pages.map((p, i) =>
+        p === 'ellipsis' ? (
+          <span key={`e${i}`} className="bt-page-ellipsis">…</span>
+        ) : (
+          <Link
+            key={p}
+            href={pageHref(p)}
+            className={'bt-page-num' + (p === page ? ' is-current' : '')}
+            aria-current={p === page ? 'page' : undefined}
+          >
+            {p}
+          </Link>
+        ),
+      )}
+
+      {page < totalPages && (
+        <Link href={pageHref(page + 1)} className="bt-page-arrow">
+          Next →
+        </Link>
+      )}
+    </nav>
   );
 }
