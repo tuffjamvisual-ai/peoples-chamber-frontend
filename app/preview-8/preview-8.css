@@ -20,91 +20,125 @@ body {
   border-radius: 6px;
   overflow: hidden;
   box-shadow: 0 28px 70px rgba(0, 0, 0, 0.45);
+  background: #f4ecd8;
 }
 
-.pixel-shell img {
+/* ─────────────── Shared header / footer images ─────────────── */
+.pix-header,
+.pix-footer {
+  position: relative;
+  width: 100%;
+}
+
+.pix-header img,
+.pix-footer img {
   display: block;
   width: 100%;
   height: auto;
 }
 
-.pixel-shell a.hot {
+.pix-header a.hot,
+.pix-footer a.hot {
   position: absolute;
   display: block;
-  /* Invisible hotspot — uncomment next line to visualise during alignment */
-  /* background: rgba(0, 255, 0, 0.18); outline: 1px dashed lime; */
+  /* Uncomment to visualise hotspots during alignment:
+  background: rgba(0, 255, 0, 0.18); outline: 1px dashed lime; */
   cursor: pointer;
 }
 
-.pixel-shell a.hot:focus-visible {
+.pix-header a.hot:focus-visible,
+.pix-footer a.hot:focus-visible {
   outline: 2px solid #1c4c78;
   outline-offset: -2px;
 }
 
-/* All hotspot coordinates are % of the image (1055 × 1491). */
+/* Page-specific body slot */
+.pix-body { position: relative; width: 100%; }
 
-/* ───── Issue stamp / truth badge ───── */
-.hot.s-issue { top: 0.5%; left: 1%;  width: 16%; height: 3%; }
-.hot.s-truth { top: 1%;   left: 72%; width: 22%; height: 5%; }
+/* ───── Header hotspots (% of cropped header 1055 × 340) ───── */
+.hot.h-issue    { top: 2%;   left: 1%;  width: 16%; height: 10%; }
+.hot.h-truth    { top: 4%;   left: 72%; width: 24%; height: 22%; }
+.hot.h-masthead { top: 14%;  left: 6%;  width: 65%; height: 50%; }
+.hot.h-bubble   { top: 26%;  left: 73%; width: 25%; height: 28%; }
 
-/* ───── Masthead ───── */
-.hot.masthead { top: 3.5%; left: 6%; width: 65%; height: 10%; }
+/* Nav strip — all on the same Y band at the bottom of the header crop */
+.hot.h-n-cover  { top: 80%; left: 4%;  width: 11%; height: 12%; }
+.hot.h-n-street { top: 80%; left: 16%; width: 11%; height: 12%; }
+.hot.h-n-bills  { top: 80%; left: 28%; width: 13%; height: 12%; }
+.hot.h-n-money  { top: 80%; left: 42%; width: 14%; height: 12%; }
+.hot.h-n-who    { top: 80%; left: 57%; width: 10%; height: 12%; }
+.hot.h-n-pulse  { top: 80%; left: 67%; width: 17%; height: 12%; }
+.hot.h-n-search { top: 80%; left: 86%; width: 4%;  height: 12%; }
+.hot.h-n-about  { top: 80%; left: 91%; width: 6%;  height: 12%; }
 
-/* ───── Hero speech bubble ───── */
-.hot.bubble-watch { top: 6%; left: 73%; width: 24%; height: 6%; }
+/* ───── Footer hotspots (% of cropped footer 1055 × 60) ───── */
+.hot.f-brand   { top: 10%; left: 1%;  width: 17%; height: 80%; }
+.hot.f-copy    { top: 10%; left: 18%; width: 15%; height: 80%; }
+.hot.f-tagline { top: 10%; left: 38%; width: 26%; height: 80%; }
+.hot.f-email   { top: 10%; left: 65%; width: 25%; height: 80%; }
+.hot.f-social  { top: 10%; left: 91%; width: 8%;  height: 80%; }
 
-/* ───── Nav strip ───── */
-.hot.n-cover    { top: 16%; left: 4%;  width: 12%; height: 2.5%; }
-.hot.n-street   { top: 16%; left: 16%; width: 12%; height: 2.5%; }
-.hot.n-bills    { top: 16%; left: 28%; width: 14%; height: 2.5%; }
-.hot.n-money    { top: 16%; left: 42%; width: 15%; height: 2.5%; }
-.hot.n-who      { top: 16%; left: 57%; width: 10%; height: 2.5%; }
-.hot.n-pulse    { top: 16%; left: 67%; width: 18%; height: 2.5%; }
-.hot.n-search   { top: 16%; left: 86%; width: 4%;  height: 2.5%; }
-.hot.n-about    { top: 16%; left: 91%; width: 7%;  height: 2.5%; }
+/* ─────────────── Middle image (landing body) ─────────────── */
+.pix-mid {
+  position: relative;
+  width: 100%;
+}
 
-/* ───── Hero ───── */
-.hot.hero-headline { top: 19%; left: 3%; width: 42%; height: 14%; }
-.hot.b-explore     { top: 33.5%; left: 4%;  width: 19%; height: 3%; }
-.hot.b-money       { top: 33.5%; left: 24%; width: 19%; height: 3%; }
-.hot.bubble-money  { top: 20%; left: 46%; width: 14%; height: 4%; }
-.hot.bubble-right  { top: 27%; left: 78%; width: 19%; height: 5.5%; }
+.pix-mid img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
 
-/* ───── Cover Story ───── */
-.hot.c-cover-card  { top: 42%; left: 3%; width: 31%; height: 21%; }
-.hot.c-cover-cta   { top: 60%; left: 4%; width: 16%; height: 2.5%; }
+.pix-mid a.hot {
+  position: absolute;
+  display: block;
+  cursor: pointer;
+}
 
-/* ───── Street View ───── */
-.hot.c-street      { top: 42%; left: 35%; width: 31%; height: 21%; }
+.pix-mid a.hot:focus-visible {
+  outline: 2px solid #1c4c78;
+  outline-offset: -2px;
+}
 
-/* ───── Bills to Watch ───── */
-.hot.c-bills-card  { top: 42%; left: 67%; width: 30%; height: 21%; }
-.hot.bills-row-1   { top: 47%; left: 68%; width: 28%; height: 2.5%; }
-.hot.bills-row-2   { top: 49.5%; left: 68%; width: 28%; height: 2.5%; }
-.hot.bills-row-3   { top: 52%; left: 68%; width: 28%; height: 2.5%; }
-.hot.bills-row-4   { top: 54.5%; left: 68%; width: 28%; height: 2.5%; }
-.hot.bills-row-5   { top: 57%; left: 68%; width: 28%; height: 2.5%; }
-.hot.bills-all     { top: 60.5%; left: 84%; width: 12%; height: 2.5%; }
+/* All values are % of cropped middle image (1055 × 1151).
+   Converted from full-image positions, where full pixel y = full% × 14.91
+   and middle% = (full_px - 340) / 1151 × 100. */
 
-/* ───── Follow the Money pie ───── */
-.hot.c-money-card  { top: 65%; left: 3%;  width: 31%; height: 19%; }
+/* Hero */
+.hot.hero-headline { top: 3%;   left: 3%;  width: 38%; height: 18%; }
+.hot.b-explore     { top: 19%;  left: 4%;  width: 17%; height: 4%; }
+.hot.b-money       { top: 19%;  left: 24%; width: 17%; height: 4%; }
+.hot.bubble-money  { top: 1%;   left: 46%; width: 14%; height: 6%; }
+.hot.bubble-right  { top: 10%;  left: 78%; width: 19%; height: 8%; }
 
-/* ───── Who's Who portraits ───── */
-.hot.c-who-card    { top: 65%; left: 35%; width: 38%; height: 19%; }
-.hot.who-more      { top: 81%; left: 65%; width: 12%; height: 2.5%; }
+/* Cover Story */
+.hot.c-cover-card { top: 31%; left: 1.5%; width: 30%; height: 23%; }
+.hot.c-cover-cta  { top: 53%; left: 4%;   width: 16%; height: 4%; }
 
-/* ───── Poll callout ───── */
-.hot.c-poll        { top: 65%; left: 74%; width: 23%; height: 14%; }
+/* Street View */
+.hot.c-street { top: 31%; left: 33.5%; width: 32%; height: 23%; }
 
-/* ───── 72% stat strip ───── */
-.hot.stat-72       { top: 84%; left: 3%; width: 50%; height: 7%; }
-.hot.stat-said     { top: 85%; left: 54%; width: 24%; height: 5%; }
+/* Bills to Watch */
+.hot.c-bills-card { top: 31%; left: 67%; width: 30%; height: 23%; }
+.hot.bills-row-1  { top: 36%; left: 68%; width: 28%; height: 3.5%; }
+.hot.bills-row-2  { top: 39.5%; left: 68%; width: 28%; height: 3.5%; }
+.hot.bills-row-3  { top: 43%; left: 68%; width: 28%; height: 3.5%; }
+.hot.bills-row-4  { top: 46.5%; left: 68%; width: 28%; height: 3.5%; }
+.hot.bills-row-5  { top: 50%; left: 68%; width: 28%; height: 3.5%; }
+.hot.bills-all    { top: 54%; left: 84%; width: 12%; height: 3.5%; }
 
-/* ───── Take Part poll ───── */
-.hot.c-takepart    { top: 85%; left: 80%; width: 17%; height: 8%; }
+/* Follow the Money pie */
+.hot.c-money-card { top: 60%; left: 1.5%; width: 31%; height: 25%; }
 
-/* ───── Footer ───── */
-.hot.f-brand       { top: 95%; left: 3%;  width: 16%; height: 4%; }
-.hot.f-tagline     { top: 95.5%; left: 30%; width: 28%; height: 3%; }
-.hot.f-email       { top: 95%; left: 62%; width: 28%; height: 4%; }
-.hot.f-social      { top: 96%; left: 91%; width: 8%;  height: 3%; }
+/* Who's Who */
+.hot.c-who-card { top: 60%; left: 33.5%; width: 38%; height: 25%; }
+.hot.who-more   { top: 80%; left: 65%; width: 12%; height: 3.5%; }
+
+/* Poll callout */
+.hot.c-poll     { top: 60%; left: 74%; width: 23%; height: 18%; }
+.hot.c-takepart { top: 86%; left: 80%; width: 17%; height: 10%; }
+
+/* 72% stat strip */
+.hot.stat-72   { top: 84%; left: 3%;  width: 50%; height: 9%; }
+.hot.stat-said { top: 86%; left: 54%; width: 24%; height: 6%; }
