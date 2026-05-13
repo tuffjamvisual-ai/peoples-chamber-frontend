@@ -67,7 +67,7 @@ export default async function PreviewHome2() {
             background: '#fff',
             padding: '12px 12px 48px 12px',
             width: '260px',
-            marginLeft: '-80px',
+            marginLeft: '-70px',
             transform: 'rotate(-2.3deg)',
             boxShadow: '0 4px 8px rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.03)',
             filter: 'contrast(1.05) brightness(0.98)',
