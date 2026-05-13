@@ -31,7 +31,7 @@ export default function MagazineLayout({ children }: MagazineLayoutProps) {
 
           <aside className="issue-sticker" aria-label="Issue information">
             <span>ISSUE 23</span>
-            <strong>MAY 16-22, 2025</strong>
+            <strong>MAY 16-22,<br />2025</strong>
           </aside>
 
           <div className="truth-card">
