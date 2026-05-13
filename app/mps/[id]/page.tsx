@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import MagazineLayout from '../../components/MagazineLayout'
 import { notFound } from 'next/navigation'
-import MPProfileClient from './MPProfileClient'
+import MPProfile from './MPProfile'
 import {
   MP_BASE_SALARY_2026,
   MINISTERIAL_SUPPLEMENT,
@@ -153,45 +153,7 @@ export default async function MPProfilePage({ params }: PageProps) {
           <span>Back to all MPs</span>
         </Link>
 
-        {/* Header with party colour gradient */}
-        <div className="rounded-xl overflow-hidden mb-6 relative" style={{ background: `linear-gradient(135deg, ${partyColour}33 0%, transparent 60%)`, border: `1px solid ${partyColour}40` }}>
-          <div className="absolute inset-0 opacity-5" style={{ background: `radial-gradient(circle at top left, ${partyColour}, transparent 60%)` }} />
-          <div className="relative p-6 flex items-center gap-6">
-            <div className="relative flex-shrink-0">
-              {mp.photo_url ? (
-                <Image
-                  src={mp.photo_url}
-                  alt={mp.name}
-                  width={176}
-                  height={176}
-                  priority
-                  className="w-44 h-44 rounded-full object-cover"
-                  style={{ border: `3px solid ${partyColour}` }}
-                />
-              ) : (
-                <div className="w-44 h-44 rounded-full flex items-center justify-center text-4xl font-bold text-white" style={{ border: `3px solid ${partyColour}`, background: partyColour + '33' }}>
-                  {mp.name?.charAt(0)}
-                </div>
-              )}
-            </div>
-
-            <div className="flex-1">
-              <h1 className="text-3xl sm:text-4xl font-bold text-[#14100d] mb-1">
-                {mp.display_name || mp.name}
-              </h1>
-              {mp.constituency && (
-                <p className="text-lg text-[#4a3d2f] mb-3">MP for {mp.constituency}</p>
-              )}
-              {mp.party && (
-                <span className="inline-block px-4 py-1.5 text-sm font-semibold rounded-full text-white" style={{ backgroundColor: partyColour }}>
-                  {mp.party}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <MPProfileClient
+        <MPProfile
           mp={mp}
           contact={contact}
           bio={bio}

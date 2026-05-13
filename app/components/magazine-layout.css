@@ -91,8 +91,15 @@ body {
   pointer-events: none;
 }
 
-/* Cream strip — hides the image's baked-in nav band so the
-   editable HTML nav can sit in its place. */
+/* Both covers re-sample the page's own paper texture from
+   /magazine-template.png so they blend in instead of looking like
+   flat-cream rectangles patched over the aged paper.
+
+   Trick: render the same template image at the same scale as the
+   underlying page image (1024×1536), but offset background-position
+   so the visible window falls on a clean paper area of the image
+   (y:680–840 — between the masthead band and the footer band). */
+
 .magazine-nav-cover {
   position: absolute;
   left: 38px;
@@ -100,21 +107,26 @@ body {
   top: 284px;
   height: 44px;
   z-index: 1;
-  background: var(--cream);
+  background-image: url("/magazine-template.png");
+  background-repeat: no-repeat;
+  background-size: 1024px 1536px;
+  background-position: -38px -720px;
 }
 
-/* Cream strip — hides the top section of the baked-in footer
-   (brand block + description + 4 link columns). The proof-badge
-   row at the bottom stays visible. Tweak `bottom` and `height` to
-   widen or narrow the covered band. */
+/* Top section of the baked-in footer (brand + description + 4 link
+   columns). Inset horizontally to match where the footer content
+   sits in the image — does NOT span page edges. */
 .magazine-footer-cover {
   position: absolute;
-  left: 0;
-  right: 0;
+  left: 38px;
+  right: 38px;
   bottom: 100px;
   height: 160px;
   z-index: 1;
-  background: var(--cream);
+  background-image: url("/magazine-template.png");
+  background-repeat: no-repeat;
+  background-size: 1024px 1536px;
+  background-position: -38px -720px;
 }
 
 /* Editable HTML nav — sits over the cream cover */
@@ -375,6 +387,18 @@ body {
 }
 .magazine-search:focus { outline: 2px solid var(--red); outline-offset: -1px; }
 .magazine-search::placeholder { color: rgba(20, 16, 13, 0.5); }
+
+/* Polaroid photo frame — used on MP profile hero */
+.polaroid-frame {
+  display: inline-block;
+  padding: 12px 12px 36px;
+  background: #ffffff;
+  border: 1px solid rgba(20, 16, 13, 0.18);
+  box-shadow: 2px 6px 14px rgba(20, 16, 13, 0.18);
+  transform: rotate(-2deg);
+  transition: transform 200ms ease;
+}
+.polaroid-frame:hover { transform: rotate(0deg); }
 
 /* Custom thin scrollbar on .magazine-content */
 .magazine-content {
