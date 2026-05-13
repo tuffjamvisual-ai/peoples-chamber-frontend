@@ -66,12 +66,12 @@ export default async function PreviewHome2() {
           {/* Polaroid with distress — pulled to magazine's right edge */}
           <div style={{
             position: 'relative',
-            background: '#fff',
+            background: '#ebe5d8',
             padding: '12px 12px 48px 12px',
             width: '284px',
-            marginTop: '-40px',
+            marginTop: '-20px',
             marginRight: '-50px',
-            transform: 'rotate(30deg)',
+            transform: 'rotate(15deg)',
             boxShadow: '0 4px 8px rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.03)',
             filter: 'contrast(1.05) brightness(0.98)',
           }}>
