@@ -65,7 +65,7 @@ export default async function PreviewHome2() {
           <div style={{
             background: '#fff',
             padding: '12px 12px 48px 12px',
-            width: '220px',
+            width: '260px',
             transform: 'rotate(-2.3deg)',
             boxShadow: '0 4px 8px rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.03)',
             filter: 'contrast(1.05) brightness(0.98)',
@@ -74,9 +74,9 @@ export default async function PreviewHome2() {
             <img
               src={mp?.photo_url ?? ''}
               alt={mp?.display_name ?? 'Shabana Mahmood'}
-              width={220}
-              height={220}
-              style={{ display: 'block', width: '220px', height: '220px', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }}
+              width={260}
+              height={260}
+              style={{ display: 'block', width: '260px', height: '260px', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }}
             />
           </div>
 
