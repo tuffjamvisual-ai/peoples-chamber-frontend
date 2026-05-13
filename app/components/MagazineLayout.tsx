@@ -1,5 +1,6 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
+import Link from "next/link";
+import Image from "next/image";
 import "./magazine-layout.css";
 
 type MagazineLayoutProps = {
@@ -17,7 +18,7 @@ const navItems = [
   { label: "ABOUT", href: "/about" },
 ];
 
-const footerColumns = [
+const footerColumns: Array<Array<{ label: string; href: string }>> = [
   [
     { label: "BILLS", href: "/bills" },
     { label: "MPS", href: "/mps" },
@@ -70,13 +71,54 @@ export default function MagazineLayout({ children }: MagazineLayoutProps) {
     <div className="magazine-stage">
       <div className="magazine-paper">
         <header className="magazine-header" aria-label="The People's Chamber header">
-          <div className="magazine-header-art" aria-hidden="true" />
+          {/* Issue sticker — small decorative asset (only next/image use) */}
+          <Image
+            src="/chrome/paperclip.png"
+            alt="Issue 23, May 16–22, 2025"
+            width={70}
+            height={102}
+            priority
+            className="issue-sticker-image"
+          />
 
+          {/* Masthead — pure HTML/CSS */}
+          <div className="masthead">
+            <h1 className="masthead-title">
+              <span>THE</span>
+              <span>PEOPLE&apos;S</span>
+              <span>CHAMBER</span>
+            </h1>
+            <p className="masthead-strapline">
+              — UK GOVERNMENT. IN PUBLIC VIEW.
+            </p>
+          </div>
+
+          {/* Truth note (top-right) — HTML/CSS */}
+          <aside className="truth-note" aria-label="No spin, no paywall, just the truth">
+            <span>NO SPIN.</span>
+            <span>NO PAYWALL.</span>
+            <span>JUST</span>
+            <strong>THE TRUTH.</strong>
+          </aside>
+
+          {/* Megaphone — HTML/CSS (Unicode glyph) */}
+          <div className="megaphone" aria-hidden="true">
+            📣
+          </div>
+
+          {/* Democracy note — HTML/CSS */}
+          <aside className="democracy-note" aria-label="Democracy works better when people watch">
+            <span>Democracy</span>
+            <span>works better</span>
+            <span>when people</span>
+            <span>watch.</span>
+          </aside>
+
+          {/* Navigation — editable HTML */}
           <nav className="magazine-nav" aria-label="Primary navigation">
             <span className="nav-star" aria-hidden="true">
               ✱
             </span>
-
             {navItems.map((item, index) => (
               <Link
                 key={item.href}
@@ -99,7 +141,6 @@ export default function MagazineLayout({ children }: MagazineLayoutProps) {
               <div className="footer-crest" aria-hidden="true">
                 ♜
               </div>
-
               <div>
                 <h2>
                   <span>THE</span>
