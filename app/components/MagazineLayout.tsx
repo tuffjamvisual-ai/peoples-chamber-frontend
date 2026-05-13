@@ -17,46 +17,49 @@ const navItems = [
   { label: "ABOUT", href: "/about" },
 ];
 
-const footerColumnOne = [
-  { label: "BILLS", href: "/bills" },
-  { label: "MPS", href: "/mps" },
-  { label: "DEPARTMENTS", href: "/departments" },
-  { label: "TRANSPARENCY", href: "/transparency" },
-];
-
-const footerColumnTwo = [
-  { label: "EXPENSES", href: "/expenses" },
-  { label: "EARNINGS", href: "/earnings" },
-  { label: "DONATIONS", href: "/donations" },
-  { label: "CONTRACTS", href: "/contracts" },
-];
-
-const footerColumnThree = [
-  { label: "ABOUT & METHODOLOGY", href: "/about" },
-  { label: "SOURCES", href: "/sources" },
-  { label: "PRIVACY", href: "/privacy" },
-];
-
-const footerColumnFour = [
-  { label: "TERMS", href: "/terms" },
-  { label: "CONTACT", href: "/contact" },
-  { label: "GITHUB ↗", href: "https://github.com" },
+const footerColumns = [
+  [
+    { label: "BILLS", href: "/bills" },
+    { label: "MPS", href: "/mps" },
+    { label: "DEPARTMENTS", href: "/departments" },
+    { label: "TRANSPARENCY", href: "/transparency" },
+  ],
+  [
+    { label: "EXPENSES", href: "/expenses" },
+    { label: "EARNINGS", href: "/earnings" },
+    { label: "DONATIONS", href: "/donations" },
+    { label: "CONTRACTS", href: "/contracts" },
+  ],
+  [
+    { label: "ABOUT & METHODOLOGY", href: "/about" },
+    { label: "SOURCES", href: "/sources" },
+    { label: "PRIVACY", href: "/privacy" },
+  ],
+  [
+    { label: "TERMS", href: "/terms" },
+    { label: "CONTACT", href: "/contact" },
+    { label: "GITHUB ↗", href: "https://github.com/tuffjamvisual-ai/peoples-chamber-frontend" },
+  ],
 ];
 
 const proofItems = [
   {
+    icon: "100%",
     title: "100% Independent",
     body: "Not funded by government or political parties.",
   },
   {
+    icon: "◷",
     title: "Real-time Data",
     body: "Live updates from official sources across the UK.",
   },
   {
+    icon: "●●●",
     title: "Open to All",
     body: "Built for everyone. Built to be trusted.",
   },
   {
+    icon: "⌕",
     title: "Accountability First",
     body: "Making power visible. Putting people first.",
   },
@@ -66,11 +69,14 @@ export default function MagazineLayout({ children }: MagazineLayoutProps) {
   return (
     <div className="magazine-stage">
       <div className="magazine-paper">
-        <header className="magazine-header">
+        <header className="magazine-header" aria-label="The People's Chamber header">
+          <div className="magazine-header-art" aria-hidden="true" />
+
           <nav className="magazine-nav" aria-label="Primary navigation">
             <span className="nav-star" aria-hidden="true">
               ✱
             </span>
+
             {navItems.map((item, index) => (
               <Link
                 key={item.href}
@@ -82,14 +88,18 @@ export default function MagazineLayout({ children }: MagazineLayoutProps) {
             ))}
           </nav>
         </header>
+
         <main className="magazine-content">{children}</main>
+
         <footer className="magazine-footer">
           <div className="footer-rule" aria-hidden="true" />
+
           <div className="footer-main">
             <section className="footer-brand" aria-label="The People's Chamber">
               <div className="footer-crest" aria-hidden="true">
                 ♜
               </div>
+
               <div>
                 <h2>
                   <span>THE</span>
@@ -99,21 +109,28 @@ export default function MagazineLayout({ children }: MagazineLayoutProps) {
                 <p>— UK GOVERNMENT. IN PUBLIC VIEW.</p>
               </div>
             </section>
+
             <p className="footer-description">
-              UK political transparency. Built from official sources:
-              Parliament, IPSA, Companies House, Electoral Commission, Cabinet
-              Office. Updated daily.
+              UK political transparency. Built from official sources: Parliament,
+              IPSA, Companies House, Electoral Commission, Cabinet Office.
+              Updated daily.
             </p>
-            <FooterColumn links={footerColumnOne} />
-            <FooterColumn links={footerColumnTwo} />
-            <FooterColumn links={footerColumnThree} />
-            <FooterColumn links={footerColumnFour} />
+
+            {footerColumns.map((links, index) => (
+              <FooterColumn key={index} links={links} />
+            ))}
           </div>
+
           <div className="footer-proof-strip">
             {proofItems.map((item) => (
               <section key={item.title} className="proof-item">
-                <h3>{item.title}</h3>
-                <p>{item.body}</p>
+                <span className="proof-icon" aria-hidden="true">
+                  {item.icon}
+                </span>
+                <div>
+                  <h3>{item.title}</h3>
+                  <p>{item.body}</p>
+                </div>
               </section>
             ))}
           </div>
@@ -132,6 +149,7 @@ function FooterColumn({
     <nav className="footer-column" aria-label="Footer links">
       {links.map((link) => {
         const isExternal = link.href.startsWith("http");
+
         if (isExternal) {
           return (
             <a
@@ -144,6 +162,7 @@ function FooterColumn({
             </a>
           );
         }
+
         return (
           <Link key={link.label} href={link.href}>
             {link.label}
