@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import Image from 'next/image'
-import Navigation from '../../components/Navigation'
+import MagazineLayout from '../../components/MagazineLayout'
 import { notFound } from 'next/navigation'
 import MPProfileClient from './MPProfileClient'
 import {
@@ -143,20 +143,18 @@ export default async function MPProfilePage({ params }: PageProps) {
   const partyColour = mp.party_colour ? '#' + mp.party_colour.replace('#', '') : '#7697a2'
 
   return (
-    <div className="min-h-screen bg-[#606060]">
-      <Navigation />
-      
-      <main className="bg-[#505050] shadow-[0_0_40px_rgba(0,0,0,0.4)] max-w-[1200px] mx-auto px-6 py-6">
-        <Link 
+    <MagazineLayout variant="profile">
+      <div className="max-w-[960px] mx-auto">
+        <Link
           href="/mps"
-          className="inline-flex items-center gap-2 text-white hover:text-white mb-6 transition"
+          className="inline-flex items-center gap-2 text-[#14100d] hover:text-[#7a1612] mb-6 transition"
         >
           <span>←</span>
           <span>Back to all MPs</span>
         </Link>
 
         {/* Header with party colour gradient */}
-        <div className="rounded-xl overflow-hidden mb-6 relative" style={{ background: `linear-gradient(135deg, ${partyColour}33 0%, #505050 60%)`, border: `1px solid ${partyColour}40` }}>
+        <div className="rounded-xl overflow-hidden mb-6 relative" style={{ background: `linear-gradient(135deg, ${partyColour}33 0%, transparent 60%)`, border: `1px solid ${partyColour}40` }}>
           <div className="absolute inset-0 opacity-5" style={{ background: `radial-gradient(circle at top left, ${partyColour}, transparent 60%)` }} />
           <div className="relative p-6 flex items-center gap-6">
             <div className="relative flex-shrink-0">
@@ -178,11 +176,11 @@ export default async function MPProfilePage({ params }: PageProps) {
             </div>
 
             <div className="flex-1">
-              <h1 className="text-3xl sm:text-4xl font-bold text-white mb-1">
+              <h1 className="text-3xl sm:text-4xl font-bold text-[#14100d] mb-1">
                 {mp.display_name || mp.name}
               </h1>
               {mp.constituency && (
-                <p className="text-lg text-[#c9c9c9] mb-3">MP for {mp.constituency}</p>
+                <p className="text-lg text-[#4a3d2f] mb-3">MP for {mp.constituency}</p>
               )}
               {mp.party && (
                 <span className="inline-block px-4 py-1.5 text-sm font-semibold rounded-full text-white" style={{ backgroundColor: partyColour }}>
@@ -205,7 +203,7 @@ export default async function MPProfilePage({ params }: PageProps) {
           earnings={earnings}
           partyColour={partyColour}
         />
-      </main>
-    </div>
+      </div>
+    </MagazineLayout>
   )
 }
