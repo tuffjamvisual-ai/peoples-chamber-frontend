@@ -60,7 +60,7 @@ body {
 }
 
 /* =========================================================
-   SHELL + PAGE (1024px desktop composition)
+   SHELL + PAGE
    ========================================================= */
 
 .magazine-shell {
@@ -89,43 +89,6 @@ body {
   box-shadow: 0 18px 55px rgba(0, 0, 0, 0.35);
 }
 
-.magazine-page::before {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  content: "";
-  background: linear-gradient(
-    90deg,
-    rgba(20, 16, 13, 0.06),
-    transparent 5px 20px,
-    rgba(255, 255, 255, 0.08) 22px,
-    transparent 29px
-  );
-  opacity: 0.14;
-}
-
-/* =========================================================
-   VERIFICATION OVERLAY — only fires when .debug-overlay
-   is on .magazine-page. Off by default.
-   ========================================================= */
-
-.magazine-page.debug-overlay::after {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 1024px;
-  aspect-ratio: 1055 / 1491;
-  z-index: 9999;
-  pointer-events: none;
-  content: "";
-  background-image: url("/reference.png");
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-  background-position: top left;
-  opacity: 0.5;
-}
-
 .magazine-header,
 .magazine-content,
 .magazine-footer {
@@ -134,249 +97,71 @@ body {
 }
 
 /* =========================================================
-   HEADER (1024 × 330, absolute-positioned decorations)
+   HEADER — /reference.png as the non-editable art layer.
+   The image is anchored to top-center and scaled to 1024px wide.
+   At 1055×1491 native, that renders ~257px tall in the 1024-wide
+   container, which covers the masthead + decorations art.
+   The image's baked-in nav strip is then hidden by .magazine-header::after
+   so the real HTML <nav> below can sit in its place.
    ========================================================= */
 
 .magazine-header {
   position: relative;
   height: 330px;
   overflow: hidden;
-  padding: 0;
 }
 
-/* Yellow issue sticker (top-left) */
-.issue-sticker {
-  position: absolute;
-  top: 8px;
-  left: 24px;
-  width: 96px;
-  height: 64px;
-  padding: 11px 12px 9px;
-  margin: 0;
-  z-index: 4;
-  transform: rotate(-1deg);
-  background: #d9a720;
-  border-right: 2px solid rgba(122, 22, 18, 0.28);
-  border-bottom: 2px solid rgba(122, 22, 18, 0.24);
-  box-shadow: 0 4px 6px rgba(20, 16, 13, 0.18);
-  font-family: var(--font-typewriter);
-  font-size: 9px;
-  line-height: 1.3;
-}
-
-.issue-sticker::after {
-  position: absolute;
-  right: 12px;
-  bottom: -8px;
-  left: 8px;
-  height: 8px;
+/* Art layer */
+.magazine-header::before {
   content: "";
-  background: repeating-linear-gradient(135deg, transparent 0 8px, rgba(122, 22, 18, 0.18) 9px 12px);
-}
-
-.issue-sticker span,
-.issue-sticker strong {
-  display: block;
-}
-
-/* Paperclip details */
-.paperclip {
   position: absolute;
-  z-index: 5;
-  width: 14px;
-  height: 44px;
-  border: 2px solid #302a24;
-  border-radius: 10px;
-  opacity: 0.78;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url("/reference.png");
+  background-repeat: no-repeat;
+  background-position: top center;
+  background-size: 1024px auto;
 }
 
-.paperclip::after {
-  position: absolute;
-  inset: 4px 3px;
+/* Cream mask — covers the image's baked-in nav band.
+   Tune top/height when comparing against the rendered image. */
+.magazine-header::after {
   content: "";
-  border: 1px solid #302a24;
-  border-radius: 7px;
-}
-
-.paperclip-left {
-  top: 40px;
-  left: 6px;
-  transform: rotate(-34deg);
-}
-
-.paperclip-top {
-  top: -4px;
-  left: 122px;
-  transform: rotate(-2deg);
-}
-
-/* Truth card (top-right) */
-.truth-card {
   position: absolute;
-  top: 6px;
-  right: 138px;
-  width: 92px;
-  height: 88px;
-  padding: 10px 9px;
-  margin: 0;
-  z-index: 3;
-  transform: rotate(1deg);
-  border: 1px solid rgba(20, 16, 13, 0.74);
-  background: rgba(244, 232, 212, 0.78);
-  box-shadow: 1px 2px 0 rgba(20, 16, 13, 0.12);
-  font-family: var(--font-typewriter);
-  font-size: 9px;
-  line-height: 1.35;
-}
-
-.truth-card p {
-  margin: 0;
-}
-
-.truth-card strong {
-  display: block;
-  margin-top: 4px;
-  color: var(--red);
-  font-family: var(--font-marker);
-  font-size: 14px;
-  line-height: 1.1;
-  text-decoration: underline;
-}
-
-/* Megaphone illustration (right side) */
-.megaphone {
-  position: absolute;
-  top: 0;
-  right: 28px;
-  width: 86px !important;
-  height: auto !important;
-  z-index: 3;
-  transform: rotate(-3deg);
-}
-
-/* Teal Democracy/watch note */
-.watch-note {
-  position: absolute;
-  top: 92px;
-  right: 22px;
-  display: grid;
-  width: 116px;
-  padding: 12px 12px 12px;
-  margin: 0;
-  z-index: 3;
-  transform: rotate(-5deg);
-  color: white;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 90px;
+  z-index: 1;
+  pointer-events: none;
   background:
-    linear-gradient(90deg, transparent 0 3px, #087f96 3px calc(100% - 4px), transparent calc(100% - 4px)),
-    repeating-linear-gradient(176deg, #118ba0 0 5px, #087f96 5px 10px);
-  font-family: var(--font-marker);
-  font-size: 13px;
-  line-height: 1.05;
-  text-align: center;
+    linear-gradient(180deg, rgba(244, 232, 212, 0) 0, var(--cream) 22%, var(--cream) 100%);
 }
 
-.watch-note::after {
-  width: 64px;
-  height: 1px;
-  margin: 5px auto 0;
-  content: "";
-  background: rgba(255, 255, 255, 0.82);
-}
-
-.watch-note span {
-  display: block;
-}
-
-/* Masthead "THE PEOPLE'S CHAMBER" */
-.masthead {
-  position: absolute;
-  top: 4px;
-  left: 50%;
-  width: 600px;
-  margin: 0;
-  transform: translateX(-46%);
-  font-family: var(--font-masthead);
-  font-weight: 700;
-  letter-spacing: 0;
-  text-align: left;
-  z-index: 2;
-}
-
-.masthead-the {
-  display: block;
-  margin-left: 8px;
-  font-size: 30px;
-  line-height: 0.78;
-  letter-spacing: 0.02em;
-}
-
-.masthead-line {
-  display: block;
-  font-size: 94px;
-  line-height: 0.84;
-  letter-spacing: -0.06em;
-  transform: scaleX(1.08);
-  transform-origin: left center;
-  text-shadow: 1px 0 0 var(--ink), -1px 0 0 var(--ink);
-}
-
-.masthead-line.chamber {
-  font-size: 86px;
-}
-
-.crown {
-  position: absolute;
-  top: -8px;
-  left: 296px;
-  z-index: 3;
-  transform: rotate(13deg);
-  font-family: var(--font-marker);
-  font-size: 34px;
-  font-weight: 400;
-  color: var(--ink);
-}
-
-/* Red handwritten strapline */
-.tagline {
-  position: absolute;
-  top: 198px;
-  left: 50%;
-  margin: 0;
-  padding: 0 6px 4px;
-  transform: translateX(-50%) rotate(-1deg);
-  z-index: 2;
-  color: var(--red);
-  font-family: var(--font-marker);
-  font-size: 22px;
-  line-height: 0.92;
-  letter-spacing: 0.01em;
-  text-align: center;
-  border-bottom: 3px solid var(--red);
-}
-
-/* Nav row near bottom of header */
+/* Editable HTML nav, positioned over the mask */
 .magazine-nav {
   position: absolute;
-  right: 38px;
-  bottom: 12px;
   left: 38px;
+  right: 38px;
+  bottom: 22px;
   display: grid;
   grid-template-columns: 30px repeat(8, max-content);
   align-items: center;
   justify-content: space-between;
-  min-height: 38px;
+  min-height: 36px;
   padding-bottom: 6px;
   border-bottom: 1px solid var(--paper-line);
   font-family: var(--font-typewriter);
   font-size: 12px;
   letter-spacing: 0.02em;
-  z-index: 4;
+  z-index: 2;
 }
 
 .nav-star {
   color: var(--red);
   font-family: var(--font-marker);
-  font-size: 30px;
+  font-size: 26px;
   line-height: 1;
 }
 
@@ -419,7 +204,7 @@ body {
 }
 
 /* =========================================================
-   CONTENT
+   CONTENT — live app data renders here
    ========================================================= */
 
 .magazine-content {
@@ -475,10 +260,8 @@ body {
   opacity: 0.72;
 }
 
-/* Content primitives (kept from prior commit so /laws still works) */
-.magazine-section {
-  margin: 28px 0;
-}
+/* Content primitives */
+.magazine-section { margin: 28px 0; }
 .magazine-section:first-child { margin-top: 0; }
 .magazine-section:last-child { margin-bottom: 0; }
 
@@ -531,10 +314,7 @@ body {
   font-size: 13px;
   line-height: 1.45;
 }
-.magazine-list li {
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(20, 16, 13, 0.15);
-}
+.magazine-list li { padding: 8px 0; border-bottom: 1px solid rgba(20, 16, 13, 0.15); }
 .magazine-list li:last-child { border-bottom: 0; }
 
 .magazine-stat-grid {
@@ -623,14 +403,11 @@ body {
   border: 1px solid rgba(20, 16, 13, 0.35);
   border-radius: 3px;
 }
-.magazine-search:focus {
-  outline: 2px solid var(--red);
-  outline-offset: -1px;
-}
+.magazine-search:focus { outline: 2px solid var(--red); outline-offset: -1px; }
 .magazine-search::placeholder { color: rgba(20, 16, 13, 0.5); }
 
 /* =========================================================
-   FOOTER (265px)
+   FOOTER (HTML — editable)
    ========================================================= */
 
 .magazine-footer {
@@ -640,11 +417,7 @@ body {
   color: var(--ink);
 }
 
-.footer-rule {
-  height: 1px;
-  margin: 0 0 22px;
-  background: var(--paper-line);
-}
+.footer-rule { height: 1px; margin: 0 0 22px; background: var(--paper-line); }
 
 .footer-top {
   display: grid;
@@ -661,11 +434,7 @@ body {
   align-items: center;
 }
 
-.footer-crest {
-  font-size: 28px;
-  line-height: 1;
-  color: var(--ink);
-}
+.footer-crest { font-size: 28px; line-height: 1; color: var(--ink); }
 
 .footer-brand-name {
   margin: 0;
@@ -696,11 +465,7 @@ body {
   opacity: 0.85;
 }
 
-.footer-column {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
+.footer-column { display: flex; flex-direction: column; gap: 5px; }
 .footer-column-head {
   margin: 0 0 4px;
   font-size: 10px;
@@ -708,15 +473,9 @@ body {
   text-transform: uppercase;
   opacity: 0.6;
 }
-.footer-column a {
-  color: var(--ink);
-  text-decoration: none;
-}
+.footer-column a { color: var(--ink); text-decoration: none; }
 .footer-column a:hover,
-.footer-column a:focus-visible {
-  color: var(--red);
-  outline: none;
-}
+.footer-column a:focus-visible { color: var(--red); outline: none; }
 
 .footer-proof {
   display: grid;
@@ -754,60 +513,34 @@ body {
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
-.footer-proof-body {
-  margin: 2px 0 0;
-  font-size: 10px;
-  line-height: 1.3;
-  opacity: 0.8;
-}
+.footer-proof-body { margin: 2px 0 0; font-size: 10px; line-height: 1.3; opacity: 0.8; }
 
 /* =========================================================
-   RESPONSIVE (kicks in below 1024px)
+   RESPONSIVE
    ========================================================= */
 
 @media (max-width: 1023px) {
   .magazine-page { width: 100%; }
-  .magazine-page.debug-overlay::after { width: 100%; }
+  .magazine-header::before { background-size: 100% auto; }
 }
 
 @media (max-width: 900px) {
   .magazine-page {
-    grid-template-rows: auto minmax(360px, 1fr) auto;
+    grid-template-rows: 280px minmax(360px, 1fr) auto;
   }
 
-  .magazine-header {
-    height: auto;
-    min-height: 360px;
-    padding: 14px 20px 0;
-  }
-
-  .issue-sticker { left: 14px; top: 6px; }
-  .paperclip-top, .paperclip-left { display: none; }
-
-  .masthead {
-    position: static;
-    width: 100%;
-    transform: none;
-    margin: 90px 0 0;
-    text-align: center;
-  }
-  .masthead-the { margin-left: 0; }
-  .masthead-line { transform: none; font-size: clamp(48px, 11vw, 80px); }
-  .masthead-line.chamber { font-size: clamp(44px, 10vw, 72px); }
-  .crown { position: absolute; left: 50%; top: 80px; transform: translateX(40%) rotate(13deg); }
-
-  .truth-card, .megaphone, .watch-note { display: none; }
-
-  .tagline { position: static; transform: rotate(-1deg); margin: 10px auto 0; }
-
+  .magazine-header { height: 280px; }
+  .magazine-header::after { height: 70px; }
   .magazine-nav {
-    position: static;
-    margin: 18px 0 12px;
-    padding-bottom: 10px;
-    grid-template-columns: 22px repeat(auto-fit, minmax(80px, 1fr));
+    left: 16px;
+    right: 16px;
+    bottom: 14px;
+    grid-template-columns: 22px repeat(auto-fit, minmax(72px, 1fr));
     justify-content: flex-start;
-    gap: 4px 16px;
+    gap: 4px 12px;
+    min-height: 32px;
   }
+  .nav-star { font-size: 20px; }
 
   .magazine-content { padding: 20px; min-height: 320px; }
 
@@ -817,6 +550,10 @@ body {
 }
 
 @media (max-width: 560px) {
+  .magazine-page { grid-template-rows: 220px minmax(320px, 1fr) auto; }
+  .magazine-header { height: 220px; }
+  .magazine-header::after { height: 56px; }
+
   .footer-top, .footer-proof { grid-template-columns: 1fr; }
   .footer-proof-item {
     border-right: 0;
