@@ -92,7 +92,7 @@ export default async function PreviewHome2() {
                 position: 'absolute',
                 top: '-80px',
                 left: '-40px',
-                width: '130px',
+                width: '65px',
                 height: 'auto',
                 transform: 'rotate(75deg)',
                 transformOrigin: 'center',
