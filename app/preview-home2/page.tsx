@@ -32,7 +32,7 @@ export default function PreviewHome2() {
           <div style={{
             background: '#fff',
             padding: '12px 12px 48px 12px',
-            width: '280px',
+            width: '220px',
             transform: 'rotate(-2.3deg)',
             boxShadow: '0 4px 8px rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.03)',
             filter: 'contrast(1.05) brightness(0.98)',
@@ -41,8 +41,8 @@ export default function PreviewHome2() {
             <img
               src="https://members-api.parliament.uk/api/Members/3914/Portrait?cropType=ThreeFour"
               alt="Shabana Mahmood"
-              width="280"
-              height="280"
+              width="220"
+              height="220"
               style={{ display: 'block', filter: 'contrast(1.1) sepia(0.05)' }}
             />
           </div>
