@@ -108,6 +108,7 @@ export default async function PreviewHome2() {
           <div style={{ flex: 1 }}>
             <h1 style={{
               fontSize: '44px',
+              marginTop: '20px',
               fontWeight: 'bold',
               marginBottom: '12px',
               color: '#14100d',
