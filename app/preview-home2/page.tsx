@@ -1,8 +1,22 @@
 import Image from 'next/image';
+import { supabase } from '@/lib/supabase';
 
-export default function PreviewHome2() {
+export const revalidate = 600;
+
+export default async function PreviewHome2() {
+  const { data: bio } = await supabase
+    .from('mp_biography')
+    .select('political_bio')
+    .eq('member_id', 3914)
+    .single();
+
+  const paragraphs = (bio?.political_bio ?? '')
+    .split(/\n\n+/)
+    .map((p: string) => p.trim())
+    .filter((p: string) => p.length > 0);
+
   return (
-    <div style={{ position: 'relative', maxWidth: '1200px', margin: '0 auto', minHeight: '100vh', background: '#2a1810' }}>
+    <div style={{ position: 'relative', width: '100%', maxWidth: '1400px', margin: '0 auto', minHeight: '100vh', background: '#2a1810' }}>
       {/* Template background */}
       <Image
         src="/preview-home2.png"
@@ -123,13 +137,29 @@ export default function PreviewHome2() {
               color: '#14100d',
               letterSpacing: '0.01em',
             }}>
-              <p style={{ marginBottom: '16px', transform: 'rotate(0.1deg)', opacity: 1 }}>
-                Shabana Mahmood, Labour MP for Birmingham Ladywood and now Home Secretary, has built one of the more substantial careers in the Starmer-era Labour Party. First elected in 2010, she has lasted through New Labour&apos;s aftershock, the Corbyn years, Labour&apos;s electoral collapse, its rebuild, and finally government. That alone says something. Many MPs enter Westminster, make three speeches, develop a taste for panels, and vanish into the upholstery. Mahmood has endured, adapted and risen.
-              </p>
-
-              <p style={{ marginBottom: '16px', transform: 'rotate(-0.15deg)', opacity: 1 }}>
-                She is clearly one of Labour&apos;s sharpest political operators. Her role as National Campaign Co-ordinator from 2021 to 2023 mattered because Labour&apos;s campaign machine under Starmer became far more disciplined, data-driven and ruthless than in previous years.
-              </p>
+              {paragraphs.length === 0 ? (
+                <p style={{ marginBottom: '16px', opacity: 1 }}>
+                  Biography unavailable.
+                </p>
+              ) : (
+                paragraphs.map((para: string, idx: number) => {
+                  const tilt = idx % 4;
+                  const rot =
+                    tilt === 0 ? '0.1deg' : tilt === 1 ? '-0.15deg' : tilt === 2 ? '0.08deg' : '-0.1deg';
+                  return (
+                    <p
+                      key={idx}
+                      style={{
+                        marginBottom: '16px',
+                        transform: `rotate(${rot})`,
+                        opacity: 1,
+                      }}
+                    >
+                      {para}
+                    </p>
+                  );
+                })
+              )}
             </div>
           </div>
         </div>
