@@ -24,7 +24,12 @@ export default async function LawsPage() {
   if (error) console.error('Error fetching laws:', error)
 
   return (
-    <MagazineLayout>
+    <MagazineLayout
+      variant="list"
+      eyebrow="Acts of Parliament"
+      title="UK Laws"
+      subtitle="Every bill that has received Royal Assent. Searchable by title and summary, with original sponsor and originating house."
+    >
       <LawsClient laws={laws || []} />
     </MagazineLayout>
   )
