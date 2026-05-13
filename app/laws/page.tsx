@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import LawsClient from './LawsClient'
-import MagazineLayout from '../components/MagazineLayout'
+import Navigation from '../components/Navigation'
 
 export const revalidate = 600
 
@@ -24,13 +24,9 @@ export default async function LawsPage() {
   if (error) console.error('Error fetching laws:', error)
 
   return (
-    <MagazineLayout
-      variant="list"
-      eyebrow="Acts of Parliament"
-      title="UK Laws"
-      subtitle="Every bill that has received Royal Assent. Searchable by title and summary, with original sponsor and originating house."
-    >
+    <div className="min-h-screen bg-[#606060]">
+      <Navigation />
       <LawsClient laws={laws || []} />
-    </MagazineLayout>
+    </div>
   )
 }

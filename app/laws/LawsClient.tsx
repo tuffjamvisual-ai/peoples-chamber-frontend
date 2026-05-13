@@ -23,82 +23,80 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
   )
 
   return (
-    <div className="magazine-section">
-      <input
-        type="search"
-        className="magazine-search"
-        placeholder="Search laws by title or summary…"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        aria-label="Search laws"
-      />
+    <main className="bg-[#505050] shadow-[0_0_40px_rgba(0,0,0,0.4)] max-w-[1200px] mx-auto px-4 sm:px-6 py-4 sm:py-6">
+      <div className="mb-6">
+        <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">Laws</h1>
+        <p className="text-white text-sm sm:text-base">
+          Bills that have received Royal Assent and become law
+        </p>
+        <p className="text-sm text-white mt-2">
+          {filteredLaws.length} laws found
+        </p>
+      </div>
 
-      <p className="magazine-meta">
-        {filteredLaws.length} {filteredLaws.length === 1 ? 'law' : 'laws'} found
-      </p>
+      <div className="mb-6">
+        <input
+          type="text"
+          placeholder="Search laws..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-[30%] px-4 py-2 bg-[#404040] text-white rounded-lg border border-[#5a5a5a] focus:border-[#ffffff] focus:outline-none"
+        />
+      </div>
 
       {filteredLaws.length === 0 ? (
-        <div className="magazine-callout">
-          <strong>No matches</strong>
-          {search ? `Nothing found for "${search}". Try a broader query.` : 'No laws found.'}
+        <div className="text-center py-12">
+          <p className="text-white">
+            {search ? `No laws found matching "${search}"` : 'No laws found'}
+          </p>
         </div>
       ) : (
-        <div className="magazine-grid">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {filteredLaws.map((law) => (
             <Link
               key={law.id}
               href={`/bills/${law.id}`}
-              className="magazine-card"
+              className="bg-[#505050] border border-[#5a5a5a] rounded-lg p-4 sm:p-6 hover:border-[#ffffff] transition-colors flex flex-col"
             >
-              <p className="magazine-kicker">
-                ✓ Law
-                {law.originating_house && ` · ${law.originating_house}`}
-              </p>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-sm px-2 py-0.5 bg-white/10 text-white rounded border border-white/20">
+                  ✓ Law
+                </span>
+                {law.originating_house && (
+                  <span className="text-sm text-white">{law.originating_house}</span>
+                )}
+              </div>
 
-              <h3 className="magazine-title">{law.title}</h3>
+              <h3 className="font-semibold text-base text-white mb-3 line-clamp-2">
+                {law.title}
+              </h3>
 
               {law.plain_summary && (
-                <p style={{ margin: '0 0 12px', fontSize: 13, lineHeight: 1.45, opacity: 0.8 }}>
-                  {law.plain_summary.length > 180
-                    ? law.plain_summary.slice(0, 180).trimEnd() + '…'
-                    : law.plain_summary}
+                <p className="text-white text-sm mb-4 line-clamp-3 flex-1">
+                  {law.plain_summary}
                 </p>
               )}
 
-              <div className="magazine-meta">
+              <div className="flex items-center justify-between text-sm text-white mt-auto">
                 {law.sponsor_name && (
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <span className="flex items-center gap-1">
                     {law.sponsor_party && (
                       <span
-                        aria-hidden
-                        style={{
-                          display: 'inline-block',
-                          width: 8,
-                          height: 8,
-                          borderRadius: '50%',
-                          backgroundColor: law.sponsor_party_colour
-                            ? `#${law.sponsor_party_colour}`
-                            : '#7697a2',
-                        }}
+                        className="inline-block w-2 h-2 rounded-full"
+                        style={{ backgroundColor: `#${law.sponsor_party_colour}` || '#7697a2' }}
                       />
                     )}
-                    <span>{law.sponsor_name}</span>
+                    {law.sponsor_name}
                   </span>
                 )}
                 {law.last_update && (
-                  <span style={{ float: 'right' }}>
-                    {new Date(law.last_update).toLocaleDateString('en-GB', {
-                      day: 'numeric',
-                      month: 'short',
-                      year: 'numeric',
-                    })}
-                  </span>
+                  <span>{new Date(law.last_update).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                 )}
               </div>
             </Link>
           ))}
         </div>
       )}
-    </div>
+    </main>
   )
 }
