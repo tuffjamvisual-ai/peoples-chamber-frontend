@@ -18,7 +18,7 @@ export default function PreviewHome2() {
           <div style={{
             background: '#fff',
             padding: '12px 12px 48px 12px',
-            width: '240px',
+            width: '280px',
             transform: 'rotate(-2deg)',
             boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
           }}>
@@ -26,14 +26,14 @@ export default function PreviewHome2() {
             <img
               src="https://members-api.parliament.uk/api/Members/3914/Portrait?cropType=ThreeFour"
               alt="Shabana Mahmood"
-              width="240"
-              height="300"
+              width="280"
+              height="280"
               style={{ display: 'block' }}
             />
           </div>
 
           <div style={{ flex: 1 }}>
-            <h1 style={{ fontSize: '52px', fontWeight: 'bold', marginBottom: '12px', color: '#14100d', fontFamily: 'Georgia, serif' }}>
+            <h1 style={{ fontSize: '52px', fontWeight: 'bold', marginBottom: '12px', color: '#14100d', fontFamily: 'Special Elite, monospace' }}>
               Shabana Mahmood
             </h1>
             <p style={{ fontSize: '22px', marginBottom: '8px', color: '#4a3d2f' }}>
@@ -62,7 +62,7 @@ export default function PreviewHome2() {
           </div>
 
           <div>
-            <h2 style={{ fontSize: '36px', fontWeight: 'bold', marginBottom: '24px', color: '#14100d', fontFamily: 'Georgia, serif' }}>
+            <h2 style={{ fontSize: '36px', fontWeight: 'bold', marginBottom: '24px', color: '#14100d', fontFamily: 'Special Elite, monospace' }}>
               Political Biography
             </h2>
             <div style={{ lineHeight: '1.8', fontSize: '16px', color: '#14100d' }}>
