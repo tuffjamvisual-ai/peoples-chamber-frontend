@@ -62,7 +62,7 @@ export default async function PreviewHome2() {
         >
           ← Back to all MPs
         </a>
-        <div style={{ display: 'flex', flexDirection: 'row-reverse', gap: '40px', marginBottom: '60px' }}>
+        <div style={{ display: 'flex', flexDirection: 'row-reverse', gap: '40px', marginBottom: '30px' }}>
           {/* Polaroid with distress — pulled to magazine's right edge */}
           <div style={{
             position: 'relative',
