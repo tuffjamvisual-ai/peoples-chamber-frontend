@@ -44,6 +44,21 @@ export default async function PreviewHome2() {
 
       {/* Content overlay */}
       <div style={{ position: 'relative', zIndex: 2, padding: '400px 80px 60px 80px', color: '#14100d', fontFamily: 'Special Elite, monospace' }}>
+        <a
+          href="/mps"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            marginBottom: '24px',
+            color: '#14100d',
+            textDecoration: 'none',
+            fontSize: '16px',
+            transform: 'rotate(-0.2deg)',
+          }}
+        >
+          ← Back to all MPs
+        </a>
         <div style={{ display: 'flex', gap: '40px', marginBottom: '60px' }}>
           {/* Polaroid with distress */}
           <div style={{
