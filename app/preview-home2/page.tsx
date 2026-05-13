@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import '../components/magazine-layout.css';
+import ScrollToTopButton from './ScrollToTopButton';
 
 export const revalidate = 600;
 
@@ -202,6 +203,7 @@ export default async function PreviewHome2() {
           </div>
         </div>
       </div>
+      <ScrollToTopButton />
     </div>
   );
 }
