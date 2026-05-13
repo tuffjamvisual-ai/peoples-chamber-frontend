@@ -85,18 +85,14 @@ export default async function PreviewHome2() {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 3fr', gap: '40px', alignItems: 'start' }}>
-          {/* Sidebar with roughened edges — sticky like the dark-theme MP page */}
-          <aside style={{ position: 'sticky', top: '64px', alignSelf: 'start' }}>
-            <p style={{
-              fontSize: '11px',
-              textTransform: 'uppercase',
-              letterSpacing: '0.15em',
-              marginBottom: '16px',
-              color: '#14100d',
-              transform: 'rotate(-0.2deg)',
-            }}>Sections</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-px border border-[#14100d]/30">
+          {/* Sidebar — sticky like the dark-theme MP page */}
+          <aside className="lg:col-span-1">
+            <div className="lg:sticky lg:top-16">
+              <p className="text-[13px] uppercase tracking-[0.25em] font-medium px-4 pt-5 pb-3" style={{ color: '#14100d', fontFamily: 'Special Elite, monospace', transform: 'rotate(-0.2deg)' }}>
+                Sections
+              </p>
+              <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '0 8px 8px' }}>
               <div style={{
                 padding: '12px 16px',
                 borderLeft: '4px solid #7a1612',
@@ -115,11 +111,12 @@ export default async function PreviewHome2() {
               <div style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.15deg)' }}>ROLES</div>
               <div style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(0.2deg)' }}>EARNINGS</div>
               <div style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.1deg)' }}>EXPENSES</div>
+              </nav>
             </div>
           </aside>
 
           {/* Content with ink texture */}
-          <div>
+          <div className="lg:col-span-3 p-6 sm:p-8">
             <h2 style={{
               fontSize: '36px',
               fontWeight: 'bold',
