@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
 
 export const revalidate = 600;
@@ -16,16 +15,17 @@ export default async function PreviewHome2() {
     .filter((p: string) => p.length > 0);
 
   return (
-    <div style={{ position: 'relative', width: '100%', maxWidth: '1086px', margin: '0 auto', background: '#2a1810' }}>
-      {/* Template background */}
-      <Image
-        src="/preview-home2.png"
-        alt=""
-        fill
-        unoptimized
-        style={{ objectFit: 'contain', objectPosition: 'top center', zIndex: 0 }}
-      />
-
+    <div style={{
+      position: 'relative',
+      width: '100%',
+      maxWidth: '1086px',
+      margin: '0 auto',
+      background: '#2a1810',
+      backgroundImage: 'url("/preview-home2.png")',
+      backgroundRepeat: 'repeat-y',
+      backgroundPosition: 'top center',
+      backgroundSize: '100% auto',
+    }}>
       {/* Paper grain overlay — fractal noise via inline SVG */}
       <div
         aria-hidden
