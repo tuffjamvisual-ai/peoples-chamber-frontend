@@ -76,61 +76,6 @@ export default function MagazineLayout({ children }: MagazineLayoutProps) {
     <div className="magazine-stage">
       <div className="magazine-paper">
         <header className="magazine-header">
-          <Image
-            src="/chrome/issue-sticker.png"
-            alt="Issue 23 May 16-22 2025"
-            width={145}
-            height={92}
-            priority
-            className="chrome issue-sticker"
-          />
-          <Image
-            src="/chrome/paperclip.png"
-            alt=""
-            width={48}
-            height={94}
-            priority
-            className="chrome paperclip"
-            aria-hidden="true"
-          />
-          <div className="masthead-block" aria-label="The People's Chamber">
-            <div className="masthead-crown" aria-hidden="true">
-              ♕
-            </div>
-            <h1 className="masthead-title">
-              <span>THE</span>
-              <span>PEOPLE&apos;S</span>
-              <span>CHAMBER</span>
-            </h1>
-            <p className="masthead-strapline">
-              — UK GOVERNMENT. IN PUBLIC VIEW.
-            </p>
-          </div>
-          <Image
-            src="/chrome/truth-note.png"
-            alt="No spin. No paywall. Just the truth."
-            width={160}
-            height={104}
-            priority
-            className="chrome truth-note"
-          />
-          <Image
-            src="/chrome/megaphone-man.png"
-            alt=""
-            width={78}
-            height={92}
-            priority
-            className="chrome megaphone-man"
-            aria-hidden="true"
-          />
-          <Image
-            src="/chrome/democracy-note.png"
-            alt="Democracy works better when people watch."
-            width={178}
-            height={116}
-            priority
-            className="chrome democracy-note"
-          />
           <nav className="magazine-nav" aria-label="Primary navigation">
             <span className="nav-star" aria-hidden="true">
               ✱
