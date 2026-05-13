@@ -61,11 +61,13 @@ export default async function PreviewHome2() {
           ← Back to all MPs
         </a>
         <div style={{ display: 'flex', gap: '40px', marginBottom: '60px' }}>
-          {/* Polaroid with distress */}
+          {/* Polaroid with distress — pulled to magazine's left edge */}
           <div style={{
+            position: 'relative',
             background: '#fff',
             padding: '12px 12px 48px 12px',
             width: '260px',
+            marginLeft: '-80px',
             transform: 'rotate(-2.3deg)',
             boxShadow: '0 4px 8px rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.03)',
             filter: 'contrast(1.05) brightness(0.98)',
@@ -77,6 +79,24 @@ export default async function PreviewHome2() {
               width={260}
               height={260}
               style={{ display: 'block', width: '260px', height: '260px', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }}
+            />
+            {/* Paperclip overlay — hangs over the top edge */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/paperclip.png"
+              alt=""
+              aria-hidden
+              style={{
+                position: 'absolute',
+                top: '-32px',
+                left: '50%',
+                width: '80px',
+                height: 'auto',
+                transform: 'translateX(-50%) rotate(8deg)',
+                pointerEvents: 'none',
+                zIndex: 3,
+                filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.35))',
+              }}
             />
           </div>
 
