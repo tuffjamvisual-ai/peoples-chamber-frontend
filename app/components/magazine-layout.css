@@ -75,7 +75,7 @@ body {
   margin: 0 auto;
   overflow: hidden;
   border-radius: 12px;
-  background: var(--cream);
+  background: transparent;
   box-shadow: 0 18px 55px rgba(0, 0, 0, 0.35);
 }
 
@@ -576,5 +576,5 @@ body {
 }
 
 .magazine-content {
-  background: var(--cream);
+  background: transparent;
 }

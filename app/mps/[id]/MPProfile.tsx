@@ -60,16 +60,6 @@ export default function MPProfile({
           <p className="text-sm text-[#4a3d2f] mb-6">
             Member since {new Date(mp.start_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
           </p>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-4">
-              <div className="text-3xl font-bold text-[#14100d]">{mp.bills_sponsored_count || 0}</div>
-              <div className="text-sm text-[#4a3d2f] uppercase tracking-wider">Bills Sponsored</div>
-            </div>
-            <div className="p-4">
-              <div className="text-3xl font-bold text-[#14100d]">{mp.votes_cast_count || 0}</div>
-              <div className="text-sm text-[#4a3d2f] uppercase tracking-wider">Votes Cast</div>
-            </div>
-          </div>
         </div>
       </div>
 
