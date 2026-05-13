@@ -3,7 +3,7 @@ import MagazineLayout from "../components/MagazineLayout";
 export default function PreviewPage() {
   return (
     <MagazineLayout>
-      {/* Empty template preview - no content */}
+      <div></div>
     </MagazineLayout>
   );
 }
