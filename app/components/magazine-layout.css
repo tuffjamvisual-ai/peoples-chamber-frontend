@@ -760,3 +760,128 @@
   padding: 0 36px 22px !important;
   overflow: hidden !important;
 }
+
+/* =========================================================
+   FINAL SHELL CORRECTION PATCH
+   Removes broken header fragment and fixes footer visibility.
+   ========================================================= */
+
+/* Force the full magazine into a clean 3-row shell */
+.magazine-paper {
+  display: grid !important;
+  grid-template-rows: 330px minmax(420px, 1fr) 265px !important;
+  width: min(1024px, calc(100vw - 32px)) !important;
+  min-height: calc(100vh - 36px) !important;
+  max-height: none !important;
+  overflow: hidden !important;
+}
+
+/* Header stays fixed */
+.magazine-header {
+  grid-row: 1 !important;
+  height: 330px !important;
+  min-height: 330px !important;
+  max-height: 330px !important;
+  overflow: hidden !important;
+}
+
+/* Content becomes blank flexible paper space */
+.magazine-content {
+  grid-row: 2 !important;
+  height: auto !important;
+  min-height: 420px !important;
+  overflow: hidden !important;
+  padding: 0 36px !important;
+  background: transparent !important;
+}
+
+/* Footer must sit fully inside bottom row */
+.magazine-footer {
+  grid-row: 3 !important;
+  height: 265px !important;
+  min-height: 265px !important;
+  max-height: 265px !important;
+  padding: 0 36px 22px !important;
+  overflow: hidden !important;
+  align-self: end !important;
+}
+
+/* Remove the broken cropped top-left "PEO CHA" fragment */
+.magazine-header > img:not(.issue-sticker):not(.paperclip):not(.truth-note):not(.megaphone-man):not(.democracy-note),
+.magazine-header picture,
+.magazine-header .footer-brand,
+.magazine-header .footer-logo,
+.magazine-header .footer-crest,
+.magazine-header .brand-logo,
+.magazine-header .mini-logo,
+.magazine-header [class*="footer"],
+.magazine-header [class*="brand"]:not(.masthead-block) {
+  display: none !important;
+}
+
+/* If the issue sticker itself contains the broken PEO CHA crop, hide it too */
+.issue-sticker {
+  display: none !important;
+}
+
+/* Keep the paperclip hidden if it looks odd without the sticker */
+.paperclip {
+  display: none !important;
+}
+
+/* Keep broken top-right sprite images hidden until real assets are supplied */
+.truth-note,
+.megaphone-man,
+.democracy-note {
+  display: none !important;
+}
+
+/* Slight masthead refinement */
+.masthead-block {
+  top: 12px !important;
+  left: 172px !important;
+  width: 680px !important;
+  height: 230px !important;
+}
+
+.masthead-title {
+  font-size: 78px !important;
+  line-height: 0.75 !important;
+  letter-spacing: -0.07em !important;
+}
+
+.masthead-strapline {
+  bottom: 10px !important;
+  font-size: 22px !important;
+}
+
+/* Nav stays clean and aligned */
+.magazine-nav {
+  bottom: 18px !important;
+  left: 36px !important;
+  right: 36px !important;
+  height: 44px !important;
+}
+
+/* Footer spacing rescue */
+.footer-rule {
+  margin-bottom: 18px !important;
+}
+
+.footer-main {
+  height: 118px !important;
+  grid-template-columns: 180px 258px 104px 116px 141px 92px !important;
+  overflow: hidden !important;
+}
+
+.footer-proof-strip {
+  height: 86px !important;
+  overflow: hidden !important;
+}
+
+/* Prevent accidental page content from pushing footer */
+.blank-magazine-page {
+  width: 100% !important;
+  min-height: 100% !important;
+  height: 100% !important;
+}
