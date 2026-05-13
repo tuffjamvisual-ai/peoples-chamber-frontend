@@ -43,7 +43,7 @@ export default function PreviewHome2() {
               alt="Shabana Mahmood"
               width="220"
               height="220"
-              style={{ display: 'block', filter: 'contrast(1.1) sepia(0.05)' }}
+              style={{ display: 'block', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }}
             />
           </div>
 
@@ -61,11 +61,11 @@ export default function PreviewHome2() {
             }}>
               Shabana Mahmood
             </h1>
-            <p style={{ fontSize: '22px', marginBottom: '8px', color: '#4a3d2f', transform: 'rotate(0.2deg)' }}>
+            <p style={{ fontSize: '22px', marginBottom: '8px', color: '#14100d', transform: 'rotate(0.2deg)' }}>
               <span style={{ display: 'inline-block', width: '12px', height: '12px', borderRadius: '50%', background: '#e4003b', marginRight: '8px' }}></span>
               Labour • Birmingham Ladywood
             </p>
-            <p style={{ fontSize: '16px', color: '#4a3d2f', transform: 'rotate(-0.1deg)' }}>
+            <p style={{ fontSize: '16px', color: '#14100d', transform: 'rotate(-0.1deg)' }}>
               Member since 6 May 2010
             </p>
           </div>
@@ -79,7 +79,7 @@ export default function PreviewHome2() {
               textTransform: 'uppercase',
               letterSpacing: '0.15em',
               marginBottom: '16px',
-              color: '#4a3d2f',
+              color: '#14100d',
               transform: 'rotate(-0.2deg)',
             }}>Sections</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -94,13 +94,13 @@ export default function PreviewHome2() {
                 transform: 'rotate(0.1deg)',
                 boxShadow: 'inset 1px 0 2px rgba(0,0,0,0.05)',
               }}>POLITICAL BIO</div>
-              <div style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#4a3d2f', transform: 'rotate(-0.1deg)' }}>CONTACT</div>
-              <div style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#4a3d2f', transform: 'rotate(0.15deg)' }}>VOTING RECORD</div>
-              <div style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#4a3d2f', transform: 'rotate(-0.2deg)' }}>BILLS SPONSORED</div>
-              <div style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#4a3d2f', transform: 'rotate(0.1deg)' }}>INTERESTS</div>
-              <div style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#4a3d2f', transform: 'rotate(-0.15deg)' }}>ROLES</div>
-              <div style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#4a3d2f', transform: 'rotate(0.2deg)' }}>EARNINGS</div>
-              <div style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#4a3d2f', transform: 'rotate(-0.1deg)' }}>EXPENSES</div>
+              <div style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.1deg)' }}>CONTACT</div>
+              <div style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(0.15deg)' }}>VOTING RECORD</div>
+              <div style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.2deg)' }}>BILLS SPONSORED</div>
+              <div style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(0.1deg)' }}>INTERESTS</div>
+              <div style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.15deg)' }}>ROLES</div>
+              <div style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(0.2deg)' }}>EARNINGS</div>
+              <div style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.1deg)' }}>EXPENSES</div>
             </div>
           </div>
 
@@ -123,11 +123,11 @@ export default function PreviewHome2() {
               color: '#14100d',
               letterSpacing: '0.01em',
             }}>
-              <p style={{ marginBottom: '16px', transform: 'rotate(0.1deg)', opacity: 0.95 }}>
+              <p style={{ marginBottom: '16px', transform: 'rotate(0.1deg)', opacity: 1 }}>
                 Shabana Mahmood, Labour MP for Birmingham Ladywood and now Home Secretary, has built one of the more substantial careers in the Starmer-era Labour Party. First elected in 2010, she has lasted through New Labour&apos;s aftershock, the Corbyn years, Labour&apos;s electoral collapse, its rebuild, and finally government. That alone says something. Many MPs enter Westminster, make three speeches, develop a taste for panels, and vanish into the upholstery. Mahmood has endured, adapted and risen.
               </p>
 
-              <p style={{ marginBottom: '16px', transform: 'rotate(-0.15deg)', opacity: 0.96 }}>
+              <p style={{ marginBottom: '16px', transform: 'rotate(-0.15deg)', opacity: 1 }}>
                 She is clearly one of Labour&apos;s sharpest political operators. Her role as National Campaign Co-ordinator from 2021 to 2023 mattered because Labour&apos;s campaign machine under Starmer became far more disciplined, data-driven and ruthless than in previous years.
               </p>
             </div>
