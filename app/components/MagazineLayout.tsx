@@ -89,6 +89,7 @@ export default function MagazineLayout({
             alt=""
             fill
             priority
+            unoptimized
             sizes="1024px"
           />
           <div className="magazine-nav-cover" aria-hidden="true" />
