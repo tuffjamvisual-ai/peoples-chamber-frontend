@@ -88,7 +88,7 @@ export default async function PreviewHome2() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-px border border-[#14100d]/30">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-px">
           {/* Sidebar — sticky like the dark-theme MP page */}
           <aside className="lg:col-span-1">
             <div className="lg:sticky lg:top-16">
