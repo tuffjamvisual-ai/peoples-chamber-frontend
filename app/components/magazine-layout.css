@@ -119,7 +119,7 @@ body {
   bottom: 0.6%;
   height: 13.3%;
   z-index: 1;
-  background: var(--cream);
+  background: transparent;
 }
 
 /* Top section of the baked-in footer (brand + description + 4 link
