@@ -80,6 +80,24 @@ export default async function PreviewHome2() {
               height={260}
               style={{ display: 'block', width: '260px', height: '260px', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }}
             />
+            {/* Paperclip overlay */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/paperclip.png"
+              alt=""
+              aria-hidden
+              style={{
+                position: 'absolute',
+                top: '-40px',
+                left: '50%',
+                width: '80px',
+                height: 'auto',
+                transform: 'translateX(-50%) rotate(45deg)',
+                pointerEvents: 'none',
+                zIndex: 3,
+                filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.35))',
+              }}
+            />
           </div>
 
           {/* Hero text with ink effects */}
