@@ -23,16 +23,18 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
   )
 
   return (
-    <main className="bg-[#505050] shadow-[0_0_40px_rgba(0,0,0,0.4)] max-w-[1200px] mx-auto px-4 sm:px-6 py-4 sm:py-6">
-      <div className="mb-6">
-        <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">Laws</h1>
-        <p className="text-white text-sm sm:text-base">
+    <div className="px-2 sm:px-4 py-4 sm:py-6">
+      <header className="border-b border-[#1a1410]/20 pb-4 mb-6">
+        <h1 className="font-serif text-3xl sm:text-4xl font-black text-[#1a1410] leading-tight">
+          Laws
+        </h1>
+        <p className="text-[#4a3d2f] text-sm sm:text-base mt-2">
           Bills that have received Royal Assent and become law
         </p>
-        <p className="text-sm text-white mt-2">
-          {filteredLaws.length} laws found
+        <p className="text-xs uppercase tracking-[0.25em] text-[#4a3d2f] mt-3">
+          {filteredLaws.length} {filteredLaws.length === 1 ? 'law' : 'laws'} found
         </p>
-      </div>
+      </header>
 
       <div className="mb-6">
         <input
@@ -40,63 +42,67 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
           placeholder="Search laws..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-[30%] px-4 py-2 bg-[#404040] text-white rounded-lg border border-[#5a5a5a] focus:border-[#ffffff] focus:outline-none"
+          className="w-full sm:w-[60%] px-4 py-2 bg-[#f4e8d4] text-[#1a1410] rounded-sm border border-[#1a1410]/30 placeholder:text-[#4a3d2f]/60 focus:border-[#1c4c78] focus:outline-none"
         />
       </div>
 
       {filteredLaws.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-white">
+          <p className="text-[#4a3d2f]">
             {search ? `No laws found matching "${search}"` : 'No laws found'}
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           {filteredLaws.map((law) => (
             <Link
               key={law.id}
               href={`/bills/${law.id}`}
-              className="bg-[#505050] border border-[#5a5a5a] rounded-lg p-4 sm:p-6 hover:border-[#ffffff] transition-colors flex flex-col"
+              className="bg-[#f4e8d4]/50 border border-[#1a1410]/20 rounded-sm p-4 sm:p-5 hover:border-[#7a1612] hover:bg-[#f4e8d4]/80 transition-colors flex flex-col"
             >
               <div className="flex items-center gap-2 mb-3">
-                <span className="text-sm px-2 py-0.5 bg-white/10 text-white rounded border border-white/20">
+                <span className="text-[10px] px-2 py-0.5 bg-[#7a1612] text-[#f4e8d4] rounded-sm uppercase tracking-[0.18em] font-semibold">
                   ✓ Law
                 </span>
                 {law.originating_house && (
-                  <span className="text-sm text-white">{law.originating_house}</span>
+                  <span className="text-[11px] text-[#4a3d2f] uppercase tracking-[0.18em]">
+                    {law.originating_house}
+                  </span>
                 )}
               </div>
 
-              <h3 className="font-semibold text-base text-white mb-3 line-clamp-2">
+              <h3 className="font-serif font-bold text-base sm:text-lg text-[#1a1410] mb-3 line-clamp-2 leading-snug">
                 {law.title}
               </h3>
 
               {law.plain_summary && (
-                <p className="text-white text-sm mb-4 line-clamp-3 flex-1">
+                <p className="text-[#4a3d2f] text-sm mb-4 line-clamp-3 flex-1 leading-relaxed">
                   {law.plain_summary}
                 </p>
               )}
 
-              <div className="flex items-center justify-between text-sm text-white mt-auto">
+              <div className="flex items-center justify-between text-xs text-[#4a3d2f] mt-auto pt-2 border-t border-[#1a1410]/10">
                 {law.sponsor_name && (
-                  <span className="flex items-center gap-1">
+                  <span className="flex items-center gap-1.5">
                     {law.sponsor_party && (
                       <span
                         className="inline-block w-2 h-2 rounded-full"
                         style={{ backgroundColor: `#${law.sponsor_party_colour}` || '#7697a2' }}
                       />
                     )}
-                    {law.sponsor_name}
+                    <span className="truncate max-w-[140px]">{law.sponsor_name}</span>
                   </span>
                 )}
                 {law.last_update && (
-                  <span>{new Date(law.last_update).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                  <span className="font-mono">
+                    {new Date(law.last_update).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  </span>
                 )}
               </div>
             </Link>
           ))}
         </div>
       )}
-    </main>
+    </div>
   )
 }

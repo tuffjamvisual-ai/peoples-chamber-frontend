@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import LawsClient from './LawsClient'
-import Navigation from '../components/Navigation'
+import MagazineLayout from '../components/MagazineLayout'
 
 export const revalidate = 600
 
@@ -24,9 +24,8 @@ export default async function LawsPage() {
   if (error) console.error('Error fetching laws:', error)
 
   return (
-    <div className="min-h-screen bg-[#606060]">
-      <Navigation />
+    <MagazineLayout>
       <LawsClient laws={laws || []} />
-    </div>
+    </MagazineLayout>
   )
 }

@@ -35,15 +35,17 @@
 }
 
 /* Header nav hotspots — measured from /tmp/nav-zoom.png crop of full empty.png.
-   Nav strip Y in 1535px tall template: 280–305px = 18.2–19.9%. */
-.bt-n-home   { top: 18.2%; left: 8%;  width: 6%;  height: 1.8%; }
-.bt-n-bills  { top: 18.2%; left: 17%; width: 6%;  height: 1.8%; }
-.bt-n-laws   { top: 18.2%; left: 26%; width: 5%;  height: 1.8%; }
-.bt-n-polls  { top: 18.2%; left: 34%; width: 13%; height: 1.8%; }
-.bt-n-mps    { top: 18.2%; left: 50%; width: 5%;  height: 1.8%; }
-.bt-n-depts  { top: 18.2%; left: 58%; width: 13%; height: 1.8%; }
-.bt-n-login  { top: 18.2%; left: 79%; width: 6%;  height: 1.8%; }
-.bt-n-about  { top: 18.2%; left: 91%; width: 6%;  height: 1.8%; }
+   Nav text strip Y in 1535px tall template: 280–305px (~18.2–19.9%).
+   Click targets are inflated vertically (5% tall, ~77px) and horizontally into the
+   inter-label gaps so the user doesn't need pixel-precision to hit them. */
+.bt-n-home   { top: 16.6%; left: 7%;  width: 9%;  height: 5%; }
+.bt-n-bills  { top: 16.6%; left: 16%; width: 9%;  height: 5%; }
+.bt-n-laws   { top: 16.6%; left: 25%; width: 8%;  height: 5%; }
+.bt-n-polls  { top: 16.6%; left: 33%; width: 16%; height: 5%; }
+.bt-n-mps    { top: 16.6%; left: 49%; width: 8%;  height: 5%; }
+.bt-n-depts  { top: 16.6%; left: 57%; width: 21%; height: 5%; }
+.bt-n-login  { top: 16.6%; left: 78%; width: 12%; height: 5%; }
+.bt-n-about  { top: 16.6%; left: 90%; width: 7%;  height: 5%; }
 
 /* Footer hotspots — link columns Y in 1535px template: 1339–1430px = 87.2–93.2%. */
 .bt-f-brand { top: 87.5%; left: 1%;  width: 17%; height: 5%; }
