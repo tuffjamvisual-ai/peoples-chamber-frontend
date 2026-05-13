@@ -88,7 +88,7 @@ export default async function PreviewHome2() {
               aria-hidden
               style={{
                 position: 'absolute',
-                top: '-40px',
+                top: '-60px',
                 left: '50%',
                 width: '80px',
                 height: 'auto',
