@@ -48,6 +48,7 @@ export default function MagazineLayout({
         />
 
         <div className="magazine-nav-cover" aria-hidden="true" />
+        <div className="magazine-footer-cover" aria-hidden="true" />
 
         <nav className="magazine-nav" aria-label="Primary navigation">
           <span className="nav-star" aria-hidden="true">*</span>

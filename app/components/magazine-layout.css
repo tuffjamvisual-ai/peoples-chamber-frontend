@@ -103,6 +103,20 @@ body {
   background: var(--cream);
 }
 
+/* Cream strip — hides the top section of the baked-in footer
+   (brand block + description + 4 link columns). The proof-badge
+   row at the bottom stays visible. Tweak `bottom` and `height` to
+   widen or narrow the covered band. */
+.magazine-footer-cover {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100px;
+  height: 160px;
+  z-index: 1;
+  background: var(--cream);
+}
+
 /* Editable HTML nav — sits over the cream cover */
 .magazine-nav {
   position: absolute;
