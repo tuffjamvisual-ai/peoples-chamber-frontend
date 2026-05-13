@@ -67,7 +67,7 @@ export default async function PreviewHome2() {
           <div style={{
             position: 'relative',
             background: '#fff',
-            padding: '12px 12px 60px 12px',
+            padding: '12px 12px 48px 12px',
             width: '284px',
             marginLeft: '-50px',
             transform: 'rotate(-2.3deg)',
