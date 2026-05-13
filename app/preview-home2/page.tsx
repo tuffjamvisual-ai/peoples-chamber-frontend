@@ -128,7 +128,7 @@ export default async function PreviewHome2() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-px" style={{ marginTop: '-20px' }}>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-px" style={{ marginTop: '-40px' }}>
           {/* Sidebar — sticky like the dark-theme MP page */}
           <aside className="lg:col-span-1">
             <div className="lg:sticky lg:top-16">
