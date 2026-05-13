@@ -85,9 +85,9 @@ export default async function PreviewHome2() {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 3fr', gap: '40px' }}>
-          {/* Sidebar with roughened edges */}
-          <div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 3fr', gap: '40px', alignItems: 'start' }}>
+          {/* Sidebar with roughened edges — sticky like the dark-theme MP page */}
+          <aside style={{ position: 'sticky', top: '64px', alignSelf: 'start' }}>
             <p style={{
               fontSize: '11px',
               textTransform: 'uppercase',
@@ -116,7 +116,7 @@ export default async function PreviewHome2() {
               <div style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(0.2deg)' }}>EARNINGS</div>
               <div style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.1deg)' }}>EXPENSES</div>
             </div>
-          </div>
+          </aside>
 
           {/* Content with ink texture */}
           <div>
