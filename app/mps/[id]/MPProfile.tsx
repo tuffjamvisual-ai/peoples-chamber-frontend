@@ -20,6 +20,8 @@ export default function MPProfile({
   contact,
   bio,
   sponsoredBills,
+  expensesDetail,
+  earnings,
   partyColour,
 }: MPProfileProps) {
   return (
@@ -148,6 +150,137 @@ export default function MPProfile({
               </li>
             ))}
           </ul>
+        </section>
+      )}
+
+      {/* Government Posts */}
+      {bio?.government_posts && bio.government_posts.length > 0 && (
+        <section className="mb-12">
+          <h2 className="font-['Libre_Bodoni'] text-3xl font-bold mb-6 text-[#14100d] border-b-2 border-[#7a1612] pb-2">
+            Government Posts
+          </h2>
+          <div className="space-y-3">
+            {bio.government_posts.map((post: any, idx: number) => {
+              const startDate = post?.startDate ?? post?.start_date
+              return (
+                <div key={post?.id ?? idx} className="border-l-4 border-[#7a1612] pl-4">
+                  <div className="font-bold">{post?.name ?? String(post)}</div>
+                  {startDate && (
+                    <div className="text-sm text-[#4a3d2f]">
+                      Since {new Date(startDate).toLocaleDateString('en-GB', {
+                        month: 'short',
+                        year: 'numeric',
+                      })}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* Opposition Posts */}
+      {bio?.opposition_posts && bio.opposition_posts.length > 0 && (
+        <section className="mb-12">
+          <h2 className="font-['Libre_Bodoni'] text-3xl font-bold mb-6 text-[#14100d] border-b-2 border-[#7a1612] pb-2">
+            Opposition Posts
+          </h2>
+          <div className="space-y-3">
+            {bio.opposition_posts.map((post: any, idx: number) => {
+              const startDate = post?.startDate ?? post?.start_date
+              return (
+                <div key={post?.id ?? idx} className="border-l-4 border-[#7a1612] pl-4">
+                  <div className="font-bold">{post?.name ?? String(post)}</div>
+                  {startDate && (
+                    <div className="text-sm text-[#4a3d2f]">
+                      Since {new Date(startDate).toLocaleDateString('en-GB', {
+                        month: 'short',
+                        year: 'numeric',
+                      })}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* Outside Earnings */}
+      {earnings && Number(earnings.outside) > 0 && (
+        <section className="mb-12">
+          <h2 className="font-['Libre_Bodoni'] text-3xl font-bold mb-6 text-[#14100d] border-b-2 border-[#7a1612] pb-2">
+            Outside Earnings
+          </h2>
+          <div className="border-2 border-[#14100d]/30 p-4 mb-4">
+            <div className="text-3xl font-bold text-[#14100d]">
+              £{Number(earnings.outside).toLocaleString('en-GB')}
+            </div>
+            <div className="text-sm text-[#4a3d2f] uppercase tracking-wider">
+              Total declared outside earnings
+            </div>
+          </div>
+          {(earnings.outside_claim_count > 0 || earnings.outside_source_count > 0) && (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="border-2 border-[#14100d]/30 p-4">
+                <div className="text-2xl font-bold text-[#14100d]">
+                  {earnings.outside_claim_count}
+                </div>
+                <div className="text-sm text-[#4a3d2f] uppercase tracking-wider">Claims</div>
+              </div>
+              <div className="border-2 border-[#14100d]/30 p-4">
+                <div className="text-2xl font-bold text-[#14100d]">
+                  {earnings.outside_source_count}
+                </div>
+                <div className="text-sm text-[#4a3d2f] uppercase tracking-wider">Sources</div>
+              </div>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* Largest Expense Claims */}
+      {expensesDetail && expensesDetail.length > 0 && (
+        <section className="mb-12">
+          <h2 className="font-['Libre_Bodoni'] text-3xl font-bold mb-6 text-[#14100d] border-b-2 border-[#7a1612] pb-2">
+            Largest Expense Claims
+          </h2>
+          <div className="space-y-3">
+            {[...expensesDetail]
+              .filter((c: any) => c?.amount_paid != null)
+              .sort((a: any, b: any) => Number(b.amount_paid) - Number(a.amount_paid))
+              .slice(0, 10)
+              .map((claim: any, idx: number) => {
+                const label = claim?.short_description || claim?.details || claim?.cost_type
+                return (
+                  <div
+                    key={claim?.claim_number ?? idx}
+                    className="border-2 border-[#14100d]/30 p-4"
+                  >
+                    <div className="flex justify-between items-start mb-2 gap-4">
+                      <div className="font-bold">{claim?.category ?? 'Expense'}</div>
+                      <div className="text-lg font-bold whitespace-nowrap">
+                        £{Number(claim.amount_paid).toLocaleString('en-GB', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </div>
+                    </div>
+                    {label && <div className="text-sm text-[#4a3d2f]">{label}</div>}
+                    {claim?.claim_date && (
+                      <div className="text-sm text-[#4a3d2f] mt-1">
+                        {new Date(claim.claim_date).toLocaleDateString('en-GB', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+          </div>
         </section>
       )}
     </div>
