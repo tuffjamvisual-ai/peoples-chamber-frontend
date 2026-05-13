@@ -34,23 +34,23 @@
   outline-offset: -2px;
 }
 
-/* Header nav hotspots — % of full template (1024×1535)
-   Nav strip in template is at y≈260–296 (16.9–19.3% of 1535) */
-.bt-n-home   { top: 17%; left: 7%;  width: 6%;  height: 2.2%; }
-.bt-n-bills  { top: 17%; left: 16%; width: 6%;  height: 2.2%; }
-.bt-n-laws   { top: 17%; left: 26%; width: 5%;  height: 2.2%; }
-.bt-n-polls  { top: 17%; left: 35%; width: 12%; height: 2.2%; }
-.bt-n-mps    { top: 17%; left: 51%; width: 5%;  height: 2.2%; }
-.bt-n-depts  { top: 17%; left: 59%; width: 12%; height: 2.2%; }
-.bt-n-login  { top: 17%; left: 80%; width: 6%;  height: 2.2%; }
-.bt-n-about  { top: 17%; left: 90%; width: 6%;  height: 2.2%; }
+/* Header nav hotspots — measured from /tmp/nav-zoom.png crop of full empty.png.
+   Nav strip Y in 1535px tall template: 280–305px = 18.2–19.9%. */
+.bt-n-home   { top: 18.2%; left: 8%;  width: 6%;  height: 1.8%; }
+.bt-n-bills  { top: 18.2%; left: 17%; width: 6%;  height: 1.8%; }
+.bt-n-laws   { top: 18.2%; left: 26%; width: 5%;  height: 1.8%; }
+.bt-n-polls  { top: 18.2%; left: 34%; width: 13%; height: 1.8%; }
+.bt-n-mps    { top: 18.2%; left: 50%; width: 5%;  height: 1.8%; }
+.bt-n-depts  { top: 18.2%; left: 58%; width: 13%; height: 1.8%; }
+.bt-n-login  { top: 18.2%; left: 79%; width: 6%;  height: 1.8%; }
+.bt-n-about  { top: 18.2%; left: 91%; width: 6%;  height: 1.8%; }
 
-/* Footer hotspots — bottom of template (1320–1450 / 1535 = 86–94%) */
-.bt-f-brand { bottom: 6%;  left: 1%;  width: 25%; height: 6%; }
-.bt-f-col1  { bottom: 6%;  left: 40%; width: 11%; height: 8%; }
-.bt-f-col2  { bottom: 6%;  left: 52%; width: 11%; height: 8%; }
-.bt-f-col3  { bottom: 6%;  left: 65%; width: 18%; height: 8%; }
-.bt-f-col4  { bottom: 6%;  left: 84%; width: 14%; height: 8%; }
+/* Footer hotspots — link columns Y in 1535px template: 1339–1430px = 87.2–93.2%. */
+.bt-f-brand { top: 87.5%; left: 1%;  width: 17%; height: 5%; }
+.bt-f-col1  { top: 87%;   left: 40%; width: 12%; height: 6.2%; }
+.bt-f-col2  { top: 87%;   left: 51%; width: 12%; height: 6.2%; }
+.bt-f-col3  { top: 87%;   left: 65%; width: 18%; height: 6.2%; }
+.bt-f-col4  { top: 87%;   left: 84%; width: 12%; height: 6.2%; }
 
 /* Bills content occupies the empty middle of the template image.
    Header band: 0 → 20.2% (310/1535)
