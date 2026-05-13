@@ -199,8 +199,8 @@ export default async function PreviewHome2() {
             </div>
           </div>
         </div>
+        <ScrollToTopButton />
       </div>
-      <ScrollToTopButton />
     </div>
   );
 }
