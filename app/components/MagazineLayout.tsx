@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
+import { ReactNode } from "react";
 import "./magazine-layout.css";
 
 type MagazineLayoutProps = {
@@ -18,113 +18,63 @@ const navItems = [
   { label: "ABOUT", href: "/about" },
 ];
 
-const footerColumns: Array<Array<{ label: string; href: string }>> = [
-  [
-    { label: "BILLS", href: "/bills" },
-    { label: "MPS", href: "/mps" },
-    { label: "DEPARTMENTS", href: "/departments" },
-    { label: "TRANSPARENCY", href: "/transparency" },
-  ],
-  [
-    { label: "EXPENSES", href: "/expenses" },
-    { label: "EARNINGS", href: "/earnings" },
-    { label: "DONATIONS", href: "/donations" },
-    { label: "CONTRACTS", href: "/contracts" },
-  ],
-  [
-    { label: "ABOUT & METHODOLOGY", href: "/about" },
-    { label: "SOURCES", href: "/sources" },
-    { label: "PRIVACY", href: "/privacy" },
-  ],
-  [
-    { label: "TERMS", href: "/terms" },
-    { label: "CONTACT", href: "/contact" },
-    { label: "GITHUB ↗", href: "https://github.com/tuffjamvisual-ai/peoples-chamber-frontend" },
-  ],
-];
-
-const proofItems = [
-  {
-    icon: "100%",
-    title: "100% Independent",
-    body: "Not funded by government or political parties.",
-  },
-  {
-    icon: "◷",
-    title: "Real-time Data",
-    body: "Live updates from official sources across the UK.",
-  },
-  {
-    icon: "●●●",
-    title: "Open to All",
-    body: "Built for everyone. Built to be trusted.",
-  },
-  {
-    icon: "⌕",
-    title: "Accountability First",
-    body: "Making power visible. Putting people first.",
-  },
-];
+const megaphoneSvg =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 142 104'%3E%3Crect width='142' height='104' fill='none'/%3E%3Cg fill='%2314100d'%3E%3Cpath d='M95 31c8-17 29-8 31 10 3 22-10 39-29 34 9-9 11-32-2-44Z'/%3E%3Cpath d='M33 49 79 28v50L33 60V49Z'/%3E%3Cpath d='M21 46h14v18H21c-7 0-12-4-12-9s5-9 12-9Z'/%3E%3Cpath d='M39 62h19l9 30H48L39 62Z'/%3E%3Ccircle cx='111' cy='32' r='9'/%3E%3Cpath d='M91 29c12 7 14 38 0 48 12 2 25-8 28-24 3-16-8-28-28-24Z' fill='%23f4e8d4'/%3E%3C/g%3E%3Cg fill='none' stroke='%2314100d' stroke-width='4' stroke-linecap='round'%3E%3Cpath d='M88 17c9-10 25-9 33 3'/%3E%3Cpath d='M84 88c13 4 28 0 36-11'/%3E%3Cpath d='M126 16l10-9M130 51h10M124 85l10 8'/%3E%3C/g%3E%3C/svg%3E";
 
 export default function MagazineLayout({ children }: MagazineLayoutProps) {
   return (
-    <div className="magazine-stage">
-      <div className="magazine-paper">
-        <header className="magazine-header" aria-label="The People's Chamber header">
-          {/* Issue sticker — small decorative asset (only next/image use) */}
-          <Image
-            src="/chrome/paperclip.png"
-            alt="Issue 23, May 16–22, 2025"
-            width={70}
-            height={102}
-            priority
-            className="issue-sticker-image"
-          />
+    <div className="magazine-shell">
+      <div className="magazine-page">
+        <header className="magazine-header" aria-label="The People's Chamber">
+          <div className="paperclip paperclip-left" aria-hidden="true" />
+          <div className="paperclip paperclip-top" aria-hidden="true" />
 
-          {/* Masthead — pure HTML/CSS */}
-          <div className="masthead">
-            <h1 className="masthead-title">
-              <span>THE</span>
-              <span>PEOPLE&apos;S</span>
-              <span>CHAMBER</span>
-            </h1>
-            <p className="masthead-strapline">
-              — UK GOVERNMENT. IN PUBLIC VIEW.
-            </p>
-          </div>
-
-          {/* Truth note (top-right) — HTML/CSS */}
-          <aside className="truth-note" aria-label="No spin, no paywall, just the truth">
-            <span>NO SPIN.</span>
-            <span>NO PAYWALL.</span>
-            <span>JUST</span>
-            <strong>THE TRUTH.</strong>
+          <aside className="issue-sticker" aria-label="Issue information">
+            <span>ISSUE 23</span>
+            <strong>MAY 16-22, 2025</strong>
           </aside>
 
-          {/* Megaphone — HTML/CSS (Unicode glyph) */}
-          <div className="megaphone" aria-hidden="true">
-            📣
+          <div className="truth-card">
+            <p>NO SPIN.</p>
+            <p>NO PAYWALL.</p>
+            <p>JUST</p>
+            <strong>THE TRUTH.</strong>
           </div>
 
-          {/* Democracy note — HTML/CSS */}
-          <aside className="democracy-note" aria-label="Democracy works better when people watch">
-            <span>Democracy</span>
+          <Image
+            className="megaphone"
+            src={megaphoneSvg}
+            width={142}
+            height={104}
+            alt=""
+            aria-hidden="true"
+            priority
+          />
+
+          <div className="watch-note">
+            <span>Democracy.</span>
             <span>works better</span>
             <span>when people</span>
             <span>watch.</span>
-          </aside>
+          </div>
 
-          {/* Navigation — editable HTML */}
+          <div className="masthead">
+            <span className="masthead-the">THE</span>
+            <span className="masthead-line">PEOPLE&apos;S</span>
+            <span className="masthead-line chamber">CHAMBER</span>
+            <span className="crown" aria-hidden="true">
+              ♕
+            </span>
+          </div>
+
+          <p className="tagline">UK GOVERNMENT. IN PUBLIC VIEW.</p>
+
           <nav className="magazine-nav" aria-label="Primary navigation">
             <span className="nav-star" aria-hidden="true">
-              ✱
+              *
             </span>
-            {navItems.map((item, index) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={index === 0 ? "is-active" : undefined}
-              >
+            {navItems.map((item) => (
+              <Link key={item.href} href={item.href}>
                 {item.label}
               </Link>
             ))}
@@ -134,82 +84,56 @@ export default function MagazineLayout({ children }: MagazineLayoutProps) {
         <main className="magazine-content">{children}</main>
 
         <footer className="magazine-footer">
-          <div className="footer-rule" aria-hidden="true" />
-
+          <div className="footer-topline" />
           <div className="footer-main">
-            <section className="footer-brand" aria-label="The People's Chamber">
-              <div className="footer-crest" aria-hidden="true">
-                ♜
+            <div className="footer-brand">
+              <div className="crest" aria-hidden="true">
+                ♛
               </div>
               <div>
-                <h2>
-                  <span>THE</span>
-                  <span>PEOPLE&apos;S</span>
-                  <span>CHAMBER</span>
-                </h2>
-                <p>— UK GOVERNMENT. IN PUBLIC VIEW.</p>
+                <span className="brand-kicker">THE</span>
+                <strong>PEOPLE&apos;S<br />CHAMBER</strong>
+                <em>OF GOVERNMENT. IN PUBLIC VIEW.</em>
               </div>
-            </section>
-
-            <p className="footer-description">
-              UK political transparency. Built from official sources: Parliament,
-              IPSA, Companies House, Electoral Commission, Cabinet Office.
-              Updated daily.
+            </div>
+            <p className="footer-source">
+              UK political transparency. Built from official sources:
+              Parliament, IPSA, Companies House, Electoral Commission, Cabinet
+              Office. Updated daily.
             </p>
-
-            {footerColumns.map((links, index) => (
-              <FooterColumn key={index} links={links} />
-            ))}
+            <ul>
+              <li>BILLS</li>
+              <li>MPS</li>
+              <li>DEPARTMENTS</li>
+              <li>TRANSPARENCY</li>
+            </ul>
+            <ul>
+              <li>EXPENSES</li>
+              <li>EARNINGS</li>
+              <li>DONATIONS</li>
+              <li>CONTRACTS</li>
+            </ul>
+            <ul>
+              <li>ABOUT &amp;</li>
+              <li>METHODOLOGY</li>
+              <li>SOURCES</li>
+              <li>PRIVACY</li>
+            </ul>
+            <ul>
+              <li>TERMS</li>
+              <li>CONTACT</li>
+              <li>GITHUB ↗</li>
+            </ul>
           </div>
-
-          <div className="footer-proof-strip">
-            {proofItems.map((item) => (
-              <section key={item.title} className="proof-item">
-                <span className="proof-icon" aria-hidden="true">
-                  {item.icon}
-                </span>
-                <div>
-                  <h3>{item.title}</h3>
-                  <p>{item.body}</p>
-                </div>
-              </section>
-            ))}
+          <div className="footer-rules">
+            <div className="rule-badge">100%<br />FREE PRESS</div>
+            <p>Not funded by government or political parties.</p>
+            <p><span>◷</span> REAL-TIME DATA<br />Live updates from official sources across the UK</p>
+            <p><span>☷</span> OPEN TO ALL<br />Built for everyone. Built to be trusted.</p>
+            <p><span>⌕</span> ACCOUNTABILITY FIRST<br />Making power visible. Putting people first.</p>
           </div>
         </footer>
       </div>
     </div>
-  );
-}
-
-function FooterColumn({
-  links,
-}: {
-  links: Array<{ label: string; href: string }>;
-}) {
-  return (
-    <nav className="footer-column" aria-label="Footer links">
-      {links.map((link) => {
-        const isExternal = link.href.startsWith("http");
-
-        if (isExternal) {
-          return (
-            <a
-              key={link.label}
-              href={link.href}
-              target="_blank"
-              rel="noreferrer"
-            >
-              {link.label}
-            </a>
-          );
-        }
-
-        return (
-          <Link key={link.label} href={link.href}>
-            {link.label}
-          </Link>
-        );
-      })}
-    </nav>
   );
 }
