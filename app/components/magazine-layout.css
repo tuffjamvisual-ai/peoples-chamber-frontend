@@ -1,0 +1,8 @@
+/* Shared spacing for magazine-template pages.
+ * - Top: 400px clears the painted header art
+ * - Bottom: 200px clears the painted footer
+ * - Sides: 80px gutter inside the template
+ */
+.magazine-content-spacing {
+  padding: 400px 80px 200px 80px;
+}

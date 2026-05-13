@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import '../components/magazine-layout.css';
 
 export const revalidate = 600;
 
@@ -44,7 +45,7 @@ export default async function PreviewHome2() {
       />
 
       {/* Content overlay */}
-      <div style={{ position: 'relative', zIndex: 2, padding: '400px 80px 200px 80px', color: '#14100d', fontFamily: 'Special Elite, monospace' }}>
+      <div className="magazine-content-spacing" style={{ position: 'relative', zIndex: 2, color: '#14100d', fontFamily: 'Special Elite, monospace' }}>
         <a
           href="/mps"
           style={{
