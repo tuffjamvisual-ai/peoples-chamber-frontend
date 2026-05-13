@@ -115,7 +115,9 @@ export default function MPProfile({
             {sponsoredBills.slice(0, 5).map((bill: any) => (
               <div key={bill.id} className="border-2 border-[#14100d]/30 p-4">
                 <h3 className="font-bold text-lg mb-1">{bill.title}</h3>
-                <p className="text-sm text-[#4a3d2f]">{bill.description}</p>
+                {bill.plain_summary && (
+                  <p className="text-sm text-[#4a3d2f]">{bill.plain_summary}</p>
+                )}
               </div>
             ))}
           </div>
@@ -129,8 +131,21 @@ export default function MPProfile({
             Committee Memberships
           </h2>
           <ul className="space-y-2">
-            {bio.committee_memberships.map((committee: string, idx: number) => (
-              <li key={idx} className="border-l-4 border-[#7a1612] pl-4">{committee}</li>
+            {bio.committee_memberships.map((committee: any, idx: number) => (
+              <li key={committee?.id ?? idx} className="border-l-4 border-[#7a1612] pl-4">
+                <span className="font-bold">{committee?.name ?? String(committee)}</span>
+                {committee?.house && (
+                  <span className="ml-2 text-sm text-[#4a3d2f]">· {committee.house}</span>
+                )}
+                {committee?.startDate && (
+                  <span className="ml-2 text-sm text-[#4a3d2f]">
+                    · since {new Date(committee.startDate).toLocaleDateString('en-GB', {
+                      month: 'short',
+                      year: 'numeric',
+                    })}
+                  </span>
+                )}
+              </li>
             ))}
           </ul>
         </section>
