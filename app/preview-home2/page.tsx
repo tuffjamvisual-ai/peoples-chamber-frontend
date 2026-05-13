@@ -83,7 +83,7 @@ export default async function PreviewHome2() {
             {/* Paperclip overlay — rotated 45° */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/paperclip.jpeg"
+              src="/paperclip.png"
               alt=""
               aria-hidden
               style={{
