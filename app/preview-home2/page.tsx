@@ -131,10 +131,7 @@ export default async function PreviewHome2() {
           {/* Sidebar — sticky like the dark-theme MP page */}
           <aside className="lg:col-span-1">
             <div className="lg:sticky lg:top-16">
-              <p className="text-[13px] uppercase tracking-[0.25em] font-medium px-4 pt-5 pb-3" style={{ color: '#14100d', fontFamily: 'Special Elite, monospace', transform: 'rotate(-0.2deg)' }}>
-                Sections
-              </p>
-              <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '0 8px 8px' }}>
+              <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 8px 8px' }}>
               <div style={{
                 padding: '12px 16px',
                 borderLeft: '4px solid #7a1612',
