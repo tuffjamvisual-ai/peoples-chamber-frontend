@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import "./magazine-layout.css";
 
 type Variant = "blank" | "article" | "dashboard" | "profile" | "list";
@@ -24,50 +25,6 @@ const navItems = [
   { label: "ABOUT", href: "/about" },
 ];
 
-const footerColumns: Array<{ heading: string; links: Array<{ label: string; href: string }> }> = [
-  {
-    heading: "RECORDS",
-    links: [
-      { label: "Bills", href: "/bills" },
-      { label: "MPs", href: "/mps" },
-      { label: "Departments", href: "/departments" },
-      { label: "Transparency", href: "/transparency" },
-    ],
-  },
-  {
-    heading: "MONEY",
-    links: [
-      { label: "Expenses", href: "/expenses" },
-      { label: "Earnings", href: "/earnings" },
-      { label: "Donations", href: "/donations" },
-      { label: "Contracts", href: "/contracts" },
-    ],
-  },
-  {
-    heading: "ABOUT",
-    links: [
-      { label: "About & Methodology", href: "/about" },
-      { label: "Sources", href: "/sources" },
-      { label: "Privacy", href: "/privacy" },
-    ],
-  },
-  {
-    heading: "LEGAL",
-    links: [
-      { label: "Terms", href: "/terms" },
-      { label: "Contact", href: "/contact" },
-      { label: "GitHub ↗", href: "https://github.com/tuffjamvisual-ai/peoples-chamber-frontend" },
-    ],
-  },
-];
-
-const proofItems = [
-  { tag: "100%", title: "Independent", body: "Not funded by government or political parties." },
-  { tag: "◷", title: "Real-time", body: "Live updates from official UK sources." },
-  { tag: "○", title: "Open", body: "Built for everyone. Built to be trusted." },
-  { tag: "⌕", title: "Accountable", body: "Making power visible. People first." },
-];
-
 export default function MagazineLayout({
   children,
   variant = "blank",
@@ -81,26 +38,29 @@ export default function MagazineLayout({
   return (
     <div className="magazine-shell">
       <div className="magazine-page" data-variant={variant}>
-        {/*
-          Header art is rendered by .magazine-header::before via
-          background-image: url(/reference.png).
-          A cream ::after stripe masks the image's baked-in nav band so the
-          editable HTML <nav> below can sit in its place.
-        */}
-        <header className="magazine-header" aria-label="The People's Chamber">
-          <nav className="magazine-nav" aria-label="Primary navigation">
-            <span className="nav-star" aria-hidden="true">*</span>
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={item.href === "/" ? "is-active" : undefined}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </header>
+        <Image
+          className="magazine-art"
+          src="/magazine-template.png"
+          alt=""
+          fill
+          priority
+          sizes="1024px"
+        />
+
+        <div className="magazine-nav-cover" aria-hidden="true" />
+
+        <nav className="magazine-nav" aria-label="Primary navigation">
+          <span className="nav-star" aria-hidden="true">*</span>
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={item.href === "/" ? "is-active" : undefined}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
 
         <main className="magazine-content" data-variant={variant}>
           {hasPageHead && (
@@ -113,67 +73,6 @@ export default function MagazineLayout({
           )}
           {children}
         </main>
-
-        <footer className="magazine-footer">
-          <div className="footer-rule" aria-hidden="true" />
-
-          <div className="footer-top">
-            <div className="footer-brand">
-              <div className="footer-crest" aria-hidden="true">♛</div>
-              <div>
-                <p className="footer-brand-name">
-                  <span>THE</span>
-                  <span>PEOPLE&apos;S</span>
-                  <span>CHAMBER</span>
-                </p>
-                <p className="footer-brand-strap">— UK GOVERNMENT. IN PUBLIC VIEW.</p>
-              </div>
-            </div>
-
-            <p className="footer-description">
-              UK political transparency. Built from official sources: Parliament,
-              IPSA, Companies House, Electoral Commission, Cabinet Office. Updated
-              daily.
-            </p>
-
-            {footerColumns.map((col) => (
-              <nav key={col.heading} className="footer-column" aria-label={col.heading}>
-                <p className="footer-column-head">{col.heading}</p>
-                {col.links.map((link) => {
-                  if (link.href.startsWith("http")) {
-                    return (
-                      <a
-                        key={link.label}
-                        href={link.href}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        {link.label}
-                      </a>
-                    );
-                  }
-                  return (
-                    <Link key={link.label} href={link.href}>
-                      {link.label}
-                    </Link>
-                  );
-                })}
-              </nav>
-            ))}
-          </div>
-
-          <div className="footer-proof">
-            {proofItems.map((item) => (
-              <div key={item.title} className="footer-proof-item">
-                <span className="footer-proof-tag" aria-hidden="true">{item.tag}</span>
-                <div>
-                  <p className="footer-proof-title">{item.title}</p>
-                  <p className="footer-proof-body">{item.body}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </footer>
       </div>
     </div>
   );
