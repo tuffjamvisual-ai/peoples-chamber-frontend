@@ -85,7 +85,7 @@ export default function MagazineLayout({
         <div className="magazine-art-band">
           <Image
             className="magazine-art"
-            src="/magazine-template.png"
+            src="/magazine-template.png?v=1778690087"
             alt=""
             fill
             priority
