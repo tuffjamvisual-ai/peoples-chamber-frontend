@@ -1,3 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Libre+Bodoni:wght@400;600;700;900&family=Permanent+Marker&family=Special+Elite&display=swap');
+
+/* === Page + frame =================================================== */
+
 .bills-template-page {
   background: #7a1612;
   min-height: 100vh;
@@ -5,7 +9,8 @@
   margin: 0;
 }
 
-/* ONE container — empty.png is the background, header + footer + cream paper all in the image */
+/* PNG background removed — chrome is now HTML/CSS. Paper texture tiles
+   across the whole frame so cream area between header and footer matches. */
 .bills-template-frame {
   position: relative;
   width: 100%;
@@ -13,50 +18,299 @@
   margin: 0 auto;
   aspect-ratio: 1024 / 1535;
   background-color: #f1dcbd;
-  background-image: url(/empty-template.png);
-  background-repeat: no-repeat;
-  background-position: top center;
-  background-size: 100% 100%;
+  background-image: url(/chrome/paper-texture.png);
+  background-repeat: repeat;
+  background-size: 320px auto;
+  background-blend-mode: multiply;
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45);
   overflow: hidden;
+  container-type: inline-size;
 }
 
-/* All hotspots and content positioned absolutely on top of the template image */
-.bt-hot {
+/* === HTML/CSS magazine header ====================================== */
+
+.mag-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 21.5%;
+  z-index: 3;
+}
+
+.mag-header img.mag-deco {
   position: absolute;
   display: block;
-  cursor: pointer;
-  z-index: 5;
+  user-select: none;
+  pointer-events: none;
 }
 
-.bt-hot:focus-visible {
-  outline: 2px solid #1c4c78;
-  outline-offset: -2px;
+.mag-deco-sticker {
+  top: 4%;
+  left: 2.5%;
+  width: 17%;
+  height: auto;
+  transform: rotate(-3deg);
+  z-index: 2;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.15));
 }
 
-/* Header nav hotspots — measured from /tmp/nav-zoom.png crop of full empty.png.
-   Nav text strip Y in 1535px tall template: 280–305px (~18.2–19.9%).
-   Click targets are inflated vertically (5% tall, ~77px) and horizontally into the
-   inter-label gaps so the user doesn't need pixel-precision to hit them. */
-.bt-n-home   { top: 16.6%; left: 7%;  width: 9%;  height: 5%; }
-.bt-n-bills  { top: 16.6%; left: 16%; width: 9%;  height: 5%; }
-.bt-n-laws   { top: 16.6%; left: 25%; width: 8%;  height: 5%; }
-.bt-n-polls  { top: 16.6%; left: 33%; width: 16%; height: 5%; }
-.bt-n-mps    { top: 16.6%; left: 49%; width: 8%;  height: 5%; }
-.bt-n-depts  { top: 16.6%; left: 57%; width: 21%; height: 5%; }
-.bt-n-login  { top: 16.6%; left: 78%; width: 12%; height: 5%; }
-.bt-n-about  { top: 16.6%; left: 90%; width: 7%;  height: 5%; }
+.mag-deco-paperclip {
+  top: -2%;
+  left: 4.5%;
+  width: 6.5%;
+  height: auto;
+  transform: rotate(-4deg);
+  z-index: 3;
+}
 
-/* Footer hotspots — link columns Y in 1535px template: 1339–1430px = 87.2–93.2%. */
-.bt-f-brand { top: 87.5%; left: 1%;  width: 17%; height: 5%; }
-.bt-f-col1  { top: 87%;   left: 40%; width: 12%; height: 6.2%; }
-.bt-f-col2  { top: 87%;   left: 51%; width: 12%; height: 6.2%; }
-.bt-f-col3  { top: 87%;   left: 65%; width: 18%; height: 6.2%; }
-.bt-f-col4  { top: 87%;   left: 84%; width: 12%; height: 6.2%; }
+.mag-deco-megaphone {
+  top: 6%;
+  right: 18%;
+  width: 7.5%;
+  height: auto;
+  z-index: 2;
+}
 
-/* Bills content occupies the empty middle of the template image.
-   Header band: 0 → 20.2% (310/1535)
-   Footer band: 86% → 100% (215/1535) */
+.mag-deco-truth-note {
+  top: 2%;
+  right: 1%;
+  width: 11.5%;
+  height: auto;
+  transform: rotate(3deg);
+  z-index: 2;
+}
+
+.mag-deco-democracy {
+  top: 36%;
+  right: 1.5%;
+  width: 18%;
+  height: auto;
+  transform: rotate(-2deg);
+  z-index: 2;
+}
+
+.mag-crown {
+  position: absolute;
+  top: 11%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Libre Bodoni', Georgia, serif;
+  font-size: 3.2cqi;
+  color: #1a1410;
+  z-index: 2;
+  line-height: 1;
+}
+
+.mag-masthead {
+  position: absolute;
+  top: 16%;
+  left: 14%;
+  right: 22%;
+  margin: 0;
+  font-family: 'Libre Bodoni', Georgia, serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #1a1410;
+  font-size: 10cqi;
+  line-height: 0.78;
+  letter-spacing: -0.05em;
+  text-align: center;
+  transform: scaleX(1.06);
+  transform-origin: center top;
+  z-index: 2;
+}
+
+.mag-masthead-the {
+  display: block;
+  font-size: 0.36em;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  margin-bottom: -0.06em;
+  transform: scaleX(0.95);
+}
+
+.mag-masthead-line {
+  display: block;
+}
+
+.mag-strapline {
+  position: absolute;
+  top: 72%;
+  left: 22%;
+  right: 22%;
+  margin: 0;
+  font-family: 'Permanent Marker', cursive;
+  text-transform: uppercase;
+  color: #b22b1a;
+  font-size: 2.4cqi;
+  text-align: center;
+  letter-spacing: 0.02em;
+  transform: rotate(-1deg);
+  z-index: 2;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-decoration-color: #b22b1a;
+  text-underline-offset: 4px;
+}
+
+.mag-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 22%;
+  background: #1a1410;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 3%;
+  z-index: 4;
+}
+
+.mag-nav-link {
+  font-family: 'Special Elite', 'Courier New', monospace;
+  text-transform: uppercase;
+  color: #f4e8d4;
+  font-size: 1.3cqi;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 120ms ease;
+}
+
+.mag-nav-link:hover,
+.mag-nav-link:focus-visible {
+  color: #f3d65b;
+  outline: none;
+}
+
+.mag-nav-link:focus-visible {
+  outline: 2px solid #f3d65b;
+  outline-offset: 4px;
+}
+
+/* === HTML/CSS magazine footer ====================================== */
+
+.mag-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 14%;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  border-top: 2px solid #1a1410;
+}
+
+.mag-footer-top {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: flex-start;
+  padding: 1.6cqi 3cqi 1.2cqi;
+  gap: 1.5cqi;
+}
+
+.mag-footer-brand {
+  flex: 0 0 14%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3cqi;
+  text-decoration: none;
+  color: #1a1410;
+}
+
+.mag-footer-brand-crown {
+  font-family: 'Libre Bodoni', serif;
+  font-size: 2cqi;
+  line-height: 1;
+}
+
+.mag-footer-brand-name {
+  font-family: 'Libre Bodoni', Georgia, serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 1.5cqi;
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+}
+
+.mag-footer-tagline {
+  flex: 1 1 22%;
+  margin: 0;
+  font-family: 'Special Elite', monospace;
+  font-size: 1.05cqi;
+  line-height: 1.45;
+  color: #1a1410;
+}
+
+.mag-footer-col {
+  flex: 0 0 12%;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mag-footer-col-head {
+  font-family: 'Special Elite', monospace;
+  text-transform: uppercase;
+  font-size: 1.15cqi;
+  letter-spacing: 0.12em;
+  color: #1a1410;
+  font-weight: 600;
+  margin-bottom: 0.4cqi;
+}
+
+.mag-footer-col li:not(.mag-footer-col-head) {
+  font-family: 'Special Elite', monospace;
+  font-size: 0.98cqi;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+}
+
+.mag-footer-col a {
+  color: #1a1410;
+  text-decoration: none;
+  transition: color 120ms ease;
+}
+
+.mag-footer-col a:hover,
+.mag-footer-col a:focus-visible {
+  color: #7a1612;
+  text-decoration: underline;
+  outline: none;
+}
+
+.mag-footer-proof {
+  flex: 0 0 32%;
+  background: #1a1410;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 3%;
+}
+
+.mag-proof-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7cqi;
+  font-family: 'Special Elite', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 1cqi;
+  color: #f4e8d4;
+}
+
+.mag-proof-icon {
+  width: 2.4cqi;
+  height: auto;
+  display: block;
+}
+
+/* === Content area =================================================== */
+
 .bt-content {
   position: absolute;
   top: 22%;
