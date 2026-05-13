@@ -9,19 +9,16 @@
   margin: 0;
 }
 
-/* PNG background removed — chrome is now HTML/CSS. Paper texture tiles
-   across the whole frame so cream area between header and footer matches. */
+/* Solid cream paper. Texture overlay removed — the shipped
+   /chrome/paper-texture.png is a solid black PNG, which when blended
+   via multiply turns the whole frame black. */
 .bills-template-frame {
   position: relative;
   width: 100%;
   max-width: 1024px;
   margin: 0 auto;
   aspect-ratio: 1024 / 1535;
-  background-color: #f1dcbd;
-  background-image: url(/chrome/paper-texture.png);
-  background-repeat: repeat;
-  background-size: 320px auto;
-  background-blend-mode: multiply;
+  background-color: #f5e7cd;
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45);
   overflow: hidden;
   container-type: inline-size;
