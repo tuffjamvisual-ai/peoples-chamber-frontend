@@ -16,7 +16,7 @@ export default async function PreviewHome2() {
     .filter((p: string) => p.length > 0);
 
   return (
-    <div style={{ position: 'relative', width: '100%', maxWidth: '1400px', margin: '0 auto', minHeight: '100vh', background: '#2a1810' }}>
+    <div style={{ position: 'relative', maxWidth: '1200px', margin: '0 auto', minHeight: '100vh', background: '#2a1810' }}>
       {/* Template background */}
       <Image
         src="/preview-home2.png"
