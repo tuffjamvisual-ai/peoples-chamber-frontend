@@ -62,14 +62,14 @@ export default async function PreviewHome2() {
         >
           ← Back to all MPs
         </a>
-        <div style={{ display: 'flex', gap: '40px', marginBottom: '60px' }}>
-          {/* Polaroid with distress — pulled to magazine's left edge */}
+        <div style={{ display: 'flex', flexDirection: 'row-reverse', gap: '40px', marginBottom: '60px' }}>
+          {/* Polaroid with distress — pulled to magazine's right edge */}
           <div style={{
             position: 'relative',
             background: '#fff',
             padding: '12px 12px 48px 12px',
             width: '284px',
-            marginLeft: '-50px',
+            marginRight: '-50px',
             transform: 'rotate(-10deg)',
             boxShadow: '0 4px 8px rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.03)',
             filter: 'contrast(1.05) brightness(0.98)',
@@ -91,7 +91,7 @@ export default async function PreviewHome2() {
               style={{
                 position: 'absolute',
                 top: '-30px',
-                left: '-15px',
+                right: '-15px',
                 width: '65px',
                 height: 'auto',
                 transform: 'rotate(75deg)',
