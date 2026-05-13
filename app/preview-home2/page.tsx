@@ -40,7 +40,7 @@ export default async function PreviewHome2() {
       />
 
       {/* Content overlay */}
-      <div style={{ position: 'relative', zIndex: 2, padding: '350px 80px 60px 80px', color: '#14100d', fontFamily: 'Special Elite, monospace' }}>
+      <div style={{ position: 'relative', zIndex: 2, padding: '400px 80px 60px 80px', color: '#14100d', fontFamily: 'Special Elite, monospace' }}>
         <div style={{ display: 'flex', gap: '40px', marginBottom: '60px' }}>
           {/* Polaroid with distress */}
           <div style={{
@@ -55,9 +55,9 @@ export default async function PreviewHome2() {
             <img
               src="https://members-api.parliament.uk/api/Members/3914/Portrait?cropType=ThreeFour"
               alt="Shabana Mahmood"
-              width="220"
-              height="220"
-              style={{ display: 'block', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }}
+              width={220}
+              height={220}
+              style={{ display: 'block', width: '220px', height: '220px', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }}
             />
           </div>
 
