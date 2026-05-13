@@ -25,7 +25,7 @@ export default function MPProfile({
   partyColour,
 }: MPProfileProps) {
   return (
-    <div className="max-w-4xl mx-auto py-8 font-['Special_Elite']">
+    <>
       {/* Hero Section with Polaroid Photo */}
       <div className="flex gap-8 mb-12">
         <div className="polaroid-frame">
@@ -283,6 +283,6 @@ export default function MPProfile({
           </div>
         </section>
       )}
-    </div>
+    </>
   );
 }
