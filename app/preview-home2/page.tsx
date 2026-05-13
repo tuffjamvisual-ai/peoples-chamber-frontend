@@ -107,7 +107,7 @@ export default async function PreviewHome2() {
           {/* Hero text with ink effects */}
           <div style={{ flex: 1 }}>
             <h1 style={{
-              fontSize: '44px',
+              fontSize: '38px',
               marginTop: '20px',
               fontWeight: 'bold',
               marginBottom: '12px',
@@ -159,7 +159,7 @@ export default async function PreviewHome2() {
           {/* Content with ink texture */}
           <div className="lg:col-span-3 p-6 sm:p-8">
             <h2 style={{
-              fontSize: '30px',
+              fontSize: '26px',
               fontWeight: 'bold',
               marginBottom: '24px',
               color: '#14100d',
