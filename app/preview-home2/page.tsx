@@ -3,11 +3,12 @@ import { supabase } from '@/lib/supabase';
 export const revalidate = 600;
 
 export default async function PreviewHome2() {
-  const { data: bio } = await supabase
-    .from('mp_biography')
-    .select('political_bio')
-    .eq('member_id', 3914)
-    .single();
+  const [bioRes, mpRes] = await Promise.all([
+    supabase.from('mp_biography').select('political_bio').eq('member_id', 3914).single(),
+    supabase.from('mps').select('photo_url, display_name').eq('member_id', 3914).single(),
+  ]);
+  const bio = bioRes.data;
+  const mp = mpRes.data;
 
   const paragraphs = (bio?.political_bio ?? '')
     .split(/\n\n+/)
@@ -71,8 +72,8 @@ export default async function PreviewHome2() {
           }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="https://members-api.parliament.uk/api/Members/3914/Portrait?cropType=ThreeFour"
-              alt="Shabana Mahmood"
+              src={mp?.photo_url ?? ''}
+              alt={mp?.display_name ?? 'Shabana Mahmood'}
               width={220}
               height={220}
               style={{ display: 'block', width: '220px', height: '220px', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }}
