@@ -6,6 +6,12 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'nwnsvnbudmfkhhwcjwwr.supabase.co' },
     ],
+    // Allow cache-buster query strings on local Image src (e.g.
+    // /magazine-template.png?v=<timestamp>).
+    localPatterns: [
+      { pathname: '/magazine-template.png', search: '' },
+      { pathname: '/magazine-template.png', search: 'v=**' },
+    ],
     // Override the source's Cache-Control so Vercel holds the optimised
     // image at the edge for a year. Supabase Storage returns no-cache,
     // which would otherwise force re-fetch every minute.
