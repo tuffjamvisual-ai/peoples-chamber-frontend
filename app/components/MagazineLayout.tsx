@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import type { ReactNode } from "react";
 import "./magazine-layout.css";
 
@@ -46,26 +45,18 @@ const footerColumnFour = [
 
 const proofItems = [
   {
-    src: "/chrome/proof-independent.png",
-    alt: "100% Independent",
     title: "100% Independent",
     body: "Not funded by government or political parties.",
   },
   {
-    src: "/chrome/proof-realtime.png",
-    alt: "Real-time Data",
     title: "Real-time Data",
     body: "Live updates from official sources across the UK.",
   },
   {
-    src: "/chrome/proof-open.png",
-    alt: "Open to All",
     title: "Open to All",
     body: "Built for everyone. Built to be trusted.",
   },
   {
-    src: "/chrome/proof-accountability.png",
-    alt: "Accountability First",
     title: "Accountability First",
     body: "Making power visible. Putting people first.",
   },
@@ -121,17 +112,8 @@ export default function MagazineLayout({ children }: MagazineLayoutProps) {
           <div className="footer-proof-strip">
             {proofItems.map((item) => (
               <section key={item.title} className="proof-item">
-                <Image
-                  src={item.src}
-                  alt={item.alt}
-                  width={48}
-                  height={48}
-                  className="proof-icon"
-                />
-                <div>
-                  <h3>{item.title}</h3>
-                  <p>{item.body}</p>
-                </div>
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
               </section>
             ))}
           </div>

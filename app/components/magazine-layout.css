@@ -378,10 +378,10 @@
 }
 
 .proof-item {
-  display: grid;
-  grid-template-columns: 55px 1fr;
-  gap: 10px;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
   padding: 18px 16px 0;
   border-right: 1px solid rgba(20, 16, 13, 0.24);
   font-family: var(--font-typewriter);
@@ -391,11 +391,9 @@
   border-right: 0;
 }
 
+/* Broken proof-icon PNGs removed from JSX; selector kept for future reuse */
 .proof-icon {
-  width: 46px;
-  height: 46px;
-  object-fit: contain;
-  mix-blend-mode: multiply;
+  display: none;
 }
 
 .proof-item h3 {
