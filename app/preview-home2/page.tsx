@@ -21,10 +21,13 @@ export default async function PreviewHome2() {
       maxWidth: '1086px',
       margin: '0 auto',
       background: '#2a1810',
-      backgroundImage: 'url("/preview-home2.png")',
-      backgroundRepeat: 'repeat-y',
-      backgroundPosition: 'top center',
-      backgroundSize: '100% auto',
+      // Three-layer template: header (top), footer (bottom), middle (tile).
+      // First-listed background is rendered on top.
+      backgroundImage:
+        'url("/preview-header.png"), url("/preview-footer.png"), url("/preview-middle.png")',
+      backgroundRepeat: 'no-repeat, no-repeat, repeat-y',
+      backgroundPosition: 'top center, bottom center, top center',
+      backgroundSize: '100% auto, 100% auto, 100% auto',
     }}>
       {/* Paper grain overlay — fractal noise via inline SVG */}
       <div
