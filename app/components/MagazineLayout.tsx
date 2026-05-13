@@ -38,17 +38,18 @@ export default function MagazineLayout({
   return (
     <div className="magazine-shell">
       <div className="magazine-page" data-variant={variant}>
-        <Image
-          className="magazine-art"
-          src="/magazine-template.png"
-          alt=""
-          fill
-          priority
-          sizes="1024px"
-        />
+        <div className="magazine-art-band" aria-hidden="true">
+          <Image
+            className="magazine-art"
+            src="/magazine-template.png"
+            alt=""
+            fill
+            priority
+            sizes="1024px"
+          />
+        </div>
 
         <div className="magazine-nav-cover" aria-hidden="true" />
-        <div className="magazine-footer-cover" aria-hidden="true" />
 
         <nav className="magazine-nav" aria-label="Primary navigation">
           <span className="nav-star" aria-hidden="true">*</span>

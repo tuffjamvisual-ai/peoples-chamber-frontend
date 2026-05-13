@@ -72,7 +72,6 @@ body {
 .magazine-page {
   position: relative;
   width: min(100%, 1024px);
-  aspect-ratio: 1024 / 1536;
   margin: 0 auto;
   overflow: hidden;
   border-radius: 12px;
@@ -80,14 +79,26 @@ body {
   box-shadow: 0 18px 55px rgba(0, 0, 0, 0.35);
 }
 
+/* Header art band — only the top of magazine-template.png renders here.
+   1024:330 aspect crops the full image to its header portion via
+   object-fit: cover + object-position: top. */
+.magazine-art-band {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1024 / 330;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+
 /* Full-page art layer — /magazine-template.png fills the entire sheet */
 .magazine-art {
   position: absolute !important;
   inset: 0;
-  z-index: 0;
   width: 100% !important;
   height: 100% !important;
-  object-fit: fill;
+  object-fit: cover;
+  object-position: top center;
   pointer-events: none;
 }
 
@@ -116,18 +127,6 @@ body {
 /* Top section of the baked-in footer (brand + description + 4 link
    columns). Inset horizontally to match where the footer content
    sits in the image — does NOT span page edges. */
-.magazine-footer-cover {
-  position: absolute;
-  left: 38px;
-  right: 38px;
-  bottom: 100px;
-  height: 160px;
-  z-index: 1;
-  background-image: url("/magazine-template.png");
-  background-repeat: no-repeat;
-  background-size: 1024px 1536px;
-  background-position: -38px -720px;
-}
 
 /* Editable HTML nav — sits over the cream cover */
 .magazine-nav {
@@ -184,13 +183,10 @@ body {
    ========================================================= */
 
 .magazine-content {
-  position: absolute;
+  position: relative;
   z-index: 2;
-  left: 38px;
-  right: 38px;
-  top: 340px;
-  bottom: 265px;
-  overflow: auto;
+  padding: 18px 38px 48px;
+  min-height: auto;
   font-family: var(--font-body);
   color: var(--ink);
 }
@@ -401,16 +397,6 @@ body {
 .polaroid-frame:hover { transform: rotate(0deg); }
 
 /* Custom thin scrollbar on .magazine-content */
-.magazine-content {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(20, 16, 13, 0.22) transparent;
-}
-.magazine-content::-webkit-scrollbar { width: 8px; }
-.magazine-content::-webkit-scrollbar-thumb {
-  background: rgba(20, 16, 13, 0.22);
-  border-radius: 999px;
-}
-.magazine-content::-webkit-scrollbar-track { background: transparent; }
 
 /* =========================================================
    RESPONSIVE — below 1024 the page scales but absolute offsets
