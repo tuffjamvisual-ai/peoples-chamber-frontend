@@ -1,14 +1,9 @@
-import HomePageNew from '../page-new'
+import MagazineLayout from "../components/MagazineLayout";
 
-export const revalidate = 3600
-
-export const metadata = {
-  title: 'Preview — The People’s Chamber',
-  description: 'Editorial-redesign preview of the landing page.',
-  alternates: { canonical: '/preview' },
-  robots: { index: false, follow: false },
-}
-
-export default async function PreviewRoute() {
-  return <HomePageNew />
+export default function PreviewPage() {
+  return (
+    <MagazineLayout>
+      {/* Empty template preview - no content */}
+    </MagazineLayout>
+  );
 }
