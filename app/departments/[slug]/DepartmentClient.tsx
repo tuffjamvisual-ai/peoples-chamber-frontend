@@ -136,7 +136,7 @@ export default function DepartmentClient({ slug, govukData, streetContext, stats
                   aria-hidden
                   style={{
                     position: 'absolute',
-                    bottom: '-30px',
+                    bottom: '-80px',
                     right: '-40px',
                     width: '220px',
                     height: 'auto',
