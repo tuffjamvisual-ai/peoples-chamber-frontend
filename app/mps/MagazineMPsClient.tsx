@@ -70,8 +70,8 @@ export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
               <div
                 style={{
                   background: '#ebe5d8',
-                  padding: '10px 10px 36px 10px',
-                  width: '160px',
+                  padding: '6px 6px 22px 6px',
+                  width: '96px',
                   transform: `rotate(${tilt}deg)`,
                   boxShadow: '0 4px 8px rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.03)',
                   filter: 'contrast(1.05) brightness(0.98)',
@@ -82,22 +82,22 @@ export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
                   <Image
                     src={mp.photo_url}
                     alt={mp.display_name || mp.name}
-                    width={140}
-                    height={160}
+                    width={84}
+                    height={96}
                     loading="lazy"
-                    style={{ display: 'block', width: '140px', height: '160px', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }}
+                    style={{ display: 'block', width: '84px', height: '96px', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }}
                   />
                 ) : (
                   <div
                     aria-hidden
                     style={{
-                      width: '140px',
-                      height: '160px',
+                      width: '84px',
+                      height: '96px',
                       background: '#d6cdb8',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: '48px',
+                      fontSize: '32px',
                       color: '#14100d',
                     }}
                   >
