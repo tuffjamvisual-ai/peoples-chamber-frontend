@@ -52,10 +52,13 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   const memberId = parseInt(id, 10);
   if (Number.isNaN(memberId)) notFound();
 
-  const { data: mp } = await supabase.from('mps').select('*').eq('member_id', memberId).single();
-  if (!mp) notFound();
-
+  // All 10 fetches in one parallel round-trip. The mp lookup was previously
+  // awaited before this block, costing an extra serial round-trip on every
+  // cold render. The notFound() check happens after — for valid member_ids
+  // we save ~200-400ms; for invalid ones, the wasted concurrent queries
+  // are negligible (notFound() short-circuits the render).
   const [
+    mpRes,
     contactRes,
     bioRes,
     sponsoredBillsRes,
@@ -66,6 +69,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     ministerialRowsRes,
     outsideRowRes,
   ] = await Promise.all([
+    supabase.from('mps').select('*').eq('member_id', memberId).single(),
     supabase.from('mp_contact').select('*').eq('member_id', memberId).single(),
     supabase.from('mp_biography').select('*').eq('member_id', memberId).single(),
     supabase.from('bill').select('*').eq('sponsor_member_id', memberId).order('created_at', { ascending: false }),
@@ -81,6 +85,8 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     supabase.from('dept_ministers').select('salary_band').eq('member_id', memberId).not('salary_band', 'is', null),
     supabase.from('mp_outside_earnings_summary').select('total_extracted, claim_count, source_count').eq('member_id', memberId).maybeSingle(),
   ]);
+  const mp = mpRes.data;
+  if (!mp) notFound();
 
   let highestBand: SalaryBand | null = null;
   for (const r of ministerialRowsRes.data || []) {
