@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import ScrollToTopButton from '../components/ScrollToTopButton';
 
 interface MP {
   id: number;
@@ -28,6 +29,21 @@ export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
 
   return (
     <div style={{ padding: '32px 0', fontFamily: 'Special Elite, monospace', color: '#14100d' }}>
+      <a
+        href="/"
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px',
+          marginBottom: '24px',
+          color: '#14100d',
+          textDecoration: 'none',
+          fontSize: '16px',
+          transform: 'rotate(-0.2deg)',
+        }}
+      >
+        ← Back to home
+      </a>
       <div style={{ marginBottom: '32px' }}>
         <input
           type="text"
@@ -117,6 +133,7 @@ export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
           );
         })}
       </div>
+      <ScrollToTopButton />
     </div>
   );
 }
