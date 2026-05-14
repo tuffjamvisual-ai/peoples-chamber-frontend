@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import '../../components/magazine-layout.css';
@@ -206,14 +207,34 @@ export default async function MPMagazineProfile({ params }: PageProps) {
             boxShadow: '0 4px 8px rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.03)',
             filter: 'contrast(1.05) brightness(0.98)',
           }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={mp.photo_url ?? ''}
-              alt={fullName}
-              width={260}
-              height={260}
-              style={{ display: 'block', width: '260px', height: '260px', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }}
-            />
+            {mp.photo_url ? (
+              <Image
+                src={mp.photo_url}
+                alt={fullName}
+                width={260}
+                height={260}
+                priority
+                sizes="260px"
+                style={{ display: 'block', width: '260px', height: '260px', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }}
+              />
+            ) : (
+              <div
+                aria-hidden
+                style={{
+                  width: '260px',
+                  height: '260px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: '#d6cdb8',
+                  color: '#14100d',
+                  fontSize: '64px',
+                  fontFamily: 'Special Elite, monospace',
+                }}
+              >
+                {fullName.charAt(0) || '?'}
+              </div>
+            )}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/paperclip.png"
