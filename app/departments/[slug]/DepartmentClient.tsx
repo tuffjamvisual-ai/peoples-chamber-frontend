@@ -217,7 +217,13 @@ export default function DepartmentClient({ slug }: { slug: string }) {
         {/* Street View */}
         <section className=" pb-8 mb-8">
           <h2 className="text-[13px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>The Street View</h2>
-          <p className="text-[#14100d] text-[14px] leading-[1.7]">{streetContext || dept.streetContext}</p>
+          {((streetContext || dept.streetContext) ?? '')
+            .split(/\n\n+/)
+            .map((p) => p.trim())
+            .filter(Boolean)
+            .map((para, idx) => (
+              <p key={idx} className="text-[#14100d] text-[14px] leading-[1.7] mb-3">{para}</p>
+            ))}
         </section>
 
         {/* Topic detail */}
