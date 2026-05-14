@@ -21,9 +21,12 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
+// Skip build-time prerender: with ~10 Supabase queries per page x 650 MPs
+// the build hit per-page 60s timeouts on Vercel. Pages render on first
+// request (Promise.all means ~1-2s per cold render) and cache for 10
+// minutes via `revalidate`. Subsequent visits hit the edge cache.
 export async function generateStaticParams() {
-  const { data } = await supabase.from('mps').select('member_id').eq('current_member', true);
-  return (data || []).map((m) => ({ id: String(m.member_id) }));
+  return [];
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

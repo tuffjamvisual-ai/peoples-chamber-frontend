@@ -6,9 +6,9 @@ import ScrollToTopButton from '../../components/ScrollToTopButton';
 
 export const revalidate = 600;
 
+// Preview route — render on-demand only, do not prerender 650 variants.
 export async function generateStaticParams() {
-  const { data } = await supabase.from('mps').select('member_id').eq('current_member', true);
-  return (data || []).map((m) => ({ id: String(m.member_id) }));
+  return [];
 }
 
 interface PageProps {
