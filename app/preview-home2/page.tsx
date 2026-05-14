@@ -95,7 +95,7 @@ export default async function PreviewHome2() {
                 right: '-15px',
                 width: '65px',
                 height: 'auto',
-                transform: 'rotate(90deg)',
+                transform: 'rotate(50deg)',
                 transformOrigin: 'center',
                 pointerEvents: 'none',
                 zIndex: 3,
