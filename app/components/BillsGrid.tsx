@@ -3,7 +3,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
-import AuthModal from './AuthModal';
 import FilterBar from './FilterBar';
 
 type Props = {
@@ -15,8 +14,6 @@ export default function BillsGrid({ initialBills }: Props) {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [bills, setBills] = useState(initialBills);
   const [userVotes, setUserVotes] = useState<Record<number, string>>({});
   
@@ -48,7 +45,7 @@ export default function BillsGrid({ initialBills }: Props) {
   }, [user]);
 
   const handleVote = async (billId: number, choice: 'yes' | 'no') => {
-    if (!user) { setAuthMode('signup'); setShowAuthModal(true); return; }
+    if (!user) { router.push(`/login?mode=signup&returnTo=${encodeURIComponent(window.location.pathname)}`); return; }
     if (userVotes[billId]) return;
     try {
       const response = await fetch('/api/vote', {
@@ -193,8 +190,6 @@ export default function BillsGrid({ initialBills }: Props) {
           <button onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} className="px-3 py-1.5 bg-[#404040] text-[#c9c9c9] rounded text-sm hover:bg-[#404040] disabled:opacity-30">Last</button>
         </div>
       )}
-
-      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} mode={authMode} />
     </>
   );
 }

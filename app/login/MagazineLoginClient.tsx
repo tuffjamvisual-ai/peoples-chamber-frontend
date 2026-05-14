@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 
 type Mode = 'login' | 'signup' | 'forgot';
@@ -31,10 +31,21 @@ const labelStyle: React.CSSProperties = {
   opacity: 0.8,
 };
 
+function safeReturnTo(value: string | null): string {
+  if (!value) return '/';
+  // Only honour same-origin relative paths to prevent open-redirect.
+  if (value.startsWith('/') && !value.startsWith('//')) return value;
+  return '/';
+}
+
 export default function MagazineLoginClient({ initialMode = 'login' }: { initialMode?: Mode }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = safeReturnTo(searchParams.get('returnTo'));
+  const queryMode = searchParams.get('mode');
+  const startMode: Mode = (queryMode === 'signup' || queryMode === 'login' || queryMode === 'forgot') ? queryMode : initialMode;
   const { login, signup } = useAuth();
-  const [mode, setMode] = useState<Mode>(initialMode);
+  const [mode, setMode] = useState<Mode>(startMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -60,10 +71,10 @@ export default function MagazineLoginClient({ initialMode = 'login' }: { initial
         if (!ageConfirmed) { setError('You must confirm you are 18 or older'); return; }
         if (!username.trim()) { setError('Username is required'); return; }
         await signup(email, password, postcode, username);
-        router.push('/');
+        router.push(returnTo);
       } else if (mode === 'login') {
         await login(email, password);
-        router.push('/');
+        router.push(returnTo);
       } else {
         setSuccess('Password reset instructions sent to your email (feature coming soon)');
       }

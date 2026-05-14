@@ -3,7 +3,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
-import AuthModal from './AuthModal';
 
 type Props = {
   initialBills: any[];
@@ -16,7 +15,6 @@ export default function BillsGridMobile({ initialBills }: Props) {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('latest');
   const [searchTerm, setSearchTerm] = useState('');
-  const [showAuthModal, setShowAuthModal] = useState(false);
   const [userVotes, setUserVotes] = useState<Record<number, string>>({});
   const [bills, setBills] = useState(initialBills);
 
@@ -88,7 +86,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
 
   const handleVote = async (billId: number, choice: 'yes' | 'no' | 'abstain') => {
     if (!user) {
-      setShowAuthModal(true);
+      router.push(`/login?mode=login&returnTo=${encodeURIComponent(window.location.pathname)}`);
       return;
     }
 
@@ -251,12 +249,6 @@ export default function BillsGridMobile({ initialBills }: Props) {
           <p className="text-white">No active bills found.</p>
         </div>
       )}
-
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        mode="login"
-      />
     </>
   );
 }

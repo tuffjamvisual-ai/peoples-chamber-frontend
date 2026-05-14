@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '../../context/AuthContext'
-import AuthModal from '../../components/AuthModal'
 
 const SUCCESS = '#4a8a3a'
 const DANGER = '#8a3a3a'
@@ -12,8 +11,6 @@ export default function BillVotingClient({ billId }: { billId: number }) {
   const router = useRouter()
   const { user } = useAuth()
   const [userVote, setUserVote] = useState<string | null>(null)
-  const [showAuthModal, setShowAuthModal] = useState(false)
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login')
   const [voting, setVoting] = useState(false)
 
   useEffect(() => {
@@ -26,8 +23,7 @@ export default function BillVotingClient({ billId }: { billId: number }) {
 
   async function handleVote(choice: 'yes' | 'no' | 'abstain') {
     if (!user) {
-      setAuthMode('signup')
-      setShowAuthModal(true)
+      router.push(`/login?mode=signup&returnTo=${encodeURIComponent(window.location.pathname)}`)
       return
     }
     if (userVote || voting) return
@@ -54,7 +50,6 @@ export default function BillVotingClient({ billId }: { billId: number }) {
         <VoteButton label="Oppose"   activeLabel="✓ Opposed"   onClick={() => handleVote('no')}      disabled={!!userVote || voting} active={userVote === 'no'}      colour={DANGER} />
         <VoteButton label="Abstain"  activeLabel="✓ Abstained" onClick={() => handleVote('abstain')} disabled={!!userVote || voting} active={userVote === 'abstain'} colour="#7697a2" />
       </div>
-      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} mode={authMode} />
     </>
   )
 }

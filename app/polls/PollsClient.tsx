@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '../context/AuthContext'
-import AuthModal from '../components/AuthModal'
 
 type Poll = {
   id: number
@@ -17,13 +17,12 @@ type Poll = {
 type SortOption = 'newest' | 'popular'
 
 export default function PollsClient() {
+  const router = useRouter()
   const { user } = useAuth()
   const [polls, setPolls] = useState<Poll[]>([])
   const [userVotes, setUserVotes] = useState<Record<number, string>>({})
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState<SortOption>('popular')
-  const [showAuthModal, setShowAuthModal] = useState(false)
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -40,7 +39,7 @@ export default function PollsClient() {
   }, [user])
 
   const handleVote = async (pollId: number, choice: 'yes' | 'no') => {
-    if (!user) { setAuthMode('signup'); setShowAuthModal(true); return; }
+    if (!user) { router.push(`/login?mode=signup&returnTo=${encodeURIComponent(window.location.pathname)}`); return; }
     if (userVotes[pollId]) return;
 
     const res = await fetch('/api/polls/vote', {
@@ -169,8 +168,6 @@ export default function PollsClient() {
           })}
         </div>
       )}
-
-      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} mode={authMode} />
     </main>
   )
 }

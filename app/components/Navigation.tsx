@@ -1,12 +1,11 @@
 'use client';
 
 import { useAuth } from '../context/AuthContext';
-import AuthModal from './AuthModal';
 import { useState } from 'react';
 import Link from 'next/link';
 
 
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 export default function Navigation() {
   const { user, logout } = useAuth();
@@ -19,21 +18,20 @@ export default function Navigation() {
     }
     localStorage.setItem('lastActive', now.toString())
   }
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   const openLogin = () => {
-    setAuthMode('login');
-    setShowAuthModal(true);
     setMobileMenuOpen(false);
+    const here = typeof window !== 'undefined' ? window.location.pathname : '/';
+    router.push(`/login?mode=login&returnTo=${encodeURIComponent(here)}`);
   };
 
   const openSignup = () => {
-    setAuthMode('signup');
-    setShowAuthModal(true);
     setMobileMenuOpen(false);
+    const here = typeof window !== 'undefined' ? window.location.pathname : '/';
+    router.push(`/login?mode=signup&returnTo=${encodeURIComponent(here)}`);
   };
 
   const isActive = (path: string) => {
@@ -168,13 +166,6 @@ export default function Navigation() {
       </div>
 
       </nav>
-
-
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        mode={authMode}
-      />
     </>
   );
 }

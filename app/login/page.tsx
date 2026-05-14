@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Suspense } from 'react';
 import '../components/magazine-layout.css';
 import MagazineLoginClient from './MagazineLoginClient';
 
@@ -93,7 +94,9 @@ export default function LoginPage() {
           ← Back to home
         </a>
 
-        <MagazineLoginClient initialMode="login" />
+        <Suspense fallback={<div style={{ minHeight: '400px' }} />}>
+          <MagazineLoginClient initialMode="login" />
+        </Suspense>
       </div>
     </div>
   );

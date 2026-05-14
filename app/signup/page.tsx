@@ -1,14 +1,7 @@
-import type { Metadata } from 'next'
-import SignupClient from './SignupClient'
+import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = {
-  title: 'Sign up',
-  description:
-    'Join The People’s Chamber — create an account to vote on bills, comment, and join the public record.',
-  alternates: { canonical: '/signup' },
-  robots: { index: false, follow: true },
-}
-
+// /signup is kept as a back-compat path that now redirects to the
+// canonical magazine /login page (which has both signup and login modes).
 export default function SignupPage() {
-  return <SignupClient />
+  redirect('/login?mode=signup');
 }
