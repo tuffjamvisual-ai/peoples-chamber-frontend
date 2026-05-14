@@ -92,7 +92,7 @@ export default async function PreviewHome2() {
               style={{
                 position: 'absolute',
                 top: '-30px',
-                right: '-15px',
+                right: '-5px',
                 width: '65px',
                 height: 'auto',
                 transform: 'rotate(180deg)',
