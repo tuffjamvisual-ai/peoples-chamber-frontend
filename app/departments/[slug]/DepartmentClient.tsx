@@ -96,12 +96,14 @@ export default function DepartmentClient({ slug, govukData, streetContext, stats
         {/* Secretary of State */}
         <section className=" pb-8 mb-8">
           <p className="text-[13px] uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: ACCENT }}>Secretary of State</p>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-8">
             <div style={{
               background: '#ebe5d8',
-              padding: '10px 10px 32px 10px',
+              padding: '12px 12px 48px 12px',
+              width: '284px',
               transform: 'rotate(-2deg)',
               boxShadow: '0 4px 8px rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.03)',
+              filter: 'contrast(1.05) brightness(0.98)',
               flexShrink: 0,
             }}>
               {sos.photo ? (
@@ -109,15 +111,16 @@ export default function DepartmentClient({ slug, govukData, streetContext, stats
                 <img
                   src={sos.photo}
                   alt={sos.name}
-                  style={{ display: 'block', width: '110px', height: '124px', objectFit: 'cover', filter: 'contrast(1.05) sepia(0.05)' }}
+                  style={{ display: 'block', width: '260px', height: '260px', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }}
                 />
               ) : (
                 <div
                   aria-hidden
                   style={{
-                    width: '110px', height: '124px', background: '#d6cdb8',
+                    width: '260px', height: '260px', background: '#d6cdb8',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '40px', color: ACCENT,
+                    fontSize: '64px', color: ACCENT,
+                    fontFamily: 'Special Elite, monospace',
                   }}
                 >
                   {sos.name.charAt(0)}
