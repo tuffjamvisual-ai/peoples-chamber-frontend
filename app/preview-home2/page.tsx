@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import '../components/magazine-layout.css';
 import ScrollToTopButton from './ScrollToTopButton';
@@ -131,7 +132,7 @@ export default async function PreviewHome2() {
           <aside className="lg:col-span-1">
             <div className="lg:sticky lg:top-16">
               <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 8px 8px' }}>
-              <div style={{
+              <Link href="/mps/3914" style={{
                 padding: '12px 16px',
                 borderLeft: '4px solid #7a1612',
                 background: 'rgba(122,22,18,0.08)',
@@ -141,14 +142,16 @@ export default async function PreviewHome2() {
                 letterSpacing: '0.08em',
                 transform: 'rotate(0.1deg)',
                 boxShadow: 'inset 1px 0 2px rgba(0,0,0,0.05)',
-              }}>POLITICAL BIO</div>
-              <div style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.1deg)' }}>CONTACT</div>
-              <div style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(0.15deg)' }}>VOTING RECORD</div>
-              <div style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.2deg)' }}>BILLS SPONSORED</div>
-              <div style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(0.1deg)' }}>INTERESTS</div>
-              <div style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.15deg)' }}>ROLES</div>
-              <div style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(0.2deg)' }}>EARNINGS</div>
-              <div style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.1deg)' }}>EXPENSES</div>
+                color: '#14100d',
+                textDecoration: 'none',
+              }}>POLITICAL BIO</Link>
+              <Link href="/mps/3914" style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.1deg)', textDecoration: 'none' }}>CONTACT</Link>
+              <Link href="/mps/3914" style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(0.15deg)', textDecoration: 'none' }}>VOTING RECORD</Link>
+              <Link href="/mps/3914" style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.2deg)', textDecoration: 'none' }}>BILLS SPONSORED</Link>
+              <Link href="/mps/3914" style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(0.1deg)', textDecoration: 'none' }}>INTERESTS</Link>
+              <Link href="/mps/3914" style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.15deg)', textDecoration: 'none' }}>ROLES</Link>
+              <Link href="/mps/3914" style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(0.2deg)', textDecoration: 'none' }}>EARNINGS</Link>
+              <Link href="/mps/3914" style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.1deg)', textDecoration: 'none' }}>EXPENSES</Link>
               </nav>
             </div>
           </aside>
