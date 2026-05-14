@@ -95,7 +95,7 @@ export default function LoginPage() {
         </a>
 
         <Suspense fallback={<div style={{ minHeight: '400px' }} />}>
-          <MagazineLoginClient initialMode="login" />
+          <MagazineLoginClient />
         </Suspense>
       </div>
     </div>
