@@ -17,21 +17,33 @@ import {
 
 const BAND_RANK: Record<SalaryBand, number> = { pm: 4, sos: 3, minister_of_state: 2, puss: 1 };
 
-export const revalidate = 3600;
+// 6-hour ISR. Cabinet pages prerender at build (see generateStaticParams);
+// the other ~570 MPs render on first request and then cache at the edge
+// for 6 hours before background revalidation.
+export const revalidate = 21600;
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-// REVERTED to on-demand rendering. Earlier attempt to prerender all 650
-// MPs at build hit Vercel's 3-worker limit (local has 9 workers) and
-// saturated Supabase's connection pool, triggering statement timeouts
-// (code 57014) and per-page 60s build failures. With this empty list,
-// each /mps/[id] renders on first request and caches at the edge for
-// the `revalidate` window — first visitor per MP waits ~500ms-1s,
-// everyone after gets an instant HIT.
-export function generateStaticParams() {
-  return [];
+// Cabinet-only prerender. Prerendering all 650 MPs saturated Vercel's
+// 3-worker build (Supabase code 57014 statement timeouts). Prerendering
+// only the ~80 distinct member_ids that hold a ministerial post keeps
+// the build well within budget and ensures every Cabinet / Secretary
+// of State / Minister of State / PUSS page is instant on first hit.
+// dynamicParams defaults to true so every other MP renders on demand
+// and caches via revalidate.
+export async function generateStaticParams() {
+  try {
+    const { data } = await supabase
+      .from('dept_ministers')
+      .select('member_id')
+      .not('member_id', 'is', null);
+    const ids = Array.from(new Set((data || []).map((m: { member_id: number }) => m.member_id)));
+    return ids.map((id) => ({ id: String(id) }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -90,12 +102,15 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       .range(0, 199),
     supabase.from('mp_registered_interests').select('*').eq('member_id', memberId).order('category_sort_order', { ascending: true }),
     supabase.from('mp_expenses_summary').select('*').eq('member_id', memberId).order('year', { ascending: false }),
+    // Most-recent 50 claims — UI shows them on the expanded Expenses
+    // year drilldown only. Cuts the heaviest query 4× (was .range(0, 199)
+    // returning ~75 KB) without hurting first-paint UX.
     supabase
       .from('mp_expenses_detail')
       .select('claim_number, year, claim_date, category, cost_type, short_description, amount_paid, status')
       .eq('member_id', memberId)
       .order('claim_date', { ascending: false })
-      .range(0, 199),
+      .range(0, 49),
     supabase.from('dept_ministers').select('salary_band').eq('member_id', memberId).not('salary_band', 'is', null),
     supabase.from('mp_outside_earnings_summary').select('total_extracted, claim_count, source_count').eq('member_id', memberId).maybeSingle(),
   ]);
