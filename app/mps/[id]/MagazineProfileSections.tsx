@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 type SectionId = 'bio' | 'contact' | 'voting' | 'bills' | 'interests' | 'roles' | 'earnings' | 'expenses';
 
-const SECTIONS: Array<{ id: SectionId; label: string; rotate: string }> = [
+const ALL_SECTIONS: Array<{ id: SectionId; label: string; rotate: string }> = [
   { id: 'bio',       label: 'POLITICAL BIO',    rotate: '0.1deg' },
   { id: 'contact',   label: 'CONTACT',          rotate: '-0.1deg' },
   { id: 'voting',    label: 'VOTING RECORD',    rotate: '0.15deg' },
@@ -15,7 +15,6 @@ const SECTIONS: Array<{ id: SectionId; label: string; rotate: string }> = [
   { id: 'earnings',  label: 'EARNINGS',         rotate: '0.2deg' },
   { id: 'expenses',  label: 'EXPENSES',         rotate: '-0.1deg' },
 ];
-const VALID = new Set<SectionId>(SECTIONS.map((s) => s.id));
 
 interface Props {
   memberId: number;
@@ -68,17 +67,35 @@ export default function MagazineProfileSections({
   earnings,
   expenses,
 }: Props) {
-  const [active, setActive] = useState<SectionId>(paragraphs.length > 0 ? 'bio' : 'contact');
+  // Decide which sections have any content worth showing.
+  const has: Record<SectionId, boolean> = {
+    bio: paragraphs.length > 0,
+    contact: !!(contact && (contact.phone || contact.email || contact.website || contact.twitter)),
+    voting: votes.length > 0,
+    bills: sponsoredBills.length > 0,
+    interests: interests.length > 0,
+    roles: !!(
+      (bio?.government_posts && bio.government_posts.length > 0) ||
+      (bio?.opposition_posts && bio.opposition_posts.length > 0) ||
+      (bio?.committee_memberships && bio.committee_memberships.length > 0)
+    ),
+    earnings: earnings.ministerial > 0 || earnings.outside > 0,
+    expenses: expenses.length > 0,
+  };
+  const sections = ALL_SECTIONS.filter((s) => has[s.id]);
+  const validIds = new Set<SectionId>(sections.map((s) => s.id));
+
+  const [active, setActive] = useState<SectionId>(sections[0]?.id ?? 'bio');
 
   useEffect(() => {
     const apply = () => {
       const h = window.location.hash.slice(1) as SectionId;
-      if (h && VALID.has(h)) setActive(h);
+      if (h && validIds.has(h)) setActive(h);
     };
     apply();
     window.addEventListener('hashchange', apply);
     return () => window.removeEventListener('hashchange', apply);
-  }, []);
+  }, [validIds]);
 
   const select = (id: SectionId) => {
     setActive(id);
@@ -92,7 +109,7 @@ export default function MagazineProfileSections({
       <aside className="lg:col-span-1">
         <div className="lg:sticky lg:top-16">
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 8px 8px' }}>
-            {SECTIONS.map((s) => {
+            {sections.map((s) => {
               const isActive = active === s.id;
               return (
                 <button
