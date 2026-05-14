@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { departments } from '@/lib/departments';
 import { parties } from '@/lib/parties';
@@ -24,12 +24,10 @@ type GovukMinister = {
 };
 
 type GovukData = {
-  title: string;
-  description: string;
   ministers: GovukMinister[];
   boardMembers: { name: string; photo: string; role: string; url: string; slug: string; category?: string; member_id?: number | null }[];
   childOrgs: { name: string; url: string; acronym: string }[];
-  featuredDocs: { title: string; url: string; summary: string; type: string; date: string; image: string }[];
+  featuredDocs: { title: string; url: string; summary: string; type: string; date: string }[];
   featuredLinks: { title: string; url: string }[];
   socialMedia: { service: string; url: string; title: string }[];
   foiEmail: string;
@@ -47,47 +45,20 @@ type EconomicStats = {
   lastUpdated: string;
 };
 
-export default function DepartmentClient({ slug }: { slug: string }) {
+interface DepartmentClientProps {
+  slug: string;
+  govukData: GovukData | null;
+  streetContext: string | null;
+  stats: EconomicStats | null;
+}
+
+export default function DepartmentClient({ slug, govukData, streetContext, stats }: DepartmentClientProps) {
   const dept = departments.find((d) => d.slug === slug);
   const searchParams = useSearchParams();
   const zoneParam = searchParams.get('zone');
+  // activeZone is live UI state — URL deep-link sets initial value; the
+  // Close button on the topic-detail block clears it back to null.
   const [activeZone, setActiveZone] = useState<string | null>(zoneParam || null);
-  const [zoneSearch, setZoneSearch] = useState('');
-  const [showTopics, setShowTopics] = useState(false);
-  const [stats, setStats] = useState<EconomicStats | null>(null);
-  const [streetContext, setStreetContext] = useState<string | null>(null);
-  const [govukData, setGovukData] = useState<GovukData | null>(null);
-  const searchRef = useRef<HTMLDivElement>(null);
-
-  const filteredZones = dept ? dept.controlZones.filter((z) => z.toLowerCase().includes(zoneSearch.toLowerCase())) : [];
-
-  useEffect(() => {
-    if (!dept) return;
-
-    if (slug === 'treasury') {
-      fetch('/api/economic-stats').then((r) => r.json()).then((d) => setStats(d)).catch(() => {});
-    }
-
-    fetch(`/api/department-context?slug=${slug}`)
-      .then((r) => r.json())
-      .then((d) => { if (d.street_context) setStreetContext(d.street_context); })
-      .catch(() => {});
-
-    fetch(`/api/govuk-dept?slug=${slug}`)
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.ministers) setGovukData(d);
-      })
-      .catch(() => {});
-  }, [slug, dept]);
-
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) setShowTopics(false);
-    }
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, []);
 
   if (!dept) return <p style={{ padding: '40px', textAlign: 'center' }}>Department not found</p>;
 
