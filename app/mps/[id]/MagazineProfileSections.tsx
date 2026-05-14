@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 
 type SectionId = 'bio' | 'contact' | 'voting' | 'bills' | 'interests' | 'roles' | 'earnings' | 'expenses';
@@ -16,35 +16,75 @@ const ALL_SECTIONS: Array<{ id: SectionId; label: string; rotate: string }> = [
   { id: 'expenses',  label: 'EXPENSES',         rotate: '-0.1deg' },
 ];
 
+type Vote = { id: number; division_title: string; division_date: string; vote_type: string; is_rebellion?: boolean };
+type Bill = { id: number; title: string; status?: string | null; current_stage?: string | null; plain_summary?: string | null; is_act?: boolean | null; last_update?: string | null };
+type Interest = { category_name: string; interest_text: string | null };
+type Representation = { name: string; startDate: string; endDate?: string | null };
+type PartyHistoryEntry = { party?: string; name?: string; startDate?: string; endDate?: string | null };
+type ExpenseSummary = {
+  year: number;
+  total_spend: number | null;
+  office_spend?: number | null;
+  staffing_spend?: number | null;
+  accommodation_spend?: number | null;
+  travel_subsistence_spend?: number | null;
+  other_costs_spend?: number | null;
+  winding_up_spend?: number | null;
+};
+type ExpenseClaim = {
+  claim_number?: string | null;
+  year: number;
+  claim_date: string | null;
+  category: string | null;
+  cost_type: string | null;
+  short_description: string | null;
+  amount_paid: number | null;
+  status: string | null;
+};
+type Earnings = {
+  base: number;
+  band_label: string | null;
+  ministerial: number;
+  outside: number;
+  outside_claim_count: number;
+  outside_source_count: number;
+  personal_total: number;
+  public_spend: number;
+  public_spend_year: number | null;
+};
+type Contact = {
+  phone?: string | null;
+  email?: string | null;
+  website?: string | null;
+  twitter?: string | null;
+  address_line1?: string | null;
+  postcode?: string | null;
+} | null;
+
 interface Props {
   memberId: number;
   paragraphs: string[];
-  contact: { phone?: string | null; email?: string | null; website?: string | null; twitter?: string | null } | null;
-  votes: Array<{ id: number; division_title: string; division_date: string; vote_type: string; is_rebellion?: boolean }>;
-  sponsoredBills: Array<{ id: number; title: string }>;
-  interests: Array<{ category_name: string; interest_text: string | null }>;
+  contact: Contact;
+  votes: Vote[];
+  sponsoredBills: Bill[];
+  interests: Interest[];
   bio: {
-    representations?: Array<{ name: string; startDate: string; endDate?: string | null }>;
+    representations?: Representation[];
     government_posts?: Array<{ name: string }>;
     opposition_posts?: Array<{ name: string }>;
     committee_memberships?: Array<{ id?: number; name?: string } | string>;
+    party_history?: PartyHistoryEntry[];
   } | null;
-  earnings: {
-    base: number;
-    band_label: string | null;
-    ministerial: number;
-    outside: number;
-    outside_claim_count: number;
-    outside_source_count: number;
-    personal_total: number;
-    public_spend: number;
-    public_spend_year: number | null;
-  };
-  expenses: Array<{ year: number; total_spend: number | null }>;
+  earnings: Earnings;
+  expenses: ExpenseSummary[];
+  expensesDetail: ExpenseClaim[];
 }
 
 const fmtMoney = (n: number) =>
   new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 }).format(n || 0);
+
+const fmtDate = (s?: string | null) =>
+  s ? new Date(s).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
 
 const sectionH2: React.CSSProperties = {
   fontSize: '26px',
@@ -56,6 +96,18 @@ const sectionH2: React.CSSProperties = {
   textShadow: '0.5px 0.5px 0px rgba(0,0,0,0.15)',
 };
 
+const sectionH3: React.CSSProperties = {
+  fontSize: '18px',
+  fontWeight: 'bold',
+  marginTop: '24px',
+  marginBottom: '12px',
+  color: '#14100d',
+  fontFamily: 'Special Elite, monospace',
+};
+
+const inkLink: React.CSSProperties = { color: '#7a1612', textDecoration: 'underline' };
+const inkDivider = '1px dashed rgba(20,16,13,0.2)';
+
 export default function MagazineProfileSections({
   memberId,
   paragraphs,
@@ -66,18 +118,20 @@ export default function MagazineProfileSections({
   bio,
   earnings,
   expenses,
+  expensesDetail,
 }: Props) {
-  // Decide which sections have any content worth showing.
   const has: Record<SectionId, boolean> = {
     bio: paragraphs.length > 0,
-    contact: !!(contact && (contact.phone || contact.email || contact.website || contact.twitter)),
+    contact: !!(contact && (contact.phone || contact.email || contact.website || contact.twitter || contact.address_line1)),
     voting: votes.length > 0,
     bills: sponsoredBills.length > 0,
     interests: interests.length > 0,
     roles: !!(
       (bio?.government_posts && bio.government_posts.length > 0) ||
       (bio?.opposition_posts && bio.opposition_posts.length > 0) ||
-      (bio?.committee_memberships && bio.committee_memberships.length > 0)
+      (bio?.committee_memberships && bio.committee_memberships.length > 0) ||
+      (bio?.representations && bio.representations.length > 0) ||
+      (bio?.party_history && bio.party_history.length > 0)
     ),
     earnings: earnings.ministerial > 0 || earnings.outside > 0,
     expenses: expenses.length > 0,
@@ -86,6 +140,7 @@ export default function MagazineProfileSections({
   const validIds = new Set<SectionId>(sections.map((s) => s.id));
 
   const [active, setActive] = useState<SectionId>(sections[0]?.id ?? 'bio');
+  const [expandedYear, setExpandedYear] = useState<number | null>(null);
 
   useEffect(() => {
     const apply = () => {
@@ -99,10 +154,27 @@ export default function MagazineProfileSections({
 
   const select = (id: SectionId) => {
     setActive(id);
-    if (typeof window !== 'undefined') {
-      history.replaceState(null, '', `#${id}`);
-    }
+    if (typeof window !== 'undefined') history.replaceState(null, '', `#${id}`);
   };
+
+  // Index expense claims by year for the drilldown.
+  const claimsByYear = useMemo(() => {
+    const map = new Map<number, ExpenseClaim[]>();
+    for (const c of expensesDetail) {
+      if (!map.has(c.year)) map.set(c.year, []);
+      map.get(c.year)!.push(c);
+    }
+    return map;
+  }, [expensesDetail]);
+
+  const breakdownLabels: Array<{ key: keyof ExpenseSummary; label: string }> = [
+    { key: 'office_spend',             label: 'Office' },
+    { key: 'staffing_spend',           label: 'Staffing' },
+    { key: 'accommodation_spend',      label: 'Accommodation' },
+    { key: 'travel_subsistence_spend', label: 'Travel + Subsistence' },
+    { key: 'other_costs_spend',        label: 'Other costs' },
+    { key: 'winding_up_spend',         label: 'Winding-up' },
+  ];
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-px" style={{ marginTop: '-80px' }}>
@@ -146,149 +218,245 @@ export default function MagazineProfileSections({
             <h2 style={sectionH2}>Political Biography</h2>
             <div style={{ lineHeight: '1.8', fontSize: '16px', letterSpacing: '0.01em' }}>
               {paragraphs.length === 0 ? (
-                <p style={{ marginBottom: '16px' }}>Biography unavailable.</p>
-              ) : (
-                paragraphs.map((para, idx) => {
-                  const tilt = idx % 4;
-                  const rot = tilt === 0 ? '0.1deg' : tilt === 1 ? '-0.15deg' : tilt === 2 ? '0.08deg' : '-0.1deg';
-                  return (
-                    <p key={idx} style={{ marginBottom: '16px', transform: `rotate(${rot})` }}>{para}</p>
-                  );
-                })
-              )}
+                <p>Biography unavailable.</p>
+              ) : paragraphs.map((para, idx) => {
+                const tilt = idx % 4;
+                const rot = tilt === 0 ? '0.1deg' : tilt === 1 ? '-0.15deg' : tilt === 2 ? '0.08deg' : '-0.1deg';
+                return <p key={idx} style={{ marginBottom: '16px', transform: `rotate(${rot})` }}>{para}</p>;
+              })}
             </div>
           </>
         )}
 
-        {active === 'contact' && (
+        {active === 'contact' && contact && (
           <>
             <h2 style={sectionH2}>Contact</h2>
-            <div style={{ fontSize: '16px', lineHeight: '1.8' }}>
-              {contact ? (
-                <ul style={{ listStyle: 'none', padding: 0 }}>
-                  {contact.phone && <li><strong>Phone:</strong> <span style={{ fontFamily: 'monospace' }}>{contact.phone}</span></li>}
-                  {contact.email && <li><strong>Email:</strong> <a href={`mailto:${contact.email}`} style={{ color: '#7a1612' }}>{contact.email}</a></li>}
-                  {contact.website && <li><strong>Website:</strong> <a href={contact.website} target="_blank" rel="noopener noreferrer" style={{ color: '#7a1612' }}>{contact.website}</a></li>}
-                  {contact.twitter && <li><strong>X / Twitter:</strong> <a href={contact.twitter} target="_blank" rel="noopener noreferrer" style={{ color: '#7a1612' }}>{contact.twitter}</a></li>}
-                </ul>
-              ) : <p>No contact information available.</p>}
-            </div>
+            <ul style={{ listStyle: 'none', padding: 0, fontSize: '16px', lineHeight: '1.8' }}>
+              {contact.phone && <li><strong>Phone:</strong> <span style={{ fontFamily: 'monospace' }}>{contact.phone}</span></li>}
+              {contact.email && <li><strong>Email:</strong> <a href={`mailto:${contact.email}`} style={inkLink}>{contact.email}</a></li>}
+              {contact.website && <li><strong>Website:</strong> <a href={contact.website} target="_blank" rel="noopener noreferrer" style={inkLink}>{contact.website}</a></li>}
+              {contact.twitter && <li><strong>X / Twitter:</strong> <a href={contact.twitter} target="_blank" rel="noopener noreferrer" style={inkLink}>{contact.twitter}</a></li>}
+              {(contact.address_line1 || contact.postcode) && (
+                <li style={{ marginTop: '12px' }}>
+                  <strong>Constituency office:</strong>
+                  <div style={{ marginLeft: '12px', fontFamily: 'monospace', whiteSpace: 'pre-line' }}>
+                    {contact.address_line1 || ''}
+                    {contact.address_line1 && contact.postcode ? '\n' : ''}
+                    {contact.postcode || ''}
+                  </div>
+                </li>
+              )}
+            </ul>
           </>
         )}
 
         {active === 'voting' && (
           <>
             <h2 style={sectionH2}>Voting Record</h2>
-            <div style={{ fontSize: '15px', lineHeight: '1.7' }}>
-              <p style={{ marginBottom: '16px' }}><strong>{votes.length}</strong> divisions recorded. Latest 20 below.</p>
-              {votes.length === 0 ? <p>No voting record available.</p> : (
-                <ul style={{ listStyle: 'none', padding: 0 }}>
-                  {votes.slice(0, 20).map((v) => (
-                    <li key={v.id} style={{ padding: '8px 0', borderBottom: '1px dashed rgba(20,16,13,0.2)' }}>
-                      <div>{v.division_title}</div>
-                      <div style={{ fontSize: '13px', opacity: 0.7 }}>
-                        {new Date(v.division_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
-                        {' · '}<strong>{v.vote_type.toUpperCase()}</strong>
-                        {v.is_rebellion && <span style={{ color: '#7a1612' }}> · REBEL</span>}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+            <p style={{ marginBottom: '16px' }}><strong>{votes.length}</strong> divisions recorded. Latest 20 below.</p>
+            <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.7' }}>
+              {votes.slice(0, 20).map((v) => (
+                <li key={v.id} style={{ padding: '8px 0', borderBottom: inkDivider }}>
+                  <div>{v.division_title}</div>
+                  <div style={{ fontSize: '13px', opacity: 0.7 }}>
+                    {fmtDate(v.division_date)} · <strong>{v.vote_type.toUpperCase()}</strong>
+                    {v.is_rebellion && <span style={{ color: '#7a1612' }}> · REBEL</span>}
+                  </div>
+                </li>
+              ))}
+            </ul>
           </>
         )}
 
         {active === 'bills' && (
           <>
             <h2 style={sectionH2}>Bills Sponsored</h2>
-            {sponsoredBills.length === 0 ? <p>No bills sponsored.</p> : (
-              <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.7' }}>
-                {sponsoredBills.map((b) => (
-                  <li key={b.id} style={{ padding: '8px 0', borderBottom: '1px dashed rgba(20,16,13,0.2)' }}>
-                    <Link href={`/bills/${b.id}`} style={{ color: '#7a1612' }}>{b.title}</Link>
-                  </li>
-                ))}
-              </ul>
-            )}
+            <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.7' }}>
+              {sponsoredBills.map((b) => (
+                <li key={b.id} style={{ padding: '12px 0', borderBottom: inkDivider }}>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'baseline', flexWrap: 'wrap' }}>
+                    <Link href={`/bills/${b.id}`} style={{ ...inkLink, fontWeight: 'bold' }}>{b.title}</Link>
+                    {b.is_act && <span style={{ background: '#7a1612', color: '#f4e8d4', padding: '1px 6px', fontSize: '11px', letterSpacing: '0.08em' }}>✓ ACT</span>}
+                    {b.status && <span style={{ fontSize: '12px', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{b.status}</span>}
+                  </div>
+                  {b.current_stage && (
+                    <div style={{ fontSize: '13px', opacity: 0.75 }}>Stage: {b.current_stage}{b.last_update ? ` · updated ${fmtDate(b.last_update)}` : ''}</div>
+                  )}
+                  {b.plain_summary && (
+                    <p style={{ marginTop: '6px', fontSize: '14px', lineHeight: '1.55', opacity: 0.9 }}>{b.plain_summary}</p>
+                  )}
+                </li>
+              ))}
+            </ul>
           </>
         )}
 
         {active === 'interests' && (
           <>
             <h2 style={sectionH2}>Registered Interests</h2>
-            {interests.length === 0 ? <p>No registered interests.</p> : (
-              <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.7' }}>
-                {interests.map((i, idx) => (
-                  <li key={idx} style={{ padding: '8px 0', borderBottom: '1px dashed rgba(20,16,13,0.2)' }}>
-                    <div style={{ fontSize: '12px', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{i.category_name}</div>
-                    <div style={{ whiteSpace: 'pre-wrap' }}>{i.interest_text}</div>
-                  </li>
-                ))}
-              </ul>
-            )}
+            <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.7' }}>
+              {interests.map((i, idx) => (
+                <li key={idx} style={{ padding: '8px 0', borderBottom: inkDivider }}>
+                  <div style={{ fontSize: '12px', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{i.category_name}</div>
+                  <div style={{ whiteSpace: 'pre-wrap' }}>{i.interest_text}</div>
+                </li>
+              ))}
+            </ul>
           </>
         )}
 
         {active === 'roles' && (
-          <>
+          <div style={{ fontSize: '15px', lineHeight: '1.7' }}>
             <h2 style={sectionH2}>Roles</h2>
-            <div style={{ fontSize: '15px', lineHeight: '1.7' }}>
-              {bio?.government_posts && bio.government_posts.length > 0 && (
-                <>
-                  <h3 style={{ fontWeight: 'bold', marginTop: '16px' }}>Government Posts</h3>
-                  <ul>{bio.government_posts.map((p, i) => <li key={i}>{p.name}</li>)}</ul>
-                </>
-              )}
-              {bio?.opposition_posts && bio.opposition_posts.length > 0 && (
-                <>
-                  <h3 style={{ fontWeight: 'bold', marginTop: '16px' }}>Opposition Posts</h3>
-                  <ul>{bio.opposition_posts.map((p, i) => <li key={i}>{p.name}</li>)}</ul>
-                </>
-              )}
-              {bio?.committee_memberships && bio.committee_memberships.length > 0 && (
-                <>
-                  <h3 style={{ fontWeight: 'bold', marginTop: '16px' }}>Committee Memberships</h3>
-                  <ul>{bio.committee_memberships.map((c, i) => <li key={i}>{typeof c === 'string' ? c : c.name}</li>)}</ul>
-                </>
-              )}
-              {(!bio?.government_posts?.length && !bio?.opposition_posts?.length && !bio?.committee_memberships?.length) && (
-                <p>No roles or committee memberships.</p>
-              )}
-            </div>
-          </>
+
+            {bio?.representations && bio.representations.length > 0 && (
+              <>
+                <h3 style={sectionH3}>Parliamentary career</h3>
+                <ul style={{ listStyle: 'none', padding: 0 }}>
+                  {bio.representations.map((r, i) => (
+                    <li key={i} style={{ padding: '6px 0', borderBottom: inkDivider }}>
+                      <strong>{r.name}</strong>
+                      <div style={{ fontSize: '13px', opacity: 0.75, fontFamily: 'monospace' }}>
+                        {fmtDate(r.startDate)} — {r.endDate ? fmtDate(r.endDate) : 'present'}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+
+            {bio?.government_posts && bio.government_posts.length > 0 && (
+              <>
+                <h3 style={sectionH3}>Government posts</h3>
+                <ul style={{ listStyle: 'disc', paddingLeft: '20px' }}>
+                  {bio.government_posts.map((p, i) => <li key={i}>{p.name}</li>)}
+                </ul>
+              </>
+            )}
+
+            {bio?.opposition_posts && bio.opposition_posts.length > 0 && (
+              <>
+                <h3 style={sectionH3}>Opposition posts</h3>
+                <ul style={{ listStyle: 'disc', paddingLeft: '20px' }}>
+                  {bio.opposition_posts.map((p, i) => <li key={i}>{p.name}</li>)}
+                </ul>
+              </>
+            )}
+
+            {bio?.committee_memberships && bio.committee_memberships.length > 0 && (
+              <>
+                <h3 style={sectionH3}>Committee memberships</h3>
+                <ul style={{ listStyle: 'disc', paddingLeft: '20px' }}>
+                  {bio.committee_memberships.map((c, i) => <li key={i}>{typeof c === 'string' ? c : c.name}</li>)}
+                </ul>
+              </>
+            )}
+
+            {bio?.party_history && bio.party_history.length > 0 && (
+              <>
+                <h3 style={sectionH3}>Party history</h3>
+                <ul style={{ listStyle: 'none', padding: 0 }}>
+                  {bio.party_history.map((p, i) => (
+                    <li key={i} style={{ padding: '4px 0' }}>
+                      <strong>{p.party || p.name}</strong>
+                      {(p.startDate || p.endDate) && (
+                        <span style={{ marginLeft: '8px', fontSize: '13px', opacity: 0.75, fontFamily: 'monospace' }}>
+                          {p.startDate ? fmtDate(p.startDate) : '?'} — {p.endDate ? fmtDate(p.endDate) : 'present'}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </div>
         )}
 
         {active === 'earnings' && (
           <>
             <h2 style={sectionH2}>Earnings</h2>
-            <div style={{ fontSize: '15px', lineHeight: '1.8' }}>
-              <ul style={{ listStyle: 'none', padding: 0 }}>
-                <li><strong>Base MP salary:</strong> {fmtMoney(earnings.base)}</li>
-                <li><strong>Ministerial salary:</strong> {fmtMoney(earnings.ministerial)} {earnings.band_label ? `(${earnings.band_label})` : ''}</li>
-                <li><strong>Outside earnings:</strong> {fmtMoney(earnings.outside)} ({earnings.outside_claim_count} payments from {earnings.outside_source_count} sources)</li>
-                <li style={{ marginTop: '12px', fontSize: '20px' }}><strong>Total personal earnings:</strong> {fmtMoney(earnings.personal_total)}</li>
-                <li style={{ marginTop: '12px', fontSize: '13px', opacity: 0.7 }}>Public spend (IPSA, {earnings.public_spend_year}): {fmtMoney(earnings.public_spend)}</li>
-              </ul>
-            </div>
+            <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.8' }}>
+              <li><strong>Base MP salary:</strong> {fmtMoney(earnings.base)}</li>
+              <li><strong>Ministerial salary:</strong> {fmtMoney(earnings.ministerial)} {earnings.band_label ? `(${earnings.band_label})` : ''}</li>
+              <li><strong>Outside earnings:</strong> {fmtMoney(earnings.outside)} ({earnings.outside_claim_count} payments from {earnings.outside_source_count} sources)</li>
+              <li style={{ marginTop: '12px', fontSize: '20px' }}><strong>Total personal earnings:</strong> {fmtMoney(earnings.personal_total)}</li>
+              <li style={{ marginTop: '12px', fontSize: '13px', opacity: 0.7 }}>Public spend (IPSA, {earnings.public_spend_year ?? '—'}): {fmtMoney(earnings.public_spend)}</li>
+            </ul>
           </>
         )}
 
         {active === 'expenses' && (
           <>
             <h2 style={sectionH2}>Expenses</h2>
-            <div style={{ fontSize: '15px', lineHeight: '1.7' }}>
-              <p style={{ marginBottom: '16px' }}>Annual IPSA totals.</p>
-              {expenses.length === 0 ? <p>No expenses recorded.</p> : (
-                <ul style={{ listStyle: 'none', padding: 0 }}>
-                  {expenses.map((e) => (
-                    <li key={e.year} style={{ padding: '6px 0', borderBottom: '1px dashed rgba(20,16,13,0.2)' }}>
-                      <strong>{e.year}:</strong> {fmtMoney(Number(e.total_spend) || 0)}
-                    </li>
+            <p style={{ marginBottom: '16px', fontSize: '14px', opacity: 0.85 }}>Annual IPSA totals with category breakdown. Click a year to drill into individual claims.</p>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid rgba(20,16,13,0.4)', textAlign: 'left' }}>
+                  <th style={{ padding: '8px 6px' }}>Year</th>
+                  {breakdownLabels.map((b) => (
+                    <th key={b.key} style={{ padding: '8px 6px', fontSize: '11px', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{b.label}</th>
                   ))}
-                </ul>
-              )}
-            </div>
+                  <th style={{ padding: '8px 6px', textAlign: 'right' }}>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {expenses.map((e) => {
+                  const expanded = expandedYear === e.year;
+                  const yearClaims = claimsByYear.get(e.year) || [];
+                  return (
+                    <>
+                      <tr
+                        key={`row-${e.year}`}
+                        onClick={() => setExpandedYear(expanded ? null : e.year)}
+                        style={{ borderBottom: inkDivider, cursor: yearClaims.length > 0 ? 'pointer' : 'default' }}
+                      >
+                        <td style={{ padding: '8px 6px', fontWeight: 'bold' }}>
+                          {e.year}{yearClaims.length > 0 ? (expanded ? ' ▾' : ' ▸') : ''}
+                        </td>
+                        {breakdownLabels.map((b) => (
+                          <td key={b.key} style={{ padding: '8px 6px', fontFamily: 'monospace', fontSize: '13px' }}>{fmtMoney(Number(e[b.key]) || 0)}</td>
+                        ))}
+                        <td style={{ padding: '8px 6px', fontFamily: 'monospace', fontWeight: 'bold', textAlign: 'right' }}>{fmtMoney(Number(e.total_spend) || 0)}</td>
+                      </tr>
+                      {expanded && yearClaims.length > 0 && (
+                        <tr key={`detail-${e.year}`}>
+                          <td colSpan={breakdownLabels.length + 2} style={{ padding: '0 6px 12px', background: 'rgba(122,22,18,0.04)' }}>
+                            <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '8px 0', opacity: 0.8 }}>
+                              {yearClaims.length} claims in {e.year}
+                            </div>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                              <thead>
+                                <tr style={{ borderBottom: '1px solid rgba(20,16,13,0.3)', textAlign: 'left' }}>
+                                  <th style={{ padding: '4px 6px' }}>Date</th>
+                                  <th style={{ padding: '4px 6px' }}>Category</th>
+                                  <th style={{ padding: '4px 6px' }}>Description</th>
+                                  <th style={{ padding: '4px 6px' }}>Status</th>
+                                  <th style={{ padding: '4px 6px', textAlign: 'right' }}>Paid</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {yearClaims.slice(0, 200).map((c, i) => (
+                                  <tr key={c.claim_number ?? `${e.year}-${i}`} style={{ borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
+                                    <td style={{ padding: '4px 6px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{c.claim_date ? new Date(c.claim_date).toLocaleDateString('en-GB') : '-'}</td>
+                                    <td style={{ padding: '4px 6px' }}>{c.category || '-'}</td>
+                                    <td style={{ padding: '4px 6px' }}>{c.short_description || c.cost_type || '-'}</td>
+                                    <td style={{ padding: '4px 6px' }}>{c.status || '-'}</td>
+                                    <td style={{ padding: '4px 6px', fontFamily: 'monospace', textAlign: 'right' }}>{fmtMoney(Number(c.amount_paid) || 0)}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                            {yearClaims.length > 200 && (
+                              <div style={{ padding: '8px 6px', fontSize: '12px', opacity: 0.7 }}>Showing first 200 of {yearClaims.length} claims.</div>
+                            )}
+                          </td>
+                        </tr>
+                      )}
+                    </>
+                  );
+                })}
+              </tbody>
+            </table>
           </>
         )}
       </div>

@@ -104,6 +104,16 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   const fullName = mp.display_name || mp.name || '';
   const partyColour = mp.party_colour ? `#${mp.party_colour.replace('#', '')}` : '#7697a2';
 
+  // First-elected date: prefer mps.start_date, else earliest representation startDate.
+  const repDates = (bioRes.data?.representations || [])
+    .map((r: { startDate?: string | null }) => r.startDate)
+    .filter((d: string | null | undefined): d is string => !!d)
+    .sort();
+  const firstElectedRaw = mp.start_date || repDates[0] || null;
+  const firstElected = firstElectedRaw
+    ? new Date(firstElectedRaw).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+    : null;
+
   return (
     <div style={{
       position: 'relative',
@@ -242,19 +252,33 @@ export default async function MPMagazineProfile({ params }: PageProps) {
               <span style={{ display: 'inline-block', width: '12px', height: '12px', borderRadius: '50%', background: partyColour, marginRight: '8px' }}></span>
               {[mp.party, mp.constituency].filter(Boolean).join(' • ')}
             </p>
+            {firstElected && (
+              <p style={{ fontSize: '14px', marginBottom: '4px', color: '#14100d', opacity: 0.8, transform: 'rotate(-0.1deg)' }}>
+                First elected: {firstElected}
+              </p>
+            )}
           </div>
         </div>
 
         <MagazineProfileSections
           memberId={memberId}
           paragraphs={(bioRes.data?.political_bio ?? '').split(/\n\n+/).map((p: string) => p.trim()).filter((p: string) => p.length > 0)}
-          contact={contactRes.data}
+          contact={{
+            // Prefer mp_contact, fall back to fields on the mps row.
+            phone:          contactRes.data?.phone         ?? mp.phone         ?? null,
+            email:          contactRes.data?.email         ?? mp.email         ?? null,
+            website:        contactRes.data?.website       ?? mp.website       ?? null,
+            twitter:        contactRes.data?.twitter       ?? mp.twitter       ?? null,
+            address_line1:  contactRes.data?.address_line1 ?? null,
+            postcode:       contactRes.data?.postcode      ?? null,
+          }}
           votes={votesRes.data || []}
           sponsoredBills={sponsoredBillsRes.data || []}
           interests={interestsRes.data || []}
           bio={bioRes.data}
           earnings={earnings}
           expenses={expensesRes.data || []}
+          expensesDetail={expensesDetailRes.data || []}
         />
 
         <ScrollToTopButton />
