@@ -186,7 +186,7 @@ export default async function PreviewHome2Dynamic({ params }: PageProps) {
           <aside className="lg:col-span-1">
             <div className="lg:sticky lg:top-16">
               <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 8px 8px' }}>
-                <Link href={`/mps/${memberId}`} style={{
+                <Link href={`/mps/${memberId}#bio`} style={{
                   padding: '12px 16px',
                   borderLeft: '4px solid #7a1612',
                   background: 'rgba(122,22,18,0.08)',
@@ -199,13 +199,13 @@ export default async function PreviewHome2Dynamic({ params }: PageProps) {
                   color: '#14100d',
                   textDecoration: 'none',
                 }}>POLITICAL BIO</Link>
-                <Link href={`/mps/${memberId}`} style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.1deg)', textDecoration: 'none' }}>CONTACT</Link>
-                <Link href={`/mps/${memberId}`} style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(0.15deg)', textDecoration: 'none' }}>VOTING RECORD</Link>
-                <Link href={`/mps/${memberId}`} style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.2deg)', textDecoration: 'none' }}>BILLS SPONSORED</Link>
-                <Link href={`/mps/${memberId}`} style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(0.1deg)', textDecoration: 'none' }}>INTERESTS</Link>
-                <Link href={`/mps/${memberId}`} style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.15deg)', textDecoration: 'none' }}>ROLES</Link>
-                <Link href={`/mps/${memberId}`} style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(0.2deg)', textDecoration: 'none' }}>EARNINGS</Link>
-                <Link href={`/mps/${memberId}`} style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.1deg)', textDecoration: 'none' }}>EXPENSES</Link>
+                <Link href={`/mps/${memberId}#contact`} style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.1deg)', textDecoration: 'none' }}>CONTACT</Link>
+                <Link href={`/mps/${memberId}#voting`} style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(0.15deg)', textDecoration: 'none' }}>VOTING RECORD</Link>
+                <Link href={`/mps/${memberId}#bills`} style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.2deg)', textDecoration: 'none' }}>BILLS SPONSORED</Link>
+                <Link href={`/mps/${memberId}#interests`} style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(0.1deg)', textDecoration: 'none' }}>INTERESTS</Link>
+                <Link href={`/mps/${memberId}#roles`} style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.15deg)', textDecoration: 'none' }}>ROLES</Link>
+                <Link href={`/mps/${memberId}#earnings`} style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(0.2deg)', textDecoration: 'none' }}>EARNINGS</Link>
+                <Link href={`/mps/${memberId}#expenses`} style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.1deg)', textDecoration: 'none' }}>EXPENSES</Link>
               </nav>
             </div>
           </aside>

@@ -1,6 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+
+const VALID_SECTIONS = new Set(['bio', 'contact', 'parliamentary', 'voting', 'bills', 'interests', 'roles', 'earnings', 'expenses'])
 import Link from 'next/link'
 
 type EarningsSummary = {
@@ -47,6 +49,17 @@ export default function MPProfileClient({
   partyColour,
 }: MPProfileClientProps) {
   const [activeSection, setActiveSection] = useState(bio?.political_bio ? 'bio' : 'contact')
+
+  // If the URL has a #section hash (e.g. /mps/3914#voting), open that section.
+  useEffect(() => {
+    const applyHash = () => {
+      const hash = window.location.hash.slice(1)
+      if (hash && VALID_SECTIONS.has(hash)) setActiveSection(hash)
+    }
+    applyHash()
+    window.addEventListener('hashchange', applyHash)
+    return () => window.removeEventListener('hashchange', applyHash)
+  }, [])
 
   const interestsByCategory = interests?.reduce((acc: any, interest) => {
     if (!acc[interest.category_name]) acc[interest.category_name] = []
