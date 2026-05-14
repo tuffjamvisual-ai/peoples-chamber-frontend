@@ -62,7 +62,7 @@ export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
   return (
     <div style={{ padding: '32px 0', fontFamily: 'Special Elite, monospace', color: '#14100d' }}>
       <a
-        href="/"
+        href="/mps"
         style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -74,7 +74,7 @@ export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
           transform: 'rotate(-0.2deg)',
         }}
       >
-        ← Back to home
+        ← Back to MPs
       </a>
 
       <div style={{ marginBottom: '32px' }}>
