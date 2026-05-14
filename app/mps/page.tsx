@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export default async function MPsPage() {
   const { data: mps, error } = await supabase
     .from('mps')
-    .select('id, member_id, name, party, party_colour, constituency, photo_url')
+    .select('id, member_id, name, display_name, party, party_colour, constituency, photo_url')
     .eq('current_member', true)
     .order('name', { ascending: true });
 
