@@ -155,12 +155,6 @@ export default async function DepartmentsPage() {
           <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '640px' }}>
             What every department controls and where every party stands on the issues that matter to you. Tap any department for live ministers, agencies, and topic-by-topic positions.
           </p>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '1px', background: inkHairline, border: `1px solid ${inkHairline}`, marginTop: '24px' }}>
-            <Stat label="Departments" value={departments.length} />
-            <Stat label="Control Zones" value={totalZones} />
-            <Stat label="Live Data" value="Daily" accent />
-          </div>
         </header>
 
         <ul style={{

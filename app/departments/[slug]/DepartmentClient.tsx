@@ -165,8 +165,8 @@ export default function DepartmentClient({ slug }: { slug: string }) {
           </div>
         </section>
 
-        {/* Stats + Search */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-px   mb-8">
+        {/* Stats (Treasury only) */}
+        <section className="mb-8">
           {slug === 'treasury' ? (
             <div className=" p-5">
               <div className="flex items-baseline justify-between mb-4">
@@ -200,51 +200,6 @@ export default function DepartmentClient({ slug }: { slug: string }) {
             </div>
           )}
 
-          <div ref={searchRef} className=" p-5 relative">
-            <h3 className="text-[13px] uppercase tracking-[0.25em] mb-1 font-semibold text-[#14100d]">Search Topics</h3>
-            <p className="text-[#14100d] text-[15px] mb-3 leading-[1.7]">Type any issue to see what every party says about it</p>
-            <div className="relative">
-              <input
-                type="text"
-                value={zoneSearch}
-                onChange={(e) => { setZoneSearch(e.target.value); setShowTopics(true); }}
-                onFocus={() => setShowTopics(true)}
-                placeholder={`Search ${dept.controlZones.length} topics…`}
-                className="w-full    px-4 py-2.5 text-[#14100d] text-[13px] placeholder:text-[#14100d] focus:outline-none focus:border-[#ffffff] transition-colors"
-              />
-              {zoneSearch && (
-                <button
-                  onClick={() => { setZoneSearch(''); setShowTopics(false); }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#14100d] hover:text-[#14100d] text-sm"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-            {showTopics && (
-              <div className="absolute z-50 left-5 right-5 mt-1    shadow-xl max-h-64 overflow-y-auto">
-                {(zoneSearch ? filteredZones : [...dept.controlZones].sort()).map((zone) => {
-                  const hasDetail = dept.controlZonePositions?.some((z) => z.zone === zone);
-                  return (
-                    <button
-                      key={zone}
-                      onClick={() => { setActiveZone(activeZone === zone ? null : zone); setZoneSearch(''); setShowTopics(false); }}
-                      className={
-                        'block w-full text-left px-4 py-2.5 text-[13px]  last:border-0 transition-colors ' +
-                        (activeZone === zone ? 'text-[#ffffff] ' : 'text-[#14100d] hover: hover:text-[#14100d]')
-                      }
-                    >
-                      {zone}
-                      {hasDetail && <span className="ml-2 text-[13px]" style={{ color: ACCENT }}>●</span>}
-                    </button>
-                  );
-                })}
-                {zoneSearch && filteredZones.length === 0 && (
-                  <div className="px-4 py-3 text-[#14100d] text-[13px]">No topics match &ldquo;{zoneSearch}&rdquo;</div>
-                )}
-              </div>
-            )}
-          </div>
         </section>
 
         {/* Street View */}
@@ -343,17 +298,17 @@ function StaffGroup({ label, people }: { label: string; people: { name: string; 
   return (
     <div className="mb-8">
       <p className="text-[13px] uppercase tracking-[0.2em] text-[#14100d] mb-3 font-semibold">{label}</p>
-      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-px  ">
+      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
         {people.map((person, i) => {
           const href = person.member_id ? `/mps/${person.member_id}` : person.slug ? `/people/${person.slug}` : null;
           const inner = (
             <>
-              <p className="text-[#14100d] text-[13px] font-semibold hover:text-[#7a1612] transition-colors">{person.name}</p>
-              <p className="text-[#14100d] text-[14px] mt-0.5 leading-[1.7]">{person.role}</p>
+              <p className="text-[#14100d] text-[14px] font-semibold hover:text-[#7a1612] transition-colors">{person.name}</p>
+              <p className="text-[#14100d] text-[13px] mt-0.5 leading-[1.6] opacity-80">{person.role}</p>
             </>
           );
           return (
-            <li key={i} className=" p-3 border-l-2 border-l-transparent hover:border-l-[#7a1612] hover: transition-colors">
+            <li key={i}>
               {href ? <Link href={href} className="block">{inner}</Link> : <div className="block">{inner}</div>}
             </li>
           );
