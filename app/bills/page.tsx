@@ -4,6 +4,10 @@ import BillsGrid from '../components/BillsGrid';
 import BillsGridMobile from '../components/BillsGridMobile';
 import Navigation from '../components/Navigation';
 
+// /bills paginates 4000 bills across 4 parallel range queries. At Vercel
+// build time, when other workers are also hammering Supabase for MP
+// pages, this exceeds the 60s/page budget. Render on demand.
+export const dynamic = 'force-dynamic';
 export const revalidate = 600;
 
 export const metadata: Metadata = {

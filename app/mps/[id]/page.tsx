@@ -23,18 +23,15 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-// Prerender every current MP at build time so every visit is instant
-// from the edge cache. Build-time per-page budget on Vercel is 60s;
-// query trims below (mp_expenses_detail row-cap + lean selects on
-// votes and sponsored bills) keep each page well under that.
-// dynamicParams defaults to true — any MP missing from this list (e.g.
-// a freshly elected one not yet in the table) still renders on-demand.
-export async function generateStaticParams() {
-  const { data } = await supabase
-    .from('mps')
-    .select('member_id')
-    .eq('current_member', true);
-  return (data || []).map((m) => ({ id: String(m.member_id) }));
+// REVERTED to on-demand rendering. Earlier attempt to prerender all 650
+// MPs at build hit Vercel's 3-worker limit (local has 9 workers) and
+// saturated Supabase's connection pool, triggering statement timeouts
+// (code 57014) and per-page 60s build failures. With this empty list,
+// each /mps/[id] renders on first request and caches at the edge for
+// the `revalidate` window — first visitor per MP waits ~500ms-1s,
+// everyone after gets an instant HIT.
+export function generateStaticParams() {
+  return [];
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

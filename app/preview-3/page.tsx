@@ -15,6 +15,12 @@ import {
   Vote,
 } from 'lucide-react'
 
+// Heavy page with 7+ parallel Supabase queries — skip build-time
+// prerender so it doesn't saturate the connection pool during Vercel's
+// 3-worker build and crash the deploy. Renders on first request and
+// caches at the edge thanks to the stale-while-revalidate header in
+// vercel.json.
+export const dynamic = 'force-dynamic'
 export const revalidate = 3600
 
 const ACCENT = '#c91517'

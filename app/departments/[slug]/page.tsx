@@ -13,11 +13,12 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-// Prerender all 24 department pages at build so every visit hits the
-// edge cache instantly. dynamicParams defaults to true so any slug
-// added to lib/departments later still renders on demand.
+// REVERTED to on-demand. Even 24 departments × 3 govuk-dept queries + the
+// external ONS fetch for treasury was failing the 60s/page Vercel build
+// budget when /mps/[id] workers were also hammering Supabase. Pages
+// render on first request and cache at the edge via `revalidate`.
 export function generateStaticParams() {
-  return departments.map((d) => ({ slug: d.slug }));
+  return [];
 }
 
 // ISR — refresh prerendered HTML hourly so any backend changes
