@@ -13,6 +13,7 @@ export type GovukDeptMinister = {
   slug: string;
   is_secretary_of_state?: boolean;
   member_id?: number | null;
+  resigned?: boolean;
 };
 
 export type GovukDeptData = {
@@ -47,7 +48,7 @@ const normalize = (s: string | null | undefined): string => {
     .trim();
 };
 
-type MinisterRow = { name: string | null; role: string; slug: string; photo_url?: string | null; is_secretary_of_state?: boolean; member_id?: number | null };
+type MinisterRow = { name: string | null; role: string; slug: string; photo_url?: string | null; is_secretary_of_state?: boolean; member_id?: number | null; resigned?: boolean | null };
 type OfficialRow = { name: string | null; role: string; slug: string; category?: string; member_id?: number | null; photo_url?: string | null };
 type AgencyRow = { name: string; url: string; acronym: string };
 
@@ -116,6 +117,7 @@ export async function getGovukDept(slug: string): Promise<GovukDeptData> {
           responsibilities: '',
           is_secretary_of_state: m.is_secretary_of_state,
           member_id: m.member_id ?? mp?.member_id ?? null,
+          resigned: !!m.resigned,
         };
       });
       const boardMembers = ((officialsRes.data || []) as OfficialRow[]).map((m) => {

@@ -21,6 +21,7 @@ type GovukMinister = {
   slug: string;
   is_secretary_of_state?: boolean;
   member_id?: number | null;
+  resigned?: boolean;
 };
 
 type GovukData = {
@@ -98,6 +99,7 @@ export default function DepartmentClient({ slug, govukData, streetContext, stats
           <p className="text-[13px] uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: ACCENT }}>Secretary of State</p>
           <div className="flex items-center gap-8">
             <div style={{
+              position: 'relative',
               background: '#ebe5d8',
               padding: '12px 12px 48px 12px',
               width: '284px',
@@ -125,6 +127,25 @@ export default function DepartmentClient({ slug, govukData, streetContext, stats
                 >
                   {sos.name.charAt(0)}
                 </div>
+              )}
+              {sos.resigned && (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src="/resigned-stamp.png"
+                  alt="Resigned"
+                  aria-hidden
+                  style={{
+                    position: 'absolute',
+                    top: '60px',
+                    left: '20px',
+                    width: '260px',
+                    height: 'auto',
+                    transform: 'rotate(-14deg)',
+                    opacity: 0.88,
+                    pointerEvents: 'none',
+                    zIndex: 3,
+                  }}
+                />
               )}
             </div>
             <div>
