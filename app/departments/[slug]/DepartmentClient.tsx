@@ -126,21 +126,33 @@ export default function DepartmentClient({ slug }: { slug: string }) {
         <section className=" pb-8 mb-8">
           <p className="text-[13px] uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: ACCENT }}>Secretary of State</p>
           <div className="flex items-center gap-6">
-            {sos.photo ? (
-              <img
-                src={sos.photo}
-                alt={sos.name}
-                className="w-28 h-28 rounded-full object-cover flex-shrink-0"
-                style={{ border: `2px solid ${ACCENT}` }}
-              />
-            ) : (
-              <div
-                className="w-28 h-28 rounded-full  flex items-center justify-center text-4xl font-black flex-shrink-0"
-                style={{ border: `2px solid ${ACCENT}`, color: ACCENT }}
-              >
-                {sos.name.charAt(0)}
-              </div>
-            )}
+            <div style={{
+              background: '#ebe5d8',
+              padding: '10px 10px 32px 10px',
+              transform: 'rotate(-2deg)',
+              boxShadow: '0 4px 8px rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.03)',
+              flexShrink: 0,
+            }}>
+              {sos.photo ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={sos.photo}
+                  alt={sos.name}
+                  style={{ display: 'block', width: '110px', height: '124px', objectFit: 'cover', filter: 'contrast(1.05) sepia(0.05)' }}
+                />
+              ) : (
+                <div
+                  aria-hidden
+                  style={{
+                    width: '110px', height: '124px', background: '#d6cdb8',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '40px', color: ACCENT,
+                  }}
+                >
+                  {sos.name.charAt(0)}
+                </div>
+              )}
+            </div>
             <div>
               <h2 className="text-[#14100d] text-2xl sm:text-3xl font-black tracking-tight mb-1">{sos.name}</h2>
               <p className="text-[#14100d] text-[13px] leading-[1.7] mb-2">{sos.role}</p>
@@ -294,18 +306,50 @@ export default function DepartmentClient({ slug }: { slug: string }) {
   );
 }
 
-function StaffGroup({ label, people }: { label: string; people: { name: string; role: string; slug: string; member_id?: number | null }[] }) {
+function StaffGroup({ label, people }: { label: string; people: { name: string; role: string; slug: string; photo?: string; member_id?: number | null }[] }) {
   return (
     <div className="mb-8">
-      <p className="text-[13px] uppercase tracking-[0.2em] text-[#14100d] mb-3 font-semibold">{label}</p>
-      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
+      <p className="text-[13px] uppercase tracking-[0.2em] text-[#14100d] mb-4 font-semibold">{label}</p>
+      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
         {people.map((person, i) => {
           const href = person.member_id ? `/mps/${person.member_id}` : person.slug ? `/people/${person.slug}` : null;
+          // Vary the polaroid tilt per item for stacked-snapshots feel
+          const tilt = ((i % 5) - 2) * 1.2 - 0.5;
           const inner = (
-            <>
-              <p className="text-[#14100d] text-[14px] font-semibold hover:text-[#7a1612] transition-colors">{person.name}</p>
-              <p className="text-[#14100d] text-[13px] mt-0.5 leading-[1.6] opacity-80">{person.role}</p>
-            </>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
+              <div style={{
+                background: '#ebe5d8',
+                padding: '6px 6px 18px 6px',
+                transform: `rotate(${tilt}deg)`,
+                boxShadow: '0 3px 6px rgba(0,0,0,0.18), inset 0 0 20px rgba(0,0,0,0.03)',
+                flexShrink: 0,
+              }}>
+                {person.photo ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={person.photo}
+                    alt={person.name}
+                    loading="lazy"
+                    style={{ display: 'block', width: '60px', height: '70px', objectFit: 'cover', filter: 'contrast(1.05) sepia(0.05)' }}
+                  />
+                ) : (
+                  <div
+                    aria-hidden
+                    style={{
+                      width: '60px', height: '70px', background: '#d6cdb8',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '24px', color: '#14100d',
+                    }}
+                  >
+                    {person.name.charAt(0)}
+                  </div>
+                )}
+              </div>
+              <div style={{ minWidth: 0, paddingTop: '4px' }}>
+                <p className="text-[#14100d] text-[14px] font-semibold hover:text-[#7a1612] transition-colors">{person.name}</p>
+                <p className="text-[#14100d] text-[13px] mt-0.5 leading-[1.55] opacity-80">{person.role}</p>
+              </div>
+            </div>
           );
           return (
             <li key={i}>
