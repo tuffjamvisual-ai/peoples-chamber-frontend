@@ -147,7 +147,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       margin: '0 auto',
       background: '#2a1810',
       backgroundImage:
-        'url("/preview-header.png"), url("/preview-footer.png"), url("/preview-middle.png")',
+        'url("/preview-header.webp"), url("/preview-footer.webp"), url("/preview-middle.webp")',
       backgroundRepeat: 'no-repeat, no-repeat, repeat-y',
       backgroundPosition: 'top center, bottom center, top center',
       backgroundSize: '100% auto, 100% auto, 100% auto',
