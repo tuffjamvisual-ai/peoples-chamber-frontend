@@ -15,12 +15,8 @@ export const metadata: Metadata = {
 export const revalidate = 3600;
 
 const ink = '#14100d';
-const inkSoft = 'rgba(20,16,13,0.7)';
-const inkHairline = 'rgba(20,16,13,0.3)';
 
 export default async function DepartmentsPage() {
-  const totalZones = departments.reduce((sum, d) => sum + d.controlZones.length, 0);
-
   // Name-normalisation for fuzzy MP-by-name matching when dept_ministers
   // rows lack a populated member_id (mostly peers we can't link to mps).
   const normalize = (s: string | null | undefined): string => {
@@ -136,13 +132,10 @@ export default async function DepartmentsPage() {
           ← Back to home
         </a>
 
-        <header style={{ borderBottom: `1px solid ${inkHairline}`, paddingBottom: '32px', marginBottom: '32px' }}>
+        <header style={{ marginBottom: '32px' }}>
           <h1 style={{ fontSize: '44px', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
             Government Departments
           </h1>
-          <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '640px' }}>
-            What every department controls and where every party stands on the issues that matter to you. Tap any department for live ministers, agencies, and topic-by-topic positions.
-          </p>
         </header>
 
         <ul style={{
@@ -200,13 +193,9 @@ export default async function DepartmentsPage() {
                   </div>
 
                   <div style={{ flex: 1, paddingTop: '6px', minWidth: 0 }}>
-                    <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '4px', lineHeight: 1.25 }}>
+                    <h2 style={{ fontSize: '16px', fontWeight: 'bold', lineHeight: 1.25 }}>
                       {dept.name}
                     </h2>
-                    <p style={{ fontSize: '13px', opacity: 0.8, marginBottom: '4px' }}>{dept.minister}</p>
-                    <p style={{ fontSize: '13px', color: inkSoft, lineHeight: 1.55, display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2, overflow: 'hidden' }}>
-                      {dept.description}
-                    </p>
                   </div>
                 </Link>
               </li>
