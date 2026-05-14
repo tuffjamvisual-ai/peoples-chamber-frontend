@@ -100,6 +100,21 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <head>
+        {/* Preload the Special Elite font so it's ready when the
+         * magazine pages render — skips the 200-300ms fallback flash. */}
+        <link
+          rel="preload"
+          href="/fonts/special-elite.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        {/* Preload the three magazine-chrome WebPs. They're set via
+         * CSS background-image so the browser only discovers them
+         * after stylesheet parse — this gives it a head start. */}
+        <link rel="preload" href="/preview-header.webp" as="image" type="image/webp" />
+        <link rel="preload" href="/preview-middle.webp" as="image" type="image/webp" />
+        <link rel="preload" href="/preview-footer.webp" as="image" type="image/webp" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}

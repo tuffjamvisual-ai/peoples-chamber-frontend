@@ -6,7 +6,8 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url("/fonts/special-elite.ttf") format("truetype");
+  src: url("/fonts/special-elite.woff2") format("woff2"),
+       url("/fonts/special-elite.ttf") format("truetype");
 }
 
 :root {

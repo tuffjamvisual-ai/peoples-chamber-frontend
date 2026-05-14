@@ -7,10 +7,8 @@ import Link from 'next/link';
 import ScrollToTopButton from '../components/ScrollToTopButton';
 
 interface MP {
-  id: number;
   member_id: number;
   name: string;
-  display_name?: string | null;
   photo_url: string | null;
   party: string;
   constituency: string;
@@ -32,14 +30,11 @@ export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
   const filteredMPs = useMemo(() => {
     if (!searchTerm.trim()) return mps;
     const q = searchTerm.toLowerCase();
-    return mps.filter((mp) => {
-      const n = mp.display_name || mp.name || '';
-      return (
-        n.toLowerCase().includes(q) ||
-        (mp.constituency || '').toLowerCase().includes(q) ||
-        (mp.party || '').toLowerCase().includes(q)
-      );
-    });
+    return mps.filter((mp) =>
+      mp.name.toLowerCase().includes(q) ||
+      (mp.constituency || '').toLowerCase().includes(q) ||
+      (mp.party || '').toLowerCase().includes(q),
+    );
   }, [mps, searchTerm]);
 
   const mpsByParty = useMemo(() => {
@@ -136,7 +131,7 @@ export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
                   const tilt = ((idx % 5) - 2) * 1.5 - 0.5;
                   return (
                     <Link
-                      key={mp.id}
+                      key={mp.member_id}
                       href={`/mps/${mp.member_id}?from=${encodeURIComponent(party)}`}
                       style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', textDecoration: 'none', color: 'inherit' }}
                     >
@@ -154,7 +149,7 @@ export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
                         {mp.photo_url ? (
                           <Image
                             src={mp.photo_url}
-                            alt={mp.display_name || mp.name}
+                            alt={mp.name}
                             width={84}
                             height={96}
                             loading="lazy"
@@ -175,13 +170,13 @@ export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
                               color: '#14100d',
                             }}
                           >
-                            {(mp.display_name || mp.name || '?').charAt(0)}
+                            {(mp.name || '?').charAt(0)}
                           </div>
                         )}
                       </div>
                       <div style={{ flex: 1, paddingTop: '6px', minWidth: 0 }}>
                         <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '4px', lineHeight: 1.25 }}>
-                          {mp.display_name || mp.name}
+                          {mp.name}
                         </h3>
                         <p style={{ fontSize: '13px', opacity: 0.8 }}>{mp.constituency}</p>
                       </div>
