@@ -48,7 +48,7 @@ const normalize = (s: string | null | undefined): string => {
 };
 
 type MinisterRow = { name: string | null; role: string; slug: string; photo_url?: string | null; is_secretary_of_state?: boolean; member_id?: number | null };
-type OfficialRow = { name: string | null; role: string; slug: string; category?: string; member_id?: number | null };
+type OfficialRow = { name: string | null; role: string; slug: string; category?: string; member_id?: number | null; photo_url?: string | null };
 type AgencyRow = { name: string; url: string; acronym: string };
 
 async function fetchGovukJson(govukSlug: string) {
@@ -122,7 +122,7 @@ export async function getGovukDept(slug: string): Promise<GovukDeptData> {
         const mp = resolveMp(m.name);
         return {
           name: m.name || '',
-          photo: mp?.photo_url || '',
+          photo: m.photo_url || mp?.photo_url || '',
           role: m.role,
           slug: m.slug,
           url: '',
