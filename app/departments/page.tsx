@@ -193,7 +193,7 @@ export default async function DepartmentsPage() {
                   </div>
 
                   <div style={{ flex: 1, paddingTop: '6px', minWidth: 0 }}>
-                    <h2 style={{ fontSize: '16px', fontWeight: 'bold', lineHeight: 1.25 }}>
+                    <h2 style={{ fontSize: dept.name.length > 35 ? '14px' : '16px', fontWeight: 'bold', lineHeight: 1.25 }}>
                       {dept.name}
                     </h2>
                   </div>
