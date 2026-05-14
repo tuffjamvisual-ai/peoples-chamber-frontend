@@ -22,7 +22,7 @@ interface Props {
   contact: { phone?: string | null; email?: string | null; website?: string | null; twitter?: string | null } | null;
   votes: Array<{ id: number; division_title: string; division_date: string; vote_type: string; is_rebellion?: boolean }>;
   sponsoredBills: Array<{ id: number; title: string }>;
-  interests: Array<{ category_name: string; description: string }>;
+  interests: Array<{ category_name: string; interest_text: string | null }>;
   bio: {
     representations?: Array<{ name: string; startDate: string; endDate?: string | null }>;
     government_posts?: Array<{ name: string }>;
@@ -222,7 +222,7 @@ export default function MagazineProfileSections({
                 {interests.map((i, idx) => (
                   <li key={idx} style={{ padding: '8px 0', borderBottom: '1px dashed rgba(20,16,13,0.2)' }}>
                     <div style={{ fontSize: '12px', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{i.category_name}</div>
-                    <div>{i.description}</div>
+                    <div style={{ whiteSpace: 'pre-wrap' }}>{i.interest_text}</div>
                   </li>
                 ))}
               </ul>
