@@ -40,6 +40,8 @@ type ExpenseClaim = {
   short_description: string | null;
   amount_paid: number | null;
   status: string | null;
+  // `details` (long-form text) was previously fetched but unused in the UI;
+  // dropped from the page's column select to keep the prerender budget tight.
 };
 type Earnings = {
   base: number;

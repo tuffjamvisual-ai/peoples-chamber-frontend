@@ -15,18 +15,24 @@ import {
 
 const BAND_RANK: Record<SalaryBand, number> = { pm: 4, sos: 3, minister_of_state: 2, puss: 1 };
 
-export const revalidate = 600;
+export const revalidate = 3600;
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-// Skip build-time prerender: with ~10 Supabase queries per page x 650 MPs
-// the build hit per-page 60s timeouts on Vercel. Pages render on first
-// request (Promise.all means ~1-2s per cold render) and cache for 10
-// minutes via `revalidate`. Subsequent visits hit the edge cache.
+// Prerender every current MP at build time so every visit is instant
+// from the edge cache. Build-time per-page budget on Vercel is 60s;
+// query trims below (mp_expenses_detail row-cap + lean selects on
+// votes and sponsored bills) keep each page well under that.
+// dynamicParams defaults to true — any MP missing from this list (e.g.
+// a freshly elected one not yet in the table) still renders on-demand.
 export async function generateStaticParams() {
-  return [];
+  const { data } = await supabase
+    .from('mps')
+    .select('member_id')
+    .eq('current_member', true);
+  return (data || []).map((m) => ({ id: String(m.member_id) }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -72,16 +78,25 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     supabase.from('mps').select('*').eq('member_id', memberId).single(),
     supabase.from('mp_contact').select('*').eq('member_id', memberId).single(),
     supabase.from('mp_biography').select('*').eq('member_id', memberId).single(),
-    supabase.from('bill').select('*').eq('sponsor_member_id', memberId).order('created_at', { ascending: false }),
-    supabase.from('mp_division_votes').select('*').eq('member_id', memberId).order('division_date', { ascending: false }),
+    supabase
+      .from('bill')
+      .select('id, title, status, current_stage, plain_summary, is_act, last_update')
+      .eq('sponsor_member_id', memberId)
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('mp_division_votes')
+      .select('id, division_title, division_date, vote_type, is_rebellion')
+      .eq('member_id', memberId)
+      .order('division_date', { ascending: false })
+      .range(0, 199),
     supabase.from('mp_registered_interests').select('*').eq('member_id', memberId).order('category_sort_order', { ascending: true }),
     supabase.from('mp_expenses_summary').select('*').eq('member_id', memberId).order('year', { ascending: false }),
     supabase
       .from('mp_expenses_detail')
-      .select('claim_number, year, claim_date, category, cost_type, short_description, details, amount_paid, status')
+      .select('claim_number, year, claim_date, category, cost_type, short_description, amount_paid, status')
       .eq('member_id', memberId)
       .order('claim_date', { ascending: false })
-      .range(0, 4999),
+      .range(0, 199),
     supabase.from('dept_ministers').select('salary_band').eq('member_id', memberId).not('salary_band', 'is', null),
     supabase.from('mp_outside_earnings_summary').select('total_extracted, claim_count, source_count').eq('member_id', memberId).maybeSingle(),
   ]);
