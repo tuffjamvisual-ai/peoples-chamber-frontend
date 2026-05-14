@@ -26,3 +26,16 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Subtle hover scale on all anchors. Pure-inline anchors won't transform
+ * (CSS quirk — transform requires a non-inline display), so this hits
+ * buttons, cards, hotspots and explicit display:block/flex/inline-flex
+ * links. Add class="no-hover-scale" to opt out (e.g. for elements where
+ * the lift causes layout shift). */
+a {
+  transition: transform 0.18s ease-out;
+  transform-origin: center;
+}
+a:hover:not(.no-hover-scale) {
+  transform: scale(1.03);
+}
