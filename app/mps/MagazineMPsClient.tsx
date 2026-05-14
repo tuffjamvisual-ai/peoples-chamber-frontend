@@ -113,7 +113,7 @@ export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
                 alignItems: 'center',
                 gap: '12px',
                 padding: '14px 16px',
-                border: '2px solid rgba(20,16,13,0.3)',
+                border: 'none',
                 background: 'transparent',
                 color: '#14100d',
                 fontFamily: 'inherit',
