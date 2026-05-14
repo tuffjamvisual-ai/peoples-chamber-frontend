@@ -4,6 +4,15 @@ import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import '../../components/magazine-layout.css';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
+import MagazineProfileSections from './MagazineProfileSections';
+import {
+  MP_BASE_SALARY_2026,
+  MINISTERIAL_SUPPLEMENT,
+  SALARY_BAND_LABEL,
+  type SalaryBand,
+} from '@/lib/ministerial-salaries';
+
+const BAND_RANK: Record<SalaryBand, number> = { pm: 4, sos: 3, minister_of_state: 2, puss: 1 };
 
 export const revalidate = 600;
 
@@ -39,25 +48,61 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   const memberId = parseInt(id, 10);
   if (Number.isNaN(memberId)) notFound();
 
-  const [bioRes, mpRes] = await Promise.all([
-    supabase.from('mp_biography').select('political_bio').eq('member_id', memberId).single(),
-    supabase
-      .from('mps')
-      .select('photo_url, display_name, name, party, constituency, party_colour')
-      .eq('member_id', memberId)
-      .single(),
-  ]);
-  const bio = bioRes.data;
-  const mp = mpRes.data;
+  const { data: mp } = await supabase.from('mps').select('*').eq('member_id', memberId).single();
   if (!mp) notFound();
+
+  const [
+    contactRes,
+    bioRes,
+    sponsoredBillsRes,
+    votesRes,
+    interestsRes,
+    expensesRes,
+    expensesDetailRes,
+    ministerialRowsRes,
+    outsideRowRes,
+  ] = await Promise.all([
+    supabase.from('mp_contact').select('*').eq('member_id', memberId).single(),
+    supabase.from('mp_biography').select('*').eq('member_id', memberId).single(),
+    supabase.from('bill').select('*').eq('sponsor_member_id', memberId).order('created_at', { ascending: false }),
+    supabase.from('mp_division_votes').select('*').eq('member_id', memberId).order('division_date', { ascending: false }),
+    supabase.from('mp_registered_interests').select('*').eq('member_id', memberId).order('category_sort_order', { ascending: true }),
+    supabase.from('mp_expenses_summary').select('*').eq('member_id', memberId).order('year', { ascending: false }),
+    supabase
+      .from('mp_expenses_detail')
+      .select('claim_number, year, claim_date, category, cost_type, short_description, details, amount_paid, status')
+      .eq('member_id', memberId)
+      .order('claim_date', { ascending: false })
+      .range(0, 4999),
+    supabase.from('dept_ministers').select('salary_band').eq('member_id', memberId).not('salary_band', 'is', null),
+    supabase.from('mp_outside_earnings_summary').select('total_extracted, claim_count, source_count').eq('member_id', memberId).maybeSingle(),
+  ]);
+
+  let highestBand: SalaryBand | null = null;
+  for (const r of ministerialRowsRes.data || []) {
+    const b = r.salary_band as SalaryBand | null;
+    if (!b) continue;
+    if (!highestBand || BAND_RANK[b] > BAND_RANK[highestBand]) highestBand = b;
+  }
+
+  const ministerialAmount = highestBand ? MINISTERIAL_SUPPLEMENT[highestBand] : 0;
+  const outsideAmount = outsideRowRes.data?.total_extracted ? Number(outsideRowRes.data.total_extracted) : 0;
+  const latestExpense = (expensesRes.data && expensesRes.data[0]) || null;
+  const earnings = {
+    base: MP_BASE_SALARY_2026,
+    band: highestBand,
+    band_label: highestBand ? SALARY_BAND_LABEL[highestBand] : null,
+    ministerial: ministerialAmount,
+    outside: outsideAmount,
+    outside_claim_count: outsideRowRes.data?.claim_count || 0,
+    outside_source_count: outsideRowRes.data?.source_count || 0,
+    personal_total: MP_BASE_SALARY_2026 + ministerialAmount + outsideAmount,
+    public_spend: latestExpense?.total_spend ? Number(latestExpense.total_spend) : 0,
+    public_spend_year: latestExpense?.year || null,
+  };
 
   const fullName = mp.display_name || mp.name || '';
   const partyColour = mp.party_colour ? `#${mp.party_colour.replace('#', '')}` : '#7697a2';
-
-  const paragraphs = (bio?.political_bio ?? '')
-    .split(/\n\n+/)
-    .map((p: string) => p.trim())
-    .filter((p: string) => p.length > 0);
 
   return (
     <div style={{
@@ -84,7 +129,6 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         }}
       />
 
-      {/* Header nav hotspots — overlay matches preview-header.png (1023x330) */}
       <nav
         aria-label="Site"
         style={{
@@ -201,64 +245,18 @@ export default async function MPMagazineProfile({ params }: PageProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-px" style={{ marginTop: '-80px' }}>
-          <aside className="lg:col-span-1">
-            <div className="lg:sticky lg:top-16">
-              <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 8px 8px' }}>
-                <a href="#bio" style={{
-                  padding: '12px 16px',
-                  borderLeft: '4px solid #7a1612',
-                  background: 'rgba(122,22,18,0.08)',
-                  fontWeight: 'bold',
-                  fontSize: '14px',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                  transform: 'rotate(0.1deg)',
-                  boxShadow: 'inset 1px 0 2px rgba(0,0,0,0.05)',
-                  color: '#14100d',
-                  textDecoration: 'none',
-                }}>POLITICAL BIO</a>
-                <a href="#contact" style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.1deg)', textDecoration: 'none' }}>CONTACT</a>
-                <a href="#voting" style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(0.15deg)', textDecoration: 'none' }}>VOTING RECORD</a>
-                <a href="#bills" style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.2deg)', textDecoration: 'none' }}>BILLS SPONSORED</a>
-                <a href="#interests" style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(0.1deg)', textDecoration: 'none' }}>INTERESTS</a>
-                <a href="#roles" style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.15deg)', textDecoration: 'none' }}>ROLES</a>
-                <a href="#earnings" style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(0.2deg)', textDecoration: 'none' }}>EARNINGS</a>
-                <a href="#expenses" style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.1deg)', textDecoration: 'none' }}>EXPENSES</a>
-              </nav>
-            </div>
-          </aside>
+        <MagazineProfileSections
+          memberId={memberId}
+          paragraphs={(bioRes.data?.political_bio ?? '').split(/\n\n+/).map((p: string) => p.trim()).filter((p: string) => p.length > 0)}
+          contact={contactRes.data}
+          votes={votesRes.data || []}
+          sponsoredBills={sponsoredBillsRes.data || []}
+          interests={interestsRes.data || []}
+          bio={bioRes.data}
+          earnings={earnings}
+          expenses={expensesRes.data || []}
+        />
 
-          <div className="lg:col-span-3 p-6 sm:p-8">
-            <h2 id="bio" style={{
-              fontSize: '26px',
-              fontWeight: 'bold',
-              marginBottom: '24px',
-              color: '#14100d',
-              fontFamily: 'Special Elite, monospace',
-              transform: 'rotate(-0.2deg)',
-              textShadow: '0.5px 0.5px 0px rgba(0,0,0,0.15)',
-            }}>
-              Political Biography
-            </h2>
-            <div style={{ lineHeight: '1.8', fontSize: '16px', color: '#14100d', letterSpacing: '0.01em' }}>
-              {paragraphs.length === 0 ? (
-                <p style={{ marginBottom: '16px', opacity: 1 }}>Biography unavailable.</p>
-              ) : (
-                paragraphs.map((para: string, idx: number) => {
-                  const tilt = idx % 4;
-                  const rot =
-                    tilt === 0 ? '0.1deg' : tilt === 1 ? '-0.15deg' : tilt === 2 ? '0.08deg' : '-0.1deg';
-                  return (
-                    <p key={idx} style={{ marginBottom: '16px', transform: `rotate(${rot})`, opacity: 1 }}>
-                      {para}
-                    </p>
-                  );
-                })
-              )}
-            </div>
-          </div>
-        </div>
         <ScrollToTopButton />
       </div>
     </div>
