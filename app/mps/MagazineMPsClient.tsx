@@ -165,6 +165,8 @@ export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
                             width={84}
                             height={96}
                             loading="lazy"
+                            sizes="84px"
+                            quality={70}
                             style={{ display: 'block', width: '84px', height: '96px', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }}
                           />
                         ) : (
