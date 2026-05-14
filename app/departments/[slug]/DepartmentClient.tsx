@@ -136,12 +136,13 @@ export default function DepartmentClient({ slug, govukData, streetContext, stats
                   aria-hidden
                   style={{
                     position: 'absolute',
-                    top: '60px',
-                    left: '20px',
-                    width: '260px',
+                    bottom: '-30px',
+                    right: '-40px',
+                    width: '220px',
                     height: 'auto',
-                    transform: 'rotate(-14deg)',
-                    opacity: 0.88,
+                    transform: 'rotate(-10deg)',
+                    transformOrigin: 'center',
+                    opacity: 0.9,
                     pointerEvents: 'none',
                     zIndex: 3,
                   }}
