@@ -1,0 +1,69 @@
+// Overwrites mp_biography.political_bio for member_id 3914 (Shabana Mahmood).
+// Backs up the previous text to scripts/backups/ before writing.
+// House style: anon key for reads, psql via DATABASE_URL for writes (RLS).
+
+require('dotenv').config({ path: '.env.local' });
+const fs = require('fs');
+const path = require('path');
+const { execFileSync } = require('child_process');
+const { createClient } = require('@supabase/supabase-js');
+
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const DATABASE_URL = process.env.DATABASE_URL;
+if (!SUPABASE_URL || !ANON_KEY) { console.error('Env missing'); process.exit(1); }
+if (!DATABASE_URL) { console.error('DATABASE_URL required for write'); process.exit(1); }
+
+const MEMBER_ID = 3914;
+
+const NEW_BIO = `Shabana Mahmood has built one of the more substantial careers in Starmer era Labour. First elected 2010, she has lasted through New Labour's aftershock, the Corbyn years, Labour's electoral collapse, its rebuild, and finally government. That alone says something. Many MPs enter Westminster, make three speeches, develop a taste for panels, and vanish into the upholstery. Mahmood has endured, adapted and risen.
+
+She is clearly one of Labour's sharpest political operators. Her role as National Campaign Coordinator from 2021 to 2023 mattered because Labour's campaign machine under Starmer became far more disciplined, data driven and ruthless than in previous years. She helped professionalize a party that had spent too long mistaking internal drama for political strategy. That is not glamorous work, but it wins elections. Westminster is full of people who like speeches. Fewer know how to build a machine that actually functions.
+
+Her move into Justice after Labour won power gave her a brutal first Cabinet test. The prisons crisis was not a theoretical policy problem. It was an alarm bell with smoke coming under the door. As Justice Secretary and Lord Chancellor, she had to deal with overcrowding and emergency early release measures almost immediately. That took political nerve. Nobody enters government dreaming of explaining why prisoners must be released early because the system is close to collapse, but she faced the problem rather than pretending it could be solved with a stern press release and a new logo.
+
+Her appointment as Home Secretary in September 2025 confirmed her standing inside government. It also placed her in one of the most unforgiving jobs in British politics: migration, policing, national security, protest, community tension and public order, all piled into one department like a box of live wires.
+
+The criticism is sharp. Mahmood's rise has also shown the limits of Labour's new managerial toughness. She has leaned into a law and order style that may reassure some voters but risks sounding authoritarian if not handled carefully. Her reported approach to protest restrictions and the expansion of live facial recognition has attracted concern because liberty is not something governments should treat as a decorative extra once security has finished eating the table.
+
+There is also a political tension in her public identity. She presents herself as serious, socially conservative and grounded in Blue Labour instincts. That gives her a distinct place in a party often nervous about culture, faith, immigration and social cohesion. The strength is that she sounds less evasive than many Labour figures on uncomfortable issues. The danger is that toughness becomes a substitute for deeper reform. Britain's justice and immigration systems are not broken because ministers lacked stern facial expressions. They are broken because of years of underinvestment, administrative failure and political cowardice.
+
+Her majority in Birmingham Ladywood fell sharply in 2024 after a strong independent challenge focused partly on Palestine, showing that even senior ministers cannot assume traditional Labour loyalty will hold forever. That should keep her grounded. She may be powerful nationally, but her constituency contains voters who are clearly willing to send warning flares.
+
+Shabana Mahmood is formidable: disciplined, intelligent, resilient and politically effective. The praise is that she has substance and nerve. The criticism is that her version of seriousness can look hard edged, centralized and too comfortable with state power. If she wants her career to be remembered as more than Labour's iron administrator, she needs to prove that strength can coexist with liberty, justice and humanity. Otherwise, she risks becoming the minister who fixes broken systems by making them colder.`;
+
+const sqlEsc = (v) => v == null ? 'NULL' : `'${String(v).replace(/'/g, "''")}'`;
+
+(async () => {
+  const supabase = createClient(SUPABASE_URL, ANON_KEY);
+
+  const { data: existing, error } = await supabase
+    .from('mp_biography')
+    .select('political_bio')
+    .eq('member_id', MEMBER_ID)
+    .single();
+  if (error) { console.error('Read failed:', error); process.exit(1); }
+
+  const backupsDir = path.join(__dirname, 'backups');
+  if (!fs.existsSync(backupsDir)) fs.mkdirSync(backupsDir, { recursive: true });
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const backupPath = path.join(backupsDir, `mp_${MEMBER_ID}_bio_${stamp}.txt`);
+  fs.writeFileSync(backupPath, existing.political_bio || '');
+  console.log(`Backed up previous bio (${(existing.political_bio || '').length} chars) to ${backupPath}`);
+
+  const sql = `UPDATE mp_biography SET political_bio = ${sqlEsc(NEW_BIO)} WHERE member_id = ${MEMBER_ID};`;
+  try {
+    execFileSync('psql', [DATABASE_URL, '-v', 'ON_ERROR_STOP=1', '-c', sql], { stdio: 'pipe' });
+  } catch (e) {
+    console.error('psql failed:', e.stderr ? e.stderr.toString() : e.message);
+    process.exit(1);
+  }
+  console.log(`Wrote new bio (${NEW_BIO.length} chars) for member_id ${MEMBER_ID}.`);
+
+  const { data: after } = await supabase
+    .from('mp_biography')
+    .select('political_bio')
+    .eq('member_id', MEMBER_ID)
+    .single();
+  console.log(`Verify: DB now has ${after?.political_bio?.length || 0} chars. Starts: "${(after?.political_bio || '').slice(0, 60)}..."`);
+})();

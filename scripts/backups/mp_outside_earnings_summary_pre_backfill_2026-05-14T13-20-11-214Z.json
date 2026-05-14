@@ -1,0 +1,350 @@
+[
+  {
+    "member_id": 146,
+    "total_extracted": 28360,
+    "claim_count": 22,
+    "source_count": 4
+  },
+  {
+    "member_id": 152,
+    "total_extracted": 7960,
+    "claim_count": 21,
+    "source_count": 5
+  },
+  {
+    "member_id": 188,
+    "total_extracted": 14750,
+    "claim_count": 5,
+    "source_count": 3
+  },
+  {
+    "member_id": 350,
+    "total_extracted": 2392.5,
+    "claim_count": 1,
+    "source_count": 1
+  },
+  {
+    "member_id": 1171,
+    "total_extracted": 8200,
+    "claim_count": 2,
+    "source_count": 1
+  },
+  {
+    "member_id": 1440,
+    "total_extracted": 2150.07,
+    "claim_count": 1,
+    "source_count": 1
+  },
+  {
+    "member_id": 1442,
+    "total_extracted": 750,
+    "claim_count": 1,
+    "source_count": 1
+  },
+  {
+    "member_id": 1446,
+    "total_extracted": 79501.08,
+    "claim_count": 7,
+    "source_count": 2
+  },
+  {
+    "member_id": 1466,
+    "total_extracted": 17726.97,
+    "claim_count": 3,
+    "source_count": 1
+  },
+  {
+    "member_id": 1508,
+    "total_extracted": 480969.51,
+    "claim_count": 22,
+    "source_count": 9
+  },
+  {
+    "member_id": 1536,
+    "total_extracted": 1000,
+    "claim_count": 1,
+    "source_count": 1
+  },
+  {
+    "member_id": 1560,
+    "total_extracted": 400,
+    "claim_count": 2,
+    "source_count": 1
+  },
+  {
+    "member_id": 1572,
+    "total_extracted": 281870,
+    "claim_count": 20,
+    "source_count": 4
+  },
+  {
+    "member_id": 3991,
+    "total_extracted": 11539.95,
+    "claim_count": 13,
+    "source_count": 2
+  },
+  {
+    "member_id": 4020,
+    "total_extracted": 12000,
+    "claim_count": 4,
+    "source_count": 3
+  },
+  {
+    "member_id": 4040,
+    "total_extracted": 6100,
+    "claim_count": 2,
+    "source_count": 1
+  },
+  {
+    "member_id": 4074,
+    "total_extracted": 29620,
+    "claim_count": 4,
+    "source_count": 3
+  },
+  {
+    "member_id": 4084,
+    "total_extracted": 26630.76,
+    "claim_count": 24,
+    "source_count": 3
+  },
+  {
+    "member_id": 4088,
+    "total_extracted": 793.68,
+    "claim_count": 3,
+    "source_count": 1
+  },
+  {
+    "member_id": 4095,
+    "total_extracted": 48000,
+    "claim_count": 12,
+    "source_count": 1
+  },
+  {
+    "member_id": 4118,
+    "total_extracted": 13168.28,
+    "claim_count": 6,
+    "source_count": 1
+  },
+  {
+    "member_id": 4366,
+    "total_extracted": 80367.5,
+    "claim_count": 8,
+    "source_count": 1
+  },
+  {
+    "member_id": 4370,
+    "total_extracted": 13865.92,
+    "claim_count": 4,
+    "source_count": 3
+  },
+  {
+    "member_id": 4409,
+    "total_extracted": 8225,
+    "claim_count": 1,
+    "source_count": 1
+  },
+  {
+    "member_id": 4441,
+    "total_extracted": 220000,
+    "claim_count": 17,
+    "source_count": 3
+  },
+  {
+    "member_id": 4462,
+    "total_extracted": 19967.24,
+    "claim_count": 12,
+    "source_count": 6
+  },
+  {
+    "member_id": 4475,
+    "total_extracted": 66675.75,
+    "claim_count": 22,
+    "source_count": 3
+  },
+  {
+    "member_id": 4479,
+    "total_extracted": 2088.57,
+    "claim_count": 4,
+    "source_count": 1
+  },
+  {
+    "member_id": 4480,
+    "total_extracted": 2400,
+    "claim_count": 8,
+    "source_count": 1
+  },
+  {
+    "member_id": 4483,
+    "total_extracted": 948253.61,
+    "claim_count": 11,
+    "source_count": 2
+  },
+  {
+    "member_id": 4500,
+    "total_extracted": 1061.16,
+    "claim_count": 3,
+    "source_count": 2
+  },
+  {
+    "member_id": 4504,
+    "total_extracted": 249.98,
+    "claim_count": 1,
+    "source_count": 1
+  },
+  {
+    "member_id": 4514,
+    "total_extracted": 927.15,
+    "claim_count": 2,
+    "source_count": 1
+  },
+  {
+    "member_id": 4523,
+    "total_extracted": 1489.8,
+    "claim_count": 1,
+    "source_count": 1
+  },
+  {
+    "member_id": 4573,
+    "total_extracted": 1930,
+    "claim_count": 4,
+    "source_count": 2
+  },
+  {
+    "member_id": 4613,
+    "total_extracted": 2250,
+    "claim_count": 4,
+    "source_count": 2
+  },
+  {
+    "member_id": 4651,
+    "total_extracted": 6850,
+    "claim_count": 2,
+    "source_count": 2
+  },
+  {
+    "member_id": 4743,
+    "total_extracted": 3086.97,
+    "claim_count": 28,
+    "source_count": 1
+  },
+  {
+    "member_id": 4764,
+    "total_extracted": 1300,
+    "claim_count": 2,
+    "source_count": 2
+  },
+  {
+    "member_id": 4938,
+    "total_extracted": 2999.8,
+    "claim_count": 11,
+    "source_count": 2
+  },
+  {
+    "member_id": 5030,
+    "total_extracted": 3450,
+    "claim_count": 4,
+    "source_count": 2
+  },
+  {
+    "member_id": 5067,
+    "total_extracted": 46148.06,
+    "claim_count": 18,
+    "source_count": 1
+  },
+  {
+    "member_id": 5085,
+    "total_extracted": 1530.67,
+    "claim_count": 1,
+    "source_count": 1
+  },
+  {
+    "member_id": 5091,
+    "total_extracted": 366976.63,
+    "claim_count": 33,
+    "source_count": 7
+  },
+  {
+    "member_id": 5116,
+    "total_extracted": 3625,
+    "claim_count": 1,
+    "source_count": 1
+  },
+  {
+    "member_id": 5136,
+    "total_extracted": 6800,
+    "claim_count": 1,
+    "source_count": 1
+  },
+  {
+    "member_id": 5158,
+    "total_extracted": 36013.73,
+    "claim_count": 25,
+    "source_count": 2
+  },
+  {
+    "member_id": 5161,
+    "total_extracted": 2742.06,
+    "claim_count": 5,
+    "source_count": 1
+  },
+  {
+    "member_id": 5197,
+    "total_extracted": 50082.23,
+    "claim_count": 28,
+    "source_count": 2
+  },
+  {
+    "member_id": 5198,
+    "total_extracted": 1364.42,
+    "claim_count": 3,
+    "source_count": 1
+  },
+  {
+    "member_id": 5204,
+    "total_extracted": 2562.5,
+    "claim_count": 1,
+    "source_count": 1
+  },
+  {
+    "member_id": 5213,
+    "total_extracted": 37798,
+    "claim_count": 2,
+    "source_count": 2
+  },
+  {
+    "member_id": 5239,
+    "total_extracted": 837.56,
+    "claim_count": 2,
+    "source_count": 1
+  },
+  {
+    "member_id": 5254,
+    "total_extracted": 3564.18,
+    "claim_count": 2,
+    "source_count": 1
+  },
+  {
+    "member_id": 5267,
+    "total_extracted": 74658.57,
+    "claim_count": 5,
+    "source_count": 3
+  },
+  {
+    "member_id": 5342,
+    "total_extracted": 1000,
+    "claim_count": 1,
+    "source_count": 1
+  },
+  {
+    "member_id": 5346,
+    "total_extracted": 6120,
+    "claim_count": 1,
+    "source_count": 1
+  },
+  {
+    "member_id": 5357,
+    "total_extracted": 31460,
+    "claim_count": 20,
+    "source_count": 1
+  }
+]

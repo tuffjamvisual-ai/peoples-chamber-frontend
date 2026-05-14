@@ -13,10 +13,8 @@
   --mag-blue:      #1c4c78;
   --mag-green:     #2f6b2c;
 
-  --font-masthead:  'Libre Bodoni', Georgia, serif;
-  --font-strapline: 'Permanent Marker', cursive;
+  /* Only --font-nav (Special Elite) is referenced via var() in the app. */
   --font-nav:       'Special Elite', 'Courier New', monospace;
-  --font-body:      Georgia, 'Times New Roman', serif;
 }
 
 /* Magazine chrome — opt-in via MagazineNav / MagazineFooter.

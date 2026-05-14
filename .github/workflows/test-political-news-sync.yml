@@ -1,0 +1,114 @@
+name: Test — Political News Sync (diagnostic)
+
+# Diagnostic-only workflow that runs ONLY scripts/sync-political-news.js,
+# isolated from the 25-step daily-context-update.yml workflow.
+#
+# Purpose: surface the exact Haiku/RSS/psql error when the production
+# sync silently fails. Critically, NO `continue-on-error: true` here —
+# the step's exit code is the run's conclusion, so failures are visible
+# at a glance in the Actions UI.
+#
+# Trigger manually: Actions → "Test — Political News Sync" → "Run workflow"
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: 'Items per RSS source (default 2)'
+        required: false
+        default: '2'
+      dry_run:
+        description: 'Set to "true" to skip Haiku + DB write (RSS only)'
+        required: false
+        default: 'false'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      NEXT_PUBLIC_SUPABASE_URL: https://nwnsvnbudmfkhhwcjwwr.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53bnN2bmJ1ZG1ma2hod2Nqd3dyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyMTI5NzUsImV4cCI6MjA1OTc4ODk3NX0.yaJwVht69eri_00gOKNhpata1iqZJTZNYdNiN_hLZC8
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+
+      - name: Install dependencies
+        run: npm install @anthropic-ai/sdk @supabase/supabase-js ws
+
+      - name: Install PostgreSQL client (for psql write path)
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client
+
+      - name: Environment probe (no secrets leaked)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DATABASE_URL_RAW: ${{ secrets.DATABASE_URL }}
+        run: |
+          set +x
+          echo "── Node + npm versions ──"
+          node -v
+          npm -v
+          echo
+          echo "── Secret presence (lengths only — values masked) ──"
+          echo "ANTHROPIC_API_KEY:           ${#ANTHROPIC_API_KEY} chars, prefix '${ANTHROPIC_API_KEY:0:8}…'"
+          echo "DATABASE_URL_RAW:            ${#DATABASE_URL_RAW} chars"
+          echo "SUPABASE_SERVICE_ROLE_KEY:   ${#SUPABASE_SERVICE_ROLE_KEY} chars"
+          echo "NEXT_PUBLIC_SUPABASE_URL:    $NEXT_PUBLIC_SUPABASE_URL"
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY: ${#NEXT_PUBLIC_SUPABASE_ANON_KEY} chars"
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "::error::ANTHROPIC_API_KEY secret is empty — repo Secrets need it set"
+            exit 1
+          fi
+          if [ -z "$DATABASE_URL_RAW" ]; then
+            echo "::error::DATABASE_URL secret is empty — repo Secrets need it set"
+            exit 1
+          fi
+          echo
+          echo "── Anthropic API reachability (single curl probe, list-models endpoint) ──"
+          status=$(curl -sS -o /tmp/anth.json -w "%{http_code}" \
+            -H "x-api-key: $ANTHROPIC_API_KEY" \
+            -H "anthropic-version: 2023-06-01" \
+            "https://api.anthropic.com/v1/models")
+          echo "  HTTP $status"
+          if [ "$status" != "200" ]; then
+            echo "  Body:"
+            cat /tmp/anth.json | head -c 500
+            echo
+            echo "::error::Anthropic API returned non-200 — likely auth or workspace-permission problem"
+            exit 1
+          fi
+          # Confirm Haiku 4.5 is available to this key's workspace
+          if grep -q '"claude-haiku-4-5-20251001"' /tmp/anth.json; then
+            echo "  ✓ claude-haiku-4-5-20251001 listed for this key"
+          else
+            echo "::warning::claude-haiku-4-5-20251001 NOT in the model list for this key"
+            echo "  Models available:"
+            grep -oE '"id":"[^"]+"' /tmp/anth.json | head -20
+          fi
+
+      - name: Run sync-political-news.js
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DATABASE_URL_RAW: ${{ secrets.DATABASE_URL }}
+        run: |
+          export DATABASE_URL="$(printf '%s' "$DATABASE_URL_RAW" | tr -d '[:space:]')"
+          ARGS="--limit=${{ inputs.limit }}"
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            ARGS="$ARGS --dry-run"
+          fi
+          echo "── Running: node scripts/sync-political-news.js $ARGS ──"
+          node scripts/sync-political-news.js $ARGS
+
+      - name: Verify rows landed in DB (read-back)
+        if: ${{ inputs.dry_run != 'true' }}
+        env:
+          DATABASE_URL_RAW: ${{ secrets.DATABASE_URL }}
+        run: |
+          export DATABASE_URL="$(printf '%s' "$DATABASE_URL_RAW" | tr -d '[:space:]')"
+          echo "── Row count + 5 most recent inserts ──"
+          psql "$DATABASE_URL" -tAc "SELECT count(*) FROM uk_political_news;"
+          psql "$DATABASE_URL" -tAc "SELECT source_outlet, source_title, fetched_at FROM uk_political_news ORDER BY fetched_at DESC NULLS LAST LIMIT 5;"

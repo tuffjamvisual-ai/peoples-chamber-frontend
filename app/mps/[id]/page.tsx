@@ -192,10 +192,10 @@ export default async function MPMagazineProfile({ params }: PageProps) {
             aria-label={label}
             style={{
               position: 'absolute',
-              top: '87%',
+              top: '80%',
               left: `${left}%`,
               width: `${width}%`,
-              height: '10%',
+              height: '18%',
               pointerEvents: 'auto',
               cursor: 'pointer',
             }}
