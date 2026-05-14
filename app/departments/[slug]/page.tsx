@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
 import { departments } from '@/lib/departments';
 import '../../components/magazine-layout.css';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
@@ -8,6 +9,17 @@ import DepartmentClient from './DepartmentClient';
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
+
+// Prerender all 24 department pages at build so every visit hits the
+// edge cache instantly. dynamicParams defaults to true so any slug
+// added to lib/departments later still renders on demand.
+export function generateStaticParams() {
+  return departments.map((d) => ({ slug: d.slug }));
+}
+
+// ISR — refresh prerendered HTML hourly so any backend changes
+// (dept_ministers, dept_agencies, etc.) propagate without a deploy.
+export const revalidate = 3600;
 
 export default async function DepartmentPage({ params }: PageProps) {
   const { slug } = await params;
@@ -109,7 +121,9 @@ export default async function DepartmentPage({ params }: PageProps) {
         </header>
 
         {/* Detail sections — keeps the existing client (still in dark theme for now) */}
-        <DepartmentClient slug={slug} />
+        <Suspense fallback={<div style={{ minHeight: '300px' }} />}>
+          <DepartmentClient slug={slug} />
+        </Suspense>
 
         <ScrollToTopButton />
       </div>
