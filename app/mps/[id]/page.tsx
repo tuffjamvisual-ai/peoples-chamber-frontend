@@ -283,7 +283,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
 
           <div style={{ flex: 1 }}>
             <h1 style={{
-              fontSize: '38px',
+              fontSize: '44px',
               marginTop: '20px',
               fontWeight: 'bold',
               marginBottom: '12px',

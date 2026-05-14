@@ -122,10 +122,7 @@ export default async function DepartmentPage({ params }: PageProps) {
 
         {/* Magazine hero — cream/ink */}
         <header style={{ marginBottom: '8px' }}>
-          <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85, transform: 'rotate(-0.2deg)' }}>
-            UK Government · Department
-          </p>
-          <h1 style={{ fontSize: '52px', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)', lineHeight: 1.05 }}>
+          <h1 style={{ fontSize: '44px', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)', lineHeight: 1.05 }}>
             {dept.name}
           </h1>
           <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '720px', marginBottom: '16px' }}>
