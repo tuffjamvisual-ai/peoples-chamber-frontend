@@ -133,7 +133,7 @@ export default function MagazineProfileSections({
       (bio?.representations && bio.representations.length > 0) ||
       (bio?.party_history && bio.party_history.length > 0)
     ),
-    earnings: earnings.ministerial > 0 || earnings.outside > 0,
+    earnings: true, // Always shown — every MP has the base salary at minimum.
     expenses: expenses.length > 0,
   };
   const sections = ALL_SECTIONS.filter((s) => has[s.id]);
