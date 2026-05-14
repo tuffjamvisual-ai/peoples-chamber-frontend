@@ -1,11 +1,13 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import '../../components/magazine-layout.css';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 import MagazineProfileSections from './MagazineProfileSections';
+import BackToMPsLink from '../BackToMPsLink';
 import {
   MP_BASE_SALARY_2026,
   MINISTERIAL_SUPPLEMENT,
@@ -204,21 +206,9 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       </nav>
 
       <div className="magazine-content-spacing" style={{ position: 'relative', zIndex: 2, color: '#14100d', fontFamily: 'Special Elite, monospace' }}>
-        <a
-          href="/mps"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            marginBottom: '24px',
-            color: '#14100d',
-            textDecoration: 'none',
-            fontSize: '16px',
-            transform: 'rotate(-0.2deg)',
-          }}
-        >
-          ← Back to all MPs
-        </a>
+        <Suspense fallback={<a href="/mps" style={{ display: 'inline-block', marginBottom: '24px', color: '#14100d', textDecoration: 'none', fontSize: '16px' }}>← Back to all MPs</a>}>
+          <BackToMPsLink />
+        </Suspense>
         <div style={{ display: 'flex', flexDirection: 'row-reverse', gap: '40px', marginBottom: '30px' }}>
           <div style={{
             position: 'relative',

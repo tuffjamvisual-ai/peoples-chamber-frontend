@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { supabase } from '@/lib/supabase';
 import MagazineMPsClient from './MagazineMPsClient';
 import '../components/magazine-layout.css';
@@ -88,7 +89,9 @@ export default async function MPsPage() {
       </nav>
 
       <div className="magazine-content-spacing" style={{ position: 'relative', zIndex: 2 }}>
-        <MagazineMPsClient mps={mps || []} />
+        <Suspense fallback={<div style={{ minHeight: '400px' }} />}>
+          <MagazineMPsClient mps={mps || []} />
+        </Suspense>
       </div>
     </div>
   );

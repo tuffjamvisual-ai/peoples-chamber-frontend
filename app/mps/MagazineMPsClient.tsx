@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import ScrollToTopButton from '../components/ScrollToTopButton';
@@ -17,8 +18,16 @@ interface MP {
 }
 
 export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
+  const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+
+  // If the URL carries ?expand=<party>, auto-open that section on mount
+  // (used by the MP profile back-link to return the user to where they were).
+  useEffect(() => {
+    const expand = searchParams.get('expand');
+    if (expand) setExpanded((prev) => new Set(prev).add(expand));
+  }, [searchParams]);
 
   const filteredMPs = useMemo(() => {
     if (!searchTerm.trim()) return mps;
@@ -128,7 +137,7 @@ export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
                   return (
                     <Link
                       key={mp.id}
-                      href={`/mps/${mp.member_id}`}
+                      href={`/mps/${mp.member_id}?from=${encodeURIComponent(party)}`}
                       style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', textDecoration: 'none', color: 'inherit' }}
                     >
                       <div
