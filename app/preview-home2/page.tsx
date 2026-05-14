@@ -123,9 +123,6 @@ export default async function PreviewHome2() {
               <span style={{ display: 'inline-block', width: '12px', height: '12px', borderRadius: '50%', background: '#e4003b', marginRight: '8px' }}></span>
               Labour • Birmingham Ladywood
             </p>
-            <p style={{ fontSize: '16px', color: '#14100d', transform: 'rotate(-0.1deg)' }}>
-              Member since 6 May 2010
-            </p>
           </div>
         </div>
 
