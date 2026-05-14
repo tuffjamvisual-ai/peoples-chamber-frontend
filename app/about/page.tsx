@@ -66,7 +66,7 @@ export default function AboutPage() {
           ['/bills',       'Bills',          16,   8],
           ['/laws',        'Laws',           25,   7],
           ['/polls',       "People's Polls", 34,   14],
-          ['/mps',         'MPs',            50,   7],
+          ['/mps',         'MPs',            48,   11],
           ['/departments', 'Departments',    59,   15],
           ['/login',       'Login',          76,   8],
           ['/about',       'About',          87,   9],
