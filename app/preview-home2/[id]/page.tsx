@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import '../../components/magazine-layout.css';
-import ScrollToTopButton from '../ScrollToTopButton';
+import ScrollToTopButton from '../../components/ScrollToTopButton';
 
 export const revalidate = 600;
 

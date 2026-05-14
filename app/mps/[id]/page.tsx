@@ -1,211 +1,266 @@
-import type { Metadata } from 'next'
-import { supabase } from '@/lib/supabase'
-import Link from 'next/link'
-import Image from 'next/image'
-import Navigation from '../../components/Navigation'
-import { notFound } from 'next/navigation'
-import MPProfileClient from './MPProfileClient'
-import {
-  MP_BASE_SALARY_2026,
-  MINISTERIAL_SUPPLEMENT,
-  SALARY_BAND_LABEL,
-  type SalaryBand,
-} from '@/lib/ministerial-salaries'
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
+import '../../components/magazine-layout.css';
+import ScrollToTopButton from '../../components/ScrollToTopButton';
 
-const BAND_RANK: Record<SalaryBand, number> = { pm: 4, sos: 3, minister_of_state: 2, puss: 1 }
-
-export const revalidate = 60
-
-export async function generateStaticParams() {
-  const { data: mps } = await supabase
-    .from('mps')
-    .select('member_id')
-    .eq('current_member', true)
-
-  return (mps || []).map((mp) => ({
-    id: mp.member_id.toString()
-  }))
-}
+export const revalidate = 600;
 
 interface PageProps {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string }>;
+}
+
+export async function generateStaticParams() {
+  const { data } = await supabase.from('mps').select('member_id').eq('current_member', true);
+  return (data || []).map((m) => ({ id: String(m.member_id) }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { id } = await params
-  const memberId = parseInt(id)
+  const { id } = await params;
+  const memberId = parseInt(id, 10);
   const { data: mp } = await supabase
     .from('mps')
     .select('name, display_name, constituency, party')
     .eq('member_id', memberId)
-    .single()
-  if (!mp) return { title: 'MP profile' }
-  const name = mp.display_name || mp.name
-  const subtitle = [mp.party, mp.constituency].filter(Boolean).join(' · ')
+    .single();
+  if (!mp) return { title: 'MP profile' };
+  const name = mp.display_name || mp.name;
+  const subtitle = [mp.party, mp.constituency].filter(Boolean).join(' · ');
   return {
     title: name,
     description: `${name}${subtitle ? ` — ${subtitle}.` : '.'} Voting record, registered interests, sponsored bills and contact details.`,
     alternates: { canonical: `/mps/${memberId}` },
-  }
+  };
 }
 
-export default async function MPProfilePage({ params }: PageProps) {
-  const resolvedParams = await params
-  const memberId = parseInt(resolvedParams.id)
-  
-  const { data: mp } = await supabase
-    .from('mps')
-    .select('*')
-    .eq('member_id', memberId)
-    .single()
-  
-  if (!mp) notFound()
+export default async function MPMagazineProfile({ params }: PageProps) {
+  const { id } = await params;
+  const memberId = parseInt(id, 10);
+  if (Number.isNaN(memberId)) notFound();
 
-  const { data: contact } = await supabase
-    .from('mp_contact')
-    .select('*')
-    .eq('member_id', memberId)
-    .single()
+  const [bioRes, mpRes] = await Promise.all([
+    supabase.from('mp_biography').select('political_bio').eq('member_id', memberId).single(),
+    supabase
+      .from('mps')
+      .select('photo_url, display_name, name, party, constituency, party_colour')
+      .eq('member_id', memberId)
+      .single(),
+  ]);
+  const bio = bioRes.data;
+  const mp = mpRes.data;
+  if (!mp) notFound();
 
-  const { data: bio } = await supabase
-    .from('mp_biography')
-    .select('*')
-    .eq('member_id', memberId)
-    .single()
+  const fullName = mp.display_name || mp.name || '';
+  const partyColour = mp.party_colour ? `#${mp.party_colour.replace('#', '')}` : '#7697a2';
 
-  const { data: sponsoredBills } = await supabase
-    .from('bill')
-    .select('*')
-    .eq('sponsor_member_id', memberId)
-    .order('created_at', { ascending: false })
-
-  const { data: votes } = await supabase
-    .from('mp_division_votes')
-    .select('*')
-    .eq('member_id', memberId)
-    .order('division_date', { ascending: false })
-
-  const { data: interests } = await supabase
-    .from('mp_registered_interests')
-    .select('*')
-    .eq('member_id', memberId)
-    .order('category_sort_order', { ascending: true })
-
-  const { data: expenses } = await supabase
-    .from('mp_expenses_summary')
-    .select('*')
-    .eq('member_id', memberId)
-    .order('year', { ascending: false })
-
-  const { data: expensesDetail } = await supabase
-    .from('mp_expenses_detail')
-    .select('claim_number, year, claim_date, category, cost_type, short_description, details, amount_paid, status')
-    .eq('member_id', memberId)
-    .order('claim_date', { ascending: false })
-    .range(0, 4999)
-
-  const { data: ministerialRows } = await supabase
-    .from('dept_ministers')
-    .select('salary_band')
-    .eq('member_id', memberId)
-    .not('salary_band', 'is', null)
-
-  const { data: outsideRow } = await supabase
-    .from('mp_outside_earnings_summary')
-    .select('total_extracted, claim_count, source_count')
-    .eq('member_id', memberId)
-    .maybeSingle()
-
-  // Highest band (an MP holding multiple roles is paid only the top single salary)
-  let highestBand: SalaryBand | null = null
-  for (const r of ministerialRows || []) {
-    const b = r.salary_band as SalaryBand | null
-    if (!b) continue
-    if (!highestBand || BAND_RANK[b] > BAND_RANK[highestBand]) highestBand = b
-  }
-
-  const ministerialAmount = highestBand ? MINISTERIAL_SUPPLEMENT[highestBand] : 0
-  const outsideAmount = outsideRow?.total_extracted ? Number(outsideRow.total_extracted) : 0
-  const latestExpense = (expenses && expenses[0]) || null
-  const earnings = {
-    base: MP_BASE_SALARY_2026,
-    band: highestBand,
-    band_label: highestBand ? SALARY_BAND_LABEL[highestBand] : null,
-    ministerial: ministerialAmount,
-    outside: outsideAmount,
-    outside_claim_count: outsideRow?.claim_count || 0,
-    outside_source_count: outsideRow?.source_count || 0,
-    personal_total: MP_BASE_SALARY_2026 + ministerialAmount + outsideAmount,
-    public_spend: latestExpense?.total_spend ? Number(latestExpense.total_spend) : 0,
-    public_spend_year: latestExpense?.year || null,
-  }
-
-  const partyColour = mp.party_colour ? '#' + mp.party_colour.replace('#', '') : '#7697a2'
+  const paragraphs = (bio?.political_bio ?? '')
+    .split(/\n\n+/)
+    .map((p: string) => p.trim())
+    .filter((p: string) => p.length > 0);
 
   return (
-    <div className="min-h-screen bg-[#606060]">
-      <Navigation />
-      
-      <main className="bg-[#505050] shadow-[0_0_40px_rgba(0,0,0,0.4)] max-w-[1200px] mx-auto px-6 py-6">
-        <Link 
+    <div style={{
+      position: 'relative',
+      width: '100%',
+      maxWidth: '1086px',
+      margin: '0 auto',
+      background: '#2a1810',
+      backgroundImage:
+        'url("/preview-header.png"), url("/preview-footer.png"), url("/preview-middle.png")',
+      backgroundRepeat: 'no-repeat, no-repeat, repeat-y',
+      backgroundPosition: 'top center, bottom center, top center',
+      backgroundSize: '100% auto, 100% auto, 100% auto',
+    }}>
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 1,
+          backgroundImage:
+            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E\")",
+          pointerEvents: 'none',
+        }}
+      />
+
+      {/* Header nav hotspots — overlay matches preview-header.png (1023x330) */}
+      <nav
+        aria-label="Site"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          aspectRatio: '1023 / 330',
+          zIndex: 5,
+          pointerEvents: 'none',
+        }}
+      >
+        {([
+          ['/',            'Home',           5,    9],
+          ['/bills',       'Bills',          16,   8],
+          ['/laws',        'Laws',           25,   7],
+          ['/polls',       "People's Polls", 34,   14],
+          ['/mps',         'MPs',            50,   7],
+          ['/departments', 'Departments',    59,   15],
+          ['/login',       'Login',          76,   8],
+          ['/about',       'About',          87,   9],
+        ] as const).map(([href, label, left, width]) => (
+          <Link
+            key={href}
+            href={href}
+            aria-label={label}
+            style={{
+              position: 'absolute',
+              top: '87%',
+              left: `${left}%`,
+              width: `${width}%`,
+              height: '10%',
+              pointerEvents: 'auto',
+              cursor: 'pointer',
+            }}
+          />
+        ))}
+      </nav>
+
+      <div className="magazine-content-spacing" style={{ position: 'relative', zIndex: 2, color: '#14100d', fontFamily: 'Special Elite, monospace' }}>
+        <a
           href="/mps"
-          className="inline-flex items-center gap-2 text-white hover:text-white mb-6 transition"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            marginBottom: '24px',
+            color: '#14100d',
+            textDecoration: 'none',
+            fontSize: '16px',
+            transform: 'rotate(-0.2deg)',
+          }}
         >
-          <span>←</span>
-          <span>Back to all MPs</span>
-        </Link>
+          ← Back to all MPs
+        </a>
+        <div style={{ display: 'flex', flexDirection: 'row-reverse', gap: '40px', marginBottom: '30px' }}>
+          <div style={{
+            position: 'relative',
+            background: '#ebe5d8',
+            padding: '12px 12px 48px 12px',
+            width: '284px',
+            marginTop: '-20px',
+            marginRight: '-40px',
+            transform: 'rotate(15deg)',
+            boxShadow: '0 4px 8px rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.03)',
+            filter: 'contrast(1.05) brightness(0.98)',
+          }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={mp.photo_url ?? ''}
+              alt={fullName}
+              width={260}
+              height={260}
+              style={{ display: 'block', width: '260px', height: '260px', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }}
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/paperclip.png"
+              alt=""
+              aria-hidden
+              style={{
+                position: 'absolute',
+                top: '-30px',
+                right: '-5px',
+                width: '65px',
+                height: 'auto',
+                transform: 'rotate(180deg)',
+                transformOrigin: 'center',
+                pointerEvents: 'none',
+                zIndex: 3,
+                filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.35))',
+              }}
+            />
+          </div>
 
-        {/* Header with party colour gradient */}
-        <div className="rounded-xl overflow-hidden mb-6 relative" style={{ background: `linear-gradient(135deg, ${partyColour}33 0%, #505050 60%)`, border: `1px solid ${partyColour}40` }}>
-          <div className="absolute inset-0 opacity-5" style={{ background: `radial-gradient(circle at top left, ${partyColour}, transparent 60%)` }} />
-          <div className="relative p-6 flex items-center gap-6">
-            <div className="relative flex-shrink-0">
-              {mp.photo_url ? (
-                <Image
-                  src={mp.photo_url}
-                  alt={mp.name}
-                  width={176}
-                  height={176}
-                  priority
-                  className="w-44 h-44 rounded-full object-cover"
-                  style={{ border: `3px solid ${partyColour}` }}
-                />
-              ) : (
-                <div className="w-44 h-44 rounded-full flex items-center justify-center text-4xl font-bold text-white" style={{ border: `3px solid ${partyColour}`, background: partyColour + '33' }}>
-                  {mp.name?.charAt(0)}
-                </div>
-              )}
+          <div style={{ flex: 1 }}>
+            <h1 style={{
+              fontSize: '38px',
+              marginTop: '20px',
+              fontWeight: 'bold',
+              marginBottom: '12px',
+              color: '#14100d',
+              fontFamily: 'Special Elite, monospace',
+              transform: 'rotate(-0.3deg)',
+              textShadow: '1px 1px 0px rgba(0,0,0,0.1)',
+              letterSpacing: '-0.02em',
+            }}>
+              {fullName}
+            </h1>
+            <p style={{ fontSize: '22px', marginBottom: '8px', color: '#14100d', transform: 'rotate(0.2deg)' }}>
+              <span style={{ display: 'inline-block', width: '12px', height: '12px', borderRadius: '50%', background: partyColour, marginRight: '8px' }}></span>
+              {[mp.party, mp.constituency].filter(Boolean).join(' • ')}
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-px" style={{ marginTop: '-80px' }}>
+          <aside className="lg:col-span-1">
+            <div className="lg:sticky lg:top-16">
+              <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 8px 8px' }}>
+                <a href="#bio" style={{
+                  padding: '12px 16px',
+                  borderLeft: '4px solid #7a1612',
+                  background: 'rgba(122,22,18,0.08)',
+                  fontWeight: 'bold',
+                  fontSize: '14px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  transform: 'rotate(0.1deg)',
+                  boxShadow: 'inset 1px 0 2px rgba(0,0,0,0.05)',
+                  color: '#14100d',
+                  textDecoration: 'none',
+                }}>POLITICAL BIO</a>
+                <a href="#contact" style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.1deg)', textDecoration: 'none' }}>CONTACT</a>
+                <a href="#voting" style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(0.15deg)', textDecoration: 'none' }}>VOTING RECORD</a>
+                <a href="#bills" style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.2deg)', textDecoration: 'none' }}>BILLS SPONSORED</a>
+                <a href="#interests" style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(0.1deg)', textDecoration: 'none' }}>INTERESTS</a>
+                <a href="#roles" style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.15deg)', textDecoration: 'none' }}>ROLES</a>
+                <a href="#earnings" style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(0.2deg)', textDecoration: 'none' }}>EARNINGS</a>
+                <a href="#expenses" style={{ padding: '12px 16px', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#14100d', transform: 'rotate(-0.1deg)', textDecoration: 'none' }}>EXPENSES</a>
+              </nav>
             </div>
+          </aside>
 
-            <div className="flex-1">
-              <h1 className="text-3xl sm:text-4xl font-bold text-white mb-1">
-                {mp.display_name || mp.name}
-              </h1>
-              {mp.constituency && (
-                <p className="text-lg text-[#c9c9c9] mb-3">MP for {mp.constituency}</p>
-              )}
-              {mp.party && (
-                <span className="inline-block px-4 py-1.5 text-sm font-semibold rounded-full text-white" style={{ backgroundColor: partyColour }}>
-                  {mp.party}
-                </span>
+          <div className="lg:col-span-3 p-6 sm:p-8">
+            <h2 id="bio" style={{
+              fontSize: '26px',
+              fontWeight: 'bold',
+              marginBottom: '24px',
+              color: '#14100d',
+              fontFamily: 'Special Elite, monospace',
+              transform: 'rotate(-0.2deg)',
+              textShadow: '0.5px 0.5px 0px rgba(0,0,0,0.15)',
+            }}>
+              Political Biography
+            </h2>
+            <div style={{ lineHeight: '1.8', fontSize: '16px', color: '#14100d', letterSpacing: '0.01em' }}>
+              {paragraphs.length === 0 ? (
+                <p style={{ marginBottom: '16px', opacity: 1 }}>Biography unavailable.</p>
+              ) : (
+                paragraphs.map((para: string, idx: number) => {
+                  const tilt = idx % 4;
+                  const rot =
+                    tilt === 0 ? '0.1deg' : tilt === 1 ? '-0.15deg' : tilt === 2 ? '0.08deg' : '-0.1deg';
+                  return (
+                    <p key={idx} style={{ marginBottom: '16px', transform: `rotate(${rot})`, opacity: 1 }}>
+                      {para}
+                    </p>
+                  );
+                })
               )}
             </div>
           </div>
         </div>
-
-        <MPProfileClient
-          mp={mp}
-          contact={contact}
-          bio={bio}
-          sponsoredBills={sponsoredBills || []}
-          votes={votes || []}
-          interests={interests || []}
-          expenses={expenses || []}
-          expensesDetail={expensesDetail || []}
-          earnings={earnings}
-          partyColour={partyColour}
-        />
-      </main>
+        <ScrollToTopButton />
+      </div>
     </div>
-  )
+  );
 }
