@@ -6,18 +6,20 @@ const SITE = 'https://www.thepeopleschamber.uk';
 
 export const revalidate = 86400;
 
+type SupabaseQuery = ReturnType<ReturnType<typeof supabase.from>['select']>;
+
 async function fetchAllRows<T>(
   table: string,
   column: string,
+  filter?: (q: SupabaseQuery) => SupabaseQuery,
 ): Promise<T[]> {
   const PAGE_SIZE = 1000;
   let from = 0;
   const out: T[] = [];
   for (;;) {
-    const { data, error } = await supabase
-      .from(table)
-      .select(column)
-      .range(from, from + PAGE_SIZE - 1);
+    let query: SupabaseQuery = supabase.from(table).select(column);
+    if (filter) query = filter(query);
+    const { data, error } = await query.range(from, from + PAGE_SIZE - 1);
     if (error) throw error;
     if (!data || data.length === 0) break;
     out.push(...(data as T[]));
@@ -61,7 +63,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const [bills, mps] = await Promise.all([
     fetchAllRows<{ id: number }>('bill', 'id'),
-    fetchAllRows<{ member_id: number }>('mps', 'member_id'),
+    fetchAllRows<{ member_id: number }>('mps', 'member_id', (q) => q.eq('current_member', true)),
   ]);
 
   const billEntries: MetadataRoute.Sitemap = bills.map((b) => ({
