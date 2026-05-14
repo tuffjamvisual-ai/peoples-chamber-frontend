@@ -106,27 +106,6 @@ export default async function DepartmentPage({ params }: PageProps) {
           <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '720px', marginBottom: '16px' }}>
             {dept.description}
           </p>
-          {dept.controlZones && dept.controlZones.length > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-              {dept.controlZones.map((zone) => (
-                <span
-                  key={zone}
-                  style={{
-                    fontSize: '11px',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.08em',
-                    fontWeight: 600,
-                    padding: '3px 8px',
-                    color: '#7a1612',
-                    border: '1px solid rgba(122,22,18,0.3)',
-                    background: 'rgba(122,22,18,0.06)',
-                  }}
-                >
-                  {zone}
-                </span>
-              ))}
-            </div>
-          )}
         </header>
 
         {/* Detail sections — keeps the existing client (still in dark theme for now) */}
