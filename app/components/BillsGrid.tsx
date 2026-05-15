@@ -7,16 +7,17 @@ import FilterBar from './FilterBar';
 
 type Props = {
   initialBills: any[];
+  currentPage: number;
+  totalPages: number;
 };
 
-export default function BillsGrid({ initialBills }: Props) {
+export default function BillsGrid({ initialBills, currentPage, totalPages }: Props) {
   const router = useRouter();
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
   const [bills, setBills] = useState(initialBills);
   const [userVotes, setUserVotes] = useState<Record<number, string>>({});
-  
+
   const [houseFilter, setHouseFilter] = useState('');
   const [sessionFilter, setSessionFilter] = useState('');
   const [stageFilter, setStageFilter] = useState('');
@@ -25,8 +26,11 @@ export default function BillsGrid({ initialBills }: Props) {
   const [youVotedFilter, setYouVotedFilter] = useState(false);
   const [notVotedFilter, setNotVotedFilter] = useState(false);
   const [hasSummaryFilter, setHasSummaryFilter] = useState(false);
-  
-  const billsPerPage = 20;
+
+  const goToPage = (p: number) => {
+    const clamped = Math.min(Math.max(1, p), totalPages);
+    router.push(clamped === 1 ? '/bills' : `/bills?page=${clamped}`);
+  };
 
   useEffect(() => {
     async function fetchUserVotes() {
@@ -100,12 +104,10 @@ export default function BillsGrid({ initialBills }: Props) {
     return filtered;
   }, [bills, searchTerm, houseFilter, sessionFilter, stageFilter, sortBy, parliamentVotedFilter, youVotedFilter, notVotedFilter, hasSummaryFilter, userVotes]);
 
-  const totalPages = Math.ceil(filteredBills.length / billsPerPage);
-  const paginatedBills = filteredBills.slice((currentPage - 1) * billsPerPage, currentPage * billsPerPage);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, houseFilter, sessionFilter, stageFilter, parliamentVotedFilter, youVotedFilter, notVotedFilter, hasSummaryFilter]);
+  // Server provides exactly 20 bills for this page already; client-side
+  // filters narrow the visible set within that window. To see different
+  // bills, navigate to a different ?page=N via the controls below.
+  const paginatedBills = filteredBills;
 
   return (
     <>
@@ -181,13 +183,13 @@ export default function BillsGrid({ initialBills }: Props) {
         </div>
       )}
 
-      {paginatedBills.length > 0 && totalPages > 1 && (
+      {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2">
-          <button onClick={() => setCurrentPage(1)} disabled={currentPage === 1} className="px-3 py-1.5 bg-[#404040] text-[#c9c9c9] rounded text-sm hover:bg-[#404040] disabled:opacity-30">First</button>
-          <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="px-3 py-1.5 bg-[#404040] text-[#c9c9c9] rounded text-sm hover:bg-[#404040] disabled:opacity-30">Previous</button>
+          <button onClick={() => goToPage(1)} disabled={currentPage === 1} className="px-3 py-1.5 bg-[#404040] text-[#c9c9c9] rounded text-sm hover:bg-[#404040] disabled:opacity-30">First</button>
+          <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} className="px-3 py-1.5 bg-[#404040] text-[#c9c9c9] rounded text-sm hover:bg-[#404040] disabled:opacity-30">Previous</button>
           <div className="px-4 py-1.5 bg-[#353535] text-white rounded text-sm font-medium border border-[#5a5a5a]">{currentPage} / {totalPages}</div>
-          <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="px-3 py-1.5 bg-[#404040] text-[#c9c9c9] rounded text-sm hover:bg-[#404040] disabled:opacity-30">Next</button>
-          <button onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} className="px-3 py-1.5 bg-[#404040] text-[#c9c9c9] rounded text-sm hover:bg-[#404040] disabled:opacity-30">Last</button>
+          <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages} className="px-3 py-1.5 bg-[#404040] text-[#c9c9c9] rounded text-sm hover:bg-[#404040] disabled:opacity-30">Next</button>
+          <button onClick={() => goToPage(totalPages)} disabled={currentPage === totalPages} className="px-3 py-1.5 bg-[#404040] text-[#c9c9c9] rounded text-sm hover:bg-[#404040] disabled:opacity-30">Last</button>
         </div>
       )}
     </>

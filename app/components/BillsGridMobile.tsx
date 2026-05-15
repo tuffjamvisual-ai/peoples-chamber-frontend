@@ -6,17 +6,24 @@ import { useAuth } from '../context/AuthContext';
 
 type Props = {
   initialBills: any[];
+  currentPage: number;
+  totalPages: number;
 };
 
 type TabType = 'trending' | 'controversial' | 'latest' | 'voted';
 
-export default function BillsGridMobile({ initialBills }: Props) {
+export default function BillsGridMobile({ initialBills, currentPage, totalPages }: Props) {
   const router = useRouter();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('latest');
   const [searchTerm, setSearchTerm] = useState('');
   const [userVotes, setUserVotes] = useState<Record<number, string>>({});
   const [bills, setBills] = useState(initialBills);
+
+  const goToPage = (p: number) => {
+    const clamped = Math.min(Math.max(1, p), totalPages);
+    router.push(clamped === 1 ? '/bills' : `/bills?page=${clamped}`);
+  };
 
   useEffect(() => {
     async function fetchUserVotes() {
@@ -81,7 +88,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
       filtered = filtered.filter((bill: any) => userVotes[bill.id]);
     }
 
-    return filtered.slice(0, 20);
+    return filtered;
   }, [bills, searchTerm, activeTab, userVotes]);
 
   const handleVote = async (billId: number, choice: 'yes' | 'no' | 'abstain') => {
@@ -247,6 +254,14 @@ export default function BillsGridMobile({ initialBills }: Props) {
       {filteredBills.length === 0 && (
         <div className="text-center py-12">
           <p className="text-white">No active bills found.</p>
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-4">
+          <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} className="px-3 py-1.5 bg-[#404040] text-[#c9c9c9] rounded text-sm disabled:opacity-30">Previous</button>
+          <div className="px-4 py-1.5 bg-[#353535] text-white rounded text-sm font-medium border border-[#5a5a5a]">{currentPage} / {totalPages}</div>
+          <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages} className="px-3 py-1.5 bg-[#404040] text-[#c9c9c9] rounded text-sm disabled:opacity-30">Next</button>
         </div>
       )}
     </>

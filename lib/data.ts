@@ -28,6 +28,49 @@ export type Bill = {
   is_act: boolean;
 };
 
+// Server-side paginated fetch. Used by /bills to avoid the ~4000-row
+// payload — one .range() query per page, plus a single count query.
+// Sort order matches getAllBills (most-voted first) so the URL paging
+// is over the same canonical ordering.
+export async function getBillsPage(
+  page: number,
+  perPage = 20,
+): Promise<{ bills: Bill[]; totalCount: number }> {
+  const cols =
+    'id, title, category, current_stage, stage_date, sponsor_name, sponsor_party, sponsor_party_colour, vote_count_yes, vote_count_no, vote_count_abstain, commons_ayes, commons_noes, last_update, bill_withdrawn, is_act';
+  const safePage = Math.max(1, Math.floor(page) || 1);
+  const from = (safePage - 1) * perPage;
+  const to = from + perPage - 1;
+
+  try {
+    const { data, count, error } = await supabase
+      .from('bill')
+      .select(cols, { count: 'exact' })
+      .order('vote_count_yes', { ascending: false })
+      .range(from, to);
+    if (error) {
+      console.error('getBillsPage error:', error);
+      return { bills: [], totalCount: 0 };
+    }
+    const bills: Bill[] = (data || []).map((bill: { vote_count_yes: number | null; vote_count_no: number | null; vote_count_abstain: number | null; commons_ayes: number | null; commons_noes: number | null; [k: string]: unknown }) => ({
+      ...(bill as unknown as Bill),
+      votes: {
+        yes: bill.vote_count_yes || 0,
+        no: bill.vote_count_no || 0,
+        abstain: bill.vote_count_abstain || 0,
+      },
+      commons_votes:
+        bill.commons_ayes !== null
+          ? { ayes: bill.commons_ayes, noes: bill.commons_noes as number }
+          : null,
+    }));
+    return { bills, totalCount: count ?? 0 };
+  } catch (error) {
+    console.error('getBillsPage exception:', error);
+    return { bills: [], totalCount: 0 };
+  }
+}
+
 export async function getAllBills(): Promise<Bill[]> {
   // Supabase project-level db-max-rows caps each response at 1000 even
   // when .range() asks for more, so we issue four parallel range queries
