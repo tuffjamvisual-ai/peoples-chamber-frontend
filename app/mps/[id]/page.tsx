@@ -33,14 +33,23 @@ interface PageProps {
 // of State / Minister of State / PUSS page is instant on first hit.
 // dynamicParams defaults to true so every other MP renders on demand
 // and caches via revalidate.
+// Prerender only the top-tier cabinet (Secretaries of State + PM-band)
+// — capped at the most senior 20 MPs to keep the Vercel build well
+// under its 3-worker × 60s/page budget. Every other MP renders on
+// demand and is cached at the edge via revalidate. The cap was chosen
+// after 80-page prerenders saturated Supabase concurrently.
+const PRERENDER_CAP = 20;
+
 export async function generateStaticParams() {
   try {
     const { data } = await supabase
       .from('dept_ministers')
-      .select('member_id')
-      .not('member_id', 'is', null);
+      .select('member_id, salary_band')
+      .not('member_id', 'is', null)
+      .in('salary_band', ['pm', 'sos'])
+      .order('salary_band', { ascending: true });
     const ids = Array.from(new Set((data || []).map((m: { member_id: number }) => m.member_id)));
-    return ids.map((id) => ({ id: String(id) }));
+    return ids.slice(0, PRERENDER_CAP).map((id) => ({ id: String(id) }));
   } catch {
     return [];
   }
