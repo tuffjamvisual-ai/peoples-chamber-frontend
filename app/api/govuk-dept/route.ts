@@ -20,8 +20,6 @@ export type GovukDeptData = {
   ministers: GovukDeptMinister[];
   boardMembers: { name: string; photo: string; role: string; url: string; slug: string; category?: string; member_id?: number | null }[];
   childOrgs: { name: string; url: string; acronym: string }[];
-  featuredDocs: { title: string; url: string; summary: string; type: string; date: string }[];
-  featuredLinks: { title: string; url: string }[];
   socialMedia: { service: string; url: string; title: string }[];
   foiEmail: string;
   pressPhone: string;
@@ -31,8 +29,6 @@ const EMPTY: GovukDeptData = {
   ministers: [],
   boardMembers: [],
   childOrgs: [],
-  featuredDocs: [],
-  featuredLinks: [],
   socialMedia: [],
   foiEmail: '',
   pressPhone: '',
@@ -65,39 +61,46 @@ async function fetchGovukJson(govukSlug: string) {
   }
 }
 
+// Path-B-only contact extractor (used when no ministers data exists in
+// Supabase). Path A reads contacts from the department_contacts table
+// instead, so this path's gov.uk dependency only matters for the rare
+// no-data case. featuredDocs/featuredLinks dropped — never rendered on
+// /departments/[slug]. /agencies has its own route.
 function extractGovukPublicBits(data: { details?: Record<string, unknown>; links?: Record<string, unknown> } | null) {
-  if (!data) return { featuredDocs: [], featuredLinks: [], socialMedia: [], foiEmail: '', pressPhone: '' };
+  if (!data) return { socialMedia: [], foiEmail: '', pressPhone: '' };
   const details = data.details as Record<string, unknown> | undefined;
   const links = data.links as Record<string, unknown> | undefined;
-  const featuredDocs = ((details?.ordered_featured_documents as Array<{ title: string; href: string; summary?: string; document_type?: string; public_updated_at?: string }>) || []).map((d) => ({
-    title: d.title,
-    url: `https://www.gov.uk${d.href}`,
-    summary: (d.summary || '').replace(/<[^>]+>/g, '').trim(),
-    type: d.document_type || '',
-    date: d.public_updated_at || '',
-  }));
-  const featuredLinks = ((details?.ordered_featured_links as Array<{ title: string; href: string }>) || []).map((l) => ({ title: l.title, url: l.href }));
   const socialMedia = ((details?.social_media_links as Array<{ service_type: string; href: string; title: string }>) || []).map((s) => ({ service: s.service_type, url: s.href, title: s.title }));
   const foiContacts = links?.ordered_foi_contacts as Array<{ details?: { email_addresses?: Array<{ email: string }> } }> | undefined;
   const foiEmail = foiContacts?.[0]?.details?.email_addresses?.[0]?.email || '';
   const orderedContacts = links?.ordered_contacts as Array<{ title?: string; details?: { phone_numbers?: Array<{ number: string }> } }> | undefined;
   const pressPhone = orderedContacts?.find((c) => c.title?.toLowerCase().includes('media'))?.details?.phone_numbers?.[0]?.number || '';
-  return { featuredDocs, featuredLinks, socialMedia, foiEmail, pressPhone };
+  return { socialMedia, foiEmail, pressPhone };
 }
 
 export async function getGovukDept(slug: string): Promise<GovukDeptData> {
   try {
-    const [ministersRes, officialsRes, agenciesRes] = await Promise.all([
+    // All four queries fire in one round-trip. department_contacts
+    // (social/foi/press) is now cached in Supabase, refreshed by
+    // /api/sync-department-contacts, so the gov.uk fetch is no longer
+    // on the hot path.
+    const [ministersRes, officialsRes, agenciesRes, contactsRes, mpRowsRes] = await Promise.all([
       supabase.from('dept_ministers').select('*').eq('dept_slug', slug).order('id'),
       supabase.from('dept_officials').select('*').eq('dept_slug', slug).order('id'),
       supabase.from('dept_agencies').select('*').eq('dept_slug', slug).order('name'),
+      supabase
+        .from('department_contacts')
+        .select('social_media_links, foi_email, press_phone')
+        .eq('dept_slug', slug)
+        .maybeSingle(),
+      supabase
+        .from('mps')
+        .select('member_id, name, display_name, photo_url')
+        .eq('current_member', true),
     ]);
 
     if (ministersRes.data && ministersRes.data.length > 0) {
-      const { data: mpRows } = await supabase
-        .from('mps')
-        .select('member_id, name, display_name, photo_url')
-        .eq('current_member', true);
+      const mpRows = mpRowsRes.data;
       const mpByName = new Map<string, { member_id: number; photo_url: string | null }>();
       (mpRows || []).forEach((mp) => {
         [normalize(mp.display_name), normalize(mp.name)].forEach((k) => {
@@ -138,9 +141,15 @@ export async function getGovukDept(slug: string): Promise<GovukDeptData> {
         acronym: o.acronym,
       }));
 
-      const govukSlug = govukSlugs[slug];
-      const govukJson = govukSlug ? await fetchGovukJson(govukSlug) : null;
-      return { ministers, boardMembers, childOrgs, ...extractGovukPublicBits(govukJson) };
+      const contacts = contactsRes.data || { social_media_links: [], foi_email: '', press_phone: '' };
+      return {
+        ministers,
+        boardMembers,
+        childOrgs,
+        socialMedia: (contacts.social_media_links as { service: string; url: string; title: string }[]) || [],
+        foiEmail: contacts.foi_email || '',
+        pressPhone: contacts.press_phone || '',
+      };
     }
 
     // Fallback to live gov.uk only

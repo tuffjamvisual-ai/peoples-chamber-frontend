@@ -28,8 +28,6 @@ type GovukData = {
   ministers: GovukMinister[];
   boardMembers: { name: string; photo: string; role: string; url: string; slug: string; category?: string; member_id?: number | null }[];
   childOrgs: { name: string; url: string; acronym: string }[];
-  featuredDocs: { title: string; url: string; summary: string; type: string; date: string }[];
-  featuredLinks: { title: string; url: string }[];
   socialMedia: { service: string; url: string; title: string }[];
   foiEmail: string;
   pressPhone: string;
