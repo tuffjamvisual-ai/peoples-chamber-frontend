@@ -105,6 +105,7 @@ export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
             key={party}
             style={{
               marginBottom: '24px',
+              minWidth: 0,
               // Expanded section spans both columns of the outer party
               // grid, giving the inner MP grid the full magazine width
               // to lay out cards. Collapsed headers stay in their column.
@@ -140,9 +141,10 @@ export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-                  gap: '24px',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+                  gap: '20px',
                   marginTop: '20px',
+                  width: '100%',
                 }}
               >
                 {partyMPs.map((mp, idx) => {
