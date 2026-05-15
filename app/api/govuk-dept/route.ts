@@ -113,7 +113,7 @@ export async function getGovukDept(slug: string): Promise<GovukDeptData> {
         const mp = resolveMp(m.name);
         return {
           name: m.name || '',
-          photo: m.photo_url || mp?.photo_url || '',
+          photo: mp?.photo_url || m.photo_url || '',
           role: m.role,
           slug: m.slug,
           url: '',
@@ -127,7 +127,7 @@ export async function getGovukDept(slug: string): Promise<GovukDeptData> {
         const mp = resolveMp(m.name);
         return {
           name: m.name || '',
-          photo: m.photo_url || mp?.photo_url || '',
+          photo: mp?.photo_url || m.photo_url || '',
           role: m.role,
           slug: m.slug,
           url: '',

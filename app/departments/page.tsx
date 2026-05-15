@@ -47,7 +47,7 @@ export default async function DepartmentsPage() {
   const photoBySlug = new Map<string, string>(
     (sosRows || []).map((r: { dept_slug: string; name: string | null; photo_url: string | null }) => [
       r.dept_slug,
-      r.photo_url || mpByName.get(normalize(r.name))?.photo_url || '',
+      mpByName.get(normalize(r.name))?.photo_url || r.photo_url || '',
     ])
   );
 
