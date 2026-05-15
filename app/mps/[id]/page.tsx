@@ -141,17 +141,6 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   };
 
   const fullName = mp.display_name || mp.name || '';
-  const partyColour = mp.party_colour ? `#${mp.party_colour.replace('#', '')}` : '#7697a2';
-
-  // First-elected date: prefer mps.start_date, else earliest representation startDate.
-  const repDates = (bioRes.data?.representations || [])
-    .map((r: { startDate?: string | null }) => r.startDate)
-    .filter((d: string | null | undefined): d is string => !!d)
-    .sort();
-  const firstElectedRaw = mp.start_date || repDates[0] || null;
-  const firstElected = firstElectedRaw
-    ? new Date(firstElectedRaw).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
-    : null;
 
   return (
     <div style={{
@@ -289,19 +278,19 @@ export default async function MPMagazineProfile({ params }: PageProps) {
               marginBottom: '12px',
               color: '#14100d',
               fontFamily: 'Special Elite, monospace',
-              transform: 'rotate(-0.3deg)',
               textShadow: '1px 1px 0px rgba(0,0,0,0.1)',
               letterSpacing: '-0.02em',
             }}>
               {fullName}
             </h1>
-            <p style={{ fontSize: '22px', marginBottom: '8px', color: '#14100d', transform: 'rotate(0.2deg)' }}>
-              <span style={{ display: 'inline-block', width: '12px', height: '12px', borderRadius: '50%', background: partyColour, marginRight: '8px' }}></span>
-              {[mp.party, mp.constituency].filter(Boolean).join(' • ')}
-            </p>
-            {firstElected && (
-              <p style={{ fontSize: '14px', marginBottom: '4px', color: '#14100d', opacity: 0.8, transform: 'rotate(-0.1deg)' }}>
-                First elected: {firstElected}
+            {mp.constituency && (
+              <p style={{ fontSize: '22px', marginBottom: '4px', color: '#14100d' }}>
+                MP for {mp.constituency}
+              </p>
+            )}
+            {mp.party && (
+              <p style={{ fontSize: '22px', marginBottom: '8px', color: '#14100d' }}>
+                {mp.party}
               </p>
             )}
           </div>
