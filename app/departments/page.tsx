@@ -12,6 +12,11 @@ export const metadata: Metadata = {
   alternates: { canonical: '/departments' },
 };
 
+// Render on demand. Building this page statically alongside /earnings
+// and /expenses saturated Supabase under Vercel's 3-worker build → 60s
+// statement timeouts. First request after deploy renders fresh, then
+// the page caches at the edge for 1 hour via revalidate.
+export const dynamic = 'force-dynamic';
 export const revalidate = 3600;
 
 const ink = '#14100d';

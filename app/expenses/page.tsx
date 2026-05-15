@@ -9,6 +9,10 @@ export const metadata: Metadata = {
   alternates: { canonical: '/expenses' },
 };
 
+// Render on demand. See app/departments/page.tsx for rationale —
+// Vercel's 3-worker build saturates Supabase when this, /departments,
+// and /earnings all prerender concurrently.
+export const dynamic = 'force-dynamic';
 export const revalidate = 3600;
 
 const YEAR = '24_25';
