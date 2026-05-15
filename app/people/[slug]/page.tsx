@@ -25,13 +25,14 @@ type Person = {
   photo: string;
   currentRoles: Role[];
   pastRoles: Role[];
+  politicalBio: string | null;
 };
 
 async function getPerson(slug: string): Promise<Person | null> {
   const [{ data: cached }, { data: ministerRow }] = await Promise.all([
     supabase
       .from('person_cache')
-      .select('name, photo, current_roles, past_roles')
+      .select('name, photo, current_roles, past_roles, political_bio')
       .eq('slug', slug)
       .maybeSingle(),
     supabase
@@ -47,6 +48,7 @@ async function getPerson(slug: string): Promise<Person | null> {
       photo: cached.photo || ministerRow?.photo_url || '',
       currentRoles: (cached.current_roles as Role[]) || [],
       pastRoles: (cached.past_roles as Role[]) || [],
+      politicalBio: (cached.political_bio as string | null) || null,
     };
   }
 
@@ -57,6 +59,7 @@ async function getPerson(slug: string): Promise<Person | null> {
       photo: ministerRow.photo_url || '',
       currentRoles: [],
       pastRoles: [],
+      politicalBio: null,
     };
   }
 
@@ -100,6 +103,23 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
                 )}
               </div>
             </div>
+
+            {/* Political Bio — present for peers / officials whose bios
+                we curate in person_cache.political_bio. */}
+            {person.politicalBio && (
+              <div className="bg-[#505050] border border-[#5a5a5a] rounded-xl p-6 mb-6">
+                <h2 className="text-lg font-semibold text-white mb-4">Political Bio</h2>
+                <div className="text-[#e0d0b8] text-sm leading-[1.8] space-y-4">
+                  {person.politicalBio
+                    .split(/\n\n+/)
+                    .map((p) => p.trim())
+                    .filter(Boolean)
+                    .map((para, i) => (
+                      <p key={i}>{para}</p>
+                    ))}
+                </div>
+              </div>
+            )}
 
             {/* Current Roles */}
             {person.currentRoles.length > 0 && (
