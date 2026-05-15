@@ -30,9 +30,13 @@ interface MP {
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.3)';
 
+const MPS_PER_PAGE = 21;
+
 export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
   const searchParams = useSearchParams();
   const selectedParty = searchParams.get('expand');
+  const pageParam = parseInt(searchParams.get('page') || '1', 10);
+  const requestedPage = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredMPs = useMemo(() => {
@@ -69,7 +73,15 @@ export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
   }, [mps]);
 
   const partyExists = selectedParty != null && allPartyNames.has(selectedParty);
-  const selectedPartyMPs = partyExists ? mpsByParty[selectedParty!] || [] : [];
+  const selectedPartyMPs = useMemo(() => {
+    if (!partyExists) return [] as MP[];
+    const list = mpsByParty[selectedParty!] || [];
+    // Stable alphabetical order by display name (en-GB collation so
+    // accented characters sort the way British readers expect).
+    return [...list].sort((a, b) =>
+      (a.name || '').localeCompare(b.name || '', 'en-GB', { sensitivity: 'base' }),
+    );
+  }, [partyExists, mpsByParty, selectedParty]);
   const selectedPartyColour = partyExists ? resolvePartyColour(selectedParty!, selectedPartyMPs) : '#7697a2';
   const totalInSelectedParty = partyExists
     ? mps.filter((m) => normaliseParty(m.party) === selectedParty).length
@@ -85,6 +97,7 @@ export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
           totalInParty={totalInSelectedParty}
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
+          requestedPage={requestedPage}
         />
       ) : (
         <AllPartiesView
@@ -208,14 +221,26 @@ function SinglePartyView({
   totalInParty,
   searchTerm,
   setSearchTerm,
+  requestedPage,
 }: {
   partyName: string;
   partyColour: string;
-  partyMPs: MP[];
+  partyMPs: MP[];                    // already alphabetised in parent
   totalInParty: number;
   searchTerm: string;
   setSearchTerm: (s: string) => void;
+  requestedPage: number;
 }) {
+  const totalPages = Math.max(1, Math.ceil(partyMPs.length / MPS_PER_PAGE));
+  const currentPage = Math.min(Math.max(1, requestedPage), totalPages);
+  const startIdx = (currentPage - 1) * MPS_PER_PAGE;
+  const endIdx = Math.min(startIdx + MPS_PER_PAGE, partyMPs.length);
+  const pageMPs = partyMPs.slice(startIdx, endIdx);
+
+  // Build hrefs for Prev/Next that keep ?expand= and omit ?page= when 1.
+  const partyParam = `expand=${encodeURIComponent(partyName)}`;
+  const hrefFor = (p: number) => (p <= 1 ? `/mps?${partyParam}` : `/mps?${partyParam}&page=${p}`);
+
   return (
     <>
       <Link
@@ -255,6 +280,12 @@ function SinglePartyView({
         label="MPs in this party"
       />
 
+      {partyMPs.length > MPS_PER_PAGE && (
+        <p style={{ fontSize: '13px', opacity: 0.75, marginBottom: '16px' }}>
+          Showing {startIdx + 1}–{endIdx} of {partyMPs.length.toLocaleString()} · page {currentPage} of {totalPages}
+        </p>
+      )}
+
       <div
         style={{
           display: 'grid',
@@ -263,7 +294,7 @@ function SinglePartyView({
           width: '100%',
         }}
       >
-        {partyMPs.map((mp, idx) => (
+        {pageMPs.map((mp, idx) => (
           <MPCard key={mp.member_id} mp={mp} fromParty={partyName} idx={idx} />
         ))}
       </div>
@@ -272,6 +303,38 @@ function SinglePartyView({
         <p style={{ fontSize: '14px', opacity: 0.7, marginTop: '24px' }}>
           No MPs in {partyName} match &ldquo;{searchTerm}&rdquo;.
         </p>
+      )}
+
+      {totalPages > 1 && (
+        <nav
+          aria-label="Pagination"
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '10px',
+            marginTop: '32px',
+            fontSize: '14px',
+          }}
+        >
+          {currentPage > 1 ? (
+            <Link href={hrefFor(currentPage - 1)} style={{ padding: '8px 14px', border: `1px solid ${INK_HAIRLINE}`, color: INK, textDecoration: 'none' }}>
+              ← Previous
+            </Link>
+          ) : (
+            <span style={{ padding: '8px 14px', border: `1px solid ${INK_HAIRLINE}`, opacity: 0.35 }}>← Previous</span>
+          )}
+          <span style={{ padding: '8px 14px', border: `1px solid ${INK_HAIRLINE}`, background: 'rgba(122,22,18,0.06)' }}>
+            {currentPage} / {totalPages}
+          </span>
+          {currentPage < totalPages ? (
+            <Link href={hrefFor(currentPage + 1)} style={{ padding: '8px 14px', border: `1px solid ${INK_HAIRLINE}`, color: INK, textDecoration: 'none' }}>
+              Next →
+            </Link>
+          ) : (
+            <span style={{ padding: '8px 14px', border: `1px solid ${INK_HAIRLINE}`, opacity: 0.35 }}>Next →</span>
+          )}
+        </nav>
       )}
     </>
   );
