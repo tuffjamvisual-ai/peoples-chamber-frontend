@@ -9,6 +9,7 @@ import type { NextConfig } from "next";
 async function withAnalyzerIfEnabled(cfg: NextConfig): Promise<NextConfig> {
   if (process.env.ANALYZE !== 'true') return cfg;
   try {
+    // @ts-ignore — optional dep, not installed by default
     const mod = (await import('@next/bundle-analyzer')) as unknown as {
       default: (opts: { enabled: boolean }) => (c: NextConfig) => NextConfig;
     };
