@@ -1,5 +1,24 @@
 import type { NextConfig } from "next";
 
+// Optional: opt-in bundle analyzer. Enable with:
+//   npm install -D @next/bundle-analyzer
+//   ANALYZE=true npm run build
+// Reports open as static HTML under .next/analyze/. Falls back to a
+// passthrough when the dep isn't installed, so this config compiles
+// cleanly on a fresh checkout.
+async function withAnalyzerIfEnabled(cfg: NextConfig): Promise<NextConfig> {
+  if (process.env.ANALYZE !== 'true') return cfg;
+  try {
+    const mod = (await import('@next/bundle-analyzer')) as unknown as {
+      default: (opts: { enabled: boolean }) => (c: NextConfig) => NextConfig;
+    };
+    return mod.default({ enabled: true })(cfg);
+  } catch {
+    console.warn('[next.config] ANALYZE=true but @next/bundle-analyzer not installed — skipping');
+    return cfg;
+  }
+}
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
@@ -28,4 +47,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withAnalyzerIfEnabled(nextConfig);
