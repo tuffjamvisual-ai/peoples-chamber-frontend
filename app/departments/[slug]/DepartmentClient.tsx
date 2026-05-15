@@ -78,7 +78,9 @@ export default function DepartmentClient({ slug, govukData, streetContext }: Dep
 
         {/* Secretary of State */}
         <section className=" pb-8 mb-8">
-          <p className="text-[14px] uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: ACCENT }}>Secretary of State</p>
+          <p className="text-[14px] uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: ACCENT }}>
+            {sos.is_secretary_of_state ? 'Secretary of State' : sos.role || 'Head of Department'}
+          </p>
           <div className="flex items-center gap-8">
             <div style={{
               position: 'relative',
