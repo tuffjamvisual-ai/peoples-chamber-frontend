@@ -7,13 +7,14 @@
 
 import { useEffect, useState } from 'react';
 
-type SectionId = 'bio' | 'roles' | 'past' | 'interests';
+type SectionId = 'bio' | 'roles' | 'past' | 'interests' | 'earnings';
 
 const ALL_SECTIONS: Array<{ id: SectionId; label: string; rotate: string }> = [
   { id: 'bio',       label: 'POLITICAL BIO',  rotate: '0.1deg' },
   { id: 'roles',     label: 'CURRENT ROLES',  rotate: '-0.12deg' },
   { id: 'past',      label: 'PAST ROLES',     rotate: '0.08deg' },
   { id: 'interests', label: 'INTERESTS',      rotate: '-0.1deg' },
+  { id: 'earnings',  label: 'EARNINGS',       rotate: '0.15deg' },
 ];
 
 export type Role = {
@@ -30,12 +31,22 @@ export type Interest = {
   detail: string | null;
   registered_date: string | null;
 };
+export type PeerFinance = {
+  ministerial_salary_annual: number | null;
+  attendance_allowance_ytd: number | null;
+  attendance_days_ytd: number | null;
+  expenses_total_ytd: number | null;
+  period_label: string | null;
+  ministerial_source_url: string | null;
+  expenses_source_url: string | null;
+};
 
 interface Props {
   paragraphs: string[];
   currentRoles: Role[];
   pastRoles: Role[];
   interests: Interest[];
+  finance: PeerFinance | null;
 }
 
 const sectionH2: React.CSSProperties = {
@@ -53,12 +64,13 @@ const fmtDate = (s?: string | null) =>
 const fmtMonthYear = (s?: string | null) =>
   s ? new Date(s).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '';
 
-export default function PeopleProfileSections({ paragraphs, currentRoles, pastRoles, interests }: Props) {
+export default function PeopleProfileSections({ paragraphs, currentRoles, pastRoles, interests, finance }: Props) {
   const has: Record<SectionId, boolean> = {
     bio: paragraphs.length > 0,
     roles: currentRoles.length > 0,
     past: pastRoles.length > 0,
     interests: interests.length > 0,
+    earnings: !!(finance && (finance.ministerial_salary_annual || finance.attendance_allowance_ytd || finance.expenses_total_ytd)),
   };
   const sections = ALL_SECTIONS.filter((s) => has[s.id]);
   const validIds = new Set<SectionId>(sections.map((s) => s.id));
@@ -196,6 +208,74 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
                 </li>
               ))}
             </ul>
+          </>
+        )}
+
+        {active === 'earnings' && finance && (
+          <>
+            <h2 style={sectionH2}>Earnings</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', fontSize: '15px', lineHeight: 1.7 }}>
+              {finance.ministerial_salary_annual != null && (
+                <div style={{ borderLeft: '3px solid #7a1612', paddingLeft: '16px' }}>
+                  <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#7a1612', fontWeight: 'bold', marginBottom: '6px' }}>
+                    Ministerial salary (entitled)
+                  </div>
+                  <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
+                    £{Number(finance.ministerial_salary_annual).toLocaleString()}
+                  </div>
+                </div>
+              )}
+
+              {finance.attendance_allowance_ytd != null && (
+                <div style={{ borderLeft: '3px solid #7a1612', paddingLeft: '16px' }}>
+                  <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#7a1612', fontWeight: 'bold', marginBottom: '6px' }}>
+                    Lords attendance allowance (YTD)
+                  </div>
+                  <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
+                    £{Number(finance.attendance_allowance_ytd).toLocaleString()}
+                    {finance.attendance_days_ytd != null && (
+                      <span style={{ fontSize: '14px', fontWeight: 'normal', color: 'rgba(20,16,13,0.7)', marginLeft: '10px' }}>
+                        ({finance.attendance_days_ytd} days)
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {finance.expenses_total_ytd != null && (
+                <div style={{ borderLeft: '3px solid #7a1612', paddingLeft: '16px' }}>
+                  <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#7a1612', fontWeight: 'bold', marginBottom: '6px' }}>
+                    Expenses (YTD)
+                  </div>
+                  <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
+                    £{Number(finance.expenses_total_ytd).toLocaleString()}
+                  </div>
+                </div>
+              )}
+
+              {finance.period_label && (
+                <p style={{ fontSize: '13px', fontStyle: 'italic', color: 'rgba(20,16,13,0.7)', marginTop: '8px', lineHeight: 1.6 }}>
+                  {finance.period_label}
+                </p>
+              )}
+
+              {(finance.ministerial_source_url || finance.expenses_source_url) && (
+                <p style={{ fontSize: '13px' }}>
+                  Source:{' '}
+                  {finance.ministerial_source_url && (
+                    <a href={finance.ministerial_source_url} target="_blank" rel="noopener noreferrer" style={{ color: '#7a1612', textDecoration: 'underline' }}>
+                      ministerial salary disclosure
+                    </a>
+                  )}
+                  {finance.ministerial_source_url && finance.expenses_source_url && ' · '}
+                  {finance.expenses_source_url && (
+                    <a href={finance.expenses_source_url} target="_blank" rel="noopener noreferrer" style={{ color: '#7a1612', textDecoration: 'underline' }}>
+                      expenses disclosure
+                    </a>
+                  )}
+                </p>
+              )}
+            </div>
           </>
         )}
 

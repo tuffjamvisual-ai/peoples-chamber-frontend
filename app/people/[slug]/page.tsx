@@ -12,7 +12,7 @@ import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import '../../components/magazine-layout.css';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
-import PeopleProfileSections, { type Role, type Interest } from './PeopleProfileSections';
+import PeopleProfileSections, { type Role, type Interest, type PeerFinance } from './PeopleProfileSections';
 
 export const revalidate = 3600;
 
@@ -29,26 +29,33 @@ type Person = {
 
 async function getPersonAndInterests(
   slug: string,
-): Promise<{ person: Person | null; interests: Interest[] }> {
-  const [{ data: cached }, { data: ministerRow }, { data: interestRows }] = await Promise.all([
-    supabase
-      .from('person_cache')
-      .select('name, photo, current_roles, past_roles, political_bio')
-      .eq('slug', slug)
-      .maybeSingle(),
-    supabase
-      .from('dept_ministers')
-      .select('photo_url, name')
-      .eq('slug', slug)
-      .maybeSingle(),
-    supabase
-      .from('mp_interests')
-      .select('category, summary, detail, registered_date')
-      .eq('member_slug', slug)
-      .order('registered_date', { ascending: false }),
-  ]);
+): Promise<{ person: Person | null; interests: Interest[]; finance: PeerFinance | null }> {
+  const [{ data: cached }, { data: ministerRow }, { data: interestRows }, { data: financeRow }] =
+    await Promise.all([
+      supabase
+        .from('person_cache')
+        .select('name, photo, current_roles, past_roles, political_bio')
+        .eq('slug', slug)
+        .maybeSingle(),
+      supabase
+        .from('dept_ministers')
+        .select('photo_url, name')
+        .eq('slug', slug)
+        .maybeSingle(),
+      supabase
+        .from('mp_interests')
+        .select('category, summary, detail, registered_date')
+        .eq('member_slug', slug)
+        .order('registered_date', { ascending: false }),
+      supabase
+        .from('peer_finance')
+        .select('ministerial_salary_annual, attendance_allowance_ytd, attendance_days_ytd, expenses_total_ytd, period_label, ministerial_source_url, expenses_source_url')
+        .eq('slug', slug)
+        .maybeSingle(),
+    ]);
 
   const interests = (interestRows || []) as Interest[];
+  const finance = (financeRow as PeerFinance | null) || null;
 
   if (cached) {
     return {
@@ -64,6 +71,7 @@ async function getPersonAndInterests(
         politicalBio: (cached.political_bio as string | null) || null,
       },
       interests,
+      finance,
     };
   }
 
@@ -77,15 +85,16 @@ async function getPersonAndInterests(
         politicalBio: null,
       },
       interests,
+      finance,
     };
   }
 
-  return { person: null, interests };
+  return { person: null, interests, finance };
 }
 
 export default async function PersonPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const { person, interests } = await getPersonAndInterests(slug);
+  const { person, interests, finance } = await getPersonAndInterests(slug);
 
   const bioParagraphs = person?.politicalBio
     ? person.politicalBio
@@ -277,6 +286,7 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
               currentRoles={person.currentRoles}
               pastRoles={person.pastRoles}
               interests={interests}
+              finance={finance}
             />
           </>
         )}
