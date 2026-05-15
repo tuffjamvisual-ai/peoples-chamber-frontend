@@ -1,0 +1,10 @@
+ tablename |              policyname              |  cmd   |  roles   |                                              qual                                               | with_check 
+-----------+--------------------------------------+--------+----------+-------------------------------------------------------------------------------------------------+------------
+ poll_vote | Anyone can insert poll votes         | INSERT | {public} |                                                                                                 | true
+ poll_vote | Users can only insert own poll votes | INSERT | {public} |                                                                                                 | true
+ poll_vote | Users can only read own poll votes   | SELECT | {public} | ((user_id)::text = ((current_setting('request.jwt.claims'::text, true))::json ->> 'sub'::text)) | 
+ vote      | Anyone can insert votes              | INSERT | {public} |                                                                                                 | true
+ vote      | Users can only insert own votes      | INSERT | {public} |                                                                                                 | true
+ vote      | Users can only read own votes        | SELECT | {public} | ((user_id)::text = ((current_setting('request.jwt.claims'::text, true))::json ->> 'sub'::text)) | 
+(6 rows)
+
