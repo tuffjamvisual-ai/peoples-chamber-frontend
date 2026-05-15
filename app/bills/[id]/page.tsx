@@ -24,20 +24,6 @@ type Stage = {
   sortOrder: number
 }
 
-async function fetchStages(parliamentId: number | null): Promise<Stage[]> {
-  if (!parliamentId) return []
-  try {
-    const res = await fetch(`https://bills-api.parliament.uk/api/v1/Bills/${parliamentId}/Stages`, {
-      next: { revalidate: 3600 },
-    })
-    if (!res.ok) return []
-    const data = await res.json()
-    return (data.items || []) as Stage[]
-  } catch {
-    return []
-  }
-}
-
 export default async function BillDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const billId = parseInt(id, 10)
@@ -46,7 +32,11 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
   const { data: bill } = await supabase.from('bill').select('*').eq('id', billId).single()
   if (!bill) notFound()
 
-  const stages: Stage[] = await fetchStages(bill.parliament_id)
+  // Stages are now cached in bill.stages (refreshed daily by
+  // /api/sync-bill-stages). No live Parliament-API call on the render
+  // path. Empty array if the column hasn't been backfilled for this bill yet.
+  const stagesData = bill.stages as { items?: Stage[] } | null
+  const stages: Stage[] = stagesData?.items || []
 
   const yesVotes = bill.vote_count_yes || 0
   const noVotes  = bill.vote_count_no  || 0

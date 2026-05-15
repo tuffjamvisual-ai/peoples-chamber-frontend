@@ -29,17 +29,9 @@ export async function GET(
       return NextResponse.json({ error: 'Bill not found' }, { status: 404 });
     }
 
-    // Fetch stages from Parliament API
-    let stages = [];
-    if (bill.parliament_id) {
-      try {
-        const stagesRes = await fetch(`https://bills-api.parliament.uk/api/v1/Bills/${bill.parliament_id}/Stages`);
-        const stagesData = await stagesRes.json();
-        stages = stagesData.items || [];
-      } catch (e) {
-        stages = [];
-      }
-    }
+    // Stages are now cached in bill.stages (refreshed daily by
+    // /api/sync-bill-stages). No live Parliament-API call on this path.
+    const stages = (bill.stages?.items as unknown[]) || [];
     
     return NextResponse.json({
       id: bill.id,
