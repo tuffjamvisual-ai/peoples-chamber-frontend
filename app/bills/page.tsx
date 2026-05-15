@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { getAllBills } from '@/lib/data';
 import BillsGrid from '../components/BillsGrid';
 import BillsGridMobile from '../components/BillsGridMobile';
-import Navigation from '../components/Navigation';
+import '../components/magazine-layout.css';
+import ScrollToTopButton from '../components/ScrollToTopButton';
 
 // /bills paginates 4000 bills across 4 parallel range queries. At Vercel
 // build time, when other workers are also hammering Supabase for MP
@@ -17,32 +19,97 @@ export const metadata: Metadata = {
   alternates: { canonical: '/bills' },
 };
 
-const ACCENT = '#ffffff';
-
 export default async function BillsPage() {
   const bills = await getAllBills();
 
   return (
-    <div className="min-h-screen bg-[#606060] text-white">
-      <Navigation />
+    <div style={{
+      position: 'relative',
+      width: '100%',
+      maxWidth: '1086px',
+      margin: '0 auto',
+      background: '#2a1810',
+      backgroundImage:
+        'url("/preview-header.webp"), url("/preview-footer.webp"), url("/preview-middle.webp")',
+      backgroundRepeat: 'no-repeat, no-repeat, repeat-y',
+      backgroundPosition: 'top center, bottom center, top center',
+      backgroundSize: '100% auto, 100% auto, 100% auto',
+    }}>
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 1,
+          backgroundImage:
+            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E\")",
+          pointerEvents: 'none',
+        }}
+      />
 
-      <main className="bg-[#505050] shadow-[0_0_40px_rgba(0,0,0,0.4)] max-w-[1200px] mx-auto px-4 sm:px-6 py-10 sm:py-16">
-        <header className="border-b border-[#5a5a5a] pb-10 mb-10">
-          <p className="text-[13px] uppercase tracking-[0.3em] font-medium mb-4" style={{ color: ACCENT }}>
-            The People&apos;s Chamber · Bills
-          </p>
-          <h1 className="text-4xl sm:text-6xl font-black leading-[1.05] tracking-tight text-white mb-4">
+      <nav
+        aria-label="Site"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          aspectRatio: '1023 / 330',
+          zIndex: 5,
+          pointerEvents: 'none',
+        }}
+      >
+        {([
+          ['/',            'Home',           5,    9],
+          ['/bills',       'Bills',          16,   8],
+          ['/laws',        'Laws',           25,   7],
+          ['/polls',       "People's Polls", 34,   14],
+          ['/mps',         'MPs',            48,   11],
+          ['/departments', 'Departments',    59,   15],
+          ['/login',       'Login',          76,   8],
+          ['/about',       'About',          87,   9],
+        ] as const).map(([href, label, left, width]) => (
+          <Link
+            key={href}
+            href={href}
+            aria-label={label}
+            style={{
+              position: 'absolute',
+              top: '80%',
+              left: `${left}%`,
+              width: `${width}%`,
+              height: '18%',
+              pointerEvents: 'auto',
+              cursor: 'pointer',
+            }}
+          />
+        ))}
+      </nav>
+
+      <div className="magazine-content-spacing" style={{ position: 'relative', zIndex: 2, color: '#14100d', fontFamily: 'Special Elite, monospace' }}>
+        <a
+          href="/"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            marginBottom: '24px',
+            color: '#14100d',
+            textDecoration: 'none',
+            fontSize: '16px',
+            transform: 'rotate(-0.2deg)',
+          }}
+        >
+          ← Back to home
+        </a>
+
+        <header style={{ marginBottom: '32px' }}>
+          <h1 style={{ fontSize: '44px', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
             Bills in Parliament
           </h1>
-          <p className="text-white text-[14px] leading-[1.7] max-w-2xl">
+          <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
             Every bill going through UK Parliament. How MPs voted. How you voted. The gap between the two.
           </p>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-px border border-[#5a5a5a] mt-10">
-            <Stat label="Bills tracked" value={bills.length} />
-            <Stat label="Acts" value={bills.filter((b: any) => b.is_act).length} />
-            <Stat label="Refresh" value="Daily" accent />
-          </div>
         </header>
 
         <div className="md:hidden">
@@ -51,18 +118,9 @@ export default async function BillsPage() {
         <div className="hidden md:block">
           <BillsGrid initialBills={bills} />
         </div>
-      </main>
-    </div>
-  );
-}
 
-function Stat({ label, value, accent = false }: { label: string; value: number | string; accent?: boolean }) {
-  return (
-    <div className="px-4 py-5">
-      <p className="text-[13px] uppercase tracking-[0.25em] text-white font-medium mb-2">{label}</p>
-      <p className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#ffffff]' : 'text-white'}`}>
-        {typeof value === 'number' ? value.toLocaleString() : value}
-      </p>
+        <ScrollToTopButton />
+      </div>
     </div>
   );
 }
