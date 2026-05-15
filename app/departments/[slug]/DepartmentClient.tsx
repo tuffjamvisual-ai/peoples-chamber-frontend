@@ -86,7 +86,7 @@ export default function DepartmentClient({ slug, govukData, streetContext, stats
                 href={s.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[12px] uppercase tracking-[0.15em] px-2 py-1 text-[#14100d]  hover: transition-colors"
+                className="text-[13px] uppercase tracking-[0.15em] px-2 py-1 text-[#14100d]  hover: transition-colors"
               >
                 {s.service === 'twitter' ? 'X' : s.service === 'youtube' ? 'YT' : s.service.slice(0, 3)}
               </a>
@@ -96,7 +96,7 @@ export default function DepartmentClient({ slug, govukData, streetContext, stats
 
         {/* Secretary of State */}
         <section className=" pb-8 mb-8">
-          <p className="text-[13px] uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: ACCENT }}>Secretary of State</p>
+          <p className="text-[14px] uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: ACCENT }}>Secretary of State</p>
           <div className="flex items-center gap-8">
             <div style={{
               position: 'relative',
@@ -151,11 +151,11 @@ export default function DepartmentClient({ slug, govukData, streetContext, stats
             </div>
             <div>
               <h2 className="text-[#14100d] text-2xl sm:text-3xl font-black tracking-tight mb-1">{sos.name}</h2>
-              <p className="text-[#14100d] text-[13px] leading-[1.7] mb-2">{sos.role}</p>
+              <p className="text-[#14100d] text-[14px] leading-[1.7] mb-2">{sos.role}</p>
               {sos.member_id ? (
                 <Link
                   href={`/mps/${sos.member_id}`}
-                  className="inline-block text-[13px] uppercase tracking-[0.2em] hover:underline font-semibold"
+                  className="inline-block text-[14px] uppercase tracking-[0.2em] hover:underline font-semibold"
                   style={{ color: ACCENT }}
                 >
                   View bio →
@@ -163,7 +163,7 @@ export default function DepartmentClient({ slug, govukData, streetContext, stats
               ) : sos.slug ? (
                 <Link
                   href={`/people/${sos.slug}`}
-                  className="inline-block text-[13px] uppercase tracking-[0.2em] hover:underline font-semibold"
+                  className="inline-block text-[14px] uppercase tracking-[0.2em] hover:underline font-semibold"
                   style={{ color: ACCENT }}
                 >
                   View bio →
@@ -178,8 +178,8 @@ export default function DepartmentClient({ slug, govukData, streetContext, stats
           {slug === 'treasury' ? (
             <div className=" p-5">
               <div className="flex items-baseline justify-between mb-4">
-                <h3 className="text-[13px] uppercase tracking-[0.25em] font-semibold text-[#14100d]">Live Economic Data</h3>
-                {stats && <span className="text-[13px] uppercase tracking-[0.15em] text-[#14100d] font-mono">CPI · ONS · {stats.cpiDate}</span>}
+                <h3 className="text-[14px] uppercase tracking-[0.25em] font-semibold text-[#14100d]">Live Economic Data</h3>
+                {stats && <span className="text-[14px] uppercase tracking-[0.15em] text-[#14100d] font-mono">CPI · ONS · {stats.cpiDate}</span>}
               </div>
               <div className="grid grid-cols-3 gap-px  ">
                 {[
@@ -191,12 +191,12 @@ export default function DepartmentClient({ slug, govukData, streetContext, stats
                   { label: 'Debt/GDP', value: stats ? stats.debtGDP : '95%', colour: ACCENT_2 },
                 ].map((stat) => (
                   <div key={stat.label} className=" px-3 py-3">
-                    <p className="text-[9px] uppercase tracking-[0.2em] text-[#14100d] mb-1">{stat.label}</p>
+                    <p className="text-[11px] uppercase tracking-[0.2em] text-[#14100d] mb-1">{stat.label}</p>
                     <p className="text-base font-black tracking-tight" style={{ color: stat.colour }}>
                       {stat.value}
                     </p>
                     {stat.live && (
-                      <p className="text-[9px] uppercase tracking-[0.2em] mt-0.5 font-semibold" style={{ color: SUCCESS }}>● live</p>
+                      <p className="text-[11px] uppercase tracking-[0.2em] mt-0.5 font-semibold" style={{ color: SUCCESS }}>● live</p>
                     )}
                   </div>
                 ))}
@@ -204,7 +204,7 @@ export default function DepartmentClient({ slug, govukData, streetContext, stats
             </div>
           ) : (
             <div className=" p-5 flex items-center justify-center">
-              <p className="text-[#14100d] text-[13px] leading-[1.7]">Live data coming soon for this department</p>
+              <p className="text-[#14100d] text-[14px] leading-[1.7]">Live data coming soon for this department</p>
             </div>
           )}
 
@@ -212,7 +212,7 @@ export default function DepartmentClient({ slug, govukData, streetContext, stats
 
         {/* Street View */}
         <section className=" pb-8 mb-8">
-          <h2 className="text-[13px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>The Street View</h2>
+          <h2 className="text-[14px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>The Street View</h2>
           {((streetContext || dept.streetContext) ?? '')
             .split(/\n\n+/)
             .map((p) => p.trim())
@@ -229,7 +229,7 @@ export default function DepartmentClient({ slug, govukData, streetContext, stats
               <h2 className="text-2xl font-black tracking-tight text-[#14100d]">{activeZone}</h2>
               <button
                 onClick={() => setActiveZone(null)}
-                className="text-[13px] uppercase tracking-[0.25em] text-[#14100d] hover:text-[#14100d] transition-colors"
+                className="text-[14px] uppercase tracking-[0.25em] text-[#14100d] hover:text-[#14100d] transition-colors"
               >
                 ✕ Close
               </button>
@@ -242,12 +242,12 @@ export default function DepartmentClient({ slug, govukData, streetContext, stats
                 return (
                   <li key={pos.partyId} className=" p-4 border-l-2" style={{ borderLeftColor: party.colour }}>
                     <span
-                      className="inline-block text-[13px] uppercase tracking-[0.15em] font-bold px-2 py-0.5  mb-2"
+                      className="inline-block text-[14px] uppercase tracking-[0.15em] font-bold px-2 py-0.5  mb-2"
                       style={{ backgroundColor: party.colour, color: party.textColour }}
                     >
                       {party.name}
                     </span>
-                    <p className="text-[#14100d] font-semibold text-[13px] mb-1 leading-snug">{pos.headline}</p>
+                    <p className="text-[#14100d] font-semibold text-[14px] mb-1 leading-snug">{pos.headline}</p>
                     <p className="text-[#14100d] text-[15px] leading-[1.7]">{pos.position}</p>
                   </li>
                 );
@@ -259,7 +259,7 @@ export default function DepartmentClient({ slug, govukData, streetContext, stats
         {/* Agencies */}
         {govukData?.childOrgs && govukData.childOrgs.length > 0 && (
           <section className=" pb-8 mb-8">
-            <h2 className="text-[13px] uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: ACCENT }}>
+            <h2 className="text-[14px] uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: ACCENT }}>
               Agencies & Arm&apos;s Length Bodies ({govukData.childOrgs.length})
             </h2>
             <div className="flex flex-wrap gap-x-4 gap-y-2">
@@ -281,7 +281,7 @@ export default function DepartmentClient({ slug, govukData, streetContext, stats
 
         {/* Staff */}
         <section>
-          <h2 className="text-[13px] uppercase tracking-[0.25em] mb-6 font-semibold" style={{ color: ACCENT }}>Department Staff</h2>
+          <h2 className="text-[14px] uppercase tracking-[0.25em] mb-6 font-semibold" style={{ color: ACCENT }}>Department Staff</h2>
 
           {juniorMinisters.length > 0 && <StaffGroup label="Ministers" people={juniorMinisters} />}
           {seniorOfficials.length > 0 && <StaffGroup label="Senior Officials" people={seniorOfficials} />}
@@ -311,7 +311,7 @@ export default function DepartmentClient({ slug, govukData, streetContext, stats
 function StaffGroup({ label, people }: { label: string; people: { name: string; role: string; slug: string; photo?: string; member_id?: number | null }[] }) {
   return (
     <div className="mb-8">
-      <p className="text-[13px] uppercase tracking-[0.2em] text-[#14100d] mb-4 font-semibold">{label}</p>
+      <p className="text-[14px] uppercase tracking-[0.2em] text-[#14100d] mb-4 font-semibold">{label}</p>
       <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
         {people.map((person, i) => {
           const href = person.member_id ? `/mps/${person.member_id}` : person.slug ? `/people/${person.slug}` : null;
@@ -349,7 +349,7 @@ function StaffGroup({ label, people }: { label: string; people: { name: string; 
               </div>
               <div style={{ minWidth: 0, paddingTop: '4px' }}>
                 <p className="text-[#14100d] text-[14px] font-semibold hover:text-[#7a1612] transition-colors">{person.name}</p>
-                <p className="text-[#14100d] text-[13px] mt-0.5 leading-[1.55] opacity-80">{person.role}</p>
+                <p className="text-[#14100d] text-[14px] mt-0.5 leading-[1.55] opacity-80">{person.role}</p>
               </div>
             </div>
           );
