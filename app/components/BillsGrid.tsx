@@ -26,7 +26,7 @@ export default function BillsGrid({ initialBills }: Props) {
   const [notVotedFilter, setNotVotedFilter] = useState(false);
   const [hasSummaryFilter, setHasSummaryFilter] = useState(false);
   
-  const billsPerPage = 21;
+  const billsPerPage = 20;
 
   useEffect(() => {
     async function fetchUserVotes() {

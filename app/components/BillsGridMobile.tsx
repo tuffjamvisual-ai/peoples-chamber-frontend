@@ -81,7 +81,7 @@ export default function BillsGridMobile({ initialBills }: Props) {
       filtered = filtered.filter((bill: any) => userVotes[bill.id]);
     }
 
-    return filtered.slice(0, 50);
+    return filtered.slice(0, 20);
   }, [bills, searchTerm, activeTab, userVotes]);
 
   const handleVote = async (billId: number, choice: 'yes' | 'no' | 'abstain') => {
