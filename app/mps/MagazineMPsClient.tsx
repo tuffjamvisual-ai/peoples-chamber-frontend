@@ -88,6 +88,15 @@ export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
         </p>
       </div>
 
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))',
+          columnGap: '32px',
+          rowGap: '4px',
+          alignItems: 'start',
+        }}
+      >
       {sortedParties.map(([party, partyMPs]) => {
         const partyColour = partyMPs[0]?.party_colour ? `#${partyMPs[0].party_colour!.replace('#', '')}` : '#7697a2';
         const open = isOpen(party);
@@ -122,8 +131,8 @@ export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-                  gap: '24px',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+                  gap: '20px',
                   marginTop: '20px',
                 }}
               >
@@ -188,6 +197,7 @@ export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
           </section>
         );
       })}
+      </div>
 
       <ScrollToTopButton />
     </div>
