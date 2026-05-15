@@ -3,6 +3,10 @@ import { supabase } from '@/lib/supabase'
 import LawsClient from './LawsClient'
 import Navigation from '../components/Navigation'
 
+// Render on demand — large Supabase query (all Acts) hits the 60s
+// build-budget under concurrent worker pressure. Same pattern as
+// /bills, /departments, /earnings, /expenses.
+export const dynamic = 'force-dynamic'
 export const revalidate = 600
 
 export const metadata: Metadata = {
