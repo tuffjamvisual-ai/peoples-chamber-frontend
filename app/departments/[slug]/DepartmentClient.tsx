@@ -7,10 +7,6 @@ import { parties } from '@/lib/parties';
 import { useSearchParams } from 'next/navigation';
 
 const ACCENT = "#7a1612";
-const ACCENT_2 = '#7697a2';
-const SUCCESS = '#4a8a3a';
-const WARN = '#c9c9c9';
-const DANGER = '#8a3a3a';
 
 type GovukMinister = {
   name: string;
@@ -33,25 +29,13 @@ type GovukData = {
   pressPhone: string;
 };
 
-type EconomicStats = {
-  cpi: string;
-  cpiDate: string;
-  bankRate: string;
-  nationalDebt: string;
-  annualBorrowing: string;
-  gdpGrowth: string;
-  debtGDP: string;
-  lastUpdated: string;
-};
-
 interface DepartmentClientProps {
   slug: string;
   govukData: GovukData | null;
   streetContext: string | null;
-  stats: EconomicStats | null;
 }
 
-export default function DepartmentClient({ slug, govukData, streetContext, stats }: DepartmentClientProps) {
+export default function DepartmentClient({ slug, govukData, streetContext }: DepartmentClientProps) {
   const dept = departments.find((d) => d.slug === slug);
   const searchParams = useSearchParams();
   const zoneParam = searchParams.get('zone');
@@ -169,43 +153,6 @@ export default function DepartmentClient({ slug, govukData, streetContext, stats
               ) : null}
             </div>
           </div>
-        </section>
-
-        {/* Stats (Treasury only) */}
-        <section className="mb-8">
-          {slug === 'treasury' ? (
-            <div className=" p-5">
-              <div className="flex items-baseline justify-between mb-4">
-                <h3 className="text-[14px] uppercase tracking-[0.25em] font-semibold text-[#14100d]">Live Economic Data</h3>
-                {stats && <span className="text-[14px] uppercase tracking-[0.15em] text-[#14100d] font-mono">CPI · ONS · {stats.cpiDate}</span>}
-              </div>
-              <div className="grid grid-cols-3 gap-px  ">
-                {[
-                  { label: 'CPI Inflation', value: stats ? stats.cpi + '%' : '...', colour: WARN, live: true },
-                  { label: 'Bank Rate', value: stats ? stats.bankRate + '%' : '3.75%', colour: ACCENT },
-                  { label: 'Nat. Debt', value: stats ? stats.nationalDebt : '93% GDP', colour: DANGER },
-                  { label: 'Borrowing', value: stats ? stats.annualBorrowing : '£133bn', colour: '#c9c9c9' },
-                  { label: 'GDP Growth', value: stats ? stats.gdpGrowth : '1.1%', colour: SUCCESS },
-                  { label: 'Debt/GDP', value: stats ? stats.debtGDP : '95%', colour: ACCENT_2 },
-                ].map((stat) => (
-                  <div key={stat.label} className=" px-3 py-3">
-                    <p className="text-[11px] uppercase tracking-[0.2em] text-[#14100d] mb-1">{stat.label}</p>
-                    <p className="text-base font-black tracking-tight" style={{ color: stat.colour }}>
-                      {stat.value}
-                    </p>
-                    {stat.live && (
-                      <p className="text-[11px] uppercase tracking-[0.2em] mt-0.5 font-semibold" style={{ color: SUCCESS }}>● live</p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className=" p-5 flex items-center justify-center">
-              <p className="text-[#14100d] text-[14px] leading-[1.7]">Live data coming soon for this department</p>
-            </div>
-          )}
-
         </section>
 
         {/* Street View */}

@@ -7,7 +7,6 @@ import ScrollToTopButton from '../../components/ScrollToTopButton';
 import DepartmentClient from './DepartmentClient';
 import { getGovukDept } from '../../api/govuk-dept/route';
 import { getDeptContext } from '../../api/department-context/route';
-import { getEconomicStats } from '../../api/economic-stats/route';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -30,13 +29,11 @@ export default async function DepartmentPage({ params }: PageProps) {
   const dept = departments.find((d) => d.slug === slug);
   if (!dept) notFound();
 
-  // Inline the three previously-client-side fetches so the prerendered
-  // HTML ships with every section's data already populated. economic-
-  // stats only runs for the treasury page.
-  const [govukData, contextData, statsData] = await Promise.all([
+  // Inline the previously-client-side fetches so the prerendered HTML
+  // ships with every section's data already populated.
+  const [govukData, contextData] = await Promise.all([
     getGovukDept(slug),
     getDeptContext(slug),
-    slug === 'treasury' ? getEconomicStats() : Promise.resolve(null),
   ]);
 
   return (
@@ -136,7 +133,6 @@ export default async function DepartmentPage({ params }: PageProps) {
             slug={slug}
             govukData={govukData}
             streetContext={contextData.street_context}
-            stats={statsData}
           />
         </Suspense>
 
