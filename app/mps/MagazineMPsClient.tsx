@@ -101,7 +101,16 @@ export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
         const partyColour = partyMPs[0]?.party_colour ? `#${partyMPs[0].party_colour!.replace('#', '')}` : '#7697a2';
         const open = isOpen(party);
         return (
-          <section key={party} style={{ marginBottom: '24px' }}>
+          <section
+            key={party}
+            style={{
+              marginBottom: '24px',
+              // Expanded section spans both columns of the outer party
+              // grid, giving the inner MP grid the full magazine width
+              // to lay out cards. Collapsed headers stay in their column.
+              gridColumn: open ? '1 / -1' : undefined,
+            }}
+          >
             <button
               onClick={() => toggleParty(party)}
               style={{
@@ -131,8 +140,8 @@ export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-                  gap: '20px',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+                  gap: '24px',
                   marginTop: '20px',
                 }}
               >
