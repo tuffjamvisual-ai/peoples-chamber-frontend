@@ -1,0 +1,914 @@
+[
+  {
+    "id": 4914,
+    "dept_slug": "treasury",
+    "name": "The Rt Hon Rachel Reeves MP",
+    "role": "Chancellor of the Exchequer",
+    "salary_band": "sos",
+    "member_id": null
+  },
+  {
+    "id": 4915,
+    "dept_slug": "treasury",
+    "name": "Lucy Rigby KC MP",
+    "role": "Chief Secretary to the Treasury",
+    "salary_band": "sos",
+    "member_id": null
+  },
+  {
+    "id": 4916,
+    "dept_slug": "treasury",
+    "name": "Lord Livermore",
+    "role": "Financial Secretary to the Treasury",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4917,
+    "dept_slug": "treasury",
+    "name": "Lord Stockwood",
+    "role": "Minister of State (Minister for Investment)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4918,
+    "dept_slug": "treasury",
+    "name": "Daniel Tomlinson MP",
+    "role": "Exchequer Secretary to the Treasury",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4919,
+    "dept_slug": "treasury",
+    "name": "Rachel Blake MP",
+    "role": "Economic Secretary to the Treasury",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4920,
+    "dept_slug": "treasury",
+    "name": "Torsten Bell MP",
+    "role": "Parliamentary Under-Secretary of State (Minister for Pensions)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4948,
+    "dept_slug": "work-pensions",
+    "name": "The Rt Hon Pat McFadden MP",
+    "role": "Secretary of State for Work and Pensions",
+    "salary_band": "sos",
+    "member_id": null
+  },
+  {
+    "id": 4949,
+    "dept_slug": "work-pensions",
+    "name": "The Rt Hon Sir Stephen Timms MP",
+    "role": "Minister of State (Minister for Social Security and Disability)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4950,
+    "dept_slug": "work-pensions",
+    "name": "The Rt Hon Dame Diana Johnson DBE MP",
+    "role": "Minister of State (Minister for Employment)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4951,
+    "dept_slug": "work-pensions",
+    "name": "The Rt Hon Baroness Smith of Malvern",
+    "role": "Minister of State (Minister for Women and Equalities)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4952,
+    "dept_slug": "work-pensions",
+    "name": "Baroness Sherlock OBE",
+    "role": "Minister of State (Minister for Lords)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4953,
+    "dept_slug": "work-pensions",
+    "name": "Andrew Western MP",
+    "role": "Parliamentary Under-Secretary of State (Minister for Transformation)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4954,
+    "dept_slug": "work-pensions",
+    "name": "Torsten Bell MP",
+    "role": "Parliamentary Under-Secretary of State (Minister for Pensions)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4978,
+    "dept_slug": "housing",
+    "name": "The Rt Hon Steve Reed OBE MP",
+    "role": "Secretary of State for Housing, Communities and Local Government",
+    "salary_band": "sos",
+    "member_id": null
+  },
+  {
+    "id": 4979,
+    "dept_slug": "housing",
+    "name": "Matthew Pennycook MP",
+    "role": "Minister of State (Minister for Housing and Planning)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4980,
+    "dept_slug": "housing",
+    "name": "Alison McGovern MP",
+    "role": "Minister of State (Minister for Local Government and Homelessness)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4981,
+    "dept_slug": "housing",
+    "name": "Baroness Taylor of Stevenage",
+    "role": "Baroness in Waiting (Government Whip)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4982,
+    "dept_slug": "housing",
+    "name": "Samantha Dixon MBE MP",
+    "role": "Parliamentary Under-Secretary of State (Minister for Building Safety, Fire and Democracy)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4983,
+    "dept_slug": "housing",
+    "name": "Nesil Caliskan MP",
+    "role": "Parliamentary Under-Secretary of State",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4959,
+    "dept_slug": "transport",
+    "name": "Keir Mather MP",
+    "role": "Parliamentary Under-Secretary of State (Minister for Aviation, Maritime and Decarbonisation) ",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4984,
+    "dept_slug": "justice",
+    "name": "The Rt Hon David Lammy MP",
+    "role": "Deputy Prime Minister",
+    "salary_band": "sos",
+    "member_id": null
+  },
+  {
+    "id": 4985,
+    "dept_slug": "justice",
+    "name": "Lord Timpson OBE",
+    "role": "Minister of State for Prisons, Probation and Reducing Reoffending",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4986,
+    "dept_slug": "justice",
+    "name": "Sarah Sackman KC MP",
+    "role": "Minister of State for Courts and Legal Services",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4987,
+    "dept_slug": "justice",
+    "name": "Baroness Levitt KC",
+    "role": "Parliamentary Under-Secretary of State and Lords Minister",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4988,
+    "dept_slug": "justice",
+    "name": "Jake Richards MP",
+    "role": "Assistant Whip, House of Commons",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4989,
+    "dept_slug": "justice",
+    "name": "Catherine Atkinson MP",
+    "role": "Parliamentary Under-Secretary of State",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 5008,
+    "dept_slug": "foreign-office",
+    "name": "The Rt Hon Yvette Cooper MP",
+    "role": "Secretary of State for Foreign, Commonwealth and Development Affairs",
+    "salary_band": "sos",
+    "member_id": null
+  },
+  {
+    "id": 5009,
+    "dept_slug": "foreign-office",
+    "name": "The Rt Hon Baroness Chapman of Darlington",
+    "role": "Minister of State (International Development and Africa)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 5010,
+    "dept_slug": "foreign-office",
+    "name": "Stephen Doughty MP",
+    "role": "Minister of State (Europe, North America and Overseas Territories)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 5011,
+    "dept_slug": "foreign-office",
+    "name": "Hamish Falconer MP",
+    "role": "Parliamentary Under-Secretary of State (Middle East, North Africa, Afghanistan and Pakistan)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 5012,
+    "dept_slug": "foreign-office",
+    "name": "Seema Malhotra MP",
+    "role": "Parliamentary Under-Secretary of State (Indo-Pacific)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 5013,
+    "dept_slug": "foreign-office",
+    "name": "Chris Elmore MP",
+    "role": "Parliamentary Under Secretary of State (Multilateral, Human Rights, Latin America and the Caribbean)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 5014,
+    "dept_slug": "attorney-general",
+    "name": "The Rt Hon Lord Hermer KC",
+    "role": "Attorney General",
+    "salary_band": "sos",
+    "member_id": null
+  },
+  {
+    "id": 5015,
+    "dept_slug": "attorney-general",
+    "name": "The Rt Hon Ellie Reeves KC MP",
+    "role": "Solicitor General",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 5023,
+    "dept_slug": "lords-leader",
+    "name": "The Rt Hon Baroness Smith of Basildon",
+    "role": "Leader of the House of Lords",
+    "salary_band": "sos",
+    "member_id": null
+  },
+  {
+    "id": 5024,
+    "dept_slug": "lords-leader",
+    "name": "Lord Collins of Highbury",
+    "role": "Prime Minister’s Special Representative for Preventing Sexual Violence in Conflict",
+    "salary_band": null,
+    "member_id": null
+  },
+  {
+    "id": 4921,
+    "dept_slug": "home-office",
+    "name": "The Rt Hon Shabana Mahmood MP",
+    "role": "Secretary of State for the Home Department",
+    "salary_band": "sos",
+    "member_id": null
+  },
+  {
+    "id": 4922,
+    "dept_slug": "home-office",
+    "name": "Dan Jarvis MBE MP",
+    "role": "Minister of State",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4923,
+    "dept_slug": "home-office",
+    "name": "The Rt Hon Lord Hanson of Flint",
+    "role": "Minister of State (Lords Minister)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4924,
+    "dept_slug": "home-office",
+    "name": "Sarah Jones MP",
+    "role": "Minister of State (Minister for Policing and Crime)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4925,
+    "dept_slug": "home-office",
+    "name": "Alex Norris MP",
+    "role": "Minister of State (Minister for Border Security and Asylum)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4926,
+    "dept_slug": "home-office",
+    "name": "Mike Tapp MP",
+    "role": "Parliamentary Under-Secretary of State (Minister for Migration and Citizenship)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4927,
+    "dept_slug": "home-office",
+    "name": "Natalie Fleet MP",
+    "role": "Parliamentary Under-Secretary of State",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4955,
+    "dept_slug": "transport",
+    "name": "The Rt Hon Heidi Alexander MP",
+    "role": "Secretary of State for Transport",
+    "salary_band": "sos",
+    "member_id": null
+  },
+  {
+    "id": 4956,
+    "dept_slug": "transport",
+    "name": "Lord Hendy of Richmond Hill CBE",
+    "role": "Minister of State (Minister for Rail)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4957,
+    "dept_slug": "transport",
+    "name": "Simon Lightwood MP",
+    "role": "Parliamentary Under-Secretary of State (Minister for Roads and Buses) ",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4958,
+    "dept_slug": "transport",
+    "name": "Lilian Greenwood MP",
+    "role": "Junior Lord of the Treasury (Government Whip)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4960,
+    "dept_slug": "environment",
+    "name": "The Rt Hon Emma Reynolds MP",
+    "role": "Secretary of State for Environment, Food and Rural Affairs",
+    "salary_band": "sos",
+    "member_id": null
+  },
+  {
+    "id": 4961,
+    "dept_slug": "environment",
+    "name": "Dame Angela Eagle DBE MP",
+    "role": "Minister of State (Minister for Food Security and Rural Affairs)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4962,
+    "dept_slug": "environment",
+    "name": "Emma Hardy MP",
+    "role": "Parliamentary Under-Secretary of State (Minister for Water and Flooding)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4928,
+    "dept_slug": "health",
+    "name": "The Rt Hon James Murray MP",
+    "role": "Secretary of State for Health and Social Care",
+    "salary_band": "sos",
+    "member_id": null
+  },
+  {
+    "id": 4929,
+    "dept_slug": "health",
+    "name": "Karin Smyth MP",
+    "role": "Minister of State for Health (Secondary Care)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4930,
+    "dept_slug": "health",
+    "name": "Stephen Kinnock MP",
+    "role": "Minister of State for Care",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4931,
+    "dept_slug": "health",
+    "name": "Baroness Merron",
+    "role": "Parliamentary Under-Secretary of State for Women's Health and Mental Health",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4932,
+    "dept_slug": "health",
+    "name": "Sharon Hodgson MP",
+    "role": "Parliamentary Under-Secretary of State for Public Health and Prevention ​",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4933,
+    "dept_slug": "health",
+    "name": "Preet Kaur Gill MP",
+    "role": "Parliamentary Under-Secretary of State",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4963,
+    "dept_slug": "environment",
+    "name": "Mary Creagh CBE MP",
+    "role": "Parliamentary Under-Secretary of State (Minister for Nature)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4964,
+    "dept_slug": "environment",
+    "name": "Baroness Hayman of Ullock",
+    "role": "Parliamentary Under-Secretary of State (Minister for Biosecurity, Borders and Animals)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4990,
+    "dept_slug": "defence",
+    "name": "The Rt Hon John Healey MP",
+    "role": "Secretary of State for Defence",
+    "salary_band": "sos",
+    "member_id": null
+  },
+  {
+    "id": 4991,
+    "dept_slug": "defence",
+    "name": "Luke Pollard MP",
+    "role": "Minister of State (Minister for Defence Readiness and Industry)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4992,
+    "dept_slug": "defence",
+    "name": "Lord Coaker",
+    "role": "Minister of State (Minister for the House of Lords)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4993,
+    "dept_slug": "defence",
+    "name": "Alistair Carns DSO OBE MC MP",
+    "role": "Parliamentary Under-Secretary of State (Minister for the Armed Forces)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4994,
+    "dept_slug": "defence",
+    "name": "Louise Sandher-Jones MP",
+    "role": "Parliamentary Under-Secretary of State (Minister for Veterans and People) ",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 5016,
+    "dept_slug": "scotland-office",
+    "name": "The Rt Hon Douglas Alexander MP",
+    "role": "Secretary of State for Scotland",
+    "salary_band": "sos",
+    "member_id": null
+  },
+  {
+    "id": 5017,
+    "dept_slug": "scotland-office",
+    "name": "Kirsty McNeill MP",
+    "role": "Parliamentary Under-Secretary of State",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 5021,
+    "dept_slug": "northern-ireland-office",
+    "name": "The Rt Hon Hilary Benn MP",
+    "role": "Secretary of State for Northern Ireland",
+    "salary_band": "sos",
+    "member_id": null
+  },
+  {
+    "id": 5022,
+    "dept_slug": "northern-ireland-office",
+    "name": "Matthew Patrick MP",
+    "role": "Parliamentary Under-Secretary of State",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4968,
+    "dept_slug": "business-trade",
+    "name": "Blair McDougall MP",
+    "role": "Parliamentary Under-Secretary of State (Minister for Small Business and Economic Transformation)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4969,
+    "dept_slug": "business-trade",
+    "name": "Kate Dearden MP",
+    "role": "Parliamentary Under-Secretary of State (Minister for Employment Rights and Consumer Protection)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4970,
+    "dept_slug": "business-trade",
+    "name": "Baroness Lloyd of Effra CBE",
+    "role": "Baroness in Waiting (Government Whip)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4971,
+    "dept_slug": "business-trade",
+    "name": "Chris McDonald MP",
+    "role": "Parliamentary Under-Secretary of State (Minister for Industry)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4934,
+    "dept_slug": "energy",
+    "name": "The Rt Hon Ed Miliband MP",
+    "role": "Secretary of State for Energy Security and Net Zero",
+    "salary_band": "sos",
+    "member_id": null
+  },
+  {
+    "id": 4935,
+    "dept_slug": "energy",
+    "name": "Lord Vallance",
+    "role": "Minister of State (Minister for Science, Innovation, Research and Nuclear)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4936,
+    "dept_slug": "energy",
+    "name": "Michael Shanks MP",
+    "role": "Minister of State (Minister for Energy)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4995,
+    "dept_slug": "culture",
+    "name": "The Rt Hon Lisa Nandy MP",
+    "role": "Secretary of State for Culture, Media and Sport",
+    "salary_band": "sos",
+    "member_id": null
+  },
+  {
+    "id": 4937,
+    "dept_slug": "energy",
+    "name": "Dr Alan Whitehead CBE",
+    "role": "Minister of State (Minister for Energy Security and Net Zero)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4938,
+    "dept_slug": "energy",
+    "name": "Katie White OBE MP",
+    "role": "Parliamentary Under-Secretary of State (Minister for Climate)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4939,
+    "dept_slug": "energy",
+    "name": "Martin McCluskey MP",
+    "role": "Parliamentary Under-Secretary of State (Minister for Energy Consumers)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4940,
+    "dept_slug": "energy",
+    "name": "Chris McDonald MP",
+    "role": "Parliamentary Under-Secretary of State (Minister for Industry)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4965,
+    "dept_slug": "business-trade",
+    "name": "The Rt Hon Peter Kyle MP",
+    "role": "President of the Board of Trade",
+    "salary_band": "sos",
+    "member_id": null
+  },
+  {
+    "id": 4966,
+    "dept_slug": "business-trade",
+    "name": "Lord Stockwood",
+    "role": "Minister of State (Minister for Investment)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4967,
+    "dept_slug": "business-trade",
+    "name": "Sir Chris Bryant MP",
+    "role": "Minister of State (Minister for Trade)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4996,
+    "dept_slug": "culture",
+    "name": "The Rt Hon Ian Murray MP",
+    "role": "Minister of State (Minister for Digital Government and Data)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4997,
+    "dept_slug": "culture",
+    "name": "Stephanie Peacock MP",
+    "role": "Parliamentary Under-Secretary of State (Minister for Sport, Tourism, Civil Society and Youth)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4998,
+    "dept_slug": "culture",
+    "name": "Baroness Twycross",
+    "role": "Parliamentary Under-Secretary of State (Minister for Museums, Heritage and Gambling, and Lords Minister)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4944,
+    "dept_slug": "education",
+    "name": "The Rt Hon Sir Stephen Timms MP",
+    "role": "Minister of State (Minister for Social Security and Disability)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4945,
+    "dept_slug": "education",
+    "name": "Olivia Bailey MP",
+    "role": "Parliamentary Under-Secretary of State (Minister for Early Education)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 5001,
+    "dept_slug": "cabinet-office",
+    "name": "The Rt Hon Nick Thomas–Symonds MP",
+    "role": "Minister for the Cabinet Office (Minister for the Constitution and European Union Relations)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 5002,
+    "dept_slug": "cabinet-office",
+    "name": "Dan Jarvis MBE MP",
+    "role": "Minister of State",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 5006,
+    "dept_slug": "cabinet-office",
+    "name": "James Frith MP",
+    "role": "Parliamentary Under-Secretary of State",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 5007,
+    "dept_slug": "cabinet-office",
+    "name": "Baroness Anderson of Stoke-on-Trent",
+    "role": "Parliamentary Secretary",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 5025,
+    "dept_slug": "advocate-general",
+    "name": "Baroness Smith of Cluny KC",
+    "role": "HM Advocate General for Scotland ",
+    "salary_band": "sos",
+    "member_id": null
+  },
+  {
+    "id": 4941,
+    "dept_slug": "education",
+    "name": "The Rt Hon Bridget Phillipson MP",
+    "role": "Minister for Women and Equalities",
+    "salary_band": "sos",
+    "member_id": null
+  },
+  {
+    "id": 4942,
+    "dept_slug": "education",
+    "name": "Georgia Gould OBE MP",
+    "role": "Minister of State (Minister for School Standards)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4946,
+    "dept_slug": "education",
+    "name": "Josh MacAlister OBE MP",
+    "role": "Parliamentary Under-Secretary of State (Minister for Children and Families)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4943,
+    "dept_slug": "education",
+    "name": "The Rt Hon Baroness Smith of Malvern",
+    "role": "Minister of State (Minister for Women and Equalities)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4947,
+    "dept_slug": "education",
+    "name": "Seema Malhotra MP",
+    "role": "Parliamentary Under-Secretary of State (Indo-Pacific)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4972,
+    "dept_slug": "science-tech",
+    "name": "The Rt Hon Liz Kendall MP",
+    "role": "Secretary of State for Science, Innovation and Technology",
+    "salary_band": "sos",
+    "member_id": null
+  },
+  {
+    "id": 4973,
+    "dept_slug": "science-tech",
+    "name": "Lord Vallance",
+    "role": "Minister of State (Minister for Science, Innovation, Research and Nuclear)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4974,
+    "dept_slug": "science-tech",
+    "name": "The Rt Hon Ian Murray MP",
+    "role": "Minister of State (Minister for Digital Government and Data)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 4975,
+    "dept_slug": "science-tech",
+    "name": "Baroness Lloyd of Effra CBE",
+    "role": "Baroness in Waiting (Government Whip)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4976,
+    "dept_slug": "science-tech",
+    "name": "Kanishka Narayan MP",
+    "role": "Parliamentary Under-Secretary of State (Minister for AI and Online Safety)",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4977,
+    "dept_slug": "science-tech",
+    "name": "James Frith MP",
+    "role": "Parliamentary Under-Secretary of State",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 4999,
+    "dept_slug": "cabinet-office",
+    "name": "The Rt Hon Sir Keir Starmer KCB KC MP",
+    "role": "Minister for the Union",
+    "salary_band": "pm",
+    "member_id": null
+  },
+  {
+    "id": 5000,
+    "dept_slug": "cabinet-office",
+    "name": "The Rt Hon Darren Jones MP",
+    "role": "Chief Secretary to the Prime Minister",
+    "salary_band": "sos",
+    "member_id": null
+  },
+  {
+    "id": 5003,
+    "dept_slug": "cabinet-office",
+    "name": "The Rt Hon Anna Turley MP",
+    "role": "Minister of State (Minister without Portfolio)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  },
+  {
+    "id": 5004,
+    "dept_slug": "cabinet-office",
+    "name": "Chris Ward MP",
+    "role": "Parliamentary Secretary",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 5005,
+    "dept_slug": "cabinet-office",
+    "name": "Satvir Kaur MP",
+    "role": "Parliamentary Secretary",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 5018,
+    "dept_slug": "wales-office",
+    "name": "The Rt Hon Jo Stevens MP",
+    "role": "Secretary of State for Wales",
+    "salary_band": "sos",
+    "member_id": null
+  },
+  {
+    "id": 5019,
+    "dept_slug": "wales-office",
+    "name": "Anna McMorrin MP",
+    "role": "Parliamentary Under-Secretary of State",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 5020,
+    "dept_slug": "wales-office",
+    "name": "Claire Hughes MP",
+    "role": "Assistant Whip, House of Commons",
+    "salary_band": "puss",
+    "member_id": null
+  },
+  {
+    "id": 5026,
+    "dept_slug": "ukef",
+    "name": "The Rt Hon Peter Kyle MP",
+    "role": "President of the Board of Trade",
+    "salary_band": "sos",
+    "member_id": null
+  },
+  {
+    "id": 5027,
+    "dept_slug": "ukef",
+    "name": "Sir Chris Bryant MP",
+    "role": "Minister of State (Minister for Trade)",
+    "salary_band": "minister_of_state",
+    "member_id": null
+  }
+]
