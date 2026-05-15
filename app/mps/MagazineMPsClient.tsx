@@ -28,6 +28,37 @@ interface MP {
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.3)';
+const LABOUR_RED = '#E4003B';
+
+// Roll "Labour (Co-op)" into the main Labour group. The Co-operative
+// Party is in electoral alliance with Labour — Co-op MPs sit as
+// Labour-and-Co-op and the (Lab & Co-op) suffix is shown on their
+// individual cards.
+const normaliseParty = (party: string | null | undefined): string => {
+  const p = (party || 'Independent').trim();
+  if (p === 'Labour (Co-op)' || p === 'Labour and Co-operative') return 'Labour';
+  return p;
+};
+const isCoop = (party: string | null | undefined): boolean =>
+  party === 'Labour (Co-op)' || party === 'Labour and Co-operative';
+
+// Hard-coded party colour overrides for groups whose first-MP colour is
+// unreliable (e.g. Co-op MPs carry the grey #808080 fallback rather than
+// Labour red, so the merged Labour bucket would pick grey if a Co-op MP
+// happened to come first).
+const PARTY_COLOUR_OVERRIDE: Record<string, string> = {
+  Labour: LABOUR_RED,
+};
+
+function resolvePartyColour(partyName: string, partyMPs: MP[]): string {
+  if (PARTY_COLOUR_OVERRIDE[partyName]) return PARTY_COLOUR_OVERRIDE[partyName];
+  // Prefer the first member whose raw party matches the group name
+  // exactly (skip Co-op members in the Labour bucket, etc.).
+  const exact = partyMPs.find((m) => m.party === partyName && m.party_colour);
+  const fallback = partyMPs.find((m) => !!m.party_colour);
+  const src = exact || fallback;
+  return src?.party_colour ? `#${src.party_colour.replace('#', '')}` : '#7697a2';
+}
 
 export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
   const searchParams = useSearchParams();
@@ -48,7 +79,7 @@ export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
   const mpsByParty = useMemo(() => {
     const acc: Record<string, MP[]> = {};
     for (const mp of filteredMPs) {
-      const p = mp.party || 'Independent';
+      const p = normaliseParty(mp.party);
       (acc[p] ||= []).push(mp);
     }
     return acc;
@@ -63,21 +94,16 @@ export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
   // even if the current search has filtered the selected party's MPs to zero.
   const allPartyNames = useMemo(() => {
     const set = new Set<string>();
-    for (const mp of mps) set.add(mp.party || 'Independent');
+    for (const mp of mps) set.add(normaliseParty(mp.party));
     return set;
   }, [mps]);
 
   const partyExists = selectedParty != null && allPartyNames.has(selectedParty);
   const selectedPartyMPs = partyExists ? mpsByParty[selectedParty!] || [] : [];
-  const selectedPartyColour =
-    partyExists && selectedPartyMPs[0]?.party_colour
-      ? `#${selectedPartyMPs[0].party_colour!.replace('#', '')}`
-      : partyExists
-        ? (() => {
-            const fromAll = mps.find((m) => (m.party || 'Independent') === selectedParty);
-            return fromAll?.party_colour ? `#${fromAll.party_colour.replace('#', '')}` : '#7697a2';
-          })()
-        : '#7697a2';
+  const selectedPartyColour = partyExists ? resolvePartyColour(selectedParty!, selectedPartyMPs) : '#7697a2';
+  const totalInSelectedParty = partyExists
+    ? mps.filter((m) => normaliseParty(m.party) === selectedParty).length
+    : 0;
 
   return (
     <div style={{ padding: '32px 0', fontFamily: 'Special Elite, monospace', color: INK }}>
@@ -86,7 +112,7 @@ export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
           partyName={selectedParty!}
           partyColour={selectedPartyColour}
           partyMPs={selectedPartyMPs}
-          totalInParty={mps.filter((m) => (m.party || 'Independent') === selectedParty).length}
+          totalInParty={totalInSelectedParty}
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
         />
@@ -195,6 +221,11 @@ function MPCard({ mp, fromParty, idx }: { mp: MP; fromParty: string; idx: number
           {mp.name}
         </h3>
         <p style={{ fontSize: '13px', opacity: 0.8 }}>{mp.constituency}</p>
+        {isCoop(mp.party) && (
+          <p style={{ fontSize: '11px', opacity: 0.65, marginTop: '2px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            Lab &amp; Co-op
+          </p>
+        )}
       </div>
     </Link>
   );
@@ -309,9 +340,7 @@ function AllPartiesView({
         }}
       >
         {sortedParties.map(([party, partyMPs]) => {
-          const partyColour = partyMPs[0]?.party_colour
-            ? `#${partyMPs[0].party_colour!.replace('#', '')}`
-            : '#7697a2';
+          const partyColour = resolvePartyColour(party, partyMPs);
           return (
             <Link
               key={party}
