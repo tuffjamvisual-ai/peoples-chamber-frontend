@@ -1,43 +1,71 @@
-'use client';
+// Server-rendered. Reads from person_cache (populated nightly by
+// /api/sync-person-cache) with a dept_ministers fallback for new
+// appointees not yet cached. Previous version was a client component
+// that fetched data in useEffect after mount — caused a loading flash
+// and shipped empty HTML to crawlers.
 
-import { useState, use, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 import Navigation from '../../components/Navigation';
 import Link from 'next/link';
+import InterestsLoader from './InterestsLoader';
 
-type PersonData = {
+export const revalidate = 3600;
+
+type Role = {
+  title: string;
+  organisation: string;
+  startDate?: string;
+  endDate?: string;
+  current?: boolean;
+  body?: string;
+};
+
+type Person = {
   name: string;
   photo: string;
-  currentRoles: { title: string; organisation: string; startDate: string; body: string }[];
-  pastRoles: { title: string; organisation: string; startDate: string; endDate: string }[];
+  currentRoles: Role[];
+  pastRoles: Role[];
 };
 
-type Interest = {
-  summary: string;
-  detail: string;
-  registered_date: string | null;
-};
+async function getPerson(slug: string): Promise<Person | null> {
+  const [{ data: cached }, { data: ministerRow }] = await Promise.all([
+    supabase
+      .from('person_cache')
+      .select('name, photo, current_roles, past_roles')
+      .eq('slug', slug)
+      .maybeSingle(),
+    supabase
+      .from('dept_ministers')
+      .select('photo_url, name')
+      .eq('slug', slug)
+      .maybeSingle(),
+  ]);
 
-type InterestCategory = { name: string; items: Interest[] };
+  if (cached) {
+    return {
+      name: cached.name,
+      photo: cached.photo || ministerRow?.photo_url || '',
+      currentRoles: (cached.current_roles as Role[]) || [],
+      pastRoles: (cached.past_roles as Role[]) || [],
+    };
+  }
 
-export default function PersonPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = use(params);
-  const [person, setPerson] = useState<PersonData | null>(null);
-  const [interests, setInterests] = useState<InterestCategory[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Cache miss — minimal record from dept_ministers if available.
+  if (ministerRow) {
+    return {
+      name: ministerRow.name || '',
+      photo: ministerRow.photo_url || '',
+      currentRoles: [],
+      pastRoles: [],
+    };
+  }
 
-  useEffect(() => {
-    fetch(`/api/person?slug=${slug}`)
-      .then(r => r.json())
-      .then(d => { setPerson(d); setLoading(false); })
-      .catch(() => setLoading(false));
-  }, [slug]);
+  return null;
+}
 
-  useEffect(() => {
-    fetch(`/api/mp-interests?slug=${slug}`)
-      .then(r => r.json())
-      .then(d => setInterests(d.categories || []))
-      .catch(() => {});
-  }, [slug]);
+export default async function PersonPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const person = await getPerson(slug);
 
   return (
     <div className="min-h-screen bg-[#606060]">
@@ -47,21 +75,19 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
           ← Back to Departments
         </Link>
 
-        {loading && (
-          <div className="text-white text-sm">Loading...</div>
-        )}
-
-        {!loading && !person && (
-          <div className="text-white text-sm">Person not found.</div>
-        )}
+        {!person && <div className="text-white text-sm">Person not found.</div>}
 
         {person && (
           <>
             {/* Header */}
             <div className="bg-[#505050] border border-[#5a5a5a] rounded-xl p-6 mb-6 flex items-start gap-6">
               {person.photo ? (
-                <img src={person.photo} alt={person.name}
-                  className="w-32 h-32 rounded-full object-cover border-2 border-[#5a5a5a] flex-shrink-0" />
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={person.photo}
+                  alt={person.name}
+                  className="w-32 h-32 rounded-full object-cover border-2 border-[#5a5a5a] flex-shrink-0"
+                />
               ) : (
                 <div className="w-32 h-32 rounded-full bg-[#404040] flex items-center justify-center text-3xl font-bold text-white flex-shrink-0">
                   {person.name.charAt(0)}
@@ -78,46 +104,30 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
             {/* Current Roles */}
             {person.currentRoles.length > 0 && (
               <div className="bg-[#505050] border border-[#5a5a5a] rounded-xl p-6 mb-6">
-                <h2 className="text-lg font-semibold text-white mb-4">Current Role{person.currentRoles.length > 1 ? 's' : ''}</h2>
+                <h2 className="text-lg font-semibold text-white mb-4">
+                  Current Role{person.currentRoles.length > 1 ? 's' : ''}
+                </h2>
                 {person.currentRoles.map((role, i) => (
                   <div key={i} className="mb-4 last:mb-0">
                     <div className="text-white font-medium">{role.title}</div>
                     <div className="text-white text-sm">{role.organisation}</div>
                     {role.startDate && (
-                      <div className="text-white text-sm mt-0.5">Since {new Date(role.startDate).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</div>
+                      <div className="text-white text-sm mt-0.5">
+                        Since {new Date(role.startDate).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
+                      </div>
                     )}
                     {role.body && (
-                      <div className="text-[#c9c9c9] text-sm mt-3 leading-relaxed prose prose-invert max-w-none"
-                        dangerouslySetInnerHTML={{ __html: role.body }} />
+                      <div
+                        className="text-[#c9c9c9] text-sm mt-3 leading-relaxed prose prose-invert max-w-none"
+                        dangerouslySetInnerHTML={{ __html: role.body }}
+                      />
                     )}
                   </div>
                 ))}
               </div>
             )}
 
-            {/* Financial Interests — flat layout, gold category headings, sits on page bg */}
-            {interests.length > 0 && (
-              <div className="mb-6">
-                <h2 className="text-lg font-semibold text-white mb-4">Financial Interests</h2>
-                {interests.map((cat) => (
-                  <div key={cat.name} className="mb-6 last:mb-0">
-                    <h3 className="text-sm font-semibold mb-2" style={{ color: '#ffffff' }}>
-                      {cat.name}
-                    </h3>
-                    <ul className="space-y-2">
-                      {cat.items.map((item, i) => (
-                        <li key={i} className="text-[#c9c9c9] text-sm leading-relaxed">
-                          <div>{item.summary}</div>
-                          {item.detail && item.detail !== item.summary && (
-                            <div className="text-white text-sm mt-1 whitespace-pre-line">{item.detail}</div>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            )}
+            <InterestsLoader slug={slug} />
 
             {/* Past Roles */}
             {person.pastRoles.length > 0 && (
@@ -130,7 +140,9 @@ export default function PersonPage({ params }: { params: Promise<{ slug: string 
                       <div className="text-white text-sm">{role.organisation}</div>
                       {role.startDate && role.endDate && (
                         <div className="text-white text-sm mt-0.5">
-                          {new Date(role.startDate).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })} — {new Date(role.endDate).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}
+                          {new Date(role.startDate).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}
+                          {' — '}
+                          {new Date(role.endDate).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}
                         </div>
                       )}
                     </div>
