@@ -141,6 +141,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   };
 
   const fullName = mp.display_name || mp.name || '';
+  const partyColour = mp.party_colour ? `#${mp.party_colour.replace('#', '')}` : '#7697a2';
 
   return (
     <div style={{
@@ -290,6 +291,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
             )}
             {mp.party && (
               <p style={{ fontSize: '22px', marginBottom: '8px', color: '#14100d' }}>
+                <span style={{ display: 'inline-block', width: '12px', height: '12px', borderRadius: '50%', background: partyColour, marginRight: '8px', verticalAlign: 'middle' }}></span>
                 {mp.party}
               </p>
             )}
