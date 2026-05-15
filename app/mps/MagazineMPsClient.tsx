@@ -16,6 +16,7 @@ import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import ScrollToTopButton from '../components/ScrollToTopButton';
+import { normaliseParty, isCoop, resolvePartyColour } from '@/lib/party-helpers';
 
 interface MP {
   member_id: number;
@@ -28,37 +29,6 @@ interface MP {
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.3)';
-const LABOUR_RED = '#E4003B';
-
-// Roll "Labour (Co-op)" into the main Labour group. The Co-operative
-// Party is in electoral alliance with Labour — Co-op MPs sit as
-// Labour-and-Co-op and the (Lab & Co-op) suffix is shown on their
-// individual cards.
-const normaliseParty = (party: string | null | undefined): string => {
-  const p = (party || 'Independent').trim();
-  if (p === 'Labour (Co-op)' || p === 'Labour and Co-operative') return 'Labour';
-  return p;
-};
-const isCoop = (party: string | null | undefined): boolean =>
-  party === 'Labour (Co-op)' || party === 'Labour and Co-operative';
-
-// Hard-coded party colour overrides for groups whose first-MP colour is
-// unreliable (e.g. Co-op MPs carry the grey #808080 fallback rather than
-// Labour red, so the merged Labour bucket would pick grey if a Co-op MP
-// happened to come first).
-const PARTY_COLOUR_OVERRIDE: Record<string, string> = {
-  Labour: LABOUR_RED,
-};
-
-function resolvePartyColour(partyName: string, partyMPs: MP[]): string {
-  if (PARTY_COLOUR_OVERRIDE[partyName]) return PARTY_COLOUR_OVERRIDE[partyName];
-  // Prefer the first member whose raw party matches the group name
-  // exactly (skip Co-op members in the Labour bucket, etc.).
-  const exact = partyMPs.find((m) => m.party === partyName && m.party_colour);
-  const fallback = partyMPs.find((m) => !!m.party_colour);
-  const src = exact || fallback;
-  return src?.party_colour ? `#${src.party_colour.replace('#', '')}` : '#7697a2';
-}
 
 export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
   const searchParams = useSearchParams();

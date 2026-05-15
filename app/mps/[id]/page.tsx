@@ -14,6 +14,7 @@ import {
   SALARY_BAND_LABEL,
   type SalaryBand,
 } from '@/lib/ministerial-salaries';
+import { normaliseParty, isCoop, partyColourForMember } from '@/lib/party-helpers';
 
 const BAND_RANK: Record<SalaryBand, number> = { pm: 4, sos: 3, minister_of_state: 2, puss: 1 };
 
@@ -65,7 +66,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     .single();
   if (!mp) return { title: 'MP profile' };
   const name = mp.display_name || mp.name;
-  const subtitle = [mp.party, mp.constituency].filter(Boolean).join(' · ');
+  const subtitle = [normaliseParty(mp.party), mp.constituency].filter(Boolean).join(' · ');
   return {
     title: name,
     description: `${name}${subtitle ? ` — ${subtitle}.` : '.'} Voting record, registered interests, sponsored bills and contact details.`,
@@ -150,7 +151,9 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   };
 
   const fullName = mp.display_name || mp.name || '';
-  const partyColour = mp.party_colour ? `#${mp.party_colour.replace('#', '')}` : '#7697a2';
+  const partyColour = partyColourForMember(mp.party, mp.party_colour);
+  const partyDisplay = normaliseParty(mp.party);
+  const partyIsCoop = isCoop(mp.party);
 
   return (
     <div style={{
@@ -301,7 +304,12 @@ export default async function MPMagazineProfile({ params }: PageProps) {
             {mp.party && (
               <p style={{ fontSize: '22px', marginBottom: '8px', color: '#14100d' }}>
                 <span style={{ display: 'inline-block', width: '12px', height: '12px', borderRadius: '50%', background: partyColour, marginRight: '8px', verticalAlign: 'middle' }}></span>
-                {mp.party}
+                {partyDisplay}
+                {partyIsCoop && (
+                  <span style={{ fontSize: '13px', marginLeft: '10px', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.08em', verticalAlign: 'middle' }}>
+                    (Lab &amp; Co-op)
+                  </span>
+                )}
               </p>
             )}
           </div>
