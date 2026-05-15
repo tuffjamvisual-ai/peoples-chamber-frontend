@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
+import ChalkboardBillCard from './ChalkboardBillCard';
 
 type Props = {
   initialBills: any[];
@@ -184,71 +185,16 @@ export default function BillsGridMobile({ initialBills, currentPage, totalPages 
         </div>
       </div>
 
-      <div className="p-4 space-y-3" key={activeTab}>
-        {filteredBills.map((bill: any, index: number) => {
-          const totalVotes = bill.vote_count_yes + bill.vote_count_no + bill.vote_count_abstain;
-          const yesPercent = totalVotes > 0 ? Math.round((bill.vote_count_yes / totalVotes) * 100) : 0;
-          const noPercent = totalVotes > 0 ? Math.round((bill.vote_count_no / totalVotes) * 100) : 0;
-          const hasVoted = !!userVotes[bill.id];
-
-          return (
-            <div
-              key={bill.id}
-              onClick={() => router.push(`/bills/${bill.id}`)}
-              className="bg-[#505050] border border-[#5a5a5a] rounded-lg p-4 active:bg-[#404040]"
-            >
-              {/* Show position number and total votes for debugging */}
-              <div className="text-sm text-white mb-1">
-                #{index + 1} | {totalVotes} total votes | Updated: {new Date(bill.last_update).toLocaleDateString()}
-              </div>
-              
-              <h3 className="text-white font-medium text-sm leading-snug mb-3">
-                {bill.title}
-              </h3>
-
-              <div className="mb-3">
-                <div className="h-2 bg-[#404040] rounded-full overflow-hidden flex">
-                  <div className="bg-[#4a8a3a]" style={{ width: `${yesPercent}%` }} />
-                  <div className="bg-[#8a3a3a]" style={{ width: `${noPercent}%` }} />
-                </div>
-                <div className="flex justify-between text-sm text-white mt-1">
-                  <span>✓ {yesPercent}%</span>
-                  <span>{totalVotes.toLocaleString()} votes</span>
-                  <span>✗ {noPercent}%</span>
-                </div>
-              </div>
-
-              <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                <button
-                  onClick={() => handleVote(bill.id, 'yes')}
-                  disabled={hasVoted}
-                  className={`flex-1 py-2 rounded text-sm font-medium ${
-                    hasVoted
-                      ? userVotes[bill.id] === 'yes'
-                        ? 'bg-[#404040] text-white'
-                        : 'bg-[#404040] text-white'
-                      : 'bg-[#404040] active:bg-[#404040] text-white'
-                  }`}
-                >
-                  {hasVoted && userVotes[bill.id] === 'yes' ? '✓ Supported' : 'Support'}
-                </button>
-                <button
-                  onClick={() => handleVote(bill.id, 'no')}
-                  disabled={hasVoted}
-                  className={`flex-1 py-2 rounded text-sm font-medium ${
-                    hasVoted
-                      ? userVotes[bill.id] === 'no'
-                        ? 'bg-[#8a3a3a] text-white'
-                        : 'bg-[#404040] text-white'
-                      : 'bg-[#8a3a3a] active:bg-[#8a3a3a] text-white'
-                  }`}
-                >
-                  {hasVoted && userVotes[bill.id] === 'no' ? '✓ Opposed' : 'Oppose'}
-                </button>
-              </div>
-            </div>
-          );
-        })}
+      <div className="p-4 space-y-4" key={activeTab}>
+        {filteredBills.map((bill: any) => (
+          <ChalkboardBillCard
+            key={bill.id}
+            bill={bill}
+            userVote={(userVotes[bill.id] as 'yes' | 'no' | undefined) ?? null}
+            onClick={() => router.push(`/bills/${bill.id}`)}
+            onVote={(choice) => handleVote(bill.id, choice)}
+          />
+        ))}
       </div>
 
       {filteredBills.length === 0 && (
