@@ -3,50 +3,53 @@ import { supabase } from '@/lib/supabase';
 
 export const revalidate = 3600;
 
+// Reads cached person data from person_cache (refreshed weekly by
+// /api/sync-person-cache). The gov.uk fetch used to live here on every
+// request; now the request path is pure Supabase. Falls back to the
+// matching dept_ministers / dept_officials row for photo if the cache
+// entry doesn't exist yet (e.g. brand-new appointee not yet synced).
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const slug = searchParams.get('slug');
-
   if (!slug) return NextResponse.json({ error: 'slug required' }, { status: 400 });
 
   try {
-    const { data: ministerRow } = await supabase
-      .from('dept_ministers')
-      .select('photo_url')
-      .eq('slug', slug)
-      .maybeSingle();
-    const photo = ministerRow?.photo_url || '';
+    const [{ data: cached }, { data: ministerRow }] = await Promise.all([
+      supabase
+        .from('person_cache')
+        .select('name, photo, current_roles, past_roles')
+        .eq('slug', slug)
+        .maybeSingle(),
+      supabase
+        .from('dept_ministers')
+        .select('photo_url, name')
+        .eq('slug', slug)
+        .maybeSingle(),
+    ]);
 
-    const res = await fetch(
-      `https://www.gov.uk/api/content/government/people/${slug}`,
-      { next: { revalidate: 3600 } }
-    );
+    if (cached) {
+      return NextResponse.json({
+        name: cached.name,
+        photo: cached.photo || ministerRow?.photo_url || '',
+        currentRoles: cached.current_roles || [],
+        pastRoles: cached.past_roles || [],
+      });
+    }
 
-    if (!res.ok) return NextResponse.json({ error: 'not found' }, { status: 404 });
+    // Cache miss — return a minimal record from dept_ministers if we have
+    // one, so the page can at least show the header. Empty roles arrays
+    // until the next cron run picks the slug up.
+    if (ministerRow) {
+      return NextResponse.json({
+        name: ministerRow.name || '',
+        photo: ministerRow.photo_url || '',
+        currentRoles: [],
+        pastRoles: [],
+      });
+    }
 
-    const data = await res.json();
-
-    const allRoles = (data.links?.role_appointments || []).map((r: any) => ({
-      title: r.links?.role?.[0]?.title || '',
-      organisation: r.links?.role?.[0]?.links?.ordered_parent_organisations?.[0]?.title || '',
-      startDate: r.details?.started_on || '',
-      endDate: r.details?.ended_on || '',
-      current: r.details?.current || false,
-      body: r.links?.role?.[0]?.details?.body || '',
-    }));
-
-    const currentRoles = allRoles.filter((r: any) => r.current);
-    const pastRoles = allRoles.filter((r: any) => !r.current)
-      .sort((a: any, b: any) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime());
-
-    return NextResponse.json({
-      name: data.title,
-      photo,
-      currentRoles,
-      pastRoles,
-    });
-
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch' }, { status: 500 });
+    return NextResponse.json({ error: 'not found' }, { status: 404 });
+  } catch {
+    return NextResponse.json({ error: 'lookup failed' }, { status: 500 });
   }
 }

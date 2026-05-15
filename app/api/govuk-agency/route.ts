@@ -26,8 +26,8 @@ export async function GET(request: Request) {
         ministers: cached.ministers || [],
         boardMembers: cached.board_members || [],
         parentOrgs: cached.parent_orgs || [],
-        featuredDocs: [],
-        socialMedia: [],
+        featuredDocs: cached.featured_docs || [],
+        socialMedia: cached.social_media || [],
       });
     }
 
