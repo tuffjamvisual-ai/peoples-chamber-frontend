@@ -54,7 +54,11 @@ async function getPersonAndInterests(
     return {
       person: {
         name: cached.name,
-        photo: cached.photo || ministerRow?.photo_url || '',
+        // Prefer the manually-uploaded dept_ministers photo over the
+        // gov.uk-synced one in person_cache. Manual uploads are the
+        // authoritative source — sync runs would otherwise overwrite
+        // them on the next refresh.
+        photo: ministerRow?.photo_url || cached.photo || '',
         currentRoles: (cached.current_roles as Role[]) || [],
         pastRoles: (cached.past_roles as Role[]) || [],
         politicalBio: (cached.political_bio as string | null) || null,
