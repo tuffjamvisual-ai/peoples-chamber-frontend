@@ -1,11 +1,13 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
-import Navigation from '../components/Navigation';
+import '../components/magazine-layout.css';
+import ScrollToTopButton from '../components/ScrollToTopButton';
 
 export const metadata: Metadata = {
   title: 'Top Spenders',
-  description: 'The 10 MPs with the highest business costs in 2024–25, sourced from IPSA total-spend data.',
+  description:
+    'The 10 MPs with the highest business costs in 2024–25, sourced from IPSA total-spend data.',
   alternates: { canonical: '/expenses' },
 };
 
@@ -17,9 +19,14 @@ export const revalidate = 3600;
 
 const YEAR = '24_25';
 const YEAR_LABEL = '2024 / 2025';
-const ACCENT = '#ffffff';
-const BORDER = '#5a5a5a';
-const MUTED = '#9a9a9a';
+
+// Magazine palette
+const INK = '#14100d';
+const INK_SOFT = 'rgba(20,16,13,0.7)';
+const INK_HAIRLINE = 'rgba(20,16,13,0.3)';
+const CREAM = '#ebe5d8';
+const CREAM_DEEP = '#dcd4c0';
+const ACCENT = '#7a1612';
 
 function fmtMoney(v: number | string | null | undefined): string {
   if (v === null || v === undefined || v === '') return '£0';
@@ -55,7 +62,9 @@ export default async function ExpensesPage() {
   // Fetch a few extra rows so we can drop any non-current MPs and still hit 10.
   const { data: expenseRows } = await supabase
     .from('mp_expenses_summary')
-    .select('member_id, year, total_spend, staffing_spend, office_spend, accommodation_spend, travel_subsistence_spend, other_costs_spend, winding_up_spend')
+    .select(
+      'member_id, year, total_spend, staffing_spend, office_spend, accommodation_spend, travel_subsistence_spend, other_costs_spend, winding_up_spend'
+    )
     .eq('year', YEAR)
     .order('total_spend', { ascending: false, nullsFirst: false })
     .limit(20);
@@ -65,12 +74,14 @@ export default async function ExpensesPage() {
   const { data: mpRows } = ids.length
     ? await supabase
         .from('mps')
-        .select('member_id, name, display_name, constituency, party, party_colour, photo_url, current_member')
+        .select(
+          'member_id, name, display_name, constituency, party, party_colour, photo_url, current_member'
+        )
         .in('member_id', ids)
     : { data: [] as MpRow[] };
 
   const mpById = new Map<number, MpRow>(
-    ((mpRows as MpRow[]) || []).map((m) => [m.member_id, m]),
+    ((mpRows as MpRow[]) || []).map((m) => [m.member_id, m])
   );
 
   const top = ((expenseRows as ExpenseRow[]) || [])
@@ -81,119 +92,351 @@ export default async function ExpensesPage() {
   const grandTotal = top.reduce((s, x) => s + (Number(x.row.total_spend) || 0), 0);
 
   return (
-    <div className="min-h-screen bg-[#606060] text-white">
-      <Navigation />
+    <div
+      style={{
+        position: 'relative',
+        width: '100%',
+        maxWidth: '1086px',
+        margin: '0 auto',
+        background: '#2a1810',
+        backgroundImage:
+          'url("/preview-header.webp"), url("/preview-footer.webp"), url("/preview-middle.webp")',
+        backgroundRepeat: 'no-repeat, no-repeat, repeat-y',
+        backgroundPosition: 'top center, bottom center, top center',
+        backgroundSize: '100% auto, 100% auto, 100% auto',
+      }}
+    >
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 1,
+          backgroundImage:
+            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E\")",
+          pointerEvents: 'none',
+        }}
+      />
 
-      <main className="bg-[#505050] shadow-[0_0_40px_rgba(0,0,0,0.4)] max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
-        {/* Header */}
-        <header className="border-b border-[#5a5a5a] pb-8 mb-8">
-          <p className="text-[11px] uppercase tracking-[0.3em] font-medium mb-3" style={{ color: ACCENT }}>
-            The People&apos;s Chamber · Expenses
+      <nav
+        aria-label="Site"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          aspectRatio: '1023 / 330',
+          zIndex: 5,
+          pointerEvents: 'none',
+        }}
+      >
+        {(
+          [
+            ['/', 'Home', 5, 9],
+            ['/bills', 'Bills', 16, 8],
+            ['/laws', 'Laws', 25, 7],
+            ['/polls', "People's Polls", 34, 14],
+            ['/mps', 'MPs', 48, 11],
+            ['/departments', 'Departments', 59, 15],
+            ['/login', 'Login', 76, 8],
+            ['/about', 'About', 87, 9],
+          ] as const
+        ).map(([href, label, left, width]) => (
+          <Link
+            key={href}
+            href={href}
+            aria-label={label}
+            style={{
+              position: 'absolute',
+              top: '80%',
+              left: `${left}%`,
+              width: `${width}%`,
+              height: '18%',
+              pointerEvents: 'auto',
+              cursor: 'pointer',
+            }}
+          />
+        ))}
+      </nav>
+
+      <div
+        className="magazine-content-spacing"
+        style={{
+          position: 'relative',
+          zIndex: 2,
+          color: INK,
+          fontFamily: 'Special Elite, monospace',
+        }}
+      >
+        <a
+          href="/"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            marginBottom: '24px',
+            color: INK,
+            textDecoration: 'none',
+            fontSize: '16px',
+            transform: 'rotate(-0.2deg)',
+          }}
+        >
+          ← Back to home
+        </a>
+
+        <header style={{ marginBottom: '32px' }}>
+          <p
+            style={{
+              fontSize: '11px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.3em',
+              fontWeight: 'bold',
+              marginBottom: '12px',
+              color: ACCENT,
+            }}
+          >
+            The People&rsquo;s Chamber · Expenses
           </p>
           <h1
-            className="text-4xl sm:text-5xl font-bold leading-[1.05] tracking-tight text-white mb-3"
-            style={{ fontFamily: '"Georgia", "Charter", "Times New Roman", serif' }}
+            style={{
+              fontSize: '44px',
+              fontWeight: 'bold',
+              letterSpacing: '-0.02em',
+              marginBottom: '12px',
+              transform: 'rotate(-0.3deg)',
+              textShadow: '1px 1px 0px rgba(0,0,0,0.1)',
+            }}
           >
             Top 10 spenders {YEAR_LABEL}
           </h1>
-          <p className="text-white text-[14px] leading-[1.7] max-w-2xl mb-5">
+          <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', marginBottom: '20px' }}>
             Ranked by total business costs claimed across staffing, office, accommodation, travel and other categories.
-            Source: <a href="https://www.theipsa.org.uk" target="_blank" rel="noopener noreferrer" className="text-white hover:underline">IPSA total-spend data</a>.
+            Source:{' '}
+            <a
+              href="https://www.theipsa.org.uk"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: ACCENT, textDecoration: 'underline' }}
+            >
+              IPSA total-spend data
+            </a>
+            .
           </p>
-          <div className="grid grid-cols-3 gap-px border border-[#5a5a5a]">
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+              gap: '12px',
+              marginTop: '16px',
+            }}
+          >
             <Stat label="Top 10 combined" value={fmtMoney(grandTotal)} />
             <Stat label="Average" value={top.length ? fmtMoney(grandTotal / top.length) : '£0'} />
             <Stat label="Year" value={YEAR_LABEL} />
           </div>
         </header>
 
-        {/* Ranked list */}
-        <ol className="space-y-px border border-[#5a5a5a]">
+        <ol style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {top.map((x, i) => (
-            <Row key={x.mp.member_id} rank={i + 1} row={x.row} mp={x.mp} />
+            <Row key={x.mp.member_id} rank={i + 1} row={x.row} mp={x.mp} tilt={tiltFor(i)} />
           ))}
         </ol>
 
-        <p className="mt-8 text-[12px] text-white opacity-70 leading-[1.7]">
-          Totals reflect spend recorded against budgets and uncapped categories for the {YEAR_LABEL} financial year. Itemised line items are visible on each MP&apos;s profile under Expenses.
+        <p style={{ marginTop: '32px', fontSize: '13px', color: INK_SOFT, lineHeight: 1.7 }}>
+          Totals reflect spend recorded against budgets and uncapped categories for the {YEAR_LABEL} financial year.
+          Itemised line items are visible on each MP&rsquo;s profile under Expenses.
         </p>
-      </main>
+
+        <ScrollToTopButton />
+      </div>
     </div>
   );
 }
 
-function Row({ rank, row, mp }: { rank: number; row: ExpenseRow; mp: MpRow }) {
+function tiltFor(i: number) {
+  const cycle = [-0.3, 0.2, -0.15, 0.35, -0.25];
+  return cycle[i % cycle.length];
+}
+
+function Row({
+  rank,
+  row,
+  mp,
+  tilt,
+}: {
+  rank: number;
+  row: ExpenseRow;
+  mp: MpRow;
+  tilt: number;
+}) {
   const partyColour = mp.party_colour ? '#' + mp.party_colour.replace('#', '') : '#7697a2';
   const name = mp.display_name || mp.name || '';
   return (
-    <li className="bg-[#505050] p-5 border-l-2 hover:bg-[#353535] transition-colors" style={{ borderLeftColor: partyColour }}>
-      <div className="grid grid-cols-[auto_auto_1fr_auto] gap-4 sm:gap-5 items-center mb-4">
+    <li
+      style={{
+        background: CREAM,
+        color: INK,
+        border: `1px solid ${INK_HAIRLINE}`,
+        borderLeft: `4px solid ${partyColour}`,
+        padding: '20px 22px',
+        transform: `rotate(${tilt}deg)`,
+        boxShadow: '2px 3px 0 rgba(20,16,13,0.15)',
+      }}
+    >
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'auto auto 1fr auto',
+          gap: '16px',
+          alignItems: 'center',
+          marginBottom: '16px',
+        }}
+      >
         <div
-          className="text-3xl sm:text-4xl font-bold tabular-nums w-10 text-center"
-          style={{ fontFamily: '"Georgia", "Charter", "Times New Roman", serif', color: MUTED }}
+          style={{
+            fontSize: '34px',
+            fontWeight: 'bold',
+            fontVariantNumeric: 'tabular-nums',
+            width: '40px',
+            textAlign: 'center',
+            color: INK_SOFT,
+            lineHeight: 1,
+          }}
         >
           {rank}
         </div>
 
-        <div className="flex-shrink-0">
+        <div style={{ flexShrink: 0 }}>
           {mp.photo_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
+            /* eslint-disable-next-line @next/next/no-img-element */
             <img
               src={mp.photo_url}
               alt={name}
-              className="w-[72px] h-[72px] sm:w-20 sm:h-20 rounded-full object-cover"
-              style={{ border: `2px solid ${partyColour}` }}
+              width={72}
+              height={72}
+              style={{
+                width: '72px',
+                height: '72px',
+                borderRadius: '50%',
+                objectFit: 'cover',
+                border: `3px solid ${partyColour}`,
+                boxShadow: '1px 2px 0 rgba(20,16,13,0.2)',
+              }}
             />
           ) : (
             <div
-              className="w-[72px] h-[72px] sm:w-20 sm:h-20 rounded-full flex items-center justify-center text-xl font-bold text-white"
-              style={{ border: `2px solid ${partyColour}`, background: partyColour + '33' }}
+              style={{
+                width: '72px',
+                height: '72px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '24px',
+                fontWeight: 'bold',
+                color: INK,
+                border: `3px solid ${partyColour}`,
+                background: CREAM_DEEP,
+              }}
             >
               {name.charAt(0)}
             </div>
           )}
         </div>
 
-        <div className="min-w-0">
+        <div style={{ minWidth: 0 }}>
           <Link
             href={`/mps/${mp.member_id}`}
-            className="text-white text-lg sm:text-xl font-bold hover:underline leading-tight block truncate"
-            style={{ fontFamily: '"Georgia", "Charter", "Times New Roman", serif' }}
+            style={{
+              color: INK,
+              fontSize: '20px',
+              fontWeight: 'bold',
+              textDecoration: 'none',
+              letterSpacing: '-0.01em',
+              display: 'block',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
           >
             {name}
           </Link>
-          <p className="text-[13px] text-white opacity-80 truncate">{mp.constituency || ''}</p>
+          {mp.constituency && (
+            <p
+              style={{
+                fontSize: '13px',
+                color: INK_SOFT,
+                margin: '2px 0 0',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {mp.constituency}
+            </p>
+          )}
           {mp.party && (
             <span
-              className="inline-block mt-2 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.1em] rounded-sm text-white"
-              style={{ backgroundColor: partyColour }}
+              style={{
+                display: 'inline-block',
+                marginTop: '8px',
+                padding: '2px 8px',
+                fontSize: '11px',
+                fontWeight: 'bold',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                color: CREAM,
+                background: partyColour,
+              }}
             >
               {mp.party}
             </span>
           )}
         </div>
 
-        <div className="text-right flex-shrink-0">
+        <div style={{ textAlign: 'right', flexShrink: 0 }}>
           <p
-            className="text-2xl sm:text-3xl font-bold tabular-nums leading-none text-white"
-            style={{ fontFamily: '"Georgia", "Charter", "Times New Roman", serif' }}
+            style={{
+              fontSize: '26px',
+              fontWeight: 'bold',
+              fontVariantNumeric: 'tabular-nums',
+              lineHeight: 1,
+              color: INK,
+              margin: 0,
+            }}
           >
             {fmtMoney(row.total_spend)}
           </p>
-          <p className="text-[10px] uppercase tracking-[0.18em] mt-1.5 text-white opacity-70">
+          <p
+            style={{
+              fontSize: '10px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.18em',
+              marginTop: '6px',
+              color: INK_SOFT,
+            }}
+          >
             Total {YEAR_LABEL}
           </p>
         </div>
       </div>
 
-      {/* Category breakdown */}
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-px bg-[#404040] border border-[#5a5a5a]">
-        <Cell label="Staffing"      v={row.staffing_spend} />
-        <Cell label="Office"        v={row.office_spend} />
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
+          gap: '1px',
+          background: INK_HAIRLINE,
+          border: `1px solid ${INK_HAIRLINE}`,
+        }}
+      >
+        <Cell label="Staffing" v={row.staffing_spend} />
+        <Cell label="Office" v={row.office_spend} />
         <Cell label="Accommodation" v={row.accommodation_spend} />
-        <Cell label="Travel"        v={row.travel_subsistence_spend} />
-        <Cell label="Other"         v={row.other_costs_spend} />
-        <Cell label="Winding-up"    v={row.winding_up_spend} />
+        <Cell label="Travel" v={row.travel_subsistence_spend} />
+        <Cell label="Other" v={row.other_costs_spend} />
+        <Cell label="Winding-up" v={row.winding_up_spend} />
       </div>
     </li>
   );
@@ -201,20 +444,65 @@ function Row({ rank, row, mp }: { rank: number; row: ExpenseRow; mp: MpRow }) {
 
 function Cell({ label, v }: { label: string; v: number | null | undefined }) {
   return (
-    <div className="bg-[#505050] px-2.5 py-2">
-      <p className="text-[9px] uppercase tracking-[0.15em] text-white opacity-70 mb-1">{label}</p>
-      <p className="text-[13px] font-semibold text-white tabular-nums leading-none">{fmtMoney(v)}</p>
+    <div style={{ background: CREAM_DEEP, padding: '8px 10px' }}>
+      <p
+        style={{
+          fontSize: '9px',
+          textTransform: 'uppercase',
+          letterSpacing: '0.15em',
+          color: INK_SOFT,
+          margin: '0 0 4px',
+        }}
+      >
+        {label}
+      </p>
+      <p
+        style={{
+          fontSize: '13px',
+          fontWeight: 'bold',
+          color: INK,
+          fontVariantNumeric: 'tabular-nums',
+          margin: 0,
+          lineHeight: 1,
+        }}
+      >
+        {fmtMoney(v)}
+      </p>
     </div>
   );
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-[#505050] px-4 py-4">
-      <p className="text-[10px] uppercase tracking-[0.22em] text-white opacity-70 mb-1.5 font-medium">{label}</p>
+    <div
+      style={{
+        background: CREAM_DEEP,
+        border: `1px solid ${INK_HAIRLINE}`,
+        padding: '14px 16px',
+      }}
+    >
       <p
-        className="text-2xl font-bold leading-none tracking-tight text-white tabular-nums"
-        style={{ fontFamily: '"Georgia", "Charter", "Times New Roman", serif' }}
+        style={{
+          fontSize: '10px',
+          textTransform: 'uppercase',
+          letterSpacing: '0.22em',
+          color: INK_SOFT,
+          margin: '0 0 6px',
+          fontWeight: 'bold',
+        }}
+      >
+        {label}
+      </p>
+      <p
+        style={{
+          fontSize: '24px',
+          fontWeight: 'bold',
+          letterSpacing: '-0.01em',
+          color: INK,
+          fontVariantNumeric: 'tabular-nums',
+          margin: 0,
+          lineHeight: 1,
+        }}
       >
         {value}
       </p>
