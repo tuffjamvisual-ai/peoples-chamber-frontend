@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import Link from 'next/link'
 
 type Law = {
@@ -14,89 +14,204 @@ type Law = {
   originating_house: string
 }
 
+const INK = '#14100d'
+const INK_SOFT = 'rgba(20,16,13,0.7)'
+const INK_HAIRLINE = 'rgba(20,16,13,0.3)'
+const CREAM = '#ebe5d8'
+const ACCENT = '#7a1612'
+
 export default function LawsClient({ laws }: { laws: Law[] }) {
   const [search, setSearch] = useState('')
 
-  const filteredLaws = laws.filter(law =>
-    law.title.toLowerCase().includes(search.toLowerCase()) ||
-    (law.plain_summary && law.plain_summary.toLowerCase().includes(search.toLowerCase()))
-  )
+  const filteredLaws = useMemo(() => {
+    if (!search) return laws
+    const q = search.toLowerCase()
+    return laws.filter(
+      (law) =>
+        law.title.toLowerCase().includes(q) ||
+        (law.plain_summary && law.plain_summary.toLowerCase().includes(q))
+    )
+  }, [laws, search])
 
   return (
-    <main className="bg-[#505050] shadow-[0_0_40px_rgba(0,0,0,0.4)] max-w-[1200px] mx-auto px-4 sm:px-6 py-4 sm:py-6">
-      <div className="mb-6">
-        <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">Laws</h1>
-        <p className="text-white text-sm sm:text-base">
-          Bills that have received Royal Assent and become law
-        </p>
-        <p className="text-sm text-white mt-2">
-          {filteredLaws.length} laws found
-        </p>
-      </div>
-
-      <div className="mb-6">
+    <>
+      <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'baseline', gap: '16px', flexWrap: 'wrap' }}>
         <input
           type="text"
-          placeholder="Search laws..."
+          placeholder="Search Acts by title or summary…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-[30%] px-4 py-2 bg-[#404040] text-white rounded-lg border border-[#5a5a5a] focus:border-[#ffffff] focus:outline-none"
+          style={{
+            flex: '1 1 320px',
+            maxWidth: '480px',
+            padding: '10px 14px',
+            background: CREAM,
+            color: INK,
+            border: `1px solid ${INK_HAIRLINE}`,
+            borderRadius: 0,
+            fontFamily: 'Special Elite, monospace',
+            fontSize: '15px',
+            outline: 'none',
+          }}
         />
+        <span style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.15em', opacity: 0.7 }}>
+          {filteredLaws.length.toLocaleString()} of {laws.length.toLocaleString()} shown
+        </span>
       </div>
 
       {filteredLaws.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-white">
-            {search ? `No laws found matching "${search}"` : 'No laws found'}
-          </p>
+        <div style={{ textAlign: 'center', padding: '64px 0', color: INK_SOFT }}>
+          {search ? `No Acts found matching "${search}".` : 'No Acts found.'}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {filteredLaws.map((law) => (
-            <Link
-              key={law.id}
-              href={`/bills/${law.id}`}
-              className="bg-[#505050] border border-[#5a5a5a] rounded-lg p-4 sm:p-6 hover:border-[#ffffff] transition-colors flex flex-col"
-            >
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-sm px-2 py-0.5 bg-white/10 text-white rounded border border-white/20">
-                  ✓ Law
-                </span>
-                {law.originating_house && (
-                  <span className="text-sm text-white">{law.originating_house}</span>
-                )}
-              </div>
-
-              <h3 className="font-semibold text-base text-white mb-3 line-clamp-2">
-                {law.title}
-              </h3>
-
-              {law.plain_summary && (
-                <p className="text-white text-sm mb-4 line-clamp-3 flex-1">
-                  {law.plain_summary}
-                </p>
-              )}
-
-              <div className="flex items-center justify-between text-sm text-white mt-auto">
-                {law.sponsor_name && (
-                  <span className="flex items-center gap-1">
-                    {law.sponsor_party && (
-                      <span
-                        className="inline-block w-2 h-2 rounded-full"
-                        style={{ backgroundColor: `#${law.sponsor_party_colour}` || '#7697a2' }}
-                      />
-                    )}
-                    {law.sponsor_name}
-                  </span>
-                )}
-                {law.last_update && (
-                  <span>{new Date(law.last_update).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                )}
-              </div>
-            </Link>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+            gap: '24px',
+            marginBottom: '32px',
+          }}
+        >
+          {filteredLaws.map((law, idx) => (
+            <LawCard key={law.id} law={law} tilt={tiltFor(idx)} />
           ))}
         </div>
       )}
-    </main>
+    </>
+  )
+}
+
+// Slight per-card rotation so the grid feels like clippings pinned to
+// a board rather than a CSS grid. Tilts repeat on a 5-card cycle.
+function tiltFor(i: number) {
+  const cycle = [-0.4, 0.3, -0.2, 0.5, -0.3]
+  return cycle[i % cycle.length]
+}
+
+function LawCard({ law, tilt }: { law: Law; tilt: number }) {
+  const partyColour = law.sponsor_party_colour
+    ? `#${law.sponsor_party_colour.replace(/^#/, '')}`
+    : '#7697a2'
+
+  const date = law.last_update
+    ? new Date(law.last_update).toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      })
+    : null
+
+  return (
+    <Link
+      href={`/bills/${law.id}`}
+      style={{
+        display: 'block',
+        background: CREAM,
+        color: INK,
+        border: `1px solid ${INK_HAIRLINE}`,
+        padding: '20px 22px',
+        textDecoration: 'none',
+        transform: `rotate(${tilt}deg)`,
+        boxShadow: '2px 3px 0 rgba(20,16,13,0.15)',
+        transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+        position: 'relative',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+        <span
+          style={{
+            fontSize: '11px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.15em',
+            padding: '3px 8px',
+            background: ACCENT,
+            color: CREAM,
+            fontWeight: 'bold',
+          }}
+        >
+          ✓ Royal Assent
+        </span>
+        {law.originating_house && (
+          <span
+            style={{
+              fontSize: '11px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.15em',
+              color: INK_SOFT,
+            }}
+          >
+            {law.originating_house}
+          </span>
+        )}
+      </div>
+
+      <h3
+        style={{
+          fontSize: '18px',
+          fontWeight: 'bold',
+          lineHeight: 1.3,
+          marginBottom: '12px',
+          letterSpacing: '-0.01em',
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
+        }}
+      >
+        {law.title}
+      </h3>
+
+      {law.plain_summary && (
+        <p
+          style={{
+            fontSize: '14px',
+            lineHeight: 1.6,
+            color: INK_SOFT,
+            marginBottom: '16px',
+            display: '-webkit-box',
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+          }}
+        >
+          {law.plain_summary}
+        </p>
+      )}
+
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '8px',
+          paddingTop: '12px',
+          borderTop: `1px dashed ${INK_HAIRLINE}`,
+          fontSize: '12px',
+          color: INK_SOFT,
+        }}
+      >
+        {law.sponsor_name ? (
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
+            <span
+              aria-hidden
+              style={{
+                display: 'inline-block',
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                background: partyColour,
+                flexShrink: 0,
+              }}
+            />
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {law.sponsor_name}
+            </span>
+          </span>
+        ) : (
+          <span />
+        )}
+        {date && <span style={{ flexShrink: 0 }}>{date}</span>}
+      </div>
+    </Link>
   )
 }

@@ -55,9 +55,29 @@ export async function GET(req: Request) {
   for (const row of targets) {
     try {
       const stages = await fetchStages(row.parliament_id);
+
+      // Derive headline current_stage + stage_date from the freshest
+      // dated stage in the JSON we just fetched. Stages without a
+      // stageSittings date (future/scheduled) are ignored for this
+      // purpose so we surface the last *actually-occurred* stage.
+      const items: Array<{ description?: string; stageSittings?: Array<{ date?: string }> }> =
+        Array.isArray(stages?.items) ? stages.items : [];
+      const dated = items
+        .map((s) => ({ s, date: s.stageSittings?.[0]?.date }))
+        .filter((x): x is { s: typeof items[number]; date: string } => Boolean(x.date))
+        .sort((a, b) => b.date.localeCompare(a.date));
+      const latest = dated[0];
+      const current_stage = latest?.s.description ?? null;
+      const stage_date = latest?.date?.slice(0, 10) ?? null;
+
       const { error } = await supabase
         .from('bill')
-        .update({ stages, stages_synced_at: new Date().toISOString() })
+        .update({
+          stages,
+          stages_synced_at: new Date().toISOString(),
+          current_stage,
+          stage_date,
+        })
         .eq('id', row.id);
       if (error) throw error;
       ok++;
