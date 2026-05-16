@@ -1,16 +1,29 @@
 import type { Metadata } from "next";
-import { Raleway, Geist_Mono } from "next/font/google";
+import { Playfair_Display, Anton, Oswald } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
 
-const geistSans = Raleway({
-  variable: "--font-geist-sans",
+// Magazine-template typography stack. Special Elite is loaded via
+// @font-face in globals.css and consumed by --font-typewriter.
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
   subsets: ["latin"],
+  weight: ["400", "700"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const anton = Anton({
+  variable: "--font-anton",
   subsets: ["latin"],
+  weight: "400",
+  display: "swap",
+});
+
+const oswald = Oswald({
+  variable: "--font-oswald",
+  subsets: ["latin"],
+  weight: ["400", "600"],
+  display: "swap",
 });
 
 const SITE_URL = "https://www.thepeopleschamber.uk";
@@ -98,7 +111,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html lang="en" className={`${playfair.variable} ${anton.variable} ${oswald.variable} h-full antialiased`}>
       <head>
         {/* Preload the Special Elite font so it's ready when the
          * magazine pages render — skips the 200-300ms fallback flash. */}

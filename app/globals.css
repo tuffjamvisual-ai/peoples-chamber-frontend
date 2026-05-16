@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
-/* Self-hosted font — only Special Elite is referenced anywhere in the app. */
+/* Self-hosted typewriter face — used for magazine body copy. The three
+ * Google fonts (Playfair Display, Anton, Oswald) are loaded via
+ * next/font in app/layout.tsx and surfaced as the CSS variables below. */
 @font-face {
   font-family: "Special Elite";
   font-style: normal;
@@ -13,13 +15,21 @@
 :root {
   --background: #1a1a1a;
   --foreground: #c9c9c9;
+  /* Magazine font roles. --font-playfair / --font-anton / --font-oswald
+   * are populated by next/font in layout.tsx. --font-typewriter wraps
+   * the self-hosted Special Elite face above. */
+  --font-typewriter: "Special Elite", "Courier New", monospace;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Tailwind utility aliases so `font-display`, `font-headline`,
+   * `font-label`, `font-typewriter` can be used on elements. */
+  --font-display: var(--font-playfair);
+  --font-headline: var(--font-anton);
+  --font-label: var(--font-oswald);
+  --font-typewriter: var(--font-typewriter);
 }
 
 body {
