@@ -1,8 +1,21 @@
 /* Shared spacing for magazine-template pages.
- * - Top: 400px clears the painted header art
- * - Bottom: 200px clears the painted footer
- * - Sides: 80px gutter inside the template
+ *
+ * The painted chrome (preview-header.webp, preview-footer.webp) is
+ * background-sized to 100% width with native aspect ratio 1023:330.
+ * That means the header occupies roughly 32% of the viewport width in
+ * height, and the footer roughly 16%. Padding has to scale with the
+ * viewport so content sits just below the painted header at any width
+ * — otherwise narrow viewports get a huge cream gap between the nav
+ * art and the first heading.
+ *
+ * Caps: 400px / 200px / 80px match the original desktop design at the
+ * 1086px container max-width and prevent over-padding on wide screens.
+ * Floors: clamp side-padding to 16px so phone-width content still has
+ * a comfortable margin.
  */
 .magazine-content-spacing {
-  padding: 400px 80px 200px 80px;
+  padding-top:    min(400px, calc(32.3vw + 50px));
+  padding-bottom: min(200px, calc(16vw + 25px));
+  padding-left:   clamp(16px, 7vw, 80px);
+  padding-right:  clamp(16px, 7vw, 80px);
 }
