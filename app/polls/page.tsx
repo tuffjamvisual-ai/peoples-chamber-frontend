@@ -4,6 +4,7 @@ import PollsClient from './PollsClient'
 import '../components/magazine-layout.css'
 import ScrollToTopButton from '../components/ScrollToTopButton'
 
+import MagazineNav from '../components/MagazineNav';
 export const metadata: Metadata = {
   title: "People's Polls",
   description:
@@ -39,47 +40,7 @@ export default function PollsPage() {
         }}
       />
 
-      <nav
-        aria-label="Site"
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          aspectRatio: '1023 / 330',
-          zIndex: 5,
-          pointerEvents: 'none',
-        }}
-      >
-        {(
-          [
-            ['/', 'Home', 5, 9],
-            ['/bills', 'Bills', 16, 8],
-            ['/laws', 'Laws', 25, 7],
-            ['/polls', "People's Polls", 34, 14],
-            ['/mps', 'MPs', 48, 11],
-            ['/departments', 'Departments', 59, 15],
-            ['/login', 'Login', 76, 8],
-            ['/about', 'About', 87, 9],
-          ] as const
-        ).map(([href, label, left, width]) => (
-          <Link
-            key={href}
-            href={href}
-            aria-label={label}
-            style={{
-              position: 'absolute',
-              top: '80%',
-              left: `${left}%`,
-              width: `${width}%`,
-              height: '18%',
-              pointerEvents: 'auto',
-              cursor: 'pointer',
-            }}
-          />
-        ))}
-      </nav>
-
+      <MagazineNav />
       <div
         className="magazine-content-spacing"
         style={{

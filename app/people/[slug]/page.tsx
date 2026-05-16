@@ -14,6 +14,7 @@ import '../../components/magazine-layout.css';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 import PeopleProfileSections, { type Role, type Interest, type PeerFinance } from './PeopleProfileSections';
 
+import MagazineNav from '../../components/MagazineNav';
 export const revalidate = 3600;
 
 const INK = '#14100d';
@@ -130,45 +131,7 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
         }}
       />
 
-      <nav
-        aria-label="Site"
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          aspectRatio: '1023 / 330',
-          zIndex: 5,
-          pointerEvents: 'none',
-        }}
-      >
-        {([
-          ['/', 'Home', 5, 9],
-          ['/bills', 'Bills', 16, 8],
-          ['/laws', 'Laws', 25, 7],
-          ['/polls', "People's Polls", 34, 14],
-          ['/mps', 'MPs', 48, 11],
-          ['/departments', 'Departments', 59, 15],
-          ['/login', 'Login', 76, 8],
-          ['/about', 'About', 87, 9],
-        ] as const).map(([href, label, left, width]) => (
-          <Link
-            key={href}
-            href={href}
-            aria-label={label}
-            style={{
-              position: 'absolute',
-              top: '80%',
-              left: `${left}%`,
-              width: `${width}%`,
-              height: '18%',
-              pointerEvents: 'auto',
-              cursor: 'pointer',
-            }}
-          />
-        ))}
-      </nav>
-
+      <MagazineNav />
       <div
         className="magazine-content-spacing"
         style={{ position: 'relative', zIndex: 2, color: INK, fontFamily: 'Special Elite, monospace' }}
