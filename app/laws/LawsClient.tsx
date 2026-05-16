@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 
 type Law = {
@@ -20,7 +21,13 @@ const INK_HAIRLINE = 'rgba(20,16,13,0.3)'
 const CREAM = '#ebe5d8'
 const ACCENT = '#7a1612'
 
+const LAWS_PER_PAGE = 20
+
 export default function LawsClient({ laws }: { laws: Law[] }) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
   const [search, setSearch] = useState('')
 
   const filteredLaws = useMemo(() => {
@@ -33,6 +40,35 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
     )
   }, [laws, search])
 
+  const totalPages = Math.max(1, Math.ceil(filteredLaws.length / LAWS_PER_PAGE))
+  const rawPage = parseInt(searchParams.get('page') || '1', 10)
+  const currentPage = Math.min(Math.max(1, Number.isFinite(rawPage) ? rawPage : 1), totalPages)
+
+  // Keep URL in sync when the active page falls out of the new filter
+  // range (e.g. user on page 5, types a query that narrows to 2 pages).
+  useEffect(() => {
+    if (rawPage > totalPages) {
+      router.replace(totalPages === 1 ? pathname : `${pathname}?page=${totalPages}`)
+    }
+  }, [rawPage, totalPages, pathname, router])
+
+  const paginated = filteredLaws.slice(
+    (currentPage - 1) * LAWS_PER_PAGE,
+    currentPage * LAWS_PER_PAGE
+  )
+
+  const firstShown = filteredLaws.length === 0 ? 0 : (currentPage - 1) * LAWS_PER_PAGE + 1
+  const lastShown = Math.min(currentPage * LAWS_PER_PAGE, filteredLaws.length)
+
+  const hrefFor = (p: number) => (p <= 1 ? pathname : `${pathname}?page=${p}`)
+
+  function handleSearchChange(value: string) {
+    setSearch(value)
+    // Reset to page 1 whenever search changes — page 5 of a fresh
+    // result set is almost never what the user means to land on.
+    if (currentPage !== 1) router.replace(pathname)
+  }
+
   return (
     <>
       <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'baseline', gap: '16px', flexWrap: 'wrap' }}>
@@ -40,7 +76,7 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
           type="text"
           placeholder="Search Acts by title or summary…"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => handleSearchChange(e.target.value)}
           style={{
             flex: '1 1 320px',
             maxWidth: '480px',
@@ -55,29 +91,109 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
           }}
         />
         <span style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.15em', opacity: 0.7 }}>
-          {filteredLaws.length.toLocaleString()} of {laws.length.toLocaleString()} shown
+          {filteredLaws.length === 0
+            ? `0 of ${laws.length.toLocaleString()} shown`
+            : `${firstShown.toLocaleString()}–${lastShown.toLocaleString()} of ${filteredLaws.length.toLocaleString()}${
+                search ? ` (filtered from ${laws.length.toLocaleString()})` : ''
+              } · page ${currentPage} of ${totalPages}`}
         </span>
       </div>
 
-      {filteredLaws.length === 0 ? (
+      {paginated.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '64px 0', color: INK_SOFT }}>
           {search ? `No Acts found matching "${search}".` : 'No Acts found.'}
         </div>
       ) : (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-            gap: '24px',
-            marginBottom: '32px',
-          }}
-        >
-          {filteredLaws.map((law, idx) => (
-            <LawCard key={law.id} law={law} tilt={tiltFor(idx)} />
-          ))}
-        </div>
+        <>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+              gap: '24px',
+              marginBottom: '32px',
+            }}
+          >
+            {paginated.map((law, idx) => (
+              <LawCard key={law.id} law={law} tilt={tiltFor(idx)} />
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <nav
+              aria-label="Pagination"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                flexWrap: 'wrap',
+                marginBottom: '32px',
+              }}
+            >
+              <PageLink href={hrefFor(1)} disabled={currentPage === 1}>
+                « First
+              </PageLink>
+              <PageLink href={hrefFor(currentPage - 1)} disabled={currentPage === 1}>
+                ← Previous
+              </PageLink>
+              <span
+                style={{
+                  padding: '8px 14px',
+                  fontSize: '14px',
+                  border: `1px solid ${INK_HAIRLINE}`,
+                  background: CREAM,
+                  color: INK,
+                }}
+              >
+                Page {currentPage} of {totalPages}
+              </span>
+              <PageLink href={hrefFor(currentPage + 1)} disabled={currentPage === totalPages}>
+                Next →
+              </PageLink>
+              <PageLink href={hrefFor(totalPages)} disabled={currentPage === totalPages}>
+                Last »
+              </PageLink>
+            </nav>
+          )}
+        </>
       )}
     </>
+  )
+}
+
+function PageLink({
+  href,
+  disabled,
+  children,
+}: {
+  href: string
+  disabled: boolean
+  children: React.ReactNode
+}) {
+  const baseStyle = {
+    padding: '8px 14px',
+    fontSize: '14px',
+    border: `1px solid ${INK_HAIRLINE}`,
+    color: INK,
+    background: 'transparent',
+    textDecoration: 'none',
+    fontFamily: 'Special Elite, monospace',
+  } as const
+
+  if (disabled) {
+    return (
+      <span
+        aria-disabled
+        style={{ ...baseStyle, opacity: 0.35, cursor: 'not-allowed' }}
+      >
+        {children}
+      </span>
+    )
+  }
+  return (
+    <Link href={href} style={baseStyle}>
+      {children}
+    </Link>
   )
 }
 
