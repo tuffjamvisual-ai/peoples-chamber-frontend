@@ -143,6 +143,11 @@ export default function MagazineProfileSections({
 
   const [active, setActive] = useState<SectionId>(sections[0]?.id ?? 'bio');
   const [expandedYear, setExpandedYear] = useState<number | null>(null);
+  const [votesPage, setVotesPage] = useState(1);
+  const VOTES_PER_PAGE = 20;
+  const totalVotePages = Math.max(1, Math.ceil(votes.length / VOTES_PER_PAGE));
+  const voteStart = (votesPage - 1) * VOTES_PER_PAGE;
+  const voteEnd = Math.min(voteStart + VOTES_PER_PAGE, votes.length);
 
   useEffect(() => {
     const apply = () => {
@@ -255,9 +260,11 @@ export default function MagazineProfileSections({
         {active === 'voting' && (
           <>
             <h2 style={sectionH2}>Voting Record</h2>
-            <p style={{ marginBottom: '16px' }}><strong>{votes.length}</strong> divisions recorded. Latest 20 below.</p>
+            <p style={{ marginBottom: '16px' }}>
+              <strong>{votes.length}</strong> divisions recorded. Showing {voteStart + 1}–{voteEnd} (page {votesPage} of {totalVotePages}).
+            </p>
             <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.7' }}>
-              {votes.slice(0, 20).map((v) => (
+              {votes.slice(voteStart, voteEnd).map((v) => (
                 <li key={v.id} style={{ padding: '8px 0', borderBottom: inkDivider }}>
                   <div>
                     {v.bill_id ? (
@@ -275,6 +282,51 @@ export default function MagazineProfileSections({
                 </li>
               ))}
             </ul>
+            {totalVotePages > 1 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', paddingTop: '16px', borderTop: inkDivider }}>
+                <button
+                  type="button"
+                  onClick={() => setVotesPage((p) => Math.max(1, p - 1))}
+                  disabled={votesPage <= 1}
+                  style={{
+                    background: votesPage <= 1 ? 'transparent' : '#f4e8d4',
+                    color: votesPage <= 1 ? '#14100d80' : '#14100d',
+                    border: '1px solid #14100d',
+                    padding: '8px 16px',
+                    fontFamily: 'inherit',
+                    fontSize: '13px',
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    cursor: votesPage <= 1 ? 'not-allowed' : 'pointer',
+                    opacity: votesPage <= 1 ? 0.4 : 1,
+                  }}
+                >
+                  ← Prev
+                </button>
+                <span style={{ fontSize: '13px', opacity: 0.7, letterSpacing: '0.05em' }}>
+                  Page {votesPage} of {totalVotePages}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setVotesPage((p) => Math.min(totalVotePages, p + 1))}
+                  disabled={votesPage >= totalVotePages}
+                  style={{
+                    background: votesPage >= totalVotePages ? 'transparent' : '#f4e8d4',
+                    color: votesPage >= totalVotePages ? '#14100d80' : '#14100d',
+                    border: '1px solid #14100d',
+                    padding: '8px 16px',
+                    fontFamily: 'inherit',
+                    fontSize: '13px',
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    cursor: votesPage >= totalVotePages ? 'not-allowed' : 'pointer',
+                    opacity: votesPage >= totalVotePages ? 0.4 : 1,
+                  }}
+                >
+                  Next →
+                </button>
+              </div>
+            )}
           </>
         )}
 
