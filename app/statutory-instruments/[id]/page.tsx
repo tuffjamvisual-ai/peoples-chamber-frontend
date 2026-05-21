@@ -158,10 +158,6 @@ export default async function SIDetailPage({ params }: { params: Promise<{ id: s
             <VoteColumn heading={`Voted NO (${noes.length})`} rows={noes} accent={DANGER} />
           </div>
         </section>
-
-        <p style={{ fontSize: '13px', opacity: 0.6, marginTop: '40px', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '16px' }}>
-          A Statutory Instrument is delegated legislation made under powers granted by an existing Act. This page mirrors the Commons division record for the formal motion.
-        </p>
       </div>
     </div>
   )
