@@ -16,7 +16,7 @@ const ALL_SECTIONS: Array<{ id: SectionId; label: string; rotate: string }> = [
   { id: 'expenses',  label: 'EXPENSES',         rotate: '-0.1deg' },
 ];
 
-type Vote = { id: number; division_title: string; division_date: string; vote_type: string; is_rebellion?: boolean };
+type Vote = { id: number; division_title: string; division_date: string; vote_type: string; is_rebellion?: boolean; bill_id?: number | null };
 type Bill = { id: number; title: string; status?: string | null; current_stage?: string | null; plain_summary?: string | null; is_act?: boolean | null; last_update?: string | null };
 type Interest = { category_name: string; interest_text: string | null };
 type Representation = { name: string; startDate: string; endDate?: string | null };
@@ -259,7 +259,15 @@ export default function MagazineProfileSections({
             <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.7' }}>
               {votes.slice(0, 20).map((v) => (
                 <li key={v.id} style={{ padding: '8px 0', borderBottom: inkDivider }}>
-                  <div>{v.division_title}</div>
+                  <div>
+                    {v.bill_id ? (
+                      <Link href={`/bills/${v.bill_id}`} style={inkLink}>
+                        {v.division_title}
+                      </Link>
+                    ) : (
+                      v.division_title
+                    )}
+                  </div>
                   <div style={{ fontSize: '13px', opacity: 0.7 }}>
                     {fmtDate(v.division_date)} · <strong>{v.vote_type.toUpperCase()}</strong>
                     {v.is_rebellion && <span style={{ color: '#7a1612' }}> · REBEL</span>}

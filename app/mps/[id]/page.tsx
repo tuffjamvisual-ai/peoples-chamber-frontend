@@ -107,7 +107,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       .order('created_at', { ascending: false }),
     supabase
       .from('mp_division_votes')
-      .select('id, division_title, division_date, vote_type, is_rebellion')
+      .select('id, division_title, division_date, vote_type, is_rebellion, bill_id')
       .eq('member_id', memberId)
       .order('division_date', { ascending: false })
       .range(0, 199),
