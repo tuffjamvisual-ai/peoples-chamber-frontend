@@ -16,7 +16,7 @@ const ALL_SECTIONS: Array<{ id: SectionId; label: string; rotate: string }> = [
   { id: 'expenses',  label: 'EXPENSES',         rotate: '-0.1deg' },
 ];
 
-type Vote = { id: number; division_title: string; division_date: string; vote_type: string; is_rebellion?: boolean; bill_id?: number | null; division_id?: number | null };
+type Vote = { id: number; division_title: string; division_date: string; vote_type: string; is_rebellion?: boolean; bill_id?: number | null; division_id?: number | null; is_si?: boolean };
 type Bill = { id: number; title: string; status?: string | null; current_stage?: string | null; plain_summary?: string | null; is_act?: boolean | null; last_update?: string | null };
 type Interest = { category_name: string; interest_text: string | null };
 type Representation = { name: string; startDate: string; endDate?: string | null };
@@ -269,6 +269,10 @@ export default function MagazineProfileSections({
                   <div>
                     {v.bill_id ? (
                       <Link href={`/bills/${v.bill_id}`} style={inkLink}>
+                        {v.division_title}
+                      </Link>
+                    ) : v.is_si && v.division_id ? (
+                      <Link href={`/statutory-instruments/${v.division_id}`} style={inkLink}>
                         {v.division_title}
                       </Link>
                     ) : v.division_id ? (

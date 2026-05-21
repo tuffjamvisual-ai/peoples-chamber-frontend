@@ -96,6 +96,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     expensesDetailRes,
     ministerialRowsRes,
     outsideRowRes,
+    siDivisionsRes,
   ] = await Promise.all([
     supabase.from('mps').select('*').eq('member_id', memberId).single(),
     supabase.from('mp_contact').select('*').eq('member_id', memberId).single(),
@@ -124,9 +125,24 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       .range(0, 49),
     supabase.from('dept_ministers').select('salary_band').eq('member_id', memberId).not('salary_band', 'is', null),
     supabase.from('mp_outside_earnings_summary').select('total_extracted, claim_count, source_count').eq('member_id', memberId).maybeSingle(),
+    // Which division_ids are statutory instruments — lets the voting-record
+    // render deep-link to /statutory-instruments/[division_id] instead of the
+    // external Commons Votes site. Cheap single-column read; folded into the
+    // parallel batch to avoid a serial round-trip on the cold render.
+    supabase.from('statutory_instrument').select('division_id'),
   ]);
   const mp = mpRes.data;
   if (!mp) notFound();
+
+  // Tag each vote whose division is a statutory instrument so the render can
+  // pick the SI deep-link branch over the external Commons Votes fallback.
+  const siDivisionIds = new Set<number>(
+    (siDivisionsRes.data || []).map((r: { division_id: number }) => r.division_id),
+  );
+  const votesWithSi = (votesRes.data || []).map((v) => ({
+    ...v,
+    is_si: v.division_id != null && siDivisionIds.has(v.division_id),
+  }));
 
   let highestBand: SalaryBand | null = null;
   for (const r of ministerialRowsRes.data || []) {
@@ -290,7 +306,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
             address_line1:  contactRes.data?.address_line1 ?? null,
             postcode:       contactRes.data?.postcode      ?? null,
           }}
-          votes={votesRes.data || []}
+          votes={votesWithSi}
           sponsoredBills={sponsoredBillsRes.data || []}
           interests={interestsRes.data || []}
           bio={bioRes.data}
