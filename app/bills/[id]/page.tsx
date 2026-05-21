@@ -429,7 +429,9 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
         )}
 
         {/* Full Description */}
-        {bill.description && bill.description !== bill.title && (
+        {bill.description &&
+         bill.description !== bill.title &&
+         bill.description.trim().toLowerCase() !== 'no description available' && (
           <details style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '24px', marginBottom: '40px' }}>
             <summary
               style={{
