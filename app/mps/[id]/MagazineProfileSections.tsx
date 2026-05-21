@@ -16,7 +16,7 @@ const ALL_SECTIONS: Array<{ id: SectionId; label: string; rotate: string }> = [
   { id: 'expenses',  label: 'EXPENSES',         rotate: '-0.1deg' },
 ];
 
-type Vote = { id: number; division_title: string; division_date: string; vote_type: string; is_rebellion?: boolean; bill_id?: number | null };
+type Vote = { id: number; division_title: string; division_date: string; vote_type: string; is_rebellion?: boolean; bill_id?: number | null; division_id?: number | null };
 type Bill = { id: number; title: string; status?: string | null; current_stage?: string | null; plain_summary?: string | null; is_act?: boolean | null; last_update?: string | null };
 type Interest = { category_name: string; interest_text: string | null };
 type Representation = { name: string; startDate: string; endDate?: string | null };
@@ -271,6 +271,15 @@ export default function MagazineProfileSections({
                       <Link href={`/bills/${v.bill_id}`} style={inkLink}>
                         {v.division_title}
                       </Link>
+                    ) : v.division_id ? (
+                      <a
+                        href={`https://commonsvotes.parliament.uk/votes/commons/division/${v.division_id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={inkLink}
+                      >
+                        {v.division_title}
+                      </a>
                     ) : (
                       v.division_title
                     )}
