@@ -36,13 +36,34 @@ export default async function SIDetailPage({ params }: { params: Promise<{ id: s
     .single()
   if (!si) notFound()
 
+  // mp_division_votes has no FK to mps, so PostgREST can't embed it (PGRST200)
+  // and the embed form silently returns no rows — which zeroed the vote lists.
+  // Fetch the vote rows, then look up MP metadata separately and merge in JS.
+  // Orphan voters (member_id absent from mps) render without a profile link
+  // instead of failing the whole query.
   const { data: voteRows } = await supabase
     .from('mp_division_votes')
-    .select('vote_type, member_id, is_rebellion, mps(display_name, party, constituency, photo_url)')
+    .select('vote_type, member_id, is_rebellion')
     .eq('division_id', divisionId)
     .order('vote_type')
 
-  const votes = (voteRows ?? []) as unknown as VoteRow[]
+  const memberIds = [...new Set((voteRows ?? []).map((v) => v.member_id))]
+  const mpRows = memberIds.length
+    ? (
+        await supabase
+          .from('mps')
+          .select('member_id, display_name, party, constituency, photo_url')
+          .in('member_id', memberIds)
+      ).data
+    : []
+  const mpById = new Map((mpRows ?? []).map((m) => [m.member_id, m]))
+
+  const votes: VoteRow[] = (voteRows ?? []).map((v) => ({
+    vote_type: v.vote_type,
+    member_id: v.member_id,
+    is_rebellion: v.is_rebellion,
+    mps: mpById.get(v.member_id) ?? null,
+  }))
   const ayes = votes.filter((v) => v.vote_type === 'aye')
   const noes = votes.filter((v) => v.vote_type === 'no')
 
