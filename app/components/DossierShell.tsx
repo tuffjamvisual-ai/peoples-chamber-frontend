@@ -175,7 +175,7 @@ export default function DossierShell({ children }: { children: React.ReactNode }
             </div>
 
             {/* Content slot — whatever the page puts in the folder. */}
-            <div style={{ position: 'relative', zIndex: 1, padding: '10% 8% 15%' }}>
+            <div style={{ position: 'relative', zIndex: 1, padding: '10% 8% 6%' }}>
               {children}
             </div>
           </ExpandingFolder>
