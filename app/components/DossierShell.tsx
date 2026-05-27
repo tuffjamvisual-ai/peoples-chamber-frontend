@@ -1,0 +1,186 @@
+import ExpandingFolder from './ExpandingFolder';
+
+// The reusable "dossier" page shell: dark backdrop → People's Chamber newspaper masthead
+// (image + %-positioned nav hotspots + weekly issue line) → an empty expanding manila
+// folder. Drop any content into `children` and it renders inside the folder. Used by the
+// MP profile pages (MpDossier) and any other page that wants this look.
+
+type Hotspot = { label: string; href: string; xPct: number; yPct: number; wPct: number; hPct: number };
+const HOTSPOTS: Hotspot[] = [
+  { label: 'HOME', href: '/', xPct: 5.5, yPct: 18.8, wPct: 5.0, hPct: 2.2 },
+  { label: 'BILLS', href: '/bills', xPct: 13.0, yPct: 18.8, wPct: 5.5, hPct: 2.2 },
+  { label: 'LAWS', href: '/laws', xPct: 20.5, yPct: 18.8, wPct: 5.5, hPct: 2.2 },
+  { label: 'PEOPLES POLLS', href: '/polls', xPct: 29.0, yPct: 18.8, wPct: 12.0, hPct: 2.2 },
+  { label: 'MPS', href: '/mps', xPct: 44.0, yPct: 18.8, wPct: 4.5, hPct: 2.2 },
+  { label: 'DEPARTMENTS', href: '/departments', xPct: 52.0, yPct: 18.8, wPct: 12.0, hPct: 2.2 },
+  { label: 'TRANSPARENCY', href: '/transparency', xPct: 68.0, yPct: 18.8, wPct: 12.0, hPct: 2.2 },
+  { label: 'CONTACT', href: '/contact', xPct: 82.0, yPct: 18.8, wPct: 7.0, hPct: 2.2 },
+  { label: 'LOGIN', href: '/login', xPct: 91.0, yPct: 18.8, wPct: 5.0, hPct: 2.2 },
+  { label: 'Top Content Area', href: '/feature', xPct: 6.0, yPct: 24.0, wPct: 88.0, hPct: 39.0 },
+  { label: 'Bottom Left Area', href: '/left', xPct: 6.0, yPct: 66.0, wPct: 27.0, hPct: 18.0 },
+  { label: 'Bottom Centre Area', href: '/centre', xPct: 37.0, yPct: 66.0, wPct: 27.0, hPct: 18.0 },
+  { label: 'Bottom Right Area', href: '/right', xPct: 68.0, yPct: 66.0, wPct: 26.0, hPct: 18.0 },
+  { label: 'X', href: 'https://x.com', xPct: 15.0, yPct: 94.0, wPct: 2.5, hPct: 2.0 },
+  { label: 'Facebook', href: 'https://facebook.com', xPct: 20.0, yPct: 94.0, wPct: 2.5, hPct: 2.0 },
+  { label: 'Instagram', href: 'https://instagram.com', xPct: 24.5, yPct: 94.0, wPct: 2.5, hPct: 2.0 },
+  { label: 'YouTube', href: 'https://youtube.com', xPct: 29.0, yPct: 94.0, wPct: 2.5, hPct: 2.0 },
+  { label: 'LinkedIn', href: 'https://linkedin.com', xPct: 34.0, yPct: 94.0, wPct: 2.5, hPct: 2.0 },
+  { label: 'SUPPORT US', href: '/support', xPct: 49.0, yPct: 93.8, wPct: 10.0, hPct: 2.5 },
+  { label: 'ACCOUNT/INFO', href: '/account', xPct: 68.0, yPct: 93.8, wPct: 14.0, hPct: 2.5 },
+];
+
+// Weekly issue line. Anchor: Issue 23 = week beginning Fri 16 May 2025; Fri–Thu weeks.
+const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+function computeIssue(now: Date) {
+  const ANCHOR = new Date(2025, 4, 16);
+  const ANCHOR_ISSUE = 23;
+  const WEEK_START_DOW = 5; // 0=Sun … 5=Fri
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const back = (today.getDay() - WEEK_START_DOW + 7) % 7;
+  const start = new Date(today);
+  start.setDate(today.getDate() - back);
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+  const issue = ANCHOR_ISSUE + Math.round((start.getTime() - ANCHOR.getTime()) / 6048e5);
+  const sm = MONTHS[start.getMonth()], em = MONTHS[end.getMonth()];
+  const dateRange =
+    start.getFullYear() !== end.getFullYear()
+      ? `${sm} ${start.getDate()}, ${start.getFullYear()} – ${em} ${end.getDate()}, ${end.getFullYear()}`
+      : start.getMonth() !== end.getMonth()
+        ? `${sm} ${start.getDate()} – ${em} ${end.getDate()}, ${end.getFullYear()}`
+        : `${sm} ${start.getDate()}–${end.getDate()}, ${end.getFullYear()}`;
+  return { issue, dateRange };
+}
+
+export default function DossierShell({ children }: { children: React.ReactNode }) {
+  const { issue, dateRange } = computeIssue(new Date());
+
+  return (
+    <>
+      <style>{`
+        /* Folder placement: straight, off-centre on larger screens; centred on small
+           screens. Built from 3 image slices (top/mid/bottom) so it stretches to any
+           height. -114.2% = -(1 - 0.24) * (1537/1023) — overlaps the masthead at ~24%. */
+        .pca-folder {
+          position: relative;
+          width: 95%;
+          margin: -114.2% 1.5% 0 3.5%;
+          transform: none;
+          font-family: 'Special Elite', monospace;
+          color: #14100d;
+        }
+        @media (max-width: 640px) {
+          .pca-folder { width: 92%; margin-left: 4%; margin-right: 4%; }
+        }
+      `}</style>
+
+      <div
+        style={{
+          minHeight: '100vh',
+          margin: 0,
+          backgroundColor: '#140d07',
+          position: 'relative',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          padding: '3vh 0 8vh',
+        }}
+      >
+        {/* Folders-pile backdrop, pinned to the viewport. */}
+        <div
+          aria-hidden
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: '#140d07',
+            backgroundImage: 'url(/bg-folders.webp)',
+            backgroundSize: '150%',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            zIndex: 0,
+            pointerEvents: 'none',
+          }}
+        />
+
+        <div style={{ position: 'relative', zIndex: 1, width: 'min(94vw, 1144px)' }}>
+          {/* Newspaper (masthead + nav), fixed aspect; hotspots are %-based over it. */}
+          <div style={{ position: 'relative', width: '100%', aspectRatio: '1023 / 1537' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/pca-art.webp"
+              alt="The People's Chamber"
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'fill',
+                userSelect: 'none',
+                pointerEvents: 'none',
+                filter: 'drop-shadow(0 18px 38px rgba(0,0,0,0.55))',
+              }}
+            />
+            {HOTSPOTS.map((h) => {
+              const external = h.href.startsWith('http');
+              return (
+                <a
+                  key={h.label}
+                  href={h.href}
+                  aria-label={h.label}
+                  className="no-hover-scale"
+                  {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                  style={{
+                    position: 'absolute',
+                    left: `${h.xPct}%`,
+                    top: `${h.yPct}%`,
+                    width: `${h.wPct}%`,
+                    height: `${h.hPct}%`,
+                    display: 'block',
+                    cursor: 'pointer',
+                    borderRadius: 4,
+                  }}
+                />
+              );
+            })}
+
+            {/* Live, weekly-updating issue line on the cleared top-left of the masthead. */}
+            <div
+              style={{
+                position: 'absolute',
+                left: '3%',
+                top: '6.4%',
+                width: '21%',
+                textAlign: 'center',
+                fontFamily: 'var(--font-abril), Georgia, serif',
+                color: '#6b2417',
+                lineHeight: 1.1,
+                pointerEvents: 'none',
+              }}
+            >
+              <div style={{ color: '#2b2722', fontSize: 'clamp(17px, 2.85vw, 41px)', letterSpacing: '0.01em' }}>
+                ISSUE {issue}
+              </div>
+              <div style={{ fontSize: 'clamp(8px, 1.2vw, 16px)', letterSpacing: '0.03em', marginTop: '0.5em' }}>
+                {dateRange}
+              </div>
+            </div>
+          </div>
+
+          <ExpandingFolder defaultHeightCss="calc(min(94vw, 1144px) * 1.18)" className="pca-folder">
+            {/* Folder image as 3 stacked layers: top piece, repeating middle, bottom piece. */}
+            <div aria-hidden style={{ position: 'absolute', inset: 0, zIndex: 0, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ width: '100%', aspectRatio: '1023 / 160', backgroundImage: 'url(/folder-top.webp)', backgroundSize: '100% 100%', backgroundRepeat: 'no-repeat' }} />
+              <div style={{ flex: '1 1 auto', backgroundImage: 'url(/folder-mid.webp)', backgroundRepeat: 'repeat-y', backgroundSize: '100% auto' }} />
+              <div style={{ width: '100%', aspectRatio: '1023 / 157', backgroundImage: 'url(/folder-bottom.webp)', backgroundSize: '100% 100%', backgroundRepeat: 'no-repeat', marginTop: '-5%', WebkitMaskImage: 'linear-gradient(180deg, transparent 0%, #000 34%)', maskImage: 'linear-gradient(180deg, transparent 0%, #000 34%)' }} />
+            </div>
+
+            {/* Content slot — whatever the page puts in the folder. */}
+            <div style={{ position: 'relative', zIndex: 1, padding: '10% 8% 15%' }}>
+              {children}
+            </div>
+          </ExpandingFolder>
+        </div>
+      </div>
+    </>
+  );
+}

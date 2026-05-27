@@ -1,13 +1,7 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import '../../components/magazine-layout.css';
-import ScrollToTopButton from '../../components/ScrollToTopButton';
-import MagazineProfileSections from './MagazineProfileSections';
-import BackToMPsLink from '../BackToMPsLink';
+import MpDossier from './MpDossier';
 import {
   MP_BASE_SALARY_2026,
   MINISTERIAL_SUPPLEMENT,
@@ -16,7 +10,6 @@ import {
 } from '@/lib/ministerial-salaries';
 import { normaliseParty, isCoop, partyColourForMember } from '@/lib/party-helpers';
 
-import MagazineNav from '../../components/MagazineNav';
 const BAND_RANK: Record<SalaryBand, number> = { pm: 4, sos: 3, minister_of_state: 2, puss: 1 };
 
 // 6-hour ISR. Cabinet pages prerender at build (see generateStaticParams);
@@ -173,150 +166,35 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   const partyIsCoop = isCoop(mp.party);
 
   return (
-    <div style={{
-      position: 'relative',
-      width: '100%',
-      maxWidth: '1086px',
-      margin: '0 auto',
-      background: '#2a1810',
-      backgroundImage:
-        'url("/preview-header.webp"), url("/preview-footer.webp"), url("/preview-middle.webp")',
-      backgroundRepeat: 'no-repeat, no-repeat, repeat-y',
-      backgroundPosition: 'top center, bottom center, top center',
-      backgroundSize: '100% auto, 100% auto, 100% auto',
-    }}>
-      <div
-        aria-hidden
-        style={{
-          position: 'absolute',
-          inset: 0,
-          zIndex: 1,
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E\")",
-          pointerEvents: 'none',
-        }}
-      />
-
-      <MagazineNav />
-      <div className="magazine-content-spacing" style={{ position: 'relative', zIndex: 2, color: '#14100d', fontFamily: 'Special Elite, monospace' }}>
-        <Suspense fallback={<a href="/mps" style={{ display: 'inline-block', marginBottom: '24px', color: '#14100d', textDecoration: 'none', fontSize: '16px' }}>← Back to all MPs</a>}>
-          <BackToMPsLink />
-        </Suspense>
-        <div style={{ display: 'flex', flexDirection: 'row-reverse', gap: '40px', marginBottom: '30px' }}>
-          <div style={{
-            position: 'relative',
-            background: '#ebe5d8',
-            padding: '12px 12px 48px 12px',
-            width: '284px',
-            marginTop: '-20px',
-            marginRight: '-40px',
-            transform: 'rotate(15deg)',
-            boxShadow: '0 4px 8px rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.03)',
-            filter: 'contrast(1.05) brightness(0.98)',
-          }}>
-            {mp.photo_url ? (
-              <Image
-                src={mp.photo_url}
-                alt={fullName}
-                width={260}
-                height={260}
-                priority
-                sizes="260px"
-                style={{ display: 'block', width: '260px', height: '260px', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }}
-              />
-            ) : (
-              <div
-                aria-hidden
-                style={{
-                  width: '260px',
-                  height: '260px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  background: '#d6cdb8',
-                  color: '#14100d',
-                  fontSize: '64px',
-                  fontFamily: 'Special Elite, monospace',
-                }}
-              >
-                {fullName.charAt(0) || '?'}
-              </div>
-            )}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/paperclip.png"
-              alt=""
-              aria-hidden
-              style={{
-                position: 'absolute',
-                top: '-30px',
-                right: '-5px',
-                width: '65px',
-                height: 'auto',
-                transform: 'rotate(180deg)',
-                transformOrigin: 'center',
-                pointerEvents: 'none',
-                zIndex: 3,
-                filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.35))',
-              }}
-            />
-          </div>
-
-          <div style={{ flex: 1 }}>
-            <h1 style={{
-              fontSize: '44px',
-              marginTop: '20px',
-              fontWeight: 'bold',
-              marginBottom: '12px',
-              color: '#14100d',
-              fontFamily: 'Special Elite, monospace',
-              textShadow: '1px 1px 0px rgba(0,0,0,0.1)',
-              letterSpacing: '-0.02em',
-            }}>
-              {fullName}
-            </h1>
-            {mp.constituency && (
-              <p style={{ fontSize: '22px', marginBottom: '4px', color: '#14100d' }}>
-                MP for {mp.constituency}
-              </p>
-            )}
-            {mp.party && (
-              <p style={{ fontSize: '22px', marginBottom: '8px', color: '#14100d' }}>
-                <span style={{ display: 'inline-block', width: '12px', height: '12px', borderRadius: '50%', background: partyColour, marginRight: '8px', verticalAlign: 'middle' }}></span>
-                {partyDisplay}
-                {partyIsCoop && (
-                  <span style={{ fontSize: '13px', marginLeft: '10px', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.08em', verticalAlign: 'middle' }}>
-                    (Lab &amp; Co-op)
-                  </span>
-                )}
-              </p>
-            )}
-          </div>
-        </div>
-
-        <MagazineProfileSections
-          memberId={memberId}
-          paragraphs={(bioRes.data?.political_bio ?? '').split(/\n\n+/).map((p: string) => p.trim()).filter((p: string) => p.length > 0)}
-          contact={{
-            // Prefer mp_contact, fall back to fields on the mps row.
-            phone:          contactRes.data?.phone         ?? mp.phone         ?? null,
-            email:          contactRes.data?.email         ?? mp.email         ?? null,
-            website:        contactRes.data?.website       ?? mp.website       ?? null,
-            twitter:        contactRes.data?.twitter       ?? mp.twitter       ?? null,
-            address_line1:  contactRes.data?.address_line1 ?? null,
-            postcode:       contactRes.data?.postcode      ?? null,
-          }}
-          votes={votesWithSi}
-          sponsoredBills={sponsoredBillsRes.data || []}
-          interests={interestsRes.data || []}
-          bio={bioRes.data}
-          earnings={earnings}
-          expenses={expensesRes.data || []}
-          expensesDetail={expensesDetailRes.data || []}
-        />
-
-        <ScrollToTopButton />
-      </div>
-    </div>
+    <MpDossier
+      memberId={memberId}
+      fullName={fullName}
+      constituency={mp.constituency ?? null}
+      partyDisplay={partyDisplay}
+      partyExpand={partyDisplay || mp.party || ''}
+      partyColour={partyColour}
+      partyIsCoop={partyIsCoop}
+      photoUrl={mp.photo_url ?? null}
+      sections={{
+        memberId,
+        paragraphs: (bioRes.data?.political_bio ?? '').split(/\n\n+/).map((p: string) => p.trim()).filter((p: string) => p.length > 0),
+        contact: {
+          // Prefer mp_contact, fall back to fields on the mps row.
+          phone:         contactRes.data?.phone         ?? mp.phone         ?? null,
+          email:         contactRes.data?.email         ?? mp.email         ?? null,
+          website:       contactRes.data?.website       ?? mp.website       ?? null,
+          twitter:       contactRes.data?.twitter       ?? mp.twitter       ?? null,
+          address_line1: contactRes.data?.address_line1 ?? null,
+          postcode:      contactRes.data?.postcode      ?? null,
+        },
+        votes: votesWithSi,
+        sponsoredBills: sponsoredBillsRes.data || [],
+        interests: interestsRes.data || [],
+        bio: bioRes.data,
+        earnings,
+        expenses: expensesRes.data || [],
+        expensesDetail: expensesDetailRes.data || [],
+      }}
+    />
   );
 }

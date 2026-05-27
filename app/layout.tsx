@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Anton, Oswald } from "next/font/google";
+import { Playfair_Display, Anton, Oswald, Abril_Fatface } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
 
@@ -23,6 +23,15 @@ const oswald = Oswald({
   variable: "--font-oswald",
   subsets: ["latin"],
   weight: ["400", "600"],
+  display: "swap",
+});
+
+// Heavy Didone display face — closest Google-Fonts match to the masthead's Playbill
+// woodtype; used for the landing-page issue line.
+const abril = Abril_Fatface({
+  variable: "--font-abril",
+  subsets: ["latin"],
+  weight: "400",
   display: "swap",
 });
 
@@ -111,7 +120,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${playfair.variable} ${anton.variable} ${oswald.variable} h-full antialiased`}>
+    <html lang="en" className={`${playfair.variable} ${anton.variable} ${oswald.variable} ${abril.variable} h-full antialiased`}>
       <head>
         {/* Preload the Special Elite font so it's ready when the
          * magazine pages render — skips the 200-300ms fallback flash. */}

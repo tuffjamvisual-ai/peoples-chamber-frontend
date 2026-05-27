@@ -32,9 +32,11 @@ const INK_HAIRLINE = 'rgba(20,16,13,0.3)';
 
 const MPS_PER_PAGE = 21;
 
-export default function MagazineMPsClient({ mps }: { mps: MP[] }) {
+export default function MagazineMPsClient({ mps, expand }: { mps: MP[]; expand?: string | null }) {
   const searchParams = useSearchParams();
-  const selectedParty = searchParams.get('expand');
+  // Prefer the server-resolved ?expand prop (drives view + re-render on nav);
+  // fall back to the client param if the prop is not supplied.
+  const selectedParty = expand !== undefined ? expand : searchParams.get('expand');
   const pageParam = parseInt(searchParams.get('page') || '1', 10);
   const requestedPage = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
   const [searchTerm, setSearchTerm] = useState('');
@@ -366,7 +368,7 @@ function AllPartiesView({
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
           columnGap: '32px',
           rowGap: '4px',
           alignItems: 'start',

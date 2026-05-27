@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 
 type SectionId = 'bio' | 'contact' | 'voting' | 'bills' | 'interests' | 'roles' | 'earnings' | 'expenses';
@@ -80,6 +80,16 @@ interface Props {
   earnings: Earnings;
   expenses: ExpenseSummary[];
   expensesDetail: ExpenseClaim[];
+  // Opt-in (landing page only): float the sidebar with a JS scroll handler instead of
+  // CSS position: sticky, so it survives a transformed ancestor (the tilted folder).
+  // Default off — the live MP profile pages keep their native CSS sticky.
+  jsSticky?: boolean;
+  // Visual zoom applied to this component by the parent (so the JS sticky can convert
+  // viewport px into the element's local px). 1 = no zoom.
+  stickyScale?: number;
+  // Landing page only: abbreviate the expenses column headers and drop any breakdown
+  // column that is zero across every year, so the table fits a narrow folder.
+  compactExpenses?: boolean;
 }
 
 const fmtMoney = (n: number) =>
@@ -121,6 +131,9 @@ export default function MagazineProfileSections({
   earnings,
   expenses,
   expensesDetail,
+  jsSticky = false,
+  stickyScale = 1,
+  compactExpenses = false,
 }: Props) {
   const has: Record<SectionId, boolean> = {
     bio: paragraphs.length > 0,
@@ -143,11 +156,35 @@ export default function MagazineProfileSections({
 
   const [active, setActive] = useState<SectionId>(sections[0]?.id ?? 'bio');
   const [expandedYear, setExpandedYear] = useState<number | null>(null);
-  const [votesPage, setVotesPage] = useState(1);
-  const VOTES_PER_PAGE = 20;
-  const totalVotePages = Math.max(1, Math.ceil(votes.length / VOTES_PER_PAGE));
-  const voteStart = (votesPage - 1) * VOTES_PER_PAGE;
-  const voteEnd = Math.min(voteStart + VOTES_PER_PAGE, votes.length);
+
+  // JS-driven float (opt-in). CSS sticky can't work under a transformed ancestor, so when
+  // jsSticky is on we translate the sidebar down to keep it pinned ~24px from the top,
+  // clamped to its container. All measurements use getBoundingClientRect (viewport/visual
+  // px); the offset is divided by stickyScale to convert back to the element's local px.
+  const stickyRef = useRef<HTMLDivElement>(null);
+  const [stickyOffset, setStickyOffset] = useState(0);
+  useEffect(() => {
+    if (!jsSticky) return;
+    const el = stickyRef.current;
+    if (!el) return;
+    const TOP_GAP = 24;
+    const compute = () => {
+      const parent = el.parentElement;
+      if (!parent) return;
+      const pr = parent.getBoundingClientRect();
+      const er = el.getBoundingClientRect();
+      const maxVisual = Math.max(0, pr.height - er.height - 8);
+      const visualDelta = Math.max(0, Math.min(TOP_GAP - pr.top, maxVisual));
+      setStickyOffset(visualDelta / stickyScale);
+    };
+    compute();
+    window.addEventListener('scroll', compute, { passive: true });
+    window.addEventListener('resize', compute);
+    return () => {
+      window.removeEventListener('scroll', compute);
+      window.removeEventListener('resize', compute);
+    };
+  }, [jsSticky, stickyScale]);
 
   useEffect(() => {
     const apply = () => {
@@ -174,19 +211,28 @@ export default function MagazineProfileSections({
     return map;
   }, [expensesDetail]);
 
-  const breakdownLabels: Array<{ key: keyof ExpenseSummary; label: string }> = [
-    { key: 'office_spend',             label: 'Office' },
-    { key: 'staffing_spend',           label: 'Staffing' },
-    { key: 'accommodation_spend',      label: 'Accommodation' },
-    { key: 'travel_subsistence_spend', label: 'Travel + Subsistence' },
-    { key: 'other_costs_spend',        label: 'Other costs' },
-    { key: 'winding_up_spend',         label: 'Winding-up' },
+  const allBreakdown: Array<{ key: keyof ExpenseSummary; label: string; short: string }> = [
+    { key: 'office_spend',             label: 'Office',               short: 'Office' },
+    { key: 'staffing_spend',           label: 'Staffing',             short: 'Staff' },
+    { key: 'accommodation_spend',      label: 'Accommodation',        short: 'Accom.' },
+    { key: 'travel_subsistence_spend', label: 'Travel + Subsistence', short: 'Travel' },
+    { key: 'other_costs_spend',        label: 'Other costs',          short: 'Other' },
+    { key: 'winding_up_spend',         label: 'Winding-up',           short: 'Wind.' },
   ];
+  // Compact mode (landing folder): abbreviate headers and drop any column that is zero
+  // across every year, so the table fits without horizontal scrolling.
+  const breakdownLabels = allBreakdown
+    .filter((b) => !compactExpenses || expenses.some((e) => Number(e[b.key]) > 0))
+    .map((b) => ({ key: b.key, label: compactExpenses ? b.short : b.label }));
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-px" style={{ marginTop: '-80px' }}>
       <aside className="lg:col-span-1">
-        <div className="lg:sticky lg:top-16">
+        <div
+          ref={stickyRef}
+          className={jsSticky ? undefined : 'lg:sticky lg:top-16'}
+          style={jsSticky ? { transform: `translateY(${stickyOffset}px)`, willChange: 'transform' } : undefined}
+        >
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 8px 8px' }}>
             {sections.map((s) => {
               const isActive = active === s.id;
@@ -261,10 +307,10 @@ export default function MagazineProfileSections({
           <>
             <h2 style={sectionH2}>Voting Record</h2>
             <p style={{ marginBottom: '16px' }}>
-              <strong>{votes.length}</strong> divisions recorded. Showing {voteStart + 1}–{voteEnd} (page {votesPage} of {totalVotePages}).
+              <strong>{votes.length}</strong> divisions recorded.
             </p>
             <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.7' }}>
-              {votes.slice(voteStart, voteEnd).map((v) => (
+              {votes.map((v) => (
                 <li key={v.id} style={{ padding: '8px 0', borderBottom: inkDivider }}>
                   <div>
                     {v.bill_id ? (
@@ -295,51 +341,6 @@ export default function MagazineProfileSections({
                 </li>
               ))}
             </ul>
-            {totalVotePages > 1 && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', paddingTop: '16px', borderTop: inkDivider }}>
-                <button
-                  type="button"
-                  onClick={() => setVotesPage((p) => Math.max(1, p - 1))}
-                  disabled={votesPage <= 1}
-                  style={{
-                    background: votesPage <= 1 ? 'transparent' : '#f4e8d4',
-                    color: votesPage <= 1 ? '#14100d80' : '#14100d',
-                    border: '1px solid #14100d',
-                    padding: '8px 16px',
-                    fontFamily: 'inherit',
-                    fontSize: '13px',
-                    letterSpacing: '0.08em',
-                    textTransform: 'uppercase',
-                    cursor: votesPage <= 1 ? 'not-allowed' : 'pointer',
-                    opacity: votesPage <= 1 ? 0.4 : 1,
-                  }}
-                >
-                  ← Prev
-                </button>
-                <span style={{ fontSize: '13px', opacity: 0.7, letterSpacing: '0.05em' }}>
-                  Page {votesPage} of {totalVotePages}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setVotesPage((p) => Math.min(totalVotePages, p + 1))}
-                  disabled={votesPage >= totalVotePages}
-                  style={{
-                    background: votesPage >= totalVotePages ? 'transparent' : '#f4e8d4',
-                    color: votesPage >= totalVotePages ? '#14100d80' : '#14100d',
-                    border: '1px solid #14100d',
-                    padding: '8px 16px',
-                    fontFamily: 'inherit',
-                    fontSize: '13px',
-                    letterSpacing: '0.08em',
-                    textTransform: 'uppercase',
-                    cursor: votesPage >= totalVotePages ? 'not-allowed' : 'pointer',
-                    opacity: votesPage >= totalVotePages ? 0.4 : 1,
-                  }}
-                >
-                  Next →
-                </button>
-              </div>
-            )}
           </>
         )}
 
