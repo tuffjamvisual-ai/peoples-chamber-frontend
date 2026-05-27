@@ -27,13 +27,14 @@ export default function ExpandingFolder({
     const defaultH = el.offsetHeight; // the default folder height (clamped by the maxHeight CSS)
     let maxH = defaultH;
     const compute = () => {
-      const fullH = el.scrollHeight;          // full height of the CURRENT section's content
-      const minH = Math.min(defaultH, fullH); // default size, but never taller than the content
+      const fullH = el.scrollHeight; // full height of the CURRENT section's content
       const topDoc = el.getBoundingClientRect().top + window.scrollY;
       const want = window.scrollY + window.innerHeight - topDoc + 220;
+      // Always at least the default folder size; expand above it as you scroll, up to the
+      // content height; re-fit (down to default, never below) when the section changes.
       maxH = Math.max(maxH, Math.min(want, fullH)); // grow as you scroll (within a section)
-      maxH = Math.min(maxH, fullH);                 // fit the content — re-fits when the section shrinks
-      maxH = Math.max(maxH, minH);                  // never below the default folder size (unless content is shorter)
+      maxH = Math.min(maxH, Math.max(fullH, defaultH)); // don't exceed content, but keep ≥ default
+      maxH = Math.max(maxH, defaultH);              // never shrink below the default folder size
       setHeight(maxH);
     };
     compute();
@@ -55,6 +56,9 @@ export default function ExpandingFolder({
       style={{
         ...style,
         overflow: 'hidden',
+        // Always at least a default-sized folder — even with little content. This also makes
+        // offsetHeight read the true default at mount (maxHeight alone only caps, never pads).
+        minHeight: defaultHeightCss,
         ...(height !== null
           ? { height: `${height}px`, maxHeight: 'none' }
           : { maxHeight: defaultHeightCss }),
