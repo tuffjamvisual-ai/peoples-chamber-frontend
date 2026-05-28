@@ -35,21 +35,13 @@ const blurbStyle: CSSProperties = { fontSize: '1.2cqw', lineHeight: 1.4, opacity
 const headlineRow: CSSProperties = { display: 'flex', gap: '6%', alignItems: 'flex-start', width: '100%', marginBottom: '3%' };
 const colStyle = (left: string, width: string): CSSProperties => ({ ...card, top: '75%', left, width, height: '14%', alignItems: 'flex-start' });
 
-type Spender = { name: string; total: number; photo: string | null };
 type Poll = { yesPct: number; total: number };
 
-async function getData(): Promise<{ spender: Spender | null; poll: Poll | null; deptPhoto: string | null }> {
-  const [exp, water, dept] = await Promise.all([
-    supabase.from('mp_expenses_summary').select('member_id, total_spend').eq('year', '24_25').order('total_spend', { ascending: false, nullsFirst: false }).limit(1).maybeSingle(),
+async function getData(): Promise<{ poll: Poll | null; deptPhoto: string | null }> {
+  const [water, dept] = await Promise.all([
     supabase.from('polls').select('vote_count_yes, vote_count_no').ilike('question', '%water companies%').limit(1).maybeSingle(),
     supabase.from('mps').select('photo_url').eq('member_id', 4031).maybeSingle(),
   ]);
-
-  let spender: Spender | null = null;
-  if (exp.data) {
-    const { data: m } = await supabase.from('mps').select('display_name, name, photo_url').eq('member_id', exp.data.member_id).maybeSingle();
-    spender = { name: m?.display_name || m?.name || 'an MP', total: Math.round(Number(exp.data.total_spend) || 0), photo: m?.photo_url || null };
-  }
 
   let poll: Poll | null = null;
   if (water.data) {
@@ -58,7 +50,7 @@ async function getData(): Promise<{ spender: Spender | null; poll: Poll | null; 
     if (yes + no > 0) poll = { yesPct: Math.round((yes / (yes + no)) * 100), total: yes + no };
   }
 
-  return { spender, poll, deptPhoto: dept.data?.photo_url || null };
+  return { poll, deptPhoto: dept.data?.photo_url || null };
 }
 
 function Polaroid({ src, alt }: { src: string; alt: string }) {
@@ -71,7 +63,7 @@ function Polaroid({ src, alt }: { src: string; alt: string }) {
 }
 
 export default async function HomePage() {
-  const { spender, poll, deptPhoto } = await getData();
+  const { poll, deptPhoto } = await getData();
 
   const HomeFront = (
     <>
@@ -83,17 +75,14 @@ export default async function HomePage() {
         <div style={{ ...kicker, fontSize: '1.45cqw', letterSpacing: '0.04em', marginTop: '3.5%' }}>Read the bills →</div>
       </a>
 
-      {/* Expenses story (left). */}
-      <a href="/expenses" className="no-hover-scale" style={colStyle('6%', '27%')}>
-        <div style={eyebrow}>Follow the money</div>
-        <div style={headlineRow}>
-          {spender?.photo && <Polaroid src={spender.photo} alt={spender.name} />}
-          <div style={{ flex: '1 1 auto', fontWeight: 'bold', fontSize: '1.7cqw', lineHeight: 1.08 }}>The biggest expenses bill</div>
+      {/* Expenses story (left) — featured image on top, headline under. */}
+      <a href="/expenses" className="no-hover-scale" style={{ ...card, top: '72%', left: '6%', width: '27%', height: '18%', alignItems: 'flex-start' }}>
+        <div style={{ width: '76%', background: CREAM, padding: '0.4cqw', transform: 'rotate(-1.5deg)', boxShadow: '0 3px 8px rgba(0,0,0,0.3)', marginBottom: '4%' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/mp-expenses.webp" alt="The biggest MP expenses bill" style={{ display: 'block', width: '100%', aspectRatio: '1 / 1', objectFit: 'cover' }} />
         </div>
-        <div style={blurbStyle}>
-          {spender ? `${spender.name} claimed £${spender.total.toLocaleString()} in business costs in 2024 to 25, the most of any MP.` : 'See which MPs claimed the most in business costs.'}
-        </div>
-        <div style={ctaStyle}>See the full top ten →</div>
+        <div style={{ fontWeight: 'bold', fontSize: '1.9cqw', lineHeight: 1.08, marginBottom: '3%' }}>The biggest expenses bill</div>
+        <div style={{ ...ctaStyle, marginTop: 0 }}>See the full top ten →</div>
       </a>
 
       {/* People's Poll story (centre) — the result is the picture. */}
