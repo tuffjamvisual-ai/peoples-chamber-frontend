@@ -1,9 +1,7 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import '../components/magazine-layout.css';
 import ScrollToTopButton from '../components/ScrollToTopButton';
+import DossierShell from '../components/DossierShell';
 
-import MagazineNav from '../components/MagazineNav';
 export const metadata: Metadata = {
   title: 'About',
   description:
@@ -29,71 +27,39 @@ const paragraphs = [
 
 export default function AboutPage() {
   return (
-    <div style={{
-      position: 'relative',
-      width: '100%',
-      maxWidth: '1086px',
-      margin: '0 auto',
-      background: '#2a1810',
-      backgroundImage:
-        'url("/preview-header.webp"), url("/preview-footer.webp"), url("/preview-middle.webp")',
-      backgroundRepeat: 'no-repeat, no-repeat, repeat-y',
-      backgroundPosition: 'top center, bottom center, top center',
-      backgroundSize: '100% auto, 100% auto, 100% auto',
-    }}>
-      <div
-        aria-hidden
-        style={{
-          position: 'absolute',
-          inset: 0,
-          zIndex: 1,
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E\")",
-          pointerEvents: 'none',
-        }}
-      />
+    <DossierShell>
+      <a
+        href="/"
+        className="no-hover-scale"
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: '#14100d', textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
+      >
+        ← Back to home
+      </a>
 
-      <MagazineNav />
-      <div className="magazine-content-spacing" style={{ position: 'relative', zIndex: 2, color: '#14100d', fontFamily: 'Special Elite, monospace' }}>
-        <a
-          href="/"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            marginBottom: '24px',
-            color: '#14100d',
-            textDecoration: 'none',
-            fontSize: '16px',
-            transform: 'rotate(-0.2deg)',
-          }}
-        >
-          ← Back to home
-        </a>
+      <header style={{ marginBottom: '5%' }}>
+        <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85, transform: 'rotate(-0.2deg)' }}>
+          The People&apos;s Chamber
+        </p>
+        <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
+          About
+        </h1>
+      </header>
 
-        <article style={{ maxWidth: '640px', margin: '0 auto' }}>
-          <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85, transform: 'rotate(-0.2deg)' }}>
-            The People&apos;s Chamber
-          </p>
-          <h1 style={{ fontSize: '44px', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '32px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
-            About
-          </h1>
+      <article style={{ maxWidth: '640px', margin: '0 auto' }}>
+        <div style={{ fontSize: '17px', lineHeight: 1.85, letterSpacing: '0.01em' }}>
+          {paragraphs.map((para, idx) => {
+            const tilt = idx % 4;
+            const rot = tilt === 0 ? '0.08deg' : tilt === 1 ? '-0.12deg' : tilt === 2 ? '0.1deg' : '-0.08deg';
+            return (
+              <p key={idx} style={{ marginBottom: '20px', transform: `rotate(${rot})` }}>
+                {para}
+              </p>
+            );
+          })}
+        </div>
+      </article>
 
-          <div style={{ fontSize: '17px', lineHeight: 1.85, letterSpacing: '0.01em' }}>
-            {paragraphs.map((para, idx) => {
-              const tilt = idx % 4;
-              const rot = tilt === 0 ? '0.08deg' : tilt === 1 ? '-0.12deg' : tilt === 2 ? '0.1deg' : '-0.08deg';
-              return (
-                <p key={idx} style={{ marginBottom: '20px', transform: `rotate(${rot})` }}>
-                  {para}
-                </p>
-              );
-            })}
-          </div>
-        </article>
-
-        <ScrollToTopButton />
-      </div>
-    </div>
+      <ScrollToTopButton />
+    </DossierShell>
   );
 }

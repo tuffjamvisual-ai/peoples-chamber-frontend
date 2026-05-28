@@ -1,15 +1,13 @@
 import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
-import Navigation from '../../components/Navigation'
-import Link from 'next/link'
+import DossierShell from '../../components/DossierShell'
 
 export const revalidate = 3600
 
 const SERIF = '"Georgia", "Charter", "Times New Roman", serif'
-const ACCENT = '#ffffff'
-const BORDER = '#5a5a5a'
-const MUTED = '#9a9a9a'
+const INK = '#14100d'
+const ACCENT = '#6b2417'
 
 type PressRelease = {
   id: number
@@ -75,58 +73,52 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
     : ''
 
   return (
-    <div style={{ minHeight: '100vh', background: '#505050', color: '#fff' }}>
-      <Navigation />
+    <DossierShell>
+      <a
+        href="/"
+        className="no-hover-scale"
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
+      >
+        ← Back to home
+      </a>
 
-      <main className="bg-[#505050] shadow-[0_0_40px_rgba(0,0,0,0.4)] max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-[12px] uppercase tracking-[0.2em] text-white opacity-80 hover:opacity-100 mb-8"
-        >
-          ← Back to home
-        </Link>
+      <article>
+        <header style={{ marginBottom: '5%', paddingBottom: '24px', borderBottom: `1px solid rgba(20,16,13,0.2)` }}>
+          <p className="text-[11px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>
+            {release.organisation || 'UK Government'}{dateLabel ? ` · ${dateLabel}` : ''}
+          </p>
+          <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', lineHeight: 1.1, color: INK, transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
+            {release.title}
+          </h1>
+        </header>
 
-        <article>
-          <header className="mb-6 pb-6 border-b border-[#5a5a5a]">
-            <p className="text-[11px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>
-              {release.organisation || 'UK Government'}{dateLabel ? ` · ${dateLabel}` : ''}
-            </p>
-            <h1
-              className="text-3xl sm:text-4xl font-bold leading-[1.1] tracking-tight text-white"
-              style={{ fontFamily: SERIF }}
-            >
-              {release.title}
-            </h1>
-          </header>
-
-          {release.description && (
-            <p
-              className="text-[17px] sm:text-[19px] leading-[1.55] text-white opacity-95 mb-6"
-              style={{ fontFamily: SERIF, fontStyle: 'italic' }}
-            >
-              {release.description}
-            </p>
-          )}
-
-          {bodyHtml ? (
-            <div
-              className="prose prose-invert max-w-none text-[15px] leading-[1.7]"
-              dangerouslySetInnerHTML={{ __html: bodyHtml }}
-            />
-          ) : (
-            <p className="text-[14px] text-white opacity-80 leading-[1.7]">
-              Full content for this release isn&apos;t available in our archive yet. The summary above is taken from the original announcement.
-            </p>
-          )}
-
-          <footer
-            className="mt-10 pt-5 text-[11px] uppercase tracking-[0.2em]"
-            style={{ borderTop: `1px solid ${BORDER}`, color: MUTED }}
+        {release.description && (
+          <p
+            className="text-[17px] sm:text-[19px] leading-[1.55] text-[#14100d]/95 mb-6"
+            style={{ fontFamily: SERIF, fontStyle: 'italic' }}
           >
-            Source: GOV.UK · {release.organisation || 'UK Government'}
-          </footer>
-        </article>
-      </main>
-    </div>
+            {release.description}
+          </p>
+        )}
+
+        {bodyHtml ? (
+          <div
+            className="prose max-w-none text-[15px] leading-[1.7] text-[#14100d]"
+            dangerouslySetInnerHTML={{ __html: bodyHtml }}
+          />
+        ) : (
+          <p className="text-[14px] text-[#14100d]/80 leading-[1.7]">
+            Full content for this release isn&apos;t available in our archive yet. The summary above is taken from the original announcement.
+          </p>
+        )}
+
+        <footer
+          className="mt-10 pt-5 text-[11px] uppercase tracking-[0.2em] text-[#14100d]/55"
+          style={{ borderTop: `1px solid rgba(20,16,13,0.2)` }}
+        >
+          Source: GOV.UK · {release.organisation || 'UK Government'}
+        </footer>
+      </article>
+    </DossierShell>
   )
 }

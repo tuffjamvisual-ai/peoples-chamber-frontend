@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import Navigation from '../../components/Navigation';
+import DossierShell from '../../components/DossierShell';
 
 export const revalidate = 3600;
 
-const ACCENT = '#ffffff';
+const INK = '#14100d';
+const ACCENT = '#6b2417';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -53,58 +53,61 @@ export default async function CommitteePublicationPage({ params }: Props) {
   const externalUrl = row.publication_url || row.url || null;
 
   return (
-    <div className="min-h-screen bg-[#606060] text-white">
-      <Navigation />
-      <main className="bg-[#505050] shadow-[0_0_40px_rgba(0,0,0,0.4)] max-w-3xl mx-auto px-4 sm:px-6 pb-16">
-        <Link href="/" className="inline-flex items-center gap-2 text-white hover:text-white mb-8 text-sm">
-          ← Home
-        </Link>
+    <DossierShell>
+      <a
+        href="/"
+        className="no-hover-scale"
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
+      >
+        ← Back to home
+      </a>
 
-        {row.committee_name && (
-          <p className="text-sm uppercase tracking-[0.3em] mb-3" style={{ color: ACCENT }}>
-            {row.committee_name}
-          </p>
+      {row.committee_name && (
+        <p className="text-sm uppercase tracking-[0.3em] mb-3" style={{ color: ACCENT }}>
+          {row.committee_name}
+        </p>
+      )}
+
+      <header className="mb-8">
+        <h1 className="text-3xl sm:text-4xl font-bold leading-tight text-[#14100d]">{row.title}</h1>
+      </header>
+
+      <div className="flex flex-wrap items-center gap-3 text-sm text-[#14100d] mb-8 font-mono">
+        {row.publication_date && <span>{formatDate(row.publication_date)}</span>}
+        {row.publication_type && <span>· {row.publication_type}</span>}
+        {externalUrl && (
+          <>
+            <span>·</span>
+            <a
+              href={externalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-[#14100d] transition-colors"
+              style={{ color: ACCENT }}
+            >
+              Read on Parliament.uk →
+            </a>
+          </>
         )}
+      </div>
 
-        <h1 className="text-3xl sm:text-4xl font-bold leading-tight text-white mb-4">{row.title}</h1>
+      {row.summary && (
+        <p className="text-base sm:text-lg text-[#14100d]/80 leading-relaxed mb-10 pl-4 border-l-2" style={{ borderColor: ACCENT }}>
+          {row.summary}
+        </p>
+      )}
 
-        <div className="flex flex-wrap items-center gap-3 text-sm text-white mb-8 font-mono">
-          {row.publication_date && <span>{formatDate(row.publication_date)}</span>}
-          {row.publication_type && <span>· {row.publication_type}</span>}
-          {externalUrl && (
-            <>
-              <span>·</span>
-              <a
-                href={externalUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-[#ffffff] transition-colors"
-                style={{ color: ACCENT }}
-              >
-                Read on Parliament.uk →
-              </a>
-            </>
-          )}
+      {row.full_content ? (
+        <article className="text-[#14100d]/80 text-sm sm:text-base leading-relaxed whitespace-pre-line">
+          {row.full_content}
+        </article>
+      ) : (
+        <div className="border-t border-[#14100d]/20 pt-8 mt-8">
+          <p className="text-[#14100d] text-sm leading-relaxed">
+            The full text of this publication has not been mirrored locally. Use the link above to read it on the UK Parliament site.
+          </p>
         </div>
-
-        {row.summary && (
-          <p className="text-base sm:text-lg text-[#c9c9c9] leading-relaxed mb-10 pl-4 border-l-2" style={{ borderColor: ACCENT }}>
-            {row.summary}
-          </p>
-        )}
-
-        {row.full_content ? (
-          <article className="text-[#c9c9c9] text-sm sm:text-base leading-relaxed whitespace-pre-line">
-            {row.full_content}
-          </article>
-        ) : (
-          <div className="border-t border-[#5a5a5a] pt-8 mt-8">
-            <p className="text-white text-sm leading-relaxed">
-              The full text of this publication has not been mirrored locally. Use the link above to read it on the UK Parliament site.
-            </p>
-          </div>
-        )}
-      </main>
-    </div>
+      )}
+    </DossierShell>
   );
 }

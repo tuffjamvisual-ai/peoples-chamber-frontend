@@ -68,10 +68,10 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
   }
 
   return (
-    <div className="overflow-x-auto border border-[#5a5a5a]">
+    <div className="overflow-x-auto border border-[#14100d]/20">
       <table className="w-full text-[13px] border-collapse" style={{ minWidth: '900px' }}>
         <thead>
-          <tr className="bg-[#111] border-b border-[#5a5a5a] text-left">
+          <tr className="border-b border-[#14100d]/20 text-left">
             <Th label="#"        active={sortKey === 'rank'}           dir={sortDir} onClick={() => toggle('rank')}           align="right" width={48} />
             <Th label="MP"       active={sortKey === 'name'}           dir={sortDir} onClick={() => toggle('name')}           />
             <Th label="Base"     active={sortKey === 'base'}           dir={sortDir} onClick={() => toggle('base')}           align="right" />
@@ -88,9 +88,9 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
             return (
               <tr
                 key={r.member_id}
-                className="border-b border-[#222] hover:bg-[#353535] transition-colors"
+                className="border-b border-[#14100d]/10 hover:bg-[#14100d]/5 transition-colors"
               >
-                <td className="px-3 py-3 text-right text-white opacity-60 tabular-nums" style={{ borderLeft: `2px solid ${partyColour}` }}>
+                <td className="px-3 py-3 text-right text-[#14100d]/60 tabular-nums" style={{ borderLeft: `2px solid ${partyColour}` }}>
                   {rank}
                 </td>
                 <td className="px-3 py-3">
@@ -105,7 +105,7 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
                       />
                     ) : (
                       <div
-                        className="w-12 h-12 rounded-full flex items-center justify-center text-[12px] font-bold text-white flex-shrink-0"
+                        className="w-12 h-12 rounded-full flex items-center justify-center text-[12px] font-bold text-[#14100d] flex-shrink-0"
                         style={{ border: `1px solid ${partyColour}`, background: partyColour + '33' }}
                       >
                         {r.name.charAt(0)}
@@ -114,12 +114,12 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
                     <div className="min-w-0">
                       <Link
                         href={`/mps/${r.member_id}`}
-                        className="text-white font-semibold hover:underline block truncate"
+                        className="text-[#14100d] font-semibold hover:underline block truncate"
                         style={{ fontFamily: '"Georgia", "Charter", "Times New Roman", serif' }}
                       >
                         {r.name}
                       </Link>
-                      <div className="text-[11px] text-white opacity-70 truncate">
+                      <div className="text-[11px] text-[#14100d]/70 truncate">
                         {r.constituency || ''}
                         {r.party ? ` · ${r.party}` : ''}
                         {r.salary_band ? ` · ${SALARY_BAND_LABEL[r.salary_band]}` : ''}
@@ -127,17 +127,17 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
                     </div>
                   </div>
                 </td>
-                <td className="px-3 py-3 text-right text-white tabular-nums whitespace-nowrap">{fmtMoney(r.base)}</td>
-                <td className={`px-3 py-3 text-right tabular-nums whitespace-nowrap ${r.ministerial ? 'text-white' : 'text-white opacity-40'}`}>
+                <td className="px-3 py-3 text-right text-[#14100d] tabular-nums whitespace-nowrap">{fmtMoney(r.base)}</td>
+                <td className={`px-3 py-3 text-right tabular-nums whitespace-nowrap ${r.ministerial ? 'text-[#14100d]' : 'text-[#14100d]/40'}`}>
                   {r.ministerial ? fmtMoney(r.ministerial) : '—'}
                 </td>
-                <td className={`px-3 py-3 text-right tabular-nums whitespace-nowrap ${r.outside ? 'text-white' : 'text-white opacity-40'}`}>
+                <td className={`px-3 py-3 text-right tabular-nums whitespace-nowrap ${r.outside ? 'text-[#14100d]' : 'text-[#14100d]/40'}`}>
                   {r.outside ? fmtMoney(r.outside) : '—'}
                 </td>
-                <td className="px-3 py-3 text-right text-white font-semibold tabular-nums whitespace-nowrap">
+                <td className="px-3 py-3 text-right text-[#14100d] font-semibold tabular-nums whitespace-nowrap">
                   {fmtMoney(r.personal_total)}
                 </td>
-                <td className={`px-3 py-3 text-right tabular-nums whitespace-nowrap ${r.public_spend ? 'text-white' : 'text-white opacity-40'}`}>
+                <td className={`px-3 py-3 text-right tabular-nums whitespace-nowrap ${r.public_spend ? 'text-[#14100d]' : 'text-[#14100d]/40'}`}>
                   {r.public_spend ? fmtMoney(r.public_spend) : '—'}
                 </td>
               </tr>
@@ -167,7 +167,7 @@ function Th({
   return (
     <th
       onClick={onClick}
-      className={`px-3 py-3 text-[10px] uppercase tracking-[0.18em] font-semibold cursor-pointer select-none ${active ? 'text-white' : 'text-white opacity-60 hover:opacity-100'}`}
+      className={`px-3 py-3 text-[10px] uppercase tracking-[0.18em] font-semibold cursor-pointer select-none ${active ? 'text-[#14100d]' : 'text-[#14100d]/60 hover:text-[#14100d]'}`}
       style={{ textAlign: align, width: width ? `${width}px` : undefined }}
     >
       <span className="inline-flex items-center gap-1.5">

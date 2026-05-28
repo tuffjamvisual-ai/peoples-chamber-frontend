@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
-import Navigation from '../components/Navigation'
+import DossierShell from '../components/DossierShell'
 import EarningsTable from './EarningsTable'
 import {
   MP_BASE_SALARY_2026,
@@ -115,60 +115,61 @@ export default async function EarningsPage() {
   const top = rows.slice(0, 50)
 
   return (
-    <div className="min-h-screen bg-[#606060] text-white">
-      <Navigation />
+    <DossierShell>
+      <a
+        href="/mps"
+        className="no-hover-scale"
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: '#14100d', textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
+      >
+        ← Back to MPs
+      </a>
 
-      <main className="bg-[#505050] shadow-[0_0_40px_rgba(0,0,0,0.4)] max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-        <header className="border-b border-[#5a5a5a] pb-6 mb-6">
-          <p className="text-[11px] uppercase tracking-[0.3em] font-semibold mb-3 text-white">
-            The People&apos;s Chamber · MP Earnings
-          </p>
-          <h1
-            className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-3 leading-[1.1]"
-            style={{ fontFamily: '"Georgia", "Charter", "Times New Roman", serif' }}
-          >
-            MP earnings vs public spend
-          </h1>
-          <p className="text-white text-[14px] leading-[1.7] max-w-3xl">
-            The 50 highest-paid current MPs ranked by personal earnings. <strong>Personal earnings</strong> are
-            money the MP actually receives — base salary, ministerial supplement, and declared outside earnings.
-            <strong> Public spend</strong> is a separate column showing what IPSA reimburses for staff, office,
-            travel and accommodation; it does <em>not</em> go into the MP&apos;s pocket.
-          </p>
-        </header>
+      <header style={{ marginBottom: '5%' }}>
+        <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
+          MP earnings vs public spend
+        </h1>
+        <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
+          The 50 highest-paid current MPs ranked by personal earnings. <strong>Personal earnings</strong> are
+          money the MP actually receives: base salary, ministerial supplement, and declared outside earnings.
+          <strong> Public spend</strong> is a separate column showing what IPSA reimburses for staff, office,
+          travel and accommodation; it does <em>not</em> go into the MP&apos;s pocket.
+        </p>
+        <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px', opacity: 0.7 }}>
+          The People&apos;s Chamber · MP Earnings
+        </p>
+      </header>
 
-        <EarningsTable rows={top} year={YEAR_LABEL} />
+      <EarningsTable rows={top} year={YEAR_LABEL} />
 
-        <section className="mt-10 text-[12px] text-white opacity-80 leading-[1.7] space-y-3 max-w-3xl">
-          <h2 className="text-[12px] uppercase tracking-[0.25em] font-semibold text-white opacity-100">Methodology</h2>
-          <p>
-            <strong className="text-white">Base salary</strong>: £{MP_BASE_SALARY_2026.toLocaleString()} from
-            1 April 2026, applied to every sitting MP regardless of attendance.
-          </p>
-          <p>
-            <strong className="text-white">Ministerial supplement</strong>: paid on top of the base salary at
-            2010-frozen levels (PM £{MINISTERIAL_SUPPLEMENT.pm.toLocaleString()} claimed of £80,807 entitlement,
-            Cabinet Minister £{MINISTERIAL_SUPPLEMENT.sos.toLocaleString()},
-            Minister of State £{MINISTERIAL_SUPPLEMENT.minister_of_state.toLocaleString()},
-            Parliamentary Under-Secretary £{MINISTERIAL_SUPPLEMENT.puss.toLocaleString()}). Source: House of
-            Commons Library briefing CBP-10600. An MP holding two ministerial posts is only paid the highest
-            single band.
-          </p>
-          <p>
-            <strong className="text-white">Outside earnings</strong>: extracted by regex from the
-            &ldquo;Employment and earnings&rdquo; category of the Register of Members&apos; Financial Interests.
-            Only entries with an explicit &ldquo;Payment: £X&rdquo; pattern are summed; ranges (&ldquo;£200–£500&rdquo;)
-            and unbanded entries are <em>excluded</em>, so the figure is a conservative lower bound. Corrections
-            and amendments are skipped to avoid double-counting. Many MPs declare interests without payment
-            amounts (ongoing salaried roles, share interests, family employment) — these will not appear here.
-          </p>
-          <p>
-            <strong className="text-white">Public spend</strong>: total of all IPSA-reimbursed business costs
-            for {YEAR_LABEL} (staff, office, accommodation, travel, other). This is <em>not</em> personal income.
-            Drill into any MP&apos;s profile for the line-item breakdown.
-          </p>
-        </section>
-      </main>
-    </div>
+      <section className="mt-10 text-[12px] text-[#14100d]/80 leading-[1.7] space-y-3 max-w-3xl">
+        <h2 className="text-[12px] uppercase tracking-[0.25em] font-semibold text-[#14100d]">Methodology</h2>
+        <p>
+          <strong className="text-[#14100d]">Base salary</strong>: £{MP_BASE_SALARY_2026.toLocaleString()} from
+          1 April 2026, applied to every sitting MP regardless of attendance.
+        </p>
+        <p>
+          <strong className="text-[#14100d]">Ministerial supplement</strong>: paid on top of the base salary at
+          2010-frozen levels (PM £{MINISTERIAL_SUPPLEMENT.pm.toLocaleString()} claimed of £80,807 entitlement,
+          Cabinet Minister £{MINISTERIAL_SUPPLEMENT.sos.toLocaleString()},
+          Minister of State £{MINISTERIAL_SUPPLEMENT.minister_of_state.toLocaleString()},
+          Parliamentary Under-Secretary £{MINISTERIAL_SUPPLEMENT.puss.toLocaleString()}). Source: House of
+          Commons Library briefing CBP-10600. An MP holding two ministerial posts is only paid the highest
+          single band.
+        </p>
+        <p>
+          <strong className="text-[#14100d]">Outside earnings</strong>: extracted by regex from the
+          &ldquo;Employment and earnings&rdquo; category of the Register of Members&apos; Financial Interests.
+          Only entries with an explicit &ldquo;Payment: £X&rdquo; pattern are summed; ranges (&ldquo;£200 to £500&rdquo;)
+          and unbanded entries are <em>excluded</em>, so the figure is a conservative lower bound. Corrections
+          and amendments are skipped to avoid double-counting. Many MPs declare interests without payment
+          amounts (ongoing salaried roles, share interests, family employment) and these will not appear here.
+        </p>
+        <p>
+          <strong className="text-[#14100d]">Public spend</strong>: total of all IPSA-reimbursed business costs
+          for {YEAR_LABEL} (staff, office, accommodation, travel, other). This is <em>not</em> personal income.
+          Drill into any MP&apos;s profile for the line-item breakdown.
+        </p>
+      </section>
+    </DossierShell>
   )
 }
