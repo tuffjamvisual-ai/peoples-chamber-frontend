@@ -135,7 +135,7 @@ export default function DepartmentClient({ slug, govukData, streetContext }: Dep
             </div>
             <div>
               <h2 className="text-[#14100d] text-2xl sm:text-3xl font-black tracking-tight mb-1">{sos.name}</h2>
-              <p className="text-[#14100d] text-[14px] leading-[1.7] mb-2">{sos.role}</p>
+              <p className="text-[#14100d] text-[16px] leading-[1.7] mb-2">{sos.role}</p>
               {sos.member_id ? (
                 <Link
                   href={`/mps/${sos.member_id}`}
@@ -165,7 +165,7 @@ export default function DepartmentClient({ slug, govukData, streetContext }: Dep
             .map((p) => p.trim())
             .filter(Boolean)
             .map((para, idx) => (
-              <p key={idx} className="text-[#14100d] text-[14px] leading-[1.7] mb-3">{para}</p>
+              <p key={idx} className="text-[#14100d] text-[16px] leading-[1.7] mb-3">{para}</p>
             ))}
         </section>
 
@@ -181,7 +181,7 @@ export default function DepartmentClient({ slug, govukData, streetContext }: Dep
                 ✕ Close
               </button>
             </div>
-            <p className="text-[#14100d] text-[14px] leading-[1.7] mb-6">{activeZoneData.context}</p>
+            <p className="text-[#14100d] text-[16px] leading-[1.7] mb-6">{activeZoneData.context}</p>
             <ul className="grid grid-cols-1 md:grid-cols-2 gap-px  ">
               {activeZoneData.positions.map((pos) => {
                 const party = parties.find((p) => p.id === pos.partyId);
@@ -195,7 +195,7 @@ export default function DepartmentClient({ slug, govukData, streetContext }: Dep
                       {party.name}
                     </span>
                     <p className="text-[#14100d] font-semibold text-[14px] mb-1 leading-snug">{pos.headline}</p>
-                    <p className="text-[#14100d] text-[15px] leading-[1.7]">{pos.position}</p>
+                    <p className="text-[#14100d] text-[16px] leading-[1.7]">{pos.position}</p>
                   </li>
                 );
               })}

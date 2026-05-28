@@ -44,22 +44,23 @@ export default async function DepartmentPage({ params }: PageProps) {
         ← Back to all departments
       </a>
 
-      <header style={{ marginBottom: '5%' }}>
-        <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)', lineHeight: 1.05 }}>
-          {dept.name}
-        </h1>
-        <p style={{ fontSize: '16px', lineHeight: 1.7, maxWidth: '720px' }}>
+      <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)', lineHeight: 1.05 }}>
+        {dept.name}
+      </h1>
+
+      {/* Body scaled to match the MP profile text size (16px base x zoom 1.18). */}
+      <div style={{ zoom: 1.18 }}>
+        <p style={{ fontSize: '16px', lineHeight: 1.7, maxWidth: '720px', marginBottom: '5%' }}>
           {dept.description}
         </p>
-      </header>
-
-      <Suspense fallback={<div style={{ minHeight: '300px' }} />}>
-        <DepartmentClient
-          slug={slug}
-          govukData={govukData}
-          streetContext={contextData.street_context}
-        />
-      </Suspense>
+        <Suspense fallback={<div style={{ minHeight: '300px' }} />}>
+          <DepartmentClient
+            slug={slug}
+            govukData={govukData}
+            streetContext={contextData.street_context}
+          />
+        </Suspense>
+      </div>
 
       <ScrollToTopButton />
     </DossierShell>
