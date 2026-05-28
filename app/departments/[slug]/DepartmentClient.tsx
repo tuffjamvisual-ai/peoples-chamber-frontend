@@ -131,7 +131,7 @@ export default function DepartmentClient({ slug, govukData, streetContext }: Dep
               )}
             </div>
             <div>
-              <h2 className="text-[#14100d] text-2xl sm:text-3xl font-black tracking-tight mb-1">{sos.name}</h2>
+              <h2 className="text-[#14100d] text-xl sm:text-2xl font-black tracking-tight mb-1">{sos.name}</h2>
               <p className="text-[#14100d] text-[16px] leading-[1.7] mb-2">{sos.role}</p>
               {sos.member_id ? (
                 <Link
