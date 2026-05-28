@@ -224,10 +224,10 @@ function PollCard({
     <div
       style={{
         position: 'relative',
-        background: CREAM,
+        background: 'transparent',
         color: INK,
-        border: `1px solid ${INK}`,
-        boxShadow: `inset 0 0 0 2px ${CREAM}, inset 0 0 0 3px ${INK_HAIRLINE}, 3px 4px 7px rgba(20,16,13,0.18)`,
+        border: `3px double ${INK}`,
+        boxShadow: '2px 3px 6px rgba(20,16,13,0.14)',
         padding: '20px 22px',
         transform: `rotate(${tilt}deg)`,
         display: 'flex',
