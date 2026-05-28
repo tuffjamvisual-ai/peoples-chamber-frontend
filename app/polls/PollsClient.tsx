@@ -227,68 +227,103 @@ function PollCard({
         color: INK,
         border: `3px double ${INK}`,
         boxShadow: '2px 3px 6px rgba(20,16,13,0.14)',
-        padding: '18px 20px',
         transform: `rotate(${tilt}deg)`,
         display: 'flex',
-        flexDirection: 'column',
-        gap: '12px',
+        overflow: 'hidden',
       }}
     >
-      {/* Official ballot header: title + serial number */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', borderBottom: `1px solid ${INK}`, paddingBottom: '6px' }}>
-        <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '10px', letterSpacing: '0.24em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold' }}>
+      {/* Tear-off stub: perforated edge, vertical title + serial number */}
+      <div
+        style={{
+          flexShrink: 0,
+          width: '34px',
+          borderRight: '2px dashed rgba(20,16,13,0.4)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '14px 0',
+        }}
+      >
+        <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'Special Elite, monospace', fontSize: '9px', letterSpacing: '0.22em', textTransform: 'uppercase', color: INK_SOFT, whiteSpace: 'nowrap' }}>
           The People&apos;s Ballot
         </span>
-        <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '10px', letterSpacing: '0.08em', color: INK_SOFT }}>
+        <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'Special Elite, monospace', fontSize: '11px', letterSpacing: '0.06em', color: ACCENT, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
           No. {String(poll.id).padStart(4, '0')}
         </span>
       </div>
-      {poll.constituency && (
-        <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginTop: '-4px' }}>
-          {poll.constituency}
+
+      {/* Main ballot */}
+      <div style={{ flex: 1, minWidth: 0, padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: '11px' }}>
+        {poll.constituency && (
+          <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '8px' }}>
+            {poll.constituency}
+          </div>
+        )}
+
+        <h3 style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '18px', fontWeight: 'bold', lineHeight: 1.3, letterSpacing: '-0.01em', margin: 0 }}>
+          {poll.question}
+        </h3>
+
+        {poll.explainer && (
+          <p style={{ fontSize: '13px', lineHeight: 1.5, color: INK_SOFT, margin: 0 }}>
+            {poll.explainer}
+          </p>
+        )}
+
+        <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '11px', fontStyle: 'italic', color: INK_SOFT, letterSpacing: '0.03em', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '9px' }}>
+          Mark one box with a cross.
+        </div>
+
+        <div>
+          <BallotRow label="Aye" marked={userVote === 'yes'} disabled={hasVoted} onClick={() => onVote('yes')} />
+          <BallotRow label="No" marked={userVote === 'no'} disabled={hasVoted} onClick={() => onVote('no')} />
+        </div>
+
+        <div style={{ borderTop: `1px solid ${INK}`, paddingTop: '9px', marginTop: 'auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px' }}>
+            <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '9px', letterSpacing: '0.2em', textTransform: 'uppercase', color: INK_SOFT }}>The count so far</span>
+            <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '9px', letterSpacing: '0.08em', color: INK_SOFT }}>{total.toLocaleString()} votes</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '5px' }}>
+            <span style={{ fontFamily: 'Georgia, serif', fontSize: '20px', fontWeight: 'bold', color: SUCCESS, lineHeight: 1 }}>
+              {yesPercent}%<span style={{ fontFamily: 'Special Elite, monospace', fontSize: '9px', color: INK_SOFT, letterSpacing: '0.12em', marginLeft: '4px' }}>AYE</span>
+            </span>
+            <span style={{ fontFamily: 'Georgia, serif', fontSize: '20px', fontWeight: 'bold', color: DANGER, lineHeight: 1 }}>
+              <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '9px', color: INK_SOFT, letterSpacing: '0.12em', marginRight: '4px' }}>NO</span>{noPercent}%
+            </span>
+          </div>
+          <div style={{ display: 'flex', height: '10px', background: CREAM_DEEP, border: `1px solid ${INK_HAIRLINE}`, overflow: 'hidden' }} aria-hidden>
+            <div style={{ width: `${yesPercent}%`, background: SUCCESS }} />
+            <div style={{ width: `${noPercent}%`, background: DANGER }} />
+          </div>
+        </div>
+      </div>
+
+      {/* "Voted" stamp, slapped on once the ballot is cast */}
+      {hasVoted && (
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            top: '12px',
+            right: '12px',
+            transform: 'rotate(-13deg)',
+            border: `3px double ${ACCENT}`,
+            padding: '2px 9px',
+            color: ACCENT,
+            fontFamily: 'Special Elite, monospace',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            opacity: 0.7,
+            pointerEvents: 'none',
+          }}
+        >
+          Voted
         </div>
       )}
-
-      <h3 style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '18px', fontWeight: 'bold', lineHeight: 1.3, letterSpacing: '-0.01em', margin: 0 }}>
-        {poll.question}
-      </h3>
-
-      {poll.explainer && (
-        <p style={{ fontSize: '13px', lineHeight: 1.5, color: INK_SOFT, margin: 0 }}>
-          {poll.explainer}
-        </p>
-      )}
-
-      {/* Instruction */}
-      <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '11px', fontStyle: 'italic', color: INK_SOFT, letterSpacing: '0.03em', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '9px' }}>
-        Mark one box with a cross.
-      </div>
-
-      {/* Ballot options — tick a box to vote */}
-      <div>
-        <BallotRow label="Aye" marked={userVote === 'yes'} disabled={hasVoted} onClick={() => onVote('yes')} />
-        <BallotRow label="No" marked={userVote === 'no'} disabled={hasVoted} onClick={() => onVote('no')} />
-      </div>
-
-      {/* Declared count */}
-      <div style={{ borderTop: `1px solid ${INK}`, paddingTop: '9px', marginTop: 'auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px' }}>
-          <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '9px', letterSpacing: '0.2em', textTransform: 'uppercase', color: INK_SOFT }}>The count so far</span>
-          <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '9px', letterSpacing: '0.08em', color: INK_SOFT }}>{total.toLocaleString()} votes</span>
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '5px' }}>
-          <span style={{ fontFamily: 'Georgia, serif', fontSize: '20px', fontWeight: 'bold', color: SUCCESS, lineHeight: 1 }}>
-            {yesPercent}%<span style={{ fontFamily: 'Special Elite, monospace', fontSize: '9px', color: INK_SOFT, letterSpacing: '0.12em', marginLeft: '4px' }}>AYE</span>
-          </span>
-          <span style={{ fontFamily: 'Georgia, serif', fontSize: '20px', fontWeight: 'bold', color: DANGER, lineHeight: 1 }}>
-            <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '9px', color: INK_SOFT, letterSpacing: '0.12em', marginRight: '4px' }}>NO</span>{noPercent}%
-          </span>
-        </div>
-        <div style={{ display: 'flex', height: '10px', background: CREAM_DEEP, border: `1px solid ${INK_HAIRLINE}`, overflow: 'hidden' }} aria-hidden>
-          <div style={{ width: `${yesPercent}%`, background: SUCCESS }} />
-          <div style={{ width: `${noPercent}%`, background: DANGER }} />
-        </div>
-      </div>
     </div>
   )
 }
