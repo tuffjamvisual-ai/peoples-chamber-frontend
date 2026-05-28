@@ -135,7 +135,7 @@ export default function PollsClient() {
             flex: '1 1 280px',
             maxWidth: '420px',
             padding: '10px 14px',
-            background: CREAM,
+            background: 'rgba(20,16,13,0.05)',
             color: INK,
             border: `1px solid ${INK_HAIRLINE}`,
             borderRadius: 0,
@@ -149,7 +149,7 @@ export default function PollsClient() {
           onChange={(e) => setSort(e.target.value as SortOption)}
           style={{
             padding: '10px 14px',
-            background: CREAM,
+            background: 'rgba(20,16,13,0.05)',
             color: INK,
             border: `1px solid ${INK_HAIRLINE}`,
             borderRadius: 0,
@@ -283,10 +283,21 @@ function PollCard({
       )}
 
       <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '7px' }}>
+          <span style={{ fontSize: '24px', fontWeight: 'bold', color: SUCCESS, lineHeight: 1 }}>
+            {yesPercent}%<span style={{ fontSize: '10px', color: INK_SOFT, letterSpacing: '0.15em', marginLeft: '5px' }}>YES</span>
+          </span>
+          <span style={{ fontSize: '11px', color: INK_SOFT, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+            {total.toLocaleString()} votes
+          </span>
+          <span style={{ fontSize: '24px', fontWeight: 'bold', color: DANGER, lineHeight: 1 }}>
+            <span style={{ fontSize: '10px', color: INK_SOFT, letterSpacing: '0.15em', marginRight: '5px' }}>NO</span>{noPercent}%
+          </span>
+        </div>
         <div
           style={{
             display: 'flex',
-            height: '10px',
+            height: '16px',
             background: CREAM_DEEP,
             border: `1px solid ${INK_HAIRLINE}`,
             overflow: 'hidden',
@@ -296,23 +307,9 @@ function PollCard({
           <div style={{ width: `${yesPercent}%`, background: SUCCESS, transition: 'width 0.2s ease' }} />
           <div style={{ width: `${noPercent}%`, background: DANGER, transition: 'width 0.2s ease' }} />
         </div>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginTop: '6px',
-            fontSize: '12px',
-            color: INK_SOFT,
-            letterSpacing: '0.02em',
-          }}
-        >
-          <span style={{ color: SUCCESS, fontWeight: 'bold' }}>
-            Yes {yesPercent}% · {poll.vote_count_yes.toLocaleString()}
-          </span>
-          <span>{total.toLocaleString()} votes</span>
-          <span style={{ color: DANGER, fontWeight: 'bold' }}>
-            {poll.vote_count_no.toLocaleString()} · No {noPercent}%
-          </span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '5px', fontSize: '11px', color: INK_SOFT }}>
+          <span>{poll.vote_count_yes.toLocaleString()} yes</span>
+          <span>{poll.vote_count_no.toLocaleString()} no</span>
         </div>
       </div>
 
