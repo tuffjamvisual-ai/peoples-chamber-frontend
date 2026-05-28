@@ -76,11 +76,8 @@ export default function DepartmentClient({ slug, govukData, streetContext }: Dep
           </div>
         )}
 
-        {/* Secretary of State */}
+        {/* Department head — title shown under the name (sos.role), so no separate label. */}
         <section className=" pb-8 mb-8">
-          <p className="text-[14px] uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: ACCENT }}>
-            {sos.is_secretary_of_state ? 'Secretary of State' : sos.role || 'Head of Department'}
-          </p>
           <div className="flex items-center gap-8">
             <div style={{
               position: 'relative',
