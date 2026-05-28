@@ -1,10 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import LoginClient from './LoginClient';
-import Navigation from '../components/Navigation';
-
-// Dark-theme inline sign in / sign up page. The client component
-// reads ?mode= (signup vs login) and ?returnTo= from the URL.
+import MagazineLoginClient from './MagazineLoginClient';
+import DossierShell from '../components/DossierShell';
 
 export const metadata: Metadata = {
   title: 'Sign in',
@@ -15,11 +12,17 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-[#606060]">
-      <Navigation />
-      <Suspense fallback={<div className="text-white text-center p-12">Loading…</div>}>
-        <LoginClient />
+    <DossierShell>
+      <a
+        href="/"
+        className="no-hover-scale"
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: '#14100d', textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
+      >
+        ← Back to home
+      </a>
+      <Suspense fallback={<div style={{ minHeight: '400px' }} />}>
+        <MagazineLoginClient />
       </Suspense>
-    </div>
+    </DossierShell>
   );
 }
