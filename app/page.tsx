@@ -100,7 +100,7 @@ function HomeFront() {
           key={c.href}
           href={c.href}
           className="no-hover-scale"
-          style={{ ...card, top: '67%', left: c.left, width: c.width, height: '23%', alignItems: 'flex-start', justifyContent: 'space-between', padding: '0 1.5%' }}
+          style={{ ...card, top: '75%', left: c.left, width: c.width, height: '14%', alignItems: 'flex-start', justifyContent: 'space-between', padding: '0 1.5%' }}
         >
           <div>
             <div style={{ ...kicker, fontSize: '1.15cqw', letterSpacing: '0.18em', opacity: 0.6, marginBottom: '3%' }}>
