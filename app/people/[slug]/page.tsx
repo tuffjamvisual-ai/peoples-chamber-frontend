@@ -9,12 +9,9 @@
 //   - mp_interests: registered interests, joined by member_slug
 
 import { supabase } from '@/lib/supabase';
-import Link from 'next/link';
-import '../../components/magazine-layout.css';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 import PeopleProfileSections, { type Role, type Interest, type PeerFinance } from './PeopleProfileSections';
-
-import MagazineNav from '../../components/MagazineNav';
+import DossierShell from '../../components/DossierShell';
 export const revalidate = 3600;
 
 const INK = '#14100d';
@@ -105,47 +102,11 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
     : [];
 
   return (
-    <div
-      style={{
-        position: 'relative',
-        width: '100%',
-        maxWidth: '1086px',
-        margin: '0 auto',
-        background: '#2a1810',
-        backgroundImage:
-          'url("/preview-header.webp"), url("/preview-footer.webp"), url("/preview-middle.webp")',
-        backgroundRepeat: 'no-repeat, no-repeat, repeat-y',
-        backgroundPosition: 'top center, bottom center, top center',
-        backgroundSize: '100% auto, 100% auto, 100% auto',
-      }}
-    >
-      <div
-        aria-hidden
-        style={{
-          position: 'absolute',
-          inset: 0,
-          zIndex: 1,
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E\")",
-          pointerEvents: 'none',
-        }}
-      />
-
-      <MagazineNav />
-      <div
-        className="magazine-content-spacing"
-        style={{ position: 'relative', zIndex: 2, color: INK, fontFamily: 'Special Elite, monospace' }}
-      >
+    <DossierShell>
         <a
           href="/departments"
-          style={{
-            display: 'inline-block',
-            marginBottom: '24px',
-            color: INK,
-            textDecoration: 'none',
-            fontSize: '16px',
-            transform: 'rotate(-0.2deg)',
-          }}
+          className="no-hover-scale"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
         >
           ← Back to departments
         </a>
@@ -156,17 +117,17 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
 
         {person && (
           <>
-            {/* Hero — identical geometry to /mps/[id] */}
-            <div style={{ display: 'flex', flexDirection: 'row-reverse', gap: '40px', marginBottom: '30px' }}>
+            {/* Header — dossier polaroid + name + role */}
+            <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'flex-start', gap: '5%', marginBottom: '6%' }}>
               <div
                 style={{
                   position: 'relative',
+                  flex: '0 0 auto',
+                  marginTop: '-7%',
+                  marginRight: '-6%',
                   background: CREAM,
                   padding: '12px 12px 48px 12px',
-                  width: '284px',
-                  marginTop: '-20px',
-                  marginRight: '-40px',
-                  transform: 'rotate(15deg)',
+                  transform: 'rotate(12deg)',
                   boxShadow: '0 4px 8px rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.03)',
                   filter: 'contrast(1.05) brightness(0.98)',
                 }}
@@ -179,83 +140,38 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
                     style={{ display: 'block', width: '260px', height: '260px', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }}
                   />
                 ) : (
-                  <div
-                    aria-hidden
-                    style={{
-                      width: '260px',
-                      height: '260px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      background: '#d6cdb8',
-                      color: INK,
-                      fontSize: '64px',
-                      fontFamily: 'Special Elite, monospace',
-                    }}
-                  >
+                  <div aria-hidden style={{ width: '260px', height: '260px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#d6cdb8', color: INK, fontSize: '64px', fontFamily: 'Special Elite, monospace' }}>
                     {person.name.charAt(0) || '?'}
                   </div>
                 )}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/paperclip.png"
-                  alt=""
-                  aria-hidden
-                  style={{
-                    position: 'absolute',
-                    top: '-30px',
-                    right: '-5px',
-                    width: '65px',
-                    height: 'auto',
-                    transform: 'rotate(180deg)',
-                    transformOrigin: 'center',
-                    pointerEvents: 'none',
-                    zIndex: 3,
-                    filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.35))',
-                  }}
-                />
+                <img src="/paperclip.png" alt="" aria-hidden style={{ position: 'absolute', top: '-30px', right: '-5px', width: '65px', height: 'auto', transform: 'rotate(180deg)', transformOrigin: 'center', pointerEvents: 'none', filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.35))' }} />
               </div>
 
-              <div style={{ flex: 1 }}>
-                <h1
-                  style={{
-                    fontSize: '44px',
-                    marginTop: '20px',
-                    fontWeight: 'bold',
-                    marginBottom: '12px',
-                    color: INK,
-                    fontFamily: 'Special Elite, monospace',
-                    textShadow: '1px 1px 0px rgba(0,0,0,0.1)',
-                    letterSpacing: '-0.02em',
-                  }}
-                >
-                  {person.name}
-                </h1>
+              <div style={{ flex: '1 1 auto', marginTop: '6%' }}>
+                <div style={{ fontSize: 'clamp(22px, 3.4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', textShadow: '1px 1px 0 rgba(0,0,0,0.1)', lineHeight: 1.05, marginBottom: '4%' }}>{person.name}</div>
                 {person.currentRoles[0] && (
-                  <p style={{ fontSize: '22px', marginBottom: '4px', color: INK }}>
-                    {person.currentRoles[0].title}
-                  </p>
+                  <div style={{ fontSize: 'clamp(13px, 1.9vw, 25px)', marginBottom: '3%' }}>{person.currentRoles[0].title}</div>
                 )}
                 {person.currentRoles[0]?.organisation && (
-                  <p style={{ fontSize: '15px', color: 'rgba(20,16,13,0.7)' }}>
-                    {person.currentRoles[0].organisation}
-                  </p>
+                  <div style={{ fontSize: 'clamp(13px, 1.9vw, 25px)', opacity: 0.7 }}>{person.currentRoles[0].organisation}</div>
                 )}
               </div>
             </div>
 
-            <PeopleProfileSections
-              paragraphs={bioParagraphs}
-              currentRoles={person.currentRoles}
-              pastRoles={person.pastRoles}
-              interests={interests}
-              finance={finance}
-            />
+            <div style={{ zoom: 1.18 }}>
+              <PeopleProfileSections
+                paragraphs={bioParagraphs}
+                currentRoles={person.currentRoles}
+                pastRoles={person.pastRoles}
+                interests={interests}
+                finance={finance}
+              />
+            </div>
           </>
         )}
 
         <ScrollToTopButton />
-      </div>
-    </div>
+    </DossierShell>
   );
 }
