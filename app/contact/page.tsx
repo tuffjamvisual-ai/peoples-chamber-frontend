@@ -12,8 +12,7 @@ export const metadata: Metadata = {
 
 const INK = '#14100d'
 
-// Placeholder address — replace with the real inbox.
-const EMAIL = 'hello@thepeopleschamber.uk'
+const EMAIL = 'contact@thepeopleschamber.uk'
 
 const CHANNELS = [
   {

@@ -80,16 +80,16 @@ function HomeFront() {
           padding: '0 6%',
         }}
       >
-        <div style={{ ...kicker, fontSize: 'clamp(9px, 1.25vw, 17px)', letterSpacing: '0.22em', opacity: 0.65, marginBottom: '2.5%' }}>
+        <div style={{ ...kicker, fontSize: '1.35cqw', letterSpacing: '0.22em', opacity: 0.65, marginBottom: '2.5%' }}>
           From the House this week
         </div>
-        <div style={{ fontWeight: 'bold', fontSize: 'clamp(22px, 3.4vw, 50px)', lineHeight: 1.04, letterSpacing: '-0.01em', marginBottom: '3%' }}>
+        <div style={{ fontWeight: 'bold', fontSize: '3.6cqw', lineHeight: 1.04, letterSpacing: '-0.01em', marginBottom: '3%' }}>
           Every bill, every vote, every law.
         </div>
-        <div style={{ fontSize: 'clamp(11px, 1.55vw, 22px)', lineHeight: 1.5, maxWidth: '34ch', opacity: 0.85 }}>
+        <div style={{ fontSize: '1.65cqw', lineHeight: 1.5, maxWidth: '34ch', opacity: 0.85 }}>
           Follow what Parliament is doing right now, in plain English, and see how every decision lands with the people.
         </div>
-        <div style={{ ...kicker, fontSize: 'clamp(11px, 1.4vw, 19px)', letterSpacing: '0.04em', marginTop: '3.5%' }}>
+        <div style={{ ...kicker, fontSize: '1.45cqw', letterSpacing: '0.04em', marginTop: '3.5%' }}>
           Read the bills →
         </div>
       </a>
@@ -103,15 +103,15 @@ function HomeFront() {
           style={{ ...card, top: '67%', left: c.left, width: c.width, height: '23%', alignItems: 'flex-start', justifyContent: 'space-between', padding: '0 1.5%' }}
         >
           <div>
-            <div style={{ ...kicker, fontSize: 'clamp(8px, 1.05vw, 14px)', letterSpacing: '0.18em', opacity: 0.6, marginBottom: '3%' }}>
+            <div style={{ ...kicker, fontSize: '1.15cqw', letterSpacing: '0.18em', opacity: 0.6, marginBottom: '3%' }}>
               {c.eyebrow}
             </div>
-            <div style={{ fontWeight: 'bold', fontSize: 'clamp(14px, 1.95vw, 27px)', lineHeight: 1.05, marginBottom: '4%' }}>
+            <div style={{ fontWeight: 'bold', fontSize: '2.1cqw', lineHeight: 1.05, marginBottom: '4%' }}>
               {c.head}
             </div>
-            <div style={{ fontSize: 'clamp(9px, 1.2vw, 16px)', lineHeight: 1.45, opacity: 0.85 }}>{c.body}</div>
+            <div style={{ fontSize: '1.3cqw', lineHeight: 1.45, opacity: 0.85 }}>{c.body}</div>
           </div>
-          <div style={{ ...kicker, fontSize: 'clamp(9px, 1.15vw, 15px)', letterSpacing: '0.03em' }}>{c.cta}</div>
+          <div style={{ ...kicker, fontSize: '1.25cqw', letterSpacing: '0.03em' }}>{c.cta}</div>
         </a>
       ))}
     </>

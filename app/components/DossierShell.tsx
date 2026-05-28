@@ -111,8 +111,10 @@ export default function DossierShell({
         />
 
         <div style={{ position: 'relative', zIndex: 1, width: 'min(94vw, 1144px)' }}>
-          {/* Newspaper (masthead + nav), fixed aspect; hotspots are %-based over it. */}
-          <div style={{ position: 'relative', width: '100%', aspectRatio: '1023 / 1537' }}>
+          {/* Newspaper (masthead + nav), fixed aspect; hotspots are %-based over it.
+              container-type makes cqw units available to the overlay so its text
+              scales WITH the newspaper image (no px floors overflowing on mobile). */}
+          <div style={{ position: 'relative', width: '100%', aspectRatio: '1023 / 1537', containerType: 'inline-size' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/pca-art.webp"
