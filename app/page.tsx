@@ -37,33 +37,26 @@ const colStyle = (left: string, width: string): CSSProperties => ({ ...card, top
 
 type Poll = { yesPct: number; total: number };
 
-async function getData(): Promise<{ poll: Poll | null; deptPhoto: string | null }> {
-  const [water, dept] = await Promise.all([
-    supabase.from('polls').select('vote_count_yes, vote_count_no').ilike('question', '%water companies%').limit(1).maybeSingle(),
-    supabase.from('mps').select('photo_url').eq('member_id', 4031).maybeSingle(),
-  ]);
+async function getData(): Promise<{ poll: Poll | null }> {
+  const { data: water } = await supabase
+    .from('polls')
+    .select('vote_count_yes, vote_count_no')
+    .ilike('question', '%water companies%')
+    .limit(1)
+    .maybeSingle();
 
   let poll: Poll | null = null;
-  if (water.data) {
-    const yes = Number(water.data.vote_count_yes) || 0;
-    const no = Number(water.data.vote_count_no) || 0;
+  if (water) {
+    const yes = Number(water.vote_count_yes) || 0;
+    const no = Number(water.vote_count_no) || 0;
     if (yes + no > 0) poll = { yesPct: Math.round((yes / (yes + no)) * 100), total: yes + no };
   }
 
-  return { poll, deptPhoto: dept.data?.photo_url || null };
-}
-
-function Polaroid({ src, alt }: { src: string; alt: string }) {
-  return (
-    <div style={{ flex: '0 0 34%', background: CREAM, padding: '0.5cqw 0.5cqw 1.7cqw', transform: 'rotate(-2deg)', boxShadow: '0 3px 7px rgba(0,0,0,0.3), inset 0 0 20px rgba(0,0,0,0.03)', filter: 'contrast(1.05) brightness(0.98)' }}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={alt} style={{ display: 'block', width: '100%', aspectRatio: '1 / 1', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }} />
-    </div>
-  );
+  return { poll };
 }
 
 export default async function HomePage() {
-  const { poll, deptPhoto } = await getData();
+  const { poll } = await getData();
 
   const HomeFront = (
     <>
@@ -99,15 +92,14 @@ export default async function HomePage() {
         <div style={ctaStyle}>Cast your vote →</div>
       </a>
 
-      {/* Whitehall story (right). */}
-      <a href="/departments" className="no-hover-scale" style={colStyle('68%', '26%')}>
-        <div style={eyebrow}>Whitehall</div>
-        <div style={headlineRow}>
-          {deptPhoto && <Polaroid src={deptPhoto} alt="Rachel Reeves" />}
-          <div style={{ flex: '1 1 auto', fontWeight: 'bold', fontSize: '1.7cqw', lineHeight: 1.08 }}>Who runs Whitehall</div>
+      {/* Whitehall story (right) — featured image on top, headline under. */}
+      <a href="/departments" className="no-hover-scale" style={{ ...card, top: '75%', left: '68%', width: '26%', height: '15%', alignItems: 'flex-start' }}>
+        <div style={{ width: '100%', border: '1px solid #14100d', boxShadow: '0 2px 6px rgba(0,0,0,0.2)', marginBottom: '4%' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/whitehall.webp" alt="Who runs Whitehall" style={{ display: 'block', width: '100%', aspectRatio: '16 / 9', objectFit: 'cover' }} />
         </div>
-        <div style={blurbStyle}>Rachel Reeves and 23 other department heads, examined: who runs what, and how they are doing.</div>
-        <div style={ctaStyle}>See the departments →</div>
+        <div style={{ fontWeight: 'bold', fontSize: '1.9cqw', lineHeight: 1.08, marginBottom: '3%' }}>Who runs Whitehall</div>
+        <div style={{ ...ctaStyle, marginTop: 0 }}>See the departments →</div>
       </a>
     </>
   );
