@@ -2,32 +2,15 @@
 
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import type { CSSProperties } from 'react';
 import { useAuth } from '../context/AuthContext';
 
-// /login renders public/login-overlay.png (sign2 — transparent
-// 1536x1024 landscape) on top of the magazine template. The PNG
-// carries all painted labels, frames, buttons and copy; transparent
-// <input>/<button> elements are absolutely positioned over the
-// painted fields as percentages so the layout scales with viewport.
-// Adjust the FIELD constants below if any hotspot is off.
+// Real, visible sign-in / create-account form rendered inside the dossier
+// folder (ink on parchment). Wired to the existing /api/auth login + signup
+// via AuthContext. Replaces the old transparent-input-over-PNG overlay.
 
-const FIELD = {
-  // x / y / w / h as % of the overlay container (1536 x 1024)
-  // ---- LEFT COLUMN — SIGN IN ----
-  signinEmail:    { top: 41,   left: 7,  width: 36, height: 6 },
-  signinPassword: { top: 53,   left: 7,  width: 36, height: 6 },
-  rememberMe:     { top: 63,   left: 7,  width: 14, height: 3.5 },
-  forgotLink:     { top: 63,   left: 26, width: 17, height: 3.5 },
-  signinBtn:      { top: 68,   left: 7,  width: 36, height: 7 },
-  oauthGoogle:    { top: 80,   left: 7,  width: 36, height: 6 },
-  oauthApple:     { top: 88,   left: 7,  width: 36, height: 6 },
-
-  // ---- RIGHT COLUMN — SIGN UP ----
-  signupName:     { top: 44,   left: 53, width: 38, height: 6 },
-  signupEmail:    { top: 55,   left: 53, width: 38, height: 6 },
-  signupPassword: { top: 66,   left: 53, width: 38, height: 6 },
-  signupBtn:      { top: 85,   left: 53, width: 38, height: 7 },
-};
+const INK = '#14100d';
+const ACCENT = '#6b2417';
 
 function safeReturnTo(value: string | null): string {
   if (!value) return '/';
@@ -35,27 +18,57 @@ function safeReturnTo(value: string | null): string {
   return '/';
 }
 
-const transparentInput: React.CSSProperties = {
-  position: 'absolute',
-  background: 'transparent',
-  border: 'none',
+const label: CSSProperties = {
+  display: 'block',
+  fontSize: '12px',
+  textTransform: 'uppercase',
+  letterSpacing: '0.14em',
+  opacity: 0.7,
+  marginBottom: '6px',
+};
+
+const input: CSSProperties = {
+  width: '100%',
+  padding: '12px 14px',
+  background: 'rgba(20,16,13,0.04)',
+  border: '1px solid rgba(20,16,13,0.28)',
+  borderRadius: '2px',
+  color: INK,
+  fontFamily: 'inherit',
+  fontSize: '16px',
   outline: 'none',
-  color: '#14100d',
-  fontFamily: 'Special Elite, monospace',
-  fontSize: '15px',
-  padding: '0 12px',
+  boxSizing: 'border-box',
+  marginBottom: '18px',
 };
 
-const transparentBtn: React.CSSProperties = {
-  position: 'absolute',
-  background: 'transparent',
+const button: CSSProperties = {
+  width: '100%',
+  padding: '13px',
+  background: INK,
+  color: '#f1e7d3',
   border: 'none',
+  borderRadius: '2px',
+  fontFamily: 'inherit',
+  fontSize: '16px',
+  letterSpacing: '0.06em',
+  textTransform: 'uppercase',
   cursor: 'pointer',
-  color: 'transparent', // button surface is painted in the PNG
 };
 
-function pct(f: { top: number; left: number; width: number; height: number }): React.CSSProperties {
-  return { top: `${f.top}%`, left: `${f.left}%`, width: `${f.width}%`, height: `${f.height}%` };
+function tab(active: boolean): CSSProperties {
+  return {
+    flex: 1,
+    padding: '12px 0',
+    background: 'transparent',
+    border: 'none',
+    borderBottom: active ? `3px solid ${INK}` : '3px solid transparent',
+    color: INK,
+    opacity: active ? 1 : 0.5,
+    fontFamily: 'inherit',
+    fontSize: '17px',
+    letterSpacing: '0.04em',
+    cursor: 'pointer',
+  };
 }
 
 export default function MagazineLoginClient() {
@@ -64,160 +77,116 @@ export default function MagazineLoginClient() {
   const returnTo = safeReturnTo(searchParams.get('returnTo'));
   const { login, signup } = useAuth();
 
+  const [mode, setMode] = useState<'signin' | 'signup'>(
+    searchParams.get('mode') === 'signup' ? 'signup' : 'signin',
+  );
+
   const [signinEmail, setSigninEmail] = useState('');
   const [signinPassword, setSigninPassword] = useState('');
-  const [signinError, setSigninError] = useState('');
-  const [signinLoading, setSigninLoading] = useState(false);
-
   const [signupName, setSignupName] = useState('');
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
-  const [signupError, setSignupError] = useState('');
-  const [signupLoading, setSignupLoading] = useState(false);
 
-  const [busyMsg, setBusyMsg] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSignin = async () => {
-    if (signinLoading) return;
-    setSigninError('');
-    setSigninLoading(true);
-    setBusyMsg('Signing in…');
+  function switchMode(next: 'signin' | 'signup') {
+    setMode(next);
+    setError('');
+  }
+
+  async function handleSignin(e: React.FormEvent) {
+    e.preventDefault();
+    if (loading) return;
+    setError('');
+    setLoading(true);
     try {
-      await login(signinEmail, signinPassword);
+      await login(signinEmail.trim(), signinPassword);
       router.push(returnTo);
     } catch (err: unknown) {
-      setSigninError(err instanceof Error ? err.message : 'Sign-in failed');
-    } finally {
-      setSigninLoading(false);
-      setBusyMsg('');
+      setError(err instanceof Error ? err.message : 'Sign in failed');
+      setLoading(false);
     }
-  };
+  }
 
-  const handleSignup = async () => {
-    if (signupLoading) return;
-    setSignupError('');
+  async function handleSignup(e: React.FormEvent) {
+    e.preventDefault();
+    if (loading) return;
+    setError('');
+    if (signupName.trim().length < 3) { setError('Please enter your full name'); return; }
     const pwOk = signupPassword.length >= 8 && /[0-9]/.test(signupPassword) && /[A-Za-z]/.test(signupPassword);
-    if (!pwOk) { setSignupError('Password must be 8+ characters with a letter and a number'); return; }
-    if (signupName.trim().length < 3) { setSignupError('Please enter your full name'); return; }
-    setSignupLoading(true);
-    setBusyMsg('Creating account…');
+    if (!pwOk) { setError('Password must be 8 or more characters with a letter and a number'); return; }
+    setLoading(true);
     try {
-      await signup(signupEmail, signupPassword, '', signupName);
+      await signup(signupEmail.trim(), signupPassword, '', signupName.trim());
       router.push(returnTo);
     } catch (err: unknown) {
-      setSignupError(err instanceof Error ? err.message : 'Sign-up failed');
-    } finally {
-      setSignupLoading(false);
-      setBusyMsg('');
+      setError(err instanceof Error ? err.message : 'Sign up failed');
+      setLoading(false);
     }
-  };
+  }
 
   return (
-    <div style={{ position: 'relative', width: '100%', maxWidth: '960px', margin: '0 auto', aspectRatio: '1536 / 1024' }}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/login-overlay.png"
-        alt=""
-        aria-hidden
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', pointerEvents: 'none' }}
-      />
+    <div style={{ maxWidth: '440px', margin: '0 auto', fontFamily: 'Special Elite, monospace', color: INK }}>
+      <style>{`
+        .pc-login input:focus { border-color: ${INK}; background: rgba(20,16,13,0.07); }
+        .pc-login button[type=submit]:hover { background: #2a211a; }
+        .pc-login button[type=submit]:disabled { opacity: 0.55; cursor: default; }
+      `}</style>
 
-      {(signinError || signupError || busyMsg) && (
-        <div style={{
-          position: 'absolute',
-          top: '-8%',
-          left: '5%',
-          right: '5%',
-          padding: '10px 14px',
-          background: 'rgba(196,38,46,0.95)',
-          color: '#fff',
-          fontFamily: 'Special Elite, monospace',
-          fontSize: '13px',
-          zIndex: 10,
-          textAlign: 'center',
-        }}>
-          {busyMsg || signinError || signupError}
+      <div className="pc-login">
+        {/* Tabs */}
+        <div style={{ display: 'flex', borderBottom: '1px solid rgba(20,16,13,0.2)', marginBottom: '26px' }}>
+          <button type="button" onClick={() => switchMode('signin')} style={tab(mode === 'signin')}>Sign In</button>
+          <button type="button" onClick={() => switchMode('signup')} style={tab(mode === 'signup')}>Create Account</button>
         </div>
-      )}
 
-      {/* ===== SIGN-IN ===== */}
-      <input
-        type="text"
-        value={signinEmail}
-        onChange={(e) => setSigninEmail(e.target.value)}
-        aria-label="Email or username"
-        autoComplete="username"
-        style={{ ...transparentInput, ...pct(FIELD.signinEmail) }}
-      />
-      <input
-        type="password"
-        value={signinPassword}
-        onChange={(e) => setSigninPassword(e.target.value)}
-        aria-label="Password"
-        autoComplete="current-password"
-        style={{ ...transparentInput, ...pct(FIELD.signinPassword) }}
-      />
-      <button type="button" aria-label="Remember me" style={{ ...transparentBtn, ...pct(FIELD.rememberMe) }} />
-      <button
-        type="button"
-        onClick={() => alert('Password reset is coming soon.')}
-        aria-label="Forgot password"
-        style={{ ...transparentBtn, ...pct(FIELD.forgotLink) }}
-      />
-      <button
-        type="button"
-        onClick={handleSignin}
-        disabled={signinLoading}
-        aria-label="Sign in"
-        style={{ ...transparentBtn, ...pct(FIELD.signinBtn) }}
-      />
-      <button
-        type="button"
-        disabled
-        title="Coming soon"
-        aria-label="Continue with Google (coming soon)"
-        style={{ ...transparentBtn, ...pct(FIELD.oauthGoogle), cursor: 'not-allowed' }}
-      />
-      <button
-        type="button"
-        disabled
-        title="Coming soon"
-        aria-label="Continue with Apple (coming soon)"
-        style={{ ...transparentBtn, ...pct(FIELD.oauthApple), cursor: 'not-allowed' }}
-      />
+        {error && (
+          <div role="alert" style={{ marginBottom: '18px', padding: '11px 14px', background: 'rgba(107,36,23,0.1)', border: `1px solid ${ACCENT}`, color: ACCENT, fontSize: '14px', lineHeight: 1.4 }}>
+            {error}
+          </div>
+        )}
 
-      {/* ===== SIGN-UP ===== */}
-      <input
-        type="text"
-        value={signupName}
-        onChange={(e) => setSignupName(e.target.value)}
-        aria-label="Full name"
-        autoComplete="name"
-        style={{ ...transparentInput, ...pct(FIELD.signupName) }}
-      />
-      <input
-        type="email"
-        value={signupEmail}
-        onChange={(e) => setSignupEmail(e.target.value)}
-        aria-label="Email"
-        autoComplete="email"
-        style={{ ...transparentInput, ...pct(FIELD.signupEmail) }}
-      />
-      <input
-        type="password"
-        value={signupPassword}
-        onChange={(e) => setSignupPassword(e.target.value)}
-        aria-label="Password"
-        autoComplete="new-password"
-        style={{ ...transparentInput, ...pct(FIELD.signupPassword) }}
-      />
-      <button
-        type="button"
-        onClick={handleSignup}
-        disabled={signupLoading}
-        aria-label="Create account"
-        style={{ ...transparentBtn, ...pct(FIELD.signupBtn) }}
-      />
+        {mode === 'signin' ? (
+          <form onSubmit={handleSignin}>
+            <label style={label} htmlFor="si-email">Email</label>
+            <input id="si-email" type="email" autoComplete="username" required value={signinEmail} onChange={(e) => setSigninEmail(e.target.value)} style={input} />
+
+            <label style={label} htmlFor="si-pw">Password</label>
+            <input id="si-pw" type="password" autoComplete="current-password" required value={signinPassword} onChange={(e) => setSigninPassword(e.target.value)} style={input} />
+
+            <button type="submit" disabled={loading} style={button}>{loading ? 'Signing in…' : 'Sign In'}</button>
+
+            <p style={{ marginTop: '16px', fontSize: '14px', opacity: 0.75 }}>
+              New here?{' '}
+              <button type="button" onClick={() => switchMode('signup')} style={{ background: 'none', border: 'none', color: ACCENT, font: 'inherit', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>
+                Create an account
+              </button>
+            </p>
+          </form>
+        ) : (
+          <form onSubmit={handleSignup}>
+            <label style={label} htmlFor="su-name">Full name</label>
+            <input id="su-name" type="text" autoComplete="name" required value={signupName} onChange={(e) => setSignupName(e.target.value)} style={input} />
+
+            <label style={label} htmlFor="su-email">Email</label>
+            <input id="su-email" type="email" autoComplete="email" required value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} style={input} />
+
+            <label style={label} htmlFor="su-pw">Password</label>
+            <input id="su-pw" type="password" autoComplete="new-password" required value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} style={{ ...input, marginBottom: '6px' }} />
+            <p style={{ margin: '0 0 18px', fontSize: '13px', opacity: 0.6 }}>8 or more characters, with a letter and a number.</p>
+
+            <button type="submit" disabled={loading} style={button}>{loading ? 'Creating account…' : 'Create Account'}</button>
+
+            <p style={{ marginTop: '16px', fontSize: '14px', opacity: 0.75 }}>
+              Already registered?{' '}
+              <button type="button" onClick={() => switchMode('signin')} style={{ background: 'none', border: 'none', color: ACCENT, font: 'inherit', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>
+                Sign in
+              </button>
+            </p>
+          </form>
+        )}
+      </div>
     </div>
   );
 }
