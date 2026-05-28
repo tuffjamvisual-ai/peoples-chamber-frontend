@@ -153,6 +153,35 @@ export default function DossierShell({
               );
             })}
 
+            {/* Visible footer link to the (otherwise orphaned) expenses page,
+                placed in the empty gap between the social icons and SUPPORT US.
+                Footer only shows on the home page; folder covers it elsewhere. */}
+            <a
+              href="/expenses"
+              aria-label="Top MP expenses"
+              className="no-hover-scale"
+              style={{
+                position: 'absolute',
+                left: '78.5%',
+                top: '96.4%',
+                width: '9%',
+                height: '1.6%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#2b2722',
+                fontFamily: 'Georgia, "Times New Roman", serif',
+                fontSize: '1.3cqw',
+                fontWeight: 'bold',
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Expenses
+            </a>
+
             {/* Live, weekly-updating issue line on the cleared top-left of the masthead. */}
             <div
               style={{
