@@ -100,16 +100,18 @@ function HomeFront() {
           key={c.href}
           href={c.href}
           className="no-hover-scale"
-          style={{ ...card, top: '71%', left: c.left, width: c.width, height: '18%', alignItems: 'flex-start', padding: '0 1.5%' }}
+          style={{ ...card, top: '67%', left: c.left, width: c.width, height: '23%', alignItems: 'flex-start', justifyContent: 'space-between', padding: '0 1.5%' }}
         >
-          <div style={{ ...kicker, fontSize: 'clamp(8px, 1.05vw, 14px)', letterSpacing: '0.18em', opacity: 0.6, marginBottom: '3%' }}>
-            {c.eyebrow}
+          <div>
+            <div style={{ ...kicker, fontSize: 'clamp(8px, 1.05vw, 14px)', letterSpacing: '0.18em', opacity: 0.6, marginBottom: '3%' }}>
+              {c.eyebrow}
+            </div>
+            <div style={{ fontWeight: 'bold', fontSize: 'clamp(14px, 1.95vw, 27px)', lineHeight: 1.05, marginBottom: '4%' }}>
+              {c.head}
+            </div>
+            <div style={{ fontSize: 'clamp(9px, 1.2vw, 16px)', lineHeight: 1.45, opacity: 0.85 }}>{c.body}</div>
           </div>
-          <div style={{ fontWeight: 'bold', fontSize: 'clamp(14px, 1.95vw, 27px)', lineHeight: 1.05, marginBottom: '4%' }}>
-            {c.head}
-          </div>
-          <div style={{ fontSize: 'clamp(9px, 1.2vw, 16px)', lineHeight: 1.45, opacity: 0.85 }}>{c.body}</div>
-          <div style={{ ...kicker, fontSize: 'clamp(9px, 1.15vw, 15px)', letterSpacing: '0.03em', marginTop: '4%' }}>{c.cta}</div>
+          <div style={{ ...kicker, fontSize: 'clamp(9px, 1.15vw, 15px)', letterSpacing: '0.03em' }}>{c.cta}</div>
         </a>
       ))}
     </>
