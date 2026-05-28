@@ -16,17 +16,17 @@ const HOTSPOTS: Hotspot[] = [
   { label: 'TRANSPARENCY', href: '/transparency', xPct: 68.0, yPct: 20.7, wPct: 12.0, hPct: 2.6 },
   { label: 'CONTACT', href: '/contact', xPct: 82.0, yPct: 20.7, wPct: 7.0, hPct: 2.6 },
   { label: 'LOGIN', href: '/login', xPct: 91.0, yPct: 20.7, wPct: 5.0, hPct: 2.6 },
-  { label: 'Top Content Area', href: '/feature', xPct: 6.0, yPct: 24.0, wPct: 88.0, hPct: 39.0 },
-  { label: 'Bottom Left Area', href: '/left', xPct: 6.0, yPct: 66.0, wPct: 27.0, hPct: 18.0 },
-  { label: 'Bottom Centre Area', href: '/centre', xPct: 37.0, yPct: 66.0, wPct: 27.0, hPct: 18.0 },
-  { label: 'Bottom Right Area', href: '/right', xPct: 68.0, yPct: 66.0, wPct: 26.0, hPct: 18.0 },
+  { label: 'Top Content Area', href: '/bills', xPct: 6.0, yPct: 24.0, wPct: 88.0, hPct: 39.0 },
+  { label: 'Bottom Left Area', href: '/mps', xPct: 6.0, yPct: 66.0, wPct: 27.0, hPct: 18.0 },
+  { label: 'Bottom Centre Area', href: '/polls', xPct: 37.0, yPct: 66.0, wPct: 27.0, hPct: 18.0 },
+  { label: 'Bottom Right Area', href: '/departments', xPct: 68.0, yPct: 66.0, wPct: 26.0, hPct: 18.0 },
   { label: 'X', href: 'https://x.com', xPct: 15.0, yPct: 94.0, wPct: 2.5, hPct: 2.0 },
   { label: 'Facebook', href: 'https://facebook.com', xPct: 20.0, yPct: 94.0, wPct: 2.5, hPct: 2.0 },
   { label: 'Instagram', href: 'https://instagram.com', xPct: 24.5, yPct: 94.0, wPct: 2.5, hPct: 2.0 },
   { label: 'YouTube', href: 'https://youtube.com', xPct: 29.0, yPct: 94.0, wPct: 2.5, hPct: 2.0 },
   { label: 'LinkedIn', href: 'https://linkedin.com', xPct: 34.0, yPct: 94.0, wPct: 2.5, hPct: 2.0 },
   { label: 'SUPPORT US', href: '/support', xPct: 49.0, yPct: 93.8, wPct: 10.0, hPct: 2.5 },
-  { label: 'ACCOUNT/INFO', href: '/account', xPct: 68.0, yPct: 93.8, wPct: 14.0, hPct: 2.5 },
+  { label: 'ACCOUNT/INFO', href: '/login', xPct: 68.0, yPct: 93.8, wPct: 14.0, hPct: 2.5 },
 ];
 
 // Weekly issue line. Anchor: Issue 23 = week beginning Fri 16 May 2025; Fri–Thu weeks.
@@ -52,7 +52,15 @@ function computeIssue(now: Date) {
   return { issue, dateRange };
 }
 
-export default function DossierShell({ children }: { children: React.ReactNode }) {
+// `children` = the folder contents. Omit it (e.g. the home page) to render just the
+// newspaper front page with no folder.
+export default function DossierShell({
+  children,
+  overlay,
+}: {
+  children?: React.ReactNode;
+  overlay?: React.ReactNode;
+}) {
   const { issue, dateRange } = computeIssue(new Date());
 
   return (
@@ -164,8 +172,13 @@ export default function DossierShell({ children }: { children: React.ReactNode }
                 {dateRange}
               </div>
             </div>
+
+            {/* Optional front-page content, %-positioned over the newspaper body
+                (used by the home page; profiles cover this area with the folder). */}
+            {overlay}
           </div>
 
+          {children != null && (
           <ExpandingFolder defaultHeightCss="calc(min(94vw, 1144px) * 1.18)" className="pca-folder">
             {/* Folder image as 3 stacked layers: top piece, repeating middle, bottom piece. */}
             <div aria-hidden style={{ position: 'absolute', inset: 0, zIndex: 0, display: 'flex', flexDirection: 'column' }}>
@@ -179,6 +192,7 @@ export default function DossierShell({ children }: { children: React.ReactNode }
               {children}
             </div>
           </ExpandingFolder>
+          )}
         </div>
       </div>
     </>
