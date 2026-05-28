@@ -1,11 +1,10 @@
 // Server component — renders statutory instrument metadata + Commons division
-// vote breakdown. Matches the magazine template used on /bills/[id].
+// vote breakdown. Dossier template (matches /bills/[id], /laws, /transparency).
 
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import '../../components/magazine-layout.css'
-import MagazineNav from '../../components/MagazineNav'
+import DossierShell from '../../components/DossierShell'
 
 export const revalidate = 3600
 
@@ -72,115 +71,76 @@ export default async function SIDetailPage({ params }: { params: Promise<{ id: s
   const dateLabel = new Date(si.date as string).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
 
   return (
-    <div
-      style={{
-        position: 'relative',
-        width: '100%',
-        maxWidth: '1086px',
-        margin: '0 auto',
-        background: '#2a1810',
-        backgroundImage:
-          'url("/preview-header.webp"), url("/preview-footer.webp"), url("/preview-middle.webp")',
-        backgroundRepeat: 'no-repeat, no-repeat, repeat-y',
-        backgroundPosition: 'top center, bottom center, top center',
-        backgroundSize: '100% auto, 100% auto, 100% auto',
-      }}
-    >
-      <div
-        aria-hidden
-        style={{
-          position: 'absolute',
-          inset: 0,
-          zIndex: 1,
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E\")",
-          pointerEvents: 'none',
-        }}
-      />
-
-      <MagazineNav />
-      <div
-        className="magazine-content-spacing"
-        style={{ position: 'relative', zIndex: 2, color: INK, fontFamily: 'Special Elite, monospace' }}
+    <DossierShell>
+      <a
+        href="/laws"
+        className="no-hover-scale"
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
       >
-        <Link
-          href="/mps"
+        ← Back to laws
+      </a>
+
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '20px' }}>
+        <Tag colour={ACCENT}>Statutory Instrument</Tag>
+        <Tag colour={INK_SOFT}>Division {si.division_id}</Tag>
+        {si.passed === true && <Tag colour={SUCCESS}>✓ Passed</Tag>}
+        {si.passed === false && <Tag colour={DANGER}>✗ Rejected</Tag>}
+      </div>
+
+      <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '32px', marginBottom: '32px' }}>
+        <p
           style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            marginBottom: '24px',
-            color: INK,
-            textDecoration: 'none',
-            fontSize: '16px',
+            fontSize: '12px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.3em',
+            marginBottom: '12px',
+            opacity: 0.85,
             transform: 'rotate(-0.2deg)',
           }}
         >
-          ← Back to MPs
-        </Link>
+          UK Parliament · Delegated Legislation · {dateLabel}
+        </p>
+        <h1
+          style={{
+            fontSize: 'clamp(28px, 4vw, 46px)',
+            fontWeight: 'bold',
+            letterSpacing: '-0.02em',
+            marginBottom: '12px',
+            transform: 'rotate(-0.3deg)',
+            textShadow: '1px 1px 0px rgba(0,0,0,0.1)',
+            lineHeight: 1.15,
+          }}
+        >
+          {si.title}
+        </h1>
+      </header>
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '20px' }}>
-          <Tag colour={ACCENT}>Statutory Instrument</Tag>
-          <Tag colour={INK_SOFT}>Division {si.division_id}</Tag>
-          {si.passed === true && <Tag colour={SUCCESS}>✓ Passed</Tag>}
-          {si.passed === false && <Tag colour={DANGER}>✗ Rejected</Tag>}
-        </div>
+      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '40px' }}>
+        <Stat label="Ayes" value={ayes_total} accent={SUCCESS} />
+        <Stat label="Noes" value={noes_total} accent={DANGER} />
+        <Stat label="Margin" value={ayes_total - noes_total} accent={ACCENT} />
+        <Stat label="MPs recorded" value={votes.length} accent={INK_SOFT} />
+      </section>
 
-        <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '32px', marginBottom: '32px' }}>
-          <p
-            style={{
-              fontSize: '12px',
-              textTransform: 'uppercase',
-              letterSpacing: '0.3em',
-              marginBottom: '12px',
-              opacity: 0.85,
-              transform: 'rotate(-0.2deg)',
-            }}
-          >
-            UK Parliament · Delegated Legislation · {dateLabel}
-          </p>
-          <h1
-            style={{
-              fontSize: '36px',
-              fontWeight: 'bold',
-              letterSpacing: '-0.02em',
-              marginBottom: '12px',
-              transform: 'rotate(-0.3deg)',
-              textShadow: '1px 1px 0px rgba(0,0,0,0.1)',
-              lineHeight: 1.15,
-            }}
-          >
-            {si.title}
-          </h1>
-        </header>
-
-        <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '40px' }}>
-          <Stat label="Ayes" value={ayes_total} accent={SUCCESS} />
-          <Stat label="Noes" value={noes_total} accent={DANGER} />
-          <Stat label="Margin" value={ayes_total - noes_total} accent={ACCENT} />
-          <Stat label="MPs recorded" value={votes.length} accent={INK_SOFT} />
-        </section>
-
-        {si.description && (
-          <section style={{ marginBottom: '40px' }}>
-            <h2 style={sectionH2}>About this instrument</h2>
-            <p style={{ fontSize: '17px', lineHeight: 1.7, marginTop: '12px' }}>{si.description}</p>
-          </section>
-        )}
-
+      {si.description && (
         <section style={{ marginBottom: '40px' }}>
-          <h2 style={sectionH2}>How MPs voted</h2>
-          <p style={{ fontSize: '13px', opacity: 0.7, marginTop: '8px', marginBottom: '24px' }}>
-            Source: Commons Votes API · division {si.division_id}
-          </p>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px' }}>
-            <VoteColumn heading={`Voted AYE (${ayes.length})`} rows={ayes} accent={SUCCESS} />
-            <VoteColumn heading={`Voted NO (${noes.length})`} rows={noes} accent={DANGER} />
-          </div>
+          <h2 style={sectionH2}>About this instrument</h2>
+          <p style={{ fontSize: '17px', lineHeight: 1.7, marginTop: '12px' }}>{si.description}</p>
         </section>
-      </div>
-    </div>
+      )}
+
+      <section style={{ marginBottom: '40px' }}>
+        <h2 style={sectionH2}>How MPs voted</h2>
+        <p style={{ fontSize: '13px', opacity: 0.7, marginTop: '8px', marginBottom: '24px' }}>
+          Source: Commons Votes API · division {si.division_id}
+        </p>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px' }}>
+          <VoteColumn heading={`Voted AYE (${ayes.length})`} rows={ayes} accent={SUCCESS} />
+          <VoteColumn heading={`Voted NO (${noes.length})`} rows={noes} accent={DANGER} />
+        </div>
+      </section>
+    </DossierShell>
   )
 }
 

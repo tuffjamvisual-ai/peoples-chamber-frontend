@@ -2,12 +2,12 @@ import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import Navigation from '../../components/Navigation'
+import DossierShell from '../../components/DossierShell'
 import TransparencyClient from './TransparencyClient'
 
 export const revalidate = 3600
 
-const ACCENT = '#ffffff'
+const ACCENT = '#6b2417'
 const PAGE_LIMIT = 100   // rows per page
 
 const SECTIONS: Record<string, { title: string; table: string; orderBy?: string }> = {
@@ -86,84 +86,82 @@ export default async function TransparencySectionPage({
   const totalCount = total ?? 0
 
   return (
-    <div className="min-h-screen bg-[#606060] text-white">
-      <Navigation />
-      <main className="bg-[#505050] shadow-[0_0_40px_rgba(0,0,0,0.4)] max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
-        <Link
-          href="/transparency"
-          className="inline-flex items-center gap-2 text-[13px] uppercase tracking-[0.25em] text-white hover:text-white mb-8 transition-colors"
-        >
-          ← Transparency Hub
-        </Link>
+    <DossierShell>
+      <a
+        href="/transparency"
+        className="no-hover-scale"
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: '#14100d', textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
+      >
+        ← Transparency Hub
+      </a>
 
-        <header className="border-b border-[#5a5a5a] pb-10 mb-10">
-          <p className="text-[13px] uppercase tracking-[0.3em] font-medium mb-4" style={{ color: ACCENT }}>
-            Dataset
-          </p>
-          <h1 className="text-4xl sm:text-6xl font-black leading-[1.05] tracking-tight text-white mb-4">
-            {config.title}
-          </h1>
-          <p className="text-white text-[14px] leading-[1.7] max-w-2xl">
-            {searchTerm ? (
-              <>
-                <span className="font-mono text-white text-base font-bold">{rowCount.toLocaleString()}</span>
-                {' '}result{rowCount === 1 ? '' : 's'} for &ldquo;{searchTerm}&rdquo;
-                {totalCount > rowCount && (
-                  <> — showing first {rowCount.toLocaleString()} of {totalCount.toLocaleString()} matches</>
-                )}
-                .{' '}
-                <Link href={`/transparency/${section}`} className="underline hover:text-white">
-                  Clear search
-                </Link>
-              </>
-            ) : (
-              <>
-                <span className="font-mono text-white text-base font-bold">{totalCount.toLocaleString()}</span>
-                {' '}record{totalCount === 1 ? '' : 's'} in this dataset.
-                {totalPages > 1 && (
-                  <> Showing rows {from + 1}–{Math.min(to + 1, totalCount)} (page {page} of {totalPages}).</>
-                )}
-                {section === 'donations' && ' Search by donor or recipient name to filter.'}
-              </>
-            )}
-          </p>
-          {section === 'revolving-door' && (
-            <p className="text-white text-[14px] leading-[1.7] max-w-2xl mt-6">
-              The revolving door refers to senior government officials and ministers leaving public service to take up roles in the private sector — often in industries they previously regulated or had influence over. These appointments are reviewed by the Advisory Committee on Business Appointments (ACOBA), which can attach conditions such as waiting periods or restrictions on lobbying former colleagues.
-            </p>
+      <header style={{ marginBottom: '5%' }}>
+        <p style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.3em', fontWeight: 500, marginBottom: '12px', color: ACCENT }}>
+          Dataset
+        </p>
+        <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
+          {config.title}
+        </h1>
+        <p className="text-[#14100d] text-[14px] leading-[1.7] max-w-2xl">
+          {searchTerm ? (
+            <>
+              <span className="font-mono text-[#14100d] text-base font-bold">{rowCount.toLocaleString()}</span>
+              {' '}result{rowCount === 1 ? '' : 's'} for &ldquo;{searchTerm}&rdquo;
+              {totalCount > rowCount && (
+                <> showing first {rowCount.toLocaleString()} of {totalCount.toLocaleString()} matches</>
+              )}
+              .{' '}
+              <Link href={`/transparency/${section}`} className="underline hover:text-[#14100d]">
+                Clear search
+              </Link>
+            </>
+          ) : (
+            <>
+              <span className="font-mono text-[#14100d] text-base font-bold">{totalCount.toLocaleString()}</span>
+              {' '}record{totalCount === 1 ? '' : 's'} in this dataset.
+              {totalPages > 1 && (
+                <> Showing rows {from + 1}–{Math.min(to + 1, totalCount)} (page {page} of {totalPages}).</>
+              )}
+              {section === 'donations' && ' Search by donor or recipient name to filter.'}
+            </>
           )}
-        </header>
-
-        <TransparencyClient
-          rows={rows || []}
-          sectionTitle={config.title}
-          section={section}
-          total={totalCount}
-          searchQuery={searchTerm ?? ''}
-        />
-
-        {totalPages > 1 && (
-          <nav className="flex items-center justify-center gap-2 mt-8" aria-label="Pagination">
-            {prevHref ? (
-              <Link href={prevHref} className="px-3 py-1.5 bg-[#404040] text-white rounded text-sm hover:bg-[#505050] transition-colors">
-                ← Previous
-              </Link>
-            ) : (
-              <span className="px-3 py-1.5 bg-[#404040] text-[#888] rounded text-sm opacity-50">← Previous</span>
-            )}
-            <span className="px-4 py-1.5 bg-[#353535] text-white rounded text-sm font-mono border border-[#5a5a5a]">
-              {page} / {totalPages}
-            </span>
-            {nextHref ? (
-              <Link href={nextHref} className="px-3 py-1.5 bg-[#404040] text-white rounded text-sm hover:bg-[#505050] transition-colors">
-                Next →
-              </Link>
-            ) : (
-              <span className="px-3 py-1.5 bg-[#404040] text-[#888] rounded text-sm opacity-50">Next →</span>
-            )}
-          </nav>
+        </p>
+        {section === 'revolving-door' && (
+          <p className="text-[#14100d] text-[14px] leading-[1.7] max-w-2xl mt-6">
+            The revolving door refers to senior government officials and ministers leaving public service to take up roles in the private sector, often in industries they previously regulated or had influence over. These appointments are reviewed by the Advisory Committee on Business Appointments (ACOBA), which can attach conditions such as waiting periods or restrictions on lobbying former colleagues.
+          </p>
         )}
-      </main>
-    </div>
+      </header>
+
+      <TransparencyClient
+        rows={rows || []}
+        sectionTitle={config.title}
+        section={section}
+        total={totalCount}
+        searchQuery={searchTerm ?? ''}
+      />
+
+      {totalPages > 1 && (
+        <nav className="flex items-center justify-center gap-2 mt-8" aria-label="Pagination">
+          {prevHref ? (
+            <Link href={prevHref} className="px-3 py-1.5 border border-[#14100d]/20 text-[#14100d] rounded text-sm hover:border-[#14100d] transition-colors">
+              ← Previous
+            </Link>
+          ) : (
+            <span className="px-3 py-1.5 border border-[#14100d]/20 text-[#14100d]/40 rounded text-sm opacity-50">← Previous</span>
+          )}
+          <span className="px-4 py-1.5 text-[#14100d] rounded text-sm font-mono border border-[#14100d]/20">
+            {page} / {totalPages}
+          </span>
+          {nextHref ? (
+            <Link href={nextHref} className="px-3 py-1.5 border border-[#14100d]/20 text-[#14100d] rounded text-sm hover:border-[#14100d] transition-colors">
+              Next →
+            </Link>
+          ) : (
+            <span className="px-3 py-1.5 border border-[#14100d]/20 text-[#14100d]/40 rounded text-sm opacity-50">Next →</span>
+          )}
+        </nav>
+      )}
+    </DossierShell>
   )
 }

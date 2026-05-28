@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import Navigation from '../components/Navigation'
+import DossierShell from '../components/DossierShell'
 
 export const revalidate = 3600
 
@@ -11,8 +11,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/transparency' },
 }
 
-const ACCENT = '#ffffff'
-const ACCENT_2 = '#7697a2'
+const INK = '#14100d'
 
 const SECTIONS = [
   { slug: 'ministers-meetings', title: "Ministers' Meetings", description: 'Records of meetings ministers have held with external organisations and lobbyists, published quarterly under GOV.UK transparency releases.' },
@@ -27,61 +26,50 @@ const SECTIONS = [
 
 export default function TransparencyHubPage() {
   return (
-    <div className="min-h-screen bg-[#606060] text-white">
-      <Navigation />
-      <main className="bg-[#505050] shadow-[0_0_40px_rgba(0,0,0,0.4)] max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
-        <header className="border-b border-[#5a5a5a] pb-10 mb-10">
-          <p className="text-[13px] uppercase tracking-[0.3em] font-medium mb-4" style={{ color: ACCENT }}>
-            The People&apos;s Chamber · Transparency
-          </p>
-          <h1 className="text-4xl sm:text-6xl font-black leading-[1.05] tracking-tight text-white mb-4">
-            Transparency Hub
-          </h1>
-          <p className="text-white text-[14px] leading-[1.7] max-w-2xl">
-            Eight datasets covering how ministers, MPs, lobbyists, donors, contractors and former officials interact with the UK state. Each section links to a searchable list of the underlying records.
-          </p>
+    <DossierShell>
+      <style>{`
+        .t-card { transition: background-color 150ms ease, border-color 150ms ease; }
+        .t-card:hover { background-color: rgba(20,16,13,0.06); border-left-color: ${INK}; }
+      `}</style>
 
-          <div className="grid grid-cols-3 gap-px bg-[#404040] border border-[#5a5a5a] mt-10">
-            <Stat label="Datasets" value={SECTIONS.length} />
-            <Stat label="Sources" value="6" />
-            <Stat label="Refresh" value="Daily" accent />
-          </div>
-        </header>
+      <a
+        href="/"
+        className="no-hover-scale"
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
+      >
+        ← Back to home
+      </a>
 
-        <ul className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#404040] border border-[#5a5a5a]">
-          {SECTIONS.map((s, i) => {
-            const colour = i % 2 === 0 ? ACCENT : ACCENT_2
-            return (
-              <li key={s.slug} className="bg-[#404040]">
-                <Link
-                  href={`/transparency/${s.slug}`}
-                  className="group block p-6 hover:bg-[#505050] transition-colors border-l-2 border-transparent hover:border-l-[#ffffff]"
-                >
-                  <p className="text-[13px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: colour }}>
-                    Dataset · {String(i + 1).padStart(2, '0')}
-                  </p>
-                  <h2 className="text-xl font-black tracking-tight mb-2 leading-tight text-white group-hover:text-[#ffffff] transition-colors">
-                    {s.title}
-                    <span className="ml-2 text-base text-white inline-block transition-transform group-hover:translate-x-1 group-hover:text-[#ffffff]">→</span>
-                  </h2>
-                  <p className="text-white text-[13px] leading-[1.7]">{s.description}</p>
-                </Link>
-              </li>
-            )
-          })}
-        </ul>
-      </main>
-    </div>
-  )
-}
+      <header style={{ marginBottom: '5%' }}>
+        <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
+          Transparency Hub
+        </h1>
+        <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
+          Eight datasets covering how ministers, MPs, lobbyists, donors, contractors and former officials interact with the UK state. Each section links to a searchable list of the underlying records.
+        </p>
+        <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px', opacity: 0.7 }}>
+          {SECTIONS.length} datasets · drawn from public registers
+        </p>
+      </header>
 
-function Stat({ label, value, accent = false }: { label: string; value: number | string; accent?: boolean }) {
-  return (
-    <div className="bg-[#404040] px-4 py-5">
-      <p className="text-[13px] uppercase tracking-[0.25em] text-white font-medium mb-2">{label}</p>
-      <p className={`text-3xl sm:text-4xl font-black leading-none tracking-tight ${accent ? 'text-[#ffffff]' : 'text-white'}`}>
-        {typeof value === 'number' ? value.toLocaleString() : value}
-      </p>
-    </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
+        {SECTIONS.map((s, i) => (
+          <Link
+            key={s.slug}
+            href={`/transparency/${s.slug}`}
+            className="t-card no-hover-scale"
+            style={{ display: 'block', padding: '18px 20px', border: '1px solid rgba(20,16,13,0.25)', borderLeft: '3px solid rgba(20,16,13,0.4)', color: INK, textDecoration: 'none' }}
+          >
+            <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.2em', opacity: 0.55, marginBottom: '8px' }}>
+              Dataset · {String(i + 1).padStart(2, '0')}
+            </div>
+            <h2 style={{ fontSize: '21px', fontWeight: 'bold', marginBottom: '6px', lineHeight: 1.15 }}>
+              {s.title} <span style={{ opacity: 0.55 }}>→</span>
+            </h2>
+            <p style={{ fontSize: '14px', lineHeight: 1.6, opacity: 0.85 }}>{s.description}</p>
+          </Link>
+        ))}
+      </div>
+    </DossierShell>
   )
 }

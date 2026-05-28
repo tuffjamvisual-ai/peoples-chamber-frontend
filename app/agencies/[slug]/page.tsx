@@ -3,10 +3,13 @@
 // that fetched /api/govuk-agency after mount.
 
 import { supabase } from '@/lib/supabase';
-import Navigation from '../../components/Navigation';
+import DossierShell from '../../components/DossierShell';
 import Link from 'next/link';
 
 export const revalidate = 3600;
+
+const INK = '#14100d';
+const ACCENT = '#6b2417';
 
 type Minister = { name: string; role: string; slug: string };
 type BoardMember = { name: string; role: string; slug: string };
@@ -78,92 +81,103 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
   const { slug } = await params;
   const agency = await getAgency(slug);
 
+  // Back-link target: if we can map a parent organisation to one of our
+  // department pages, go straight back there; otherwise fall back to the
+  // full departments index.
+  const parentDept = agency?.parentOrgs
+    .map((org) => ({ name: org.name, slug: DEPT_SLUGS[org.slug] }))
+    .find((d) => d.slug);
+  const backHref = parentDept ? `/departments/${parentDept.slug}` : '/departments';
+  const backLabel = parentDept ? `← Back to ${parentDept.name}` : '← Back to departments';
+
   return (
-    <div className="min-h-screen bg-[#606060]">
-      <Navigation />
-      <main className="bg-[#505050] shadow-[0_0_40px_rgba(0,0,0,0.4)] max-w-4xl mx-auto px-4 sm:px-6 pb-12">
-        <Link href="/departments" className="inline-flex items-center gap-2 text-white hover:text-white mb-6 text-sm">
-          ← Back to Departments
-        </Link>
+    <DossierShell>
+      <Link
+        href={backHref}
+        className="no-hover-scale"
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
+      >
+        {backLabel}
+      </Link>
 
-        {!agency && <div className="text-white text-sm">Agency not found.</div>}
+      {!agency && <div className="text-[#14100d] text-sm">Agency not found.</div>}
 
-        {agency && (
-          <>
-            {/* Header */}
-            <div className="mb-6" style={{ borderLeft: '4px solid #ffffff', paddingLeft: '1rem' }}>
-              <div className="flex items-center gap-3 mb-1">
-                <h1 className="text-2xl sm:text-3xl font-bold text-white">{agency.name}</h1>
-                {agency.acronym && (
-                  <span className="text-sm px-2 py-1 bg-[#404040] text-white rounded font-mono">{agency.acronym}</span>
-                )}
-              </div>
-              {agency.parentOrgs.length > 0 && (
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-white text-sm">Part of:</span>
-                  {agency.parentOrgs.map((org, i) => {
-                    const deptSlug = DEPT_SLUGS[org.slug];
-                    return deptSlug ? (
-                      <Link key={i} href={`/departments/${deptSlug}`} className="text-white text-sm hover:underline">{org.name}</Link>
-                    ) : (
-                      <span key={i} className="text-white text-sm">{org.name}</span>
-                    );
-                  })}
-                </div>
+      {agency && (
+        <>
+          <header style={{ marginBottom: '5%' }}>
+            <div className="flex items-center gap-3 mb-2">
+              <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
+                {agency.name}
+              </h1>
+              {agency.acronym && (
+                <span className="text-sm px-2 py-1 text-[#14100d] border border-[#14100d]/20 rounded font-mono">{agency.acronym}</span>
               )}
-              <p className="text-[#c9c9c9] text-sm">{agency.description}</p>
             </div>
-
-            {agency.body && (
-              <div className="mb-6 pb-6 border-b border-[#5a5a5a]">
-                <p className="text-[#c9c9c9] text-sm leading-relaxed">{agency.body}</p>
+            {agency.parentOrgs.length > 0 && (
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-[#14100d] text-sm">Part of:</span>
+                {agency.parentOrgs.map((org, i) => {
+                  const deptSlug = DEPT_SLUGS[org.slug];
+                  return deptSlug ? (
+                    <Link key={i} href={`/departments/${deptSlug}`} className="text-sm hover:underline" style={{ color: ACCENT }}>{org.name}</Link>
+                  ) : (
+                    <span key={i} className="text-[#14100d] text-sm">{org.name}</span>
+                  );
+                })}
               </div>
             )}
+            <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>{agency.description}</p>
+          </header>
 
-            {agency.ministers.length > 0 && (
-              <div className="mb-6 pb-6 border-b border-[#5a5a5a]">
-                <h2 className="text-sm font-semibold text-white mb-3">Ministers</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
-                  {agency.ministers.map((m, i) => (
-                    <div key={i} className="py-2 border-b border-[#5a5a5a]/50">
-                      <Link href={`/people/${m.slug}`} className="text-white text-sm font-medium hover:text-white transition-colors">{m.name}</Link>
-                      <div className="text-white text-sm mt-0.5">{m.role}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+          {agency.body && (
+            <div className="mb-6 pb-6 border-b border-[#14100d]/20">
+              <p className="text-[#14100d] text-sm leading-relaxed">{agency.body}</p>
+            </div>
+          )}
 
-            {agency.boardMembers.length > 0 && (
-              <div className="mb-6 pb-6 border-b border-[#5a5a5a]">
-                <h2 className="text-sm font-semibold text-white mb-3">Senior Staff</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
-                  {agency.boardMembers.map((m, i) => (
-                    <div key={i} className="py-2 border-b border-[#5a5a5a]/50">
-                      <Link href={`/people/${m.slug}`} className="text-white text-sm font-medium hover:text-white transition-colors">{m.name}</Link>
-                      <div className="text-white text-sm mt-0.5">{m.role}</div>
-                    </div>
-                  ))}
-                </div>
+          {agency.ministers.length > 0 && (
+            <div className="mb-6 pb-6 border-b border-[#14100d]/20">
+              <h2 className="text-sm font-semibold text-[#14100d] mb-3">Ministers</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
+                {agency.ministers.map((m, i) => (
+                  <div key={i} className="py-2 border-b border-[#14100d]/10">
+                    <Link href={`/people/${m.slug}`} className="text-[#14100d] text-sm font-medium hover:text-[#14100d] transition-colors">{m.name}</Link>
+                    <div className="text-[#14100d] text-sm mt-0.5">{m.role}</div>
+                  </div>
+                ))}
               </div>
-            )}
+            </div>
+          )}
 
-            {agency.featuredDocs.length > 0 && (
-              <div className="mb-6 pb-6 border-b border-[#5a5a5a]">
-                <h2 className="text-sm font-semibold text-white mb-3">Latest Publications</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
-                  {agency.featuredDocs.map((doc, i) => (
-                    <div key={i} className="py-2 border-b border-[#5a5a5a]/50">
-                      <div className="text-white text-sm">{doc.title}</div>
-                      <div className="text-white text-sm mt-0.5">{doc.type}</div>
-                    </div>
-                  ))}
-                </div>
+          {agency.boardMembers.length > 0 && (
+            <div className="mb-6 pb-6 border-b border-[#14100d]/20">
+              <h2 className="text-sm font-semibold text-[#14100d] mb-3">Senior Staff</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
+                {agency.boardMembers.map((m, i) => (
+                  <div key={i} className="py-2 border-b border-[#14100d]/10">
+                    <Link href={`/people/${m.slug}`} className="text-[#14100d] text-sm font-medium hover:text-[#14100d] transition-colors">{m.name}</Link>
+                    <div className="text-[#14100d] text-sm mt-0.5">{m.role}</div>
+                  </div>
+                ))}
               </div>
-            )}
-          </>
-        )}
-      </main>
-    </div>
+            </div>
+          )}
+
+          {agency.featuredDocs.length > 0 && (
+            <div className="mb-6 pb-6 border-b border-[#14100d]/20">
+              <h2 className="text-sm font-semibold text-[#14100d] mb-3">Latest Publications</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
+                {agency.featuredDocs.map((doc, i) => (
+                  <div key={i} className="py-2 border-b border-[#14100d]/10">
+                    <div className="text-[#14100d] text-sm">{doc.title}</div>
+                    <div className="text-[#14100d] text-sm mt-0.5">{doc.type}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </DossierShell>
   );
 }
