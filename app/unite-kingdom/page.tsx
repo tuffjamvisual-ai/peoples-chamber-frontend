@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
-import MagazineNav from '../components/MagazineNav';
-import '../components/magazine-layout.css';
+import DossierShell from '../components/DossierShell';
 
 export const revalidate = 3600;
 
@@ -14,38 +13,13 @@ export const metadata: Metadata = {
 const INK = '#14100d';
 const INK_SOFT = 'rgba(20,16,13,0.7)';
 const INK_HAIRLINE = 'rgba(20,16,13,0.3)';
-const ACCENT = '#7a1612';
+const ACCENT = '#6b2417';
 const CREAM = '#ebe5d8';
 const PHOTO_SRC = '/link-cards/hero_illustration_1779025435.png';
 
 export default function UniteKingdomPage() {
   return (
-    <div
-      style={{
-        position: 'relative',
-        width: '100%',
-        maxWidth: '1086px',
-        margin: '0 auto',
-        background: '#2a1810',
-        backgroundImage:
-          'url("/preview-header.webp"), url("/preview-footer.webp"), url("/preview-middle.webp")',
-        backgroundRepeat: 'no-repeat, no-repeat, repeat-y',
-        backgroundPosition: 'top center, bottom center, top center',
-        backgroundSize: '100% auto, 100% auto, 100% auto',
-      }}
-    >
-      <div
-        aria-hidden
-        style={{
-          position: 'absolute',
-          inset: 0,
-          zIndex: 1,
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E\")",
-          pointerEvents: 'none',
-        }}
-      />
-
+    <DossierShell>
       {/* Hidden SVG filter defs for the wavy photo borders */}
       <svg aria-hidden style={{ position: 'absolute', width: 0, height: 0 }}>
         <defs>
@@ -56,13 +30,16 @@ export default function UniteKingdomPage() {
         </defs>
       </svg>
 
-      <MagazineNav />
+      <a
+        href="/"
+        className="no-hover-scale"
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
+      >
+        ← Back to home
+      </a>
 
       <div
-        className="magazine-content-spacing"
         style={{
-          position: 'relative',
-          zIndex: 2,
           color: INK,
           fontFamily: 'Special Elite, monospace',
         }}
@@ -97,6 +74,7 @@ export default function UniteKingdomPage() {
                 letterSpacing: '-0.03em',
                 margin: '0 0 18px',
                 transform: 'rotate(-0.3deg)',
+                color: INK,
               }}
             >
               UNITE THE<br />KINGDOM
@@ -222,7 +200,7 @@ export default function UniteKingdomPage() {
           .article-cols { column-count: 1 !important; column-rule: none !important; }
         }
       `}</style>
-    </div>
+    </DossierShell>
   );
 }
 
@@ -309,5 +287,6 @@ function h2(): React.CSSProperties {
     transform: 'rotate(-0.2deg)',
     breakInside: 'avoid',
     breakAfter: 'avoid',
+    color: INK,
   };
 }
