@@ -22,8 +22,8 @@ const INK_HAIRLINE = 'rgba(20,16,13,0.3)'
 const CREAM = '#ebe5d8'
 const CREAM_DEEP = '#dcd4c0'
 const ACCENT = '#7a1612'
-const SUCCESS = '#4a8a3a'
-const DANGER = '#a64030'
+const SUCCESS = '#4e6b34'
+const DANGER = '#8a2f20'
 
 export default function PollsClient() {
   const router = useRouter()
@@ -223,81 +223,66 @@ function PollCard({
   return (
     <div
       style={{
+        position: 'relative',
         background: CREAM,
         color: INK,
-        border: `1px solid ${INK_HAIRLINE}`,
+        border: `1px solid ${INK}`,
+        boxShadow: `inset 0 0 0 2px ${CREAM}, inset 0 0 0 3px ${INK_HAIRLINE}, 3px 4px 7px rgba(20,16,13,0.18)`,
         padding: '20px 22px',
         transform: `rotate(${tilt}deg)`,
-        boxShadow: '2px 3px 0 rgba(20,16,13,0.15)',
         display: 'flex',
         flexDirection: 'column',
-        gap: '16px',
+        gap: '14px',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-        <span
-          style={{
-            fontSize: '11px',
-            textTransform: 'uppercase',
-            letterSpacing: '0.15em',
-            padding: '3px 8px',
-            background: ACCENT,
-            color: CREAM,
-            fontWeight: 'bold',
-          }}
-        >
-          Poll
-        </span>
+      {/* Vintage ballot header band */}
+      <div style={{ textAlign: 'center', borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '9px' }}>
+        <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '10px', letterSpacing: '0.3em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold' }}>
+          The People&apos;s Ballot
+        </div>
         {poll.constituency && (
-          <span
-            style={{
-              fontSize: '11px',
-              textTransform: 'uppercase',
-              letterSpacing: '0.15em',
-              color: INK_SOFT,
-              border: `1px solid ${INK_HAIRLINE}`,
-              padding: '2px 7px',
-            }}
-          >
+          <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginTop: '4px' }}>
             {poll.constituency}
-          </span>
+          </div>
         )}
       </div>
 
       <h3
         style={{
-          fontSize: '17px',
+          fontFamily: 'Georgia, "Times New Roman", serif',
+          fontSize: '19px',
           fontWeight: 'bold',
-          lineHeight: 1.35,
+          lineHeight: 1.3,
           letterSpacing: '-0.01em',
           margin: 0,
+          textAlign: 'center',
         }}
       >
         {poll.question}
       </h3>
 
       {poll.explainer && (
-        <p style={{ fontSize: '14px', lineHeight: 1.55, color: INK_SOFT, margin: 0 }}>
+        <p style={{ fontSize: '13.5px', lineHeight: 1.55, color: INK_SOFT, margin: 0 }}>
           {poll.explainer}
         </p>
       )}
 
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '7px' }}>
-          <span style={{ fontSize: '24px', fontWeight: 'bold', color: SUCCESS, lineHeight: 1 }}>
-            {yesPercent}%<span style={{ fontSize: '10px', color: INK_SOFT, letterSpacing: '0.15em', marginLeft: '5px' }}>YES</span>
+          <span style={{ fontFamily: 'Georgia, serif', fontSize: '27px', fontWeight: 'bold', color: SUCCESS, lineHeight: 1 }}>
+            {yesPercent}%<span style={{ fontFamily: 'Special Elite, monospace', fontSize: '10px', color: INK_SOFT, letterSpacing: '0.15em', marginLeft: '5px' }}>AYE</span>
           </span>
-          <span style={{ fontSize: '11px', color: INK_SOFT, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+          <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '10px', color: INK_SOFT, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
             {total.toLocaleString()} votes
           </span>
-          <span style={{ fontSize: '24px', fontWeight: 'bold', color: DANGER, lineHeight: 1 }}>
-            <span style={{ fontSize: '10px', color: INK_SOFT, letterSpacing: '0.15em', marginRight: '5px' }}>NO</span>{noPercent}%
+          <span style={{ fontFamily: 'Georgia, serif', fontSize: '27px', fontWeight: 'bold', color: DANGER, lineHeight: 1 }}>
+            <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '10px', color: INK_SOFT, letterSpacing: '0.15em', marginRight: '5px' }}>NO</span>{noPercent}%
           </span>
         </div>
         <div
           style={{
             display: 'flex',
-            height: '16px',
+            height: '14px',
             background: CREAM_DEEP,
             border: `1px solid ${INK_HAIRLINE}`,
             overflow: 'hidden',
@@ -307,15 +292,11 @@ function PollCard({
           <div style={{ width: `${yesPercent}%`, background: SUCCESS, transition: 'width 0.2s ease' }} />
           <div style={{ width: `${noPercent}%`, background: DANGER, transition: 'width 0.2s ease' }} />
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '5px', fontSize: '11px', color: INK_SOFT }}>
-          <span>{poll.vote_count_yes.toLocaleString()} yes</span>
-          <span>{poll.vote_count_no.toLocaleString()} no</span>
-        </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '8px', marginTop: 'auto' }}>
+      <div style={{ display: 'flex', gap: '10px', marginTop: 'auto' }}>
         <VoteButton
-          label={userVote === 'yes' ? '✓ Yes' : 'Yes'}
+          label={userVote === 'yes' ? '✓ Aye' : 'Aye'}
           colour={SUCCESS}
           active={userVote === 'yes'}
           disabled={hasVoted}
@@ -348,19 +329,22 @@ function VoteButton({
 }) {
   const base = {
     flex: 1,
-    padding: '9px 12px',
+    padding: '10px 12px',
     fontFamily: 'Special Elite, monospace',
-    fontSize: '14px',
+    fontSize: '15px',
     fontWeight: 'bold' as const,
-    border: `1px solid ${colour}`,
+    letterSpacing: '0.1em',
+    textTransform: 'uppercase' as const,
+    border: `1px solid ${INK}`,
+    borderRadius: 0,
     cursor: disabled ? 'not-allowed' : 'pointer',
-    transition: 'background 0.15s ease',
+    transition: 'background 0.15s ease, color 0.15s ease',
   }
   const style = active
-    ? { ...base, background: colour, color: CREAM }
+    ? { ...base, background: colour, color: CREAM, borderColor: colour }
     : disabled
-    ? { ...base, background: 'transparent', color: INK_SOFT, borderColor: INK_HAIRLINE }
-    : { ...base, background: 'transparent', color: colour }
+    ? { ...base, background: 'transparent', color: INK_HAIRLINE, borderColor: INK_HAIRLINE }
+    : { ...base, background: 'transparent', color: INK }
 
   return (
     <button onClick={onClick} disabled={disabled} style={style}>
