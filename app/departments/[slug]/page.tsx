@@ -39,7 +39,7 @@ export default async function DepartmentPage({ params }: PageProps) {
       <a
         href="/departments"
         className="no-hover-scale"
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '-6%', marginBottom: '12px', color: '#14100d', textDecoration: 'none', fontSize: 'clamp(9px, 1.1vw, 14px)', transform: 'rotate(-0.2deg)' }}
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '3%', marginBottom: '12px', color: '#14100d', textDecoration: 'none', fontSize: 'clamp(9px, 1.1vw, 14px)', transform: 'rotate(-0.2deg)' }}
       >
         ← Back to all departments
       </a>
