@@ -157,9 +157,8 @@ export default function DepartmentClient({ slug, govukData, streetContext }: Dep
           </div>
         </section>
 
-        {/* Street View */}
+        {/* Assessment (no heading — the old "Street View" label was removed as irrelevant) */}
         <section className=" pb-8 mb-8">
-          <h2 className="text-[14px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>The Street View</h2>
           {((streetContext || dept.streetContext) ?? '')
             .split(/\n\n+/)
             .map((p) => p.trim())
