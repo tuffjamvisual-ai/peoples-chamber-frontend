@@ -63,9 +63,9 @@ async function getData(): Promise<{ spender: Spender | null; poll: Poll | null; 
 
 function Polaroid({ src, alt }: { src: string; alt: string }) {
   return (
-    <div style={{ flex: '0 0 34%', background: CREAM, padding: '3px 3px 6px', transform: 'rotate(-2deg)', boxShadow: '0 2px 5px rgba(0,0,0,0.25)' }}>
+    <div style={{ flex: '0 0 34%', background: CREAM, padding: '0.5cqw 0.5cqw 1.7cqw', transform: 'rotate(-2deg)', boxShadow: '0 3px 7px rgba(0,0,0,0.3), inset 0 0 20px rgba(0,0,0,0.03)', filter: 'contrast(1.05) brightness(0.98)' }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={alt} style={{ display: 'block', width: '100%', aspectRatio: '1 / 1', objectFit: 'cover', filter: 'contrast(1.05) sepia(0.05)' }} />
+      <img src={src} alt={alt} style={{ display: 'block', width: '100%', aspectRatio: '1 / 1', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }} />
     </div>
   );
 }
