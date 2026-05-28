@@ -16,11 +16,11 @@ const INK = '#14100d'
 const SECTIONS = [
   { slug: 'ministers-meetings', title: "Ministers' Meetings", description: 'Records of meetings ministers have held with external organisations and lobbyists, published quarterly under GOV.UK transparency releases.' },
   { slug: 'lobbyists',          title: 'Lobbyist Register',                description: 'The statutory register of consultant lobbyists who engage ministers and permanent secretaries on behalf of clients.' },
-  { slug: 'appgs',              title: 'All-Party Parliamentary Groups',   description: 'Cross-party informal interest groups in Parliament, the funding they receive, and the secretariat support behind them.' },
+  { slug: 'appgs',              title: 'All Party Parliamentary Groups',   description: 'Cross party informal interest groups in Parliament, the funding they receive, and the secretariat support behind them.' },
   { slug: 'hospitality',        title: "Ministers' Hospitality",           description: 'Gifts, hospitality and overseas travel accepted by ministers, published quarterly by every department.' },
-  { slug: 'revolving-door',     title: 'Revolving Door',                   description: 'Senior officials and ministers taking up post-government roles, including ACOBA recommendations and conditions attached.' },
+  { slug: 'revolving-door',     title: 'Revolving Door',                   description: 'Senior officials and ministers taking up post government roles, including ACOBA recommendations and conditions attached.' },
   { slug: 'donations',          title: 'Political Donations',              description: 'Reportable donations to political parties and individual MPs, sourced from the Electoral Commission register.' },
-  { slug: 'contracts',          title: 'Government Contracts',             description: 'Awarded public-sector contracts above the disclosure threshold, published via Contracts Finder.' },
+  { slug: 'contracts',          title: 'Government Contracts',             description: 'Awarded public sector contracts above the disclosure threshold, published via Contracts Finder.' },
   { slug: 'companies',          title: 'Companies House',                  description: 'Company directorships and persons of significant control connected to MPs, ministers, and senior officials.' },
 ]
 

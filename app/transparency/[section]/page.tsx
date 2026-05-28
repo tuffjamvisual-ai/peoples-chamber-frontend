@@ -13,7 +13,7 @@ const PAGE_LIMIT = 100   // rows per page
 const SECTIONS: Record<string, { title: string; table: string; orderBy?: string }> = {
   'ministers-meetings': { title: "Ministers' Meetings", table: 'ministers_meetings', orderBy: 'meeting_date' },
   'lobbyists':          { title: 'Lobbyist Register', table: 'lobbyist_register' },
-  'appgs':              { title: 'All-Party Parliamentary Groups', table: 'appg_register' },
+  'appgs':              { title: 'All Party Parliamentary Groups', table: 'appg_register' },
   'hospitality':        { title: "Ministers' Hospitality", table: 'ministers_hospitality', orderBy: 'hospitality_date' },
   'revolving-door':     { title: 'Revolving Door', table: 'revolving_door', orderBy: 'approval_date' },
   'donations':          { title: 'Political Donations', table: 'political_donations', orderBy: 'received_date' },
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: { params: Promise<{ section: 
   if (!config) return { title: 'Transparency' }
   return {
     title: config.title,
-    description: `${config.title} — public-record data for UK government transparency.`,
+    description: `${config.title}: public record data for UK government transparency.`,
     alternates: { canonical: `/transparency/${section}` },
   }
 }
