@@ -77,9 +77,22 @@ export default async function HomePage() {
 
       {/* Expenses story (left) — featured image on top, headline under. */}
       <a href="/expenses" className="no-hover-scale" style={{ ...card, top: '75%', left: '6%', width: '27%', height: '15%', alignItems: 'flex-start' }}>
-        <div style={{ width: '100%', border: '1px solid #14100d', boxShadow: '0 2px 6px rgba(0,0,0,0.2)', marginBottom: '4%' }}>
+        <div style={{ width: '100%', marginBottom: '4%' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/mp-expenses.webp" alt="The biggest MP expenses bill" style={{ display: 'block', width: '100%', aspectRatio: '16 / 9', objectFit: 'cover' }} />
+          <img
+            src="/mp-expenses.webp"
+            alt="The biggest MP expenses bill"
+            style={{
+              display: 'block',
+              width: '100%',
+              aspectRatio: '16 / 9',
+              objectFit: 'cover',
+              mixBlendMode: 'multiply',
+              opacity: 0.92,
+              WebkitMaskImage: 'radial-gradient(ellipse 98% 94% at 50% 46%, #000 70%, transparent 100%)',
+              maskImage: 'radial-gradient(ellipse 98% 94% at 50% 46%, #000 70%, transparent 100%)',
+            }}
+          />
         </div>
         <div style={{ fontWeight: 'bold', fontSize: '1.9cqw', lineHeight: 1.08, marginBottom: '3%' }}>The biggest expenses bill</div>
         <div style={{ ...ctaStyle, marginTop: 0 }}>See the full top ten →</div>
