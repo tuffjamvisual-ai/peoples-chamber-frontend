@@ -25,6 +25,7 @@ const headline: CSSProperties = {
   fontFamily: 'var(--font-anton), Impact, "Arial Narrow", sans-serif',
   fontWeight: 400,
   letterSpacing: '0.02em',
+  textTransform: 'uppercase',
 };
 
 const card: CSSProperties = {
@@ -71,7 +72,7 @@ export default async function HomePage() {
       {/* Lead story — fills the large top content area. */}
       <a href="/bills" className="no-hover-scale" style={{ ...card, top: '24%', left: '6%', width: '88%', height: '39%', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '0 6%' }}>
         <div style={{ ...kicker, fontSize: '1.35cqw', letterSpacing: '0.22em', opacity: 0.65, marginBottom: '2.5%' }}>From the House this week</div>
-        <div style={{ ...headline, fontSize: '3.7cqw', lineHeight: 1.0, textTransform: 'uppercase', marginBottom: '3%' }}>Every bill, every vote, every law.</div>
+        <div style={{ ...headline, fontSize: '3.7cqw', lineHeight: 1.0, marginBottom: '3%' }}>Every bill, every vote, every law.</div>
         <div style={{ fontSize: '1.65cqw', lineHeight: 1.5, maxWidth: '34ch', opacity: 0.85 }}>Follow what Parliament is doing right now, in plain English, and see how every decision lands with the people.</div>
         <div style={{ ...kicker, fontSize: '1.45cqw', letterSpacing: '0.04em', marginTop: '3.5%' }}>Read the bills →</div>
       </a>
