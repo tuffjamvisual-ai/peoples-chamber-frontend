@@ -37,7 +37,7 @@ export async function getBillsPage(
   perPage = 20,
 ): Promise<{ bills: Bill[]; totalCount: number }> {
   const cols =
-    'id, title, category, current_stage, stage_date, sponsor_name, sponsor_party, sponsor_party_colour, vote_count_yes, vote_count_no, vote_count_abstain, commons_ayes, commons_noes, last_update, bill_withdrawn, is_act';
+    'id, parliament_id, title, category, current_stage, stage_date, sponsor_name, sponsor_party, sponsor_party_colour, vote_count_yes, vote_count_no, vote_count_abstain, commons_ayes, commons_noes, last_update, bill_withdrawn, is_act';
   const safePage = Math.max(1, Math.floor(page) || 1);
   const from = (safePage - 1) * perPage;
   const to = from + perPage - 1;
@@ -77,7 +77,7 @@ export async function getAllBills(): Promise<Bill[]> {
   // and concatenate. This holds 4000 bills; revisit when the table grows
   // past that.
   const cols =
-    'id, title, category, current_stage, stage_date, sponsor_name, sponsor_party, sponsor_party_colour, vote_count_yes, vote_count_no, vote_count_abstain, commons_ayes, commons_noes, last_update, bill_withdrawn, is_act';
+    'id, parliament_id, title, category, current_stage, stage_date, sponsor_name, sponsor_party, sponsor_party_colour, vote_count_yes, vote_count_no, vote_count_abstain, commons_ayes, commons_noes, last_update, bill_withdrawn, is_act';
 
   const batch = (from: number, to: number) =>
     supabase

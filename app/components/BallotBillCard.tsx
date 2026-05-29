@@ -9,6 +9,7 @@
 
 type Bill = {
   id: number;
+  parliament_id?: number | null;
   title: string;
   plain_summary?: string | null;
   current_stage?: string | null;
@@ -46,6 +47,9 @@ export default function BallotBillCard({ bill, userVote = null, onClick, onVote 
   const noPercent = total > 0 ? 100 - yesPercent : 50;
   const hasVoted = userVote !== null;
   const tilt = TILTS[bill.id % TILTS.length];
+  // Parliament's real bill identifier (bills.parliament.uk/bills/<id>); hidden
+  // on the rare bill where it's missing rather than falling back to our DB id.
+  const serial = bill.parliament_id != null ? String(bill.parliament_id).padStart(4, '0') : null;
 
   const cAye = bill.commons_ayes ?? null;
   const cNo = bill.commons_noes ?? null;
@@ -86,9 +90,11 @@ export default function BallotBillCard({ bill, userVote = null, onClick, onVote 
         <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'Special Elite, monospace', fontSize: '9px', letterSpacing: '0.22em', textTransform: 'uppercase', color: INK_SOFT, whiteSpace: 'nowrap' }}>
           The People&apos;s Bill
         </span>
-        <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'Special Elite, monospace', fontSize: '11px', letterSpacing: '0.06em', color: ACCENT, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-          No. {String(bill.id).padStart(4, '0')}
-        </span>
+        {serial && (
+          <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'Special Elite, monospace', fontSize: '11px', letterSpacing: '0.06em', color: ACCENT, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+            No. {serial}
+          </span>
+        )}
       </div>
 
       {/* Main ballot */}
