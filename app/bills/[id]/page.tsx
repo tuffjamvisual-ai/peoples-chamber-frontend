@@ -111,10 +111,10 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
       {(bill.support_explanation || bill.oppose_explanation) && (
         <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '38px' }}>
           {bill.support_explanation && (
-            <ExplainerColumn label="A vote to support means" colour={SUCCESS} points={explanationPoints(bill.support_explanation)} />
+            <ExplainerColumn label="An Aye vote means" colour={SUCCESS} points={explanationPoints(bill.support_explanation)} />
           )}
           {bill.oppose_explanation && (
-            <ExplainerColumn label="A vote to oppose means" colour={DANGER} points={explanationPoints(bill.oppose_explanation)} />
+            <ExplainerColumn label="A No vote means" colour={DANGER} points={explanationPoints(bill.oppose_explanation)} />
           )}
         </section>
       )}
