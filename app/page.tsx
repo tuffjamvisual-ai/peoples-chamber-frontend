@@ -19,6 +19,14 @@ export const metadata: Metadata = {
 const INK = '#14100d';
 const CREAM = '#ebe5d8';
 
+// Anton: bold, tightly condensed tabloid-headline face (loaded via next/font in layout.tsx).
+// Anton ships a single heavy weight, so use 400 (not 'bold', which would force faux-bold).
+const headline: CSSProperties = {
+  fontFamily: 'var(--font-anton), Impact, "Arial Narrow", sans-serif',
+  fontWeight: 400,
+  letterSpacing: '0.02em',
+};
+
 const card: CSSProperties = {
   position: 'absolute',
   display: 'flex',
@@ -63,7 +71,7 @@ export default async function HomePage() {
       {/* Lead story — fills the large top content area. */}
       <a href="/bills" className="no-hover-scale" style={{ ...card, top: '24%', left: '6%', width: '88%', height: '39%', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '0 6%' }}>
         <div style={{ ...kicker, fontSize: '1.35cqw', letterSpacing: '0.22em', opacity: 0.65, marginBottom: '2.5%' }}>From the House this week</div>
-        <div style={{ fontWeight: 'bold', fontSize: '3.6cqw', lineHeight: 1.04, letterSpacing: '-0.01em', marginBottom: '3%' }}>Every bill, every vote, every law.</div>
+        <div style={{ ...headline, fontSize: '3.7cqw', lineHeight: 1.0, textTransform: 'uppercase', marginBottom: '3%' }}>Every bill, every vote, every law.</div>
         <div style={{ fontSize: '1.65cqw', lineHeight: 1.5, maxWidth: '34ch', opacity: 0.85 }}>Follow what Parliament is doing right now, in plain English, and see how every decision lands with the people.</div>
         <div style={{ ...kicker, fontSize: '1.45cqw', letterSpacing: '0.04em', marginTop: '3.5%' }}>Read the bills →</div>
       </a>
@@ -74,7 +82,7 @@ export default async function HomePage() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/mp-expenses.webp" alt="The biggest MP expenses bill" style={{ display: 'block', width: '100%', aspectRatio: '16 / 9', objectFit: 'cover' }} />
         </div>
-        <div style={{ fontWeight: 'bold', fontSize: '1.9cqw', lineHeight: 1.08, marginBottom: '3%' }}>The biggest expenses bill</div>
+        <div style={{ ...headline, fontSize: '2.05cqw', lineHeight: 1.04, marginBottom: '3%' }}>The biggest expenses bill</div>
         <div style={{ ...ctaStyle, marginTop: 0 }}>See the full top ten →</div>
       </a>
 
@@ -86,7 +94,7 @@ export default async function HomePage() {
             <div style={{ fontWeight: 'bold', fontSize: '2.6cqw', lineHeight: 1, color: '#6b2417' }}>{poll ? `${poll.yesPct}%` : '—'}</div>
             <div style={{ ...kicker, fontSize: '0.8cqw', letterSpacing: '0.1em', marginTop: '6%' }}>say yes</div>
           </div>
-          <div style={{ flex: '1 1 auto', fontWeight: 'bold', fontSize: '1.5cqw', lineHeight: 1.12 }}>Should water be taken into public ownership?</div>
+          <div style={{ ...headline, flex: '1 1 auto', fontSize: '1.65cqw', lineHeight: 1.05 }}>Should water be taken into public ownership?</div>
         </div>
         <div style={blurbStyle}>{poll ? `${poll.total.toLocaleString()} people have voted. Where do you stand?` : 'Vote on the day’s biggest questions.'}</div>
         <div style={ctaStyle}>Cast your vote →</div>
@@ -98,7 +106,7 @@ export default async function HomePage() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/whitehall.webp" alt="Who runs Whitehall" style={{ display: 'block', width: '100%', aspectRatio: '16 / 9', objectFit: 'cover' }} />
         </div>
-        <div style={{ fontWeight: 'bold', fontSize: '1.9cqw', lineHeight: 1.08, marginBottom: '3%' }}>Who runs Whitehall</div>
+        <div style={{ ...headline, fontSize: '2.05cqw', lineHeight: 1.04, marginBottom: '3%' }}>Who runs Whitehall</div>
         <div style={{ ...ctaStyle, marginTop: 0 }}>See the departments →</div>
       </a>
     </>
