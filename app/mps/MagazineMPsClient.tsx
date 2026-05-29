@@ -105,7 +105,7 @@ export default function MagazineMPsClient({ mps, expand }: { mps: MP[]; expand?:
         <AllPartiesView
           sortedParties={sortedParties}
           totalMPs={mps.length}
-          filteredMPs={filteredMPs.length}
+          matches={filteredMPs}
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
         />
@@ -345,64 +345,104 @@ function SinglePartyView({
 function AllPartiesView({
   sortedParties,
   totalMPs,
-  filteredMPs,
+  matches,
   searchTerm,
   setSearchTerm,
 }: {
   sortedParties: [string, MP[]][];
   totalMPs: number;
-  filteredMPs: number;
+  matches: MP[];
   searchTerm: string;
   setSearchTerm: (s: string) => void;
 }) {
+  // With no search, browse by party (clickable headers). The moment the
+  // reader searches, show the matching MPs themselves as cards that link
+  // straight to the profile — searching a name should reach the person,
+  // not dump you back on the party.
+  const searching = searchTerm.trim().length > 0;
+  const CAP = 60;
+  const shownMatches = searching
+    ? [...matches]
+        .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'en-GB', { sensitivity: 'base' }))
+        .slice(0, CAP)
+    : [];
+
   return (
     <>
       <SearchInput
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
-        count={filteredMPs}
+        count={matches.length}
         total={totalMPs}
         label="MPs"
       />
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
-          columnGap: '32px',
-          rowGap: '4px',
-          alignItems: 'start',
-        }}
-      >
-        {sortedParties.map(([party, partyMPs]) => {
-          const partyColour = resolvePartyColour(party, partyMPs);
-          return (
-            <Link
-              key={party}
-              href={`/mps?expand=${encodeURIComponent(party)}`}
+      {searching ? (
+        matches.length === 0 ? (
+          <p style={{ fontSize: '14px', opacity: 0.7, marginTop: '8px' }}>
+            No MPs match &ldquo;{searchTerm}&rdquo;.
+          </p>
+        ) : (
+          <>
+            <div
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                padding: '14px 16px',
-                color: INK,
-                textDecoration: 'none',
-                borderBottom: `1px solid ${INK_HAIRLINE}`,
-                marginBottom: '4px',
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+                gap: '20px',
+                width: '100%',
               }}
-              className="no-hover-scale"
             >
-              <span
-                aria-hidden
-                style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', background: partyColour, flexShrink: 0 }}
-              />
-              <span style={{ fontSize: '18px', fontWeight: 'bold' }}>{party}</span>
-              <span style={{ fontSize: '13px', opacity: 0.75, marginLeft: '8px' }}>({partyMPs.length})</span>
-              <span style={{ marginLeft: 'auto', fontSize: '22px', lineHeight: 1 }}>→</span>
-            </Link>
-          );
-        })}
-      </div>
+              {shownMatches.map((mp, idx) => (
+                <MPCard key={mp.member_id} mp={mp} fromParty={normaliseParty(mp.party)} idx={idx} />
+              ))}
+            </div>
+            {matches.length > CAP && (
+              <p style={{ fontSize: '13px', opacity: 0.75, marginTop: '16px' }}>
+                Showing the first {CAP} of {matches.length} matches. Refine your search to narrow it.
+              </p>
+            )}
+          </>
+        )
+      ) : (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
+            columnGap: '32px',
+            rowGap: '4px',
+            alignItems: 'start',
+          }}
+        >
+          {sortedParties.map(([party, partyMPs]) => {
+            const partyColour = resolvePartyColour(party, partyMPs);
+            return (
+              <Link
+                key={party}
+                href={`/mps?expand=${encodeURIComponent(party)}`}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '14px 16px',
+                  color: INK,
+                  textDecoration: 'none',
+                  borderBottom: `1px solid ${INK_HAIRLINE}`,
+                  marginBottom: '4px',
+                }}
+                className="no-hover-scale"
+              >
+                <span
+                  aria-hidden
+                  style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', background: partyColour, flexShrink: 0 }}
+                />
+                <span style={{ fontSize: '18px', fontWeight: 'bold' }}>{party}</span>
+                <span style={{ fontSize: '13px', opacity: 0.75, marginLeft: '8px' }}>({partyMPs.length})</span>
+                <span style={{ marginLeft: 'auto', fontSize: '22px', lineHeight: 1 }}>→</span>
+              </Link>
+            );
+          })}
+        </div>
+      )}
     </>
   );
 }
