@@ -3,7 +3,23 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
-import ChalkboardBillCard from './ChalkboardBillCard';
+import type { CSSProperties } from 'react';
+import BallotBillCard from './BallotBillCard';
+
+const INK = '#14100d';
+const CREAM = '#ebe5d8';
+const INK_HAIRLINE = 'rgba(20,16,13,0.3)';
+const mPageBtn = (disabled: boolean): CSSProperties => ({
+  padding: '6px 14px',
+  background: 'transparent',
+  color: INK,
+  border: `1px solid ${INK}`,
+  borderRadius: 0,
+  fontFamily: 'Special Elite, monospace',
+  fontSize: '13px',
+  cursor: disabled ? 'default' : 'pointer',
+  opacity: disabled ? 0.3 : 1,
+});
 
 type Props = {
   initialBills: any[];
@@ -125,69 +141,45 @@ export default function BillsGridMobile({ initialBills, currentPage, totalPages 
 
   return (
     <>
-      <div className="sticky top-20 z-40 bg-[#505050] px-4 py-3 border-b border-[#5a5a5a]">
+      <div className="sticky top-20 z-40 px-4 py-3" style={{ background: CREAM, borderBottom: `1px solid ${INK_HAIRLINE}` }}>
         <input
           type="text"
-          placeholder="Search bills..."
+          placeholder="Search bills…"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-xl mx-auto block px-4 py-2 bg-[#404040] text-white rounded-lg border border-[#5a5a5a] focus:border-[#ffffff] focus:outline-none"
+          className="max-w-xl mx-auto block w-full"
+          style={{ padding: '10px 14px', background: 'rgba(20,16,13,0.05)', color: INK, border: `1px solid ${INK_HAIRLINE}`, borderRadius: 0, fontFamily: 'Special Elite, monospace', fontSize: '15px', outline: 'none' }}
         />
       </div>
 
-      <div className="sticky top-[108px] z-40 bg-[#505050] border-b border-[#5a5a5a] overflow-x-auto">
-        <div className="flex space-x-1 px-4 min-w-max">
-          <button
-            onClick={() => setActiveTab('latest')}
-            className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
-              activeTab === 'latest'
-                ? 'text-[#ffffff] border-b-2 border-[#ffffff]'
-                : 'text-white'
-            }`}
-          >
-            Latest
-          </button>
-          <button
-            onClick={() => setActiveTab('trending')}
-            className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
-              activeTab === 'trending'
-                ? 'text-[#ffffff] border-b-2 border-[#ffffff]'
-                : 'text-white'
-            }`}
-          >
-            Trending
-          </button>
-          <button
-            onClick={() => setActiveTab('controversial')}
-            className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
-              activeTab === 'controversial'
-                ? 'text-[#ffffff] border-b-2 border-[#ffffff]'
-                : 'text-white'
-            }`}
-          >
-            Controversial
-          </button>
-          <button
-            onClick={() => setActiveTab('voted')}
-            className={`px-4 py-3 text-sm font-medium whitespace-nowrap ${
-              activeTab === 'voted'
-                ? 'text-[#ffffff] border-b-2 border-[#ffffff]'
-                : 'text-white'
-            }`}
-          >
-            You Voted
-          </button>
-        </div>
-        
-        {/* Debug indicator - shows which tab is active and bill count */}
-        <div className="px-4 py-1 text-sm text-white">
-          Active: {activeTab} | Showing {filteredBills.length} bills
+      <div className="sticky top-[108px] z-40 overflow-x-auto" style={{ background: CREAM, borderBottom: `1px solid ${INK_HAIRLINE}` }}>
+        <div className="flex px-4 min-w-max" style={{ gap: '4px' }}>
+          {(['latest', 'trending', 'controversial', 'voted'] as TabType[]).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              style={{
+                padding: '12px 14px',
+                whiteSpace: 'nowrap',
+                fontFamily: 'Special Elite, monospace',
+                fontSize: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                background: 'transparent',
+                color: activeTab === tab ? INK : 'rgba(20,16,13,0.55)',
+                borderBottom: activeTab === tab ? `2px solid ${INK}` : '2px solid transparent',
+                cursor: 'pointer',
+              }}
+            >
+              {tab === 'latest' ? 'Latest' : tab === 'trending' ? 'Trending' : tab === 'controversial' ? 'Controversial' : 'You voted'}
+            </button>
+          ))}
         </div>
       </div>
 
       <div className="p-4 space-y-4" key={activeTab}>
         {filteredBills.map((bill: any) => (
-          <ChalkboardBillCard
+          <BallotBillCard
             key={bill.id}
             bill={bill}
             userVote={(userVotes[bill.id] as 'yes' | 'no' | undefined) ?? null}
@@ -199,15 +191,15 @@ export default function BillsGridMobile({ initialBills, currentPage, totalPages 
 
       {filteredBills.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-white">No active bills found.</p>
+          <p style={{ color: 'rgba(20,16,13,0.7)', fontFamily: 'Special Elite, monospace' }}>No active bills found.</p>
         </div>
       )}
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 mt-4">
-          <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} className="px-3 py-1.5 bg-[#404040] text-[#c9c9c9] rounded text-sm disabled:opacity-30">Previous</button>
-          <div className="px-4 py-1.5 bg-[#353535] text-white rounded text-sm font-medium border border-[#5a5a5a]">{currentPage} / {totalPages}</div>
-          <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages} className="px-3 py-1.5 bg-[#404040] text-[#c9c9c9] rounded text-sm disabled:opacity-30">Next</button>
+        <div className="flex items-center justify-center gap-2 mt-4" style={{ paddingBottom: '16px' }}>
+          <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} style={mPageBtn(currentPage === 1)}>Prev</button>
+          <span style={{ padding: '6px 14px', background: INK, color: CREAM, fontFamily: 'Special Elite, monospace', fontSize: '13px' }}>{currentPage} / {totalPages}</span>
+          <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages} style={mPageBtn(currentPage === totalPages)}>Next</button>
         </div>
       )}
     </>

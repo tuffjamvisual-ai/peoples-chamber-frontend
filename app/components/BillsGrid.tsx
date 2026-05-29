@@ -3,8 +3,24 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
+import type { CSSProperties } from 'react';
 import FilterBar from './FilterBar';
-import ChalkboardBillCard from './ChalkboardBillCard';
+import BallotBillCard from './BallotBillCard';
+
+const INK = '#14100d';
+const CREAM = '#ebe5d8';
+const pageBtn = (disabled: boolean): CSSProperties => ({
+  padding: '6px 14px',
+  background: 'transparent',
+  color: INK,
+  border: `1px solid ${INK}`,
+  borderRadius: 0,
+  fontFamily: 'Special Elite, monospace',
+  fontSize: '13px',
+  letterSpacing: '0.06em',
+  cursor: disabled ? 'default' : 'pointer',
+  opacity: disabled ? 0.3 : 1,
+});
 
 type Props = {
   initialBills: any[];
@@ -126,13 +142,13 @@ export default function BillsGrid({ initialBills, currentPage, totalPages }: Pro
         }}
       />
 
-      <div className="flex items-center justify-between mb-4 text-sm text-white">
-        <div>Showing {paginatedBills.length} of {filteredBills.length} bills</div>
+      <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.15em', color: 'rgba(20,16,13,0.7)', marginBottom: '16px' }}>
+        {paginatedBills.length} of {filteredBills.length} bills shown
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-7 mb-8">
         {paginatedBills.map((bill: any) => (
-          <ChalkboardBillCard
+          <BallotBillCard
             key={bill.id}
             bill={bill}
             userVote={(userVotes[bill.id] as 'yes' | 'no' | undefined) ?? null}
@@ -144,17 +160,17 @@ export default function BillsGrid({ initialBills, currentPage, totalPages }: Pro
 
       {paginatedBills.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-white">No bills found matching your filters.</p>
+          <p style={{ color: 'rgba(20,16,13,0.7)', fontFamily: 'Special Elite, monospace' }}>No bills found matching your filters.</p>
         </div>
       )}
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2">
-          <button onClick={() => goToPage(1)} disabled={currentPage === 1} className="px-3 py-1.5 bg-[#404040] text-[#c9c9c9] rounded text-sm hover:bg-[#404040] disabled:opacity-30">First</button>
-          <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} className="px-3 py-1.5 bg-[#404040] text-[#c9c9c9] rounded text-sm hover:bg-[#404040] disabled:opacity-30">Previous</button>
-          <div className="px-4 py-1.5 bg-[#353535] text-white rounded text-sm font-medium border border-[#5a5a5a]">{currentPage} / {totalPages}</div>
-          <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages} className="px-3 py-1.5 bg-[#404040] text-[#c9c9c9] rounded text-sm hover:bg-[#404040] disabled:opacity-30">Next</button>
-          <button onClick={() => goToPage(totalPages)} disabled={currentPage === totalPages} className="px-3 py-1.5 bg-[#404040] text-[#c9c9c9] rounded text-sm hover:bg-[#404040] disabled:opacity-30">Last</button>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+          <button onClick={() => goToPage(1)} disabled={currentPage === 1} style={pageBtn(currentPage === 1)}>First</button>
+          <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} style={pageBtn(currentPage === 1)}>Prev</button>
+          <span style={{ padding: '6px 14px', background: INK, color: CREAM, fontFamily: 'Special Elite, monospace', fontSize: '13px', letterSpacing: '0.06em' }}>{currentPage} / {totalPages}</span>
+          <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages} style={pageBtn(currentPage === totalPages)}>Next</button>
+          <button onClick={() => goToPage(totalPages)} disabled={currentPage === totalPages} style={pageBtn(currentPage === totalPages)}>Last</button>
         </div>
       )}
     </>
