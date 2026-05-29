@@ -1,27 +1,39 @@
 'use client'
 
+// Interactive cross-box ballot for a single bill. Sits inside the
+// server-rendered ballot frame on the bill page; the running counts and
+// Parliament's division are rendered server-side around it. Casting a vote
+// posts to /api/vote then refreshes so the server counts update.
+
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '../../context/AuthContext'
 
-const SUCCESS = '#4a8a3a'
-const DANGER = '#8a3a3a'
+const INK = '#14100d'
+const INK_SOFT = 'rgba(20,16,13,0.7)'
+const INK_HAIRLINE = 'rgba(20,16,13,0.3)'
+const ACCENT = '#7a1612'
+
+type Choice = 'yes' | 'no' | 'abstain'
 
 export default function BillVotingClient({ billId }: { billId: number }) {
   const router = useRouter()
   const { user } = useAuth()
-  const [userVote, setUserVote] = useState<string | null>(null)
+  const [userVote, setUserVote] = useState<Choice | null>(null)
   const [voting, setVoting] = useState(false)
 
   useEffect(() => {
-    if (!user) return
+    if (!user) {
+      setUserVote(null)
+      return
+    }
     fetch(`/api/vote?userId=${user.id}`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((d) => setUserVote(d?.votes?.[billId] || null))
+      .then((d) => setUserVote((d?.votes?.[billId] as Choice) || null))
       .catch(() => {})
   }, [user, billId])
 
-  async function handleVote(choice: 'yes' | 'no' | 'abstain') {
+  async function handleVote(choice: Choice) {
     if (!user) {
       router.push(`/login?mode=signup&returnTo=${encodeURIComponent(window.location.pathname)}`)
       return
@@ -36,48 +48,88 @@ export default function BillVotingClient({ billId }: { billId: number }) {
       })
       if (res.ok) {
         setUserVote(choice)
-        // Pull fresh server-rendered counts.
-        router.refresh()
+        router.refresh() // pull fresh server-rendered counts
       }
     } catch {}
     setVoting(false)
   }
 
+  const hasVoted = userVote !== null
+
   return (
-    <>
-      <div className="grid grid-cols-3 gap-3">
-        <VoteButton label="Support"  activeLabel="✓ Supported" onClick={() => handleVote('yes')}     disabled={!!userVote || voting} active={userVote === 'yes'}     colour={SUCCESS} />
-        <VoteButton label="Oppose"   activeLabel="✓ Opposed"   onClick={() => handleVote('no')}      disabled={!!userVote || voting} active={userVote === 'no'}      colour={DANGER} />
-        <VoteButton label="Abstain"  activeLabel="✓ Abstained" onClick={() => handleVote('abstain')} disabled={!!userVote || voting} active={userVote === 'abstain'} colour="#7697a2" />
+    <div style={{ maxWidth: '440px', margin: '0 auto' }}>
+      <BallotRow label="Aye" sub="I support this bill" marked={userVote === 'yes'} dim={hasVoted && userVote !== 'yes'} disabled={hasVoted || voting} onClick={() => handleVote('yes')} />
+      <BallotRow label="No" sub="I oppose this bill" marked={userVote === 'no'} dim={hasVoted && userVote !== 'no'} disabled={hasVoted || voting} onClick={() => handleVote('no')} />
+      <BallotRow label="Abstain" sub="I am undecided" marked={userVote === 'abstain'} dim={hasVoted && userVote !== 'abstain'} disabled={hasVoted || voting} onClick={() => handleVote('abstain')} last />
+
+      <div style={{ textAlign: 'center', marginTop: '14px', fontFamily: 'Special Elite, monospace', fontSize: '11px', letterSpacing: '0.06em', color: INK_SOFT }}>
+        {hasVoted
+          ? 'Your vote has been recorded. Thank you.'
+          : user
+          ? ''
+          : 'You will be asked to sign in before your vote is counted.'}
       </div>
-    </>
+    </div>
   )
 }
 
-function VoteButton({
+function BallotRow({
   label,
-  activeLabel,
-  onClick,
+  sub,
+  marked,
+  dim,
   disabled,
-  active,
-  colour,
+  onClick,
+  last = false,
 }: {
   label: string
-  activeLabel: string
-  onClick: () => void
+  sub: string
+  marked: boolean
+  dim: boolean
   disabled: boolean
-  active: boolean
-  colour: string
+  onClick: () => void
+  last?: boolean
 }) {
-  const baseClasses = 'py-3 text-[15px] uppercase tracking-[0.2em] font-bold transition-colors rounded-sm'
-  const style: React.CSSProperties = active
-    ? { backgroundColor: colour, color: '#505050' }
-    : disabled
-    ? { backgroundColor: '#404040', color: '#ffffff', cursor: 'not-allowed' }
-    : { backgroundColor: colour + '22', color: colour, border: `1px solid ${colour}55` }
   return (
-    <button onClick={onClick} disabled={disabled} className={baseClasses} style={style}>
-      {active ? activeLabel : label}
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={`Vote ${label}`}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '14px',
+        width: '100%',
+        background: 'transparent',
+        border: 'none',
+        borderBottom: last ? 'none' : `1px solid ${INK_HAIRLINE}`,
+        padding: '12px 4px',
+        cursor: disabled ? 'default' : 'pointer',
+        textAlign: 'left',
+        opacity: dim ? 0.45 : 1,
+      }}
+    >
+      <span style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
+        <span style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '19px', fontWeight: 'bold', color: INK }}>{label}</span>
+        <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '10px', letterSpacing: '0.05em', color: INK_SOFT, marginTop: '2px' }}>{sub}</span>
+      </span>
+      <span
+        style={{
+          width: '34px',
+          height: '34px',
+          border: `1.5px solid ${INK}`,
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '27px',
+          fontWeight: 'bold',
+          lineHeight: 1,
+          color: ACCENT,
+          flexShrink: 0,
+        }}
+      >
+        {marked ? '✗' : ''}
+      </span>
     </button>
   )
 }
