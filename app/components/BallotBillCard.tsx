@@ -92,24 +92,24 @@ export default function BallotBillCard({ bill, userVote = null, onClick, onVote 
       </div>
 
       {/* Main ballot */}
-      <div style={{ flex: 1, minWidth: 0, padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: '11px' }}>
+      <div style={{ flex: 1, minWidth: 0, padding: '13px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {eyebrow && (
           <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '8px' }}>
             {eyebrow}
           </div>
         )}
 
-        <h3 style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '18px', fontWeight: 'bold', lineHeight: 1.3, letterSpacing: '-0.01em', margin: 0, display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 3, overflow: 'hidden' }}>
+        <h3 style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '18px', fontWeight: 'bold', lineHeight: 1.3, letterSpacing: '-0.01em', margin: 0, display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2, overflow: 'hidden' }}>
           {bill.title}
         </h3>
 
         {bill.plain_summary && (
-          <p style={{ fontSize: '13px', lineHeight: 1.5, color: INK_SOFT, margin: 0, display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 3, overflow: 'hidden' }}>
+          <p style={{ fontSize: '13px', lineHeight: 1.5, color: INK_SOFT, margin: 0, display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2, overflow: 'hidden' }}>
             {bill.plain_summary}
           </p>
         )}
 
-        <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '11px', fontStyle: 'italic', color: INK_SOFT, letterSpacing: '0.03em', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '9px' }}>
+        <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '11px', fontStyle: 'italic', color: INK_SOFT, letterSpacing: '0.03em', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '6px' }}>
           Do you back this bill? Mark one box with a cross.
         </div>
 
@@ -120,7 +120,7 @@ export default function BallotBillCard({ bill, userVote = null, onClick, onVote 
           <BallotRow label="No" marked={userVote === 'no'} disabled={hasVoted} onClick={() => onVote('no')} />
         </div>
 
-        <div style={{ borderTop: `1px solid ${INK}`, paddingTop: '9px', marginTop: 'auto' }}>
+        <div style={{ borderTop: `1px solid ${INK}`, paddingTop: '6px', marginTop: 'auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px' }}>
             <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '9px', letterSpacing: '0.2em', textTransform: 'uppercase', color: INK_SOFT }}>The people&apos;s count</span>
             <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '9px', letterSpacing: '0.08em', color: INK_SOFT }}>{total.toLocaleString()} votes</span>
@@ -201,7 +201,7 @@ function BallotRow({
         width: '100%',
         background: 'transparent',
         border: 'none',
-        padding: '7px 0',
+        padding: '4px 0',
         cursor: disabled ? 'default' : 'pointer',
         textAlign: 'left',
       }}
