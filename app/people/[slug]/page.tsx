@@ -29,6 +29,9 @@ type Person = {
   description: string; // short top-level summary
   privyCounsellor: boolean;
   scsBand: ScsBand | null;
+  actualPayFloor: number | null;
+  actualPayCeiling: number | null;
+  payPeriod: string | null;
 };
 
 async function getPersonAndInterests(
@@ -38,7 +41,7 @@ async function getPersonAndInterests(
     await Promise.all([
       supabase
         .from('person_cache')
-        .select('name, photo, current_roles, past_roles, political_bio, biography, description, privy_counsellor, scs_band')
+        .select('name, photo, current_roles, past_roles, political_bio, biography, description, privy_counsellor, scs_band, actual_pay_floor, actual_pay_ceiling, pay_period')
         .eq('slug', slug)
         .maybeSingle(),
       supabase
@@ -77,6 +80,9 @@ async function getPersonAndInterests(
         description: (cached.description as string) || '',
         privyCounsellor: !!cached.privy_counsellor,
         scsBand: (cached.scs_band as ScsBand | null) ?? null,
+        actualPayFloor: (cached.actual_pay_floor as number | null) ?? null,
+        actualPayCeiling: (cached.actual_pay_ceiling as number | null) ?? null,
+        payPeriod: (cached.pay_period as string | null) ?? null,
       },
       interests,
       finance,
@@ -95,6 +101,9 @@ async function getPersonAndInterests(
         description: '',
         privyCounsellor: false,
         scsBand: null,
+        actualPayFloor: null,
+        actualPayCeiling: null,
+        payPeriod: null,
       },
       interests,
       finance,
@@ -203,7 +212,17 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
                 {person.currentRoles[0]?.organisation && (
                   <div style={{ fontSize: 'clamp(13px, 1.9vw, 25px)', opacity: 0.7 }}>{person.currentRoles[0].organisation}</div>
                 )}
-                {person.scsBand && (
+                {/* Actual published pay (data.gov.uk organogram) takes
+                    precedence over the derived SCS-band range. */}
+                {person.actualPayFloor != null && person.actualPayCeiling != null ? (
+                  <div style={{ marginTop: '12px', fontSize: 'clamp(12px, 1.4vw, 16px)', opacity: 0.85, fontFamily: 'Special Elite, monospace' }}>
+                    {person.scsBand ? SCS_BAND_LABEL[person.scsBand] + ' · ' : ''}
+                    {'£'}{person.actualPayFloor.toLocaleString()}{'–£'}{person.actualPayCeiling.toLocaleString()}
+                    {' (gov.uk organogram'}
+                    {person.payPeriod ? `, as at ${person.payPeriod}` : ''}
+                    {')'}
+                  </div>
+                ) : person.scsBand ? (
                   <div style={{ marginTop: '12px', fontSize: 'clamp(12px, 1.4vw, 16px)', opacity: 0.85, fontFamily: 'Special Elite, monospace' }}>
                     {SCS_BAND_LABEL[person.scsBand]}
                     {' · £'}
@@ -212,7 +231,7 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
                     {SCS_BAND_RANGE[person.scsBand][1].toLocaleString()}
                     {' (Cabinet Office published range)'}
                   </div>
-                )}
+                ) : null}
               </div>
             </div>
 
