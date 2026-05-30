@@ -77,22 +77,37 @@ export default async function HomePage() {
         <div style={{ ...kicker, fontSize: '1.45cqw', letterSpacing: '0.04em', marginTop: '3.5%' }}>Read the bills →</div>
       </a>
 
+      {/* Hand-drawn SVG border filter — feTurbulence displaces the border
+          edges so they read as wobbly ink strokes, not a CSS rectangle.
+          One <svg> shared between both photo cards on this page. */}
+      <svg width="0" height="0" style={{ position: 'absolute', pointerEvents: 'none' }} aria-hidden>
+        <defs>
+          <filter id="handDrawnEdge" x="-5%" y="-5%" width="110%" height="110%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="5" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="5" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+        </defs>
+      </svg>
+
       {/* Expenses story (left) — featured image on top, headline under.
-          Edges feather into the parchment via a radial-gradient mask so
-          the photo doesn't look like a hard-edged sticker. */}
+          The image stays crisp; the hand-drawn ink border sits over it
+          as a separate layer that gets the wobble filter. */}
       <a href="/expenses" className="no-hover-scale" style={{ ...card, top: '75%', left: '6%', width: '27%', height: '15%', alignItems: 'flex-start' }}>
-        <div style={{ width: '100%', marginBottom: '4%' }}>
+        <div style={{ width: '100%', marginBottom: '4%', position: 'relative' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/mp-expenses.webp"
             alt="The biggest MP expenses bill"
+            style={{ display: 'block', width: '100%', aspectRatio: '16 / 9', objectFit: 'cover' }}
+          />
+          <div
+            aria-hidden
             style={{
-              display: 'block',
-              width: '100%',
-              aspectRatio: '16 / 9',
-              objectFit: 'cover',
-              WebkitMaskImage: 'radial-gradient(ellipse 92% 90% at center, #000 60%, transparent 100%)',
-              maskImage: 'radial-gradient(ellipse 92% 90% at center, #000 60%, transparent 100%)',
+              position: 'absolute',
+              inset: 0,
+              border: '2.5px solid #14100d',
+              filter: 'url(#handDrawnEdge)',
+              pointerEvents: 'none',
             }}
           />
         </div>
@@ -114,20 +129,23 @@ export default async function HomePage() {
         <div style={ctaStyle}>Cast your vote →</div>
       </a>
 
-      {/* Whitehall story (right) — same feathered-edge treatment. */}
+      {/* Whitehall story (right) — same hand-drawn border treatment. */}
       <a href="/departments" className="no-hover-scale" style={{ ...card, top: '75%', left: '68%', width: '26%', height: '15%', alignItems: 'flex-start' }}>
-        <div style={{ width: '100%', marginBottom: '4%' }}>
+        <div style={{ width: '100%', marginBottom: '4%', position: 'relative' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/whitehall.webp"
             alt="Who runs Whitehall"
+            style={{ display: 'block', width: '100%', aspectRatio: '16 / 9', objectFit: 'cover' }}
+          />
+          <div
+            aria-hidden
             style={{
-              display: 'block',
-              width: '100%',
-              aspectRatio: '16 / 9',
-              objectFit: 'cover',
-              WebkitMaskImage: 'radial-gradient(ellipse 92% 90% at center, #000 60%, transparent 100%)',
-              maskImage: 'radial-gradient(ellipse 92% 90% at center, #000 60%, transparent 100%)',
+              position: 'absolute',
+              inset: 0,
+              border: '2.5px solid #14100d',
+              filter: 'url(#handDrawnEdge)',
+              pointerEvents: 'none',
             }}
           />
         </div>
