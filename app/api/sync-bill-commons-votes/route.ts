@@ -76,16 +76,27 @@ export async function GET(req: Request) {
   }
   const supabase = createClient(url, key);
 
-  // Stalest first — NULL tried_at first, then oldest tried_at. Without
-  // this ordering the per-run cap loops back to the same id-DESC head
-  // forever and never reaches Employment Rights / Online Safety etc.
-  const { data: rows, error: selErr } = await supabase
+  // First pass: target only never-tried rows. Once tried_at is non-null
+  // for every bill, switch to retrying the oldest. PostgREST's
+  // order-with-nullsFirst is unreliable so we filter explicitly.
+  let { data: rows, error: selErr } = await supabase
     .from('bill')
     .select('id, parliament_id, title')
     .or('commons_ayes.is.null,commons_ayes.eq.0')
     .not('parliament_id', 'is', null)
-    .order('commons_vote_tried_at', { ascending: true, nullsFirst: true })
+    .is('commons_vote_tried_at', null)
     .limit(RUN_CAP);
+  if (!selErr && (!rows || rows.length === 0)) {
+    // Pass-1 finished. Retry oldest tried_at rows in case the API now
+    // has divisions that weren't there before.
+    ({ data: rows, error: selErr } = await supabase
+      .from('bill')
+      .select('id, parliament_id, title')
+      .or('commons_ayes.is.null,commons_ayes.eq.0')
+      .not('parliament_id', 'is', null)
+      .order('commons_vote_tried_at', { ascending: true })
+      .limit(RUN_CAP));
+  }
   if (selErr) return NextResponse.json({ error: selErr.message }, { status: 500 });
 
   const targets = rows || [];
