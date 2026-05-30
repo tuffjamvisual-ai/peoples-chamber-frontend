@@ -76,12 +76,15 @@ export async function GET(req: Request) {
   }
   const supabase = createClient(url, key);
 
+  // Stalest first — NULL tried_at first, then oldest tried_at. Without
+  // this ordering the per-run cap loops back to the same id-DESC head
+  // forever and never reaches Employment Rights / Online Safety etc.
   const { data: rows, error: selErr } = await supabase
     .from('bill')
     .select('id, parliament_id, title')
     .or('commons_ayes.is.null,commons_ayes.eq.0')
     .not('parliament_id', 'is', null)
-    .order('id', { ascending: false })
+    .order('commons_vote_tried_at', { ascending: true, nullsFirst: true })
     .limit(RUN_CAP);
   if (selErr) return NextResponse.json({ error: selErr.message }, { status: 500 });
 
@@ -97,7 +100,11 @@ export async function GET(req: Request) {
       if (!billName) continue;
       const divisions = await searchDivisions(billName);
       const chosen = pickDivision(billName, divisions);
+      // Always stamp tried_at so the SELECT advances to the next batch
+      // next run, whether or not we got a match.
+      const now = new Date().toISOString();
       if (!chosen) {
+        await supabase.from('bill').update({ commons_vote_tried_at: now }).eq('id', bill.id);
         noMatch++;
         continue;
       }
@@ -109,6 +116,7 @@ export async function GET(req: Request) {
           commons_division_id: chosen.DivisionId,
           commons_division_title: chosen.Title,
           commons_vote_date: chosen.Date,
+          commons_vote_tried_at: now,
         })
         .eq('id', bill.id);
       if (error) throw error;
