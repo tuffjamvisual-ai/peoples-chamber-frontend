@@ -14,7 +14,7 @@ const INK_SOFT = 'rgba(20,16,13,0.7)'
 const INK_HAIRLINE = 'rgba(20,16,13,0.3)'
 const ACCENT = '#7a1612'
 
-type Choice = 'yes' | 'no' | 'abstain'
+type Choice = 'yes' | 'no'
 
 export default function BillVotingClient({ billId }: { billId: number }) {
   const router = useRouter()
@@ -59,8 +59,7 @@ export default function BillVotingClient({ billId }: { billId: number }) {
   return (
     <div style={{ maxWidth: '440px', margin: '0 auto' }}>
       <BallotRow label="Aye" sub="I support this bill" marked={userVote === 'yes'} dim={hasVoted && userVote !== 'yes'} disabled={hasVoted || voting} onClick={() => handleVote('yes')} />
-      <BallotRow label="No" sub="I oppose this bill" marked={userVote === 'no'} dim={hasVoted && userVote !== 'no'} disabled={hasVoted || voting} onClick={() => handleVote('no')} />
-      <BallotRow label="Abstain" sub="I am undecided" marked={userVote === 'abstain'} dim={hasVoted && userVote !== 'abstain'} disabled={hasVoted || voting} onClick={() => handleVote('abstain')} last />
+      <BallotRow label="No" sub="I oppose this bill" marked={userVote === 'no'} dim={hasVoted && userVote !== 'no'} disabled={hasVoted || voting} onClick={() => handleVote('no')} last />
 
       <div style={{ textAlign: 'center', marginTop: '14px', fontFamily: 'Special Elite, monospace', fontSize: '11px', letterSpacing: '0.06em', color: INK_SOFT }}>
         {hasVoted

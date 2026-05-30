@@ -48,10 +48,43 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
 
   const serial = bill.parliament_id != null ? String(bill.parliament_id).padStart(4, '0') : null
 
+  // Pull sponsors from the Parliament Bills API for the "Presented by /
+  // supported by" cover block. ISR-cached for an hour like the rest of
+  // the page. Falls back silently to the single stored sponsor if the
+  // API is unreachable.
+  type Sponsor = { name: string; party?: string; isMember: boolean; sortOrder: number }
+  let apiSponsors: Sponsor[] = []
+  if (bill.parliament_id) {
+    try {
+      const res = await fetch(`https://bills-api.parliament.uk/api/v1/Bills/${bill.parliament_id}`, {
+        next: { revalidate: 3600 },
+      })
+      if (res.ok) {
+        const j = (await res.json()) as { sponsors?: Array<{ sortOrder?: number; member?: { name?: string; party?: string }; organisation?: { name?: string } }> }
+        apiSponsors = (j.sponsors || [])
+          .map((s) => {
+            const m = s.member || s.organisation || {}
+            return { name: (m as { name?: string }).name || '', party: (m as { party?: string }).party, isMember: !!s.member, sortOrder: s.sortOrder ?? 999 }
+          })
+          .filter((s) => s.name)
+          .sort((a, b) => a.sortOrder - b.sortOrder)
+      }
+    } catch { /* swallow — fall back to bill.sponsor_name */ }
+  }
+  const presented = apiSponsors[0]?.name || bill.sponsor_name || ''
+  const supporters = apiSponsors.slice(1).map((s) => s.name)
+  const supportersLine =
+    supporters.length === 0
+      ? ''
+      : supporters.length === 1
+      ? supporters[0]
+      : supporters.slice(0, -1).join(', ') + ' and ' + supporters[supporters.length - 1]
+
   const yesVotes = bill.vote_count_yes || 0
   const noVotes = bill.vote_count_no || 0
-  const absVotes = bill.vote_count_abstain || 0
-  const totalVotes = yesVotes + noVotes + absVotes
+  // Abstain has been retired from the ballot; exclude historical abstain
+  // counts from displayed totals so percentages reflect the live binary.
+  const totalVotes = yesVotes + noVotes
   const yesPercent = totalVotes > 0 ? Math.round((yesVotes / totalVotes) * 100) : 0
   const noPercent = totalVotes > 0 ? Math.round((noVotes / totalVotes) * 100) : 0
 
@@ -166,8 +199,12 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
           );
         })()}
 
-        {/* Presented by [Sponsor] — typewriter italic block */}
-        {bill.sponsor_name && (
+        {/* Presented by [Sponsor], supported by [supporters] — typewriter
+            italic block, matching the printed Bill template. Supporters
+            come from the live Parliament Bills API (most bills list only
+            the lead sponsor — the "supported by" line appears only where
+            additional sponsors are recorded). */}
+        {presented && (
           <div
             style={{
               textAlign: 'center',
@@ -177,15 +214,16 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
               color: INK,
               marginBottom: '26px',
               lineHeight: 1.7,
+              maxWidth: '36em',
+              marginLeft: 'auto',
+              marginRight: 'auto',
             }}
           >
-            Presented by {bill.sponsor_name}
-            {bill.sponsor_party && (
+            Presented by {presented}
+            {supportersLine && (
               <>
-                ,<br />
-                <span style={{ fontStyle: 'normal', fontVariant: 'small-caps', letterSpacing: '0.04em' }}>
-                  {bill.sponsor_party}{bill.sponsor_constituency ? ` · ${bill.sponsor_constituency}` : ''}
-                </span>
+                <br />
+                supported by {supportersLine}
               </>
             )}
             .
