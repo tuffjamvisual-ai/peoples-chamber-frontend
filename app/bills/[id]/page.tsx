@@ -192,51 +192,6 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
           </div>
         )}
 
-        {/* "Ordered, by The House of Commons, to be Printed" framed box */}
-        {(bill.stage_date || bill.last_update) && (
-          <div
-            style={{
-              textAlign: 'center',
-              fontFamily: MONO,
-              fontSize: '13px',
-              lineHeight: 1.55,
-              color: INK,
-              border: `1px solid ${INK}`,
-              padding: '10px 22px',
-              margin: '0 auto 22px',
-              maxWidth: '32em',
-            }}
-          >
-            Ordered, by The House of Commons, to be Printed,{' '}
-            {fmtDate(bill.stage_date || bill.last_update)}.
-          </div>
-        )}
-
-        {/* © Parliamentary copyright — typewriter italic */}
-        <div style={{ textAlign: 'center', fontFamily: MONO, fontSize: '12px', fontStyle: 'italic', color: INK_SOFT, marginBottom: '4px' }}>
-          © Parliamentary copyright House of Commons {new Date().getFullYear()}
-        </div>
-        <div style={{ textAlign: 'center', fontFamily: MONO, fontSize: '11px', fontStyle: 'italic', color: INK_SOFT, marginBottom: '18px', maxWidth: '36em', marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.55 }}>
-          This publication may be reproduced under the terms of the Open Parliament Licence, which is published at{' '}
-          <span style={{ textDecoration: 'underline' }}>www.parliament.uk/site-information/copyright</span>
-        </div>
-
-        {/* PUBLISHED BY THE AUTHORITY OF THE HOUSE OF COMMONS — typewriter, letter-spaced */}
-        <div
-          style={{
-            textAlign: 'center',
-            fontFamily: MONO,
-            fontSize: '12px',
-            letterSpacing: '0.2em',
-            textTransform: 'uppercase',
-            color: INK,
-            paddingTop: '14px',
-            borderTop: `0.5px solid ${INK_HAIRLINE}`,
-          }}
-        >
-          Published by the Authority of the House of Commons
-        </div>
-
         {/* Status tags — preserved underneath as small chips so the cover stays clean */}
         {(bill.is_act || bill.is_defeated || bill.bill_withdrawn || bill.category || bill.originating_house || bill.current_stage) && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '22px', justifyContent: 'center' }}>
