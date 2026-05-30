@@ -77,11 +77,24 @@ export default async function HomePage() {
         <div style={{ ...kicker, fontSize: '1.45cqw', letterSpacing: '0.04em', marginTop: '3.5%' }}>Read the bills →</div>
       </a>
 
-      {/* Expenses story (left) — featured image on top, headline under. */}
+      {/* Expenses story (left) — featured image on top, headline under.
+          Image uses multiply blend + sepia so it reads as a printed
+          halftone on the paper rather than a polaroid pasted over. */}
       <a href="/expenses" className="no-hover-scale" style={{ ...card, top: '75%', left: '6%', width: '27%', height: '15%', alignItems: 'flex-start' }}>
-        <div style={{ width: '100%', border: '1px solid #14100d', boxShadow: '0 2px 6px rgba(0,0,0,0.2)', marginBottom: '4%' }}>
+        <div style={{ width: '100%', marginBottom: '4%', position: 'relative' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/mp-expenses.webp" alt="The biggest MP expenses bill" style={{ display: 'block', width: '100%', aspectRatio: '16 / 9', objectFit: 'cover' }} />
+          <img
+            src="/mp-expenses.webp"
+            alt="The biggest MP expenses bill"
+            style={{
+              display: 'block',
+              width: '100%',
+              aspectRatio: '16 / 9',
+              objectFit: 'cover',
+              mixBlendMode: 'multiply',
+              filter: 'sepia(0.45) contrast(1.18) saturate(0.78) brightness(1.04)',
+            }}
+          />
         </div>
         <div style={{ ...headline, fontSize: '2.05cqw', lineHeight: 1.04, marginBottom: '3%' }}>The biggest expenses bill</div>
         <div style={{ ...ctaStyle, marginTop: 0 }}>See the full top ten →</div>
@@ -101,11 +114,23 @@ export default async function HomePage() {
         <div style={ctaStyle}>Cast your vote →</div>
       </a>
 
-      {/* Whitehall story (right) — featured image on top, headline under. */}
+      {/* Whitehall story (right) — same printed-on-paper treatment as
+          the expenses lead. */}
       <a href="/departments" className="no-hover-scale" style={{ ...card, top: '75%', left: '68%', width: '26%', height: '15%', alignItems: 'flex-start' }}>
-        <div style={{ width: '100%', border: '1px solid #14100d', boxShadow: '0 2px 6px rgba(0,0,0,0.2)', marginBottom: '4%' }}>
+        <div style={{ width: '100%', marginBottom: '4%', position: 'relative' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/whitehall.webp" alt="Who runs Whitehall" style={{ display: 'block', width: '100%', aspectRatio: '16 / 9', objectFit: 'cover' }} />
+          <img
+            src="/whitehall.webp"
+            alt="Who runs Whitehall"
+            style={{
+              display: 'block',
+              width: '100%',
+              aspectRatio: '16 / 9',
+              objectFit: 'cover',
+              mixBlendMode: 'multiply',
+              filter: 'sepia(0.45) contrast(1.18) saturate(0.78) brightness(1.04)',
+            }}
+          />
         </div>
         <div style={{ ...headline, fontSize: '2.05cqw', lineHeight: 1.04, marginBottom: '3%' }}>Who runs Whitehall</div>
         <div style={{ ...ctaStyle, marginTop: 0 }}>See the departments →</div>
