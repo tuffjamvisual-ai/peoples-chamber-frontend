@@ -58,7 +58,19 @@ export default function DepartmentClient({ slug, govukData, streetContext }: Dep
   }) || [];
 
   return (
-    <div className="text-[#14100d]" style={{ marginTop: '8px', fontFamily: 'Special Elite, monospace' }}>
+    <div
+      className="text-[#14100d]"
+      style={{
+        marginTop: '8px',
+        fontFamily: 'Special Elite, monospace',
+        // Keep long role titles / department text from spilling outside the
+        // folder's inner safe area (visible folder edge can look like a sidebar).
+        overflowWrap: 'anywhere',
+        wordBreak: 'break-word',
+        minWidth: 0,
+        maxWidth: '100%',
+      }}
+    >
         {/* Social links — was previously next to dept name in the now-removed header */}
         {govukData?.socialMedia && govukData.socialMedia.length > 0 && (
           <div className="flex gap-1.5 flex-wrap mb-8">
@@ -78,7 +90,7 @@ export default function DepartmentClient({ slug, govukData, streetContext }: Dep
 
         {/* Department head — title shown under the name (sos.role), so no separate label. */}
         <section className=" pb-8 mb-8">
-          <div className="flex items-center gap-8">
+          <div className="flex flex-wrap items-center gap-8" style={{ minWidth: 0 }}>
             <div style={{
               position: 'relative',
               background: '#ebe5d8',
@@ -130,9 +142,9 @@ export default function DepartmentClient({ slug, govukData, streetContext }: Dep
                 />
               )}
             </div>
-            <div>
-              <h2 className="text-[#14100d] text-xl sm:text-2xl font-black tracking-tight mb-1">{sos.name}</h2>
-              <p className="text-[#14100d] text-[16px] leading-[1.7] mb-2">{sos.role}</p>
+            <div style={{ minWidth: 0, flex: '1 1 220px' }}>
+              <h2 className="text-[#14100d] text-xl sm:text-2xl font-black tracking-tight mb-1" style={{ overflowWrap: 'anywhere' }}>{sos.name}</h2>
+              <p className="text-[#14100d] text-[16px] leading-[1.7] mb-2" style={{ overflowWrap: 'anywhere' }}>{sos.role}</p>
               {sos.member_id ? (
                 <Link
                   href={`/mps/${sos.member_id}`}
@@ -290,9 +302,9 @@ function StaffGroup({ label, people }: { label: string; people: { name: string; 
                   </div>
                 )}
               </div>
-              <div style={{ minWidth: 0, paddingTop: '4px' }}>
-                <p className="text-[#14100d] text-[14px] font-semibold hover:text-[#7a1612] transition-colors">{person.name}</p>
-                <p className="text-[#14100d] text-[14px] mt-0.5 leading-[1.55] opacity-80">{person.role}</p>
+              <div style={{ minWidth: 0, paddingTop: '4px', flex: '1 1 0', overflow: 'hidden' }}>
+                <p className="text-[#14100d] text-[14px] font-semibold hover:text-[#7a1612] transition-colors" style={{ overflowWrap: 'anywhere' }}>{person.name}</p>
+                <p className="text-[#14100d] text-[14px] mt-0.5 leading-[1.55] opacity-80" style={{ overflowWrap: 'anywhere' }}>{person.role}</p>
               </div>
             </div>
           );
