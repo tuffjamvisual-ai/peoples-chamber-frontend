@@ -135,23 +135,36 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
           </div>
         </div>
 
-        {/* Justified long-title preamble (the formal "to make provision for..." text)
-            — set in typewriter to match the site-wide narrative convention. */}
-        {(bill.long_title || bill.plain_summary || bill.description) && (
-          <p
-            style={{
-              fontFamily: MONO,
-              fontSize: 'clamp(14px, 1.25vw, 15px)',
-              lineHeight: 1.75,
-              textAlign: 'justify',
-              margin: '0 auto 26px',
-              maxWidth: '46em',
-              color: INK,
-            }}
-          >
-            {(bill.long_title || bill.plain_summary || bill.description || '').trim()}
-          </p>
-        )}
+        {/* Bill body — the full description sits INSIDE the cover sheet
+            so the page doesn't extend below the template. Priority:
+            description (richest) > long_title (formal preamble) >
+            plain_summary (last resort). Set in typewriter, justified. */}
+        {(() => {
+          const pickRaw = [bill.description, bill.long_title, bill.plain_summary].find(
+            (t) =>
+              !!t &&
+              t.trim().toLowerCase() !== 'no description available' &&
+              t.trim() !== (bill.title || '').trim()
+          );
+          const text = (pickRaw || '').trim();
+          if (!text) return null;
+          return (
+            <p
+              style={{
+                fontFamily: MONO,
+                fontSize: 'clamp(13px, 1.15vw, 14px)',
+                lineHeight: 1.75,
+                textAlign: 'justify',
+                margin: '0 auto 26px',
+                maxWidth: '46em',
+                color: INK,
+                whiteSpace: 'pre-wrap',
+              }}
+            >
+              {text}
+            </p>
+          );
+        })()}
 
         {/* Presented by [Sponsor] — typewriter italic block */}
         {bill.sponsor_name && (
@@ -237,32 +250,6 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
         )}
       </header>
 
-      {/* The bill in brief — only when the cover used long_title (so this
-          plain-English version isn't a duplicate of what's already shown). */}
-      {bill.plain_summary && bill.long_title && (
-        <section style={{ marginBottom: '34px' }}>
-          <Eyebrow>The bill in brief</Eyebrow>
-          <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.8, margin: 0 }}>{bill.plain_summary}</p>
-        </section>
-      )}
-
-      {/* What a vote means — typewriter paragraphs under the bill, before the vote box */}
-      {(bill.support_explanation || bill.oppose_explanation) && (
-        <section style={{ marginBottom: '38px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
-          {bill.support_explanation && (
-            <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.8, margin: 0 }}>
-              <strong style={{ color: SUCCESS }}>An Aye vote means: </strong>
-              {explanationPoints(bill.support_explanation).map((p) => p.replace(/^[-–]\s*/, '').replace(/\.\s*$/, '')).join('. ')}.
-            </p>
-          )}
-          {bill.oppose_explanation && (
-            <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.8, margin: 0 }}>
-              <strong style={{ color: DANGER }}>A No vote means: </strong>
-              {explanationPoints(bill.oppose_explanation).map((p) => p.replace(/^[-–]\s*/, '').replace(/\.\s*$/, '')).join('. ')}.
-            </p>
-          )}
-        </section>
-      )}
 
       {/* The ballot — interactive cross-box vote + the running counts.
           Sits on the parchment, separated by a ruling line above. */}
@@ -379,21 +366,6 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
             )}
           </div>
         </section>
-      )}
-
-      {/* Full description */}
-      {bill.description &&
-       bill.description !== bill.title &&
-       bill.description.trim().toLowerCase() !== 'no description available' && (
-        <details style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '22px', marginBottom: '40px' }}>
-          <summary style={{ cursor: 'pointer', fontFamily: MONO, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.18em', fontWeight: 'bold', color: INK }}>
-            Full bill description{' '}
-            <span style={{ textTransform: 'none', letterSpacing: 'normal', opacity: 0.7 }}>(click to expand)</span>
-          </summary>
-          <p style={{ fontFamily: MONO, fontSize: '13px', lineHeight: 1.8, whiteSpace: 'pre-wrap', marginTop: '14px' }}>
-            {bill.description}
-          </p>
-        </details>
       )}
 
       </article>
