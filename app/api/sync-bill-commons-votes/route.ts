@@ -35,7 +35,9 @@ function billNameFromActTitle(title: string): string {
 }
 
 async function searchDivisions(searchTerm: string): Promise<Division[]> {
-  const url = `https://commonsvotes-api.parliament.uk/data/divisions.json/search?queryParameters.searchTerm=${encodeURIComponent(searchTerm)}&queryParameters.take=25`;
+  // take=100 so big-ticket bills (Employment Rights, Online Safety etc.)
+  // don't bury the Third Reading under 25 Lords-amendment motions.
+  const url = `https://commonsvotes-api.parliament.uk/data/divisions.json/search?queryParameters.searchTerm=${encodeURIComponent(searchTerm)}&queryParameters.take=100`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Commons Votes API ${res.status}`);
   return (await res.json()) as Division[];
