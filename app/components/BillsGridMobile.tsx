@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import type { CSSProperties } from 'react';
-import BallotBillCard from './BallotBillCard';
+import BillCoverCard from './BillCoverCard';
 
 const INK = '#14100d';
 const CREAM = '#ebe5d8';
@@ -179,12 +179,11 @@ export default function BillsGridMobile({ initialBills, currentPage, totalPages 
 
       <div className="p-4 space-y-4" key={activeTab}>
         {filteredBills.map((bill: any) => (
-          <BallotBillCard
+          <BillCoverCard
             key={bill.id}
             bill={bill}
             userVote={(userVotes[bill.id] as 'yes' | 'no' | undefined) ?? null}
             onClick={() => router.push(`/bills/${bill.id}`)}
-            onVote={(choice) => handleVote(bill.id, choice)}
           />
         ))}
       </div>

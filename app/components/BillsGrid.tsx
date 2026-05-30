@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import type { CSSProperties } from 'react';
 import FilterBar from './FilterBar';
-import BallotBillCard from './BallotBillCard';
+import BillCoverCard from './BillCoverCard';
 
 const INK = '#14100d';
 const CREAM = '#ebe5d8';
@@ -148,12 +148,11 @@ export default function BillsGrid({ initialBills, currentPage, totalPages }: Pro
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-7 mb-8">
         {paginatedBills.map((bill: any) => (
-          <BallotBillCard
+          <BillCoverCard
             key={bill.id}
             bill={bill}
             userVote={(userVotes[bill.id] as 'yes' | 'no' | undefined) ?? null}
             onClick={() => router.push(`/bills/${bill.id}`)}
-            onVote={(choice) => handleVote(bill.id, choice)}
           />
         ))}
       </div>

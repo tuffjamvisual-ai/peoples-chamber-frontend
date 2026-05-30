@@ -81,22 +81,156 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
         ← Back to all bills
       </a>
 
-      {/* Masthead */}
-      <header style={{ borderBottom: `3px double ${INK}`, paddingBottom: '22px', marginBottom: '28px' }}>
-        <div style={{ fontFamily: MONO, fontSize: '11px', letterSpacing: '0.28em', textTransform: 'uppercase', color: INK_SOFT, marginBottom: '14px' }}>
-          UK Parliament · Public Bill{serial ? ` · No. ${serial}` : ''}
+      {/* Bill cover sheet — faithful to the Victorian-era Parliamentary
+          Bill template: ruled title bar, [AS INTRODUCED], the iconic
+          A / BILL / TO centrepiece, justified long-title preamble,
+          "Presented by [Sponsor]" block, "Ordered by The House of
+          Commons to be Printed" framed box, and the published-by
+          authority footer. */}
+      <header
+        style={{
+          background: '#efe6d2',
+          border: '1px solid rgba(26,20,14,0.3)',
+          boxShadow: '0 1px 0 rgba(26,20,14,0.05), 0 22px 44px -22px rgba(26,20,14,0.35), inset 0 0 80px rgba(155,128,80,0.08)',
+          padding: 'clamp(28px, 4vw, 56px) clamp(24px, 4vw, 60px) clamp(28px, 4vw, 48px)',
+          marginBottom: '32px',
+          color: '#1a140e',
+          fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
+        }}
+      >
+        {/* Ruled title bar */}
+        <div
+          style={{
+            borderTop: `1.5px solid ${INK}`,
+            borderBottom: `1.5px solid ${INK}`,
+            padding: '14px 12px',
+            textAlign: 'center',
+            marginBottom: '24px',
+          }}
+        >
+          <div style={{ fontFamily: SERIF, fontSize: '12px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '4px' }}>
+            UK Parliament · Public Bill{serial ? ` · No. ${serial}` : ''}
+          </div>
+          <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(22px, 2.6vw, 32px)', fontWeight: 500, letterSpacing: '0.005em', lineHeight: 1.18, margin: 0 }}>
+            {bill.title}
+          </h1>
         </div>
-        <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(30px, 5vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.01em', lineHeight: 1.06, margin: 0 }}>
-          {bill.title}
-        </h1>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '16px' }}>
-          {bill.is_act && <Tag colour={SUCCESS}>✓ Passed into law</Tag>}
-          {bill.is_defeated && <Tag colour={DANGER}>✗ Defeated</Tag>}
-          {bill.bill_withdrawn && <Tag colour={INK_SOFT}>Withdrawn</Tag>}
-          {bill.category && <Tag colour={ACCENT}>{bill.category}</Tag>}
-          {bill.originating_house && <Tag colour={INK_SOFT}>{bill.originating_house}</Tag>}
-          {bill.current_stage && <Tag colour={INK_SOFT}>{bill.current_stage}</Tag>}
+
+        {/* [AS INTRODUCED] */}
+        <div style={{ textAlign: 'center', fontFamily: SERIF, fontSize: '14px', letterSpacing: '0.1em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '24px' }}>
+          [As Introduced]
         </div>
+
+        {/* "A / BILL / TO" centrepiece */}
+        <div style={{ textAlign: 'center', margin: '6px 0 22px' }}>
+          <div style={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: 'clamp(16px, 1.8vw, 20px)', color: INK, marginBottom: '4px' }}>A</div>
+          <div style={{ fontFamily: SERIF, fontSize: 'clamp(58px, 8vw, 96px)', fontWeight: 500, letterSpacing: '0.42em', lineHeight: 1, color: INK, marginLeft: '0.42em' }}>
+            BILL
+          </div>
+          <div style={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: 'clamp(16px, 1.8vw, 20px)', color: INK, marginTop: '8px' }}>
+            to
+          </div>
+        </div>
+
+        {/* Justified long-title preamble (the formal "to make provision for..." text) */}
+        {(bill.long_title || bill.plain_summary || bill.description) && (
+          <p
+            style={{
+              fontFamily: SERIF,
+              fontSize: 'clamp(15px, 1.4vw, 17px)',
+              lineHeight: 1.7,
+              textAlign: 'justify',
+              margin: '0 auto 26px',
+              maxWidth: '46em',
+              color: INK,
+            }}
+          >
+            {(bill.long_title || bill.plain_summary || bill.description || '').trim()}
+          </p>
+        )}
+
+        {/* Presented by [Sponsor] — italic block */}
+        {bill.sponsor_name && (
+          <div
+            style={{
+              textAlign: 'center',
+              fontFamily: SERIF,
+              fontStyle: 'italic',
+              fontSize: 'clamp(14px, 1.3vw, 16px)',
+              color: INK,
+              marginBottom: '26px',
+              lineHeight: 1.6,
+            }}
+          >
+            Presented by {bill.sponsor_name}
+            {bill.sponsor_party && (
+              <>
+                ,<br />
+                <span style={{ fontStyle: 'normal', fontVariant: 'small-caps', letterSpacing: '0.04em' }}>
+                  {bill.sponsor_party}{bill.sponsor_constituency ? ` · ${bill.sponsor_constituency}` : ''}
+                </span>
+              </>
+            )}
+            .
+          </div>
+        )}
+
+        {/* "Ordered, by The House of Commons, to be Printed" framed box */}
+        {(bill.stage_date || bill.last_update) && (
+          <div
+            style={{
+              textAlign: 'center',
+              fontFamily: SERIF,
+              fontSize: '14px',
+              lineHeight: 1.45,
+              color: INK,
+              border: `1px solid ${INK}`,
+              padding: '10px 22px',
+              margin: '0 auto 22px',
+              maxWidth: '32em',
+            }}
+          >
+            Ordered, by The House of Commons, to be Printed,{' '}
+            {fmtDate(bill.stage_date || bill.last_update)}.
+          </div>
+        )}
+
+        {/* © Parliamentary copyright — italic */}
+        <div style={{ textAlign: 'center', fontFamily: SERIF, fontSize: '13px', fontStyle: 'italic', color: INK_SOFT, marginBottom: '4px' }}>
+          © Parliamentary copyright House of Commons {new Date().getFullYear()}
+        </div>
+        <div style={{ textAlign: 'center', fontFamily: SERIF, fontSize: '12px', fontStyle: 'italic', color: INK_SOFT, marginBottom: '18px', maxWidth: '36em', marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.5 }}>
+          This publication may be reproduced under the terms of the Open Parliament Licence, which is published at{' '}
+          <span style={{ textDecoration: 'underline' }}>www.parliament.uk/site-information/copyright</span>
+        </div>
+
+        {/* PUBLISHED BY THE AUTHORITY OF THE HOUSE OF COMMONS — small caps */}
+        <div
+          style={{
+            textAlign: 'center',
+            fontFamily: SERIF,
+            fontSize: '13px',
+            letterSpacing: '0.14em',
+            fontVariant: 'small-caps',
+            color: INK,
+            paddingTop: '14px',
+            borderTop: `0.5px solid ${INK_HAIRLINE}`,
+          }}
+        >
+          Published by the Authority of the House of Commons
+        </div>
+
+        {/* Status tags — preserved underneath as small chips so the cover stays clean */}
+        {(bill.is_act || bill.is_defeated || bill.bill_withdrawn || bill.category || bill.originating_house || bill.current_stage) && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '22px', justifyContent: 'center' }}>
+            {bill.is_act && <Tag colour={SUCCESS}>✓ Passed into law</Tag>}
+            {bill.is_defeated && <Tag colour={DANGER}>✗ Defeated</Tag>}
+            {bill.bill_withdrawn && <Tag colour={INK_SOFT}>Withdrawn</Tag>}
+            {bill.category && <Tag colour={ACCENT}>{bill.category}</Tag>}
+            {bill.originating_house && <Tag colour={INK_SOFT}>{bill.originating_house}</Tag>}
+            {bill.current_stage && <Tag colour={INK_SOFT}>{bill.current_stage}</Tag>}
+          </div>
+        )}
       </header>
 
       {/* The bill in brief */}
