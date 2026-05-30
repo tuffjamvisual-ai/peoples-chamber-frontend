@@ -20,7 +20,9 @@ export default async function LawsPage() {
   const { data: laws, error } = await supabase
     .from('bill')
     .select(
-      'id, title, plain_summary, originating_house, sponsor_name, sponsor_party, sponsor_party_colour, last_update'
+      // Same select shape as /bills so the shared BillCoverCard
+      // renders identically on /laws (with an extra Royal Assent stamp).
+      'id, parliament_id, title, plain_summary, description, current_stage, originating_house, sponsor_name, sponsor_party, sponsor_party_colour, last_update, stage_date, vote_count_yes, vote_count_no, vote_count_abstain, commons_ayes, commons_noes, is_act'
     )
     .eq('is_act', true)
     .order('last_update', { ascending: false })

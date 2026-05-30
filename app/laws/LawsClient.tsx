@@ -3,16 +3,27 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
+import BillCoverCard from '../components/BillCoverCard'
 
 type Law = {
   id: number
+  parliament_id?: number | null
   title: string
   plain_summary: string | null
+  description?: string | null
+  current_stage?: string | null
   last_update: string | null
+  stage_date?: string | null
   sponsor_name: string | null
   sponsor_party: string | null
   sponsor_party_colour: string | null
   originating_house: string
+  vote_count_yes?: number | null
+  vote_count_no?: number | null
+  vote_count_abstain?: number | null
+  commons_ayes?: number | null
+  commons_noes?: number | null
+  is_act?: boolean | null
 }
 
 const INK = '#14100d'
@@ -113,8 +124,13 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
               marginBottom: '32px',
             }}
           >
-            {paginated.map((law, idx) => (
-              <LawCard key={law.id} law={law} tilt={tiltFor(idx)} />
+            {paginated.map((law) => (
+              <BillCoverCard
+                key={law.id}
+                bill={law}
+                userVote={null}
+                onClick={() => router.push(`/bills/${law.id}`)}
+              />
             ))}
           </div>
 

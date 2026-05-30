@@ -24,12 +24,14 @@ type Bill = {
   description?: string | null;
   sponsor_name?: string | null;
   introduced_date?: string | null;
+  stage_date?: string | null;
   last_update?: string | null;
   vote_count_yes?: number | null;
   vote_count_no?: number | null;
   vote_count_abstain?: number | null;
   commons_ayes?: number | null;
   commons_noes?: number | null;
+  is_act?: boolean | null;
 };
 
 type Props = {
@@ -276,6 +278,33 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
       >
         Published by the Authority of the House of Commons
       </div>
+
+      {/* Royal Assent stamp — only for Acts (bill.is_act). Sits opposite
+          the Voted stamp so they don't collide. */}
+      {bill.is_act && (
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            top: '18px',
+            left: '14px',
+            transform: 'rotate(-9deg)',
+            border: `2.5px double ${ACCENT}`,
+            padding: '3px 10px',
+            color: ACCENT,
+            background: PARCHMENT_DEEP,
+            fontFamily: SERIF,
+            fontSize: '11px',
+            fontVariant: 'small-caps',
+            letterSpacing: '0.14em',
+            fontWeight: 'bold',
+            opacity: 0.85,
+            pointerEvents: 'none',
+          }}
+        >
+          ✓ Royal Assent
+        </div>
+      )}
 
       {/* "Voted" stamp — discreet tag in the corner where reader has cast a vote */}
       {hasVoted && (
