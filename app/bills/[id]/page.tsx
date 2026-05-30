@@ -258,17 +258,19 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
               empty={totalVotes === 0}
             />
 
-            {totalMPVotes > 0 && (
-              <VoteBar
-                label="How Parliament voted"
-                totalLabel={`${totalMPVotes.toLocaleString()} MPs`}
-                yesPct={mpAyePercent}
-                noPct={mpNoePercent}
-                yesText={`${mpAyePercent}% Ayes · ${(bill.commons_ayes || 0).toLocaleString()}`}
-                noText={`${mpNoePercent}% Noes · ${(bill.commons_noes || 0).toLocaleString()}`}
-                muted
-              />
-            )}
+            <VoteBar
+              label="MPs' vote"
+              totalLabel={
+                totalMPVotes > 0
+                  ? `${totalMPVotes.toLocaleString()} MPs`
+                  : 'not yet divided'
+              }
+              yesPct={mpAyePercent}
+              noPct={mpNoePercent}
+              yesText={`${mpAyePercent}% Ayes · ${(bill.commons_ayes || 0).toLocaleString()}`}
+              noText={`${mpNoePercent}% Noes · ${(bill.commons_noes || 0).toLocaleString()}`}
+              empty={totalMPVotes === 0}
+            />
 
             {democraticGap !== null && (
               <div style={{ borderLeft: `3px solid ${outcomeMismatch ? WARN : ACCENT}`, padding: '12px 18px', background: CREAM_DEEP }}>
