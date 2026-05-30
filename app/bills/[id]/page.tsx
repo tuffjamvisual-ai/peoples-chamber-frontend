@@ -89,9 +89,9 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
           authority footer. */}
       <header
         style={{
-          background: '#efe6d2',
+          background: "#efe6d2 url('/bill-parchment.webp') center/cover no-repeat",
           border: '1px solid rgba(26,20,14,0.3)',
-          boxShadow: '0 1px 0 rgba(26,20,14,0.05), 0 22px 44px -22px rgba(26,20,14,0.35), inset 0 0 80px rgba(155,128,80,0.08)',
+          boxShadow: '0 1px 0 rgba(26,20,14,0.05), 0 22px 44px -22px rgba(26,20,14,0.35)',
           padding: 'clamp(28px, 4vw, 56px) clamp(24px, 4vw, 60px) clamp(28px, 4vw, 48px)',
           marginBottom: '32px',
           color: '#1a140e',
@@ -233,22 +233,29 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
         )}
       </header>
 
-      {/* The bill in brief */}
-      {bill.plain_summary && (
+      {/* The bill in brief — only when the cover used long_title (so this
+          plain-English version isn't a duplicate of what's already shown). */}
+      {bill.plain_summary && bill.long_title && (
         <section style={{ marginBottom: '34px' }}>
           <Eyebrow>The bill in brief</Eyebrow>
           <p style={{ fontFamily: SERIF, fontSize: '17px', lineHeight: 1.75, margin: 0 }}>{bill.plain_summary}</p>
         </section>
       )}
 
-      {/* What a vote means */}
+      {/* What a vote means — plain paragraphs under the bill, before the vote box */}
       {(bill.support_explanation || bill.oppose_explanation) && (
-        <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '38px' }}>
+        <section style={{ marginBottom: '38px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
           {bill.support_explanation && (
-            <ExplainerColumn label="An Aye vote means" colour={SUCCESS} points={explanationPoints(bill.support_explanation)} />
+            <p style={{ fontFamily: SERIF, fontSize: '16px', lineHeight: 1.75, margin: 0 }}>
+              <strong style={{ color: SUCCESS }}>An Aye vote means: </strong>
+              {explanationPoints(bill.support_explanation).map((p) => p.replace(/^[-–]\s*/, '').replace(/\.\s*$/, '')).join('. ')}.
+            </p>
           )}
           {bill.oppose_explanation && (
-            <ExplainerColumn label="A No vote means" colour={DANGER} points={explanationPoints(bill.oppose_explanation)} />
+            <p style={{ fontFamily: SERIF, fontSize: '16px', lineHeight: 1.75, margin: 0 }}>
+              <strong style={{ color: DANGER }}>A No vote means: </strong>
+              {explanationPoints(bill.oppose_explanation).map((p) => p.replace(/^[-–]\s*/, '').replace(/\.\s*$/, '')).join('. ')}.
+            </p>
           )}
         </section>
       )}

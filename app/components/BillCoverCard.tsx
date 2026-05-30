@@ -82,10 +82,10 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
       style={{
         position: 'relative',
         cursor: 'pointer',
-        background: PARCHMENT,
+        background: `${PARCHMENT} url('/bill-parchment.webp') center/cover no-repeat`,
         color: INK,
         border: `1px solid ${INK_HAIRLINE}`,
-        boxShadow: '0 1px 0 rgba(26,20,14,0.05), 0 14px 28px -16px rgba(26,20,14,0.35), inset 0 0 64px rgba(155,128,80,0.08)',
+        boxShadow: '0 1px 0 rgba(26,20,14,0.05), 0 14px 28px -16px rgba(26,20,14,0.35)',
         padding: '26px 30px 22px',
         fontFamily: SERIF,
         display: 'flex',
