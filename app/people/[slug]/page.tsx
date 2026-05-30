@@ -32,6 +32,7 @@ type Person = {
   actualPayFloor: number | null;
   actualPayCeiling: number | null;
   payPeriod: string | null;
+  fte: number | null;
 };
 
 async function getPersonAndInterests(
@@ -41,7 +42,7 @@ async function getPersonAndInterests(
     await Promise.all([
       supabase
         .from('person_cache')
-        .select('name, photo, current_roles, past_roles, political_bio, biography, description, privy_counsellor, scs_band, actual_pay_floor, actual_pay_ceiling, pay_period')
+        .select('name, photo, current_roles, past_roles, political_bio, biography, description, privy_counsellor, scs_band, actual_pay_floor, actual_pay_ceiling, pay_period, fte')
         .eq('slug', slug)
         .maybeSingle(),
       supabase
@@ -83,6 +84,7 @@ async function getPersonAndInterests(
         actualPayFloor: (cached.actual_pay_floor as number | null) ?? null,
         actualPayCeiling: (cached.actual_pay_ceiling as number | null) ?? null,
         payPeriod: (cached.pay_period as string | null) ?? null,
+        fte: (cached.fte as number | null) ?? null,
       },
       interests,
       finance,
@@ -104,6 +106,7 @@ async function getPersonAndInterests(
         actualPayFloor: null,
         actualPayCeiling: null,
         payPeriod: null,
+        fte: null,
       },
       interests,
       finance,
@@ -230,6 +233,7 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
                   actualPayFloor: person.actualPayFloor,
                   actualPayCeiling: person.actualPayCeiling,
                   payPeriod: person.payPeriod,
+                  fte: person.fte,
                 }}
               />
             </div>

@@ -48,6 +48,7 @@ export type Salary = {
   actualPayFloor: number | null;
   actualPayCeiling: number | null;
   payPeriod: string | null;
+  fte: number | null;
 };
 
 interface Props {
@@ -244,6 +245,25 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
                   <div style={{ fontSize: '22px', fontWeight: 'bold' }}>
                     £{salary.actualPayFloor.toLocaleString()}–£{salary.actualPayCeiling.toLocaleString()}
                   </div>
+                  {salary.fte != null && (
+                    <div style={{ marginTop: '10px', fontSize: '14px' }}>
+                      {salary.fte >= 0.999 ? (
+                        <span style={{ opacity: 0.8 }}>Full-time (FTE 1.00)</span>
+                      ) : (
+                        <>
+                          <span style={{ fontWeight: 'bold', color: '#7a1612' }}>{salary.fte.toFixed(2)} FTE</span>
+                          {' — '}
+                          <span style={{ opacity: 0.85 }}>
+                            roughly {Math.round(salary.fte * 5)} day{Math.round(salary.fte * 5) === 1 ? '' : 's'} a week
+                          </span>
+                          {' · '}
+                          <span style={{ opacity: 0.75, fontStyle: 'italic' }}>
+                            full-time equivalent ≈ £{Math.round(salary.actualPayFloor / salary.fte).toLocaleString()}–£{Math.round(salary.actualPayCeiling / salary.fte).toLocaleString()}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  )}
                   <div style={{ fontSize: '13px', opacity: 0.7, marginTop: '6px', fontStyle: 'italic' }}>
                     Source: gov.uk organogram (quarterly Senior Civil Service pay disclosure)
                   </div>

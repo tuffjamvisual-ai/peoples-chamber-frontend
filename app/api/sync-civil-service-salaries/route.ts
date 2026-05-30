@@ -25,6 +25,7 @@ type CsvRow = {
   jobTitle: string;
   payFloor: number | null;  // £
   payCeiling: number | null;
+  fte: number | null;       // 1.00 = full-time
 };
 
 function parseCsv(text: string): CsvRow[] {
@@ -41,6 +42,7 @@ function parseCsv(text: string): CsvRow[] {
     jobTitle: header.findIndex((h) => /^job title$/i.test(h)),
     floor: header.findIndex((h) => /actual pay floor/i.test(h)),
     ceiling: header.findIndex((h) => /actual pay ceiling/i.test(h)),
+    fte: header.findIndex((h) => /^fte$/i.test(h)),
   };
   const out: CsvRow[] = [];
   for (let i = 1; i < lines.length; i++) {
@@ -49,12 +51,15 @@ function parseCsv(text: string): CsvRow[] {
     if (!name || /^vacant/i.test(name) || /^n\/?d$/i.test(name) || /not disclosed/i.test(name)) continue;
     const floorRaw = cells[idx.floor] || '';
     const ceilingRaw = cells[idx.ceiling] || '';
+    const fteRaw = idx.fte >= 0 ? (cells[idx.fte] || '') : '';
+    const fte = /^\d+(\.\d+)?$/.test(fteRaw) ? parseFloat(fteRaw) : null;
     out.push({
       name,
       grade: cells[idx.grade] || '',
       jobTitle: cells[idx.jobTitle] || '',
       payFloor: /^\d+$/.test(floorRaw) ? parseInt(floorRaw, 10) : null,
       payCeiling: /^\d+$/.test(ceilingRaw) ? parseInt(ceilingRaw, 10) : null,
+      fte,
     });
   }
   return out;
@@ -139,6 +144,7 @@ async function syncDept(supabase: SupabaseClient, deptSlug: string, datasetUrl: 
         actual_pay_ceiling: row.payCeiling,
         pay_period: latest.periodLabel,
         pay_synced_at: new Date().toISOString(),
+        fte: row.fte,
       })
       .eq('slug', slug);
     if (!error) updated++;
