@@ -48,31 +48,15 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
 
   const serial = bill.parliament_id != null ? String(bill.parliament_id).padStart(4, '0') : null
 
-  // Pull sponsors from the Parliament Bills API for the "Presented by /
-  // supported by" cover block. ISR-cached for an hour like the rest of
-  // the page. Falls back silently to the single stored sponsor if the
-  // API is unreachable.
-  type Sponsor = { name: string; party?: string; isMember: boolean; sortOrder: number }
-  let apiSponsors: Sponsor[] = []
-  if (bill.parliament_id) {
-    try {
-      const res = await fetch(`https://bills-api.parliament.uk/api/v1/Bills/${bill.parliament_id}`, {
-        next: { revalidate: 3600 },
-      })
-      if (res.ok) {
-        const j = (await res.json()) as { sponsors?: Array<{ sortOrder?: number; member?: { name?: string; party?: string }; organisation?: { name?: string } }> }
-        apiSponsors = (j.sponsors || [])
-          .map((s) => {
-            const m = s.member || s.organisation || {}
-            return { name: (m as { name?: string }).name || '', party: (m as { party?: string }).party, isMember: !!s.member, sortOrder: s.sortOrder ?? 999 }
-          })
-          .filter((s) => s.name)
-          .sort((a, b) => a.sortOrder - b.sortOrder)
-      }
-    } catch { /* swallow — fall back to bill.sponsor_name */ }
-  }
-  const presented = apiSponsors[0]?.name || bill.sponsor_name || ''
-  const supporters = apiSponsors.slice(1).map((s) => s.name)
+  // Sponsors come from bill.sponsors (refreshed weekly by
+  // /api/sync-bill-sponsors). No live Parliament-API call here.
+  type StoredSponsor = { name: string; party?: string | null; sortOrder?: number; isMember?: boolean }
+  const sponsorsData = bill.sponsors as { items?: StoredSponsor[] } | null
+  const storedSponsors: StoredSponsor[] = (sponsorsData?.items || []).slice().sort(
+    (a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999),
+  )
+  const presented = storedSponsors[0]?.name || bill.sponsor_name || ''
+  const supporters = storedSponsors.slice(1).map((s) => s.name)
   const supportersLine =
     supporters.length === 0
       ? ''
