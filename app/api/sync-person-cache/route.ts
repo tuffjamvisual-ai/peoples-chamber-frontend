@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { bandForCivilServiceRole, type ScsBand } from '@/lib/civil-service-salaries';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -23,6 +24,7 @@ type Person = {
   description: string; // top-level description — short summary
   full_name: string; // details.full_name — name + post-nominals
   privy_counsellor: boolean; // details.privy_counsellor — Rt Hon flag
+  scs_band: ScsBand | null; // derived from current role title
 };
 
 async function fetchPerson(slug: string): Promise<Person> {
@@ -66,6 +68,12 @@ async function fetchPerson(slug: string): Promise<Person> {
     description?: string;
   });
 
+  // Pick the SCS band off the first current role title (if any).
+  // Ministerial roles will return null here — they have a separate
+  // ministerial-supplement band on dept_ministers.salary_band.
+  const currentTitle = current_roles[0]?.title || '';
+  const scs_band = bandForCivilServiceRole(currentTitle);
+
   return {
     name: detailsTyped.title || '',
     photo: detailsTyped.details?.image?.url || '',
@@ -75,6 +83,7 @@ async function fetchPerson(slug: string): Promise<Person> {
     description: detailsTyped.description || '',
     full_name: detailsTyped.details?.full_name || '',
     privy_counsellor: !!detailsTyped.details?.privy_counsellor,
+    scs_band,
   };
 }
 

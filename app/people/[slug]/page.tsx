@@ -12,6 +12,7 @@ import { supabase } from '@/lib/supabase';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 import PeopleProfileSections, { type Role, type Interest, type PeerFinance } from './PeopleProfileSections';
 import DossierShell from '../../components/DossierShell';
+import { SCS_BAND_LABEL, SCS_BAND_RANGE, type ScsBand } from '@/lib/civil-service-salaries';
 export const revalidate = 3600;
 
 const INK = '#14100d';
@@ -27,6 +28,7 @@ type Person = {
   biography: string;   // HTML, gov.uk details.body
   description: string; // short top-level summary
   privyCounsellor: boolean;
+  scsBand: ScsBand | null;
 };
 
 async function getPersonAndInterests(
@@ -36,7 +38,7 @@ async function getPersonAndInterests(
     await Promise.all([
       supabase
         .from('person_cache')
-        .select('name, photo, current_roles, past_roles, political_bio, biography, description, privy_counsellor')
+        .select('name, photo, current_roles, past_roles, political_bio, biography, description, privy_counsellor, scs_band')
         .eq('slug', slug)
         .maybeSingle(),
       supabase
@@ -74,6 +76,7 @@ async function getPersonAndInterests(
         biography: (cached.biography as string) || '',
         description: (cached.description as string) || '',
         privyCounsellor: !!cached.privy_counsellor,
+        scsBand: (cached.scs_band as ScsBand | null) ?? null,
       },
       interests,
       finance,
@@ -91,6 +94,7 @@ async function getPersonAndInterests(
         biography: '',
         description: '',
         privyCounsellor: false,
+        scsBand: null,
       },
       interests,
       finance,
@@ -198,6 +202,16 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
                 )}
                 {person.currentRoles[0]?.organisation && (
                   <div style={{ fontSize: 'clamp(13px, 1.9vw, 25px)', opacity: 0.7 }}>{person.currentRoles[0].organisation}</div>
+                )}
+                {person.scsBand && (
+                  <div style={{ marginTop: '12px', fontSize: 'clamp(12px, 1.4vw, 16px)', opacity: 0.85, fontFamily: 'Special Elite, monospace' }}>
+                    {SCS_BAND_LABEL[person.scsBand]}
+                    {' · £'}
+                    {SCS_BAND_RANGE[person.scsBand][0].toLocaleString()}
+                    {'–£'}
+                    {SCS_BAND_RANGE[person.scsBand][1].toLocaleString()}
+                    {' (Cabinet Office published range)'}
+                  </div>
                 )}
               </div>
             </div>
