@@ -92,8 +92,22 @@ export async function GET(req: Request) {
   for (const slug of slugs) {
     try {
       const p = await fetchPerson(slug);
+
+      // Preserve a bucket photo URL if we already mirrored it locally.
+      // gov.uk asset URLs rotate and we don't want every sync to undo
+      // the work of the photo-backfill (Lord Livermore et al.).
+      const { data: existing } = await supabase
+        .from('person_cache')
+        .select('photo')
+        .eq('slug', slug)
+        .maybeSingle();
+      const photo =
+        existing?.photo && existing.photo.includes('supabase.co')
+          ? existing.photo
+          : p.photo;
+
       const { error } = await supabase.from('person_cache').upsert(
-        { slug, ...p, last_synced: new Date().toISOString() },
+        { slug, ...p, photo, last_synced: new Date().toISOString() },
         { onConflict: 'slug' },
       );
       if (error) throw error;
