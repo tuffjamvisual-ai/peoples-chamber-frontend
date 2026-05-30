@@ -25,6 +25,7 @@
     { "path": "/api/sync-bill-stages",            "schedule": "30 7 * * *" },
     { "path": "/api/sync-bill-sponsors",          "schedule": "0 9 * * 1" },
     { "path": "/api/sync-civil-service-salaries", "schedule": "30 9 * * 1" },
+    { "path": "/api/sync-bill-commons-votes",     "schedule": "0 8 * * *" },
     { "path": "/api/sync-department-contacts",    "schedule": "0 6 * * 1" },
     { "path": "/api/sync-agency-cache",           "schedule": "30 6 * * 1" },
     { "path": "/api/sync-person-cache",           "schedule": "0 7 * * 1" },
