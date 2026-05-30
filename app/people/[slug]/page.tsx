@@ -12,7 +12,7 @@ import { supabase } from '@/lib/supabase';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 import PeopleProfileSections, { type Role, type Interest, type PeerFinance } from './PeopleProfileSections';
 import DossierShell from '../../components/DossierShell';
-import { SCS_BAND_LABEL, SCS_BAND_RANGE, type ScsBand } from '@/lib/civil-service-salaries';
+import type { ScsBand } from '@/lib/civil-service-salaries';
 export const revalidate = 3600;
 
 const INK = '#14100d';
@@ -212,26 +212,9 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
                 {person.currentRoles[0]?.organisation && (
                   <div style={{ fontSize: 'clamp(13px, 1.9vw, 25px)', opacity: 0.7 }}>{person.currentRoles[0].organisation}</div>
                 )}
-                {/* Actual published pay (data.gov.uk organogram) takes
-                    precedence over the derived SCS-band range. */}
-                {person.actualPayFloor != null && person.actualPayCeiling != null ? (
-                  <div style={{ marginTop: '12px', fontSize: 'clamp(12px, 1.4vw, 16px)', opacity: 0.85, fontFamily: 'Special Elite, monospace' }}>
-                    {person.scsBand ? SCS_BAND_LABEL[person.scsBand] + ' · ' : ''}
-                    {'£'}{person.actualPayFloor.toLocaleString()}{'–£'}{person.actualPayCeiling.toLocaleString()}
-                    {' (gov.uk organogram'}
-                    {person.payPeriod ? `, as at ${person.payPeriod}` : ''}
-                    {')'}
-                  </div>
-                ) : person.scsBand ? (
-                  <div style={{ marginTop: '12px', fontSize: 'clamp(12px, 1.4vw, 16px)', opacity: 0.85, fontFamily: 'Special Elite, monospace' }}>
-                    {SCS_BAND_LABEL[person.scsBand]}
-                    {' · £'}
-                    {SCS_BAND_RANGE[person.scsBand][0].toLocaleString()}
-                    {'–£'}
-                    {SCS_BAND_RANGE[person.scsBand][1].toLocaleString()}
-                    {' (Cabinet Office published range)'}
-                  </div>
-                ) : null}
+                {/* Salary detail moved to its own sidebar section to
+                    avoid the long band+range line wrapping under the
+                    polaroid into the folder edge. */}
               </div>
             </div>
 
@@ -242,6 +225,12 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
                 pastRoles={person.pastRoles}
                 interests={interests}
                 finance={finance}
+                salary={{
+                  scsBand: person.scsBand,
+                  actualPayFloor: person.actualPayFloor,
+                  actualPayCeiling: person.actualPayCeiling,
+                  payPeriod: person.payPeriod,
+                }}
               />
             </div>
           </>

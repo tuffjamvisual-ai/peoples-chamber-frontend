@@ -6,14 +6,16 @@
 // without data are hidden via the same has[id] pattern.
 
 import { useEffect, useState } from 'react';
+import { SCS_BAND_LABEL, SCS_BAND_RANGE, type ScsBand } from '@/lib/civil-service-salaries';
 
-type SectionId = 'bio' | 'roles' | 'past' | 'interests' | 'earnings';
+type SectionId = 'bio' | 'roles' | 'past' | 'interests' | 'salary' | 'earnings';
 
 const ALL_SECTIONS: Array<{ id: SectionId; label: string; rotate: string }> = [
   { id: 'bio',       label: 'POLITICAL BIO',  rotate: '0.1deg' },
   { id: 'roles',     label: 'CURRENT ROLES',  rotate: '-0.12deg' },
   { id: 'past',      label: 'PAST ROLES',     rotate: '0.08deg' },
   { id: 'interests', label: 'INTERESTS',      rotate: '-0.1deg' },
+  { id: 'salary',    label: 'SALARY',         rotate: '-0.08deg' },
   { id: 'earnings',  label: 'EARNINGS',       rotate: '0.15deg' },
 ];
 
@@ -41,12 +43,20 @@ export type PeerFinance = {
   expenses_source_url: string | null;
 };
 
+export type Salary = {
+  scsBand: ScsBand | null;
+  actualPayFloor: number | null;
+  actualPayCeiling: number | null;
+  payPeriod: string | null;
+};
+
 interface Props {
   paragraphs: string[];
   currentRoles: Role[];
   pastRoles: Role[];
   interests: Interest[];
   finance: PeerFinance | null;
+  salary: Salary;
 }
 
 const sectionH2: React.CSSProperties = {
@@ -64,12 +74,13 @@ const fmtDate = (s?: string | null) =>
 const fmtMonthYear = (s?: string | null) =>
   s ? new Date(s).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '';
 
-export default function PeopleProfileSections({ paragraphs, currentRoles, pastRoles, interests, finance }: Props) {
+export default function PeopleProfileSections({ paragraphs, currentRoles, pastRoles, interests, finance, salary }: Props) {
   const has: Record<SectionId, boolean> = {
     bio: paragraphs.length > 0,
     roles: currentRoles.length > 0,
     past: pastRoles.length > 0,
     interests: interests.length > 0,
+    salary: !!(salary.scsBand || salary.actualPayFloor),
     earnings: !!(finance && (finance.ministerial_salary_annual || finance.attendance_allowance_ytd || finance.expenses_total_ytd)),
   };
   const sections = ALL_SECTIONS.filter((s) => has[s.id]);
@@ -208,6 +219,49 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
                 </li>
               ))}
             </ul>
+          </>
+        )}
+
+        {active === 'salary' && (
+          <>
+            <h2 style={sectionH2}>Salary</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', fontSize: '15px', lineHeight: 1.8 }}>
+              {salary.scsBand && (
+                <div>
+                  <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>
+                    Senior Civil Service grade
+                  </div>
+                  <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                    {SCS_BAND_LABEL[salary.scsBand]}
+                  </div>
+                </div>
+              )}
+              {salary.actualPayFloor != null && salary.actualPayCeiling != null ? (
+                <div>
+                  <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>
+                    Published pay band{salary.payPeriod ? ` (as at ${salary.payPeriod})` : ''}
+                  </div>
+                  <div style={{ fontSize: '22px', fontWeight: 'bold' }}>
+                    £{salary.actualPayFloor.toLocaleString()}–£{salary.actualPayCeiling.toLocaleString()}
+                  </div>
+                  <div style={{ fontSize: '13px', opacity: 0.7, marginTop: '6px', fontStyle: 'italic' }}>
+                    Source: gov.uk organogram (quarterly Senior Civil Service pay disclosure)
+                  </div>
+                </div>
+              ) : salary.scsBand ? (
+                <div>
+                  <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>
+                    Cabinet Office published range for this grade
+                  </div>
+                  <div style={{ fontSize: '22px', fontWeight: 'bold' }}>
+                    £{SCS_BAND_RANGE[salary.scsBand][0].toLocaleString()}–£{SCS_BAND_RANGE[salary.scsBand][1].toLocaleString()}
+                  </div>
+                  <div style={{ fontSize: '13px', opacity: 0.7, marginTop: '6px', fontStyle: 'italic' }}>
+                    Range from the 2025-26 Cabinet Office pay remit. Per-person actual pay is published quarterly in each department&apos;s organogram CSV.
+                  </div>
+                </div>
+              ) : null}
+            </div>
           </>
         )}
 
