@@ -19,7 +19,7 @@ export const govukSlugs: Record<string, string> = {
   'scotland-office': 'scotland-office',
   'wales-office': 'wales-office',
   'northern-ireland-office': 'northern-ireland-office',
-  'commons-leader': 'privy-council-office',
+  'commons-leader': 'the-office-of-the-leader-of-the-house-of-commons',
   'lords-leader': 'office-of-the-leader-of-the-house-of-lords',
   'advocate-general': 'office-of-the-advocate-general-for-scotland',
   'ukef': 'uk-export-finance',

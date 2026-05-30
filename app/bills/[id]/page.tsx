@@ -270,6 +270,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
               yesText={`${mpAyePercent}% Ayes · ${(bill.commons_ayes || 0).toLocaleString()}`}
               noText={`${mpNoePercent}% Noes · ${(bill.commons_noes || 0).toLocaleString()}`}
               empty={totalMPVotes === 0}
+              emptyText=""
             />
 
             {democraticGap !== null && (
@@ -409,6 +410,7 @@ function VoteBar({
   noText,
   muted = false,
   empty = false,
+  emptyText = 'No public votes yet — be the first.',
 }: {
   label: string
   totalLabel: string
@@ -418,6 +420,7 @@ function VoteBar({
   noText: string
   muted?: boolean
   empty?: boolean
+  emptyText?: string
 }) {
   return (
     <div>
@@ -426,7 +429,7 @@ function VoteBar({
         <span>{totalLabel}</span>
       </div>
       {empty ? (
-        <div style={{ fontFamily: MONO, fontSize: '12px', fontStyle: 'italic', color: INK_SOFT }}>No public votes yet — be the first.</div>
+        emptyText ? <div style={{ fontFamily: MONO, fontSize: '12px', fontStyle: 'italic', color: INK_SOFT }}>{emptyText}</div> : null
       ) : (
         <>
           <div style={{ height: '10px', background: CREAM_DEEP, display: 'flex', border: `1px solid ${INK_HAIRLINE}`, overflow: 'hidden' }} aria-hidden>
