@@ -50,6 +50,7 @@ const DANGER = '#7a2a1f';
 
 const SERIF = '"EB Garamond","Cormorant Garamond","Garamond",Georgia,"Times New Roman",serif';
 const SERIF_DISPLAY = '"EB Garamond","Cormorant Garamond","Garamond",Georgia,"Times New Roman",serif';
+const MONO = '"Special Elite", "Courier New", monospace';
 
 function fmtDate(d?: string | null) {
   if (!d) return '';
@@ -155,14 +156,14 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
         <div style={{ fontFamily: SERIF_DISPLAY, fontSize: '14px', fontStyle: 'italic', color: INK, marginTop: '4px' }}>to</div>
       </div>
 
-      {/* Justified italic description */}
+      {/* Justified typewriter description */}
       {summary && (
         <p
           style={{
             margin: '4px 0 0',
-            fontFamily: SERIF,
-            fontSize: '13.5px',
-            lineHeight: 1.55,
+            fontFamily: MONO,
+            fontSize: '12px',
+            lineHeight: 1.65,
             textAlign: 'justify',
             color: INK,
             display: '-webkit-box',
@@ -175,14 +176,14 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
         </p>
       )}
 
-      {/* Sponsor block — italic, centred */}
+      {/* Sponsor block — typewriter italic, centred */}
       {bill.sponsor_name && (
         <div
           style={{
             textAlign: 'center',
-            fontFamily: SERIF,
+            fontFamily: MONO,
             fontStyle: 'italic',
-            fontSize: '12.5px',
+            fontSize: '11.5px',
             color: INK,
             marginTop: 'auto',
             paddingTop: '6px',
@@ -197,9 +198,9 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
         <div
           style={{
             textAlign: 'center',
-            fontFamily: SERIF,
-            fontSize: '12px',
-            lineHeight: 1.45,
+            fontFamily: MONO,
+            fontSize: '11px',
+            lineHeight: 1.55,
             color: INK,
             border: `1px solid ${INK}`,
             padding: '8px 12px',
@@ -220,8 +221,8 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'baseline',
-          fontFamily: SERIF,
-          fontSize: '11.5px',
+          fontFamily: MONO,
+          fontSize: '11px',
           color: INK_SOFT,
           gap: '12px',
         }}
@@ -246,12 +247,12 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
         )}
       </div>
 
-      {/* © Parliamentary copyright — italic */}
+      {/* © Parliamentary copyright — typewriter italic */}
       <div
         style={{
           textAlign: 'center',
-          fontFamily: SERIF,
-          fontSize: '10.5px',
+          fontFamily: MONO,
+          fontSize: '10px',
           fontStyle: 'italic',
           color: INK_FAINT,
           marginTop: '4px',
@@ -260,14 +261,14 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
         © Parliamentary copyright House of Commons {new Date().getFullYear()}
       </div>
 
-      {/* PUBLISHED BY THE AUTHORITY OF THE HOUSE OF COMMONS — small caps */}
+      {/* PUBLISHED BY THE AUTHORITY OF THE HOUSE OF COMMONS — typewriter, letter-spaced */}
       <div
         style={{
           textAlign: 'center',
-          fontFamily: SERIF,
-          fontSize: '10.5px',
-          letterSpacing: '0.12em',
-          fontVariant: 'small-caps',
+          fontFamily: MONO,
+          fontSize: '10px',
+          letterSpacing: '0.18em',
+          textTransform: 'uppercase',
           color: INK,
           paddingTop: '6px',
           borderTop: `0.5px solid ${INK_FAINT}`,

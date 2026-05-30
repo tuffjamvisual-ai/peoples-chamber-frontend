@@ -81,18 +81,21 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
         ← Back to all bills
       </a>
 
-      {/* Bill cover sheet — faithful to the Victorian-era Parliamentary
-          Bill template: ruled title bar, [AS INTRODUCED], the iconic
-          A / BILL / TO centrepiece, justified long-title preamble,
-          "Presented by [Sponsor]" block, "Ordered by The House of
-          Commons to be Printed" framed box, and the published-by
-          authority footer. */}
-      <header
+      {/* The whole bill page is one continuous Victorian Bill sheet: cover,
+          brief, explainers, ballot, sponsor and stages all sit on the same
+          parchment, separated by ruling lines rather than boxed cards. */}
+      <article
         style={{
-          background: "#efe6d2 url('/bill-parchment.webp') center/cover no-repeat",
+          background: "#efe6d2 url('/bill-parchment.webp') center top / 100% auto repeat-y",
           border: '1px solid rgba(26,20,14,0.3)',
           boxShadow: '0 1px 0 rgba(26,20,14,0.05), 0 22px 44px -22px rgba(26,20,14,0.35)',
-          padding: 'clamp(28px, 4vw, 56px) clamp(24px, 4vw, 60px) clamp(28px, 4vw, 48px)',
+          padding: 'clamp(28px, 4vw, 56px) clamp(24px, 4vw, 60px)',
+          color: '#1a140e',
+          fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
+        }}
+      >
+      <header
+        style={{
           marginBottom: '32px',
           color: '#1a140e',
           fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
@@ -132,13 +135,14 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
           </div>
         </div>
 
-        {/* Justified long-title preamble (the formal "to make provision for..." text) */}
+        {/* Justified long-title preamble (the formal "to make provision for..." text)
+            — set in typewriter to match the site-wide narrative convention. */}
         {(bill.long_title || bill.plain_summary || bill.description) && (
           <p
             style={{
-              fontFamily: SERIF,
-              fontSize: 'clamp(15px, 1.4vw, 17px)',
-              lineHeight: 1.7,
+              fontFamily: MONO,
+              fontSize: 'clamp(14px, 1.25vw, 15px)',
+              lineHeight: 1.75,
               textAlign: 'justify',
               margin: '0 auto 26px',
               maxWidth: '46em',
@@ -149,17 +153,17 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
           </p>
         )}
 
-        {/* Presented by [Sponsor] — italic block */}
+        {/* Presented by [Sponsor] — typewriter italic block */}
         {bill.sponsor_name && (
           <div
             style={{
               textAlign: 'center',
-              fontFamily: SERIF,
+              fontFamily: MONO,
               fontStyle: 'italic',
-              fontSize: 'clamp(14px, 1.3vw, 16px)',
+              fontSize: 'clamp(13px, 1.1vw, 14px)',
               color: INK,
               marginBottom: '26px',
-              lineHeight: 1.6,
+              lineHeight: 1.7,
             }}
           >
             Presented by {bill.sponsor_name}
@@ -180,9 +184,9 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
           <div
             style={{
               textAlign: 'center',
-              fontFamily: SERIF,
-              fontSize: '14px',
-              lineHeight: 1.45,
+              fontFamily: MONO,
+              fontSize: '13px',
+              lineHeight: 1.55,
               color: INK,
               border: `1px solid ${INK}`,
               padding: '10px 22px',
@@ -195,23 +199,23 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
           </div>
         )}
 
-        {/* © Parliamentary copyright — italic */}
-        <div style={{ textAlign: 'center', fontFamily: SERIF, fontSize: '13px', fontStyle: 'italic', color: INK_SOFT, marginBottom: '4px' }}>
+        {/* © Parliamentary copyright — typewriter italic */}
+        <div style={{ textAlign: 'center', fontFamily: MONO, fontSize: '12px', fontStyle: 'italic', color: INK_SOFT, marginBottom: '4px' }}>
           © Parliamentary copyright House of Commons {new Date().getFullYear()}
         </div>
-        <div style={{ textAlign: 'center', fontFamily: SERIF, fontSize: '12px', fontStyle: 'italic', color: INK_SOFT, marginBottom: '18px', maxWidth: '36em', marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.5 }}>
+        <div style={{ textAlign: 'center', fontFamily: MONO, fontSize: '11px', fontStyle: 'italic', color: INK_SOFT, marginBottom: '18px', maxWidth: '36em', marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.55 }}>
           This publication may be reproduced under the terms of the Open Parliament Licence, which is published at{' '}
           <span style={{ textDecoration: 'underline' }}>www.parliament.uk/site-information/copyright</span>
         </div>
 
-        {/* PUBLISHED BY THE AUTHORITY OF THE HOUSE OF COMMONS — small caps */}
+        {/* PUBLISHED BY THE AUTHORITY OF THE HOUSE OF COMMONS — typewriter, letter-spaced */}
         <div
           style={{
             textAlign: 'center',
-            fontFamily: SERIF,
-            fontSize: '13px',
-            letterSpacing: '0.14em',
-            fontVariant: 'small-caps',
+            fontFamily: MONO,
+            fontSize: '12px',
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase',
             color: INK,
             paddingTop: '14px',
             borderTop: `0.5px solid ${INK_HAIRLINE}`,
@@ -238,21 +242,21 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
       {bill.plain_summary && bill.long_title && (
         <section style={{ marginBottom: '34px' }}>
           <Eyebrow>The bill in brief</Eyebrow>
-          <p style={{ fontFamily: SERIF, fontSize: '17px', lineHeight: 1.75, margin: 0 }}>{bill.plain_summary}</p>
+          <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.8, margin: 0 }}>{bill.plain_summary}</p>
         </section>
       )}
 
-      {/* What a vote means — plain paragraphs under the bill, before the vote box */}
+      {/* What a vote means — typewriter paragraphs under the bill, before the vote box */}
       {(bill.support_explanation || bill.oppose_explanation) && (
         <section style={{ marginBottom: '38px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
           {bill.support_explanation && (
-            <p style={{ fontFamily: SERIF, fontSize: '16px', lineHeight: 1.75, margin: 0 }}>
+            <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.8, margin: 0 }}>
               <strong style={{ color: SUCCESS }}>An Aye vote means: </strong>
               {explanationPoints(bill.support_explanation).map((p) => p.replace(/^[-–]\s*/, '').replace(/\.\s*$/, '')).join('. ')}.
             </p>
           )}
           {bill.oppose_explanation && (
-            <p style={{ fontFamily: SERIF, fontSize: '16px', lineHeight: 1.75, margin: 0 }}>
+            <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.8, margin: 0 }}>
               <strong style={{ color: DANGER }}>A No vote means: </strong>
               {explanationPoints(bill.oppose_explanation).map((p) => p.replace(/^[-–]\s*/, '').replace(/\.\s*$/, '')).join('. ')}.
             </p>
@@ -260,9 +264,10 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
         </section>
       )}
 
-      {/* The ballot — interactive cross-box vote + the running counts */}
-      <section style={{ marginBottom: '40px' }}>
-        <div style={{ position: 'relative', border: `3px double ${INK}`, boxShadow: '2px 3px 8px rgba(20,16,13,0.14)', padding: '26px 26px 22px' }}>
+      {/* The ballot — interactive cross-box vote + the running counts.
+          Sits on the parchment, separated by a ruling line above. */}
+      <section style={{ marginBottom: '40px', borderTop: `1.5px solid ${INK}`, paddingTop: '28px' }}>
+        <div style={{ position: 'relative', padding: '0 4px' }}>
           <div style={{ textAlign: 'center', marginBottom: '22px' }}>
             <div style={{ fontFamily: MONO, fontSize: '10px', letterSpacing: '0.3em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold' }}>
               Official Ballot · The People&apos;s Chamber
@@ -322,9 +327,9 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
 
       {/* Sponsor */}
       {bill.sponsor_name && (
-        <section style={{ marginBottom: '34px' }}>
+        <section style={{ marginBottom: '34px', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '24px' }}>
           <Eyebrow>Sponsored by</Eyebrow>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', background: CREAM_DEEP, border: `1px solid ${INK_HAIRLINE}`, padding: '16px 18px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '4px 0' }}>
             {bill.sponsor_photo ? (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
@@ -385,11 +390,13 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
             Full bill description{' '}
             <span style={{ textTransform: 'none', letterSpacing: 'normal', opacity: 0.7 }}>(click to expand)</span>
           </summary>
-          <p style={{ fontFamily: SERIF, fontSize: '15px', lineHeight: 1.7, whiteSpace: 'pre-wrap', marginTop: '14px' }}>
+          <p style={{ fontFamily: MONO, fontSize: '13px', lineHeight: 1.8, whiteSpace: 'pre-wrap', marginTop: '14px' }}>
             {bill.description}
           </p>
         </details>
       )}
+
+      </article>
 
       <ScrollToTopButton />
     </DossierShell>
