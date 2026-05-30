@@ -18,6 +18,11 @@ type Person = {
   photo: string;
   current_roles: RoleAppt[];
   past_roles: RoleAppt[];
+  // gov.uk publishes these for every minister + senior official.
+  biography: string; // details.body — full HTML bio
+  description: string; // top-level description — short summary
+  full_name: string; // details.full_name — name + post-nominals
+  privy_counsellor: boolean; // details.privy_counsellor — Rt Hon flag
 };
 
 async function fetchPerson(slug: string): Promise<Person> {
@@ -50,11 +55,26 @@ async function fetchPerson(slug: string): Promise<Person> {
     .filter((r) => !r.current)
     .sort((a, b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime());
 
+  const detailsTyped = (data as {
+    details?: {
+      image?: { url?: string };
+      body?: string;
+      full_name?: string;
+      privy_counsellor?: boolean;
+    };
+    title?: string;
+    description?: string;
+  });
+
   return {
-    name: (data as { title?: string }).title || '',
-    photo: (data as { details?: { image?: { url?: string } } }).details?.image?.url || '',
+    name: detailsTyped.title || '',
+    photo: detailsTyped.details?.image?.url || '',
     current_roles,
     past_roles,
+    biography: detailsTyped.details?.body || '',
+    description: detailsTyped.description || '',
+    full_name: detailsTyped.details?.full_name || '',
+    privy_counsellor: !!detailsTyped.details?.privy_counsellor,
   };
 }
 

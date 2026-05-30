@@ -23,6 +23,10 @@ type Person = {
   currentRoles: Role[];
   pastRoles: Role[];
   politicalBio: string | null;
+  // Captured from gov.uk per-person API (sync-person-cache):
+  biography: string;   // HTML, gov.uk details.body
+  description: string; // short top-level summary
+  privyCounsellor: boolean;
 };
 
 async function getPersonAndInterests(
@@ -32,7 +36,7 @@ async function getPersonAndInterests(
     await Promise.all([
       supabase
         .from('person_cache')
-        .select('name, photo, current_roles, past_roles, political_bio')
+        .select('name, photo, current_roles, past_roles, political_bio, biography, description, privy_counsellor')
         .eq('slug', slug)
         .maybeSingle(),
       supabase
@@ -67,6 +71,9 @@ async function getPersonAndInterests(
         currentRoles: (cached.current_roles as Role[]) || [],
         pastRoles: (cached.past_roles as Role[]) || [],
         politicalBio: (cached.political_bio as string | null) || null,
+        biography: (cached.biography as string) || '',
+        description: (cached.description as string) || '',
+        privyCounsellor: !!cached.privy_counsellor,
       },
       interests,
       finance,
@@ -81,6 +88,9 @@ async function getPersonAndInterests(
         currentRoles: [],
         pastRoles: [],
         politicalBio: null,
+        biography: '',
+        description: '',
+        privyCounsellor: false,
       },
       interests,
       finance,
@@ -94,12 +104,45 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
   const { slug } = await params;
   const { person, interests, finance } = await getPersonAndInterests(slug);
 
-  const bioParagraphs = person?.politicalBio
-    ? person.politicalBio
-        .split(/\n\n+/)
-        .map((p) => p.trim())
-        .filter(Boolean)
-    : [];
+  // Bio paragraphs source priority:
+  //   1. political_bio (manually authored — overrides anything from gov.uk)
+  //   2. biography (gov.uk's HTML body — strip tags into plain paragraphs)
+  //   3. description (top-level summary — single paragraph fallback)
+  const bioParagraphs = (() => {
+    if (!person) return [] as string[];
+    if (person.politicalBio) {
+      return person.politicalBio.split(/\n\n+/).map((p) => p.trim()).filter(Boolean);
+    }
+    if (person.biography) {
+      // gov.uk body is HTML with <p>, <ul>, <li>. Split on </p> /
+      // </li> boundaries then strip remaining tags + entities.
+      return person.biography
+        .replace(/<li>/gi, '<p>• ')
+        .replace(/<\/li>/gi, '</p>')
+        .split(/<\/p>/i)
+        .map((seg) =>
+          seg.replace(/<[^>]+>/g, '')
+            .replace(/&nbsp;/g, ' ')
+            .replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, "'")
+            .trim(),
+        )
+        .filter(Boolean);
+    }
+    if (person.description) return [person.description.trim()];
+    return [];
+  })();
+
+  // Prefix "The Rt Hon" if gov.uk flagged them PC and the rendered
+  // name doesn't already carry the honorific.
+  const displayName = person
+    ? person.privyCounsellor && !/(rt\.?\s*hon|right honourable)/i.test(person.name)
+      ? `The Rt Hon ${person.name}`
+      : person.name
+    : '';
 
   return (
     <DossierShell>
@@ -149,7 +192,7 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
               </div>
 
               <div style={{ flex: '1 1 auto', marginTop: '6%' }}>
-                <div style={{ fontSize: 'clamp(22px, 3.4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', textShadow: '1px 1px 0 rgba(0,0,0,0.1)', lineHeight: 1.05, marginBottom: '4%' }}>{person.name}</div>
+                <div style={{ fontSize: 'clamp(22px, 3.4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', textShadow: '1px 1px 0 rgba(0,0,0,0.1)', lineHeight: 1.05, marginBottom: '4%' }}>{displayName}</div>
                 {person.currentRoles[0] && (
                   <div style={{ fontSize: 'clamp(13px, 1.9vw, 25px)', marginBottom: '3%' }}>{person.currentRoles[0].title}</div>
                 )}
