@@ -78,10 +78,10 @@ export default async function HomePage() {
       </a>
 
       {/* Expenses story (left) — featured image on top, headline under.
-          Image uses multiply blend + sepia so it reads as a printed
-          halftone on the paper rather than a polaroid pasted over. */}
+          Edges feather into the parchment via a radial-gradient mask so
+          the photo doesn't look like a hard-edged sticker. */}
       <a href="/expenses" className="no-hover-scale" style={{ ...card, top: '75%', left: '6%', width: '27%', height: '15%', alignItems: 'flex-start' }}>
-        <div style={{ width: '100%', marginBottom: '4%', position: 'relative' }}>
+        <div style={{ width: '100%', marginBottom: '4%' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/mp-expenses.webp"
@@ -91,8 +91,8 @@ export default async function HomePage() {
               width: '100%',
               aspectRatio: '16 / 9',
               objectFit: 'cover',
-              mixBlendMode: 'multiply',
-              filter: 'sepia(0.45) contrast(1.18) saturate(0.78) brightness(1.04)',
+              WebkitMaskImage: 'radial-gradient(ellipse 92% 90% at center, #000 60%, transparent 100%)',
+              maskImage: 'radial-gradient(ellipse 92% 90% at center, #000 60%, transparent 100%)',
             }}
           />
         </div>
@@ -114,10 +114,9 @@ export default async function HomePage() {
         <div style={ctaStyle}>Cast your vote →</div>
       </a>
 
-      {/* Whitehall story (right) — same printed-on-paper treatment as
-          the expenses lead. */}
+      {/* Whitehall story (right) — same feathered-edge treatment. */}
       <a href="/departments" className="no-hover-scale" style={{ ...card, top: '75%', left: '68%', width: '26%', height: '15%', alignItems: 'flex-start' }}>
-        <div style={{ width: '100%', marginBottom: '4%', position: 'relative' }}>
+        <div style={{ width: '100%', marginBottom: '4%' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/whitehall.webp"
@@ -127,8 +126,8 @@ export default async function HomePage() {
               width: '100%',
               aspectRatio: '16 / 9',
               objectFit: 'cover',
-              mixBlendMode: 'multiply',
-              filter: 'sepia(0.45) contrast(1.18) saturate(0.78) brightness(1.04)',
+              WebkitMaskImage: 'radial-gradient(ellipse 92% 90% at center, #000 60%, transparent 100%)',
+              maskImage: 'radial-gradient(ellipse 92% 90% at center, #000 60%, transparent 100%)',
             }}
           />
         </div>
