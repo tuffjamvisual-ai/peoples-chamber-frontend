@@ -289,22 +289,6 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
                 </span>
               </div>
               <p style={{ margin: 0 }}>{p.manifesto_position}</p>
-              {p.manifesto_source && (
-                <a
-                  href={p.manifesto_source}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: 'inline-block',
-                    marginTop: '8px',
-                    fontSize: '0.85em',
-                    opacity: 0.7,
-                    color: INK,
-                  }}
-                >
-                  Source: {sourceLabel(p.manifesto_source)} ↗
-                </a>
-              )}
 
               {p.current_shift && (
                 <div
@@ -320,22 +304,6 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
                     </span>
                   </div>
                   <p style={{ margin: 0 }}>{p.current_shift}</p>
-                  {p.shift_source && (
-                    <a
-                      href={p.shift_source}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        display: 'inline-block',
-                        marginTop: '8px',
-                        fontSize: '0.85em',
-                        opacity: 0.7,
-                        color: INK,
-                      }}
-                    >
-                      Source: {sourceLabel(p.shift_source)} ↗
-                    </a>
-                  )}
                 </div>
               )}
             </div>
