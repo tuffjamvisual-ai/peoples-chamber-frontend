@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
 import type { CSSProperties } from 'react';
-import { supabase } from '@/lib/supabase';
 import DossierShell from './components/DossierShell';
 
 // The newspaper front page is the landing page. DossierShell renders the masthead + nav
 // + footer with no folder; HomeFront fills the body with a lead (-> /bills) and three
-// front-page stories below it: expenses (-> /expenses), a People's Poll result (-> /polls)
-// and Whitehall (-> /departments). The expenses + poll figures are fetched live.
+// front-page stories below it: expenses (-> /expenses), the People's Verdict on the
+// 15 UK parties (-> /parties) and Whitehall (-> /departments). All three bottom cards
+// are static editorial slots; the previous poll-driven middle card was promoted to a
+// Parties card when the dossier set landed.
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
@@ -44,29 +45,7 @@ const blurbStyle: CSSProperties = { fontSize: '1.2cqw', lineHeight: 1.4, opacity
 const headlineRow: CSSProperties = { display: 'flex', gap: '6%', alignItems: 'flex-start', width: '100%', marginBottom: '3%' };
 const colStyle = (left: string, width: string): CSSProperties => ({ ...card, top: '75%', left, width, height: '14%', alignItems: 'flex-start' });
 
-type Poll = { yesPct: number; total: number };
-
-async function getData(): Promise<{ poll: Poll | null }> {
-  const { data: water } = await supabase
-    .from('polls')
-    .select('vote_count_yes, vote_count_no')
-    .ilike('question', '%water companies%')
-    .limit(1)
-    .maybeSingle();
-
-  let poll: Poll | null = null;
-  if (water) {
-    const yes = Number(water.vote_count_yes) || 0;
-    const no = Number(water.vote_count_no) || 0;
-    if (yes + no > 0) poll = { yesPct: Math.round((yes / (yes + no)) * 100), total: yes + no };
-  }
-
-  return { poll };
-}
-
-export default async function HomePage() {
-  const { poll } = await getData();
-
+export default function HomePage() {
   const HomeFront = (
     <>
       {/* Lead story — fills the large top content area. */}
@@ -115,18 +94,23 @@ export default async function HomePage() {
         <div style={{ ...ctaStyle, marginTop: 0 }}>See the full top ten →</div>
       </a>
 
-      {/* People's Poll story (centre) — the result is the picture. */}
-      <a href="/polls" className="no-hover-scale" style={colStyle('37%', '27%')}>
+      {/* Parties story (centre) — same geometry as the previous poll card.
+          The big "15" tile sits where the poll percentage used to sit, with
+          the rotated cream block + tilted angle preserved so the visual
+          rhythm of [big number] + [headline] stays the same. Eyebrow text
+          "The People's verdict" reuses the brand mark that's also the
+          section heading on every /parties/[slug] dossier. */}
+      <a href="/parties" className="no-hover-scale" style={colStyle('37%', '27%')}>
         <div style={eyebrow}>The People’s verdict</div>
         <div style={headlineRow}>
           <div style={{ flex: '0 0 34%', background: CREAM, border: `1px solid rgba(20,16,13,0.3)`, padding: '6% 2%', textAlign: 'center', transform: 'rotate(-1.5deg)' }}>
-            <div style={{ fontWeight: 'bold', fontSize: '2.6cqw', lineHeight: 1, color: '#6b2417' }}>{poll ? `${poll.yesPct}%` : '—'}</div>
-            <div style={{ ...kicker, fontSize: '0.8cqw', letterSpacing: '0.1em', marginTop: '6%' }}>say yes</div>
+            <div style={{ fontWeight: 'bold', fontSize: '2.6cqw', lineHeight: 1, color: '#6b2417' }}>15</div>
+            <div style={{ ...kicker, fontSize: '0.8cqw', letterSpacing: '0.1em', marginTop: '6%' }}>parties · dossiered</div>
           </div>
-          <div style={{ ...headline, flex: '1 1 auto', fontSize: '1.65cqw', lineHeight: 1.05 }}>Should water be taken into public ownership?</div>
+          <div style={{ ...headline, flex: '1 1 auto', fontSize: '1.65cqw', lineHeight: 1.05 }}>Every manifesto. Every shift. The gap diagnosed.</div>
         </div>
-        <div style={blurbStyle}>{poll ? `${poll.total.toLocaleString()} people have voted. Where do you stand?` : 'Vote on the day’s biggest questions.'}</div>
-        <div style={ctaStyle}>Cast your vote →</div>
+        <div style={blurbStyle}>What each party said in 2024. What they have done since. What they have not.</div>
+        <div style={ctaStyle}>Read the dossiers →</div>
       </a>
 
       {/* Whitehall story (right) — same hand-drawn border treatment. */}
