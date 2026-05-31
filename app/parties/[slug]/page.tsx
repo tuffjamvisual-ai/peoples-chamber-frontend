@@ -23,6 +23,7 @@ type Party = {
   website: string | null;
   founded_year: number | null;
   brief: string | null;
+  critique: string | null;
   mp_party_string: string | null;
   recipient_name: string | null;
 };
@@ -45,7 +46,11 @@ async function getPartyAndPolicies(slug: string): Promise<{
   donationsTotal: number;
 }> {
   const [{ data: partyRow }, { data: policyRows }] = await Promise.all([
-    supabase.from('parties').select('*').eq('slug', slug).maybeSingle(),
+    supabase
+      .from('parties')
+      .select('slug, name, party_colour, website, founded_year, brief, critique, mp_party_string, recipient_name')
+      .eq('slug', slug)
+      .maybeSingle(),
     supabase
       .from('party_policies')
       .select('theme, theme_order, position_label, manifesto_position, manifesto_source, current_shift, shift_source, last_verified')
@@ -204,6 +209,46 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
           )}
         </div>
       </div>
+
+      {/* People's critique — sharp ~550-word assessment in MP-bio
+          style. Sits above the policy blocks so the reader gets the
+          editorial verdict before the policy grid. Renders as
+          blank-line-separated paragraphs in the body-prose typewriter
+          face (Special Elite), width-constrained for readability. */}
+      {party.critique && (
+        <section style={{ marginBottom: '40px' }}>
+          <div
+            style={{
+              fontFamily: 'Special Elite, monospace',
+              fontSize: '12px',
+              letterSpacing: '0.08em',
+              opacity: 0.6,
+              marginBottom: '14px',
+            }}
+          >
+            THE PEOPLE'S VERDICT
+          </div>
+          <div
+            style={{
+              fontFamily: 'Special Elite, monospace',
+              fontSize: 'clamp(15px, 1.7vw, 18px)',
+              lineHeight: 1.7,
+              color: INK,
+              maxWidth: '74ch',
+            }}
+          >
+            {party.critique
+              .split(/\n\n+/)
+              .map((p) => p.trim())
+              .filter(Boolean)
+              .map((p, i) => (
+                <p key={i} style={{ margin: '0 0 1em 0' }}>
+                  {p}
+                </p>
+              ))}
+          </div>
+        </section>
+      )}
 
       {/* The 11 themed policy blocks. Each block: theme label, 2024
           manifesto position, source, optional post-election shift in a
