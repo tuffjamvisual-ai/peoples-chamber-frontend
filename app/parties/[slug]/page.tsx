@@ -310,8 +310,7 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
                 <div
                   style={{
                     marginTop: '16px',
-                    padding: '14px 16px',
-                    background: CREAM,
+                    padding: '4px 0 4px 16px',
                     borderLeft: `4px solid ${accent}`,
                   }}
                 >
