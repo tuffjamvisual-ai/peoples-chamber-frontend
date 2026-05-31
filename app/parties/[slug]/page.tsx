@@ -30,6 +30,7 @@ type Party = {
 type Policy = {
   theme: string;
   theme_order: number;
+  position_label: string;
   manifesto_position: string;
   manifesto_source: string | null;
   current_shift: string | null;
@@ -47,7 +48,7 @@ async function getPartyAndPolicies(slug: string): Promise<{
     supabase.from('parties').select('*').eq('slug', slug).maybeSingle(),
     supabase
       .from('party_policies')
-      .select('theme, theme_order, manifesto_position, manifesto_source, current_shift, shift_source, last_verified')
+      .select('theme, theme_order, position_label, manifesto_position, manifesto_source, current_shift, shift_source, last_verified')
       .eq('party_slug', slug)
       .order('theme_order', { ascending: true }),
   ]);
@@ -239,7 +240,7 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
             >
               <div style={{ marginBottom: '8px' }}>
                 <span style={{ opacity: 0.55, fontSize: '0.85em', letterSpacing: '0.04em' }}>
-                  2024 MANIFESTO
+                  {p.position_label || '2024 MANIFESTO'}
                 </span>
               </div>
               <p style={{ margin: 0 }}>{p.manifesto_position}</p>
