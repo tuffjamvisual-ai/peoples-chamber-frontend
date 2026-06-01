@@ -277,12 +277,23 @@ export async function GET(req: Request) {
     // Load the seen-map for this cron so we can skip publications we've
     // already processed (unless their public_timestamp has changed since,
     // which means gov.uk edited the publication and we should re-ingest).
+    //
+    // IMPORTANT: stored TIMESTAMPTZ comes back from supabase-js as
+    // "2026-05-28 15:00:03+00" (Postgres format) but gov.uk's API returns
+    // ISO 8601 "2026-05-28T15:00:03+00:00". Naive string === always fails
+    // and the whole table re-processes every run. Convert both to epoch
+    // ms and compare numerically.
     const { data: syncedRows } = await supabase
       .from('synced_publications')
       .select('publication_slug, public_timestamp')
       .eq('cron_name', CRON_NAME);
-    const seen = new Map<string, string | null>(
-      (syncedRows || []).map((r) => [r.publication_slug as string, r.public_timestamp as string | null]),
+    const toEpoch = (s: string | null | undefined): number | null => {
+      if (!s) return null;
+      const t = Date.parse(s);
+      return Number.isFinite(t) ? t : null;
+    };
+    const seen = new Map<string, number | null>(
+      (syncedRows || []).map((r) => [r.publication_slug as string, toEpoch(r.public_timestamp as string | null)]),
     );
 
     const perDept: Record<string, { processed: number; skipped: number; rows_added: number }> = {};
@@ -308,11 +319,14 @@ export async function GET(req: Request) {
           break;
         }
         const slug = pub.link.replace(/^.*\/publications\//, '');
-        const prevTs = seen.get(slug);
+        const prevEpoch = seen.get(slug);
+        const curEpoch = toEpoch(pub.public_timestamp || null);
         // Skip if we've seen this slug at this public_timestamp (gov.uk
-        // hasn't republished). Re-ingest if either flag is null (new) or
-        // the timestamp moved.
-        if (seen.has(slug) && prevTs === (pub.public_timestamp || null)) {
+        // hasn't republished). Re-ingest if it's new or the timestamp
+        // moved (republication). Both sides normalised to epoch ms above
+        // so the format difference between supabase-js and the gov.uk
+        // API can't cause spurious re-processing.
+        if (seen.has(slug) && prevEpoch !== null && prevEpoch === curEpoch) {
           counters.skipped++;
           continue;
         }
