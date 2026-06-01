@@ -5,16 +5,25 @@ import { parse } from 'csv-parse/sync';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
+// Incremental sync (2026-06-01 refactor): the previous version was a
+// DELETE-ALL + re-INSERT-ALL rebuild that timed out on the 300s function
+// cap, leaving hospitality data stuck at 15 May. This version processes
+// publications one-at-a-time, tagged with source_publication_slug, and
+// skips any already in synced_publications. Each cron run progressively
+// catches up until everything is sync'd, after which subsequent runs are
+// near-instant (just the seen-map check). A 240s wall-clock budget bails
+// early and leaves the rest for the next invocation.
+//
 // Mirrors scripts/sync-ministers-hospitality.js (now retired). Same
-// structure as sync-ministers-meetings but targets hospitality CSVs and
-// writes minister_name / hospitality_date / donor / description / value
-// to ministers_hospitality.
+// structure as sync-ministers-meetings but targets hospitality CSVs.
 
-const DELAY_MS = 250;
+const DELAY_MS = 100;
+const TIME_BUDGET_MS = 240_000; // bail with ~60s headroom under the 300s cap
 const DEPT_SLUGS = ['cabinet-office'];
 const CUTOFF_ISO = '2024-07-04';
 const SEARCH = 'https://www.gov.uk/api/search.json';
 const CONTENT = 'https://www.gov.uk/api/content';
+const CRON_NAME = 'ministers-hospitality';
 
 const HEADER_MAP: Record<string, string[]> = {
   minister_name: ['minister', 'minister name', 'name of minister'],
@@ -261,14 +270,53 @@ export async function GET(req: Request) {
   }
   const supabase = createClient(url, key);
 
+  const startedAt = Date.now();
+  const budgetExhausted = () => Date.now() - startedAt > TIME_BUDGET_MS;
+
   try {
-    const allRows: Row[] = [];
-    const perDept: Record<string, number> = {};
+    // Load the seen-map for this cron so we can skip publications we've
+    // already processed (unless their public_timestamp has changed since,
+    // which means gov.uk edited the publication and we should re-ingest).
+    const { data: syncedRows } = await supabase
+      .from('synced_publications')
+      .select('publication_slug, public_timestamp')
+      .eq('cron_name', CRON_NAME);
+    const seen = new Map<string, string | null>(
+      (syncedRows || []).map((r) => [r.publication_slug as string, r.public_timestamp as string | null]),
+    );
+
+    const perDept: Record<string, { processed: number; skipped: number; rows_added: number }> = {};
+    let totalProcessed = 0;
+    let totalSkipped = 0;
+    let totalRowsAdded = 0;
+    let moreToProcess = false;
+
     for (const dept of DEPT_SLUGS) {
+      if (budgetExhausted()) {
+        moreToProcess = true;
+        break;
+      }
       const pubs = await findPublications(dept);
-      let deptCount = 0;
+      // Sort newest-first so each run delivers the most recent data first
+      // even if it bails before completing the historical tail.
+      pubs.sort((a, b) => String(b.public_timestamp || '').localeCompare(String(a.public_timestamp || '')));
+      const counters = { processed: 0, skipped: 0, rows_added: 0 };
+
       for (const pub of pubs) {
+        if (budgetExhausted()) {
+          moreToProcess = true;
+          break;
+        }
         const slug = pub.link.replace(/^.*\/publications\//, '');
+        const prevTs = seen.get(slug);
+        // Skip if we've seen this slug at this public_timestamp (gov.uk
+        // hasn't republished). Re-ingest if either flag is null (new) or
+        // the timestamp moved.
+        if (seen.has(slug) && prevTs === (pub.public_timestamp || null)) {
+          counters.skipped++;
+          continue;
+        }
+
         let atts: Attachment[];
         try {
           atts = await fetchAttachments(pub.link);
@@ -281,39 +329,64 @@ export async function GET(req: Request) {
             /hospitality/i.test(a.title || '') &&
             !/meetings|gifts|travel|expenses/i.test(a.title || ''),
         );
+
+        const rowsForPub: Row[] = [];
         for (const att of csvs) {
           const rows = await parseCsv(att, slug);
-          allRows.push(...rows);
-          deptCount += rows.length;
+          rowsForPub.push(...rows);
           await sleep(DELAY_MS);
         }
+
+        // Idempotent re-ingest: clear any prior rows tagged with this slug
+        // before inserting fresh ones. Old pre-incremental-era rows with
+        // NULL source_publication_slug are left in place (historical data).
+        await supabase.from('ministers_hospitality').delete().eq('source_publication_slug', slug);
+
+        if (rowsForPub.length > 0) {
+          const tagged = rowsForPub.map((r) => ({ ...r, source_publication_slug: slug }));
+          for (let i = 0; i < tagged.length; i += 100) {
+            const batch = tagged.slice(i, i + 100);
+            const { error } = await supabase.from('ministers_hospitality').insert(batch);
+            if (error) break;
+          }
+        }
+
+        await supabase.from('synced_publications').upsert(
+          {
+            publication_slug: slug,
+            cron_name: CRON_NAME,
+            dept_slug: dept,
+            public_timestamp: pub.public_timestamp || null,
+            row_count: rowsForPub.length,
+            synced_at: new Date().toISOString(),
+          },
+          { onConflict: 'cron_name,publication_slug' },
+        );
+
+        counters.processed++;
+        counters.rows_added += rowsForPub.length;
+        totalProcessed++;
+        totalRowsAdded += rowsForPub.length;
       }
-      perDept[dept] = deptCount;
-    }
 
-    if (allRows.length === 0) {
-      return NextResponse.json({ ok: true, parsed: 0, inserted: 0, note: 'no rows collected — table untouched', perDept });
-    }
-
-    await supabase.from('ministers_hospitality').delete().not('minister_name', 'is', null);
-
-    let inserted = 0;
-    for (let i = 0; i < allRows.length; i += 100) {
-      const batch = allRows.slice(i, i + 100);
-      const { error } = await supabase.from('ministers_hospitality').insert(batch);
-      if (error) break;
-      inserted += batch.length;
-      await sleep(DELAY_MS);
+      perDept[dept] = counters;
+      totalSkipped += counters.skipped;
     }
 
     return NextResponse.json({
       ok: true,
-      parsed: allRows.length,
-      inserted,
+      processed_publications: totalProcessed,
+      skipped_publications: totalSkipped,
+      rows_added: totalRowsAdded,
+      more_to_process: moreToProcess,
+      elapsed_ms: Date.now() - startedAt,
       perDept,
       syncedAt: new Date().toISOString(),
     });
   } catch (err) {
-    return NextResponse.json({ ok: false, error: (err as Error).message }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: (err as Error).message, elapsed_ms: Date.now() - startedAt },
+      { status: 500 },
+    );
   }
 }
