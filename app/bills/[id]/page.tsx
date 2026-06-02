@@ -183,17 +183,17 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
           );
         })()}
 
-        {/* See full bill — sends the reader to Parliament's canonical
-            bill page, which hosts the full text of the bill at every
-            stage, Explanatory Notes, and every related publication.
-            We use bills.parliament.uk/bills/{parliament_id}; that URL
-            exists for all 3,893 bills in the table. */}
+        {/* See full bill — internal page at /bills/{id}/full pulls the
+            full publications list (bill text, Explanatory Notes, Impact
+            Assessments, amendment papers etc.) from the Parliament Bills
+            API and renders it in our own template. Linked here rather
+            than out to bills.parliament.uk so the reader stays in our
+            shell. Visible for every bill in the table — universal
+            parliament_id coverage. */}
         {bill.parliament_id != null && (
           <div style={{ textAlign: 'center', margin: '0 auto 26px', maxWidth: '46em' }}>
             <a
-              href={`https://bills.parliament.uk/bills/${bill.parliament_id}`}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={`/bills/${billId}/full`}
               style={{
                 fontFamily: MONO,
                 fontSize: 'clamp(12px, 1.05vw, 13px)',
@@ -204,7 +204,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
                 textUnderlineOffset: '3px',
               }}
             >
-              See full bill on bills.parliament.uk →
+              See full bill →
             </a>
           </div>
         )}
