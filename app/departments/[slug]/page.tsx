@@ -65,10 +65,8 @@ export default async function DepartmentPage({ params }: PageProps) {
             aria-label="Department budget"
             style={{
               marginBottom: '5%',
-              padding: '20px 22px',
-              border: '1px solid rgba(20,16,13,0.25)',
+              padding: '4px 0 4px 18px',
               borderLeft: '4px solid #6b2417',
-              background: 'rgba(255,250,240,0.55)',
               maxWidth: '760px',
             }}
           >
