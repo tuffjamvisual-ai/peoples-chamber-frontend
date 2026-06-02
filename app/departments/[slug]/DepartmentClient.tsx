@@ -240,22 +240,48 @@ export default function DepartmentClient({ slug, govukData, streetContext, budge
           </section>
         )}
 
-        {/* Assessment (no heading — the old "Street View" label was removed as irrelevant).
-            Renders the Institutional Performance Report from
-            department_context.street_context as plain paragraphs.
-            No markdown translation — per the "always strip **" rule
-            (feedback_strip_bold_markdown in memory), bold runs are
-            removed at upsert time, not rendered. If `**` ever leaks
-            into this output it shows as literal asterisks, which is
-            the loud signal we want. */}
+        {/* Assessment (no heading — the old "Street View" label was removed
+            as irrelevant). Renders the Institutional Performance Report from
+            department_context.street_context.
+            - bullet lists ("- foo" lines) render as proper <ul><li> so the
+              leading hyphens disappear; the report style uses lots of these
+              under each numbered recommendation
+            - whiteSpace: pre-wrap inside paragraphs preserves the single
+              line breaks that exist between fields like "Cost: ..." /
+              "Current: ..." / "Result: ..." within the same logical chunk
+            - **bold** runs are stripped on upsert per
+              feedback_strip_bold_markdown rule; if any leak through they
+              render as literal asterisks (loud signal that the strip step
+              was skipped) */}
         <section className=" pb-8 mb-8">
           {((streetContext || dept.streetContext) ?? '')
             .split(/\n\n+/)
             .map((p) => p.trim())
             .filter(Boolean)
-            .map((para, idx) => (
-              <p key={idx} className="text-[#14100d] text-[16px] leading-[1.7] mb-3">{para}</p>
-            ))}
+            .map((para, idx) => {
+              // Replace leading "- " bullet hyphens with a real bullet
+              // character so the lists no longer read as a wall of
+              // hyphens. Matches the indented form too ("   - Cost: …"
+              // under numbered recommendations) without touching:
+              //   - em-dashes converted to hyphens mid-sentence (those
+              //     stay as ASCII hyphens, the visible bullet conversion
+              //     only fires at line start)
+              //   - number-range hyphens like "£5-7bn"
+              //   - compound-word hyphens like "long-term"
+              // Single newlines inside a chunk are preserved by
+              // whiteSpace: pre-wrap so the line breaks between
+              // Cost / Current / Result fields stay visible.
+              const withBullets = para.replace(/^(\s*)-\s+/gm, '$1• ');
+              return (
+                <p
+                  key={idx}
+                  className="text-[#14100d] text-[16px] leading-[1.7] mb-3"
+                  style={{ whiteSpace: 'pre-wrap' }}
+                >
+                  {withBullets}
+                </p>
+              );
+            })}
         </section>
 
         {/* Topic detail */}
