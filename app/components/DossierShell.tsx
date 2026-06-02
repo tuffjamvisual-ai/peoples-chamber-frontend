@@ -68,14 +68,18 @@ export default function DossierShell({
       <style>{`
         /* Folder placement: straight, off-centre on larger screens; centred on small
            screens. Built from 3 image slices (top/mid/bottom) so it stretches to any
-           height. -108% = -(1 - 0.30) * (1537/1023) — overlaps the masthead at ~30%,
-           down from 24% earlier in the session. User reported the folder side edge
-           sat too high on some pages; reducing the overlap pushes the whole folder
-           (and the visible edge graphic) ~7% of its own width lower on the page. */
+           height. Negative top margin pulls the folder up to overlap the masthead.
+           Iterated downward through the session as the user kept reporting the
+           side edge sat too high:
+             -114.2% original (24% overlap)
+             -108%   (30% overlap, dropped folder ~7% of width)
+             -95%    current — overlaps at ~37%, dropped another ~13%.
+           Each step trades masthead/folder visual connection against side-edge
+           clearance from text above it. */
         .pca-folder {
           position: relative;
           width: 95%;
-          margin: -108% 1.5% 0 3.5%;
+          margin: -95% 1.5% 0 3.5%;
           transform: none;
           font-family: 'Special Elite', monospace;
           color: #14100d;
