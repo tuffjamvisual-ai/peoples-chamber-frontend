@@ -156,6 +156,21 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
         ← Back to bill summary
       </a>
 
+      {/* Wrap the body in the same parchment <article> the bill summary
+          page uses so the full-bill page reads as a continuation of the
+          bill broadsheet, not as a separate folder. The bill-parchment
+          webp tile + warm cream background are identical to /bills/[id]. */}
+      <article
+        style={{
+          background: "#efe6d2 url('/bill-parchment.webp') center top / 100% auto repeat-y",
+          border: '1px solid rgba(26,20,14,0.3)',
+          boxShadow: '0 1px 0 rgba(26,20,14,0.05), 0 22px 44px -22px rgba(26,20,14,0.35)',
+          padding: 'clamp(28px, 4vw, 56px) clamp(24px, 4vw, 60px)',
+          color: '#1a140e',
+          fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
+        }}
+      >
+
       <header style={{ marginBottom: '32px' }}>
         <p style={{
           fontFamily: MONO, fontSize: '12px', letterSpacing: '0.3em',
@@ -273,6 +288,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
       }}>
         Source: Parliament Bills API · cached for 24 hours · <Link href={`/bills/${billId}`} style={{ color: INK_SOFT, textDecoration: 'underline' }}>back to summary</Link>
       </p>
+      </article>
     </DossierShell>
   )
 }
