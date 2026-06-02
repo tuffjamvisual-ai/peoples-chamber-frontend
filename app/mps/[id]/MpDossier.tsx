@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import MagazineProfileSections from './MagazineProfileSections';
 import DossierShell from '../../components/DossierShell';
+import BackLink from '../../components/BackLink';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 
 // An MP profile rendered into the shared dossier shell: the folder holds the MP's polaroid
@@ -41,14 +42,18 @@ export default function MpDossier({
         .pca-sections aside { margin-top: 48px; }
       `}</style>
 
-      {/* Back-to-party link above the header */}
-      <a
-        href={backHref}
+      {/* Back-to-party link above the header. Uses the shared BackLink
+          client component so it honours browser history (router.back())
+          and only falls through to the /mps?expand=<party> destination
+          if the user landed here directly. Previously this was a plain
+          <a> that always dumped the user on /mps regardless of where
+          they came from. */}
+      <BackLink
+        fallbackHref={backHref}
+        label="← Back"
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: '#14100d', textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
-      >
-        ← Back
-      </a>
+      />
 
       {/* Header: polaroid (flat frame) + name / constituency / party */}
       <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'flex-start', gap: '5%', marginBottom: '6%' }}>
