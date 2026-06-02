@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { departments } from '@/lib/departments';
 import { parties } from '@/lib/parties';
@@ -240,14 +240,22 @@ export default function DepartmentClient({ slug, govukData, streetContext, budge
           </section>
         )}
 
-        {/* Assessment (no heading — the old "Street View" label was removed as irrelevant) */}
+        {/* Assessment (no heading — the old "Street View" label was removed as irrelevant).
+            Renders the Institutional Performance Report from
+            department_context.street_context. Paragraphs split on blank
+            lines; within each paragraph `**bold**` markdown becomes a
+            <strong> run so the report's emphasis (Total additional
+            spending requested, the **Scenario** headers, etc.) survives
+            the upsert -> render path. */}
         <section className=" pb-8 mb-8">
           {((streetContext || dept.streetContext) ?? '')
             .split(/\n\n+/)
             .map((p) => p.trim())
             .filter(Boolean)
             .map((para, idx) => (
-              <p key={idx} className="text-[#14100d] text-[16px] leading-[1.7] mb-3">{para}</p>
+              <p key={idx} className="text-[#14100d] text-[16px] leading-[1.7] mb-3">
+                {renderBold(para)}
+              </p>
             ))}
         </section>
 
@@ -391,4 +399,20 @@ function StaffGroup({ label, people }: { label: string; people: { name: string; 
       </ul>
     </div>
   );
+}
+
+// Translates `**bold**` runs inside a paragraph into <strong> elements.
+// Used by the dept assessment renderer so the Institutional Performance
+// Report's emphasis (totals, scenario headers, etc.) renders properly.
+// Anything not wrapped in ** stays as plain text. Single * is ignored —
+// adding italic conversion later would mean disambiguating * (italic)
+// from ** (bold) which complicates parsing; kept narrow for now.
+function renderBold(text: string): React.ReactNode {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={i} className="text-[#14100d]">{part.slice(2, -2)}</strong>;
+    }
+    return part;
+  });
 }
