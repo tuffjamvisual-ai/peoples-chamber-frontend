@@ -183,6 +183,32 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
           );
         })()}
 
+        {/* See full bill — sends the reader to Parliament's canonical
+            bill page, which hosts the full text of the bill at every
+            stage, Explanatory Notes, and every related publication.
+            We use bills.parliament.uk/bills/{parliament_id}; that URL
+            exists for all 3,893 bills in the table. */}
+        {bill.parliament_id != null && (
+          <div style={{ textAlign: 'center', margin: '0 auto 26px', maxWidth: '46em' }}>
+            <a
+              href={`https://bills.parliament.uk/bills/${bill.parliament_id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                fontFamily: MONO,
+                fontSize: 'clamp(12px, 1.05vw, 13px)',
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                color: ACCENT,
+                textDecoration: 'underline',
+                textUnderlineOffset: '3px',
+              }}
+            >
+              See full bill on bills.parliament.uk →
+            </a>
+          </div>
+        )}
+
         {/* Presented by [Sponsor], supported by [supporters] — typewriter
             italic block, matching the printed Bill template. Supporters
             come from the live Parliament Bills API (most bills list only
