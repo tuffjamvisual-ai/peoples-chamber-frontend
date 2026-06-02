@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import { departments } from '@/lib/departments';
+import { DEPARTMENT_BUDGETS, fmtBn, totalSpend } from '@/lib/department-budgets';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 import DepartmentClient from './DepartmentClient';
 import DossierShell from '../../components/DossierShell';
@@ -53,6 +54,91 @@ export default async function DepartmentPage({ params }: PageProps) {
         <p style={{ fontSize: '16px', lineHeight: 1.7, maxWidth: '720px', marginBottom: '5%' }}>
           {dept.description}
         </p>
+
+        {/* Budget panel — under the description, above the rest of the
+            dossier. Pulled from lib/department-budgets.ts. Headline total
+            + the Resource/Capital/AME split + a paragraph explaining what
+            the money actually pays for. Only renders when we have budget
+            data for this slug. */}
+        {DEPARTMENT_BUDGETS[slug] && (
+          <section
+            aria-label="Department budget"
+            style={{
+              marginBottom: '5%',
+              padding: '20px 22px',
+              border: '1px solid rgba(20,16,13,0.25)',
+              borderLeft: '4px solid #6b2417',
+              background: 'rgba(255,250,240,0.55)',
+              maxWidth: '760px',
+            }}
+          >
+            <div
+              style={{
+                fontFamily: 'Special Elite, monospace',
+                fontSize: '11px',
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                opacity: 0.6,
+                marginBottom: '8px',
+              }}
+            >
+              Budget · {DEPARTMENT_BUDGETS[slug].year}
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'baseline',
+                gap: '18px',
+                flexWrap: 'wrap',
+                marginBottom: '10px',
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: 'Special Elite, monospace',
+                  fontSize: '30px',
+                  fontWeight: 'bold',
+                  color: '#6b2417',
+                  lineHeight: 1,
+                }}
+              >
+                {fmtBn(totalSpend(DEPARTMENT_BUDGETS[slug]))}
+              </div>
+              <div
+                style={{
+                  fontFamily: 'Special Elite, monospace',
+                  fontSize: '13px',
+                  opacity: 0.75,
+                }}
+              >
+                Resource DEL {fmtBn(DEPARTMENT_BUDGETS[slug].resourceDel)} · Capital DEL {fmtBn(DEPARTMENT_BUDGETS[slug].capitalDel)}
+                {DEPARTMENT_BUDGETS[slug].ame !== undefined && ` · AME ${fmtBn(DEPARTMENT_BUDGETS[slug].ame!)}`}
+              </div>
+            </div>
+            <p
+              style={{
+                fontFamily: 'Special Elite, monospace',
+                fontSize: '15px',
+                lineHeight: 1.65,
+                color: '#14100d',
+                margin: 0,
+              }}
+            >
+              {DEPARTMENT_BUDGETS[slug].prose}
+            </p>
+            <div
+              style={{
+                fontFamily: 'Special Elite, monospace',
+                fontSize: '11px',
+                opacity: 0.55,
+                marginTop: '12px',
+              }}
+            >
+              Source: HM Treasury Main Estimates {DEPARTMENT_BUDGETS[slug].year}
+            </div>
+          </section>
+        )}
+
         <Suspense fallback={<div style={{ minHeight: '300px' }} />}>
           <DepartmentClient
             slug={slug}
