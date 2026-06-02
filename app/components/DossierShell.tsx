@@ -189,8 +189,40 @@ export default function DossierShell({
               <div style={{ width: '100%', aspectRatio: '1023 / 157', backgroundImage: 'url(/folder-bottom.webp)', backgroundSize: '100% 100%', backgroundRepeat: 'no-repeat', marginTop: '-5%', WebkitMaskImage: 'linear-gradient(180deg, transparent 0%, #000 34%)', maskImage: 'linear-gradient(180deg, transparent 0%, #000 34%)' }} />
             </div>
 
-            {/* Content slot — whatever the page puts in the folder. */}
-            <div style={{ position: 'relative', zIndex: 1, padding: '10% 8% 6%' }}>
+            {/* Content slot — whatever the page puts in the folder.
+                Overflow protection lives here so every page benefits:
+                  overflowWrap/wordBreak  - long names, URLs, role titles
+                                            wrap rather than crash into
+                                            the folder edge.
+                  minWidth: 0            - flex/grid children stop refusing
+                                            to shrink below their content's
+                                            intrinsic width.
+                  maxWidth: 100%         - the wrapper itself cannot exceed
+                                            its parent (defensive).
+                The scoped <style> caps descendant images, tables, pre
+                blocks, and absolutely-positioned children so even raw
+                <img>/<table> dumped onto a page can't punch through the
+                safe area. Replaces the per-page overflow patches that
+                DepartmentClient previously carried alone. */}
+            <div
+              className="pca-folder-content"
+              style={{
+                position: 'relative',
+                zIndex: 1,
+                padding: '10% 8% 6%',
+                overflowWrap: 'anywhere',
+                wordBreak: 'break-word',
+                minWidth: 0,
+                maxWidth: '100%',
+              }}
+            >
+              <style>{`
+                .pca-folder-content img,
+                .pca-folder-content video,
+                .pca-folder-content iframe { max-width: 100%; height: auto; }
+                .pca-folder-content table { max-width: 100%; display: block; overflow-x: auto; }
+                .pca-folder-content pre { max-width: 100%; overflow-x: auto; white-space: pre-wrap; }
+              `}</style>
               {children}
             </div>
           </ExpandingFolder>
