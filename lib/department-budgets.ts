@@ -25,7 +25,7 @@ export const DEPARTMENT_BUDGETS: Record<string, DepartmentBudget> = {
   'work-pensions': {
     resourceDel: 9.8, capitalDel: 1.0, ame: 297.0, year: '2025/26',
     prose:
-      "The largest spender in government by a wide margin, and almost all of it is AME — demand-led benefit spending that moves with caseload rather than policy alone. The £297 billion AME envelope covers the State Pension, Pension Credit, Universal Credit, Personal Independence Payment, child benefit, statutory sick pay, housing benefit, attendance allowance, carer's allowance and the rest of working age and disability benefits. The £10 billion DEL line covers DWP's own administration, the Jobcentre Plus network and discretionary employment programmes.",
+      "The largest spender in government by a wide margin, and almost all of it is AME, demand led benefit spending that moves with caseload rather than policy alone. The £297 billion AME envelope covers the State Pension, Pension Credit, Universal Credit, Personal Independence Payment, child benefit, statutory sick pay, housing benefit, attendance allowance, carer's allowance and the rest of working age and disability benefits. The £10 billion DEL line covers DWP's own administration, the Jobcentre Plus network and discretionary employment programmes.",
   },
   health: {
     resourceDel: 198.5, capitalDel: 15.0, year: '2025/26',
@@ -35,12 +35,12 @@ export const DEPARTMENT_BUDGETS: Record<string, DepartmentBudget> = {
   education: {
     resourceDel: 100.6, capitalDel: 6.8, year: '2025/26',
     prose:
-      "Schools, sixth forms, further education colleges, apprenticeships, early years (the so called free hours), tuition fee support and the student loan book including the RAB charge — the portion of student loans expected never to be repaid, accounted for as resource spending up front. The 10.7% drop in Resource DEL between 2024/25 and 2025/26 is driven entirely by a £17.9 billion reduction in the RAB charge, not by an underlying cut to schools funding.",
+      "Schools, sixth forms, further education colleges, apprenticeships, early years (the so called free hours), tuition fee support and the student loan book including the RAB charge, the portion of student loans expected never to be repaid, accounted for as resource spending up front. The 10.7% drop in Resource DEL between 2024/25 and 2025/26 is driven entirely by a £17.9 billion reduction in the RAB charge, not by an underlying cut to schools funding.",
   },
   defence: {
     resourceDel: 47.4, capitalDel: 23.1, year: '2025/26',
     prose:
-      "Armed forces personnel and equipment, MOD operations, the AUKUS submarine programme, the Trident nuclear deterrent and military, financial and intelligence support to Ukraine. The unusually high Capital DEL share — about a third of the total — reflects the equipment programme, particularly Dreadnought, F-35, the Type 26 frigate programme and the British Army's Ajax. Set to rise sharply through the parliament as the 2.5% of GDP commitment comes forward to 2027.",
+      "Armed forces personnel and equipment, MOD operations, the AUKUS submarine programme, the Trident nuclear deterrent and military, financial and intelligence support to Ukraine. The unusually high Capital DEL share, about a third of the total, reflects the equipment programme, particularly Dreadnought, F-35, the Type 26 frigate programme and the British Army's Ajax. Set to rise sharply through the parliament as the 2.5% of GDP commitment comes forward to 2027.",
   },
   transport: {
     resourceDel: 20.4, capitalDel: 10.0, year: '2025/26',
@@ -55,7 +55,7 @@ export const DEPARTMENT_BUDGETS: Record<string, DepartmentBudget> = {
   'home-office': {
     resourceDel: 19.7, capitalDel: 1.5, year: '2025/26',
     prose:
-      "Police funding, immigration enforcement, asylum and asylum accommodation, counter terrorism, the Border Security Command, passports and the security and intelligence agencies. The asylum accommodation overspend was the largest source of in-year pressure through 2024/25 and remains the single biggest political risk inside this budget.",
+      "Police funding, immigration enforcement, asylum and asylum accommodation, counter terrorism, the Border Security Command, passports and the security and intelligence agencies. The asylum accommodation overspend was the largest source of in year pressure through 2024/25 and remains the single biggest political risk inside this budget.",
   },
   energy: {
     resourceDel: 8.0, capitalDel: 10.0, year: '2025/26',
@@ -90,17 +90,17 @@ export const DEPARTMENT_BUDGETS: Record<string, DepartmentBudget> = {
   'business-trade': {
     resourceDel: 1.8, capitalDel: 1.0, year: '2025/26',
     prose:
-      "Industrial strategy, trade policy and trade negotiations, business support schemes, the Post Office, the Insolvency Service and sectoral subsidies for steel, automotive and semiconductors. The £2.5 billion British Steel arrangement in 2025/26 sits inside this line. Smaller than its political weight suggests because most of the levers it pulls — R&D, energy, planning — are owned by other departments.",
+      "Industrial strategy, trade policy and trade negotiations, business support schemes, the Post Office, the Insolvency Service and sectoral subsidies for steel, automotive and semiconductors. The £2.5 billion British Steel arrangement in 2025/26 sits inside this line. Smaller than its political weight suggests because most of the levers it pulls, R&D, energy and planning, are owned by other departments.",
   },
   'cabinet-office': {
     resourceDel: 1.1, capitalDel: 0.4, year: '2025/26',
     prose:
-      "Central coordination of government, the National Security Secretariat, the propriety and ethics function, the Civil Service People Group, the Office for Veterans' Affairs, the Government Communication Service, the Geospatial Commission and the Crown Commercial Service. Effectively the Prime Minister's department for cross-government delivery, even though the Prime Minister's Office is technically a separate ministerial line.",
+      "Central coordination of government, the National Security Secretariat, the propriety and ethics function, the Civil Service People Group, the Office for Veterans' Affairs, the Government Communication Service, the Geospatial Commission and the Crown Commercial Service. Effectively the Prime Minister's department for cross government delivery, even though the Prime Minister's Office is technically a separate ministerial line.",
   },
   treasury: {
     resourceDel: 0.43, capitalDel: 0.1, year: '2025/26',
     prose:
-      "Treasury's own running costs — the staff, the policy teams, the Debt Management Office, the Government Internal Audit Agency. £433 million for the department that decides where most of the rest of the budget goes. The £1.3 trillion of total managed expenditure is allocated by Treasury but spent by everyone else. Net debt interest of around £100 billion sits against the consolidated fund and is managed by HMT but does not count as departmental spending.",
+      "Treasury's own running costs: the staff, the policy teams, the Debt Management Office, the Government Internal Audit Agency. £433 million for the department that decides where most of the rest of the budget goes. The £1.3 trillion of total managed expenditure is allocated by Treasury but spent by everyone else. Net debt interest of around £100 billion sits against the consolidated fund and is managed by HMT but does not count as departmental spending.",
   },
   'northern-ireland-office': {
     resourceDel: 0.064, capitalDel: 0, year: '2025/26',
@@ -110,7 +110,7 @@ export const DEPARTMENT_BUDGETS: Record<string, DepartmentBudget> = {
   'scotland-office': {
     resourceDel: 0.016, capitalDel: 0, year: '2025/26',
     prose:
-      "The UK government's interface with Holyrood. £16 million for staff and office costs. The Scottish Government itself receives a separate block grant of £29.9 billion. The Office of the Advocate General for Scotland (the UK government's law officer for Scots law) has a tiny separate budget — see advocate-general.",
+      "The UK government's interface with Holyrood. £16 million for staff and office costs. The Scottish Government itself receives a separate block grant of £29.9 billion. The Office of the Advocate General for Scotland (the UK government's law officer for Scots law) has a tiny separate budget; see advocate-general.",
   },
   'wales-office': {
     resourceDel: 0.007, capitalDel: 0, year: '2025/26',
@@ -135,7 +135,7 @@ export const DEPARTMENT_BUDGETS: Record<string, DepartmentBudget> = {
   'lords-leader': {
     resourceDel: 0.005, capitalDel: 0, year: '2025/26',
     prose:
-      "The Office of the Leader of the House of Lords. Around £5 million for an equivalent function to the Commons Leader — coordinating government business and managing the Lords procedural relationship between government and the Upper House.",
+      "The Office of the Leader of the House of Lords. Around £5 million for an equivalent function to the Commons Leader: coordinating government business and managing the Lords procedural relationship between government and the Upper House.",
   },
   ukef: {
     resourceDel: 0.1, capitalDel: 0, year: '2025/26',
