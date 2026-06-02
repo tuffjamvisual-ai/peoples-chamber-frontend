@@ -62,6 +62,30 @@ type ApiPublication = {
   links?: ApiLink[]
   files?: ApiFile[]
 }
+type ApiSponsor = {
+  member?: {
+    memberId?: number
+    name?: string
+    party?: string
+    partyColour?: string
+    memberFrom?: string
+  }
+  organisation?: { name?: string } | null
+  sortOrder?: number
+}
+type ApiBill = {
+  shortTitle?: string
+  longTitle?: string | null
+  summary?: string | null
+  sponsors?: ApiSponsor[]
+  originatingHouse?: string
+  currentHouse?: string
+  isAct?: boolean
+  billWithdrawn?: string | null
+  isDefeated?: boolean
+  currentStage?: { description?: string; house?: string }
+  lastUpdate?: string
+}
 
 function pickUrl(p: ApiPublication): string | null {
   const link = p.links?.find((l) => !!l.url)
@@ -99,21 +123,30 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
     .single()
   if (!bill || bill.parliament_id == null) notFound()
 
-  // Live API call, cached for 24 h by both the data fetch (next.revalidate)
-  // and the route render (export const revalidate). Big bills can carry
-  // 250+ publications; this single call returns them all in one shot.
+  // Two parallel live API calls, cached for 24 h. We need BOTH:
+  //   - /Bills/{id}         -> longTitle (the rich "A Bill to..." formal
+  //                            description), sponsor list, current stage.
+  //                            Populated for almost every active bill.
+  //   - /Bills/{id}/Publications -> bill text PDFs, Explanatory Notes,
+  //                            amendment papers, impact assessments.
+  //                            EMPTY for ~46% of bills (old PMBs, money
+  //                            bills, withdrawn bills) so we can't rely
+  //                            on this alone to fill the page.
   let publications: ApiPublication[] = []
+  let billMeta: ApiBill | null = null
   let apiError: string | null = null
+  const headers = { headers: { Accept: 'application/json' }, next: { revalidate: 86400 } }
   try {
-    const res = await fetch(
-      `https://bills-api.parliament.uk/api/v1/Bills/${bill.parliament_id}/Publications`,
-      { next: { revalidate: 86400 } },
-    )
-    if (res.ok) {
-      const json = (await res.json()) as { publications?: ApiPublication[] }
+    const [metaRes, pubRes] = await Promise.all([
+      fetch(`https://bills-api.parliament.uk/api/v1/Bills/${bill.parliament_id}`, headers),
+      fetch(`https://bills-api.parliament.uk/api/v1/Bills/${bill.parliament_id}/Publications`, headers),
+    ])
+    if (metaRes.ok) billMeta = (await metaRes.json()) as ApiBill
+    if (pubRes.ok) {
+      const json = (await pubRes.json()) as { publications?: ApiPublication[] }
       publications = json.publications || []
-    } else {
-      apiError = `Parliament API returned HTTP ${res.status}.`
+    } else if (!metaRes.ok) {
+      apiError = `Parliament API returned HTTP ${pubRes.status}.`
     }
   } catch (e) {
     apiError = `Could not reach the Parliament Bills API: ${(e as Error).message}.`
@@ -213,13 +246,90 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
         </div>
       )}
 
+      {/* Formal "A Bill to..." preamble from /Bills/{id}.longTitle —
+          this IS the bill's official description. Rich for almost
+          every active bill (171-720 chars), null for some very old
+          PMBs. When present, it sits above the publications list. */}
+      {billMeta?.longTitle && (
+        <section style={{ marginBottom: '36px' }}>
+          <h2 style={{
+            fontFamily: MONO, fontSize: '11px', textTransform: 'uppercase',
+            letterSpacing: '0.22em', fontWeight: 'bold', color: ACCENT,
+            marginBottom: '12px', borderBottom: `1px solid ${INK_HAIRLINE}`,
+            paddingBottom: '8px',
+          }}>
+            Long title · Parliament’s official description
+          </h2>
+          <p style={{
+            fontFamily: SERIF, fontSize: 'clamp(15px, 1.2vw, 17px)',
+            lineHeight: 1.7, color: INK, maxWidth: '46em',
+          }}>
+            {billMeta.longTitle}
+          </p>
+        </section>
+      )}
+
+      {/* Sponsor list from /Bills/{id}.sponsors. Lots of bills carry a
+          single MP sponsor; PMBs sometimes have several. */}
+      {billMeta?.sponsors && billMeta.sponsors.length > 0 && (
+        <section style={{ marginBottom: '36px' }}>
+          <h2 style={{
+            fontFamily: MONO, fontSize: '11px', textTransform: 'uppercase',
+            letterSpacing: '0.22em', fontWeight: 'bold', color: ACCENT,
+            marginBottom: '12px', borderBottom: `1px solid ${INK_HAIRLINE}`,
+            paddingBottom: '8px',
+          }}>
+            Sponsors <span style={{ color: INK_SOFT, fontWeight: 'normal' }}>· {billMeta.sponsors.length}</span>
+          </h2>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {billMeta.sponsors.map((s, i) => {
+              const name = s.member?.name || s.organisation?.name || '(unnamed)'
+              const party = s.member?.party
+              const from = s.member?.memberFrom
+              const colour = s.member?.partyColour ? `#${s.member.partyColour.replace('#', '')}` : null
+              return (
+                <li key={i} style={{ display: 'flex', alignItems: 'baseline', gap: '12px', flexWrap: 'wrap' }}>
+                  <span style={{ fontFamily: SERIF, fontSize: '15px', fontWeight: 'bold', color: INK }}>{name}</span>
+                  {party && (
+                    <span style={{ fontFamily: MONO, fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '1px 7px', color: '#ebe5d8', background: colour || '#7697a2' }}>
+                      {party}
+                    </span>
+                  )}
+                  {from && <span style={{ fontFamily: SERIF, fontSize: '13px', color: INK_SOFT }}>{from}</span>}
+                </li>
+              )
+            })}
+          </ul>
+        </section>
+      )}
+
       {!apiError && publications.length === 0 && (
-        <p style={{
-          fontFamily: MONO, fontSize: '14px', fontStyle: 'italic',
-          color: INK_SOFT, marginBottom: '32px',
-        }}>
-          No publications listed for this bill yet.
-        </p>
+        <section style={{ marginBottom: '36px' }}>
+          <h2 style={{
+            fontFamily: MONO, fontSize: '11px', textTransform: 'uppercase',
+            letterSpacing: '0.22em', fontWeight: 'bold', color: ACCENT,
+            marginBottom: '12px', borderBottom: `1px solid ${INK_HAIRLINE}`,
+            paddingBottom: '8px',
+          }}>
+            Publications
+          </h2>
+          <p style={{
+            fontFamily: SERIF, fontSize: '15px', lineHeight: 1.6,
+            color: INK_SOFT, maxWidth: '46em',
+          }}>
+            Parliament has not published documents for this bill. That’s common for older
+            Private Members’ Bills that never reached committee, money bills, and bills
+            withdrawn before debate. Try{' '}
+            <a
+              href={`https://bills.parliament.uk/bills/${bill.parliament_id}`}
+              target="_blank" rel="noopener noreferrer"
+              style={{ color: ACCENT, textDecoration: 'underline' }}
+            >
+              bills.parliament.uk
+            </a>{' '}
+            for the bill’s public record.
+          </p>
+        </section>
       )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
