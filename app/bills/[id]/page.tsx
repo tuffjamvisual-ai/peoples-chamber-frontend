@@ -275,9 +275,10 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
                 : bill.is_defeated ? 'Defeated'
                 : 'Not yet divided'
               const noVoteHelper =
-                bill.is_act
-                  ? 'No division called — Third Reading carried on the voices.'
-                  : ''
+                bill.is_act ? 'No division called — Third Reading carried on the voices.'
+                : bill.bill_withdrawn ? 'Bill was withdrawn before a Commons vote.'
+                : bill.is_defeated ? 'Bill defeated before reaching a Commons division.'
+                : 'MPs have not voted on this bill yet.'
               return (
                 <VoteBar
                   label="MPs' vote"
@@ -451,19 +452,22 @@ function VoteBar({
         <span>{label}</span>
         <span>{totalLabel}</span>
       </div>
+      {/* Empty bar still renders so the layout is consistent between
+          bills MPs haven't voted on and bills they have — keeps the
+          eye anchored on the same horizontal rail down the page. */}
+      <div style={{ height: '10px', background: CREAM_DEEP, display: 'flex', border: `1px solid ${INK_HAIRLINE}`, overflow: 'hidden' }} aria-hidden>
+        {!empty && yesPct > 0 && <div style={{ width: `${yesPct}%`, background: SUCCESS, opacity: muted ? 0.7 : 1 }} />}
+        {!empty && noPct > 0 && <div style={{ width: `${noPct}%`, background: DANGER, opacity: muted ? 0.7 : 1 }} />}
+      </div>
       {empty ? (
-        emptyText ? <div style={{ fontFamily: MONO, fontSize: '12px', fontStyle: 'italic', color: INK_SOFT }}>{emptyText}</div> : null
+        <div style={{ marginTop: '6px', fontFamily: MONO, fontSize: '12px', fontStyle: 'italic', color: INK_SOFT, textAlign: 'center' }}>
+          {emptyText || 'Not voted yet.'}
+        </div>
       ) : (
-        <>
-          <div style={{ height: '10px', background: CREAM_DEEP, display: 'flex', border: `1px solid ${INK_HAIRLINE}`, overflow: 'hidden' }} aria-hidden>
-            {yesPct > 0 && <div style={{ width: `${yesPct}%`, background: SUCCESS, opacity: muted ? 0.7 : 1 }} />}
-            {noPct > 0 && <div style={{ width: `${noPct}%`, background: DANGER, opacity: muted ? 0.7 : 1 }} />}
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px', fontFamily: SERIF, fontSize: '14px' }}>
-            <span style={{ color: SUCCESS, fontWeight: 'bold' }}>{yesText}</span>
-            <span style={{ color: DANGER, fontWeight: 'bold' }}>{noText}</span>
-          </div>
-        </>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px', fontFamily: SERIF, fontSize: '14px' }}>
+          <span style={{ color: SUCCESS, fontWeight: 'bold' }}>{yesText}</span>
+          <span style={{ color: DANGER, fontWeight: 'bold' }}>{noText}</span>
+        </div>
       )}
     </div>
   )
