@@ -124,16 +124,6 @@ export default async function DepartmentPage({ params }: PageProps) {
             >
               {DEPARTMENT_BUDGETS[slug].prose}
             </p>
-            <div
-              style={{
-                fontFamily: 'Special Elite, monospace',
-                fontSize: '11px',
-                opacity: 0.55,
-                marginTop: '12px',
-              }}
-            >
-              Source: HM Treasury Main Estimates {DEPARTMENT_BUDGETS[slug].year}
-            </div>
           </section>
         )}
 

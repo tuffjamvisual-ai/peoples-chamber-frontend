@@ -264,9 +264,6 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
                       )}
                     </div>
                   )}
-                  <div style={{ fontSize: '13px', opacity: 0.7, marginTop: '6px', fontStyle: 'italic' }}>
-                    Source: gov.uk organogram (quarterly Senior Civil Service pay disclosure)
-                  </div>
                 </div>
               ) : salary.scsBand ? (
                 <div>
@@ -333,22 +330,6 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
                 </p>
               )}
 
-              {(finance.ministerial_source_url || finance.expenses_source_url) && (
-                <p style={{ fontSize: '13px' }}>
-                  Source:{' '}
-                  {finance.ministerial_source_url && (
-                    <a href={finance.ministerial_source_url} target="_blank" rel="noopener noreferrer" style={{ color: '#7a1612', textDecoration: 'underline' }}>
-                      ministerial salary disclosure
-                    </a>
-                  )}
-                  {finance.ministerial_source_url && finance.expenses_source_url && ' · '}
-                  {finance.expenses_source_url && (
-                    <a href={finance.expenses_source_url} target="_blank" rel="noopener noreferrer" style={{ color: '#7a1612', textDecoration: 'underline' }}>
-                      expenses disclosure
-                    </a>
-                  )}
-                </p>
-              )}
             </div>
           </>
         )}

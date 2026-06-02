@@ -7,7 +7,7 @@ import DossierShell from '../components/DossierShell';
 export const metadata: Metadata = {
   title: 'Top Spenders',
   description:
-    'The 10 MPs with the highest business costs in 2024–25, sourced from IPSA total-spend data.',
+    'The 10 MPs with the highest business costs in 2024–25.',
   alternates: { canonical: '/expenses' },
 };
 
@@ -126,16 +126,6 @@ export default async function ExpensesPage() {
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', marginBottom: '20px' }}>
           Ranked by total business costs claimed across staffing, office, accommodation, travel and other categories.
-          Source:{' '}
-          <a
-            href="https://www.theipsa.org.uk"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: ACCENT, textDecoration: 'underline' }}
-          >
-            IPSA total-spend data
-          </a>
-          .
         </p>
 
         <div

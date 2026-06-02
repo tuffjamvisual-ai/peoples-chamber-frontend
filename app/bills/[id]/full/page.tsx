@@ -396,7 +396,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
         marginTop: '40px', paddingTop: '20px', borderTop: `1px solid ${INK_HAIRLINE}`,
         textAlign: 'center',
       }}>
-        Source: Parliament Bills API · cached for 24 hours · <Link href={`/bills/${billId}`} style={{ color: INK_SOFT, textDecoration: 'underline' }}>back to summary</Link>
+        <Link href={`/bills/${billId}`} style={{ color: INK_SOFT, textDecoration: 'underline' }}>← back to summary</Link>
       </p>
       </article>
     </DossierShell>

@@ -19,7 +19,7 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: 'Your Tax Pound — Where £1 Goes | The People’s Chamber',
   description:
-    'Every pound of UK government spending broken down — NHS, pensions, welfare, education, debt interest, defence and the rest — with a paragraph explaining what each line actually buys. Source: HM Treasury PESA 2022/23.',
+    'Every pound of UK government spending broken down — NHS, pensions, welfare, education, debt interest, defence and the rest — with a paragraph explaining what each line actually buys.',
   alternates: { canonical: '/your-tax-pound' },
 };
 
@@ -170,8 +170,7 @@ export default function YourTaxPoundPage() {
           For every £1 the UK government spends, this is where it goes. Twelve lines — eleven named categories
           covering most domestic policy, plus a real Other bucket of around 24p that catches government administration,
           business support, environment, culture, agriculture, contingency reserves and the parts of the budget that
-          rarely make headlines. Pence figures rounded; exact share shown alongside each line. Source: HM Treasury
-          public expenditure data for 2022/23.
+          rarely make headlines. Pence figures rounded; exact share shown alongside each line.
         </p>
       </header>
 

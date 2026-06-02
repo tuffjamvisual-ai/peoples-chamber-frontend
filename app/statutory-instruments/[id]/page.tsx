@@ -131,11 +131,8 @@ export default async function SIDetailPage({ params }: { params: Promise<{ id: s
 
       <section style={{ marginBottom: '40px' }}>
         <h2 style={sectionH2}>How MPs voted</h2>
-        <p style={{ fontSize: '13px', opacity: 0.7, marginTop: '8px', marginBottom: '24px' }}>
-          Source: Commons Votes API · division {si.division_id}
-        </p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px', marginTop: '24px' }}>
           <VoteColumn heading={`Voted AYE (${ayes.length})`} rows={ayes} accent={SUCCESS} />
           <VoteColumn heading={`Voted NO (${noes.length})`} rows={noes} accent={DANGER} />
         </div>

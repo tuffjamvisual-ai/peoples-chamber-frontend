@@ -152,9 +152,8 @@ export default async function EarningsPage() {
           2010-frozen levels (PM £{MINISTERIAL_SUPPLEMENT.pm.toLocaleString()} claimed of £80,807 entitlement,
           Cabinet Minister £{MINISTERIAL_SUPPLEMENT.sos.toLocaleString()},
           Minister of State £{MINISTERIAL_SUPPLEMENT.minister_of_state.toLocaleString()},
-          Parliamentary Under-Secretary £{MINISTERIAL_SUPPLEMENT.puss.toLocaleString()}). Source: House of
-          Commons Library briefing CBP-10600. An MP holding two ministerial posts is only paid the highest
-          single band.
+          Parliamentary Under-Secretary £{MINISTERIAL_SUPPLEMENT.puss.toLocaleString()}). An MP holding two
+          ministerial posts is only paid the highest single band.
         </p>
         <p>
           <strong className="text-[#14100d]">Outside earnings</strong>: extracted by regex from the

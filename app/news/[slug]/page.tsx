@@ -112,12 +112,6 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
           </p>
         )}
 
-        <footer
-          className="mt-10 pt-5 text-[11px] uppercase tracking-[0.2em] text-[#14100d]/55"
-          style={{ borderTop: `1px solid rgba(20,16,13,0.2)` }}
-        >
-          Source: GOV.UK · {release.organisation || 'UK Government'}
-        </footer>
       </article>
     </DossierShell>
   )
