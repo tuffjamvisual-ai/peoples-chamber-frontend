@@ -258,30 +258,21 @@ export default function DepartmentClient({ slug, govukData, streetContext, budge
             .split(/\n\n+/)
             .map((p) => p.trim())
             .filter(Boolean)
-            .map((para, idx) => {
-              // Replace leading "- " bullet hyphens with a real bullet
-              // character so the lists no longer read as a wall of
-              // hyphens. Matches the indented form too ("   - Cost: …"
-              // under numbered recommendations) without touching:
-              //   - em-dashes converted to hyphens mid-sentence (those
-              //     stay as ASCII hyphens, the visible bullet conversion
-              //     only fires at line start)
-              //   - number-range hyphens like "£5-7bn"
-              //   - compound-word hyphens like "long-term"
-              // Single newlines inside a chunk are preserved by
-              // whiteSpace: pre-wrap so the line breaks between
-              // Cost / Current / Result fields stay visible.
-              const withBullets = para.replace(/^(\s*)-\s+/gm, '$1• ');
-              return (
-                <p
-                  key={idx}
-                  className="text-[#14100d] text-[16px] leading-[1.7] mb-3"
-                  style={{ whiteSpace: 'pre-wrap' }}
-                >
-                  {withBullets}
-                </p>
-              );
-            })}
+            .map((para, idx) => (
+              // Plain paragraph render. The DB no longer carries leading
+              // bullet hyphens — they were stripped in a one-off sweep on
+              // 2026-06-02 and are stripped on every future upsert, so
+              // there is nothing to convert here. Single newlines inside
+              // a chunk are preserved via pre-wrap so the line breaks
+              // between Cost / Current / Result fields stay visible.
+              <p
+                key={idx}
+                className="text-[#14100d] text-[16px] leading-[1.7] mb-3"
+                style={{ whiteSpace: 'pre-wrap' }}
+              >
+                {para}
+              </p>
+            ))}
         </section>
 
         {/* Topic detail */}
