@@ -258,20 +258,43 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
               empty={totalVotes === 0}
             />
 
-            <VoteBar
-              label="MPs' vote"
-              totalLabel={
-                totalMPVotes > 0
-                  ? `${totalMPVotes.toLocaleString()} MPs`
-                  : 'not yet divided'
-              }
-              yesPct={mpAyePercent}
-              noPct={mpNoePercent}
-              yesText={`${mpAyePercent}% Ayes · ${(bill.commons_ayes || 0).toLocaleString()}`}
-              noText={`${mpNoePercent}% Noes · ${(bill.commons_noes || 0).toLocaleString()}`}
-              empty={totalMPVotes === 0}
-              emptyText=""
-            />
+            {(() => {
+              // For 0/0 bills the Commons Votes API holds no division record.
+              // That can mean three different things and the label should say
+              // which: (a) the bill is still going through Parliament and no
+              // division has happened yet, (b) the bill became an Act without
+              // a division — the Speaker collected the voices and the Ayes had
+              // it (every uncontested Supply, Appropriation, Lords-Spiritual
+              // (Women), Norwich Livestock Market, Property (Digital Assets)
+              // etc. falls into this bucket), or (c) the bill was withdrawn /
+              // defeated. Showing the same "not yet divided" text for all
+              // three was misleading for Acts that already passed.
+              const noVoteLabel =
+                bill.is_act ? 'Passed without division'
+                : bill.bill_withdrawn ? 'Bill withdrawn'
+                : bill.is_defeated ? 'Defeated'
+                : 'Not yet divided'
+              const noVoteHelper =
+                bill.is_act
+                  ? 'No division called — Third Reading carried on the voices.'
+                  : ''
+              return (
+                <VoteBar
+                  label="MPs' vote"
+                  totalLabel={
+                    totalMPVotes > 0
+                      ? `${totalMPVotes.toLocaleString()} MPs`
+                      : noVoteLabel
+                  }
+                  yesPct={mpAyePercent}
+                  noPct={mpNoePercent}
+                  yesText={`${mpAyePercent}% Ayes · ${(bill.commons_ayes || 0).toLocaleString()}`}
+                  noText={`${mpNoePercent}% Noes · ${(bill.commons_noes || 0).toLocaleString()}`}
+                  empty={totalMPVotes === 0}
+                  emptyText={noVoteHelper}
+                />
+              )
+            })()}
 
             {democraticGap !== null && (
               <div style={{ borderLeft: `3px solid ${outcomeMismatch ? WARN : ACCENT}`, padding: '12px 18px', background: CREAM_DEEP }}>
