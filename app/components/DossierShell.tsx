@@ -66,20 +66,18 @@ export default function DossierShell({
   return (
     <>
       <style>{`
-        /* Folder placement: straight, off-centre on larger screens; centred on small
-           screens. Built from 3 image slices (top/mid/bottom) so it stretches to any
-           height. -114.2% = -(1 - 0.24) * (1537/1023) — overlaps the masthead at ~24%
-           so the folder hugs the nav bar tightly. Briefly bumped down to -108% then
-           -95% earlier in the session in response to a side-edge-too-high report,
-           but those values created an obvious gap between the masthead and folder
-           top on every page including the landing page; reverted to the design
-           value. If side-edge clearance becomes the issue again the right fix is
-           extra horizontal padding inside the folder content (DossierShell adds
-           11% on each side already), not moving the whole folder. */
+        /* Folder placement: centred horizontally on all screen sizes. Built from
+           3 image slices (top/mid/bottom) so it stretches to any height. -114.2%
+           top margin = -(1 - 0.24) * (1537/1023) — overlaps the masthead at ~24%
+           so the folder hugs the nav bar tightly.
+           Horizontal: was 1.5% right / 3.5% left for an intentional off-centre
+           bias toward the right side. User flagged the left whitespace as too
+           heavy; centred to 2.5% each side on 2026-06-02. The folder is now
+           visually balanced left and right at 95% width. */
         .pca-folder {
           position: relative;
           width: 95%;
-          margin: -114.2% 1.5% 0 3.5%;
+          margin: -114.2% 2.5% 0 2.5%;
           transform: none;
           font-family: 'Special Elite', monospace;
           color: #14100d;
