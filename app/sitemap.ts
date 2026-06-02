@@ -41,9 +41,9 @@ async function fetchAllRows<T>(
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
+  // 'lobbyists' removed 2026-06-02 — see app/transparency/page.tsx.
   const transparencySections = [
     'ministers-meetings',
-    'lobbyists',
     'appgs',
     'hospitality',
     'revolving-door',

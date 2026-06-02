@@ -10,9 +10,11 @@ export const revalidate = 3600
 const ACCENT = '#6b2417'
 const PAGE_LIMIT = 100   // rows per page
 
+// 'lobbyists' slug removed 2026-06-02 — see comment in app/transparency/page.tsx.
+// Hitting /transparency/lobbyists now returns 404 via the !config guard in
+// generateMetadata + the page body.
 const SECTIONS: Record<string, { title: string; table: string; orderBy?: string }> = {
   'ministers-meetings': { title: "Ministers' Meetings", table: 'ministers_meetings', orderBy: 'meeting_date' },
-  'lobbyists':          { title: 'Lobbyist Register', table: 'lobbyist_register' },
   'appgs':              { title: 'All Party Parliamentary Groups', table: 'appg_register' },
   'hospitality':        { title: "Ministers' Hospitality", table: 'ministers_hospitality', orderBy: 'hospitality_date' },
   'revolving-door':     { title: 'Revolving Door', table: 'revolving_door', orderBy: 'approval_date' },

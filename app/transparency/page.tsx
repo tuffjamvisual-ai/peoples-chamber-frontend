@@ -13,9 +13,13 @@ export const metadata: Metadata = {
 
 const INK = '#14100d'
 
+// Lobbyist Register section removed 2026-06-02. The statutory UK Register of
+// Consultant Lobbyists (1,251 rows still in the lobbyist_register table) only
+// covers consultant lobbyists, not the much larger in-house lobbying universe,
+// and the underlying disclosure is too thin to be journalistically useful.
+// Hidden until a better source can be identified. DB data preserved.
 const SECTIONS = [
   { slug: 'ministers-meetings', title: "Ministers' Meetings", description: 'Records of meetings ministers have held with external organisations and lobbyists, published quarterly under GOV.UK transparency releases.' },
-  { slug: 'lobbyists',          title: 'Lobbyist Register',                description: 'The statutory register of consultant lobbyists who engage ministers and permanent secretaries on behalf of clients.' },
   { slug: 'appgs',              title: 'All Party Parliamentary Groups',   description: 'Cross party informal interest groups in Parliament, the funding they receive, and the secretariat support behind them.' },
   { slug: 'hospitality',        title: "Ministers' Hospitality",           description: 'Gifts, hospitality and overseas travel accepted by ministers, published quarterly by every department.' },
   { slug: 'revolving-door',     title: 'Revolving Door',                   description: 'Senior officials and ministers taking up post government roles, including ACOBA recommendations and conditions attached.' },
@@ -45,7 +49,7 @@ export default function TransparencyHubPage() {
           Transparency Hub
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
-          Eight datasets covering how ministers, MPs, lobbyists, donors, contractors and former officials interact with the UK state. Each section links to a searchable list of the underlying records.
+          Seven datasets covering how ministers, MPs, donors, contractors and former officials interact with the UK state. Each section links to a searchable list of the underlying records.
         </p>
         <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px', opacity: 0.7 }}>
           {SECTIONS.length} datasets · drawn from public registers
