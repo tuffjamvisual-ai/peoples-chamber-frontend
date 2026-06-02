@@ -21,7 +21,13 @@ const sharp = require('sharp');
 //   5. UPDATE person_cache SET photo = '<url>' WHERE slug = '<slug>'
 //      via psql (DATABASE_URL bypasses RLS; service-role key pulls
 //      empty from Vercel envs so we can't use supabase-js for writes)
-//   6. Revalidate /people/<slug>
+//   6. Cascade to dept_officials.photo_url (slug-matched) — staff
+//      thumbnails on /departments/<slug> read from dept_officials,
+//      not person_cache, so without this step the bio page renders
+//      the new photo but the dept page keeps the old one
+//   7. Cascade to dept_ministers.photo_url (slug-matched) — for
+//      non-MP ministers like life-peer Lords ministers
+//   8. Revalidate /people/<slug> + every affected /departments/<slug>
 
 const RESIZE_MAX_PX = 800;
 const WEBP_QUALITY  = 82;
@@ -134,38 +140,92 @@ async function main() {
   const versionedUrl = `${publicUrl}?v=${Math.floor(Date.now() / 1000)}`;
   console.log(`[4/6] Versioned URL: ${versionedUrl}`);
 
+  const sqlEsc = versionedUrl.replace(/'/g, "''");
+  const slugEsc = slugArg.replace(/'/g, "''");
+
   try {
-    const sqlEsc = versionedUrl.replace(/'/g, "''");
-    const slugEsc = slugArg.replace(/'/g, "''");
     const result = runPsql(
       `UPDATE person_cache SET photo = '${sqlEsc}' WHERE slug = '${slugEsc}' RETURNING slug, name;`
     );
     if (!result) {
-      console.error(`[5/6] No person_cache row updated for slug='${slugArg}'.`);
+      console.error(`[5/8] No person_cache row updated for slug='${slugArg}'.`);
       process.exit(1);
     }
-    console.log(`[5/6] person_cache row updated: ${result}`);
+    console.log(`[5/8] person_cache row updated: ${result}`);
   } catch (e) {
-    console.error('[5/6] psql update failed:', e.stderr ? e.stderr.toString() : e.message);
+    console.error('[5/8] psql update failed:', e.stderr ? e.stderr.toString() : e.message);
     process.exit(1);
   }
 
+  // [6/8] Cascade to dept_officials. Staff thumbnails on /departments/<slug>
+  // come from dept_officials.photo_url, not person_cache.photo, so missing
+  // this step leaves the bio page fresh and the dept page stale (this is
+  // exactly what hit the first non-MP batch on 2026-06-02 before this fix
+  // landed).
+  const affectedDeptSlugs = new Set();
+  try {
+    const result = runPsql(
+      `UPDATE dept_officials SET photo_url = '${sqlEsc}' WHERE slug = '${slugEsc}' RETURNING dept_slug, slug, name;`
+    );
+    if (result) {
+      const lines = result.split('\n').filter(Boolean);
+      console.log(`[6/8] dept_officials cascade: ${lines.length} row(s) updated`);
+      for (const line of lines) {
+        console.log(`        ${line}`);
+        const dept = line.split('\t')[0];
+        if (dept) affectedDeptSlugs.add(dept);
+      }
+    } else {
+      console.log(`[6/8] dept_officials cascade: no rows (slug not in dept_officials)`);
+    }
+  } catch (e) {
+    console.error('[6/8] dept_officials cascade failed:', e.stderr ? e.stderr.toString() : e.message);
+  }
+
+  // [7/8] Cascade to dept_ministers — for non-MP ministers (life peers
+  // serving as government ministers, e.g. Baroness Smith of Malvern).
+  // Slug-matched same way.
+  try {
+    const result = runPsql(
+      `UPDATE dept_ministers SET photo_url = '${sqlEsc}' WHERE slug = '${slugEsc}' RETURNING dept_slug, slug, name;`
+    );
+    if (result) {
+      const lines = result.split('\n').filter(Boolean);
+      console.log(`[7/8] dept_ministers cascade: ${lines.length} row(s) updated`);
+      for (const line of lines) {
+        console.log(`        ${line}`);
+        const dept = line.split('\t')[0];
+        if (dept) affectedDeptSlugs.add(dept);
+      }
+    } else {
+      console.log(`[7/8] dept_ministers cascade: no rows (slug not in dept_ministers)`);
+    }
+  } catch (e) {
+    console.error('[7/8] dept_ministers cascade failed:', e.stderr ? e.stderr.toString() : e.message);
+  }
+
+  // [8/8] Revalidate every affected page: the bio + every dept the
+  // person appears on.
+  const pathsToRevalidate = [`/people/${slugArg}`];
+  for (const d of affectedDeptSlugs) pathsToRevalidate.push(`/departments/${d}`);
+
   if (skipRevalidate) {
-    console.log('[6/6] Revalidation: skipped (--no-revalidate)');
+    console.log('[8/8] Revalidation: skipped (--no-revalidate)');
   } else if (!CRON_SECRET) {
-    console.log('[6/6] Revalidation: skipped (CRON_SECRET not in env)');
+    console.log('[8/8] Revalidation: skipped (CRON_SECRET not in env)');
   } else {
-    const p = `/people/${slugArg}`;
-    try {
-      const res = await fetch(`${SITE_URL}/api/revalidate?path=${encodeURIComponent(p)}`, {
-        headers: {
-          'Authorization': `Bearer ${CRON_SECRET}`,
-          'User-Agent': 'Mozilla/5.0 (Macintosh) AppleWebKit/537.36 Chrome/124 Safari/537.36',
-        },
-      });
-      console.log(`[6/6] Revalidate ${p}: HTTP ${res.status} ${res.ok ? '✓' : '✗'}`);
-    } catch (e) {
-      console.error('[6/6] Revalidate failed:', e.message);
+    for (const p of pathsToRevalidate) {
+      try {
+        const res = await fetch(`${SITE_URL}/api/revalidate?path=${encodeURIComponent(p)}`, {
+          headers: {
+            'Authorization': `Bearer ${CRON_SECRET}`,
+            'User-Agent': 'Mozilla/5.0 (Macintosh) AppleWebKit/537.36 Chrome/124 Safari/537.36',
+          },
+        });
+        console.log(`[8/8] Revalidate ${p}: HTTP ${res.status} ${res.ok ? '✓' : '✗'}`);
+      } catch (e) {
+        console.error(`[8/8] Revalidate ${p} failed:`, e.message);
+      }
     }
   }
 
