@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import ScrollToTopButton from '../components/ScrollToTopButton';
 import DossierShell from '../components/DossierShell';
+import BackLink from '../components/BackLink';
 
 export const metadata: Metadata = {
   title: 'Top Spenders',
@@ -91,13 +92,12 @@ export default async function ExpensesPage() {
 
   return (
     <DossierShell>
-      <a
-        href="/"
+      <BackLink
+        fallbackHref="/"
+        label="← Back to home"
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
-      >
-        ← Back to home
-      </a>
+      />
 
       <header style={{ marginBottom: '5%' }}>
         <p

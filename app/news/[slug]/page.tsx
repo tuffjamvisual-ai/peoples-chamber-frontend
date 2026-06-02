@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import DossierShell from '../../components/DossierShell'
+import BackLink from '../../components/BackLink';
 
 export const revalidate = 3600
 
@@ -74,13 +75,12 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
 
   return (
     <DossierShell>
-      <a
-        href="/"
+      <BackLink
+        fallbackHref="/"
+        label="← Back to home"
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
-      >
-        ← Back to home
-      </a>
+      />
 
       <article>
         <header style={{ marginBottom: '5%', paddingBottom: '24px', borderBottom: `1px solid rgba(20,16,13,0.2)` }}>

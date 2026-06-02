@@ -5,6 +5,7 @@
 import { supabase } from '@/lib/supabase';
 import DossierShell from '../../components/DossierShell';
 import Link from 'next/link';
+import BackLink from '../../components/BackLink';
 
 export const revalidate = 3600;
 
@@ -92,13 +93,12 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
 
   return (
     <DossierShell>
-      <Link
-        href={backHref}
+      <BackLink
+        fallbackHref={backHref}
+        label={backLabel}
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
-      >
-        {backLabel}
-      </Link>
+      />
 
       {!agency && <div className="text-[#14100d] text-sm">Agency not found.</div>}
 

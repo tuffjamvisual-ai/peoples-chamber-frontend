@@ -18,6 +18,7 @@ import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import DossierShell from '../../../components/DossierShell'
+import BackLink from '../../../components/BackLink';
 
 export const revalidate = 86400  // re-fetch from Parliament once a day
 
@@ -166,8 +167,9 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
 
   return (
     <DossierShell>
-      <a
-        href={`/bills/${billId}`}
+      <BackLink
+        fallbackHref={`/bills/${billId}`}
+        label="← Back to bill summary"
         className="no-hover-scale"
         style={{
           display: 'inline-flex', alignItems: 'center', gap: '8px',
@@ -175,9 +177,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
           textDecoration: 'none', fontFamily: MONO, fontSize: '13px',
           letterSpacing: '0.12em', textTransform: 'uppercase',
         }}
-      >
-        ← Back to bill summary
-      </a>
+      />
 
       {/* Wrap the body in the same parchment <article> the bill summary
           page uses so the full-bill page reads as a continuation of the

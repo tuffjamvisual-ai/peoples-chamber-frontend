@@ -13,6 +13,7 @@ import ScrollToTopButton from '../../components/ScrollToTopButton';
 import PeopleProfileSections, { type Role, type Interest, type PeerFinance } from './PeopleProfileSections';
 import DossierShell from '../../components/DossierShell';
 import type { ScsBand } from '@/lib/civil-service-salaries';
+import BackLink from '../../components/BackLink';
 export const revalidate = 3600;
 
 const INK = '#14100d';
@@ -162,13 +163,12 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
 
   return (
     <DossierShell>
-        <a
-          href="/departments"
-          className="no-hover-scale"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
-        >
-          ← Back to departments
-        </a>
+        <BackLink
+        fallbackHref="/departments"
+        label="← Back to departments"
+        className="no-hover-scale"
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
+      />
 
         {!person && (
           <p style={{ fontSize: '16px', lineHeight: 1.7 }}>Person not found.</p>

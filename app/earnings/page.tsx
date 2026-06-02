@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import DossierShell from '../components/DossierShell'
 import EarningsTable from './EarningsTable'
+import BackLink from '../components/BackLink';
 import {
   MP_BASE_SALARY_2026,
   MINISTERIAL_SUPPLEMENT,
@@ -116,13 +117,12 @@ export default async function EarningsPage() {
 
   return (
     <DossierShell>
-      <a
-        href="/mps"
+      <BackLink
+        fallbackHref="/mps"
+        label="← Back to MPs"
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: '#14100d', textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
-      >
-        ← Back to MPs
-      </a>
+      />
 
       <header style={{ marginBottom: '5%' }}>
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>

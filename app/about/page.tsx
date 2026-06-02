@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import ScrollToTopButton from '../components/ScrollToTopButton';
 import DossierShell from '../components/DossierShell';
+import BackLink from '../components/BackLink';
 
 export const metadata: Metadata = {
   title: 'About',
@@ -28,13 +29,12 @@ const paragraphs = [
 export default function AboutPage() {
   return (
     <DossierShell>
-      <a
-        href="/"
+      <BackLink
+        fallbackHref="/"
+        label="← Back to home"
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: '#14100d', textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
-      >
-        ← Back to home
-      </a>
+      />
 
       <header style={{ marginBottom: '5%' }}>
         <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85, transform: 'rotate(-0.2deg)' }}>

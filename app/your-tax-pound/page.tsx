@@ -13,6 +13,7 @@
 import type { Metadata } from 'next';
 import DossierShell from '../components/DossierShell';
 import ScrollToTopButton from '../components/ScrollToTopButton';
+import BackLink from '../components/BackLink';
 
 export const revalidate = 86400;
 
@@ -151,13 +152,12 @@ export default function YourTaxPoundPage() {
         .tp-bar > span:last-child { border-right: none; }
       `}</style>
 
-      <a
-        href="/"
+      <BackLink
+        fallbackHref="/"
+        label="← Back to home"
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
-      >
-        ← Back to home
-      </a>
+      />
 
       <header style={{ marginBottom: '4%' }}>
         <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '10px', opacity: 0.7 }}>

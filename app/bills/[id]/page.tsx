@@ -12,6 +12,7 @@ import { notFound } from 'next/navigation'
 import ScrollToTopButton from '../../components/ScrollToTopButton'
 import BillVotingClient from './BillVotingClient'
 import DossierShell from '../../components/DossierShell'
+import BackLink from '../../components/BackLink';
 export const revalidate = 3600
 
 const INK = '#14100d'
@@ -90,13 +91,12 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
 
   return (
     <DossierShell>
-      <a
-        href="/bills"
+      <BackLink
+        fallbackHref="/bills"
+        label="← Back to all bills"
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: INK, textDecoration: 'none', fontFamily: MONO, fontSize: '13px', letterSpacing: '0.12em', textTransform: 'uppercase' }}
-      >
-        ← Back to all bills
-      </a>
+      />
 
       {/* The whole bill page is one continuous Victorian Bill sheet: cover,
           brief, explainers, ballot, sponsor and stages all sit on the same

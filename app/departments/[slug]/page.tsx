@@ -7,6 +7,7 @@ import DepartmentClient from './DepartmentClient';
 import DossierShell from '../../components/DossierShell';
 import { getGovukDept } from '../../api/govuk-dept/route';
 import { getDeptContext } from '../../api/department-context/route';
+import BackLink from '../../components/BackLink';
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
@@ -37,13 +38,12 @@ export default async function DepartmentPage({ params }: PageProps) {
 
   return (
     <DossierShell>
-      <a
-        href="/departments"
+      <BackLink
+        fallbackHref="/departments"
+        label="← Back to all departments"
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '3%', marginBottom: '12px', color: '#14100d', textDecoration: 'none', fontSize: 'clamp(9px, 1.1vw, 14px)', transform: 'rotate(-0.2deg)' }}
-      >
-        ← Back to all departments
-      </a>
+      />
 
       <h1 style={{ fontSize: 'clamp(21px, 3vw, 33px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)', lineHeight: 1.1 }}>
         {dept.name}
