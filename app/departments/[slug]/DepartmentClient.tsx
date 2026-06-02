@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { departments } from '@/lib/departments';
 import { parties } from '@/lib/parties';
+import { type DepartmentBudget, fmtBn, totalSpend } from '@/lib/department-budgets';
 import { useSearchParams } from 'next/navigation';
 
 const ACCENT = "#7a1612";
@@ -33,9 +34,10 @@ interface DepartmentClientProps {
   slug: string;
   govukData: GovukData | null;
   streetContext: string | null;
+  budget: DepartmentBudget | null;
 }
 
-export default function DepartmentClient({ slug, govukData, streetContext }: DepartmentClientProps) {
+export default function DepartmentClient({ slug, govukData, streetContext, budget }: DepartmentClientProps) {
   const dept = departments.find((d) => d.slug === slug);
   const searchParams = useSearchParams();
   const zoneParam = searchParams.get('zone');
@@ -165,6 +167,78 @@ export default function DepartmentClient({ slug, govukData, streetContext }: Dep
             </div>
           </div>
         </section>
+
+        {/* Budget panel — placed under the Secretary of State block so
+            the reader's eye goes Minister → spend envelope → assessment.
+            Same composition as the previous in-page implementation:
+            headline total + DEL/AME breakdown + prose explainer. Only
+            renders when we have budget data for this slug. */}
+        {budget && (
+          <section
+            aria-label="Department budget"
+            className="mb-8"
+            style={{
+              padding: '4px 0 4px 18px',
+              borderLeft: '4px solid #6b2417',
+              maxWidth: '760px',
+            }}
+          >
+            <div
+              style={{
+                fontFamily: 'Special Elite, monospace',
+                fontSize: '11px',
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                opacity: 0.6,
+                marginBottom: '8px',
+              }}
+            >
+              Budget · {budget.year}
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'baseline',
+                gap: '18px',
+                flexWrap: 'wrap',
+                marginBottom: '10px',
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: 'Special Elite, monospace',
+                  fontSize: '30px',
+                  fontWeight: 'bold',
+                  color: '#6b2417',
+                  lineHeight: 1,
+                }}
+              >
+                {fmtBn(totalSpend(budget))}
+              </div>
+              <div
+                style={{
+                  fontFamily: 'Special Elite, monospace',
+                  fontSize: '13px',
+                  opacity: 0.75,
+                }}
+              >
+                Resource DEL {fmtBn(budget.resourceDel)} · Capital DEL {fmtBn(budget.capitalDel)}
+                {budget.ame !== undefined && ` · AME ${fmtBn(budget.ame)}`}
+              </div>
+            </div>
+            <p
+              style={{
+                fontFamily: 'Special Elite, monospace',
+                fontSize: '15px',
+                lineHeight: 1.65,
+                color: '#14100d',
+                margin: 0,
+              }}
+            >
+              {budget.prose}
+            </p>
+          </section>
+        )}
 
         {/* Assessment (no heading — the old "Street View" label was removed as irrelevant) */}
         <section className=" pb-8 mb-8">

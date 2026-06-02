@@ -87,16 +87,6 @@ type ApiBill = {
   lastUpdate?: string
 }
 
-function pickUrl(p: ApiPublication): string | null {
-  const link = p.links?.find((l) => !!l.url)
-  if (link?.url) return link.url
-  const file = p.files?.find((f) => !!f.id)
-  if (file?.id) {
-    return `https://bills-api.parliament.uk/api/v1/Publications/${p.id}/Documents/${file.id}/Download`
-  }
-  return null
-}
-
 function fmtDate(iso?: string): string {
   if (!iso) return ''
   const d = new Date(iso)
@@ -221,10 +211,10 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
           fontFamily: MONO, fontSize: '13px', lineHeight: 1.7,
           color: INK_SOFT, maxWidth: '46em',
         }}>
-          Every document Parliament has published for this bill — the bill
-          text at each stage, Explanatory Notes, Impact Assessments,
-          amendment papers, written evidence, committee reports. Pulled
-          live from the Parliament Bills API. PDFs open in a new tab.
+          The bill’s formal description, sponsors and the full list of
+          documents Parliament has published for it — bill text at each
+          stage, Explanatory Notes, Impact Assessments, amendment papers,
+          written evidence and committee reports.
         </p>
       </header>
 
@@ -234,15 +224,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
           padding: '14px 18px', fontFamily: MONO, fontSize: '13px',
           color: INK_SOFT, marginBottom: '32px',
         }}>
-          {apiError} Try again in a minute, or check{' '}
-          <a
-            href={`https://bills.parliament.uk/bills/${bill.parliament_id}`}
-            target="_blank" rel="noopener noreferrer"
-            style={{ color: ACCENT, textDecoration: 'underline' }}
-          >
-            bills.parliament.uk
-          </a>{' '}
-          directly.
+          {apiError} Try again in a minute.
         </div>
       )}
 
@@ -319,15 +301,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
           }}>
             Parliament has not published documents for this bill. That’s common for older
             Private Members’ Bills that never reached committee, money bills, and bills
-            withdrawn before debate. Try{' '}
-            <a
-              href={`https://bills.parliament.uk/bills/${bill.parliament_id}`}
-              target="_blank" rel="noopener noreferrer"
-              style={{ color: ACCENT, textDecoration: 'underline' }}
-            >
-              bills.parliament.uk
-            </a>{' '}
-            for the bill’s public record.
+            withdrawn before debate.
           </p>
         </section>
       )}
@@ -347,7 +321,6 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
               </h2>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {items.map((p) => {
-                  const url = pickUrl(p)
                   const size = fmtSize(p.files?.[0]?.contentLength)
                   return (
                     <li key={p.id} style={{
@@ -355,23 +328,9 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
                       gap: '16px', borderBottom: `1px dotted ${INK_HAIRLINE}`, paddingBottom: '8px',
                     }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        {url ? (
-                          <a
-                            href={url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{
-                              fontFamily: SERIF, fontSize: '15px', lineHeight: 1.45,
-                              color: INK, textDecoration: 'underline', textUnderlineOffset: '3px',
-                            }}
-                          >
-                            {p.title || '(untitled publication)'}
-                          </a>
-                        ) : (
-                          <span style={{ fontFamily: SERIF, fontSize: '15px', color: INK_SOFT }}>
-                            {p.title || '(untitled publication)'} <em style={{ fontSize: '12px' }}>(no file)</em>
-                          </span>
-                        )}
+                        <span style={{ fontFamily: SERIF, fontSize: '15px', lineHeight: 1.45, color: INK }}>
+                          {p.title || '(untitled publication)'}
+                        </span>
                         {p.house && (
                           <span style={{ marginLeft: '10px', fontFamily: MONO, fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.15em', color: INK_SOFT }}>
                             {p.house}
