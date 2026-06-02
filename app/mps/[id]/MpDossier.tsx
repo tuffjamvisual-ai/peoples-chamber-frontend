@@ -55,13 +55,18 @@ export default function MpDossier({
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: '#14100d', textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
       />
 
-      {/* Header: polaroid (flat frame) + name / constituency / party */}
+      {/* Header: polaroid (flat frame) + name / constituency / party.
+          marginTop bumped from -7% to +4% on 2026-06-02 after the folder
+          was reverted to -114.2% (24% masthead overlap). The previous
+          -7% polaroid pull was tuned for a lower folder position; with
+          the folder sitting high again the polaroid was crashing into
+          the masthead instead of sitting inside the folder body. */}
       <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'flex-start', gap: '5%', marginBottom: '6%' }}>
         <div
           style={{
             position: 'relative',
             flex: '0 0 auto',
-            marginTop: '-7%',
+            marginTop: '4%',
             marginRight: '-6%',
             background: '#ebe5d8',
             padding: '12px 12px 48px 12px',
