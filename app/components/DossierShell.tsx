@@ -76,8 +76,8 @@ export default function DossierShell({
            visually balanced left and right at 95% width. */
         .pca-folder {
           position: relative;
-          width: 95%;
-          margin: -114.2% 2.5% 0 2.5%;
+          width: 98%;
+          margin: -114.2% 1% 0 1%;
           transform: none;
           font-family: 'Special Elite', monospace;
           color: #14100d;
