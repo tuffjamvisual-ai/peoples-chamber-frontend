@@ -34,6 +34,12 @@ export default function BillsGrid({ initialBills, currentPage, totalPages }: Pro
   const [searchTerm, setSearchTerm] = useState('');
   const [bills, setBills] = useState(initialBills);
   const [userVotes, setUserVotes] = useState<Record<number, string>>({});
+  // Server-side search results — populated when the user types into
+  // the FilterBar search input. Replaces `bills` for the duration of
+  // the search so we can show matches from across the full 3,893-bill
+  // table rather than the 20 server-paginated rows the page loaded.
+  const [searchResults, setSearchResults] = useState<any[] | null>(null);
+  const [searching, setSearching] = useState(false);
 
   const [houseFilter, setHouseFilter] = useState('');
   const [sessionFilter, setSessionFilter] = useState('');
@@ -65,6 +71,37 @@ export default function BillsGrid({ initialBills, currentPage, totalPages }: Pro
     fetchUserVotes();
   }, [user]);
 
+  // Live search against /api/bills/search whenever the user types.
+  // Debounced 220 ms — anything tighter fires before "tobacco" is
+  // even half typed. Empty / <2-char terms clear searchResults so we
+  // fall back to the original 20-row page view.
+  useEffect(() => {
+    const term = searchTerm.trim();
+    if (term.length < 2) {
+      setSearchResults(null);
+      setSearching(false);
+      return;
+    }
+    setSearching(true);
+    const controller = new AbortController();
+    const t = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `/api/bills/search?q=${encodeURIComponent(term)}`,
+          { signal: controller.signal },
+        );
+        if (!res.ok) { setSearchResults([]); setSearching(false); return; }
+        const json = await res.json();
+        setSearchResults(json.bills || []);
+      } catch (e) {
+        if ((e as Error).name !== 'AbortError') setSearchResults([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 220);
+    return () => { clearTimeout(t); controller.abort(); };
+  }, [searchTerm]);
+
   const handleVote = async (billId: number, choice: 'yes' | 'no') => {
     if (!user) { router.push(`/login?mode=signup&returnTo=${encodeURIComponent(window.location.pathname)}`); return; }
     if (userVotes[billId]) return;
@@ -90,14 +127,14 @@ export default function BillsGrid({ initialBills, currentPage, totalPages }: Pro
   };
 
   const filteredBills = useMemo(() => {
-    let filtered = [...bills];
+    // When a search is active, work off the server search results (full
+    // table coverage) and keep withdrawn + acts in the list — the user
+    // is hunting a specific named bill, not browsing live ones.
+    const source = searchResults ?? bills;
+    let filtered = [...source];
 
-    filtered = filtered.filter((bill: any) => !bill.bill_withdrawn && !bill.is_act);
-
-    if (searchTerm) {
-      filtered = filtered.filter((bill: any) =>
-        bill.title.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+    if (!searchResults) {
+      filtered = filtered.filter((bill: any) => !bill.bill_withdrawn && !bill.is_act);
     }
 
     if (houseFilter) filtered = filtered.filter((bill: any) => bill.originating_house === houseFilter);
@@ -119,7 +156,7 @@ export default function BillsGrid({ initialBills, currentPage, totalPages }: Pro
     }
 
     return filtered;
-  }, [bills, searchTerm, houseFilter, sessionFilter, stageFilter, sortBy, parliamentVotedFilter, youVotedFilter, notVotedFilter, hasSummaryFilter, userVotes]);
+  }, [bills, searchResults, houseFilter, sessionFilter, stageFilter, sortBy, parliamentVotedFilter, youVotedFilter, notVotedFilter, hasSummaryFilter, userVotes]);
 
   // Server provides exactly 20 bills for this page already; client-side
   // filters narrow the visible set within that window. To see different
@@ -143,7 +180,11 @@ export default function BillsGrid({ initialBills, currentPage, totalPages }: Pro
       />
 
       <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.15em', color: 'rgba(20,16,13,0.7)', marginBottom: '16px' }}>
-        {paginatedBills.length} of {filteredBills.length} bills shown
+        {searching
+          ? 'Searching…'
+          : searchResults
+          ? `${filteredBills.length} match${filteredBills.length === 1 ? '' : 'es'} for "${searchTerm.trim()}"${filteredBills.length === 50 ? ' (first 50 shown, narrow the term)' : ''}`
+          : `${paginatedBills.length} of ${filteredBills.length} bills shown`}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-7 mb-8">
@@ -163,7 +204,7 @@ export default function BillsGrid({ initialBills, currentPage, totalPages }: Pro
         </div>
       )}
 
-      {totalPages > 1 && (
+      {totalPages > 1 && !searchResults && (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
           <button onClick={() => goToPage(1)} disabled={currentPage === 1} style={pageBtn(currentPage === 1)}>First</button>
           <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} style={pageBtn(currentPage === 1)}>Prev</button>

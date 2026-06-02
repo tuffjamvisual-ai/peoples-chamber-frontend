@@ -36,6 +36,11 @@ export default function BillsGridMobile({ initialBills, currentPage, totalPages 
   const [searchTerm, setSearchTerm] = useState('');
   const [userVotes, setUserVotes] = useState<Record<number, string>>({});
   const [bills, setBills] = useState(initialBills);
+  // Live search results from /api/bills/search — see desktop BillsGrid
+  // for the reasoning. Replaces `bills` while the user is searching so
+  // we cover the whole table, not just the current 20-row page.
+  const [searchResults, setSearchResults] = useState<any[] | null>(null);
+  const [searching, setSearching] = useState(false);
 
   const goToPage = (p: number) => {
     const clamped = Math.min(Math.max(1, p), totalPages);
@@ -61,18 +66,46 @@ export default function BillsGridMobile({ initialBills, currentPage, totalPages 
     fetchUserVotes();
   }, [user]);
 
+  // Debounced live search — see BillsGrid for rationale.
+  useEffect(() => {
+    const term = searchTerm.trim();
+    if (term.length < 2) {
+      setSearchResults(null);
+      setSearching(false);
+      return;
+    }
+    setSearching(true);
+    const controller = new AbortController();
+    const t = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `/api/bills/search?q=${encodeURIComponent(term)}`,
+          { signal: controller.signal },
+        );
+        if (!res.ok) { setSearchResults([]); setSearching(false); return; }
+        const json = await res.json();
+        setSearchResults(json.bills || []);
+      } catch (e) {
+        if ((e as Error).name !== 'AbortError') setSearchResults([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 220);
+    return () => { clearTimeout(t); controller.abort(); };
+  }, [searchTerm]);
+
   const filteredBills = useMemo(() => {
-    let filtered = [...bills];
+    // While searching, render the server search results across the whole
+    // table — and don't strip Acts / withdrawn / Royal-Assent bills,
+    // because the user is hunting a specific named bill.
+    const source = searchResults ?? bills;
+    let filtered = [...source];
 
-    filtered = filtered.filter((bill: any) => 
-      !bill.bill_withdrawn && 
-      !bill.is_act &&
-      bill.current_stage !== 'Royal Assent'
-    );
-
-    if (searchTerm) {
+    if (!searchResults) {
       filtered = filtered.filter((bill: any) =>
-        bill.title.toLowerCase().includes(searchTerm.toLowerCase())
+        !bill.bill_withdrawn &&
+        !bill.is_act &&
+        bill.current_stage !== 'Royal Assent'
       );
     }
 
@@ -106,7 +139,7 @@ export default function BillsGridMobile({ initialBills, currentPage, totalPages 
     }
 
     return filtered;
-  }, [bills, searchTerm, activeTab, userVotes]);
+  }, [bills, searchResults, activeTab, userVotes]);
 
   const handleVote = async (billId: number, choice: 'yes' | 'no' | 'abstain') => {
     if (!user) {
@@ -190,11 +223,13 @@ export default function BillsGridMobile({ initialBills, currentPage, totalPages 
 
       {filteredBills.length === 0 && (
         <div className="text-center py-12">
-          <p style={{ color: 'rgba(20,16,13,0.7)', fontFamily: 'Special Elite, monospace' }}>No active bills found.</p>
+          <p style={{ color: 'rgba(20,16,13,0.7)', fontFamily: 'Special Elite, monospace' }}>
+            {searching ? 'Searching…' : searchResults ? `No bills match "${searchTerm.trim()}".` : 'No active bills found.'}
+          </p>
         </div>
       )}
 
-      {totalPages > 1 && (
+      {totalPages > 1 && !searchResults && (
         <div className="flex items-center justify-center gap-2 mt-4" style={{ paddingBottom: '16px' }}>
           <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} style={mPageBtn(currentPage === 1)}>Prev</button>
           <span style={{ padding: '6px 14px', background: INK, color: CREAM, fontFamily: 'Special Elite, monospace', fontSize: '13px' }}>{currentPage} / {totalPages}</span>
