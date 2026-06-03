@@ -10,9 +10,10 @@ export const revalidate = 3600
 const ACCENT = '#6b2417'
 const PAGE_LIMIT = 100   // rows per page
 
-// 'lobbyists' slug removed 2026-06-02 — see comment in app/transparency/page.tsx.
-// Hitting /transparency/lobbyists now returns 404 via the !config guard in
-// generateMetadata + the page body.
+// 'lobbyists' slug removed 2026-06-02. 'companies' slug removed
+// 2026-06-03 — see comments in app/transparency/page.tsx. Both URLs
+// now return 404 via the !config guard in generateMetadata + the
+// page body. DB tables (lobbyist_register, companies_house) preserved.
 const SECTIONS: Record<string, { title: string; table: string; orderBy?: string }> = {
   'ministers-meetings': { title: "Ministers' Meetings", table: 'ministers_meetings', orderBy: 'meeting_date' },
   'appgs':              { title: 'All Party Parliamentary Groups', table: 'appg_register' },
@@ -20,7 +21,6 @@ const SECTIONS: Record<string, { title: string; table: string; orderBy?: string 
   'revolving-door':     { title: 'Revolving Door', table: 'revolving_door', orderBy: 'approval_date' },
   'donations':          { title: 'Political Donations', table: 'political_donations', orderBy: 'received_date' },
   'contracts':          { title: 'Government Contracts', table: 'government_contracts', orderBy: 'awarded_date' },
-  'companies':          { title: 'Companies House', table: 'companies_house' },
 }
 
 export function generateStaticParams() {

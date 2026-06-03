@@ -19,6 +19,11 @@ const INK = '#14100d'
 // covers consultant lobbyists, not the much larger in-house lobbying universe,
 // and the underlying disclosure is too thin to be journalistically useful.
 // Hidden until a better source can be identified. DB data preserved.
+//
+// Companies House section removed 2026-06-03. The companies_house table only
+// holds a thin slice of director/PSC links to MPs and ministers — limited
+// data, not journalistically useful in its current shape. Hidden until a
+// fuller ingest can be wired. DB data preserved.
 const SECTIONS = [
   { slug: 'ministers-meetings', title: "Ministers' Meetings", description: 'Records of meetings ministers have held with external organisations and lobbyists, published quarterly under GOV.UK transparency releases.' },
   { slug: 'appgs',              title: 'All Party Parliamentary Groups',   description: 'Cross party informal interest groups in Parliament, the funding they receive, and the secretariat support behind them.' },
@@ -26,7 +31,6 @@ const SECTIONS = [
   { slug: 'revolving-door',     title: 'Revolving Door',                   description: 'Senior officials and ministers taking up post government roles, including ACOBA recommendations and conditions attached.' },
   { slug: 'donations',          title: 'Political Donations',              description: 'Reportable donations to political parties and individual MPs.' },
   { slug: 'contracts',          title: 'Government Contracts',             description: 'Awarded public sector contracts above the disclosure threshold, published via Contracts Finder.' },
-  { slug: 'companies',          title: 'Companies House',                  description: 'Company directorships and persons of significant control connected to MPs, ministers, and senior officials.' },
 ]
 
 export default function TransparencyHubPage() {
@@ -49,7 +53,7 @@ export default function TransparencyHubPage() {
           Transparency Hub
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
-          Seven datasets covering how ministers, MPs, donors, contractors and former officials interact with the UK state. Each section links to a searchable list of the underlying records.
+          Six datasets covering how ministers, MPs, donors, contractors and former officials interact with the UK state. Each section links to a searchable list of the underlying records.
         </p>
         <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px', opacity: 0.7 }}>
           {SECTIONS.length} datasets · drawn from public registers
