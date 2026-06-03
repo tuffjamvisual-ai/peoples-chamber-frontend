@@ -80,10 +80,12 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
     <div
       className="border border-[#14100d]/20"
       style={{
-        // Slight horizontal indent so the table doesn't sit flush
-        // against the dossier folder's inner walls. 2026-06-03.
-        marginLeft: 'clamp(4px, 1.5%, 24px)',
-        marginRight: 'clamp(4px, 1.5%, 24px)',
+        // Negative horizontal margin so the table breaks out of the
+        // dossier folder's inner padding by a small amount. User
+        // asked to *decrease* the inset 2026-06-03 to give the seven
+        // columns more breathing room without horizontal scroll.
+        marginLeft: 'clamp(-32px, -2%, -8px)',
+        marginRight: 'clamp(-32px, -2%, -8px)',
       }}
     >
       {/* No horizontal scroll. Seven columns kept; text sizes bumped

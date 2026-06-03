@@ -128,21 +128,21 @@ export default async function EarningsPage() {
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
           MP earnings vs public spend
         </h1>
-        <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
+        <p style={{ fontSize: '17px', lineHeight: 1.7, maxWidth: '720px' }}>
           The 50 highest-paid current MPs ranked by personal earnings. <strong>Personal earnings</strong> are
           money the MP actually receives: base salary, ministerial supplement, and declared outside earnings.
           <strong> Public spend</strong> is a separate column showing what IPSA reimburses for staff, office,
           travel and accommodation; it does <em>not</em> go into the MP&apos;s pocket.
         </p>
-        <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px', opacity: 0.7 }}>
+        <p style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px', opacity: 0.7 }}>
           The People&apos;s Chamber · MP Earnings
         </p>
       </header>
 
       <EarningsTable rows={top} year={YEAR_LABEL} />
 
-      <section className="mt-10 text-[12px] text-[#14100d]/80 leading-[1.7] space-y-3 max-w-3xl">
-        <h2 className="text-[12px] uppercase tracking-[0.25em] font-semibold text-[#14100d]">Methodology</h2>
+      <section className="mt-10 text-[15px] text-[#14100d]/80 leading-[1.75] space-y-3 max-w-3xl">
+        <h2 className="text-[14px] uppercase tracking-[0.22em] font-semibold text-[#14100d]">Methodology</h2>
         <p>
           <strong className="text-[#14100d]">Base salary</strong>: £{MP_BASE_SALARY_2026.toLocaleString()} from
           1 April 2026, applied to every sitting MP regardless of attendance.
