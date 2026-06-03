@@ -202,57 +202,35 @@ export default async function ExpensesPage() {
         Itemised line items are visible on each MP&rsquo;s profile under Expenses.
       </p>
 
-      {/* Three-chapter version of the feature available with the
-          parchment fold-turn animation between chapters. */}
-      <p
-        style={{
-          marginTop: '40px',
-          fontFamily: 'Special Elite, monospace',
-          fontSize: '12px',
-          textTransform: 'uppercase',
-          letterSpacing: '0.18em',
-          textAlign: 'center',
-        }}
-      >
-        <Link
-          href="/expenses/story/1"
-          style={{
-            color: ACCENT,
-            textDecoration: 'none',
-            borderBottom: `1px solid ${ACCENT}`,
-            paddingBottom: '2px',
-          }}
-        >
-          Read the long-form feature ★ Three chapters →
-        </Link>
-      </p>
-
-      {/* Feature essay — added 2026-06-03. Sits below the Top 10
-          ranking and provides the broader context: where the £177k
-          staff budget comes from, why travel is uncapped, what the
-          2009 expenses scandal still implies. Body in Special Elite
-          per the site-wide typewriter-for-body-prose rule. */}
-      <section style={{ marginTop: '56px', borderTop: `2px solid ${INK_HAIRLINE}`, paddingTop: '40px' }}>
+      {/* Feature essay — same compact 2-column newspaper treatment
+          as the Top 10 listing above. 12px Special Elite body, two
+          balanced columns with a hairline column-rule, modest 1px
+          dividers — reads as a dense classified-section feature
+          rather than a wide-line magazine article. Drop cap on the
+          opening letter for the broadsheet feature feel. */}
+      <section style={{ marginTop: '40px', borderTop: `2px solid ${INK}`, borderBottom: `2px solid ${INK}`, padding: '24px 0' }}>
         <p
           style={{
-            fontSize: '11px',
+            fontSize: '10px',
             textTransform: 'uppercase',
             letterSpacing: '0.3em',
             fontWeight: 'bold',
-            marginBottom: '12px',
+            marginBottom: '8px',
             color: ACCENT,
+            textAlign: 'center',
           }}
         >
           Feature · Analysis
         </p>
         <h2
           style={{
-            fontSize: 'clamp(24px, 3.4vw, 38px)',
+            fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
+            fontSize: 'clamp(20px, 2.4vw, 28px)',
             fontWeight: 'bold',
-            letterSpacing: '-0.02em',
+            letterSpacing: '-0.01em',
             lineHeight: 1.15,
-            marginBottom: '28px',
-            transform: 'rotate(-0.2deg)',
+            marginBottom: '20px',
+            textAlign: 'center',
             color: INK,
           }}
         >
@@ -261,10 +239,15 @@ export default async function ExpensesPage() {
         <div
           style={{
             fontFamily: 'Special Elite, monospace',
-            fontSize: 'clamp(13px, 1.35vw, 15px)',
-            lineHeight: 1.75,
+            fontSize: '12px',
+            lineHeight: 1.7,
             color: INK,
-            maxWidth: '74ch',
+            columnCount: 2,
+            columnGap: '28px',
+            columnRule: `1px solid ${INK_HAIRLINE}`,
+            columnFill: 'balance',
+            textAlign: 'justify',
+            hyphens: 'auto',
           }}
         >
           {FEATURE_BODY
@@ -272,7 +255,14 @@ export default async function ExpensesPage() {
             .map((p) => p.trim())
             .filter(Boolean)
             .map((p, i) => (
-              <p key={i} style={{ margin: '0 0 1.1em 0' }}>
+              <p
+                key={i}
+                style={{
+                  margin: '0 0 0.9em 0',
+                  breakInside: 'avoid-column',
+                  pageBreakInside: 'avoid',
+                }}
+              >
                 {p}
               </p>
             ))}
