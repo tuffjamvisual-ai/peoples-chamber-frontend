@@ -80,14 +80,24 @@ export default function HotspotDropdown({
     borderRadius: 4,
   };
 
-  const panelStyle: CSSProperties = {
+  // Outer wrapper that sits flush against the trigger (top: 100%, no
+  // gap) so the cursor can travel from trigger → panel without ever
+  // leaving the hover subtree. It carries an 8px transparent
+  // padding-top, which forms an invisible hover bridge but doesn't
+  // show a visible parchment edge at the join.
+  const wrapperStyle: CSSProperties = {
     position: 'absolute',
-    top: 'calc(100% + 10px)',
-    // Centre the panel under its hotspot — left:50% + translateX(-50%)
-    // anchors the panel's horizontal centre to the trigger's centre,
-    // regardless of trigger width.
+    top: '100%',
     left: '50%',
-    transform: 'translateX(-50%) rotate(-0.4deg)',
+    transform: 'translateX(-50%)',
+    paddingTop: '8px',
+    display: open ? 'block' : 'none',
+    zIndex: 1000,
+  };
+
+  const panelStyle: CSSProperties = {
+    // No `position: absolute` — sits naturally below the bridge.
+    transform: 'rotate(-0.4deg)',
     transformOrigin: 'top center',
     minWidth: '236px',
     // Parchment texture (same file as the bills + councils pages) over
@@ -102,9 +112,7 @@ export default function HotspotDropdown({
       '0 1px 0 rgba(255,247,228,0.5)',                   // top edge highlight
       '0 18px 32px -10px rgba(50,30,18,0.55)',           // warm drop shadow
     ].join(', '),
-    zIndex: 1000,
     padding: '6px 0 10px',
-    display: open ? 'block' : 'none',
     fontFamily: 'Special Elite, monospace',
     color: '#14100d',
     // Safety net for long menus (PARTIES now lists all 15 parties +
@@ -150,6 +158,7 @@ export default function HotspotDropdown({
         className="no-hover-scale"
         style={triggerStyle}
       />
+      <div style={wrapperStyle}>
       <div style={panelStyle} role="menu" aria-label={`${label} menu`}>
         {/* Top header rule — small caps label + red star, echoes the
             masthead's "UK GOVERNMENT, IN PUBLIC VIEW" subtitle band. */}
@@ -185,6 +194,7 @@ export default function HotspotDropdown({
             {s.label}
           </a>
         ))}
+      </div>
       </div>
       <style>{`
         .pca-dropdown-item {
