@@ -23,9 +23,9 @@ const SERIF = 'EB Garamond, Garamond, Georgia, "Times New Roman", serif';
 const MONO = 'Special Elite, monospace';
 
 export const metadata: Metadata = {
-  title: "Parties — Compare Policies | The People's Chamber",
+  title: "Manifesto Comparisons | The People's Chamber",
   description:
-    "Every UK political party's 2024 General Election manifesto positions side by side across 11 policy themes, with post-election shifts marked.",
+    "Every UK political party's 2024 General Election manifesto positions stacked party by party across 11 policy themes, with post-election shifts marked.",
   alternates: { canonical: '/parties' },
 };
 
@@ -162,10 +162,10 @@ export default async function PartiesIndex() {
           }}
         >
           <div style={{ fontFamily: SERIF, fontSize: '12px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '4px' }}>
-            Manifesto Comparison · 2024 General Election
+            2024 General Election · Theme by Theme
           </div>
           <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(28px, 3.4vw, 44px)', fontWeight: 500, letterSpacing: '0.005em', lineHeight: 1.18, margin: 0 }}>
-            The Parties
+            Manifesto Comparisons
           </h1>
         </header>
 
