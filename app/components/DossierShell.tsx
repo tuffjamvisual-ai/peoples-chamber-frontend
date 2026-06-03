@@ -1,11 +1,25 @@
 import ExpandingFolder from './ExpandingFolder';
+import HotspotDropdown from './HotspotDropdown';
 
 // The reusable "dossier" page shell: dark backdrop → People's Chamber newspaper masthead
 // (image + %-positioned nav hotspots + weekly issue line) → an empty expanding manila
 // folder. Drop any content into `children` and it renders inside the folder. Used by the
 // MP profile pages (MpDossier) and any other page that wants this look.
 
-type Hotspot = { label: string; href: string; xPct: number; yPct: number; wPct: number; hPct: number };
+// `children` is optional. When present, the hotspot becomes a dropdown
+// trigger (via HotspotDropdown) instead of a plain link. The top-level
+// href stays clickable as the canonical destination for that nav item;
+// the dropdown is a hover/focus shortcut to specific sub-pages.
+type SubItem = { label: string; href: string };
+type Hotspot = {
+  label: string;
+  href: string;
+  xPct: number;
+  yPct: number;
+  wPct: number;
+  hPct: number;
+  children?: SubItem[];
+};
 const HOTSPOTS: Hotspot[] = [
   // Top nav row — coordinates from ChatGPT hotspots.json (2026-06-03)
   // matched to the new landing101 masthead artwork. LAWS is gone, PARTIES
@@ -14,7 +28,17 @@ const HOTSPOTS: Hotspot[] = [
   { label: 'HOME', href: '/', xPct: 5.2, yPct: 21.3, wPct: 5.0, hPct: 2.8 },
   { label: 'BILLS', href: '/bills', xPct: 13.0, yPct: 21.3, wPct: 5.5, hPct: 2.8 },
   { label: 'PEOPLES POLLS', href: '/polls', xPct: 20.5, yPct: 21.3, wPct: 12.0, hPct: 2.8 },
-  { label: 'PARTIES', href: '/parties', xPct: 35.0, yPct: 21.3, wPct: 7.0, hPct: 2.8 },
+  {
+    label: 'PARTIES',
+    href: '/parties',
+    xPct: 35.0, yPct: 21.3, wPct: 7.0, hPct: 2.8,
+    children: [
+      { label: 'Manifesto Comparisons', href: '/parties' },
+      { label: 'Labour',                href: '/parties/labour' },
+      { label: 'Conservative',          href: '/parties/conservative' },
+      { label: 'Reform UK',             href: '/parties/reform-uk' },
+    ],
+  },
   { label: 'MPS', href: '/mps', xPct: 44.5, yPct: 21.3, wPct: 4.5, hPct: 2.8 },
   { label: 'DEPARTMENTS', href: '/departments', xPct: 51.0, yPct: 21.3, wPct: 11.5, hPct: 2.8 },
   { label: 'TRANSPARENCY', href: '/transparency', xPct: 64.5, yPct: 21.3, wPct: 12.5, hPct: 2.8 },
@@ -140,6 +164,22 @@ export default function DossierShell({
               }}
             />
             {HOTSPOTS.map((h) => {
+              // Dropdown variant: hotspot becomes a hover/focus trigger
+              // with a panel of sub-links. Top-level href stays clickable.
+              if (h.children && h.children.length > 0) {
+                return (
+                  <HotspotDropdown
+                    key={h.label}
+                    href={h.href}
+                    label={h.label}
+                    xPct={h.xPct}
+                    yPct={h.yPct}
+                    wPct={h.wPct}
+                    hPct={h.hPct}
+                    children={h.children}
+                  />
+                );
+              }
               const external = h.href.startsWith('http');
               return (
                 <a
