@@ -81,10 +81,6 @@ type MpRow = {
   member_id: number;
   name: string | null;
   display_name: string | null;
-  constituency: string | null;
-  party: string | null;
-  party_colour: string | null;
-  photo_url: string | null;
   current_member: boolean | null;
 };
 
@@ -105,7 +101,7 @@ export default async function ExpensesPage() {
     ? await supabase
         .from('mps')
         .select(
-          'member_id, name, display_name, constituency, party, party_colour, photo_url, current_member'
+          'member_id, name, display_name, current_member'
         )
         .in('member_id', ids)
     : { data: [] as MpRow[] };
@@ -173,9 +169,27 @@ export default async function ExpensesPage() {
         </div>
       </header>
 
-      <ol style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      {/* Newspaper-classified listing: ruled top + bottom borders,
+          name → dot-leader → amount → discreet breakdown link.
+          Reads like the births/deaths/property notices column of a
+          broadsheet rather than a card grid. */}
+      <ol
+        style={{
+          listStyle: 'none',
+          padding: 0,
+          margin: 0,
+          borderTop: `2px solid ${INK}`,
+          borderBottom: `2px solid ${INK}`,
+        }}
+      >
         {top.map((x, i) => (
-          <Row key={x.mp.member_id} rank={i + 1} row={x.row} mp={x.mp} tilt={tiltFor(i)} />
+          <SimpleRow
+            key={x.mp.member_id}
+            rank={i + 1}
+            total={x.row.total_spend}
+            memberId={x.mp.member_id}
+            name={x.mp.display_name || x.mp.name || ''}
+          />
         ))}
       </ol>
 
@@ -241,217 +255,102 @@ export default async function ExpensesPage() {
   );
 }
 
-function tiltFor(i: number) {
-  const cycle = [-0.3, 0.2, -0.15, 0.35, -0.25];
-  return cycle[i % cycle.length];
-}
-
-function Row({
+// Newspaper-classified row — rank, small-caps name, dot-leader fill,
+// amount, then a discreet 'Full breakdown' ref. Mirrors the
+// births/deaths/property listings column of a broadsheet. Simplified
+// 2026-06-03 per user request from the heavier card with photo +
+// party badge + breakdown grid. If you want the photo/breakdown back,
+// see git history at commit 3423dcd or earlier.
+function SimpleRow({
   rank,
-  row,
-  mp,
-  tilt,
+  total,
+  memberId,
+  name,
 }: {
   rank: number;
-  row: ExpenseRow;
-  mp: MpRow;
-  tilt: number;
+  total: number | null;
+  memberId: number;
+  name: string;
 }) {
-  const partyColour = mp.party_colour ? '#' + mp.party_colour.replace('#', '') : '#7697a2';
-  const name = mp.display_name || mp.name || '';
   return (
     <li
       style={{
+        display: 'flex',
+        alignItems: 'baseline',
+        gap: '10px',
+        padding: '12px 6px',
+        borderBottom: `1px solid ${INK_HAIRLINE}`,
         color: INK,
-        border: `1px solid ${INK_HAIRLINE}`,
-        borderLeft: `4px solid ${partyColour}`,
-        padding: '20px 22px',
-        transform: `rotate(${tilt}deg)`,
+        fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
       }}
     >
-      <div
+      <span
         style={{
-          display: 'grid',
-          gridTemplateColumns: 'auto auto 1fr auto',
-          gap: '16px',
-          alignItems: 'center',
-          marginBottom: '16px',
-        }}
-      >
-        <div
-          style={{
-            fontSize: '34px',
-            fontWeight: 'bold',
-            fontVariantNumeric: 'tabular-nums',
-            width: '40px',
-            textAlign: 'center',
-            color: INK_SOFT,
-            lineHeight: 1,
-          }}
-        >
-          {rank}
-        </div>
-
-        <div style={{ flexShrink: 0 }}>
-          {mp.photo_url ? (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img
-              src={mp.photo_url}
-              alt={name}
-              width={72}
-              height={72}
-              style={{
-                width: '72px',
-                height: '72px',
-                borderRadius: '50%',
-                objectFit: 'cover',
-                border: `3px solid ${partyColour}`,
-              }}
-            />
-          ) : (
-            <div
-              style={{
-                width: '72px',
-                height: '72px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '24px',
-                fontWeight: 'bold',
-                color: INK,
-                border: `3px solid ${partyColour}`,
-              }}
-            >
-              {name.charAt(0)}
-            </div>
-          )}
-        </div>
-
-        <div style={{ minWidth: 0 }}>
-          <Link
-            href={`/mps/${mp.member_id}`}
-            style={{
-              color: INK,
-              fontSize: '20px',
-              fontWeight: 'bold',
-              textDecoration: 'none',
-              letterSpacing: '-0.01em',
-              display: 'block',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {name}
-          </Link>
-          {mp.constituency && (
-            <p
-              style={{
-                fontSize: '13px',
-                color: INK_SOFT,
-                margin: '2px 0 0',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {mp.constituency}
-            </p>
-          )}
-          {mp.party && (
-            <span
-              style={{
-                display: 'inline-block',
-                marginTop: '8px',
-                padding: '2px 8px',
-                fontSize: '11px',
-                fontWeight: 'bold',
-                textTransform: 'uppercase',
-                letterSpacing: '0.1em',
-                color: '#ffffff',
-                background: partyColour,
-              }}
-            >
-              {mp.party}
-            </span>
-          )}
-        </div>
-
-        <div style={{ textAlign: 'right', flexShrink: 0 }}>
-          <p
-            style={{
-              fontSize: '26px',
-              fontWeight: 'bold',
-              fontVariantNumeric: 'tabular-nums',
-              lineHeight: 1,
-              color: INK,
-              margin: 0,
-            }}
-          >
-            {fmtMoney(row.total_spend)}
-          </p>
-          <p
-            style={{
-              fontSize: '10px',
-              textTransform: 'uppercase',
-              letterSpacing: '0.18em',
-              marginTop: '6px',
-              color: INK_SOFT,
-            }}
-          >
-            Total {YEAR_LABEL}
-          </p>
-        </div>
-      </div>
-
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
-          gap: '1px',
-          background: INK_HAIRLINE,
-          border: `1px solid ${INK_HAIRLINE}`,
-        }}
-      >
-        <Cell label="Staffing" v={row.staffing_spend} />
-        <Cell label="Office" v={row.office_spend} />
-        <Cell label="Accommodation" v={row.accommodation_spend} />
-        <Cell label="Travel" v={row.travel_subsistence_spend} />
-        <Cell label="Other" v={row.other_costs_spend} />
-        <Cell label="Winding-up" v={row.winding_up_spend} />
-      </div>
-    </li>
-  );
-}
-
-function Cell({ label, v }: { label: string; v: number | null | undefined }) {
-  return (
-    <div style={{ padding: '8px 10px' }}>
-      <p
-        style={{
-          fontSize: '9px',
-          textTransform: 'uppercase',
-          letterSpacing: '0.15em',
-          color: INK_SOFT,
-          margin: '0 0 4px',
-        }}
-      >
-        {label}
-      </p>
-      <p
-        style={{
-          fontSize: '13px',
-          fontWeight: 'bold',
-          color: INK,
+          fontSize: 'clamp(14px, 1.5vw, 17px)',
           fontVariantNumeric: 'tabular-nums',
-          margin: 0,
-          lineHeight: 1,
+          color: INK_SOFT,
+          width: '28px',
+          textAlign: 'right',
+          flexShrink: 0,
         }}
       >
-        {fmtMoney(v)}
-      </p>
-    </div>
+        {rank}.
+      </span>
+      <Link
+        href={`/mps/${memberId}`}
+        style={{
+          color: INK,
+          fontSize: 'clamp(15px, 1.7vw, 20px)',
+          fontWeight: 600,
+          textDecoration: 'none',
+          letterSpacing: '0.04em',
+          textTransform: 'uppercase',
+          fontVariant: 'small-caps',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {name}
+      </Link>
+      {/* Dot-leader fill — the broadsheet classified hallmark. */}
+      <span
+        aria-hidden
+        style={{
+          flex: '1 1 auto',
+          alignSelf: 'flex-end',
+          height: '1px',
+          borderBottom: `1px dotted ${INK_SOFT}`,
+          transform: 'translateY(-5px)',
+          minWidth: '20px',
+        }}
+      />
+      <span
+        style={{
+          fontSize: 'clamp(15px, 1.7vw, 20px)',
+          fontWeight: 600,
+          fontVariantNumeric: 'tabular-nums',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {fmtMoney(total)}
+      </span>
+      <Link
+        href={`/mps/${memberId}#expenses`}
+        style={{
+          fontFamily: 'Special Elite, monospace',
+          fontSize: '10px',
+          textTransform: 'uppercase',
+          letterSpacing: '0.18em',
+          color: ACCENT,
+          textDecoration: 'none',
+          borderBottom: `1px solid ${ACCENT}`,
+          paddingBottom: '1px',
+          marginLeft: '8px',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        Full breakdown →
+      </Link>
+    </li>
   );
 }
 
