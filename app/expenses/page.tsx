@@ -169,10 +169,10 @@ export default async function ExpensesPage() {
         </div>
       </header>
 
-      {/* Newspaper-classified listing: ruled top + bottom borders,
-          name → dot-leader → amount → discreet breakdown link.
-          Reads like the births/deaths/property notices column of a
-          broadsheet rather than a card grid. */}
+      {/* Newspaper-classified listing in two columns. Ruled top +
+          bottom borders, vertical column rule between the two halves.
+          break-inside:avoid keeps each row whole when the browser
+          balances the columns; column-fill:balance gives 5+5 not 9+1. */}
       <ol
         style={{
           listStyle: 'none',
@@ -180,6 +180,10 @@ export default async function ExpensesPage() {
           margin: 0,
           borderTop: `2px solid ${INK}`,
           borderBottom: `2px solid ${INK}`,
+          columnCount: 2,
+          columnGap: '32px',
+          columnRule: `1px solid ${INK_HAIRLINE}`,
+          columnFill: 'balance',
         }}
       >
         {top.map((x, i) => (
@@ -277,19 +281,22 @@ function SimpleRow({
       style={{
         display: 'flex',
         alignItems: 'baseline',
-        gap: '10px',
-        padding: '12px 6px',
+        gap: '6px',
+        padding: '7px 4px',
         borderBottom: `1px solid ${INK_HAIRLINE}`,
         color: INK,
         fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
+        breakInside: 'avoid',
+        WebkitColumnBreakInside: 'avoid',
+        pageBreakInside: 'avoid',
       }}
     >
       <span
         style={{
-          fontSize: 'clamp(14px, 1.5vw, 17px)',
+          fontSize: '11px',
           fontVariantNumeric: 'tabular-nums',
           color: INK_SOFT,
-          width: '28px',
+          width: '18px',
           textAlign: 'right',
           flexShrink: 0,
         }}
@@ -300,10 +307,10 @@ function SimpleRow({
         href={`/mps/${memberId}`}
         style={{
           color: INK,
-          fontSize: 'clamp(15px, 1.7vw, 20px)',
+          fontSize: '12px',
           fontWeight: 600,
           textDecoration: 'none',
-          letterSpacing: '0.04em',
+          letterSpacing: '0.03em',
           textTransform: 'uppercase',
           fontVariant: 'small-caps',
           whiteSpace: 'nowrap',
@@ -319,13 +326,13 @@ function SimpleRow({
           alignSelf: 'flex-end',
           height: '1px',
           borderBottom: `1px dotted ${INK_SOFT}`,
-          transform: 'translateY(-5px)',
-          minWidth: '20px',
+          transform: 'translateY(-4px)',
+          minWidth: '10px',
         }}
       />
       <span
         style={{
-          fontSize: 'clamp(15px, 1.7vw, 20px)',
+          fontSize: '12px',
           fontWeight: 600,
           fontVariantNumeric: 'tabular-nums',
           whiteSpace: 'nowrap',
@@ -337,18 +344,18 @@ function SimpleRow({
         href={`/mps/${memberId}#expenses`}
         style={{
           fontFamily: 'Special Elite, monospace',
-          fontSize: '10px',
+          fontSize: '8px',
           textTransform: 'uppercase',
-          letterSpacing: '0.18em',
+          letterSpacing: '0.15em',
           color: ACCENT,
           textDecoration: 'none',
           borderBottom: `1px solid ${ACCENT}`,
           paddingBottom: '1px',
-          marginLeft: '8px',
+          marginLeft: '5px',
           whiteSpace: 'nowrap',
         }}
       >
-        Full breakdown →
+        Breakdown →
       </Link>
     </li>
   );
