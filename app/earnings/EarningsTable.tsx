@@ -13,6 +13,15 @@ function fmtMoney(n: number): string {
   return '£' + Math.round(n).toLocaleString('en-GB')
 }
 
+// Polaroid tilt cycle. Cycles through 5 small angles so adjacent rows
+// don't share the same lean, but no row tilts so far that overlaps the
+// next row visually. Keep the absolute value small (<=2.5deg) for
+// table rows; bigger tilts are reserved for the MP dossier polaroid.
+const PEG_TILTS = [-1.8, 1.2, -0.8, 2.0, -1.2, 0.8, -2.0, 1.8];
+function pegTilt(rank: number): number {
+  return PEG_TILTS[(rank - 1) % PEG_TILTS.length] ?? 0;
+}
+
 export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; year: string }) {
   const [sortKey, setSortKey] = useState<SortKey>('personal_total')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
@@ -69,7 +78,7 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
 
   return (
     <div className="overflow-x-auto border border-[#14100d]/20">
-      <table className="w-full text-[13px] border-collapse" style={{ minWidth: '900px' }}>
+      <table className="w-full text-[15px] border-collapse" style={{ minWidth: '900px' }}>
         <thead>
           <tr className="border-b border-[#14100d]/20 text-left">
             <Th label="#"        active={sortKey === 'rank'}           dir={sortDir} onClick={() => toggle('rank')}           align="right" width={48} />
@@ -95,31 +104,58 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
                 </td>
                 <td className="px-3 py-3">
                   <div className="flex items-center gap-3 min-w-0">
-                    {r.photo_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={r.photo_url}
-                        alt={r.name}
-                        className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-                        style={{ border: `1px solid ${partyColour}` }}
-                      />
-                    ) : (
-                      <div
-                        className="w-12 h-12 rounded-full flex items-center justify-center text-[12px] font-bold text-[#14100d] flex-shrink-0"
-                        style={{ border: `1px solid ${partyColour}`, background: partyColour + '33' }}
-                      >
-                        {r.name.charAt(0)}
-                      </div>
-                    )}
+                    {/* Compact parchment polaroid — same vocabulary as
+                        MpDossier (cream paper stock, extra bottom
+                        padding for the caption strip, soft drop shadow,
+                        slight per-row tilt) sized for a table row. */}
+                    <div
+                      style={{
+                        flex: '0 0 auto',
+                        background: '#ebe5d8',
+                        padding: '3px 3px 9px 3px',
+                        transform: `rotate(${pegTilt(rank)}deg)`,
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.18), inset 0 0 12px rgba(0,0,0,0.03)',
+                        filter: 'contrast(1.05) brightness(0.98)',
+                      }}
+                    >
+                      {r.photo_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={r.photo_url}
+                          alt={r.name}
+                          width={42}
+                          height={42}
+                          style={{ display: 'block', width: '42px', height: '42px', objectFit: 'cover', filter: 'contrast(1.08) sepia(0.05)' }}
+                        />
+                      ) : (
+                        <div
+                          aria-hidden
+                          style={{
+                            width: '42px',
+                            height: '42px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: '#d6cdb8',
+                            color: '#14100d',
+                            fontSize: '16px',
+                            fontWeight: 'bold',
+                            fontFamily: 'Special Elite, monospace',
+                          }}
+                        >
+                          {r.name.charAt(0) || '?'}
+                        </div>
+                      )}
+                    </div>
                     <div className="min-w-0">
                       <Link
                         href={`/mps/${r.member_id}`}
-                        className="text-[#14100d] font-semibold hover:underline block truncate"
+                        className="text-[#14100d] font-semibold hover:underline block truncate text-[16px]"
                         style={{ fontFamily: '"Georgia", "Charter", "Times New Roman", serif' }}
                       >
                         {r.name}
                       </Link>
-                      <div className="text-[11px] text-[#14100d]/70 truncate">
+                      <div className="text-[13px] text-[#14100d]/70 truncate">
                         {r.constituency || ''}
                         {r.party ? ` · ${r.party}` : ''}
                         {r.salary_band ? ` · ${SALARY_BAND_LABEL[r.salary_band]}` : ''}
@@ -167,7 +203,7 @@ function Th({
   return (
     <th
       onClick={onClick}
-      className={`px-3 py-3 text-[10px] uppercase tracking-[0.18em] font-semibold cursor-pointer select-none ${active ? 'text-[#14100d]' : 'text-[#14100d]/60 hover:text-[#14100d]'}`}
+      className={`px-3 py-3 text-[12px] uppercase tracking-[0.18em] font-semibold cursor-pointer select-none ${active ? 'text-[#14100d]' : 'text-[#14100d]/60 hover:text-[#14100d]'}`}
       style={{ textAlign: align, width: width ? `${width}px` : undefined }}
     >
       <span className="inline-flex items-center gap-1.5">
