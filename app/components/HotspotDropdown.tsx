@@ -94,6 +94,11 @@ export default function HotspotDropdown({
     padding: '4px 0',
     display: open ? 'block' : 'none',
     fontFamily: 'Special Elite, monospace',
+    // Safety net for long menus (PARTIES now lists all 15 parties +
+    // Manifesto Comparisons). 70vh keeps the panel fully on-screen on
+    // smaller viewports; overflow lets it scroll inside the parchment.
+    maxHeight: '70vh',
+    overflowY: 'auto',
   };
 
   const itemStyle = (first: boolean): CSSProperties => ({

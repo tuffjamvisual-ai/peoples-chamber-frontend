@@ -33,10 +33,25 @@ const HOTSPOTS: Hotspot[] = [
     href: '/parties',
     xPct: 35.0, yPct: 21.3, wPct: 7.0, hPct: 2.8,
     children: [
+      // Manifesto Comparisons + all 15 parties in MP-count desc order
+      // (matches the vertical stack on /parties, sourced from MP_PARTY_TO_SLUG
+      // in app/parties/page.tsx). 2026-06-03.
       { label: 'Manifesto Comparisons', href: '/parties' },
       { label: 'Labour',                href: '/parties/labour' },
       { label: 'Conservative',          href: '/parties/conservative' },
+      { label: 'Liberal Democrats',     href: '/parties/liberal-democrats' },
+      { label: 'SNP',                   href: '/parties/snp' },
       { label: 'Reform UK',             href: '/parties/reform-uk' },
+      { label: 'Sinn Féin',             href: '/parties/sinn-fein' },
+      { label: 'Green Party',           href: '/parties/green' },
+      { label: 'DUP',                   href: '/parties/dup' },
+      { label: 'Plaid Cymru',           href: '/parties/plaid-cymru' },
+      { label: 'SDLP',                  href: '/parties/sdlp' },
+      { label: 'Alliance',              href: '/parties/alliance' },
+      { label: 'UUP',                   href: '/parties/uup' },
+      { label: 'TUV',                   href: '/parties/tuv' },
+      { label: 'Restore Britain',       href: '/parties/restore-britain' },
+      { label: 'Your Party',            href: '/parties/your-party' },
     ],
   },
   { label: 'MPS', href: '/mps', xPct: 44.5, yPct: 21.3, wPct: 4.5, hPct: 2.8 },
