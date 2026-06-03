@@ -81,7 +81,11 @@ export default function HotspotDropdown({
   const panelStyle: CSSProperties = {
     position: 'absolute',
     top: 'calc(100% + 4px)',
-    left: 0,
+    // Centre the panel under its hotspot — left:50% + translateX(-50%)
+    // anchors the panel's horizontal centre to the trigger's centre,
+    // regardless of trigger width.
+    left: '50%',
+    transform: 'translateX(-50%)',
     minWidth: '220px',
     background: '#efe6d2',
     border: '1px solid rgba(26,20,14,0.4)',
