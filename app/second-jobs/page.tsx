@@ -1,23 +1,14 @@
-// /second-jobs — every current MP with declared outside earnings
-// or registered employment-category interests, drawn from the
-// Members API's Register of Members' Financial Interests.
-//
-// Data sources:
-//   - mp_registered_interests.category_name ILIKE 'Employment%'
-//     gives the parent role/payer text per registered interest.
-//   - The same row's child_interests JSONB array carries the
-//     individual 'Payment: £X' lines.
-//   - mp_outside_earnings_summary is the pre-computed lower-bound
-//     total (regex over child_interests) used to rank MPs and as
-//     the headline 'declared total' per MP.
-//
-// Render on demand (the parsing is non-trivial; cache 24h via ISR).
+// /second-jobs — landing page. Rolls every current MP with declared
+// outside earnings up to their party and renders a clickable grid;
+// the per-MP detail (role, payer, every payment) lives at
+// /second-jobs/[slug] so the landing stays scannable.
 
 import type { Metadata } from 'next';
-import { supabase } from '@/lib/supabase';
+import Link from 'next/link';
 import DossierShell from '../components/DossierShell';
 import BackLink from '../components/BackLink';
 import ScrollToTopButton from '../components/ScrollToTopButton';
+import { fmtMoney, loadAll } from './_lib/data';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 86400;
@@ -25,7 +16,7 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: 'MPs with second jobs',
   description:
-    'Every current MP with declared outside earnings from the Register of Members’ Financial Interests. Role, payer, individual payments.',
+    'Every current MP with declared outside earnings from the Register of Members’ Financial Interests, organised by party.',
   alternates: { canonical: '/second-jobs' },
 };
 
@@ -37,155 +28,8 @@ const PARCHMENT_CREAM = '#efe6d2';
 const SERIF = 'EB Garamond, Garamond, Georgia, "Times New Roman", serif';
 const MONO = 'Special Elite, monospace';
 
-type ChildPayment = {
-  interest?: string;
-};
-
-type InterestRow = {
-  member_id: number;
-  interest_text: string;
-  child_interests: ChildPayment[] | null;
-};
-
-type MpRow = {
-  member_id: number;
-  display_name: string | null;
-  name: string | null;
-  constituency: string | null;
-  party: string | null;
-  party_colour: string | null;
-};
-
-type Summary = {
-  member_id: number;
-  total_extracted: number;
-  claim_count: number;
-};
-
-function fmtMoney(n: number): string {
-  if (!n) return '£0';
-  return '£' + Math.round(n).toLocaleString('en-GB');
-}
-
-// Parse parent-interest text. The Members API serialises a role-line,
-// optional From: date, Payer: line, ACOBA flag, etc. We pluck what's
-// useful for display and let the rest fall through verbatim.
-type ParentParsed = {
-  role: string | null;
-  payer: string | null;
-  startDate: string | null;
-  acoba: boolean;
-  extra: string[];
-};
-function parseParent(text: string): ParentParsed {
-  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-  const out: ParentParsed = { role: null, payer: null, startDate: null, acoba: false, extra: [] };
-  for (const line of lines) {
-    const m1 = /^Role, work or services:\s*(.*)$/i.exec(line);
-    if (m1) { out.role = m1[1]; continue; }
-    const m2 = /^Payer:\s*(.*)$/i.exec(line);
-    if (m2) { out.payer = m2[1]; continue; }
-    const m3 = /^From:\s*(.*?)\.?$/i.exec(line);
-    if (m3) { out.startDate = m3[1]; continue; }
-    if (/^ACOBA consulted:\s*yes/i.test(line)) { out.acoba = true; continue; }
-    if (/^\(Registered/i.test(line)) continue; // drop registry footer
-    if (/^Additional information:/i.test(line)) continue;
-    out.extra.push(line);
-  }
-  return out;
-}
-
-// Parse a child payment string. We're after the £ amount, the
-// received-on date, the hours, and the ultimate-payer override
-// (some payments route through a bureau but pay out of another body).
-type Payment = { amount: number | null; raw: string; receivedOn: string | null; hours: string | null; ultimatePayer: string | null };
-function parsePayment(text: string): Payment {
-  const out: Payment = { amount: null, raw: text, receivedOn: null, hours: null, ultimatePayer: null };
-  const amt = /Payment:\s*£([\d,]+(?:\.\d+)?)/i.exec(text) || /Remuneration:\s*£([\d,]+(?:\.\d+)?)/i.exec(text);
-  if (amt) out.amount = Number(amt[1].replace(/,/g, ''));
-  const rec = /Received on:\s*([^.\n]+)/i.exec(text);
-  if (rec) out.receivedOn = rec[1].trim();
-  const hrs = /Hours:\s*([0-9.]+\s*(?:hrs?|hours?)?(?:\s*a\s*year)?)/i.exec(text);
-  if (hrs) out.hours = hrs[1].trim();
-  const ult = /Ultimate payer:\s*([^\n|]+)/i.exec(text);
-  if (ult) out.ultimatePayer = ult[1].trim();
-  return out;
-}
-
-async function getData() {
-  const [{ data: summaries }, { data: interests }, { data: mps }] = await Promise.all([
-    supabase
-      .from('mp_outside_earnings_summary')
-      .select('member_id, total_extracted, claim_count'),
-    supabase
-      .from('mp_registered_interests')
-      .select('member_id, interest_text, child_interests')
-      // Category in DB is "1. Employment and earnings" — the
-      // numbered prefix tripped up an earlier 'Employment%' filter
-      // and rendered the page with zero MPs. Use a contains match.
-      .ilike('category_name', '%Employment and earnings%'),
-    supabase
-      .from('mps')
-      .select('member_id, display_name, name, constituency, party, party_colour')
-      .eq('current_member', true),
-  ]);
-
-  const summaryByMember = new Map<number, Summary>(
-    ((summaries as Summary[]) || []).map((s) => [s.member_id, s])
-  );
-  const mpByMember = new Map<number, MpRow>(
-    ((mps as MpRow[]) || []).map((m) => [m.member_id, m])
-  );
-
-  // Group interests by member_id, only keep MPs that are current.
-  const interestsByMember = new Map<number, InterestRow[]>();
-  for (const row of (interests as InterestRow[]) || []) {
-    if (!mpByMember.has(row.member_id)) continue;
-    if (!interestsByMember.has(row.member_id)) interestsByMember.set(row.member_id, []);
-    interestsByMember.get(row.member_id)!.push(row);
-  }
-
-  // Build display list: MPs with any employment-category interest,
-  // ordered by mp_outside_earnings_summary.total_extracted desc.
-  const memberIds = Array.from(interestsByMember.keys());
-  memberIds.sort((a, b) => {
-    const ta = summaryByMember.get(a)?.total_extracted || 0;
-    const tb = summaryByMember.get(b)?.total_extracted || 0;
-    return tb - ta;
-  });
-
-  const list = memberIds.map((id) => {
-    const mp = mpByMember.get(id)!;
-    const summary = summaryByMember.get(id);
-    const rows = interestsByMember.get(id) || [];
-    return {
-      mp,
-      total: Number(summary?.total_extracted) || 0,
-      claimCount: summary?.claim_count || 0,
-      rows,
-    };
-  });
-
-  const partyTotals = new Map<string, { mps: number; total: number }>();
-  for (const item of list) {
-    const party = item.mp.party || 'Other';
-    if (!partyTotals.has(party)) partyTotals.set(party, { mps: 0, total: 0 });
-    const cell = partyTotals.get(party)!;
-    cell.mps += 1;
-    cell.total += item.total;
-  }
-  const partyList = Array.from(partyTotals.entries())
-    .map(([party, v]) => ({ party, mps: v.mps, total: v.total }))
-    .sort((a, b) => b.total - a.total);
-
-  const grandTotal = list.reduce((s, x) => s + x.total, 0);
-  const grandClaims = list.reduce((s, x) => s + x.claimCount, 0);
-
-  return { list, partyList, grandTotal, grandClaims };
-}
-
-export default async function SecondJobsPage() {
-  const { list, partyList, grandTotal, grandClaims } = await getData();
+export default async function SecondJobsLanding() {
+  const { partyTotals, grandTotal, grandClaims, totalMps } = await loadAll();
 
   return (
     <DossierShell>
@@ -234,14 +78,12 @@ export default async function SecondJobsPage() {
             color: INK,
           }}
         >
-          Every current MP whose Register of Members’ Financial Interests includes
-          a paid employment outside Parliament: the role, the payer, the amounts and
-          dates of each individual payment. The headline totals shown beside each MP
-          are a conservative lower bound — only payments registered with an
-          explicit £ figure are summed, so ongoing salaries declared without a
-          per-payment amount, ranges (“£200 to £500”), and unbanded
-          entries do not appear in the totals but the underlying roles do appear in
-          the list.
+          Every current MP with a paid employment outside Parliament, organised
+          by party. Choose a party to see each MP, the role, the payer and every
+          individual payment registered. Headline totals are a conservative lower
+          bound — only payments with an explicit £ figure are summed, so
+          ranges and salaried roles without per-payment amounts are not in the
+          numbers but are in the underlying lists.
         </p>
 
         {/* Headline stats trio */}
@@ -253,136 +95,62 @@ export default async function SecondJobsPage() {
             marginBottom: '32px',
           }}
         >
-          <Stat label="MPs with second jobs" value={list.length.toString()} />
+          <Stat label="MPs with second jobs" value={totalMps.toString()} />
           <Stat label="Individual payments declared" value={grandClaims.toLocaleString('en-GB')} />
           <Stat label="Declared total (lower bound)" value={fmtMoney(grandTotal)} />
         </div>
 
-        {/* Party breakdown */}
-        <section style={{ marginBottom: '32px' }}>
-          <h2 style={{ fontFamily: MONO, fontSize: '11px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
-            By party
-          </h2>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontFamily: MONO, fontSize: '13px', borderTop: `1px solid ${INK_HAIRLINE}` }}>
-            {partyList.map((p) => (
-              <li key={p.party} style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: '12px', padding: '8px 0', borderBottom: `1px solid ${INK_HAIRLINE}`, alignItems: 'baseline' }}>
-                <span style={{ color: INK }}>{p.party}</span>
-                <span style={{ color: INK_SOFT, fontSize: '12px' }}>{p.mps} MP{p.mps === 1 ? '' : 's'}</span>
-                <span style={{ color: INK, fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>{fmtMoney(p.total)}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
+        <h2 style={{ fontFamily: MONO, fontSize: '11px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
+          By party · click through for detail
+        </h2>
 
-        {/* Per-MP detail */}
-        <section>
-          <h2 style={{ fontFamily: MONO, fontSize: '11px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 16px' }}>
-            Every MP, every payment
-          </h2>
-          <ol style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '28px' }}>
-            {list.map((item, idx) => {
-              const partyColour = item.mp.party_colour ? '#' + item.mp.party_colour.replace('#', '') : '#7697a2';
-              const name = item.mp.display_name || item.mp.name || '';
-              return (
-                <li
-                  key={item.mp.member_id}
-                  id={`mp-${item.mp.member_id}`}
-                  style={{
-                    borderTop: `2px solid ${INK}`,
-                    paddingTop: '14px',
-                    borderLeft: `4px solid ${partyColour}`,
-                    paddingLeft: '14px',
-                  }}
-                >
-                  <header style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '10px 18px', alignItems: 'baseline', marginBottom: '14px' }}>
-                    <span style={{ fontFamily: MONO, fontSize: '15px', color: INK_SOFT, fontVariantNumeric: 'tabular-nums', width: '28px' }}>{idx + 1}.</span>
-                    <div>
-                      <a href={`/mps/${item.mp.member_id}#expenses`} style={{ color: INK, textDecoration: 'none', fontFamily: SERIF, fontSize: 'clamp(18px, 2vw, 22px)', fontWeight: 600 }}>
-                        {name}
-                      </a>
-                      <div style={{ fontFamily: MONO, fontSize: '12px', color: INK_SOFT, marginTop: '2px' }}>
-                        {item.mp.party}{item.mp.constituency ? ` · ${item.mp.constituency}` : ''}
-                      </div>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontFamily: SERIF, fontSize: 'clamp(20px, 2.2vw, 26px)', fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: INK }}>
-                        {fmtMoney(item.total)}
-                      </div>
-                      <div style={{ fontFamily: MONO, fontSize: '10px', letterSpacing: '0.16em', textTransform: 'uppercase', color: INK_SOFT, marginTop: '4px' }}>
-                        {item.claimCount} payment{item.claimCount === 1 ? '' : 's'} on record
-                      </div>
-                    </div>
-                  </header>
-
-                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                    {item.rows.map((row, ri) => {
-                      const parsed = parseParent(row.interest_text);
-                      const payments = (row.child_interests || []).map((c) => parsePayment(c.interest || ''));
-                      const rowTotal = payments.reduce((s, p) => s + (p.amount || 0), 0);
-                      return (
-                        <li key={ri} style={{ borderLeft: `1px solid ${INK_HAIRLINE}`, paddingLeft: '12px' }}>
-                          <div style={{ fontFamily: SERIF, fontSize: '15px', color: INK, marginBottom: '4px' }}>
-                            {parsed.role || row.interest_text.slice(0, 80) + '…'}
-                          </div>
-                          {parsed.payer && (
-                            <div style={{ fontFamily: MONO, fontSize: '12px', color: INK_SOFT, marginBottom: '4px' }}>
-                              <span style={{ textTransform: 'uppercase', letterSpacing: '0.14em', fontSize: '10px', marginRight: '6px' }}>Payer</span>
-                              {parsed.payer}
-                            </div>
-                          )}
-                          {parsed.startDate && (
-                            <div style={{ fontFamily: MONO, fontSize: '12px', color: INK_SOFT, marginBottom: '6px' }}>
-                              <span style={{ textTransform: 'uppercase', letterSpacing: '0.14em', fontSize: '10px', marginRight: '6px' }}>From</span>
-                              {parsed.startDate}
-                            </div>
-                          )}
-                          {payments.length > 0 && (
-                            <ul style={{ listStyle: 'none', padding: 0, margin: '6px 0 0', borderTop: `1px dotted ${INK_HAIRLINE}` }}>
-                              {payments.map((p, pi) => (
-                                <li key={pi} style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '12px', padding: '6px 0', borderBottom: `1px dotted ${INK_HAIRLINE}`, alignItems: 'baseline', fontFamily: MONO, fontSize: '12px', color: INK }}>
-                                  <div>
-                                    {p.receivedOn ? <span>{p.receivedOn}</span> : null}
-                                    {p.hours ? <span style={{ color: INK_SOFT, marginLeft: '8px' }}>· {p.hours}</span> : null}
-                                    {p.ultimatePayer ? <div style={{ color: INK_SOFT, fontSize: '11px', marginTop: '2px' }}>Ultimate payer: {p.ultimatePayer}</div> : null}
-                                  </div>
-                                  <div style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>
-                                    {p.amount != null ? fmtMoney(p.amount) : <span style={{ color: INK_SOFT, fontStyle: 'italic' }}>not specified</span>}
-                                  </div>
-                                </li>
-                              ))}
-                              {rowTotal > 0 && (
-                                <li style={{ display: 'grid', gridTemplateColumns: '1fr auto', padding: '6px 0', fontFamily: MONO, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.14em', color: INK_SOFT }}>
-                                  <span>Subtotal for this role</span>
-                                  <span style={{ fontVariantNumeric: 'tabular-nums', color: INK, fontWeight: 600 }}>{fmtMoney(rowTotal)}</span>
-                                </li>
-                              )}
-                            </ul>
-                          )}
-                          {payments.length === 0 && (
-                            <p style={{ fontFamily: MONO, fontSize: '12px', color: INK_SOFT, fontStyle: 'italic', margin: '4px 0 0' }}>
-                              Role registered without an itemised payment. Salaried or ongoing arrangement.
-                            </p>
-                          )}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </li>
-              );
-            })}
-          </ol>
-        </section>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+            gap: '14px',
+          }}
+        >
+          {partyTotals.map((p) => (
+            <Link
+              key={p.slug}
+              href={`/second-jobs/${p.slug}`}
+              className="no-hover-scale"
+              style={{
+                display: 'block',
+                padding: '16px 18px',
+                background: 'rgba(255,247,228,0.5)',
+                border: `1px solid ${INK_HAIRLINE}`,
+                borderLeft: `4px solid ${ACCENT}`,
+                color: INK,
+                textDecoration: 'none',
+              }}
+            >
+              <div style={{ fontFamily: MONO, fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.22em', color: INK_SOFT, marginBottom: '6px' }}>
+                {p.mps} MP{p.mps === 1 ? '' : 's'}
+              </div>
+              <div style={{ fontFamily: SERIF, fontSize: 'clamp(18px, 2vw, 22px)', fontWeight: 600, marginBottom: '6px' }}>
+                {p.label} <span style={{ opacity: 0.55 }}>→</span>
+              </div>
+              <div style={{ fontFamily: SERIF, fontSize: 'clamp(20px, 2.2vw, 26px)', fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: INK }}>
+                {fmtMoney(p.total)}
+              </div>
+              {p.topMp && (
+                <div style={{ fontFamily: MONO, fontSize: '11px', color: INK_SOFT, marginTop: '6px' }}>
+                  Top earner: {p.topMp.name} · {fmtMoney(p.topMp.total)}
+                </div>
+              )}
+            </Link>
+          ))}
+        </div>
 
         <section style={{ marginTop: '40px', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', fontFamily: MONO, fontSize: '12px', color: INK_SOFT, lineHeight: 1.7 }}>
           <strong style={{ color: INK }}>Methodology.</strong> Drawn from the Members’
           Register of Financial Interests (members-api.parliament.uk) for current MPs
-          only. Roles are taken from category “Employment and earnings”. Each
-          MP’s headline total is the sum of explicit “Payment: £X”
+          only. Roles are taken from category “1. Employment and earnings”.
+          Each MP’s headline total is the sum of explicit “Payment: £X”
           amounts found in the registered child entries. Ranges and salaried roles
-          without a per-payment figure are not summed. Where an entry shows an
-          “Ultimate payer” (e.g. a speaker bureau routing fees from another
-          body), the underlying payer is shown. Last refresh of the local cache:
-          {' '}see <code style={{ fontFamily: MONO }}>mp_outside_earnings_summary.updated_at</code>.
+          without a per-payment figure are not summed.
         </section>
 
         <ScrollToTopButton />
