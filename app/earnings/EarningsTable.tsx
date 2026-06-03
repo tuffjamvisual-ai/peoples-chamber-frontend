@@ -81,11 +81,12 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
       className="border border-[#14100d]/20"
       style={{
         // Negative horizontal margin so the table breaks out of the
-        // dossier folder's inner padding by a small amount. User
-        // asked to *decrease* the inset 2026-06-03 to give the seven
-        // columns more breathing room without horizontal scroll.
-        marginLeft: 'clamp(-32px, -2%, -8px)',
-        marginRight: 'clamp(-32px, -2%, -8px)',
+        // dossier folder's inner padding. User asked to push the
+        // outdent further on 2026-06-03 because 'Minister.' was
+        // wrapping by one letter in the header row. Now -3% at
+        // mid-viewport (was -2%).
+        marginLeft: 'clamp(-48px, -3%, -16px)',
+        marginRight: 'clamp(-48px, -3%, -16px)',
       }}
     >
       {/* No horizontal scroll. Seven columns kept; text sizes bumped
@@ -221,7 +222,7 @@ function Th({
   return (
     <th
       onClick={onClick}
-      className={`px-2 py-3 text-[14px] uppercase tracking-[0.14em] font-semibold cursor-pointer select-none ${active ? 'text-[#14100d]' : 'text-[#14100d]/60 hover:text-[#14100d]'}`}
+      className={`px-2 py-3 text-[14px] uppercase tracking-[0.10em] font-semibold cursor-pointer select-none whitespace-nowrap ${active ? 'text-[#14100d]' : 'text-[#14100d]/60 hover:text-[#14100d]'}`}
       style={{ textAlign: align, width: width ? `${width}px` : undefined }}
     >
       <span className="inline-flex items-center gap-1.5">
