@@ -28,6 +28,7 @@ type CouncilFull = {
   country: string;
   region: string | null;
   gss_code: string;
+  parent_slug: string | null;
   population: number | null;
   political_control: string | null;
   political_control_status: string | null;
@@ -43,6 +44,8 @@ type CouncilFull = {
   wikipedia_url: string | null;
   description: string | null;
 };
+
+type RelatedCouncil = { slug: string; name: string; short_name: string | null; political_control: string | null };
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -64,6 +67,21 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
     .single();
   if (!council) notFound();
   const c = council as CouncilFull;
+
+  // Pull parent council (for districts) and child districts (for
+  // counties) in a single round-trip — the parent_slug column makes
+  // the relationship explicit. Counties have null parent_slug; child
+  // districts are read by querying parent_slug = this slug.
+  const [{ data: parentRow }, { data: childRows }] = await Promise.all([
+    c.parent_slug
+      ? supabase.from('councils').select('slug, name, short_name, political_control').eq('slug', c.parent_slug).single()
+      : Promise.resolve({ data: null }),
+    c.type === 'county'
+      ? supabase.from('councils').select('slug, name, short_name, political_control').eq('parent_slug', c.slug).order('name')
+      : Promise.resolve({ data: [] }),
+  ]);
+  const parent: RelatedCouncil | null = (parentRow as RelatedCouncil | null) || null;
+  const children: RelatedCouncil[] = (childRows || []) as RelatedCouncil[];
 
   const hasFinance = c.council_tax_band_d_pounds != null || c.revenue_budget_mn != null;
   const hasLeadership = c.political_control != null || c.leader_name != null || c.chief_exec != null;
@@ -99,6 +117,14 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
         >
           <div style={{ fontFamily: SERIF, fontSize: '12px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '4px' }}>
             {c.type_label} · {c.country}
+            {parent && (
+              <>
+                {' · '}
+                <a href={`/councils/${parent.slug}`} style={{ color: INK_SOFT, textDecoration: 'underline' }}>
+                  Part of {parent.short_name || parent.name}
+                </a>
+              </>
+            )}
           </div>
           <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(26px, 3.2vw, 40px)', fontWeight: 500, letterSpacing: '0.005em', lineHeight: 1.18, margin: 0 }}>
             {c.name}
@@ -154,6 +180,48 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
               being added in stages alongside the other 381 principal authorities. The {c.type_label}{' '}
               listing is the foundation; live data lands phase by phase.
             </p>
+          </section>
+        )}
+
+        {children.length > 0 && (
+          <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
+            <h2 style={{ fontFamily: MONO, fontSize: '11px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
+              Districts under {c.short_name || c.name} · {children.length}
+            </h2>
+            <ul
+              style={{
+                listStyle: 'none',
+                padding: 0,
+                margin: 0,
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+                gap: '4px 16px',
+              }}
+            >
+              {children.map((d) => (
+                <li key={d.slug}>
+                  <a
+                    href={`/councils/${d.slug}`}
+                    style={{
+                      display: 'block',
+                      padding: '6px 0',
+                      color: INK,
+                      textDecoration: 'none',
+                      fontFamily: MONO,
+                      fontSize: '13px',
+                      lineHeight: 1.55,
+                    }}
+                  >
+                    {d.short_name || d.name}
+                    {d.political_control && (
+                      <span style={{ display: 'block', fontSize: '11px', color: INK_SOFT, marginTop: '1px' }}>
+                        {d.political_control}
+                      </span>
+                    )}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </section>
         )}
 
