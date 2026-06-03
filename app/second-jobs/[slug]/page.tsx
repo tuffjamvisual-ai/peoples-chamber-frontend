@@ -92,7 +92,7 @@ export default async function PartySecondJobsList({ params }: { params: Promise<
           <Stat label="Party total (lower bound)" value={fmtMoney(partyTotal)} />
         </div>
 
-        <h2 style={{ fontFamily: MONO, fontSize: '11px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 16px' }}>
+        <h2 style={{ fontFamily: MONO, fontSize: '13px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 16px' }}>
           Click an MP for their full payment breakdown
         </h2>
 
@@ -164,11 +164,11 @@ export default async function PartySecondJobsList({ params }: { params: Promise<
                   <div style={{ fontFamily: SERIF, fontSize: 'clamp(15px, 1.7vw, 18px)', fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: INK }}>
                     {fmtMoney(item.total)}
                   </div>
-                  <div style={{ fontFamily: MONO, fontSize: '10px', letterSpacing: '0.14em', textTransform: 'uppercase', color: INK_SOFT, marginTop: '2px' }}>
+                  <div style={{ fontFamily: MONO, fontSize: '12px', letterSpacing: '0.14em', textTransform: 'uppercase', color: INK_SOFT, marginTop: '2px' }}>
                     {item.claimCount} payment{item.claimCount === 1 ? '' : 's'}
                   </div>
                 </div>
-                <span style={{ fontFamily: MONO, fontSize: '11px', letterSpacing: '0.18em', textTransform: 'uppercase', color: ACCENT, whiteSpace: 'nowrap' }}>
+                <span style={{ fontFamily: MONO, fontSize: '13px', letterSpacing: '0.18em', textTransform: 'uppercase', color: ACCENT, whiteSpace: 'nowrap' }}>
                   Detail →
                 </span>
               </li>
@@ -193,7 +193,7 @@ export default async function PartySecondJobsList({ params }: { params: Promise<
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '14px 16px', background: 'rgba(255,247,228,0.5)' }}>
-      <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.22em', color: INK_SOFT, margin: '0 0 6px', fontWeight: 'bold', fontFamily: MONO }}>
+      <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.22em', color: INK_SOFT, margin: '0 0 6px', fontWeight: 'bold', fontFamily: MONO }}>
         {label}
       </p>
       <p style={{ fontSize: 'clamp(18px, 2vw, 22px)', fontWeight: 700, letterSpacing: '-0.01em', color: INK, fontVariantNumeric: 'tabular-nums', margin: 0, lineHeight: 1.1, fontFamily: SERIF }}>

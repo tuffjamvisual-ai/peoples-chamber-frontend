@@ -259,13 +259,13 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
       <section style={{ marginBottom: '40px', borderTop: `1.5px solid ${INK}`, paddingTop: '28px' }}>
         <div style={{ position: 'relative', padding: '0 4px' }}>
           <div style={{ textAlign: 'center', marginBottom: '22px' }}>
-            <div style={{ fontFamily: MONO, fontSize: '10px', letterSpacing: '0.3em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold' }}>
+            <div style={{ fontFamily: MONO, fontSize: '12px', letterSpacing: '0.3em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold' }}>
               Official Ballot · The People&apos;s Chamber
             </div>
             <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(22px, 3vw, 28px)', fontWeight: 'bold', margin: '10px 0 0', lineHeight: 1.15 }}>
               How would you vote on this bill?
             </h2>
-            <div style={{ fontFamily: MONO, fontSize: '11px', fontStyle: 'italic', letterSpacing: '0.04em', color: INK_SOFT, marginTop: '8px' }}>
+            <div style={{ fontFamily: MONO, fontSize: '13px', fontStyle: 'italic', letterSpacing: '0.04em', color: INK_SOFT, marginTop: '8px' }}>
               Mark one box with a cross.
             </div>
           </div>
@@ -325,7 +325,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
 
             {democraticGap !== null && (
               <div style={{ borderLeft: `3px solid ${outcomeMismatch ? WARN : ACCENT}`, padding: '12px 18px', background: CREAM_DEEP }}>
-                <div style={{ fontFamily: MONO, fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.22em', fontWeight: 'bold', color: outcomeMismatch ? WARN : ACCENT, marginBottom: '5px' }}>
+                <div style={{ fontFamily: MONO, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.22em', fontWeight: 'bold', color: outcomeMismatch ? WARN : ACCENT, marginBottom: '5px' }}>
                   The democratic gap
                 </div>
                 <p style={{ fontFamily: SERIF, fontSize: '16px', fontWeight: 'bold', lineHeight: 1.4, margin: 0 }}>
@@ -363,7 +363,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
               <div style={{ fontFamily: SERIF, fontSize: '18px', fontWeight: 'bold', lineHeight: 1.25 }}>{bill.sponsor_name}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px', flexWrap: 'wrap' }}>
                 {bill.sponsor_party && (
-                  <span style={{ fontFamily: MONO, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '2px 8px', color: '#ebe5d8', background: bill.sponsor_party_colour ? `#${String(bill.sponsor_party_colour).replace('#', '')}` : '#7697a2' }}>
+                  <span style={{ fontFamily: MONO, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '2px 8px', color: '#ebe5d8', background: bill.sponsor_party_colour ? `#${String(bill.sponsor_party_colour).replace('#', '')}` : '#7697a2' }}>
                     {bill.sponsor_party}
                   </span>
                 )}
@@ -419,7 +419,7 @@ function explanationPoints(raw: string): string[] {
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
-    <p style={{ fontFamily: MONO, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.25em', fontWeight: 'bold', color: ACCENT, marginBottom: '12px' }}>
+    <p style={{ fontFamily: MONO, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.25em', fontWeight: 'bold', color: ACCENT, marginBottom: '12px' }}>
       {children}
     </p>
   )
@@ -427,7 +427,7 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
 
 function Tag({ colour, children }: { colour: string; children: React.ReactNode }) {
   return (
-    <span style={{ display: 'inline-block', padding: '4px 10px', fontFamily: MONO, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.13em', color: colour, border: `1px solid ${colour}`, background: 'transparent' }}>
+    <span style={{ display: 'inline-block', padding: '4px 10px', fontFamily: MONO, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.13em', color: colour, border: `1px solid ${colour}`, background: 'transparent' }}>
       {children}
     </span>
   )
@@ -436,7 +436,7 @@ function Tag({ colour, children }: { colour: string; children: React.ReactNode }
 function ExplainerColumn({ label, colour, points }: { label: string; colour: string; points: string[] }) {
   return (
     <div style={{ borderLeft: `3px solid ${colour}`, padding: '14px 18px', background: CREAM_DEEP }}>
-      <p style={{ fontFamily: MONO, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.2em', fontWeight: 'bold', color: colour, marginBottom: '12px' }}>
+      <p style={{ fontFamily: MONO, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.2em', fontWeight: 'bold', color: colour, marginBottom: '12px' }}>
         {label}
       </p>
       <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -474,7 +474,7 @@ function VoteBar({
 }) {
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px', fontFamily: MONO, fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.2em', fontWeight: 'bold', color: INK_SOFT }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px', fontFamily: MONO, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.2em', fontWeight: 'bold', color: INK_SOFT }}>
         <span>{label}</span>
         <span>{totalLabel}</span>
       </div>
@@ -502,7 +502,7 @@ function VoteBar({
 function StageGroup({ label, colour, stages }: { label: string; colour: string; stages: Stage[] }) {
   return (
     <div>
-      <p style={{ fontFamily: MONO, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.22em', fontWeight: 'bold', marginBottom: '12px', color: colour }}>
+      <p style={{ fontFamily: MONO, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.22em', fontWeight: 'bold', marginBottom: '12px', color: colour }}>
         {label}
       </p>
       <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>

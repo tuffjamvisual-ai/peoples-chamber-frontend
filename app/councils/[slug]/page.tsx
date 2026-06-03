@@ -129,7 +129,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
           <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(26px, 3.2vw, 40px)', fontWeight: 500, letterSpacing: '0.005em', lineHeight: 1.18, margin: 0 }}>
             {c.name}
           </h1>
-          <div style={{ fontFamily: MONO, fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginTop: '8px' }}>
+          <div style={{ fontFamily: MONO, fontSize: '12px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginTop: '8px' }}>
             ONS code {c.gss_code}
           </div>
         </header>
@@ -185,7 +185,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
 
         {children.length > 0 && (
           <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
-            <h2 style={{ fontFamily: MONO, fontSize: '11px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
+            <h2 style={{ fontFamily: MONO, fontSize: '13px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
               Districts under {c.short_name || c.name} · {children.length}
             </h2>
             <ul
@@ -214,7 +214,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                   >
                     {d.short_name || d.name}
                     {d.political_control && (
-                      <span style={{ display: 'block', fontSize: '11px', color: INK_SOFT, marginTop: '1px' }}>
+                      <span style={{ display: 'block', fontSize: '13px', color: INK_SOFT, marginTop: '1px' }}>
                         {d.political_control}
                       </span>
                     )}
@@ -234,7 +234,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
-      <h2 style={{ fontFamily: MONO, fontSize: '11px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
+      <h2 style={{ fontFamily: MONO, fontSize: '13px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
         {title}
       </h2>
       <dl style={{ margin: 0, display: 'grid', gridTemplateColumns: 'minmax(180px, 220px) 1fr', gap: '0', borderTop: `1px solid ${INK_HAIRLINE}` }}>

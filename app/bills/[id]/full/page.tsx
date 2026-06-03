@@ -235,7 +235,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
       {billMeta?.longTitle && (
         <section style={{ marginBottom: '36px' }}>
           <h2 style={{
-            fontFamily: MONO, fontSize: '11px', textTransform: 'uppercase',
+            fontFamily: MONO, fontSize: '13px', textTransform: 'uppercase',
             letterSpacing: '0.22em', fontWeight: 'bold', color: ACCENT,
             marginBottom: '12px', borderBottom: `1px solid ${INK_HAIRLINE}`,
             paddingBottom: '8px',
@@ -256,7 +256,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
       {billMeta?.sponsors && billMeta.sponsors.length > 0 && (
         <section style={{ marginBottom: '36px' }}>
           <h2 style={{
-            fontFamily: MONO, fontSize: '11px', textTransform: 'uppercase',
+            fontFamily: MONO, fontSize: '13px', textTransform: 'uppercase',
             letterSpacing: '0.22em', fontWeight: 'bold', color: ACCENT,
             marginBottom: '12px', borderBottom: `1px solid ${INK_HAIRLINE}`,
             paddingBottom: '8px',
@@ -273,7 +273,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
                 <li key={i} style={{ display: 'flex', alignItems: 'baseline', gap: '12px', flexWrap: 'wrap' }}>
                   <span style={{ fontFamily: SERIF, fontSize: '15px', fontWeight: 'bold', color: INK }}>{name}</span>
                   {party && (
-                    <span style={{ fontFamily: MONO, fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '1px 7px', color: '#ebe5d8', background: colour || '#7697a2' }}>
+                    <span style={{ fontFamily: MONO, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '1px 7px', color: '#ebe5d8', background: colour || '#7697a2' }}>
                       {party}
                     </span>
                   )}
@@ -288,7 +288,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
       {!apiError && publications.length === 0 && (
         <section style={{ marginBottom: '36px' }}>
           <h2 style={{
-            fontFamily: MONO, fontSize: '11px', textTransform: 'uppercase',
+            fontFamily: MONO, fontSize: '13px', textTransform: 'uppercase',
             letterSpacing: '0.22em', fontWeight: 'bold', color: ACCENT,
             marginBottom: '12px', borderBottom: `1px solid ${INK_HAIRLINE}`,
             paddingBottom: '8px',
@@ -312,7 +312,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
           return (
             <section key={type}>
               <h2 style={{
-                fontFamily: MONO, fontSize: '11px', textTransform: 'uppercase',
+                fontFamily: MONO, fontSize: '13px', textTransform: 'uppercase',
                 letterSpacing: '0.22em', fontWeight: 'bold', color: ACCENT,
                 marginBottom: '12px', borderBottom: `1px solid ${INK_HAIRLINE}`,
                 paddingBottom: '8px',
@@ -332,7 +332,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
                           {p.title || '(untitled publication)'}
                         </span>
                         {p.house && (
-                          <span style={{ marginLeft: '10px', fontFamily: MONO, fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.15em', color: INK_SOFT }}>
+                          <span style={{ marginLeft: '10px', fontFamily: MONO, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.15em', color: INK_SOFT }}>
                             {p.house}
                           </span>
                         )}
@@ -351,7 +351,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
       </div>
 
       <p style={{
-        fontFamily: MONO, fontSize: '11px', color: INK_SOFT,
+        fontFamily: MONO, fontSize: '13px', color: INK_SOFT,
         marginTop: '40px', paddingTop: '20px', borderTop: `1px solid ${INK_HAIRLINE}`,
         textAlign: 'center',
       }}>

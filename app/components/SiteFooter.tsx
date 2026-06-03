@@ -69,7 +69,7 @@ export default function SiteFooter() {
             justifyContent: 'space-between',
             alignItems: 'center',
             paddingTop: '1.5rem',
-            fontSize: '11px',
+            fontSize: '13px',
             color: MUTED,
             flexWrap: 'wrap',
             gap: '1rem',
@@ -87,7 +87,7 @@ function FootHead({ children }: { children: React.ReactNode }) {
   return (
     <div
       style={{
-        fontSize: '11px',
+        fontSize: '13px',
         color: '#fff',
         textTransform: 'uppercase',
         letterSpacing: '0.22em',

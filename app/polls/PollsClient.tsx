@@ -248,7 +248,7 @@ function PollCard({
         <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'Special Elite, monospace', fontSize: '9px', letterSpacing: '0.22em', textTransform: 'uppercase', color: INK_SOFT, whiteSpace: 'nowrap' }}>
           The People&apos;s Ballot
         </span>
-        <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'Special Elite, monospace', fontSize: '11px', letterSpacing: '0.06em', color: ACCENT, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+        <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'Special Elite, monospace', fontSize: '13px', letterSpacing: '0.06em', color: ACCENT, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
           No. {String(poll.id).padStart(4, '0')}
         </span>
       </div>
@@ -256,7 +256,7 @@ function PollCard({
       {/* Main ballot */}
       <div style={{ flex: 1, minWidth: 0, padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: '11px' }}>
         {poll.constituency && (
-          <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '8px' }}>
+          <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '12px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '8px' }}>
             {poll.constituency}
           </div>
         )}
@@ -271,7 +271,7 @@ function PollCard({
           </p>
         )}
 
-        <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '11px', fontStyle: 'italic', color: INK_SOFT, letterSpacing: '0.03em', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '9px' }}>
+        <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '13px', fontStyle: 'italic', color: INK_SOFT, letterSpacing: '0.03em', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '9px' }}>
           Mark one box with a cross.
         </div>
 

@@ -100,7 +100,7 @@ export default async function SecondJobsLanding() {
           <Stat label="Declared total (lower bound)" value={fmtMoney(grandTotal)} />
         </div>
 
-        <h2 style={{ fontFamily: MONO, fontSize: '11px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
+        <h2 style={{ fontFamily: MONO, fontSize: '13px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
           By party · click through for detail
         </h2>
 
@@ -174,7 +174,7 @@ export default async function SecondJobsLanding() {
                 {fmtMoney(p.total)}
               </div>
               {p.topMp && (
-                <div style={{ fontFamily: MONO, fontSize: '11px', color: INK_SOFT, marginTop: '8px', letterSpacing: '0.04em' }}>
+                <div style={{ fontFamily: MONO, fontSize: '13px', color: INK_SOFT, marginTop: '8px', letterSpacing: '0.04em' }}>
                   Top earner: {p.topMp.name} · {fmtMoney(p.topMp.total)}
                 </div>
               )}
@@ -200,7 +200,7 @@ export default async function SecondJobsLanding() {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '14px 16px', background: 'rgba(255,247,228,0.5)' }}>
-      <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.22em', color: INK_SOFT, margin: '0 0 6px', fontWeight: 'bold', fontFamily: MONO }}>
+      <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.22em', color: INK_SOFT, margin: '0 0 6px', fontWeight: 'bold', fontFamily: MONO }}>
         {label}
       </p>
       <p style={{ fontSize: 'clamp(18px, 2vw, 22px)', fontWeight: 700, letterSpacing: '-0.01em', color: INK, fontVariantNumeric: 'tabular-nums', margin: 0, lineHeight: 1.1, fontFamily: SERIF }}>

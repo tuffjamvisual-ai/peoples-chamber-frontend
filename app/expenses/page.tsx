@@ -129,7 +129,7 @@ export default async function ExpensesPage() {
       <header style={{ marginBottom: '5%' }}>
         <p
           style={{
-            fontSize: '11px',
+            fontSize: '13px',
             textTransform: 'uppercase',
             letterSpacing: '0.3em',
             fontWeight: 'bold',
@@ -218,7 +218,7 @@ export default async function ExpensesPage() {
       <section style={{ marginTop: '40px', borderTop: `2px solid ${INK}`, borderBottom: `2px solid ${INK}`, padding: '24px 0' }}>
         <p
           style={{
-            fontSize: '10px',
+            fontSize: '12px',
             textTransform: 'uppercase',
             letterSpacing: '0.3em',
             fontWeight: 'bold',
@@ -351,7 +351,7 @@ function SimpleRow({
       </Link>
       <span
         style={{
-          fontSize: '11px',
+          fontSize: '13px',
           fontVariantNumeric: 'tabular-nums',
           color: INK_SOFT,
           width: '18px',
@@ -424,7 +424,7 @@ function Stat({ label, value }: { label: string; value: string }) {
     >
       <p
         style={{
-          fontSize: '10px',
+          fontSize: '12px',
           textTransform: 'uppercase',
           letterSpacing: '0.22em',
           color: INK_SOFT,

@@ -207,7 +207,7 @@ function MPCard({ mp, fromParty, idx }: { mp: MP; fromParty: string; idx: number
         </h3>
         <p style={{ fontSize: '13px', opacity: 0.8 }}>{mp.constituency}</p>
         {isCoop(mp.party) && (
-          <p style={{ fontSize: '11px', opacity: 0.65, marginTop: '2px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          <p style={{ fontSize: '13px', opacity: 0.65, marginTop: '2px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
             Lab &amp; Co-op
           </p>
         )}

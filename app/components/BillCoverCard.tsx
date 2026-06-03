@@ -201,7 +201,7 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
           style={{
             textAlign: 'center',
             fontFamily: MONO,
-            fontSize: '11px',
+            fontSize: '13px',
             lineHeight: 1.55,
             color: INK,
             border: `1px solid ${INK}`,
@@ -224,7 +224,7 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
           justifyContent: 'space-between',
           alignItems: 'baseline',
           fontFamily: MONO,
-          fontSize: '11px',
+          fontSize: '13px',
           color: INK_SOFT,
           gap: '12px',
         }}
@@ -254,7 +254,7 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
         style={{
           textAlign: 'center',
           fontFamily: MONO,
-          fontSize: '10px',
+          fontSize: '12px',
           fontStyle: 'italic',
           color: INK_FAINT,
           marginTop: '4px',
@@ -268,7 +268,7 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
         style={{
           textAlign: 'center',
           fontFamily: MONO,
-          fontSize: '10px',
+          fontSize: '12px',
           letterSpacing: '0.18em',
           textTransform: 'uppercase',
           color: INK,
@@ -294,7 +294,7 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
             color: ACCENT,
             background: PARCHMENT_DEEP,
             fontFamily: SERIF,
-            fontSize: '11px',
+            fontSize: '13px',
             fontVariant: 'small-caps',
             letterSpacing: '0.14em',
             fontWeight: 'bold',
@@ -320,7 +320,7 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
             color: ACCENT,
             background: PARCHMENT_DEEP,
             fontFamily: SERIF,
-            fontSize: '11px',
+            fontSize: '13px',
             fontVariant: 'small-caps',
             letterSpacing: '0.14em',
             fontWeight: 'bold',

@@ -172,7 +172,7 @@ function Tag({ colour, children }: { colour: string; children: React.ReactNode }
 function Stat({ label, value, accent }: { label: string; value: number; accent: string }) {
   return (
     <div style={{ background: CREAM, padding: '16px', border: `1px solid ${INK_HAIRLINE}` }}>
-      <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
+      <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
       <div style={{ fontSize: '28px', fontWeight: 'bold', color: accent }}>{value}</div>
     </div>
   )
@@ -195,7 +195,7 @@ function VoteColumn({ heading, rows, accent }: { heading: string; rows: VoteRow[
               {v.mps?.constituency && (
                 <div style={{ fontSize: '12px', opacity: 0.6 }}>{v.mps.constituency}</div>
               )}
-              {v.is_rebellion && <span style={{ color: ACCENT, fontSize: '11px', fontWeight: 'bold' }}> · REBEL</span>}
+              {v.is_rebellion && <span style={{ color: ACCENT, fontSize: '13px', fontWeight: 'bold' }}> · REBEL</span>}
             </Link>
           </li>
         ))}

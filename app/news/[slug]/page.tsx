@@ -84,7 +84,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
 
       <article>
         <header style={{ marginBottom: '5%', paddingBottom: '24px', borderBottom: `1px solid rgba(20,16,13,0.2)` }}>
-          <p className="text-[11px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>
+          <p className="text-[13px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>
             {release.organisation || 'UK Government'}{dateLabel ? ` · ${dateLabel}` : ''}
           </p>
           <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', lineHeight: 1.1, color: INK, transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>

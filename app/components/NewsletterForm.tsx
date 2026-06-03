@@ -60,7 +60,7 @@ export default function NewsletterForm() {
           color: '#fff',
           border: 'none',
           padding: '12px 22px',
-          fontSize: '11px',
+          fontSize: '13px',
           letterSpacing: '0.22em',
           textTransform: 'uppercase',
           fontWeight: 700,

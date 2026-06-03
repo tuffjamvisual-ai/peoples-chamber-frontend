@@ -120,14 +120,14 @@ export default async function CouncilsIndex() {
                 <div style={{ fontFamily: SERIF, fontWeight: 600, fontSize: 'clamp(22px, 2.6vw, 30px)', lineHeight: 1.15, marginBottom: '4px' }}>
                   {country}
                 </div>
-                <div style={{ fontFamily: MONO, fontSize: '11px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginBottom: '20px' }}>
+                <div style={{ fontFamily: MONO, fontSize: '13px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginBottom: '20px' }}>
                   {countryTotal} principal authorities
                 </div>
                 {TYPE_ORDER.filter((t) => byType[t]).map((type) => {
                   const items = byType[type];
                   return (
                     <div key={type} style={{ marginBottom: '24px' }}>
-                      <div style={{ fontFamily: MONO, fontSize: '11px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginBottom: '8px', borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '6px' }}>
+                      <div style={{ fontFamily: MONO, fontSize: '13px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginBottom: '8px', borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '6px' }}>
                         {items[0].type_label}{items.length > 1 ? 's' : ''} · {items.length}
                       </div>
                       <ul

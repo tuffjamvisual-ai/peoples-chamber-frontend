@@ -38,6 +38,34 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Distressed typewriter treatment. Special Elite is already a worn, inky
+ * typewriter face; the offset + soft ink-bleed shadow and a hair of
+ * letter-spacing push it toward struck-on-paper. font-family + text-shadow
+ * both inherit, so applying this to a container styles all its text. */
+.distressed-typewriter {
+  font-family: var(--font-typewriter);
+  letter-spacing: 0.015em;
+  text-shadow:
+    0.5px 0.5px 0 rgba(20, 16, 13, 0.28),
+    0 0 1px rgba(20, 16, 13, 0.18);
+}
+
+/* Minimum body-text size policy (set 2026-06-03):
+ *
+ *   12px = the absolute floor for inline meta labels (uppercase
+ *          eyebrows, ACCOUNT-INFO / DATASET captions, etc.)
+ *   13px = the floor for any prose that has to be read at length
+ *          (sub-lines under names, methodology footers, breakdown
+ *          captions, sidebar items)
+ *   14px = the floor for column headers
+ *
+ * The 2026-06-03 sweep bumped every fontSize: '10px' to 12px and
+ * '11px' to 13px in app/**/*.tsx so the floor holds without a
+ * runtime rule. Tailwind text-[10px]/text-[11px] utilities were
+ * normalised to text-[12px]/text-[13px] at the same time. New code
+ * should respect the floor rather than drop below it.
+ */
+
 /* Subtle hover scale on all anchors. Pure-inline anchors won't transform
  * (CSS quirk — transform requires a non-inline display), so this hits
  * buttons, cards, hotspots and explicit display:block/flex/inline-flex

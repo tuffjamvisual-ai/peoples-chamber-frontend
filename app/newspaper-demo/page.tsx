@@ -90,7 +90,7 @@ function DemoPageBody() {
       >
         <div style={{ padding: '4.5rem 1.5rem 5rem' }}>
           <div style={{ maxWidth: '760px' }}>
-            <div style={{ fontSize: '11px', color: '#fff', letterSpacing: '0.3em', textTransform: 'uppercase', marginBottom: '1.25rem', opacity: 0.85, fontWeight: 700 }}>
+            <div style={{ fontSize: '13px', color: '#fff', letterSpacing: '0.3em', textTransform: 'uppercase', marginBottom: '1.25rem', opacity: 0.85, fontWeight: 700 }}>
               Top story · {MOCK_LEAD.organisation}
             </div>
             <h1 style={{ fontSize: 'clamp(38px, 5.5vw, 64px)', fontWeight: 700, color: '#fff', margin: '0 0 1.25rem', letterSpacing: '-0.015em', lineHeight: 1.05 }}>
@@ -112,7 +112,7 @@ function DemoPageBody() {
       <section style={{ background: PANEL, borderBottom: `1px solid ${BORDER}` }}>
         <div style={{ padding: '1.5rem', display: 'grid', gridTemplateColumns: '160px 1fr auto', gap: '1.75rem', alignItems: 'center' }}>
           <div style={{ borderRight: `1px solid ${BORDER}`, paddingRight: '1.5rem' }}>
-            <div style={{ fontSize: '10px', color: '#fff', letterSpacing: '0.25em', textTransform: 'uppercase', fontWeight: 700, opacity: 0.85 }}>Notable Transaction</div>
+            <div style={{ fontSize: '12px', color: '#fff', letterSpacing: '0.25em', textTransform: 'uppercase', fontWeight: 700, opacity: 0.85 }}>Notable Transaction</div>
             <div style={{ fontSize: '12px', color: MUTED, marginTop: '4px' }}>{MOCK_FEATURED.sub}</div>
           </div>
           <div>
@@ -121,7 +121,7 @@ function DemoPageBody() {
           </div>
           <Link href="#" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', textDecoration: 'none', borderLeft: `1px solid ${BORDER}`, paddingLeft: '1.5rem' }}>
             <span style={{ fontSize: '32px', fontWeight: 700, color: '#fff', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{MOCK_FEATURED.value}</span>
-            <span style={{ fontSize: '10px', color: '#fff', letterSpacing: '0.2em', textTransform: 'uppercase', marginTop: '6px', opacity: 0.7 }}>view details →</span>
+            <span style={{ fontSize: '12px', color: '#fff', letterSpacing: '0.2em', textTransform: 'uppercase', marginTop: '6px', opacity: 0.7 }}>view details →</span>
           </Link>
         </div>
       </section>
@@ -141,7 +141,7 @@ function DemoPageBody() {
           }}
         >
           <div>
-            <div style={{ fontSize: '10px', color: '#fff', letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 700, opacity: 0.85, marginBottom: '0.85rem' }}>
+            <div style={{ fontSize: '12px', color: '#fff', letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 700, opacity: 0.85, marginBottom: '0.85rem' }}>
               Featured Vote · Public Tally
             </div>
             <h2 style={{ fontSize: 'clamp(26px, 3.4vw, 36px)', fontWeight: 700, color: '#fff', letterSpacing: '-0.012em', lineHeight: 1.15, margin: '0 0 1rem' }}>
@@ -166,7 +166,7 @@ function DemoPageBody() {
               {noPct > 0 && <div style={{ width: `${noPct}%`, background: VOTE_NO }} />}
               {absPct > 0 && <div style={{ width: `${absPct}%`, background: '#888888' }} />}
             </div>
-            <div style={{ fontSize: '11px', color: MUTED, marginTop: '0.5rem', fontVariantNumeric: 'tabular-nums', display: 'flex', justifyContent: 'space-between' }}>
+            <div style={{ fontSize: '13px', color: MUTED, marginTop: '0.5rem', fontVariantNumeric: 'tabular-nums', display: 'flex', justifyContent: 'space-between' }}>
               <span>{MOCK_BILL.yes.toLocaleString()} yes · {MOCK_BILL.no.toLocaleString()} no · {MOCK_BILL.abs.toLocaleString()} abstain</span>
               <span>{total.toLocaleString()} total</span>
             </div>
@@ -180,7 +180,7 @@ function DemoPageBody() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {MOCK_COVERAGE.map((s) => (
                 <article key={s.title} style={{ background: PANEL, border: `1px solid ${BORDER}`, padding: '1.25rem 1.5rem' }}>
-                  <div style={{ fontSize: '10px', color: MUTED, textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: '8px' }}>
+                  <div style={{ fontSize: '12px', color: MUTED, textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: '8px' }}>
                     {s.outlet} · {s.date}
                   </div>
                   <Link href="#" style={{ display: 'block', fontSize: '19px', color: '#fff', lineHeight: 1.3, fontWeight: 700, textDecoration: 'none', marginBottom: '10px' }}>
@@ -209,7 +209,7 @@ function DemoPageBody() {
                     display: 'block',
                   }}
                 >
-                  <div style={{ fontSize: '10px', color: '#fff', letterSpacing: '0.25em', textTransform: 'uppercase', opacity: 0.85, marginBottom: '8px' }}>{s.eyebrow}</div>
+                  <div style={{ fontSize: '12px', color: '#fff', letterSpacing: '0.25em', textTransform: 'uppercase', opacity: 0.85, marginBottom: '8px' }}>{s.eyebrow}</div>
                   <div style={{ fontSize: '22px', fontWeight: 700, color: '#fff', lineHeight: 1.1, marginBottom: '4px', fontVariantNumeric: 'tabular-nums' }}>{s.value}</div>
                   <div style={{ fontSize: '12px', color: MUTED }}>{s.label}</div>
                 </Link>
@@ -222,12 +222,12 @@ function DemoPageBody() {
         <section style={{ background: PANEL, border: `1px solid ${BORDER}`, padding: '1.75rem 2rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '1.5rem' }}>
             <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#fff', margin: 0 }}>Big Spenders 2024–25</h3>
-            <Link href="#" style={{ fontSize: '11px', color: '#fff', letterSpacing: '0.2em', textTransform: 'uppercase', textDecoration: 'none', opacity: 0.7 }}>See all →</Link>
+            <Link href="#" style={{ fontSize: '13px', color: '#fff', letterSpacing: '0.2em', textTransform: 'uppercase', textDecoration: 'none', opacity: 0.7 }}>See all →</Link>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
             {['Rt Hon Stuart Andrew', 'Rt Hon Sir Geoffrey Cox', 'Rt Hon Alistair Carmichael'].map((name, i) => (
               <div key={name} style={{ background: PANEL_DEEP, padding: '1rem 1.25rem', borderLeft: `3px solid ${ACCENT}` }}>
-                <div style={{ fontSize: '10px', color: MUTED, textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: '6px' }}>#{i + 1}</div>
+                <div style={{ fontSize: '12px', color: MUTED, textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: '6px' }}>#{i + 1}</div>
                 <div style={{ fontSize: '15px', fontWeight: 700, color: '#fff', marginBottom: '4px' }}>{name}</div>
                 <div style={{ fontSize: '12px', color: MUTED, marginBottom: '6px' }}>{['Daventry', 'Torridge and Tavistock', 'Orkney and Shetland'][i]}</div>
                 <div style={{ fontSize: '18px', fontWeight: 700, color: '#fff', fontVariantNumeric: 'tabular-nums' }}>£{['367,659', '298,442', '241,180'][i]}</div>
@@ -257,7 +257,7 @@ function PctBlock({ pct, label, color }: { pct: number; label: string; color: st
   return (
     <div style={{ background: PANEL, padding: '1.4rem 1rem', textAlign: 'center', borderRight: `1px solid ${BORDER}` }}>
       <div style={{ fontSize: '32px', fontWeight: 700, color, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>{pct}%</div>
-      <div style={{ fontSize: '10px', color: '#fff', letterSpacing: '0.2em', textTransform: 'uppercase', marginTop: '6px', opacity: 0.7 }}>{label}</div>
+      <div style={{ fontSize: '12px', color: '#fff', letterSpacing: '0.2em', textTransform: 'uppercase', marginTop: '6px', opacity: 0.7 }}>{label}</div>
     </div>
   )
 }
@@ -265,7 +265,7 @@ function PctBlock({ pct, label, color }: { pct: number; label: string; color: st
 function SectionHead({ label, sub }: { label: string; sub: string }) {
   return (
     <div style={{ marginBottom: '1.25rem', borderBottom: `1px solid ${BORDER}`, paddingBottom: '0.75rem' }}>
-      <div style={{ fontSize: '11px', color: '#fff', letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 700 }}>{label}</div>
+      <div style={{ fontSize: '13px', color: '#fff', letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 700 }}>{label}</div>
       <div style={{ fontSize: '12px', color: MUTED, marginTop: '4px' }}>{sub}</div>
     </div>
   )
@@ -280,7 +280,7 @@ export default function NewspaperDemo() {
     <div style={{ background: GUTTER, minHeight: '100vh', color: '#fff', fontFamily: FONT }}>
       {/* Demo header (sits on gutter) */}
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '2rem 1.5rem 1rem' }}>
-        <div style={{ fontSize: '11px', color: '#fff', letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 700, opacity: 0.6, marginBottom: '0.5rem' }}>
+        <div style={{ fontSize: '13px', color: '#fff', letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 700, opacity: 0.6, marginBottom: '0.5rem' }}>
           Layout comparison — scroll to compare
         </div>
         <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#fff', margin: 0 }}>
@@ -297,7 +297,7 @@ export default function NewspaperDemo() {
           ================================================================= */}
       <div style={{ background: BG, color: '#fff', borderTop: `2px solid #ffffff15`, borderBottom: `2px solid #ffffff15`, marginTop: '1rem' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '1.5rem' }}>
-          <div style={{ fontSize: '10px', color: '#fff', letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 700, opacity: 0.7 }}>
+          <div style={{ fontSize: '12px', color: '#fff', letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 700, opacity: 0.7 }}>
             ↓ Current design — full-width background
           </div>
         </div>
@@ -313,7 +313,7 @@ export default function NewspaperDemo() {
           ================================================================= */}
       <div style={{ background: GUTTER, padding: '3rem 1.5rem' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto 1rem' }}>
-          <div style={{ fontSize: '10px', color: '#fff', letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 700, opacity: 0.7 }}>
+          <div style={{ fontSize: '12px', color: '#fff', letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 700, opacity: 0.7 }}>
             ↓ Proposed design — newspaper on table
           </div>
         </div>

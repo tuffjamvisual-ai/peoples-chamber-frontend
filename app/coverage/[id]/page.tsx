@@ -68,7 +68,7 @@ export default async function CoveragePage({ params }: { params: Promise<{ id: s
 
       <article>
         <header className="mb-6 pb-6 border-b border-[#14100d]/20">
-          <p className="text-[11px] uppercase tracking-[0.25em] mb-3 font-semibold text-[#14100d]">
+          <p className="text-[13px] uppercase tracking-[0.25em] mb-3 font-semibold text-[#14100d]">
             {row.source_outlet}{dateLabel ? ` · ${dateLabel}` : ''}
           </p>
           <h1
@@ -93,7 +93,7 @@ export default async function CoveragePage({ params }: { params: Promise<{ id: s
             style={{ borderLeftColor: ACCENT }}
             aria-label="People's Chamber commentary"
           >
-            <p className="text-[10px] uppercase tracking-[0.25em] text-[#14100d]/70 mb-3 font-semibold">
+            <p className="text-[12px] uppercase tracking-[0.25em] text-[#14100d]/70 mb-3 font-semibold">
               The People&apos;s Chamber · Commentary
             </p>
             <p className="text-[16px] sm:text-[17px] leading-[1.6] text-[#14100d]" style={{ fontFamily: SERIF }}>
@@ -102,7 +102,7 @@ export default async function CoveragePage({ params }: { params: Promise<{ id: s
             {row.related_link_href && row.related_link_label && (
               <Link
                 href={row.related_link_href}
-                className="inline-block mt-4 text-[11px] uppercase tracking-[0.2em] text-[#14100d] hover:underline font-semibold"
+                className="inline-block mt-4 text-[13px] uppercase tracking-[0.2em] text-[#14100d] hover:underline font-semibold"
               >
                 {row.related_link_label} →
               </Link>
@@ -122,7 +122,7 @@ export default async function CoveragePage({ params }: { params: Promise<{ id: s
         </a>
 
         <footer
-          className="mt-10 pt-5 text-[11px] uppercase tracking-[0.2em] text-[#14100d]/60"
+          className="mt-10 pt-5 text-[13px] uppercase tracking-[0.2em] text-[#14100d]/60"
           style={{ borderTop: `1px solid ${INK}33` }}
         >
           Headline and standfirst quoted under fair dealing for news reporting (CDPA s.30(2)). The full

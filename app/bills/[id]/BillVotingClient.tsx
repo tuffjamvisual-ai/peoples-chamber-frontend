@@ -61,7 +61,7 @@ export default function BillVotingClient({ billId }: { billId: number }) {
       <BallotRow label="Aye" sub="I support this bill" marked={userVote === 'yes'} dim={hasVoted && userVote !== 'yes'} disabled={hasVoted || voting} onClick={() => handleVote('yes')} />
       <BallotRow label="No" sub="I oppose this bill" marked={userVote === 'no'} dim={hasVoted && userVote !== 'no'} disabled={hasVoted || voting} onClick={() => handleVote('no')} last />
 
-      <div style={{ textAlign: 'center', marginTop: '14px', fontFamily: 'Special Elite, monospace', fontSize: '11px', letterSpacing: '0.06em', color: INK_SOFT }}>
+      <div style={{ textAlign: 'center', marginTop: '14px', fontFamily: 'Special Elite, monospace', fontSize: '13px', letterSpacing: '0.06em', color: INK_SOFT }}>
         {hasVoted
           ? 'Your vote has been recorded. Thank you.'
           : user
@@ -110,7 +110,7 @@ function BallotRow({
     >
       <span style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
         <span style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '19px', fontWeight: 'bold', color: INK }}>{label}</span>
-        <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '10px', letterSpacing: '0.05em', color: INK_SOFT, marginTop: '2px' }}>{sub}</span>
+        <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '12px', letterSpacing: '0.05em', color: INK_SOFT, marginTop: '2px' }}>{sub}</span>
       </span>
       <span
         style={{

@@ -352,7 +352,7 @@ export default function MagazineProfileSections({
                 <li key={b.id} style={{ padding: '12px 0', borderBottom: inkDivider }}>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'baseline', flexWrap: 'wrap' }}>
                     <Link href={`/bills/${b.id}`} style={{ ...inkLink, fontWeight: 'bold' }}>{b.title}</Link>
-                    {b.is_act && <span style={{ background: '#7a1612', color: '#f4e8d4', padding: '1px 6px', fontSize: '11px', letterSpacing: '0.08em' }}>✓ ACT</span>}
+                    {b.is_act && <span style={{ background: '#7a1612', color: '#f4e8d4', padding: '1px 6px', fontSize: '13px', letterSpacing: '0.08em' }}>✓ ACT</span>}
                     {b.status && <span style={{ fontSize: '12px', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{b.status}</span>}
                   </div>
                   {b.current_stage && (
@@ -470,7 +470,7 @@ export default function MagazineProfileSections({
                 <tr style={{ borderBottom: '2px solid rgba(20,16,13,0.4)', textAlign: 'left' }}>
                   <th style={{ padding: '8px 6px' }}>Year</th>
                   {breakdownLabels.map((b) => (
-                    <th key={b.key} style={{ padding: '8px 6px', fontSize: '11px', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{b.label}</th>
+                    <th key={b.key} style={{ padding: '8px 6px', fontSize: '13px', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{b.label}</th>
                   ))}
                   <th style={{ padding: '8px 6px', textAlign: 'right' }}>Total</th>
                 </tr>

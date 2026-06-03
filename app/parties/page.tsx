@@ -225,7 +225,7 @@ export default async function PartiesIndex() {
                 >
                   {p.name}
                 </a>
-                <div style={{ fontFamily: MONO, fontSize: '11px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginBottom: '18px' }}>
+                <div style={{ fontFamily: MONO, fontSize: '13px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginBottom: '18px' }}>
                   {seatLabel} · {hasData ? 'Manifesto positions 2024' : 'Research pending'}
                 </div>
 

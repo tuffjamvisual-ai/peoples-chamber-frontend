@@ -91,7 +91,7 @@ export default function BallotBillCard({ bill, userVote = null, onClick }: Props
           The People&apos;s Bill
         </span>
         {serial && (
-          <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'Special Elite, monospace', fontSize: '11px', letterSpacing: '0.06em', color: ACCENT, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+          <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'Special Elite, monospace', fontSize: '13px', letterSpacing: '0.06em', color: ACCENT, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
             No. {serial}
           </span>
         )}
@@ -100,7 +100,7 @@ export default function BallotBillCard({ bill, userVote = null, onClick }: Props
       {/* Main */}
       <div style={{ flex: 1, minWidth: 0, padding: '13px 16px', display: 'flex', flexDirection: 'column', gap: '9px' }}>
         {eyebrow && (
-          <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '10px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '6px' }}>
+          <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '12px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '6px' }}>
             {eyebrow}
           </div>
         )}
@@ -132,7 +132,7 @@ export default function BallotBillCard({ bill, userVote = null, onClick }: Props
               </div>
             </>
           ) : (
-            <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '11px', fontStyle: 'italic', color: INK_SOFT, letterSpacing: '0.03em' }}>
+            <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '13px', fontStyle: 'italic', color: INK_SOFT, letterSpacing: '0.03em' }}>
               No public votes yet — be the first.
             </div>
           )}
@@ -141,7 +141,7 @@ export default function BallotBillCard({ bill, userVote = null, onClick }: Props
           {hasDivision && (
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: '8px', borderTop: `1px dotted ${INK_HAIRLINE}`, paddingTop: '7px' }}>
               <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '9px', letterSpacing: '0.2em', textTransform: 'uppercase', color: INK_SOFT }}>How Parliament voted</span>
-              <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '10px', letterSpacing: '0.04em', color: INK }}>
+              <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '12px', letterSpacing: '0.04em', color: INK }}>
                 {(cAye || 0).toLocaleString()} Ayes &middot; {(cNo || 0).toLocaleString()} Noes
               </span>
             </div>
@@ -149,7 +149,7 @@ export default function BallotBillCard({ bill, userVote = null, onClick }: Props
         </div>
 
         {/* Through to the bill's page for the full text + to cast a vote */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '8px', fontFamily: 'Special Elite, monospace', fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '8px', fontFamily: 'Special Elite, monospace', fontSize: '13px', letterSpacing: '0.1em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold' }}>
           <span>Read the full bill &amp; vote</span>
           <span aria-hidden>→</span>
         </div>

@@ -261,7 +261,7 @@ function PhotoCard({ caption, tilt }: { caption: string; tilt: number }) {
 
 function kicker(color: string): React.CSSProperties {
   return {
-    fontSize: '11px',
+    fontSize: '13px',
     fontWeight: 'bold',
     textTransform: 'uppercase',
     letterSpacing: '0.2em',

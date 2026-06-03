@@ -186,7 +186,7 @@ export default function DepartmentClient({ slug, govukData, streetContext, budge
             <div
               style={{
                 fontFamily: 'Special Elite, monospace',
-                fontSize: '11px',
+                fontSize: '13px',
                 letterSpacing: '0.18em',
                 textTransform: 'uppercase',
                 opacity: 0.6,

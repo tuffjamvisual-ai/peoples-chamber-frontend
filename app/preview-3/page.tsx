@@ -235,7 +235,7 @@ export default async function HomePage() {
                   <div className="text-xl font-black uppercase leading-none">
                     The People&rsquo;s Chamber
                   </div>
-                  <div className="text-[10px] font-bold uppercase text-[#c91517]">
+                  <div className="text-[12px] font-bold uppercase text-[#c91517]">
                     UK Government. In Public View.
                   </div>
                 </div>
@@ -542,7 +542,7 @@ function BillsCard({
               <p className="text-sm font-bold line-clamp-2">{bill.title || 'Untitled bill'}</p>
             </div>
             {bill.current_stage && (
-              <span className="whitespace-nowrap border border-black/20 px-2 py-1 text-[10px] font-black uppercase">
+              <span className="whitespace-nowrap border border-black/20 px-2 py-1 text-[12px] font-black uppercase">
                 {bill.current_stage}
               </span>
             )}
@@ -645,7 +645,7 @@ function PeopleCard({
               )}
             </div>
             <p className="mt-2 text-xs font-black leading-tight line-clamp-2">{p.name}</p>
-            <p className="text-[10px] text-white/55 line-clamp-1">{p.constituency}</p>
+            <p className="text-[12px] text-white/55 line-clamp-1">{p.constituency}</p>
           </Link>
         ))}
       </div>
@@ -755,7 +755,7 @@ function PartyCompare() {
               style={{ background: p.color }}
             />
             <p className="text-xs font-black">{p.name}</p>
-            <p className="mt-1 text-[10px] uppercase text-black/50">Read their plans</p>
+            <p className="mt-1 text-[12px] uppercase text-black/50">Read their plans</p>
           </Link>
         ))}
       </div>

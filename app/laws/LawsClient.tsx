@@ -252,7 +252,7 @@ function LawCard({ law, tilt }: { law: Law; tilt: number }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
         <span
           style={{
-            fontSize: '11px',
+            fontSize: '13px',
             textTransform: 'uppercase',
             letterSpacing: '0.15em',
             padding: '3px 8px',
@@ -266,7 +266,7 @@ function LawCard({ law, tilt }: { law: Law; tilt: number }) {
         {law.originating_house && (
           <span
             style={{
-              fontSize: '11px',
+              fontSize: '13px',
               textTransform: 'uppercase',
               letterSpacing: '0.15em',
               color: INK_SOFT,

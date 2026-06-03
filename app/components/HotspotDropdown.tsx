@@ -179,7 +179,7 @@ export default function HotspotDropdown({
             gap: '8px',
             padding: '4px 18px 8px',
             fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
-            fontSize: '10px',
+            fontSize: '12px',
             letterSpacing: '0.28em',
             textTransform: 'uppercase',
             color: 'rgba(20,16,13,0.55)',
