@@ -77,7 +77,15 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
   }
 
   return (
-    <div className="border border-[#14100d]/20">
+    <div
+      className="border border-[#14100d]/20"
+      style={{
+        // Slight horizontal indent so the table doesn't sit flush
+        // against the dossier folder's inner walls. 2026-06-03.
+        marginLeft: 'clamp(4px, 1.5%, 24px)',
+        marginRight: 'clamp(4px, 1.5%, 24px)',
+      }}
+    >
       {/* No horizontal scroll. Seven columns kept; text sizes bumped
           and polaroid shrunk so the row width fits the dossier folder
           content area on desktop. Vertical scroll is fine (it's a long
