@@ -26,8 +26,31 @@ const HOTSPOTS: Hotspot[] = [
   // is new. PEOPLES POLLS href forced to /polls (the JSON came back with
   // /peoples-polls which doesn't exist as a route).
   { label: 'HOME', href: '/', xPct: 5.2, yPct: 21.3, wPct: 5.0, hPct: 2.8 },
-  { label: 'BILLS', href: '/bills', xPct: 13.0, yPct: 21.3, wPct: 5.5, hPct: 2.8 },
-  { label: 'PEOPLES POLLS', href: '/polls', xPct: 20.5, yPct: 21.3, wPct: 12.0, hPct: 2.8 },
+  {
+    label: 'BILLS',
+    href: '/bills',
+    xPct: 13.0, yPct: 21.3, wPct: 5.5, hPct: 2.8,
+    children: [
+      // Parliament-processing routes. /laws is the Acts surface;
+      // /departments is where most bills originate.
+      { label: 'All Bills',            href: '/bills' },
+      { label: 'Acts of Parliament',   href: '/laws' },
+      { label: 'Departments',          href: '/departments' },
+    ],
+  },
+  {
+    label: 'PEOPLES POLLS',
+    href: '/polls',
+    xPct: 20.5, yPct: 21.3, wPct: 12.0, hPct: 2.8,
+    children: [
+      // Polls + the two adjacent "what voters care about" surfaces
+      // (tax pound, budget trade-offs). All thematic neighbours of
+      // public-priority polling.
+      { label: 'All Polls',            href: '/polls' },
+      { label: 'Your Tax Pound',       href: '/your-tax-pound' },
+      { label: 'Budget Trade-Offs',    href: '/budget-trade-offs' },
+    ],
+  },
   {
     label: 'PARTIES',
     href: '/parties',
