@@ -172,7 +172,14 @@ export default async function ExpensesPage() {
       {/* Newspaper-classified listing in two columns. Ruled top +
           bottom borders, vertical column rule between the two halves.
           break-inside:avoid keeps each row whole when the browser
-          balances the columns; column-fill:balance gives 5+5 not 9+1. */}
+          balances the columns; column-fill:balance gives 5+5 not 9+1.
+          Whole-row hover lit by .pca-row:hover so the user sees the
+          entire band is clickable, not just the name. */}
+      <style>{`
+        .pca-row { transition: background-color 140ms ease; }
+        .pca-row:hover { background: rgba(122,22,18,0.08); }
+        .pca-row:hover [data-pca-leader] { border-bottom-color: rgba(122,22,18,0.55); }
+      `}</style>
       <ol
         style={{
           listStyle: 'none',
@@ -297,86 +304,92 @@ function SimpleRow({
   return (
     <li
       style={{
-        display: 'flex',
-        alignItems: 'baseline',
-        gap: '6px',
-        padding: '7px 4px',
+        listStyle: 'none',
         borderBottom: `1px solid ${INK_HAIRLINE}`,
-        color: INK,
-        fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
-        // Standard breakInside + legacy pageBreakInside is enough —
-        // React's CSS type doesn't include the webkit-prefixed
-        // -webkit-column-break-inside, and modern Safari honours the
-        // unprefixed property directly.
         breakInside: 'avoid',
         pageBreakInside: 'avoid',
       }}
     >
-      <span
-        style={{
-          fontSize: '11px',
-          fontVariantNumeric: 'tabular-nums',
-          color: INK_SOFT,
-          width: '18px',
-          textAlign: 'right',
-          flexShrink: 0,
-        }}
-      >
-        {rank}.
-      </span>
+      {/* Whole-row Link so anywhere in the rank/name/dot-leader/amount/
+          breakdown band is clickable and lands on the MP's expenses
+          section. Single anchor — the previous inner Link on the name
+          and on 'Breakdown →' would have been illegal HTML nested
+          inside a parent anchor. 2026-06-03. */}
       <Link
         href={`/mps/${memberId}#expenses`}
+        className="pca-row"
         style={{
+          display: 'flex',
+          alignItems: 'baseline',
+          gap: '6px',
+          padding: '7px 4px',
           color: INK,
-          fontSize: '12px',
-          fontWeight: 600,
           textDecoration: 'none',
-          letterSpacing: '0.03em',
-          textTransform: 'uppercase',
-          fontVariant: 'small-caps',
-          whiteSpace: 'nowrap',
+          fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
         }}
       >
-        {name}
-      </Link>
-      {/* Dot-leader fill — the broadsheet classified hallmark. */}
-      <span
-        aria-hidden
-        style={{
-          flex: '1 1 auto',
-          alignSelf: 'flex-end',
-          height: '1px',
-          borderBottom: `1px dotted ${INK_SOFT}`,
-          transform: 'translateY(-4px)',
-          minWidth: '10px',
-        }}
-      />
-      <span
-        style={{
-          fontSize: '12px',
-          fontWeight: 600,
-          fontVariantNumeric: 'tabular-nums',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {fmtMoney(total)}
-      </span>
-      <Link
-        href={`/mps/${memberId}#expenses`}
-        style={{
-          fontFamily: 'Special Elite, monospace',
-          fontSize: '8px',
-          textTransform: 'uppercase',
-          letterSpacing: '0.15em',
-          color: ACCENT,
-          textDecoration: 'none',
-          borderBottom: `1px solid ${ACCENT}`,
-          paddingBottom: '1px',
-          marginLeft: '5px',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        Breakdown →
+        <span
+          style={{
+            fontSize: '11px',
+            fontVariantNumeric: 'tabular-nums',
+            color: INK_SOFT,
+            width: '18px',
+            textAlign: 'right',
+            flexShrink: 0,
+          }}
+        >
+          {rank}.
+        </span>
+        <span
+          style={{
+            fontSize: '12px',
+            fontWeight: 600,
+            letterSpacing: '0.03em',
+            textTransform: 'uppercase',
+            fontVariant: 'small-caps',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {name}
+        </span>
+        {/* Dot-leader fill — the broadsheet classified hallmark.
+            data-pca-leader so the row hover can re-ink the dots. */}
+        <span
+          aria-hidden
+          data-pca-leader
+          style={{
+            flex: '1 1 auto',
+            alignSelf: 'flex-end',
+            height: '1px',
+            borderBottom: `1px dotted ${INK_SOFT}`,
+            transform: 'translateY(-4px)',
+            minWidth: '10px',
+          }}
+        />
+        <span
+          style={{
+            fontSize: '12px',
+            fontWeight: 600,
+            fontVariantNumeric: 'tabular-nums',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {fmtMoney(total)}
+        </span>
+        <span
+          style={{
+            fontFamily: 'Special Elite, monospace',
+            fontSize: '8px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.15em',
+            color: ACCENT,
+            paddingBottom: '1px',
+            marginLeft: '5px',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          Breakdown →
+        </span>
       </Link>
     </li>
   );
