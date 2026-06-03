@@ -128,7 +128,7 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
       </a>
 
       {/* Header: name + colour bar + at-a-glance metrics */}
-      <div style={{ marginBottom: '5%' }}>
+      <div style={{ marginTop: '5%', marginBottom: '5%' }}>
         <div
           style={{
             fontSize: 'clamp(28px, 4.6vw, 60px)',
@@ -191,7 +191,7 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
           <div
             style={{
               fontFamily: 'Special Elite, monospace',
-              fontSize: 'clamp(15px, 1.7vw, 18px)',
+              fontSize: 'clamp(13px, 1.35vw, 15px)',
               lineHeight: 1.7,
               color: INK,
               maxWidth: '74ch',
