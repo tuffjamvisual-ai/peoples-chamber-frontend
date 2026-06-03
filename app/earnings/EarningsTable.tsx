@@ -77,15 +77,15 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
   }
 
   return (
-    <div className="overflow-x-auto border border-[#14100d]/20">
-      {/* minWidth removed 2026-06-03 — was forcing horizontal scroll
-          inside the dossier folder. Headers shortened ('Personal total'
-          → 'Total', 'Public spend (YYYY/YY)' → 'Public spend') and cell
-          padding tightened so the seven columns fit the content area. */}
-      <table className="w-full text-[15px] border-collapse">
+    <div className="border border-[#14100d]/20">
+      {/* No horizontal scroll. Seven columns kept; text sizes bumped
+          and polaroid shrunk so the row width fits the dossier folder
+          content area on desktop. Vertical scroll is fine (it's a long
+          list); horizontal is not. */}
+      <table className="w-full text-[16px] border-collapse">
         <thead>
           <tr className="border-b border-[#14100d]/20 text-left">
-            <Th label="#"        active={sortKey === 'rank'}           dir={sortDir} onClick={() => toggle('rank')}           align="right" width={32} />
+            <Th label="#"        active={sortKey === 'rank'}           dir={sortDir} onClick={() => toggle('rank')}           align="right" width={28} />
             <Th label="MP"       active={sortKey === 'name'}           dir={sortDir} onClick={() => toggle('name')}           />
             <Th label="Base"     active={sortKey === 'base'}           dir={sortDir} onClick={() => toggle('base')}           align="right" />
             <Th label="Minister." active={sortKey === 'ministerial'}    dir={sortDir} onClick={() => toggle('ministerial')}    align="right" />
@@ -127,22 +127,22 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
                         <img
                           src={r.photo_url}
                           alt={r.name}
-                          width={42}
-                          height={42}
-                          style={{ display: 'block', width: '42px', height: '42px', objectFit: 'cover', filter: 'contrast(1.08) sepia(0.05)' }}
+                          width={34}
+                          height={34}
+                          style={{ display: 'block', width: '34px', height: '34px', objectFit: 'cover', filter: 'contrast(1.08) sepia(0.05)' }}
                         />
                       ) : (
                         <div
                           aria-hidden
                           style={{
-                            width: '42px',
-                            height: '42px',
+                            width: '34px',
+                            height: '34px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             background: '#d6cdb8',
                             color: '#14100d',
-                            fontSize: '16px',
+                            fontSize: '14px',
                             fontWeight: 'bold',
                             fontFamily: 'Special Elite, monospace',
                           }}
@@ -154,12 +154,12 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
                     <div className="min-w-0">
                       <Link
                         href={`/mps/${r.member_id}`}
-                        className="text-[#14100d] font-semibold hover:underline block truncate text-[16px]"
+                        className="text-[#14100d] font-semibold hover:underline block truncate text-[17px]"
                         style={{ fontFamily: '"Georgia", "Charter", "Times New Roman", serif' }}
                       >
                         {r.name}
                       </Link>
-                      <div className="text-[13px] text-[#14100d]/70 truncate">
+                      <div className="text-[15px] text-[#14100d]/70 truncate">
                         {/* Constituency dropped 2026-06-03 to save row
                             width inside the dossier folder. Party (and
                             optional salary band) are enough secondary
@@ -172,16 +172,16 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
                   </div>
                 </td>
                 <td className="px-2 py-3 text-right text-[#14100d] tabular-nums whitespace-nowrap">{fmtMoney(r.base)}</td>
-                <td className={`px-3 py-3 text-right tabular-nums whitespace-nowrap ${r.ministerial ? 'text-[#14100d]' : 'text-[#14100d]/40'}`}>
+                <td className={`px-2 py-3 text-right tabular-nums whitespace-nowrap ${r.ministerial ? 'text-[#14100d]' : 'text-[#14100d]/40'}`}>
                   {r.ministerial ? fmtMoney(r.ministerial) : '—'}
                 </td>
-                <td className={`px-3 py-3 text-right tabular-nums whitespace-nowrap ${r.outside ? 'text-[#14100d]' : 'text-[#14100d]/40'}`}>
+                <td className={`px-2 py-3 text-right tabular-nums whitespace-nowrap ${r.outside ? 'text-[#14100d]' : 'text-[#14100d]/40'}`}>
                   {r.outside ? fmtMoney(r.outside) : '—'}
                 </td>
                 <td className="px-2 py-3 text-right text-[#14100d] font-semibold tabular-nums whitespace-nowrap">
                   {fmtMoney(r.personal_total)}
                 </td>
-                <td className={`px-3 py-3 text-right tabular-nums whitespace-nowrap ${r.public_spend ? 'text-[#14100d]' : 'text-[#14100d]/40'}`}>
+                <td className={`px-2 py-3 text-right tabular-nums whitespace-nowrap ${r.public_spend ? 'text-[#14100d]' : 'text-[#14100d]/40'}`}>
                   {r.public_spend ? fmtMoney(r.public_spend) : '—'}
                 </td>
               </tr>
@@ -211,7 +211,7 @@ function Th({
   return (
     <th
       onClick={onClick}
-      className={`px-3 py-3 text-[12px] uppercase tracking-[0.18em] font-semibold cursor-pointer select-none ${active ? 'text-[#14100d]' : 'text-[#14100d]/60 hover:text-[#14100d]'}`}
+      className={`px-2 py-3 text-[14px] uppercase tracking-[0.14em] font-semibold cursor-pointer select-none ${active ? 'text-[#14100d]' : 'text-[#14100d]/60 hover:text-[#14100d]'}`}
       style={{ textAlign: align, width: width ? `${width}px` : undefined }}
     >
       <span className="inline-flex items-center gap-1.5">
