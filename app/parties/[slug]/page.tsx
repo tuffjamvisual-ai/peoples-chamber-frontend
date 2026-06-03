@@ -153,7 +153,7 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
           transform: 'rotate(-0.2deg)',
         }}
       >
-        ← Compare every party
+        ← Compare parties
       </a>
 
       {/* Header: name + colour bar + at-a-glance metrics */}

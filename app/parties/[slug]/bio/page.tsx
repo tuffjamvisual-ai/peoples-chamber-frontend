@@ -124,7 +124,7 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
           transform: 'rotate(-0.2deg)',
         }}
       >
-        ← Compare every party
+        ← Compare parties
       </a>
 
       {/* Header: name + colour bar + at-a-glance metrics */}
