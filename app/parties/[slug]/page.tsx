@@ -156,7 +156,9 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
         ← Compare parties
       </a>
 
-      {/* Header: name + colour bar + at-a-glance metrics */}
+      {/* Header: name + colour bar. The FOUNDED / COMMONS MPS /
+          DONATIONS / WEBSITE metrics row was removed 2026-06-03 per
+          user request — critique leads directly under the colour bar. */}
       <div style={{ marginTop: '5%', marginBottom: '5%' }}>
         <div
           style={{
@@ -175,39 +177,9 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
             height: '8px',
             background: accent,
             width: '40%',
-            marginBottom: '18px',
             borderRadius: '2px',
           }}
         />
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '24px 36px',
-            fontFamily: 'Special Elite, monospace',
-            fontSize: 'clamp(13px, 1.5vw, 17px)',
-            color: INK,
-          }}
-        >
-          {party.founded_year && (
-            <span>
-              <span style={{ opacity: 0.6 }}>FOUNDED</span> {party.founded_year}
-            </span>
-          )}
-          <span>
-            <span style={{ opacity: 0.6 }}>COMMONS MPS</span> {mpCount}
-          </span>
-          {donationsTotal > 0 && (
-            <span>
-              <span style={{ opacity: 0.6 }}>DONATIONS ON RECORD</span> {fmtMoney(donationsTotal)}
-            </span>
-          )}
-          {party.website && (
-            <a href={party.website} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>
-              <span style={{ opacity: 0.6 }}>WEBSITE</span> {sourceLabel(party.website)} ↗
-            </a>
-          )}
-        </div>
       </div>
 
       {/* People's critique — sharp ~550-word assessment in MP-bio

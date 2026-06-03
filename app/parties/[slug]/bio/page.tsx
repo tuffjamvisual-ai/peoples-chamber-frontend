@@ -21,65 +21,16 @@ type Party = {
   slug: string;
   name: string;
   party_colour: string | null;
-  website: string | null;
-  founded_year: number | null;
   critique: string | null;
-  mp_party_string: string | null;
-  recipient_name: string | null;
 };
 
-async function getPartyBio(slug: string): Promise<{
-  party: Party | null;
-  mpCount: number;
-  donationsTotal: number;
-}> {
+async function getPartyBio(slug: string): Promise<Party | null> {
   const { data: partyRow } = await supabase
     .from('parties')
-    .select('slug, name, party_colour, website, founded_year, critique, mp_party_string, recipient_name')
+    .select('slug, name, party_colour, critique')
     .eq('slug', slug)
     .maybeSingle();
-
-  if (!partyRow) return { party: null, mpCount: 0, donationsTotal: 0 };
-  const party = partyRow as Party;
-
-  let mpCount = 0;
-  if (party.mp_party_string) {
-    const variants =
-      party.slug === 'labour'
-        ? ['Labour', 'Labour (Co-op)', 'Labour and Co-operative']
-        : [party.mp_party_string];
-    const { count } = await supabase
-      .from('mps')
-      .select('member_id', { count: 'exact', head: true })
-      .in('party', variants);
-    mpCount = count || 0;
-  }
-
-  let donationsTotal = 0;
-  if (party.recipient_name) {
-    const { data: donRows } = await supabase
-      .from('political_donations')
-      .select('amount')
-      .eq('recipient_name', party.recipient_name);
-    donationsTotal = (donRows || []).reduce((s, r) => s + (Number(r.amount) || 0), 0);
-  }
-
-  return { party, mpCount, donationsTotal };
-}
-
-function fmtMoney(n: number): string {
-  if (n >= 1_000_000) return '£' + (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'm';
-  if (n >= 1_000) return '£' + Math.round(n / 1_000) + 'k';
-  return '£' + n;
-}
-
-function sourceLabel(url: string): string {
-  try {
-    const u = new URL(url);
-    return u.hostname.replace(/^www\./, '');
-  } catch {
-    return url;
-  }
+  return (partyRow as Party | null) || null;
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -95,7 +46,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function PartyBio({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const { party, mpCount, donationsTotal } = await getPartyBio(slug);
+  const party = await getPartyBio(slug);
 
   if (!party) {
     return (
@@ -127,7 +78,9 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
         ← Compare parties
       </a>
 
-      {/* Header: name + colour bar + at-a-glance metrics */}
+      {/* Header: name + colour bar. The FOUNDED / COMMONS MPS /
+          DONATIONS / WEBSITE metrics row was removed 2026-06-03 per
+          user request — the bio leads directly under the colour bar. */}
       <div style={{ marginTop: '5%', marginBottom: '5%' }}>
         <div
           style={{
@@ -146,99 +99,134 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
             height: '8px',
             background: accent,
             width: '40%',
-            marginBottom: '18px',
             borderRadius: '2px',
           }}
         />
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '24px 36px',
-            fontFamily: 'Special Elite, monospace',
-            fontSize: 'clamp(13px, 1.5vw, 17px)',
-            color: INK,
-          }}
-        >
-          {party.founded_year && (
-            <span>
-              <span style={{ opacity: 0.6 }}>FOUNDED</span> {party.founded_year}
-            </span>
-          )}
-          <span>
-            <span style={{ opacity: 0.6 }}>COMMONS MPS</span> {mpCount}
-          </span>
-          {donationsTotal > 0 && (
-            <span>
-              <span style={{ opacity: 0.6 }}>DONATIONS ON RECORD</span> {fmtMoney(donationsTotal)}
-            </span>
-          )}
-          {party.website && (
-            <a href={party.website} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>
-              <span style={{ opacity: 0.6 }}>WEBSITE</span> {sourceLabel(party.website)} ↗
-            </a>
-          )}
-        </div>
       </div>
 
-      {/* People's critique — sharp ~550-word assessment in MP-bio
-          style. Renders as blank-line-separated paragraphs in the
-          body-prose typewriter face (Special Elite). The eyebrow
-          label was removed 2026-06-03 per user request — the prose
-          now leads. */}
-      {party.critique ? (
-        <section style={{ marginBottom: '40px' }}>
-          <div
-            style={{
-              fontFamily: 'Special Elite, monospace',
-              fontSize: 'clamp(13px, 1.35vw, 15px)',
-              lineHeight: 1.7,
-              color: INK,
-              maxWidth: '74ch',
-            }}
-          >
-            {party.critique
-              .split(/\n\n+/)
-              .map((p) => p.trim())
-              .filter(Boolean)
-              .map((p, i) => (
-                <p key={i} style={{ margin: '0 0 1em 0' }}>
-                  {p}
-                </p>
-              ))}
-          </div>
-        </section>
-      ) : (
-        <p
-          style={{
-            fontFamily: 'Special Elite, monospace',
-            fontSize: '16px',
-            opacity: 0.7,
-            marginBottom: '40px',
-          }}
-        >
-          People&apos;s verdict not yet written for this party.
-        </p>
-      )}
+      {/* Two-column body: sidebar nav (col-span-1) + critique
+          (col-span-3), mirroring the MP dossier layout in
+          MagazineProfileSections. The sidebar is scaffolding for
+          future content — BIO is active, the rest link out to
+          related routes. Add more items to the SIDEBAR array as
+          the parties surface grows. */}
+      <div
+        className="pca-party-sidebar-grid"
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr',
+          gap: '24px',
+        }}
+      >
+        <style>{`
+          @media (min-width: 1024px) {
+            .pca-party-sidebar-grid {
+              grid-template-columns: 220px 1fr !important;
+              gap: 36px !important;
+            }
+          }
+        `}</style>
 
-      {/* Cross-link to the manifesto-vs-record detail page. */}
-      <section style={{ borderTop: '1px solid rgba(20,16,13,0.2)', paddingTop: '20px', marginBottom: '20px' }}>
-        <a
-          href={`/parties/${party.slug}`}
-          style={{
-            fontFamily: 'Special Elite, monospace',
-            fontSize: '14px',
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase',
-            color: INK,
-            textDecoration: 'none',
-            borderBottom: '1px solid rgba(20,16,13,0.4)',
-            paddingBottom: '2px',
-          }}
-        >
-          {party.name}&apos;s manifesto vs record — 11 themes →
-        </a>
-      </section>
+        {/* Sidebar — same vintage chip style as the MP dossier:
+            slight rotation per item, red-ink active rail on the
+            left, Special Elite uppercase. */}
+        <aside>
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '4px 0' }}>
+            {[
+              { label: 'Bio',                 href: `/parties/${party.slug}/bio`,    active: true,  rotate: '0.15deg'  },
+              { label: 'Manifesto vs Record', href: `/parties/${party.slug}`,        active: false, rotate: '-0.2deg'  },
+              { label: `${party.name} MPs`,   href: `/mps?expand=${encodeURIComponent(party.slug)}#mps-list`, active: false, rotate: '0.1deg'   },
+              { label: 'Compare Parties',     href: '/parties',                       active: false, rotate: '-0.1deg'  },
+            ].map((item) => (
+              <a
+                key={item.label}
+                href={item.href}
+                className="no-hover-scale"
+                style={{
+                  display: 'block',
+                  padding: '12px 16px',
+                  borderLeft: item.active ? '4px solid #7a1612' : '4px solid transparent',
+                  background: item.active ? 'rgba(122,22,18,0.08)' : 'transparent',
+                  boxShadow: item.active ? 'inset 1px 0 2px rgba(0,0,0,0.05)' : 'none',
+                  fontWeight: item.active ? 'bold' : 'normal',
+                  fontSize: '13px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  color: INK,
+                  fontFamily: 'Special Elite, monospace',
+                  textDecoration: 'none',
+                  transform: `rotate(${item.rotate})`,
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                }}
+              >
+                {item.label}
+              </a>
+            ))}
+          </nav>
+        </aside>
+
+        {/* Main column: critique + manifesto cross-link */}
+        <div>
+          {/* People's critique — sharp ~550-word assessment in MP-bio
+              style. Renders as blank-line-separated paragraphs in the
+              body-prose typewriter face (Special Elite). The eyebrow
+              label was removed 2026-06-03 per user request. */}
+          {party.critique ? (
+            <section style={{ marginBottom: '40px' }}>
+              <div
+                style={{
+                  fontFamily: 'Special Elite, monospace',
+                  fontSize: 'clamp(13px, 1.35vw, 15px)',
+                  lineHeight: 1.7,
+                  color: INK,
+                  maxWidth: '74ch',
+                }}
+              >
+                {party.critique
+                  .split(/\n\n+/)
+                  .map((p) => p.trim())
+                  .filter(Boolean)
+                  .map((p, i) => (
+                    <p key={i} style={{ margin: '0 0 1em 0' }}>
+                      {p}
+                    </p>
+                  ))}
+              </div>
+            </section>
+          ) : (
+            <p
+              style={{
+                fontFamily: 'Special Elite, monospace',
+                fontSize: '16px',
+                opacity: 0.7,
+                marginBottom: '40px',
+              }}
+            >
+              People&apos;s verdict not yet written for this party.
+            </p>
+          )}
+
+          {/* Cross-link to the manifesto-vs-record detail page. */}
+          <section style={{ borderTop: '1px solid rgba(20,16,13,0.2)', paddingTop: '20px', marginBottom: '20px' }}>
+            <a
+              href={`/parties/${party.slug}`}
+              style={{
+                fontFamily: 'Special Elite, monospace',
+                fontSize: '14px',
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                color: INK,
+                textDecoration: 'none',
+                borderBottom: '1px solid rgba(20,16,13,0.4)',
+                paddingBottom: '2px',
+              }}
+            >
+              {party.name}&apos;s manifesto vs record — 11 themes →
+            </a>
+          </section>
+        </div>
+      </div>
 
       <ScrollToTopButton />
     </DossierShell>
