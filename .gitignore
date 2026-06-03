@@ -41,3 +41,4 @@ yarn-error.log*
 next-env.d.ts
 app/page.tsx.bak.gray-design
 app/bills/page.tsx.bak.gray
+public/pca-art.webp.bak
