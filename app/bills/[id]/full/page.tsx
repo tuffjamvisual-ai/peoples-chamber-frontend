@@ -277,7 +277,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
                       {party}
                     </span>
                   )}
-                  {from && <span style={{ fontFamily: SERIF, fontSize: '13px', color: INK_SOFT }}>{from}</span>}
+                  {from && <span style={{ fontFamily: MONO, fontSize: '12px', color: INK_SOFT }}>{from}</span>}
                 </li>
               )
             })}
@@ -296,7 +296,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
             Publications
           </h2>
           <p style={{
-            fontFamily: SERIF, fontSize: '15px', lineHeight: 1.6,
+            fontFamily: MONO, fontSize: '13px', lineHeight: 1.7,
             color: INK_SOFT, maxWidth: '46em',
           }}>
             Parliament has not published documents for this bill. That’s common for older
@@ -328,7 +328,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
                       gap: '16px', borderBottom: `1px dotted ${INK_HAIRLINE}`, paddingBottom: '8px',
                     }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <span style={{ fontFamily: SERIF, fontSize: '15px', lineHeight: 1.45, color: INK }}>
+                        <span style={{ fontFamily: MONO, fontSize: '13px', lineHeight: 1.5, color: INK }}>
                           {p.title || '(untitled publication)'}
                         </span>
                         {p.house && (

@@ -245,9 +245,10 @@ export default async function PartiesIndex() {
                           <div key={theme} style={{ display: 'contents' }}>
                             <dt
                               style={{
-                                fontFamily: SERIF,
-                                fontWeight: 600,
-                                fontSize: '15px',
+                                fontFamily: MONO,
+                                fontWeight: 'normal',
+                                fontSize: '13px',
+                                letterSpacing: '0.04em',
                                 padding: '14px 16px 14px 0',
                                 borderBottom: `1px solid ${INK_HAIRLINE}`,
                                 color: INK_SOFT,
@@ -265,9 +266,10 @@ export default async function PartiesIndex() {
                         <div key={theme} style={{ display: 'contents' }}>
                           <dt
                             style={{
-                              fontFamily: SERIF,
-                              fontWeight: 600,
-                              fontSize: '15px',
+                              fontFamily: MONO,
+                              fontWeight: 'normal',
+                              fontSize: '13px',
+                              letterSpacing: '0.04em',
                               padding: '14px 16px 14px 0',
                               borderBottom: `1px solid ${INK_HAIRLINE}`,
                             }}
@@ -277,7 +279,7 @@ export default async function PartiesIndex() {
                           <dd style={{ padding: '14px 0', borderBottom: `1px solid ${INK_HAIRLINE}`, margin: 0 }}>
                             <a
                               href={`/parties/${p.slug}#${encodeURIComponent(theme.toLowerCase().replace(/\s+/g, '-'))}`}
-                              style={{ color: INK, textDecoration: 'none', display: 'block', fontFamily: SERIF, fontSize: '14px', lineHeight: 1.55 }}
+                              style={{ color: INK, textDecoration: 'none', display: 'block', fontFamily: MONO, fontSize: '14px', lineHeight: 1.7 }}
                             >
                               {extract(cell.manifesto_position)}
                               {cell.current_shift && (

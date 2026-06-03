@@ -332,7 +332,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
                   {democraticGap}% {democraticGap > 20 ? '— a wide gap' : democraticGap > 10 ? '— a moderate gap' : '— a narrow gap'}
                 </p>
                 {outcomeMismatch && (
-                  <p style={{ fontFamily: SERIF, fontSize: '15px', marginTop: '6px', lineHeight: 1.6, color: INK_SOFT }}>
+                  <p style={{ fontFamily: MONO, fontSize: '13px', marginTop: '6px', lineHeight: 1.7, color: INK_SOFT }}>
                     Outcome mismatch — the public would {yesPercent > 50 ? 'pass' : 'block'} this bill, but Parliament {mpAyePercent > 50 ? 'passed' : 'rejected'} it.
                   </p>
                 )}
@@ -368,7 +368,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
                   </span>
                 )}
                 {bill.sponsor_constituency && (
-                  <span style={{ fontFamily: SERIF, fontSize: '14px', color: INK_SOFT }}>{bill.sponsor_constituency}</span>
+                  <span style={{ fontFamily: MONO, fontSize: '13px', color: INK_SOFT }}>{bill.sponsor_constituency}</span>
                 )}
               </div>
             </div>
@@ -389,7 +389,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                   <span style={{ fontFamily: MONO, fontSize: '12px', fontWeight: 'bold', color: SUCCESS, textTransform: 'uppercase', letterSpacing: '0.14em' }}>Royal Assent</span>
                   {royalAssent.stageSittings[0]?.date && (
-                    <span style={{ fontFamily: SERIF, fontSize: '14px', color: INK_SOFT }}>{fmtDate(royalAssent.stageSittings[0].date)}</span>
+                    <span style={{ fontFamily: MONO, fontSize: '13px', color: INK_SOFT }}>{fmtDate(royalAssent.stageSittings[0].date)}</span>
                   )}
                 </div>
               </div>
@@ -441,7 +441,7 @@ function ExplainerColumn({ label, colour, points }: { label: string; colour: str
       </p>
       <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {points.map((point, i) => (
-          <li key={i} style={{ fontFamily: SERIF, fontSize: '14px', lineHeight: 1.65, display: 'flex', gap: '8px' }}>
+          <li key={i} style={{ fontFamily: MONO, fontSize: '13px', lineHeight: 1.7, display: 'flex', gap: '8px' }}>
             <span style={{ color: colour, flexShrink: 0, fontWeight: 'bold' }}>—</span>
             <span>{point.replace(/^[-–]\s*/, '')}</span>
           </li>
@@ -490,7 +490,7 @@ function VoteBar({
           {emptyText || 'Not voted yet.'}
         </div>
       ) : (
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px', fontFamily: SERIF, fontSize: '14px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px', fontFamily: MONO, fontSize: '13px' }}>
           <span style={{ color: SUCCESS, fontWeight: 'bold' }}>{yesText}</span>
           <span style={{ color: DANGER, fontWeight: 'bold' }}>{noText}</span>
         </div>
@@ -510,9 +510,9 @@ function StageGroup({ label, colour, stages }: { label: string; colour: string; 
           <li key={stage.id} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: colour, flexShrink: 0 }} />
             <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-              <span style={{ fontFamily: SERIF, fontSize: '14px' }}>{stage.description}</span>
+              <span style={{ fontFamily: MONO, fontSize: '13px' }}>{stage.description}</span>
               {stage.stageSittings[0]?.date && (
-                <span style={{ fontFamily: SERIF, fontSize: '13px', color: INK_SOFT }}>{fmtDate(stage.stageSittings[0].date)}</span>
+                <span style={{ fontFamily: MONO, fontSize: '12px', color: INK_SOFT }}>{fmtDate(stage.stageSittings[0].date)}</span>
               )}
             </div>
           </li>
