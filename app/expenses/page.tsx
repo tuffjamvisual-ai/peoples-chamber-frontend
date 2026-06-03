@@ -331,11 +331,24 @@ function SimpleRow({
         className="no-hover-scale"
         style={{
           position: 'absolute',
-          inset: 0,
+          // Explicit corners — `inset: 0` shorthand was being ignored
+          // by something in the column-flow layout, leaving the anchor
+          // collapsed to 0×0 so only its inline name-text was hittable.
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+          display: 'block',
+          cursor: 'pointer',
           zIndex: 2,
           textDecoration: 'none',
+          // Empty content — aria-label carries semantics.
         }}
-      />
+      >
+        <span style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0 }}>
+          {name} expenses breakdown
+        </span>
+      </Link>
       <span
         style={{
           fontSize: '11px',
