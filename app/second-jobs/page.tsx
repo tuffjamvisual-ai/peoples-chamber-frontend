@@ -120,7 +120,10 @@ async function getData() {
     supabase
       .from('mp_registered_interests')
       .select('member_id, interest_text, child_interests')
-      .ilike('category_name', 'Employment%'),
+      // Category in DB is "1. Employment and earnings" — the
+      // numbered prefix tripped up an earlier 'Employment%' filter
+      // and rendered the page with zero MPs. Use a contains match.
+      .ilike('category_name', '%Employment and earnings%'),
     supabase
       .from('mps')
       .select('member_id, display_name, name, constituency, party, party_colour')
