@@ -311,8 +311,11 @@ function SimpleRow({
         borderBottom: `1px solid ${INK_HAIRLINE}`,
         color: INK,
         fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
+        // Standard breakInside + legacy pageBreakInside is enough —
+        // React's CSS type doesn't include the webkit-prefixed
+        // -webkit-column-break-inside, and modern Safari honours the
+        // unprefixed property directly.
         breakInside: 'avoid',
-        WebkitColumnBreakInside: 'avoid',
         pageBreakInside: 'avoid',
       }}
     >
