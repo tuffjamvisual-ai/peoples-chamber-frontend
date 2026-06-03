@@ -19,9 +19,11 @@ import type { CSSProperties } from 'react';
 //     experience: tap navigates; submenu isn't reachable without a
 //     hamburger refactor.
 //
-// Style: parchment-cream panel with ink hairline divisions and a
-// soft drop shadow so it reads as a paper insert pulled from the
-// masthead rather than a system menu.
+// Style: a vintage parchment slip pinned beneath the masthead.
+// Uses the same /bill-parchment.webp texture as the bills/councils
+// pages, a slight rotation for the hand-tacked feel, a tiny red
+// star header rule echoing the masthead, and red-ink hairlines
+// between items instead of the previous grey lines.
 
 type SubItem = { label: string; href: string };
 
@@ -80,20 +82,31 @@ export default function HotspotDropdown({
 
   const panelStyle: CSSProperties = {
     position: 'absolute',
-    top: 'calc(100% + 4px)',
+    top: 'calc(100% + 10px)',
     // Centre the panel under its hotspot — left:50% + translateX(-50%)
     // anchors the panel's horizontal centre to the trigger's centre,
     // regardless of trigger width.
     left: '50%',
-    transform: 'translateX(-50%)',
-    minWidth: '220px',
-    background: '#efe6d2',
-    border: '1px solid rgba(26,20,14,0.4)',
-    boxShadow: '0 14px 28px -8px rgba(20,16,13,0.45)',
+    transform: 'translateX(-50%) rotate(-0.4deg)',
+    transformOrigin: 'top center',
+    minWidth: '236px',
+    // Parchment texture (same file as the bills + councils pages) over
+    // a cream wash, so the panel reads as torn from the masthead paper
+    // stock rather than as a system menu.
+    background: "#efe6d2 url('/bill-parchment.webp') center top / 100% auto repeat",
+    // No rectangle border: layered shadows instead — an inner cream
+    // highlight + a soft outer ink halo + a deeper warm drop shadow.
+    boxShadow: [
+      'inset 0 0 0 1px rgba(255,247,228,0.35)',          // inner cream rim
+      '0 0 0 1px rgba(60,42,28,0.35)',                   // crisp ink hairline
+      '0 1px 0 rgba(255,247,228,0.5)',                   // top edge highlight
+      '0 18px 32px -10px rgba(50,30,18,0.55)',           // warm drop shadow
+    ].join(', '),
     zIndex: 1000,
-    padding: '4px 0',
+    padding: '6px 0 10px',
     display: open ? 'block' : 'none',
     fontFamily: 'Special Elite, monospace',
+    color: '#14100d',
     // Safety net for long menus (PARTIES now lists all 15 parties +
     // Manifesto Comparisons). 70vh keeps the panel fully on-screen on
     // smaller viewports; overflow lets it scroll inside the parchment.
@@ -103,15 +116,17 @@ export default function HotspotDropdown({
 
   const itemStyle = (first: boolean): CSSProperties => ({
     display: 'block',
-    padding: '11px 18px',
+    padding: '10px 22px',
     color: '#14100d',
     textDecoration: 'none',
-    fontSize: '13px',
-    letterSpacing: '0.08em',
+    fontSize: '12px',
+    letterSpacing: '0.16em',
     textTransform: 'uppercase',
-    borderTop: first ? 'none' : '1px solid rgba(20,16,13,0.12)',
+    // Red-ink hairline echoing the divider rules on the masthead.
+    borderTop: first ? 'none' : '1px solid rgba(122,22,18,0.28)',
     whiteSpace: 'nowrap',
-    lineHeight: 1.3,
+    lineHeight: 1.35,
+    position: 'relative',
   });
 
   return (
@@ -136,6 +151,29 @@ export default function HotspotDropdown({
         style={triggerStyle}
       />
       <div style={panelStyle} role="menu" aria-label={`${label} menu`}>
+        {/* Top header rule — small caps label + red star, echoes the
+            masthead's "UK GOVERNMENT, IN PUBLIC VIEW" subtitle band. */}
+        <div
+          aria-hidden
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            padding: '4px 18px 8px',
+            fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
+            fontSize: '10px',
+            letterSpacing: '0.28em',
+            textTransform: 'uppercase',
+            color: 'rgba(20,16,13,0.55)',
+            borderBottom: '1px solid rgba(122,22,18,0.35)',
+            margin: '0 12px',
+          }}
+        >
+          <span style={{ color: '#7a1612' }}>★</span>
+          <span>{label}</span>
+          <span style={{ color: '#7a1612' }}>★</span>
+        </div>
         {children.map((s, i) => (
           <a
             key={s.href + s.label}
@@ -149,7 +187,23 @@ export default function HotspotDropdown({
         ))}
       </div>
       <style>{`
-        .pca-dropdown-item:hover { background: rgba(20,16,13,0.06); }
+        .pca-dropdown-item {
+          transition: letter-spacing 140ms ease, background-color 140ms ease, color 140ms ease;
+        }
+        .pca-dropdown-item:hover {
+          background: rgba(122,22,18,0.08);
+          color: #7a1612;
+          letter-spacing: 0.22em;
+        }
+        .pca-dropdown-item:hover::before {
+          content: '✦';
+          position: absolute;
+          left: 7px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #7a1612;
+          font-size: 10px;
+        }
       `}</style>
     </div>
   );
