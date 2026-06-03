@@ -303,94 +303,100 @@ function SimpleRow({
 }) {
   return (
     <li
+      className="pca-row"
       style={{
         listStyle: 'none',
         borderBottom: `1px solid ${INK_HAIRLINE}`,
         breakInside: 'avoid',
         pageBreakInside: 'avoid',
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'baseline',
+        gap: '6px',
+        padding: '7px 4px',
+        color: INK,
+        fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
       }}
     >
-      {/* Whole-row Link so anywhere in the rank/name/dot-leader/amount/
-          breakdown band is clickable and lands on the MP's expenses
-          section. Single anchor — the previous inner Link on the name
-          and on 'Breakdown →' would have been illegal HTML nested
-          inside a parent anchor. 2026-06-03. */}
+      {/* Card-link pattern: an absolutely positioned Link covers the
+          whole row so a click anywhere in the rank/name/dot-leader/
+          amount/breakdown band lands on the MP's expenses section.
+          The visible content stays in normal flow underneath; the
+          name carries aria-text via aria-label on the link.
+          Previous flex-anchor approach failed because Next.js Link
+          renders inline-area in column-flow layout. 2026-06-03. */}
       <Link
         href={`/mps/${memberId}#expenses`}
-        className="pca-row"
+        aria-label={`${name} expenses breakdown`}
+        className="no-hover-scale"
         style={{
-          display: 'flex',
-          alignItems: 'baseline',
-          gap: '6px',
-          padding: '7px 4px',
-          color: INK,
+          position: 'absolute',
+          inset: 0,
+          zIndex: 2,
           textDecoration: 'none',
-          fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
+        }}
+      />
+      <span
+        style={{
+          fontSize: '11px',
+          fontVariantNumeric: 'tabular-nums',
+          color: INK_SOFT,
+          width: '18px',
+          textAlign: 'right',
+          flexShrink: 0,
         }}
       >
-        <span
-          style={{
-            fontSize: '11px',
-            fontVariantNumeric: 'tabular-nums',
-            color: INK_SOFT,
-            width: '18px',
-            textAlign: 'right',
-            flexShrink: 0,
-          }}
-        >
-          {rank}.
-        </span>
-        <span
-          style={{
-            fontSize: '12px',
-            fontWeight: 600,
-            letterSpacing: '0.03em',
-            textTransform: 'uppercase',
-            fontVariant: 'small-caps',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {name}
-        </span>
-        {/* Dot-leader fill — the broadsheet classified hallmark.
-            data-pca-leader so the row hover can re-ink the dots. */}
-        <span
-          aria-hidden
-          data-pca-leader
-          style={{
-            flex: '1 1 auto',
-            alignSelf: 'flex-end',
-            height: '1px',
-            borderBottom: `1px dotted ${INK_SOFT}`,
-            transform: 'translateY(-4px)',
-            minWidth: '10px',
-          }}
-        />
-        <span
-          style={{
-            fontSize: '12px',
-            fontWeight: 600,
-            fontVariantNumeric: 'tabular-nums',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {fmtMoney(total)}
-        </span>
-        <span
-          style={{
-            fontFamily: 'Special Elite, monospace',
-            fontSize: '8px',
-            textTransform: 'uppercase',
-            letterSpacing: '0.15em',
-            color: ACCENT,
-            paddingBottom: '1px',
-            marginLeft: '5px',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          Breakdown →
-        </span>
-      </Link>
+        {rank}.
+      </span>
+      <span
+        style={{
+          fontSize: '12px',
+          fontWeight: 600,
+          letterSpacing: '0.03em',
+          textTransform: 'uppercase',
+          fontVariant: 'small-caps',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {name}
+      </span>
+      {/* Dot-leader fill — the broadsheet classified hallmark. */}
+      <span
+        aria-hidden
+        data-pca-leader
+        style={{
+          flex: '1 1 auto',
+          alignSelf: 'flex-end',
+          height: '1px',
+          borderBottom: `1px dotted ${INK_SOFT}`,
+          transform: 'translateY(-4px)',
+          minWidth: '10px',
+        }}
+      />
+      <span
+        style={{
+          fontSize: '12px',
+          fontWeight: 600,
+          fontVariantNumeric: 'tabular-nums',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {fmtMoney(total)}
+      </span>
+      <span
+        style={{
+          fontFamily: 'Special Elite, monospace',
+          fontSize: '8px',
+          textTransform: 'uppercase',
+          letterSpacing: '0.15em',
+          color: ACCENT,
+          paddingBottom: '1px',
+          marginLeft: '5px',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        Breakdown →
+      </span>
     </li>
   );
 }
