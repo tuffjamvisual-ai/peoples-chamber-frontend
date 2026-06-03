@@ -15,7 +15,12 @@ import DossierShell from '../components/DossierShell';
 export const revalidate = 3600;
 
 const INK = '#14100d';
-const CREAM = '#ebe5d8';
+const INK_SOFT = 'rgba(20,16,13,0.7)';
+const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
+const PARCHMENT_CREAM = '#efe6d2';
+const ACCENT = '#7a1612';
+const SERIF = 'EB Garamond, Garamond, Georgia, "Times New Roman", serif';
+const MONO = 'Special Elite, monospace';
 
 export const metadata: Metadata = {
   title: "Parties — Compare Policies | The People's Chamber",
@@ -94,188 +99,192 @@ export default async function PartiesIndex() {
 
   return (
     <DossierShell>
-      <div style={{ marginTop: '-6%', marginBottom: '18px' }}>
-        <div
+      {/* Same parchment article wrapper used by /bills/[id] and
+          /bills/[id]/full so the parties index reads as part of the
+          dossier line rather than a cream table dropped on top of it. */}
+      <article
+        style={{
+          background: `${PARCHMENT_CREAM} url('/bill-parchment.webp') center top / 100% auto repeat-y`,
+          border: '1px solid rgba(26,20,14,0.3)',
+          boxShadow: '0 1px 0 rgba(26,20,14,0.05), 0 22px 44px -22px rgba(26,20,14,0.35)',
+          padding: 'clamp(28px, 4vw, 56px) clamp(24px, 4vw, 60px)',
+          color: '#1a140e',
+          fontFamily: SERIF,
+        }}
+      >
+        <header
           style={{
-            fontSize: 'clamp(28px, 4.6vw, 60px)',
-            fontWeight: 'bold',
-            letterSpacing: '-0.02em',
-            lineHeight: 1.05,
-            marginBottom: '10px',
+            borderTop: `1.5px solid ${INK}`,
+            borderBottom: `1.5px solid ${INK}`,
+            padding: '14px 12px',
+            textAlign: 'center',
+            marginBottom: '28px',
           }}
         >
-          The Parties
-        </div>
+          <div style={{ fontFamily: SERIF, fontSize: '12px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '4px' }}>
+            Manifesto Comparison · 2024 General Election
+          </div>
+          <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(28px, 3.4vw, 44px)', fontWeight: 500, letterSpacing: '0.005em', lineHeight: 1.18, margin: 0 }}>
+            The Parties
+          </h1>
+        </header>
+
         <p
           style={{
-            fontFamily: 'Special Elite, monospace',
-            fontSize: 'clamp(14px, 1.7vw, 19px)',
-            lineHeight: 1.6,
-            maxWidth: '80ch',
+            fontFamily: MONO,
+            fontSize: 'clamp(13px, 1.15vw, 14px)',
+            lineHeight: 1.75,
+            textAlign: 'justify',
+            margin: '0 auto 28px',
+            maxWidth: '46em',
             color: INK,
-            opacity: 0.85,
-            margin: 0,
           }}
         >
           What every UK party promised at the 2024 General Election, theme by theme. A coloured dot
           marks where a party has materially shifted since. Click any column header to read that
           party's full dossier.
         </p>
-      </div>
 
-      {/* The grid is rendered as a horizontally-scrolling table on
-          smaller viewports so the columns stay readable. Each column
-          is min 220px wide. */}
-      <div
-        style={{
-          overflowX: 'auto',
-          background: CREAM,
-          padding: '18px 12px',
-          marginTop: '18px',
-        }}
-      >
-        <table
-          style={{
-            borderCollapse: 'separate',
-            borderSpacing: 0,
-            width: '100%',
-            minWidth: `${220 * (parties.length + 1)}px`,
-            tableLayout: 'fixed',
-            fontFamily: 'Special Elite, monospace',
-            color: INK,
-          }}
-        >
-          <thead>
-            <tr>
-              <th
-                style={{
-                  width: '180px',
-                  textAlign: 'left',
-                  fontSize: '13px',
-                  letterSpacing: '0.06em',
-                  opacity: 0.55,
-                  padding: '6px 10px',
-                  borderBottom: `1px solid rgba(20,16,13,0.2)`,
-                  verticalAlign: 'bottom',
-                  position: 'sticky',
-                  left: 0,
-                  background: CREAM,
-                  zIndex: 2,
-                }}
-              >
-                THEME
-              </th>
-              {parties.map((p) => (
+        {/* The grid is rendered as a horizontally-scrolling table on
+            smaller viewports so the columns stay readable. Each column
+            is min 220px wide. The scroll container has no background of
+            its own so the parchment shows through; ruled hairlines do
+            all the structural work. */}
+        <div style={{ overflowX: 'auto', marginTop: '12px' }}>
+          <table
+            style={{
+              borderCollapse: 'separate',
+              borderSpacing: 0,
+              width: '100%',
+              minWidth: `${220 * (parties.length + 1)}px`,
+              tableLayout: 'fixed',
+              color: INK,
+            }}
+          >
+            <thead>
+              <tr>
                 <th
-                  key={p.slug}
                   style={{
-                    width: '220px',
-                    padding: '6px 10px',
-                    borderBottom: `4px solid ${p.party_colour || '#7697a2'}`,
-                    verticalAlign: 'bottom',
-                  }}
-                >
-                  <a
-                    href={`/parties/${p.slug}`}
-                    className="no-hover-scale"
-                    style={{
-                      display: 'block',
-                      textDecoration: 'none',
-                      color: INK,
-                      fontFamily: 'Georgia, "Times New Roman", serif',
-                      fontWeight: 'bold',
-                      fontSize: '17px',
-                      lineHeight: 1.15,
-                      letterSpacing: '-0.01em',
-                    }}
-                  >
-                    {p.name}
-                  </a>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {THEMES.map((theme, ti) => (
-              <tr key={theme}>
-                <th
-                  scope="row"
-                  style={{
+                    width: '180px',
                     textAlign: 'left',
-                    fontFamily: 'Georgia, "Times New Roman", serif',
-                    fontWeight: 'bold',
-                    fontSize: '15px',
-                    padding: '12px 10px',
-                    borderBottom: `1px solid rgba(20,16,13,0.12)`,
-                    background: ti % 2 ? 'rgba(20,16,13,0.025)' : 'transparent',
-                    verticalAlign: 'top',
+                    fontFamily: MONO,
+                    fontSize: '11px',
+                    letterSpacing: '0.18em',
+                    textTransform: 'uppercase',
+                    color: INK_SOFT,
+                    padding: '10px 12px',
+                    borderBottom: `1.5px solid ${INK}`,
+                    verticalAlign: 'bottom',
                     position: 'sticky',
                     left: 0,
-                    zIndex: 1,
+                    background: PARCHMENT_CREAM,
+                    zIndex: 2,
                   }}
                 >
-                  {theme}
+                  Theme
                 </th>
-                {parties.map((p) => {
-                  const cell = byParty[p.slug]?.[theme];
-                  return (
-                    <td
-                      key={p.slug}
+                {parties.map((p) => (
+                  <th
+                    key={p.slug}
+                    style={{
+                      width: '220px',
+                      padding: '10px 12px 8px',
+                      borderBottom: `1.5px solid ${INK}`,
+                      borderTop: `3px solid ${p.party_colour || '#7697a2'}`,
+                      verticalAlign: 'bottom',
+                    }}
+                  >
+                    <a
+                      href={`/parties/${p.slug}`}
+                      className="no-hover-scale"
                       style={{
-                        padding: '12px 10px',
-                        borderBottom: `1px solid rgba(20,16,13,0.12)`,
-                        background: ti % 2 ? 'rgba(20,16,13,0.025)' : 'transparent',
-                        verticalAlign: 'top',
-                        fontSize: '13px',
-                        lineHeight: 1.45,
+                        display: 'block',
+                        textDecoration: 'none',
+                        color: INK,
+                        fontFamily: SERIF,
+                        fontWeight: 600,
+                        fontSize: '17px',
+                        lineHeight: 1.2,
+                        letterSpacing: '-0.005em',
                       }}
                     >
-                      {cell ? (
-                        <a
-                          href={`/parties/${p.slug}#${encodeURIComponent(theme.toLowerCase().replace(/\s+/g, '-'))}`}
-                          style={{ color: INK, textDecoration: 'none', display: 'block' }}
-                        >
-                          {extract(cell.manifesto_position)}
-                          {cell.current_shift && (
-                            <span
-                              title="Shifted since 2024 — click for detail"
-                              aria-label="Shifted since 2024"
-                              style={{
-                                display: 'inline-block',
-                                width: '9px',
-                                height: '9px',
-                                borderRadius: '50%',
-                                background: p.party_colour || '#7697a2',
-                                marginLeft: '6px',
-                                verticalAlign: 'middle',
-                              }}
-                            />
-                          )}
-                        </a>
-                      ) : (
-                        <span style={{ opacity: 0.35 }}>Coming soon</span>
-                      )}
-                    </td>
-                  );
-                })}
+                      {p.name}
+                    </a>
+                  </th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {THEMES.map((theme) => (
+                <tr key={theme}>
+                  <th
+                    scope="row"
+                    style={{
+                      textAlign: 'left',
+                      fontFamily: SERIF,
+                      fontWeight: 600,
+                      fontSize: '15px',
+                      padding: '16px 12px',
+                      borderBottom: `1px solid ${INK_HAIRLINE}`,
+                      background: PARCHMENT_CREAM,
+                      verticalAlign: 'top',
+                      position: 'sticky',
+                      left: 0,
+                      zIndex: 1,
+                    }}
+                  >
+                    {theme}
+                  </th>
+                  {parties.map((p) => {
+                    const cell = byParty[p.slug]?.[theme];
+                    return (
+                      <td
+                        key={p.slug}
+                        style={{
+                          padding: '16px 12px',
+                          borderBottom: `1px solid ${INK_HAIRLINE}`,
+                          verticalAlign: 'top',
+                          fontFamily: SERIF,
+                          fontSize: '14px',
+                          lineHeight: 1.55,
+                        }}
+                      >
+                        {cell ? (
+                          <a
+                            href={`/parties/${p.slug}#${encodeURIComponent(theme.toLowerCase().replace(/\s+/g, '-'))}`}
+                            style={{ color: INK, textDecoration: 'none', display: 'block' }}
+                          >
+                            {extract(cell.manifesto_position)}
+                            {cell.current_shift && (
+                              <span
+                                title="Shifted since 2024 — click for detail"
+                                aria-label="Shifted since 2024"
+                                style={{
+                                  display: 'inline-block',
+                                  width: '9px',
+                                  height: '9px',
+                                  borderRadius: '50%',
+                                  background: p.party_colour || '#7697a2',
+                                  marginLeft: '6px',
+                                  verticalAlign: 'middle',
+                                }}
+                              />
+                            )}
+                          </a>
+                        ) : (
+                          <span style={{ fontFamily: MONO, fontSize: '12px', fontStyle: 'italic', color: INK_SOFT }}>Coming soon</span>
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-      <p
-        style={{
-          fontFamily: 'Special Elite, monospace',
-          fontSize: '13px',
-          opacity: 0.65,
-          marginTop: '14px',
-          maxWidth: '80ch',
-        }}
-      >
-        Pilot rollout: Labour, Conservatives and Reform UK populated. The other 14 follow once
-        the format is signed off. Every claim is sourced on the per-party dossier.
-      </p>
+      </article>
     </DossierShell>
   );
 }
+
