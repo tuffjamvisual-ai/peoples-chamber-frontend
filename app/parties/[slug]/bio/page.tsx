@@ -183,20 +183,11 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
 
       {/* People's critique — sharp ~550-word assessment in MP-bio
           style. Renders as blank-line-separated paragraphs in the
-          body-prose typewriter face (Special Elite). */}
+          body-prose typewriter face (Special Elite). The eyebrow
+          label was removed 2026-06-03 per user request — the prose
+          now leads. */}
       {party.critique ? (
         <section style={{ marginBottom: '40px' }}>
-          <div
-            style={{
-              fontFamily: 'Special Elite, monospace',
-              fontSize: '12px',
-              letterSpacing: '0.08em',
-              opacity: 0.6,
-              marginBottom: '14px',
-            }}
-          >
-            THE PEOPLE&apos;S VERDICT
-          </div>
           <div
             style={{
               fontFamily: 'Special Elite, monospace',

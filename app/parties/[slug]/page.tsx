@@ -214,20 +214,11 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
           style. Sits above the policy blocks so the reader gets the
           editorial verdict before the policy grid. Renders as
           blank-line-separated paragraphs in the body-prose typewriter
-          face (Special Elite), width-constrained for readability. */}
+          face (Special Elite), width-constrained for readability.
+          Eyebrow label removed 2026-06-03 per user request; prose
+          leads. */}
       {party.critique && (
         <section style={{ marginBottom: '40px' }}>
-          <div
-            style={{
-              fontFamily: 'Special Elite, monospace',
-              fontSize: '12px',
-              letterSpacing: '0.08em',
-              opacity: 0.6,
-              marginBottom: '14px',
-            }}
-          >
-            THE PEOPLE'S VERDICT
-          </div>
           <div
             style={{
               fontFamily: 'Special Elite, monospace',
