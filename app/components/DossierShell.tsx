@@ -7,15 +7,19 @@ import ExpandingFolder from './ExpandingFolder';
 
 type Hotspot = { label: string; href: string; xPct: number; yPct: number; wPct: number; hPct: number };
 const HOTSPOTS: Hotspot[] = [
-  { label: 'HOME', href: '/', xPct: 4.5, yPct: 20.7, wPct: 6.5, hPct: 2.6 },
-  { label: 'BILLS', href: '/bills', xPct: 12.5, yPct: 20.7, wPct: 7.0, hPct: 2.6 },
-  { label: 'LAWS', href: '/laws', xPct: 20.5, yPct: 20.7, wPct: 7.0, hPct: 2.6 },
-  { label: 'PEOPLES POLLS', href: '/polls', xPct: 29.5, yPct: 20.7, wPct: 12.0, hPct: 2.6 },
-  { label: 'MPS', href: '/mps', xPct: 43.0, yPct: 20.7, wPct: 6.5, hPct: 2.6 },
-  { label: 'DEPARTMENTS', href: '/departments', xPct: 51.5, yPct: 20.7, wPct: 11.0, hPct: 2.6 },
-  { label: 'TRANSPARENCY', href: '/transparency', xPct: 65.5, yPct: 20.7, wPct: 11.0, hPct: 2.6 },
-  { label: 'CONTACT', href: '/contact', xPct: 79.5, yPct: 20.7, wPct: 7.0, hPct: 2.6 },
-  { label: 'LOGIN', href: '/login', xPct: 89.5, yPct: 20.7, wPct: 6.0, hPct: 2.6 },
+  // Top nav row — coordinates from ChatGPT hotspots.json (2026-06-03)
+  // matched to the new landing101 masthead artwork. LAWS is gone, PARTIES
+  // is new. PEOPLES POLLS href forced to /polls (the JSON came back with
+  // /peoples-polls which doesn't exist as a route).
+  { label: 'HOME', href: '/', xPct: 5.2, yPct: 21.3, wPct: 5.0, hPct: 2.8 },
+  { label: 'BILLS', href: '/bills', xPct: 13.0, yPct: 21.3, wPct: 5.5, hPct: 2.8 },
+  { label: 'PEOPLES POLLS', href: '/polls', xPct: 20.5, yPct: 21.3, wPct: 12.0, hPct: 2.8 },
+  { label: 'PARTIES', href: '/parties', xPct: 35.0, yPct: 21.3, wPct: 7.0, hPct: 2.8 },
+  { label: 'MPS', href: '/mps', xPct: 44.5, yPct: 21.3, wPct: 4.5, hPct: 2.8 },
+  { label: 'DEPARTMENTS', href: '/departments', xPct: 51.0, yPct: 21.3, wPct: 11.5, hPct: 2.8 },
+  { label: 'TRANSPARENCY', href: '/transparency', xPct: 64.5, yPct: 21.3, wPct: 12.5, hPct: 2.8 },
+  { label: 'CONTACT', href: '/contact', xPct: 79.0, yPct: 21.3, wPct: 7.0, hPct: 2.8 },
+  { label: 'LOGIN/SIGNUP', href: '/login', xPct: 88.0, yPct: 21.3, wPct: 10.0, hPct: 2.8 },
   { label: 'Top Content Area', href: '/bills', xPct: 6.0, yPct: 24.0, wPct: 88.0, hPct: 39.0 },
   { label: 'Bottom Left Area', href: '/mps', xPct: 6.0, yPct: 75.0, wPct: 27.0, hPct: 14.0 },
   { label: 'Bottom Centre Area', href: '/polls', xPct: 37.0, yPct: 75.0, wPct: 27.0, hPct: 14.0 },
