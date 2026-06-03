@@ -202,6 +202,31 @@ export default async function ExpensesPage() {
         Itemised line items are visible on each MP&rsquo;s profile under Expenses.
       </p>
 
+      {/* Three-chapter version of the feature available with the
+          parchment fold-turn animation between chapters. */}
+      <p
+        style={{
+          marginTop: '40px',
+          fontFamily: 'Special Elite, monospace',
+          fontSize: '12px',
+          textTransform: 'uppercase',
+          letterSpacing: '0.18em',
+          textAlign: 'center',
+        }}
+      >
+        <Link
+          href="/expenses/story/1"
+          style={{
+            color: ACCENT,
+            textDecoration: 'none',
+            borderBottom: `1px solid ${ACCENT}`,
+            paddingBottom: '2px',
+          }}
+        >
+          Read the long-form feature ★ Three chapters →
+        </Link>
+      </p>
+
       {/* Feature essay — added 2026-06-03. Sits below the Top 10
           ranking and provides the broader context: where the £177k
           staff budget comes from, why travel is uncapped, what the
