@@ -145,142 +145,128 @@ export default async function PartiesIndex() {
           party's full dossier.
         </p>
 
-        {/* The grid is rendered as a horizontally-scrolling table on
-            smaller viewports so the columns stay readable. Each column
-            is min 220px wide. The scroll container has no background of
-            its own so the parchment shows through; ruled hairlines do
-            all the structural work. */}
-        <div style={{ overflowX: 'auto', marginTop: '12px' }}>
-          <table
-            style={{
-              borderCollapse: 'separate',
-              borderSpacing: 0,
-              width: '100%',
-              minWidth: `${220 * (parties.length + 1)}px`,
-              tableLayout: 'fixed',
-              color: INK,
-            }}
-          >
-            <thead>
-              <tr>
-                <th
+        {/* Stacked layout: one section per party, with the 11 themes
+            running vertically under each. Replaced the
+            horizontally-scrolling cross-comparison table on 2026-06-03
+            because the scroll buried the data on anything smaller than
+            a desktop. Each party gets a party-colour accent rule, name
+            in EB Garamond serif, and a two-column theme/position list.
+            Parties without research yet render a single 'Coming soon'
+            stub instead of a full empty list. */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
+          {parties.map((p) => {
+            const hasData = !!byParty[p.slug] && Object.keys(byParty[p.slug]).length > 0;
+            const colour = p.party_colour || '#7697a2';
+            return (
+              <section
+                key={p.slug}
+                style={{
+                  borderTop: `3px solid ${colour}`,
+                  paddingTop: '18px',
+                }}
+              >
+                <a
+                  href={`/parties/${p.slug}`}
+                  className="no-hover-scale"
                   style={{
-                    width: '180px',
-                    textAlign: 'left',
-                    fontFamily: MONO,
-                    fontSize: '11px',
-                    letterSpacing: '0.18em',
-                    textTransform: 'uppercase',
-                    color: INK_SOFT,
-                    padding: '10px 12px',
-                    borderBottom: `1.5px solid ${INK}`,
-                    verticalAlign: 'bottom',
-                    position: 'sticky',
-                    left: 0,
-                    background: PARCHMENT_CREAM,
-                    zIndex: 2,
+                    display: 'inline-block',
+                    textDecoration: 'none',
+                    color: INK,
+                    fontFamily: SERIF,
+                    fontWeight: 600,
+                    fontSize: 'clamp(22px, 2.6vw, 30px)',
+                    lineHeight: 1.15,
+                    letterSpacing: '-0.005em',
+                    marginBottom: '4px',
                   }}
                 >
-                  Theme
-                </th>
-                {parties.map((p) => (
-                  <th
-                    key={p.slug}
+                  {p.name}
+                </a>
+                <div style={{ fontFamily: MONO, fontSize: '11px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginBottom: '18px' }}>
+                  {hasData ? 'Manifesto positions · 2024' : 'Research pending'}
+                </div>
+
+                {hasData ? (
+                  <dl
                     style={{
-                      width: '220px',
-                      padding: '10px 12px 8px',
-                      borderBottom: `1.5px solid ${INK}`,
-                      borderTop: `3px solid ${p.party_colour || '#7697a2'}`,
-                      verticalAlign: 'bottom',
+                      display: 'grid',
+                      gridTemplateColumns: 'minmax(160px, 200px) 1fr',
+                      gap: '0',
+                      margin: 0,
+                      borderTop: `1px solid ${INK_HAIRLINE}`,
                     }}
                   >
-                    <a
-                      href={`/parties/${p.slug}`}
-                      className="no-hover-scale"
-                      style={{
-                        display: 'block',
-                        textDecoration: 'none',
-                        color: INK,
-                        fontFamily: SERIF,
-                        fontWeight: 600,
-                        fontSize: '17px',
-                        lineHeight: 1.2,
-                        letterSpacing: '-0.005em',
-                      }}
-                    >
-                      {p.name}
-                    </a>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {THEMES.map((theme) => (
-                <tr key={theme}>
-                  <th
-                    scope="row"
-                    style={{
-                      textAlign: 'left',
-                      fontFamily: SERIF,
-                      fontWeight: 600,
-                      fontSize: '15px',
-                      padding: '16px 12px',
-                      borderBottom: `1px solid ${INK_HAIRLINE}`,
-                      background: PARCHMENT_CREAM,
-                      verticalAlign: 'top',
-                      position: 'sticky',
-                      left: 0,
-                      zIndex: 1,
-                    }}
-                  >
-                    {theme}
-                  </th>
-                  {parties.map((p) => {
-                    const cell = byParty[p.slug]?.[theme];
-                    return (
-                      <td
-                        key={p.slug}
-                        style={{
-                          padding: '16px 12px',
-                          borderBottom: `1px solid ${INK_HAIRLINE}`,
-                          verticalAlign: 'top',
-                          fontFamily: SERIF,
-                          fontSize: '14px',
-                          lineHeight: 1.55,
-                        }}
-                      >
-                        {cell ? (
-                          <a
-                            href={`/parties/${p.slug}#${encodeURIComponent(theme.toLowerCase().replace(/\s+/g, '-'))}`}
-                            style={{ color: INK, textDecoration: 'none', display: 'block' }}
+                    {THEMES.map((theme) => {
+                      const cell = byParty[p.slug]?.[theme];
+                      if (!cell) {
+                        return (
+                          <div key={theme} style={{ display: 'contents' }}>
+                            <dt
+                              style={{
+                                fontFamily: SERIF,
+                                fontWeight: 600,
+                                fontSize: '15px',
+                                padding: '14px 16px 14px 0',
+                                borderBottom: `1px solid ${INK_HAIRLINE}`,
+                                color: INK_SOFT,
+                              }}
+                            >
+                              {theme}
+                            </dt>
+                            <dd style={{ padding: '14px 0', borderBottom: `1px solid ${INK_HAIRLINE}`, margin: 0, fontFamily: MONO, fontSize: '12px', fontStyle: 'italic', color: INK_SOFT }}>
+                              Coming soon
+                            </dd>
+                          </div>
+                        );
+                      }
+                      return (
+                        <div key={theme} style={{ display: 'contents' }}>
+                          <dt
+                            style={{
+                              fontFamily: SERIF,
+                              fontWeight: 600,
+                              fontSize: '15px',
+                              padding: '14px 16px 14px 0',
+                              borderBottom: `1px solid ${INK_HAIRLINE}`,
+                            }}
                           >
-                            {extract(cell.manifesto_position)}
-                            {cell.current_shift && (
-                              <span
-                                title="Shifted since 2024 — click for detail"
-                                aria-label="Shifted since 2024"
-                                style={{
-                                  display: 'inline-block',
-                                  width: '9px',
-                                  height: '9px',
-                                  borderRadius: '50%',
-                                  background: p.party_colour || '#7697a2',
-                                  marginLeft: '6px',
-                                  verticalAlign: 'middle',
-                                }}
-                              />
-                            )}
-                          </a>
-                        ) : (
-                          <span style={{ fontFamily: MONO, fontSize: '12px', fontStyle: 'italic', color: INK_SOFT }}>Coming soon</span>
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                            {theme}
+                          </dt>
+                          <dd style={{ padding: '14px 0', borderBottom: `1px solid ${INK_HAIRLINE}`, margin: 0 }}>
+                            <a
+                              href={`/parties/${p.slug}#${encodeURIComponent(theme.toLowerCase().replace(/\s+/g, '-'))}`}
+                              style={{ color: INK, textDecoration: 'none', display: 'block', fontFamily: SERIF, fontSize: '14px', lineHeight: 1.55 }}
+                            >
+                              {extract(cell.manifesto_position)}
+                              {cell.current_shift && (
+                                <span
+                                  title="Shifted since 2024 — click for detail"
+                                  aria-label="Shifted since 2024"
+                                  style={{
+                                    display: 'inline-block',
+                                    width: '9px',
+                                    height: '9px',
+                                    borderRadius: '50%',
+                                    background: colour,
+                                    marginLeft: '8px',
+                                    verticalAlign: 'middle',
+                                  }}
+                                />
+                              )}
+                            </a>
+                          </dd>
+                        </div>
+                      );
+                    })}
+                  </dl>
+                ) : (
+                  <p style={{ fontFamily: MONO, fontSize: '13px', fontStyle: 'italic', color: INK_SOFT, margin: 0 }}>
+                    Coming soon. The 2024 manifesto positions for this party are being researched.
+                  </p>
+                )}
+              </section>
+            );
+          })}
         </div>
 
       </article>
