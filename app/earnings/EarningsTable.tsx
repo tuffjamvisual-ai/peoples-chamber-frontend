@@ -78,16 +78,20 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
 
   return (
     <div className="overflow-x-auto border border-[#14100d]/20">
-      <table className="w-full text-[15px] border-collapse" style={{ minWidth: '900px' }}>
+      {/* minWidth removed 2026-06-03 — was forcing horizontal scroll
+          inside the dossier folder. Headers shortened ('Personal total'
+          → 'Total', 'Public spend (YYYY/YY)' → 'Public spend') and cell
+          padding tightened so the seven columns fit the content area. */}
+      <table className="w-full text-[15px] border-collapse">
         <thead>
           <tr className="border-b border-[#14100d]/20 text-left">
-            <Th label="#"        active={sortKey === 'rank'}           dir={sortDir} onClick={() => toggle('rank')}           align="right" width={48} />
+            <Th label="#"        active={sortKey === 'rank'}           dir={sortDir} onClick={() => toggle('rank')}           align="right" width={32} />
             <Th label="MP"       active={sortKey === 'name'}           dir={sortDir} onClick={() => toggle('name')}           />
             <Th label="Base"     active={sortKey === 'base'}           dir={sortDir} onClick={() => toggle('base')}           align="right" />
-            <Th label="Ministerial" active={sortKey === 'ministerial'} dir={sortDir} onClick={() => toggle('ministerial')}    align="right" />
+            <Th label="Minister." active={sortKey === 'ministerial'}    dir={sortDir} onClick={() => toggle('ministerial')}    align="right" />
             <Th label="Outside"  active={sortKey === 'outside'}        dir={sortDir} onClick={() => toggle('outside')}        align="right" />
-            <Th label="Personal total" active={sortKey === 'personal_total'} dir={sortDir} onClick={() => toggle('personal_total')} align="right" />
-            <Th label={`Public spend (${year})`} active={sortKey === 'public_spend'} dir={sortDir} onClick={() => toggle('public_spend')} align="right" />
+            <Th label="Total"    active={sortKey === 'personal_total'} dir={sortDir} onClick={() => toggle('personal_total')} align="right" />
+            <Th label="Public spend" active={sortKey === 'public_spend'} dir={sortDir} onClick={() => toggle('public_spend')} align="right" />
           </tr>
         </thead>
         <tbody>
@@ -99,10 +103,10 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
                 key={r.member_id}
                 className="border-b border-[#14100d]/10 hover:bg-[#14100d]/5 transition-colors"
               >
-                <td className="px-3 py-3 text-right text-[#14100d]/60 tabular-nums" style={{ borderLeft: `2px solid ${partyColour}` }}>
+                <td className="px-2 py-3 text-right text-[#14100d]/60 tabular-nums" style={{ borderLeft: `2px solid ${partyColour}` }}>
                   {rank}
                 </td>
-                <td className="px-3 py-3">
+                <td className="px-2 py-3">
                   <div className="flex items-center gap-3 min-w-0">
                     {/* Compact parchment polaroid — same vocabulary as
                         MpDossier (cream paper stock, extra bottom
@@ -156,21 +160,25 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
                         {r.name}
                       </Link>
                       <div className="text-[13px] text-[#14100d]/70 truncate">
-                        {r.constituency || ''}
-                        {r.party ? ` · ${r.party}` : ''}
+                        {/* Constituency dropped 2026-06-03 to save row
+                            width inside the dossier folder. Party (and
+                            optional salary band) are enough secondary
+                            context — the MP's name links to their
+                            profile, which carries the constituency. */}
+                        {r.party || ''}
                         {r.salary_band ? ` · ${SALARY_BAND_LABEL[r.salary_band]}` : ''}
                       </div>
                     </div>
                   </div>
                 </td>
-                <td className="px-3 py-3 text-right text-[#14100d] tabular-nums whitespace-nowrap">{fmtMoney(r.base)}</td>
+                <td className="px-2 py-3 text-right text-[#14100d] tabular-nums whitespace-nowrap">{fmtMoney(r.base)}</td>
                 <td className={`px-3 py-3 text-right tabular-nums whitespace-nowrap ${r.ministerial ? 'text-[#14100d]' : 'text-[#14100d]/40'}`}>
                   {r.ministerial ? fmtMoney(r.ministerial) : '—'}
                 </td>
                 <td className={`px-3 py-3 text-right tabular-nums whitespace-nowrap ${r.outside ? 'text-[#14100d]' : 'text-[#14100d]/40'}`}>
                   {r.outside ? fmtMoney(r.outside) : '—'}
                 </td>
-                <td className="px-3 py-3 text-right text-[#14100d] font-semibold tabular-nums whitespace-nowrap">
+                <td className="px-2 py-3 text-right text-[#14100d] font-semibold tabular-nums whitespace-nowrap">
                   {fmtMoney(r.personal_total)}
                 </td>
                 <td className={`px-3 py-3 text-right tabular-nums whitespace-nowrap ${r.public_spend ? 'text-[#14100d]' : 'text-[#14100d]/40'}`}>
