@@ -79,7 +79,20 @@ const HOTSPOTS: Hotspot[] = [
       { label: 'Your Party',            href: '/parties/your-party/bio' },
     ],
   },
-  { label: 'MPS', href: '/mps', xPct: 44.5, yPct: 21.3, wPct: 4.5, hPct: 2.8 },
+  {
+    label: 'MPS',
+    href: '/mps',
+    xPct: 44.5, yPct: 21.3, wPct: 4.5, hPct: 2.8,
+    children: [
+      // All MPs index + the two MP-money pages that are linked from
+      // the landing-page bottom-left card but had no masthead entry
+      // until 2026-06-03. /expenses metadata title is 'Top Spenders';
+      // /earnings is 'MP Earnings & Public Spend'.
+      { label: 'All MPs',         href: '/mps' },
+      { label: 'Top Spenders',    href: '/expenses' },
+      { label: 'Earnings & Pay',  href: '/earnings' },
+    ],
+  },
   { label: 'DEPARTMENTS', href: '/departments', xPct: 51.0, yPct: 21.3, wPct: 11.5, hPct: 2.8 },
   {
     label: 'TRANSPARENCY',
