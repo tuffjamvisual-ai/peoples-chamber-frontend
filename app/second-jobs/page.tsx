@@ -104,39 +104,77 @@ export default async function SecondJobsLanding() {
           By party · click through for detail
         </h2>
 
+        {/* Party tiles styled to match the nav-bar dropdown panel
+            vocabulary: parchment texture, layered shadows in place of
+            a hard border, slight per-tile rotation, small ★ header
+            band with red-ink hairline, mono uppercase meta lines. */}
+        <style>{`
+          .pca-party-tile {
+            position: relative;
+            display: block;
+            padding: 14px 16px 16px;
+            color: ${INK};
+            text-decoration: none;
+            background: #efe6d2 url('/bill-parchment.webp') center top / 100% auto repeat;
+            font-family: ${SERIF};
+            box-shadow:
+              inset 0 0 0 1px rgba(255,247,228,0.35),
+              0 0 0 1px rgba(60,42,28,0.35),
+              0 1px 0 rgba(255,247,228,0.5),
+              0 14px 26px -12px rgba(50,30,18,0.45);
+            transition: transform 180ms ease, box-shadow 180ms ease;
+          }
+          .pca-party-tile:nth-child(3n+1) { transform: rotate(-0.45deg); }
+          .pca-party-tile:nth-child(3n+2) { transform: rotate(0.3deg); }
+          .pca-party-tile:nth-child(3n)   { transform: rotate(-0.2deg); }
+          .pca-party-tile:hover {
+            transform: rotate(0deg) translateY(-2px);
+            box-shadow:
+              inset 0 0 0 1px rgba(255,247,228,0.45),
+              0 0 0 1px rgba(122,22,18,0.55),
+              0 1px 0 rgba(255,247,228,0.6),
+              0 22px 36px -14px rgba(50,30,18,0.6);
+          }
+          .pca-party-tile .pca-tile-head {
+            display: flex; align-items: center; justify-content: center;
+            gap: 8px; padding: 4px 0 6px;
+            font-family: ${SERIF};
+            font-size: 10px;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: rgba(20,16,13,0.55);
+            border-bottom: 1px solid rgba(122,22,18,0.35);
+            margin: -2px 8px 10px;
+          }
+          .pca-party-tile .pca-tile-head .pca-star { color: ${ACCENT}; }
+        `}</style>
+
         <div
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-            gap: '14px',
+            gap: '18px',
           }}
         >
           {partyTotals.map((p) => (
             <Link
               key={p.slug}
               href={`/second-jobs/${p.slug}`}
-              className="no-hover-scale"
-              style={{
-                display: 'block',
-                padding: '16px 18px',
-                background: 'rgba(255,247,228,0.5)',
-                border: `1px solid ${INK_HAIRLINE}`,
-                borderLeft: `4px solid ${ACCENT}`,
-                color: INK,
-                textDecoration: 'none',
-              }}
+              className="no-hover-scale pca-party-tile"
             >
-              <div style={{ fontFamily: MONO, fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.22em', color: INK_SOFT, marginBottom: '6px' }}>
-                {p.mps} MP{p.mps === 1 ? '' : 's'}
+              <div aria-hidden className="pca-tile-head">
+                <span className="pca-star">★</span>
+                <span>{p.mps} MP{p.mps === 1 ? '' : 's'}</span>
+                <span className="pca-star">★</span>
               </div>
-              <div style={{ fontFamily: SERIF, fontSize: 'clamp(18px, 2vw, 22px)', fontWeight: 600, marginBottom: '6px' }}>
+              <div style={{ fontFamily: SERIF, fontSize: 'clamp(18px, 2vw, 22px)', fontWeight: 600, marginBottom: '6px', lineHeight: 1.2 }}>
                 {p.label} <span style={{ opacity: 0.55 }}>→</span>
               </div>
               <div style={{ fontFamily: SERIF, fontSize: 'clamp(20px, 2.2vw, 26px)', fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: INK }}>
                 {fmtMoney(p.total)}
               </div>
               {p.topMp && (
-                <div style={{ fontFamily: MONO, fontSize: '11px', color: INK_SOFT, marginTop: '6px' }}>
+                <div style={{ fontFamily: MONO, fontSize: '11px', color: INK_SOFT, marginTop: '8px', letterSpacing: '0.04em' }}>
                   Top earner: {p.topMp.name} · {fmtMoney(p.topMp.total)}
                 </div>
               )}
