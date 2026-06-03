@@ -53,8 +53,35 @@ type Policy = {
   current_shift: string | null;
 };
 
-async function getAll(): Promise<{ parties: Party[]; byParty: Record<string, Record<string, Policy>> }> {
-  const [{ data: partyRows }, { data: policyRows }] = await Promise.all([
+// mps.party stores the display string Parliament publishes, which
+// doesn't always match parties.name on this site (Lib Dem singular vs
+// plural, SDLP vs Social Democratic & Labour Party, etc.). Map by
+// hand so MP counts roll up to the right parties.slug. 'Labour' and
+// 'Labour (Co-op)' both count toward the Labour bench.
+const MP_PARTY_TO_SLUG: Record<string, string> = {
+  'Labour': 'labour',
+  'Labour (Co-op)': 'labour',
+  'Conservative': 'conservative',
+  'Liberal Democrat': 'liberal-democrats',
+  'Liberal Democrats': 'liberal-democrats',
+  'Reform UK': 'reform-uk',
+  'Green Party': 'green',
+  'Scottish National Party': 'snp',
+  'Plaid Cymru': 'plaid-cymru',
+  'Sinn Féin': 'sinn-fein',
+  'Sinn Fein': 'sinn-fein',
+  'Democratic Unionist Party': 'dup',
+  'Ulster Unionist Party': 'uup',
+  'Social Democratic & Labour Party': 'sdlp',
+  'Alliance': 'alliance',
+  'Alliance Party': 'alliance',
+  'Traditional Unionist Voice': 'tuv',
+  'Restore Britain': 'restore-britain',
+  'Your Party': 'your-party',
+};
+
+async function getAll(): Promise<{ parties: Party[]; byParty: Record<string, Record<string, Policy>>; mpCounts: Record<string, number> }> {
+  const [{ data: partyRows }, { data: policyRows }, { data: mpRows }] = await Promise.all([
     supabase
       .from('parties')
       .select('slug, name, party_colour, founded_year')
@@ -65,17 +92,30 @@ async function getAll(): Promise<{ parties: Party[]; byParty: Record<string, Rec
     supabase
       .from('party_policies')
       .select('party_slug, theme, manifesto_position, current_shift'),
+    supabase
+      .from('mps')
+      .select('party')
+      .eq('current_member', true),
   ]);
 
   const parties = (partyRows || []) as Party[];
 
-  // Reorder so the parties with research come first; the placeholder
-  // columns sit on the right.
-  const policySlugs = new Set((policyRows || []).map((r) => r.party_slug));
+  // Roll MP party labels up to parties.slug counts.
+  const mpCounts: Record<string, number> = {};
+  for (const row of (mpRows || []) as { party: string | null }[]) {
+    if (!row.party) continue;
+    const slug = MP_PARTY_TO_SLUG[row.party];
+    if (!slug) continue;
+    mpCounts[slug] = (mpCounts[slug] || 0) + 1;
+  }
+
+  // Sort by MP count desc — biggest benches first. Parties with zero
+  // MPs (typically the placeholder / minor-party columns) tie on count
+  // and fall back to alphabetical so the order is at least stable.
   parties.sort((a, b) => {
-    const aHas = policySlugs.has(a.slug) ? 0 : 1;
-    const bHas = policySlugs.has(b.slug) ? 0 : 1;
-    if (aHas !== bHas) return aHas - bHas;
+    const ac = mpCounts[a.slug] || 0;
+    const bc = mpCounts[b.slug] || 0;
+    if (ac !== bc) return bc - ac;
     return a.name.localeCompare(b.name);
   });
 
@@ -83,7 +123,7 @@ async function getAll(): Promise<{ parties: Party[]; byParty: Record<string, Rec
   for (const r of (policyRows || []) as Policy[]) {
     (byParty[r.party_slug] ||= {})[r.theme] = r;
   }
-  return { parties, byParty };
+  return { parties, byParty, mpCounts };
 }
 
 // Cell extract: first sentence (or first ~140 chars) so the row fits
@@ -95,7 +135,7 @@ function extract(text: string): string {
 }
 
 export default async function PartiesIndex() {
-  const { parties, byParty } = await getAll();
+  const { parties, byParty, mpCounts } = await getAll();
 
   return (
     <DossierShell>
@@ -157,6 +197,8 @@ export default async function PartiesIndex() {
           {parties.map((p) => {
             const hasData = !!byParty[p.slug] && Object.keys(byParty[p.slug]).length > 0;
             const colour = p.party_colour || '#7697a2';
+            const seats = mpCounts[p.slug] || 0;
+            const seatLabel = seats === 1 ? '1 seat' : seats > 0 ? `${seats} seats` : 'No Commons seats';
             return (
               <section
                 key={p.slug}
@@ -183,7 +225,7 @@ export default async function PartiesIndex() {
                   {p.name}
                 </a>
                 <div style={{ fontFamily: MONO, fontSize: '11px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginBottom: '18px' }}>
-                  {hasData ? 'Manifesto positions · 2024' : 'Research pending'}
+                  {seatLabel} · {hasData ? 'Manifesto positions 2024' : 'Research pending'}
                 </div>
 
                 {hasData ? (
