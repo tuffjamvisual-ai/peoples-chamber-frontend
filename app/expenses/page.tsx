@@ -239,7 +239,10 @@ export default async function ExpensesPage() {
         <div
           style={{
             fontFamily: 'Special Elite, monospace',
-            fontSize: '12px',
+            // 14px in the essay (vs. 12px in the Top 10 listing above)
+            // — the user wanted the story body slightly larger than
+            // the classified list so the long-form prose breathes.
+            fontSize: '14px',
             lineHeight: 1.7,
             color: INK,
             columnCount: 2,
