@@ -186,8 +186,8 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
       <article
         style={{
           background: "#efe6d2 url('/bill-parchment.webp') center top / 100% auto repeat-y",
-          border: '1px solid rgba(26,20,14,0.3)',
-          boxShadow: '0 1px 0 rgba(26,20,14,0.05), 0 22px 44px -22px rgba(26,20,14,0.35)',
+          border: '1px solid rgba(26,20,14,0.08)',
+          boxShadow: '0 1px 0 rgba(26,20,14,0.03), 0 18px 32px -22px rgba(26,20,14,0.12)',
           padding: 'clamp(28px, 4vw, 56px) clamp(24px, 4vw, 60px)',
           color: '#1a140e',
           fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
