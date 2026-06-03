@@ -13,11 +13,10 @@ import type { CSSProperties } from 'react';
 //   - mouse leave                  -> close
 //   - focus inside (keyboard nav)  -> open
 //   - blur outside                 -> close
-//   - click on the label itself    -> navigate to the top-level href
-//     (e.g. clicking PARTIES still goes to /parties; the dropdown is
-//     a shortcut, not a gate). Mobile gets degraded-but-functional
-//     experience: tap navigates; submenu isn't reachable without a
-//     hamburger refactor.
+//   - click on the label itself    -> TOGGLE the dropdown (does NOT
+//     navigate). User wanted PARTIES to not default to its own page;
+//     making the click toggle gives mobile users a tap-to-open path
+//     too. Sub-items are the only navigation surface.
 //
 // Style: a vintage parchment slip pinned beneath the masthead.
 // Uses the same /bill-parchment.webp texture as the bills/councils
@@ -157,6 +156,15 @@ export default function HotspotDropdown({
         aria-expanded={open}
         className="no-hover-scale"
         style={triggerStyle}
+        onClick={(e) => {
+          // PARTIES (and any future dropdown trigger) must not navigate
+          // on click — it only opens its dropdown. Sub-items handle the
+          // actual navigation. The href is kept for semantic / SEO
+          // discoverability (Googlebot can still follow it), but click
+          // intent is to expand the menu.
+          e.preventDefault();
+          setOpen((v) => !v);
+        }}
       />
       <div style={wrapperStyle}>
       <div style={panelStyle} role="menu" aria-label={`${label} menu`}>
