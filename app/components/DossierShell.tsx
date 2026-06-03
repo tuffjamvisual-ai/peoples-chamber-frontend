@@ -258,14 +258,15 @@ export default function DossierShell({
               style={{
                 position: 'relative',
                 zIndex: 1,
-                // Horizontal padding bumped from 8% -> 11% on 2026-06-02:
-                // even with the overflow protection added earlier, text on
-                // dept and staff pages was sitting too close to the visible
-                // folder edge. The 3pp extra each side (~6pp of safe-area
-                // shrink overall) pushes content away from the spine so the
-                // edge graphic reads as a margin rather than a sidebar
-                // bumping into the type.
-                padding: '10% 11% 6%',
+                // Horizontal padding history:
+                //   8% original
+                //   11% (2026-06-02): pushed content away from folder edge
+                //   6%  (2026-06-03): user asked to widen the parchment so
+                //                     a larger font size fits. Dropping from
+                //                     11% to 6% gives back 10% of folder
+                //                     width (~110 px on a 1144 px desktop)
+                //                     across the whole content area.
+                padding: '10% 6% 6%',
                 overflowWrap: 'anywhere',
                 wordBreak: 'break-word',
                 minWidth: 0,
