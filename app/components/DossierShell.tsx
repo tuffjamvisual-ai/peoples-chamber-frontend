@@ -58,7 +58,22 @@ const HOTSPOTS: Hotspot[] = [
   },
   { label: 'MPS', href: '/mps', xPct: 44.5, yPct: 21.3, wPct: 4.5, hPct: 2.8 },
   { label: 'DEPARTMENTS', href: '/departments', xPct: 51.0, yPct: 21.3, wPct: 11.5, hPct: 2.8 },
-  { label: 'TRANSPARENCY', href: '/transparency', xPct: 64.5, yPct: 21.3, wPct: 12.5, hPct: 2.8 },
+  {
+    label: 'TRANSPARENCY',
+    href: '/transparency',
+    xPct: 64.5, yPct: 21.3, wPct: 12.5, hPct: 2.8,
+    children: [
+      // Hub + six datasets from app/transparency/page.tsx.
+      // 'lobbyists' removed 2026-06-02, 'companies' removed 2026-06-03.
+      { label: 'All Datasets',         href: '/transparency' },
+      { label: 'Ministers’ Meetings',   href: '/transparency/ministers-meetings' },
+      { label: 'APPGs',                href: '/transparency/appgs' },
+      { label: 'Ministers’ Hospitality', href: '/transparency/hospitality' },
+      { label: 'Revolving Door',       href: '/transparency/revolving-door' },
+      { label: 'Political Donations',  href: '/transparency/donations' },
+      { label: 'Government Contracts', href: '/transparency/contracts' },
+    ],
+  },
   { label: 'CONTACT', href: '/contact', xPct: 77.0, yPct: 21.3, wPct: 7.0, hPct: 2.8 },
   { label: 'LOGIN/SIGNUP', href: '/login', xPct: 86.0, yPct: 21.3, wPct: 10.0, hPct: 2.8 },
   { label: 'Top Content Area', href: '/bills', xPct: 6.0, yPct: 24.0, wPct: 88.0, hPct: 39.0 },
