@@ -325,7 +325,7 @@ function SimpleRow({
         {rank}.
       </span>
       <Link
-        href={`/mps/${memberId}`}
+        href={`/mps/${memberId}#expenses`}
         style={{
           color: INK,
           fontSize: '12px',
