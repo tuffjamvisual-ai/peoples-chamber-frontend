@@ -101,13 +101,16 @@ const HOTSPOTS: Hotspot[] = [
     children: [
       // Hub + six datasets from app/transparency/page.tsx.
       // 'lobbyists' removed 2026-06-02, 'companies' removed 2026-06-03.
-      { label: 'All Datasets',         href: '/transparency' },
+      // 'MPs’ Second Jobs' added 2026-06-03 — Register of Members'
+      // Financial Interests, full page at /second-jobs.
+      { label: 'All Datasets',          href: '/transparency' },
+      { label: 'MPs’ Second Jobs',      href: '/second-jobs' },
       { label: 'Ministers’ Meetings',   href: '/transparency/ministers-meetings' },
-      { label: 'APPGs',                href: '/transparency/appgs' },
+      { label: 'APPGs',                 href: '/transparency/appgs' },
       { label: 'Ministers’ Hospitality', href: '/transparency/hospitality' },
-      { label: 'Revolving Door',       href: '/transparency/revolving-door' },
-      { label: 'Political Donations',  href: '/transparency/donations' },
-      { label: 'Government Contracts', href: '/transparency/contracts' },
+      { label: 'Revolving Door',        href: '/transparency/revolving-door' },
+      { label: 'Political Donations',   href: '/transparency/donations' },
+      { label: 'Government Contracts',  href: '/transparency/contracts' },
     ],
   },
   { label: 'CONTACT', href: '/contact', xPct: 77.0, yPct: 21.3, wPct: 7.0, hPct: 2.8 },
