@@ -1,0 +1,26 @@
+name: Fix URL Construction Bugs (one-off)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  fix-db:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      NEXT_PUBLIC_SUPABASE_URL: https://nwnsvnbudmfkhhwcjwwr.supabase.co
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+
+      - name: Install dependencies
+        run: npm install @supabase/supabase-js
+
+      - name: Run URL construction bug fixes
+        run: node scripts/run-url-fixes.js
