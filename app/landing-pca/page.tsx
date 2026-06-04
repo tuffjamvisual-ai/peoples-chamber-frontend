@@ -79,14 +79,6 @@ export default async function LandingPcaPage() {
       partyColour={partyColour}
       partyIsCoop={partyIsCoop}
       photoUrl={mp?.photo_url ?? null}
-      glance={{
-        party: mp?.party ?? '',
-        startDate: mp?.start_date ?? null,
-        gender: mp?.gender ?? null,
-        votes: votesWithSi,
-        interestsCount: (interestsRes.data || []).length,
-        sponsoredBillsCount: (sponsoredBillsRes.data || []).length,
-      }}
       sections={{
         memberId,
         paragraphs: bioParas,

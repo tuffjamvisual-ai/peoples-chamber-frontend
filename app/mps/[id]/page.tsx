@@ -214,14 +214,6 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       partyColour={partyColour}
       partyIsCoop={partyIsCoop}
       photoUrl={mp.photo_url ?? null}
-      glance={{
-        party: mp.party ?? '',
-        startDate: mp.start_date ?? null,
-        gender: mp.gender ?? null,
-        votes: votesWithSi,
-        interestsCount: (interestsRes.data || []).length,
-        sponsoredBillsCount: (sponsoredBillsRes.data || []).length,
-      }}
       sections={{
         memberId,
         paragraphs: (bioRes.data?.political_bio ?? '').split(/\n\n+/).map((p: string) => p.trim()).filter((p: string) => p.length > 0),
