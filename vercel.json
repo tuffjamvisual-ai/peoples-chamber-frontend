@@ -31,8 +31,8 @@
     { "path": "/api/sync-person-cache",           "schedule": "0 7 * * 1" },
     { "path": "/api/sync-revolving-door",         "schedule": "0 6 * * 2" },
     { "path": "/api/sync-govuk-data",             "schedule": "0 6 * * 3" },
-    { "path": "/api/sync-ministers-meetings",     "schedule": "0 6 1 * *" },
-    { "path": "/api/sync-ministers-hospitality",  "schedule": "0 8 1 * *" },
+    { "path": "/api/sync-ministers-meetings",     "schedule": "0 6 * * 0" },
+    { "path": "/api/sync-ministers-hospitality",  "schedule": "0 9 * * 0" },
     { "path": "/api/sync-registered-interests",   "schedule": "0 8 * * *" }
   ]
 }
