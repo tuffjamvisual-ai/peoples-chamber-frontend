@@ -303,16 +303,24 @@ export default function DepartmentClient({ slug, govukData, streetContext, budge
           </section>
         )}
 
-        {/* Staff */}
-        <section>
-          <h2 className="text-[14px] uppercase tracking-[0.25em] mb-6 font-semibold" style={{ color: ACCENT }}>Department Staff</h2>
+        {/* Staff — heading + groups only when there's at least one body to
+            show. Previously the "Department Staff" h2 rendered even when
+            all three groups were empty (commons-leader: 1 minister-SoS,
+            0 officials per gov.uk's own API), leaving a dangling heading
+            above the FOI/press contact row. 2026-06-04. */}
+        {(juniorMinisters.length > 0 || seniorOfficials.length > 0 || boardMembers.length > 0) && (
+          <section>
+            <h2 className="text-[14px] uppercase tracking-[0.25em] mb-6 font-semibold" style={{ color: ACCENT }}>Department Staff</h2>
 
-          {juniorMinisters.length > 0 && <StaffGroup label="Ministers" people={juniorMinisters} />}
-          {seniorOfficials.length > 0 && <StaffGroup label="Senior Officials" people={seniorOfficials} />}
-          {boardMembers.length > 0 && <StaffGroup label="Board Members" people={boardMembers} />}
+            {juniorMinisters.length > 0 && <StaffGroup label="Ministers" people={juniorMinisters} />}
+            {seniorOfficials.length > 0 && <StaffGroup label="Senior Officials" people={seniorOfficials} />}
+            {boardMembers.length > 0 && <StaffGroup label="Board Members" people={boardMembers} />}
+          </section>
+        )}
 
-          {(govukData?.foiEmail || govukData?.pressPhone) && (
-            <div className="flex flex-wrap gap-6 mt-6 pt-6">
+        {(govukData?.foiEmail || govukData?.pressPhone) && (
+          <section className="mt-8">
+            <div className="flex flex-wrap gap-6">
               {govukData.foiEmail && (
                 <a
                   href={`mailto:${govukData.foiEmail}`}
@@ -326,8 +334,8 @@ export default function DepartmentClient({ slug, govukData, streetContext, budge
                 <span className="text-[14px] uppercase tracking-[0.15em] text-[#14100d] font-mono">Press: {govukData.pressPhone}</span>
               )}
             </div>
-          )}
-        </section>
+          </section>
+        )}
     </div>
   );
 }
