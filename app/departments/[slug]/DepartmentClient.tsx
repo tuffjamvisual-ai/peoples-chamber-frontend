@@ -240,40 +240,11 @@ export default function DepartmentClient({ slug, govukData, streetContext, budge
           </section>
         )}
 
-        {/* Assessment (no heading — the old "Street View" label was removed
-            as irrelevant). Renders the Institutional Performance Report from
-            department_context.street_context.
-            - bullet lists ("- foo" lines) render as proper <ul><li> so the
-              leading hyphens disappear; the report style uses lots of these
-              under each numbered recommendation
-            - whiteSpace: pre-wrap inside paragraphs preserves the single
-              line breaks that exist between fields like "Cost: ..." /
-              "Current: ..." / "Result: ..." within the same logical chunk
-            - **bold** runs are stripped on upsert per
-              feedback_strip_bold_markdown rule; if any leak through they
-              render as literal asterisks (loud signal that the strip step
-              was skipped) */}
-        <section className=" pb-8 mb-8">
-          {((streetContext || dept.streetContext) ?? '')
-            .split(/\n\n+/)
-            .map((p) => p.trim())
-            .filter(Boolean)
-            .map((para, idx) => (
-              // Plain paragraph render. The DB no longer carries leading
-              // bullet hyphens — they were stripped in a one-off sweep on
-              // 2026-06-02 and are stripped on every future upsert, so
-              // there is nothing to convert here. Single newlines inside
-              // a chunk are preserved via pre-wrap so the line breaks
-              // between Cost / Current / Result fields stay visible.
-              <p
-                key={idx}
-                className="text-[#14100d] text-[16px] leading-[1.7] mb-3"
-                style={{ whiteSpace: 'pre-wrap' }}
-              >
-                {para}
-              </p>
-            ))}
-        </section>
+        {/* Institutional Performance Report moved to server component
+            (app/departments/[slug]/page.tsx) on 2026-06-04 so the report
+            text ships in the static HTML — see GSC Soft 404 fix. The
+            `streetContext` prop is still on the interface but is now
+            always passed `null`; kept for a clean revert path. */}
 
         {/* Topic detail */}
         {activeZone && activeZoneData && (

@@ -55,11 +55,34 @@ export default async function DepartmentPage({ params }: PageProps) {
           {dept.description}
         </p>
 
+        {/* Institutional Performance Report — lifted out of DepartmentClient
+            so the 3.5–15k-char authored text ships in the static HTML and is
+            visible to crawlers on first fetch. Identical render rules: split
+            on blank lines, preserve single newlines inside chunks via
+            whiteSpace: pre-wrap. The text is purely display (no hooks, no
+            interactivity) so there is no reason for it to sit behind a
+            client boundary. GSC Soft 404 fix 2026-06-04. */}
+        <section className="pb-8 mb-8">
+          {((contextData.street_context || dept.streetContext) ?? '')
+            .split(/\n\n+/)
+            .map((p) => p.trim())
+            .filter(Boolean)
+            .map((para, idx) => (
+              <p
+                key={idx}
+                className="text-[#14100d] text-[16px] leading-[1.7] mb-3"
+                style={{ whiteSpace: 'pre-wrap' }}
+              >
+                {para}
+              </p>
+            ))}
+        </section>
+
         <Suspense fallback={<div style={{ minHeight: '300px' }} />}>
           <DepartmentClient
             slug={slug}
             govukData={govukData}
-            streetContext={contextData.street_context}
+            streetContext={null}
             budget={DEPARTMENT_BUDGETS[slug] || null}
           />
         </Suspense>
