@@ -12,9 +12,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { data: bill } = await supabase
     .from('bill')
     .select(
-      'title, long_title, current_stage, plain_summary, is_act, is_defeated, ' +
-        'bill_withdrawn, commons_division_id, commons_ayes, commons_noes, ' +
-        'sponsor_name, sponsors'
+      // Single string literal — Supabase's compile-time type inference
+      // can't parse a runtime-concatenated select, and falls back to
+      // GenericStringError, which then trips every bill.* access below.
+      'title, long_title, current_stage, plain_summary, is_act, is_defeated, bill_withdrawn, commons_division_id, commons_ayes, commons_noes, sponsor_name, sponsors'
     )
     .eq('id', billId)
     .single();
