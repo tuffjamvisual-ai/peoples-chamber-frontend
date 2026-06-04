@@ -1,12 +1,16 @@
 import Image from 'next/image';
 import MagazineProfileSections from './MagazineProfileSections';
+import MpAtAGlance from './MpAtAGlance';
 import DossierShell from '../../components/DossierShell';
 import BackLink from '../../components/BackLink';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 
 // An MP profile rendered into the shared dossier shell: the folder holds the MP's polaroid
-// header + the full interactive profile sections. The newspaper masthead / folder frame all
-// come from <DossierShell>.
+// header + a server-rendered "At a glance" fact strip + the full interactive profile
+// sections. The newspaper masthead / folder frame all come from <DossierShell>.
+//
+// The At-a-glance block was added 2026-06-04 to fix a GSC Soft 404 signal on
+// the 442 MPs without bios — see MpAtAGlance.tsx for the why.
 
 interface MpDossierProps {
   memberId: number;
@@ -18,6 +22,7 @@ interface MpDossierProps {
   partyIsCoop: boolean;
   photoUrl: string | null;
   sections: React.ComponentProps<typeof MagazineProfileSections>;
+  glance: Omit<React.ComponentProps<typeof MpAtAGlance>, 'fullName' | 'constituency' | 'partyDisplay'>;
 }
 
 export default function MpDossier({
@@ -30,6 +35,7 @@ export default function MpDossier({
   partyIsCoop,
   photoUrl,
   sections,
+  glance,
 }: MpDossierProps) {
   const backHref = `/mps?expand=${encodeURIComponent(partyExpand)}#mps-list`;
 
@@ -103,6 +109,19 @@ export default function MpDossier({
             </div>
           )}
         </div>
+      </div>
+
+      {/* Server-rendered At-a-glance fact strip. Sits between the polaroid
+          header and the tabbed sections so it's the first thing both readers
+          and crawlers see after the masthead. Scaled to match the body
+          text size of the bio + section content below. */}
+      <div style={{ zoom: 1.18 }}>
+        <MpAtAGlance
+          fullName={fullName}
+          constituency={constituency}
+          partyDisplay={partyDisplay ?? ''}
+          {...glance}
+        />
       </div>
 
       {/* Full interactive profile sections (scaled up via zoom to restore text size). */}

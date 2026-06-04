@@ -53,17 +53,51 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const memberId = parseInt(id, 10);
-  const { data: mp } = await supabase
-    .from('mps')
-    .select('name, display_name, constituency, party')
-    .eq('member_id', memberId)
-    .single();
+  if (Number.isNaN(memberId)) return { title: 'MP profile' };
+
+  // Previously this shipped a boilerplate template ("Voting record, registered
+  // interests, sponsored bills and contact details.") across all 650 MPs. That
+  // string was a Duplicate-without-canonical / Soft 404 contributor in GSC.
+  // Now we assemble 3-4 specific facts per MP: party + constituency + first
+  // elected + vote count + interests count + most recent vote. Four small
+  // queries in parallel — each is index-hit and head-only, so the per-MP
+  // metadata fetch stays well inside the page's render budget. GSC fix
+  // 2026-06-04.
+  const [mpRes, votesCountRes, interestsCountRes, lastVoteRes] = await Promise.all([
+    supabase.from('mps').select('name, display_name, constituency, party, start_date').eq('member_id', memberId).single(),
+    supabase.from('mp_division_votes').select('id', { count: 'exact', head: true }).eq('member_id', memberId).in('vote_type', ['aye', 'no']),
+    supabase.from('mp_registered_interests').select('id', { count: 'exact', head: true }).eq('member_id', memberId),
+    supabase.from('mp_division_votes').select('division_title, division_date').eq('member_id', memberId).in('vote_type', ['aye', 'no']).order('division_date', { ascending: false }).limit(1).maybeSingle(),
+  ]);
+
+  const mp = mpRes.data;
   if (!mp) return { title: 'MP profile' };
+
   const name = mp.display_name || mp.name;
-  const subtitle = [normaliseParty(mp.party), mp.constituency].filter(Boolean).join(' · ');
+  const party = normaliseParty(mp.party) || mp.party || '';
+  const sinceYear = mp.start_date ? new Date(mp.start_date).getFullYear() : null;
+
+  const head = `${name} — ${[party, mp.constituency && `MP for ${mp.constituency}`].filter(Boolean).join(', ')}${sinceYear ? ` since ${sinceYear}` : ''}.`;
+
+  const facts: string[] = [];
+  const vc = votesCountRes.count ?? 0;
+  if (vc > 0) facts.push(`${vc} votes cast`);
+  const ic = interestsCountRes.count ?? 0;
+  if (ic > 0) facts.push(`${ic} registered interest${ic === 1 ? '' : 's'}`);
+  const lv = lastVoteRes.data;
+  if (lv?.division_title && lv?.division_date) {
+    const d = new Date(lv.division_date);
+    if (!Number.isNaN(d.getTime())) {
+      facts.push(`last voted on ${lv.division_title} (${d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })})`);
+    }
+  }
+
+  let description = head + (facts.length ? ' ' + facts.join(', ') + '.' : '');
+  if (description.length > 200) description = description.slice(0, 197).trimEnd() + '…';
+
   return {
     title: name,
-    description: `${name}${subtitle ? ` — ${subtitle}.` : '.'} Voting record, registered interests, sponsored bills and contact details.`,
+    description,
     alternates: { canonical: `/mps/${memberId}` },
   };
 }
@@ -99,12 +133,17 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       .select('id, title, status, current_stage, plain_summary, is_act, last_update')
       .eq('sponsor_member_id', memberId)
       .order('created_at', { ascending: false }),
+    // Bumped 199 → 999 on 2026-06-04 so the new server-rendered At-a-glance
+    // block can produce accurate aye/no/rebellion counts for the full set of
+    // 650 MPs rather than capping at 200 for cabinet-tier members. Adds ~70-80
+    // KB to the cold-render payload for the heaviest MPs, which is the same
+    // order of magnitude as the existing expenses-detail fetch — accepted.
     supabase
       .from('mp_division_votes')
       .select('id, division_title, division_date, vote_type, is_rebellion, bill_id, division_id')
       .eq('member_id', memberId)
       .order('division_date', { ascending: false })
-      .range(0, 199),
+      .range(0, 999),
     supabase.from('mp_registered_interests').select('*').eq('member_id', memberId).order('category_sort_order', { ascending: true }),
     supabase.from('mp_expenses_summary').select('*').eq('member_id', memberId).order('year', { ascending: false }),
     // Most-recent 50 claims — UI shows them on the expanded Expenses
@@ -175,6 +214,14 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       partyColour={partyColour}
       partyIsCoop={partyIsCoop}
       photoUrl={mp.photo_url ?? null}
+      glance={{
+        party: mp.party ?? '',
+        startDate: mp.start_date ?? null,
+        gender: mp.gender ?? null,
+        votes: votesWithSi,
+        interestsCount: (interestsRes.data || []).length,
+        sponsoredBillsCount: (sponsoredBillsRes.data || []).length,
+      }}
       sections={{
         memberId,
         paragraphs: (bioRes.data?.political_bio ?? '').split(/\n\n+/).map((p: string) => p.trim()).filter((p: string) => p.length > 0),
