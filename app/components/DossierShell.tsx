@@ -99,10 +99,12 @@ const HOTSPOTS: Hotspot[] = [
     href: '/transparency',
     xPct: 64.5, yPct: 21.3, wPct: 12.5, hPct: 2.8,
     children: [
-      // Hub + six datasets from app/transparency/page.tsx.
+      // Hub + datasets from app/transparency/page.tsx.
       // 'lobbyists' removed 2026-06-02, 'companies' removed 2026-06-03.
       // 'MPs’ Second Jobs' added 2026-06-03 — Register of Members'
       // Financial Interests, full page at /second-jobs.
+      // 'Press Releases' added 2026-06-04 — daily GOV.UK feed at
+      // /transparency/press-releases, individual pages at /news/[slug].
       { label: 'All Datasets',          href: '/transparency' },
       { label: 'MPs’ Second Jobs',      href: '/second-jobs' },
       { label: 'Ministers’ Meetings',   href: '/transparency/ministers-meetings' },
@@ -111,6 +113,7 @@ const HOTSPOTS: Hotspot[] = [
       { label: 'Revolving Door',        href: '/transparency/revolving-door' },
       { label: 'Political Donations',   href: '/transparency/donations' },
       { label: 'Government Contracts',  href: '/transparency/contracts' },
+      { label: 'Press Releases',        href: '/transparency/press-releases' },
     ],
   },
   { label: 'CONTACT', href: '/contact', xPct: 77.0, yPct: 21.3, wPct: 7.0, hPct: 2.8 },
