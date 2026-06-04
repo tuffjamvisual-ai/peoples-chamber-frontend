@@ -141,6 +141,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })
     .filter((e): e is NonNullable<typeof e> => e !== null);
 
+  // Every UK principal local authority — 382 councils across England,
+  // Scotland, Wales and Northern Ireland. Per-council pages at
+  // /councils/[slug] were previously orphaned (no sitemap entry); added
+  // 2026-06-04 alongside the press release entries.
+  const councils = await fetchAllRows<{ slug: string }>('councils', 'slug');
+  const councilEntries: MetadataRoute.Sitemap = councils.map((c) => ({
+    url: `${SITE}/councils/${c.slug}`,
+    lastModified: now,
+    changeFrequency: 'weekly',
+    priority: 0.5,
+  }));
+
   return [
     ...staticEntries,
     ...transparencyEntries,
@@ -148,5 +160,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...billEntries,
     ...mpEntries,
     ...newsEntries,
+    ...councilEntries,
   ];
 }
