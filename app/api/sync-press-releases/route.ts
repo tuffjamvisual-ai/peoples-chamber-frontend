@@ -40,13 +40,37 @@ export async function GET(req: Request) {
     const results = data.results || [];
 
     let upserted = 0;
+    let bodiesFetched = 0;
     for (const item of results) {
+      const govUrl = `https://www.gov.uk${item.link}`;
+
+      // Inline body fetch so /news/[slug] no longer has to call gov.uk at
+      // render time. ~30KB per release, 100 rows max retained, so the table
+      // tops out around 3MB — fine. Failure is non-fatal; the page falls
+      // through to a friendly "summary above" message rather than erroring.
+      // Added 2026-06-04 to close the last render-time gov.uk fetch.
+      let body: string | null = null;
+      try {
+        const bodyRes = await fetch(`https://www.gov.uk/api/content${item.link}`, {
+          headers: { Accept: 'application/json', 'User-Agent': 'PeoplesChamber/1.0' },
+        });
+        if (bodyRes.ok) {
+          const bodyData = (await bodyRes.json()) as { details?: { body?: string } };
+          body = bodyData.details?.body || null;
+          if (body) bodiesFetched++;
+        }
+      } catch {
+        // Swallow — sync should not fail on a single body fetch.
+      }
+
       const record = {
         title: item.title,
         description: item.description || null,
         organisation: item.organisations?.[0]?.title || 'GOV.UK',
         published_at: item.public_timestamp || null,
-        gov_url: `https://www.gov.uk${item.link}`,
+        gov_url: govUrl,
+        body,
+        body_fetched_at: body ? new Date().toISOString() : null,
         fetched_at: new Date().toISOString(),
       };
       const { error } = await supabase
@@ -71,6 +95,7 @@ export async function GET(req: Request) {
       ok: true,
       fetched: results.length,
       upserted,
+      bodiesFetched,
       trimmed,
       syncedAt: new Date().toISOString(),
     });

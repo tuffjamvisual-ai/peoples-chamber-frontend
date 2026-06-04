@@ -17,6 +17,7 @@ type PressRelease = {
   organisation: string | null
   published_at: string | null
   gov_url: string | null
+  body: string | null
 }
 
 async function getPressRelease(slug: string): Promise<PressRelease | null> {
@@ -26,16 +27,20 @@ async function getPressRelease(slug: string): Promise<PressRelease | null> {
   if (!safeSlug) return null
   const { data } = await supabase
     .from('press_releases')
-    .select('id, title, description, organisation, published_at, gov_url')
+    .select('id, title, description, organisation, published_at, gov_url, body')
     .ilike('gov_url', `%/${safeSlug}`)
     .limit(1)
     .maybeSingle()
   return data
 }
 
-async function getBodyHtml(govUrl: string): Promise<string | null> {
+// Fallback for rows that pre-date the body-column rollout. Once the backfill
+// has run and the next sync cycle has populated `body` for every retained
+// row, this path stops firing in practice — but we keep it as a safety net
+// against future schema or sync drift. Removed from the hot path in the
+// happy case where `release.body` is non-null. 2026-06-04.
+async function getBodyHtmlLive(govUrl: string): Promise<string | null> {
   if (!govUrl) return null
-  // gov.uk content API mirrors the page path under /api/content
   const path = govUrl.replace(/^https?:\/\/[^/]+/, '')
   if (!path) return null
   try {
@@ -67,7 +72,9 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
   const release = await getPressRelease(slug)
   if (!release) notFound()
 
-  const bodyHtml = await getBodyHtml(release.gov_url || '')
+  // DB-first: the sync job stores the body inline. Only fall back to the
+  // live gov.uk content API for legacy rows that pre-date the body column.
+  const bodyHtml = release.body || (await getBodyHtmlLive(release.gov_url || ''))
 
   const dateLabel = release.published_at
     ? new Date(release.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
