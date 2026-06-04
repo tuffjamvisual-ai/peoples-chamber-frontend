@@ -47,6 +47,22 @@ export default function HotspotDropdown({
 }: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  // Defer close by ~250ms so the cursor can cross the visual gap
+  // between the trigger and the panel without slamming the menu shut.
+  // 2026-06-04: previously the padding-top bridge alone was meant to
+  // do this but in practice the cursor was registering as leaving the
+  // container faster than the wrapper could pick it up.
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cancelClose = () => {
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+  };
+  const scheduleClose = () => {
+    cancelClose();
+    closeTimer.current = setTimeout(() => setOpen(false), 250);
+  };
 
   // Close on outside click (touch / non-hover devices).
   useEffect(() => {
@@ -62,6 +78,10 @@ export default function HotspotDropdown({
       document.removeEventListener('touchstart', handler);
     };
   }, [open]);
+
+  useEffect(() => {
+    return () => cancelClose();
+  }, []);
 
   const containerStyle: CSSProperties = {
     position: 'absolute',
@@ -81,17 +101,23 @@ export default function HotspotDropdown({
 
   // Outer wrapper that sits flush against the trigger (top: 100%, no
   // gap) so the cursor can travel from trigger → panel without ever
-  // leaving the hover subtree. It carries an 8px transparent
-  // padding-top, which forms an invisible hover bridge but doesn't
-  // show a visible parchment edge at the join.
+  // leaving the hover subtree. Carries a 14px transparent padding-top
+  // bridge — combined with the 250ms close timer (see scheduleClose),
+  // brief pointer exits across the trigger→panel gap no longer slam
+  // the menu shut.
   const wrapperStyle: CSSProperties = {
     position: 'absolute',
     top: '100%',
     left: '50%',
     transform: 'translateX(-50%)',
-    paddingTop: '8px',
+    paddingTop: '14px',
     display: open ? 'block' : 'none',
     zIndex: 1000,
+    // Wrapper extends past the trigger horizontally to catch diagonal
+    // mouse travel. The 1px lateral padding is invisible but expands
+    // the wrapper's hover area to match the panel's full width.
+    paddingLeft: '1px',
+    paddingRight: '1px',
   };
 
   const panelStyle: CSSProperties = {
@@ -140,13 +166,13 @@ export default function HotspotDropdown({
     <div
       ref={ref}
       style={containerStyle}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-      onFocus={() => setOpen(true)}
+      onMouseEnter={() => { cancelClose(); setOpen(true); }}
+      onMouseLeave={scheduleClose}
+      onFocus={() => { cancelClose(); setOpen(true); }}
       onBlur={(e) => {
         // Close only when focus leaves the whole wrapper, not when it
         // shifts between the trigger and a submenu item.
-        if (!ref.current?.contains(e.relatedTarget as Node | null)) setOpen(false);
+        if (!ref.current?.contains(e.relatedTarget as Node | null)) scheduleClose();
       }}
     >
       <a
@@ -166,7 +192,11 @@ export default function HotspotDropdown({
           setOpen((v) => !v);
         }}
       />
-      <div style={wrapperStyle}>
+      <div
+        style={wrapperStyle}
+        onMouseEnter={cancelClose}
+        onMouseLeave={scheduleClose}
+      >
       <div style={panelStyle} role="menu" aria-label={`${label} menu`}>
         {/* Top header rule — small caps label + red star, echoes the
             masthead's "UK GOVERNMENT, IN PUBLIC VIEW" subtitle band. */}
