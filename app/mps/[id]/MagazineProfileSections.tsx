@@ -287,7 +287,7 @@ export default function MagazineProfileSections({
             <ul style={{ listStyle: 'none', padding: 0, fontSize: '16px', lineHeight: '1.8' }}>
               {contact.phone && <li><strong>Phone:</strong> <span style={{ fontFamily: 'monospace' }}>{contact.phone}</span></li>}
               {contact.email && <li><strong>Email:</strong> <a href={`mailto:${contact.email}`} style={inkLink}>{contact.email}</a></li>}
-              {contact.website && <li><strong>Website:</strong> <a href={contact.website} target="_blank" rel="noopener noreferrer" style={inkLink}>{contact.website}</a></li>}
+              {contact.website && <li><strong>Website:</strong> <a href={contact.website.match(/^https?:\/\//) ? contact.website : `https://${contact.website.replace(/^\/+/, '')}`} target="_blank" rel="noopener noreferrer" style={inkLink}>{contact.website}</a></li>}
               {contact.twitter && <li><strong>X / Twitter:</strong> <a href={contact.twitter} target="_blank" rel="noopener noreferrer" style={inkLink}>{contact.twitter}</a></li>}
               {(contact.address_line1 || contact.postcode) && (
                 <li style={{ marginTop: '12px' }}>
