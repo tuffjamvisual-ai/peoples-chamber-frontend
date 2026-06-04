@@ -31,6 +31,7 @@ const SECTIONS = [
   { slug: 'revolving-door',     title: 'Revolving Door',                   description: 'Senior officials and ministers taking up post government roles, including ACOBA recommendations and conditions attached.' },
   { slug: 'donations',          title: 'Political Donations',              description: 'Reportable donations to political parties and individual MPs.' },
   { slug: 'contracts',          title: 'Government Contracts',             description: 'Awarded public sector contracts above the disclosure threshold, published via Contracts Finder.' },
+  { slug: 'press-releases',     title: 'Press Releases',                   description: 'Most recent UK Government press releases, pulled daily from GOV.UK. Each release links through to the full-text announcement.' },
 ]
 
 export default function TransparencyHubPage() {
@@ -53,7 +54,7 @@ export default function TransparencyHubPage() {
           Transparency Hub
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
-          Six datasets covering how ministers, MPs, donors, contractors and former officials interact with the UK state. Each section links to a searchable list of the underlying records.
+          Seven datasets covering how ministers, MPs, donors, contractors and former officials interact with the UK state, plus the daily press release feed. Each section links to a searchable list of the underlying records.
         </p>
         <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px', opacity: 0.7 }}>
           {SECTIONS.length} datasets · drawn from public registers

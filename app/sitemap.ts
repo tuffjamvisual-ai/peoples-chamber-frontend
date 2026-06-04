@@ -42,7 +42,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
   // 'lobbyists' removed 2026-06-02. 'companies' removed 2026-06-03.
-  // See app/transparency/page.tsx for both.
+  // 'press-releases' added 2026-06-04 (7th transparency section; the
+  // index page lists 100 most-recent releases, each linking through to
+  // /news/[slug]).
+  // See app/transparency/page.tsx for the full hub.
   const transparencySections = [
     'ministers-meetings',
     'appgs',
@@ -50,6 +53,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     'revolving-door',
     'donations',
     'contracts',
+    'press-releases',
   ];
 
   const staticEntries: MetadataRoute.Sitemap = [
@@ -116,11 +120,33 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
+  // Individual press release detail pages — same slug derivation as the
+  // /transparency/press-releases index page. Cap at the 100 currently
+  // retained (the sync trims older releases). 2026-06-04.
+  const releases = await fetchAllRows<{ gov_url: string | null; published_at: string | null }>(
+    'press_releases',
+    'gov_url, published_at',
+  );
+  const newsEntries: MetadataRoute.Sitemap = releases
+    .map((r) => {
+      const match = r.gov_url?.match(/\/([a-z0-9-]+)\/?$/i);
+      const slug = match ? match[1] : null;
+      if (!slug) return null;
+      return {
+        url: `${SITE}/news/${slug}`,
+        lastModified: r.published_at ? new Date(r.published_at) : now,
+        changeFrequency: 'monthly' as const,
+        priority: 0.5,
+      };
+    })
+    .filter((e): e is NonNullable<typeof e> => e !== null);
+
   return [
     ...staticEntries,
     ...transparencyEntries,
     ...deptEntries,
     ...billEntries,
     ...mpEntries,
+    ...newsEntries,
   ];
 }
