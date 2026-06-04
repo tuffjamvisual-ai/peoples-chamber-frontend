@@ -4,6 +4,7 @@ import { departments } from '@/lib/departments';
 import { DEPARTMENT_BUDGETS } from '@/lib/department-budgets';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 import DepartmentClient from './DepartmentClient';
+import DepartmentMasthead from './DepartmentMasthead';
 import DossierShell from '../../components/DossierShell';
 import { getGovukDept } from '../../api/govuk-dept/route';
 import { getDeptContext } from '../../api/department-context/route';
@@ -51,6 +52,27 @@ export default async function DepartmentPage({ params }: PageProps) {
 
       {/* Body scaled to match the MP profile text size (16px base x zoom 1.18). */}
       <div style={{ zoom: 1.18 }}>
+        {/* Masthead — Secretary of State photo + name + role + budget panel.
+            Sits above the descriptive content so the reader's eye lands on
+            the person + spend envelope first, then drops into the
+            description label and the Institutional Performance Report.
+            Reordered 2026-06-04 at user request. */}
+        <DepartmentMasthead
+          sos={
+            govukData.ministers?.[0]
+              ? {
+                  name: govukData.ministers[0].name,
+                  photo: govukData.ministers[0].photo,
+                  role: govukData.ministers[0].role || 'Secretary of State',
+                  slug: govukData.ministers[0].slug,
+                  member_id: govukData.ministers[0].member_id ?? null,
+                  resigned: govukData.ministers[0].resigned,
+                }
+              : { name: dept.minister, photo: '', role: 'Secretary of State', slug: '' }
+          }
+          budget={DEPARTMENT_BUDGETS[slug] || null}
+        />
+
         <p style={{ fontSize: '16px', lineHeight: 1.7, maxWidth: '720px', marginBottom: '5%' }}>
           {dept.description}
         </p>
@@ -83,7 +105,7 @@ export default async function DepartmentPage({ params }: PageProps) {
             slug={slug}
             govukData={govukData}
             streetContext={null}
-            budget={DEPARTMENT_BUDGETS[slug] || null}
+            budget={null}
           />
         </Suspense>
       </div>
