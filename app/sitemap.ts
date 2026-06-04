@@ -82,7 +82,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  const bills = await fetchAllRows<{ id: number }>('bill', 'id');
+  // Only ship bills with at least one substantive signal — a Commons
+  // division on record, an active or known stage, or Royal Assent.
+  // Drops ~2,700 thin bills (placeholder description, no division,
+  // no stage) from the sitemap. They still serve 200 if accessed
+  // directly; we just stop asking Google to crawl them. 2026-06-04
+  // to clear Soft 404 + Duplicate-without-canonical signals flagged
+  // in GSC.
+  const bills = await fetchAllRows<{ id: number }>(
+    'bill',
+    'id',
+    (q) =>
+      q.or(
+        'commons_division_id.not.is.null,is_act.eq.true,current_stage.not.is.null'
+      ),
+  );
   const billEntries: MetadataRoute.Sitemap = bills.map((b) => ({
     url: `${SITE}/bills/${b.id}`,
     lastModified: now,
