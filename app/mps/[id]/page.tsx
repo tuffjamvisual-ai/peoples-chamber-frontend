@@ -21,7 +21,10 @@ export const revalidate = 21600;
 
 interface PageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ vp?: string; section?: string }>;
 }
+
+const VOTES_PER_PAGE = 20;
 
 // Cabinet-only prerender. Prerendering all 650 MPs saturated Vercel's
 // 3-worker build (Supabase code 57014 statement timeouts). Prerendering
@@ -104,12 +107,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function MPMagazineProfile({ params }: PageProps) {
+export default async function MPMagazineProfile({ params, searchParams }: PageProps) {
   const { id } = await params;
+  const sp = await searchParams;
   const memberId = parseInt(id, 10);
   if (Number.isNaN(memberId)) notFound();
 
-  // All 10 fetches in one parallel round-trip. The mp lookup was previously
+  // Voting record pagination: 20 per page. Default page 1. ?section=voting
+  // (set by the Pagination component's links) makes the voting tab the
+  // initial active section so the user lands back where they left off.
+  const votePage = Math.max(1, parseInt(sp.vp ?? '1', 10) || 1);
+  const voteStart = (votePage - 1) * VOTES_PER_PAGE;
+  const voteEnd = voteStart + VOTES_PER_PAGE - 1;
+  const initialSection = sp.section ?? null;
+
+  // All fetches in one parallel round-trip. The mp lookup was previously
   // awaited before this block, costing an extra serial round-trip on every
   // cold render. The notFound() check happens after — for valid member_ids
   // we save ~200-400ms; for invalid ones, the wasted concurrent queries
@@ -120,6 +132,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     bioRes,
     sponsoredBillsRes,
     votesRes,
+    votesCountRes,
     interestsRes,
     expensesRes,
     expensesDetailRes,
@@ -135,17 +148,21 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       .select('id, title, status, current_stage, plain_summary, is_act, last_update')
       .eq('sponsor_member_id', memberId)
       .order('created_at', { ascending: false }),
-    // Bumped 199 → 999 on 2026-06-04 so the new server-rendered At-a-glance
-    // block can produce accurate aye/no/rebellion counts for the full set of
-    // 650 MPs rather than capping at 200 for cabinet-tier members. Adds ~70-80
-    // KB to the cold-render payload for the heaviest MPs, which is the same
-    // order of magnitude as the existing expenses-detail fetch — accepted.
+    // 20-per-page paginated voting record. ParlParse backfill (2026-06-05)
+    // means some MPs now have hundreds of votes — Abbott alone has 308 —
+    // so the previous bulk 999-row fetch became a heavy cold payload.
     supabase
       .from('mp_division_votes')
       .select('id, division_title, division_date, vote_type, is_rebellion, bill_id, division_id')
       .eq('member_id', memberId)
       .order('division_date', { ascending: false })
-      .range(0, 999),
+      .range(voteStart, voteEnd),
+    // Total count for the pagination footer + the "N divisions recorded"
+    // summary line. head:true => no rows transferred, just the count.
+    supabase
+      .from('mp_division_votes')
+      .select('id', { count: 'exact', head: true })
+      .eq('member_id', memberId),
     supabase.from('mp_registered_interests').select('*').eq('member_id', memberId).order('category_sort_order', { ascending: true }),
     supabase.from('mp_expenses_summary').select('*').eq('member_id', memberId).order('year', { ascending: false }),
     // Most-recent 50 claims — UI shows them on the expanded Expenses
@@ -237,6 +254,10 @@ export default async function MPMagazineProfile({ params }: PageProps) {
           postcode:      contactRes.data?.postcode      ?? null,
         },
         votes: votesWithSi,
+        totalVotes: votesCountRes.count ?? votesWithSi.length,
+        votePage,
+        votesPerPage: VOTES_PER_PAGE,
+        initialSection,
         sponsoredBills: sponsoredBillsRes.data || [],
         interests: interestsRes.data || [],
         bio: bioRes.data,

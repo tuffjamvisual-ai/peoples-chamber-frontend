@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import Pagination from '@/app/components/Pagination';
 
 type SectionId = 'bio' | 'contact' | 'voting' | 'bills' | 'interests' | 'roles' | 'earnings' | 'expenses';
 
@@ -68,6 +69,14 @@ interface Props {
   paragraphs: string[];
   contact: Contact;
   votes: Vote[];
+  /** Total vote count across all pages — for the "N divisions recorded" line. */
+  totalVotes?: number;
+  /** 1-indexed current page within the voting tab. */
+  votePage?: number;
+  /** Page size for the voting tab. Pagination derives totalPages from this. */
+  votesPerPage?: number;
+  /** When set (via ?section= on the URL), opens the named section on mount. */
+  initialSection?: string | null;
   sponsoredBills: Bill[];
   interests: Interest[];
   bio: {
@@ -125,6 +134,10 @@ export default function MagazineProfileSections({
   paragraphs,
   contact,
   votes,
+  totalVotes,
+  votePage = 1,
+  votesPerPage = 20,
+  initialSection = null,
   sponsoredBills,
   interests,
   bio,
@@ -138,7 +151,7 @@ export default function MagazineProfileSections({
   const has: Record<SectionId, boolean> = {
     bio: paragraphs.length > 0,
     contact: !!(contact && (contact.phone || contact.email || contact.website || contact.twitter || contact.address_line1)),
-    voting: votes.length > 0,
+    voting: (totalVotes ?? votes.length) > 0,
     bills: sponsoredBills.length > 0,
     interests: interests.length > 0,
     roles: !!(
@@ -154,7 +167,14 @@ export default function MagazineProfileSections({
   const sections = ALL_SECTIONS.filter((s) => has[s.id]);
   const validIds = new Set<SectionId>(sections.map((s) => s.id));
 
-  const [active, setActive] = useState<SectionId>(sections[0]?.id ?? 'bio');
+  // Honour ?section= on initial mount so paginating the voting record
+  // (which forces a full reload via the href-based <Pagination>) lands
+  // the user back on the voting tab rather than the default first tab.
+  const initialActive: SectionId =
+    initialSection && validIds.has(initialSection as SectionId)
+      ? (initialSection as SectionId)
+      : (sections[0]?.id ?? 'bio');
+  const [active, setActive] = useState<SectionId>(initialActive);
   const [expandedYear, setExpandedYear] = useState<number | null>(null);
 
   // JS-driven float (opt-in). CSS sticky can't work under a transformed ancestor, so when
@@ -307,7 +327,15 @@ export default function MagazineProfileSections({
           <>
             <h2 style={sectionH2}>Voting Record</h2>
             <p style={{ marginBottom: '16px' }}>
-              <strong>{votes.length}</strong> divisions recorded.
+              <strong>{(totalVotes ?? votes.length).toLocaleString()}</strong> divisions recorded
+              {(totalVotes ?? votes.length) > votesPerPage && (
+                <>
+                  {' '}
+                  · showing {votesPerPage * (votePage - 1) + 1}–
+                  {Math.min(votesPerPage * votePage, totalVotes ?? votes.length)}
+                </>
+              )}
+              .
             </p>
             <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.7' }}>
               {votes.map((v) => (
@@ -341,6 +369,17 @@ export default function MagazineProfileSections({
                 </li>
               ))}
             </ul>
+            {(totalVotes ?? votes.length) > votesPerPage && (
+              <div style={{ marginTop: '24px' }}>
+                <Pagination
+                  currentPage={votePage}
+                  totalPages={Math.ceil((totalVotes ?? votes.length) / votesPerPage)}
+                  baseUrl={`/mps/${memberId}`}
+                  qsExtra="&section=voting"
+                  pageParam="vp"
+                />
+              </div>
+            )}
           </>
         )}
 
