@@ -6,9 +6,9 @@ import DossierShell from '../components/DossierShell';
 import BackLink from '../components/BackLink';
 
 export const metadata: Metadata = {
-  title: "Top-Charging UK Councils 2024-25 — Band D Council Tax Rankings",
+  title: "Top-Charging UK Councils 2026-27 — Band D Council Tax Rankings",
   description:
-    "The ten UK local authorities with the highest Band D council tax in 2024-25. Source: MHCLG council tax statistics. Ranking by authority-level Band D figure.",
+    "The ten UK local authorities with the highest Band D council tax for the 2026-27 financial year. Source: MHCLG council tax statistics. Ranking by authority-level Band D figure.",
   alternates: { canonical: '/council-tax' },
 };
 
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 export const revalidate = 3600;
 
-const YEAR_LABEL = '2024 / 2025';
+const YEAR_LABEL = '2026 / 2027';
 
 // Feature essay rendered below the Top 10 list. Same blank-line
 // paragraph convention as /expenses; no em-dashes per site rule.
@@ -27,7 +27,7 @@ const FEATURE_BODY = `Council tax is a property tax based on what a home was wor
 
 No revaluation has been carried out in England or Scotland since the system began. Wales attempted one in 2003. Northern Ireland uses a different system based on rateable values. The result is that two near-identical houses on the same street, built in the same decade, taxed in the same band, can have very different actual market values yet pay the same Band D figure. And two streets in two different councils can have similar housing stock but radically different bills.
 
-The variation runs deeper than most people assume. The most expensive Band D in 2024 to 2025 was Gateshead at £2,174. The least expensive billing authority charged under £1,200. Inner London boroughs, often among the wealthiest areas in the country, charge some of the lowest figures because their tax base is so large the precept per household stays low. Metropolitan boroughs in the North East and West Midlands, often serving more deprived populations, charge the highest figures because their tax base is small and central government funding has fallen.
+The variation runs deeper than most people assume. The most expensive Band D in 2026 to 2027 is Gateshead at £2,396. Wandsworth, an Inner London borough, sets its authority-level Band D at £518. The two figures are not comparable in isolation; they describe authorities with very different service responsibilities and very different tax bases. They are comparable in the sense that both are the headline figure their council publishes, and the gap between them is more than four-and-a-half times. Inner London boroughs, often among the wealthiest areas in the country, charge some of the lowest figures because their tax base is so large the precept per household stays low. Metropolitan boroughs in the North East and West Midlands, often serving more deprived populations, charge the highest figures because their tax base is small and central government funding has fallen.
 
 The headline numbers conceal the layering. A district council in a shire area is the billing authority but collects on behalf of the county council, the police and crime commissioner, the fire authority and any parish council. The district's own slice of the bill might be £150. The county council's slice can exceed £1,500. Police precepts have risen sharply over the last decade. Fire precepts have stayed roughly flat. Parish precepts, almost invisible nationally, can add anything from a pound to several hundred pounds per household.
 
@@ -41,13 +41,13 @@ Adult social care drives most of the pressure. Demand grows as the population ag
 
 The cap exists for a reason. Voters in any individual council might choose to pay less if their council offered to charge less. Few councils make that offer in practice because the cost pressures are real. The cap therefore acts less as a brake on excessive taxation than as a brake on the only revenue tool councils mostly control.
 
-The system rewards areas that were affluent in 1991. Westminster City Council charges roughly £1,000 at Band D for the same notional house value that would attract £2,000 elsewhere, because Westminster's tax base remains enormous and central government grant historically followed that pattern. Whether this matches contemporary need is a separate question. The valuation roll does not adjust for thirty-five years of demographic change.
+The system rewards areas that were affluent in 1991. Westminster City Council charges £538 at Band D for the same notional house value that would attract more than £2,000 in Gateshead, because Westminster's tax base remains enormous and central government grant historically followed that pattern. Whether this matches contemporary need is a separate question. The valuation roll does not adjust for thirty-five years of demographic change.
 
 Council tax was designed in 1991 as a transitional measure following the abolition of the poll tax. The political moment was electric. The technical solution was provisional. Successive governments have left the system in place because revaluation creates losers as well as winners and no government has wanted to take on the losers. Wales revalued in 2003 and the experience was not fondly remembered.
 
 What this means for the top ten is that the ranking is partly a story about housing wealth in 1991 and partly a story about service pressure in 2026. The two halves do not align. The councils charging most are not those with the most valuable homes. They are those with the largest gap between statutory duty and central support. The headline figure is sometimes called a measure of how high local taxes are. It is more accurately a measure of how much pressure local services are under and how much of that pressure has been pushed downward through the cap and onto local bill payers.
 
-The figures below are the authority-level Band D for 2024 to 2025 as published by MHCLG. They are not the full bill a resident receives; that includes adult social care precept and any parish precept on top. They are the council's own headline charge. They show where bills are highest, not where local taxation is fairest.`;
+The figures below are the authority-level Band D for 2026 to 2027 as published by MHCLG. They are not the full bill a resident receives; that includes adult social care precept and any parish precept on top. They are the council's own headline charge. They show where bills are highest, not where local taxation is fairest.`;
 
 const INK = '#14100d';
 const INK_SOFT = 'rgba(20,16,13,0.7)';
@@ -117,7 +117,7 @@ export default async function CouncilTaxPage() {
           Top 10 highest charging councils {YEAR_LABEL}
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', marginBottom: '20px' }}>
-          Ranked by Band D council tax set by the local authority for the 2024&ndash;25 financial year. Source: MHCLG.
+          Ranked by Band D council tax set by the local authority for the 2026&ndash;27 financial year. Source: MHCLG.
         </p>
 
         <div
@@ -165,7 +165,7 @@ export default async function CouncilTaxPage() {
       </ol>
 
       <p style={{ marginTop: '32px', fontSize: '13px', color: INK_SOFT, lineHeight: 1.7 }}>
-        Figures shown are the authority-level Band D charge for the 2024&ndash;25 financial year, as
+        Figures shown are the authority-level Band D charge for the 2026&ndash;27 financial year, as
         published by the Ministry of Housing, Communities and Local Government. They do not include
         the adult social care precept, parish precepts, or precepts from police and fire authorities,
         which are added on top by the billing authority. Full council profile and per-council
