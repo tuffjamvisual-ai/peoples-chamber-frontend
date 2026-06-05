@@ -29,24 +29,10 @@ export default function ExpandingFolder({
     const compute = () => {
       const fullH = el.scrollHeight; // full height of the CURRENT section's content
       const topDoc = el.getBoundingClientRect().top + window.scrollY;
-      // Lookahead is one full viewport — generous enough that interactive
-      // elements at the bottom of the section (e.g. the voting-tab pagination)
-      // are pulled inside the folder before the user reaches them. The short
-      // 220px lookahead this replaced was clipping pagination on long
-      // voting records, because the post-folder content (RelatedLinks)
-      // looked like the bottom of the page and stopped users scrolling
-      // further — leaving the pagination invisible inside the clipped folder.
-      const want = window.scrollY + window.innerHeight * 2 - topDoc;
+      const want = window.scrollY + window.innerHeight - topDoc + 220;
       // Always at least the default folder size; expand above it as you scroll, up to the
       // content height; re-fit (down to default, never below) when the section changes.
       maxH = Math.max(maxH, Math.min(want, fullH)); // grow as you scroll (within a section)
-      // If the entire content fits inside two viewports' worth of height,
-      // jump straight to fullH so nothing is ever clipped. This catches the
-      // voting tab and any other section that's only a few thousand pixels
-      // tall, where the cascading-grow pattern can't complete in one scroll.
-      if (fullH <= window.innerHeight * 2) {
-        maxH = Math.max(maxH, fullH);
-      }
       maxH = Math.min(maxH, Math.max(fullH, defaultH)); // don't exceed content, but keep ≥ default
       maxH = Math.max(maxH, defaultH);              // never shrink below the default folder size
       setHeight(maxH);
