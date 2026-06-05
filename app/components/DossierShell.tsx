@@ -97,6 +97,7 @@ const HOTSPOTS: Hotspot[] = [
       { label: 'Top Spenders',    href: '/expenses' },
       { label: 'Earnings & Pay',  href: '/earnings' },
       { label: 'Local Councils',  href: '/councils' },
+      { label: 'Top Council Tax', href: '/council-tax' },
     ],
   },
   { label: 'DEPARTMENTS', href: '/departments', xPct: 51.0, yPct: 21.3, wPct: 11.5, hPct: 2.8 },
