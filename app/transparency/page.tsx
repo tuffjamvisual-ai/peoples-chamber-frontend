@@ -36,7 +36,7 @@ const INK = '#14100d'
 // holds a thin slice of director/PSC links to MPs and ministers — limited
 // data, not journalistically useful in its current shape. Hidden until a
 // fuller ingest can be wired. DB data preserved.
-const SECTIONS = [
+const SECTIONS: { slug: string; title: string; description: string; href?: string }[] = [
   { slug: 'ministers-meetings', title: "Ministers' Meetings", description: 'Records of meetings ministers have held with external organisations and lobbyists, published quarterly under GOV.UK transparency releases.' },
   { slug: 'appgs',              title: 'All Party Parliamentary Groups',   description: 'Cross party informal interest groups in Parliament, the funding they receive, and the secretariat support behind them.' },
   { slug: 'hospitality',        title: "Ministers' Hospitality",           description: 'Gifts, hospitality and overseas travel accepted by ministers, published quarterly by every department.' },
@@ -44,6 +44,8 @@ const SECTIONS = [
   { slug: 'donations',          title: 'Political Donations',              description: 'Reportable donations to political parties and individual MPs.' },
   { slug: 'contracts',          title: 'Government Contracts',             description: 'Awarded public sector contracts above the disclosure threshold, published via Contracts Finder.' },
   { slug: 'press-releases',     title: 'Press Releases',                   description: 'Most recent UK Government press releases, pulled daily from GOV.UK. Each release links through to the full-text announcement.' },
+  { slug: 'councils',            title: 'Local Councils',                  description: 'Every UK principal local authority, 382 in total, with leadership, finance, council tax and editorial assessment for each.', href: '/councils' },
+  { slug: 'council-tax',         title: 'Top Council Tax',                 description: 'The ten English authorities with the highest Band D council tax for 2026/27, with a per council editorial verdict on each.', href: '/council-tax' },
 ]
 
 export default function TransparencyHubPage() {
@@ -67,7 +69,7 @@ export default function TransparencyHubPage() {
           Transparency Hub
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
-          Seven datasets covering how ministers, MPs, donors, contractors and former officials interact with the UK state, plus the daily press release feed. Each section links to a searchable list of the underlying records.
+          Nine datasets covering how ministers, MPs, donors, contractors and former officials interact with the UK state, plus the daily press release feed and the full local council register. Each section links to a searchable list of the underlying records.
         </p>
         <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px', opacity: 0.7 }}>
           {SECTIONS.length} datasets · drawn from public registers
@@ -78,7 +80,7 @@ export default function TransparencyHubPage() {
         {SECTIONS.map((s, i) => (
           <Link
             key={s.slug}
-            href={`/transparency/${s.slug}`}
+            href={s.href ?? `/transparency/${s.slug}`}
             className="t-card no-hover-scale"
             style={{ display: 'block', padding: '18px 20px', border: '1px solid rgba(20,16,13,0.25)', borderLeft: '3px solid rgba(20,16,13,0.4)', color: INK, textDecoration: 'none' }}
           >

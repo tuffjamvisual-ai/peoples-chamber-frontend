@@ -31,11 +31,11 @@ const HOTSPOTS: Hotspot[] = [
     href: '/bills',
     xPct: 13.0, yPct: 21.3, wPct: 5.5, hPct: 2.8,
     children: [
-      // Parliament-processing routes. /laws is the Acts surface;
-      // /departments is where most bills originate.
+      // Parliament processing routes. /laws is the Acts surface.
+      // 'Departments' removed 2026-06-05 (its own top level masthead
+      // tab makes the dropdown entry redundant).
       { label: 'All Bills',            href: '/bills' },
       { label: 'Acts of Parliament',   href: '/laws' },
-      { label: 'Departments',          href: '/departments' },
     ],
   },
   {
@@ -84,20 +84,15 @@ const HOTSPOTS: Hotspot[] = [
     href: '/mps',
     xPct: 44.5, yPct: 21.3, wPct: 4.5, hPct: 2.8,
     children: [
-      // All MPs index + the two MP-money pages that are linked from
-      // the landing-page bottom-left card but had no masthead entry
+      // All MPs index + the two MP money pages that are linked from
+      // the landing page bottom left card but had no masthead entry
       // until 2026-06-03. /expenses metadata title is 'Top Spenders';
       // /earnings is 'MP Earnings & Public Spend'.
-      // 'Local Councils' added 2026-06-05 — the only home for the 382
-      // /councils/[slug] pages in the masthead (the printed image has
-      // no spare top-level label slot to host them as a peer of
-      // MPS/DEPARTMENTS, so they sit under MPS as a fellow elected-
-      // representatives surface).
+      // Local Councils + Top Council Tax moved into TRANSPARENCY on
+      // 2026-06-05 (they sit alongside the other government datasets).
       { label: 'All MPs',         href: '/mps' },
       { label: 'Top Spenders',    href: '/expenses' },
       { label: 'Earnings & Pay',  href: '/earnings' },
-      { label: 'Local Councils',  href: '/councils' },
-      { label: 'Top Council Tax', href: '/council-tax' },
     ],
   },
   { label: 'DEPARTMENTS', href: '/departments', xPct: 51.0, yPct: 21.3, wPct: 11.5, hPct: 2.8 },
@@ -121,6 +116,8 @@ const HOTSPOTS: Hotspot[] = [
       { label: 'Political Donations',   href: '/transparency/donations' },
       { label: 'Government Contracts',  href: '/transparency/contracts' },
       { label: 'Press Releases',        href: '/transparency/press-releases' },
+      { label: 'Local Councils',        href: '/councils' },
+      { label: 'Top Council Tax',       href: '/council-tax' },
     ],
   },
   { label: 'CONTACT', href: '/contact', xPct: 77.0, yPct: 21.3, wPct: 7.0, hPct: 2.8 },
