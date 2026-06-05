@@ -182,15 +182,19 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
     })(),
     supabase.from('mp_registered_interests').select('*').eq('member_id', memberId).order('category_sort_order', { ascending: true }),
     supabase.from('mp_expenses_summary').select('*').eq('member_id', memberId).order('year', { ascending: false }),
-    // Most-recent 50 claims — UI shows them on the expanded Expenses
-    // year drilldown only. Cuts the heaviest query 4× (was .range(0, 199)
-    // returning ~75 KB) without hurting first-paint UX.
+    // Expense claim drilldowns. 50 was too few once we imported the
+    // 25_26 detail (29,832 rows site-wide, all newer than 24_25): the
+    // 50 most-recent for any one MP were all 25_26 claims, but 25_26
+    // has no summary row yet (IPSA year-end pending), so the rendered
+    // 24_25 row had zero claims to drill into. Back to 999 — at
+    // ~150 bytes per row that's ~150 KB cap for the heaviest MPs,
+    // same order of magnitude as the other queries in this batch.
     supabase
       .from('mp_expenses_detail')
       .select('claim_number, year, claim_date, category, cost_type, short_description, amount_paid, status')
       .eq('member_id', memberId)
       .order('claim_date', { ascending: false })
-      .range(0, 49),
+      .range(0, 999),
     supabase.from('dept_ministers').select('salary_band, dept_slug').eq('member_id', memberId).not('salary_band', 'is', null),
     supabase.from('mp_outside_earnings_summary').select('total_extracted, claim_count, source_count').eq('member_id', memberId).maybeSingle(),
     // Which division_ids are statutory instruments — lets the voting-record
