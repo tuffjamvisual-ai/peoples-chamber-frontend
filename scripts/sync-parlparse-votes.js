@@ -29,6 +29,7 @@
 //   node scripts/sync-parlparse-votes.js --apply --from=2024-07-04
 //   node scripts/sync-parlparse-votes.js --apply --phase=1     # just CVA number backfill
 //   node scripts/sync-parlparse-votes.js --apply --phase=2     # just parlparse import
+//   node scripts/sync-parlparse-votes.js --apply --phase=3     # backfill division_id on parlparse rows
 
 require('dotenv').config({ path: '.env.local' });
 const { spawn } = require('child_process');
@@ -138,7 +139,7 @@ async function phase1() {
 function streamParlparseVotes(fromDate, toDate) {
   return new Promise((resolve, reject) => {
     const py = `
-import sys, json, pyarrow.parquet as pq, pyarrow.compute as pc, pyarrow as pa
+import sys, json, html, pyarrow.parquet as pq, pyarrow.compute as pc, pyarrow as pa
 from datetime import date
 
 divisions_path = "${DIVISIONS_PARQUET}"
@@ -146,6 +147,12 @@ votes_path     = "${VOTES_PARQUET}"
 people_path    = "${PEOPLE_JSON}"
 from_d = date.fromisoformat("${fromDate}")
 to_d   = date.fromisoformat("${toDate}")
+
+def clean_title(t):
+    if not t: return None
+    # Decode HTML entities (Unpublished/Deferred divisions ship &#8212; literally
+    # in the parquet) then apply site-wide em/en dash convention.
+    return html.unescape(t).replace('\\u2014', ', ').replace('\\u2013', '-')
 
 # Build publicwhip → member_id (datadotparl_id)
 people = json.load(open(people_path))
@@ -189,7 +196,7 @@ for r in votes.to_pylist():
         'division_date_only': meta['division_date'].isoformat(),
         'division_number': meta['division_number'],
         'division_date': meta['division_date'].isoformat() + 'T00:00:00',
-        'division_title': meta['division_title'],
+        'division_title': clean_title(meta['division_title']),
         'vote_type': vt,
         'is_teller': is_teller,
     }) + "\\n")
@@ -275,13 +282,90 @@ async function phase2(fromDate, toDate) {
   console.log(`\n  Phase 2 done. ${inserted.toLocaleString()} INSERT attempts (DO NOTHING for duplicates).`);
 }
 
+// ──────────────────────────────────────────────────────────────────────
+// Phase 3 — backfill division_id on parlparse rows
+//   Pulls the CVA divisions list (paginated 25/page via the bulk search
+//   endpoint), builds a (date_only, Number) → DivisionId lookup, then
+//   UPDATEs every parlparse-sourced row whose natural key matches. After
+//   this, parlparse rows render the same /bills/, /statutory-instruments/
+//   and external commonsvotes links as CVA-sourced rows do.
+// ──────────────────────────────────────────────────────────────────────
+
+async function phase3(fromDate, toDate) {
+  console.log(`\n=== Phase 3 — backfill division_id on parlparse rows (${fromDate} → ${toDate}) ===`);
+
+  const cvaIndex = new Map();   // 'YYYY-MM-DD|N' → DivisionId
+  let skip = 0;
+  const PAGE = 25;     // CVA caps take at 25
+  while (true) {
+    const url = `https://commonsvotes-api.parliament.uk/data/divisions.json/search?queryParameters.startDate=${fromDate}&queryParameters.endDate=${toDate}&queryParameters.take=${PAGE}&queryParameters.skip=${skip}`;
+    const res = await fetch(url, { headers: { 'Accept': 'application/json', 'User-Agent': 'PeoplesChamber/1.0' } });
+    if (!res.ok) { console.error(`  CVA HTTP ${res.status} at skip=${skip}`); break; }
+    const rows = await res.json();
+    if (!Array.isArray(rows) || rows.length === 0) break;
+    for (const r of rows) {
+      const dateOnly = (r.Date || '').slice(0, 10);
+      if (!dateOnly || r.Number == null || r.DivisionId == null) continue;
+      cvaIndex.set(`${dateOnly}|${r.Number}`, r.DivisionId);
+    }
+    if (rows.length < PAGE) break;
+    skip += PAGE;
+    if (skip > 5000) break;       // safety cap
+    await new Promise(r => setTimeout(r, 60));
+  }
+  console.log(`  CVA lookup built: ${cvaIndex.size.toLocaleString()} (date, number) → DivisionId entries`);
+
+  // How many parlparse rows currently need a division_id?
+  const needRaw = (await psqlQuery(`SELECT COUNT(*) FROM mp_division_votes WHERE source='parlparse' AND division_id IS NULL;`)).trim();
+  console.log(`  parlparse rows with NULL division_id: ${parseInt(needRaw, 10).toLocaleString()}`);
+
+  if (!APPLY) {
+    console.log('  (preview — pass --apply to write)');
+    return;
+  }
+
+  // Group entries by DivisionId so we can issue one UPDATE per natural-key
+  // tuple instead of one UPDATE per row.
+  let updated = 0;
+  let noMatch = 0;
+  const entries = Array.from(cvaIndex.entries());
+  const BATCH = 100;
+  for (let i = 0; i < entries.length; i += BATCH) {
+    const slice = entries.slice(i, i + BATCH);
+    const sqls = slice.map(([key, divId]) => {
+      const [dateOnly, num] = key.split('|');
+      return `UPDATE mp_division_votes SET division_id = ${divId} WHERE source='parlparse' AND division_id IS NULL AND division_date_only = '${dateOnly}'::date AND division_number = ${parseInt(num, 10)};`;
+    });
+    try {
+      await psqlWrite(sqls.join('\n'));
+      updated += slice.length;
+    } catch (e) {
+      console.error(`  batch update fail at i=${i}: ${e.message.split('\n')[0]}`);
+    }
+    if ((i / BATCH) % 5 === 0) {
+      process.stdout.write(`\r  processed ${Math.min(i + BATCH, entries.length)}/${entries.length} divisions`);
+    }
+  }
+  console.log();
+
+  // Verify
+  const remainRaw = (await psqlQuery(`SELECT COUNT(*) FROM mp_division_votes WHERE source='parlparse' AND division_id IS NULL;`)).trim();
+  const linked = (await psqlQuery(`SELECT COUNT(*) FROM mp_division_votes WHERE source='parlparse' AND division_id IS NOT NULL;`)).trim();
+  console.log(`  parlparse rows still NULL division_id: ${parseInt(remainRaw, 10).toLocaleString()}`);
+  console.log(`  parlparse rows now LINKED:             ${parseInt(linked, 10).toLocaleString()}`);
+  console.log(`  Phase 3 done. Updated ${updated} natural-key tuples.`);
+  void noMatch;
+}
+
 (async () => {
   const today = new Date().toISOString().slice(0, 10);
   const wantPhase1 = PHASE === null || PHASE === 1;
   const wantPhase2 = PHASE === null || PHASE === 2;
+  const wantPhase3 = PHASE === null || PHASE === 3;
 
   if (wantPhase1) await phase1();
   if (wantPhase2) await phase2(FROM, today);
+  if (wantPhase3) await phase3(FROM, today);
 
   console.log('\nAll requested phases complete.');
 })().catch(e => { console.error(e); process.exit(1); });

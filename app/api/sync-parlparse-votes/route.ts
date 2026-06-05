@@ -30,8 +30,35 @@ type VoteRow = {
   division_date: string;            // YYYY-MM-DDTHH:MM:SS
   division_title: string | null;
   source: 'parlparse';
-  division_id: null;
+  division_id: number | null;       // populated from CVA bulk lookup when available
 };
+
+// Build a (date_only|Number) -> DivisionId map by paginating the Commons
+// Votes API bulk search endpoint. CVA caps `take` at 25 regardless of
+// what we request, so we iterate via skip until we hit an empty page.
+// Used to attach division_id to parlparse-sourced rows so they render
+// the same /bills/, /statutory-instruments/ and external commonsvotes
+// deep-links as CVA-sourced rows.
+async function buildCvaLookup(fromIso: string, toIso: string): Promise<Map<string, number>> {
+  const out = new Map<string, number>();
+  let skip = 0;
+  const PAGE = 25;
+  while (skip < 5000) {
+    const url = `https://commonsvotes-api.parliament.uk/data/divisions.json/search?queryParameters.startDate=${fromIso}&queryParameters.endDate=${toIso}&queryParameters.take=${PAGE}&queryParameters.skip=${skip}`;
+    const res = await fetch(url, { headers: { 'Accept': 'application/json', 'User-Agent': 'PeoplesChamber/1.0' } });
+    if (!res.ok) break;
+    const rows = await res.json() as Array<{ DivisionId?: number; Number?: number; Date?: string }>;
+    if (!Array.isArray(rows) || rows.length === 0) break;
+    for (const r of rows) {
+      const dateOnly = (r.Date || '').slice(0, 10);
+      if (!dateOnly || r.Number == null || r.DivisionId == null) continue;
+      out.set(`${dateOnly}|${r.Number}`, r.DivisionId);
+    }
+    if (rows.length < PAGE) break;
+    skip += PAGE;
+  }
+  return out;
+}
 
 // publicwhip person_id → datadotparl_id (= our member_id)
 async function fetchCrosswalk(): Promise<Map<string, number>> {
@@ -75,7 +102,7 @@ function decodeXmlEntities(s: string): string {
 }
 
 // Parse a divisionsYYYY-MM-DDx.xml — extract vote rows.
-function parseXmlDay(xml: string, crosswalk: Map<string, number>): VoteRow[] {
+function parseXmlDay(xml: string, crosswalk: Map<string, number>, cvaLookup: Map<string, number>): VoteRow[] {
   const out: VoteRow[] = [];
   // Each <division> block: id, divnumber, divdate, time, title? (varies)
   // Children: <divisioncount ayes noes/>, <mplist vote="aye|no"><mpname person_id="..." vote="..." />...
@@ -121,7 +148,7 @@ function parseXmlDay(xml: string, crosswalk: Map<string, number>): VoteRow[] {
         division_date,
         division_title,
         source: 'parlparse',
-        division_id: null,
+        division_id: cvaLookup.get(`${division_date_only}|${division_number}`) ?? null,
       });
     }
   }
@@ -149,6 +176,7 @@ export async function GET(req: Request) {
   const toIso = toDate.toISOString().slice(0, 10);
 
   const crosswalk = await fetchCrosswalk();
+  const cvaLookup = await buildCvaLookup(fromIso, toIso);
   const xmlFiles = await listDailyXmls(fromIso, toIso);
 
   let scannedFiles = 0;
@@ -161,7 +189,7 @@ export async function GET(req: Request) {
     let xml: string;
     try { xml = await fetchXml(fn); } catch { continue; }
     scannedFiles++;
-    const rows = parseXmlDay(decodeXmlEntities(xml), crosswalk);
+    const rows = parseXmlDay(decodeXmlEntities(xml), crosswalk, cvaLookup);
     if (rows.length === 0) continue;
     parsedVotes += rows.length;
 
@@ -189,6 +217,7 @@ export async function GET(req: Request) {
   return NextResponse.json({
     ok: true,
     window: { from: fromIso, to: toIso },
+    cva_lookup_size: cvaLookup.size,
     xml_files_listed: xmlFiles.length,
     xml_files_scanned: scannedFiles,
     parsed_votes: parsedVotes,
