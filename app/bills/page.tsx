@@ -15,9 +15,9 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 600;
 
 export const metadata: Metadata = {
-  title: 'Bills',
+  title: "UK Parliament Bills Tracker — Live Stages, Votes & Acts | The People's Chamber",
   description:
-    'Every bill going through UK Parliament. How MPs voted. How you voted. The gap between the two.',
+    "Every bill in UK Parliament. Current stage, how each MP voted, public verdict, and whether it became law. Track the route from Westminster paper to Act of Parliament.",
   alternates: { canonical: '/bills' },
 };
 

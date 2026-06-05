@@ -137,6 +137,13 @@ export default function RootLayout({
         <link rel="preload" href="/preview-header.webp" as="image" type="image/webp" />
         <link rel="preload" href="/preview-middle.webp" as="image" type="image/webp" />
         <link rel="preload" href="/preview-footer.webp" as="image" type="image/webp" />
+        {/* RSS feed discovery — Reader apps, GSC and aggregators read this. */}
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title="The People's Chamber — Recent Updates"
+          href="/feed.xml"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}

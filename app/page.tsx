@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import type { CSSProperties } from 'react';
 import DossierShell from './components/DossierShell';
+import JsonLd, { buildHomepageGraph } from '@/lib/JsonLd';
 
 // The newspaper front page is the landing page. DossierShell renders the masthead + nav
 // + footer with no folder; HomeFront fills the body with a lead (-> /bills) and three
@@ -11,9 +12,9 @@ import DossierShell from './components/DossierShell';
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "The People's Chamber",
+  title: "The People's Chamber — UK Parliament Tracker & Government Transparency",
   description:
-    'UK government in public view: every MP, bill, law and department, with the public’s verdict, on one front page.',
+    'Track every UK MP, bill, vote and government department in one place. Voting records, ministerial spending, party manifestos and Whitehall transparency data, free and unbranded.',
   alternates: { canonical: '/' },
 };
 
@@ -48,6 +49,7 @@ const colStyle = (left: string, width: string): CSSProperties => ({ ...card, top
 export default function HomePage() {
   const HomeFront = (
     <>
+      <JsonLd data={buildHomepageGraph()} />
       {/* Lead story — fills the large top content area. */}
       <a href="/bills" className="no-hover-scale" style={{ ...card, top: '24%', left: '6%', width: '88%', height: '39%', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '0 6%' }}>
         <div style={{ ...kicker, fontSize: '1.35cqw', letterSpacing: '0.22em', opacity: 0.65, marginBottom: '2.5%' }}>From the House this week</div>
@@ -139,5 +141,105 @@ export default function HomePage() {
     </>
   );
 
-  return <DossierShell overlay={HomeFront} />;
+  return (
+    <>
+      <DossierShell overlay={HomeFront} />
+      <EditorialIntro />
+    </>
+  );
+}
+
+// Server-rendered editorial introduction. 264-word statement of what the
+// site is, the surfaces it covers, and the provenance of the underlying
+// record. Added 2026-06-05 to give the homepage substantive indexable
+// content (the newspaper-overlay frame ships ~170 words in static HTML
+// otherwise — too thin for Google to anchor the site's topical identity).
+// Sits below the masthead, padded inwards from the page edges, paper +
+// ink palette consistent with the rest of the site. The eyebrow uses
+// Special Elite to match the other dossier intros; the body uses
+// Georgia for a more newspaper-editorial register.
+function EditorialIntro() {
+  const PAPER = '#f4e8d4';
+  const INK = '#14100d';
+  return (
+    <section
+      aria-label="About The People's Chamber"
+      style={{
+        background: PAPER,
+        color: INK,
+        padding: '6% 8% 7%',
+        borderTop: '1px solid rgba(20,16,13,0.18)',
+      }}
+    >
+      <div style={{ maxWidth: '780px', margin: '0 auto' }}>
+        <p
+          style={{
+            fontFamily: 'Special Elite, monospace',
+            fontSize: '13px',
+            letterSpacing: '0.3em',
+            textTransform: 'uppercase',
+            opacity: 0.6,
+            margin: '0 0 18px',
+          }}
+        >
+          About this project
+        </p>
+        <h2
+          style={{
+            fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
+            fontSize: 'clamp(22px, 2.4vw, 30px)',
+            fontWeight: 'bold',
+            lineHeight: 1.15,
+            margin: '0 0 24px',
+          }}
+        >
+          The People&rsquo;s Chamber is an independent record of how the
+          United Kingdom is governed.
+        </h2>
+        <div
+          style={{
+            fontFamily: 'Georgia, "Times New Roman", serif',
+            fontSize: '17px',
+            lineHeight: 1.7,
+            color: INK,
+          }}
+        >
+          <p style={{ margin: '0 0 16px' }}>
+            Every Member of Parliament has a profile here &mdash; their voting
+            record, their declared earnings, the bills they have sponsored,
+            the hours they spend on second jobs, and a biographical note that
+            reads as a political assessment rather than a press release. Each
+            of the 24 ministerial departments has its own institutional
+            performance report, marked by letter grade, against the public
+            record of what it was set up to do. Every bill since 2010 is
+            tracked through its stages of Parliament: which Members spoke for
+            and against, how the division went on each reading, and whether it
+            became law.
+          </p>
+          <p style={{ margin: '0 0 16px' }}>
+            The transparency surfaces sit alongside the formal record.
+            Ministers&rsquo; meetings, ministers&rsquo; hospitality, the
+            Advisory Committee on Business Appointments, the Register of
+            Members&rsquo; Financial Interests, awarded public contracts and
+            political donations are pulled from the public registers daily,
+            indexed by Member and by department, searchable.
+          </p>
+          <p style={{ margin: '0 0 16px' }}>
+            The site exists because the public record is real but inaccessible.
+            Every fact on the People&rsquo;s Chamber is sourced from
+            Parliament, GOV.UK, the Electoral Commission, ACOBA, Contracts
+            Finder or the relevant departmental disclosure. None of it is
+            invented. None of it is opinion in the sense of being made up. The
+            interpretative judgements in the institutional reports and the
+            political biographies are the editorial work of the project; the
+            underlying record is not.
+          </p>
+          <p style={{ margin: 0, fontStyle: 'italic', opacity: 0.85 }}>
+            If something is wrong, it can be corrected. If something is
+            missing, it can be added.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
 }

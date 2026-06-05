@@ -9,6 +9,8 @@ import DossierShell from '../../components/DossierShell';
 import { getGovukDept } from '../../api/govuk-dept/route';
 import { getDeptContext } from '../../api/department-context/route';
 import BackLink from '../../components/BackLink';
+import JsonLd, { buildDepartmentOrg } from '@/lib/JsonLd';
+import RelatedLinks from '@/app/components/RelatedLinks';
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
@@ -37,8 +39,18 @@ export default async function DepartmentPage({ params }: PageProps) {
     getDeptContext(slug),
   ]);
 
+  const sos = govukData.ministers?.[0];
+
   return (
     <DossierShell>
+      <JsonLd data={buildDepartmentOrg({
+        slug,
+        name: dept.name,
+        description: contextData.street_context || dept.description || null,
+        sosName: sos?.name || dept.minister || null,
+        sosMemberId: sos?.member_id ?? null,
+        sosRole: sos?.role || 'Secretary of State',
+      })} />
       <BackLink
         fallbackHref="/departments"
         label="← Back to all departments"
@@ -108,6 +120,14 @@ export default async function DepartmentPage({ params }: PageProps) {
             budget={null}
           />
         </Suspense>
+
+        <RelatedLinks
+          variant="department"
+          slug={slug}
+          ministerMemberIds={(govukData.ministers || [])
+            .map((m) => m.member_id)
+            .filter((id): id is number => typeof id === 'number')}
+        />
       </div>
 
       <ScrollToTopButton />

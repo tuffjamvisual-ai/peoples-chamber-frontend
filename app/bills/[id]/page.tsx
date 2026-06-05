@@ -13,6 +13,8 @@ import ScrollToTopButton from '../../components/ScrollToTopButton'
 import BillVotingClient from './BillVotingClient'
 import DossierShell from '../../components/DossierShell'
 import BackLink from '../../components/BackLink';
+import JsonLd, { buildBillLegislation } from '@/lib/JsonLd';
+import RelatedLinks from '@/app/components/RelatedLinks';
 export const revalidate = 3600
 
 const INK = '#14100d'
@@ -91,6 +93,18 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
 
   return (
     <DossierShell>
+      <JsonLd data={buildBillLegislation({
+        billId,
+        title: bill.title || bill.long_title || `Bill ${billId}`,
+        legislationDate: bill.last_update || null,
+        isAct: !!bill.is_act,
+        isDefeated: !!bill.is_defeated,
+        isWithdrawn: !!bill.bill_withdrawn,
+        sponsorName:
+          (bill.sponsors as { items?: { name?: string }[] } | null)?.items?.[0]?.name ||
+          bill.sponsor_name ||
+          null,
+      })} />
       <BackLink
         fallbackHref="/bills"
         label="← Back to all bills"
@@ -399,6 +413,21 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
       )}
 
       </article>
+
+      <RelatedLinks
+        variant="bill"
+        billId={billId}
+        sponsorMemberId={bill.sponsor_member_id ?? null}
+        sponsorName={
+          (bill.sponsors as { items?: { name?: string }[] } | null)?.items?.[0]?.name ||
+          bill.sponsor_name ||
+          null
+        }
+        sponsorParty={null}
+        commonsAyes={bill.commons_ayes ?? null}
+        commonsNoes={bill.commons_noes ?? null}
+        commonsDivisionId={bill.commons_division_id ?? null}
+      />
 
       <ScrollToTopButton />
     </DossierShell>

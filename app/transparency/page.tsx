@@ -2,15 +2,27 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import DossierShell from '../components/DossierShell'
 import BackLink from '../components/BackLink';
+import JsonLd from '@/lib/JsonLd';
 
 export const revalidate = 3600
 
 export const metadata: Metadata = {
-  title: 'Transparency Hub',
+  title: "UK Government Transparency — Lobbying, Donations, Hospitality, Contracts",
   description:
-    'Government contracts, revolving door appointments, ministerial meetings, political donations and lobbying data in one place.',
+    "Seven UK government transparency datasets: ministers' meetings, lobbying contacts, hospitality declarations, revolving door, political donations, public contracts and daily press releases.",
   alternates: { canonical: '/transparency' },
 }
+
+const JSONLD_WEBPAGE = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  '@id': 'https://www.thepeopleschamber.uk/transparency#page',
+  name: 'UK Government Transparency Hub',
+  description:
+    "Seven UK government transparency datasets: ministers' meetings, lobbying contacts, hospitality declarations, revolving door, political donations, public contracts and daily press releases.",
+  isPartOf: { '@id': 'https://www.thepeopleschamber.uk/#website' },
+  url: 'https://www.thepeopleschamber.uk/transparency',
+};
 
 const INK = '#14100d'
 
@@ -37,6 +49,7 @@ const SECTIONS = [
 export default function TransparencyHubPage() {
   return (
     <DossierShell>
+      <JsonLd data={JSONLD_WEBPAGE} />
       <style>{`
         .t-card { transition: background-color 150ms ease, border-color 150ms ease; }
         .t-card:hover { background-color: rgba(20,16,13,0.06); border-left-color: ${INK}; }

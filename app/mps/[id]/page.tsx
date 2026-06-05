@@ -9,6 +9,8 @@ import {
   type SalaryBand,
 } from '@/lib/ministerial-salaries';
 import { normaliseParty, isCoop, partyColourForMember } from '@/lib/party-helpers';
+import JsonLd, { buildMpPerson } from '@/lib/JsonLd';
+import RelatedLinks from '@/app/components/RelatedLinks';
 
 const BAND_RANK: Record<SalaryBand, number> = { pm: 4, sos: 3, minister_of_state: 2, puss: 1 };
 
@@ -155,7 +157,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       .eq('member_id', memberId)
       .order('claim_date', { ascending: false })
       .range(0, 49),
-    supabase.from('dept_ministers').select('salary_band').eq('member_id', memberId).not('salary_band', 'is', null),
+    supabase.from('dept_ministers').select('salary_band, dept_slug').eq('member_id', memberId).not('salary_band', 'is', null),
     supabase.from('mp_outside_earnings_summary').select('total_extracted, claim_count, source_count').eq('member_id', memberId).maybeSingle(),
     // Which division_ids are statutory instruments — lets the voting-record
     // render deep-link to /statutory-instruments/[division_id] instead of the
@@ -205,6 +207,14 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   const partyIsCoop = isCoop(mp.party);
 
   return (
+    <>
+      <JsonLd data={buildMpPerson({
+        memberId,
+        fullName,
+        party: partyDisplay || mp.party,
+        constituency: mp.constituency,
+        photoUrl: mp.photo_url,
+      })} />
     <MpDossier
       memberId={memberId}
       fullName={fullName}
@@ -235,5 +245,22 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         expensesDetail: expensesDetailRes.data || [],
       }}
     />
+    <div style={{ maxWidth: '780px', margin: '0 auto', padding: '0 6%' }}>
+      <RelatedLinks
+        variant="mp"
+        memberId={memberId}
+        party={partyDisplay || mp.party}
+        partySlug={null}
+        ministerialDeptSlug={(ministerialRowsRes.data || [])[0]?.dept_slug ?? null}
+        ministerialDeptName={null}
+        votes={votesWithSi}
+        sponsoredBills={(sponsoredBillsRes.data || []).map((b) => ({
+          id: b.id,
+          title: b.title,
+          current_stage: b.current_stage,
+        }))}
+      />
+    </div>
+    </>
   );
 }

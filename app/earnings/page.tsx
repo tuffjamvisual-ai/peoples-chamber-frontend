@@ -10,9 +10,9 @@ import {
 } from '@/lib/ministerial-salaries'
 
 export const metadata: Metadata = {
-  title: 'MP Earnings & Public Spend',
+  title: "UK MP Earnings vs Public Spend — Salary, Outside Earnings & IPSA Costs",
   description:
-    'Personal earnings (base salary + ministerial supplement + outside earnings from the Register of Members’ Financial Interests) shown side-by-side with public spend (IPSA business costs).',
+    "Side-by-side comparison: every UK MP's personal earnings (base salary, ministerial supplement, outside earnings from the Register of Financial Interests) and their public spend.",
   alternates: { canonical: '/earnings' },
 }
 

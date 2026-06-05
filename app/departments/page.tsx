@@ -7,9 +7,9 @@ import DossierShell from '../components/DossierShell';
 import BackLink from '../components/BackLink';
 
 export const metadata: Metadata = {
-  title: 'Departments',
+  title: "UK Government Departments — Ministers, Budgets & Performance Reports",
   description:
-    'Explore all 24 UK government departments, their ministers, control zones and what every party says about each topic.',
+    "All 24 UK government departments — Secretary of State, junior ministers, annual budget, and an institutional performance report with letter-grade assessment. Treasury to Wales Office.",
   alternates: { canonical: '/departments' },
 };
 

@@ -7,9 +7,9 @@ import DossierShell from '../components/DossierShell';
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: 'MPs',
+  title: "UK MPs — Voting Records, Earnings & Registered Interests | The People's Chamber",
   description:
-    'Search and explore profiles of all 650 current Members of Parliament including voting records, financial interests and contact details.',
+    "Profiles of all 650 UK Members of Parliament — voting records, parliamentary divisions, expenses, registered interests and contact details. Search by name, party or constituency.",
   alternates: { canonical: '/mps' },
 };
 
