@@ -33,6 +33,42 @@ const DANGER = '#a64030';
 //   pw-2026-04-28-515            (chamber omitted — defaults to commons)
 const SLUG_RE = /^pw-(\d{4}-\d{2}-\d{2})-(\d+)(?:-commons)?$/;
 
+// Procedural-motion explainers. For divisions whose titles are
+// parliamentary shorthand (King's Speech, programme motion, business of
+// the House, etc.) we render a one-paragraph contextual explainer rather
+// than leave the page bare. Patterns are case-insensitive substring
+// matches against division_title; first match wins.
+const PROCEDURAL_PATTERNS: Array<[RegExp, string]> = [
+  [/king'?s speech.*motion for an address/i,
+   "The Motion for an Address is the formal Commons reply to the King's Speech, the government's legislative programme read at the start of each parliamentary session. The vote is on whether the Commons accepts the speech as the basis for the session's work. Amendments to it test specific government commitments."],
+  [/queen'?s speech.*motion for an address/i,
+   "The Motion for an Address is the formal Commons reply to the Queen's Speech, the government's legislative programme read at the start of each parliamentary session. The vote is on whether the Commons accepts the speech as the basis for the session's work."],
+  [/programme motion/i,
+   "A programme motion sets the parliamentary timetable for a bill: how long each stage takes, when amendments must be tabled, and when the Commons must conclude consideration. The government uses it to control debate length; opposition parties use objections to it as a way to register process complaints."],
+  [/business of the house/i,
+   "A Business of the House motion governs how the Commons orders its time, including which days are given over to which sorts of debate. The government tables most of these; they pass routinely but are sometimes used to short-circuit opposition procedural objections."],
+  [/carry-?over motion/i,
+   "A carry-over motion lets a bill that has not finished its passage in one parliamentary session continue in the next, rather than restarting from scratch. Without one, an incomplete bill falls."],
+  [/closure(\s|$)|closure of the question/i,
+   "A closure motion forces an immediate vote on the question before the Commons, cutting off further debate. The Speaker must judge that the matter has been adequately discussed. Used by both government and opposition to shut down obstruction."],
+  [/adjournment/i,
+   "An adjournment motion ends the sitting day. Substantive votes on adjournment motions are rare; they appear most often as 'tabled but not pressed' procedural devices that let MPs raise topics on the record."],
+  [/business motion/i,
+   "A business motion is a procedural vote on how the Commons will use a sitting — typically tabled by the Leader of the House to extend sitting hours or arrange the order of business."],
+  [/private members' business/i,
+   "A vote on the procedure governing private members' bills — the route by which backbench MPs put forward legislation. These motions affect which bills are heard and how much time they get."],
+  [/^opposition day debate|^supply and appropriation/i,
+   "On an Opposition Day the largest opposition party chooses the topic of debate. The vote is symbolic — it doesn't change the law — but it forces the government to publicly take a position on the opposition's choice of question."],
+];
+
+function proceduralContext(title: string | null | undefined): string | null {
+  if (!title) return null;
+  for (const [pat, text] of PROCEDURAL_PATTERNS) {
+    if (pat.test(title)) return text;
+  }
+  return null;
+}
+
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
@@ -129,14 +165,35 @@ export default async function DivisionDetailPage({ params }: PageProps) {
   // Bill backlink: if any vote row has bill_id, link to that bill.
   const billId = voteRows.find((v) => v.bill_id != null)?.bill_id ?? null;
   let billTitle: string | null = null;
+  let billSummary: string | null = null;
   if (billId != null) {
     const { data: bill } = await supabase
       .from('bill')
-      .select('title')
+      .select('title, plain_summary')
       .eq('id', billId)
       .maybeSingle();
     billTitle = bill?.title ?? null;
+    billSummary = bill?.plain_summary ?? null;
   }
+
+  // SI description fallback: if this is a statutory instrument division
+  // (matched by CVA division_id), pull the explanatory note we already
+  // hold from legislation.gov.uk.
+  const cvaId = voteRows.find((v) => v.division_id != null)?.division_id ?? null;
+  let siDescription: string | null = null;
+  if (!billSummary && cvaId != null) {
+    const { data: si } = await supabase
+      .from('statutory_instrument')
+      .select('description')
+      .eq('division_id', cvaId)
+      .maybeSingle();
+    siDescription = si?.description ?? null;
+  }
+
+  // Procedural-motion context: short explainer for common parliamentary
+  // routines whose titles tell you nothing useful on their own. Pattern
+  // match on the lowercased division title.
+  const description = billSummary || siDescription || proceduralContext(head.division_title);
 
   const ayes = votes.filter((v) => v.vote_type === 'aye');
   const noes = votes.filter((v) => v.vote_type === 'no');
@@ -234,6 +291,22 @@ export default async function DivisionDetailPage({ params }: PageProps) {
         {tellers.length > 0 && <>{'  ·  '}{tellers.length} tellers</>}
         {boths.length > 0 && <>{'  ·  '}{boths.length} both</>}
       </p>
+
+      {description && (
+        <section style={{ marginBottom: '40px' }}>
+          <h2 style={sectionH2}>What this vote was about</h2>
+          <p
+            style={{
+              fontFamily: '"Special Elite", monospace',
+              fontSize: '16px',
+              lineHeight: 1.7,
+              marginTop: '12px',
+            }}
+          >
+            {description}
+          </p>
+        </section>
+      )}
 
       <section style={{ marginBottom: '40px' }}>
         <h2 style={sectionH2}>How MPs voted</h2>
