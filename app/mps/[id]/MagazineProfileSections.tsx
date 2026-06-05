@@ -592,14 +592,18 @@ export default function MagazineProfileSections({
           <>
             <h2 style={sectionH2}>Expenses</h2>
             <p style={{ marginBottom: '16px', fontSize: '14px', opacity: 0.85 }}>Annual IPSA totals with category breakdown. Click a year to drill into individual claims.</p>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
+            {/* Cell padding tightened (8px 6px → 4px 3px on the summary,
+                4px 6px → 3px 3px on the drilldown) so all seven breakdown
+                columns fit inside the folder content width without
+                horizontal scroll. Numeric cells drop to 12px monospace. */}
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', tableLayout: 'auto' }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid rgba(20,16,13,0.4)', textAlign: 'left' }}>
-                  <th style={{ padding: '8px 6px' }}>Year</th>
+                  <th style={{ padding: '6px 3px' }}>Year</th>
                   {breakdownLabels.map((b) => (
-                    <th key={b.key} style={{ padding: '8px 6px', fontSize: '13px', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{b.label}</th>
+                    <th key={b.key} style={{ padding: '6px 3px', fontSize: '11px', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{b.label}</th>
                   ))}
-                  <th style={{ padding: '8px 6px', textAlign: 'right' }}>Total</th>
+                  <th style={{ padding: '6px 3px', textAlign: 'right' }}>Total</th>
                 </tr>
               </thead>
               <tbody>
@@ -613,44 +617,44 @@ export default function MagazineProfileSections({
                         onClick={() => setExpandedYear(expanded ? null : e.year)}
                         style={{ borderBottom: inkDivider, cursor: yearClaims.length > 0 ? 'pointer' : 'default' }}
                       >
-                        <td style={{ padding: '8px 6px', fontWeight: 'bold' }}>
+                        <td style={{ padding: '4px 3px', fontWeight: 'bold' }}>
                           {e.year}{yearClaims.length > 0 ? (expanded ? ' ▾' : ' ▸') : ''}
                         </td>
                         {breakdownLabels.map((b) => (
-                          <td key={b.key} style={{ padding: '8px 6px', fontFamily: 'monospace', fontSize: '13px' }}>{fmtMoney(Number(e[b.key]) || 0)}</td>
+                          <td key={b.key} style={{ padding: '4px 3px', fontFamily: 'monospace', fontSize: '12px', whiteSpace: 'nowrap' }}>{fmtMoney(Number(e[b.key]) || 0)}</td>
                         ))}
-                        <td style={{ padding: '8px 6px', fontFamily: 'monospace', fontWeight: 'bold', textAlign: 'right' }}>{fmtMoney(Number(e.total_spend) || 0)}</td>
+                        <td style={{ padding: '4px 3px', fontFamily: 'monospace', fontWeight: 'bold', textAlign: 'right', whiteSpace: 'nowrap' }}>{fmtMoney(Number(e.total_spend) || 0)}</td>
                       </tr>
                       {expanded && yearClaims.length > 0 && (
                         <tr key={`detail-${e.year}`}>
-                          <td colSpan={breakdownLabels.length + 2} style={{ padding: '0 6px 12px', background: 'rgba(122,22,18,0.04)' }}>
-                            <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '8px 0', opacity: 0.8 }}>
+                          <td colSpan={breakdownLabels.length + 2} style={{ padding: '0 3px 8px', background: 'rgba(122,22,18,0.04)' }}>
+                            <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', padding: '6px 0', opacity: 0.8 }}>
                               {yearClaims.length} claims in {e.year}
                             </div>
-                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', tableLayout: 'auto' }}>
                               <thead>
                                 <tr style={{ borderBottom: '1px solid rgba(20,16,13,0.3)', textAlign: 'left' }}>
-                                  <th style={{ padding: '4px 6px' }}>Date</th>
-                                  <th style={{ padding: '4px 6px' }}>Category</th>
-                                  <th style={{ padding: '4px 6px' }}>Description</th>
-                                  <th style={{ padding: '4px 6px' }}>Status</th>
-                                  <th style={{ padding: '4px 6px', textAlign: 'right' }}>Paid</th>
+                                  <th style={{ padding: '3px 3px' }}>Date</th>
+                                  <th style={{ padding: '3px 3px' }}>Category</th>
+                                  <th style={{ padding: '3px 3px' }}>Description</th>
+                                  <th style={{ padding: '3px 3px' }}>Status</th>
+                                  <th style={{ padding: '3px 3px', textAlign: 'right' }}>Paid</th>
                                 </tr>
                               </thead>
                               <tbody>
                                 {yearClaims.slice(0, 200).map((c, i) => (
                                   <tr key={c.claim_number ?? `${e.year}-${i}`} style={{ borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
-                                    <td style={{ padding: '4px 6px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{c.claim_date ? new Date(c.claim_date).toLocaleDateString('en-GB') : '-'}</td>
-                                    <td style={{ padding: '4px 6px' }}>{c.category || '-'}</td>
-                                    <td style={{ padding: '4px 6px' }}>{c.short_description || c.cost_type || '-'}</td>
-                                    <td style={{ padding: '4px 6px' }}>{c.status || '-'}</td>
-                                    <td style={{ padding: '4px 6px', fontFamily: 'monospace', textAlign: 'right' }}>{fmtMoney(Number(c.amount_paid) || 0)}</td>
+                                    <td style={{ padding: '3px 3px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{c.claim_date ? new Date(c.claim_date).toLocaleDateString('en-GB') : '-'}</td>
+                                    <td style={{ padding: '3px 3px' }}>{c.category || '-'}</td>
+                                    <td style={{ padding: '3px 3px' }}>{c.short_description || c.cost_type || '-'}</td>
+                                    <td style={{ padding: '3px 3px' }}>{c.status || '-'}</td>
+                                    <td style={{ padding: '3px 3px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap' }}>{fmtMoney(Number(c.amount_paid) || 0)}</td>
                                   </tr>
                                 ))}
                               </tbody>
                             </table>
                             {yearClaims.length > 200 && (
-                              <div style={{ padding: '8px 6px', fontSize: '12px', opacity: 0.7 }}>Showing first 200 of {yearClaims.length} claims.</div>
+                              <div style={{ padding: '6px 3px', fontSize: '12px', opacity: 0.7 }}>Showing first 200 of {yearClaims.length} claims.</div>
                             )}
                           </td>
                         </tr>
