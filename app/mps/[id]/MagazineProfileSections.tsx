@@ -282,7 +282,7 @@ export default function MagazineProfileSections({
           className={jsSticky ? undefined : 'lg:sticky lg:top-16'}
           style={jsSticky ? { transform: `translateY(${stickyOffset}px)`, willChange: 'transform' } : undefined}
         >
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 8px 8px' }}>
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 8px 8px', marginRight: '24px' }}>
             {sections.map((s) => {
               const isActive = active === s.id;
               return (
