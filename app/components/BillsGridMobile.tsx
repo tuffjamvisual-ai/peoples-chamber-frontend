@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import type { CSSProperties } from 'react';
 import BillCoverCard from './BillCoverCard';
+import Pagination from './Pagination';
 
 const INK = '#14100d';
 const CREAM = '#ebe5d8';
@@ -230,11 +231,7 @@ export default function BillsGridMobile({ initialBills, currentPage, totalPages 
       )}
 
       {totalPages > 1 && !searchResults && (
-        <div className="flex items-center justify-center gap-2 mt-4" style={{ paddingBottom: '16px' }}>
-          <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} style={mPageBtn(currentPage === 1)}>Prev</button>
-          <span style={{ padding: '6px 14px', background: INK, color: CREAM, fontFamily: 'Special Elite, monospace', fontSize: '13px' }}>{currentPage} / {totalPages}</span>
-          <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages} style={mPageBtn(currentPage === totalPages)}>Next</button>
-        </div>
+        <Pagination currentPage={currentPage} totalPages={totalPages} baseUrl="/bills" />
       )}
     </>
   );

@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import BillCoverCard from '../components/BillCoverCard'
+import Pagination from '../components/Pagination'
 
 type Law = {
   id: number
@@ -135,41 +136,7 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
           </div>
 
           {totalPages > 1 && (
-            <nav
-              aria-label="Pagination"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                flexWrap: 'wrap',
-                marginBottom: '32px',
-              }}
-            >
-              <PageLink href={hrefFor(1)} disabled={currentPage === 1}>
-                « First
-              </PageLink>
-              <PageLink href={hrefFor(currentPage - 1)} disabled={currentPage === 1}>
-                ← Previous
-              </PageLink>
-              <span
-                style={{
-                  padding: '8px 14px',
-                  fontSize: '14px',
-                  border: `1px solid ${INK_HAIRLINE}`,
-                  background: CREAM,
-                  color: INK,
-                }}
-              >
-                Page {currentPage} of {totalPages}
-              </span>
-              <PageLink href={hrefFor(currentPage + 1)} disabled={currentPage === totalPages}>
-                Next →
-              </PageLink>
-              <PageLink href={hrefFor(totalPages)} disabled={currentPage === totalPages}>
-                Last »
-              </PageLink>
-            </nav>
+            <Pagination currentPage={currentPage} totalPages={totalPages} baseUrl={pathname} />
           )}
         </>
       )}

@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import DossierShell from '../../components/DossierShell'
+import Pagination from '../../components/Pagination'
 import TransparencyClient from './TransparencyClient'
 
 export const revalidate = 3600
@@ -143,27 +144,12 @@ export default async function TransparencySectionPage({
         searchQuery={searchTerm ?? ''}
       />
 
-      {totalPages > 1 && (
-        <nav className="flex items-center justify-center gap-2 mt-8" aria-label="Pagination">
-          {prevHref ? (
-            <Link href={prevHref} className="px-3 py-1.5 border border-[#14100d]/20 text-[#14100d] rounded text-sm hover:border-[#14100d] transition-colors">
-              ← Previous
-            </Link>
-          ) : (
-            <span className="px-3 py-1.5 border border-[#14100d]/20 text-[#14100d]/40 rounded text-sm opacity-50">← Previous</span>
-          )}
-          <span className="px-4 py-1.5 text-[#14100d] rounded text-sm font-mono border border-[#14100d]/20">
-            {page} / {totalPages}
-          </span>
-          {nextHref ? (
-            <Link href={nextHref} className="px-3 py-1.5 border border-[#14100d]/20 text-[#14100d] rounded text-sm hover:border-[#14100d] transition-colors">
-              Next →
-            </Link>
-          ) : (
-            <span className="px-3 py-1.5 border border-[#14100d]/20 text-[#14100d]/40 rounded text-sm opacity-50">Next →</span>
-          )}
-        </nav>
-      )}
+      <Pagination
+        currentPage={page}
+        totalPages={totalPages}
+        baseUrl={baseUrl}
+        qsExtra={searchTerm ? `&q=${encodeURIComponent(searchTerm)}` : ''}
+      />
     </DossierShell>
   )
 }

@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import type { CSSProperties } from 'react';
 import FilterBar from './FilterBar';
 import BillCoverCard from './BillCoverCard';
+import Pagination from './Pagination';
 
 const INK = '#14100d';
 const CREAM = '#ebe5d8';
@@ -205,13 +206,7 @@ export default function BillsGrid({ initialBills, currentPage, totalPages }: Pro
       )}
 
       {totalPages > 1 && !searchResults && (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-          <button onClick={() => goToPage(1)} disabled={currentPage === 1} style={pageBtn(currentPage === 1)}>First</button>
-          <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} style={pageBtn(currentPage === 1)}>Prev</button>
-          <span style={{ padding: '6px 14px', background: INK, color: CREAM, fontFamily: 'Special Elite, monospace', fontSize: '13px', letterSpacing: '0.06em' }}>{currentPage} / {totalPages}</span>
-          <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages} style={pageBtn(currentPage === totalPages)}>Next</button>
-          <button onClick={() => goToPage(totalPages)} disabled={currentPage === totalPages} style={pageBtn(currentPage === totalPages)}>Last</button>
-        </div>
+        <Pagination currentPage={currentPage} totalPages={totalPages} baseUrl="/bills" />
       )}
     </>
   );
