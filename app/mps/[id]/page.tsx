@@ -10,7 +10,6 @@ import {
 } from '@/lib/ministerial-salaries';
 import { normaliseParty, isCoop, partyColourForMember } from '@/lib/party-helpers';
 import JsonLd, { buildMpPerson } from '@/lib/JsonLd';
-import RelatedLinks from '@/app/components/RelatedLinks';
 
 const BAND_RANK: Record<SalaryBand, number> = { pm: 4, sos: 3, minister_of_state: 2, puss: 1 };
 
@@ -259,22 +258,6 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
       partyColour={partyColour}
       partyIsCoop={partyIsCoop}
       photoUrl={mp.photo_url ?? null}
-      footer={
-        <RelatedLinks
-          variant="mp"
-          memberId={memberId}
-          party={partyDisplay || mp.party}
-          partySlug={null}
-          ministerialDeptSlug={(ministerialRowsRes.data || [])[0]?.dept_slug ?? null}
-          ministerialDeptName={null}
-          votes={votesWithSi}
-          sponsoredBills={(sponsoredBillsRes.data || []).map((b) => ({
-            id: b.id,
-            title: b.title,
-            current_stage: b.current_stage,
-          }))}
-        />
-      }
       sections={{
         memberId,
         paragraphs: (bioRes.data?.political_bio ?? '').split(/\n\n+/).map((p: string) => p.trim()).filter((p: string) => p.length > 0),
