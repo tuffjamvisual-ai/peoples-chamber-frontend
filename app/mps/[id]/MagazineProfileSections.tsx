@@ -597,21 +597,79 @@ export default function MagazineProfileSections({
           </div>
         )}
 
-        {active === 'earnings' && (
-          <>
-            <h2 style={sectionH2}>Earnings</h2>
-            <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.8' }}>
-              <li><strong>Base MP salary:</strong> {fmtMoney(earnings.base)}</li>
-              <li><strong>Ministerial salary:</strong> {fmtMoney(earnings.ministerial)} {earnings.band_label ? `(${earnings.band_label})` : ''}</li>
-              <li><strong>Outside earnings:</strong> {fmtMoney(earnings.outside)} ({earnings.outside_claim_count} payments from {earnings.outside_source_count} sources)</li>
-              <li style={{ marginTop: '12px', fontSize: '20px' }}><strong>Total personal earnings:</strong> {fmtMoney(earnings.personal_total)}</li>
-              <li style={{ marginTop: '12px', fontSize: '13px', opacity: 0.7 }}>Public spend (IPSA, {earnings.public_spend_year ?? '—'}): {fmtMoney(earnings.public_spend)}</li>
-            </ul>
-            <p style={{ marginTop: '20px', fontSize: '12px', opacity: 0.6, lineHeight: 1.55 }}>
-              Base salary is set by IPSA and reviewed annually each 1 April. The ministerial supplement has been frozen at 2010 levels by successive prime ministers; figures shown are the rates actually drawn, not the statutory entitlement. Outside earnings come from the Register of Members&rsquo; Financial Interests and reflect cumulative declarations since this Parliament started; the Register is updated as MPs declare, typically within two weeks of the payment. Public spend is the most recent closed IPSA financial year on file — the current year is not totalled until IPSA reconciles year-end.
-            </p>
-          </>
-        )}
+        {active === 'earnings' && (() => {
+          // Per-payer breakdown of outside earnings — extracted from the
+          // Category 1 "Employment and earnings" register declarations
+          // we already pass in via `interests`. Matches the parsing logic
+          // in scripts/backfill-outside-earnings.js so the totals here
+          // reconcile with mp_outside_earnings_summary.
+          const AMOUNT_RE = /£\s*([\d,]+(?:\.\d{1,2})?)/g;
+          const PAYER_RE = /(?:^|\|)\s*Payer:\s*([^|]+?)(?:\s*\(|\s*\|\s*ACOBA|$)/i;
+          const cat1 = interests.filter((i) => /employment and earnings/i.test(i.category_name));
+          type Row = { payer: string; total: number; count: number; latest: string | null };
+          const byPayer = new Map<string, Row>();
+          for (const i of cat1) {
+            const raw = String(i.interest_text || '').replace(/\r\n/g, '|');
+            const m = PAYER_RE.exec(raw);
+            const payer = (m ? m[1].split(',')[0].trim() : '(unspecified payer)');
+            const children = Array.isArray(i.child_interests) ? i.child_interests : [];
+            for (const c of children) {
+              const text = String(c.interest || '');
+              const ms = [...text.matchAll(AMOUNT_RE)];
+              let subtotal = 0;
+              for (const mm of ms) subtotal += parseFloat(mm[1].replace(/,/g, ''));
+              if (subtotal === 0 && ms.length === 0) continue;
+              const existing = byPayer.get(payer) ?? { payer, total: 0, count: 0, latest: null };
+              existing.total += subtotal;
+              existing.count += 1;
+              const dateM = /Received on:\s*([^\.\r\n]+)/i.exec(text);
+              if (dateM) existing.latest = dateM[1].trim();
+              byPayer.set(payer, existing);
+            }
+          }
+          const rows = Array.from(byPayer.values()).sort((a, b) => b.total - a.total);
+
+          return (
+            <>
+              <h2 style={sectionH2}>Earnings</h2>
+              <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.8' }}>
+                <li><strong>Base MP salary:</strong> {fmtMoney(earnings.base)}</li>
+                <li><strong>Ministerial salary:</strong> {fmtMoney(earnings.ministerial)} {earnings.band_label ? `(${earnings.band_label})` : ''}</li>
+                <li><strong>Outside earnings:</strong> {fmtMoney(earnings.outside)} ({earnings.outside_claim_count} payments from {earnings.outside_source_count} sources)</li>
+                <li style={{ marginTop: '12px', fontSize: '20px' }}><strong>Total personal earnings:</strong> {fmtMoney(earnings.personal_total)}</li>
+                <li style={{ marginTop: '12px', fontSize: '13px', opacity: 0.7 }}>Public spend (IPSA, {earnings.public_spend_year ?? '—'}): {fmtMoney(earnings.public_spend)}</li>
+              </ul>
+
+              {rows.length > 0 && (
+                <>
+                  <h3 style={{ ...sectionH3, marginTop: '28px' }}>Outside earnings by payer</h3>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', marginBottom: '8px' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '2px solid rgba(20,16,13,0.4)', textAlign: 'left' }}>
+                        <th style={{ padding: '6px 4px', fontSize: '11px', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Payer</th>
+                        <th style={{ padding: '6px 4px', fontSize: '11px', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Payments</th>
+                        <th style={{ padding: '6px 4px', fontSize: '11px', letterSpacing: '0.06em', textTransform: 'uppercase', textAlign: 'right' }}>Total paid</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rows.map((r) => (
+                        <tr key={r.payer} style={{ borderBottom: inkDivider }}>
+                          <td style={{ padding: '5px 4px' }}>{r.payer}</td>
+                          <td style={{ padding: '5px 4px', fontFamily: 'monospace' }}>{r.count}</td>
+                          <td style={{ padding: '5px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap' }}>{fmtMoney(r.total)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </>
+              )}
+
+              <p style={{ marginTop: '20px', fontSize: '12px', opacity: 0.6, lineHeight: 1.55 }}>
+                Base salary is set by IPSA and reviewed annually each 1 April. The ministerial supplement has been frozen at 2010 levels by successive prime ministers; figures shown are the rates actually drawn, not the statutory entitlement. Outside earnings come from the Register of Members&rsquo; Financial Interests and reflect cumulative declarations since this Parliament started; the Register is updated as MPs declare, typically within two weeks of the payment. Public spend is the most recent closed IPSA financial year on file — the current year is not totalled until IPSA reconciles year-end.
+              </p>
+            </>
+          );
+        })()}
 
         {active === 'expenses' && (
           <>
