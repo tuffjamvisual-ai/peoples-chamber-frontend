@@ -23,7 +23,11 @@ const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) { console.error('DATABASE_URL required (psql is used to bypass anon RLS)'); process.exit(1); }
 
 const argv = process.argv.slice(2);
-const YEARS = argv.length > 0 ? argv : ['24_25', '23_24'];
+// Default to the four most recent years. IPSA publishes the totalSpend
+// (annual summary) ~3-4 months after the FY closes, so newer years
+// will return 'no data' until the year-end reconciliation completes —
+// that's expected and the per-year handler just logs and skips.
+const YEARS = argv.length > 0 ? argv : ['26_27', '25_26', '24_25', '23_24'];
 
 function parseCsv(text) {
   const rows = [];
@@ -144,7 +148,20 @@ function rowsForYear(year, csvText) {
 async function main() {
   const all = [];
   for (const year of YEARS) {
-    const csv = await fetchYear(year);
+    // IPSA returns 403 for years they haven't enabled yet (most often
+    // the not-yet-closed current year). Skip and continue rather than
+    // aborting the whole run — the older years are still worth syncing.
+    let csv;
+    try {
+      csv = await fetchYear(year);
+    } catch (e) {
+      console.log(`  year ${year}: ${e.message} — skipping`);
+      continue;
+    }
+    if (!csv || csv.trim().toLowerCase().startsWith('no data')) {
+      console.log(`  year ${year}: IPSA returned 'no data' — skipping (year-end totals not yet published)`);
+      continue;
+    }
     const rows = rowsForYear(year, csv);
     console.log(`  year ${year}: parsed ${rows.length} rows`);
     all.push(...rows);

@@ -591,7 +591,10 @@ export default function MagazineProfileSections({
         {active === 'expenses' && (
           <>
             <h2 style={sectionH2}>Expenses</h2>
-            <p style={{ marginBottom: '16px', fontSize: '14px', opacity: 0.85 }}>Annual IPSA totals with category breakdown. Click a year to drill into individual claims.</p>
+            <p style={{ marginBottom: '8px', fontSize: '14px', opacity: 0.85 }}>Annual IPSA totals with category breakdown. Click a year to drill into individual claims.</p>
+            <p style={{ marginBottom: '16px', fontSize: '12px', opacity: 0.6, lineHeight: 1.55 }}>
+              The IPSA financial year runs 1 April to 31 March. Annual totals are published a few months after each year ends; individual claims are released quarterly with a two to three month lag, so the most recent months in any year are typically still filling in.
+            </p>
             {/* Cell padding tightened (8px 6px → 4px 3px on the summary,
                 4px 6px → 3px 3px on the drilldown) so all seven breakdown
                 columns fit inside the folder content width without

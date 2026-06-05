@@ -23,7 +23,11 @@ const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) { console.error('DATABASE_URL required'); process.exit(1); }
 
 const argv = process.argv.slice(2);
-const YEARS = argv.length > 0 ? argv : ['24_25'];
+// IPSA publishes detail (individualBusinessCosts) per quarter with ~2-3
+// months lag, so the very-latest months drift in over time. Re-sync is
+// idempotent per year (deletes by year, then COPYs the fresh CSV), so
+// running on a year that's still filling in is safe.
+const YEARS = argv.length > 0 ? argv : ['26_27', '25_26', '24_25'];
 
 function parseCsv(text) {
   const rows = [];
@@ -161,8 +165,22 @@ async function main() {
   console.log(`Staging dir: ${tmpDir}`);
 
   for (const year of YEARS) {
-    const csv = await fetchYear(year);
+    // IPSA returns either 403 (year not enabled) or a header-only CSV
+    // (year enabled but empty) for the not-yet-published current year.
+    // Skip both gracefully rather than crashing the COPY with an empty
+    // file or aborting the whole run.
+    let csv;
+    try {
+      csv = await fetchYear(year);
+    } catch (e) {
+      console.log(`  year ${year}: ${e.message} — skipping`);
+      continue;
+    }
     const [count, tsv] = rowsToTsv(year, csv);
+    if (count === 0) {
+      console.log(`  year ${year}: 0 rows — skipping (IPSA hasn't published any detail yet)`);
+      continue;
+    }
     console.log(`  year ${year}: parsed ${count} rows`);
     const stagePath = path.join(tmpDir, `${year}.csv`);
     fs.writeFileSync(stagePath, tsv);
