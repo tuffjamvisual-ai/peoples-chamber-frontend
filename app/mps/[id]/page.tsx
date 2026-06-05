@@ -153,7 +153,7 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
     // so the previous bulk 999-row fetch became a heavy cold payload.
     supabase
       .from('mp_division_votes')
-      .select('id, division_title, division_date, vote_type, is_rebellion, bill_id, division_id')
+      .select('id, division_title, division_date, vote_type, is_rebellion, bill_id, division_id, division_date_only, division_number')
       .eq('member_id', memberId)
       .order('division_date', { ascending: false })
       .range(voteStart, voteEnd),
