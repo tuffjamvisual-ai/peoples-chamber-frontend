@@ -583,8 +583,11 @@ export default function MagazineProfileSections({
               <li><strong>Ministerial salary:</strong> {fmtMoney(earnings.ministerial)} {earnings.band_label ? `(${earnings.band_label})` : ''}</li>
               <li><strong>Outside earnings:</strong> {fmtMoney(earnings.outside)} ({earnings.outside_claim_count} payments from {earnings.outside_source_count} sources)</li>
               <li style={{ marginTop: '12px', fontSize: '20px' }}><strong>Total personal earnings:</strong> {fmtMoney(earnings.personal_total)}</li>
-              <li style={{ marginTop: '12px', fontSize: '13px', opacity: 0.7 }}>Public spend (IPSA, {earnings.public_spend_year ?? ', '}): {fmtMoney(earnings.public_spend)}</li>
+              <li style={{ marginTop: '12px', fontSize: '13px', opacity: 0.7 }}>Public spend (IPSA, {earnings.public_spend_year ?? '—'}): {fmtMoney(earnings.public_spend)}</li>
             </ul>
+            <p style={{ marginTop: '20px', fontSize: '12px', opacity: 0.6, lineHeight: 1.55 }}>
+              Base salary is set by IPSA and reviewed annually each 1 April. The ministerial supplement has been frozen at 2010 levels by successive prime ministers; figures shown are the rates actually drawn, not the statutory entitlement. Outside earnings come from the Register of Members&rsquo; Financial Interests and reflect cumulative declarations since this Parliament started; the Register is updated as MPs declare, typically within two weeks of the payment. Public spend is the most recent closed IPSA financial year on file — the current year is not totalled until IPSA reconciles year-end.
+            </p>
           </>
         )}
 
