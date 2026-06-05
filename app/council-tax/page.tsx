@@ -303,7 +303,7 @@ export default function CouncilTaxPage() {
         </p>
         <h1
           style={{
-            fontSize: 'clamp(28px, 4vw, 46px)',
+            fontSize: 'clamp(22px, 3vw, 32px)',
             fontWeight: 'bold',
             letterSpacing: '-0.02em',
             marginBottom: '12px',
@@ -394,7 +394,7 @@ function ReportBlock({ report }: { report: Report }) {
           aria-hidden
           style={{
             fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
-            fontSize: 'clamp(48px, 6vw, 72px)',
+            fontSize: 'clamp(32px, 4vw, 48px)',
             fontWeight: 'bold',
             lineHeight: 1,
             color: ACCENT,
@@ -414,7 +414,7 @@ function ReportBlock({ report }: { report: Report }) {
             <h2
               style={{
                 fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
-                fontSize: 'clamp(22px, 2.8vw, 34px)',
+                fontSize: 'clamp(16px, 2.2vw, 22px)',
                 fontWeight: 'bold',
                 lineHeight: 1.1,
                 letterSpacing: '-0.01em',
