@@ -19,7 +19,8 @@ const ALL_SECTIONS: Array<{ id: SectionId; label: string; rotate: string }> = [
 
 type Vote = { id: number; division_title: string; division_date: string; vote_type: string; is_rebellion?: boolean; bill_id?: number | null; division_id?: number | null; division_date_only?: string | null; division_number?: number | null; is_si?: boolean };
 type Bill = { id: number; title: string; status?: string | null; current_stage?: string | null; plain_summary?: string | null; is_act?: boolean | null; last_update?: string | null };
-type Interest = { category_name: string; interest_text: string | null };
+type ChildInterest = { id?: number; interest?: string | null };
+type Interest = { category_name: string; interest_text: string | null; child_interests?: ChildInterest[] | null };
 type Representation = { name: string; startDate: string; endDate?: string | null };
 type PartyHistoryEntry = { party?: string; name?: string; startDate?: string; endDate?: string | null };
 type ExpenseSummary = {
@@ -498,12 +499,33 @@ export default function MagazineProfileSections({
           <>
             <h2 style={sectionH2}>Registered Interests</h2>
             <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.7' }}>
-              {interests.map((i, idx) => (
-                <li key={idx} style={{ padding: '8px 0', borderBottom: inkDivider }}>
-                  <div style={{ fontSize: '12px', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{i.category_name}</div>
-                  <div style={{ whiteSpace: 'pre-wrap' }}>{i.interest_text}</div>
-                </li>
-              ))}
+              {interests.map((i, idx) => {
+                const children = Array.isArray(i.child_interests) ? i.child_interests : [];
+                return (
+                  <li key={idx} style={{ padding: '8px 0', borderBottom: inkDivider }}>
+                    <div style={{ fontSize: '12px', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{i.category_name}</div>
+                    <div style={{ whiteSpace: 'pre-wrap' }}>{i.interest_text}</div>
+                    {children.length > 0 && (
+                      // Child interests carry the actual payment lines on
+                      // Category 1 (Employment and earnings): payer-by-
+                      // payer amounts, hours, dates. Previously hidden;
+                      // surfacing here so outside-earnings declarations
+                      // are visible on the MP profile, not just the
+                      // aggregate total on the Earnings tab.
+                      <ul style={{ listStyle: 'none', padding: 0, marginTop: '8px', marginLeft: '12px', borderLeft: '2px solid rgba(20,16,13,0.15)' }}>
+                        {children.map((c, ci) => (
+                          <li
+                            key={c.id ?? ci}
+                            style={{ padding: '4px 0 4px 12px', fontSize: '14px', opacity: 0.9, whiteSpace: 'pre-wrap' }}
+                          >
+                            {c.interest || ''}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </>
         )}
