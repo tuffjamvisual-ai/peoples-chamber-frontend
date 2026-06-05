@@ -139,6 +139,24 @@ const sectionH3: React.CSSProperties = {
 const inkLink: React.CSSProperties = { color: '#7a1612', textDecoration: 'underline' };
 const inkDivider = '1px dashed rgba(20,16,13,0.2)';
 
+const thStyle: React.CSSProperties = {
+  padding: '6px 4px',
+  fontSize: '11px',
+  letterSpacing: '0.06em',
+  textTransform: 'uppercase',
+};
+
+const pillStyle: React.CSSProperties = {
+  display: 'inline-block',
+  padding: '1px 6px',
+  fontSize: '10px',
+  letterSpacing: '0.08em',
+  textTransform: 'uppercase',
+  fontFamily: 'Special Elite, monospace',
+  background: 'transparent',
+  whiteSpace: 'nowrap',
+};
+
 export default function MagazineProfileSections({
   memberId,
   paragraphs,
@@ -612,13 +630,49 @@ export default function MagazineProfileSections({
           // reconcile with mp_outside_earnings_summary.
           const AMOUNT_RE = /£\s*([\d,]+(?:\.\d{1,2})?)/g;
           const PAYER_RE = /(?:^|\|)\s*Payer:\s*([^|]+?)(?:\s*\(|\s*\|\s*ACOBA|$)/i;
+          const ROLE_RE = /Role,?\s*work\s*or\s*services:\s*([^\r\n|]+)/i;
+          const ACOBA_RE = /ACOBA\s*consulted:\s*(Yes|No)/i;
+          const FROM_RE = /From:\s*(\d{1,2}\s+[A-Za-z]+\s+\d{4})/i;
+          const UNTIL_RE = /Until:\s*(\d{1,2}\s+[A-Za-z]+\s+\d{4})/i;
+          const HOURS_RE = /Hours:\s*([\d.,]+)\s*hr?s?/i;
+          const DONATED_RE = /Donated to:/i;
+          const FX_RE = /converted from|spot rate|the original currency/i;
+
+          function parseUkDate(s: string): Date | null {
+            const d = new Date(s);
+            return Number.isNaN(d.getTime()) ? null : d;
+          }
+
           const cat1 = interests.filter((i) => /employment and earnings/i.test(i.category_name));
-          type Row = { payer: string; total: number; count: number; latest: string | null };
+          type Row = {
+            payer: string;
+            roles: Set<string>;
+            total: number;
+            count: number;
+            hours: number;
+            acoba: 'Yes' | 'No' | null;
+            donated: boolean;
+            fx: boolean;
+            fromDate: Date | null;
+            untilDate: Date | null;
+            anyOngoing: boolean;     // any role with no Until date
+          };
           const byPayer = new Map<string, Row>();
+          const now = new Date();
+
           for (const i of cat1) {
             const raw = String(i.interest_text || '').replace(/\r\n/g, '|');
-            const m = PAYER_RE.exec(raw);
-            const payer = (m ? m[1].split(',')[0].trim() : '(unspecified payer)');
+            const pm = PAYER_RE.exec(raw);
+            const payer = (pm ? pm[1].split(',')[0].trim() : '(unspecified payer)');
+            const rm = ROLE_RE.exec(raw);
+            const role = rm ? rm[1].trim() : '';
+            const am = ACOBA_RE.exec(raw);
+            const acoba = am ? (am[1] as 'Yes' | 'No') : null;
+            const fm = FROM_RE.exec(raw);
+            const fromDate = fm ? parseUkDate(fm[1]) : null;
+            const um = UNTIL_RE.exec(raw);
+            const untilDate = um ? parseUkDate(um[1]) : null;
+
             const children = Array.isArray(i.child_interests) ? i.child_interests : [];
             for (const c of children) {
               const text = String(c.interest || '');
@@ -626,15 +680,39 @@ export default function MagazineProfileSections({
               let subtotal = 0;
               for (const mm of ms) subtotal += parseFloat(mm[1].replace(/,/g, ''));
               if (subtotal === 0 && ms.length === 0) continue;
-              const existing = byPayer.get(payer) ?? { payer, total: 0, count: 0, latest: null };
+
+              const hm = HOURS_RE.exec(text);
+              const hours = hm ? parseFloat(hm[1].replace(/,/g, '')) || 0 : 0;
+              const childUntilM = UNTIL_RE.exec(text);
+              const childUntil = childUntilM ? parseUkDate(childUntilM[1]) : null;
+              const effectiveUntil = childUntil || untilDate;
+
+              const existing = byPayer.get(payer) ?? {
+                payer,
+                roles: new Set<string>(),
+                total: 0, count: 0, hours: 0,
+                acoba: null, donated: false, fx: false,
+                fromDate: null, untilDate: null, anyOngoing: false,
+              };
               existing.total += subtotal;
               existing.count += 1;
-              const dateM = /Received on:\s*([^\.\r\n]+)/i.exec(text);
-              if (dateM) existing.latest = dateM[1].trim();
+              existing.hours += hours;
+              if (role) existing.roles.add(role);
+              if (acoba && !existing.acoba) existing.acoba = acoba;
+              if (DONATED_RE.test(text)) existing.donated = true;
+              if (FX_RE.test(text)) existing.fx = true;
+              if (fromDate && (!existing.fromDate || fromDate < existing.fromDate)) existing.fromDate = fromDate;
+              if (effectiveUntil && (!existing.untilDate || effectiveUntil > existing.untilDate)) existing.untilDate = effectiveUntil;
+              if (!effectiveUntil) existing.anyOngoing = true;
               byPayer.set(payer, existing);
             }
           }
           const rows = Array.from(byPayer.values()).sort((a, b) => b.total - a.total);
+
+          function isActiveRow(r: Row): boolean {
+            if (r.anyOngoing) return true;
+            return r.untilDate ? r.untilDate >= now : false;
+          }
 
           return (
             <>
@@ -650,22 +728,60 @@ export default function MagazineProfileSections({
               {rows.length > 0 && (
                 <>
                   <h3 style={{ ...sectionH3, marginTop: '28px' }}>Outside earnings by payer</h3>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', marginBottom: '8px' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', marginBottom: '8px', tableLayout: 'auto' }}>
                     <thead>
                       <tr style={{ borderBottom: '2px solid rgba(20,16,13,0.4)', textAlign: 'left' }}>
-                        <th style={{ padding: '6px 4px', fontSize: '11px', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Payer</th>
-                        <th style={{ padding: '6px 4px', fontSize: '11px', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Payments</th>
-                        <th style={{ padding: '6px 4px', fontSize: '11px', letterSpacing: '0.06em', textTransform: 'uppercase', textAlign: 'right' }}>Total paid</th>
+                        <th style={thStyle}>Payer / role</th>
+                        <th style={thStyle}>Payments</th>
+                        <th style={thStyle}>Hours</th>
+                        <th style={{ ...thStyle, textAlign: 'right' }}>£/hr</th>
+                        <th style={{ ...thStyle, textAlign: 'right' }}>Total paid</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {rows.map((r) => (
-                        <tr key={r.payer} style={{ borderBottom: inkDivider }}>
-                          <td style={{ padding: '5px 4px' }}>{r.payer}</td>
-                          <td style={{ padding: '5px 4px', fontFamily: 'monospace' }}>{r.count}</td>
-                          <td style={{ padding: '5px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap' }}>{fmtMoney(r.total)}</td>
-                        </tr>
-                      ))}
+                      {rows.map((r) => {
+                        const active = isActiveRow(r);
+                        const hourly = r.hours > 0 ? r.total / r.hours : null;
+                        const roleList = Array.from(r.roles).slice(0, 3).join(' · ');
+                        return (
+                          <tr key={r.payer} style={{ borderBottom: inkDivider, verticalAlign: 'top' }}>
+                            <td style={{ padding: '6px 4px' }}>
+                              <div style={{ fontWeight: 'bold' }}>{r.payer}</div>
+                              {roleList && (
+                                <div style={{ fontSize: '12px', opacity: 0.8, marginTop: '2px' }}>{roleList}</div>
+                              )}
+                              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '4px' }}>
+                                {/* Status badge */}
+                                <span style={{ ...pillStyle, color: active ? '#4a8a3a' : 'rgba(20,16,13,0.5)', border: `1px solid ${active ? '#4a8a3a' : 'rgba(20,16,13,0.25)'}` }}>
+                                  {active ? 'Active' : 'Ended'}
+                                </span>
+                                {/* ACOBA */}
+                                {r.acoba && (
+                                  <span style={{ ...pillStyle, color: r.acoba === 'Yes' ? 'rgba(20,16,13,0.7)' : '#a64030', border: `1px solid ${r.acoba === 'Yes' ? 'rgba(20,16,13,0.25)' : '#a64030'}` }}>
+                                    ACOBA: {r.acoba}
+                                  </span>
+                                )}
+                                {/* Donated to charity */}
+                                {r.donated && (
+                                  <span style={{ ...pillStyle, color: '#4a8a3a', border: '1px solid #4a8a3a' }}>↻ Donated</span>
+                                )}
+                                {/* FX-converted note */}
+                                {r.fx && (
+                                  <span style={{ ...pillStyle, color: 'rgba(20,16,13,0.6)', border: '1px solid rgba(20,16,13,0.25)' }} title="Amount converted from a non-GBP original">
+                                    £ converted
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td style={{ padding: '6px 4px', fontFamily: 'monospace' }}>{r.count}</td>
+                            <td style={{ padding: '6px 4px', fontFamily: 'monospace' }}>{r.hours > 0 ? r.hours.toLocaleString('en-GB') : '—'}</td>
+                            <td style={{ padding: '6px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                              {hourly !== null ? fmtMoney(hourly) : '—'}
+                            </td>
+                            <td style={{ padding: '6px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap', fontWeight: 'bold' }}>{fmtMoney(r.total)}</td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </>
