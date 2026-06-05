@@ -313,7 +313,15 @@ export default function CouncilTaxPage() {
         >
           The ten highest council tax bills in England, {YEAR_LABEL}
         </h1>
-        <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', marginBottom: '20px' }}>
+        <p
+          style={{
+            fontFamily: 'Special Elite, monospace',
+            fontSize: '15px',
+            lineHeight: 1.75,
+            maxWidth: '720px',
+            marginBottom: '20px',
+          }}
+        >
           Ranked by total Band D council tax. Figures include all precepts: council, police, fire,
           regional authority and parish where applicable. Each authority gets an editorial
           assessment. Source: MHCLG.
@@ -337,7 +345,15 @@ export default function CouncilTaxPage() {
         <ReportBlock key={r.slug} report={r} />
       ))}
 
-      <p style={{ marginTop: '40px', fontSize: '13px', color: INK_SOFT, lineHeight: 1.7 }}>
+      <p
+        style={{
+          marginTop: '40px',
+          fontFamily: 'Special Elite, monospace',
+          fontSize: '13px',
+          color: INK_SOFT,
+          lineHeight: 1.75,
+        }}
+      >
         Source note: All figures are Band D council tax for 2026/27 as published by the Ministry of
         Housing, Communities and Local Government, March 2026. Figures include all precepts:
         council, police, fire, regional authority and parish where applicable. England average Band
@@ -434,18 +450,20 @@ function ReportBlock({ report }: { report: Report }) {
         </div>
       </div>
 
-      {/* Editorial body */}
+      {/* Editorial body — Special Elite per the site-wide typewriter
+          rule (see memory feedback_typewriter_for_body_prose). Serif
+          reserved for headlines + the masthead. */}
       <div
         style={{
-          fontFamily: 'Georgia, "Times New Roman", serif',
-          fontSize: '16px',
-          lineHeight: 1.75,
+          fontFamily: 'Special Elite, monospace',
+          fontSize: '15px',
+          lineHeight: 1.85,
           color: INK,
           maxWidth: '720px',
         }}
       >
         {paragraphs.map((p, i) => (
-          <p key={i} style={{ margin: '0 0 14px' }}>
+          <p key={i} style={{ margin: '0 0 16px' }}>
             {p}
           </p>
         ))}
@@ -477,9 +495,9 @@ function ReportBlock({ report }: { report: Report }) {
         </p>
         <p
           style={{
-            fontFamily: 'Georgia, "Times New Roman", serif',
-            fontSize: '15px',
-            lineHeight: 1.55,
+            fontFamily: 'Special Elite, monospace',
+            fontSize: '14px',
+            lineHeight: 1.7,
             color: INK,
             margin: 0,
             fontStyle: 'italic',
@@ -521,6 +539,7 @@ function Stat({ label, value }: { label: string; value: string }) {
     >
       <p
         style={{
+          fontFamily: 'Special Elite, monospace',
           fontSize: '12px',
           textTransform: 'uppercase',
           letterSpacing: '0.22em',
@@ -533,9 +552,10 @@ function Stat({ label, value }: { label: string; value: string }) {
       </p>
       <p
         style={{
-          fontSize: '24px',
+          fontFamily: 'Special Elite, monospace',
+          fontSize: '22px',
           fontWeight: 'bold',
-          letterSpacing: '-0.01em',
+          letterSpacing: '0.01em',
           color: INK,
           fontVariantNumeric: 'tabular-nums',
           margin: 0,

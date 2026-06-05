@@ -88,6 +88,7 @@ export default async function PressReleasesIndexPage() {
       <header style={{ marginBottom: '5%' }}>
         <p
           style={{
+            fontFamily: 'Special Elite, monospace',
             fontSize: '13px',
             textTransform: 'uppercase',
             letterSpacing: '0.3em',
@@ -110,8 +111,16 @@ export default async function PressReleasesIndexPage() {
         >
           Press Releases
         </h1>
-        <p className="text-[#14100d] text-[14px] leading-[1.7] max-w-2xl">
-          <span className="font-mono text-[#14100d] text-base font-bold">{releases.length.toLocaleString()}</span>
+        <p
+          style={{
+            fontFamily: 'Special Elite, monospace',
+            fontSize: '14px',
+            lineHeight: 1.75,
+            color: INK,
+            maxWidth: '720px',
+          }}
+        >
+          <span style={{ fontWeight: 'bold' }}>{releases.length.toLocaleString()}</span>
           {' '}most recent UK Government press releases, drawn from the GOV.UK content API every day. Each entry links to a full-text page with the original announcement.
         </p>
       </header>
@@ -121,6 +130,7 @@ export default async function PressReleasesIndexPage() {
           <section key={month} style={{ marginBottom: '40px' }}>
             <h2
               style={{
+                fontFamily: 'Special Elite, monospace',
                 fontSize: '14px',
                 textTransform: 'uppercase',
                 letterSpacing: '0.2em',
@@ -141,6 +151,7 @@ export default async function PressReleasesIndexPage() {
                   <>
                     <div
                       style={{
+                        fontFamily: 'Special Elite, monospace',
                         fontSize: '12px',
                         textTransform: 'uppercase',
                         letterSpacing: '0.18em',
@@ -153,8 +164,9 @@ export default async function PressReleasesIndexPage() {
                     </div>
                     <p
                       style={{
-                        fontSize: '17px',
-                        lineHeight: 1.35,
+                        fontFamily: 'Special Elite, monospace',
+                        fontSize: '15px',
+                        lineHeight: 1.4,
                         color: INK,
                         fontWeight: 600,
                         marginBottom: r.description ? '6px' : 0,
@@ -163,7 +175,16 @@ export default async function PressReleasesIndexPage() {
                       {r.title}
                     </p>
                     {r.description && (
-                      <p style={{ fontSize: '14px', lineHeight: 1.6, color: INK, opacity: 0.85, margin: 0 }}>
+                      <p
+                        style={{
+                          fontFamily: 'Special Elite, monospace',
+                          fontSize: '13px',
+                          lineHeight: 1.65,
+                          color: INK,
+                          opacity: 0.85,
+                          margin: 0,
+                        }}
+                      >
                         {r.description}
                       </p>
                     )}

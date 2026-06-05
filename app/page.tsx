@@ -196,11 +196,14 @@ function EditorialIntro() {
           The People&rsquo;s Chamber is an independent record of how the
           United Kingdom is governed.
         </h2>
+        {/* Body in Special Elite per the site-wide typewriter rule
+            (memory feedback_typewriter_for_body_prose). The H2 above
+            stays in EB Garamond as a display heading. */}
         <div
           style={{
-            fontFamily: 'Georgia, "Times New Roman", serif',
-            fontSize: '17px',
-            lineHeight: 1.7,
+            fontFamily: 'Special Elite, monospace',
+            fontSize: '15px',
+            lineHeight: 1.85,
             color: INK,
           }}
         >

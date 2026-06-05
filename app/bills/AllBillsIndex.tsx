@@ -88,9 +88,12 @@ export default async function AllBillsIndex() {
     padding: '6px 0',
     color: INK,
     textDecoration: 'none',
-    fontFamily: SERIF,
-    fontSize: '14px',
-    lineHeight: 1.45,
+    // Special Elite per the typewriter-for-body site rule. SERIF stays
+    // imported so the constant is still referenced by the explainer
+    // paragraph below — though that's also switched.
+    fontFamily: MONO,
+    fontSize: '13px',
+    lineHeight: 1.5,
     borderBottom: `1px dotted rgba(20,16,13,0.1)`,
   };
   const stageNoteStyle: React.CSSProperties = {
@@ -150,9 +153,9 @@ export default async function AllBillsIndex() {
       </h2>
       <p
         style={{
-          fontFamily: SERIF,
-          fontSize: '14px',
-          lineHeight: 1.7,
+          fontFamily: MONO,
+          fontSize: '13px',
+          lineHeight: 1.75,
           color: INK,
           maxWidth: '640px',
           marginBottom: '20px',

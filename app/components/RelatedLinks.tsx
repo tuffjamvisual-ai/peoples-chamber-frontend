@@ -43,9 +43,11 @@ const itemStyle: React.CSSProperties = {
   padding: '6px 0',
   color: INK,
   textDecoration: 'none',
-  fontFamily: SERIF,
-  fontSize: '15px',
-  lineHeight: 1.5,
+  // Special Elite per the site-wide typewriter-for-body rule. SERIF
+  // kept imported for any future headline use within this file.
+  fontFamily: MONO,
+  fontSize: '14px',
+  lineHeight: 1.55,
   borderBottom: `1px dotted rgba(20,16,13,0.12)`,
 };
 const subStyle: React.CSSProperties = {

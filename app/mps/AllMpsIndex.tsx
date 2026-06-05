@@ -80,9 +80,10 @@ export default function AllMpsIndex({ mps }: { mps: MpRow[] }) {
     padding: '5px 0',
     color: INK,
     textDecoration: 'none',
-    fontFamily: SERIF,
-    fontSize: '14px',
-    lineHeight: 1.45,
+    // Special Elite per the typewriter-for-body site rule.
+    fontFamily: MONO,
+    fontSize: '13px',
+    lineHeight: 1.5,
     borderBottom: `1px dotted rgba(20,16,13,0.1)`,
   };
   const subStyle: React.CSSProperties = {
@@ -113,9 +114,9 @@ export default function AllMpsIndex({ mps }: { mps: MpRow[] }) {
       </h2>
       <p
         style={{
-          fontFamily: SERIF,
-          fontSize: '14px',
-          lineHeight: 1.7,
+          fontFamily: MONO,
+          fontSize: '13px',
+          lineHeight: 1.75,
           color: INK,
           maxWidth: '640px',
           marginBottom: '20px',
