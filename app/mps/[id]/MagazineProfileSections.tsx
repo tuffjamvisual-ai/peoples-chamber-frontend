@@ -40,10 +40,17 @@ type ExpenseClaim = {
   category: string | null;
   cost_type: string | null;
   short_description: string | null;
+  details?: string | null;
+  amount_claimed?: number | null;
   amount_paid: number | null;
+  amount_not_paid?: number | null;
+  amount_repaid?: number | null;
   status: string | null;
-  // `details` (long-form text) was previously fetched but unused in the UI;
-  // dropped from the page's column select to keep the prerender budget tight.
+  reason_if_not_paid?: string | null;
+  journey_from?: string | null;
+  journey_to?: string | null;
+  mileage?: number | null;
+  nights?: number | null;
 };
 type Earnings = {
   base: number;
@@ -671,13 +678,74 @@ export default function MagazineProfileSections({
           );
         })()}
 
-        {active === 'expenses' && (
+        {active === 'expenses' && (() => {
+          // Refused / repaid roll-up across this MP's entire detail set.
+          // Powerful accountability signal that was previously invisible —
+          // amount_not_paid + amount_repaid + reason_if_not_paid columns
+          // are populated by IPSA but weren't surfaced anywhere.
+          const refused: ExpenseClaim[] = expensesDetail.filter((c) => Number(c.amount_not_paid) > 0);
+          const repaid:  ExpenseClaim[] = expensesDetail.filter((c) => Number(c.amount_repaid) > 0);
+          const refusedTotal = refused.reduce((s, c) => s + Number(c.amount_not_paid ?? 0), 0);
+          const repaidTotal  = repaid.reduce((s, c) => s + Number(c.amount_repaid ?? 0), 0);
+          return (
           <>
             <h2 style={sectionH2}>Expenses</h2>
             <p style={{ marginBottom: '8px', fontSize: '14px', opacity: 0.85 }}>Annual IPSA totals with category breakdown. Click a year to drill into individual claims.</p>
             <p style={{ marginBottom: '16px', fontSize: '12px', opacity: 0.6, lineHeight: 1.55 }}>
               The IPSA financial year runs 1 April to 31 March. Annual totals are published a few months after each year ends; individual claims are released quarterly with a two to three month lag, so the most recent months in any year are typically still filling in.
             </p>
+
+            {(refused.length > 0 || repaid.length > 0) && (
+              <section style={{ marginBottom: '24px', padding: '12px 14px', border: '1px solid rgba(20,16,13,0.25)', background: 'rgba(166,64,48,0.05)' }}>
+                <h3 style={{ ...sectionH3, marginTop: 0, marginBottom: '8px' }}>Refused &amp; repaid</h3>
+                <p style={{ fontSize: '13px', lineHeight: 1.55, marginBottom: '8px' }}>
+                  {refused.length > 0 && (
+                    <>
+                      IPSA refused <strong>{fmtMoney(refusedTotal)}</strong> across {refused.length.toLocaleString()} claim{refused.length === 1 ? '' : 's'}.
+                    </>
+                  )}
+                  {refused.length > 0 && repaid.length > 0 && ' '}
+                  {repaid.length > 0 && (
+                    <>
+                      Amount this MP later repaid: <strong>{fmtMoney(repaidTotal)}</strong> across {repaid.length.toLocaleString()} claim{repaid.length === 1 ? '' : 's'}.
+                    </>
+                  )}
+                </p>
+                {refused.length > 0 && (
+                  <details style={{ fontSize: '12px', marginTop: '6px' }}>
+                    <summary style={{ cursor: 'pointer', fontWeight: 'bold' }}>Refused claims ({refused.length})</summary>
+                    <ul style={{ listStyle: 'none', padding: '6px 0 0 0' }}>
+                      {refused.slice(0, 50).map((c, i) => (
+                        <li key={c.claim_number ?? `r-${i}`} style={{ padding: '4px 0', borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
+                          <span style={{ fontFamily: 'monospace' }}>{c.claim_date ? new Date(c.claim_date).toLocaleDateString('en-GB') : '—'}</span>
+                          {' · '}{c.category || '?'}
+                          {(c.short_description || c.cost_type) && <> · {c.short_description || c.cost_type}</>}
+                          {' — '}<strong>{fmtMoney(Number(c.amount_not_paid))}</strong>
+                          {c.reason_if_not_paid && <span style={{ opacity: 0.8 }}> · {c.reason_if_not_paid}</span>}
+                        </li>
+                      ))}
+                    </ul>
+                    {refused.length > 50 && <p style={{ opacity: 0.7, padding: '4px 0' }}>Showing 50 of {refused.length}.</p>}
+                  </details>
+                )}
+                {repaid.length > 0 && (
+                  <details style={{ fontSize: '12px', marginTop: '6px' }}>
+                    <summary style={{ cursor: 'pointer', fontWeight: 'bold' }}>Repaid claims ({repaid.length})</summary>
+                    <ul style={{ listStyle: 'none', padding: '6px 0 0 0' }}>
+                      {repaid.slice(0, 50).map((c, i) => (
+                        <li key={c.claim_number ?? `p-${i}`} style={{ padding: '4px 0', borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
+                          <span style={{ fontFamily: 'monospace' }}>{c.claim_date ? new Date(c.claim_date).toLocaleDateString('en-GB') : '—'}</span>
+                          {' · '}{c.category || '?'}
+                          {(c.short_description || c.cost_type) && <> · {c.short_description || c.cost_type}</>}
+                          {' — repaid '}<strong>{fmtMoney(Number(c.amount_repaid))}</strong>
+                        </li>
+                      ))}
+                    </ul>
+                    {repaid.length > 50 && <p style={{ opacity: 0.7, padding: '4px 0' }}>Showing 50 of {repaid.length}.</p>}
+                  </details>
+                )}
+              </section>
+            )}
             {/* Cell padding tightened (8px 6px → 4px 3px on the summary,
                 4px 6px → 3px 3px on the drilldown) so all seven breakdown
                 columns fit inside the folder content width without
@@ -724,19 +792,43 @@ export default function MagazineProfileSections({
                                   <th style={{ padding: '3px 3px' }}>Category</th>
                                   <th style={{ padding: '3px 3px' }}>Description</th>
                                   <th style={{ padding: '3px 3px' }}>Status</th>
+                                  <th style={{ padding: '3px 3px', textAlign: 'right' }}>Claimed</th>
                                   <th style={{ padding: '3px 3px', textAlign: 'right' }}>Paid</th>
                                 </tr>
                               </thead>
                               <tbody>
-                                {yearClaims.slice(0, 200).map((c, i) => (
-                                  <tr key={c.claim_number ?? `${e.year}-${i}`} style={{ borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
-                                    <td style={{ padding: '3px 3px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{c.claim_date ? new Date(c.claim_date).toLocaleDateString('en-GB') : '-'}</td>
-                                    <td style={{ padding: '3px 3px' }}>{c.category || '-'}</td>
-                                    <td style={{ padding: '3px 3px' }}>{c.short_description || c.cost_type || '-'}</td>
-                                    <td style={{ padding: '3px 3px' }}>{c.status || '-'}</td>
-                                    <td style={{ padding: '3px 3px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap' }}>{fmtMoney(Number(c.amount_paid) || 0)}</td>
-                                  </tr>
-                                ))}
+                                {yearClaims.slice(0, 200).map((c, i) => {
+                                  const claimed = Number(c.amount_claimed ?? c.amount_paid) || 0;
+                                  const paid = Number(c.amount_paid) || 0;
+                                  const notPaid = Number(c.amount_not_paid) || 0;
+                                  const repaid = Number(c.amount_repaid) || 0;
+                                  const hasGap = claimed !== paid;
+                                  // Compose description: short_description + cost_type when both exist,
+                                  // plus travel route when the row is a travel claim.
+                                  const route = (c.journey_from || c.journey_to)
+                                    ? `${c.journey_from || '?'} → ${c.journey_to || '?'}${c.mileage ? ` (${Number(c.mileage).toLocaleString('en-GB')} mi)` : ''}`
+                                    : null;
+                                  const desc = [c.short_description, c.cost_type !== c.short_description ? c.cost_type : null, route]
+                                    .filter(Boolean)
+                                    .join(' · ') || '-';
+                                  // Status colour: rejected/repaid get attention; paid stays neutral.
+                                  const statusLabel = c.status || '-';
+                                  const statusColor = notPaid > 0 ? '#a64030' : repaid > 0 ? '#7a4a16' : 'inherit';
+                                  return (
+                                    <tr key={c.claim_number ?? `${e.year}-${i}`} style={{ borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
+                                      <td style={{ padding: '3px 3px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{c.claim_date ? new Date(c.claim_date).toLocaleDateString('en-GB') : '-'}</td>
+                                      <td style={{ padding: '3px 3px' }}>{c.category || '-'}</td>
+                                      <td style={{ padding: '3px 3px' }}>{desc}</td>
+                                      <td style={{ padding: '3px 3px', color: statusColor }}>
+                                        {statusLabel}
+                                        {notPaid > 0 && <span style={{ display: 'block', fontSize: '11px', opacity: 0.85 }}>refused {fmtMoney(notPaid)}{c.reason_if_not_paid ? ` · ${c.reason_if_not_paid}` : ''}</span>}
+                                        {repaid > 0 && <span style={{ display: 'block', fontSize: '11px', opacity: 0.85 }}>repaid {fmtMoney(repaid)}</span>}
+                                      </td>
+                                      <td style={{ padding: '3px 3px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap', opacity: hasGap ? 1 : 0.7 }}>{fmtMoney(claimed)}</td>
+                                      <td style={{ padding: '3px 3px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap' }}>{fmtMoney(paid)}</td>
+                                    </tr>
+                                  );
+                                })}
                               </tbody>
                             </table>
                             {yearClaims.length > 200 && (
@@ -751,7 +843,8 @@ export default function MagazineProfileSections({
               </tbody>
             </table>
           </>
-        )}
+          );
+        })()}
       </div>
     </div>
   );

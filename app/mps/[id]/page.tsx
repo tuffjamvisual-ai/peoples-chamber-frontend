@@ -191,7 +191,7 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
     // same order of magnitude as the other queries in this batch.
     supabase
       .from('mp_expenses_detail')
-      .select('claim_number, year, claim_date, category, cost_type, short_description, amount_paid, status')
+      .select('claim_number, year, claim_date, category, cost_type, short_description, details, amount_claimed, amount_paid, amount_not_paid, amount_repaid, status, reason_if_not_paid, journey_from, journey_to, mileage, nights')
       .eq('member_id', memberId)
       .order('claim_date', { ascending: false })
       .range(0, 999),

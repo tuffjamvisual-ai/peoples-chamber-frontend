@@ -152,7 +152,10 @@ export default async function ExpensesPage() {
           Top 10 spenders {YEAR_LABEL}
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', marginBottom: '20px' }}>
-          Ranked by total business costs claimed across staffing, office, accommodation, travel and other categories.
+          Ranked by total business costs claimed across staffing, office, accommodation, travel and other categories.{' '}
+          <Link href="/expenses/refused" style={{ color: ACCENT, textDecoration: 'underline' }}>
+            Refused &amp; repaid &rarr;
+          </Link>
         </p>
 
         <div

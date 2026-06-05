@@ -65,6 +65,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/laws`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/polls`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/expenses`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE}/expenses/refused`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${SITE}/about`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${SITE}/your-tax-pound`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${SITE}/budget-trade-offs`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
