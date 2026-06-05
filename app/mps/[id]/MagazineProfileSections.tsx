@@ -350,21 +350,17 @@ export default function MagazineProfileSections({
                         {v.division_title}
                       </Link>
                     ) : v.division_date_only && v.division_number != null ? (
-                      // TheyWorkForYou hosts the division page with per-MP
-                      // breakdown and party affiliation. URL pattern is the
-                      // parlparse id: pw-YYYY-MM-DD-N-commons. Works for
-                      // every Commons division since 1997 — including all
-                      // ParlParse-only rows where division_id is NULL.
-                      // (Was commonsvotes.parliament.uk — that host is
-                      // unreachable / no longer the canonical destination.)
-                      <a
-                        href={`https://www.theyworkforyou.com/divisions/pw-${v.division_date_only}-${v.division_number}-commons/`}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      // Our own division detail page renders the full per-MP
+                      // breakdown grouped by party — built on the parlparse
+                      // import data we already hold. Slug matches the
+                      // parlparse id format so external sites linking to us
+                      // can use the same URL shape.
+                      <Link
+                        href={`/divisions/pw-${v.division_date_only}-${v.division_number}-commons`}
                         style={inkLink}
                       >
                         {v.division_title}
-                      </a>
+                      </Link>
                     ) : (
                       v.division_title
                     )}
