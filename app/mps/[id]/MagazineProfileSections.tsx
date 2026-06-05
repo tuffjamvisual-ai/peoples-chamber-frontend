@@ -373,7 +373,11 @@ export default function MagazineProfileSections({
               ))}
             </ul>
             {(totalVotes ?? votes.length) > votesPerPage && (
-              <div style={{ marginTop: '24px' }}>
+              // Bottom margin gives the ExpandingFolder some slack so the
+              // pagination is comfortably inside the folder before the user
+              // reaches it — defence-in-depth on top of the folder's
+              // lookahead bump.
+              <div style={{ marginTop: '24px', marginBottom: '48px' }}>
                 <Pagination
                   currentPage={votePage}
                   totalPages={Math.ceil((totalVotes ?? votes.length) / votesPerPage)}
