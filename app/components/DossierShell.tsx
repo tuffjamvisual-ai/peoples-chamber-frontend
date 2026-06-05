@@ -88,9 +88,15 @@ const HOTSPOTS: Hotspot[] = [
       // the landing-page bottom-left card but had no masthead entry
       // until 2026-06-03. /expenses metadata title is 'Top Spenders';
       // /earnings is 'MP Earnings & Public Spend'.
+      // 'Local Councils' added 2026-06-05 — the only home for the 382
+      // /councils/[slug] pages in the masthead (the printed image has
+      // no spare top-level label slot to host them as a peer of
+      // MPS/DEPARTMENTS, so they sit under MPS as a fellow elected-
+      // representatives surface).
       { label: 'All MPs',         href: '/mps' },
       { label: 'Top Spenders',    href: '/expenses' },
       { label: 'Earnings & Pay',  href: '/earnings' },
+      { label: 'Local Councils',  href: '/councils' },
     ],
   },
   { label: 'DEPARTMENTS', href: '/departments', xPct: 51.0, yPct: 21.3, wPct: 11.5, hPct: 2.8 },
