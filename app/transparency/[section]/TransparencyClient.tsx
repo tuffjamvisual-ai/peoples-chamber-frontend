@@ -216,8 +216,57 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
             const donor = (row.donor_name as string) || '(unknown donor)'
             const donorType = row.donor_type as string | null
             const amount = formatAmount(row.amount)
+            const cashValue = formatAmount(row.cash_value)
+            const nonCashValue = formatAmount(row.non_cash_value)
             const nature = row.nature as string | null
+            const donationType = row.donation_type_label as string | null
+            const donationAction = row.donation_action as string | null
             const receivedDate = formatUkDate(row.received_date)
+            const acceptedDate = formatUkDate(row.accepted_date)
+            const reportedDate = formatUkDate(row.reported_date)
+            const reportingPeriod = row.reporting_period_name as string | null
+            const isAnonymous = row.is_anonymous === true
+            const isAggregation = row.is_aggregation === true
+            const isBequest = row.is_bequest === true
+            const isSponsorship = row.is_sponsorship === true
+            const isIrishSource = row.is_irish_source === true
+            const isReportedPrePoll = row.is_reported_pre_poll === true
+            const attemptedConcealment = row.attempted_concealment === true
+            const concealmentDetails = row.concealment_details as string | null
+            const impermissibilityReason = row.impermissibility_reason as string | null
+            const explanatoryNotes = row.explanatory_notes as string | null
+            const positionStandingFor = row.position_standing_for as string | null
+            const mannerInWhichMade = row.manner_in_which_made as string | null
+            const purposeOfVisit = row.purpose_of_visit as string | null
+            const trustName = row.trust_name as string | null
+            const trustCreatorName = row.trust_creator_name as string | null
+            const trustCreatorStatus = row.trust_creator_status as string | null
+            const trustCreatedDate = formatUkDate(row.trust_created_date)
+            const companyRegNumber = row.company_registration_number as string | null
+            const campaigningName = row.campaigning_name as string | null
+            const accountingUnitName = row.accounting_unit_name as string | null
+            const recipientType = row.recipient_type as string | null
+            const ecRef = row.ec_ref as string | null
+
+            // Build a list of address segments
+            const addressParts = [
+              row.addr_line1, row.addr_line2, row.addr_line3, row.addr_line4,
+              row.addr_town, row.addr_county, row.addr_postcode, row.addr_country,
+            ].filter((p): p is string => typeof p === 'string' && p.trim() !== '')
+
+            // Flag chips for noteworthy categorical attributes
+            const flags: { label: string; tone?: 'warn' | 'info' }[] = []
+            if (attemptedConcealment) flags.push({ label: 'Concealment attempt', tone: 'warn' })
+            if (impermissibilityReason) flags.push({ label: 'Impermissible', tone: 'warn' })
+            if (donationAction && /return/i.test(donationAction)) flags.push({ label: 'Returned', tone: 'warn' })
+            if (isAnonymous) flags.push({ label: 'Anonymous', tone: 'info' })
+            if (isBequest) flags.push({ label: 'Bequest', tone: 'info' })
+            if (isSponsorship) flags.push({ label: 'Sponsorship', tone: 'info' })
+            if (isAggregation) flags.push({ label: 'Aggregated', tone: 'info' })
+            if (isIrishSource) flags.push({ label: 'Irish source', tone: 'info' })
+            if (isReportedPrePoll) flags.push({ label: 'Pre-poll', tone: 'info' })
+            if (trustName) flags.push({ label: 'Trust structure', tone: 'info' })
+
             return (
               <li key={i} className="p-5 border-l-2 border-l-[#14100d]">
                 <div className="flex items-baseline justify-between gap-4 mb-1.5">
@@ -228,14 +277,70 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                     </span>
                   )}
                 </div>
-                <p className="text-[13px] text-[#14100d] leading-[1.7] mb-1">
+                <p className="text-[13px] text-[#14100d] leading-[1.7] mb-1" style={{ fontFamily: 'Special Elite, monospace' }}>
                   from <span className="text-[#14100d] font-semibold">{donor}</span>
                   {donorType && <span className="text-[#14100d]"> · {donorType}</span>}
+                  {recipientType && <span className="text-[#14100d]"> · recipient: {recipientType}</span>}
                 </p>
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[14px] text-[#14100d] font-mono uppercase tracking-[0.15em]">
-                  {receivedDate && <span>{receivedDate}</span>}
-                  {nature && <span>· Type: {nature}</span>}
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-[#14100d] uppercase tracking-[0.15em]" style={{ fontFamily: 'Special Elite, monospace' }}>
+                  {acceptedDate && <span>Accepted {acceptedDate}</span>}
+                  {!acceptedDate && receivedDate && <span>Received {receivedDate}</span>}
+                  {donationType && <span>· {donationType}</span>}
+                  {nature && <span>· {nature}</span>}
+                  {reportingPeriod && <span>· Reported {reportingPeriod}</span>}
                 </div>
+
+                {flags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {flags.map((f) => (
+                      <span
+                        key={f.label}
+                        className="text-[10px] uppercase tracking-[0.2em] font-bold px-2 py-0.5"
+                        style={{
+                          fontFamily: 'Special Elite, monospace',
+                          background: f.tone === 'warn' ? 'rgba(122,22,18,0.12)' : 'rgba(20,16,13,0.06)',
+                          color: f.tone === 'warn' ? ACCENT : '#14100d',
+                          border: `1px solid ${f.tone === 'warn' ? 'rgba(122,22,18,0.35)' : 'rgba(20,16,13,0.18)'}`,
+                        }}
+                      >
+                        {f.label}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <details className="mt-3">
+                  <summary
+                    className="cursor-pointer text-[11px] uppercase tracking-[0.2em] text-[#14100d]/70 font-bold inline-block"
+                    style={{ fontFamily: 'Special Elite, monospace' }}
+                  >
+                    Full record ▾
+                  </summary>
+                  <dl
+                    className="mt-2 grid grid-cols-1 sm:grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-[12px] leading-[1.65]"
+                    style={{ fontFamily: 'Special Elite, monospace' }}
+                  >
+                    {cashValue && cashValue !== amount && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Cash value</dt><dd className="text-[#14100d]">{cashValue}</dd></>)}
+                    {nonCashValue && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Non-cash value</dt><dd className="text-[#14100d]">{nonCashValue}</dd></>)}
+                    {receivedDate && receivedDate !== acceptedDate && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Received</dt><dd className="text-[#14100d]">{receivedDate}</dd></>)}
+                    {reportedDate && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Reported to EC</dt><dd className="text-[#14100d]">{reportedDate}</dd></>)}
+                    {mannerInWhichMade && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Manner</dt><dd className="text-[#14100d]">{mannerInWhichMade}</dd></>)}
+                    {purposeOfVisit && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Purpose of visit</dt><dd className="text-[#14100d]">{purposeOfVisit}</dd></>)}
+                    {positionStandingFor && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Position standing for</dt><dd className="text-[#14100d]">{positionStandingFor}</dd></>)}
+                    {campaigningName && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Campaigning name</dt><dd className="text-[#14100d]">{campaigningName}</dd></>)}
+                    {accountingUnitName && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Accounting unit</dt><dd className="text-[#14100d]">{accountingUnitName}</dd></>)}
+                    {donationAction && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Action</dt><dd className="text-[#14100d]">{donationAction}</dd></>)}
+                    {impermissibilityReason && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]" style={{ color: ACCENT }}>Impermissibility</dt><dd style={{ color: ACCENT }}>{impermissibilityReason}</dd></>)}
+                    {concealmentDetails && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]" style={{ color: ACCENT }}>Concealment</dt><dd style={{ color: ACCENT }}>{concealmentDetails}</dd></>)}
+                    {trustName && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Trust name</dt><dd className="text-[#14100d]">{trustName}</dd></>)}
+                    {trustCreatorName && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Trust creator</dt><dd className="text-[#14100d]">{trustCreatorName}{trustCreatorStatus ? ` · ${trustCreatorStatus}` : ''}</dd></>)}
+                    {trustCreatedDate && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Trust created</dt><dd className="text-[#14100d]">{trustCreatedDate}</dd></>)}
+                    {companyRegNumber && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Company no.</dt><dd className="text-[#14100d]">{companyRegNumber}</dd></>)}
+                    {addressParts.length > 0 && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Donor address</dt><dd className="text-[#14100d]">{addressParts.join(', ')}</dd></>)}
+                    {explanatoryNotes && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">EC notes</dt><dd className="text-[#14100d] whitespace-pre-line">{explanatoryNotes}</dd></>)}
+                    {ecRef && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">EC reference</dt><dd className="text-[#14100d] font-mono">{ecRef}</dd></>)}
+                  </dl>
+                </details>
               </li>
             )
           })}

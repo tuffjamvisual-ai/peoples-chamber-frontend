@@ -33,6 +33,7 @@
     { "path": "/api/sync-govuk-data",             "schedule": "0 6 * * 3" },
     { "path": "/api/sync-ministers-meetings",     "schedule": "0 6 * * 0" },
     { "path": "/api/sync-ministers-hospitality",  "schedule": "0 9 * * 0" },
-    { "path": "/api/sync-registered-interests",   "schedule": "0 8 * * *" }
+    { "path": "/api/sync-registered-interests",   "schedule": "0 8 * * *" },
+    { "path": "/api/sync-electoral-commission-donations", "schedule": "0 10 * * 1" }
   ]
 }
