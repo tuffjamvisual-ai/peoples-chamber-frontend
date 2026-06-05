@@ -178,7 +178,7 @@ export default function DossierShell({
       <style>{`
         /* Folder placement: centred horizontally on all screen sizes. Built from
            3 image slices (top/mid/bottom) so it stretches to any height. -114.2%
-           top margin = -(1 - 0.24) * (1537/1023) — overlaps the masthead at ~24%
+           top margin = -(1 - 0.24) * (1537/1023), overlaps the masthead at ~24%
            so the folder hugs the nav bar tightly.
            Horizontal: was 1.5% right / 3.5% left for an intentional off-centre
            bias toward the right side. User flagged the left whitespace as too
