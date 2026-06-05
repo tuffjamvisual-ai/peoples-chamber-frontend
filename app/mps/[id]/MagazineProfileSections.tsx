@@ -788,8 +788,13 @@ export default function MagazineProfileSections({
               )}
 
               <p style={{ marginTop: '20px', fontSize: '12px', opacity: 0.6, lineHeight: 1.55 }}>
-                Base salary is set by IPSA and reviewed annually each 1 April. The ministerial supplement has been frozen at 2010 levels by successive prime ministers; figures shown are the rates actually drawn, not the statutory entitlement. Outside earnings come from the Register of Members&rsquo; Financial Interests and reflect cumulative declarations since this Parliament started; the Register is updated as MPs declare, typically within two weeks of the payment. Public spend is the most recent closed IPSA financial year on file — the current year is not totalled until IPSA reconciles year-end.
+                Base salary is set by IPSA and reviewed annually each 1 April. The ministerial supplement has been frozen at 2010 levels by successive prime ministers; figures shown are the rates actually drawn, not the statutory entitlement. Outside earnings come from the Register of Members&rsquo; Financial Interests and reflect cumulative declarations since this Parliament started; the Register is updated as MPs declare, typically within two weeks of the payment. Public spend is the most recent closed IPSA financial year on file, the current year is not totalled until IPSA reconciles year-end.
               </p>
+              {rows.some((r) => r.acoba) && (
+                <p style={{ marginTop: '12px', fontSize: '12px', opacity: 0.6, lineHeight: 1.55 }}>
+                  <strong>ACOBA</strong> is the Advisory Committee on Business Appointments, the independent body that vets new jobs taken by former ministers and senior officials in the two years after they leave government. It reviews each role for conflicts of interest and can recommend conditions such as lobbying bans or waiting periods, though it cannot block an appointment. &ldquo;ACOBA: Yes&rdquo; means the appointment was submitted for review; &ldquo;ACOBA: No&rdquo; means it was not, which is sometimes legitimate (the rules did not apply) and sometimes a story (an ex-minister bypassing the vetting).
+                </p>
+              )}
             </>
           );
         })()}
