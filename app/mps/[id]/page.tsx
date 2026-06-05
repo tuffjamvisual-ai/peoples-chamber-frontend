@@ -21,10 +21,15 @@ export const revalidate = 21600;
 
 interface PageProps {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ vp?: string; section?: string }>;
+  searchParams: Promise<{ vp?: string; section?: string; vq?: string }>;
 }
 
 const VOTES_PER_PAGE = 20;
+
+// Treat the query as a plain literal — escape PostgREST ILIKE wildcards.
+function escapeIlike(s: string): string {
+  return s.replace(/[\\%_]/g, (m) => `\\${m}`);
+}
 
 // Cabinet-only prerender. Prerendering all 650 MPs saturated Vercel's
 // 3-worker build (Supabase code 57014 statement timeouts). Prerendering
@@ -120,6 +125,10 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
   const voteStart = (votePage - 1) * VOTES_PER_PAGE;
   const voteEnd = voteStart + VOTES_PER_PAGE - 1;
   const initialSection = sp.section ?? null;
+  // Per-page search just over the voting record's division titles.
+  // Server-side so it survives no-JS / crawler access and paginates
+  // cleanly. Trim + length-cap to keep the URL well-behaved.
+  const voteQuery = (sp.vq ?? '').trim().slice(0, 80);
 
   // All fetches in one parallel round-trip. The mp lookup was previously
   // awaited before this block, costing an extra serial round-trip on every
@@ -151,18 +160,27 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
     // 20-per-page paginated voting record. ParlParse backfill (2026-06-05)
     // means some MPs now have hundreds of votes — Abbott alone has 308 —
     // so the previous bulk 999-row fetch became a heavy cold payload.
-    supabase
-      .from('mp_division_votes')
-      .select('id, division_title, division_date, vote_type, is_rebellion, bill_id, division_id, division_date_only, division_number')
-      .eq('member_id', memberId)
-      .order('division_date', { ascending: false })
-      .range(voteStart, voteEnd),
+    // When ?vq= is set the same filter is applied to both the list query
+    // and the count query so totalPages reflects the matches, not all
+    // votes.
+    (() => {
+      let q = supabase
+        .from('mp_division_votes')
+        .select('id, division_title, division_date, vote_type, is_rebellion, bill_id, division_id, division_date_only, division_number')
+        .eq('member_id', memberId);
+      if (voteQuery) q = q.ilike('division_title', `%${escapeIlike(voteQuery)}%`);
+      return q.order('division_date', { ascending: false }).range(voteStart, voteEnd);
+    })(),
     // Total count for the pagination footer + the "N divisions recorded"
     // summary line. head:true => no rows transferred, just the count.
-    supabase
-      .from('mp_division_votes')
-      .select('id', { count: 'exact', head: true })
-      .eq('member_id', memberId),
+    (() => {
+      let q = supabase
+        .from('mp_division_votes')
+        .select('id', { count: 'exact', head: true })
+        .eq('member_id', memberId);
+      if (voteQuery) q = q.ilike('division_title', `%${escapeIlike(voteQuery)}%`);
+      return q;
+    })(),
     supabase.from('mp_registered_interests').select('*').eq('member_id', memberId).order('category_sort_order', { ascending: true }),
     supabase.from('mp_expenses_summary').select('*').eq('member_id', memberId).order('year', { ascending: false }),
     // Most-recent 50 claims — UI shows them on the expanded Expenses
@@ -274,6 +292,7 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
         votePage,
         votesPerPage: VOTES_PER_PAGE,
         initialSection,
+        voteQuery,
         sponsoredBills: sponsoredBillsRes.data || [],
         interests: interestsRes.data || [],
         bio: bioRes.data,

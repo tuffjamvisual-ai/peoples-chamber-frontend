@@ -77,6 +77,8 @@ interface Props {
   votesPerPage?: number;
   /** When set (via ?section= on the URL), opens the named section on mount. */
   initialSection?: string | null;
+  /** Server-evaluated search term applied to the voting record's titles. */
+  voteQuery?: string;
   sponsoredBills: Bill[];
   interests: Interest[];
   bio: {
@@ -138,6 +140,7 @@ export default function MagazineProfileSections({
   votePage = 1,
   votesPerPage = 20,
   initialSection = null,
+  voteQuery = '',
   sponsoredBills,
   interests,
   bio,
@@ -326,8 +329,78 @@ export default function MagazineProfileSections({
         {active === 'voting' && (
           <>
             <h2 style={sectionH2}>Voting Record</h2>
+
+            {/* Per-section search. Native HTML <form> with GET so it works
+                without JS and the URL captures the query for sharing.
+                Submitting always lands on page 1 of the matches. */}
+            <form
+              action={`/mps/${memberId}`}
+              method="GET"
+              style={{
+                display: 'flex',
+                gap: '6px',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                marginBottom: '16px',
+                fontFamily: 'Special Elite, monospace',
+                fontSize: '14px',
+              }}
+            >
+              <input type="hidden" name="section" value="voting" />
+              <input type="hidden" name="vp" value="1" />
+              <input
+                type="search"
+                name="vq"
+                defaultValue={voteQuery}
+                placeholder="Search this MP's votes…"
+                aria-label="Search voting record"
+                style={{
+                  flex: '1 1 220px',
+                  minWidth: 0,
+                  padding: '6px 10px',
+                  fontFamily: 'Special Elite, monospace',
+                  fontSize: '14px',
+                  color: '#14100d',
+                  border: '1px solid rgba(20,16,13,0.3)',
+                  background: 'transparent',
+                }}
+              />
+              <button
+                type="submit"
+                style={{
+                  padding: '6px 14px',
+                  fontFamily: 'Special Elite, monospace',
+                  fontSize: '13px',
+                  letterSpacing: '0.04em',
+                  color: '#14100d',
+                  border: '1px solid rgba(20,16,13,0.3)',
+                  background: 'transparent',
+                  cursor: 'pointer',
+                }}
+              >
+                Search
+              </button>
+              {voteQuery && (
+                <Link
+                  href={`/mps/${memberId}?section=voting`}
+                  style={{ ...inkLink, fontSize: '13px', marginLeft: '4px' }}
+                >
+                  Clear
+                </Link>
+              )}
+            </form>
+
             <p style={{ marginBottom: '16px' }}>
-              <strong>{(totalVotes ?? votes.length).toLocaleString()}</strong> divisions recorded
+              {voteQuery ? (
+                <>
+                  <strong>{(totalVotes ?? votes.length).toLocaleString()}</strong>{' '}
+                  match{(totalVotes ?? votes.length) === 1 ? '' : 'es'} for &ldquo;{voteQuery}&rdquo;
+                </>
+              ) : (
+                <>
+                  <strong>{(totalVotes ?? votes.length).toLocaleString()}</strong> divisions recorded
+                </>
+              )}
               {(totalVotes ?? votes.length) > votesPerPage && (
                 <>
                   {' '}
@@ -378,10 +451,22 @@ export default function MagazineProfileSections({
                   currentPage={votePage}
                   totalPages={Math.ceil((totalVotes ?? votes.length) / votesPerPage)}
                   baseUrl={`/mps/${memberId}`}
-                  qsExtra="&section=voting"
+                  qsExtra={`&section=voting${voteQuery ? `&vq=${encodeURIComponent(voteQuery)}` : ''}`}
                   pageParam="vp"
                 />
               </div>
+            )}
+
+            {/* Empty-state when a search returns nothing. The clear link
+                routes back to the unfiltered first page. */}
+            {voteQuery && votes.length === 0 && (
+              <p style={{ marginTop: '20px', fontStyle: 'italic', opacity: 0.7 }}>
+                No divisions matched &ldquo;{voteQuery}&rdquo;.{' '}
+                <Link href={`/mps/${memberId}?section=voting`} style={inkLink}>
+                  Show all
+                </Link>
+                .
+              </p>
             )}
           </>
         )}
