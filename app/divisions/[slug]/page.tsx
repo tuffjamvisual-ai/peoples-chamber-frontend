@@ -209,13 +209,31 @@ export default async function DivisionDetailPage({ params }: PageProps) {
         )}
       </header>
 
-      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '16px', marginBottom: '40px' }}>
-        <Stat label="Ayes" value={ayes.length} accent={SUCCESS} />
-        <Stat label="Noes" value={noes.length} accent={DANGER} />
-        <Stat label="Margin" value={ayes.length - noes.length} accent={ACCENT} />
-        <Stat label="MPs recorded" value={votes.length} accent={INK_SOFT} />
-        {tellers.length > 0 && <Stat label="Tellers" value={tellers.length} accent={INK_SOFT} />}
-      </section>
+      {/* Single typewriter line — sits naturally in the dossier paper layout
+          where boxy stat cells would feel out of place. Margin sign reflects
+          the result (positive = ayes won). */}
+      <p
+        style={{
+          fontFamily: '"Special Elite", monospace',
+          fontSize: 'clamp(14px, 1.7vw, 18px)',
+          marginBottom: '32px',
+          lineHeight: 1.6,
+          transform: 'rotate(-0.15deg)',
+        }}
+      >
+        <span style={{ color: SUCCESS, fontWeight: 'bold' }}>{ayes.length} Aye</span>
+        {'  /  '}
+        <span style={{ color: DANGER, fontWeight: 'bold' }}>{noes.length} No</span>
+        {'  ·  '}
+        <span style={{ color: ACCENT }}>
+          {ayes.length > noes.length ? 'majority ' : ayes.length < noes.length ? 'lost by ' : 'tied · margin '}
+          {Math.abs(ayes.length - noes.length)}
+        </span>
+        {'  ·  '}
+        {votes.length} MPs recorded
+        {tellers.length > 0 && <>{'  ·  '}{tellers.length} tellers</>}
+        {boths.length > 0 && <>{'  ·  '}{boths.length} both</>}
+      </p>
 
       <section style={{ marginBottom: '40px' }}>
         <h2 style={sectionH2}>How MPs voted</h2>
@@ -256,15 +274,6 @@ const sectionH2: React.CSSProperties = {
   borderBottom: `1px solid ${INK_HAIRLINE}`,
   paddingBottom: '8px',
 };
-
-function Stat({ label, value, accent }: { label: string; value: number; accent: string }) {
-  return (
-    <div style={{ background: CREAM, padding: '16px', border: `1px solid ${INK_HAIRLINE}` }}>
-      <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
-      <div style={{ fontSize: '28px', fontWeight: 'bold', color: accent, fontFamily: '"Special Elite", monospace' }}>{value}</div>
-    </div>
-  );
-}
 
 function VoteColumn({
   heading,
