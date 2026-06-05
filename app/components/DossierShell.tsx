@@ -129,11 +129,12 @@ const HOTSPOTS: Hotspot[] = [
   { label: 'Bottom Left Area', href: '/mps', xPct: 6.0, yPct: 75.0, wPct: 27.0, hPct: 14.0 },
   { label: 'Bottom Centre Area', href: '/polls', xPct: 37.0, yPct: 75.0, wPct: 27.0, hPct: 14.0 },
   { label: 'Bottom Right Area', href: '/departments', xPct: 68.0, yPct: 75.0, wPct: 26.0, hPct: 14.0 },
-  { label: 'X', href: 'https://x.com', xPct: 15.0, yPct: 94.0, wPct: 2.5, hPct: 2.0 },
-  { label: 'Facebook', href: 'https://facebook.com', xPct: 20.0, yPct: 94.0, wPct: 2.5, hPct: 2.0 },
-  { label: 'Instagram', href: 'https://instagram.com', xPct: 24.5, yPct: 94.0, wPct: 2.5, hPct: 2.0 },
-  { label: 'YouTube', href: 'https://youtube.com', xPct: 29.0, yPct: 94.0, wPct: 2.5, hPct: 2.0 },
-  { label: 'LinkedIn', href: 'https://linkedin.com', xPct: 34.0, yPct: 94.0, wPct: 2.5, hPct: 2.0 },
+  // Social media hotspots (X, Facebook, Instagram, YouTube, LinkedIn)
+  // removed 2026-06-05. They pointed at the bare social-site homepages
+  // (https://x.com etc.) rather than at real Peoples Chamber accounts,
+  // so they were inactive placeholders that shipped on every page as
+  // external outbound links. Restore here with proper account URLs when
+  // the accounts exist.
   { label: 'SUPPORT US', href: '/support', xPct: 49.0, yPct: 93.8, wPct: 10.0, hPct: 2.5 },
   { label: 'ACCOUNT/INFO', href: '/login', xPct: 68.0, yPct: 93.8, wPct: 14.0, hPct: 2.5 },
 ];
