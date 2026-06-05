@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { supabase } from '@/lib/supabase';
 import MagazineMPsClient from './MagazineMPsClient';
+import AllMpsIndex from './AllMpsIndex';
 import DossierShell from '../components/DossierShell';
 
 export const revalidate = 3600;
@@ -45,6 +46,15 @@ export default async function MPsPage({
       <Suspense fallback={<div style={{ minHeight: '400px' }} />}>
         <MagazineMPsClient mps={mps} expand={expand} key={expand ?? 'all'} />
       </Suspense>
+
+      <AllMpsIndex
+        mps={mps.map((m) => ({
+          member_id: m.member_id,
+          name: m.name,
+          party: m.party,
+          constituency: m.constituency,
+        }))}
+      />
     </DossierShell>
   );
 }

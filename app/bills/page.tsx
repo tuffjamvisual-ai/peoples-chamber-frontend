@@ -5,6 +5,7 @@ import BillsGridMobile from '../components/BillsGridMobile';
 import ScrollToTopButton from '../components/ScrollToTopButton';
 import DossierShell from '../components/DossierShell';
 import BackLink from '../components/BackLink';
+import AllBillsIndex from './AllBillsIndex';
 
 const BILLS_PER_PAGE = 20;
 
@@ -58,6 +59,8 @@ export default async function BillsPage({ searchParams }: PageProps) {
       <div className="hidden md:block">
         <BillsGrid initialBills={bills} currentPage={page} totalPages={totalPages} />
       </div>
+
+      <AllBillsIndex />
 
       <ScrollToTopButton />
     </DossierShell>
