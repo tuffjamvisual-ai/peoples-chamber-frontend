@@ -47,7 +47,7 @@ const REPORTS: Report[] = [
     bandD: 2755,
     body: `Nottingham residents now pay the third highest council tax in England, behind only Dorset and Lewes. Among major cities it is the most expensive in the country. For a city that declared itself bankrupt three years ago, that fact lands heavily.
 
-For years, Nottingham City Council pursued ambitious projects and investments intended to generate income and reduce reliance on central government funding. The most famous was Robin Hood Energy, a council-owned energy company that ultimately collapsed after losses running into tens of millions of pounds.
+For years, Nottingham City Council pursued ambitious projects and investments intended to generate income and reduce reliance on central government funding. The most famous was Robin Hood Energy, a council owned energy company that ultimately collapsed after losses running into tens of millions of pounds.
 
 The council effectively declared itself bankrupt in 2023 after issuing a Section 114 notice. Few events damage public confidence more severely than a council admitting it cannot balance its books.
 
@@ -71,7 +71,7 @@ Being England's smallest historic county means delivering services to approximat
 
 The result is predictable: the second highest council tax in England.
 
-Unlike some councils on this list, Rutland is not associated with scandal, financial collapse or major governance failures. In many respects it is a reasonably well-run authority. The £66.57 increase from 2025/26 was the smallest rise on this list, suggesting the council is not aggressively hiking charges.
+Unlike some councils on this list, Rutland is not associated with scandal, financial collapse or major governance failures. In many respects it is a reasonably well run authority. The £66.57 increase from 2025/26 was the smallest rise on this list, suggesting the council is not aggressively hiking charges.
 
 The problem is perception.
 
@@ -95,11 +95,11 @@ The reality is more complicated.
 
 Gateshead Council has a strong case when it points to years of government funding reductions, rising demand for adult social care and increasing pressure on children's services. The council's own explanation is direct: a low tax base means areas like Gateshead appear to have disproportionately high council tax compared to other authorities. They are not wrong. These are genuine financial burdens faced by councils across the country.
 
-The council can also point to real achievements. Regeneration around Gateshead Quays has transformed parts of the borough. Investment has attracted visitors, businesses and cultural institutions. In terms of ambition, Gateshead has often looked more forward-thinking than many comparable northern authorities.
+The council can also point to real achievements. Regeneration around Gateshead Quays has transformed parts of the borough. Investment has attracted visitors, businesses and cultural institutions. In terms of ambition, Gateshead has often looked more forward thinking than many comparable northern authorities.
 
 Yet residents do not live in regeneration brochures.
 
-Away from the waterfront developments and flagship projects, a different picture emerges. Concerns about litter, anti-social behaviour, struggling high streets and tired public spaces remain familiar complaints. Many residents paying over £2,700 a year are entitled to ask why visible neighbourhood improvements do not always seem to match the scale of the tax bill landing on their doormat.
+Away from the waterfront developments and flagship projects, a different picture emerges. Concerns about litter, anti social behaviour, struggling high streets and tired public spaces remain familiar complaints. Many residents paying over £2,700 a year are entitled to ask why visible neighbourhood improvements do not always seem to match the scale of the tax bill landing on their doormat.
 
 Supporters argue the council is being judged unfairly. Social care now consumes huge portions of local authority budgets, leaving less money available for the services residents actually see.
 
@@ -125,7 +125,7 @@ The council excels at developing ambitious visions. Climate strategies, transpor
 
 Delivery is another matter.
 
-Critics argue Bristol has become a city where consultation documents multiply faster than practical improvements. Residents often hear about long-term transformation while dealing with short-term frustrations.
+Critics argue Bristol has become a city where consultation documents multiply faster than practical improvements. Residents often hear about long term transformation while dealing with short term frustrations.
 
 Supporters counter that Bristol's growth creates many of its challenges. More people means greater pressure on housing, roads and services.
 
@@ -152,7 +152,7 @@ The authority has improved since intervention began. Reforms have been implement
 
 But trust lost is not easily regained.
 
-Residents paying over £2,670 annually are entitled to ask why a council charging so much needed central government intervention in the first place. The £127 year-on-year increase means the bill is climbing faster than many household incomes.`,
+Residents paying over £2,670 annually are entitled to ask why a council charging so much needed central government intervention in the first place. The £127 year on year increase means the bill is climbing faster than many household incomes.`,
     verdict: 'Improving, but past failures continue to undermine confidence.',
   },
   {
@@ -167,7 +167,7 @@ The council deserves praise for maintaining financial stability and achieving st
 
 Yet outside official reports, many residents tell a different story.
 
-Town centre decline, anti-social behaviour and economic stagnation dominate local conversations. Too many areas appear stuck between regeneration promises and visible reality.
+Town centre decline, anti social behaviour and economic stagnation dominate local conversations. Too many areas appear stuck between regeneration promises and visible reality.
 
 The council's defence is familiar: demand is rising, funding is tight and social care consumes growing proportions of the budget.
 
@@ -209,7 +209,7 @@ A prosperous town should make local government easier, not harder.`,
 
 The county stretches across vast rural areas. Roads must be maintained across enormous distances. Services must reach isolated communities. Transport costs are higher. Everything costs more.
 
-Unlike urban authorities, Northumberland cannot rely on dense populations to spread costs. The £132 year-on-year increase reflects both rising service costs and the structural disadvantage of serving England's most sparsely populated county.
+Unlike urban authorities, Northumberland cannot rely on dense populations to spread costs. The £132 year on year increase reflects both rising service costs and the structural disadvantage of serving England's most sparsely populated county.
 
 The council's challenge is convincing residents that higher taxation genuinely reflects those realities rather than inefficiency.
 
@@ -230,7 +230,7 @@ The first is the city centre. Regeneration, investment, universities and busines
 
 The second story lies beyond the showcase areas.
 
-Residents frequently raise concerns about road conditions, litter, anti-social behaviour and neighbourhood decline. Critics argue that the city often looks strongest where visitors spend time and weakest where residents live.
+Residents frequently raise concerns about road conditions, litter, anti social behaviour and neighbourhood decline. Critics argue that the city often looks strongest where visitors spend time and weakest where residents live.
 
 The council deserves credit for attracting investment and navigating difficult financial pressures.
 
@@ -251,7 +251,7 @@ Yet the council faces a recurring criticism.
 
 Residents see cranes, construction projects and ambitious announcements, but often struggle to identify equivalent improvements in everyday services.
 
-Road conditions, neighbourhood maintenance and local concerns frequently receive less attention than headline-grabbing regeneration schemes.
+Road conditions, neighbourhood maintenance and local concerns frequently receive less attention than headline grabbing regeneration schemes.
 
 Supporters argue the council is planning for the future.
 
@@ -261,7 +261,7 @@ Both sides have a point.
 
 The challenge facing Coventry is proving that investment eventually benefits every part of the city rather than a select number of flagship projects.`,
     verdict:
-      'Ambitious and forward-looking, but many residents remain unconvinced they are receiving full value for a £2,517 annual bill.',
+      'Ambitious and forward looking, but many residents remain unconvinced they are receiving full value for a £2,517 annual bill.',
   },
 ];
 
