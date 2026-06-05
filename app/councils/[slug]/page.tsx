@@ -85,7 +85,8 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
 
   const hasFinance = c.council_tax_band_d_pounds != null || c.revenue_budget_mn != null;
   const hasLeadership = c.political_control != null || c.leader_name != null || c.chief_exec != null;
-  const hasOverview = c.population != null || c.founded_year != null || c.website_url != null;
+  const hasOverview =
+    c.population != null || c.founded_year != null || c.website_url != null || c.wikipedia_url != null;
 
   return (
     <DossierShell>
@@ -167,6 +168,13 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
               <DataRow label="Website" value={
                 <a href={c.website_url} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>
                   {c.website_url.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                </a>
+              } />
+            )}
+            {c.wikipedia_url && (
+              <DataRow label="Wikipedia" value={
+                <a href={c.wikipedia_url} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>
+                  Read on Wikipedia
                 </a>
               } />
             )}
