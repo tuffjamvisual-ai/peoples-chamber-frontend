@@ -24,6 +24,12 @@ interface MpDossierProps {
   partyIsCoop: boolean;
   photoUrl: string | null;
   sections: React.ComponentProps<typeof MagazineProfileSections>;
+  /** Optional footer slot rendered inside the dossier folder (e.g. RelatedLinks).
+      Pages used to render this OUTSIDE the dossier — that worked fine when
+      voting records were 999 items long because the folder always stretched
+      past it. Now that votes paginate at 20/page the folder ends quickly and
+      anything placed outside floated on the dossier shell's dark background. */
+  footer?: React.ReactNode;
 }
 
 export default function MpDossier({
@@ -36,6 +42,7 @@ export default function MpDossier({
   partyIsCoop,
   photoUrl,
   sections,
+  footer,
 }: MpDossierProps) {
   const backHref = `/mps?expand=${encodeURIComponent(partyExpand)}#mps-list`;
 
@@ -115,6 +122,8 @@ export default function MpDossier({
       <div className="pca-sections" style={{ zoom: 1.18 }}>
         <MagazineProfileSections {...sections} memberId={memberId} jsSticky stickyScale={1.18} compactExpenses />
       </div>
+
+      {footer && <div style={{ marginTop: '48px' }}>{footer}</div>}
 
       <ScrollToTopButton />
     </DossierShell>

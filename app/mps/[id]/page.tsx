@@ -241,6 +241,22 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
       partyColour={partyColour}
       partyIsCoop={partyIsCoop}
       photoUrl={mp.photo_url ?? null}
+      footer={
+        <RelatedLinks
+          variant="mp"
+          memberId={memberId}
+          party={partyDisplay || mp.party}
+          partySlug={null}
+          ministerialDeptSlug={(ministerialRowsRes.data || [])[0]?.dept_slug ?? null}
+          ministerialDeptName={null}
+          votes={votesWithSi}
+          sponsoredBills={(sponsoredBillsRes.data || []).map((b) => ({
+            id: b.id,
+            title: b.title,
+            current_stage: b.current_stage,
+          }))}
+        />
+      }
       sections={{
         memberId,
         paragraphs: (bioRes.data?.political_bio ?? '').split(/\n\n+/).map((p: string) => p.trim()).filter((p: string) => p.length > 0),
@@ -266,22 +282,6 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
         expensesDetail: expensesDetailRes.data || [],
       }}
     />
-    <div style={{ maxWidth: '780px', margin: '0 auto', padding: '0 6%' }}>
-      <RelatedLinks
-        variant="mp"
-        memberId={memberId}
-        party={partyDisplay || mp.party}
-        partySlug={null}
-        ministerialDeptSlug={(ministerialRowsRes.data || [])[0]?.dept_slug ?? null}
-        ministerialDeptName={null}
-        votes={votesWithSi}
-        sponsoredBills={(sponsoredBillsRes.data || []).map((b) => ({
-          id: b.id,
-          title: b.title,
-          current_stage: b.current_stage,
-        }))}
-      />
-    </div>
     </>
   );
 }
