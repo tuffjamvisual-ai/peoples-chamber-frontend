@@ -90,7 +90,7 @@ function Pagination({
         ← Previous
       </button>
       <span className="text-[14px] font-mono text-[#14100d] uppercase tracking-[0.15em]">
-        {start}–{end} of {filteredCount.toLocaleString()}
+        {start}-{end} of {filteredCount.toLocaleString()}
       </span>
       <button
         onClick={onNext}

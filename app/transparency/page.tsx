@@ -7,7 +7,7 @@ import JsonLd from '@/lib/JsonLd';
 export const revalidate = 3600
 
 export const metadata: Metadata = {
-  title: "UK Government Transparency — Lobbying, Donations, Hospitality, Contracts",
+  title: "UK Government Transparency, Lobbying, Donations, Hospitality, Contracts",
   description:
     "Seven UK government transparency datasets: ministers' meetings, lobbying contacts, hospitality declarations, revolving door, political donations, public contracts and daily press releases.",
   alternates: { canonical: '/transparency' },

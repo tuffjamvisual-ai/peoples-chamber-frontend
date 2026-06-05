@@ -8,7 +8,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     .join(' ')
   return {
     title: niceName,
-    description: `${niceName} — current roles, financial interests and political career on The People’s Chamber.`,
+    description: `${niceName}, current roles, financial interests and political career on The People’s Chamber.`,
     alternates: { canonical: `/people/${slug}` },
   }
 }

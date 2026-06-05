@@ -6,7 +6,7 @@ import BackLink from '../components/BackLink';
 export const metadata: Metadata = {
   title: 'About',
   description:
-    'About The People’s Chamber — methodology, sources and editorial principles for our UK political transparency project.',
+    'About The People’s Chamber, methodology, sources and editorial principles for our UK political transparency project.',
   alternates: { canonical: '/about' },
 };
 

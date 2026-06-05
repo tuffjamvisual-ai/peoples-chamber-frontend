@@ -11,9 +11,9 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 600
 
 export const metadata: Metadata = {
-  title: 'UK Laws — every Act of Parliament',
+  title: 'UK Laws, every Act of Parliament',
   description:
-    'Browse Acts of the UK Parliament that have received Royal Assent — searchable, filterable, with original sponsor and stage history.',
+    'Browse Acts of the UK Parliament that have received Royal Assent, searchable, filterable, with original sponsor and stage history.',
   alternates: { canonical: '/laws' },
 }
 

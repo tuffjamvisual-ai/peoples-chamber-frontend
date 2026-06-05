@@ -53,7 +53,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!data) return { title: 'Council not found' };
   return {
     title: `${data.name} | The People’s Chamber`,
-    description: `${data.name} — ${data.type_label}, ${data.country}.`,
+    description: `${data.name}, ${data.type_label}, ${data.country}.`,
     alternates: { canonical: `/councils/${slug}` },
   };
 }

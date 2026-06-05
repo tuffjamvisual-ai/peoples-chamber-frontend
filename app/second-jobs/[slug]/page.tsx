@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const label = slugToLabel(slug);
   return {
     title: `${label} MPs with second jobs`,
-    description: `Every ${label} MP with declared outside earnings — click through for each MP's full payment breakdown.`,
+    description: `Every ${label} MP with declared outside earnings, click through for each MP's full payment breakdown.`,
     alternates: { canonical: `/second-jobs/${slug}` },
   };
 }

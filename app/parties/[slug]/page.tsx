@@ -116,7 +116,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { data: party } = await supabase.from('parties').select('name').eq('slug', slug).maybeSingle();
   const name = party?.name || 'Party';
   return {
-    title: `${name} — Policies | The People's Chamber`,
+    title: `${name}, Policies | The People's Chamber`,
     description: `${name}'s 2024 General Election manifesto positions across 11 themes, with post-election shifts tracked.`,
     alternates: { canonical: `/parties/${slug}` },
   };

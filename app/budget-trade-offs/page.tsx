@@ -189,7 +189,7 @@ export default function BudgetTradeOffsPage() {
             What would it cost to fix everything?
           </h1>
           <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.7, color: INK_SOFT, maxWidth: '46em' }}>
-            Britain's £900bn departmental budget — what each department says it needs to
+            Britain's £900bn departmental budget, what each department says it needs to
             function properly, what's realistically available, and the five fundamental
             choices Parliament keeps refusing to make. Companion to the per-department
             Institutional Performance Reports.

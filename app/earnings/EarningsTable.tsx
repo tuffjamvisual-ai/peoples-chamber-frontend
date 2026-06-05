@@ -184,16 +184,16 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
                 </td>
                 <td className="px-2 py-3 text-right text-[#14100d] tabular-nums whitespace-nowrap">{fmtMoney(r.base)}</td>
                 <td className={`px-2 py-3 text-right tabular-nums whitespace-nowrap ${r.ministerial ? 'text-[#14100d]' : 'text-[#14100d]/40'}`}>
-                  {r.ministerial ? fmtMoney(r.ministerial) : '—'}
+                  {r.ministerial ? fmtMoney(r.ministerial) : ', '}
                 </td>
                 <td className={`px-2 py-3 text-right tabular-nums whitespace-nowrap ${r.outside ? 'text-[#14100d]' : 'text-[#14100d]/40'}`}>
-                  {r.outside ? fmtMoney(r.outside) : '—'}
+                  {r.outside ? fmtMoney(r.outside) : ', '}
                 </td>
                 <td className="px-2 py-3 text-right text-[#14100d] font-semibold tabular-nums whitespace-nowrap">
                   {fmtMoney(r.personal_total)}
                 </td>
                 <td className={`px-2 py-3 text-right tabular-nums whitespace-nowrap ${r.public_spend ? 'text-[#14100d]' : 'text-[#14100d]/40'}`}>
-                  {r.public_spend ? fmtMoney(r.public_spend) : '—'}
+                  {r.public_spend ? fmtMoney(r.public_spend) : ', '}
                 </td>
               </tr>
             )

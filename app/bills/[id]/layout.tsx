@@ -50,7 +50,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     : bill.is_defeated
     ? 'Defeated.'
     : bill.commons_division_id != null
-    ? `MPs voted ${bill.commons_ayes ?? 0}–${bill.commons_noes ?? 0}.`
+    ? `MPs voted ${bill.commons_ayes ?? 0}-${bill.commons_noes ?? 0}.`
     : bill.current_stage
     ? `Currently at ${bill.current_stage}.`
     : '';
@@ -67,7 +67,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? `${description} Sponsored by ${sponsorName}.`
       : `Sponsored by ${sponsorName}.`;
   if (!description)
-    description = `${title} — UK Parliament bill summary, voting record and how the public would vote.`;
+    description = `${title}, UK Parliament bill summary, voting record and how the public would vote.`;
   if (description.length > 200)
     description = description.slice(0, 197).trimEnd() + '…';
 

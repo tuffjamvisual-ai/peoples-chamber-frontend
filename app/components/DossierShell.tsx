@@ -155,10 +155,10 @@ function computeIssue(now: Date) {
   const sm = MONTHS[start.getMonth()], em = MONTHS[end.getMonth()];
   const dateRange =
     start.getFullYear() !== end.getFullYear()
-      ? `${sm} ${start.getDate()}, ${start.getFullYear()} – ${em} ${end.getDate()}, ${end.getFullYear()}`
+      ? `${sm} ${start.getDate()}, ${start.getFullYear()} - ${em} ${end.getDate()}, ${end.getFullYear()}`
       : start.getMonth() !== end.getMonth()
-        ? `${sm} ${start.getDate()} – ${em} ${end.getDate()}, ${end.getFullYear()}`
-        : `${sm} ${start.getDate()}–${end.getDate()}, ${end.getFullYear()}`;
+        ? `${sm} ${start.getDate()} - ${em} ${end.getDate()}, ${end.getFullYear()}`
+        : `${sm} ${start.getDate()}-${end.getDate()}, ${end.getFullYear()}`;
   return { issue, dateRange };
 }
 

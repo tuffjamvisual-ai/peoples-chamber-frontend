@@ -135,7 +135,7 @@ export default async function AllBillsIndex() {
 
   return (
     <section
-      aria-label="All bills — full index"
+      aria-label="All bills, full index"
       style={{ marginTop: '48px', paddingTop: '24px', borderTop: `2px solid ${INK_HAIRLINE}` }}
     >
       <h2

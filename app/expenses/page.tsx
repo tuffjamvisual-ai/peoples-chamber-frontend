@@ -6,7 +6,7 @@ import DossierShell from '../components/DossierShell';
 import BackLink from '../components/BackLink';
 
 export const metadata: Metadata = {
-  title: "Top-Spending MPs 2024-25 — IPSA Business Cost Rankings",
+  title: "Top-Spending MPs 2024-25, IPSA Business Cost Rankings",
   description:
     "The ten UK MPs who claimed the highest IPSA business costs in 2024-25. Office, staffing, travel and accommodation broken down by category, year-on-year change shown.",
   alternates: { canonical: '/expenses' },

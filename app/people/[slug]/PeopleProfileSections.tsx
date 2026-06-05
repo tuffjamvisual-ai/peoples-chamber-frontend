@@ -214,7 +214,7 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
                   )}
                   {role.startDate && role.endDate && (
                     <div style={{ fontSize: '13px', color: 'rgba(20,16,13,0.7)', marginTop: '4px' }}>
-                      {fmtMonthYear(role.startDate)} — {fmtMonthYear(role.endDate)}
+                      {fmtMonthYear(role.startDate)}, {fmtMonthYear(role.endDate)}
                     </div>
                   )}
                 </li>
@@ -243,7 +243,7 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
                     Published pay band{salary.payPeriod ? ` (as at ${salary.payPeriod})` : ''}
                   </div>
                   <div style={{ fontSize: '22px', fontWeight: 'bold' }}>
-                    £{salary.actualPayFloor.toLocaleString()}–£{salary.actualPayCeiling.toLocaleString()}
+                    £{salary.actualPayFloor.toLocaleString()}-£{salary.actualPayCeiling.toLocaleString()}
                   </div>
                   {salary.fte != null && (
                     <div style={{ marginTop: '10px', fontSize: '14px' }}>
@@ -252,13 +252,13 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
                       ) : (
                         <>
                           <span style={{ fontWeight: 'bold', color: '#7a1612' }}>{salary.fte.toFixed(2)} FTE</span>
-                          {' — '}
+                          {', '}
                           <span style={{ opacity: 0.85 }}>
                             roughly {Math.round(salary.fte * 5)} day{Math.round(salary.fte * 5) === 1 ? '' : 's'} a week
                           </span>
                           {' · '}
                           <span style={{ opacity: 0.75, fontStyle: 'italic' }}>
-                            full-time equivalent ≈ £{Math.round(salary.actualPayFloor / salary.fte).toLocaleString()}–£{Math.round(salary.actualPayCeiling / salary.fte).toLocaleString()}
+                            full-time equivalent ≈ £{Math.round(salary.actualPayFloor / salary.fte).toLocaleString()}-£{Math.round(salary.actualPayCeiling / salary.fte).toLocaleString()}
                           </span>
                         </>
                       )}
@@ -271,7 +271,7 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
                     Cabinet Office published range for this grade
                   </div>
                   <div style={{ fontSize: '22px', fontWeight: 'bold' }}>
-                    £{SCS_BAND_RANGE[salary.scsBand][0].toLocaleString()}–£{SCS_BAND_RANGE[salary.scsBand][1].toLocaleString()}
+                    £{SCS_BAND_RANGE[salary.scsBand][0].toLocaleString()}-£{SCS_BAND_RANGE[salary.scsBand][1].toLocaleString()}
                   </div>
                   <div style={{ fontSize: '13px', opacity: 0.7, marginTop: '6px', fontStyle: 'italic' }}>
                     Range from the 2025-26 Cabinet Office pay remit. Per-person actual pay is published quarterly in each department&apos;s organogram CSV.

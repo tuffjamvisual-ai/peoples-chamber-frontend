@@ -17,7 +17,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: 'Local Government | The People’s Chamber',
   description:
-    'Every UK principal local authority — county, district, unitary, metropolitan and London boroughs, and Northern Irish councils — 382 in total.',
+    'Every UK principal local authority, county, district, unitary, metropolitan and London boroughs, and Northern Irish councils, 382 in total.',
   alternates: { canonical: '/councils' },
 };
 
@@ -105,7 +105,7 @@ export default async function CouncilsIndex() {
             color: INK,
           }}
         >
-          Every UK principal authority — county councils, district councils, unitaries, metropolitan
+          Every UK principal authority, county councils, district councils, unitaries, metropolitan
           and London boroughs, and Northern Irish councils. 382 in total. Click any council to read
           who runs it, how much it spends, and what it does. Political control, leadership and
           budgets are being added in stages; most rows still carry only the foundation data.

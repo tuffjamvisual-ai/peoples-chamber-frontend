@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!dept) return { title: 'Department' };
   return {
     title: dept.name,
-    description: `${dept.name} — ministers, control zones and what every party says about each topic.`,
+    description: `${dept.name}, ministers, control zones and what every party says about each topic.`,
     alternates: { canonical: `/departments/${slug}` },
   };
 }

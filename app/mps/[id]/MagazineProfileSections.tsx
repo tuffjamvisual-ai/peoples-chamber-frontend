@@ -393,7 +393,7 @@ export default function MagazineProfileSections({
                     <li key={i} style={{ padding: '6px 0', borderBottom: inkDivider }}>
                       <strong>{r.name}</strong>
                       <div style={{ fontSize: '13px', opacity: 0.75, fontFamily: 'monospace' }}>
-                        {fmtDate(r.startDate)} — {r.endDate ? fmtDate(r.endDate) : 'present'}
+                        {fmtDate(r.startDate)}, {r.endDate ? fmtDate(r.endDate) : 'present'}
                       </div>
                     </li>
                   ))}
@@ -437,7 +437,7 @@ export default function MagazineProfileSections({
                       <strong>{p.party || p.name}</strong>
                       {(p.startDate || p.endDate) && (
                         <span style={{ marginLeft: '8px', fontSize: '13px', opacity: 0.75, fontFamily: 'monospace' }}>
-                          {p.startDate ? fmtDate(p.startDate) : '?'} — {p.endDate ? fmtDate(p.endDate) : 'present'}
+                          {p.startDate ? fmtDate(p.startDate) : '?'}, {p.endDate ? fmtDate(p.endDate) : 'present'}
                         </span>
                       )}
                     </li>
@@ -456,7 +456,7 @@ export default function MagazineProfileSections({
               <li><strong>Ministerial salary:</strong> {fmtMoney(earnings.ministerial)} {earnings.band_label ? `(${earnings.band_label})` : ''}</li>
               <li><strong>Outside earnings:</strong> {fmtMoney(earnings.outside)} ({earnings.outside_claim_count} payments from {earnings.outside_source_count} sources)</li>
               <li style={{ marginTop: '12px', fontSize: '20px' }}><strong>Total personal earnings:</strong> {fmtMoney(earnings.personal_total)}</li>
-              <li style={{ marginTop: '12px', fontSize: '13px', opacity: 0.7 }}>Public spend (IPSA, {earnings.public_spend_year ?? '—'}): {fmtMoney(earnings.public_spend)}</li>
+              <li style={{ marginTop: '12px', fontSize: '13px', opacity: 0.7 }}>Public spend (IPSA, {earnings.public_spend_year ?? ', '}): {fmtMoney(earnings.public_spend)}</li>
             </ul>
           </>
         )}

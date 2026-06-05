@@ -315,7 +315,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
                 : bill.is_defeated ? 'Defeated'
                 : 'Not yet divided'
               const noVoteHelper =
-                bill.is_act ? 'No division called — Third Reading carried on the voices.'
+                bill.is_act ? 'No division called, Third Reading carried on the voices.'
                 : bill.bill_withdrawn ? 'Bill was withdrawn before a Commons vote.'
                 : bill.is_defeated ? 'Bill defeated before reaching a Commons division.'
                 : 'MPs have not voted on this bill yet.'
@@ -343,11 +343,11 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
                   The democratic gap
                 </div>
                 <p style={{ fontFamily: SERIF, fontSize: '16px', fontWeight: 'bold', lineHeight: 1.4, margin: 0 }}>
-                  {democraticGap}% {democraticGap > 20 ? '— a wide gap' : democraticGap > 10 ? '— a moderate gap' : '— a narrow gap'}
+                  {democraticGap}% {democraticGap > 20 ? ',  a wide gap' : democraticGap > 10 ? ',  a moderate gap' : ',  a narrow gap'}
                 </p>
                 {outcomeMismatch && (
                   <p style={{ fontFamily: MONO, fontSize: '13px', marginTop: '6px', lineHeight: 1.7, color: INK_SOFT }}>
-                    Outcome mismatch — the public would {yesPercent > 50 ? 'pass' : 'block'} this bill, but Parliament {mpAyePercent > 50 ? 'passed' : 'rejected'} it.
+                    Outcome mismatch, the public would {yesPercent > 50 ? 'pass' : 'block'} this bill, but Parliament {mpAyePercent > 50 ? 'passed' : 'rejected'} it.
                   </p>
                 )}
               </div>
@@ -471,8 +471,8 @@ function ExplainerColumn({ label, colour, points }: { label: string; colour: str
       <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {points.map((point, i) => (
           <li key={i} style={{ fontFamily: MONO, fontSize: '13px', lineHeight: 1.7, display: 'flex', gap: '8px' }}>
-            <span style={{ color: colour, flexShrink: 0, fontWeight: 'bold' }}>—</span>
-            <span>{point.replace(/^[-–]\s*/, '')}</span>
+            <span style={{ color: colour, flexShrink: 0, fontWeight: 'bold' }}>, </span>
+            <span>{point.replace(/^[--]\s*/, '')}</span>
           </li>
         ))}
       </ul>
@@ -489,7 +489,7 @@ function VoteBar({
   noText,
   muted = false,
   empty = false,
-  emptyText = 'No public votes yet — be the first.',
+  emptyText = 'No public votes yet, be the first.',
 }: {
   label: string
   totalLabel: string

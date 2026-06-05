@@ -22,7 +22,7 @@ export default function TemplatePage() {
           opacity: 0.45,
         }}
       >
-        Blank folder — add your content here.
+        Blank folder, add your content here.
       </div>
     </DossierShell>
   );

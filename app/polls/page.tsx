@@ -7,7 +7,7 @@ import BackLink from '../components/BackLink';
 export const metadata: Metadata = {
   title: "People's Polls",
   description:
-    'Live public polls on every UK Parliament bill — see how the public would vote, then compare it to the official Commons tally.',
+    'Live public polls on every UK Parliament bill, see how the public would vote, then compare it to the official Commons tally.',
   alternates: { canonical: '/polls' },
 }
 
@@ -26,7 +26,7 @@ export default function PollsPage() {
           People&rsquo;s Polls
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
-          Have your say on the issues that matter. Vote on questions about policy, politics and public life — then see how Westminster voted.
+          Have your say on the issues that matter. Vote on questions about policy, politics and public life, then see how Westminster voted.
         </p>
       </header>
 

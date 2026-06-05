@@ -24,7 +24,7 @@ export default function NewsletterForm() {
           fontFamily: 'inherit',
         }}
       >
-        Thanks. Saturday morning — we&apos;ll write, you&apos;ll skim, the powerful will continue undisturbed.
+        Thanks. Saturday morning, we&apos;ll write, you&apos;ll skim, the powerful will continue undisturbed.
       </div>
     )
   }

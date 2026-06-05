@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: "UK MPs with Second Jobs — Outside Earnings by Party",
+  title: "UK MPs with Second Jobs, Outside Earnings by Party",
   description:
     "Every current UK MP with declared outside earnings from the Register of Members' Financial Interests, grouped by party. Hours worked, total declared, employer named.",
   alternates: { canonical: '/second-jobs' },
@@ -81,7 +81,7 @@ export default async function SecondJobsLanding() {
           Every current MP with a paid employment outside Parliament, organised
           by party. Choose a party to see each MP, the role, the payer and every
           individual payment registered. Headline totals are a conservative lower
-          bound — only payments with an explicit £ figure are summed, so
+          bound, only payments with an explicit £ figure are summed, so
           ranges and salaried roles without per-payment amounts are not in the
           numbers but are in the underlying lists.
         </p>

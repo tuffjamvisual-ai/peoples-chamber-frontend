@@ -6,7 +6,7 @@ export default function MagazineFooter() {
     <div className="mag-chrome-stage">
       <div className="mag-chrome-wrap">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/empty-template-footer.png" alt="The People's Chamber — footer" />
+        <img src="/empty-template-footer.png" alt="The People's Chamber, footer" />
 
         <Link href="/"         className="hot mag-f-brand"  aria-label="The People's Chamber" />
         <Link href="/bills"    className="hot mag-f-col1"   aria-label="Bills · MPs · Departments · Transparency" />

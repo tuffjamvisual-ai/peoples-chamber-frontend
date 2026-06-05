@@ -133,7 +133,7 @@ export default function BallotBillCard({ bill, userVote = null, onClick }: Props
             </>
           ) : (
             <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '13px', fontStyle: 'italic', color: INK_SOFT, letterSpacing: '0.03em' }}>
-              No public votes yet — be the first.
+              No public votes yet, be the first.
             </div>
           )}
 

@@ -244,7 +244,7 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
         </span>
         {hasDivision && (
           <span style={{ fontStyle: 'italic', whiteSpace: 'nowrap' }}>
-            Parliament: {(cAye || 0).toLocaleString()}–{(cNo || 0).toLocaleString()}
+            Parliament: {(cAye || 0).toLocaleString()}-{(cNo || 0).toLocaleString()}
           </span>
         )}
       </div>

@@ -212,7 +212,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
           color: INK_SOFT, maxWidth: '46em',
         }}>
           The bill’s formal description, sponsors and the full list of
-          documents Parliament has published for it — bill text at each
+          documents Parliament has published for it, bill text at each
           stage, Explanatory Notes, Impact Assessments, amendment papers,
           written evidence and committee reports.
         </p>

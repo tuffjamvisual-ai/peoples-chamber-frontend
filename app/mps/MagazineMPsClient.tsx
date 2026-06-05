@@ -284,7 +284,7 @@ function SinglePartyView({
 
       {partyMPs.length > MPS_PER_PAGE && (
         <p style={{ fontSize: '13px', opacity: 0.75, marginBottom: '16px' }}>
-          Showing {startIdx + 1}–{endIdx} of {partyMPs.length.toLocaleString()} · page {currentPage} of {totalPages}
+          Showing {startIdx + 1}-{endIdx} of {partyMPs.length.toLocaleString()} · page {currentPage} of {totalPages}
         </p>
       )}
 

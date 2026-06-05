@@ -96,7 +96,7 @@ export default function AllMpsIndex({ mps }: { mps: MpRow[] }) {
 
   return (
     <section
-      aria-label="All MPs — full index"
+      aria-label="All MPs, full index"
       style={{ marginTop: '48px', paddingTop: '24px', borderTop: `2px solid ${INK_HAIRLINE}` }}
     >
       <h2
@@ -110,7 +110,7 @@ export default function AllMpsIndex({ mps }: { mps: MpRow[] }) {
           fontWeight: 600,
         }}
       >
-        Browse all {mps.length.toLocaleString()} MPs A&ndash;Z
+        Browse all {mps.length.toLocaleString()} MPs A-Z
       </h2>
       <p
         style={{

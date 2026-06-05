@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = agency.acronym ? `${agency.name} (${agency.acronym})` : agency.name;
   return {
     title,
-    description: `${agency.name} — UK government agency profile: ministers, board, parent department and recent activity.`,
+    description: `${agency.name}, UK government agency profile: ministers, board, parent department and recent activity.`,
     alternates: { canonical: `/agencies/${slug}` },
   };
 }

@@ -4,7 +4,7 @@ import BackLink from '../components/BackLink';
 
 export const metadata: Metadata = {
   title: 'Support',
-  description: 'Get help with The People’s Chamber — contact us, report a data issue, or suggest a feature.',
+  description: 'Get help with The People’s Chamber, contact us, report a data issue, or suggest a feature.',
   alternates: { canonical: '/support' },
 }
 

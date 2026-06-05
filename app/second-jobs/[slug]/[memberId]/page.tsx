@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const item = items.find((i) => i.mp.member_id === Number(memberId));
   const name = item?.mp.display_name || item?.mp.name || 'MP';
   return {
-    title: `${name} — second jobs`,
+    title: `${name}, second jobs`,
     description: `${name}: declared outside earnings, roles, payers and individual payments from the Register of Members’ Financial Interests.`,
     alternates: { canonical: `/second-jobs/${slug}/${memberId}` },
   };

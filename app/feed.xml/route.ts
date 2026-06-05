@@ -83,7 +83,7 @@ async function fetchMpItems(): Promise<FeedItem[]> {
       const description = [subtitle, bioLead].filter(Boolean).join('. ');
       const ts = m.updated_at ? new Date(m.updated_at).getTime() : Date.now();
       return {
-        title: `${fullName}${subtitle ? ` — ${subtitle}` : ''}`,
+        title: `${fullName}${subtitle ? `, ${subtitle}` : ''}`,
         link: `${SITE}/mps/${m.member_id}`,
         description,
         pubDate: rfc822(m.updated_at),
@@ -155,7 +155,7 @@ export async function GET() {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>The People's Chamber — Recent Updates</title>
+    <title>The People's Chamber, Recent Updates</title>
     <link>${SITE}/</link>
     <description>The 50 most recently updated MP profiles and bill stages on The People's Chamber, an independent record of how the United Kingdom is governed.</description>
     <language>en-GB</language>

@@ -18,9 +18,9 @@ import BackLink from '../components/BackLink';
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: 'Your Tax Pound — Where £1 Goes | The People’s Chamber',
+  title: 'Your Tax Pound, Where £1 Goes | The People’s Chamber',
   description:
-    'Every pound of UK government spending broken down — NHS, pensions, welfare, education, debt interest, defence and the rest — with a paragraph explaining what each line actually buys.',
+    'Every pound of UK government spending broken down, NHS, pensions, welfare, education, debt interest, defence and the rest, with a paragraph explaining what each line actually buys.',
   alternates: { canonical: '/your-tax-pound' },
 };
 
@@ -41,23 +41,23 @@ const BUCKETS: Bucket[] = [
     pence: 18, sharePct: 18.3,
     category: 'Health',
     prose:
-      "NHS England plus the Barnett share that funds NHS Scotland, NHS Wales and Health and Social Care Northern Ireland. Hospitals, GPs, prescriptions, dentistry, mental health services, public health and the NHS workforce. The line has grown almost every year for two decades and will keep growing while the population ages and treatments get more expensive. The bulk of the current parliament's domestic policy argument — waiting lists, social care funding, the workforce plan — sits inside this one budget.",
+      "NHS England plus the Barnett share that funds NHS Scotland, NHS Wales and Health and Social Care Northern Ireland. Hospitals, GPs, prescriptions, dentistry, mental health services, public health and the NHS workforce. The line has grown almost every year for two decades and will keep growing while the population ages and treatments get more expensive. The bulk of the current parliament's domestic policy argument, waiting lists, social care funding, the workforce plan, sits inside this one budget.",
     deptHref: '/departments/health',
     deptLabel: 'Department of Health and Social Care',
   },
   {
     pence: 12, sharePct: 12.2,
-    category: 'Social security — pensioners',
+    category: 'Social security, pensioners',
     prose:
-      "The Basic State Pension, the New State Pension and Pension Credit. Paid to anyone above State Pension age who has the required National Insurance record. Protected by the Triple Lock since 2011 — payments rise each year by the highest of CPI inflation, average earnings growth or 2.5%. The Triple Lock cost the Treasury well above forecast during the 2022 inflation shock and is the largest contingent fiscal commitment in the welfare system.",
+      "The Basic State Pension, the New State Pension and Pension Credit. Paid to anyone above State Pension age who has the required National Insurance record. Protected by the Triple Lock since 2011, payments rise each year by the highest of CPI inflation, average earnings growth or 2.5%. The Triple Lock cost the Treasury well above forecast during the 2022 inflation shock and is the largest contingent fiscal commitment in the welfare system.",
     deptHref: '/departments/work-pensions',
     deptLabel: 'Department for Work and Pensions',
   },
   {
     pence: 10, sharePct: 10.2,
-    category: 'Social security — working age and children',
+    category: 'Social security, working age and children',
     prose:
-      "Universal Credit, Personal Independence Payment, child benefit, statutory sick pay, housing benefit, attendance allowance, carer's allowance, employment and support allowance. Most of the working age welfare debate — the two child benefit cap, PIP eligibility, disability assessments — is about this line. Moves with caseload rather than with policy alone, which is why the figure rises automatically when the labour market weakens or when more people qualify for support.",
+      "Universal Credit, Personal Independence Payment, child benefit, statutory sick pay, housing benefit, attendance allowance, carer's allowance, employment and support allowance. Most of the working age welfare debate, the two child benefit cap, PIP eligibility, disability assessments, is about this line. Moves with caseload rather than with policy alone, which is why the figure rises automatically when the labour market weakens or when more people qualify for support.",
     deptHref: '/departments/work-pensions',
     deptLabel: 'Department for Work and Pensions',
   },
@@ -103,7 +103,7 @@ const BUCKETS: Bucket[] = [
     pence: 2, sharePct: 2.4,
     category: 'Long term care',
     prose:
-      "Adult social care — care homes, domiciliary care, support for working age disabled adults. Funded primarily by local authorities through council tax and central government grant. The Dilnot cap on care costs was legislated under Hunt for October 2023, deferred to October 2025, then scrapped entirely by Reeves in July 2024. Long term care funding is the largest unresolved structural question in domestic public policy.",
+      "Adult social care, care homes, domiciliary care, support for working age disabled adults. Funded primarily by local authorities through council tax and central government grant. The Dilnot cap on care costs was legislated under Hunt for October 2023, deferred to October 2025, then scrapped entirely by Reeves in July 2024. Long term care funding is the largest unresolved structural question in domestic public policy.",
     deptHref: '/departments/health',
     deptLabel: 'Department of Health and Social Care',
   },
@@ -167,7 +167,7 @@ export default function YourTaxPoundPage() {
           Your Tax Pound
         </h1>
         <p style={{ fontFamily: 'Special Elite, monospace', fontSize: 'clamp(14px, 1.7vw, 18px)', lineHeight: 1.65, maxWidth: '74ch', opacity: 0.92 }}>
-          For every £1 the UK government spends, this is where it goes. Twelve lines — eleven named categories
+          For every £1 the UK government spends, this is where it goes. Twelve lines, eleven named categories
           covering most domestic policy, plus a real Other bucket of around 24p that catches government administration,
           business support, environment, culture, agriculture, contingency reserves and the parts of the budget that
           rarely make headlines. Pence figures rounded; exact share shown alongside each line.
@@ -246,7 +246,7 @@ export default function YourTaxPoundPage() {
         </p>
         <p style={{ margin: '0' }}>
           <strong>Methodology.</strong> Shares are exact to one decimal place; pence figures rounded so the bar reads
-          cleanly at scale. Scotland, Wales and Northern Ireland have their own devolved spending — their share comes
+          cleanly at scale. Scotland, Wales and Northern Ireland have their own devolved spending, their share comes
           through the Barnett formula and lands inside the relevant UK-wide categories above (most visibly inside
           Health and Education).
         </p>

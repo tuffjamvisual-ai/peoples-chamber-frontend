@@ -4,7 +4,7 @@ import BackLink from '../components/BackLink';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
-  description: 'Privacy policy for The People’s Chamber — what data we collect, how we use it, and your rights under UK GDPR.',
+  description: 'Privacy policy for The People’s Chamber, what data we collect, how we use it, and your rights under UK GDPR.',
   alternates: { canonical: '/privacy' },
 }
 

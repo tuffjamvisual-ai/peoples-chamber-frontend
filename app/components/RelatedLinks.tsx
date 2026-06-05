@@ -320,7 +320,7 @@ async function renderDepartment(props: DepartmentProps) {
 
       {ministerLinks.length > 0 && (
         <section style={sectionStyle}>
-          <span style={labelStyle}>Ministers — MP profiles</span>
+          <span style={labelStyle}>Ministers, MP profiles</span>
           {ministerLinks.map((m) => (
             <Link key={m.member_id} href={`/mps/${m.member_id}`} style={itemStyle}>
               {m.display_name}

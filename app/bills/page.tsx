@@ -16,7 +16,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 600;
 
 export const metadata: Metadata = {
-  title: "UK Parliament Bills Tracker — Live Stages, Votes & Acts | The People's Chamber",
+  title: "UK Parliament Bills Tracker, Live Stages, Votes & Acts | The People's Chamber",
   description:
     "Every bill in UK Parliament. Current stage, how each MP voted, public verdict, and whether it became law. Track the route from Westminster paper to Act of Parliament.",
   alternates: { canonical: '/bills' },
@@ -49,7 +49,7 @@ export default async function BillsPage({ searchParams }: PageProps) {
           Every bill going through UK Parliament. How MPs voted. How you voted. The gap between the two.
         </p>
         <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px', opacity: 0.7 }}>
-          Showing bills {(page - 1) * BILLS_PER_PAGE + 1}–{Math.min(page * BILLS_PER_PAGE, totalCount)} of {totalCount.toLocaleString()} · page {page} of {totalPages}
+          Showing bills {(page - 1) * BILLS_PER_PAGE + 1}-{Math.min(page * BILLS_PER_PAGE, totalCount)} of {totalCount.toLocaleString()} · page {page} of {totalPages}
         </p>
       </header>
 

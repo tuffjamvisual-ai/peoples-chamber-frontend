@@ -122,7 +122,7 @@ export default async function TransparencySectionPage({
               <span className="font-mono text-[#14100d] text-base font-bold">{totalCount.toLocaleString()}</span>
               {' '}record{totalCount === 1 ? '' : 's'} in this dataset.
               {totalPages > 1 && (
-                <> Showing rows {from + 1}–{Math.min(to + 1, totalCount)} (page {page} of {totalPages}).</>
+                <> Showing rows {from + 1}-{Math.min(to + 1, totalCount)} (page {page} of {totalPages}).</>
               )}
               {section === 'donations' && ' Search by donor or recipient name to filter.'}
             </>

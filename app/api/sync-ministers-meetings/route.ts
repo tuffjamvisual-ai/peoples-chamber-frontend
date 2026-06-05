@@ -231,7 +231,7 @@ export async function GET(req: Request) {
     }
 
     if (allRows.length === 0) {
-      return NextResponse.json({ ok: true, parsed: 0, inserted: 0, note: 'no rows collected — table untouched', perDept });
+      return NextResponse.json({ ok: true, parsed: 0, inserted: 0, note: 'no rows collected, table untouched', perDept });
     }
 
     // Re-runs need a wipe — there's no natural unique key on the table.

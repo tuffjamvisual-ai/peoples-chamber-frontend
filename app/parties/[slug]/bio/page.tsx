@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const name = party?.name || 'Party';
   return {
     title: `${name} | The People's Chamber`,
-    description: `${name} — People's Verdict.`,
+    description: `${name}, People's Verdict.`,
     alternates: { canonical: `/parties/${slug}/bio` },
   };
 }
@@ -222,7 +222,7 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
                 paddingBottom: '2px',
               }}
             >
-              {party.name}&apos;s manifesto vs record — 11 themes →
+              {party.name}&apos;s manifesto vs record, 11 themes →
             </a>
           </section>
         </div>

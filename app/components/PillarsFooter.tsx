@@ -16,7 +16,7 @@ export default function PillarsFooter() {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/footer.png"
-        alt="The People's Chamber — 100% independent, contact / donate, open to all, accountability first"
+        alt="The People's Chamber, 100% independent, contact / donate, open to all, accountability first"
         style={{ display: 'block', width: '100%', height: 'auto' }}
       />
     </footer>

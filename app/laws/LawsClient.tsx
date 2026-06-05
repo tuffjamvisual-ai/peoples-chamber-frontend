@@ -104,7 +104,7 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
         <span style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.15em', opacity: 0.7 }}>
           {filteredLaws.length === 0
             ? `0 of ${laws.length.toLocaleString()} shown`
-            : `${firstShown.toLocaleString()}–${lastShown.toLocaleString()} of ${filteredLaws.length.toLocaleString()}${
+            : `${firstShown.toLocaleString()}-${lastShown.toLocaleString()} of ${filteredLaws.length.toLocaleString()}${
                 search ? ` (filtered from ${laws.length.toLocaleString()})` : ''
               } · page ${currentPage} of ${totalPages}`}
         </span>

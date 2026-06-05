@@ -1,0 +1,61 @@
+/* Clickable newspaper landing demo — ported from
+ * peoples_chamber_clickable_landing.zip. The shell's aspect-ratio matches
+ * the actual PNG (1055x1491) so background-size:contain fills it with no
+ * letterbox and the %-positioned hotspots line up with the artwork. */
+
+.newspaper-stage {
+  min-height: 100vh;
+  background: #15100b;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.newspaper-shell {
+  position: relative;
+  width: min(100%, 980px);
+  aspect-ratio: 1055 / 1491;
+  background-image: url("/peoples-chamber-newspaper.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: drop-shadow(0 20px 34px rgba(0, 0, 0, 0.42));
+}
+
+.newspaper-hotspot {
+  position: absolute;
+  display: block;
+  text-indent: -9999px;
+  overflow: hidden;
+  border-radius: 6px;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.newspaper-hotspot:hover,
+.newspaper-hotspot:focus-visible {
+  background-color: rgba(90, 55, 20, 0.1);
+  box-shadow: inset 0 0 0 2px rgba(80, 35, 20, 0.26);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+/* ?debug — visualise the otherwise-invisible hotspots for calibration. */
+.newspaper-shell.debug .newspaper-hotspot {
+  background-color: rgba(200, 40, 30, 0.18);
+  box-shadow: inset 0 0 0 2px rgba(200, 40, 30, 0.7);
+}
+
+@media (max-width: 720px) {
+  .newspaper-stage {
+    padding: 0;
+    background: #0f0b08;
+  }
+  .newspaper-shell {
+    width: 100vw;
+  }
+}

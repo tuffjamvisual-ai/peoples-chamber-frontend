@@ -79,7 +79,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const party = normaliseParty(mp.party) || mp.party || '';
   const sinceYear = mp.start_date ? new Date(mp.start_date).getFullYear() : null;
 
-  const head = `${name} — ${[party, mp.constituency && `MP for ${mp.constituency}`].filter(Boolean).join(', ')}${sinceYear ? ` since ${sinceYear}` : ''}.`;
+  const head = `${name}, ${[party, mp.constituency && `MP for ${mp.constituency}`].filter(Boolean).join(', ')}${sinceYear ? ` since ${sinceYear}` : ''}.`;
 
   const facts: string[] = [];
   const vc = votesCountRes.count ?? 0;

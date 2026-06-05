@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const row = await getRow(n)
   if (!row) return { title: 'Coverage' }
   return {
-    title: `${row.source_title} — via ${row.source_outlet}`,
+    title: `${row.source_title}, via ${row.source_outlet}`,
     description: row.commentary || row.source_excerpt || `${row.source_outlet} coverage with People's Chamber commentary.`,
     alternates: { canonical: `/coverage/${row.id}` },
   }
