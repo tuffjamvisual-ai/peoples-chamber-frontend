@@ -205,7 +205,7 @@ function EditorialIntro() {
           }}
         >
           <p style={{ margin: '0 0 16px' }}>
-            Every Member of Parliament has a profile here &mdash; their voting
+            Every Member of Parliament has a profile here. Their voting
             record, their declared earnings, the bills they have sponsored,
             the hours they spend on second jobs, and a biographical note that
             reads as a political assessment rather than a press release. Each
