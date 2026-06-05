@@ -6,7 +6,7 @@ import DossierShell from '../components/DossierShell';
 import BackLink from '../components/BackLink';
 
 export const metadata: Metadata = {
-  title: "Top-Charging UK Councils 2026-27 — Band D Council Tax Rankings",
+  title: "Top-Charging UK Councils 2026-27, Band D Council Tax Rankings",
   description:
     "The ten UK local authorities with the highest Band D council tax for the 2026-27 financial year. Source: MHCLG council tax statistics. Ranking by authority-level Band D figure.",
   alternates: { canonical: '/council-tax' },
