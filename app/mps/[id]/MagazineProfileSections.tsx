@@ -86,6 +86,7 @@ type AppgEntry = {
     source: string;
     description: string | null;
     value_band: string | null;
+    ecMatch?: { totalAmount: number; donationCount: number } | null;
   }>;
 };
 
@@ -958,6 +959,11 @@ export default function MagazineProfileSections({
                               <li key={i} style={{ padding: '4px 0', fontSize: '12px' }}>
                                 <strong>{f.source}</strong>
                                 {f.value_band && <span style={{ opacity: 0.75 }}> · £{f.value_band}</span>}
+                                {f.ecMatch && f.ecMatch.donationCount > 0 && (
+                                  <span style={{ marginLeft: '6px', ...pillStyle, color: '#7a1612', border: '1px solid #7a1612', fontSize: '10px' }} title="Also a registered political donor under this name in Electoral Commission records">
+                                    Also donates · {fmtMoney(f.ecMatch.totalAmount)} · {f.ecMatch.donationCount}×
+                                  </span>
+                                )}
                                 {f.description && (
                                   <div style={{ opacity: 0.7, marginTop: '2px', whiteSpace: 'pre-wrap' }}>{f.description}</div>
                                 )}

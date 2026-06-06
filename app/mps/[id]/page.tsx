@@ -295,10 +295,40 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
       if (!funderBySlug.has(f.appg_slug)) funderBySlug.set(f.appg_slug, []);
       funderBySlug.get(f.appg_slug)!.push(f);
     }
+    // Cross-reference: APPG funders that ALSO appear as donors in
+    // political_donations. Hidden link — same entity pays for the
+    // APPG secretariat AND gives to MPs / parties. We flag each
+    // funder with their EC donation total when matched.
+    const funderNames = Array.from(new Set(((fundersRes.data || []) as AppgFunderRow[]).map((f) => f.source.trim()).filter((s) => s && s !== '(unspecified)')));
+    let funderDonationByName = new Map<string, { totalAmount: number; donationCount: number }>();
+    if (funderNames.length > 0) {
+      // Chunk the IN clause — PostgREST gets unhappy past ~200 names
+      const chunkSize = 100;
+      for (let i = 0; i < funderNames.length; i += chunkSize) {
+        const chunk = funderNames.slice(i, i + chunkSize);
+        const { data: matches } = await supabase
+          .from('political_donations')
+          .select('donor_name, amount')
+          .in('donor_name', chunk)
+          .limit(5000);
+        for (const m of (matches || []) as Array<{ donor_name: string | null; amount: number | string | null }>) {
+          const name = (m.donor_name || '').trim();
+          if (!name) continue;
+          const ex = funderDonationByName.get(name) ?? { totalAmount: 0, donationCount: 0 };
+          ex.totalAmount += Number(m.amount) || 0;
+          ex.donationCount += 1;
+          funderDonationByName.set(name, ex);
+        }
+      }
+    }
+
     mpAppgs = ((appgsRes.data || []) as AppgRow[]).map((a) => ({
       ...a,
       role: officerRoleBySlug.get(a.slug) ?? null,
-      funders: funderBySlug.get(a.slug) ?? [],
+      funders: (funderBySlug.get(a.slug) ?? []).map((f) => ({
+        ...f,
+        ecMatch: funderDonationByName.get(f.source.trim()) ?? null,
+      })),
     })).sort((a, b) => {
       // Chairs first, then by funder count desc, then alphabetical
       const aChair = /chair/i.test(a.role || '') ? 0 : 1;
