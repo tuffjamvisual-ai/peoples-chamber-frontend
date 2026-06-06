@@ -1353,11 +1353,13 @@ export default function MagazineProfileSections({
                   {donorRows.map((d) => {
                     const sector = sectorFor(d.name);
                     const others = otherByDonor.get(d.name) ?? [];
+                    // Slug matches the rule used by /donors/[slug]
+                    const donorSlug = d.name.toLowerCase().replace(/&/g, ' and ').replace(/'/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 100);
                     return (
                       <tr key={d.name} style={{ borderBottom: inkDivider, verticalAlign: 'top' }}>
                         <td style={{ padding: '5px 4px' }}>
                           <div style={{ fontWeight: 'bold' }}>
-                            {d.name}
+                            <Link href={`/donors/${donorSlug}`} style={inkLink}>{d.name}</Link>
                             {d.crn && (
                               <>
                                 {' '}
