@@ -271,6 +271,23 @@ const thStyle: React.CSSProperties = {
   textTransform: 'uppercase',
 };
 
+const glossaryDt: React.CSSProperties = {
+  fontFamily: 'Special Elite, monospace',
+  fontSize: '12px',
+  fontWeight: 'bold',
+  letterSpacing: '0.04em',
+  padding: '6px 8px 6px 0',
+  textTransform: 'none',
+};
+
+const glossaryDd: React.CSSProperties = {
+  margin: 0,
+  padding: '6px 0',
+  fontSize: '13px',
+  lineHeight: 1.55,
+  color: '#14100d',
+};
+
 const pillStyle: React.CSSProperties = {
   display: 'inline-block',
   padding: '1px 6px',
@@ -1246,6 +1263,88 @@ export default function MagazineProfileSections({
               <p style={{ marginTop: '8px', fontSize: '12px', opacity: 0.6, lineHeight: 1.55 }}>
                 Cash and non-cash combined: {fmtMoney(cashTotal)} cash, {fmtMoney(nonCashTotal)} non-cash. Source: Electoral Commission donation register, refreshed weekly.
               </p>
+
+              <details style={{ marginTop: '24px', fontSize: '13px', lineHeight: 1.6 }}>
+                <summary style={{ cursor: 'pointer', fontFamily: 'Special Elite, monospace', fontWeight: 'bold', fontSize: '13px', padding: '6px 0' }}>
+                  What do these terms mean?
+                </summary>
+                <dl style={{ display: 'grid', gridTemplateColumns: 'minmax(170px, max-content) 1fr', gap: '4px 16px', margin: '8px 0 0 4px', padding: '10px 14px', background: 'rgba(20,16,13,0.03)', border: '1px solid rgba(20,16,13,0.12)' }}>
+                  <dt style={glossaryDt}>Recipient types</dt>
+                  <dd style={glossaryDd}>
+                    <strong>MP — Member of Parliament</strong>: donation given to the MP personally.<br />
+                    <strong>Regulated Donee</strong>: donation given to the MP through a vehicle other than their local party (e.g. a private office, a campaigning fund, or a personal trust set up to receive donations).<br />
+                    <strong>Members Association</strong>: an organised group inside a party (e.g. a faction or research group). Reported when it&rsquo;s linked to an individual MP.<br />
+                    <strong>Member of Registered Political Party</strong>: donation to the MP in their capacity as a party member, but recorded separately from the party itself.
+                  </dd>
+
+                  <dt style={glossaryDt}>Pre-poll period</dt>
+                  <dd style={glossaryDd}>
+                    A donation declared during a <em>regulated election window</em> (the weeks before a general election or by-election). The reporting rules tighten in this window and donors are scrutinised more closely. A high pre-poll % suggests an MP raises money mostly around elections rather than continuously.
+                  </dd>
+
+                  <dt style={glossaryDt}>Cash vs non-cash</dt>
+                  <dd style={glossaryDd}>
+                    <strong>Cash</strong>: money paid in. <strong>Non-cash</strong> (also &ldquo;in-kind&rdquo;): goods or services provided free or below market value — office space, polling, staff time, advertising, travel, hospitality, equipment loans. The EC values non-cash donations at the market rate of the benefit.
+                  </dd>
+
+                  <dt style={glossaryDt}>Manner of donation</dt>
+                  <dd style={glossaryDd}>
+                    How the money or benefit was delivered: bank transfer, cheque, cash, sponsorship arrangement, bequest, non-cash benefit. Tells you the mechanism, not the source.
+                  </dd>
+
+                  <dt style={glossaryDt}>Trust intermediary</dt>
+                  <dd style={glossaryDd}>
+                    A donation paid into a trust that the MP can draw on, rather than direct to the MP. The trust&rsquo;s creator is shown when known. Trusts have long been criticised because the donor&rsquo;s identity can be hidden behind the trust structure; current rules require the original source to be disclosed but enforcement is patchy.
+                  </dd>
+
+                  <dt style={glossaryDt}>Impermissible</dt>
+                  <dd style={glossaryDd}>
+                    A donation the EC ruled the recipient should not have accepted — typically because the donor is not on the UK electoral register, is a foreign source, or fails the &ldquo;genuine carrying-on of business in the UK&rdquo; test. The recipient must usually return or forfeit the money.
+                  </dd>
+
+                  <dt style={glossaryDt}>Concealment attempted</dt>
+                  <dd style={glossaryDd}>
+                    The EC found evidence that the donor or recipient tried to hide the true source of the donation — for example by routing it through a third party or misreporting the donor identity. Strongest accountability red flag the EC publishes.
+                  </dd>
+
+                  <dt style={glossaryDt}>Aggregation</dt>
+                  <dd style={glossaryDd}>
+                    A single line in the register that sums multiple smaller donations from the same source (typically &ge; £500 each, accumulating to over £7,500 in a year). Different from a one-off £25k donation: it&rsquo;s a sustained giving pattern.
+                  </dd>
+
+                  <dt style={glossaryDt}>Sponsorship</dt>
+                  <dd style={glossaryDd}>
+                    An arrangement where the donor pays for an MP&rsquo;s activity in exchange for something — naming rights, event hosting, a stake in the MP&rsquo;s schedule. Treated as a donation under the rules even when it looks commercial. Trade-union sponsorship of Labour MPs is the longest-standing example.
+                  </dd>
+
+                  <dt style={glossaryDt}>Bequest</dt>
+                  <dd style={glossaryDd}>From a deceased donor&rsquo;s estate.</dd>
+
+                  <dt style={glossaryDt}>Irish source</dt>
+                  <dd style={glossaryDd}>A Northern Ireland-specific rule allowing donations from Irish citizens and bodies, subject to its own register. Mostly relevant for NI MPs and parties.</dd>
+
+                  <dt style={glossaryDt}>Pre-poll vs post-poll reporting</dt>
+                  <dd style={glossaryDd}>The dates show when the donation was <em>accepted</em>, when it was actually <em>received</em>, when it was <em>reported</em> to the EC, and when the EC <em>published</em> it. A gap between accepted and reported can indicate compliance lag.</dd>
+
+                  <dt style={glossaryDt}>EC reference</dt>
+                  <dd style={glossaryDd}>The Electoral Commission&rsquo;s internal ID for the donation. Clicking it links you to the original record on the EC&rsquo;s search interface for verification.</dd>
+
+                  <dt style={glossaryDt}>Companies House (CH ↗)</dt>
+                  <dd style={glossaryDd}>When the donor is a UK company, we show the company registration number as a link to its Companies House page. Click through to see the donor&rsquo;s directors, beneficial owners, accounts, and current trading status.</dd>
+
+                  <dt style={glossaryDt}>Sector tags</dt>
+                  <dd style={glossaryDd}>Our own classification, derived from the donor&rsquo;s name. Useful for spotting industry concentration (e.g. an MP whose top donors are all Property or Finance) but heuristic — read the donor name to confirm.</dd>
+
+                  <dt style={glossaryDt}>&ldquo;Also funds&rdquo;</dt>
+                  <dd style={glossaryDd}>Other MPs and political organisations the same donor has given to, drawn from the same EC register. Surfaces factional patterns when the same donor backs several MPs from one wing of a party.</dd>
+
+                  <dt style={glossaryDt}>Cumulative</dt>
+                  <dd style={glossaryDd}>For repeat donors, the running total of everything this donor has given the MP up to and including that donation. Lets you see relationship depth without arithmetic.</dd>
+
+                  <dt style={glossaryDt}>Concentration ratio</dt>
+                  <dd style={glossaryDd}>The share of all donations to this MP that come from their top 3 donors. A high concentration (e.g. 80%+) means the MP&rsquo;s funding is dependent on a small number of backers; a low one means broad-based support.</dd>
+                </dl>
+              </details>
             </>
           );
         })()}
