@@ -271,23 +271,6 @@ const thStyle: React.CSSProperties = {
   textTransform: 'uppercase',
 };
 
-const glossaryDt: React.CSSProperties = {
-  fontFamily: 'Special Elite, monospace',
-  fontSize: '12px',
-  fontWeight: 'bold',
-  letterSpacing: '0.04em',
-  padding: '6px 8px 6px 0',
-  textTransform: 'none',
-};
-
-const glossaryDd: React.CSSProperties = {
-  margin: 0,
-  padding: '6px 0',
-  fontSize: '13px',
-  lineHeight: 1.55,
-  color: '#14100d',
-};
-
 const pillStyle: React.CSSProperties = {
   display: 'inline-block',
   padding: '1px 6px',
@@ -1122,20 +1105,35 @@ export default function MagazineProfileSections({
           return (
             <>
               <h2 style={sectionH2}>Donations</h2>
+
+              {/* Critique-style framing — sits at the top of the tab in
+                  the dossier ink/cream palette, Special Elite body, sets
+                  the reading frame before any numbers appear. Replaces
+                  the prior glossary at the bottom (removed; the same
+                  concepts surface in-line on the data rows themselves). */}
+              <section style={{ marginBottom: '20px', padding: '14px 16px', background: 'rgba(20,16,13,0.04)', borderLeft: '3px solid #7a1612' }}>
+                <p style={{ margin: 0, marginBottom: '10px', fontFamily: 'Special Elite, monospace', fontSize: '13px', lineHeight: 1.65 }}>
+                  Donations to a sitting MP create an interest. The Electoral Commission&rsquo;s donor-side register exists because the MP&rsquo;s own declarations cannot be the only compliance check. What follows is the public record of money and benefits given to this Member of Parliament, in cash and in kind, with the donor identified, the amount stated, the date accepted, and any Commission flag for impermissibility or attempted concealment surfaced where present.
+                </p>
+                <p style={{ margin: 0, marginBottom: '10px', fontFamily: 'Special Elite, monospace', fontSize: '13px', lineHeight: 1.65 }}>
+                  The honest reader&rsquo;s job is to ask three things of each donor: who they are, what they want from public policy, and whether the MP&rsquo;s voting record bears any sign of having delivered it. Sector tags on the donor rows are a starting point, not an answer. The &ldquo;Also funds&rdquo; line under each donor surfaces the same money flowing into other MPs, often the most useful evidence that a giving pattern is factional rather than personal.
+                </p>
+                <p style={{ margin: 0, fontFamily: 'Special Elite, monospace', fontSize: '13px', lineHeight: 1.65 }}>
+                  Three classes of donation deserve their own scrutiny. Pre-poll donations land inside the regulated election window and tend to be larger, faster, and tied to specific campaigns; they are also the ones most likely to be hidden from the register entirely if the MP wishes. Trust-intermediary donations route through a vehicle that obscures the original source on the public face of the register, and enforcement of source-disclosure here has been patchy for a decade. Impermissibility findings mean the Commission decided the donation should never have been accepted, usually because the donor failed a residence or registration test; the money should have been returned, sometimes it was not.
+                </p>
+                <p style={{ margin: '12px 0 0 0', fontSize: '11px', opacity: 0.7, fontFamily: 'Special Elite, monospace' }}>
+                  Source: Electoral Commission donor-side register. Refreshed weekly. The MP&rsquo;s own declaration of the same money typically appears under &ldquo;Campaign &amp; office support&rdquo; on the Interests tab; large items can appear in both, which is the point: two independent compliance trails for the same transaction.
+                </p>
+              </section>
+
               <p style={{ marginBottom: '8px', fontSize: '14px', opacity: 0.85 }}>
-                Reportable donations received personally, from the Electoral Commission&rsquo;s register.
-                <strong>{' '}{fmtMoney(total)}</strong> across {donations.length.toLocaleString()} donation{donations.length === 1 ? '' : 's'} from {donorRows.length.toLocaleString()} donor{donorRows.length === 1 ? '' : 's'}.
-              </p>
-              <p style={{ marginBottom: '12px', fontSize: '13px', opacity: 0.85, lineHeight: 1.6 }}>
+                <strong>{fmtMoney(total)}</strong> across {donations.length.toLocaleString()} donation{donations.length === 1 ? '' : 's'} from {donorRows.length.toLocaleString()} donor{donorRows.length === 1 ? '' : 's'}.
                 {donorRows.length >= 3 && (
-                  <>Top 3 donors account for <strong>{concentrationPct.toFixed(1)}%</strong> of all donations. </>
+                  <> Top 3 donors account for <strong>{concentrationPct.toFixed(1)}%</strong> of all donations.</>
                 )}
                 {prePollTotal > 0 && (
-                  <>Pre-poll period donations: <strong>{prePollPct.toFixed(1)}%</strong> of total (declared during a regulated election window). </>
+                  <> Pre-poll period: <strong>{prePollPct.toFixed(1)}%</strong>.</>
                 )}
-              </p>
-              <p style={{ marginBottom: '16px', fontSize: '12px', opacity: 0.6, lineHeight: 1.55 }}>
-                Includes donations recorded against this MP individually (Member of Parliament + Regulated Donee types). Donations to the local constituency association or to a political party in general are not shown here, they appear on the party&rsquo;s page. This is the donor-side view, sourced from the Electoral Commission. The MP&rsquo;s own declaration of the same money typically appears under &ldquo;Campaign &amp; office support&rdquo; on the Interests tab; large items can show up in both, which is expected — two independent compliance trails for the same transaction.
               </p>
 
               {(returned.length > 0 || impermissible.length > 0 || concealed.length > 0) && (
@@ -1264,87 +1262,6 @@ export default function MagazineProfileSections({
                 Cash and non-cash combined: {fmtMoney(cashTotal)} cash, {fmtMoney(nonCashTotal)} non-cash. Source: Electoral Commission donation register, refreshed weekly.
               </p>
 
-              <details style={{ marginTop: '24px', fontSize: '13px', lineHeight: 1.6 }}>
-                <summary style={{ cursor: 'pointer', fontFamily: 'Special Elite, monospace', fontWeight: 'bold', fontSize: '13px', padding: '6px 0' }}>
-                  What do these terms mean?
-                </summary>
-                <dl style={{ display: 'grid', gridTemplateColumns: 'minmax(170px, max-content) 1fr', gap: '4px 16px', margin: '8px 0 0 4px', padding: '10px 14px', background: 'rgba(20,16,13,0.03)', border: '1px solid rgba(20,16,13,0.12)' }}>
-                  <dt style={glossaryDt}>Recipient types</dt>
-                  <dd style={glossaryDd}>
-                    <strong>MP — Member of Parliament</strong>: donation given to the MP personally.<br />
-                    <strong>Regulated Donee</strong>: donation given to the MP through a vehicle other than their local party (e.g. a private office, a campaigning fund, or a personal trust set up to receive donations).<br />
-                    <strong>Members Association</strong>: an organised group inside a party (e.g. a faction or research group). Reported when it&rsquo;s linked to an individual MP.<br />
-                    <strong>Member of Registered Political Party</strong>: donation to the MP in their capacity as a party member, but recorded separately from the party itself.
-                  </dd>
-
-                  <dt style={glossaryDt}>Pre-poll period</dt>
-                  <dd style={glossaryDd}>
-                    A donation declared during a <em>regulated election window</em> (the weeks before a general election or by-election). The reporting rules tighten in this window and donors are scrutinised more closely. A high pre-poll % suggests an MP raises money mostly around elections rather than continuously.
-                  </dd>
-
-                  <dt style={glossaryDt}>Cash vs non-cash</dt>
-                  <dd style={glossaryDd}>
-                    <strong>Cash</strong>: money paid in. <strong>Non-cash</strong> (also &ldquo;in-kind&rdquo;): goods or services provided free or below market value — office space, polling, staff time, advertising, travel, hospitality, equipment loans. The EC values non-cash donations at the market rate of the benefit.
-                  </dd>
-
-                  <dt style={glossaryDt}>Manner of donation</dt>
-                  <dd style={glossaryDd}>
-                    How the money or benefit was delivered: bank transfer, cheque, cash, sponsorship arrangement, bequest, non-cash benefit. Tells you the mechanism, not the source.
-                  </dd>
-
-                  <dt style={glossaryDt}>Trust intermediary</dt>
-                  <dd style={glossaryDd}>
-                    A donation paid into a trust that the MP can draw on, rather than direct to the MP. The trust&rsquo;s creator is shown when known. Trusts have long been criticised because the donor&rsquo;s identity can be hidden behind the trust structure; current rules require the original source to be disclosed but enforcement is patchy.
-                  </dd>
-
-                  <dt style={glossaryDt}>Impermissible</dt>
-                  <dd style={glossaryDd}>
-                    A donation the EC ruled the recipient should not have accepted — typically because the donor is not on the UK electoral register, is a foreign source, or fails the &ldquo;genuine carrying-on of business in the UK&rdquo; test. The recipient must usually return or forfeit the money.
-                  </dd>
-
-                  <dt style={glossaryDt}>Concealment attempted</dt>
-                  <dd style={glossaryDd}>
-                    The EC found evidence that the donor or recipient tried to hide the true source of the donation — for example by routing it through a third party or misreporting the donor identity. Strongest accountability red flag the EC publishes.
-                  </dd>
-
-                  <dt style={glossaryDt}>Aggregation</dt>
-                  <dd style={glossaryDd}>
-                    A single line in the register that sums multiple smaller donations from the same source (typically &ge; £500 each, accumulating to over £7,500 in a year). Different from a one-off £25k donation: it&rsquo;s a sustained giving pattern.
-                  </dd>
-
-                  <dt style={glossaryDt}>Sponsorship</dt>
-                  <dd style={glossaryDd}>
-                    An arrangement where the donor pays for an MP&rsquo;s activity in exchange for something — naming rights, event hosting, a stake in the MP&rsquo;s schedule. Treated as a donation under the rules even when it looks commercial. Trade-union sponsorship of Labour MPs is the longest-standing example.
-                  </dd>
-
-                  <dt style={glossaryDt}>Bequest</dt>
-                  <dd style={glossaryDd}>From a deceased donor&rsquo;s estate.</dd>
-
-                  <dt style={glossaryDt}>Irish source</dt>
-                  <dd style={glossaryDd}>A Northern Ireland-specific rule allowing donations from Irish citizens and bodies, subject to its own register. Mostly relevant for NI MPs and parties.</dd>
-
-                  <dt style={glossaryDt}>Pre-poll vs post-poll reporting</dt>
-                  <dd style={glossaryDd}>The dates show when the donation was <em>accepted</em>, when it was actually <em>received</em>, when it was <em>reported</em> to the EC, and when the EC <em>published</em> it. A gap between accepted and reported can indicate compliance lag.</dd>
-
-                  <dt style={glossaryDt}>EC reference</dt>
-                  <dd style={glossaryDd}>The Electoral Commission&rsquo;s internal ID for the donation. Clicking it links you to the original record on the EC&rsquo;s search interface for verification.</dd>
-
-                  <dt style={glossaryDt}>Companies House (CH ↗)</dt>
-                  <dd style={glossaryDd}>When the donor is a UK company, we show the company registration number as a link to its Companies House page. Click through to see the donor&rsquo;s directors, beneficial owners, accounts, and current trading status.</dd>
-
-                  <dt style={glossaryDt}>Sector tags</dt>
-                  <dd style={glossaryDd}>Our own classification, derived from the donor&rsquo;s name. Useful for spotting industry concentration (e.g. an MP whose top donors are all Property or Finance) but heuristic — read the donor name to confirm.</dd>
-
-                  <dt style={glossaryDt}>&ldquo;Also funds&rdquo;</dt>
-                  <dd style={glossaryDd}>Other MPs and political organisations the same donor has given to, drawn from the same EC register. Surfaces factional patterns when the same donor backs several MPs from one wing of a party.</dd>
-
-                  <dt style={glossaryDt}>Cumulative</dt>
-                  <dd style={glossaryDd}>For repeat donors, the running total of everything this donor has given the MP up to and including that donation. Lets you see relationship depth without arithmetic.</dd>
-
-                  <dt style={glossaryDt}>Concentration ratio</dt>
-                  <dd style={glossaryDd}>The share of all donations to this MP that come from their top 3 donors. A high concentration (e.g. 80%+) means the MP&rsquo;s funding is dependent on a small number of backers; a low one means broad-based support.</dd>
-                </dl>
-              </details>
             </>
           );
         })()}
