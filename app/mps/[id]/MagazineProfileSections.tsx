@@ -23,6 +23,16 @@ type Vote = { id: number; division_title: string; division_date: string; vote_ty
 type Bill = { id: number; title: string; status?: string | null; current_stage?: string | null; plain_summary?: string | null; is_act?: boolean | null; last_update?: string | null };
 type ChildInterest = { id?: number; interest?: string | null };
 type Interest = { category_name: string; interest_text: string | null; child_interests?: ChildInterest[] | null };
+type ActivityMetrics = {
+  divisions_voted: number | null;
+  divisions_total: number | null;
+  attendance_pct: number | string | null;
+  rebellions_total: number | null;
+  rebellion_rate_pct: number | string | null;
+  speeches_year: number | null;
+  questions_year: number | null;
+  refreshed_at: string | null;
+};
 type MinisterMeeting = {
   id: number;
   minister_name: string | null;
@@ -146,6 +156,7 @@ interface Props {
   ministerMeetings?: MinisterMeeting[];
   ministerHospitality?: MinisterHospitality[];
   conductFindings?: ConductFinding[];
+  activity?: ActivityMetrics | null;
   bio: {
     representations?: Representation[];
     government_posts?: Array<{ name: string }>;
@@ -230,6 +241,7 @@ export default function MagazineProfileSections({
   ministerMeetings = [],
   ministerHospitality = [],
   conductFindings = [],
+  activity = null,
   bio,
   earnings,
   expenses,
@@ -381,6 +393,34 @@ export default function MagazineProfileSections({
         {active === 'bio' && (
           <>
             <h2 style={sectionH2}>Political Biography</h2>
+
+            {activity && (activity.divisions_voted ?? 0) > 0 && (
+              <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px', marginBottom: '24px' }}>
+                <ActivityTile
+                  label="Divisions voted in"
+                  value={`${(activity.divisions_voted ?? 0).toLocaleString()} / ${(activity.divisions_total ?? 0).toLocaleString()}`}
+                  sub="of all Commons votes this Parliament"
+                />
+                <ActivityTile
+                  label="Attendance"
+                  value={`${Number(activity.attendance_pct ?? 0).toFixed(1)}%`}
+                  sub="proportion of available divisions voted in"
+                />
+                <ActivityTile
+                  label="Whip rebellions"
+                  value={String(activity.rebellions_total ?? 0)}
+                  sub={`${Number(activity.rebellion_rate_pct ?? 0).toFixed(1)}% of own votes`}
+                />
+                {activity.speeches_year != null && (
+                  <ActivityTile
+                    label="Speeches"
+                    value={String(activity.speeches_year)}
+                    sub="distinct contributions, last 12 months"
+                  />
+                )}
+              </section>
+            )}
+
             <div style={{ lineHeight: '1.8', fontSize: '16px', letterSpacing: '0.01em' }}>
               {paragraphs.length === 0 ? (
                 <p>Biography unavailable.</p>
@@ -1344,3 +1384,14 @@ export default function MagazineProfileSections({
     </div>
   );
 }
+
+function ActivityTile({ label, value, sub }: { label: string; value: string; sub: string }) {
+  return (
+    <div style={{ border: "1px solid rgba(20,16,13,0.25)", padding: "10px 12px", background: "rgba(255,255,255,0.04)" }}>
+      <div style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.18em", opacity: 0.7, marginBottom: "4px" }}>{label}</div>
+      <div style={{ fontFamily: "\"Special Elite\", monospace", fontSize: "22px", fontWeight: "bold", color: "#14100d" }}>{value}</div>
+      <div style={{ fontSize: "11px", opacity: 0.65, marginTop: "4px", lineHeight: 1.3 }}>{sub}</div>
+    </div>
+  );
+}
+

@@ -245,6 +245,15 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
     return firstWord && lastWord && n.includes(firstWord) && n.includes(lastWord);
   });
 
+  // Activity metrics — precomputed in mp_activity_metrics via
+  // scripts/recompute-activity-metrics.js (weekly cron). Cold render
+  // does one indexed lookup instead of aggregating mp_division_votes.
+  const activityRes = await supabase
+    .from('mp_activity_metrics')
+    .select('divisions_voted, divisions_total, attendance_pct, rebellions_total, rebellion_rate_pct, speeches_year, questions_year, refreshed_at')
+    .eq('member_id', memberId)
+    .maybeSingle();
+
   // Standards Committee findings against this MP — sourced from
   // committees-api.parliament.uk via scripts/sync-standards-committee.js.
   // Resolved findings (member_id matched) only; un-resolved former-MP
@@ -349,6 +358,7 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
         ministerMeetings: meetings,
         ministerHospitality: hospitality,
         conductFindings: conductRes.data || [],
+        activity: activityRes.data || null,
         totalVotes: votesCountRes.count ?? votesWithSi.length,
         votePage,
         votesPerPage: VOTES_PER_PAGE,
