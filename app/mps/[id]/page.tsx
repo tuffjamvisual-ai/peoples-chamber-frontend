@@ -378,6 +378,58 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
     }
   }
 
+  // Constituency-association donations: the indirect channel that
+  // currently doesn't surface on the Donations tab because the EC
+  // records it against the constituency Labour/Conservative party
+  // (recipient_type='Political Party') with the local association
+  // name in accounting_unit_name. Almost every six-figure donation
+  // to a major-party MP flows through this route rather than directly.
+  //
+  // Match: accounting_unit_name ILIKE the MP's constituency, handling
+  // '&' vs 'and' variants and bare-name (Conservative) vs '<name> CLP'
+  // (Labour) suffix conventions. We don't restrict on recipient_type
+  // here, the accounting_unit_name = constituency match is specific
+  // enough.
+  const constituency = (mp.constituency as string | null) || '';
+  const constAnd = constituency.replace(/&/g, 'and').trim();
+  const constAmp = constituency.replace(/\band\b/g, '&').trim();
+  type LocalDonation = {
+    id: number;
+    donor_name: string | null;
+    donor_type: string | null;
+    amount: number | string | null;
+    accepted_date: string | null;
+    received_date: string | null;
+    reported_date: string | null;
+    nature: string | null;
+    recipient_type: string | null;
+    accounting_unit_name: string | null;
+  };
+  let constituencyDonations: LocalDonation[] = [];
+  if (constituency.length > 2) {
+    const orParts: string[] = [];
+    const variants = Array.from(new Set([constituency, constAnd, constAmp].filter((s) => s.length > 2)));
+    for (const v of variants) {
+      const safe = v.replace(/[%_,]/g, '');
+      orParts.push(`accounting_unit_name.ilike.%${safe}%`);
+    }
+    const { data: localRows } = await supabase
+      .from('political_donations')
+      .select('id, donor_name, donor_type, donor_status, amount, cash_value, non_cash_value, accepted_date, received_date, reported_date, published_date, nature, recipient_name, recipient_type, manner_in_which_made, accounting_unit_name, accounting_unit_id, is_aggregation, is_bequest, is_sponsorship, is_anonymous, is_reported_pre_poll, returned_date, impermissibility_reason, attempted_concealment, concealment_details, trust_name, trust_creator_name, trust_creator_status, company_registration_number, addr_line1, addr_town, addr_postcode, addr_country, explanatory_notes, ec_ref')
+      .or(orParts.join(','))
+      .order('accepted_date', { ascending: false })
+      .limit(500);
+    // Tighten — accounting_unit_name token must include constituency
+    // first word AND last word (handles 'Doncaster North CLP' for
+    // constituency 'Doncaster North' but rejects coincidental matches
+    // on common single words).
+    const conTokens = constituency.toLowerCase().replace(/&/g, 'and').split(/\s+/).filter((w) => w.length > 2 && !['and','the','of','for','upon','on','le'].includes(w));
+    constituencyDonations = ((localRows ?? []) as LocalDonation[]).filter((r) => {
+      const aun = String(r.accounting_unit_name || '').toLowerCase().replace(/&/g, 'and');
+      return conTokens.every((t) => aun.includes(t));
+    });
+  }
+
   // Build a serialisable array for the client.
   const sectorCrossRef = ALL_SECTORS
     .filter((s) => donorSectorKeys.has(s.key) && (sectorVotesByKey[s.key]?.length ?? 0) > 0)
@@ -474,6 +526,7 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
         donations,
         donorOtherRecipients: Array.from(donorOtherRecipients.entries()).map(([donor_name, recipients]) => ({ donor_name, recipients })),
         sectorCrossRef,
+        constituencyDonations,
         ministerMeetings: meetings,
         ministerHospitality: hospitality,
         conductFindings: conductRes.data || [],

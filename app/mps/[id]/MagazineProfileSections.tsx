@@ -227,6 +227,7 @@ interface Props {
   donations?: Donation[];
   donorOtherRecipients?: DonorOtherRecipients[];
   sectorCrossRef?: SectorCrossRefEntry[];
+  constituencyDonations?: Donation[];
   ministerMeetings?: MinisterMeeting[];
   ministerHospitality?: MinisterHospitality[];
   conductFindings?: ConductFinding[];
@@ -324,6 +325,7 @@ export default function MagazineProfileSections({
   donations = [],
   donorOtherRecipients = [],
   sectorCrossRef = [],
+  constituencyDonations = [],
   ministerMeetings = [],
   ministerHospitality = [],
   conductFindings = [],
@@ -1160,7 +1162,7 @@ export default function MagazineProfileSections({
               </section>
 
               <p style={{ marginBottom: '8px', fontSize: '14px', opacity: 0.85 }}>
-                <strong>{fmtMoney(total)}</strong> across {donations.length.toLocaleString()} donation{donations.length === 1 ? '' : 's'} from {donorRows.length.toLocaleString()} donor{donorRows.length === 1 ? '' : 's'}.
+                <strong>{fmtMoney(total)}</strong> directed at this MP personally across {donations.length.toLocaleString()} donation{donations.length === 1 ? '' : 's'} from {donorRows.length.toLocaleString()} donor{donorRows.length === 1 ? '' : 's'}.
                 {donorRows.length >= 3 && (
                   <> Top 3 donors account for <strong>{concentrationPct.toFixed(1)}%</strong> of all donations.</>
                 )}
@@ -1168,6 +1170,68 @@ export default function MagazineProfileSections({
                   <> Pre-poll period: <strong>{prePollPct.toFixed(1)}%</strong>.</>
                 )}
               </p>
+
+              {/* Constituency-association donations — the indirect
+                  channel that bypasses MP-direct accounting. Rendered
+                  before the by-donor table so readers see the bigger
+                  number for MPs whose money flows through the local
+                  party. */}
+              {constituencyDonations.length > 0 && (() => {
+                const localTotal = constituencyDonations.reduce((s, d) => s + (Number(d.amount) || 0), 0);
+                const localDonorSet = new Set(constituencyDonations.map((d) => (d.donor_name || '').trim()).filter((n) => n));
+                // Per-donor roll-up
+                const localByDonor = new Map<string, { name: string; total: number; count: number }>();
+                for (const d of constituencyDonations) {
+                  const name = (d.donor_name || '(anonymous)').trim() || '(anonymous)';
+                  const ex = localByDonor.get(name) ?? { name, total: 0, count: 0 };
+                  ex.total += Number(d.amount) || 0;
+                  ex.count += 1;
+                  localByDonor.set(name, ex);
+                }
+                const localDonorRows = Array.from(localByDonor.values()).sort((a, b) => b.total - a.total);
+                return (
+                  <section style={{ marginBottom: '24px', padding: '14px 16px', background: 'rgba(20,16,13,0.04)', borderLeft: '3px solid #7a4a16' }}>
+                    <h3 style={{ ...sectionH3, marginTop: 0, marginBottom: '6px' }}>
+                      Plus {fmtMoney(localTotal)} to this MP&rsquo;s local constituency party
+                    </h3>
+                    <p style={{ fontSize: '12px', opacity: 0.75, lineHeight: 1.55, marginBottom: '12px' }}>
+                      {constituencyDonations.length.toLocaleString()} donation{constituencyDonations.length === 1 ? '' : 's'} from {localDonorSet.size.toLocaleString()} donor{localDonorSet.size === 1 ? '' : 's'}, recorded against the local constituency association rather than against the MP individually. This is the channel through which the majority of substantive funding to major-party MPs flows. Same donors, same political effect, different accounting envelope.
+                    </p>
+                    <details>
+                      <summary style={{ cursor: 'pointer', fontFamily: 'Special Elite, monospace', fontWeight: 'bold', fontSize: '13px', padding: '6px 0' }}>
+                        Top donors to this MP&rsquo;s local association ({localDonorRows.length})
+                      </summary>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', marginTop: '8px' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '1px solid rgba(20,16,13,0.3)', textAlign: 'left' }}>
+                            <th style={thStyle}>Donor</th>
+                            <th style={thStyle}>Donations</th>
+                            <th style={{ ...thStyle, textAlign: 'right' }}>Total</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {localDonorRows.slice(0, 50).map((d) => {
+                            const sector = sectorFor(d.name);
+                            return (
+                              <tr key={d.name} style={{ borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
+                                <td style={{ padding: '4px 4px' }}>
+                                  <strong>{d.name}</strong>
+                                  {sector && (
+                                    <span style={{ marginLeft: '6px', ...pillStyle, color: sector.colour, border: `1px solid ${sector.colour}` }}>{sector.label}</span>
+                                  )}
+                                </td>
+                                <td style={{ padding: '4px 4px', fontFamily: 'monospace' }}>{d.count}</td>
+                                <td style={{ padding: '4px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap', fontWeight: 'bold' }}>{fmtMoney(d.total)}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                      {localDonorRows.length > 50 && <p style={{ padding: '4px 0', fontSize: '12px', opacity: 0.7 }}>Showing top 50 of {localDonorRows.length}.</p>}
+                    </details>
+                  </section>
+                );
+              })()}
 
               {(returned.length > 0 || impermissible.length > 0 || concealed.length > 0) && (
                 <section style={{ marginBottom: '20px', padding: '10px 12px', border: '1px solid #a64030', background: 'rgba(166,64,48,0.06)' }}>
