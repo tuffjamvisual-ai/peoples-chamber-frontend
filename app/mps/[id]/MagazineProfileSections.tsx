@@ -1442,7 +1442,19 @@ export default function MagazineProfileSections({
                     Every donation chronologically ({donations.length})
                   </summary>
                   <div style={{ marginTop: '8px' }}>
-                    {donations.slice(0, 200).map((d) => {
+                    {donations
+                      .slice()
+                      .sort((a, b) => {
+                        // Newest first by the same date-resolution logic the row displays.
+                        // Server-side `.order('accepted_date', desc)` doesn't agree with the
+                        // displayed date when accepted_date is NULL but received_date is set.
+                        const ad = a.accepted_date || a.received_date || a.reported_date || '';
+                        const bd = b.accepted_date || b.received_date || b.reported_date || '';
+                        if (ad === bd) return 0;
+                        return ad < bd ? 1 : -1;
+                      })
+                      .slice(0, 200)
+                      .map((d) => {
                       const date = d.accepted_date || d.received_date || d.reported_date;
                       const dateText = date ? new Date(date).toLocaleDateString('en-GB') : ', ';
                       const crn = (d.company_registration_number || '').trim();
