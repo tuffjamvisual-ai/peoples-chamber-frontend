@@ -61,33 +61,31 @@ async function fetchJson(url) {
   return res.json();
 }
 
+// PRIOR IMPLEMENTATION NOTE: Both members-api ContributionSummary and
+// members-api WrittenQuestions silently ignore both `skip` and `take`,
+// always returning the same first 20 items. The pagination loop here
+// was multi-counting the same items dozens of times, producing
+// nonsense numbers (e.g. Sir Bernard Jenkin at 8,000 speeches).
+//
+// Switched 2026-06-06:
+//   speeches_year — Hansard search/contributions/Spoken.json
+//     supports a startDate filter and returns SpokenResultCount with
+//     the actual 12-month spoken-contribution count.
+//   questions_year — Members API WrittenQuestions totalResults.
+//     There is no working 12-month filter on this endpoint and Hansard
+//     doesn't expose tabled-written-question counts at all. We accept
+//     totalResults as the CAREER TOTAL of written questions tabled and
+//     label the UI accordingly.
+const cutoffIso = TWELVE_MONTHS_AGO.toISOString().slice(0, 10);
+
 async function contributionsForMember(memberId) {
-  // Take 300 to comfortably cover 12 months for the most active speakers.
-  const data = await fetchJson(`https://members-api.parliament.uk/api/Members/${memberId}/ContributionSummary?skip=0&take=300`);
-  let speeches = 0;
-  for (const item of data.items || []) {
-    const v = item.value || {};
-    const sitting = v.sittingDate ? new Date(v.sittingDate) : null;
-    if (!sitting || sitting < TWELVE_MONTHS_AGO) continue;
-    speeches += (v.speechCount || 0) + (v.interventionCount || 0) + (v.supplementaryQuestionCount || 0);
-  }
-  return speeches;
+  const data = await fetchJson(`https://hansard-api.parliament.uk/search/contributions/Spoken.json?queryParameters.memberId=${memberId}&queryParameters.startDate=${cutoffIso}`);
+  return Number(data.SpokenResultCount) || 0;
 }
 
 async function questionsForMember(memberId) {
-  // WrittenQuestions totalResults is cumulative across the MP's career,
-  // not date-windowed by the endpoint. Take=100 + filter to 12-month
-  // window approximates last-year count for all but the very
-  // most-prolific question-tablers.
-  const data = await fetchJson(`https://members-api.parliament.uk/api/Members/${memberId}/WrittenQuestions?skip=0&take=100`);
-  let questions = 0;
-  for (const item of data.items || []) {
-    const v = item.value || {};
-    const tabled = v.dateTabled ? new Date(v.dateTabled) : null;
-    if (!tabled || tabled < TWELVE_MONTHS_AGO) continue;
-    questions++;
-  }
-  return questions;
+  const data = await fetchJson(`https://members-api.parliament.uk/api/Members/${memberId}/WrittenQuestions?take=1`);
+  return Number(data.totalResults) || 0;
 }
 
 (async () => {

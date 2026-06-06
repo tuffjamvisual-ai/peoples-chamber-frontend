@@ -473,7 +473,14 @@ export default function MagazineProfileSections({
                   <ActivityTile
                     label="Speeches"
                     value={String(activity.speeches_year)}
-                    sub="distinct contributions, last 12 months"
+                    sub="spoken contributions, last 12 months"
+                  />
+                )}
+                {activity.questions_year != null && (
+                  <ActivityTile
+                    label="Written questions"
+                    value={String(activity.questions_year)}
+                    sub="career total tabled"
                   />
                 )}
               </section>

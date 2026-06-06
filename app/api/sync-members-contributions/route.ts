@@ -32,28 +32,26 @@ async function fetchJson(url: string) {
   return res.json();
 }
 
+// Members API ContributionSummary and WrittenQuestions both silently
+// ignore `skip`/`take`, returning the same first 20 items regardless,
+// so manual pagination over them is impossible. The previous loop
+// counted those 20 items many times over. Switched to:
+//   speeches_year — Hansard search/contributions/Spoken.json with
+//     startDate filter; SpokenResultCount is the accurate 12-month
+//     spoken-contribution count.
+//   questions_year — Members API WrittenQuestions totalResults,
+//     which is the CAREER TOTAL (no working 12-month filter exists).
+const cutoffIso = TWELVE_MONTHS_AGO.toISOString().slice(0, 10);
+
 async function speechesAndQuestions(memberId: number): Promise<{ speeches: number; questions: number }> {
-  const [contribJson, wqJson] = await Promise.all([
-    fetchJson(`https://members-api.parliament.uk/api/Members/${memberId}/ContributionSummary?skip=0&take=300`),
-    fetchJson(`https://members-api.parliament.uk/api/Members/${memberId}/WrittenQuestions?skip=0&take=100`),
+  const [spokenJson, wqJson] = await Promise.all([
+    fetchJson(`https://hansard-api.parliament.uk/search/contributions/Spoken.json?queryParameters.memberId=${memberId}&queryParameters.startDate=${cutoffIso}`),
+    fetchJson(`https://members-api.parliament.uk/api/Members/${memberId}/WrittenQuestions?take=1`),
   ]);
-  type CItem = { value?: { sittingDate?: string; speechCount?: number; interventionCount?: number; supplementaryQuestionCount?: number } };
-  type WItem = { value?: { dateTabled?: string } };
-  let speeches = 0;
-  for (const it of (contribJson.items || []) as CItem[]) {
-    const v = it.value || {};
-    const sitting = v.sittingDate ? new Date(v.sittingDate) : null;
-    if (!sitting || sitting < TWELVE_MONTHS_AGO) continue;
-    speeches += (v.speechCount || 0) + (v.interventionCount || 0) + (v.supplementaryQuestionCount || 0);
-  }
-  let questions = 0;
-  for (const it of (wqJson.items || []) as WItem[]) {
-    const v = it.value || {};
-    const tabled = v.dateTabled ? new Date(v.dateTabled) : null;
-    if (!tabled || tabled < TWELVE_MONTHS_AGO) continue;
-    questions++;
-  }
-  return { speeches, questions };
+  return {
+    speeches: Number(spokenJson.SpokenResultCount) || 0,
+    questions: Number(wqJson.totalResults) || 0,
+  };
 }
 
 export async function GET(req: Request) {
