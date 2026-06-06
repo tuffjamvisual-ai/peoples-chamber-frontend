@@ -5,12 +5,38 @@ import { parse } from 'csv-parse/sync';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
-// Mirrors scripts/sync-ministers-meetings.js (now retired). Pilot scope is
-// still cabinet-office only; add more dept slugs to DEPT_SLUGS once the
-// per-dept parser proves out.
+// Mirrors scripts/sync-ministers-meetings.js (now retired). Cabinet Office
+// was the original pilot; the slug list was expanded 2026-06-06 to cover
+// every UK ministerial department whose transparency publications carry
+// ministerial-meetings data.
+//
+// Slug correctness (verified against gov.uk/api/organisations on the same
+// date): DWP is 'department-for-work-pensions' (no 'and'); MHCLG is
+// 'ministry-of-housing-communities-local-government' (no 'and'). The
+// route uses these literal strings as filter_organisations parameter.
 
 const DELAY_MS = 250;
-const DEPT_SLUGS = ['cabinet-office'];
+const DEPT_SLUGS = [
+  'cabinet-office',
+  'prime-ministers-office-10-downing-street',
+  'deputy-prime-ministers-office',
+  'attorney-generals-office',
+  'department-for-business-and-trade',
+  'department-for-culture-media-and-sport',
+  'department-for-education',
+  'department-for-energy-security-and-net-zero',
+  'department-for-environment-food-rural-affairs',
+  'department-for-science-innovation-and-technology',
+  'department-for-transport',
+  'department-for-work-pensions',
+  'department-of-health-and-social-care',
+  'foreign-commonwealth-development-office',
+  'hm-treasury',
+  'home-office',
+  'ministry-of-defence',
+  'ministry-of-housing-communities-local-government',
+  'ministry-of-justice',
+];
 const CUTOFF_ISO = '2024-07-04';
 const SEARCH = 'https://www.gov.uk/api/search.json';
 const CONTENT = 'https://www.gov.uk/api/content';

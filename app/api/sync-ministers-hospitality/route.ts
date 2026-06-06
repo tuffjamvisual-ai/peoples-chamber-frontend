@@ -19,7 +19,30 @@ export const maxDuration = 300;
 
 const DELAY_MS = 100;
 const TIME_BUDGET_MS = 240_000; // bail with ~60s headroom under the 300s cap
-const DEPT_SLUGS = ['cabinet-office'];
+// Expanded 2026-06-06 from the cabinet-office-only pilot. Same canonical
+// slug list as sync-ministers-meetings (DWP = '...work-pensions', MHCLG
+// = '...housing-communities-local-government', no 'and's).
+const DEPT_SLUGS = [
+  'cabinet-office',
+  'prime-ministers-office-10-downing-street',
+  'deputy-prime-ministers-office',
+  'attorney-generals-office',
+  'department-for-business-and-trade',
+  'department-for-culture-media-and-sport',
+  'department-for-education',
+  'department-for-energy-security-and-net-zero',
+  'department-for-environment-food-rural-affairs',
+  'department-for-science-innovation-and-technology',
+  'department-for-transport',
+  'department-for-work-pensions',
+  'department-of-health-and-social-care',
+  'foreign-commonwealth-development-office',
+  'hm-treasury',
+  'home-office',
+  'ministry-of-defence',
+  'ministry-of-housing-communities-local-government',
+  'ministry-of-justice',
+];
 const CUTOFF_ISO = '2024-07-04';
 const SEARCH = 'https://www.gov.uk/api/search.json';
 const CONTENT = 'https://www.gov.uk/api/content';
