@@ -6,9 +6,9 @@ import DossierShell from '../../components/DossierShell';
 import BackLink from '../../components/BackLink';
 
 export const metadata: Metadata = {
-  title: "MP Expenses Refused or Repaid — IPSA Rejections, Late Submissions & Repayments | The People's Chamber",
+  title: "MP Expenses Refused or Repaid, IPSA Rejections, Late Submissions & Repayments | The People's Chamber",
   description:
-    "Every MP claim IPSA refused, every amount MPs had to repay, and why. League tables by member and by rejection reason — sourced from IPSA's published business-cost data.",
+    "Every MP claim IPSA refused, every amount MPs had to repay, and why. League tables by member and by rejection reason, sourced from IPSA's published business-cost data.",
   alternates: { canonical: '/expenses/refused' },
 };
 
@@ -184,7 +184,7 @@ export default async function RefusedExpensesPage() {
                       a.mp_name
                     )}
                   </td>
-                  <td style={{ ...td, textAlign: 'left', opacity: 0.75 }}>{mp?.party ?? '—'}</td>
+                  <td style={{ ...td, textAlign: 'left', opacity: 0.75 }}>{mp?.party ?? ', '}</td>
                   <td style={td}>{a.count}</td>
                   <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(a.total)}</td>
                 </tr>
@@ -224,7 +224,7 @@ export default async function RefusedExpensesPage() {
                       a.mp_name
                     )}
                   </td>
-                  <td style={{ ...td, textAlign: 'left', opacity: 0.75 }}>{mp?.party ?? '—'}</td>
+                  <td style={{ ...td, textAlign: 'left', opacity: 0.75 }}>{mp?.party ?? ', '}</td>
                   <td style={td}>{a.count}</td>
                   <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(a.total)}</td>
                 </tr>

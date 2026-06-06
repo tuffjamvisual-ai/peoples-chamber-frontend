@@ -530,7 +530,7 @@ export default function MagazineProfileSections({
                   {conductFindings.map((f) => (
                     <li key={f.id} style={{ padding: '8px 0', borderBottom: inkDivider }}>
                       <div style={{ display: 'flex', gap: '12px', alignItems: 'baseline', flexWrap: 'wrap' }}>
-                        <strong style={{ fontFamily: 'monospace' }}>{f.closed_date ? new Date(f.closed_date).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '—'}</strong>
+                        <strong style={{ fontFamily: 'monospace' }}>{f.closed_date ? new Date(f.closed_date).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : ', '}</strong>
                         <span>{f.summary || `Finding against ${f.mp_name_at_time}`}</span>
                       </div>
                       {(f.outcome || f.rule_breached || f.penalty) && (
@@ -653,7 +653,7 @@ export default function MagazineProfileSections({
               {(totalVotes ?? votes.length) > votesPerPage && (
                 <>
                   {' '}
-                  · showing {votesPerPage * (votePage - 1) + 1}–
+                  · showing {votesPerPage * (votePage - 1) + 1}-
                   {Math.min(votesPerPage * votePage, totalVotes ?? votes.length)}
                 </>
               )}
@@ -980,7 +980,7 @@ export default function MagazineProfileSections({
                 <li><strong>Ministerial salary:</strong> {fmtMoney(earnings.ministerial)} {earnings.band_label ? `(${earnings.band_label})` : ''}</li>
                 <li><strong>Outside earnings:</strong> {fmtMoney(earnings.outside)} ({earnings.outside_claim_count} payments from {earnings.outside_source_count} sources)</li>
                 <li style={{ marginTop: '12px', fontSize: '20px' }}><strong>Total personal earnings:</strong> {fmtMoney(earnings.personal_total)}</li>
-                <li style={{ marginTop: '12px', fontSize: '13px', opacity: 0.7 }}>Public spend (IPSA, {earnings.public_spend_year ?? '—'}): {fmtMoney(earnings.public_spend)}</li>
+                <li style={{ marginTop: '12px', fontSize: '13px', opacity: 0.7 }}>Public spend (IPSA, {earnings.public_spend_year ?? ', '}): {fmtMoney(earnings.public_spend)}</li>
               </ul>
 
               {rows.length > 0 && (
@@ -1032,9 +1032,9 @@ export default function MagazineProfileSections({
                               </div>
                             </td>
                             <td style={{ padding: '6px 4px', fontFamily: 'monospace' }}>{r.count}</td>
-                            <td style={{ padding: '6px 4px', fontFamily: 'monospace' }}>{r.hours > 0 ? r.hours.toLocaleString('en-GB') : '—'}</td>
+                            <td style={{ padding: '6px 4px', fontFamily: 'monospace' }}>{r.hours > 0 ? r.hours.toLocaleString('en-GB') : ', '}</td>
                             <td style={{ padding: '6px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                              {hourly !== null ? fmtMoney(hourly) : '—'}
+                              {hourly !== null ? fmtMoney(hourly) : ', '}
                             </td>
                             <td style={{ padding: '6px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap', fontWeight: 'bold' }}>{fmtMoney(r.total)}</td>
                           </tr>
@@ -1196,7 +1196,7 @@ export default function MagazineProfileSections({
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   style={{ ...inkLink, fontSize: '11px', fontWeight: 'normal' }}
-                                  title={`Companies House — ${d.crn}`}
+                                  title={`Companies House, ${d.crn}`}
                                 >
                                   CH&nbsp;↗
                                 </a>
@@ -1228,8 +1228,8 @@ export default function MagazineProfileSections({
                           )}
                         </td>
                         <td style={{ padding: '5px 4px', fontFamily: 'monospace' }}>{d.count}</td>
-                        <td style={{ padding: '5px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{d.first ? new Date(d.first).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '—'}</td>
-                        <td style={{ padding: '5px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{d.last ? new Date(d.last).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '—'}</td>
+                        <td style={{ padding: '5px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{d.first ? new Date(d.first).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : ', '}</td>
+                        <td style={{ padding: '5px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{d.last ? new Date(d.last).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : ', '}</td>
                         <td style={{ padding: '5px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap', fontWeight: 'bold' }}>{fmtMoney(d.total)}</td>
                       </tr>
                     );
@@ -1245,7 +1245,7 @@ export default function MagazineProfileSections({
                   <div style={{ marginTop: '8px' }}>
                     {donations.slice(0, 200).map((d) => {
                       const date = d.accepted_date || d.received_date || d.reported_date;
-                      const dateText = date ? new Date(date).toLocaleDateString('en-GB') : '—';
+                      const dateText = date ? new Date(date).toLocaleDateString('en-GB') : ', ';
                       const crn = (d.company_registration_number || '').trim();
                       const donorRunning = cumulativeById.get(d.id) ?? null;
                       const donorRow = byDonor.get((d.donor_name || '(anonymous)').trim() || '(anonymous)');
@@ -1255,8 +1255,8 @@ export default function MagazineProfileSections({
                           <summary style={{ cursor: 'pointer', display: 'flex', gap: '10px', alignItems: 'baseline', flexWrap: 'wrap', fontSize: '13px' }}>
                             <span style={{ fontFamily: 'monospace', whiteSpace: 'nowrap', opacity: 0.85 }}>{dateText}</span>
                             <span style={{ fontWeight: 'bold' }}>{d.donor_name || '(anonymous)'}</span>
-                            <span style={{ opacity: 0.7, fontSize: '12px' }}>{d.donor_type || '—'}</span>
-                            <span style={{ opacity: 0.7, fontSize: '12px' }}>· {d.nature || '—'}</span>
+                            <span style={{ opacity: 0.7, fontSize: '12px' }}>{d.donor_type || ', '}</span>
+                            <span style={{ opacity: 0.7, fontSize: '12px' }}>· {d.nature || ', '}</span>
                             <span style={{ marginLeft: 'auto', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(Number(d.amount) || 0)}</span>
                             {isRepeat && donorRunning != null && (
                               <span style={{ fontFamily: 'monospace', fontSize: '11px', opacity: 0.7, whiteSpace: 'nowrap' }}>
@@ -1343,7 +1343,7 @@ export default function MagazineProfileSections({
                           <tr key={o.name} style={{ borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
                             <td style={{ padding: '4px 4px' }}>{o.name}</td>
                             <td style={{ padding: '4px 4px', fontFamily: 'monospace' }}>{o.count}</td>
-                            <td style={{ padding: '4px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{o.latest ? new Date(o.latest).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '—'}</td>
+                            <td style={{ padding: '4px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{o.latest ? new Date(o.latest).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : ', '}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -1356,7 +1356,7 @@ export default function MagazineProfileSections({
                     <ul style={{ listStyle: 'none', padding: 0, fontSize: '13px', lineHeight: 1.55 }}>
                       {meetings.slice(0, 300).map((m) => (
                         <li key={m.id} style={{ padding: '5px 0', borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
-                          <span style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>{m.meeting_date ? new Date(m.meeting_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}</span>
+                          <span style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>{m.meeting_date ? new Date(m.meeting_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ', '}</span>
                           {' · '}{m.organisation || '(unspecified)'}
                           {m.purpose && <div style={{ fontSize: '12px', opacity: 0.75, marginLeft: '8px' }}>{m.purpose}</div>}
                         </li>
@@ -1391,8 +1391,8 @@ export default function MagazineProfileSections({
                           <tr key={d.name} style={{ borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
                             <td style={{ padding: '4px 4px' }}>{d.name}</td>
                             <td style={{ padding: '4px 4px', fontFamily: 'monospace' }}>{d.count}</td>
-                            <td style={{ padding: '4px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{d.latest ? new Date(d.latest).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '—'}</td>
-                            <td style={{ padding: '4px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap' }}>{d.total > 0 ? fmtMoney(d.total) : '—'}</td>
+                            <td style={{ padding: '4px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{d.latest ? new Date(d.latest).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : ', '}</td>
+                            <td style={{ padding: '4px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap' }}>{d.total > 0 ? fmtMoney(d.total) : ', '}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -1443,10 +1443,10 @@ export default function MagazineProfileSections({
                     <ul style={{ listStyle: 'none', padding: '6px 0 0 0' }}>
                       {refused.slice(0, 50).map((c, i) => (
                         <li key={c.claim_number ?? `r-${i}`} style={{ padding: '4px 0', borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
-                          <span style={{ fontFamily: 'monospace' }}>{c.claim_date ? new Date(c.claim_date).toLocaleDateString('en-GB') : '—'}</span>
+                          <span style={{ fontFamily: 'monospace' }}>{c.claim_date ? new Date(c.claim_date).toLocaleDateString('en-GB') : ', '}</span>
                           {' · '}{c.category || '?'}
                           {(c.short_description || c.cost_type) && <> · {c.short_description || c.cost_type}</>}
-                          {' — '}<strong>{fmtMoney(Number(c.amount_not_paid))}</strong>
+                          {', '}<strong>{fmtMoney(Number(c.amount_not_paid))}</strong>
                           {c.reason_if_not_paid && <span style={{ opacity: 0.8 }}> · {c.reason_if_not_paid}</span>}
                         </li>
                       ))}
@@ -1460,10 +1460,10 @@ export default function MagazineProfileSections({
                     <ul style={{ listStyle: 'none', padding: '6px 0 0 0' }}>
                       {repaid.slice(0, 50).map((c, i) => (
                         <li key={c.claim_number ?? `p-${i}`} style={{ padding: '4px 0', borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
-                          <span style={{ fontFamily: 'monospace' }}>{c.claim_date ? new Date(c.claim_date).toLocaleDateString('en-GB') : '—'}</span>
+                          <span style={{ fontFamily: 'monospace' }}>{c.claim_date ? new Date(c.claim_date).toLocaleDateString('en-GB') : ', '}</span>
                           {' · '}{c.category || '?'}
                           {(c.short_description || c.cost_type) && <> · {c.short_description || c.cost_type}</>}
-                          {' — repaid '}<strong>{fmtMoney(Number(c.amount_repaid))}</strong>
+                          {', repaid '}<strong>{fmtMoney(Number(c.amount_repaid))}</strong>
                         </li>
                       ))}
                     </ul>
@@ -1608,13 +1608,13 @@ function ActivityTile({ label, value, sub, href, hrefLabel, external }: { label:
 
 
 function DonationDetail({ d, crn }: { d: Donation; crn: string }) {
-  const fmt = (v: unknown) => (v === null || v === undefined || v === '' ? '—' : String(v));
-  const fmtBool = (v: boolean | null | undefined) => (v === true ? 'Yes' : v === false ? 'No' : '—');
+  const fmt = (v: unknown) => (v === null || v === undefined || v === '' ? ', ' : String(v));
+  const fmtBool = (v: boolean | null | undefined) => (v === true ? 'Yes' : v === false ? 'No' : ', ');
   const fmtMoneyOpt = (v: number | string | null | undefined) => {
     const n = Number(v);
-    return Number.isFinite(n) && n > 0 ? '£' + n.toLocaleString('en-GB') : '—';
+    return Number.isFinite(n) && n > 0 ? '£' + n.toLocaleString('en-GB') : ', ';
   };
-  const fmtDate = (v: string | null | undefined) => (v ? new Date(v).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—');
+  const fmtDate = (v: string | null | undefined) => (v ? new Date(v).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ', ');
   const Row = ({ label, value }: { label: string; value: React.ReactNode }) => (
     <>
       <dt style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.6, padding: '2px 8px 2px 0' }}>{label}</dt>
@@ -1665,12 +1665,12 @@ function DonationDetail({ d, crn }: { d: Donation; crn: string }) {
       {(d.reporting_period_name || d.reporting_period_type) && (
         <Row label="Reporting period" value={[d.reporting_period_name, d.reporting_period_type].filter(Boolean).join(' · ')} />
       )}
-      {d.is_reported_pre_poll === true && <Row label="Pre-poll" value="Yes — declared during an election campaign window" />}
-      {d.is_aggregation === true && <Row label="Aggregation" value="Yes — sum of multiple smaller donations" />}
-      {d.is_bequest === true && <Row label="Bequest" value="Yes — from a deceased estate" />}
-      {d.is_sponsorship === true && <Row label="Sponsorship" value="Yes — sponsorship arrangement" />}
+      {d.is_reported_pre_poll === true && <Row label="Pre-poll" value="Yes, declared during an election campaign window" />}
+      {d.is_aggregation === true && <Row label="Aggregation" value="Yes, sum of multiple smaller donations" />}
+      {d.is_bequest === true && <Row label="Bequest" value="Yes, from a deceased estate" />}
+      {d.is_sponsorship === true && <Row label="Sponsorship" value="Yes, sponsorship arrangement" />}
       {d.is_anonymous === true && <Row label="Anonymous" value="Yes" />}
-      {d.is_irish_source === true && <Row label="Irish source" value="Yes — donation from a Northern Ireland source under the Irish regime" />}
+      {d.is_irish_source === true && <Row label="Irish source" value="Yes, donation from a Northern Ireland source under the Irish regime" />}
       {trustUsed && (
         <>
           <Row label="Paid via trust" value="Yes" />

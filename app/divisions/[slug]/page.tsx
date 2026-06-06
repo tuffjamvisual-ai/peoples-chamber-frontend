@@ -54,11 +54,11 @@ const PROCEDURAL_PATTERNS: Array<[RegExp, string]> = [
   [/adjournment/i,
    "An adjournment motion ends the sitting day. Substantive votes on adjournment motions are rare; they appear most often as 'tabled but not pressed' procedural devices that let MPs raise topics on the record."],
   [/business motion/i,
-   "A business motion is a procedural vote on how the Commons will use a sitting — typically tabled by the Leader of the House to extend sitting hours or arrange the order of business."],
+   "A business motion is a procedural vote on how the Commons will use a sitting, typically tabled by the Leader of the House to extend sitting hours or arrange the order of business."],
   [/private members' business/i,
-   "A vote on the procedure governing private members' bills — the route by which backbench MPs put forward legislation. These motions affect which bills are heard and how much time they get."],
+   "A vote on the procedure governing private members' bills, the route by which backbench MPs put forward legislation. These motions affect which bills are heard and how much time they get."],
   [/^opposition day|opposition day debate|^supply and appropriation/i,
-   "On an Opposition Day the largest opposition party chooses the topic of debate. The vote is symbolic — it doesn't change the law — but it forces the government to publicly take a position on the opposition's choice of question."],
+   "On an Opposition Day the largest opposition party chooses the topic of debate. The vote is symbolic, it doesn't change the law, but it forces the government to publicly take a position on the opposition's choice of question."],
   [/^unpublished divisions/i,
    "An Unpublished Division is a vote held in a Public Bill Committee (the small cross-party group that scrutinises a bill clause by clause) whose result was not formally published in the main Commons division list. The vote still counts and shapes the bill, but it sits outside the headline numbered sequence."],
   [/^budget resolution/i,
@@ -66,9 +66,9 @@ const PROCEDURAL_PATTERNS: Array<[RegExp, string]> = [
   [/^privilege$|breach of privilege/i,
    "A privilege motion arises when the conduct of a Member, or interference with the work of the Commons or its committees, is alleged to have breached the rights of Parliament. The vote authorises a referral, sanction or further investigation."],
   [/draft (.+) regulations? \d{4}/i,
-   "A Draft Statutory Instrument — secondary legislation made under powers granted by an existing Act. The Commons vote determines whether the Regulations come into force as written. SIs are how the day-to-day detail of UK law is set without primary legislation."],
+   "A Draft Statutory Instrument, secondary legislation made under powers granted by an existing Act. The Commons vote determines whether the Regulations come into force as written. SIs are how the day-to-day detail of UK law is set without primary legislation."],
   [/draft (.+) order \d{4}/i,
-   "A Draft Statutory Instrument — secondary legislation made under powers granted by an existing Act. The Commons vote determines whether the Order comes into force as written. SIs are how the day-to-day detail of UK law is set without primary legislation."],
+   "A Draft Statutory Instrument, secondary legislation made under powers granted by an existing Act. The Commons vote determines whether the Order comes into force as written. SIs are how the day-to-day detail of UK law is set without primary legislation."],
 ];
 
 function proceduralContext(title: string | null | undefined): string | null {
@@ -128,7 +128,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     year: 'numeric',
   });
 
-  const title = `${row.division_title} — Commons Division ${divisionNumber}, ${dateLabel} | The People's Chamber`;
+  const title = `${row.division_title}, Commons Division ${divisionNumber}, ${dateLabel} | The People's Chamber`;
   const description = `How every MP voted on ${row.division_title} in the House of Commons on ${dateLabel}.`;
   return {
     title: title.length > 200 ? title.slice(0, 197).trimEnd() + '…' : title,

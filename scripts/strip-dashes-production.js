@@ -50,6 +50,9 @@ const EXCLUDE_FILE_PATTERNS = [
   /\.old-dark-theme$/,
   /\.bak\./,
   /\.backup-/,
+  // Files that carry an intentional en-dash inside a regex character
+  // class. Blunt substitution would break the regex.
+  /\/api\/sync-standards-committee\/route\.ts$/,
 ];
 
 function shouldSkipPath(rel) {

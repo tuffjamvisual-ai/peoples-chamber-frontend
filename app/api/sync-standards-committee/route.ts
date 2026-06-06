@@ -18,6 +18,14 @@ const COMMITTEE_ID = 290;
 const PAGE_SIZE = 300;
 const PUB_URL = `https://committees-api.parliament.uk/api/Publications?committeeId=${COMMITTEE_ID}&take=${PAGE_SIZE}`;
 
+// The character class must include both a regular hyphen and an en-dash
+// so we match both 'Nth Report - Name' and 'Nth Report – Name' title
+// variants that the Standards Committee uses interchangeably. The
+// strip-dashes-production.js script replaced the en-dash with a hyphen
+// in source the first time it ran; the next time it runs it'll do the
+// same again. Adding this comment as the canary for future maintainers
+// (and a reminder to skip this file in the script's allow-list if it
+// re-runs).
 const REPORT_RE = /^(\d+(?:st|nd|rd|th)?|First|Second|Third|Fourth|Fifth|Sixth|Seventh|Eighth|Ninth|Tenth|Eleventh|Twelfth|Thirteenth|Fourteenth|Fifteenth|Sixteenth|Seventeenth|Eighteenth|Nineteenth|Twentieth)\s+[Rr]eport\s*[-–]\s*(.+?)$/;
 const GENERIC = /^(register of interests|the house of commons standards landscape|members'?\s*staff|influencing code|standards|code of conduct|all[- ]?party parliamentary groups|rules for|precautionary exclusion|risk[- ]based|recall of mps act|house of commons commission|complaints procedure|appeals process|review of|inquiry into|alternatives to|members'? conduct)/i;
 
