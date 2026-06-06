@@ -206,6 +206,16 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
   const mp = mpRes.data;
   if (!mp) notFound();
 
+  // Standards Committee findings against this MP — sourced from
+  // committees-api.parliament.uk via scripts/sync-standards-committee.js.
+  // Resolved findings (member_id matched) only; un-resolved former-MP
+  // rows sit in the table unattached.
+  const conductRes = await supabase
+    .from('mp_conduct_findings')
+    .select('id, mp_name_at_time, closed_date, outcome, rule_breached, summary, penalty, url, source')
+    .eq('member_id', memberId)
+    .order('closed_date', { ascending: false });
+
   // Electoral Commission donations directed at this MP personally.
   // The political_donations table is donor-side, so it's name-keyed:
   // recipient_name needs to fuzzy-match the MP's display_name or formal
@@ -310,6 +320,7 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
         },
         votes: votesWithSi,
         donations,
+        conductFindings: conductRes.data || [],
         totalVotes: votesCountRes.count ?? votesWithSi.length,
         votePage,
         votesPerPage: VOTES_PER_PAGE,

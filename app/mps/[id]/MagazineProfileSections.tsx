@@ -22,6 +22,17 @@ type Vote = { id: number; division_title: string; division_date: string; vote_ty
 type Bill = { id: number; title: string; status?: string | null; current_stage?: string | null; plain_summary?: string | null; is_act?: boolean | null; last_update?: string | null };
 type ChildInterest = { id?: number; interest?: string | null };
 type Interest = { category_name: string; interest_text: string | null; child_interests?: ChildInterest[] | null };
+type ConductFinding = {
+  id: number;
+  mp_name_at_time: string;
+  closed_date: string | null;
+  outcome: string | null;
+  rule_breached: string | null;
+  summary: string | null;
+  penalty: string | null;
+  url: string | null;
+  source: string | null;
+};
 type Donation = {
   id: number;
   donor_name: string | null;
@@ -109,6 +120,7 @@ interface Props {
   sponsoredBills: Bill[];
   interests: Interest[];
   donations?: Donation[];
+  conductFindings?: ConductFinding[];
   bio: {
     representations?: Representation[];
     government_posts?: Array<{ name: string }>;
@@ -190,6 +202,7 @@ export default function MagazineProfileSections({
   sponsoredBills,
   interests,
   donations = [],
+  conductFindings = [],
   bio,
   earnings,
   expenses,
@@ -349,6 +362,39 @@ export default function MagazineProfileSections({
                 return <p key={idx} style={{ marginBottom: '16px', transform: `rotate(${rot})` }}>{para}</p>;
               })}
             </div>
+
+            {conductFindings.length > 0 && (
+              <section style={{ marginTop: '32px', padding: '14px 16px', border: '1px solid #a64030', background: 'rgba(166,64,48,0.04)' }}>
+                <h3 style={{ ...sectionH3, marginTop: 0, marginBottom: '8px', color: '#a64030' }}>
+                  Standards findings <span style={{ opacity: 0.6, fontWeight: 'normal', fontSize: '13px' }}>({conductFindings.length})</span>
+                </h3>
+                <p style={{ fontSize: '12px', opacity: 0.7, marginBottom: '12px' }}>
+                  Cases referred to the House of Commons Committee on Standards. The Committee publishes a numbered report for each case; outcome and penalty (where applicable) live inside the report PDF.
+                </p>
+                <ul style={{ listStyle: 'none', padding: 0, fontSize: '14px', lineHeight: 1.55 }}>
+                  {conductFindings.map((f) => (
+                    <li key={f.id} style={{ padding: '8px 0', borderBottom: inkDivider }}>
+                      <div style={{ display: 'flex', gap: '12px', alignItems: 'baseline', flexWrap: 'wrap' }}>
+                        <strong style={{ fontFamily: 'monospace' }}>{f.closed_date ? new Date(f.closed_date).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '—'}</strong>
+                        <span>{f.summary || `Finding against ${f.mp_name_at_time}`}</span>
+                      </div>
+                      {(f.outcome || f.rule_breached || f.penalty) && (
+                        <div style={{ fontSize: '12px', opacity: 0.75, marginTop: '4px' }}>
+                          {f.outcome && <span>Outcome: <strong>{f.outcome}</strong>. </span>}
+                          {f.rule_breached && <span>Rule: {f.rule_breached}. </span>}
+                          {f.penalty && <span>Penalty: {f.penalty}.</span>}
+                        </div>
+                      )}
+                      {f.url && (
+                        <div style={{ marginTop: '4px' }}>
+                          <a href={f.url} target="_blank" rel="noopener noreferrer" style={{ ...inkLink, fontSize: '12px' }}>View original ruling &rarr;</a>
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
           </>
         )}
 
