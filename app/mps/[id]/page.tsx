@@ -327,6 +327,67 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
   }
   void donorOtherRecipients as unknown as DonorOtherRecipient;   // satisfy TS unused-var
 
+  // Donor → vote cross-reference. For each donor sector this MP has
+  // received money from, find Commons divisions this MP voted on
+  // where the division title matches that sector's keywords. Lets a
+  // reader see, in one place, every bill touching a donor sector and
+  // how the MP voted on it. The data exists (donations + divisions)
+  // but the cross-reference is invisible without this view.
+  type VoteForSector = {
+    id: number;
+    division_title: string | null;
+    division_date: string | null;
+    division_date_only: string | null;
+    division_number: number | null;
+    vote_type: string;
+    is_rebellion: boolean | null;
+    division_id: number | null;
+  };
+  const { SECTORS: ALL_SECTORS, sectorForDonor, sectorForVote, ALL_VOTE_KEYWORDS } = await import('@/lib/donor-sectors');
+
+  // Which sectors this MP has donor money from
+  const donorSectorKeys = new Set<string>();
+  for (const d of (donationsRes.data || []) as Array<{ donor_name: string | null }>) {
+    const s = sectorForDonor(d.donor_name || '');
+    if (s) donorSectorKeys.add(s.key);
+  }
+
+  // Pull this MP's votes that match ANY sector's keywords. Single OR
+  // query with up-to-200 ILIKE conditions; PostgREST handles this
+  // cleanly. Bounded to 500 rows even if the MP votes on many sector
+  // bills — far more than any UI would render per section.
+  let sectorVotesByKey: Record<string, VoteForSector[]> = {};
+  if (donorSectorKeys.size > 0) {
+    const orClause = ALL_VOTE_KEYWORDS.map((kw) => `division_title.ilike.%${kw.replace(/[%_,]/g, '')}%`).join(',');
+    const { data: rawVotes } = await supabase
+      .from('mp_division_votes')
+      .select('id, division_title, division_date, division_date_only, division_number, vote_type, is_rebellion, division_id')
+      .eq('member_id', memberId)
+      .or(orClause)
+      .in('vote_type', ['aye', 'no', 'both'])
+      .order('division_date', { ascending: false })
+      .limit(500);
+
+    sectorVotesByKey = {};
+    for (const v of (rawVotes ?? []) as VoteForSector[]) {
+      const s = sectorForVote(v.division_title);
+      if (!s) continue;
+      if (!donorSectorKeys.has(s.key)) continue;   // skip sectors the MP has no donor money from
+      if (!sectorVotesByKey[s.key]) sectorVotesByKey[s.key] = [];
+      sectorVotesByKey[s.key].push(v);
+    }
+  }
+
+  // Build a serialisable array for the client.
+  const sectorCrossRef = ALL_SECTORS
+    .filter((s) => donorSectorKeys.has(s.key) && (sectorVotesByKey[s.key]?.length ?? 0) > 0)
+    .map((s) => ({
+      key: s.key,
+      label: s.label,
+      colour: s.colour,
+      votes: sectorVotesByKey[s.key] ?? [],
+    }));
+
   const donations = (donationsRes.data || []).filter((d: { recipient_name?: string | null }) => {
     const rn = String((d as { recipient_name?: string | null }).recipient_name || '').toLowerCase();
     // Tokenise on whitespace AND hyphens so 'Duncan-Smith' splits into
@@ -412,6 +473,7 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
         votes: votesWithSi,
         donations,
         donorOtherRecipients: Array.from(donorOtherRecipients.entries()).map(([donor_name, recipients]) => ({ donor_name, recipients })),
+        sectorCrossRef,
         ministerMeetings: meetings,
         ministerHospitality: hospitality,
         conductFindings: conductRes.data || [],

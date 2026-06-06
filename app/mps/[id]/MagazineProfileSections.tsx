@@ -71,6 +71,22 @@ type DonorOtherRecipients = {
   recipients: Array<{ recipient: string; total: number }>;
 };
 
+type SectorCrossRefEntry = {
+  key: string;
+  label: string;
+  colour: string;
+  votes: Array<{
+    id: number;
+    division_title: string | null;
+    division_date: string | null;
+    division_date_only: string | null;
+    division_number: number | null;
+    vote_type: string;
+    is_rebellion: boolean | null;
+    division_id: number | null;
+  }>;
+};
+
 // Pure-regex sector tagger — matches donor names against well-known
 // industry keywords. Not exhaustive; meant to surface the obvious
 // 'this donor is in sector X' so a reader can spot pattern.
@@ -210,6 +226,7 @@ interface Props {
   interests: Interest[];
   donations?: Donation[];
   donorOtherRecipients?: DonorOtherRecipients[];
+  sectorCrossRef?: SectorCrossRefEntry[];
   ministerMeetings?: MinisterMeeting[];
   ministerHospitality?: MinisterHospitality[];
   conductFindings?: ConductFinding[];
@@ -306,6 +323,7 @@ export default function MagazineProfileSections({
   interests,
   donations = [],
   donorOtherRecipients = [],
+  sectorCrossRef = [],
   ministerMeetings = [],
   ministerHospitality = [],
   conductFindings = [],
@@ -1236,6 +1254,65 @@ export default function MagazineProfileSections({
                   })}
                 </tbody>
               </table>
+
+              {sectorCrossRef.length > 0 && (() => {
+                const totalByKey = new Map<string, { total: number; donors: Set<string> }>();
+                for (const d of donations) {
+                  const sec = sectorFor((d.donor_name || '').trim());
+                  if (!sec) continue;
+                  const ex = totalByKey.get(sec.label.toLowerCase()) ?? { total: 0, donors: new Set<string>() };
+                  ex.total += Number(d.amount) || 0;
+                  if (d.donor_name) ex.donors.add(d.donor_name);
+                  totalByKey.set(sec.label.toLowerCase(), ex);
+                }
+                return (
+                  <section style={{ marginBottom: '24px', padding: '14px 16px', background: 'rgba(122,22,18,0.05)', borderLeft: '3px solid #7a1612' }}>
+                    <h3 style={{ ...sectionH3, marginTop: 0, marginBottom: '8px' }}>Voted on bills touching their donor sectors</h3>
+                    <p style={{ fontSize: '12px', opacity: 0.7, lineHeight: 1.55, marginBottom: '12px' }}>
+                      Each block below pairs a sector this MP received money from with every Commons division they voted on that touched that sector. Both halves of this data are public, the cross-reference is not. Read it and decide whether the pattern is coincidence or alignment.
+                    </p>
+                    {sectorCrossRef.map((s) => {
+                      const stat = totalByKey.get(s.label.toLowerCase());
+                      return (
+                        <div key={s.key} style={{ marginBottom: '20px' }}>
+                          <div style={{ display: 'flex', gap: '12px', alignItems: 'baseline', flexWrap: 'wrap', borderBottom: `2px solid ${s.colour}`, paddingBottom: '4px', marginBottom: '8px' }}>
+                            <span style={{ ...pillStyle, color: s.colour, border: `1px solid ${s.colour}`, fontSize: '11px' }}>{s.label}</span>
+                            {stat && (
+                              <span style={{ fontSize: '12px', opacity: 0.75 }}>
+                                {fmtMoney(stat.total)} from {stat.donors.size} donor{stat.donors.size === 1 ? '' : 's'} · {s.votes.length} sector vote{s.votes.length === 1 ? '' : 's'}
+                              </span>
+                            )}
+                          </div>
+                          <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '13px', lineHeight: 1.55 }}>
+                            {s.votes.slice(0, 20).map((v) => {
+                              const dateText = v.division_date ? new Date(v.division_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+                              const voteColour = v.vote_type === 'aye' ? '#4a8a3a' : v.vote_type === 'no' ? '#a64030' : 'rgba(20,16,13,0.6)';
+                              const slug = v.division_date_only && v.division_number != null
+                                ? `pw-${v.division_date_only}-${v.division_number}-commons`
+                                : null;
+                              return (
+                                <li key={v.id} style={{ padding: '4px 0', borderBottom: inkDivider, display: 'flex', gap: '10px', alignItems: 'baseline', flexWrap: 'wrap' }}>
+                                  <span style={{ fontFamily: 'monospace', opacity: 0.75, whiteSpace: 'nowrap' }}>{dateText}</span>
+                                  {slug ? (
+                                    <Link href={`/divisions/${slug}`} style={{ ...inkLink, fontSize: '13px' }}>{v.division_title}</Link>
+                                  ) : (
+                                    <span>{v.division_title}</span>
+                                  )}
+                                  <span style={{ marginLeft: 'auto', color: voteColour, fontFamily: 'monospace', fontWeight: 'bold', textTransform: 'uppercase' }}>{v.vote_type}</span>
+                                  {v.is_rebellion && <span style={{ color: '#7a1612', fontSize: '11px', fontWeight: 'bold' }}>REBEL</span>}
+                                </li>
+                              );
+                            })}
+                          </ul>
+                          {s.votes.length > 20 && (
+                            <p style={{ fontSize: '12px', opacity: 0.6, margin: '4px 0 0 0' }}>Showing 20 of {s.votes.length}.</p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </section>
+                );
+              })()}
 
               {donations.length > 0 && (
                 <details style={{ marginBottom: '20px' }}>
