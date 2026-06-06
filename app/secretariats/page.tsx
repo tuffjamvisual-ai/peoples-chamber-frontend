@@ -98,7 +98,12 @@ export default async function SecretariatsIndex() {
         </ul>
       </details>
 
-      <p style={{ fontSize: '12px', opacity: 0.6 }}>Source: mySociety APPG register dataset, refreshed weekly.</p>
+      <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: `1px solid ${INK_HAIRLINE}`, fontSize: '13px' }}>
+        <Link href="/appg-funders" style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold' }}>See the funder side &rarr;</Link>
+        <span style={{ opacity: 0.6 }}> who pays the secretariats to run these groups</span>
+      </div>
+
+      <p style={{ fontSize: '12px', opacity: 0.6, marginTop: '12px' }}>Source: mySociety APPG register dataset, refreshed weekly.</p>
     </DossierShell>
   );
 }
