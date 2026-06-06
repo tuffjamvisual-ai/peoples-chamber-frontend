@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import Pagination from '@/app/components/Pagination';
 
-type SectionId = 'bio' | 'contact' | 'voting' | 'bills' | 'interests' | 'roles' | 'earnings' | 'donations' | 'expenses';
+type SectionId = 'bio' | 'contact' | 'voting' | 'bills' | 'interests' | 'roles' | 'earnings' | 'donations' | 'diary' | 'expenses';
 
 const ALL_SECTIONS: Array<{ id: SectionId; label: string; rotate: string }> = [
   { id: 'bio',       label: 'POLITICAL BIO',    rotate: '0.1deg' },
@@ -15,6 +15,7 @@ const ALL_SECTIONS: Array<{ id: SectionId; label: string; rotate: string }> = [
   { id: 'roles',     label: 'ROLES',            rotate: '-0.15deg' },
   { id: 'earnings',  label: 'EARNINGS',         rotate: '0.2deg' },
   { id: 'donations', label: 'DONATIONS',        rotate: '-0.15deg' },
+  { id: 'diary',     label: 'DIARY',            rotate: '0.1deg' },
   { id: 'expenses',  label: 'EXPENSES',         rotate: '-0.1deg' },
 ];
 
@@ -22,6 +23,28 @@ type Vote = { id: number; division_title: string; division_date: string; vote_ty
 type Bill = { id: number; title: string; status?: string | null; current_stage?: string | null; plain_summary?: string | null; is_act?: boolean | null; last_update?: string | null };
 type ChildInterest = { id?: number; interest?: string | null };
 type Interest = { category_name: string; interest_text: string | null; child_interests?: ChildInterest[] | null };
+type MinisterMeeting = {
+  id: number;
+  minister_name: string | null;
+  minister_dept: string | null;
+  meeting_date: string | null;
+  organisation: string | null;
+  purpose: string | null;
+  quarter: string | null;
+  enriched_description?: string | null;
+  source_publication_slug?: string | null;
+};
+type MinisterHospitality = {
+  id: number;
+  minister_name: string | null;
+  minister_dept: string | null;
+  hospitality_date: string | null;
+  donor: string | null;
+  description: string | null;
+  value: string | null;
+  quarter: string | null;
+  source_publication_slug?: string | null;
+};
 type ConductFinding = {
   id: number;
   mp_name_at_time: string;
@@ -120,6 +143,8 @@ interface Props {
   sponsoredBills: Bill[];
   interests: Interest[];
   donations?: Donation[];
+  ministerMeetings?: MinisterMeeting[];
+  ministerHospitality?: MinisterHospitality[];
   conductFindings?: ConductFinding[];
   bio: {
     representations?: Representation[];
@@ -202,6 +227,8 @@ export default function MagazineProfileSections({
   sponsoredBills,
   interests,
   donations = [],
+  ministerMeetings = [],
+  ministerHospitality = [],
   conductFindings = [],
   bio,
   earnings,
@@ -226,6 +253,7 @@ export default function MagazineProfileSections({
     ),
     earnings: true, // Always shown — every MP has the base salary at minimum.
     donations: donations.length > 0,
+    diary: ministerMeetings.length > 0 || ministerHospitality.length > 0,
     expenses: expenses.length > 0,
   };
   const sections = ALL_SECTIONS.filter((s) => has[s.id]);
@@ -1018,6 +1046,129 @@ export default function MagazineProfileSections({
               <p style={{ marginTop: '8px', fontSize: '12px', opacity: 0.6, lineHeight: 1.55 }}>
                 Cash and non-cash combined: {fmtMoney(cashTotal)} cash, {fmtMoney(nonCashTotal)} non-cash. Source: Electoral Commission donation register, refreshed weekly.
               </p>
+            </>
+          );
+        })()}
+
+        {active === 'diary' && (() => {
+          // Ministerial diary — meetings + hospitality recorded by gov.uk
+          // and published quarterly per department. Joined to this MP by
+          // name on the server side. Cabinet meetings + departmental
+          // engagements + Spads' arrangements all appear here.
+          const meetings = ministerMeetings;
+          const hospitality = ministerHospitality;
+          const meetByOrg = new Map<string, { name: string; count: number; latest: string | null }>();
+          for (const m of meetings) {
+            const k = (m.organisation || '(unspecified)').trim();
+            const ex = meetByOrg.get(k) ?? { name: k, count: 0, latest: null };
+            ex.count += 1;
+            if (m.meeting_date && (!ex.latest || m.meeting_date > ex.latest)) ex.latest = m.meeting_date;
+            meetByOrg.set(k, ex);
+          }
+          const topOrgs = Array.from(meetByOrg.values()).sort((a, b) => b.count - a.count);
+
+          const hospByDonor = new Map<string, { name: string; count: number; total: number; latest: string | null }>();
+          let hospitalityCashTotal = 0;
+          for (const h of hospitality) {
+            const k = (h.donor || '(unspecified)').trim();
+            const vNum = (() => {
+              const m = String(h.value || '').match(/£\s*([\d,]+(?:\.\d{1,2})?)/);
+              return m ? parseFloat(m[1].replace(/,/g, '')) : 0;
+            })();
+            const ex = hospByDonor.get(k) ?? { name: k, count: 0, total: 0, latest: null };
+            ex.count += 1;
+            ex.total += vNum;
+            hospitalityCashTotal += vNum;
+            if (h.hospitality_date && (!ex.latest || h.hospitality_date > ex.latest)) ex.latest = h.hospitality_date;
+            hospByDonor.set(k, ex);
+          }
+          const topDonors = Array.from(hospByDonor.values()).sort((a, b) => b.total - a.total || b.count - a.count);
+
+          return (
+            <>
+              <h2 style={sectionH2}>Ministerial diary</h2>
+              <p style={{ marginBottom: '16px', fontSize: '13px', opacity: 0.7, lineHeight: 1.6 }}>
+                Meetings and hospitality recorded by the relevant government department under the ministerial transparency regime. Published quarterly with a 2-3 month lag. Backbench engagements and constituency surgeries are not included.
+              </p>
+
+              {meetings.length > 0 && (
+                <section style={{ marginBottom: '24px' }}>
+                  <h3 style={sectionH3}>Meetings <span style={{ opacity: 0.55, fontWeight: 'normal', fontSize: '13px' }}>({meetings.length.toLocaleString()})</span></h3>
+                  <p style={{ fontSize: '12px', opacity: 0.7, marginBottom: '8px' }}>Distinct organisations met: {topOrgs.length.toLocaleString()}.</p>
+                  <details style={{ marginBottom: '8px' }}>
+                    <summary style={{ cursor: 'pointer', fontFamily: 'Special Elite, monospace', fontWeight: 'bold', fontSize: '13px', padding: '6px 0' }}>
+                      Top organisations by meeting count
+                    </summary>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', marginTop: '8px' }}>
+                      <thead>
+                        <tr style={{ borderBottom: '1px solid rgba(20,16,13,0.3)', textAlign: 'left' }}>
+                          <th style={thStyle}>Organisation</th>
+                          <th style={thStyle}>Meetings</th>
+                          <th style={thStyle}>Latest</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {topOrgs.slice(0, 50).map((o) => (
+                          <tr key={o.name} style={{ borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
+                            <td style={{ padding: '4px 4px' }}>{o.name}</td>
+                            <td style={{ padding: '4px 4px', fontFamily: 'monospace' }}>{o.count}</td>
+                            <td style={{ padding: '4px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{o.latest ? new Date(o.latest).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '—'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </details>
+                  <details>
+                    <summary style={{ cursor: 'pointer', fontFamily: 'Special Elite, monospace', fontWeight: 'bold', fontSize: '13px', padding: '6px 0' }}>
+                      Every meeting chronologically
+                    </summary>
+                    <ul style={{ listStyle: 'none', padding: 0, fontSize: '13px', lineHeight: 1.55 }}>
+                      {meetings.slice(0, 300).map((m) => (
+                        <li key={m.id} style={{ padding: '5px 0', borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
+                          <span style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>{m.meeting_date ? new Date(m.meeting_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}</span>
+                          {' · '}{m.organisation || '(unspecified)'}
+                          {m.purpose && <div style={{ fontSize: '12px', opacity: 0.75, marginLeft: '8px' }}>{m.purpose}</div>}
+                        </li>
+                      ))}
+                    </ul>
+                    {meetings.length > 300 && <p style={{ padding: '4px 0', fontSize: '12px', opacity: 0.7 }}>Showing first 300 of {meetings.length}.</p>}
+                  </details>
+                </section>
+              )}
+
+              {hospitality.length > 0 && (
+                <section style={{ marginBottom: '24px' }}>
+                  <h3 style={sectionH3}>Hospitality received <span style={{ opacity: 0.55, fontWeight: 'normal', fontSize: '13px' }}>({hospitality.length.toLocaleString()})</span></h3>
+                  <p style={{ fontSize: '12px', opacity: 0.7, marginBottom: '8px' }}>
+                    Recorded value where stated: {fmtMoney(hospitalityCashTotal)} across {topDonors.length.toLocaleString()} distinct providers.
+                  </p>
+                  <details>
+                    <summary style={{ cursor: 'pointer', fontFamily: 'Special Elite, monospace', fontWeight: 'bold', fontSize: '13px', padding: '6px 0' }}>
+                      Hospitality by provider
+                    </summary>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', marginTop: '8px' }}>
+                      <thead>
+                        <tr style={{ borderBottom: '1px solid rgba(20,16,13,0.3)', textAlign: 'left' }}>
+                          <th style={thStyle}>Provider</th>
+                          <th style={thStyle}>Items</th>
+                          <th style={thStyle}>Latest</th>
+                          <th style={{ ...thStyle, textAlign: 'right' }}>Recorded £</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {topDonors.slice(0, 50).map((d) => (
+                          <tr key={d.name} style={{ borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
+                            <td style={{ padding: '4px 4px' }}>{d.name}</td>
+                            <td style={{ padding: '4px 4px', fontFamily: 'monospace' }}>{d.count}</td>
+                            <td style={{ padding: '4px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{d.latest ? new Date(d.latest).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '—'}</td>
+                            <td style={{ padding: '4px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap' }}>{d.total > 0 ? fmtMoney(d.total) : '—'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </details>
+                </section>
+              )}
             </>
           );
         })()}

@@ -206,6 +206,45 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
   const mp = mpRes.data;
   if (!mp) notFound();
 
+  // Compute mpNameKey/firstWord/lastWord up front — donations,
+  // meetings, and hospitality all do the same name-based fuzzy match.
+  const mpNameTop = (mp.display_name as string | null) || (mp.name as string | null) || '';
+  const mpNameKey = mpNameTop
+    .replace(/^(?:Rt Hon|Sir|Dame|Dr|Ms|Mrs|Mr|The )\s+/i, '')
+    .replace(/\s+(?:MP|QC|KC|CBE|OBE|MBE)\s*$/i, '')
+    .trim();
+  const firstWord = mpNameKey.split(/\s+/)[0]?.toLowerCase() ?? '';
+  const lastWord = mpNameKey.split(/\s+/).slice(-1)[0]?.toLowerCase() ?? '';
+
+  // Ministerial diary — meetings + hospitality recorded by gov.uk.
+  // Only ministers have entries; backbenchers fall through with empty
+  // arrays. minister_name is text (display-name format, no honorifics)
+  // so we fuzzy-match against the stripped MP name same as donations.
+  // Both queries fire in parallel.
+  const [meetingsRes, hospitalityRes] = await Promise.all([
+    supabase
+      .from('ministers_meetings')
+      .select('id, minister_name, minister_dept, meeting_date, organisation, purpose, quarter, enriched_description, source_publication_slug')
+      .or(`minister_name.ilike.%${mpNameKey.replace(/[%_,]/g, '')}%`)
+      .order('meeting_date', { ascending: false })
+      .limit(500),
+    supabase
+      .from('ministers_hospitality')
+      .select('id, minister_name, minister_dept, hospitality_date, donor, description, value, quarter, source_publication_slug')
+      .or(`minister_name.ilike.%${mpNameKey.replace(/[%_,]/g, '')}%`)
+      .order('hospitality_date', { ascending: false })
+      .limit(500),
+  ]);
+  // Tighten with first-and-last word check, same as donations.
+  const meetings = (meetingsRes.data || []).filter((m: { minister_name?: string | null }) => {
+    const n = String(m.minister_name || '').toLowerCase();
+    return firstWord && lastWord && n.includes(firstWord) && n.includes(lastWord);
+  });
+  const hospitality = (hospitalityRes.data || []).filter((h: { minister_name?: string | null }) => {
+    const n = String(h.minister_name || '').toLowerCase();
+    return firstWord && lastWord && n.includes(firstWord) && n.includes(lastWord);
+  });
+
   // Standards Committee findings against this MP — sourced from
   // committees-api.parliament.uk via scripts/sync-standards-committee.js.
   // Resolved findings (member_id matched) only; un-resolved former-MP
@@ -218,18 +257,9 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
 
   // Electoral Commission donations directed at this MP personally.
   // The political_donations table is donor-side, so it's name-keyed:
-  // recipient_name needs to fuzzy-match the MP's display_name or formal
-  // name. We accept both 'MP - Member of Parliament' (the canonical type)
-  // and 'Regulated Donee' (often used for individual MPs receiving
-  // donations through a vehicle other than the local party — e.g. Rishi
-  // Sunak's office). Members Association + Member of Registered
-  // Political Party are uncommon but also valid MP-direct types.
-  const mpName = (mp.display_name as string | null) || (mp.name as string | null) || '';
-  // Strip the common prefixes/suffixes so substring match is more forgiving.
-  const mpNameKey = mpName
-    .replace(/^(?:Rt Hon|Sir|Dame|Dr|Ms|Mrs|Mr|The )\s+/i, '')
-    .replace(/\s+(?:MP|QC|KC|CBE|OBE|MBE)\s*$/i, '')
-    .trim();
+  // recipient_name fuzzy-matches MP's mpNameKey computed above.
+  // recipient_type restricted to MP-individual classes: backbench /
+  // Regulated Donee / Members Association / Member of Registered Party.
   const donationsRes = mpNameKey.length > 0
     ? await supabase
         .from('political_donations')
@@ -239,10 +269,6 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
         .order('accepted_date', { ascending: false })
         .limit(500)
     : { data: [] };
-  // JS-side filter: also require a first-name word match to avoid 'Smith'
-  // collisions when the last name alone is common.
-  const firstWord = mpNameKey.split(/\s+/)[0]?.toLowerCase() ?? '';
-  const lastWord = mpNameKey.split(/\s+/).slice(-1)[0]?.toLowerCase() ?? '';
   const donations = (donationsRes.data || []).filter((d: { recipient_name?: string | null }) => {
     const rn = String((d as { recipient_name?: string | null }).recipient_name || '').toLowerCase();
     // Allow either both words present OR the full key being a substring
@@ -320,6 +346,8 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
         },
         votes: votesWithSi,
         donations,
+        ministerMeetings: meetings,
+        ministerHospitality: hospitality,
         conductFindings: conductRes.data || [],
         totalVotes: votesCountRes.count ?? votesWithSi.length,
         votePage,
