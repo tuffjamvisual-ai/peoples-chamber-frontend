@@ -70,18 +70,45 @@ type Donation = {
   id: number;
   donor_name: string | null;
   donor_type: string | null;
+  donor_status?: string | null;
   amount: number | string | null;
+  cash_value?: number | string | null;
+  non_cash_value?: number | string | null;
   accepted_date: string | null;
   received_date: string | null;
   reported_date: string | null;
+  published_date?: string | null;
+  dealt_with_date?: string | null;
   nature: string | null;
   recipient_type: string | null;
+  manner_in_which_made?: string | null;
+  purpose_of_visit?: string | null;
+  position_standing_for?: string | null;
+  campaigning_name?: string | null;
+  accounting_unit_name?: string | null;
+  donation_action?: string | null;
+  reporting_period_name?: string | null;
+  reporting_period_type?: string | null;
   is_aggregation?: boolean | null;
   is_bequest?: boolean | null;
   is_sponsorship?: boolean | null;
+  is_anonymous?: boolean | null;
+  is_irish_source?: boolean | null;
+  is_reported_pre_poll?: boolean | null;
   returned_date?: string | null;
   impermissibility_reason?: string | null;
   attempted_concealment?: boolean | null;
+  concealment_details?: string | null;
+  trust_name?: string | null;
+  trust_creator_name?: string | null;
+  trust_creator_status?: string | null;
+  trust_created_date?: string | null;
+  company_registration_number?: string | null;
+  addr_line1?: string | null;
+  addr_town?: string | null;
+  addr_postcode?: string | null;
+  addr_country?: string | null;
+  explanatory_notes?: string | null;
   ec_ref?: string | null;
 };
 type Representation = { name: string; startDate: string; endDate?: string | null };
@@ -710,7 +737,7 @@ export default function MagazineProfileSections({
             <>
               <h2 style={sectionH2}>Registered Interests</h2>
               <p style={{ marginBottom: '16px', fontSize: '13px', opacity: 0.7, lineHeight: 1.6 }}>
-                Mandatory declarations under the House of Commons Register of Members&rsquo; Financial Interests. Grouped by the Register&rsquo;s own categories: items potentially material to an MP&rsquo;s parliamentary work.
+                Mandatory declarations under the House of Commons Register of Members&rsquo; Financial Interests. Grouped by the Register&rsquo;s own categories: items potentially material to an MP&rsquo;s parliamentary work. This is the MP&rsquo;s own disclosure, the donor-side view of political donations lives on the Donations tab and may overlap with the &ldquo;Campaign &amp; office support&rdquo; section below.
               </p>
               {grouped.map((b) => (
                 <section key={b.key} style={{ marginBottom: '20px' }}>
@@ -981,11 +1008,11 @@ export default function MagazineProfileSections({
           const returned = donations.filter((d) => d.returned_date);
           const impermissible = donations.filter((d) => d.impermissibility_reason);
           const concealed = donations.filter((d) => d.attempted_concealment);
-          const byDonor = new Map<string, { name: string; total: number; count: number; first: string | null; last: string | null }>();
+          const byDonor = new Map<string, { name: string; total: number; count: number; first: string | null; last: string | null; donor_type: string | null; crn: string | null; trust: boolean }>();
           for (const d of donations) {
             const name = (d.donor_name || '(anonymous)').trim() || '(anonymous)';
             const v = Number(d.amount) || 0;
-            const existing = byDonor.get(name) ?? { name, total: 0, count: 0, first: null, last: null };
+            const existing = byDonor.get(name) ?? { name, total: 0, count: 0, first: null, last: null, donor_type: null, crn: null, trust: false };
             existing.total += v;
             existing.count += 1;
             const dateStr = d.accepted_date || d.received_date;
@@ -993,6 +1020,10 @@ export default function MagazineProfileSections({
               if (!existing.first || dateStr < existing.first) existing.first = dateStr;
               if (!existing.last || dateStr > existing.last) existing.last = dateStr;
             }
+            if (!existing.donor_type && d.donor_type) existing.donor_type = d.donor_type;
+            const crnNorm = (d.company_registration_number || '').trim();
+            if (!existing.crn && crnNorm) existing.crn = crnNorm;
+            if (!existing.trust && (d.trust_name || d.trust_creator_name)) existing.trust = true;
             byDonor.set(name, existing);
           }
           const donorRows = Array.from(byDonor.values()).sort((a, b) => b.total - a.total);
@@ -1005,7 +1036,7 @@ export default function MagazineProfileSections({
                 <strong>{' '}{fmtMoney(total)}</strong> across {donations.length.toLocaleString()} donation{donations.length === 1 ? '' : 's'} from {donorRows.length.toLocaleString()} donor{donorRows.length === 1 ? '' : 's'}.
               </p>
               <p style={{ marginBottom: '16px', fontSize: '12px', opacity: 0.6, lineHeight: 1.55 }}>
-                Includes donations recorded against this MP individually (Member of Parliament + Regulated Donee types). Donations to the local constituency association or to a political party in general are not shown here, they appear on the party&rsquo;s page.
+                Includes donations recorded against this MP individually (Member of Parliament + Regulated Donee types). Donations to the local constituency association or to a political party in general are not shown here, they appear on the party&rsquo;s page. This is the donor-side view, sourced from the Electoral Commission. The MP&rsquo;s own declaration of the same money typically appears under &ldquo;Campaign &amp; office support&rdquo; on the Interests tab; large items can show up in both, which is expected — two independent compliance trails for the same transaction.
               </p>
 
               {(returned.length > 0 || impermissible.length > 0 || concealed.length > 0) && (
@@ -1039,7 +1070,33 @@ export default function MagazineProfileSections({
                 <tbody>
                   {donorRows.map((d) => (
                     <tr key={d.name} style={{ borderBottom: inkDivider, verticalAlign: 'top' }}>
-                      <td style={{ padding: '5px 4px', fontWeight: 'bold' }}>{d.name}</td>
+                      <td style={{ padding: '5px 4px' }}>
+                        <div style={{ fontWeight: 'bold' }}>
+                          {d.name}
+                          {d.crn && (
+                            <>
+                              {' '}
+                              <a
+                                href={`https://find-and-update.company-information.service.gov.uk/company/${d.crn}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ ...inkLink, fontSize: '11px', fontWeight: 'normal' }}
+                                title={`Companies House — ${d.crn}`}
+                              >
+                                CH&nbsp;↗
+                              </a>
+                            </>
+                          )}
+                        </div>
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '3px' }}>
+                          {d.donor_type && (
+                            <span style={{ ...pillStyle, color: 'rgba(20,16,13,0.7)', border: '1px solid rgba(20,16,13,0.25)' }}>{d.donor_type}</span>
+                          )}
+                          {d.trust && (
+                            <span style={{ ...pillStyle, color: '#7a4a16', border: '1px solid #7a4a16' }} title="One or more donations from this donor was paid via a trust">↻ via trust</span>
+                          )}
+                        </div>
+                      </td>
                       <td style={{ padding: '5px 4px', fontFamily: 'monospace' }}>{d.count}</td>
                       <td style={{ padding: '5px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{d.first ? new Date(d.first).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '—'}</td>
                       <td style={{ padding: '5px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{d.last ? new Date(d.last).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '—'}</td>
@@ -1054,31 +1111,25 @@ export default function MagazineProfileSections({
                   <summary style={{ cursor: 'pointer', fontFamily: 'Special Elite, monospace', fontWeight: 'bold', fontSize: '13px', padding: '6px 0' }}>
                     Every donation chronologically ({donations.length})
                   </summary>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', marginTop: '8px' }}>
-                    <thead>
-                      <tr style={{ borderBottom: '1px solid rgba(20,16,13,0.3)', textAlign: 'left' }}>
-                        <th style={thStyle}>Date</th>
-                        <th style={thStyle}>Donor</th>
-                        <th style={thStyle}>Type</th>
-                        <th style={thStyle}>Nature</th>
-                        <th style={{ ...thStyle, textAlign: 'right' }}>Amount</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {donations.slice(0, 200).map((d) => {
-                        const date = d.accepted_date || d.received_date || d.reported_date;
-                        return (
-                          <tr key={d.id} style={{ borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
-                            <td style={{ padding: '4px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{date ? new Date(date).toLocaleDateString('en-GB') : '—'}</td>
-                            <td style={{ padding: '4px 4px' }}>{d.donor_name || '(anonymous)'}</td>
-                            <td style={{ padding: '4px 4px', opacity: 0.7 }}>{d.donor_type || '—'}</td>
-                            <td style={{ padding: '4px 4px', opacity: 0.7 }}>{d.nature || '—'}</td>
-                            <td style={{ padding: '4px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap' }}>{fmtMoney(Number(d.amount) || 0)}</td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                  <div style={{ marginTop: '8px' }}>
+                    {donations.slice(0, 200).map((d) => {
+                      const date = d.accepted_date || d.received_date || d.reported_date;
+                      const dateText = date ? new Date(date).toLocaleDateString('en-GB') : '—';
+                      const crn = (d.company_registration_number || '').trim();
+                      return (
+                        <details key={d.id} style={{ borderBottom: '1px dashed rgba(20,16,13,0.15)', padding: '6px 0' }}>
+                          <summary style={{ cursor: 'pointer', display: 'flex', gap: '10px', alignItems: 'baseline', flexWrap: 'wrap', fontSize: '13px' }}>
+                            <span style={{ fontFamily: 'monospace', whiteSpace: 'nowrap', opacity: 0.85 }}>{dateText}</span>
+                            <span style={{ fontWeight: 'bold' }}>{d.donor_name || '(anonymous)'}</span>
+                            <span style={{ opacity: 0.7, fontSize: '12px' }}>{d.donor_type || '—'}</span>
+                            <span style={{ opacity: 0.7, fontSize: '12px' }}>· {d.nature || '—'}</span>
+                            <span style={{ marginLeft: 'auto', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(Number(d.amount) || 0)}</span>
+                          </summary>
+                          <DonationDetail d={d} crn={crn} />
+                        </details>
+                      );
+                    })}
+                  </div>
                   {donations.length > 200 && <p style={{ padding: '6px 0', fontSize: '12px', opacity: 0.7 }}>Showing first 200 of {donations.length}.</p>}
                 </details>
               )}
@@ -1395,3 +1446,101 @@ function ActivityTile({ label, value, sub }: { label: string; value: string; sub
   );
 }
 
+
+function DonationDetail({ d, crn }: { d: Donation; crn: string }) {
+  const fmt = (v: unknown) => (v === null || v === undefined || v === '' ? '—' : String(v));
+  const fmtBool = (v: boolean | null | undefined) => (v === true ? 'Yes' : v === false ? 'No' : '—');
+  const fmtMoneyOpt = (v: number | string | null | undefined) => {
+    const n = Number(v);
+    return Number.isFinite(n) && n > 0 ? '£' + n.toLocaleString('en-GB') : '—';
+  };
+  const fmtDate = (v: string | null | undefined) => (v ? new Date(v).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—');
+  const Row = ({ label, value }: { label: string; value: React.ReactNode }) => (
+    <>
+      <dt style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.6, padding: '2px 8px 2px 0' }}>{label}</dt>
+      <dd style={{ fontSize: '13px', margin: 0, padding: '2px 0', wordBreak: 'break-word' }}>{value}</dd>
+    </>
+  );
+  const trustUsed = !!(d.trust_name || d.trust_creator_name || d.trust_creator_status || d.trust_created_date);
+  return (
+    <dl style={{ display: 'grid', gridTemplateColumns: 'minmax(140px, max-content) 1fr', gap: '2px 16px', margin: '8px 0 4px 8px', padding: '8px 12px', background: 'rgba(20,16,13,0.04)', border: '1px solid rgba(20,16,13,0.1)' }}>
+      <Row label="Accepted" value={fmtDate(d.accepted_date)} />
+      <Row label="Received" value={fmtDate(d.received_date)} />
+      <Row label="Reported" value={fmtDate(d.reported_date)} />
+      {d.published_date && <Row label="Published" value={fmtDate(d.published_date)} />}
+      {d.dealt_with_date && <Row label="Dealt with" value={fmtDate(d.dealt_with_date)} />}
+      <Row label="Amount" value={fmtMoney(Number(d.amount) || 0)} />
+      {Number(d.cash_value) > 0 && <Row label="Cash value" value={fmtMoneyOpt(d.cash_value)} />}
+      {Number(d.non_cash_value) > 0 && <Row label="Non-cash value" value={fmtMoneyOpt(d.non_cash_value)} />}
+      <Row label="Manner" value={fmt(d.manner_in_which_made)} />
+      <Row label="Nature" value={fmt(d.nature)} />
+      <Row label="Donation type" value={fmt(d.donor_type)} />
+      <Row label="Donor status" value={fmt(d.donor_status)} />
+      {crn && (
+        <Row
+          label="Company no."
+          value={
+            <a
+              href={`https://find-and-update.company-information.service.gov.uk/company/${crn}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={inkLink}
+            >
+              {crn} ↗
+            </a>
+          }
+        />
+      )}
+      {(d.addr_line1 || d.addr_town || d.addr_postcode || d.addr_country) && (
+        <Row
+          label="Donor address"
+          value={[d.addr_line1, d.addr_town, d.addr_postcode, d.addr_country].filter(Boolean).join(', ')}
+        />
+      )}
+      {d.position_standing_for && <Row label="Position sought" value={d.position_standing_for} />}
+      {d.purpose_of_visit && <Row label="Purpose of visit" value={d.purpose_of_visit} />}
+      {d.campaigning_name && <Row label="Campaigning name" value={d.campaigning_name} />}
+      {d.accounting_unit_name && <Row label="Accounting unit" value={d.accounting_unit_name} />}
+      {d.donation_action && <Row label="EC decision" value={d.donation_action} />}
+      {(d.reporting_period_name || d.reporting_period_type) && (
+        <Row label="Reporting period" value={[d.reporting_period_name, d.reporting_period_type].filter(Boolean).join(' · ')} />
+      )}
+      {d.is_reported_pre_poll === true && <Row label="Pre-poll" value="Yes — declared during an election campaign window" />}
+      {d.is_aggregation === true && <Row label="Aggregation" value="Yes — sum of multiple smaller donations" />}
+      {d.is_bequest === true && <Row label="Bequest" value="Yes — from a deceased estate" />}
+      {d.is_sponsorship === true && <Row label="Sponsorship" value="Yes — sponsorship arrangement" />}
+      {d.is_anonymous === true && <Row label="Anonymous" value="Yes" />}
+      {d.is_irish_source === true && <Row label="Irish source" value="Yes — donation from a Northern Ireland source under the Irish regime" />}
+      {trustUsed && (
+        <>
+          <Row label="Paid via trust" value="Yes" />
+          {d.trust_name && <Row label="Trust name" value={d.trust_name} />}
+          {d.trust_creator_name && <Row label="Trust creator" value={d.trust_creator_name} />}
+          {d.trust_creator_status && <Row label="Creator status" value={d.trust_creator_status} />}
+          {d.trust_created_date && <Row label="Trust created" value={fmtDate(d.trust_created_date)} />}
+        </>
+      )}
+      {d.returned_date && <Row label="Returned to donor" value={fmtDate(d.returned_date)} />}
+      {d.impermissibility_reason && <Row label="Impermissibility" value={d.impermissibility_reason} />}
+      {d.attempted_concealment === true && <Row label="Concealment attempted" value="Yes" />}
+      {d.concealment_details && <Row label="Concealment details" value={d.concealment_details} />}
+      {d.explanatory_notes && <Row label="EC notes" value={d.explanatory_notes} />}
+      {d.ec_ref && (
+        <Row
+          label="EC reference"
+          value={
+            <a
+              href={`https://search.electoralcommission.org.uk/Search/Donations?currentPage=1&rows=10&query=${encodeURIComponent(d.ec_ref)}&sort=AcceptedDate&order=desc`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={inkLink}
+            >
+              {d.ec_ref} ↗
+            </a>
+          }
+        />
+      )}
+      <Row label="Concealment flag" value={fmtBool(d.attempted_concealment)} />
+    </dl>
+  );
+}

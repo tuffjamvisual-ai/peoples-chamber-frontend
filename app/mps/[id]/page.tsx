@@ -272,7 +272,7 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
   const donationsRes = mpNameKey.length > 0
     ? await supabase
         .from('political_donations')
-        .select('id, donor_name, donor_type, amount, accepted_date, received_date, reported_date, nature, recipient_name, recipient_type, is_aggregation, is_bequest, is_sponsorship, returned_date, impermissibility_reason, attempted_concealment, ec_ref')
+        .select('id, donor_name, donor_type, donor_status, amount, cash_value, non_cash_value, accepted_date, received_date, reported_date, published_date, dealt_with_date, nature, recipient_name, recipient_type, manner_in_which_made, purpose_of_visit, position_standing_for, campaigning_name, accounting_unit_name, donation_action, reporting_period_name, reporting_period_type, is_aggregation, is_bequest, is_sponsorship, is_anonymous, is_irish_source, is_reported_pre_poll, returned_date, impermissibility_reason, attempted_concealment, concealment_details, trust_name, trust_creator_name, trust_creator_status, trust_created_date, company_registration_number, addr_line1, addr_town, addr_postcode, addr_country, explanatory_notes, ec_ref')
         .in('recipient_type', ['MP - Member of Parliament', 'Regulated Donee', 'Members Association', 'Member of Registered Political Party'])
         .ilike('recipient_name', `%${mpNameKey}%`)
         .order('accepted_date', { ascending: false })
