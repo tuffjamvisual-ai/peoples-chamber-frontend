@@ -278,6 +278,43 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
         .order('accepted_date', { ascending: false })
         .limit(500)
     : { data: [] };
+  // Build a small lookup of "where else does this MP's donor pool give?"
+  // For each donor that funded this MP, fetch up to 5 other distinct
+  // recipient names. Drives the 'Also funds:' line on each donor row.
+  type RawDonationLite = { recipient_name?: string | null; donor_name?: string | null };
+  type DonorOtherRecipient = { donor_name: string; recipient_name: string; total: number };
+  const donorNames = Array.from(new Set(
+    (donationsRes.data || []).map((d: RawDonationLite) => (d.donor_name || '').trim()).filter((n: string) => n.length > 0),
+  )) as string[];
+  let donorOtherRecipients: Map<string, Array<{ recipient: string; total: number }>> = new Map();
+  if (donorNames.length > 0) {
+    const { data: otherRows } = await supabase
+      .from('political_donations')
+      .select('donor_name, recipient_name, amount')
+      .in('donor_name', donorNames.slice(0, 60))   // safety cap
+      .not('recipient_name', 'is', null)
+      .limit(5000);
+    if (otherRows) {
+      const agg = new Map<string, Map<string, number>>();
+      for (const r of otherRows as unknown as Array<RawDonationLite & { amount: number | string | null }>) {
+        const dn = (r.donor_name || '').trim();
+        const rn = (r.recipient_name || '').trim();
+        if (!dn || !rn) continue;
+        // Skip rows where the recipient is THIS MP (avoid showing yourself)
+        if (rn.toLowerCase().includes(mpNameKey.toLowerCase())) continue;
+        if (!agg.has(dn)) agg.set(dn, new Map());
+        const inner = agg.get(dn)!;
+        inner.set(rn, (inner.get(rn) ?? 0) + (Number(r.amount) || 0));
+      }
+      donorOtherRecipients = new Map<string, Array<{ recipient: string; total: number }>>();
+      for (const [dn, inner] of agg.entries()) {
+        const sorted = Array.from(inner.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5);
+        donorOtherRecipients.set(dn, sorted.map(([recipient, total]) => ({ recipient, total })));
+      }
+    }
+  }
+  void donorOtherRecipients as unknown as DonorOtherRecipient;   // satisfy TS unused-var
+
   const donations = (donationsRes.data || []).filter((d: { recipient_name?: string | null }) => {
     const rn = String((d as { recipient_name?: string | null }).recipient_name || '').toLowerCase();
     // Allow either both words present OR the full key being a substring
@@ -355,6 +392,7 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
         },
         votes: votesWithSi,
         donations,
+        donorOtherRecipients: Array.from(donorOtherRecipients.entries()).map(([donor_name, recipients]) => ({ donor_name, recipients })),
         ministerMeetings: meetings,
         ministerHospitality: hospitality,
         conductFindings: conductRes.data || [],

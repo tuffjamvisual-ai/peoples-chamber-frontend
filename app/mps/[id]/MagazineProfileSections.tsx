@@ -66,6 +66,35 @@ type ConductFinding = {
   url: string | null;
   source: string | null;
 };
+type DonorOtherRecipients = {
+  donor_name: string;
+  recipients: Array<{ recipient: string; total: number }>;
+};
+
+// Pure-regex sector tagger — matches donor names against well-known
+// industry keywords. Not exhaustive; meant to surface the obvious
+// 'this donor is in sector X' so a reader can spot pattern.
+const SECTOR_PATTERNS: Array<{ key: string; label: string; re: RegExp; colour: string }> = [
+  { key: 'tradeunion', label: 'Trade union', re: /\b(unite the union|unite$|unison|gmb|usdaw|cwu|aslef|nasuwt|nut|nutuc|tuc|fbu|prospect|equity|musicians.{0,5}union|writers.{0,5}guild|community union|fda union|napo|nuj|nautilus|pcs|rmt|tssa|ucu|bda)\b/i, colour: '#a64030' },
+  { key: 'property',   label: 'Property',   re: /\b(properties|property|estates|developments|homes ltd|housing|real estate|landlord|land ltd|builders|construction)\b/i, colour: '#5e3a14' },
+  { key: 'finance',    label: 'Finance',    re: /\b(capital|partners|investments?|hedge|fund management|asset management|equity|holdings|securities|wealth|private bank|sovereign)\b/i, colour: '#1a4666' },
+  { key: 'gambling',   label: 'Gambling',   re: /\b(gambling|bet365|bookmakers?|paddy power|ladbrokes|coral|william hill|casino|bingo|betting|wagering|lottery)\b/i, colour: '#7a4a16' },
+  { key: 'defence',    label: 'Defence',    re: /\b(defence|defense|arms|aerospace|missile|naval systems|bae|qinetiq|babcock|leonardo|raytheon|lockheed)\b/i, colour: '#3b3b3b' },
+  { key: 'energy',     label: 'Oil & gas',  re: /\b(oil|petroleum|gas ltd|shell|bp\s|exxon|chevron|drilling|exploration|lng|coal)\b/i, colour: '#222' },
+  { key: 'media',      label: 'Media',      re: /\b(media|publishing|newspapers?|press ltd|broadcast|telegraph|times newspapers|news uk|news group|daily mail|guardian media|reach plc)\b/i, colour: '#444' },
+  { key: 'pharma',     label: 'Pharma',     re: /\b(pharma|biotech|pharmaceuticals?|astrazeneca|gsk|glaxo|life sciences|medicines|vaccines|biopharma)\b/i, colour: '#4a8a3a' },
+  { key: 'tech',       label: 'Tech',       re: /\b(technologies|technology|software|systems ltd|digital ltd|ai labs|data labs|microsoft|google|amazon|meta platforms|apple inc)\b/i, colour: '#005b8a' },
+  { key: 'tobacco',    label: 'Tobacco',    re: /\b(tobacco|vape|vaping|imperial brands|british american tobacco|bat plc|philip morris|nicotine)\b/i, colour: '#8b4513' },
+  { key: 'crypto',     label: 'Crypto',     re: /\b(crypto|coin ltd|bitcoin|blockchain|digital asset|web3|defi)\b/i, colour: '#704214' },
+];
+
+function sectorFor(donorName: string): { label: string; colour: string } | null {
+  for (const s of SECTOR_PATTERNS) {
+    if (s.re.test(donorName)) return { label: s.label, colour: s.colour };
+  }
+  return null;
+}
+
 type Donation = {
   id: number;
   donor_name: string | null;
@@ -180,6 +209,7 @@ interface Props {
   sponsoredBills: Bill[];
   interests: Interest[];
   donations?: Donation[];
+  donorOtherRecipients?: DonorOtherRecipients[];
   ministerMeetings?: MinisterMeeting[];
   ministerHospitality?: MinisterHospitality[];
   conductFindings?: ConductFinding[];
@@ -265,6 +295,7 @@ export default function MagazineProfileSections({
   sponsoredBills,
   interests,
   donations = [],
+  donorOtherRecipients = [],
   ministerMeetings = [],
   ministerHospitality = [],
   conductFindings = [],
@@ -1005,9 +1036,15 @@ export default function MagazineProfileSections({
           const total = donations.reduce((s, d) => s + (Number(d.amount) || 0), 0);
           const cashTotal = donations.reduce((s, d) => s + (d.nature?.toLowerCase().includes('cash') ? (Number(d.amount) || 0) : 0), 0);
           const nonCashTotal = total - cashTotal;
+          const prePollTotal = donations.reduce((s, d) => s + (d.is_reported_pre_poll === true ? (Number(d.amount) || 0) : 0), 0);
           const returned = donations.filter((d) => d.returned_date);
           const impermissible = donations.filter((d) => d.impermissibility_reason);
           const concealed = donations.filter((d) => d.attempted_concealment);
+          // Other-recipients lookup keyed by donor name, computed server-side
+          // so this is a cheap O(1) probe inside the render.
+          const otherByDonor = new Map<string, Array<{ recipient: string; total: number }>>();
+          for (const o of donorOtherRecipients) otherByDonor.set(o.donor_name, o.recipients);
+
           const byDonor = new Map<string, { name: string; total: number; count: number; first: string | null; last: string | null; donor_type: string | null; crn: string | null; trust: boolean }>();
           for (const d of donations) {
             const name = (d.donor_name || '(anonymous)').trim() || '(anonymous)';
@@ -1028,12 +1065,50 @@ export default function MagazineProfileSections({
           }
           const donorRows = Array.from(byDonor.values()).sort((a, b) => b.total - a.total);
 
+          // Concentration: top 3 donors' share of total
+          const top3 = donorRows.slice(0, 3).reduce((s, r) => s + r.total, 0);
+          const concentrationPct = total > 0 ? (top3 / total) * 100 : 0;
+          const prePollPct = total > 0 ? (prePollTotal / total) * 100 : 0;
+
+          // Cumulative running totals per donor — sort each donor's
+          // donations chronologically and accumulate; map keyed by donation id.
+          const cumulativeById = new Map<number, number>();
+          {
+            const perDonor = new Map<string, Donation[]>();
+            for (const d of donations) {
+              const name = (d.donor_name || '(anonymous)').trim() || '(anonymous)';
+              if (!perDonor.has(name)) perDonor.set(name, []);
+              perDonor.get(name)!.push(d);
+            }
+            for (const list of perDonor.values()) {
+              const sorted = list.slice().sort((a, b) => {
+                const ad = a.accepted_date || a.received_date || a.reported_date || '';
+                const bd = b.accepted_date || b.received_date || b.reported_date || '';
+                if (ad === bd) return 0;
+                return ad < bd ? -1 : 1;
+              });
+              let running = 0;
+              for (const d of sorted) {
+                running += Number(d.amount) || 0;
+                cumulativeById.set(d.id, running);
+              }
+            }
+          }
+
           return (
             <>
               <h2 style={sectionH2}>Donations</h2>
               <p style={{ marginBottom: '8px', fontSize: '14px', opacity: 0.85 }}>
                 Reportable donations received personally, from the Electoral Commission&rsquo;s register.
                 <strong>{' '}{fmtMoney(total)}</strong> across {donations.length.toLocaleString()} donation{donations.length === 1 ? '' : 's'} from {donorRows.length.toLocaleString()} donor{donorRows.length === 1 ? '' : 's'}.
+              </p>
+              <p style={{ marginBottom: '12px', fontSize: '13px', opacity: 0.85, lineHeight: 1.6 }}>
+                {donorRows.length >= 3 && (
+                  <>Top 3 donors account for <strong>{concentrationPct.toFixed(1)}%</strong> of all donations. </>
+                )}
+                {prePollTotal > 0 && (
+                  <>Pre-poll period donations: <strong>{prePollPct.toFixed(1)}%</strong> of total (declared during a regulated election window). </>
+                )}
               </p>
               <p style={{ marginBottom: '16px', fontSize: '12px', opacity: 0.6, lineHeight: 1.55 }}>
                 Includes donations recorded against this MP individually (Member of Parliament + Regulated Donee types). Donations to the local constituency association or to a political party in general are not shown here, they appear on the party&rsquo;s page. This is the donor-side view, sourced from the Electoral Commission. The MP&rsquo;s own declaration of the same money typically appears under &ldquo;Campaign &amp; office support&rdquo; on the Interests tab; large items can show up in both, which is expected — two independent compliance trails for the same transaction.
@@ -1068,41 +1143,60 @@ export default function MagazineProfileSections({
                   </tr>
                 </thead>
                 <tbody>
-                  {donorRows.map((d) => (
-                    <tr key={d.name} style={{ borderBottom: inkDivider, verticalAlign: 'top' }}>
-                      <td style={{ padding: '5px 4px' }}>
-                        <div style={{ fontWeight: 'bold' }}>
-                          {d.name}
-                          {d.crn && (
-                            <>
-                              {' '}
-                              <a
-                                href={`https://find-and-update.company-information.service.gov.uk/company/${d.crn}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{ ...inkLink, fontSize: '11px', fontWeight: 'normal' }}
-                                title={`Companies House — ${d.crn}`}
-                              >
-                                CH&nbsp;↗
-                              </a>
-                            </>
+                  {donorRows.map((d) => {
+                    const sector = sectorFor(d.name);
+                    const others = otherByDonor.get(d.name) ?? [];
+                    return (
+                      <tr key={d.name} style={{ borderBottom: inkDivider, verticalAlign: 'top' }}>
+                        <td style={{ padding: '5px 4px' }}>
+                          <div style={{ fontWeight: 'bold' }}>
+                            {d.name}
+                            {d.crn && (
+                              <>
+                                {' '}
+                                <a
+                                  href={`https://find-and-update.company-information.service.gov.uk/company/${d.crn}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{ ...inkLink, fontSize: '11px', fontWeight: 'normal' }}
+                                  title={`Companies House — ${d.crn}`}
+                                >
+                                  CH&nbsp;↗
+                                </a>
+                              </>
+                            )}
+                          </div>
+                          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '3px' }}>
+                            {d.donor_type && (
+                              <span style={{ ...pillStyle, color: 'rgba(20,16,13,0.7)', border: '1px solid rgba(20,16,13,0.25)' }}>{d.donor_type}</span>
+                            )}
+                            {sector && (
+                              <span style={{ ...pillStyle, color: sector.colour, border: `1px solid ${sector.colour}` }}>{sector.label}</span>
+                            )}
+                            {d.trust && (
+                              <span style={{ ...pillStyle, color: '#7a4a16', border: '1px solid #7a4a16' }} title="One or more donations from this donor was paid via a trust">↻ via trust</span>
+                            )}
+                          </div>
+                          {others.length > 0 && (
+                            <div style={{ fontSize: '12px', opacity: 0.7, marginTop: '4px' }}>
+                              Also funds:{' '}
+                              {others.map((o, i) => (
+                                <span key={o.recipient}>
+                                  {i > 0 && ', '}
+                                  {o.recipient}
+                                  <span style={{ opacity: 0.6 }}> ({fmtMoney(o.total)})</span>
+                                </span>
+                              ))}
+                            </div>
                           )}
-                        </div>
-                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '3px' }}>
-                          {d.donor_type && (
-                            <span style={{ ...pillStyle, color: 'rgba(20,16,13,0.7)', border: '1px solid rgba(20,16,13,0.25)' }}>{d.donor_type}</span>
-                          )}
-                          {d.trust && (
-                            <span style={{ ...pillStyle, color: '#7a4a16', border: '1px solid #7a4a16' }} title="One or more donations from this donor was paid via a trust">↻ via trust</span>
-                          )}
-                        </div>
-                      </td>
-                      <td style={{ padding: '5px 4px', fontFamily: 'monospace' }}>{d.count}</td>
-                      <td style={{ padding: '5px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{d.first ? new Date(d.first).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '—'}</td>
-                      <td style={{ padding: '5px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{d.last ? new Date(d.last).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '—'}</td>
-                      <td style={{ padding: '5px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap', fontWeight: 'bold' }}>{fmtMoney(d.total)}</td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td style={{ padding: '5px 4px', fontFamily: 'monospace' }}>{d.count}</td>
+                        <td style={{ padding: '5px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{d.first ? new Date(d.first).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '—'}</td>
+                        <td style={{ padding: '5px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{d.last ? new Date(d.last).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '—'}</td>
+                        <td style={{ padding: '5px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap', fontWeight: 'bold' }}>{fmtMoney(d.total)}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
 
@@ -1116,6 +1210,9 @@ export default function MagazineProfileSections({
                       const date = d.accepted_date || d.received_date || d.reported_date;
                       const dateText = date ? new Date(date).toLocaleDateString('en-GB') : '—';
                       const crn = (d.company_registration_number || '').trim();
+                      const donorRunning = cumulativeById.get(d.id) ?? null;
+                      const donorRow = byDonor.get((d.donor_name || '(anonymous)').trim() || '(anonymous)');
+                      const isRepeat = donorRow && donorRow.count > 1 && donorRunning != null && donorRunning < donorRow.total;
                       return (
                         <details key={d.id} style={{ borderBottom: '1px dashed rgba(20,16,13,0.15)', padding: '6px 0' }}>
                           <summary style={{ cursor: 'pointer', display: 'flex', gap: '10px', alignItems: 'baseline', flexWrap: 'wrap', fontSize: '13px' }}>
@@ -1124,6 +1221,11 @@ export default function MagazineProfileSections({
                             <span style={{ opacity: 0.7, fontSize: '12px' }}>{d.donor_type || '—'}</span>
                             <span style={{ opacity: 0.7, fontSize: '12px' }}>· {d.nature || '—'}</span>
                             <span style={{ marginLeft: 'auto', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(Number(d.amount) || 0)}</span>
+                            {isRepeat && donorRunning != null && (
+                              <span style={{ fontFamily: 'monospace', fontSize: '11px', opacity: 0.7, whiteSpace: 'nowrap' }}>
+                                ({fmtMoney(donorRunning)} cumulative)
+                              </span>
+                            )}
                           </summary>
                           <DonationDetail d={d} crn={crn} />
                         </details>
