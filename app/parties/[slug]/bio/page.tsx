@@ -166,7 +166,7 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
           </nav>
         </aside>
 
-        {/* Main column: critique + manifesto cross-link */}
+        {/* Main column: critique + manifesto cross link */}
         <div>
           {/* People's critique — sharp ~550-word assessment in MP-bio
               style. Renders as blank-line-separated paragraphs in the
@@ -207,7 +207,7 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
             </p>
           )}
 
-          {/* Cross-link to the manifesto-vs-record detail page. */}
+          {/* cross link to the manifesto-vs-record detail page. */}
           <section style={{ borderTop: '1px solid rgba(20,16,13,0.2)', paddingTop: '20px', marginBottom: '20px' }}>
             <a
               href={`/parties/${party.slug}`}

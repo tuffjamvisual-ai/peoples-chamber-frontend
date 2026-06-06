@@ -19,7 +19,7 @@ const crypto: ControlZoneData = {
     { partyId: 'tuv', headline: 'Oppose digital currency surveillance — protect financial freedom', position: 'TUV strongly oppose a Central Bank Digital Currency as a tool of government surveillance and control. They support people right to use cash.' },
     { partyId: 'uup', headline: 'Crypto regulation must support NI fintech growth', position: 'UUP want crypto and fintech regulation that supports Northern Ireland growing technology sector.' },
     { partyId: 'restore', headline: 'Crypto freedom — oppose government digital currency', position: 'Restore Britain strongly oppose a CBDC as government overreach into personal financial freedom. Support light-touch crypto regulation that enables innovation.' },
-    { partyId: 'others', headline: 'UKIP: Anti-CBDC. Alba: Scottish fintech regulation post-independence.', position: 'UKIP oppose a Central Bank Digital Currency and want light-touch crypto regulation. Alba want an independent Scotland to develop its own fintech regulatory framework.' },
+    { partyId: 'others', headline: 'UKIP: Anti-CBDC. Alba: Scottish fintech regulation post independence.', position: 'UKIP oppose a Central Bank Digital Currency and want light-touch crypto regulation. Alba want an independent Scotland to develop its own fintech regulatory framework.' },
   ]
 };
 

@@ -117,7 +117,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const name = party?.name || 'Party';
   return {
     title: `${name}, Policies | The People's Chamber`,
-    description: `${name}'s 2024 General Election manifesto positions across 11 themes, with post-election shifts tracked.`,
+    description: `${name}'s 2024 General Election manifesto positions across 11 themes, with post election shifts tracked.`,
     alternates: { canonical: `/parties/${slug}` },
   };
 }
@@ -214,7 +214,7 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
       )}
 
       {/* The 11 themed policy blocks. Each block: theme label, 2024
-          manifesto position, source, optional post-election shift in a
+          manifesto position, source, optional post election shift in a
           coloured callout, shift source. */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
         {policies.length === 0 && (

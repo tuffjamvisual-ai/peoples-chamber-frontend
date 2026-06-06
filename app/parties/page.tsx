@@ -26,7 +26,7 @@ const MONO = 'Special Elite, monospace';
 export const metadata: Metadata = {
   title: "UK Party Manifestos 2024, Side-by-Side Policy Comparison",
   description:
-    "Compare 2024 General Election manifestos from Labour, Conservative, Reform, Lib Dem, SNP, Green and 9 other UK parties across 11 policy themes, with post-election shifts marked.",
+    "Compare 2024 General Election manifestos from Labour, Conservative, Reform, Lib Dem, SNP, Green and 9 other UK parties across 11 policy themes, with post election shifts marked.",
   alternates: { canonical: '/parties' },
 };
 

@@ -1050,7 +1050,7 @@ export default function MagazineProfileSections({
               </p>
               {rows.some((r) => r.acoba) && (
                 <p style={{ marginTop: '12px', fontSize: '12px', opacity: 0.6, lineHeight: 1.55 }}>
-                  <strong>ACOBA</strong> is the Advisory Committee on Business Appointments, the independent body that vets new jobs taken by former ministers and senior officials in the two years after they leave government. It reviews each role for conflicts of interest and can recommend conditions such as lobbying bans or waiting periods, though it cannot block an appointment. &ldquo;ACOBA: Yes&rdquo; means the appointment was submitted for review; &ldquo;ACOBA: No&rdquo; means it was not, which is sometimes legitimate (the rules did not apply) and sometimes a story (an ex-minister bypassing the vetting).
+                  <strong>ACOBA</strong> is the Advisory Committee on Business Appointments, the independent body that vets new jobs taken by former ministers and senior officials in the two years after they leave government. It reviews each role for conflicts of interest and can recommend conditions such as lobbying bans or waiting periods, though it cannot block an appointment. &ldquo;ACOBA: Yes&rdquo; means the appointment was submitted for review; &ldquo;ACOBA: No&rdquo; means it was not, which is sometimes legitimate (the rules did not apply) and sometimes a story (an ex minister$1 bypassing the vetting).
                 </p>
               )}
             </>
@@ -1132,7 +1132,7 @@ export default function MagazineProfileSections({
                   lives at /explainers/donations and is linked below. */}
               <section style={{ marginBottom: '20px', padding: '14px 16px', background: 'rgba(20,16,13,0.04)', borderLeft: '3px solid #7a1612' }}>
                 <p style={callPLast}>
-                  The UK&rsquo;s political donation system asks politicians to declare who funds them and trusts them to tell the truth. There is no independent audit of what MPs receive. Donations below £500 need not be declared at all. Unincorporated associations and trusts can donate without revealing who provided the money. A company registered at Companies House with entirely foreign ownership and no UK employees is a permissible donor. Fines for non-compliance are low enough to be treated as a cost of doing business. No major reform has been implemented since 2000. The register records what politicians chose to disclose, not what actually happened.
+                  The UK&rsquo;s political donation system asks politicians to declare who funds them and trusts them to tell the truth. There is no independent audit of what MPs receive. Donations below £500 need not be declared at all. Unincorporated associations and trusts can donate without revealing who provided the money. A company registered at Companies House with entirely foreign ownership and no UK employees is a permissible donor. Fines for non compliance are low enough to be treated as a cost of doing business. No major reform has been implemented since 2000. The register records what politicians chose to disclose, not what actually happened.
                 </p>
                 <p style={{ margin: '10px 0 0 0', fontFamily: 'Special Elite, monospace', fontSize: '12px' }}>
                   <Link href="/explainers/donations" style={{ color: '#7a1612', textDecoration: 'underline' }}>

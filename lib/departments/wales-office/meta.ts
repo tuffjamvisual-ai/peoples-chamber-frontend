@@ -14,7 +14,7 @@ const meta: DepartmentMeta = {
     'Senedd Relations',
     'Reserved Matters Wales',
     'Welsh Budget',
-    'Cross-Border Issues Wales',
+    'cross border Issues Wales',
     'Wales in the Union',
     'Welsh Language Policy',
     'Infrastructure in Wales'

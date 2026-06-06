@@ -20,7 +20,7 @@ export const parties: Party[] = [
   { id: 'dup', name: 'Democratic Unionist Party', colour: '#d46a4c', textColour: '#ffffff', leader: 'Gavin Robinson', description: 'Northern Ireland unionist party', hasMP: true },
   { id: 'sinnfein', name: 'Sinn Féin', colour: '#326760', textColour: '#ffffff', leader: 'Michelle O\'Neill', description: 'Irish republican party. Sinn Féin MPs do not take their seats in Westminster as part of their abstentionist policy, refusing to swear allegiance to the British monarch.', hasMP: true },
   { id: 'sdlp', name: 'Social Democratic & Labour Party', colour: '#2aa82c', textColour: '#ffffff', leader: 'Colum Eastwood', description: 'Nationalist social democratic party', hasMP: true },
-  { id: 'alliance', name: 'Alliance', colour: '#f6cb2f', textColour: '#000000', leader: 'Naomi Long', description: 'Cross-community centrist party', hasMP: true },
+  { id: 'alliance', name: 'Alliance', colour: '#f6cb2f', textColour: '#000000', leader: 'Naomi Long', description: 'cross community centrist party', hasMP: true },
   { id: 'tuv', name: 'Traditional Unionist Voice', colour: '#0c3a6e', textColour: '#ffffff', leader: 'Jim Allister', description: 'Traditional unionist party', hasMP: true },
   { id: 'uup', name: 'Ulster Unionist Party', colour: '#48a5ee', textColour: '#ffffff', leader: 'Doug Beattie', description: 'Ulster unionist party', hasMP: true },
   { id: 'restore', name: 'Restore Britain', colour: '#1a1a2e', textColour: '#ffffff', leader: 'Rupert Lowe', description: 'Right-wing populist party', hasMP: true },

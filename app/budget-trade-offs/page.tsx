@@ -25,7 +25,7 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: 'Budget Trade-offs | The People’s Chamber',
   description:
-    'What would it cost to fix everything? A cross-departmental analysis showing how the £900bn budget actually divides, what each department says it needs, and the five fundamental choices Parliament keeps refusing to make.',
+    'What would it cost to fix everything? A cross departmental analysis showing how the £900bn budget actually divides, what each department says it needs, and the five fundamental choices Parliament keeps refusing to make.',
   alternates: { canonical: '/budget-trade-offs' },
 };
 
@@ -183,7 +183,7 @@ export default function BudgetTradeOffsPage() {
       >
         <header style={{ marginBottom: '32px' }}>
           <p style={{ fontFamily: MONO, fontSize: '12px', letterSpacing: '0.3em', textTransform: 'uppercase', color: ACCENT, marginBottom: '12px' }}>
-            Cross-departmental analysis
+            cross departmental analysis
           </p>
           <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(28px, 3.6vw, 44px)', fontWeight: 'bold', lineHeight: 1.1, marginBottom: '16px' }}>
             What would it cost to fix everything?

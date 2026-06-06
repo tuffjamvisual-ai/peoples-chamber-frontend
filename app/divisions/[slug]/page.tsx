@@ -60,7 +60,7 @@ const PROCEDURAL_PATTERNS: Array<[RegExp, string]> = [
   [/^opposition day|opposition day debate|^supply and appropriation/i,
    "On an Opposition Day the largest opposition party chooses the topic of debate. The vote is symbolic, it doesn't change the law, but it forces the government to publicly take a position on the opposition's choice of question."],
   [/^unpublished divisions/i,
-   "An Unpublished Division is a vote held in a Public Bill Committee (the small cross-party group that scrutinises a bill clause by clause) whose result was not formally published in the main Commons division list. The vote still counts and shapes the bill, but it sits outside the headline numbered sequence."],
+   "An Unpublished Division is a vote held in a Public Bill Committee (the small cross party group that scrutinises a bill clause by clause) whose result was not formally published in the main Commons division list. The vote still counts and shapes the bill, but it sits outside the headline numbered sequence."],
   [/^budget resolution/i,
    "Budget Resolutions are the individual tax-and-spend propositions voted on the floor of the Commons in the week after the Budget. Each Resolution authorises a specific tax change (rates, thresholds, new duties) and together they form the basis of the Finance Bill."],
   [/^privilege$|breach of privilege/i,

@@ -18,8 +18,8 @@ export type ScsBand =
   | 'scs2' // Director
   | 'scs1a' // Deputy Director (upper range)
   | 'scs1' // Deputy Director (lower range)
-  | 'ned' // Non-Executive Director / board fee
-  | 'lead-ned' // Lead Non-Executive Director
+  | 'ned' // non executive Director / board fee
+  | 'lead-ned' // Lead non executive Director
 
 export const SCS_BAND_LABEL: Record<ScsBand, string> = {
   scs4: 'Permanent Secretary (SCS4)',
@@ -27,8 +27,8 @@ export const SCS_BAND_LABEL: Record<ScsBand, string> = {
   scs2: 'Director (SCS2)',
   scs1a: 'Deputy Director (SCS1A)',
   scs1: 'Deputy Director (SCS1)',
-  ned: 'Non-Executive Director',
-  'lead-ned': 'Lead Non-Executive Director',
+  ned: 'non executive Director',
+  'lead-ned': 'Lead non executive Director',
 }
 
 // Published ranges (2025-26 Cabinet Office pay remit + NED fee guidance).

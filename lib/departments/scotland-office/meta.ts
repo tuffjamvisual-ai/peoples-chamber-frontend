@@ -16,7 +16,7 @@ const meta: DepartmentMeta = {
     'Reserved Matters',
     'Scottish Parliament Liaison',
     'Scotland\'s Budget',
-    'Cross-Border Issues',
+    'cross border Issues',
     'Scotland in the Union'
   ],
   description: 'Represents Scotland in Westminster and Westminster in Scotland — in roughly that order on Mondays, and the other order on Tuesdays.',

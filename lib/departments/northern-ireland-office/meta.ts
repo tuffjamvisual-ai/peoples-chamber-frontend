@@ -12,7 +12,7 @@ const meta: DepartmentMeta = {
     'Windsor Framework',
     'Good Friday Agreement',
     'NI Protocol',
-    'Cross-Border Relations',
+    'cross border Relations',
     'NI Budget',
     'Legacy Issues',
     'Victims\' Issues',
