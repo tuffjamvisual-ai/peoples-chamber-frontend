@@ -18,6 +18,7 @@ import { supabase } from '@/lib/supabase';
 import DossierShell from '../../components/DossierShell';
 import BackLink from '../../components/BackLink';
 import { donorNameToSlug } from '../../donors/[slug]/page';
+import { unitNameToSlug } from './[slug]/page';
 
 export const revalidate = 86400;
 export const dynamic = 'force-dynamic';
@@ -147,7 +148,9 @@ export default async function ConstituencyDonationsPage() {
             {constituencies.map((c, i) => (
               <tr key={c.unit} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <td style={{ padding: '6px', opacity: 0.6 }}>{i + 1}</td>
-                <td style={{ padding: '6px' }}><strong>{c.unit}</strong></td>
+                <td style={{ padding: '6px' }}>
+                  <Link href={`/donations/constituencies/${unitNameToSlug(c.unit)}`} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold' }}>{c.unit}</Link>
+                </td>
                 <td style={{ padding: '6px', fontSize: '12px', opacity: 0.75 }}>{c.party || '—'}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{c.count}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(c.total).toLocaleString()}</td>
