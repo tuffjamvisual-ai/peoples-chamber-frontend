@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import Pagination from '@/app/components/Pagination';
 
-type SectionId = 'bio' | 'contact' | 'voting' | 'bills' | 'interests' | 'roles' | 'earnings' | 'expenses';
+type SectionId = 'bio' | 'contact' | 'voting' | 'bills' | 'interests' | 'roles' | 'earnings' | 'donations' | 'expenses';
 
 const ALL_SECTIONS: Array<{ id: SectionId; label: string; rotate: string }> = [
   { id: 'bio',       label: 'POLITICAL BIO',    rotate: '0.1deg' },
@@ -14,6 +14,7 @@ const ALL_SECTIONS: Array<{ id: SectionId; label: string; rotate: string }> = [
   { id: 'interests', label: 'INTERESTS',        rotate: '0.1deg' },
   { id: 'roles',     label: 'ROLES',            rotate: '-0.15deg' },
   { id: 'earnings',  label: 'EARNINGS',         rotate: '0.2deg' },
+  { id: 'donations', label: 'DONATIONS',        rotate: '-0.15deg' },
   { id: 'expenses',  label: 'EXPENSES',         rotate: '-0.1deg' },
 ];
 
@@ -21,6 +22,24 @@ type Vote = { id: number; division_title: string; division_date: string; vote_ty
 type Bill = { id: number; title: string; status?: string | null; current_stage?: string | null; plain_summary?: string | null; is_act?: boolean | null; last_update?: string | null };
 type ChildInterest = { id?: number; interest?: string | null };
 type Interest = { category_name: string; interest_text: string | null; child_interests?: ChildInterest[] | null };
+type Donation = {
+  id: number;
+  donor_name: string | null;
+  donor_type: string | null;
+  amount: number | string | null;
+  accepted_date: string | null;
+  received_date: string | null;
+  reported_date: string | null;
+  nature: string | null;
+  recipient_type: string | null;
+  is_aggregation?: boolean | null;
+  is_bequest?: boolean | null;
+  is_sponsorship?: boolean | null;
+  returned_date?: string | null;
+  impermissibility_reason?: string | null;
+  attempted_concealment?: boolean | null;
+  ec_ref?: string | null;
+};
 type Representation = { name: string; startDate: string; endDate?: string | null };
 type PartyHistoryEntry = { party?: string; name?: string; startDate?: string; endDate?: string | null };
 type ExpenseSummary = {
@@ -89,6 +108,7 @@ interface Props {
   voteQuery?: string;
   sponsoredBills: Bill[];
   interests: Interest[];
+  donations?: Donation[];
   bio: {
     representations?: Representation[];
     government_posts?: Array<{ name: string }>;
@@ -169,6 +189,7 @@ export default function MagazineProfileSections({
   voteQuery = '',
   sponsoredBills,
   interests,
+  donations = [],
   bio,
   earnings,
   expenses,
@@ -191,6 +212,7 @@ export default function MagazineProfileSections({
       (bio?.party_history && bio.party_history.length > 0)
     ),
     earnings: true, // Always shown — every MP has the base salary at minimum.
+    donations: donations.length > 0,
     expenses: expenses.length > 0,
   };
   const sections = ALL_SECTIONS.filter((s) => has[s.id]);
@@ -795,6 +817,126 @@ export default function MagazineProfileSections({
                   <strong>ACOBA</strong> is the Advisory Committee on Business Appointments, the independent body that vets new jobs taken by former ministers and senior officials in the two years after they leave government. It reviews each role for conflicts of interest and can recommend conditions such as lobbying bans or waiting periods, though it cannot block an appointment. &ldquo;ACOBA: Yes&rdquo; means the appointment was submitted for review; &ldquo;ACOBA: No&rdquo; means it was not, which is sometimes legitimate (the rules did not apply) and sometimes a story (an ex-minister bypassing the vetting).
                 </p>
               )}
+            </>
+          );
+        })()}
+
+        {active === 'donations' && (() => {
+          // EC donations directed at this MP (recipient_type IN ('MP - Member
+          // of Parliament', 'Regulated Donee', ...) AND recipient_name fuzzy-
+          // matched in the server query). Aggregate + per-donor + flagged
+          // rows (returned / impermissible / concealed) surfaced separately.
+          const total = donations.reduce((s, d) => s + (Number(d.amount) || 0), 0);
+          const cashTotal = donations.reduce((s, d) => s + (d.nature?.toLowerCase().includes('cash') ? (Number(d.amount) || 0) : 0), 0);
+          const nonCashTotal = total - cashTotal;
+          const returned = donations.filter((d) => d.returned_date);
+          const impermissible = donations.filter((d) => d.impermissibility_reason);
+          const concealed = donations.filter((d) => d.attempted_concealment);
+          const byDonor = new Map<string, { name: string; total: number; count: number; first: string | null; last: string | null }>();
+          for (const d of donations) {
+            const name = (d.donor_name || '(anonymous)').trim() || '(anonymous)';
+            const v = Number(d.amount) || 0;
+            const existing = byDonor.get(name) ?? { name, total: 0, count: 0, first: null, last: null };
+            existing.total += v;
+            existing.count += 1;
+            const dateStr = d.accepted_date || d.received_date;
+            if (dateStr) {
+              if (!existing.first || dateStr < existing.first) existing.first = dateStr;
+              if (!existing.last || dateStr > existing.last) existing.last = dateStr;
+            }
+            byDonor.set(name, existing);
+          }
+          const donorRows = Array.from(byDonor.values()).sort((a, b) => b.total - a.total);
+
+          return (
+            <>
+              <h2 style={sectionH2}>Donations</h2>
+              <p style={{ marginBottom: '8px', fontSize: '14px', opacity: 0.85 }}>
+                Reportable donations received personally, from the Electoral Commission&rsquo;s register.
+                <strong>{' '}{fmtMoney(total)}</strong> across {donations.length.toLocaleString()} donation{donations.length === 1 ? '' : 's'} from {donorRows.length.toLocaleString()} donor{donorRows.length === 1 ? '' : 's'}.
+              </p>
+              <p style={{ marginBottom: '16px', fontSize: '12px', opacity: 0.6, lineHeight: 1.55 }}>
+                Includes donations recorded against this MP individually (Member of Parliament + Regulated Donee types). Donations to the local constituency association or to a political party in general are not shown here, they appear on the party&rsquo;s page.
+              </p>
+
+              {(returned.length > 0 || impermissible.length > 0 || concealed.length > 0) && (
+                <section style={{ marginBottom: '20px', padding: '10px 12px', border: '1px solid #a64030', background: 'rgba(166,64,48,0.06)' }}>
+                  <h3 style={{ ...sectionH3, marginTop: 0, marginBottom: '6px', color: '#a64030' }}>Flagged</h3>
+                  <ul style={{ listStyle: 'none', padding: 0, fontSize: '13px', lineHeight: 1.7 }}>
+                    {returned.length > 0 && (
+                      <li><strong>{returned.length}</strong> donation{returned.length === 1 ? '' : 's'} returned to donor totalling {fmtMoney(returned.reduce((s, d) => s + (Number(d.amount) || 0), 0))}</li>
+                    )}
+                    {impermissible.length > 0 && (
+                      <li><strong>{impermissible.length}</strong> recorded as impermissible (e.g. donor not on the UK electoral register) totalling {fmtMoney(impermissible.reduce((s, d) => s + (Number(d.amount) || 0), 0))}</li>
+                    )}
+                    {concealed.length > 0 && (
+                      <li><strong>{concealed.length}</strong> attempted-concealment cases totalling {fmtMoney(concealed.reduce((s, d) => s + (Number(d.amount) || 0), 0))}</li>
+                    )}
+                  </ul>
+                </section>
+              )}
+
+              <h3 style={sectionH3}>By donor</h3>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', marginBottom: '20px', tableLayout: 'auto' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid rgba(20,16,13,0.4)', textAlign: 'left' }}>
+                    <th style={thStyle}>Donor</th>
+                    <th style={thStyle}>Donations</th>
+                    <th style={thStyle}>First</th>
+                    <th style={thStyle}>Latest</th>
+                    <th style={{ ...thStyle, textAlign: 'right' }}>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {donorRows.map((d) => (
+                    <tr key={d.name} style={{ borderBottom: inkDivider, verticalAlign: 'top' }}>
+                      <td style={{ padding: '5px 4px', fontWeight: 'bold' }}>{d.name}</td>
+                      <td style={{ padding: '5px 4px', fontFamily: 'monospace' }}>{d.count}</td>
+                      <td style={{ padding: '5px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{d.first ? new Date(d.first).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '—'}</td>
+                      <td style={{ padding: '5px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{d.last ? new Date(d.last).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '—'}</td>
+                      <td style={{ padding: '5px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap', fontWeight: 'bold' }}>{fmtMoney(d.total)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {donations.length > 0 && (
+                <details style={{ marginBottom: '20px' }}>
+                  <summary style={{ cursor: 'pointer', fontFamily: 'Special Elite, monospace', fontWeight: 'bold', fontSize: '13px', padding: '6px 0' }}>
+                    Every donation chronologically ({donations.length})
+                  </summary>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', marginTop: '8px' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid rgba(20,16,13,0.3)', textAlign: 'left' }}>
+                        <th style={thStyle}>Date</th>
+                        <th style={thStyle}>Donor</th>
+                        <th style={thStyle}>Type</th>
+                        <th style={thStyle}>Nature</th>
+                        <th style={{ ...thStyle, textAlign: 'right' }}>Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {donations.slice(0, 200).map((d) => {
+                        const date = d.accepted_date || d.received_date || d.reported_date;
+                        return (
+                          <tr key={d.id} style={{ borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
+                            <td style={{ padding: '4px 4px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{date ? new Date(date).toLocaleDateString('en-GB') : '—'}</td>
+                            <td style={{ padding: '4px 4px' }}>{d.donor_name || '(anonymous)'}</td>
+                            <td style={{ padding: '4px 4px', opacity: 0.7 }}>{d.donor_type || '—'}</td>
+                            <td style={{ padding: '4px 4px', opacity: 0.7 }}>{d.nature || '—'}</td>
+                            <td style={{ padding: '4px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap' }}>{fmtMoney(Number(d.amount) || 0)}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                  {donations.length > 200 && <p style={{ padding: '6px 0', fontSize: '12px', opacity: 0.7 }}>Showing first 200 of {donations.length}.</p>}
+                </details>
+              )}
+
+              <p style={{ marginTop: '8px', fontSize: '12px', opacity: 0.6, lineHeight: 1.55 }}>
+                Cash and non-cash combined: {fmtMoney(cashTotal)} cash, {fmtMoney(nonCashTotal)} non-cash. Source: Electoral Commission donation register, refreshed weekly.
+              </p>
             </>
           );
         })()}

@@ -206,6 +206,40 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
   const mp = mpRes.data;
   if (!mp) notFound();
 
+  // Electoral Commission donations directed at this MP personally.
+  // The political_donations table is donor-side, so it's name-keyed:
+  // recipient_name needs to fuzzy-match the MP's display_name or formal
+  // name. We accept both 'MP - Member of Parliament' (the canonical type)
+  // and 'Regulated Donee' (often used for individual MPs receiving
+  // donations through a vehicle other than the local party — e.g. Rishi
+  // Sunak's office). Members Association + Member of Registered
+  // Political Party are uncommon but also valid MP-direct types.
+  const mpName = (mp.display_name as string | null) || (mp.name as string | null) || '';
+  // Strip the common prefixes/suffixes so substring match is more forgiving.
+  const mpNameKey = mpName
+    .replace(/^(?:Rt Hon|Sir|Dame|Dr|Ms|Mrs|Mr|The )\s+/i, '')
+    .replace(/\s+(?:MP|QC|KC|CBE|OBE|MBE)\s*$/i, '')
+    .trim();
+  const donationsRes = mpNameKey.length > 0
+    ? await supabase
+        .from('political_donations')
+        .select('id, donor_name, donor_type, amount, accepted_date, received_date, reported_date, nature, recipient_name, recipient_type, is_aggregation, is_bequest, is_sponsorship, returned_date, impermissibility_reason, attempted_concealment, ec_ref')
+        .in('recipient_type', ['MP - Member of Parliament', 'Regulated Donee', 'Members Association', 'Member of Registered Political Party'])
+        .ilike('recipient_name', `%${mpNameKey}%`)
+        .order('accepted_date', { ascending: false })
+        .limit(500)
+    : { data: [] };
+  // JS-side filter: also require a first-name word match to avoid 'Smith'
+  // collisions when the last name alone is common.
+  const firstWord = mpNameKey.split(/\s+/)[0]?.toLowerCase() ?? '';
+  const lastWord = mpNameKey.split(/\s+/).slice(-1)[0]?.toLowerCase() ?? '';
+  const donations = (donationsRes.data || []).filter((d: { recipient_name?: string | null }) => {
+    const rn = String((d as { recipient_name?: string | null }).recipient_name || '').toLowerCase();
+    // Allow either both words present OR the full key being a substring
+    return rn.includes(mpNameKey.toLowerCase())
+      || (firstWord && lastWord && rn.includes(firstWord) && rn.includes(lastWord));
+  });
+
   // Tag each vote whose division is a statutory instrument so the render can
   // pick the SI deep-link branch over the external Commons Votes fallback.
   const siDivisionIds = new Set<number>(
@@ -275,6 +309,7 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
           postcode:      contactRes.data?.postcode      ?? null,
         },
         votes: votesWithSi,
+        donations,
         totalVotes: votesCountRes.count ?? votesWithSi.length,
         votePage,
         votesPerPage: VOTES_PER_PAGE,
