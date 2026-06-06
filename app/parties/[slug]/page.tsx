@@ -180,6 +180,14 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
             borderRadius: '2px',
           }}
         />
+        {party.recipient_name && (
+          <div style={{ marginTop: '14px', fontFamily: 'Special Elite, monospace', fontSize: '13px', display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+            <a href={`/parties/${party.slug}/bio`} style={{ color: '#7a1612', textDecoration: 'underline' }}>People&rsquo;s verdict &rarr;</a>
+            <span style={{ opacity: 0.4 }}>·</span>
+            <a href={`/parties/${party.slug}/money`} style={{ color: '#7a1612', textDecoration: 'underline', fontWeight: 'bold' }}>Money map &rarr;</a>
+            <span style={{ opacity: 0.6, fontSize: '12px' }}>{fmtMoney(donationsTotal)} lifetime declared</span>
+          </div>
+        )}
       </div>
 
       {/* People's critique — sharp ~550-word assessment in MP-bio

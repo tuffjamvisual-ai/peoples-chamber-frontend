@@ -103,6 +103,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
+  // Party sub-pages: /parties/[slug], /bio, /money for every party row
+  // that has an EC recipient_name (parties with no donations register
+  // entry don't get a /money page).
+  const parties = await fetchAllRows<{ slug: string; recipient_name: string | null }>(
+    'parties',
+    'slug, recipient_name',
+  );
+  const partyEntries: MetadataRoute.Sitemap = [];
+  for (const p of parties) {
+    partyEntries.push({ url: `${SITE}/parties/${p.slug}`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 });
+    partyEntries.push({ url: `${SITE}/parties/${p.slug}/bio`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 });
+    if (p.recipient_name) {
+      partyEntries.push({ url: `${SITE}/parties/${p.slug}/money`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 });
+    }
+  }
+
   // Only ship bills with at least one substantive signal — a Commons
   // division on record, an active or known stage, or Royal Assent.
   // Drops ~2,700 thin bills (placeholder description, no division,
@@ -198,6 +214,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...staticEntries,
     ...transparencyEntries,
     ...deptEntries,
+    ...partyEntries,
     ...billEntries,
     ...mpEntries,
     ...newsEntries,
