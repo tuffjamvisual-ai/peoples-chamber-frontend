@@ -458,22 +458,31 @@ export default function MagazineProfileSections({
                   label="Divisions voted in"
                   value={`${(activity.divisions_voted ?? 0).toLocaleString()} / ${(activity.divisions_total ?? 0).toLocaleString()}`}
                   sub="of all Commons votes this Parliament"
+                  href={`/mps/${memberId}?section=voting`}
+                  hrefLabel="View voting record"
                 />
                 <ActivityTile
                   label="Attendance"
                   value={`${Number(activity.attendance_pct ?? 0).toFixed(1)}%`}
                   sub="proportion of available divisions voted in"
+                  href={`/mps/${memberId}?section=voting`}
+                  hrefLabel="View voting record"
                 />
                 <ActivityTile
                   label="Whip rebellions"
                   value={String(activity.rebellions_total ?? 0)}
                   sub={`${Number(activity.rebellion_rate_pct ?? 0).toFixed(1)}% of own votes`}
+                  href={`/mps/${memberId}?section=voting`}
+                  hrefLabel="View voting record"
                 />
                 {activity.speeches_year != null && (
                   <ActivityTile
                     label="Speeches"
                     value={String(activity.speeches_year)}
                     sub="spoken contributions, last 12 months"
+                    href={`https://hansard.parliament.uk/search/MemberContributions?memberId=${memberId}&house=Commons`}
+                    hrefLabel="Read on Hansard"
+                    external
                   />
                 )}
                 {activity.questions_year != null && (
@@ -481,6 +490,9 @@ export default function MagazineProfileSections({
                     label="Written questions"
                     value={String(activity.questions_year)}
                     sub="career total tabled"
+                    href={`https://questions-statements.parliament.uk/written-questions?MemberIds=${memberId}`}
+                    hrefLabel="Read on parliament.uk"
+                    external
                   />
                 )}
               </section>
@@ -1561,12 +1573,32 @@ export default function MagazineProfileSections({
   );
 }
 
-function ActivityTile({ label, value, sub }: { label: string; value: string; sub: string }) {
+function ActivityTile({ label, value, sub, href, hrefLabel, external }: { label: string; value: string; sub: string; href?: string; hrefLabel?: string; external?: boolean }) {
   return (
-    <div style={{ border: "1px solid rgba(20,16,13,0.25)", padding: "10px 12px", background: "rgba(255,255,255,0.04)" }}>
-      <div style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.18em", opacity: 0.7, marginBottom: "4px" }}>{label}</div>
-      <div style={{ fontFamily: "\"Special Elite\", monospace", fontSize: "22px", fontWeight: "bold", color: "#14100d" }}>{value}</div>
-      <div style={{ fontSize: "11px", opacity: 0.65, marginTop: "4px", lineHeight: 1.3 }}>{sub}</div>
+    <div style={{ border: "1px solid rgba(20,16,13,0.25)", padding: "10px 12px", background: "rgba(255,255,255,0.04)", display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      <div>
+        <div style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.18em", opacity: 0.7, marginBottom: "4px" }}>{label}</div>
+        <div style={{ fontFamily: "\"Special Elite\", monospace", fontSize: "22px", fontWeight: "bold", color: "#14100d" }}>{value}</div>
+        <div style={{ fontSize: "11px", opacity: 0.65, marginTop: "4px", lineHeight: 1.3 }}>{sub}</div>
+      </div>
+      {href && (
+        <div style={{ marginTop: '8px', fontSize: '11px' }}>
+          {external ? (
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: '#7a1612', textDecoration: 'underline', fontFamily: 'Special Elite, monospace' }}
+            >
+              {hrefLabel || 'View'} &rarr;
+            </a>
+          ) : (
+            <Link href={href} style={{ color: '#7a1612', textDecoration: 'underline', fontFamily: 'Special Elite, monospace' }}>
+              {hrefLabel || 'View'} &rarr;
+            </Link>
+          )}
+        </div>
+      )}
     </div>
   );
 }
