@@ -106,9 +106,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Party sub-pages: /parties/[slug], /bio, /money for every party row
   // that has an EC recipient_name (parties with no donations register
   // entry don't get a /money page).
-  const parties = await fetchAllRows<{ slug: string; recipient_name: string | null }>(
+  const parties = await fetchAllRows<{ slug: string; recipient_name: string | null; mp_party_string: string | null }>(
     'parties',
-    'slug, recipient_name',
+    'slug, recipient_name, mp_party_string',
   );
   const partyEntries: MetadataRoute.Sitemap = [];
   for (const p of parties) {
@@ -116,6 +116,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     partyEntries.push({ url: `${SITE}/parties/${p.slug}/bio`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 });
     if (p.recipient_name) {
       partyEntries.push({ url: `${SITE}/parties/${p.slug}/money`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 });
+    }
+    if (p.mp_party_string) {
+      partyEntries.push({ url: `${SITE}/parties/${p.slug}/whip`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 });
     }
   }
 

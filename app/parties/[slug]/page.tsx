@@ -185,6 +185,8 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
             <a href={`/parties/${party.slug}/bio`} style={{ color: '#7a1612', textDecoration: 'underline' }}>People&rsquo;s verdict &rarr;</a>
             <span style={{ opacity: 0.4 }}>·</span>
             <a href={`/parties/${party.slug}/money`} style={{ color: '#7a1612', textDecoration: 'underline', fontWeight: 'bold' }}>Money map &rarr;</a>
+            <span style={{ opacity: 0.4 }}>·</span>
+            <a href={`/parties/${party.slug}/whip`} style={{ color: '#7a1612', textDecoration: 'underline', fontWeight: 'bold' }}>Whip cohesion &rarr;</a>
             <span style={{ opacity: 0.6, fontSize: '12px' }}>{fmtMoney(donationsTotal)} lifetime declared</span>
           </div>
         )}
