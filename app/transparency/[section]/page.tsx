@@ -142,6 +142,10 @@ export default async function TransparencySectionPage({
             <span className="opacity-30">·</span>
             <Link href="/donations/late-disclosed" className="font-mono underline" style={{ color: ACCENT }}>Late-disclosed register &rarr;</Link>
             <span className="opacity-30">·</span>
+            <Link href="/donations/trust-funded" className="font-mono underline" style={{ color: ACCENT }}>Trust-routed &rarr;</Link>
+            <span className="opacity-30">·</span>
+            <Link href="/donations/impermissible" className="font-mono underline" style={{ color: ACCENT }}>Impermissible &rarr;</Link>
+            <span className="opacity-30">·</span>
             <Link href="/explainers/donations" className="font-mono underline" style={{ color: ACCENT }}>What the data means &rarr;</Link>
           </div>
         )}
