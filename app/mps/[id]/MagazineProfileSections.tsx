@@ -71,6 +71,24 @@ type DonorOtherRecipients = {
   recipients: Array<{ recipient: string; total: number }>;
 };
 
+type AppgEntry = {
+  slug: string;
+  title: string;
+  purpose: string | null;
+  category: string | null;
+  secretariat: string | null;
+  secretariat_url: string | null;
+  registrable_benefits: string | null;
+  website_url: string | null;
+  role: string | null;
+  funders: Array<{
+    appg_slug: string;
+    source: string;
+    description: string | null;
+    value_band: string | null;
+  }>;
+};
+
 type SectorCrossRefEntry = {
   key: string;
   label: string;
@@ -228,6 +246,7 @@ interface Props {
   donorOtherRecipients?: DonorOtherRecipients[];
   sectorCrossRef?: SectorCrossRefEntry[];
   constituencyDonations?: Donation[];
+  appgs?: AppgEntry[];
   ministerMeetings?: MinisterMeeting[];
   ministerHospitality?: MinisterHospitality[];
   conductFindings?: ConductFinding[];
@@ -326,6 +345,7 @@ export default function MagazineProfileSections({
   donorOtherRecipients = [],
   sectorCrossRef = [],
   constituencyDonations = [],
+  appgs = [],
   ministerMeetings = [],
   ministerHospitality = [],
   conductFindings = [],
@@ -891,6 +911,68 @@ export default function MagazineProfileSections({
                         <span style={{ marginLeft: '8px', fontSize: '13px', opacity: 0.75, fontFamily: 'monospace' }}>
                           {p.startDate ? fmtDate(p.startDate) : '?'}, {p.endDate ? fmtDate(p.endDate) : 'present'}
                         </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+
+            {appgs.length > 0 && (
+              <>
+                <h3 style={sectionH3}>All-Party Parliamentary Groups officered</h3>
+                <p style={{ fontSize: '12px', opacity: 0.7, lineHeight: 1.55, marginBottom: '12px', maxWidth: '60ch' }}>
+                  APPGs are unofficial cross-party groups MPs run on specific topics. Each group&rsquo;s registered funders are the entities paying for its secretariat, research and events. Officers are the MPs responsible for the group. Together they are the formal lobbying channel inside Westminster, the one that doesn&rsquo;t appear on the Register of Members&rsquo; Financial Interests.
+                </p>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '14px', lineHeight: 1.55 }}>
+                  {appgs.map((a) => (
+                    <li key={a.slug} style={{ padding: '10px 0', borderBottom: inkDivider }}>
+                      <div style={{ display: 'flex', gap: '10px', alignItems: 'baseline', flexWrap: 'wrap' }}>
+                        <strong>{a.title}</strong>
+                        {a.role && (
+                          <span style={{ ...pillStyle, color: /chair/i.test(a.role) ? '#a64030' : 'rgba(20,16,13,0.7)', border: `1px solid ${/chair/i.test(a.role) ? '#a64030' : 'rgba(20,16,13,0.25)'}` }}>
+                            {a.role}
+                          </span>
+                        )}
+                        {a.category && (
+                          <span style={{ fontSize: '11px', opacity: 0.6 }}>{a.category}</span>
+                        )}
+                      </div>
+                      {a.secretariat && (
+                        <div style={{ fontSize: '12px', marginTop: '4px', opacity: 0.85 }}>
+                          <span style={{ opacity: 0.6 }}>Secretariat:</span>{' '}
+                          {a.secretariat_url ? (
+                            <a href={a.secretariat_url} target="_blank" rel="noopener noreferrer" style={inkLink}>{a.secretariat}</a>
+                          ) : (
+                            a.secretariat
+                          )}
+                        </div>
+                      )}
+                      {a.funders.length > 0 && (
+                        <details style={{ marginTop: '6px', fontSize: '12px' }}>
+                          <summary style={{ cursor: 'pointer', fontFamily: 'Special Elite, monospace', color: '#7a1612' }}>
+                            Funders of this group ({a.funders.length})
+                          </summary>
+                          <ul style={{ listStyle: 'none', padding: '6px 0 0 12px', borderLeft: '2px solid rgba(122,22,18,0.25)', marginLeft: '6px', marginTop: '4px' }}>
+                            {a.funders.slice(0, 20).map((f, i) => (
+                              <li key={i} style={{ padding: '4px 0', fontSize: '12px' }}>
+                                <strong>{f.source}</strong>
+                                {f.value_band && <span style={{ opacity: 0.75 }}> · £{f.value_band}</span>}
+                                {f.description && (
+                                  <div style={{ opacity: 0.7, marginTop: '2px', whiteSpace: 'pre-wrap' }}>{f.description}</div>
+                                )}
+                              </li>
+                            ))}
+                            {a.funders.length > 20 && (
+                              <li style={{ opacity: 0.6 }}>… and {a.funders.length - 20} more</li>
+                            )}
+                          </ul>
+                        </details>
+                      )}
+                      {a.website_url && (
+                        <div style={{ marginTop: '4px', fontSize: '12px' }}>
+                          <a href={a.website_url} target="_blank" rel="noopener noreferrer" style={{ ...inkLink, fontSize: '12px' }}>Group website &rarr;</a>
+                        </div>
                       )}
                     </li>
                   ))}

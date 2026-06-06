@@ -245,6 +245,70 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
     return firstWord && lastWord && n.includes(firstWord) && n.includes(lastWord);
   });
 
+  // APPGs (All-Party Parliamentary Groups) this MP is officer of, with
+  // each group's registered funders. Sourced from mySociety/appg-
+  // membership, sync'd into appgs + appg_officers + appg_funders. The
+  // bridge between MP and lobbying interest: an MP runs the All-Party
+  // Group on X, whose secretariat is paid by industry Y. Both sides of
+  // that bridge are public, the join is not.
+  const appgOfficersRes = await supabase
+    .from('appg_officers')
+    .select('appg_slug, role, party, removed')
+    .eq('member_id', memberId)
+    .eq('removed', false);
+  type AppgOfficerRow = { appg_slug: string; role: string | null };
+  const officerSlugs = ((appgOfficersRes.data || []) as AppgOfficerRow[]).map((r) => r.appg_slug);
+  const officerRoleBySlug = new Map<string, string | null>(
+    ((appgOfficersRes.data || []) as AppgOfficerRow[]).map((r) => [r.appg_slug, r.role]),
+  );
+  type AppgRow = {
+    slug: string;
+    title: string;
+    purpose: string | null;
+    category: string | null;
+    secretariat: string | null;
+    secretariat_url: string | null;
+    registrable_benefits: string | null;
+    website_url: string | null;
+  };
+  type AppgFunderRow = {
+    appg_slug: string;
+    source: string;
+    description: string | null;
+    value_band: string | null;
+  };
+  let mpAppgs: Array<AppgRow & { role: string | null; funders: AppgFunderRow[] }> = [];
+  if (officerSlugs.length > 0) {
+    const [appgsRes, fundersRes] = await Promise.all([
+      supabase
+        .from('appgs')
+        .select('slug, title, purpose, category, secretariat, secretariat_url, registrable_benefits, website_url')
+        .in('slug', officerSlugs),
+      supabase
+        .from('appg_funders')
+        .select('appg_slug, source, description, value_band')
+        .in('appg_slug', officerSlugs)
+        .limit(2000),
+    ]);
+    const funderBySlug = new Map<string, AppgFunderRow[]>();
+    for (const f of (fundersRes.data || []) as AppgFunderRow[]) {
+      if (!funderBySlug.has(f.appg_slug)) funderBySlug.set(f.appg_slug, []);
+      funderBySlug.get(f.appg_slug)!.push(f);
+    }
+    mpAppgs = ((appgsRes.data || []) as AppgRow[]).map((a) => ({
+      ...a,
+      role: officerRoleBySlug.get(a.slug) ?? null,
+      funders: funderBySlug.get(a.slug) ?? [],
+    })).sort((a, b) => {
+      // Chairs first, then by funder count desc, then alphabetical
+      const aChair = /chair/i.test(a.role || '') ? 0 : 1;
+      const bChair = /chair/i.test(b.role || '') ? 0 : 1;
+      if (aChair !== bChair) return aChair - bChair;
+      if (a.funders.length !== b.funders.length) return b.funders.length - a.funders.length;
+      return a.title.localeCompare(b.title);
+    });
+  }
+
   // Activity metrics — precomputed in mp_activity_metrics via
   // scripts/recompute-activity-metrics.js (weekly cron). Cold render
   // does one indexed lookup instead of aggregating mp_division_votes.
@@ -527,6 +591,7 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
         donorOtherRecipients: Array.from(donorOtherRecipients.entries()).map(([donor_name, recipients]) => ({ donor_name, recipients })),
         sectorCrossRef,
         constituencyDonations,
+        appgs: mpAppgs,
         ministerMeetings: meetings,
         ministerHospitality: hospitality,
         conductFindings: conductRes.data || [],
