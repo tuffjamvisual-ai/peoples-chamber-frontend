@@ -271,6 +271,16 @@ const thStyle: React.CSSProperties = {
   textTransform: 'uppercase',
 };
 
+const callP: React.CSSProperties = {
+  margin: 0,
+  marginBottom: '10px',
+  fontFamily: 'Special Elite, monospace',
+  fontSize: '13px',
+  lineHeight: 1.65,
+};
+
+const callPLast: React.CSSProperties = { ...callP, marginBottom: 0 };
+
 const pillStyle: React.CSSProperties = {
   display: 'inline-block',
   padding: '1px 6px',
@@ -1118,23 +1128,32 @@ export default function MagazineProfileSections({
             <>
               <h2 style={sectionH2}>Donations</h2>
 
-              {/* Critique-style framing — sits at the top of the tab in
-                  the dossier ink/cream palette, Special Elite body, sets
-                  the reading frame before any numbers appear. Replaces
-                  the prior glossary at the bottom (removed; the same
-                  concepts surface in-line on the data rows themselves). */}
+              {/* Critique-style framing — sits at the top of the tab.
+                  Replaces the prior glossary at the bottom (removed). */}
               <section style={{ marginBottom: '20px', padding: '14px 16px', background: 'rgba(20,16,13,0.04)', borderLeft: '3px solid #7a1612' }}>
-                <p style={{ margin: 0, marginBottom: '10px', fontFamily: 'Special Elite, monospace', fontSize: '13px', lineHeight: 1.65 }}>
-                  Donations to a sitting MP create an interest. The Electoral Commission&rsquo;s donor-side register exists because the MP&rsquo;s own declarations cannot be the only compliance check. What follows is the public record of money and benefits given to this Member of Parliament, in cash and in kind, with the donor identified, the amount stated, the date accepted, and any Commission flag for impermissibility or attempted concealment surfaced where present.
+                <p style={callP}>
+                  The UK donation system is built on one idea: transparency instead of prohibition. Almost anyone eligible can give almost any amount to almost any politician, provided the gift is declared. The theory is that sunlight is the best disinfectant. The practice suggests sunlight works only when someone is looking.
                 </p>
-                <p style={{ margin: 0, marginBottom: '10px', fontFamily: 'Special Elite, monospace', fontSize: '13px', lineHeight: 1.65 }}>
-                  The honest reader&rsquo;s job is to ask three things of each donor: who they are, what they want from public policy, and whether the MP&rsquo;s voting record bears any sign of having delivered it. Sector tags on the donor rows are a starting point, not an answer. The &ldquo;Also funds&rdquo; line under each donor surfaces the same money flowing into other MPs, often the most useful evidence that a giving pattern is factional rather than personal.
+                <p style={callP}>
+                  The first problem is self-declaration. MPs report their own interests. There is no independent audit. The Parliamentary Commissioner for Standards investigates complaints but does not routinely verify declarations against bank records or third-party disclosures. An MP who fails to declare a donation faces investigation only if someone notices and complains.
                 </p>
-                <p style={{ margin: 0, fontFamily: 'Special Elite, monospace', fontSize: '13px', lineHeight: 1.65 }}>
-                  Three classes of donation deserve their own scrutiny. Pre-poll donations land inside the regulated election window and tend to be larger, faster, and tied to specific campaigns; they are also the ones most likely to be hidden from the register entirely if the MP wishes. Trust-intermediary donations route through a vehicle that obscures the original source on the public face of the register, and enforcement of source-disclosure here has been patchy for a decade. Impermissibility findings mean the Commission decided the donation should never have been accepted, usually because the donor failed a residence or registration test; the money should have been returned, sometimes it was not.
+                <p style={callP}>
+                  The second is thresholds. Donations below £500 to individual MPs need not be registered. Donations to parties below £11,180 need not be reported to the Electoral Commission. A donor giving £499 to twenty MPs distributes nearly £10,000 across the Commons without triggering a single declaration.
                 </p>
-                <p style={{ margin: '12px 0 0 0', fontSize: '11px', opacity: 0.7, fontFamily: 'Special Elite, monospace' }}>
-                  Source: Electoral Commission donor-side register. Refreshed weekly. The MP&rsquo;s own declaration of the same money typically appears under &ldquo;Campaign &amp; office support&rdquo; on the Interests tab; large items can appear in both, which is the point: two independent compliance trails for the same transaction.
+                <p style={callP}>
+                  The third is intermediaries. Unincorporated associations can donate without revealing who contributed to the association. Trusts can donate without the settlors or beneficiaries appearing in any public filing. The Electoral Commission has flagged both routes as transparency gaps for years. Both remain open.
+                </p>
+                <p style={callP}>
+                  The fourth is permissibility. Only UK-registered voters, companies and trade unions can legally donate. But a UK-registered company can be wholly owned by foreign interests, funded entirely by overseas revenue, and operated for the benefit of non-UK residents. The law tests incorporation, not economic substance.
+                </p>
+                <p style={callP}>
+                  The fifth is timing. Outside regulated election periods, delays of weeks or months between receiving and declaring a donation are common and lawful. By the time the public can see it, the political context that made it significant may have passed.
+                </p>
+                <p style={callP}>
+                  The sixth is sanctions. Fines for non-compliance are low relative to the sums involved. For a donor willing to risk a penalty measured in thousands against a donation measured in tens of thousands, the economics of non-compliance are favourable.
+                </p>
+                <p style={callPLast}>
+                  No major reform has been implemented since the Political Parties, Elections and Referendums Act 2000. The methods of moving money into politics have grown more sophisticated. The methods of tracking it have not. The register remains a record of what politicians chose to tell us, not a record of what actually happened.
                 </p>
               </section>
 
