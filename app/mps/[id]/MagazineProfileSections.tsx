@@ -1128,32 +1128,16 @@ export default function MagazineProfileSections({
             <>
               <h2 style={sectionH2}>Donations</h2>
 
-              {/* Critique-style framing — sits at the top of the tab.
-                  Replaces the prior glossary at the bottom (removed). */}
+              {/* Short summary at the top of the tab; the full critique
+                  lives at /explainers/donations and is linked below. */}
               <section style={{ marginBottom: '20px', padding: '14px 16px', background: 'rgba(20,16,13,0.04)', borderLeft: '3px solid #7a1612' }}>
-                <p style={callP}>
-                  The UK donation system is built on one idea: transparency instead of prohibition. Almost anyone eligible can give almost any amount to almost any politician, provided the gift is declared. The theory is that sunlight is the best disinfectant. The practice suggests sunlight works only when someone is looking.
-                </p>
-                <p style={callP}>
-                  The first problem is self-declaration. MPs report their own interests. There is no independent audit. The Parliamentary Commissioner for Standards investigates complaints but does not routinely verify declarations against bank records or third-party disclosures. An MP who fails to declare a donation faces investigation only if someone notices and complains.
-                </p>
-                <p style={callP}>
-                  The second is thresholds. Donations below £500 to individual MPs need not be registered. Donations to parties below £11,180 need not be reported to the Electoral Commission. A donor giving £499 to twenty MPs distributes nearly £10,000 across the Commons without triggering a single declaration.
-                </p>
-                <p style={callP}>
-                  The third is intermediaries. Unincorporated associations can donate without revealing who contributed to the association. Trusts can donate without the settlors or beneficiaries appearing in any public filing. The Electoral Commission has flagged both routes as transparency gaps for years. Both remain open.
-                </p>
-                <p style={callP}>
-                  The fourth is permissibility. Only UK-registered voters, companies and trade unions can legally donate. But a UK-registered company can be wholly owned by foreign interests, funded entirely by overseas revenue, and operated for the benefit of non-UK residents. The law tests incorporation, not economic substance.
-                </p>
-                <p style={callP}>
-                  The fifth is timing. Outside regulated election periods, delays of weeks or months between receiving and declaring a donation are common and lawful. By the time the public can see it, the political context that made it significant may have passed.
-                </p>
-                <p style={callP}>
-                  The sixth is sanctions. Fines for non-compliance are low relative to the sums involved. For a donor willing to risk a penalty measured in thousands against a donation measured in tens of thousands, the economics of non-compliance are favourable.
-                </p>
                 <p style={callPLast}>
-                  No major reform has been implemented since the Political Parties, Elections and Referendums Act 2000. The methods of moving money into politics have grown more sophisticated. The methods of tracking it have not. The register remains a record of what politicians chose to tell us, not a record of what actually happened.
+                  The UK&rsquo;s political donation system asks politicians to declare who funds them and trusts them to tell the truth. There is no independent audit of what MPs receive. Donations below £500 need not be declared at all. Unincorporated associations and trusts can donate without revealing who provided the money. A company registered at Companies House with entirely foreign ownership and no UK employees is a permissible donor. Fines for non-compliance are low enough to be treated as a cost of doing business. No major reform has been implemented since 2000. The register records what politicians chose to disclose, not what actually happened.
+                </p>
+                <p style={{ margin: '10px 0 0 0', fontFamily: 'Special Elite, monospace', fontSize: '12px' }}>
+                  <Link href="/explainers/donations" style={{ color: '#7a1612', textDecoration: 'underline' }}>
+                    Read the full explainer &rarr;
+                  </Link>
                 </p>
               </section>
 
