@@ -503,51 +503,11 @@ export default function MagazineProfileSections({
           <>
             <h2 style={sectionH2}>Political Biography</h2>
 
-            {activity && (activity.divisions_voted ?? 0) > 0 && (
-              <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px', marginBottom: '24px' }}>
-                <ActivityTile
-                  label="Divisions voted in"
-                  value={`${(activity.divisions_voted ?? 0).toLocaleString()} / ${(activity.divisions_total ?? 0).toLocaleString()}`}
-                  sub="of all Commons votes this Parliament"
-                  href={`/mps/${memberId}?section=voting`}
-                  hrefLabel="View voting record"
-                />
-                <ActivityTile
-                  label="Attendance"
-                  value={`${Number(activity.attendance_pct ?? 0).toFixed(1)}%`}
-                  sub="proportion of available divisions voted in"
-                  href={`/mps/${memberId}?section=voting`}
-                  hrefLabel="View voting record"
-                />
-                <ActivityTile
-                  label="Whip rebellions"
-                  value={String(activity.rebellions_total ?? 0)}
-                  sub={`${Number(activity.rebellion_rate_pct ?? 0).toFixed(1)}% of own votes`}
-                  href={`/mps/${memberId}?section=voting`}
-                  hrefLabel="View voting record"
-                />
-                {activity.speeches_year != null && (
-                  <ActivityTile
-                    label="Speeches"
-                    value={String(activity.speeches_year)}
-                    sub="spoken contributions, last 12 months"
-                    href={`https://hansard.parliament.uk/search/MemberContributions?memberId=${memberId}&house=Commons`}
-                    hrefLabel="Read on Hansard"
-                    external
-                  />
-                )}
-                {activity.questions_year != null && (
-                  <ActivityTile
-                    label="Written questions"
-                    value={String(activity.questions_year)}
-                    sub="career total tabled"
-                    href={`https://questions-statements.parliament.uk/written-questions?MemberIds=${memberId}`}
-                    hrefLabel="Read on parliament.uk"
-                    external
-                  />
-                )}
-              </section>
-            )}
+            {/* Activity stat-tile strip removed 2026-06-06 per user request.
+                The mp_activity_metrics data is still fetched and passed in
+                as the `activity` prop; the ActivityTile component is still
+                defined below. Reinstate by restoring the <section> block
+                here if the metrics view is wanted back. */}
 
             <div style={{ lineHeight: '1.8', fontSize: '16px', letterSpacing: '0.01em' }}>
               {paragraphs.length === 0 ? (
