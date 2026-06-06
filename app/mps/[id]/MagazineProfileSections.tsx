@@ -542,40 +542,75 @@ export default function MagazineProfileSections({
           </>
         )}
 
-        {active === 'interests' && (
-          <>
-            <h2 style={sectionH2}>Registered Interests</h2>
-            <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.7' }}>
-              {interests.map((i, idx) => {
-                const children = Array.isArray(i.child_interests) ? i.child_interests : [];
-                return (
-                  <li key={idx} style={{ padding: '8px 0', borderBottom: inkDivider }}>
-                    <div style={{ fontSize: '12px', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{i.category_name}</div>
-                    <div style={{ whiteSpace: 'pre-wrap' }}>{i.interest_text}</div>
-                    {children.length > 0 && (
-                      // Child interests carry the actual payment lines on
-                      // Category 1 (Employment and earnings): payer-by-
-                      // payer amounts, hours, dates. Previously hidden;
-                      // surfacing here so outside-earnings declarations
-                      // are visible on the MP profile, not just the
-                      // aggregate total on the Earnings tab.
-                      <ul style={{ listStyle: 'none', padding: 0, marginTop: '8px', marginLeft: '12px', borderLeft: '2px solid rgba(20,16,13,0.15)' }}>
-                        {children.map((c, ci) => (
-                          <li
-                            key={c.id ?? ci}
-                            style={{ padding: '4px 0 4px 12px', fontSize: '14px', opacity: 0.9, whiteSpace: 'pre-wrap' }}
-                          >
-                            {c.interest || ''}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          </>
-        )}
+        {active === 'interests' && (() => {
+          // Register taxonomy folded into 7 themed buckets so a reader
+          // can scan 'what does this MP get gifts from' without parsing
+          // category numbers. Empty buckets don't render. Order chosen
+          // so the high-misuse-potential categories surface first:
+          // Gifts → Visits → Land → Shareholdings → Family → Indirect
+          // support → Misc. Employment & earnings (Cat 1) is intentionally
+          // omitted here because it's already covered on the Earnings tab
+          // with a richer per-payer breakdown.
+          const buckets: Array<{ key: string; label: string; match: (cat: string) => boolean }> = [
+            { key: 'gifts', label: 'Gifts, benefits & hospitality',
+              match: (c) => /^3\.|^5\./.test(c) },
+            { key: 'visits', label: 'Visits outside the UK',
+              match: (c) => /^4\./.test(c) },
+            { key: 'land', label: 'Land & property portfolio',
+              match: (c) => /^6\./.test(c) },
+            { key: 'shares', label: 'Shareholdings',
+              match: (c) => /^7\./.test(c) },
+            { key: 'family', label: 'Family employment & lobbying',
+              match: (c) => /^9\.|^10\./.test(c) },
+            { key: 'support', label: 'Campaign & office support',
+              match: (c) => /^2\./.test(c) },
+            { key: 'misc', label: 'Miscellaneous',
+              match: (c) => /^8\./.test(c) },
+            { key: 'earnings', label: 'Employment & earnings (see Earnings tab for breakdown)',
+              match: (c) => /^1\./.test(c) },
+          ];
+          const grouped = buckets
+            .map((b) => ({ ...b, rows: interests.filter((i) => b.match(i.category_name || '')) }))
+            .filter((b) => b.rows.length > 0);
+
+          function renderRow(i: Interest, idx: number) {
+            const children = Array.isArray(i.child_interests) ? i.child_interests : [];
+            return (
+              <li key={idx} style={{ padding: '8px 0', borderBottom: inkDivider }}>
+                <div style={{ fontSize: '11px', opacity: 0.55, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '2px' }}>{i.category_name}</div>
+                <div style={{ whiteSpace: 'pre-wrap' }}>{i.interest_text}</div>
+                {children.length > 0 && (
+                  <ul style={{ listStyle: 'none', padding: 0, marginTop: '8px', marginLeft: '12px', borderLeft: '2px solid rgba(20,16,13,0.15)' }}>
+                    {children.map((c, ci) => (
+                      <li key={c.id ?? ci} style={{ padding: '4px 0 4px 12px', fontSize: '14px', opacity: 0.9, whiteSpace: 'pre-wrap' }}>
+                        {c.interest || ''}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            );
+          }
+
+          return (
+            <>
+              <h2 style={sectionH2}>Registered Interests</h2>
+              <p style={{ marginBottom: '16px', fontSize: '13px', opacity: 0.7, lineHeight: 1.6 }}>
+                Mandatory declarations under the House of Commons Register of Members&rsquo; Financial Interests. Grouped by the Register&rsquo;s own categories: items potentially material to an MP&rsquo;s parliamentary work.
+              </p>
+              {grouped.map((b) => (
+                <section key={b.key} style={{ marginBottom: '20px' }}>
+                  <h3 style={{ ...sectionH3, marginTop: '8px' }}>
+                    {b.label} <span style={{ opacity: 0.55, fontWeight: 'normal', fontSize: '13px' }}>({b.rows.length})</span>
+                  </h3>
+                  <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.7' }}>
+                    {b.rows.map((i, idx) => renderRow(i, idx))}
+                  </ul>
+                </section>
+              ))}
+            </>
+          );
+        })()}
 
         {active === 'roles' && (
           <div style={{ fontSize: '15px', lineHeight: '1.7' }}>
