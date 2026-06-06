@@ -269,12 +269,24 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
   // recipient_name fuzzy-matches MP's mpNameKey computed above.
   // recipient_type restricted to MP-individual classes: backbench /
   // Regulated Donee / Members Association / Member of Registered Party.
-  const donationsRes = mpNameKey.length > 0
+  //
+  // Strategy (revised 2026-06-06 after audit found 7 MPs missing
+  // donations because the previous '%mpNameKey%' contiguous-substring
+  // match couldn't cross middle names or short-name vs formal-name
+  // gaps): require BOTH firstWord AND lastWord as substrings (two
+  // chained ilike calls combine as AND under PostgREST). Catches:
+  //   Ed Davey            ↔ Edward Davey                  (ed → edward)
+  //   Chi Onwurah         ↔ Ms Chinyelu Onwurah MP        (chi → chinyelu)
+  //   Diana Johnson       ↔ Ms Diana Ruth Johnson MP      (middle name)
+  //   Mark Garnier        ↔ Mr Mark Robert Timothy Garnier MP
+  //   Iain Duncan Smith   ↔ Mr George Iain Duncan-Smith
+  const donationsRes = firstWord.length >= 2 && lastWord.length >= 2
     ? await supabase
         .from('political_donations')
         .select('id, donor_name, donor_type, donor_status, amount, cash_value, non_cash_value, accepted_date, received_date, reported_date, published_date, dealt_with_date, nature, recipient_name, recipient_type, manner_in_which_made, purpose_of_visit, position_standing_for, campaigning_name, accounting_unit_name, donation_action, reporting_period_name, reporting_period_type, is_aggregation, is_bequest, is_sponsorship, is_anonymous, is_irish_source, is_reported_pre_poll, returned_date, impermissibility_reason, attempted_concealment, concealment_details, trust_name, trust_creator_name, trust_creator_status, trust_created_date, company_registration_number, addr_line1, addr_town, addr_postcode, addr_country, explanatory_notes, ec_ref')
         .in('recipient_type', ['MP - Member of Parliament', 'Regulated Donee', 'Members Association', 'Member of Registered Political Party'])
-        .ilike('recipient_name', `%${mpNameKey}%`)
+        .ilike('recipient_name', `%${firstWord}%`)
+        .ilike('recipient_name', `%${lastWord}%`)
         .order('accepted_date', { ascending: false })
         .limit(500)
     : { data: [] };
@@ -317,9 +329,16 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
 
   const donations = (donationsRes.data || []).filter((d: { recipient_name?: string | null }) => {
     const rn = String((d as { recipient_name?: string | null }).recipient_name || '').toLowerCase();
-    // Allow either both words present OR the full key being a substring
-    return rn.includes(mpNameKey.toLowerCase())
-      || (firstWord && lastWord && rn.includes(firstWord) && rn.includes(lastWord));
+    // Tokenise on whitespace AND hyphens so 'Duncan-Smith' splits into
+    // ['duncan','smith'] for the last-name comparison.
+    const tokens = rn.split(/[\s,.\-]+/).filter(Boolean);
+    // Last name must appear as an exact token.
+    if (!tokens.includes(lastWord)) return false;
+    // First name may appear as an exact token OR as the prefix of a longer
+    // token (catches Ed -> Edward, Chi -> Chinyelu, Tom -> Thomas, etc.).
+    // Require firstWord >= 2 chars to avoid 'A' / 'I' false matches.
+    if (firstWord.length < 2) return false;
+    return tokens.some((t) => t === firstWord || t.startsWith(firstWord));
   });
 
   // Tag each vote whose division is a statutory instrument so the render can
