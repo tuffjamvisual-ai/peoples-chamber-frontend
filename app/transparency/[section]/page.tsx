@@ -134,6 +134,17 @@ export default async function TransparencySectionPage({
             The revolving door refers to senior government officials and ministers leaving public service to take up roles in the private sector, often in industries they previously regulated or had influence over. These appointments are reviewed by the Advisory Committee on Business Appointments (ACOBA), which can attach conditions such as waiting periods or restrictions on lobbying former colleagues.
           </p>
         )}
+        {section === 'donations' && (
+          <div className="mt-6 flex flex-wrap gap-3 text-[13px]">
+            <Link href="/donors" className="font-mono underline" style={{ color: ACCENT }}>Donor index &rarr;</Link>
+            <span className="opacity-30">·</span>
+            <Link href="/donations/foreign" className="font-mono underline" style={{ color: ACCENT }}>Foreign-source map &rarr;</Link>
+            <span className="opacity-30">·</span>
+            <Link href="/donations/late-disclosed" className="font-mono underline" style={{ color: ACCENT }}>Late-disclosed register &rarr;</Link>
+            <span className="opacity-30">·</span>
+            <Link href="/explainers/donations" className="font-mono underline" style={{ color: ACCENT }}>What the data means &rarr;</Link>
+          </div>
+        )}
       </header>
 
       <TransparencyClient
