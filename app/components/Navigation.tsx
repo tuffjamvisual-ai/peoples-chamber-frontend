@@ -75,6 +75,7 @@ export default function Navigation() {
                 MPs
               </Link>
               <Link href="/departments" className={`px-3 py-1.5 text-sm ${isActive('/departments') ? 'text-[#ffffff] font-medium' : 'text-white hover:text-white'}`}>Departments</Link>
+              <Link href="/money" className={`px-3 py-1.5 text-sm ${isActive('/money') ? 'text-[#ffffff] font-medium' : 'text-white hover:text-white'}`}>Money</Link>
               <Link href="/transparency" className={`px-3 py-1.5 text-sm ${isActive('/transparency') ? 'text-[#ffffff] font-medium' : 'text-white hover:text-white'}`}>Transparency</Link>
               <Link href="/search" className={`px-3 py-1.5 text-sm ${isActive('/search') ? 'text-[#ffffff] font-medium' : 'text-white hover:text-white'}`}>Search</Link>
               <Link href="/about" className={`px-3 py-1.5 text-sm ${isActive('/about') ? 'text-[#ffffff] font-medium' : 'text-white hover:text-white'}`}>
@@ -134,6 +135,7 @@ export default function Navigation() {
                   MPs
                 </Link>
                 <Link href="/departments" className={`px-3 py-1.5 text-sm ${isActive('/departments') ? 'text-[#ffffff] font-medium' : 'text-white hover:text-white'}`}>Departments</Link>
+              <Link href="/money" className={`px-3 py-1.5 text-sm ${isActive('/money') ? 'text-[#ffffff] font-medium' : 'text-white hover:text-white'}`}>Money</Link>
               <Link href="/transparency" className={`px-3 py-1.5 text-sm ${isActive('/transparency') ? 'text-[#ffffff] font-medium' : 'text-white hover:text-white'}`}>Transparency</Link>
               <Link href="/search" className={`px-3 py-1.5 text-sm ${isActive('/search') ? 'text-[#ffffff] font-medium' : 'text-white hover:text-white'}`}>Search</Link>
               <Link href="/about" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/about') ? 'text-[#ffffff] bg-transparent/10' : 'text-white'}`}>

@@ -144,9 +144,187 @@ export default function HomePage() {
   return (
     <>
       <DossierShell overlay={HomeFront} />
+      <MoneyAndPowerBanner />
       <EditorialIntro />
     </>
   );
+}
+
+// Featured "Money & Power" panel — sits below the newspaper front page
+// and above the editorial intro. Surfaces the strongest cross-register
+// patterns by name and number so a normal visitor sees there's a
+// hidden-in-plain-sight layer before scrolling further.
+function MoneyAndPowerBanner() {
+  const PAPER = '#f4e8d4';
+  const INK = '#14100d';
+  const ACCENT = '#7a1612';
+  const HAIRLINE = 'rgba(20,16,13,0.18)';
+  return (
+    <section
+      aria-label="Money and power: hidden-in-plain-sight cross-references"
+      style={{
+        background: PAPER,
+        color: INK,
+        padding: '5% 8% 5%',
+        borderTop: '1px solid rgba(20,16,13,0.18)',
+        borderBottom: '1px solid rgba(20,16,13,0.18)',
+      }}
+    >
+      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+        <p
+          style={{
+            fontFamily: 'Special Elite, monospace',
+            fontSize: '13px',
+            letterSpacing: '0.3em',
+            textTransform: 'uppercase',
+            opacity: 0.6,
+            margin: '0 0 14px',
+          }}
+        >
+          Money &amp; Power · Cross-register patterns
+        </p>
+        <h2
+          style={{
+            fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
+            fontSize: 'clamp(24px, 3.2vw, 40px)',
+            fontWeight: 'bold',
+            lineHeight: 1.1,
+            margin: '0 0 14px',
+          }}
+        >
+          The money that moves through UK politics, side-by-side with the records nobody else joins.
+        </h2>
+        <p
+          style={{
+            fontFamily: 'Special Elite, monospace',
+            fontSize: '14px',
+            lineHeight: 1.7,
+            margin: '0 0 28px',
+            maxWidth: '70ch',
+            opacity: 0.85,
+          }}
+        >
+          Every fact below is public. The Electoral Commission, gov.uk Contracts Finder, the Register of Members&rsquo; Financial Interests and the APPG register all publish their own slice in their own format. Reading them together is the work.
+        </p>
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+            gap: '14px',
+          }}
+        >
+          <HomeTile
+            href="/donations/double-dip"
+            kicker="Double-dip"
+            line="UK MPs paid both as employees AND as donors by the same entity."
+            example="Sunak · Hoover Institution. Williamson · RTC Education. Hunt + Freeman · Oxford Institute. Three MPs · GB News."
+          />
+          <HomeTile
+            href="/donations/government-contractors"
+            kicker="Contractors who donate"
+            line="£120M+ of UK public-sector contracts. £2.5M+ of political donations. Same companies."
+            example="PwC · KPMG · Deloitte · Ernst & Young · Microsoft · SSE · Randox · Grant Thornton."
+          />
+          <HomeTile
+            href="/donations/sponsored-visits"
+            kicker="Who paid for MPs to travel"
+            line="Foreign governments, think tanks and lobby groups paying for UK MP visits."
+            example="Hong Kong Government · 30 trips. Qatar foreign ministry paid Starmer to meet the Emir."
+          />
+          <HomeTile
+            href="/money"
+            kicker="The full money index"
+            line="Twelve cross-register surfaces over UK political money. The patterns hidden in plain sight."
+            example="Donors · contracts · earnings · APPGs · foreign · leadership · bequests · constituencies."
+            highlight
+          />
+        </div>
+
+        <div style={{ marginTop: '28px' }}>
+          <a
+            href="/money"
+            style={{
+              fontFamily: 'Special Elite, monospace',
+              fontSize: '14px',
+              color: ACCENT,
+              textDecoration: 'underline',
+              fontWeight: 'bold',
+            }}
+          >
+            Read the full Money &amp; Power index &rarr;
+          </a>
+          <span style={{ opacity: 0.4, padding: '0 10px' }}>·</span>
+          <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '12px', opacity: 0.7 }}>
+            None of this is evidence of wrongdoing. All of it is on a public register. Almost none of it has been findable until now.
+          </span>
+        </div>
+      </div>
+    </section>
+  );
+
+  function HomeTile({ href, kicker, line, example, highlight }: { href: string; kicker: string; line: string; example: string; highlight?: boolean }) {
+    return (
+      <a
+        href={href}
+        className="no-hover-scale"
+        style={{
+          display: 'block',
+          textDecoration: 'none',
+          color: INK,
+          padding: '16px 18px',
+          border: highlight ? `2px solid ${ACCENT}` : `1px solid ${HAIRLINE}`,
+          background: highlight ? 'rgba(122,22,18,0.04)' : 'transparent',
+        }}
+      >
+        <div
+          style={{
+            fontFamily: 'Special Elite, monospace',
+            fontSize: '11px',
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase',
+            color: ACCENT,
+            marginBottom: '8px',
+            fontWeight: 'bold',
+          }}
+        >
+          {kicker}
+        </div>
+        <div
+          style={{
+            fontFamily: 'EB Garamond, Garamond, Georgia, serif',
+            fontSize: '18px',
+            fontWeight: 'bold',
+            lineHeight: 1.25,
+            marginBottom: '10px',
+          }}
+        >
+          {line}
+        </div>
+        <div
+          style={{
+            fontFamily: 'Special Elite, monospace',
+            fontSize: '12px',
+            lineHeight: 1.55,
+            opacity: 0.8,
+          }}
+        >
+          {example}
+        </div>
+        <div
+          style={{
+            marginTop: '10px',
+            fontFamily: 'Special Elite, monospace',
+            fontSize: '12px',
+            color: ACCENT,
+            fontWeight: 'bold',
+          }}
+        >
+          See the table &rarr;
+        </div>
+      </a>
+    );
+  }
 }
 
 // Server-rendered editorial introduction. 264-word statement of what the
