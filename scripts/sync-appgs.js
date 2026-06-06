@@ -86,7 +86,12 @@ function dqDate(d) {
         const sm = String(d.contact_details.secretariat);
         const urlM = sm.match(/(https?:\/\/[^\s]+)/);
         secretariatUrl = urlM ? urlM[1] : null;
-        secretariatText = urlM ? sm.slice(0, urlM.index).trim() : sm;
+        const beforeUrl = urlM ? sm.slice(0, urlM.index).trim() : sm;
+        // Strip boilerplate suffix so the same lobby firm doesn't split
+        // into multiple distinct values across the dataset.
+        secretariatText = beforeUrl
+          .replace(/\s*acts\s+as\s+the\s+group['’]?s\s+secretariat\.?\s*$/i, '')
+          .trim();
       }
       appgRows.push({
         slug,

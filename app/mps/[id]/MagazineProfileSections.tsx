@@ -939,16 +939,24 @@ export default function MagazineProfileSections({
                           <span style={{ fontSize: '11px', opacity: 0.6 }}>{a.category}</span>
                         )}
                       </div>
-                      {a.secretariat && (
-                        <div style={{ fontSize: '12px', marginTop: '4px', opacity: 0.85 }}>
-                          <span style={{ opacity: 0.6 }}>Secretariat:</span>{' '}
-                          {a.secretariat_url ? (
-                            <a href={a.secretariat_url} target="_blank" rel="noopener noreferrer" style={inkLink}>{a.secretariat}</a>
-                          ) : (
-                            a.secretariat
-                          )}
-                        </div>
-                      )}
+                      {a.secretariat && (() => {
+                        // Same slug rule as /secretariats/[slug]/page.tsx
+                        const secSlug = a.secretariat.toLowerCase()
+                          .replace(/&/g, ' and ')
+                          .replace(/'/g, '')
+                          .replace(/[^a-z0-9]+/g, '-')
+                          .replace(/^-+|-+$/g, '')
+                          .slice(0, 100);
+                        return (
+                          <div style={{ fontSize: '12px', marginTop: '4px', opacity: 0.85 }}>
+                            <span style={{ opacity: 0.6 }}>Secretariat:</span>{' '}
+                            <Link href={`/secretariats/${secSlug}`} style={inkLink}>{a.secretariat}</Link>
+                            {a.secretariat_url && (
+                              <> · <a href={a.secretariat_url} target="_blank" rel="noopener noreferrer" style={{ ...inkLink, fontSize: '11px' }}>website ↗</a></>
+                            )}
+                          </div>
+                        );
+                      })()}
                       {a.funders.length > 0 && (
                         <details style={{ marginTop: '6px', fontSize: '12px' }}>
                           <summary style={{ cursor: 'pointer', fontFamily: 'Special Elite, monospace', color: '#7a1612' }}>
