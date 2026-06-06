@@ -185,6 +185,31 @@ export default async function DonorPage({ params }: PageProps) {
   const matchedAppgFunderRows = (appgFunderHits || []).filter(
     (f: { source: string }) => donorNameToSlug(f.source) === slug,
   );
+
+  // Cross-link: government contracts held by this donor under the same
+  // name. Match rule is the case-insensitive whitespace-normalised name
+  // (the same rule /donations/government-contractors uses) so a donor
+  // only shows a contracts panel when the EC and gov.uk registers
+  // agree on the entity. Limited to current/recent contracts.
+  const normName = canonicalName.toUpperCase().replace(/\s+/g, ' ').trim();
+  const { data: contractHits } = await supabase
+    .from('government_contracts')
+    .select('id, dept_slug, title, value, awarded_date, supplier')
+    .ilike('supplier', `%${ranked[0] ?? canonicalName}%`)
+    .limit(500);
+  type ContractRow = { id: number; dept_slug: string; title: string | null; value: number | null; awarded_date: string | null; supplier: string | null };
+  const matchedContracts = ((contractHits || []) as ContractRow[]).filter((c) =>
+    c.supplier && c.supplier.toUpperCase().replace(/\s+/g, ' ').trim() === normName,
+  );
+  const contractsByDept = new Map<string, { dept: string; count: number; total: number }>();
+  for (const c of matchedContracts) {
+    const ex = contractsByDept.get(c.dept_slug) ?? { dept: c.dept_slug, count: 0, total: 0 };
+    ex.count += 1;
+    ex.total += Number(c.value || 0);
+    contractsByDept.set(c.dept_slug, ex);
+  }
+  const contractDeptRows = Array.from(contractsByDept.values()).sort((a, b) => b.total - a.total);
+  const totalContractValue = matchedContracts.reduce((s, c) => s + Number(c.value || 0), 0);
   let appgsFunded: Array<{ slug: string; title: string; category: string | null }> = [];
   if (matchedAppgFunderRows.length > 0) {
     const slugs = Array.from(new Set(matchedAppgFunderRows.map((f) => f.appg_slug)));
@@ -309,6 +334,34 @@ export default async function DonorPage({ params }: PageProps) {
               </li>
             ))}
           </ul>
+        </section>
+      )}
+
+      {matchedContracts.length > 0 && (
+        <section style={{ marginBottom: '28px', padding: '14px 16px', background: 'rgba(20,16,13,0.04)', borderLeft: `3px solid ${DANGER}` }}>
+          <h2 style={{ ...sectionH2, marginTop: 0, marginBottom: '8px' }}>Also holds {matchedContracts.length} UK government contract{matchedContracts.length === 1 ? '' : 's'} · {fmtMoney(totalContractValue)}</h2>
+          <p style={{ fontSize: '12px', opacity: 0.75, marginBottom: '12px' }}>This donor name also appears on the gov.uk Contracts Finder register as a public-sector supplier. The match is an exact name overlap; no causal link is implied between the donations on this page and the contracts below. Departments awarding the work:</p>
+          <table style={{ ...tableStyle, marginBottom: '8px' }}>
+            <thead>
+              <tr style={headerRow}>
+                <th style={{ ...th, textAlign: 'left' }}>Department</th>
+                <th style={th}>Contracts</th>
+                <th style={{ ...th, textAlign: 'right' }}>Total value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {contractDeptRows.map((r) => (
+                <tr key={r.dept} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
+                  <td style={{ ...td, textAlign: 'left' }}>
+                    <Link href={`/departments/${r.dept}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.dept}</Link>
+                  </td>
+                  <td style={td}>{r.count}</td>
+                  <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(r.total)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <Link href="/donations/government-contractors" style={{ fontSize: '12px', color: ACCENT, textDecoration: 'underline' }}>See the full contractor-donor cross-reference &rarr;</Link>
         </section>
       )}
 
