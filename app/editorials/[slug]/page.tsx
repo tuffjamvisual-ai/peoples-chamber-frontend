@@ -45,6 +45,36 @@ export default async function EditorialPage({ params }: { params: Promise<{ slug
     <DossierShell>
       <BackLink fallbackHref="/" label="← Home" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
+      {piece.heroImage && (
+        <figure style={{ position: 'relative', margin: '0 0 28px', maxWidth: '100%' }}>
+          {/* Hand-drawn SVG ink border filter — shared with the rest of the site. */}
+          <svg width="0" height="0" style={{ position: 'absolute', pointerEvents: 'none' }} aria-hidden>
+            <defs>
+              <filter id="handDrawnEdgeEditorial" x="-5%" y="-5%" width="110%" height="110%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="5" result="noise" />
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="5" xChannelSelector="R" yChannelSelector="G" />
+              </filter>
+            </defs>
+          </svg>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={piece.heroImage}
+            alt={piece.heroAlt || piece.headline}
+            style={{ display: 'block', width: '100%', aspectRatio: '16 / 9', objectFit: 'cover' }}
+          />
+          <div
+            aria-hidden
+            style={{
+              position: 'absolute',
+              inset: 0,
+              border: '3px solid #14100d',
+              filter: 'url(#handDrawnEdgeEditorial)',
+              pointerEvents: 'none',
+            }}
+          />
+        </figure>
+      )}
+
       <header style={{ borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '24px', marginBottom: '28px' }}>
         {piece.kicker && (
           <p style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '14px', color: ACCENT, fontFamily: '"Special Elite", monospace', fontWeight: 'bold' }}>

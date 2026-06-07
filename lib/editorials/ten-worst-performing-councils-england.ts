@@ -8,6 +8,8 @@ const piece: EditorialEntry = {
     "Since 2018, seven English councils have declared themselves effectively bankrupt. One was abolished entirely. Another went bankrupt three times. A borough council with an annual budget of £16 million accumulated debts of £1.8 billion. England's largest local authority is still under government commissioners two years after its collapse. Sixty three more councils are considered at risk. The ten worst failures in modern English local government expose a system where the safeguards designed to prevent catastrophe failed at every level. These are the councils that broke, the decisions that broke them, and the residents left paying the bill.",
   publishedAt: '2026-06-07',
   authorByline: "The People's Chamber",
+  heroImage: '/councils.webp',
+  heroAlt: 'A composite illustration: a sweep of English council buildings under a heavy sky, the shadow of Section 114 across the rooftops.',
   body: [
     {
       type: 'paragraph',

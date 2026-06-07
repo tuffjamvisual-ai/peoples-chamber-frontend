@@ -11,8 +11,11 @@ export type EditorialEntry = {
   // Optional eyebrow shown above the headline (e.g. "Investigation",
   // "Money & Power", "Reading the Record").
   kicker?: string;
-  // Body is a sequence of blocks; the renderer dispatches by `type`.
-  body: Block[];
+  // Optional hero image rendered above the headline + ink border on
+  // the article page and as the lead photo on the homepage card.
+  heroImage?: string;           // public path, e.g. '/councils.webp'
+  heroAlt?: string;
+  body: Block[];                // dispatched by `type`
 };
 
 export type Block =
