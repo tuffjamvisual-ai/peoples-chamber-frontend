@@ -52,17 +52,17 @@ export default function HomePage() {
       <JsonLd data={buildHomepageGraph()} />
 
       {/* Lead editorial — the dominant front-page story. Newspaper-scale
-          hierarchy: photo + ink border at top, big serif headline,
-          italic Garamond standfirst, body summary, accent-red kicker
-          and CTA. Sits left and takes ~60% of the hero column, with the
-          Parliament lead as a slimmer secondary card on the right. */}
-      <a href="/editorials/ten-worst-performing-councils-england" className="no-hover-scale" style={{ ...card, top: '23%', left: '6%', width: '58%', height: '41%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 3% 1.5%' }}>
+          hierarchy: photo at top with ink border, big serif headline,
+          italic Garamond standfirst, short lede, accent-red CTA. overflow
+          hidden as a defensive measure against the 41%-height card
+          clipping at small viewports. */}
+      <a href="/editorials/ten-worst-performing-councils-england" className="no-hover-scale" style={{ ...card, top: '23%', left: '6%', width: '58%', height: '41%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 3% 1.5%', overflow: 'hidden' }}>
         <div style={{ width: '100%', marginBottom: '2%', position: 'relative' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/councils.webp"
             alt="The ten worst performing councils in England"
-            style={{ display: 'block', width: '100%', aspectRatio: '16 / 9', objectFit: 'cover' }}
+            style={{ display: 'block', width: '100%', aspectRatio: '21 / 9', objectFit: 'cover' }}
           />
           <div
             aria-hidden
@@ -81,14 +81,14 @@ export default function HomePage() {
           How local government failed the people it exists to serve.
         </div>
         <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '0.92cqw', lineHeight: 1.45, opacity: 0.92, marginBottom: '1.5%' }}>
-          Since 2018, seven English councils have declared themselves effectively bankrupt. One was abolished entirely. Another went bankrupt three times. A borough council with an annual budget of &pound;16 million accumulated debts of &pound;1.8 billion. England&rsquo;s largest local authority is still under government commissioners two years after its collapse. Sixty three more councils are considered at risk.
+          Seven English councils declared bankrupt since 2018. One abolished entirely. Another went bankrupt three times. Sixty three more councils considered at risk.
         </div>
         <div style={{ ...kicker, fontSize: '1.0cqw', letterSpacing: '0.18em', marginTop: 'auto', color: '#6b2417', fontWeight: 'bold' }}>Read the full story &rarr;</div>
       </a>
 
       {/* Secondary hotspot: Parliament weekly digest. Lives to the right
           of the lead editorial, slim column. */}
-      <a href="/bills" className="no-hover-scale" style={{ ...card, top: '23%', left: '66%', width: '28%', height: '41%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 2.5%' }}>
+      <a href="/bills" className="no-hover-scale" style={{ ...card, top: '23%', left: '66%', width: '28%', height: '41%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 2.5%', overflow: 'hidden' }}>
         <div style={{ ...kicker, fontSize: '0.9cqw', letterSpacing: '0.28em', opacity: 0.65, marginBottom: '2%' }}>From the House this week</div>
         <div style={{ ...headline, fontSize: '2.4cqw', lineHeight: 0.98, marginBottom: '4%' }}>Every bill. Every vote. Every law.</div>
         <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.05cqw', lineHeight: 1.5, opacity: 0.88, marginBottom: '4%' }}>
