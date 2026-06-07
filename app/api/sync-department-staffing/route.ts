@@ -22,9 +22,36 @@ export const maxDuration = 120;
 // usually <1% of headcount and visually noisy). UK-only — Scottish
 // Government / Welsh Government / TOTAL rows are dropped.
 
-const ONS_URL =
-  'https://www.ons.gov.uk/file?uri=/employmentandlabourmarket/peopleinwork/publicsectorpersonnel/datasets/publicsectoremploymentreferencetable/current/datasets8.xlsx';
+const ONS_LANDING =
+  'https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/publicsectorpersonnel/datasets/publicsectoremploymentreferencetable';
+// We scrape the landing page for the latest dated URL rather than use
+// /current/ — ONS's /current/ endpoint 404s intermittently behind their
+// CDN, while the dated URLs (e.g. /december2025/) are stable.
+const URL_PATTERN = /\/employmentandlabourmarket\/peopleinwork\/publicsectorpersonnel\/datasets\/publicsectoremploymentreferencetable\/([a-z]+\d{4})\/datasets8\.xlsx/g;
 const UA = 'PeoplesChamber/1.0 (+thepeopleschamber.uk)';
+
+// Months in publication order so the latest sort works numerically
+const MONTH_ORDER: Record<string, number> = {
+  january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+  july: 6, august: 7, september: 8, october: 9, november: 10, december: 11,
+};
+
+async function discoverLatestXlsxUrl(): Promise<string | null> {
+  const html = await fetch(ONS_LANDING, { headers: { 'User-Agent': UA } }).then((r) => r.text());
+  const candidates = Array.from(html.matchAll(URL_PATTERN), (m) => ({ slug: m[1], full: `https://www.ons.gov.uk${m[0]}` }))
+    .filter((c) => c.slug !== 'current');
+  if (candidates.length === 0) return null;
+  // Sort by (year, month) descending; pick the most recent
+  candidates.sort((a, b) => {
+    const ma = a.slug.match(/^([a-z]+)(\d{4})$/);
+    const mb = b.slug.match(/^([a-z]+)(\d{4})$/);
+    if (!ma || !mb) return 0;
+    const ya = parseInt(ma[2], 10), yb = parseInt(mb[2], 10);
+    if (ya !== yb) return yb - ya;
+    return (MONTH_ORDER[mb[1]] ?? 0) - (MONTH_ORDER[ma[1]] ?? 0);
+  });
+  return candidates[0].full;
+}
 
 // Map ONS Table 8 row labels → our 24 department slugs.
 // Three depts have no separate ONS row at all (commons-leader, lords-leader,
@@ -122,9 +149,11 @@ export async function GET(req: Request) {
   if (!url || !key) return NextResponse.json({ error: 'supabase env missing' }, { status: 500 });
   const supabase = createClient(url, key);
 
-  // 1. Download XLSX
-  const res = await fetch(ONS_URL, { headers: { 'User-Agent': UA } });
-  if (!res.ok) return NextResponse.json({ error: `ONS download ${res.status}` }, { status: 502 });
+  // 1. Discover the latest dated XLSX URL and download it
+  const xlsxUrl = await discoverLatestXlsxUrl();
+  if (!xlsxUrl) return NextResponse.json({ error: 'could not discover latest XLSX URL' }, { status: 502 });
+  const res = await fetch(xlsxUrl, { headers: { 'User-Agent': UA } });
+  if (!res.ok) return NextResponse.json({ error: `ONS download ${res.status} for ${xlsxUrl}` }, { status: 502 });
   const buf = Buffer.from(await res.arrayBuffer());
   const wb = XLSX.read(buf, { type: 'buffer' });
 
@@ -179,7 +208,7 @@ export async function GET(req: Request) {
       is_proxy: !!mapping.proxy,
       proxy_note: mapping.proxy ?? null,
       source: 'ons_pse_table8',
-      source_file_url: ONS_URL,
+      source_file_url: xlsxUrl,
     });
   }
 
@@ -196,7 +225,7 @@ export async function GET(req: Request) {
       is_proxy: true,
       proxy_note: 'Not separately reported in ONS Public Sector Employment Table 8',
       source: 'ons_pse_table8',
-      source_file_url: ONS_URL,
+      source_file_url: xlsxUrl,
     });
   }
 
