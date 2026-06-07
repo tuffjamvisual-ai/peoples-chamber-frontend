@@ -44,7 +44,7 @@ const eyebrow: CSSProperties = { ...kicker, fontSize: '1.05cqw', letterSpacing: 
 const ctaStyle: CSSProperties = { ...kicker, fontSize: '1.2cqw', letterSpacing: '0.03em', marginTop: 'auto' };
 const blurbStyle: CSSProperties = { fontSize: '1.2cqw', lineHeight: 1.4, opacity: 0.85, marginBottom: '4%' };
 const headlineRow: CSSProperties = { display: 'flex', gap: '6%', alignItems: 'flex-start', width: '100%', marginBottom: '3%' };
-const colStyle = (left: string, width: string): CSSProperties => ({ ...card, top: '78%', left, width, height: '14%', alignItems: 'flex-start' });
+const colStyle = (left: string, width: string): CSSProperties => ({ ...card, top: '67%', left, width, height: '14%', alignItems: 'flex-start' });
 
 export default function HomePage() {
   const HomeFront = (
@@ -56,8 +56,13 @@ export default function HomePage() {
           italic Garamond standfirst, short lede, accent-red CTA. overflow
           hidden as a defensive measure against the 41%-height card
           clipping at small viewports. */}
-      <a href="/editorials/ten-worst-performing-councils-england" className="no-hover-scale" style={{ ...card, top: '24%', left: '6%', width: '58%', height: '50%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 3% 1.5%', overflow: 'hidden' }}>
-        <div style={{ width: '100%', marginBottom: '2%', position: 'relative' }}>
+      {/* Lead editorial — horizontal newspaper layout: image left, text
+          right inside the same card. Keeps the front-page hierarchy
+          (big serif headline, italic standfirst, full body summary,
+          accent-red CTA) while halving the vertical footprint so the
+          whole hero fits above the bottom row without scrolling. */}
+      <a href="/editorials/ten-worst-performing-councils-england" className="no-hover-scale" style={{ ...card, flexDirection: 'row', gap: '2.5%', top: '24%', left: '6%', width: '58%', height: '38%', alignItems: 'stretch', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 2% 1.5%', overflow: 'hidden' }}>
+        <div style={{ flex: '0 0 38%', position: 'relative', alignSelf: 'flex-start' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/councils.webp"
@@ -75,20 +80,22 @@ export default function HomePage() {
             }}
           />
         </div>
-        <div style={{ ...kicker, fontSize: '1.0cqw', letterSpacing: '0.32em', color: '#6b2417', fontWeight: 'bold', marginBottom: '1.5%' }}>The People&rsquo;s Chamber &middot; Investigation</div>
-        <div style={{ ...headline, fontSize: '3.2cqw', lineHeight: 0.95, marginBottom: '1.8%', letterSpacing: '0.01em' }}>The Ten Worst Performing Councils In England</div>
-        <div style={{ fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif', fontStyle: 'italic', fontSize: '1.5cqw', lineHeight: 1.3, opacity: 0.88, marginBottom: '2%', maxWidth: '46ch' }}>
-          How local government failed the people it exists to serve.
+        <div style={{ flex: '1 1 auto', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ ...kicker, fontSize: '0.9cqw', letterSpacing: '0.3em', color: '#6b2417', fontWeight: 'bold', marginBottom: '1.5%' }}>The People&rsquo;s Chamber &middot; Investigation</div>
+          <div style={{ ...headline, fontSize: '2.2cqw', lineHeight: 0.98, marginBottom: '2%', letterSpacing: '0.01em' }}>The Ten Worst Performing Councils In England</div>
+          <div style={{ fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif', fontStyle: 'italic', fontSize: '1.15cqw', lineHeight: 1.3, opacity: 0.88, marginBottom: '2%' }}>
+            How local government failed the people it exists to serve.
+          </div>
+          <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.0cqw', lineHeight: 1.45, opacity: 0.92, marginBottom: '2%' }}>
+            Since 2018, seven English councils have declared themselves effectively bankrupt. One was abolished entirely. Another went bankrupt three times. A borough council with an annual budget of &pound;16 million accumulated debts of &pound;1.8 billion. England&rsquo;s largest local authority is still under government commissioners two years after its collapse. Sixty three more councils are considered at risk. The ten worst failures in modern English local government expose a system where the safeguards designed to prevent catastrophe failed at every level. These are the councils that broke, the decisions that broke them, and the residents left paying the bill.
+          </div>
+          <div style={{ ...kicker, fontSize: '1.1cqw', letterSpacing: '0.18em', marginTop: '0.5%', color: '#6b2417', fontWeight: 'bold' }}>Read the full story &rarr;</div>
         </div>
-        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.25cqw', lineHeight: 1.45, opacity: 0.92, marginBottom: '2%' }}>
-          Since 2018, seven English councils have declared themselves effectively bankrupt. One was abolished entirely. Another went bankrupt three times. A borough council with an annual budget of &pound;16 million accumulated debts of &pound;1.8 billion. England&rsquo;s largest local authority is still under government commissioners two years after its collapse. Sixty three more councils are considered at risk. The ten worst failures in modern English local government expose a system where the safeguards designed to prevent catastrophe failed at every level. These are the councils that broke, the decisions that broke them, and the residents left paying the bill.
-        </div>
-        <div style={{ ...kicker, fontSize: '1.25cqw', letterSpacing: '0.18em', marginTop: '0.5%', color: '#6b2417', fontWeight: 'bold' }}>Read the full story &rarr;</div>
       </a>
 
       {/* Secondary hotspot: Parliament weekly digest. Lives to the right
           of the lead editorial, slim column. */}
-      <a href="/bills" className="no-hover-scale" style={{ ...card, top: '24%', left: '66%', width: '28%', height: '50%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 2.5%', overflow: 'hidden' }}>
+      <a href="/bills" className="no-hover-scale" style={{ ...card, top: '24%', left: '66%', width: '28%', height: '38%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 2.5%', overflow: 'hidden' }}>
         <div style={{ ...kicker, fontSize: '1.0cqw', letterSpacing: '0.28em', opacity: 0.65, marginBottom: '2.5%' }}>From the House this week</div>
         <div style={{ ...headline, fontSize: '2.6cqw', lineHeight: 0.98, marginBottom: '4%' }}>Every bill. Every vote. Every law.</div>
         <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.2cqw', lineHeight: 1.5, opacity: 0.88, marginBottom: '4%' }}>
@@ -112,7 +119,7 @@ export default function HomePage() {
       {/* Expenses story (left) — featured image on top, headline under.
           The image stays crisp; the hand-drawn ink border sits over it
           as a separate layer that gets the wobble filter. */}
-      <a href="/expenses" className="no-hover-scale" style={{ ...card, top: '78%', left: '6%', width: '27%', height: '15%', alignItems: 'flex-start' }}>
+      <a href="/expenses" className="no-hover-scale" style={{ ...card, top: '67%', left: '6%', width: '27%', height: '15%', alignItems: 'flex-start' }}>
         <div style={{ width: '100%', marginBottom: '4%', position: 'relative' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -155,7 +162,7 @@ export default function HomePage() {
       </a>
 
       {/* Whitehall story (right) — same hand-drawn border treatment. */}
-      <a href="/departments" className="no-hover-scale" style={{ ...card, top: '78%', left: '68%', width: '26%', height: '15%', alignItems: 'flex-start' }}>
+      <a href="/departments" className="no-hover-scale" style={{ ...card, top: '67%', left: '68%', width: '26%', height: '15%', alignItems: 'flex-start' }}>
         <div style={{ width: '100%', marginBottom: '4%', position: 'relative' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -180,286 +187,5 @@ export default function HomePage() {
     </>
   );
 
-  return (
-    <>
-      <DossierShell overlay={HomeFront} />
-      <MoneyAndPowerBanner />
-      <EditorialIntro />
-    </>
-  );
-}
-
-// Featured "Money & Power" panel — sits below the newspaper front page
-// and above the editorial intro. Surfaces the strongest cross-register
-// patterns by name and number so a normal visitor sees there's a
-// hidden-in-plain-sight layer before scrolling further.
-function MoneyAndPowerBanner() {
-  const PAPER = '#f4e8d4';
-  const INK = '#14100d';
-  const ACCENT = '#7a1612';
-  const HAIRLINE = 'rgba(20,16,13,0.18)';
-  return (
-    <section
-      aria-label="Money and power: hidden-in-plain-sight cross-references"
-      style={{
-        background: PAPER,
-        color: INK,
-        padding: '5% 8% 5%',
-        borderTop: '1px solid rgba(20,16,13,0.18)',
-        borderBottom: '1px solid rgba(20,16,13,0.18)',
-      }}
-    >
-      <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-        <p
-          style={{
-            fontFamily: 'Special Elite, monospace',
-            fontSize: '13px',
-            letterSpacing: '0.3em',
-            textTransform: 'uppercase',
-            opacity: 0.6,
-            margin: '0 0 14px',
-          }}
-        >
-          Money &amp; Power · Cross-register patterns
-        </p>
-        <h2
-          style={{
-            fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
-            fontSize: 'clamp(24px, 3.2vw, 40px)',
-            fontWeight: 'bold',
-            lineHeight: 1.1,
-            margin: '0 0 14px',
-          }}
-        >
-          The money that moves through UK politics, side-by-side with the records nobody else joins.
-        </h2>
-        <p
-          style={{
-            fontFamily: 'Special Elite, monospace',
-            fontSize: '14px',
-            lineHeight: 1.7,
-            margin: '0 0 28px',
-            maxWidth: '70ch',
-            opacity: 0.85,
-          }}
-        >
-          Every fact below is public. The Electoral Commission, gov.uk Contracts Finder, the Register of Members&rsquo; Financial Interests and the APPG register all publish their own slice in their own format. Reading them together is the work.
-        </p>
-
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-            gap: '14px',
-          }}
-        >
-          <HomeTile
-            href="/donations/double-dip"
-            kicker="Double-dip"
-            line="UK MPs paid both as employees AND as donors by the same entity."
-            example="Sunak · Hoover Institution. Williamson · RTC Education. Hunt + Freeman · Oxford Institute. Three MPs · GB News."
-          />
-          <HomeTile
-            href="/donations/government-contractors"
-            kicker="Contractors who donate"
-            line="£120M+ of UK public-sector contracts. £2.5M+ of political donations. Same companies."
-            example="PwC · KPMG · Deloitte · Ernst & Young · Microsoft · SSE · Randox · Grant Thornton."
-          />
-          <HomeTile
-            href="/donations/sponsored-visits"
-            kicker="Who paid for MPs to travel"
-            line="Foreign governments, think tanks and lobby groups paying for UK MP visits."
-            example="Hong Kong Government · 30 trips. Qatar foreign ministry paid Starmer to meet the Emir."
-          />
-          <HomeTile
-            href="/money"
-            kicker="The full money index"
-            line="Twelve cross-register surfaces over UK political money. The patterns hidden in plain sight."
-            example="Donors · contracts · earnings · APPGs · foreign · leadership · bequests · constituencies."
-            highlight
-          />
-        </div>
-
-        <div style={{ marginTop: '28px' }}>
-          <a
-            href="/money"
-            style={{
-              fontFamily: 'Special Elite, monospace',
-              fontSize: '14px',
-              color: ACCENT,
-              textDecoration: 'underline',
-              fontWeight: 'bold',
-            }}
-          >
-            Read the full Money &amp; Power index &rarr;
-          </a>
-          <span style={{ opacity: 0.4, padding: '0 10px' }}>·</span>
-          <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '12px', opacity: 0.7 }}>
-            None of this is evidence of wrongdoing. All of it is on a public register. Almost none of it has been findable until now.
-          </span>
-        </div>
-      </div>
-    </section>
-  );
-
-  function HomeTile({ href, kicker, line, example, highlight }: { href: string; kicker: string; line: string; example: string; highlight?: boolean }) {
-    return (
-      <a
-        href={href}
-        className="no-hover-scale"
-        style={{
-          display: 'block',
-          textDecoration: 'none',
-          color: INK,
-          padding: '16px 18px',
-          border: highlight ? `2px solid ${ACCENT}` : `1px solid ${HAIRLINE}`,
-          background: highlight ? 'rgba(122,22,18,0.04)' : 'transparent',
-        }}
-      >
-        <div
-          style={{
-            fontFamily: 'Special Elite, monospace',
-            fontSize: '11px',
-            letterSpacing: '0.2em',
-            textTransform: 'uppercase',
-            color: ACCENT,
-            marginBottom: '8px',
-            fontWeight: 'bold',
-          }}
-        >
-          {kicker}
-        </div>
-        <div
-          style={{
-            fontFamily: 'EB Garamond, Garamond, Georgia, serif',
-            fontSize: '18px',
-            fontWeight: 'bold',
-            lineHeight: 1.25,
-            marginBottom: '10px',
-          }}
-        >
-          {line}
-        </div>
-        <div
-          style={{
-            fontFamily: 'Special Elite, monospace',
-            fontSize: '12px',
-            lineHeight: 1.55,
-            opacity: 0.8,
-          }}
-        >
-          {example}
-        </div>
-        <div
-          style={{
-            marginTop: '10px',
-            fontFamily: 'Special Elite, monospace',
-            fontSize: '12px',
-            color: ACCENT,
-            fontWeight: 'bold',
-          }}
-        >
-          See the table &rarr;
-        </div>
-      </a>
-    );
-  }
-}
-
-// Server-rendered editorial introduction. 264-word statement of what the
-// site is, the surfaces it covers, and the provenance of the underlying
-// record. Added 2026-06-05 to give the homepage substantive indexable
-// content (the newspaper-overlay frame ships ~170 words in static HTML
-// otherwise — too thin for Google to anchor the site's topical identity).
-// Sits below the masthead, padded inwards from the page edges, paper +
-// ink palette consistent with the rest of the site. The eyebrow uses
-// Special Elite to match the other dossier intros; the body uses
-// Georgia for a more newspaper-editorial register.
-function EditorialIntro() {
-  const PAPER = '#f4e8d4';
-  const INK = '#14100d';
-  return (
-    <section
-      aria-label="About The People's Chamber"
-      style={{
-        background: PAPER,
-        color: INK,
-        padding: '6% 8% 7%',
-        borderTop: '1px solid rgba(20,16,13,0.18)',
-      }}
-    >
-      <div style={{ maxWidth: '780px', margin: '0 auto' }}>
-        <p
-          style={{
-            fontFamily: 'Special Elite, monospace',
-            fontSize: '13px',
-            letterSpacing: '0.3em',
-            textTransform: 'uppercase',
-            opacity: 0.6,
-            margin: '0 0 18px',
-          }}
-        >
-          About this project
-        </p>
-        <h2
-          style={{
-            fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
-            fontSize: 'clamp(22px, 2.4vw, 30px)',
-            fontWeight: 'bold',
-            lineHeight: 1.15,
-            margin: '0 0 24px',
-          }}
-        >
-          The People&rsquo;s Chamber is an independent record of how the
-          United Kingdom is governed.
-        </h2>
-        {/* Body in Special Elite per the site-wide typewriter rule
-            (memory feedback_typewriter_for_body_prose). The H2 above
-            stays in EB Garamond as a display heading. */}
-        <div
-          style={{
-            fontFamily: 'Special Elite, monospace',
-            fontSize: '15px',
-            lineHeight: 1.85,
-            color: INK,
-          }}
-        >
-          <p style={{ margin: '0 0 16px' }}>
-            Every Member of Parliament has a profile here. Their voting
-            record, their declared earnings, the bills they have sponsored,
-            the hours they spend on second jobs, and a biographical note that
-            reads as a political assessment rather than a press release. Each
-            of the 24 ministerial departments has its own institutional
-            performance report, marked by letter grade, against the public
-            record of what it was set up to do. Every bill since 2010 is
-            tracked through its stages of Parliament: which Members spoke for
-            and against, how the division went on each reading, and whether it
-            became law.
-          </p>
-          <p style={{ margin: '0 0 16px' }}>
-            The transparency surfaces sit alongside the formal record.
-            Ministers&rsquo; meetings, ministers&rsquo; hospitality, the
-            Advisory Committee on Business Appointments, the Register of
-            Members&rsquo; Financial Interests, awarded public contracts and
-            political donations are pulled from the public registers daily,
-            indexed by Member and by department, searchable.
-          </p>
-          <p style={{ margin: '0 0 16px' }}>
-            The site exists because the public record is real but inaccessible.
-            Every fact on the People&rsquo;s Chamber is sourced from
-            Parliament, GOV.UK, the Electoral Commission, ACOBA, Contracts
-            Finder or the relevant departmental disclosure. None of it is
-            invented. None of it is opinion in the sense of being made up. The
-            interpretative judgements in the institutional reports and the
-            political biographies are the editorial work of the project; the
-            underlying record is not.
-          </p>
-          <p style={{ margin: 0, fontStyle: 'italic', opacity: 0.85 }}>
-            If something is wrong, it can be corrected. If something is
-            missing, it can be added.
-          </p>
-        </div>
-      </div>
-    </section>
-  );
+  return <DossierShell overlay={HomeFront} />;
 }
