@@ -44,7 +44,7 @@ const eyebrow: CSSProperties = { ...kicker, fontSize: '1.05cqw', letterSpacing: 
 const ctaStyle: CSSProperties = { ...kicker, fontSize: '1.2cqw', letterSpacing: '0.03em', marginTop: 'auto' };
 const blurbStyle: CSSProperties = { fontSize: '1.2cqw', lineHeight: 1.4, opacity: 0.85, marginBottom: '4%' };
 const headlineRow: CSSProperties = { display: 'flex', gap: '6%', alignItems: 'flex-start', width: '100%', marginBottom: '3%' };
-const colStyle = (left: string, width: string): CSSProperties => ({ ...card, top: '75%', left, width, height: '14%', alignItems: 'flex-start' });
+const colStyle = (left: string, width: string): CSSProperties => ({ ...card, top: '72%', left, width, height: '14%', alignItems: 'flex-start' });
 
 export default function HomePage() {
   const HomeFront = (
@@ -133,7 +133,7 @@ export default function HomePage() {
       {/* Expenses story (left) — featured image on top, headline under.
           The image stays crisp; the hand-drawn ink border sits over it
           as a separate layer that gets the wobble filter. */}
-      <a href="/expenses" className="no-hover-scale" style={{ ...card, top: '75%', left: '6%', width: '27%', height: '25%', alignItems: 'flex-start', overflow: 'hidden' }}>
+      <a href="/expenses" className="no-hover-scale" style={{ ...card, top: '72%', left: '6%', width: '27%', height: '25%', alignItems: 'flex-start', overflow: 'hidden' }}>
         <div style={{ width: '100%', marginBottom: '3%', position: 'relative' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -165,7 +165,7 @@ export default function HomePage() {
           rhythm of [big number] + [headline] stays the same. Eyebrow text
           "The People's verdict" reuses the brand mark that's also the
           section heading on every /parties/[slug] dossier. */}
-      <a href="/parties" className="no-hover-scale" style={{ ...card, top: '75%', left: '37%', width: '27%', height: '25%', alignItems: 'flex-start', overflow: 'hidden' }}>
+      <a href="/parties" className="no-hover-scale" style={{ ...card, top: '72%', left: '37%', width: '27%', height: '25%', alignItems: 'flex-start', overflow: 'hidden' }}>
         <div style={{ width: '100%', marginBottom: '3%', position: 'relative' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -192,7 +192,7 @@ export default function HomePage() {
       </a>
 
       {/* Whitehall story (right) — same hand-drawn border treatment. */}
-      <a href="/departments" className="no-hover-scale" style={{ ...card, top: '75%', left: '68%', width: '26%', height: '25%', alignItems: 'flex-start', overflow: 'hidden' }}>
+      <a href="/departments" className="no-hover-scale" style={{ ...card, top: '72%', left: '68%', width: '26%', height: '25%', alignItems: 'flex-start', overflow: 'hidden' }}>
         <div style={{ width: '100%', marginBottom: '3%', position: 'relative' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
