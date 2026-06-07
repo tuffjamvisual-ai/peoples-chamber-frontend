@@ -30,6 +30,16 @@ export type Block =
       topLine: string;               // 'Section 114 notice: June 2023. Deficit: £1.2 billion against a £16 million annual budget.'
       paragraphs: string[];
       verdict: string;               // closing verdict line
+    }
+  | {
+      type: 'mpEntry';
+      rank: number;
+      name: string;                  // display name (rendered uppercase)
+      memberId?: number;             // links into /mps/[memberId] when present
+      party?: string | null;         // optional party tag rendered alongside rank
+      topLine: string;               // 'Date: month YYYY. Offence: …'
+      paragraphs: string[];
+      verdict: string;               // closing verdict line
     };
 
 export type EditorialRegistry = { [slug: string]: EditorialEntry };

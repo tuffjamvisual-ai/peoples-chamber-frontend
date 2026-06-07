@@ -4,7 +4,9 @@
 
 import type { EditorialRegistry } from './types';
 import tenWorstCouncils from './ten-worst-performing-councils-england';
+import biggestWestminsterScandals from './biggest-westminster-scandals-among-serving-mps-2026';
 
 export const editorials: EditorialRegistry = {
   [tenWorstCouncils.slug]: tenWorstCouncils,
+  [biggestWestminsterScandals.slug]: biggestWestminsterScandals,
 };

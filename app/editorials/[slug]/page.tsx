@@ -154,6 +154,36 @@ function renderBlock(block: Block, i: number): React.ReactNode {
           </p>
         </section>
       );
+    case 'mpEntry':
+      return (
+        <section key={i} style={{ marginTop: '40px', marginBottom: '32px', paddingBottom: '24px', borderBottom: `1px solid ${HAIRLINE}` }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '14px', marginBottom: '10px', flexWrap: 'wrap' }}>
+            <span style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(36px, 4vw, 54px)', fontWeight: 'bold', color: ACCENT, lineHeight: 1 }}>
+              {block.rank}
+            </span>
+            <h3 style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(20px, 2.4vw, 28px)', fontWeight: 'bold', letterSpacing: '0.04em', textTransform: 'uppercase', lineHeight: 1.15, margin: 0 }}>
+              {block.memberId ? (
+                <Link href={`/mps/${block.memberId}`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '4px' }}>{block.name}</Link>
+              ) : (
+                block.name
+              )}
+            </h3>
+            {block.party && (
+              <span style={{ fontFamily: '"Special Elite", monospace', fontSize: '12px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, padding: '3px 8px', border: `1px solid ${HAIRLINE}` }}>{block.party}</span>
+            )}
+          </div>
+          <p style={{ fontFamily: '"Special Elite", monospace', fontSize: '13px', color: ACCENT, marginBottom: '18px', letterSpacing: '0.02em', fontWeight: 'bold' }}>
+            {block.topLine}
+          </p>
+          {block.paragraphs.map((para, j) => (
+            <p key={j} style={{ marginBottom: '18px' }}>{para}</p>
+          ))}
+          <p style={{ marginTop: '18px', padding: '10px 14px', background: CREAM, borderLeft: `3px solid ${ACCENT}`, fontFamily: '"Special Elite", monospace', fontSize: '14px', fontWeight: 'bold' }}>
+            <span style={{ color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.1em', marginRight: '6px' }}>Verdict:</span>
+            {block.verdict}
+          </p>
+        </section>
+      );
     default:
       return null;
   }

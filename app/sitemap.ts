@@ -64,6 +64,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/transparency`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
     { url: `${SITE}/money`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
     { url: `${SITE}/editorials/ten-worst-performing-councils-england`, lastModified: now, changeFrequency: 'monthly', priority: 0.9 },
+    { url: `${SITE}/editorials/biggest-westminster-scandals-among-serving-mps-2026`, lastModified: now, changeFrequency: 'monthly', priority: 0.9 },
     { url: `${SITE}/laws`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/polls`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/expenses`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
