@@ -92,6 +92,24 @@ export default function HomePage() {
       {/* Secondary hotspot: Parliament weekly digest. Lives to the right
           of the lead editorial, slim column. */}
       <a href="/bills" className="no-hover-scale" style={{ ...card, top: '24%', left: '66%', width: '28%', height: '42%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 2.5%', overflow: 'hidden' }}>
+        <div style={{ width: '100%', marginBottom: '3%', position: 'relative' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/votes.webp"
+            alt="Every bill, every vote, every law"
+            style={{ display: 'block', width: '100%', aspectRatio: '16 / 9', objectFit: 'cover' }}
+          />
+          <div
+            aria-hidden
+            style={{
+              position: 'absolute',
+              inset: 0,
+              border: '2.5px solid #14100d',
+              filter: 'url(#handDrawnEdge)',
+              pointerEvents: 'none',
+            }}
+          />
+        </div>
         <div style={{ ...kicker, fontSize: '1.0cqw', letterSpacing: '0.28em', opacity: 0.65, marginBottom: '2.5%' }}>From the House this week</div>
         <div style={{ ...headline, fontSize: '2.6cqw', lineHeight: 0.98, marginBottom: '4%' }}>Every bill. Every vote. Every law.</div>
         <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.2cqw', lineHeight: 1.5, opacity: 0.88, marginBottom: '4%' }}>
