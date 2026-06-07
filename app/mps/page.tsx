@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { supabase } from '@/lib/supabase';
 import MagazineMPsClient from './MagazineMPsClient';
+import AllMpsIndex from './AllMpsIndex';
 import DossierShell from '../components/DossierShell';
 
 export const revalidate = 3600;
@@ -45,6 +46,10 @@ export default async function MPsPage({
       <Suspense fallback={<div style={{ minHeight: '400px' }} />}>
         <MagazineMPsClient mps={mps} expand={expand} key={expand ?? 'all'} />
       </Suspense>
+      {/* Server-rendered "Browse all MPs" link block so all 650 MP detail
+          pages are crawlable from /mps in static HTML, not only via the
+          sitemap. Same pattern as AllBillsIndex on /bills. */}
+      <AllMpsIndex />
     </DossierShell>
   );
 }

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import MpDossier from './MpDossier';
+import RelatedLinks from '../../components/RelatedLinks';
 import {
   MP_BASE_SALARY_2026,
   MINISTERIAL_SUPPLEMENT,
@@ -638,6 +639,19 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
         expenses: expensesRes.data || [],
         expensesDetail: expensesDetailRes.data || [],
       }}
+      footer={
+        /* Server-rendered RelatedLinks: same-party MPs, sponsored bills,
+           recent votes, party page, optional ministerial dept. Lands as
+           crawlable <a href> tags in static HTML for SEO. */
+        <RelatedLinks
+          variant="mp"
+          memberId={memberId}
+          party={partyDisplay || mp.party || null}
+          partySlug={null}
+          votes={votesWithSi.slice(0, 5)}
+          sponsoredBills={(sponsoredBillsRes.data || []).slice(0, 5)}
+        />
+      }
     />
     </>
   );

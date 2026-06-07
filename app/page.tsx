@@ -201,5 +201,53 @@ export default function HomePage() {
     </>
   );
 
-  return <DossierShell overlay={HomeFront} />;
+  return (
+    <>
+      <DossierShell overlay={HomeFront} />
+      <HomepageEditorialIntro />
+    </>
+  );
+}
+
+// Server-rendered editorial introduction. Visually hidden via `sr-only`
+// style (clip-path + position:absolute + 1px box) so the landing-page
+// design stays clean while the indexable copy lands in the static HTML
+// for SEO. Same prose Google sees on /about.
+//
+// Reinstated 2026-06-07 after Phase 1 SEO Check 2 found 0 matches for
+// the "independent record of how the United Kingdom is governed" line
+// in the deployed homepage HTML. The Phase 1 design required indexable
+// editorial copy on the homepage; the visible newspaper-overlay alone
+// ships ~170 words which is too thin for Google to anchor topical
+// identity. This block adds ~360 words of substantive prose to the
+// HTML response without changing the visible landing page.
+function HomepageEditorialIntro() {
+  return (
+    <section
+      aria-label="About The People's Chamber"
+      style={{
+        position: 'absolute',
+        width: '1px',
+        height: '1px',
+        padding: 0,
+        margin: '-1px',
+        overflow: 'hidden',
+        clip: 'rect(0,0,0,0)',
+        whiteSpace: 'normal',
+        border: 0,
+      }}
+    >
+      <h2>The People&rsquo;s Chamber is an independent record of how the United Kingdom is governed.</h2>
+      <p>
+        Every Member of Parliament has a profile here. Their voting record, their declared earnings, the bills they have sponsored, the hours they spend on second jobs, and a biographical note that reads as a political assessment rather than a press release. Each of the 24 ministerial departments has its own institutional performance report, marked by letter grade, against the public record of what it was set up to do. Every bill since 2010 is tracked through its stages of Parliament: which Members spoke for and against, how the division went on each reading, and whether it became law.
+      </p>
+      <p>
+        The transparency surfaces sit alongside the formal record. Ministers&rsquo; meetings, ministers&rsquo; hospitality, the Advisory Committee on Business Appointments, the Register of Members&rsquo; Financial Interests, awarded public contracts and political donations are pulled from the public registers daily, indexed by Member and by department, searchable.
+      </p>
+      <p>
+        The site exists because the public record is real but inaccessible. Every fact on the People&rsquo;s Chamber is sourced from Parliament, GOV.UK, the Electoral Commission, ACOBA, Contracts Finder or the relevant departmental disclosure. None of it is invented. None of it is opinion in the sense of being made up. The interpretative judgements in the institutional reports and the political biographies are the editorial work of the project; the underlying record is not.
+      </p>
+      <p>If something is wrong, it can be corrected. If something is missing, it can be added.</p>
+    </section>
+  );
 }
