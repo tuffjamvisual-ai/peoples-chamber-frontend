@@ -40,6 +40,7 @@
     { "path": "/api/recompute-activity-metrics",  "schedule": "0 12 * * 1" },
     { "path": "/api/sync-standards-committee",    "schedule": "0 13 * * 1" },
     { "path": "/api/sync-members-contributions",  "schedule": "15 */6 * * *" },
-    { "path": "/api/sync-appgs",                  "schedule": "30 14 * * 1" }
+    { "path": "/api/sync-appgs",                  "schedule": "30 14 * * 1" },
+    { "path": "/api/sync-spad-transparency",      "schedule": "45 14 * * 1" }
   ]
 }

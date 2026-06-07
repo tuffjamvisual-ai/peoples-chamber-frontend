@@ -72,6 +72,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/explainers/donations`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${SITE}/donors`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${SITE}/secretariats`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${SITE}/transparency/special-advisers`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/donations/foreign`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${SITE}/donations/late-disclosed`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${SITE}/donations/trust-funded`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
