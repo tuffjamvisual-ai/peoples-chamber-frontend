@@ -59,7 +59,7 @@ export default function HomePage() {
       {/* Lead editorial — stacked layout: photo at top, text underneath.
           Font sizes match the secondary bills card for consistency
           across the top row. */}
-      <a href="/editorials/ten-worst-performing-councils-england" className="no-hover-scale" style={{ ...card, top: '24%', left: '6%', width: '58%', height: '42%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 2.5% 1.5%', overflow: 'hidden' }}>
+      <a href="/editorials/ten-worst-performing-councils-england" className="no-hover-scale" style={{ ...card, top: '24%', left: '6%', width: '48%', height: '42%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 2.5% 1.5%', overflow: 'hidden' }}>
         <div style={{ width: '100%', marginBottom: '2%', position: 'relative' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -91,7 +91,7 @@ export default function HomePage() {
 
       {/* Secondary hotspot: Parliament weekly digest. Lives to the right
           of the lead editorial, slim column. */}
-      <a href="/bills" className="no-hover-scale" style={{ ...card, top: '24%', left: '66%', width: '28%', height: '42%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 2.5%', overflow: 'hidden' }}>
+      <a href="/bills" className="no-hover-scale" style={{ ...card, top: '24%', left: '56%', width: '38%', height: '42%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 2.5%', overflow: 'hidden' }}>
         <div style={{ width: '100%', marginBottom: '3%', position: 'relative' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
