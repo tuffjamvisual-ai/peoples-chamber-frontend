@@ -1,8 +1,9 @@
-// Server component — renders the Workforce + Budget stat blocks that
-// sit above the existing Staff section on /departments/<slug>.
-//
-// Both blocks always render: a placeholder row carrying proxy_note /
-// caveat_note explains the absence rather than leaving a silent gap.
+'use client';
+// Shared display components — no data fetching, props-only. Marked
+// 'use client' so the client-side DepartmentClient can import
+// SeniorOfficialDetailLine without violating the server/client
+// boundary. WorkforceBlock + BudgetBlock are still rendered from the
+// server component (page.tsx) but work the same way either side.
 
 import {
   fmtAppointed,
