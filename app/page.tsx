@@ -133,8 +133,8 @@ export default function HomePage() {
       {/* Expenses story (left) — featured image on top, headline under.
           The image stays crisp; the hand-drawn ink border sits over it
           as a separate layer that gets the wobble filter. */}
-      <a href="/expenses" className="no-hover-scale" style={{ ...card, top: '75%', left: '6%', width: '27%', height: '15%', alignItems: 'flex-start' }}>
-        <div style={{ width: '100%', marginBottom: '4%', position: 'relative' }}>
+      <a href="/expenses" className="no-hover-scale" style={{ ...card, top: '75%', left: '6%', width: '27%', height: '23%', alignItems: 'flex-start', overflow: 'hidden' }}>
+        <div style={{ width: '100%', marginBottom: '3%', position: 'relative' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/mp-expenses.webp"
@@ -152,8 +152,11 @@ export default function HomePage() {
             }}
           />
         </div>
-        <div style={{ ...headline, fontSize: '2.05cqw', lineHeight: 1.04, marginBottom: '3%' }}>The biggest expenses bill</div>
-        <div style={{ ...ctaStyle, marginTop: 0 }}>See the full top ten →</div>
+        <div style={{ ...headline, fontSize: '1.8cqw', lineHeight: 1.04, marginBottom: '2.5%' }}>The biggest expenses bill</div>
+        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '0.92cqw', lineHeight: 1.4, opacity: 0.88, marginBottom: '2.5%' }}>
+          Every MP claims travel, staff, office and accommodation costs against the public purse. The ten biggest claimants ran up the largest bills last financial year. See which MPs spent the most and on what.
+        </div>
+        <div style={{ ...ctaStyle, marginTop: 0 }}>See the full top ten &rarr;</div>
       </a>
 
       {/* Parties story (centre) — same geometry as the previous poll card.
@@ -162,8 +165,8 @@ export default function HomePage() {
           rhythm of [big number] + [headline] stays the same. Eyebrow text
           "The People's verdict" reuses the brand mark that's also the
           section heading on every /parties/[slug] dossier. */}
-      <a href="/parties" className="no-hover-scale" style={{ ...card, top: '75%', left: '37%', width: '27%', height: '15%', alignItems: 'flex-start' }}>
-        <div style={{ width: '100%', marginBottom: '4%', position: 'relative' }}>
+      <a href="/parties" className="no-hover-scale" style={{ ...card, top: '75%', left: '37%', width: '27%', height: '23%', alignItems: 'flex-start', overflow: 'hidden' }}>
+        <div style={{ width: '100%', marginBottom: '3%', position: 'relative' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/manifesto.webp"
@@ -181,13 +184,16 @@ export default function HomePage() {
             }}
           />
         </div>
-        <div style={{ ...headline, fontSize: '2.05cqw', lineHeight: 1.04, marginBottom: '3%' }}>Every manifesto. Every shift.</div>
-        <div style={{ ...ctaStyle, marginTop: 0 }}>Read the dossiers →</div>
+        <div style={{ ...headline, fontSize: '1.8cqw', lineHeight: 1.04, marginBottom: '2.5%' }}>Every manifesto. Every shift.</div>
+        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '0.92cqw', lineHeight: 1.4, opacity: 0.88, marginBottom: '2.5%' }}>
+          What each of the fifteen UK parties told voters at the 2024 election, what they have done in the year since, and where the gap between manifesto and record is widest. Each dossier ranks delivery against promise.
+        </div>
+        <div style={{ ...ctaStyle, marginTop: 0 }}>Read the dossiers &rarr;</div>
       </a>
 
       {/* Whitehall story (right) — same hand-drawn border treatment. */}
-      <a href="/departments" className="no-hover-scale" style={{ ...card, top: '75%', left: '68%', width: '26%', height: '15%', alignItems: 'flex-start' }}>
-        <div style={{ width: '100%', marginBottom: '4%', position: 'relative' }}>
+      <a href="/departments" className="no-hover-scale" style={{ ...card, top: '75%', left: '68%', width: '26%', height: '23%', alignItems: 'flex-start', overflow: 'hidden' }}>
+        <div style={{ width: '100%', marginBottom: '3%', position: 'relative' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/whitehall.webp"
@@ -205,8 +211,11 @@ export default function HomePage() {
             }}
           />
         </div>
-        <div style={{ ...headline, fontSize: '2.05cqw', lineHeight: 1.04, marginBottom: '3%' }}>Who runs Whitehall</div>
-        <div style={{ ...ctaStyle, marginTop: 0 }}>See the departments →</div>
+        <div style={{ ...headline, fontSize: '1.8cqw', lineHeight: 1.04, marginBottom: '2.5%' }}>Who runs Whitehall</div>
+        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '0.92cqw', lineHeight: 1.4, opacity: 0.88, marginBottom: '2.5%' }}>
+          All twenty four ministerial departments graded against the public record of what they were set up to do. Executive summary, core strengths, critical weaknesses, recommendation. One institutional performance report per department.
+        </div>
+        <div style={{ ...ctaStyle, marginTop: 0 }}>See the departments &rarr;</div>
       </a>
     </>
   );
