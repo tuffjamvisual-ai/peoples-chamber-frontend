@@ -145,27 +145,29 @@ export async function GET(req: Request) {
 
   const startedAt = Date.now();
 
-  // 1. Discover the latest quarter
-  // We pull the 50 most recent transparency results matching "special
-  // advisers" and identify the quarter that appears most often. The
-  // current quarter is the one most departments have just published.
-  const recent = await fetch(`${SEARCH}?q=%22special+advisers%22&order=-public_timestamp&count=50`, { headers: { 'User-Agent': UA } })
+  // 1. Discover the latest quarter via a phrase-locked search.
+  // Searching for "special advisers' gifts" matches only the actual
+  // transparency publications (not ACOBA advice, annual reports, etc).
+  // We take the most recent one and read the quarter off its title.
+  const discoverRes = await fetch(`${SEARCH}?q=%22special+advisers%22+%22gifts%22&order=-public_timestamp&count=30`, { headers: { 'User-Agent': UA } })
     .then((r) => r.json() as Promise<{ results: SearchResult[] }>);
-  const quarterCounts = new Map<string, number>();
-  for (const r of recent.results || []) {
+  let latestQuarter: string | null = null;
+  for (const r of discoverRes.results || []) {
     const q = quarterFromTitle(r.title);
-    if (q && streamFromTitle(r.title)) {
-      quarterCounts.set(q, (quarterCounts.get(q) || 0) + 1);
-    }
+    if (q && streamFromTitle(r.title)) { latestQuarter = q; break; }
   }
-  const sortedQuarters = Array.from(quarterCounts.entries()).sort((a, b) => b[1] - a[1]);
-  const latestQuarter = sortedQuarters[0]?.[0] || null;
   if (!latestQuarter) {
     return NextResponse.json({ error: 'no quarter detected' }, { status: 500 });
   }
 
-  // 2. Collect every SpAd transparency publication that matches the latest quarter
-  const pubs = (recent.results || []).filter((r) => {
+  // 2. Phrase-locked search for every departmental SpAd transparency
+  // publication for the identified quarter. We search for the quarter
+  // string itself plus "special advisers"; that returns the ~13
+  // departmental publications per quarter.
+  const quarterQ = encodeURIComponent(`"${latestQuarter}" "special advisers"`);
+  const quarterRes = await fetch(`${SEARCH}?q=${quarterQ}&count=50`, { headers: { 'User-Agent': UA } })
+    .then((r) => r.json() as Promise<{ results: SearchResult[] }>);
+  const pubs = (quarterRes.results || []).filter((r) => {
     return r.title.includes(latestQuarter)
       && /special\s+advisers?/i.test(r.title)
       && /(gifts|hospitality|meetings|travel|senior\s+media)/i.test(r.title);
