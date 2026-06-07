@@ -1,0 +1,130 @@
+// Editorial article renderer. Reads from lib/editorials/index.ts and
+// dispatches each block by type. Uses DossierShell to match the rest
+// of the site's editorial chrome (cream paper + Special Elite body
+// + EB Garamond display + accent-red).
+
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import DossierShell from '../../components/DossierShell';
+import BackLink from '../../components/BackLink';
+import ScrollToTopButton from '../../components/ScrollToTopButton';
+import { editorials } from '@/lib/editorials';
+import type { Block, EditorialEntry } from '@/lib/editorials/types';
+
+export const revalidate = 86400;
+export const dynamic = 'force-dynamic';
+
+const INK = '#14100d';
+const INK_SOFT = 'rgba(20,16,13,0.7)';
+const HAIRLINE = 'rgba(20,16,13,0.25)';
+const CREAM = '#ebe5d8';
+const ACCENT = '#7a1612';
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const piece = editorials[slug];
+  if (!piece) return { title: 'Editorial' };
+  return {
+    title: `${piece.headline} | The People's Chamber`,
+    description: piece.standfirst.slice(0, 200),
+    alternates: { canonical: `/editorials/${slug}` },
+  };
+}
+
+export default async function EditorialPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const piece = editorials[slug] as EditorialEntry | undefined;
+  if (!piece) notFound();
+
+  const publishedDate = new Date(piece.publishedAt).toLocaleDateString('en-GB', {
+    day: 'numeric', month: 'long', year: 'numeric',
+  });
+
+  return (
+    <DossierShell>
+      <BackLink fallbackHref="/" label="← Home" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
+
+      <header style={{ borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '24px', marginBottom: '28px' }}>
+        {piece.kicker && (
+          <p style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '14px', color: ACCENT, fontFamily: '"Special Elite", monospace', fontWeight: 'bold' }}>
+            {piece.kicker}
+          </p>
+        )}
+        <h1 style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(34px, 5vw, 60px)', fontWeight: 'bold', letterSpacing: '-0.02em', lineHeight: 1.05, marginBottom: '20px' }}>
+          {piece.headline}
+        </h1>
+        <p style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(17px, 1.6vw, 22px)', lineHeight: 1.5, fontStyle: 'italic', color: INK_SOFT, maxWidth: '60ch' }}>
+          {piece.standfirst}
+        </p>
+        <div style={{ marginTop: '20px', fontSize: '12px', color: INK_SOFT, fontFamily: '"Special Elite", monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+          By {piece.authorByline} · {publishedDate}
+        </div>
+      </header>
+
+      <article style={{ fontFamily: '"Special Elite", monospace', fontSize: '16px', lineHeight: 1.75, color: INK, maxWidth: '70ch' }}>
+        {piece.body.map((block, i) => renderBlock(block, i))}
+      </article>
+
+      <footer style={{ marginTop: '40px', paddingTop: '20px', borderTop: `1px solid ${HAIRLINE}`, fontSize: '12px', color: INK_SOFT, fontFamily: '"Special Elite", monospace' }}>
+        Published by The People&rsquo;s Chamber on {publishedDate}.
+      </footer>
+
+      <ScrollToTopButton />
+    </DossierShell>
+  );
+}
+
+function renderBlock(block: Block, i: number): React.ReactNode {
+  switch (block.type) {
+    case 'paragraph':
+      return (
+        <p key={i} style={{ marginBottom: '20px' }}>{block.text}</p>
+      );
+    case 'heading':
+      return block.level === 2 ? (
+        <h2 key={i} style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(24px, 3vw, 34px)', fontWeight: 'bold', letterSpacing: '-0.01em', marginTop: '36px', marginBottom: '16px', borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '8px' }}>
+          {block.text}
+        </h2>
+      ) : (
+        <h3 key={i} style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(20px, 2.2vw, 26px)', fontWeight: 'bold', marginTop: '28px', marginBottom: '12px' }}>
+          {block.text}
+        </h3>
+      );
+    case 'pullQuote':
+      return (
+        <blockquote key={i} style={{ borderLeft: `4px solid ${ACCENT}`, margin: '28px 0', padding: '8px 0 8px 22px', fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(20px, 2.2vw, 26px)', fontStyle: 'italic', lineHeight: 1.45, color: INK }}>
+          {block.text}
+        </blockquote>
+      );
+    case 'councilEntry':
+      return (
+        <section key={i} style={{ marginTop: '40px', marginBottom: '32px', paddingBottom: '24px', borderBottom: `1px solid ${HAIRLINE}` }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '14px', marginBottom: '10px' }}>
+            <span style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(36px, 4vw, 54px)', fontWeight: 'bold', color: ACCENT, lineHeight: 1 }}>
+              {block.rank}
+            </span>
+            <h3 style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(20px, 2.4vw, 28px)', fontWeight: 'bold', letterSpacing: '0.04em', textTransform: 'uppercase', lineHeight: 1.15, margin: 0 }}>
+              {block.councilSlug ? (
+                <Link href={`/councils/${block.councilSlug}`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '4px' }}>{block.name}</Link>
+              ) : (
+                block.name
+              )}
+            </h3>
+          </div>
+          <p style={{ fontFamily: '"Special Elite", monospace', fontSize: '13px', color: ACCENT, marginBottom: '18px', letterSpacing: '0.02em', fontWeight: 'bold' }}>
+            {block.topLine}
+          </p>
+          {block.paragraphs.map((para, j) => (
+            <p key={j} style={{ marginBottom: '18px' }}>{para}</p>
+          ))}
+          <p style={{ marginTop: '18px', padding: '10px 14px', background: CREAM, borderLeft: `3px solid ${ACCENT}`, fontFamily: '"Special Elite", monospace', fontSize: '14px', fontWeight: 'bold' }}>
+            <span style={{ color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.1em', marginRight: '6px' }}>Verdict:</span>
+            {block.verdict}
+          </p>
+        </section>
+      );
+    default:
+      return null;
+  }
+}

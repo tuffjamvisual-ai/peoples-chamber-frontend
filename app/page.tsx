@@ -50,12 +50,29 @@ export default function HomePage() {
   const HomeFront = (
     <>
       <JsonLd data={buildHomepageGraph()} />
-      {/* Lead story — fills the large top content area. */}
-      <a href="/bills" className="no-hover-scale" style={{ ...card, top: '24%', left: '6%', width: '88%', height: '39%', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '0 6%' }}>
-        <div style={{ ...kicker, fontSize: '1.35cqw', letterSpacing: '0.22em', opacity: 0.65, marginBottom: '2.5%' }}>From the House this week</div>
-        <div style={{ ...headline, fontSize: '3.7cqw', lineHeight: 1.0, marginBottom: '3%' }}>Every bill, every vote, every law.</div>
-        <div style={{ fontSize: '1.65cqw', lineHeight: 1.5, maxWidth: '34ch', opacity: 0.85 }}>Follow what Parliament is doing right now, in plain English, and see how every decision lands with the people.</div>
-        <div style={{ ...kicker, fontSize: '1.45cqw', letterSpacing: '0.04em', marginTop: '3.5%' }}>Read the bills →</div>
+      {/* Top row split into two equal hotspots: Parliament lead on the
+          left, this week's editorial on the right. */}
+      <a href="/bills" className="no-hover-scale" style={{ ...card, top: '24%', left: '6%', width: '42%', height: '39%', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '0 3%' }}>
+        <div style={{ ...kicker, fontSize: '1.1cqw', letterSpacing: '0.22em', opacity: 0.65, marginBottom: '2.5%' }}>From the House this week</div>
+        <div style={{ ...headline, fontSize: '2.8cqw', lineHeight: 1.0, marginBottom: '3%' }}>Every bill, every vote, every law.</div>
+        <div style={{ fontSize: '1.3cqw', lineHeight: 1.5, maxWidth: '28ch', opacity: 0.85 }}>Follow what Parliament is doing right now, in plain English, and see how every decision lands with the people.</div>
+        <div style={{ ...kicker, fontSize: '1.2cqw', letterSpacing: '0.04em', marginTop: '3.5%' }}>Read the bills →</div>
+      </a>
+
+      {/* Right-hand editorial hotspot. Currently: the ten worst performing
+          councils in England. Same geometry as the bills lead so they
+          read as twin top stories. Summary copy is the front-page
+          standfirst version of the editorial. */}
+      <a href="/editorials/ten-worst-performing-councils-england" className="no-hover-scale" style={{ ...card, top: '24%', left: '52%', width: '42%', height: '39%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 3% 0' }}>
+        <div style={{ ...kicker, fontSize: '0.95cqw', letterSpacing: '0.22em', opacity: 0.65, marginBottom: '1.5%' }}>The People&rsquo;s Chamber &middot; Investigation</div>
+        <div style={{ ...headline, fontSize: '2.05cqw', lineHeight: 1.04, marginBottom: '2%' }}>The ten worst performing councils in England</div>
+        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontStyle: 'italic', fontSize: '1.05cqw', lineHeight: 1.35, opacity: 0.85, marginBottom: '2.5%' }}>
+          How local government failed the people it exists to serve.
+        </div>
+        <div style={{ fontSize: '0.92cqw', lineHeight: 1.4, opacity: 0.85 }}>
+          Since 2018, eight English councils have declared themselves effectively bankrupt. One was abolished entirely. Another went bankrupt three times. A borough council with an annual budget of &pound;16 million accumulated debts of &pound;1.2 billion. England&rsquo;s largest local authority is still under government commissioners two years after its collapse. Sixty three more councils are considered at risk. The ten worst failures in modern English local government expose a system where the safeguards designed to prevent catastrophe failed at every level. These are the councils that broke, the decisions that broke them, and the residents left paying the bill.
+        </div>
+        <div style={{ ...kicker, fontSize: '1.1cqw', letterSpacing: '0.04em', marginTop: 'auto', alignSelf: 'flex-end', color: '#6b2417', fontWeight: 'bold' }}>See full story &rarr;</div>
       </a>
 
       {/* Hand-drawn SVG border filter — feTurbulence displaces the border
