@@ -5,13 +5,13 @@ const piece: EditorialEntry = {
   kicker: 'Investigation',
   headline: 'The ten worst performing councils in England',
   standfirst:
-    "Since 2018, eight English councils have declared themselves effectively bankrupt. One was abolished entirely. Another went bankrupt three times. A borough council with an annual budget of £16 million accumulated debts of £1.2 billion. England's largest local authority is still under government commissioners two years after its collapse. Sixty three more councils are considered at risk. The ten worst failures in modern English local government expose a system where the safeguards designed to prevent catastrophe failed at every level. These are the councils that broke, the decisions that broke them, and the residents left paying the bill.",
+    "Since 2018, seven English councils have declared themselves effectively bankrupt. One was abolished entirely. Another went bankrupt three times. A borough council with an annual budget of £16 million accumulated debts of £1.8 billion. England's largest local authority is still under government commissioners two years after its collapse. Sixty three more councils are considered at risk. The ten worst failures in modern English local government expose a system where the safeguards designed to prevent catastrophe failed at every level. These are the councils that broke, the decisions that broke them, and the residents left paying the bill.",
   publishedAt: '2026-06-07',
   authorByline: "The People's Chamber",
   body: [
     {
       type: 'paragraph',
-      text: 'Since 2018, fourteen Section 114 notices have been issued by eight English councils. Twelve of those came after 2020, following a decade of austerity that cut local government core funding by eighteen percent per person in real terms. In 2024/25, the government granted Exceptional Financial Support worth £1.4 billion to eighteen councils. One in five council leaders surveyed in early 2024 said they expected to issue a Section 114 notice within the next two years. No new notices were issued in 2024 or 2025, but the councils already in crisis remain under intervention and the list of authorities at risk continues to grow.',
+      text: 'Since 2018, eleven Section 114 notices have been issued by seven English councils. Nine of those came after 2020, following a decade of austerity that cut local government core funding by eighteen percent per person in real terms. In 2024/25, the government granted Exceptional Financial Support worth £1.4 billion to eighteen councils. One in five council leaders surveyed in early 2024 said they expected to issue a Section 114 notice within the next two years. No new notices were issued in 2024 or 2025, but the councils already in crisis remain under intervention and the list of authorities at risk continues to grow.',
     },
     {
       type: 'councilEntry',
@@ -48,11 +48,11 @@ const piece: EditorialEntry = {
       rank: 3,
       name: 'Croydon London Borough',
       councilSlug: 'croydon',
-      topLine: 'Section 114 notices: November 2020, December 2021, November 2022. Total debt: £1.3 billion.',
+      topLine: 'Section 114 notices: November 2020, December 2020, November 2022. Total debt: £1.6 billion.',
       paragraphs: [
-        'No council in modern English history has declared itself bankrupt three times. Croydon managed it in three consecutive years.',
+        'No council in modern English history has declared itself bankrupt three times. Croydon issued two notices within three weeks in late 2020, then a third in 2022.',
         'The origins lay in an aggressive property investment strategy. The council borrowed heavily to fund commercial developments, including a major hotel purchase and significant investments through its development company Brick by Brick. When property values fell and rental income failed to materialise, losses became unmanageable.',
-        'By the third notice, total debt stood at £1.3 billion. The council was spending £47 million a year, roughly one sixth of its entire budget, servicing existing debt before a single service was delivered.',
+        'By the third notice, total debt stood at £1.6 billion, comprising £1.3 billion of General Fund borrowing and £300 million of Housing Revenue Account debt. The council was spending £47 million a year, roughly one sixth of its entire budget, servicing existing debt before a single service was delivered.',
         'Government commissioners were appointed in 2021. Council tax was increased by fifteen percent in a single year. Libraries closed. Youth provision was reduced. Community organisations lost funding.',
         'By 2025, the council remains in a recovery phase. Debt repayments continue to consume a disproportionate share of annual revenue. The authority that declared bankruptcy three times has stabilised but has not recovered. The communities affected by the cuts have not been made whole.',
       ],
@@ -91,7 +91,7 @@ const piece: EditorialEntry = {
       rank: 6,
       name: 'Nottingham City Council',
       councilSlug: 'nottingham',
-      topLine: 'Section 114 notices: November 2023 (second notice, first in 2023). In year gap: £23 million.',
+      topLine: 'Section 114 notices: December 2021 and November 2023. In year gap: £23 million.',
       paragraphs: [
         "Nottingham's collapse centred on Robin Hood Energy, a council owned energy company launched in 2015 with the stated aim of providing cheaper energy to local residents. The company lost tens of millions of pounds before being wound up in 2020.",
         'The energy venture was part of a broader pattern. Nottingham pursued commercial activities intended to generate revenue. The ambition was defensible. The execution was not. Oversight was inadequate. Losses were absorbed for years before the cumulative damage became impossible to conceal.',
@@ -138,7 +138,7 @@ const piece: EditorialEntry = {
         "Sandwell's problems accumulated over years rather than erupting in a single crisis. A succession of governance concerns, political disputes, allegations of misconduct and failures of leadership created an authority that struggled to function effectively.",
         'Commissioners were appointed after concluding the council was failing its best value duty. The issues were not primarily financial. They were cultural. Decision making was poor. Political leadership was unstable. Senior officers operated in an environment where accountability was weak and scrutiny ineffective.',
         'Sandwell serves some of the most deprived communities in the West Midlands. Residents who needed effective local government most were least likely to receive it. Housing, employment, education and public health outcomes lagged behind comparable authorities.',
-        'By 2025, governance reforms continue under commissioner oversight. The intervention has focused on organisational culture, which is harder to fix than a budget deficit because it involves changing how people behave rather than how money is allocated.',
+        "The intervention formally ended on 22 March 2024 after a two year period. Commissioners said the council was now 'capable of taking forward its improvement independently' and described the authority as a 'far cry' from where it had started. The cultural change required to fix Sandwell's governance was achieved on paper. The underlying conditions in the borough, deep deprivation and stretched services, remain.",
       ],
       verdict: 'Not every council failure is financial. Some councils fail because the people running them cannot or will not run them properly.',
     },
