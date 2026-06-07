@@ -2,7 +2,7 @@ import type { ControlZoneData } from '../types';
 
 const costOfLiving: ControlZoneData = {
   zone: 'Cost of Living',
-  context: 'The UK cost of living crisis began in 2021 with energy price rises. Food prices are 25% higher than 2021. Energy bills average £1,738/year — down from the £2,500 cap peak but still well above pre-2021 levels of £1,100. Mortgage costs have risen sharply. Real wages only recovered to 2008 levels in 2024.',
+  context: 'The UK cost of living crisis began in 2021 with energy price rises. Food prices are 25% higher than 2021. Energy bills average £1,738/year — down from the £2,500 cap peak but still well above pre 2021 levels of £1,100. Mortgage costs have risen sharply. Real wages only recovered to 2008 levels in 2024.',
   positions: [
     { partyId: 'labour', headline: 'Inflation falling, wages rising — but people still struggle', position: 'Labour argue their economic plan is working — inflation falling, wages rising above inflation. But they acknowledge the cost of living crisis is not over. The £300 winter fuel cut caused major backlash. Energy bill support being reviewed as Middle East conflict pushes prices up again.' },
     { partyId: 'conservative', headline: 'Labour making things worse — NI rise and green taxes', position: 'Conservatives argue Labour NI rise is causing redundancies and reducing take-home pay. Green levies on energy bills are adding hundreds of pounds unnecessarily. Cut taxes, scrap green levies and let people keep more of their money.' },

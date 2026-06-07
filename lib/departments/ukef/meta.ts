@@ -19,7 +19,7 @@ const meta: DepartmentMeta = {
     'SME Export Support',
     'Direct Lending'
   ],
-  description: 'The UK\'s export credit agency — a quiet but well-connected department whose job is to underwrite British firms doing deals abroad that no normal bank wants to touch.',
+  description: 'The UK\'s export credit agency — a quiet but well connected department whose job is to underwrite British firms doing deals abroad that no normal bank wants to touch.',
   streetContext: '',
 };
 

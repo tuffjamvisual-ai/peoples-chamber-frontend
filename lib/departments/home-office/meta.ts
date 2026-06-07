@@ -29,7 +29,7 @@ const meta: DepartmentMeta = {
     'Mi5 Oversight',
     'Deportation Policy'
   ],
-  description: 'Immigration, policing, counter-terrorism. Famously the toughest brief in government — every Home Secretary will tell you so, often.',
+  description: 'Immigration, policing, counter terrorism. Famously the toughest brief in government — every Home Secretary will tell you so, often.',
   streetContext: '',
 };
 

@@ -2,7 +2,7 @@ import type { ControlZoneData } from '../types';
 
 const mortgageRules: ControlZoneData = {
   zone: 'Mortgage Rules',
-  context: 'UK average mortgage rates rose sharply from 2022 as the Bank Rate increased from 0.1% to 5.25%. They have since fallen to around 4.5% on 2-year fixes as the Bank Rate has been cut to 3.75%. 1.5 million households face remortgaging in 2026. The average mortgage payment has increased by £300-500/month compared to 2021 for many homeowners.',
+  context: 'UK average mortgage rates rose sharply from 2022 as the Bank Rate increased from 0.1% to 5.25%. They have since fallen to around 4.5% on 2 year fixes as the Bank Rate has been cut to 3.75%. 1.5 million households face remortgaging in 2026. The average mortgage payment has increased by £300 500/month compared to 2021 for many homeowners.',
   positions: [
     { partyId: 'labour', headline: 'Mortgage charter and first homes — helping buyers', position: 'Labour worked with banks on a Mortgage Charter — banks committed to support struggling mortgage holders through payment holidays and switching to interest-only. First Homes scheme at 30-50% discount. Planning reform to increase housing supply long term.' },
     { partyId: 'conservative', headline: 'Abolish stamp duty — help first-time buyers', position: 'Conservatives want to abolish stamp duty on primary residences to help first-time buyers. Also want to scrap real interest rates on Plan 2 student loans to improve young people ability to save for a deposit.' },

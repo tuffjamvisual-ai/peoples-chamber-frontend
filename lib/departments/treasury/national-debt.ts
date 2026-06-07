@@ -2,7 +2,7 @@ import type { ControlZoneData } from '../types';
 
 const nationalDebt: ControlZoneData = {
   zone: 'National Debt',
-  context: 'UK national debt stands at 93% of GDP — around £2.8 trillion. It has nearly tripled since 2006. The government pays over £100bn/year in debt interest. The OBR projects debt will peak at 96% of GDP in 2028-29. Labour fiscal rules require debt to be falling as a share of GDP by the end of the parliament.',
+  context: 'UK national debt stands at 93% of GDP — around £2.8 trillion. It has nearly tripled since 2006. The government pays over £100bn/year in debt interest. The OBR projects debt will peak at 96% of GDP in 2028 29. Labour fiscal rules require debt to be falling as a share of GDP by the end of the parliament.',
   positions: [
     { partyId: 'labour', headline: 'Debt falling as share of GDP — fiscal rules working', position: 'Labour fiscal rules require public sector net debt to be falling as a share of GDP by 2029-30. The March 2026 OBR forecast confirms the government is on course. Critics note the target is weak — debt rising in cash terms before stabilising as a share of GDP.' },
     { partyId: 'conservative', headline: 'Labour made debt worse — £100bn interest is unacceptable', position: 'Conservatives argue Labour spending decisions have made the debt situation worse. The £100bn annual interest bill is a fiscal emergency. A Conservative government would have tighter fiscal rules requiring absolute debt reduction.' },

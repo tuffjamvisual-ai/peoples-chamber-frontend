@@ -44,16 +44,16 @@ const MOCK_COVERAGE = [
   {
     outlet: 'The Guardian',
     date: '10 May',
-    title: 'Labour MPs warn front-bench discipline cannot survive another welfare row',
+    title: 'Labour MPs warn front bench discipline cannot survive another welfare row',
     commentary:
       'Six months in and the whips\' office is already running out of carrots. That leaves only sticks, which is exactly the part of the parliamentary toolkit Starmer was hired to retire.',
   },
   {
     outlet: 'The Times',
     date: '09 May',
-    title: 'Reform UK gains ground in three Red Wall by-elections',
+    title: 'Reform UK gains ground in three Red Wall by elections',
     commentary:
-      'The story is not the by-elections. The story is that no-one in Westminster currently has a credible answer to "what comes after Labour?", and that vacuum is doing more work for Reform than any Reform policy.',
+      'The story is not the by elections. The story is that no-one in Westminster currently has a credible answer to "what comes after Labour?", and that vacuum is doing more work for Reform than any Reform policy.',
   },
 ]
 const MOCK_STATS = [
