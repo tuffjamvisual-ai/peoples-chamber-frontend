@@ -86,6 +86,13 @@ export const metadata: Metadata = {
   },
   verification: {
     google: "1m7ftA7GtW7sewElZ7sD-U0_WEnbNG-i-bOr5kah9qI",
+    other: {
+      // Bing Webmaster Tools. Keep permanently — Bing re-verifies
+      // periodically and silently de-verifies the property if the tag
+      // disappears. Renders in <head> as
+      //   <meta name="msvalidate.01" content="..." />
+      "msvalidate.01": "182B7BB55508F332B8A7201B7D1E19A7",
+    },
   },
 };
 
