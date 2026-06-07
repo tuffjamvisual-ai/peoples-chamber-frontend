@@ -38,7 +38,10 @@ const MONTH_ORDER: Record<string, number> = {
 
 async function discoverLatestXlsxUrl(): Promise<string | null> {
   const html = await fetch(ONS_LANDING, { headers: { 'User-Agent': UA } }).then((r) => r.text());
-  const candidates = Array.from(html.matchAll(URL_PATTERN), (m) => ({ slug: m[1], full: `https://www.ons.gov.uk${m[0]}` }))
+  // ONS XLSX downloads MUST go through the /file?uri= proxy — direct
+  // /employmentandlabourmarket/... paths 404 even though the landing
+  // page shows them as anchor hrefs.
+  const candidates = Array.from(html.matchAll(URL_PATTERN), (m) => ({ slug: m[1], full: `https://www.ons.gov.uk/file?uri=${m[0]}` }))
     .filter((c) => c.slug !== 'current');
   if (candidates.length === 0) return null;
   // Sort by (year, month) descending; pick the most recent
