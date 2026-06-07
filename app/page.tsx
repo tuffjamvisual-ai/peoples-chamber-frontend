@@ -51,6 +51,38 @@ export default function HomePage() {
     <>
       <JsonLd data={buildHomepageGraph()} />
 
+      {/* Mask the horizontal divider rule baked into pca-art.webp at
+          ~71.3% of dossier height, then redraw a fresh rule at 68%.
+          Cream strip uses the sampled paper colour (#cab187) so the
+          cover-up matches the parchment around it. Move `top` on the
+          line div below to reposition the rule. */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          left: '5%',
+          right: '5%',
+          top: '70.6%',
+          height: '1.3%',
+          background: '#cab187',
+          pointerEvents: 'none',
+          zIndex: 2,
+        }}
+      />
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          left: '6%',
+          right: '6%',
+          top: '68%',
+          height: '0.18%',
+          background: '#14100d',
+          pointerEvents: 'none',
+          zIndex: 2,
+        }}
+      />
+
       {/* Lead editorial — the dominant front-page story. Newspaper-scale
           hierarchy: photo at top with ink border, big serif headline,
           italic Garamond standfirst, short lede, accent-red CTA. overflow
