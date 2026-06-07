@@ -13,8 +13,8 @@ export const maxDuration = 300;
 // name and copying the preserved fields across.
 
 type GovukRoleAppt = {
-  details?: { current?: boolean };
-  links?: { role?: Array<{ title: string }> };
+  details?: { current?: boolean; started_on?: string | null; ended_on?: string | null };
+  links?: { role?: Array<{ title: string }>; organisations?: Array<{ title: string }> };
 };
 type GovukPerson = {
   title: string;
@@ -46,9 +46,51 @@ type OfficialRow = {
   role: string;
   slug: string;
   category: string;
+  role_rank: string;
+  appointment_date: string | null;   // ISO YYYY-MM-DD, started_on for the current role
+  previous_role: string | null;      // most recent non-current role title
   photo_url: string | null;
   updated_at: string;
 };
+
+// Classifies a role title into a coarse rank so the senior officials
+// section can sort + group properly. Intentionally conservative — falls
+// back to 'other' rather than guess wrong.
+function classifyRoleRank(role: string): string {
+  const r = role.toLowerCase();
+  if (r.includes('second permanent') || r.includes('2nd permanent')) return 'second_permanent_secretary';
+  if (r.includes('permanent secretary') || r.includes('permanent under-secretary') || r.includes('permanent under secretary')) return 'permanent_secretary';
+  if (r.includes('non-executive') || r.includes('board member') || r.includes('non executive')) return 'board';
+  if (r.includes('director general') || r.includes('director-general')) return 'director_general';
+  if (r.startsWith('chief ') || r.includes(' chief ')) return 'chief_officer';
+  return 'other';
+}
+
+// Pulls a person's role_appointments and returns (current role's
+// started_on, most-recent prior role title). Cheap-fails to nulls so
+// one slow / 404'd person doesn't break the sync.
+async function fetchPersonRoleHistory(slug: string): Promise<{ startedOn: string | null; previousRole: string | null }> {
+  if (!slug) return { startedOn: null, previousRole: null };
+  try {
+    const res = await fetch(`https://www.gov.uk/api/content/government/people/${slug}`, {
+      headers: { 'User-Agent': 'PeoplesChamber/1.0' },
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!res.ok) return { startedOn: null, previousRole: null };
+    const data = await res.json();
+    const appts = (data?.links?.role_appointments || []) as GovukRoleAppt[];
+    const current = appts.find((a) => a.details?.current);
+    const startedOn = current?.details?.started_on?.slice(0, 10) || null;
+    // Sort non-current appointments by ended_on desc, take the most recent
+    const prior = appts
+      .filter((a) => !a.details?.current && a.details?.ended_on)
+      .sort((a, b) => (b.details!.ended_on! || '').localeCompare(a.details!.ended_on! || ''));
+    const previousRole = prior[0]?.links?.role?.[0]?.title || null;
+    return { startedOn, previousRole };
+  } catch {
+    return { startedOn: null, previousRole: null };
+  }
+}
 
 type AgencyRow = {
   dept_slug: string;
@@ -104,23 +146,42 @@ async function syncDept(supabase: SupabaseClient, deptSlug: string, govukSlug: s
     };
   }).filter((m) => m.role);
 
-  const officials: OfficialRow[] = ((data.links?.ordered_board_members as GovukPerson[]) || []).map((m) => {
-    const role = m.links?.role_appointments?.find((r) => r.details?.current)?.links?.role?.[0]?.title || '';
-    const roleLower = role.toLowerCase();
-    let category = 'other';
-    if (roleLower.includes('permanent') || roleLower.includes('director general') || roleLower.includes('chief')) category = 'senior';
-    if (roleLower.includes('non-executive') || roleLower.includes('board member')) category = 'board';
-    const preserved = offByName.get(m.title);
-    return {
-      dept_slug: deptSlug,
-      name: m.title,
-      role,
-      slug: m.base_path?.replace('/government/people/', '') || '',
-      category,
-      photo_url: preserved?.photo_url ?? null,
-      updated_at: now,
-    };
-  }).filter((m) => m.role);
+  // Officials are enriched per-person: appointment_date (started_on)
+  // and previous_role come from the per-person Content API. Run those
+  // fetches in parallel-batches of 4 to keep the wall time inside the
+  // sync's 300s budget even for departments with 10+ officials.
+  const rawOfficials = (data.links?.ordered_board_members as GovukPerson[]) || [];
+  const officials: OfficialRow[] = [];
+  const BATCH = 4;
+  for (let i = 0; i < rawOfficials.length; i += BATCH) {
+    const batch = rawOfficials.slice(i, i + BATCH);
+    const enriched = await Promise.all(batch.map(async (m) => {
+      const role = m.links?.role_appointments?.find((r) => r.details?.current)?.links?.role?.[0]?.title || '';
+      if (!role) return null;
+      const roleLower = role.toLowerCase();
+      // Keep the existing coarse 'senior' / 'board' / 'other' category
+      // (DepartmentClient reads from it) and add a finer role_rank.
+      let category = 'other';
+      if (roleLower.includes('permanent') || roleLower.includes('director general') || roleLower.includes('chief')) category = 'senior';
+      if (roleLower.includes('non-executive') || roleLower.includes('board member')) category = 'board';
+      const slug = m.base_path?.replace('/government/people/', '') || '';
+      const { startedOn, previousRole } = await fetchPersonRoleHistory(slug);
+      const preserved = offByName.get(m.title);
+      return {
+        dept_slug: deptSlug,
+        name: m.title,
+        role,
+        slug,
+        category,
+        role_rank: classifyRoleRank(role),
+        appointment_date: startedOn,
+        previous_role: previousRole,
+        photo_url: preserved?.photo_url ?? null,
+        updated_at: now,
+      } as OfficialRow;
+    }));
+    enriched.forEach((o) => { if (o) officials.push(o); });
+  }
 
   const agencies: AgencyRow[] = ((data.links?.ordered_child_organisations as GovukChildOrg[]) || [])
     .filter((o) => o.details?.organisation_govuk_status?.status === 'live')

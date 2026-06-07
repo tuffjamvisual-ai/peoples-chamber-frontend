@@ -41,6 +41,8 @@
     { "path": "/api/sync-standards-committee",    "schedule": "0 13 * * 1" },
     { "path": "/api/sync-members-contributions",  "schedule": "15 */6 * * *" },
     { "path": "/api/sync-appgs",                  "schedule": "30 14 * * 1" },
-    { "path": "/api/sync-spad-transparency",      "schedule": "45 14 * * 1" }
+    { "path": "/api/sync-spad-transparency",      "schedule": "45 14 * * 1" },
+    { "path": "/api/sync-department-staffing",    "schedule": "0 15 * * 1" },
+    { "path": "/api/sync-department-budgets",     "schedule": "15 15 * * 1" }
   ]
 }

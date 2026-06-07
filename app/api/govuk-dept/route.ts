@@ -16,9 +16,25 @@ export type GovukDeptMinister = {
   resigned?: boolean;
 };
 
+export type GovukDeptBoardMember = {
+  name: string;
+  photo: string;
+  role: string;
+  url: string;
+  slug: string;
+  category?: string;
+  member_id?: number | null;
+  role_rank?: string | null;
+  appointment_date?: string | null;     // ISO YYYY-MM-DD
+  previous_role?: string | null;
+  scs_band?: string | null;             // 'scs1' … 'scs4'
+  pay_floor?: number | null;            // £
+  pay_ceiling?: number | null;
+};
+
 export type GovukDeptData = {
   ministers: GovukDeptMinister[];
-  boardMembers: { name: string; photo: string; role: string; url: string; slug: string; category?: string; member_id?: number | null }[];
+  boardMembers: GovukDeptBoardMember[];
   childOrgs: { name: string; url: string; acronym: string }[];
   socialMedia: { service: string; url: string; title: string }[];
   foiEmail: string;
@@ -45,7 +61,18 @@ const normalize = (s: string | null | undefined): string => {
 };
 
 type MinisterRow = { name: string | null; role: string; slug: string; photo_url?: string | null; is_secretary_of_state?: boolean; member_id?: number | null; resigned?: boolean | null };
-type OfficialRow = { name: string | null; role: string; slug: string; category?: string; member_id?: number | null; photo_url?: string | null };
+type OfficialRow = {
+  name: string | null;
+  role: string;
+  slug: string;
+  category?: string;
+  member_id?: number | null;
+  photo_url?: string | null;
+  role_rank?: string | null;
+  appointment_date?: string | null;
+  previous_role?: string | null;
+};
+type PersonCachePay = { slug: string; scs_band?: string | null; actual_pay_floor?: number | null; actual_pay_ceiling?: number | null };
 type AgencyRow = { name: string; url: string; acronym: string };
 
 async function fetchGovukJson(govukSlug: string) {
@@ -86,7 +113,11 @@ export async function getGovukDept(slug: string): Promise<GovukDeptData> {
     // on the hot path.
     const [ministersRes, officialsRes, agenciesRes, contactsRes, mpRowsRes] = await Promise.all([
       supabase.from('dept_ministers').select('*').eq('dept_slug', slug).order('id'),
-      supabase.from('dept_officials').select('*').eq('dept_slug', slug).order('id'),
+      supabase
+        .from('dept_officials')
+        .select('name, role, slug, category, member_id, photo_url, role_rank, appointment_date, previous_role')
+        .eq('dept_slug', slug)
+        .order('id'),
       supabase.from('dept_agencies').select('*').eq('dept_slug', slug).order('name'),
       supabase
         .from('department_contacts')
@@ -98,6 +129,22 @@ export async function getGovukDept(slug: string): Promise<GovukDeptData> {
         .select('member_id, name, display_name, photo_url')
         .eq('current_member', true),
     ]);
+
+    // Pull pay band data for every official slug in one extra query
+    // (avoids N+1 inside the boardMembers map). Sparse — only ~9
+    // records site-wide today but the join lights up correctly when
+    // the organogram sync repopulates.
+    const officialSlugs = (officialsRes.data || [])
+      .map((o: OfficialRow) => o.slug)
+      .filter((s): s is string => !!s);
+    const payRes = officialSlugs.length
+      ? await supabase
+          .from('person_cache')
+          .select('slug, scs_band, actual_pay_floor, actual_pay_ceiling')
+          .in('slug', officialSlugs)
+      : { data: [] as PersonCachePay[] };
+    const payBySlug = new Map<string, PersonCachePay>();
+    ((payRes.data || []) as PersonCachePay[]).forEach((p) => payBySlug.set(p.slug, p));
 
     if (ministersRes.data && ministersRes.data.length > 0) {
       const mpRows = mpRowsRes.data;
@@ -123,8 +170,9 @@ export async function getGovukDept(slug: string): Promise<GovukDeptData> {
           resigned: !!m.resigned,
         };
       });
-      const boardMembers = ((officialsRes.data || []) as OfficialRow[]).map((m) => {
+      const boardMembers: GovukDeptBoardMember[] = ((officialsRes.data || []) as OfficialRow[]).map((m) => {
         const mp = resolveMp(m.name);
+        const pay = m.slug ? payBySlug.get(m.slug) : undefined;
         return {
           name: m.name || '',
           photo: mp?.photo_url || m.photo_url || '',
@@ -133,6 +181,12 @@ export async function getGovukDept(slug: string): Promise<GovukDeptData> {
           url: '',
           category: m.category,
           member_id: m.member_id ?? mp?.member_id ?? null,
+          role_rank: m.role_rank ?? null,
+          appointment_date: m.appointment_date ?? null,
+          previous_role: m.previous_role ?? null,
+          scs_band: pay?.scs_band ?? null,
+          pay_floor: pay?.actual_pay_floor ?? null,
+          pay_ceiling: pay?.actual_pay_ceiling ?? null,
         };
       });
       const childOrgs = ((agenciesRes.data || []) as AgencyRow[]).map((o) => ({

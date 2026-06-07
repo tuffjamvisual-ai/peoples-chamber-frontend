@@ -6,6 +6,7 @@ import { departments } from '@/lib/departments';
 import { parties } from '@/lib/parties';
 import { type DepartmentBudget } from '@/lib/department-budgets';
 import { useSearchParams } from 'next/navigation';
+import { SeniorOfficialDetailLine } from './CivilServiceBlocks';
 
 // SoS block and Budget panel moved to server component DepartmentMasthead
 // 2026-06-04 — sit above the description and report rather than below.
@@ -27,9 +28,25 @@ type GovukMinister = {
   resigned?: boolean;
 };
 
+type BoardMember = {
+  name: string;
+  photo: string;
+  role: string;
+  url: string;
+  slug: string;
+  category?: string;
+  member_id?: number | null;
+  role_rank?: string | null;
+  appointment_date?: string | null;
+  previous_role?: string | null;
+  scs_band?: string | null;
+  pay_floor?: number | null;
+  pay_ceiling?: number | null;
+};
+
 type GovukData = {
   ministers: GovukMinister[];
-  boardMembers: { name: string; photo: string; role: string; url: string; slug: string; category?: string; member_id?: number | null }[];
+  boardMembers: BoardMember[];
   childOrgs: { name: string; url: string; acronym: string }[];
   socialMedia: { service: string; url: string; title: string }[];
   foiEmail: string;
@@ -55,10 +72,22 @@ export default function DepartmentClient({ slug, govukData, streetContext, budge
 
   const activeZoneData = dept.controlZonePositions?.find((z) => z.zone === activeZone);
   const juniorMinisters = govukData?.ministers?.slice(1) || [];
-  const seniorOfficials = govukData?.boardMembers?.filter((m) => {
-    const r = m.role.toLowerCase();
-    return r.includes('permanent') || r.includes('director general') || r.includes('chief');
-  }) || [];
+  // Senior officials: filter on role text (covers older rows without
+  // role_rank) then sort by rank so PermSec → 2nd PermSec → DG → Chief.
+  const rankOrder: Record<string, number> = {
+    permanent_secretary: 0,
+    second_permanent_secretary: 1,
+    director_general: 2,
+    chief_officer: 3,
+    other: 9,
+  };
+  const seniorOfficials = (govukData?.boardMembers || [])
+    .filter((m) => {
+      const r = m.role.toLowerCase();
+      return r.includes('permanent') || r.includes('director general') || r.includes('chief');
+    })
+    .slice()
+    .sort((a, b) => (rankOrder[a.role_rank || 'other'] ?? 9) - (rankOrder[b.role_rank || 'other'] ?? 9));
   const boardMembers = govukData?.boardMembers?.filter((m) => {
     const r = m.role.toLowerCase();
     return r.includes('non-executive') || r.includes('board member');
@@ -169,7 +198,14 @@ export default function DepartmentClient({ slug, govukData, streetContext, budge
             <h2 className="text-[14px] uppercase tracking-[0.25em] mb-6 font-semibold" style={{ color: ACCENT }}>Department Staff</h2>
 
             {juniorMinisters.length > 0 && <StaffGroup label="Ministers" people={juniorMinisters} />}
-            {seniorOfficials.length > 0 && <StaffGroup label="Senior Officials" people={seniorOfficials} />}
+            {seniorOfficials.length > 0 && (
+              <StaffGroup
+                label="Senior Civil Service"
+                eyebrow="The politicians change. These people often stay for years."
+                people={seniorOfficials}
+                showDetailLine
+              />
+            )}
             {boardMembers.length > 0 && <StaffGroup label="Board Members" people={boardMembers} />}
           </section>
         )}
@@ -196,10 +232,37 @@ export default function DepartmentClient({ slug, govukData, streetContext, budge
   );
 }
 
-function StaffGroup({ label, people }: { label: string; people: { name: string; role: string; slug: string; photo?: string; member_id?: number | null }[] }) {
+type StaffPerson = {
+  name: string;
+  role: string;
+  slug: string;
+  photo?: string;
+  member_id?: number | null;
+  appointment_date?: string | null;
+  scs_band?: string | null;
+  pay_floor?: number | null;
+  pay_ceiling?: number | null;
+};
+
+function StaffGroup({
+  label,
+  eyebrow,
+  people,
+  showDetailLine,
+}: {
+  label: string;
+  eyebrow?: string;
+  people: StaffPerson[];
+  showDetailLine?: boolean;
+}) {
   return (
     <div className="mb-8">
-      <p className="text-[14px] uppercase tracking-[0.2em] text-[#14100d] mb-4 font-semibold">{label}</p>
+      <p className="text-[14px] uppercase tracking-[0.2em] text-[#14100d] mb-2 font-semibold">{label}</p>
+      {eyebrow && (
+        <p className="text-[#14100d] text-[13px] mb-4 italic" style={{ opacity: 0.75 }}>
+          {eyebrow}
+        </p>
+      )}
       <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
         {people.map((person, i) => {
           const href = person.member_id ? `/mps/${person.member_id}` : person.slug ? `/people/${person.slug}` : null;
@@ -238,6 +301,14 @@ function StaffGroup({ label, people }: { label: string; people: { name: string; 
               <div style={{ minWidth: 0, paddingTop: '4px', flex: '1 1 0', overflow: 'hidden' }}>
                 <p className="text-[#14100d] text-[14px] font-semibold hover:text-[#7a1612] transition-colors" style={{ overflowWrap: 'anywhere' }}>{person.name}</p>
                 <p className="text-[#14100d] text-[14px] mt-0.5 leading-[1.55] opacity-80" style={{ overflowWrap: 'anywhere' }}>{person.role}</p>
+                {showDetailLine && (
+                  <SeniorOfficialDetailLine
+                    appointmentDate={person.appointment_date ?? null}
+                    scsBand={person.scs_band ?? null}
+                    payFloor={person.pay_floor ?? null}
+                    payCeiling={person.pay_ceiling ?? null}
+                  />
+                )}
               </div>
             </div>
           );
