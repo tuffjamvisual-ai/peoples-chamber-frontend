@@ -151,7 +151,7 @@ export default async function ConstituencyDonationsPage() {
                 <td style={{ padding: '6px' }}>
                   <Link href={`/donations/constituencies/${unitNameToSlug(c.unit)}`} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold' }}>{c.unit}</Link>
                 </td>
-                <td style={{ padding: '6px', fontSize: '12px', opacity: 0.75 }}>{c.party || '—'}</td>
+                <td style={{ padding: '6px', fontSize: '12px', opacity: 0.75 }}>{c.party || ''}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{c.count}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(c.total).toLocaleString()}</td>
                 <td style={{ padding: '6px', fontSize: '12px' }}>
@@ -160,7 +160,7 @@ export default async function ConstituencyDonationsPage() {
                       <Link href={`/donors/${donorNameToSlug(c.topDonor)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{c.topDonor}</Link>
                       <span style={{ opacity: 0.6, fontFamily: 'monospace', marginLeft: '6px' }}>£{Math.round(c.topAmount).toLocaleString()}</span>
                     </>
-                  ) : <span style={{ opacity: 0.6 }}>—</span>}
+                  ) : <span style={{ opacity: 0.6 }}></span>}
                 </td>
               </tr>
             ))}

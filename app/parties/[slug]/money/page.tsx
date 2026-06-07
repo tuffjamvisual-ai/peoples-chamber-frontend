@@ -193,7 +193,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
         <Tile label="Lifetime declared" value={fmtMoney(total)} sub={`${donations.length.toLocaleString()} donations`} />
         <Tile label="Distinct donors" value={distinctDonors.toLocaleString()} sub="EC register, all-time" />
         <Tile label="Top 10 donors' share" value={(top10Share * 100).toFixed(1) + '%'} sub="of all lifetime income" />
-        <Tile label="Largest single donor" value={donorRanked[0] ? donorRanked[0].name : '—'} sub={donorRanked[0] ? fmtMoney(donorRanked[0].total) : ''} small />
+        <Tile label="Largest single donor" value={donorRanked[0] ? donorRanked[0].name : ''} sub={donorRanked[0] ? fmtMoney(donorRanked[0].total) : ''} small />
       </section>
 
       <section style={{ marginBottom: '32px' }}>
@@ -317,7 +317,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
                 <td style={td}>
                   <Link href={`/donors/${donorNameToSlug(d.name)}`} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold' }}>{d.name}</Link>
                 </td>
-                <td style={{ ...td, fontSize: '11px', opacity: 0.75 }}>{d.donorType || '—'}</td>
+                <td style={{ ...td, fontSize: '11px', opacity: 0.75 }}>{d.donorType || ''}</td>
                 <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace' }}>{d.count}</td>
                 <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(d.total)}</td>
               </tr>

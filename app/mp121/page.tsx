@@ -18,7 +18,7 @@ import type { Metadata } from 'next';
 import React from 'react';
 
 export const metadata: Metadata = {
-  title: "The People's Chamber — mp121",
+  title: "The People's Chamber, mp121",
   robots: { index: false, follow: false },
 };
 
@@ -227,7 +227,7 @@ export default async function Mp121Page({
                 <div className="issue-star top">★</div>
                 <div className="issue-title">ISSUE&nbsp; 23</div>
                 <div className="issue-rule" />
-                <div className="issue-date">MAY 16–22, 2025</div>
+                <div className="issue-date">MAY 16 to 22, 2025</div>
                 <div className="issue-star bottom">★</div>
               </a>
 

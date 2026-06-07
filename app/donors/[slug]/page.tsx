@@ -294,7 +294,7 @@ export default async function DonorPage({ params }: PageProps) {
       <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px', marginBottom: '28px' }}>
         <Tile label="Total given" value={fmtMoney(total)} sub={`${donations.length} donations`} accent={ACCENT} />
         <Tile label="Recipients" value={String(recipientRows.length)} sub="distinct entities" accent={INK_SOFT} />
-        <Tile label="Period" value={firstDate && lastDate ? `${(new Date(firstDate)).getFullYear()}, ${(new Date(lastDate)).getFullYear()}` : '—'} sub="first to last accepted" accent={INK_SOFT} />
+        <Tile label="Period" value={firstDate && lastDate ? `${(new Date(firstDate)).getFullYear()}, ${(new Date(lastDate)).getFullYear()}` : ''} sub="first to last accepted" accent={INK_SOFT} />
         {flaggedReturned + flaggedImpermissible + flaggedConcealment > 0 && (
           <Tile label="Flagged" value={String(flaggedReturned + flaggedImpermissible + flaggedConcealment)} sub={`${flaggedReturned} returned · ${flaggedImpermissible} impermissible · ${flaggedConcealment} concealment`} accent={DANGER} />
         )}
@@ -388,7 +388,7 @@ export default async function DonorPage({ params }: PageProps) {
                       r.name
                     )}
                   </td>
-                  <td style={{ ...td, textAlign: 'left', fontSize: '12px', opacity: 0.75 }}>{r.type || '—'}</td>
+                  <td style={{ ...td, textAlign: 'left', fontSize: '12px', opacity: 0.75 }}>{r.type || ''}</td>
                   <td style={td}>{r.count}</td>
                   <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(r.total)}</td>
                 </tr>

@@ -126,7 +126,7 @@ export default async function TrustFundedPage() {
                 <tr key={t.name} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                   <td style={{ padding: '6px', opacity: 0.6 }}>{i + 1}</td>
                   <td style={{ padding: '6px' }}><strong>{t.name}</strong></td>
-                  <td style={{ padding: '6px', fontSize: '12px', opacity: 0.85 }}>{t.creator || <span style={{ opacity: 0.5 }}>—</span>}</td>
+                  <td style={{ padding: '6px', fontSize: '12px', opacity: 0.85 }}>{t.creator || <span style={{ opacity: 0.5 }}></span>}</td>
                   <td style={{ padding: '6px', fontSize: '12px' }}>{recipientLabel}</td>
                   <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{t.count}</td>
                   <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(t.total).toLocaleString()}</td>
@@ -156,7 +156,7 @@ export default async function TrustFundedPage() {
                     <Link href={`/donors/${donorNameToSlug(r.donor_name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.trust_name}</Link>
                   ) : <strong>{r.trust_name}</strong>}
                 </td>
-                <td style={{ padding: '6px', fontSize: '12px' }}>{r.recipient_name || '—'}</td>
+                <td style={{ padding: '6px', fontSize: '12px' }}>{r.recipient_name || ''}</td>
                 <td style={{ padding: '6px', fontFamily: 'monospace', fontSize: '11px', opacity: 0.7 }}>{r.accepted_date}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(Number(r.amount || 0)).toLocaleString()}</td>
               </tr>

@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import './landing-demo.css';
 
 export const metadata: Metadata = {
-  title: "The People's Chamber — Clickable Landing Demo",
+  title: "The People's Chamber, Clickable Landing Demo",
 };
 
 // Hotspots ported verbatim from the zip's index.html (positions in %,

@@ -216,7 +216,7 @@ export default async function NewPage({
             <header className="masthead">
               <a className="issue hotspot" href="#issue" aria-label="Issue 23">
                 <span>ISSUE 23</span>
-                <small>MAY 16–22, 2025</small>
+                <small>MAY 16 to 22, 2025</small>
               </a>
 
               <div className="brand">

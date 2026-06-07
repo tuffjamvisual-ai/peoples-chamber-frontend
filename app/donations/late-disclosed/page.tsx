@@ -183,7 +183,7 @@ export default async function LateDisclosedPage() {
                     <Link href={`/donors/${donorNameToSlug(r.donor_name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.donor_name}</Link>
                   ) : <span style={{ opacity: 0.6 }}>(unknown)</span>}
                 </td>
-                <td style={{ padding: '6px', fontSize: '12px' }}>{r.recipient_name || '—'}</td>
+                <td style={{ padding: '6px', fontSize: '12px' }}>{r.recipient_name || ''}</td>
                 <td style={{ padding: '6px', fontFamily: 'monospace', fontSize: '11px', opacity: 0.7 }}>{r.accepted_date}</td>
                 <td style={{ padding: '6px', fontFamily: 'monospace', fontSize: '11px', opacity: 0.7 }}>{r.reported_date}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', color: ACCENT, fontWeight: 'bold' }}>{r.gap.toLocaleString()} days</td>

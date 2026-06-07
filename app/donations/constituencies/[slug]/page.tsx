@@ -167,7 +167,7 @@ export default async function AssociationPage({ params }: PageProps) {
         <Tile label="Total received" value={`£${Math.round(total).toLocaleString()}`} />
         <Tile label="Donations" value={String(rows.length)} />
         <Tile label="Distinct donors" value={String(donorRows.length)} />
-        <Tile label="Period" value={firstDate && lastDate ? `${(new Date(firstDate)).getFullYear()}–${(new Date(lastDate)).getFullYear()}` : '—'} />
+        <Tile label="Period" value={firstDate && lastDate ? `${(new Date(firstDate)).getFullYear()} to ${(new Date(lastDate)).getFullYear()}` : ''} />
       </section>
 
       <section style={{ marginBottom: '32px' }}>
@@ -192,7 +192,7 @@ export default async function AssociationPage({ params }: PageProps) {
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{d.count}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(d.total).toLocaleString()}</td>
                 <td style={{ padding: '6px', fontSize: '11px', fontFamily: 'monospace', opacity: 0.7 }}>
-                  {d.first && d.last ? (d.first === d.last ? d.first : `${d.first} → ${d.last}`) : '—'}
+                  {d.first && d.last ? (d.first === d.last ? d.first : `${d.first} → ${d.last}`) : ''}
                 </td>
               </tr>
             ))}

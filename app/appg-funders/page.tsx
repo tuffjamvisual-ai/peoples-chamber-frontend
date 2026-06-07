@@ -108,7 +108,7 @@ export default async function AppgFundersIndex() {
                     {hasEcRecord ? (
                       <Link href={`/donors/${slug}`} style={{ color: ACCENT, textDecoration: 'underline' }}>Donor profile &rarr;</Link>
                     ) : (
-                      <span style={{ opacity: 0.5 }}>—</span>
+                      <span style={{ opacity: 0.5 }}></span>
                     )}
                   </td>
                 </tr>

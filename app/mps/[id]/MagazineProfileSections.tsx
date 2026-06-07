@@ -1407,7 +1407,7 @@ export default function MagazineProfileSections({
                           </div>
                           <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '13px', lineHeight: 1.55 }}>
                             {s.votes.slice(0, 20).map((v) => {
-                              const dateText = v.division_date ? new Date(v.division_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+                              const dateText = v.division_date ? new Date(v.division_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
                               const voteColour = v.vote_type === 'aye' ? '#4a8a3a' : v.vote_type === 'no' ? '#a64030' : 'rgba(20,16,13,0.6)';
                               const slug = v.division_date_only && v.division_number != null
                                 ? `pw-${v.division_date_only}-${v.division_number}-commons`

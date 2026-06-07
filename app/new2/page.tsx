@@ -26,7 +26,7 @@ const oswald = Oswald({ subsets: ['latin'], weight: ['500', '700'], variable: '-
 const robotoCond = Roboto_Condensed({ subsets: ['latin'], weight: ['700'], variable: '--f-roboto-cond', display: 'swap' });
 
 export const metadata: Metadata = {
-  title: "The People's Chamber — new2 replica",
+  title: "The People's Chamber, new2 replica",
   robots: { index: false, follow: false },
 };
 
@@ -264,7 +264,7 @@ export default async function New2Page({
                 <div className="tiny-star top">★</div>
                 <div className="issue-title">ISSUE&nbsp; 23</div>
                 <div className="issue-rule" />
-                <div className="issue-date">MAY 16–22, 2025</div>
+                <div className="issue-date">MAY 16 to 22, 2025</div>
                 <div className="tiny-star bottom">★</div>
               </a>
 

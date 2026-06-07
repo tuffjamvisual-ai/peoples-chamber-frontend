@@ -23,7 +23,7 @@ const linkCards: Card[] = [
   {
     src: '/link-cards/hero_power.png',
     href: '/bills',
-    alt: "Power isn't hidden, it's published — explore Parliament",
+    alt: "Power isn't hidden, it's published, explore Parliament",
     width: 400, height: 385,
     gridClass: 'col-span-1 md:col-span-5 md:row-span-2',
     priority: true,
@@ -48,14 +48,14 @@ const linkCards: Card[] = [
   {
     src: '/link-cards/street_view.png',
     href: '/polls',
-    alt: 'Street View — real voices, real opinions, no filter',
+    alt: 'Street View, real voices, real opinions, no filter',
     width: 250, height: 305,
     gridClass: 'col-span-1 md:col-span-3',
   },
   {
     src: '/link-cards/bills_to_watch.png',
     href: '/bills',
-    alt: 'Bills to Watch — track current legislation',
+    alt: 'Bills to Watch, track current legislation',
     width: 250, height: 420,
     gridClass: 'col-span-1 md:col-span-3 md:row-span-2',
   },
@@ -64,14 +64,14 @@ const linkCards: Card[] = [
   {
     src: '/link-cards/follow_money.png',
     href: '/expenses',
-    alt: 'Follow the money — where your tax really goes',
+    alt: 'Follow the money, where your tax really goes',
     width: 465, height: 187,
     gridClass: 'col-span-1 md:col-span-6',
   },
   {
     src: '/link-cards/whos_who.png',
     href: '/mps',
-    alt: "Who's Who — meet your MPs",
+    alt: "Who's Who, meet your MPs",
     width: 380, height: 150,
     gridClass: 'col-span-1 md:col-span-3',
   },

@@ -130,7 +130,7 @@ export default async function ForeignDonationsPage() {
                 <td style={{ padding: '6px', fontSize: '12px' }}>
                   {c.topDonor ? (
                     <Link href={`/donors/${donorNameToSlug(c.topDonor)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{c.topDonor}</Link>
-                  ) : <span style={{ opacity: 0.6 }}>—</span>}
+                  ) : <span style={{ opacity: 0.6 }}></span>}
                 </td>
               </tr>
             ))}
@@ -159,8 +159,8 @@ export default async function ForeignDonationsPage() {
                   ) : <span style={{ opacity: 0.6 }}>(unknown)</span>}
                 </td>
                 <td style={{ padding: '6px', fontSize: '12px' }}>{r.addr_country}</td>
-                <td style={{ padding: '6px', fontSize: '12px' }}>{r.recipient_name || '—'}</td>
-                <td style={{ padding: '6px', fontSize: '12px', fontFamily: 'monospace', opacity: 0.7 }}>{r.accepted_date || '—'}</td>
+                <td style={{ padding: '6px', fontSize: '12px' }}>{r.recipient_name || ''}</td>
+                <td style={{ padding: '6px', fontSize: '12px', fontFamily: 'monospace', opacity: 0.7 }}>{r.accepted_date || ''}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(Number(r.amount || 0)).toLocaleString()}</td>
               </tr>
             ))}

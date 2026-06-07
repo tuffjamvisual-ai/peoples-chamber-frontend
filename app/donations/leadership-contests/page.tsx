@@ -88,7 +88,7 @@ export default async function LeadershipContestsPage() {
     c.total += amt;
     c.count += 1;
     const cand = (r.recipient_name || '(unknown)').trim();
-    const year = (r.accepted_date || '').slice(0, 4) || '—';
+    const year = (r.accepted_date || '').slice(0, 4) || '';
     const ex = c.candidates.get(cand) ?? { candidate: cand, total: 0, count: 0, topDonor: '', topAmount: 0, year };
     ex.total += amt;
     ex.count += 1;
@@ -157,7 +157,7 @@ export default async function LeadershipContestsPage() {
                     <td style={{ padding: '6px', fontSize: '12px' }}>
                       {cand.topDonor ? (
                         <Link href={`/donors/${donorNameToSlug(cand.topDonor)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{cand.topDonor}</Link>
-                      ) : <span style={{ opacity: 0.6 }}>—</span>}
+                      ) : <span style={{ opacity: 0.6 }}></span>}
                       {cand.topAmount > 0 && <span style={{ opacity: 0.6, fontFamily: 'monospace', marginLeft: '6px' }}>£{Math.round(cand.topAmount).toLocaleString()}</span>}
                     </td>
                   </tr>
@@ -188,9 +188,9 @@ export default async function LeadershipContestsPage() {
                     <Link href={`/donors/${donorNameToSlug(r.donor_name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.donor_name}</Link>
                   ) : <span style={{ opacity: 0.6 }}>(unknown)</span>}
                 </td>
-                <td style={{ padding: '6px', fontSize: '12px' }}>{r.recipient_name || '—'}</td>
+                <td style={{ padding: '6px', fontSize: '12px' }}>{r.recipient_name || ''}</td>
                 <td style={{ padding: '6px', fontSize: '11px', opacity: 0.8 }}>{r.position_standing_for}</td>
-                <td style={{ padding: '6px', fontFamily: 'monospace', fontSize: '11px', opacity: 0.7 }}>{r.accepted_date || '—'}</td>
+                <td style={{ padding: '6px', fontFamily: 'monospace', fontSize: '11px', opacity: 0.7 }}>{r.accepted_date || ''}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(Number(r.amount || 0)).toLocaleString()}</td>
               </tr>
             ))}

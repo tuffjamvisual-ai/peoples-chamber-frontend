@@ -7,7 +7,7 @@ import PillarsFooter from '../components/PillarsFooter';
 // "end of profile" strip above the footer provides visual context.
 
 export const metadata = {
-  title: 'Preview — Pillars footer',
+  title: 'Preview, Pillars footer',
   robots: { index: false, follow: false },
 };
 
@@ -73,7 +73,7 @@ export default function PreviewFooterPage() {
         <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '720px', marginBottom: '24px' }}>
           This is filler content standing in for the bottom of an MP profile or department page
           (e.g. the last section of the bills list, or the FOI / press-contact block on
-          /departments/treasury). The new footer renders directly below this strip — scroll down to
+          /departments/treasury). The new footer renders directly below this strip. Scroll down to
           see how it sits against the magazine chrome.
         </p>
 

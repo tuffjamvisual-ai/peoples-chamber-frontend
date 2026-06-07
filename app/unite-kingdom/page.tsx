@@ -115,7 +115,7 @@ export default function UniteKingdomPage() {
             </p>
 
             <PhotoCard
-              caption="Parliament Square, 16 May 2026 — thousands gather with flags and placards."
+              caption="Parliament Square, 16 May 2026, thousands gather with flags and placards."
               tilt={-0.5}
             />
 

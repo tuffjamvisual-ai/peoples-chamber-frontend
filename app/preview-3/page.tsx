@@ -26,9 +26,9 @@ export const revalidate = 3600
 const ACCENT = '#c91517'
 
 function fmtMoney(v: number | string | null | undefined): string {
-  if (v === null || v === undefined || v === '') return '—'
+  if (v === null || v === undefined || v === '') return ''
   const n = typeof v === 'number' ? v : Number(v)
-  if (!Number.isFinite(n)) return '—'
+  if (!Number.isFinite(n)) return ''
   if (n >= 1_000_000_000) return '£' + (n / 1_000_000_000).toFixed(1).replace(/\.0$/, '') + 'bn'
   if (n >= 1_000_000) return '£' + (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'm'
   if (n >= 1_000) return '£' + Math.round(n / 1_000).toLocaleString() + 'k'
@@ -600,12 +600,12 @@ function MoneyCard({
         <div>
           <div className="text-xs font-black uppercase tracking-[0.18em] text-white/55">Top contract</div>
           <div className="mt-2 text-3xl font-black">{fmtMoney(contractTotal)}</div>
-          <div className="mt-1 text-xs text-white/65 line-clamp-2">{topContract?.supplier || '—'}</div>
+          <div className="mt-1 text-xs text-white/65 line-clamp-2">{topContract?.supplier || ''}</div>
         </div>
         <div>
           <div className="text-xs font-black uppercase tracking-[0.18em] text-white/55">Top donation</div>
           <div className="mt-2 text-3xl font-black">{fmtMoney(donationTotal)}</div>
-          <div className="mt-1 text-xs text-white/65 line-clamp-2">{topDonation?.donor_name || '—'}</div>
+          <div className="mt-1 text-xs text-white/65 line-clamp-2">{topDonation?.donor_name || ''}</div>
         </div>
       </div>
       <div className="mt-6 flex items-center justify-between gap-6 border-t border-white/15 pt-4 text-sm">

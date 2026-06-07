@@ -28,7 +28,7 @@ const MOCK_FEATURED = {
   sub: 'Largest contract on record.',
 }
 const MOCK_BILL = {
-  title: 'Renters (Reform) Bill — Second Reading',
+  title: 'Renters (Reform) Bill, Second Reading',
   yes: 4127,
   no: 1842,
   abs: 318,
@@ -53,7 +53,7 @@ const MOCK_COVERAGE = [
     date: '09 May',
     title: 'Reform UK gains ground in three Red Wall by-elections',
     commentary:
-      'The story is not the by-elections. The story is that no-one in Westminster currently has a credible answer to "what comes after Labour?" — and that vacuum is doing more work for Reform than any Reform policy.',
+      'The story is not the by-elections. The story is that no-one in Westminster currently has a credible answer to "what comes after Labour?", and that vacuum is doing more work for Reform than any Reform policy.',
   },
 ]
 const MOCK_STATS = [
@@ -148,7 +148,7 @@ function DemoPageBody() {
               {MOCK_BILL.title}
             </h2>
             <p style={{ fontSize: '14px', color: MUTED, lineHeight: 1.55, margin: '0 0 1.75rem', maxWidth: '520px' }}>
-              {total.toLocaleString()} members of the public have voted. Parliament&apos;s tally may differ — read the bill, then add yours.
+              {total.toLocaleString()} members of the public have voted. Parliament&apos;s tally may differ, read the bill, then add yours.
             </p>
             <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
               <Link href="#" style={ctaPrimary}>Read the full story →</Link>
@@ -221,7 +221,7 @@ function DemoPageBody() {
         {/* BIG SPENDERS */}
         <section style={{ background: PANEL, border: `1px solid ${BORDER}`, padding: '1.75rem 2rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '1.5rem' }}>
-            <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#fff', margin: 0 }}>Big Spenders 2024–25</h3>
+            <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#fff', margin: 0 }}>Big Spenders 2024 to 25</h3>
             <Link href="#" style={{ fontSize: '13px', color: '#fff', letterSpacing: '0.2em', textTransform: 'uppercase', textDecoration: 'none', opacity: 0.7 }}>See all →</Link>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
@@ -281,7 +281,7 @@ export default function NewspaperDemo() {
       {/* Demo header (sits on gutter) */}
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '2rem 1.5rem 1rem' }}>
         <div style={{ fontSize: '13px', color: '#fff', letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 700, opacity: 0.6, marginBottom: '0.5rem' }}>
-          Layout comparison — scroll to compare
+          Layout comparison, scroll to compare
         </div>
         <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#fff', margin: 0 }}>
           /newspaper-demo
@@ -293,12 +293,12 @@ export default function NewspaperDemo() {
       </div>
 
       {/* =================================================================
-          VERSION 1 — CURRENT FULL-WIDTH DESIGN
+          VERSION 1, CURRENT FULL-WIDTH DESIGN
           ================================================================= */}
       <div style={{ background: BG, color: '#fff', borderTop: `2px solid #ffffff15`, borderBottom: `2px solid #ffffff15`, marginTop: '1rem' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '1.5rem' }}>
           <div style={{ fontSize: '12px', color: '#fff', letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 700, opacity: 0.7 }}>
-            ↓ Current design — full-width background
+            ↓ Current design, full-width background
           </div>
         </div>
         <Navigation />
@@ -309,12 +309,12 @@ export default function NewspaperDemo() {
       </div>
 
       {/* =================================================================
-          VERSION 2 — PROPOSED NEWSPAPER-ON-TABLE DESIGN
+          VERSION 2, PROPOSED NEWSPAPER-ON-TABLE DESIGN
           ================================================================= */}
       <div style={{ background: GUTTER, padding: '3rem 1.5rem' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto 1rem' }}>
           <div style={{ fontSize: '12px', color: '#fff', letterSpacing: '0.3em', textTransform: 'uppercase', fontWeight: 700, opacity: 0.7 }}>
-            ↓ Proposed design — newspaper on table
+            ↓ Proposed design, newspaper on table
           </div>
         </div>
         <div
