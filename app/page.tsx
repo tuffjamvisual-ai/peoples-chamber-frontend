@@ -152,8 +152,8 @@ export default function HomePage() {
             }}
           />
         </div>
-        <div style={{ ...headline, fontSize: '2.1cqw', lineHeight: 1.04, marginBottom: '2.5%' }}>The biggest expenses bill</div>
-        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.6cqw', lineHeight: 1.35, opacity: 0.88, marginBottom: '2.5%' }}>
+        <div style={{ ...headline, fontSize: '1.95cqw', lineHeight: 1.04, marginBottom: '2.5%' }}>The biggest expenses bill</div>
+        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.4cqw', lineHeight: 1.35, opacity: 0.88, marginBottom: '2.5%' }}>
           Every MP claims travel, staff, office and accommodation costs against the public purse. The ten biggest claimants ran up the largest bills last financial year. See which MPs spent the most and on what.
         </div>
         <div style={{ ...ctaStyle, marginTop: 0 }}>See the full top ten &rarr;</div>
@@ -184,8 +184,8 @@ export default function HomePage() {
             }}
           />
         </div>
-        <div style={{ ...headline, fontSize: '2.1cqw', lineHeight: 1.04, marginBottom: '2.5%' }}>Every manifesto. Every shift.</div>
-        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.6cqw', lineHeight: 1.35, opacity: 0.88, marginBottom: '2.5%' }}>
+        <div style={{ ...headline, fontSize: '1.95cqw', lineHeight: 1.04, marginBottom: '2.5%' }}>Every manifesto. Every shift.</div>
+        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.4cqw', lineHeight: 1.35, opacity: 0.88, marginBottom: '2.5%' }}>
           What each of the fifteen UK parties told voters at the 2024 election, what they have done in the year since, and where the gap between manifesto and record is widest. Each dossier ranks delivery against promise.
         </div>
         <div style={{ ...ctaStyle, marginTop: 0 }}>Read the dossiers &rarr;</div>
@@ -211,8 +211,8 @@ export default function HomePage() {
             }}
           />
         </div>
-        <div style={{ ...headline, fontSize: '2.1cqw', lineHeight: 1.04, marginBottom: '2.5%' }}>Who runs Whitehall</div>
-        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.6cqw', lineHeight: 1.35, opacity: 0.88, marginBottom: '2.5%' }}>
+        <div style={{ ...headline, fontSize: '1.95cqw', lineHeight: 1.04, marginBottom: '2.5%' }}>Who runs Whitehall</div>
+        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.4cqw', lineHeight: 1.35, opacity: 0.88, marginBottom: '2.5%' }}>
           All twenty four ministerial departments graded against the public record of what they were set up to do. Executive summary, core strengths, critical weaknesses, recommendation. One institutional performance report per department.
         </div>
         <div style={{ ...ctaStyle, marginTop: 0 }}>See the departments &rarr;</div>
