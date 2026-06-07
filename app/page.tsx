@@ -83,7 +83,7 @@ export default function HomePage() {
         <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.25cqw', lineHeight: 1.45, opacity: 0.92, marginBottom: '2%' }}>
           Since 2018, seven English councils have declared themselves effectively bankrupt. One was abolished entirely. Another went bankrupt three times. A borough council with an annual budget of &pound;16 million accumulated debts of &pound;1.8 billion. England&rsquo;s largest local authority is still under government commissioners two years after its collapse. Sixty three more councils are considered at risk. The ten worst failures in modern English local government expose a system where the safeguards designed to prevent catastrophe failed at every level. These are the councils that broke, the decisions that broke them, and the residents left paying the bill.
         </div>
-        <div style={{ ...kicker, fontSize: '1.25cqw', letterSpacing: '0.18em', marginTop: 'auto', color: '#6b2417', fontWeight: 'bold' }}>Read the full story &rarr;</div>
+        <div style={{ ...kicker, fontSize: '1.25cqw', letterSpacing: '0.18em', marginTop: '0.5%', color: '#6b2417', fontWeight: 'bold' }}>Read the full story &rarr;</div>
       </a>
 
       {/* Secondary hotspot: Parliament weekly digest. Lives to the right
@@ -94,7 +94,7 @@ export default function HomePage() {
         <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.2cqw', lineHeight: 1.5, opacity: 0.88, marginBottom: '4%' }}>
           Follow what Parliament is doing right now, in plain English, and see how every decision lands with the people.
         </div>
-        <div style={{ ...kicker, fontSize: '1.1cqw', letterSpacing: '0.12em', marginTop: 'auto', color: '#6b2417', fontWeight: 'bold' }}>Read the bills &rarr;</div>
+        <div style={{ ...kicker, fontSize: '1.1cqw', letterSpacing: '0.12em', marginTop: '0.5%', color: '#6b2417', fontWeight: 'bold' }}>Read the bills &rarr;</div>
       </a>
 
       {/* Hand-drawn SVG border filter — feTurbulence displaces the border
