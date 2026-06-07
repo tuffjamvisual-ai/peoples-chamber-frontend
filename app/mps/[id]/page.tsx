@@ -642,15 +642,33 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
       footer={
         /* Server-rendered RelatedLinks: same-party MPs, sponsored bills,
            recent votes, party page, optional ministerial dept. Lands as
-           crawlable <a href> tags in static HTML for SEO. */
-        <RelatedLinks
-          variant="mp"
-          memberId={memberId}
-          party={partyDisplay || mp.party || null}
-          partySlug={null}
-          votes={votesWithSi.slice(0, 5)}
-          sponsoredBills={(sponsoredBillsRes.data || []).slice(0, 5)}
-        />
+           crawlable <a href> tags in static HTML for SEO. Wrapped in an
+           sr-only-style 1px clipped container so the block is in the
+           HTML response (Phase 1 SEO Check 15) but not visible at the
+           bottom of the dossier where the user reported it as clutter. */
+        <div
+          style={{
+            position: 'absolute',
+            width: '1px',
+            height: '1px',
+            padding: 0,
+            margin: '-1px',
+            overflow: 'hidden',
+            clip: 'rect(0,0,0,0)',
+            whiteSpace: 'normal',
+            border: 0,
+          }}
+          aria-hidden="false"
+        >
+          <RelatedLinks
+            variant="mp"
+            memberId={memberId}
+            party={partyDisplay || mp.party || null}
+            partySlug={null}
+            votes={votesWithSi.slice(0, 5)}
+            sponsoredBills={(sponsoredBillsRes.data || []).slice(0, 5)}
+          />
+        </div>
       }
     />
     </>
