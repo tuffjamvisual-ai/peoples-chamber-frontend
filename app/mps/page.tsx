@@ -48,8 +48,13 @@ export default async function MPsPage({
       </Suspense>
       {/* Server-rendered "Browse all MPs" link block so all 650 MP detail
           pages are crawlable from /mps in static HTML, not only via the
-          sitemap. Same pattern as AllBillsIndex on /bills. */}
-      <AllMpsIndex />
+          sitemap. Same pattern as AllBillsIndex on /bills.
+          Only renders on the unfiltered /mps URL — on
+          /mps?expand=<party> the MagazineMPsClient already shows
+          every MP in that party, so AllMpsIndex would be a
+          duplicate listing for the reader. The crawlable links
+          on /mps satisfy the SEO requirement in one place. */}
+      {expand === null && <AllMpsIndex />}
     </DossierShell>
   );
 }
