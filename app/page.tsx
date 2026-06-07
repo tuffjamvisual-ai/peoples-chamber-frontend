@@ -44,7 +44,7 @@ const eyebrow: CSSProperties = { ...kicker, fontSize: '1.05cqw', letterSpacing: 
 const ctaStyle: CSSProperties = { ...kicker, fontSize: '1.2cqw', letterSpacing: '0.03em', marginTop: 'auto' };
 const blurbStyle: CSSProperties = { fontSize: '1.2cqw', lineHeight: 1.4, opacity: 0.85, marginBottom: '4%' };
 const headlineRow: CSSProperties = { display: 'flex', gap: '6%', alignItems: 'flex-start', width: '100%', marginBottom: '3%' };
-const colStyle = (left: string, width: string): CSSProperties => ({ ...card, top: '75%', left, width, height: '14%', alignItems: 'flex-start' });
+const colStyle = (left: string, width: string): CSSProperties => ({ ...card, top: '78%', left, width, height: '14%', alignItems: 'flex-start' });
 
 export default function HomePage() {
   const HomeFront = (
@@ -56,7 +56,7 @@ export default function HomePage() {
           italic Garamond standfirst, short lede, accent-red CTA. overflow
           hidden as a defensive measure against the 41%-height card
           clipping at small viewports. */}
-      <a href="/editorials/ten-worst-performing-councils-england" className="no-hover-scale" style={{ ...card, top: '27%', left: '6%', width: '58%', height: '42%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 3% 1.5%', overflow: 'hidden' }}>
+      <a href="/editorials/ten-worst-performing-councils-england" className="no-hover-scale" style={{ ...card, top: '24%', left: '6%', width: '58%', height: '50%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 3% 1.5%', overflow: 'hidden' }}>
         <div style={{ width: '100%', marginBottom: '2%', position: 'relative' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -75,26 +75,26 @@ export default function HomePage() {
             }}
           />
         </div>
-        <div style={{ ...kicker, fontSize: '0.85cqw', letterSpacing: '0.32em', color: '#6b2417', fontWeight: 'bold', marginBottom: '1.2%' }}>The People&rsquo;s Chamber &middot; Investigation</div>
-        <div style={{ ...headline, fontSize: '2.7cqw', lineHeight: 0.95, marginBottom: '1.5%', letterSpacing: '0.01em' }}>The Ten Worst Performing Councils In England</div>
-        <div style={{ fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif', fontStyle: 'italic', fontSize: '1.15cqw', lineHeight: 1.3, opacity: 0.88, marginBottom: '1.5%', maxWidth: '46ch' }}>
+        <div style={{ ...kicker, fontSize: '1.0cqw', letterSpacing: '0.32em', color: '#6b2417', fontWeight: 'bold', marginBottom: '1.5%' }}>The People&rsquo;s Chamber &middot; Investigation</div>
+        <div style={{ ...headline, fontSize: '3.2cqw', lineHeight: 0.95, marginBottom: '1.8%', letterSpacing: '0.01em' }}>The Ten Worst Performing Councils In England</div>
+        <div style={{ fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif', fontStyle: 'italic', fontSize: '1.5cqw', lineHeight: 1.3, opacity: 0.88, marginBottom: '2%', maxWidth: '46ch' }}>
           How local government failed the people it exists to serve.
         </div>
-        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '0.92cqw', lineHeight: 1.45, opacity: 0.92, marginBottom: '1.5%' }}>
-          Seven English councils declared bankrupt since 2018. One abolished entirely. Another went bankrupt three times. Sixty three more councils considered at risk.
+        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.25cqw', lineHeight: 1.45, opacity: 0.92, marginBottom: '2%' }}>
+          Since 2018, seven English councils have declared themselves effectively bankrupt. One was abolished entirely. Another went bankrupt three times. A borough council with an annual budget of &pound;16 million accumulated debts of &pound;1.8 billion. England&rsquo;s largest local authority is still under government commissioners two years after its collapse. Sixty three more councils are considered at risk. The ten worst failures in modern English local government expose a system where the safeguards designed to prevent catastrophe failed at every level. These are the councils that broke, the decisions that broke them, and the residents left paying the bill.
         </div>
-        <div style={{ ...kicker, fontSize: '1.0cqw', letterSpacing: '0.18em', marginTop: 'auto', color: '#6b2417', fontWeight: 'bold' }}>Read the full story &rarr;</div>
+        <div style={{ ...kicker, fontSize: '1.25cqw', letterSpacing: '0.18em', marginTop: 'auto', color: '#6b2417', fontWeight: 'bold' }}>Read the full story &rarr;</div>
       </a>
 
       {/* Secondary hotspot: Parliament weekly digest. Lives to the right
           of the lead editorial, slim column. */}
-      <a href="/bills" className="no-hover-scale" style={{ ...card, top: '27%', left: '66%', width: '28%', height: '42%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 2.5%', overflow: 'hidden' }}>
-        <div style={{ ...kicker, fontSize: '0.9cqw', letterSpacing: '0.28em', opacity: 0.65, marginBottom: '2%' }}>From the House this week</div>
-        <div style={{ ...headline, fontSize: '2.4cqw', lineHeight: 0.98, marginBottom: '4%' }}>Every bill. Every vote. Every law.</div>
-        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.05cqw', lineHeight: 1.5, opacity: 0.88, marginBottom: '4%' }}>
+      <a href="/bills" className="no-hover-scale" style={{ ...card, top: '24%', left: '66%', width: '28%', height: '50%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 2.5%', overflow: 'hidden' }}>
+        <div style={{ ...kicker, fontSize: '1.0cqw', letterSpacing: '0.28em', opacity: 0.65, marginBottom: '2.5%' }}>From the House this week</div>
+        <div style={{ ...headline, fontSize: '2.6cqw', lineHeight: 0.98, marginBottom: '4%' }}>Every bill. Every vote. Every law.</div>
+        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.2cqw', lineHeight: 1.5, opacity: 0.88, marginBottom: '4%' }}>
           Follow what Parliament is doing right now, in plain English, and see how every decision lands with the people.
         </div>
-        <div style={{ ...kicker, fontSize: '1.0cqw', letterSpacing: '0.12em', marginTop: 'auto', color: '#6b2417', fontWeight: 'bold' }}>Read the bills &rarr;</div>
+        <div style={{ ...kicker, fontSize: '1.1cqw', letterSpacing: '0.12em', marginTop: 'auto', color: '#6b2417', fontWeight: 'bold' }}>Read the bills &rarr;</div>
       </a>
 
       {/* Hand-drawn SVG border filter — feTurbulence displaces the border
@@ -112,7 +112,7 @@ export default function HomePage() {
       {/* Expenses story (left) — featured image on top, headline under.
           The image stays crisp; the hand-drawn ink border sits over it
           as a separate layer that gets the wobble filter. */}
-      <a href="/expenses" className="no-hover-scale" style={{ ...card, top: '75%', left: '6%', width: '27%', height: '15%', alignItems: 'flex-start' }}>
+      <a href="/expenses" className="no-hover-scale" style={{ ...card, top: '78%', left: '6%', width: '27%', height: '15%', alignItems: 'flex-start' }}>
         <div style={{ width: '100%', marginBottom: '4%', position: 'relative' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -155,7 +155,7 @@ export default function HomePage() {
       </a>
 
       {/* Whitehall story (right) — same hand-drawn border treatment. */}
-      <a href="/departments" className="no-hover-scale" style={{ ...card, top: '75%', left: '68%', width: '26%', height: '15%', alignItems: 'flex-start' }}>
+      <a href="/departments" className="no-hover-scale" style={{ ...card, top: '78%', left: '68%', width: '26%', height: '15%', alignItems: 'flex-start' }}>
         <div style={{ width: '100%', marginBottom: '4%', position: 'relative' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
