@@ -56,13 +56,22 @@ export default function HomePage() {
           italic Garamond standfirst, short lede, accent-red CTA. overflow
           hidden as a defensive measure against the 41%-height card
           clipping at small viewports. */}
-      {/* Lead editorial — horizontal newspaper layout: image left, text
-          right inside the same card. Keeps the front-page hierarchy
-          (big serif headline, italic standfirst, full body summary,
-          accent-red CTA) while halving the vertical footprint so the
-          whole hero fits above the bottom row without scrolling. */}
+      {/* Lead editorial — horizontal layout, text left + dominant image
+          right. Image takes the larger column (60%) so the photograph
+          reads as the visual anchor on the right side of the card. */}
       <a href="/editorials/ten-worst-performing-councils-england" className="no-hover-scale" style={{ ...card, flexDirection: 'row', gap: '2.5%', top: '24%', left: '6%', width: '58%', height: '38%', alignItems: 'stretch', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 2% 1.5%', overflow: 'hidden' }}>
-        <div style={{ flex: '0 0 38%', position: 'relative', alignSelf: 'flex-start' }}>
+        <div style={{ flex: '1 1 auto', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ ...kicker, fontSize: '0.85cqw', letterSpacing: '0.3em', color: '#6b2417', fontWeight: 'bold', marginBottom: '1.5%' }}>The People&rsquo;s Chamber &middot; Investigation</div>
+          <div style={{ ...headline, fontSize: '1.9cqw', lineHeight: 0.98, marginBottom: '2%', letterSpacing: '0.01em' }}>The Ten Worst Performing Councils In England</div>
+          <div style={{ fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif', fontStyle: 'italic', fontSize: '1.05cqw', lineHeight: 1.3, opacity: 0.88, marginBottom: '2%' }}>
+            How local government failed the people it exists to serve.
+          </div>
+          <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '0.92cqw', lineHeight: 1.45, opacity: 0.92, marginBottom: '2%' }}>
+            Since 2018, seven English councils have declared themselves effectively bankrupt. One was abolished entirely. Another went bankrupt three times. A borough council with an annual budget of &pound;16 million accumulated debts of &pound;1.8 billion. England&rsquo;s largest local authority is still under government commissioners two years after its collapse. Sixty three more councils are considered at risk.
+          </div>
+          <div style={{ ...kicker, fontSize: '1.0cqw', letterSpacing: '0.18em', marginTop: '0.5%', color: '#6b2417', fontWeight: 'bold' }}>Read the full story &rarr;</div>
+        </div>
+        <div style={{ flex: '0 0 60%', position: 'relative', alignSelf: 'flex-start' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/councils.webp"
@@ -79,17 +88,6 @@ export default function HomePage() {
               pointerEvents: 'none',
             }}
           />
-        </div>
-        <div style={{ flex: '1 1 auto', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ ...kicker, fontSize: '0.9cqw', letterSpacing: '0.3em', color: '#6b2417', fontWeight: 'bold', marginBottom: '1.5%' }}>The People&rsquo;s Chamber &middot; Investigation</div>
-          <div style={{ ...headline, fontSize: '2.2cqw', lineHeight: 0.98, marginBottom: '2%', letterSpacing: '0.01em' }}>The Ten Worst Performing Councils In England</div>
-          <div style={{ fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif', fontStyle: 'italic', fontSize: '1.15cqw', lineHeight: 1.3, opacity: 0.88, marginBottom: '2%' }}>
-            How local government failed the people it exists to serve.
-          </div>
-          <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.0cqw', lineHeight: 1.45, opacity: 0.92, marginBottom: '2%' }}>
-            Since 2018, seven English councils have declared themselves effectively bankrupt. One was abolished entirely. Another went bankrupt three times. A borough council with an annual budget of &pound;16 million accumulated debts of &pound;1.8 billion. England&rsquo;s largest local authority is still under government commissioners two years after its collapse. Sixty three more councils are considered at risk. The ten worst failures in modern English local government expose a system where the safeguards designed to prevent catastrophe failed at every level. These are the councils that broke, the decisions that broke them, and the residents left paying the bill.
-          </div>
-          <div style={{ ...kicker, fontSize: '1.1cqw', letterSpacing: '0.18em', marginTop: '0.5%', color: '#6b2417', fontWeight: 'bold' }}>Read the full story &rarr;</div>
         </div>
       </a>
 
