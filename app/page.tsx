@@ -80,10 +80,10 @@ export default function HomePage() {
         </div>
         <div style={{ ...kicker, fontSize: '1.0cqw', letterSpacing: '0.28em', color: '#6b2417', fontWeight: 'bold', marginBottom: '2%' }}>The People&rsquo;s Chamber &middot; Investigation</div>
         <div style={{ ...headline, fontSize: '2.6cqw', lineHeight: 0.98, marginBottom: '2%', letterSpacing: '0.01em' }}>The Ten Worst Performing Councils In England</div>
-        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontStyle: 'italic', fontSize: '1.2cqw', lineHeight: 1.4, opacity: 0.88, marginBottom: '2%' }}>
+        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontStyle: 'italic', fontSize: '1.4cqw', lineHeight: 1.35, opacity: 0.88, marginBottom: '2%' }}>
           How local government failed the people it exists to serve.
         </div>
-        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.05cqw', lineHeight: 1.45, opacity: 0.92, marginBottom: '2%' }}>
+        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.25cqw', lineHeight: 1.45, opacity: 0.92, marginBottom: '2%' }}>
           Since 2018, seven English councils have declared themselves effectively bankrupt. One was abolished entirely. Another went bankrupt three times. A borough council with an annual budget of &pound;16 million accumulated debts of &pound;1.8 billion. England&rsquo;s largest local authority is still under government commissioners two years after its collapse. Sixty three more councils are considered at risk. The ten worst failures in modern English local government expose a system where the safeguards designed to prevent catastrophe failed at every level. These are the councils that broke, the decisions that broke them, and the residents left paying the bill.
         </div>
         <div style={{ ...kicker, fontSize: '1.1cqw', letterSpacing: '0.12em', marginTop: '0.5%', color: '#6b2417', fontWeight: 'bold' }}>Read the full story &rarr;</div>
@@ -112,7 +112,7 @@ export default function HomePage() {
         </div>
         <div style={{ ...kicker, fontSize: '1.0cqw', letterSpacing: '0.28em', opacity: 0.65, marginBottom: '2.5%' }}>From the House this week</div>
         <div style={{ ...headline, fontSize: '2.6cqw', lineHeight: 0.98, marginBottom: '4%' }}>Every bill. Every vote. Every law.</div>
-        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.2cqw', lineHeight: 1.5, opacity: 0.88, marginBottom: '4%' }}>
+        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.5cqw', lineHeight: 1.45, opacity: 0.88, marginBottom: '4%' }}>
           Follow what Parliament is doing right now, in plain English, and see how every decision lands with the people.
         </div>
         <div style={{ ...kicker, fontSize: '1.1cqw', letterSpacing: '0.12em', marginTop: '0.5%', color: '#6b2417', fontWeight: 'bold' }}>Read the bills &rarr;</div>
