@@ -84,7 +84,7 @@ export default function HomePage() {
           How local government failed the people it exists to serve.
         </div>
         <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.05cqw', lineHeight: 1.45, opacity: 0.92, marginBottom: '2%' }}>
-          Since 2018, seven English councils have declared themselves effectively bankrupt. One was abolished entirely. Another went bankrupt three times. Sixty three more councils are considered at risk.
+          Since 2018, seven English councils have declared themselves effectively bankrupt. One was abolished entirely. Another went bankrupt three times. A borough council with an annual budget of &pound;16 million accumulated debts of &pound;1.8 billion. England&rsquo;s largest local authority is still under government commissioners two years after its collapse. Sixty three more councils are considered at risk. The ten worst failures in modern English local government expose a system where the safeguards designed to prevent catastrophe failed at every level. These are the councils that broke, the decisions that broke them, and the residents left paying the bill.
         </div>
         <div style={{ ...kicker, fontSize: '1.1cqw', letterSpacing: '0.12em', marginTop: '0.5%', color: '#6b2417', fontWeight: 'bold' }}>Read the full story &rarr;</div>
       </a>
