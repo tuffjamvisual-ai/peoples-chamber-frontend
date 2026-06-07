@@ -66,7 +66,6 @@ type OfficialRow = {
   role: string;
   slug: string;
   category?: string;
-  member_id?: number | null;
   photo_url?: string | null;
   role_rank?: string | null;
   appointment_date?: string | null;
@@ -114,8 +113,11 @@ export async function getGovukDept(slug: string): Promise<GovukDeptData> {
     const [ministersRes, officialsRes, agenciesRes, contactsRes, mpRowsRes] = await Promise.all([
       supabase.from('dept_ministers').select('*').eq('dept_slug', slug).order('id'),
       supabase
+        // NB: dept_officials has no member_id column (officials are
+        // civil servants, not MPs). member_id is resolved via the mps
+        // name-join lower down instead.
         .from('dept_officials')
-        .select('name, role, slug, category, member_id, photo_url, role_rank, appointment_date, previous_role')
+        .select('id, name, role, slug, category, photo_url, role_rank, appointment_date, previous_role')
         .eq('dept_slug', slug)
         .order('id'),
       supabase.from('dept_agencies').select('*').eq('dept_slug', slug).order('name'),
@@ -180,7 +182,7 @@ export async function getGovukDept(slug: string): Promise<GovukDeptData> {
           slug: m.slug,
           url: '',
           category: m.category,
-          member_id: m.member_id ?? mp?.member_id ?? null,
+          member_id: mp?.member_id ?? null,
           role_rank: m.role_rank ?? null,
           appointment_date: m.appointment_date ?? null,
           previous_role: m.previous_role ?? null,
