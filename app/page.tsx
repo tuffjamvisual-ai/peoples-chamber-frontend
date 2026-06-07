@@ -44,7 +44,7 @@ const eyebrow: CSSProperties = { ...kicker, fontSize: '1.05cqw', letterSpacing: 
 const ctaStyle: CSSProperties = { ...kicker, fontSize: '1.2cqw', letterSpacing: '0.03em', marginTop: 'auto' };
 const blurbStyle: CSSProperties = { fontSize: '1.2cqw', lineHeight: 1.4, opacity: 0.85, marginBottom: '4%' };
 const headlineRow: CSSProperties = { display: 'flex', gap: '6%', alignItems: 'flex-start', width: '100%', marginBottom: '3%' };
-const colStyle = (left: string, width: string): CSSProperties => ({ ...card, top: '67%', left, width, height: '14%', alignItems: 'flex-start' });
+const colStyle = (left: string, width: string): CSSProperties => ({ ...card, top: '70%', left, width, height: '14%', alignItems: 'flex-start' });
 
 export default function HomePage() {
   const HomeFront = (
@@ -56,22 +56,11 @@ export default function HomePage() {
           italic Garamond standfirst, short lede, accent-red CTA. overflow
           hidden as a defensive measure against the 41%-height card
           clipping at small viewports. */}
-      {/* Lead editorial — horizontal layout, text left + dominant image
-          right. Image takes the larger column (60%) so the photograph
-          reads as the visual anchor on the right side of the card. */}
-      <a href="/editorials/ten-worst-performing-councils-england" className="no-hover-scale" style={{ ...card, flexDirection: 'row', gap: '2.5%', top: '24%', left: '6%', width: '58%', height: '38%', alignItems: 'stretch', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 2% 1.5%', overflow: 'hidden' }}>
-        <div style={{ flex: '1 1 auto', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ ...kicker, fontSize: '0.85cqw', letterSpacing: '0.3em', color: '#6b2417', fontWeight: 'bold', marginBottom: '1.5%' }}>The People&rsquo;s Chamber &middot; Investigation</div>
-          <div style={{ ...headline, fontSize: '1.9cqw', lineHeight: 0.98, marginBottom: '2%', letterSpacing: '0.01em' }}>The Ten Worst Performing Councils In England</div>
-          <div style={{ fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif', fontStyle: 'italic', fontSize: '1.05cqw', lineHeight: 1.3, opacity: 0.88, marginBottom: '2%' }}>
-            How local government failed the people it exists to serve.
-          </div>
-          <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '0.92cqw', lineHeight: 1.45, opacity: 0.92, marginBottom: '2%' }}>
-            Since 2018, seven English councils have declared themselves effectively bankrupt. One was abolished entirely. Another went bankrupt three times. A borough council with an annual budget of &pound;16 million accumulated debts of &pound;1.8 billion. England&rsquo;s largest local authority is still under government commissioners two years after its collapse. Sixty three more councils are considered at risk.
-          </div>
-          <div style={{ ...kicker, fontSize: '1.0cqw', letterSpacing: '0.18em', marginTop: '0.5%', color: '#6b2417', fontWeight: 'bold' }}>Read the full story &rarr;</div>
-        </div>
-        <div style={{ flex: '0 0 60%', position: 'relative', alignSelf: 'flex-start' }}>
+      {/* Lead editorial — stacked layout: photo at top, text underneath.
+          Font sizes match the secondary bills card for consistency
+          across the top row. */}
+      <a href="/editorials/ten-worst-performing-councils-england" className="no-hover-scale" style={{ ...card, top: '24%', left: '6%', width: '58%', height: '42%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 2.5% 1.5%', overflow: 'hidden' }}>
+        <div style={{ width: '100%', marginBottom: '2%', position: 'relative' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/councils.webp"
@@ -89,11 +78,20 @@ export default function HomePage() {
             }}
           />
         </div>
+        <div style={{ ...kicker, fontSize: '1.0cqw', letterSpacing: '0.28em', color: '#6b2417', fontWeight: 'bold', marginBottom: '2%' }}>The People&rsquo;s Chamber &middot; Investigation</div>
+        <div style={{ ...headline, fontSize: '2.6cqw', lineHeight: 0.98, marginBottom: '2%', letterSpacing: '0.01em' }}>The Ten Worst Performing Councils In England</div>
+        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontStyle: 'italic', fontSize: '1.2cqw', lineHeight: 1.4, opacity: 0.88, marginBottom: '2%' }}>
+          How local government failed the people it exists to serve.
+        </div>
+        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.05cqw', lineHeight: 1.45, opacity: 0.92, marginBottom: '2%' }}>
+          Since 2018, seven English councils have declared themselves effectively bankrupt. One was abolished entirely. Another went bankrupt three times. Sixty three more councils are considered at risk.
+        </div>
+        <div style={{ ...kicker, fontSize: '1.1cqw', letterSpacing: '0.12em', marginTop: '0.5%', color: '#6b2417', fontWeight: 'bold' }}>Read the full story &rarr;</div>
       </a>
 
       {/* Secondary hotspot: Parliament weekly digest. Lives to the right
           of the lead editorial, slim column. */}
-      <a href="/bills" className="no-hover-scale" style={{ ...card, top: '24%', left: '66%', width: '28%', height: '38%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 2.5%', overflow: 'hidden' }}>
+      <a href="/bills" className="no-hover-scale" style={{ ...card, top: '24%', left: '66%', width: '28%', height: '42%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 2.5%', overflow: 'hidden' }}>
         <div style={{ ...kicker, fontSize: '1.0cqw', letterSpacing: '0.28em', opacity: 0.65, marginBottom: '2.5%' }}>From the House this week</div>
         <div style={{ ...headline, fontSize: '2.6cqw', lineHeight: 0.98, marginBottom: '4%' }}>Every bill. Every vote. Every law.</div>
         <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.2cqw', lineHeight: 1.5, opacity: 0.88, marginBottom: '4%' }}>
@@ -117,7 +115,7 @@ export default function HomePage() {
       {/* Expenses story (left) — featured image on top, headline under.
           The image stays crisp; the hand-drawn ink border sits over it
           as a separate layer that gets the wobble filter. */}
-      <a href="/expenses" className="no-hover-scale" style={{ ...card, top: '67%', left: '6%', width: '27%', height: '15%', alignItems: 'flex-start' }}>
+      <a href="/expenses" className="no-hover-scale" style={{ ...card, top: '70%', left: '6%', width: '27%', height: '15%', alignItems: 'flex-start' }}>
         <div style={{ width: '100%', marginBottom: '4%', position: 'relative' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -160,7 +158,7 @@ export default function HomePage() {
       </a>
 
       {/* Whitehall story (right) — same hand-drawn border treatment. */}
-      <a href="/departments" className="no-hover-scale" style={{ ...card, top: '67%', left: '68%', width: '26%', height: '15%', alignItems: 'flex-start' }}>
+      <a href="/departments" className="no-hover-scale" style={{ ...card, top: '70%', left: '68%', width: '26%', height: '15%', alignItems: 'flex-start' }}>
         <div style={{ width: '100%', marginBottom: '4%', position: 'relative' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
