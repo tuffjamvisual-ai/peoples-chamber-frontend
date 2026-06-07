@@ -56,7 +56,7 @@ export default function HomePage() {
           italic Garamond standfirst, short lede, accent-red CTA. overflow
           hidden as a defensive measure against the 41%-height card
           clipping at small viewports. */}
-      <a href="/editorials/ten-worst-performing-councils-england" className="no-hover-scale" style={{ ...card, top: '23%', left: '6%', width: '58%', height: '41%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 3% 1.5%', overflow: 'hidden' }}>
+      <a href="/editorials/ten-worst-performing-councils-england" className="no-hover-scale" style={{ ...card, top: '28%', left: '6%', width: '58%', height: '35%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 3% 1.5%', overflow: 'hidden' }}>
         <div style={{ width: '100%', marginBottom: '2%', position: 'relative' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -88,7 +88,7 @@ export default function HomePage() {
 
       {/* Secondary hotspot: Parliament weekly digest. Lives to the right
           of the lead editorial, slim column. */}
-      <a href="/bills" className="no-hover-scale" style={{ ...card, top: '23%', left: '66%', width: '28%', height: '41%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 2.5%', overflow: 'hidden' }}>
+      <a href="/bills" className="no-hover-scale" style={{ ...card, top: '28%', left: '66%', width: '28%', height: '35%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 2.5%', overflow: 'hidden' }}>
         <div style={{ ...kicker, fontSize: '0.9cqw', letterSpacing: '0.28em', opacity: 0.65, marginBottom: '2%' }}>From the House this week</div>
         <div style={{ ...headline, fontSize: '2.4cqw', lineHeight: 0.98, marginBottom: '4%' }}>Every bill. Every vote. Every law.</div>
         <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.05cqw', lineHeight: 1.5, opacity: 0.88, marginBottom: '4%' }}>
