@@ -162,17 +162,27 @@ export default function HomePage() {
           rhythm of [big number] + [headline] stays the same. Eyebrow text
           "The People's verdict" reuses the brand mark that's also the
           section heading on every /parties/[slug] dossier. */}
-      <a href="/parties" className="no-hover-scale" style={colStyle('37%', '27%')}>
-        <div style={eyebrow}>The People’s verdict</div>
-        <div style={headlineRow}>
-          <div style={{ flex: '0 0 34%', background: CREAM, border: `1px solid rgba(20,16,13,0.3)`, padding: '6% 2%', textAlign: 'center', transform: 'rotate(-1.5deg)' }}>
-            <div style={{ fontWeight: 'bold', fontSize: '2.6cqw', lineHeight: 1, color: '#6b2417' }}>15</div>
-            <div style={{ ...kicker, fontSize: '0.8cqw', letterSpacing: '0.1em', marginTop: '6%' }}>parties · dossiered</div>
-          </div>
-          <div style={{ ...headline, flex: '1 1 auto', fontSize: '1.65cqw', lineHeight: 1.05 }}>Every manifesto. Every shift. The gap diagnosed.</div>
+      <a href="/parties" className="no-hover-scale" style={{ ...card, top: '75%', left: '37%', width: '27%', height: '15%', alignItems: 'flex-start' }}>
+        <div style={{ width: '100%', marginBottom: '4%', position: 'relative' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/manifesto.webp"
+            alt="Every manifesto. Every shift. The gap diagnosed."
+            style={{ display: 'block', width: '100%', aspectRatio: '16 / 9', objectFit: 'cover' }}
+          />
+          <div
+            aria-hidden
+            style={{
+              position: 'absolute',
+              inset: 0,
+              border: '2.5px solid #14100d',
+              filter: 'url(#handDrawnEdge)',
+              pointerEvents: 'none',
+            }}
+          />
         </div>
-        <div style={blurbStyle}>What each party said in 2024. What they have done since. What they have not.</div>
-        <div style={ctaStyle}>Read the dossiers →</div>
+        <div style={{ ...headline, fontSize: '2.05cqw', lineHeight: 1.04, marginBottom: '3%' }}>Every manifesto. Every shift.</div>
+        <div style={{ ...ctaStyle, marginTop: 0 }}>Read the dossiers →</div>
       </a>
 
       {/* Whitehall story (right) — same hand-drawn border treatment. */}
