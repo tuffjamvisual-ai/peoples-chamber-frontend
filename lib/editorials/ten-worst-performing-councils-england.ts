@@ -12,10 +12,6 @@ const piece: EditorialEntry = {
   heroAlt: 'A composite illustration: a sweep of English council buildings under a heavy sky, the shadow of Section 114 across the rooftops.',
   body: [
     {
-      type: 'paragraph',
-      text: 'Since 2018, eleven Section 114 notices have been issued by seven English councils. Nine of those came after 2020, following a decade of austerity that cut local government core funding by eighteen percent per person in real terms. In 2024/25, the government granted Exceptional Financial Support worth £1.4 billion to eighteen councils. One in five council leaders surveyed in early 2024 said they expected to issue a Section 114 notice within the next two years. No new notices were issued in 2024 or 2025, but the councils already in crisis remain under intervention and the list of authorities at risk continues to grow.',
-    },
-    {
       type: 'councilEntry',
       rank: 1,
       name: 'Woking Borough Council',
