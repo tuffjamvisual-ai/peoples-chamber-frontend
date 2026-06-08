@@ -12,6 +12,8 @@ const piece: EditorialEntry = {
     'The MPs who broke the rules, the law or the trust of their constituents, and are still in the Commons. Compiled from Standards Committee findings, criminal records, registered interests disputes and published investigations. Each entry independently fact-checked.',
   publishedAt: '2026-06-08',
   authorByline: "The People's Chamber",
+  heroImage: '/impropriety.webp',
+  heroAlt: "A weathered 'MPs' street sign before a storm-darkened Houses of Parliament, torn red paper across the middle, the words misconduct, secrecy, hypocrisy and broken trust, and an expenses claim stamped Failed Standards.",
   body: [
     {
       type: 'mpEntry',
