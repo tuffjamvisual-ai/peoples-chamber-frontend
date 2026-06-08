@@ -387,10 +387,17 @@ export default function MagazineProfileSections({
   // Honour ?section= on initial mount so paginating the voting record
   // (which forces a full reload via the href-based <Pagination>) lands
   // the user back on the voting tab rather than the default first tab.
+  // Never auto-land on 'career' (Before Politics): a profile should open on
+  // its biography when there is one, otherwise the first non-career section.
+  // 'career' stays in the nav, just never as the default tab — otherwise the
+  // ~400 MPs with no bio open straight onto Before Politics and look like
+  // their bio was removed.
   const initialActive: SectionId =
     initialSection && validIds.has(initialSection as SectionId)
       ? (initialSection as SectionId)
-      : (sections[0]?.id ?? 'bio');
+      : has.bio
+        ? 'bio'
+        : (sections.find((s) => s.id !== 'career')?.id ?? sections[0]?.id ?? 'bio');
   const [active, setActive] = useState<SectionId>(initialActive);
   const [expandedYear, setExpandedYear] = useState<number | null>(null);
 
