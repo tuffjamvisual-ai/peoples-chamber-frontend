@@ -10,9 +10,6 @@ import { getGovukDept } from '../../api/govuk-dept/route';
 import { getDeptContext } from '../../api/department-context/route';
 import BackLink from '../../components/BackLink';
 import JsonLd, { buildDepartmentOrg } from '@/lib/JsonLd';
-import RelatedLinks from '@/app/components/RelatedLinks';
-import { getDepartmentBudget, getDepartmentStaffing } from '@/lib/department-civil-service';
-import { BudgetBlock, WorkforceBlock } from './CivilServiceBlocks';
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
@@ -36,11 +33,9 @@ export default async function DepartmentPage({ params }: PageProps) {
 
   // Inline the previously-client-side fetches so the prerendered HTML
   // ships with every section's data already populated.
-  const [govukData, contextData, staffingRow, budgetRow] = await Promise.all([
+  const [govukData, contextData] = await Promise.all([
     getGovukDept(slug),
     getDeptContext(slug),
-    getDepartmentStaffing(slug),
-    getDepartmentBudget(slug),
   ]);
 
   const sos = govukData.ministers?.[0];
@@ -116,12 +111,6 @@ export default async function DepartmentPage({ params }: PageProps) {
             ))}
         </section>
 
-        {/* Phase 1 civil service transparency — Workforce + Budget stat
-            blocks sit above the existing Staff section. Both render
-            unconditionally; missing data is explained inline. */}
-        <WorkforceBlock row={staffingRow} />
-        <BudgetBlock row={budgetRow} />
-
         <Suspense fallback={<div style={{ minHeight: '300px' }} />}>
           <DepartmentClient
             slug={slug}
@@ -130,14 +119,6 @@ export default async function DepartmentPage({ params }: PageProps) {
             budget={null}
           />
         </Suspense>
-
-        <RelatedLinks
-          variant="department"
-          slug={slug}
-          ministerMemberIds={(govukData.ministers || [])
-            .map((m) => m.member_id)
-            .filter((id): id is number => typeof id === 'number')}
-        />
       </div>
 
       <ScrollToTopButton />
