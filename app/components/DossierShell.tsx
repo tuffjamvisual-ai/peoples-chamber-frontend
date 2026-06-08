@@ -164,9 +164,13 @@ function computeIssue(now: Date) {
 export default function DossierShell({
   children,
   overlay,
+  contentPaddingLeft = '11%',
 }: {
   children?: React.ReactNode;
   overlay?: React.ReactNode;
+  // Left padding of the folder content area. Defaults to 11% (matching the
+  // right side); MP profile pages pass a smaller value.
+  contentPaddingLeft?: string;
 }) {
   const { issue, dateRange } = computeIssue(new Date());
 
@@ -343,7 +347,7 @@ export default function DossierShell({
                 // now achieves its extra width via negative horizontal
                 // margins applied at the article level on the pages that
                 // use it (parties, bills, budget-trade-offs, councils).
-                padding: '10% 11% 6%',
+                padding: `10% 11% 6% ${contentPaddingLeft}`,
                 overflowWrap: 'anywhere',
                 wordBreak: 'break-word',
                 minWidth: 0,
