@@ -261,6 +261,8 @@ interface Props {
     party_history?: PartyHistoryEntry[];
     occupation_before_politics?: string | null;
     career_history?: Array<{ role: string; organisation?: string | null; period?: string | null; detail?: string | null }> | null;
+    education?: string[] | null;
+    career_background?: string | null;
   } | null;
   earnings: Earnings;
   expenses: ExpenseSummary[];
@@ -364,7 +366,7 @@ export default function MagazineProfileSections({
 }: Props) {
   const has: Record<SectionId, boolean> = {
     bio: paragraphs.length > 0,
-    career: !!(bio?.career_history && bio.career_history.length > 0),
+    career: !!((bio?.career_history && bio.career_history.length > 0) || (bio?.education && bio.education.length > 0) || bio?.career_background),
     contact: !!(contact && (contact.phone || contact.email || contact.website || contact.twitter || contact.address_line1)),
     voting: (totalVotes ?? votes.length) > 0,
     bills: sponsoredBills.length > 0,
@@ -513,18 +515,38 @@ export default function MagazineProfileSections({
         {active === 'career' && (
           <>
             <h2 style={sectionH2}>Before Politics</h2>
-            <p style={{ fontSize: '13px', opacity: 0.7, marginBottom: '20px' }}>Career and roles held before entering Parliament.</p>
-            {(bio?.career_history ?? []).map((job, idx) => {
-              const last = idx === (bio?.career_history?.length ?? 0) - 1;
-              return (
-                <div key={idx} style={{ marginBottom: '20px', paddingBottom: '16px', borderBottom: last ? 'none' : '1px solid rgba(20,16,13,0.15)' }}>
-                  <div style={{ fontSize: '17px', fontWeight: 'bold', lineHeight: 1.3 }}>{job.role}</div>
-                  {job.organisation && <div style={{ fontSize: '15px', opacity: 0.85, marginTop: '2px' }}>{job.organisation}</div>}
-                  {job.period && <div style={{ fontSize: '13px', opacity: 0.6, fontStyle: 'italic', marginTop: '2px' }}>{job.period}</div>}
-                  {job.detail && <div style={{ fontSize: '14px', lineHeight: 1.6, marginTop: '6px' }}>{job.detail}</div>}
-                </div>
-              );
-            })}
+            <p style={{ fontSize: '13px', opacity: 0.7, marginBottom: '24px' }}>Qualifications and career before entering Parliament, so you can weigh an MP&rsquo;s relevant background.</p>
+
+            {bio?.education && bio.education.length > 0 && (
+              <div style={{ marginBottom: '26px' }}>
+                <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.12em', color: '#7a1612', fontWeight: 'bold', marginBottom: '8px' }}>Education</div>
+                <div style={{ fontSize: '15px', lineHeight: 1.5 }}>{bio.education.join(' · ')}</div>
+              </div>
+            )}
+
+            {(bio?.career_history ?? []).length > 0 && (
+              <div style={{ marginBottom: '8px' }}>
+                <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.12em', color: '#7a1612', fontWeight: 'bold', marginBottom: '12px' }}>Roles</div>
+                {(bio?.career_history ?? []).map((job, idx) => {
+                  const last = idx === (bio?.career_history?.length ?? 0) - 1;
+                  return (
+                    <div key={idx} style={{ marginBottom: '18px', paddingBottom: '14px', borderBottom: last ? 'none' : '1px solid rgba(20,16,13,0.15)' }}>
+                      <div style={{ fontSize: '17px', fontWeight: 'bold', lineHeight: 1.3 }}>{job.role}</div>
+                      {job.organisation && <div style={{ fontSize: '15px', opacity: 0.85, marginTop: '2px' }}>{job.organisation}</div>}
+                      {job.period && <div style={{ fontSize: '13px', opacity: 0.6, fontStyle: 'italic', marginTop: '2px' }}>{job.period}</div>}
+                      {job.detail && <div style={{ fontSize: '14px', lineHeight: 1.6, marginTop: '6px' }}>{job.detail}</div>}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {bio?.career_background && (
+              <div style={{ marginTop: '26px', paddingTop: '20px', borderTop: '1px solid rgba(20,16,13,0.15)' }}>
+                <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.12em', color: '#7a1612', fontWeight: 'bold', marginBottom: '8px' }}>Background</div>
+                <p style={{ fontSize: '14px', lineHeight: 1.75 }}>{bio.career_background}</p>
+              </div>
+            )}
           </>
         )}
         {active === 'bio' && (
