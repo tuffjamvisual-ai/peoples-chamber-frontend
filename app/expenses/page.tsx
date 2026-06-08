@@ -260,7 +260,7 @@ export default async function ExpensesPage() {
             columnRule: `1px solid ${INK_HAIRLINE}`,
             columnFill: 'balance',
             textAlign: 'justify',
-            hyphens: 'auto',
+            hyphens: 'none',
           }}
         >
           {FEATURE_BODY

@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Full justification without hyphenation: justified text must never auto-split
+   a word with a hyphen at the line end. Cascades to all text via inheritance;
+   literal hyphens already in words (e.g. Barros-Curtis) are unaffected. */
+html { -webkit-hyphens: none; hyphens: none; }
+
 /* Self-hosted typewriter face — used for magazine body copy. The three
  * Google fonts (Playfair Display, Anton, Oswald) are loaded via
  * next/font in app/layout.tsx and surfaced as the CSS variables below. */
