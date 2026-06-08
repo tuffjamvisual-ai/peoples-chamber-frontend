@@ -4,10 +4,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import Pagination from '@/app/components/Pagination';
 
-type SectionId = 'bio' | 'contact' | 'voting' | 'bills' | 'interests' | 'roles' | 'earnings' | 'donations' | 'diary' | 'expenses';
+type SectionId = 'bio' | 'career' | 'contact' | 'voting' | 'bills' | 'interests' | 'roles' | 'earnings' | 'donations' | 'diary' | 'expenses';
 
 const ALL_SECTIONS: Array<{ id: SectionId; label: string; rotate: string }> = [
   { id: 'bio',       label: 'POLITICAL BIO',    rotate: '0.1deg' },
+  { id: 'career',    label: 'BEFORE POLITICS',  rotate: '-0.12deg' },
   { id: 'contact',   label: 'CONTACT',          rotate: '-0.1deg' },
   { id: 'voting',    label: 'VOTING RECORD',    rotate: '0.15deg' },
   { id: 'bills',     label: 'BILLS SPONSORED',  rotate: '-0.2deg' },
@@ -259,6 +260,7 @@ interface Props {
     committee_memberships?: Array<{ id?: number; name?: string } | string>;
     party_history?: PartyHistoryEntry[];
     occupation_before_politics?: string | null;
+    career_history?: Array<{ role: string; organisation?: string | null; period?: string | null; detail?: string | null }> | null;
   } | null;
   earnings: Earnings;
   expenses: ExpenseSummary[];
@@ -362,6 +364,7 @@ export default function MagazineProfileSections({
 }: Props) {
   const has: Record<SectionId, boolean> = {
     bio: paragraphs.length > 0,
+    career: !!(bio?.career_history && bio.career_history.length > 0),
     contact: !!(contact && (contact.phone || contact.email || contact.website || contact.twitter || contact.address_line1)),
     voting: (totalVotes ?? votes.length) > 0,
     bills: sponsoredBills.length > 0,
@@ -467,14 +470,6 @@ export default function MagazineProfileSections({
           className={jsSticky ? undefined : 'lg:sticky lg:top-16'}
           style={jsSticky ? { transform: `translateY(${stickyOffset}px)`, willChange: 'transform' } : undefined}
         >
-          {/* Pre-politics occupation — small labelled fact at the top of the
-              sidebar, above the section nav. Renders only when populated. */}
-          {bio?.occupation_before_politics && (
-            <div style={{ padding: '8px 16px 0', marginRight: '24px', marginBottom: '12px' }}>
-              <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.12em', color: '#7a1612', fontWeight: 'bold', marginBottom: '3px' }}>Before politics</div>
-              <div style={{ fontSize: '15px', color: '#14100d', lineHeight: 1.35 }}>{bio.occupation_before_politics}</div>
-            </div>
-          )}
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 8px 8px', marginRight: '24px' }}>
             {sections.map((s) => {
               const isActive = active === s.id;
@@ -508,6 +503,23 @@ export default function MagazineProfileSections({
       </aside>
 
       <div className="lg:col-span-3 p-6 sm:p-8" style={{ color: '#14100d', fontFamily: 'Special Elite, monospace' }}>
+        {active === 'career' && (
+          <>
+            <h2 style={sectionH2}>Before Politics</h2>
+            <p style={{ fontSize: '13px', opacity: 0.7, marginBottom: '20px' }}>Career and roles held before entering Parliament.</p>
+            {(bio?.career_history ?? []).map((job, idx) => {
+              const last = idx === (bio?.career_history?.length ?? 0) - 1;
+              return (
+                <div key={idx} style={{ marginBottom: '20px', paddingBottom: '16px', borderBottom: last ? 'none' : '1px solid rgba(20,16,13,0.15)' }}>
+                  <div style={{ fontSize: '17px', fontWeight: 'bold', lineHeight: 1.3 }}>{job.role}</div>
+                  {job.organisation && <div style={{ fontSize: '15px', opacity: 0.85, marginTop: '2px' }}>{job.organisation}</div>}
+                  {job.period && <div style={{ fontSize: '13px', opacity: 0.6, fontStyle: 'italic', marginTop: '2px' }}>{job.period}</div>}
+                  {job.detail && <div style={{ fontSize: '14px', lineHeight: 1.6, marginTop: '6px' }}>{job.detail}</div>}
+                </div>
+              );
+            })}
+          </>
+        )}
         {active === 'bio' && (
           <>
             <h2 style={sectionH2}>Political Biography</h2>
