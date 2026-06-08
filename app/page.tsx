@@ -83,7 +83,7 @@ export default function HomePage() {
         <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontStyle: 'italic', fontSize: '1.4cqw', lineHeight: 1.35, opacity: 0.88, marginBottom: '2%' }}>
           How local government failed the people it exists to serve.
         </div>
-        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.25cqw', lineHeight: 1.45, opacity: 0.92, marginBottom: '2%' }}>
+        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.25cqw', lineHeight: 1.45, opacity: 0.92, marginBottom: '2%', textAlign: 'justify' }}>
           Eight English councils have declared themselves effectively bankrupt since 2018, accumulating more than &pound;5 billion in debt and deficit between them. One was abolished. Another went bankrupt three times. A commuter-belt borough with &pound;16 million of annual revenue borrowed its way to &pound;1.2 billion of debt. England&rsquo;s second city is still under government commissioners. One in five council leaders now expects to issue a Section 114 notice within two years. These are the councils that broke, the decisions that broke them, and the residents left paying the bill.
         </div>
         <div style={{ ...kicker, fontSize: '1.1cqw', letterSpacing: '0.12em', marginTop: '0.5%', color: '#6b2417', fontWeight: 'bold' }}>Read the full story &rarr;</div>
@@ -112,7 +112,7 @@ export default function HomePage() {
         </div>
         <div style={{ ...kicker, fontSize: '1.0cqw', letterSpacing: '0.28em', opacity: 0.65, marginBottom: '2.5%' }}>From the House this week</div>
         <div style={{ ...headline, fontSize: '2.6cqw', lineHeight: 0.98, marginBottom: '4%' }}>Every bill. Every vote. Every law.</div>
-        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.5cqw', lineHeight: 1.45, opacity: 0.88, marginBottom: '4%' }}>
+        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.5cqw', lineHeight: 1.45, opacity: 0.88, marginBottom: '4%', textAlign: 'justify' }}>
           Follow what Parliament is doing right now, in plain English, and see how every decision lands with the people.
         </div>
         <div style={{ ...kicker, fontSize: '1.1cqw', letterSpacing: '0.12em', marginTop: '0.5%', color: '#6b2417', fontWeight: 'bold' }}>Read the bills &rarr;</div>
@@ -126,7 +126,7 @@ export default function HomePage() {
       <a href="/editorials/biggest-westminster-scandals-among-serving-mps-2026" className="no-hover-scale" style={{ ...card, top: '53%', left: '56%', width: '38%', height: '18%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '0 2.5%', overflow: 'hidden' }}>
         <div style={{ ...kicker, fontSize: '1.0cqw', letterSpacing: '0.28em', color: '#6b2417', fontWeight: 'bold', borderTop: '1.5px solid #14100d', paddingTop: '3.5%', marginBottom: '2.5%', width: '100%' }}>The People&rsquo;s Chamber &middot; Investigation</div>
         <div style={{ ...headline, fontSize: '2.0cqw', lineHeight: 1.0, marginBottom: '3%' }}>Westminster&rsquo;s Culture of Impropriety: Why Trust Keeps Eroding</div>
-        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.25cqw', lineHeight: 1.4, opacity: 0.9, marginBottom: '3%' }}>
+        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.25cqw', lineHeight: 1.4, opacity: 0.9, marginBottom: '3%', textAlign: 'justify' }}>
           Ten serving MPs who broke the rules, the law or the trust of their constituents and remain in the Commons. Standards Committee findings, criminal records and contested registered interests, each entry independently fact-checked.
         </div>
         <div style={{ ...kicker, fontSize: '1.1cqw', letterSpacing: '0.12em', color: '#6b2417', fontWeight: 'bold' }}>Read the full story &rarr;</div>
@@ -167,7 +167,7 @@ export default function HomePage() {
           />
         </div>
         <div style={{ ...headline, fontSize: '1.95cqw', lineHeight: 1.04, marginBottom: '2.5%' }}>The biggest expenses bill</div>
-        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.4cqw', lineHeight: 1.35, opacity: 0.88, marginBottom: '2.5%' }}>
+        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.4cqw', lineHeight: 1.35, opacity: 0.88, marginBottom: '2.5%', textAlign: 'justify' }}>
           Every MP claims travel, staff, office and accommodation costs against the public purse. The ten biggest claimants ran up the largest bills last financial year. See which MPs spent the most and on what.
         </div>
         <div style={{ ...ctaStyle, marginTop: 0 }}>See the full top ten &rarr;</div>
@@ -199,7 +199,7 @@ export default function HomePage() {
           />
         </div>
         <div style={{ ...headline, fontSize: '1.95cqw', lineHeight: 1.04, marginBottom: '2.5%' }}>Every manifesto. Every shift.</div>
-        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.4cqw', lineHeight: 1.35, opacity: 0.88, marginBottom: '2.5%' }}>
+        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.4cqw', lineHeight: 1.35, opacity: 0.88, marginBottom: '2.5%', textAlign: 'justify' }}>
           What each of the fifteen UK parties told voters at the 2024 election, what they have done in the year since, and where the gap between manifesto and record is widest. Each dossier ranks delivery against promise.
         </div>
         <div style={{ ...ctaStyle, marginTop: 0 }}>Read the dossiers &rarr;</div>
@@ -226,7 +226,7 @@ export default function HomePage() {
           />
         </div>
         <div style={{ ...headline, fontSize: '1.95cqw', lineHeight: 1.04, marginBottom: '2.5%' }}>Who runs Whitehall</div>
-        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.4cqw', lineHeight: 1.35, opacity: 0.88, marginBottom: '2.5%' }}>
+        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.4cqw', lineHeight: 1.35, opacity: 0.88, marginBottom: '2.5%', textAlign: 'justify' }}>
           All twenty four ministerial departments graded against the public record of what they were set up to do. Executive summary, core strengths, critical weaknesses, recommendation. One institutional performance report per department.
         </div>
         <div style={{ ...ctaStyle, marginTop: 0 }}>See the departments &rarr;</div>
