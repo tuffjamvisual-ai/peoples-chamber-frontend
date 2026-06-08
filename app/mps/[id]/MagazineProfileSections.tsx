@@ -258,6 +258,7 @@ interface Props {
     opposition_posts?: Array<{ name: string }>;
     committee_memberships?: Array<{ id?: number; name?: string } | string>;
     party_history?: PartyHistoryEntry[];
+    occupation_before_politics?: string | null;
   } | null;
   earnings: Earnings;
   expenses: ExpenseSummary[];
@@ -466,6 +467,14 @@ export default function MagazineProfileSections({
           className={jsSticky ? undefined : 'lg:sticky lg:top-16'}
           style={jsSticky ? { transform: `translateY(${stickyOffset}px)`, willChange: 'transform' } : undefined}
         >
+          {/* Pre-politics occupation — small labelled fact at the top of the
+              sidebar, above the section nav. Renders only when populated. */}
+          {bio?.occupation_before_politics && (
+            <div style={{ padding: '8px 16px 0', marginRight: '24px', marginBottom: '12px' }}>
+              <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.12em', color: '#7a1612', fontWeight: 'bold', marginBottom: '3px' }}>Before politics</div>
+              <div style={{ fontSize: '15px', color: '#14100d', lineHeight: 1.35 }}>{bio.occupation_before_politics}</div>
+            </div>
+          )}
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 8px 8px', marginRight: '24px' }}>
             {sections.map((s) => {
               const isActive = active === s.id;
