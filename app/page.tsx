@@ -125,7 +125,7 @@ export default function HomePage() {
           separates it from the bills card above (newspaper section break). */}
       <a href="/editorials/biggest-westminster-scandals-among-serving-mps-2026" className="no-hover-scale" style={{ ...card, top: '53%', left: '56%', width: '38%', height: '18%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '0 2.5%', overflow: 'hidden' }}>
         <div style={{ ...kicker, fontSize: '1.0cqw', letterSpacing: '0.28em', color: '#6b2417', fontWeight: 'bold', borderTop: '1.5px solid #14100d', paddingTop: '3.5%', marginBottom: '2.5%', width: '100%' }}>The People&rsquo;s Chamber &middot; Investigation</div>
-        <div style={{ ...headline, fontSize: '2.0cqw', lineHeight: 1.0, marginBottom: '3%' }}>The biggest Westminster scandals among serving MPs</div>
+        <div style={{ ...headline, fontSize: '2.0cqw', lineHeight: 1.0, marginBottom: '3%' }}>Westminster&rsquo;s Culture of Impropriety: Why Trust Keeps Eroding</div>
         <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.25cqw', lineHeight: 1.4, opacity: 0.9, marginBottom: '3%' }}>
           Ten serving MPs who broke the rules, the law or the trust of their constituents and remain in the Commons. Standards Committee findings, criminal records and contested registered interests, each entry independently fact-checked.
         </div>

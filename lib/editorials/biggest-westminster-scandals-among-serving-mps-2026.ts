@@ -7,7 +7,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'biggest-westminster-scandals-among-serving-mps-2026',
   kicker: 'Investigation',
-  headline: 'The biggest Westminster scandals among serving MPs, 2026',
+  headline: "Westminster's Culture of Impropriety: Why Trust Keeps Eroding",
   standfirst:
     'The MPs who broke the rules, the law or the trust of their constituents, and are still in the Commons. Compiled from Standards Committee findings, criminal records, registered interests disputes and published investigations. Each entry independently fact-checked.',
   publishedAt: '2026-06-08',
