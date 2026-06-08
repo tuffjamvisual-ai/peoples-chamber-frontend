@@ -60,7 +60,7 @@ body {
  *   14px = the floor for column headers
  *
  * The 2026-06-03 sweep bumped every fontSize: '10px' to 12px and
- * '11px' to 13px in app/**/*.tsx so the floor holds without a
+ * '11px' to 13px across the app .tsx files so the floor holds without a
  * runtime rule. Tailwind text-[10px]/text-[11px] utilities were
  * normalised to text-[12px]/text-[13px] at the same time. New code
  * should respect the floor rather than drop below it.

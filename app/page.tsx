@@ -91,7 +91,7 @@ export default function HomePage() {
 
       {/* Secondary hotspot: Parliament weekly digest. Lives to the right
           of the lead editorial, slim column. */}
-      <a href="/bills" className="no-hover-scale" style={{ ...card, top: '24%', left: '56%', width: '38%', height: '42%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 2.5%', overflow: 'hidden' }}>
+      <a href="/bills" className="no-hover-scale" style={{ ...card, top: '24%', left: '56%', width: '38%', height: '27%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 2.5%', overflow: 'hidden' }}>
         <div style={{ width: '100%', marginBottom: '3%', position: 'relative' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -116,6 +116,20 @@ export default function HomePage() {
           Follow what Parliament is doing right now, in plain English, and see how every decision lands with the people.
         </div>
         <div style={{ ...kicker, fontSize: '1.1cqw', letterSpacing: '0.12em', marginTop: '0.5%', color: '#6b2417', fontWeight: 'bold' }}>Read the bills &rarr;</div>
+      </a>
+
+      {/* MP scandals brief — sits directly beneath the bills card in the
+          right column, above the dashed rule. A text-forward "second
+          story" summarising the Top Ten serving-MP scandals investigation
+          and linking through to the full editorial. Top hairline rule
+          separates it from the bills card above (newspaper section break). */}
+      <a href="/editorials/biggest-westminster-scandals-among-serving-mps-2026" className="no-hover-scale" style={{ ...card, top: '53%', left: '56%', width: '38%', height: '18%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '0 2.5%', overflow: 'hidden' }}>
+        <div style={{ ...kicker, fontSize: '1.0cqw', letterSpacing: '0.28em', color: '#6b2417', fontWeight: 'bold', borderTop: '1.5px solid #14100d', paddingTop: '3.5%', marginBottom: '2.5%', width: '100%' }}>The People&rsquo;s Chamber &middot; Investigation</div>
+        <div style={{ ...headline, fontSize: '2.0cqw', lineHeight: 1.0, marginBottom: '3%' }}>The biggest Westminster scandals among serving MPs</div>
+        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.25cqw', lineHeight: 1.4, opacity: 0.9, marginBottom: '3%' }}>
+          Ten serving MPs who broke the rules, the law or the trust of their constituents and remain in the Commons. Standards Committee findings, criminal records and contested registered interests, each entry independently fact-checked.
+        </div>
+        <div style={{ ...kicker, fontSize: '1.1cqw', letterSpacing: '0.12em', color: '#6b2417', fontWeight: 'bold' }}>Read the full story &rarr;</div>
       </a>
 
       {/* Hand-drawn SVG border filter — feTurbulence displaces the border
