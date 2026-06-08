@@ -5,6 +5,11 @@
    literal hyphens already in words (e.g. Barros-Curtis) are unaffected. */
 html { -webkit-hyphens: none; hyphens: none; }
 
+/* Full justification of body prose on all pages. Scoped to paragraphs so
+   headings, nav and captions are untouched; an explicit text-align (inline
+   or via a class, e.g. centred lines) still wins over this. */
+p { text-align: justify; }
+
 /* Self-hosted typewriter face — used for magazine body copy. The three
  * Google fonts (Playfair Display, Anton, Oswald) are loaded via
  * next/font in app/layout.tsx and surfaced as the CSS variables below. */
