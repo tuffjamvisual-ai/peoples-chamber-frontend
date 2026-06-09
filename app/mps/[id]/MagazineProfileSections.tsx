@@ -473,7 +473,7 @@ export default function MagazineProfileSections({
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-px" style={{ marginTop: '-80px' }}>
-      <aside className="lg:col-span-1" style={{ marginLeft: '-7%' }}>
+      <aside className="lg:col-span-1" style={{ marginLeft: '-13%' }}>
         <div
           ref={stickyRef}
           className={jsSticky ? undefined : 'lg:sticky lg:top-16'}
