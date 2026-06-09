@@ -47,7 +47,7 @@ export default function MpDossier({
   const backHref = `/mps?expand=${encodeURIComponent(partyExpand)}#mps-list`;
 
   return (
-    <DossierShell contentPaddingLeft="7.7%">
+    <DossierShell>
       <style>{`
         /* Long strings (URLs/emails) wrap so they can't overflow the folder; the section
            nav is nudged down off the name text. Scoped to the MP sections only. */
