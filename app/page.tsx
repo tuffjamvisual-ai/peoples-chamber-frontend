@@ -59,7 +59,7 @@ export default function HomePage() {
       {/* Lead editorial — stacked layout: photo at top, text underneath.
           Font sizes match the secondary bills card for consistency
           across the top row. */}
-      <a href="/editorials/ten-worst-performing-councils-england" className="no-hover-scale" style={{ ...card, top: '24%', left: '6%', width: '48%', height: '42%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 2.5% 1.5%', overflow: 'hidden' }}>
+      <a href="/editorials/ten-worst-performing-councils-england" className="no-hover-scale" style={{ ...card, top: '24%', left: '6%', width: '48%', height: '38%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 2.5% 1.5%', overflow: 'hidden' }}>
         <div style={{ width: '100%', marginBottom: '2%', position: 'relative' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -87,6 +87,16 @@ export default function HomePage() {
           Eight English councils have declared themselves effectively bankrupt since 2018, accumulating more than &pound;5 billion in debt and deficit between them. One was abolished. Another went bankrupt three times. A commuter-belt borough with &pound;16 million of annual revenue borrowed its way to &pound;1.2 billion of debt. England&rsquo;s second city is still under government commissioners. One in five council leaders now expects to issue a Section 114 notice within two years. These are the councils that broke, the decisions that broke them, and the residents left paying the bill.
         </div>
         <div style={{ ...kicker, fontSize: '1.1cqw', letterSpacing: '0.12em', marginTop: '0.5%', color: '#6b2417', fontWeight: 'bold' }}>Read the full story &rarr;</div>
+      </a>
+
+      {/* Revolving-door brief — fills the slim strip beneath the councils
+          card in the left column, above the bottom story row. Compact
+          text teaser for the "politicians who cashed in after leaving
+          office" investigation, linking to the revolving-door dataset. */}
+      <a href="/editorials/power-for-sale-20-politicians-who-cashed-in" className="no-hover-scale" style={{ ...card, top: '62.5%', left: '6%', width: '48%', height: '9%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 2.5%', overflow: 'hidden', borderTop: '1.5px solid #14100d' }}>
+        <div style={{ ...kicker, fontSize: '1.0cqw', letterSpacing: '0.28em', color: '#6b2417', fontWeight: 'bold', marginBottom: '2%' }}>The People&rsquo;s Chamber &middot; Investigation</div>
+        <div style={{ ...headline, fontSize: '1.95cqw', lineHeight: 1.0, marginBottom: '2%' }}>Power For Sale? The 20 Politicians Who Cashed In After Leaving Office</div>
+        <div style={{ ...kicker, fontSize: '1.1cqw', letterSpacing: '0.12em', color: '#6b2417', fontWeight: 'bold' }}>Read the full story &rarr;</div>
       </a>
 
       {/* Secondary hotspot: Parliament weekly digest. Lives to the right
