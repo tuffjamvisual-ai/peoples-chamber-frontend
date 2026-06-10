@@ -97,7 +97,7 @@ export default async function EditorialPage({ params }: { params: Promise<{ slug
         {piece.body.map((block, i) => renderBlock(block, i))}
       </article>
 
-      <footer style={{ marginTop: '40px', paddingTop: '20px', borderTop: `1px solid ${HAIRLINE}`, fontSize: '12px', color: INK_SOFT, fontFamily: '"Special Elite", monospace' }}>
+      <footer style={{ clear: 'both', marginTop: '40px', paddingTop: '20px', borderTop: `1px solid ${HAIRLINE}`, fontSize: '12px', color: INK_SOFT, fontFamily: '"Special Elite", monospace' }}>
         Published by The People&rsquo;s Chamber on {publishedDate}.
       </footer>
       </div>
@@ -113,16 +113,44 @@ function renderBlock(block: Block, i: number): React.ReactNode {
       return (
         <p key={i} style={{ marginBottom: '20px' }}>{block.text}</p>
       );
-    case 'heading':
-      return block.level === 2 ? (
-        <h2 key={i} style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(24px, 3vw, 34px)', fontWeight: 'bold', letterSpacing: '-0.01em', marginTop: '36px', marginBottom: '16px', borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '8px' }}>
-          {block.text}
-        </h2>
-      ) : (
-        <h3 key={i} style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(20px, 2.2vw, 26px)', fontWeight: 'bold', marginTop: '28px', marginBottom: '12px' }}>
+    case 'heading': {
+      if (block.level === 2) {
+        return (
+          <h2 key={i} style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(24px, 3vw, 34px)', fontWeight: 'bold', letterSpacing: '-0.01em', marginTop: '36px', marginBottom: '16px', borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '8px' }}>
+            {block.text}
+          </h2>
+        );
+      }
+      // Level 3. When a portrait is present, float a 60%-scale polaroid
+      // (260px profile photo -> 156px here) to the left so the name, bio
+      // line and opening paragraphs wrap to its right and then beneath.
+      const h3 = (
+        <h3 key={`${i}-h`} style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(20px, 2.2vw, 26px)', fontWeight: 'bold', marginTop: block.photo ? '4px' : '28px', marginBottom: '12px' }}>
           {block.text}
         </h3>
       );
+      if (!block.photo) return h3;
+      const frameInner = (
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={block.photo} alt={block.photoAlt || block.text} width={156} height={156} style={{ display: 'block', width: '156px', height: '156px', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }} />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/paperclip.png" alt="" aria-hidden style={{ position: 'absolute', top: '-18px', right: '-3px', width: '39px', height: 'auto', transform: 'rotate(180deg)', transformOrigin: 'center', pointerEvents: 'none', filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.35))' }} />
+        </>
+      );
+      const frameStyle: React.CSSProperties = {
+        float: 'left', clear: 'left', margin: '4px 28px 10px 0',
+        position: 'relative', background: '#ebe5d8', padding: '7px 7px 29px 7px',
+        transform: 'rotate(-3deg)', boxShadow: '0 4px 8px rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.03)',
+        filter: 'contrast(1.05) brightness(0.98)',
+      };
+      const photoNode = block.photoHref ? (
+        <Link key={`${i}-p`} href={block.photoHref} style={{ ...frameStyle, display: 'block' }} className="no-hover-scale">{frameInner}</Link>
+      ) : (
+        <div key={`${i}-p`} style={frameStyle}>{frameInner}</div>
+      );
+      return [photoNode, h3];
+    }
     case 'bioLine':
       return (
         <p key={i} style={{ fontFamily: '"Special Elite", monospace', fontSize: '13px', color: ACCENT, fontWeight: 'bold', letterSpacing: '0.02em', lineHeight: 1.5, marginTop: '-6px', marginBottom: '18px' }}>

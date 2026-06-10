@@ -20,7 +20,10 @@ export type EditorialEntry = {
 
 export type Block =
   | { type: 'paragraph'; text: string }
-  | { type: 'heading'; level: 2 | 3; text: string }
+  // A level-3 heading may carry an optional polaroid portrait, floated to
+  // the left of the entry (used by the revolving-door piece). photoHref
+  // links the frame through to the subject's profile.
+  | { type: 'heading'; level: 2 | 3; text: string; photo?: string; photoAlt?: string; photoHref?: string }
   // Short context line (e.g. party + offices held) rendered directly
   // under a heading so the reader knows who the subject is.
   | { type: 'bioLine'; text: string }
