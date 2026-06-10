@@ -253,6 +253,10 @@ interface Props {
   ministerHospitality?: MinisterHospitality[];
   conductFindings?: ConductFinding[];
   activity?: ActivityMetrics | null;
+  /** Live rebellion count from the per-vote is_rebellion flag (parlparse),
+      matching the party whip page. mp_activity_metrics.rebellions_total is
+      broken (0 for every MP) so we no longer use it. */
+  rebellionsCount?: number;
   /** Party slug for the full-rebellion-analysis link to /parties/<slug>/whip. */
   partyWhipSlug?: string | null;
   bio: {
@@ -358,6 +362,7 @@ export default function MagazineProfileSections({
   ministerHospitality = [],
   conductFindings = [],
   activity = null,
+  rebellionsCount = 0,
   partyWhipSlug = null,
   bio,
   earnings,
@@ -636,13 +641,15 @@ export default function MagazineProfileSections({
             {/* Rebellion summary — the activity stat strip was removed
                 2026-06-06, but the rebellion count is worth surfacing on its
                 own. Individual rebel votes are flagged REBEL in the list. */}
-            {activity && activity.rebellions_total != null && (
+            {(() => {
+              const rebelRate = totalVotes && totalVotes > 0 ? (rebellionsCount / totalVotes) * 100 : null;
+              return (
               <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '14px', marginBottom: '14px', lineHeight: 1.5 }}>
-                {activity.rebellions_total > 0 ? (
+                {rebellionsCount > 0 ? (
                   <>
-                    <span style={{ color: '#7a1612', fontWeight: 'bold' }}>Voted against the party line {activity.rebellions_total.toLocaleString()} time{activity.rebellions_total === 1 ? '' : 's'}</span>
-                    {activity.rebellion_rate_pct != null && (
-                      <span style={{ opacity: 0.75 }}> · {typeof activity.rebellion_rate_pct === 'number' ? activity.rebellion_rate_pct.toFixed(1) : activity.rebellion_rate_pct}% of recorded votes</span>
+                    <span style={{ color: '#7a1612', fontWeight: 'bold' }}>Voted against the party line {rebellionsCount.toLocaleString()} time{rebellionsCount === 1 ? '' : 's'}</span>
+                    {rebelRate != null && (
+                      <span style={{ opacity: 0.75 }}> · {rebelRate.toFixed(1)}% of recorded votes</span>
                     )}
                     <span style={{ opacity: 0.75 }}>. Rebel votes are marked </span>
                     <span style={{ color: '#7a1612', fontWeight: 'bold' }}>REBEL</span>
@@ -660,7 +667,8 @@ export default function MagazineProfileSections({
                   </>
                 )}
               </p>
-            )}
+              );
+            })()}
 
             {/* Per-section search. Native HTML <form> with GET so it works
                 without JS and the URL captures the query for sharing.

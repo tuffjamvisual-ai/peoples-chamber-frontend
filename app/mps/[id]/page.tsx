@@ -148,6 +148,7 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
     ministerialRowsRes,
     outsideRowRes,
     siDivisionsRes,
+    rebellionsCountRes,
   ] = await Promise.all([
     supabase.from('mps').select('*').eq('member_id', memberId).single(),
     supabase.from('mp_contact').select('*').eq('member_id', memberId).single(),
@@ -203,6 +204,10 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
     // external Commons Votes site. Cheap single-column read; folded into the
     // parallel batch to avoid a serial round-trip on the cold render.
     supabase.from('statutory_instrument').select('division_id'),
+    // Live rebellion count from the per-vote is_rebellion flag (parlparse).
+    // mp_activity_metrics.rebellions_total is broken (0 for every MP), so we
+    // count the flag directly to match the party whip page.
+    supabase.from('mp_division_votes').select('id', { count: 'exact', head: true }).eq('member_id', memberId).eq('is_rebellion', true),
   ]);
   const mp = mpRes.data;
   if (!mp) notFound();
@@ -640,6 +645,7 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
         ministerHospitality: hospitality,
         conductFindings: conductRes.data || [],
         activity: activityRes.data || null,
+        rebellionsCount: rebellionsCountRes.count ?? 0,
         partyWhipSlug,
         totalVotes: votesCountRes.count ?? votesWithSi.length,
         votePage,
