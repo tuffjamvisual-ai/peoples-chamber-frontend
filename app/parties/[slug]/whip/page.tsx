@@ -200,12 +200,6 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
 
       <PartySidebar party={party} active="whip">
 
-      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '14px', marginBottom: '28px' }}>
-        <Tile label="Cohesion" value={cohesionPct.toFixed(1) + '%'} sub="of votes on the party's winning side" />
-        <Tile label="Unanimous divisions" value={unanimousPct.toFixed(1) + '%'} sub={`${unanimous} of ${divisionsCount} divisions`} />
-        <Tile label="Divisions participated in" value={divisionsCount.toLocaleString()} sub="this Parliament" />
-        <Tile label="Current MPs" value={mps.length.toLocaleString()} sub="in cohesion calc" />
-      </section>
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Top rebels · MPs voting against the party whip most often</h2>

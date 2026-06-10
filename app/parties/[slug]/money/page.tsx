@@ -193,13 +193,6 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
 
       <PartySidebar party={party} active="money">
 
-      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '14px', marginBottom: '28px' }}>
-        <Tile label="Lifetime declared" value={fmtMoney(total)} sub={`${donations.length.toLocaleString()} donations`} />
-        <Tile label="Distinct donors" value={distinctDonors.toLocaleString()} sub="EC register, all-time" />
-        <Tile label="Top 10 donors' share" value={(top10Share * 100).toFixed(1) + '%'} sub="of all lifetime income" />
-        <Tile label="Largest single donor" value={donorRanked[0] ? donorRanked[0].name : ''} sub={donorRanked[0] ? fmtMoney(donorRanked[0].total) : ''} small />
-      </section>
-
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>By donor type</h2>
         <p style={{ fontSize: '12px', opacity: 0.75, marginBottom: '10px' }}>The most diagnostic single decomposition. Tells you who actually owns the party.</p>
