@@ -75,6 +75,7 @@ export default async function EditorialPage({ params }: { params: Promise<{ slug
         </figure>
       )}
 
+      <div style={{ fontFamily: '"Special Elite", monospace', maxWidth: '70ch', width: '100%' }}>
       <header style={{ borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '24px', marginBottom: '28px' }}>
         {piece.kicker && (
           <p style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '14px', color: ACCENT, fontFamily: '"Special Elite", monospace', fontWeight: 'bold' }}>
@@ -84,7 +85,7 @@ export default async function EditorialPage({ params }: { params: Promise<{ slug
         <h1 style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(34px, 5vw, 60px)', fontWeight: 'bold', letterSpacing: '-0.02em', lineHeight: 1.05, marginBottom: '20px' }}>
           {piece.headline}
         </h1>
-        <p style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(17px, 1.6vw, 22px)', lineHeight: 1.5, fontStyle: 'italic', color: INK_SOFT, maxWidth: '60ch' }}>
+        <p style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(17px, 1.6vw, 22px)', lineHeight: 1.5, fontStyle: 'italic', color: INK_SOFT }}>
           {piece.standfirst}
         </p>
         <div style={{ marginTop: '20px', fontSize: '12px', color: INK_SOFT, fontFamily: '"Special Elite", monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
@@ -99,6 +100,7 @@ export default async function EditorialPage({ params }: { params: Promise<{ slug
       <footer style={{ marginTop: '40px', paddingTop: '20px', borderTop: `1px solid ${HAIRLINE}`, fontSize: '12px', color: INK_SOFT, fontFamily: '"Special Elite", monospace' }}>
         Published by The People&rsquo;s Chamber on {publishedDate}.
       </footer>
+      </div>
 
       <ScrollToTopButton />
     </DossierShell>
