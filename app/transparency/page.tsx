@@ -43,7 +43,7 @@ const SECTIONS: { slug: string; title: string; description: string; href?: strin
   { slug: 'revolving-door',     title: 'Revolving Door',                   description: 'Senior officials and ministers taking up post government roles, including ACOBA recommendations and conditions attached.' },
   { slug: 'donations',          title: 'Political Donations',              description: 'Reportable donations to political parties and individual MPs.' },
   { slug: 'contracts',          title: 'Government Contracts',             description: 'Awarded public sector contracts above the disclosure threshold, published via Contracts Finder.' },
-  { slug: 'press-releases',     title: 'Press Releases',                   description: 'Most recent UK Government press releases, pulled daily from GOV.UK. Each release links through to the full-text announcement.' },
+  { slug: 'press-releases',     title: 'Press Releases',                   description: 'Most recent UK Government press releases, pulled daily from GOV.UK. Each release links through to the full text announcement.' },
   { slug: 'councils',            title: 'Local Councils',                  description: 'Every UK principal local authority, 382 in total, with leadership, finance, council tax and editorial assessment for each.', href: '/councils' },
   { slug: 'council-tax',         title: 'Top Council Tax',                 description: 'The ten English authorities with the highest Band D council tax for 2026/27, with a per council editorial verdict on each.', href: '/council-tax' },
 ]

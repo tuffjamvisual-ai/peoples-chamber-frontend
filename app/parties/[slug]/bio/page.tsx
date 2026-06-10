@@ -11,6 +11,7 @@
 
 import { supabase } from '@/lib/supabase';
 import DossierShell from '../../../components/DossierShell';
+import PartySidebar from '../../../components/PartySidebar';
 import ScrollToTopButton from '../../../components/ScrollToTopButton';
 
 export const revalidate = 3600;
@@ -110,63 +111,7 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
           future content — BIO is active, the rest link out to
           related routes. Add more items to the SIDEBAR array as
           the parties surface grows. */}
-      <div
-        className="pca-party-sidebar-grid"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr',
-          gap: '24px',
-        }}
-      >
-        <style>{`
-          @media (min-width: 1024px) {
-            .pca-party-sidebar-grid {
-              grid-template-columns: 220px 1fr !important;
-              gap: 36px !important;
-            }
-          }
-        `}</style>
-
-        {/* Sidebar — same vintage chip style as the MP dossier:
-            slight rotation per item, red-ink active rail on the
-            left, Special Elite uppercase. */}
-        <aside>
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '4px 0' }}>
-            {[
-              { label: 'Bio',                 href: `/parties/${party.slug}/bio`,    active: true,  rotate: '0.15deg'  },
-              { label: 'Manifesto vs Record', href: `/parties/${party.slug}`,        active: false, rotate: '-0.2deg'  },
-              { label: `${party.name} MPs`,   href: `/mps?expand=${encodeURIComponent(party.slug)}#mps-list`, active: false, rotate: '0.1deg'   },
-              { label: 'Compare Parties',     href: '/parties',                       active: false, rotate: '-0.1deg'  },
-            ].map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                className="no-hover-scale"
-                style={{
-                  display: 'block',
-                  padding: '12px 16px',
-                  borderLeft: item.active ? '4px solid #7a1612' : '4px solid transparent',
-                  background: item.active ? 'rgba(122,22,18,0.08)' : 'transparent',
-                  boxShadow: item.active ? 'inset 1px 0 2px rgba(0,0,0,0.05)' : 'none',
-                  fontWeight: item.active ? 'bold' : 'normal',
-                  fontSize: '13px',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                  color: INK,
-                  fontFamily: 'Special Elite, monospace',
-                  textDecoration: 'none',
-                  transform: `rotate(${item.rotate})`,
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                }}
-              >
-                {item.label}
-              </a>
-            ))}
-          </nav>
-        </aside>
-
-        {/* Main column: critique + manifesto cross link */}
+      <PartySidebar party={party} active="bio">
         <div>
           {/* People's critique — sharp ~550-word assessment in MP-bio
               style. Renders as blank-line-separated paragraphs in the
@@ -226,7 +171,7 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
             </a>
           </section>
         </div>
-      </div>
+      </PartySidebar>
 
       <ScrollToTopButton />
     </DossierShell>

@@ -43,7 +43,7 @@ function fmtDate(iso: string | null): string {
 export const metadata: Metadata = {
   title: 'Press Releases',
   description:
-    'Most recent UK Government press releases, drawn from the GOV.UK content API. Each release links through to a full-text page.',
+    'Most recent UK Government press releases, drawn from the GOV.UK content API. Each release links through to a full text page.',
   alternates: { canonical: '/transparency/press-releases' },
 };
 
@@ -121,7 +121,7 @@ export default async function PressReleasesIndexPage() {
           }}
         >
           <span style={{ fontWeight: 'bold' }}>{releases.length.toLocaleString()}</span>
-          {' '}most recent UK Government press releases, drawn from the GOV.UK content API every day. Each entry links to a full-text page with the original announcement.
+          {' '}most recent UK Government press releases, drawn from the GOV.UK content API every day. Each entry links to a full text page with the original announcement.
         </p>
       </header>
 

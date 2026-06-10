@@ -123,7 +123,7 @@ export default async function TransparencySectionPage({
               <span className="font-mono text-[#14100d] text-base font-bold">{totalCount.toLocaleString()}</span>
               {' '}record{totalCount === 1 ? '' : 's'} in this dataset.
               {totalPages > 1 && (
-                <> Showing rows {from + 1}-{Math.min(to + 1, totalCount)} (page {page} of {totalPages}).</>
+                <> Showing rows {from + 1} to {Math.min(to + 1, totalCount)} (page {page} of {totalPages}).</>
               )}
               {section === 'donations' && ' Search by donor or recipient name to filter.'}
             </>
@@ -138,17 +138,17 @@ export default async function TransparencySectionPage({
           <div className="mt-6 flex flex-wrap gap-3 text-[13px]">
             <Link href="/donors" className="font-mono underline" style={{ color: ACCENT }}>Donor index &rarr;</Link>
             <span className="opacity-30">·</span>
-            <Link href="/donations/foreign" className="font-mono underline" style={{ color: ACCENT }}>Foreign-source map &rarr;</Link>
+            <Link href="/donations/foreign" className="font-mono underline" style={{ color: ACCENT }}>Foreign source map &rarr;</Link>
             <span className="opacity-30">·</span>
-            <Link href="/donations/late-disclosed" className="font-mono underline" style={{ color: ACCENT }}>Late-disclosed register &rarr;</Link>
+            <Link href="/donations/late-disclosed" className="font-mono underline" style={{ color: ACCENT }}>Late disclosed register &rarr;</Link>
             <span className="opacity-30">·</span>
-            <Link href="/donations/trust-funded" className="font-mono underline" style={{ color: ACCENT }}>Trust-routed &rarr;</Link>
+            <Link href="/donations/trust-funded" className="font-mono underline" style={{ color: ACCENT }}>Trust routed &rarr;</Link>
             <span className="opacity-30">·</span>
             <Link href="/donations/impermissible" className="font-mono underline" style={{ color: ACCENT }}>Impermissible &rarr;</Link>
             <span className="opacity-30">·</span>
             <Link href="/donations/bequest" className="font-mono underline" style={{ color: ACCENT }}>Bequests &rarr;</Link>
             <span className="opacity-30">·</span>
-            <Link href="/donations/leadership-contests" className="font-mono underline" style={{ color: ACCENT }}>Leadership-race money &rarr;</Link>
+            <Link href="/donations/leadership-contests" className="font-mono underline" style={{ color: ACCENT }}>Leadership race money &rarr;</Link>
             <span className="opacity-30">·</span>
             <Link href="/donations/sponsored-visits" className="font-mono underline" style={{ color: ACCENT }}>Sponsored visits &rarr;</Link>
             <span className="opacity-30">·</span>
@@ -156,7 +156,7 @@ export default async function TransparencySectionPage({
             <span className="opacity-30">·</span>
             <Link href="/donations/constituencies" className="font-mono underline" style={{ color: ACCENT }}>By constituency &rarr;</Link>
             <span className="opacity-30">·</span>
-            <Link href="/donations/double-dip" className="font-mono underline" style={{ color: ACCENT }}>Double-dip &rarr;</Link>
+            <Link href="/donations/double-dip" className="font-mono underline" style={{ color: ACCENT }}>Double dip &rarr;</Link>
             <span className="opacity-30">·</span>
             <Link href="/explainers/donations" className="font-mono underline" style={{ color: ACCENT }}>What the data means &rarr;</Link>
           </div>

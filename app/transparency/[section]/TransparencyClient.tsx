@@ -264,7 +264,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
             if (isSponsorship) flags.push({ label: 'Sponsorship', tone: 'info' })
             if (isAggregation) flags.push({ label: 'Aggregated', tone: 'info' })
             if (isIrishSource) flags.push({ label: 'Irish source', tone: 'info' })
-            if (isReportedPrePoll) flags.push({ label: 'Pre-poll', tone: 'info' })
+            if (isReportedPrePoll) flags.push({ label: 'Pre poll', tone: 'info' })
             if (trustName) flags.push({ label: 'Trust structure', tone: 'info' })
 
             return (
@@ -321,7 +321,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                     style={{ fontFamily: 'Special Elite, monospace' }}
                   >
                     {cashValue && cashValue !== amount && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Cash value</dt><dd className="text-[#14100d]">{cashValue}</dd></>)}
-                    {nonCashValue && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Non-cash value</dt><dd className="text-[#14100d]">{nonCashValue}</dd></>)}
+                    {nonCashValue && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Non cash value</dt><dd className="text-[#14100d]">{nonCashValue}</dd></>)}
                     {receivedDate && receivedDate !== acceptedDate && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Received</dt><dd className="text-[#14100d]">{receivedDate}</dd></>)}
                     {reportedDate && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Reported to EC</dt><dd className="text-[#14100d]">{reportedDate}</dd></>)}
                     {mannerInWhichMade && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Manner</dt><dd className="text-[#14100d]">{mannerInWhichMade}</dd></>)}

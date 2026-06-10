@@ -13,7 +13,12 @@ const SEARCH_URL = 'https://www.gov.uk/api/search.json';
 const ACOBA = 'advisory-committee-on-business-appointments';
 const PAGE_SIZE = 100;
 
-const DASH_SPLIT = /\s*[-, -]\s*/;
+// Split ONLY on a dash that has whitespace on both sides (the " - " field
+// separator in ACOBA titles). The old class /\s*[-, -]\s*/ wrongly included
+// a space and a ','-to-'-' range, so it shattered hyphenated names and roles
+// (Heaton-Harris, Rees-Mogg, Anne-Marie, Under-Secretary, Indo-Pacific) and
+// even split on plain spaces — corrupting ~152 rows in the 2026-06-09 sync.
+const DASH_SPLIT = /\s+[-–—]\s+/;
 const ACOBA_TAIL = /(?:^|\s)acoba\s+(?:advice|correspondence)(?:\s+and\s+correspondence)?\.?$/i;
 const ORG_LEAD = /^(the\b|Department\b|Ministry\b|Office\b|Cabinet\b|Foreign\b|HM\b|His Majesty\b|Her Majesty\b|Home\b|Treasury\b|Crown\b|National\b|Government\b)/i;
 const AT_SPLIT = /^(.*?)\s+at\s+((?:the|Department|Ministry|Office|Cabinet|Foreign|HM|His Majesty|Her Majesty|Home|Treasury|Crown|National|Government)\b.+)$/i;

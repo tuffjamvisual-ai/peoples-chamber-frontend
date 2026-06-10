@@ -140,7 +140,7 @@ export default async function SpecialAdvisersPage() {
 
       {activity.length > 0 && (
         <section style={{ marginBottom: '36px' }}>
-          <h2 style={sectionH2}>Most-active Special Advisers this quarter</h2>
+          <h2 style={sectionH2}>Most active Special Advisers this quarter</h2>
           <table style={tableStyle}>
             <thead>
               <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -188,11 +188,11 @@ export default async function SpecialAdvisersPage() {
                 <tr key={i} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                   <td style={td}>{g.spad_name}</td>
                   <td style={{ ...td, fontSize: '11px', opacity: 0.75 }}>{g.area}</td>
-                  <td style={{ ...td, fontFamily: 'monospace', fontSize: '11px', opacity: 0.7 }}>{g.gift_date || '—'}</td>
-                  <td style={td}>{g.gift_descr || '—'}</td>
-                  <td style={td}>{g.donor || '—'}</td>
-                  <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace' }}>{g.value_gbp || '—'}</td>
-                  <td style={{ ...td, fontSize: '12px', opacity: 0.85 }}>{g.outcome || '—'}</td>
+                  <td style={{ ...td, fontFamily: 'monospace', fontSize: '11px', opacity: 0.7 }}>{g.gift_date || 'n/a'}</td>
+                  <td style={td}>{g.gift_descr || 'n/a'}</td>
+                  <td style={td}>{g.donor || 'n/a'}</td>
+                  <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace' }}>{g.value_gbp || 'n/a'}</td>
+                  <td style={{ ...td, fontSize: '12px', opacity: 0.85 }}>{g.outcome || 'n/a'}</td>
                 </tr>
               ))}
             </tbody>
@@ -219,10 +219,10 @@ export default async function SpecialAdvisersPage() {
                 <tr key={i} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                   <td style={td}>{h.spad_name}</td>
                   <td style={{ ...td, fontSize: '11px', opacity: 0.75 }}>{h.area}</td>
-                  <td style={{ ...td, fontFamily: 'monospace', fontSize: '11px', opacity: 0.7 }}>{h.hosp_date || '—'}</td>
-                  <td style={td}>{h.hosp_descr || '—'}</td>
-                  <td style={td}>{h.provider || '—'}</td>
-                  <td style={{ ...td, fontSize: '12px', opacity: 0.85 }}>{h.purpose || '—'}</td>
+                  <td style={{ ...td, fontFamily: 'monospace', fontSize: '11px', opacity: 0.7 }}>{h.hosp_date || 'n/a'}</td>
+                  <td style={td}>{h.hosp_descr || 'n/a'}</td>
+                  <td style={td}>{h.provider || 'n/a'}</td>
+                  <td style={{ ...td, fontSize: '12px', opacity: 0.85 }}>{h.purpose || 'n/a'}</td>
                 </tr>
               ))}
             </tbody>
@@ -249,10 +249,10 @@ export default async function SpecialAdvisersPage() {
                 <tr key={i} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                   <td style={td}>{m.spad_name}</td>
                   <td style={{ ...td, fontSize: '11px', opacity: 0.75 }}>{m.area}</td>
-                  <td style={{ ...td, fontFamily: 'monospace', fontSize: '11px', opacity: 0.7 }}>{m.meeting_date || '—'}</td>
-                  <td style={td}>{m.media_org || '—'}</td>
-                  <td style={td}>{m.individual || '—'}</td>
-                  <td style={{ ...td, fontSize: '12px', opacity: 0.85 }}>{m.purpose || '—'}</td>
+                  <td style={{ ...td, fontFamily: 'monospace', fontSize: '11px', opacity: 0.7 }}>{m.meeting_date || 'n/a'}</td>
+                  <td style={td}>{m.media_org || 'n/a'}</td>
+                  <td style={td}>{m.individual || 'n/a'}</td>
+                  <td style={{ ...td, fontSize: '12px', opacity: 0.85 }}>{m.purpose || 'n/a'}</td>
                 </tr>
               ))}
             </tbody>

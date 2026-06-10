@@ -12,6 +12,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import DossierShell from '../../../components/DossierShell';
+import PartySidebar from '../../../components/PartySidebar';
 import ScrollToTopButton from '../../../components/ScrollToTopButton';
 
 export const revalidate = 3600;
@@ -197,6 +198,8 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
         </p>
       </header>
 
+      <PartySidebar party={party} active="whip">
+
       <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '14px', marginBottom: '28px' }}>
         <Tile label="Cohesion" value={cohesionPct.toFixed(1) + '%'} sub="of votes on the party's winning side" />
         <Tile label="Unanimous divisions" value={unanimousPct.toFixed(1) + '%'} sub={`${unanimous} of ${divisionsCount} divisions`} />
@@ -268,6 +271,8 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
       <p style={{ fontSize: '12px', opacity: 0.6, marginTop: '24px' }}>
         Source: mp_division_votes table built from parlparse + Commons Votes API. Calculation excludes tellers, abstentions, and votes where the MP&rsquo;s vote_type was something other than aye/no. Cohesion = aligned votes / total votes across all participated divisions.
       </p>
+
+      </PartySidebar>
 
       <ScrollToTopButton />
     </DossierShell>

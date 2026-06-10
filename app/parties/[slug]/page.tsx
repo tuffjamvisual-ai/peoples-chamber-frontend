@@ -9,6 +9,7 @@
 
 import { supabase } from '@/lib/supabase';
 import DossierShell from '../../components/DossierShell';
+import PartySidebar from '../../components/PartySidebar';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 
 export const revalidate = 3600;
@@ -181,16 +182,13 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
           }}
         />
         {party.recipient_name && (
-          <div style={{ marginTop: '14px', fontFamily: 'Special Elite, monospace', fontSize: '13px', display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
-            <a href={`/parties/${party.slug}/bio`} style={{ color: '#7a1612', textDecoration: 'underline' }}>People&rsquo;s verdict &rarr;</a>
-            <span style={{ opacity: 0.4 }}>·</span>
-            <a href={`/parties/${party.slug}/money`} style={{ color: '#7a1612', textDecoration: 'underline', fontWeight: 'bold' }}>Money map &rarr;</a>
-            <span style={{ opacity: 0.4 }}>·</span>
-            <a href={`/parties/${party.slug}/whip`} style={{ color: '#7a1612', textDecoration: 'underline', fontWeight: 'bold' }}>Whip cohesion &rarr;</a>
-            <span style={{ opacity: 0.6, fontSize: '12px' }}>{fmtMoney(donationsTotal)} lifetime declared</span>
+          <div style={{ marginTop: '14px', fontFamily: 'Special Elite, monospace', fontSize: '12px', opacity: 0.6 }}>
+            {fmtMoney(donationsTotal)} lifetime declared
           </div>
         )}
       </div>
+
+      <PartySidebar party={party} active="manifesto">
 
       {/* People's critique — sharp ~550-word assessment in MP-bio
           style. Sits above the policy blocks so the reader gets the
@@ -233,7 +231,11 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
           </p>
         )}
         {policies.map((p) => (
-          <section key={p.theme}>
+          <section
+            key={p.theme}
+            id={p.theme.toLowerCase().replace(/\s+/g, '-')}
+            style={{ scrollMarginTop: '32px' }}
+          >
             <h2
               style={{
                 fontSize: 'clamp(20px, 2.6vw, 32px)',
@@ -283,6 +285,8 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
           </section>
         ))}
       </div>
+
+      </PartySidebar>
 
       <ScrollToTopButton />
     </DossierShell>

@@ -15,6 +15,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import DossierShell from '../../../components/DossierShell';
+import PartySidebar from '../../../components/PartySidebar';
 import ScrollToTopButton from '../../../components/ScrollToTopButton';
 import { sectorForDonor } from '@/lib/donor-sectors';
 import { donorNameToSlug } from '../../../donors/[slug]/page';
@@ -189,6 +190,8 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
         </p>
       </header>
 
+      <PartySidebar party={party} active="money">
+
       <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '14px', marginBottom: '28px' }}>
         <Tile label="Lifetime declared" value={fmtMoney(total)} sub={`${donations.length.toLocaleString()} donations`} />
         <Tile label="Distinct donors" value={distinctDonors.toLocaleString()} sub="EC register, all-time" />
@@ -329,6 +332,8 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
       <p style={{ fontSize: '12px', opacity: 0.6, marginTop: '24px' }}>
         Source: Electoral Commission donations register, recipient_name = &ldquo;{party.recipient_name}&rdquo;. All-time, all accounting units. Includes both monetary donations and non-cash benefits.
       </p>
+
+      </PartySidebar>
 
       <ScrollToTopButton />
     </DossierShell>

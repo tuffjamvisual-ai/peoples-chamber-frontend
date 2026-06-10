@@ -11,6 +11,7 @@
 import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 import DossierShell from '../components/DossierShell';
+import BackLink from '../components/BackLink';
 import ScrollToTopButton from '../components/ScrollToTopButton';
 
 export const revalidate = 3600;
@@ -140,6 +141,12 @@ export default async function PartiesIndex() {
 
   return (
     <DossierShell>
+      <BackLink
+        fallbackHref="/"
+        label="← Back to home"
+        className="no-hover-scale"
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: '#14100d', textDecoration: 'none', fontFamily: 'Special Elite, monospace', fontSize: '13px', letterSpacing: '0.12em', textTransform: 'uppercase' }}
+      />
       {/* Same parchment article wrapper used by /bills/[id] and
           /bills/[id]/full so the parties index reads as part of the
           dossier line rather than a cream table dropped on top of it. */}
