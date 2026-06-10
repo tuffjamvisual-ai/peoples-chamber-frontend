@@ -16,7 +16,7 @@ export default function LoginPage() {
     <DossierShell>
       <BackLink
         fallbackHref="/"
-        label="← Back to home"
+        label="← Back"
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: '#14100d', textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
       />

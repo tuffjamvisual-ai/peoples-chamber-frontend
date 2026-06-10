@@ -70,7 +70,7 @@ export default async function CouncilsIndex() {
     <DossierShell>
       <BackLink
         fallbackHref="/"
-        label="← Back to home"
+        label="← Back"
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: '#14100d', textDecoration: 'none', fontFamily: 'Special Elite, monospace', fontSize: '13px', letterSpacing: '0.12em', textTransform: 'uppercase' }}
       />

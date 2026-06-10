@@ -273,7 +273,7 @@ export default function CouncilTaxPage() {
     <DossierShell>
       <BackLink
         fallbackHref="/"
-        label="← Back to home"
+        label="← Back"
         className="no-hover-scale"
         style={{
           display: 'inline-flex',
