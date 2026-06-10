@@ -6,7 +6,6 @@
 // SeniorOfficialDetailLine, is its own client component.
 
 import Link from 'next/link';
-import { SeniorOfficialDetailLine } from './CivilServiceBlocks';
 
 const ACCENT = '#7a1612';
 
@@ -75,7 +74,6 @@ export default function DepartmentStaff({ govukData }: { govukData: StaffData | 
           label="Senior Civil Service"
           eyebrow="The politicians change. These people often stay for years."
           people={seniorOfficials}
-          showDetailLine
         />
       )}
       {boardMembers.length > 0 && <StaffGroup label="Board Members" people={boardMembers} />}
@@ -99,12 +97,10 @@ function StaffGroup({
   label,
   eyebrow,
   people,
-  showDetailLine,
 }: {
   label: string;
   eyebrow?: string;
   people: StaffPerson[];
-  showDetailLine?: boolean;
 }) {
   return (
     <div className="mb-8">
@@ -114,27 +110,16 @@ function StaffGroup({
           {eyebrow}
         </p>
       )}
-      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
+      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1.5">
         {people.map((person, i) => {
           const href = person.member_id ? `/mps/${person.member_id}` : person.slug ? `/people/${person.slug}` : null;
           const inner = (
-            <div style={{ minWidth: 0, overflow: 'hidden' }}>
-              <p
-                className="text-[#14100d] text-[14px] font-semibold hover:text-[#7a1612] transition-colors"
-                style={{ overflowWrap: 'anywhere', textDecoration: href ? 'underline' : 'none', textUnderlineOffset: '3px' }}
-              >
-                {person.name}
-              </p>
-              <p className="text-[#14100d] text-[14px] mt-0.5 leading-[1.55] opacity-80" style={{ overflowWrap: 'anywhere' }}>{person.role}</p>
-              {showDetailLine && (
-                <SeniorOfficialDetailLine
-                  appointmentDate={person.appointment_date ?? null}
-                  scsBand={person.scs_band ?? null}
-                  payFloor={person.pay_floor ?? null}
-                  payCeiling={person.pay_ceiling ?? null}
-                />
-              )}
-            </div>
+            <span
+              className="text-[#14100d] text-[14px] font-semibold hover:text-[#7a1612] transition-colors"
+              style={{ overflowWrap: 'anywhere', textDecoration: href ? 'underline' : 'none', textUnderlineOffset: '3px' }}
+            >
+              {person.name}
+            </span>
           );
           return (
             <li key={i}>
