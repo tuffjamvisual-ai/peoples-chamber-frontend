@@ -1,10 +1,12 @@
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
+import Link from 'next/link';
 import { departments } from '@/lib/departments';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 import DepartmentClient from './DepartmentClient';
-import DepartmentMasthead from './DepartmentMasthead';
 import DepartmentStaff from './DepartmentStaff';
+import DepartmentSidebar, { type DeptNavItem } from './DepartmentSidebar';
+import { DEPARTMENT_BUDGETS, fmtBn, totalSpend } from '@/lib/department-budgets';
 import DossierShell from '../../components/DossierShell';
 import { getGovukDept } from '../../api/govuk-dept/route';
 import { getDeptContext } from '../../api/department-context/route';
@@ -39,6 +41,17 @@ export default async function DepartmentPage({ params }: PageProps) {
   ]);
 
   const sos = govukData.ministers?.[0];
+  const sosName = sos?.name || dept.minister || '';
+  const sosRole = sos?.role || 'Secretary of State';
+  const sosPhoto = sos?.photo || '';
+  const sosHref = sos?.member_id ? `/mps/${sos.member_id}` : sos?.slug ? `/people/${sos.slug}` : null;
+  const budget = DEPARTMENT_BUDGETS[slug] || null;
+
+  const navItems: DeptNavItem[] = [
+    { label: 'Overview', href: '#overview', rotate: '0.12deg' },
+    { label: 'Department Staff', href: '#staff', rotate: '-0.15deg' },
+    ...(budget ? [{ label: 'Budget', href: '#budget', rotate: '0.1deg' } as DeptNavItem] : []),
+  ];
 
   return (
     <DossierShell>
@@ -57,77 +70,101 @@ export default async function DepartmentPage({ params }: PageProps) {
         style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '3%', marginBottom: '12px', color: '#14100d', textDecoration: 'none', fontSize: 'clamp(9px, 1.1vw, 14px)', transform: 'rotate(-0.2deg)' }}
       />
 
-      <h1 style={{ fontSize: 'clamp(21px, 3vw, 33px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)', lineHeight: 1.1 }}>
-        {dept.name}
-      </h1>
+      {/* Header — minister polaroid on the right, department name + quip +
+          minister on the left, mirroring the MP-bio dossier layout. */}
+      <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'flex-start', gap: '5%', marginBottom: '6%' }}>
+        <div
+          style={{
+            position: 'relative',
+            flex: '0 0 auto',
+            marginTop: '-2%',
+            marginRight: '-6%',
+            background: '#ebe5d8',
+            padding: '12px 12px 48px 12px',
+            transform: 'rotate(12deg)',
+            boxShadow: '0 4px 8px rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.03)',
+            filter: 'contrast(1.05) brightness(0.98)',
+          }}
+        >
+          {sosPhoto ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img src={sosPhoto} alt={sosName} style={{ display: 'block', width: '260px', height: '260px', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }} />
+          ) : (
+            <div aria-hidden style={{ width: '260px', height: '260px', background: '#d6cdb8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '64px', color: '#7a1612', fontFamily: 'Special Elite, monospace' }}>
+              {(dept.shortName || dept.name).charAt(0)}
+            </div>
+          )}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/paperclip.png" alt="" aria-hidden style={{ position: 'absolute', top: '-30px', right: '-5px', width: '65px', height: 'auto', transform: 'rotate(180deg)', transformOrigin: 'center', pointerEvents: 'none', filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.35))' }} />
+          {sos?.resigned && (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img src="/resigned-stamp.png" alt="Resigned" aria-hidden style={{ position: 'absolute', bottom: '-70px', right: '-30px', width: '200px', height: 'auto', transform: 'rotate(-10deg)', opacity: 0.9, pointerEvents: 'none', zIndex: 3 }} />
+          )}
+        </div>
+        <div style={{ flex: '1 1 auto', minWidth: 0 }}>
+          <h1 style={{ fontSize: 'clamp(21px, 3vw, 33px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)', lineHeight: 1.1 }}>
+            {dept.name}
+          </h1>
+          {dept.description && (
+            <p style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontStyle: 'italic', fontSize: '17px', lineHeight: 1.55, maxWidth: '52ch', marginBottom: '14px', opacity: 0.9 }}>
+              {dept.description}
+            </p>
+          )}
+          {sosName && (
+            <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', lineHeight: 1.5 }}>
+              <div style={{ fontWeight: 'bold' }}>{sosName}</div>
+              <div style={{ opacity: 0.8 }}>{sosRole}</div>
+              {sosHref && (
+                <Link href={sosHref} style={{ display: 'inline-block', marginTop: '4px', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.18em', color: '#7a1612', fontWeight: 'bold' }}>View bio →</Link>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
 
-      {/* Body scaled to match the MP profile text size (16px base x zoom 1.18). */}
+      {/* Body — dossier sidebar + content (scaled to match MP profile text). */}
       <div style={{ zoom: 1.18 }}>
-        {/* Quip — the department's one-line characterisation, sits directly
-            under the name (per-department, from meta.description). */}
-        {dept.description && (
-          <p style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontStyle: 'italic', fontSize: '17px', lineHeight: 1.55, maxWidth: '720px', marginTop: '-4px', marginBottom: '6%', opacity: 0.9 }}>
-            {dept.description}
-          </p>
-        )}
+        <DepartmentSidebar items={navItems}>
+          <section id="overview" className="pb-8 mb-8">
+            {((contextData.street_context || dept.streetContext) ?? '')
+              .split(/\n\n+/)
+              .map((p) => p.trim())
+              .filter(Boolean)
+              .map((para, idx) => (
+                <p
+                  key={idx}
+                  className="text-[#14100d] text-[16px] leading-[1.7] mb-3"
+                  style={{ whiteSpace: 'pre-wrap' }}
+                >
+                  {para}
+                </p>
+              ))}
+          </section>
 
-        {/* Masthead — Secretary of State photo + name + role + budget panel.
-            Sits above the descriptive content so the reader's eye lands on
-            the person + spend envelope first, then drops into the
-            description label and the Institutional Performance Report.
-            Reordered 2026-06-04 at user request. */}
-        <DepartmentMasthead
-          sos={
-            govukData.ministers?.[0]
-              ? {
-                  name: govukData.ministers[0].name,
-                  photo: govukData.ministers[0].photo,
-                  role: govukData.ministers[0].role || 'Secretary of State',
-                  slug: govukData.ministers[0].slug,
-                  member_id: govukData.ministers[0].member_id ?? null,
-                  resigned: govukData.ministers[0].resigned,
-                }
-              : { name: dept.minister, photo: '', role: 'Secretary of State', slug: '' }
-          }
-          budget={null}
-        />
+          <div id="staff">
+            <DepartmentStaff govukData={govukData} />
+          </div>
 
-        {/* Department Staff sits directly beneath the Secretary of State
-            photo (user-requested layout, 2026-06-10): the ministerial team
-            and senior officials before the descriptive content. */}
-        <DepartmentStaff govukData={govukData} />
+          {budget && (
+            <section id="budget" aria-label="Department budget" className="mb-8" style={{ padding: '4px 0 4px 18px', borderLeft: '4px solid #6b2417', maxWidth: '760px' }}>
+              <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '13px', letterSpacing: '0.18em', textTransform: 'uppercase', opacity: 0.6, marginBottom: '8px' }}>Budget &middot; {budget.year}</div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '18px', flexWrap: 'wrap', marginBottom: '10px' }}>
+                <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '30px', fontWeight: 'bold', color: '#6b2417', lineHeight: 1 }}>{fmtBn(totalSpend(budget))}</div>
+                <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '13px', opacity: 0.75 }}>Resource DEL {fmtBn(budget.resourceDel)} &middot; Capital DEL {fmtBn(budget.capitalDel)}{budget.ame !== undefined && ` · AME ${fmtBn(budget.ame)}`}</div>
+              </div>
+              <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', lineHeight: 1.65, color: '#14100d', margin: 0 }}>{budget.prose}</p>
+            </section>
+          )}
 
-        {/* Institutional Performance Report — lifted out of DepartmentClient
-            so the 3.5–15k-char authored text ships in the static HTML and is
-            visible to crawlers on first fetch. Identical render rules: split
-            on blank lines, preserve single newlines inside chunks via
-            whiteSpace: pre-wrap. The text is purely display (no hooks, no
-            interactivity) so there is no reason for it to sit behind a
-            client boundary. GSC Soft 404 fix 2026-06-04. */}
-        <section className="pb-8 mb-8">
-          {((contextData.street_context || dept.streetContext) ?? '')
-            .split(/\n\n+/)
-            .map((p) => p.trim())
-            .filter(Boolean)
-            .map((para, idx) => (
-              <p
-                key={idx}
-                className="text-[#14100d] text-[16px] leading-[1.7] mb-3"
-                style={{ whiteSpace: 'pre-wrap' }}
-              >
-                {para}
-              </p>
-            ))}
-        </section>
-
-        <Suspense fallback={<div style={{ minHeight: '300px' }} />}>
-          <DepartmentClient
-            slug={slug}
-            govukData={govukData}
-            streetContext={null}
-            budget={null}
-          />
-        </Suspense>
+          <Suspense fallback={<div style={{ minHeight: '300px' }} />}>
+            <DepartmentClient
+              slug={slug}
+              govukData={govukData}
+              streetContext={null}
+              budget={null}
+            />
+          </Suspense>
+        </DepartmentSidebar>
       </div>
 
       <ScrollToTopButton />
