@@ -190,36 +190,9 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
 
       <PartySidebar party={party} active="manifesto">
 
-      {/* People's critique — sharp ~550-word assessment in MP-bio
-          style. Sits above the policy blocks so the reader gets the
-          editorial verdict before the policy grid. Renders as
-          blank-line-separated paragraphs in the body-prose typewriter
-          face (Special Elite), width-constrained for readability.
-          Eyebrow label removed 2026-06-03 per user request; prose
-          leads. */}
-      {party.critique && (
-        <section style={{ marginBottom: '40px' }}>
-          <div
-            style={{
-              fontFamily: 'Special Elite, monospace',
-              fontSize: 'clamp(16px, 1.6vw, 18px)',
-              lineHeight: 1.7,
-              color: INK,
-              maxWidth: '74ch',
-            }}
-          >
-            {party.critique
-              .split(/\n\n+/)
-              .map((p) => p.trim())
-              .filter(Boolean)
-              .map((p, i) => (
-                <p key={i} style={{ margin: '0 0 1em 0' }}>
-                  {p}
-                </p>
-              ))}
-          </div>
-        </section>
-      )}
+      {/* The People's critique/verdict lives only on the /bio tab now —
+          removed here 2026-06-10 to stop it duplicating across the
+          Manifesto vs Record and People's verdict pages. */}
 
       {/* The 11 themed policy blocks. Each block: theme label, 2024
           manifesto position, source, optional post election shift in a
