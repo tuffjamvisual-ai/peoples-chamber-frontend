@@ -63,6 +63,14 @@ export default async function DepartmentPage({ params }: PageProps) {
 
       {/* Body scaled to match the MP profile text size (16px base x zoom 1.18). */}
       <div style={{ zoom: 1.18 }}>
+        {/* Quip — the department's one-line characterisation, sits directly
+            under the name (per-department, from meta.description). */}
+        {dept.description && (
+          <p style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontStyle: 'italic', fontSize: '17px', lineHeight: 1.55, maxWidth: '720px', marginTop: '-4px', marginBottom: '6%', opacity: 0.9 }}>
+            {dept.description}
+          </p>
+        )}
+
         {/* Masthead — Secretary of State photo + name + role + budget panel.
             Sits above the descriptive content so the reader's eye lands on
             the person + spend envelope first, then drops into the
@@ -88,10 +96,6 @@ export default async function DepartmentPage({ params }: PageProps) {
             photo (user-requested layout, 2026-06-10): the ministerial team
             and senior officials before the descriptive content. */}
         <DepartmentStaff govukData={govukData} />
-
-        <p style={{ fontSize: '16px', lineHeight: 1.7, maxWidth: '720px', marginBottom: '5%' }}>
-          {dept.description}
-        </p>
 
         {/* Institutional Performance Report — lifted out of DepartmentClient
             so the 3.5–15k-char authored text ships in the static HTML and is
