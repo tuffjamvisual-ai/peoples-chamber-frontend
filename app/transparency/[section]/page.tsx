@@ -70,6 +70,7 @@ export default async function TransparencySectionPage({
     countQ = countQ.or(`donor_name.ilike.${like},recipient_name.ilike.${like}`)
   }
   if (section === 'ministers-meetings') countQ = countQ.lte('meeting_date', todayIso)
+  if (section === 'hospitality') countQ = countQ.lte('hospitality_date', todayIso)
   const { count: total } = await countQ
 
   // Data rows — server-side paginated via .range().
@@ -80,6 +81,7 @@ export default async function TransparencySectionPage({
     dataQ = dataQ.or(`donor_name.ilike.${like},recipient_name.ilike.${like}`)
   }
   if (section === 'ministers-meetings') dataQ = dataQ.lte('meeting_date', todayIso)
+  if (section === 'hospitality') dataQ = dataQ.lte('hospitality_date', todayIso)
   const { data: rows, error } = await dataQ
 
   const totalPages = Math.max(1, Math.ceil((total ?? 0) / PAGE_LIMIT))
