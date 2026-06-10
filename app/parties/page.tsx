@@ -180,7 +180,7 @@ export default async function PartiesIndex() {
         <p
           style={{
             fontFamily: MONO,
-            fontSize: 'clamp(13px, 1.15vw, 14px)',
+            fontSize: 'clamp(15px, 1.4vw, 17px)',
             lineHeight: 1.75,
             textAlign: 'justify',
             margin: '0 auto 28px',

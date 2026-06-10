@@ -123,7 +123,7 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
               <div
                 style={{
                   fontFamily: 'Special Elite, monospace',
-                  fontSize: 'clamp(13px, 1.35vw, 15px)',
+                  fontSize: 'clamp(16px, 1.6vw, 18px)',
                   lineHeight: 1.7,
                   color: INK,
                   maxWidth: '74ch',
