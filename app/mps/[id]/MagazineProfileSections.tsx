@@ -630,6 +630,27 @@ export default function MagazineProfileSections({
           <>
             <h2 style={sectionH2}>Voting Record</h2>
 
+            {/* Rebellion summary — the activity stat strip was removed
+                2026-06-06, but the rebellion count is worth surfacing on its
+                own. Individual rebel votes are flagged REBEL in the list. */}
+            {activity && activity.rebellions_total != null && (
+              <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '14px', marginBottom: '14px', lineHeight: 1.5 }}>
+                {activity.rebellions_total > 0 ? (
+                  <>
+                    <span style={{ color: '#7a1612', fontWeight: 'bold' }}>Voted against the party line {activity.rebellions_total.toLocaleString()} time{activity.rebellions_total === 1 ? '' : 's'}</span>
+                    {activity.rebellion_rate_pct != null && (
+                      <span style={{ opacity: 0.75 }}> · {typeof activity.rebellion_rate_pct === 'number' ? activity.rebellion_rate_pct.toFixed(1) : activity.rebellion_rate_pct}% of recorded votes</span>
+                    )}
+                    <span style={{ opacity: 0.75 }}>. Rebel votes are marked </span>
+                    <span style={{ color: '#7a1612', fontWeight: 'bold' }}>REBEL</span>
+                    <span style={{ opacity: 0.75 }}> below.</span>
+                  </>
+                ) : (
+                  <span style={{ opacity: 0.7 }}>No votes against the party line recorded this Parliament.</span>
+                )}
+              </p>
+            )}
+
             {/* Per-section search. Native HTML <form> with GET so it works
                 without JS and the URL captures the query for sharing.
                 Submitting always lands on page 1 of the matches. */}
