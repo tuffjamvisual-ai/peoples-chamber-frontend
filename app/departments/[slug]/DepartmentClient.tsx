@@ -87,16 +87,19 @@ export default function DepartmentClient({ slug, govukData, streetContext, budge
     >
         {/* Social links — was previously next to dept name in the now-removed header */}
         {govukData?.socialMedia && govukData.socialMedia.length > 0 && (
-          <div className="flex gap-1.5 flex-wrap mb-8">
+          <div className="flex gap-3 flex-wrap mb-8 items-center">
             {govukData.socialMedia.map((s, i) => (
               <a
                 key={i}
                 href={s.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[13px] uppercase tracking-[0.15em] px-2 py-1 text-[#14100d]  hover: transition-colors"
+                aria-label={s.title || s.service}
+                title={s.title || s.service}
+                className="text-[#14100d] hover:text-[#7a1612] transition-colors"
+                style={{ display: 'inline-flex' }}
               >
-                {s.service === 'twitter' ? 'X' : s.service === 'youtube' ? 'YT' : s.service.slice(0, 3)}
+                {socialIcon(s.service)}
               </a>
             ))}
           </div>
@@ -169,24 +172,39 @@ export default function DepartmentClient({ slug, govukData, streetContext, budge
         {/* Department Staff now renders server-side in page.tsx, directly
             beneath the Secretary of State photo (see DepartmentStaff.tsx). */}
 
-        {(govukData?.foiEmail || govukData?.pressPhone) && (
+        {govukData?.pressPhone && (
           <section className="mt-8">
             <div className="flex flex-wrap gap-6">
-              {govukData.foiEmail && (
-                <a
-                  href={`mailto:${govukData.foiEmail}`}
-                  className="text-[14px] uppercase tracking-[0.15em] hover:underline"
-                  style={{ color: ACCENT }}
-                >
-                  FOI Request: {govukData.foiEmail}
-                </a>
-              )}
-              {govukData.pressPhone && (
-                <span className="text-[14px] uppercase tracking-[0.15em] text-[#14100d] font-mono">Press: {govukData.pressPhone}</span>
-              )}
+              <span className="text-[14px] uppercase tracking-[0.15em] text-[#14100d] font-mono">Press: {govukData.pressPhone}</span>
             </div>
           </section>
         )}
     </div>
   );
+}
+
+// Brand glyph for a department's social link. Monochrome (currentColor),
+// 20px. Falls back to a globe for anything unrecognised.
+function socialIcon(service: string) {
+  const s = (service || '').toLowerCase();
+  const size = { width: 20, height: 20, viewBox: '0 0 24 24' };
+  if (s.includes('twitter') || s === 'x') {
+    return <svg {...size} fill="currentColor" aria-hidden><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231zm-1.161 17.52h1.833L7.084 4.126H5.117l11.966 15.644z" /></svg>;
+  }
+  if (s.includes('youtube')) {
+    return <svg {...size} fill="currentColor" aria-hidden><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>;
+  }
+  if (s.includes('facebook')) {
+    return <svg {...size} fill="currentColor" aria-hidden><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg>;
+  }
+  if (s.includes('linkedin')) {
+    return <svg {...size} fill="currentColor" aria-hidden><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0z" /></svg>;
+  }
+  if (s.includes('flickr')) {
+    return <svg {...size} fill="currentColor" aria-hidden><circle cx="7.5" cy="12" r="4" /><circle cx="16.5" cy="12" r="4" /></svg>;
+  }
+  if (s.includes('instagram')) {
+    return <svg {...size} fill="none" stroke="currentColor" strokeWidth="2" aria-hidden><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none" /></svg>;
+  }
+  return <svg {...size} fill="none" stroke="currentColor" strokeWidth="2" aria-hidden><circle cx="12" cy="12" r="9" /><path d="M3 12h18" /><path d="M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18" /></svg>;
 }
