@@ -1,8 +1,13 @@
+'use client';
+
 import React from 'react';
 
 // Left-nav sidebar for a department page, matching the MP-dossier layout
-// (220px rail + content column). Items are in-page anchor links to the
-// sections rendered in `children`.
+// (220px rail + content column). Items are in-page anchors to the sections
+// rendered in `children`. Scrolling is handled with scrollIntoView rather
+// than native #hash jumps because the content sits inside a `zoom: 1.18`
+// container, and browsers mis-compute native anchor scroll offsets under
+// CSS zoom (the page would leap to the wrong place).
 
 const INK = '#14100d';
 
@@ -15,6 +20,15 @@ export default function DepartmentSidebar({
   items: DeptNavItem[];
   children: React.ReactNode;
 }) {
+  const onNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (!href.startsWith('#')) return;
+    const el = typeof document !== 'undefined' ? document.getElementById(href.slice(1)) : null;
+    if (el) {
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
     <div
       className="pca-dept-sidebar-grid"
@@ -32,6 +46,7 @@ export default function DepartmentSidebar({
             <a
               key={item.href}
               href={item.href}
+              onClick={(e) => onNavClick(e, item.href)}
               className="no-hover-scale"
               style={{
                 display: 'block',

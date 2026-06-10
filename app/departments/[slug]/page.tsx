@@ -77,8 +77,8 @@ export default async function DepartmentPage({ params }: PageProps) {
           style={{
             position: 'relative',
             flex: '0 0 auto',
-            marginTop: '-2%',
-            marginRight: '-6%',
+            marginTop: '-7%',
+            marginRight: '-10%',
             background: '#ebe5d8',
             padding: '12px 12px 48px 12px',
             transform: 'rotate(12deg)',
