@@ -191,7 +191,7 @@ export default async function AssociationPage({ params }: PageProps) {
                 </td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{d.count}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(d.total).toLocaleString()}</td>
-                <td style={{ padding: '6px', fontSize: '11px', fontFamily: 'monospace', opacity: 0.7 }}>
+                <td style={{ padding: '6px', fontSize: '13px', fontFamily: 'monospace', opacity: 0.7 }}>
                   {d.first && d.last ? (d.first === d.last ? d.first : `${d.first} → ${d.last}`) : ''}
                 </td>
               </tr>
@@ -207,7 +207,7 @@ export default async function AssociationPage({ params }: PageProps) {
 function Tile({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '12px 14px', background: CREAM }}>
-      <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
+      <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
       <div style={{ fontFamily: '"Special Elite", monospace', fontSize: '22px', fontWeight: 'bold', color: ACCENT }}>{value}</div>
     </div>
   );

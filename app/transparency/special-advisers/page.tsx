@@ -187,8 +187,8 @@ export default async function SpecialAdvisersPage() {
               {gifts.map((g, i) => (
                 <tr key={i} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                   <td style={td}>{g.spad_name}</td>
-                  <td style={{ ...td, fontSize: '11px', opacity: 0.75 }}>{g.area}</td>
-                  <td style={{ ...td, fontFamily: 'monospace', fontSize: '11px', opacity: 0.7 }}>{g.gift_date || 'n/a'}</td>
+                  <td style={{ ...td, fontSize: '13px', opacity: 0.75 }}>{g.area}</td>
+                  <td style={{ ...td, fontFamily: 'monospace', fontSize: '13px', opacity: 0.7 }}>{g.gift_date || 'n/a'}</td>
                   <td style={td}>{g.gift_descr || 'n/a'}</td>
                   <td style={td}>{g.donor || 'n/a'}</td>
                   <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace' }}>{g.value_gbp || 'n/a'}</td>
@@ -218,8 +218,8 @@ export default async function SpecialAdvisersPage() {
               {hosps.map((h, i) => (
                 <tr key={i} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                   <td style={td}>{h.spad_name}</td>
-                  <td style={{ ...td, fontSize: '11px', opacity: 0.75 }}>{h.area}</td>
-                  <td style={{ ...td, fontFamily: 'monospace', fontSize: '11px', opacity: 0.7 }}>{h.hosp_date || 'n/a'}</td>
+                  <td style={{ ...td, fontSize: '13px', opacity: 0.75 }}>{h.area}</td>
+                  <td style={{ ...td, fontFamily: 'monospace', fontSize: '13px', opacity: 0.7 }}>{h.hosp_date || 'n/a'}</td>
                   <td style={td}>{h.hosp_descr || 'n/a'}</td>
                   <td style={td}>{h.provider || 'n/a'}</td>
                   <td style={{ ...td, fontSize: '12px', opacity: 0.85 }}>{h.purpose || 'n/a'}</td>
@@ -248,8 +248,8 @@ export default async function SpecialAdvisersPage() {
               {meets.map((m, i) => (
                 <tr key={i} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                   <td style={td}>{m.spad_name}</td>
-                  <td style={{ ...td, fontSize: '11px', opacity: 0.75 }}>{m.area}</td>
-                  <td style={{ ...td, fontFamily: 'monospace', fontSize: '11px', opacity: 0.7 }}>{m.meeting_date || 'n/a'}</td>
+                  <td style={{ ...td, fontSize: '13px', opacity: 0.75 }}>{m.area}</td>
+                  <td style={{ ...td, fontFamily: 'monospace', fontSize: '13px', opacity: 0.7 }}>{m.meeting_date || 'n/a'}</td>
                   <td style={td}>{m.media_org || 'n/a'}</td>
                   <td style={td}>{m.individual || 'n/a'}</td>
                   <td style={{ ...td, fontSize: '12px', opacity: 0.85 }}>{m.purpose || 'n/a'}</td>
@@ -268,9 +268,9 @@ export default async function SpecialAdvisersPage() {
 function Tile({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
     <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '12px 14px', background: CREAM }}>
-      <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
+      <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
       <div style={{ fontFamily: '"Special Elite", monospace', fontSize: '22px', fontWeight: 'bold', color: ACCENT }}>{value}</div>
-      <div style={{ fontSize: '11px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
+      <div style={{ fontSize: '13px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
     </div>
   );
 }
@@ -284,5 +284,5 @@ const sectionH2: React.CSSProperties = {
   marginBottom: '12px',
 };
 const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '13px', fontFamily: '"Special Elite", monospace' };
-const th: React.CSSProperties = { padding: '8px 6px', fontSize: '11px', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 'bold' };
+const th: React.CSSProperties = { padding: '8px 6px', fontSize: '13px', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 'bold' };
 const td: React.CSSProperties = { padding: '8px 6px', fontSize: '13px', verticalAlign: 'top' };

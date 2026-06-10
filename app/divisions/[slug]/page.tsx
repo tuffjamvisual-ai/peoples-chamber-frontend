@@ -385,7 +385,7 @@ function VoteColumn({
                 <Link href={`/mps/${v.member_id}`} style={{ color: INK, textDecoration: 'none' }}>
                   {v.mp?.display_name ?? v.mp?.name ?? `Member ${v.member_id}`}
                   {v.is_teller && (
-                    <span style={{ marginLeft: '6px', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', color: INK_SOFT, border: `1px solid ${INK_HAIRLINE}`, padding: '1px 5px' }}>
+                    <span style={{ marginLeft: '6px', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.1em', color: INK_SOFT, border: `1px solid ${INK_HAIRLINE}`, padding: '1px 5px' }}>
                       Teller
                     </span>
                   )}

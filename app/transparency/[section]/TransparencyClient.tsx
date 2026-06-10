@@ -366,7 +366,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                     {flags.map((f) => (
                       <span
                         key={f.label}
-                        className="text-[10px] uppercase tracking-[0.2em] font-bold px-2 py-0.5"
+                        className="text-[12px] uppercase tracking-[0.2em] font-bold px-2 py-0.5"
                         style={{
                           fontFamily: 'Special Elite, monospace',
                           background: f.tone === 'warn' ? 'rgba(122,22,18,0.12)' : 'rgba(20,16,13,0.06)',
@@ -382,7 +382,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
 
                 <details className="mt-3">
                   <summary
-                    className="cursor-pointer text-[11px] uppercase tracking-[0.2em] text-[#14100d]/70 font-bold inline-block"
+                    className="cursor-pointer text-[13px] uppercase tracking-[0.2em] text-[#14100d]/70 font-bold inline-block"
                     style={{ fontFamily: 'Special Elite, monospace' }}
                   >
                     Full record ▾

@@ -189,8 +189,8 @@ export default async function LeadershipContestsPage() {
                   ) : <span style={{ opacity: 0.6 }}>(unknown)</span>}
                 </td>
                 <td style={{ padding: '6px', fontSize: '12px' }}>{r.recipient_name || ''}</td>
-                <td style={{ padding: '6px', fontSize: '11px', opacity: 0.8 }}>{r.position_standing_for}</td>
-                <td style={{ padding: '6px', fontFamily: 'monospace', fontSize: '11px', opacity: 0.7 }}>{r.accepted_date || ''}</td>
+                <td style={{ padding: '6px', fontSize: '13px', opacity: 0.8 }}>{r.position_standing_for}</td>
+                <td style={{ padding: '6px', fontFamily: 'monospace', fontSize: '13px', opacity: 0.7 }}>{r.accepted_date || ''}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(Number(r.amount || 0)).toLocaleString()}</td>
               </tr>
             ))}

@@ -146,7 +146,7 @@ export default async function MoneyLanding() {
 function HeroTile({ href, label, headline, teaser }: { href: string; label: string; headline: string; teaser: string }) {
   return (
     <Link href={href} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, padding: '18px 20px', border: `1px solid ${INK_HAIRLINE}`, background: CREAM, transition: 'transform 0.15s ease' }}>
-      <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.2em', opacity: 0.75, marginBottom: '8px', color: ACCENT, fontFamily: '"Special Elite", monospace' }}>{label}</div>
+      <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.2em', opacity: 0.75, marginBottom: '8px', color: ACCENT, fontFamily: '"Special Elite", monospace' }}>{label}</div>
       <div style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: '20px', fontWeight: 'bold', lineHeight: 1.2, marginBottom: '10px' }}>{headline}</div>
       <p style={{ fontFamily: '"Special Elite", monospace', fontSize: '12px', lineHeight: 1.55, opacity: 0.8, margin: 0 }}>{teaser}</p>
       <div style={{ marginTop: '12px', fontSize: '12px', color: ACCENT, fontWeight: 'bold' }}>Read the full table &rarr;</div>

@@ -309,7 +309,7 @@ const inkDivider = '1px dashed rgba(20,16,13,0.2)';
 
 const thStyle: React.CSSProperties = {
   padding: '6px 4px',
-  fontSize: '11px',
+  fontSize: '13px',
   letterSpacing: '0.06em',
   textTransform: 'uppercase',
 };
@@ -327,7 +327,7 @@ const callPLast: React.CSSProperties = { ...callP, marginBottom: 0 };
 const pillStyle: React.CSSProperties = {
   display: 'inline-block',
   padding: '1px 6px',
-  fontSize: '10px',
+  fontSize: '12px',
   letterSpacing: '0.08em',
   textTransform: 'uppercase',
   fontFamily: 'Special Elite, monospace',
@@ -829,7 +829,7 @@ export default function MagazineProfileSections({
             const children = Array.isArray(i.child_interests) ? i.child_interests : [];
             return (
               <li key={idx} style={{ padding: '8px 0', borderBottom: inkDivider }}>
-                <div style={{ fontSize: '11px', opacity: 0.55, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '2px' }}>{i.category_name}</div>
+                <div style={{ fontSize: '13px', opacity: 0.55, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '2px' }}>{i.category_name}</div>
                 <div style={{ whiteSpace: 'pre-wrap' }}>{i.interest_text}</div>
                 {children.length > 0 && (
                   <ul style={{ listStyle: 'none', padding: 0, marginTop: '8px', marginLeft: '12px', borderLeft: '2px solid rgba(20,16,13,0.15)' }}>
@@ -946,7 +946,7 @@ export default function MagazineProfileSections({
                           </span>
                         )}
                         {a.category && (
-                          <span style={{ fontSize: '11px', opacity: 0.6 }}>{a.category}</span>
+                          <span style={{ fontSize: '13px', opacity: 0.6 }}>{a.category}</span>
                         )}
                       </div>
                       {a.secretariat && (() => {
@@ -962,7 +962,7 @@ export default function MagazineProfileSections({
                             <span style={{ opacity: 0.6 }}>Secretariat:</span>{' '}
                             <Link href={`/secretariats/${secSlug}`} style={inkLink}>{a.secretariat}</Link>
                             {a.secretariat_url && (
-                              <> · <a href={a.secretariat_url} target="_blank" rel="noopener noreferrer" style={{ ...inkLink, fontSize: '11px' }}>website ↗</a></>
+                              <> · <a href={a.secretariat_url} target="_blank" rel="noopener noreferrer" style={{ ...inkLink, fontSize: '13px' }}>website ↗</a></>
                             )}
                           </div>
                         );
@@ -978,7 +978,7 @@ export default function MagazineProfileSections({
                                 <strong>{f.source}</strong>
                                 {f.value_band && <span style={{ opacity: 0.75 }}> · £{f.value_band}</span>}
                                 {f.ecMatch && f.ecMatch.donationCount > 0 && (
-                                  <span style={{ marginLeft: '6px', ...pillStyle, color: '#7a1612', border: '1px solid #7a1612', fontSize: '10px' }} title="Also a registered political donor under this name in Electoral Commission records">
+                                  <span style={{ marginLeft: '6px', ...pillStyle, color: '#7a1612', border: '1px solid #7a1612', fontSize: '12px' }} title="Also a registered political donor under this name in Electoral Commission records">
                                     Also donates · {fmtMoney(f.ecMatch.totalAmount)} · {f.ecMatch.donationCount}×
                                   </span>
                                 )}
@@ -1385,7 +1385,7 @@ export default function MagazineProfileSections({
                                   href={`https://find-and-update.company-information.service.gov.uk/company/${d.crn}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  style={{ ...inkLink, fontSize: '11px', fontWeight: 'normal' }}
+                                  style={{ ...inkLink, fontSize: '13px', fontWeight: 'normal' }}
                                   title={`Companies House, ${d.crn}`}
                                 >
                                   CH&nbsp;↗
@@ -1448,7 +1448,7 @@ export default function MagazineProfileSections({
                       return (
                         <div key={s.key} style={{ marginBottom: '20px' }}>
                           <div style={{ display: 'flex', gap: '12px', alignItems: 'baseline', flexWrap: 'wrap', borderBottom: `2px solid ${s.colour}`, paddingBottom: '4px', marginBottom: '8px' }}>
-                            <span style={{ ...pillStyle, color: s.colour, border: `1px solid ${s.colour}`, fontSize: '11px' }}>{s.label}</span>
+                            <span style={{ ...pillStyle, color: s.colour, border: `1px solid ${s.colour}`, fontSize: '13px' }}>{s.label}</span>
                             {stat && (
                               <span style={{ fontSize: '12px', opacity: 0.75 }}>
                                 {fmtMoney(stat.total)} from {stat.donors.size} donor{stat.donors.size === 1 ? '' : 's'} · {s.votes.length} sector vote{s.votes.length === 1 ? '' : 's'}
@@ -1471,7 +1471,7 @@ export default function MagazineProfileSections({
                                     <span>{v.division_title}</span>
                                   )}
                                   <span style={{ marginLeft: 'auto', color: voteColour, fontFamily: 'monospace', fontWeight: 'bold', textTransform: 'uppercase' }}>{v.vote_type}</span>
-                                  {v.is_rebellion && <span style={{ color: '#7a1612', fontSize: '11px', fontWeight: 'bold' }}>REBEL</span>}
+                                  {v.is_rebellion && <span style={{ color: '#7a1612', fontSize: '13px', fontWeight: 'bold' }}>REBEL</span>}
                                 </li>
                               );
                             })}
@@ -1520,7 +1520,7 @@ export default function MagazineProfileSections({
                             <span style={{ opacity: 0.7, fontSize: '12px' }}>· {d.nature || ', '}</span>
                             <span style={{ marginLeft: 'auto', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(Number(d.amount) || 0)}</span>
                             {isRepeat && donorRunning != null && (
-                              <span style={{ fontFamily: 'monospace', fontSize: '11px', opacity: 0.7, whiteSpace: 'nowrap' }}>
+                              <span style={{ fontFamily: 'monospace', fontSize: '13px', opacity: 0.7, whiteSpace: 'nowrap' }}>
                                 ({fmtMoney(donorRunning)} cumulative)
                               </span>
                             )}
@@ -1742,7 +1742,7 @@ export default function MagazineProfileSections({
                 <tr style={{ borderBottom: '2px solid rgba(20,16,13,0.4)', textAlign: 'left' }}>
                   <th style={{ padding: '6px 3px' }}>Year</th>
                   {breakdownLabels.map((b) => (
-                    <th key={b.key} style={{ padding: '6px 3px', fontSize: '11px', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{b.label}</th>
+                    <th key={b.key} style={{ padding: '6px 3px', fontSize: '13px', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{b.label}</th>
                   ))}
                   <th style={{ padding: '6px 3px', textAlign: 'right' }}>Total</th>
                 </tr>
@@ -1769,7 +1769,7 @@ export default function MagazineProfileSections({
                       {expanded && yearClaims.length > 0 && (
                         <tr key={`detail-${e.year}`}>
                           <td colSpan={breakdownLabels.length + 2} style={{ padding: '0 3px 8px', background: 'rgba(122,22,18,0.04)' }}>
-                            <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', padding: '6px 0', opacity: 0.8 }}>
+                            <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.06em', padding: '6px 0', opacity: 0.8 }}>
                               {yearClaims.length} claims in {e.year}
                             </div>
                             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', tableLayout: 'auto' }}>
@@ -1808,8 +1808,8 @@ export default function MagazineProfileSections({
                                       <td style={{ padding: '3px 3px' }}>{desc}</td>
                                       <td style={{ padding: '3px 3px', color: statusColor }}>
                                         {statusLabel}
-                                        {notPaid > 0 && <span style={{ display: 'block', fontSize: '11px', opacity: 0.85 }}>refused {fmtMoney(notPaid)}{c.reason_if_not_paid ? ` · ${c.reason_if_not_paid}` : ''}</span>}
-                                        {repaid > 0 && <span style={{ display: 'block', fontSize: '11px', opacity: 0.85 }}>repaid {fmtMoney(repaid)}</span>}
+                                        {notPaid > 0 && <span style={{ display: 'block', fontSize: '13px', opacity: 0.85 }}>refused {fmtMoney(notPaid)}{c.reason_if_not_paid ? ` · ${c.reason_if_not_paid}` : ''}</span>}
+                                        {repaid > 0 && <span style={{ display: 'block', fontSize: '13px', opacity: 0.85 }}>repaid {fmtMoney(repaid)}</span>}
                                       </td>
                                       <td style={{ padding: '3px 3px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap', opacity: hasGap ? 1 : 0.7 }}>{fmtMoney(claimed)}</td>
                                       <td style={{ padding: '3px 3px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap' }}>{fmtMoney(paid)}</td>
@@ -1846,7 +1846,7 @@ function ActivityTile({ label, value, sub, href, hrefLabel, external }: { label:
         <div style={{ fontSize: "11px", opacity: 0.65, marginTop: "4px", lineHeight: 1.3 }}>{sub}</div>
       </div>
       {href && (
-        <div style={{ marginTop: '8px', fontSize: '11px' }}>
+        <div style={{ marginTop: '8px', fontSize: '13px' }}>
           {external ? (
             <a
               href={href}
@@ -1878,7 +1878,7 @@ function DonationDetail({ d, crn }: { d: Donation; crn: string }) {
   const fmtDate = (v: string | null | undefined) => (v ? new Date(v).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ', ');
   const Row = ({ label, value }: { label: string; value: React.ReactNode }) => (
     <>
-      <dt style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.6, padding: '2px 8px 2px 0' }}>{label}</dt>
+      <dt style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.6, padding: '2px 8px 2px 0' }}>{label}</dt>
       <dd style={{ fontSize: '13px', margin: 0, padding: '2px 0', wordBreak: 'break-word' }}>{value}</dd>
     </>
   );

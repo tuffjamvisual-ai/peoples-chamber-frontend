@@ -274,7 +274,7 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
                 const title = titleByKey.get(d.key) || `Division ${d.num}`;
                 return (
                   <tr key={d.key} style={{ borderBottom: `1px solid ${HAIRLINE}` }}>
-                    <td style={{ ...td, fontFamily: 'monospace', fontSize: '11px', opacity: 0.7 }}>{d.date}</td>
+                    <td style={{ ...td, fontFamily: 'monospace', fontSize: '13px', opacity: 0.7 }}>{d.date}</td>
                     <td style={td}>
                       <Link href={`/divisions/pw-${d.date}-${d.num}-commons`} style={{ color: ACCENT, textDecoration: 'underline' }}>{title}</Link>
                     </td>
@@ -298,9 +298,9 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
 function Tile({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
     <div style={{ border: `1px solid ${HAIRLINE}`, padding: '12px 14px', background: CREAM }}>
-      <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
+      <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
       <div style={{ fontFamily: '"Special Elite", monospace', fontSize: '22px', fontWeight: 'bold', color: ACCENT }}>{value}</div>
-      <div style={{ fontSize: '11px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
+      <div style={{ fontSize: '13px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
     </div>
   );
 }
@@ -314,5 +314,5 @@ const sectionH2: React.CSSProperties = {
   marginBottom: '12px',
 };
 const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '13px', fontFamily: '"Special Elite", monospace' };
-const th: React.CSSProperties = { padding: '8px 6px', fontSize: '11px', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 'bold' };
+const th: React.CSSProperties = { padding: '8px 6px', fontSize: '13px', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 'bold' };
 const td: React.CSSProperties = { padding: '8px 6px', fontSize: '13px', verticalAlign: 'top' };

@@ -285,7 +285,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
             <tbody>
               {sectorRows.map((r) => (
                 <tr key={r.label} style={{ borderBottom: `1px solid ${HAIRLINE}` }}>
-                  <td style={td}><span style={{ padding: '2px 8px', border: `1px solid ${r.colour}`, color: r.colour, fontSize: '11px' }}>{r.label}</span></td>
+                  <td style={td}><span style={{ padding: '2px 8px', border: `1px solid ${r.colour}`, color: r.colour, fontSize: '13px' }}>{r.label}</span></td>
                   <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace' }}>{r.donors.size}</td>
                   <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(r.total)}</td>
                 </tr>
@@ -314,7 +314,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
                 <td style={td}>
                   <Link href={`/donors/${donorNameToSlug(d.name)}`} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold' }}>{d.name}</Link>
                 </td>
-                <td style={{ ...td, fontSize: '11px', opacity: 0.75 }}>{d.donorType || ''}</td>
+                <td style={{ ...td, fontSize: '13px', opacity: 0.75 }}>{d.donorType || ''}</td>
                 <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace' }}>{d.count}</td>
                 <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(d.total)}</td>
               </tr>
@@ -343,9 +343,9 @@ function fmtMoney(n: number): string {
 function Tile({ label, value, sub, small }: { label: string; value: string; sub: string; small?: boolean }) {
   return (
     <div style={{ border: `1px solid ${HAIRLINE}`, padding: '12px 14px', background: CREAM }}>
-      <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
+      <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
       <div style={{ fontFamily: '"Special Elite", monospace', fontSize: small ? '14px' : '22px', fontWeight: 'bold', color: ACCENT, lineHeight: 1.2 }}>{value}</div>
-      <div style={{ fontSize: '11px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
+      <div style={{ fontSize: '13px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
     </div>
   );
 }
@@ -359,5 +359,5 @@ const sectionH2: React.CSSProperties = {
   marginBottom: '12px',
 };
 const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '13px', fontFamily: '"Special Elite", monospace' };
-const th: React.CSSProperties = { padding: '8px 6px', fontSize: '11px', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 'bold' };
+const th: React.CSSProperties = { padding: '8px 6px', fontSize: '13px', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 'bold' };
 const td: React.CSSProperties = { padding: '8px 6px', fontSize: '13px', verticalAlign: 'top' };

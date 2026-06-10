@@ -170,7 +170,7 @@ export default async function SecretariatPage({ params }: PageProps) {
               <li key={a.slug} style={{ padding: '14px 0', borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'baseline', flexWrap: 'wrap' }}>
                   <strong style={{ fontSize: '15px' }}>{a.title}</strong>
-                  {a.category && <span style={{ fontSize: '11px', opacity: 0.6 }}>{a.category}</span>}
+                  {a.category && <span style={{ fontSize: '13px', opacity: 0.6 }}>{a.category}</span>}
                 </div>
                 {a.purpose && <p style={{ fontSize: '12px', opacity: 0.75, lineHeight: 1.55, margin: '4px 0' }}>{a.purpose}</p>}
                 {aOfficers.length > 0 && (
@@ -227,9 +227,9 @@ const sectionH2: React.CSSProperties = {
 function Tile({ label, value, sub, accent }: { label: string; value: string; sub: string; accent: string }) {
   return (
     <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '12px 14px', background: CREAM }}>
-      <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
+      <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
       <div style={{ fontFamily: '"Special Elite", monospace', fontSize: '22px', fontWeight: 'bold', color: accent }}>{value}</div>
-      <div style={{ fontSize: '11px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
+      <div style={{ fontSize: '13px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
     </div>
   );
 }

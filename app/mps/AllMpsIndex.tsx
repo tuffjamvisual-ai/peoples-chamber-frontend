@@ -98,7 +98,7 @@ export default async function AllMpsIndex() {
   };
   const subStyle: React.CSSProperties = {
     display: 'block',
-    fontSize: '11px',
+    fontSize: '13px',
     fontFamily: MONO,
     color: INK_SOFT,
     marginTop: '2px',

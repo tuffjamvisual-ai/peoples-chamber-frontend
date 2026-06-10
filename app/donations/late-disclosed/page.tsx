@@ -129,9 +129,9 @@ export default async function LateDisclosedPage() {
       <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', marginBottom: '28px' }}>
         {Object.entries(buckets).map(([label, n]) => (
           <div key={label} style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '12px 14px', background: CREAM }}>
-            <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
+            <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
             <div style={{ fontFamily: '"Special Elite", monospace', fontSize: '22px', fontWeight: 'bold', color: ACCENT }}>{n.toLocaleString()}</div>
-            <div style={{ fontSize: '11px', opacity: 0.65, marginTop: '4px' }}>donations</div>
+            <div style={{ fontSize: '13px', opacity: 0.65, marginTop: '4px' }}>donations</div>
           </div>
         ))}
       </section>
@@ -184,8 +184,8 @@ export default async function LateDisclosedPage() {
                   ) : <span style={{ opacity: 0.6 }}>(unknown)</span>}
                 </td>
                 <td style={{ padding: '6px', fontSize: '12px' }}>{r.recipient_name || ''}</td>
-                <td style={{ padding: '6px', fontFamily: 'monospace', fontSize: '11px', opacity: 0.7 }}>{r.accepted_date}</td>
-                <td style={{ padding: '6px', fontFamily: 'monospace', fontSize: '11px', opacity: 0.7 }}>{r.reported_date}</td>
+                <td style={{ padding: '6px', fontFamily: 'monospace', fontSize: '13px', opacity: 0.7 }}>{r.accepted_date}</td>
+                <td style={{ padding: '6px', fontFamily: 'monospace', fontSize: '13px', opacity: 0.7 }}>{r.reported_date}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', color: ACCENT, fontWeight: 'bold' }}>{r.gap.toLocaleString()} days</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>£{Math.round(Number(r.amount || 0)).toLocaleString()}</td>
               </tr>

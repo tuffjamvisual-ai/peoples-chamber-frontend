@@ -482,7 +482,7 @@ function ReportBlock({ report }: { report: Report }) {
         <p
           style={{
             fontFamily: 'Special Elite, monospace',
-            fontSize: '11px',
+            fontSize: '13px',
             letterSpacing: '0.22em',
             textTransform: 'uppercase',
             color: ACCENT,

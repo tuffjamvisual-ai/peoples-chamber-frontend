@@ -188,7 +188,7 @@ export default async function DoubleDipPage() {
                 </td>
                 <td style={{ padding: '6px' }}>
                   <Link href={`/donors/${m.donorSlug}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{m.donorName}</Link>
-                  {m.payerAppearances > 1 && <span style={{ fontSize: '11px', opacity: 0.6, marginLeft: '6px' }}>· {m.payerAppearances} entries</span>}
+                  {m.payerAppearances > 1 && <span style={{ fontSize: '13px', opacity: 0.6, marginLeft: '6px' }}>· {m.payerAppearances} entries</span>}
                 </td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{m.donationCount}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold', color: DANGER }}>£{Math.round(m.donatedTotal).toLocaleString()}</td>

@@ -30,7 +30,7 @@ const wrapStyle: React.CSSProperties = {
 };
 const sectionStyle: React.CSSProperties = { marginBottom: '20px' };
 const labelStyle: React.CSSProperties = {
-  fontSize: '11px',
+  fontSize: '13px',
   letterSpacing: '0.22em',
   textTransform: 'uppercase',
   fontWeight: 600,

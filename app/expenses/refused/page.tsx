@@ -263,7 +263,7 @@ const headerRow: React.CSSProperties = {
 
 const th: React.CSSProperties = {
   padding: '8px 6px',
-  fontSize: '11px',
+  fontSize: '13px',
   letterSpacing: '0.08em',
   textTransform: 'uppercase',
   fontWeight: 'bold',
@@ -279,7 +279,7 @@ const td: React.CSSProperties = {
 function Tile({ label, value, sub, accent }: { label: string; value: string; sub: string; accent: string }) {
   return (
     <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '12px 14px', background: 'rgba(255,255,255,0.04)' }}>
-      <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
+      <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
       <div style={{ fontFamily: '"Special Elite", monospace', fontSize: '22px', fontWeight: 'bold', color: accent }}>{value}</div>
       <div style={{ fontSize: '12px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
     </div>
