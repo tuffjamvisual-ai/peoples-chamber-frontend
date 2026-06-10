@@ -1057,6 +1057,25 @@ export default function MagazineProfileSections({
             const um = UNTIL_RE.exec(raw);
             const untilDate = um ? parseUkDate(um[1]) : null;
 
+            // Represent every declared Category 1 role, even when no payment
+            // amount is disclosed (directorships / shareholdings register the
+            // role but not the income). Without this they vanish entirely:
+            // the Interests tab omits Category 1, and the Earnings tab only
+            // counted entries that carried a £ amount.
+            const entry = byPayer.get(payer) ?? {
+              payer,
+              roles: new Set<string>(),
+              total: 0, count: 0, hours: 0,
+              acoba: null, donated: false, fx: false,
+              fromDate: null, untilDate: null, anyOngoing: false,
+            };
+            if (role) entry.roles.add(role);
+            if (acoba && !entry.acoba) entry.acoba = acoba;
+            if (fromDate && (!entry.fromDate || fromDate < entry.fromDate)) entry.fromDate = fromDate;
+            if (untilDate && (!entry.untilDate || untilDate > entry.untilDate)) entry.untilDate = untilDate;
+            if (!untilDate) entry.anyOngoing = true;
+            byPayer.set(payer, entry);
+
             const children = Array.isArray(i.child_interests) ? i.child_interests : [];
             for (const c of children) {
               const text = String(c.interest || '');
@@ -1071,24 +1090,13 @@ export default function MagazineProfileSections({
               const childUntil = childUntilM ? parseUkDate(childUntilM[1]) : null;
               const effectiveUntil = childUntil || untilDate;
 
-              const existing = byPayer.get(payer) ?? {
-                payer,
-                roles: new Set<string>(),
-                total: 0, count: 0, hours: 0,
-                acoba: null, donated: false, fx: false,
-                fromDate: null, untilDate: null, anyOngoing: false,
-              };
-              existing.total += subtotal;
-              existing.count += 1;
-              existing.hours += hours;
-              if (role) existing.roles.add(role);
-              if (acoba && !existing.acoba) existing.acoba = acoba;
-              if (DONATED_RE.test(text)) existing.donated = true;
-              if (FX_RE.test(text)) existing.fx = true;
-              if (fromDate && (!existing.fromDate || fromDate < existing.fromDate)) existing.fromDate = fromDate;
-              if (effectiveUntil && (!existing.untilDate || effectiveUntil > existing.untilDate)) existing.untilDate = effectiveUntil;
-              if (!effectiveUntil) existing.anyOngoing = true;
-              byPayer.set(payer, existing);
+              entry.total += subtotal;
+              entry.count += 1;
+              entry.hours += hours;
+              if (DONATED_RE.test(text)) entry.donated = true;
+              if (FX_RE.test(text)) entry.fx = true;
+              if (effectiveUntil && (!entry.untilDate || effectiveUntil > entry.untilDate)) entry.untilDate = effectiveUntil;
+              if (!effectiveUntil) entry.anyOngoing = true;
             }
           }
           const rows = Array.from(byPayer.values()).sort((a, b) => b.total - a.total);
@@ -1111,7 +1119,8 @@ export default function MagazineProfileSections({
 
               {rows.length > 0 && (
                 <>
-                  <h3 style={{ ...sectionH3, marginTop: '28px' }}>Outside earnings by payer</h3>
+                  <h3 style={{ ...sectionH3, marginTop: '28px' }}>Outside roles &amp; earnings by payer</h3>
+                  <p style={{ fontSize: '13px', opacity: 0.7, marginBottom: '8px', lineHeight: 1.5 }}>Includes every Category 1 declaration. Directorships and shareholdings register the role but not the income, so they show as &ldquo;Not disclosed&rdquo;.</p>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', marginBottom: '8px', tableLayout: 'auto' }}>
                     <thead>
                       <tr style={{ borderBottom: '2px solid rgba(20,16,13,0.4)', textAlign: 'left' }}>
@@ -1157,12 +1166,12 @@ export default function MagazineProfileSections({
                                 )}
                               </div>
                             </td>
-                            <td style={{ padding: '6px 4px', fontFamily: 'monospace' }}>{r.count}</td>
+                            <td style={{ padding: '6px 4px', fontFamily: 'monospace' }}>{r.count > 0 ? r.count : '—'}</td>
                             <td style={{ padding: '6px 4px', fontFamily: 'monospace' }}>{r.hours > 0 ? r.hours.toLocaleString('en-GB') : ', '}</td>
                             <td style={{ padding: '6px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap' }}>
                               {hourly !== null ? fmtMoney(hourly) : ', '}
                             </td>
-                            <td style={{ padding: '6px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap', fontWeight: 'bold' }}>{fmtMoney(r.total)}</td>
+                            <td style={{ padding: '6px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap', fontWeight: 'bold' }}>{r.count > 0 ? fmtMoney(r.total) : <span style={{ fontWeight: 'normal', opacity: 0.55 }}>Not disclosed</span>}</td>
                           </tr>
                         );
                       })}
