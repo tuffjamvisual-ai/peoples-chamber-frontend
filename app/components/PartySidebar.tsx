@@ -18,16 +18,21 @@ export default function PartySidebar({
   active,
   children,
 }: {
-  party: { slug: string; name: string };
+  party: { slug: string; name: string; mp_party_string?: string | null };
   active: ActiveKey;
   children: React.ReactNode;
 }) {
+  // The /mps listing groups by the raw `mps.party` string (e.g. "Liberal
+  // Democrat", "Alliance"), which differs from both the slug and the
+  // display name for several parties. Drive the expand link off
+  // mp_party_string so it lands on this party's MP group, not the index.
+  const mpsExpand = party.mp_party_string || party.name;
   const items: { key: ActiveKey; label: string; href: string; rotate: string }[] = [
     { key: 'manifesto', label: 'Manifesto vs Record', href: `/parties/${party.slug}`,        rotate: '0.15deg'  },
     { key: 'bio',       label: "People's verdict",     href: `/parties/${party.slug}/bio`,    rotate: '-0.2deg'  },
     { key: 'money',     label: 'Money',                href: `/parties/${party.slug}/money`,  rotate: '0.1deg'   },
     { key: 'whip',      label: 'Whip',                 href: `/parties/${party.slug}/whip`,   rotate: '-0.12deg' },
-    { key: 'mps',       label: `${party.name} MPs`,    href: `/mps?expand=${encodeURIComponent(party.slug)}#mps-list`, rotate: '0.1deg' },
+    { key: 'mps',       label: `${party.name} MPs`,    href: `/mps?expand=${encodeURIComponent(mpsExpand)}#mps-list`, rotate: '0.1deg' },
     { key: 'compare',   label: 'Compare Parties',      href: '/parties',                      rotate: '-0.1deg'  },
   ];
 

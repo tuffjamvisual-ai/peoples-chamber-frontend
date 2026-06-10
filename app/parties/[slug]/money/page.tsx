@@ -33,6 +33,7 @@ type Party = {
   name: string;
   party_colour: string | null;
   recipient_name: string | null;
+  mp_party_string: string | null;
 };
 
 type Donation = {
@@ -61,7 +62,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
   const { slug } = await params;
   const { data: partyRow } = await supabase
     .from('parties')
-    .select('slug, name, party_colour, recipient_name')
+    .select('slug, name, party_colour, recipient_name, mp_party_string')
     .eq('slug', slug)
     .maybeSingle();
   const party = partyRow as Party | null;

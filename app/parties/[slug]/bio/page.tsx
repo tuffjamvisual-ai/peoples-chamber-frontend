@@ -23,12 +23,13 @@ type Party = {
   name: string;
   party_colour: string | null;
   critique: string | null;
+  mp_party_string: string | null;
 };
 
 async function getPartyBio(slug: string): Promise<Party | null> {
   const { data: partyRow } = await supabase
     .from('parties')
-    .select('slug, name, party_colour, critique')
+    .select('slug, name, party_colour, critique, mp_party_string')
     .eq('slug', slug)
     .maybeSingle();
   return (partyRow as Party | null) || null;
