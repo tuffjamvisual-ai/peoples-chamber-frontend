@@ -21,6 +21,9 @@ export type EditorialEntry = {
 export type Block =
   | { type: 'paragraph'; text: string }
   | { type: 'heading'; level: 2 | 3; text: string }
+  // Short context line (e.g. party + offices held) rendered directly
+  // under a heading so the reader knows who the subject is.
+  | { type: 'bioLine'; text: string }
   | { type: 'pullQuote'; text: string }
   | {
       type: 'councilEntry';

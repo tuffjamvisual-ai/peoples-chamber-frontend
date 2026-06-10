@@ -123,6 +123,12 @@ function renderBlock(block: Block, i: number): React.ReactNode {
           {block.text}
         </h3>
       );
+    case 'bioLine':
+      return (
+        <p key={i} style={{ fontFamily: '"Special Elite", monospace', fontSize: '13px', color: ACCENT, fontWeight: 'bold', letterSpacing: '0.02em', lineHeight: 1.5, marginTop: '-6px', marginBottom: '18px' }}>
+          {block.text}
+        </p>
+      );
     case 'pullQuote':
       return (
         <blockquote key={i} style={{ borderLeft: `4px solid ${ACCENT}`, margin: '28px 0', padding: '8px 0 8px 22px', fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(20px, 2.2vw, 26px)', fontStyle: 'italic', lineHeight: 1.45, color: INK }}>
