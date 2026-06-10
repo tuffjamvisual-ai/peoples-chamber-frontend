@@ -130,7 +130,7 @@ export default async function AppgFundersIndex() {
       </details>
 
       <p style={{ fontSize: '12px', opacity: 0.6 }}>
-        Source: mySociety APPG register dataset (detailed benefits), refreshed weekly. An entry on this list is the public sponsor / funder of an APPG&rsquo;s secretariat costs; it does not mean every member of the group endorses the funder.
+        An entry on this list is the public sponsor / funder of an APPG&rsquo;s secretariat costs; it does not mean every member of the group endorses the funder.
       </p>
     </DossierShell>
   );

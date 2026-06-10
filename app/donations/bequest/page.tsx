@@ -147,10 +147,7 @@ export default async function BequestPage() {
         </table>
       </section>
 
-      <p style={{ fontSize: '12px', opacity: 0.6, marginTop: '24px' }}>
-        Source: Electoral Commission donations register, is_bequest flag. A bequest is money declared as having been left to the recipient in the donor&rsquo;s will. The donor name on each entry refers to the deceased; the gift is administered by their executors.
-      </p>
-    </DossierShell>
+</DossierShell>
   );
 }
 

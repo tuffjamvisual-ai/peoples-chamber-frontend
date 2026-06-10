@@ -168,10 +168,7 @@ export default async function ForeignDonationsPage() {
         </table>
       </section>
 
-      <p style={{ fontSize: '12px', opacity: 0.6, marginTop: '24px' }}>
-        Source: Electoral Commission donations register, addr_country field. UK / Crown Dependency entries excluded.
-      </p>
-    </DossierShell>
+</DossierShell>
   );
 }
 

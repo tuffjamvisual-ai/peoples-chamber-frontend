@@ -201,10 +201,7 @@ export default async function ImpermissiblePage() {
         </table>
       </section>
 
-      <p style={{ fontSize: '12px', opacity: 0.6, marginTop: '24px' }}>
-        Source: Electoral Commission donations register, impermissibility_reason field. A donation is impermissible if it comes from a source UK law disallows: most commonly someone not on a UK electoral roll, an overseas donor outside the small-donations exception, a non-trading company, or a charity. Recipients have 30 days to verify and return; failure can mean the money is forfeited to the Consolidated Fund.
-      </p>
-    </DossierShell>
+</DossierShell>
   );
 }
 

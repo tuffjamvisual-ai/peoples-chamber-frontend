@@ -1535,7 +1535,7 @@ export default function MagazineProfileSections({
               )}
 
               <p style={{ marginTop: '8px', fontSize: '12px', opacity: 0.6, lineHeight: 1.55 }}>
-                Cash and non-cash combined: {fmtMoney(cashTotal)} cash, {fmtMoney(nonCashTotal)} non-cash. Source: Electoral Commission donation register, refreshed weekly.
+                Cash and non-cash combined: {fmtMoney(cashTotal)} cash, {fmtMoney(nonCashTotal)} non-cash.
               </p>
 
             </>

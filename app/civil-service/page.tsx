@@ -10,7 +10,7 @@ import { fmtHeadcount } from '@/lib/department-civil-service';
 export const metadata: Metadata = {
   title: 'UK Civil Service Headcount by Department',
   description:
-    'Headcount and FTE for every UK government department, ranked. Source: ONS Public Sector Employment Table 8, refreshed quarterly.',
+    'Headcount and FTE for every UK government department, ranked.',
   alternates: { canonical: '/civil-service' },
 };
 
@@ -81,10 +81,9 @@ export default async function CivilServicePage() {
           departments, as at {topPeriod}. The five largest employers account for {topFiveShare}% of them.
         </p>
         <p style={{ fontSize: '14px', lineHeight: 1.6, marginBottom: '32px', opacity: 0.8, maxWidth: '720px' }}>
-          Source: Office for National Statistics, Public Sector Employment Table 8 (Civil
-          Service employment by department). Refreshed quarterly. Figures are rounded to
-          the nearest five. They count civil servants only — they do not include armed
-          forces personnel (in MoD), NHS staff (in DHSC) or police officers (in the Home Office).
+          Figures are rounded to the nearest five. They count civil servants only. They do
+          not include armed forces personnel (in MoD), NHS staff (in DHSC) or police officers
+          (in the Home Office).
         </p>
 
         <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>

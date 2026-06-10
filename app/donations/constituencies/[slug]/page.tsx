@@ -200,10 +200,7 @@ export default async function AssociationPage({ params }: PageProps) {
         </table>
       </section>
 
-      <p style={{ fontSize: '12px', opacity: 0.6 }}>
-        Source: Electoral Commission donations register, accounting_unit_name = &ldquo;{canonicalName}&rdquo;.
-      </p>
-    </DossierShell>
+</DossierShell>
   );
 }
 

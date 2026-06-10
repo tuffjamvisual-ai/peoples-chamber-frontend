@@ -10,7 +10,7 @@ import { fmtMillions } from '@/lib/department-civil-service';
 export const metadata: Metadata = {
   title: 'UK Department Budgets — Total DEL by Department',
   description:
-    "Total Departmental Expenditure Limits for every UK government department, ranked. Source: HM Treasury Main Estimates, refreshed annually.",
+    "Total Departmental Expenditure Limits for every UK government department, ranked.",
   alternates: { canonical: '/spending' },
 };
 
@@ -75,14 +75,7 @@ export default async function SpendingPage() {
           {fmtMillions(totalReported)} in Total Departmental Expenditure Limits across {reported.length} of the
           24 ministerial departments, FY {fy} plans. {top ? `${top.name} alone is ${topShare}% of it.` : ''}
         </p>
-        <p style={{ fontSize: '14px', lineHeight: 1.6, marginBottom: '32px', opacity: 0.8, maxWidth: '720px' }}>
-          Source: HM Treasury Main Estimates, Departmental DEL tables. Refreshed once per
-          year (late April / mid-May). DEL = Departmental Expenditure Limit. AME
-          (Annually Managed Expenditure, e.g. welfare in DWP, debt interest in HMT) is
-          much larger and is not included in the ranking here.
-        </p>
-
-        <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+<ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {reported.map((m, i) => {
             const total = m.row!.total_del_millions || 0;
             const pct = (total / maxTotal) * 100;

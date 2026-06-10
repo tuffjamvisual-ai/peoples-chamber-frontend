@@ -103,8 +103,7 @@ export default async function SecretariatsIndex() {
         <span style={{ opacity: 0.6 }}> who pays the secretariats to run these groups</span>
       </div>
 
-      <p style={{ fontSize: '12px', opacity: 0.6, marginTop: '12px' }}>Source: mySociety APPG register dataset, refreshed weekly.</p>
-    </DossierShell>
+</DossierShell>
   );
 }
 

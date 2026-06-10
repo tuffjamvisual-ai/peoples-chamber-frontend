@@ -198,10 +198,7 @@ export default async function LeadershipContestsPage() {
         </table>
       </section>
 
-      <p style={{ fontSize: '12px', opacity: 0.6, marginTop: '24px' }}>
-        Source: Electoral Commission donations register, position_standing_for field. The position the donor recorded matches the contest the recipient was running in at the time of the gift; party-of-record leadership donations stay with the party even if the candidate loses.
-      </p>
-    </DossierShell>
+</DossierShell>
   );
 }
 

@@ -30,7 +30,7 @@ const ACCENT = '#7a1612';
 export const metadata: Metadata = {
   title: "UK Special Advisers transparency: who advises which minister, and what they declared | The People's Chamber",
   description:
-    'Every current UK Special Adviser, the department they work for, and the gifts, hospitality and meetings with senior media figures they declared in the most recent published quarter. Sourced from the Cabinet Office quarterly transparency publications.',
+    'Every current UK Special Adviser, the department they work for, and the gifts, hospitality and meetings with senior media figures they declared in the most recent published quarter.',
   alternates: { canonical: '/transparency/special-advisers' },
 };
 
@@ -260,11 +260,7 @@ export default async function SpecialAdvisersPage() {
         </section>
       )}
 
-      <p style={{ fontSize: '12px', opacity: 0.6, marginTop: '24px' }}>
-        Source: Cabinet Office and individual departmental quarterly transparency publications, ingested from the gov.uk Content API. This page reflects the most recent published quarter only.
-      </p>
-
-      <ScrollToTopButton />
+<ScrollToTopButton />
     </DossierShell>
   );
 }

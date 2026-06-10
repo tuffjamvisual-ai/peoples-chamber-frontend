@@ -288,7 +288,7 @@ function HomepageEditorialIntro() {
         The transparency surfaces sit alongside the formal record. Ministers&rsquo; meetings, ministers&rsquo; hospitality, the Advisory Committee on Business Appointments, the Register of Members&rsquo; Financial Interests, awarded public contracts and political donations are pulled from the public registers daily, indexed by Member and by department, searchable.
       </p>
       <p>
-        The site exists because the public record is real but inaccessible. Every fact on the People&rsquo;s Chamber is sourced from Parliament, GOV.UK, the Electoral Commission, ACOBA, Contracts Finder or the relevant departmental disclosure. None of it is invented. None of it is opinion in the sense of being made up. The interpretative judgements in the institutional reports and the political biographies are the editorial work of the project; the underlying record is not.
+        The site exists because the public record is real but inaccessible. Every fact on the People&rsquo;s Chamber is drawn from the public record. None of it is invented. None of it is opinion in the sense of being made up. The interpretative judgements in the institutional reports and the political biographies are the editorial work of the project; the underlying record is not.
       </p>
       <p>If something is wrong, it can be corrected. If something is missing, it can be added.</p>
     </section>

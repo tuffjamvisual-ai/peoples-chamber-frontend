@@ -74,7 +74,7 @@ export default async function DonorsIndex() {
           Who funds Westminster
         </h1>
         <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
-          The 200 biggest UK political donors by lifetime giving, sourced from the Electoral Commission&rsquo;s register. The EC&rsquo;s own search lets you filter by recipient. It does not let you ask: who has this donor backed? This page does. Click any donor to see every party, MP, constituency association and APPG they have funded.
+          The 200 biggest UK political donors by lifetime giving. The Electoral Commission&rsquo;s own search lets you filter by recipient. It does not let you ask: who has this donor backed? This page does. Click any donor to see every party, MP, constituency association and APPG they have funded.
         </p>
       </header>
 
@@ -105,9 +105,7 @@ export default async function DonorsIndex() {
         </tbody>
       </table>
 
-      <p style={{ marginTop: '24px', fontSize: '12px', opacity: 0.6 }}>Source: Electoral Commission donations register, refreshed weekly.</p>
-
-      <div style={{ marginTop: '20px', padding: '12px 14px', background: CREAM, fontSize: '13px' }}>
+<div style={{ marginTop: '20px', padding: '12px 14px', background: CREAM, fontSize: '13px' }}>
         <strong>Heads up.</strong> &ldquo;House of Commons&rdquo; and &ldquo;House of Commons Fees Office&rdquo; appear in the EC register because they are the legal counterparty for MPs&rsquo; Members Estimate &ldquo;Short Money&rdquo; payments. Those are not donations in the lobbying sense; the EC simply records the payment trail.
       </div>
     </DossierShell>

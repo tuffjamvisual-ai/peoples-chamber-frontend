@@ -8,7 +8,7 @@ import BackLink from '../../components/BackLink';
 export const metadata: Metadata = {
   title: "MP Expenses Refused or Repaid, IPSA Rejections, Late Submissions & Repayments | The People's Chamber",
   description:
-    "Every MP claim IPSA refused, every amount MPs had to repay, and why. League tables by member and by rejection reason, sourced from IPSA's published business-cost data.",
+    "Every MP claim IPSA refused, every amount MPs had to repay, and why. League tables by member and by rejection reason.",
   alternates: { canonical: '/expenses/refused' },
 };
 
@@ -124,7 +124,7 @@ export default async function RefusedExpensesPage() {
           Refused &amp; repaid: when IPSA says no
         </h1>
         <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '12px', maxWidth: '60ch' }}>
-          Every MP claim IPSA refused, every amount MPs had to repay, and why. Sourced from IPSA&rsquo;s published individual business-cost data; updated as IPSA publishes new tranches each quarter.
+          Every MP claim IPSA refused, every amount MPs had to repay, and why. Updated as IPSA publishes new tranches each quarter.
         </p>
       </header>
 
@@ -234,11 +234,7 @@ export default async function RefusedExpensesPage() {
         </table>
       </section>
 
-      <p style={{ fontSize: '12px', opacity: 0.6, lineHeight: 1.55, marginTop: '32px' }}>
-        Source: IPSA individualBusinessCosts dataset, fields amount_not_paid + amount_repaid + reason_if_not_paid. Aggregates exclude unmapped rows where the MP&rsquo;s parliamentary identifier did not resolve to a current member record.
-      </p>
-
-      <ScrollToTopButton />
+<ScrollToTopButton />
     </DossierShell>
   );
 }

@@ -324,7 +324,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
       </section>
 
       <p style={{ fontSize: '12px', opacity: 0.6, marginTop: '24px' }}>
-        Source: Electoral Commission donations register, recipient_name = &ldquo;{party.recipient_name}&rdquo;. All-time, all accounting units. Includes both monetary donations and non-cash benefits.
+        All-time, all accounting units. Includes both monetary donations and non-cash benefits.
       </p>
 
       </PartySidebar>

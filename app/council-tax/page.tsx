@@ -7,7 +7,7 @@ import BackLink from '../components/BackLink';
 export const metadata: Metadata = {
   title: "Top Ten Highest Council Tax Bills in England, 2026/27",
   description:
-    "The ten English councils with the highest Band D council tax for 2026/27, including all precepts (council, police, fire, parish). Per-council editorial analysis of each. Source: MHCLG.",
+    "The ten English councils with the highest Band D council tax for 2026/27, including all precepts (council, police, fire, parish). Per-council editorial analysis of each.",
   alternates: { canonical: '/council-tax' },
 };
 
@@ -324,7 +324,7 @@ export default function CouncilTaxPage() {
         >
           Ranked by total Band D council tax. Figures include all precepts: council, police, fire,
           regional authority and parish where applicable. Each authority gets an editorial
-          assessment. Source: MHCLG.
+          assessment.
         </p>
 
         <div
@@ -354,8 +354,7 @@ export default function CouncilTaxPage() {
           lineHeight: 1.75,
         }}
       >
-        Source note: All figures are Band D council tax for 2026/27 as published by the Ministry of
-        Housing, Communities and Local Government, March 2026. Figures include all precepts:
+        Note: All figures are Band D council tax for 2026/27. Figures include all precepts:
         council, police, fire, regional authority and parish where applicable. England average Band
         D 2026/27: £2,392.
       </p>

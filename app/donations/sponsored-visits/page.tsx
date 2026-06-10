@@ -275,10 +275,7 @@ export default async function SponsoredVisitsPage() {
         </table>
       </section>
 
-      <p style={{ fontSize: '12px', opacity: 0.6, marginTop: '24px' }}>
-        Source: Electoral Commission donations register, purpose_of_visit field. These are non-cash benefits declared as donations because they have material value to the recipient. Distinct from the central-government ministers&rsquo; hospitality feed, which only covers in-office ministerial activity.
-      </p>
-    </DossierShell>
+</DossierShell>
   );
 }
 

@@ -168,10 +168,7 @@ export default async function ConstituencyDonationsPage() {
         </table>
       </section>
 
-      <p style={{ fontSize: '12px', opacity: 0.6 }}>
-        Source: Electoral Commission donations register, accounting_unit_name field. Filtered to &pound;1,500+ entries (the EC&rsquo;s standard declaration threshold). Constituency classification uses a name heuristic; a small number of mis-labelled units may slip through in either direction.
-      </p>
-    </DossierShell>
+</DossierShell>
   );
 }
 

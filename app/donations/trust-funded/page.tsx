@@ -165,10 +165,7 @@ export default async function TrustFundedPage() {
         </table>
       </section>
 
-      <p style={{ fontSize: '12px', opacity: 0.6, marginTop: '24px' }}>
-        Source: Electoral Commission donations register, trust_name field. The creator column reflects the EC&rsquo;s record of who established the trust; for older trusts this is typically a deceased benefactor.
-      </p>
-    </DossierShell>
+</DossierShell>
   );
 }
 
