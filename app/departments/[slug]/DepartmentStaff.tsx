@@ -134,13 +134,13 @@ function StaffGroup({
                     src={person.photo}
                     alt={person.name}
                     loading="lazy"
-                    style={{ display: 'block', width: '60px', height: '70px', objectFit: 'cover', filter: 'contrast(1.05) sepia(0.05)' }}
+                    style={{ display: 'block', width: '64px', height: '64px', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }}
                   />
                 ) : (
                   <div
                     aria-hidden
                     style={{
-                      width: '60px', height: '70px', background: '#d6cdb8',
+                      width: '64px', height: '64px', background: '#d6cdb8',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       fontSize: '24px', color: '#14100d',
                     }}
