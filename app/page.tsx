@@ -72,7 +72,6 @@ export default function HomePage() {
             style={{
               position: 'absolute',
               inset: 0,
-              border: '2.5px solid #14100d',
               pointerEvents: 'none',
             }}
           />
@@ -113,7 +112,6 @@ export default function HomePage() {
             style={{
               position: 'absolute',
               inset: 0,
-              border: '2.5px solid #14100d',
               pointerEvents: 'none',
             }}
           />
@@ -157,7 +155,6 @@ export default function HomePage() {
             style={{
               position: 'absolute',
               inset: 0,
-              border: '2.5px solid #14100d',
               pointerEvents: 'none',
             }}
           />
@@ -188,7 +185,6 @@ export default function HomePage() {
             style={{
               position: 'absolute',
               inset: 0,
-              border: '2.5px solid #14100d',
               pointerEvents: 'none',
             }}
           />
@@ -214,7 +210,6 @@ export default function HomePage() {
             style={{
               position: 'absolute',
               inset: 0,
-              border: '2.5px solid #14100d',
               pointerEvents: 'none',
             }}
           />
