@@ -5,6 +5,7 @@ import { DEPARTMENT_BUDGETS } from '@/lib/department-budgets';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 import DepartmentClient from './DepartmentClient';
 import DepartmentMasthead from './DepartmentMasthead';
+import DepartmentStaff from './DepartmentStaff';
 import DossierShell from '../../components/DossierShell';
 import { getGovukDept } from '../../api/govuk-dept/route';
 import { getDeptContext } from '../../api/department-context/route';
@@ -83,6 +84,11 @@ export default async function DepartmentPage({ params }: PageProps) {
           }
           budget={DEPARTMENT_BUDGETS[slug] || null}
         />
+
+        {/* Department Staff sits directly beneath the Secretary of State
+            photo (user-requested layout, 2026-06-10): the ministerial team
+            and senior officials before the descriptive content. */}
+        <DepartmentStaff govukData={govukData} />
 
         <p style={{ fontSize: '16px', lineHeight: 1.7, maxWidth: '720px', marginBottom: '5%' }}>
           {dept.description}
