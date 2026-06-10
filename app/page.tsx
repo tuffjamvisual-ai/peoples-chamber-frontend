@@ -73,7 +73,6 @@ export default function HomePage() {
               position: 'absolute',
               inset: 0,
               border: '2.5px solid #14100d',
-              filter: 'url(#handDrawnEdge)',
               pointerEvents: 'none',
             }}
           />
@@ -115,7 +114,6 @@ export default function HomePage() {
               position: 'absolute',
               inset: 0,
               border: '2.5px solid #14100d',
-              filter: 'url(#handDrawnEdge)',
               pointerEvents: 'none',
             }}
           />
@@ -142,17 +140,6 @@ export default function HomePage() {
         <div style={{ ...kicker, fontSize: '1.1cqw', letterSpacing: '0.12em', color: '#6b2417', fontWeight: 'bold' }}>Read the full story &rarr;</div>
       </a>
 
-      {/* Hand-drawn SVG border filter — feTurbulence displaces the border
-          edges so they read as wobbly ink strokes, not a CSS rectangle.
-          One <svg> shared between both photo cards on this page. */}
-      <svg width="0" height="0" style={{ position: 'absolute', pointerEvents: 'none' }} aria-hidden>
-        <defs>
-          <filter id="handDrawnEdge" x="-5%" y="-5%" width="110%" height="110%">
-            <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="5" result="noise" />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="5" xChannelSelector="R" yChannelSelector="G" />
-          </filter>
-        </defs>
-      </svg>
 
       {/* Expenses story (left) — featured image on top, headline under.
           The image stays crisp; the hand-drawn ink border sits over it
@@ -171,7 +158,6 @@ export default function HomePage() {
               position: 'absolute',
               inset: 0,
               border: '2.5px solid #14100d',
-              filter: 'url(#handDrawnEdge)',
               pointerEvents: 'none',
             }}
           />
@@ -203,7 +189,6 @@ export default function HomePage() {
               position: 'absolute',
               inset: 0,
               border: '2.5px solid #14100d',
-              filter: 'url(#handDrawnEdge)',
               pointerEvents: 'none',
             }}
           />
@@ -230,7 +215,6 @@ export default function HomePage() {
               position: 'absolute',
               inset: 0,
               border: '2.5px solid #14100d',
-              filter: 'url(#handDrawnEdge)',
               pointerEvents: 'none',
             }}
           />
