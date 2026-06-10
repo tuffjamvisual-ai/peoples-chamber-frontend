@@ -75,7 +75,7 @@ export default async function EditorialPage({ params }: { params: Promise<{ slug
         </figure>
       )}
 
-      <div style={{ fontFamily: '"Special Elite", monospace', maxWidth: '70ch', width: '100%' }}>
+      <div style={{ fontFamily: '"Special Elite", monospace', width: '100%' }}>
       <header style={{ borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '24px', marginBottom: '28px' }}>
         {piece.kicker && (
           <p style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '14px', color: ACCENT, fontFamily: '"Special Elite", monospace', fontWeight: 'bold' }}>
@@ -93,7 +93,7 @@ export default async function EditorialPage({ params }: { params: Promise<{ slug
         </div>
       </header>
 
-      <article style={{ fontFamily: '"Special Elite", monospace', fontSize: '16px', lineHeight: 1.75, color: INK, maxWidth: '70ch' }}>
+      <article style={{ fontFamily: '"Special Elite", monospace', fontSize: '16px', lineHeight: 1.75, color: INK }}>
         {piece.body.map((block, i) => renderBlock(block, i))}
       </article>
 
