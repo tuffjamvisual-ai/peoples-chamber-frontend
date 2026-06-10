@@ -227,6 +227,7 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
       .from('ministers_meetings')
       .select('id, minister_name, minister_dept, meeting_date, organisation, purpose, quarter, enriched_description, source_publication_slug')
       .or(`minister_name.ilike.%${mpNameKey.replace(/[%_,]/g, '')}%`)
+      .lte('meeting_date', new Date().toISOString().slice(0, 10))
       .order('meeting_date', { ascending: false })
       .limit(500),
     supabase

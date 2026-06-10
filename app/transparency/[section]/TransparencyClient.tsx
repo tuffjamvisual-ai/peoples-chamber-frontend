@@ -209,6 +209,38 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
           </ul>
           <Pagination page={page} totalPages={totalPages} onPrev={() => setPage(p => p - 1)} onNext={() => setPage(p => p + 1)} filteredCount={filtered.length} />
         </>
+      ) : section === 'ministers-meetings' ? (
+        <>
+          <ul className="border border-[#14100d]/20 divide-y divide-[#14100d]/10">
+            {paged.map((row, i) => {
+              const minister = (row.minister_name as string) || '(unknown minister)'
+              const dept = row.minister_dept as string | null
+              const organisation = row.organisation as string | null
+              const purpose = row.purpose as string | null
+              const date = formatUkDate(row.meeting_date)
+              return (
+                <li key={i} className="p-5 border-l-2 border-l-[#14100d]">
+                  <div className="flex items-baseline justify-between gap-4 mb-1.5">
+                    <h3 className="text-[#14100d] text-base font-bold leading-snug tracking-tight">
+                      {minister}
+                      {dept && <span className="text-[#14100d]/55 font-normal text-[12px]"> · {dept}</span>}
+                    </h3>
+                    {date && (
+                      <span className="text-[#14100d] text-[14px] font-mono whitespace-nowrap uppercase tracking-[0.15em]">{date}</span>
+                    )}
+                  </div>
+                  {organisation && (
+                    <p className="text-[13px] leading-[1.7] font-semibold mb-1" style={{ color: ACCENT }}>Met {organisation}</p>
+                  )}
+                  {purpose && (
+                    <p className="text-[#14100d] text-[13px] leading-[1.7]" style={{ fontFamily: 'Special Elite, monospace' }}>{purpose}</p>
+                  )}
+                </li>
+              )
+            })}
+          </ul>
+          <Pagination page={page} totalPages={totalPages} onPrev={() => setPage(p => p - 1)} onNext={() => setPage(p => p + 1)} filteredCount={filtered.length} />
+        </>
       ) : section === 'donations' ? (
         <ul className="border border-[#14100d]/20 divide-y divide-[#14100d]/10">
           {rows.map((row, i) => {

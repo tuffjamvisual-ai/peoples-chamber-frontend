@@ -58,12 +58,18 @@ export default async function TransparencySectionPage({
   const from = (page - 1) * PAGE_LIMIT
   const to = from + PAGE_LIMIT - 1
 
+  // Ministerial meetings are a retrospective register, so any meeting dated
+  // in the future is a source typo — hide those rows (data is corrected from
+  // the `quarter` field on sync, this is the display safety net).
+  const todayIso = new Date().toISOString().slice(0, 10)
+
   // Total count (with search filter applied for donations).
   let countQ = supabase.from(config.table).select('*', { count: 'exact', head: true })
   if (searchTerm) {
     const like = `%${searchTerm}%`
     countQ = countQ.or(`donor_name.ilike.${like},recipient_name.ilike.${like}`)
   }
+  if (section === 'ministers-meetings') countQ = countQ.lte('meeting_date', todayIso)
   const { count: total } = await countQ
 
   // Data rows — server-side paginated via .range().
@@ -73,6 +79,7 @@ export default async function TransparencySectionPage({
     const like = `%${searchTerm}%`
     dataQ = dataQ.or(`donor_name.ilike.${like},recipient_name.ilike.${like}`)
   }
+  if (section === 'ministers-meetings') dataQ = dataQ.lte('meeting_date', todayIso)
   const { data: rows, error } = await dataQ
 
   const totalPages = Math.max(1, Math.ceil((total ?? 0) / PAGE_LIMIT))
