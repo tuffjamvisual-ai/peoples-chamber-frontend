@@ -135,13 +135,18 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
     if (d.ayes === d.noes) partyMajorityByDivision.set(d.key, null);
     else partyMajorityByDivision.set(d.key, d.ayes > d.noes ? 'aye' : 'no');
   }
-  type RebelAgg = { memberId: number; name: string; rebellions: number; totalVotes: number };
+  type RebelDiv = { date: string; num: number; key: string };
+  type RebelAgg = { memberId: number; name: string; rebellions: number; totalVotes: number; rebelDivs: RebelDiv[] };
   const byMp = new Map<number, RebelAgg>();
   for (const v of votes) {
-    const ex = byMp.get(v.member_id) ?? { memberId: v.member_id, name: mpById.get(v.member_id)?.display_name || `MP ${v.member_id}`, rebellions: 0, totalVotes: 0 };
+    const ex = byMp.get(v.member_id) ?? { memberId: v.member_id, name: mpById.get(v.member_id)?.display_name || `MP ${v.member_id}`, rebellions: 0, totalVotes: 0, rebelDivs: [] };
     ex.totalVotes += 1;
-    const majority = partyMajorityByDivision.get(`${v.division_date_only}|${v.division_number}`);
-    if (majority && v.vote_type !== majority) ex.rebellions += 1;
+    const key = `${v.division_date_only}|${v.division_number}`;
+    const majority = partyMajorityByDivision.get(key);
+    if (majority && v.vote_type !== majority) {
+      ex.rebellions += 1;
+      ex.rebelDivs.push({ date: v.division_date_only, num: v.division_number, key });
+    }
     byMp.set(v.member_id, ex);
   }
   const rebelRanked = Array.from(byMp.values())
@@ -154,22 +159,35 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
     .sort((a, b) => Math.min(b.ayes, b.noes) / (b.ayes + b.noes) - Math.min(a.ayes, a.noes) / (a.ayes + a.noes))
     .slice(0, 15);
 
-  // Lookup division titles for the most-divided list
-  const divisionLookups = mostDivided.map((d) => ({ date: d.date, num: d.num }));
-  let titleByKey = new Map<string, string>();
-  if (divisionLookups.length > 0) {
-    const orClause = divisionLookups.map((d) => `and(division_date_only.eq.${d.date},division_number.eq.${d.num})`).join(',');
+  // The rebels we render, each with their specific rebellion divisions
+  // (most recent first), capped per MP for display.
+  const REBELS_SHOWN = 25;
+  const DIVS_PER_REBEL = 8;
+  const topRebels = rebelRanked.slice(0, REBELS_SHOWN).map((r) => ({
+    ...r,
+    rebelDivs: [...r.rebelDivs].sort((a, b) => b.date.localeCompare(a.date)),
+  }));
+
+  // Division titles we need: the most-divided list plus the (capped)
+  // rebellion divisions shown under each MP. The title is denormalised
+  // onto every mp_division_votes row; fetch in chunks to stay within URL
+  // length limits.
+  const neededDivs = new Map<string, { date: string; num: number }>();
+  for (const d of mostDivided) neededDivs.set(d.key, { date: d.date, num: d.num });
+  for (const r of topRebels) for (const k of r.rebelDivs.slice(0, DIVS_PER_REBEL)) neededDivs.set(k.key, { date: k.date, num: k.num });
+  const titleByKey = new Map<string, string>();
+  const lookupList = Array.from(neededDivs.values());
+  for (let i = 0; i < lookupList.length; i += 80) {
+    const chunk = lookupList.slice(i, i + 80);
+    const orClause = chunk.map((d) => `and(division_date_only.eq.${d.date},division_number.eq.${d.num})`).join(',');
     const { data: titleRows } = await supabase
       .from('mp_division_votes')
       .select('division_date_only, division_number, division_title')
       .or(orClause)
-      .limit(2000);
-    const seen = new Set<string>();
+      .limit(4000);
     for (const r of (titleRows || []) as Array<{ division_date_only: string; division_number: number; division_title: string | null }>) {
       const k = `${r.division_date_only}|${r.division_number}`;
-      if (seen.has(k)) continue;
-      seen.add(k);
-      if (r.division_title) titleByKey.set(k, r.division_title);
+      if (!titleByKey.has(k) && r.division_title) titleByKey.set(k, r.division_title);
     }
   }
 
@@ -203,31 +221,39 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Top rebels · MPs voting against the party whip most often</h2>
-        <p style={{ fontSize: '12px', opacity: 0.75, marginBottom: '10px' }}>Calculation requires &ge; 20 recorded votes by the MP. Excludes tellers and unanimous divisions where the &ldquo;rebellion&rdquo; would be meaningless.</p>
-        <table style={tableStyle}>
-          <thead>
-            <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
-              <th style={th}>#</th>
-              <th style={th}>MP</th>
-              <th style={{ ...th, textAlign: 'right' }}>Rebellions</th>
-              <th style={{ ...th, textAlign: 'right' }}>Total votes</th>
-              <th style={{ ...th, textAlign: 'right' }}>Rebel rate</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rebelRanked.slice(0, 25).map((r, i) => (
-              <tr key={r.memberId} style={{ borderBottom: `1px solid ${HAIRLINE}` }}>
-                <td style={{ ...td, opacity: 0.6 }}>{i + 1}</td>
-                <td style={td}>
+        <p style={{ fontSize: '12px', opacity: 0.75, marginBottom: '14px' }}>Calculation requires &ge; 20 recorded votes by the MP. Excludes tellers and unanimous divisions where the &ldquo;rebellion&rdquo; would be meaningless. Each name links to the MP; the divisions listed are the specific votes where they broke from the party line.</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          {topRebels.map((r, i) => {
+            const shown = r.rebelDivs.slice(0, DIVS_PER_REBEL);
+            const moreCount = r.rebelDivs.length - shown.length;
+            return (
+              <div key={r.memberId} style={{ borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
+                  <span style={{ opacity: 0.55, fontFamily: 'monospace' }}>{i + 1}.</span>
                   <Link href={`/mps/${r.memberId}`} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold' }}>{r.name}</Link>
-                </td>
-                <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>{r.rebellions}</td>
-                <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace' }}>{r.totalVotes}</td>
-                <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace' }}>{((r.rebellions / r.totalVotes) * 100).toFixed(1)}%</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  <span style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>{r.rebellions} rebellions</span>
+                  <span style={{ fontFamily: 'monospace', opacity: 0.65, fontSize: '12px' }}>{((r.rebellions / r.totalVotes) * 100).toFixed(1)}% of {r.totalVotes} votes</span>
+                </div>
+                {shown.length > 0 && (
+                  <div style={{ fontSize: '13px', marginTop: '5px', lineHeight: 1.55 }}>
+                    {shown.map((k, j) => (
+                      <span key={k.key}>
+                        <Link href={`/divisions/pw-${k.date}-${k.num}-commons`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '2px' }}>{titleByKey.get(k.key) || `Division ${k.num} (${k.date})`}</Link>
+                        {j < shown.length - 1 ? '; ' : ''}
+                      </span>
+                    ))}
+                    {moreCount > 0 && (
+                      <>
+                        {'; '}
+                        <Link href={`/mps/${r.memberId}#voting`} style={{ color: ACCENT, textDecoration: 'underline' }}>+{moreCount} more</Link>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </section>
 
       {mostDivided.length > 0 && (
@@ -261,10 +287,6 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
           </table>
         </section>
       )}
-
-      <p style={{ fontSize: '12px', opacity: 0.6, marginTop: '24px' }}>
-        Source: mp_division_votes table built from parlparse + Commons Votes API. Calculation excludes tellers, abstentions, and votes where the MP&rsquo;s vote_type was something other than aye/no. Cohesion = aligned votes / total votes across all participated divisions.
-      </p>
 
       </PartySidebar>
 
