@@ -117,50 +117,23 @@ function StaffGroup({
       <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
         {people.map((person, i) => {
           const href = person.member_id ? `/mps/${person.member_id}` : person.slug ? `/people/${person.slug}` : null;
-          // Vary the polaroid tilt per item for stacked-snapshots feel
-          const tilt = ((i % 5) - 2) * 1.2 - 0.5;
           const inner = (
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
-              <div style={{
-                background: '#ebe5d8',
-                padding: '6px 6px 18px 6px',
-                transform: `rotate(${tilt}deg)`,
-                boxShadow: '0 3px 6px rgba(0,0,0,0.18), inset 0 0 20px rgba(0,0,0,0.03)',
-                flexShrink: 0,
-              }}>
-                {person.photo ? (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img
-                    src={person.photo}
-                    alt={person.name}
-                    loading="lazy"
-                    style={{ display: 'block', width: '64px', height: '64px', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }}
-                  />
-                ) : (
-                  <div
-                    aria-hidden
-                    style={{
-                      width: '64px', height: '64px', background: '#d6cdb8',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: '24px', color: '#14100d',
-                    }}
-                  >
-                    {person.name.charAt(0)}
-                  </div>
-                )}
-              </div>
-              <div style={{ minWidth: 0, paddingTop: '4px', flex: '1 1 0', overflow: 'hidden' }}>
-                <p className="text-[#14100d] text-[14px] font-semibold hover:text-[#7a1612] transition-colors" style={{ overflowWrap: 'anywhere' }}>{person.name}</p>
-                <p className="text-[#14100d] text-[14px] mt-0.5 leading-[1.55] opacity-80" style={{ overflowWrap: 'anywhere' }}>{person.role}</p>
-                {showDetailLine && (
-                  <SeniorOfficialDetailLine
-                    appointmentDate={person.appointment_date ?? null}
-                    scsBand={person.scs_band ?? null}
-                    payFloor={person.pay_floor ?? null}
-                    payCeiling={person.pay_ceiling ?? null}
-                  />
-                )}
-              </div>
+            <div style={{ minWidth: 0, overflow: 'hidden' }}>
+              <p
+                className="text-[#14100d] text-[14px] font-semibold hover:text-[#7a1612] transition-colors"
+                style={{ overflowWrap: 'anywhere', textDecoration: href ? 'underline' : 'none', textUnderlineOffset: '3px' }}
+              >
+                {person.name}
+              </p>
+              <p className="text-[#14100d] text-[14px] mt-0.5 leading-[1.55] opacity-80" style={{ overflowWrap: 'anywhere' }}>{person.role}</p>
+              {showDetailLine && (
+                <SeniorOfficialDetailLine
+                  appointmentDate={person.appointment_date ?? null}
+                  scsBand={person.scs_band ?? null}
+                  payFloor={person.pay_floor ?? null}
+                  payCeiling={person.pay_ceiling ?? null}
+                />
+              )}
             </div>
           );
           return (
