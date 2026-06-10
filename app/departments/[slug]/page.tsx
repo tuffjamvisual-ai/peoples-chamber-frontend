@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import { departments } from '@/lib/departments';
-import { DEPARTMENT_BUDGETS } from '@/lib/department-budgets';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 import DepartmentClient from './DepartmentClient';
 import DepartmentMasthead from './DepartmentMasthead';
@@ -82,7 +81,7 @@ export default async function DepartmentPage({ params }: PageProps) {
                 }
               : { name: dept.minister, photo: '', role: 'Secretary of State', slug: '' }
           }
-          budget={DEPARTMENT_BUDGETS[slug] || null}
+          budget={null}
         />
 
         {/* Department Staff sits directly beneath the Secretary of State
