@@ -587,6 +587,18 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
   const partyColour = partyColourForMember(mp.party, mp.party_colour);
   const partyDisplay = normaliseParty(mp.party);
   const partyIsCoop = isCoop(mp.party);
+  // Map the MP's party to its /parties/<slug>/whip page for the
+  // full-rebellion-analysis link. Keyed by mp_party_string (= normalised
+  // mps.party); parties without a meaningful whip page (Independent,
+  // Speaker) intentionally fall through to null.
+  const PARTY_WHIP_SLUG: Record<string, string> = {
+    'Labour': 'labour', 'Conservative': 'conservative', 'Liberal Democrat': 'liberal-democrats',
+    'Reform UK': 'reform-uk', 'Green Party': 'green', 'Scottish National Party': 'snp',
+    'Sinn Féin': 'sinn-fein', 'Democratic Unionist Party': 'dup', 'Plaid Cymru': 'plaid-cymru',
+    'Social Democratic & Labour Party': 'sdlp', 'Alliance': 'alliance', 'Ulster Unionist Party': 'uup',
+    'Traditional Unionist Voice': 'tuv', 'Restore Britain': 'restore-britain', 'Your Party': 'your-party',
+  };
+  const partyWhipSlug = PARTY_WHIP_SLUG[partyDisplay] ?? PARTY_WHIP_SLUG[mp.party ?? ''] ?? null;
 
   return (
     <>
@@ -628,6 +640,7 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
         ministerHospitality: hospitality,
         conductFindings: conductRes.data || [],
         activity: activityRes.data || null,
+        partyWhipSlug,
         totalVotes: votesCountRes.count ?? votesWithSi.length,
         votePage,
         votesPerPage: VOTES_PER_PAGE,

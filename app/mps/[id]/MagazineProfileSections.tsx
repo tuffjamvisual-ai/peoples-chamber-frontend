@@ -253,6 +253,8 @@ interface Props {
   ministerHospitality?: MinisterHospitality[];
   conductFindings?: ConductFinding[];
   activity?: ActivityMetrics | null;
+  /** Party slug for the full-rebellion-analysis link to /parties/<slug>/whip. */
+  partyWhipSlug?: string | null;
   bio: {
     representations?: Representation[];
     government_posts?: Array<{ name: string }>;
@@ -356,6 +358,7 @@ export default function MagazineProfileSections({
   ministerHospitality = [],
   conductFindings = [],
   activity = null,
+  partyWhipSlug = null,
   bio,
   earnings,
   expenses,
@@ -647,6 +650,14 @@ export default function MagazineProfileSections({
                   </>
                 ) : (
                   <span style={{ opacity: 0.7 }}>No votes against the party line recorded this Parliament.</span>
+                )}
+                {partyWhipSlug && (
+                  <>
+                    {' '}
+                    <Link href={`/parties/${partyWhipSlug}/whip`} style={{ color: '#7a1612', fontWeight: 'bold', textDecoration: 'underline', textUnderlineOffset: '2px' }}>
+                      Full rebellion analysis →
+                    </Link>
+                  </>
                 )}
               </p>
             )}
