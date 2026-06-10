@@ -63,7 +63,7 @@ export default function PartySidebar({
                   background: on ? 'rgba(122,22,18,0.08)' : 'transparent',
                   boxShadow: on ? 'inset 1px 0 2px rgba(0,0,0,0.05)' : 'none',
                   fontWeight: on ? 'bold' : 'normal',
-                  fontSize: '13px',
+                  fontSize: '14px',
                   textTransform: 'uppercase',
                   letterSpacing: '0.08em',
                   color: INK,
