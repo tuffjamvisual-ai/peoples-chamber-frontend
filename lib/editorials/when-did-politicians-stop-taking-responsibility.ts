@@ -35,6 +35,7 @@ const piece: EditorialEntry = {
     { type: 'paragraph', text: 'The public does not demand perfection. It never has. What it wants is surprisingly simple. If a politician takes credit when things go right, that politician should also carry the burden when things go wrong.' },
     { type: 'paragraph', text: 'At some point British politics forgot that bargain.' },
     { type: 'paragraph', text: 'Until it remembers, no amount of rebranding, messaging or constitutional tinkering will restore the trust that has been lost.' },
+    { type: 'signature', src: 'https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/editorial/signatures/jas.webp', alt: 'Jas' },
   ],
 };
 

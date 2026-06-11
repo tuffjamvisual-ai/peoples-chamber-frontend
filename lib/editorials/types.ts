@@ -28,6 +28,9 @@ export type Block =
   // under a heading so the reader knows who the subject is.
   | { type: 'bioLine'; text: string }
   | { type: 'pullQuote'; text: string }
+  // Author signature image (transparent PNG/WebP) rendered at the foot of
+  // the piece.
+  | { type: 'signature'; src: string; alt?: string }
   | {
       type: 'councilEntry';
       rank: number;

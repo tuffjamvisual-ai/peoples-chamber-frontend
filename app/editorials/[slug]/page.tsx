@@ -163,6 +163,11 @@ function renderBlock(block: Block, i: number): React.ReactNode {
           {block.text}
         </blockquote>
       );
+    case 'signature':
+      return (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img key={i} src={block.src} alt={block.alt || 'Signature'} style={{ display: 'block', width: 'clamp(120px, 22vw, 170px)', height: 'auto', marginTop: '28px' }} />
+      );
     case 'councilEntry':
       return (
         <section key={i} style={{ marginTop: '40px', marginBottom: '32px', paddingBottom: '24px', borderBottom: `1px solid ${HAIRLINE}` }}>
