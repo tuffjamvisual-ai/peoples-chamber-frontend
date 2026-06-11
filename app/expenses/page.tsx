@@ -26,31 +26,29 @@ const YEAR_LABEL = '2024 / 2025';
 // renderer matches the bio/critique convention elsewhere on the
 // site. Em-dashes intentionally absent (per site-wide rule).
 const FEATURE_TITLE = 'The Invisible Cost of Keeping Parliament Running';
-const FEATURE_BODY = `Every year, British taxpayers provide each MP with roughly £177,000 to pay for staff. Another £25,000 covers office costs. London-based MPs get more. Those with homes in two places get accommodation budgets. And travel between Parliament and constituency comes with no spending cap.
+const FEATURE_BODY = `Most people know MPs cost money. What most people do not know is how much. Every Member of Parliament receives a staffing budget of around £177,000 a year. They can claim office expenses. Many claim accommodation costs. Travel between Westminster and their constituency is funded by the taxpayer, with no formal spending cap.
 
-It sounds specific and controlled. In reality, the system offers far less visibility than most people assume.
+None of this is secret. That is the strange part. The information exists. It is published. The rules are available online. Receipts are recorded. Audits take place. Yet ask the average voter how much their MP spends each year and the answer is usually silence.
 
-The rules are clear. MPs can only spend money on parliamentary purposes, not party campaigns or ministerial work. They must show receipts. They cannot pocket the funds. But ask how much the average MP actually spends, which budgets get exceeded regularly, or whether these amounts are reasonable, and the answers become fuzzy.
+That tells us something important. Transparency is not simply about making information available. Transparency is about making information understandable.
 
-The staffing budget illustrates the problem. £177,000 sounds substantial until you consider that each MP represents between 56,000 and 72,000 people. A typical MP employs around four staff members. These people handle constituent complaints, research parliamentary questions, prepare speeches, manage surgeries. The work is genuine. Whether the budget is adequate or excessive remains unclear.
+The parliamentary expenses system was rebuilt after the 2009 expenses scandal shattered public trust. MPs were exposed claiming for everything from housing costs to furnishings and personal items. Careers ended. Reputations collapsed. The public reaction was furious because voters felt Parliament had been operating according to rules that ordinary people never knew existed.
 
-Parliament maintains that all spending is published online. Technically true. But published data that ordinary voters cannot easily find or understand is not the same as transparency. The information exists. Accessing it requires navigating government websites and parsing expense claims. Most people never bother.
+The system that replaced it is undoubtedly stricter. The question is whether it is genuinely transparent.
 
-This creates a peculiar situation. MPs are subject to stricter oversight than many private sector roles. Yet the public knows less about what they spend than what happens in many businesses. The contrast between claimed transparency and actual obscurity is striking.
+Take staffing budgets. A typical MP employs several staff members to handle casework, correspondence, research and constituency issues. The work is real. Constituents expect help with benefits, housing, immigration cases, local services and government departments. Most MPs could not perform the role without staff. But how many people know how many staff their MP employs? How much those staff cost? How those costs compare with other MPs? Very few.
 
-The real problem runs deeper. The current system exists because its predecessor failed catastrophically. In 2009, the expenses scandal revealed MPs abusing allowances for housing costs, furnishings, personal items. The public anger was justified. The system was reformed. Yet that history receives little mention in current discussions about how MPs spend money. The scandal is treated as ancient history rather than as context for understanding why skepticism persists.
+The same pattern appears elsewhere. Travel is funded. Accommodation is funded. Office costs are funded. Additional support can be provided under exceptional circumstances. Every category has rules. Every category has oversight. Yet the overall picture remains surprisingly difficult for ordinary voters to understand.
 
-Several elements of the current system invite questions that nobody adequately answers. Travel receives no budget cap. MPs can claim unlimited journeys between Westminster and constituency. The stated reason is that unlimited travel prevents restriction. To voters paying their own commute costs, uncapped parliamentary travel while other spending is limited may seem difficult to defend.
+Parliament often points out that all this information is publicly available. Technically, that is true. So are thousands of pages of government procurement records, local authority accounts and departmental spending reports. Availability is not the same thing as accessibility. If information can only be understood by journalists, researchers, campaign groups and the small number of citizens willing to spend hours navigating official databases, then transparency exists largely in theory.
 
-The accommodation budget creates similar tensions. MPs with homes in both London and their constituency can claim housing costs. The amounts vary based on location. London MPs receive higher allocations due to property costs. But the system allows for ambiguity. What constitutes a necessary accommodation expense? How is that determined?
+Most voters have a simple question. How much does my MP cost? The answer should be available in seconds. Instead, understanding the full picture often requires navigating multiple websites, downloading spreadsheets and interpreting categories that mean little to anyone outside Westminster. That is not openness. It is bureaucracy.
 
-The staffing budget raises different questions. How are staff hired? What qualifications matter? How much variation exists between MPs? Some employ family members. Others bring in experienced researchers. The quality and nature of parliamentary support likely varies significantly, yet public information about this remains limited.
+The deeper issue is trust. The public funds Parliament. Parliament operates on behalf of the public. Yet there remains a significant information gap between those paying the bills and those spending the money. Not because the information is hidden, but because it is buried.
 
-Perhaps most revealing is the Contingency Panel. MPs who exceed their budgets can apply for additional funding if they claim exceptional circumstances. The panel can approve extra money. But how often is this used? What counts as exceptional? When do MPs routinely exceed budgets? The answers remain opaque.
+This is not a story about corruption. It is a story about visibility. The expenses scandal of 2009 taught Parliament that secrecy destroys trust. The lesson that appears not to have been learned is that complexity can produce much the same result.
 
-The broader picture suggests a system designed to prevent the worst abuses while permitting continued opacity. Rules exist. Money is tracked. Spending is technically published. Yet the combination of limited accessibility, outdated information, and absence of meaningful comparisons means the public knows far less about MP spending than transparency claims suggest.
-
-This is not necessarily corruption. It is something more mundane but equally problematic. A system that functions adequately for insiders while remaining effectively invisible to the people funding it. MPs are held accountable by rules most voters never read and cannot easily verify. That is not transparency. It is the appearance of transparency masking a genuine information gap between government and governed.`;
+A transparent system is one that ordinary people can understand without specialist knowledge. Until voters can easily see what their MP spends, how those costs compare and why the money is necessary, Westminster will continue to mistake publication for transparency. They are not the same thing.`;
 
 // Dossier ink-on-parchment palette
 const INK = '#14100d';
