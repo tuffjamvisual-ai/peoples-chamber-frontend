@@ -41,6 +41,7 @@ const SECTIONS: { slug: string; title: string; description: string; href?: strin
   { slug: 'appgs',              title: 'All Party Parliamentary Groups',   description: 'Cross party informal interest groups in Parliament, the funding they receive, and the secretariat support behind them.' },
   { slug: 'hospitality',        title: "Ministers' Hospitality",           description: 'Gifts, hospitality and overseas travel accepted by ministers, published quarterly by every department.' },
   { slug: 'revolving-door',     title: 'Revolving Door',                   description: 'Senior officials and ministers taking up post government roles, including ACOBA recommendations and conditions attached.' },
+  { slug: 'the-revolving-door', title: 'The Revolving Door: Investigation', description: 'Our lead essay on how Westminster influence becomes a commodity once ministers leave office, opening into the twenty politicians who cashed in after public service.', href: '/editorials/the-revolving-door' },
   { slug: 'donations',          title: 'Political Donations',              description: 'Reportable donations to political parties and individual MPs.' },
   { slug: 'contracts',          title: 'Government Contracts',             description: 'Awarded public sector contracts above the disclosure threshold, published via Contracts Finder.' },
   { slug: 'press-releases',     title: 'Press Releases',                   description: 'Most recent UK Government press releases, pulled daily from GOV.UK. Each release links through to the full text announcement.' },
