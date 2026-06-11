@@ -31,6 +31,8 @@ export type Block =
   // Author signature image (transparent PNG/WebP) rendered at the foot of
   // the piece.
   | { type: 'signature'; src: string; alt?: string }
+  // Prominent call-to-action link (e.g. into a companion editorial).
+  | { type: 'cta'; text: string; href: string }
   | {
       type: 'councilEntry';
       rank: number;
