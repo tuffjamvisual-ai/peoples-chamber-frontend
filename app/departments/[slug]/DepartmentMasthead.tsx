@@ -110,7 +110,7 @@ export default function DepartmentMasthead({ sos, budget }: Props) {
                 left: '-18px',
                 width: '65px',
                 height: 'auto',
-                transform: 'rotate(180deg)',
+                transform: 'rotate(168deg)',
                 transformOrigin: 'center',
                 pointerEvents: 'none',
                 filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.35))',
