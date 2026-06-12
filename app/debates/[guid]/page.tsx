@@ -79,7 +79,19 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
   if (!debate || !debate.Overview) notFound();
 
   const ov = debate.Overview;
-  const items = allItems(debate).filter((it) => plain(it.Value || '').length > 0);
+  const rawItems = allItems(debate).filter((it) => it.ItemType !== 'Timestamp' && plain(it.Value || '').length > 0);
+  // Group consecutive paragraphs by speaker so each contribution reads as a
+  // distinct block (name once, paragraphs spaced) rather than one wall of text.
+  type Group = { speaker: string; paras: string[] };
+  const groups: Group[] = [];
+  for (const it of rawItems) {
+    const speaker = (it.AttributedTo || '').trim();
+    const html = sanitize(it.Value || '');
+    const last = groups[groups.length - 1];
+    if (speaker && (!last || last.speaker !== speaker)) groups.push({ speaker, paras: [html] });
+    else if (last) last.paras.push(html);
+    else groups.push({ speaker: '', paras: [html] });
+  }
 
   return (
     <DossierShell>
@@ -103,26 +115,33 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
       </header>
 
       <div style={{ maxWidth: '46em', margin: '0 auto' }}>
-        {items.length === 0 ? (
+        {groups.length === 0 ? (
           <p style={{ fontFamily: MONO, fontSize: '14px', opacity: 0.7 }}>No transcript text is available for this debate.</p>
         ) : (
-          items.map((it, i) => {
-            const speaker = (it.AttributedTo || '').trim();
-            return (
-              <div key={i} style={{ marginBottom: '20px' }}>
-                {speaker && (
-                  <div style={{ fontFamily: MONO, fontSize: '13px', fontWeight: 'bold', color: ACCENT, marginBottom: '4px', letterSpacing: '0.02em' }}>
-                    {speaker}
-                  </div>
-                )}
+          groups.map((g, i) => (
+            <div
+              key={i}
+              style={{
+                marginBottom: '30px',
+                paddingLeft: g.speaker ? '16px' : 0,
+                borderLeft: g.speaker ? '2px solid rgba(122,22,18,0.22)' : 'none',
+              }}
+            >
+              {g.speaker && (
+                <div style={{ fontFamily: MONO, fontSize: '13px', fontWeight: 'bold', color: ACCENT, marginBottom: '8px', letterSpacing: '0.02em' }}>
+                  {g.speaker}
+                </div>
+              )}
+              {g.paras.map((p, j) => (
                 <div
-                  style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.75, color: INK }}
+                  key={j}
                   className="pca-hansard"
-                  dangerouslySetInnerHTML={{ __html: sanitize(it.Value || '') }}
+                  style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.8, color: INK, marginBottom: j === g.paras.length - 1 ? 0 : '12px' }}
+                  dangerouslySetInnerHTML={{ __html: p }}
                 />
-              </div>
-            );
-          })
+              ))}
+            </div>
+          ))
         )}
       </div>
       <style>{`.pca-hansard p { margin: 0 0 10px 0; } .pca-hansard em { font-style: italic; }`}</style>
