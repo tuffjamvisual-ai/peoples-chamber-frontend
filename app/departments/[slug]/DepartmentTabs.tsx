@@ -22,10 +22,14 @@ export default function DepartmentTabs({
   const [active, setActive] = useState<string>(tabs[0]?.id ?? '');
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-px">
-      <aside className="lg:col-span-1" style={{ marginLeft: '-13%' }}>
+    <div className="pca-dept-tabs" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>
+      {/* Fixed-width sidebar so the content column (Assessment etc.) uses the
+          full remaining page width to the right of the menu, rather than a
+          quarter-width grid column that leaves a large empty gutter. */}
+      <style>{`@media (min-width: 1024px){ .pca-dept-tabs { grid-template-columns: 200px minmax(0, 1fr) !important; gap: 28px !important; } }`}</style>
+      <aside style={{ marginLeft: '-13%' }}>
         <div className="lg:sticky lg:top-16">
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 8px 8px', marginRight: '24px' }}>
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 8px 8px' }}>
             {tabs.map((t) => {
               const isActive = t.id === active;
               return (
@@ -57,7 +61,7 @@ export default function DepartmentTabs({
         </div>
       </aside>
 
-      <div className="lg:col-span-3 p-6 sm:p-8" style={{ color: '#14100d', fontFamily: 'Special Elite, monospace' }}>
+      <div className="py-6 sm:py-8" style={{ color: '#14100d', fontFamily: 'Special Elite, monospace', minWidth: 0 }}>
         {tabs.map((t) => (
           <div key={t.id} style={{ display: t.id === active ? 'block' : 'none' }}>
             {slots[t.id]}
