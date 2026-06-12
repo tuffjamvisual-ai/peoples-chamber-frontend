@@ -358,17 +358,12 @@ const pillStyle: React.CSSProperties = {
   whiteSpace: 'nowrap',
 };
 
-// Build the public Hansard debate URL from the stored API link (which
-// carries the debate GUID) plus the house/date/title. Hansard routes on the
-// GUID, so an approximate slug still resolves.
-function hansardDebateUrl(c: Contribution): string | null {
+// Link to our own in-house debate page (we never link out). The debate GUID
+// is carried in the stored Hansard API link; /debates/[guid] renders the
+// transcript inside the site.
+function debateUrl(c: Contribution): string | null {
   const guid = c.hansard_url?.match(/Debate\/([0-9A-Fa-f-]+)\.json/i)?.[1];
-  if (!guid || !c.sitting_date) return null;
-  const house = c.house === 'Lords' ? 'Lords' : 'Commons';
-  const slug =
-    (c.debate_title || 'Debate').replace(/[^A-Za-z0-9]+/g, ' ').trim().split(' ').filter(Boolean)
-      .map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join('') || 'Debate';
-  return `https://hansard.parliament.uk/${house}/${c.sitting_date}/debates/${guid}/${slug}`;
+  return guid ? `/debates/${guid}` : null;
 }
 
 export default function MagazineProfileSections({
@@ -888,13 +883,13 @@ export default function MagazineProfileSections({
                 if (c.intervention_count) chips.push(`${c.intervention_count} ${c.intervention_count === 1 ? 'intervention' : 'interventions'}`);
                 if (c.answer_count) chips.push(`${c.answer_count} ${c.answer_count === 1 ? 'answer' : 'answers'}`);
                 if (c.statement_count) chips.push(c.statement_count === 1 ? 'statement' : 'statements');
-                const url = hansardDebateUrl(c);
+                const url = debateUrl(c);
                 return (
                   <li key={i} style={{ padding: '11px 0', borderBottom: inkDivider }}>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'baseline', flexWrap: 'wrap' }}>
                       <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '12px', opacity: 0.55, whiteSpace: 'nowrap' }}>{fmtDate(c.sitting_date)}</span>
                       {url ? (
-                        <a href={url} target="_blank" rel="noopener noreferrer" style={{ ...inkLink, fontWeight: 'bold', fontSize: '15px' }}>{(c.debate_title || 'Debate').trim()}</a>
+                        <Link href={url} style={{ ...inkLink, fontWeight: 'bold', fontSize: '15px' }}>{(c.debate_title || 'Debate').trim()}</Link>
                       ) : (
                         <span style={{ fontWeight: 'bold', fontSize: '15px' }}>{(c.debate_title || 'Debate').trim()}</span>
                       )}
