@@ -252,6 +252,15 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
     return firstWord && lastWord && n.includes(firstWord) && n.includes(lastWord);
   });
 
+  // Recent Hansard chamber contributions (mp_contributions), keyed by member_id.
+  const { data: contributionsData } = await supabase
+    .from('mp_contributions')
+    .select('debate_title, sitting_date, section, house, speech_count, question_count, intervention_count, answer_count, statement_count, total_contributions, hansard_url')
+    .eq('member_id', memberId)
+    .order('sitting_date', { ascending: false })
+    .limit(25);
+  const contributions = contributionsData || [];
+
   // APPGs (All-Party Parliamentary Groups) this MP is officer of, with
   // each group's registered funders. Sourced from mySociety/appg-
   // membership, sync'd into appgs + appg_officers + appg_funders. The
@@ -643,6 +652,7 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
         appgs: mpAppgs,
         ministerMeetings: meetings,
         ministerHospitality: hospitality,
+        contributions,
         conductFindings: conductRes.data || [],
         activity: activityRes.data || null,
         rebellionsCount: rebellionsCountRes.count ?? 0,

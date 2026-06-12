@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import Pagination from '@/app/components/Pagination';
 
-type SectionId = 'bio' | 'career' | 'contact' | 'voting' | 'bills' | 'interests' | 'roles' | 'earnings' | 'donations' | 'diary' | 'expenses';
+type SectionId = 'bio' | 'career' | 'contact' | 'voting' | 'bills' | 'house' | 'interests' | 'roles' | 'earnings' | 'donations' | 'diary' | 'expenses';
 
 const ALL_SECTIONS: Array<{ id: SectionId; label: string; rotate: string }> = [
   { id: 'bio',       label: 'POLITICAL BIO',    rotate: '0.1deg' },
@@ -12,6 +12,7 @@ const ALL_SECTIONS: Array<{ id: SectionId; label: string; rotate: string }> = [
   { id: 'contact',   label: 'CONTACT',          rotate: '-0.1deg' },
   { id: 'voting',    label: 'VOTING RECORD',    rotate: '0.15deg' },
   { id: 'bills',     label: 'BILLS SPONSORED',  rotate: '-0.2deg' },
+  { id: 'house',     label: 'IN THE HOUSE',     rotate: '0.12deg' },
   { id: 'interests', label: 'INTERESTS',        rotate: '0.1deg' },
   { id: 'roles',     label: 'ROLES',            rotate: '-0.15deg' },
   { id: 'earnings',  label: 'EARNINGS',         rotate: '0.2deg' },
@@ -253,6 +254,8 @@ interface Props {
   ministerHospitality?: MinisterHospitality[];
   conductFindings?: ConductFinding[];
   activity?: ActivityMetrics | null;
+  /** Recent Hansard chamber contributions (Members API ContributionSummary). */
+  contributions?: Contribution[];
   /** Live rebellion count from the per-vote is_rebellion flag (parlparse),
       matching the party whip page. mp_activity_metrics.rebellions_total is
       broken (0 for every MP) so we no longer use it. */
@@ -284,6 +287,20 @@ interface Props {
   // column that is zero across every year, so the table fits a narrow folder.
   compactExpenses?: boolean;
 }
+
+type Contribution = {
+  debate_title: string | null;
+  sitting_date: string | null;
+  section: string | null;
+  house: string | null;
+  speech_count: number;
+  question_count: number;
+  intervention_count: number;
+  answer_count: number;
+  statement_count: number;
+  total_contributions: number;
+  hansard_url: string | null;
+};
 
 const fmtMoney = (n: number) =>
   new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 }).format(n || 0);
@@ -341,6 +358,19 @@ const pillStyle: React.CSSProperties = {
   whiteSpace: 'nowrap',
 };
 
+// Build the public Hansard debate URL from the stored API link (which
+// carries the debate GUID) plus the house/date/title. Hansard routes on the
+// GUID, so an approximate slug still resolves.
+function hansardDebateUrl(c: Contribution): string | null {
+  const guid = c.hansard_url?.match(/Debate\/([0-9A-Fa-f-]+)\.json/i)?.[1];
+  if (!guid || !c.sitting_date) return null;
+  const house = c.house === 'Lords' ? 'Lords' : 'Commons';
+  const slug =
+    (c.debate_title || 'Debate').replace(/[^A-Za-z0-9]+/g, ' ').trim().split(' ').filter(Boolean)
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join('') || 'Debate';
+  return `https://hansard.parliament.uk/${house}/${c.sitting_date}/debates/${guid}/${slug}`;
+}
+
 export default function MagazineProfileSections({
   memberId,
   paragraphs,
@@ -362,6 +392,7 @@ export default function MagazineProfileSections({
   ministerHospitality = [],
   conductFindings = [],
   activity = null,
+  contributions = [],
   rebellionsCount = 0,
   partyWhipSlug = null,
   bio,
@@ -378,6 +409,7 @@ export default function MagazineProfileSections({
     contact: !!(contact && (contact.phone || contact.email || contact.website || contact.twitter || contact.address_line1)),
     voting: (totalVotes ?? votes.length) > 0,
     bills: sponsoredBills.length > 0,
+    house: contributions.length > 0,
     interests: interests.length > 0,
     roles: !!(
       (bio?.government_posts && bio.government_posts.length > 0) ||
@@ -830,6 +862,50 @@ export default function MagazineProfileSections({
                   )}
                 </li>
               ))}
+            </ul>
+          </>
+        )}
+
+        {active === 'house' && (
+          <>
+            <h2 style={sectionH2}>In the House</h2>
+            <p style={{ fontSize: '13px', opacity: 0.7, marginBottom: '18px' }}>
+              The most recent debates this Member has taken part in, from the official Hansard record: speeches, questions, interventions and ministerial answers.
+            </p>
+            {activity && (activity.speeches_year != null || activity.questions_year != null) && (
+              <p style={{ fontSize: '14px', marginBottom: '20px' }}>
+                {activity.speeches_year != null && <span><strong>{activity.speeches_year}</strong> speeches</span>}
+                {activity.speeches_year != null && activity.questions_year != null && ' · '}
+                {activity.questions_year != null && <span><strong>{activity.questions_year}</strong> questions</span>}
+                <span style={{ opacity: 0.6 }}> in the last year</span>
+              </p>
+            )}
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+              {contributions.map((c, i) => {
+                const chips: string[] = [];
+                if (c.speech_count) chips.push(`${c.speech_count} ${c.speech_count === 1 ? 'speech' : 'speeches'}`);
+                if (c.question_count) chips.push(`${c.question_count} ${c.question_count === 1 ? 'question' : 'questions'}`);
+                if (c.intervention_count) chips.push(`${c.intervention_count} ${c.intervention_count === 1 ? 'intervention' : 'interventions'}`);
+                if (c.answer_count) chips.push(`${c.answer_count} ${c.answer_count === 1 ? 'answer' : 'answers'}`);
+                if (c.statement_count) chips.push(c.statement_count === 1 ? 'statement' : 'statements');
+                const url = hansardDebateUrl(c);
+                return (
+                  <li key={i} style={{ padding: '11px 0', borderBottom: inkDivider }}>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'baseline', flexWrap: 'wrap' }}>
+                      <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '12px', opacity: 0.55, whiteSpace: 'nowrap' }}>{fmtDate(c.sitting_date)}</span>
+                      {url ? (
+                        <a href={url} target="_blank" rel="noopener noreferrer" style={{ ...inkLink, fontWeight: 'bold', fontSize: '15px' }}>{(c.debate_title || 'Debate').trim()}</a>
+                      ) : (
+                        <span style={{ fontWeight: 'bold', fontSize: '15px' }}>{(c.debate_title || 'Debate').trim()}</span>
+                      )}
+                      {c.section && <span style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{c.section}</span>}
+                    </div>
+                    {chips.length > 0 && (
+                      <div style={{ fontSize: '12px', opacity: 0.75, marginTop: '3px' }}>{chips.join(' · ')}</div>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </>
         )}
