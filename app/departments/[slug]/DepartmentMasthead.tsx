@@ -41,7 +41,12 @@ export default function DepartmentMasthead({ sos, budget }: Props) {
               background: '#ebe5d8',
               padding: '12px 12px 48px 12px',
               width: '284px',
-              transform: 'rotate(-2deg)',
+              // Bleed off the left edge and tilt the opposite way to the MP
+              // profile photo (which sits on the right at +12deg), so the
+              // department polaroid mirrors it.
+              marginLeft: '-10%',
+              transform: 'rotate(-12deg)',
+              transformOrigin: 'center',
               boxShadow: '0 4px 8px rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.03)',
               filter: 'contrast(1.05) brightness(0.98)',
               flexShrink: 0,
@@ -84,7 +89,7 @@ export default function DepartmentMasthead({ sos, budget }: Props) {
                   left: '50%',
                   width: '240px',
                   height: 'auto',
-                  transform: 'translate(-50%, -50%) rotate(-12deg)',
+                  transform: 'translate(-50%, -50%) rotate(0deg)',
                   transformOrigin: 'center',
                   opacity: 0.85,
                   pointerEvents: 'none',
@@ -92,6 +97,26 @@ export default function DepartmentMasthead({ sos, budget }: Props) {
                 }}
               />
             )}
+            {/* Paperclip clipped to the top of the frame — mirrors the
+                paperclip on the MP profile photo (MpDossier). */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/paperclip.png"
+              alt=""
+              aria-hidden
+              style={{
+                position: 'absolute',
+                top: '-30px',
+                left: '-5px',
+                width: '65px',
+                height: 'auto',
+                transform: 'rotate(180deg)',
+                transformOrigin: 'center',
+                pointerEvents: 'none',
+                filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.35))',
+                zIndex: 4,
+              }}
+            />
           </div>
           <div style={{ minWidth: 0, flex: '1 1 220px' }}>
             <h2 className="text-[#14100d] text-xl sm:text-2xl font-black tracking-tight mb-1" style={{ overflowWrap: 'anywhere' }}>{sos.name}</h2>
