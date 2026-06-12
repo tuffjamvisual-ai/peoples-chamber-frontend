@@ -76,17 +76,25 @@ export default async function DepartmentPage({ params }: PageProps) {
   const slots: Record<string, ReactNode> = {};
   if (reportText.trim()) {
     tabs.push({ id: 'assessment', label: 'About', rotate: '0.1deg' });
+    const aboutParas = reportText.split(/\n\n+/).map((p) => p.trim()).filter(Boolean);
     slots.assessment = (
       <section>
-        {reportText
-          .split(/\n\n+/)
-          .map((p) => p.trim())
-          .filter(Boolean)
-          .map((para, idx) => (
-            <p key={idx} className="text-[#14100d] text-[16px] leading-[1.7] mb-3" style={{ whiteSpace: 'pre-wrap' }}>
-              {para}
-            </p>
-          ))}
+        {/* Lead paragraph sits beside the sidebar menu; everything after it
+            breaks out to the full page width. The lead reserves ~16rem on
+            large screens so the full-width remainder clears the menu. */}
+        <style>{`@media (min-width: 1024px){ .pca-about-lead { min-height: 16rem; } .pca-about-rest { margin-left: calc(-200px - 28px); } }`}</style>
+        {aboutParas.length > 0 && (
+          <div className="pca-about-lead">
+            <p className="text-[#14100d] text-[16px] leading-[1.7] mb-3" style={{ whiteSpace: 'pre-wrap' }}>{aboutParas[0]}</p>
+          </div>
+        )}
+        {aboutParas.length > 1 && (
+          <div className="pca-about-rest">
+            {aboutParas.slice(1).map((para, idx) => (
+              <p key={idx} className="text-[#14100d] text-[16px] leading-[1.7] mb-3" style={{ whiteSpace: 'pre-wrap' }}>{para}</p>
+            ))}
+          </div>
+        )}
       </section>
     );
   }

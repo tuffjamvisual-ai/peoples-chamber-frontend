@@ -28,7 +28,7 @@ export default function DepartmentTabs({
           quarter-width grid column that leaves a large empty gutter. */}
       <style>{`@media (min-width: 1024px){ .pca-dept-tabs { grid-template-columns: 200px minmax(0, 1fr) !important; gap: 28px !important; } }`}</style>
       <aside style={{ marginLeft: '-13%' }}>
-        <div className="lg:sticky lg:top-16">
+        <div>
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 8px 8px' }}>
             {tabs.map((t) => {
               const isActive = t.id === active;
