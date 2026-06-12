@@ -75,7 +75,7 @@ export default async function DepartmentPage({ params }: PageProps) {
   const tabs: { id: string; label: string; rotate: string }[] = [];
   const slots: Record<string, ReactNode> = {};
   if (reportText.trim()) {
-    tabs.push({ id: 'assessment', label: 'Assessment', rotate: '0.1deg' });
+    tabs.push({ id: 'assessment', label: 'About', rotate: '0.1deg' });
     slots.assessment = (
       <section>
         {reportText
