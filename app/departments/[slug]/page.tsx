@@ -9,6 +9,7 @@ import { BudgetSlot, AgenciesSlot, ContactSlot } from './DepartmentSlots';
 import { DEPARTMENT_BUDGETS } from '@/lib/department-budgets';
 import DossierShell from '../../components/DossierShell';
 import { getGovukDept } from '../../api/govuk-dept/route';
+import { supabase } from '@/lib/supabase';
 import { getDeptContext } from '../../api/department-context/route';
 import BackLink from '../../components/BackLink';
 import JsonLd, { buildDepartmentOrg } from '@/lib/JsonLd';
@@ -55,7 +56,18 @@ export default async function DepartmentPage({ params }: PageProps) {
       return r.includes('permanent') || r.includes('director general') || r.includes('chief') || r.includes('non-executive') || r.includes('board member');
     });
   const budget = DEPARTMENT_BUDGETS[slug] || null;
-  const childOrgs = govukData.childOrgs || [];
+  const childOrgsRaw = govukData.childOrgs || [];
+  // Enrich each agency with a short description from agency_cache (keyed by
+  // the gov.uk org slug) so the Agencies tab shows the full name + summary.
+  const agencySlugs = childOrgsRaw.map((o) => o.url.split('/government/organisations/')[1] || '').filter(Boolean);
+  const { data: agencyDescRows } = agencySlugs.length
+    ? await supabase.from('agency_cache').select('slug, description').in('slug', agencySlugs)
+    : { data: [] as { slug: string; description: string | null }[] };
+  const descBySlug = new Map((agencyDescRows || []).map((r) => [r.slug, (r.description || '').trim()]));
+  const agencies = childOrgsRaw.map((o) => {
+    const agSlug = o.url.split('/government/organisations/')[1] || '';
+    return { name: o.name, acronym: o.acronym, slug: agSlug, description: descBySlug.get(agSlug) || '' };
+  });
   const socialMedia = govukData.socialMedia || [];
   const pressPhone = govukData.pressPhone || '';
   const reportText = (contextData.street_context || dept.streetContext) ?? '';
@@ -86,9 +98,9 @@ export default async function DepartmentPage({ params }: PageProps) {
     tabs.push({ id: 'budget', label: 'Budget', rotate: '0.1deg' });
     slots.budget = <BudgetSlot budget={budget} />;
   }
-  if (childOrgs.length > 0) {
+  if (agencies.length > 0) {
     tabs.push({ id: 'agencies', label: 'Agencies', rotate: '-0.15deg' });
-    slots.agencies = <AgenciesSlot childOrgs={childOrgs} />;
+    slots.agencies = <AgenciesSlot agencies={agencies} />;
   }
   if (pressPhone || socialMedia.length > 0) {
     tabs.push({ id: 'contact', label: 'Contact', rotate: '-0.1deg' });

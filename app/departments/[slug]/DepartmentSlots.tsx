@@ -27,27 +27,43 @@ export function BudgetSlot({ budget }: { budget: DepartmentBudget | null }) {
   );
 }
 
-export function AgenciesSlot({ childOrgs }: { childOrgs: { name: string; url: string; acronym: string }[] }) {
-  if (!childOrgs || childOrgs.length === 0) {
+type Agency = { name: string; slug: string; acronym?: string; description?: string };
+
+// Trim a gov.uk org description to a short summary: first sentence(s) up to
+// ~220 chars, cut on a word boundary.
+function shortSummary(text: string): string {
+  const t = text.replace(/\s+/g, ' ').trim();
+  if (t.length <= 220) return t;
+  const cut = t.slice(0, 220);
+  const lastStop = cut.lastIndexOf('. ');
+  if (lastStop > 120) return cut.slice(0, lastStop + 1);
+  return cut.slice(0, cut.lastIndexOf(' ')) + '…';
+}
+
+export function AgenciesSlot({ agencies }: { agencies: Agency[] }) {
+  if (!agencies || agencies.length === 0) {
     return <p className="text-[15px]" style={{ opacity: 0.7 }}>No agencies or arm&apos;s length bodies are listed for this department.</p>;
   }
   return (
     <section>
-      <h2 className={H2_CLS} style={{ color: ACCENT }}>Agencies &amp; Arm&apos;s Length Bodies ({childOrgs.length})</h2>
-      <div className="flex flex-wrap gap-x-4 gap-y-2">
-        {childOrgs.map((org, i) => {
-          const agencySlug = org.url.split('/government/organisations/')[1] || '';
-          return (
+      <h2 className={H2_CLS} style={{ color: ACCENT }}>Agencies &amp; Arm&apos;s Length Bodies ({agencies.length})</h2>
+      <ul className="flex flex-col gap-5">
+        {agencies.map((org, i) => (
+          <li key={i} style={{ borderLeft: '2px solid rgba(20,16,13,0.12)', paddingLeft: '14px' }}>
             <Link
-              key={i}
-              href={'/agencies/' + agencySlug}
-              className="text-[15px] uppercase tracking-[0.15em] text-[#14100d] hover:text-[#7a1612] transition-colors"
+              href={'/agencies/' + org.slug}
+              className="text-[16px] font-semibold text-[#14100d] hover:text-[#7a1612] transition-colors"
+              style={{ textDecoration: 'underline', textUnderlineOffset: '3px', lineHeight: 1.3, display: 'inline-block' }}
             >
-              {org.acronym || org.name}
+              {org.name}
+              {org.acronym && org.acronym.toLowerCase() !== org.name.toLowerCase() ? ` (${org.acronym})` : ''}
             </Link>
-          );
-        })}
-      </div>
+            {org.description && (
+              <p className="text-[14px] leading-[1.6] mt-1" style={{ opacity: 0.85 }}>{shortSummary(org.description)}</p>
+            )}
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
