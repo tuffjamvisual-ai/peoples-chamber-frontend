@@ -53,6 +53,18 @@ function sanitize(html: string): string {
 }
 const plain = (html: string) => html.replace(/<[^>]+>/g, ' ').replace(/&#?\w+;/g, ' ').replace(/\s+/g, ' ').trim();
 
+// Hansard marks paragraphs with blank lines, not <p> tags, so the browser
+// collapses them into one block. Wrap each blank-line block in a <p> so
+// paragraphs actually break on the page.
+function paragraphize(raw: string): string {
+  return sanitize(raw)
+    .split(/\n\s*\n+/)
+    .map((b) => b.replace(/\s*\n\s*/g, ' ').trim())
+    .filter(Boolean)
+    .map((b) => `<p>${b}</p>`)
+    .join('');
+}
+
 function fmtDate(s?: string) {
   if (!s) return '';
   const d = new Date(s);
@@ -82,15 +94,15 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
   const rawItems = allItems(debate).filter((it) => it.ItemType !== 'Timestamp' && plain(it.Value || '').length > 0);
   // Group consecutive paragraphs by speaker so each contribution reads as a
   // distinct block (name once, paragraphs spaced) rather than one wall of text.
-  type Group = { speaker: string; paras: string[] };
+  type Group = { speaker: string; html: string };
   const groups: Group[] = [];
   for (const it of rawItems) {
     const speaker = (it.AttributedTo || '').trim();
-    const html = sanitize(it.Value || '');
+    const html = paragraphize(it.Value || '');
     const last = groups[groups.length - 1];
-    if (speaker && (!last || last.speaker !== speaker)) groups.push({ speaker, paras: [html] });
-    else if (last) last.paras.push(html);
-    else groups.push({ speaker: '', paras: [html] });
+    if (speaker && (!last || last.speaker !== speaker)) groups.push({ speaker, html });
+    else if (last) last.html += html;
+    else groups.push({ speaker: '', html });
   }
 
   return (
@@ -132,19 +144,16 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
                   {g.speaker}
                 </div>
               )}
-              {g.paras.map((p, j) => (
-                <div
-                  key={j}
-                  className="pca-hansard"
-                  style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.8, color: INK, marginBottom: j === g.paras.length - 1 ? 0 : '12px' }}
-                  dangerouslySetInnerHTML={{ __html: p }}
-                />
-              ))}
+              <div
+                className="pca-hansard"
+                style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.8, color: INK }}
+                dangerouslySetInnerHTML={{ __html: g.html }}
+              />
             </div>
           ))
         )}
       </div>
-      <style>{`.pca-hansard p { margin: 0 0 10px 0; } .pca-hansard em { font-style: italic; }`}</style>
+      <style>{`.pca-hansard p { margin: 0 0 12px 0; } .pca-hansard p:last-child { margin-bottom: 0; } .pca-hansard em { font-style: italic; }`}</style>
     </DossierShell>
   );
 }
