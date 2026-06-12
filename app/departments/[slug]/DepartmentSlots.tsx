@@ -32,7 +32,10 @@ type Agency = { name: string; slug: string; acronym?: string; description?: stri
 // Trim a gov.uk org description to a short summary: first sentence(s) up to
 // ~220 chars, cut on a word boundary.
 function shortSummary(text: string): string {
-  const t = text.replace(/\s+/g, ' ').trim();
+  // De-hyphenate ordinary compounds (house style): world-leading -> world
+  // leading, ex-servicemen -> ex servicemen. Letter-letter only, so numbers
+  // and codes (F-35, 2024-25) keep their hyphen.
+  const t = text.replace(/\s+/g, ' ').replace(/([A-Za-z])-([A-Za-z])/g, '$1 $2').trim();
   if (t.length <= 220) return t;
   const cut = t.slice(0, 220);
   const lastStop = cut.lastIndexOf('. ');
