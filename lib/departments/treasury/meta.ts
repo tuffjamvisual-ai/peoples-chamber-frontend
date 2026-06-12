@@ -30,7 +30,7 @@ const meta: DepartmentMeta = {
     'NatWest Government Shareholding', 'Post Office Financial Services',
     'HMRC Oversight', 'Customs & Excise',
   ],
-  description: 'Holds the purse strings. Every other department in this list spends most of its career trying to prise them open.',
+  description: 'The most powerful department in Whitehall. Ministers come and go, policies rise and fall, but sooner or later almost every major decision ends up on a Treasury desk with a price tag attached.',
   streetContext: `The Treasury holds the purse strings. Every other department in this list spends most of its time asking for money, and the Treasury spends most of its time saying no. That dynamic defines how government operates more than manifestos, cabinet reshuffles or prime ministerial speeches.
 
 Its formal role is managing public spending, economic policy and financial stability. In practice, it functions as the gatekeeper of political ambition. Governments arrive with grand plans, the Treasury applies fiscal reality, and what emerges is usually smaller, slower and less transformative than originally promised. Infrastructure projects are delayed, departments are told to find "efficiencies" and long term investment decisions are deferred for political convenience.
