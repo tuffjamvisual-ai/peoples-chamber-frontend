@@ -185,8 +185,6 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
               const previousRole = row.previous_role as string | null
               const newRole = row.new_role as string | null
               const organisation = row.organisation as string | null
-              const conditions = (row.conditions as string | null)?.trim() || null
-              const conditionList = conditions ? conditions.split(' | ').map(c => c.trim()).filter(Boolean) : []
               const description = (row.description as string | null)?.trim() || null
               const approvalDate = formatUkDate(row.approval_date)
               const newRoleLine = [newRole || 'New role: pending ACOBA publication', organisation].filter(Boolean).join(' · ')
@@ -208,16 +206,6 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                   </p>
                   {description && (
                     <p className="text-[#14100d]/80 text-[13px] leading-[1.7] mt-1.5">{description}</p>
-                  )}
-                  {conditionList.length > 0 && (
-                    <div className="mt-2.5 pt-2 border-t border-[#14100d]/10">
-                      <p className="text-[12px] uppercase tracking-[0.15em] text-[#14100d]/55 mb-1">ACOBA conditions</p>
-                      <ul className="list-disc pl-4 space-y-0.5">
-                        {conditionList.map((c, j) => (
-                          <li key={j} className="text-[13px] leading-[1.6] text-[#14100d]/85">{c}</li>
-                        ))}
-                      </ul>
-                    </div>
                   )}
                 </li>
               )
