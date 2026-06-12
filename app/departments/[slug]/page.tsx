@@ -1,10 +1,12 @@
 import { notFound } from 'next/navigation';
-import { Suspense } from 'react';
+import type { ReactNode } from 'react';
 import { departments } from '@/lib/departments';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
-import DepartmentClient from './DepartmentClient';
 import DepartmentMasthead from './DepartmentMasthead';
 import DepartmentStaff from './DepartmentStaff';
+import DepartmentTabs from './DepartmentTabs';
+import { BudgetSlot, AgenciesSlot, ContactSlot } from './DepartmentSlots';
+import { DEPARTMENT_BUDGETS } from '@/lib/department-budgets';
 import DossierShell from '../../components/DossierShell';
 import { getGovukDept } from '../../api/govuk-dept/route';
 import { getDeptContext } from '../../api/department-context/route';
@@ -39,6 +41,59 @@ export default async function DepartmentPage({ params }: PageProps) {
   ]);
 
   const sos = govukData.ministers?.[0];
+
+  // ---- MP-bio-style tab set: Assessment, Staff, Budget, Agencies, Contact.
+  // Each slot is server-rendered so it ships in the static HTML;
+  // DepartmentTabs only toggles which is visible. Tabs with no data omitted.
+  const boardMembers = govukData.boardMembers || [];
+  const juniorMinisters = (govukData.ministers || []).slice(1);
+  const staffRoles = (m: { role?: string }) => (m.role || '').toLowerCase();
+  const hasStaff =
+    juniorMinisters.length > 0 ||
+    boardMembers.some((m) => {
+      const r = staffRoles(m);
+      return r.includes('permanent') || r.includes('director general') || r.includes('chief') || r.includes('non-executive') || r.includes('board member');
+    });
+  const budget = DEPARTMENT_BUDGETS[slug] || null;
+  const childOrgs = govukData.childOrgs || [];
+  const socialMedia = govukData.socialMedia || [];
+  const pressPhone = govukData.pressPhone || '';
+  const reportText = (contextData.street_context || dept.streetContext) ?? '';
+
+  const tabs: { id: string; label: string; rotate: string }[] = [];
+  const slots: Record<string, ReactNode> = {};
+  if (reportText.trim()) {
+    tabs.push({ id: 'assessment', label: 'Assessment', rotate: '0.1deg' });
+    slots.assessment = (
+      <section>
+        {reportText
+          .split(/\n\n+/)
+          .map((p) => p.trim())
+          .filter(Boolean)
+          .map((para, idx) => (
+            <p key={idx} className="text-[#14100d] text-[16px] leading-[1.7] mb-3" style={{ whiteSpace: 'pre-wrap' }}>
+              {para}
+            </p>
+          ))}
+      </section>
+    );
+  }
+  if (hasStaff) {
+    tabs.push({ id: 'staff', label: 'Staff', rotate: '-0.12deg' });
+    slots.staff = <DepartmentStaff govukData={govukData} />;
+  }
+  if (budget) {
+    tabs.push({ id: 'budget', label: 'Budget', rotate: '0.1deg' });
+    slots.budget = <BudgetSlot budget={budget} />;
+  }
+  if (childOrgs.length > 0) {
+    tabs.push({ id: 'agencies', label: 'Agencies', rotate: '-0.15deg' });
+    slots.agencies = <AgenciesSlot childOrgs={childOrgs} />;
+  }
+  if (pressPhone || socialMedia.length > 0) {
+    tabs.push({ id: 'contact', label: 'Contact', rotate: '-0.1deg' });
+    slots.contact = <ContactSlot socialMedia={socialMedia} pressPhone={pressPhone} />;
+  }
 
   return (
     <DossierShell>
@@ -92,42 +147,11 @@ export default async function DepartmentPage({ params }: PageProps) {
           budget={null}
         />
 
-        {/* Department Staff sits directly beneath the Secretary of State
-            photo (user-requested layout, 2026-06-10): the ministerial team
-            and senior officials before the descriptive content. */}
-        <DepartmentStaff govukData={govukData} />
-
-        {/* Institutional Performance Report — lifted out of DepartmentClient
-            so the 3.5–15k-char authored text ships in the static HTML and is
-            visible to crawlers on first fetch. Identical render rules: split
-            on blank lines, preserve single newlines inside chunks via
-            whiteSpace: pre-wrap. The text is purely display (no hooks, no
-            interactivity) so there is no reason for it to sit behind a
-            client boundary. GSC Soft 404 fix 2026-06-04. */}
-        <section className="pb-8 mb-8">
-          {((contextData.street_context || dept.streetContext) ?? '')
-            .split(/\n\n+/)
-            .map((p) => p.trim())
-            .filter(Boolean)
-            .map((para, idx) => (
-              <p
-                key={idx}
-                className="text-[#14100d] text-[16px] leading-[1.7] mb-3"
-                style={{ whiteSpace: 'pre-wrap' }}
-              >
-                {para}
-              </p>
-            ))}
-        </section>
-
-        <Suspense fallback={<div style={{ minHeight: '300px' }} />}>
-          <DepartmentClient
-            slug={slug}
-            govukData={govukData}
-            streetContext={null}
-            budget={null}
-          />
-        </Suspense>
+        {/* MP-bio-style tabbed sections: Assessment, Staff, Budget, Agencies,
+            Contact. Slots are server-rendered (built above) so all content
+            ships in the static HTML; DepartmentTabs only toggles visibility,
+            which preserves the GSC Soft 404 fix for the report text. */}
+        <DepartmentTabs tabs={tabs} slots={slots} />
       </div>
 
       <ScrollToTopButton />
