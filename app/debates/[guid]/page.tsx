@@ -57,12 +57,20 @@ const plain = (html: string) => html.replace(/<[^>]+>/g, ' ').replace(/&#?\w+;/g
 // collapses them into one block. Wrap each blank-line block in a <p> so
 // paragraphs actually break on the page.
 function paragraphize(raw: string): string {
-  return sanitize(raw)
-    .split(/\n\s*\n+/)
-    .map((b) => b.replace(/\s*\n\s*/g, ' ').trim())
-    .filter(Boolean)
-    .map((b) => `<p>${b}</p>`)
-    .join('');
+  const blocks = sanitize(raw)
+    .split(/\r?\n\s*\r?\n+/)
+    .map((b) => b.replace(/\s*\r?\n\s*/g, ' ').trim())
+    .filter(Boolean);
+  // A blank line is only a real paragraph break when the preceding block ends
+  // a sentence. Otherwise it is layout (motion clauses, wrapped quotes and
+  // lists), so merge it back rather than emit a one-line fragment.
+  const merged: string[] = [];
+  for (const b of blocks) {
+    const prev = merged[merged.length - 1];
+    if (prev && !/[.!?”"’)\]]$/.test(prev)) merged[merged.length - 1] = `${prev} ${b}`;
+    else merged.push(b);
+  }
+  return merged.map((b) => `<p>${b}</p>`).join('');
 }
 
 function fmtDate(s?: string) {
