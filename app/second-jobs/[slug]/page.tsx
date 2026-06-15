@@ -11,7 +11,7 @@ import BackLink from '../../components/BackLink';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 import { fmtMoney, loadAll, slugToLabel } from '../_lib/data';
 
-export const dynamic = 'force-dynamic';
+export function generateStaticParams() { return []; }
 export const revalidate = 86400;
 
 const INK = '#14100d';

@@ -16,7 +16,7 @@ import PartySidebar from '../../../components/PartySidebar';
 import ScrollToTopButton from '../../../components/ScrollToTopButton';
 
 export const revalidate = 3600;
-export const dynamic = 'force-dynamic';
+export function generateStaticParams() { return []; }
 
 const INK = '#14100d';
 const CREAM = '#ebe5d8';

@@ -21,7 +21,7 @@ import { sectorForDonor } from '@/lib/donor-sectors';
 import { donorNameToSlug } from '../../../donors/[slug]/page';
 
 export const revalidate = 3600;
-export const dynamic = 'force-dynamic';
+export function generateStaticParams() { return []; }
 
 const INK = '#14100d';
 const CREAM = '#ebe5d8';

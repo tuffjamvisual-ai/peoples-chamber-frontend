@@ -13,7 +13,7 @@ import { editorials } from '@/lib/editorials';
 import type { Block, EditorialEntry } from '@/lib/editorials/types';
 
 export const revalidate = 86400;
-export const dynamic = 'force-dynamic';
+export function generateStaticParams() { return []; }
 
 const INK = '#14100d';
 const INK_SOFT = 'rgba(20,16,13,0.7)';

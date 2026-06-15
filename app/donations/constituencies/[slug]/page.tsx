@@ -12,7 +12,7 @@ import BackLink from '../../../components/BackLink';
 import { donorNameToSlug } from '../../../donors/[slug]/page';
 
 export const revalidate = 86400;
-export const dynamic = 'force-dynamic';
+export function generateStaticParams() { return []; }
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.25)';
