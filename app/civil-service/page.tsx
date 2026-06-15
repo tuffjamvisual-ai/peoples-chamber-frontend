@@ -14,7 +14,6 @@ export const metadata: Metadata = {
   alternates: { canonical: '/civil-service' },
 };
 
-export const dynamic = 'force-dynamic';
 export const revalidate = 21600;     // 6h — sync is weekly, page is cheap
 
 const ink = '#14100d';

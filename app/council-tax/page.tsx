@@ -11,7 +11,6 @@ export const metadata: Metadata = {
   alternates: { canonical: '/council-tax' },
 };
 
-export const dynamic = 'force-dynamic';
 export const revalidate = 3600;
 
 const YEAR_LABEL = '2026/27';

@@ -14,7 +14,6 @@ export const metadata: Metadata = {
   alternates: { canonical: '/spending' },
 };
 
-export const dynamic = 'force-dynamic';
 export const revalidate = 21600;
 
 const ink = '#14100d';
