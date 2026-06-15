@@ -101,7 +101,7 @@ export default function DepartmentMasthead({ sos, budget }: Props) {
                 paperclip on the MP profile photo (MpDossier). */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/paperclip.png"
+              src="/paperclip.webp"
               alt=""
               aria-hidden
               style={{

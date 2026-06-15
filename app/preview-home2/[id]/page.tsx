@@ -106,7 +106,7 @@ export default async function PreviewHome2Dynamic({ params }: PageProps) {
             />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/paperclip.png"
+              src="/paperclip.webp"
               alt=""
               aria-hidden
               style={{

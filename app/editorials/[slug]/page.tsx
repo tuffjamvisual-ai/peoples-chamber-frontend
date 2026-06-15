@@ -135,7 +135,7 @@ function renderBlock(block: Block, i: number): React.ReactNode {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={block.photo} alt={block.photoAlt || block.text} width={156} height={156} style={{ display: 'block', width: '156px', height: '156px', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }} />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/paperclip.png" alt="" aria-hidden style={{ position: 'absolute', top: '-18px', right: '-3px', width: '39px', height: 'auto', transform: 'rotate(180deg)', transformOrigin: 'center', pointerEvents: 'none', filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.35))' }} />
+          <img src="/paperclip.webp" alt="" aria-hidden style={{ position: 'absolute', top: '-18px', right: '-3px', width: '39px', height: 'auto', transform: 'rotate(180deg)', transformOrigin: 'center', pointerEvents: 'none', filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.35))' }} />
         </>
       );
       const frameStyle: React.CSSProperties = {
