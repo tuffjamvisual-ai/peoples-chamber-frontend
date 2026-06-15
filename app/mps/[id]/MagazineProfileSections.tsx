@@ -366,6 +366,9 @@ function debateUrl(c: Contribution): string | null {
   return guid ? `/debates/${guid}` : null;
 }
 
+// House style: no hyphens. Letter-letter only, so number ranges keep theirs.
+const dehyphen = (s: string) => s.replace(/([A-Za-z])[‐‑-]([A-Za-z])/g, '$1 $2');
+
 export default function MagazineProfileSections({
   memberId,
   paragraphs,
@@ -889,9 +892,9 @@ export default function MagazineProfileSections({
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'baseline', flexWrap: 'wrap' }}>
                       <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '12px', opacity: 0.55, whiteSpace: 'nowrap' }}>{fmtDate(c.sitting_date)}</span>
                       {url ? (
-                        <Link href={url} style={{ ...inkLink, fontWeight: 'bold', fontSize: '15px' }}>{(c.debate_title || 'Debate').trim()}</Link>
+                        <Link href={url} style={{ ...inkLink, fontWeight: 'bold', fontSize: '15px' }}>{dehyphen((c.debate_title || 'Debate').trim())}</Link>
                       ) : (
-                        <span style={{ fontWeight: 'bold', fontSize: '15px' }}>{(c.debate_title || 'Debate').trim()}</span>
+                        <span style={{ fontWeight: 'bold', fontSize: '15px' }}>{dehyphen((c.debate_title || 'Debate').trim())}</span>
                       )}
                       {c.section && <span style={{ fontSize: '11px', opacity: 0.5, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{c.section}</span>}
                     </div>

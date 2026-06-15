@@ -53,6 +53,11 @@ function sanitize(html: string): string {
 }
 const plain = (html: string) => html.replace(/<[^>]+>/g, ' ').replace(/&#?\w+;/g, ' ').replace(/\s+/g, ' ').trim();
 
+// House style: no hyphens. De-hyphenate ordinary compounds (letter-letter
+// only, so number ranges like 2024-25 keep their hyphen). Covers the regular
+// hyphen plus the Unicode hyphen and non-breaking hyphen used in Hansard.
+const dehyphen = (s: string) => s.replace(/([A-Za-z])[‐‑-]([A-Za-z])/g, '$1 $2');
+
 // Hansard marks paragraphs with blank lines, not <p> tags, so the browser
 // collapses them into one block. Wrap each blank-line block in a <p> so
 // paragraphs actually break on the page.
@@ -70,7 +75,7 @@ function paragraphize(raw: string): string {
     if (prev && !/[.!?”"’)\]]$/.test(prev)) merged[merged.length - 1] = `${prev} ${b}`;
     else merged.push(b);
   }
-  return merged.map((b) => `<p>${b}</p>`).join('');
+  return dehyphen(merged.map((b) => `<p>${b}</p>`).join(''));
 }
 
 function fmtDate(s?: string) {
@@ -127,7 +132,7 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
           Hansard{ov?.House ? ` · ${ov.House}` : ''}{ov?.Date ? ` · ${fmtDate(ov.Date)}` : ''}
         </div>
         <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(26px, 3.4vw, 42px)', fontWeight: 600, lineHeight: 1.15, margin: 0, color: INK }}>
-          {ov?.Title?.trim() || 'Debate'}
+          {dehyphen(ov?.Title?.trim() || 'Debate')}
         </h1>
         {ov?.Location && (
           <div style={{ fontFamily: MONO, fontSize: '12px', letterSpacing: '0.12em', textTransform: 'uppercase', color: INK, opacity: 0.55, marginTop: '8px' }}>{ov.Location}</div>
@@ -149,7 +154,7 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
             >
               {g.speaker && (
                 <div style={{ fontFamily: MONO, fontSize: '13px', fontWeight: 'bold', color: ACCENT, marginBottom: '8px', letterSpacing: '0.02em' }}>
-                  {g.speaker}
+                  {dehyphen(g.speaker)}
                 </div>
               )}
               <div
