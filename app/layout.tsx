@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Playfair_Display, Anton, Oswald, Abril_Fatface } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 // Magazine-template typography stack. Special Elite is loaded via
 // @font-face in globals.css and consumed by --font-typewriter.
@@ -160,6 +162,8 @@ export default function RootLayout({
         <AuthProvider>
           {children}
         </AuthProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
