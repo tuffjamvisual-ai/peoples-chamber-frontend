@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
@@ -13,6 +14,15 @@ import { normaliseParty, isCoop, partyColourForMember } from '@/lib/party-helper
 import JsonLd, { buildMpPerson } from '@/lib/JsonLd';
 
 const BAND_RANK: Record<SalaryBand, number> = { pm: 4, sos: 3, minister_of_state: 2, puss: 1 };
+
+// Shared MP-row fetch. generateMetadata and the page component run as
+// separate executions within the same request; React cache() dedupes the
+// `mps` lookup so the row is fetched once, not twice, per render. select('*')
+// is a superset of the few columns metadata needs.
+const getMp = cache(async (memberId: number) => {
+  const { data } = await supabase.from('mps').select('*').eq('member_id', memberId).single();
+  return data;
+});
 
 // 6-hour ISR. Cabinet pages prerender at build (see generateStaticParams);
 // the other ~570 MPs render on first request and then cache at the edge
@@ -73,14 +83,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // queries in parallel — each is index-hit and head-only, so the per-MP
   // metadata fetch stays well inside the page's render budget. GSC fix
   // 2026-06-04.
-  const [mpRes, votesCountRes, interestsCountRes, lastVoteRes] = await Promise.all([
-    supabase.from('mps').select('name, display_name, constituency, party, start_date').eq('member_id', memberId).single(),
+  const [mp, votesCountRes, interestsCountRes, lastVoteRes] = await Promise.all([
+    getMp(memberId),
     supabase.from('mp_division_votes').select('id', { count: 'exact', head: true }).eq('member_id', memberId).in('vote_type', ['aye', 'no']),
     supabase.from('mp_registered_interests').select('id', { count: 'exact', head: true }).eq('member_id', memberId),
     supabase.from('mp_division_votes').select('division_title, division_date').eq('member_id', memberId).in('vote_type', ['aye', 'no']).order('division_date', { ascending: false }).limit(1).maybeSingle(),
   ]);
 
-  const mp = mpRes.data;
   if (!mp) return { title: 'MP profile' };
 
   const name = mp.display_name || mp.name;
@@ -136,7 +145,7 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
   // we save ~200-400ms; for invalid ones, the wasted concurrent queries
   // are negligible (notFound() short-circuits the render).
   const [
-    mpRes,
+    mp,
     contactRes,
     bioRes,
     sponsoredBillsRes,
@@ -150,7 +159,7 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
     siDivisionsRes,
     rebellionsCountRes,
   ] = await Promise.all([
-    supabase.from('mps').select('*').eq('member_id', memberId).single(),
+    getMp(memberId),
     supabase.from('mp_contact').select('*').eq('member_id', memberId).single(),
     supabase.from('mp_biography').select('*').eq('member_id', memberId).single(),
     supabase
@@ -209,7 +218,6 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
     // count the flag directly to match the party whip page.
     supabase.from('mp_division_votes').select('id', { count: 'exact', head: true }).eq('member_id', memberId).eq('is_rebellion', true),
   ]);
-  const mp = mpRes.data;
   if (!mp) notFound();
 
   // Compute mpNameKey/firstWord/lastWord up front — donations,

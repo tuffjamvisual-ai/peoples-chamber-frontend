@@ -197,26 +197,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Division detail pages — every distinct (date, division_number) in
   // mp_division_votes since the parlparse import (2026-06-05). The
   // natural-key tuple becomes the canonical slug pw-YYYY-MM-DD-N-commons.
-  // Skipping rows where either column is NULL (legacy CVA rows before
-  // phase 1 had NULL division_number; all are now backfilled, but the
-  // guard is cheap insurance).
+  //
+  // Read from the commons_divisions_distinct view (SELECT DISTINCT over
+  // mp_division_votes, NULLs already excluded) rather than pulling all
+  // ~268k vote rows and deduping in JS — the view returns ~597 rows in a
+  // single page. The null filter below is belt-and-suspenders.
   const divisions = await fetchAllRows<{ division_date_only: string | null; division_number: number | null }>(
-    'mp_division_votes',
+    'commons_divisions_distinct',
     'division_date_only, division_number',
-    (q) => q.not('division_date_only', 'is', null).not('division_number', 'is', null),
   );
-  const uniqueDivisions = new Map<string, { date: string; num: number }>();
-  for (const d of divisions) {
-    if (!d.division_date_only || d.division_number == null) continue;
-    const key = `${d.division_date_only}|${d.division_number}`;
-    if (!uniqueDivisions.has(key)) uniqueDivisions.set(key, { date: d.division_date_only, num: d.division_number });
-  }
-  const divisionEntries: MetadataRoute.Sitemap = Array.from(uniqueDivisions.values()).map((d) => ({
-    url: `${SITE}/divisions/pw-${d.date}-${d.num}-commons`,
-    lastModified: new Date(d.date),
-    changeFrequency: 'yearly' as const,    // divisions are immutable once recorded
-    priority: 0.5,
-  }));
+  const divisionEntries: MetadataRoute.Sitemap = divisions
+    .filter((d) => d.division_date_only && d.division_number != null)
+    .map((d) => ({
+      url: `${SITE}/divisions/pw-${d.division_date_only}-${d.division_number}-commons`,
+      lastModified: new Date(d.division_date_only as string),
+      changeFrequency: 'yearly' as const,    // divisions are immutable once recorded
+      priority: 0.5,
+    }));
 
   return [
     ...staticEntries,
