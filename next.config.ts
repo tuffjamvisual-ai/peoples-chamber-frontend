@@ -20,7 +20,57 @@ async function withAnalyzerIfEnabled(cfg: NextConfig): Promise<NextConfig> {
   }
 }
 
+// "Leeds City Council" -> "leeds-city-council" (the old /departments/ slug form).
+function slugifyName(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+// Councils used to live at /departments/[slug] before moving to
+// /councils/[slug]. The old URLs (slugified council name, e.g.
+// "leeds-city-council", and the short slug "leeds") are still indexed by
+// Google and now 404. Build a permanent (308) redirect map to their new
+// /councils/ home at build time from the councils table. Real central-gov
+// department slugs never collide with council names, so legitimate
+// /departments pages are unaffected. Falls back to no redirects if the DB
+// is unreachable at build (e.g. offline CI) so the build still succeeds.
+async function councilRedirects() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return [];
+  try {
+    const res = await fetch(`${url}/rest/v1/councils?select=slug,name`, {
+      headers: { apikey: key, authorization: `Bearer ${key}` },
+    });
+    if (!res.ok) {
+      console.warn(`[next.config] councilRedirects: councils fetch ${res.status} — skipping`);
+      return [];
+    }
+    const rows = (await res.json()) as { slug: string; name: string }[];
+    const seen = new Set<string>();
+    const out: { source: string; destination: string; permanent: boolean }[] = [];
+    for (const c of rows) {
+      if (!c.slug) continue;
+      for (const src of new Set([slugifyName(c.name), c.slug])) {
+        if (!src || seen.has(src)) continue;
+        seen.add(src);
+        out.push({ source: `/departments/${src}`, destination: `/councils/${c.slug}`, permanent: true });
+      }
+    }
+    return out;
+  } catch (err) {
+    console.warn('[next.config] councilRedirects failed — skipping:', (err as Error).message);
+    return [];
+  }
+}
+
 const nextConfig: NextConfig = {
+  async redirects() {
+    return await councilRedirects();
+  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },

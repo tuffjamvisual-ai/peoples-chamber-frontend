@@ -8,6 +8,7 @@
 //   - dept_ministers fallback: photo if cache empty (e.g. new appointee)
 //   - mp_interests: registered interests, joined by member_slug
 
+import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 import PeopleProfileSections, { type Role, type Interest, type PeerFinance } from './PeopleProfileSections';
@@ -121,6 +122,11 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
   const { slug } = await params;
   const { person, interests, finance } = await getPersonAndInterests(slug);
 
+  // Return a real 404 (not a 200 "Person not found" soft 404) when the
+  // slug matches no person. Renders app/people/[slug]/not-found.tsx, which
+  // keeps the same DossierShell "Person not found." template.
+  if (!person) notFound();
+
   // Bio paragraphs source priority:
   //   1. political_bio (manually authored — overrides anything from gov.uk)
   //   2. biography (gov.uk's HTML body — strip tags into plain paragraphs)
@@ -169,10 +175,6 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
       />
-
-        {!person && (
-          <p style={{ fontSize: '16px', lineHeight: 1.7 }}>Person not found.</p>
-        )}
 
         {person && (
           <>

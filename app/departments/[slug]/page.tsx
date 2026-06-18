@@ -32,6 +32,10 @@ export const revalidate = 3600;
 export default async function DepartmentPage({ params }: PageProps) {
   const { slug } = await params;
   const dept = departments.find((d) => d.slug === slug);
+  // Old council URLs (e.g. /departments/leeds-city-council) are 308'd to
+  // /councils/[slug] at the platform level — see redirects() in
+  // next.config.ts. Anything that reaches here and isn't a real
+  // department is a genuine 404.
   if (!dept) notFound();
 
   // Inline the previously-client-side fetches so the prerendered HTML
