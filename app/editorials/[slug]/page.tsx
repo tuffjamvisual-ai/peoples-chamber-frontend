@@ -11,6 +11,7 @@ import BackLink from '../../components/BackLink';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 import { editorials } from '@/lib/editorials';
 import type { Block, EditorialEntry } from '@/lib/editorials/types';
+import { supabase } from '@/lib/supabase';
 
 export const revalidate = 86400;
 export function generateStaticParams() { return []; }
@@ -39,6 +40,21 @@ export default async function EditorialPage({ params }: { params: Promise<{ slug
   const publishedDate = new Date(piece.publishedAt).toLocaleDateString('en-GB', {
     day: 'numeric', month: 'long', year: 'numeric',
   });
+
+  // Pull profile photos for any mpEntry subjects (current MPs) so we can show
+  // a small thumbnail beside the name. Historical pieces with no memberId get
+  // none, which is fine.
+  const memberIds: number[] = [];
+  for (const b of piece.body) {
+    if (b.type === 'mpEntry' && typeof b.memberId === 'number') memberIds.push(b.memberId);
+  }
+  const photoMap = new Map<number, string>();
+  if (memberIds.length) {
+    const { data } = await supabase.from('mps').select('member_id, photo_url').in('member_id', memberIds);
+    for (const row of (data || []) as { member_id: number; photo_url: string | null }[]) {
+      if (row.photo_url) photoMap.set(row.member_id, row.photo_url);
+    }
+  }
 
   return (
     <DossierShell>
@@ -93,7 +109,7 @@ export default async function EditorialPage({ params }: { params: Promise<{ slug
       </header>
 
       <article style={{ fontFamily: '"Special Elite", monospace', fontSize: '16px', lineHeight: 1.75, color: INK }}>
-        {piece.body.map((block, i) => renderBlock(block, i))}
+        {piece.body.map((block, i) => renderBlock(block, i, photoMap))}
       </article>
 
       <footer style={{ clear: 'both', marginTop: '40px', paddingTop: '20px', borderTop: `1px solid ${HAIRLINE}`, fontSize: '12px', color: INK_SOFT, fontFamily: '"Special Elite", monospace' }}>
@@ -106,7 +122,7 @@ export default async function EditorialPage({ params }: { params: Promise<{ slug
   );
 }
 
-function renderBlock(block: Block, i: number): React.ReactNode {
+function renderBlock(block: Block, i: number, photos: Map<number, string>): React.ReactNode {
   switch (block.type) {
     case 'paragraph':
       return (
@@ -216,6 +232,12 @@ function renderBlock(block: Block, i: number): React.ReactNode {
                 block.name
               )}
             </h3>
+            {block.memberId && photos.get(block.memberId) && (
+              <Link href={`/mps/${block.memberId}`} className="no-hover-scale" style={{ alignSelf: 'center', display: 'inline-flex', flexShrink: 0 }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={photos.get(block.memberId)} alt={block.name} width={56} height={56} style={{ display: 'block', width: 56, height: 56, objectFit: 'cover', border: `1px solid ${INK}`, filter: 'contrast(1.05) sepia(0.05)' }} />
+              </Link>
+            )}
             {block.party && (
               <span style={{ fontFamily: '"Special Elite", monospace', fontSize: '12px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, padding: '3px 8px', border: `1px solid ${HAIRLINE}` }}>{block.party}</span>
             )}
