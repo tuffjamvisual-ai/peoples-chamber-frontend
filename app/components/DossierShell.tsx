@@ -168,7 +168,7 @@ export default function DossierShell({
   children?: React.ReactNode;
   overlay?: React.ReactNode;
 }) {
-  const { issue, dateRange } = computeIssue(new Date());
+  const { issue } = computeIssue(new Date());
 
   return (
     <>
@@ -297,9 +297,6 @@ export default function DossierShell({
             >
               <div style={{ color: '#2b2722', fontSize: 'clamp(17px, 2.85vw, 41px)', letterSpacing: '0.01em' }}>
                 ISSUE {issue}
-              </div>
-              <div style={{ fontSize: 'clamp(8px, 1.2vw, 16px)', letterSpacing: '0.03em', marginTop: '0.5em' }}>
-                {dateRange}
               </div>
             </div>
 
