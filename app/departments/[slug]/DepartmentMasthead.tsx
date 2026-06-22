@@ -85,13 +85,13 @@ export default function DepartmentMasthead({ sos, budget }: Props) {
                 aria-hidden
                 style={{
                   position: 'absolute',
-                  top: '44%',
-                  left: '50%',
-                  width: '240px',
+                  bottom: '54px',
+                  right: '18px',
+                  width: '120px',
                   height: 'auto',
-                  transform: 'translate(-50%, -50%) rotate(0deg)',
+                  transform: 'rotate(-8deg)',
                   transformOrigin: 'center',
-                  opacity: 0.85,
+                  opacity: 0.9,
                   pointerEvents: 'none',
                   zIndex: 3,
                 }}
