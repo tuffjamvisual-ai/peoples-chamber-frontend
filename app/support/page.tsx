@@ -47,11 +47,6 @@ export default function SupportPage() {
         Create an account, browse bills, and click Support, Oppose, or Abstain. Your vote is recorded and contributes to public opinion statistics.
       </p>
 
-      <h3 className="font-bold mt-4 mb-2 text-[#14100d]">Where does the data come from?</h3>
-      <p className="text-[#14100d] mb-4">
-        All bill and MP data comes from official UK Parliament APIs at parliament.uk
-      </p>
-
       <h3 className="font-bold mt-4 mb-2 text-[#14100d]">Can I change my vote?</h3>
       <p className="text-[#14100d] mb-4">
         No, votes are final once submitted to maintain data integrity.
