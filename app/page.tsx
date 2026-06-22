@@ -154,6 +154,12 @@ export default function HomePage() {
         <div style={{ ...headline, fontSize: '1.3cqw', lineHeight: 1.0 }}>Britain&rsquo;s Most Disgraced Politicians <span style={{ color: '#6b2417' }}>&rarr;</span></div>
       </a>
 
+      {/* Link to the full editorials index, in the gap beneath the latest
+          investigation strip. Right-aligned so it reads as a "see all". */}
+      <a href="/editorials" className="no-hover-scale" style={{ ...card, top: '71.5%', left: '56%', width: '38%', height: '1.8%', alignItems: 'flex-end', justifyContent: 'center', textAlign: 'right', padding: '0 2.5%', overflow: 'hidden' }}>
+        <div style={{ ...kicker, fontSize: '0.95cqw', letterSpacing: '0.12em', color: '#6b2417', fontWeight: 'bold' }}>All investigations &rarr;</div>
+      </a>
+
       {/* Expenses story (left) — featured image on top, headline under.
           The image stays crisp; the hand-drawn ink border sits over it
           as a separate layer that gets the wobble filter. */}
