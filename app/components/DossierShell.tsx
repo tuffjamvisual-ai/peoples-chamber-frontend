@@ -132,8 +132,8 @@ const HOTSPOTS: Hotspot[] = [
   // so they were inactive placeholders that shipped on every page as
   // external outbound links. Restore here with proper account URLs when
   // the accounts exist.
-  { label: 'SUPPORT US', href: '/support', xPct: 49.0, yPct: 93.8, wPct: 10.0, hPct: 2.5 },
-  { label: 'ACCOUNT/INFO', href: '/login', xPct: 68.0, yPct: 93.8, wPct: 14.0, hPct: 2.5 },
+  { label: 'SUPPORT US', href: '/support', xPct: 49.0, yPct: 95.5, wPct: 10.0, hPct: 3.0 },
+  { label: 'ACCOUNT/INFO', href: '/login', xPct: 68.0, yPct: 95.5, wPct: 14.0, hPct: 3.0 },
 ];
 
 // Weekly issue line. Anchor: Issue 23 = week beginning Fri 16 May 2025; Fri–Thu weeks.
