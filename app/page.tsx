@@ -146,6 +146,14 @@ export default function HomePage() {
         <div style={{ ...headline, fontSize: '1.3cqw', lineHeight: 1.0 }}>When Did Politicians Stop Taking Responsibility? <span style={{ color: '#6b2417' }}>&rarr;</span></div>
       </a>
 
+      {/* Investigation strip directly beneath the accountability comment
+          (right column), sitting in the gap above the bottom story row.
+          Links to the disgraced-politicians editorial. */}
+      <a href="/editorials/britains-most-disgraced-politicians" className="no-hover-scale" style={{ ...card, top: '69.7%', left: '56%', width: '38%', height: '3.4%', alignItems: 'flex-start', justifyContent: 'center', textAlign: 'left', padding: '0 2.5%', overflow: 'hidden', borderTop: '1.5px solid #14100d' }}>
+        <div style={{ ...kicker, fontSize: '0.85cqw', letterSpacing: '0.24em', color: '#6b2417', fontWeight: 'bold', marginBottom: '1.5%' }}>The People&rsquo;s Chamber &middot; Investigation</div>
+        <div style={{ ...headline, fontSize: '1.3cqw', lineHeight: 1.0 }}>Britain&rsquo;s Most Disgraced Politicians <span style={{ color: '#6b2417' }}>&rarr;</span></div>
+      </a>
+
       {/* Expenses story (left) — featured image on top, headline under.
           The image stays crisp; the hand-drawn ink border sits over it
           as a separate layer that gets the wobble filter. */}
