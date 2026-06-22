@@ -180,8 +180,15 @@ export default async function ExpensesPage() {
         .pca-row { transition: background-color 140ms ease; }
         .pca-row:hover { background: rgba(122,22,18,0.08); }
         .pca-row:hover [data-pca-leader] { border-bottom-color: rgba(122,22,18,0.55); }
+        /* Mobile: collapse both two-column blocks (leaderboard + article body)
+           to a single column so columns don't render microscopically.
+           !important overrides the inline columnCount:2. */
+        @media (max-width: 767px) {
+          .pca-cols { column-count: 1 !important; column-rule: none !important; }
+        }
       `}</style>
       <ol
+        className="pca-cols"
         style={{
           listStyle: 'none',
           padding: 0,
@@ -245,6 +252,7 @@ export default async function ExpensesPage() {
           {FEATURE_TITLE}
         </h2>
         <div
+          className="pca-cols"
           style={{
             fontFamily: 'Special Elite, monospace',
             // 14px in the essay (vs. 12px in the Top 10 listing above)

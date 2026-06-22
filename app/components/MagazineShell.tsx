@@ -1,5 +1,6 @@
 import type { ReactNode, CSSProperties } from 'react';
 import MagazineNav from './MagazineNav';
+import MobileNav from './MobileNav';
 import './magazine-layout.css';
 
 // Reusable magazine-template shell: #2a1810 paper background with the
@@ -52,7 +53,10 @@ export default function MagazineShell({
           pointerEvents: 'none',
         }}
       />
-      <MagazineNav />
+      <div className="magazine-desktop-nav">
+        <MagazineNav />
+      </div>
+      <MobileNav />
       <div
         className="magazine-content-spacing"
         style={{
