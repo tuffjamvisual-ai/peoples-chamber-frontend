@@ -1,0 +1,72 @@
+/* Mobile-only navigation (Priority 1). Every rule is gated to <768px;
+   desktop chrome is untouched. Tokens: Paper #f4e8d4, Ink #14100d,
+   Accent Red #7a1612. */
+
+.mobile-nav-toggle { display: none; }   /* hidden on desktop */
+
+@media (max-width: 767px) {
+  /* Hide the desktop painted-header hotspot overlay on mobile. */
+  .magazine-desktop-nav { display: none; }
+
+  .mobile-nav-toggle {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 44px;            /* meets 44px min tap target */
+    height: 44px;
+    padding: 10px;
+    background: #f4e8d4;
+    border: 2px solid #14100d;
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(20, 16, 13, 0.35);
+  }
+  .mobile-nav-toggle span {
+    display: block;
+    height: 3px;
+    width: 100%;
+    background: #14100d;
+    border-radius: 2px;
+  }
+
+  .mobile-nav-drawer {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    background: #f4e8d4;
+    color: #14100d;
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    overflow-y: auto;
+  }
+  .mobile-nav-close {
+    align-self: flex-end;
+    width: 44px;
+    height: 44px;
+    font-size: 32px;
+    line-height: 1;
+    background: transparent;
+    border: none;
+    color: #7a1612;
+    cursor: pointer;
+  }
+  .mobile-nav-links { display: flex; flex-direction: column; margin-top: 8px; }
+  .mobile-nav-links a {
+    display: flex;
+    align-items: center;
+    min-height: 56px;        /* comfortably tappable */
+    padding: 0 8px;
+    font-family: 'Special Elite', monospace;
+    font-size: 24px;
+    color: #14100d;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(20, 16, 13, 0.2);
+  }
+  .mobile-nav-links a:active { color: #7a1612; }
+}
