@@ -108,6 +108,7 @@ const HOTSPOTS: Hotspot[] = [
       // 'Press Releases' added 2026-06-04 — daily GOV.UK feed at
       // /transparency/press-releases, individual pages at /news/[slug].
       { label: 'All Datasets',          href: '/transparency' },
+      { label: 'Editorials',            href: '/editorials' },
       { label: 'MPs’ Second Jobs',      href: '/second-jobs' },
       { label: 'Ministers’ Meetings',   href: '/transparency/ministers-meetings' },
       { label: 'APPGs',                 href: '/transparency/appgs' },
