@@ -85,7 +85,7 @@ export default function DepartmentMasthead({ sos, budget }: Props) {
                 aria-hidden
                 style={{
                   position: 'absolute',
-                  bottom: '52px',
+                  bottom: '16px',
                   right: '8px',
                   width: '150px',
                   height: 'auto',
