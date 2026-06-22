@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import DossierShell from '../components/DossierShell'
 import BackLink from '../components/BackLink';
 
@@ -86,6 +87,13 @@ export default function ContactPage() {
           </a>
         ))}
       </div>
+
+      <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '4%' }}>
+        Looking for help or answers to common questions? Visit our{' '}
+        <Link href="/support" className="no-hover-scale" style={{ color: '#6b2417', fontWeight: 'bold', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
+          Support page
+        </Link>.
+      </p>
 
       <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '5%', opacity: 0.6 }}>
         We aim to reply within a few working days.

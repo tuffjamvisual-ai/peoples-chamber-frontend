@@ -65,7 +65,7 @@ export default function PrivacyPage() {
 
         <h2 className="text-xl font-bold mt-6 mb-3 text-[#14100d]">Contact</h2>
         <p className="text-[#14100d] mb-4">
-          For privacy concerns or data requests, contact: tuffjamvisual@gmail.com
+          For privacy concerns or data requests, contact: contact@thepeopleschamber.uk
         </p>
       </div>
     </DossierShell>

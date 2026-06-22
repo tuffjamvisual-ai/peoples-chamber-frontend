@@ -38,7 +38,7 @@ export default function SupportPage() {
       </header>
 
       <h2 className="text-xl font-bold mt-6 mb-3 text-[#14100d]">Contact Us</h2>
-      <p className="text-[#14100d] mb-4">Email: tuffjamvisual@gmail.com</p>
+      <p className="text-[#14100d] mb-4">Email: contact@thepeopleschamber.uk</p>
 
       <h2 className="text-xl font-bold mt-6 mb-3 text-[#14100d]">Frequently Asked Questions</h2>
 
