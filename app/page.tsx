@@ -129,7 +129,7 @@ export default function HomePage() {
           story" summarising the Top Ten serving-MP scandals investigation
           and linking through to the full editorial. Top hairline rule
           separates it from the bills card above (newspaper section break). */}
-      <a href="/editorials/biggest-westminster-scandals-among-serving-mps-2026" className="no-hover-scale" style={{ ...card, top: '49.5%', left: '56%', width: '38%', height: '14%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '0 2.5%', overflow: 'hidden' }}>
+      <a href="/editorials/biggest-westminster-scandals-among-serving-mps-2026" className="no-hover-scale" style={{ ...card, top: '49.5%', left: '56%', width: '38%', height: '12%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '0 2.5%', overflow: 'hidden' }}>
         <div style={{ ...kicker, fontSize: '1.0cqw', letterSpacing: '0.28em', color: '#6b2417', fontWeight: 'bold', borderTop: '1.5px solid #14100d', paddingTop: '3.5%', marginBottom: '2.5%', width: '100%' }}>The People&rsquo;s Chamber &middot; Investigation</div>
         <div style={{ ...headline, fontSize: '2.0cqw', lineHeight: 1.0, marginBottom: '3%' }}>Westminster&rsquo;s Culture of Impropriety: Why Trust Keeps Eroding</div>
         <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.25cqw', lineHeight: 1.4, opacity: 0.9, marginBottom: '3%', textAlign: 'justify' }}>
@@ -141,7 +141,7 @@ export default function HomePage() {
       {/* Comment strip beneath the Westminster card (right column), filling
           the gap opened by nudging that card up. Links to the accountability
           editorial. */}
-      <a href="/editorials/when-did-politicians-stop-taking-responsibility" className="no-hover-scale" style={{ ...card, top: '64%', left: '56%', width: '38%', height: '5.5%', alignItems: 'flex-start', justifyContent: 'center', textAlign: 'left', padding: '0 2.5%', overflow: 'hidden', borderTop: '1.5px solid #14100d' }}>
+      <a href="/editorials/when-did-politicians-stop-taking-responsibility" className="no-hover-scale" style={{ ...card, top: '62%', left: '56%', width: '38%', height: '5.5%', alignItems: 'flex-start', justifyContent: 'center', textAlign: 'left', padding: '0 2.5%', overflow: 'hidden', borderTop: '1.5px solid #14100d' }}>
         <div style={{ ...kicker, fontSize: '0.85cqw', letterSpacing: '0.24em', color: '#6b2417', fontWeight: 'bold', marginBottom: '1.5%' }}>The People&rsquo;s Chamber &middot; Comment</div>
         <div style={{ ...headline, fontSize: '1.3cqw', lineHeight: 1.0 }}>When Did Politicians Stop Taking Responsibility? <span style={{ color: '#6b2417' }}>&rarr;</span></div>
       </a>
@@ -149,7 +149,7 @@ export default function HomePage() {
       {/* Investigation strip directly beneath the accountability comment
           (right column), sitting in the gap above the bottom story row.
           Links to the disgraced-politicians editorial. */}
-      <a href="/editorials/britains-most-disgraced-politicians" className="no-hover-scale" style={{ ...card, top: '69.7%', left: '56%', width: '38%', height: '3.4%', alignItems: 'flex-start', justifyContent: 'center', textAlign: 'left', padding: '0 2.5%', overflow: 'hidden', borderTop: '1.5px solid #14100d' }}>
+      <a href="/editorials/britains-most-disgraced-politicians" className="no-hover-scale" style={{ ...card, top: '67.7%', left: '56%', width: '38%', height: '3.4%', alignItems: 'flex-start', justifyContent: 'center', textAlign: 'left', padding: '0 2.5%', overflow: 'hidden', borderTop: '1.5px solid #14100d' }}>
         <div style={{ ...kicker, fontSize: '0.85cqw', letterSpacing: '0.24em', color: '#6b2417', fontWeight: 'bold', marginBottom: '1.5%' }}>The People&rsquo;s Chamber &middot; Investigation</div>
         <div style={{ ...headline, fontSize: '1.3cqw', lineHeight: 1.0 }}>Britain&rsquo;s Most Disgraced Politicians <span style={{ color: '#6b2417' }}>&rarr;</span></div>
       </a>
