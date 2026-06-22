@@ -18,7 +18,6 @@ export function generateStaticParams() { return []; }
 const INK = '#14100d';
 const INK_SOFT = 'rgba(20,16,13,0.7)';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
-const CREAM = '#ebe5d8';
 const ACCENT = '#7a1612';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -197,7 +196,7 @@ function renderBlock(block: Block, i: number): React.ReactNode {
           {block.paragraphs.map((para, j) => (
             <p key={j} style={{ marginBottom: '18px' }}>{para}</p>
           ))}
-          <p style={{ marginTop: '18px', padding: '10px 14px', background: CREAM, borderLeft: `3px solid ${ACCENT}`, fontFamily: '"Special Elite", monospace', fontSize: '14px', fontWeight: 'bold' }}>
+          <p style={{ marginTop: '18px', padding: '2px 0 2px 14px', borderLeft: `3px solid ${ACCENT}`, fontFamily: '"Special Elite", monospace', fontSize: '14px', fontWeight: 'bold' }}>
             <span style={{ color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.1em', marginRight: '6px' }}>Verdict:</span>
             {block.verdict}
           </p>
@@ -227,7 +226,7 @@ function renderBlock(block: Block, i: number): React.ReactNode {
           {block.paragraphs.map((para, j) => (
             <p key={j} style={{ marginBottom: '18px' }}>{para}</p>
           ))}
-          <p style={{ marginTop: '18px', padding: '10px 14px', background: CREAM, borderLeft: `3px solid ${ACCENT}`, fontFamily: '"Special Elite", monospace', fontSize: '14px', fontWeight: 'bold' }}>
+          <p style={{ marginTop: '18px', padding: '2px 0 2px 14px', borderLeft: `3px solid ${ACCENT}`, fontFamily: '"Special Elite", monospace', fontSize: '14px', fontWeight: 'bold' }}>
             <span style={{ color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.1em', marginRight: '6px' }}>Verdict:</span>
             {block.verdict}
           </p>
