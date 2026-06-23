@@ -79,6 +79,21 @@ function proceduralContext(title: string | null | undefined): string | null {
   return null;
 }
 
+// Strip trailing procedural/stage markers from a division title so the SEO
+// title can lead with the actual subject (the bill or motion topic) rather
+// than the parliamentary stage. Conservative: only removes recognised
+// stage/amendment suffixes, leaves "(Amendment)" inside bill/SI names alone,
+// and never blanks the title.
+function stripProceduralSuffix(title: string): string {
+  const t = title
+    .replace(/\s*[:–-]?\s*\b(Report Stage|Committee Stage|Third Reading|Second Reading|First Reading|Remaining Stages?|Legislative Grand Committee|Programme Motion|Money Resolution|Ways and Means|Consideration of Lords (?:Amendments?|Message)|Motion to (?:disagree|agree|insist))\b.*$/i, '')
+    .replace(/\s+Committee:\s.*$/i, '')
+    .replace(/:\s*(?:New Clause|New Schedule|Amendments?|Lords Amendments?)\b.*$/i, '')
+    .replace(/[\s:,–-]+$/, '')
+    .trim();
+  return t.length >= 3 ? t : title;
+}
+
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
@@ -115,9 +130,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const { data: row } = await supabase
     .from('mp_division_votes')
-    .select('division_title, division_date')
+    .select('division_title, division_date, bill_id, division_id')
     .eq('division_date_only', dateOnly)
     .eq('division_number', divisionNumber)
+    .order('bill_id', { ascending: true, nullsFirst: false })
     .limit(1)
     .maybeSingle();
   if (!row) return { title: 'Division' };
@@ -128,8 +144,27 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     year: 'numeric',
   });
 
-  const title = `${row.division_title}, Commons Division ${divisionNumber}, ${dateLabel} | The People's Chamber`;
-  const description = `How every MP voted on ${row.division_title} in the House of Commons on ${dateLabel}.`;
+  const topic = stripProceduralSuffix(row.division_title ?? `Commons Division ${divisionNumber}`);
+
+  // Description: prefer the bill's plain-English summary, then an SI
+  // explanatory note, then a procedural explainer, then a generic line.
+  let billSummary: string | null = null;
+  if (row.bill_id != null) {
+    const { data: bill } = await supabase.from('bill').select('plain_summary').eq('id', row.bill_id).maybeSingle();
+    billSummary = bill?.plain_summary ?? null;
+  }
+  let siDescription: string | null = null;
+  if (!billSummary && row.division_id != null) {
+    const { data: si } = await supabase.from('statutory_instrument').select('description').eq('division_id', row.division_id).maybeSingle();
+    siDescription = si?.description ?? null;
+  }
+
+  const title = `How every MP voted on ${topic}, ${dateLabel}`;
+  const description =
+    billSummary ||
+    siDescription ||
+    proceduralContext(row.division_title) ||
+    `How every MP voted on ${topic} in the House of Commons on ${dateLabel}.`;
   return {
     title: title.length > 200 ? title.slice(0, 197).trimEnd() + '…' : title,
     description: description.length > 200 ? description.slice(0, 197).trimEnd() + '…' : description,
