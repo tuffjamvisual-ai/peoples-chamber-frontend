@@ -10,8 +10,10 @@ import whenDidPoliticiansStop from './when-did-politicians-stop-taking-responsib
 import theRevolvingDoor from './the-revolving-door';
 import mostDisgracedPoliticians from './britains-most-disgraced-politicians';
 import burnhamRecord from './andy-burnham-the-record-behind-the-reputation';
+import labourBrokenPromises from './whr8acs2gf';
 
 export const editorials: EditorialRegistry = {
+  [labourBrokenPromises.slug]: labourBrokenPromises,
   [tenWorstCouncils.slug]: tenWorstCouncils,
   [biggestWestminsterScandals.slug]: biggestWestminsterScandals,
   [powerForSale.slug]: powerForSale,
