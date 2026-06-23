@@ -9,6 +9,7 @@ import powerForSale from './power-for-sale-20-politicians-who-cashed-in';
 import whenDidPoliticiansStop from './when-did-politicians-stop-taking-responsibility';
 import theRevolvingDoor from './the-revolving-door';
 import mostDisgracedPoliticians from './britains-most-disgraced-politicians';
+import burnhamRecord from './andy-burnham-the-record-behind-the-reputation';
 
 export const editorials: EditorialRegistry = {
   [tenWorstCouncils.slug]: tenWorstCouncils,
@@ -17,4 +18,5 @@ export const editorials: EditorialRegistry = {
   [whenDidPoliticiansStop.slug]: whenDidPoliticiansStop,
   [theRevolvingDoor.slug]: theRevolvingDoor,
   [mostDisgracedPoliticians.slug]: mostDisgracedPoliticians,
+  [burnhamRecord.slug]: burnhamRecord,
 };
