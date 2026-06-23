@@ -12,7 +12,7 @@ import JsonLd, { buildHomepageGraph } from '@/lib/JsonLd';
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "The People's Chamber, UK Parliament Tracker & Government Transparency",
+  title: "UK Parliament Tracker & Government Transparency | The Peoples Chamber",
   description:
     'Track every UK MP, bill, vote and government department in one place. Voting records, ministerial spending, party manifestos and Whitehall transparency data, free and unbranded.',
   alternates: { canonical: '/' },

@@ -4,6 +4,7 @@ import './landing-demo.css';
 
 export const metadata: Metadata = {
   title: "The People's Chamber, Clickable Landing Demo",
+  robots: { index: false, follow: false },
 };
 
 // Hotspots ported verbatim from the zip's index.html (positions in %,
