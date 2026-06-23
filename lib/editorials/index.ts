@@ -11,8 +11,10 @@ import theRevolvingDoor from './the-revolving-door';
 import mostDisgracedPoliticians from './britains-most-disgraced-politicians';
 import burnhamRecord from './andy-burnham-the-record-behind-the-reputation';
 import labourBrokenPromises from './whr8acs2gf';
+import councilTaxProblem from './awsucrmvr1';
 
 export const editorials: EditorialRegistry = {
+  [councilTaxProblem.slug]: councilTaxProblem,
   [labourBrokenPromises.slug]: labourBrokenPromises,
   [tenWorstCouncils.slug]: tenWorstCouncils,
   [biggestWestminsterScandals.slug]: biggestWestminsterScandals,
