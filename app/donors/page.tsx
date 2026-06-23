@@ -13,7 +13,7 @@ export const revalidate = 86400;
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: "UK Political Donors: Who Funds Westminster | The People's Chamber",
+  title: "UK Political Donors: Who Funds Westminster",
   description:
     "Every named donor in the UK Electoral Commission's political donations register, ranked by total given. Click through to see exactly which parties, MPs and constituencies each donor has funded.",
   alternates: { canonical: '/donors' },

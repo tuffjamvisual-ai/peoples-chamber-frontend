@@ -18,7 +18,7 @@ import BackLink from '../components/BackLink';
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: 'Your Tax Pound, Where £1 Goes | The People’s Chamber',
+  title: 'Your Tax Pound, Where £1 Goes',
   description:
     'Every pound of UK government spending broken down, NHS, pensions, welfare, education, debt interest, defence and the rest, with a paragraph explaining what each line actually buys.',
   alternates: { canonical: '/your-tax-pound' },

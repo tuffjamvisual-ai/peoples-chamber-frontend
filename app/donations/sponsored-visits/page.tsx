@@ -27,7 +27,7 @@ export const revalidate = 86400;
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Who paid for UK MPs\' trips: foreign governments, think tanks, lobby groups | The People\'s Chamber',
+  title: 'Who paid for UK MPs\' trips: foreign governments, think tanks, lobby groups',
   description:
     'Every sponsored visit declared to the Electoral Commission as a non-cash donation. Lists foreign-government paymasters, think tank invitations, and Friends-of-X group trips, grouped by sponsor and by recipient MP.',
   alternates: { canonical: '/donations/sponsored-visits' },

@@ -26,7 +26,7 @@ export const revalidate = 86400;
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Late-disclosed political donations: when UK parties told the EC after the deadline | The People\'s Chamber',
+  title: 'Late-disclosed political donations: when UK parties told the EC after the deadline',
   description:
     'Political donations declared to the Electoral Commission more than 90 days after acceptance, ranked by disclosure delay. UK parties are required to report large donations within 30 days; this page surfaces the gap.',
   alternates: { canonical: '/donations/late-disclosed' },

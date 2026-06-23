@@ -95,7 +95,7 @@ export async function generateMetadata({ params }: { params: Promise<{ guid: str
   const { guid } = await params;
   const d = await getDebate(guid);
   const title = d?.Overview?.Title?.trim() || 'Debate';
-  return { title: `${title} | The People's Chamber`, alternates: { canonical: `/debates/${guid}` } };
+  return { title: `${title}`, alternates: { canonical: `/debates/${guid}` } };
 }
 
 export default async function DebatePage({ params }: { params: Promise<{ guid: string }> }) {

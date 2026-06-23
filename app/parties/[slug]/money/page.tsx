@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { data: party } = await supabase.from('parties').select('name').eq('slug', slug).maybeSingle();
   const name = party?.name || 'Party';
   return {
-    title: `${name}, money map | The People's Chamber`,
+    title: `${name}, money map`,
     description: `Every declared donation to ${name}: by year, by donor type, by sector, by constituency vs HQ. The donor concentration nobody else calculates.`,
     alternates: { canonical: `/parties/${slug}/money` },
   };

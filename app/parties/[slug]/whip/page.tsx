@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { data: party } = await supabase.from('parties').select('name').eq('slug', slug).maybeSingle();
   const name = party?.name || 'Party';
   return {
-    title: `${name}, whip cohesion + rebellions | The People's Chamber`,
+    title: `${name}, whip cohesion + rebellions`,
     description: `How tightly the ${name} votes together in the Commons, and which MPs break from the party line most often. Computed from every recorded division this Parliament.`,
     alternates: { canonical: `/parties/${slug}/whip` },
   };

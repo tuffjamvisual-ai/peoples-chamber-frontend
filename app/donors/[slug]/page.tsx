@@ -117,7 +117,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const name = await findDonorByMatchingSlug(slug);
   if (!name) return { title: 'Donor' };
   return {
-    title: `${name}: every UK political donation recorded by the Electoral Commission | The People's Chamber`,
+    title: `${name}: every UK political donation recorded by the Electoral Commission`,
     description: `Where ${name}'s money goes in UK politics: every party, MP, constituency association and All-Party Parliamentary Group they have given to or funded, with totals.`,
     alternates: { canonical: `/donors/${slug}` },
   };

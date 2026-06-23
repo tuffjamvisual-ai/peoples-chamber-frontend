@@ -24,7 +24,7 @@ export const revalidate = 86400;
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'UK constituency-level political donations: which local associations get bankrolled | The People\'s Chamber',
+  title: 'UK constituency-level political donations: which local associations get bankrolled',
   description:
     'Ranks every UK constituency association by total declared donations received. Reveals which seats are propped up by big local donors, big national donors, or central-office redirect.',
   alternates: { canonical: '/donations/constituencies' },

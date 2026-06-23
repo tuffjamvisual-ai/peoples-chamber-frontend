@@ -6,7 +6,7 @@ import DossierShell from '../../components/DossierShell';
 import BackLink from '../../components/BackLink';
 
 export const metadata: Metadata = {
-  title: "MP Expenses Refused or Repaid, IPSA Rejections, Late Submissions & Repayments | The People's Chamber",
+  title: "MP Expenses Refused or Repaid, IPSA Rejections, Late Submissions & Repayments",
   description:
     "Every MP claim IPSA refused, every amount MPs had to repay, and why. League tables by member and by rejection reason.",
   alternates: { canonical: '/expenses/refused' },

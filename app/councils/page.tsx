@@ -16,7 +16,7 @@ import ScrollToTopButton from '../components/ScrollToTopButton';
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: 'Local Government | The People’s Chamber',
+  title: 'Local Government',
   description:
     'Every UK principal local authority, county, district, unitary, metropolitan and London boroughs, and Northern Irish councils, 382 in total.',
   alternates: { canonical: '/councils' },

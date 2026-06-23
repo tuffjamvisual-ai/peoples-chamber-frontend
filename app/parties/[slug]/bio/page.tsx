@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { data: party } = await supabase.from('parties').select('name').eq('slug', slug).maybeSingle();
   const name = party?.name || 'Party';
   return {
-    title: `${name} | The People's Chamber`,
+    title: `${name}`,
     description: `${name}, People's Verdict.`,
     alternates: { canonical: `/parties/${slug}/bio` },
   };

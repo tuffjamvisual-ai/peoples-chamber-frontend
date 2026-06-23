@@ -18,7 +18,7 @@ export const revalidate = 86400;
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'UK party leadership contest donations: who bankrolled the candidates | The People\'s Chamber',
+  title: 'UK party leadership contest donations: who bankrolled the candidates',
   description:
     'Every declared donation to a UK political party leadership candidate while they were standing for the leadership. Grouped by contest and ranked by donor.',
   alternates: { canonical: '/donations/leadership-contests' },

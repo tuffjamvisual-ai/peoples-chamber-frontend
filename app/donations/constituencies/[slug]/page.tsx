@@ -55,7 +55,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const name = await findCanonicalUnit(slug);
   if (!name) return { title: 'Constituency association' };
   return {
-    title: `${name}: declared donations to this UK constituency association | The People's Chamber`,
+    title: `${name}: declared donations to this UK constituency association`,
     description: `Every Electoral Commission donation declared to ${name}, ranked by donor.`,
     alternates: { canonical: `/donations/constituencies/${slug}` },
   };

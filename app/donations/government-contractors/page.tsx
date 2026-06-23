@@ -23,7 +23,7 @@ export const revalidate = 86400;
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'UK government contractors who donate to UK political parties | The People\'s Chamber',
+  title: 'UK government contractors who donate to UK political parties',
   description:
     'Direct cross-reference: every UK company appearing both on the gov.uk contracts register and the Electoral Commission donations register, ranked by total political donations.',
   alternates: { canonical: '/donations/government-contractors' },

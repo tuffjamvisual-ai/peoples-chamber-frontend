@@ -12,7 +12,7 @@ export const revalidate = 86400;
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: "APPG Secretariats: The Lobby Firms Operating Westminster's All-Party Groups | The People's Chamber",
+  title: "APPG Secretariats: The Lobby Firms Operating Westminster's All-Party Groups",
   description:
     "Every secretariat operating one or more UK All-Party Parliamentary Groups, ranked by the number of groups run. Click through to see the portfolio of lobby groups each firm operates and the MPs officering them.",
   alternates: { canonical: '/secretariats' },

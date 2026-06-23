@@ -18,7 +18,7 @@ export const revalidate = 86400;
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Money & Power · UK political money tracked across every register | The People\'s Chamber',
+  title: 'Money & Power · UK political money tracked across every register',
   description:
     'Cross-register transparency: UK MPs paid twice from the same source, government contractors who donate, foreign-government-sponsored MP travel, APPG funders and lobby firms. The patterns hidden in plain sight across the EC, gov.uk and Register of Interests, in one place.',
   alternates: { canonical: '/money' },

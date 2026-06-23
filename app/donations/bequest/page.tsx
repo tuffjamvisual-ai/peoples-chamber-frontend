@@ -20,7 +20,7 @@ export const revalidate = 86400;
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Bequests to UK political parties: money left in a will | The People\'s Chamber',
+  title: 'Bequests to UK political parties: money left in a will',
   description:
     'Every political donation declared as a bequest. Money left to a UK political party in the donor\'s will. Ranked by total, with recipient breakdowns and the largest individual estates.',
   alternates: { canonical: '/donations/bequest' },

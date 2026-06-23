@@ -21,7 +21,7 @@ export const revalidate = 86400;
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Impermissible political donations: money UK parties had to give back | The People\'s Chamber',
+  title: 'Impermissible political donations: money UK parties had to give back',
   description:
     'Political donations declared to the Electoral Commission and subsequently found impermissible under UK law. Lists every returned donation with the reason and the recipient party.',
   alternates: { canonical: '/donations/impermissible' },

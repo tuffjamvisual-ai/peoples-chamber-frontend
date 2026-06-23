@@ -21,7 +21,7 @@ export const revalidate = 86400;
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Trust-routed political donations: who funds UK politics via trusts | The People\'s Chamber',
+  title: 'Trust-routed political donations: who funds UK politics via trusts',
   description:
     'Political donations to UK parties and parliamentary recipients channelled through a trust rather than a named individual. Aggregated by trust, with the trust creator and recipient on every row.',
   alternates: { canonical: '/donations/trust-funded' },

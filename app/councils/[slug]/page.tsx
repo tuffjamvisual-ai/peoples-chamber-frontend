@@ -51,7 +51,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { data } = await supabase.from('councils').select('name, type_label, country').eq('slug', slug).single();
   if (!data) return { title: 'Council not found' };
   return {
-    title: `${data.name} | The People’s Chamber`,
+    title: `${data.name}`,
     description: `${data.name}, ${data.type_label}, ${data.country}.`,
     alternates: { canonical: `/councils/${slug}` },
   };

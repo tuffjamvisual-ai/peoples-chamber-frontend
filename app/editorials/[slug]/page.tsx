@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const piece = editorials[slug];
   if (!piece) return { title: 'Editorial' };
   return {
-    title: `${piece.headline} | The People's Chamber`,
+    title: `${piece.headline}`,
     description: piece.standfirst.slice(0, 200),
     alternates: { canonical: `/editorials/${slug}` },
   };

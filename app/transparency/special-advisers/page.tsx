@@ -28,7 +28,7 @@ const CREAM = '#ebe5d8';
 const ACCENT = '#7a1612';
 
 export const metadata: Metadata = {
-  title: "UK Special Advisers transparency: who advises which minister, and what they declared | The People's Chamber",
+  title: "UK Special Advisers transparency: who advises which minister, and what they declared",
   description:
     'Every current UK Special Adviser, the department they work for, and the gifts, hospitality and meetings with senior media figures they declared in the most recent published quarter.',
   alternates: { canonical: '/transparency/special-advisers' },

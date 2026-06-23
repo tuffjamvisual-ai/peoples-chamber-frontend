@@ -23,7 +23,7 @@ import BackLink from '../components/BackLink';
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: 'Budget Trade-offs | The People’s Chamber',
+  title: 'Budget Trade-offs',
   description:
     'What would it cost to fix everything? A cross departmental analysis showing how the £900bn budget actually divides, what each department says it needs, and the five fundamental choices Parliament keeps refusing to make.',
   alternates: { canonical: '/budget-trade-offs' },

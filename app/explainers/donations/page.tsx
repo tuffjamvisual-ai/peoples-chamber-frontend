@@ -4,7 +4,7 @@ import BackLink from '../../components/BackLink';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 
 export const metadata: Metadata = {
-  title: "How UK Political Donations Work and Why the System Fails | The People's Chamber",
+  title: "How UK Political Donations Work and Why the System Fails",
   description:
     "An explainer on the UK political donation system: self declaration, thresholds, intermediaries, permissibility tests, timing, and sanctions. Why the register records what politicians chose to disclose, not what actually happened.",
   alternates: { canonical: '/explainers/donations' },

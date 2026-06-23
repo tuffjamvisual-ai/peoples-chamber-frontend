@@ -25,7 +25,7 @@ export const revalidate = 86400;
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Foreign-source political donations: UK politics money map by country | The People\'s Chamber',
+  title: 'Foreign-source political donations: UK politics money map by country',
   description:
     'Every UK political donation declared from outside the United Kingdom, grouped by donor country. Reveals which foreign-address donors fund which UK parties and parliamentary recipients.',
   alternates: { canonical: '/donations/foreign' },
