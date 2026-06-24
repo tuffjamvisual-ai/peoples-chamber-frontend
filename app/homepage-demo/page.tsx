@@ -20,16 +20,16 @@ const HOTSPOTS: Hotspot[] = [
   { href: '/', label: 'Home: OPEN GOVERNMENT masthead', left: 3, top: 9, width: 43, height: 6 },
   { href: '/login', label: 'Account / Info', left: 51.5, top: 9, width: 9, height: 2.2 },
   { href: '/login', label: 'Sign up / Log in', left: 61.5, top: 8.7, width: 13, height: 2.6 },
-  // Nav row
-  { href: '/', label: 'Home', left: 2.7, top: 20.2, width: 5, height: 2 },
-  { href: '/bills', label: 'Bills', left: 7.5, top: 20.2, width: 4.5, height: 2 },
-  { href: '/polls', label: 'Peoples Polls', left: 12, top: 20.2, width: 9, height: 2 },
-  { href: '/parties', label: 'Parties', left: 20.8, top: 20.2, width: 6.5, height: 2 },
-  { href: '/mps', label: 'MPs', left: 26.8, top: 20.2, width: 4.5, height: 2 },
-  { href: '/departments', label: 'Departments', left: 31.2, top: 20.2, width: 10, height: 2 },
-  { href: '/editorials', label: 'Editorials', left: 41.2, top: 20.2, width: 8.5, height: 2 },
-  { href: '/transparency', label: 'Transparency', left: 49.7, top: 20.2, width: 10, height: 2 },
-  { href: '/support', label: 'Support Us', left: 59.5, top: 20.2, width: 7.5, height: 2 },
+  // Nav row (aligned to the painted labels)
+  { href: '/', label: 'Home', left: 6.5, top: 20.4, width: 4, height: 2.1 },
+  { href: '/bills', label: 'Bills', left: 11.5, top: 20.4, width: 4, height: 2.1 },
+  { href: '/polls', label: 'Peoples Polls', left: 16, top: 20.4, width: 8.5, height: 2.1 },
+  { href: '/parties', label: 'Parties', left: 25.5, top: 20.4, width: 6, height: 2.1 },
+  { href: '/mps', label: 'MPs', left: 32, top: 20.4, width: 4, height: 2.1 },
+  { href: '/departments', label: 'Departments', left: 37, top: 20.4, width: 9, height: 2.1 },
+  { href: '/editorials', label: 'Editorials', left: 46.5, top: 20.4, width: 7.5, height: 2.1 },
+  { href: '/transparency', label: 'Transparency', left: 54.5, top: 20.4, width: 9, height: 2.1 },
+  { href: '/support', label: 'Support Us', left: 64, top: 20.4, width: 7.5, height: 2.1 },
 ];
 
 export default async function HomepageDemo({
