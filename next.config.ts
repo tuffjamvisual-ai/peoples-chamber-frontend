@@ -69,7 +69,16 @@ async function councilRedirects() {
 
 const nextConfig: NextConfig = {
   async redirects() {
-    return await councilRedirects();
+    // Editorials moved from descriptive slugs to opaque random slugs.
+    // Keep the old indexed URLs alive with permanent (308) redirects.
+    const editorialRedirects = [
+      {
+        source: '/editorials/biggest-westminster-scandals-among-serving-mps-2026',
+        destination: '/editorials/kxlkhj1jgj',
+        permanent: true,
+      },
+    ];
+    return [...editorialRedirects, ...(await councilRedirects())];
   },
   images: {
     remotePatterns: [

@@ -4,7 +4,7 @@
 
 import type { EditorialRegistry } from './types';
 import tenWorstCouncils from './ten-worst-performing-councils-england';
-import biggestWestminsterScandals from './biggest-westminster-scandals-among-serving-mps-2026';
+import biggestWestminsterScandals from './kxlkhj1jgj';
 import powerForSale from './power-for-sale-20-politicians-who-cashed-in';
 import whenDidPoliticiansStop from './when-did-politicians-stop-taking-responsibility';
 import theRevolvingDoor from './the-revolving-door';
