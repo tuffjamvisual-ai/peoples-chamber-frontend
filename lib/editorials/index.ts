@@ -12,8 +12,10 @@ import mostDisgracedPoliticians from './britains-most-disgraced-politicians';
 import burnhamRecord from './andy-burnham-the-record-behind-the-reputation';
 import labourBrokenPromises from './whr8acs2gf';
 import councilTaxProblem from './awsucrmvr1';
+import groomingGangsScandal from './xm7co0hssx';
 
 export const editorials: EditorialRegistry = {
+  [groomingGangsScandal.slug]: groomingGangsScandal,
   [councilTaxProblem.slug]: councilTaxProblem,
   [labourBrokenPromises.slug]: labourBrokenPromises,
   [tenWorstCouncils.slug]: tenWorstCouncils,
