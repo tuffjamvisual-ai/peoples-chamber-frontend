@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { supabase } from '@/lib/supabase';
 import { departments } from '@/lib/departments';
+import { editorials } from '@/lib/editorials';
 
 const SITE = 'https://www.thepeopleschamber.uk';
 
@@ -63,8 +64,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/departments`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/transparency`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
     { url: `${SITE}/money`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
-    { url: `${SITE}/editorials/ten-worst-performing-councils-england`, lastModified: now, changeFrequency: 'monthly', priority: 0.9 },
-    { url: `${SITE}/editorials/kxlkhj1jgj`, lastModified: now, changeFrequency: 'monthly', priority: 0.9 },
+    { url: `${SITE}/editorials`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/laws`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/polls`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/expenses`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
@@ -106,6 +106,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: now,
     changeFrequency: 'weekly',
     priority: 0.6,
+  }));
+
+  // Every editorial registered in lib/editorials, driven off the registry
+  // so new pieces are picked up automatically (no hardcoded slug list).
+  const editorialEntries: MetadataRoute.Sitemap = Object.values(editorials).map((e) => ({
+    url: `${SITE}/editorials/${e.slug}`,
+    lastModified: e.publishedAt ? new Date(e.publishedAt) : now,
+    changeFrequency: 'monthly',
+    priority: 0.9,
   }));
 
   // Party sub-pages: /parties/[slug], /bio, /money for every party row
@@ -219,6 +228,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...staticEntries,
     ...transparencyEntries,
     ...deptEntries,
+    ...editorialEntries,
     ...partyEntries,
     ...billEntries,
     ...mpEntries,
