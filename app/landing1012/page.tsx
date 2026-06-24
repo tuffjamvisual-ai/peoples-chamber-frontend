@@ -19,16 +19,16 @@ const HOTSPOTS: Hotspot[] = [
   { href: '/', label: 'Home: OPEN GOVERNMENT masthead', left: 2.5, top: 9.8, width: 38, height: 5 },
   { href: '/login', label: 'Account / Info', left: 52, top: 6.5, width: 9, height: 2 },
   { href: '/login', label: 'Sign up / Log in', left: 61.5, top: 6.3, width: 13, height: 2.4 },
-  // Nav row
-  { href: '/', label: 'Home', left: 2.5, top: 18.6, width: 5, height: 2.2 },
-  { href: '/bills', label: 'Bills', left: 9.3, top: 18.6, width: 5, height: 2.2 },
-  { href: '/polls', label: 'Peoples Polls', left: 16.5, top: 18.6, width: 9, height: 2.2 },
-  { href: '/parties', label: 'Parties', left: 25.8, top: 18.6, width: 6.5, height: 2.2 },
-  { href: '/mps', label: 'MPs', left: 32.5, top: 18.6, width: 5, height: 2.2 },
-  { href: '/departments', label: 'Departments', left: 38.2, top: 18.6, width: 9, height: 2.2 },
-  { href: '/editorials', label: 'Editorials', left: 48.3, top: 18.6, width: 8, height: 2.2 },
-  { href: '/transparency', label: 'Transparency', left: 57, top: 18.6, width: 9.5, height: 2.2 },
-  { href: '/support', label: 'Support Us', left: 66.9, top: 18.6, width: 8, height: 2.2 },
+  // Nav row (~17% down, spread across the full width to match the labels)
+  { href: '/', label: 'Home', left: 5, top: 17, width: 5.5, height: 2.4 },
+  { href: '/bills', label: 'Bills', left: 13, top: 17, width: 5.5, height: 2.4 },
+  { href: '/polls', label: 'Peoples Polls', left: 20.4, top: 17, width: 9.5, height: 2.4 },
+  { href: '/parties', label: 'Parties', left: 33.2, top: 17, width: 6.5, height: 2.4 },
+  { href: '/mps', label: 'MPs', left: 42.8, top: 17, width: 5, height: 2.4 },
+  { href: '/departments', label: 'Departments', left: 50.4, top: 17, width: 9.5, height: 2.4 },
+  { href: '/editorials', label: 'Editorials', left: 61.2, top: 17, width: 8.5, height: 2.4 },
+  { href: '/transparency', label: 'Transparency', left: 71.6, top: 17, width: 10, height: 2.4 },
+  { href: '/support', label: 'Support Us', left: 83.7, top: 17, width: 8.5, height: 2.4 },
 ];
 
 export default async function Landing1012({
