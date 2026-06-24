@@ -15,10 +15,85 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+// Code nav bar rendered inside the folder above the front page. Mirrors the
+// masthead hotspots in DossierShell; kept local to this preview so the live
+// shell is untouched. Lift to a shared module on adoption.
+type NavItem = { label: string; href: string; children?: { label: string; href: string }[] };
+const NAV: NavItem[] = [
+  { label: 'Home', href: '/' },
+  { label: 'Bills', href: '/bills', children: [
+    { label: 'All Bills', href: '/bills' },
+    { label: 'Acts of Parliament', href: '/laws' },
+  ] },
+  { label: 'Peoples Polls', href: '/polls', children: [
+    { label: 'All Polls', href: '/polls' },
+    { label: 'Your Tax Pound', href: '/your-tax-pound' },
+    { label: 'Budget Trade-Offs', href: '/budget-trade-offs' },
+  ] },
+  { label: 'Parties', href: '/parties', children: [
+    { label: 'Manifesto Comparisons', href: '/parties' },
+    { label: 'Labour', href: '/parties/labour/bio' },
+    { label: 'Conservative', href: '/parties/conservative/bio' },
+    { label: 'Liberal Democrats', href: '/parties/liberal-democrats/bio' },
+    { label: 'SNP', href: '/parties/snp/bio' },
+    { label: 'Reform UK', href: '/parties/reform-uk/bio' },
+    { label: 'Sinn Féin', href: '/parties/sinn-fein/bio' },
+    { label: 'Green Party', href: '/parties/green/bio' },
+    { label: 'DUP', href: '/parties/dup/bio' },
+    { label: 'Plaid Cymru', href: '/parties/plaid-cymru/bio' },
+    { label: 'SDLP', href: '/parties/sdlp/bio' },
+    { label: 'Alliance', href: '/parties/alliance/bio' },
+    { label: 'UUP', href: '/parties/uup/bio' },
+    { label: 'TUV', href: '/parties/tuv/bio' },
+    { label: 'Restore Britain', href: '/parties/restore-britain/bio' },
+    { label: 'Your Party', href: '/parties/your-party/bio' },
+  ] },
+  { label: 'MPs', href: '/mps', children: [
+    { label: 'All MPs', href: '/mps' },
+    { label: 'Top Spenders', href: '/expenses' },
+    { label: 'Earnings & Pay', href: '/earnings' },
+  ] },
+  { label: 'Departments', href: '/departments' },
+  { label: 'Transparency', href: '/transparency', children: [
+    { label: 'All Datasets', href: '/transparency' },
+    { label: 'Editorials', href: '/editorials' },
+    { label: 'MPs’ Second Jobs', href: '/second-jobs' },
+    { label: 'Ministers’ Meetings', href: '/transparency/ministers-meetings' },
+    { label: 'APPGs', href: '/transparency/appgs' },
+    { label: 'Ministers’ Hospitality', href: '/transparency/hospitality' },
+    { label: 'Revolving Door', href: '/transparency/revolving-door' },
+    { label: 'Political Donations', href: '/transparency/donations' },
+    { label: 'Government Contracts', href: '/transparency/contracts' },
+    { label: 'Press Releases', href: '/transparency/press-releases' },
+    { label: 'Local Councils', href: '/councils' },
+    { label: 'Top Council Tax', href: '/council-tax' },
+  ] },
+  { label: 'Contact', href: '/contact' },
+  { label: 'Login/Signup', href: '/login' },
+];
+
 export default function HomepageV2() {
   return (
     <DossierShell>
       <div className="np">
+        {/* ── Nav bar ── */}
+        <nav aria-label="Primary">
+          <ul className="np-nav">
+            {NAV.map((item) => (
+              <li key={item.label}>
+                <a href={item.href}>{item.label}</a>
+                {item.children && (
+                  <ul className="np-sub">
+                    {item.children.map((c) => (
+                      <li key={c.href}><a href={c.href}>{c.label}</a></li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
+          </ul>
+        </nav>
+
         {/* ── Lead area: wide lead (left) + narrow rail (right) ── */}
         <div className="np-lead">
           {/* Left: councils lead + power-for-sale brief */}

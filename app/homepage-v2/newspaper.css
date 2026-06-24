@@ -8,6 +8,7 @@
    and the three design tokens. All classes are .np- prefixed. */
 
 .np {
+  --paper: #f4e8d4;                   /* dropdown panel background */
   --ink: #14100d;
   --accent: #7a1612;
   --rule: #14100d;                    /* crisp column/section rules */
@@ -17,6 +18,64 @@
   color: var(--ink);
   font-family: Georgia, 'Times New Roman', serif;
 }
+
+/* ---- Nav (CSS-only dropdowns, no client JS) ---- */
+.np-nav {
+  list-style: none;
+  margin: 0 0 18px;
+  padding: 7px 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  font-family: 'Special Elite', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: clamp(10px, 1.25vw, 13px);
+}
+.np-nav > li { position: relative; }
+.np-nav > li > a {
+  display: block;
+  padding: 3px 14px;
+  color: var(--ink);
+  text-decoration: none;
+  border-left: 1px solid rgba(20, 16, 13, 0.22);
+  white-space: nowrap;
+}
+.np-nav > li:first-child > a { border-left: none; }
+.np-nav > li > a:hover { color: var(--accent); }
+.np-sub {
+  list-style: none;
+  margin: 0;
+  padding: 6px 0;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 210px;
+  max-height: 70vh;
+  overflow-y: auto;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  z-index: 30;
+}
+.np-nav > li:hover .np-sub,
+.np-nav > li:focus-within .np-sub { opacity: 1; visibility: visible; transform: none; }
+.np-sub > li > a {
+  display: block;
+  padding: 5px 16px;
+  color: var(--ink);
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.np-sub > li > a:hover { color: var(--accent); background: rgba(20, 16, 13, 0.05); }
 
 /* ---- Shared text bits ---- */
 .np a.np-block { text-decoration: none; color: inherit; display: block; }
@@ -100,4 +159,7 @@
     border-top: 1px solid var(--rule); margin-top: 14px;
   }
   .np-grid-3 .np-col:first-child { border-top: none; margin-top: 0; padding-top: 0; }
+  .np-nav { letter-spacing: 0.08em; }
+  .np-nav > li > a { padding: 3px 9px; }
+  .np-sub { display: none; } /* mobile keeps top-level nav only (no touch traps) */
 }
