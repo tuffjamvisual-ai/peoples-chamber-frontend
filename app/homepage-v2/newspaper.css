@@ -1,118 +1,22 @@
-/* Code-based broadsheet front page for /homepage-v2. A faithful rebuild of
-   the current homepage's 10 cards in HTML/CSS instead of an absolutely
-   positioned overlay on pca-art.webp. No background image; the newspaper
-   look comes from CSS rules (1px/1.5px ink borders), serif type and the
-   three design tokens. Genuinely responsive via CSS grid + media queries.
-   All classes are .np- prefixed to avoid colliding with global styles. */
+/* Code-based broadsheet body for /homepage-v2. Renders INSIDE the dossier
+   folder (DossierShell), so this file styles only the 10-card grid that sits
+   in the folder's parchment content slot — the masthead, nav, issue line and
+   folder/paper background all come from DossierShell. A faithful rebuild of
+   the current homepage's 10 cards in HTML/CSS grid instead of an absolutely
+   positioned overlay on pca-art.webp, so the body is responsive on mobile.
+   The newspaper look comes from CSS rules (1px/1.5px ink borders), serif type
+   and the three design tokens. All classes are .np- prefixed. */
 
 .np {
-  --paper: #f4e8d4;
   --ink: #14100d;
   --accent: #7a1612;
   --rule: #14100d;                    /* crisp column/section rules */
   --ink-soft: rgba(20, 16, 13, 0.72);
 
-  background: var(--paper);
+  width: 100%;
   color: var(--ink);
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: clamp(12px, 3vw, 28px);
   font-family: Georgia, 'Times New Roman', serif;
-  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
 }
-
-/* ---- Masthead ---- */
-.np-masthead { text-align: center; }
-.np-issueline {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  font-family: 'Special Elite', monospace;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-size: clamp(9px, 1.3vw, 12px);
-  color: var(--accent);
-  border-bottom: 1px solid var(--rule);
-  padding-bottom: 6px;
-}
-.np-title {
-  font-family: var(--font-abril), Georgia, serif;
-  font-weight: 400;
-  letter-spacing: -0.01em;
-  line-height: 0.96;
-  font-size: clamp(34px, 8vw, 92px);
-  margin: 10px 0 6px;
-}
-.np-tagline {
-  font-style: italic;
-  color: var(--ink-soft);
-  font-size: clamp(12px, 1.6vw, 17px);
-  margin-bottom: 8px;
-}
-.np-rule-double {
-  border-top: 3px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
-  height: 4px;
-  margin-bottom: 10px;
-}
-
-/* ---- Nav (CSS-only dropdowns, no client JS) ---- */
-.np-nav {
-  list-style: none;
-  margin: 0 0 18px;
-  padding: 7px 0;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  border-top: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
-  font-family: 'Special Elite', monospace;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: clamp(10px, 1.25vw, 13px);
-}
-.np-nav > li { position: relative; }
-.np-nav > li > a {
-  display: block;
-  padding: 3px 14px;
-  color: var(--ink);
-  text-decoration: none;
-  border-left: 1px solid rgba(20, 16, 13, 0.22);
-  white-space: nowrap;
-}
-.np-nav > li:first-child > a { border-left: none; }
-.np-nav > li > a:hover { color: var(--accent); }
-.np-sub {
-  list-style: none;
-  margin: 0;
-  padding: 6px 0;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  min-width: 210px;
-  max-height: 70vh;
-  overflow-y: auto;
-  background: var(--paper);
-  border: 1px solid var(--rule);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-4px);
-  transition: opacity 0.12s ease, transform 0.12s ease;
-  z-index: 30;
-}
-.np-nav > li:hover .np-sub,
-.np-nav > li:focus-within .np-sub { opacity: 1; visibility: visible; transform: none; }
-.np-sub > li > a {
-  display: block;
-  padding: 5px 16px;
-  color: var(--ink);
-  text-decoration: none;
-  letter-spacing: 0.06em;
-  font-size: 12px;
-  white-space: nowrap;
-}
-.np-sub > li > a:hover { color: var(--accent); background: rgba(20, 16, 13, 0.05); }
 
 /* ---- Shared text bits ---- */
 .np a.np-block { text-decoration: none; color: inherit; display: block; }
@@ -162,8 +66,7 @@
 .np-brief .np-head { font-size: clamp(17px, 2vw, 22px); margin: 6px 0; }
 .np-brief p { font-size: 13.5px; line-height: 1.45; color: var(--ink-soft); margin: 0 0 6px; text-align: justify; }
 
-/* ---- Story cards (image + headline + blurb), used by the rail bills card
-        and the bottom three cards ---- */
+/* ---- Story cards (rail bills card + the bottom three) ---- */
 .np-card .np-head { font-size: clamp(18px, 2vw, 23px); margin: 6px 0; }
 .np-card p { font-size: 13px; line-height: 1.45; color: var(--ink-soft); text-align: justify; margin: 0 0 8px; }
 
@@ -197,7 +100,4 @@
     border-top: 1px solid var(--rule); margin-top: 14px;
   }
   .np-grid-3 .np-col:first-child { border-top: none; margin-top: 0; padding-top: 0; }
-  .np-nav { letter-spacing: 0.08em; }
-  .np-nav > li > a { padding: 3px 9px; }
-  .np-sub { display: none; } /* mobile keeps top-level nav only (no touch traps) */
 }
