@@ -17,19 +17,19 @@ export const metadata: Metadata = {
 // to see the boxes and nudge them onto the artwork.
 type Hotspot = { href: string; label: string; left: number; top: number; width: number; height: number };
 const HOTSPOTS: Hotspot[] = [
-  { href: '/', label: 'Home: OPEN GOVERNMENT masthead', left: 3, top: 9, width: 43, height: 6 },
-  { href: '/login', label: 'Account / Info', left: 51.5, top: 9, width: 9, height: 2.2 },
-  { href: '/login', label: 'Sign up / Log in', left: 61.5, top: 8.7, width: 13, height: 2.6 },
-  // Nav row (aligned to the painted labels)
-  { href: '/', label: 'Home', left: 6.5, top: 20.4, width: 4, height: 2.1 },
-  { href: '/bills', label: 'Bills', left: 11.5, top: 20.4, width: 4, height: 2.1 },
-  { href: '/polls', label: 'Peoples Polls', left: 16, top: 20.4, width: 8.5, height: 2.1 },
-  { href: '/parties', label: 'Parties', left: 25.5, top: 20.4, width: 6, height: 2.1 },
-  { href: '/mps', label: 'MPs', left: 32, top: 20.4, width: 4, height: 2.1 },
-  { href: '/departments', label: 'Departments', left: 37, top: 20.4, width: 9, height: 2.1 },
-  { href: '/editorials', label: 'Editorials', left: 46.5, top: 20.4, width: 7.5, height: 2.1 },
-  { href: '/transparency', label: 'Transparency', left: 54.5, top: 20.4, width: 9, height: 2.1 },
-  { href: '/support', label: 'Support Us', left: 64, top: 20.4, width: 7.5, height: 2.1 },
+  { href: '/', label: 'Home: OPEN GOVERNMENT masthead', left: 2.5, top: 9, width: 38, height: 5 },
+  { href: '/login', label: 'Account / Info', left: 56, top: 9.5, width: 10, height: 2.2 },
+  { href: '/login', label: 'Sign up / Log in', left: 66.5, top: 9.3, width: 13, height: 2.6 },
+  // Nav row (~18.5% down, aligned to the painted labels)
+  { href: '/', label: 'Home', left: 2.5, top: 17.6, width: 4.5, height: 2.2 },
+  { href: '/bills', label: 'Bills', left: 7, top: 17.6, width: 4.5, height: 2.2 },
+  { href: '/polls', label: 'Peoples Polls', left: 11.5, top: 17.6, width: 8, height: 2.2 },
+  { href: '/parties', label: 'Parties', left: 19.2, top: 17.6, width: 5.5, height: 2.2 },
+  { href: '/mps', label: 'MPs', left: 24.3, top: 17.6, width: 3.8, height: 2.2 },
+  { href: '/departments', label: 'Departments', left: 28, top: 17.6, width: 8, height: 2.2 },
+  { href: '/editorials', label: 'Editorials', left: 36.2, top: 17.6, width: 6.8, height: 2.2 },
+  { href: '/transparency', label: 'Transparency', left: 43, top: 17.6, width: 8, height: 2.2 },
+  { href: '/support', label: 'Support Us', left: 51.3, top: 17.6, width: 6.2, height: 2.2 },
 ];
 
 export default async function HomepageDemo({

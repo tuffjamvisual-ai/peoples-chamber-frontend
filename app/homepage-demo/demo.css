@@ -18,7 +18,7 @@
 .demo-shell {
   position: relative;
   width: min(100%, 980px);
-  aspect-ratio: 1024 / 1536;
+  aspect-ratio: 1023 / 1537;
   background-image: url('/landing-template.webp');
   background-size: contain;
   background-repeat: no-repeat;
@@ -52,7 +52,7 @@
 /* ---- Content layer in the blank folder body ---- */
 .demo-body {
   position: absolute;
-  top: 23%;
+  top: 21%;
   left: 5%;
   right: 5%;
   bottom: 5%;
