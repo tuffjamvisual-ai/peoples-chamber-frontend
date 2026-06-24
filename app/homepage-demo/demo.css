@@ -19,7 +19,7 @@
   position: relative;
   width: min(100%, 980px);
   aspect-ratio: 1023 / 1537;
-  background-image: url('/landing-template.webp');
+  background-image: url('/landing-lando.webp');
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
