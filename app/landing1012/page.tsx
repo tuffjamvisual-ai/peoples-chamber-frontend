@@ -20,15 +20,15 @@ const HOTSPOTS: Hotspot[] = [
   { href: '/login', label: 'Account / Info', left: 52, top: 6.5, width: 9, height: 2 },
   { href: '/login', label: 'Sign up / Log in', left: 61.5, top: 6.3, width: 13, height: 2.4 },
   // Nav row (~17% down, calibrated to the open template's label spacing)
-  { href: '/', label: 'Home', left: 4, top: 17, width: 5.5, height: 2.4 },
-  { href: '/bills', label: 'Bills', left: 9.8, top: 17, width: 5, height: 2.4 },
-  { href: '/polls', label: 'Peoples Polls', left: 18, top: 17, width: 9.5, height: 2.4 },
-  { href: '/parties', label: 'Parties', left: 26.7, top: 17, width: 6.5, height: 2.4 },
-  { href: '/mps', label: 'MPs', left: 33.4, top: 17, width: 5, height: 2.4 },
-  { href: '/departments', label: 'Departments', left: 39.4, top: 17, width: 9.5, height: 2.4 },
-  { href: '/editorials', label: 'Editorials', left: 49.4, top: 17, width: 8.5, height: 2.4 },
-  { href: '/transparency', label: 'Transparency', left: 58, top: 17, width: 9.5, height: 2.4 },
-  { href: '/support', label: 'Support Us', left: 67.6, top: 17, width: 8.5, height: 2.4 },
+  { href: '/', label: 'Home', left: 4, top: 14.6, width: 5.5, height: 2.4 },
+  { href: '/bills', label: 'Bills', left: 9.8, top: 14.6, width: 5, height: 2.4 },
+  { href: '/polls', label: 'Peoples Polls', left: 18, top: 14.6, width: 9.5, height: 2.4 },
+  { href: '/parties', label: 'Parties', left: 26.7, top: 14.6, width: 6.5, height: 2.4 },
+  { href: '/mps', label: 'MPs', left: 33.4, top: 14.6, width: 5, height: 2.4 },
+  { href: '/departments', label: 'Departments', left: 39.4, top: 14.6, width: 9.5, height: 2.4 },
+  { href: '/editorials', label: 'Editorials', left: 49.4, top: 14.6, width: 8.5, height: 2.4 },
+  { href: '/transparency', label: 'Transparency', left: 58, top: 14.6, width: 9.5, height: 2.4 },
+  { href: '/support', label: 'Support Us', left: 67.6, top: 14.6, width: 8.5, height: 2.4 },
 ];
 
 export default async function Landing1012({
