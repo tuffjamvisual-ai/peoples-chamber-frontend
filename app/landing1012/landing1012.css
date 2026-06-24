@@ -17,8 +17,8 @@
 .l12-shell {
   position: relative;
   width: min(100%, 980px);
-  aspect-ratio: 1023 / 1537;
-  background-image: url('/lnd101.webp');
+  aspect-ratio: 1024 / 1536;
+  background-image: url('/open.webp');
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
