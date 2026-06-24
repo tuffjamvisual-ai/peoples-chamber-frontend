@@ -18,7 +18,7 @@
   position: relative;
   width: min(100%, 980px);
   aspect-ratio: 1024 / 1536;
-  background-image: url('/newlnd.webp');
+  background-image: url('/lnd.webp');
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
