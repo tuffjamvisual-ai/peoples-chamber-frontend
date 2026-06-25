@@ -57,23 +57,17 @@ const NAV: NavItem[] = [
 export default function Landing1012() {
   return (
     <div className="og-stage">
-      <div className="og-page">
-        <div className="og-folder" aria-hidden>
-          <div className="og-folder-top" />
-          <div className="og-folder-mid" />
-          <div className="og-folder-bottom" />
-        </div>
-        <div className="og-content">
-          {/* ── Masthead ── */}
-          <header className="og-masthead">
+      <div className="og-wrap">
+        {/* ── Header: masthead + nav, off the paper (on the dark stage) ── */}
+        <header className="og-header">
+          <div className="og-masthead">
             <h1 className="og-title">Open Government</h1>
             <div className="og-tab">
               <a href="/login">Account / Info</a>
               <a className="og-signup" href="/login">Sign up / Log in</a>
             </div>
-          </header>
+          </div>
 
-          {/* ── Nav (real text) ── */}
           <nav aria-label="Primary">
             <ul className="og-nav">
               {NAV.map((item) => (
@@ -90,8 +84,16 @@ export default function Landing1012() {
               ))}
             </ul>
           </nav>
+        </header>
 
-          <div className="og-divider" aria-hidden />
+        {/* ── Paper sheet: all the content sits on it ── */}
+        <div className="og-page">
+          <div className="og-folder" aria-hidden>
+            <div className="og-folder-top" />
+            <div className="og-folder-mid" />
+            <div className="og-folder-bottom" />
+          </div>
+          <div className="og-content">
 
           {/* ── Lead ── */}
           <div className="og-lead">
@@ -182,6 +184,7 @@ export default function Landing1012() {
               </a>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>
