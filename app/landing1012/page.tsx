@@ -115,7 +115,9 @@ export default function Landing1012() {
                 <div className="og-cta">Read the full story &rarr;</div>
               </a>
 
-              <a className="og-block og-brief" href="/editorials/power-for-sale-20-politicians-who-cashed-in">                <div className="og-head">Power For Sale? The 20 Politicians Who Cashed In After Leaving Office</div>
+              <a className="og-block og-brief" href="/editorials/power-for-sale-20-politicians-who-cashed-in">
+                <div className="og-head">Power For Sale? The 20 Politicians Who Cashed In After Leaving Office</div>
+                <p>The ministers and MPs who left office and cashed in, advising and lobbying the industries they once regulated.</p>
                 <div className="og-cta">Read the full story &rarr;</div>
               </a>
             </div>
@@ -134,10 +136,14 @@ export default function Landing1012() {
                 <p>Follow what Parliament is doing right now, in plain English. <span className="og-cta" style={{ whiteSpace: 'nowrap' }}>Read the bills &rarr;</span></p>
               </a>
 
-              <a className="og-block og-brief" href="/editorials/when-did-politicians-stop-taking-responsibility">                <div className="og-head" style={{ fontSize: 'clamp(15px, 1.8vw, 19px)' }}>When Did Politicians Stop Taking Responsibility? <span style={{ color: '#7a1612' }}>&rarr;</span></div>
+              <a className="og-block og-brief" href="/editorials/when-did-politicians-stop-taking-responsibility">
+                <div className="og-head" style={{ fontSize: 'clamp(15px, 1.8vw, 19px)' }}>When Did Politicians Stop Taking Responsibility? <span style={{ color: '#7a1612' }}>&rarr;</span></div>
+                <p>Resignation once followed failure. A look at how accountability quietly drained out of British public life.</p>
               </a>
 
-              <a className="og-block og-brief" href="/editorials/britains-most-disgraced-politicians">                <div className="og-head" style={{ fontSize: 'clamp(15px, 1.8vw, 19px)' }}>Britain&rsquo;s Most Disgraced Politicians <span style={{ color: '#7a1612' }}>&rarr;</span></div>
+              <a className="og-block og-brief" href="/editorials/britains-most-disgraced-politicians">
+                <div className="og-head" style={{ fontSize: 'clamp(15px, 1.8vw, 19px)' }}>Britain&rsquo;s Most Disgraced Politicians <span style={{ color: '#7a1612' }}>&rarr;</span></div>
+                <p>From perjury to expenses fraud, the politicians whose careers collapsed in scandal, and what their falls reveal.</p>
               </a>
 
               <a className="og-block og-brief" href="/editorials" style={{ textAlign: 'right' }}>
