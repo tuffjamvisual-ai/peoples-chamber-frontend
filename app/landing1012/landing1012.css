@@ -6,7 +6,12 @@
 
 .og-stage {
   min-height: 100vh;
-  background: #15100b;
+  /* folders-pile background from the original landing page, fixed behind the
+     folder + paper, with a slight darkening so the sheet stays separated. */
+  background:
+    linear-gradient(rgba(12, 8, 5, 0.34), rgba(12, 8, 5, 0.46)),
+    url('/bg-folders.webp') center center / cover no-repeat fixed,
+    #15100b;
   padding: 3vh 14px 8vh;
   display: flex;
   justify-content: center;
