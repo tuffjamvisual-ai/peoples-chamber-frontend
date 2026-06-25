@@ -110,12 +110,14 @@ export default function LandingDemo2() {
 
       <div style={{ position: 'relative', zIndex: 1, width: 'min(94vw, 1144px)' }}>
         <div style={{ position: 'relative', width: '100%', aspectRatio: '1024 / 1536', containerType: 'inline-size' }}>
-          {/* Back page: the newgovfolder folder (painted "OPEN GOVERNMENT"
-              masthead) in place of pca-art.webp. */}
+          {/* Back page: the blank newlandin folder in place of pca-art.webp
+              (stretched to the 1023/1537-style container so the original
+              %-positioned overlay stays aligned). */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/newgovfolder.webp"
-            alt="Open Government"
+            src="/newlandin.webp"
+            alt=""
+            aria-hidden
             style={{
               position: 'absolute',
               inset: 0,
@@ -127,6 +129,12 @@ export default function LandingDemo2() {
               filter: 'drop-shadow(0 18px 38px rgba(0,0,0,0.55))',
             }}
           />
+
+          {/* Masthead in code — newlandin is a blank folder. */}
+          <div style={{ position: 'absolute', top: '6.5%', left: '6%', width: '62%', zIndex: 5, pointerEvents: 'none' }}>
+            <h1 style={{ margin: 0, fontFamily: 'var(--font-anton), Impact, "Arial Narrow", sans-serif', fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.02em', lineHeight: 0.95, fontSize: '5.2cqw', color: '#14100d' }}>Open Government</h1>
+            <div style={{ borderBottom: '0.22cqw solid #14100d', marginTop: '1.4%' }} />
+          </div>
 
           {/* Account / sign-up in the folder's top-right tab. */}
           <div className="ng-tab">
