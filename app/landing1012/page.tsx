@@ -107,9 +107,7 @@ export default function Landing1012() {
                 <p>The site is free. The data is open. The journalism is accountable. The only agenda is transparency.</p>
               </section>
 
-              <a className="og-block" href="/editorials/ten-worst-performing-councils-england">
-                <div className="og-kicker">Investigation</div>
-                <div className="og-head">The Ten Worst Performing Councils In England</div>
+              <a className="og-block" href="/editorials/ten-worst-performing-councils-england">                <div className="og-head">The Ten Worst Performing Councils In England</div>
                 <div className="og-standfirst">How local government failed the people it exists to serve.</div>
                 <p className="og-lede">
                   Eight English councils have declared themselves effectively bankrupt since 2018, accumulating more than &pound;5 billion in debt and deficit between them. One was abolished. Another went bankrupt three times. England&rsquo;s second city is still under government commissioners. These are the councils that broke, the decisions that broke them, and the residents left paying the bill.
@@ -117,17 +115,13 @@ export default function Landing1012() {
                 <div className="og-cta">Read the full story &rarr;</div>
               </a>
 
-              <a className="og-block og-brief" href="/editorials/power-for-sale-20-politicians-who-cashed-in">
-                <div className="og-kicker">Investigation</div>
-                <div className="og-head">Power For Sale? The 20 Politicians Who Cashed In After Leaving Office</div>
+              <a className="og-block og-brief" href="/editorials/power-for-sale-20-politicians-who-cashed-in">                <div className="og-head">Power For Sale? The 20 Politicians Who Cashed In After Leaving Office</div>
                 <div className="og-cta">Read the full story &rarr;</div>
               </a>
             </div>
 
             <div className="og-rail">
-              <a className="og-block og-brief" href="/editorials/kxlkhj1jgj">
-                <div className="og-kicker">Investigation</div>
-                <div className="og-head">Westminster&rsquo;s Culture of Impropriety</div>
+              <a className="og-block og-brief" href="/editorials/kxlkhj1jgj">                <div className="og-head">Westminster&rsquo;s Culture of Impropriety</div>
                 <p>Ten serving MPs who broke the rules, the law or the trust of their constituents and remain in the Commons.</p>
                 <div className="og-cta">Read the full story &rarr;</div>
               </a>
@@ -140,14 +134,10 @@ export default function Landing1012() {
                 <p>Follow what Parliament is doing right now, in plain English. <span className="og-cta" style={{ whiteSpace: 'nowrap' }}>Read the bills &rarr;</span></p>
               </a>
 
-              <a className="og-block og-brief" href="/editorials/when-did-politicians-stop-taking-responsibility">
-                <div className="og-kicker">Comment</div>
-                <div className="og-head" style={{ fontSize: 'clamp(15px, 1.8vw, 19px)' }}>When Did Politicians Stop Taking Responsibility? <span style={{ color: '#7a1612' }}>&rarr;</span></div>
+              <a className="og-block og-brief" href="/editorials/when-did-politicians-stop-taking-responsibility">                <div className="og-head" style={{ fontSize: 'clamp(15px, 1.8vw, 19px)' }}>When Did Politicians Stop Taking Responsibility? <span style={{ color: '#7a1612' }}>&rarr;</span></div>
               </a>
 
-              <a className="og-block og-brief" href="/editorials/britains-most-disgraced-politicians">
-                <div className="og-kicker">Investigation</div>
-                <div className="og-head" style={{ fontSize: 'clamp(15px, 1.8vw, 19px)' }}>Britain&rsquo;s Most Disgraced Politicians <span style={{ color: '#7a1612' }}>&rarr;</span></div>
+              <a className="og-block og-brief" href="/editorials/britains-most-disgraced-politicians">                <div className="og-head" style={{ fontSize: 'clamp(15px, 1.8vw, 19px)' }}>Britain&rsquo;s Most Disgraced Politicians <span style={{ color: '#7a1612' }}>&rarr;</span></div>
               </a>
 
               <a className="og-block og-brief" href="/editorials" style={{ textAlign: 'right' }}>
