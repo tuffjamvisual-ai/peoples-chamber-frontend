@@ -90,7 +90,7 @@
 
 /* "What this site does" intro (replaces the lead photo) */
 .og-intro { margin-bottom: 22px; }
-.og-intro-head { font-family: 'Special Elite', 'Courier New', monospace; font-weight: 400; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1; font-size: clamp(26px, 3.6vw, 44px); margin: 0 0 12px; color: var(--ink); }
+.og-intro-head { font-family: 'Special Elite', 'Courier New', monospace; font-weight: 400; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1; font-size: clamp(20px, 2.6vw, 31px); margin: 0 0 12px; color: var(--ink); }
 .og-intro p { font-size: 14.5px; line-height: 1.55; text-align: justify; margin: 0 0 10px; color: var(--ink); }
 .og-intro p:first-of-type { font-size: 16.5px; line-height: 1.5; }
 
@@ -102,7 +102,7 @@
 .og-rail .og-card { border-top: 1.5px solid var(--ink); margin-top: 14px; padding-top: 14px; }
 .og-rail > .og-card:first-child { border-top: none; margin-top: 0; padding-top: 0; }
 .og-main img, .og-card img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin-bottom: 12px; border: 1px solid var(--ink); }
-.og-main .og-head { font-size: clamp(28px, 4vw, 50px); margin-bottom: 6px; }
+.og-main .og-head { font-size: clamp(21px, 2.9vw, 34px); margin-bottom: 6px; }
 
 .og-brief { border-top: 1.5px solid var(--ink); margin-top: 14px; padding-top: 14px; }
 .og-brief .og-head { font-size: clamp(17px, 2vw, 22px); margin: 6px 0; }
