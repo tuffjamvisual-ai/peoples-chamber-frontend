@@ -26,7 +26,7 @@
   align-self: flex-start;
   margin-top: 20px;
   color: var(--ink);
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: 'Special Elite', 'Courier New', monospace;
   filter: drop-shadow(0 18px 38px rgba(0, 0, 0, 0.5));
 }
 
@@ -77,14 +77,14 @@
 .og-page a.og-block { text-decoration: none; color: inherit; }
 .og-block { display: block; }
 .og-kicker { font-family: 'Special Elite', monospace; text-transform: uppercase; letter-spacing: 0.22em; font-size: 11px; color: var(--accent); font-weight: bold; }
-.og-head { font-family: var(--font-anton), Impact, 'Arial Narrow', sans-serif; font-weight: 400; letter-spacing: 0.01em; line-height: 1.02; color: var(--ink); }
+.og-head { font-family: 'Special Elite', 'Courier New', monospace; font-weight: 400; letter-spacing: 0.01em; line-height: 1.02; color: var(--ink); }
 .og-standfirst { font-style: italic; color: var(--ink-soft); font-size: 17px; line-height: 1.35; margin: 8px 0; }
 .og-lede { font-size: 15px; line-height: 1.5; text-align: justify; margin: 8px 0; }
 .og-cta { font-family: 'Special Elite', monospace; text-transform: uppercase; letter-spacing: 0.08em; font-size: 12px; color: var(--accent); font-weight: bold; }
 
 /* "What this site does" intro (replaces the lead photo) */
 .og-intro { margin-bottom: 22px; }
-.og-intro-head { font-family: var(--font-anton), Impact, 'Arial Narrow', sans-serif; font-weight: 400; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1; font-size: clamp(26px, 3.6vw, 44px); margin: 0 0 12px; color: var(--ink); }
+.og-intro-head { font-family: 'Special Elite', 'Courier New', monospace; font-weight: 400; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1; font-size: clamp(26px, 3.6vw, 44px); margin: 0 0 12px; color: var(--ink); }
 .og-intro p { font-size: 14.5px; line-height: 1.55; text-align: justify; margin: 0 0 10px; color: var(--ink); }
 .og-intro p:first-of-type { font-size: 16.5px; line-height: 1.5; }
 
