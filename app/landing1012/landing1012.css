@@ -21,7 +21,7 @@
   --paper: #ecd9a6;
 
   position: relative;
-  width: min(100%, 1040px);
+  width: min(100%, 880px);
   align-self: flex-start;
   margin-top: 20px;
   color: var(--ink);
@@ -39,7 +39,7 @@
 .og-content {
   position: relative;
   z-index: 1;
-  padding: clamp(76px, 12vw, 150px) clamp(40px, 6vw, 78px) clamp(54px, 8vw, 110px);
+  padding: clamp(50px, 7.5vw, 92px) clamp(34px, 5vw, 60px) clamp(50px, 7vw, 96px);
 }
 
 /* ---- Masthead ---- */
