@@ -51,7 +51,10 @@
 .og-tab .og-signup { border: 1px solid var(--rule); padding: 4px 9px; }
 
 /* ---- Nav (real text, CSS-only dropdowns) ---- */
-.og-nav { list-style: none; margin: 0 0 44px; padding: 8px 0; display: flex; flex-wrap: wrap; justify-content: center; font-family: 'Special Elite', monospace; text-transform: uppercase; letter-spacing: 0.12em; font-size: clamp(10px, 1.2vw, 13px); }
+.og-nav { list-style: none; margin: 0 0 24px; padding: 8px 0; display: flex; flex-wrap: wrap; justify-content: center; font-family: 'Special Elite', monospace; text-transform: uppercase; letter-spacing: 0.12em; font-size: clamp(10px, 1.2vw, 13px); }
+
+/* Short centered hairline separating the nav from the content. */
+.og-divider { width: 46%; max-width: 380px; height: 0; border-top: 1px solid rgba(20, 16, 13, 0.45); margin: 0 auto 24px; }
 .og-nav > li { position: relative; }
 .og-nav > li > a { display: block; padding: 4px 15px; color: var(--ink); text-decoration: none; border-left: 1px solid var(--hairline); white-space: nowrap; }
 .og-nav > li:first-child > a { border-left: none; padding-left: 0; }

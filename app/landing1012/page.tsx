@@ -91,6 +91,8 @@ export default function Landing1012() {
             </ul>
           </nav>
 
+          <div className="og-divider" aria-hidden />
+
           {/* ── Lead ── */}
           <div className="og-lead">
             <div className="og-main">
