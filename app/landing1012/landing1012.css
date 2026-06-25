@@ -20,10 +20,10 @@
 
 .og-page {
   --ink: #14100d;
-  --accent: #7a1612;
+  --accent: #14100d;
   --rule: #14100d;
   --hairline: rgba(20, 16, 13, 0.22);
-  --ink-soft: rgba(20, 16, 13, 0.72);
+  --ink-soft: #14100d;
   --paper: #ecd9a6;
 
   position: relative;

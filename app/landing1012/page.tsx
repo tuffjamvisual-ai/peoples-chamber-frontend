@@ -143,12 +143,12 @@ export default function Landing1012() {
               </a>
 
               <a className="og-block og-brief" href="/editorials/when-did-politicians-stop-taking-responsibility">
-                <div className="og-head" style={{ fontSize: 'clamp(15px, 1.8vw, 19px)' }}>When Did Politicians Stop Taking Responsibility? <span style={{ color: '#7a1612' }}>&rarr;</span></div>
+                <div className="og-head" style={{ fontSize: 'clamp(15px, 1.8vw, 19px)' }}>When Did Politicians Stop Taking Responsibility? <span style={{ color: '#14100d' }}>&rarr;</span></div>
                 <p>Resignation once followed failure. A look at how accountability quietly drained out of British public life.</p>
               </a>
 
               <a className="og-block og-brief" href="/editorials/britains-most-disgraced-politicians">
-                <div className="og-head" style={{ fontSize: 'clamp(15px, 1.8vw, 19px)' }}>Britain&rsquo;s Most Disgraced Politicians <span style={{ color: '#7a1612' }}>&rarr;</span></div>
+                <div className="og-head" style={{ fontSize: 'clamp(15px, 1.8vw, 19px)' }}>Britain&rsquo;s Most Disgraced Politicians <span style={{ color: '#14100d' }}>&rarr;</span></div>
                 <p>From perjury to expenses fraud, the politicians whose careers collapsed in scandal, and what their falls reveal.</p>
               </a>
 
