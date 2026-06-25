@@ -59,7 +59,7 @@
 
 /* ---- Masthead (code "OPEN GOVERNMENT" on the blank govland folder) ---- */
 .og-masthead { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; padding-bottom: 8px; }
-.og-title { font-family: 'Special Elite', 'Courier New', monospace; font-weight: 400; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1; font-size: clamp(26px, 5.4vw, 62px); white-space: nowrap; margin: 0; }
+.og-title { font-family: 'Special Elite', 'Courier New', monospace; font-weight: 400; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1; font-size: clamp(21px, 4.2vw, 48px); white-space: nowrap; margin: 0; }
 .og-tab { display: flex; gap: 8px; align-items: center; font-family: 'Special Elite', monospace; text-transform: uppercase; letter-spacing: 0.1em; font-size: clamp(9px, 1.1vw, 12px); white-space: nowrap; padding-bottom: 4px; }
 .og-tab a { color: var(--ink); text-decoration: none; }
 .og-tab a:hover { color: var(--accent); }
@@ -71,7 +71,7 @@
 /* Short centered hairline separating the nav from the content. */
 .og-divider { width: 46%; max-width: 380px; height: 0; border-top: 1px solid rgba(20, 16, 13, 0.45); margin: 0 auto 24px; }
 .og-nav > li { position: relative; }
-.og-nav > li > a { display: block; padding: 4px 15px; color: var(--ink); text-decoration: none; border-left: 1px solid var(--hairline); white-space: nowrap; }
+.og-nav > li > a { display: block; padding: 4px 15px; color: var(--ink); text-decoration: none; border-left: 1px solid var(--hairline); white-space: nowrap; -webkit-text-stroke: 0.4px currentColor; }
 .og-nav > li:first-child > a { border-left: none; padding-left: 0; }
 .og-nav > li > a:hover { color: var(--accent); }
 .og-sub { list-style: none; margin: 0; padding: 6px 0; position: absolute; top: 100%; left: 0; min-width: 210px; max-height: 70vh; overflow-y: auto; background: var(--paper); border: 1px solid var(--rule); box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3); opacity: 0; visibility: hidden; transform: translateY(-4px); transition: opacity 0.12s ease, transform 0.12s ease; z-index: 30; }
