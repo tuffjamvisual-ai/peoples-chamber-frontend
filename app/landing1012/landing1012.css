@@ -37,9 +37,9 @@
 
 /* Outer folder frame (govland): tab top, stretched middle, fixed bottom. */
 .og-folder { position: absolute; inset: 0; z-index: 0; display: flex; flex-direction: column; pointer-events: none; }
-.og-folder-top { width: 100%; aspect-ratio: 1086 / 240; background: url('/gl-top.webp') no-repeat; background-size: 100% 100%; }
+.og-folder-top { width: 100%; aspect-ratio: 1024 / 240; background: url('/gl-top.webp') no-repeat; background-size: 100% 100%; }
 .og-folder-mid { flex: 1 1 auto; background: url('/gl-mid.webp') no-repeat; background-size: 100% 100%; }
-.og-folder-bottom { width: 100%; aspect-ratio: 1086 / 210; background: url('/gl-bottom.webp') no-repeat; background-size: 100% 100%; margin-top: -1px; }
+.og-folder-bottom { width: 100%; aspect-ratio: 1024 / 210; background: url('/gl-bottom.webp') no-repeat; background-size: 100% 100%; margin-top: -1px; }
 
 /* Paper sheet placed inside the folder, below the nav; the articles sit on it. */
 .og-paper { position: relative; margin-top: 16px; filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.28)); }
