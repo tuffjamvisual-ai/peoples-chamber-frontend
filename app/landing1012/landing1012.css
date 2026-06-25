@@ -43,18 +43,18 @@
 .og-folder-top {
   width: 100%;
   aspect-ratio: 1085 / 230;
-  background: url('/folder-top-blank.webp') no-repeat;
+  background: url('/nl-top.webp') no-repeat;
   background-size: 100% 100%;
 }
 .og-folder-mid {
   flex: 1 1 auto;
-  background: url('/folder-mid-blank.webp') repeat-y;
+  background: url('/nl-mid.webp') repeat-y;
   background-size: 100% auto;
 }
 .og-folder-bottom {
   width: 100%;
   aspect-ratio: 1085 / 200;
-  background: url('/folder-bottom-blank.webp') no-repeat;
+  background: url('/nl-bottom.webp') no-repeat;
   background-size: 100% 100%;
   margin-top: -1px;
 }
