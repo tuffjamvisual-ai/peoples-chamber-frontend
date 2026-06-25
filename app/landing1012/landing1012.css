@@ -31,9 +31,9 @@
 
 /* Folder frame: fixed top (with tab), stretched middle, fixed bottom. */
 .og-folder { position: absolute; inset: 0; z-index: 0; display: flex; flex-direction: column; pointer-events: none; }
-.og-folder-top { width: 100%; aspect-ratio: 1085 / 240; background: url('/nb-top.webp') no-repeat; background-size: 100% 100%; }
-.og-folder-mid { flex: 1 1 auto; background: url('/nb-mid.webp') no-repeat; background-size: 100% 100%; }
-.og-folder-bottom { width: 100%; aspect-ratio: 1085 / 210; background: url('/nb-bottom.webp') no-repeat; background-size: 100% 100%; margin-top: -1px; }
+.og-folder-top { width: 100%; aspect-ratio: 1086 / 240; background: url('/gl-top.webp') no-repeat; background-size: 100% 100%; }
+.og-folder-mid { flex: 1 1 auto; background: url('/gl-mid.webp') no-repeat; background-size: 100% 100%; }
+.og-folder-bottom { width: 100%; aspect-ratio: 1086 / 210; background: url('/gl-bottom.webp') no-repeat; background-size: 100% 100%; margin-top: -1px; }
 
 /* Content over the folder; top padding clears the tab, sides clear the edges. */
 .og-content {
