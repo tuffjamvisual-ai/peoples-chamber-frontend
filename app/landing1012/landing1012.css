@@ -44,7 +44,7 @@
 
 /* ---- Masthead ---- */
 .og-masthead { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; border-bottom: 3px solid var(--rule); padding-bottom: 10px; }
-.og-title { font-family: var(--font-anton), Impact, 'Arial Narrow', sans-serif; font-weight: 400; text-transform: uppercase; letter-spacing: 0.01em; line-height: 0.9; font-size: clamp(28px, 6vw, 72px); margin: 0; }
+.og-title { font-family: 'Special Elite', 'Courier New', monospace; font-weight: 400; text-transform: uppercase; letter-spacing: 0.02em; line-height: 0.95; font-size: clamp(26px, 5.4vw, 62px); margin: 0; }
 .og-tab { display: flex; gap: 8px; align-items: center; font-family: 'Special Elite', monospace; text-transform: uppercase; letter-spacing: 0.1em; font-size: clamp(9px, 1.1vw, 12px); white-space: nowrap; padding-bottom: 4px; }
 .og-tab a { color: var(--ink); text-decoration: none; }
 .og-tab a:hover { color: var(--accent); }
