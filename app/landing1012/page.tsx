@@ -57,11 +57,6 @@ export default function Landing1012() {
   return (
     <div className="og-stage">
       <div className="og-page">
-        <div className="og-folder" aria-hidden>
-          <div className="og-folder-top" />
-          <div className="og-folder-mid" />
-          <div className="og-folder-bottom" />
-        </div>
         <div className="og-content">
         {/* ── Masthead ── */}
         <header className="og-masthead">
