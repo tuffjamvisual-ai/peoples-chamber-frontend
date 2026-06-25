@@ -32,9 +32,9 @@
 
 /* Outer folder frame (govland): tab top, stretched middle, fixed bottom. */
 .og-folder { position: absolute; inset: 0; z-index: 0; display: flex; flex-direction: column; pointer-events: none; }
-.og-folder-top { width: 100%; aspect-ratio: 1086 / 240; background: url('/gl-top.webp') no-repeat; background-size: 100% 100%; }
+.og-folder-top { width: 100%; aspect-ratio: 1024 / 240; background: url('/gl-top.webp') no-repeat; background-size: 100% 100%; }
 .og-folder-mid { flex: 1 1 auto; background: url('/gl-mid.webp') no-repeat; background-size: 100% 100%; }
-.og-folder-bottom { width: 100%; aspect-ratio: 1086 / 210; background: url('/gl-bottom.webp') no-repeat; background-size: 100% 100%; margin-top: -1px; }
+.og-folder-bottom { width: 100%; aspect-ratio: 1024 / 210; background: url('/gl-bottom.webp') no-repeat; background-size: 100% 100%; margin-top: -1px; }
 
 /* Paper sheet placed inside the folder, below the nav; the articles sit on it. */
 .og-paper { position: relative; margin-top: 16px; filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.28)); }
@@ -52,7 +52,7 @@
 }
 
 /* ---- Masthead ---- */
-.og-masthead { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; padding-bottom: 8px; }
+.og-masthead { display: flex; justify-content: flex-end; align-items: flex-end; gap: 16px; padding-bottom: 8px; }
 .og-title { font-family: 'Special Elite', 'Courier New', monospace; font-weight: 400; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1; font-size: clamp(26px, 5.4vw, 62px); white-space: nowrap; margin: 0; }
 .og-tab { display: flex; gap: 8px; align-items: center; font-family: 'Special Elite', monospace; text-transform: uppercase; letter-spacing: 0.1em; font-size: clamp(9px, 1.1vw, 12px); white-space: nowrap; padding-bottom: 4px; }
 .og-tab a { color: var(--ink); text-decoration: none; }

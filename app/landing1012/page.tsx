@@ -65,8 +65,8 @@ export default function Landing1012() {
         </div>
         <div className="og-content">
           {/* ── Masthead + nav (on the folder) ── */}
+          {/* Masthead "OPEN GOVERNMENT" is painted into the newgovfolder image. */}
           <header className="og-masthead">
-            <h1 className="og-title">Open Government</h1>
             <div className="og-tab">
               <a href="/login">Account / Info</a>
               <a className="og-signup" href="/login">Sign up / Log in</a>
