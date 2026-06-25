@@ -1,0 +1,91 @@
+/* /landing1012 — landing page on the gov OPEN GOVERNMENT template
+   (public/gov.webp). gov ships with a REAL transparent background (genuine
+   alpha), so it is used exactly as given — no key-out, no edge processing,
+   so its anti-aliased edges stay clean on the dark stage. gov's painted
+   masthead + nav are the design; transparent hotspots make the nav clickable
+   and the 10 homepage cards drop into the blank folder body. ?debug shows the
+   hotspots. noindex preview. (gov paints 8 nav items, no Transparency, and
+   its label text is part of the source image.) */
+
+.l12-stage {
+  min-height: 100vh;
+  background: #15100b;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.l12-shell {
+  position: relative;
+  width: min(100%, 980px);
+  aspect-ratio: 1024 / 1536;
+  background-image: url('/gov.webp');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: drop-shadow(0 20px 36px rgba(0, 0, 0, 0.45));
+  container-type: inline-size;
+}
+
+.l12-hotspot {
+  position: absolute;
+  display: block;
+  text-indent: -9999px;
+  overflow: hidden;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 160ms ease, box-shadow 160ms ease;
+}
+.l12-hotspot:hover,
+.l12-hotspot:focus-visible {
+  background-color: rgba(90, 55, 20, 0.12);
+  box-shadow: inset 0 0 0 2px rgba(80, 35, 20, 0.28);
+  outline: none;
+}
+.l12-shell.debug .l12-hotspot {
+  background-color: rgba(200, 40, 30, 0.18);
+  box-shadow: inset 0 0 0 2px rgba(200, 40, 30, 0.7);
+}
+.l12-shell.debug .l12-body { box-shadow: inset 0 0 0 2px rgba(30, 90, 200, 0.6); }
+
+.l12-body {
+  position: absolute;
+  top: 21%;
+  left: 6%;
+  right: 6%;
+  bottom: 5%;
+  color: #14100d;
+  overflow: hidden;
+}
+.l12-body a { text-decoration: none; color: inherit; display: block; }
+
+.l12-kicker { font-family: 'Special Elite', monospace; text-transform: uppercase; letter-spacing: 0.2em; font-size: 0.95cqw; color: #7a1612; font-weight: bold; }
+.l12-head { font-family: var(--font-anton), Impact, 'Arial Narrow', sans-serif; font-weight: 400; text-transform: uppercase; letter-spacing: 0.02em; line-height: 0.98; }
+.l12-standfirst { font-style: italic; font-size: 1.35cqw; line-height: 1.32; opacity: 0.85; margin: 1.5% 0; }
+.l12-lede { font-size: 1.2cqw; line-height: 1.42; text-align: justify; opacity: 0.92; margin: 1.5% 0; }
+.l12-cta { font-family: 'Special Elite', monospace; text-transform: uppercase; letter-spacing: 0.05em; font-size: 1.05cqw; color: #7a1612; font-weight: bold; }
+
+.l12-body img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin-bottom: 3%; border: 1px solid #14100d; }
+
+.l12-lead { display: grid; grid-template-columns: 1.28fr 1fr; gap: 4%; }
+.l12-rail { padding-left: 4%; border-left: 1px solid #14100d; }
+.l12-lead .l12-head { font-size: 2.6cqw; margin-bottom: 1.5%; }
+
+.l12-brief { border-top: 1.4px solid #14100d; margin-top: 3.5%; padding-top: 3%; }
+.l12-brief .l12-head { font-size: 1.6cqw; margin: 1.5% 0; }
+.l12-brief p { font-size: 1.0cqw; line-height: 1.4; opacity: 0.82; margin: 0 0 1.5%; text-align: justify; }
+.l12-rail .l12-card .l12-head { font-size: 2.0cqw; margin: 1.5% 0; }
+.l12-rail .l12-card p { font-size: 1.1cqw; line-height: 1.4; opacity: 0.85; margin: 0; }
+
+.l12-bottom { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 3.5%; border-top: 1px solid #14100d; padding-top: 2.5%; }
+.l12-bottom .l12-col { padding: 0 3%; border-left: 1px solid #14100d; }
+.l12-bottom .l12-col:first-child { border-left: none; padding-left: 0; }
+.l12-bottom .l12-col:last-child { padding-right: 0; }
+.l12-bottom .l12-head { font-size: 1.65cqw; margin: 1.5% 0; }
+.l12-bottom p { font-size: 1.0cqw; line-height: 1.4; opacity: 0.85; text-align: justify; margin: 0 0 2%; }
+
+@media (max-width: 720px) {
+  .l12-stage { padding: 0; background: #0f0b08; }
+  .l12-shell { width: 100vw; }
+}
