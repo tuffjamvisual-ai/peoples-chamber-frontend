@@ -39,9 +39,9 @@
 /* Paper sheet placed inside the folder, below the nav; the articles sit on it. */
 .og-paper { position: relative; margin-top: 16px; filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.28)); }
 .og-paper-bg { position: absolute; inset: 0; z-index: 0; display: flex; flex-direction: column; pointer-events: none; }
-.og-paper-top { width: 100%; aspect-ratio: 1055 / 170; background: url('/pp-top.webp') no-repeat; background-size: 100% 100%; }
+.og-paper-top { width: 100%; aspect-ratio: 972 / 170; background: url('/pp-top.webp') no-repeat; background-size: 100% 100%; }
 .og-paper-mid { flex: 1 1 auto; background: url('/pp-mid.webp') no-repeat; background-size: 100% 100%; }
-.og-paper-bottom { width: 100%; aspect-ratio: 1055 / 170; background: url('/pp-bottom.webp') no-repeat; background-size: 100% 100%; margin-top: -1px; }
+.og-paper-bottom { width: 100%; aspect-ratio: 972 / 170; background: url('/pp-bottom.webp') no-repeat; background-size: 100% 100%; margin-top: -1px; }
 .og-paper-in { position: relative; z-index: 1; padding: clamp(28px, 4vw, 50px) clamp(24px, 3.4vw, 42px) clamp(34px, 4.5vw, 58px); }
 
 /* Content over the folder; top padding clears the tab, sides clear the edges. */
