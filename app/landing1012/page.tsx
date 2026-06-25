@@ -123,19 +123,19 @@ export default function Landing1012() {
             </div>
 
             <div className="og-rail">
+              <a className="og-block og-brief" href="/editorials/kxlkhj1jgj">
+                <div className="og-kicker">The People&rsquo;s Chamber &middot; Investigation</div>
+                <div className="og-head">Westminster&rsquo;s Culture of Impropriety</div>
+                <p>Ten serving MPs who broke the rules, the law or the trust of their constituents and remain in the Commons.</p>
+                <div className="og-cta">Read the full story &rarr;</div>
+              </a>
+
               <a className="og-block og-card" href="/bills">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/votes.webp" alt="Every bill, every vote, every law" />
                 <div className="og-kicker" style={{ color: 'var(--ink-soft)', letterSpacing: '0.18em' }}>From the House this week</div>
                 <div className="og-head" style={{ fontSize: 'clamp(20px, 2.6vw, 30px)' }}>Every bill. Every vote. Every law.</div>
                 <p>Follow what Parliament is doing right now, in plain English. <span className="og-cta" style={{ whiteSpace: 'nowrap' }}>Read the bills &rarr;</span></p>
-              </a>
-
-              <a className="og-block og-brief" href="/editorials/kxlkhj1jgj">
-                <div className="og-kicker">The People&rsquo;s Chamber &middot; Investigation</div>
-                <div className="og-head">Westminster&rsquo;s Culture of Impropriety</div>
-                <p>Ten serving MPs who broke the rules, the law or the trust of their constituents and remain in the Commons.</p>
-                <div className="og-cta">Read the full story &rarr;</div>
               </a>
 
               <a className="og-block og-brief" href="/editorials/when-did-politicians-stop-taking-responsibility">

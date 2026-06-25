@@ -80,6 +80,9 @@
 .og-lead { display: grid; grid-template-columns: 48fr 38fr; gap: 0; }
 .og-main { padding-right: 26px; }
 .og-rail { padding-left: 26px; border-left: 1px solid var(--rule); }
+.og-rail > :first-child { border-top: none; margin-top: 0; padding-top: 0; }
+.og-rail .og-card { border-top: 1.5px solid var(--ink); margin-top: 14px; padding-top: 14px; }
+.og-rail > .og-card:first-child { border-top: none; margin-top: 0; padding-top: 0; }
 .og-main img, .og-card img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin-bottom: 12px; border: 1px solid var(--ink); }
 .og-main .og-head { font-size: clamp(28px, 4vw, 50px); margin-bottom: 6px; }
 
