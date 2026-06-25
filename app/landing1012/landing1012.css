@@ -21,7 +21,7 @@
   --paper: #ecd9a6;
 
   position: relative;
-  width: min(100%, 880px);
+  width: min(100%, 1144px);
   align-self: flex-start;
   margin-top: 20px;
   color: var(--ink);
