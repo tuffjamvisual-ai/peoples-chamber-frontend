@@ -1,0 +1,25 @@
+/* /landing-demo2 — DEMO ONLY (noindex). A copy of the original landing page
+   (the People's Chamber newspaper front, app/page.tsx + DossierShell) with the
+   painted back page (pca-art.webp) swapped for the newgovfolder folder, and a
+   REAL code nav bar added in place of the painted nav. Does NOT touch the live
+   landing page. ng- prefixed. The nav + footer sit absolutely over the folder
+   image; the article cards are the original %-positioned overlay. */
+
+/* Real nav bar, dropped just below the folder's painted "OPEN GOVERNMENT". */
+.ng-navwrap { position: absolute; top: 15.2%; left: 0; width: 100%; z-index: 6; display: flex; justify-content: center; padding: 0 5%; }
+.ng-nav { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; font-family: 'Special Elite', monospace; text-transform: uppercase; letter-spacing: 0.12em; font-size: clamp(8px, 1.12cqw, 14px); color: #14100d; }
+.ng-nav > li { position: relative; }
+.ng-nav > li > a { display: block; padding: 4px 12px; color: #14100d; text-decoration: none; border-left: 1px solid rgba(20, 16, 13, 0.25); white-space: nowrap; }
+.ng-nav > li:first-child > a { border-left: none; padding-left: 0; }
+.ng-nav > li > a:hover { color: #7a1612; }
+.ng-sub { list-style: none; margin: 0; padding: 6px 0; position: absolute; top: 100%; left: 0; min-width: 210px; max-height: 70vh; overflow-y: auto; background: #e8d6a4; border: 1px solid #14100d; box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3); opacity: 0; visibility: hidden; transform: translateY(-4px); transition: opacity 0.12s ease, transform 0.12s ease; z-index: 30; }
+.ng-nav > li:hover .ng-sub, .ng-nav > li:focus-within .ng-sub { opacity: 1; visibility: visible; transform: none; }
+.ng-sub > li > a { display: block; padding: 5px 16px; color: #14100d; text-decoration: none; letter-spacing: 0.06em; font-size: 12px; text-transform: none; white-space: nowrap; }
+.ng-sub > li > a:hover { color: #7a1612; background: rgba(20, 16, 13, 0.06); }
+
+/* Account / sign-up, pinned to the folder's top-right tab. */
+.ng-tab { position: absolute; top: 3.2%; right: 4.5%; z-index: 6; display: flex; gap: 10px; align-items: center; font-family: 'Special Elite', monospace; text-transform: uppercase; letter-spacing: 0.1em; font-size: clamp(8px, 0.95cqw, 12px); }
+.ng-tab a { color: #14100d; text-decoration: none; }
+.ng-tab a:hover { color: #7a1612; }
+
+.ng-page a { -webkit-tap-highlight-color: transparent; }
