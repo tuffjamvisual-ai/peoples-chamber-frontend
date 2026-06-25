@@ -94,9 +94,18 @@ export default function Landing1012() {
           {/* ── Lead ── */}
           <div className="og-lead">
             <div className="og-main">
+              <section className="og-intro">
+                <h2 className="og-intro-head">What This Site Does</h2>
+                <p>This is an independent, nonpartisan transparency platform built to hold British government to account using facts, data and journalism.</p>
+                <p>Every MP&rsquo;s voting record is tracked. Every division in the House of Commons is recorded. Every declared financial interest, expense claim and outside earning is published. Every government department is assessed on delivery, not promises. Every council is measured on what residents pay and what they receive.</p>
+                <p>The editorial content on this site is written by working journalists who publish without bylines. They are not anonymous because they have something to hide. They are anonymous because the work should be judged on accuracy, not personality. Every article is independently fact checked against primary sources: Hansard, parliamentary records, government statistics, court documents and official reports. No article is published without verification. No claim is made without evidence. If we get something wrong, we correct it publicly.</p>
+                <p>MP profiles on this site use caricatures rather than official photographs. This is deliberate. Official portraits are carefully staged images designed to project authority and seriousness. They are part of the performance. The caricatures are a reminder that politicians are public servants, not celebrities, and that the record matters more than the image. If the facts on the page are serious, the picture does not need to be.</p>
+                <p>This site is not affiliated with any political party, campaign group, think tank or media organisation. It receives no government funding. It carries no advertising. It exists because the public has a right to know what is being done in its name, with its money, by the people it elected.</p>
+                <p>We also operate an open voting platform where the public can record how they would have voted on the same divisions that MPs vote on in Parliament. The purpose is simple: to show whether the people&rsquo;s representatives are representing the people.</p>
+                <p>The site is free. The data is open. The journalism is accountable. The only agenda is transparency.</p>
+              </section>
+
               <a className="og-block" href="/editorials/ten-worst-performing-councils-england">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/councils.webp" alt="The ten worst performing councils in England" />
                 <div className="og-kicker">The People&rsquo;s Chamber &middot; Investigation</div>
                 <div className="og-head">The Ten Worst Performing Councils In England</div>
                 <div className="og-standfirst">How local government failed the people it exists to serve.</div>
