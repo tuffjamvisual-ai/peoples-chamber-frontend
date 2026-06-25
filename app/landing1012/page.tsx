@@ -57,16 +57,21 @@ const NAV: NavItem[] = [
 export default function Landing1012() {
   return (
     <div className="og-stage">
-      <div className="og-wrap">
-        {/* ── Header: masthead + nav, off the paper (on the dark stage) ── */}
-        <header className="og-header">
-          <div className="og-masthead">
+      <div className="og-page">
+        <div className="og-folder" aria-hidden>
+          <div className="og-folder-top" />
+          <div className="og-folder-mid" />
+          <div className="og-folder-bottom" />
+        </div>
+        <div className="og-content">
+          {/* ── Masthead + nav (on the folder) ── */}
+          <header className="og-masthead">
             <h1 className="og-title">Open Government</h1>
             <div className="og-tab">
               <a href="/login">Account / Info</a>
               <a className="og-signup" href="/login">Sign up / Log in</a>
             </div>
-          </div>
+          </header>
 
           <nav aria-label="Primary">
             <ul className="og-nav">
@@ -84,19 +89,18 @@ export default function Landing1012() {
               ))}
             </ul>
           </nav>
-        </header>
 
-        {/* ── Paper sheet: all the content sits on it ── */}
-        <div className="og-page">
-          <div className="og-folder" aria-hidden>
-            <div className="og-folder-top" />
-            <div className="og-folder-mid" />
-            <div className="og-folder-bottom" />
-          </div>
-          <div className="og-content">
+          {/* ── Paper sheet inside the folder: the articles sit on it ── */}
+          <div className="og-paper">
+            <div className="og-paper-bg" aria-hidden>
+              <div className="og-paper-top" />
+              <div className="og-paper-mid" />
+              <div className="og-paper-bottom" />
+            </div>
+            <div className="og-paper-in">
 
-          {/* ── Lead ── */}
-          <div className="og-lead">
+              {/* ── Lead ── */}
+              <div className="og-lead">
             <div className="og-main">
               <section className="og-intro">
                 <h2 className="og-intro-head">What This Site Does</h2>
@@ -182,6 +186,7 @@ export default function Landing1012() {
                 <p>All twenty four ministerial departments graded against the public record of what they were set up to do.</p>
                 <div className="og-cta">See the departments &rarr;</div>
               </a>
+              </div>
             </div>
           </div>
         </div>

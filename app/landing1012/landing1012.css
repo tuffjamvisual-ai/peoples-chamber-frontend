@@ -12,17 +12,6 @@
   justify-content: center;
 }
 
-.og-wrap { width: min(100%, 1144px); align-self: flex-start; }
-
-/* Header (masthead + nav) sits OFF the paper, on the dark stage — light text. */
-.og-header { color: #ecd9a6; padding: 4px 10px 18px; }
-.og-header .og-title { color: #ecd9a6; }
-.og-header .og-tab a { color: #ecd9a6; }
-.og-header .og-tab a:hover { color: #fff; }
-.og-header .og-tab .og-signup { border-color: rgba(236, 217, 166, 0.55); }
-.og-header .og-nav > li > a { color: #ecd9a6; border-left-color: rgba(236, 217, 166, 0.32); }
-.og-header .og-nav > li:first-child > a { border-left: none; }
-.og-header .og-nav > li > a:hover { color: #fff; }
 
 .og-page {
   --ink: #14100d;
@@ -33,23 +22,33 @@
   --paper: #ecd9a6;
 
   position: relative;
-  width: 100%;
+  width: min(100%, 1144px);
+  align-self: flex-start;
+  margin-top: 20px;
   color: var(--ink);
   font-family: Georgia, 'Times New Roman', serif;
   filter: drop-shadow(0 18px 38px rgba(0, 0, 0, 0.5));
 }
 
-/* Folder frame: fixed top (with tab), stretched middle, fixed bottom. */
+/* Outer folder frame (govland): tab top, stretched middle, fixed bottom. */
 .og-folder { position: absolute; inset: 0; z-index: 0; display: flex; flex-direction: column; pointer-events: none; }
-.og-folder-top { width: 100%; aspect-ratio: 1055 / 170; background: url('/pp-top.webp') no-repeat; background-size: 100% 100%; }
-.og-folder-mid { flex: 1 1 auto; background: url('/pp-mid.webp') no-repeat; background-size: 100% 100%; }
-.og-folder-bottom { width: 100%; aspect-ratio: 1055 / 170; background: url('/pp-bottom.webp') no-repeat; background-size: 100% 100%; margin-top: -1px; }
+.og-folder-top { width: 100%; aspect-ratio: 1086 / 240; background: url('/gl-top.webp') no-repeat; background-size: 100% 100%; }
+.og-folder-mid { flex: 1 1 auto; background: url('/gl-mid.webp') no-repeat; background-size: 100% 100%; }
+.og-folder-bottom { width: 100%; aspect-ratio: 1086 / 210; background: url('/gl-bottom.webp') no-repeat; background-size: 100% 100%; margin-top: -1px; }
+
+/* Paper sheet placed inside the folder, below the nav; the articles sit on it. */
+.og-paper { position: relative; margin-top: 16px; filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.28)); }
+.og-paper-bg { position: absolute; inset: 0; z-index: 0; display: flex; flex-direction: column; pointer-events: none; }
+.og-paper-top { width: 100%; aspect-ratio: 1055 / 170; background: url('/pp-top.webp') no-repeat; background-size: 100% 100%; }
+.og-paper-mid { flex: 1 1 auto; background: url('/pp-mid.webp') no-repeat; background-size: 100% 100%; }
+.og-paper-bottom { width: 100%; aspect-ratio: 1055 / 170; background: url('/pp-bottom.webp') no-repeat; background-size: 100% 100%; margin-top: -1px; }
+.og-paper-in { position: relative; z-index: 1; padding: clamp(28px, 4vw, 50px) clamp(24px, 3.4vw, 42px) clamp(34px, 4.5vw, 58px); }
 
 /* Content over the folder; top padding clears the tab, sides clear the edges. */
 .og-content {
   position: relative;
   z-index: 1;
-  padding: clamp(40px, 5vw, 64px) clamp(34px, 5vw, 60px) clamp(46px, 6vw, 84px);
+  padding: clamp(50px, 7.5vw, 92px) clamp(34px, 5vw, 60px) clamp(40px, 5vw, 60px);
 }
 
 /* ---- Masthead ---- */
