@@ -75,7 +75,8 @@ export default function LandingDemo2() {
               height: '88%',
               display: 'flex',
               flexDirection: 'column',
-              filter: 'drop-shadow(0 14px 30px rgba(0,0,0,0.5))',
+              // base drop shadow + a slight shadow cast to the LEFT side
+              filter: 'drop-shadow(0 14px 30px rgba(0,0,0,0.5)) drop-shadow(-9px 2px 10px rgba(0,0,0,0.4))',
               pointerEvents: 'none',
             }}
           >
