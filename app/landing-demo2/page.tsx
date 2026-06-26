@@ -84,6 +84,29 @@ export default function LandingDemo2() {
             <div style={{ flex: '1 1 auto', backgroundImage: 'url(/folder-mid.webp)', backgroundRepeat: 'repeat-y', backgroundSize: '100% auto' }} />
             <div style={{ width: '100%', aspectRatio: '1023 / 157', backgroundImage: 'url(/folder-bottom.webp)', backgroundSize: '100% 100%', backgroundRepeat: 'no-repeat', marginTop: '-5%', WebkitMaskImage: 'linear-gradient(180deg, transparent 0%, #000 34%)', maskImage: 'linear-gradient(180deg, transparent 0%, #000 34%)' }} />
           </div>
+
+          {/* "OPEN GOVERNMENT" masthead on the newb back folder's top band
+              (rotated to match the folder). */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '7.5%',
+              left: '4%',
+              width: '92%',
+              textAlign: 'center',
+              zIndex: 5,
+              pointerEvents: 'none',
+              transform: 'rotate(-2.5deg)',
+              fontFamily: "'Special Elite', 'Courier New', monospace",
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              lineHeight: 1,
+              color: '#2b2014',
+              fontSize: 'clamp(15px, 2.5vw, 34px)',
+            }}
+          >
+            Open Government
+          </div>
         </div>
       </div>
     </div>
