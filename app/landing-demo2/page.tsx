@@ -70,15 +70,15 @@ export default function LandingDemo2() {
             aria-hidden
             style={{
               position: 'absolute',
-              top: '17%',
-              left: '2%',
-              width: '96%',
-              height: '88%',
+              top: '20%',
+              left: '10%',
+              width: '80%',
+              height: '74%',
               display: 'flex',
               flexDirection: 'column',
               // darken + saturate so the (paler) dossier folder matches the
               // fold folder's muted goldenrod tone; then the drop shadows.
-              filter: 'brightness(0.78) saturate(1.5) drop-shadow(0 14px 30px rgba(0,0,0,0.5)) drop-shadow(-9px 2px 10px rgba(0,0,0,0.4))',
+              filter: 'brightness(0.74) saturate(1.8) drop-shadow(0 14px 30px rgba(0,0,0,0.5)) drop-shadow(-9px 2px 10px rgba(0,0,0,0.4))',
               pointerEvents: 'none',
             }}
           >
