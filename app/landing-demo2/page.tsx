@@ -69,7 +69,7 @@ export default function LandingDemo2() {
             aria-hidden
             style={{
               position: 'absolute',
-              top: '5%',
+              top: '10%',
               left: '9%',
               width: '82%',
               height: '88%',
