@@ -78,7 +78,7 @@ export default function LandingDemo2() {
             <span style={{ display: 'inline-block', opacity: 0.8, border: '0.07em solid #6b2417', padding: '0.14em 0.32em 0.06em', fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1, color: '#6b2417', fontSize: 'clamp(24px, 4.6vw, 64px)' }}>Open Government</span>
           </div>
 
-          <nav aria-label="Primary" style={{ position: 'absolute', top: '10.6%', left: '2%', width: '96%', zIndex: 5, transform: 'rotate(-2.5deg)' }}>
+          <nav aria-label="Primary" style={{ position: 'absolute', top: '10.6%', left: '2%', width: '96%', zIndex: 5, transform: 'translateX(-1.6%) rotate(-2.5deg)' }}>
             <ul className="ng-nav" style={{ justifyContent: 'center', flexWrap: 'nowrap', letterSpacing: '0.06em', fontSize: 'clamp(11px, 1.5cqw, 18px)' }}>
               {NAV.map((item) => (
                 <li key={item.label}>
