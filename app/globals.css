@@ -76,15 +76,9 @@ body {
  * should respect the floor rather than drop below it.
  */
 
-/* Subtle hover scale on all anchors. Pure-inline anchors won't transform
- * (CSS quirk — transform requires a non-inline display), so this hits
- * buttons, cards, hotspots and explicit display:block/flex/inline-flex
- * links. Add class="no-hover-scale" to opt out (e.g. for elements where
- * the lift causes layout shift). */
-a {
-  transition: transform 0.18s ease-out;
-  transform-origin: center;
-}
-a:hover:not(.no-hover-scale) {
-  transform: scale(1.03);
+/* Hover scale on anchors REMOVED site-wide (2026-06-26): cards, nav and text
+ * stay completely static on hover — no transform, scale, translate or movement.
+ * (The .no-hover-scale opt-out class is now a harmless no-op.) */
+a:hover {
+  transform: none;
 }
