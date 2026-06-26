@@ -147,7 +147,7 @@ export default function LandingDemo2() {
                 border: '0.07em solid #6b2417',
                 padding: '0.14em 0.32em 0.06em',
                 fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
-                fontWeight: 700,
+                fontWeight: 400,
                 textTransform: 'uppercase',
                 letterSpacing: '0.1em',
                 lineHeight: 1,
