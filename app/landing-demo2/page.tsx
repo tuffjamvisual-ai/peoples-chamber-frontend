@@ -10,6 +10,48 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+type NavItem = { label: string; href: string; children?: { label: string; href: string }[] };
+const NAV: NavItem[] = [
+  { label: 'Home', href: '/' },
+  { label: 'Bills', href: '/bills', children: [
+    { label: 'All Bills', href: '/bills' },
+    { label: 'Acts of Parliament', href: '/laws' },
+  ] },
+  { label: 'Peoples Polls', href: '/polls', children: [
+    { label: 'All Polls', href: '/polls' },
+    { label: 'Your Tax Pound', href: '/your-tax-pound' },
+    { label: 'Budget Trade-Offs', href: '/budget-trade-offs' },
+  ] },
+  { label: 'Parties', href: '/parties', children: [
+    { label: 'Manifesto Comparisons', href: '/parties' },
+    { label: 'Labour', href: '/parties/labour/bio' },
+    { label: 'Conservative', href: '/parties/conservative/bio' },
+    { label: 'Liberal Democrats', href: '/parties/liberal-democrats/bio' },
+    { label: 'SNP', href: '/parties/snp/bio' },
+    { label: 'Reform UK', href: '/parties/reform-uk/bio' },
+    { label: 'Green Party', href: '/parties/green/bio' },
+    { label: 'Restore Britain', href: '/parties/restore-britain/bio' },
+    { label: 'Your Party', href: '/parties/your-party/bio' },
+  ] },
+  { label: 'MPs', href: '/mps', children: [
+    { label: 'All MPs', href: '/mps' },
+    { label: 'Top Spenders', href: '/expenses' },
+    { label: 'Earnings & Pay', href: '/earnings' },
+  ] },
+  { label: 'Departments', href: '/departments' },
+  { label: 'Editorials', href: '/editorials' },
+  { label: 'Transparency', href: '/transparency', children: [
+    { label: 'All Datasets', href: '/transparency' },
+    { label: 'MPs’ Second Jobs', href: '/second-jobs' },
+    { label: 'Ministers’ Meetings', href: '/transparency/ministers-meetings' },
+    { label: 'Revolving Door', href: '/transparency/revolving-door' },
+    { label: 'Political Donations', href: '/transparency/donations' },
+    { label: 'Local Councils', href: '/councils' },
+    { label: 'Top Council Tax', href: '/council-tax' },
+  ] },
+  { label: 'Support Us', href: '/support' },
+];
+
 export default function LandingDemo2() {
   return (
     <div
@@ -43,7 +85,7 @@ export default function LandingDemo2() {
 
       {/* Empty clean folder, centred on the backdrop. */}
       <div style={{ position: 'relative', zIndex: 1, width: 'min(96vw, 1240px)' }}>
-        <div style={{ position: 'relative', width: '100%', aspectRatio: '1086 / 1448' }}>
+        <div style={{ position: 'relative', width: '100%', aspectRatio: '1086 / 1448', containerType: 'inline-size' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/newb.webp"
@@ -107,6 +149,34 @@ export default function LandingDemo2() {
           >
             Open Government
           </div>
+
+          {/* Nav bar on the back folder, below the masthead (rotated to match). */}
+          <nav
+            aria-label="Primary"
+            style={{
+              position: 'absolute',
+              top: '10.8%',
+              left: '5%',
+              width: '90%',
+              zIndex: 5,
+              transform: 'rotate(-2.5deg)',
+            }}
+          >
+            <ul className="ng-nav" style={{ justifyContent: 'flex-start' }}>
+              {NAV.map((item) => (
+                <li key={item.label}>
+                  <a href={item.href}>{item.label}</a>
+                  {item.children && (
+                    <ul className="ng-sub">
+                      {item.children.map((c) => (
+                        <li key={c.href}><a href={c.href}>{c.label}</a></li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
       </div>
     </div>
