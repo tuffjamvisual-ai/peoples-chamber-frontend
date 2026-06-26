@@ -142,8 +142,6 @@ export default function LandingDemo2() {
               </a>
 
               <a className="og-block og-card" href="/bills">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/votes.webp" alt="Every bill, every vote, every law" />
                 <div className="og-kicker" style={{ color: 'var(--ink-soft)', letterSpacing: '0.18em' }}>From the House this week</div>
                 <div className="og-head" style={{ fontSize: 'clamp(20px, 2.6vw, 30px)' }}>Every bill. Every vote. Every law.</div>
                 <p>Follow what Parliament is doing right now, in plain English. <span className="og-cta" style={{ whiteSpace: 'nowrap' }}>Read the bills &rarr;</span></p>
