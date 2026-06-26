@@ -42,7 +42,7 @@ export default function LandingDemo2() {
       />
 
       {/* Empty clean folder, centred on the backdrop. */}
-      <div style={{ position: 'relative', zIndex: 1, width: 'min(94vw, 1144px)' }}>
+      <div style={{ position: 'relative', zIndex: 1, width: 'min(96vw, 1240px)' }}>
         <div style={{ position: 'relative', width: '100%', aspectRatio: '1085 / 1450' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -70,8 +70,8 @@ export default function LandingDemo2() {
             style={{
               position: 'absolute',
               top: '17%',
-              left: '9%',
-              width: '82%',
+              left: '2%',
+              width: '96%',
               height: '88%',
               display: 'flex',
               flexDirection: 'column',
