@@ -58,9 +58,8 @@ export default function LandingDemo2() {
               userSelect: 'none',
               pointerEvents: 'none',
               transform: 'rotate(-2.5deg)',
-              // warm folding toward the #CC944F goldenrod palette (its native
-              // tone is duller/pinker).
-              filter: 'saturate(1.35) brightness(0.99) drop-shadow(0 18px 38px rgba(0,0,0,0.55))',
+              // folding folder shown as supplied — no colour adjustment.
+              filter: 'drop-shadow(0 18px 38px rgba(0,0,0,0.55))',
             }}
           />
 
