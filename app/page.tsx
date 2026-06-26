@@ -1,14 +1,10 @@
 import type { Metadata } from 'next';
-import type { CSSProperties } from 'react';
-import DossierShell from './components/DossierShell';
 import JsonLd, { buildHomepageGraph } from '@/lib/JsonLd';
+import OpenGovShell from './components/OpenGovShell';
+import './home-front.css';
 
-// The newspaper front page is the landing page. DossierShell renders the masthead + nav
-// + footer with no folder; HomeFront fills the body with a lead (-> /bills) and three
-// front-page stories below it: expenses (-> /expenses), the People's Verdict on the
-// 15 UK parties (-> /parties) and Whitehall (-> /departments). All three bottom cards
-// are static editorial slots; the previous poll-driven middle card was promoted to a
-// Parties card when the dossier set landed.
+// The new "OPEN GOVERNMENT" front page: the dossier-folder template (OpenGovShell)
+// with the front-page article layout. Replaces the previous pca-art newspaper.
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
@@ -18,252 +14,90 @@ export const metadata: Metadata = {
   alternates: { canonical: '/' },
 };
 
-const INK = '#14100d';
-const CREAM = '#ebe5d8';
-
-// Anton: bold, tightly condensed tabloid-headline face (loaded via next/font in layout.tsx).
-// Anton ships a single heavy weight, so use 400 (not 'bold', which would force faux-bold).
-const headline: CSSProperties = {
-  fontFamily: 'var(--font-anton), Impact, "Arial Narrow", sans-serif',
-  fontWeight: 400,
-  letterSpacing: '0.02em',
-  textTransform: 'uppercase',
-};
-
-const card: CSSProperties = {
-  position: 'absolute',
-  display: 'flex',
-  flexDirection: 'column',
-  color: INK,
-  textDecoration: 'none',
-  fontFamily: 'Georgia, "Times New Roman", serif',
-};
-
-const kicker: CSSProperties = { fontFamily: 'Special Elite, monospace', textTransform: 'uppercase' };
-const eyebrow: CSSProperties = { ...kicker, fontSize: '1.05cqw', letterSpacing: '0.18em', opacity: 0.6, marginBottom: '3%' };
-const ctaStyle: CSSProperties = { ...kicker, fontSize: '1.2cqw', letterSpacing: '0.03em', marginTop: 'auto' };
-const blurbStyle: CSSProperties = { fontSize: '1.2cqw', lineHeight: 1.4, opacity: 0.85, marginBottom: '4%' };
-const headlineRow: CSSProperties = { display: 'flex', gap: '6%', alignItems: 'flex-start', width: '100%', marginBottom: '3%' };
-const colStyle = (left: string, width: string): CSSProperties => ({ ...card, top: '72%', left, width, height: '14%', alignItems: 'flex-start' });
-
 export default function HomePage() {
-  const HomeFront = (
-    <>
-      <JsonLd data={buildHomepageGraph()} />
-
-      {/* Lead editorial — the dominant front-page story. Newspaper-scale
-          hierarchy: photo at top with ink border, big serif headline,
-          italic Garamond standfirst, short lede, accent-red CTA. overflow
-          hidden as a defensive measure against the 41%-height card
-          clipping at small viewports. */}
-      {/* Lead editorial — stacked layout: photo at top, text underneath.
-          Font sizes match the secondary bills card for consistency
-          across the top row. */}
-      <a href="/editorials/ten-worst-performing-councils-england" className="no-hover-scale" style={{ ...card, top: '24%', left: '6%', width: '48%', height: '38%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 2.5% 1.5%', overflow: 'hidden' }}>
-        <div style={{ width: '100%', marginBottom: '2%', position: 'relative' }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/councils.webp"
-            alt="The ten worst performing councils in England"
-            style={{ display: 'block', width: '100%', aspectRatio: '16 / 9', objectFit: 'cover' }}
-          />
-          <div
-            aria-hidden
-            style={{
-              position: 'absolute',
-              inset: 0,
-              pointerEvents: 'none',
-            }}
-          />
-        </div>
-        <div style={{ ...kicker, fontSize: '1.0cqw', letterSpacing: '0.28em', color: '#6b2417', fontWeight: 'bold', marginBottom: '2%' }}>The People&rsquo;s Chamber &middot; Investigation</div>
-        <div style={{ ...headline, fontSize: '2.6cqw', lineHeight: 0.98, marginBottom: '2%', letterSpacing: '0.01em' }}>The Ten Worst Performing Councils In England</div>
-        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontStyle: 'italic', fontSize: '1.4cqw', lineHeight: 1.35, opacity: 0.88, marginBottom: '2%' }}>
-          How local government failed the people it exists to serve.
-        </div>
-        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.25cqw', lineHeight: 1.45, opacity: 0.92, marginBottom: '2%', textAlign: 'justify' }}>
-          Eight English councils have declared themselves effectively bankrupt since 2018, accumulating more than &pound;5 billion in debt and deficit between them. One was abolished. Another went bankrupt three times. A commuter-belt borough with &pound;16 million of annual revenue borrowed its way to &pound;1.2 billion of debt. England&rsquo;s second city is still under government commissioners. One in five council leaders now expects to issue a Section 114 notice within two years. These are the councils that broke, the decisions that broke them, and the residents left paying the bill.
-        </div>
-        <div style={{ ...kicker, fontSize: '1.1cqw', letterSpacing: '0.12em', marginTop: '0.5%', color: '#6b2417', fontWeight: 'bold' }}>Read the full story &rarr;</div>
-      </a>
-
-      {/* Revolving-door brief — fills the slim strip beneath the councils
-          card in the left column, above the bottom story row. Compact
-          text teaser for the "politicians who cashed in after leaving
-          office" investigation, linking to the revolving-door dataset. */}
-      <a href="/editorials/power-for-sale-20-politicians-who-cashed-in" className="no-hover-scale" style={{ ...card, top: '62.5%', left: '6%', width: '48%', height: '9%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 2.5%', overflow: 'hidden', borderTop: '1.5px solid #14100d' }}>
-        <div style={{ ...kicker, fontSize: '1.0cqw', letterSpacing: '0.28em', color: '#6b2417', fontWeight: 'bold', marginBottom: '2%' }}>The People&rsquo;s Chamber &middot; Investigation</div>
-        <div style={{ ...headline, fontSize: '1.95cqw', lineHeight: 1.0, marginBottom: '2%' }}>Power For Sale? The 20 Politicians Who Cashed In After Leaving Office</div>
-        <div style={{ ...kicker, fontSize: '1.1cqw', letterSpacing: '0.12em', color: '#6b2417', fontWeight: 'bold' }}>Read the full story &rarr;</div>
-      </a>
-
-      {/* Secondary hotspot: Parliament weekly digest. Lives to the right
-          of the lead editorial, slim column. */}
-      <a href="/bills" className="no-hover-scale" style={{ ...card, top: '24%', left: '56%', width: '38%', height: '25%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '1.5% 2.5%', overflow: 'hidden' }}>
-        <div style={{ width: '100%', marginBottom: '3%', position: 'relative' }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/votes.webp"
-            alt="Every bill, every vote, every law"
-            style={{ display: 'block', width: '100%', aspectRatio: '16 / 9', objectFit: 'cover' }}
-          />
-          <div
-            aria-hidden
-            style={{
-              position: 'absolute',
-              inset: 0,
-              pointerEvents: 'none',
-            }}
-          />
-        </div>
-        <div style={{ ...kicker, fontSize: '1.0cqw', letterSpacing: '0.28em', opacity: 0.65, marginBottom: '2.5%' }}>From the House this week</div>
-        <div style={{ ...headline, fontSize: '2.6cqw', lineHeight: 0.98, marginBottom: '4%' }}>Every bill. Every vote. Every law.</div>
-        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.5cqw', lineHeight: 1.45, opacity: 0.88, marginBottom: '0', textAlign: 'left' }}>
-          Follow what Parliament is doing right now, in plain English, and see how every decision lands with the people.{' '}
-          <span style={{ ...kicker, fontSize: '1.1cqw', letterSpacing: '0.12em', color: '#6b2417', fontWeight: 'bold', whiteSpace: 'nowrap' }}>Read the bills &rarr;</span>
-        </div>
-      </a>
-
-      {/* MP scandals brief — sits directly beneath the bills card in the
-          right column, above the dashed rule. A text-forward "second
-          story" summarising the Top Ten serving-MP scandals investigation
-          and linking through to the full editorial. Top hairline rule
-          separates it from the bills card above (newspaper section break). */}
-      <a href="/editorials/kxlkhj1jgj" className="no-hover-scale" style={{ ...card, top: '49.5%', left: '56%', width: '38%', height: '12%', alignItems: 'flex-start', justifyContent: 'flex-start', textAlign: 'left', padding: '0 2.5%', overflow: 'hidden' }}>
-        <div style={{ ...kicker, fontSize: '1.0cqw', letterSpacing: '0.28em', color: '#6b2417', fontWeight: 'bold', borderTop: '1.5px solid #14100d', paddingTop: '3.5%', marginBottom: '2.5%', width: '100%' }}>The People&rsquo;s Chamber &middot; Investigation</div>
-        <div style={{ ...headline, fontSize: '2.0cqw', lineHeight: 1.0, marginBottom: '3%' }}>Westminster&rsquo;s Culture of Impropriety: Why Trust Keeps Eroding</div>
-        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.25cqw', lineHeight: 1.4, opacity: 0.9, marginBottom: '3%', textAlign: 'justify' }}>
-          Ten serving MPs who broke the rules, the law or the trust of their constituents and remain in the Commons. Standards Committee findings, criminal records and contested registered interests, each entry independently fact-checked.
-        </div>
-        <div style={{ ...kicker, fontSize: '1.1cqw', letterSpacing: '0.12em', color: '#6b2417', fontWeight: 'bold' }}>Read the full story &rarr;</div>
-      </a>
-
-      {/* Comment strip beneath the Westminster card (right column), filling
-          the gap opened by nudging that card up. Links to the accountability
-          editorial. */}
-      <a href="/editorials/when-did-politicians-stop-taking-responsibility" className="no-hover-scale" style={{ ...card, top: '62%', left: '56%', width: '38%', height: '5.5%', alignItems: 'flex-start', justifyContent: 'center', textAlign: 'left', padding: '0 2.5%', overflow: 'hidden', borderTop: '1.5px solid #14100d' }}>
-        <div style={{ ...kicker, fontSize: '0.85cqw', letterSpacing: '0.24em', color: '#6b2417', fontWeight: 'bold', marginBottom: '1.5%' }}>The People&rsquo;s Chamber &middot; Comment</div>
-        <div style={{ ...headline, fontSize: '1.3cqw', lineHeight: 1.0 }}>When Did Politicians Stop Taking Responsibility? <span style={{ color: '#6b2417' }}>&rarr;</span></div>
-      </a>
-
-      {/* Investigation strip directly beneath the accountability comment
-          (right column), sitting in the gap above the bottom story row.
-          Links to the disgraced-politicians editorial. */}
-      <a href="/editorials/britains-most-disgraced-politicians" className="no-hover-scale" style={{ ...card, top: '67.7%', left: '56%', width: '38%', height: '3.4%', alignItems: 'flex-start', justifyContent: 'center', textAlign: 'left', padding: '0 2.5%', overflow: 'hidden', borderTop: '1.5px solid #14100d' }}>
-        <div style={{ ...kicker, fontSize: '0.85cqw', letterSpacing: '0.24em', color: '#6b2417', fontWeight: 'bold', marginBottom: '1.5%' }}>The People&rsquo;s Chamber &middot; Investigation</div>
-        <div style={{ ...headline, fontSize: '1.3cqw', lineHeight: 1.0 }}>Britain&rsquo;s Most Disgraced Politicians <span style={{ color: '#6b2417' }}>&rarr;</span></div>
-      </a>
-
-      {/* Link to the full editorials index, in the gap beneath the latest
-          investigation strip. Right-aligned so it reads as a "see all". */}
-      <a href="/editorials" className="no-hover-scale" style={{ ...card, top: '71.5%', left: '56%', width: '38%', height: '1.8%', alignItems: 'flex-end', justifyContent: 'center', textAlign: 'right', padding: '0 2.5%', overflow: 'hidden' }}>
-        <div style={{ ...kicker, fontSize: '0.95cqw', letterSpacing: '0.12em', color: '#6b2417', fontWeight: 'bold' }}>All investigations &rarr;</div>
-      </a>
-
-      {/* Expenses story (left) — featured image on top, headline under.
-          The image stays crisp; the hand-drawn ink border sits over it
-          as a separate layer that gets the wobble filter. */}
-      <a href="/expenses" className="no-hover-scale" style={{ ...card, top: '73.5%', left: '6%', width: '27%', height: '21%', alignItems: 'flex-start', overflow: 'hidden' }}>
-        <div style={{ width: '100%', marginBottom: '3%', position: 'relative' }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/mp-expenses.webp"
-            alt="The biggest MP expenses bill"
-            style={{ display: 'block', width: '100%', aspectRatio: '16 / 9', objectFit: 'cover' }}
-          />
-          <div
-            aria-hidden
-            style={{
-              position: 'absolute',
-              inset: 0,
-              pointerEvents: 'none',
-            }}
-          />
-        </div>
-        <div style={{ ...headline, fontSize: '1.95cqw', lineHeight: 1.04, marginBottom: '2.5%' }}>The biggest expenses bill</div>
-        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.4cqw', lineHeight: 1.35, opacity: 0.88, marginBottom: '2.5%', textAlign: 'justify' }}>
-          Every MP claims travel, staff, office and accommodation costs against the public purse. The ten biggest claimants ran up the largest bills last financial year. See which MPs spent the most and on what.
-        </div>
-        <div style={{ ...ctaStyle, marginTop: 0 }}>See the full top ten &rarr;</div>
-      </a>
-
-      {/* Parties story (centre) — same geometry as the previous poll card.
-          The big "15" tile sits where the poll percentage used to sit, with
-          the rotated cream block + tilted angle preserved so the visual
-          rhythm of [big number] + [headline] stays the same. Eyebrow text
-          "The People's verdict" reuses the brand mark that's also the
-          section heading on every /parties/[slug] dossier. */}
-      <a href="/parties" className="no-hover-scale" style={{ ...card, top: '73.5%', left: '37%', width: '27%', height: '21%', alignItems: 'flex-start', overflow: 'hidden' }}>
-        <div style={{ width: '100%', marginBottom: '3%', position: 'relative' }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/manifesto.webp"
-            alt="Every manifesto. Every shift. The gap diagnosed."
-            style={{ display: 'block', width: '100%', aspectRatio: '16 / 9', objectFit: 'cover' }}
-          />
-          <div
-            aria-hidden
-            style={{
-              position: 'absolute',
-              inset: 0,
-              pointerEvents: 'none',
-            }}
-          />
-        </div>
-        <div style={{ ...headline, fontSize: '1.95cqw', lineHeight: 1.04, marginBottom: '2.5%' }}>Every manifesto. Every shift.</div>
-        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.4cqw', lineHeight: 1.35, opacity: 0.88, marginBottom: '2.5%', textAlign: 'justify' }}>
-          What each of the fifteen UK parties told voters at the 2024 election, what they have done in the year since, and where the gap between manifesto and record is widest.
-        </div>
-        <div style={{ ...ctaStyle, marginTop: 0 }}>Read the dossiers &rarr;</div>
-      </a>
-
-      {/* Whitehall story (right) — same hand-drawn border treatment. */}
-      <a href="/departments" className="no-hover-scale" style={{ ...card, top: '73.5%', left: '68%', width: '26%', height: '21%', alignItems: 'flex-start', overflow: 'hidden' }}>
-        <div style={{ width: '100%', marginBottom: '3%', position: 'relative' }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/whitehall.webp"
-            alt="Who runs Whitehall"
-            style={{ display: 'block', width: '100%', aspectRatio: '16 / 9', objectFit: 'cover' }}
-          />
-          <div
-            aria-hidden
-            style={{
-              position: 'absolute',
-              inset: 0,
-              pointerEvents: 'none',
-            }}
-          />
-        </div>
-        <div style={{ ...headline, fontSize: '1.95cqw', lineHeight: 1.04, marginBottom: '2.5%' }}>Who runs Whitehall</div>
-        <div style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '1.4cqw', lineHeight: 1.35, opacity: 0.88, marginBottom: '2.5%', textAlign: 'justify' }}>
-          All twenty four ministerial departments graded against the public record of what they were set up to do. Executive summary, core strengths, critical weaknesses, recommendation. One institutional performance report per department.
-        </div>
-        <div style={{ ...ctaStyle, marginTop: 0 }}>See the departments &rarr;</div>
-      </a>
-    </>
-  );
-
   return (
     <>
-      <DossierShell overlay={HomeFront} />
+      <JsonLd data={buildHomepageGraph()} />
+      <OpenGovShell pageStamp="Front Page">
+              <div className="og-lead">
+            <div className="og-main">
+              <section className="og-intro">
+                <h2 className="og-intro-head">What This Site Does</h2>
+                <p>This is an independent, nonpartisan transparency platform built to hold British government to account using facts, data and journalism. No party affiliation. No government funding. No advertising. Its purpose is accountability.</p>
+                <p>The site tracks MPs&rsquo; voting records, publishes declared financial interests, expense claims and outside earnings, records every division in the House of Commons, assesses government departments on delivery and examines what councils charge against what they provide. Sources are linked. Corrections are published. Claims that cannot be verified are excluded.</p>
+                <p>The editorial content is written by working journalists who publish without bylines. They are not anonymous because they have something to hide. They are anonymous because the work should be judged on accuracy, not personality. Politicians spend careers building personal brands. This site strips that away and publishes what they actually did, how they actually voted and what they actually claimed.</p>
+                <p>MP profiles use caricatures rather than official photographs. Political image management is part of the problem. Official portraits project authority and seriousness regardless of whether either has been earned. The caricatures strip that back. Some MPs serve with genuine integrity and the data on this site reflects that. Others leaked confidential documents to the wrong email address, destroyed careers over three penalty points, faked their own death and fled to Australia, or claimed &pound;650 for a &pound;36 phone bill quarter after quarter. The serious and the absurd sit in the same Parliament. Satirical illustration has been part of British political commentary for 250 years, from James Gillray to Spitting Image. The facts are serious. The faces do not need to be.</p>
+                <p>The site includes an open voting platform where the public can record how they would have voted on the same divisions that MPs vote on in Parliament. The purpose is simple: to show whether the people&rsquo;s representatives are representing the people. Serving MPs are among the regular visitors to this site. They read the editorials. They check the data. They see how the public votes. Whether that changes how they behave is for them to answer. But a politician who knows the public is watching, voting and keeping score is a politician with one less excuse for not listening.</p>
+                <p>The site is free. The data is open. The sources are visible. The journalism can be challenged.</p>
+              </section>
+
+              <a className="og-block" href="/editorials/ten-worst-performing-councils-england">                <div className="og-head">The Ten Worst Performing Councils In England</div>
+                <div className="og-standfirst">How local government failed the people it exists to serve.</div>
+                <p className="og-lede">
+                  Eight English councils have declared themselves effectively bankrupt since 2018, accumulating more than &pound;5 billion in debt and deficit between them. One was abolished. Another went bankrupt three times. England&rsquo;s second city is still under government commissioners. These are the councils that broke, the decisions that broke them, and the residents left paying the bill.
+                </p>
+                <div className="og-cta">Read the full story &rarr;</div>
+              </a>
+            </div>
+
+            <div className="og-rail">
+              <a className="og-block og-brief" href="/editorials/kxlkhj1jgj">                <div className="og-head">Westminster&rsquo;s Culture of Impropriety</div>
+                <p>Ten serving MPs who broke the rules, the law or the trust of their constituents and remain in the Commons.</p>
+                <div className="og-cta">Read the full story &rarr;</div>
+              </a>
+
+              <a className="og-block og-card" href="/bills">
+                <div className="og-kicker" style={{ color: 'var(--ink-soft)', letterSpacing: '0.18em' }}>From the House this week</div>
+                <div className="og-head">Every bill. Every vote. Every law.</div>
+                <p>Follow what Parliament is doing right now, in plain English. <span className="og-cta" style={{ whiteSpace: 'nowrap' }}>Read the bills &rarr;</span></p>
+              </a>
+
+              <a className="og-block og-brief" href="/editorials/when-did-politicians-stop-taking-responsibility">
+                <div className="og-head">When Did Politicians Stop Taking Responsibility? <span style={{ color: '#14100d' }}>&rarr;</span></div>
+                <p>Resignation once followed failure. A look at how accountability quietly drained out of British public life.</p>
+              </a>
+
+              <a className="og-block og-brief" href="/editorials/britains-most-disgraced-politicians">
+                <div className="og-head">Britain&rsquo;s Most Disgraced Politicians <span style={{ color: '#14100d' }}>&rarr;</span></div>
+                <p>From perjury to expenses fraud, the politicians whose careers collapsed in scandal, and what their falls reveal.</p>
+              </a>
+
+              <a className="og-block og-brief" href="/editorials/power-for-sale-20-politicians-who-cashed-in">
+                <div className="og-head">Power For Sale? The 20 Politicians Who Cashed In After Leaving Office</div>
+                <p>The ministers and MPs who left office and cashed in, advising and lobbying the industries they once regulated.</p>
+                <div className="og-cta">Read the full story &rarr;</div>
+              </a>
+
+              <a className="og-block og-brief" href="/editorials" style={{ textAlign: 'right' }}>
+                <div className="og-cta">All investigations &rarr;</div>
+              </a>
+
+              <a className="og-block og-card" href="/expenses">
+                <div className="og-head">The biggest expenses bill</div>
+                <p>The ten biggest claimants ran up the largest bills last financial year. See which MPs spent the most and on what.</p>
+                <div className="og-cta">See the full top ten &rarr;</div>
+              </a>
+
+              <a className="og-block og-card" href="/parties">
+                <div className="og-head">Every manifesto. Every shift.</div>
+                <p>What each of the fifteen UK parties told voters in 2024, what they have done since, and where the gap is widest.</p>
+                <div className="og-cta">Read the dossiers &rarr;</div>
+              </a>
+
+              <a className="og-block og-card" href="/departments">
+                <div className="og-head">Who runs Whitehall</div>
+                <p>All twenty four ministerial departments graded against the public record of what they were set up to do.</p>
+                <div className="og-cta">See the departments &rarr;</div>
+              </a>
+            </div>
+          </div>
+
+      </OpenGovShell>
       <HomepageEditorialIntro />
     </>
   );
 }
 
-// Server-rendered editorial introduction. Visually hidden via `sr-only`
-// style (clip-path + position:absolute + 1px box) so the landing-page
-// design stays clean while the indexable copy lands in the static HTML
-// for SEO. Same prose Google sees on /about.
-//
-// Reinstated 2026-06-07 after Phase 1 SEO Check 2 found 0 matches for
-// the "independent record of how the United Kingdom is governed" line
-// in the deployed homepage HTML. The Phase 1 design required indexable
-// editorial copy on the homepage; the visible newspaper-overlay alone
-// ships ~170 words which is too thin for Google to anchor topical
-// identity. This block adds ~360 words of substantive prose to the
-// HTML response without changing the visible landing page.
 function HomepageEditorialIntro() {
   return (
     <section
@@ -294,3 +128,4 @@ function HomepageEditorialIntro() {
     </section>
   );
 }
+
