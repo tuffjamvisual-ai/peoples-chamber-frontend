@@ -174,8 +174,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
         style={{
           display: 'inline-flex', alignItems: 'center', gap: '8px',
           marginTop: '-6%', marginBottom: '14px', color: INK,
-          textDecoration: 'none', fontFamily: MONO, fontSize: '13px',
-          letterSpacing: '0.12em', textTransform: 'uppercase',
+          textDecoration: 'none', transform: 'rotate(-0.2deg)',
         }}
       />
 
@@ -185,10 +184,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
           webp tile + warm cream background are identical to /bills/[id]. */}
       <article
         style={{
-          background: "#efe6d2 url('/bill-parchment.webp') center top / 100% auto repeat-y",
-          border: '1px solid rgba(26,20,14,0.3)',
-          boxShadow: '0 1px 0 rgba(26,20,14,0.05), 0 22px 44px -22px rgba(26,20,14,0.35)',
-          padding: 'clamp(28px, 4vw, 56px) clamp(24px, 4vw, 60px)',
+          padding: 0,
           color: '#1a140e',
           fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
         }}
