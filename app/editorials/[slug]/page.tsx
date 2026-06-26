@@ -81,10 +81,10 @@ export default async function EditorialPage({ params }: { params: Promise<{ slug
             {piece.kicker}
           </p>
         )}
-        <h1 style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(34px, 5vw, 60px)', fontWeight: 'bold', letterSpacing: '-0.02em', lineHeight: 1.05, marginBottom: '20px' }}>
+        <h1 style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(34px, 5vw, 60px)', fontWeight: 'bold', letterSpacing: '0.01em', lineHeight: 1.05, marginBottom: '20px' }}>
           {piece.headline}
         </h1>
-        <p style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(17px, 1.6vw, 22px)', lineHeight: 1.5, fontStyle: 'italic', color: INK_SOFT }}>
+        <p style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(17px, 1.6vw, 22px)', lineHeight: 1.5, fontStyle: 'italic', color: INK_SOFT }}>
           {piece.standfirst}
         </p>
         <div style={{ marginTop: '20px', fontSize: '12px', color: INK_SOFT, fontFamily: '"Special Elite", monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
@@ -115,7 +115,7 @@ function renderBlock(block: Block, i: number): React.ReactNode {
     case 'heading': {
       if (block.level === 2) {
         return (
-          <h2 key={i} style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(24px, 3vw, 34px)', fontWeight: 'bold', letterSpacing: '-0.01em', marginTop: '36px', marginBottom: '16px', borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '8px' }}>
+          <h2 key={i} style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(24px, 3vw, 34px)', fontWeight: 'bold', letterSpacing: '0.01em', marginTop: '36px', marginBottom: '16px', borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '8px' }}>
             {block.text}
           </h2>
         );
@@ -124,7 +124,7 @@ function renderBlock(block: Block, i: number): React.ReactNode {
       // (260px profile photo -> 156px here) to the left so the name, bio
       // line and opening paragraphs wrap to its right and then beneath.
       const h3 = (
-        <h3 key={`${i}-h`} style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(20px, 2.2vw, 26px)', fontWeight: 'bold', marginTop: block.photo ? '4px' : '28px', marginBottom: '12px' }}>
+        <h3 key={`${i}-h`} style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(20px, 2.2vw, 26px)', fontWeight: 'bold', marginTop: block.photo ? '4px' : '28px', marginBottom: '12px' }}>
           {block.text}
         </h3>
       );
@@ -158,7 +158,7 @@ function renderBlock(block: Block, i: number): React.ReactNode {
       );
     case 'pullQuote':
       return (
-        <blockquote key={i} style={{ borderLeft: `4px solid ${ACCENT}`, margin: '28px 0', padding: '8px 0 8px 22px', fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(20px, 2.2vw, 26px)', fontStyle: 'italic', lineHeight: 1.45, color: INK }}>
+        <blockquote key={i} style={{ borderLeft: `4px solid ${ACCENT}`, margin: '28px 0', padding: '8px 0 8px 22px', fontFamily: '"Special Elite", monospace', fontSize: 'clamp(20px, 2.2vw, 26px)', fontStyle: 'italic', lineHeight: 1.45, color: INK }}>
           {block.text}
         </blockquote>
       );
@@ -179,10 +179,10 @@ function renderBlock(block: Block, i: number): React.ReactNode {
       return (
         <section key={i} style={{ marginTop: '40px', marginBottom: '32px', paddingBottom: '24px', borderBottom: `1px solid ${HAIRLINE}` }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '14px', marginBottom: '10px' }}>
-            <span style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(36px, 4vw, 54px)', fontWeight: 'bold', color: ACCENT, lineHeight: 1 }}>
+            <span style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(36px, 4vw, 54px)', fontWeight: 'bold', color: ACCENT, lineHeight: 1 }}>
               {block.rank}
             </span>
-            <h3 style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(20px, 2.4vw, 28px)', fontWeight: 'bold', letterSpacing: '0.04em', textTransform: 'uppercase', lineHeight: 1.15, margin: 0 }}>
+            <h3 style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(20px, 2.4vw, 28px)', fontWeight: 'bold', letterSpacing: '0.04em', textTransform: 'uppercase', lineHeight: 1.15, margin: 0 }}>
               {block.councilSlug ? (
                 <Link href={`/councils/${block.councilSlug}`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '4px' }}>{block.name}</Link>
               ) : (
@@ -206,10 +206,10 @@ function renderBlock(block: Block, i: number): React.ReactNode {
       return (
         <section key={i} style={{ marginTop: '40px', marginBottom: '32px', paddingBottom: '24px', borderBottom: `1px solid ${HAIRLINE}` }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '14px', marginBottom: '10px', flexWrap: 'wrap' }}>
-            <span style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(36px, 4vw, 54px)', fontWeight: 'bold', color: ACCENT, lineHeight: 1 }}>
+            <span style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(36px, 4vw, 54px)', fontWeight: 'bold', color: ACCENT, lineHeight: 1 }}>
               {block.rank}
             </span>
-            <h3 style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(20px, 2.4vw, 28px)', fontWeight: 'bold', letterSpacing: '0.04em', textTransform: 'uppercase', lineHeight: 1.15, margin: 0 }}>
+            <h3 style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(20px, 2.4vw, 28px)', fontWeight: 'bold', letterSpacing: '0.04em', textTransform: 'uppercase', lineHeight: 1.15, margin: 0 }}>
               {block.memberId ? (
                 <Link href={`/mps/${block.memberId}`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '4px' }}>{block.name}</Link>
               ) : (

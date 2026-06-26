@@ -36,10 +36,10 @@ export default function EditorialsIndexPage() {
       />
 
       <header style={{ marginBottom: '4%' }}>
-        <h1 style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(34px, 5vw, 60px)', fontWeight: 'bold', letterSpacing: '-0.02em', lineHeight: 1.05, marginBottom: '14px' }}>
+        <h1 style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(34px, 5vw, 60px)', fontWeight: 'bold', letterSpacing: '0.01em', lineHeight: 1.05, marginBottom: '14px' }}>
           Editorials &amp; Investigations
         </h1>
-        <p style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(17px, 1.6vw, 22px)', lineHeight: 1.5, fontStyle: 'italic', color: INK_SOFT, maxWidth: '720px' }}>
+        <p style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(17px, 1.6vw, 22px)', lineHeight: 1.5, fontStyle: 'italic', color: INK_SOFT, maxWidth: '720px' }}>
           Long-form investigations and editorials from The People&rsquo;s Chamber, each drawn from the public record.
         </p>
       </header>
@@ -57,10 +57,10 @@ export default function EditorialsIndexPage() {
                 {e.kicker}
               </div>
             )}
-            <h2 style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(22px, 2.6vw, 32px)', fontWeight: 'bold', letterSpacing: '-0.01em', lineHeight: 1.1, marginBottom: '8px' }}>
+            <h2 style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(22px, 2.6vw, 32px)', fontWeight: 'bold', letterSpacing: '0.01em', lineHeight: 1.1, marginBottom: '8px' }}>
               {e.headline} <span style={{ color: ACCENT }}>&rarr;</span>
             </h2>
-            <p style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: '17px', lineHeight: 1.45, color: INK_SOFT, marginBottom: '8px' }}>
+            <p style={{ fontFamily: '"Special Elite", monospace', fontSize: '17px', lineHeight: 1.45, color: INK_SOFT, marginBottom: '8px' }}>
               {e.standfirst}
             </p>
             <div style={{ fontSize: '12px', letterSpacing: '0.12em', textTransform: 'uppercase', color: INK_SOFT }}>
