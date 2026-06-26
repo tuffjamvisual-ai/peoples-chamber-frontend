@@ -46,7 +46,7 @@ export default function LandingDemo2() {
         <div style={{ position: 'relative', width: '100%', aspectRatio: '1024 / 1536' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/folding.webp"
+            src="/newfold.webp"
             alt=""
             aria-hidden
             style={{
