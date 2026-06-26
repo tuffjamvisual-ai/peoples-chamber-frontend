@@ -43,10 +43,10 @@ export default function LandingDemo2() {
 
       {/* Empty clean folder, centred on the backdrop. */}
       <div style={{ position: 'relative', zIndex: 1, width: 'min(96vw, 1240px)' }}>
-        <div style={{ position: 'relative', width: '100%', aspectRatio: '1024 / 1536' }}>
+        <div style={{ position: 'relative', width: '100%', aspectRatio: '1086 / 1448' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/newfold.webp"
+            src="/newb.webp"
             alt=""
             aria-hidden
             style={{
