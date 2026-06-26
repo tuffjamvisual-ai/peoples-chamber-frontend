@@ -70,9 +70,9 @@ export default function LandingDemo2() {
             style={{
               position: 'absolute',
               top: '13%',
-              left: '10%',
-              width: '80%',
-              height: '74%',
+              left: '5%',
+              width: '90%',
+              height: '83%',
               display: 'flex',
               flexDirection: 'column',
               // original dossier colour (native) — drop shadows only.
