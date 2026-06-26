@@ -90,19 +90,19 @@ export default function LandingDemo2() {
           <div
             style={{
               position: 'absolute',
-              top: '7.5%',
-              left: '4%',
-              width: '92%',
-              textAlign: 'center',
+              top: '5%',
+              left: '5%',
+              width: '90%',
+              textAlign: 'left',
               zIndex: 5,
               pointerEvents: 'none',
               transform: 'rotate(-2.5deg)',
               fontFamily: "'Special Elite', 'Courier New', monospace",
               textTransform: 'uppercase',
-              letterSpacing: '0.06em',
+              letterSpacing: '0.04em',
               lineHeight: 1,
               color: '#2b2014',
-              fontSize: 'clamp(15px, 2.5vw, 34px)',
+              fontSize: 'clamp(20px, 3.9vw, 54px)',
             }}
           >
             Open Government
