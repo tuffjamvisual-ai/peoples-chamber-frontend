@@ -143,17 +143,17 @@ export default function LandingDemo2() {
 
               <a className="og-block og-card" href="/bills">
                 <div className="og-kicker" style={{ color: 'var(--ink-soft)', letterSpacing: '0.18em' }}>From the House this week</div>
-                <div className="og-head" style={{ fontSize: 'clamp(20px, 2.6vw, 30px)' }}>Every bill. Every vote. Every law.</div>
+                <div className="og-head">Every bill. Every vote. Every law.</div>
                 <p>Follow what Parliament is doing right now, in plain English. <span className="og-cta" style={{ whiteSpace: 'nowrap' }}>Read the bills &rarr;</span></p>
               </a>
 
               <a className="og-block og-brief" href="/editorials/when-did-politicians-stop-taking-responsibility">
-                <div className="og-head" style={{ fontSize: 'clamp(15px, 1.8vw, 19px)' }}>When Did Politicians Stop Taking Responsibility? <span style={{ color: '#14100d' }}>&rarr;</span></div>
+                <div className="og-head">When Did Politicians Stop Taking Responsibility? <span style={{ color: '#14100d' }}>&rarr;</span></div>
                 <p>Resignation once followed failure. A look at how accountability quietly drained out of British public life.</p>
               </a>
 
               <a className="og-block og-brief" href="/editorials/britains-most-disgraced-politicians">
-                <div className="og-head" style={{ fontSize: 'clamp(15px, 1.8vw, 19px)' }}>Britain&rsquo;s Most Disgraced Politicians <span style={{ color: '#14100d' }}>&rarr;</span></div>
+                <div className="og-head">Britain&rsquo;s Most Disgraced Politicians <span style={{ color: '#14100d' }}>&rarr;</span></div>
                 <p>From perjury to expenses fraud, the politicians whose careers collapsed in scandal, and what their falls reveal.</p>
               </a>
 
