@@ -79,13 +79,13 @@ export default function OpenGovShell({
             <a href="/login">Sign up / Log in</a>
           </div>
 
-          <div style={{ position: 'absolute', top: '5%', left: '5%', width: '90%', textAlign: 'left', zIndex: 5, pointerEvents: 'none', transform: 'rotate(-2.5deg)' }}>
+          <div className="og-masthead-wrap" style={{ position: 'absolute', top: '5%', left: '5%', width: '90%', textAlign: 'left', zIndex: 5, pointerEvents: 'none', transform: 'rotate(-2.5deg)' }}>
             <a href="/" style={{ pointerEvents: 'auto', textDecoration: 'none' }}>
               <span style={{ display: 'inline-block', opacity: 0.8, border: '0.07em solid #6b2417', padding: '0.14em 0.32em 0.06em', fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1, color: '#6b2417', fontSize: 'clamp(24px, 4.6vw, 64px)' }}>Open Government</span>
             </a>
           </div>
 
-          <nav aria-label="Primary" style={{ position: 'absolute', top: '10.6%', left: '2%', width: '96%', zIndex: 5, transform: 'translateX(-1.6%) rotate(-2.5deg)' }}>
+          <nav aria-label="Primary" className="og-navwrap" style={{ position: 'absolute', top: '10.6%', left: '2%', width: '96%', zIndex: 5, transform: 'translateX(-1.6%) rotate(-2.5deg)' }}>
             <ul className="ng-nav">
               {NAV.map((item) => (
                 <li key={item.label}>
@@ -102,7 +102,7 @@ export default function OpenGovShell({
         </div>
 
         {/* Dossier expanding folder, overlapping up into the header. */}
-        <div className="og-page" style={{ position: 'relative', width: '90%', margin: '-116% 5% 0', containerType: 'inline-size' }}>
+        <div className="og-page og-dossier" style={{ position: 'relative', width: '90%', margin: '-116% 5% 0', containerType: 'inline-size' }}>
           <div className="dossier-frame" aria-hidden>
             <div className="d-top" />
             <div className="d-mid" />

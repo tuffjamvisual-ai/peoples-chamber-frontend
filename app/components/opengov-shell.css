@@ -37,3 +37,20 @@
 .dossier-frame .d-mid { flex: 1 1 auto; background: url('/folder-mid.webp') repeat-y; background-size: 100% auto; }
 .dossier-frame .d-bottom { width: 100%; aspect-ratio: 1023 / 157; background: url('/folder-bottom.webp') no-repeat; background-size: 100% 100%; margin-top: -5%; -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 26%); mask-image: linear-gradient(180deg, transparent 0%, #000 26%); }
 .dossier-content { position: relative; z-index: 1; padding: clamp(64px, 12cqw, 150px) clamp(28px, 8.5cqw, 96px) clamp(40px, 7cqw, 90px); }
+
+/* ---- Mobile: the desktop chrome is positioned by inline %; override with
+   !important. Let the nav wrap, drop the dossier down to make room, hide the
+   overlapping account tab, and widen the content. ---- */
+@media (max-width: 760px) {
+  .ng-tab { display: none !important; }
+  .og-masthead-wrap { top: 3.5% !important; left: 6% !important; width: 88% !important; }
+  .og-navwrap { top: 13% !important; left: 4% !important; width: 92% !important; transform: rotate(-2.5deg) !important; }
+  .og-navwrap .ng-nav { flex-wrap: wrap !important; justify-content: center !important; row-gap: 2px; column-gap: 0; font-size: 12px !important; letter-spacing: 0.03em !important; }
+  .og-navwrap .ng-nav > li > a { padding: 2px 6px !important; border-left: none !important; }
+  .og-dossier { margin-top: -78% !important; }
+  .dossier-content { padding: clamp(40px, 9cqw, 90px) clamp(16px, 5cqw, 40px) clamp(32px, 6cqw, 70px) !important; }
+}
+@media (max-width: 480px) {
+  .og-navwrap .ng-nav { font-size: 10.5px !important; }
+  .og-dossier { margin-top: -72% !important; }
+}
