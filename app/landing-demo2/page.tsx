@@ -126,12 +126,6 @@ export default function LandingDemo2() {
                 </p>
                 <div className="og-cta">Read the full story &rarr;</div>
               </a>
-
-              <a className="og-block og-brief" href="/editorials/power-for-sale-20-politicians-who-cashed-in">
-                <div className="og-head">Power For Sale? The 20 Politicians Who Cashed In After Leaving Office</div>
-                <p>The ministers and MPs who left office and cashed in, advising and lobbying the industries they once regulated.</p>
-                <div className="og-cta">Read the full story &rarr;</div>
-              </a>
             </div>
 
             <div className="og-rail">
@@ -154,6 +148,12 @@ export default function LandingDemo2() {
               <a className="og-block og-brief" href="/editorials/britains-most-disgraced-politicians">
                 <div className="og-head">Britain&rsquo;s Most Disgraced Politicians <span style={{ color: '#14100d' }}>&rarr;</span></div>
                 <p>From perjury to expenses fraud, the politicians whose careers collapsed in scandal, and what their falls reveal.</p>
+              </a>
+
+              <a className="og-block og-brief" href="/editorials/power-for-sale-20-politicians-who-cashed-in">
+                <div className="og-head">Power For Sale? The 20 Politicians Who Cashed In After Leaving Office</div>
+                <p>The ministers and MPs who left office and cashed in, advising and lobbying the industries they once regulated.</p>
+                <div className="og-cta">Read the full story &rarr;</div>
               </a>
 
               <a className="og-block og-brief" href="/editorials" style={{ textAlign: 'right' }}>
