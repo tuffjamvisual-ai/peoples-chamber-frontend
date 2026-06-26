@@ -14,7 +14,7 @@ import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import DossierShell from '../../components/DossierShell';
+import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { partyColourForMember, normaliseParty } from '@/lib/party-helpers';
 
@@ -266,7 +266,7 @@ export default async function DivisionDetailPage({ params }: PageProps) {
   const noeGroups = groupByParty(noes);
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref={billId != null ? `/bills/${billId}` : '/mps'}
         label="← Back"
@@ -380,7 +380,7 @@ export default async function DivisionDetailPage({ params }: PageProps) {
           </ul>
         </section>
       )}
-    </DossierShell>
+    </OpenGovShell>
   );
 }
 

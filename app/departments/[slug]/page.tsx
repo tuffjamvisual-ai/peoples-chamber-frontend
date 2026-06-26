@@ -7,7 +7,7 @@ import DepartmentStaff from './DepartmentStaff';
 import DepartmentTabs from './DepartmentTabs';
 import { BudgetSlot, AgenciesSlot, ContactSlot } from './DepartmentSlots';
 import { DEPARTMENT_BUDGETS } from '@/lib/department-budgets';
-import DossierShell from '../../components/DossierShell';
+import OpenGovShell from '../../components/OpenGovShell';
 import { getGovukDept } from '../../api/govuk-dept/route';
 import { supabase } from '@/lib/supabase';
 import { getDeptContext } from '../../api/department-context/route';
@@ -120,7 +120,7 @@ export default async function DepartmentPage({ params }: PageProps) {
   }
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <JsonLd data={buildDepartmentOrg({
         slug,
         name: dept.name,
@@ -179,6 +179,6 @@ export default async function DepartmentPage({ params }: PageProps) {
       </div>
 
       <ScrollToTopButton />
-    </DossierShell>
+    </OpenGovShell>
   );
 }

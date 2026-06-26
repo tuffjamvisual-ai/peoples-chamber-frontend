@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import DossierShell from '../components/DossierShell';
+import OpenGovShell from '../components/OpenGovShell';
 
 export const metadata: Metadata = {
   title: "The People's Chamber",
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 // file to start a new page and drop your content where indicated; the folder grows to fit.
 export default function TemplatePage() {
   return (
-    <DossierShell>
+    <OpenGovShell>
       {/* ── Your page content goes here ── */}
       <div
         style={{
@@ -24,6 +24,6 @@ export default function TemplatePage() {
       >
         Blank folder, add your content here.
       </div>
-    </DossierShell>
+    </OpenGovShell>
   );
 }

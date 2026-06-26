@@ -9,7 +9,7 @@
 
 import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
-import DossierShell from '../components/DossierShell';
+import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import ScrollToTopButton from '../components/ScrollToTopButton';
 
@@ -67,7 +67,7 @@ export default async function CouncilsIndex() {
   }
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"
@@ -175,6 +175,6 @@ export default async function CouncilsIndex() {
           })}
         </div>
       </article>
-    </DossierShell>
+    </OpenGovShell>
   );
 }

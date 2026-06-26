@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import ScrollToTopButton from '../components/ScrollToTopButton';
-import DossierShell from '../components/DossierShell';
+import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 
 export const metadata: Metadata = {
@@ -28,7 +28,7 @@ const paragraphs = [
 
 export default function AboutPage() {
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"
@@ -60,6 +60,6 @@ export default function AboutPage() {
       </article>
 
       <ScrollToTopButton />
-    </DossierShell>
+    </OpenGovShell>
   );
 }

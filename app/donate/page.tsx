@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import DossierShell from '../components/DossierShell';
+import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import DonateForm from './DonateForm';
 
@@ -13,7 +13,7 @@ const INK = '#14100d';
 
 export default function DonatePage() {
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"
@@ -31,6 +31,6 @@ export default function DonatePage() {
       </header>
 
       <DonateForm />
-    </DossierShell>
+    </OpenGovShell>
   );
 }

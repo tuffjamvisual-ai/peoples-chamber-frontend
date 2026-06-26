@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import ScrollToTopButton from '../components/ScrollToTopButton';
-import DossierShell from '../components/DossierShell';
+import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 
 export const metadata: Metadata = {
@@ -269,7 +269,7 @@ export default function CouncilTaxPage() {
   const avg = Math.round(grandTotal / REPORTS.length);
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"
@@ -359,7 +359,7 @@ export default function CouncilTaxPage() {
       </p>
 
       <ScrollToTopButton />
-    </DossierShell>
+    </OpenGovShell>
   );
 }
 

@@ -17,7 +17,7 @@
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import DossierShell from '../../../components/DossierShell'
+import OpenGovShell from '../../../components/OpenGovShell'
 import BackLink from '../../../components/BackLink';
 
 export const revalidate = 86400  // re-fetch from Parliament once a day
@@ -166,7 +166,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
   })
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref={`/bills/${billId}`}
         label="← Back to bill summary"
@@ -358,6 +358,6 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
         <Link href={`/bills/${billId}`} style={{ color: INK_SOFT, textDecoration: 'underline' }}>← back to summary</Link>
       </p>
       </article>
-    </DossierShell>
+    </OpenGovShell>
   )
 }

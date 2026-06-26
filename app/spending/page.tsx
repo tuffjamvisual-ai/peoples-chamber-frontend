@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { departments } from '@/lib/departments';
 import { supabase } from '@/lib/supabase';
-import DossierShell from '../components/DossierShell';
+import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import ScrollToTopButton from '../components/ScrollToTopButton';
 import { fmtMillions } from '@/lib/department-civil-service';
@@ -60,7 +60,7 @@ export default async function SpendingPage() {
   const maxTotal = reported[0]?.row?.total_del_millions || 1;
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/transparency"
         label="← Back to transparency"
@@ -134,6 +134,6 @@ export default async function SpendingPage() {
         )}
       </div>
       <ScrollToTopButton />
-    </DossierShell>
+    </OpenGovShell>
   );
 }

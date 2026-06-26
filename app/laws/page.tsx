@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import LawsClient from './LawsClient'
 import ScrollToTopButton from '../components/ScrollToTopButton'
-import DossierShell from '../components/DossierShell'
+import OpenGovShell from '../components/OpenGovShell'
 import BackLink from '../components/BackLink';
 // Render on demand — large Supabase query (all Acts) hits the 60s
 // build-budget under concurrent worker pressure. Same pattern as
@@ -32,7 +32,7 @@ export default async function LawsPage() {
   if (error) console.error('Error fetching laws:', error)
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"
@@ -55,6 +55,6 @@ export default async function LawsPage() {
       <LawsClient laws={laws || []} />
 
       <ScrollToTopButton />
-    </DossierShell>
+    </OpenGovShell>
   )
 }

@@ -16,7 +16,7 @@
 // later move it into a content table, swap the constant for a fetch.
 
 import type { Metadata } from 'next';
-import DossierShell from '../components/DossierShell';
+import OpenGovShell from '../components/OpenGovShell';
 import ScrollToTopButton from '../components/ScrollToTopButton';
 import BackLink from '../components/BackLink';
 
@@ -161,7 +161,7 @@ export default function BudgetTradeOffsPage() {
   const paragraphs = BODY.split(/\n\n+/).map((p) => p.trim()).filter(Boolean);
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"
@@ -216,6 +216,6 @@ export default function BudgetTradeOffsPage() {
       </article>
 
       <ScrollToTopButton />
-    </DossierShell>
+    </OpenGovShell>
   );
 }

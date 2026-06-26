@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
-import DossierShell from '../../components/DossierShell'
+import OpenGovShell from '../../components/OpenGovShell'
 import BackLink from '../../components/BackLink';
 
 export const revalidate = 3600
@@ -81,7 +81,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
     : ''
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"
@@ -120,6 +120,6 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
         )}
 
       </article>
-    </DossierShell>
+    </OpenGovShell>
   )
 }

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import DossierShell from '../../components/DossierShell'
+import OpenGovShell from '../../components/OpenGovShell'
 import BackLink from '../../components/BackLink';
 
 export const revalidate = 60
@@ -58,7 +58,7 @@ export default async function CoveragePage({ params }: { params: Promise<{ id: s
     : ''
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"
@@ -129,6 +129,6 @@ export default async function CoveragePage({ params }: { params: Promise<{ id: s
           story remains the property of {row.source_outlet}; click through to read it.
         </footer>
       </article>
-    </DossierShell>
+    </OpenGovShell>
   )
 }

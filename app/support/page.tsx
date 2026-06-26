@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import DossierShell from '../components/DossierShell'
+import OpenGovShell from '../components/OpenGovShell'
 import BackLink from '../components/BackLink';
 
 export const metadata: Metadata = {
@@ -13,7 +13,7 @@ const INK = '#14100d'
 
 export default function SupportPage() {
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"
@@ -56,6 +56,6 @@ export default function SupportPage() {
       <p className="text-[#14100d] mb-4">
         No, People's Chamber is an independent platform for civic engagement, not affiliated with UK Parliament.
       </p>
-    </DossierShell>
+    </OpenGovShell>
   );
 }

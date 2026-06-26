@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import DossierShell from '../../components/DossierShell';
+import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 
 export const revalidate = 3600;
@@ -54,7 +54,7 @@ export default async function CommitteePublicationPage({ params }: Props) {
   const externalUrl = row.publication_url || row.url || null;
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"
@@ -108,6 +108,6 @@ export default async function CommitteePublicationPage({ params }: Props) {
           </p>
         </div>
       )}
-    </DossierShell>
+    </OpenGovShell>
   );
 }

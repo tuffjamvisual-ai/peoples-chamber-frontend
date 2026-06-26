@@ -5,7 +5,7 @@
 
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import DossierShell from '../components/DossierShell';
+import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import ScrollToTopButton from '../components/ScrollToTopButton';
 import { fmtMoney, loadAll } from './_lib/data';
@@ -32,7 +32,7 @@ export default async function SecondJobsLanding() {
   const { partyTotals, grandTotal, grandClaims, totalMps } = await loadAll();
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"
@@ -193,7 +193,7 @@ export default async function SecondJobsLanding() {
 
         <ScrollToTopButton />
       </article>
-    </DossierShell>
+    </OpenGovShell>
   );
 }
 

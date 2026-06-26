@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import DossierShell from '../components/DossierShell'
+import OpenGovShell from '../components/OpenGovShell'
 import BackLink from '../components/BackLink';
 import JsonLd from '@/lib/JsonLd';
 
@@ -51,7 +51,7 @@ const SECTIONS: { slug: string; title: string; description: string; href?: strin
 
 export default function TransparencyHubPage() {
   return (
-    <DossierShell>
+    <OpenGovShell>
       <JsonLd data={JSONLD_WEBPAGE} />
       <style>{`
         .t-card { transition: background-color 150ms ease, border-color 150ms ease; }
@@ -95,6 +95,6 @@ export default function TransparencyHubPage() {
           </Link>
         ))}
       </div>
-    </DossierShell>
+    </OpenGovShell>
   )
 }

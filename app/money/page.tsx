@@ -11,7 +11,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
-import DossierShell from '../components/DossierShell';
+import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 
 export const revalidate = 86400;
@@ -65,7 +65,7 @@ export default async function MoneyLanding() {
   const n = await fetchHeadlineNumbers();
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink fallbackHref="/" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '32px' }}>
@@ -139,7 +139,7 @@ export default async function MoneyLanding() {
       <p style={{ fontSize: '12px', opacity: 0.6, marginTop: '24px' }}>
         Sources, in order: Electoral Commission donations register, gov.uk Contracts Finder, parliament.uk Register of Members&rsquo; Financial Interests, mySociety APPG membership dataset, gov.uk transparency feeds. All five refresh on weekly or daily crons. Each figure on this page is derived from current data; click through to any tile for the underlying rows.
       </p>
-    </DossierShell>
+    </OpenGovShell>
   );
 }
 

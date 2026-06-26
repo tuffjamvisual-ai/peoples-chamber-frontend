@@ -10,7 +10,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
-import DossierShell from '../../components/DossierShell';
+import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { donorNameToSlug } from '../../donors/[slug]/page';
 
@@ -115,7 +115,7 @@ export default async function LeadershipContestsPage() {
   const totalAll = rows.reduce((s, r) => s + Number(r.amount || 0), 0);
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink fallbackHref="/transparency/donations" label="← All donations" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
@@ -198,7 +198,7 @@ export default async function LeadershipContestsPage() {
         </table>
       </section>
 
-</DossierShell>
+</OpenGovShell>
   );
 }
 

@@ -4,7 +4,7 @@
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import DossierShell from '../../components/DossierShell'
+import OpenGovShell from '../../components/OpenGovShell'
 import BackLink from '../../components/BackLink';
 
 export const revalidate = 3600
@@ -72,7 +72,7 @@ export default async function SIDetailPage({ params }: { params: Promise<{ id: s
   const dateLabel = new Date(si.date as string).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/laws"
         label="← Back to laws"
@@ -137,7 +137,7 @@ export default async function SIDetailPage({ params }: { params: Promise<{ id: s
           <VoteColumn heading={`Voted NO (${noes.length})`} rows={noes} accent={DANGER} />
         </div>
       </section>
-    </DossierShell>
+    </OpenGovShell>
   )
 }
 

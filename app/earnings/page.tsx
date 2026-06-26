@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
-import DossierShell from '../components/DossierShell'
+import OpenGovShell from '../components/OpenGovShell'
 import EarningsTable from './EarningsTable'
 import BackLink from '../components/BackLink';
 import {
@@ -116,7 +116,7 @@ export default async function EarningsPage() {
   const top = rows.slice(0, 50)
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/mps"
         label="← Back to MPs"
@@ -169,6 +169,6 @@ export default async function EarningsPage() {
           Drill into any MP&apos;s profile for the line-item breakdown.
         </p>
       </section>
-    </DossierShell>
+    </OpenGovShell>
   )
 }

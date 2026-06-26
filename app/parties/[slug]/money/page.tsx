@@ -3,7 +3,7 @@
 // The data layer the policy and critique pages never had: every
 // declared donation to this party broken down by year, donor type,
 // donor concentration, sector, and central-HQ vs constituency split.
-// Same DossierShell convention as /parties/[slug] and /bio.
+// Same OpenGovShell convention as /parties/[slug] and /bio.
 //
 // Pulls from the political_donations table using the party's
 // recipient_name. Trade-union donor flagging uses the donor name
@@ -14,7 +14,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
-import DossierShell from '../../../components/DossierShell';
+import OpenGovShell from '../../../components/OpenGovShell';
 import PartySidebar from '../../../components/PartySidebar';
 import ScrollToTopButton from '../../../components/ScrollToTopButton';
 import { sectorForDonor } from '@/lib/donor-sectors';
@@ -69,9 +69,9 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
 
   if (!party || !party.recipient_name) {
     return (
-      <DossierShell>
+      <OpenGovShell>
         <p style={{ fontSize: '18px', lineHeight: 1.7 }}>Party not found, or has no Electoral Commission record.</p>
-      </DossierShell>
+      </OpenGovShell>
     );
   }
 
@@ -169,7 +169,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
   const accent = party.party_colour || ACCENT;
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <a
         href={`/parties/${party.slug}`}
         className="no-hover-scale"
@@ -330,7 +330,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
       </PartySidebar>
 
       <ScrollToTopButton />
-    </DossierShell>
+    </OpenGovShell>
   );
 }
 

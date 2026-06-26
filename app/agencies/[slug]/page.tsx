@@ -3,7 +3,7 @@
 // that fetched /api/govuk-agency after mount.
 
 import { supabase } from '@/lib/supabase';
-import DossierShell from '../../components/DossierShell';
+import OpenGovShell from '../../components/OpenGovShell';
 import Link from 'next/link';
 import BackLink from '../../components/BackLink';
 
@@ -92,7 +92,7 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
   const backLabel = parentDept ? `← Back to ${parentDept.name}` : '← Back to departments';
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref={backHref}
         label={backLabel}
@@ -178,6 +178,6 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
           )}
         </>
       )}
-    </DossierShell>
+    </OpenGovShell>
   );
 }

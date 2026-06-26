@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import DossierShell from '../components/DossierShell'
+import OpenGovShell from '../components/OpenGovShell'
 import BackLink from '../components/BackLink';
 
 export const revalidate = 3600
@@ -41,7 +41,7 @@ const CHANNELS = [
 
 export default function ContactPage() {
   return (
-    <DossierShell>
+    <OpenGovShell>
       <style>{`
         .c-card { transition: background-color 150ms ease, border-color 150ms ease; }
         .c-card:hover { background-color: rgba(20,16,13,0.06); border-left-color: ${INK}; }
@@ -98,6 +98,6 @@ export default function ContactPage() {
       <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '5%', opacity: 0.6 }}>
         We aim to reply within a few working days.
       </p>
-    </DossierShell>
+    </OpenGovShell>
   )
 }

@@ -11,7 +11,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
-import DossierShell from '../../../components/DossierShell';
+import OpenGovShell from '../../../components/OpenGovShell';
 import PartySidebar from '../../../components/PartySidebar';
 import ScrollToTopButton from '../../../components/ScrollToTopButton';
 
@@ -61,9 +61,9 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
 
   if (!party || !party.mp_party_string) {
     return (
-      <DossierShell>
+      <OpenGovShell>
         <p style={{ fontSize: '18px', lineHeight: 1.7 }}>Party not found, or has no MP party mapping (cohesion not calculable).</p>
-      </DossierShell>
+      </OpenGovShell>
     );
   }
 
@@ -83,9 +83,9 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
   const memberIds = mps.map((m) => m.member_id);
   if (memberIds.length === 0) {
     return (
-      <DossierShell>
+      <OpenGovShell>
         <p style={{ fontSize: '18px', lineHeight: 1.7 }}>No current MPs found for this party.</p>
-      </DossierShell>
+      </OpenGovShell>
     );
   }
   const mpById = new Map<number, MpRow>(mps.map((m) => [m.member_id, m]));
@@ -194,7 +194,7 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
   const accent = party.party_colour || ACCENT;
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <a
         href={`/parties/${party.slug}`}
         className="no-hover-scale"
@@ -291,7 +291,7 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
       </PartySidebar>
 
       <ScrollToTopButton />
-    </DossierShell>
+    </OpenGovShell>
   );
 }
 

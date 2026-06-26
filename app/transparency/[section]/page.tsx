@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import DossierShell from '../../components/DossierShell'
+import OpenGovShell from '../../components/OpenGovShell'
 import Pagination from '../../components/Pagination'
 import TransparencyClient from './TransparencyClient'
 
@@ -98,7 +98,7 @@ export default async function TransparencySectionPage({
   const totalCount = total ?? 0
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <a
         href="/transparency"
         className="no-hover-scale"
@@ -186,6 +186,6 @@ export default async function TransparencySectionPage({
         baseUrl={baseUrl}
         qsExtra={searchTerm ? `&q=${encodeURIComponent(searchTerm)}` : ''}
       />
-    </DossierShell>
+    </OpenGovShell>
   )
 }

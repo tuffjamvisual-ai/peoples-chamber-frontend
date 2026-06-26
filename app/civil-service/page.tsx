@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { departments } from '@/lib/departments';
 import { supabase } from '@/lib/supabase';
-import DossierShell from '../components/DossierShell';
+import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import ScrollToTopButton from '../components/ScrollToTopButton';
 import { fmtHeadcount } from '@/lib/department-civil-service';
@@ -65,7 +65,7 @@ export default async function CivilServicePage() {
   const maxHc = reported[0]?.row?.headcount || 1;
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/transparency"
         label="← Back to transparency"
@@ -144,6 +144,6 @@ export default async function CivilServicePage() {
         )}
       </div>
       <ScrollToTopButton />
-    </DossierShell>
+    </OpenGovShell>
   );
 }

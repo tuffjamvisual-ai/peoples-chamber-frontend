@@ -3,7 +3,7 @@ import { Suspense } from 'react';
 import { supabase } from '@/lib/supabase';
 import MagazineMPsClient from './MagazineMPsClient';
 import AllMpsIndex from './AllMpsIndex';
-import DossierShell from '../components/DossierShell';
+import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 
 export const revalidate = 3600;
@@ -43,7 +43,7 @@ export default async function MPsPage({
   }));
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"
@@ -62,6 +62,6 @@ export default async function MPsPage({
           duplicate listing for the reader. The crawlable links
           on /mps satisfy the SEO requirement in one place. */}
       {expand === null && <AllMpsIndex />}
-    </DossierShell>
+    </OpenGovShell>
   );
 }

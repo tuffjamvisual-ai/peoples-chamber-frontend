@@ -3,7 +3,7 @@ import { departments } from '@/lib/departments';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import ScrollToTopButton from '../components/ScrollToTopButton';
-import DossierShell from '../components/DossierShell';
+import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 
 export const metadata: Metadata = {
@@ -55,7 +55,7 @@ export default async function DepartmentsPage() {
   );
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"
@@ -126,6 +126,6 @@ export default async function DepartmentsPage() {
       </ul>
 
       <ScrollToTopButton />
-    </DossierShell>
+    </OpenGovShell>
   );
 }

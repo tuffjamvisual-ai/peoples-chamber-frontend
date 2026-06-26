@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import DossierShell from '../components/DossierShell'
+import OpenGovShell from '../components/OpenGovShell'
 import BackLink from '../components/BackLink';
 
 export const metadata: Metadata = {
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"
@@ -68,6 +68,6 @@ export default function PrivacyPage() {
           For privacy concerns or data requests, contact: contact@thepeopleschamber.uk
         </p>
       </div>
-    </DossierShell>
+    </OpenGovShell>
   );
 }

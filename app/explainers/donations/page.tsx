@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import DossierShell from '../../components/DossierShell';
+import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 
@@ -27,7 +27,7 @@ const bodyP: React.CSSProperties = {
 
 export default function DonationsExplainer() {
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/mps"
         label="← Back"
@@ -72,6 +72,6 @@ export default function DonationsExplainer() {
       </article>
 
       <ScrollToTopButton />
-    </DossierShell>
+    </OpenGovShell>
   );
 }

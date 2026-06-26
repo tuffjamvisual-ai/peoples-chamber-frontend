@@ -6,7 +6,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import DossierShell from '../../components/DossierShell';
+import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 import { fmtMoney, loadAll, slugToLabel } from '../_lib/data';
@@ -43,7 +43,7 @@ export default async function PartySecondJobsList({ params }: { params: Promise<
   const partyClaims = items.reduce((s, i) => s + i.claimCount, 0);
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/second-jobs"
         label="← All parties"
@@ -186,7 +186,7 @@ export default async function PartySecondJobsList({ params }: { params: Promise<
 
         <ScrollToTopButton />
       </article>
-    </DossierShell>
+    </OpenGovShell>
   );
 }
 

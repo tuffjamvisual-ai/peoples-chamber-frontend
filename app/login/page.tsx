@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import MagazineLoginClient from './MagazineLoginClient';
-import DossierShell from '../components/DossierShell';
+import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 
 export const metadata: Metadata = {
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"
@@ -33,6 +33,6 @@ export default function LoginPage() {
       <Suspense fallback={<div style={{ minHeight: '400px' }} />}>
         <MagazineLoginClient />
       </Suspense>
-    </DossierShell>
+    </OpenGovShell>
   );
 }

@@ -10,7 +10,7 @@
 // /parties/[slug] for the detailed manifesto-vs-record breakdown.
 
 import { supabase } from '@/lib/supabase';
-import DossierShell from '../../../components/DossierShell';
+import OpenGovShell from '../../../components/OpenGovShell';
 import PartySidebar from '../../../components/PartySidebar';
 import ScrollToTopButton from '../../../components/ScrollToTopButton';
 
@@ -52,16 +52,16 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
 
   if (!party) {
     return (
-      <DossierShell>
+      <OpenGovShell>
         <p style={{ fontSize: '18px', lineHeight: 1.7 }}>Party not found.</p>
-      </DossierShell>
+      </OpenGovShell>
     );
   }
 
   const accent = party.party_colour || '#7697a2';
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <a
         href="/parties"
         className="no-hover-scale"
@@ -175,6 +175,6 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
       </PartySidebar>
 
       <ScrollToTopButton />
-    </DossierShell>
+    </OpenGovShell>
   );
 }

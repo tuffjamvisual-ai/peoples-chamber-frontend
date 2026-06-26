@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import DossierShell from '../components/DossierShell';
+import OpenGovShell from '../components/OpenGovShell';
 import './newspaper.css';
 
 // Code-based rebuild of the homepage (preview at /homepage-v2). Reproduces
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 };
 
 // Code nav bar rendered inside the folder above the front page. Mirrors the
-// masthead hotspots in DossierShell; kept local to this preview so the live
+// masthead hotspots in OpenGovShell; kept local to this preview so the live
 // shell is untouched. Lift to a shared module on adoption.
 type NavItem = { label: string; href: string; children?: { label: string; href: string }[] };
 const NAV: NavItem[] = [
@@ -74,7 +74,7 @@ const NAV: NavItem[] = [
 
 export default function HomepageV2() {
   return (
-    <DossierShell>
+    <OpenGovShell>
       <div className="np">
         {/* ── Nav bar ── */}
         <nav aria-label="Primary">
@@ -198,6 +198,6 @@ export default function HomepageV2() {
           </div>
         </div>
       </div>
-    </DossierShell>
+    </OpenGovShell>
   );
 }

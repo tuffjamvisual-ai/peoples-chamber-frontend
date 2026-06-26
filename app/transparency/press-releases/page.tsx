@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
-import DossierShell from '../../components/DossierShell';
+import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 
 // Static /transparency/press-releases route. Lives outside the dynamic
@@ -67,7 +67,7 @@ export default async function PressReleasesIndexPage() {
   }
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/transparency"
         label="← Transparency Hub"
@@ -218,6 +218,6 @@ export default async function PressReleasesIndexPage() {
         .press-card { transition: opacity 140ms ease; }
         .press-card:hover { opacity: 0.7; }
       `}</style>
-    </DossierShell>
+    </OpenGovShell>
   );
 }

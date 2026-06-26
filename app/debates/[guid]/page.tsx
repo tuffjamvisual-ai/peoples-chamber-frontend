@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import DossierShell from '../../components/DossierShell';
+import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 
 // In-house rendering of a Hansard debate. The People's Chamber never links
@@ -119,7 +119,7 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
   }
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/mps"
         label="← Back"
@@ -167,6 +167,6 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
         )}
       </div>
       <style>{`.pca-hansard p { margin: 0 0 12px 0; } .pca-hansard p:last-child { margin-bottom: 0; } .pca-hansard em { font-style: italic; }`}</style>
-    </DossierShell>
+    </OpenGovShell>
   );
 }

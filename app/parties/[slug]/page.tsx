@@ -1,6 +1,6 @@
 // Per-party policy dossier — /parties/[slug]
 //
-// Renders inside DossierShell (folder background, masthead nav). Pulls
+// Renders inside OpenGovShell (folder background, masthead nav). Pulls
 // the party row + its 11 themed policies from the `parties` and
 // `party_policies` tables. For each theme: 2024 manifesto position +
 // (optional) post-election shift, each with a source URL.
@@ -8,7 +8,7 @@
 // Cross-reference back to /parties (the comparison grid) at the top.
 
 import { supabase } from '@/lib/supabase';
-import DossierShell from '../../components/DossierShell';
+import OpenGovShell from '../../components/OpenGovShell';
 import PartySidebar from '../../components/PartySidebar';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 
@@ -129,16 +129,16 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
 
   if (!party) {
     return (
-      <DossierShell>
+      <OpenGovShell>
         <p style={{ fontSize: '18px', lineHeight: 1.7 }}>Party not found.</p>
-      </DossierShell>
+      </OpenGovShell>
     );
   }
 
   const accent = party.party_colour || '#7697a2';
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <a
         href="/parties"
         className="no-hover-scale"
@@ -262,6 +262,6 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
       </PartySidebar>
 
       <ScrollToTopButton />
-    </DossierShell>
+    </OpenGovShell>
   );
 }

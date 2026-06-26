@@ -3,7 +3,7 @@ import { getBillsPage } from '@/lib/data';
 import BillsGrid from '../components/BillsGrid';
 import BillsGridMobile from '../components/BillsGridMobile';
 import ScrollToTopButton from '../components/ScrollToTopButton';
-import DossierShell from '../components/DossierShell';
+import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import AllBillsIndex from './AllBillsIndex';
 
@@ -33,7 +33,7 @@ export default async function BillsPage({ searchParams }: PageProps) {
   const totalPages = Math.max(1, Math.ceil(totalCount / BILLS_PER_PAGE));
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"
@@ -63,6 +63,6 @@ export default async function BillsPage({ searchParams }: PageProps) {
       <AllBillsIndex />
 
       <ScrollToTopButton />
-    </DossierShell>
+    </OpenGovShell>
   );
 }

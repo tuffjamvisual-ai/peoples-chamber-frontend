@@ -18,7 +18,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
-import DossierShell from '../../components/DossierShell';
+import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { donorNameToSlug } from '../../donors/[slug]/page';
 
@@ -111,7 +111,7 @@ export default async function LateDisclosedPage() {
   const top50 = enriched.slice(0, 50);
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink fallbackHref="/transparency/donations" label="← All donations" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
@@ -197,7 +197,7 @@ export default async function LateDisclosedPage() {
       <p style={{ fontSize: '12px', opacity: 0.6, marginTop: '24px' }}>
         Calculated from Electoral Commission donations register: reported_date minus accepted_date, filtered to donations &gt; &pound;1,500 with a gap of more than 90 days. The 30-day statutory deadline applies to most registered parties and parliamentary recipients; thresholds vary by donee type.
       </p>
-    </DossierShell>
+    </OpenGovShell>
   );
 }
 

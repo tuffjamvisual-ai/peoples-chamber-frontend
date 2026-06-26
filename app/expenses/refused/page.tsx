@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
-import DossierShell from '../../components/DossierShell';
+import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 
 export const metadata: Metadata = {
@@ -108,7 +108,7 @@ export default async function RefusedExpensesPage() {
   const mpById = new Map<number, MpLookup>((mpRows || []).map((m) => [m.member_id, m]));
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/expenses"
         label="← Back to Expenses"
@@ -235,7 +235,7 @@ export default async function RefusedExpensesPage() {
       </section>
 
 <ScrollToTopButton />
-    </DossierShell>
+    </OpenGovShell>
   );
 }
 

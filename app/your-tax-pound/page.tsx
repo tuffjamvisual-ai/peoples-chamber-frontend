@@ -11,7 +11,7 @@
 // texture with the year stamp.
 
 import type { Metadata } from 'next';
-import DossierShell from '../components/DossierShell';
+import OpenGovShell from '../components/OpenGovShell';
 import ScrollToTopButton from '../components/ScrollToTopButton';
 import BackLink from '../components/BackLink';
 
@@ -136,7 +136,7 @@ export default function YourTaxPoundPage() {
   const totalPence = BUCKETS.reduce((s, b) => s + b.pence, 0);
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <style>{`
         .tp-section { padding: 22px 0; border-bottom: 1px solid rgba(20,16,13,0.18); }
         .tp-section:last-child { border-bottom: none; }
@@ -253,6 +253,6 @@ export default function YourTaxPoundPage() {
       </footer>
 
       <ScrollToTopButton />
-    </DossierShell>
+    </OpenGovShell>
   );
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
-import DossierShell from '../components/DossierShell';
+import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 
 export const revalidate = 3600;
@@ -20,7 +20,7 @@ const PHOTO_SRC = '/link-cards/hero_illustration_1779025435.png';
 
 export default function UniteKingdomPage() {
   return (
-    <DossierShell>
+    <OpenGovShell>
       {/* Hidden SVG filter defs for the wavy photo borders */}
       <svg aria-hidden style={{ position: 'absolute', width: 0, height: 0 }}>
         <defs>
@@ -200,7 +200,7 @@ export default function UniteKingdomPage() {
           .article-cols { column-count: 1 !important; column-rule: none !important; }
         }
       `}</style>
-    </DossierShell>
+    </OpenGovShell>
   );
 }
 

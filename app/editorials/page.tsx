@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import DossierShell from '../components/DossierShell';
+import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import { editorials } from '@/lib/editorials';
 import type { EditorialEntry } from '@/lib/editorials/types';
@@ -27,7 +27,7 @@ export default function EditorialsIndexPage() {
   );
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"
@@ -69,6 +69,6 @@ export default function EditorialsIndexPage() {
           </Link>
         ))}
       </div>
-    </DossierShell>
+    </OpenGovShell>
   );
 }

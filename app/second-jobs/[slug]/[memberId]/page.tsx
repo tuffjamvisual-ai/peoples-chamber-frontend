@@ -5,7 +5,7 @@
 
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import DossierShell from '../../../components/DossierShell';
+import OpenGovShell from '../../../components/OpenGovShell';
 import BackLink from '../../../components/BackLink';
 import ScrollToTopButton from '../../../components/ScrollToTopButton';
 import { fmtMoney, loadAll, parseParent, parsePayment, slugToLabel } from '../../_lib/data';
@@ -50,7 +50,7 @@ export default async function MpSecondJobsDetail({ params }: { params: Promise<{
   const partyColour = item.mp.party_colour ? '#' + item.mp.party_colour.replace('#', '') : '#7697a2';
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref={`/second-jobs/${slug}`}
         label={`← ${label} MPs`}
@@ -174,6 +174,6 @@ export default async function MpSecondJobsDetail({ params }: { params: Promise<{
 
         <ScrollToTopButton />
       </article>
-    </DossierShell>
+    </OpenGovShell>
   );
 }

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import ScrollToTopButton from '../components/ScrollToTopButton';
-import DossierShell from '../components/DossierShell';
+import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 
 export const metadata: Metadata = {
@@ -116,7 +116,7 @@ export default async function ExpensesPage() {
   const grandTotal = top.reduce((s, x) => s + (Number(x.row.total_spend) || 0), 0);
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"
@@ -289,7 +289,7 @@ export default async function ExpensesPage() {
       </section>
 
       <ScrollToTopButton />
-    </DossierShell>
+    </OpenGovShell>
   );
 }
 

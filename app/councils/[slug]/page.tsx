@@ -5,7 +5,7 @@
 import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
-import DossierShell from '../../components/DossierShell';
+import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 
@@ -88,7 +88,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
     c.population != null || c.founded_year != null || c.website_url != null;
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/councils"
         label="← Back"
@@ -227,7 +227,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
 
         <ScrollToTopButton />
       </article>
-    </DossierShell>
+    </OpenGovShell>
   );
 }
 

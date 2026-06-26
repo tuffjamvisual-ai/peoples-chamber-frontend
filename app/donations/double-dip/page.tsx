@@ -19,7 +19,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
-import DossierShell from '../../components/DossierShell';
+import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { donorNameToSlug } from '../../donors/[slug]/page';
 
@@ -152,7 +152,7 @@ export default async function DoubleDipPage() {
   matches.sort((a, b) => b.donatedTotal - a.donatedTotal);
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink fallbackHref="/transparency/donations" label="← All donations" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
@@ -205,7 +205,7 @@ export default async function DoubleDipPage() {
       <p style={{ fontSize: '12px', opacity: 0.6 }}>
         Sources: parliament.uk Register of Members&rsquo; Financial Interests (category 1. Employment and earnings) cross-joined with the Electoral Commission donations register. Payer name extracted from the Register entry by taking everything before the first comma or opening parenthesis. Donation-to-MP match requires the EC recipient_name to include both the MP&rsquo;s first and last name.
       </p>
-    </DossierShell>
+    </OpenGovShell>
   );
 }
 

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Stripe from 'stripe';
-import DossierShell from '../../components/DossierShell';
+import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 
 export const dynamic = 'force-dynamic';
@@ -30,7 +30,7 @@ export default async function ThankYouPage({ searchParams }: { searchParams: Pro
   }
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back to the front page"
@@ -48,6 +48,6 @@ export default async function ThankYouPage({ searchParams }: { searchParams: Pro
             : 'Thank you for supporting The People’s Chamber. If your payment completed, it will appear on your statement shortly.'}
         </p>
       </header>
-    </DossierShell>
+    </OpenGovShell>
   );
 }

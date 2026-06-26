@@ -11,7 +11,7 @@ import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import ScrollToTopButton from '../../components/ScrollToTopButton'
 import BillVotingClient from './BillVotingClient'
-import DossierShell from '../../components/DossierShell'
+import OpenGovShell from '../../components/OpenGovShell'
 import BackLink from '../../components/BackLink';
 import JsonLd, { buildBillLegislation } from '@/lib/JsonLd';
 import RelatedLinks from '@/app/components/RelatedLinks';
@@ -92,7 +92,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
   const royalAssent = stages.find((s) => s.description === 'Royal Assent')
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <JsonLd data={buildBillLegislation({
         billId,
         title: bill.title || bill.long_title || `Bill ${billId}`,
@@ -430,7 +430,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
       />
 
       <ScrollToTopButton />
-    </DossierShell>
+    </OpenGovShell>
   )
 }
 

@@ -12,7 +12,7 @@ import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 import PeopleProfileSections, { type Role, type Interest, type PeerFinance } from './PeopleProfileSections';
-import DossierShell from '../../components/DossierShell';
+import OpenGovShell from '../../components/OpenGovShell';
 import type { ScsBand } from '@/lib/civil-service-salaries';
 import BackLink from '../../components/BackLink';
 export const revalidate = 3600;
@@ -124,7 +124,7 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
 
   // Return a real 404 (not a 200 "Person not found" soft 404) when the
   // slug matches no person. Renders app/people/[slug]/not-found.tsx, which
-  // keeps the same DossierShell "Person not found." template.
+  // keeps the same OpenGovShell "Person not found." template.
   if (!person) notFound();
 
   // Bio paragraphs source priority:
@@ -168,7 +168,7 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
     : '';
 
   return (
-    <DossierShell>
+    <OpenGovShell>
         <BackLink
         fallbackHref="/departments"
         label="← Back to departments"
@@ -243,6 +243,6 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
         )}
 
         <ScrollToTopButton />
-    </DossierShell>
+    </OpenGovShell>
   );
 }

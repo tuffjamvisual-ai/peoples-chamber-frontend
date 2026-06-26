@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { searchTopics } from '@/lib/search-index';
-import DossierShell from '../components/DossierShell';
+import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 
 const INK = '#14100d';
@@ -13,7 +13,7 @@ export default function SearchPage() {
   const results = searchTopics(query);
 
   return (
-    <DossierShell>
+    <OpenGovShell>
       <BackLink
         fallbackHref="/"
         label="← Back"
@@ -94,6 +94,6 @@ export default function SearchPage() {
           </div>
         </div>
       )}
-    </DossierShell>
+    </OpenGovShell>
   );
 }
