@@ -53,7 +53,7 @@ export default async function MpSecondJobsDetail({ params }: { params: Promise<{
     <OpenGovShell pageStamp="Second Jobs">
       <BackLink
         fallbackHref={`/second-jobs/${slug}`}
-        label={`← ${label} MPs`}
+        label="← Back"
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
       />

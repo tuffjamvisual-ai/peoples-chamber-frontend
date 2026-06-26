@@ -70,7 +70,7 @@ export default async function PressReleasesIndexPage() {
     <OpenGovShell pageStamp="Transparency">
       <BackLink
         fallbackHref="/transparency"
-        label="← Transparency Hub"
+        label="← Back"
         className="no-hover-scale"
         style={{
           display: 'inline-flex',

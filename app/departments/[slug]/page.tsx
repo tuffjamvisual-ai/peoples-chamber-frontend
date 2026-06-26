@@ -131,7 +131,7 @@ export default async function DepartmentPage({ params }: PageProps) {
       })} />
       <BackLink
         fallbackHref="/departments"
-        label="← Back to all departments"
+        label="← Back"
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '3%', marginBottom: '12px', color: '#14100d', textDecoration: 'none', fontSize: 'clamp(9px, 1.1vw, 14px)', transform: 'rotate(-0.2deg)' }}
       />

@@ -33,7 +33,7 @@ export default async function ThankYouPage({ searchParams }: { searchParams: Pro
     <OpenGovShell pageStamp="Donate">
       <BackLink
         fallbackHref="/"
-        label="← Back to the front page"
+        label="← Back"
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
       />

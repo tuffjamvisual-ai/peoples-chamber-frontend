@@ -107,7 +107,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
       })} />
       <BackLink
         fallbackHref="/bills"
-        label="← Back to all bills"
+        label="← Back"
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: INK, textDecoration: 'none', fontFamily: MONO, fontSize: '13px', letterSpacing: '0.12em', textTransform: 'uppercase' }}
       />

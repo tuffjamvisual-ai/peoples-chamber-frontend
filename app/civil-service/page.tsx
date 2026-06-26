@@ -68,7 +68,7 @@ export default async function CivilServicePage() {
     <OpenGovShell pageStamp="Civil Service">
       <BackLink
         fallbackHref="/transparency"
-        label="← Back to transparency"
+        label="← Back"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '3%', marginBottom: '12px', color: ink, textDecoration: 'none', fontSize: 'clamp(9px, 1.1vw, 14px)', transform: 'rotate(-0.2deg)' }}
       />
       <h1 style={{ fontSize: 'clamp(24px, 3.4vw, 38px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)', lineHeight: 1.1 }}>

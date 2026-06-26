@@ -169,7 +169,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
     <OpenGovShell pageStamp="Bills">
       <BackLink
         fallbackHref={`/bills/${billId}`}
-        label="← Back to bill summary"
+        label="← Back"
         className="no-hover-scale"
         style={{
           display: 'inline-flex', alignItems: 'center', gap: '8px',

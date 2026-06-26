@@ -37,7 +37,12 @@ export default function BackLink({ fallbackHref, label, className, style }: Prop
   };
 
   return (
-    <a href={fallbackHref} onClick={handleClick} className={className} style={style}>
+    <a
+      href={fallbackHref}
+      onClick={handleClick}
+      className={className}
+      style={{ ...style, fontFamily: "'Special Elite', 'Courier New', monospace", fontSize: 'clamp(18px, 2.2vw, 28px)' }}
+    >
       {label}
     </a>
   );

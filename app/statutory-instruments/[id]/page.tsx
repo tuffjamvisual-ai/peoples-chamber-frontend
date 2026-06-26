@@ -75,7 +75,7 @@ export default async function SIDetailPage({ params }: { params: Promise<{ id: s
     <OpenGovShell pageStamp="Statutory Instrument">
       <BackLink
         fallbackHref="/laws"
-        label="← Back to laws"
+        label="← Back"
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
       />
