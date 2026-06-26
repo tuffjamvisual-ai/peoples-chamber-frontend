@@ -58,8 +58,9 @@ export default function LandingDemo2() {
               userSelect: 'none',
               pointerEvents: 'none',
               transform: 'rotate(-2.5deg)',
-              // native goldenrod (~#CC944F / 204,148,79) — no tone muting.
-              filter: 'drop-shadow(0 18px 38px rgba(0,0,0,0.55))',
+              // warm folding toward the #CC944F goldenrod palette (its native
+              // tone is duller/pinker).
+              filter: 'saturate(1.35) brightness(0.99) drop-shadow(0 18px 38px rgba(0,0,0,0.55))',
             }}
           />
 
