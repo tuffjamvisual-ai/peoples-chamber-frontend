@@ -101,7 +101,7 @@ export default function LandingDemo2() {
           </div>
 
           {/* Per-page stamp ("FRONT PAGE") top-right of the dossier folder. */}
-          <div style={{ position: 'absolute', top: '4cqw', right: '5%', zIndex: 4, pointerEvents: 'none' }}>
+          <div style={{ position: 'absolute', top: '1.4cqw', right: '13%', zIndex: 4, pointerEvents: 'none' }}>
             <span style={{ display: 'inline-block', opacity: 0.78, border: '0.07em solid #6b2417', padding: '0.16em 0.36em 0.08em', fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1, color: '#6b2417', fontSize: 'clamp(22px, 4cqw, 52px)' }}>Front Page</span>
           </div>
           <div className="dossier-content">
