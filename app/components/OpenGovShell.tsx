@@ -47,7 +47,7 @@ const NAV: NavItem[] = [
     { label: 'Local Councils', href: '/councils' },
     { label: 'Top Council Tax', href: '/council-tax' },
   ] },
-  { label: 'Support Us', href: '/support' },
+  { label: 'Sign up / Log in', href: '/login' },
 ];
 
 // Fine SVG noise mask that gives the stamps a patchy/distressed ink.
@@ -76,7 +76,7 @@ export default function OpenGovShell({
 
           <div className="ng-tab" style={{ transform: 'rotate(-2.5deg)' }}>
             <a href="/login">Account / Info</a>
-            <a href="/login">Sign up / Log in</a>
+            <a href="/support">Support Us</a>
           </div>
 
           <div className="og-masthead-wrap" style={{ position: 'absolute', top: '5%', left: '5%', width: '90%', textAlign: 'left', zIndex: 5, pointerEvents: 'none', transform: 'rotate(-2.5deg)' }}>
