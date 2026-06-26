@@ -48,7 +48,7 @@ export default async function MPsPage({
         fallbackHref="/"
         label="← Back"
         className="no-hover-scale"
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: '#14100d', textDecoration: 'none', fontFamily: 'Special Elite, monospace', fontSize: '13px', letterSpacing: '0.12em', textTransform: 'uppercase' }}
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: '#14100d', textDecoration: 'none', transform: 'rotate(-0.2deg)' }}
       />
       <Suspense fallback={<div style={{ minHeight: '400px' }} />}>
         <MagazineMPsClient mps={mps} expand={expand} key={expand ?? 'all'} />
