@@ -17,8 +17,8 @@
 .ng-sub > li > a:hover { color: #7a1612; background: rgba(20, 16, 13, 0.06); }
 
 /* ---- Account / sign-up tab ---- */
-.ng-tab { position: absolute; top: 3.2%; right: 14%; z-index: 6; display: flex; gap: 10px; align-items: center; font-family: 'Special Elite', monospace; text-transform: uppercase; letter-spacing: 0.08em; font-size: clamp(11px, 1.5cqw, 18px); }
-.ng-tab a { color: #14100d; text-decoration: none; }
+.ng-tab { position: absolute; top: 3.2%; right: 14%; z-index: 6; display: flex; gap: 6px; align-items: center; font-family: 'Special Elite', monospace; text-transform: uppercase; letter-spacing: 0.05em; font-size: clamp(11px, 1.5cqw, 18px); }
+.ng-tab a { color: #14100d; text-decoration: none; -webkit-text-stroke: 0.4px currentColor; }
 .ng-tab a:hover { color: #7a1612; }
 
 .ng-page a { -webkit-tap-highlight-color: transparent; }
