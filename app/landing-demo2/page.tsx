@@ -159,33 +159,26 @@ export default function LandingDemo2() {
               <a className="og-block og-brief" href="/editorials" style={{ textAlign: 'right' }}>
                 <div className="og-cta">All investigations &rarr;</div>
               </a>
-            </div>
-          </div>
 
-          {/* ── Bottom band ── */}
-          <div className="og-bottom">
-            <div className="og-col">
               <a className="og-block og-card" href="/expenses">
                 <div className="og-head">The biggest expenses bill</div>
                 <p>The ten biggest claimants ran up the largest bills last financial year. See which MPs spent the most and on what.</p>
                 <div className="og-cta">See the full top ten &rarr;</div>
               </a>
-            </div>
-            <div className="og-col">
+
               <a className="og-block og-card" href="/parties">
                 <div className="og-head">Every manifesto. Every shift.</div>
                 <p>What each of the fifteen UK parties told voters in 2024, what they have done since, and where the gap is widest.</p>
                 <div className="og-cta">Read the dossiers &rarr;</div>
               </a>
-            </div>
-            <div className="og-col">
+
               <a className="og-block og-card" href="/departments">
                 <div className="og-head">Who runs Whitehall</div>
                 <p>All twenty four ministerial departments graded against the public record of what they were set up to do.</p>
                 <div className="og-cta">See the departments &rarr;</div>
               </a>
-              </div>
             </div>
+          </div>
 
           </div>
         </div>
