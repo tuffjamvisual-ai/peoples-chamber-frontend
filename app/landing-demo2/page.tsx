@@ -58,9 +58,9 @@ export default function LandingDemo2() {
               userSelect: 'none',
               pointerEvents: 'none',
               transform: 'rotate(-2.5deg)',
-              // desaturate + darken so the folder blends into the (darker)
-              // folders-pile backdrop tone.
-              filter: 'saturate(0.78) brightness(0.82) drop-shadow(0 18px 38px rgba(0,0,0,0.55))',
+              // desaturate + slightly darken so the folder tone matches the
+              // muted folders-pile backdrop (it was more vivid/yellow).
+              filter: 'saturate(0.78) brightness(0.95) drop-shadow(0 18px 38px rgba(0,0,0,0.55))',
             }}
           />
 
@@ -78,7 +78,7 @@ export default function LandingDemo2() {
               flexDirection: 'column',
               // darken + saturate so the (paler) dossier folder matches the
               // fold folder's muted goldenrod tone; then the drop shadows.
-              filter: 'brightness(0.62) saturate(1.5) drop-shadow(0 14px 30px rgba(0,0,0,0.5)) drop-shadow(-9px 2px 10px rgba(0,0,0,0.4))',
+              filter: 'brightness(0.72) saturate(1.5) drop-shadow(0 14px 30px rgba(0,0,0,0.5)) drop-shadow(-9px 2px 10px rgba(0,0,0,0.4))',
               pointerEvents: 'none',
             }}
           >
