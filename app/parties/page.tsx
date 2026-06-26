@@ -145,17 +145,15 @@ export default async function PartiesIndex() {
         fallbackHref="/"
         label="← Back"
         className="no-hover-scale"
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: '#14100d', textDecoration: 'none', fontFamily: 'Special Elite, monospace', fontSize: '13px', letterSpacing: '0.12em', textTransform: 'uppercase' }}
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: '#14100d', textDecoration: 'none', transform: 'rotate(-0.2deg)' }}
       />
       {/* Same parchment article wrapper used by /bills/[id] and
           /bills/[id]/full so the parties index reads as part of the
           dossier line rather than a cream table dropped on top of it. */}
+      {/* Content sits directly on the dossier folder (parchment paper removed). */}
       <article
         style={{
-          background: `${PARCHMENT_CREAM} url('/bill-parchment.webp') center top / 100% auto repeat-y`,
-          border: '1px solid rgba(26,20,14,0.3)',
-          boxShadow: '0 1px 0 rgba(26,20,14,0.05), 0 22px 44px -22px rgba(26,20,14,0.35)',
-          padding: 'clamp(28px, 4vw, 56px) clamp(24px, 4vw, 60px)',
+          padding: 0,
           color: '#1a140e',
           fontFamily: SERIF,
         }}
