@@ -66,6 +66,12 @@ export default function LandingDemo2() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/newb.webp" alt="" aria-hidden style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', userSelect: 'none', pointerEvents: 'none', transform: 'rotate(-2.5deg)', filter: 'saturate(0.84) drop-shadow(0 18px 38px rgba(0,0,0,0.55))' }} />
 
+          {/* Account / sign-up, top-right of the folder. */}
+          <div className="ng-tab" style={{ transform: 'rotate(-2.5deg)' }}>
+            <a href="/login">Account / Info</a>
+            <a href="/login">Sign up / Log in</a>
+          </div>
+
           <div style={{ position: 'absolute', top: '5%', left: '5%', width: '90%', textAlign: 'left', zIndex: 5, pointerEvents: 'none', transform: 'rotate(-2.5deg)' }}>
             <span style={{ display: 'inline-block', opacity: 0.8, border: '0.07em solid #6b2417', padding: '0.14em 0.32em 0.06em', fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1, color: '#6b2417', fontSize: 'clamp(24px, 4.6vw, 64px)' }}>Open Government</span>
           </div>
