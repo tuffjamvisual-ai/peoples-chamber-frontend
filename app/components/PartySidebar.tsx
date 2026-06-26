@@ -48,7 +48,7 @@ export default function PartySidebar({
         }
       `}</style>
 
-      <aside style={{ marginLeft: '-13%' }}>
+      <aside>
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '4px 0' }}>
           {items.map((item) => {
             const on = item.key === active;
