@@ -127,8 +127,8 @@ export default function LandingDemo2() {
             <div style={{ width: '100%', aspectRatio: '1023 / 157', backgroundImage: 'url(/folder-bottom.webp)', backgroundSize: '100% 100%', backgroundRepeat: 'no-repeat', marginTop: '-5%', WebkitMaskImage: 'linear-gradient(180deg, transparent 0%, #000 34%)', maskImage: 'linear-gradient(180deg, transparent 0%, #000 34%)' }} />
           </div>
 
-          {/* "OPEN GOVERNMENT" masthead on the newb back folder's top band
-              (rotated to match the folder). */}
+          {/* "OPEN GOVERNMENT" masthead — top-secret red stamp with a red box
+              all round, on the newb back folder (rotated to match). */}
           <div
             style={{
               position: 'absolute',
@@ -139,15 +139,23 @@ export default function LandingDemo2() {
               zIndex: 5,
               pointerEvents: 'none',
               transform: 'rotate(-2.5deg)',
-              fontFamily: "'Special Elite', 'Courier New', monospace",
-              textTransform: 'uppercase',
-              letterSpacing: '0.04em',
-              lineHeight: 1,
-              color: '#2b2014',
-              fontSize: 'clamp(20px, 3.9vw, 54px)',
             }}
           >
-            Open Government
+            <span
+              style={{
+                display: 'inline-block',
+                border: '0.08em solid #a51d1d',
+                padding: '0.12em 0.3em',
+                fontFamily: "'Special Elite', 'Courier New', monospace",
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em',
+                lineHeight: 1,
+                color: '#a51d1d',
+                fontSize: 'clamp(20px, 3.9vw, 54px)',
+              }}
+            >
+              Open Government
+            </span>
           </div>
 
           {/* Nav bar on the back folder, below the masthead (rotated to match). */}
