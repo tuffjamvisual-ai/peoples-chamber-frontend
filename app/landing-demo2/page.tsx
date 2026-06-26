@@ -172,7 +172,7 @@ export default function LandingDemo2() {
               transform: 'rotate(-2.5deg)',
             }}
           >
-            <ul className="ng-nav" style={{ justifyContent: 'flex-start' }}>
+            <ul className="ng-nav" style={{ justifyContent: 'center', fontSize: 'clamp(11px, 1.6cqw, 19px)' }}>
               {NAV.map((item) => (
                 <li key={item.label}>
                   <a href={item.href}>{item.label}</a>
