@@ -62,6 +62,27 @@ export default function LandingDemo2() {
               filter: 'saturate(0.78) brightness(0.95) drop-shadow(0 18px 38px rgba(0,0,0,0.55))',
             }}
           />
+
+          {/* Main-site dossier folder template (folder-top/mid/bottom slices,
+              assembled as in DossierShell) laid on top of the fold folder. */}
+          <div
+            aria-hidden
+            style={{
+              position: 'absolute',
+              top: '5%',
+              left: '9%',
+              width: '82%',
+              height: '88%',
+              display: 'flex',
+              flexDirection: 'column',
+              filter: 'drop-shadow(0 14px 30px rgba(0,0,0,0.5))',
+              pointerEvents: 'none',
+            }}
+          >
+            <div style={{ width: '100%', aspectRatio: '1023 / 160', backgroundImage: 'url(/folder-top.webp)', backgroundSize: '100% 100%', backgroundRepeat: 'no-repeat' }} />
+            <div style={{ flex: '1 1 auto', backgroundImage: 'url(/folder-mid.webp)', backgroundRepeat: 'repeat-y', backgroundSize: '100% auto' }} />
+            <div style={{ width: '100%', aspectRatio: '1023 / 157', backgroundImage: 'url(/folder-bottom.webp)', backgroundSize: '100% 100%', backgroundRepeat: 'no-repeat', marginTop: '-5%', WebkitMaskImage: 'linear-gradient(180deg, transparent 0%, #000 34%)', maskImage: 'linear-gradient(180deg, transparent 0%, #000 34%)' }} />
+          </div>
         </div>
       </div>
     </div>
