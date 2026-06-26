@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import MagazineProfileSections from './MagazineProfileSections';
-import DossierShell from '../../components/DossierShell';
+import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 
@@ -47,7 +47,7 @@ export default function MpDossier({
   const backHref = `/mps?expand=${encodeURIComponent(partyExpand)}#mps-list`;
 
   return (
-    <DossierShell>
+    <OpenGovShell pageStamp="MP Profile">
       <style>{`
         /* Long strings (URLs/emails) wrap so they can't overflow the folder; the section
            nav is nudged down off the name text. Scoped to the MP sections only. */
