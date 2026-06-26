@@ -1,134 +1,25 @@
-/* /landing1012 — landing page on the newbackground blank folder template
-   (real transparent PNG, sliced into top/mid/bottom). The folder frame is the
-   image (clean alpha edges, no key-out); the masthead, nav and 10 article
-   cards are REAL code on top. The middle slice stretches so the folder fits
-   any content height with no seam or distortion. .og- prefixed. noindex. */
+/* /landing-demo2 — DEMO ONLY (noindex). A copy of the original landing page
+   (the People's Chamber newspaper front, app/page.tsx + DossierShell) with the
+   painted back page (pca-art.webp) swapped for the newgovfolder folder, and a
+   REAL code nav bar added in place of the painted nav. Does NOT touch the live
+   landing page. ng- prefixed. The nav + footer sit absolutely over the folder
+   image; the article cards are the original %-positioned overlay. */
 
-.og-stage {
-  min-height: 100vh;
-  /* folders-pile background from the original landing page, fixed behind the
-     folder + paper, with a slight darkening so the sheet stays separated. */
-  background:
-    linear-gradient(rgba(12, 8, 5, 0.34), rgba(12, 8, 5, 0.46)),
-    url('/folders.webp') center center / cover no-repeat fixed,
-    #15100b;
-  padding: 3vh 14px 8vh;
-  display: flex;
-  justify-content: center;
-}
+/* Real nav bar, dropped just below the folder's painted "OPEN GOVERNMENT". */
+.ng-navwrap { position: absolute; top: 15.2%; left: 0; width: 100%; z-index: 6; display: flex; justify-content: center; padding: 0 5%; }
+.ng-nav { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; font-family: 'Special Elite', monospace; text-transform: uppercase; letter-spacing: 0.12em; font-size: clamp(8px, 1.12cqw, 14px); color: #14100d; }
+.ng-nav > li { position: relative; }
+.ng-nav > li > a { display: block; padding: 4px 12px; color: #14100d; text-decoration: none; border-left: 1px solid rgba(20, 16, 13, 0.25); white-space: nowrap; }
+.ng-nav > li:first-child > a { border-left: none; padding-left: 0; }
+.ng-nav > li > a:hover { color: #7a1612; }
+.ng-sub { list-style: none; margin: 0; padding: 6px 0; position: absolute; top: 100%; left: 0; min-width: 210px; max-height: 70vh; overflow-y: auto; background: #e8d6a4; border: 1px solid #14100d; box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3); opacity: 0; visibility: hidden; transform: translateY(-4px); transition: opacity 0.12s ease, transform 0.12s ease; z-index: 30; }
+.ng-nav > li:hover .ng-sub, .ng-nav > li:focus-within .ng-sub { opacity: 1; visibility: visible; transform: none; }
+.ng-sub > li > a { display: block; padding: 5px 16px; color: #14100d; text-decoration: none; letter-spacing: 0.06em; font-size: 12px; text-transform: none; white-space: nowrap; }
+.ng-sub > li > a:hover { color: #7a1612; background: rgba(20, 16, 13, 0.06); }
 
+/* Account / sign-up, pinned to the folder's top-right tab. */
+.ng-tab { position: absolute; top: 3.2%; right: 4.5%; z-index: 6; display: flex; gap: 10px; align-items: center; font-family: 'Special Elite', monospace; text-transform: uppercase; letter-spacing: 0.1em; font-size: clamp(8px, 0.95cqw, 12px); }
+.ng-tab a { color: #14100d; text-decoration: none; }
+.ng-tab a:hover { color: #7a1612; }
 
-.og-page {
-  --ink: #14100d;
-  --accent: #14100d;
-  --rule: #14100d;
-  --hairline: rgba(20, 16, 13, 0.22);
-  --ink-soft: #14100d;
-  --paper: #ecd9a6;
-
-  position: relative;
-  width: min(100%, 1144px);
-  align-self: flex-start;
-  margin-top: 20px;
-  color: var(--ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
-  filter: drop-shadow(0 18px 38px rgba(0, 0, 0, 0.5));
-}
-
-/* Outer folder frame (fold): tab top, stretched middle, fixed bottom.
-   Desaturated/darkened to match the muted folders-pile backdrop. */
-.og-folder { position: absolute; inset: 0; z-index: 0; display: flex; flex-direction: column; pointer-events: none; filter: saturate(0.78) brightness(0.95); }
-.og-folder-top { width: 100%; aspect-ratio: 1085 / 240; background: url('/fld-top.webp') no-repeat; background-size: 100% 100%; }
-.og-folder-mid { flex: 1 1 auto; background: url('/fld-mid.webp') no-repeat; background-size: 100% 100%; }
-.og-folder-bottom { width: 100%; aspect-ratio: 1085 / 210; background: url('/fld-bottom.webp') no-repeat; background-size: 100% 100%; margin-top: -1px; }
-
-/* Paper sheet placed inside the folder, below the nav; the articles sit on it. */
-.og-paper { position: relative; margin-top: 16px; }
-/* Paper sheet removed — articles sit directly on the fold folder. */
-.og-paper-bg { display: none; }
-.og-paper-top { width: 100%; aspect-ratio: 972 / 170; background: url('/pp-top.webp') no-repeat; background-size: 100% 100%; }
-.og-paper-mid { flex: 1 1 auto; background: url('/pp-mid.webp') no-repeat; background-size: 100% 100%; }
-.og-paper-bottom { width: 100%; aspect-ratio: 972 / 170; background: url('/pp-bottom.webp') no-repeat; background-size: 100% 100%; margin-top: -1px; }
-.og-paper-in { position: relative; z-index: 1; padding: clamp(28px, 4vw, 50px) clamp(24px, 3.4vw, 42px) clamp(34px, 4.5vw, 58px); }
-
-/* Content over the folder; top padding clears the tab, sides clear the edges. */
-.og-content {
-  position: relative;
-  z-index: 1;
-  /* top padding clears the govland folder tab; sides clear the edges */
-  padding: clamp(50px, 7.5vw, 92px) clamp(34px, 5vw, 60px) clamp(40px, 5vw, 60px);
-}
-
-/* ---- Masthead (code "OPEN GOVERNMENT" on the blank govland folder) ---- */
-.og-masthead { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; padding-bottom: 8px; }
-.og-title { font-family: 'Special Elite', 'Courier New', monospace; font-weight: 400; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1; font-size: clamp(21px, 4.2vw, 48px); white-space: nowrap; margin: 0; }
-.og-tab { display: flex; gap: 8px; align-items: center; font-family: 'Special Elite', monospace; text-transform: uppercase; letter-spacing: 0.1em; font-size: clamp(9px, 1.1vw, 12px); white-space: nowrap; padding-bottom: 4px; }
-.og-tab a { color: var(--ink); text-decoration: none; }
-.og-tab a:hover { color: var(--accent); }
-.og-tab .og-signup { border: 1px solid var(--rule); padding: 4px 9px; }
-
-/* ---- Nav (real text, CSS-only dropdowns) ---- */
-.og-nav { list-style: none; margin: 0 0 24px; padding: 8px 0; display: flex; flex-wrap: wrap; justify-content: center; font-family: 'Special Elite', monospace; text-transform: uppercase; letter-spacing: 0.12em; font-size: clamp(10px, 1.2vw, 13px); }
-
-/* Short centered hairline separating the nav from the content. */
-.og-divider { width: 46%; max-width: 380px; height: 0; border-top: 1px solid rgba(20, 16, 13, 0.45); margin: 0 auto 24px; }
-.og-nav > li { position: relative; }
-.og-nav > li > a { display: block; padding: 4px 15px; color: var(--ink); text-decoration: none; border-left: 1px solid var(--hairline); white-space: nowrap; -webkit-text-stroke: 0.4px currentColor; }
-.og-nav > li:first-child > a { border-left: none; padding-left: 0; }
-.og-nav > li > a:hover { color: var(--accent); }
-.og-sub { list-style: none; margin: 0; padding: 6px 0; position: absolute; top: 100%; left: 0; min-width: 210px; max-height: 70vh; overflow-y: auto; background: var(--paper); border: 1px solid var(--rule); box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3); opacity: 0; visibility: hidden; transform: translateY(-4px); transition: opacity 0.12s ease, transform 0.12s ease; z-index: 30; }
-.og-nav > li:hover .og-sub, .og-nav > li:focus-within .og-sub { opacity: 1; visibility: visible; transform: none; }
-.og-sub > li > a { display: block; padding: 5px 16px; color: var(--ink); text-decoration: none; letter-spacing: 0.06em; font-size: 12px; white-space: nowrap; }
-.og-sub > li > a:hover { color: var(--accent); background: rgba(20, 16, 13, 0.06); }
-
-/* ---- Shared bits ---- */
-.og-page a.og-block { text-decoration: none; color: inherit; }
-.og-block { display: block; }
-.og-kicker { font-family: 'Special Elite', monospace; text-transform: uppercase; letter-spacing: 0.22em; font-size: 11px; color: var(--accent); font-weight: bold; }
-.og-head { font-family: 'Special Elite', 'Courier New', monospace; font-weight: 400; letter-spacing: 0.01em; line-height: 1.02; color: var(--ink); }
-.og-standfirst { font-style: italic; color: var(--ink-soft); font-size: 17px; line-height: 1.35; margin: 8px 0; }
-.og-lede { font-size: 15px; line-height: 1.5; text-align: justify; margin: 8px 0; }
-.og-cta { font-family: 'Special Elite', monospace; text-transform: uppercase; letter-spacing: 0.08em; font-size: 12px; color: var(--accent); font-weight: bold; }
-
-/* "What this site does" intro (replaces the lead photo) */
-.og-intro { margin-bottom: 22px; }
-.og-intro-head { font-family: 'Special Elite', 'Courier New', monospace; font-weight: 400; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1; font-size: clamp(20px, 2.6vw, 31px); margin: 0 0 12px; color: var(--ink); }
-.og-intro p { font-size: 14.5px; line-height: 1.55; text-align: justify; margin: 0 0 10px; color: var(--ink); }
-.og-intro p:first-of-type { font-size: 16.5px; line-height: 1.5; }
-
-/* ---- Lead row ---- */
-.og-lead { display: grid; grid-template-columns: 48fr 38fr; gap: 0; }
-.og-main { padding-right: 26px; }
-.og-rail { padding-left: 26px; border-left: 1px solid var(--rule); }
-.og-rail > :first-child { border-top: none; margin-top: 0; padding-top: 0; }
-.og-rail .og-card { border-top: 1.5px solid var(--ink); margin-top: 14px; padding-top: 14px; }
-.og-rail > .og-card:first-child { border-top: none; margin-top: 0; padding-top: 0; }
-.og-main img, .og-card img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin-bottom: 12px; border: 1px solid var(--ink); }
-.og-main .og-head { font-size: clamp(21px, 2.9vw, 34px); margin-bottom: 6px; }
-
-.og-brief { border-top: 1.5px solid var(--ink); margin-top: 14px; padding-top: 14px; }
-.og-brief .og-head { font-size: clamp(17px, 2vw, 22px); margin: 6px 0; }
-.og-brief p { font-size: 13.5px; line-height: 1.45; color: var(--ink-soft); margin: 0 0 6px; text-align: justify; }
-.og-card .og-head { font-size: clamp(18px, 2vw, 23px); margin: 6px 0; }
-.og-card p { font-size: 13px; line-height: 1.45; color: var(--ink-soft); text-align: justify; margin: 0 0 8px; }
-
-/* ---- Bottom band ---- */
-.og-bottom { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 22px; border-top: 1px solid var(--rule); padding-top: 18px; }
-.og-bottom .og-col { padding: 0 22px; border-left: 1px solid var(--rule); }
-.og-bottom .og-col:first-child { border-left: none; padding-left: 0; }
-.og-bottom .og-col:last-child { padding-right: 0; }
-
-/* ---- Responsive ---- */
-@media (max-width: 1024px) {
-  .og-lead { grid-template-columns: 1fr; }
-  .og-main { padding-right: 0; }
-  .og-rail { padding-left: 0; border-left: none; border-top: 1.5px solid var(--ink); margin-top: 18px; padding-top: 16px; }
-}
-@media (max-width: 768px) {
-  .og-bottom { grid-template-columns: 1fr; }
-  .og-bottom .og-col { border-left: none; padding: 14px 0 0; border-top: 1px solid var(--rule); margin-top: 14px; }
-  .og-bottom .og-col:first-child { border-top: none; margin-top: 0; padding-top: 0; }
-  .og-masthead { flex-direction: column; align-items: flex-start; gap: 8px; }
-  .og-nav { justify-content: flex-start; }
-  .og-sub { display: none; }
-}
+.ng-page a { -webkit-tap-highlight-color: transparent; }
