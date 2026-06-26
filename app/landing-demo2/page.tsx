@@ -33,7 +33,7 @@ export default function LandingDemo2() {
           inset: 0,
           backgroundColor: '#140d07',
           backgroundImage: 'url(/folders.webp)',
-          backgroundSize: '180%',
+          backgroundSize: '135%',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
           zIndex: 0,
