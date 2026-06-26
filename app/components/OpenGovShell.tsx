@@ -76,6 +76,7 @@ export default function OpenGovShell({
 
           <div className="ng-tab" style={{ transform: 'rotate(-2.5deg)' }}>
             <a href="/login">Account / Info</a>
+            <span aria-hidden style={{ opacity: 0.4 }}>|</span>
             <a href="/support">Support Us</a>
           </div>
 
