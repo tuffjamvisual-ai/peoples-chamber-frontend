@@ -165,14 +165,14 @@ export default function LandingDemo2() {
             aria-label="Primary"
             style={{
               position: 'absolute',
-              top: '10.8%',
-              left: '5%',
-              width: '90%',
+              top: '10.6%',
+              left: '2%',
+              width: '96%',
               zIndex: 5,
               transform: 'rotate(-2.5deg)',
             }}
           >
-            <ul className="ng-nav" style={{ justifyContent: 'center', fontSize: 'clamp(11px, 1.6cqw, 19px)' }}>
+            <ul className="ng-nav" style={{ justifyContent: 'center', flexWrap: 'nowrap', letterSpacing: '0.06em', fontSize: 'clamp(11px, 1.5cqw, 18px)' }}>
               {NAV.map((item) => (
                 <li key={item.label}>
                   <a href={item.href}>{item.label}</a>
