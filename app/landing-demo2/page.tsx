@@ -144,14 +144,15 @@ export default function LandingDemo2() {
             <span
               style={{
                 display: 'inline-block',
-                border: '0.08em solid #a51d1d',
-                padding: '0.12em 0.3em',
-                fontFamily: "'Special Elite', 'Courier New', monospace",
+                border: '0.07em solid #6b2417',
+                padding: '0.14em 0.32em 0.06em',
+                fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
+                fontWeight: 700,
                 textTransform: 'uppercase',
-                letterSpacing: '0.04em',
+                letterSpacing: '0.1em',
                 lineHeight: 1,
-                color: '#a51d1d',
-                fontSize: 'clamp(20px, 3.9vw, 54px)',
+                color: '#6b2417',
+                fontSize: 'clamp(24px, 4.6vw, 64px)',
               }}
             >
               Open Government

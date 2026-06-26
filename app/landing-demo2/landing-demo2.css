@@ -5,6 +5,8 @@
    landing page. ng- prefixed. The nav + footer sit absolutely over the folder
    image; the article cards are the original %-positioned overlay. */
 
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+
 /* Real nav bar, dropped just below the folder's painted "OPEN GOVERNMENT". */
 .ng-navwrap { position: absolute; top: 15.2%; left: 0; width: 100%; z-index: 6; display: flex; justify-content: center; padding: 0 5%; }
 .ng-nav { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; font-family: 'Special Elite', monospace; text-transform: uppercase; letter-spacing: 0.12em; font-size: clamp(8px, 1.12cqw, 14px); color: #14100d; }
