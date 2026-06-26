@@ -57,7 +57,9 @@ export default function LandingDemo2() {
               objectFit: 'contain',
               userSelect: 'none',
               pointerEvents: 'none',
-              filter: 'drop-shadow(0 18px 38px rgba(0,0,0,0.55))',
+              // desaturate + slightly darken so the folder tone matches the
+              // muted folders-pile backdrop (it was more vivid/yellow).
+              filter: 'saturate(0.78) brightness(0.95) drop-shadow(0 18px 38px rgba(0,0,0,0.55))',
             }}
           />
         </div>
