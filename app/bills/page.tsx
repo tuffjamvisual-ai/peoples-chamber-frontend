@@ -33,7 +33,7 @@ export default async function BillsPage({ searchParams }: PageProps) {
   const totalPages = Math.max(1, Math.ceil(totalCount / BILLS_PER_PAGE));
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Bills">
       <BackLink
         fallbackHref="/"
         label="← Back"

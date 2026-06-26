@@ -27,7 +27,7 @@ export default function EditorialsIndexPage() {
   );
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Editorials">
       <BackLink
         fallbackHref="/"
         label="← Back"

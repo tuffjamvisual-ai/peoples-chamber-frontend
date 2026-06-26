@@ -9,7 +9,7 @@ const INK = '#14100d';
 
 export default function PersonNotFound() {
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Profile">
       <BackLink
         fallbackHref="/departments"
         label="← Back to departments"

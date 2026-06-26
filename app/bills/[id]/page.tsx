@@ -92,7 +92,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
   const royalAssent = stages.find((s) => s.description === 'Royal Assent')
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Bills">
       <JsonLd data={buildBillLegislation({
         billId,
         title: bill.title || bill.long_title || `Bill ${billId}`,

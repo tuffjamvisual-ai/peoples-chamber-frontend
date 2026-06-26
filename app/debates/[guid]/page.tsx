@@ -119,7 +119,7 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
   }
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Debate">
       <BackLink
         fallbackHref="/mps"
         label="← Back"

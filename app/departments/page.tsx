@@ -55,7 +55,7 @@ export default async function DepartmentsPage() {
   );
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Departments">
       <BackLink
         fallbackHref="/"
         label="← Back"

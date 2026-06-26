@@ -120,7 +120,7 @@ export default async function DepartmentPage({ params }: PageProps) {
   }
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Departments">
       <JsonLd data={buildDepartmentOrg({
         slug,
         name: dept.name,

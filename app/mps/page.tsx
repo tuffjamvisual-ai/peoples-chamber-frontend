@@ -43,7 +43,7 @@ export default async function MPsPage({
   }));
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="MPs">
       <BackLink
         fallbackHref="/"
         label="← Back"

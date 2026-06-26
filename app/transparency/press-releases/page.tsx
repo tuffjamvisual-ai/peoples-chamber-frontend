@@ -67,7 +67,7 @@ export default async function PressReleasesIndexPage() {
   }
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Transparency">
       <BackLink
         fallbackHref="/transparency"
         label="← Transparency Hub"

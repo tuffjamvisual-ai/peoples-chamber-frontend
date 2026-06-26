@@ -32,7 +32,7 @@ export default async function LawsPage() {
   if (error) console.error('Error fetching laws:', error)
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Acts of Parliament">
       <BackLink
         fallbackHref="/"
         label="← Back"

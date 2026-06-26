@@ -116,7 +116,7 @@ export default async function ExpensesPage() {
   const grandTotal = top.reduce((s, x) => s + (Number(x.row.total_spend) || 0), 0);
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Expenses">
       <BackLink
         fallbackHref="/"
         label="← Back"

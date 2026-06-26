@@ -58,7 +58,7 @@ export default async function CoveragePage({ params }: { params: Promise<{ id: s
     : ''
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Coverage">
       <BackLink
         fallbackHref="/"
         label="← Back"

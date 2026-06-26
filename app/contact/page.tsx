@@ -41,7 +41,7 @@ const CHANNELS = [
 
 export default function ContactPage() {
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Contact">
       <style>{`
         .c-card { transition: background-color 150ms ease, border-color 150ms ease; }
         .c-card:hover { background-color: rgba(20,16,13,0.06); border-left-color: ${INK}; }

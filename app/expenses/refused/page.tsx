@@ -108,7 +108,7 @@ export default async function RefusedExpensesPage() {
   const mpById = new Map<number, MpLookup>((mpRows || []).map((m) => [m.member_id, m]));
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Expenses">
       <BackLink
         fallbackHref="/expenses"
         label="← Back to Expenses"

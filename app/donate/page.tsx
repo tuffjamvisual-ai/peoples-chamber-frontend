@@ -13,7 +13,7 @@ const INK = '#14100d';
 
 export default function DonatePage() {
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Donate">
       <BackLink
         fallbackHref="/"
         label="← Back"

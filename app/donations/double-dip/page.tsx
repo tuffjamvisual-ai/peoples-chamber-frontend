@@ -152,7 +152,7 @@ export default async function DoubleDipPage() {
   matches.sort((a, b) => b.donatedTotal - a.donatedTotal);
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Donations">
       <BackLink fallbackHref="/transparency/donations" label="← All donations" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>

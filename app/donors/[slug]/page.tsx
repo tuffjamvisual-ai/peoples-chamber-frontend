@@ -267,7 +267,7 @@ export default async function DonorPage({ params }: PageProps) {
   const sampleAddress = [donations[0].addr_line1, donations[0].addr_town, donations[0].addr_country].filter(Boolean).join(', ');
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Donors">
       <BackLink fallbackHref="/donors" label="← All donors" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>

@@ -60,7 +60,7 @@ export default async function SpendingPage() {
   const maxTotal = reported[0]?.row?.total_del_millions || 1;
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Spending">
       <BackLink
         fallbackHref="/transparency"
         label="← Back to transparency"

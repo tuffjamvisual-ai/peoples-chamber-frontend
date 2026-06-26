@@ -161,7 +161,7 @@ export default function BudgetTradeOffsPage() {
   const paragraphs = BODY.split(/\n\n+/).map((p) => p.trim()).filter(Boolean);
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Budget Trade-Offs">
       <BackLink
         fallbackHref="/"
         label="← Back"

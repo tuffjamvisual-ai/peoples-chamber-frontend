@@ -140,7 +140,7 @@ export default async function PartiesIndex() {
   const { parties, byParty, mpCounts } = await getAll();
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Parties">
       <BackLink
         fallbackHref="/"
         label="← Back"

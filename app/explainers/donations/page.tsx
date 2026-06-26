@@ -27,7 +27,7 @@ const bodyP: React.CSSProperties = {
 
 export default function DonationsExplainer() {
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Explainer">
       <BackLink
         fallbackHref="/mps"
         label="← Back"

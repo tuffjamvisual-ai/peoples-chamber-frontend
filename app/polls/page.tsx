@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function PollsPage() {
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Peoples Polls">
       <BackLink
         fallbackHref="/"
         label="← Back"

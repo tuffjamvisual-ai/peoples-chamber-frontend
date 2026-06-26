@@ -88,7 +88,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
     c.population != null || c.founded_year != null || c.website_url != null;
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Councils">
       <BackLink
         fallbackHref="/councils"
         label="← Back"

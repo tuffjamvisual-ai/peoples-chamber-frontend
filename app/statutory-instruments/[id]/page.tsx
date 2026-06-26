@@ -72,7 +72,7 @@ export default async function SIDetailPage({ params }: { params: Promise<{ id: s
   const dateLabel = new Date(si.date as string).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Statutory Instrument">
       <BackLink
         fallbackHref="/laws"
         label="← Back to laws"

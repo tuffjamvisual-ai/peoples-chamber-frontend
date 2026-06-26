@@ -269,7 +269,7 @@ export default function CouncilTaxPage() {
   const avg = Math.round(grandTotal / REPORTS.length);
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Council Tax">
       <BackLink
         fallbackHref="/"
         label="← Back"

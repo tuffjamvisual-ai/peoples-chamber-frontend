@@ -67,7 +67,7 @@ export default async function CouncilsIndex() {
   }
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Councils">
       <BackLink
         fallbackHref="/"
         label="← Back"

@@ -266,7 +266,7 @@ export default async function DivisionDetailPage({ params }: PageProps) {
   const noeGroups = groupByParty(noes);
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Division">
       <BackLink
         fallbackHref={billId != null ? `/bills/${billId}` : '/mps'}
         label="← Back"

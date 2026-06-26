@@ -54,7 +54,7 @@ export default async function CommitteePublicationPage({ params }: Props) {
   const externalUrl = row.publication_url || row.url || null;
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Committee">
       <BackLink
         fallbackHref="/"
         label="← Back"

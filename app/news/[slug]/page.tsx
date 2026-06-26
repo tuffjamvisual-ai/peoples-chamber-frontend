@@ -81,7 +81,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
     : ''
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="News">
       <BackLink
         fallbackHref="/"
         label="← Back"

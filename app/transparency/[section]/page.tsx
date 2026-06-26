@@ -98,7 +98,7 @@ export default async function TransparencySectionPage({
   const totalCount = total ?? 0
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Transparency">
       <a
         href="/transparency"
         className="no-hover-scale"

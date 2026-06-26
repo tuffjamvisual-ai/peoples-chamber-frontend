@@ -92,7 +92,7 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
   const backLabel = parentDept ? `← Back to ${parentDept.name}` : '← Back to departments';
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Agency">
       <BackLink
         fallbackHref={backHref}
         label={backLabel}

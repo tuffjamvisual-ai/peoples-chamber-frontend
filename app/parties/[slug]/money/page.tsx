@@ -69,7 +69,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
 
   if (!party || !party.recipient_name) {
     return (
-      <OpenGovShell>
+      <OpenGovShell pageStamp="Parties">
         <p style={{ fontSize: '18px', lineHeight: 1.7 }}>Party not found, or has no Electoral Commission record.</p>
       </OpenGovShell>
     );
@@ -169,7 +169,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
   const accent = party.party_colour || ACCENT;
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Parties">
       <a
         href={`/parties/${party.slug}`}
         className="no-hover-scale"

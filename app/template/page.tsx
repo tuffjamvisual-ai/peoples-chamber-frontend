@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 // file to start a new page and drop your content where indicated; the folder grows to fit.
 export default function TemplatePage() {
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Template">
       {/* ── Your page content goes here ── */}
       <div
         style={{

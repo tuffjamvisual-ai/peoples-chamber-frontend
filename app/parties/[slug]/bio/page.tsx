@@ -52,7 +52,7 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
 
   if (!party) {
     return (
-      <OpenGovShell>
+      <OpenGovShell pageStamp="Parties">
         <p style={{ fontSize: '18px', lineHeight: 1.7 }}>Party not found.</p>
       </OpenGovShell>
     );
@@ -61,7 +61,7 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
   const accent = party.party_colour || '#7697a2';
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Parties">
       <a
         href="/parties"
         className="no-hover-scale"

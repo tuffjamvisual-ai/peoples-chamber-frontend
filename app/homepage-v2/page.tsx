@@ -74,7 +74,7 @@ const NAV: NavItem[] = [
 
 export default function HomepageV2() {
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Front Page">
       <div className="np">
         {/* ── Nav bar ── */}
         <nav aria-label="Primary">

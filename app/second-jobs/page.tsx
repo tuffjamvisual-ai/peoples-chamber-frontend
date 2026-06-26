@@ -32,7 +32,7 @@ export default async function SecondJobsLanding() {
   const { partyTotals, grandTotal, grandClaims, totalMps } = await loadAll();
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Second Jobs">
       <BackLink
         fallbackHref="/"
         label="← Back"

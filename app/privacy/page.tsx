@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Privacy">
       <BackLink
         fallbackHref="/"
         label="← Back"

@@ -61,7 +61,7 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
 
   if (!party || !party.mp_party_string) {
     return (
-      <OpenGovShell>
+      <OpenGovShell pageStamp="Parties">
         <p style={{ fontSize: '18px', lineHeight: 1.7 }}>Party not found, or has no MP party mapping (cohesion not calculable).</p>
       </OpenGovShell>
     );
@@ -83,7 +83,7 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
   const memberIds = mps.map((m) => m.member_id);
   if (memberIds.length === 0) {
     return (
-      <OpenGovShell>
+      <OpenGovShell pageStamp="Parties">
         <p style={{ fontSize: '18px', lineHeight: 1.7 }}>No current MPs found for this party.</p>
       </OpenGovShell>
     );
@@ -194,7 +194,7 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
   const accent = party.party_colour || ACCENT;
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Parties">
       <a
         href={`/parties/${party.slug}`}
         className="no-hover-scale"

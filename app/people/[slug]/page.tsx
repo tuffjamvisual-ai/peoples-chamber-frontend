@@ -168,7 +168,7 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
     : '';
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Profile">
         <BackLink
         fallbackHref="/departments"
         label="← Back to departments"

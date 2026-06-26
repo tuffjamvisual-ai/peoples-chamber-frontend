@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Account">
       <BackLink
         fallbackHref="/"
         label="← Back"

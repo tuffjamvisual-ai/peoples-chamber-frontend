@@ -20,7 +20,7 @@ const PHOTO_SRC = '/link-cards/hero_illustration_1779025435.png';
 
 export default function UniteKingdomPage() {
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Unite Kingdom">
       {/* Hidden SVG filter defs for the wavy photo borders */}
       <svg aria-hidden style={{ position: 'absolute', width: 0, height: 0 }}>
         <defs>

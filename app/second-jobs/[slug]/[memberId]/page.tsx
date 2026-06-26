@@ -50,7 +50,7 @@ export default async function MpSecondJobsDetail({ params }: { params: Promise<{
   const partyColour = item.mp.party_colour ? '#' + item.mp.party_colour.replace('#', '') : '#7697a2';
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Second Jobs">
       <BackLink
         fallbackHref={`/second-jobs/${slug}`}
         label={`← ${label} MPs`}

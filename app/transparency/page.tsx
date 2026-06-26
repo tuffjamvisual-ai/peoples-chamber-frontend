@@ -51,7 +51,7 @@ const SECTIONS: { slug: string; title: string; description: string; href?: strin
 
 export default function TransparencyHubPage() {
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Transparency">
       <JsonLd data={JSONLD_WEBPAGE} />
       <style>{`
         .t-card { transition: background-color 150ms ease, border-color 150ms ease; }

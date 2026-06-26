@@ -13,7 +13,7 @@ const INK = '#14100d'
 
 export default function SupportPage() {
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Support Us">
       <BackLink
         fallbackHref="/"
         label="← Back"

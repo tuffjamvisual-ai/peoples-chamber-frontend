@@ -30,7 +30,7 @@ export default async function ThankYouPage({ searchParams }: { searchParams: Pro
   }
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Donate">
       <BackLink
         fallbackHref="/"
         label="← Back to the front page"

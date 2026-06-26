@@ -28,7 +28,7 @@ const paragraphs = [
 
 export default function AboutPage() {
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="About">
       <BackLink
         fallbackHref="/"
         label="← Back"

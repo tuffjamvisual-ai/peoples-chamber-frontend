@@ -13,7 +13,7 @@ export default function SearchPage() {
   const results = searchTopics(query);
 
   return (
-    <OpenGovShell>
+    <OpenGovShell pageStamp="Search">
       <BackLink
         fallbackHref="/"
         label="← Back"
