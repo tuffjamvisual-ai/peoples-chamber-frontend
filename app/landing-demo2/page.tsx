@@ -75,8 +75,9 @@ export default function LandingDemo2() {
               height: '88%',
               display: 'flex',
               flexDirection: 'column',
-              // base drop shadow + a slight shadow cast to the LEFT side
-              filter: 'drop-shadow(0 14px 30px rgba(0,0,0,0.5)) drop-shadow(-9px 2px 10px rgba(0,0,0,0.4))',
+              // darken + saturate so the (paler) dossier folder matches the
+              // fold folder's muted goldenrod tone; then the drop shadows.
+              filter: 'brightness(0.78) saturate(1.5) drop-shadow(0 14px 30px rgba(0,0,0,0.5)) drop-shadow(-9px 2px 10px rgba(0,0,0,0.4))',
               pointerEvents: 'none',
             }}
           >
