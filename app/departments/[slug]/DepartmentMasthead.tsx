@@ -44,7 +44,7 @@ export default function DepartmentMasthead({ sos, budget }: Props) {
               // Bleed off the left edge and tilt the opposite way to the MP
               // profile photo (which sits on the right at +12deg), so the
               // department polaroid mirrors it.
-              marginLeft: '-9%',
+              marginLeft: '-5%',
               transform: 'rotate(-12deg)',
               transformOrigin: 'center',
               boxShadow: '0 4px 8px rgba(0,0,0,0.2), inset 0 0 30px rgba(0,0,0,0.03)',
