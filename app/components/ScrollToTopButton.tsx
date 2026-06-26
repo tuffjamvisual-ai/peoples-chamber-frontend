@@ -11,7 +11,7 @@ export default function ScrollToTopButton() {
           border: 'none',
           padding: 0,
           color: '#000',
-          fontSize: '32px',
+          fontSize: '44px',
           lineHeight: 1,
           cursor: 'pointer',
           transform: 'rotate(-90deg)',
