@@ -99,6 +99,14 @@ export default function LandingDemo2() {
             <div className="d-mid" />
             <div className="d-bottom" />
           </div>
+
+          {/* Per-page stamp ("FRONT PAGE") top-right of the dossier folder. */}
+          <div style={{ position: 'absolute', top: '4cqw', right: '5%', zIndex: 4, transform: 'rotate(3deg)', pointerEvents: 'none' }}>
+            <span style={{ display: 'inline-block', opacity: 0.78, border: '0.07em solid #6b2417', padding: '0.18em 0.42em 0.12em', fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif", fontWeight: 400, textTransform: 'uppercase', color: '#6b2417', lineHeight: 1, textAlign: 'center', fontSize: 'clamp(15px, 2.5cqw, 32px)' }}>
+              <span style={{ display: 'block', letterSpacing: '0.16em', fontSize: '0.44em' }}>Open Government</span>
+              <span style={{ display: 'block', borderTop: '0.06em solid #6b2417', marginTop: '0.14em', paddingTop: '0.12em', letterSpacing: '0.1em' }}>Front Page</span>
+            </span>
+          </div>
           <div className="dossier-content">
               <div className="og-lead">
             <div className="og-main">
