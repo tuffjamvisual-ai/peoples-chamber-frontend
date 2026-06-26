@@ -75,7 +75,7 @@ export default function MpDossier({
             position: 'relative',
             flex: '0 0 auto',
             marginTop: '-7%',
-            marginRight: '-10%',
+            marginRight: '-2%',
             background: '#ebe5d8',
             padding: '12px 12px 48px 12px',
             transform: 'rotate(12deg)',
