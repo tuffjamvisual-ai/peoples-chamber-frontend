@@ -58,9 +58,8 @@ export default function LandingDemo2() {
               userSelect: 'none',
               pointerEvents: 'none',
               transform: 'rotate(-2.5deg)',
-              // desaturate + slightly darken so the folder tone matches the
-              // muted folders-pile backdrop (it was more vivid/yellow).
-              filter: 'saturate(0.78) brightness(0.95) drop-shadow(0 18px 38px rgba(0,0,0,0.55))',
+              // native goldenrod (~#CC944F / 204,148,79) — no tone muting.
+              filter: 'drop-shadow(0 18px 38px rgba(0,0,0,0.55))',
             }}
           />
 
