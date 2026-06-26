@@ -58,8 +58,8 @@ export default function LandingDemo2() {
               userSelect: 'none',
               pointerEvents: 'none',
               transform: 'rotate(-2.5deg)',
-              // folding folder shown as supplied — no colour adjustment.
-              filter: 'drop-shadow(0 18px 38px rgba(0,0,0,0.55))',
+              // slightly less golden (gentle desaturate).
+              filter: 'saturate(0.84) drop-shadow(0 18px 38px rgba(0,0,0,0.55))',
             }}
           />
 
