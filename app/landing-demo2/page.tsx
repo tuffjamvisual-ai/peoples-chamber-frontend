@@ -53,6 +53,8 @@ const NAV: NavItem[] = [
 ];
 
 export default function LandingDemo2() {
+  // Fine SVG noise used to mask the stamp so the ink looks patchy/distressed.
+  const distress = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='340' height='150'><filter id='d'><feTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='2' seed='6' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -0.9 1.06'/></filter><rect width='100%' height='100%' filter='url(%23d)'/></svg>")`;
   return (
     <div
       className="ng-page"
@@ -101,8 +103,8 @@ export default function LandingDemo2() {
           </div>
 
           {/* Per-page stamp ("FRONT PAGE") top-right of the dossier folder. */}
-          <div style={{ position: 'absolute', top: '1.4cqw', right: '13%', zIndex: 4, pointerEvents: 'none' }}>
-            <span style={{ display: 'inline-block', opacity: 0.78, border: '0.07em solid #6b2417', padding: '0.16em 0.36em 0.08em', fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1, color: '#6b2417', fontSize: 'clamp(22px, 4cqw, 52px)' }}>Front Page</span>
+          <div style={{ position: 'absolute', top: '1.4cqw', right: '9.5%', zIndex: 4, pointerEvents: 'none' }}>
+            <span style={{ display: 'inline-block', opacity: 0.72, border: '0.07em solid #6b2417', padding: '0.16em 0.36em 0.08em', fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1, color: '#6b2417', fontSize: 'clamp(22px, 4cqw, 52px)', WebkitMaskImage: distress, maskImage: distress, WebkitMaskSize: 'cover', maskSize: 'cover', WebkitMaskRepeat: 'no-repeat', maskRepeat: 'no-repeat' }}>Front Page</span>
           </div>
           <div className="dossier-content">
               <div className="og-lead">
