@@ -126,6 +126,6 @@ export default function MpDossier({
       {footer && <div style={{ marginTop: '48px' }}>{footer}</div>}
 
       <ScrollToTopButton />
-    </DossierShell>
+    </OpenGovShell>
   );
 }
