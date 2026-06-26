@@ -197,7 +197,7 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
       {/* The 11 themed policy blocks. Each block: theme label, 2024
           manifesto position, source, optional post election shift in a
           coloured callout, shift source. */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
+      <div>
         {policies.length === 0 && (
           <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '16px', opacity: 0.7 }}>
             Policy positions not yet researched for this party. Coming soon.
@@ -207,7 +207,7 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
           <section
             key={p.theme}
             id={p.theme.toLowerCase().replace(/\s+/g, '-')}
-            style={{ scrollMarginTop: '32px' }}
+            style={{ scrollMarginTop: '32px', marginBottom: '36px' }}
           >
             <h2
               style={{

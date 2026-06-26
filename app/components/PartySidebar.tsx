@@ -37,13 +37,14 @@ export default function PartySidebar({
   ];
 
   return (
-    <div
-      className="pca-party-sidebar-grid"
-      style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '24px' }}
-    >
+    <div className="pca-party-sidebar-grid">
       <style>{`
+        /* Float the sidebar so the content wraps to the FULL width once it
+           passes the (short) sidebar, instead of staying in a narrow column. */
+        .pca-party-sidebar-grid::after { content: ''; display: table; clear: both; }
+        .pca-party-sidebar-grid > aside { margin-bottom: 24px; }
         @media (min-width: 1024px) {
-          .pca-party-sidebar-grid { grid-template-columns: 220px 1fr !important; gap: 36px !important; }
+          .pca-party-sidebar-grid > aside { float: left; width: 220px; margin-right: 36px; margin-bottom: 0; }
         }
       `}</style>
 
