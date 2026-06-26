@@ -2,11 +2,11 @@ import type { Metadata } from 'next';
 import './landing-demo2.css';
 
 // /landing-demo2 — DEMO ONLY (noindex). The folders-pile backdrop (folders.webp)
-// with a single empty "clean folder" centred on it. No masthead, nav, or article
+// with a single empty "oldfolder" centred on it. No masthead, nav, or article
 // content — left unpopulated per request. The live landing page is untouched.
 
 export const metadata: Metadata = {
-  title: 'Landing demo — clean folder (preview)',
+  title: 'Landing demo — old folder (preview)',
   robots: { index: false, follow: false },
 };
 
@@ -43,10 +43,10 @@ export default function LandingDemo2() {
 
       {/* Empty clean folder, centred on the backdrop. */}
       <div style={{ position: 'relative', zIndex: 1, width: 'min(94vw, 1144px)' }}>
-        <div style={{ position: 'relative', width: '100%', aspectRatio: '1085 / 1450' }}>
+        <div style={{ position: 'relative', width: '100%', aspectRatio: '1084 / 1451' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/clean-folder.webp"
+            src="/oldfolder.webp"
             alt=""
             aria-hidden
             style={{
