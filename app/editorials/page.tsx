@@ -36,7 +36,7 @@ export default function EditorialsIndexPage() {
       />
 
       <header style={{ marginBottom: '4%' }}>
-        <h1 style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(34px, 5vw, 60px)', fontWeight: 'bold', letterSpacing: '0.01em', lineHeight: 1.05, marginBottom: '14px' }}>
+        <h1 style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(24px, 3.2vw, 38px)', fontWeight: 'bold', letterSpacing: '0.01em', lineHeight: 1.05, marginBottom: '14px' }}>
           Editorials &amp; Investigations
         </h1>
         <p style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(17px, 1.6vw, 22px)', lineHeight: 1.5, fontStyle: 'italic', color: INK_SOFT, maxWidth: '720px' }}>
