@@ -7,7 +7,7 @@ const piece: EditorialEntry = {
   standfirst:
     'Politicians have always made mistakes. What feels different now is that nobody seems responsible when it happens, and once power stops carrying consequences, the public stops respecting power.',
   publishedAt: '2026-06-11',
-  authorByline: "The People's Chamber",
+  authorByline: "Open Govt",
   body: [
     { type: 'paragraph', text: 'I don’t think the biggest problem in British politics is that politicians make mistakes.' },
     { type: 'paragraph', text: 'Politicians have always made mistakes. Wars have been mishandled. Projects have gone over budget. Policies that looked brilliant in Whitehall have fallen apart the moment they met real people living real lives.' },

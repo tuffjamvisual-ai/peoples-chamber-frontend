@@ -12,7 +12,7 @@ const piece: EditorialEntry = {
   standfirst:
     'Keir Starmer was not elected on ideological excitement. He was elected on trust. Two years on, the promises Labour broke are the ones that mattered most to voters.',
   publishedAt: '2026-06-23',
-  authorByline: "The People's Chamber",
+  authorByline: "Open Govt",
   body: [
     { type: 'paragraph', text: `When Labour won the 2024 general election, it did so on one argument above all others: trust. Britain had endured years of chaos, instability and broken promises under the Conservatives. Labour promised competence, seriousness and honesty. Keir Starmer's pitch was not ideological. It was contractual. Vote for us and you can believe what we tell you.` },
     { type: 'paragraph', text: `Two years later, the contract is in trouble. And the damage was largely self inflicted in the first hundred days.` },

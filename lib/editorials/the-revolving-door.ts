@@ -7,7 +7,7 @@ const piece: EditorialEntry = {
   standfirst:
     'Different parties, different governments, different slogans, and yet the same people keep appearing. The revolving door is rarely about breaking the law. It is about influence becoming a commodity.',
   publishedAt: '2026-06-11',
-  authorByline: "The People's Chamber",
+  authorByline: "Open Govt",
   body: [
     { type: 'paragraph', text: 'One of the reasons so many people have lost faith in British politics is the feeling that Westminster increasingly looks like a private members’ club.' },
     { type: 'paragraph', text: 'Different parties. Different governments. Different slogans.' },

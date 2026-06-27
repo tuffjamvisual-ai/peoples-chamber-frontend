@@ -12,7 +12,7 @@ export const revalidate = 86400;
 
 export const metadata: Metadata = {
   title: 'Editorials & Investigations',
-  description: 'Long-form investigations and editorials from The People’s Chamber.',
+  description: 'Long-form investigations and editorials from Open Govt.',
   alternates: { canonical: '/editorials' },
 };
 

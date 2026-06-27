@@ -44,7 +44,7 @@ export default async function LandingPreview({
     >
       <Image
         src="/landing-mockup.png"
-        alt="The People's Chamber — landing page mockup"
+        alt="Open Govt — landing page mockup"
         width={1023}
         height={1537}
         priority

@@ -38,7 +38,7 @@ const abril = Abril_Fatface({
 });
 
 const SITE_URL = "https://www.thepeopleschamber.uk";
-const SITE_NAME = "The Peoples Chamber";
+const SITE_NAME = "Open Govt";
 const SITE_DESCRIPTION =
   "The UK politics transparency app. See what every government department controls, what every party says, and who runs Britain.";
 const OG_IMAGE = `${SITE_URL}/logo.png`;
@@ -150,7 +150,7 @@ export default function RootLayout({
         <link
           rel="alternate"
           type="application/rss+xml"
-          title="The People's Chamber, Recent Updates"
+          title="Open Govt, Recent Updates"
           href="/feed.xml"
         />
         <script

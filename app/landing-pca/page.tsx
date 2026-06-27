@@ -12,7 +12,7 @@ import { normaliseParty, isCoop, partyColourForMember } from '@/lib/party-helper
 const BAND_RANK: Record<SalaryBand, number> = { pm: 4, sos: 3, minister_of_state: 2, puss: 1 };
 
 export const metadata: Metadata = {
-  title: "The People's Chamber",
+  title: "Open Govt",
   robots: { index: false, follow: false },
 };
 

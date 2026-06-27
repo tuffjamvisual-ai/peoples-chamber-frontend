@@ -7,7 +7,7 @@ const piece: EditorialEntry = {
   standfirst:
     "Twenty politicians who turned public office into private income, some after leaving government, some while still serving. A few broke the rules. Many did not. The pattern is the point: a system built to protect the appearance of propriety more than propriety itself, where former power is converted into private leverage and then wrapped in technical compliance. From Cameron's Greensill texts to Hancock's jungle paycheque, the watchdog could bark from the porch while the caravan of private opportunity rolled on.",
   publishedAt: '2026-06-10',
-  authorByline: "The People's Chamber",
+  authorByline: "Open Govt",
   body: [
     {
       type: 'paragraph',

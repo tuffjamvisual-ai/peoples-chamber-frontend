@@ -5,7 +5,7 @@ import DonateForm from './DonateForm';
 
 export const metadata: Metadata = {
   title: 'Support this project',
-  description: 'Make a one-off donation to help keep The People’s Chamber free and independent.',
+  description: 'Make a one-off donation to help keep Open Govt free and independent.',
   alternates: { canonical: '/donate' },
 };
 

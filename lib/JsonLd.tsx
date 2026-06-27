@@ -43,7 +43,7 @@ export function buildHomepageGraph() {
         '@type': 'WebSite',
         '@id': `${SITE}/#website`,
         url: `${SITE}/`,
-        name: "The People's Chamber",
+        name: "Open Govt",
         description:
           'Track every UK MP, bill, vote and government department in one place.',
         publisher: { '@id': `${SITE}/#org` },
@@ -56,7 +56,7 @@ export function buildHomepageGraph() {
       {
         '@type': 'Organization',
         '@id': `${SITE}/#org`,
-        name: "The People's Chamber",
+        name: "Open Govt",
         url: `${SITE}/`,
         description:
           'Independent UK Parliament tracker and government transparency platform.',

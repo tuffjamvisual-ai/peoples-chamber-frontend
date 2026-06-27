@@ -8,7 +8,7 @@ import './home-front.css';
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "UK Parliament Tracker & Government Transparency | OpenGovt",
+  title: "UK Parliament Tracker & Government Transparency | Open Govt",
   description:
     'Track every UK MP, bill, vote and government department in one place. Voting records, ministerial spending, party manifestos and Whitehall transparency data, free and unbranded.',
   alternates: { canonical: '/' },
@@ -101,7 +101,7 @@ export default function HomePage() {
 function HomepageEditorialIntro() {
   return (
     <section
-      aria-label="About The People's Chamber"
+      aria-label="About Open Govt"
       style={{
         position: 'absolute',
         width: '1px',

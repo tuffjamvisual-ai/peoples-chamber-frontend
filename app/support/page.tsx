@@ -5,7 +5,7 @@ import BackLink from '../components/BackLink';
 
 export const metadata: Metadata = {
   title: 'Support',
-  description: 'Get help with The People’s Chamber, contact us, report a data issue, or suggest a feature.',
+  description: 'Get help with Open Govt, contact us, report a data issue, or suggest a feature.',
   alternates: { canonical: '/support' },
 }
 
@@ -23,7 +23,7 @@ export default function SupportPage() {
 
       <header style={{ marginBottom: '5%' }}>
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
-          Support The People’s Chamber
+          Support Open Govt
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
           Get help, report a data issue, or suggest a feature. The answers below cover the questions we are asked most often.
@@ -54,7 +54,7 @@ export default function SupportPage() {
 
       <h3 className="font-bold mt-4 mb-2 text-[#14100d]">Is this official?</h3>
       <p className="text-[#14100d] mb-4">
-        No, People's Chamber is an independent platform for civic engagement, not affiliated with UK Parliament.
+        No, Open Govt is an independent platform for civic engagement, not affiliated with UK Parliament.
       </p>
     </OpenGovShell>
   );

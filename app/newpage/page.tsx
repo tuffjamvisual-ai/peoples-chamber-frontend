@@ -12,7 +12,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "The People's Chamber — newpage build",
+  title: "Open Govt — newpage build",
   robots: { index: false, follow: false },
 };
 
@@ -212,7 +212,7 @@ export default async function NewPage({
 
       <div className="newpage-root">
         <main className="stage">
-          <section className="paper" aria-label="The People's Chamber page">
+          <section className="paper" aria-label="Open Govt page">
             <header className="masthead">
               <a className="issue hotspot" href="#issue" aria-label="Issue 23">
                 <span>ISSUE 23</span>
@@ -221,7 +221,7 @@ export default async function NewPage({
 
               <div className="brand">
                 <div className="crest" aria-hidden="true">♛</div>
-                <h1>THE PEOPLE’S CHAMBER</h1>
+                <h1>OPEN GOVT</h1>
                 <p>PUBLIC RECORD · THE TRUTH · NO SPIN</p>
               </div>
             </header>

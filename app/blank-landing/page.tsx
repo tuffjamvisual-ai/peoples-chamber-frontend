@@ -95,11 +95,11 @@ export default async function BlankLanding({
   return (
     <div className="frame-root">
       <style dangerouslySetInnerHTML={{ __html: isDebug ? baseCss + debugCss : baseCss }} />
-      <main className="frame" aria-label="The People's Chamber clickable front page">
+      <main className="frame" aria-label="Open Govt clickable front page">
         <img
           className="page-art"
           src="/blank-landing-art.png"
-          alt="The People's Chamber vintage front page layout"
+          alt="Open Govt vintage front page layout"
         />
         {hotspots.map((h) => (
           <a

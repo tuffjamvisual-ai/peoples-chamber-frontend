@@ -11,7 +11,7 @@ import './newspaper.css';
 // overlay. noindex while it lives alongside the live homepage.
 
 export const metadata: Metadata = {
-  title: "The People's Chamber — Homepage v2 (preview)",
+  title: "Open Govt — Homepage v2 (preview)",
   robots: { index: false, follow: false },
 };
 

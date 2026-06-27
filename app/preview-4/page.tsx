@@ -78,7 +78,7 @@ export default function HomePage() {
             </div>
             <div>
               <p className="issue-note">Public-record reporting</p>
-              <h1>The People's Chamber</h1>
+              <h1>Open Govt</h1>
               <p className="strapline">UK Government. In Public View.</p>
             </div>
           </div>

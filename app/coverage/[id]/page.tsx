@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!row) return { title: 'Coverage' }
   return {
     title: `${row.source_title}, via ${row.source_outlet}`,
-    description: row.commentary || row.source_excerpt || `${row.source_outlet} coverage with People's Chamber commentary.`,
+    description: row.commentary || row.source_excerpt || `${row.source_outlet} coverage with Open Govt commentary.`,
     alternates: { canonical: `/coverage/${row.id}` },
   }
 }
@@ -91,7 +91,7 @@ export default async function CoveragePage({ params }: { params: Promise<{ id: s
           <section
             className="my-8 p-6 border-l-4"
             style={{ borderLeftColor: ACCENT }}
-            aria-label="People's Chamber commentary"
+            aria-label="Open Govt commentary"
           >
             <p className="text-[12px] uppercase tracking-[0.25em] text-[#14100d]/70 mb-3 font-semibold">
               The People&apos;s Chamber · Commentary

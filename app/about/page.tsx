@@ -6,23 +6,23 @@ import BackLink from '../components/BackLink';
 export const metadata: Metadata = {
   title: 'About',
   description:
-    'About The People’s Chamber, methodology, sources and editorial principles for our UK political transparency project.',
+    'About Open Govt, methodology, sources and editorial principles for our UK political transparency project.',
   alternates: { canonical: '/about' },
 };
 
 const paragraphs = [
-  `The People's Chamber exists because British politics generates enormous amounts of public information every day, and almost none of it is designed for the public to actually use.`,
+  `Open Govt exists because British politics generates enormous amounts of public information every day, and almost none of it is designed for the public to actually use.`,
   `Bills move through Parliament. MPs vote on legislation. Ministers announce policies. Departments issue contracts. Political parties receive donations. Expenses are claimed. Advisory jobs are accepted. Committees publish reports. All of this information technically exists in public, but it is scattered across government websites, databases and documents that require hours of navigation and a working knowledge of parliamentary procedure to interpret.`,
-  `The People's Chamber brings those fragments together.`,
+  `Open Govt brings those fragments together.`,
   `We track legislation, parliamentary activity, political funding, MP records, departmental spending, public contracts, expenses and lobbying connections using official data from Parliament, IPSA, Companies House, the Electoral Commission and government publications. The goal is not to bury people under spreadsheets. It is to make public information readable, searchable and usable.`,
   `Politics often disappears behind procedure and language designed for insiders. A bill affecting millions can be summarised in jargon that obscures what is actually changing. Public spending can be technically disclosed while remaining practically invisible. Parliamentary debate can become theatre while important decisions pass underneath unnoticed.`,
-  `The People's Chamber cuts through that.`,
+  `Open Govt cuts through that.`,
   `We translate complex political processes into plain English. We follow legislation as it moves. We track voting records, public statements, financial interests and policy decisions in formats people can engage with. We also allow the public to respond through voting tools that compare public opinion with parliamentary outcomes.`,
   `The aim is not to tell people what to think. It is to give them visibility into what is happening.`,
-  `We are independent and intentionally direct. British politics has long been surrounded by managed language, rehearsed messaging and institutional opacity. The People's Chamber approaches politics with scrutiny rather than ceremony. Public institutions become healthier when they are easier to examine.`,
+  `We are independent and intentionally direct. British politics has long been surrounded by managed language, rehearsed messaging and institutional opacity. Open Govt approaches politics with scrutiny rather than ceremony. Public institutions become healthier when they are easier to examine.`,
   `That does not mean reducing politics to outrage or spectacle. Context matters. Accuracy matters. Public trust depends on facts being traceable. Our work links back to original records and official sources so users can inspect the evidence themselves.`,
   `The platform is built around the belief that democratic engagement should not end at election time. Most political decisions happen between elections with limited public visibility. By tracking bills, departments, financial interests and parliamentary behaviour continuously, we create a live civic record rather than a snapshot every few years.`,
-  `The People's Chamber is still evolving. New datasets and tracking systems are continually being added. The long term goal is a permanent public facing record of political activity in the United Kingdom accessible to everyone, not just journalists, researchers or political insiders.`,
+  `Open Govt is still evolving. New datasets and tracking systems are continually being added. The long term goal is a permanent public facing record of political activity in the United Kingdom accessible to everyone, not just journalists, researchers or political insiders.`,
   `Politics affects everyone. Understanding it should not require permission.`,
 ];
 

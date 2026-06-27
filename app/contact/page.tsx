@@ -8,7 +8,7 @@ export const revalidate = 3600
 export const metadata: Metadata = {
   title: 'Contact',
   description:
-    'Get in touch with The People’s Chamber: corrections to the record, data and press enquiries, and general questions.',
+    'Get in touch with Open Govt: corrections to the record, data and press enquiries, and general questions.',
   alternates: { canonical: '/contact' },
 }
 

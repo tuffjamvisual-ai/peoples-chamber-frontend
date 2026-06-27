@@ -110,11 +110,11 @@ export default async function NewspaperNew1({
   return (
     <div className="preview-root">
       <style dangerouslySetInnerHTML={{ __html: isDebug ? baseCss + debugCss : baseCss }} />
-      <main className="page-wrap" aria-label="The People's Chamber clickable newspaper landing page">
+      <main className="page-wrap" aria-label="Open Govt clickable newspaper landing page">
         <img
           className="newspaper-image"
           src="/newspaper-new1.png"
-          alt="The People's Chamber vintage newspaper landing page"
+          alt="Open Govt vintage newspaper landing page"
         />
         {hotspots.map((spot) => (
           <a

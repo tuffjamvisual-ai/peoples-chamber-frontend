@@ -48,7 +48,7 @@ export default function Navigation() {
               <div className="flex flex-col items-center">
                 <img
                   src="/logo.png"
-                  alt="People's Chamber"
+                  alt="Open Govt"
                   style={{ height: '240px', width: 'auto', objectFit: 'contain' }}
                 />
                 <span className="text-2xl uppercase tracking-widest text-white text-center">

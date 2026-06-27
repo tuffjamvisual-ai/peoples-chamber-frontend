@@ -39,7 +39,7 @@ export async function POST(req: Request) {
           price_data: {
             currency: 'gbp',
             unit_amount: amountPence,
-            product_data: { name: "Donation to The People's Chamber" },
+            product_data: { name: "Donation to Open Govt" },
           },
         },
       ],

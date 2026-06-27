@@ -155,9 +155,9 @@ export async function GET() {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>The People's Chamber, Recent Updates</title>
+    <title>Open Govt, Recent Updates</title>
     <link>${SITE}/</link>
-    <description>The 50 most recently updated MP profiles and bill stages on The People's Chamber, an independent record of how the United Kingdom is governed.</description>
+    <description>The 50 most recently updated MP profiles and bill stages on Open Govt, an independent record of how the United Kingdom is governed.</description>
     <language>en-GB</language>
     <lastBuildDate>${buildDate}</lastBuildDate>
     <atom:link href="${SITE}/feed.xml" rel="self" type="application/rss+xml" />

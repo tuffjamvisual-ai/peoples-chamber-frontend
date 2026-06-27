@@ -2,7 +2,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "The People's Chamber, land101 demo",
+  title: "Open Govt, land101 demo",
   robots: { index: false, follow: false },
 };
 
@@ -112,11 +112,11 @@ export default async function Land101Page({
       `}</style>
 
       <div className="land101-body">
-        <main className="land101-wrap" aria-label="The People's Chamber clickable newspaper landing page">
+        <main className="land101-wrap" aria-label="Open Govt clickable newspaper landing page">
           <img
             className="land101-img"
             src="/land101-art.png"
-            alt="The People's Chamber vintage newspaper landing page"
+            alt="Open Govt vintage newspaper landing page"
           />
 
           {OVERLAYS.map((o, i) => (

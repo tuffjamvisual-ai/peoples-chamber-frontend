@@ -104,7 +104,7 @@ export default function HomePage() {
                 <Landmark className="h-8 w-8" />
                 <div>
                   <div className="text-xl font-black uppercase leading-none">
-                    The People’s Chamber
+                    Open Govt
                   </div>
                   <div className="text-[12px] font-bold uppercase text-[#c91517]">
                     UK Government. In Public View.
@@ -252,7 +252,7 @@ export default function HomePage() {
                   <Landmark className="h-8 w-8" />
                   <div>
                     <div className="text-xl font-black uppercase">
-                      The People’s Chamber
+                      Open Govt
                     </div>
                     <div className="text-xs font-bold uppercase text-[#ff4b4b]">
                       UK Government. In Public View.

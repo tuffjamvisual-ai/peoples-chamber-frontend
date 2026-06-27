@@ -14,7 +14,7 @@ const piece: EditorialEntry = {
   standfirst:
     'The scandals that destroyed careers, toppled governments and shattered public trust.',
   publishedAt: '2026-06-22',
-  authorByline: "The People's Chamber",
+  authorByline: "Open Govt",
   body: [
     {
       type: 'heading',

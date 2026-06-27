@@ -6,7 +6,7 @@ import BackLink from '../components/BackLink';
 
 export const metadata: Metadata = {
   title: 'Sign in',
-  description: 'Sign in or create an account on The People’s Chamber.',
+  description: 'Sign in or create an account on Open Govt.',
   alternates: { canonical: '/login' },
   robots: { index: false, follow: false },
 };
