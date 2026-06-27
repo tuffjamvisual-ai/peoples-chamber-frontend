@@ -410,7 +410,7 @@ export default async function HomePage() {
               <TrustItem
                 icon={<Users />}
                 title="Open to All"
-                body="Built for citizens, not politicians."
+                body="Built for people, not politicians."
               />
               <TrustItem
                 icon={<Eye />}
