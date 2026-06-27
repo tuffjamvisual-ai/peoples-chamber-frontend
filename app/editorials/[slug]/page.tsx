@@ -97,7 +97,7 @@ export default async function EditorialPage({ params }: { params: Promise<{ slug
       </article>
 
       <footer style={{ clear: 'both', marginTop: '40px', paddingTop: '20px', borderTop: `1px solid ${HAIRLINE}`, fontSize: '12px', color: INK_SOFT, fontFamily: '"Special Elite", monospace' }}>
-        Published by The People&rsquo;s Chamber on {publishedDate}.
+        Published by Open Govt on {publishedDate}.
       </footer>
       </div>
 

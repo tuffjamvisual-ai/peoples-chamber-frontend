@@ -94,7 +94,7 @@ export default async function CoveragePage({ params }: { params: Promise<{ id: s
             aria-label="Open Govt commentary"
           >
             <p className="text-[12px] uppercase tracking-[0.25em] text-[#14100d]/70 mb-3 font-semibold">
-              The People&apos;s Chamber · Commentary
+              Open Govt · Commentary
             </p>
             <p className="text-[16px] sm:text-[17px] leading-[1.6] text-[#14100d]" style={{ fontFamily: SERIF }}>
               {row.commentary}

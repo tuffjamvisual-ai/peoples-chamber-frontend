@@ -271,7 +271,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
         <div style={{ position: 'relative', padding: '0 4px' }}>
           <div style={{ textAlign: 'center', marginBottom: '22px' }}>
             <div style={{ fontFamily: MONO, fontSize: '12px', letterSpacing: '0.3em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold' }}>
-              Official Ballot · The People&apos;s Chamber
+              Official Ballot · Open Govt
             </div>
             <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(22px, 3vw, 28px)', fontWeight: 'bold', margin: '10px 0 0', lineHeight: 1.15 }}>
               How would you vote on this bill?

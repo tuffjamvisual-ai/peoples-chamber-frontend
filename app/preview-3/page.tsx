@@ -233,7 +233,7 @@ export default async function HomePage() {
                 <Landmark className="h-8 w-8" />
                 <div>
                   <div className="text-xl font-black uppercase leading-none">
-                    The People&rsquo;s Chamber
+                    Open Govt
                   </div>
                   <div className="text-[12px] font-bold uppercase text-[#c91517]">
                     UK Government. In Public View.
@@ -424,7 +424,7 @@ export default async function HomePage() {
                 <Link href="/" className="flex items-center gap-3 no-underline text-white">
                   <Landmark className="h-8 w-8" />
                   <div>
-                    <div className="text-xl font-black uppercase">The People&rsquo;s Chamber</div>
+                    <div className="text-xl font-black uppercase">Open Govt</div>
                     <div className="text-xs font-bold uppercase text-[#ff4b4b]">
                       UK Government. In Public View.
                     </div>

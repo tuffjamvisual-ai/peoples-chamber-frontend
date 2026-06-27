@@ -31,7 +31,7 @@ export default function PrivacyPage() {
         <p className="text-[#14100d]/70 mb-4">Last updated: March 28, 2026</p>
 
         <h2 className="text-xl font-bold mt-6 mb-3 text-[#14100d]">Information We Collect</h2>
-        <p className="text-[#14100d] mb-4">People&apos;s Chamber collects minimal personal information:</p>
+        <p className="text-[#14100d] mb-4">Open Govt collects minimal personal information:</p>
         <ul className="list-disc list-inside text-[#14100d] mb-4 space-y-2">
           <li>Email address (for account creation)</li>
           <li>Username (public display name)</li>
@@ -43,7 +43,7 @@ export default function PrivacyPage() {
         <h2 className="text-xl font-bold mt-6 mb-3 text-[#14100d]">How We Use Your Information</h2>
         <p className="text-[#14100d] mb-4">Your information is used to:</p>
         <ul className="list-disc list-inside text-[#14100d] mb-4 space-y-2">
-          <li>Provide access to the People&apos;s Chamber platform</li>
+          <li>Provide access to Open Govt platform</li>
           <li>Display aggregated voting statistics</li>
           <li>Match you with your local MP (if postcode provided)</li>
           <li>Enable community discussions on bills</li>

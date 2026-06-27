@@ -40,7 +40,7 @@ export default function EditorialsIndexPage() {
           Editorials &amp; Investigations
         </h1>
         <p style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(17px, 1.6vw, 22px)', lineHeight: 1.5, fontStyle: 'italic', color: INK_SOFT, maxWidth: '720px' }}>
-          Long-form investigations and editorials from The People&rsquo;s Chamber, each drawn from the public record.
+          Long-form investigations and editorials from Open Govt, each drawn from the public record.
         </p>
       </header>
 

@@ -52,7 +52,7 @@ export default function Navigation() {
                   style={{ height: '240px', width: 'auto', objectFit: 'contain' }}
                 />
                 <span className="text-2xl uppercase tracking-widest text-white text-center">
-                  The People&apos;s Chamber
+                  Open Govt
                 </span>
               </div>
             </Link>

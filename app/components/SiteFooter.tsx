@@ -19,7 +19,7 @@ export default function SiteFooter() {
           }}
         >
           <div>
-            <FootHead>The People&apos;s Chamber</FootHead>
+            <FootHead>Open Govt</FootHead>
             <p style={{ fontSize: '13px', color: MUTED, lineHeight: 1.6, margin: '0' }}>
               UK political transparency. Built from official sources, Parliament, IPSA, Companies House, Electoral Commission, Cabinet Office. Updated daily.
             </p>
@@ -75,7 +75,7 @@ export default function SiteFooter() {
             gap: '1rem',
           }}
         >
-          <div>© {new Date().getFullYear()} The People&apos;s Chamber. Public-record reporting.</div>
+          <div>© {new Date().getFullYear()} Open Govt. Public-record reporting.</div>
           <div style={{ letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 600 }}>peopleschamber.uk</div>
         </div>
       </div>

@@ -131,7 +131,7 @@ export default function HomePage() {
             </div>
 
             <div>
-              <h1>The People&apos;s Chamber</h1>
+              <h1>Open Govt</h1>
               <p>UK Government. In Public View.</p>
             </div>
           </div>
@@ -396,7 +396,7 @@ export default function HomePage() {
 
         <footer className="footer">
           <div>
-            <h2>The People&apos;s Chamber</h2>
+            <h2>Open Govt</h2>
             <p>
               UK political transparency. Built from official sources:
               Parliament, IPSA, Companies House, Electoral Commission, Cabinet

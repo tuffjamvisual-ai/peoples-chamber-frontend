@@ -59,7 +59,7 @@ export default function ContactPage() {
           Get in Touch
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
-          The People&apos;s Chamber is built in the open. Whether you have found an error in the record, want to use the data, or simply have a question, we want to hear from you. Write to us at the address below and we will read it.
+          Open Govt is built in the open. Whether you have found an error in the record, want to use the data, or simply have a question, we want to hear from you. Write to us at the address below and we will read it.
         </p>
         <p style={{ marginTop: '18px' }}>
           <a

@@ -135,7 +135,7 @@ export default async function ExpensesPage() {
             color: ACCENT,
           }}
         >
-          The People&rsquo;s Chamber · Expenses
+          Open Govt · Expenses
         </p>
         <h1
           style={{

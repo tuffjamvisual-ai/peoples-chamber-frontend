@@ -18,7 +18,7 @@ const MOCK_LEAD = {
   organisation: 'Ministry of Justice',
   title: 'Prison overcrowding hits record level as Whitehall promises "robust action plan"',
   description:
-    'Internal Whitehall memo seen by The People&apos;s Chamber reveals capacity headroom is below 0.5% for the third consecutive month, even as ministers continue to brief journalists that the system is "well within operational parameters".',
+    'Internal Whitehall memo seen by Open Govt reveals capacity headroom is below 0.5% for the third consecutive month, even as ministers continue to brief journalists that the system is "well within operational parameters".',
 }
 const MOCK_FEATURED = {
   kind: 'contract' as const,

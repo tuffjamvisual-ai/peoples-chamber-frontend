@@ -26,7 +26,7 @@ export default function DonatePage() {
           Support this project
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
-          The People&rsquo;s Chamber is free, independent and unbranded. A one-off donation helps cover hosting, data and development. No subscription, no account, no catch.
+          Open Govt is free, independent and unbranded. A one-off donation helps cover hosting, data and development. No subscription, no account, no catch.
         </p>
       </header>
 

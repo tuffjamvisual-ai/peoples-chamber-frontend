@@ -135,7 +135,7 @@ export default async function EarningsPage() {
           travel and accommodation; it does <em>not</em> go into the MP&apos;s pocket.
         </p>
         <p style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px', opacity: 0.7 }}>
-          The People&apos;s Chamber · MP Earnings
+          Open Govt · MP Earnings
         </p>
       </header>
 

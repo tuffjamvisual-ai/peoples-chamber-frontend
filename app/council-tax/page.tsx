@@ -298,7 +298,7 @@ export default function CouncilTaxPage() {
             color: ACCENT,
           }}
         >
-          The People&rsquo;s Chamber &middot; Council Tax
+          Open Govt &middot; Council Tax
         </p>
         <h1
           style={{
