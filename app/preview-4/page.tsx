@@ -327,7 +327,7 @@ export default function HomePage() {
           </div>
           <div>
             <strong>Open to All</strong>
-            <span>Built for people, not politicians.</span>
+            <span>Built for citizens, not politicians.</span>
           </div>
           <div>
             <strong>Accountability First</strong>

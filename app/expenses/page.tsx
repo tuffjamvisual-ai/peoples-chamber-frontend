@@ -40,7 +40,7 @@ Take staffing budgets. A typical MP employs several staff members to handle case
 
 The same pattern appears elsewhere. Travel is funded. Accommodation is funded. Office costs are funded. Additional support can be provided under exceptional circumstances. Every category has rules. Every category has oversight. Yet the overall picture remains surprisingly difficult for ordinary voters to understand.
 
-Parliament often points out that all this information is publicly available. Technically, that is true. So are thousands of pages of government procurement records, local authority accounts and departmental spending reports. Availability is not the same thing as accessibility. If information can only be understood by journalists, researchers, campaign groups and the small number of people willing to spend hours navigating official databases, then transparency exists largely in theory.
+Parliament often points out that all this information is publicly available. Technically, that is true. So are thousands of pages of government procurement records, local authority accounts and departmental spending reports. Availability is not the same thing as accessibility. If information can only be understood by journalists, researchers, campaign groups and the small number of citizens willing to spend hours navigating official databases, then transparency exists largely in theory.
 
 Most voters have a simple question. How much does my MP cost? The answer should be available in seconds. Instead, understanding the full picture often requires navigating multiple websites, downloading spreadsheets and interpreting categories that mean little to anyone outside Westminster. That is not openness. It is bureaucracy.
 

@@ -27,7 +27,7 @@ const treasury: DepartmentData = {
     { partyId: 'dup', headline: 'NI needs its own economic deal', position: 'Devolved corporation tax. Windsor Framework compensation. Special economic zone for NI.' },
     { partyId: 'sinnfein', headline: 'All-Ireland economy — unity would transform both economies', position: 'Irish unity single economic space. Corporation tax harmonisation. Progressive reform. End austerity.' },
     { partyId: 'sdlp', headline: 'Investment not austerity — NI needs proper economic strategy', position: 'More NI investment. Oppose cuts. cross border economic cooperation. Progressive tax system.' },
-    { partyId: 'alliance', headline: 'Pragmatic economics — what works for people in NI', position: 'Investment in NI tech and green industries. Windsor Framework opportunities. Progressive taxation.' },
+    { partyId: 'alliance', headline: 'Pragmatic economics — what works for NI citizens', position: 'Investment in NI tech and green industries. Windsor Framework opportunities. Progressive taxation.' },
     { partyId: 'tuv', headline: 'One UK economy — no special deals', position: 'Scrap Windsor Framework. Same fiscal treatment for NI as rest of UK. Cut taxes. Balanced budget.' },
     { partyId: 'uup', headline: 'Practical unionism — make the economic union work', position: 'Resolve Windsor Framework pragmatically. NI infrastructure investment. Devolved fiscal powers for Stormont.' },
     { partyId: 'restore', headline: 'Cut taxes, cut the state, give people their money back', position: 'Raise threshold to £20,000. Abolish stamp duty. Cut corporation tax to 15%. 30% state reduction.' },

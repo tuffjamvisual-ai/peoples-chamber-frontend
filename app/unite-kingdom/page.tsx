@@ -161,7 +161,7 @@ export default function UniteKingdomPage() {
             </p>
 
             <p style={body()}>
-              What is extreme is deploying 4,000 police officers, drones, helicopters and live facial-recognition technology to monitor British people exercising their democratic right to protest, while simultaneously allowing illegal immigration to continue unchecked and doing almost nothing to remove people who have no right to be in the country.
+              What is extreme is deploying 4,000 police officers, drones, helicopters and live facial-recognition technology to monitor British citizens exercising their democratic right to protest, while simultaneously allowing illegal immigration to continue unchecked and doing almost nothing to remove people who have no right to be in the country.
             </p>
 
             <p style={body()}>
@@ -169,7 +169,7 @@ export default function UniteKingdomPage() {
             </p>
 
             <p style={body()}>
-              What is extreme is a political establishment that looks at over 100,000 ordinary voters and sees nothing but a problem to be managed, surveilled, and dismissed, rather than people whose concerns deserve to be taken seriously.
+              What is extreme is a political establishment that looks at over 100,000 ordinary voters and sees nothing but a problem to be managed, surveilled, and dismissed, rather than citizens whose concerns deserve to be taken seriously.
             </p>
 
             <h2 style={h2()}>A Country Asking for Its Democracy Back</h2>

@@ -119,7 +119,7 @@ export default function HomePage() {
 
           <div className="stamp-row">
             <span className="stamp stamp-green">Public Version</span>
-            <span className="stamp stamp-plain">Cleared for the Public</span>
+            <span className="stamp stamp-plain">Cleared for Citizens</span>
             <span className="stamp stamp-red">
               Ministerial Panic: Low to Moderate
             </span>
@@ -386,7 +386,7 @@ export default function HomePage() {
           </div>
           <div>
             <strong>Open to All</strong>
-            <span>Built for people, not politicians.</span>
+            <span>Built for citizens, not politicians.</span>
           </div>
           <div>
             <strong>Accountability First</strong>
