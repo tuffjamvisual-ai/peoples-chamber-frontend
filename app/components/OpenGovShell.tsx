@@ -111,7 +111,7 @@ export default function OpenGovShell({
           </div>
 
           {pageStamp && (
-            <div style={{ position: 'absolute', top: '1.4cqw', right: '12%', zIndex: 4, pointerEvents: 'none' }}>
+            <div style={{ position: 'absolute', top: '1.4cqw', right: '6%', zIndex: 4, pointerEvents: 'none' }}>
               <span style={{ display: 'inline-block', opacity: 0.8, border: '0.07em solid #6b2417', padding: '0.16em 0.36em 0.08em', fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1, color: '#6b2417', fontSize: 'clamp(18px, 4cqw, 52px)' }}>{pageStamp}</span>
             </div>
           )}
