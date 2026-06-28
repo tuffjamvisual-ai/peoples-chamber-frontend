@@ -15,7 +15,7 @@ const NAV: NavItem[] = [
     { label: 'All Bills', href: '/bills' },
     { label: 'Acts of Parliament', href: '/laws' },
   ] },
-  { label: 'Peoples Polls', href: '/polls', children: [
+  { label: 'Polls', href: '/polls', children: [
     { label: 'All Polls', href: '/polls' },
     { label: 'Your Tax Pound', href: '/your-tax-pound' },
     { label: 'Budget Trade-Offs', href: '/budget-trade-offs' },
