@@ -140,7 +140,7 @@ export default async function TransparencySectionPage({
         </p>
         {section === 'revolving-door' && (
           <p className="text-[#14100d] text-[14px] leading-[1.7] max-w-2xl mt-6">
-            The revolving door refers to senior government officials and ministers leaving public service to take up roles in the private sector, often in industries they previously regulated or had influence over. These appointments are reviewed by the Advisory Committee on Business Appointments (ACOBA), which can attach conditions such as waiting periods or restrictions on lobbying former colleagues.
+            The revolving door refers to senior government officials and ministers leaving public service to take up roles in the private sector, often in industries they previously regulated or had influence over. These appointments were reviewed by the Advisory Committee on Business Appointments (ACOBA), which could attach conditions such as waiting periods or restrictions on lobbying former colleagues. ACOBA closed on 13 October 2025 and the records below are complete up to that date. Responsibility has since passed to the Civil Service Commission for senior officials and special advisers, and to the Independent Adviser on Ministerial Standards for former ministers, both under the new Ethics and Integrity Commission.
           </p>
         )}
         {section === 'donations' && (
