@@ -37,7 +37,7 @@ const NAV: NavItem[] = [
     { label: 'Earnings & Pay', href: '/earnings' },
   ] },
   { label: 'Departments', href: '/departments' },
-  { label: 'Editorials', href: '/editorials' },
+  { label: 'Opinion / Editorials', href: '/editorials' },
   { label: 'Transparency', href: '/transparency', children: [
     { label: 'All Datasets', href: '/transparency' },
     { label: 'MPs’ Second Jobs', href: '/second-jobs' },
