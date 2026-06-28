@@ -62,7 +62,10 @@ type Row = {
 function parseTable(html: string): Row[] {
   const tbody = (html.match(/<tbody>([\s\S]*?)<\/tbody>/) || [])[1] || '';
   const trs = [...tbody.matchAll(/<tr>([\s\S]*?)<\/tr>/g)].map((m) => m[1]);
-  const groups = new Map<string, Row & { roleSet: Set<string>; urlSet: Set<string> }>();
+  const groups = new Map<string, {
+    person_name: string; previous_role: string | null; approval_date: string;
+    roleSet: Set<string>; urlSet: Set<string>;
+  }>();
   for (const tr of trs) {
     const tds = [...tr.matchAll(/<td>([\s\S]*?)<\/td>/g)];
     if (tds.length < 3) continue;
@@ -78,7 +81,7 @@ function parseTable(html: string): Row[] {
       || [...tr.matchAll(/href="([^"]+)"/g)].map((m) => m[1]).pop();
     const k = `${person_name}|${previous_role}|${approval_date}`;
     if (!groups.has(k)) {
-      groups.set(k, { person_name, previous_role, new_role: null, organisation: null, approval_date, conditions: null, description: null, roleSet: new Set(), urlSet: new Set() });
+      groups.set(k, { person_name, previous_role, approval_date, roleSet: new Set(), urlSet: new Set() });
     }
     const g = groups.get(k)!;
     if (appt) g.roleSet.add(appt);
