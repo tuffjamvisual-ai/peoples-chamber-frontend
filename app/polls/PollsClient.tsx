@@ -30,7 +30,7 @@ export default function PollsClient() {
   const [polls, setPolls] = useState<Poll[]>([])
   const [userVotes, setUserVotes] = useState<Record<number, string>>({})
   const [search, setSearch] = useState('')
-  const [sort, setSort] = useState<SortOption>('popular')
+  const [sort, setSort] = useState<SortOption>('newest')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -158,8 +158,8 @@ export default function PollsClient() {
             cursor: 'pointer',
           }}
         >
-          <option value="popular">Most popular</option>
           <option value="newest">Newest</option>
+          <option value="popular">Most popular</option>
         </select>
         <span style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.15em', opacity: 1 }}>
           {filtered.length.toLocaleString()} shown
