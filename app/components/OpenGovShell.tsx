@@ -75,7 +75,7 @@ export default function OpenGovShell({
           <img src="/newb.webp" alt="" aria-hidden style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', userSelect: 'none', pointerEvents: 'none', transform: 'rotate(-2.5deg)', filter: 'saturate(0.84) drop-shadow(0 18px 38px rgba(0,0,0,0.55))' }} />
 
           <div className="ng-tab" style={{ transform: 'rotate(-2.5deg)' }}>
-            <a href="/login">Account / Info</a>
+            <a href="/account">Account / Info</a>
             <span aria-hidden style={{ display: 'inline-block', width: '1px', height: '0.95em', background: 'currentColor', opacity: 0.5, margin: '0 7px' }} />
             <a href="/support">Support Us</a>
           </div>
