@@ -28,6 +28,9 @@ export default function PollsPage() {
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
           Have your say on the issues that matter. Vote on questions about policy, politics and public life, then see how Westminster voted.
         </p>
+        <a href="/polls/archive" className="no-hover-scale" style={{ display: 'inline-block', marginTop: '10px', fontFamily: 'Special Elite, monospace', fontSize: '13px', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#7a1612', textDecoration: 'underline' }}>
+          View archived polls →
+        </a>
       </header>
 
       <PollsClient />

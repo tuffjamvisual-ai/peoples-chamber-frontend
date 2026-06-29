@@ -3,10 +3,15 @@ import { supabase } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // ?archived=true returns the archived (outdated) polls for the archive page;
+  // by default only active polls are returned.
+  const archived = request.nextUrl.searchParams.get('archived') === 'true';
+
   const { data, error } = await supabase
     .from('polls')
     .select('*')
+    .eq('archived', archived)
     .order('created_at', { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
