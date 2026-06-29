@@ -13,8 +13,10 @@ import burnhamRecord from './andy-burnham-the-record-behind-the-reputation';
 import labourBrokenPromises from './whr8acs2gf';
 import councilTaxProblem from './awsucrmvr1';
 import groomingGangsScandal from './xm7co0hssx';
+import emptyBenches from './kp7m2xqv9d';
 
 export const editorials: EditorialRegistry = {
+  [emptyBenches.slug]: emptyBenches,
   [groomingGangsScandal.slug]: groomingGangsScandal,
   [councilTaxProblem.slug]: councilTaxProblem,
   [labourBrokenPromises.slug]: labourBrokenPromises,
