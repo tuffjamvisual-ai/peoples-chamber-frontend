@@ -5,7 +5,7 @@ import OpenGovShell from '../components/OpenGovShell'
 import BackLink from '../components/BackLink';
 
 export const metadata: Metadata = {
-  title: "OpenGov Polls",
+  title: "OpenGovt Polls",
   description:
     'Live public polls on every UK Parliament bill, see how the public would vote, then compare it to the official Commons tally.',
   alternates: { canonical: '/polls' },
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function PollsPage() {
   return (
-    <OpenGovShell pageStamp="OpenGov Polls">
+    <OpenGovShell pageStamp="OpenGovt Polls">
       <BackLink
         fallbackHref="/"
         label="← Back"
@@ -23,7 +23,7 @@ export default function PollsPage() {
 
       <header style={{ marginBottom: '5%' }}>
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
-          OpenGov Polls
+          OpenGovt Polls
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
           Have your say on the issues that matter. Vote on questions about policy, politics and public life, then see how Westminster voted.

@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Archived Polls',
-  description: 'Past OpenGov polls that have been overtaken by events, kept here as a record with their final results.',
+  description: 'Past OpenGovt polls that have been overtaken by events, kept here as a record with their final results.',
   alternates: { canonical: '/polls/archive' },
 }
 
