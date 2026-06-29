@@ -17,7 +17,7 @@ type Poll = {
 type SortOption = 'newest' | 'popular'
 
 const INK = '#14100d'
-const INK_SOFT = 'rgba(20,16,13,0.7)'
+const INK_SOFT = '#14100d'
 const INK_HAIRLINE = 'rgba(20,16,13,0.3)'
 const CREAM_DEEP = '#dcd4c0'
 const ACCENT = '#7a1612'
@@ -105,7 +105,7 @@ export default function PollsClient() {
           fontSize: '12px',
           textTransform: 'uppercase',
           letterSpacing: '0.15em',
-          opacity: 0.8,
+          opacity: 1,
         }}
       >
         <span>
@@ -161,7 +161,7 @@ export default function PollsClient() {
           <option value="popular">Most popular</option>
           <option value="newest">Newest</option>
         </select>
-        <span style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.15em', opacity: 0.7 }}>
+        <span style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.15em', opacity: 1 }}>
           {filtered.length.toLocaleString()} shown
         </span>
       </div>
@@ -317,7 +317,7 @@ function PollCard({
             fontWeight: 'bold',
             letterSpacing: '0.18em',
             textTransform: 'uppercase',
-            opacity: 0.7,
+            opacity: 1,
             pointerEvents: 'none',
           }}
         >

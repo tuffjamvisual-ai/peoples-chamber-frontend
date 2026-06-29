@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 }
 
 const INK = '#14100d'
-const INK_SOFT = 'rgba(20,16,13,0.7)'
+const INK_SOFT = '#14100d'
 const INK_HAIRLINE = 'rgba(20,16,13,0.25)'
 const ACCENT = '#7a1612'
 const SUCCESS = '#4e6b34'
