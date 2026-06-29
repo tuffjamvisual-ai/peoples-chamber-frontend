@@ -10,6 +10,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
   }
 
+  const { data: voter } = await supabase
+    .from('users')
+    .select('id, email_verified')
+    .eq('id', userId)
+    .single();
+  if (!voter) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 });
+  if (!voter.email_verified) return NextResponse.json({ error: 'Please confirm your email before voting. Check your inbox for the confirmation link.' }, { status: 403 });
+
   const { data: existing } = await supabase
     .from('poll_vote')
     .select('id')

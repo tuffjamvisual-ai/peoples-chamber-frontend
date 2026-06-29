@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import bcrypt from 'bcryptjs';
 import { resolveMx } from 'dns/promises';
+import { randomUUID } from 'crypto';
+import { emailEnabled, sendVerificationEmail } from '@/lib/email';
 
 // Permissive but blocks obvious garbage. Real format validation happens
 // at the deliverability layer (MX check + send a verification email).
@@ -79,6 +81,9 @@ export async function POST(request: NextRequest) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const token = randomUUID();
+    const verified = !emailEnabled; // auto-verify when email sending is not configured
+
     const { data: user, error } = await supabase
       .from('users')
       .insert({
@@ -86,8 +91,11 @@ export async function POST(request: NextRequest) {
         password: hashedPassword,
         postcode,
         username,
+        email_verified: verified,
+        verification_token: verified ? null : token,
+        verification_sent_at: verified ? null : new Date().toISOString(),
       })
-      .select('id, email, username, postcode')
+      .select('id, email, username, postcode, email_verified')
       .single();
 
     if (error) {
@@ -98,7 +106,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ user });
+    if (!verified) {
+      const base = process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
+      await sendVerificationEmail(email, token, base);
+    }
+
+    return NextResponse.json({ user, needsVerification: !verified });
 
   } catch (error) {
     console.error('Signup error:', error);

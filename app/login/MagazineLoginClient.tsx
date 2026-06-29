@@ -86,9 +86,14 @@ export default function MagazineLoginClient() {
   const [signupName, setSignupName] = useState('');
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
+  const [signupPostcode, setSignupPostcode] = useState('');
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [notice, setNotice] = useState(() => {
+    const v = searchParams.get('verified');
+    return v === '1' ? 'Email confirmed. You can now sign in and vote.' : v === 'invalid' ? 'That confirmation link was invalid or has expired.' : '';
+  });
 
   function switchMode(next: 'signin' | 'signup') {
     setMode(next);
@@ -118,7 +123,12 @@ export default function MagazineLoginClient() {
     if (!pwOk) { setError('Password must be 8 or more characters with a letter and a number'); return; }
     setLoading(true);
     try {
-      await signup(signupEmail.trim(), signupPassword, '', signupName.trim());
+      const res = await signup(signupEmail.trim(), signupPassword, signupPostcode.trim(), signupName.trim());
+      if (res?.needsVerification) {
+        setLoading(false);
+        setNotice('Account created. Check your email for a confirmation link, then sign in to start voting.');
+        return;
+      }
       router.push(returnTo);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Sign up failed');
@@ -144,6 +154,12 @@ export default function MagazineLoginClient() {
         {error && (
           <div role="alert" style={{ marginBottom: '18px', padding: '11px 14px', background: 'rgba(107,36,23,0.1)', border: `1px solid ${ACCENT}`, color: ACCENT, fontSize: '14px', lineHeight: 1.4 }}>
             {error}
+          </div>
+        )}
+
+        {notice && (
+          <div role="status" style={{ marginBottom: '18px', padding: '11px 14px', background: 'rgba(78,107,52,0.12)', border: '1px solid #4e6b34', color: '#3a5226', fontSize: '14px', lineHeight: 1.4 }}>
+            {notice}
           </div>
         )}
 
@@ -175,6 +191,9 @@ export default function MagazineLoginClient() {
             <label style={label} htmlFor="su-pw">Password</label>
             <input id="su-pw" type="password" autoComplete="new-password" required value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} style={{ ...input, marginBottom: '6px' }} />
             <p style={{ margin: '0 0 18px', fontSize: '13px', opacity: 0.6 }}>8 or more characters, with a letter and a number.</p>
+
+            <label style={label} htmlFor="su-postcode">Postcode <span style={{ opacity: 0.6 }}>(optional)</span></label>
+            <input id="su-postcode" type="text" autoComplete="postal-code" value={signupPostcode} onChange={(e) => setSignupPostcode(e.target.value)} style={input} />
 
             <button type="submit" disabled={loading} style={button}>{loading ? 'Creating account…' : 'Create Account'}</button>
 

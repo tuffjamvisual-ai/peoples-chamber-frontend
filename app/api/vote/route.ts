@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
     // Verify user exists
     const { data: userExists } = await supabase
       .from('users')
-      .select('id')
+      .select('id, email_verified')
       .eq('id', userId)
       .single()
     
@@ -74,6 +74,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Unauthorised' },
         { status: 401 }
+      )
+    }
+
+    if (!userExists.email_verified) {
+      return NextResponse.json(
+        { error: 'Please confirm your email before voting. Check your inbox for the confirmation link.' },
+        { status: 403 }
       )
     }
 

@@ -12,7 +12,7 @@ type User = {
 type AuthContextType = {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
-  signup: (email: string, password: string, postcode?: string, username?: string) => Promise<void>;
+  signup: (email: string, password: string, postcode?: string, username?: string) => Promise<{ needsVerification: boolean }>;
   logout: () => void;
 };
 
@@ -58,8 +58,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error(data.error || 'Signup failed');
     }
 
+    if (data.needsVerification) {
+      return { needsVerification: true };
+    }
+
     setUser(data.user);
     localStorage.setItem('user', JSON.stringify(data.user));
+    return { needsVerification: false };
   };
 
   const logout = () => {
