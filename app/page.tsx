@@ -19,6 +19,10 @@ export default function HomePage() {
     <>
       <JsonLd data={buildHomepageGraph()} />
       <OpenGovShell pageStamp="Front Page">
+        <a href="/this-week" className="no-hover-scale" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', textDecoration: 'none', color: '#14100d', border: '2px solid #6b2417', borderRadius: '3px', padding: '10px 16px', margin: '0 0 22px', fontFamily: "'Special Elite', monospace", background: 'rgba(107,36,23,0.06)' }}>
+          <span style={{ fontSize: '13px', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 'bold' }}>This Week in Parliament</span>
+          <span style={{ fontSize: '13px', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6b2417' }}>What MPs are voting on &rarr;</span>
+        </a>
               <div className="og-lead">
             <div className="og-main">
               <section className="og-intro">
