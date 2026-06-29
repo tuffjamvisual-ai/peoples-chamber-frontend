@@ -241,13 +241,10 @@ function PollCard({
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'space-between',
+          justifyContent: 'center',
           padding: '14px 0',
         }}
       >
-        <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'Special Elite, monospace', fontSize: '9px', letterSpacing: '0.22em', textTransform: 'uppercase', color: INK_SOFT, whiteSpace: 'nowrap' }}>
-          The People&apos;s Ballot
-        </span>
         <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'Special Elite, monospace', fontSize: '13px', letterSpacing: '0.06em', color: ACCENT, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
           No. {String(poll.id).padStart(4, '0')}
         </span>
