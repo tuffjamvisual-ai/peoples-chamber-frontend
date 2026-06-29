@@ -4,10 +4,14 @@ import bcrypt from 'bcryptjs';
 import { resolveMx } from 'dns/promises';
 import { randomUUID } from 'crypto';
 import { emailEnabled, sendVerificationEmail } from '@/lib/email';
+import disposableDomains from 'disposable-email-domains';
 
 // Permissive but blocks obvious garbage. Real format validation happens
 // at the deliverability layer (MX check + send a verification email).
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+// Open-source throwaway-domain blocklist (disposable-email-domains, ~121k domains).
+const DISPOSABLE_DOMAINS = new Set(disposableDomains.map((d) => d.toLowerCase()));
 
 async function domainAcceptsMail(email: string): Promise<boolean> {
   const domain = email.split('@')[1];
@@ -47,6 +51,13 @@ export async function POST(request: NextRequest) {
     if (!(await domainAcceptsMail(email))) {
       return NextResponse.json(
         { error: 'That email domain doesn\'t accept mail. Check the spelling.' },
+        { status: 400 }
+      );
+    }
+
+    if (DISPOSABLE_DOMAINS.has(email.split('@')[1])) {
+      return NextResponse.json(
+        { error: 'Disposable email addresses are not allowed. Please use a permanent address.' },
         { status: 400 }
       );
     }
