@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import JsonLd, { buildHomepageGraph } from '@/lib/JsonLd';
 import OpenGovShell from './components/OpenGovShell';
+import PostcodeLookup from './components/PostcodeLookup';
 import './home-front.css';
 
 // The new "OPEN GOVERNMENT" front page: the dossier-folder template (OpenGovShell)
@@ -19,6 +20,9 @@ export default function HomePage() {
     <>
       <JsonLd data={buildHomepageGraph()} />
       <OpenGovShell pageStamp="Front Page">
+        <div style={{ marginBottom: '24px' }}>
+          <PostcodeLookup heading="Who is your MP?" />
+        </div>
               <div className="og-lead">
             <div className="og-main">
               <section className="og-intro">
