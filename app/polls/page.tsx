@@ -3,6 +3,7 @@ import PollsClient from './PollsClient'
 import ScrollToTopButton from '../components/ScrollToTopButton'
 import OpenGovShell from '../components/OpenGovShell'
 import BackLink from '../components/BackLink';
+import VotingIntegrity from '../components/VotingIntegrity';
 
 export const metadata: Metadata = {
   title: "OpenGovt Polls",
@@ -34,6 +35,8 @@ export default function PollsPage() {
       </header>
 
       <PollsClient />
+
+      <VotingIntegrity />
 
       <ScrollToTopButton />
     </OpenGovShell>

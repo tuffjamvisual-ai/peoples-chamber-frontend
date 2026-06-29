@@ -6,6 +6,7 @@ import ScrollToTopButton from '../components/ScrollToTopButton';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import AllBillsIndex from './AllBillsIndex';
+import VotingIntegrity from '../components/VotingIntegrity';
 
 const BILLS_PER_PAGE = 20;
 
@@ -61,6 +62,8 @@ export default async function BillsPage({ searchParams }: PageProps) {
       </div>
 
       <AllBillsIndex />
+
+      <VotingIntegrity />
 
       <ScrollToTopButton />
     </OpenGovShell>
