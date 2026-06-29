@@ -89,13 +89,15 @@ export default function HomePage() {
                 <p>All twenty four ministerial departments graded against the public record of what they were set up to do.</p>
                 <div className="og-cta">See the departments &rarr;</div>
               </a>
+
+              <a className="og-block og-card" href="/this-week">
+                <div className="og-head">This week in Parliament</div>
+                <p>The bills before the House of Commons this week and the most recent votes MPs have held.</p>
+                <div className="og-cta">See what MPs are voting on &rarr;</div>
+              </a>
             </div>
           </div>
 
-        <a href="/this-week" className="no-hover-scale" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', gap: '6px 12px', textDecoration: 'none', color: '#14100d', border: '2px solid #6b2417', borderRadius: '3px', padding: '10px 16px', margin: '22px 0 0', fontFamily: "'Special Elite', monospace", textAlign: 'center', background: 'rgba(107,36,23,0.06)' }}>
-          <span style={{ fontSize: '13px', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 'bold' }}>This Week in Parliament</span>
-          <span style={{ fontSize: '13px', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6b2417' }}>What MPs are voting on &rarr;</span>
-        </a>
       </OpenGovShell>
       <HomepageEditorialIntro />
     </>
