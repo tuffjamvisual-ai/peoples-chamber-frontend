@@ -60,11 +60,12 @@ export async function GET(req: Request) {
       // dated stage in the JSON we just fetched. Stages without a
       // stageSittings date (future/scheduled) are ignored for this
       // purpose so we surface the last *actually-occurred* stage.
+      const today = new Date().toISOString().slice(0, 10);
       const items: Array<{ description?: string; stageSittings?: Array<{ date?: string }> }> =
         Array.isArray(stages?.items) ? stages.items : [];
       const dated = items
         .map((s) => ({ s, date: s.stageSittings?.[0]?.date }))
-        .filter((x): x is { s: typeof items[number]; date: string } => Boolean(x.date))
+        .filter((x): x is { s: typeof items[number]; date: string } => Boolean(x.date) && x.date.slice(0, 10) <= today)
         .sort((a, b) => b.date.localeCompare(a.date));
       const latest = dated[0];
       const current_stage = latest?.s.description ?? null;
