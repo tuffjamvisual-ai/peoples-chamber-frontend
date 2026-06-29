@@ -65,7 +65,7 @@ export async function GET(req: Request) {
         Array.isArray(stages?.items) ? stages.items : [];
       const dated = items
         .map((s) => ({ s, date: s.stageSittings?.[0]?.date }))
-        .filter((x): x is { s: typeof items[number]; date: string } => Boolean(x.date) && x.date.slice(0, 10) <= today)
+        .filter((x): x is { s: typeof items[number]; date: string } => typeof x.date === 'string' && x.date.slice(0, 10) <= today)
         .sort((a, b) => b.date.localeCompare(a.date));
       const latest = dated[0];
       const current_stage = latest?.s.description ?? null;
