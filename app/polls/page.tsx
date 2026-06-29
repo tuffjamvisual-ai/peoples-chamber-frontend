@@ -7,7 +7,7 @@ import BackLink from '../components/BackLink';
 export const metadata: Metadata = {
   title: "OpenGovt Polls",
   description:
-    'Live public polls on every UK Parliament bill, see how the public would vote, then compare it to the official Commons tally.',
+    'Public opinion polls on the big questions in British politics. Have your say and see where the public stands.',
   alternates: { canonical: '/polls' },
 }
 
@@ -26,7 +26,7 @@ export default function PollsPage() {
           OpenGovt Polls
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
-          Have your say on the issues that matter. Vote on questions about policy, politics and public life, then see how Westminster voted.
+          Have your say on the big questions in British politics. These are public opinion polls, not votes in Parliament. Vote and see where the public stands.
         </p>
         <a href="/polls/archive" className="no-hover-scale" style={{ display: 'inline-block', marginTop: '10px', fontFamily: 'Special Elite, monospace', fontSize: '13px', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#7a1612', textDecoration: 'underline' }}>
           View archived polls →
