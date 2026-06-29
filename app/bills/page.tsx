@@ -54,6 +54,8 @@ export default async function BillsPage({ searchParams }: PageProps) {
         </p>
       </header>
 
+      <VotingIntegrity />
+
       <div className="md:hidden">
         <BillsGridMobile initialBills={bills} currentPage={page} totalPages={totalPages} />
       </div>
@@ -62,8 +64,6 @@ export default async function BillsPage({ searchParams }: PageProps) {
       </div>
 
       <AllBillsIndex />
-
-      <VotingIntegrity />
 
       <ScrollToTopButton />
     </OpenGovShell>

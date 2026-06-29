@@ -1,6 +1,6 @@
 export default function VotingIntegrity() {
   return (
-    <section style={{ marginTop: '44px', borderTop: '2px solid #6b2417', paddingTop: '18px' }}>
+    <section style={{ margin: '0 0 36px', borderTop: '2px solid #6b2417', borderBottom: '2px solid #6b2417', padding: '16px 0' }}>
       <h2 style={{ fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif", textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6b2417', fontSize: 'clamp(20px, 3vw, 30px)', margin: '0 0 10px', lineHeight: 1.05 }}>
         Voting Integrity
       </h2>

@@ -34,9 +34,9 @@ export default function PollsPage() {
         </a>
       </header>
 
-      <PollsClient />
-
       <VotingIntegrity />
+
+      <PollsClient />
 
       <ScrollToTopButton />
     </OpenGovShell>
