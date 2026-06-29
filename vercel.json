@@ -24,6 +24,7 @@
     { "path": "/api/sync-department-contacts",    "schedule": "0 6 * * 1" },
     { "path": "/api/sync-agency-cache",           "schedule": "30 6 * * 1" },
     { "path": "/api/sync-person-cache",           "schedule": "0 7 * * 1" },
+    { "path": "/api/seed-daily-votes",            "schedule": "0 3 * * *" },
     { "path": "/api/sync-revolving-door",         "schedule": "0 6 * * 2" },
     { "path": "/api/sync-ministers-bars",         "schedule": "30 6 * * 2" },
     { "path": "/api/sync-govuk-data",             "schedule": "0 6 * * 3" },
