@@ -68,10 +68,6 @@ export default function HomePage() {
                 <div className="og-cta">Read the full story &rarr;</div>
               </a>
 
-              <a className="og-block og-brief" href="/editorials" style={{ textAlign: 'right' }}>
-                <div className="og-cta">All investigations &rarr;</div>
-              </a>
-
               <a className="og-block og-card" href="/expenses">
                 <div className="og-head">The biggest expenses bill</div>
                 <p>The ten biggest claimants ran up the largest bills last financial year. See which MPs spent the most and on what.</p>
