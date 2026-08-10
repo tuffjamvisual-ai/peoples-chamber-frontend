@@ -78,14 +78,14 @@ export const DEPARTMENT_BUDGETS: Record<string, DepartmentBudget> = {
       "Environmental Land Management Scheme payments to farmers (the post Brexit replacement for the EU Common Agricultural Policy), the Environment Agency, Natural England, flood defence, food standards, the Animal and Plant Health Agency and the Marine Management Organisation. Roughly half of Defra's Resource DEL is direct payments and farm support; flood defence is the largest line on the Capital side.",
   },
   culture: {
-    resourceDel: 3.5, capitalDel: 1.0, year: '2025/26',
+    resourceDel: 6.0, capitalDel: 6.5, year: '2025/26',
     prose:
-      "Arts Council England, Sport England and UK Sport, museums and heritage (Tate, V&A, British Museum, the Royal Collection), public broadcasting policy framework (the BBC is licence fee funded but DCMS administers the agreement), gambling regulation and the National Lottery distributors. The film and TV production tax credits sit on the HMRC side but are larger in cash than the direct arts grant.",
+      "Arts Council England, Sport England and UK Sport, museums and heritage (Tate, V&A, British Museum, the Royal Collection), public broadcasting policy framework (the BBC is licence fee funded but DCMS administers the agreement), gambling regulation and the National Lottery distributors. The film and TV production tax credits sit on the HMRC side but are larger in cash than the direct arts grant. It absorbed digital and telecoms policy from the abolished DSIT in the July 2026 reshuffle; the capital-heavy broadband and digital-infrastructure programme is what lifts its capital budget well above its historical level.",
   },
   'business-trade': {
-    resourceDel: 1.8, capitalDel: 1.0, year: '2025/26',
+    resourceDel: 14.8, capitalDel: 8.0, year: '2025/26',
     prose:
-      "Industrial strategy, trade policy and trade negotiations, business support schemes, the Post Office, the Insolvency Service and sectoral subsidies for steel, automotive and semiconductors. The £2.5 billion British Steel arrangement in 2025/26 sits inside this line. Smaller than its political weight suggests because most of the levers it pulls, R&D, energy and planning, are owned by other departments.",
+      "Industrial strategy, trade policy and trade negotiations, business support schemes, the Post Office, the Insolvency Service and sectoral subsidies for steel, automotive and semiconductors. The £2.5 billion British Steel arrangement in 2025/26 sits inside this line. Since the July 2026 reshuffle it also carries the science and innovation budget absorbed from the abolished DSIT, dominated by UK Research and Innovation (the £8.8 billion umbrella funding the research councils, Innovate UK and Research England) plus the space programme, artificial intelligence and the £1 billion Horizon and Copernicus contributions. That absorption of R&D, once owned by another department, is what makes this line far larger than its historical size.",
   },
   'cabinet-office': {
     resourceDel: 1.1, capitalDel: 0.4, year: '2025/26',
