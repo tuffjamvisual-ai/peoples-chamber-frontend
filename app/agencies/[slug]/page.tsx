@@ -42,7 +42,10 @@ const DEPT_SLUGS: Record<string, string> = {
   'department-for-transport': 'transport',
   'department-for-environment-food-and-rural-affairs': 'environment',
   'department-for-business-and-trade': 'business-trade',
-  'department-for-science-innovation-and-technology': 'science-tech',
+  // DSIT abolished Jul 2026; its science/innovation functions folded into
+  // Business, so route agencies filed under the old DSIT parent there instead
+  // of the now-removed science-tech department (which 404s).
+  'department-for-science-innovation-and-technology': 'business-trade',
   'ministry-of-housing-communities-and-local-government': 'housing',
   'ministry-of-justice': 'justice',
   'ministry-of-defence': 'defence',

@@ -47,11 +47,6 @@ export const DEPARTMENT_BUDGETS: Record<string, DepartmentBudget> = {
     prose:
       "Roads, the rail network subsidy (now including the renationalised train operators), HS2, local authority transport grants, aviation oversight, ports, cycling and walking infrastructure. HS2 alone accounts for most of the Capital DEL increase. The recurring rail subsidy is the largest annual cost. Most local transport funding flows through this line via grants to councils and combined authorities.",
   },
-  'science-tech': {
-    resourceDel: 15.5, capitalDel: 12.5, year: '2025/26',
-    prose:
-      "Created in February 2023 by carving science, AI, telecoms and digital policy out of BEIS and DCMS. The dominant line is UK Research and Innovation, the £8.8 billion umbrella that funds the seven research councils plus Innovate UK and Research England. Capital DEL includes £1 billion of Horizon and Copernicus contributions following UK re-entry. Smaller administration budget of £377 million for the department itself.",
-  },
   'home-office': {
     resourceDel: 19.7, capitalDel: 1.5, year: '2025/26',
     prose:

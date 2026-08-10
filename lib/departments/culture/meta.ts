@@ -2,7 +2,7 @@ import type { DepartmentMeta } from '../types';
 
 const meta: DepartmentMeta = {
   slug: 'culture',
-  name: 'Department for Culture, Media and Sport',
+  name: 'Department for Digital, Culture, Media and Sport',
   shortName: 'DCMS',
   minister: 'Lisa Nandy',
   ministerParty: 'labour',

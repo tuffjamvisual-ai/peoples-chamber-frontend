@@ -162,7 +162,11 @@ async function syncDept(supabase: SupabaseClient, deptSlug: string, govukSlug: s
   // Head-level roles only. The negative lookbehind on "secretary of state" is
   // essential: without it, "Parliamentary Under-Secretary of State" (a junior
   // role) falsely matches and gets crowned as department head.
-  const HEAD_ROLE = /((?<!under[- ])secretary of state|chancellor of the exchequer|prime minister|first lord of the treasury|attorney general|advocate general|leader of the house|chief secretary to the treasury|minister for the cabinet office|paymaster general|lord privy seal)/i;
+  // "President of the Board of Trade" is the title the Business and Trade
+  // Secretary holds instead of a "Secretary of State for..." style role, so it
+  // must count as a head role — otherwise the picker finds no head for
+  // business-trade/ukef and the department is left with no Secretary of State.
+  const HEAD_ROLE = /((?<!under[- ])secretary of state|chancellor of the exchequer|prime minister|first lord of the treasury|attorney general|advocate general|leader of the house|chief secretary to the treasury|minister for the cabinet office|paymaster general|lord privy seal|president of the board of trade)/i;
   // Territorial Secretaries of State (NI/Scotland/Wales) only head their own
   // office. GOV.UK mid-reshuffle sometimes misfiles e.g. the NI Secretary into
   // business-trade/ukef; without this guard the picker would crown that

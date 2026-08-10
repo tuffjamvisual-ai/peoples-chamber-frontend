@@ -98,7 +98,7 @@ function areaFromTitle(title: string): string {
   if (t.startsWith('dhsc')) return 'DHSC';
   if (t.startsWith('dfe')) return 'DfE';
   if (t.startsWith('dwp')) return 'DWP';
-  if (t.startsWith('dsit')) return 'DSIT';
+  if (t.startsWith('dsit')) return 'DBT'; // DSIT abolished Jul 2026, folded into Business
   if (t.startsWith('dft')) return 'DfT';
   if (t.startsWith('defra')) return 'Defra';
   if (t.startsWith('desnz')) return 'DESNZ';

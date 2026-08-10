@@ -2,11 +2,11 @@ import type { DepartmentMeta } from '../types';
 
 const meta: DepartmentMeta = {
   slug: 'business-trade',
-  name: 'Department for Business and Trade',
+  name: 'Department for Business, Innovation, Science and Trade',
   shortName: 'DBT',
-  minister: 'Peter Kyle',
+  minister: 'Jonathan Reynolds',
   ministerParty: 'labour',
-  ministerPhoto: 'https://assets.publishing.service.gov.uk/media/66881a3e4a94d44125d9cda2/s465_Peter_Kyle.jpg',
+  ministerPhoto: '',
   controlZones: [
     'Trade Deals',
     'Export Support',
