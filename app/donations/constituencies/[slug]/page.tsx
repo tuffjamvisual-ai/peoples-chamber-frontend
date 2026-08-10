@@ -147,13 +147,13 @@ export default async function AssociationPage({ params }: PageProps) {
       <BackLink fallbackHref="/donations/constituencies" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
           Constituency association · Donations declared
         </p>
         <h1 style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '8px', lineHeight: 1.15 }}>
           {canonicalName}
         </h1>
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', fontSize: '12px' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', fontSize: '15px' }}>
           {party && <span style={{ padding: '3px 8px', border: `1px solid ${INK_HAIRLINE}` }}>{party}</span>}
           {matchedMp && (
             <Link href={`/mps/${matchedMp.member_id}`} style={{ padding: '3px 8px', border: `1px solid ${ACCENT}`, color: ACCENT, textDecoration: 'none' }}>
@@ -191,7 +191,7 @@ export default async function AssociationPage({ params }: PageProps) {
                 </td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{d.count}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(d.total).toLocaleString()}</td>
-                <td style={{ padding: '6px', fontSize: '13px', fontFamily: 'monospace', opacity: 0.7 }}>
+                <td style={{ padding: '6px', fontSize: '15px', fontFamily: 'monospace', opacity: 0.7 }}>
                   {d.first && d.last ? (d.first === d.last ? d.first : `${d.first} → ${d.last}`) : ''}
                 </td>
               </tr>
@@ -207,7 +207,7 @@ export default async function AssociationPage({ params }: PageProps) {
 function Tile({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '12px 14px', background: CREAM }}>
-      <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
+      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
       <div style={{ fontFamily: '"Special Elite", monospace', fontSize: '22px', fontWeight: 'bold', color: ACCENT }}>{value}</div>
     </div>
   );
@@ -221,4 +221,4 @@ const sectionH2: React.CSSProperties = {
   paddingBottom: '6px',
   marginBottom: '14px',
 };
-const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '13px', fontFamily: '"Special Elite", monospace' };
+const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '15px', fontFamily: '"Special Elite", monospace' };

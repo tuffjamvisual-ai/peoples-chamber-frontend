@@ -11,7 +11,7 @@ const piece: EditorialEntry = {
   standfirst:
     'Tipped to lead Labour and the only major politician in Britain with positive favourability ratings. But does the record match the reputation?',
   publishedAt: '2026-06-23',
-  authorByline: "Open Govt",
+  authorByline: "opengovt",
   body: [
     { type: 'paragraph', text: `Andy Burnham is the most talked about politician in Britain who has not yet been tested by the job everyone assumes he wants. He is widely expected to challenge Keir Starmer for the Labour leadership. He is described as "the only major politician in the country who enjoys positive favourability ratings." He won Makerfield on 18 June 2026 with 54.8 percent of the vote and a majority of 9,231 over Reform UK. He won three consecutive mayoral elections in Greater Manchester with 67 percent and 63 percent of the vote. The numbers suggest a politician with an extraordinary connection to voters that most of his contemporaries cannot match.` },
     { type: 'paragraph', text: `The question is whether the record matches the reputation.` },

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import LastUpdated from '../components/LastUpdated';
 import Link from 'next/link';
 import { departments } from '@/lib/departments';
 import { supabase } from '@/lib/supabase';
@@ -90,7 +91,7 @@ export default async function SpendingPage() {
                     <span style={{ fontSize: '15px', whiteSpace: 'nowrap' }}>
                       <strong>{fmtMillions(total)}</strong>
                       {change != null && (
-                        <span style={{ marginLeft: 8, color: change >= 0 ? '#0a6f2a' : ACCENT, fontWeight: 600, fontSize: '13px' }}>
+                        <span style={{ marginLeft: 8, color: change >= 0 ? '#0a6f2a' : ACCENT, fontWeight: 600, fontSize: '15px' }}>
                           {change >= 0 ? '↑' : '↓'} {Math.abs(change).toFixed(1)}%
                         </span>
                       )}
@@ -107,10 +108,10 @@ export default async function SpendingPage() {
 
         {notReported.length > 0 && (
           <section style={{ marginTop: '40px', paddingTop: '24px', borderTop: '1px solid rgba(0,0,0,0.15)' }}>
-            <h2 style={{ fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.25em', color: ACCENT, marginBottom: '12px', fontWeight: 600 }}>
+            <h2 style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.25em', color: ACCENT, marginBottom: '12px', fontWeight: 600 }}>
               Not in Mains DEL
             </h2>
-            <p style={{ fontSize: '14px', lineHeight: 1.6, marginBottom: '16px', opacity: 0.8 }}>
+            <p style={{ fontSize: '15px', lineHeight: 1.6, marginBottom: '16px', opacity: 0.8 }}>
               These departments are either bundled into a Mains aggregate
               (&ldquo;Law Officers&apos; Departments&rdquo;, &ldquo;Small and Independent Bodies&rdquo;) or
               fall outside the HM Treasury Estimates altogether (the two House
@@ -123,7 +124,7 @@ export default async function SpendingPage() {
                     {m.name}
                   </Link>
                   {m.row?.caveat_note && (
-                    <span style={{ display: 'block', fontSize: '13px', opacity: 0.7, marginTop: '2px' }}>
+                    <span style={{ display: 'block', fontSize: '15px', opacity: 0.7, marginTop: '2px' }}>
                       {m.row.caveat_note}.
                     </span>
                   )}
@@ -134,6 +135,7 @@ export default async function SpendingPage() {
         )}
       </div>
       <ScrollToTopButton />
+      <LastUpdated sourceKey="department_budgets" />
     </OpenGovShell>
   );
 }

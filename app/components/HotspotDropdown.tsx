@@ -152,7 +152,7 @@ export default function HotspotDropdown({
     padding: '10px 22px',
     color: '#14100d',
     textDecoration: 'none',
-    fontSize: '12px',
+    fontSize: '15px',
     letterSpacing: '0.16em',
     textTransform: 'uppercase',
     // Red-ink hairline echoing the divider rules on the masthead.
@@ -209,7 +209,7 @@ export default function HotspotDropdown({
             gap: '8px',
             padding: '4px 18px 8px',
             fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
-            fontSize: '12px',
+            fontSize: '15px',
             letterSpacing: '0.28em',
             textTransform: 'uppercase',
             color: 'rgba(20,16,13,0.55)',

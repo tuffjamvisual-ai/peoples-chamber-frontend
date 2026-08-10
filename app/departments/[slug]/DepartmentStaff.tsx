@@ -65,7 +65,7 @@ export default function DepartmentStaff({ govukData }: { govukData: StaffData | 
 
   return (
     <section style={{ fontFamily: 'Special Elite, monospace' }} className="text-[#14100d] mb-6">
-      <h2 className="text-[14px] uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: ACCENT }}>
+      <h2 className="text-[15px] uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: ACCENT }}>
         Department Staff
       </h2>
       {juniorMinisters.length > 0 && <StaffGroup label="Ministers" people={juniorMinisters} />}
@@ -104,9 +104,9 @@ function StaffGroup({
 }) {
   return (
     <div className="mb-5">
-      <p className="text-[13px] uppercase tracking-[0.2em] text-[#14100d] mb-1.5 font-semibold">{label}</p>
+      <p className="text-[15px] uppercase tracking-[0.2em] text-[#14100d] mb-1.5 font-semibold">{label}</p>
       {eyebrow && (
-        <p className="text-[#14100d] text-[12px] mb-2 italic" style={{ opacity: 0.75 }}>
+        <p className="text-[#14100d] text-[15px] mb-2 italic" style={{ opacity: 0.75 }}>
           {eyebrow}
         </p>
       )}
@@ -115,7 +115,7 @@ function StaffGroup({
           const href = person.member_id ? `/mps/${person.member_id}` : person.slug ? `/people/${person.slug}` : null;
           const inner = (
             <span
-              className="text-[#14100d] text-[13px] leading-tight font-semibold hover:text-[#7a1612] transition-colors"
+              className="text-[#14100d] text-[15px] leading-tight font-semibold hover:text-[#7a1612] transition-colors"
               style={{ overflowWrap: 'anywhere', textDecoration: href ? 'underline' : 'none', textUnderlineOffset: '3px' }}
             >
               {person.name}

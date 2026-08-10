@@ -1,0 +1,358 @@
+{
+  "gapDepts": [
+    {
+      "id": 8374,
+      "dept_slug": "ukef",
+      "name": "Sir Chris Bryant MP",
+      "role": "Secretary of State for Northern Ireland",
+      "slug": "chris-bryant",
+      "is_secretary_of_state": false,
+      "updated_at": "2026-07-21T10:41:44.438Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/mps/1446.webp?v=1779386491",
+      "member_id": 1446,
+      "salary_band": "sos",
+      "resigned": false
+    },
+    {
+      "id": 8315,
+      "dept_slug": "business-trade",
+      "name": "Lord Stockwood",
+      "role": "Minister of State (Minister for Investment)",
+      "slug": "jason-stockwood",
+      "is_secretary_of_state": false,
+      "updated_at": "2026-07-21T10:41:20.583Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/people/jason-stockwood.webp?v=1780152756",
+      "member_id": null,
+      "salary_band": "sos",
+      "resigned": false
+    },
+    {
+      "id": 8316,
+      "dept_slug": "business-trade",
+      "name": "Sir Chris Bryant MP",
+      "role": "Secretary of State for Northern Ireland",
+      "slug": "chris-bryant",
+      "is_secretary_of_state": false,
+      "updated_at": "2026-07-21T10:41:20.583Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/mps/1446.webp?v=1779386491",
+      "member_id": 1446,
+      "salary_band": "minister_of_state",
+      "resigned": false
+    },
+    {
+      "id": 8317,
+      "dept_slug": "business-trade",
+      "name": "Blair McDougall MP",
+      "role": "Parliamentary Under-Secretary of State (Minister for Small Business and Economic Transformation)",
+      "slug": "blair-mcdougall",
+      "is_secretary_of_state": false,
+      "updated_at": "2026-07-21T10:41:20.583Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/mps/5076.webp?v=1780759434",
+      "member_id": 5076,
+      "salary_band": "puss",
+      "resigned": false
+    },
+    {
+      "id": 8318,
+      "dept_slug": "business-trade",
+      "name": "Kate Dearden MP",
+      "role": "Parliamentary Under-Secretary of State (Minister for Employment Rights and Consumer Protection)",
+      "slug": "kate-dearden",
+      "is_secretary_of_state": false,
+      "updated_at": "2026-07-21T10:41:20.583Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/mps/5224.webp?v=1780420335",
+      "member_id": 5224,
+      "salary_band": "puss",
+      "resigned": false
+    },
+    {
+      "id": 8319,
+      "dept_slug": "business-trade",
+      "name": "Chris McDonald MP",
+      "role": "Parliamentary Under-Secretary of State (Minister for Industry)",
+      "slug": "chris-mcdonald",
+      "is_secretary_of_state": false,
+      "updated_at": "2026-07-21T10:41:20.583Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/mps/5116.webp?v=1779457007",
+      "member_id": 5116,
+      "salary_band": "puss",
+      "resigned": false
+    },
+    {
+      "id": 8320,
+      "dept_slug": "business-trade",
+      "name": "Lord Leong CBE",
+      "role": "Parliamentary Under-Secretary of State",
+      "slug": "lord-leong",
+      "is_secretary_of_state": false,
+      "updated_at": "2026-07-21T10:41:20.583Z",
+      "photo_url": null,
+      "member_id": null,
+      "salary_band": "puss",
+      "resigned": false
+    },
+    {
+      "id": 8344,
+      "dept_slug": "culture",
+      "name": "The Rt Hon Ian Murray MP",
+      "role": "Minister of State (Minister for Digital Government and Data)",
+      "slug": "ian-murray",
+      "is_secretary_of_state": false,
+      "updated_at": "2026-07-21T10:41:29.823Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/mps/3966.webp?v=1780420331",
+      "member_id": 3966,
+      "salary_band": "sos",
+      "resigned": false
+    },
+    {
+      "id": 8345,
+      "dept_slug": "culture",
+      "name": "Stephanie Peacock MP",
+      "role": "Parliamentary Under-Secretary of State (Minister for Sport, Tourism, Civil Society and Youth)",
+      "slug": "stephanie-peacock",
+      "is_secretary_of_state": false,
+      "updated_at": "2026-07-21T10:41:29.823Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/mps/4607.webp?v=1780420334",
+      "member_id": 4607,
+      "salary_band": "puss",
+      "resigned": false
+    },
+    {
+      "id": 8346,
+      "dept_slug": "culture",
+      "name": "Baroness Twycross",
+      "role": "Parliamentary Under-Secretary of State (Minister for Museums, Heritage and Gambling, and Lords Minister)",
+      "slug": "baroness-twycross",
+      "is_secretary_of_state": false,
+      "updated_at": "2026-07-21T10:41:29.823Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/people/baroness-twycross.webp?v=1780420356",
+      "member_id": null,
+      "salary_band": "puss",
+      "resigned": false
+    },
+    {
+      "id": 8321,
+      "dept_slug": "science-tech",
+      "name": "Lord Vallance",
+      "role": "Minister of State (Minister for Science, Innovation, Research and Nuclear)",
+      "slug": "patrick-vallance",
+      "is_secretary_of_state": false,
+      "updated_at": "2026-07-21T10:41:22.949Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/people/patrick-vallance.webp?v=1780420360",
+      "member_id": null,
+      "salary_band": "sos",
+      "resigned": false
+    },
+    {
+      "id": 8322,
+      "dept_slug": "science-tech",
+      "name": "The Rt Hon Ian Murray MP",
+      "role": "Minister of State (Minister for Digital Government and Data)",
+      "slug": "ian-murray",
+      "is_secretary_of_state": false,
+      "updated_at": "2026-07-21T10:41:22.949Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/mps/3966.webp?v=1780420331",
+      "member_id": 3966,
+      "salary_band": "minister_of_state",
+      "resigned": false
+    },
+    {
+      "id": 8323,
+      "dept_slug": "science-tech",
+      "name": "Baroness Lloyd of Effra CBE",
+      "role": "Parliamentary Under-Secretary of State (Minister for Digital Economy)",
+      "slug": "liz-lloyd",
+      "is_secretary_of_state": false,
+      "updated_at": "2026-07-21T10:41:22.949Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/ministers/4975.png",
+      "member_id": null,
+      "salary_band": "puss",
+      "resigned": false
+    },
+    {
+      "id": 8324,
+      "dept_slug": "science-tech",
+      "name": "James Frith MP",
+      "role": "Parliamentary Under-Secretary of State",
+      "slug": "james-frith",
+      "is_secretary_of_state": false,
+      "updated_at": "2026-07-21T10:41:22.949Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/mps/4637.webp?v=1780952717",
+      "member_id": 4637,
+      "salary_band": "puss",
+      "resigned": false
+    }
+  ],
+  "bios": [
+    {
+      "member_id": 413,
+      "government_posts": [
+        {
+          "id": 721,
+          "name": "Secretary of State for Northern Ireland",
+          "house": 1,
+          "endDate": "2026-07-20T00:00:00",
+          "startDate": "2024-07-05T00:00:00",
+          "additionalInfo": "Northern Ireland Office",
+          "additionalInfoLink": "https://www.gov.uk/government/organisations/northern-ireland-office"
+        },
+        {
+          "id": 704,
+          "name": "Secretary of State for Environment, Food and Rural Affairs",
+          "house": 1,
+          "endDate": "2010-05-06T00:00:00",
+          "startDate": "2007-06-28T00:00:00",
+          "additionalInfo": "Department for Environment, Food and Rural Affairs",
+          "additionalInfoLink": "https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs"
+        },
+        {
+          "id": 716,
+          "name": "Secretary of State for International Development",
+          "house": 1,
+          "endDate": "2007-06-28T00:00:00",
+          "startDate": "2003-10-06T00:00:00",
+          "additionalInfo": "Department for International Development",
+          "additionalInfoLink": "http://www.dfid.gov.uk"
+        },
+        {
+          "id": 496,
+          "name": "Minister of State (Department for International Development)",
+          "house": 1,
+          "endDate": "2003-10-06T00:00:00",
+          "startDate": "2003-05-13T00:00:00",
+          "additionalInfo": "Department for International Development",
+          "additionalInfoLink": "http://www.dfid.gov.uk"
+        },
+        {
+          "id": 601,
+          "name": "Parliamentary Under-Secretary (Home Office) (Minister for Prisons and Probation)",
+          "house": 1,
+          "endDate": "2003-05-13T00:00:00",
+          "startDate": "2002-05-29T00:00:00",
+          "additionalInfo": "Home Office",
+          "additionalInfoLink": "https://www.gov.uk/government/organisations/home-office"
+        },
+        {
+          "id": 474,
+          "name": "Parliamentary Under-Secretary (Department for International Development)",
+          "house": 1,
+          "endDate": "2002-05-28T00:00:00",
+          "startDate": "2001-06-11T00:00:00",
+          "additionalInfo": "Department for International Development",
+          "additionalInfoLink": "http://www.dfid.gov.uk"
+        }
+      ],
+      "political_bio": null,
+      "bio_source": null
+    },
+    {
+      "member_id": 4119,
+      "government_posts": [
+        {
+          "id": 523,
+          "name": "Parliamentary Secretary to the Treasury (Chief Whip)",
+          "house": 1,
+          "endDate": "2026-07-20T00:00:00",
+          "startDate": "2025-09-05T00:00:00",
+          "additionalInfo": "HM Treasury",
+          "additionalInfoLink": "https://www.gov.uk/government/organisations/hm-treasury"
+        },
+        {
+          "id": 1286,
+          "name": "Secretary of State for Business and Trade",
+          "house": 1,
+          "endDate": "2025-09-05T00:00:00",
+          "startDate": "2024-07-05T00:00:00",
+          "additionalInfo": "Department for Business and Trade ",
+          "additionalInfoLink": "https://www.gov.uk/government/organisations/department-for-business-and-trade"
+        },
+        {
+          "id": 1288,
+          "name": "President of the Board of Trade",
+          "house": 1,
+          "endDate": "2025-09-05T00:00:00",
+          "startDate": "2024-07-05T00:00:00",
+          "additionalInfo": "Department for Business and Trade ",
+          "additionalInfoLink": "https://www.gov.uk/government/organisations/department-for-business-and-trade"
+        }
+      ],
+      "political_bio": null,
+      "bio_source": null
+    },
+    {
+      "member_id": 4425,
+      "government_posts": [
+        {
+          "id": 743,
+          "name": "Secretary of State for Wales",
+          "house": 1,
+          "endDate": "2026-07-20T00:00:00",
+          "startDate": "2024-07-05T00:00:00",
+          "additionalInfo": "Wales Office",
+          "additionalInfoLink": "https://www.gov.uk/government/organisations/wales-office"
+        }
+      ],
+      "political_bio": null,
+      "bio_source": null
+    },
+    {
+      "member_id": 4479,
+      "government_posts": [
+        {
+          "id": 831,
+          "name": "Paymaster General and Minister for the Cabinet Office",
+          "house": 1,
+          "endDate": "2026-07-20T00:00:00",
+          "startDate": "2024-07-08T00:00:00",
+          "additionalInfo": "Cabinet Office",
+          "additionalInfoLink": "https://www.gov.uk/government/organisations/cabinet-office"
+        }
+      ],
+      "political_bio": "Nick Thomas-Symonds has been Labour MP for Torfaen since 2015 and currently serves as Paymaster General, Minister for the Cabinet Office, and Minister for the Constitution and European Union Relations. He was the UK Government's lead negotiator on the UK-EU Reset, the new Strategic Partnership agreed at a summit in London in May 2025. Some assessments cast his career as positioning rather than transformation. He negotiated a new framework for the UK's relationship with the European Union. That is not positioning.\n\nBorn May 1980 in Griffithstown and raised in Blaenavon, he read PPE at St Edmund Hall, Oxford, then taught politics there for thirteen years. A Fellow of the Royal Historical Society, a practising chancery and commercial barrister, and the biographer of Attlee, Bevan and Wilson, he brings an unusual intellectual profile to a Welsh valleys seat, and that combination of academic rigour and Blaenavon roots defines his political identity. He succeeded Paul Murphy, who had held the area since 1987.\n\nHis shadow career included Pensions, Employment, Solicitor General, Security, Shadow Home Secretary (2020-2021), Shadow International Trade Secretary (2021-2023), and Shadow Minister Without Portfolio (2023-2024). He was appointed to the Privy Council in 2021 and signed the Accession document for King Charles III.\n\nIt is sometimes said he has no major legislative achievement. He changed the law to make it easier for off-patent drugs to reach patients who need them, including cancer patients and those with MS and Parkinson's disease. It is a specific, measurable health policy achievement.\n\nThe UK-EU Strategic Partnership negotiated under his lead and agreed at the London summit in May 2025 is the most significant diplomatic achievement of the Starmer government to date. It defines the new terms of cooperation between the UK and the European Union after Brexit. Whether voters recognise it or not, the reset framework will shape trade, security and regulatory cooperation for years.\n\nHe was re-elected in 2024 with a majority of 7,322 (20.5 percent). Reform UK's presence in South Wales valleys seats is growing but Torfaen remains safely Labour.\n\nThomas-Symonds's strengths include Oxford PPE and 13 years as an Oxford tutor, FRHistS status, three published political biographies, barrister qualification, lead negotiator on the UK-EU Reset, the off-patent drugs legislative achievement, Privy Council membership, genuine Blaenavon roots in one of Labour's historic Welsh constituencies, and a ministerial portfolio at the centre of the government's constitutional and European agenda. His weaknesses include a public profile that remains invisible relative to his responsibilities, a ministerial rank (attending Cabinet but not a full Cabinet member) that undervalues what he has delivered, and the persistent difficulty of making constitutional and European relations work visible to voters who care about NHS waiting times, wages and housing. At 45, he is young enough for further advancement. Whether the EU Reset eventually earns the recognition it deserves will determine whether his career is remembered as consequential or merely competent.",
+      "bio_source": "handwritten"
+    },
+    {
+      "member_id": 4621,
+      "government_posts": [
+        {
+          "id": 1306,
+          "name": "Minister for Intergovernmental Relations",
+          "house": 1,
+          "endDate": "2026-07-20T00:00:00",
+          "startDate": "2025-09-06T00:00:00",
+          "additionalInfo": "Cabinet Office",
+          "additionalInfoLink": "https://www.gov.uk/government/organisations/cabinet-office"
+        },
+        {
+          "id": 1189,
+          "name": "Chancellor of the Duchy of Lancaster",
+          "house": 1,
+          "endDate": "2026-07-20T00:00:00",
+          "startDate": "2025-09-05T00:00:00",
+          "additionalInfo": "Cabinet Office",
+          "additionalInfoLink": "https://www.gov.uk/government/organisations/cabinet-office"
+        },
+        {
+          "id": 1307,
+          "name": "Minister of State (Chief Secretary to the Prime Minister)",
+          "house": 1,
+          "endDate": "2026-07-20T00:00:00",
+          "startDate": "2025-09-01T00:00:00",
+          "additionalInfo": "Cabinet Office",
+          "additionalInfoLink": "https://www.gov.uk/government/organisations/cabinet-office"
+        },
+        {
+          "id": 36,
+          "name": "Chief Secretary to the Treasury",
+          "house": 1,
+          "endDate": "2025-09-01T00:00:00",
+          "startDate": "2024-07-05T00:00:00",
+          "additionalInfo": "HM Treasury",
+          "additionalInfoLink": "https://www.gov.uk/government/organisations/hm-treasury"
+        }
+      ],
+      "political_bio": null,
+      "bio_source": null
+    }
+  ]
+}

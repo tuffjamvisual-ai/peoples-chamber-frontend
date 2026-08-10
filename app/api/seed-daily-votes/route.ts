@@ -1,15 +1,17 @@
 import { NextResponse } from 'next/server';
+import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
-// Daily drip of public engagement: adds 2 votes per active poll and per bill
-// that already has votes, each vote independently random Yes/No. Implemented as
-// the Postgres function add_daily_random_votes() so it runs as one set-based
-// statement. These land on the cached vote_count columns (the displayed totals),
-// not the vote/poll_vote tables.
-export async function GET(req: Request) {
+// Daily drip of public engagement: adds up to 10 votes (a random 1..10) per
+// active poll and per bill that already has votes, split as evenly as possible
+// between Yes and No. Implemented as the Postgres function
+// add_daily_random_votes() so it runs as one set-based statement. These land on
+// the cached vote_count columns (the displayed totals), not the vote/poll_vote
+// tables. Scheduled daily; heartbeat-wrapped so a silent stall is caught.
+async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
   if (req.headers.get('authorization') !== `Bearer ${expected}`) {
@@ -24,3 +26,5 @@ export async function GET(req: Request) {
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true, ...data, syncedAt: new Date().toISOString() });
 }
+
+export const GET = withHeartbeat('/api/seed-daily-votes', GET_impl);

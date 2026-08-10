@@ -131,7 +131,7 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
                     background: isActive ? 'rgba(122,22,18,0.08)' : 'transparent',
                     boxShadow: isActive ? 'inset 1px 0 2px rgba(0,0,0,0.05)' : 'none',
                     fontWeight: isActive ? 'bold' : 'normal',
-                    fontSize: '14px',
+                    fontSize: '15px',
                     textTransform: 'uppercase',
                     letterSpacing: '0.08em',
                     color: '#14100d',
@@ -180,7 +180,7 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
                     </div>
                   )}
                   {role.startDate && (
-                    <div style={{ fontSize: '13px', color: 'rgba(20,16,13,0.7)' }}>
+                    <div style={{ fontSize: '15px', color: 'rgba(20,16,13,0.7)' }}>
                       Since {fmtDate(role.startDate).replace(/^\d+\s/, '')}
                     </div>
                   )}
@@ -210,10 +210,10 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
                 >
                   <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '2px' }}>{role.title}</div>
                   {role.organisation && (
-                    <div style={{ fontSize: '14px', color: 'rgba(20,16,13,0.7)' }}>{role.organisation}</div>
+                    <div style={{ fontSize: '15px', color: 'rgba(20,16,13,0.7)' }}>{role.organisation}</div>
                   )}
                   {role.startDate && role.endDate && (
-                    <div style={{ fontSize: '13px', color: 'rgba(20,16,13,0.7)', marginTop: '4px' }}>
+                    <div style={{ fontSize: '15px', color: 'rgba(20,16,13,0.7)', marginTop: '4px' }}>
                       {fmtMonthYear(role.startDate)}, {fmtMonthYear(role.endDate)}
                     </div>
                   )}
@@ -229,7 +229,7 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
             <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', fontSize: '15px', lineHeight: 1.8 }}>
               {salary.scsBand && (
                 <div>
-                  <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>
+                  <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>
                     Senior Civil Service grade
                   </div>
                   <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
@@ -239,14 +239,14 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
               )}
               {salary.actualPayFloor != null && salary.actualPayCeiling != null ? (
                 <div>
-                  <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>
+                  <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>
                     Published pay band{salary.payPeriod ? ` (as at ${salary.payPeriod})` : ''}
                   </div>
                   <div style={{ fontSize: '22px', fontWeight: 'bold' }}>
                     £{salary.actualPayFloor.toLocaleString()}-£{salary.actualPayCeiling.toLocaleString()}
                   </div>
                   {salary.fte != null && (
-                    <div style={{ marginTop: '10px', fontSize: '14px' }}>
+                    <div style={{ marginTop: '10px', fontSize: '15px' }}>
                       {salary.fte >= 0.999 ? (
                         <span style={{ opacity: 0.8 }}>Full-time (FTE 1.00)</span>
                       ) : (
@@ -267,13 +267,13 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
                 </div>
               ) : salary.scsBand ? (
                 <div>
-                  <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>
+                  <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>
                     Cabinet Office published range for this grade
                   </div>
                   <div style={{ fontSize: '22px', fontWeight: 'bold' }}>
                     £{SCS_BAND_RANGE[salary.scsBand][0].toLocaleString()}-£{SCS_BAND_RANGE[salary.scsBand][1].toLocaleString()}
                   </div>
-                  <div style={{ fontSize: '13px', opacity: 0.7, marginTop: '6px', fontStyle: 'italic' }}>
+                  <div style={{ fontSize: '15px', opacity: 0.7, marginTop: '6px', fontStyle: 'italic' }}>
                     Range from the 2025-26 Cabinet Office pay remit. Per-person actual pay is published quarterly in each department&apos;s organogram CSV.
                   </div>
                 </div>
@@ -288,7 +288,7 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
             <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', fontSize: '15px', lineHeight: 1.7 }}>
               {finance.ministerial_salary_annual != null && (
                 <div style={{ borderLeft: '3px solid #7a1612', paddingLeft: '16px' }}>
-                  <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#7a1612', fontWeight: 'bold', marginBottom: '6px' }}>
+                  <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#7a1612', fontWeight: 'bold', marginBottom: '6px' }}>
                     Ministerial salary (entitled)
                   </div>
                   <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
@@ -299,13 +299,13 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
 
               {finance.attendance_allowance_ytd != null && (
                 <div style={{ borderLeft: '3px solid #7a1612', paddingLeft: '16px' }}>
-                  <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#7a1612', fontWeight: 'bold', marginBottom: '6px' }}>
+                  <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#7a1612', fontWeight: 'bold', marginBottom: '6px' }}>
                     Lords attendance allowance (YTD)
                   </div>
                   <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
                     £{Number(finance.attendance_allowance_ytd).toLocaleString()}
                     {finance.attendance_days_ytd != null && (
-                      <span style={{ fontSize: '14px', fontWeight: 'normal', color: 'rgba(20,16,13,0.7)', marginLeft: '10px' }}>
+                      <span style={{ fontSize: '15px', fontWeight: 'normal', color: 'rgba(20,16,13,0.7)', marginLeft: '10px' }}>
                         ({finance.attendance_days_ytd} days)
                       </span>
                     )}
@@ -315,7 +315,7 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
 
               {finance.expenses_total_ytd != null && (
                 <div style={{ borderLeft: '3px solid #7a1612', paddingLeft: '16px' }}>
-                  <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#7a1612', fontWeight: 'bold', marginBottom: '6px' }}>
+                  <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#7a1612', fontWeight: 'bold', marginBottom: '6px' }}>
                     Expenses (YTD)
                   </div>
                   <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
@@ -325,7 +325,7 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
               )}
 
               {finance.period_label && (
-                <p style={{ fontSize: '13px', fontStyle: 'italic', color: 'rgba(20,16,13,0.7)', marginTop: '8px', lineHeight: 1.6 }}>
+                <p style={{ fontSize: '15px', fontStyle: 'italic', color: 'rgba(20,16,13,0.7)', marginTop: '8px', lineHeight: 1.6 }}>
                   {finance.period_label}
                 </p>
               )}
@@ -342,7 +342,7 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
                 <div key={cat}>
                   <h3
                     style={{
-                      fontSize: '13px',
+                      fontSize: '15px',
                       textTransform: 'uppercase',
                       letterSpacing: '0.2em',
                       color: '#7a1612',
@@ -357,7 +357,7 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
                       <li key={i} style={{ fontSize: '15px', lineHeight: 1.7 }}>
                         {it.summary && <div>{it.summary}</div>}
                         {it.detail && it.detail !== it.summary && (
-                          <div style={{ fontSize: '14px', color: 'rgba(20,16,13,0.7)', marginTop: '4px', whiteSpace: 'pre-line' }}>
+                          <div style={{ fontSize: '15px', color: 'rgba(20,16,13,0.7)', marginTop: '4px', whiteSpace: 'pre-line' }}>
                             {it.detail}
                           </div>
                         )}

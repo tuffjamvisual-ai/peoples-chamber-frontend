@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
+import { getSessionUserId } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
-  const { userId, pollId, choice } = await request.json();
+  const userId = getSessionUserId(request);
+  if (userId == null) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 });
+  const { pollId, choice } = await request.json();
 
-  if (!userId || !pollId || !choice) {
+  if (!pollId || !choice) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
   }
 
@@ -52,10 +55,8 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const userId = searchParams.get('userId');
-
-  if (!userId) return NextResponse.json({ votes: {} });
+  const userId = getSessionUserId(request);
+  if (userId == null) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 });
 
   const { data } = await supabase
     .from('poll_vote')

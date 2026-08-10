@@ -11,8 +11,8 @@
 //
 // Search filters inside whichever view is active.
 
-import { useMemo, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import ScrollToTopButton from '../components/ScrollToTopButton';
@@ -29,6 +29,8 @@ interface MP {
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.3)';
+const ACCENT = '#7a1612';
+const POSTCODE_RE = /^[A-Z]{1,2}\d[A-Z\d]?\d[A-Z]{2}$/;
 
 const MPS_PER_PAGE = 21;
 
@@ -129,13 +131,45 @@ function SearchInput({
   total: number;
   label: string;
 }) {
+  const router = useRouter();
+  const [pcErr, setPcErr] = useState('');
+  const triedRef = useRef('');
+
+  // A typed postcode is detected live so the reader jumps straight to their own
+  // MP from the same box they use to search by name, party or constituency.
+  const cleanPc = searchTerm.toUpperCase().replace(/\s+/g, '');
+  const isPostcode = POSTCODE_RE.test(cleanPc);
+
+  // As soon as a complete, valid postcode is typed, look it up automatically and
+  // navigate to that MP — no button press. triedRef stops it firing twice for
+  // the same postcode (and lets a corrected one fire again).
+  useEffect(() => {
+    if (!isPostcode) return;
+    if (triedRef.current === cleanPc) return;
+    triedRef.current = cleanPc;
+    let cancelled = false;
+    setPcErr('');
+    (async () => {
+      try {
+        const res = await fetch('/api/find-mp?postcode=' + encodeURIComponent(cleanPc));
+        const data = await res.json();
+        if (cancelled) return;
+        if (!res.ok) { setPcErr(data.message || 'No MP found for that postcode.'); return; }
+        router.push('/mps/' + data.memberId);
+      } catch {
+        if (!cancelled) setPcErr('Lookup is unavailable right now. Please try again.');
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [isPostcode, cleanPc, router]);
+
   return (
     <div style={{ marginBottom: '24px' }}>
       <input
         type="text"
-        placeholder="Search MPs…"
+        placeholder="Search MPs by name, party, constituency or postcode…"
         value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
+        onChange={(e) => { setSearchTerm(e.target.value); setPcErr(''); }}
         style={{
           width: '100%',
           maxWidth: '480px',
@@ -148,9 +182,18 @@ function SearchInput({
           outline: 'none',
         }}
       />
-      <p style={{ marginTop: '8px', fontSize: '13px', opacity: 0.75 }}>
-        {count} of {total} {label}
-      </p>
+      {isPostcode ? (
+        <p
+          role={pcErr ? 'alert' : undefined}
+          style={{ marginTop: '8px', fontSize: '15px', fontWeight: 700, color: pcErr ? ACCENT : INK }}
+        >
+          {pcErr ? pcErr : `Finding the MP for ${cleanPc}…`}
+        </p>
+      ) : (
+        <p style={{ marginTop: '8px', fontSize: '15px', opacity: 0.75 }}>
+          {count} of {total} {label}
+        </p>
+      )}
     </div>
   );
 }
@@ -205,9 +248,9 @@ function MPCard({ mp, fromParty, idx }: { mp: MP; fromParty: string; idx: number
         <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '4px', lineHeight: 1.25 }}>
           {mp.name}
         </h3>
-        <p style={{ fontSize: '13px', opacity: 0.8 }}>{mp.constituency}</p>
+        <p style={{ fontSize: '15px', opacity: 0.8 }}>{mp.constituency}</p>
         {isCoop(mp.party) && (
-          <p style={{ fontSize: '13px', opacity: 0.65, marginTop: '2px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          <p style={{ fontSize: '15px', opacity: 0.65, marginTop: '2px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
             Lab &amp; Co-op
           </p>
         )}
@@ -283,7 +326,7 @@ function SinglePartyView({
       />
 
       {partyMPs.length > MPS_PER_PAGE && (
-        <p style={{ fontSize: '13px', opacity: 0.75, marginBottom: '16px' }}>
+        <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '16px' }}>
           Showing {startIdx + 1}-{endIdx} of {partyMPs.length.toLocaleString()} · page {currentPage} of {totalPages}
         </p>
       )}
@@ -302,7 +345,7 @@ function SinglePartyView({
       </div>
 
       {partyMPs.length === 0 && searchTerm.trim() && (
-        <p style={{ fontSize: '14px', opacity: 0.7, marginTop: '24px' }}>
+        <p style={{ fontSize: '15px', opacity: 0.7, marginTop: '24px' }}>
           No MPs in {partyName} match &ldquo;{searchTerm}&rdquo;.
         </p>
       )}
@@ -316,7 +359,7 @@ function SinglePartyView({
             alignItems: 'center',
             gap: '10px',
             marginTop: '32px',
-            fontSize: '14px',
+            fontSize: '15px',
           }}
         >
           {currentPage > 1 ? (
@@ -379,7 +422,7 @@ function AllPartiesView({
 
       {searching ? (
         matches.length === 0 ? (
-          <p style={{ fontSize: '14px', opacity: 0.7, marginTop: '8px' }}>
+          <p style={{ fontSize: '15px', opacity: 0.7, marginTop: '8px' }}>
             No MPs match &ldquo;{searchTerm}&rdquo;.
           </p>
         ) : (
@@ -397,7 +440,7 @@ function AllPartiesView({
               ))}
             </div>
             {matches.length > CAP && (
-              <p style={{ fontSize: '13px', opacity: 0.75, marginTop: '16px' }}>
+              <p style={{ fontSize: '15px', opacity: 0.75, marginTop: '16px' }}>
                 Showing the first {CAP} of {matches.length} matches. Refine your search to narrow it.
               </p>
             )}
@@ -436,7 +479,7 @@ function AllPartiesView({
                   style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', background: partyColour, flexShrink: 0 }}
                 />
                 <span style={{ fontSize: '18px', fontWeight: 'bold' }}>{party}</span>
-                <span style={{ fontSize: '13px', opacity: 0.75, marginLeft: '8px' }}>({partyMPs.length})</span>
+                <span style={{ fontSize: '15px', opacity: 0.75, marginLeft: '8px' }}>({partyMPs.length})</span>
                 <span style={{ marginLeft: 'auto', fontSize: '22px', lineHeight: 1 }}>→</span>
               </Link>
             );

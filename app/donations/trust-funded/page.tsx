@@ -18,7 +18,6 @@ import BackLink from '../../components/BackLink';
 import { donorNameToSlug } from '../../donors/[slug]/page';
 
 export const revalidate = 86400;
-export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Trust-routed political donations: who funds UK politics via trusts',
@@ -92,7 +91,7 @@ export default async function TrustFundedPage() {
       <BackLink fallbackHref="/transparency/donations" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
           Beneficial-ownership shield · Trust donations
         </p>
         <h1 style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
@@ -126,8 +125,8 @@ export default async function TrustFundedPage() {
                 <tr key={t.name} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                   <td style={{ padding: '6px', opacity: 0.6 }}>{i + 1}</td>
                   <td style={{ padding: '6px' }}><strong>{t.name}</strong></td>
-                  <td style={{ padding: '6px', fontSize: '12px', opacity: 0.85 }}>{t.creator || <span style={{ opacity: 0.5 }}></span>}</td>
-                  <td style={{ padding: '6px', fontSize: '12px' }}>{recipientLabel}</td>
+                  <td style={{ padding: '6px', fontSize: '15px', opacity: 0.85 }}>{t.creator || <span style={{ opacity: 0.5 }}></span>}</td>
+                  <td style={{ padding: '6px', fontSize: '15px' }}>{recipientLabel}</td>
                   <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{t.count}</td>
                   <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(t.total).toLocaleString()}</td>
                 </tr>
@@ -151,13 +150,13 @@ export default async function TrustFundedPage() {
           <tbody>
             {recent.map((r) => (
               <tr key={r.id} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-                <td style={{ padding: '6px', fontSize: '12px' }}>
+                <td style={{ padding: '6px', fontSize: '15px' }}>
                   {r.donor_name ? (
                     <Link href={`/donors/${donorNameToSlug(r.donor_name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.trust_name}</Link>
                   ) : <strong>{r.trust_name}</strong>}
                 </td>
-                <td style={{ padding: '6px', fontSize: '12px' }}>{r.recipient_name || ''}</td>
-                <td style={{ padding: '6px', fontFamily: 'monospace', fontSize: '13px', opacity: 0.7 }}>{r.accepted_date}</td>
+                <td style={{ padding: '6px', fontSize: '15px' }}>{r.recipient_name || ''}</td>
+                <td style={{ padding: '6px', fontFamily: 'monospace', fontSize: '15px', opacity: 0.7 }}>{r.accepted_date}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(Number(r.amount || 0)).toLocaleString()}</td>
               </tr>
             ))}
@@ -177,4 +176,4 @@ const sectionH2: React.CSSProperties = {
   paddingBottom: '6px',
   marginBottom: '14px',
 };
-const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '13px', fontFamily: '"Special Elite", monospace' };
+const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '15px', fontFamily: '"Special Elite", monospace' };

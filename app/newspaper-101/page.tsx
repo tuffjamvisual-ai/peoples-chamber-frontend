@@ -27,7 +27,7 @@ const hotspots: Hotspot[] = [
   { label: 'Home', href: '/', left: '2.6%', top: '22.6%', width: '8.0%', height: '3.3%' },
   { label: 'Bills', href: '/bills', left: '10.8%', top: '22.6%', width: '8.0%', height: '3.3%' },
   { label: 'Laws', href: '/laws', left: '19.0%', top: '22.6%', width: '8.0%', height: '3.3%' },
-  { label: 'Peoples Polls', href: '/peoples-polls', left: '27.0%', top: '22.6%', width: '14.0%', height: '3.3%' },
+  { label: 'opengovt Polls', href: '/peoples-polls', left: '27.0%', top: '22.6%', width: '14.0%', height: '3.3%' },
   { label: 'MPs', href: '/mps', left: '41.0%', top: '22.6%', width: '7.2%', height: '3.3%' },
   { label: 'Departments', href: '/departments', left: '48.2%', top: '22.6%', width: '14.4%', height: '3.3%' },
   { label: 'Login', href: '/login', left: '62.6%', top: '22.6%', width: '8.0%', height: '3.3%' },
@@ -37,10 +37,10 @@ const hotspots: Hotspot[] = [
 
 // Overlay text labels — verbatim positions from 101's styles.css (transparent).
 const overlays = [
-  { text: 'FULL STORY →', left: '3.3%', top: '61.2%', fontSize: 'clamp(12px, 1.2vw, 22px)' },
-  { text: 'MORE INFO →', left: '3.1%', top: '90.7%', fontSize: 'clamp(11px, 1vw, 20px)' },
-  { text: 'MORE INFO →', left: '34.8%', top: '90.7%', fontSize: 'clamp(11px, 1vw, 20px)' },
-  { text: 'MORE INFO →', left: '66.0%', top: '90.7%', fontSize: 'clamp(11px, 1vw, 20px)' },
+  { text: 'FULL STORY →', left: '3.3%', top: '61.2%', fontSize: 'clamp(15px, 1.2vw, 22px)' },
+  { text: 'MORE INFO →', left: '3.1%', top: '90.7%', fontSize: 'clamp(15px, 1vw, 20px)' },
+  { text: 'MORE INFO →', left: '34.8%', top: '90.7%', fontSize: 'clamp(15px, 1vw, 20px)' },
+  { text: 'MORE INFO →', left: '66.0%', top: '90.7%', fontSize: 'clamp(15px, 1vw, 20px)' },
 ];
 
 // 101's styles.css, reproduced (body rules moved onto .preview-root).
@@ -136,11 +136,11 @@ export default async function Newspaper101Demo({
   return (
     <div className="preview-root">
       <style dangerouslySetInnerHTML={{ __html: isDebug ? baseCss + debugCss : baseCss }} />
-      <main className="page-wrap" aria-label="Open Govt clickable newspaper landing page">
+      <main className="page-wrap" aria-label="opengovt clickable newspaper landing page">
         <img
           className="newspaper-image"
           src="/newspaper-101.png"
-          alt="Open Govt vintage newspaper landing page"
+          alt="opengovt vintage newspaper landing page"
         />
         {hotspots.map((spot) => (
           <a

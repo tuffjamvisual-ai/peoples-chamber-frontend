@@ -31,7 +31,7 @@ function ChangeChip({ pct }: { pct: number | null | undefined }) {
 export function WorkforceBlock({ row }: { row: DepartmentStaffingRow | null }) {
   return (
     <section className="pb-6 mb-6" style={{ fontFamily: 'Special Elite, monospace' }}>
-      <h2 className="text-[14px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>
+      <h2 className="text-[15px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>
         Workforce
       </h2>
       {row && row.headcount != null ? (
@@ -40,18 +40,18 @@ export function WorkforceBlock({ row }: { row: DepartmentStaffingRow | null }) {
             <strong>{fmtHeadcount(row.headcount)}</strong> civil servants
             <ChangeChip pct={row.change_from_previous_percent} />
           </p>
-          <p className="text-[#14100d] text-[14px] mt-1" style={{ opacity: 0.8 }}>
+          <p className="text-[#14100d] text-[15px] mt-1" style={{ opacity: 0.8 }}>
             {row.fte != null && (<>{fmtHeadcount(Math.round(row.fte))} FTE · </>)}
             {row.period} · ONS Public Sector Employment, Table 8
           </p>
           {row.is_proxy && row.proxy_note && (
-            <p className="text-[#14100d] text-[13px] mt-2" style={{ opacity: 0.65 }}>
+            <p className="text-[#14100d] text-[15px] mt-2" style={{ opacity: 0.65 }}>
               {row.proxy_note}.
             </p>
           )}
         </>
       ) : (
-        <p className="text-[#14100d] text-[14px]" style={{ opacity: 0.8 }}>
+        <p className="text-[#14100d] text-[15px]" style={{ opacity: 0.8 }}>
           {row?.proxy_note || 'Not separately reported in civil service statistics'}.
         </p>
       )}
@@ -63,10 +63,10 @@ export function BudgetBlock({ row }: { row: DepartmentBudgetRow | null }) {
   if (!row) {
     return (
       <section className="pb-6 mb-6" style={{ fontFamily: 'Special Elite, monospace' }}>
-        <h2 className="text-[14px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>
+        <h2 className="text-[15px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>
           Budget
         </h2>
-        <p className="text-[#14100d] text-[14px]" style={{ opacity: 0.8 }}>
+        <p className="text-[#14100d] text-[15px]" style={{ opacity: 0.8 }}>
           Not in HM Treasury Main Estimates DEL tables.
         </p>
       </section>
@@ -79,7 +79,7 @@ export function BudgetBlock({ row }: { row: DepartmentBudgetRow | null }) {
 
   return (
     <section className="pb-6 mb-6" style={{ fontFamily: 'Special Elite, monospace' }}>
-      <h2 className="text-[14px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>
+      <h2 className="text-[15px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>
         Budget
       </h2>
       {total ? (
@@ -88,11 +88,11 @@ export function BudgetBlock({ row }: { row: DepartmentBudgetRow | null }) {
             <strong>{total}</strong> allocated
             <ChangeChip pct={row.change_from_previous_percent} />
           </p>
-          <p className="text-[#14100d] text-[14px] mt-1" style={{ opacity: 0.8 }}>
+          <p className="text-[#14100d] text-[15px] mt-1" style={{ opacity: 0.8 }}>
             Resource DEL {rdel ?? '—'} · Capital DEL {cdel ?? '—'} · FY {row.financial_year} plans · HM Treasury Main Estimates
           </p>
           {row.caveat_note && (
-            <p className="text-[#14100d] text-[13px] mt-2" style={{ opacity: 0.65 }}>
+            <p className="text-[#14100d] text-[15px] mt-2" style={{ opacity: 0.65 }}>
               {row.caveat_note}.
             </p>
           )}
@@ -103,7 +103,7 @@ export function BudgetBlock({ row }: { row: DepartmentBudgetRow | null }) {
           )}
         </>
       ) : (
-        <p className="text-[#14100d] text-[14px]" style={{ opacity: 0.8 }}>
+        <p className="text-[#14100d] text-[15px]" style={{ opacity: 0.8 }}>
           {row.caveat_note || 'Not separately disclosed in HMT Main Estimates'}.
         </p>
       )}
@@ -130,7 +130,7 @@ export function SeniorOfficialDetailLine({
   const parts = [appointed, pay && band ? `${pay} · ${band}` : pay || band].filter(Boolean);
   if (parts.length === 0) return null;
   return (
-    <p className="text-[#14100d] text-[12px] mt-0.5" style={{ opacity: 0.7, lineHeight: 1.45 }}>
+    <p className="text-[#14100d] text-[15px] mt-0.5" style={{ opacity: 0.7, lineHeight: 1.45 }}>
       {parts.join(' · ')}
     </p>
   );

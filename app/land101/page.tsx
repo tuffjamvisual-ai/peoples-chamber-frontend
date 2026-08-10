@@ -2,7 +2,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "Open Govt, land101 demo",
+  title: "opengovt, land101 demo",
   robots: { index: false, follow: false },
 };
 
@@ -21,7 +21,7 @@ const HOTSPOTS: Box[] = [
   { cls: 'nav-home', href: '/', label: 'Home', left: 2.6, top: 22.6, width: 8.0, height: 3.3 },
   { cls: 'nav-bills', href: '/bills', label: 'Bills', left: 10.8, top: 22.6, width: 8.0, height: 3.3 },
   { cls: 'nav-laws', href: '/laws', label: 'Laws', left: 19.0, top: 22.6, width: 8.0, height: 3.3 },
-  { cls: 'nav-polls', href: '/peoples-polls', label: 'Peoples Polls', left: 27.0, top: 22.6, width: 14.0, height: 3.3 },
+  { cls: 'nav-polls', href: '/peoples-polls', label: 'opengovt Polls', left: 27.0, top: 22.6, width: 14.0, height: 3.3 },
   { cls: 'nav-mps', href: '/mps', label: 'MPs', left: 41.0, top: 22.6, width: 7.2, height: 3.3 },
   { cls: 'nav-departments', href: '/departments', label: 'Departments', left: 48.2, top: 22.6, width: 14.4, height: 3.3 },
   { cls: 'nav-login', href: '/login', label: 'Login', left: 62.6, top: 22.6, width: 8.0, height: 3.3 },
@@ -112,11 +112,11 @@ export default async function Land101Page({
       `}</style>
 
       <div className="land101-body">
-        <main className="land101-wrap" aria-label="Open Govt clickable newspaper landing page">
+        <main className="land101-wrap" aria-label="opengovt clickable newspaper landing page">
           <img
             className="land101-img"
             src="/land101-art.png"
-            alt="Open Govt vintage newspaper landing page"
+            alt="opengovt vintage newspaper landing page"
           />
 
           {OVERLAYS.map((o, i) => (

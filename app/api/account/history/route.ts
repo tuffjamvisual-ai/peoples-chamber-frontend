@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
+import { getSessionUserId } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
 
@@ -7,8 +8,8 @@ export const dynamic = 'force-dynamic';
 // voted on, with the title/question and their choice. Two-step fetch (no
 // reliance on FK joins) so it works regardless of relationship config.
 export async function GET(request: NextRequest) {
-  const userId = request.nextUrl.searchParams.get('userId');
-  if (!userId) return NextResponse.json({ error: 'userId required' }, { status: 400 });
+  const userId = getSessionUserId(request);
+  if (userId == null) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 });
 
   // Bill votes
   const { data: bv } = await supabase

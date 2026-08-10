@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
@@ -12,7 +13,7 @@ type GovukSearchResult = {
   link: string;
 };
 
-export async function GET(req: Request) {
+async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
   if (req.headers.get('authorization') !== `Bearer ${expected}`) {
@@ -79,17 +80,14 @@ export async function GET(req: Request) {
       if (!error) upserted++;
     }
 
-    // Keep only the last 100 by published_at (oldest first → trim).
-    const { data: old } = await supabase
-      .from('press_releases')
-      .select('id')
-      .order('published_at', { ascending: true });
-    let trimmed = 0;
-    if (old && old.length > 100) {
-      const toDelete = old.slice(0, old.length - 100).map((r: { id: number }) => r.id);
-      const { error } = await supabase.from('press_releases').delete().in('id', toDelete);
-      if (!error) trimmed = toDelete.length;
-    }
+    // Retention: KEEP EVERYTHING. On 2026-07-11 the full GOV.UK press-release
+    // archive was backfilled (metadata only, ~45,600 rows back to 2007), so we
+    // no longer trim by age — the daily sync just adds the newest releases on
+    // top. (Bodies for old rows are fetched on demand by /news/[slug].) If the
+    // table ever needs bounding, reintroduce a date-based delete here, but note
+    // it must not delete the intended archive. parliament.uk committee-report
+    // rows are still retained separately by sync-commons-press-releases.
+    const trimmed = 0;
 
     return NextResponse.json({
       ok: true,
@@ -103,3 +101,5 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: false, error: (err as Error).message }, { status: 500 });
   }
 }
+
+export const GET = withHeartbeat('/api/sync-press-releases', GET_impl);

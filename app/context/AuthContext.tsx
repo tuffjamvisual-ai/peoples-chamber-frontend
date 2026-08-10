@@ -68,6 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
+    fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
     setUser(null);
     localStorage.removeItem('user');
   };

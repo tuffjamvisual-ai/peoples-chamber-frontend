@@ -13,14 +13,16 @@
 // rebrands. Anything it does match is a direct same-entity overlap.
 
 import type { Metadata } from 'next';
+import LastUpdated from '../../components/LastUpdated';
+import { unstable_cache } from 'next/cache';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { donorNameToSlug } from '../../donors/[slug]/page';
 
+export const dynamic = 'force-dynamic'
 export const revalidate = 86400;
-export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'UK government contractors who donate to UK political parties',
@@ -88,38 +90,39 @@ async function fetchDonors(): Promise<DonorAgg[]> {
   return Array.from(map.values());
 }
 
+// The cross-reference is expensive — it pages both registers (~40k contracts +
+// all donations) and joins in JS. The matched result is small, so cache it for
+// a day rather than recomputing on every request.
+const loadMatched = unstable_cache(
+  async () => {
+    const [suppliers, donors] = await Promise.all([fetchSuppliers(), fetchDonors()]);
+    const donorByNorm = new Map<string, DonorAgg>();
+    for (const d of donors) donorByNorm.set(d.norm, d);
+    type Cross = { displayName: string; norm: string; contracts: number; contractValue: number; donations: number; donated: number };
+    const matched: Cross[] = [];
+    for (const s of suppliers) {
+      const d = donorByNorm.get(s.norm);
+      if (!d) continue;
+      matched.push({ displayName: d.name, norm: s.norm, contracts: s.contracts, contractValue: s.contractValue, donations: d.donations, donated: d.donated });
+    }
+    matched.sort((a, b) => b.donated - a.donated);
+    const totalDonated = matched.reduce((s, m) => s + m.donated, 0);
+    const totalContractValue = matched.reduce((s, m) => s + m.contractValue, 0);
+    return { matched, totalDonated, totalContractValue };
+  },
+  ['gov-contractors-matched-v1'],
+  { revalidate: 86400 },
+);
+
 export default async function ContractorsWhoDonatePage() {
-  const [suppliers, donors] = await Promise.all([fetchSuppliers(), fetchDonors()]);
-
-  // Inner join on normalised name
-  const donorByNorm = new Map<string, DonorAgg>();
-  for (const d of donors) donorByNorm.set(d.norm, d);
-
-  type Cross = { displayName: string; norm: string; contracts: number; contractValue: number; donations: number; donated: number };
-  const matched: Cross[] = [];
-  for (const s of suppliers) {
-    const d = donorByNorm.get(s.norm);
-    if (!d) continue;
-    matched.push({
-      displayName: d.name,           // prefer EC casing for the donor side
-      norm: s.norm,
-      contracts: s.contracts,
-      contractValue: s.contractValue,
-      donations: d.donations,
-      donated: d.donated,
-    });
-  }
-  matched.sort((a, b) => b.donated - a.donated);
-
-  const totalDonated = matched.reduce((s, m) => s + m.donated, 0);
-  const totalContractValue = matched.reduce((s, m) => s + m.contractValue, 0);
+  const { matched, totalDonated, totalContractValue } = await loadMatched();
 
   return (
     <OpenGovShell pageStamp="Donations">
       <BackLink fallbackHref="/transparency/donations" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
           Cross-reference · Contractors who fund the parties choosing them
         </p>
         <h1 style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
@@ -160,13 +163,14 @@ export default async function ContractorsWhoDonatePage() {
         </table>
       </section>
 
-      <section style={{ background: CREAM, padding: '12px 14px', fontSize: '13px', lineHeight: 1.6, marginBottom: '24px' }}>
+      <section style={{ background: CREAM, padding: '12px 14px', fontSize: '15px', lineHeight: 1.6, marginBottom: '24px' }}>
         <strong>What this list isn&rsquo;t.</strong> A company appearing on both registers does not mean its contracts were obtained as a result of its donations. UK procurement law forbids that linkage and every contract here was awarded through a formal procurement process. What the list does show is the small number of firms that are simultaneously public-sector suppliers and political donors. The Big Four together have given over &pound;2.5 million in declared political donations while holding over &pound;120 million in declared public-sector work; that overlap is the kind of dual-role pattern the public has a clear interest in seeing in one place.
       </section>
 
-      <p style={{ fontSize: '12px', opacity: 0.6 }}>
-        Sources: gov.uk Contracts Finder + Electoral Commission donations register. Match rule: exact case-insensitive whitespace-normalised supplier name = donor name. Synced weekly.
+      <p style={{ fontSize: '15px', color: '#14100d', opacity: 1 }}>
+        Sources: Find a Tender (OCDS) + Electoral Commission donations register. Match rule: exact case-insensitive whitespace-normalised supplier name = donor name.
       </p>
+      <LastUpdated sourceKey="government_contracts" />
     </OpenGovShell>
   );
 }
@@ -179,4 +183,4 @@ const sectionH2: React.CSSProperties = {
   paddingBottom: '6px',
   marginBottom: '14px',
 };
-const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '13px', fontFamily: '"Special Elite", monospace' };
+const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '15px', fontFamily: '"Special Elite", monospace' };

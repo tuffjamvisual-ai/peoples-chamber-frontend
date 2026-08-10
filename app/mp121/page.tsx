@@ -18,7 +18,7 @@ import type { Metadata } from 'next';
 import React from 'react';
 
 export const metadata: Metadata = {
-  title: "Open Govt, mp121",
+  title: "opengovt, mp121",
   robots: { index: false, follow: false },
 };
 
@@ -221,7 +221,7 @@ export default async function Mp121Page({
 
       <div className="mp121-root">
         <main className="page-wrap">
-          <section className="newspaper-page" aria-label="Open Govt page mockup">
+          <section className="newspaper-page" aria-label="opengovt page mockup">
             <header className="masthead">
               <a className="issue-card hotspot" href="#issue" aria-label="Issue 23">
                 <div className="issue-star top">★</div>

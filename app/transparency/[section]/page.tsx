@@ -108,13 +108,13 @@ export default async function TransparencySectionPage({
       </a>
 
       <header style={{ marginBottom: '5%' }}>
-        <p style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.3em', fontWeight: 500, marginBottom: '12px', color: ACCENT }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', fontWeight: 500, marginBottom: '12px', color: ACCENT }}>
           Dataset
         </p>
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
           {config.title}
         </h1>
-        <p className="text-[#14100d] text-[14px] leading-[1.7] max-w-2xl">
+        <p className="text-[#14100d] text-[15px] leading-[1.7] max-w-2xl">
           {searchTerm ? (
             <>
               <span className="font-mono text-[#14100d] text-base font-bold">{rowCount.toLocaleString()}</span>
@@ -139,12 +139,33 @@ export default async function TransparencySectionPage({
           )}
         </p>
         {section === 'revolving-door' && (
-          <p className="text-[#14100d] text-[14px] leading-[1.7] max-w-2xl mt-6">
+          <p className="text-[#14100d] text-[15px] leading-[1.7] max-w-2xl mt-6">
             The revolving door refers to senior government officials and ministers leaving public service to take up roles in the private sector, often in industries they previously regulated or had influence over. These appointments were reviewed by the Advisory Committee on Business Appointments (ACOBA), which could attach conditions such as waiting periods or restrictions on lobbying former colleagues. ACOBA closed on 13 October 2025 and the records below are complete up to that date. Responsibility has since passed to the Civil Service Commission for senior officials and special advisers, and to the Independent Adviser on Ministerial Standards for former ministers, both under the new Ethics and Integrity Commission.
           </p>
         )}
+        {section === 'appgs' && (
+          <>
+            <p className="text-[#14100d] text-[15px] leading-[1.7] max-w-2xl mt-6">
+              All Party Parliamentary Groups are informal cross-party groups of MPs and peers formed around a shared interest, whether a country, an industry, a medical condition or a cause. They have no formal powers and are not select committees, but they hold meetings, publish reports and give their subject a standing platform inside Parliament. The day-to-day running of a group is often handled by a secretariat, an outside body that supplies the staff, money and administration. When that secretariat is a charity or a university the arrangement is usually unremarkable. When it is a lobbying firm or a company, the group becomes a paid channel for outside interests to reach lawmakers, with MPs serving as its officers. Groups must register their officers, their funding and any benefits above a set threshold, which is what the register below records.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3 text-[15px]">
+              <Link href="/secretariats" className="font-mono underline" style={{ color: ACCENT }}>Who runs the groups &rarr;</Link>
+              <span className="opacity-30">·</span>
+              <Link href="/appg-funders" className="font-mono underline" style={{ color: ACCENT }}>Who funds them &rarr;</Link>
+            </div>
+          </>
+        )}
         {section === 'donations' && (
-          <div className="mt-6 flex flex-wrap gap-3 text-[13px]">
+          <p className="text-[#14100d] text-[15px] leading-[1.7] max-w-2xl mt-6">
+            This is Electoral Commission data on money given to parties and candidates. It is separate from the{' '}
+            <Link href="/transparency/register-of-interests" className="underline" style={{ color: ACCENT }}>
+              Register of Members&rsquo; Financial Interests
+            </Link>
+            , which is what MPs themselves declare to Parliament (gifts, employment, property and the like).
+          </p>
+        )}
+        {section === 'donations' && (
+          <div className="mt-6 flex flex-wrap gap-3 text-[15px]">
             <Link href="/donors" className="font-mono underline" style={{ color: ACCENT }}>Donor index &rarr;</Link>
             <span className="opacity-30">·</span>
             <Link href="/donations/foreign" className="font-mono underline" style={{ color: ACCENT }}>Foreign source map &rarr;</Link>

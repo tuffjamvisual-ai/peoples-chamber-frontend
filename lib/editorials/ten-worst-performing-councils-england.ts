@@ -7,7 +7,7 @@ const piece: EditorialEntry = {
   standfirst:
     "Eight English councils have declared themselves effectively bankrupt since 2018. Between them they accumulated more than £5 billion in debt and deficit. One was abolished and replaced with two new authorities. Another went bankrupt three times in three years. A commuter-belt borough council with sixteen million pounds of annual revenue borrowed its way to £1.2 billion of debt, a ratio so extreme that no repayment schedule exists that could realistically clear it. England's second city is still under government commissioners who arrived in October 2023 and show no indication of leaving. And according to the Local Government Association's own survey, one in five council leaders expects to issue a Section 114 notice within two years.",
   publishedAt: '2026-06-08',
-  authorByline: "Open Govt",
+  authorByline: "opengovt",
   body: [
     {
       type: 'paragraph',

@@ -192,7 +192,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
 
       <header style={{ marginBottom: '32px' }}>
         <p style={{
-          fontFamily: MONO, fontSize: '12px', letterSpacing: '0.3em',
+          fontFamily: MONO, fontSize: '15px', letterSpacing: '0.3em',
           textTransform: 'uppercase', color: ACCENT, marginBottom: '10px',
         }}>
           The full bill · Parliament publications
@@ -204,7 +204,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
           {bill.title}
         </h1>
         <p style={{
-          fontFamily: MONO, fontSize: '13px', lineHeight: 1.7,
+          fontFamily: MONO, fontSize: '15px', lineHeight: 1.7,
           color: INK_SOFT, maxWidth: '46em',
         }}>
           The bill’s formal description, sponsors and the full list of
@@ -217,7 +217,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
       {apiError && (
         <div style={{
           border: `1px solid ${INK_HAIRLINE}`, borderLeft: `3px solid ${ACCENT}`,
-          padding: '14px 18px', fontFamily: MONO, fontSize: '13px',
+          padding: '14px 18px', fontFamily: MONO, fontSize: '15px',
           color: INK_SOFT, marginBottom: '32px',
         }}>
           {apiError} Try again in a minute.
@@ -231,7 +231,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
       {billMeta?.longTitle && (
         <section style={{ marginBottom: '36px' }}>
           <h2 style={{
-            fontFamily: MONO, fontSize: '13px', textTransform: 'uppercase',
+            fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase',
             letterSpacing: '0.22em', fontWeight: 'bold', color: ACCENT,
             marginBottom: '12px', borderBottom: `1px solid ${INK_HAIRLINE}`,
             paddingBottom: '8px',
@@ -252,7 +252,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
       {billMeta?.sponsors && billMeta.sponsors.length > 0 && (
         <section style={{ marginBottom: '36px' }}>
           <h2 style={{
-            fontFamily: MONO, fontSize: '13px', textTransform: 'uppercase',
+            fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase',
             letterSpacing: '0.22em', fontWeight: 'bold', color: ACCENT,
             marginBottom: '12px', borderBottom: `1px solid ${INK_HAIRLINE}`,
             paddingBottom: '8px',
@@ -269,11 +269,11 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
                 <li key={i} style={{ display: 'flex', alignItems: 'baseline', gap: '12px', flexWrap: 'wrap' }}>
                   <span style={{ fontFamily: SERIF, fontSize: '15px', fontWeight: 'bold', color: INK }}>{name}</span>
                   {party && (
-                    <span style={{ fontFamily: MONO, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '1px 7px', color: '#ebe5d8', background: colour || '#7697a2' }}>
+                    <span style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '1px 7px', color: '#ebe5d8', background: colour || '#7697a2' }}>
                       {party}
                     </span>
                   )}
-                  {from && <span style={{ fontFamily: MONO, fontSize: '12px', color: INK_SOFT }}>{from}</span>}
+                  {from && <span style={{ fontFamily: MONO, fontSize: '15px', color: INK_SOFT }}>{from}</span>}
                 </li>
               )
             })}
@@ -284,7 +284,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
       {!apiError && publications.length === 0 && (
         <section style={{ marginBottom: '36px' }}>
           <h2 style={{
-            fontFamily: MONO, fontSize: '13px', textTransform: 'uppercase',
+            fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase',
             letterSpacing: '0.22em', fontWeight: 'bold', color: ACCENT,
             marginBottom: '12px', borderBottom: `1px solid ${INK_HAIRLINE}`,
             paddingBottom: '8px',
@@ -292,7 +292,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
             Publications
           </h2>
           <p style={{
-            fontFamily: MONO, fontSize: '13px', lineHeight: 1.7,
+            fontFamily: MONO, fontSize: '15px', lineHeight: 1.7,
             color: INK_SOFT, maxWidth: '46em',
           }}>
             Parliament has not published documents for this bill. That’s common for older
@@ -308,7 +308,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
           return (
             <section key={type}>
               <h2 style={{
-                fontFamily: MONO, fontSize: '13px', textTransform: 'uppercase',
+                fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase',
                 letterSpacing: '0.22em', fontWeight: 'bold', color: ACCENT,
                 marginBottom: '12px', borderBottom: `1px solid ${INK_HAIRLINE}`,
                 paddingBottom: '8px',
@@ -324,16 +324,16 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
                       gap: '16px', borderBottom: `1px dotted ${INK_HAIRLINE}`, paddingBottom: '8px',
                     }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <span style={{ fontFamily: MONO, fontSize: '13px', lineHeight: 1.5, color: INK }}>
+                        <span style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.5, color: INK }}>
                           {p.title || '(untitled publication)'}
                         </span>
                         {p.house && (
-                          <span style={{ marginLeft: '10px', fontFamily: MONO, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.15em', color: INK_SOFT }}>
+                          <span style={{ marginLeft: '10px', fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', color: INK_SOFT }}>
                             {p.house}
                           </span>
                         )}
                       </div>
-                      <div style={{ flexShrink: 0, fontFamily: MONO, fontSize: '12px', color: INK_SOFT, textAlign: 'right' }}>
+                      <div style={{ flexShrink: 0, fontFamily: MONO, fontSize: '15px', color: INK_SOFT, textAlign: 'right' }}>
                         {fmtDate(p.displayDate)}
                         {size && <span style={{ marginLeft: '10px' }}>· {size}</span>}
                       </div>
@@ -347,7 +347,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
       </div>
 
       <p style={{
-        fontFamily: MONO, fontSize: '13px', color: INK_SOFT,
+        fontFamily: MONO, fontSize: '15px', color: INK_SOFT,
         marginTop: '40px', paddingTop: '20px', borderTop: `1px solid ${INK_HAIRLINE}`,
         textAlign: 'center',
       }}>

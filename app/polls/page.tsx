@@ -6,7 +6,7 @@ import BackLink from '../components/BackLink';
 import VotingIntegrity from '../components/VotingIntegrity';
 
 export const metadata: Metadata = {
-  title: "OpenGovt Polls",
+  title: "opengovt Polls",
   description:
     'Public opinion polls on the big questions in British politics. Have your say and see where the public stands.',
   alternates: { canonical: '/polls' },
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function PollsPage() {
   return (
-    <OpenGovShell pageStamp="OpenGovt Polls">
+    <OpenGovShell pageStamp="opengovt Polls">
       <BackLink
         fallbackHref="/"
         label="← Back"
@@ -24,12 +24,12 @@ export default function PollsPage() {
 
       <header style={{ marginBottom: '5%' }}>
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
-          OpenGovt Polls
+          opengovt Polls
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
           Have your say on the big questions in British politics. These are public opinion polls, not votes in Parliament. Log in or create an account to vote, then see where the public stands.
         </p>
-        <a href="/polls/archive" className="no-hover-scale" style={{ display: 'inline-block', marginTop: '10px', fontFamily: 'Special Elite, monospace', fontSize: '13px', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#7a1612', textDecoration: 'underline' }}>
+        <a href="/polls/archive" className="no-hover-scale" style={{ display: 'inline-block', marginTop: '10px', fontFamily: 'Special Elite, monospace', fontSize: '15px', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#7a1612', textDecoration: 'underline' }}>
           View archived polls →
         </a>
       </header>

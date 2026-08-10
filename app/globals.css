@@ -5,10 +5,24 @@
    literal hyphens already in words (e.g. Barros-Curtis) are unaffected. */
 html { -webkit-hyphens: none; hyphens: none; }
 
-/* Full justification of body prose on all pages. Scoped to paragraphs so
-   headings, nav and captions are untouched; an explicit text-align (inline
-   or via a class, e.g. centred lines) still wins over this. */
-p { text-align: justify; }
+/* Reserve the vertical scrollbar gutter permanently so switching between tall
+   and short content (e.g. the MP profile section tabs) does not toggle the
+   scrollbar on and off. Without this, that toggle changes the viewport width
+   and the centred dossier folder jogs sideways by the scrollbar's width. */
+html { scrollbar-gutter: stable; }
+
+/* Mobile skew fix (2026-06): the OpenGovShell chrome (folder image, masthead,
+   nav) is rotated -2.5deg while full-width, so its corners push past the
+   viewport edge and, with almost no side gutter on phones, the whole page
+   scrolls sideways and looks tilted. Clip that horizontal overflow site-wide. */
+html, body { max-width: 100%; overflow-x: hidden; }
+
+/* Wide data tables (donations / transparency / mp-activity) have no room to
+   breathe on a phone. On narrow screens let each table scroll horizontally
+   within its column instead of stretching the whole page. Desktop unaffected. */
+@media (max-width: 760px) {
+  .og-page table { display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}
 
 /* Self-hosted typewriter face — used for magazine body copy. The three
  * Google fonts (Playfair Display, Anton, Oswald) are loaded via
@@ -60,20 +74,22 @@ body {
     0 0 1px rgba(20, 16, 13, 0.18);
 }
 
-/* Minimum body-text size policy (set 2026-06-03):
+/* Minimum text-size policy (raised to 15px on 2026-07-11; was 14px from the
+ * 2026-07-03 sweep, itself a 12/13/14 tiered floor from 2026-06-03):
  *
- *   12px = the absolute floor for inline meta labels (uppercase
- *          eyebrows, ACCOUNT-INFO / DATASET captions, etc.)
- *   13px = the floor for any prose that has to be read at length
- *          (sub-lines under names, methodology footers, breakdown
- *          captions, sidebar items)
- *   14px = the floor for column headers
+ *   15px = the absolute floor for ALL text on the site. Inline meta labels,
+ *          uppercase eyebrows, captions, fine print, prose and column
+ *          headers alike. Nothing renders below 15px. This step up from 14px
+ *          was made because 14px in the Special Elite monospace face still
+ *          read too small on desktop.
  *
- * The 2026-06-03 sweep bumped every fontSize: '10px' to 12px and
- * '11px' to 13px across the app .tsx files so the floor holds without a
- * runtime rule. Tailwind text-[10px]/text-[11px] utilities were
- * normalised to text-[12px]/text-[13px] at the same time. New code
- * should respect the floor rather than drop below it.
+ * The 2026-07-11 sweep bumped every fixed fontSize of 11/12/13/14px to 15px,
+ * the Tailwind text-[11..14px] utilities to text-[15px], and every content
+ * clamp() minimum below 15px up to 15px, across the app .tsx files, so the
+ * floor holds without a runtime rule. (Masthead/nav chrome clamps in
+ * opengov-shell.css / mobile-nav.css are display type and sit outside this
+ * rule, as do bespoke landing/preview-page display CSS.) New code must not
+ * use a fixed size below 15px.
  */
 
 /* Hover scale on anchors REMOVED site-wide (2026-06-26): cards, nav and text

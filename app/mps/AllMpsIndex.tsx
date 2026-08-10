@@ -79,7 +79,7 @@ export default async function AllMpsIndex() {
   const summaryStyle: React.CSSProperties = {
     cursor: 'pointer',
     fontFamily: MONO,
-    fontSize: '14px',
+    fontSize: '15px',
     letterSpacing: '0.18em',
     textTransform: 'uppercase',
     color: ACCENT,
@@ -92,13 +92,13 @@ export default async function AllMpsIndex() {
     color: INK,
     textDecoration: 'none',
     fontFamily: MONO,
-    fontSize: '13px',
+    fontSize: '15px',
     lineHeight: 1.55,
     borderBottom: `1px dotted rgba(20,16,13,0.1)`,
   };
   const subStyle: React.CSSProperties = {
     display: 'block',
-    fontSize: '13px',
+    fontSize: '15px',
     fontFamily: MONO,
     color: INK_SOFT,
     marginTop: '2px',
@@ -112,7 +112,7 @@ export default async function AllMpsIndex() {
       <h2
         style={{
           fontFamily: MONO,
-          fontSize: '14px',
+          fontSize: '15px',
           letterSpacing: '0.25em',
           textTransform: 'uppercase',
           color: ACCENT,
@@ -125,7 +125,7 @@ export default async function AllMpsIndex() {
       <p
         style={{
           fontFamily: MONO,
-          fontSize: '13px',
+          fontSize: '15px',
           lineHeight: 1.75,
           color: INK,
           maxWidth: '640px',

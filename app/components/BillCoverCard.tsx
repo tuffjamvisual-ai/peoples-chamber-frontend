@@ -7,9 +7,6 @@
 //   - the iconic "A / BILL / TO" centrepiece
 //   - justified italic description
 //   - "Presented by [Sponsor], supported by..." sponsor block
-//   - "Ordered, by The House of Commons, to be Printed, [date]" framed box
-//   - © Parliamentary copyright italic line
-//   - PUBLISHED BY THE AUTHORITY OF THE HOUSE OF COMMONS footer
 //
 // The whole card links to /bills/<id> for the full text + voting.
 // People's count and Parliament's division are tucked into the footer rules.
@@ -42,7 +39,6 @@ type Props = {
 
 const INK = '#1a140e';
 const INK_SOFT = 'rgba(26,20,14,0.7)';
-const INK_FAINT = 'rgba(26,20,14,0.45)';
 const INK_HAIRLINE = 'rgba(26,20,14,0.3)';
 const PARCHMENT = '#efe6d2';
 const PARCHMENT_DEEP = '#e6dbc0';
@@ -75,8 +71,6 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
   // Trim summary to a digestible cover-paragraph length.
   const summarySrc = (bill.plain_summary || bill.description || '').trim();
   const summary = summarySrc.length > 360 ? summarySrc.slice(0, 357).trim() + '…' : summarySrc;
-
-  const orderedDate = fmtDate(bill.introduced_date || bill.last_update);
 
   return (
     <div
@@ -141,7 +135,7 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
 
       {/* "A / B I L L / TO" centrepiece */}
       <div style={{ textAlign: 'center', margin: '4px 0 6px' }}>
-        <div style={{ fontFamily: SERIF_DISPLAY, fontSize: '14px', fontStyle: 'italic', color: INK, marginBottom: '2px' }}>A</div>
+        <div style={{ fontFamily: SERIF_DISPLAY, fontSize: '15px', fontStyle: 'italic', color: INK, marginBottom: '2px' }}>A</div>
         <div
           style={{
             fontFamily: SERIF_DISPLAY,
@@ -155,7 +149,7 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
         >
           BILL
         </div>
-        <div style={{ fontFamily: SERIF_DISPLAY, fontSize: '14px', fontStyle: 'italic', color: INK, marginTop: '4px' }}>to</div>
+        <div style={{ fontFamily: SERIF_DISPLAY, fontSize: '15px', fontStyle: 'italic', color: INK, marginTop: '4px' }}>to</div>
       </div>
 
       {/* Justified typewriter description */}
@@ -164,9 +158,8 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
           style={{
             margin: '4px 0 0',
             fontFamily: MONO,
-            fontSize: '12px',
+            fontSize: '15px',
             lineHeight: 1.65,
-            textAlign: 'justify',
             color: INK,
             display: '-webkit-box',
             WebkitBoxOrient: 'vertical',
@@ -195,25 +188,6 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
         </div>
       )}
 
-      {/* Ordered to be Printed framed box */}
-      {orderedDate && (
-        <div
-          style={{
-            textAlign: 'center',
-            fontFamily: MONO,
-            fontSize: '13px',
-            lineHeight: 1.55,
-            color: INK,
-            border: `1px solid ${INK}`,
-            padding: '8px 12px',
-            margin: '4px auto 0',
-            maxWidth: '85%',
-          }}
-        >
-          Ordered, by The House of Commons, to be Printed, {orderedDate}.
-        </div>
-      )}
-
       {/* People's count + Parliament's division row (folded into the lower rules) */}
       <div
         style={{
@@ -224,7 +198,7 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
           justifyContent: 'space-between',
           alignItems: 'baseline',
           fontFamily: MONO,
-          fontSize: '13px',
+          fontSize: '15px',
           color: INK_SOFT,
           gap: '12px',
         }}
@@ -249,35 +223,6 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
         )}
       </div>
 
-      {/* © Parliamentary copyright — typewriter italic */}
-      <div
-        style={{
-          textAlign: 'center',
-          fontFamily: MONO,
-          fontSize: '12px',
-          fontStyle: 'italic',
-          color: INK_FAINT,
-          marginTop: '4px',
-        }}
-      >
-        © Parliamentary copyright House of Commons {new Date().getFullYear()}
-      </div>
-
-      {/* PUBLISHED BY THE AUTHORITY OF THE HOUSE OF COMMONS — typewriter, letter-spaced */}
-      <div
-        style={{
-          textAlign: 'center',
-          fontFamily: MONO,
-          fontSize: '12px',
-          letterSpacing: '0.18em',
-          textTransform: 'uppercase',
-          color: INK,
-          paddingTop: '6px',
-          borderTop: `0.5px solid ${INK_FAINT}`,
-        }}
-      >
-        Published by the Authority of the House of Commons
-      </div>
 
       {/* Royal Assent stamp — only for Acts (bill.is_act). Sits opposite
           the Voted stamp so they don't collide. */}
@@ -294,7 +239,7 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
             color: ACCENT,
             background: PARCHMENT_DEEP,
             fontFamily: SERIF,
-            fontSize: '13px',
+            fontSize: '15px',
             fontVariant: 'small-caps',
             letterSpacing: '0.14em',
             fontWeight: 'bold',
@@ -320,7 +265,7 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
             color: ACCENT,
             background: PARCHMENT_DEEP,
             fontFamily: SERIF,
-            fontSize: '13px',
+            fontSize: '15px',
             fontVariant: 'small-caps',
             letterSpacing: '0.14em',
             fontWeight: 'bold',

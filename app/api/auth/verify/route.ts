@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { setSessionCookie } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,5 +23,7 @@ export async function GET(request: NextRequest) {
     .update({ email_verified: true, verification_token: null })
     .eq('id', u.id);
 
-  return NextResponse.redirect(`${base}/login?verified=1`);
+  const res = NextResponse.redirect(`${base}/login?verified=1`);
+  setSessionCookie(res, u.id);
+  return res;
 }

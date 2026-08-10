@@ -20,7 +20,7 @@ function safeReturnTo(value: string | null): string {
 
 const label: CSSProperties = {
   display: 'block',
-  fontSize: '12px',
+  fontSize: '15px',
   textTransform: 'uppercase',
   letterSpacing: '0.14em',
   opacity: 0.7,
@@ -152,13 +152,13 @@ export default function MagazineLoginClient() {
         </div>
 
         {error && (
-          <div role="alert" style={{ marginBottom: '18px', padding: '11px 14px', background: 'rgba(107,36,23,0.1)', border: `1px solid ${ACCENT}`, color: ACCENT, fontSize: '14px', lineHeight: 1.4 }}>
+          <div role="alert" style={{ marginBottom: '18px', padding: '11px 14px', background: 'rgba(107,36,23,0.1)', border: `1px solid ${ACCENT}`, color: ACCENT, fontSize: '15px', lineHeight: 1.4 }}>
             {error}
           </div>
         )}
 
         {notice && (
-          <div role="status" style={{ marginBottom: '18px', padding: '11px 14px', background: 'rgba(78,107,52,0.12)', border: '1px solid #4e6b34', color: '#3a5226', fontSize: '14px', lineHeight: 1.4 }}>
+          <div role="status" style={{ marginBottom: '18px', padding: '11px 14px', background: 'rgba(78,107,52,0.12)', border: '1px solid #4e6b34', color: '#3a5226', fontSize: '15px', lineHeight: 1.4 }}>
             {notice}
           </div>
         )}
@@ -173,7 +173,7 @@ export default function MagazineLoginClient() {
 
             <button type="submit" disabled={loading} style={button}>{loading ? 'Signing in…' : 'Sign In'}</button>
 
-            <p style={{ marginTop: '16px', fontSize: '14px', opacity: 0.75 }}>
+            <p style={{ marginTop: '16px', fontSize: '15px', opacity: 0.75 }}>
               New here?{' '}
               <button type="button" onClick={() => switchMode('signup')} style={{ background: 'none', border: 'none', color: ACCENT, font: 'inherit', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>
                 Create an account
@@ -190,14 +190,14 @@ export default function MagazineLoginClient() {
 
             <label style={label} htmlFor="su-pw">Password</label>
             <input id="su-pw" type="password" autoComplete="new-password" required value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} style={{ ...input, marginBottom: '6px' }} />
-            <p style={{ margin: '0 0 18px', fontSize: '13px', opacity: 0.6 }}>8 or more characters, with a letter and a number.</p>
+            <p style={{ margin: '0 0 18px', fontSize: '15px', opacity: 0.6 }}>8 or more characters, with a letter and a number.</p>
 
             <label style={label} htmlFor="su-postcode">Postcode <span style={{ opacity: 0.6 }}>(optional)</span></label>
             <input id="su-postcode" type="text" autoComplete="postal-code" value={signupPostcode} onChange={(e) => setSignupPostcode(e.target.value)} style={input} />
 
             <button type="submit" disabled={loading} style={button}>{loading ? 'Creating account…' : 'Create Account'}</button>
 
-            <p style={{ marginTop: '16px', fontSize: '14px', opacity: 0.75 }}>
+            <p style={{ marginTop: '16px', fontSize: '15px', opacity: 0.75 }}>
               Already registered?{' '}
               <button type="button" onClick={() => switchMode('signin')} style={{ background: 'none', border: 'none', color: ACCENT, font: 'inherit', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>
                 Sign in

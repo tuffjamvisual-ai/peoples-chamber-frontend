@@ -6,6 +6,8 @@ export function middleware(request: NextRequest) {
   const referer = request.headers.get('referer') || ''
   
   const allowed = [
+    'https://www.opengovt.uk',
+    'https://opengovt.uk',
     'https://www.thepeopleschamber.uk',
     'https://thepeopleschamber.uk',
     'http://localhost:3000'

@@ -10,7 +10,6 @@ import BackLink from '../components/BackLink';
 import { donorNameToSlug } from './[slug]/page';
 
 export const revalidate = 86400;
-export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: "UK Political Donors: Who Funds Westminster",
@@ -67,7 +66,7 @@ export default async function DonorsIndex() {
       <BackLink fallbackHref="/" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
           Electoral Commission · Donor index
         </p>
         <h1 style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
@@ -78,7 +77,7 @@ export default async function DonorsIndex() {
         </p>
       </header>
 
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', fontFamily: '"Special Elite", monospace' }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px', fontFamily: '"Special Elite", monospace' }}>
         <thead>
           <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
             <th style={{ padding: '8px 6px' }}>#</th>
@@ -105,7 +104,7 @@ export default async function DonorsIndex() {
         </tbody>
       </table>
 
-<div style={{ marginTop: '20px', padding: '12px 14px', background: CREAM, fontSize: '13px' }}>
+<div style={{ marginTop: '20px', padding: '12px 14px', background: CREAM, fontSize: '15px' }}>
         <strong>Heads up.</strong> &ldquo;House of Commons&rdquo; and &ldquo;House of Commons Fees Office&rdquo; appear in the EC register because they are the legal counterparty for MPs&rsquo; Members Estimate &ldquo;Short Money&rdquo; payments. Those are not donations in the lobbying sense; the EC simply records the payment trail.
       </div>
     </OpenGovShell>

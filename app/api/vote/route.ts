@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
+import { getSessionUserId } from '@/lib/session';
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
-    
-    if (!userId) {
+    const userId = getSessionUserId(request);
+
+    if (userId == null) {
       return NextResponse.json(
-        { error: 'userId is required' },
-        { status: 400 }
+        { error: 'Unauthorised' },
+        { status: 401 }
       );
     }
-    
+
     // Fetch all votes for this user
     const { data: votes, error } = await supabase
       .from('vote')
@@ -46,10 +46,17 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId, billId, choice } = await request.json();
-    
+    const userId = getSessionUserId(request);
+    if (userId == null) {
+      return NextResponse.json(
+        { error: 'Unauthorised' },
+        { status: 401 }
+      );
+    }
+    const { billId, choice } = await request.json();
+
     // Validate input
-    if (!userId || !billId || !choice) {
+    if (!billId || !choice) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }

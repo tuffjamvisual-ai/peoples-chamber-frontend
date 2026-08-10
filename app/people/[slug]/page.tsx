@@ -212,10 +212,10 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
               <div style={{ flex: '1 1 auto', marginTop: '6%' }}>
                 <div style={{ fontSize: 'clamp(22px, 3.4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', textShadow: '1px 1px 0 rgba(0,0,0,0.1)', lineHeight: 1.05, marginBottom: '4%' }}>{displayName}</div>
                 {person.currentRoles[0] && (
-                  <div style={{ fontSize: 'clamp(13px, 1.9vw, 25px)', marginBottom: '3%' }}>{person.currentRoles[0].title}</div>
+                  <div style={{ fontSize: 'clamp(15px, 1.9vw, 25px)', marginBottom: '3%' }}>{person.currentRoles[0].title}</div>
                 )}
                 {person.currentRoles[0]?.organisation && (
-                  <div style={{ fontSize: 'clamp(13px, 1.9vw, 25px)', opacity: 0.7 }}>{person.currentRoles[0].organisation}</div>
+                  <div style={{ fontSize: 'clamp(15px, 1.9vw, 25px)', opacity: 0.7 }}>{person.currentRoles[0].organisation}</div>
                 )}
                 {/* Salary detail moved to its own sidebar section to
                     avoid the long band+range line wrapping under the

@@ -160,13 +160,13 @@ export default function YourTaxPoundPage() {
       />
 
       <header style={{ marginBottom: '4%' }}>
-        <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '10px', opacity: 0.7 }}>
+        <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '10px', opacity: 0.7 }}>
           Where Your Money Goes
         </p>
         <h1 style={{ fontSize: 'clamp(28px, 4.6vw, 56px)', fontWeight: 'bold', letterSpacing: '-0.02em', lineHeight: 1.0, marginBottom: '14px' }}>
           Your Tax Pound
         </h1>
-        <p style={{ fontFamily: 'Special Elite, monospace', fontSize: 'clamp(14px, 1.7vw, 18px)', lineHeight: 1.65, maxWidth: '74ch', opacity: 0.92 }}>
+        <p style={{ fontFamily: 'Special Elite, monospace', fontSize: 'clamp(15px, 1.7vw, 18px)', lineHeight: 1.65, maxWidth: '74ch', opacity: 0.92 }}>
           For every £1 the UK government spends, this is where it goes. Twelve lines, eleven named categories
           covering most domestic policy, plus a real Other bucket of around 24p that catches government administration,
           business support, environment, culture, agriculture, contingency reserves and the parts of the budget that
@@ -188,7 +188,7 @@ export default function YourTaxPoundPage() {
           justifyContent: 'flex-end',
           padding: '14px 18px',
           fontFamily: 'Special Elite, monospace',
-          fontSize: '12px',
+          fontSize: '15px',
           letterSpacing: '0.12em',
           textTransform: 'uppercase',
           color: INK,
@@ -214,7 +214,7 @@ export default function YourTaxPoundPage() {
         })}
       </div>
 
-      <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '12px', opacity: 0.7, marginBottom: '5%', textAlign: 'right' }}>
+      <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', opacity: 0.7, marginBottom: '5%', textAlign: 'right' }}>
         Total: {totalPence}p · {totalPct.toFixed(1)}% of spending
       </p>
 
@@ -238,7 +238,7 @@ export default function YourTaxPoundPage() {
         ))}
       </div>
 
-      <footer style={{ marginTop: '5%', paddingTop: '24px', borderTop: `2px solid ${INK}`, fontFamily: 'Special Elite, monospace', fontSize: '13px', lineHeight: 1.65, opacity: 0.78, maxWidth: '72ch' }}>
+      <footer style={{ marginTop: '5%', paddingTop: '24px', borderTop: `2px solid ${INK}`, fontFamily: 'Special Elite, monospace', fontSize: '15px', lineHeight: 1.65, opacity: 0.78, maxWidth: '72ch' }}>
         <p style={{ margin: '0 0 8px 0' }}>
           <strong>Source.</strong> HM Treasury Public Expenditure Statistical Analyses (PESA), components of UK
           government spending in 2022/23. Twelve-category view (eleven named + Other), commonly used by the

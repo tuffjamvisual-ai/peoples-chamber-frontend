@@ -18,7 +18,6 @@ import BackLink from '../../components/BackLink';
 import { donorNameToSlug } from '../../donors/[slug]/page';
 
 export const revalidate = 86400;
-export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Impermissible political donations: money UK parties had to give back',
@@ -114,7 +113,7 @@ export default async function ImpermissiblePage() {
       <BackLink fallbackHref="/transparency/donations" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
           Money the regulator caught · Returned donations
         </p>
         <h1 style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
@@ -186,15 +185,15 @@ export default async function ImpermissiblePage() {
           <tbody>
             {largest.map((r) => (
               <tr key={r.id} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-                <td style={{ padding: '6px', fontSize: '12px' }}>
+                <td style={{ padding: '6px', fontSize: '15px' }}>
                   {r.donor_name ? (
                     <Link href={`/donors/${donorNameToSlug(r.donor_name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.donor_name}</Link>
                   ) : <span style={{ opacity: 0.6 }}>(unknown)</span>}
                 </td>
-                <td style={{ padding: '6px', fontSize: '12px' }}>{r.recipient_name || ''}</td>
-                <td style={{ padding: '6px', fontFamily: 'monospace', fontSize: '13px', opacity: 0.7 }}>{r.returned_date || ''}</td>
+                <td style={{ padding: '6px', fontSize: '15px' }}>{r.recipient_name || ''}</td>
+                <td style={{ padding: '6px', fontFamily: 'monospace', fontSize: '15px', opacity: 0.7 }}>{r.returned_date || ''}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(Number(r.amount || 0)).toLocaleString()}</td>
-                <td style={{ padding: '6px', fontSize: '13px', opacity: 0.8, maxWidth: '320px' }}>{r.impermissibility_reason}</td>
+                <td style={{ padding: '6px', fontSize: '15px', opacity: 0.8, maxWidth: '320px' }}>{r.impermissibility_reason}</td>
               </tr>
             ))}
           </tbody>
@@ -213,4 +212,4 @@ const sectionH2: React.CSSProperties = {
   paddingBottom: '6px',
   marginBottom: '14px',
 };
-const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '13px', fontFamily: '"Special Elite", monospace' };
+const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '15px', fontFamily: '"Special Elite", monospace' };

@@ -50,7 +50,7 @@ export default function PreviewFooterPage() {
       >
         <p
           style={{
-            fontSize: '12px',
+            fontSize: '15px',
             textTransform: 'uppercase',
             letterSpacing: '0.3em',
             opacity: 0.65,
@@ -82,7 +82,7 @@ export default function PreviewFooterPage() {
             borderTop: '1px solid rgba(20,16,13,0.3)',
             paddingTop: '20px',
             marginTop: '40px',
-            fontSize: '13px',
+            fontSize: '15px',
             opacity: 0.7,
             letterSpacing: '0.12em',
             textTransform: 'uppercase',

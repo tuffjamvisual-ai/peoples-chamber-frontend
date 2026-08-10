@@ -30,7 +30,7 @@ const wrapStyle: React.CSSProperties = {
 };
 const sectionStyle: React.CSSProperties = { marginBottom: '20px' };
 const labelStyle: React.CSSProperties = {
-  fontSize: '13px',
+  fontSize: '15px',
   letterSpacing: '0.22em',
   textTransform: 'uppercase',
   fontWeight: 600,
@@ -46,13 +46,13 @@ const itemStyle: React.CSSProperties = {
   // Special Elite per the site-wide typewriter-for-body rule. SERIF
   // kept imported for any future headline use within this file.
   fontFamily: MONO,
-  fontSize: '14px',
+  fontSize: '15px',
   lineHeight: 1.55,
   borderBottom: `1px dotted rgba(20,16,13,0.12)`,
 };
 const subStyle: React.CSSProperties = {
   display: 'block',
-  fontSize: '12px',
+  fontSize: '15px',
   fontFamily: MONO,
   color: INK_SOFT,
   marginTop: '2px',
@@ -134,7 +134,7 @@ async function renderMp(props: MpProps) {
 
   return (
     <aside aria-label="Related" style={wrapStyle}>
-      <h2 style={{ ...labelStyle, fontSize: '13px', letterSpacing: '0.3em', marginBottom: '14px' }}>
+      <h2 style={{ ...labelStyle, fontSize: '15px', letterSpacing: '0.3em', marginBottom: '14px' }}>
         Related
       </h2>
 
@@ -219,15 +219,22 @@ interface BillProps {
 async function renderBill(props: BillProps) {
   // Other bills by same sponsor (server query, top 5 by recency)
   let siblingBills: Array<{ id: number; title: string }> = [];
+  let sponsorHasProfile = false;
   if (props.sponsorMemberId != null) {
-    const { data } = await supabase
-      .from('bill')
-      .select('id, title')
-      .eq('sponsor_member_id', props.sponsorMemberId)
-      .neq('id', props.billId)
-      .order('last_update', { ascending: false, nullsFirst: false })
-      .range(0, 4);
-    siblingBills = data || [];
+    const [{ data: bills }, { data: sponsorRow }] = await Promise.all([
+      supabase
+        .from('bill')
+        .select('id, title')
+        .eq('sponsor_member_id', props.sponsorMemberId)
+        .neq('id', props.billId)
+        .order('last_update', { ascending: false, nullsFirst: false })
+        .range(0, 4),
+      // Only current MPs have a /mps/<id> page. A former-MP sponsor (e.g. a bill
+      // from an earlier Parliament) has no profile, so link only if present.
+      supabase.from('mps').select('member_id').eq('member_id', props.sponsorMemberId).maybeSingle(),
+    ]);
+    siblingBills = bills || [];
+    sponsorHasProfile = !!sponsorRow;
   }
 
   const hasAnything =
@@ -238,17 +245,24 @@ async function renderBill(props: BillProps) {
 
   return (
     <aside aria-label="Related" style={wrapStyle}>
-      <h2 style={{ ...labelStyle, fontSize: '13px', letterSpacing: '0.3em', marginBottom: '14px' }}>
+      <h2 style={{ ...labelStyle, fontSize: '15px', letterSpacing: '0.3em', marginBottom: '14px' }}>
         Related
       </h2>
 
       {props.sponsorMemberId != null && props.sponsorName && (
         <section style={sectionStyle}>
           <span style={labelStyle}>Sponsor</span>
-          <Link href={`/mps/${props.sponsorMemberId}`} style={itemStyle}>
-            {props.sponsorName}
-            {props.sponsorParty && <span style={subStyle}>{props.sponsorParty}</span>}
-          </Link>
+          {sponsorHasProfile ? (
+            <Link href={`/mps/${props.sponsorMemberId}`} style={itemStyle}>
+              {props.sponsorName}
+              {props.sponsorParty && <span style={subStyle}>{props.sponsorParty}</span>}
+            </Link>
+          ) : (
+            <div style={itemStyle}>
+              {props.sponsorName}
+              {props.sponsorParty && <span style={subStyle}>{props.sponsorParty}</span>}
+            </div>
+          )}
         </section>
       )}
 
@@ -314,7 +328,7 @@ async function renderDepartment(props: DepartmentProps) {
 
   return (
     <aside aria-label="Related" style={wrapStyle}>
-      <h2 style={{ ...labelStyle, fontSize: '13px', letterSpacing: '0.3em', marginBottom: '14px' }}>
+      <h2 style={{ ...labelStyle, fontSize: '15px', letterSpacing: '0.3em', marginBottom: '14px' }}>
         Related
       </h2>
 

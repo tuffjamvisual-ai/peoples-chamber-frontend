@@ -179,7 +179,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
       </a>
 
       <header style={{ borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
           {party.name} · Money map
         </p>
         <h1 style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
@@ -195,7 +195,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>By donor type</h2>
-        <p style={{ fontSize: '12px', opacity: 0.75, marginBottom: '10px' }}>The most diagnostic single decomposition. Tells you who actually owns the party.</p>
+        <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '10px' }}>The most diagnostic single decomposition. Tells you who actually owns the party.</p>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -220,7 +220,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Year by year</h2>
-        <p style={{ fontSize: '12px', opacity: 0.75, marginBottom: '10px' }}>Declared total per calendar year. Election years and leadership-change years usually spike.</p>
+        <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '10px' }}>Declared total per calendar year. Election years and leadership-change years usually spike.</p>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -247,7 +247,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Where the money landed · accounting unit</h2>
-        <p style={{ fontSize: '12px', opacity: 0.75, marginBottom: '10px' }}>Money that lands at Central HQ funds the party machine. Money that lands at a constituency association funds a single seat. The mix tells you whether the party is centrally bankrolled or locally rooted.</p>
+        <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '10px' }}>Money that lands at Central HQ funds the party machine. Money that lands at a constituency association funds a single seat. The mix tells you whether the party is centrally bankrolled or locally rooted.</p>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -273,7 +273,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
       {sectorRows.length > 0 && (
         <section style={{ marginBottom: '32px' }}>
           <h2 style={sectionH2}>Top funding sectors</h2>
-          <p style={{ fontSize: '12px', opacity: 0.75, marginBottom: '10px' }}>Donor names matched against the site&rsquo;s sector classifier. Untagged donors (individuals, generic companies) are not included &mdash; this is the political-economy view.</p>
+          <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '10px' }}>Donor names matched against the site&rsquo;s sector classifier. Untagged donors (individuals, generic companies) are not included &mdash; this is the political-economy view.</p>
           <table style={tableStyle}>
             <thead>
               <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -285,7 +285,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
             <tbody>
               {sectorRows.map((r) => (
                 <tr key={r.label} style={{ borderBottom: `1px solid ${HAIRLINE}` }}>
-                  <td style={td}><span style={{ padding: '2px 8px', border: `1px solid ${r.colour}`, color: r.colour, fontSize: '13px' }}>{r.label}</span></td>
+                  <td style={td}><span style={{ padding: '2px 8px', border: `1px solid ${r.colour}`, color: r.colour, fontSize: '15px' }}>{r.label}</span></td>
                   <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace' }}>{r.donors.size}</td>
                   <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(r.total)}</td>
                 </tr>
@@ -314,7 +314,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
                 <td style={td}>
                   <Link href={`/donors/${donorNameToSlug(d.name)}`} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold' }}>{d.name}</Link>
                 </td>
-                <td style={{ ...td, fontSize: '13px', opacity: 0.75 }}>{d.donorType || ''}</td>
+                <td style={{ ...td, fontSize: '15px', opacity: 0.75 }}>{d.donorType || ''}</td>
                 <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace' }}>{d.count}</td>
                 <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(d.total)}</td>
               </tr>
@@ -323,7 +323,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
         </table>
       </section>
 
-      <p style={{ fontSize: '12px', opacity: 0.6, marginTop: '24px' }}>
+      <p style={{ fontSize: '15px', opacity: 0.6, marginTop: '24px' }}>
         All-time, all accounting units. Includes both monetary donations and non-cash benefits.
       </p>
 
@@ -343,9 +343,9 @@ function fmtMoney(n: number): string {
 function Tile({ label, value, sub, small }: { label: string; value: string; sub: string; small?: boolean }) {
   return (
     <div style={{ border: `1px solid ${HAIRLINE}`, padding: '12px 14px', background: CREAM }}>
-      <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
+      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
       <div style={{ fontFamily: '"Special Elite", monospace', fontSize: small ? '14px' : '22px', fontWeight: 'bold', color: ACCENT, lineHeight: 1.2 }}>{value}</div>
-      <div style={{ fontSize: '13px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
+      <div style={{ fontSize: '15px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
     </div>
   );
 }
@@ -358,6 +358,6 @@ const sectionH2: React.CSSProperties = {
   paddingBottom: '6px',
   marginBottom: '12px',
 };
-const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '13px', fontFamily: '"Special Elite", monospace' };
-const th: React.CSSProperties = { padding: '8px 6px', fontSize: '13px', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 'bold' };
-const td: React.CSSProperties = { padding: '8px 6px', fontSize: '13px', verticalAlign: 'top' };
+const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '15px', fontFamily: '"Special Elite", monospace' };
+const th: React.CSSProperties = { padding: '8px 6px', fontSize: '15px', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 'bold' };
+const td: React.CSSProperties = { padding: '8px 6px', fontSize: '15px', verticalAlign: 'top' };

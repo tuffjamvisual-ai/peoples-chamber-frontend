@@ -17,7 +17,7 @@ const pageBtn = (disabled: boolean): CSSProperties => ({
   border: `1px solid ${INK}`,
   borderRadius: 0,
   fontFamily: 'Special Elite, monospace',
-  fontSize: '13px',
+  fontSize: '15px',
   letterSpacing: '0.06em',
   cursor: disabled ? 'default' : 'pointer',
   opacity: disabled ? 0.3 : 1,
@@ -180,7 +180,7 @@ export default function BillsGrid({ initialBills, currentPage, totalPages }: Pro
         }}
       />
 
-      <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.15em', color: 'rgba(20,16,13,0.7)', marginBottom: '16px' }}>
+      <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', color: 'rgba(20,16,13,0.7)', marginBottom: '16px' }}>
         {searching
           ? 'Searching…'
           : searchResults

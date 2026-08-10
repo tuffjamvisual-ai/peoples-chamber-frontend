@@ -21,7 +21,7 @@ const INK = '#14100d';
 const CREAM = '#ebe5d8';
 const INK_HAIRLINE = 'rgba(20,16,13,0.3)';
 
-// Parchment form controls, matching the People's Polls search/sort styling.
+// Parchment form controls, matching the opengovt Polls search/sort styling.
 const field: CSSProperties = {
   padding: '10px 14px',
   background: 'rgba(20,16,13,0.05)',
@@ -29,7 +29,7 @@ const field: CSSProperties = {
   border: `1px solid ${INK_HAIRLINE}`,
   borderRadius: 0,
   fontFamily: 'Special Elite, monospace',
-  fontSize: '14px',
+  fontSize: '15px',
   outline: 'none',
 };
 
@@ -41,7 +41,7 @@ function toggle(active: boolean): CSSProperties {
     border: `1px solid ${active ? INK : INK_HAIRLINE}`,
     borderRadius: 0,
     fontFamily: 'Special Elite, monospace',
-    fontSize: '12px',
+    fontSize: '15px',
     textTransform: 'uppercase',
     letterSpacing: '0.1em',
     cursor: 'pointer',

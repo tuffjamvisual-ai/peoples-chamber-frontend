@@ -18,7 +18,7 @@ const hotspots: Hotspot[] = [
   { cls: 'nav-home', href: '#home', label: 'Home', left: '4.1%', top: '19.3%', width: '5.8%', height: '2.2%' },
   { cls: 'nav-bills', href: '#bills', label: 'Bills', left: '11.8%', top: '19.3%', width: '5.4%', height: '2.2%' },
   { cls: 'nav-laws', href: '#laws', label: 'Laws', left: '19.0%', top: '19.3%', width: '5.0%', height: '2.2%' },
-  { cls: 'nav-polls', href: '#peoples-polls', label: 'Peoples Polls', left: '26.0%', top: '19.3%', width: '11.3%', height: '2.2%' },
+  { cls: 'nav-polls', href: '#peoples-polls', label: 'opengovt Polls', left: '26.0%', top: '19.3%', width: '11.3%', height: '2.2%' },
   { cls: 'nav-mps', href: '#mps', label: 'MPs', left: '39.5%', top: '19.3%', width: '5.1%', height: '2.2%' },
   { cls: 'nav-departments', href: '#departments', label: 'Departments', left: '46.7%', top: '19.3%', width: '10.6%', height: '2.2%' },
   { cls: 'nav-transparency', href: '#transparency', label: 'Transparency', left: '59.5%', top: '19.3%', width: '12.6%', height: '2.2%' },
@@ -95,11 +95,11 @@ export default async function BlankLanding({
   return (
     <div className="frame-root">
       <style dangerouslySetInnerHTML={{ __html: isDebug ? baseCss + debugCss : baseCss }} />
-      <main className="frame" aria-label="Open Govt clickable front page">
+      <main className="frame" aria-label="opengovt clickable front page">
         <img
           className="page-art"
           src="/blank-landing-art.png"
-          alt="Open Govt vintage front page layout"
+          alt="opengovt vintage front page layout"
         />
         {hotspots.map((h) => (
           <a

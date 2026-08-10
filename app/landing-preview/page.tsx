@@ -44,7 +44,7 @@ export default async function LandingPreview({
     >
       <Image
         src="/landing-mockup.png"
-        alt="Open Govt — landing page mockup"
+        alt="opengovt — landing page mockup"
         width={1023}
         height={1537}
         priority
@@ -70,7 +70,7 @@ export default async function LandingPreview({
           }}
         >
           {debug && (
-            <span className="absolute left-0 top-0 bg-red-600 px-1 text-[12px] font-bold leading-tight text-white">
+            <span className="absolute left-0 top-0 bg-red-600 px-1 text-[15px] font-bold leading-tight text-white">
               {h.label}
             </span>
           )}

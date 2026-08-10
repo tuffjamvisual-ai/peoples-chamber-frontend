@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Archived Polls',
-  description: 'Past OpenGovt polls that have been overtaken by events, kept here as a record with their final results.',
+  description: 'Past opengovt polls that have been overtaken by events, kept here as a record with their final results.',
   alternates: { canonical: '/polls/archive' },
 }
 
@@ -69,11 +69,11 @@ export default async function ArchivedPollsPage() {
             <article key={p.id} style={{ borderTop: `3px solid ${ACCENT}`, paddingTop: '16px', opacity: 0.92 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
                 {p.constituency && (
-                  <span style={{ fontFamily: MONO, fontSize: '12px', letterSpacing: '0.16em', textTransform: 'uppercase', color: INK_SOFT }}>
+                  <span style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.16em', textTransform: 'uppercase', color: INK_SOFT }}>
                     {p.constituency}
                   </span>
                 )}
-                <span style={{ fontFamily: MONO, fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT, border: `1px solid ${ACCENT}`, borderRadius: '2px', padding: '1px 6px' }}>
+                <span style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT, border: `1px solid ${ACCENT}`, borderRadius: '2px', padding: '1px 6px' }}>
                   Archived
                 </span>
               </div>
@@ -87,7 +87,7 @@ export default async function ArchivedPollsPage() {
                 <div style={{ width: `${yesPct}%`, background: SUCCESS }} />
                 <div style={{ width: `${noPct}%`, background: DANGER }} />
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: MONO, fontSize: '13px', color: INK_SOFT, marginBottom: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: MONO, fontSize: '15px', color: INK_SOFT, marginBottom: '12px' }}>
                 <span>Yes {yesPct}%</span>
                 <span>{total.toLocaleString()} votes</span>
                 <span>No {noPct}%</span>

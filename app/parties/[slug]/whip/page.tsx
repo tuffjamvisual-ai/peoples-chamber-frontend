@@ -204,7 +204,7 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
       </a>
 
       <header style={{ borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
           {party.name} · Whip cohesion + rebellion
         </p>
         <h1 style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
@@ -221,7 +221,7 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Top rebels · MPs voting against the party whip most often</h2>
-        <p style={{ fontSize: '12px', opacity: 0.75, marginBottom: '14px' }}>Calculation requires &ge; 20 recorded votes by the MP. Excludes tellers and unanimous divisions where the &ldquo;rebellion&rdquo; would be meaningless. Each name links to the MP; the divisions listed are the specific votes where they broke from the party line.</p>
+        <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '14px' }}>Calculation requires &ge; 20 recorded votes by the MP. Excludes tellers and unanimous divisions where the &ldquo;rebellion&rdquo; would be meaningless. Each name links to the MP; the divisions listed are the specific votes where they broke from the party line.</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {topRebels.map((r, i) => {
             const shown = r.rebelDivs.slice(0, DIVS_PER_REBEL);
@@ -232,10 +232,10 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
                   <span style={{ opacity: 0.55, fontFamily: 'monospace' }}>{i + 1}.</span>
                   <Link href={`/mps/${r.memberId}`} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold' }}>{r.name}</Link>
                   <span style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>{r.rebellions} rebellions</span>
-                  <span style={{ fontFamily: 'monospace', opacity: 0.65, fontSize: '12px' }}>{((r.rebellions / r.totalVotes) * 100).toFixed(1)}% of {r.totalVotes} votes</span>
+                  <span style={{ fontFamily: 'monospace', opacity: 0.65, fontSize: '15px' }}>{((r.rebellions / r.totalVotes) * 100).toFixed(1)}% of {r.totalVotes} votes</span>
                 </div>
                 {shown.length > 0 && (
-                  <div style={{ fontSize: '13px', marginTop: '5px', lineHeight: 1.55 }}>
+                  <div style={{ fontSize: '15px', marginTop: '5px', lineHeight: 1.55 }}>
                     {shown.map((k, j) => (
                       <span key={k.key}>
                         <Link href={`/divisions/pw-${k.date}-${k.num}-commons`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '2px' }}>{titleByKey.get(k.key) || `Division ${k.num} (${k.date})`}</Link>
@@ -274,7 +274,7 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
                 const title = titleByKey.get(d.key) || `Division ${d.num}`;
                 return (
                   <tr key={d.key} style={{ borderBottom: `1px solid ${HAIRLINE}` }}>
-                    <td style={{ ...td, fontFamily: 'monospace', fontSize: '13px', opacity: 0.7 }}>{d.date}</td>
+                    <td style={{ ...td, fontFamily: 'monospace', fontSize: '15px', opacity: 0.7 }}>{d.date}</td>
                     <td style={td}>
                       <Link href={`/divisions/pw-${d.date}-${d.num}-commons`} style={{ color: ACCENT, textDecoration: 'underline' }}>{title}</Link>
                     </td>
@@ -298,9 +298,9 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
 function Tile({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
     <div style={{ border: `1px solid ${HAIRLINE}`, padding: '12px 14px', background: CREAM }}>
-      <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
+      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
       <div style={{ fontFamily: '"Special Elite", monospace', fontSize: '22px', fontWeight: 'bold', color: ACCENT }}>{value}</div>
-      <div style={{ fontSize: '13px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
+      <div style={{ fontSize: '15px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
     </div>
   );
 }
@@ -313,6 +313,6 @@ const sectionH2: React.CSSProperties = {
   paddingBottom: '6px',
   marginBottom: '12px',
 };
-const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '13px', fontFamily: '"Special Elite", monospace' };
-const th: React.CSSProperties = { padding: '8px 6px', fontSize: '13px', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 'bold' };
-const td: React.CSSProperties = { padding: '8px 6px', fontSize: '13px', verticalAlign: 'top' };
+const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '15px', fontFamily: '"Special Elite", monospace' };
+const th: React.CSSProperties = { padding: '8px 6px', fontSize: '15px', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 'bold' };
+const td: React.CSSProperties = { padding: '8px 6px', fontSize: '15px', verticalAlign: 'top' };

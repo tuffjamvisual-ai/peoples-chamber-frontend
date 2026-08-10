@@ -8,6 +8,7 @@
 // follow-up phases. The listing is the foundation.
 
 import type { Metadata } from 'next';
+import LastUpdated from '../components/LastUpdated';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
@@ -72,7 +73,7 @@ export default async function CouncilsIndex() {
         fallbackHref="/"
         label="← Back"
         className="no-hover-scale"
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: '#14100d', textDecoration: 'none', fontFamily: 'Special Elite, monospace', fontSize: '13px', letterSpacing: '0.12em', textTransform: 'uppercase' }}
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: '#14100d', textDecoration: 'none', fontFamily: 'Special Elite, monospace', fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase' }}
       />
       <article
         style={{
@@ -93,7 +94,7 @@ export default async function CouncilsIndex() {
             marginBottom: '28px',
           }}
         >
-          <div style={{ fontFamily: SERIF, fontSize: '12px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '4px' }}>
+          <div style={{ fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '4px' }}>
             United Kingdom · Principal Authorities · {all.length}
           </div>
           <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(28px, 3.4vw, 44px)', fontWeight: 500, letterSpacing: '0.005em', lineHeight: 1.18, margin: 0 }}>
@@ -104,9 +105,8 @@ export default async function CouncilsIndex() {
         <p
           style={{
             fontFamily: MONO,
-            fontSize: 'clamp(13px, 1.15vw, 14px)',
+            fontSize: 'clamp(15px, 1.15vw, 15px)',
             lineHeight: 1.75,
-            textAlign: 'justify',
             margin: '0 auto 28px',
             maxWidth: '46em',
             color: INK,
@@ -127,14 +127,14 @@ export default async function CouncilsIndex() {
                 <div style={{ fontFamily: SERIF, fontWeight: 600, fontSize: 'clamp(22px, 2.6vw, 30px)', lineHeight: 1.15, marginBottom: '4px' }}>
                   {country}
                 </div>
-                <div style={{ fontFamily: MONO, fontSize: '13px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginBottom: '20px' }}>
+                <div style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginBottom: '20px' }}>
                   {countryTotal} principal authorities
                 </div>
                 {TYPE_ORDER.filter((t) => byType[t]).map((type) => {
                   const items = byType[type];
                   return (
                     <div key={type} style={{ marginBottom: '24px' }}>
-                      <div style={{ fontFamily: MONO, fontSize: '13px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginBottom: '8px', borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '6px' }}>
+                      <div style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginBottom: '8px', borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '6px' }}>
                         {items[0].type_label}{items.length > 1 ? 's' : ''} · {items.length}
                       </div>
                       <ul
@@ -157,7 +157,7 @@ export default async function CouncilsIndex() {
                                 color: INK,
                                 textDecoration: 'none',
                                 fontFamily: MONO,
-                                fontSize: '13px',
+                                fontSize: '15px',
                                 lineHeight: 1.55,
                               }}
                             >
@@ -175,6 +175,7 @@ export default async function CouncilsIndex() {
           })}
         </div>
       </article>
+      <LastUpdated sourceKey="councils" />
     </OpenGovShell>
   );
 }

@@ -139,14 +139,14 @@ export default async function SecretariatPage({ params }: PageProps) {
       <BackLink fallbackHref="/secretariats" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
           APPG Secretariat · Lobby firm dossier
         </p>
         <h1 style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '8px', lineHeight: 1.15 }}>
           {canonicalName}
         </h1>
         {sampleSecretariatUrl && (
-          <a href={sampleSecretariatUrl} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, fontSize: '12px', textDecoration: 'underline' }}>{sampleSecretariatUrl} ↗</a>
+          <a href={sampleSecretariatUrl} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, fontSize: '15px', textDecoration: 'underline' }}>{sampleSecretariatUrl} ↗</a>
         )}
       </header>
 
@@ -156,13 +156,13 @@ export default async function SecretariatPage({ params }: PageProps) {
         <Tile label="Registered funders" value={String(allFunders.length)} sub="paying entries on the APPG register" accent={INK_SOFT} />
       </section>
 
-      <section style={{ marginBottom: '28px', padding: '12px 14px', background: CREAM, fontSize: '13px', lineHeight: 1.6 }}>
+      <section style={{ marginBottom: '28px', padding: '12px 14px', background: CREAM, fontSize: '15px', lineHeight: 1.6 }}>
         A secretariat is the entity that does the operational work of an All-Party Parliamentary Group: drafts agendas, briefs MPs, sends out invitations, books rooms, writes reports. When the secretariat is a lobby firm or PR firm, the APPG is a paid channel for the firm&rsquo;s clients to access MPs. The MPs officer the group, the firm supplies the staff and the policy line, the firm&rsquo;s clients (listed under Funders below) pay for the privilege.
       </section>
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>APPGs operated · {appgs.length}</h2>
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '13px' }}>
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px' }}>
           {appgs.map((a) => {
             const aFunders = fundersBySlug.get(a.slug) ?? [];
             const aOfficers = officersBySlug.get(a.slug) ?? [];
@@ -170,11 +170,11 @@ export default async function SecretariatPage({ params }: PageProps) {
               <li key={a.slug} style={{ padding: '14px 0', borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'baseline', flexWrap: 'wrap' }}>
                   <strong style={{ fontSize: '15px' }}>{a.title}</strong>
-                  {a.category && <span style={{ fontSize: '13px', opacity: 0.6 }}>{a.category}</span>}
+                  {a.category && <span style={{ fontSize: '15px', opacity: 0.6 }}>{a.category}</span>}
                 </div>
-                {a.purpose && <p style={{ fontSize: '12px', opacity: 0.75, lineHeight: 1.55, margin: '4px 0' }}>{a.purpose}</p>}
+                {a.purpose && <p style={{ fontSize: '15px', opacity: 0.75, lineHeight: 1.55, margin: '4px 0' }}>{a.purpose}</p>}
                 {aOfficers.length > 0 && (
-                  <div style={{ marginTop: '6px', fontSize: '12px' }}>
+                  <div style={{ marginTop: '6px', fontSize: '15px' }}>
                     <span style={{ opacity: 0.6 }}>Officered by: </span>
                     {aOfficers.slice(0, 8).map((o, i) => (
                       <span key={i}>
@@ -191,7 +191,7 @@ export default async function SecretariatPage({ params }: PageProps) {
                   </div>
                 )}
                 {aFunders.length > 0 && (
-                  <div style={{ marginTop: '6px', fontSize: '12px' }}>
+                  <div style={{ marginTop: '6px', fontSize: '15px' }}>
                     <span style={{ opacity: 0.6 }}>Paid by: </span>
                     {aFunders.slice(0, 6).map((f, i) => (
                       <span key={i}>{i > 0 && ', '}<strong>{f.source}</strong>{f.value_band && <span style={{ opacity: 0.6 }}> (£{f.value_band})</span>}</span>
@@ -201,7 +201,7 @@ export default async function SecretariatPage({ params }: PageProps) {
                 )}
                 {a.website_url && (
                   <div style={{ marginTop: '6px' }}>
-                    <a href={a.website_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '12px', color: ACCENT, textDecoration: 'underline' }}>Group website ↗</a>
+                    <a href={a.website_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px', color: ACCENT, textDecoration: 'underline' }}>Group website ↗</a>
                   </div>
                 )}
               </li>
@@ -227,9 +227,9 @@ const sectionH2: React.CSSProperties = {
 function Tile({ label, value, sub, accent }: { label: string; value: string; sub: string; accent: string }) {
   return (
     <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '12px 14px', background: CREAM }}>
-      <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
+      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
       <div style={{ fontFamily: '"Special Elite", monospace', fontSize: '22px', fontWeight: 'bold', color: accent }}>{value}</div>
-      <div style={{ fontSize: '13px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
+      <div style={{ fontSize: '15px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
     </div>
   );
 }

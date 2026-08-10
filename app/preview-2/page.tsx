@@ -104,9 +104,9 @@ export default function HomePage() {
                 <Landmark className="h-8 w-8" />
                 <div>
                   <div className="text-xl font-black uppercase leading-none">
-                    Open Govt
+                    opengovt
                   </div>
-                  <div className="text-[12px] font-bold uppercase text-[#c91517]">
+                  <div className="text-[15px] font-bold uppercase text-[#c91517]">
                     UK Government. In Public View.
                   </div>
                 </div>
@@ -252,7 +252,7 @@ export default function HomePage() {
                   <Landmark className="h-8 w-8" />
                   <div>
                     <div className="text-xl font-black uppercase">
-                      Open Govt
+                      opengovt
                     </div>
                     <div className="text-xs font-bold uppercase text-[#ff4b4b]">
                       UK Government. In Public View.
@@ -340,7 +340,7 @@ function BillsCard() {
               </div>
               <p className="text-sm font-bold">{name}</p>
             </div>
-            <span className="whitespace-nowrap border border-black/20 px-2 py-1 text-[12px] font-black uppercase">
+            <span className="whitespace-nowrap border border-black/20 px-2 py-1 text-[15px] font-black uppercase">
               {status}
             </span>
           </div>
@@ -409,7 +409,7 @@ function PeopleCard() {
               />
             </div>
             <p className="mt-2 text-xs font-black leading-tight">{name}</p>
-            <p className="text-[12px] text-white/55">{role}</p>
+            <p className="text-[15px] text-white/55">{role}</p>
           </div>
         ))}
       </div>
@@ -466,7 +466,7 @@ function PartyCompare() {
           <div key={party} className="text-center">
             <div className="mx-auto mb-3 h-14 w-14 rounded-full border-2 border-black bg-[#f3f0e8]" />
             <p className="text-xs font-black">{party}</p>
-            <p className="mt-1 text-[12px] uppercase text-black/50">
+            <p className="mt-1 text-[15px] uppercase text-black/50">
               Read their plans
             </p>
           </div>

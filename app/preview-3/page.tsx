@@ -20,7 +20,6 @@ import {
 // 3-worker build and crash the deploy. Renders on first request and
 // caches at the edge thanks to the stale-while-revalidate header in
 // vercel.json.
-export const dynamic = 'force-dynamic'
 export const revalidate = 3600
 
 const ACCENT = '#c91517'
@@ -233,9 +232,9 @@ export default async function HomePage() {
                 <Landmark className="h-8 w-8" />
                 <div>
                   <div className="text-xl font-black uppercase leading-none">
-                    Open Govt
+                    opengovt
                   </div>
-                  <div className="text-[12px] font-bold uppercase text-[#c91517]">
+                  <div className="text-[15px] font-bold uppercase text-[#c91517]">
                     UK Government. In Public View.
                   </div>
                 </div>
@@ -424,7 +423,7 @@ export default async function HomePage() {
                 <Link href="/" className="flex items-center gap-3 no-underline text-white">
                   <Landmark className="h-8 w-8" />
                   <div>
-                    <div className="text-xl font-black uppercase">Open Govt</div>
+                    <div className="text-xl font-black uppercase">opengovt</div>
                     <div className="text-xs font-bold uppercase text-[#ff4b4b]">
                       UK Government. In Public View.
                     </div>
@@ -542,7 +541,7 @@ function BillsCard({
               <p className="text-sm font-bold line-clamp-2">{bill.title || 'Untitled bill'}</p>
             </div>
             {bill.current_stage && (
-              <span className="whitespace-nowrap border border-black/20 px-2 py-1 text-[12px] font-black uppercase">
+              <span className="whitespace-nowrap border border-black/20 px-2 py-1 text-[15px] font-black uppercase">
                 {bill.current_stage}
               </span>
             )}
@@ -645,7 +644,7 @@ function PeopleCard({
               )}
             </div>
             <p className="mt-2 text-xs font-black leading-tight line-clamp-2">{p.name}</p>
-            <p className="text-[12px] text-white/55 line-clamp-1">{p.constituency}</p>
+            <p className="text-[15px] text-white/55 line-clamp-1">{p.constituency}</p>
           </Link>
         ))}
       </div>
@@ -755,7 +754,7 @@ function PartyCompare() {
               style={{ background: p.color }}
             />
             <p className="text-xs font-black">{p.name}</p>
-            <p className="mt-1 text-[12px] uppercase text-black/50">Read their plans</p>
+            <p className="mt-1 text-[15px] uppercase text-black/50">Read their plans</p>
           </Link>
         ))}
       </div>

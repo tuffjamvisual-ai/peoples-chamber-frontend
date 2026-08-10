@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import OpenGovShell from '../components/OpenGovShell';
 
 export const metadata: Metadata = {
-  title: "Open Govt",
+  title: "opengovt",
   robots: { index: false, follow: false },
 };
 

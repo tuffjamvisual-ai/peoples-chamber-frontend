@@ -119,7 +119,7 @@ export default function DepartmentClient({ slug, govukData, streetContext, budge
               <h2 className="text-2xl font-black tracking-tight text-[#14100d]">{activeZone}</h2>
               <button
                 onClick={() => setActiveZone(null)}
-                className="text-[14px] uppercase tracking-[0.25em] text-[#14100d] hover:text-[#14100d] transition-colors"
+                className="text-[15px] uppercase tracking-[0.25em] text-[#14100d] hover:text-[#14100d] transition-colors"
               >
                 ✕ Close
               </button>
@@ -132,12 +132,12 @@ export default function DepartmentClient({ slug, govukData, streetContext, budge
                 return (
                   <li key={pos.partyId} className=" p-4 border-l-2" style={{ borderLeftColor: party.colour }}>
                     <span
-                      className="inline-block text-[14px] uppercase tracking-[0.15em] font-bold px-2 py-0.5  mb-2"
+                      className="inline-block text-[15px] uppercase tracking-[0.15em] font-bold px-2 py-0.5  mb-2"
                       style={{ backgroundColor: party.colour, color: party.textColour }}
                     >
                       {party.name}
                     </span>
-                    <p className="text-[#14100d] font-semibold text-[14px] mb-1 leading-snug">{pos.headline}</p>
+                    <p className="text-[#14100d] font-semibold text-[15px] mb-1 leading-snug">{pos.headline}</p>
                     <p className="text-[#14100d] text-[16px] leading-[1.7]">{pos.position}</p>
                   </li>
                 );
@@ -149,7 +149,7 @@ export default function DepartmentClient({ slug, govukData, streetContext, budge
         {/* Agencies */}
         {govukData?.childOrgs && govukData.childOrgs.length > 0 && (
           <section className=" pb-8 mb-8">
-            <h2 className="text-[14px] uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: ACCENT }}>
+            <h2 className="text-[15px] uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: ACCENT }}>
               Agencies & Arm&apos;s Length Bodies ({govukData.childOrgs.length})
             </h2>
             <div className="flex flex-wrap gap-x-4 gap-y-2">
@@ -175,7 +175,7 @@ export default function DepartmentClient({ slug, govukData, streetContext, budge
         {govukData?.pressPhone && (
           <section className="mt-8">
             <div className="flex flex-wrap gap-6">
-              <span className="text-[14px] uppercase tracking-[0.15em] text-[#14100d] font-mono">Press: {govukData.pressPhone}</span>
+              <span className="text-[15px] uppercase tracking-[0.15em] text-[#14100d] font-mono">Press: {govukData.pressPhone}</span>
             </div>
           </section>
         )}

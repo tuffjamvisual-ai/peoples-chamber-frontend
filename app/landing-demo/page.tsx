@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import './landing-demo.css';
 
 export const metadata: Metadata = {
-  title: "Open Govt, Clickable Landing Demo",
+  title: "opengovt, Clickable Landing Demo",
   robots: { index: false, follow: false },
 };
 
@@ -18,7 +18,7 @@ type Hotspot = {
 };
 
 const hotspots: Hotspot[] = [
-  { href: '/',           label: "Home: Open Govt masthead",                 left: 21.5, top: 3.2,  width: 53.5, height: 22.5 },
+  { href: '/',           label: "Home: opengovt masthead",                 left: 21.5, top: 3.2,  width: 53.5, height: 22.5 },
   { href: '/about',      label: 'About: No spin, no paywall, just the truth',          left: 4.2,  top: 10.1, width: 15.8, height: 12.6 },
   { href: '/campaigns',  label: 'Campaigns and investigations',                        left: 76.6, top: 3.3,  width: 19.7, height: 22.0 },
   { href: '/latest',     label: 'Latest briefings and top story',                      left: 4.1,  top: 27.0, width: 16.5, height: 38.0 },
@@ -27,7 +27,7 @@ const hotspots: Hotspot[] = [
   { href: '/economy',    label: 'Cost of living story',                                left: 4.0,  top: 68.0, width: 27.0, height: 25.5 },
   { href: '/nhs',        label: 'NHS story',                                           left: 34.0, top: 68.0, width: 28.0, height: 25.5 },
   { href: '/voices',     label: 'Voices from the Nation',                              left: 65.0, top: 68.0, width: 30.5, height: 25.5 },
-  { href: '/join',       label: 'Join Open Govt',                      left: 19.0, top: 94.5, width: 67.5, height: 3.2 },
+  { href: '/join',       label: 'Join opengovt',                      left: 19.0, top: 94.5, width: 67.5, height: 3.2 },
 ];
 
 export default async function LandingDemo({
@@ -41,7 +41,7 @@ export default async function LandingDemo({
     <main className="newspaper-stage">
       <div
         className={`newspaper-shell${debug !== undefined ? ' debug' : ''}`}
-        aria-label="Open Govt clickable newspaper landing page"
+        aria-label="opengovt clickable newspaper landing page"
       >
         {hotspots.map((h) => (
           <Link

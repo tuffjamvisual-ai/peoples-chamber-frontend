@@ -4,6 +4,13 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 
+// Rubber-stamp distress texture (patchy ink), matching the OpenGovShell stamps.
+const STAMP_DISTRESS = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='340' height='150'><filter id='d'><feTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='2' seed='6' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -0.4 1.12'/></filter><rect width='100%' height='100%' filter='url(%23d)'/></svg>")`;
+
+// MPs who have resigned their seat — renders a "Resigned" rubber stamp on the
+// bottom-left of the profile photo. Add member_ids here as needed.
+const RESIGNED_MEMBER_IDS = new Set<number>([5091]); // Nigel Farage (Clacton)
+
 // An MP profile rendered into the shared dossier shell: the folder holds the MP's polaroid
 // header + the full interactive profile sections. The newspaper masthead / folder frame all
 // come from <DossierShell>.
@@ -53,6 +60,24 @@ export default function MpDossier({
            nav is nudged down off the name text. Scoped to the MP sections only. */
         .pca-sections a, .pca-sections li { overflow-wrap: anywhere; }
         .pca-sections aside { margin-top: 48px; }
+
+        /* Mobile (2026-06): the desktop profile uses zoom: 1.18 plus negative
+           margins that push the photo off the right edge and the sidebar off the
+           left. On phones, drop the zoom, stack the header (centred photo above
+           the name) and pull the sidebar/photo back on-page. */
+        @media (max-width: 760px) {
+          .pca-sections { zoom: 1 !important; }
+          /* The grid's -80px desktop nudge drags the stacked sidebar up into the
+             header text on mobile; neutralise it so sections start cleanly below. */
+          .mp-sections-grid { margin-top: 16px !important; }
+          .pca-sections aside { margin-left: 0 !important; margin-top: 0; }
+          .pca-mp-header { flex-direction: column !important; align-items: stretch !important; gap: 16px !important; }
+          .pca-mp-photo { margin: 0 auto !important; transform: rotate(2deg) !important; }
+          .pca-mp-photo img, .pca-mp-photo > div { width: 200px !important; height: 200px !important; }
+          .pca-mp-photo .mp-resigned-stamp { width: auto !important; height: auto !important; font-size: 30px !important; bottom: -18px !important; }
+          .pca-paperclip { display: none !important; }
+          .pca-mp-bio { margin: 0 !important; }
+        }
       `}</style>
 
       {/* Back-to-party link above the header. Uses the shared BackLink
@@ -69,8 +94,9 @@ export default function MpDossier({
       />
 
       {/* Header: polaroid (flat frame) + name / constituency / party */}
-      <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'flex-start', gap: '5%', marginBottom: '6%' }}>
+      <div className="pca-mp-header" style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'flex-start', gap: '5%', marginBottom: '6%' }}>
         <div
+          className="pca-mp-photo"
           style={{
             position: 'relative',
             flex: '0 0 auto',
@@ -99,15 +125,47 @@ export default function MpDossier({
             </div>
           )}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/paperclip.webp" alt="" aria-hidden style={{ position: 'absolute', top: '-30px', right: '-5px', width: '65px', height: 'auto', transform: 'rotate(180deg)', transformOrigin: 'center', pointerEvents: 'none', filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.35))' }} />
+          <img className="pca-paperclip" src="/paperclip.webp" alt="" aria-hidden style={{ position: 'absolute', top: '-30px', right: '-5px', width: '65px', height: 'auto', transform: 'rotate(180deg)', transformOrigin: 'center', pointerEvents: 'none', filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.35))' }} />
+          {RESIGNED_MEMBER_IDS.has(memberId) && (
+            <div
+              className="mp-resigned-stamp"
+              aria-label="Resigned"
+              style={{
+                position: 'absolute',
+                bottom: '-22px',
+                left: '0px',
+                zIndex: 6,
+                pointerEvents: 'none',
+                transform: 'rotate(-9deg)',
+                border: '4px solid #7a1612',
+                borderRadius: '6px',
+                padding: '2px 10px 0',
+                color: '#7a1612',
+                opacity: 0.85,
+                fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
+                fontWeight: 400,
+                fontSize: '40px',
+                lineHeight: 1,
+                letterSpacing: '0.09em',
+                textTransform: 'uppercase',
+                boxShadow: 'inset 0 0 8px rgba(122,22,18,0.3)',
+                WebkitMaskImage: STAMP_DISTRESS,
+                maskImage: STAMP_DISTRESS,
+                WebkitMaskSize: 'cover',
+                maskSize: 'cover',
+              }}
+            >
+              Resigned
+            </div>
+          )}
         </div>
-        <div style={{ flex: '1 1 auto', marginTop: '6%', marginLeft: '-4%' }}>
+        <div className="pca-mp-bio" style={{ flex: '1 1 auto', marginTop: '6%', marginLeft: '-4%' }}>
           <div style={{ fontSize: 'clamp(22px, 3.4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', textShadow: '1px 1px 0 rgba(0,0,0,0.1)', lineHeight: 1.05, marginBottom: '4%' }}>{fullName}</div>
           {constituency && (
-            <div style={{ fontSize: 'clamp(13px, 1.9vw, 25px)', marginBottom: '3%' }}>MP for {constituency}</div>
+            <div style={{ fontSize: 'clamp(15px, 1.9vw, 25px)', marginBottom: '3%' }}>MP for {constituency}</div>
           )}
           {partyDisplay && (
-            <div style={{ fontSize: 'clamp(13px, 1.9vw, 25px)' }}>
+            <div style={{ fontSize: 'clamp(15px, 1.9vw, 25px)' }}>
               <span style={{ display: 'inline-block', width: '0.7em', height: '0.7em', borderRadius: '50%', background: partyColour, marginRight: '0.4em', verticalAlign: 'middle' }} />
               {partyDisplay}
               {partyIsCoop && (

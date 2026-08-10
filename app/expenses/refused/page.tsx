@@ -12,7 +12,6 @@ export const metadata: Metadata = {
   alternates: { canonical: '/expenses/refused' },
 };
 
-export const dynamic = 'force-dynamic';
 export const revalidate = 3600;
 
 const INK = '#14100d';
@@ -117,7 +116,7 @@ export default async function RefusedExpensesPage() {
       />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '24px', marginBottom: '28px' }}>
-        <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85, transform: 'rotate(-0.2deg)' }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85, transform: 'rotate(-0.2deg)' }}>
           IPSA · Accountability ledger
         </p>
         <h1 style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15, transform: 'rotate(-0.3deg)' }}>
@@ -196,7 +195,7 @@ export default async function RefusedExpensesPage() {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Most repaid, by MP</h2>
-        <p style={{ fontSize: '13px', opacity: 0.7, marginBottom: '12px', maxWidth: '60ch' }}>
+        <p style={{ fontSize: '15px', opacity: 0.7, marginBottom: '12px', maxWidth: '60ch' }}>
           Repaid &ne; refused: a repayment is money the MP did receive but then returned, either voluntarily or after IPSA review.
         </p>
         <table style={tableStyle}>
@@ -252,7 +251,7 @@ const sectionH2: React.CSSProperties = {
 const tableStyle: React.CSSProperties = {
   width: '100%',
   borderCollapse: 'collapse',
-  fontSize: '13px',
+  fontSize: '15px',
   fontFamily: '"Special Elite", monospace',
 };
 
@@ -263,7 +262,7 @@ const headerRow: React.CSSProperties = {
 
 const th: React.CSSProperties = {
   padding: '8px 6px',
-  fontSize: '13px',
+  fontSize: '15px',
   letterSpacing: '0.08em',
   textTransform: 'uppercase',
   fontWeight: 'bold',
@@ -272,16 +271,16 @@ const th: React.CSSProperties = {
 const td: React.CSSProperties = {
   padding: '8px 6px',
   textAlign: 'center',
-  fontSize: '13px',
+  fontSize: '15px',
   verticalAlign: 'top',
 };
 
 function Tile({ label, value, sub, accent }: { label: string; value: string; sub: string; accent: string }) {
   return (
     <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '12px 14px', background: 'rgba(255,255,255,0.04)' }}>
-      <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
+      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
       <div style={{ fontFamily: '"Special Elite", monospace', fontSize: '22px', fontWeight: 'bold', color: accent }}>{value}</div>
-      <div style={{ fontSize: '12px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
+      <div style={{ fontSize: '15px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
     </div>
   );
 }

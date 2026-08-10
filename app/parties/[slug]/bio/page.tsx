@@ -13,6 +13,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../../components/OpenGovShell';
 import PartySidebar from '../../../components/PartySidebar';
 import ScrollToTopButton from '../../../components/ScrollToTopButton';
+import { type EvidencePanelProps } from '../../../components/EvidencePanel';
 
 export const revalidate = 3600;
 
@@ -24,12 +25,13 @@ type Party = {
   party_colour: string | null;
   critique: string | null;
   mp_party_string: string | null;
+  evidence: EvidencePanelProps | null;
 };
 
 async function getPartyBio(slug: string): Promise<Party | null> {
   const { data: partyRow } = await supabase
     .from('parties')
-    .select('slug, name, party_colour, critique, mp_party_string')
+    .select('slug, name, party_colour, critique, mp_party_string, evidence')
     .eq('slug', slug)
     .maybeSingle();
   return (partyRow as Party | null) || null;
@@ -159,7 +161,7 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
               href={`/parties/${party.slug}`}
               style={{
                 fontFamily: 'Special Elite, monospace',
-                fontSize: '14px',
+                fontSize: '15px',
                 letterSpacing: '0.12em',
                 textTransform: 'uppercase',
                 color: INK,

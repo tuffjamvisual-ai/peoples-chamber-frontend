@@ -5,7 +5,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "Open Govt",
+  title: "opengovt",
   robots: { index: false, follow: false },
 };
 

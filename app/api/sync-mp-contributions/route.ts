@@ -17,18 +17,18 @@ const BATCH = 220;
 const CONCURRENCY = 8;
 
 async function fetchJson(url: string) {
-  const res = await fetch(url, { headers: { 'User-Agent': 'OpenGovt/1.0', Accept: 'application/json' } });
+  const res = await fetch(url, { headers: { 'User-Agent': 'opengovt/1.0', Accept: 'application/json' } });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
 
-async function memberTotals(id: number): Promise<{ member_id: number; total: number; words: number }> {
-  let skip = 0, total: number | null = null, words = 0, fetched = 0, guard = 0;
+async function memberTotals(id: number): Promise<{ member_id: number; total: number; words: number; ok: boolean }> {
+  let skip = 0, total: number | null = null, words = 0, fetched = 0, guard = 0, ok = true;
   while (guard++ < 200) {
     let j;
     try {
       j = await fetchJson(`${API}?queryParameters.memberId=${id}&queryParameters.startDate=${START}&queryParameters.take=100&queryParameters.skip=${skip}`);
-    } catch { break; }
+    } catch { ok = false; break; }   // a failed page must NOT be recorded as a real count
     if (total === null) total = j.SpokenResultCount || 0;
     const R = j.Results || [];
     if (R.length === 0) break;
@@ -39,7 +39,11 @@ async function memberTotals(id: number): Promise<{ member_id: number; total: num
     fetched += R.length; skip += R.length;
     if (fetched >= (total || 0) || R.length < 100) break;
   }
-  return { member_id: id, total: total || 0, words };
+  // If no page ever succeeded, or a page failed mid-way (undercounted words),
+  // mark not-ok so the caller skips the upsert and the MP keeps its last good
+  // value, to be retried next run. Prevents transient errors writing a false 0.
+  if (total === null) ok = false;
+  return { member_id: id, total: total || 0, words, ok };
 }
 
 export async function GET(req: Request) {
@@ -63,7 +67,7 @@ export async function GET(req: Request) {
     .slice(0, BATCH)
     .map((x) => x.id);
 
-  const results: { member_id: number; total: number; words: number }[] = [];
+  const results: { member_id: number; total: number; words: number; ok: boolean }[] = [];
   let i = 0;
   async function worker() {
     while (i < queue.length) {
@@ -73,9 +77,13 @@ export async function GET(req: Request) {
   }
   await Promise.all(Array.from({ length: CONCURRENCY }, () => worker()));
 
+  // Only write MPs whose fetch fully succeeded; skipped ones keep their last
+  // good value and are picked up next run (they sort as stalest).
+  const good = results.filter((r) => r.ok);
+  const skipped = results.length - good.length;
   let upserted = 0;
-  for (let k = 0; k < results.length; k += 100) {
-    const batch = results.slice(k, k + 100).map((r) => ({
+  for (let k = 0; k < good.length; k += 100) {
+    const batch = good.slice(k, k + 100).map((r) => ({
       member_id: r.member_id, total_contributions: r.total, word_count: r.words,
       parliament_start: START, updated_at: new Date().toISOString(),
     }));
@@ -83,5 +91,5 @@ export async function GET(req: Request) {
     if (!error) upserted += batch.length;
   }
 
-  return NextResponse.json({ ok: true, refreshed: upserted, batch: queue.length, syncedAt: new Date().toISOString() });
+  return NextResponse.json({ ok: true, refreshed: upserted, skipped, batch: queue.length, syncedAt: new Date().toISOString() });
 }

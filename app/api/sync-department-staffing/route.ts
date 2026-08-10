@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { createClient } from '@supabase/supabase-js';
 import * as XLSX from 'xlsx';
 
@@ -79,7 +80,6 @@ const ROW_TO_SLUG: Record<string, { slug: string; proxy?: string }> = {
   'Northern Ireland Office':                           { slug: 'northern-ireland-office' },
   'Office of the Secretary of State for Scotland':     { slug: 'scotland-office' },
   'Office of the Secretary of State for Wales':        { slug: 'wales-office' },
-  'Science, Innovation and Technology':                { slug: 'science-tech' },
   'Transport':                                         { slug: 'transport' },
   'Work and Pensions':                                 { slug: 'work-pensions' },
 };
@@ -141,7 +141,7 @@ type StaffingRow = {
   source_file_url: string;
 };
 
-export async function GET(req: Request) {
+async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
   if (req.headers.get('authorization') !== `Bearer ${expected}`) {
@@ -248,3 +248,5 @@ export async function GET(req: Request) {
     syncedAt: new Date().toISOString(),
   });
 }
+
+export const GET = withHeartbeat('/api/sync-department-staffing', GET_impl);

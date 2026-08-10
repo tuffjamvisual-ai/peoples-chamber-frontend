@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Thank you',
-  description: 'Thank you for supporting Open Govt.',
+  description: 'Thank you for supporting opengovt.',
   alternates: { canonical: '/donate/thank-you' },
 };
 
@@ -44,8 +44,8 @@ export default async function ThankYouPage({ searchParams }: { searchParams: Pro
         </h1>
         <p style={{ fontSize: '18px', lineHeight: 1.8, maxWidth: '720px' }}>
           {paid
-            ? `Your donation${amount ? ` of £${amount.toFixed(2)}` : ''} has gone through. Thank you for supporting Open Govt and helping keep it free and independent.`
-            : 'Thank you for supporting Open Govt. If your payment completed, it will appear on your statement shortly.'}
+            ? `Your donation${amount ? ` of £${amount.toFixed(2)}` : ''} has gone through. Thank you for supporting opengovt and helping keep it free and independent.`
+            : 'Thank you for supporting opengovt. If your payment completed, it will appear on your statement shortly.'}
         </p>
       </header>
     </OpenGovShell>

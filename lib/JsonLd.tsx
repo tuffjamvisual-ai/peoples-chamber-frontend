@@ -10,7 +10,7 @@
 
 import type { ReactElement } from 'react';
 
-export const SITE = 'https://www.thepeopleschamber.uk';
+export const SITE = 'https://www.opengovt.uk';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type JsonLdValue = any;
@@ -36,33 +36,76 @@ export default function JsonLd({ data }: Props): ReactElement {
 // ----- Schema builders -----------------------------------------------
 
 export function buildHomepageGraph() {
+  // The site-wide WebSite node (with its SearchAction) is emitted once in the
+  // root layout on EVERY page. The homepage therefore only adds the Organization
+  // node here — emitting a second WebSite was a duplicate flagged in the SEO
+  // audit and has been removed.
   return {
     '@context': 'https://schema.org',
     '@graph': [
       {
-        '@type': 'WebSite',
-        '@id': `${SITE}/#website`,
-        url: `${SITE}/`,
-        name: "Open Govt",
-        description:
-          'Track every UK MP, bill, vote and government department in one place.',
-        publisher: { '@id': `${SITE}/#org` },
-        potentialAction: {
-          '@type': 'SearchAction',
-          target: `${SITE}/mps?q={search_term_string}`,
-          'query-input': 'required name=search_term_string',
-        },
-      },
-      {
         '@type': 'Organization',
         '@id': `${SITE}/#org`,
-        name: "Open Govt",
+        name: "opengovt",
+        alternateName: ['Open Govt', 'OpenGovt', 'opengovt.uk'],
         url: `${SITE}/`,
         description:
           'Independent UK Parliament tracker and government transparency platform.',
         sameAs: [] as string[],
       },
     ],
+  };
+}
+
+// Editorial publish dates are stored date-only ('YYYY-MM-DD'). Schema.org
+// datePublished wants strict ISO 8601 with a timezone; normalise a date-only
+// value to UTC midnight, and leave (or complete) any value that already
+// carries a time/zone. Avoids the "no timezone" Rich Results warning without
+// asserting a false time-of-day beyond midnight UTC.
+function editorialDateIso(raw: string): string {
+  const s = raw.trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return `${s}T00:00:00Z`;
+  if (/[Zz]$/.test(s)) return s.replace(/z$/, 'Z');
+  if (/[+-]\d{2}:?\d{2}$/.test(s)) return s; // already has an offset
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(s)) return `${s}:00Z`;
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(s)) return `${s}Z`;
+  return s;
+}
+
+// NewsArticle for editorial/investigation pages — the content most likely to
+// earn rich results. headline + datePublished are the load-bearing fields.
+export function buildEditorialArticle(opts: {
+  slug: string;
+  headline: string;
+  description?: string | null;
+  datePublished?: string | null;
+  author?: string | null;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'NewsArticle',
+    headline: opts.headline,
+    ...(opts.description ? { description: opts.description } : {}),
+    // Only datePublished is tracked in the editorial source data. Omit
+    // dateModified rather than duplicating datePublished into it, which
+    // wrongly asserts the piece was edited on its publish date.
+    ...(opts.datePublished
+      ? { datePublished: editorialDateIso(opts.datePublished) }
+      : {}),
+    author: { '@type': 'Organization', name: opts.author || 'opengovt', url: `${SITE}/` },
+    publisher: {
+      '@type': 'Organization',
+      name: 'opengovt',
+      url: `${SITE}/`,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${SITE}/logo.png`,
+        width: 512,
+        height: 279,
+      },
+    },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE}/editorials/${opts.slug}` },
+    url: `${SITE}/editorials/${opts.slug}`,
   };
 }
 

@@ -67,7 +67,7 @@ const baseLinkStyle: React.CSSProperties = {
   height: '32px',
   padding: '0 8px',
   fontFamily: MONO,
-  fontSize: '13px',
+  fontSize: '15px',
   letterSpacing: '0.04em',
   color: INK,
   textDecoration: 'none',
@@ -179,7 +179,7 @@ export default function Pagination({
           alignItems: 'center',
           gap: '6px',
           fontFamily: MONO,
-          fontSize: '13px',
+          fontSize: '15px',
           color: INK_SOFT,
         }}
       >
@@ -209,7 +209,7 @@ export default function Pagination({
             width: '64px',
             padding: '5px 8px',
             fontFamily: MONO,
-            fontSize: '13px',
+            fontSize: '15px',
             color: INK,
             border: `1px solid ${INK_HAIRLINE}`,
             background: 'transparent',

@@ -53,15 +53,28 @@ export default async function MPsPage({
       <Suspense fallback={<div style={{ minHeight: '400px' }} />}>
         <MagazineMPsClient mps={mps} expand={expand} key={expand ?? 'all'} />
       </Suspense>
-      {/* Server-rendered "Browse all MPs" link block so all 650 MP detail
-          pages are crawlable from /mps in static HTML, not only via the
-          sitemap. Same pattern as AllBillsIndex on /bills.
-          Only renders on the unfiltered /mps URL — on
-          /mps?expand=<party> the MagazineMPsClient already shows
-          every MP in that party, so AllMpsIndex would be a
-          duplicate listing for the reader. The crawlable links
-          on /mps satisfy the SEO requirement in one place. */}
-      {expand === null && <AllMpsIndex />}
+      {/* Visually hidden, but kept in the static HTML so every MP detail
+          page is crawlable in a flat link list from /mps (in addition to
+          the sitemap and the ?expand=<party> drilldown pages). Rendered
+          off-screen rather than display:none so crawlers still see the
+          links. Only on the unfiltered /mps URL. */}
+      {expand === null && (
+        <div
+          style={{
+            position: 'absolute',
+            width: '1px',
+            height: '1px',
+            padding: 0,
+            margin: '-1px',
+            overflow: 'hidden',
+            clip: 'rect(0, 0, 0, 0)',
+            whiteSpace: 'nowrap',
+            border: 0,
+          }}
+        >
+          <AllMpsIndex />
+        </div>
+      )}
     </OpenGovShell>
   );
 }

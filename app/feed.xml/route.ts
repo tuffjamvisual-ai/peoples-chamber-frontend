@@ -9,7 +9,7 @@ import { supabase } from '@/lib/supabase';
 
 export const revalidate = 1800;
 
-const SITE = 'https://www.thepeopleschamber.uk';
+const SITE = 'https://www.opengovt.uk';
 
 function xmlEscape(s: string): string {
   return s
@@ -155,9 +155,9 @@ export async function GET() {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Open Govt, Recent Updates</title>
+    <title>opengovt, Recent Updates</title>
     <link>${SITE}/</link>
-    <description>The 50 most recently updated MP profiles and bill stages on Open Govt, an independent record of how the United Kingdom is governed.</description>
+    <description>The 50 most recently updated MP profiles and bill stages on opengovt, an independent record of how the United Kingdom is governed.</description>
     <language>en-GB</language>
     <lastBuildDate>${buildDate}</lastBuildDate>
     <atom:link href="${SITE}/feed.xml" rel="self" type="application/rss+xml" />

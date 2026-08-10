@@ -182,7 +182,7 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
           }}
         />
         {party.recipient_name && (
-          <div style={{ marginTop: '14px', fontFamily: 'Special Elite, monospace', fontSize: '12px', opacity: 0.6 }}>
+          <div style={{ marginTop: '14px', fontFamily: 'Special Elite, monospace', fontSize: '15px', opacity: 0.6 }}>
             {fmtMoney(donationsTotal)} lifetime declared
           </div>
         )}

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import LastUpdated from '../components/LastUpdated';
 import Link from 'next/link';
 import { departments } from '@/lib/departments';
 import { supabase } from '@/lib/supabase';
@@ -79,7 +80,7 @@ export default async function CivilServicePage() {
           {fmtHeadcount(totalReported)} civil servants across {reported.length} of the 24 ministerial
           departments, as at {topPeriod}. The five largest employers account for {topFiveShare}% of them.
         </p>
-        <p style={{ fontSize: '14px', lineHeight: 1.6, marginBottom: '32px', opacity: 0.8, maxWidth: '720px' }}>
+        <p style={{ fontSize: '15px', lineHeight: 1.6, marginBottom: '32px', opacity: 0.8, maxWidth: '720px' }}>
           Figures are rounded to the nearest five. They count civil servants only. They do
           not include armed forces personnel (in MoD), NHS staff (in DHSC) or police officers
           (in the Home Office).
@@ -101,7 +102,7 @@ export default async function CivilServicePage() {
                     <span style={{ fontSize: '15px', whiteSpace: 'nowrap' }}>
                       <strong>{fmtHeadcount(hc)}</strong>
                       {change != null && (
-                        <span style={{ marginLeft: 8, color: change >= 0 ? '#0a6f2a' : ACCENT, fontWeight: 600, fontSize: '13px' }}>
+                        <span style={{ marginLeft: 8, color: change >= 0 ? '#0a6f2a' : ACCENT, fontWeight: 600, fontSize: '15px' }}>
                           {change >= 0 ? '↑' : '↓'} {Math.abs(change).toFixed(1)}%
                         </span>
                       )}
@@ -118,10 +119,10 @@ export default async function CivilServicePage() {
 
         {notReported.length > 0 && (
           <section style={{ marginTop: '40px', paddingTop: '24px', borderTop: '1px solid rgba(0,0,0,0.15)' }}>
-            <h2 style={{ fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.25em', color: ACCENT, marginBottom: '12px', fontWeight: 600 }}>
+            <h2 style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.25em', color: ACCENT, marginBottom: '12px', fontWeight: 600 }}>
               Not separately reported
             </h2>
-            <p style={{ fontSize: '14px', lineHeight: 1.6, marginBottom: '16px', opacity: 0.8 }}>
+            <p style={{ fontSize: '15px', lineHeight: 1.6, marginBottom: '16px', opacity: 0.8 }}>
               The following ministerial departments either roll up into a larger ONS
               aggregate (e.g. the Attorney General&apos;s family) or sit inside the
               Cabinet Office cluster and are not separately broken out in Table 8.
@@ -133,7 +134,7 @@ export default async function CivilServicePage() {
                     {m.name}
                   </Link>
                   {m.row?.proxy_note && (
-                    <span style={{ display: 'block', fontSize: '13px', opacity: 0.7, marginTop: '2px' }}>
+                    <span style={{ display: 'block', fontSize: '15px', opacity: 0.7, marginTop: '2px' }}>
                       {m.row.proxy_note}.
                     </span>
                   )}
@@ -144,6 +145,7 @@ export default async function CivilServicePage() {
         )}
       </div>
       <ScrollToTopButton />
+      <LastUpdated sourceKey="department_staffing" />
     </OpenGovShell>
   );
 }

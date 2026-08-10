@@ -15,7 +15,7 @@ const HOTSPOTS = [
   { href: '/',            label: 'Home',           left: 7,    width: 6   },
   { href: '/bills',       label: 'Bills',          left: 18,   width: 6.5 },
   { href: '/laws',        label: 'Laws',           left: 27,   width: 6.5 },
-  { href: '/polls',       label: "People's Polls", left: 37,   width: 15  },
+  { href: '/polls',       label: "opengovt Polls", left: 37,   width: 15  },
   { href: '/mps',         label: 'MPs',            left: 55,   width: 5.5 },
   { href: '/departments', label: 'Departments',    left: 63.5, width: 16  },
   { href: '/login',       label: 'Login',          left: 82,   width: 6.5 },

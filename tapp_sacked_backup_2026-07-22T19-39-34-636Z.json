@@ -1,0 +1,30 @@
+{
+  "dm": {
+    "id": 9924,
+    "dept_slug": "home-office",
+    "name": "Mike Tapp MP",
+    "role": "Parliamentary Under-Secretary of State (Minister for Migration and Citizenship)",
+    "slug": "mike-tapp",
+    "is_secretary_of_state": false,
+    "updated_at": "2026-07-22T16:01:06.009Z",
+    "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/mps/5266.webp?v=1780952727",
+    "member_id": 5266,
+    "salary_band": "puss",
+    "resigned": false
+  },
+  "bio": {
+    "member_id": 5266,
+    "government_posts": [
+      {
+        "id": 366,
+        "name": "Parliamentary Under-Secretary (Home Office)",
+        "house": 1,
+        "endDate": null,
+        "startDate": "2025-09-06T00:00:00",
+        "additionalInfo": "Home Office",
+        "additionalInfoLink": "https://www.gov.uk/government/organisations/home-office"
+      }
+    ],
+    "political_bio": null
+  }
+}

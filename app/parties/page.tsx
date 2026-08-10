@@ -167,7 +167,7 @@ export default async function PartiesIndex() {
             marginBottom: '28px',
           }}
         >
-          <div style={{ fontFamily: SERIF, fontSize: '12px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '4px' }}>
+          <div style={{ fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '4px' }}>
             2024 General Election · Theme by Theme
           </div>
           <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(28px, 3.4vw, 44px)', fontWeight: 500, letterSpacing: '0.005em', lineHeight: 1.18, margin: 0 }}>
@@ -180,7 +180,6 @@ export default async function PartiesIndex() {
             fontFamily: MONO,
             fontSize: 'clamp(15px, 1.4vw, 17px)',
             lineHeight: 1.75,
-            textAlign: 'justify',
             margin: '0 auto 28px',
             maxWidth: '46em',
             color: INK,
@@ -230,7 +229,7 @@ export default async function PartiesIndex() {
                 >
                   {p.name}
                 </a>
-                <div style={{ fontFamily: MONO, fontSize: '13px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginBottom: '18px' }}>
+                <div style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginBottom: '18px' }}>
                   {seatLabel} · {hasData ? 'Manifesto positions 2024' : 'Research pending'}
                 </div>
 
@@ -253,7 +252,7 @@ export default async function PartiesIndex() {
                               style={{
                                 fontFamily: MONO,
                                 fontWeight: 'normal',
-                                fontSize: '13px',
+                                fontSize: '15px',
                                 letterSpacing: '0.04em',
                                 padding: '14px 16px 14px 0',
                                 borderBottom: `1px solid ${INK_HAIRLINE}`,
@@ -262,7 +261,7 @@ export default async function PartiesIndex() {
                             >
                               {theme}
                             </dt>
-                            <dd style={{ padding: '14px 0', borderBottom: `1px solid ${INK_HAIRLINE}`, margin: 0, fontFamily: MONO, fontSize: '12px', fontStyle: 'italic', color: INK_SOFT }}>
+                            <dd style={{ padding: '14px 0', borderBottom: `1px solid ${INK_HAIRLINE}`, margin: 0, fontFamily: MONO, fontSize: '15px', fontStyle: 'italic', color: INK_SOFT }}>
                               Coming soon
                             </dd>
                           </div>
@@ -274,7 +273,7 @@ export default async function PartiesIndex() {
                             style={{
                               fontFamily: MONO,
                               fontWeight: 'normal',
-                              fontSize: '13px',
+                              fontSize: '15px',
                               letterSpacing: '0.04em',
                               padding: '14px 16px 14px 0',
                               borderBottom: `1px solid ${INK_HAIRLINE}`,
@@ -285,7 +284,7 @@ export default async function PartiesIndex() {
                           <dd style={{ padding: '14px 0', borderBottom: `1px solid ${INK_HAIRLINE}`, margin: 0 }}>
                             <a
                               href={`/parties/${p.slug}#${encodeURIComponent(theme.toLowerCase().replace(/\s+/g, '-'))}`}
-                              style={{ color: INK, textDecoration: 'none', display: 'block', fontFamily: MONO, fontSize: '14px', lineHeight: 1.7 }}
+                              style={{ color: INK, textDecoration: 'none', display: 'block', fontFamily: MONO, fontSize: '15px', lineHeight: 1.7 }}
                             >
                               {extract(cell.manifesto_position)}
                               {cell.current_shift && (
@@ -310,7 +309,7 @@ export default async function PartiesIndex() {
                     })}
                   </dl>
                 ) : (
-                  <p style={{ fontFamily: MONO, fontSize: '13px', fontStyle: 'italic', color: INK_SOFT, margin: 0 }}>
+                  <p style={{ fontFamily: MONO, fontSize: '15px', fontStyle: 'italic', color: INK_SOFT, margin: 0 }}>
                     Coming soon. The 2024 manifesto positions for this party are being researched.
                   </p>
                 )}

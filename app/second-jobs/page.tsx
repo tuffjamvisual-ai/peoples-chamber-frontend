@@ -10,7 +10,6 @@ import BackLink from '../components/BackLink';
 import ScrollToTopButton from '../components/ScrollToTopButton';
 import { fmtMoney, loadAll } from './_lib/data';
 
-export const dynamic = 'force-dynamic';
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
@@ -59,7 +58,7 @@ export default async function SecondJobsLanding() {
             marginBottom: '28px',
           }}
         >
-          <div style={{ fontFamily: SERIF, fontSize: '12px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '4px' }}>
+          <div style={{ fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '4px' }}>
             Register of Members’ Financial Interests
           </div>
           <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(28px, 3.4vw, 44px)', fontWeight: 500, letterSpacing: '0.005em', lineHeight: 1.18, margin: 0 }}>
@@ -70,9 +69,8 @@ export default async function SecondJobsLanding() {
         <p
           style={{
             fontFamily: MONO,
-            fontSize: 'clamp(13px, 1.15vw, 14px)',
+            fontSize: 'clamp(15px, 1.15vw, 15px)',
             lineHeight: 1.75,
-            textAlign: 'justify',
             margin: '0 auto 28px',
             maxWidth: '46em',
             color: INK,
@@ -100,7 +98,7 @@ export default async function SecondJobsLanding() {
           <Stat label="Declared total (lower bound)" value={fmtMoney(grandTotal)} />
         </div>
 
-        <h2 style={{ fontFamily: MONO, fontSize: '13px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
+        <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
           By party · click through for detail
         </h2>
 
@@ -174,7 +172,7 @@ export default async function SecondJobsLanding() {
                 {fmtMoney(p.total)}
               </div>
               {p.topMp && (
-                <div style={{ fontFamily: MONO, fontSize: '13px', color: INK_SOFT, marginTop: '8px', letterSpacing: '0.04em' }}>
+                <div style={{ fontFamily: MONO, fontSize: '15px', color: INK_SOFT, marginTop: '8px', letterSpacing: '0.04em' }}>
                   Top earner: {p.topMp.name} · {fmtMoney(p.topMp.total)}
                 </div>
               )}
@@ -182,7 +180,7 @@ export default async function SecondJobsLanding() {
           ))}
         </div>
 
-        <section style={{ marginTop: '40px', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', fontFamily: MONO, fontSize: '12px', color: INK_SOFT, lineHeight: 1.7 }}>
+        <section style={{ marginTop: '40px', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', fontFamily: MONO, fontSize: '15px', color: INK_SOFT, lineHeight: 1.7 }}>
           <strong style={{ color: INK }}>Methodology.</strong> Drawn from the Members’
           Register of Financial Interests (members-api.parliament.uk) for current MPs
           only. Roles are taken from category “1. Employment and earnings”.
@@ -200,7 +198,7 @@ export default async function SecondJobsLanding() {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '14px 16px', background: 'rgba(255,247,228,0.5)' }}>
-      <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.22em', color: INK_SOFT, margin: '0 0 6px', fontWeight: 'bold', fontFamily: MONO }}>
+      <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.22em', color: INK_SOFT, margin: '0 0 6px', fontWeight: 'bold', fontFamily: MONO }}>
         {label}
       </p>
       <p style={{ fontSize: 'clamp(18px, 2vw, 22px)', fontWeight: 700, letterSpacing: '-0.01em', color: INK, fontVariantNumeric: 'tabular-nums', margin: 0, lineHeight: 1.1, fontFamily: SERIF }}>

@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
     .from('polls')
     .select('*')
     .eq('archived', archived)
+    .eq('poll_type', 'yesno') // exclude the reader voting-intention poll from the yes/no list
     .order('created_at', { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

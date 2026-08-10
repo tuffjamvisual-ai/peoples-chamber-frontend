@@ -90,7 +90,7 @@ export default async function SIDetailPage({ params }: { params: Promise<{ id: s
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '32px', marginBottom: '32px' }}>
         <p
           style={{
-            fontSize: '12px',
+            fontSize: '15px',
             textTransform: 'uppercase',
             letterSpacing: '0.3em',
             marginBottom: '12px',
@@ -155,7 +155,7 @@ function Tag({ colour, children }: { colour: string; children: React.ReactNode }
       style={{
         display: 'inline-block',
         padding: '4px 10px',
-        fontSize: '12px',
+        fontSize: '15px',
         textTransform: 'uppercase',
         letterSpacing: '0.15em',
         fontWeight: 'bold',
@@ -172,7 +172,7 @@ function Tag({ colour, children }: { colour: string; children: React.ReactNode }
 function Stat({ label, value, accent }: { label: string; value: number; accent: string }) {
   return (
     <div style={{ background: CREAM, padding: '16px', border: `1px solid ${INK_HAIRLINE}` }}>
-      <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
+      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
       <div style={{ fontSize: '28px', fontWeight: 'bold', color: accent }}>{value}</div>
     </div>
   )
@@ -181,21 +181,21 @@ function Stat({ label, value, accent }: { label: string; value: number; accent: 
 function VoteColumn({ heading, rows, accent }: { heading: string; rows: VoteRow[]; accent: string }) {
   return (
     <div>
-      <h3 style={{ fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.18em', borderBottom: `2px solid ${accent}`, paddingBottom: '6px', marginBottom: '12px', color: accent }}>
+      <h3 style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', borderBottom: `2px solid ${accent}`, paddingBottom: '6px', marginBottom: '12px', color: accent }}>
         {heading}
       </h3>
-      <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '14px', lineHeight: 1.6, maxHeight: '600px', overflowY: 'auto' }}>
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: 1.6, maxHeight: '600px', overflowY: 'auto' }}>
         {rows.map((v) => (
           <li key={v.member_id} style={{ padding: '6px 0', borderBottom: `1px solid ${INK_HAIRLINE}` }}>
             <Link href={`/mps/${v.member_id}`} style={{ color: INK, textDecoration: 'none' }}>
               <strong>{v.mps?.display_name ?? `Member ${v.member_id}`}</strong>
               {v.mps?.party && (
-                <span style={{ fontSize: '12px', opacity: 0.7 }}> · {v.mps.party}</span>
+                <span style={{ fontSize: '15px', opacity: 0.7 }}> · {v.mps.party}</span>
               )}
               {v.mps?.constituency && (
-                <div style={{ fontSize: '12px', opacity: 0.6 }}>{v.mps.constituency}</div>
+                <div style={{ fontSize: '15px', opacity: 0.6 }}>{v.mps.constituency}</div>
               )}
-              {v.is_rebellion && <span style={{ color: ACCENT, fontSize: '13px', fontWeight: 'bold' }}> · REBEL</span>}
+              {v.is_rebellion && <span style={{ color: ACCENT, fontSize: '15px', fontWeight: 'bold' }}> · REBEL</span>}
             </Link>
           </li>
         ))}

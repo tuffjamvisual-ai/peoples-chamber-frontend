@@ -4,10 +4,11 @@ import OpenGovShell from '../components/OpenGovShell'
 import BackLink from '../components/BackLink'
 import ScrollToTopButton from '../components/ScrollToTopButton'
 
-// Live each request so it reflects the current week's Commons business, with
-// no stale snapshot. Sources: Parliament Bills API (stages + sitting dates)
+// Reflects the current week's Commons business on a 10-minute ISR window, so
+// visitors are served from cache rather than triggering two live Parliament API
+// calls on every request. Sources: Parliament Bills API (stages + sitting dates)
 // and the Commons Votes API (recent divisions).
-export const dynamic = 'force-dynamic'
+export const revalidate = 600
 
 export const metadata: Metadata = {
   title: 'This Week in Parliament',
@@ -36,7 +37,7 @@ function weekRange() {
 
 async function getCommonsBills() {
   try {
-    const res = await fetch('https://bills-api.parliament.uk/api/v1/Bills?SortOrder=DateUpdatedDescending', { cache: 'no-store' })
+    const res = await fetch('https://bills-api.parliament.uk/api/v1/Bills?SortOrder=DateUpdatedDescending', { next: { revalidate: 600 } })
     if (!res.ok) return [] as BillItem[]
     const j = await res.json()
     const items: BillItem[] = (j.items || []).filter((b: BillItem) => !b.isAct && !b.billWithdrawn)
@@ -62,7 +63,7 @@ async function getRecentDivisions() {
     const { start } = weekRange()
     const from = new Date(start.getTime() - 7 * 86400000).toISOString().slice(0, 10)
     const to = new Date().toISOString().slice(0, 10)
-    const res = await fetch(`https://commonsvotes-api.parliament.uk/data/divisions.json/search?queryParameters.startDate=${from}&queryParameters.endDate=${to}&queryParameters.take=12`, { cache: 'no-store' })
+    const res = await fetch(`https://commonsvotes-api.parliament.uk/data/divisions.json/search?queryParameters.startDate=${from}&queryParameters.endDate=${to}&queryParameters.take=12`, { next: { revalidate: 600 } })
     if (!res.ok) return [] as Division[]
     return (await res.json()) as Division[]
   } catch {
@@ -79,6 +80,27 @@ export default async function ThisWeekPage() {
   if (ids.length) {
     const { data } = await supabase.from('bill').select('id, parliament_id').in('parliament_id', ids)
     internal = Object.fromEntries((data || []).map((r: { id: number; parliament_id: number }) => [r.parliament_id, r.id]))
+  }
+
+  // Map Commons Votes DivisionId -> our internal division slug, so each vote
+  // links to the on-site division page (no outbound links). Divisions not yet
+  // synced into mp_division_votes render without a link rather than pointing off
+  // site; they become linkable once the daily votes sync picks them up.
+  const divIds = divisions.map((d) => d.DivisionId)
+  let divSlug: Record<number, string> = {}
+  if (divIds.length) {
+    const { data } = await supabase
+      .from('mp_division_votes')
+      .select('division_id, division_date_only, division_number')
+      .in('division_id', divIds)
+    divSlug = Object.fromEntries(
+      (data || [])
+        .filter((r: { division_date_only: string | null; division_number: number | null }) => r.division_date_only && r.division_number != null)
+        .map((r: { division_id: number; division_date_only: string; division_number: number }) => [
+          r.division_id,
+          `/divisions/pw-${r.division_date_only}-${r.division_number}-commons`,
+        ]),
+    )
   }
 
   const fmt = (d: string) => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
@@ -102,37 +124,52 @@ export default async function ThisWeekPage() {
       </header>
 
       <section style={{ marginBottom: '8%' }}>
-        <h2 style={{ fontFamily: MONO, fontSize: '14px', letterSpacing: '0.16em', textTransform: 'uppercase', color: ACCENT, borderBottom: `2px solid ${ACCENT}`, paddingBottom: '6px', marginBottom: '14px' }}>
+        <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.16em', textTransform: 'uppercase', color: ACCENT, borderBottom: `2px solid ${ACCENT}`, paddingBottom: '6px', marginBottom: '14px' }}>
           Before the Commons
         </h2>
         {bills.length === 0 && <p style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>No Commons bills listed right now (the House may be in recess).</p>}
         {bills.map((b) => {
           const sitting = (b.currentStage?.stageSittings || []).map((s) => s.date).sort().slice(-1)[0]
-          const href = internal[b.billId] ? `/bills/${internal[b.billId]}` : `https://bills.parliament.uk/bills/${b.billId}`
-          return (
-            <a key={b.billId} href={href} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '12px 0' }}>
+          const href = internal[b.billId] ? `/bills/${internal[b.billId]}` : null
+          const inner = (
+            <>
               <div style={{ fontSize: 'clamp(16px, 1.9vw, 20px)', fontWeight: 'bold', lineHeight: 1.3 }}>{b.shortTitle}</div>
-              <div style={{ fontFamily: MONO, fontSize: '13px', color: INK, marginTop: '4px' }}>
+              <div style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '4px' }}>
                 {b.currentStage?.description || 'Before the Commons'}{sitting ? ` · ${fmt(sitting)}` : ''}
               </div>
-            </a>
+            </>
+          )
+          const rowStyle = { display: 'block', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '12px 0' } as const
+          return href ? (
+            <a key={b.billId} href={href} className="no-hover-scale" style={rowStyle}>{inner}</a>
+          ) : (
+            <div key={b.billId} style={rowStyle}>{inner}</div>
           )
         })}
       </section>
 
       <section>
-        <h2 style={{ fontFamily: MONO, fontSize: '14px', letterSpacing: '0.16em', textTransform: 'uppercase', color: ACCENT, borderBottom: `2px solid ${ACCENT}`, paddingBottom: '6px', marginBottom: '14px' }}>
+        <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.16em', textTransform: 'uppercase', color: ACCENT, borderBottom: `2px solid ${ACCENT}`, paddingBottom: '6px', marginBottom: '14px' }}>
           Recent Commons votes
         </h2>
         {divisions.length === 0 && <p style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>No divisions recorded in the last week.</p>}
-        {divisions.map((d) => (
-          <a key={d.DivisionId} href={`https://votes.parliament.uk/Votes/Commons/Division/${d.DivisionId}`} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '12px 0' }}>
-            <div style={{ fontSize: 'clamp(15px, 1.8vw, 18px)', fontWeight: 'bold', lineHeight: 1.3 }}>{d.Title}</div>
-            <div style={{ fontFamily: MONO, fontSize: '13px', color: INK, marginTop: '4px' }}>
-              {fmt(d.Date)}{typeof d.AyeCount === 'number' ? ` · Ayes ${d.AyeCount} / Noes ${d.NoCount}` : ''}
-            </div>
-          </a>
-        ))}
+        {divisions.map((d) => {
+          const href = divSlug[d.DivisionId] || null
+          const inner = (
+            <>
+              <div style={{ fontSize: 'clamp(15px, 1.8vw, 18px)', fontWeight: 'bold', lineHeight: 1.3 }}>{d.Title}</div>
+              <div style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '4px' }}>
+                {fmt(d.Date)}{typeof d.AyeCount === 'number' ? ` · Ayes ${d.AyeCount} / Noes ${d.NoCount}` : ''}
+              </div>
+            </>
+          )
+          const rowStyle = { display: 'block', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '12px 0' } as const
+          return href ? (
+            <a key={d.DivisionId} href={href} className="no-hover-scale" style={rowStyle}>{inner}</a>
+          ) : (
+            <div key={d.DivisionId} style={rowStyle}>{inner}</div>
+          )
+        })}
       </section>
 
       <ScrollToTopButton />

@@ -76,7 +76,7 @@ export default async function AllBillsIndex() {
     cursor: 'pointer',
     padding: '10px 0',
     fontFamily: MONO,
-    fontSize: '13px',
+    fontSize: '15px',
     letterSpacing: '0.18em',
     textTransform: 'uppercase',
     color: ACCENT,
@@ -92,13 +92,13 @@ export default async function AllBillsIndex() {
     // imported so the constant is still referenced by the explainer
     // paragraph below — though that's also switched.
     fontFamily: MONO,
-    fontSize: '13px',
+    fontSize: '15px',
     lineHeight: 1.5,
     borderBottom: `1px dotted rgba(20,16,13,0.1)`,
   };
   const stageNoteStyle: React.CSSProperties = {
     display: 'block',
-    fontSize: '13px',
+    fontSize: '15px',
     fontFamily: MONO,
     color: INK_SOFT,
     marginTop: '2px',
@@ -141,7 +141,7 @@ export default async function AllBillsIndex() {
       <h2
         style={{
           fontFamily: MONO,
-          fontSize: '14px',
+          fontSize: '15px',
           letterSpacing: '0.25em',
           textTransform: 'uppercase',
           color: ACCENT,
@@ -154,7 +154,7 @@ export default async function AllBillsIndex() {
       <p
         style={{
           fontFamily: MONO,
-          fontSize: '13px',
+          fontSize: '15px',
           lineHeight: 1.75,
           color: INK,
           maxWidth: '640px',

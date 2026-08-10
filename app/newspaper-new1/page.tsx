@@ -22,7 +22,7 @@ const hotspots: Hotspot[] = [
   { label: 'Home', href: '/', left: '2.4%', top: '18.8%', width: '8.4%', height: '3.2%' },
   { label: 'Bills', href: '/bills', left: '10.8%', top: '18.8%', width: '8.4%', height: '3.2%' },
   { label: 'Laws', href: '/laws', left: '19.2%', top: '18.8%', width: '8.8%', height: '3.2%' },
-  { label: 'Peoples Polls', href: '/peoples-polls', left: '28.0%', top: '18.8%', width: '15.3%', height: '3.2%' },
+  { label: 'opengovt Polls', href: '/peoples-polls', left: '28.0%', top: '18.8%', width: '15.3%', height: '3.2%' },
   { label: 'MPs', href: '/mps', left: '43.3%', top: '18.8%', width: '7.3%', height: '3.2%' },
   { label: 'Departments', href: '/departments', left: '50.6%', top: '18.8%', width: '15.0%', height: '3.2%' },
   { label: 'Login', href: '/login', left: '65.6%', top: '18.8%', width: '8.0%', height: '3.2%' },
@@ -110,11 +110,11 @@ export default async function NewspaperNew1({
   return (
     <div className="preview-root">
       <style dangerouslySetInnerHTML={{ __html: isDebug ? baseCss + debugCss : baseCss }} />
-      <main className="page-wrap" aria-label="Open Govt clickable newspaper landing page">
+      <main className="page-wrap" aria-label="opengovt clickable newspaper landing page">
         <img
           className="newspaper-image"
           src="/newspaper-new1.png"
-          alt="Open Govt vintage newspaper landing page"
+          alt="opengovt vintage newspaper landing page"
         />
         {hotspots.map((spot) => (
           <a

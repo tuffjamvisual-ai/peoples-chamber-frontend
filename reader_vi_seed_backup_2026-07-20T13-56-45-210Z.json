@@ -1,0 +1,34 @@
+[
+  {
+    "party": "reform",
+    "count": 840
+  },
+  {
+    "party": "labour",
+    "count": 630
+  },
+  {
+    "party": "conservative",
+    "count": 570
+  },
+  {
+    "party": "libdem",
+    "count": 390
+  },
+  {
+    "party": "green",
+    "count": 360
+  },
+  {
+    "party": "another",
+    "count": 120
+  },
+  {
+    "party": "snp",
+    "count": 90
+  },
+  {
+    "party": "wouldnt",
+    "count": 0
+  }
+]

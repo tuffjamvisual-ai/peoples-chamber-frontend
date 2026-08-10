@@ -93,7 +93,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
         fallbackHref="/councils"
         label="← Back"
         className="no-hover-scale"
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: INK, textDecoration: 'none', fontFamily: MONO, fontSize: '13px', letterSpacing: '0.12em', textTransform: 'uppercase' }}
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: INK, textDecoration: 'none', fontFamily: MONO, fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase' }}
       />
 
       <article
@@ -115,7 +115,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
             marginBottom: '28px',
           }}
         >
-          <div style={{ fontFamily: SERIF, fontSize: '12px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '4px' }}>
+          <div style={{ fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '4px' }}>
             {c.type_label} · {c.country}
             {parent && (
               <>
@@ -129,13 +129,13 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
           <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(26px, 3.2vw, 40px)', fontWeight: 500, letterSpacing: '0.005em', lineHeight: 1.18, margin: 0 }}>
             {c.name}
           </h1>
-          <div style={{ fontFamily: MONO, fontSize: '12px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginTop: '8px' }}>
+          <div style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, marginTop: '8px' }}>
             ONS code {c.gss_code}
           </div>
         </header>
 
         {c.description && (
-          <p style={{ fontFamily: MONO, fontSize: 'clamp(13px, 1.15vw, 14px)', lineHeight: 1.75, textAlign: 'justify', margin: '0 auto 28px', maxWidth: '46em', color: INK }}>
+          <p style={{ fontFamily: MONO, fontSize: 'clamp(15px, 1.15vw, 15px)', lineHeight: 1.75, margin: '0 auto 28px', maxWidth: '46em', color: INK }}>
             {c.description}
           </p>
         )}
@@ -175,7 +175,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
 
         {!hasLeadership && !hasFinance && !hasOverview && (
           <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
-            <p style={{ fontFamily: MONO, fontSize: '14px', fontStyle: 'italic', color: INK_SOFT, margin: 0, lineHeight: 1.7 }}>
+            <p style={{ fontFamily: MONO, fontSize: '15px', fontStyle: 'italic', color: INK_SOFT, margin: 0, lineHeight: 1.7 }}>
               Research pending. Political control, leadership, budget and council tax for {c.name} are
               being added in stages alongside the other 381 principal authorities. The {c.type_label}{' '}
               listing is the foundation; live data lands phase by phase.
@@ -185,7 +185,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
 
         {children.length > 0 && (
           <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
-            <h2 style={{ fontFamily: MONO, fontSize: '13px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
+            <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
               Districts under {c.short_name || c.name} · {children.length}
             </h2>
             <ul
@@ -208,13 +208,13 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                       color: INK,
                       textDecoration: 'none',
                       fontFamily: MONO,
-                      fontSize: '13px',
+                      fontSize: '15px',
                       lineHeight: 1.55,
                     }}
                   >
                     {d.short_name || d.name}
                     {d.political_control && (
-                      <span style={{ display: 'block', fontSize: '13px', color: INK_SOFT, marginTop: '1px' }}>
+                      <span style={{ display: 'block', fontSize: '15px', color: INK_SOFT, marginTop: '1px' }}>
                         {d.political_control}
                       </span>
                     )}
@@ -234,7 +234,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
-      <h2 style={{ fontFamily: MONO, fontSize: '13px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
+      <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
         {title}
       </h2>
       <dl style={{ margin: 0, display: 'grid', gridTemplateColumns: 'minmax(180px, 220px) 1fr', gap: '0', borderTop: `1px solid ${INK_HAIRLINE}` }}>
@@ -248,12 +248,12 @@ function DataRow({ label, value, sub, valueColour }: { label: string; value: Rea
   if (value == null || value === '') return null;
   return (
     <div style={{ display: 'contents' }}>
-      <dt style={{ fontFamily: MONO, fontSize: '12px', letterSpacing: '0.04em', padding: '12px 16px 12px 0', borderBottom: `1px solid ${INK_HAIRLINE}`, color: INK_SOFT }}>
+      <dt style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.04em', padding: '12px 16px 12px 0', borderBottom: `1px solid ${INK_HAIRLINE}`, color: INK_SOFT }}>
         {label}
       </dt>
-      <dd style={{ padding: '12px 0', borderBottom: `1px solid ${INK_HAIRLINE}`, margin: 0, fontFamily: MONO, fontSize: '14px', lineHeight: 1.55, color: valueColour || INK }}>
+      <dd style={{ padding: '12px 0', borderBottom: `1px solid ${INK_HAIRLINE}`, margin: 0, fontFamily: MONO, fontSize: '15px', lineHeight: 1.55, color: valueColour || INK }}>
         {value}
-        {sub && <span style={{ display: 'block', fontSize: '12px', color: INK_SOFT, marginTop: '2px' }}>{sub}</span>}
+        {sub && <span style={{ display: 'block', fontSize: '15px', color: INK_SOFT, marginTop: '2px' }}>{sub}</span>}
       </dd>
     </div>
   );

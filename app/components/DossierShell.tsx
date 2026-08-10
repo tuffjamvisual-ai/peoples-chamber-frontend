@@ -231,7 +231,7 @@ export default function DossierShell({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/pca-art.webp"
-              alt="Open Govt"
+              alt="opengovt"
               style={{
                 position: 'absolute',
                 inset: 0,

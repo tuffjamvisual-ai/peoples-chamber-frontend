@@ -10,11 +10,11 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'britains-most-disgraced-politicians',
   kicker: 'Investigation',
-  headline: "Britain's Most Disgraced Politicians",
+  headline: "Britain's Biggest Political Scandals",
   standfirst:
     'The scandals that destroyed careers, toppled governments and shattered public trust.',
   publishedAt: '2026-06-22',
-  authorByline: "Open Govt",
+  authorByline: "opengovt",
   body: [
     {
       type: 'heading',
@@ -269,7 +269,7 @@ const piece: EditorialEntry = {
     { type: 'paragraph', text: `On 22 June 2026, after just over 10 hours of deliberation, the jury returned guilty verdicts on every count: one count of rape, 13 counts of indecent assault and four counts of gross indecency.` },
     { type: 'pullQuote', text: `The victims had been children. The abuse had lasted 23 years.` },
     { type: 'paragraph', text: `Donaldson, 63, stood in a dark blue suit, white shirt and pink tie. He showed no reaction as the verdicts were read. Judge Ramsey remanded him into immediate custody and warned him to expect a lengthy prison sentence. Sentencing is expected later this year. The jury members were granted lifelong exemption from jury service.` },
-    { type: 'paragraph', text: `Gavin Robinson, his successor as DUP leader, said: "Today, our thoughts are, first and foremost, with those innocent victims whose lives have been impacted and blighted by his predatory and repugnant behaviour." He called for Donaldson to be stripped of his knighthood. Ulster Unionist leader Jon Burrows said: "These are among the gravest crimes imaginable, committed against the most vulnerable by a man who spent his career demanding the public's trust."` },
+    { type: 'paragraph', text: `Gavin Robinson, his successor as DUP leader, said the party's thoughts were with the victims and condemned Donaldson's conduct. Ulster Unionist leader Jon Burrows said: "These are among the gravest crimes imaginable, committed against the most vulnerable by a man who spent his career demanding the public's trust."` },
     { type: 'paragraph', text: `For 27 years Jeffrey Donaldson represented Lagan Valley. He served in the Ulster Defence Regiment while his cousins were being killed by the IRA. He managed Enoch Powell's campaigns. He walked out of the Good Friday Agreement. He collapsed and then restored the Northern Ireland Executive. He led the largest unionist party. He was knighted by the Queen. He sat in the Privy Council. None of that is what he will be remembered for. He will be remembered as a man convicted of raping and sexually assaulting children over 23 years, whose wife was found to have helped him do it, and who showed no emotion when a jury of his peers told him the truth he had spent decades hiding.` },
 
     {
@@ -279,7 +279,7 @@ const piece: EditorialEntry = {
     },
     {
       type: 'bioLine',
-      text: `The common thread running through Britain's biggest political disgraces.`,
+      text: `The common thread running through Britain's biggest political scandals.`,
     },
     { type: 'paragraph', text: `The scandals are different. One involved sex. Another involved lobbying. Several involved prison sentences. Some centred on lies, others on money, others on abuse of power. One involved crimes against children.` },
     { type: 'paragraph', text: `Yet the same pattern appears again and again.` },

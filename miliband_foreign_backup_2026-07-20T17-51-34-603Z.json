@@ -1,0 +1,157 @@
+{
+  "foreignLead": {
+    "id": 6725,
+    "dept_slug": "foreign-office",
+    "name": "The Rt Hon Yvette Cooper MP",
+    "role": "Secretary of State for Foreign, Commonwealth and Development Affairs",
+    "slug": "yvette-cooper",
+    "is_secretary_of_state": true,
+    "updated_at": "2026-07-20T17:27:14.693Z",
+    "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/mps/420.webp?v=1779364295",
+    "member_id": 420,
+    "salary_band": "sos",
+    "resigned": false
+  },
+  "miliBio": {
+    "government_posts": [
+      {
+        "id": 1274,
+        "name": "Secretary of State for Energy Security and Net Zero",
+        "house": 1,
+        "endDate": null,
+        "startDate": "2024-07-05T00:00:00",
+        "additionalInfo": "Department for Energy Security and Net Zero",
+        "additionalInfoLink": "https://www.gov.uk/government/organisations/department-for-energy-security-and-net-zero"
+      },
+      {
+        "id": 789,
+        "name": "Leader of the Labour Party",
+        "_source": "parlparse",
+        "endDate": "2015-03-30T00:00:00",
+        "startDate": "2010-09-25T00:00:00",
+        "additionalInfo": "House of Commons"
+      },
+      {
+        "id": 675,
+        "name": "Secretary of State for Energy and Climate Change",
+        "house": 1,
+        "endDate": "2010-05-06T00:00:00",
+        "startDate": "2008-10-03T00:00:00",
+        "additionalInfo": "Department of Energy and Climate Change",
+        "additionalInfoLink": "https://www.gov.uk/government/organisations/department-of-energy-climate-change"
+      },
+      {
+        "id": 161,
+        "name": "Minister (Cabinet Office) and Chancellor of the Duchy of Lancaster",
+        "house": 1,
+        "endDate": "2008-10-03T00:00:00",
+        "startDate": "2007-06-28T00:00:00",
+        "additionalInfo": "Cabinet Office",
+        "additionalInfoLink": "https://www.gov.uk/government/organisations/cabinet-office"
+      },
+      {
+        "id": 462,
+        "name": "Parliamentary Secretary (Cabinet Office)",
+        "house": 1,
+        "endDate": "2007-06-28T00:00:00",
+        "startDate": "2006-05-05T00:00:00",
+        "additionalInfo": "Cabinet Office",
+        "additionalInfoLink": "https://www.gov.uk/government/organisations/cabinet-office"
+      }
+    ]
+  },
+  "cooperBio": {
+    "government_posts": [
+      {
+        "id": 1245,
+        "name": "Foreign Secretary",
+        "house": 1,
+        "endDate": null,
+        "startDate": "2025-09-05T00:00:00",
+        "additionalInfo": "Foreign, Commonwealth and Development Office",
+        "additionalInfoLink": "https://www.gov.uk/government/organisations/foreign-commonwealth-development-office"
+      },
+      {
+        "id": 74,
+        "name": "Home Secretary",
+        "house": 1,
+        "endDate": "2025-09-05T00:00:00",
+        "startDate": "2024-07-05T00:00:00",
+        "additionalInfo": "Home Office",
+        "additionalInfoLink": "https://www.gov.uk/government/organisations/home-office"
+      },
+      {
+        "id": 744,
+        "name": "Secretary of State for Work and Pensions",
+        "house": 1,
+        "endDate": "2010-05-06T00:00:00",
+        "startDate": "2009-06-06T00:00:00",
+        "additionalInfo": "Department for Work and Pensions",
+        "additionalInfoLink": "https://www.gov.uk/government/organisations/department-for-work-pensions"
+      },
+      {
+        "id": 36,
+        "name": "Chief Secretary to the Treasury",
+        "house": 1,
+        "endDate": "2009-06-05T00:00:00",
+        "startDate": "2008-01-24T00:00:00",
+        "additionalInfo": "HM Treasury",
+        "additionalInfoLink": "https://www.gov.uk/government/organisations/hm-treasury"
+      },
+      {
+        "id": 269,
+        "name": "Minister of State (Department of Communities and Local Government) (Housing)",
+        "house": 1,
+        "endDate": "2008-01-24T00:00:00",
+        "startDate": "2007-06-28T00:00:00",
+        "additionalInfo": "Department for Communities and Local Government",
+        "additionalInfoLink": "https://www.gov.uk/government/organisations/department-for-communities-and-local-government"
+      },
+      {
+        "id": 266,
+        "name": "Minister of State (Department of Communities and Local Government) (Housing and Planning)",
+        "house": 1,
+        "endDate": "2007-06-28T00:00:00",
+        "startDate": "2006-05-05T00:00:00",
+        "additionalInfo": "Department for Communities and Local Government",
+        "additionalInfoLink": "https://www.gov.uk/government/organisations/department-for-communities-and-local-government"
+      },
+      {
+        "id": 265,
+        "name": "Minister of State (Office of the Deputy Prime Minister) (Housing and Planning)",
+        "house": 1,
+        "endDate": "2006-05-05T00:00:00",
+        "startDate": "2005-05-10T00:00:00",
+        "additionalInfo": "Office of the Deputy Prime Minister",
+        "additionalInfoLink": "https://www.gov.uk/government/ministers/deputy-prime-minister"
+      },
+      {
+        "id": 634,
+        "name": "Parliamentary Under-Secretary (Office of the Deputy Prime Minister) (Regeneration and Regional Developement)",
+        "house": 1,
+        "endDate": "2005-05-10T00:00:00",
+        "startDate": "2003-06-13T00:00:00",
+        "additionalInfo": "Office of the Deputy Prime Minister",
+        "additionalInfoLink": "https://www.gov.uk/government/ministers/deputy-prime-minister"
+      },
+      {
+        "id": 455,
+        "name": "Parliamentary Secretary (Lord Chancellor's Department)",
+        "house": 1,
+        "endDate": "2003-06-13T00:00:00",
+        "startDate": "2002-05-29T00:00:00",
+        "additionalInfo": "Lord Chancellor's Department",
+        "additionalInfoLink": "http://www.lcd.gov.uk"
+      },
+      {
+        "id": 296,
+        "name": "Parliamentary Under-Secretary (Department of Health)",
+        "house": 1,
+        "endDate": "2002-05-28T00:00:00",
+        "startDate": "1999-10-11T00:00:00",
+        "additionalInfo": "Department of Health",
+        "additionalInfoLink": "http://www.dh.gov.uk"
+      }
+    ]
+  }
+}

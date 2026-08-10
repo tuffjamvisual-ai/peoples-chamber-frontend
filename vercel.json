@@ -3,44 +3,174 @@
     {
       "source": "/api/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
       ]
     },
     {
       "source": "/((?!api/).*)\\.(jpg|jpeg|png|webp|svg|ico|gif|avif|js|mjs|css|woff|woff2|ttf|eot|otf|map)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
       ]
     }
   ],
   "crons": [
-    { "path": "/api/sync-mp-roster",              "schedule": "0 4 * * *" },
-    { "path": "/api/sync-mp-parties",             "schedule": "0 5 * * *" },
-    { "path": "/api/sync-press-releases",         "schedule": "0 7 * * *" },
-    { "path": "/api/sync-bill-stages",            "schedule": "30 7 * * *" },
-    { "path": "/api/sync-bill-sponsors",          "schedule": "0 9 * * 1" },
-    { "path": "/api/sync-civil-service-salaries", "schedule": "30 9 * * 1" },
-    { "path": "/api/sync-bill-commons-votes",     "schedule": "0 8 * * *" },
-    { "path": "/api/sync-department-contacts",    "schedule": "0 6 * * 1" },
-    { "path": "/api/sync-agency-cache",           "schedule": "30 6 * * 1" },
-    { "path": "/api/sync-person-cache",           "schedule": "0 7 * * 1" },
-    { "path": "/api/sync-revolving-door",         "schedule": "0 6 * * 2" },
-    { "path": "/api/sync-ministers-bars",         "schedule": "30 6 * * 2" },
-    { "path": "/api/sync-govuk-data",             "schedule": "0 6 * * 3" },
-    { "path": "/api/sync-ministers-meetings",     "schedule": "0 6 * * 0" },
-    { "path": "/api/sync-ministers-hospitality",  "schedule": "0 9 * * 0" },
-    { "path": "/api/sync-registered-interests",   "schedule": "0 8 * * *" },
-    { "path": "/api/sync-electoral-commission-donations", "schedule": "0 10 * * 1" },
-    { "path": "/api/sync-parlparse-posts",        "schedule": "0 11 * * 1" },
-    { "path": "/api/sync-parlparse-votes",        "schedule": "30 8 * * *" },
-    { "path": "/api/sync-commons-votes-api",      "schedule": "0 9 * * *" },
-    { "path": "/api/sync-mp-contributions",       "schedule": "0 4 * * *" },
-    { "path": "/api/recompute-activity-metrics",  "schedule": "0 12 * * 1" },
-    { "path": "/api/sync-standards-committee",    "schedule": "0 13 * * 1" },
-    { "path": "/api/sync-members-contributions",  "schedule": "15 */6 * * *" },
-    { "path": "/api/sync-appgs",                  "schedule": "30 14 * * 1" },
-    { "path": "/api/sync-spad-transparency",      "schedule": "45 14 * * 1" },
-    { "path": "/api/sync-department-staffing",    "schedule": "0 15 * * 1" },
-    { "path": "/api/sync-department-budgets",     "schedule": "15 15 * * 1" }
+    {
+      "path": "/api/sync-mp-roster",
+      "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/sync-mp-parties",
+      "schedule": "0 5 * * *"
+    },
+    {
+      "path": "/api/sync-press-releases",
+      "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/sync-commons-press-releases",
+      "schedule": "15 7 * * *"
+    },
+    {
+      "path": "/api/check-press-release-liveness",
+      "schedule": "0 */2 * * *"
+    },
+    {
+      "path": "/api/sync-voting-intention",
+      "schedule": "0 10 * * *"
+    },
+    {
+      "path": "/api/sync-bill-stages",
+      "schedule": "30 7 * * *"
+    },
+    {
+      "path": "/api/sync-bill-sponsors",
+      "schedule": "0 9 * * 1"
+    },
+    {
+      "path": "/api/sync-civil-service-salaries",
+      "schedule": "30 9 * * 1"
+    },
+    {
+      "path": "/api/sync-bill-commons-votes",
+      "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/sync-department-contacts",
+      "schedule": "0 6 * * 1"
+    },
+    {
+      "path": "/api/sync-agency-cache",
+      "schedule": "30 6 * * 1"
+    },
+    {
+      "path": "/api/sync-person-cache",
+      "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/sync-revolving-door",
+      "schedule": "0 6 * * 2"
+    },
+    {
+      "path": "/api/sync-ministers-bars",
+      "schedule": "30 6 * * 2"
+    },
+    {
+      "path": "/api/sync-govuk-data",
+      "schedule": "0 5 * * *"
+    },
+    {
+      "path": "/api/sync-ministers-meetings",
+      "schedule": "0 6 * * 0"
+    },
+    {
+      "path": "/api/sync-ministers-hospitality",
+      "schedule": "0 9 * * 0"
+    },
+    {
+      "path": "/api/sync-registered-interests",
+      "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/sync-electoral-commission-donations",
+      "schedule": "0 10 * * 1"
+    },
+    {
+      "path": "/api/sync-parlparse-votes",
+      "schedule": "30 8 * * *"
+    },
+    {
+      "path": "/api/sync-commons-votes-api",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/sync-mp-contributions",
+      "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/sync-debates",
+      "schedule": "30 5 * * *"
+    },
+    {
+      "path": "/api/sync-mp-written-questions",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/recompute-activity-metrics",
+      "schedule": "0 12 * * 1"
+    },
+    {
+      "path": "/api/sync-standards-committee",
+      "schedule": "0 13 * * 1"
+    },
+    {
+      "path": "/api/sync-members-contributions",
+      "schedule": "15 */6 * * *"
+    },
+    {
+      "path": "/api/sync-appgs",
+      "schedule": "30 14 * * 1"
+    },
+    {
+      "path": "/api/sync-spad-transparency",
+      "schedule": "45 14 * * 1"
+    },
+    {
+      "path": "/api/sync-department-staffing",
+      "schedule": "0 15 * * 1"
+    },
+    {
+      "path": "/api/sync-department-budgets",
+      "schedule": "15 15 * * 1"
+    },
+    {
+      "path": "/api/sync-member-biography",
+      "schedule": "0 11,23 * * *"
+    },
+    {
+      "path": "/api/sync-reshuffle-tick",
+      "schedule": "0 */2 * * *"
+    },
+    {
+      "path": "/api/sync-government-contracts",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/sync-hansard-contributions",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/seed-daily-votes",
+      "schedule": "0 1 * * *"
+    },
+    {
+      "path": "/api/monitor-freshness",
+      "schedule": "0 16 * * *"
+    }
   ]
 }

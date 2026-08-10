@@ -8,7 +8,6 @@ import workPensions from './work-pensions';
 import transport from './transport';
 import environment from './environment';
 import businessTrade from './business-trade';
-import scienceTech from './science-tech';
 import housing from './housing';
 import justice from './justice';
 import defence from './defence';
@@ -34,7 +33,6 @@ export const departments: DepartmentData[] = [
   transport,
   environment,
   businessTrade,
-  scienceTech,
   housing,
   justice,
   defence,

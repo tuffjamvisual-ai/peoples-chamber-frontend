@@ -29,7 +29,7 @@ export default function PartySidebar({
   const mpsExpand = party.mp_party_string || party.name;
   const items: { key: ActiveKey; label: string; href: string; rotate: string }[] = [
     { key: 'manifesto', label: 'Manifesto vs Record', href: `/parties/${party.slug}`,        rotate: '0.15deg'  },
-    { key: 'bio',       label: "People's verdict",     href: `/parties/${party.slug}/bio`,    rotate: '-0.2deg'  },
+    { key: 'bio',       label: "opengovt Verdict",    href: `/parties/${party.slug}/bio`,    rotate: '-0.2deg'  },
     { key: 'money',     label: 'Money',                href: `/parties/${party.slug}/money`,  rotate: '0.1deg'   },
     { key: 'whip',      label: 'Whip',                 href: `/parties/${party.slug}/whip`,   rotate: '-0.12deg' },
     { key: 'mps',       label: `${party.name} MPs`,    href: `/mps?expand=${encodeURIComponent(mpsExpand)}#mps-list`, rotate: '0.1deg' },
@@ -64,7 +64,7 @@ export default function PartySidebar({
                   background: on ? 'rgba(122,22,18,0.08)' : 'transparent',
                   boxShadow: on ? 'inset 1px 0 2px rgba(0,0,0,0.05)' : 'none',
                   fontWeight: on ? 'bold' : 'normal',
-                  fontSize: '14px',
+                  fontSize: '15px',
                   textTransform: 'uppercase',
                   letterSpacing: '0.08em',
                   color: INK,

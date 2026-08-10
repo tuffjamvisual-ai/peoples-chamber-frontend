@@ -78,7 +78,14 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
     ];
-    return [...editorialRedirects, ...(await councilRedirects())];
+    // Briefings moved out of /editorials into their own /briefings section.
+    // 301 the three pieces so existing links and search results don't break.
+    const briefingRedirects = [
+      { source: '/editorials/k3p9w7nx2d', destination: '/briefings/k3p9w7nx2d', statusCode: 301 as const },
+      { source: '/editorials/w7q2m9rk5t', destination: '/briefings/w7q2m9rk5t', statusCode: 301 as const },
+      { source: '/editorials/r4n8k2wq7m', destination: '/briefings/r4n8k2wq7m', statusCode: 301 as const },
+    ];
+    return [...editorialRedirects, ...briefingRedirects, ...(await councilRedirects())];
   },
   images: {
     remotePatterns: [

@@ -17,7 +17,7 @@ const NAV: NavItem[] = [
     { label: 'All Bills', href: '/bills' },
     { label: 'Acts of Parliament', href: '/laws' },
   ] },
-  { label: 'Peoples Polls', href: '/polls', children: [
+  { label: 'opengovt Polls', href: '/polls', children: [
     { label: 'All Polls', href: '/polls' },
     { label: 'Your Tax Pound', href: '/your-tax-pound' },
     { label: 'Budget Trade-Offs', href: '/budget-trade-offs' },
@@ -79,7 +79,7 @@ export default function LandingDemo2() {
           </div>
 
           <nav aria-label="Primary" style={{ position: 'absolute', top: '10.6%', left: '2%', width: '96%', zIndex: 5, transform: 'translateX(-1.6%) rotate(-2.5deg)' }}>
-            <ul className="ng-nav" style={{ justifyContent: 'center', flexWrap: 'nowrap', letterSpacing: '0.06em', fontSize: 'clamp(11px, 1.5cqw, 18px)' }}>
+            <ul className="ng-nav" style={{ justifyContent: 'center', flexWrap: 'nowrap', letterSpacing: '0.06em', fontSize: 'clamp(15px, 1.5cqw, 18px)' }}>
               {NAV.map((item) => (
                 <li key={item.label}>
                   <a href={item.href}>{item.label}</a>
@@ -120,7 +120,7 @@ export default function LandingDemo2() {
               </section>
 
               <a className="og-block" href="/editorials/ten-worst-performing-councils-england">                <div className="og-head">The Ten Worst Performing Councils In England</div>
-                <div className="og-standfirst">How local government failed the people it exists to serve.</div>
+                <div className="og-standfirst">How governance failures left residents paying more for less.</div>
                 <p className="og-lede">
                   Eight English councils have declared themselves effectively bankrupt since 2018, accumulating more than &pound;5 billion in debt and deficit between them. One was abolished. Another went bankrupt three times. England&rsquo;s second city is still under government commissioners. These are the councils that broke, the decisions that broke them, and the residents left paying the bill.
                 </p>

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import LastUpdated from '../components/LastUpdated';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import ScrollToTopButton from '../components/ScrollToTopButton';
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
 // Render on demand. See app/departments/page.tsx for rationale —
 // Vercel's 3-worker build saturates Supabase when this, /departments,
 // and /earnings all prerender concurrently.
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'
 export const revalidate = 3600;
 
 const YEAR = '24_25';
@@ -127,7 +128,7 @@ export default async function ExpensesPage() {
       <header style={{ marginBottom: '5%' }}>
         <p
           style={{
-            fontSize: '13px',
+            fontSize: '15px',
             textTransform: 'uppercase',
             letterSpacing: '0.3em',
             fontWeight: 'bold',
@@ -135,7 +136,7 @@ export default async function ExpensesPage() {
             color: ACCENT,
           }}
         >
-          Open Govt · Expenses
+          opengovt · Expenses
         </p>
         <h1
           style={{
@@ -212,7 +213,7 @@ export default async function ExpensesPage() {
         ))}
       </ol>
 
-      <p style={{ marginTop: '32px', fontSize: '13px', color: INK_SOFT, lineHeight: 1.7 }}>
+      <p style={{ marginTop: '32px', fontSize: '15px', color: INK_SOFT, lineHeight: 1.7 }}>
         Totals reflect spend recorded against budgets and uncapped categories for the {YEAR_LABEL} financial year.
         Itemised line items are visible on each MP&rsquo;s profile under Expenses.
       </p>
@@ -226,7 +227,7 @@ export default async function ExpensesPage() {
       <section style={{ marginTop: '40px', borderTop: `2px solid ${INK}`, borderBottom: `2px solid ${INK}`, padding: '24px 0' }}>
         <p
           style={{
-            fontSize: '12px',
+            fontSize: '15px',
             textTransform: 'uppercase',
             letterSpacing: '0.3em',
             fontWeight: 'bold',
@@ -258,14 +259,13 @@ export default async function ExpensesPage() {
             // 14px in the essay (vs. 12px in the Top 10 listing above)
             // — the user wanted the story body slightly larger than
             // the classified list so the long-form prose breathes.
-            fontSize: '14px',
+            fontSize: '15px',
             lineHeight: 1.7,
             color: INK,
             columnCount: 2,
             columnGap: '28px',
             columnRule: `1px solid ${INK_HAIRLINE}`,
             columnFill: 'balance',
-            textAlign: 'justify',
             hyphens: 'none',
           }}
         >
@@ -289,6 +289,7 @@ export default async function ExpensesPage() {
       </section>
 
       <ScrollToTopButton />
+      <LastUpdated sourceKey="mp_expenses" />
     </OpenGovShell>
   );
 }
@@ -360,7 +361,7 @@ function SimpleRow({
       </Link>
       <span
         style={{
-          fontSize: '13px',
+          fontSize: '15px',
           fontVariantNumeric: 'tabular-nums',
           color: INK_SOFT,
           width: '18px',
@@ -372,7 +373,7 @@ function SimpleRow({
       </span>
       <span
         style={{
-          fontSize: '12px',
+          fontSize: '15px',
           fontWeight: 600,
           letterSpacing: '0.03em',
           textTransform: 'uppercase',
@@ -397,7 +398,7 @@ function SimpleRow({
       />
       <span
         style={{
-          fontSize: '12px',
+          fontSize: '15px',
           fontWeight: 600,
           fontVariantNumeric: 'tabular-nums',
           whiteSpace: 'nowrap',
@@ -433,7 +434,7 @@ function Stat({ label, value }: { label: string; value: string }) {
     >
       <p
         style={{
-          fontSize: '12px',
+          fontSize: '15px',
           textTransform: 'uppercase',
           letterSpacing: '0.22em',
           color: INK_SOFT,

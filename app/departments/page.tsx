@@ -9,12 +9,12 @@ import BackLink from '../components/BackLink';
 export const metadata: Metadata = {
   title: "UK Government Departments, Ministers, Budgets & Performance Reports",
   description:
-    "All 24 UK government departments, Secretary of State, junior ministers, annual budget, and an institutional performance report with letter-grade assessment. Treasury to Wales Office.",
+    "All UK government departments, Secretary of State, junior ministers, annual budget, and an institutional performance report with letter-grade assessment. Treasury to Wales Office.",
   alternates: { canonical: '/departments' },
 };
 
 // Render on demand, then cache at the edge for 1 hour via revalidate.
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'
 export const revalidate = 3600;
 
 const ink = '#14100d';
@@ -26,17 +26,18 @@ export default async function DepartmentsPage() {
     if (!s) return '';
     return s
       .toLowerCase()
-      .replace(/^(the rt hon|rt hon|sir|dame|dr|mr|mrs|ms|miss|lord|baroness|baron)\s+/i, '')
+      .replace(/^(?:(?:the rt hon|rt hon|sir|dame|dr|mr|mrs|ms|miss|lord|baroness|baron)\s+)+/i, '')
       .replace(/\s+(mp|mbe|obe|kbe|dbe|cbe|kcb|gcb|dso|mc|qc|kc|bt)\b/gi, '')
       .replace(/\s+/g, ' ')
       .trim();
   };
 
-  const [{ data: sosRows }, { data: mpRows }] = await Promise.all([
+  const [{ data: ministerRows }, { data: mpRows }] = await Promise.all([
     supabase
       .from('dept_ministers')
-      .select('dept_slug, name, photo_url, member_id')
-      .eq('is_secretary_of_state', true),
+      .select('dept_slug, name, photo_url, member_id, is_secretary_of_state')
+      .order('dept_slug')
+      .order('id'),
     supabase.from('mps').select('member_id, name, display_name, photo_url').eq('current_member', true),
   ]);
 
@@ -47,9 +48,23 @@ export default async function DepartmentsPage() {
     });
   });
 
+  // Pick each department's head for the card photo. Prefer the row flagged as
+  // Secretary of State, but fall back to the first-listed minister when none is
+  // flagged — this mirrors the department page, which treats ministers[0] as the
+  // head. Departments whose head holds a non-"Secretary of State" title (e.g.
+  // Business & Trade / UK Export Finance, headed by the President of the Board of
+  // Trade) have no SoS-flagged row, so a SoS-only lookup left their card blank.
+  type HeadRow = { dept_slug: string; name: string | null; photo_url: string | null; is_secretary_of_state?: boolean | null };
+  const headBySlug = new Map<string, HeadRow>();
+  ((ministerRows as HeadRow[]) || []).forEach((r) => {
+    const cur = headBySlug.get(r.dept_slug);
+    if (!cur) { headBySlug.set(r.dept_slug, r); return; }
+    if (r.is_secretary_of_state && !cur.is_secretary_of_state) headBySlug.set(r.dept_slug, r);
+  });
+
   const photoBySlug = new Map<string, string>(
-    (sosRows || []).map((r: { dept_slug: string; name: string | null; photo_url: string | null }) => [
-      r.dept_slug,
+    [...headBySlug.entries()].map(([slug, r]) => [
+      slug,
       mpByName.get(normalize(r.name))?.photo_url || r.photo_url || '',
     ])
   );

@@ -16,12 +16,12 @@ export const metadata: Metadata = {
 const JSONLD_WEBPAGE = {
   '@context': 'https://schema.org',
   '@type': 'WebPage',
-  '@id': 'https://www.thepeopleschamber.uk/transparency#page',
+  '@id': 'https://www.opengovt.uk/transparency#page',
   name: 'UK Government Transparency Hub',
   description:
     "Seven UK government transparency datasets: ministers' meetings, lobbying contacts, hospitality declarations, revolving door, political donations, public contracts and daily press releases.",
-  isPartOf: { '@id': 'https://www.thepeopleschamber.uk/#website' },
-  url: 'https://www.thepeopleschamber.uk/transparency',
+  isPartOf: { '@id': 'https://www.opengovt.uk/#website' },
+  url: 'https://www.opengovt.uk/transparency',
 };
 
 const INK = '#14100d'
@@ -37,6 +37,7 @@ const INK = '#14100d'
 // data, not journalistically useful in its current shape. Hidden until a
 // fuller ingest can be wired. DB data preserved.
 const SECTIONS: { slug: string; title: string; description: string; href?: string }[] = [
+  { slug: 'register-of-interests', title: "Register of Members' Financial Interests", description: "What MPs declare to Parliament: gifts, hospitality, employment, overseas visits, property and shareholdings. Searchable across every MP by donor, category and date. Separate from Electoral Commission political donations.", href: '/transparency/register-of-interests' },
   { slug: 'mp-activity',        title: 'MP Activity: Most Active & Laziest', description: 'Every current MP ranked by how often they have spoken in the Commons this Parliament and how many words, taken straight from the Hansard record.', href: '/transparency/mp-activity' },
   { slug: 'ministers-meetings', title: "Ministers' Meetings", description: 'Records of meetings ministers have held with external organisations and lobbyists, published quarterly under GOV.UK transparency releases.' },
   { slug: 'appgs',              title: 'All Party Parliamentary Groups',   description: 'Cross party informal interest groups in Parliament, the funding they receive, and the secretariat support behind them.' },
@@ -47,7 +48,6 @@ const SECTIONS: { slug: string; title: string; description: string; href?: strin
   { slug: 'contracts',          title: 'Government Contracts',             description: 'Awarded public sector contracts above the disclosure threshold, published via Contracts Finder.' },
   { slug: 'press-releases',     title: 'Press Releases',                   description: 'Most recent UK Government press releases, pulled daily from GOV.UK. Each release links through to the full text announcement.' },
   { slug: 'councils',            title: 'Local Councils',                  description: 'Every UK principal local authority, 382 in total, with leadership, finance, council tax and editorial assessment for each.', href: '/councils' },
-  { slug: 'council-tax',         title: 'Top Council Tax',                 description: 'The ten English authorities with the highest Band D council tax for 2026/27, with a per council editorial verdict on each.', href: '/council-tax' },
 ]
 
 export default function TransparencyHubPage() {
@@ -73,7 +73,7 @@ export default function TransparencyHubPage() {
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
           Nine datasets covering how ministers, MPs, donors, contractors and former officials interact with the UK state, plus the daily press release feed and the full local council register. Each section links to a searchable list of the underlying records.
         </p>
-        <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px', opacity: 0.7 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px', opacity: 0.7 }}>
           {SECTIONS.length} datasets · drawn from public registers
         </p>
       </header>
@@ -86,13 +86,13 @@ export default function TransparencyHubPage() {
             className="t-card no-hover-scale"
             style={{ display: 'block', padding: '18px 20px', border: '1px solid rgba(20,16,13,0.25)', borderLeft: '3px solid rgba(20,16,13,0.4)', color: INK, textDecoration: 'none' }}
           >
-            <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.2em', opacity: 0.55, marginBottom: '8px' }}>
+            <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', opacity: 0.55, marginBottom: '8px' }}>
               Dataset · {String(i + 1).padStart(2, '0')}
             </div>
             <h2 style={{ fontSize: '21px', fontWeight: 'bold', marginBottom: '6px', lineHeight: 1.15 }}>
               {s.title} <span style={{ opacity: 0.55 }}>→</span>
             </h2>
-            <p style={{ fontSize: '14px', lineHeight: 1.6, opacity: 0.85 }}>{s.description}</p>
+            <p style={{ fontSize: '15px', lineHeight: 1.6, opacity: 0.85 }}>{s.description}</p>
           </Link>
         ))}
       </div>

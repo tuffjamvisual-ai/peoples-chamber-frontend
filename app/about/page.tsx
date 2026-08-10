@@ -6,24 +6,20 @@ import BackLink from '../components/BackLink';
 export const metadata: Metadata = {
   title: 'About',
   description:
-    'About Open Govt, methodology, sources and editorial principles for our UK political transparency project.',
+    'About opengovt, methodology, sources and editorial principles for our UK political transparency project.',
   alternates: { canonical: '/about' },
 };
 
+// Aligned 2026-07-11 to the clean, longer About text on the homepage (the old
+// version carried self-referential tells the reporting-texture rule bans).
 const paragraphs = [
-  `Open Govt exists because British politics generates enormous amounts of public information every day, and almost none of it is designed for the public to actually use.`,
-  `Bills move through Parliament. MPs vote on legislation. Ministers announce policies. Departments issue contracts. Political parties receive donations. Expenses are claimed. Advisory jobs are accepted. Committees publish reports. All of this information technically exists in public, but it is scattered across government websites, databases and documents that require hours of navigation and a working knowledge of parliamentary procedure to interpret.`,
-  `Open Govt brings those fragments together.`,
-  `We track legislation, parliamentary activity, political funding, MP records, departmental spending, public contracts, expenses and lobbying connections using official data from Parliament, IPSA, Companies House, the Electoral Commission and government publications. The goal is not to bury people under spreadsheets. It is to make public information readable, searchable and usable.`,
-  `Politics often disappears behind procedure and language designed for insiders. A bill affecting millions can be summarised in jargon that obscures what is actually changing. Public spending can be technically disclosed while remaining practically invisible. Parliamentary debate can become theatre while important decisions pass underneath unnoticed.`,
-  `Open Govt cuts through that.`,
-  `We translate complex political processes into plain English. We follow legislation as it moves. We track voting records, public statements, financial interests and policy decisions in formats people can engage with. We also allow the public to respond through voting tools that compare public opinion with parliamentary outcomes.`,
-  `The aim is not to tell people what to think. It is to give them visibility into what is happening.`,
-  `We are independent and intentionally direct. British politics has long been surrounded by managed language, rehearsed messaging and institutional opacity. Open Govt approaches politics with scrutiny rather than ceremony. Public institutions become healthier when they are easier to examine.`,
-  `That does not mean reducing politics to outrage or spectacle. Context matters. Accuracy matters. Public trust depends on facts being traceable. Our work links back to original records and official sources so users can inspect the evidence themselves.`,
-  `The platform is built around the belief that democratic engagement should not end at election time. Most political decisions happen between elections with limited public visibility. By tracking bills, departments, financial interests and parliamentary behaviour continuously, we create a live civic record rather than a snapshot every few years.`,
-  `Open Govt is still evolving. New datasets and tracking systems are continually being added. The long term goal is a permanent public facing record of political activity in the United Kingdom accessible to everyone, not just journalists, researchers or political insiders.`,
-  `Politics affects everyone. Understanding it should not require permission.`,
+  `Opengovt tracks how power is used in Britain.`,
+  `We record how MPs vote, what they declare, what they earn outside Parliament and what they claim in expenses. We also compare what councils charge residents with what they provide in return.`,
+  `The record is drawn from named public sources: Hansard for divisions and debates, the Register of Members' Financial Interests for declarations, House of Commons data for expenses, the Electoral Commission for donations, Companies House for directorships, and government statistics for departmental performance. Each figure links back to where it came from.`,
+  `MP profiles use caricatures instead of official portraits because politics already comes with enough image management. We are not here to add to it.`,
+  `Our journalists publish without bylines. The work should stand or fall on whether it is accurate. Every factual claim is checked against a public record before publication; when something is wrong and it is found, it is corrected and the correction is logged.`,
+  `Readers can also record how they would have voted on the same Commons divisions MPs faced, then compare their choices with their own MP's.`,
+  `Opengovt is independent. It is not part of Parliament, GOV.UK or any government body. It takes no government funding and carries no party label.`,
 ];
 
 export default function AboutPage() {
@@ -37,8 +33,8 @@ export default function AboutPage() {
       />
 
       <header style={{ marginBottom: '5%' }}>
-        <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85, transform: 'rotate(-0.2deg)' }}>
-          Open Govt
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85, transform: 'rotate(-0.2deg)' }}>
+          opengovt
         </p>
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
           About

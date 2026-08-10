@@ -6,9 +6,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
 
 /* ---- Nav bar (real links + CSS dropdowns) ---- */
-.ng-nav { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: nowrap; justify-content: center; align-items: center; font-family: 'Special Elite', monospace; text-transform: uppercase; letter-spacing: 0.06em; color: #14100d; font-size: clamp(11px, 1.5cqw, 18px); }
+.ng-nav { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: nowrap; justify-content: center; align-items: center; font-family: 'Special Elite', monospace; text-transform: uppercase; letter-spacing: 0.04em; color: #14100d; font-size: clamp(10px, 1.3cqw, 15px); text-shadow: 0.7px 0.7px 0 rgba(20, 16, 13, 0.42), -0.3px 0.2px 0.4px rgba(20, 16, 13, 0.24), 0 0 1.6px rgba(20, 16, 13, 0.3); }
 .ng-nav > li { position: relative; }
-.ng-nav > li > a { display: block; padding: 4px 9px; color: #14100d; text-decoration: none; border-left: 1px solid rgba(20, 16, 13, 0.25); white-space: nowrap; -webkit-text-stroke: 0.4px currentColor; }
+.ng-nav > li > a { display: block; padding: 4px 7px; color: #14100d; text-decoration: none; border-left: 1px solid rgba(20, 16, 13, 0.25); white-space: nowrap; }
 .ng-nav > li:first-child > a { border-left: none; padding-left: 0; }
 .ng-nav > li > a:hover { color: #7a1612; }
 .ng-sub { list-style: none; margin: 0; padding: 6px 0; position: absolute; top: 100%; left: 0; min-width: 210px; max-height: 70vh; overflow-y: auto; background: #e8d6a4; border: 1px solid #14100d; box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3); opacity: 0; visibility: hidden; transform: translateY(-4px); transition: opacity 0.12s ease, transform 0.12s ease; z-index: 30; text-transform: none; }
@@ -17,7 +17,7 @@
 .ng-sub > li > a:hover { color: #7a1612; background: rgba(20, 16, 13, 0.06); }
 
 /* ---- Account / sign-up tab ---- */
-.ng-tab { position: absolute; top: 3.2%; right: 14%; z-index: 6; display: flex; gap: 6px; align-items: center; font-family: 'Special Elite', monospace; text-transform: uppercase; letter-spacing: 0.05em; font-size: clamp(11px, 1.5cqw, 18px); }
+.ng-tab { position: absolute; top: 3.2%; right: 12%; z-index: 6; display: flex; gap: 6px; align-items: center; font-family: 'Special Elite', monospace; text-transform: uppercase; letter-spacing: 0.05em; font-size: clamp(11px, 1.5cqw, 18px); text-shadow: 0.7px 0.7px 0 rgba(20, 16, 13, 0.42), -0.3px 0.2px 0.4px rgba(20, 16, 13, 0.24), 0 0 1.6px rgba(20, 16, 13, 0.3); }
 .ng-tab a { color: #14100d; text-decoration: none; -webkit-text-stroke: 0.4px currentColor; }
 .ng-tab a:hover { color: #7a1612; }
 
@@ -42,15 +42,19 @@
    !important. Let the nav wrap, drop the dossier down to make room, hide the
    overlapping account tab, and widen the content. ---- */
 @media (max-width: 760px) {
-  .ng-tab { display: none !important; }
+  /* The same desktop nav (.og-navwrap) shows on mobile, wrapped to fit. */
+  /* Keep the account/support tab in the top-right of the folder, just smaller
+     and stacked so it clears the masthead. */
+  .ng-tab { top: 2.4% !important; right: 3% !important; flex-direction: column !important; align-items: flex-end !important; gap: 0 !important; line-height: 1.25 !important; font-size: 9px !important; text-align: right; }
+  .ng-tab > span { display: none !important; }
   .og-masthead-wrap { top: 3.5% !important; left: 6% !important; width: 88% !important; }
   .og-navwrap { top: 13% !important; left: 4% !important; width: 92% !important; transform: rotate(-2.5deg) !important; }
   .og-navwrap .ng-nav { flex-wrap: wrap !important; justify-content: center !important; row-gap: 2px; column-gap: 0; font-size: 12px !important; letter-spacing: 0.03em !important; }
   .og-navwrap .ng-nav > li > a { padding: 2px 6px !important; border-left: none !important; }
-  .og-dossier { margin-top: -78% !important; }
-  .dossier-content { padding: clamp(40px, 9cqw, 90px) clamp(16px, 5cqw, 40px) clamp(32px, 6cqw, 70px) !important; }
+  .og-dossier { margin-top: -110% !important; }
+  .dossier-content { padding: clamp(20px, 5cqw, 50px) clamp(16px, 5cqw, 40px) clamp(32px, 6cqw, 70px) !important; }
 }
 @media (max-width: 480px) {
   .og-navwrap .ng-nav { font-size: 10.5px !important; }
-  .og-dossier { margin-top: -72% !important; }
+  .og-dossier { margin-top: -104% !important; }
 }

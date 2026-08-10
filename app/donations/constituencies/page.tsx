@@ -13,6 +13,7 @@
 // This page assembles it.
 
 import type { Metadata } from 'next';
+import { unstable_cache } from 'next/cache';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
@@ -20,8 +21,8 @@ import BackLink from '../../components/BackLink';
 import { donorNameToSlug } from '../../donors/[slug]/page';
 import { unitNameToSlug } from './[slug]/page';
 
+export const dynamic = 'force-dynamic'
 export const revalidate = 86400;
-export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'UK constituency-level political donations: which local associations get bankrolled',
@@ -60,64 +61,65 @@ type Row = {
   accepted_date: string | null;
 };
 
+// Paging 40k+ rows is the slow part; the aggregated league table and totals are
+// small, so cache them for a day rather than recompute on every request.
+const loadConstituencies = unstable_cache(
+  async () => {
+    const PAGE = 1000;
+    const rows: Row[] = [];
+    for (let from = 0; ; from += PAGE) {
+      const { data, error } = await supabase
+        .from('political_donations')
+        .select('id, donor_name, recipient_name, accounting_unit_name, amount, accepted_date')
+        .not('accounting_unit_name', 'is', null)
+        .neq('accounting_unit_name', '')
+        .gte('amount', 1500)  // sub-£1.5k entries are usually small unaggregated cash; under EC threshold
+        .order('accepted_date', { ascending: false })
+        .range(from, from + PAGE - 1);
+      if (error || !data || data.length === 0) break;
+      rows.push(...(data as Row[]));
+      if (data.length < PAGE) break;
+      if (rows.length > 60_000) break;
+    }
+
+    type Agg = { unit: string; party: string | null; count: number; total: number; topDonor: string; topAmount: number };
+    const byUnit = new Map<string, Agg>();
+    for (const r of rows) {
+      const u = (r.accounting_unit_name || '').trim();
+      if (!u || !isLikelyConstituency(u)) continue;
+      const amt = Number(r.amount || 0);
+      const ex = byUnit.get(u) ?? { unit: u, party: r.recipient_name, count: 0, total: 0, topDonor: '', topAmount: 0 };
+      ex.count += 1;
+      ex.total += amt;
+      if (amt > ex.topAmount && r.donor_name) { ex.topAmount = amt; ex.topDonor = r.donor_name; }
+      byUnit.set(u, ex);
+    }
+    const constituencies = Array.from(byUnit.values()).sort((a, b) => b.total - a.total).slice(0, 200);
+
+    // Aggregate of the excluded "central / parliamentary / regional" pools so a
+    // reader sees what the constituency rows DON'T include.
+    let centralTotal = 0;
+    for (const r of rows) {
+      const u = (r.accounting_unit_name || '').trim();
+      if (u && !isLikelyConstituency(u)) centralTotal += Number(r.amount || 0);
+    }
+    const constituencyTotal = constituencies.reduce((s, c) => s + c.total, 0);
+    const rowsTotal = rows.reduce((s, r) => s + Number(r.amount || 0), 0);
+    return { constituencies, centralTotal, constituencyTotal, rowsTotal };
+  },
+  ['constituency-donations-v1'],
+  { revalidate: 86400 },
+);
+
 export default async function ConstituencyDonationsPage() {
-  // Pull every row with a non-null accounting_unit_name. 40k rows.
-  // We aggregate aggressively before rendering — only the league
-  // header table sees per-row data; details are deferred to
-  // per-association drill-downs (future).
-  const PAGE = 1000;
-  const rows: Row[] = [];
-  for (let from = 0; ; from += PAGE) {
-    const { data, error } = await supabase
-      .from('political_donations')
-      .select('id, donor_name, recipient_name, accounting_unit_name, amount, accepted_date')
-      .not('accounting_unit_name', 'is', null)
-      .neq('accounting_unit_name', '')
-      .gte('amount', 1500)  // sub-£1.5k entries are usually small unaggregated cash; under EC threshold
-      .order('accepted_date', { ascending: false })
-      .range(from, from + PAGE - 1);
-    if (error || !data || data.length === 0) break;
-    rows.push(...(data as Row[]));
-    if (data.length < PAGE) break;
-    if (rows.length > 60_000) break;
-  }
-
-  type Agg = { unit: string; party: string | null; count: number; total: number; topDonor: string; topAmount: number };
-  const byUnit = new Map<string, Agg>();
-  for (const r of rows) {
-    const u = (r.accounting_unit_name || '').trim();
-    if (!u || !isLikelyConstituency(u)) continue;
-    const amt = Number(r.amount || 0);
-    const ex = byUnit.get(u) ?? { unit: u, party: r.recipient_name, count: 0, total: 0, topDonor: '', topAmount: 0 };
-    ex.count += 1;
-    ex.total += amt;
-    if (amt > ex.topAmount && r.donor_name) {
-      ex.topAmount = amt;
-      ex.topDonor = r.donor_name;
-    }
-    byUnit.set(u, ex);
-  }
-  const constituencies = Array.from(byUnit.values()).sort((a, b) => b.total - a.total).slice(0, 200);
-
-  // Aggregate of the excluded "central / parliamentary / regional"
-  // pools so a reader sees what the constituency rows DON'T include.
-  let centralTotal = 0, centralCount = 0;
-  for (const r of rows) {
-    const u = (r.accounting_unit_name || '').trim();
-    if (!u) continue;
-    if (!isLikelyConstituency(u)) {
-      centralTotal += Number(r.amount || 0);
-      centralCount += 1;
-    }
-  }
-  const constituencyTotal = constituencies.reduce((s, c) => s + c.total, 0);
+  const { constituencies, centralTotal, constituencyTotal, rowsTotal } = await loadConstituencies();
 
   return (
     <OpenGovShell pageStamp="Donations">
       <BackLink fallbackHref="/transparency/donations" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
           Money on the ground · Constituency-level donations
         </p>
         <h1 style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
@@ -126,8 +128,8 @@ export default async function ConstituencyDonationsPage() {
         <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
           UK political donations don&rsquo;t all land at central party HQ. Each declared donation carries an accounting unit telling you which sub-unit of the party kept the money. Filtering out central HQ, regional liaisons, parliamentary funds and councillor associations leaves the constituency-level pots. The top of the list is dominated by affluent shire seats with safe incumbents and a handful of strategic marginals. The EC&rsquo;s official register doesn&rsquo;t pivot this column. This page does.
         </p>
-        <p style={{ fontSize: '12px', opacity: 0.7, marginTop: '12px', lineHeight: 1.6 }}>
-          For context: of the &pound;{Math.round(rows.reduce((s, r) => s + Number(r.amount || 0), 0)).toLocaleString()} of declared donations &ge; &pound;1,500 with an accounting unit, &pound;{Math.round(centralTotal).toLocaleString()} ({Math.round(100 * centralTotal / (centralTotal + constituencyTotal))}%) went to central HQ, parliamentary or regional pools, and &pound;{Math.round(constituencyTotal).toLocaleString()} ({Math.round(100 * constituencyTotal / (centralTotal + constituencyTotal))}%) to constituency-level associations like those below.
+        <p style={{ fontSize: '15px', opacity: 0.7, marginTop: '12px', lineHeight: 1.6 }}>
+          For context: of the &pound;{Math.round(rowsTotal).toLocaleString()} of declared donations &ge; &pound;1,500 with an accounting unit, &pound;{Math.round(centralTotal).toLocaleString()} ({Math.round(100 * centralTotal / (centralTotal + constituencyTotal))}%) went to central HQ, parliamentary or regional pools, and &pound;{Math.round(constituencyTotal).toLocaleString()} ({Math.round(100 * constituencyTotal / (centralTotal + constituencyTotal))}%) to constituency-level associations like those below.
         </p>
       </header>
 
@@ -151,10 +153,10 @@ export default async function ConstituencyDonationsPage() {
                 <td style={{ padding: '6px' }}>
                   <Link href={`/donations/constituencies/${unitNameToSlug(c.unit)}`} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold' }}>{c.unit}</Link>
                 </td>
-                <td style={{ padding: '6px', fontSize: '12px', opacity: 0.75 }}>{c.party || ''}</td>
+                <td style={{ padding: '6px', fontSize: '15px', opacity: 0.75 }}>{c.party || ''}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{c.count}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(c.total).toLocaleString()}</td>
-                <td style={{ padding: '6px', fontSize: '12px' }}>
+                <td style={{ padding: '6px', fontSize: '15px' }}>
                   {c.topDonor ? (
                     <>
                       <Link href={`/donors/${donorNameToSlug(c.topDonor)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{c.topDonor}</Link>
@@ -180,4 +182,4 @@ const sectionH2: React.CSSProperties = {
   paddingBottom: '6px',
   marginBottom: '14px',
 };
-const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '13px', fontFamily: '"Special Elite", monospace' };
+const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '15px', fontFamily: '"Special Elite", monospace' };

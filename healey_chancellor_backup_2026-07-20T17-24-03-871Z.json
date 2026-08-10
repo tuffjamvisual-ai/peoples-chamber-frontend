@@ -1,0 +1,155 @@
+{
+  "treasury": [
+    {
+      "id": 6521,
+      "dept_slug": "treasury",
+      "name": "The Rt Hon Rachel Reeves MP",
+      "role": "Chancellor of the Exchequer",
+      "slug": "rachel-reeves",
+      "is_secretary_of_state": true,
+      "updated_at": "2026-07-20T17:14:17.208Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/mps/4031.webp?v=1779959573",
+      "member_id": 4031,
+      "salary_band": "sos",
+      "resigned": true
+    },
+    {
+      "id": 6522,
+      "dept_slug": "treasury",
+      "name": "The Rt Hon Lucy Rigby KC MP",
+      "role": "Chief Secretary to the Treasury",
+      "slug": "lucy-rigby",
+      "is_secretary_of_state": false,
+      "updated_at": "2026-07-20T17:14:17.208Z",
+      "photo_url": null,
+      "member_id": null,
+      "salary_band": null,
+      "resigned": false
+    },
+    {
+      "id": 6523,
+      "dept_slug": "treasury",
+      "name": "Lord Livermore",
+      "role": "Financial Secretary to the Treasury",
+      "slug": "lord-livermore",
+      "is_secretary_of_state": false,
+      "updated_at": "2026-07-20T17:14:17.208Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/people/lord-livermore.webp?v=1780152756",
+      "member_id": null,
+      "salary_band": "minister_of_state",
+      "resigned": false
+    },
+    {
+      "id": 6524,
+      "dept_slug": "treasury",
+      "name": "Lord Stockwood",
+      "role": "Minister of State (Minister for Investment)",
+      "slug": "jason-stockwood",
+      "is_secretary_of_state": false,
+      "updated_at": "2026-07-20T17:14:17.208Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/people/jason-stockwood.webp?v=1780152756",
+      "member_id": null,
+      "salary_band": "minister_of_state",
+      "resigned": false
+    },
+    {
+      "id": 6525,
+      "dept_slug": "treasury",
+      "name": "Daniel Tomlinson MP",
+      "role": "Exchequer Secretary to the Treasury",
+      "slug": "daniel-tomlinson",
+      "is_secretary_of_state": false,
+      "updated_at": "2026-07-20T17:14:17.208Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/mps/5282.webp?v=1779901032",
+      "member_id": 5282,
+      "salary_band": "minister_of_state",
+      "resigned": false
+    },
+    {
+      "id": 6526,
+      "dept_slug": "treasury",
+      "name": "Rachel Blake MP",
+      "role": "Economic Secretary to the Treasury",
+      "slug": "rachel-blake",
+      "is_secretary_of_state": false,
+      "updated_at": "2026-07-20T17:14:17.208Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/mps/5257.webp?v=1780413442",
+      "member_id": 5257,
+      "salary_band": "minister_of_state",
+      "resigned": false
+    },
+    {
+      "id": 6527,
+      "dept_slug": "treasury",
+      "name": "Torsten Bell MP",
+      "role": "Parliamentary Under-Secretary of State (Minister for Pensions)",
+      "slug": "torsten-bell",
+      "is_secretary_of_state": false,
+      "updated_at": "2026-07-20T17:14:17.208Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/mps/5069.webp?v=1780413448",
+      "member_id": 5069,
+      "salary_band": "puss",
+      "resigned": false
+    }
+  ],
+  "healeyBio": {
+    "member_id": 400,
+    "government_posts": [
+      {
+        "id": 691,
+        "name": "Secretary of State for Defence",
+        "house": 1,
+        "endDate": "2026-06-11T00:00:00",
+        "startDate": "2024-07-05T00:00:00",
+        "additionalInfo": "Ministry of Defence",
+        "additionalInfoLink": "https://www.gov.uk/government/organisations/ministry-of-defence"
+      },
+      {
+        "id": 267,
+        "name": "Minister of State (Department for Communities and Local Government) (Housing)",
+        "house": 1,
+        "endDate": "2010-05-06T00:00:00",
+        "startDate": "2009-06-05T00:00:00",
+        "additionalInfo": "Department for Communities and Local Government",
+        "additionalInfoLink": "https://www.gov.uk/government/organisations/department-for-communities-and-local-government"
+      },
+      {
+        "id": 281,
+        "name": "Minister of State (Department of Communities and Local Government) (Local Government)",
+        "house": 1,
+        "endDate": "2009-06-05T00:00:00",
+        "startDate": "2007-06-29T00:00:00",
+        "additionalInfo": "Department for Communities and Local Government",
+        "additionalInfoLink": "https://www.gov.uk/government/organisations/department-for-communities-and-local-government"
+      },
+      {
+        "id": 348,
+        "name": "Financial Secretary (HM Treasury)",
+        "house": 1,
+        "endDate": "2007-06-28T00:00:00",
+        "startDate": "2005-05-10T00:00:00",
+        "additionalInfo": "HM Treasury",
+        "additionalInfoLink": "https://www.gov.uk/government/organisations/hm-treasury"
+      },
+      {
+        "id": 346,
+        "name": "Economic Secretary (HM Treasury)",
+        "house": 1,
+        "endDate": "2005-05-10T00:00:00",
+        "startDate": "2002-05-30T00:00:00",
+        "additionalInfo": "HM Treasury",
+        "additionalInfoLink": "https://www.gov.uk/government/organisations/hm-treasury"
+      },
+      {
+        "id": 489,
+        "name": "Parliamentary Under-Secretary (Department for Education and Skills)",
+        "house": 1,
+        "endDate": "2002-05-30T00:00:00",
+        "startDate": "2001-06-11T00:00:00",
+        "additionalInfo": "Department for Education and Skills",
+        "additionalInfoLink": "http://www.dfes.gov.uk"
+      }
+    ],
+    "political_bio": "John Healey has been in the Commons since 1997 and spent most of 2025 running defence, the department he had shadowed for years and finally got to lead. He did not lead it for long. In June 2026 Healey resigned as Defence Secretary because the money was not there. He had wanted a settlement of around £18 billion, was offered less, and rather than sell a number he did not believe in he left. Within weeks the shortfall he had warned about, close to £5 billion, was the hole swallowing his successor and the government's credibility with it. His division record thinned in office, 221 of 429, the ordinary cost of running a department. Verdict: he was proved right in the most expensive way a politician can be, by resigning over a gap the rest of the government insisted was not there."
+  }
+}

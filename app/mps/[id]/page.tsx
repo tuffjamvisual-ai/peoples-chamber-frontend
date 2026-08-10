@@ -2,6 +2,7 @@ import { cache } from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { sumDeclaredDonations } from '@/lib/mpDonationsTotal';
 import MpDossier from './MpDossier';
 import RelatedLinks from '../../components/RelatedLinks';
 import {
@@ -86,7 +87,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const [mp, votesCountRes, interestsCountRes, lastVoteRes] = await Promise.all([
     getMp(memberId),
     supabase.from('mp_division_votes').select('id', { count: 'exact', head: true }).eq('member_id', memberId).in('vote_type', ['aye', 'no']),
-    supabase.from('mp_registered_interests').select('id', { count: 'exact', head: true }).eq('member_id', memberId),
+    supabase.from('mp_registered_interests').select('id', { count: 'exact', head: true }).eq('member_id', memberId).eq('is_current', true),
     supabase.from('mp_division_votes').select('division_title, division_date').eq('member_id', memberId).in('vote_type', ['aye', 'no']).order('division_date', { ascending: false }).limit(1).maybeSingle(),
   ]);
 
@@ -121,23 +122,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function MPMagazineProfile({ params, searchParams }: PageProps) {
+export default async function MPMagazineProfile({ params }: PageProps) {
   const { id } = await params;
-  const sp = await searchParams;
   const memberId = parseInt(id, 10);
   if (Number.isNaN(memberId)) notFound();
 
-  // Voting record pagination: 20 per page. Default page 1. ?section=voting
-  // (set by the Pagination component's links) makes the voting tab the
-  // initial active section so the user lands back where they left off.
-  const votePage = Math.max(1, parseInt(sp.vp ?? '1', 10) || 1);
-  const voteStart = (votePage - 1) * VOTES_PER_PAGE;
-  const voteEnd = voteStart + VOTES_PER_PAGE - 1;
-  const initialSection = sp.section ?? null;
-  // Per-page search just over the voting record's division titles.
-  // Server-side so it survives no-JS / crawler access and paginates
-  // cleanly. Trim + length-cap to keep the URL well-behaved.
-  const voteQuery = (sp.vq ?? '').trim().slice(0, 80);
+  // Voting record: the server renders only page 1, unfiltered — this is what
+  // keeps /mps/[id] free of searchParams and therefore statically ISR-cached
+  // (previously reading ?vp/?vq/?section forced dynamic rendering on every
+  // request). Page 2+ and search are fetched client-side from
+  // /api/mps/[id]/votes; the server-rendered page 1 stays for SEO / no-JS.
+  const votePage = 1;
+  const voteStart = 0;
+  const voteEnd = VOTES_PER_PAGE - 1;
+  const initialSection = null;
+  const voteQuery = '';
 
   // All fetches in one parallel round-trip. The mp lookup was previously
   // awaited before this block, costing an extra serial round-trip on every
@@ -191,7 +190,9 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
       if (voteQuery) q = q.ilike('division_title', `%${escapeIlike(voteQuery)}%`);
       return q;
     })(),
-    supabase.from('mp_registered_interests').select('*').eq('member_id', memberId).order('category_sort_order', { ascending: true }),
+    // Current register only (is_current). Historical rows added by the backfill
+    // are retained but excluded from the profile's primary interests list.
+    supabase.from('mp_registered_interests').select('*').eq('member_id', memberId).eq('is_current', true).order('category_sort_order', { ascending: true }),
     supabase.from('mp_expenses_summary').select('*').eq('member_id', memberId).order('year', { ascending: false }),
     // Expense claim drilldowns. 50 was too few once we imported the
     // 25_26 detail (29,832 rows site-wide, all newer than 24_25): the
@@ -230,12 +231,16 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
   const firstWord = mpNameKey.split(/\s+/)[0]?.toLowerCase() ?? '';
   const lastWord = mpNameKey.split(/\s+/).slice(-1)[0]?.toLowerCase() ?? '';
 
-  // Ministerial diary — meetings + hospitality recorded by gov.uk.
-  // Only ministers have entries; backbenchers fall through with empty
-  // arrays. minister_name is text (display-name format, no honorifics)
-  // so we fuzzy-match against the stripped MP name same as donations.
-  // Both queries fire in parallel.
-  const [meetingsRes, hospitalityRes] = await Promise.all([
+  // ── Concurrency: launch every independent per-MP query chain at once ──
+  // Each block further down depends only on the identity resolved above
+  // (member_id, name key), not on the others, but they were previously
+  // awaited in source order — a query waterfall that dominated the cold
+  // render. Supabase builders are lazy (they fire on await/.then), so we
+  // kick the primary query of each chain off HERE (Promise.all / Promise.
+  // resolve both start them immediately); each block still awaits its own
+  // promise at its original position, so the surrounding processing is
+  // unchanged. Net effect: wall-clock ~= slowest chain, not their sum.
+  const pMeetingsHosp = Promise.all([
     supabase
       .from('ministers_meetings')
       .select('id, minister_name, minister_dept, meeting_date, organisation, purpose, quarter, enriched_description, source_publication_slug')
@@ -250,6 +255,54 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
       .order('hospitality_date', { ascending: false })
       .limit(500),
   ]);
+  const pContribs = Promise.resolve(
+    supabase
+      .from('mp_contributions')
+      .select('debate_title, sitting_date, section, house, speech_count, question_count, intervention_count, answer_count, statement_count, total_contributions, hansard_url')
+      .eq('member_id', memberId)
+      .order('sitting_date', { ascending: false })
+      .limit(25),
+  );
+  const pOfficers = Promise.resolve(
+    supabase
+      .from('appg_officers')
+      .select('appg_slug, role, party, removed')
+      .eq('member_id', memberId)
+      .eq('removed', false),
+  );
+  const pActivity = Promise.resolve(
+    supabase
+      .from('mp_activity_metrics')
+      .select('divisions_voted, divisions_total, attendance_pct, rebellions_total, rebellion_rate_pct, speeches_year, questions_year, refreshed_at')
+      .eq('member_id', memberId)
+      .maybeSingle(),
+  );
+  const pConduct = Promise.resolve(
+    supabase
+      .from('mp_conduct_findings')
+      .select('id, mp_name_at_time, closed_date, outcome, rule_breached, summary, penalty, url, source')
+      .eq('member_id', memberId)
+      .order('closed_date', { ascending: false }),
+  );
+  const pDonations = firstWord.length >= 2 && lastWord.length >= 2
+    ? Promise.resolve(
+        supabase
+          .from('political_donations')
+          .select('id, donor_name, donor_type, donor_status, amount, cash_value, non_cash_value, accepted_date, received_date, reported_date, published_date, dealt_with_date, nature, recipient_name, recipient_type, manner_in_which_made, purpose_of_visit, position_standing_for, campaigning_name, accounting_unit_name, donation_action, reporting_period_name, reporting_period_type, is_aggregation, is_bequest, is_sponsorship, is_anonymous, is_irish_source, is_reported_pre_poll, returned_date, impermissibility_reason, attempted_concealment, concealment_details, trust_name, trust_creator_name, trust_creator_status, trust_created_date, company_registration_number, addr_line1, addr_town, addr_postcode, addr_country, explanatory_notes, ec_ref')
+          .in('recipient_type', ['MP - Member of Parliament', 'Regulated Donee', 'Members Association', 'Member of Registered Political Party'])
+          .ilike('recipient_name', `%${firstWord}%`)
+          .ilike('recipient_name', `%${lastWord}%`)
+          .order('accepted_date', { ascending: false })
+          .limit(500),
+      )
+    : Promise.resolve({ data: [] });
+
+  // Ministerial diary — meetings + hospitality recorded by gov.uk.
+  // Only ministers have entries; backbenchers fall through with empty
+  // arrays. minister_name is text (display-name format, no honorifics)
+  // so we fuzzy-match against the stripped MP name same as donations.
+  // Both queries fire in parallel.
+  const [meetingsRes, hospitalityRes] = await pMeetingsHosp;
   // Tighten with first-and-last word check, same as donations.
   const meetings = (meetingsRes.data || []).filter((m: { minister_name?: string | null }) => {
     const n = String(m.minister_name || '').toLowerCase();
@@ -261,12 +314,7 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
   });
 
   // Recent Hansard chamber contributions (mp_contributions), keyed by member_id.
-  const { data: contributionsData } = await supabase
-    .from('mp_contributions')
-    .select('debate_title, sitting_date, section, house, speech_count, question_count, intervention_count, answer_count, statement_count, total_contributions, hansard_url')
-    .eq('member_id', memberId)
-    .order('sitting_date', { ascending: false })
-    .limit(25);
+  const { data: contributionsData } = await pContribs;
   const contributions = contributionsData || [];
 
   // APPGs (All-Party Parliamentary Groups) this MP is officer of, with
@@ -275,11 +323,7 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
   // bridge between MP and lobbying interest: an MP runs the All-Party
   // Group on X, whose secretariat is paid by industry Y. Both sides of
   // that bridge are public, the join is not.
-  const appgOfficersRes = await supabase
-    .from('appg_officers')
-    .select('appg_slug, role, party, removed')
-    .eq('member_id', memberId)
-    .eq('removed', false);
+  const appgOfficersRes = await pOfficers;
   type AppgOfficerRow = { appg_slug: string; role: string | null };
   const officerSlugs = ((appgOfficersRes.data || []) as AppgOfficerRow[]).map((r) => r.appg_slug);
   const officerRoleBySlug = new Map<string, string | null>(
@@ -366,21 +410,13 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
   // Activity metrics — precomputed in mp_activity_metrics via
   // scripts/recompute-activity-metrics.js (weekly cron). Cold render
   // does one indexed lookup instead of aggregating mp_division_votes.
-  const activityRes = await supabase
-    .from('mp_activity_metrics')
-    .select('divisions_voted, divisions_total, attendance_pct, rebellions_total, rebellion_rate_pct, speeches_year, questions_year, refreshed_at')
-    .eq('member_id', memberId)
-    .maybeSingle();
+  const activityRes = await pActivity;
 
   // Standards Committee findings against this MP — sourced from
   // committees-api.parliament.uk via scripts/sync-standards-committee.js.
   // Resolved findings (member_id matched) only; un-resolved former-MP
   // rows sit in the table unattached.
-  const conductRes = await supabase
-    .from('mp_conduct_findings')
-    .select('id, mp_name_at_time, closed_date, outcome, rule_breached, summary, penalty, url, source')
-    .eq('member_id', memberId)
-    .order('closed_date', { ascending: false });
+  const conductRes = await pConduct;
 
   // Electoral Commission donations directed at this MP personally.
   // The political_donations table is donor-side, so it's name-keyed:
@@ -398,16 +434,7 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
   //   Diana Johnson       ↔ Ms Diana Ruth Johnson MP      (middle name)
   //   Mark Garnier        ↔ Mr Mark Robert Timothy Garnier MP
   //   Iain Duncan Smith   ↔ Mr George Iain Duncan-Smith
-  const donationsRes = firstWord.length >= 2 && lastWord.length >= 2
-    ? await supabase
-        .from('political_donations')
-        .select('id, donor_name, donor_type, donor_status, amount, cash_value, non_cash_value, accepted_date, received_date, reported_date, published_date, dealt_with_date, nature, recipient_name, recipient_type, manner_in_which_made, purpose_of_visit, position_standing_for, campaigning_name, accounting_unit_name, donation_action, reporting_period_name, reporting_period_type, is_aggregation, is_bequest, is_sponsorship, is_anonymous, is_irish_source, is_reported_pre_poll, returned_date, impermissibility_reason, attempted_concealment, concealment_details, trust_name, trust_creator_name, trust_creator_status, trust_created_date, company_registration_number, addr_line1, addr_town, addr_postcode, addr_country, explanatory_notes, ec_ref')
-        .in('recipient_type', ['MP - Member of Parliament', 'Regulated Donee', 'Members Association', 'Member of Registered Political Party'])
-        .ilike('recipient_name', `%${firstWord}%`)
-        .ilike('recipient_name', `%${lastWord}%`)
-        .order('accepted_date', { ascending: false })
-        .limit(500)
-    : { data: [] };
+  const donationsRes = await pDonations;
   // Build a small lookup of "where else does this MP's donor pool give?"
   // For each donor that funded this MP, fetch up to 5 other distinct
   // recipient names. Drives the 'Also funds:' line on each donor row.
@@ -674,6 +701,16 @@ export default async function MPMagazineProfile({ params, searchParams }: PagePr
         interests: interestsRes.data || [],
         bio: bioRes.data,
         earnings,
+        // Headline figure = current register only (is_current). Historical rows
+        // added by the cumulative backfill are retained in the table but excluded
+        // from this primary number. (is_current !== false treats today's rows,
+        // which have no explicit false, as current.)
+        declaredDonations: sumDeclaredDonations(
+          (interestsRes.data || []).filter(
+            (r) => (r as { is_current?: boolean }).is_current !== false,
+          ),
+          true,
+        ),
         expenses: expensesRes.data || [],
         expensesDetail: expensesDetailRes.data || [],
       }}

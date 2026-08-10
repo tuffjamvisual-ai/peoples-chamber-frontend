@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!row) return { title: 'Coverage' }
   return {
     title: `${row.source_title}, via ${row.source_outlet}`,
-    description: row.commentary || row.source_excerpt || `${row.source_outlet} coverage with Open Govt commentary.`,
+    description: row.commentary || row.source_excerpt || `${row.source_outlet} coverage with opengovt commentary.`,
     alternates: { canonical: `/coverage/${row.id}` },
   }
 }
@@ -68,7 +68,7 @@ export default async function CoveragePage({ params }: { params: Promise<{ id: s
 
       <article>
         <header className="mb-6 pb-6 border-b border-[#14100d]/20">
-          <p className="text-[13px] uppercase tracking-[0.25em] mb-3 font-semibold text-[#14100d]">
+          <p className="text-[15px] uppercase tracking-[0.25em] mb-3 font-semibold text-[#14100d]">
             {row.source_outlet}{dateLabel ? ` · ${dateLabel}` : ''}
           </p>
           <h1
@@ -91,10 +91,10 @@ export default async function CoveragePage({ params }: { params: Promise<{ id: s
           <section
             className="my-8 p-6 border-l-4"
             style={{ borderLeftColor: ACCENT }}
-            aria-label="Open Govt commentary"
+            aria-label="opengovt commentary"
           >
-            <p className="text-[12px] uppercase tracking-[0.25em] text-[#14100d]/70 mb-3 font-semibold">
-              Open Govt · Commentary
+            <p className="text-[15px] uppercase tracking-[0.25em] text-[#14100d]/70 mb-3 font-semibold">
+              opengovt · Commentary
             </p>
             <p className="text-[16px] sm:text-[17px] leading-[1.6] text-[#14100d]" style={{ fontFamily: SERIF }}>
               {row.commentary}
@@ -102,7 +102,7 @@ export default async function CoveragePage({ params }: { params: Promise<{ id: s
             {row.related_link_href && row.related_link_label && (
               <Link
                 href={row.related_link_href}
-                className="inline-block mt-4 text-[13px] uppercase tracking-[0.2em] text-[#14100d] hover:underline font-semibold"
+                className="inline-block mt-4 text-[15px] uppercase tracking-[0.2em] text-[#14100d] hover:underline font-semibold"
               >
                 {row.related_link_label} →
               </Link>
@@ -115,14 +115,14 @@ export default async function CoveragePage({ params }: { params: Promise<{ id: s
           href={row.source_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block mt-4 px-6 py-3 text-[12px] font-bold uppercase tracking-[0.15em] hover:opacity-90 transition-opacity"
+          className="inline-block mt-4 px-6 py-3 text-[15px] font-bold uppercase tracking-[0.15em] hover:opacity-90 transition-opacity"
           style={{ background: ACCENT, color: '#f4ecd8' }}
         >
           Read full story at {new URL(row.source_url).hostname.replace(/^www\./, '')} →
         </a>
 
         <footer
-          className="mt-10 pt-5 text-[13px] uppercase tracking-[0.2em] text-[#14100d]/60"
+          className="mt-10 pt-5 text-[15px] uppercase tracking-[0.2em] text-[#14100d]/60"
           style={{ borderTop: `1px solid ${INK}33` }}
         >
           Headline and standfirst quoted under fair dealing for news reporting (CDPA s.30(2)). The full

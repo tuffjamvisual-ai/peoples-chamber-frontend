@@ -91,6 +91,19 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
   const backHref = parentDept ? `/departments/${parentDept.slug}` : '/departments';
   const backLabel = parentDept ? `← Back to ${parentDept.name}` : '← Back to departments';
 
+  // Only link a person through to /people/{slug} when a real person_cache
+  // record exists for them. Agency ministers/board members arrive from gov.uk
+  // as bare {name, role, slug} with no profile behind them, so linking every
+  // one generated hundreds of dead /people pages (404s in Search Console).
+  // People with no record render as plain text (name + role) instead.
+  const peopleSlugs = agency
+    ? Array.from(new Set([...agency.ministers, ...agency.boardMembers].map((m) => m.slug).filter(Boolean)))
+    : [];
+  const { data: pcRows } = peopleSlugs.length
+    ? await supabase.from('person_cache').select('slug').in('slug', peopleSlugs)
+    : { data: [] as { slug: string }[] };
+  const linkablePeople = new Set((pcRows || []).map((r: { slug: string }) => r.slug));
+
   return (
     <OpenGovShell pageStamp="Agency">
       <BackLink
@@ -141,7 +154,11 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
                 {agency.ministers.map((m, i) => (
                   <div key={i} className="py-2 border-b border-[#14100d]/10">
-                    <Link href={`/people/${m.slug}`} className="text-[#14100d] text-sm font-medium hover:text-[#14100d] transition-colors">{m.name}</Link>
+                    {linkablePeople.has(m.slug) ? (
+                      <Link href={`/people/${m.slug}`} className="text-[#14100d] text-sm font-medium hover:text-[#14100d] transition-colors">{m.name}</Link>
+                    ) : (
+                      <span className="text-[#14100d] text-sm font-medium">{m.name}</span>
+                    )}
                     <div className="text-[#14100d] text-sm mt-0.5">{m.role}</div>
                   </div>
                 ))}
@@ -155,7 +172,11 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
                 {agency.boardMembers.map((m, i) => (
                   <div key={i} className="py-2 border-b border-[#14100d]/10">
-                    <Link href={`/people/${m.slug}`} className="text-[#14100d] text-sm font-medium hover:text-[#14100d] transition-colors">{m.name}</Link>
+                    {linkablePeople.has(m.slug) ? (
+                      <Link href={`/people/${m.slug}`} className="text-[#14100d] text-sm font-medium hover:text-[#14100d] transition-colors">{m.name}</Link>
+                    ) : (
+                      <span className="text-[#14100d] text-sm font-medium">{m.name}</span>
+                    )}
                     <div className="text-[#14100d] text-sm mt-0.5">{m.role}</div>
                   </div>
                 ))}

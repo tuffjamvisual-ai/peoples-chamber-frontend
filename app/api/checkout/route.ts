@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Please choose an amount between £1 and £10,000.' }, { status: 400 });
   }
 
-  const origin = req.headers.get('origin') || 'https://www.thepeopleschamber.uk';
+  const origin = req.headers.get('origin') || 'https://www.opengovt.uk';
 
   try {
     const stripe = new Stripe(key);
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
           price_data: {
             currency: 'gbp',
             unit_amount: amountPence,
-            product_data: { name: "Donation to Open Govt" },
+            product_data: { name: "Donation to opengovt" },
           },
         },
       ],

@@ -16,7 +16,7 @@ export default function NewsletterForm() {
     return (
       <div
         style={{
-          fontSize: '13px',
+          fontSize: '15px',
           color: '#cfc8b8',
           padding: '14px 16px',
           border: `1px solid ${C.gold}`,
@@ -48,7 +48,7 @@ export default function NewsletterForm() {
           border: '1px solid transparent',
           color: C.ink,
           padding: '12px 16px',
-          fontSize: '13px',
+          fontSize: '15px',
           fontFamily: 'inherit',
           outline: 'none',
         }}
@@ -60,7 +60,7 @@ export default function NewsletterForm() {
           color: '#fff',
           border: 'none',
           padding: '12px 22px',
-          fontSize: '13px',
+          fontSize: '15px',
           letterSpacing: '0.22em',
           textTransform: 'uppercase',
           fontWeight: 700,

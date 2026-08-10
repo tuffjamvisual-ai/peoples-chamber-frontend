@@ -54,7 +54,7 @@ const normalize = (s: string | null | undefined): string => {
   if (!s) return '';
   return s
     .toLowerCase()
-    .replace(/^(the rt hon|rt hon|sir|dame|dr|mr|mrs|ms|miss|lord|baroness|baron)\s+/i, '')
+    .replace(/^(?:(?:the rt hon|rt hon|sir|dame|dr|mr|mrs|ms|miss|lord|baroness|baron)\s+)+/i, '')
     .replace(/\s+(mp|mbe|obe|kbe|dbe|cbe|kcb|gcb|dso|mc|qc|kc|bt)\b/gi, '')
     .replace(/\s+/g, ' ')
     .trim();
@@ -172,6 +172,10 @@ export async function getGovukDept(slug: string): Promise<GovukDeptData> {
           resigned: !!m.resigned,
         };
       });
+      // The masthead uses ministers[0] as the department head, so surface the
+      // flagged Secretary of State first (rest stay in their id order). Without
+      // this, the lowest-id row led the page regardless of who the head is.
+      ministers.sort((a, b) => Number(b.is_secretary_of_state) - Number(a.is_secretary_of_state));
       const boardMembers: GovukDeptBoardMember[] = ((officialsRes.data || []) as OfficialRow[]).map((m) => {
         const mp = resolveMp(m.name);
         const pay = m.slug ? payBySlug.get(m.slug) : undefined;

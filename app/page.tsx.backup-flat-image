@@ -21,7 +21,7 @@ export default function HomePage() {
         <Link href="/"             className="hot n-home"  aria-label="Home" />
         <Link href="/bills"        className="hot n-bills" aria-label="Bills" />
         <Link href="/laws"         className="hot n-laws"  aria-label="Laws" />
-        <Link href="/polls"        className="hot n-polls" aria-label="People's Polls" />
+        <Link href="/polls"        className="hot n-polls" aria-label="OpenGovt Polls" />
         <Link href="/mps"          className="hot n-mps"   aria-label="MPs" />
         <Link href="/departments"  className="hot n-depts" aria-label="Departments" />
         <Link href="/signup"       className="hot n-login" aria-label="Login" />

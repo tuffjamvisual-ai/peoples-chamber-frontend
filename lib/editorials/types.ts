@@ -8,14 +8,28 @@ export type EditorialEntry = {
   standfirst: string;
   publishedAt: string;          // ISO date
   authorByline: string;
+  // 'briefing' = daily news analysis (lives only in the Briefings section);
+  // undefined = long-form Investigation (lives only in the Investigations list).
+  kind?: 'briefing';
   // Optional eyebrow shown above the headline (e.g. "Investigation",
   // "Money & Power", "Reading the Record").
   kicker?: string;
+  // Marks the piece as commentary/opinion rather than a fact-checked
+  // investigation. When set, the article renders a distinct "Commentary"
+  // notice so readers can tell opinion apart from the record-based pieces.
+  opinion?: boolean;
   // Optional hero image rendered above the headline + ink border on
   // the article page and as the lead photo on the homepage card.
   heroImage?: string;           // public path, e.g. '/councils.webp'
   heroAlt?: string;
   body: Block[];                // dispatched by `type`
+  // Optional evidence panel data (populated during the reporting-texture pass).
+  evidence?: {
+    recordsReviewed?: string[];
+    contacted?: string;
+    response?: string;
+    lastChecked?: string;
+  };
 };
 
 export type Block =

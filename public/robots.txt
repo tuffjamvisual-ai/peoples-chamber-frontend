@@ -1,6 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /api/
+Disallow: /internal/
 
-Sitemap: https://www.thepeopleschamber.uk/sitemap.xml
-Sitemap: https://www.thepeopleschamber.uk/feed.xml
+Sitemap: https://www.opengovt.uk/sitemap.xml
+Sitemap: https://www.opengovt.uk/feed.xml

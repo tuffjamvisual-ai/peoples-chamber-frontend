@@ -24,7 +24,6 @@ import BackLink from '../../components/BackLink';
 import { donorNameToSlug } from '../../donors/[slug]/page';
 
 export const revalidate = 86400;
-export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Who paid for UK MPs\' trips: foreign governments, think tanks, lobby groups',
@@ -123,7 +122,7 @@ export default async function SponsoredVisitsPage() {
       <BackLink fallbackHref="/transparency/donations" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
           Paid-for travel · Sponsored visits and events
         </p>
         <h1 style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
@@ -143,7 +142,7 @@ export default async function SponsoredVisitsPage() {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Foreign-government paymasters</h2>
-        <p style={{ fontSize: '12px', opacity: 0.75, marginBottom: '8px' }}>State-actor sponsors paying directly for UK MPs to visit. Ranked by total declared value.</p>
+        <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '8px' }}>State-actor sponsors paying directly for UK MPs to visit. Ranked by total declared value.</p>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -170,7 +169,7 @@ export default async function SponsoredVisitsPage() {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>&lsquo;Friends of&rsquo; groups</h2>
-        <p style={{ fontSize: '12px', opacity: 0.75, marginBottom: '8px' }}>Foreign-affinity parliamentary groups paying for member-MP delegations. Often a soft-power channel for the country in question.</p>
+        <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '8px' }}>Foreign-affinity parliamentary groups paying for member-MP delegations. Often a soft-power channel for the country in question.</p>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -260,15 +259,15 @@ export default async function SponsoredVisitsPage() {
           <tbody>
             {largest.map((r) => (
               <tr key={r.id} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-                <td style={{ padding: '6px', fontSize: '12px' }}>
+                <td style={{ padding: '6px', fontSize: '15px' }}>
                   {r.donor_name ? (
                     <Link href={`/donors/${donorNameToSlug(r.donor_name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.donor_name}</Link>
                   ) : <span style={{ opacity: 0.6 }}>(unknown)</span>}
                 </td>
-                <td style={{ padding: '6px', fontSize: '12px' }}>{r.recipient_name || ''}</td>
-                <td style={{ padding: '6px', fontFamily: 'monospace', fontSize: '13px', opacity: 0.7 }}>{r.accepted_date || ''}</td>
+                <td style={{ padding: '6px', fontSize: '15px' }}>{r.recipient_name || ''}</td>
+                <td style={{ padding: '6px', fontFamily: 'monospace', fontSize: '15px', opacity: 0.7 }}>{r.accepted_date || ''}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(Number(r.amount || 0)).toLocaleString()}</td>
-                <td style={{ padding: '6px', fontSize: '13px', opacity: 0.85, maxWidth: '320px' }}>{r.purpose_of_visit}</td>
+                <td style={{ padding: '6px', fontSize: '15px', opacity: 0.85, maxWidth: '320px' }}>{r.purpose_of_visit}</td>
               </tr>
             ))}
           </tbody>
@@ -282,7 +281,7 @@ export default async function SponsoredVisitsPage() {
 function Tile({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '12px 14px', background: CREAM }}>
-      <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
+      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
       <div style={{ fontFamily: '"Special Elite", monospace', fontSize: '22px', fontWeight: 'bold', color: ACCENT }}>{value}</div>
     </div>
   );
@@ -296,4 +295,4 @@ const sectionH2: React.CSSProperties = {
   paddingBottom: '6px',
   marginBottom: '14px',
 };
-const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '13px', fontFamily: '"Special Elite", monospace' };
+const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '15px', fontFamily: '"Special Elite", monospace' };

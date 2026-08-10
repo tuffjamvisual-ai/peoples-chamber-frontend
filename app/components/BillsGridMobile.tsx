@@ -17,7 +17,7 @@ const mPageBtn = (disabled: boolean): CSSProperties => ({
   border: `1px solid ${INK}`,
   borderRadius: 0,
   fontFamily: 'Special Elite, monospace',
-  fontSize: '13px',
+  fontSize: '15px',
   cursor: disabled ? 'default' : 'pointer',
   opacity: disabled ? 0.3 : 1,
 });
@@ -196,7 +196,7 @@ export default function BillsGridMobile({ initialBills, currentPage, totalPages 
                 padding: '12px 14px',
                 whiteSpace: 'nowrap',
                 fontFamily: 'Special Elite, monospace',
-                fontSize: '12px',
+                fontSize: '15px',
                 textTransform: 'uppercase',
                 letterSpacing: '0.1em',
                 background: 'transparent',

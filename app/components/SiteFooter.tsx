@@ -19,8 +19,8 @@ export default function SiteFooter() {
           }}
         >
           <div>
-            <FootHead>Open Govt</FootHead>
-            <p style={{ fontSize: '13px', color: MUTED, lineHeight: 1.6, margin: '0' }}>
+            <FootHead>opengovt</FootHead>
+            <p style={{ fontSize: '15px', color: MUTED, lineHeight: 1.6, margin: '0' }}>
               UK political transparency. Built from official sources, Parliament, IPSA, Companies House, Electoral Commission, Cabinet Office. Updated daily.
             </p>
           </div>
@@ -69,13 +69,13 @@ export default function SiteFooter() {
             justifyContent: 'space-between',
             alignItems: 'center',
             paddingTop: '1.5rem',
-            fontSize: '13px',
+            fontSize: '15px',
             color: MUTED,
             flexWrap: 'wrap',
             gap: '1rem',
           }}
         >
-          <div>© {new Date().getFullYear()} Open Govt. Public-record reporting.</div>
+          <div>© {new Date().getFullYear()} opengovt. Public-record reporting.</div>
           <div style={{ letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 600 }}>peopleschamber.uk</div>
         </div>
       </div>
@@ -87,7 +87,7 @@ function FootHead({ children }: { children: React.ReactNode }) {
   return (
     <div
       style={{
-        fontSize: '13px',
+        fontSize: '15px',
         color: '#fff',
         textTransform: 'uppercase',
         letterSpacing: '0.22em',
@@ -105,7 +105,7 @@ function FootCol({ children }: { children: React.ReactNode }) {
 }
 
 const linkStyle: React.CSSProperties = {
-  fontSize: '13px',
+  fontSize: '15px',
   color: '#fff',
   textDecoration: 'none',
   opacity: 0.85,

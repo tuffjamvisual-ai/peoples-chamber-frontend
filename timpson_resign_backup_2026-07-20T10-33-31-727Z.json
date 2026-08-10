@@ -1,0 +1,29 @@
+{
+  "beforeDM": {
+    "id": 6361,
+    "dept_slug": "justice",
+    "name": "Lord Timpson OBE",
+    "role": "Minister of State for Prisons, Probation and Reducing Reoffending",
+    "slug": "james-timpson",
+    "is_secretary_of_state": false,
+    "updated_at": "2026-07-15T06:01:18.324Z",
+    "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/ministers/4985.jpg",
+    "member_id": null,
+    "salary_band": "minister_of_state",
+    "resigned": false
+  },
+  "beforePC": {
+    "slug": "james-timpson",
+    "current_roles": [
+      {
+        "body": "<ul>\n  <li>Prison capacity and related policy </li>\n  <li>Prison operations policy, reform, industrial relations and workforce</li>\n  <li>Probation policy, operations, industrial relations, and transparency </li>\n  <li>His Majesty’s Prison and Probation Service administration </li>\n  <li>Reducing Reoffending</li>\n  <li>Electronic Monitoring (EM)</li>\n  <li>Foreign National Offenders</li>\n  <li>Female Offenders</li>\n  <li>Offender health and drugs </li>\n  <li>Prisoner Escort Contracts</li>\n  <li>Counter Terrorism</li>\n  <li>Sustainability</li>\n  <li>Cross-cutting Artificial Intelligence, Digital, Data and transformation</li>\n</ul>\n",
+        "title": "Minister of State for Prisons, Probation and Reducing Reoffending",
+        "current": true,
+        "endDate": "",
+        "startDate": "2024-07-05T00:00:00+01:00",
+        "organisation": "Ministry of Justice"
+      }
+    ],
+    "past_roles": []
+  }
+}

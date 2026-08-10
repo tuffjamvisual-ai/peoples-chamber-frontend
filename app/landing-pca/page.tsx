@@ -12,7 +12,7 @@ import { normaliseParty, isCoop, partyColourForMember } from '@/lib/party-helper
 const BAND_RANK: Record<SalaryBand, number> = { pm: 4, sos: 3, minister_of_state: 2, puss: 1 };
 
 export const metadata: Metadata = {
-  title: "Open Govt",
+  title: "opengovt",
   robots: { index: false, follow: false },
 };
 
@@ -32,7 +32,7 @@ export default async function LandingPcaPage() {
     supabase.from('mp_biography').select('*').eq('member_id', memberId).single(),
     supabase.from('bill').select('id, title, status, current_stage, plain_summary, is_act, last_update').eq('sponsor_member_id', memberId).order('created_at', { ascending: false }),
     supabase.from('mp_division_votes').select('id, division_title, division_date, vote_type, is_rebellion, bill_id, division_id').eq('member_id', memberId).order('division_date', { ascending: false }).range(0, 199),
-    supabase.from('mp_registered_interests').select('*').eq('member_id', memberId).order('category_sort_order', { ascending: true }),
+    supabase.from('mp_registered_interests').select('*').eq('member_id', memberId).eq('is_current', true).order('category_sort_order', { ascending: true }),
     supabase.from('mp_expenses_summary').select('*').eq('member_id', memberId).order('year', { ascending: false }),
     supabase.from('mp_expenses_detail').select('claim_number, year, claim_date, category, cost_type, short_description, amount_paid, status').eq('member_id', memberId).order('claim_date', { ascending: false }).range(0, 49),
     supabase.from('dept_ministers').select('salary_band').eq('member_id', memberId).not('salary_band', 'is', null),

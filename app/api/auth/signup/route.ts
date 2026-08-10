@@ -3,7 +3,8 @@ import { supabase } from '@/lib/supabase';
 import bcrypt from 'bcryptjs';
 import { resolveMx } from 'dns/promises';
 import { randomUUID } from 'crypto';
-import { emailEnabled, sendVerificationEmail } from '@/lib/email';
+import { emailEnabled, sendVerificationEmail, sendSignupNotification } from '@/lib/email';
+import { setSessionCookie } from '@/lib/session';
 import disposableDomains from 'disposable-email-domains';
 
 // Permissive but blocks obvious garbage. Real format validation happens
@@ -106,7 +107,7 @@ export async function POST(request: NextRequest) {
         verification_token: verified ? null : token,
         verification_sent_at: verified ? null : new Date().toISOString(),
       })
-      .select('id, email, username, postcode, email_verified')
+      .select('id, email, username, postcode, email_verified, created_at')
       .single();
 
     if (error) {
@@ -122,7 +123,18 @@ export async function POST(request: NextRequest) {
       await sendVerificationEmail(email, token, base);
     }
 
-    return NextResponse.json({ user, needsVerification: !verified });
+    // Notify the contact inbox of the new signup. Fire-and-forget: a failed or
+    // slow notification must never block or fail the user's registration.
+    sendSignupNotification({
+      email: user.email,
+      username: user.username,
+      emailVerified: user.email_verified,
+      createdAt: user.created_at,
+    }).catch((e) => console.error('Signup notification failed:', e));
+
+    const res = NextResponse.json({ user, needsVerification: !verified });
+    if (verified) setSessionCookie(res, user.id);
+    return res;
 
   } catch (error) {
     console.error('Signup error:', error);

@@ -96,7 +96,7 @@
   color: var(--ink);
 }
 .np-standfirst { font-style: italic; color: var(--ink-soft); font-size: 17px; line-height: 1.35; margin: 8px 0; }
-.np-lede { font-size: 15px; line-height: 1.5; text-align: justify; margin: 8px 0; }
+.np-lede { font-size: 15px; line-height: 1.5; margin: 8px 0; }
 .np-cta {
   font-family: 'Special Elite', monospace; text-transform: uppercase;
   letter-spacing: 0.08em; font-size: 12px; color: var(--accent); font-weight: bold;
@@ -123,11 +123,11 @@
 /* Stacked briefs separated by the same 1.5px ink rule the original uses. */
 .np-brief { border-top: 1.5px solid var(--ink); margin-top: 14px; padding-top: 14px; }
 .np-brief .np-head { font-size: clamp(17px, 2vw, 22px); margin: 6px 0; }
-.np-brief p { font-size: 13.5px; line-height: 1.45; color: var(--ink-soft); margin: 0 0 6px; text-align: justify; }
+.np-brief p { font-size: 13.5px; line-height: 1.45; color: var(--ink-soft); margin: 0 0 6px; }
 
 /* ---- Story cards (rail bills card + the bottom three) ---- */
 .np-card .np-head { font-size: clamp(18px, 2vw, 23px); margin: 6px 0; }
-.np-card p { font-size: 13px; line-height: 1.45; color: var(--ink-soft); text-align: justify; margin: 0 0 8px; }
+.np-card p { font-size: 13px; line-height: 1.45; color: var(--ink-soft); margin: 0 0 8px; }
 
 /* ---- Bottom band: three equal columns with vertical rules ---- */
 .np-grid-3 {

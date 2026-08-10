@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { departments } from '@/lib/departments';
 import { editorials } from '@/lib/editorials';
 
-const SITE = 'https://www.thepeopleschamber.uk';
+const SITE = 'https://www.opengovt.uk';
 
 export const revalidate = 86400;
 
@@ -63,6 +63,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/mps`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/departments`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/transparency`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
+    { url: `${SITE}/transparency/register-of-interests`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
     { url: `${SITE}/money`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
     { url: `${SITE}/editorials`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/laws`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
@@ -90,7 +91,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/your-tax-pound`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${SITE}/budget-trade-offs`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${SITE}/councils`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
-    { url: `${SITE}/council-tax`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${SITE}/editorials/cq4r8vn2mp`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${SITE}/second-jobs`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
   ];
 
@@ -136,21 +137,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  // Only ship bills with at least one substantive signal — a Commons
-  // division on record, an active or known stage, or Royal Assent.
-  // Drops ~2,700 thin bills (placeholder description, no division,
-  // no stage) from the sitemap. They still serve 200 if accessed
-  // directly; we just stop asking Google to crawl them. 2026-06-04
-  // to clear Soft 404 + Duplicate-without-canonical signals flagged
-  // in GSC.
-  const bills = await fetchAllRows<{ id: number }>(
-    'bill',
-    'id',
-    (q) =>
-      q.or(
-        'commons_division_id.not.is.null,is_act.eq.true,current_stage.not.is.null'
-      ),
+  // Ship ONLY indexable bills, mirroring the bill page's noindex rule EXACTLY so
+  // the sitemap never lists a noindexed URL (previously ~1,000 inert bills were
+  // both sitemapped AND noindexed → "Submitted URL marked 'noindex'" in GSC).
+  // A bill is indexable iff it has >=1 recorded Commons division vote (hasVotes)
+  // OR its status is an active stage OR it became an Act OR it had a Commons
+  // division (bill-level fields, since per-MP mp_division_votes is sparse).
+  // KEEP THIS PREDICATE IN SYNC WITH app/bills/[id]/page.tsx generateMetadata —
+  // the boolean below is byte-for-byte the same as that route's.
+  const ACTIVE_STAGE = /committee|report|3rd reading|third reading|consideration/;
+  const { data: votedRows } = await supabase.rpc('bill_ids_with_votes');
+  const votedBillIds = new Set<number>(
+    ((votedRows as { bill_id: number }[] | null) || []).map((r) => r.bill_id),
   );
+  const allBills = await fetchAllRows<{ id: number; status: string | null; is_act: boolean | null; commons_division_id: number | null }>(
+    'bill',
+    'id, status, is_act, commons_division_id',
+  );
+  const bills = allBills.filter((b) => {
+    const hasVotes = votedBillIds.has(b.id);
+    const activeStage = ACTIVE_STAGE.test((b.status || '').toLowerCase());
+    const isAct = b.is_act === true;
+    const hasDivision = b.commons_division_id != null;
+    return hasVotes || activeStage || isAct || hasDivision;
+  });
   const billEntries: MetadataRoute.Sitemap = bills.map((b) => ({
     url: `${SITE}/bills/${b.id}`,
     lastModified: now,
@@ -171,12 +181,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Individual press release detail pages — same slug derivation as the
-  // /transparency/press-releases index page. Cap at the 100 currently
-  // retained (the sync trims older releases). 2026-06-04.
-  const releases = await fetchAllRows<{ gov_url: string | null; published_at: string | null }>(
-    'press_releases',
-    'gov_url, published_at',
-  );
+  // /transparency/press-releases index page. The full GOV.UK archive (~45k
+  // rows back to 2007) was backfilled 2026-07-11, so cap the sitemap to the
+  // most recent 5,000 to stay well under the 50,000-URL per-file sitemap limit.
+  // Older releases remain crawlable via the day-navigation and search UI.
+  const NEWS_SITEMAP_CAP = 5000;
+  const releases: { gov_url: string | null; published_at: string | null }[] = [];
+  for (let off = 0; off < NEWS_SITEMAP_CAP; off += 1000) {
+    const { data } = await supabase
+      .from('press_releases')
+      .select('gov_url, published_at')
+      .order('published_at', { ascending: false, nullsFirst: false })
+      .range(off, off + 999);
+    if (!data || data.length === 0) break;
+    releases.push(...data);
+    if (data.length < 1000) break;
+  }
   const newsEntries: MetadataRoute.Sitemap = releases
     .map((r) => {
       const match = r.gov_url?.match(/\/([a-z0-9-]+)\/?$/i);

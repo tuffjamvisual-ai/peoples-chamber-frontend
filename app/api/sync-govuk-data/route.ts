@@ -100,6 +100,18 @@ type AgencyRow = {
   updated_at: string;
 };
 
+// Loose name match for the self-healing lock: strip honorifics/suffixes and
+// punctuation so "The Rt Hon John Healey MP" (GOV.UK) equals "Rt Hon John Healey MP"
+// (hand-set). Used only to decide whether GOV.UK has caught up to a manual lead.
+function normalizeName(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/\b(the|rt|hon|sir|dame|lord|baroness|mp|obe|kc|qc|cbe|mbe|dbe|dl|frs)\b/g, ' ')
+    .replace(/[^a-z\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 async function fetchOrg(govukSlug: string) {
   const res = await fetch(`https://www.gov.uk/api/content/government/organisations/${govukSlug}`);
   if (!res.ok) throw new Error(`gov.uk ${res.status}`);
@@ -129,22 +141,57 @@ async function syncDept(supabase: SupabaseClient, deptSlug: string, govukSlug: s
   const offByName = new Map<string, { photo_url: string | null }>();
   (existingOffs || []).forEach((r) => offByName.set(r.name, { photo_url: r.photo_url ?? null }));
 
-  const ministers: MinisterRow[] = ((data.links?.ordered_ministers as GovukPerson[]) || []).map((m, i) => {
-    const role = m.links?.role_appointments?.find((r) => r.details?.current)?.links?.role?.[0]?.title || '';
-    const preserved = minByName.get(m.title);
+  // The Prime Minister appears in some departments' ordered_ministers (e.g. the
+  // Cabinet Office lists them as "Minister for the Union"). They are not a
+  // departmental minister, so exclude PM-only roles or they get crowned as a
+  // junior minister on that department's page.
+  const PM_ROLE = /prime minister|first lord of the treasury|minister for the union|minister for the civil service/i;
+  const rawMinisters = ((data.links?.ordered_ministers as GovukPerson[]) || []).map((m) => ({
+    name: m.title,
+    role: m.links?.role_appointments?.find((r) => r.details?.current)?.links?.role?.[0]?.title || '',
+    slug: m.base_path?.replace('/government/people/', '') || '',
+  })).filter((m) => m.role && !PM_ROLE.test(m.role));
+
+  // Pick the department head by ROLE TITLE, not by list position. GOV.UK's
+  // ordered_ministers[0] is not reliably the Secretary of State, especially
+  // mid-reshuffle when the new SoS may not be published yet and a junior
+  // minister sits first. Crowning that junior minister as department head was
+  // showing e.g. "Minister of State (Investment)" as the Business Secretary.
+  // If NO head-level role is present (SoS genuinely not yet published), leave
+  // the head slot empty rather than mislabel a junior minister.
+  // Head-level roles only. The negative lookbehind on "secretary of state" is
+  // essential: without it, "Parliamentary Under-Secretary of State" (a junior
+  // role) falsely matches and gets crowned as department head.
+  const HEAD_ROLE = /((?<!under[- ])secretary of state|chancellor of the exchequer|prime minister|first lord of the treasury|attorney general|advocate general|leader of the house|chief secretary to the treasury|minister for the cabinet office|paymaster general|lord privy seal)/i;
+  // Territorial Secretaries of State (NI/Scotland/Wales) only head their own
+  // office. GOV.UK mid-reshuffle sometimes misfiles e.g. the NI Secretary into
+  // business-trade/ukef; without this guard the picker would crown that
+  // wrong-department minister as head.
+  const territorialMismatch = (role: string) =>
+    (/secretary of state for northern ireland/i.test(role) && deptSlug !== 'northern-ireland-office') ||
+    (/secretary of state for scotland/i.test(role) && deptSlug !== 'scotland-office') ||
+    (/secretary of state for wales/i.test(role) && deptSlug !== 'wales-office');
+  const isHead = (role: string) =>
+    HEAD_ROLE.test(role)
+    && !/(under-secretary|under secretary|parliamentary secretary)/i.test(role)
+    && !territorialMismatch(role);
+  const leadIdx = rawMinisters.findIndex((m) => isHead(m.role));
+
+  const ministers: MinisterRow[] = rawMinisters.map((m, i) => {
+    const preserved = minByName.get(m.name);
     return {
       dept_slug: deptSlug,
-      name: m.title,
-      role,
-      slug: m.base_path?.replace('/government/people/', '') || '',
-      is_secretary_of_state: i === 0,
+      name: m.name,
+      role: m.role,
+      slug: m.slug,
+      is_secretary_of_state: i === leadIdx,
       photo_url: preserved?.photo_url ?? null,
       member_id: preserved?.member_id ?? null,
       salary_band: preserved?.salary_band ?? null,
       resigned: preserved?.resigned ?? false,
       updated_at: now,
     };
-  }).filter((m) => m.role);
+  });
 
   // Officials are enriched per-person: appointment_date (started_on)
   // and previous_role come from the per-person Content API. Run those
@@ -193,12 +240,24 @@ async function syncDept(supabase: SupabaseClient, deptSlug: string, govukSlug: s
       updated_at: now,
     }));
 
-  await supabase.from('dept_ministers').delete().eq('dept_slug', deptSlug);
-  if (ministers.length) await supabase.from('dept_ministers').insert(ministers);
-  await supabase.from('dept_officials').delete().eq('dept_slug', deptSlug);
-  if (officials.length) await supabase.from('dept_officials').insert(officials);
-  await supabase.from('dept_agencies').delete().eq('dept_slug', deptSlug);
-  if (agencies.length) await supabase.from('dept_agencies').insert(agencies);
+  // Replace-in-place per category, but ONLY when gov.uk returned rows for it.
+  // A department never legitimately has zero ministers / officials / agencies,
+  // so an empty result means the wrong org slug — e.g. during a department
+  // rename gov.uk splits ministers onto the new slug and the civil-service
+  // board onto the old one. Deleting on empty would wipe the existing rows;
+  // skipping preserves them until gov.uk finishes migrating.
+  if (ministers.length) {
+    await supabase.from('dept_ministers').delete().eq('dept_slug', deptSlug);
+    await supabase.from('dept_ministers').insert(ministers);
+  }
+  if (officials.length) {
+    await supabase.from('dept_officials').delete().eq('dept_slug', deptSlug);
+    await supabase.from('dept_officials').insert(officials);
+  }
+  if (agencies.length) {
+    await supabase.from('dept_agencies').delete().eq('dept_slug', deptSlug);
+    await supabase.from('dept_agencies').insert(agencies);
+  }
 
   return {
     ministers: ministers.length,
@@ -226,8 +285,60 @@ export async function GET(req: Request) {
   }
   const supabase = createClient(url, key);
 
-  const results: Array<{ deptSlug: string; status: 'ok' | 'fail'; detail: string }> = [];
+  // Manual override lock: departments listed in dept_sync_exclude are skipped
+  // entirely, so a hand-set line-up (e.g. a fresh reshuffle appointment GOV.UK
+  // hasn't published yet) is never overwritten by this rebuild. Remove the row
+  // once GOV.UK catches up to resume automatic reconciliation.
+  const excluded = new Set<string>();
+  {
+    const { data: ex } = await supabase.from('dept_sync_exclude').select('dept_slug');
+    for (const r of (ex || []) as { dept_slug: string }[]) excluded.add(r.dept_slug);
+  }
+
+  // Self-healing locks: for each locked dept, clear the lock once GOV.UK has
+  // caught up to our hand-set state. "Caught up" means GOV.UK's published lead
+  // matches our lead AND every non-resigned minister we hold appears in GOV.UK's
+  // published list. The second condition matters for junior-minister pins (e.g.
+  // a fresh appointee GOV.UK hasn't listed yet): without it the head-only check
+  // would clear the lock while our added minister is still missing upstream, and
+  // the next rebuild would wipe them. Resigned rows are expected to be absent
+  // from GOV.UK, so they are ignored. If we can't verify, the lock stays.
+  const autoCleared: string[] = [];
+  for (const deptSlug of Array.from(excluded)) {
+    const govukSlug = govukSlugs[deptSlug];
+    if (!govukSlug) continue;
+    try {
+      const data = await fetchOrg(govukSlug);
+      const govNames = new Set(
+        ((data.links?.ordered_ministers as GovukPerson[]) || []).map((m) => normalizeName(m.title)),
+      );
+      const govLead = ((data.links?.ordered_ministers as GovukPerson[]) || [])[0]?.title || '';
+      const { data: rows } = await supabase
+        .from('dept_ministers')
+        .select('name, is_secretary_of_state, resigned')
+        .eq('dept_slug', deptSlug);
+      const stored = (rows || []) as { name: string; is_secretary_of_state: boolean; resigned: boolean }[];
+      const manualLead = stored.find((r) => r.is_secretary_of_state)?.name || '';
+      const headMatches = !!govLead && !!manualLead && normalizeName(govLead) === normalizeName(manualLead);
+      const allActivePublished = stored
+        .filter((r) => !r.resigned)
+        .every((r) => govNames.has(normalizeName(r.name)));
+      if (headMatches && allActivePublished) {
+        await supabase.from('dept_sync_exclude').delete().eq('dept_slug', deptSlug);
+        excluded.delete(deptSlug);
+        autoCleared.push(deptSlug);
+      }
+    } catch {
+      /* keep the lock if we can't verify */
+    }
+  }
+
+  const results: Array<{ deptSlug: string; status: 'ok' | 'fail' | 'skipped'; detail: string }> = [];
   for (const [deptSlug, govukSlug] of Object.entries(govukSlugs)) {
+    if (excluded.has(deptSlug)) {
+      results.push({ deptSlug, status: 'skipped', detail: 'dept_sync_exclude (manual override active)' });
+      continue;
+    }
     try {
       const r = await syncDept(supabase, deptSlug, govukSlug);
       results.push({
@@ -244,6 +355,8 @@ export async function GET(req: Request) {
   return NextResponse.json({
     ok: results.filter((r) => r.status === 'ok').length,
     fail: results.filter((r) => r.status === 'fail').length,
+    skipped: results.filter((r) => r.status === 'skipped').length,
+    autoCleared,
     syncedAt: new Date().toISOString(),
     results,
   });

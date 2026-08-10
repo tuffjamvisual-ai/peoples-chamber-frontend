@@ -19,7 +19,6 @@ import BackLink from '../../components/BackLink';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 
 export const revalidate = 3600;
-export const dynamic = 'force-dynamic';
 
 const INK = '#14100d';
 const INK_SOFT = 'rgba(20,16,13,0.7)';
@@ -97,7 +96,7 @@ export default async function SpecialAdvisersPage() {
       <BackLink fallbackHref="/transparency" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '28px' }}>
-        <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
           Transparency · Special Advisers
         </p>
         <h1 style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '14px', lineHeight: 1.15 }}>
@@ -109,7 +108,7 @@ export default async function SpecialAdvisersPage() {
         <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '62ch', marginTop: '12px' }}>
           The Cabinet Office and the major Whitehall departments publish a quarterly return of each Special Adviser&rsquo;s gifts, hospitality, and meetings with senior media figures. This page is the consolidated view across every publishing department for the most recent quarter only. Older quarters are not retained.
         </p>
-        <p style={{ marginTop: '14px', fontFamily: '"Special Elite", monospace', fontSize: '12px', letterSpacing: '0.18em', textTransform: 'uppercase', color: ACCENT }}>
+        <p style={{ marginTop: '14px', fontFamily: '"Special Elite", monospace', fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: ACCENT }}>
           Quarter shown: {quarter}
         </p>
       </header>
@@ -126,10 +125,10 @@ export default async function SpecialAdvisersPage() {
         <h2 style={sectionH2}>Current roster · {roster.length} Special Advisers</h2>
         {areas.map(([area, list]) => (
           <details key={area} style={{ marginBottom: '12px', borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '8px' }}>
-            <summary style={{ cursor: 'pointer', fontFamily: '"Special Elite", monospace', fontSize: '14px', fontWeight: 'bold', padding: '6px 0', color: ACCENT, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            <summary style={{ cursor: 'pointer', fontFamily: '"Special Elite", monospace', fontSize: '15px', fontWeight: 'bold', padding: '6px 0', color: ACCENT, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
               {area} · {list.length}
             </summary>
-            <ul style={{ listStyle: 'none', padding: '8px 0', margin: 0, columns: '2 280px', columnGap: '24px', fontSize: '13px', fontFamily: '"Special Elite", monospace' }}>
+            <ul style={{ listStyle: 'none', padding: '8px 0', margin: 0, columns: '2 280px', columnGap: '24px', fontSize: '15px', fontFamily: '"Special Elite", monospace' }}>
               {list.sort((a, b) => a.name.localeCompare(b.name)).map((r) => (
                 <li key={`${r.area}|${r.name}`} style={{ padding: '2px 0', breakInside: 'avoid' }}>{r.name}</li>
               ))}
@@ -187,12 +186,12 @@ export default async function SpecialAdvisersPage() {
               {gifts.map((g, i) => (
                 <tr key={i} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                   <td style={td}>{g.spad_name}</td>
-                  <td style={{ ...td, fontSize: '13px', opacity: 0.75 }}>{g.area}</td>
-                  <td style={{ ...td, fontFamily: 'monospace', fontSize: '13px', opacity: 0.7 }}>{g.gift_date || 'n/a'}</td>
+                  <td style={{ ...td, fontSize: '15px', opacity: 0.75 }}>{g.area}</td>
+                  <td style={{ ...td, fontFamily: 'monospace', fontSize: '15px', opacity: 0.7 }}>{g.gift_date || 'n/a'}</td>
                   <td style={td}>{g.gift_descr || 'n/a'}</td>
                   <td style={td}>{g.donor || 'n/a'}</td>
                   <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace' }}>{g.value_gbp || 'n/a'}</td>
-                  <td style={{ ...td, fontSize: '12px', opacity: 0.85 }}>{g.outcome || 'n/a'}</td>
+                  <td style={{ ...td, fontSize: '15px', opacity: 0.85 }}>{g.outcome || 'n/a'}</td>
                 </tr>
               ))}
             </tbody>
@@ -218,11 +217,11 @@ export default async function SpecialAdvisersPage() {
               {hosps.map((h, i) => (
                 <tr key={i} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                   <td style={td}>{h.spad_name}</td>
-                  <td style={{ ...td, fontSize: '13px', opacity: 0.75 }}>{h.area}</td>
-                  <td style={{ ...td, fontFamily: 'monospace', fontSize: '13px', opacity: 0.7 }}>{h.hosp_date || 'n/a'}</td>
+                  <td style={{ ...td, fontSize: '15px', opacity: 0.75 }}>{h.area}</td>
+                  <td style={{ ...td, fontFamily: 'monospace', fontSize: '15px', opacity: 0.7 }}>{h.hosp_date || 'n/a'}</td>
                   <td style={td}>{h.hosp_descr || 'n/a'}</td>
                   <td style={td}>{h.provider || 'n/a'}</td>
-                  <td style={{ ...td, fontSize: '12px', opacity: 0.85 }}>{h.purpose || 'n/a'}</td>
+                  <td style={{ ...td, fontSize: '15px', opacity: 0.85 }}>{h.purpose || 'n/a'}</td>
                 </tr>
               ))}
             </tbody>
@@ -248,11 +247,11 @@ export default async function SpecialAdvisersPage() {
               {meets.map((m, i) => (
                 <tr key={i} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                   <td style={td}>{m.spad_name}</td>
-                  <td style={{ ...td, fontSize: '13px', opacity: 0.75 }}>{m.area}</td>
-                  <td style={{ ...td, fontFamily: 'monospace', fontSize: '13px', opacity: 0.7 }}>{m.meeting_date || 'n/a'}</td>
+                  <td style={{ ...td, fontSize: '15px', opacity: 0.75 }}>{m.area}</td>
+                  <td style={{ ...td, fontFamily: 'monospace', fontSize: '15px', opacity: 0.7 }}>{m.meeting_date || 'n/a'}</td>
                   <td style={td}>{m.media_org || 'n/a'}</td>
                   <td style={td}>{m.individual || 'n/a'}</td>
-                  <td style={{ ...td, fontSize: '12px', opacity: 0.85 }}>{m.purpose || 'n/a'}</td>
+                  <td style={{ ...td, fontSize: '15px', opacity: 0.85 }}>{m.purpose || 'n/a'}</td>
                 </tr>
               ))}
             </tbody>
@@ -268,9 +267,9 @@ export default async function SpecialAdvisersPage() {
 function Tile({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
     <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '12px 14px', background: CREAM }}>
-      <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
+      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
       <div style={{ fontFamily: '"Special Elite", monospace', fontSize: '22px', fontWeight: 'bold', color: ACCENT }}>{value}</div>
-      <div style={{ fontSize: '13px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
+      <div style={{ fontSize: '15px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
     </div>
   );
 }
@@ -283,6 +282,6 @@ const sectionH2: React.CSSProperties = {
   paddingBottom: '6px',
   marginBottom: '12px',
 };
-const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '13px', fontFamily: '"Special Elite", monospace' };
-const th: React.CSSProperties = { padding: '8px 6px', fontSize: '13px', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 'bold' };
-const td: React.CSSProperties = { padding: '8px 6px', fontSize: '13px', verticalAlign: 'top' };
+const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '15px', fontFamily: '"Special Elite", monospace' };
+const th: React.CSSProperties = { padding: '8px 6px', fontSize: '15px', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 'bold' };
+const td: React.CSSProperties = { padding: '8px 6px', fontSize: '15px', verticalAlign: 'top' };

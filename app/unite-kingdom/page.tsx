@@ -247,7 +247,7 @@ function PhotoCard({ caption, tilt }: { caption: string; tilt: number }) {
             margin: 0,
             padding: '8px 12px',
             background: CREAM,
-            fontSize: '12px',
+            fontSize: '15px',
             fontStyle: 'italic',
             lineHeight: 1.4,
             borderTop: `1px solid ${INK_HAIRLINE}`,
@@ -261,7 +261,7 @@ function PhotoCard({ caption, tilt }: { caption: string; tilt: number }) {
 
 function kicker(color: string): React.CSSProperties {
   return {
-    fontSize: '13px',
+    fontSize: '15px',
     fontWeight: 'bold',
     textTransform: 'uppercase',
     letterSpacing: '0.2em',

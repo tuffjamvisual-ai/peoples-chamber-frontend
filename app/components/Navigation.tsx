@@ -46,13 +46,11 @@ export default function Navigation() {
           <div className="flex items-center justify-between">
             <Link href="/" className="flex-shrink-0" style={{marginLeft: "-16px"}}>
               <div className="flex flex-col items-center">
-                <img
-                  src="/logo.png"
-                  alt="Open Govt"
-                  style={{ height: '240px', width: 'auto', objectFit: 'contain' }}
-                />
+                {/* Header logo image intentionally hidden pending a new logo asset
+                    (parked). Keep the text wordmark as the brand for now; do not
+                    re-add the <img src="/logo.png"> without a decision on the asset. */}
                 <span className="text-2xl uppercase tracking-widest text-white text-center">
-                  Open Govt
+                  opengovt
                 </span>
               </div>
             </Link>
@@ -69,7 +67,7 @@ export default function Navigation() {
                 Laws
               </Link>
               <Link href="/polls" className={`px-3 py-1.5 text-sm ${isActive('/polls') ? 'text-[#ffffff] font-medium' : 'text-white hover:text-white'}`}>
-                People's Polls
+                opengovt Polls
               </Link>
               <Link href="/mps" className={`px-3 py-1.5 text-sm ${isActive('/mps') ? 'text-[#ffffff] font-medium' : 'text-white hover:text-white'}`}>
                 MPs
@@ -129,7 +127,7 @@ export default function Navigation() {
                   Laws
                 </Link>
                 <Link href="/polls" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/polls') ? 'text-[#ffffff] bg-transparent/10' : 'text-white'}`}>
-                  People's Polls
+                  opengovt Polls
                 </Link>
                 <Link href="/mps" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/mps') ? 'text-[#ffffff] bg-transparent/10' : 'text-white'}`}>
                   MPs

@@ -277,7 +277,7 @@ export default async function DivisionDetailPage({ params }: PageProps) {
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '32px', marginBottom: '32px' }}>
         <p
           style={{
-            fontSize: '12px',
+            fontSize: '15px',
             textTransform: 'uppercase',
             letterSpacing: '0.3em',
             marginBottom: '12px',
@@ -317,7 +317,7 @@ export default async function DivisionDetailPage({ params }: PageProps) {
       <p
         style={{
           fontFamily: '"Special Elite", monospace',
-          fontSize: 'clamp(14px, 1.7vw, 18px)',
+          fontSize: 'clamp(15px, 1.7vw, 18px)',
           marginBottom: '32px',
           lineHeight: 1.6,
           transform: 'rotate(-0.15deg)',
@@ -365,16 +365,16 @@ export default async function DivisionDetailPage({ params }: PageProps) {
       {boths.length > 0 && (
         <section style={{ marginTop: '32px', padding: '24px', background: CREAM, border: `1px solid ${INK_HAIRLINE}` }}>
           <h2 style={{ ...sectionH2, marginBottom: '12px' }}>Voted in both lobbies</h2>
-          <p style={{ fontSize: '14px', opacity: 0.7, marginBottom: '12px' }}>
+          <p style={{ fontSize: '15px', opacity: 0.7, marginBottom: '12px' }}>
             Walking through both the Aye and No lobbies is a recorded form of deliberate abstention.
           </p>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '14px' }}>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px' }}>
             {boths.map((v) => (
               <li key={v.member_id} style={{ padding: '4px 0' }}>
-                <Link href={`/mps/${v.member_id}`} style={{ color: INK, textDecoration: 'none' }}>
+                <MpVoteLink vote={v}>
                   {v.mp?.display_name ?? v.mp?.name ?? `Member ${v.member_id}`}
                   {v.mp?.party && <span style={{ opacity: 0.6 }}> · {normaliseParty(v.mp.party) || v.mp.party}</span>}
-                </Link>
+                </MpVoteLink>
               </li>
             ))}
           </ul>
@@ -393,6 +393,18 @@ const sectionH2: React.CSSProperties = {
   paddingBottom: '8px',
 };
 
+// Link to an MP only when they have a live profile (present in the mps table —
+// i.e. v.mp is populated). Former MPs have no /mps/<id> page, so their name
+// renders as plain text rather than a 404 link. (SEO audit fix.)
+function MpVoteLink({ vote, children }: { vote: Vote; children: React.ReactNode }) {
+  const style: React.CSSProperties = { color: INK, textDecoration: 'none' };
+  return vote.mp ? (
+    <Link href={`/mps/${vote.member_id}`} style={style}>{children}</Link>
+  ) : (
+    <span style={style}>{children}</span>
+  );
+}
+
 function VoteColumn({
   heading,
   groups,
@@ -404,28 +416,28 @@ function VoteColumn({
 }) {
   return (
     <div>
-      <h3 style={{ fontFamily: '"Special Elite", monospace', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.18em', borderBottom: `2px solid ${accent}`, paddingBottom: '6px', marginBottom: '12px', color: accent }}>
+      <h3 style={{ fontFamily: '"Special Elite", monospace', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', borderBottom: `2px solid ${accent}`, paddingBottom: '6px', marginBottom: '12px', color: accent }}>
         {heading}
       </h3>
       {groups.map((g) => (
         <div key={g.party} style={{ marginBottom: '20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.85 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.85 }}>
             <span style={{ display: 'inline-block', width: '0.7em', height: '0.7em', borderRadius: '50%', background: g.partyColour }} />
             <strong>{g.party}</strong>
             <span style={{ opacity: 0.6 }}>({g.rows.length})</span>
           </div>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '14px', lineHeight: 1.55 }}>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: 1.55 }}>
             {g.rows.map((v) => (
               <li key={v.member_id} style={{ padding: '4px 0', borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-                <Link href={`/mps/${v.member_id}`} style={{ color: INK, textDecoration: 'none' }}>
+                <MpVoteLink vote={v}>
                   {v.mp?.display_name ?? v.mp?.name ?? `Member ${v.member_id}`}
                   {v.is_teller && (
-                    <span style={{ marginLeft: '6px', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.1em', color: INK_SOFT, border: `1px solid ${INK_HAIRLINE}`, padding: '1px 5px' }}>
+                    <span style={{ marginLeft: '6px', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.1em', color: INK_SOFT, border: `1px solid ${INK_HAIRLINE}`, padding: '1px 5px' }}>
                       Teller
                     </span>
                   )}
-                  {v.is_rebellion && <span style={{ color: ACCENT, fontSize: '12px', fontWeight: 'bold' }}> · REBEL</span>}
-                </Link>
+                  {v.is_rebellion && <span style={{ color: ACCENT, fontSize: '15px', fontWeight: 'bold' }}> · REBEL</span>}
+                </MpVoteLink>
               </li>
             ))}
           </ul>

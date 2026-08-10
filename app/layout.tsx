@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Playfair_Display, Anton, Oswald, Abril_Fatface } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
+import SoftRegisterPrompt from "./components/SoftRegisterPrompt";
 import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 
 // Magazine-template typography stack. Special Elite is loaded via
 // @font-face in globals.css and consumed by --font-typewriter.
@@ -37,11 +37,10 @@ const abril = Abril_Fatface({
   display: "swap",
 });
 
-const SITE_URL = "https://www.thepeopleschamber.uk";
-const SITE_NAME = "Open Govt";
+const SITE_URL = "https://www.opengovt.uk";
+const SITE_NAME = "opengovt";
 const SITE_DESCRIPTION =
   "The UK politics transparency app. See what every government department controls, what every party says, and who runs Britain.";
-const OG_IMAGE = `${SITE_URL}/logo.png`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -63,10 +62,10 @@ export const metadata: Metadata = {
     locale: "en_GB",
     images: [
       {
-        url: OG_IMAGE,
+        url: `${SITE_URL}/og-image.png`,
         width: 1200,
         height: 630,
-        alt: SITE_NAME,
+        type: "image/png",
       },
     ],
   },
@@ -74,7 +73,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: SITE_NAME,
     description: SITE_DESCRIPTION,
-    images: [OG_IMAGE],
+    images: [`${SITE_URL}/og-image.png`],
   },
   robots: {
     index: true,
@@ -102,6 +101,7 @@ const JSON_LD = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: SITE_NAME,
+  alternateName: ["Open Govt", "OpenGovt", "opengovt.uk"],
   url: SITE_URL,
   description: SITE_DESCRIPTION,
   inLanguage: "en-GB",
@@ -140,17 +140,11 @@ export default function RootLayout({
           type="font/woff2"
           crossOrigin="anonymous"
         />
-        {/* Preload the three magazine-chrome WebPs. They're set via
-         * CSS background-image so the browser only discovers them
-         * after stylesheet parse — this gives it a head start. */}
-        <link rel="preload" href="/preview-header.webp" as="image" type="image/webp" />
-        <link rel="preload" href="/preview-middle.webp" as="image" type="image/webp" />
-        <link rel="preload" href="/preview-footer.webp" as="image" type="image/webp" />
         {/* RSS feed discovery — Reader apps, GSC and aggregators read this. */}
         <link
           rel="alternate"
           type="application/rss+xml"
-          title="Open Govt, Recent Updates"
+          title="opengovt, Recent Updates"
           href="/feed.xml"
         />
         <script
@@ -161,9 +155,9 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <AuthProvider>
           {children}
+          <SoftRegisterPrompt />
         </AuthProvider>
         <Analytics />
-        <SpeedInsights />
       </body>
     </html>
   );

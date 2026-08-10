@@ -102,7 +102,7 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
             outline: 'none',
           }}
         />
-        <span style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.15em', opacity: 0.7 }}>
+        <span style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', opacity: 0.7 }}>
           {filteredLaws.length === 0
             ? `0 of ${laws.length.toLocaleString()} shown`
             : `${firstShown.toLocaleString()}-${lastShown.toLocaleString()} of ${filteredLaws.length.toLocaleString()}${
@@ -155,7 +155,7 @@ function PageLink({
 }) {
   const baseStyle = {
     padding: '8px 14px',
-    fontSize: '14px',
+    fontSize: '15px',
     border: `1px solid ${INK_HAIRLINE}`,
     color: INK,
     background: 'transparent',
@@ -219,7 +219,7 @@ function LawCard({ law, tilt }: { law: Law; tilt: number }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
         <span
           style={{
-            fontSize: '13px',
+            fontSize: '15px',
             textTransform: 'uppercase',
             letterSpacing: '0.15em',
             padding: '3px 8px',
@@ -233,7 +233,7 @@ function LawCard({ law, tilt }: { law: Law; tilt: number }) {
         {law.originating_house && (
           <span
             style={{
-              fontSize: '13px',
+              fontSize: '15px',
               textTransform: 'uppercase',
               letterSpacing: '0.15em',
               color: INK_SOFT,
@@ -263,7 +263,7 @@ function LawCard({ law, tilt }: { law: Law; tilt: number }) {
       {law.plain_summary && (
         <p
           style={{
-            fontSize: '14px',
+            fontSize: '15px',
             lineHeight: 1.6,
             color: INK_SOFT,
             marginBottom: '16px',
@@ -285,7 +285,7 @@ function LawCard({ law, tilt }: { law: Law; tilt: number }) {
           gap: '8px',
           paddingTop: '12px',
           borderTop: `1px dashed ${INK_HAIRLINE}`,
-          fontSize: '12px',
+          fontSize: '15px',
           color: INK_SOFT,
         }}
       >

@@ -12,7 +12,7 @@ const NAV_ITEMS = [
   { href: '/',            label: 'Home' },
   { href: '/bills',       label: 'Bills' },
   { href: '/laws',        label: 'Laws' },
-  { href: '/polls',       label: "People's Polls" },
+  { href: '/polls',       label: "opengovt Polls" },
   { href: '/mps',         label: 'MPs' },
   { href: '/departments', label: 'Departments' },
   { href: '/login',       label: 'Login' },

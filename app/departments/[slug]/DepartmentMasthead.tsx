@@ -78,22 +78,32 @@ export default function DepartmentMasthead({ sos, budget }: Props) {
               </div>
             )}
             {sos.resigned && (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                src="/resigned-stamp.png"
-                alt="Resigned"
-                aria-hidden
+              /* Black grunge stamp PNG recoloured to the opengovt brand maroon
+                 (#7a1612) via a CSS mask-fill, matching the resigned stamp on
+                 the MP profile (MpDossier). */
+              <div
+                role="img"
+                aria-label="Resigned"
                 style={{
                   position: 'absolute',
-                  bottom: '16px',
+                  bottom: '-64px',
                   right: '8px',
                   width: '150px',
-                  height: 'auto',
+                  height: '150px',
                   transform: 'rotate(-8deg)',
                   transformOrigin: 'center',
                   opacity: 0.9,
                   pointerEvents: 'none',
                   zIndex: 3,
+                  backgroundColor: '#7a1612',
+                  WebkitMaskImage: 'url(/resigned-stamp.png)',
+                  maskImage: 'url(/resigned-stamp.png)',
+                  WebkitMaskSize: 'contain',
+                  maskSize: 'contain',
+                  WebkitMaskRepeat: 'no-repeat',
+                  maskRepeat: 'no-repeat',
+                  WebkitMaskPosition: 'center',
+                  maskPosition: 'center',
                 }}
               />
             )}
@@ -124,7 +134,7 @@ export default function DepartmentMasthead({ sos, budget }: Props) {
             {sos.member_id ? (
               <Link
                 href={`/mps/${sos.member_id}`}
-                className="inline-block text-[14px] uppercase tracking-[0.2em] hover:underline font-semibold"
+                className="inline-block text-[15px] uppercase tracking-[0.2em] hover:underline font-semibold"
                 style={{ color: ACCENT }}
               >
                 View bio →
@@ -132,7 +142,7 @@ export default function DepartmentMasthead({ sos, budget }: Props) {
             ) : sos.slug ? (
               <Link
                 href={`/people/${sos.slug}`}
-                className="inline-block text-[14px] uppercase tracking-[0.2em] hover:underline font-semibold"
+                className="inline-block text-[15px] uppercase tracking-[0.2em] hover:underline font-semibold"
                 style={{ color: ACCENT }}
               >
                 View bio →
@@ -156,7 +166,7 @@ export default function DepartmentMasthead({ sos, budget }: Props) {
           <div
             style={{
               fontFamily: 'Special Elite, monospace',
-              fontSize: '13px',
+              fontSize: '15px',
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
               opacity: 0.6,
@@ -188,7 +198,7 @@ export default function DepartmentMasthead({ sos, budget }: Props) {
             <div
               style={{
                 fontFamily: 'Special Elite, monospace',
-                fontSize: '13px',
+                fontSize: '15px',
                 opacity: 0.75,
               }}
             >

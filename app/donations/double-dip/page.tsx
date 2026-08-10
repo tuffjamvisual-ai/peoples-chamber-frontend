@@ -17,14 +17,15 @@
 // trading-name variations, subsidiary chains and rebrands.
 
 import type { Metadata } from 'next';
+import { unstable_cache } from 'next/cache';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { donorNameToSlug } from '../../donors/[slug]/page';
 
+export const dynamic = 'force-dynamic'
 export const revalidate = 86400;
-export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Double dip: UK MPs paid both as employment income AND as political donations',
@@ -96,7 +97,11 @@ async function fetchAllDonations(): Promise<DonationRow[]> {
   return out;
 }
 
-export default async function DoubleDipPage() {
+// The join pages the donations register and the interests table and matches in
+// JS. The confirmed pairings are few, so cache the result for a day rather than
+// recompute on every request.
+const loadMatches = unstable_cache(
+  async () => {
   const [payerByMp, allDonations, mpsRes] = await Promise.all([
     fetchEmploymentPayers(),
     fetchAllDonations(),
@@ -150,13 +155,21 @@ export default async function DoubleDipPage() {
     }
   }
   matches.sort((a, b) => b.donatedTotal - a.donatedTotal);
+    return { matches };
+  },
+  ['double-dip-matches-v1'],
+  { revalidate: 86400 },
+);
+
+export default async function DoubleDipPage() {
+  const { matches } = await loadMatches();
 
   return (
     <OpenGovShell pageStamp="Donations">
       <BackLink fallbackHref="/transparency/donations" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
           Cross-register pattern · MPs paid twice from the same source
         </p>
         <h1 style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
@@ -188,7 +201,7 @@ export default async function DoubleDipPage() {
                 </td>
                 <td style={{ padding: '6px' }}>
                   <Link href={`/donors/${m.donorSlug}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{m.donorName}</Link>
-                  {m.payerAppearances > 1 && <span style={{ fontSize: '13px', opacity: 0.6, marginLeft: '6px' }}>· {m.payerAppearances} entries</span>}
+                  {m.payerAppearances > 1 && <span style={{ fontSize: '15px', opacity: 0.6, marginLeft: '6px' }}>· {m.payerAppearances} entries</span>}
                 </td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{m.donationCount}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold', color: DANGER }}>£{Math.round(m.donatedTotal).toLocaleString()}</td>
@@ -198,11 +211,11 @@ export default async function DoubleDipPage() {
         </table>
       </section>
 
-      <section style={{ background: CREAM, padding: '12px 14px', fontSize: '13px', lineHeight: 1.6, marginBottom: '24px' }}>
+      <section style={{ background: CREAM, padding: '12px 14px', fontSize: '15px', lineHeight: 1.6, marginBottom: '24px' }}>
         <strong>What this list isn&rsquo;t.</strong> A double-dip pairing is not in itself a rule breach. UK MPs are legally allowed to take outside employment income and accept political donations from the same body provided both are declared on their respective registers. What the list shows is the small number of cases where the public has been told the same fact twice in two different places without ever being shown the overlap. The interpretation belongs to the reader.
       </section>
 
-      <p style={{ fontSize: '12px', opacity: 0.6 }}>
+      <p style={{ fontSize: '15px', opacity: 0.6 }}>
         Sources: parliament.uk Register of Members&rsquo; Financial Interests (category 1. Employment and earnings) cross-joined with the Electoral Commission donations register. Payer name extracted from the Register entry by taking everything before the first comma or opening parenthesis. Donation-to-MP match requires the EC recipient_name to include both the MP&rsquo;s first and last name.
       </p>
     </OpenGovShell>
@@ -217,4 +230,4 @@ const sectionH2: React.CSSProperties = {
   paddingBottom: '6px',
   marginBottom: '14px',
 };
-const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '13px', fontFamily: '"Special Elite", monospace' };
+const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '15px', fontFamily: '"Special Elite", monospace' };

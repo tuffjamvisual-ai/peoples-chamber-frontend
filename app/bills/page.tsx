@@ -13,7 +13,7 @@ const BILLS_PER_PAGE = 20;
 // /bills paginates 4000 bills across 4 parallel range queries. At Vercel
 // build time, when other workers are also hammering Supabase for MP
 // pages, this exceeds the 60s/page budget. Render on demand.
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'
 export const revalidate = 600;
 
 export const metadata: Metadata = {
@@ -49,7 +49,7 @@ export default async function BillsPage({ searchParams }: PageProps) {
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
           Every bill going through UK Parliament. How MPs voted. How you voted. The gap between the two.
         </p>
-        <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px', opacity: 0.7 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px', opacity: 0.7 }}>
           Showing bills {(page - 1) * BILLS_PER_PAGE + 1}-{Math.min(page * BILLS_PER_PAGE, totalCount)} of {totalCount.toLocaleString()} · page {page} of {totalPages}
         </p>
       </header>

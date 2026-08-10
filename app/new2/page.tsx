@@ -26,7 +26,7 @@ const oswald = Oswald({ subsets: ['latin'], weight: ['500', '700'], variable: '-
 const robotoCond = Roboto_Condensed({ subsets: ['latin'], weight: ['700'], variable: '--f-roboto-cond', display: 'swap' });
 
 export const metadata: Metadata = {
-  title: "Open Govt, new2 replica",
+  title: "opengovt, new2 replica",
   robots: { index: false, follow: false },
 };
 
@@ -258,7 +258,7 @@ export default async function New2Page({
 
       <div className={`new2-root ${oswald.variable} ${robotoCond.variable}`}>
         <main className="page-shell">
-          <section className="paper" aria-label="Open Govt front page">
+          <section className="paper" aria-label="opengovt front page">
             <header className="masthead">
               <a className="issue-card hotspot" href="#issue" aria-label="Issue 23">
                 <div className="tiny-star top">★</div>

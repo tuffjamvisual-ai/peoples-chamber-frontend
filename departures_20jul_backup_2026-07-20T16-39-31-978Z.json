@@ -1,0 +1,263 @@
+{
+  "bios": [
+    {
+      "member_id": 206,
+      "government_posts": [
+        {
+          "id": 1244,
+          "name": "Deputy Prime Minister",
+          "house": 1,
+          "endDate": null,
+          "startDate": "2025-09-05T00:00:00",
+          "additionalInfo": "Cabinet Office",
+          "additionalInfoLink": "https://www.gov.uk/government/organisations/cabinet-office"
+        },
+        {
+          "id": 718,
+          "name": "Lord Chancellor and Secretary of State for Justice",
+          "house": 1,
+          "endDate": null,
+          "startDate": "2025-09-05T00:00:00",
+          "additionalInfo": "Ministry of Justice",
+          "additionalInfoLink": "https://www.gov.uk/government/organisations/ministry-of-justice"
+        },
+        {
+          "id": 1245,
+          "name": "Foreign Secretary",
+          "house": 1,
+          "endDate": "2025-09-05T00:00:00",
+          "startDate": "2024-07-05T00:00:00",
+          "additionalInfo": "Foreign, Commonwealth and Development Office",
+          "additionalInfoLink": "https://www.gov.uk/government/organisations/foreign-commonwealth-development-office"
+        },
+        {
+          "id": 263,
+          "name": "Minister of State (Department for Business, Innovation and Skills) (Higher Education and Intellectual Property)",
+          "house": 1,
+          "endDate": "2010-05-06T00:00:00",
+          "startDate": "2009-06-09T00:00:00",
+          "additionalInfo": "Department for Business, Innovation and Skills",
+          "additionalInfoLink": "https://www.gov.uk/government/organisations/department-for-business-innovation-skills"
+        },
+        {
+          "id": 262,
+          "name": "Minister of State (Department for Innovation, Universities and Skills) (Higher Education & Intellectual Property)",
+          "house": 1,
+          "endDate": "2009-06-05T00:00:00",
+          "startDate": "2008-10-05T00:00:00",
+          "additionalInfo": "Department for Innovation, Universities and Skills",
+          "additionalInfoLink": "http://www.dius.gov.uk/"
+        },
+        {
+          "id": 617,
+          "name": "Parliamentary Under-Secretary (Department for Innovation, Universities and Skills) (Skills)",
+          "house": 1,
+          "endDate": "2008-10-05T00:00:00",
+          "startDate": "2007-06-29T00:00:00",
+          "additionalInfo": "Department for Innovation, Universities and Skills",
+          "additionalInfoLink": "http://www.dius.gov.uk/"
+        },
+        {
+          "id": 112,
+          "name": "Minister of State (Department for Culture, Media and Sport) (Culture)",
+          "house": 1,
+          "endDate": "2007-06-28T00:00:00",
+          "startDate": "2005-05-10T00:00:00",
+          "additionalInfo": "Department for Culture, Media and Sport",
+          "additionalInfoLink": "https://www.gov.uk/government/organisations/department-for-culture-media-sport"
+        },
+        {
+          "id": 497,
+          "name": "Parliamentary Under-Secretary (Department for Constitutional Affairs)",
+          "house": 1,
+          "endDate": "2005-05-10T00:00:00",
+          "startDate": "2003-06-13T00:00:00",
+          "additionalInfo": "Department for Constitutional Affairs",
+          "additionalInfoLink": "http://www.dca.gov.uk"
+        },
+        {
+          "id": 447,
+          "name": "Parliamentary Under-Secretary (Department of Health)",
+          "house": 1,
+          "endDate": "2003-06-13T00:00:00",
+          "startDate": "2002-05-29T00:00:00",
+          "additionalInfo": "Department of Health",
+          "additionalInfoLink": "http://www.dh.gov.uk"
+        }
+      ],
+      "political_bio": "David Lammy has represented Tottenham since 2000, when he won the seat at a by election aged twenty seven, then the youngest MP in the Commons. The constituency shaped him politically and he has remained tied to it longer than most senior frontbenchers do. He arrived in Parliament with a serious CV: state school education, Harvard Law School (the first black Briton at HLS), the bar. He has spent the rest of his career either trading on that authority or trying to remind people of it.\n\nHis strongest moments have been on race and justice. He led the Lammy Review of the criminal justice system, which produced concrete findings about racial disparity in courts, prisons and sentencing. He spoke clearly during Windrush, where many of his front bench colleagues hedged. These are the parts of his career where his moral force matches his rhetorical confidence.\n\nThe weaker pattern, repeated across several roles, is the gap between volume and precision. Lammy delivers opening arguments well. He is quotable, often the loudest voice in a discussion, and capable of dominating an exchange. The follow through tends to be less consistent. Positions stated firmly in one interview have a habit of softening or shifting in the next. His allies frame this as responsiveness to events. His critics frame it as the absence of a settled position underneath the certainty.\n\nHis tenure as Foreign Secretary from July 2024 to September 2025 was the most watched test of that pattern. The China posture, the Middle East statements, the post Ukraine European defence conversations all required sustained positions over months rather than studio friendly soundbites. The record was mixed. There were genuine moments of seriousness, including the British support for Ukraine and the careful handling of the Trump return. There were also stretches where the policy line shifted faster than the diplomatic system was comfortable with, and the impression formed in some allied capitals that Britain was responding rather than directing.\n\nHis American posture had its own complications. Lammy spent much of the late 2010s and early 2020s on the record about Donald Trump in strongly personal terms. The return of a Trump administration in 2025 forced an awkward recalibration. He was not the first British minister to have to climb back from political comments aimed at a domestic audience, but the climb was more public than most.\n\nHis Brexit position also moved over the course of the parliament. In February 2017 he voted against triggering Article 50, declaring \"for the sake of the country I love, I will not be voting for Article 50\", and through 2018 and 2019 he was a prominent People's Vote campaigner for a second referendum. On 30 December 2020 he voted for Boris Johnson's Brexit trade deal, accepting the departure he had spent four years resisting.\n\nSince the September 2025 reshuffle he has held an unusual combination of roles: Deputy Prime Minister, Secretary of State for Justice, and Lord Chancellor. The Justice brief in particular is, on paper, a much better fit for his career arc than Foreign was. The Lammy Review found racial disparity in the criminal justice system that successive Conservative governments largely refused to act on. Lammy is now the minister with the authority and the political incentive to revisit those findings from inside government. The opportunity is real. Whether it produces lasting policy change or another set of recommendations that the Treasury declines to fund will define this phase of his career.\n\nThere is a wider problem, which he shares with several senior Labour figures. The party has been more successful at being not the other lot than at offering a clear national story about what it wants Britain to be. Lammy is a stronger communicator than most colleagues but has not used that strength to fill the gap. His instincts on race, identity and international solidarity are clear. His instincts on the harder economic and security trade offs are less so, and the senior roles he now holds require those instincts most.\n\nHe is one of the more recognisable figures in British politics. Whether he becomes one of the more consequential ones depends on whether the precision begins to catch up with the volume.",
+      "bio_source": "handwritten"
+    },
+    {
+      "member_id": 4026,
+      "government_posts": [
+        {
+          "id": 1275,
+          "name": "Secretary of State for Science, Innovation and Technology",
+          "house": 1,
+          "endDate": null,
+          "startDate": "2025-09-05T00:00:00",
+          "additionalInfo": "Department for Science, Innovation and Technology",
+          "additionalInfoLink": "https://www.gov.uk/government/organisations/department-for-science-innovation-and-technology"
+        },
+        {
+          "id": 744,
+          "name": "Secretary of State for Work and Pensions",
+          "house": 1,
+          "endDate": "2025-09-05T00:00:00",
+          "startDate": "2024-07-05T00:00:00",
+          "additionalInfo": "Department for Work and Pensions",
+          "additionalInfoLink": "https://www.gov.uk/government/organisations/department-for-work-pensions"
+        }
+      ],
+      "political_bio": null,
+      "bio_source": null
+    },
+    {
+      "member_id": 4031,
+      "government_posts": [
+        {
+          "id": 34,
+          "name": "Chancellor of the Exchequer",
+          "house": 1,
+          "endDate": null,
+          "startDate": "2024-07-05T00:00:00",
+          "additionalInfo": "HM Treasury",
+          "additionalInfoLink": "https://www.gov.uk/government/organisations/hm-treasury"
+        }
+      ],
+      "political_bio": "Rachel Reeves spent years constructing one of the most carefully managed reputations in modern British politics. Bank of England economist. HBOS manager. Oxford PPE graduate. Shadow Chancellor. Every stage of her career pointed towards the Treasury. By the time Labour won power in 2024, she had become the party's chief exhibit in its argument that it could once again be trusted with the economy.\n\nThat reputation was built on a simple promise. Labour would be responsible. Labour would obey fiscal rules. Labour would not repeat the mistakes that had damaged its economic credibility in the past. Reeves presented herself as the anti chaos candidate. The adult in the room. The politician who understood that markets, borrowing and public finances ultimately impose limits on every government's ambitions.\n\nThe problem is that her record in office has been far harder to reconcile with the image she created in opposition.\n\nHer first Budget was sold as a necessary response to what she described as a £22 billion fiscal hole inherited from the Conservatives. It contained roughly £40 billion in tax rises, the largest tax raising Budget for decades, alongside significant increases in public spending and investment. Employer National Insurance contributions were increased. Inheritance tax changes hit agricultural property. Winter Fuel Payments became means tested. The overall message was one of discipline and difficult choices.\n\nYet beneath the rhetoric of restraint sat one of the largest fiscal loosenings seen outside a crisis period in recent decades. The Office for Budget Responsibility estimated that Budget measures would increase borrowing by an average of more than £32 billion a year over the forecast period, while increasing spending by roughly £70 billion annually. The Institute for Fiscal Studies described the package as a major fiscal loosening despite the accompanying tax rises.\n\nThis is the central contradiction of Reeves' Chancellorship.\n\nShe entered office as the politician who promised discipline. She has governed as a Chancellor willing to borrow substantially more than her predecessors had planned.\n\nThe most controversial element was her decision to change the debt framework used to judge compliance with the government's fiscal rules. In opposition Reeves repeatedly presented those rules as iron clad. Once in office, the Treasury moved from focusing on public sector net debt towards public sector net financial liabilities, a change that created considerably more room for borrowing by recognising certain government assets alongside liabilities. Economists can debate the technical merits of the change. Politically it looked like a Chancellor arriving in office and rewriting the rulebook that had helped get her elected.\n\nThe defence is obvious. Britain needs investment. Infrastructure needs funding. Public services require money. Economic growth has been weak for more than a decade.\n\nThe criticism is equally obvious.\n\nIf borrowing was always going to rise substantially, what exactly was all the talk about fiscal discipline for?\n\nThat question has become increasingly awkward as forecasts have accumulated. The OBR's October 2024 projections showed government borrowing remaining above £70 billion even at the end of the forecast period. Subsequent forecasts continued to show borrowing running into the tens of billions throughout the Parliament, while public debt remained historically high as a share of national income.\n\nThe political danger is that Reeves may end up carrying the costs of higher borrowing without securing the benefits.\n\nThat risk is visible across almost every major policy battle of her first two years.\n\nThe Winter Fuel Payment decision became the defining mistake of her early tenure. Treasury officials saw a saving. Pensioners saw a benefit being removed. The eventual retreat suggested a government that had badly misjudged public sentiment.\n\nThe inheritance tax changes affecting farms followed a similar pattern. The Treasury viewed the measure as a rational reform. Farmers viewed it as an attack on family assets. Once again the government found itself defending a technically coherent policy that proved politically toxic.\n\nAgain and again the same criticism emerges. Reeves often appears more comfortable defending a policy inside a Treasury briefing room than outside it.\n\nThe reputation she built in opposition was based on competence. Yet competence in government is judged differently. Voters do not experience fiscal frameworks. They experience taxes, bills, wages and living standards.\n\nThat is why growth matters so much.\n\nEverything else is secondary.\n\nReeves inherited an economy suffering from weak productivity, sluggish investment and stagnant living standards. She did not create those problems. But Chancellors are remembered for whether they solve the problems they inherit, not whether they accurately diagnose them.\n\nSo far the results are mixed at best.\n\nGrowth forecasts have repeatedly been revised. Business groups have complained about the impact of higher employer National Insurance contributions. Investment remains fragile. Living standards remain under pressure. Even supporters of her approach increasingly find themselves arguing that the benefits will become visible later. That is never a comfortable political position. Governments elected to deliver change rarely want their strongest argument to be patience.\n\nThere is a deeper criticism still.\n\nFor all the arguments about fiscal rules, debt measures and borrowing frameworks, Reeves' economic strategy often feels remarkably conventional. Fiscal discipline. Treasury oversight. OBR scrutiny. Market confidence. These are tools. They are not a vision.\n\nBritain has spent much of the last fifteen years operating within variations of the same framework. The country has not lacked caution. It has not lacked fiscal rules. It has not lacked Treasury orthodoxy. What it has lacked is sustained economic growth.\n\nThe danger for Reeves is not that she becomes another Liz Truss. The danger is almost the opposite. Truss will be remembered for destabilising the system. Reeves risks being remembered for stabilising a system that was already failing to generate prosperity.\n\nThat would be a cruel outcome for a politician who spent so long preparing for the Treasury.\n\nShe entered office promising economic renewal. Instead, she has so far become the Chancellor of managed decline: higher taxes, higher spending, higher borrowing and persistent promises that growth is just over the horizon.\n\nIf that growth eventually arrives, many of today's criticisms will fade.\n\nIf it does not, history is unlikely to remember Rachel Reeves as the Chancellor who rebuilt Britain's economy. It may remember her as the Chancellor who borrowed more, taxed more and still failed to escape the stagnation she inherited.",
+      "bio_source": "handwritten"
+    },
+    {
+      "member_id": 4505,
+      "government_posts": [
+        {
+          "id": 1286,
+          "name": "Secretary of State for Business and Trade",
+          "house": 1,
+          "endDate": null,
+          "startDate": "2025-09-05T00:00:00",
+          "additionalInfo": "Department for Business and Trade ",
+          "additionalInfoLink": "https://www.gov.uk/government/organisations/department-for-business-and-trade"
+        },
+        {
+          "id": 1288,
+          "name": "President of the Board of Trade",
+          "house": 1,
+          "endDate": null,
+          "startDate": "2025-09-05T00:00:00",
+          "additionalInfo": "Department for Business and Trade ",
+          "additionalInfoLink": "https://www.gov.uk/government/organisations/department-for-business-and-trade"
+        },
+        {
+          "id": 1275,
+          "name": "Secretary of State for Science, Innovation and Technology",
+          "house": 1,
+          "endDate": "2025-09-05T00:00:00",
+          "startDate": "2024-07-05T00:00:00",
+          "additionalInfo": "Department for Science, Innovation and Technology",
+          "additionalInfoLink": "https://www.gov.uk/government/organisations/department-for-science-innovation-and-technology"
+        }
+      ],
+      "political_bio": "Peter Kyle, Labour MP for Hove and Portslade and current Secretary of State for Business and Trade, has built a career around polish, pace and proximity to power. First elected in 2015 for Hove, then returned in 2024 for the renamed Hove and Portslade seat, he has moved from opposition frontbencher to Cabinet minister with unusual speed. After serving as Secretary of State for Science, Innovation and Technology from July 2024, he became Business Secretary and President of the Board of Trade in September 2025. That is a serious rise, and it shows how much trust the Labour leadership places in him.\n\nThere is no doubt he is capable. He is one of Labour's better communicators: fluent, energetic and rarely caught sounding bored by his own brief. In the science and technology role, he clearly understood the political value of AI, innovation and industrial growth. Britain badly needs ministers who can speak the language of future industries without sounding like they just discovered the internet. His move to Business and Trade put him at the centre of Labour's growth agenda, with responsibility for business engagement, trade negotiations and international economic relationships.\n\nThe problem is that his strengths easily become weaknesses. His political style is slick, ambitious and highly managed. At times he looks less like a public servant wrestling with Britain's economic problems and more like a polished operator permanently positioning himself for the next rung. That may be unfair, but politics is partly perception, and Kyle gives off the air of someone who understands Westminster's ladder so well he probably knows which step creaks.\n\nHis closeness to the technology sector has drawn scrutiny. A Guardian profile described him as deeply embedded with major tech companies and noted criticism from those worried about his closeness to AI and online safety interests. Supporters would call that engagement with growth industries. Critics would call it a minister getting too comfortable with the people he may need to regulate.\n\nThat tension matters. Britain needs innovation, but it also needs ministers who remember that technology policy is not just about founders, platforms and productivity slides. It is about jobs, privacy, children, misinformation, workers, public services and whether democratic institutions can keep up with companies moving faster than regulation. Kyle's challenge is to prove he is not simply the government's ambassador to big tech with a red box.\n\nHis Business brief now widens that test. Trade, investment and growth are easy words to repeat. The harder task is making them mean something in towns and cities that have heard decades of economic optimism while living with stagnant wages, weak productivity and hollowed out high streets. A Business Secretary cannot just chase future industries. He has to show how growth reaches ordinary workers rather than evaporating into summit photographs and boardroom applause.\n\nOverall, Peter Kyle is talented, serious and politically effective. His rise has been earned through discipline and communication skill. But the career still carries a hard question: is he a reforming minister with real economic imagination, or simply one of Labour's smoothest modern operators? To be more than a Cabinet climber with good lines on innovation, he needs to prove that all the language about technology, business and growth produces visible change beyond Westminster and boardroom applause.",
+      "bio_source": "handwritten"
+    }
+  ],
+  "hermer": {
+    "slug": "richard-hermer",
+    "current_roles": [
+      {
+        "body": "<p>The Attorney General is chief legal adviser to the Crown and has a number of independent public interest functions, as well as overseeing the Law Officers’ departments.</p>\n\n<p>Responsibilities include:</p>\n\n<ul>\n  <li>Overall responsibility for the work of the Attorney General’s Office and superintended departments (the Government Legal Department, the Crown Prosecution Service, the Serious Fraud Office and HM Crown Prosecution Service Inspectorate)</li>\n  <li>Specific statutory duty to superintend the discharge of duties by the Director of Public Prosecutions (who heads the Crown Prosecution Service) and the Director of the Serious Fraud Office</li>\n  <li>Non-statutory general oversight of the Government Legal Department, the Services Prosecuting Authority, and government prosecuting departments</li>\n  <li>Government’s principal legal adviser dealing with (amongst others) questions of public law, international law, human rights and devolution</li>\n  <li>Public interest functions, for example, reference of unduly lenient sentences to the Court of Appeal, bringing proceedings for contempt of court and intervention in certain proceedings to protect charities</li>\n  <li>Questions of law arising on Bills and with issues of legal policy</li>\n  <li>Oversight of all major international and domestic litigation involving the Government</li>\n  <li>Promoting the rule of law at home and internationally</li>\n</ul>\n\n<p>The Attorney General also holds the separate office of Advocate General for Northern Ireland. The Advocate General for Scotland has specific responsibility for Scottish law matters.</p>\n",
+        "title": "Attorney General",
+        "current": true,
+        "endDate": "",
+        "startDate": "2024-07-05T00:00:00+01:00",
+        "organisation": "Attorney General's Office"
+      }
+    ],
+    "past_roles": [],
+    "political_bio": "Lord Hermer KC, Attorney General since July 2024, entered government as a heavyweight lawyer dropped straight into one of the most politically awkward roles in the state. The Attorney General is meant to be the government's legal conscience, chief adviser and guardian of the rule of law while overseeing the Crown Prosecution Service and Serious Fraud Office. In theory, it is a post built for legal seriousness. In practice, it is where ministerial enthusiasm goes to discover whether the constitution bites.\n\nHermer brought serious credentials. Called to the Bar in 1993, took silk in 2009, former Head of Chambers at Matrix and Deputy High Court Judge. He arrived with far more legal weight than most ministers who drift into office carrying ambition and a folder marked \"urgent.\" That background matters. The role needs someone capable of resisting cheap politics, especially when ministers treat legal limits as decorative fencing around the policy lawn.\n\nHis core strength is also the source of anger around him. He takes law seriously. That sounds obvious, but in Westminster it can feel subversive. Reports describe ministerial frustration over stricter legal advice standards, with claims his approach slowed government by requiring confidence that policies could survive legal challenge. Critics saw obstruction. Supporters saw the Attorney General doing the job after years when legal advice appeared stretched thin enough to see daylight through it.\n\nThe problem is that government cannot function as a permanent seminar on legal purity. A sharp lawyer saves ministers from courtroom humiliation but becomes a bottleneck if every policy is treated like a future exhibit. Hermer's challenge is proving that respect for law does not mean paralysis. Rule of law matters. But voters expect elected government to govern, not shuffle in legal slippers while public services collapse outside.\n\nControversy over his past legal work followed him into office. Attacks focused on clients he represented before becoming Attorney General, though senior lawyers defended him by citing the principle that barristers represent clients without personal endorsement. That defence matters. The legal system collapses if representation becomes character confession. But politics is not a courtroom. Public perception is rougher, louder and less interested in professional doctrine.\n\nHis approach to international law, Chagos and human rights made him a target for opponents who believe Labour is too legalistic, too cautious, too establishment. There is something symbolic about him: a KC standing at the centre of government telling a restless political class that clever slogans still pass through actual law. Useful, yes. Popular, rarely.\n\nOverall, Lord Hermer looks like a serious lawyer in a system impatient with seriousness. His value is stopping government behaving like a drunk with a legislative chainsaw. His weakness is appearing remote, lawyerly and insulated from political urgency. The test is simple. If he protects legality while helping government act, he will be remembered as a necessary brake. If he becomes the face of delay and constitutional fog, he will be the man who turned the Attorney General's Office into a velvet lined traffic jam.",
+    "biography": "<p>Richard Hermer was appointed Attorney General on 5 July 2024.</p>\n\n<p>Richard Hermer KC was called to the Bar in 1993 and he took silk in 2009. He was previously Head of Chambers at Matrix and has served as a Deputy High Court Judge. </p>\n\n"
+  },
+  "dept": [
+    {
+      "id": 6289,
+      "dept_slug": "treasury",
+      "name": "The Rt Hon Rachel Reeves MP",
+      "role": "Chancellor of the Exchequer",
+      "slug": "rachel-reeves",
+      "is_secretary_of_state": true,
+      "updated_at": "2026-07-15T06:00:48.276Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/mps/4031.webp?v=1779959573",
+      "member_id": 4031,
+      "salary_band": "sos",
+      "resigned": false
+    },
+    {
+      "id": 6340,
+      "dept_slug": "business-trade",
+      "name": "The Rt Hon Peter Kyle MP",
+      "role": "President of the Board of Trade",
+      "slug": "peter-kyle",
+      "is_secretary_of_state": true,
+      "updated_at": "2026-07-15T06:01:10.324Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/mps/4505.webp?v=1779364312",
+      "member_id": 4505,
+      "salary_band": "sos",
+      "resigned": false
+    },
+    {
+      "id": 6347,
+      "dept_slug": "science-tech",
+      "name": "The Rt Hon Liz Kendall MP",
+      "role": "Secretary of State for Science, Innovation and Technology",
+      "slug": "liz-kendall",
+      "is_secretary_of_state": true,
+      "updated_at": "2026-07-15T06:01:13.441Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/mps/4026.webp?v=1779919534",
+      "member_id": 4026,
+      "salary_band": "sos",
+      "resigned": false
+    },
+    {
+      "id": 6360,
+      "dept_slug": "justice",
+      "name": "The Rt Hon David Lammy MP",
+      "role": "Deputy Prime Minister",
+      "slug": "david-lammy",
+      "is_secretary_of_state": true,
+      "updated_at": "2026-07-15T06:01:18.324Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/mps/206.webp?v=1783109183",
+      "member_id": 206,
+      "salary_band": "sos",
+      "resigned": false
+    },
+    {
+      "id": 6390,
+      "dept_slug": "attorney-general",
+      "name": "The Rt Hon Lord Hermer KC",
+      "role": "Attorney General",
+      "slug": "richard-hermer",
+      "is_secretary_of_state": true,
+      "updated_at": "2026-07-15T06:01:30.305Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/ministers/5014.jpg?v=1778861628",
+      "member_id": null,
+      "salary_band": "sos",
+      "resigned": false
+    },
+    {
+      "id": 6403,
+      "dept_slug": "ukef",
+      "name": "The Rt Hon Peter Kyle MP",
+      "role": "President of the Board of Trade",
+      "slug": "peter-kyle",
+      "is_secretary_of_state": true,
+      "updated_at": "2026-07-15T06:01:41.589Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/mps/4505.webp?v=1779364312",
+      "member_id": 4505,
+      "salary_band": "sos",
+      "resigned": false
+    }
+  ]
+}

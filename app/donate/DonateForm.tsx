@@ -115,7 +115,7 @@ export default function DonateForm() {
         {loading ? 'Redirecting to secure checkout…' : 'Donate with card →'}
       </button>
 
-      <p style={{ fontSize: 13, opacity: 0.7, marginTop: 12, color: INK }}>
+      <p style={{ fontSize: 14, opacity: 0.7, marginTop: 12, color: INK }}>
         Secure one-off payment via Stripe. No account needed. You&rsquo;ll be redirected to Stripe&rsquo;s checkout page.
       </p>
     </div>

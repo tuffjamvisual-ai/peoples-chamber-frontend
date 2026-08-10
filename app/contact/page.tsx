@@ -8,13 +8,13 @@ export const revalidate = 3600
 export const metadata: Metadata = {
   title: 'Contact',
   description:
-    'Get in touch with Open Govt: corrections to the record, data and press enquiries, and general questions.',
+    'Get in touch with opengovt: corrections to the record, data and press enquiries, and general questions.',
   alternates: { canonical: '/contact' },
 }
 
 const INK = '#14100d'
 
-const EMAIL = 'contact@thepeopleschamber.uk'
+const EMAIL = 'contact@opengovt.uk'
 
 const CHANNELS = [
   {
@@ -59,7 +59,7 @@ export default function ContactPage() {
           Get in Touch
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
-          Open Govt is built in the open. Whether you have found an error in the record, want to use the data, or simply have a question, we want to hear from you. Write to us at the address below and we will read it.
+          Opengovt is built in the open. Whether you have found an error in the record, want to use the data, or simply have a question, we want to hear from you. Write to us at the address below and we will read it.
         </p>
         <p style={{ marginTop: '18px' }}>
           <a
@@ -83,7 +83,7 @@ export default function ContactPage() {
             <h2 style={{ fontSize: '21px', fontWeight: 'bold', marginBottom: '6px', lineHeight: 1.15 }}>
               {c.label} <span style={{ opacity: 0.55 }}>→</span>
             </h2>
-            <p style={{ fontSize: '14px', lineHeight: 1.6, opacity: 0.85 }}>{c.body}</p>
+            <p style={{ fontSize: '15px', lineHeight: 1.6, opacity: 0.85 }}>{c.body}</p>
           </a>
         ))}
       </div>
@@ -95,7 +95,7 @@ export default function ContactPage() {
         </Link>.
       </p>
 
-      <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '5%', opacity: 0.6 }}>
+      <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '5%', opacity: 0.6 }}>
         We aim to reply within a few working days.
       </p>
     </OpenGovShell>

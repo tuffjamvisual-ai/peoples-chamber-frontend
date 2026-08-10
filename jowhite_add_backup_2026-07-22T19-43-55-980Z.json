@@ -1,0 +1,100 @@
+{
+  "ho": [
+    {
+      "id": 9919,
+      "dept_slug": "home-office",
+      "name": "The Rt Hon Shabana Mahmood MP",
+      "role": "Secretary of State for the Home Department",
+      "slug": "shabana-mahmood",
+      "is_secretary_of_state": true,
+      "updated_at": "2026-07-22T16:01:06.009Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/mps/3914.webp?v=1781118443",
+      "member_id": 3914,
+      "salary_band": "sos",
+      "resigned": false
+    },
+    {
+      "id": 9920,
+      "dept_slug": "home-office",
+      "name": "The Rt Hon Dan Jarvis MBE MP",
+      "role": "Minister of State (Security Minister)",
+      "slug": "dan-jarvis",
+      "is_secretary_of_state": false,
+      "updated_at": "2026-07-22T16:01:06.009Z",
+      "photo_url": null,
+      "member_id": null,
+      "salary_band": null,
+      "resigned": false
+    },
+    {
+      "id": 9921,
+      "dept_slug": "home-office",
+      "name": "The Rt Hon Lord Hanson of Flint",
+      "role": "Minister of State",
+      "slug": "david-hanson",
+      "is_secretary_of_state": false,
+      "updated_at": "2026-07-22T16:01:06.009Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/ministers/4923.jpg",
+      "member_id": null,
+      "salary_band": "minister_of_state",
+      "resigned": false
+    },
+    {
+      "id": 9922,
+      "dept_slug": "home-office",
+      "name": "Sarah Jones MP",
+      "role": "Minister of State",
+      "slug": "sarah-jones",
+      "is_secretary_of_state": false,
+      "updated_at": "2026-07-22T16:01:06.009Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/mps/4631.webp?v=1781041510",
+      "member_id": 4631,
+      "salary_band": "minister_of_state",
+      "resigned": false
+    },
+    {
+      "id": 9923,
+      "dept_slug": "home-office",
+      "name": "The Rt Hon Anna Turley MP",
+      "role": "Minister of State",
+      "slug": "anna-turley",
+      "is_secretary_of_state": false,
+      "updated_at": "2026-07-22T16:01:06.009Z",
+      "photo_url": null,
+      "member_id": null,
+      "salary_band": null,
+      "resigned": false
+    },
+    {
+      "id": 9924,
+      "dept_slug": "home-office",
+      "name": "Mike Tapp MP",
+      "role": "Parliamentary Under-Secretary of State (Minister for Migration and Citizenship)",
+      "slug": "mike-tapp",
+      "is_secretary_of_state": false,
+      "updated_at": "2026-07-22T19:39:34.667Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/mps/5266.webp?v=1780952727",
+      "member_id": 5266,
+      "salary_band": "puss",
+      "resigned": true
+    },
+    {
+      "id": 9925,
+      "dept_slug": "home-office",
+      "name": "Natalie Fleet MP",
+      "role": "Parliamentary Under-Secretary of State (Minister for Safeguarding and Violence Against Women and Girls)",
+      "slug": "natalie-fleet",
+      "is_secretary_of_state": false,
+      "updated_at": "2026-07-22T16:01:06.009Z",
+      "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/mps/5053.webp?v=1781012934",
+      "member_id": 5053,
+      "salary_band": "puss",
+      "resigned": false
+    }
+  ],
+  "bio": {
+    "member_id": 5105,
+    "government_posts": [],
+    "political_bio": "\nJo White was elected Labour MP for Bassetlaw on 4 July 2024, defeating Conservative incumbent Brendan Clarke Smith with a majority of 5,768 votes (12.9 percent). She reclaimed the seat for Labour after it had been lost to the Conservatives in 2019. The most significant fact about her career, consistently absent from standard assessments, is that she is married to John Mann, Baron Mann, who represented Bassetlaw as Labour MP from 2001 to 2019 before being elevated to the House of Lords. She succeeded her husband's political operation in the same constituency. This does not invalidate her achievements but it fundamentally shapes how her career should be understood.\n\nBorn in Stamford, Lincolnshire in 1964, White was educated at the University of Manchester. Her political career developed alongside her husband's. She served on the executive of Unite the Union for over a decade, giving her substantial trade union credentials within the labour movement. She was elected to Bassetlaw District Council for Worksop East ward in 2012, was appointed executive member for regeneration in 2013, and became Deputy Leader of the council in 2015. She also served as chair of the Bassetlaw Constituency Labour Party. She continues to serve as a district councillor alongside her parliamentary role.\n\nBassetlaw had been Labour from 1929 until 2019. When John Mann stood down ahead of the 2019 election, the seat fell to Conservative Brendan Clarke Smith on a significant swing. The loss became one of the defining Red Wall stories of that election. White's recapture of the seat in 2024 was therefore symbolically important for Labour's recovery in former industrial communities, even if the 2024 national swing did much of the work.\n\nSince entering Parliament, White has been appointed Chair of the Red Wall Caucus, the group of Labour MPs representing constituencies across the Midlands and North of England that Labour lost in 2019 and regained in 2024. This is the most nationally significant role she currently holds and is absent from most assessments of her career. The caucus plays a direct role in shaping Labour's approach to working class voters in post industrial areas. Leading it gives White influence over internal party strategy that extends well beyond constituency representation.\n\nShe also serves as honorary vice chair of Labour Friends of Israel and has sat on the Border Security, Asylum and Immigration Bill Committee. Her voting record aligns with mainstream Labour positions.\n\nThe strengths of her career include genuine trade union roots through a decade on Unite's executive, sustained local government experience in Bassetlaw, the symbolic and practical achievement of reclaiming a Red Wall seat, and the Chair of the Red Wall Caucus role which positions her as a voice for Labour's most electorally fragile constituencies. Her focus on jobs, transport, public services and town centre regeneration reflects the priorities of the constituency she represents.\n\nThe weaknesses require honest framing. The Mann connection is both an asset and a vulnerability. Inheriting a spouse's constituency creates a political infrastructure advantage that most first time candidates lack. It also invites scrutiny about whether her selection and success reflect personal merit or political dynasty. Her national profile outside the Red Wall Caucus role remains limited. She has no ministerial office and no significant legislative record, though these are standard limitations for any MP elected months ago.\n\nThe 5,768 majority (12.9 percent) is moderate. Bassetlaw is not safely Labour in the way it was before 2019. The constituency contains voters who moved to the Conservatives once and could do so again if Labour fails to deliver on economic concerns. White's ability to hold the seat through a more competitive election will be the real test of whether her political position is personal or circumstantial.\n\nWhether she becomes a significant national figure depends largely on how effectively she uses the Red Wall Caucus chair to influence Labour strategy. The role gives her a platform most first term MPs never access. What she does with it will determine whether her career is defined by that platform or by the family connection that preceded it.\n"
+  }
+}

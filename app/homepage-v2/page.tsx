@@ -11,7 +11,7 @@ import './newspaper.css';
 // overlay. noindex while it lives alongside the live homepage.
 
 export const metadata: Metadata = {
-  title: "Open Govt — Homepage v2 (preview)",
+  title: "opengovt — Homepage v2 (preview)",
   robots: { index: false, follow: false },
 };
 
@@ -25,7 +25,7 @@ const NAV: NavItem[] = [
     { label: 'All Bills', href: '/bills' },
     { label: 'Acts of Parliament', href: '/laws' },
   ] },
-  { label: 'Peoples Polls', href: '/polls', children: [
+  { label: 'opengovt Polls', href: '/polls', children: [
     { label: 'All Polls', href: '/polls' },
     { label: 'Your Tax Pound', href: '/your-tax-pound' },
     { label: 'Budget Trade-Offs', href: '/budget-trade-offs' },
@@ -101,9 +101,9 @@ export default function HomepageV2() {
             <a className="np-block" href="/editorials/ten-worst-performing-councils-england">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/councils.webp" alt="The ten worst performing councils in England" />
-              <div className="np-kicker">Open Govt &middot; Investigation</div>
+              <div className="np-kicker">opengovt &middot; Investigation</div>
               <div className="np-head">The Ten Worst Performing Councils In England</div>
-              <div className="np-standfirst">How local government failed the people it exists to serve.</div>
+              <div className="np-standfirst">How governance failures left residents paying more for less.</div>
               <p className="np-lede">
                 Eight English councils have declared themselves effectively bankrupt since 2018, accumulating more than &pound;5 billion in debt and deficit between them. One was abolished. Another went bankrupt three times. A commuter-belt borough with &pound;16 million of annual revenue borrowed its way to &pound;1.2 billion of debt. England&rsquo;s second city is still under government commissioners. One in five council leaders now expects to issue a Section 114 notice within two years. These are the councils that broke, the decisions that broke them, and the residents left paying the bill.
               </p>
@@ -111,7 +111,7 @@ export default function HomepageV2() {
             </a>
 
             <a className="np-block np-brief" href="/editorials/power-for-sale-20-politicians-who-cashed-in">
-              <div className="np-kicker">Open Govt &middot; Investigation</div>
+              <div className="np-kicker">opengovt &middot; Investigation</div>
               <div className="np-head">Power For Sale? The 20 Politicians Who Cashed In After Leaving Office</div>
               <div className="np-cta">Read the full story &rarr;</div>
             </a>
@@ -131,7 +131,7 @@ export default function HomepageV2() {
             </a>
 
             <a className="np-block np-brief" href="/editorials/kxlkhj1jgj">
-              <div className="np-kicker">Open Govt &middot; Investigation</div>
+              <div className="np-kicker">opengovt &middot; Investigation</div>
               <div className="np-head">Westminster&rsquo;s Culture of Impropriety: Why Trust Keeps Eroding</div>
               <p>
                 Ten serving MPs who broke the rules, the law or the trust of their constituents and remain in the Commons. Standards Committee findings, criminal records and contested registered interests, each entry independently fact-checked.
@@ -140,14 +140,14 @@ export default function HomepageV2() {
             </a>
 
             <a className="np-block np-brief" href="/editorials/when-did-politicians-stop-taking-responsibility">
-              <div className="np-kicker">Open Govt &middot; Comment</div>
+              <div className="np-kicker">opengovt &middot; Comment</div>
               <div className="np-head" style={{ fontSize: 'clamp(15px, 1.8vw, 19px)' }}>
                 When Did Politicians Stop Taking Responsibility? <span style={{ color: 'var(--accent)' }}>&rarr;</span>
               </div>
             </a>
 
             <a className="np-block np-brief" href="/editorials/britains-most-disgraced-politicians">
-              <div className="np-kicker">Open Govt &middot; Investigation</div>
+              <div className="np-kicker">opengovt &middot; Investigation</div>
               <div className="np-head" style={{ fontSize: 'clamp(15px, 1.8vw, 19px)' }}>
                 Britain&rsquo;s Most Disgraced Politicians <span style={{ color: 'var(--accent)' }}>&rarr;</span>
               </div>

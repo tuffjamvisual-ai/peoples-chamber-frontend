@@ -6,7 +6,7 @@ import { type DepartmentBudget, fmtBn, totalSpend } from '@/lib/department-budge
 // HTML even though they sit behind a client-side tab switcher.
 
 const ACCENT = '#7a1612';
-const H2_CLS = 'text-[14px] uppercase tracking-[0.25em] mb-4 font-semibold';
+const H2_CLS = 'text-[15px] uppercase tracking-[0.25em] mb-4 font-semibold';
 
 export function BudgetSlot({ budget }: { budget: DepartmentBudget | null }) {
   if (!budget) {
@@ -17,7 +17,7 @@ export function BudgetSlot({ budget }: { budget: DepartmentBudget | null }) {
       <h2 className={H2_CLS} style={{ color: ACCENT }}>Budget · {budget.year}</h2>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: '18px', flexWrap: 'wrap', marginBottom: '12px' }}>
         <div style={{ fontSize: '30px', fontWeight: 'bold', color: '#6b2417', lineHeight: 1 }}>{fmtBn(totalSpend(budget))}</div>
-        <div style={{ fontSize: '13px', opacity: 0.75 }}>
+        <div style={{ fontSize: '15px', opacity: 0.75 }}>
           Resource DEL {fmtBn(budget.resourceDel)} · Capital DEL {fmtBn(budget.capitalDel)}
           {budget.ame !== undefined && ` · AME ${fmtBn(budget.ame)}`}
         </div>
@@ -62,7 +62,7 @@ export function AgenciesSlot({ agencies }: { agencies: Agency[] }) {
               {org.acronym && org.acronym.toLowerCase() !== org.name.toLowerCase() ? ` (${org.acronym})` : ''}
             </Link>
             {org.description && (
-              <p className="text-[14px] leading-[1.6] mt-1" style={{ opacity: 0.85 }}>{shortSummary(org.description)}</p>
+              <p className="text-[15px] leading-[1.6] mt-1" style={{ opacity: 0.85 }}>{shortSummary(org.description)}</p>
             )}
           </li>
         ))}

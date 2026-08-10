@@ -153,7 +153,7 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
                             justifyContent: 'center',
                             background: '#d6cdb8',
                             color: '#14100d',
-                            fontSize: '14px',
+                            fontSize: '15px',
                             fontWeight: 'bold',
                             fontFamily: 'Special Elite, monospace',
                           }}
@@ -222,7 +222,7 @@ function Th({
   return (
     <th
       onClick={onClick}
-      className={`px-2 py-3 text-[14px] uppercase tracking-[0.10em] font-semibold cursor-pointer select-none whitespace-nowrap ${active ? 'text-[#14100d]' : 'text-[#14100d]/60 hover:text-[#14100d]'}`}
+      className={`px-2 py-3 text-[15px] uppercase tracking-[0.10em] font-semibold cursor-pointer select-none whitespace-nowrap ${active ? 'text-[#14100d]' : 'text-[#14100d]/60 hover:text-[#14100d]'}`}
       style={{ textAlign: align, width: width ? `${width}px` : undefined }}
     >
       <span className="inline-flex items-center gap-1.5">

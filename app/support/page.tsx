@@ -5,7 +5,7 @@ import BackLink from '../components/BackLink';
 
 export const metadata: Metadata = {
   title: 'Support',
-  description: 'Get help with Open Govt, contact us, report a data issue, or suggest a feature.',
+  description: 'Get help with opengovt, contact us, report a data issue, or suggest a feature.',
   alternates: { canonical: '/support' },
 }
 
@@ -23,7 +23,7 @@ export default function SupportPage() {
 
       <header style={{ marginBottom: '5%' }}>
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
-          Support Open Govt
+          Support opengovt
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
           Get help, report a data issue, or suggest a feature. The answers below cover the questions we are asked most often.
@@ -33,12 +33,12 @@ export default function SupportPage() {
           className="no-hover-scale"
           style={{ display: 'inline-block', marginTop: '18px', padding: '12px 22px', background: '#7a1612', color: '#f4e8d4', border: '2px solid #14100d', borderRadius: 6, fontWeight: 'bold', fontSize: '17px', textDecoration: 'none' }}
         >
-          Support this project — make a one-off donation →
+          Support this project, make a one off donation →
         </Link>
       </header>
 
       <h2 className="text-xl font-bold mt-6 mb-3 text-[#14100d]">Contact Us</h2>
-      <p className="text-[#14100d] mb-4">Email: contact@thepeopleschamber.uk</p>
+      <p className="text-[#14100d] mb-4">Email: contact@opengovt.uk</p>
 
       <h2 className="text-xl font-bold mt-6 mb-3 text-[#14100d]">Frequently Asked Questions</h2>
 
@@ -54,7 +54,7 @@ export default function SupportPage() {
 
       <h3 className="font-bold mt-4 mb-2 text-[#14100d]">Is this official?</h3>
       <p className="text-[#14100d] mb-4">
-        No, Open Govt is an independent platform for civic engagement, not affiliated with UK Parliament.
+        No, opengovt is an independent platform for civic engagement, not affiliated with UK Parliament.
       </p>
     </OpenGovShell>
   );

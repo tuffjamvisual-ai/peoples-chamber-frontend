@@ -43,7 +43,7 @@ export default function DepartmentTabs({
                     background: isActive ? 'rgba(122,22,18,0.08)' : 'transparent',
                     boxShadow: isActive ? 'inset 1px 0 2px rgba(0,0,0,0.05)' : 'none',
                     fontWeight: isActive ? 'bold' : 'normal',
-                    fontSize: '14px',
+                    fontSize: '15px',
                     textTransform: 'uppercase',
                     letterSpacing: '0.08em',
                     color: '#14100d',

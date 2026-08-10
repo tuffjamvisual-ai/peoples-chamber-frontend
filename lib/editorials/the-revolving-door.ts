@@ -5,9 +5,9 @@ const piece: EditorialEntry = {
   kicker: 'Investigation',
   headline: 'The Westminster Revolving Door Never Stops Spinning',
   standfirst:
-    'Different parties, different governments, different slogans, and yet the same people keep appearing. The revolving door is rarely about breaking the law. It is about influence becoming a commodity.',
+    'Different parties, different governments, different slogans, and yet the same people keep appearing. The revolving door rarely involves breaking the law. What these twenty cases raise, one by one, is whether public influence is being turned into private income.',
   publishedAt: '2026-06-11',
-  authorByline: "Open Govt",
+  authorByline: "opengovt",
   body: [
     { type: 'paragraph', text: 'One of the reasons so many people have lost faith in British politics is the feeling that Westminster increasingly looks like a private members’ club.' },
     { type: 'paragraph', text: 'Different parties. Different governments. Different slogans.' },
@@ -17,7 +17,7 @@ const piece: EditorialEntry = {
     { type: 'paragraph', text: 'This is what people mean when they talk about the revolving door.' },
     { type: 'paragraph', text: 'The phrase describes the movement of politicians, ministers, advisers and senior officials between government and the private sector. In theory, there is nothing wrong with that. People need jobs after politics. Experience has value.' },
     { type: 'paragraph', text: 'That is not where the concern begins.' },
-    { type: 'pullQuote', text: 'The concern begins when influence becomes a commodity.' },
+    { type: 'pullQuote', text: 'The concern begins when public influence is turned into private income.' },
     { type: 'paragraph', text: 'The revolving door is rarely about criminal corruption. Most of the people involved stay within the rules. That is precisely why the issue refuses to go away. The public is repeatedly told that no rules were broken, while looking at behaviour that instinctively feels wrong.' },
     { type: 'paragraph', text: 'Legality and propriety are not the same thing.' },
     { type: 'paragraph', text: 'A former minister may have every legal right to work for a company connected to their former brief. The public also has every right to wonder whether relationships built in public office are now being converted into private income.' },

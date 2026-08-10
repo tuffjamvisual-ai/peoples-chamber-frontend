@@ -166,7 +166,7 @@ export default function BudgetTradeOffsPage() {
         fallbackHref="/"
         label="← Back"
         className="no-hover-scale"
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontFamily: MONO, fontSize: '13px', letterSpacing: '0.12em', textTransform: 'uppercase' }}
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontFamily: MONO, fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase' }}
       />
 
       {/* Same parchment article as /bills/[id] and /bills/[id]/full so
@@ -182,13 +182,13 @@ export default function BudgetTradeOffsPage() {
         }}
       >
         <header style={{ marginBottom: '32px' }}>
-          <p style={{ fontFamily: MONO, fontSize: '12px', letterSpacing: '0.3em', textTransform: 'uppercase', color: ACCENT, marginBottom: '12px' }}>
+          <p style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.3em', textTransform: 'uppercase', color: ACCENT, marginBottom: '12px' }}>
             cross departmental analysis
           </p>
           <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(28px, 3.6vw, 44px)', fontWeight: 'bold', lineHeight: 1.1, marginBottom: '16px' }}>
             What would it cost to fix everything?
           </h1>
-          <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.7, color: INK_SOFT, maxWidth: '46em' }}>
+          <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK_SOFT, maxWidth: '46em' }}>
             Britain's £900bn departmental budget, what each department says it needs to
             function properly, what's realistically available, and the five fundamental
             choices Parliament keeps refusing to make. Companion to the per-department

@@ -1,0 +1,39 @@
+{
+  "bio": {
+    "member_id": 4268,
+    "government_posts": [
+      {
+        "id": 1213,
+        "name": "Secretary of State for Housing, Communities and Local Government",
+        "house": 1,
+        "endDate": null,
+        "startDate": "2025-09-05T00:00:00",
+        "additionalInfo": "Ministry of Housing, Communities and Local Government",
+        "additionalInfoLink": "https://www.gov.uk/government/organisations/ministry-of-housing-communities-local-government"
+      },
+      {
+        "id": 704,
+        "name": "Secretary of State for Environment, Food and Rural Affairs",
+        "house": 1,
+        "endDate": "2025-09-05T00:00:00",
+        "startDate": "2024-07-05T00:00:00",
+        "additionalInfo": "Department for Environment, Food and Rural Affairs",
+        "additionalInfoLink": "https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs"
+      }
+    ],
+    "political_bio": "Steve Reed, Labour and Co operative MP for Streatham and Croydon North, is one of Labour's more seasoned operators: council leader, long serving MP, shadow cabinet regular, former Environment Secretary, and now Secretary of State for Housing, Communities and Local Government. Reed was first elected to Parliament in 2012 for Croydon North, and now represents the redrawn Streatham and Croydon North seat.\n\nReed's career has substance. Before Parliament, he led Lambeth Council, which gave him practical governing experience rather than just the usual route of \"adviser, think tank, safe seat, ministerial box.\" He understands local government, housing pressures and public service delivery from the inside. That matters in his current brief, because councils across England are under acute financial strain.\n\nReed also has a reputation for discipline. He is a capable communicator, rarely chaotic, and clearly trusted by Keir Starmer's operation. His shadow roles in communities, justice and environment showed that Labour saw him as a reliable minister in waiting rather than a decorative backbencher.\n\nAt Defra he set out plans on fairness for farmers and a long-term roadmap for the food system, against a backdrop of rural anger over inheritance-tax changes and wider frustration over supermarket power and post-Brexit subsidies.\n\nHe also ran into trouble over claims comparing English and Scottish water pollution, with the UK Statistics Authority warning that the statements lacked sufficient transparency and context."
+  },
+  "dm": {
+    "id": 6353,
+    "dept_slug": "housing",
+    "name": "The Rt Hon Steve Reed OBE MP",
+    "role": "Secretary of State for Housing, Communities and Local Government",
+    "slug": "steve-reed",
+    "is_secretary_of_state": true,
+    "updated_at": "2026-07-15T06:01:16.204Z",
+    "photo_url": "https://nwnsvnbudmfkhhwcjwwr.supabase.co/storage/v1/object/public/photos/mps/4268.webp?v=1779364303",
+    "member_id": 4268,
+    "salary_band": "sos",
+    "resigned": false
+  }
+}

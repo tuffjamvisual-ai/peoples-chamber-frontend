@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { createClient } from '@supabase/supabase-js';
 import * as XLSX from 'xlsx';
 
@@ -48,7 +49,6 @@ const ROW_TO_SLUG: Record<string, string> = {
   'Defence':                                           'defence',
   'Foreign, Commonwealth and Development Office':      'foreign-office',
   'Culture, Media and Sport':                          'culture',
-  'Science, Innovation and Technology':                'science-tech',
   'Transport':                                         'transport',
   'Energy Security and Net Zero':                      'energy',
   'Environment, Food and Rural Affairs':               'environment',
@@ -146,7 +146,7 @@ type BudgetRow = {
   source_release_date: string | null;
 };
 
-export async function GET(req: Request) {
+async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
   if (req.headers.get('authorization') !== `Bearer ${expected}`) {
@@ -301,3 +301,5 @@ export async function GET(req: Request) {
     syncedAt: new Date().toISOString(),
   });
 }
+
+export const GET = withHeartbeat('/api/sync-department-budgets', GET_impl);

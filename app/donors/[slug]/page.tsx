@@ -271,7 +271,7 @@ export default async function DonorPage({ params }: PageProps) {
       <BackLink fallbackHref="/donors" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
           Donor · Electoral Commission record
         </p>
         <h1 style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '8px', lineHeight: 1.15 }}>
@@ -279,16 +279,16 @@ export default async function DonorPage({ params }: PageProps) {
         </h1>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
           {donations[0].donor_type && (
-            <span style={{ fontSize: '12px', padding: '3px 8px', border: `1px solid ${INK_HAIRLINE}`, color: INK_SOFT }}>{donations[0].donor_type}</span>
+            <span style={{ fontSize: '15px', padding: '3px 8px', border: `1px solid ${INK_HAIRLINE}`, color: INK_SOFT }}>{donations[0].donor_type}</span>
           )}
           {sector && (
-            <span style={{ fontSize: '12px', padding: '3px 8px', border: `1px solid ${sector.colour}`, color: sector.colour }}>{sector.label}</span>
+            <span style={{ fontSize: '15px', padding: '3px 8px', border: `1px solid ${sector.colour}`, color: sector.colour }}>{sector.label}</span>
           )}
           {crn && (
-            <a href={`https://find-and-update.company-information.service.gov.uk/company/${crn}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '12px', color: ACCENT, textDecoration: 'underline' }}>Companies House {crn} ↗</a>
+            <a href={`https://find-and-update.company-information.service.gov.uk/company/${crn}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px', color: ACCENT, textDecoration: 'underline' }}>Companies House {crn} ↗</a>
           )}
         </div>
-        {sampleAddress && <p style={{ fontSize: '12px', opacity: 0.7, marginTop: '8px' }}>{sampleAddress}</p>}
+        {sampleAddress && <p style={{ fontSize: '15px', opacity: 0.7, marginTop: '8px' }}>{sampleAddress}</p>}
       </header>
 
       <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px', marginBottom: '28px' }}>
@@ -325,12 +325,12 @@ export default async function DonorPage({ params }: PageProps) {
       {appgsFunded.length > 0 && (
         <section style={{ marginBottom: '28px', padding: '14px 16px', background: 'rgba(20,16,13,0.04)', borderLeft: `3px solid ${WARN}` }}>
           <h2 style={{ ...sectionH2, marginTop: 0, marginBottom: '8px' }}>Also funds {appgsFunded.length} APPG{appgsFunded.length === 1 ? '' : 's'}</h2>
-          <p style={{ fontSize: '12px', opacity: 0.75, marginBottom: '12px' }}>This donor pays the secretariat of these All-Party Parliamentary Groups. Officers of these groups are MPs running a lobby this donor underwrites.</p>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '13px' }}>
+          <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '12px' }}>This donor pays the secretariat of these All-Party Parliamentary Groups. Officers of these groups are MPs running a lobby this donor underwrites.</p>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px' }}>
             {appgsFunded.map((a) => (
               <li key={a.slug} style={{ padding: '4px 0' }}>
                 <strong>{a.title}</strong>
-                {a.category && <span style={{ opacity: 0.6, fontSize: '12px' }}> · {a.category}</span>}
+                {a.category && <span style={{ opacity: 0.6, fontSize: '15px' }}> · {a.category}</span>}
               </li>
             ))}
           </ul>
@@ -340,7 +340,7 @@ export default async function DonorPage({ params }: PageProps) {
       {matchedContracts.length > 0 && (
         <section style={{ marginBottom: '28px', padding: '14px 16px', background: 'rgba(20,16,13,0.04)', borderLeft: `3px solid ${DANGER}` }}>
           <h2 style={{ ...sectionH2, marginTop: 0, marginBottom: '8px' }}>Also holds {matchedContracts.length} UK government contract{matchedContracts.length === 1 ? '' : 's'} · {fmtMoney(totalContractValue)}</h2>
-          <p style={{ fontSize: '12px', opacity: 0.75, marginBottom: '12px' }}>This donor name also appears on the gov.uk Contracts Finder register as a public-sector supplier. The match is an exact name overlap; no causal link is implied between the donations on this page and the contracts below. Departments awarding the work:</p>
+          <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '12px' }}>This donor name also appears on the gov.uk Contracts Finder register as a public-sector supplier. The match is an exact name overlap; no causal link is implied between the donations on this page and the contracts below. Departments awarding the work:</p>
           <table style={{ ...tableStyle, marginBottom: '8px' }}>
             <thead>
               <tr style={headerRow}>
@@ -361,7 +361,7 @@ export default async function DonorPage({ params }: PageProps) {
               ))}
             </tbody>
           </table>
-          <Link href="/donations/government-contractors" style={{ fontSize: '12px', color: ACCENT, textDecoration: 'underline' }}>See the full contractor-donor cross-reference &rarr;</Link>
+          <Link href="/donations/government-contractors" style={{ fontSize: '15px', color: ACCENT, textDecoration: 'underline' }}>See the full contractor-donor cross-reference &rarr;</Link>
         </section>
       )}
 
@@ -388,7 +388,7 @@ export default async function DonorPage({ params }: PageProps) {
                       r.name
                     )}
                   </td>
-                  <td style={{ ...td, textAlign: 'left', fontSize: '12px', opacity: 0.75 }}>{r.type || ''}</td>
+                  <td style={{ ...td, textAlign: 'left', fontSize: '15px', opacity: 0.75 }}>{r.type || ''}</td>
                   <td style={td}>{r.count}</td>
                   <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(r.total)}</td>
                 </tr>
@@ -397,7 +397,7 @@ export default async function DonorPage({ params }: PageProps) {
           </tbody>
         </table>
         {recipientRows.length > 50 && (
-          <p style={{ fontSize: '12px', opacity: 0.7, marginTop: '8px' }}>Showing top 50 of {recipientRows.length}.</p>
+          <p style={{ fontSize: '15px', opacity: 0.7, marginTop: '8px' }}>Showing top 50 of {recipientRows.length}.</p>
         )}
       </section>
 
@@ -415,17 +415,17 @@ const sectionH2: React.CSSProperties = {
   marginBottom: '14px',
 };
 
-const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '13px', fontFamily: '"Special Elite", monospace' };
+const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '15px', fontFamily: '"Special Elite", monospace' };
 const headerRow: React.CSSProperties = { borderBottom: `2px solid ${INK}`, textAlign: 'center' };
-const th: React.CSSProperties = { padding: '8px 6px', fontSize: '13px', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 'bold' };
-const td: React.CSSProperties = { padding: '8px 6px', textAlign: 'center', fontSize: '13px', verticalAlign: 'top' };
+const th: React.CSSProperties = { padding: '8px 6px', fontSize: '15px', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 'bold' };
+const td: React.CSSProperties = { padding: '8px 6px', textAlign: 'center', fontSize: '15px', verticalAlign: 'top' };
 
 function Tile({ label, value, sub, accent }: { label: string; value: string; sub: string; accent: string }) {
   return (
     <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '12px 14px', background: CREAM }}>
-      <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
+      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
       <div style={{ fontFamily: '"Special Elite", monospace', fontSize: '22px', fontWeight: 'bold', color: accent }}>{value}</div>
-      <div style={{ fontSize: '13px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
+      <div style={{ fontSize: '15px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
     </div>
   );
 }

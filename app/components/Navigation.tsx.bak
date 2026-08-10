@@ -71,7 +71,7 @@ export default function Navigation() {
                 Laws
               </Link>
               <Link href="/polls" className={`px-3 py-1.5 text-sm ${isActive('/polls') ? 'text-[#ffffff] font-medium' : 'text-white hover:text-white'}`}>
-                People's Polls
+                OpenGovt Polls
               </Link>
               <Link href="/mps" className={`px-3 py-1.5 text-sm ${isActive('/mps') ? 'text-[#ffffff] font-medium' : 'text-white hover:text-white'}`}>
                 MPs
@@ -130,7 +130,7 @@ export default function Navigation() {
                   Laws
                 </Link>
                 <Link href="/polls" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/polls') ? 'text-[#ffffff] bg-transparent/10' : 'text-white'}`}>
-                  People's Polls
+                  OpenGovt Polls
                 </Link>
                 <Link href="/mps" onClick={() => setMobileMenuOpen(false)} className={`px-3 py-2 text-sm ${isActive('/mps') ? 'text-[#ffffff] bg-transparent/10' : 'text-white'}`}>
                   MPs

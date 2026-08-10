@@ -4,7 +4,7 @@
 // cross-box ballot lives in a small client island (BillVotingClient).
 //
 // Styled as a newspaper "bill broadsheet" to match the ballot cards on
-// /bills and the People's Polls: ink-on-parchment, Special Elite labels,
+// /bills and the opengovt Polls: ink-on-parchment, Special Elite labels,
 // serif body, with the vote presented as an official ballot paper.
 
 import { supabase } from '@/lib/supabase'
@@ -15,7 +15,51 @@ import OpenGovShell from '../../components/OpenGovShell'
 import BackLink from '../../components/BackLink';
 import JsonLd, { buildBillLegislation } from '@/lib/JsonLd';
 import RelatedLinks from '@/app/components/RelatedLinks';
+import type { Metadata } from 'next'
 export const revalidate = 3600
+
+// Soft-404 mitigation: a bill with zero recorded Commons division votes is a
+// thin, low-value page (dead private members' bill, old Act, or un-voted
+// stage). Google flags these as soft 404s, so we noindex any bill with no
+// recorded votes. Bills with real recorded votes — genuine Commons activity,
+// e.g. the 11 in category E — stay indexable and are never touched by this.
+// follow:true keeps their internal links crawlable, and if a later sync adds
+// votes to a bill it flips back to indexable automatically on revalidation.
+export async function generateMetadata(
+  { params }: { params: Promise<{ id: string }> }
+): Promise<Metadata> {
+  const { id } = await params
+  const billId = parseInt(id, 10)
+  if (!Number.isFinite(billId)) return {}
+
+  // Fetch the bill's stage/act/division flags and count its recorded division
+  // votes in parallel.
+  const [{ data: bill }, { count }] = await Promise.all([
+    supabase.from('bill').select('status, is_act, commons_division_id').eq('id', billId).single(),
+    supabase.from('mp_division_votes').select('id', { count: 'exact', head: true }).eq('bill_id', billId),
+  ])
+  const hasVotes = (count ?? 0) > 0
+
+  // Active-stage guard: a bill still progressing through Committee, Report,
+  // 3rd Reading or Consideration is live and may have divisions we haven't
+  // synced yet (see bill 3970 — real committee divisions missing from our DB).
+  // Keep these indexable even at 0 recorded votes so a sync gap can't deindex
+  // a live bill. Only inert bills (dead readings) get noindexed.
+  const s = (bill?.status || '').toLowerCase()
+  const activeStage = /committee|report|3rd reading|third reading|consideration/.test(s)
+
+  // Bill-level activity signals. The per-MP mp_division_votes table is sparsely
+  // populated (parlparse froze mid-Jan 2026; ~71 bills covered), but the bill
+  // row itself records whether it became an Act and whether it had a Commons
+  // division — the same fields layout.tsx already trusts to write "MPs voted
+  // X-Y". Trust them here too so we never noindex a page that displays a real
+  // vote result or an actual law. Keeps ~695 Acts + ~615 divisioned bills
+  // indexable; genuinely inert dead-reading bills still get noindexed.
+  const isAct = bill?.is_act === true
+  const hasDivision = bill?.commons_division_id != null
+
+  return (hasVotes || activeStage || isAct || hasDivision) ? {} : { robots: { index: false, follow: true } }
+}
 
 const INK = '#14100d'
 const INK_SOFT = 'rgba(20,16,13,0.7)'
@@ -139,7 +183,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
             marginBottom: '24px',
           }}
         >
-          <div style={{ fontFamily: SERIF, fontSize: '12px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '4px' }}>
+          <div style={{ fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '4px' }}>
             UK Parliament · Public Bill{serial ? ` · No. ${serial}` : ''}
           </div>
           <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(22px, 2.6vw, 32px)', fontWeight: 500, letterSpacing: '0.005em', lineHeight: 1.18, margin: 0 }}>
@@ -148,7 +192,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
         </div>
 
         {/* [AS INTRODUCED] */}
-        <div style={{ textAlign: 'center', fontFamily: SERIF, fontSize: '14px', letterSpacing: '0.1em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '24px' }}>
+        <div style={{ textAlign: 'center', fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.1em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '24px' }}>
           [As Introduced]
         </div>
 
@@ -180,9 +224,8 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
             <p
               style={{
                 fontFamily: MONO,
-                fontSize: 'clamp(13px, 1.15vw, 14px)',
+                fontSize: 'clamp(15px, 1.15vw, 15px)',
                 lineHeight: 1.75,
-                textAlign: 'justify',
                 margin: '0 auto 26px',
                 maxWidth: '46em',
                 color: INK,
@@ -207,7 +250,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
               href={`/bills/${billId}/full`}
               style={{
                 fontFamily: MONO,
-                fontSize: 'clamp(12px, 1.05vw, 13px)',
+                fontSize: 'clamp(15px, 1.05vw, 15px)',
                 letterSpacing: '0.08em',
                 textTransform: 'uppercase',
                 color: ACCENT,
@@ -231,7 +274,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
               textAlign: 'center',
               fontFamily: MONO,
               fontStyle: 'italic',
-              fontSize: 'clamp(13px, 1.1vw, 14px)',
+              fontSize: 'clamp(15px, 1.1vw, 15px)',
               color: INK,
               marginBottom: '26px',
               lineHeight: 1.7,
@@ -267,16 +310,16 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
 
       {/* The ballot — interactive cross-box vote + the running counts.
           Sits on the parchment, separated by a ruling line above. */}
-      <section style={{ marginBottom: '40px', borderTop: `1.5px solid ${INK}`, paddingTop: '28px' }}>
+      <section id="vote" style={{ marginBottom: '40px', borderTop: `1.5px solid ${INK}`, paddingTop: '28px', scrollMarginTop: '90px' }}>
         <div style={{ position: 'relative', padding: '0 4px' }}>
           <div style={{ textAlign: 'center', marginBottom: '22px' }}>
-            <div style={{ fontFamily: MONO, fontSize: '12px', letterSpacing: '0.3em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold' }}>
-              Official Ballot · Open Govt
+            <div style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.3em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold' }}>
+              Official Ballot · opengovt
             </div>
             <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(22px, 3vw, 28px)', fontWeight: 'bold', margin: '10px 0 0', lineHeight: 1.15 }}>
               How would you vote on this bill?
             </h2>
-            <div style={{ fontFamily: MONO, fontSize: '13px', fontStyle: 'italic', letterSpacing: '0.04em', color: INK_SOFT, marginTop: '8px' }}>
+            <div style={{ fontFamily: MONO, fontSize: '15px', fontStyle: 'italic', letterSpacing: '0.04em', color: INK_SOFT, marginTop: '8px' }}>
               Mark one box with a cross.
             </div>
           </div>
@@ -336,14 +379,14 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
 
             {democraticGap !== null && (
               <div style={{ borderLeft: `3px solid ${outcomeMismatch ? WARN : ACCENT}`, padding: '12px 18px', background: CREAM_DEEP }}>
-                <div style={{ fontFamily: MONO, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.22em', fontWeight: 'bold', color: outcomeMismatch ? WARN : ACCENT, marginBottom: '5px' }}>
+                <div style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.22em', fontWeight: 'bold', color: outcomeMismatch ? WARN : ACCENT, marginBottom: '5px' }}>
                   The democratic gap
                 </div>
                 <p style={{ fontFamily: SERIF, fontSize: '16px', fontWeight: 'bold', lineHeight: 1.4, margin: 0 }}>
                   {democraticGap}% {democraticGap > 20 ? ',  a wide gap' : democraticGap > 10 ? ',  a moderate gap' : ',  a narrow gap'}
                 </p>
                 {outcomeMismatch && (
-                  <p style={{ fontFamily: MONO, fontSize: '13px', marginTop: '6px', lineHeight: 1.7, color: INK_SOFT }}>
+                  <p style={{ fontFamily: MONO, fontSize: '15px', marginTop: '6px', lineHeight: 1.7, color: INK_SOFT }}>
                     Outcome mismatch, the public would {yesPercent > 50 ? 'pass' : 'block'} this bill, but Parliament {mpAyePercent > 50 ? 'passed' : 'rejected'} it.
                   </p>
                 )}
@@ -374,12 +417,12 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
               <div style={{ fontFamily: SERIF, fontSize: '18px', fontWeight: 'bold', lineHeight: 1.25 }}>{bill.sponsor_name}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px', flexWrap: 'wrap' }}>
                 {bill.sponsor_party && (
-                  <span style={{ fontFamily: MONO, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '2px 8px', color: '#ebe5d8', background: bill.sponsor_party_colour ? `#${String(bill.sponsor_party_colour).replace('#', '')}` : '#7697a2' }}>
+                  <span style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.12em', padding: '2px 8px', color: '#ebe5d8', background: bill.sponsor_party_colour ? `#${String(bill.sponsor_party_colour).replace('#', '')}` : '#7697a2' }}>
                     {bill.sponsor_party}
                   </span>
                 )}
                 {bill.sponsor_constituency && (
-                  <span style={{ fontFamily: MONO, fontSize: '13px', color: INK_SOFT }}>{bill.sponsor_constituency}</span>
+                  <span style={{ fontFamily: MONO, fontSize: '15px', color: INK_SOFT }}>{bill.sponsor_constituency}</span>
                 )}
               </div>
             </div>
@@ -398,9 +441,9 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingTop: '14px', borderTop: `1px solid ${INK_HAIRLINE}` }}>
                 <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: SUCCESS, flexShrink: 0 }} />
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <span style={{ fontFamily: MONO, fontSize: '12px', fontWeight: 'bold', color: SUCCESS, textTransform: 'uppercase', letterSpacing: '0.14em' }}>Royal Assent</span>
+                  <span style={{ fontFamily: MONO, fontSize: '15px', fontWeight: 'bold', color: SUCCESS, textTransform: 'uppercase', letterSpacing: '0.14em' }}>Royal Assent</span>
                   {royalAssent.stageSittings[0]?.date && (
-                    <span style={{ fontFamily: MONO, fontSize: '13px', color: INK_SOFT }}>{fmtDate(royalAssent.stageSittings[0].date)}</span>
+                    <span style={{ fontFamily: MONO, fontSize: '15px', color: INK_SOFT }}>{fmtDate(royalAssent.stageSittings[0].date)}</span>
                   )}
                 </div>
               </div>
@@ -445,7 +488,7 @@ function explanationPoints(raw: string): string[] {
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
-    <p style={{ fontFamily: MONO, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.25em', fontWeight: 'bold', color: ACCENT, marginBottom: '12px' }}>
+    <p style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.25em', fontWeight: 'bold', color: ACCENT, marginBottom: '12px' }}>
       {children}
     </p>
   )
@@ -453,7 +496,7 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
 
 function Tag({ colour, children }: { colour: string; children: React.ReactNode }) {
   return (
-    <span style={{ display: 'inline-block', padding: '4px 10px', fontFamily: MONO, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.13em', color: colour, border: `1px solid ${colour}`, background: 'transparent' }}>
+    <span style={{ display: 'inline-block', padding: '4px 10px', fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.13em', color: colour, border: `1px solid ${colour}`, background: 'transparent' }}>
       {children}
     </span>
   )
@@ -462,12 +505,12 @@ function Tag({ colour, children }: { colour: string; children: React.ReactNode }
 function ExplainerColumn({ label, colour, points }: { label: string; colour: string; points: string[] }) {
   return (
     <div style={{ borderLeft: `3px solid ${colour}`, padding: '14px 18px', background: CREAM_DEEP }}>
-      <p style={{ fontFamily: MONO, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.2em', fontWeight: 'bold', color: colour, marginBottom: '12px' }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', fontWeight: 'bold', color: colour, marginBottom: '12px' }}>
         {label}
       </p>
       <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {points.map((point, i) => (
-          <li key={i} style={{ fontFamily: MONO, fontSize: '13px', lineHeight: 1.7, display: 'flex', gap: '8px' }}>
+          <li key={i} style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, display: 'flex', gap: '8px' }}>
             <span style={{ color: colour, flexShrink: 0, fontWeight: 'bold' }}>, </span>
             <span>{point.replace(/^[--]\s*/, '')}</span>
           </li>
@@ -500,7 +543,7 @@ function VoteBar({
 }) {
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px', fontFamily: MONO, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.2em', fontWeight: 'bold', color: INK_SOFT }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px', fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', fontWeight: 'bold', color: INK_SOFT }}>
         <span>{label}</span>
         <span>{totalLabel}</span>
       </div>
@@ -512,11 +555,11 @@ function VoteBar({
         {!empty && noPct > 0 && <div style={{ width: `${noPct}%`, background: DANGER, opacity: muted ? 0.7 : 1 }} />}
       </div>
       {empty ? (
-        <div style={{ marginTop: '6px', fontFamily: MONO, fontSize: '12px', fontStyle: 'italic', color: INK_SOFT, textAlign: 'center' }}>
+        <div style={{ marginTop: '6px', fontFamily: MONO, fontSize: '15px', fontStyle: 'italic', color: INK_SOFT, textAlign: 'center' }}>
           {emptyText || 'Not voted yet.'}
         </div>
       ) : (
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px', fontFamily: MONO, fontSize: '13px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px', fontFamily: MONO, fontSize: '15px' }}>
           <span style={{ color: SUCCESS, fontWeight: 'bold' }}>{yesText}</span>
           <span style={{ color: DANGER, fontWeight: 'bold' }}>{noText}</span>
         </div>
@@ -528,7 +571,7 @@ function VoteBar({
 function StageGroup({ label, colour, stages }: { label: string; colour: string; stages: Stage[] }) {
   return (
     <div>
-      <p style={{ fontFamily: MONO, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.22em', fontWeight: 'bold', marginBottom: '12px', color: colour }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.22em', fontWeight: 'bold', marginBottom: '12px', color: colour }}>
         {label}
       </p>
       <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -536,9 +579,9 @@ function StageGroup({ label, colour, stages }: { label: string; colour: string; 
           <li key={stage.id} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: colour, flexShrink: 0 }} />
             <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-              <span style={{ fontFamily: MONO, fontSize: '13px' }}>{stage.description}</span>
+              <span style={{ fontFamily: MONO, fontSize: '15px' }}>{stage.description}</span>
               {stage.stageSittings[0]?.date && (
-                <span style={{ fontFamily: MONO, fontSize: '12px', color: INK_SOFT }}>{fmtDate(stage.stageSittings[0].date)}</span>
+                <span style={{ fontFamily: MONO, fontSize: '15px', color: INK_SOFT }}>{fmtDate(stage.stageSittings[0].date)}</span>
               )}
             </div>
           </li>

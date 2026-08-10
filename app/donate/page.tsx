@@ -5,7 +5,7 @@ import DonateForm from './DonateForm';
 
 export const metadata: Metadata = {
   title: 'Support this project',
-  description: 'Make a one-off donation to help keep Open Govt free and independent.',
+  description: 'Make a one-off donation to help keep opengovt free and independent.',
   alternates: { canonical: '/donate' },
 };
 
@@ -26,7 +26,7 @@ export default function DonatePage() {
           Support this project
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
-          Open Govt is free, independent and unbranded. A one-off donation helps cover hosting, data and development. No subscription, no account, no catch.
+          Opengovt is free, independent and unbranded. A one-off donation helps cover hosting, data and development. No subscription, no account, no catch.
         </p>
       </header>
 

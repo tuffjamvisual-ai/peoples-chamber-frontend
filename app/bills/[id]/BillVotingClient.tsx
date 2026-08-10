@@ -8,6 +8,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '../../context/AuthContext'
+import Toast from '../../components/Toast'
 
 const INK = '#14100d'
 const INK_SOFT = 'rgba(20,16,13,0.7)'
@@ -21,6 +22,7 @@ export default function BillVotingClient({ billId }: { billId: number }) {
   const { user } = useAuth()
   const [userVote, setUserVote] = useState<Choice | null>(null)
   const [voting, setVoting] = useState(false)
+  const [notice, setNotice] = useState<string | null>(null)
 
   useEffect(() => {
     if (!user) {
@@ -38,7 +40,12 @@ export default function BillVotingClient({ billId }: { billId: number }) {
       router.push(`/login?mode=signup&returnTo=${encodeURIComponent(window.location.pathname)}`)
       return
     }
-    if (userVote || voting) return
+    if (voting) return
+    // Already voted on this bill — tell them instead of silently doing nothing.
+    if (userVote) {
+      setNotice('You have already voted on this bill.')
+      return
+    }
     setVoting(true)
     try {
       const res = await fetch('/api/vote', {
@@ -49,8 +56,16 @@ export default function BillVotingClient({ billId }: { billId: number }) {
       if (res.ok) {
         setUserVote(choice)
         router.refresh() // pull fresh server-rendered counts
+      } else {
+        // Surface the server's reason (e.g. already voted from another device,
+        // or email not yet confirmed) as a toast rather than failing silently.
+        const d = await res.json().catch(() => null)
+        if (res.status === 400) setUserVote(choice) // server says already voted; reflect it
+        setNotice(d?.error || 'Your vote could not be recorded. Please try again.')
       }
-    } catch {}
+    } catch {
+      setNotice('Your vote could not be recorded. Please try again.')
+    }
     setVoting(false)
   }
 
@@ -58,16 +73,17 @@ export default function BillVotingClient({ billId }: { billId: number }) {
 
   return (
     <div style={{ maxWidth: '440px', margin: '0 auto' }}>
-      <BallotRow label="Aye" sub="I support this bill" marked={userVote === 'yes'} dim={hasVoted && userVote !== 'yes'} disabled={hasVoted || voting} onClick={() => handleVote('yes')} />
-      <BallotRow label="No" sub="I oppose this bill" marked={userVote === 'no'} dim={hasVoted && userVote !== 'no'} disabled={hasVoted || voting} onClick={() => handleVote('no')} last />
+      <BallotRow label="Aye" sub="I support this bill" marked={userVote === 'yes'} dim={hasVoted && userVote !== 'yes'} disabled={voting} onClick={() => handleVote('yes')} />
+      <BallotRow label="No" sub="I oppose this bill" marked={userVote === 'no'} dim={hasVoted && userVote !== 'no'} disabled={voting} onClick={() => handleVote('no')} last />
 
-      <div style={{ textAlign: 'center', marginTop: '14px', fontFamily: 'Special Elite, monospace', fontSize: '13px', letterSpacing: '0.06em', color: INK_SOFT }}>
+      <div style={{ textAlign: 'center', marginTop: '14px', fontFamily: 'Special Elite, monospace', fontSize: '15px', letterSpacing: '0.06em', color: INK_SOFT }}>
         {hasVoted
           ? 'Your vote has been recorded. Thank you.'
           : user
           ? ''
           : 'You will be asked to sign in before your vote is counted.'}
       </div>
+      <Toast message={notice} onDone={() => setNotice(null)} />
     </div>
   )
 }
@@ -110,7 +126,7 @@ function BallotRow({
     >
       <span style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
         <span style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '19px', fontWeight: 'bold', color: INK }}>{label}</span>
-        <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '12px', letterSpacing: '0.05em', color: INK_SOFT, marginTop: '2px' }}>{sub}</span>
+        <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', letterSpacing: '0.05em', color: INK_SOFT, marginTop: '2px' }}>{sub}</span>
       </span>
       <span
         style={{

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import bcrypt from 'bcryptjs';
+import { setSessionCookie } from '@/lib/session';
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,8 +39,10 @@ export async function POST(request: NextRequest) {
     }
     
     const { password: _, ...userWithoutPassword } = user;
-    
-    return NextResponse.json({ user: userWithoutPassword });
+
+    const res = NextResponse.json({ user: userWithoutPassword });
+    setSessionCookie(res, user.id);
+    return res;
     
   } catch (error) {
     console.error('Login error:', error);

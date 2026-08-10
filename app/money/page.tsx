@@ -15,7 +15,6 @@ import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 
 export const revalidate = 86400;
-export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Money & Power · UK political money tracked across every register',
@@ -69,7 +68,7 @@ export default async function MoneyLanding() {
       <BackLink fallbackHref="/" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '32px' }}>
-        <p style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
           Money &amp; Power · Cross-register patterns
         </p>
         <h1 style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 'clamp(28px, 4vw, 52px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '14px', lineHeight: 1.05 }}>
@@ -82,7 +81,7 @@ export default async function MoneyLanding() {
 
       <section style={{ marginBottom: '40px' }}>
         <h2 style={sectionH2}>Headline cross-references</h2>
-        <p style={{ fontSize: '13px', opacity: 0.75, marginBottom: '20px' }}>The four strongest patterns in the data. Each one is a join of two registers nobody else joins.</p>
+        <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '20px' }}>The four strongest patterns in the data. Each one is a join of two registers nobody else joins.</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '18px' }}>
           <HeroTile
             href="/donations/double-dip"
@@ -132,11 +131,11 @@ export default async function MoneyLanding() {
         </div>
       </section>
 
-      <section style={{ background: CREAM, padding: '18px 22px', fontSize: '13px', lineHeight: 1.65, borderLeft: `3px solid ${DANGER}` }}>
+      <section style={{ background: CREAM, padding: '18px 22px', fontSize: '15px', lineHeight: 1.65, borderLeft: `3px solid ${DANGER}` }}>
         <strong>What none of this is.</strong> A pattern visible on more than one public register is not evidence of wrongdoing. UK MPs are legally allowed to take outside employment income, attend foreign-government-sponsored visits, accept political donations, and officer All-Party Parliamentary Groups provided each is declared on its appropriate register. UK companies are legally allowed to bid for public-sector work and donate to political parties provided each is declared. What none of this is is hidden. What much of it has been until now is unfindable. Putting it in one place is the work.
       </section>
 
-      <p style={{ fontSize: '12px', opacity: 0.6, marginTop: '24px' }}>
+      <p style={{ fontSize: '15px', opacity: 0.6, marginTop: '24px' }}>
         Sources, in order: Electoral Commission donations register, gov.uk Contracts Finder, parliament.uk Register of Members&rsquo; Financial Interests, mySociety APPG membership dataset, gov.uk transparency feeds. All five refresh on weekly or daily crons. Each figure on this page is derived from current data; click through to any tile for the underlying rows.
       </p>
     </OpenGovShell>
@@ -146,10 +145,10 @@ export default async function MoneyLanding() {
 function HeroTile({ href, label, headline, teaser }: { href: string; label: string; headline: string; teaser: string }) {
   return (
     <Link href={href} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, padding: '18px 20px', border: `1px solid ${INK_HAIRLINE}`, background: CREAM, transition: 'transform 0.15s ease' }}>
-      <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.2em', opacity: 0.75, marginBottom: '8px', color: ACCENT, fontFamily: '"Special Elite", monospace' }}>{label}</div>
+      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', opacity: 0.75, marginBottom: '8px', color: ACCENT, fontFamily: '"Special Elite", monospace' }}>{label}</div>
       <div style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: '20px', fontWeight: 'bold', lineHeight: 1.2, marginBottom: '10px' }}>{headline}</div>
-      <p style={{ fontFamily: '"Special Elite", monospace', fontSize: '12px', lineHeight: 1.55, opacity: 0.8, margin: 0 }}>{teaser}</p>
-      <div style={{ marginTop: '12px', fontSize: '12px', color: ACCENT, fontWeight: 'bold' }}>Read the full table &rarr;</div>
+      <p style={{ fontFamily: '"Special Elite", monospace', fontSize: '15px', lineHeight: 1.55, opacity: 0.8, margin: 0 }}>{teaser}</p>
+      <div style={{ marginTop: '12px', fontSize: '15px', color: ACCENT, fontWeight: 'bold' }}>Read the full table &rarr;</div>
     </Link>
   );
 }
@@ -157,8 +156,8 @@ function HeroTile({ href, label, headline, teaser }: { href: string; label: stri
 function SecondaryTile({ href, label, sub }: { href: string; label: string; sub: string }) {
   return (
     <Link href={href} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, padding: '12px 14px', border: `1px solid ${INK_HAIRLINE}` }}>
-      <div style={{ fontFamily: '"Special Elite", monospace', fontSize: '13px', fontWeight: 'bold', color: ACCENT, marginBottom: '6px' }}>{label} &rarr;</div>
-      <p style={{ fontSize: '12px', lineHeight: 1.55, opacity: 0.8, margin: 0 }}>{sub}</p>
+      <div style={{ fontFamily: '"Special Elite", monospace', fontSize: '15px', fontWeight: 'bold', color: ACCENT, marginBottom: '6px' }}>{label} &rarr;</div>
+      <p style={{ fontSize: '15px', lineHeight: 1.55, opacity: 0.8, margin: 0 }}>{sub}</p>
     </Link>
   );
 }

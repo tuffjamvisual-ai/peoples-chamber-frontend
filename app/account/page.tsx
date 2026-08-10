@@ -20,7 +20,7 @@ function colour(c: string) { return c === 'yes' ? SUCCESS : c === 'no' ? DANGER 
 
 function Badge({ choice }: { choice: string }) {
   return (
-    <span style={{ fontFamily: MONO, fontSize: '12px', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#fff', background: colour(choice), borderRadius: '2px', padding: '2px 8px', whiteSpace: 'nowrap' }}>
+    <span style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#fff', background: colour(choice), borderRadius: '2px', padding: '2px 8px', whiteSpace: 'nowrap' }}>
       {label(choice)}
     </span>
   )
@@ -55,7 +55,7 @@ export default function AccountPage() {
       {!user ? (
         <div style={{ fontSize: '16px', lineHeight: 1.8, color: INK }}>
           <p>You need to be logged in to see your account and voting history.</p>
-          <a href="/login" className="no-hover-scale" style={{ display: 'inline-block', marginTop: '8px', fontFamily: MONO, fontSize: '14px', letterSpacing: '0.08em', textTransform: 'uppercase', color: ACCENT, textDecoration: 'underline' }}>
+          <a href="/login" className="no-hover-scale" style={{ display: 'inline-block', marginTop: '8px', fontFamily: MONO, fontSize: '15px', letterSpacing: '0.08em', textTransform: 'uppercase', color: ACCENT, textDecoration: 'underline' }}>
             Log in or create an account →
           </a>
         </div>
@@ -63,14 +63,14 @@ export default function AccountPage() {
         <>
           {/* Account details */}
           <div style={{ borderTop: `2px solid ${ACCENT}`, paddingTop: '14px', marginBottom: '32px' }}>
-            <div style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 2, color: INK }}>
+            <div style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 2, color: INK }}>
               {user.username && <div><strong>Username:</strong> {user.username}</div>}
               <div><strong>Email:</strong> {user.email}</div>
               {user.postcode && <div><strong>Postcode:</strong> {user.postcode}</div>}
             </div>
             <button
               onClick={logout}
-              style={{ marginTop: '14px', fontFamily: MONO, fontSize: '13px', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#fff', background: ACCENT, border: 'none', borderRadius: '3px', padding: '8px 16px', cursor: 'pointer' }}
+              style={{ marginTop: '14px', fontFamily: MONO, fontSize: '15px', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#fff', background: ACCENT, border: 'none', borderRadius: '3px', padding: '8px 16px', cursor: 'pointer' }}
             >
               Log out
             </button>
@@ -82,7 +82,7 @@ export default function AccountPage() {
             <>
               {/* Bill votes */}
               <section style={{ marginBottom: '36px' }}>
-                <h2 style={{ fontFamily: MONO, fontSize: '14px', letterSpacing: '0.16em', textTransform: 'uppercase', color: ACCENT, borderBottom: `2px solid ${ACCENT}`, paddingBottom: '6px', marginBottom: '12px' }}>
+                <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.16em', textTransform: 'uppercase', color: ACCENT, borderBottom: `2px solid ${ACCENT}`, paddingBottom: '6px', marginBottom: '12px' }}>
                   Bills you have voted on ({data.bills.length})
                 </h2>
                 {data.bills.length === 0 && <p style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>You have not voted on any bills yet.</p>}
@@ -96,7 +96,7 @@ export default function AccountPage() {
 
               {/* Poll votes */}
               <section>
-                <h2 style={{ fontFamily: MONO, fontSize: '14px', letterSpacing: '0.16em', textTransform: 'uppercase', color: ACCENT, borderBottom: `2px solid ${ACCENT}`, paddingBottom: '6px', marginBottom: '12px' }}>
+                <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.16em', textTransform: 'uppercase', color: ACCENT, borderBottom: `2px solid ${ACCENT}`, paddingBottom: '6px', marginBottom: '12px' }}>
                   Polls you have voted on ({data.polls.length})
                 </h2>
                 {data.polls.length === 0 && <p style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>You have not voted on any polls yet.</p>}
