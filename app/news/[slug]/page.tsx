@@ -46,6 +46,7 @@ export async function generateStaticParams() {
     .from('press_releases')
     .select('gov_url')
     .not('gov_url', 'is', null)
+    .not('body', 'is', null)
     .limit(100)
   if (error) {
     throw new Error(
