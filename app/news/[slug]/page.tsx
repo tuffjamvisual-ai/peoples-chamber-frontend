@@ -35,6 +35,46 @@ async function getPressRelease(slug: string): Promise<PressRelease | null> {
   return data
 }
 
+// Prerender a small set of article pages at build time. The list does NOT
+// need to be complete — its presence is what enables ISR caching for the
+// whole route. Pages not listed here render on first request and are cached
+// from then on (see revalidate above, 1h). press_releases has no slug column,
+// so slugs are derived from the last path segment of gov_url, matching the
+// lookup in getPressRelease.
+export async function generateStaticParams() {
+  const { data, error } = await supabase
+    .from('press_releases')
+    .select('gov_url')
+    .not('gov_url', 'is', null)
+    .limit(100)
+  if (error) {
+    throw new Error(
+      `generateStaticParams(/news/[slug]) query failed: ${error.message}`
+    )
+  }
+  if (!data || data.length === 0) {
+    throw new Error(
+      'generateStaticParams(/news/[slug]): press_releases returned no rows'
+    )
+  }
+  const seen = new Set<string>()
+  for (const row of data) {
+    const url = row.gov_url
+    if (!url) continue
+    const segment = url.split(/[?#]/)[0].split('/').filter(Boolean).pop()
+    if (!segment) continue
+    const slug = segment.replace(/[^a-z0-9-]/gi, '')
+    if (slug) seen.add(slug)
+    if (seen.size >= 20) break
+  }
+  if (seen.size === 0) {
+    throw new Error(
+      'generateStaticParams(/news/[slug]): no usable slugs derived from gov_url'
+    )
+  }
+  return Array.from(seen).map((slug) => ({ slug }))
+}
+
 // Fallback for rows that pre-date the body-column rollout. Once the backfill
 // has run and the next sync cycle has populated `body` for every retained
 // row, this path stops firing in practice — but we keep it as a safety net
