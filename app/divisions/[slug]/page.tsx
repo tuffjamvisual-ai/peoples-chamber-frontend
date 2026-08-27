@@ -172,6 +172,45 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
+// Prerender a small set of division pages at build time. The list does NOT
+// need to be complete — its presence is what enables ISR caching for the
+// whole route. Pages not listed here render on first request and are cached
+// from then on (see revalidate above, 24h). commons_divisions_titled is the
+// same view the /divisions index uses: one row per division, so no dedupe
+// is needed against the per-MP rows in mp_division_votes.
+export async function generateStaticParams() {
+  const { data, error } = await supabase
+    .from('commons_divisions_titled')
+    .select('division_date_only, division_number')
+    .not('division_date_only', 'is', null)
+    .not('division_number', 'is', null)
+    .limit(20);
+  if (error) {
+    throw new Error(
+      `generateStaticParams(/divisions/[slug]) query failed: ${error.message}`
+    );
+  }
+  if (!data || data.length === 0) {
+    throw new Error(
+      'generateStaticParams(/divisions/[slug]): commons_divisions_titled returned no rows'
+    );
+  }
+  const seen = new Set<string>();
+  for (const row of data) {
+    const date = String(row.division_date_only).slice(0, 10);
+    const num = row.division_number;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
+    if (num === null || num === undefined) continue;
+    seen.add(`pw-${date}-${num}-commons`);
+  }
+  if (seen.size === 0) {
+    throw new Error(
+      'generateStaticParams(/divisions/[slug]): no usable slugs derived'
+    );
+  }
+  return Array.from(seen).map((slug) => ({ slug }));
+}
+
 export default async function DivisionDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const m = SLUG_RE.exec(slug);
