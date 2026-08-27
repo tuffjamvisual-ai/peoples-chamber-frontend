@@ -41,6 +41,42 @@ export function donorNameToSlug(name: string): string {
     .slice(0, 100);
 }
 
+// Prerender a small set of donor pages at build time. The list does NOT
+// need to be complete — its presence is what enables ISR caching for the
+// whole route. Pages not listed here are rendered on first request and
+// cached from then on (see revalidate above, 24h).
+export async function generateStaticParams() {
+  const { data, error } = await supabase
+    .from('political_donations')
+    .select('donor_name')
+    .not('donor_name', 'is', null)
+    .limit(100);
+  if (error) {
+    throw new Error(
+      `generateStaticParams(/donors/[slug]) query failed: ${error.message}`
+    );
+  }
+  if (!data || data.length === 0) {
+    throw new Error(
+      'generateStaticParams(/donors/[slug]): political_donations returned no rows'
+    );
+  }
+  const seen = new Set<string>();
+  for (const row of data) {
+    const name = row.donor_name;
+    if (!name) continue;
+    const slug = donorNameToSlug(name);
+    if (slug) seen.add(slug);
+    if (seen.size >= 20) break;
+  }
+  if (seen.size === 0) {
+    throw new Error(
+      'generateStaticParams(/donors/[slug]): no usable slugs derived from donor_name'
+    );
+  }
+  return Array.from(seen).map((slug) => ({ slug }));
+}
+
 type DonationRow = {
   id: number;
   donor_name: string | null;
