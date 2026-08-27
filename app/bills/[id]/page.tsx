@@ -18,6 +18,27 @@ import RelatedLinks from '@/app/components/RelatedLinks';
 import type { Metadata } from 'next'
 export const revalidate = 3600
 
+// Prerender a small set of bill pages at build time. The list does NOT need
+// to be complete — its presence is what enables ISR caching for the whole
+// route. Pages not listed here render on first request and are cached from
+// then on (see revalidate above, 1h).
+export async function generateStaticParams() {
+  const { data, error } = await supabase
+    .from('bill')
+    .select('id')
+    .not('id', 'is', null)
+    .limit(20)
+  if (error) {
+    throw new Error(
+      `generateStaticParams(/bills/[id]) query failed: ${error.message}`
+    )
+  }
+  if (!data || data.length === 0) {
+    throw new Error('generateStaticParams(/bills/[id]): bill returned no rows')
+  }
+  return data.map((row) => ({ id: String(row.id) }))
+}
+
 // Soft-404 mitigation: a bill with zero recorded Commons division votes is a
 // thin, low-value page (dead private members' bill, old Act, or un-voted
 // stage). Google flags these as soft 404s, so we noindex any bill with no
