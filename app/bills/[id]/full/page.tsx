@@ -22,6 +22,28 @@ import BackLink from '../../../components/BackLink';
 
 export const revalidate = 86400  // re-fetch from Parliament once a day
 
+// Prerender a deliberately tiny set. This page fetches live from the
+// Parliament Bills API during render, so every prerendered path is a real
+// API call at build time — hence 3, not 20. The list only needs to EXIST to
+// enable ISR for the whole route; size buys nothing here and costs build
+// time and an external dependency.
+export async function generateStaticParams() {
+  const { data, error } = await supabase
+    .from('bill')
+    .select('id')
+    .not('id', 'is', null)
+    .limit(3)
+  if (error) {
+    throw new Error(
+      `generateStaticParams(/bills/[id]/full) query failed: ${error.message}`
+    )
+  }
+  if (!data || data.length === 0) {
+    throw new Error('generateStaticParams(/bills/[id]/full): bill returned no rows')
+  }
+  return data.map((row) => ({ id: String(row.id) }))
+}
+
 const INK = '#14100d'
 const INK_SOFT = 'rgba(20,16,13,0.7)'
 const INK_HAIRLINE = 'rgba(20,16,13,0.3)'
