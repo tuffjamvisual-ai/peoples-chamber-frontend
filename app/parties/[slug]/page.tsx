@@ -14,6 +14,17 @@ import ScrollToTopButton from '../../components/ScrollToTopButton';
 
 export const revalidate = 3600;
 
+export async function generateStaticParams() {
+  const { data, error } = await supabase
+    .from('parties')
+    .select('slug')
+    .limit(20);
+  if (error || !data?.length) throw new Error(`generateStaticParams parties: ${error?.message || 'zero rows'}`);
+  const slugs = data.map((r) => String(r.slug)).filter(Boolean);
+  if (!slugs.length) throw new Error('generateStaticParams parties: zero usable values');
+  return slugs.map((slug) => ({ slug }));
+}
+
 const INK = '#14100d';
 const CREAM = '#ebe5d8';
 
