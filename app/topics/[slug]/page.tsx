@@ -6,11 +6,16 @@ import OpenGovShell from '../../components/OpenGovShell';
 import ServiceIndicator, { servicesForTopic } from '../../components/ServiceIndicator';
 import BackLink from '../../components/BackLink';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
-import { getTopic } from '@/lib/topics';
+import { getTopic, topics } from '@/lib/topics';
 import { departments } from '@/lib/departments';
 import { editorials } from '@/lib/editorials';
 
 export const revalidate = 3600;
+
+export function generateStaticParams() {
+  if (!topics.length) throw new Error('generateStaticParams topics: lib returned zero entries');
+  return topics.map((t) => ({ slug: t.slug }));
+}
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';

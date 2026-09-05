@@ -18,6 +18,18 @@ import ScrollToTopButton from '../../components/ScrollToTopButton';
 
 export const revalidate = 86400;
 
+export async function generateStaticParams() {
+  const { data, error } = await supabase
+    .from('appgs')
+    .select('secretariat')
+    .not('secretariat', 'is', null)
+    .limit(20);
+  if (error || !data?.length) throw new Error(`generateStaticParams appgs: ${error?.message || 'zero rows'}`);
+  const slugs = [...new Set(data.map((r) => secretariatNameToSlug(String(r.secretariat))).filter(Boolean))];
+  if (!slugs.length) throw new Error('generateStaticParams secretariats: zero usable values');
+  return slugs.map((slug) => ({ slug }));
+}
+
 const INK = '#14100d';
 const INK_SOFT = 'rgba(20,16,13,0.7)';
 const INK_HAIRLINE = 'rgba(20,16,13,0.25)';
