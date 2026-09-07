@@ -13,6 +13,17 @@ import BackLink from '../../components/BackLink';
 // hold one, and the previous/next debate links stay on site.
 export const revalidate = 86400;
 
+export async function generateStaticParams() {
+  const { data, error } = await supabase
+    .from('debates')
+    .select('hansard_ext_id')
+    .limit(3);
+  if (error || !data?.length) throw new Error(`generateStaticParams debates: ${error?.message || 'zero rows'}`);
+  const guids = data.map((r) => String(r.hansard_ext_id)).filter(Boolean);
+  if (!guids.length) throw new Error('generateStaticParams debates: zero usable values');
+  return guids.map((guid) => ({ guid }));
+}
+
 const INK = '#14100d';
 const ACCENT = '#7a1612';
 const MONO = 'Special Elite, monospace';
