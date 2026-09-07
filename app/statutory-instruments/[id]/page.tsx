@@ -9,6 +9,17 @@ import BackLink from '../../components/BackLink';
 
 export const revalidate = 3600
 
+export async function generateStaticParams() {
+  const { data, error } = await supabase
+    .from('statutory_instrument')
+    .select('division_id')
+    .limit(20)
+  if (error || !data?.length) throw new Error(`generateStaticParams statutory_instrument: ${error?.message || 'zero rows'}`)
+  const ids = data.map((r) => String(r.division_id)).filter(Boolean)
+  if (!ids.length) throw new Error('generateStaticParams statutory-instruments: zero usable values')
+  return ids.map((id) => ({ id }))
+}
+
 const INK = '#14100d'
 const INK_SOFT = 'rgba(20,16,13,0.7)'
 const INK_HAIRLINE = 'rgba(20,16,13,0.3)'

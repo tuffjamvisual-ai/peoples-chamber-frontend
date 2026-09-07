@@ -17,6 +17,17 @@ import type { ScsBand } from '@/lib/civil-service-salaries';
 import BackLink from '../../components/BackLink';
 export const revalidate = 3600;
 
+export async function generateStaticParams() {
+  const { data, error } = await supabase
+    .from('person_cache')
+    .select('slug')
+    .limit(20);
+  if (error || !data?.length) throw new Error(`generateStaticParams person_cache: ${error?.message || 'zero rows'}`);
+  const slugs = data.map((r) => String(r.slug)).filter(Boolean);
+  if (!slugs.length) throw new Error('generateStaticParams people: zero usable values');
+  return slugs.map((slug) => ({ slug }));
+}
+
 const INK = '#14100d';
 const CREAM = '#ebe5d8';
 

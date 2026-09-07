@@ -7,6 +7,18 @@ import BackLink from '../../components/BackLink';
 
 export const revalidate = 60
 
+export async function generateStaticParams() {
+  const { data, error } = await supabase
+    .from('uk_political_news')
+    .select('id')
+    .eq('is_published', true)
+    .limit(20)
+  if (error || !data?.length) throw new Error(`generateStaticParams uk_political_news: ${error?.message || 'zero rows'}`)
+  const ids = data.map((r) => String(r.id)).filter(Boolean)
+  if (!ids.length) throw new Error('generateStaticParams coverage: zero usable values')
+  return ids.map((id) => ({ id }))
+}
+
 const INK = '#14100d'
 const ACCENT = '#6b2417'
 const SERIF = '"Georgia", "Charter", "Times New Roman", serif'

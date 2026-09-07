@@ -9,6 +9,17 @@ import BackLink from '../../components/BackLink';
 
 export const revalidate = 3600;
 
+export async function generateStaticParams() {
+  const { data, error } = await supabase
+    .from('agency_cache')
+    .select('slug')
+    .limit(20);
+  if (error || !data?.length) throw new Error(`generateStaticParams agency_cache: ${error?.message || 'zero rows'}`);
+  const slugs = data.map((r) => String(r.slug)).filter(Boolean);
+  if (!slugs.length) throw new Error('generateStaticParams agencies: zero usable values');
+  return slugs.map((slug) => ({ slug }));
+}
+
 const INK = '#14100d';
 const ACCENT = '#6b2417';
 
