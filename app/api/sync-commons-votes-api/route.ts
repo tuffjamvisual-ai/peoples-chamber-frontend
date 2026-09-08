@@ -155,17 +155,31 @@ async function GET_impl(req: Request) {
       };
       add(det.Ayes, 'aye', false); add(det.AyeTellers, 'aye', true);
       add(det.Noes, 'no', false); add(det.NoTellers, 'no', true);
-      if (!rows.length) continue;
+
+      // Deduplicate within the batch: CVA occasionally lists the same MP in
+      // both Ayes and Noes (confirmed: MemberId 5231 in divisions 2414/2415,
+      // 2026-09-02 — CVA data error). Two rows for the same
+      // (member_id, division_date_only, division_number) violate the natural-key
+      // constraint. Keep the first occurrence (Ayes added before Noes, so Aye wins).
+      const batchSeen = new Set<number>();
+      const finalRows = rows.filter((r) => {
+        const mid = r.member_id as number;
+        if (batchSeen.has(mid)) return false;
+        batchSeen.add(mid);
+        return true;
+      });
+
+      if (!finalRows.length) continue;
 
       if (dryRun) {
-        dryRunWould.push({ date: dateOnly, number: det.Number, title: det.Title || null, estimatedRows: rows.length });
+        dryRunWould.push({ date: dateOnly, number: det.Number, title: det.Title || null, estimatedRows: finalRows.length });
         continue;
       }
 
-      const { error: insErr } = await supabase.from('mp_division_votes').insert(rows);
+      const { error: insErr } = await supabase.from('mp_division_votes').insert(finalRows);
       if (!insErr) {
         divisionsAdded++;
-        rowsInserted += rows.length;
+        rowsInserted += finalRows.length;
       } else if (insErr.code === '23505') {
         // We only reach the insert path for divisions NOT in the seen set — the seen-set
         // check above skips any division the dedup knows about. A unique violation here
