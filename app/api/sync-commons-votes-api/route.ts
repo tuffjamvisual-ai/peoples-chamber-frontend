@@ -103,15 +103,20 @@ async function GET_impl(req: Request) {
       skip += PAGE;
     }
 
-    // Dedup: existing (date#number) keys already in the DB for this range —
-    // skip whole divisions already held from either parlparse or a prior run.
-    // Custom range: bound both sides to avoid scanning the full post-start history.
-    // Default window: no upper bound, matching the original unbounded query exactly.
-    const { data: have } = await (customRange
-      ? supabase.from('mp_division_votes').select('division_date_only, division_number')
+    // Dedup: query commons_divisions_titled (ONE ROW PER DIVISION) rather than
+    // mp_division_votes (one row per MP vote). mp_division_votes returns thousands
+    // of rows for any real range and PostgREST silently truncates at 1000, causing
+    // the dedup to miss divisions whose vote rows fall after the cutoff. A full year
+    // in commons_divisions_titled is ~250 rows — well inside the cap.
+    const { data: have, error: dedupErr } = await (customRange
+      ? supabase.from('commons_divisions_titled').select('division_date_only, division_number')
           .gte('division_date_only', fromStr).lte('division_date_only', toStr)
-      : supabase.from('mp_division_votes').select('division_date_only, division_number')
+      : supabase.from('commons_divisions_titled').select('division_date_only, division_number')
           .gte('division_date_only', fromStr));
+    if (dedupErr) throw new Error(`dedup query failed: ${dedupErr.message}`);
+    if ((have || []).length === 1000) {
+      throw new Error('Dedup query returned exactly 1000 rows — possible PostgREST truncation. Narrow the date range and retry.');
+    }
     const seen = new Set((have || []).map((r) => `${r.division_date_only}#${r.division_number}`));
 
     let divisionsAdded = 0;
@@ -121,6 +126,7 @@ async function GET_impl(req: Request) {
     let stoppedBefore: string | null = null;
     const dryRunWould: { date: string; number: number; title: string | null; estimatedRows: number }[] = [];
     const apiErrors: { divisionId: number; status: number }[] = [];
+    const insertErrors: { division: number; date: string; message: string }[] = [];
 
     for (const d of list) {
       if (Date.now() - startedAt > TIME_BUDGET_MS) {
@@ -156,18 +162,33 @@ async function GET_impl(req: Request) {
         continue;
       }
 
-      // Unchanged insert path.
-      const { error } = await supabase.from('mp_division_votes').insert(rows);
-      if (!error) { divisionsAdded++; rowsInserted += rows.length; }
+      const { error: insErr } = await supabase.from('mp_division_votes').insert(rows);
+      if (!insErr) {
+        divisionsAdded++;
+        rowsInserted += rows.length;
+      } else if (insErr.code === '23505') {
+        // We only reach the insert path for divisions NOT in the seen set — the seen-set
+        // check above skips any division the dedup knows about. A unique violation here
+        // therefore means the dedup reported this division as new but it is already in
+        // the DB: treat as an anomaly so it surfaces in the response, not counts as success.
+        insertErrors.push({
+          division: det.Number,
+          date: dateOnly,
+          message: 'unexpected unique violation on a division dedup reported as new',
+        });
+      } else {
+        insertErrors.push({ division: det.Number, date: dateOnly, message: insErr.message });
+      }
     }
 
     const base = {
-      ok: true,
+      ok: !insertErrors.length,
       dryRun,
       range: [fromStr, toStr],
       divisionsInRange: list.length,
       divisionsSkipped,
       partial,
+      ...(insertErrors.length ? { errors: insertErrors } : {}),
       ...(partial && stoppedBefore ? { stoppedBefore, note: `Time budget reached. Resume with startDate=${stoppedBefore}&endDate=${toStr}` } : {}),
       ...(apiErrors.length ? { apiErrors } : {}),
       syncedAt: new Date().toISOString(),
@@ -184,7 +205,7 @@ async function GET_impl(req: Request) {
       });
     }
 
-    return NextResponse.json({ ...base, divisionsAdded, rowsInserted });
+    return NextResponse.json({ ...base, divisionsAdded, rowsInserted }, { status: insertErrors.length ? 500 : 200 });
   } catch (err) {
     return NextResponse.json({ ok: false, error: (err as Error).message }, { status: 500 });
   }
