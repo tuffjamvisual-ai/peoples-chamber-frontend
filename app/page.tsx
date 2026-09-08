@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import JsonLd, { buildHomepageGraph } from '@/lib/JsonLd';
 import OpenGovShell from './components/OpenGovShell';
 import { computeReaderViAggregate, READER_VI_PARTIES } from '@/lib/readerVi';
+import { editorials } from '@/lib/editorials';
 import './home-front.css';
 
 // The new "OPEN GOVERNMENT" front page: the dossier-folder template (OpenGovShell)
@@ -28,6 +29,33 @@ export default async function HomePage() {
     : [];
   const max = topParties[0]?.value || 1;
   const asOfLabel = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+
+  // Investigation pool: all entries where kind is absent (investigations only),
+  // sorted publishedAt DESC then by registry declaration order as tiebreaker.
+  // Four pieces share publishedAt '2026-08-04' — the secondary sort is what
+  // keeps the selection deterministic across rebuilds.
+  const registryKeys = Object.keys(editorials);
+  const investigations = registryKeys
+    .map((slug, registryIndex) => ({ ...editorials[slug], registryIndex }))
+    .filter((e) => e.kind === undefined);
+  investigations.sort((a, b) => {
+    const cmp = b.publishedAt.localeCompare(a.publishedAt);
+    return cmp !== 0 ? cmp : a.registryIndex - b.registryIndex;
+  });
+  const [slot1, slot2, ...archivePool] = investigations;
+  // Derive seed from UTC date — integer that changes at midnight UTC.
+  const dayIndex = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+  // Two coprime strides so the pair is spread across the pool and doesn't
+  // carry over day-to-day. 17 is coprime with 40 (pool size), so it walks
+  // without short cycles. Collision check steps j forward if it lands on i.
+  const i = dayIndex % archivePool.length;
+  let j = (dayIndex * 17 + 7) % archivePool.length;
+  if (j === i) j = (j + 1) % archivePool.length;
+  const slot3 = archivePool[i];
+  const slot4 = archivePool[j];
+  // For slot 1's lede: use body[0] text if it's a plain paragraph.
+  const b0 = slot1.body[0];
+  const ledeText = b0 && b0.type === 'paragraph' ? b0.text : null;
   return (
     <>
       <JsonLd data={buildHomepageGraph()} />
@@ -50,17 +78,16 @@ export default async function HomePage() {
                 <div aria-hidden style={{ width: '50%', maxWidth: '220px', height: '3px', background: '#7a1612', marginTop: '18px', borderRadius: '1px' }} />
               </section>
 
-              <a className="og-block" href="/editorials/k9m4qxw7n2">                <div className="og-head">Ministers Want Three Asylum Camps for a Decade. They Will Not Say How Many Men Each Will Hold.</div>
-                <div className="og-standfirst">Three new camps for around 3,750 men, with papers suggesting two could run for at least a decade.</div>
-                <p className="og-lede">
-                  The Home Office is planning three new asylum camps for around 3,750 men, and its own documents say two could run for at least ten years. It still will not say how many men would live at each.
-                </p>
+              <a className="og-block" href={`/editorials/${slot1.slug}`}>
+                <div className="og-head">{slot1.headline}</div>
+                <div className="og-standfirst">{slot1.standfirst}</div>
+                {ledeText && <p className="og-lede">{ledeText}</p>}
                 <div className="og-cta">Read the full story &rarr;</div>
               </a>
 
-              <a className="og-block og-brief" href="/editorials/mf7k3qxw9n">
-                <div className="og-head">The MoD Has a Fraud Problem. It Doesn&rsquo;t Know How Large It Is <span style={{ color: '#14100d' }}>&rarr;</span></div>
-                <p>The Ministry of Defence refused about &pound;400 million in supplier claims last year and estimates it may be exposed to &pound;1.5 billion of fraud a year, a figure its own officials call an &ldquo;academic construct&rdquo;.</p>
+              <a className="og-block og-brief" href={`/editorials/${slot2.slug}`}>
+                <div className="og-head">{slot2.headline} <span style={{ color: '#14100d' }}>&rarr;</span></div>
+                <p>{slot2.standfirst}</p>
               </a>
             </div>
 
@@ -96,14 +123,14 @@ export default async function HomePage() {
                 <p>Follow what Parliament is doing right now, in plain English, then cast your own vote on every bill. <span className="og-cta" style={{ whiteSpace: 'nowrap' }}>Vote now &rarr;</span></p>
               </a>
 
-              <a className="og-block og-brief" href="/editorials/em7k4mxw9n">
-                <div className="og-head">The Tagging System Cannot Say How Many It Is Failing to Monitor <span style={{ color: '#14100d' }}>&rarr;</span></div>
-                <p>A National Audit Office report finds the service does not know how many tagged people are actually being monitored. Ministers want to add up to 22,000 more a year.</p>
+              <a className="og-block og-brief" href={`/editorials/${slot3.slug}`}>
+                <div className="og-head">{slot3.headline} <span style={{ color: '#14100d' }}>&rarr;</span></div>
+                <p>{slot3.standfirst}</p>
               </a>
 
-              <a className="og-block og-brief" href="/editorials/rc8m4kqx7n">
-                <div className="og-head">Patients Will Remain in Hospitals at Risk of Structural Failure Beyond 2030</div>
-                <p>Seven hospitals built from crumble-prone reinforced concrete will stay in use past their 2030 replacement date. Keeping them safe until then will cost close to &pound;1 billion.</p>
+              <a className="og-block og-brief" href={`/editorials/${slot4.slug}`}>
+                <div className="og-head">{slot4.headline}</div>
+                <p>{slot4.standfirst}</p>
                 <div className="og-cta">Read the full story &rarr;</div>
               </a>
 
