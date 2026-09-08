@@ -127,6 +127,7 @@ async function GET_impl(req: Request) {
     const dryRunWould: { date: string; number: number; title: string | null; estimatedRows: number }[] = [];
     const apiErrors: { divisionId: number; status: number }[] = [];
     const insertErrors: { division: number; date: string; message: string }[] = [];
+    const sourceConflicts: { date: string; division: number; memberId: number; memberName: string | null; listedIn: string[]; recorded: string }[] = [];
 
     for (const d of list) {
       if (Date.now() - startedAt > TIME_BUDGET_MS) {
@@ -155,17 +156,48 @@ async function GET_impl(req: Request) {
       };
       add(det.Ayes, 'aye', false); add(det.AyeTellers, 'aye', true);
       add(det.Noes, 'no', false); add(det.NoTellers, 'no', true);
-      if (!rows.length) continue;
+
+      // Deduplicate within the batch: CVA occasionally lists the same MP in
+      // both Ayes and Noes (confirmed: MemberId 5231 in divisions 2414/2415,
+      // 2026-09-02 — CVA data error). Two rows for the same
+      // (member_id, division_date_only, division_number) violate the natural-key
+      // constraint. Keep the first occurrence (Ayes added before Noes, so Aye wins).
+      // Record every dropped duplicate in sourceConflicts so the anomaly is visible
+      // in the response and countable across the backfill.
+      const batchSeen = new Map<number, string>(); // memberId → first vote label
+      const finalRows: Record<string, unknown>[] = [];
+      for (const r of rows) {
+        const mid = r.member_id as number;
+        const label = (r.vote_type as string) === 'aye' ? 'Aye' : 'No';
+        if (batchSeen.has(mid)) {
+          const existing = sourceConflicts.find(
+            (c) => c.memberId === mid && c.date === dateOnly && c.division === det.Number,
+          );
+          if (existing) {
+            if (!existing.listedIn.includes(label)) existing.listedIn.push(label);
+          } else {
+            sourceConflicts.push({
+              date: dateOnly, division: det.Number, memberId: mid, memberName: null,
+              listedIn: [batchSeen.get(mid)!, label], recorded: batchSeen.get(mid)!,
+            });
+          }
+        } else {
+          batchSeen.set(mid, label);
+          finalRows.push(r);
+        }
+      }
+
+      if (!finalRows.length) continue;
 
       if (dryRun) {
-        dryRunWould.push({ date: dateOnly, number: det.Number, title: det.Title || null, estimatedRows: rows.length });
+        dryRunWould.push({ date: dateOnly, number: det.Number, title: det.Title || null, estimatedRows: finalRows.length });
         continue;
       }
 
-      const { error: insErr } = await supabase.from('mp_division_votes').insert(rows);
+      const { error: insErr } = await supabase.from('mp_division_votes').insert(finalRows);
       if (!insErr) {
         divisionsAdded++;
-        rowsInserted += rows.length;
+        rowsInserted += finalRows.length;
       } else if (insErr.code === '23505') {
         // We only reach the insert path for divisions NOT in the seen set — the seen-set
         // check above skips any division the dedup knows about. A unique violation here
@@ -181,6 +213,14 @@ async function GET_impl(req: Request) {
       }
     }
 
+    // Resolve member names for any within-batch source conflicts.
+    if (sourceConflicts.length > 0) {
+      const conflictIds = [...new Set(sourceConflicts.map((c) => c.memberId))];
+      const { data: nameRows } = await supabase.from('mps').select('member_id, name').in('member_id', conflictIds);
+      const nameMap = new Map((nameRows || []).map((r) => [r.member_id as number, r.name as string | null]));
+      for (const c of sourceConflicts) c.memberName = nameMap.get(c.memberId) ?? null;
+    }
+
     const base = {
       ok: !insertErrors.length,
       dryRun,
@@ -189,6 +229,7 @@ async function GET_impl(req: Request) {
       divisionsSkipped,
       partial,
       ...(insertErrors.length ? { errors: insertErrors } : {}),
+      ...(sourceConflicts.length ? { sourceConflicts } : {}),
       ...(partial && stoppedBefore ? { stoppedBefore, note: `Time budget reached. Resume with startDate=${stoppedBefore}&endDate=${toStr}` } : {}),
       ...(apiErrors.length ? { apiErrors } : {}),
       syncedAt: new Date().toISOString(),
