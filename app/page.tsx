@@ -3,7 +3,16 @@ import JsonLd, { buildHomepageGraph } from '@/lib/JsonLd';
 import OpenGovShell from './components/OpenGovShell';
 import { computeReaderViAggregate, READER_VI_PARTIES } from '@/lib/readerVi';
 import { editorials } from '@/lib/editorials';
+import { supabase } from '@/lib/supabase';
+import { govUrlToSlug } from '@/lib/govUrlSlug';
 import './home-front.css';
+
+function fmtGovDate(iso: string | null | undefined): string {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
 
 // The new "OPEN GOVERNMENT" front page: the dossier-folder template (OpenGovShell)
 // with the front-page article layout. Replaces the previous pca-art newspaper.
@@ -56,6 +65,29 @@ export default async function HomePage() {
   // For slot 1's lede: use body[0] text if it's a plain paragraph.
   const b0 = slot1.body[0];
   const ledeText = b0 && b0.type === 'paragraph' ? b0.text : null;
+
+  // gov_url host filter: ilike '%gov.uk%' excludes committees.parliament.uk
+  // reports (which belong in their own labelled block, not under "Whitehall").
+  // URL host is the reliable signal; organisation is free text and varies.
+  // .not('removed_upstream', 'is', true) → SQL: removed_upstream IS NOT TRUE,
+  // which correctly includes NULL rows (NULL IS NOT TRUE = true in PostgreSQL).
+  // .limit(10): buffer so the block fills to 5 even if some rows have unusable slugs.
+  const { data: rawPressReleases } = await supabase
+    .from('press_releases')
+    .select('title, organisation, published_at, gov_url')
+    .not('removed_upstream', 'is', true)
+    .ilike('gov_url', '%gov.uk%')
+    .order('published_at', { ascending: false })
+    .limit(10);
+  const whitehallItems = (rawPressReleases ?? [])
+    .flatMap((row) => {
+      if (!row.gov_url) return [];
+      const slug = govUrlToSlug(row.gov_url);
+      if (!slug) return [];
+      return [{ slug, title: row.title as string, organisation: row.organisation as string | null, publishedAt: row.published_at as string | null }];
+    })
+    .slice(0, 5);
+
   return (
     <>
       <JsonLd data={buildHomepageGraph()} />
@@ -89,6 +121,29 @@ export default async function HomePage() {
                 <div className="og-head">{slot2.headline} <span style={{ color: '#14100d' }}>&rarr;</span></div>
                 <p>{slot2.standfirst}</p>
               </a>
+
+              {whitehallItems.length > 0 && (
+                <section aria-label="Latest from Whitehall" style={{ marginTop: '28px', paddingTop: '18px', borderTop: '2px solid rgba(20,16,13,0.18)' }}>
+                  <h2 style={{ fontFamily: "'Special Elite', monospace", fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 2px' }}>
+                    Latest from Whitehall
+                  </h2>
+                  <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '12px', color: 'rgba(20,16,13,0.55)', margin: '0 0 12px', letterSpacing: '0.04em' }}>
+                    Government press releases, published as issued
+                  </p>
+                  <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+                    {whitehallItems.map(({ slug, title, organisation, publishedAt }) => (
+                      <li key={slug} style={{ borderBottom: '1px dotted rgba(20,16,13,0.15)', padding: '8px 0' }}>
+                        <a href={`/news/${slug}`} style={{ display: 'block', fontFamily: "'Special Elite', monospace", fontSize: '15px', color: '#14100d', textDecoration: 'none', lineHeight: 1.38 }}>
+                          {title}
+                        </a>
+                        <span style={{ display: 'block', fontFamily: "'Special Elite', monospace", fontSize: '12px', color: 'rgba(20,16,13,0.55)', marginTop: '3px' }}>
+                          {organisation}{organisation && publishedAt ? ' · ' : ''}{fmtGovDate(publishedAt)}
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
+                </section>
+              )}
             </div>
 
             <div className="og-rail">

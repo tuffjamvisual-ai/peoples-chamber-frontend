@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import OpenGovShell from '../../components/OpenGovShell'
 import BackLink from '../../components/BackLink';
+import { govUrlToSlug } from '@/lib/govUrlSlug'
 
 export const revalidate = 3600
 
@@ -60,11 +61,8 @@ export async function generateStaticParams() {
   }
   const seen = new Set<string>()
   for (const row of data) {
-    const url = row.gov_url
-    if (!url) continue
-    const segment = url.split(/[?#]/)[0].split('/').filter(Boolean).pop()
-    if (!segment) continue
-    const slug = segment.replace(/[^a-z0-9-]/gi, '')
+    if (!row.gov_url) continue
+    const slug = govUrlToSlug(row.gov_url)
     if (slug) seen.add(slug)
     if (seen.size >= 20) break
   }
