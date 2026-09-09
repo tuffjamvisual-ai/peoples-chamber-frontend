@@ -14,6 +14,80 @@ function fmtGovDate(iso: string | null | undefined): string {
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
+// Organisation → department_context slug, for /departments/[slug] links.
+//
+// WHY THIS EXISTS: ap_departments.slug and department_context.slug diverge for
+// 16 of the 24 departments (e.g. ap_departments has 'fcdo', 'mod', 'ago';
+// department_context has 'foreign-office', 'defence', 'attorney-general'). Using
+// ap_departments for slug resolution generates 404s for most departments. This
+// constant maps observed press_releases.organisation strings directly to
+// department_context slugs that were verified against production on 2026-09-09
+// (all 19 entries return HTTP 200). If you are tempted to replace this with a
+// query against ap_departments, re-read this comment first.
+//
+// Intentional absences: HM Revenue & Customs (no department_context entry),
+// Department for Science, Innovation & Technology (/departments/science-tech 404s).
+// Expand only from observed press release data; verify new slugs on production.
+const DEPT_ORG_TO_SLUG: Record<string, string> = {
+  "Attorney General's Office":                         'attorney-general',
+  'Cabinet Office':                                    'cabinet-office',
+  'Department for Business & Trade':                   'business-trade',
+  'Department for Culture, Media & Sport':             'culture',
+  'Department for Education':                          'education',
+  'Department for Energy Security & Net Zero':         'energy',
+  'Department for Environment, Food & Rural Affairs':  'environment',
+  'Department for Health & Social Care':               'health',
+  'Department for Transport':                          'transport',
+  'Department for Work & Pensions':                    'work-pensions',
+  'Foreign, Commonwealth & Development Office':        'foreign-office',
+  'HM Treasury':                                       'treasury',
+  'Home Office':                                       'home-office',
+  'Ministry of Defence':                               'defence',
+  'Ministry of Housing, Communities & Local Government': 'housing',
+  'Ministry of Justice':                               'justice',
+  'Northern Ireland Office':                           'northern-ireland-office',
+  'Scotland Office':                                   'scotland-office',
+  'Wales Office':                                      'wales-office',
+}
+
+function normalizeOrg(s: string): string {
+  return s.toLowerCase().replace(/\s+/g, ' ').trim().replace(/\s*&\s*/g, ' and ')
+}
+
+// Pre-built normalised lookup from DEPT_ORG_TO_SLUG for the '&' ↔ 'and' pass.
+const DEPT_NORM_MAP = new Map<string, string>(
+  Object.entries(DEPT_ORG_TO_SLUG).map(([name, slug]) => [normalizeOrg(name), slug])
+)
+
+// Alias map for genuine renames — org names that won't match DEPT_ORG_TO_SLUG
+// or agency_cache even after normalisation. Keys are normalised (lowercase, '&' → 'and').
+// Derived 2026-09-09 from observed data. Covers historical department names only.
+const ORG_ALIAS: Record<string, string> = {
+  'department for business, innovation, science and trade': '/departments/business-trade',
+  'department for digital, culture, media and sport':      '/departments/culture',
+  'charity commission':                                    '/agencies/charity-commission',
+}
+
+function resolveOrgHref(
+  name: string,
+  agencyExact: Map<string, string>,
+  agencyNorm: Map<string, string>,
+): string | null {
+  // a) Exact — departments take precedence over agencies
+  const deptSlug = DEPT_ORG_TO_SLUG[name]
+  if (deptSlug) return `/departments/${deptSlug}`
+  if (agencyExact.has(name)) return `/agencies/${agencyExact.get(name)}`
+  // b) Normalised — lowercase, collapse whitespace, treat '&' = 'and'
+  const norm = normalizeOrg(name)
+  const normDeptSlug = DEPT_NORM_MAP.get(norm)
+  if (normDeptSlug) return `/departments/${normDeptSlug}`
+  if (agencyNorm.has(norm)) return `/agencies/${agencyNorm.get(norm)}`
+  // c) Explicit alias — genuine renames only (see ORG_ALIAS above)
+  const alias = ORG_ALIAS[norm]
+  if (alias) return alias
+  return null
+}
+
 // The new "OPEN GOVERNMENT" front page: the dossier-folder template (OpenGovShell)
 // with the front-page article layout. Replaces the previous pca-art newspaper.
 export const revalidate = 3600;
@@ -72,19 +146,30 @@ export default async function HomePage() {
   // .not('removed_upstream', 'is', true) → SQL: removed_upstream IS NOT TRUE,
   // which correctly includes NULL rows (NULL IS NOT TRUE = true in PostgreSQL).
   // .limit(10): buffer so the block fills to 5 even if some rows have unusable slugs.
-  const { data: rawPressReleases } = await supabase
-    .from('press_releases')
-    .select('title, organisation, published_at, gov_url')
-    .not('removed_upstream', 'is', true)
-    .ilike('gov_url', '%gov.uk%')
-    .order('published_at', { ascending: false })
-    .limit(10);
+  // agency_cache fetched once in parallel with press_releases; departments are
+  // resolved from the module-level DEPT_ORG_TO_SLUG constant (no DB query).
+  const [
+    { data: rawPressReleases },
+    { data: agencyRows },
+  ] = await Promise.all([
+    supabase
+      .from('press_releases')
+      .select('title, organisation, published_at, gov_url')
+      .not('removed_upstream', 'is', true)
+      .ilike('gov_url', '%gov.uk%')
+      .order('published_at', { ascending: false })
+      .limit(10),
+    supabase.from('agency_cache').select('slug, name'),
+  ]);
+  const agencyExact = new Map<string, string>((agencyRows ?? []).map((r) => [r.name, r.slug]));
+  const agencyNorm = new Map<string, string>((agencyRows ?? []).map((r) => [normalizeOrg(r.name), r.slug]));
   const whitehallItems = (rawPressReleases ?? [])
     .flatMap((row) => {
       if (!row.gov_url) return [];
       const slug = govUrlToSlug(row.gov_url);
       if (!slug) return [];
-      return [{ slug, title: row.title as string, organisation: row.organisation as string | null, publishedAt: row.published_at as string | null }];
+      const org = row.organisation as string | null;
+      return [{ slug, title: row.title as string, organisation: org, publishedAt: row.published_at as string | null, orgHref: org ? resolveOrgHref(org, agencyExact, agencyNorm) : null }];
     })
     .slice(0, 5);
 
@@ -131,13 +216,16 @@ export default async function HomePage() {
                     Government press releases, published as issued
                   </p>
                   <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-                    {whitehallItems.map(({ slug, title, organisation, publishedAt }) => (
+                    {whitehallItems.map(({ slug, title, organisation, publishedAt, orgHref }) => (
                       <li key={slug} style={{ borderBottom: '1px dotted rgba(20,16,13,0.15)', padding: '8px 0' }}>
                         <a href={`/news/${slug}`} style={{ display: 'block', fontFamily: "'Special Elite', monospace", fontSize: '15px', color: '#14100d', textDecoration: 'none', lineHeight: 1.38 }}>
                           {title}
                         </a>
                         <span style={{ display: 'block', fontFamily: "'Special Elite', monospace", fontSize: '12px', color: 'rgba(20,16,13,0.55)', marginTop: '3px' }}>
-                          {organisation}{organisation && publishedAt ? ' · ' : ''}{fmtGovDate(publishedAt)}
+                          {orgHref ? (
+                            <a href={orgHref} style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: '2px' }}>{organisation}</a>
+                          ) : organisation}
+                          {organisation && publishedAt ? ' · ' : ''}{fmtGovDate(publishedAt)}
                         </span>
                       </li>
                     ))}
