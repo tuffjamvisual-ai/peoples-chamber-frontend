@@ -191,6 +191,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const { data } = await supabase
       .from('press_releases')
       .select('gov_url, published_at')
+      .ilike('gov_url', '%gov.uk%')
       .order('published_at', { ascending: false, nullsFirst: false })
       .range(off, off + 999);
     if (!data || data.length === 0) break;
