@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -17,16 +17,15 @@ export const maxDuration = 300;
 // directly to preserve the full history under the (member_id, committee_id,
 // start_date) natural key.
 //
-// synced_at tracking: derived from MAX(synced_at) per member_id in
-// mp_committee_memberships via the next_committee_sync_batch() DB function.
-// No column is added to mps — the tracking is co-located with the data.
-//
-// Processes BATCH MPs per run, always picking the least-recently-synced first
-// (NULLs — never synced — come first). Full cycle of 649 MPs at BATCH=100
-// takes ~7 days. Committees change slowly; this cadence is appropriate.
+// Progress tracking: every member processed — whether or not their Biography
+// carries any committee memberships — is recorded in committee_sync_state.
+// This avoids the starvation problem where MPs on no committees produce no rows
+// in mp_committee_memberships and therefore sort first in the queue forever.
+// committee_sync_state has RLS enabled with no public-read policy; the service-
+// role client (supabaseAdmin) bypasses RLS. The anon client would be blocked.
 //
 // dryRun=true fetches Biography and reports what WOULD be written, without
-// writing. Use this before the first live run.
+// writing to either table.
 
 const MEMBERS_API = 'https://members-api.parliament.uk/api/Members';
 const UA = 'PeoplesChamber-CommitteeSync/1.0';
@@ -46,7 +45,9 @@ function sleep(ms: number): Promise<void> {
   return new Promise((res) => setTimeout(res, ms));
 }
 
-async function fetchBiographyCommittees(memberId: number): Promise<{ entries: CmteEntry[]; status: number } | null> {
+async function fetchBiographyCommittees(
+  memberId: number,
+): Promise<{ entries: CmteEntry[]; status: number }> {
   try {
     const res = await fetch(`${MEMBERS_API}/${memberId}/Biography`, {
       headers: { 'User-Agent': UA, Accept: 'application/json' },
@@ -55,12 +56,23 @@ async function fetchBiographyCommittees(memberId: number): Promise<{ entries: Cm
     const v = (await res.json())?.value ?? {};
     const entries = (v.committeeMemberships as CmteEntry[]) || [];
     return { entries, status: 200 };
-  } catch (err) {
+  } catch {
     return { entries: [], status: 0 };
   }
 }
 
-type MemberBatch = { member_id: number }[];
+type DryMember = {
+  member_id: number;
+  total_entries: number;
+  current_memberships: number;
+  entries: {
+    committee_id: number;
+    committee_name: string;
+    role: string | null;
+    start_date: string;
+    end_date: string | null;
+  }[];
+};
 
 async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
@@ -69,45 +81,32 @@ async function GET_impl(req: Request) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!supabaseUrl || !supabaseKey) {
-    return NextResponse.json({ error: 'Supabase env missing' }, { status: 500 });
-  }
-  const supabase = createClient(supabaseUrl, supabaseKey);
-
   const sp = new URL(req.url).searchParams;
   const dryRun = sp.get('dryRun') === 'true';
   const startedAt = Date.now();
 
   // Select the BATCH current MPs with the oldest last-sync (NULLs first).
-  // next_committee_sync_batch() is a SQL function defined in the migration that
-  // LEFT JOINs mps against MAX(synced_at) from mp_committee_memberships.
-  const { data: candidates, error: batchErr } = await supabase.rpc('next_committee_sync_batch', {
-    batch_size: BATCH,
-  });
+  // next_committee_sync_batch() LEFT JOINs mps against committee_sync_state so
+  // that members never checked appear first, and members on no committees are
+  // marked as checked after their Biography is fetched (preventing starvation).
+  const { data: candidates, error: batchErr } = await supabaseAdmin.rpc(
+    'next_committee_sync_batch',
+    { batch_size: BATCH },
+  );
   if (batchErr) {
-    return NextResponse.json({ ok: false, error: `batch selection failed: ${batchErr.message}` }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: `batch selection failed: ${batchErr.message}` },
+      { status: 500 },
+    );
   }
-  const memberIds: number[] = ((candidates as MemberBatch) || []).map((r) => r.member_id);
+  const memberIds: number[] = ((candidates as { member_id: number }[]) || []).map(
+    (r) => r.member_id,
+  );
 
   let processed = 0;
   let upserted = 0;
   let partial = false;
   const errors: { member_id: number; status?: number; message: string }[] = [];
-
-  type DryMember = {
-    member_id: number;
-    total_entries: number;
-    current_memberships: number;
-    entries: {
-      committee_id: number;
-      committee_name: string;
-      role: string | null;
-      start_date: string;
-      end_date: string | null;
-    }[];
-  };
   const dryRunWould: DryMember[] = [];
 
   for (const memberId of memberIds) {
@@ -121,16 +120,20 @@ async function GET_impl(req: Request) {
     const result = await fetchBiographyCommittees(memberId);
     processed++;
 
-    if (!result || result.status !== 200) {
+    if (result.status !== 200) {
       errors.push({
         member_id: memberId,
-        status: result?.status ?? 0,
-        message: result?.status ? `Biography API ${result.status}` : 'fetch error',
+        status: result.status,
+        message: result.status ? `Biography API ${result.status}` : 'fetch error',
       });
+      // Do not mark as synced on API failure — leave them at the head of the
+      // queue so they are retried on the next run rather than skipped for a week.
       continue;
     }
 
     const now = new Date().toISOString();
+
+    // Build the rows to upsert. Skip entries missing an id or startDate.
     const rows: {
       member_id: number;
       committee_id: number;
@@ -167,19 +170,31 @@ async function GET_impl(req: Request) {
           end_date: r.end_date,
         })),
       });
+      // In dry-run mode, skip all writes including committee_sync_state.
       continue;
     }
 
-    if (!rows.length) continue;
+    // Write membership rows (may be empty for MPs on no committees).
+    if (rows.length > 0) {
+      const { error: upErr } = await supabaseAdmin
+        .from('mp_committee_memberships')
+        .upsert(rows, { onConflict: 'member_id,committee_id,start_date' });
+      if (upErr) {
+        errors.push({ member_id: memberId, message: upErr.message });
+        // Still record as synced below — the member was checked, the data
+        // just didn't write. Next run will retry the upsert.
+      } else {
+        upserted += rows.length;
+      }
+    }
 
-    const { error: upErr } = await supabase
-      .from('mp_committee_memberships')
-      .upsert(rows, { onConflict: 'member_id,committee_id,start_date' });
-
-    if (upErr) {
-      errors.push({ member_id: memberId, message: upErr.message });
-    } else {
-      upserted += rows.length;
+    // Always record that this member was checked, even if they have no
+    // committee memberships. This is what prevents queue starvation.
+    const { error: stateErr } = await supabaseAdmin
+      .from('committee_sync_state')
+      .upsert({ member_id: memberId, synced_at: now }, { onConflict: 'member_id' });
+    if (stateErr) {
+      errors.push({ member_id: memberId, message: `sync_state write: ${stateErr.message}` });
     }
   }
 
