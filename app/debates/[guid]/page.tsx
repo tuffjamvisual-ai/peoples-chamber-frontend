@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { sanitizeHtml as sanitize } from '@/lib/html-sanitize';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 
@@ -57,18 +58,6 @@ async function getDebate(guid: string): Promise<Debate | null> {
   }
 }
 
-// Trusted gov content. Strip scripts/styles, drop anchor tags (we don't link
-// out) and the invisible column-number markers, and remove event handlers.
-function sanitize(html: string): string {
-  return html
-    .replace(/<script[\s\S]*?<\/script>/gi, '')
-    .replace(/<style[\s\S]*?<\/style>/gi, '')
-    .replace(/<span[^>]*class="column-number[^"]*"[^>]*>\s*<\/span>/gi, '')
-    .replace(/<a\b[^>]*>/gi, '')
-    .replace(/<\/a>/gi, '')
-    .replace(/\son\w+="[^"]*"/gi, '')
-    .trim();
-}
 const plain = (html: string) => html.replace(/<[^>]+>/g, ' ').replace(/&#?\w+;/g, ' ').replace(/\s+/g, ' ').trim();
 
 // House style: no hyphens. De-hyphenate ordinary compounds (letter-letter

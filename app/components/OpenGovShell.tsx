@@ -21,6 +21,7 @@ const NAV: NavItem[] = [
   ] },
   { label: 'Parliament', href: '/bills', children: [
     { label: 'Bills', href: '/bills' },
+    { label: 'Select Committees', href: '/committees' },
     { label: 'Commons Debates', href: '/debates' },
     { label: 'Divisions', href: '/divisions' },
     { label: 'Press Releases', href: '/transparency/press-releases' },
