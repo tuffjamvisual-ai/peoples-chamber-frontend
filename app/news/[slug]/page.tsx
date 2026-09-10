@@ -48,6 +48,7 @@ export async function generateStaticParams() {
     .select('gov_url')
     .not('gov_url', 'is', null)
     .not('body', 'is', null)
+    .ilike('gov_url', '%gov.uk%')
     .limit(100)
   if (error) {
     throw new Error(

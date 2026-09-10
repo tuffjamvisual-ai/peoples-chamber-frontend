@@ -125,26 +125,11 @@ export async function GET(req: Request) {
       if (!error) upserted++;
     }
 
-    // Per-source retention: keep only the newest 40 parliament.uk rows so the
-    // higher-volume GOV.UK feed never evicts committee reports, and vice versa.
-    const { data: old } = await supabase
-      .from('press_releases')
-      .select('id')
-      .ilike('gov_url', '%parliament.uk%')
-      .order('published_at', { ascending: true });
-    let trimmed = 0;
-    if (old && old.length > 40) {
-      const toDelete = old.slice(0, old.length - 40).map((r: { id: number }) => r.id);
-      const { error } = await supabase.from('press_releases').delete().in('id', toDelete);
-      if (!error) trimmed = toDelete.length;
-    }
-
     return NextResponse.json({
       ok: true,
       fetched: items.length,
       commonsReports: reports.length,
       upserted,
-      trimmed,
       syncedAt: new Date().toISOString(),
     });
   } catch (err) {
