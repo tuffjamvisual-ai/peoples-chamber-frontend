@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next';
 import { supabase } from '@/lib/supabase';
 import { departments } from '@/lib/departments';
 import { editorials } from '@/lib/editorials';
+import { COMMITTEE_IDS } from '@/lib/committees';
 
 const SITE = 'https://www.opengovt.uk';
 
@@ -93,6 +94,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/councils`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${SITE}/editorials/cq4r8vn2mp`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${SITE}/second-jobs`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE}/committees`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
   ];
 
   const transparencyEntries: MetadataRoute.Sitemap = transparencySections.map((s) => ({
@@ -248,6 +250,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.5,
     }));
 
+  // Committee profile pages — 29 select committee IDs from lib/committees.ts.
+  // Membership changes nightly; weekly changeFrequency matches the sync cadence.
+  const committeeEntries: MetadataRoute.Sitemap = COMMITTEE_IDS.map((id) => ({
+    url: `${SITE}/committees/${id}`,
+    lastModified: now,
+    changeFrequency: 'weekly',
+    priority: 0.7,
+  }));
+
   return [
     ...staticEntries,
     ...transparencyEntries,
@@ -259,5 +270,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...newsEntries,
     ...councilEntries,
     ...divisionEntries,
+    ...committeeEntries,
   ];
 }

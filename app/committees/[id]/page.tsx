@@ -3,32 +3,18 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { sanitizeHtml } from '@/lib/html-sanitize';
+import { COMMITTEE_IDS } from '@/lib/committees';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 
 // dynamicParams = false: any committee ID not in generateStaticParams returns a
 // clean Next.js 404 without hitting the database. mp_committee_memberships holds
-// 309 distinct committee IDs; only the 29 below get pages.
+// 309 distinct committee IDs; only the 29 in COMMITTEE_IDS get pages.
 export const dynamicParams = false;
 export const revalidate = 86400;
 
-// Hardcoded set chosen 2026-09-10; review after any machinery-of-government
-// change (new department → new departmental select committee). Same convention
-// as DEPT_ORG_TO_SLUG in app/page.tsx.
-//
-// 22 departmental select (type 1) + 5 cross-cutting select (type 22) +
-// 2 prominent domestic select (Liaison 103, Standards 290).
-// 783 = Business and Trade Sub-Committee on Arms and Export Controls; flag as
-// sub-committee — replace with Privileges (289) if wound up.
-const COMMITTEE_IDS = new Set([
-  17, 24, 52, 78, 81, 83, 98, 102, 120, 135, 136, 153, 158, 162, 164, 203,
-  326, 328, 365, 378, 664, 783,
-  62, 93, 111, 127, 327,
-  103, 290,
-]);
-
 export async function generateStaticParams() {
-  return [...COMMITTEE_IDS].map((id) => ({ id: String(id) }));
+  return COMMITTEE_IDS.map((id) => ({ id: String(id) }));
 }
 
 const INK = '#14100d';
