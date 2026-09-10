@@ -171,6 +171,10 @@
     {
       "path": "/api/monitor-freshness",
       "schedule": "0 16 * * *"
+    },
+    {
+      "path": "/api/sync-committee-memberships",
+      "schedule": "0 12 * * *"
     }
   ]
 }
