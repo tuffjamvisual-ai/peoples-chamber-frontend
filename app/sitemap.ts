@@ -191,7 +191,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const { data } = await supabase
       .from('press_releases')
       .select('gov_url, published_at')
-      .ilike('gov_url', '%gov.uk%')
       .order('published_at', { ascending: false, nullsFirst: false })
       .range(off, off + 999);
     if (!data || data.length === 0) break;
@@ -200,6 +199,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
   const newsEntries: MetadataRoute.Sitemap = releases
     .map((r) => {
+      // Exclude committee-report rows (committees.parliament.uk) — numeric slugs,
+      // stub content, not permanent URLs. Filtering here rather than server-side
+      // to avoid a full-table scan that triggers Supabase statement timeout.
+      if (!r.gov_url?.includes('gov.uk')) return null;
       const match = r.gov_url?.match(/\/([a-z0-9-]+)\/?$/i);
       const slug = match ? match[1] : null;
       if (!slug) return null;
