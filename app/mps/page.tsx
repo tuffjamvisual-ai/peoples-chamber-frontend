@@ -15,16 +15,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/mps' },
 };
 
-export default async function MPsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ expand?: string; page?: string }>;
-}) {
-  // Read ?expand server-side so client <Link>s that only change ?expand (the party
-  // headers and the "All parties" back link) re-render the route in production.
-  const sp = await searchParams;
-  const expand = typeof sp.expand === 'string' && sp.expand.length > 0 ? sp.expand : null;
-
+export default async function MPsPage() {
   const { data: rows, error } = await supabase
     .from('mps')
     .select('member_id, name, display_name, party, party_colour, constituency, photo_url')
@@ -51,30 +42,28 @@ export default async function MPsPage({
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-9%', marginBottom: '14px', color: '#14100d', textDecoration: 'none', transform: 'rotate(-0.2deg)' }}
       />
       <Suspense fallback={<div style={{ minHeight: '400px' }} />}>
-        <MagazineMPsClient mps={mps} expand={expand} key={expand ?? 'all'} />
+        <MagazineMPsClient mps={mps} />
       </Suspense>
-      {/* Visually hidden, but kept in the static HTML so every MP detail
-          page is crawlable in a flat link list from /mps (in addition to
-          the sitemap and the ?expand=<party> drilldown pages). Rendered
-          off-screen rather than display:none so crawlers still see the
-          links. Only on the unfiltered /mps URL. */}
-      {expand === null && (
-        <div
-          style={{
-            position: 'absolute',
-            width: '1px',
-            height: '1px',
-            padding: 0,
-            margin: '-1px',
-            overflow: 'hidden',
-            clip: 'rect(0, 0, 0, 0)',
-            whiteSpace: 'nowrap',
-            border: 0,
-          }}
-        >
-          <AllMpsIndex />
-        </div>
-      )}
+      {/* Server-rendered link block — all current MP profiles as crawlable
+          <a href="/mps/[id]"> tags, visually hidden (1px clip) but present
+          in the HTML so crawlers reach every profile from this page.
+          Always rendered now that /mps is ISR-cached; previously gated on
+          expand===null but expand is no longer read server-side. */}
+      <div
+        style={{
+          position: 'absolute',
+          width: '1px',
+          height: '1px',
+          padding: 0,
+          margin: '-1px',
+          overflow: 'hidden',
+          clip: 'rect(0, 0, 0, 0)',
+          whiteSpace: 'nowrap',
+          border: 0,
+        }}
+      >
+        <AllMpsIndex />
+      </div>
     </OpenGovShell>
   );
 }
