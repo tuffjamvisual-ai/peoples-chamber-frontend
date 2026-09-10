@@ -157,6 +157,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     outsideRowRes,
     siDivisionsRes,
     rebellionsCountRes,
+    committeeMembershipsRes,
   ] = await Promise.all([
     getMp(memberId),
     supabase.from('mp_contact').select('*').eq('member_id', memberId).single(),
@@ -218,6 +219,13 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     // mp_activity_metrics.rebellions_total is broken (0 for every MP), so we
     // count the flag directly to match the party whip page.
     supabase.from('mp_division_votes').select('id', { count: 'exact', head: true }).eq('member_id', memberId).eq('is_rebellion', true),
+    // Select committee memberships — current (end_date null) first, former newest-first.
+    // Folded into this batch rather than awaited separately to avoid a serial round-trip.
+    supabase
+      .from('mp_committee_memberships')
+      .select('committee_id, committee_name, role, start_date, end_date')
+      .eq('member_id', memberId)
+      .order('end_date', { ascending: false, nullsFirst: true }),
   ]);
   if (!mp) notFound();
 
@@ -713,6 +721,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         ),
         expenses: expensesRes.data || [],
         expensesDetail: expensesDetailRes.data || [],
+        committeeMemberships: committeeMembershipsRes.data ?? [],
       }}
       footer={
         /* Server-rendered RelatedLinks: same-party MPs, sponsored bills,
