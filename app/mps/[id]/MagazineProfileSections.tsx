@@ -1057,7 +1057,7 @@ export default function MagazineProfileSections({
 
             {committeeMemberships.length > 0 && (
               <>
-                <h3 style={sectionH3}>Select committees</h3>
+                <h3 style={sectionH3}>Committee memberships</h3>
                 {currentCommittees.length > 0 && (
                   <ul style={{ listStyle: 'none', padding: 0, marginBottom: formerCommittees.length > 0 ? '8px' : 0 }}>
                     {currentCommittees.map((m, i) => {
@@ -1143,15 +1143,6 @@ export default function MagazineProfileSections({
                 <h3 style={sectionH3}>Opposition posts</h3>
                 <ul style={{ listStyle: 'disc', paddingLeft: '20px' }}>
                   {bio.opposition_posts.map((p, i) => <li key={i}>{p.name}</li>)}
-                </ul>
-              </>
-            )}
-
-            {bio?.committee_memberships && bio.committee_memberships.length > 0 && (
-              <>
-                <h3 style={sectionH3}>Committee memberships</h3>
-                <ul style={{ listStyle: 'disc', paddingLeft: '20px' }}>
-                  {bio.committee_memberships.map((c, i) => <li key={i}>{typeof c === 'string' ? c : c.name}</li>)}
                 </ul>
               </>
             )}
