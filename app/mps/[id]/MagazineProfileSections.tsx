@@ -3,6 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import MoneyCountUp from '../../components/MoneyCountUp';
+import { COMMITTEE_IDS } from '@/lib/committees';
+
+const COMMITTEE_ID_SET = new Set<number>(COMMITTEE_IDS);
 
 type SectionId = 'bio' | 'career' | 'contact' | 'voting' | 'bills' | 'house' | 'interests' | 'roles' | 'earnings' | 'donations' | 'diary' | 'expenses';
 
@@ -236,6 +239,14 @@ type Contact = {
   postcode?: string | null;
 } | null;
 
+type CommitteeMembership = {
+  committee_id: number;
+  committee_name: string | null;
+  role: string | null;
+  start_date: string | null;
+  end_date: string | null;
+};
+
 interface Props {
   memberId: number;
   paragraphs: string[];
@@ -285,6 +296,7 @@ interface Props {
   declaredDonations?: { total: number; entryCount: number; asOf: string | null };
   expenses: ExpenseSummary[];
   expensesDetail: ExpenseClaim[];
+  committeeMemberships?: CommitteeMembership[];
   // Opt-in (landing page only): float the sidebar with a JS scroll handler instead of
   // CSS position: sticky, so it survives a transformed ancestor (the tilted folder).
   // Default off — the live MP profile pages keep their native CSS sticky.
@@ -407,6 +419,7 @@ export default function MagazineProfileSections({
   earnings,
   expenses,
   expensesDetail,
+  committeeMemberships = [],
   jsSticky = false,
   stickyScale = 1,
   compactExpenses = false,
@@ -420,6 +433,7 @@ export default function MagazineProfileSections({
     house: contributions.length > 0,
     interests: interests.length > 0,
     roles: !!(
+      committeeMemberships.length > 0 ||
       (bio?.government_posts && bio.government_posts.length > 0) ||
       (bio?.opposition_posts && bio.opposition_posts.length > 0) ||
       (bio?.committee_memberships && bio.committee_memberships.length > 0) ||
@@ -533,6 +547,20 @@ export default function MagazineProfileSections({
     }
     return map;
   }, [expensesDetail]);
+
+  const currentCommittees = useMemo(
+    () =>
+      [...committeeMemberships.filter((m) => m.end_date === null)].sort((a, b) => {
+        if (a.role === 'Chair' && b.role !== 'Chair') return -1;
+        if (b.role === 'Chair' && a.role !== 'Chair') return 1;
+        return (a.committee_name ?? '').localeCompare(b.committee_name ?? '');
+      }),
+    [committeeMemberships],
+  );
+  const formerCommittees = useMemo(
+    () => committeeMemberships.filter((m) => m.end_date !== null),
+    [committeeMemberships],
+  );
 
   const allBreakdown: Array<{ key: keyof ExpenseSummary; label: string; short: string }> = [
     { key: 'office_spend',             label: 'Office',               short: 'Office' },
@@ -1027,6 +1055,64 @@ export default function MagazineProfileSections({
           <div style={{ fontSize: '15px', lineHeight: '1.7' }}>
             <h2 style={sectionH2}>Roles</h2>
 
+            {committeeMemberships.length > 0 && (
+              <>
+                <h3 style={sectionH3}>Committee memberships</h3>
+                {currentCommittees.length > 0 && (
+                  <ul style={{ listStyle: 'none', padding: 0, marginBottom: formerCommittees.length > 0 ? '8px' : 0 }}>
+                    {currentCommittees.map((m, i) => {
+                      const hasPage = m.committee_id != null && COMMITTEE_ID_SET.has(m.committee_id);
+                      const name = m.committee_name ?? `Committee ${m.committee_id}`;
+                      return (
+                        <li key={i} style={{ padding: '6px 0', borderBottom: inkDivider, display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
+                          {hasPage ? (
+                            <Link href={`/committees/${m.committee_id}`} style={inkLink}>{name}</Link>
+                          ) : (
+                            <span>{name}</span>
+                          )}
+                          {m.role === 'Chair' && (
+                            <span style={{ ...pillStyle, color: '#a64030', border: '1px solid #a64030', fontSize: '11px' }}>Chair</span>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+                {formerCommittees.length > 0 && (
+                  <details>
+                    <summary style={{ cursor: 'pointer', fontSize: '15px', opacity: 0.7, userSelect: 'none', marginBottom: '4px' }}>
+                      {formerCommittees.length} former membership{formerCommittees.length !== 1 ? 's' : ''}
+                    </summary>
+                    <ul style={{ listStyle: 'none', padding: '4px 0 0', margin: 0 }}>
+                      {formerCommittees.map((m, i) => {
+                        const hasPage = m.committee_id != null && COMMITTEE_ID_SET.has(m.committee_id);
+                        const name = m.committee_name ?? `Committee ${m.committee_id}`;
+                        return (
+                          <li key={i} style={{ padding: '4px 0', borderBottom: inkDivider }}>
+                            <span style={{ display: 'flex', alignItems: 'baseline', gap: '6px', flexWrap: 'wrap' }}>
+                              {hasPage ? (
+                                <Link href={`/committees/${m.committee_id}`} style={inkLink}>{name}</Link>
+                              ) : (
+                                <span>{name}</span>
+                              )}
+                              {m.role === 'Chair' && (
+                                <span style={{ ...pillStyle, color: '#a64030', border: '1px solid #a64030', fontSize: '11px' }}>Chair</span>
+                              )}
+                            </span>
+                            {m.start_date && (
+                              <span style={{ fontSize: '13px', opacity: 0.6, fontFamily: 'monospace' }}>
+                                {fmtDate(m.start_date)}{m.end_date ? ` – ${fmtDate(m.end_date)}` : ''}
+                              </span>
+                            )}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </details>
+                )}
+              </>
+            )}
+
             {bio?.representations && bio.representations.length > 0 && (
               <>
                 <h3 style={sectionH3}>Parliamentary career</h3>
@@ -1057,15 +1143,6 @@ export default function MagazineProfileSections({
                 <h3 style={sectionH3}>Opposition posts</h3>
                 <ul style={{ listStyle: 'disc', paddingLeft: '20px' }}>
                   {bio.opposition_posts.map((p, i) => <li key={i}>{p.name}</li>)}
-                </ul>
-              </>
-            )}
-
-            {bio?.committee_memberships && bio.committee_memberships.length > 0 && (
-              <>
-                <h3 style={sectionH3}>Committee memberships</h3>
-                <ul style={{ listStyle: 'disc', paddingLeft: '20px' }}>
-                  {bio.committee_memberships.map((c, i) => <li key={i}>{typeof c === 'string' ? c : c.name}</li>)}
                 </ul>
               </>
             )}
