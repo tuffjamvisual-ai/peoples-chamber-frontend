@@ -304,6 +304,31 @@ export default async function MPMagazineProfile({ params }: PageProps) {
           .limit(500),
       )
     : Promise.resolve({ data: [] });
+  // Party slug + same-party peers: previously fetched by RelatedLinks as
+  // its own serial async component. Both depend only on mp.party (available
+  // after the main batch) and are cheap (17-row and 5-row results). Folded
+  // into wave2 so RelatedLinks receives them as props and becomes sync.
+  // normaliseParty maps 'Labour (Co-op)' → 'Labour'. parties.mp_party_string
+  // has no row for 'Labour (Co-op)', so using mp.party directly would return
+  // null slug and wrong peers for 45 co-op MPs. Normalise both queries.
+  const partyKey = normaliseParty(mp.party);
+  const pPartySlug = partyKey
+    ? Promise.resolve(
+        supabase.from('parties').select('slug').eq('mp_party_string', partyKey).maybeSingle(),
+      )
+    : Promise.resolve({ data: null });
+  const pPartyPeers = partyKey
+    ? Promise.resolve(
+        supabase
+          .from('mps')
+          .select('member_id, display_name, constituency')
+          .eq('party', partyKey)
+          .eq('current_member', true)
+          .neq('member_id', memberId)
+          .order('display_name', { ascending: true })
+          .range(0, 4),
+      )
+    : Promise.resolve({ data: [] });
 
   // Ministerial diary — meetings + hospitality recorded by gov.uk.
   // Only ministers have entries; backbenchers fall through with empty
@@ -443,6 +468,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   //   Mark Garnier        ↔ Mr Mark Robert Timothy Garnier MP
   //   Iain Duncan Smith   ↔ Mr George Iain Duncan-Smith
   const donationsRes = await pDonations;
+  const [partySlugRes, partyPeersRes] = await Promise.all([pPartySlug, pPartyPeers]);
   // Build a small lookup of "where else does this MP's donor pool give?"
   // For each donor that funded this MP, fetch up to 5 other distinct
   // recipient names. Drives the 'Also funds:' line on each donor row.
@@ -748,7 +774,8 @@ export default async function MPMagazineProfile({ params }: PageProps) {
             variant="mp"
             memberId={memberId}
             party={partyDisplay || mp.party || null}
-            partySlug={null}
+            partySlug={partySlugRes.data?.slug ?? null}
+            partyPeers={partyPeersRes.data || []}
             votes={votesWithSi.slice(0, 5)}
             sponsoredBills={(sponsoredBillsRes.data || []).slice(0, 5)}
           />

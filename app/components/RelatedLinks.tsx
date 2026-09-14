@@ -86,41 +86,16 @@ interface MpProps {
   memberId: number;
   party: string | null;
   partySlug: string | null;
+  partyPeers: Array<{ member_id: number; display_name: string | null; constituency: string | null }>;
   ministerialDeptSlug?: string | null;
   ministerialDeptName?: string | null;
   votes: VoteRow[];
   sponsoredBills: SponsoredBill[];
 }
 
-async function renderMp(props: MpProps) {
-  // Resolve party slug from the parties table (one cheap query) if the
-  // caller hasn't supplied one. mps.party stores the long form
-  // ('Labour', 'Conservative' etc.) which the parties table indexes via
-  // mp_party_string.
-  let partySlug = props.partySlug ?? null;
-  if (!partySlug && props.party) {
-    const { data } = await supabase
-      .from('parties')
-      .select('slug')
-      .eq('mp_party_string', props.party)
-      .maybeSingle();
-    partySlug = data?.slug ?? null;
-  }
-
-  // Other MPs in the same party: cheap query, top 5 alphabetical
-  // excluding the current MP. Server-side, runs once per render.
-  let partyPeers: Array<{ member_id: number; display_name: string | null; constituency: string | null }> = [];
-  if (props.party) {
-    const { data } = await supabase
-      .from('mps')
-      .select('member_id, display_name, constituency')
-      .eq('party', props.party)
-      .eq('current_member', true)
-      .neq('member_id', props.memberId)
-      .order('display_name', { ascending: true })
-      .range(0, 4);
-    partyPeers = data || [];
-  }
+function renderMp(props: MpProps) {
+  const partySlug = props.partySlug;
+  const partyPeers = props.partyPeers;
 
   const recentVotes = props.votes
     .filter((v) => v.vote_type === 'aye' || v.vote_type === 'no')

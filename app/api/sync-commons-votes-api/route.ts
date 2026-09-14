@@ -46,6 +46,12 @@ async function GET_impl(req: Request) {
   if (!url || !key) return NextResponse.json({ error: 'supabase env missing' }, { status: 500 });
   const supabase = createClient(url, key);
 
+  // Refresh sitemap materialized views unconditionally before the budget-limited
+  // vote loop so it runs on every invocation, including backfills. ~213ms.
+  // On error: surface in response but do NOT halt — a sitemap helper failure
+  // must not stop vote ingestion.
+  const { data: sitemapCounts, error: sitemapRefreshError } = await supabase.rpc('refresh_sitemap_views');
+
   const iso = (d: Date) => d.toISOString().slice(0, 10);
 
   // --- Date range resolution ---
@@ -219,12 +225,14 @@ async function GET_impl(req: Request) {
     }
 
     const base = {
-      ok: !insertErrors.length,
+      ok: !insertErrors.length && !sitemapRefreshError,
       dryRun,
       range: [fromStr, toStr],
       divisionsInRange: list.length,
       divisionsSkipped,
       partial,
+      sitemapRefresh: sitemapCounts as { sitemap_bill_ids: number; sitemap_divisions: number } | null,
+      ...(sitemapRefreshError ? { sitemapRefreshError: sitemapRefreshError.message } : {}),
       ...(insertErrors.length ? { errors: insertErrors } : {}),
       ...(bothLobbyVotes.length ? { bothLobbyVotes } : {}),
       ...(partial && stoppedBefore ? { stoppedBefore, note: `Time budget reached. Resume with startDate=${stoppedBefore}&endDate=${toStr}` } : {}),
