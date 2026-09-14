@@ -120,6 +120,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.9,
   }));
 
+  // Guard: abort the build if either materialized view is stale or unexpectedly small.
+  // sitemap_refresh_state is RLS-protected; anon reads via SECURITY DEFINER function.
+  const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+  type RefreshState = { view_name: string; refreshed_at: string; row_count: number };
+  const { data: refreshStates, error: stateError } = await supabase.rpc('get_sitemap_refresh_state');
+  if (stateError) throw new Error(`sitemap: get_sitemap_refresh_state failed: ${stateError.message}`);
+  const stateMap = new Map(((refreshStates as RefreshState[]) || []).map((r) => [r.view_name, r]));
+  for (const [viewName, floor] of [['sitemap_bill_ids', 50], ['sitemap_divisions', 2000]] as [string, number][]) {
+    const state = stateMap.get(viewName);
+    if (!state) throw new Error(`sitemap: ${viewName} missing from sitemap_refresh_state — run refresh_sitemap_views() or check migration`);
+    const ageMs = Date.now() - new Date(state.refreshed_at).getTime();
+    if (ageMs > SEVEN_DAYS_MS) {
+      const ageDays = (ageMs / (1000 * 60 * 60 * 24)).toFixed(1);
+      throw new Error(`sitemap: ${viewName} last refreshed ${ageDays} days ago — exceeds 7-day limit`);
+    }
+    if (state.row_count < floor) throw new Error(`sitemap: ${viewName} had only ${state.row_count} rows at last refresh (floor: ${floor})`);
+  }
+
   // Party sub-pages: /parties/[slug], /bio, /money for every party row
   // that has an EC recipient_name (parties with no donations register
   // entry don't get a /money page).
@@ -148,10 +166,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // KEEP THIS PREDICATE IN SYNC WITH app/bills/[id]/page.tsx generateMetadata —
   // the boolean below is byte-for-byte the same as that route's.
   const ACTIVE_STAGE = /committee|report|3rd reading|third reading|consideration/;
-  const { data: votedRows } = await supabase.rpc('bill_ids_with_votes');
-  const votedBillIds = new Set<number>(
-    ((votedRows as { bill_id: number }[] | null) || []).map((r) => r.bill_id),
+  const votedBillIdRows = await fetchAllRows<{ bill_id: number }>(
+    'sitemap_bill_ids',
+    'bill_id',
+    (q) => q.order('bill_id', { ascending: true }),
   );
+  const votedBillIds = new Set<number>(votedBillIdRows.map((r) => r.bill_id));
   const allBills = await fetchAllRows<{ id: number; status: string | null; is_act: boolean | null; commons_division_id: number | null }>(
     'bill',
     'id, status, is_act, commons_division_id',
@@ -229,17 +249,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.5,
   }));
 
-  // Division detail pages — every distinct (date, division_number) in
-  // mp_division_votes since the parlparse import (2026-06-05). The
-  // natural-key tuple becomes the canonical slug pw-YYYY-MM-DD-N-commons.
-  //
-  // Read from the commons_divisions_distinct view (SELECT DISTINCT over
-  // mp_division_votes, NULLs already excluded) rather than pulling all
-  // ~268k vote rows and deduping in JS — the view returns ~597 rows in a
-  // single page. The null filter below is belt-and-suspenders.
+  // Division detail pages — every distinct (date, division_number) pair.
+  // Read from sitemap_divisions (materialized view, refreshed nightly by
+  // refresh_sitemap_views()), which precomputes the DISTINCT over 1.14M
+  // rows in mp_division_votes so the build sees a 2k-row table scan
+  // instead of the full heap walk that caused build timeouts (57014).
   const divisions = await fetchAllRows<{ division_date_only: string | null; division_number: number | null }>(
-    'commons_divisions_distinct',
+    'sitemap_divisions',
     'division_date_only, division_number',
+    (q) => q.order('division_date_only', { ascending: true }).order('division_number', { ascending: true }),
   );
   const divisionEntries: MetadataRoute.Sitemap = divisions
     .filter((d) => d.division_date_only && d.division_number != null)
