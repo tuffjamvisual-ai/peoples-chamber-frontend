@@ -1,6 +1,21 @@
 import Link from 'next/link';
 import { type DepartmentBudget, fmtBn, totalSpend } from '@/lib/department-budgets';
 
+export type PressReleaseItem = {
+  title: string;
+  organisation: string | null;
+  published_at: string | null;
+  newsSlug: string;
+};
+
+export type InvestigationItem = {
+  slug: string;
+  headline: string;
+  standfirst: string | null;
+  published_at: string;
+  kicker: string | null;
+};
+
 // Server-rendered content blocks for the department profile tabs
 // (DepartmentTabs). Pure display, no hooks — so they ship in the static
 // HTML even though they sit behind a client-side tab switcher.
@@ -109,6 +124,115 @@ export function ContactSlot({
           ))}
         </div>
       )}
+    </section>
+  );
+}
+
+export function ReleasesSlot({ releases }: { releases: PressReleaseItem[] }) {
+  return (
+    <section>
+      <h2 className={H2_CLS} style={{ color: ACCENT }}>Press Releases ({releases.length})</h2>
+      <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+        {releases.map((r, i) => (
+          <li key={i} style={{ borderBottom: '1px dotted rgba(20,16,13,0.15)', padding: '8px 0' }}>
+            <Link
+              href={`/news/${r.newsSlug}`}
+              style={{ display: 'block', fontSize: '15px', color: '#14100d', textDecoration: 'none', lineHeight: 1.45 }}
+            >
+              {r.title}
+            </Link>
+            <span style={{ display: 'block', fontFamily: 'Special Elite, monospace', fontSize: '13px', color: 'rgba(20,16,13,0.55)', marginTop: '3px' }}>
+              {r.organisation && r.published_at ? `${r.organisation} · ` : (r.organisation ?? '')}
+              {r.published_at
+                ? new Date(r.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+                : ''}
+            </span>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+export function InvestigationsSlot({ investigations }: { investigations: InvestigationItem[] }) {
+  return (
+    <section>
+      <h2 className={H2_CLS} style={{ color: ACCENT }}>Investigations ({investigations.length})</h2>
+      <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+        {investigations.map((item, i) => (
+          <li key={i} style={{ borderBottom: '1px dotted rgba(20,16,13,0.15)', padding: '10px 0' }}>
+            <Link
+              href={`/editorials/${item.slug}`}
+              style={{ display: 'block', fontSize: '15px', color: '#14100d', textDecoration: 'none', lineHeight: 1.45, fontWeight: 600 }}
+            >
+              {item.headline}
+            </Link>
+            {item.standfirst && (
+              <p style={{ fontSize: '14px', color: 'rgba(20,16,13,0.75)', margin: '3px 0 0', lineHeight: 1.5 }}>
+                {item.standfirst}
+              </p>
+            )}
+            <span style={{ display: 'block', fontFamily: 'Special Elite, monospace', fontSize: '13px', color: 'rgba(20,16,13,0.55)', marginTop: '4px' }}>
+              {item.kicker ? `${item.kicker} · ` : ''}
+              {new Date(item.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+            </span>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+export type ProgrammeItem = {
+  id: number;
+  slug: string;
+  name: string;
+  status: string;
+  summary: string | null;
+};
+
+const STATUS_COLOUR: Record<string, string> = {
+  active:    '#1a5c36',
+  paused:    '#7a5c12',
+  cancelled: '#7a1612',
+  completed: '#1a3a6e',
+};
+
+export function ProgrammesSlot({ programmes }: { programmes: ProgrammeItem[] }) {
+  return (
+    <section>
+      <h2 className={H2_CLS} style={{ color: ACCENT }}>Programmes ({programmes.length})</h2>
+      <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+        {programmes.map((prog, i) => {
+          const statusColour = STATUS_COLOUR[prog.status] ?? '#14100d';
+          return (
+            <li key={i} style={{ borderBottom: '1px dotted rgba(20,16,13,0.15)', padding: '10px 0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px' }}>
+                <span style={{
+                  fontFamily: 'Special Elite, monospace',
+                  fontSize: '10px', letterSpacing: '0.12em',
+                  textTransform: 'uppercase', color: statusColour,
+                  border: `1px solid ${statusColour}`,
+                  padding: '1px 5px', flexShrink: 0,
+                }}>
+                  {prog.status}
+                </span>
+                <Link
+                  href={`/programmes/${prog.slug}`}
+                  style={{ fontSize: '15px', color: '#14100d', textDecoration: 'none', lineHeight: 1.45, fontWeight: 600 }}
+                >
+                  {prog.name}
+                </Link>
+              </div>
+              {prog.summary && (
+                <p style={{ fontSize: '14px', color: 'rgba(20,16,13,0.75)', margin: '3px 0 0', lineHeight: 1.5 }}>
+                  {prog.summary.length > 140 ? prog.summary.slice(0, 140) + '…' : prog.summary}
+                </p>
+              )}
+            </li>
+          );
+        })}
+      </ol>
     </section>
   );
 }

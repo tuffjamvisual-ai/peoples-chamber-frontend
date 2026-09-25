@@ -111,15 +111,31 @@ export default async function BriefingPage({ params }: { params: Promise<{ slug:
         )}
       </header>
 
-      {/* In-text attribution (named report/minister/figure within sentences) is
-          the only sourcing on published briefings. The separate bottom-of-article
-          "Sources" list was removed by request; b.sources is still stored in the
-          DB for audit and the automated fact-check, just not rendered here. */}
       <article style={{ maxWidth: '680px', fontSize: '18px', lineHeight: 1.75, color: INK }}>
         {paragraphs.map((p, i) => (
           <p key={i} style={{ margin: '0 0 18px' }}>{p}</p>
         ))}
       </article>
+
+      {/* Sources checked by the automated fact-check pipeline. Rendered as plain
+          text so readers can verify claims without offsite links in editorial copy. */}
+      {Array.isArray(b.sources) && (b.sources as unknown[]).filter((s) => typeof s === 'string').length > 0 && (
+        <aside
+          aria-label="Sources checked"
+          style={{ marginTop: '36px', border: `1px solid ${HAIRLINE}`, borderTop: `3px solid ${ACCENT}`, padding: '16px 18px 10px', background: 'rgba(107,36,23,0.03)' }}
+        >
+          <p style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', color: ACCENT, margin: '0 0 10px' }}>
+            Sources checked
+          </p>
+          {(b.sources as unknown[])
+            .filter((s): s is string => typeof s === 'string')
+            .map((src, i) => (
+              <p key={i} style={{ fontFamily: MONO, fontSize: '13px', color: INK_SOFT, margin: '0 0 6px', wordBreak: 'break-all', lineHeight: 1.5 }}>
+                {src}
+              </p>
+            ))}
+        </aside>
+      )}
     </OpenGovShell>
   );
 }

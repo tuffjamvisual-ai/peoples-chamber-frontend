@@ -179,6 +179,10 @@
     {
       "path": "/api/sync-committee-memberships",
       "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/cron/sync-programmes",
+      "schedule": "30 9 * * *"
     }
   ]
 }

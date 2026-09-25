@@ -1,11 +1,11 @@
-export type SearchResult = {
+export type TopicResult = {
   department: string;
   departmentSlug: string;
   zone: string;
   keywords: string[];
 };
 
-export const searchIndex: SearchResult[] = [
+export const topicIndex: TopicResult[] = [
   // Treasury — Income Tax
   { department: 'HM Treasury', departmentSlug: 'treasury', zone: 'Income Tax', keywords: ['income tax', 'personal allowance', 'tax threshold', 'fiscal drag', 'higher rate tax', 'basic rate', 'tax free allowance', 'paye', 'stealth tax', 'tax freeze', 'tax bands'] },
   // Treasury — National Insurance
@@ -48,10 +48,10 @@ export const searchIndex: SearchResult[] = [
   { department: 'Home Office', departmentSlug: 'home-office', zone: 'Grooming Gangs', keywords: ['grooming gangs', 'grooming', 'child sexual exploitation', 'cse', 'rotherham', 'rochdale', 'grooming gang inquiry', 'child abuse gangs', 'grooming gang data', 'offender ethnicity'] },
 ];
 
-export function searchTopics(query: string): SearchResult[] {
+export function searchTopics(query: string): TopicResult[] {
   if (!query || query.length < 2) return [];
   const q = query.toLowerCase().trim();
-  return searchIndex.filter(item =>
+  return topicIndex.filter(item =>
     item.keywords.some(k => k.includes(q)) ||
     item.zone.toLowerCase().includes(q) ||
     item.department.toLowerCase().includes(q)

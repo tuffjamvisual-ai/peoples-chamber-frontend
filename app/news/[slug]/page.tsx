@@ -1,9 +1,13 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import OpenGovShell from '../../components/OpenGovShell'
 import BackLink from '../../components/BackLink';
+import RelatedLinks from '../../components/RelatedLinks';
 import { govUrlToSlug } from '@/lib/govUrlSlug'
+import { resolveOrgToDeptSlug } from '@/lib/govOrgSlug'
+import { getDeptContext } from '../../api/department-context/route'
 
 export const revalidate = 3600
 
@@ -108,6 +112,47 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 }
 
+// B1 — department context block.
+// Resolves the issuing organisation to a dept slug, fetches the first paragraph
+// of street_context, and renders a compact "About this department" aside.
+//
+// KNOWN GAPS — resolveOrgToDeptSlug returns null for:
+//   • HM Revenue & Customs (no department_context row)
+//   • Department for Science, Innovation & Technology (science-tech slug 404s)
+//   • Any org not in DEPT_ORG_TO_SLUG (agencies, arm's-length bodies, etc.)
+// In all these cases the component returns null — no error, no empty box.
+async function DeptContextBlock({ organisation }: { organisation: string | null }) {
+  if (!organisation) return null;
+  const deptSlug = resolveOrgToDeptSlug(organisation);
+  if (!deptSlug) return null;
+
+  const { street_context } = await getDeptContext(deptSlug);
+  if (!street_context) return null;
+
+  const firstPara = street_context.split(/\n\n+/)[0]?.trim() ?? '';
+  if (!firstPara) return null;
+
+  return (
+    <aside
+      aria-label={`About ${organisation}`}
+      style={{ marginTop: '36px', paddingTop: '18px', borderTop: '2px solid rgba(20,16,13,0.18)', maxWidth: '680px' }}
+    >
+      <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 10px' }}>
+        About this department
+      </p>
+      <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '15px', lineHeight: 1.7, color: '#14100d', margin: '0 0 12px' }}>
+        {firstPara}
+      </p>
+      <Link
+        href={`/departments/${deptSlug}`}
+        style={{ fontFamily: "'Special Elite', monospace", fontSize: '13px', color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px', letterSpacing: '0.04em' }}
+      >
+        Full department profile →
+      </Link>
+    </aside>
+  );
+}
+
 export default async function NewsArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const release = await getPressRelease(slug)
@@ -134,12 +179,22 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
 
       <article>
         <header style={{ marginBottom: '5%', paddingBottom: '24px', borderBottom: `1px solid rgba(20,16,13,0.2)` }}>
+          {/* A2 — SOURCE badge: visually separates government content from opengovt reporting */}
+          <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 10px', display: 'inline-block', border: '1px solid #7a1612', padding: '2px 7px 1px' }}>
+            Source: GOV.UK
+          </p>
           <p className="text-[15px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>
             {release.organisation || 'UK Government'}{dateLabel ? ` · ${dateLabel}` : ''}
           </p>
           <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', lineHeight: 1.1, color: INK, transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
             {release.title}
           </h1>
+          {/* A1 — original source attribution; plain text per no-offsite-links rule */}
+          {release.gov_url && !release.removed_upstream && (
+            <p style={{ marginTop: '14px', fontFamily: "'Special Elite', monospace", fontSize: '13px', color: ACCENT, letterSpacing: '0.04em', wordBreak: 'break-all' }}>
+              Original: {release.gov_url}
+            </p>
+          )}
         </header>
 
         {release.removed_upstream && (
@@ -148,8 +203,8 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
             style={{ padding: '12px 16px', border: `1px solid rgba(20,16,13,0.25)`, borderLeft: `3px solid ${ACCENT}`, background: 'rgba(107,36,23,0.04)', color: INK }}
           >
             {bodyHtml
-              ? 'This release has been removed from GOV.UK. Shown from opengovt’s archived copy.'
-              : 'This release has been removed from GOV.UK and is no longer available.'}
+              ? "This release has been removed from GOV.UK. Shown from opengovt's archived copy."
+              : "This release has been removed from GOV.UK and is no longer available."}
           </div>
         )}
 
@@ -174,6 +229,16 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
         )}
 
       </article>
+
+      {/* B1 — department context: first paragraph of street_context for the issuing dept */}
+      <DeptContextBlock organisation={release.organisation} />
+
+      {/* A6 — department / SoS / more-from-org related links */}
+      <RelatedLinks
+        variant="pressRelease"
+        organisation={release.organisation}
+        currentGovUrl={release.gov_url}
+      />
     </OpenGovShell>
   )
 }

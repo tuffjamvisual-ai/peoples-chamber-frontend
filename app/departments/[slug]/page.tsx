@@ -5,7 +5,7 @@ import ScrollToTopButton from '../../components/ScrollToTopButton';
 import DepartmentMasthead from './DepartmentMasthead';
 import DepartmentStaff from './DepartmentStaff';
 import DepartmentTabs from './DepartmentTabs';
-import { BudgetSlot, AgenciesSlot, ContactSlot } from './DepartmentSlots';
+import { BudgetSlot, AgenciesSlot, ContactSlot, ReleasesSlot, InvestigationsSlot, ProgrammesSlot, type PressReleaseItem, type InvestigationItem, type ProgrammeItem } from './DepartmentSlots';
 import { DEPARTMENT_BUDGETS } from '@/lib/department-budgets';
 import OpenGovShell from '../../components/OpenGovShell';
 import { getGovukDept } from '../../api/govuk-dept/route';
@@ -13,6 +13,8 @@ import { supabase } from '@/lib/supabase';
 import { getDeptContext } from '../../api/department-context/route';
 import BackLink from '../../components/BackLink';
 import JsonLd, { buildDepartmentOrg } from '@/lib/JsonLd';
+import { DEPT_SLUG_TO_ORGS } from '@/lib/govOrgSlug';
+import { govUrlToSlug } from '@/lib/govUrlSlug';
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
@@ -40,9 +42,50 @@ export default async function DepartmentPage({ params }: PageProps) {
 
   // Inline the previously-client-side fetches so the prerendered HTML
   // ships with every section's data already populated.
-  const [govukData, contextData] = await Promise.all([
+  // B2: org names for this slug, used for the press releases tab query.
+  const orgNames = DEPT_SLUG_TO_ORGS[slug] ?? [];
+
+  const [govukData, contextData, rawReleases, rawInvestigations, rawProgrammes] = await Promise.all([
     getGovukDept(slug),
     getDeptContext(slug),
+    // B2 — press releases tab: top 20 by published_at DESC across all
+    // historical org names for this department (handles renames like
+    // BEIS → DBT). Returns [] when orgNames is empty (HMRC/DSIT gap
+    // handled automatically — neither slug is in DEPT_SLUG_TO_ORGS).
+    (async () => {
+      if (orgNames.length === 0) return [];
+      const { data } = await supabase
+        .from('press_releases')
+        .select('title, organisation, published_at, gov_url')
+        .in('organisation', orgNames)
+        .not('removed_upstream', 'is', true)
+        .not('gov_url', 'is', null)
+        .order('published_at', { ascending: false })
+        .limit(20);
+      return data ?? [];
+    })(),
+    // B3 — investigations tab: editorials where related_dept_slugs contains
+    // this slug. GIN index on related_dept_slugs makes this fast. kind IS NULL
+    // filters to investigations only (briefings have kind = 'briefing').
+    (async () => {
+      const { data } = await supabase
+        .from('editorials')
+        .select('slug, headline, standfirst, published_at, kicker')
+        .contains('related_dept_slugs', [slug])
+        .is('kind', null)
+        .order('published_at', { ascending: false });
+      return data ?? [];
+    })(),
+    // B4 — programmes tab: live policy_programmes tagged with this dept slug.
+    // GIN index on dept_slugs (policy_programmes_dept_slugs_idx) makes the
+    // @> containment fast. RLS enforces is_live=true for the anon client.
+    supabase
+      .from('policy_programmes')
+      .select('id, slug, name, status, summary')
+      .contains('dept_slugs', [slug])
+      .eq('is_live', true)
+      .order('name')
+      .then(({ data }) => (data ?? []) as ProgrammeItem[]),
   ]);
 
   const sos = govukData.ministers?.[0];
@@ -114,6 +157,31 @@ export default async function DepartmentPage({ params }: PageProps) {
     tabs.push({ id: 'agencies', label: 'Agencies', rotate: '-0.15deg' });
     slots.agencies = <AgenciesSlot agencies={agencies} />;
   }
+  // B2 — derive /news/[slug] route params from gov_url for each release.
+  const pressReleases: PressReleaseItem[] = (
+    rawReleases as Array<{ title: string; organisation: string | null; published_at: string | null; gov_url: string | null }>
+  ).flatMap((r) => {
+    if (!r.gov_url) return [];
+    const newsSlug = govUrlToSlug(r.gov_url);
+    if (!newsSlug) return [];
+    return [{ title: r.title, organisation: r.organisation, published_at: r.published_at, newsSlug }];
+  });
+  if (pressReleases.length > 0) {
+    tabs.push({ id: 'releases', label: 'Releases', rotate: '-0.08deg' });
+    slots.releases = <ReleasesSlot releases={pressReleases} />;
+  }
+  // B3 — investigations tab: only shown when at least one tagged investigation exists.
+  const investigations = rawInvestigations as InvestigationItem[];
+  if (investigations.length > 0) {
+    tabs.push({ id: 'investigations', label: 'Investigations', rotate: '0.05deg' });
+    slots.investigations = <InvestigationsSlot investigations={investigations} />;
+  }
+  // B4 — programmes tab: only shown when at least one live programme is tagged.
+  if (rawProgrammes.length > 0) {
+    tabs.push({ id: 'programmes', label: 'Programmes', rotate: '-0.06deg' });
+    slots.programmes = <ProgrammesSlot programmes={rawProgrammes} />;
+  }
+
   if (pressPhone || socialMedia.length > 0) {
     tabs.push({ id: 'contact', label: 'Contact', rotate: '-0.1deg' });
     slots.contact = <ContactSlot socialMedia={socialMedia} pressPhone={pressPhone} />;

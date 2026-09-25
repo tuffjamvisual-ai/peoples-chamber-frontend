@@ -30,10 +30,25 @@ export type EditorialEntry = {
     response?: string;
     lastChecked?: string;
   };
+  // Optional entity tags for the RelatedLinks block. When populated, a
+  // "Related" aside renders after the evidence panel linking out to the
+  // relevant department, MP, and bill pages. Omit entirely (or leave as
+  // empty arrays) to render nothing extra — zero change on untagged pieces.
+  relatedDeptSlugs?: string[];
+  relatedMemberIds?: number[];
+  relatedBillIds?: number[];
+  relatedProgrammeSlugs?: string[];
 };
 
 export type Block =
   | { type: 'paragraph'; text: string }
+  // Key-figure callout. stat is the display value (any string — number, %, £ etc.),
+  // label is what it measures, context is an optional source/explanatory line.
+  | { type: 'statBlock'; stat: string; label: string; context?: string }
+  // Structured data block. headlineFigure is the primary value, context explains
+  // what it measures, source is plain text (no links — house rule), sourceDate
+  // is an optional year/period, historicalComparison is an optional trend line.
+  | { type: 'dataBlock'; headlineFigure: string; context: string; source: string; sourceDate?: string; historicalComparison?: string }
   // A level-3 heading may carry an optional polaroid portrait, floated to
   // the left of the entry (used by the revolving-door piece). photoHref
   // links the frame through to the subject's profile.
