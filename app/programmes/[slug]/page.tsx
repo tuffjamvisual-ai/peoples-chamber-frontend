@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
+import Timeline from '../../components/Timeline';
 import { departments } from '@/lib/departments';
 import {
   getProgramme,
@@ -206,64 +207,7 @@ export default async function ProgrammePage(
       </section>
 
       {/* Timeline */}
-      {timeline.length > 0 && (
-        <section style={{ marginBottom: '40px', maxWidth: '720px' }}>
-          <h2 style={{
-            fontFamily: MONO, fontSize: '13px',
-            textTransform: 'uppercase', letterSpacing: '0.2em',
-            color: 'rgba(20,16,13,0.45)',
-            marginBottom: '16px', fontWeight: 'normal',
-          }}>
-            Timeline
-          </h2>
-          <ol style={{ listStyle: 'none', padding: 0, margin: 0, borderLeft: `2px solid ${HAIRLINE}` }}>
-            {timeline.map((entry) => (
-              <li key={entry.id} style={{ padding: '0 0 24px 20px', position: 'relative' }}>
-                <span style={{
-                  position: 'absolute', left: '-5px', top: '5px',
-                  width: '8px', height: '8px', borderRadius: '50%',
-                  background: entry.is_approved ? INK : ACCENT,
-                  display: 'block',
-                }} />
-                <p style={{
-                  fontFamily: MONO, fontSize: '12px',
-                  color: 'rgba(20,16,13,0.45)',
-                  margin: '0 0 4px',
-                  textTransform: 'uppercase', letterSpacing: '0.08em',
-                }}>
-                  {fmtDate(entry.entry_date)}
-                  {!entry.is_approved && (
-                    <span style={{ color: ACCENT, marginLeft: '8px' }}>[PENDING APPROVAL]</span>
-                  )}
-                </p>
-                <p style={{ fontSize: '16px', fontWeight: 600, color: INK, margin: '0 0 6px', lineHeight: 1.35 }}>
-                  {entry.title}
-                </p>
-                {entry.figure_value !== null && (
-                  <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: '0 0 6px', fontWeight: 600 }}>
-                    {fmtNumber(entry.figure_value)}
-                    {entry.figure_unit ? (
-                      <span style={{ fontWeight: 'normal', color: 'rgba(20,16,13,0.55)', marginLeft: '5px' }}>
-                        {entry.figure_unit}
-                      </span>
-                    ) : null}
-                  </p>
-                )}
-                {entry.body && (
-                  <p style={{ fontSize: '15px', lineHeight: 1.65, color: 'rgba(20,16,13,0.75)', margin: '0 0 6px' }}>
-                    {entry.body}
-                  </p>
-                )}
-                {entry.source_label && (
-                  <p style={{ fontFamily: MONO, fontSize: '12px', color: 'rgba(20,16,13,0.45)', margin: 0 }}>
-                    Source: {entry.source_label}
-                  </p>
-                )}
-              </li>
-            ))}
-          </ol>
-        </section>
-      )}
+      <Timeline entries={timeline} />
 
       {/* Department links */}
       {deptMetas.length > 0 && (
