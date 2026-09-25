@@ -130,15 +130,18 @@ function ProgrammeCard({ prog }: { prog: ProgrammeWithFigure }) {
       )}
 
       {prog.currentEntry && (
-        <p style={{
-          fontFamily: MONO, fontSize: '12px',
-          color: 'rgba(20,16,13,0.5)',
-          margin: '8px 0 0', letterSpacing: '0.04em',
-        }}>
-          Latest: {fmtNumber(prog.currentEntry.figure_value!)}
-          {prog.currentEntry.figure_unit ? ` ${prog.currentEntry.figure_unit}` : ''}
-          {' · '}
-          {fmtDate(prog.currentEntry.entry_date)}
+        <p style={{ margin: '10px 0 0' }}>
+          <span style={{ fontFamily: MONO, fontSize: '20px', fontWeight: 700, color: INK }}>
+            {fmtNumber(prog.currentEntry.figure_value!)}
+          </span>
+          {prog.currentEntry.figure_unit && (
+            <span style={{ fontFamily: MONO, fontSize: '13px', fontWeight: 'normal', color: 'rgba(20,16,13,0.6)', marginLeft: '5px' }}>
+              {prog.currentEntry.figure_unit}
+            </span>
+          )}
+          <span style={{ fontFamily: MONO, fontSize: '11px', color: 'rgba(20,16,13,0.45)', marginLeft: '10px', letterSpacing: '0.04em' }}>
+            {fmtDate(prog.currentEntry.entry_date)}
+          </span>
         </p>
       )}
 

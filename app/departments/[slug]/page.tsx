@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { departments } from '@/lib/departments';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
@@ -204,9 +205,14 @@ export default async function DepartmentPage({ params }: PageProps) {
         style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '-6%', marginBottom: '12px', color: '#14100d', textDecoration: 'none', fontSize: 'clamp(9px, 1.1vw, 14px)', transform: 'rotate(-0.2deg)' }}
       />
 
-      <h1 style={{ fontSize: 'clamp(21px, 3vw, 33px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)', lineHeight: 1.1 }}>
+      <h1 style={{ fontSize: 'clamp(21px, 3vw, 33px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '6px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)', lineHeight: 1.1 }}>
         {dept.name}
       </h1>
+      <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '12px', color: 'rgba(20,16,13,0.5)', margin: '0 0 14px', letterSpacing: '0.04em' }}>
+        <Link href={`/search?dept=${slug}`} style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: '2px' }}>
+          Search releases and investigations →
+        </Link>
+      </p>
 
       {/* Body scaled to match the MP profile text size (16px base x zoom 1.18). */}
       <div style={{ zoom: 1.18 }}>

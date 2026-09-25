@@ -197,6 +197,11 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
           )}
         </header>
 
+        {/* B1 — department context: first paragraph of street_context for the issuing dept.
+            Positioned here (between header and body) so it contextualises the release
+            before the reader reaches the text. */}
+        <DeptContextBlock organisation={release.organisation} />
+
         {release.removed_upstream && (
           <div
             className="text-[15px] leading-[1.6] mb-6"
@@ -229,9 +234,6 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
         )}
 
       </article>
-
-      {/* B1 — department context: first paragraph of street_context for the issuing dept */}
-      <DeptContextBlock organisation={release.organisation} />
 
       {/* A6 — department / SoS / more-from-org related links */}
       <RelatedLinks
