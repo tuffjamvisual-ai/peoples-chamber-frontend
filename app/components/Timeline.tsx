@@ -5,6 +5,16 @@ const ACCENT   = '#7a1612';
 const HAIRLINE = 'rgba(20,16,13,0.15)';
 const MONO     = "'Special Elite', monospace";
 
+const ENTRY_TYPE_LABEL: Record<string, string> = {
+  first_announced:  'First announced',
+  target_set:       'Target set',
+  target_revised:   'Target revised',
+  deadline_changed: 'Deadline changed',
+  progress_update:  'Progress update',
+  policy_withdrawn: 'Policy withdrawn',
+  completed:        'Completed',
+};
+
 export default function Timeline({ entries }: { entries: TimelineRow[] }) {
   return (
     <>
@@ -36,6 +46,18 @@ export default function Timeline({ entries }: { entries: TimelineRow[] }) {
                   {fmtDate(entry.entry_date)}
                   {!entry.is_approved && (
                     <span style={{ color: ACCENT, marginLeft: '8px' }}>[PENDING APPROVAL]</span>
+                  )}
+                  {entry.entry_type && (
+                    <span style={{
+                      marginLeft: '10px',
+                      border: '1px solid rgba(20,16,13,0.3)',
+                      padding: '1px 6px',
+                      fontSize: '10px',
+                      letterSpacing: '0.08em',
+                      verticalAlign: 'middle',
+                    }}>
+                      {ENTRY_TYPE_LABEL[entry.entry_type] ?? entry.entry_type}
+                    </span>
                   )}
                 </p>
                 <p style={{ fontSize: '16px', fontWeight: 600, color: INK, margin: '0 0 6px', lineHeight: 1.35 }}>

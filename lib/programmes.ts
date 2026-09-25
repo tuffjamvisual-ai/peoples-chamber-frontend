@@ -41,6 +41,7 @@ export type TimelineRow = {
   figure_value: number | null;
   figure_unit: string | null;
   is_approved: boolean;
+  entry_type: string | null;
 };
 
 export type ProgrammeWithFigure = ProgrammeRow & {
@@ -122,7 +123,7 @@ export async function getTimeline(
   let q = supabaseAdmin
     .from('programme_timeline')
     .select(
-      'id, entry_date, title, body, source_label, figure_value, figure_unit, is_approved',
+      'id, entry_date, title, body, source_label, figure_value, figure_unit, is_approved, entry_type',
     )
     .eq('programme_id', programmeId)
     .order('entry_date', { ascending: false });
