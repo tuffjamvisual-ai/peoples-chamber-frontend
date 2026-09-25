@@ -5,6 +5,7 @@ import { computeReaderViAggregate, READER_VI_PARTIES } from '@/lib/readerVi';
 import { editorials } from '@/lib/editorials';
 import { supabase } from '@/lib/supabase';
 import { govUrlToSlug } from '@/lib/govUrlSlug';
+import { normalizeOrg, resolveOrgHref } from '@/lib/govOrgSlug';
 import './home-front.css';
 
 function fmtGovDate(iso: string | null | undefined): string {
@@ -12,80 +13,6 @@ function fmtGovDate(iso: string | null | undefined): string {
   const d = new Date(iso);
   if (isNaN(d.getTime())) return '';
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-}
-
-// Organisation → department_context slug, for /departments/[slug] links.
-//
-// WHY THIS EXISTS: ap_departments.slug and department_context.slug diverge for
-// 16 of the 24 departments (e.g. ap_departments has 'fcdo', 'mod', 'ago';
-// department_context has 'foreign-office', 'defence', 'attorney-general'). Using
-// ap_departments for slug resolution generates 404s for most departments. This
-// constant maps observed press_releases.organisation strings directly to
-// department_context slugs that were verified against production on 2026-09-09
-// (all 19 entries return HTTP 200). If you are tempted to replace this with a
-// query against ap_departments, re-read this comment first.
-//
-// Intentional absences: HM Revenue & Customs (no department_context entry),
-// Department for Science, Innovation & Technology (/departments/science-tech 404s).
-// Expand only from observed press release data; verify new slugs on production.
-const DEPT_ORG_TO_SLUG: Record<string, string> = {
-  "Attorney General's Office":                         'attorney-general',
-  'Cabinet Office':                                    'cabinet-office',
-  'Department for Business & Trade':                   'business-trade',
-  'Department for Culture, Media & Sport':             'culture',
-  'Department for Education':                          'education',
-  'Department for Energy Security & Net Zero':         'energy',
-  'Department for Environment, Food & Rural Affairs':  'environment',
-  'Department for Health & Social Care':               'health',
-  'Department for Transport':                          'transport',
-  'Department for Work & Pensions':                    'work-pensions',
-  'Foreign, Commonwealth & Development Office':        'foreign-office',
-  'HM Treasury':                                       'treasury',
-  'Home Office':                                       'home-office',
-  'Ministry of Defence':                               'defence',
-  'Ministry of Housing, Communities & Local Government': 'housing',
-  'Ministry of Justice':                               'justice',
-  'Northern Ireland Office':                           'northern-ireland-office',
-  'Scotland Office':                                   'scotland-office',
-  'Wales Office':                                      'wales-office',
-}
-
-function normalizeOrg(s: string): string {
-  return s.toLowerCase().replace(/\s+/g, ' ').trim().replace(/\s*&\s*/g, ' and ')
-}
-
-// Pre-built normalised lookup from DEPT_ORG_TO_SLUG for the '&' ↔ 'and' pass.
-const DEPT_NORM_MAP = new Map<string, string>(
-  Object.entries(DEPT_ORG_TO_SLUG).map(([name, slug]) => [normalizeOrg(name), slug])
-)
-
-// Alias map for genuine renames — org names that won't match DEPT_ORG_TO_SLUG
-// or agency_cache even after normalisation. Keys are normalised (lowercase, '&' → 'and').
-// Derived 2026-09-09 from observed data. Covers historical department names only.
-const ORG_ALIAS: Record<string, string> = {
-  'department for business, innovation, science and trade': '/departments/business-trade',
-  'department for digital, culture, media and sport':      '/departments/culture',
-  'charity commission':                                    '/agencies/charity-commission',
-}
-
-function resolveOrgHref(
-  name: string,
-  agencyExact: Map<string, string>,
-  agencyNorm: Map<string, string>,
-): string | null {
-  // a) Exact — departments take precedence over agencies
-  const deptSlug = DEPT_ORG_TO_SLUG[name]
-  if (deptSlug) return `/departments/${deptSlug}`
-  if (agencyExact.has(name)) return `/agencies/${agencyExact.get(name)}`
-  // b) Normalised — lowercase, collapse whitespace, treat '&' = 'and'
-  const norm = normalizeOrg(name)
-  const normDeptSlug = DEPT_NORM_MAP.get(norm)
-  if (normDeptSlug) return `/departments/${normDeptSlug}`
-  if (agencyNorm.has(norm)) return `/agencies/${agencyNorm.get(norm)}`
-  // c) Explicit alias — genuine renames only (see ORG_ALIAS above)
-  const alias = ORG_ALIAS[norm]
-  if (alias) return alias
-  return null
 }
 
 // The new "OPEN GOVERNMENT" front page: the dossier-folder template (OpenGovShell)
@@ -179,6 +106,50 @@ export default async function HomePage() {
       <OpenGovShell pageStamp="Front Page" brandAsHeading>
               <div className="og-lead">
             <div className="og-main">
+              <p style={{ fontFamily: "'Special Elite', monospace", fontSize: 'clamp(16px, 1.9vw, 22px)', letterSpacing: '0.01em', color: '#14100d', marginBottom: '18px', lineHeight: 1.45 }}>
+                Search what government said, what Parliament did, and what happened next.
+              </p>
+
+              <form action="/search" method="get" style={{ marginBottom: '28px' }}>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type="text"
+                    name="q"
+                    placeholder="Search a minister, department, policy, vote or government announcement"
+                    style={{
+                      width: '100%',
+                      padding: '12px 48px 12px 14px',
+                      fontFamily: "'Special Elite', monospace",
+                      fontSize: '15px',
+                      color: '#14100d',
+                      background: '#f4e8d4',
+                      border: '1px solid rgba(20,16,13,0.18)',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    aria-label="Search"
+                    style={{
+                      position: 'absolute',
+                      right: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      color: '#7a1612',
+                      fontSize: '18px',
+                      lineHeight: 1,
+                      padding: '4px',
+                    }}
+                  >
+                    →
+                  </button>
+                </div>
+              </form>
+
               <section className="og-intro">
                 <h2 className="og-intro-head">About</h2>
                 <p>Opengovt tracks how power is used in Britain.</p>

@@ -46,6 +46,10 @@ export async function computeReaderViAggregate(): Promise<{
   total: number;
   seeded: boolean;
 }> {
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    if (process.env.VERCEL) throw new Error('SUPABASE_SERVICE_ROLE_KEY is required');
+    return { tally: emptyTally(), total: 0, seeded: false };
+  }
   const tally = emptyTally();
   const pollId = await viPollId();
   if (pollId == null) return { tally, total: 0, seeded: false };

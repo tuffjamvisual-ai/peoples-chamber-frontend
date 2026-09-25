@@ -13,6 +13,7 @@ import AccountTab from './AccountTab';
 type NavItem = { label: string; href: string; children?: { label: string; href: string }[] };
 const NAV: NavItem[] = [
   { label: 'Home', href: '/' },
+  { label: 'Search', href: '/search' },
   { label: 'Topics', href: '/topics', children: topics.map((t) => ({ label: t.title, href: `/topics/${t.slug}` })) },
   { label: 'MPs', href: '/mps', children: [
     { label: 'Find Your MP', href: '/find-your-mp' },

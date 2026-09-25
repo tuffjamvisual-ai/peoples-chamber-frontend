@@ -17,6 +17,7 @@ import Link from 'next/link';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { partyColourForMember, normaliseParty } from '@/lib/party-helpers';
+import RelatedLinks from '../../components/RelatedLinks';
 
 export const revalidate = 86400;  // divisions don't change after the vote happens
 
@@ -313,6 +314,10 @@ export default async function DivisionDetailPage({ params }: PageProps) {
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
       />
 
+      <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: ACCENT, margin: '0 0 10px', display: 'inline-block', border: `1px solid ${ACCENT}`, padding: '2px 7px 1px' }}>
+        Source: Commons divisions
+      </p>
+
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '32px', marginBottom: '32px' }}>
         <p
           style={{
@@ -419,6 +424,9 @@ export default async function DivisionDetailPage({ params }: PageProps) {
           </ul>
         </section>
       )}
+
+      {/* B4 — bill + department related links via exact normalized title match */}
+      <RelatedLinks variant="division" divisionTitle={title} />
     </OpenGovShell>
   );
 }

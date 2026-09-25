@@ -6,7 +6,12 @@ import Link from 'next/link';
 import OpenGovShell from './OpenGovShell';
 import BackLink from './BackLink';
 import ScrollToTopButton from './ScrollToTopButton';
+import EvidencePanel from './EvidencePanel';
+import RelatedLinks from './RelatedLinks';
+import KeyStat from './KeyStat';
+import DataBlock from './DataBlock';
 import type { Block, EditorialEntry } from '@/lib/editorials/types';
+import ContentBadge from './ContentBadge';
 
 const INK = '#14100d';
 const INK_SOFT = 'rgba(20,16,13,0.7)';
@@ -44,6 +49,7 @@ export default function EditorialArticle({ piece, stamp, backHref }: { piece: Ed
 
       <div style={{ fontFamily: '"Special Elite", monospace', width: '100%' }}>
         <header style={{ borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '24px', marginBottom: '28px' }}>
+          <ContentBadge kind={piece.kind} opinion={piece.opinion} />
           {piece.kicker && (
             <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '14px', color: ACCENT, fontFamily: '"Special Elite", monospace', fontWeight: 'bold' }}>
               {piece.kicker}
@@ -76,6 +82,16 @@ export default function EditorialArticle({ piece, stamp, backHref }: { piece: Ed
 
       </div>
 
+      {piece.evidence && <EvidencePanel {...piece.evidence} />}
+
+      <RelatedLinks
+        variant="editorial"
+        relatedDeptSlugs={piece.relatedDeptSlugs}
+        relatedMemberIds={piece.relatedMemberIds}
+        relatedBillIds={piece.relatedBillIds}
+        relatedProgrammeSlugs={piece.relatedProgrammeSlugs}
+      />
+
       <ScrollToTopButton />
     </OpenGovShell>
   );
@@ -85,6 +101,10 @@ function renderBlock(block: Block, i: number): React.ReactNode {
   switch (block.type) {
     case 'paragraph':
       return <p key={i} style={{ marginBottom: '20px' }}>{block.text}</p>;
+    case 'statBlock':
+      return <KeyStat key={i} stat={block.stat} label={block.label} context={block.context} />;
+    case 'dataBlock':
+      return <DataBlock key={i} headlineFigure={block.headlineFigure} context={block.context} source={block.source} sourceDate={block.sourceDate} historicalComparison={block.historicalComparison} />;
     case 'heading': {
       if (block.level === 2) {
         return (
