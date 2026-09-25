@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { unstable_cache } from 'next/cache';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { getSessionUserId } from '@/lib/session';
+import { touchLastSeen } from '@/lib/touch-last-seen';
 import { CATEGORIES, computeReaderViAggregate, viPollId } from '@/lib/readerVi';
 
 export const dynamic = 'force-dynamic';
@@ -62,6 +63,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const userId = getSessionUserId(request);
   if (userId == null) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 });
+  await touchLastSeen(userId);
 
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
   const party = String(body.party || '');

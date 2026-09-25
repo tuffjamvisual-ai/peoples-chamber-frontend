@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionUserId } from '@/lib/session';
+import { touchLastSeen } from '@/lib/touch-last-seen';
 
 // Server-side proxy for the internal Humaniser tool (/internal/humaniser).
 // Keeps ANTHROPIC_API_KEY off the client and lets the browser reach Anthropic
@@ -37,6 +38,7 @@ export async function POST(req: NextRequest) {
   if (!userId) {
     return NextResponse.json({ error: { message: 'Sign in required to use the Humaniser.' } }, { status: 401 });
   }
+  await touchLastSeen(userId);
 
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) {

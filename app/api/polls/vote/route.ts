@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { getSessionUserId } from '@/lib/session';
+import { touchLastSeen } from '@/lib/touch-last-seen';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   const userId = getSessionUserId(request);
   if (userId == null) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 });
+  await touchLastSeen(userId);
   const { pollId, choice } = await request.json();
 
   if (!pollId || !choice) {
@@ -57,6 +59,7 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   const userId = getSessionUserId(request);
   if (userId == null) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 });
+  await touchLastSeen(userId);
 
   const { data } = await supabase
     .from('poll_vote')

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { getSessionUserId } from '@/lib/session';
+import { touchLastSeen } from '@/lib/touch-last-seen';
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,6 +13,7 @@ export async function GET(request: NextRequest) {
         { status: 401 }
       );
     }
+    await touchLastSeen(userId);
 
     // Fetch all votes for this user
     const { data: votes, error } = await supabase
@@ -53,6 +55,7 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
+    await touchLastSeen(userId);
     const { billId, choice } = await request.json();
 
     // Validate input

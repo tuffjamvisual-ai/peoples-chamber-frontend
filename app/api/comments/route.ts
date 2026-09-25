@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
+import { getSessionUserId } from '@/lib/session';
+import { touchLastSeen } from '@/lib/touch-last-seen';
 
 // GET /api/comments?billId=123 - Fetch all comments for a bill
 export async function GET(request: NextRequest) {
@@ -62,9 +64,14 @@ export async function GET(request: NextRequest) {
 // POST /api/comments - Create a new comment
 export async function POST(request: NextRequest) {
   try {
-    const { userId, billId, text } = await request.json();
-    
-    if (!userId || !billId || !text) {
+    const userId = getSessionUserId(request);
+    if (userId == null) {
+      return NextResponse.json({ error: 'Unauthorised' }, { status: 401 });
+    }
+    await touchLastSeen(userId);
+    const { billId, text } = await request.json();
+
+    if (!billId || !text) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -127,9 +134,14 @@ export async function POST(request: NextRequest) {
 // PUT /api/comments - Update a comment
 export async function PUT(request: NextRequest) {
   try {
-    const { commentId, userId, text } = await request.json();
-    
-    if (!commentId || !userId || !text) {
+    const userId = getSessionUserId(request);
+    if (userId == null) {
+      return NextResponse.json({ error: 'Unauthorised' }, { status: 401 });
+    }
+    await touchLastSeen(userId);
+    const { commentId, text } = await request.json();
+
+    if (!commentId || !text) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -208,15 +220,16 @@ export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const commentId = searchParams.get('commentId');
-    const userId = searchParams.get('userId');
-    
-    if (!commentId || !userId) {
+    const userId = getSessionUserId(request);
+
+    if (!commentId || userId == null) {
       return NextResponse.json(
         { error: 'Missing required parameters' },
         { status: 400 }
       );
     }
-    
+    await touchLastSeen(userId);
+
     // Verify user owns the comment
     const { data: existingComment } = await supabase
       .from('comments')
@@ -224,7 +237,7 @@ export async function DELETE(request: NextRequest) {
       .eq('id', commentId)
       .single();
     
-    if (!existingComment || existingComment.user_id !== parseInt(userId)) {
+    if (!existingComment || existingComment.user_id !== userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 403 }

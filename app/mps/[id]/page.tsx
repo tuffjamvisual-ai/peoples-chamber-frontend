@@ -292,18 +292,6 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       .eq('member_id', memberId)
       .order('closed_date', { ascending: false }),
   );
-  const pDonations = firstWord.length >= 2 && lastWord.length >= 2
-    ? Promise.resolve(
-        supabase
-          .from('political_donations')
-          .select('id, donor_name, donor_type, donor_status, amount, cash_value, non_cash_value, accepted_date, received_date, reported_date, published_date, dealt_with_date, nature, recipient_name, recipient_type, manner_in_which_made, purpose_of_visit, position_standing_for, campaigning_name, accounting_unit_name, donation_action, reporting_period_name, reporting_period_type, is_aggregation, is_bequest, is_sponsorship, is_anonymous, is_irish_source, is_reported_pre_poll, returned_date, impermissibility_reason, attempted_concealment, concealment_details, trust_name, trust_creator_name, trust_creator_status, trust_created_date, company_registration_number, addr_line1, addr_town, addr_postcode, addr_country, explanatory_notes, ec_ref')
-          .in('recipient_type', ['MP - Member of Parliament', 'Regulated Donee', 'Members Association', 'Member of Registered Political Party'])
-          .ilike('recipient_name', `%${firstWord}%`)
-          .ilike('recipient_name', `%${lastWord}%`)
-          .order('accepted_date', { ascending: false })
-          .limit(500),
-      )
-    : Promise.resolve({ data: [] });
   // Party slug + same-party peers: previously fetched by RelatedLinks as
   // its own serial async component. Both depend only on mp.party (available
   // after the main batch) and are cheap (17-row and 5-row results). Folded
@@ -451,187 +439,9 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   // rows sit in the table unattached.
   const conductRes = await pConduct;
 
-  // Electoral Commission donations directed at this MP personally.
-  // The political_donations table is donor-side, so it's name-keyed:
-  // recipient_name fuzzy-matches MP's mpNameKey computed above.
-  // recipient_type restricted to MP-individual classes: backbench /
-  // Regulated Donee / Members Association / Member of Registered Party.
-  //
-  // Strategy (revised 2026-06-06 after audit found 7 MPs missing
-  // donations because the previous '%mpNameKey%' contiguous-substring
-  // match couldn't cross middle names or short-name vs formal-name
-  // gaps): require BOTH firstWord AND lastWord as substrings (two
-  // chained ilike calls combine as AND under PostgREST). Catches:
-  //   Ed Davey            ↔ Edward Davey                  (ed → edward)
-  //   Chi Onwurah         ↔ Ms Chinyelu Onwurah MP        (chi → chinyelu)
-  //   Diana Johnson       ↔ Ms Diana Ruth Johnson MP      (middle name)
-  //   Mark Garnier        ↔ Mr Mark Robert Timothy Garnier MP
-  //   Iain Duncan Smith   ↔ Mr George Iain Duncan-Smith
-  const donationsRes = await pDonations;
   const [partySlugRes, partyPeersRes] = await Promise.all([pPartySlug, pPartyPeers]);
-  // Build a small lookup of "where else does this MP's donor pool give?"
-  // For each donor that funded this MP, fetch up to 5 other distinct
-  // recipient names. Drives the 'Also funds:' line on each donor row.
-  type RawDonationLite = { recipient_name?: string | null; donor_name?: string | null };
-  type DonorOtherRecipient = { donor_name: string; recipient_name: string; total: number };
-  const donorNames = Array.from(new Set(
-    (donationsRes.data || []).map((d: RawDonationLite) => (d.donor_name || '').trim()).filter((n: string) => n.length > 0),
-  )) as string[];
-  let donorOtherRecipients: Map<string, Array<{ recipient: string; total: number }>> = new Map();
-  if (donorNames.length > 0) {
-    const { data: otherRows } = await supabase
-      .from('political_donations')
-      .select('donor_name, recipient_name, amount')
-      .in('donor_name', donorNames.slice(0, 60))   // safety cap
-      .not('recipient_name', 'is', null)
-      .limit(5000);
-    if (otherRows) {
-      const agg = new Map<string, Map<string, number>>();
-      for (const r of otherRows as unknown as Array<RawDonationLite & { amount: number | string | null }>) {
-        const dn = (r.donor_name || '').trim();
-        const rn = (r.recipient_name || '').trim();
-        if (!dn || !rn) continue;
-        // Skip rows where the recipient is THIS MP (avoid showing yourself)
-        if (rn.toLowerCase().includes(mpNameKey.toLowerCase())) continue;
-        if (!agg.has(dn)) agg.set(dn, new Map());
-        const inner = agg.get(dn)!;
-        inner.set(rn, (inner.get(rn) ?? 0) + (Number(r.amount) || 0));
-      }
-      donorOtherRecipients = new Map<string, Array<{ recipient: string; total: number }>>();
-      for (const [dn, inner] of agg.entries()) {
-        const sorted = Array.from(inner.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5);
-        donorOtherRecipients.set(dn, sorted.map(([recipient, total]) => ({ recipient, total })));
-      }
-    }
-  }
-  void donorOtherRecipients as unknown as DonorOtherRecipient;   // satisfy TS unused-var
 
-  // Donor → vote cross-reference. For each donor sector this MP has
-  // received money from, find Commons divisions this MP voted on
-  // where the division title matches that sector's keywords. Lets a
-  // reader see, in one place, every bill touching a donor sector and
-  // how the MP voted on it. The data exists (donations + divisions)
-  // but the cross-reference is invisible without this view.
-  type VoteForSector = {
-    id: number;
-    division_title: string | null;
-    division_date: string | null;
-    division_date_only: string | null;
-    division_number: number | null;
-    vote_type: string;
-    is_rebellion: boolean | null;
-    division_id: number | null;
-  };
-  const { SECTORS: ALL_SECTORS, sectorForDonor, sectorForVote, ALL_VOTE_KEYWORDS } = await import('@/lib/donor-sectors');
 
-  // Which sectors this MP has donor money from
-  const donorSectorKeys = new Set<string>();
-  for (const d of (donationsRes.data || []) as Array<{ donor_name: string | null }>) {
-    const s = sectorForDonor(d.donor_name || '');
-    if (s) donorSectorKeys.add(s.key);
-  }
-
-  // Pull this MP's votes that match ANY sector's keywords. Single OR
-  // query with up-to-200 ILIKE conditions; PostgREST handles this
-  // cleanly. Bounded to 500 rows even if the MP votes on many sector
-  // bills — far more than any UI would render per section.
-  let sectorVotesByKey: Record<string, VoteForSector[]> = {};
-  if (donorSectorKeys.size > 0) {
-    const orClause = ALL_VOTE_KEYWORDS.map((kw) => `division_title.ilike.%${kw.replace(/[%_,]/g, '')}%`).join(',');
-    const { data: rawVotes } = await supabase
-      .from('mp_division_votes')
-      .select('id, division_title, division_date, division_date_only, division_number, vote_type, is_rebellion, division_id')
-      .eq('member_id', memberId)
-      .or(orClause)
-      .in('vote_type', ['aye', 'no', 'both'])
-      .order('division_date', { ascending: false })
-      .limit(500);
-
-    sectorVotesByKey = {};
-    for (const v of (rawVotes ?? []) as VoteForSector[]) {
-      const s = sectorForVote(v.division_title);
-      if (!s) continue;
-      if (!donorSectorKeys.has(s.key)) continue;   // skip sectors the MP has no donor money from
-      if (!sectorVotesByKey[s.key]) sectorVotesByKey[s.key] = [];
-      sectorVotesByKey[s.key].push(v);
-    }
-  }
-
-  // Constituency-association donations: the indirect channel that
-  // currently doesn't surface on the Donations tab because the EC
-  // records it against the constituency Labour/Conservative party
-  // (recipient_type='Political Party') with the local association
-  // name in accounting_unit_name. Almost every six-figure donation
-  // to a major-party MP flows through this route rather than directly.
-  //
-  // Match: accounting_unit_name ILIKE the MP's constituency, handling
-  // '&' vs 'and' variants and bare-name (Conservative) vs '<name> CLP'
-  // (Labour) suffix conventions. We don't restrict on recipient_type
-  // here, the accounting_unit_name = constituency match is specific
-  // enough.
-  const constituency = (mp.constituency as string | null) || '';
-  const constAnd = constituency.replace(/&/g, 'and').trim();
-  const constAmp = constituency.replace(/\band\b/g, '&').trim();
-  type LocalDonation = {
-    id: number;
-    donor_name: string | null;
-    donor_type: string | null;
-    amount: number | string | null;
-    accepted_date: string | null;
-    received_date: string | null;
-    reported_date: string | null;
-    nature: string | null;
-    recipient_type: string | null;
-    accounting_unit_name: string | null;
-  };
-  let constituencyDonations: LocalDonation[] = [];
-  if (constituency.length > 2) {
-    const orParts: string[] = [];
-    const variants = Array.from(new Set([constituency, constAnd, constAmp].filter((s) => s.length > 2)));
-    for (const v of variants) {
-      const safe = v.replace(/[%_,]/g, '');
-      orParts.push(`accounting_unit_name.ilike.%${safe}%`);
-    }
-    const { data: localRows } = await supabase
-      .from('political_donations')
-      .select('id, donor_name, donor_type, donor_status, amount, cash_value, non_cash_value, accepted_date, received_date, reported_date, published_date, nature, recipient_name, recipient_type, manner_in_which_made, accounting_unit_name, accounting_unit_id, is_aggregation, is_bequest, is_sponsorship, is_anonymous, is_reported_pre_poll, returned_date, impermissibility_reason, attempted_concealment, concealment_details, trust_name, trust_creator_name, trust_creator_status, company_registration_number, addr_line1, addr_town, addr_postcode, addr_country, explanatory_notes, ec_ref')
-      .or(orParts.join(','))
-      .order('accepted_date', { ascending: false })
-      .limit(500);
-    // Tighten — accounting_unit_name token must include constituency
-    // first word AND last word (handles 'Doncaster North CLP' for
-    // constituency 'Doncaster North' but rejects coincidental matches
-    // on common single words).
-    const conTokens = constituency.toLowerCase().replace(/&/g, 'and').split(/\s+/).filter((w) => w.length > 2 && !['and','the','of','for','upon','on','le'].includes(w));
-    constituencyDonations = ((localRows ?? []) as LocalDonation[]).filter((r) => {
-      const aun = String(r.accounting_unit_name || '').toLowerCase().replace(/&/g, 'and');
-      return conTokens.every((t) => aun.includes(t));
-    });
-  }
-
-  // Build a serialisable array for the client.
-  const sectorCrossRef = ALL_SECTORS
-    .filter((s) => donorSectorKeys.has(s.key) && (sectorVotesByKey[s.key]?.length ?? 0) > 0)
-    .map((s) => ({
-      key: s.key,
-      label: s.label,
-      colour: s.colour,
-      votes: sectorVotesByKey[s.key] ?? [],
-    }));
-
-  const donations = (donationsRes.data || []).filter((d: { recipient_name?: string | null }) => {
-    const rn = String((d as { recipient_name?: string | null }).recipient_name || '').toLowerCase();
-    // Tokenise on whitespace AND hyphens so 'Duncan-Smith' splits into
-    // ['duncan','smith'] for the last-name comparison.
-    const tokens = rn.split(/[\s,.\-]+/).filter(Boolean);
-    // Last name must appear as an exact token.
-    if (!tokens.includes(lastWord)) return false;
-    // First name may appear as an exact token OR as the prefix of a longer
-    // token (catches Ed -> Edward, Chi -> Chinyelu, Tom -> Thomas, etc.).
-    // Require firstWord >= 2 chars to avoid 'A' / 'I' false matches.
-    if (firstWord.length < 2) return false;
-    return tokens.some((t) => t === firstWord || t.startsWith(firstWord));
-  });
 
   // Tag each vote whose division is a statutory instrument so the render can
   // pick the SI deep-link branch over the external Commons Votes fallback.
@@ -714,10 +524,10 @@ export default async function MPMagazineProfile({ params }: PageProps) {
           postcode:      contactRes.data?.postcode      ?? null,
         },
         votes: votesWithSi,
-        donations,
-        donorOtherRecipients: Array.from(donorOtherRecipients.entries()).map(([donor_name, recipients]) => ({ donor_name, recipients })),
-        sectorCrossRef,
-        constituencyDonations,
+        donations: [],
+        donorOtherRecipients: [],
+        sectorCrossRef: [],
+        constituencyDonations: [],
         appgs: mpAppgs,
         ministerMeetings: meetings,
         ministerHospitality: hospitality,
