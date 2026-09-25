@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { govUrlToSlug } from '@/lib/govUrlSlug';
+import { DEPT_SLUG_TO_ORGS } from '@/lib/govOrgSlug';
 
 export type SearchResultType =
   | 'editorial'
@@ -84,9 +85,16 @@ async function queryEditorials(
 async function queryPressReleases(
   q: string,
   tsType: TsType,
+  dept: string | null,
   from: string | null,
   to: string | null,
 ): Promise<SearchResult[]> {
+  let orgNames: string[] | null = null;
+  if (dept) {
+    orgNames = DEPT_SLUG_TO_ORGS[dept] ?? [];
+    if (orgNames.length === 0) return [];
+  }
+
   const limit = tsType === 'phrase' ? PHRASE_PER_TABLE : PER_TABLE;
   let query = supabase
     .from('press_releases')
@@ -97,6 +105,7 @@ async function queryPressReleases(
     .order('published_at', { ascending: false })
     .limit(limit);
 
+  if (orgNames) query = query.in('organisation', orgNames);
   if (from) query = query.gte('published_at', from);
   if (to)   query = query.lte('published_at', to);
 
@@ -242,7 +251,7 @@ export async function searchContent(
 
   const tasks: Promise<SearchResult[]>[] = [];
   if (want('editorial'))    tasks.push(queryEditorials(effectiveQ, tsType, dept, from, to));
-  if (want('pressRelease')) tasks.push(queryPressReleases(effectiveQ, tsType, from, to));
+  if (want('pressRelease')) tasks.push(queryPressReleases(effectiveQ, tsType, dept, from, to));
   if (want('briefing'))     tasks.push(queryBriefings(effectiveQ, tsType, from, to));
   if (want('bill'))         tasks.push(queryBills(effectiveQ, tsType, from, to));
   if (want('division'))     tasks.push(queryDivisions(effectiveQ, tsType, from, to));
