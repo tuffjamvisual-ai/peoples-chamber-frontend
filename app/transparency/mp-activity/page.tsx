@@ -8,7 +8,7 @@ import MpActivityClient, { type Row } from './MpActivityClient'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'MP Activity: Most Active and Laziest MPs',
+  title: 'MP Activity: Most Active and Fewest Commons Contributions',
   description: 'Every current MP ranked by how often they have spoken in Parliament this term, and how many words, taken from the official Hansard record.',
   alternates: { canonical: '/transparency/mp-activity' },
 }
@@ -26,7 +26,7 @@ export default async function MpActivityPage() {
   ])
   // Exclude MPs elected at a by-election within the last six months: their term
   // is too short to rank fairly against MPs who have sat the whole Parliament,
-  // so they would otherwise appear bottom of the "laziest" list on a few days'
+  // so they would otherwise appear bottom of the "fewest contributions" list on a few days'
   // tenure. Same rule the Empty Benches voting piece uses.
   const cutoff = new Date(Date.now() - 183 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
   const frontbench = new Set((ministers || []).map((m) => m.member_id as number))

@@ -96,7 +96,7 @@ export default function MpActivityClient({ rows }: { rows: Row[] }) {
           {(['desc', 'asc'] as const).map((d) => (
             <button key={d} onClick={() => { setSortKey('total'); setDir(d) }}
               style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.06em', textTransform: 'uppercase', padding: '7px 14px', border: 'none', cursor: 'pointer', background: (sortKey === 'total' && dir === d) ? ACCENT : 'transparent', color: (sortKey === 'total' && dir === d) ? '#fff' : ACCENT }}>
-              {d === 'desc' ? 'Most active' : 'Laziest'}
+              {d === 'desc' ? 'Most active' : 'Fewest contributions'}
             </button>
           ))}
         </div>
