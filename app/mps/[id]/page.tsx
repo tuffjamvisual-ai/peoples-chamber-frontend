@@ -42,6 +42,15 @@ function escapeIlike(s: string): string {
   return s.replace(/[\\%_]/g, (m) => `\\${m}`);
 }
 
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error(`Query timed out after ${ms}ms`)), ms),
+    ),
+  ]);
+}
+
 // Cabinet-only prerender. Prerendering all 650 MPs saturated Vercel's
 // 3-worker build (Supabase code 57014 statement timeouts). Prerendering
 // only the ~80 distinct member_ids that hold a ministerial post keeps
@@ -158,7 +167,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     siDivisionsRes,
     rebellionsCountRes,
     committeeMembershipsRes,
-  ] = await Promise.all([
+  ] = await withTimeout(Promise.all([
     getMp(memberId),
     supabase.from('mp_contact').select('*').eq('member_id', memberId).single(),
     supabase.from('mp_biography').select('*').eq('member_id', memberId).single(),
@@ -226,7 +235,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       .select('committee_id, committee_name, role, start_date, end_date')
       .eq('member_id', memberId)
       .order('end_date', { ascending: false, nullsFirst: true }),
-  ]);
+  ]), 9000);
   if (!mp) notFound();
 
   // Compute mpNameKey/firstWord/lastWord up front — donations,
@@ -248,7 +257,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   // resolve both start them immediately); each block still awaits its own
   // promise at its original position, so the surrounding processing is
   // unchanged. Net effect: wall-clock ~= slowest chain, not their sum.
-  const pMeetingsHosp = Promise.all([
+  const pMeetingsHosp = withTimeout(Promise.all([
     supabase
       .from('ministers_meetings')
       .select('id, minister_name, minister_dept, meeting_date, organisation, purpose, quarter, enriched_description, source_publication_slug')
@@ -262,7 +271,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       .or(`minister_name.ilike.%${mpNameKey.replace(/[%_,]/g, '')}%`)
       .order('hospitality_date', { ascending: false })
       .limit(500),
-  ]);
+  ]), 7000);
   const pContribs = Promise.resolve(
     supabase
       .from('mp_contributions')
