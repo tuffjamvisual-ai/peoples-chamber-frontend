@@ -33,6 +33,24 @@ export const TOTAL_LIMIT  = 50;
 const PHRASE_PER_TABLE    = 100;
 export const PHRASE_LIMIT = 100;
 
+const TYPE_WEIGHT: Record<SearchResultType, number> = {
+  editorial:    0.90,
+  briefing:     0.80,
+  mp:           0.70,
+  bill:         0.55,
+  division:     0.25,
+  pressRelease: 0.10,
+};
+
+function titleScore(title: string, q: string): 0 | 1 | 2 {
+  const tl = title.trim().toLowerCase();
+  const ql = q.trim().toLowerCase();
+  if (!ql) return 0;
+  if (tl === ql) return 2;
+  if (tl.includes(ql)) return 1;
+  return 0;
+}
+
 /** True when q is a quoted phrase: starts AND ends with " with content between. */
 export function isPhrase(q: string): boolean {
   const t = q.trim();
@@ -239,6 +257,7 @@ export async function searchContent(
   dept: string | null,
   from: string | null,
   to: string | null,
+  sort: 'relevance' | 'newest' = 'relevance',
 ): Promise<SearchResult[]> {
   if (!q || !VALID_SEARCH_TYPES.includes(type as SearchType)) return [];
 
@@ -266,6 +285,36 @@ export async function searchContent(
     } else {
       console.warn('[search] fan-out error:', outcome.reason);
     }
+  }
+
+  if (sort === 'relevance') {
+    results.sort((a, b) => {
+      const ta = titleScore(a.title, effectiveQ);
+      const tb = titleScore(b.title, effectiveQ);
+      if (ta !== tb) return tb - ta;
+      const wa = TYPE_WEIGHT[a.type] ?? 0;
+      const wb = TYPE_WEIGHT[b.type] ?? 0;
+      if (wa !== wb) return wb - wa;
+      if (!a.date && !b.date) return 0;
+      if (!a.date) return 1;
+      if (!b.date) return -1;
+      return b.date.localeCompare(a.date);
+    });
+    // Cap: max 3 results per type in the first 10 positions.
+    // Overflow items are appended after position 10 rather than dropped.
+    const typeCounts: Partial<Record<SearchResultType, number>> = {};
+    const top: SearchResult[] = [];
+    const rest: SearchResult[] = [];
+    for (const r of results) {
+      const n = typeCounts[r.type] ?? 0;
+      if (top.length < 10 && n < 3) {
+        top.push(r);
+        typeCounts[r.type] = n + 1;
+      } else {
+        rest.push(r);
+      }
+    }
+    return [...top, ...rest].slice(0, totalLimit);
   }
 
   results.sort((a, b) => {

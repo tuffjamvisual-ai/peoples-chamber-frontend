@@ -93,6 +93,7 @@ type PageProps = {
     dept?: string;
     from?: string;
     to?: string;
+    sort?: string;
   }>;
 };
 
@@ -103,9 +104,10 @@ export default async function SearchPage({ searchParams }: PageProps) {
   const dept = sp.dept  ?? null;
   const from = sp.from  ?? null;
   const to   = sp.to    ?? null;
+  const sort = (sp.sort === 'newest' ? 'newest' : 'relevance') as 'relevance' | 'newest';
 
   const results: SearchResult[] = q.length >= 2
-    ? await searchContent(q, type, dept, from, to)
+    ? await searchContent(q, type, dept, from, to, sort)
     : [];
 
   return (
@@ -140,7 +142,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
       </header>
 
       {/* key remounts on q|type change so useState reinitialises with the current URL value */}
-      <SearchInput key={q + '|' + type + '|' + (dept ?? '')} defaultQ={q} defaultType={type} defaultDept={dept ?? ''} />
+      <SearchInput key={q + '|' + type + '|' + (dept ?? '') + '|' + sort} defaultQ={q} defaultType={type} defaultDept={dept ?? ''} defaultSort={sort} />
 
       {q.length >= 2 && results.length === 0 && (
         <div style={{ padding: '40px 0', textAlign: 'center' }}>

@@ -24,19 +24,21 @@ interface Props {
   defaultQ: string;
   defaultType: string;
   defaultDept: string;
+  defaultSort: string;
 }
 
-export default function SearchInput({ defaultQ, defaultType, defaultDept }: Props) {
+export default function SearchInput({ defaultQ, defaultType, defaultDept, defaultSort }: Props) {
   const [q, setQ] = useState(defaultQ);
   const [dept, setDept] = useState(defaultDept);
   const [, startTransition] = useTransition();
   const router = useRouter();
 
-  function navigate(newQ: string, newType: string, newDept: string) {
+  function navigate(newQ: string, newType: string, newDept: string, newSort: string) {
     const params = new URLSearchParams();
     if (newQ.trim()) params.set('q', newQ.trim());
     if (newType !== 'all') params.set('type', newType);
     if (newDept) params.set('dept', newDept);
+    if (newSort === 'newest') params.set('sort', 'newest');
     const qs = params.toString();
     startTransition(() => {
       router.push('/search' + (qs ? '?' + qs : ''));
@@ -45,12 +47,12 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept }: Prop
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    navigate(q, defaultType, dept);
+    navigate(q, defaultType, dept, defaultSort);
   }
 
   function handleClear() {
     setQ('');
-    navigate('', defaultType, dept);
+    navigate('', defaultType, dept, defaultSort);
   }
 
   return (
@@ -107,7 +109,7 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept }: Prop
           return (
             <button
               key={chip.value}
-              onClick={() => navigate(q, chip.value, dept)}
+              onClick={() => navigate(q, chip.value, dept, defaultSort)}
               style={{
                 padding: '4px 11px',
                 fontFamily: MONO,
@@ -126,13 +128,13 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept }: Prop
         })}
       </div>
 
-      <div style={{ marginTop: '10px' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', marginTop: '10px' }}>
         <select
           value={dept}
           onChange={(e) => {
             const newDept = e.target.value;
             setDept(newDept);
-            navigate(q, defaultType, newDept);
+            navigate(q, defaultType, newDept, defaultSort);
           }}
           style={{
             fontFamily: MONO,
@@ -151,6 +153,39 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept }: Prop
             <option key={d.slug} value={d.slug}>{d.shortName}</option>
           ))}
         </select>
+        <div style={{ display: 'inline-flex', border: `1px solid ${HAIRLINE}`, overflow: 'hidden' }}>
+          <button
+            onClick={() => navigate(q, defaultType, dept, 'relevance')}
+            style={{
+              padding: '4px 11px',
+              fontFamily: MONO,
+              fontSize: '12px',
+              letterSpacing: '0.08em',
+              color: defaultSort !== 'newest' ? '#fff' : 'rgba(20,16,13,0.55)',
+              background: defaultSort !== 'newest' ? ACCENT : 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            Best match
+          </button>
+          <button
+            onClick={() => navigate(q, defaultType, dept, 'newest')}
+            style={{
+              padding: '4px 11px',
+              fontFamily: MONO,
+              fontSize: '12px',
+              letterSpacing: '0.08em',
+              color: defaultSort === 'newest' ? '#fff' : 'rgba(20,16,13,0.55)',
+              background: defaultSort === 'newest' ? ACCENT : 'transparent',
+              border: 'none',
+              borderLeft: `1px solid ${HAIRLINE}`,
+              cursor: 'pointer',
+            }}
+          >
+            Newest
+          </button>
+        </div>
       </div>
     </div>
   );
