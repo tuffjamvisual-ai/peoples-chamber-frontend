@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import type { CSSProperties } from 'react';
 import { useAuth } from '../context/AuthContext';
@@ -75,7 +75,12 @@ export default function MagazineLoginClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = safeReturnTo(searchParams.get('returnTo'));
-  const { login, signup } = useAuth();
+  const { login, signup, user } = useAuth();
+
+  // Redirect already-authenticated users away from the login page.
+  useEffect(() => {
+    if (user) router.push(returnTo);
+  }, [user, returnTo, router]);
 
   const [mode, setMode] = useState<'signin' | 'signup'>(
     searchParams.get('mode') === 'signup' ? 'signup' : 'signin',
@@ -123,7 +128,7 @@ export default function MagazineLoginClient() {
     if (!pwOk) { setError('Password must be 8 or more characters with a letter and a number'); return; }
     setLoading(true);
     try {
-      const res = await signup(signupEmail.trim(), signupPassword, signupPostcode.trim(), signupName.trim());
+      const res = await signup(signupEmail.trim(), signupPassword, signupPostcode.trim(), signupName.trim(), returnTo !== '/' ? returnTo : undefined);
       if (res?.needsVerification) {
         setLoading(false);
         setNotice('Account created. Check your email for a confirmation link, then sign in to start voting.');

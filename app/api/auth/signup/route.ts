@@ -34,6 +34,12 @@ export async function POST(request: NextRequest) {
     const username = (body.username as string | undefined)?.trim();
     const postcode = (body.postcode as string | undefined) ?? null;
     const email = (body.email as string | undefined)?.trim().toLowerCase();
+    const rawReturnTo = (body.returnTo as string | undefined) ?? null;
+    // Only store a safe relative path; reject anything that could be an open redirect.
+    const pendingReturnTo =
+      rawReturnTo && rawReturnTo.startsWith('/') && !rawReturnTo.startsWith('//')
+        ? rawReturnTo
+        : null;
 
     if (!email || !password || !username) {
       return NextResponse.json(
@@ -106,6 +112,7 @@ export async function POST(request: NextRequest) {
         email_verified: verified,
         verification_token: verified ? null : token,
         verification_sent_at: verified ? null : new Date().toISOString(),
+        pending_return_to: verified ? null : pendingReturnTo,
       })
       .select('id, email, username, postcode, email_verified, created_at')
       .single();

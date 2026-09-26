@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
 
   const { data: u } = await supabase
     .from('users')
-    .select('id')
+    .select('id, pending_return_to')
     .eq('verification_token', token)
     .maybeSingle();
 
@@ -20,10 +20,14 @@ export async function GET(request: NextRequest) {
 
   await supabase
     .from('users')
-    .update({ email_verified: true, verification_token: null })
+    .update({ email_verified: true, verification_token: null, pending_return_to: null })
     .eq('id', u.id);
 
-  const res = NextResponse.redirect(`${base}/login?verified=1`);
+  const dest =
+    u.pending_return_to && u.pending_return_to !== '/'
+      ? `${base}/login?verified=1&returnTo=${encodeURIComponent(u.pending_return_to)}`
+      : `${base}/login?verified=1`;
+  const res = NextResponse.redirect(dest);
   setSessionCookie(res, u.id);
   return res;
 }

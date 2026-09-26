@@ -12,7 +12,7 @@ type User = {
 type AuthContextType = {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
-  signup: (email: string, password: string, postcode?: string, username?: string) => Promise<{ needsVerification: boolean }>;
+  signup: (email: string, password: string, postcode?: string, username?: string, returnTo?: string) => Promise<{ needsVerification: boolean }>;
   logout: () => void;
 };
 
@@ -26,6 +26,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
+    // Hydrate from the og_session cookie. Handles three cases:
+    //   1. Post-verify auto-login: localStorage is empty but a valid session
+    //      cookie was set by the verify route — /me returns the user.
+    //   2. Stale localStorage after session expiry: /me returns 401, clear it.
+    //   3. Network failure: keep whatever localStorage had (don't log out).
+    fetch('/api/auth/me')
+      .then(async (res) => {
+        if (res.ok) {
+          const data = await res.json();
+          if (data.user) {
+            setUser(data.user);
+            localStorage.setItem('user', JSON.stringify(data.user));
+          }
+        } else if (res.status === 401) {
+          setUser(null);
+          localStorage.removeItem('user');
+        }
+      })
+      .catch(() => {
+        // Network failure — keep localStorage user untouched.
+      });
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -45,11 +66,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('user', JSON.stringify(data.user));
   };
 
-  const signup = async (email: string, password: string, postcode?: string, username?: string) => {
+  const signup = async (email: string, password: string, postcode?: string, username?: string, returnTo?: string) => {
     const response = await fetch('/api/auth/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, postcode, username })
+      body: JSON.stringify({ email, password, postcode, username, returnTo })
     });
 
     const data = await response.json();
