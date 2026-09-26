@@ -96,6 +96,7 @@ type AgencyRow = {
   dept_slug: string;
   name: string;
   url: string;
+  slug: string;
   acronym: string;
   updated_at: string;
 };
@@ -240,6 +241,7 @@ async function syncDept(supabase: SupabaseClient, deptSlug: string, govukSlug: s
       dept_slug: deptSlug,
       name: o.title,
       url: o.web_url,
+      slug: o.web_url.replace(/^.*\/government\/organisations\//, ''),
       acronym: o.details?.acronym || '',
       updated_at: now,
     }));

@@ -13,6 +13,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .from('dept_agencies')
     .select('name, acronym, dept_slug')
     .eq('slug', slug)
+    .limit(1)
     .maybeSingle();
   if (!agency || !agency.name) return { title: 'Agency' };
   const title = agency.acronym ? `${agency.name} (${agency.acronym})` : agency.name;
