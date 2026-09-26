@@ -140,7 +140,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
       </header>
 
       {/* key remounts on q|type change so useState reinitialises with the current URL value */}
-      <SearchInput key={q + '|' + type} defaultQ={q} defaultType={type} />
+      <SearchInput key={q + '|' + type + '|' + (dept ?? '')} defaultQ={q} defaultType={type} defaultDept={dept ?? ''} />
 
       {q.length >= 2 && results.length === 0 && (
         <div style={{ padding: '40px 0', textAlign: 'center' }}>
