@@ -105,13 +105,15 @@ export async function GET(req: Request) {
   const supabase = createClient(url, key);
 
   // Current DB roster.
-  const { data: dbRows, error } = await supabase.from('mps').select('member_id, current_member');
+  const { data: dbRows, error } = await supabase.from('mps').select('member_id, current_member, retirement_pending_since');
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   const dbCurrent = new Set<number>();
   const dbAll = new Set<number>();
+  const pendingSince = new Map<number, string>();
   for (const r of dbRows || []) {
     dbAll.add(r.member_id as number);
     if (r.current_member) dbCurrent.add(r.member_id as number);
+    if (r.retirement_pending_since) pendingSince.set(r.member_id as number, r.retirement_pending_since as string);
   }
 
   // Current API roster.
@@ -131,7 +133,10 @@ export async function GET(req: Request) {
 
   const added: Array<{ member_id: number; name: string }> = [];
   const retired: number[] = [];
+  const pending: number[] = [];
+  const cleared: number[] = [];
   const today = new Date().toISOString().slice(0, 10);
+  const now = new Date().toISOString();
 
   // ADD / REACTIVATE: current in API but not currently flagged in DB.
   for (const id of apiCurrent.keys()) {
@@ -145,16 +150,37 @@ export async function GET(req: Request) {
     }
   }
 
-  // RETIRE: currently flagged in DB but no longer current in API.
+  // RETIRE (two-strikes): currently flagged in DB, checked against API.
   for (const id of dbCurrent) {
-    if (apiCurrent.has(id)) continue;
-    const { error: rErr } = await supabase
-      .from('mps')
-      .update({ current_member: false, end_date: today, updated_at: new Date().toISOString() })
-      .eq('member_id', id);
-    if (!rErr) {
-      retired.push(id);
-      revalidatePath(`/mps/${id}`);
+    if (apiCurrent.has(id)) {
+      // MP is back in the API — clear any pending strike.
+      if (pendingSince.has(id)) {
+        const { error: cErr } = await supabase
+          .from('mps')
+          .update({ retirement_pending_since: null, updated_at: now })
+          .eq('member_id', id);
+        if (!cErr) cleared.push(id);
+      }
+      continue;
+    }
+    // Not in API this run — apply two-strikes logic.
+    if (!pendingSince.has(id)) {
+      // First miss: set the pending timestamp, leave current_member untouched.
+      const { error: pErr } = await supabase
+        .from('mps')
+        .update({ retirement_pending_since: now, updated_at: now })
+        .eq('member_id', id);
+      if (!pErr) pending.push(id);
+    } else {
+      // Second consecutive miss: actually retire.
+      const { error: rErr } = await supabase
+        .from('mps')
+        .update({ current_member: false, end_date: today, retirement_pending_since: null, updated_at: now })
+        .eq('member_id', id);
+      if (!rErr) {
+        retired.push(id);
+        revalidatePath(`/mps/${id}`);
+      }
     }
   }
 
@@ -169,7 +195,11 @@ export async function GET(req: Request) {
     api_current: apiCurrent.size,
     added: added.length,
     retired: retired.length,
+    pending: pending.length,
+    cleared: cleared.length,
     addedMembers: added,
     retiredMemberIds: retired,
+    pendingMemberIds: pending,
+    clearedMemberIds: cleared,
   });
 }
