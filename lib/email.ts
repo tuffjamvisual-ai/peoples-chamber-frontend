@@ -105,6 +105,31 @@ export async function sendBriefingNotification(
   }
 }
 
+export async function sendPasswordResetEmail(to: string, token: string, baseUrl: string) {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return { sent: false, reason: 'no_api_key' };
+  const from = process.env.RESEND_FROM || 'opengovt <onboarding@resend.dev>';
+  const link = `${baseUrl}/reset-password?token=${encodeURIComponent(token)}`;
+  try {
+    const resend = new Resend(key);
+    await resend.emails.send({
+      from,
+      to,
+      subject: 'Reset your opengovt password',
+      html: `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#14100d">
+        <p>You requested a password reset for your opengovt account.</p>
+        <p>Click the link below to set a new password. This link expires in 1 hour.</p>
+        <p><a href="${link}" style="display:inline-block;background:#6b2417;color:#ffffff;padding:11px 20px;border-radius:4px;text-decoration:none">Reset my password</a></p>
+        <p style="font-size:13px;color:#555">Or paste this link into your browser:<br>${link}</p>
+        <p style="font-size:13px;color:#555">If you did not request a reset, you can ignore this email. Your password has not changed.</p>
+      </div>`,
+    });
+    return { sent: true };
+  } catch (e) {
+    return { sent: false, reason: (e as Error).message };
+  }
+}
+
 export async function sendVerificationEmail(to: string, token: string, baseUrl: string) {
   const key = process.env.RESEND_API_KEY;
   if (!key) return { sent: false, reason: 'no_api_key' };

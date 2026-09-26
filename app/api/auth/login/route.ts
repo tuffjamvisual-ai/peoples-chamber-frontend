@@ -18,29 +18,32 @@ export async function POST(request: NextRequest) {
 
     const { data: user, error } = await supabase
       .from('users')
-      .select('id, email, password, username, postcode')
+      .select('id, email, password, username, postcode, force_password_reset')
       .eq('email', email)
       .single();
-    
+
     if (error || !user) {
       return NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 401 }
       );
     }
-    
+
     const validPassword = await bcrypt.compare(password, user.password);
-    
+
     if (!validPassword) {
       return NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 401 }
       );
     }
-    
-    const { password: _, ...userWithoutPassword } = user;
 
-    const res = NextResponse.json({ user: userWithoutPassword });
+    // Correct password but reset required — no session issued yet.
+    if (user.force_password_reset) {
+      return NextResponse.json({ needsPasswordReset: true });
+    }
+
+    const res = NextResponse.json({ user: { id: user.id, email: user.email, username: user.username, postcode: user.postcode } });
     setSessionCookie(res, user.id);
     return res;
     

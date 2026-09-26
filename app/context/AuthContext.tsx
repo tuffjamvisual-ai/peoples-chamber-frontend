@@ -11,9 +11,10 @@ type User = {
 
 type AuthContextType = {
   user: User | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<{ needsPasswordReset: true; email: string } | undefined>;
   signup: (email: string, password: string, postcode?: string, username?: string, returnTo?: string) => Promise<{ needsVerification: boolean }>;
   logout: () => void;
+  setAuthedUser: (user: User) => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -62,6 +63,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error(data.error || 'Login failed');
     }
 
+    if (data.needsPasswordReset) {
+      return { needsPasswordReset: true as const, email };
+    }
+
     setUser(data.user);
     localStorage.setItem('user', JSON.stringify(data.user));
   };
@@ -94,8 +99,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('user');
   };
 
+  const setAuthedUser = (u: User) => {
+    setUser(u);
+    localStorage.setItem('user', JSON.stringify(u));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, setAuthedUser }}>
       {children}
     </AuthContext.Provider>
   );

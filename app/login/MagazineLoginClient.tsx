@@ -5,10 +5,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import type { CSSProperties } from 'react';
 import { useAuth } from '../context/AuthContext';
 
-// Real, visible sign-in / create-account form rendered inside the dossier
-// folder (ink on parchment). Wired to the existing /api/auth login + signup
-// via AuthContext. Replaces the old transparent-input-over-PNG overlay.
-
 const INK = '#14100d';
 const ACCENT = '#6b2417';
 
@@ -55,6 +51,17 @@ const button: CSSProperties = {
   cursor: 'pointer',
 };
 
+const ghostLink: CSSProperties = {
+  background: 'none',
+  border: 'none',
+  color: ACCENT,
+  fontFamily: 'inherit',
+  fontSize: '15px',
+  cursor: 'pointer',
+  padding: 0,
+  textDecoration: 'underline',
+};
+
 function tab(active: boolean): CSSProperties {
   return {
     flex: 1,
@@ -71,21 +78,23 @@ function tab(active: boolean): CSSProperties {
   };
 }
 
+type Mode = 'signin' | 'signup' | 'forgot' | 'changePassword';
+
 export default function MagazineLoginClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = safeReturnTo(searchParams.get('returnTo'));
-  const { login, signup, user } = useAuth();
+  const { login, signup, user, setAuthedUser } = useAuth();
 
-  // Redirect already-authenticated users away from the login page.
   useEffect(() => {
     if (user) router.push(returnTo);
   }, [user, returnTo, router]);
 
-  const [mode, setMode] = useState<'signin' | 'signup'>(
+  const [mode, setMode] = useState<Mode>(
     searchParams.get('mode') === 'signup' ? 'signup' : 'signin',
   );
 
+  // signin / signup fields
   const [signinEmail, setSigninEmail] = useState('');
   const [signinPassword, setSigninPassword] = useState('');
   const [signupName, setSignupName] = useState('');
@@ -93,16 +102,31 @@ export default function MagazineLoginClient() {
   const [signupPassword, setSignupPassword] = useState('');
   const [signupPostcode, setSignupPostcode] = useState('');
 
+  // forgot fields
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotSent, setForgotSent] = useState(false);
+
+  // changePassword fields (also used for forced-reset flow)
+  const [cpEmail, setCpEmail] = useState('');
+  const [cpCurrent, setCpCurrent] = useState('');
+  const [cpNew, setCpNew] = useState('');
+  const [isForced, setIsForced] = useState(false);
+
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState(() => {
     const v = searchParams.get('verified');
-    return v === '1' ? 'Email confirmed. You can now sign in and vote.' : v === 'invalid' ? 'That confirmation link was invalid or has expired.' : '';
+    return v === '1'
+      ? 'Email confirmed. You can now sign in and vote.'
+      : v === 'invalid'
+        ? 'That confirmation link was invalid or has expired.'
+        : '';
   });
 
-  function switchMode(next: 'signin' | 'signup') {
+  function switchMode(next: Mode) {
     setMode(next);
     setError('');
+    setNotice('');
   }
 
   async function handleSignin(e: React.FormEvent) {
@@ -111,7 +135,16 @@ export default function MagazineLoginClient() {
     setError('');
     setLoading(true);
     try {
-      await login(signinEmail.trim(), signinPassword);
+      const result = await login(signinEmail.trim(), signinPassword);
+      if (result?.needsPasswordReset) {
+        setCpEmail(result.email);
+        setIsForced(true);
+        setCpCurrent('');
+        setCpNew('');
+        setLoading(false);
+        switchMode('changePassword');
+        return;
+      }
       router.push(returnTo);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Sign in failed');
@@ -141,6 +174,49 @@ export default function MagazineLoginClient() {
     }
   }
 
+  async function handleForgot(e: React.FormEvent) {
+    e.preventDefault();
+    if (loading) return;
+    setError('');
+    setLoading(true);
+    try {
+      await fetch('/api/auth/forgot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: forgotEmail.trim().toLowerCase() }),
+      });
+      setForgotSent(true);
+    } catch {
+      // Still show the same generic notice — don't reveal network state.
+      setForgotSent(true);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleChangePassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (loading) return;
+    setError('');
+    const pwOk = cpNew.length >= 8 && /[A-Za-z]/.test(cpNew) && /[0-9]/.test(cpNew);
+    if (!pwOk) { setError('Password must be 8 or more characters with a letter and a number'); return; }
+    setLoading(true);
+    try {
+      const res = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: cpEmail, currentPassword: cpCurrent, newPassword: cpNew }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || 'Password change failed'); setLoading(false); return; }
+      setAuthedUser(data.user);
+      router.push(returnTo);
+    } catch {
+      setError('Something went wrong. Please try again.');
+      setLoading(false);
+    }
+  }
+
   return (
     <div style={{ maxWidth: '440px', margin: '0 auto', fontFamily: 'Special Elite, monospace', color: INK }}>
       <style>{`
@@ -150,11 +226,13 @@ export default function MagazineLoginClient() {
       `}</style>
 
       <div className="pc-login">
-        {/* Tabs */}
-        <div style={{ display: 'flex', borderBottom: '1px solid rgba(20,16,13,0.2)', marginBottom: '26px' }}>
-          <button type="button" onClick={() => switchMode('signin')} style={tab(mode === 'signin')}>Sign In</button>
-          <button type="button" onClick={() => switchMode('signup')} style={tab(mode === 'signup')}>Create Account</button>
-        </div>
+        {/* Tabs — hidden in forgot / changePassword modes */}
+        {(mode === 'signin' || mode === 'signup') && (
+          <div style={{ display: 'flex', borderBottom: '1px solid rgba(20,16,13,0.2)', marginBottom: '26px' }}>
+            <button type="button" onClick={() => switchMode('signin')} style={tab(mode === 'signin')}>Sign In</button>
+            <button type="button" onClick={() => switchMode('signup')} style={tab(mode === 'signup')}>Create Account</button>
+          </div>
+        )}
 
         {error && (
           <div role="alert" style={{ marginBottom: '18px', padding: '11px 14px', background: 'rgba(107,36,23,0.1)', border: `1px solid ${ACCENT}`, color: ACCENT, fontSize: '15px', lineHeight: 1.4 }}>
@@ -168,24 +246,32 @@ export default function MagazineLoginClient() {
           </div>
         )}
 
-        {mode === 'signin' ? (
+        {mode === 'signin' && (
           <form onSubmit={handleSignin}>
             <label style={label} htmlFor="si-email">Email</label>
             <input id="si-email" type="email" autoComplete="username" required value={signinEmail} onChange={(e) => setSigninEmail(e.target.value)} style={input} />
 
             <label style={label} htmlFor="si-pw">Password</label>
-            <input id="si-pw" type="password" autoComplete="current-password" required value={signinPassword} onChange={(e) => setSigninPassword(e.target.value)} style={input} />
+            <input id="si-pw" type="password" autoComplete="current-password" required value={signinPassword} onChange={(e) => setSigninPassword(e.target.value)} style={{ ...input, marginBottom: '8px' }} />
+
+            <p style={{ margin: '0 0 18px', textAlign: 'right', fontSize: '15px' }}>
+              <button type="button" onClick={() => { setForgotEmail(signinEmail); switchMode('forgot'); }} style={ghostLink}>
+                Forgot password?
+              </button>
+            </p>
 
             <button type="submit" disabled={loading} style={button}>{loading ? 'Signing in…' : 'Sign In'}</button>
 
             <p style={{ marginTop: '16px', fontSize: '15px', opacity: 0.75 }}>
               New here?{' '}
-              <button type="button" onClick={() => switchMode('signup')} style={{ background: 'none', border: 'none', color: ACCENT, font: 'inherit', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>
+              <button type="button" onClick={() => switchMode('signup')} style={ghostLink}>
                 Create an account
               </button>
             </p>
           </form>
-        ) : (
+        )}
+
+        {mode === 'signup' && (
           <form onSubmit={handleSignup}>
             <label style={label} htmlFor="su-name">Full name</label>
             <input id="su-name" type="text" autoComplete="name" required value={signupName} onChange={(e) => setSignupName(e.target.value)} style={input} />
@@ -204,11 +290,65 @@ export default function MagazineLoginClient() {
 
             <p style={{ marginTop: '16px', fontSize: '15px', opacity: 0.75 }}>
               Already registered?{' '}
-              <button type="button" onClick={() => switchMode('signin')} style={{ background: 'none', border: 'none', color: ACCENT, font: 'inherit', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>
+              <button type="button" onClick={() => switchMode('signin')} style={ghostLink}>
                 Sign in
               </button>
             </p>
           </form>
+        )}
+
+        {mode === 'forgot' && (
+          <div>
+            <h2 style={{ fontSize: 'clamp(18px, 2.4vw, 26px)', fontWeight: 'bold', letterSpacing: '-0.01em', marginBottom: '16px' }}>
+              Forgot password
+            </h2>
+            {forgotSent ? (
+              <div role="status" style={{ padding: '11px 14px', background: 'rgba(78,107,52,0.12)', border: '1px solid #4e6b34', color: '#3a5226', fontSize: '15px', lineHeight: 1.5, marginBottom: '20px' }}>
+                If that address is registered, a reset link is on its way. Check your inbox.
+              </div>
+            ) : (
+              <form onSubmit={handleForgot}>
+                <label style={label} htmlFor="fp-email">Email</label>
+                <input id="fp-email" type="email" autoComplete="email" required value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} style={input} />
+                <button type="submit" disabled={loading} style={button}>{loading ? 'Sending…' : 'Send reset link'}</button>
+              </form>
+            )}
+            <p style={{ marginTop: '20px', fontSize: '15px', opacity: 0.75 }}>
+              <button type="button" onClick={() => switchMode('signin')} style={ghostLink}>
+                ← Back to sign in
+              </button>
+            </p>
+          </div>
+        )}
+
+        {mode === 'changePassword' && (
+          <div>
+            <h2 style={{ fontSize: 'clamp(18px, 2.4vw, 26px)', fontWeight: 'bold', letterSpacing: '-0.01em', marginBottom: '10px' }}>
+              {isForced ? 'Set a new password' : 'Change password'}
+            </h2>
+            {isForced && (
+              <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '20px', lineHeight: 1.5 }}>
+                You need to set a new password before continuing.
+              </p>
+            )}
+            <form onSubmit={handleChangePassword}>
+              <label style={label} htmlFor="cp-current">Current password</label>
+              <input id="cp-current" type="password" autoComplete="current-password" required value={cpCurrent} onChange={(e) => setCpCurrent(e.target.value)} style={input} />
+
+              <label style={label} htmlFor="cp-new">New password</label>
+              <input id="cp-new" type="password" autoComplete="new-password" required value={cpNew} onChange={(e) => setCpNew(e.target.value)} style={{ ...input, marginBottom: '6px' }} />
+              <p style={{ margin: '0 0 18px', fontSize: '15px', opacity: 0.6 }}>8 or more characters, with a letter and a number.</p>
+
+              <button type="submit" disabled={loading} style={button}>{loading ? 'Saving…' : 'Set new password'}</button>
+            </form>
+            {!isForced && (
+              <p style={{ marginTop: '20px', fontSize: '15px', opacity: 0.75 }}>
+                <button type="button" onClick={() => switchMode('signin')} style={ghostLink}>
+                  ← Back to sign in
+                </button>
+              </p>
+            )}
+          </div>
         )}
       </div>
     </div>
