@@ -420,6 +420,68 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
             )
           })}
         </ul>
+      ) : section === 'contracts' ? (
+        <>
+          <ul className="border border-[#14100d]/20 divide-y divide-[#14100d]/10">
+            {paged.map((row, i) => {
+              const title       = (row.title as string | null) || '(untitled)'
+              const supplier    = row.supplier as string | null
+              const value       = formatAmount(row.value)
+              const awardedDate = formatUkDate(row.awarded_date)
+              const status      = (row.status as string | null)?.toLowerCase() ?? null
+              const description = (row.description as string | null)?.trim() || null
+              const ocid        = row.ocid as string | null
+              const awardId     = row.award_id as string | null
+              const contractId  = row.contract_id as string | null
+              const deptSlug    = row.dept_slug as string | null
+              const updatedAt   = row.updated_at as string | null
+              const deptLabel   = deptSlug
+                ? deptSlug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+                : null
+              const statusColour =
+                status === 'active'  ? '#1a5c36' :
+                status === 'pending' ? '#7a5c12' :
+                /* terminated / other */ 'rgba(20,16,13,0.4)'
+              const descTruncated = description && description.length > 300
+                ? description.slice(0, 300) + '…'
+                : description
+              return (
+                <li key={i} className="p-5 border-l-2 border-l-[#14100d]">
+                  <div className="flex items-baseline justify-between gap-4 mb-1.5">
+                    <h3 className="text-[#14100d] text-base font-bold leading-snug tracking-tight">{title}</h3>
+                    {awardedDate && (
+                      <span className="text-[#14100d] text-[15px] font-mono whitespace-nowrap uppercase tracking-[0.15em]">{awardedDate}</span>
+                    )}
+                  </div>
+                  <p className="text-[15px] leading-[1.7] mb-1" style={{ fontFamily: 'Special Elite, monospace' }}>
+                    {[supplier, deptLabel, value].filter(Boolean).join(' · ')}
+                    {status && (
+                      <span className="ml-3 text-[13px] uppercase tracking-[0.12em] font-bold" style={{ color: statusColour }}>
+                        {status}
+                      </span>
+                    )}
+                  </p>
+                  {descTruncated && (
+                    <p className="text-[#14100d]/75 text-[15px] leading-[1.65] mt-1.5">{descTruncated}</p>
+                  )}
+                  <details className="mt-3">
+                    <summary className="cursor-pointer text-[15px] uppercase tracking-[0.2em] text-[#14100d]/70 font-bold inline-block" style={{ fontFamily: 'Special Elite, monospace' }}>
+                      Record identifiers ▾
+                    </summary>
+                    <dl className="mt-2 grid grid-cols-1 sm:grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-[15px] leading-[1.65]" style={{ fontFamily: 'Special Elite, monospace' }}>
+                      {ocid       && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">OCID</dt><dd className="text-[#14100d] font-mono break-all">{ocid}</dd></>)}
+                      {awardId    && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Award ID</dt><dd className="text-[#14100d] font-mono">{awardId}</dd></>)}
+                      {contractId && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Contract ID</dt><dd className="text-[#14100d] font-mono">{contractId}</dd></>)}
+                      {deptSlug   && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Dept slug</dt><dd className="text-[#14100d] font-mono">{deptSlug}</dd></>)}
+                      {updatedAt  && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Updated</dt><dd className="text-[#14100d]">{formatUkDate(updatedAt)}</dd></>)}
+                    </dl>
+                  </details>
+                </li>
+              )
+            })}
+          </ul>
+          <Pagination page={page} totalPages={totalPages} onPrev={() => setPage(p => p - 1)} onNext={() => setPage(p => p + 1)} filteredCount={filtered.length} />
+        </>
       ) : (
         <>
           <ul className="border border-[#14100d]/20 divide-y divide-[#14100d]/10">
