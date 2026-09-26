@@ -7,6 +7,7 @@ import { editorials } from '@/lib/editorials';
 import { supabase } from '@/lib/supabase';
 import { govUrlToSlug } from '@/lib/govUrlSlug';
 import { normalizeOrg, resolveOrgHref } from '@/lib/govOrgSlug';
+import { departments } from '@/lib/departments';
 import './home-front.css';
 
 function fmtGovDate(iso: string | null | undefined): string {
@@ -315,7 +316,7 @@ export default async function HomePage() {
 
               <a className="og-block og-card" href="/departments">
                 <div className="og-head">Who runs Whitehall</div>
-                <p>All twenty four ministerial departments graded against the public record of what they were set up to do.</p>
+                <p>All {departments.length} ministerial departments assessed against the public record of what they were set up to do.</p>
                 <div className="og-cta">See the departments &rarr;</div>
               </a>
 
@@ -351,7 +352,7 @@ function HomepageEditorialIntro() {
     >
       <h2>Opengovt is an independent record of how the United Kingdom is governed.</h2>
       <p>
-        Every Member of Parliament has a profile here. Their voting record, their declared earnings, the bills they have sponsored, the hours they spend on second jobs, and a biographical note that reads as a political assessment rather than a press release. Each of the 24 ministerial departments has its own institutional performance report, marked by letter grade, against the public record of what it was set up to do. Every bill since 2010 is tracked through its stages of Parliament: which Members spoke for and against, how the division went on each reading, and whether it became law.
+        Every Member of Parliament has a profile here. Their voting record, their declared earnings, the bills they have sponsored, the hours they spend on second jobs, and a biographical note that reads as a political assessment rather than a press release. Each of the {departments.length} ministerial departments has its own institutional performance report against the public record of what it was set up to do. Every bill since 2010 is tracked through its stages of Parliament: which Members spoke for and against, how the division went on each reading, and whether it became law.
       </p>
       <p>
         The transparency surfaces sit alongside the formal record. Ministers&rsquo; meetings, ministers&rsquo; hospitality, the Advisory Committee on Business Appointments, the Register of Members&rsquo; Financial Interests, awarded public contracts and political donations are pulled from the public registers daily, indexed by Member and by department, searchable.

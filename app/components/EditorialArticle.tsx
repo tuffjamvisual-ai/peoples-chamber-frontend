@@ -61,7 +61,7 @@ export default function EditorialArticle({ piece, stamp, backHref }: { piece: Ed
           <div style={{ marginTop: '20px', fontSize: '15px', color: INK_SOFT, fontFamily: '"Special Elite", monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
             By {piece.authorByline}
           </div>
-          {stamp === 'Briefing' && piece.publishedAt && (
+          {piece.publishedAt && (
             <div style={{ marginTop: '8px', fontSize: '15px', color: INK_SOFT, fontFamily: '"Special Elite", monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
               {new Date(piece.publishedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
             </div>

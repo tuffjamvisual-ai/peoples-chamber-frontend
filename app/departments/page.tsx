@@ -9,7 +9,7 @@ import BackLink from '../components/BackLink';
 export const metadata: Metadata = {
   title: "UK Government Departments, Ministers, Budgets & Performance Reports",
   description:
-    "All UK government departments, Secretary of State, junior ministers, annual budget, and an institutional performance report with letter-grade assessment. Treasury to Wales Office.",
+    `All ${departments.length} UK government departments, Secretary of State, junior ministers, annual budget, and an institutional performance report. Treasury to Wales Office.`,
   alternates: { canonical: '/departments' },
 };
 

@@ -9,7 +9,7 @@ export const revalidate = 3600
 export const metadata: Metadata = {
   title: "UK Government Transparency, Lobbying, Donations, Hospitality, Contracts",
   description:
-    "Seven UK government transparency datasets: ministers' meetings, lobbying contacts, hospitality declarations, revolving door, political donations, public contracts and daily press releases.",
+    "UK government transparency data: ministerial meetings, hospitality declarations, political donations, public contracts, revolving door and more — drawn from public registers.",
   alternates: { canonical: '/transparency' },
 }
 
@@ -19,7 +19,7 @@ const JSONLD_WEBPAGE = {
   '@id': 'https://www.opengovt.uk/transparency#page',
   name: 'UK Government Transparency Hub',
   description:
-    "Seven UK government transparency datasets: ministers' meetings, lobbying contacts, hospitality declarations, revolving door, political donations, public contracts and daily press releases.",
+    "UK government transparency data: ministerial meetings, hospitality declarations, political donations, public contracts, revolving door and more — drawn from public registers.",
   isPartOf: { '@id': 'https://www.opengovt.uk/#website' },
   url: 'https://www.opengovt.uk/transparency',
 };
@@ -71,7 +71,7 @@ export default function TransparencyHubPage() {
           Transparency Hub
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
-          Nine datasets covering how ministers, MPs, donors, contractors and former officials interact with the UK state, plus the daily press release feed and the full local council register. Each section links to a searchable list of the underlying records.
+          {SECTIONS.length} datasets covering how ministers, MPs, donors, contractors and former officials interact with the UK state, plus the daily press release feed and the full local council register. Each section links to a searchable list of the underlying records.
         </p>
         <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px', opacity: 0.7 }}>
           {SECTIONS.length} datasets · drawn from public registers
