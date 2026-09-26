@@ -1,0 +1,22 @@
+name: Weekly Donations Sync
+
+on:
+  schedule:
+    - cron: '0 2 * * 1'
+  workflow_dispatch:
+
+jobs:
+  sync-donations:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      NEXT_PUBLIC_SUPABASE_URL: https://nwnsvnbudmfkhhwcjwwr.supabase.co
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+      - name: Install dependencies
+        run: npm install @supabase/supabase-js ws
+      - name: Sync political donations (full window since 2024-07-04)
+        run: node scripts/sync-political-donations.js

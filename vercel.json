@@ -98,7 +98,7 @@
     },
     {
       "path": "/api/sync-electoral-commission-donations",
-      "schedule": "30 10 * * *"
+      "schedule": "30 2 * * *"
     },
     {
       "path": "/api/sync-parlparse-votes",

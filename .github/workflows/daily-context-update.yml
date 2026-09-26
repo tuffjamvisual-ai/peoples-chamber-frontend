@@ -62,9 +62,6 @@ jobs:
       - name: Sync Register of Consultant Lobbyists (Playwright)
         run: node scripts/sync-lobbyist-register.js
         continue-on-error: true
-      - name: Sync political donations
-        run: node scripts/sync-political-donations.js
-        continue-on-error: true
       - name: Sync government contracts
         run: node scripts/sync-government-contracts.js
         continue-on-error: true

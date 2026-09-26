@@ -223,10 +223,15 @@ export async function GET(req: Request) {
     }
     const rows = (data.Result || []).map(mapRow).filter((r): r is Record<string, unknown> => r !== null);
     if (rows.length === 0) break;
-    const { error } = await supabase
-      .from('political_donations')
-      .upsert(rows, { onConflict: 'ec_ref' });
-    if (!error) upserted += rows.length;
+    const SUB_BATCH = 25;
+    for (let b = 0; b < rows.length; b += SUB_BATCH) {
+      const chunk = rows.slice(b, b + SUB_BATCH);
+      const { error } = await supabase
+        .from('political_donations')
+        .upsert(chunk, { onConflict: 'ec_ref' });
+      if (!error) upserted += chunk.length;
+      if (b + SUB_BATCH < rows.length) await new Promise((r) => setTimeout(r, 100));
+    }
     pages++;
     await new Promise((r) => setTimeout(r, 150));
   }
