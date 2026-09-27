@@ -24,6 +24,10 @@ const getHomepageCounts = unstable_cache(
       supabase.from('press_releases').select('*', { count: 'exact', head: true }).not('removed_upstream', 'is', true).not('gov_url', 'is', null),
       supabase.from('commons_divisions_fts').select('*', { count: 'exact', head: true }),
     ]);
+    const failed = mpsRes.error || releasesRes.error || divisionsRes.error;
+    if (failed) {
+      throw new Error(`getHomepageCounts: Supabase query failed - ${failed.message}`);
+    }
     return {
       mps:           mpsRes.count       ?? 0,
       pressReleases: releasesRes.count  ?? 0,

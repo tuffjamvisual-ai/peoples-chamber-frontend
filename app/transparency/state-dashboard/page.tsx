@@ -57,7 +57,10 @@ function delta(r: Ind): string | null {
 }
 
 export default async function StateDashboard() {
-  const { data } = await supabase.from('dashboard_indicators').select('*');
+  const { data, error } = await supabase.from('dashboard_indicators').select('*');
+  if (error) {
+    throw new Error(`StateDashboard: dashboard_indicators query failed - ${error.message}`);
+  }
   const rows = (data || []) as Ind[];
   const byService = new Map<string, Ind[]>();
   for (const r of rows) { const a = byService.get(r.service) ?? []; a.push(r); byService.set(r.service, a); }
