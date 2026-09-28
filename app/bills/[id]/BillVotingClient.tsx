@@ -19,7 +19,7 @@ type Choice = 'yes' | 'no'
 
 export default function BillVotingClient({ billId }: { billId: number }) {
   const router = useRouter()
-  const { user } = useAuth()
+  const { user, authLoading } = useAuth()
   const [userVote, setUserVote] = useState<Choice | null>(null)
   const [voting, setVoting] = useState(false)
   const [notice, setNotice] = useState<string | null>(null)
@@ -36,6 +36,7 @@ export default function BillVotingClient({ billId }: { billId: number }) {
   }, [user, billId])
 
   async function handleVote(choice: Choice) {
+    if (authLoading) return
     if (!user) {
       router.push(`/login?mode=signup&returnTo=${encodeURIComponent(window.location.pathname)}`)
       return
@@ -57,9 +58,11 @@ export default function BillVotingClient({ billId }: { billId: number }) {
         setUserVote(choice)
         router.refresh() // pull fresh server-rendered counts
       } else {
-        // Surface the server's reason (e.g. already voted from another device,
-        // or email not yet confirmed) as a toast rather than failing silently.
         const d = await res.json().catch(() => null)
+        if (res.status === 401) {
+          setNotice('Your session has expired. Please refresh the page and sign in again.')
+          return
+        }
         if (res.status === 400) setUserVote(choice) // server says already voted; reflect it
         setNotice(d?.error || 'Your vote could not be recorded. Please try again.')
       }

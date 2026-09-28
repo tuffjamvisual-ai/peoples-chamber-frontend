@@ -140,7 +140,13 @@ export async function POST(request: NextRequest) {
     }).catch((e) => console.error('Signup notification failed:', e));
 
     const res = NextResponse.json({ user, needsVerification: !verified });
-    if (verified) setSessionCookie(res, user.id);
+    if (verified) {
+      const cookieSet = setSessionCookie(res, user.id);
+      if (!cookieSet) {
+        console.error('Signup: SESSION_SECRET missing or too short — no session cookie issued');
+        return NextResponse.json({ error: 'Server configuration error. Please contact support.' }, { status: 500 });
+      }
+    }
     return res;
 
   } catch (error) {
