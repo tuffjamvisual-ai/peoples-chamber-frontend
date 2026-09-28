@@ -25,9 +25,11 @@ const getMp = cache(async (memberId: number) => {
   return data;
 });
 
-// 6-hour ISR. Cabinet pages prerender at build (see generateStaticParams);
-// the other ~570 MPs render on first request and then cache at the edge
-// for 6 hours before background revalidation.
+// 6-hour ISR. All MP pages render on first request and cache at the edge
+// for 6 hours before background revalidation. Prerendering at build was
+// disabled after concurrent cabinet-page builds saturated Supabase —
+// a single slow MP could time out and fail the entire build. On-demand
+// ISR is equivalent for users after the first hit.
 export const revalidate = 21600;
 
 interface PageProps {
@@ -51,33 +53,14 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   ]);
 }
 
-// Cabinet-only prerender. Prerendering all 650 MPs saturated Vercel's
-// 3-worker build (Supabase code 57014 statement timeouts). Prerendering
-// only the ~80 distinct member_ids that hold a ministerial post keeps
-// the build well within budget and ensures every Cabinet / Secretary
-// of State / Minister of State / PUSS page is instant on first hit.
-// dynamicParams defaults to true so every other MP renders on demand
-// and caches via revalidate.
-// Prerender only the top-tier cabinet (Secretaries of State + PM-band)
-// — capped at the most senior 20 MPs to keep the Vercel build well
-// under its 3-worker × 60s/page budget. Every other MP renders on
-// demand and is cached at the edge via revalidate. The cap was chosen
-// after 80-page prerenders saturated Supabase concurrently.
-const PRERENDER_CAP = 20;
-
+// No build-time prerendering. generateStaticParams returns [] so the build
+// never touches an MP's data. dynamicParams = true (default) means any
+// /mps/[id] URL still resolves on-demand and is then edge-cached via
+// revalidate above. Prerendering was disabled because concurrent cabinet
+// builds repeatedly saturated Supabase connections — one slow MP failed
+// the entire build.
 export async function generateStaticParams() {
-  try {
-    const { data } = await supabase
-      .from('dept_ministers')
-      .select('member_id, salary_band')
-      .not('member_id', 'is', null)
-      .in('salary_band', ['pm', 'sos'])
-      .order('salary_band', { ascending: true });
-    const ids = Array.from(new Set((data || []).map((m: { member_id: number }) => m.member_id)));
-    return ids.slice(0, PRERENDER_CAP).map((id) => ({ id: String(id) }));
-  } catch {
-    return [];
-  }
+  return [];
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
