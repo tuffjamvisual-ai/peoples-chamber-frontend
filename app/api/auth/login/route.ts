@@ -3,6 +3,8 @@ import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import bcrypt from 'bcryptjs';
 import { setSessionCookie } from '@/lib/session';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();

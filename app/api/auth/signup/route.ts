@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import bcrypt from 'bcryptjs';
+
+export const dynamic = 'force-dynamic';
 import { resolveMx } from 'dns/promises';
 import { randomUUID } from 'crypto';
 import { emailEnabled, sendVerificationEmail, sendSignupNotification } from '@/lib/email';

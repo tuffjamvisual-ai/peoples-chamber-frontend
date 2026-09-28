@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     //      cookie was set by the verify route — /me returns the user.
     //   2. Stale localStorage after session expiry: /me returns 401, clear it.
     //   3. Network failure: keep whatever localStorage had (don't log out).
-    fetch('/api/auth/me')
+    fetch('/api/auth/me', { credentials: 'include' })
       .then(async (res) => {
         if (res.ok) {
           const data = await res.json();

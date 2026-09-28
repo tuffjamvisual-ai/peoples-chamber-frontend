@@ -14,20 +14,13 @@ const COOKIE_NAME = 'og_session';
 const MAX_AGE_SEC = 60 * 60 * 24 * 30; // 30 days
 
 function getSecret(): string | null {
-  const s = process.env.SESSION_SECRET;
+  const s = process.env.SESSION_SECRET?.trim();
   return s && s.length >= 16 ? s : null;
 }
 
 function sign(payload: string, secret: string): string {
   return crypto.createHmac('sha256', secret).update(payload).digest('base64url');
 }
-
-const cookieOpts = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax' as const,
-  path: '/',
-};
 
 /** Build a signed session token for a user id, or null if no secret configured. */
 export function makeSessionToken(userId: number): string | null {
@@ -38,17 +31,34 @@ export function makeSessionToken(userId: number): string | null {
   return `${payload}.${sign(payload, secret)}`;
 }
 
+// Serialise a Set-Cookie header value directly rather than going through
+// NextResponse.cookies.set() — the Next.js cookie API can silently drop the
+// header in some Vercel edge configurations; writing the raw header is
+// guaranteed to appear in the HTTP response.
+function serialiseCookie(name: string, value: string, maxAge: number): string {
+  const secure = process.env.NODE_ENV === 'production';
+  const parts = [
+    `${name}=${value}`,
+    'Path=/',
+    `Max-Age=${maxAge}`,
+    'HttpOnly',
+    'SameSite=Lax',
+  ];
+  if (secure) parts.push('Secure');
+  return parts.join('; ');
+}
+
 /** Set the signed session cookie on a response. Returns false if no secret. */
 export function setSessionCookie(res: NextResponse, userId: number): boolean {
   const token = makeSessionToken(userId);
   if (!token) return false;
-  res.cookies.set(COOKIE_NAME, token, { ...cookieOpts, maxAge: MAX_AGE_SEC });
+  res.headers.append('Set-Cookie', serialiseCookie(COOKIE_NAME, token, MAX_AGE_SEC));
   return true;
 }
 
 /** Clear the session cookie (logout). */
 export function clearSessionCookie(res: NextResponse): void {
-  res.cookies.set(COOKIE_NAME, '', { ...cookieOpts, maxAge: 0 });
+  res.headers.append('Set-Cookie', serialiseCookie(COOKIE_NAME, '', 0));
 }
 
 /** Cookie name, exported so server components can read it via next/headers. */
