@@ -11,6 +11,7 @@ type User = {
 
 type AuthContextType = {
   user: User | null;
+  authLoading: boolean;
   login: (email: string, password: string) => Promise<{ needsPasswordReset: true; email: string } | undefined>;
   signup: (email: string, password: string, postcode?: string, username?: string, returnTo?: string) => Promise<{ needsVerification: boolean }>;
   logout: () => void;
@@ -21,6 +22,13 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  // True until the /api/auth/me check resolves. Vote handlers must not redirect
+  // to /login while this is true — null during loading means "not confirmed yet",
+  // not "definitely logged out". Without this guard, stale localStorage entries
+  // (valid user object, expired cookie) cause a /polls→/login→/polls loop: the
+  // vote API returns 401 before /me resolves, the login page sees user≠null and
+  // auto-redirects back, and the loop repeats until /me finally clears the stale entry.
+  const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -47,6 +55,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
       .catch(() => {
         // Network failure — keep localStorage user untouched.
+      })
+      .finally(() => {
+        setAuthLoading(false);
       });
   }, []);
 
@@ -105,7 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, setAuthedUser }}>
+    <AuthContext.Provider value={{ user, authLoading, login, signup, logout, setAuthedUser }}>
       {children}
     </AuthContext.Provider>
   );

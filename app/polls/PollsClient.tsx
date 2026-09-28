@@ -27,7 +27,7 @@ const DANGER = '#8a2f20'
 
 export default function PollsClient() {
   const router = useRouter()
-  const { user } = useAuth()
+  const { user, authLoading } = useAuth()
   const [polls, setPolls] = useState<Poll[]>([])
   const [userVotes, setUserVotes] = useState<Record<number, string>>({})
   const [search, setSearch] = useState('')
@@ -75,6 +75,7 @@ export default function PollsClient() {
   }, [user])
 
   const handleVote = async (pollId: number, choice: 'yes' | 'no') => {
+    if (authLoading) return
     if (!user) {
       router.push(`/login?mode=signup&returnTo=${encodeURIComponent(window.location.pathname)}`)
       return
@@ -442,7 +443,7 @@ function fmtVIDate(iso: string | null): string {
 
 function VIBallotCard({ tilt }: { tilt: number }) {
   const router = useRouter()
-  const { user } = useAuth()
+  const { user, authLoading } = useAuth()
   const [tally, setTally] = useState<Record<string, number>>({})
   const [total, setTotal] = useState(0)
   const [userVote, setUserVote] = useState<string | null>(null)
@@ -462,6 +463,7 @@ function VIBallotCard({ tilt }: { tilt: number }) {
   const login = () => router.push(`/login?mode=signup&returnTo=${encodeURIComponent('/polls')}`)
 
   const cast = async (key: string, text?: string) => {
+    if (authLoading) return
     if (!user) { login(); return }
     if (key === 'another' && !(text || '').trim()) { setOtherOpen(true); return }
     setBusy(true); setErr(null)
@@ -470,7 +472,7 @@ function VIBallotCard({ tilt }: { tilt: number }) {
       body: JSON.stringify({ party: key, otherText: key === 'another' ? (text || '').trim() : undefined }),
     })
     setBusy(false)
-    if (res.status === 401) { login(); return }
+    if (res.status === 401) { setErr('Your session has expired. Please refresh the page and sign in again.'); return }
     const d = await res.json()
     if (!res.ok) { setErr(d.error || 'Could not record your vote.'); return }
     apply(d); setOtherOpen(false); setOtherText('')

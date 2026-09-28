@@ -37,7 +37,7 @@ export default function ReaderVIPoll({ pollster, initialTally, initialTotal, ini
   initialTotal?: number;
   initialSeeded?: boolean;
 }) {
-  const { user } = useAuth();
+  const { user, authLoading } = useAuth();
   const router = useRouter();
   const [tally, setTally] = useState<Record<string, number>>(initialTally || {});
   const [total, setTotal] = useState(initialTotal || 0);
@@ -71,6 +71,7 @@ export default function ReaderVIPoll({ pollster, initialTally, initialTotal, ini
 
   async function submit() {
     setError(null);
+    if (authLoading) return;
     if (!user) { router.push(LOGIN); return; }
     if (!selected) { setError('Pick an option first.'); return; }
     if (selected === 'another' && !otherText.trim()) { setError('Name the party you would vote for.'); return; }
@@ -81,7 +82,7 @@ export default function ReaderVIPoll({ pollster, initialTally, initialTotal, ini
       body: JSON.stringify({ party: selected, otherText: selected === 'another' ? otherText.trim() : undefined }),
     });
     setSubmitting(false);
-    if (res.status === 401) { router.push(LOGIN); return; }
+    if (res.status === 401) { setError('Your session has expired. Please refresh the page and sign in again.'); return; }
     const d = await res.json();
     if (!res.ok) { setError(d.error || 'Could not record your vote.'); return; }
     apply(d);
