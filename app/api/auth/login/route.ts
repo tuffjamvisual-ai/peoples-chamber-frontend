@@ -44,7 +44,13 @@ export async function POST(request: NextRequest) {
     }
 
     const res = NextResponse.json({ user: { id: user.id, email: user.email, username: user.username, postcode: user.postcode } });
-    setSessionCookie(res, user.id);
+    const cookieSet = setSessionCookie(res, user.id);
+    if (!cookieSet) {
+      // SESSION_SECRET not configured — catch early rather than returning a
+      // sessionless login that appears to work but breaks every vote.
+      console.error('Login: SESSION_SECRET missing or too short — no session cookie issued');
+      return NextResponse.json({ error: 'Server configuration error. Please contact support.' }, { status: 500 });
+    }
     return res;
     
   } catch (error) {

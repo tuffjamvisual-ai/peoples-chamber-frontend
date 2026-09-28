@@ -105,9 +105,11 @@ export default function PollsClient() {
         })
       )
     } else {
-      // Surface the server's reason (already voted elsewhere, email not
-      // confirmed, etc.) rather than failing silently.
       const d = await res.json().catch(() => null)
+      if (res.status === 401) {
+        setNotice('Your session has expired. Please refresh the page and sign in again.')
+        return
+      }
       if (res.status === 400) setUserVotes((prev) => ({ ...prev, [pollId]: choice }))
       setNotice(
         d?.error === 'Already voted'
