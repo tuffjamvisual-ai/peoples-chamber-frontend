@@ -27,7 +27,6 @@ export async function GET(request: NextRequest) {
     u.pending_return_to && u.pending_return_to !== '/'
       ? `${base}/login?verified=1&returnTo=${encodeURIComponent(u.pending_return_to)}`
       : `${base}/login?verified=1`;
-  const res = NextResponse.redirect(dest);
-  setSessionCookie(res, u.id);
-  return res;
+  await setSessionCookie(u.id);
+  return NextResponse.redirect(dest);
 }

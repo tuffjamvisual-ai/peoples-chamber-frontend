@@ -49,13 +49,12 @@ export async function POST(request: NextRequest) {
       .update({ password: hashedNew, force_password_reset: false })
       .eq('id', user.id);
 
-    const res = NextResponse.json({ user: { id: user.id, email: user.email, username: user.username, postcode: user.postcode } });
-    const cookieSet = setSessionCookie(res, user.id);
+    const cookieSet = await setSessionCookie(user.id);
     if (!cookieSet) {
       console.error('change-password: SESSION_SECRET missing or too short — no session cookie issued');
       return NextResponse.json({ error: 'Server configuration error. Please contact support.' }, { status: 500 });
     }
-    return res;
+    return NextResponse.json({ user: { id: user.id, email: user.email, username: user.username, postcode: user.postcode } });
   } catch (e) {
     console.error('change-password error:', e);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

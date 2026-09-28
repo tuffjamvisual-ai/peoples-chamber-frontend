@@ -8,7 +8,8 @@
 // so protected routes reject rather than fall back to trusting the client.
 
 import crypto from 'crypto';
-import type { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { cookies } from 'next/headers';
 
 const COOKIE_NAME = 'og_session';
 const MAX_AGE_SEC = 60 * 60 * 24 * 30; // 30 days
@@ -31,34 +32,29 @@ export function makeSessionToken(userId: number): string | null {
   return `${payload}.${sign(payload, secret)}`;
 }
 
-// Serialise a Set-Cookie header value directly rather than going through
-// NextResponse.cookies.set() — the Next.js cookie API can silently drop the
-// header in some Vercel edge configurations; writing the raw header is
-// guaranteed to appear in the HTTP response.
-function serialiseCookie(name: string, value: string, maxAge: number): string {
-  const secure = process.env.NODE_ENV === 'production';
-  const parts = [
-    `${name}=${value}`,
-    'Path=/',
-    `Max-Age=${maxAge}`,
-    'HttpOnly',
-    'SameSite=Lax',
-  ];
-  if (secure) parts.push('Secure');
-  return parts.join('; ');
-}
-
-/** Set the signed session cookie on a response. Returns false if no secret. */
-export function setSessionCookie(res: NextResponse, userId: number): boolean {
+/**
+ * Set the signed session cookie using Next.js's cookies() API.
+ * Returns false if SESSION_SECRET is missing or too short.
+ * Must be called from a Route Handler or Server Action.
+ */
+export async function setSessionCookie(userId: number): Promise<boolean> {
   const token = makeSessionToken(userId);
   if (!token) return false;
-  res.headers.append('Set-Cookie', serialiseCookie(COOKIE_NAME, token, MAX_AGE_SEC));
+  const store = await cookies();
+  store.set(COOKIE_NAME, token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: MAX_AGE_SEC,
+  });
   return true;
 }
 
 /** Clear the session cookie (logout). */
-export function clearSessionCookie(res: NextResponse): void {
-  res.headers.append('Set-Cookie', serialiseCookie(COOKIE_NAME, '', 0));
+export async function clearSessionCookie(): Promise<void> {
+  const store = await cookies();
+  store.delete(COOKIE_NAME);
 }
 
 /** Cookie name, exported so server components can read it via next/headers. */

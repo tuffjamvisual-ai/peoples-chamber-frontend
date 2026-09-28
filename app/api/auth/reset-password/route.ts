@@ -59,9 +59,8 @@ export async function POST(request: NextRequest) {
       })
       .eq('id', user.id);
 
-    const res = NextResponse.json({ user: { id: user.id, email: user.email, username: user.username, postcode: user.postcode } });
-    setSessionCookie(res, user.id);
-    return res;
+    await setSessionCookie(user.id);
+    return NextResponse.json({ user: { id: user.id, email: user.email, username: user.username, postcode: user.postcode } });
   } catch (e) {
     console.error('reset-password error:', e);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
