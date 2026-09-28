@@ -164,7 +164,6 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     expensesDetailRes,
     ministerialRowsRes,
     outsideRowRes,
-    siDivisionsRes,
     rebellionsCountRes,
     committeeMembershipsRes,
   ] = await withTimeout(Promise.all([
@@ -219,11 +218,6 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       .range(0, 999),
     supabase.from('dept_ministers').select('salary_band, dept_slug').eq('member_id', memberId).not('salary_band', 'is', null),
     supabase.from('mp_outside_earnings_summary').select('total_extracted, claim_count, source_count').eq('member_id', memberId).maybeSingle(),
-    // Which division_ids are statutory instruments — lets the voting-record
-    // render deep-link to /statutory-instruments/[division_id] instead of the
-    // external Commons Votes site. Cheap single-column read; folded into the
-    // parallel batch to avoid a serial round-trip on the cold render.
-    supabase.from('statutory_instrument').select('division_id'),
     // Live rebellion count from the per-vote is_rebellion flag (parlparse).
     // mp_activity_metrics.rebellions_total is broken (0 for every MP), so we
     // count the flag directly to match the party whip page.
@@ -454,9 +448,17 @@ export default async function MPMagazineProfile({ params }: PageProps) {
 
   // Tag each vote whose division is a statutory instrument so the render can
   // pick the SI deep-link branch over the external Commons Votes fallback.
-  const siDivisionIds = new Set<number>(
-    (siDivisionsRes.data || []).map((r: { division_id: number }) => r.division_id),
-  );
+  const siPageDivisionIds = (votesRes.data || [])
+    .map((v: { division_id: number | null }) => v.division_id)
+    .filter((d): d is number => d != null);
+  let siDivisionIds = new Set<number>();
+  if (siPageDivisionIds.length) {
+    const { data: siRows } = await supabase
+      .from('statutory_instrument')
+      .select('division_id')
+      .in('division_id', siPageDivisionIds);
+    siDivisionIds = new Set((siRows || []).map((r: { division_id: number }) => r.division_id));
+  }
   const votesWithSi = (votesRes.data || []).map((v) => ({
     ...v,
     is_si: v.division_id != null && siDivisionIds.has(v.division_id),
