@@ -109,6 +109,7 @@ export default function BillsGrid({ initialBills, currentPage, totalPages }: Pro
     try {
       const response = await fetch('/api/vote', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: user.id, billId, choice })
       });

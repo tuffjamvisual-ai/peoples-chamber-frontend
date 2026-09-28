@@ -88,6 +88,7 @@ export default function PollsClient() {
 
     const res = await fetch('/api/polls/vote', {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId: user.id, pollId, choice }),
     })

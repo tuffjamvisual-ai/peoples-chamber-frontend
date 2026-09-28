@@ -151,6 +151,7 @@ export default function BillsGridMobile({ initialBills, currentPage, totalPages 
     try {
       const response = await fetch('/api/vote', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: user.id, billId, choice }),
       });

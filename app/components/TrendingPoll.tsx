@@ -41,6 +41,7 @@ export default function TrendingPoll() {
     if (userVote) return
     const res = await fetch('/api/polls/vote', {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId: user.id, pollId: poll!.id, choice })
     })

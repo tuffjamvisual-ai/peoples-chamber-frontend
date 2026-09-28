@@ -51,6 +51,7 @@ export default function BillVotingClient({ billId }: { billId: number }) {
     try {
       const res = await fetch('/api/vote', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: user.id, billId, choice }),
       })
@@ -110,6 +111,7 @@ function BallotRow({
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
       disabled={disabled}
       aria-label={`Vote ${label}`}
