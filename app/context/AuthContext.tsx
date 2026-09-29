@@ -35,11 +35,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
-    // Hydrate from the og_session cookie. Handles three cases:
-    //   1. Post-verify auto-login: localStorage is empty but a valid session
-    //      cookie was set by the verify route — /me returns the user.
-    //   2. Stale localStorage after session expiry: /me returns 401, clear it.
-    //   3. Network failure: keep whatever localStorage had (don't log out).
+    // Hydrate from the og_session cookie. Two outcomes:
+    //   1. /me returns a user (200) — update state + localStorage (authoritative).
+    //   2. Anything else (401, 500, network failure) — keep whatever localStorage
+    //      had; the session cookie is the real auth gate and the vote/action APIs
+    //      will surface expiry errors when the user actually does something.
+    //      Never wipe localStorage here — that created a sign-out loop where a
+    //      transient /me failure would clear state and every subsequent action
+    //      would redirect to login.
     fetch('/api/auth/me', { credentials: 'include' })
       .then(async (res) => {
         if (res.ok) {
@@ -48,10 +51,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setUser(data.user);
             localStorage.setItem('user', JSON.stringify(data.user));
           }
-        } else if (res.status === 401) {
-          setUser(null);
-          localStorage.removeItem('user');
         }
+        // Non-200 responses: leave user/localStorage unchanged.
       })
       .catch(() => {
         // Network failure — keep localStorage user untouched.
