@@ -110,3 +110,4 @@ export function verifySessionToken(token: string | undefined | null): number | n
 export function getSessionUserId(req: NextRequest): number | null {
   return verifySessionToken(req.cookies.get(COOKIE_NAME)?.value);
 }
+

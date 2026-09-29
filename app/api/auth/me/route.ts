@@ -17,7 +17,14 @@ export async function GET(request: NextRequest) {
     .eq('id', userId)
     .single();
 
-  if (error || !user) return NextResponse.json({ user: null }, { status: 401 });
-
+  if (error) {
+    console.error('[auth/me] db error for userId', userId, error.message);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+  if (!user) {
+    console.warn('[auth/me] user not found for userId', userId);
+    return NextResponse.json({ user: null }, { status: 401 });
+  }
+  console.log('[auth/me] success for userId', userId);
   return NextResponse.json({ user });
 }
