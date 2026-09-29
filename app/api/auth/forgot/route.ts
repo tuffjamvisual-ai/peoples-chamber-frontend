@@ -22,14 +22,20 @@ export async function POST(request: NextRequest) {
 
     if (user) {
       const token = randomUUID();
-      await supabase
+      const { error: dbErr } = await supabase
         .from('users')
         .update({ reset_token: token, reset_token_sent_at: new Date().toISOString() })
         .eq('id', user.id);
-      // Fire-and-forget — a slow send must not block the response.
-      sendPasswordResetEmail(user.email, token, base).catch((e) =>
-        console.error('sendPasswordResetEmail failed:', e),
-      );
+      if (dbErr) {
+        console.error('forgot: failed to store reset token:', dbErr.message);
+      } else {
+        // Await the send — fire-and-forget is unsafe in serverless (process may
+        // terminate before the Promise resolves).
+        const result = await sendPasswordResetEmail(user.email, token, base);
+        if (!result.sent) {
+          console.error('forgot: email not sent:', result.reason);
+        }
+      }
     }
 
     return NextResponse.json(GENERIC);

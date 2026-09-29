@@ -112,7 +112,7 @@ export async function sendPasswordResetEmail(to: string, token: string, baseUrl:
   const link = `${baseUrl}/reset-password?token=${encodeURIComponent(token)}`;
   try {
     const resend = new Resend(key);
-    await resend.emails.send({
+    const { data, error } = await resend.emails.send({
       from,
       to,
       subject: 'Reset your opengovt password',
@@ -124,7 +124,8 @@ export async function sendPasswordResetEmail(to: string, token: string, baseUrl:
         <p style="font-size:13px;color:#555">If you did not request a reset, you can ignore this email. Your password has not changed.</p>
       </div>`,
     });
-    return { sent: true };
+    if (error) return { sent: false, reason: error.message };
+    return { sent: true, id: data?.id };
   } catch (e) {
     return { sent: false, reason: (e as Error).message };
   }

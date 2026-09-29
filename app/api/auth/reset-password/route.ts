@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import bcrypt from 'bcryptjs';
-import { setSessionCookie } from '@/lib/session';
+import { makeSessionCookieHeader } from '@/lib/session';
 
 const TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
 
@@ -59,8 +59,18 @@ export async function POST(request: NextRequest) {
       })
       .eq('id', user.id);
 
-    await setSessionCookie(user.id);
-    return NextResponse.json({ user: { id: user.id, email: user.email, username: user.username, postcode: user.postcode } });
+    const userData = { id: user.id, email: user.email, username: user.username, postcode: user.postcode };
+    const cookieHeader = makeSessionCookieHeader(user.id);
+    if (!cookieHeader) {
+      return NextResponse.json({ error: 'Server configuration error.' }, { status: 500 });
+    }
+    return new Response(JSON.stringify({ user: userData }), {
+      status: 200,
+      headers: [
+        ['Content-Type', 'application/json'],
+        ['Set-Cookie', cookieHeader],
+      ],
+    });
   } catch (e) {
     console.error('reset-password error:', e);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
