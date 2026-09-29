@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useAuth } from '../context/AuthContext';
 
 // Auth-aware account tab for the OpenGovShell header. Renders as a fragment so
@@ -14,12 +15,12 @@ export default function AccountTab() {
   const { user, logout } = useAuth();
 
   if (!user) {
-    return <a href="/login">Log in / Sign up</a>;
+    return <Link href="/login">Log in / Sign up</Link>;
   }
 
   return (
     <>
-      <a href="/account">My Account</a>
+      <Link href="/account">My Account</Link>
       <span aria-hidden style={SEP} />
       <a href="/login" onClick={(e) => { e.preventDefault(); logout(); }}>Log out</a>
     </>

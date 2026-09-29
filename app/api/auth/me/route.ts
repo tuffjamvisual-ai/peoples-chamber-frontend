@@ -17,14 +17,14 @@ export async function GET(request: NextRequest) {
     .eq('id', userId)
     .single();
 
-  if (error) {
-    console.error('[auth/me] db error for userId', userId, error.message);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  if (error || !user) {
+    // DB issue or user row missing. The cookie IS cryptographically valid
+    // (verified above) — don't sign the user out for a database hiccup.
+    // Return minimal data from the token so the UI stays authenticated.
+    // All write actions (vote, etc.) re-verify independently server-side.
+    console.warn('[auth/me] db fallback for userId', userId, error?.message ?? 'no row');
+    return NextResponse.json({ user: { id: userId, email: null, username: null, postcode: null } });
   }
-  if (!user) {
-    console.warn('[auth/me] user not found for userId', userId);
-    return NextResponse.json({ user: null }, { status: 401 });
-  }
-  console.log('[auth/me] success for userId', userId);
+  console.log('[auth/me] ok for userId', userId);
   return NextResponse.json({ user });
 }
