@@ -68,7 +68,7 @@ export default function AccountPage() {
             <div style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 2, color: INK }}>
               {user.username && <div><strong>Username:</strong> {user.username}</div>}
               <div><strong>Email:</strong> {user.email}</div>
-              {user.postcode && <div><strong>Postcode:</strong> {user.postcode}</div>}
+              {user.postcode && <div><strong>Postcode:</strong> {user.postcode.trim()}</div>}
             </div>
             <button
               onClick={logout}

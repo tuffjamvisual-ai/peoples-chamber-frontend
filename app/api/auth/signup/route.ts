@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const password = body.password as string | undefined;
     const username = (body.username as string | undefined)?.trim();
-    const postcode = (body.postcode as string | undefined) ?? null;
+    const postcode = (body.postcode as string | undefined)?.trim().toUpperCase() ?? null;
     const email = (body.email as string | undefined)?.trim().toLowerCase();
     const rawReturnTo = (body.returnTo as string | undefined) ?? null;
     // Only store a safe relative path; reject anything that could be an open redirect.

@@ -51,8 +51,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Server configuration error. Please contact support.' }, { status: 500 });
     }
 
-    console.log('[login] issuing session cookie for user', user.id);
-
     const userData = { id: user.id, email: user.email, username: user.username, postcode: user.postcode };
     return new Response(JSON.stringify({ user: userData }), {
       status: 200,
