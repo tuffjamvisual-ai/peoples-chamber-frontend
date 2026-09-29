@@ -27,7 +27,7 @@ function Badge({ choice }: { choice: string }) {
 }
 
 export default function AccountPage() {
-  const { user, logout } = useAuth()
+  const { user, authLoading, logout } = useAuth()
   const [data, setData] = useState<{ bills: BillVote[]; polls: PollVote[] } | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -52,7 +52,9 @@ export default function AccountPage() {
         Your account
       </h1>
 
-      {!user ? (
+      {authLoading ? (
+        <p style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>Loading…</p>
+      ) : !user ? (
         <div style={{ fontSize: '16px', lineHeight: 1.8, color: INK }}>
           <p>You need to be logged in to see your account and voting history.</p>
           <a href="/login" className="no-hover-scale" style={{ display: 'inline-block', marginTop: '8px', fontFamily: MONO, fontSize: '15px', letterSpacing: '0.08em', textTransform: 'uppercase', color: ACCENT, textDecoration: 'underline' }}>
