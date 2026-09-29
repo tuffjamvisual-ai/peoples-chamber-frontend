@@ -33,6 +33,26 @@ export function makeSessionToken(userId: number): string | null {
 }
 
 /**
+ * Build the raw Set-Cookie header value for a session.
+ * Returns null if SESSION_SECRET is missing or too short.
+ * Use this when you need to set the header on the raw Response constructor.
+ */
+export function makeSessionCookieHeader(userId: number): string | null {
+  const token = makeSessionToken(userId);
+  if (!token) return null;
+  const secure = process.env.NODE_ENV === 'production';
+  const parts = [
+    `${COOKIE_NAME}=${token}`,
+    'Path=/',
+    `Max-Age=${MAX_AGE_SEC}`,
+    'HttpOnly',
+    'SameSite=Lax',
+  ];
+  if (secure) parts.push('Secure');
+  return parts.join('; ');
+}
+
+/**
  * Set the signed session cookie using Next.js's cookies() API.
  * Returns false if SESSION_SECRET is missing or too short.
  * Must be called from a Route Handler or Server Action.

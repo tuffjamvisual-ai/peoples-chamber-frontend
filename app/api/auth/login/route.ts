@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import bcrypt from 'bcryptjs';
-import { setSessionCookie } from '@/lib/session';
+import { makeSessionCookieHeader } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
 
@@ -46,15 +45,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ needsPasswordReset: true });
     }
 
-    const cookieSet = await setSessionCookie(user.id);
-    if (!cookieSet) {
-      console.error('Login: SESSION_SECRET missing or too short — no session cookie issued');
+    const cookieHeader = makeSessionCookieHeader(user.id);
+    if (!cookieHeader) {
+      console.error('[login] SESSION_SECRET missing or too short — no session cookie issued');
       return NextResponse.json({ error: 'Server configuration error. Please contact support.' }, { status: 500 });
     }
-    return NextResponse.json({ user: { id: user.id, email: user.email, username: user.username, postcode: user.postcode } });
-    
+
+    console.log('[login] issuing session cookie for user', user.id);
+
+    const userData = { id: user.id, email: user.email, username: user.username, postcode: user.postcode };
+    return new Response(JSON.stringify({ user: userData }), {
+      status: 200,
+      headers: [
+        ['Content-Type', 'application/json'],
+        ['Set-Cookie', cookieHeader],
+      ],
+    });
+
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('[login] error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
