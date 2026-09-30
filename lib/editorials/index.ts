@@ -64,6 +64,7 @@ import afghanDataBreach from './q4m8k2xw7n';
 import prisonCapacity from './pn8k4qxw2r';
 import modFraud from './mf7k3qxw9n';
 import raacHospitals from './rc8m4kqx7n';
+import overnightVisitorLevy from './td4k9mxw7r';
 import nudeSafetyLegislation from './kn4r9mxw7q';
 import councilEfs from './ew4k9mxn7r';
 import consultationRules from './qn4k9mxw7r';
@@ -73,6 +74,7 @@ import cornwallLithium from './tn4k7mxw9r';
 import stationFacialRecognition from './fr9k2mxw7q';
 
 export const editorials: EditorialRegistry = {
+  [overnightVisitorLevy.slug]: overnightVisitorLevy,
   [nudeSafetyLegislation.slug]: nudeSafetyLegislation,
   [councilEfs.slug]: councilEfs,
   [consultationRules.slug]: consultationRules,
