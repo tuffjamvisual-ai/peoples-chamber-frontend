@@ -64,10 +64,12 @@ import afghanDataBreach from './q4m8k2xw7n';
 import prisonCapacity from './pn8k4qxw2r';
 import modFraud from './mf7k3qxw9n';
 import raacHospitals from './rc8m4kqx7n';
+import waterOwnership from './gw4k9mxn7r';
 import cornwallLithium from './tn4k7mxw9r';
 import stationFacialRecognition from './fr9k2mxw7q';
 
 export const editorials: EditorialRegistry = {
+  [waterOwnership.slug]: waterOwnership,
   [cornwallLithium.slug]: cornwallLithium,
   [stationFacialRecognition.slug]: stationFacialRecognition,
   [raacHospitals.slug]: raacHospitals,
