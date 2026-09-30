@@ -64,12 +64,14 @@ import afghanDataBreach from './q4m8k2xw7n';
 import prisonCapacity from './pn8k4qxw2r';
 import modFraud from './mf7k3qxw9n';
 import raacHospitals from './rc8m4kqx7n';
+import consultationRules from './qn4k9mxw7r';
 import gbGrid from './vb8k4mxn9r';
 import waterOwnership from './gw4k9mxn7r';
 import cornwallLithium from './tn4k7mxw9r';
 import stationFacialRecognition from './fr9k2mxw7q';
 
 export const editorials: EditorialRegistry = {
+  [consultationRules.slug]: consultationRules,
   [gbGrid.slug]: gbGrid,
   [waterOwnership.slug]: waterOwnership,
   [cornwallLithium.slug]: cornwallLithium,
