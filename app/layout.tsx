@@ -10,7 +10,6 @@ import { Analytics } from "@vercel/analytics/react";
 const playfair = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin"],
-  weight: ["400", "700"],
   display: "swap",
 });
 
@@ -24,7 +23,6 @@ const anton = Anton({
 const oswald = Oswald({
   variable: "--font-oswald",
   subsets: ["latin"],
-  weight: ["400", "600"],
   display: "swap",
 });
 
