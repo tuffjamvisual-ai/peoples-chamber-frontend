@@ -70,6 +70,7 @@ import highStreetBoost from './qm4n9mxw7r';
 import nhsBacklog from './nh4k9mxw7r';
 import britishSteelCost from './vk4n9mxw7r';
 import steelTariffs from './tk4n9mxw7r';
+import compensationSchemes from './rm4n9mxw7r';
 import wasteTracking from './dw4k9mxw7r';
 import industrySubsidy from './mk4n9mxw7r';
 import helpToBuyRevived from './bm4k9mxw7r';
@@ -96,6 +97,7 @@ export const editorials: EditorialRegistry = {
   [nhsBacklog.slug]: nhsBacklog,
   [britishSteelCost.slug]: britishSteelCost,
   [steelTariffs.slug]: steelTariffs,
+  [compensationSchemes.slug]: compensationSchemes,
   [wasteTracking.slug]: wasteTracking,
   [industrySubsidy.slug]: industrySubsidy,
   [helpToBuyRevived.slug]: helpToBuyRevived,
