@@ -66,6 +66,7 @@ import modFraud from './mf7k3qxw9n';
 import raacHospitals from './rc8m4kqx7n';
 import taggingRegime from './px4n9mxw7r';
 import grenfellCps from './hn4k9mxw7r';
+import highStreetBoost from './qm4n9mxw7r';
 import wasteTracking from './dw4k9mxw7r';
 import industrySubsidy from './mk4n9mxw7r';
 import helpToBuyRevived from './bm4k9mxw7r';
@@ -88,6 +89,7 @@ import stationFacialRecognition from './fr9k2mxw7q';
 export const editorials: EditorialRegistry = {
   [taggingRegime.slug]: taggingRegime,
   [grenfellCps.slug]: grenfellCps,
+  [highStreetBoost.slug]: highStreetBoost,
   [wasteTracking.slug]: wasteTracking,
   [industrySubsidy.slug]: industrySubsidy,
   [helpToBuyRevived.slug]: helpToBuyRevived,
