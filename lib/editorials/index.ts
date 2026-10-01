@@ -64,6 +64,7 @@ import afghanDataBreach from './q4m8k2xw7n';
 import prisonCapacity from './pn8k4qxw2r';
 import modFraud from './mf7k3qxw9n';
 import raacHospitals from './rc8m4kqx7n';
+import taggingRegime from './px4n9mxw7r';
 import wasteTracking from './dw4k9mxw7r';
 import industrySubsidy from './mk4n9mxw7r';
 import helpToBuyRevived from './bm4k9mxw7r';
@@ -84,6 +85,7 @@ import cornwallLithium from './tn4k7mxw9r';
 import stationFacialRecognition from './fr9k2mxw7q';
 
 export const editorials: EditorialRegistry = {
+  [taggingRegime.slug]: taggingRegime,
   [wasteTracking.slug]: wasteTracking,
   [industrySubsidy.slug]: industrySubsidy,
   [helpToBuyRevived.slug]: helpToBuyRevived,
