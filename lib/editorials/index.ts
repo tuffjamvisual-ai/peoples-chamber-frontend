@@ -69,6 +69,7 @@ import grenfellCps from './hn4k9mxw7r';
 import highStreetBoost from './qm4n9mxw7r';
 import nhsBacklog from './nh4k9mxw7r';
 import britishSteelCost from './vk4n9mxw7r';
+import steelTariffs from './tk4n9mxw7r';
 import wasteTracking from './dw4k9mxw7r';
 import industrySubsidy from './mk4n9mxw7r';
 import helpToBuyRevived from './bm4k9mxw7r';
@@ -94,6 +95,7 @@ export const editorials: EditorialRegistry = {
   [highStreetBoost.slug]: highStreetBoost,
   [nhsBacklog.slug]: nhsBacklog,
   [britishSteelCost.slug]: britishSteelCost,
+  [steelTariffs.slug]: steelTariffs,
   [wasteTracking.slug]: wasteTracking,
   [industrySubsidy.slug]: industrySubsidy,
   [helpToBuyRevived.slug]: helpToBuyRevived,
