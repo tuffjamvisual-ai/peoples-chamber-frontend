@@ -47,6 +47,7 @@ type CouncilFull = {
   leader_party: string | null;
   chief_exec: string | null;
   council_tax_band_d_pounds: number | null;
+  ni_district_rate_poundage: number | null;
   revenue_budget_mn: number | null;
   section_114_year: number | null;
   last_election_year: number | null;
@@ -93,7 +94,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
   const parent: RelatedCouncil | null = (parentRow as RelatedCouncil | null) || null;
   const children: RelatedCouncil[] = (childRows || []) as RelatedCouncil[];
 
-  const hasFinance = c.council_tax_band_d_pounds != null || c.revenue_budget_mn != null;
+  const hasFinance = c.council_tax_band_d_pounds != null || c.revenue_budget_mn != null || c.ni_district_rate_poundage != null;
   const hasLeadership = c.political_control != null || c.leader_name != null || c.chief_exec != null;
   const hasOverview =
     c.population != null || c.founded_year != null || c.website_url != null;
@@ -164,6 +165,13 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
           <Section title="Finance">
             <DataRow label="Annual revenue budget" value={c.revenue_budget_mn != null ? `£${c.revenue_budget_mn.toLocaleString()}m` : null} />
             <DataRow label="Council tax (Band D)" value={c.council_tax_band_d_pounds != null ? `£${c.council_tax_band_d_pounds.toLocaleString()}` : null} />
+            {c.ni_district_rate_poundage != null && (
+              <DataRow
+                label="District rate (NI)"
+                value={`${(c.ni_district_rate_poundage * 100).toFixed(4)}p per £ of capital value`}
+                sub="Northern Ireland has no council tax. This is the council-set portion of domestic rates; a Stormont-set regional rate (5.559p in 2026-27) is added on top to produce the final bill."
+              />
+            )}
             {c.section_114_year && (
               <DataRow label="Section 114 notice" value={`Issued ${c.section_114_year}`} valueColour={ACCENT} />
             )}
