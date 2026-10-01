@@ -75,17 +75,18 @@ export default async function HomePage() {
     const cmp = b.publishedAt.localeCompare(a.publishedAt);
     return cmp !== 0 ? cmp : a.registryIndex - b.registryIndex;
   });
-  const [slot1, slot2, ...archivePool] = investigations;
-  // Derive seed from UTC date — integer that changes at midnight UTC.
+  // All 4 slots rotate daily through the 16 most recent editorials so newer
+  // stories cycle through every position rather than locking into place.
   const dayIndex = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
-  // Two coprime strides so the pair is spread across the pool and doesn't
-  // carry over day-to-day. 17 is coprime with 40 (pool size), so it walks
-  // without short cycles. Collision check steps j forward if it lands on i.
-  const i = dayIndex % archivePool.length;
-  let j = (dayIndex * 17 + 7) % archivePool.length;
-  if (j === i) j = (j + 1) % archivePool.length;
-  const slot3 = archivePool[i];
-  const slot4 = archivePool[j];
+  const featuredPool = investigations.slice(0, Math.min(16, investigations.length));
+  const shuffled = [...featuredPool];
+  let rngSeed = dayIndex;
+  for (let idx = shuffled.length - 1; idx > 0; idx--) {
+    rngSeed = (rngSeed * 1664525 + 1013904223) & 0x7fffffff;
+    const pick = rngSeed % (idx + 1);
+    [shuffled[idx], shuffled[pick]] = [shuffled[pick], shuffled[idx]];
+  }
+  const [slot1, slot2, slot3, slot4] = shuffled;
   // For slot 1's lede: use body[0] text if it's a plain paragraph.
   const b0 = slot1.body[0];
   const ledeText = b0 && b0.type === 'paragraph' ? b0.text : null;
