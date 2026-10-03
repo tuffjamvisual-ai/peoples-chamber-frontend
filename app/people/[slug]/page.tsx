@@ -15,7 +15,7 @@ import PeopleProfileSections, { type Role, type Interest, type PeerFinance } fro
 import OpenGovShell from '../../components/OpenGovShell';
 import type { ScsBand } from '@/lib/civil-service-salaries';
 import BackLink from '../../components/BackLink';
-export const revalidate = 3600;
+export const revalidate = 21600;
 
 export async function generateStaticParams() {
   const { data, error } = await supabase

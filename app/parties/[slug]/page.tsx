@@ -12,7 +12,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import PartySidebar from '../../components/PartySidebar';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 
-export const revalidate = 3600;
+export const revalidate = 21600;
 
 export async function generateStaticParams() {
   const { data, error } = await supabase

@@ -20,7 +20,7 @@ import ScrollToTopButton from '../../../components/ScrollToTopButton';
 import { sectorForDonor } from '@/lib/donor-sectors';
 import { donorNameToSlug } from '../../../donors/[slug]/page';
 
-export const revalidate = 3600;
+export const revalidate = 21600;
 export function generateStaticParams() { return []; }
 
 const INK = '#14100d';

@@ -15,7 +15,7 @@ import PartySidebar from '../../../components/PartySidebar';
 import ScrollToTopButton from '../../../components/ScrollToTopButton';
 import { type EvidencePanelProps } from '../../../components/EvidencePanel';
 
-export const revalidate = 3600;
+export const revalidate = 21600;
 
 export async function generateStaticParams() {
   const { data, error } = await supabase

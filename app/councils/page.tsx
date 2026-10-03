@@ -14,7 +14,7 @@ import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import ScrollToTopButton from '../components/ScrollToTopButton';
 
-export const revalidate = 3600;
+export const revalidate = 21600;
 
 export const metadata: Metadata = {
   title: 'Local Government',

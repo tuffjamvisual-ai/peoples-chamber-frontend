@@ -10,7 +10,7 @@ import { getTopic, topics } from '@/lib/topics';
 import { departments } from '@/lib/departments';
 import { editorials } from '@/lib/editorials';
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 export function generateStaticParams() {
   if (!topics.length) throw new Error('generateStaticParams topics: lib returned zero entries');

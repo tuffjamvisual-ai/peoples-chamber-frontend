@@ -5,7 +5,7 @@ import BackLink from '../components/BackLink';
 import ScrollToTopButton from '../components/ScrollToTopButton';
 import { topics } from '@/lib/topics';
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 export const metadata: Metadata = {
   title: 'Policy Topics',

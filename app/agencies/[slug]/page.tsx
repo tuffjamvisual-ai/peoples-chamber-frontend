@@ -7,7 +7,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import Link from 'next/link';
 import BackLink from '../../components/BackLink';
 
-export const revalidate = 3600;
+export const revalidate = 21600;
 
 export async function generateStaticParams() {
   const { data, error } = await supabase
