@@ -108,4 +108,12 @@ CREATE TABLE IF NOT EXISTS public.welfare_constituency_summary (
   updated_at                timestamptz NOT NULL DEFAULT now()
 );
 
+-- Supabase enables RLS on every new table by default. Disable it
+-- explicitly — these are public DWP/ONS reference figures with no
+-- per-user access control; the anon key must be able to read (and
+-- the import job must be able to write) without a policy in place.
+ALTER TABLE public.welfare_source_releases    DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.welfare_constituency_metrics DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.welfare_constituency_summary DISABLE ROW LEVEL SECURITY;
+
 COMMIT;

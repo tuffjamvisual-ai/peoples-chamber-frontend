@@ -73,4 +73,8 @@ CREATE INDEX IF NOT EXISTS idx_welfare_constituency_geography_county_name
 CREATE INDEX IF NOT EXISTS idx_welfare_constituency_geography_council_name
   ON public.welfare_constituency_geography (council_name);
 
+-- Disable RLS — public reference geography, consistent with the other
+-- welfare_* tables (see 2026-10-06 migration).
+ALTER TABLE public.welfare_constituency_geography DISABLE ROW LEVEL SECURITY;
+
 COMMIT;
