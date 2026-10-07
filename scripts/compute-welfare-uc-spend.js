@@ -1,47 +1,49 @@
 #!/usr/bin/env node
-// Compute an ESTIMATED annual Universal Credit spend figure per constituency,
-// using DWP's own documented methodology for constituency-level expenditure
-// estimates: local caseload × a national average award rate.
+// Compute an ESTIMATED annual Universal Credit spend figure per
+// constituency.
 //
-// THIS IS AN ESTIMATE, NOT A DIRECTLY MEASURED FIGURE
-// ─────────────────────────────────────────────────────
-// DWP's own guidance for "Benefit expenditure and caseload tables" states
-// expenditure by Parliamentary Constituency is estimated using caseload and
-// average-award data applied to national outturn expenditure — DWP does not
-// publish a genuine constituency-level £ breakdown for Universal Credit (nor,
-// as far as this project has found, for the other five benefits). Stat-Xplore
-// was checked for a constituency-level average-award measure (BC_UC_Monthly)
-// but that database covers only benefit-capped households, a small subset,
-// and would understate spend if used generally — it is NOT used here.
+// METHODOLOGY CHANGE — READ BEFORE CHANGING BACK
+// ─────────────────────────────────────────────────
+// This REPLACES the original approach (national average award × local
+// PEOPLE caseload, via NATIONAL_EXPENDITURE_2026_27_GBP /
+// NATIONAL_CASELOAD_2026_27 from the DWP workbook). That approach is kept
+// in git history for reference but is no longer used, for two reasons:
+//
+// 1. Universal Credit is assessed and paid as a single combined award per
+//    HOUSEHOLD (a couple/family makes one joint claim, one payment covers
+//    the household) — there's no real "per-person UC award." TPA's own
+//    published methodology for its benefits dashboard confirms this: it
+//    multiplies the mean award by the number of HOUSEHOLDS for UC
+//    specifically (unlike the other five benefits, which are individually
+//    assessed and paid, so claimant-count × mean award is correct there).
+//    Using people-count as the allocation unit implicitly assumes every
+//    constituency has the same average household size as the national
+//    average, which distorts the local estimate wherever that's untrue.
+//
+// 2. We now have a GENUINE constituency-level figure from DWP, not a
+//    national average: Stat-Xplore's UC_Households database exposes a
+//    MEAN monthly payment amount PER CONSTITUENCY (confirmed via schema —
+//    this measure only supports the MEAN function, no SUM/TOTAL exists;
+//    see import-welfare-uc-households.js for the full discovery trail).
+//    Multiplying each constituency's own mean payment by its own household
+//    caseload is strictly more accurate than applying one flat national
+//    average everywhere.
 //
 // METHOD
 // ──────
-// annual_spend_estimate(constituency) = caseload(constituency) × national_average_annual_award
+// annual_spend_estimate(constituency) = households(constituency)
+//   × mean_monthly_payment(constituency) × 12
 //
-// national_average_annual_award is derived from DWP's "Benefit expenditure
-// and caseload tables 2025" (Autumn Budget 2025 edition), "Universal Credit
-// and equivalent" sheet:
-//   https://www.gov.uk/government/publications/benefit-expenditure-and-caseload-tables-2025
-//   Row 14 (Universal Credit expenditure, £m nominal), 2026/27 forecast: £87,630.5m
-//   Row 51 (Universal Credit caseload, thousands),     2026/27 forecast: 6,918k
-//   => £87,630,500,000 / 6,918,000 = £12,667.09/year (rounded below)
+// Both inputs come from the same Stat-Xplore request/period (see
+// import-welfare-uc-households.js, metric_keys 'uc_households' and
+// 'uc_mean_monthly_payment') — no DWP workbook figures or national
+// averages are used in this calculation at all.
 //
-// The 2026/27 forecast year is used (rather than the 2024/25 outturn) because
-// it is the fiscal year containing the caseload snapshot month this script
-// multiplies against (May 2026, already imported as metric_key
-// 'uc_people_on_uc'). The 2024/25 outturn figure (£66,743.9m / 5,480k ≈
-// £12,179/year) was cross-checked against an independent NAO citation
-// (£66.3bn for UC in 2024/25, from DWP's Annual Report and Accounts) before
-// being accepted as correct — this script does not use that figure directly,
-// but the cross-check is recorded here because it is what established
-// confidence in the underlying DWP workbook figures used for 2026/27 too.
-//
-// This script does NOT scale/align results to a national total the way DWP's
-// methodology note implies for a genuine past-year estimate, because no
-// 2026/27 OUTTURN total exists yet (it is a forecast year, still in progress)
-// — there is nothing to align to yet. This is a forward-looking run-rate
-// estimate based on the latest known caseload and the latest forecast award
-// rate, not a reconstruction of a specific past year's actual total.
+// This is still labelled 'estimated' (not a literal annual outturn figure)
+// because it's an annualised run-rate from one month's snapshot
+// (mean_monthly_payment × 12), not a reconstruction of a specific past
+// year's actual total — consistent with how every other benefit's spend
+// estimate in this project is labelled.
 //
 // Run without --live to preview. Pass --live to write to
 // welfare_constituency_metrics (metric_key = 'uc_spend_estimated_annual').
@@ -57,75 +59,110 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const LIVE = process.argv.includes('--live');
 
-const CASELOAD_METRIC_KEY = 'uc_people_on_uc';
+const HOUSEHOLDS_METRIC_KEY = 'uc_households';
+const MEAN_PAYMENT_METRIC_KEY = 'uc_mean_monthly_payment';
 const SPEND_METRIC_KEY = 'uc_spend_estimated_annual';
-
-// DWP "Benefit expenditure and caseload tables 2025" (Autumn Budget 2025),
-// "Universal Credit and equivalent" sheet, row 14 / row 51, 2026/27 forecast.
-const NATIONAL_EXPENDITURE_2026_27_GBP = 87_630_500_000; // £87,630.5m
-const NATIONAL_CASELOAD_2026_27 = 6_918_000; // 6,918k
-const AVERAGE_ANNUAL_AWARD_GBP = NATIONAL_EXPENDITURE_2026_27_GBP / NATIONAL_CASELOAD_2026_27;
 
 async function main() {
   console.log(LIVE ? '--- LIVE RUN (will write to database) ---' : '--- DRY RUN (pass --live to write) ---');
-  console.log(`\nNational average annual UC award (2026/27 forecast basis): £${AVERAGE_ANNUAL_AWARD_GBP.toFixed(2)}`);
 
-  console.log(`\nFetching latest '${CASELOAD_METRIC_KEY}' rows from welfare_constituency_metrics...`);
-  const { data: caseloadRows, error: caseloadErr } = await supabase
+  console.log(`\nFetching latest '${HOUSEHOLDS_METRIC_KEY}' rows from welfare_constituency_metrics...`);
+  const { data: householdsRows, error: hhErr } = await supabase
     .from('welfare_constituency_metrics')
     .select('constituency_gss_code, value, period_end, source_release_id')
-    .eq('metric_key', CASELOAD_METRIC_KEY)
+    .eq('metric_key', HOUSEHOLDS_METRIC_KEY)
     .order('period_end', { ascending: false });
-  if (caseloadErr) { console.error('Failed to read caseload rows:', caseloadErr.message); process.exit(1); }
-  if (caseloadRows.length === 0) {
-    console.error(`No rows found for metric_key='${CASELOAD_METRIC_KEY}' — has the UC caseload import been run?`);
+  if (hhErr) { console.error('Failed to read households rows:', hhErr.message); process.exit(1); }
+  if (householdsRows.length === 0) {
+    console.error(`No rows found for metric_key='${HOUSEHOLDS_METRIC_KEY}' — has import-welfare-uc-households.js been run?`);
     process.exit(1);
   }
 
-  const latestPeriodEnd = caseloadRows[0].period_end;
-  const latestRows = caseloadRows.filter((r) => r.period_end === latestPeriodEnd);
-  console.log(`Using ${latestRows.length} constituency rows for period_end=${latestPeriodEnd}.`);
+  console.log(`Fetching latest '${MEAN_PAYMENT_METRIC_KEY}' rows from welfare_constituency_metrics...`);
+  const { data: meanPaymentRows, error: mpErr } = await supabase
+    .from('welfare_constituency_metrics')
+    .select('constituency_gss_code, value, period_end')
+    .eq('metric_key', MEAN_PAYMENT_METRIC_KEY)
+    .order('period_end', { ascending: false });
+  if (mpErr) { console.error('Failed to read mean payment rows:', mpErr.message); process.exit(1); }
+  if (meanPaymentRows.length === 0) {
+    console.error(`No rows found for metric_key='${MEAN_PAYMENT_METRIC_KEY}' — has import-welfare-uc-households.js been run?`);
+    process.exit(1);
+  }
 
-  const results = latestRows.map((r) => ({
-    gss_code: r.constituency_gss_code,
-    caseload: r.value,
-    spend_estimate: Math.round(r.value * AVERAGE_ANNUAL_AWARD_GBP),
-    source_release_id: r.source_release_id,
-  }));
+  const latestPeriodEnd = householdsRows[0].period_end;
+  const latestHouseholds = householdsRows.filter((r) => r.period_end === latestPeriodEnd);
+  const latestMeanPayments = meanPaymentRows.filter((r) => r.period_end === latestPeriodEnd);
+
+  if (latestMeanPayments.length === 0) {
+    console.error(`No '${MEAN_PAYMENT_METRIC_KEY}' rows found for period_end=${latestPeriodEnd} — the two imports are out of sync. Aborting.`);
+    process.exit(1);
+  }
+
+  const meanPaymentByGss = new Map(latestMeanPayments.map((r) => [r.constituency_gss_code, r.value]));
+
+  console.log(`Using ${latestHouseholds.length} constituency rows for period_end=${latestPeriodEnd}.`);
+
+  const results = [];
+  const missingMeanPayment = [];
+  for (const r of latestHouseholds) {
+    const meanPayment = meanPaymentByGss.get(r.constituency_gss_code);
+    if (typeof meanPayment !== 'number') {
+      missingMeanPayment.push(r.constituency_gss_code);
+      continue;
+    }
+    results.push({
+      gss_code: r.constituency_gss_code,
+      households: r.value,
+      mean_payment: meanPayment,
+      spend_estimate: Math.round(r.value * meanPayment * 12),
+      source_release_id: r.source_release_id,
+    });
+  }
+
+  if (missingMeanPayment.length > 0) {
+    console.error(`\n${missingMeanPayment.length} constituency(ies) have households data but no matching mean-payment row for the same period — ABORTING, nothing written.`);
+    console.error(JSON.stringify(missingMeanPayment.slice(0, 10), null, 2));
+    process.exit(1);
+  }
+
+  if (results.length !== latestHouseholds.length) {
+    console.error('Row count mismatch after joining households and mean-payment data — aborting.');
+    process.exit(1);
+  }
 
   console.log('\nFirst 5 results:');
   results.slice(0, 5).forEach((r) =>
-    console.log(`  ${r.gss_code}: caseload ${r.caseload} × £${AVERAGE_ANNUAL_AWARD_GBP.toFixed(2)} = £${r.spend_estimate.toLocaleString()}`),
+    console.log(`  ${r.gss_code}: ${r.households} households × £${r.mean_payment.toFixed(2)}/month × 12 = £${r.spend_estimate.toLocaleString()}`),
   );
 
   const totalEstimate = results.reduce((sum, r) => sum + r.spend_estimate, 0);
-  console.log(`\nSum of all constituency estimates: £${totalEstimate.toLocaleString()}`);
-  console.log(`For comparison, national caseload (${latestPeriodEnd}) × award rate would give: £${Math.round(latestRows.reduce((s, r) => s + r.value, 0) * AVERAGE_ANNUAL_AWARD_GBP).toLocaleString()} (should match the sum above, since this is the same arithmetic applied row by row).`);
-  console.log('Note: this total is a forward-looking run-rate estimate, not the DWP 2026/27 outturn total (which does not exist yet, as 2026/27 is still in progress) — it will not exactly match any single published DWP figure.');
+  console.log(`\nSum of all GB constituency estimates: £${totalEstimate.toLocaleString()}`);
+  console.log('Note: this is a run-rate estimate from a single month\'s household caseload and mean payment, annualised (×12) — it will not exactly match any single published DWP annual outturn figure.');
 
   if (!LIVE) {
     console.log('\nDry run complete. Pass --live to write these estimates to the database.');
     return;
   }
 
-  console.log('\nUpserting welfare_constituency_metrics rows...');
+  console.log('\nUpserting welfare_constituency_metrics rows (spend estimates)...');
   const metricRows = results.map((r) => ({
     constituency_gss_code: r.gss_code,
     metric_key: SPEND_METRIC_KEY,
     value: r.spend_estimate,
     unit: 'GBP',
-    period_start: latestRows[0].period_end, // same snapshot period as the caseload it's derived from
+    period_start: latestPeriodEnd,
     period_end: latestPeriodEnd,
-    source_release_id: r.source_release_id, // same source release as the caseload import — this is a derived figure, not a new independent fetch
+    source_release_id: r.source_release_id,
     status: 'estimated',
     metadata_json: {
-      method: 'national_average_award_times_local_caseload',
-      national_average_annual_award_gbp: Math.round(AVERAGE_ANNUAL_AWARD_GBP * 100) / 100,
-      national_expenditure_source: 'DWP Benefit expenditure and caseload tables 2025 (Autumn Budget 2025), "Universal Credit and equivalent" sheet, row 14, 2026/27 forecast',
-      national_expenditure_gbp: NATIONAL_EXPENDITURE_2026_27_GBP,
-      national_caseload_source: 'Same sheet, row 51, 2026/27 forecast',
-      national_caseload: NATIONAL_CASELOAD_2026_27,
-      caveat: 'This is an estimate derived by applying one national average award uniformly to local caseload. DWP does not publish a genuine constituency-level award/spend breakdown for Universal Credit as far as this project could establish.',
+      method: 'constituency_households_times_constituency_mean_monthly_payment_times_12',
+      households_metric_key: HOUSEHOLDS_METRIC_KEY,
+      mean_payment_metric_key: MEAN_PAYMENT_METRIC_KEY,
+      households: r.households,
+      mean_monthly_payment_gbp: r.mean_payment,
+      source: 'DWP Stat-Xplore, UC_Households database — genuine constituency-level mean monthly payment (MEAN statistical function on HNTOTAL_PAYMENT_AMOUNT), not a national average.',
+      caveat: 'Annualised run-rate from a single month\'s snapshot (mean monthly payment × 12), not a reconstruction of a specific past year\'s actual total. Replaces the earlier national-average-times-people-caseload methodology for Universal Credit specifically, because UC is assessed and paid per household, not per person, and Stat-Xplore provides a genuine constituency-level mean award for this benefit (unlike the other five, where only a national average could be established).',
     },
   }));
 
