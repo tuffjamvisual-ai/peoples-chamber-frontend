@@ -45,17 +45,31 @@
 // per-benefit breakdown in metadata_json for full transparency.
 //
 // baseline_period_end / baseline_total_spend / cash_change /
-// percentage_change (the "two-year change" feature) are left NULL here —
-// not yet built; a future script will populate these once historical
-// baseline data collection is in place.
+// percentage_change (the "two-year change" feature)
+// ─────────────────────────────────────────────────────────────────────
+// For each of the six spend metrics, this script now also fetches the
+// EARLIEST period_end present (the baseline, ~2 years ago — see
+// import-welfare-baseline-caseloads.js / import-welfare-uc-households-
+// baseline.js / compute-welfare-baseline-spend.js) alongside the latest
+// (current). baseline_total_spend is the same six-benefit sum, computed
+// from the baseline values instead of the current ones.
+// baseline_period_end is set to the MOST RECENT of the six benefits'
+// baseline period_ends (mirroring how headline_period_end is the most
+// recent of the six current period_ends). cash_change = current total −
+// baseline total; percentage_change = cash_change / baseline total × 100.
+// ESA and Housing Benefit are expected to show a NEGATIVE change (their
+// caseloads are shrinking as claimants migrate to Universal Credit);
+// PIP, DLA, Carer's Allowance, and UC are expected to show a POSITIVE
+// change (growing caseloads/awards) — confirmed against each benefit's
+// actual baseline vs. current totals before this script was finalised.
 //
 // INTEGRITY CHECK
 // ───────────────
 // Every one of the 575 England & Wales constituencies must have a
-// present, numeric value for all six benefit metrics and a population
-// figure. Any constituency missing any of these aborts the whole rebuild
-// with nothing written — a genuine gap here means something upstream
-// broke, not a real zero.
+// present, numeric value for all six benefit metrics (both current AND
+// baseline) and a population figure. Any constituency missing any of
+// these aborts the whole rebuild with nothing written — a genuine gap
+// here means something upstream broke, not a real zero.
 //
 // Run without --live to preview. Pass --live to truncate and rebuild
 // welfare_constituency_summary.
@@ -101,6 +115,31 @@ async function fetchLatestByConstituency(metricKey) {
   return { map, latestPeriodEnd, rowCount: latestRows.length, valueCount: map.size };
 }
 
+async function fetchEarliestByConstituency(metricKey) {
+  const { data, error } = await supabase
+    .from('welfare_constituency_metrics')
+    .select('constituency_gss_code, value, status, period_end')
+    .eq('metric_key', metricKey)
+    .order('period_end', { ascending: true });
+  if (error) { console.error(`Failed to read '${metricKey}' rows:`, error.message); process.exit(1); }
+  if (data.length === 0) {
+    console.error(`No rows found for metric_key='${metricKey}'.`);
+    process.exit(1);
+  }
+  const distinctPeriodEnds = [...new Set(data.map((r) => r.period_end))];
+  if (distinctPeriodEnds.length < 2) {
+    console.error(`Expected at least 2 distinct period_ends for '${metricKey}' (baseline + current) — found ${distinctPeriodEnds.length}. Has the baseline import/compute been run? Aborting.`);
+    process.exit(1);
+  }
+  const earliestPeriodEnd = data[0].period_end;
+  const earliestRows = data.filter((r) => r.period_end === earliestPeriodEnd);
+  const map = new Map();
+  for (const r of earliestRows) {
+    if (typeof r.value === 'number') map.set(r.constituency_gss_code, r.value);
+  }
+  return { map, earliestPeriodEnd, rowCount: earliestRows.length, valueCount: map.size };
+}
+
 async function main() {
   console.log(LIVE ? '--- LIVE RUN (will truncate and rebuild welfare_constituency_summary) ---' : '--- DRY RUN (pass --live to rebuild) ---');
 
@@ -121,6 +160,14 @@ async function main() {
     console.log(`  ${key}: period_end=${result.latestPeriodEnd}, ${result.valueCount} numeric values out of ${result.rowCount} rows`);
   }
 
+  console.log('\nFetching baseline (earliest) value for each of the six benefit spend metrics...');
+  const baselineBenefitData = {};
+  for (const key of SPEND_METRIC_KEYS) {
+    const result = await fetchEarliestByConstituency(key);
+    baselineBenefitData[key] = result;
+    console.log(`  ${key}: baseline period_end=${result.earliestPeriodEnd}, ${result.valueCount} numeric values out of ${result.rowCount} rows`);
+  }
+
   console.log(`\nFetching latest '${POPULATION_METRIC_KEY}' values...`);
   const populationData = await fetchLatestByConstituency(POPULATION_METRIC_KEY);
   console.log(`  ${POPULATION_METRIC_KEY}: period_end=${populationData.latestPeriodEnd}, ${populationData.valueCount} numeric values`);
@@ -131,7 +178,13 @@ async function main() {
     .pop();
   console.log(`\nHeadline period_end (most recent of the six benefits' latest periods): ${headlinePeriodEnd}`);
 
-  console.log('\nBuilding per-constituency totals...');
+  const baselinePeriodEnd = Object.values(baselineBenefitData)
+    .map((b) => b.earliestPeriodEnd)
+    .sort()
+    .pop();
+  console.log(`Baseline period_end (most recent of the six benefits' baseline periods): ${baselinePeriodEnd}`);
+
+  console.log('\nBuilding per-constituency totals (current and baseline)...');
   const missing = [];
   const results = [];
   for (const code of ewGssCodes) {
@@ -144,17 +197,40 @@ async function main() {
       breakdown[key] = value;
       total += value;
     }
+
+    const baselineBreakdown = {};
+    let baselineTotal = 0;
+    let baselineAnyMissing = false;
+    for (const key of SPEND_METRIC_KEYS) {
+      const value = baselineBenefitData[key].map.get(code);
+      if (typeof value !== 'number') { baselineAnyMissing = true; break; }
+      baselineBreakdown[key] = value;
+      baselineTotal += value;
+    }
+
     const population = populationData.map.get(code);
-    if (anyMissing || typeof population !== 'number') {
-      missing.push({ code, anyMissing, hasPopulation: typeof population === 'number' });
+    if (anyMissing || baselineAnyMissing || typeof population !== 'number') {
+      missing.push({
+        code,
+        anyMissing,
+        baselineAnyMissing,
+        hasPopulation: typeof population === 'number',
+      });
       continue;
     }
+
+    const roundedBaselineTotal = Math.round(baselineTotal);
+    const roundedTotal = Math.round(total);
     results.push({
       gss_code: code,
-      total_six_benefit_spend: Math.round(total),
+      total_six_benefit_spend: roundedTotal,
       population,
       spend_per_resident: total / population,
       breakdown,
+      baseline_total_six_benefit_spend: roundedBaselineTotal,
+      baseline_breakdown: baselineBreakdown,
+      cash_change: roundedTotal - roundedBaselineTotal,
+      percentage_change: roundedBaselineTotal !== 0 ? ((roundedTotal - roundedBaselineTotal) / roundedBaselineTotal) * 100 : null,
     });
   }
 
@@ -164,7 +240,14 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(`\nIntegrity check passed: all ${results.length} England & Wales constituencies have all six benefit values and a population figure.`);
+  console.log(`\nIntegrity check passed: all ${results.length} England & Wales constituencies have all six current benefit values, all six baseline benefit values, and a population figure.`);
+
+  const totalCashChange = results.reduce((s, r) => s + r.cash_change, 0);
+  const totalBaselineSpend = results.reduce((s, r) => s + r.baseline_total_six_benefit_spend, 0);
+  const overallPercentageChange = totalBaselineSpend !== 0 ? (totalCashChange / totalBaselineSpend) * 100 : null;
+  console.log(`\nEngland & Wales baseline (${baselinePeriodEnd}) six-benefit total: £${totalBaselineSpend.toLocaleString()}`);
+  console.log(`England & Wales current (${headlinePeriodEnd}) six-benefit total: £${(totalBaselineSpend + totalCashChange).toLocaleString()}`);
+  console.log(`Overall cash change: £${totalCashChange.toLocaleString()} (${overallPercentageChange !== null ? overallPercentageChange.toFixed(2) : 'n/a'}%)`);
 
   // Rank by total spend (descending — rank 1 = highest) and separately by
   // spend per resident (descending — rank 1 = highest).
@@ -177,6 +260,12 @@ async function main() {
   byTotal.slice(0, 5).forEach((r) => console.log(`  #${r.rank_total_spend} ${r.gss_code}: £${r.total_six_benefit_spend.toLocaleString()}`));
   console.log('\nTop 5 by spend per resident:');
   byPerResident.slice(0, 5).forEach((r) => console.log(`  #${r.rank_spend_per_resident} ${r.gss_code}: £${r.spend_per_resident.toFixed(2)}/resident (population ${r.population.toLocaleString()})`));
+
+  const byPercentageChange = [...results].sort((a, b) => (b.percentage_change ?? -Infinity) - (a.percentage_change ?? -Infinity));
+  console.log('\nTop 5 by two-year percentage change (highest increase):');
+  byPercentageChange.slice(0, 5).forEach((r) => console.log(`  ${r.gss_code}: £${r.baseline_total_six_benefit_spend.toLocaleString()} → £${r.total_six_benefit_spend.toLocaleString()} (${r.percentage_change !== null ? r.percentage_change.toFixed(2) : 'n/a'}%)`));
+  console.log('Bottom 5 by two-year percentage change (biggest decrease):');
+  byPercentageChange.slice(-5).reverse().forEach((r) => console.log(`  ${r.gss_code}: £${r.baseline_total_six_benefit_spend.toLocaleString()} → £${r.total_six_benefit_spend.toLocaleString()} (${r.percentage_change !== null ? r.percentage_change.toFixed(2) : 'n/a'}%)`));
 
   const totalSpendSum = results.reduce((s, r) => s + r.total_six_benefit_spend, 0);
   const totalPopulation = results.reduce((s, r) => s + r.population, 0);
@@ -205,19 +294,22 @@ async function main() {
     spend_per_resident: r.spend_per_resident,
     rank_total_spend: r.rank_total_spend,
     rank_spend_per_resident: r.rank_spend_per_resident,
-    baseline_period_end: null,
-    baseline_total_spend: null,
-    cash_change: null,
-    percentage_change: null,
+    baseline_period_end: baselinePeriodEnd,
+    baseline_total_spend: r.baseline_total_six_benefit_spend,
+    cash_change: r.cash_change,
+    percentage_change: r.percentage_change,
     population: r.population,
     population_reference_year: 2024,
     latest_source_update: now,
     metadata_json: {
       benefit_breakdown: r.breakdown,
       benefit_period_ends: Object.fromEntries(SPEND_METRIC_KEYS.map((k) => [k, benefitData[k].latestPeriodEnd])),
+      baseline_benefit_breakdown: r.baseline_breakdown,
+      baseline_benefit_period_ends: Object.fromEntries(SPEND_METRIC_KEYS.map((k) => [k, baselineBenefitData[k].earliestPeriodEnd])),
       population_period_end: populationData.latestPeriodEnd,
       scope: 'england_and_wales_only',
       scope_reason: 'PIP, DLA, and Carer\'s Allowance are devolved in Scotland; Scottish-administered equivalents (ADP, SADLA/CDP, CSP) are not included here. Including Scotland with only 3 of 6 benefits would misleadingly understate its total relative to England & Wales.',
+      two_year_change_note: 'baseline_total_spend sums the same six benefit estimates as total_six_benefit_spend, but each at its own baseline period (~2 years earlier, individually confirmed available per benefit — see import-welfare-baseline-caseloads.js). ESA and Housing Benefit baselines are higher than current (caseloads shrinking as claimants migrate to Universal Credit); PIP, DLA, Carer\'s Allowance, and UC baselines are lower than current (caseloads/awards growing). Like headline_period_end, baseline_period_end mixes benefits with different reference dates — see benefit_period_ends / baseline_benefit_period_ends for the exact dates used for each.',
     },
   }));
 
@@ -234,7 +326,7 @@ async function main() {
     console.log(`  Inserted ${written}/${summaryRows.length}`);
   }
 
-  console.log(`\nDone. welfare_constituency_summary rebuilt with ${written} England & Wales constituencies, headline_period_end=${headlinePeriodEnd}.`);
+  console.log(`\nDone. welfare_constituency_summary rebuilt with ${written} England & Wales constituencies, headline_period_end=${headlinePeriodEnd}, baseline_period_end=${baselinePeriodEnd}.`);
 }
 
 main().catch((err) => {
