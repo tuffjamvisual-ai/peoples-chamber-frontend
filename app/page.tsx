@@ -24,10 +24,9 @@ const getHomepageCounts = unstable_cache(
       supabase.from('press_releases').select('*', { count: 'exact', head: true }).not('removed_upstream', 'is', true).not('gov_url', 'is', null),
       supabase.from('commons_divisions_fts').select('*', { count: 'exact', head: true }),
     ]);
-    const failed = mpsRes.error || releasesRes.error || divisionsRes.error;
-    if (failed) {
-      throw new Error(`getHomepageCounts: Supabase query failed - ${failed.message}`);
-    }
+    if (mpsRes.error) console.error('getHomepageCounts mps error:', mpsRes.error.message);
+    if (releasesRes.error) console.error('getHomepageCounts releases error:', releasesRes.error.message);
+    if (divisionsRes.error) console.error('getHomepageCounts divisions error:', divisionsRes.error.message);
     return {
       mps:           mpsRes.count       ?? 0,
       pressReleases: releasesRes.count  ?? 0,
