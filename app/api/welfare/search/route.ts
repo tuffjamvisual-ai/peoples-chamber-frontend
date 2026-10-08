@@ -15,6 +15,17 @@ export const dynamic = 'force-dynamic';
 // populated for English constituencies that fall within a traditional
 // county structure — Welsh and Scottish constituencies use the region
 // hierarchy instead).
+//
+// LONDON BOROUGHS: county_gss_code (CTYUA25CD) uses the standard ONS
+// prefix convention — E09 is specifically London boroughs (e.g. Hackney),
+// while E10 is a true two-tier county (e.g. Kent) and E06 is a
+// non-London unitary authority. Since a London borough has no separate
+// county tier above it, ONS's own lookup uses the borough's own name/code
+// as its CTYUA entry — which is accurate, but reads oddly as a "county"
+// result to a user. `type` stays 'county' either way (routing via
+// ?county= works identically), but `label` is set to 'borough' for E09
+// entries so the UI can show the more natural term without changing what
+// is searchable or how it resolves.
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -24,7 +35,7 @@ const supabase = createClient(
 type SearchResult =
   | { type: 'constituency'; gssCode: string; name: string; scope: 'full' | 'partial'; county?: string | null }
   | { type: 'local_authority'; gssCode: string; name: string; scope: 'full' | 'partial' }
-  | { type: 'county'; name: string; constituencyCount: number };
+  | { type: 'county'; name: string; constituencyCount: number; label: 'county' | 'borough' };
 
 export async function GET(req: NextRequest) {
   const q = (req.nextUrl.searchParams.get('q') || '').trim();
@@ -87,10 +98,11 @@ export async function GET(req: NextRequest) {
       .limit(8),
 
     // Counties: from welfare_constituency_geography — group by county_name,
-    // return the count of constituencies so the UI can show e.g. "Kent · 17 constituencies"
+    // return the count of constituencies so the UI can show e.g. "Kent · 17 constituencies".
+    // county_gss_code is fetched too, purely to detect London boroughs (E09) for labelling.
     supabase
       .from('welfare_constituency_geography')
-      .select('county_name')
+      .select('county_name, county_gss_code')
       .not('county_name', 'is', null)
       .ilike('county_name', pattern)
       .order('county_name')
@@ -135,6 +147,7 @@ export async function GET(req: NextRequest) {
       type: 'county',
       name: r.county_name,
       constituencyCount: 0, // filled in below
+      label: r.county_gss_code && r.county_gss_code.startsWith('E09') ? 'borough' : 'county',
     });
   }
 
