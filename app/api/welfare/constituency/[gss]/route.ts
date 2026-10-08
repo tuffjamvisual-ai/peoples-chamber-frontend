@@ -62,7 +62,23 @@ export async function GET(
       return NextResponse.json({ error: 'notfound', message: 'No welfare data found for this constituency.' }, { status: 404 });
     }
 
-    return NextResponse.json({ scope: 'full', data });
+    // welfare_constituency_summary has no name column (unlike
+    // welfare_local_authority_summary, which stores council_name
+    // directly) — the mps table is this project's single source of
+    // truth for constituency name + GSS code, so join it the same way
+    // the partial-scope (Scotland) branch below already does.
+    const { data: mp } = await supabase
+      .from('mps')
+      .select('member_id, name, constituency')
+      .eq('constituency_gss_code', gss)
+      .single();
+
+    return NextResponse.json({
+      scope: 'full',
+      data,
+      constituencyName: mp?.constituency ?? null,
+      mp: mp ? { memberId: mp.member_id, name: mp.name } : null,
+    });
   }
 
   // ── partial scope: read live metrics for 3 reserved benefits ─────────

@@ -47,23 +47,43 @@ export async function GET(req: NextRequest) {
 
   // ── county= exact fetch: all constituencies within a county ──────────
   if (county) {
+    // welfare_constituency_geography has no constituency_name column
+    // (confirmed directly against its migration SQL — it only has
+    // constituency_gss_code, council_gss_code, council_name,
+    // county_gss_code, county_name) — the mps table is this project's
+    // single source of truth for constituency display names, same as
+    // the full-scope constituency detail route.
     const { data, error } = await supabase
       .from('welfare_constituency_geography')
-      .select('constituency_gss_code, constituency_name, county_name')
-      .eq('county_name', county)
-      .order('constituency_name');
+      .select('constituency_gss_code')
+      .eq('county_name', county);
     if (error) {
       console.error('welfare search county error:', error.message);
       return NextResponse.json({ error: 'db', message: 'Database error' }, { status: 500 });
     }
-    const results: SearchResult[] = (data || []).map((r) => ({
-      type: 'constituency',
-      gssCode: r.constituency_gss_code,
-      name: r.constituency_name,
-      scope: r.constituency_gss_code.startsWith('S14') ? 'partial' : 'full',
-      county: r.county_name,
-    }));
-    return NextResponse.json({ results });
+    const gssCodes = [...new Set((data || []).map((r) => r.constituency_gss_code))];
+    if (gssCodes.length === 0) {
+      return NextResponse.json({ error: 'notfound', message: `No constituencies found for "${county}".` }, { status: 404 });
+    }
+    const { data: mpRows, error: mpErr } = await supabase
+      .from('mps')
+      .select('constituency, constituency_gss_code')
+      .in('constituency_gss_code', gssCodes);
+    if (mpErr) {
+      console.error('welfare search county mps error:', mpErr.message);
+      return NextResponse.json({ error: 'db', message: 'Database error' }, { status: 500 });
+    }
+    const results: SearchResult[] = (mpRows || [])
+      .filter((r) => r.constituency_gss_code)
+      .map((r) => ({
+        type: 'constituency' as const,
+        gssCode: r.constituency_gss_code as string,
+        name: r.constituency as string,
+        scope: ((r.constituency_gss_code as string).startsWith('S14') ? 'partial' : 'full') as 'full' | 'partial',
+        county,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+    return NextResponse.json({ county, results });
   }
 
   // ── q= typeahead across all three types ─────────────────────────────
