@@ -192,6 +192,49 @@ async function fetchMedianWage(gss: string): Promise<MedianWage | null> {
   return { value: data.value, periodEnd: data.period_end, status: data.status };
 }
 
+// LCWRA (Limited Capability for Work and Work-Related Activity) share
+// of the UC health caseload, confirmed live in
+// welfare_constituency_metrics under metric_key='uc_lcwra_claimants' —
+// one row per GB constituency (632 total, no baseline row — snapshot
+// metric only), via import-welfare-lcwra.js. Unlike PIP/DLA/Carer's
+// Allowance, Universal Credit (and its Work Capability Assessment) is
+// NOT devolved to Scotland, so — like medianWage above — this is
+// requested from BOTH the full-scope and partial-scope branches below,
+// not just the non-Scotland one. value is null when the combined
+// LCW+LCWRA total was zero (likely DWP small-cell suppression).
+type UcLcwra = {
+  lcwraValue: number | null;
+  lcw: number | null;
+  combinedTotal: number | null;
+  lcwraRatioPercent: number | null;
+  periodEnd: string;
+  status: string;
+};
+
+async function fetchUcLcwra(gss: string): Promise<UcLcwra | null> {
+  const { data, error } = await supabase
+    .from('welfare_constituency_metrics')
+    .select('value, period_end, status, metadata_json')
+    .eq('constituency_gss_code', gss)
+    .eq('metric_key', 'uc_lcwra_claimants')
+    .maybeSingle();
+
+  if (error || !data) {
+    if (error) console.error('welfare UC LCWRA error:', error.message);
+    return null;
+  }
+
+  const m = (data.metadata_json || {}) as { lcw?: number; combined_total?: number; lcwra_ratio_percent?: number };
+  return {
+    lcwraValue: data.value,
+    lcw: m.lcw ?? null,
+    combinedTotal: m.combined_total ?? null,
+    lcwraRatioPercent: m.lcwra_ratio_percent ?? null,
+    periodEnd: data.period_end,
+    status: data.status,
+  };
+}
+
 async function fetchClaimantCounts(
   gss: string,
   metricKeys: readonly string[],
@@ -277,6 +320,7 @@ export async function GET(
     const pipMotability = await fetchPipMotability(gss);
     const pipConditionBreakdown = await fetchPipConditionBreakdown(gss);
     const medianWage = await fetchMedianWage(gss);
+    const ucLcwra = await fetchUcLcwra(gss);
 
     return NextResponse.json({
       scope: 'full',
@@ -286,6 +330,7 @@ export async function GET(
       pipMotability,
       pipConditionBreakdown,
       medianWage,
+      ucLcwra,
       mp: mp
         ? {
             memberId: mp.member_id,
@@ -338,12 +383,14 @@ export async function GET(
 
   const claimantCounts = await fetchClaimantCounts(gss, PARTIAL_CLAIMANT_METRIC_KEYS);
   const medianWage = await fetchMedianWage(gss);
+  const ucLcwra = await fetchUcLcwra(gss);
 
   return NextResponse.json({
     scope: 'partial',
     constituencyName: mp?.constituency || null,
     claimantCounts,
     medianWage,
+    ucLcwra,
     mp: mp
       ? {
           memberId: mp.member_id,

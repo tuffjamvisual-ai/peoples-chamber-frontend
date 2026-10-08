@@ -132,6 +132,28 @@ function medianWageSub(w: MedianWage | null | undefined): string | null {
   return `Full-time employees working in this area · Period ending ${formatPeriodEnd(w.periodEnd)}`
 }
 
+// LCWRA (Limited Capability for Work and Work-Related Activity) share
+// of the UC health caseload: GB-wide DWP data (UC's Work Capability
+// Assessment is not devolved to Scotland, unlike PIP/DLA/Carer's
+// Allowance), so populated on both full-scope and partial-scope
+// payloads — same scope as medianWage above. lcwraValue is null when
+// the combined LCW+LCWRA total was zero (likely DWP small-cell
+// suppression).
+type UcLcwra = {
+  lcwraValue: number | null
+  lcw: number | null
+  combinedTotal: number | null
+  lcwraRatioPercent: number | null
+  periodEnd: string
+  status: string
+}
+
+function lcwraText(w: UcLcwra | null | undefined): string | null {
+  if (!w) return null
+  if (w.status === 'suppressed' || w.lcwraValue == null || w.lcwraRatioPercent == null) return null
+  return `${w.lcwraRatioPercent.toFixed(1)}% of the assessed UC health caseload are LCWRA (${formatCount(w.lcwraValue)} of ${formatCount(w.combinedTotal ?? 0)})`
+}
+
 type MpInfo = {
   memberId: string
   name: string
@@ -149,6 +171,7 @@ type FullPayload = {
   pipMotability?: PipMotability | null
   pipConditionBreakdown?: PipConditionBreakdown | null
   medianWage?: MedianWage | null
+  ucLcwra?: UcLcwra | null
   data: {
     constituency_gss_code: string
     headline_period_end: string
@@ -177,6 +200,7 @@ type PartialPayload = {
   mp: MpInfo | null
   claimantCounts?: Record<string, ClaimantCount>
   medianWage?: MedianWage | null
+  ucLcwra?: UcLcwra | null
   benefits: Record<string, { value: number; periodEnd: string; unit: string; status: string }>
   note: string
 }
@@ -279,12 +303,13 @@ function FullView({ payload }: { payload: FullPayload }) {
           const ccText = claimantText(cc)
           const motText = key === 'pip_spend_estimated_annual' ? motabilityText(payload.pipMotability) : null
           const conditionText = key === 'pip_spend_estimated_annual' ? conditionBreakdownText(payload.pipConditionBreakdown) : null
+          const lcwraTextValue = key === 'uc_spend_estimated_annual' ? lcwraText(payload.ucLcwra) : null
           return (
             <DataRow
               key={key}
               label={BENEFIT_LABELS[key]}
               value={formatGBP(m.benefit_breakdown[key])}
-              sub={`${formatGBPPerResident(m.benefit_breakdown[key] / d.population)} per resident${ccText ? ` · ${ccText}` : ''}${motText ? ` · ${motText}` : ''}${conditionText ? ` · ${conditionText}` : ''} · Period ending ${formatPeriodEnd(m.benefit_period_ends[key])} · baseline ${formatGBP(m.baseline_benefit_breakdown[key])} (${formatPeriodEnd(m.baseline_benefit_period_ends[key])})`}
+              sub={`${formatGBPPerResident(m.benefit_breakdown[key] / d.population)} per resident${ccText ? ` · ${ccText}` : ''}${motText ? ` · ${motText}` : ''}${conditionText ? ` · ${conditionText}` : ''}${lcwraTextValue ? ` · ${lcwraTextValue}` : ''} · Period ending ${formatPeriodEnd(m.benefit_period_ends[key])} · baseline ${formatGBP(m.baseline_benefit_breakdown[key])} (${formatPeriodEnd(m.baseline_benefit_period_ends[key])})`}
             />
           )
         })}
@@ -318,12 +343,13 @@ function PartialView({ payload }: { payload: PartialPayload }) {
           if (!b) return null
           const cc = payload.claimantCounts?.[CLAIMANT_METRIC_FOR_BENEFIT[key]]
           const ccText = claimantText(cc)
+          const lcwraTextValue = key === 'uc_spend_estimated_annual' ? lcwraText(payload.ucLcwra) : null
           return (
             <DataRow
               key={key}
               label={BENEFIT_LABELS[key]}
               value={formatGBP(b.value)}
-              sub={`${ccText ? `${ccText} · ` : ''}Period ending ${formatPeriodEnd(b.periodEnd)}`}
+              sub={`${ccText ? `${ccText} · ` : ''}${lcwraTextValue ? `${lcwraTextValue} · ` : ''}Period ending ${formatPeriodEnd(b.periodEnd)}`}
             />
           )
         })}
