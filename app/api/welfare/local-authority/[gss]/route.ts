@@ -41,6 +41,81 @@ const PARTIAL_METRIC_KEYS = [
   'esa_spend_estimated_annual',
 ] as const;
 
+// Claimant/household counts, confirmed live in welfare_local_authority_metrics
+// — same pattern as the constituency route (one current-period row per
+// key, plus a second row carrying metadata_json.baseline=true for the
+// two-year-change comparison). uc_households is HOUSEHOLDS, the other
+// five are individual claimant counts.
+const FULL_CLAIMANT_METRIC_KEYS = [
+  'ca_claimants',
+  'dla_claimants',
+  'esa_claimants',
+  'hb_claimants',
+  'pip_claimants',
+  'uc_households',
+] as const;
+
+const PARTIAL_CLAIMANT_METRIC_KEYS = [
+  'esa_claimants',
+  'hb_claimants',
+  'uc_households',
+] as const;
+
+type ClaimantCount = {
+  value: number;
+  periodEnd: string;
+  unit: string;
+  baselineValue: number | null;
+  baselinePeriodEnd: string | null;
+  percentChange: number | null;
+};
+
+async function fetchClaimantCounts(
+  gss: string,
+  metricKeys: readonly string[],
+): Promise<Record<string, ClaimantCount>> {
+  const { data: rows, error } = await supabase
+    .from('welfare_local_authority_metrics')
+    .select('metric_key, value, period_end, unit, metadata_json')
+    .eq('council_gss_code', gss)
+    .in('metric_key', metricKeys);
+
+  if (error || !rows) {
+    console.error('welfare LA claimant counts error:', error?.message);
+    return {};
+  }
+
+  const result: Record<string, ClaimantCount> = {};
+  for (const r of rows) {
+    const isBaseline = !!(r.metadata_json && (r.metadata_json as { baseline?: boolean }).baseline === true);
+    if (!result[r.metric_key]) {
+      result[r.metric_key] = {
+        value: 0,
+        periodEnd: '',
+        unit: r.unit,
+        baselineValue: null,
+        baselinePeriodEnd: null,
+        percentChange: null,
+      };
+    }
+    if (isBaseline) {
+      result[r.metric_key].baselineValue = r.value;
+      result[r.metric_key].baselinePeriodEnd = r.period_end;
+    } else {
+      result[r.metric_key].value = r.value;
+      result[r.metric_key].periodEnd = r.period_end;
+      result[r.metric_key].unit = r.unit;
+    }
+  }
+  for (const key of Object.keys(result)) {
+    const c = result[key];
+    if (c.baselineValue != null && c.baselineValue !== 0) {
+      c.percentChange = ((c.value - c.baselineValue) / c.baselineValue) * 100;
+    }
+  }
+  return result;
+}
+
 // Barnsley and Sheffield only: maps old DWP-vintage codes (welfare tables)
 // to new 2025 council-reorganisation codes (councils table slugs).
 // Do NOT use this map for anything except the councils table slug lookup.
@@ -82,7 +157,9 @@ export async function GET(
       .eq('gss_code', councilsGss)
       .single();
 
-    return NextResponse.json({ scope: 'full', data, councilSlug: council?.slug ?? null });
+    const claimantCounts = await fetchClaimantCounts(gss, FULL_CLAIMANT_METRIC_KEYS);
+
+    return NextResponse.json({ scope: 'full', data, councilSlug: council?.slug ?? null, claimantCounts });
   }
 
   // ── partial scope: read live metrics for 3 reserved benefits ─────────
@@ -125,10 +202,13 @@ export async function GET(
     .eq('gss_code', councilsGss)
     .single();
 
+  const claimantCounts = await fetchClaimantCounts(gss, PARTIAL_CLAIMANT_METRIC_KEYS);
+
   return NextResponse.json({
     scope: 'partial',
     councilName,
     councilSlug: council?.slug ?? null,
+    claimantCounts,
     benefits,
     note: 'PIP, DLA, and Carer\'s Allowance are devolved in Scotland. Only UC, Housing Benefit, and ESA (GB-wide reserved benefits) are shown. No national ranking is available.',
   });

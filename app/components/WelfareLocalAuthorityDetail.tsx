@@ -39,9 +39,42 @@ const BENEFIT_LABELS: Record<string, string> = {
   esa_spend_estimated_annual: 'Employment and Support Allowance (ESA)',
 }
 
+// Maps each spend metric_key to its claimant/household-count metric_key
+// in welfare_local_authority_metrics. uc_households counts HOUSEHOLDS
+// (UC is assessed per household, not per person); the other five count
+// individual claimants.
+const CLAIMANT_METRIC_FOR_BENEFIT: Record<string, string> = {
+  uc_spend_estimated_annual: 'uc_households',
+  pip_spend_estimated_annual: 'pip_claimants',
+  hb_spend_estimated_annual: 'hb_claimants',
+  dla_spend_estimated_annual: 'dla_claimants',
+  ca_spend_estimated_annual: 'ca_claimants',
+  esa_spend_estimated_annual: 'esa_claimants',
+}
+
+type ClaimantCount = {
+  value: number
+  periodEnd: string
+  unit: string
+  baselineValue: number | null
+  baselinePeriodEnd: string | null
+  percentChange: number | null
+}
+
+// "10,371 households claiming" for UC (household-assessed), "6,374
+// claimants (+21.7% in 2yrs)" for the other five (individually assessed)
+// — matches TPA's own wording distinction for the same reason.
+function claimantText(c: ClaimantCount | undefined): string | null {
+  if (!c || c.value == null) return null
+  const noun = c.unit === 'households' ? 'households claiming' : 'claimants'
+  const change = c.percentChange != null ? ` (${formatSignedPercent(c.percentChange)} in 2yrs)` : ''
+  return `${formatCount(c.value)} ${noun}${change}`
+}
+
 type FullPayload = {
   scope: 'full'
   councilSlug: string | null
+  claimantCounts?: Record<string, ClaimantCount>
   data: {
     council_gss_code: string
     council_name: string
@@ -69,6 +102,7 @@ type PartialPayload = {
   scope: 'partial'
   councilName: string | null
   councilSlug: string | null
+  claimantCounts?: Record<string, ClaimantCount>
   benefits: Record<string, { value: number; periodEnd: string; unit: string; status: string }>
   note: string
 }
@@ -165,14 +199,18 @@ function FullView({ payload }: { payload: FullPayload }) {
       </Section>
 
       <Section title="Per-benefit breakdown">
-        {BENEFIT_ORDER.map((key) => (
-          <DataRow
-            key={key}
-            label={BENEFIT_LABELS[key]}
-            value={formatGBP(m.benefit_breakdown[key])}
-            sub={`${formatGBPPerResident(m.benefit_breakdown[key] / d.population)} per resident · Period ending ${formatPeriodEnd(m.benefit_period_ends[key])} · baseline ${formatGBP(m.baseline_benefit_breakdown[key])} (${formatPeriodEnd(m.baseline_benefit_period_ends[key])})`}
-          />
-        ))}
+        {BENEFIT_ORDER.map((key) => {
+          const cc = payload.claimantCounts?.[CLAIMANT_METRIC_FOR_BENEFIT[key]]
+          const ccText = claimantText(cc)
+          return (
+            <DataRow
+              key={key}
+              label={BENEFIT_LABELS[key]}
+              value={formatGBP(m.benefit_breakdown[key])}
+              sub={`${formatGBPPerResident(m.benefit_breakdown[key] / d.population)} per resident${ccText ? ` · ${ccText}` : ''} · Period ending ${formatPeriodEnd(m.benefit_period_ends[key])} · baseline ${formatGBP(m.baseline_benefit_breakdown[key])} (${formatPeriodEnd(m.baseline_benefit_period_ends[key])})`}
+            />
+          )
+        })}
       </Section>
     </>
   )
@@ -197,12 +235,14 @@ function PartialView({ payload }: { payload: PartialPayload }) {
         {reservedOrder.map((key) => {
           const b = payload.benefits[key]
           if (!b) return null
+          const cc = payload.claimantCounts?.[CLAIMANT_METRIC_FOR_BENEFIT[key]]
+          const ccText = claimantText(cc)
           return (
             <DataRow
               key={key}
               label={BENEFIT_LABELS[key]}
               value={formatGBP(b.value)}
-              sub={`Period ending ${formatPeriodEnd(b.periodEnd)}`}
+              sub={`${ccText ? `${ccText} · ` : ''}Period ending ${formatPeriodEnd(b.periodEnd)}`}
             />
           )
         })}

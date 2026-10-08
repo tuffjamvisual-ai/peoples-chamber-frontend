@@ -38,6 +38,85 @@ const PARTIAL_METRIC_KEYS = [
   'esa_spend_estimated_annual',
 ] as const;
 
+// Claimant/household counts, confirmed live in welfare_constituency_metrics
+// (one row per key for the current period, plus a second row per key
+// carrying metadata_json.baseline=true for the two-year-change
+// comparison — same pattern already used for the six spend metrics).
+// uc_households is HOUSEHOLDS (UC is assessed per household), the other
+// five are individual claimant counts — see import-welfare-uc-households.js
+// for why UC is counted differently.
+const FULL_CLAIMANT_METRIC_KEYS = [
+  'ca_claimants',
+  'dla_claimants',
+  'esa_claimants',
+  'hb_claimants',
+  'pip_claimants',
+  'uc_households',
+] as const;
+
+// Scotland: only the three GB-wide reserved benefits have claimant data
+// (PIP/DLA/CA are devolved, same exclusion as the spend metrics above).
+const PARTIAL_CLAIMANT_METRIC_KEYS = [
+  'esa_claimants',
+  'hb_claimants',
+  'uc_households',
+] as const;
+
+type ClaimantCount = {
+  value: number;
+  periodEnd: string;
+  unit: string;
+  baselineValue: number | null;
+  baselinePeriodEnd: string | null;
+  percentChange: number | null;
+};
+
+async function fetchClaimantCounts(
+  gss: string,
+  metricKeys: readonly string[],
+): Promise<Record<string, ClaimantCount>> {
+  const { data: rows, error } = await supabase
+    .from('welfare_constituency_metrics')
+    .select('metric_key, value, period_end, unit, metadata_json')
+    .eq('constituency_gss_code', gss)
+    .in('metric_key', metricKeys);
+
+  if (error || !rows) {
+    console.error('welfare claimant counts error:', error?.message);
+    return {};
+  }
+
+  const result: Record<string, ClaimantCount> = {};
+  for (const r of rows) {
+    const isBaseline = !!(r.metadata_json && (r.metadata_json as { baseline?: boolean }).baseline === true);
+    if (!result[r.metric_key]) {
+      result[r.metric_key] = {
+        value: 0,
+        periodEnd: '',
+        unit: r.unit,
+        baselineValue: null,
+        baselinePeriodEnd: null,
+        percentChange: null,
+      };
+    }
+    if (isBaseline) {
+      result[r.metric_key].baselineValue = r.value;
+      result[r.metric_key].baselinePeriodEnd = r.period_end;
+    } else {
+      result[r.metric_key].value = r.value;
+      result[r.metric_key].periodEnd = r.period_end;
+      result[r.metric_key].unit = r.unit;
+    }
+  }
+  for (const key of Object.keys(result)) {
+    const c = result[key];
+    if (c.baselineValue != null && c.baselineValue !== 0) {
+      c.percentChange = ((c.value - c.baselineValue) / c.baselineValue) * 100;
+    }
+  }
+  return result;
+}
+
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ gss: string }> },
@@ -73,10 +152,13 @@ export async function GET(
       .eq('constituency_gss_code', gss)
       .single();
 
+    const claimantCounts = await fetchClaimantCounts(gss, FULL_CLAIMANT_METRIC_KEYS);
+
     return NextResponse.json({
       scope: 'full',
       data,
       constituencyName: mp?.constituency ?? null,
+      claimantCounts,
       mp: mp
         ? {
             memberId: mp.member_id,
@@ -127,9 +209,12 @@ export async function GET(
     .eq('constituency_gss_code', gss)
     .single();
 
+  const claimantCounts = await fetchClaimantCounts(gss, PARTIAL_CLAIMANT_METRIC_KEYS);
+
   return NextResponse.json({
     scope: 'partial',
     constituencyName: mp?.constituency || null,
+    claimantCounts,
     mp: mp
       ? {
           memberId: mp.member_id,
