@@ -42,10 +42,18 @@ const BENEFIT_LABELS: Record<string, string> = {
   esa_spend_estimated_annual: 'Employment and Support Allowance (ESA)',
 }
 
+type MpInfo = {
+  memberId: string
+  name: string
+  party?: string | null
+  partyAbbreviation?: string | null
+  partyColour?: string | null
+}
+
 type FullPayload = {
   scope: 'full'
   constituencyName: string | null
-  mp: { memberId: string; name: string } | null
+  mp: MpInfo | null
   data: {
     constituency_gss_code: string
     headline_period_end: string
@@ -71,6 +79,7 @@ type FullPayload = {
 type PartialPayload = {
   scope: 'partial'
   constituencyName: string | null
+  mp: MpInfo | null
   benefits: Record<string, { value: number; periodEnd: string; unit: string; status: string }>
   note: string
 }
@@ -141,7 +150,7 @@ function FullView({ payload }: { payload: FullPayload }) {
       <Header
         kind="Constituency"
         name={payload.constituencyName || d.constituency_gss_code}
-        sub={payload.mp ? `MP: ${payload.mp.name}` : undefined}
+        sub={payload.mp ? `MP: ${mpLabel(payload.mp)}` : undefined}
         gssCode={d.constituency_gss_code}
       />
 
@@ -172,7 +181,7 @@ function FullView({ payload }: { payload: FullPayload }) {
             key={key}
             label={BENEFIT_LABELS[key]}
             value={formatGBP(m.benefit_breakdown[key])}
-            sub={`Period ending ${formatPeriodEnd(m.benefit_period_ends[key])} · baseline ${formatGBP(m.baseline_benefit_breakdown[key])} (${formatPeriodEnd(m.baseline_benefit_period_ends[key])})`}
+            sub={`${formatGBPPerResident(m.benefit_breakdown[key] / d.population)} per resident · Period ending ${formatPeriodEnd(m.benefit_period_ends[key])} · baseline ${formatGBP(m.baseline_benefit_breakdown[key])} (${formatPeriodEnd(m.baseline_benefit_period_ends[key])})`}
           />
         ))}
       </Section>
@@ -187,6 +196,7 @@ function PartialView({ payload }: { payload: PartialPayload }) {
       <Header
         kind="Constituency"
         name={payload.constituencyName || 'Scotland'}
+        sub={payload.mp ? `MP: ${mpLabel(payload.mp)}` : undefined}
         partial
       />
 
@@ -210,6 +220,13 @@ function PartialView({ payload }: { payload: PartialPayload }) {
       </Section>
     </>
   )
+}
+
+// mp.name is already stored with a trailing " MP" (e.g. "Kevin Bonavia
+// MP") — confirmed directly against a live mps row — so this only adds
+// the party, never duplicates the "MP" suffix.
+function mpLabel(mp: MpInfo): string {
+  return mp.party ? `${mp.name} (${mp.party})` : mp.name
 }
 
 function Header({ kind, name, sub, gssCode, partial }: { kind: string; name: string; sub?: string; gssCode?: string; partial?: boolean }) {

@@ -69,7 +69,7 @@ export async function GET(
     // the partial-scope (Scotland) branch below already does.
     const { data: mp } = await supabase
       .from('mps')
-      .select('member_id, name, constituency')
+      .select('member_id, name, constituency, party, party_abbreviation, party_colour')
       .eq('constituency_gss_code', gss)
       .single();
 
@@ -77,7 +77,15 @@ export async function GET(
       scope: 'full',
       data,
       constituencyName: mp?.constituency ?? null,
-      mp: mp ? { memberId: mp.member_id, name: mp.name } : null,
+      mp: mp
+        ? {
+            memberId: mp.member_id,
+            name: mp.name,
+            party: mp.party,
+            partyAbbreviation: mp.party_abbreviation,
+            partyColour: mp.party_colour,
+          }
+        : null,
     });
   }
 
@@ -111,16 +119,25 @@ export async function GET(
     }
   }
 
-  // Also fetch constituency name from mps table
+  // Also fetch constituency name + MP from mps table
   const { data: mp } = await supabase
     .from('mps')
-    .select('constituency')
+    .select('member_id, name, constituency, party, party_abbreviation, party_colour')
     .eq('constituency_gss_code', gss)
     .single();
 
   return NextResponse.json({
     scope: 'partial',
     constituencyName: mp?.constituency || null,
+    mp: mp
+      ? {
+          memberId: mp.member_id,
+          name: mp.name,
+          party: mp.party,
+          partyAbbreviation: mp.party_abbreviation,
+          partyColour: mp.party_colour,
+        }
+      : null,
     benefits,
     note: 'PIP, DLA, and Carer\'s Allowance are devolved in Scotland. Only UC, Housing Benefit, and ESA (GB-wide reserved benefits) are shown. No national ranking is available.',
   });

@@ -170,7 +170,7 @@ function FullView({ payload }: { payload: FullPayload }) {
             key={key}
             label={BENEFIT_LABELS[key]}
             value={formatGBP(m.benefit_breakdown[key])}
-            sub={`Period ending ${formatPeriodEnd(m.benefit_period_ends[key])} · baseline ${formatGBP(m.baseline_benefit_breakdown[key])} (${formatPeriodEnd(m.baseline_benefit_period_ends[key])})`}
+            sub={`${formatGBPPerResident(m.benefit_breakdown[key] / d.population)} per resident · Period ending ${formatPeriodEnd(m.benefit_period_ends[key])} · baseline ${formatGBP(m.baseline_benefit_breakdown[key])} (${formatPeriodEnd(m.baseline_benefit_period_ends[key])})`}
           />
         ))}
       </Section>
