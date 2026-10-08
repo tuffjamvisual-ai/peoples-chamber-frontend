@@ -70,6 +70,38 @@ type ClaimantCount = {
   percentChange: number | null;
 };
 
+// Median annual pay (workplace-based, full-time employees), confirmed
+// live in welfare_local_authority_metrics under
+// metric_key='median_annual_pay_workplace' — one row per GB local
+// authority (350 total: England 296, Wales 22, Scotland 32, no baseline
+// row — snapshot metric only). Same as the constituency tier, this is
+// ONS/Nomis labour-market data rather than a devolved DWP benefit, so
+// it's requested from BOTH the full-scope (England & Wales) and
+// partial-scope (Scotland) branches below. Some local authorities are
+// suppressed by ONS as statistically unreliable (status='suppressed',
+// value=null) — surfaced honestly rather than hidden or estimated.
+type MedianWage = {
+  value: number | null;
+  periodEnd: string;
+  status: string;
+};
+
+async function fetchMedianWage(gss: string): Promise<MedianWage | null> {
+  const { data, error } = await supabase
+    .from('welfare_local_authority_metrics')
+    .select('value, period_end, status')
+    .eq('council_gss_code', gss)
+    .eq('metric_key', 'median_annual_pay_workplace')
+    .maybeSingle();
+
+  if (error || !data) {
+    if (error) console.error('welfare LA median wage error:', error.message);
+    return null;
+  }
+
+  return { value: data.value, periodEnd: data.period_end, status: data.status };
+}
+
 async function fetchClaimantCounts(
   gss: string,
   metricKeys: readonly string[],
@@ -158,8 +190,9 @@ export async function GET(
       .single();
 
     const claimantCounts = await fetchClaimantCounts(gss, FULL_CLAIMANT_METRIC_KEYS);
+    const medianWage = await fetchMedianWage(gss);
 
-    return NextResponse.json({ scope: 'full', data, councilSlug: council?.slug ?? null, claimantCounts });
+    return NextResponse.json({ scope: 'full', data, councilSlug: council?.slug ?? null, claimantCounts, medianWage });
   }
 
   // ── partial scope: read live metrics for 3 reserved benefits ─────────
@@ -203,12 +236,14 @@ export async function GET(
     .single();
 
   const claimantCounts = await fetchClaimantCounts(gss, PARTIAL_CLAIMANT_METRIC_KEYS);
+  const medianWage = await fetchMedianWage(gss);
 
   return NextResponse.json({
     scope: 'partial',
     councilName,
     councilSlug: council?.slug ?? null,
     claimantCounts,
+    medianWage,
     benefits,
     note: 'PIP, DLA, and Carer\'s Allowance are devolved in Scotland. Only UC, Housing Benefit, and ESA (GB-wide reserved benefits) are shown. No national ranking is available.',
   });

@@ -159,6 +159,39 @@ async function fetchPipConditionBreakdown(gss: string): Promise<PipConditionBrea
   };
 }
 
+// Median annual pay (workplace-based, full-time employees), confirmed
+// live in welfare_constituency_metrics under
+// metric_key='median_annual_pay_workplace' — one row per GB constituency
+// (632 total: 543 England + 57 Scotland + 32 Wales, no baseline row —
+// snapshot metric only). Unlike PIP/DLA/Carer's Allowance, this is NOT
+// devolved — it's ONS/Nomis labour-market data, not a DWP benefit — so
+// it's requested from BOTH the full-scope (England & Wales) and
+// partial-scope (Scotland) branches below. 4 of 632 constituencies are
+// suppressed by ONS as statistically unreliable (status='suppressed',
+// value=null) — surfaced honestly rather than hidden or estimated, same
+// pattern as every other genuine data gap in this project.
+type MedianWage = {
+  value: number | null;
+  periodEnd: string;
+  status: string;
+};
+
+async function fetchMedianWage(gss: string): Promise<MedianWage | null> {
+  const { data, error } = await supabase
+    .from('welfare_constituency_metrics')
+    .select('value, period_end, status')
+    .eq('constituency_gss_code', gss)
+    .eq('metric_key', 'median_annual_pay_workplace')
+    .maybeSingle();
+
+  if (error || !data) {
+    if (error) console.error('welfare median wage error:', error.message);
+    return null;
+  }
+
+  return { value: data.value, periodEnd: data.period_end, status: data.status };
+}
+
 async function fetchClaimantCounts(
   gss: string,
   metricKeys: readonly string[],
@@ -243,6 +276,7 @@ export async function GET(
     const claimantCounts = await fetchClaimantCounts(gss, FULL_CLAIMANT_METRIC_KEYS);
     const pipMotability = await fetchPipMotability(gss);
     const pipConditionBreakdown = await fetchPipConditionBreakdown(gss);
+    const medianWage = await fetchMedianWage(gss);
 
     return NextResponse.json({
       scope: 'full',
@@ -251,6 +285,7 @@ export async function GET(
       claimantCounts,
       pipMotability,
       pipConditionBreakdown,
+      medianWage,
       mp: mp
         ? {
             memberId: mp.member_id,
@@ -302,11 +337,13 @@ export async function GET(
     .single();
 
   const claimantCounts = await fetchClaimantCounts(gss, PARTIAL_CLAIMANT_METRIC_KEYS);
+  const medianWage = await fetchMedianWage(gss);
 
   return NextResponse.json({
     scope: 'partial',
     constituencyName: mp?.constituency || null,
     claimantCounts,
+    medianWage,
     mp: mp
       ? {
           memberId: mp.member_id,

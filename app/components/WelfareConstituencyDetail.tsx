@@ -108,6 +108,30 @@ function conditionBreakdownText(c: PipConditionBreakdown | null | undefined): st
   return `${c.percentOfClaimants.toFixed(1)}% of PIP awards are for ${c.mainConditionLabel}`
 }
 
+// Median annual pay (workplace-based, full-time employees): GB-wide
+// ONS/Nomis labour-market data, not a devolved DWP benefit, so it's
+// populated on both full-scope (England & Wales) and partial-scope
+// (Scotland) payloads — unlike PIP/Motability/condition-breakdown above,
+// which are England & Wales only. value is null when ONS suppresses the
+// figure as statistically unreliable (status === 'suppressed').
+type MedianWage = {
+  value: number | null
+  periodEnd: string
+  status: string
+}
+
+function medianWageValue(w: MedianWage | null | undefined): string | null {
+  if (!w) return null
+  if (w.status === 'suppressed' || w.value == null) return 'Suppressed by ONS'
+  return formatGBP(w.value)
+}
+
+function medianWageSub(w: MedianWage | null | undefined): string | null {
+  if (!w) return null
+  if (w.status === 'suppressed' || w.value == null) return `Statistically unreliable at this geography · Period ending ${formatPeriodEnd(w.periodEnd)}`
+  return `Full-time employees working in this area · Period ending ${formatPeriodEnd(w.periodEnd)}`
+}
+
 type MpInfo = {
   memberId: string
   name: string
@@ -124,6 +148,7 @@ type FullPayload = {
   claimantCounts?: Record<string, ClaimantCount>
   pipMotability?: PipMotability | null
   pipConditionBreakdown?: PipConditionBreakdown | null
+  medianWage?: MedianWage | null
   data: {
     constituency_gss_code: string
     headline_period_end: string
@@ -151,6 +176,7 @@ type PartialPayload = {
   constituencyName: string | null
   mp: MpInfo | null
   claimantCounts?: Record<string, ClaimantCount>
+  medianWage?: MedianWage | null
   benefits: Record<string, { value: number; periodEnd: string; unit: string; status: string }>
   note: string
 }
@@ -231,6 +257,7 @@ function FullView({ payload }: { payload: FullPayload }) {
         <DataRow label="Rank by total spend" value={`#${formatCount(d.rank_total_spend)} of ${EW_CONSTITUENCY_COUNT}`} sub="Rank 1 = highest total spend among England & Wales constituencies" />
         <DataRow label="Rank by spend per resident" value={`#${formatCount(d.rank_spend_per_resident)} of ${EW_CONSTITUENCY_COUNT}`} />
         <DataRow label="Population" value={`${formatCount(d.population)} (${d.population_reference_year})`} />
+        <DataRow label="Median annual pay (workplace)" value={medianWageValue(payload.medianWage)} sub={medianWageSub(payload.medianWage)} />
       </Section>
 
       <Section title="Two-year change">
@@ -280,6 +307,10 @@ function PartialView({ payload }: { payload: PartialPayload }) {
       <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
         <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.75, color: INK, margin: 0 }}>{payload.note}</p>
       </section>
+
+      <Section title="Headline figures">
+        <DataRow label="Median annual pay (workplace)" value={medianWageValue(payload.medianWage)} sub={medianWageSub(payload.medianWage)} />
+      </Section>
 
       <Section title="Reserved benefits (UK-wide, DWP-administered)">
         {reservedOrder.map((key) => {
