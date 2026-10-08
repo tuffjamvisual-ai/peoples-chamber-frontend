@@ -91,6 +91,23 @@ function motabilityText(m: PipMotability | null | undefined): string | null {
   return `${formatCount(m.enhancedClaimants)} eligible for a Motability vehicle`
 }
 
+// PIP main disabling condition breakdown: same scope restriction as
+// Motability above (constituency-only, non-Scotland). percentOfClaimants
+// is computed server-side from the breakdown's own category totals.
+type PipConditionBreakdown = {
+  mainConditionLabel: string
+  mainConditionCount: number
+  totalClaimants: number
+  percentOfClaimants: number
+  periodEnd: string
+  breakdown: Record<string, number>
+}
+
+function conditionBreakdownText(c: PipConditionBreakdown | null | undefined): string | null {
+  if (!c) return null
+  return `${c.percentOfClaimants.toFixed(1)}% of PIP awards are for ${c.mainConditionLabel}`
+}
+
 type MpInfo = {
   memberId: string
   name: string
@@ -106,6 +123,7 @@ type FullPayload = {
   mp: MpInfo | null
   claimantCounts?: Record<string, ClaimantCount>
   pipMotability?: PipMotability | null
+  pipConditionBreakdown?: PipConditionBreakdown | null
   data: {
     constituency_gss_code: string
     headline_period_end: string
@@ -233,12 +251,13 @@ function FullView({ payload }: { payload: FullPayload }) {
           const cc = payload.claimantCounts?.[CLAIMANT_METRIC_FOR_BENEFIT[key]]
           const ccText = claimantText(cc)
           const motText = key === 'pip_spend_estimated_annual' ? motabilityText(payload.pipMotability) : null
+          const conditionText = key === 'pip_spend_estimated_annual' ? conditionBreakdownText(payload.pipConditionBreakdown) : null
           return (
             <DataRow
               key={key}
               label={BENEFIT_LABELS[key]}
               value={formatGBP(m.benefit_breakdown[key])}
-              sub={`${formatGBPPerResident(m.benefit_breakdown[key] / d.population)} per resident${ccText ? ` · ${ccText}` : ''}${motText ? ` · ${motText}` : ''} · Period ending ${formatPeriodEnd(m.benefit_period_ends[key])} · baseline ${formatGBP(m.baseline_benefit_breakdown[key])} (${formatPeriodEnd(m.baseline_benefit_period_ends[key])})`}
+              sub={`${formatGBPPerResident(m.benefit_breakdown[key] / d.population)} per resident${ccText ? ` · ${ccText}` : ''}${motText ? ` · ${motText}` : ''}${conditionText ? ` · ${conditionText}` : ''} · Period ending ${formatPeriodEnd(m.benefit_period_ends[key])} · baseline ${formatGBP(m.baseline_benefit_breakdown[key])} (${formatPeriodEnd(m.baseline_benefit_period_ends[key])})`}
             />
           )
         })}

@@ -109,6 +109,56 @@ async function fetchPipMotability(gss: string): Promise<PipMotability | null> {
   };
 }
 
+// PIP main disabling condition breakdown, confirmed live in
+// welfare_constituency_metrics under metric_key='pip_main_condition_breakdown'
+// — one row per GB constituency (632 total, no baseline row), same
+// constituency-only / non-Scotland scope as PIP Motability above. The
+// full 22-category breakdown and the plurality ("main") category are
+// both carried in metadata_json — see import-welfare-pip-detail.js.
+// percentOfClaimants is computed from the breakdown's own category
+// totals (not the separate pip_claimants metric) so it's never thrown
+// off by a period-date mismatch between the two metrics.
+type PipConditionBreakdown = {
+  mainConditionLabel: string;
+  mainConditionCount: number;
+  totalClaimants: number;
+  percentOfClaimants: number;
+  periodEnd: string;
+  breakdown: Record<string, number>;
+};
+
+async function fetchPipConditionBreakdown(gss: string): Promise<PipConditionBreakdown | null> {
+  const { data, error } = await supabase
+    .from('welfare_constituency_metrics')
+    .select('period_end, metadata_json')
+    .eq('constituency_gss_code', gss)
+    .eq('metric_key', 'pip_main_condition_breakdown')
+    .maybeSingle();
+
+  if (error || !data || !data.metadata_json) {
+    if (error) console.error('welfare PIP condition breakdown error:', error.message);
+    return null;
+  }
+
+  const meta = data.metadata_json as {
+    breakdown?: Record<string, number>;
+    main_condition_count?: number;
+    main_condition_label?: string;
+  };
+  const breakdown = meta.breakdown || {};
+  const totalClaimants = Object.values(breakdown).reduce((sum, v) => sum + (v || 0), 0);
+  const mainConditionCount = meta.main_condition_count ?? 0;
+
+  return {
+    mainConditionLabel: meta.main_condition_label || 'Unknown',
+    mainConditionCount,
+    totalClaimants,
+    percentOfClaimants: totalClaimants > 0 ? (mainConditionCount / totalClaimants) * 100 : 0,
+    periodEnd: data.period_end,
+    breakdown,
+  };
+}
+
 async function fetchClaimantCounts(
   gss: string,
   metricKeys: readonly string[],
@@ -192,6 +242,7 @@ export async function GET(
 
     const claimantCounts = await fetchClaimantCounts(gss, FULL_CLAIMANT_METRIC_KEYS);
     const pipMotability = await fetchPipMotability(gss);
+    const pipConditionBreakdown = await fetchPipConditionBreakdown(gss);
 
     return NextResponse.json({
       scope: 'full',
@@ -199,6 +250,7 @@ export async function GET(
       constituencyName: mp?.constituency ?? null,
       claimantCounts,
       pipMotability,
+      pipConditionBreakdown,
       mp: mp
         ? {
             memberId: mp.member_id,
