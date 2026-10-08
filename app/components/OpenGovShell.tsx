@@ -48,6 +48,7 @@ const NAV: NavItem[] = [
   { label: 'Departments', href: '/departments' },
   { label: 'Accountability', href: '/transparency', children: [
     { label: 'State Dashboard', href: '/transparency/state-dashboard' },
+    { label: 'Welfare Spending', href: '/tools/welfare' },
     { label: 'Register of Interests', href: '/transparency/register-of-interests' },
     { label: 'Expenses', href: '/expenses' },
     { label: 'Second Jobs', href: '/second-jobs' },
