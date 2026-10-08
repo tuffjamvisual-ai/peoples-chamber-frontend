@@ -1,26 +1,60 @@
 import type { EditorialEntry } from './types';
 
-// Briefing: Labour general secretary Hollie Ridley's departure. Fact-checked per
-// FLAGS: stepping down after conference in September; almost 16 years at the party;
-// ran field operations at the 2024 general election; appointed general secretary
-// September 2024; associated with the Starmer operation; cited personal reasons and
-// the leadership transition (LBC, Wikipedia).
 const piece: EditorialEntry = {
   slug: 'rm9x2qk7v4',
-  kicker: 'Inside Labour',
-  headline: 'The General Secretary Is Leaving. The Machinery Is Being Cleared for Burnham.',
-  standfirst:
-    'Labour general secretary Hollie Ridley, a Starmer appointee, is stepping down after conference. General secretaries change when the leader does. This is the party machine being cleared for Burnham, and inside Labour it matters more than most things that make the front pages.',
+  kicker: 'The Leadership',
+  headline: `Hollie Ridley Is Leaving. Labour's Next Leader Will Inherit a Vacancy at the Top of the Party Machine`,
+  standfirst: `Labour's general secretary Hollie Ridley will step down after the party conference in September. She announced her departure on 3 July, saying the decision was partly personal and partly about the leadership transition. If Andy Burnham becomes leader, one of the most powerful unelected positions inside Labour will become vacant within weeks of him taking control.`,
   publishedAt: '2026-07-12',
   authorByline: 'opengovt',
-  kind: 'briefing',
   body: [
-    { type: 'paragraph', text: 'Hollie Ridley announced to Labour staff on Friday that she will step down as general secretary after conference in September. She has worked for the party for almost 16 years. She ran Labour’s field operations during the 2024 general election and was appointed general secretary in September 2024. She is closely associated with the Starmer operation. Her departure is not a scandal. It is the machinery being dismantled so the new boss can install his own.' },
-    { type: 'paragraph', text: 'General secretaries do not make speeches or appear on television. They run the party: elections, staffing, discipline, candidates, money, campaigns, systems. When the leader changes, the general secretary changes. Parties pretend they are families until power moves. Then they become removal companies.' },
-    { type: 'paragraph', text: 'Ridley cited personal reasons and the leadership transition. Nobody needs to make it more than that. But the timing tells you what is happening inside Labour. Burnham’s pitch is cultural as much as political. Less Westminster, more regional, more emotionally direct. If the party machine stays shaped around Starmerism, Burnham is driving a new car with someone else’s sat-nav. A new general secretary lets him reprogram the engine room.' },
-    { type: 'paragraph', text: 'The risk is disruption. A general secretary leaving during a leadership handover unsettles staff, campaign planning and internal discipline. The opportunity is that Burnham gets to build the organisation that matches his political offer before the next election, not after.' },
-    { type: 'paragraph', text: 'This will not make the front pages. Inside Labour it matters more than most things that do. Ridley leaving tells you the Burnham era is not arriving at the front door. It is moving through the wiring.' },
+    { type: 'paragraph', text: `Labour's general secretary Hollie Ridley will step down after the party conference in September, leaving the next Labour leader with a vacancy in one of the most powerful jobs inside the party.` },
+    { type: 'paragraph', text: `Ridley announced her departure to Labour staff on 3 July, saying the decision was partly personal and partly about the leadership transition.` },
+    { type: 'paragraph', text: `She said stepping down would allow Labour's National Executive Committee to choose a new general secretary "to work alongside a new leader once they are elected".` },
+    { type: 'paragraph', text: `That leader is increasingly likely to be Andy Burnham.` },
+    { type: 'paragraph', text: `Labour's leadership nominations opened on 9 July. By the end of the first day, Burnham had received 322 nominations from Labour MPs, leaving another candidate only the narrowest mathematical route to qualify. The parliamentary nomination stage closes on 15 July.` },
+    { type: 'paragraph', text: `Ridley's departure therefore creates an obvious opportunity for Labour's next leadership to reshape the organisation.` },
+    { type: 'paragraph', text: `It does not establish that Burnham forced her out or that he has already chosen her replacement.` },
+    { type: 'paragraph', text: `There is no evidence of either.` },
+    { type: 'paragraph', text: `Ridley has worked for Labour since 2011, when she joined as a trainee organiser. She later became regional director in the east of England and executive director for nations and regions before running Labour's field operation during the 2024 general election campaign.` },
+    { type: 'paragraph', text: `She was appointed general secretary in September 2024 after David Evans stepped down.` },
+    { type: 'paragraph', text: `Her appointment was closely associated with Keir Starmer's leadership. Ridley was regarded internally as a Starmer ally, was close to his strategist Morgan McSweeney and had been credited with running the ground campaign that helped Labour win the 2024 election. Senior Labour figures told the Guardian at the time that the accelerated appointment process was intended to secure somebody aligned with Starmer's political operation.` },
+    { type: 'paragraph', text: `The general secretary is not simply an administrator.` },
+    { type: 'paragraph', text: `The post sits at the centre of Labour's organisation. The general secretary heads the party's staff, oversees election operations and internal processes, acts as secretary to the National Executive Committee and has responsibilities under Labour's disciplinary system. Labour's rules give the NEC extensive powers which can be exercised through the general secretary and other national officials.` },
+    { type: 'paragraph', text: `But the leader does not personally appoint the general secretary.` },
+    { type: 'paragraph', text: `The National Executive Committee chooses the candidate, with the appointment subsequently requiring approval by Labour conference. When David Evans was appointed in 2020, for example, the NEC selected him after a contested process. His appointment was later approved by conference.` },
+    { type: 'paragraph', text: `That matters when describing Ridley's departure as the Burnham machine taking control.` },
+    { type: 'paragraph', text: `Burnham, if elected, will have enormous influence over the political direction of Labour and over the environment in which the NEC chooses Ridley's successor. He cannot simply install a general secretary by decree.` },
+    { type: 'paragraph', text: `Nor is there a constitutional rule that Labour changes general secretary whenever it changes leader.` },
+    { type: 'paragraph', text: `There is precedent for it.` },
+    { type: 'paragraph', text: `Jennie Formby, a close ally of Jeremy Corbyn, resigned in May 2020 shortly after Starmer became leader. She said the arrival of a new leadership team made it the right time to leave. The NEC then appointed David Evans, Starmer's preferred candidate.` },
+    { type: 'paragraph', text: `But Labour general secretaries also leave for other reasons and on different timetables.` },
+    { type: 'paragraph', text: `Evans remained in post for more than four years under Starmer and did not leave when Labour entered government. Ridley succeeded him only after the 2024 general election.` },
+    { type: 'paragraph', text: `Ridley's own explanation therefore fits a political pattern without proving a purge.` },
+    { type: 'paragraph', text: `A general secretary identified with one leadership leaves as that leadership ends. The NEC gets to choose a replacement able to work with whoever comes next.` },
+    { type: 'paragraph', text: `Burnham's likely succession makes that particularly significant.` },
+    { type: 'paragraph', text: `His political offer has been deliberately different from Starmer's in tone and organisation. He has emphasised devolution, regional government and a less Westminster-centred style of politics. If he becomes leader, the party apparatus responsible for elections, staffing and internal organisation will eventually be headed by somebody chosen after his arrival rather than before it.` },
+    { type: 'paragraph', text: `That gives him an opportunity Starmer also received in 2020.` },
+    { type: 'paragraph', text: `It brings risks as well.` },
+    { type: 'paragraph', text: `Ridley ran Labour's field operation during the election that put the party into government. Replacing the general secretary means changing leadership at the top of the party organisation while Labour is preparing for future elections and while a new prime minister would simultaneously be reorganising government.` },
+    { type: 'paragraph', text: `Continuity therefore has value too.` },
+    { type: 'paragraph', text: `Ridley is not leaving immediately. She will remain through Labour's annual conference in September, allowing the transition to take place after the leadership contest rather than in the middle of it.` },
+    { type: 'paragraph', text: `The strongest conclusion available from the evidence is narrower than saying Burnham is already dismantling Starmer's machine.` },
+    { type: 'paragraph', text: `Ridley has chosen to leave partly because Labour is changing leader.` },
+    { type: 'paragraph', text: `She has explicitly said the NEC should now be able to appoint a general secretary to work with that new leader.` },
+    { type: 'paragraph', text: `If that leader is Burnham, one of the most powerful unelected positions inside Labour will become vacant within weeks of him taking control.` },
   ],
+  evidence: {
+    recordsReviewed: [
+      `Hollie Ridley resignation announcement, reported by the Guardian and LabourList, 3 July 2026: records Ridley's decision to leave after Labour conference, her personal reasons and her statement that the NEC should choose a successor to work alongside the next leader`,
+      `Guardian, Starmer ally Hollie Ridley appointed as Labour general secretary, 17 September 2024: records Ridley's role in Labour's 2024 field campaign, her relationship with Starmer's operation, her previous party roles and the circumstances of her appointment`,
+      `Labour Party Rule Book: sets out the role of the general secretary as secretary to the NEC and the disciplinary and organisational functions exercised through the office`,
+      `LabourList, The process and politics of picking Labour's general secretaries: describes the general secretary's responsibilities for election campaigning, senior staffing, internal processes and party rules, and the NEC's role in selecting the office-holder`,
+      `Guardian and LabourList, David Evans appointment, May 2020: records Jennie Formby's departure after Starmer became leader and the NEC's subsequent selection of Evans`,
+      `Labour Party, Leadership Election 2026 timetable: establishes the leadership nomination timetable under which Burnham was seeking to succeed Starmer when Ridley's departure was announced`,
+    ],
+    lastChecked: '5 October 2026',
+  },
 };
 
 export default piece;

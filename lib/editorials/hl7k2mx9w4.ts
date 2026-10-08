@@ -1,24 +1,63 @@
 import type { EditorialEntry } from './types';
 
-// Briefing: bereaved parents' Parliament Square protest and Hugh's Law. Fact-checked:
-// children's shoes laid in Parliament Square on National Bereaved Parents Day; Hugh's
-// Law (paid leave for parents of seriously or terminally ill children), campaigned for
-// by the charity It's Never You, set up in memory of Ceri Menai-Davis's six-year-old
-// son Hugh, who died of cancer in 2021.
 const piece: EditorialEntry = {
   slug: 'hl7k2mx9w4',
-  kicker: 'Rights and the State',
-  headline: 'Bereaved Parents Should Not Have to Lay Children’s Shoes Outside Parliament',
-  standfirst:
-    'Bereaved parents laid children’s shoes in Parliament Square this week, campaigning for leave, protection from dismissal and the proposed Hugh’s Law. Whether a parent who loses a child keeps their job should not require a protest, a petition and a private members bill.',
+  kicker: 'Commentary',
+  headline: `Bereaved Parents Laid Their Children's Shoes Outside Parliament. The Gap Starts Before a Child Dies`,
+  standfirst: `Hundreds of children's shoes were laid in Parliament Square by families whose children had died. The protest was tied to Hugh's Law — a campaign for statutory paid leave for parents of seriously ill children. Britain already has bereavement leave. What it does not have is a dedicated statutory right to paid leave for the period when a family is trying to stop the death from happening.`,
   publishedAt: '2026-07-10',
   authorByline: 'opengovt',
-  kind: 'briefing',
   body: [
-    { type: 'paragraph', text: 'Bereaved parents staged a protest in Parliament Square this week. They laid out children’s shoes and demanded better rights, leave entitlements and legal protections including the proposed Hugh’s Law. It was mentioned in live coverage and buried under leadership gossip before the day was out.' },
-    { type: 'paragraph', text: 'Parliament can find hours for procedural theatre. It can debate the naming conventions of select committees. It can argue about the wording of early day motions that nobody outside Westminster will ever read. But families hit by the worst moment of their lives still have to campaign for basic employment protection and humane treatment from the state and their employers.' },
-    { type: 'paragraph', text: 'This is a moral test dressed as employment law. Whether a parent who loses a child gets adequate paid leave, protection from dismissal and the right to grieve without losing their job should not require a protest, a petition and a private members bill. It should require a government that treats grief as real rather than an inconvenience to payroll.' },
+    { type: 'paragraph', text: `A week ago, hundreds of children's shoes were laid out in Parliament Square.` },
+    { type: 'paragraph', text: `They belonged to children who had died.` },
+    { type: 'paragraph', text: `The protest was organised by It's Never You, the charity founded by Ceri and Frances Menai-Davis after their six-year-old son Hugh died from cancer in 2021. Parents brought shoes, photographs and belongings to Westminster to make the lives behind the campaign impossible to reduce to another employment-policy consultation.` },
+    { type: 'paragraph', text: `The families were asking for better support after bereavement.` },
+    { type: 'paragraph', text: `They were also making a different argument about what happens before it.` },
+    { type: 'paragraph', text: `That distinction has been blurred in some coverage of Hugh's Law.` },
+    { type: 'paragraph', text: `Britain already has statutory Parental Bereavement Leave. An eligible employee whose child dies before turning 18 can take two weeks' leave from the first day of their employment. Those who meet the separate earnings and service requirements can receive statutory pay, currently £194.32 a week or 90 per cent of average earnings, whichever is lower. Employment rights continue while that leave is taken.` },
+    { type: 'paragraph', text: `Two weeks does not settle the argument about whether bereaved families receive enough support.` },
+    { type: 'paragraph', text: `But Hugh's Law is aimed principally at another hole in the system.` },
+    { type: 'paragraph', text: `If a seven-year-old is diagnosed with cancer and spends months in hospital, there is no equivalent dedicated statutory right giving their parent paid leave simply because that child is seriously ill.` },
+    { type: 'paragraph', text: `Parents may use annual leave. They may qualify for unpaid carer's leave or unpaid parental leave. Some employers provide much more generous help voluntarily. Benefits may be available depending on the family's circumstances.` },
+    { type: 'paragraph', text: `None is the same as a specific right to step away from work on pay because your child has suddenly become seriously ill.` },
+    { type: 'paragraph', text: `That is what Ceri and Frances Menai-Davis have spent years trying to change.` },
+    { type: 'paragraph', text: `The current Hugh's Law campaign calls for statutory paid leave and employment protection for parents of seriously ill children, so that being at a child's bedside does not depend on how accommodating an employer happens to be or how long a family can survive on reduced income.` },
+    { type: 'paragraph', text: `The case has already reached Parliament.` },
+    { type: 'paragraph', text: `During a Westminster Hall debate in March 2025, Labour MP Chris Hinchliff described parents being forced to reduce work, navigate benefits or absorb sudden financial losses while caring for seriously ill children.` },
+    { type: 'paragraph', text: `The version of Hugh's Law discussed then proposed immediate non-means-tested support of £750 a month for up to three months after diagnosis. The campaign has since developed towards statutory paid leave and employment protection rather than one fixed final legislative model.` },
+    { type: 'paragraph', text: `The government is no longer ignoring it.` },
+    { type: 'paragraph', text: `On 9 June it opened a formal consultation on employment rights for unpaid carers and parents of seriously ill children. Hugh's Law is explicitly included.` },
+    { type: 'paragraph', text: `Ministers are considering whether further rights are needed and what form additional support should take. The consultation remains open until 1 September.` },
+    { type: 'paragraph', text: `That is progress.` },
+    { type: 'paragraph', text: `It is not a law.` },
+    { type: 'paragraph', text: `There is no guarantee yet that parents whose child develops a serious illness will receive paid statutory leave, how long any entitlement would last, what rate it would be paid at or which illnesses would qualify.` },
+    { type: 'paragraph', text: `That is why the shoes outside Parliament still matter.` },
+    { type: 'paragraph', text: `The uncomfortable gap in the current system appears at exactly the moment when a family has the least capacity to negotiate with it.` },
+    { type: 'paragraph', text: `A child can become seriously ill overnight.` },
+    { type: 'paragraph', text: `The mortgage does not stop. Neither does rent. Travel to hospital costs money. Parking costs money. Food away from home costs money. Other children still need looking after.` },
+    { type: 'paragraph', text: `An employer may behave compassionately.` },
+    { type: 'paragraph', text: `The law should not depend on finding one who does.` },
+    { type: 'paragraph', text: `There is something particularly strange about the line Britain currently draws.` },
+    { type: 'paragraph', text: `If a child dies, the law recognises that their parent needs protected time away from work.` },
+    { type: 'paragraph', text: `If that same child spends the preceding months undergoing chemotherapy, surgery or intensive treatment, there is no equivalent dedicated statutory paid-leave entitlement for the parent sitting beside them.` },
+    { type: 'paragraph', text: `The state recognises the catastrophe once the child has died more clearly than it recognises the period in which the family is desperately trying to stop that happening.` },
+    { type: 'paragraph', text: `Hugh's Law will need boundaries. Parliament would have to decide what counts as serious illness, who qualifies, how long leave lasts, how much employers or the state should pay and how smaller businesses are protected from disproportionate costs.` },
+    { type: 'paragraph', text: `Those are legitimate policy questions.` },
+    { type: 'paragraph', text: `They are not a reason for leaving the present gap untouched.` },
+    { type: 'paragraph', text: `The parents who placed their children's shoes in Parliament Square have already paid the highest price imaginable.` },
+    { type: 'paragraph', text: `They should not also have to prove, one pair of shoes at a time, that families need help before bereavement as well as after it.` },
   ],
+  evidence: {
+    recordsReviewed: [
+      `Department for Business and Trade, Make Work Pay: employment rights for unpaid carers and parents of seriously ill children, 9 June 2026: confirms that the government is formally considering further employment rights for parents of seriously ill children and that the consultation includes Hugh's Law`,
+      `Department for Business and Trade, consultation announcement, 9 June 2026: confirms that proposals under consideration include Hugh's Law and possible paid leave, with the consultation running until 1 September 2026`,
+      `GOV.UK, Statutory Parental Bereavement Pay and Leave: establishes the existing two-week statutory leave entitlement, day-one eligibility for leave, employment protections and the separate qualifying conditions and rate for statutory pay`,
+      `Hansard, Seriously Ill Children: Financial Support for Parents, 25 March 2025: records the parliamentary case for Hugh's Law, the gap facing parents of seriously ill children and the earlier £750-a-month support proposal`,
+      `PA reporting of the Walk In Our Shoes event, 3 July 2026: records hundreds of children's shoes being placed in Parliament Square by bereaved families, the call for a bereaved-parent support package and the connection with the Hugh's Law campaign`,
+      `Hugh's Law campaign: sets out the campaign's current proposal for statutory paid leave and employment protection for parents of seriously ill children`,
+    ],
+    lastChecked: '5 October 2026',
+  },
 };
 
 export default piece;

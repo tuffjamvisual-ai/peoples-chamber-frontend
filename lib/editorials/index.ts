@@ -9,6 +9,8 @@ import burnhamRoughSleeping from './rs8k4mxw9n';
 import burnhamVatCut from './vt6k9mxw3n';
 import asylumCamps from './k9m4qxw7n2';
 import burnhamUncontested from './bn6k4qxw27';
+import burnhamNominations from './6vui3xxze9';
+import socialHousingFinance from './nq7x4km2wp';
 import mpAccountabilityGap from './ag7k4mxq9w';
 import mi5FalseEvidence from './mi5k7qxw9n';
 import modernSlaveryReporting from './ms9k4qxw7n';
@@ -89,6 +91,7 @@ import gbGrid from './vb8k4mxn9r';
 import waterOwnership from './gw4k9mxn7r';
 import cornwallLithium from './tn4k7mxw9r';
 import stationFacialRecognition from './fr9k2mxw7q';
+import lordsBills from './siicjkcsr6';
 
 export const editorials: EditorialRegistry = {
   [taggingRegime.slug]: taggingRegime,
@@ -177,4 +180,7 @@ export const editorials: EditorialRegistry = {
   [beagleInfrastructure.slug]: beagleInfrastructure,
   [prisonProjectsCancelled.slug]: prisonProjectsCancelled,
   [housingWaterCapacity.slug]: housingWaterCapacity,
+  [lordsBills.slug]: lordsBills,
+  [burnhamNominations.slug]: burnhamNominations,
+  [socialHousingFinance.slug]: socialHousingFinance,
 };

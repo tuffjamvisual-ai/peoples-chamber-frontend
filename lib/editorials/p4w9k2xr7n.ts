@@ -1,35 +1,69 @@
 import type { EditorialEntry } from './types';
 
-// Companion comment piece to the Harborne investigation (revised, named version).
-// All facts verified: £30m via The Nerve from EC filings; £5m gift revealed by the
-// Guardian 29 April 2026, Standards inquiry 13 May; £18.2bn Sunday Times Rich List;
-// 12% of Tether; Harborne's WSJ defamation suit (Feb 2024, Tether/Bitfinex banking
-// article) and his ongoing defamation proceedings against Ben Habib (the underlying
-// allegation is not restated); the bill deleted, obtained
-// from Scribd, Wayback blocked. The Habib and WSJ suits are reported as litigation
-// (matters of public record), not as endorsements of the underlying allegations,
-// and the piece asserts no bargain — it is comment on why the story is not covered.
 const piece: EditorialEntry = {
   slug: 'p4w9k2xr7n',
-  kicker: 'Money and Power',
-  headline: 'Why Nobody Is Talking About the Biggest Donor in British Politics',
-  standfirst:
-    'One man has given roughly £30 million to British politics, funds two thirds of the party leading the polls, and gave its leader a £5 million gift that stayed undeclared for nearly two years. He is worth £18.2 billion and litigates against journalists. This should be dominating the front pages. It is nowhere near them. Here is why.',
+  kicker: 'Political Finance',
+  headline: `Christopher Harborne Has Put More Than £30m Into British Politics. One £5m Gift Is Still Under Investigation`,
+  standfirst: `Christopher Harborne gave Reform UK £3 million in November 2025. Three months earlier he had given it £9 million, then the largest single donation from a living person to a British political party. Add his earlier donations to Reform and the Brexit Party, a £1 million payment to Boris Johnson's office and a £5 million personal gift to Nigel Farage — still under parliamentary investigation — and his disclosed or subsequently revealed funding of British politics exceeds £30 million.`,
   publishedAt: '2026-07-01',
   authorByline: 'opengovt',
   body: [
-    { type: 'paragraph', text: 'One man has given roughly £30 million to British political parties and politicians over seven years. That figure comes from Electoral Commission filings compiled by the investigative outlet The Nerve. His donations account for approximately two thirds of all funding received by Reform UK and its predecessor the Brexit Party. He gave the party’s leader a £5 million personal gift that went undeclared for nearly two years until the Guardian revealed it in April 2026. He gave a former Prime Minister £1 million. He lives in Thailand. He holds Thai citizenship. He owns 12 percent of the company behind the world’s most traded cryptocurrency. He is worth £18.2 billion according to the Sunday Times Rich List. He communicates exclusively through Schillings, one of London’s most aggressive defamation firms. He has never given a public interview about any of it.' },
-    { type: 'paragraph', text: 'The Parliamentary Standards Commissioner opened a formal inquiry in May 2026. The Electoral Commission is considering its own. This should be dominating the front pages. It is nowhere near them.' },
-    { type: 'paragraph', text: 'Part of the reason is that English defamation law makes it expensive to write about rich people who do not want to be written about. Schillings has threatened The Nerve, which broke most of the original reporting. Harborne is currently in defamation proceedings against Ben Habib, the former deputy leader of Reform. He previously sued the Wall Street Journal over its reporting on Tether’s banking arrangements. Most newsrooms look at the legal budget required to defend a claim from someone worth £18.2 billion and decide the story is not worth the risk. The investigative outlets do the work. The larger outlets report that the investigation exists and leave it there.' },
-    { type: 'pullQuote', text: 'A billionaire with a London law firm on retainer does not need to win a case to kill a story. The pre-action letter is enough.' },
-    { type: 'paragraph', text: 'Part of it is that the story is genuinely complicated. Seven years of Electoral Commission filings. Two political parties. Two prime ministers. A cryptocurrency company most voters have never heard of. A proposed parliamentary bill that was published, promoted at a conference in Las Vegas and then quietly deleted from the party’s website after the investigation began. Try fitting that into a headline. Compare it to “government cuts roads to fund submarines.” One sentence explains itself. The other needs a diagram.' },
-    { type: 'paragraph', text: 'Part of it is that Reform leads the polls and its voters are not interested in hearing it. Editors suspect, probably correctly, that publishing the story will not peel off a single supporter and may get folded into the party’s existing narrative that the establishment is trying to bring Farage down. That is a calculation about audience, not about journalism. It is also a calculation that treats the public as a market to be served rather than a democracy to be informed.' },
-    { type: 'paragraph', text: 'And part of it is that every party takes money from donors who want something. Labour donors get peerages. Conservative donors get contracts. The system has been this way for so long that unprecedented concentration of funding in one individual gets treated as a difference of degree rather than a difference of kind. If everyone is compromised, nobody is. That is the defence. It works because it is partly true and completely corrosive.' },
-    { type: 'paragraph', text: 'None of that changes what is on the public record. The Electoral Commission filings are published. The investigations are open. The bill existed, was documented by multiple news organisations before its deletion, and its full text was obtained from Scribd after Reform removed it from their website and blocked the Wayback Machine from archiving their pages. The party did not respond when The Nerve asked why the bill was taken down or whether it still supported its provisions.' },
-    { type: 'paragraph', text: 'Both men have addressed the coverage. Harborne, who has never given an interview about any of this, said in a brief statement to the Telegraph that he gave the money out of “great admiration for the decades of work [Farage] had done to achieve Brexit.” Farage says the gift was made on a completely unconditional basis and that he “can’t be bought by anybody.”' },
-    { type: 'paragraph', text: 'The question is not whether this information matters. It obviously does. The question is whether the systems that are supposed to bring it to the public, the press, the regulator, the standards regime, are capable of doing their job when the subject has the resources to make that job legally dangerous, editorially complicated and politically unrewarding. Right now they are not. That is why this site exists.' },
-    { type: 'cta', text: 'Read the documented record: Christopher Harborne, Nigel Farage and £30 million', href: '/editorials/hb9k2xq7mw' },
+    { type: 'paragraph', text: `Christopher Harborne gave Reform UK £3 million in November 2025.` },
+    { type: 'paragraph', text: `Three months earlier he had given it £9 million, then the largest single donation from a living person to a British political party.` },
+    { type: 'paragraph', text: `He gave another £3 million in the first three months of this year.` },
+    { type: 'paragraph', text: `Those payments came after more than £10 million of earlier donations to the Brexit Party, which later became Reform UK. The Guardian calculated in June that Harborne had given the party and its predecessor about £25 million, accounting for roughly two-thirds of their funding.` },
+    { type: 'paragraph', text: `There is another £5 million that does not appear in the party's donation total.` },
+    { type: 'paragraph', text: `Harborne gave it personally to Nigel Farage in 2024.` },
+    { type: 'paragraph', text: `The gift became public only in April this year, after the Guardian discovered it. Farage had not registered it when he entered Parliament following the July 2024 election.` },
+    { type: 'paragraph', text: `The Parliamentary Commissioner for Standards opened an investigation on 13 May into whether Farage failed to register an interest. The case is being investigated under Rule 5 of the Commons Code of Conduct. No finding has been made.` },
+    { type: 'paragraph', text: `The Electoral Commission has separately been considering whether the gift falls within its own rules. In May it said it was "considering it under our regulatory remit" and would decide what, if any, further action was required. As of 1 July, it had not announced a formal investigation.` },
+    { type: 'paragraph', text: `Harborne has also funded another former prime minister.` },
+    { type: 'paragraph', text: `Boris Johnson's register of interests records a £1 million payment to The Office of Boris Johnson Ltd on 21 November 2022. Johnson registered it the following month. Electoral Commission correspondence shows the watchdog subsequently questioning whether the £1 million should be reported by Johnson personally or by The Office of Boris Johnson Ltd, because the money had been paid to the company rather than directly to him.` },
+    { type: 'paragraph', text: `Add Harborne's political-party donations, the £1 million given to Johnson's office and the separate £5 million given to Farage, and his disclosed or subsequently revealed funding of British political parties and political figures exceeds £30 million.` },
+    { type: 'paragraph', text: `The payments are not all legally the same thing. Party donations, support for an MP's political activities and a personal gift are covered by different reporting regimes. Combining them gives a picture of the scale of Harborne's financial relationship with British politics, not a single Electoral Commission category.` },
+    { type: 'paragraph', text: `Harborne is British-born, has lived in Thailand for more than two decades and also holds Thai citizenship. His residence abroad does not by itself make his political donations unlawful. The rules governing permissible donors have allowed eligible individuals registered to vote in the UK to make donations.` },
+    { type: 'paragraph', text: `The Sunday Times Rich List estimated his wealth this year at £18.2 billion, placing him sixth on the list.` },
+    { type: 'paragraph', text: `Most of that estimated fortune comes from cryptocurrency. The Rich List valued his roughly 12 per cent interest in Tether at £17.7 billion. Tether issues USDT, the world's largest dollar-linked stablecoin. Harborne also has interests including aviation fuel businesses and a significant shareholding in the defence company QinetiQ.` },
+    { type: 'paragraph', text: `That financial interest makes Reform's move into cryptocurrency policy worth examining.` },
+    { type: 'paragraph', text: `Cryptocurrency barely featured in the party's 2024 election programme. Reform opposed a central bank digital currency and criticised de-banking, but did not campaign on a Bitcoin reserve, a special crypto tax rate or allowing tax bills to be paid in cryptocurrency.` },
+    { type: 'paragraph', text: `In May 2025, Farage travelled to the Bitcoin Conference in Las Vegas and launched Reform's Cryptoassets and Digital Finance Bill.` },
+    { type: 'paragraph', text: `The draft proposed cutting capital gains tax on some crypto gains to 10 per cent, establishing a government Bitcoin reserve, protecting lawful crypto users from some banking restrictions and requiring HMRC to accept Bitcoin for tax payments. Reform also announced that it would accept cryptocurrency donations.` },
+    { type: 'paragraph', text: `The bill subsequently disappeared from Reform's website. By late May 2026 its original PDF link no longer worked. Reform did not answer questions from investigative outlet The Nerve about why it had been removed or whether the proposals remained party policy.` },
+    { type: 'paragraph', text: `Farage has also challenged Bank of England policy affecting digital currencies.` },
+    { type: 'paragraph', text: `He met governor Andrew Bailey in September 2025 and argued against plans for a state-backed digital pound. He and then-Reform chairman Zia Yusuf subsequently criticised the Bank's proposed £20,000 individual limit on holdings of systemic sterling stablecoins.` },
+    { type: 'paragraph', text: `Harborne's stake in Tether gives him a large financial interest in the stablecoin industry. That does not establish that Reform's policies were written for him or adopted in return for donations.` },
+    { type: 'paragraph', text: `There is no public evidence of such an agreement.` },
+    { type: 'paragraph', text: `Harborne has said his political giving is unconditional. He told the Guardian earlier this year that he believed cryptocurrency should be regulated in Britain, but denied that his donations bought influence over Reform's policies. Farage has said Harborne has asked for nothing in exchange for his support.` },
+    { type: 'paragraph', text: `Farage has also given more than one explanation for the £5 million personal gift.` },
+    { type: 'paragraph', text: `When its existence became public in April, he said Harborne had given him the money because of concerns about his personal security. In May he described it as a "reward" for his decades campaigning for Brexit.` },
+    { type: 'paragraph', text: `Harborne's lawyers have said the gift was unconditional, that he expected nothing in return and that he did not envisage Farage returning to frontline politics when it was made.` },
+    { type: 'paragraph', text: `Farage did return.` },
+    { type: 'paragraph', text: `He announced on 23 May 2024 that he would not stand in the general election, then reversed that decision on 3 June and became Reform's candidate in Clacton. He was elected the following month.` },
+    { type: 'paragraph', text: `The existence of the £5 million gift does not prove it caused that decision. Reform has said the two events were entirely unrelated.` },
+    { type: 'paragraph', text: `The question now before the Parliamentary Commissioner is narrower: whether, once Farage became an MP, the gift should have appeared in his register of interests.` },
+    { type: 'paragraph', text: `Commons rules require newly elected MPs to register certain financial interests and benefits received during the previous 12 months when they could reasonably be thought to relate to their political or parliamentary activities. Personal gifts that cannot reasonably be regarded that way are exempt.` },
+    { type: 'paragraph', text: `Farage's position is that the £5 million was a private and unconditional gift and therefore did not have to be declared.` },
+    { type: 'paragraph', text: `The Commissioner has not yet decided whether that interpretation was correct.` },
+    { type: 'paragraph', text: `The concentration of Harborne's funding does not require an allegation of corruption to be significant.` },
+    { type: 'paragraph', text: `The Electoral Commission publishes political donations, but the £5 million payment to Farage did not appear there because it was treated by the recipient as personal rather than political.` },
+    { type: 'paragraph', text: `It became public almost two years later through journalism.` },
+    { type: 'paragraph', text: `Whether it should have been disclosed through the political system is now the subject of a formal parliamentary investigation.` },
   ],
+  evidence: {
+    recordsReviewed: [
+      `Electoral Commission political donation register: primary records for Harborne's donations to Reform UK, including the £9 million (1 August 2025) and £3 million (12 November 2025) payments and subsequent donations`,
+      `Electoral Commission, Q1 2026 donation records: confirms Harborne's further £3 million donation to Reform, accepted and reported on 5 March 2026, and the party's wider fundraising totals`,
+      `House of Commons Register of Members' Financial Interests, Boris Johnson: records the £1 million Harborne payment to The Office of Boris Johnson Ltd, received and accepted 21 November 2022 and registered 16 December 2022`,
+      `Electoral Commission, FOI 059-23 (published June 2023): records a 20 March 2023 email from the Commission's Regulatory Support Manager to Boris Johnson's office, questioning whether the £1 million should be reported by Johnson personally or by The Office of Boris Johnson Ltd as a Members Association, because the payment had gone to the company rather than to Johnson directly`,
+      `Parliamentary Commissioner for Standards, current investigations: confirms that the investigation into Nigel Farage opened on 13 May 2026 under Rule 5 for alleged failure to register an interest; the listing records an investigation, not a finding of wrongdoing`,
+      `Guardian, 29 April and 1 May 2026: first disclosed the £5 million personal gift and records the Electoral Commission saying it was considering the matter under its regulatory remit`,
+      `Guardian, 18 June 2026: reports that Harborne's approximately £25 million of donations to Reform and its Brexit Party predecessor accounted for about two-thirds of their funding, and details Farage's intervention on digital-currency policy`,
+      `Sunday Times Rich List 2026: estimates Harborne's wealth at £18.2 billion and his roughly 12 per cent Tether holding at £17.7 billion, placing him sixth and identifying him as the wealthiest British-born person on the list`,
+      `Reuters, 13 May 2026: supports Farage's description of the £5 million as a reward for Brexit campaigning, his denial that he can be influenced by money, Harborne's position and the opening of the standards investigation`,
+      `The Nerve, May and June 2026: supports the documented chronology of Harborne's political funding and the removal of Reform's Cryptoassets and Digital Finance Bill from the party's website`,
+    ],
+    lastChecked: '5 October 2026',
+  },
 };
 
 export default piece;

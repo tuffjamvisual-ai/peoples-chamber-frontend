@@ -1,55 +1,55 @@
 import type { EditorialEntry } from './types';
 
-// Briefing on the MoJ 2024-25 accounts "constructive loss" of £23,996,152 on three
-// cancelled prison capacity projects. Fact-checked 2026-08-02 against real sources
-// this session: the ~£24m loss on cancelled/scaled-back prison projects is confirmed
-// (Construction News, 2 Dec 2025; three builds declared "unachievable", Aug 2025);
-// MoJ attributed it to rising build costs, more asbestos than expected and supplier
-// failure; part of the prison capacity programme (20,000 places pledged Oct 2021 by
-// the mid-2020s); by Sept 2024 only 6,518 delivered, last places not until 2031; NAO
-// (Dec 2024) puts the portfolio at £9.4bn-£10.1bn. CORRECTION: draft said the
-// programme was "originally priced at £7.1 billion" — NAO says approved funding was
-// £5.2bn at the 2021 spending review (increase of £4.2bn-£4.9bn / 80-93%); changed to
-// £5.2bn. NAO + MoJ accounts cited as plain text (no offsite link, per house rule).
 const piece: EditorialEntry = {
   slug: 'pk9v2mrx4t',
-  kicker: 'Prisons and Probation',
-  headline: 'Three Prison Projects Cancelled After Almost £24m Was Spent',
-  standfirst:
-    'Construction had started at all three prisons before the Ministry of Justice judged them too expensive to finish. Its accounts give no names, no locations and almost no detail.',
+  kicker: 'Public Spending',
+  headline: `Prison Expansion Programme Wrote Off £24m Without Naming the Projects`,
+  standfirst: `HM Prison and Probation Service wrote off almost £24 million from its prison expansion programme after construction projects were reduced in scope and a supplier failed. The published accounts do not identify the three losses individually — no names, no per-project amounts, no prison places affected. The losses sit inside a programme already running four years late and nearly double its original budget.`,
   publishedAt: '2026-08-03',
   authorByline: 'opengovt',
-  kind: 'briefing',
   body: [
-    { type: 'paragraph', text: 'Three schemes to create more prison space were abandoned after the Ministry of Justice had spent almost £24 million on them.' },
-    { type: 'paragraph', text: 'Construction had started at all three prisons. The work was later judged too expensive to complete.' },
-    { type: 'paragraph', text: 'The department recorded a loss of £23,996,152 in its accounts for the year ending March 2025. It said building costs had risen, more asbestos had been found than expected and a supplier had failed.' },
-    { type: 'paragraph', text: 'No names were given for the prisons or the supplier.' },
-    { type: 'paragraph', text: 'It is not possible to tell from the accounts whether one project accounted for most of the loss or whether the money was spread evenly between the three. They contain no separate costs and give no details of what had been built before work stopped.' },
-    { type: 'paragraph', text: 'The projects were part of the prison capacity programme. Each involved construction at a jail already in use, rather than one of the new prisons planned by the government.' },
-    { type: 'paragraph', text: 'The £23,996,152 appears in the accounts as a “constructive loss”. Officials had decided that putting more money into the three schemes was not worthwhile.' },
-    { type: 'paragraph', text: 'Bills continued after the end of March. Contractors left the sites and the Ministry paid for remedial work.' },
-    { type: 'paragraph', text: 'None of that later spending is included in the £24 million. It will be reported in the accounts for 2025/26.' },
-    { type: 'paragraph', text: 'The Ministry has already given an indication of its size. Further losses, it said, would probably be “of a similar order”.' },
-    { type: 'paragraph', text: 'This happened during a rush to find more prison cells. The government had announced that 20,000 additional places would be provided by the mid-2020s, but the building programme fell years behind.' },
-    { type: 'paragraph', text: 'By March 2025, only about 6,400 of those places were expected to be ready. The rest were not due to arrive until 2031.' },
-    { type: 'paragraph', text: 'The National Audit Office put the likely cost of the programme at between £9.4 billion and £10.1 billion. It had originally been budgeted at £5.2 billion at the 2021 spending review.' },
-    { type: 'paragraph', text: 'According to the auditors, ministers announced the 20,000 places before all the money had been secured. Planning took longer than expected and inflation made construction more expensive.' },
-    { type: 'paragraph', text: 'Where the three cancelled schemes fitted into the programme cannot be seen from the published material. The short note in the accounts is the only information the Ministry provides about them.' },
-    { type: 'paragraph', text: 'There are no dates for when the projects were approved or when builders entered the sites. The accounts do not say whether asbestos was found at one prison or several. They also give no clue about the supplier’s failure: when it happened, what contract was affected or how much it cost.' },
-    { type: 'paragraph', text: 'The planned number of cells is absent. So are the original budgets and the revised prices which persuaded the Ministry to stop.' },
-    { type: 'paragraph', text: 'It may be that detailed surveys were carried out and failed to find the full extent of the asbestos. It may be that the supplier collapsed without warning. The accounts do not provide enough information to know.' },
-    { type: 'paragraph', text: 'What they do show is that construction was approved, work began and £23,996,152 was spent before the three projects were cancelled.' },
-    { type: 'paragraph', text: 'Further money was then spent closing the sites. The amount will not be known until the next Ministry of Justice accounts are released.' },
-    { type: 'paragraph', text: 'The accounts do not identify the locations.' },
-    { type: 'paragraph', text: 'Sources: Ministry of Justice, Annual Report and Accounts 2024-25; National Audit Office, “Increasing the capacity of the prison estate to meet demand”, December 2024.' },
+    { type: 'paragraph', text: `HM Prison and Probation Service wrote off almost £24 million from its prison expansion programme after construction projects were reduced in scope and a supplier failed.` },
+    { type: 'paragraph', text: `The Ministry of Justice's consolidated accounts put the loss at exactly £23,996,152. HMPPS's own accounts say it comprised three constructive losses during 2024/25.` },
+    { type: 'paragraph', text: `The published accounts do not identify the three losses individually.` },
+    { type: 'paragraph', text: `They do not name the prisons, give the amount lost on each project, state how many prison places were affected or say how much of the £24 million resulted from supplier failure rather than projects being abandoned or reduced.` },
+    { type: 'paragraph', text: `That means the original description of three prison projects being cancelled goes further than the accounts support.` },
+    { type: 'paragraph', text: `HMPPS says the losses arose from construction costs already incurred on "descoped build projects within existing prison sites" and from supplier failure. It says work had commenced before expected completion costs increased materially, partly because of the extent of asbestos contamination. The affected projects were subsequently judged not to represent value for money.` },
+    { type: 'paragraph', text: `Three accounting losses therefore do not necessarily mean three cancelled prison schemes.` },
+    { type: 'paragraph', text: `A constructive loss is also more specific than money simply disappearing. HM Treasury defines it as expenditure where procurement has taken place correctly but what was bought later proves unnecessary or less useful than when it was ordered. Significant constructive losses are reported to Parliament through departmental accounts.` },
+    { type: 'paragraph', text: `Treasury guidance says public bodies should keep records showing the nature, gross amount and cause of each loss. It also says individual losses above £300,000 should be noted separately in annual accounts. HMPPS states that it made four loss payments above £300,000 during 2024/25, then reports the three prison-capacity constructive losses together as a £24 million total. The note does not publish their individual values.` },
+    { type: 'paragraph', text: `Other government records provide names for some of the problems affecting the prison construction programme, but they do not allow the £24 million to be reconstructed.` },
+    { type: 'paragraph', text: `The National Audit Office reported that construction company ISG went into administration in September 2024 while acting as the Ministry's main contractor for 3,634 planned prison places, equivalent to 17 per cent of the expansion portfolio. HMPPS expected the collapse to delay individual projects by between three and 18 months.` },
+    { type: 'paragraph', text: `In June 2026, the Ministry told Parliament that ISG had been due to complete construction or maintenance projects at dozens of prisons. Replacement contractors had been appointed.` },
+    { type: 'paragraph', text: `The same answer disclosed that planned Category D expansions at HMP Leyhill and HMP Springhill had been removed from the prison supply programmes. HMPPS was still constructing around 100 Rapid Deployment Cells at Leyhill under a separate programme.` },
+    { type: 'paragraph', text: `None of those disclosures establishes that Leyhill, Springhill or an ISG project accounts for any particular part of the £23,996,152 write-off.` },
+    { type: 'paragraph', text: `The £24 million is not expected to be the final loss.` },
+    { type: 'paragraph', text: `HMPPS said further constructive losses "of a similar order" were expected in its 2025/26 accounts. Those would cover construction, demobilisation and remediation costs incurred after March 2025.` },
+    { type: 'paragraph', text: `It did not give an estimated figure. "Similar order" is not precise enough to double the £24 million and present the result as an expected total.` },
+    { type: 'paragraph', text: `As of 3 August 2026, the HMPPS 2025/26 annual report and accounts had not been published. The government's HMPPS annual reporting collection still listed the 2024/25 accounts as the latest set of agency accounts.` },
+    { type: 'paragraph', text: `The losses occurred inside a prison expansion programme that was already substantially over its original timetable and expected cost.` },
+    { type: 'paragraph', text: `In October 2021, the government committed to delivering 20,000 additional prison places by the mid-2020s. HMPPS's plans at the time envisaged completing the portfolio by July 2026.` },
+    { type: 'paragraph', text: `By September 2024 it had delivered 6,518 places, against at least 11,317 that it had expected to have completed by December that year. HMPPS subsequently moved the overall completion date to 2031.` },
+    { type: 'paragraph', text: `By March 2025 the number delivered had reached around 6,500. The government's current strategy treats the remaining approximately 14,000 places as the programme still to be delivered by 2031.` },
+    { type: 'paragraph', text: `Costs moved in the same direction.` },
+    { type: 'paragraph', text: `The NAO found that the portfolio's forecast cost at the 2021 Spending Review was £5.2 billion. By September 2024, HMPPS expected it to cost between £9.4 billion and £10.1 billion, an increase of between £4.2 billion and £4.9 billion.` },
+    { type: 'paragraph', text: `The watchdog attributed the wider overruns to more than inflation. It found that overambitious timetables and unachievable budgets had been approved, that HMPPS had not sufficiently understood the scope of some programmes and that an internal review found significant work had been excluded from some early budgets to allow projects to progress. Construction inflation and supplier failures then added further pressure.` },
+    { type: 'paragraph', text: `The three £24 million losses sit somewhere inside that programme.` },
+    { type: 'paragraph', text: `The public accounts establish that work had begun, costs had been incurred and some construction expenditure was subsequently written off. They establish that asbestos, rising completion costs and supplier failure contributed.` },
+    { type: 'paragraph', text: `They do not identify which projects consumed the £23,996,152, how much was lost on each one, how many planned prison places disappeared with them or which supplier accounted for the supplier-failure element.` },
+    { type: 'paragraph', text: `Further construction, demobilisation and remediation losses had already been incurred after March 2025. HMPPS said they would be disclosed in the following year's accounts.` },
+    { type: 'paragraph', text: `Those accounts had not been published by 3 August.` },
   ],
   evidence: {
     recordsReviewed: [
-      'Ministry of Justice, Annual Report and Accounts 2024-25 (constructive loss of £23,996,152)',
-      'National Audit Office, "Increasing the capacity of the prison estate to meet demand", December 2024',
+      `Ministry of Justice, Annual Report and Accounts 2024/25, Parliamentary Accountability section: gives the exact £23,996,152 constructive loss and attributes it to descoped prison-building projects and supplier failure, with increased completion costs partly caused by asbestos contamination`,
+      `HM Prison and Probation Service, Annual Report and Accounts 2024/25: establishes that the £24 million comprised three constructive losses and records the expectation of further losses of a similar order for construction, demobilisation and remediation expenditure after March 2025`,
+      `HM Treasury, Managing Public Money: defines constructive losses and sets out requirements for recording losses and bringing significant losses to Parliament's attention`,
+      `National Audit Office, Increasing the capacity of the prison estate to meet demand, 4 December 2024: establishes the original timetable, 6,518 places delivered by September 2024, revised 2031 completion date, forecast cost of £9.4 billion to £10.1 billion against £5.2 billion in approved estimated funding in 2021, ISG's exposure within the programme and wider weaknesses in programme planning and risk management`,
+      `Ministry of Justice, written answer 5024, 8 June 2026: identifies projects affected by ISG's administration, confirms replacement contractors had been appointed and records that the Category D expansions at HMP Leyhill and HMP Springhill had been descoped`,
+      `HMPPS Annual Report and Accounts 2024/25, Performance Report: records around 6,500 places delivered by March 2025 and describes the remaining 14,000 places as due for delivery by 2031`,
+      `GOV.UK, HMPPS annual reporting collection: shows that as of the article date the 2024/25 accounts remained the latest published HMPPS annual report and accounts`,
     ],
-    lastChecked: '2026-08-02',
+    lastChecked: '5 October 2026',
   },
 };
 

@@ -1,28 +1,66 @@
 import type { EditorialEntry } from './types';
 
-// Briefing: the £4.7bn defence funding gap as a poison pill for the incoming PM.
-// Fact-checked: £15bn plan / £10.3bn committed / £4.7bn unfunded (gov.uk); Healey
-// resigned 11 June, promised £13.5bn, wanted £18bn (CapX, earlier research);
-// Burnham briefed on the plan but the gap withheld (Guardian via GB News), the
-// Pollard "learned yesterday" line attributed to Sky News; Badenoch "summer of
-// chaos" (Washington Examiner); Starmer resigned 22 June, plan published 30 June.
 const piece: EditorialEntry = {
   slug: 'w7q2m9rk5t',
-  kicker: 'The Succession',
-  headline: 'Burnham Finds Out About the £4.7 Billion at the Same Time as the Defence Minister',
-  standfirst:
-    'The most damaging detail in the Defence Investment Plan is not the £4.7 billion funding gap. It is that the incoming Prime Minister and the minister who has to deliver the plan both found out about the hole on the day it was published. That is not a transition. That is an ambush.',
+  kicker: 'Defence',
+  headline: `Burnham Was Briefed on Starmer's Defence Plan but Not Told About the £4.7bn Budget Requirement, Reports Say`,
+  standfirst: `Keir Starmer announced an additional £15 billion of defence spending power on 30 June. The Treasury's financing table identified measures worth £10.3 billion. Multiple outlets reported the same account: Burnham had been briefed on the plan but had not been told about the £4.7 billion funding requirement before it emerged publicly.`,
   publishedAt: '2026-07-03',
   authorByline: 'opengovt',
-  kind: 'briefing',
   body: [
-    { type: 'paragraph', text: 'The most damaging detail in the Defence Investment Plan is not the £4.7 billion funding gap. It is that the man about to become Prime Minister and the minister responsible for implementing the plan both found out about it on the same day it was announced.' },
-    { type: 'paragraph', text: 'Sky News reported that defence minister Luke Pollard said he only learned about the shortfall yesterday. Burnham was reportedly told at the same time, briefed on the plan but not on the fact that nearly a third of the new money had not yet been found. The sitting Defence Minister and the incoming Prime Minister discovered simultaneously that a large part of the new defence money does not exist yet.' },
-    { type: 'pullQuote', text: 'That is not a transition. That is an ambush.' },
-    { type: 'paragraph', text: 'Follow the numbers. John Healey resigned as Defence Secretary on 11 June because the settlement was not big enough. He was promised £13.5 billion. He wanted £18 billion. He left on principle. The published plan offers £15 billion, £1.5 billion more than what drove Healey out. But £4.7 billion of that is unfunded. Subtract the unfunded portion and the actual committed increase is £10.3 billion. That is less than what Healey resigned over. The plan that was supposed to end the defence funding crisis has published a headline number that includes money nobody has found, presented it as a solution and left the next government to deal with the gap.' },
-    { type: 'paragraph', text: 'This is what Starmer’s premiership looked like from the inside. Announce the number. Defend the headline. Leave the hole for someone else to fill. The £22 billion black hole that justified the winter fuel cut. The employer National Insurance increase that broke the manifesto pledge. The tax rises across two Budgets. Each time the pattern was the same: a problem inherited or created, a headline deployed to manage it, and the actual cost pushed forward. The £4.7 billion is the last example. It may also be the most cynical, because Starmer published it eight days after announcing his resignation, binding a successor who did not write the plan, did not approve the plan and will spend his first Budget trying to pay for it.' },
-    { type: 'paragraph', text: 'Badenoch said Britain was heading for “a summer of chaos.” The chaos is not the transition. The chaos is what the transition reveals about how the outgoing government made its decisions.' },
+    { type: 'paragraph', text: `Keir Starmer announced an additional £15 billion of defence spending power on 30 June.` },
+    { type: 'paragraph', text: `The Treasury published the financing alongside it.` },
+    { type: 'paragraph', text: `Its table identified measures worth £10.3 billion. Against the remaining £4.7 billion, it said:` },
+    { type: 'paragraph', text: `"To be funded at Budget 2026."` },
+    { type: 'paragraph', text: `Of that sum, £1.8 billion falls in 2026/27, followed by £1.1 billion, £1 billion and £900 million over the following three years.` },
+    { type: 'paragraph', text: `Andy Burnham had been briefed on the Defence Investment Plan before publication.` },
+    { type: 'paragraph', text: `Multiple outlets reported the same central account on 30 June: Burnham had been briefed on the plan but had not been told about the £4.7 billion funding requirement before it emerged publicly.` },
+    { type: 'paragraph', text: `The Guardian reported that people close to Burnham said he had not been told about the gap when he was briefed. Sky News reported that Burnham had been briefed on the plan but was surprised when the funding shortfall emerged.` },
+    { type: 'paragraph', text: `Neither report identified the people providing that information.` },
+    { type: 'paragraph', text: `The government did not publish evidence contradicting the central claim.` },
+    { type: 'paragraph', text: `Defence Secretary Dan Jarvis was repeatedly asked by Sky whether Burnham had known about the funding position before publication. He did not answer directly. Instead, he said there had been conversations with Burnham as part of the transition and defended the decisions made in the plan.` },
+    { type: 'paragraph', text: `The following morning, defence minister Luke Pollard gave a more specific account of the timing.` },
+    { type: 'paragraph', text: `Speaking to broadcasters, Pollard said he had first seen the detailed Treasury breakdown when it was published on 30 June. Press Association reported him as saying he believed Downing Street had told Burnham that day as well.` },
+    { type: 'paragraph', text: `On BBC Radio 4's Today programme, Pollard was more cautious about Burnham. He said he had not been involved in those discussions and could not confirm precisely what had been communicated to Burnham's team.` },
+    { type: 'paragraph', text: `Pollard's comments support parts of the chronology but do not independently establish what Burnham had been told before publication. He saw the detailed breakdown for the first time on publication day; he was not party to whatever Downing Street told Burnham's team, and when pressed, said so directly.` },
+    { type: 'paragraph', text: `It does establish that a defence minister had not himself seen the final Treasury funding breakdown before it appeared publicly.` },
+    { type: 'paragraph', text: `Burnham was not Labour leader or Prime Minister at the time. Starmer remained in office and was entitled to make spending decisions.` },
+    { type: 'paragraph', text: `But Starmer had already announced that he was leaving, and Burnham was widely expected to succeed him. The unresolved £4.7 billion would be settled at a Budget taking place under the next government.` },
+    { type: 'paragraph', text: `The £4.7 billion should not be deducted from the £15 billion to claim that only £10.3 billion of defence spending was actually committed.` },
+    { type: 'paragraph', text: `The Treasury has committed to the full £15 billion increase in Ministry of Defence spending power between 2026/27 and 2029/30. The £10.3 billion figure refers to the financing measures the government had identified when the plan was published.` },
+    { type: 'paragraph', text: `The government's own explainer makes both points.` },
+    { type: 'paragraph', text: `It says:` },
+    { type: 'paragraph', text: `"The government has confirmed an additional £15 billion for the Defence Investment Plan."` },
+    { type: 'paragraph', text: `It then says £10.3 billion had been "identified now" and that a further £4.7 billion would be confirmed at Budget 2026.` },
+    { type: 'paragraph', text: `The spending commitment was settled.` },
+    { type: 'paragraph', text: `Part of the financing was not.` },
+    { type: 'paragraph', text: `That also corrects a tempting but misleading comparison with John Healey.` },
+    { type: 'paragraph', text: `Healey resigned as Defence Secretary on 11 June after a prolonged dispute about the money required for the Defence Investment Plan. Contemporary reporting said the Ministry of Defence had sought about £18 billion to close the remaining gap in its programme and that Starmer and the Treasury had eventually offered about £13.5 billion.` },
+    { type: 'paragraph', text: `His successor, Dan Jarvis, secured another £1.5 billion, taking the published package to £15 billion. Jarvis told Parliament that the plan contained £1.5 billion more than when he became Defence Secretary.` },
+    { type: 'paragraph', text: `It would therefore be wrong to subtract the unresolved £4.7 billion from the £15 billion and conclude that Healey had been offered more than Jarvis ultimately secured. One figure measures additional defence spending power; the other concerns how that spending is financed.` },
+    { type: 'paragraph', text: `Starmer defended leaving part of the financing to the Budget.` },
+    { type: 'paragraph', text: `At Prime Minister's Questions on 1 July, he pointed to £22 billion of fiscal headroom at the previous Budget and argued that governments can make spending decisions between fiscal events before spelling out every financing measure. He cited the Conservative government's 2018 NHS funding announcement as precedent.` },
+    { type: 'paragraph', text: `Pollard made the same basic argument, saying it was "not unusual" to announce spending before completing the financing at a later Budget.` },
+    { type: 'paragraph', text: `There is precedent for that.` },
+    { type: 'paragraph', text: `It does not resolve what happened during the transition briefing.` },
+    { type: 'paragraph', text: `The Treasury knew by publication day that £4.7 billion had not yet been attached to specific financing measures. Its table set out the figure explicitly.` },
+    { type: 'paragraph', text: `Burnham had been briefed on the Defence Investment Plan before publication.` },
+    { type: 'paragraph', text: `The Guardian reported that the £4.7 billion requirement was not part of that briefing. Sky News reported that Burnham was surprised when it emerged.` },
+    { type: 'paragraph', text: `And one of Starmer's own defence ministers said he did not see the Treasury breakdown himself until the day it was published.` },
   ],
+  evidence: {
+    recordsReviewed: [
+      `HM Treasury and Ministry of Defence, The Defence Investment Plan Funding Explainer, 30 June 2026: records the £15 billion additional spending package, £10.3 billion of financing measures identified at publication and £4.7 billion marked "To be funded at Budget 2026", including £1.8 billion in 2026/27`,
+      `The Guardian, Kiran Stacey and Dan Sabbagh, Burnham left with £4.7bn bill for Starmer's new defence investment plan, 30 June 2026: reports that people close to Burnham said he had not been told about the £4.7 billion funding gap when he was briefed on the plan`,
+      `Sky News, politics coverage, 30 June 2026: reports that Burnham had been briefed on the contents of the plan but was surprised when the £4.7 billion funding gap emerged; also records Jarvis declining to say whether Burnham had known about the financing position`,
+      `Press Association, 1 July 2026: records Luke Pollard saying he first saw the detailed Treasury breakdown on publication day and that he believed Downing Street had informed Burnham that day; also records that Burnham had been briefed on the plan but was understood not to have been told about the additional Budget requirement`,
+      `Guardian politics live, 1 July 2026: records Pollard saying that he was not involved in the discussions with Burnham's operation and could not confirm their contents, as well as his defence of leaving £4.7 billion to the Budget`,
+      `Hansard, Prime Minister's Questions, 1 July 2026: records Starmer's reliance on £22 billion of fiscal headroom and his argument that spending can be announced outside a Budget before all financing measures are specified`,
+      `The Guardian, 11 and 29 June 2026: reports the £18 billion Ministry of Defence requirement, the approximately £13.5 billion settlement preceding Healey's resignation and the subsequent £1.5 billion increase secured under Jarvis`,
+      `Hansard, Defence Investment Plan, 30 June 2026: records Dan Jarvis saying the published £15 billion package was £1.5 billion more than when he became Defence Secretary`,
+    ],
+    lastChecked: '5 October 2026',
+  },
 };
 
 export default piece;

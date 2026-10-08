@@ -1,32 +1,72 @@
 import type { EditorialEntry } from './types';
 
-// Briefing: the £4.7bn defence funding hole as a credibility story. Fact-checked
-// per user FLAGS: 2.7% GDP by 2027/28 (gov.uk); £54bn to ~£80bn by 2029/30;
-// £4.7bn unfunded; Pollard and Burnham told the day it was announced (Sky News);
-// Healey resigned 11 June, promised £13.5bn, wanted £18bn, plan offers £15bn,
-// £10.3bn committed after the gap (CapX, gov.uk); £700m roads, A46 Newark, A38
-// Derby (gov.uk); Claire Ward (GB News); TSSA general secretary (HuffPost).
-// Four line-edits applied per editor: the "ambush" line replaced with the plain
-// factual sentence, and the closing "lame duck" line tightened to "what is."
 const piece: EditorialEntry = {
   slug: 'p9k4w2rx7m',
-  kicker: 'Defence and Money',
-  headline: 'Starmer Published the Defence Plan. Burnham and His Own Minister Found Out About the Hole at the Same Time.',
-  standfirst:
-    'The government’s defence plan promises to lift spending towards 2.7 percent of GDP. It also contains a £4.7 billion hole that the sitting Defence Minister and the incoming Prime Minister say they learned about on the day it was published. This is now a credibility story, not a spending story.',
+  kicker: 'Defence',
+  headline: `Starmer Committed £15bn to Defence. £4.7bn Had No Identified Funding Source Beyond Budget 2026`,
+  standfirst: `Keir Starmer announced an additional £15 billion of defence spending power over four years on 30 June. The Treasury's funding table published the same day identified where £10.3 billion would come from. Against the remaining £4.7 billion, it said only: "To be funded at Budget 2026."`,
   publishedAt: '2026-07-04',
   authorByline: 'opengovt',
-  kind: 'briefing',
   body: [
-    { type: 'paragraph', text: 'The defence investment row is now a credibility story, not a spending story.' },
-    { type: 'paragraph', text: 'The government published a plan promising to lift defence spending towards 2.7 percent of GDP by 2027/28, with total annual funding rising from £54 billion to almost £80 billion by 2029/30. The headline commitment is real. The NATO obligation is being addressed faster than any recent government has managed. That deserves acknowledgment.' },
-    { type: 'paragraph', text: 'The problem is the £4.7 billion that has not been found.' },
-    { type: 'paragraph', text: 'Sky News reported that defence minister Luke Pollard said he only learned about the shortfall on the day it was announced. Andy Burnham, the man who will almost certainly be Prime Minister within three weeks, was reportedly told at the same time. The sitting Defence Minister and the incoming Prime Minister found out about the hole on the same morning it was announced to the country. Nearly a third of the new money does not exist yet.' },
-    { type: 'paragraph', text: 'John Healey resigned as Defence Secretary on 11 June because the settlement was not big enough. He was promised £13.5 billion in additional spending. He wanted £18 billion. The published plan offers £15 billion. That sounds like a compromise. But £4.7 billion of the £15 billion is unfunded. Subtract the hole and the committed increase is £10.3 billion, less than the amount Healey resigned over. The plan that was supposed to end the defence row has published a headline number that includes money nobody has identified, called it a plan and handed the receipt to the next government.' },
-    { type: 'pullQuote', text: 'Subtract the hole and the committed increase is £10.3 billion, less than the amount Healey resigned over.' },
-    { type: 'paragraph', text: 'The £700 million coming out of the roads budget to help fill the gap has already hit specific projects. The A46 Newark Bypass and the A38 Derby Junctions, both part of the government’s own £27 billion Road Investment Strategy, are on the chopping block. Claire Ward, the East Midlands Mayor, said her region appeared to be the only one told it was sacrificing its road programme. She was not consulted. The TSSA general secretary said it was “because of decisions like this that Keir Starmer’s premiership came to an end.”' },
-    { type: 'paragraph', text: 'Starmer is publishing spending commitments eight days after announcing his resignation, binding a successor who did not write the plan, did not approve the plan and will spend his first Budget finding the money for it. If that is not a lame duck premiership, what is.' },
+    { type: 'paragraph', text: `Keir Starmer announced an additional £15 billion of defence spending power over four years on 30 June.` },
+    { type: 'paragraph', text: `The Treasury's funding table published the same day identified where £10.3 billion would come from.` },
+    { type: 'paragraph', text: `Against the remaining £4.7 billion, it said only:` },
+    { type: 'paragraph', text: `"To be funded at Budget 2026."` },
+    { type: 'paragraph', text: `That is 31 per cent of the £15 billion package without a specific financing measure attached when the plan was announced. £1.8 billion of it falls in 2026/27, followed by £1.1 billion, £1 billion and £900 million in the following three years.` },
+    { type: 'paragraph', text: `The £15 billion commitment itself should not be reduced to £10.3 billion.` },
+    { type: 'paragraph', text: `The government has increased Ministry of Defence spending power by £15 billion. Its own breakdown says that includes £11.6 billion of additional cash and another £3.4 billion generated by shifting costs away from the MoD, asset sales and reprioritising existing defence spending.` },
+    { type: 'paragraph', text: `Total MoD spending is set at £68.3 billion in 2026/27, rising to £79.1 billion in 2029/30. Core NATO defence spending is due to increase from 2.6 per cent of GDP this year to 2.7 per cent from 2027/28.` },
+    { type: 'paragraph', text: `The incomplete part was the financing.` },
+    { type: 'paragraph', text: `The government's own funding explainer uses two formulations which sit uneasily together. It says the package "has been funded" through reprioritising public spending, then immediately says only £10.3 billion has been identified and that another £4.7 billion will be confirmed at the Budget.` },
+    { type: 'paragraph', text: `Starmer had already announced his intention to resign as Labour leader and Prime Minister on 22 June. Labour's published leadership timetable said parliamentary nominations would not even open until 9 July. He would remain in office until a successor was chosen.` },
+    { type: 'paragraph', text: `The defence plan was therefore announced by a Prime Minister who had already said he was leaving, with almost a third of its additional funding still requiring decisions at a later fiscal event.` },
+    { type: 'paragraph', text: `Defence minister Luke Pollard added an unusual detail the following morning.` },
+    { type: 'paragraph', text: `He told Sky News that he had first seen the detailed £15 billion funding breakdown when the Treasury published it on 30 June.` },
+    { type: 'paragraph', text: `Asked about Andy Burnham, then the clear favourite to succeed Starmer, Pollard said he understood Downing Street had been keeping Burnham's team involved and had told them when the Treasury statement and financial breakdown were published.` },
+    { type: 'paragraph', text: `That is not evidence that the Defence Investment Plan had been devised without the Ministry of Defence.` },
+    { type: 'paragraph', text: `It does show that one of its ministers had not seen the final Treasury financing breakdown before publication.` },
+    { type: 'paragraph', text: `Starmer's answer was that governments do not have to announce every financing measure at the same time as a spending commitment.` },
+    { type: 'paragraph', text: `At Prime Minister's Questions on 1 July he pointed to roughly £22 billion of fiscal headroom created at the previous Budget and compared the defence announcement with earlier spending decisions made between Budgets.` },
+    { type: 'paragraph', text: `He cited the Conservative government's five-year NHS funding announcement in 2018, when ministers similarly said the detailed financing would be set out later.` },
+    { type: 'paragraph', text: `That is a legitimate defence.` },
+    { type: 'paragraph', text: `Fiscal headroom means the margin by which the government's forecast satisfies its fiscal rules. Having £22 billion of it can give a government scope to increase spending without immediately breaching those rules.` },
+    { type: 'paragraph', text: `It is not the same thing as identifying where £4.7 billion will come from.` },
+    { type: 'paragraph', text: `The Treasury document does not say that £4.7 billion has been allocated from a £22 billion pot. It says the money is "to be funded at Budget 2026".` },
+    { type: 'paragraph', text: `The difference can already be seen in the £10.3 billion for which the government has identified measures.` },
+    { type: 'paragraph', text: `Every department is being required to surrender 1 per cent of its capital budget, producing £4 billion over four years.` },
+    { type: 'paragraph', text: `The Department for Energy Security and Net Zero must find another £2 billion, including £400 million of financial transactions.` },
+    { type: 'paragraph', text: `Transport is contributing another £800 million, including up to £700 million from roads funding. Asset sales and changes to costs borne by the Treasury make up other parts of the package.` },
+    { type: 'paragraph', text: `Those are identifiable choices.` },
+    { type: 'paragraph', text: `Some have identifiable consequences.` },
+    { type: 'paragraph', text: `On 26 March, the government published its third Road Investment Strategy and said work would begin during the 2026 to 2031 period on the A38 Derby Junctions and A46 Newark Bypass.` },
+    { type: 'paragraph', text: `Three months later, the defence funding document said both could be cancelled.` },
+    { type: 'paragraph', text: `The Department for Transport is consulting on removing the schemes because neither has entered its main construction contract and they are less advanced than other projects. No final decision had been taken by 4 July.` },
+    { type: 'paragraph', text: `That should not be reported as £700 million already saved by cancelling those two roads.` },
+    { type: 'paragraph', text: `The government's document says only that they are among the schemes being considered as part of wider roads reductions of up to £700 million.` },
+    { type: 'paragraph', text: `The defence plan had already been through a bruising funding dispute.` },
+    { type: 'paragraph', text: `John Healey resigned as Defence Secretary on 11 June. Contemporary reporting said the MoD had sought about £18 billion to close the gap in its programme and that the package available when he left was about £13.5 billion.` },
+    { type: 'paragraph', text: `Dan Jarvis replaced him that day. When the final plan was published, Jarvis said it contained £1.5 billion more than when he had taken the job.` },
+    { type: 'paragraph', text: `The eventual £15 billion should therefore not be described as an imaginary spending commitment or reduced to the £10.3 billion already matched to financing measures.` },
+    { type: 'paragraph', text: `The problem is narrower.` },
+    { type: 'paragraph', text: `The government committed the defence spending.` },
+    { type: 'paragraph', text: `It identified departmental capital reductions, roads savings, energy savings, asset sales and Treasury changes to finance £10.3 billion of it.` },
+    { type: 'paragraph', text: `For the other £4.7 billion, including £1.8 billion in the current financial year, the published answer was Budget 2026.` },
+    { type: 'paragraph', text: `Starmer announced that commitment eight days after saying he would leave office.` },
   ],
+  evidence: {
+    recordsReviewed: [
+      `HM Treasury and Ministry of Defence, The Defence Investment Plan Funding Explainer, 30 June 2026: sets out the £15 billion additional package, the £10.3 billion of identified financing, the £4.7 billion marked "To be funded at Budget 2026", its annual profile, departmental capital reductions, transport and energy savings and the distinction between £11.6 billion of additional cash and £15 billion of additional spending power`,
+      `Hansard, Defence Funding, 30 June 2026: records Rachel Reeves's statement to Parliament, the full funding table, the £298 billion four-year defence plan and the 2.7 per cent NATO spending trajectory`,
+      `Hansard, Prime Minister's Questions, 1 July 2026: records Starmer's defence of announcing the spending outside a Budget and his reliance on approximately £22 billion of fiscal headroom`,
+      `Institute for Fiscal Studies, From fiscal rules to fiscal traffic lights, February 2026, and Office for Budget Responsibility, November 2025 Economic and Fiscal Outlook: establish what fiscal headroom measures and record the roughly £22 billion margin following the November 2025 Budget`,
+      `Sky News interview with Luke Pollard, reported by Press Association, 1 July 2026: records Pollard's statement that he first saw the detailed funding breakdown on publication day and his understanding of Downing Street's contact with Burnham's team`,
+      `Department for Transport, Road Investment Strategy 3: 2026 to 2031, 26 March 2026: records the government's earlier plan for work to begin on the A38 Derby Junctions and A46 Newark Bypass during the road period`,
+      `Prime Minister's Office, Ministerial appointment: 11 June 2026: confirms John Healey left government and Dan Jarvis became Defence Secretary`,
+      `The Guardian, 11 and 29 June 2026: reports the funding dispute preceding Healey's resignation and Jarvis's subsequent securing of an additional £1.5 billion before publication of the plan`,
+      `Labour Party, Leadership Election 2026: records that Starmer had announced his intention to resign, would remain Prime Minister until the leadership process concluded, and that PLP nominations were due to begin on 9 July`,
+    ],
+    lastChecked: '5 October 2026',
+  },
 };
 
 export default piece;

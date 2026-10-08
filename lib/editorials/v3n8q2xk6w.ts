@@ -1,33 +1,75 @@
 import type { EditorialEntry } from './types';
 
-// Briefing: Farage's property portfolio as a transparency story. Fact-checked per
-// user FLAGS: £4m+ mortgage-free portfolio (The Times); Clacton house bought by
-// Ferrari in cash; Thorn In Side Ltd owns two Folkestone and Hythe properties;
-// Commissioner confirmed company properties exempt unless personally used or
-// benefited; 17 code breaches / £384,000; £5m Harborne gift inquiry; Ferrari met
-// Farage 2007 (Strasbourg waitress); IDDE accused of diverting public money for
-// UKIP; The Movement with Steve Bannon; Land Registry showed the Clacton house in
-// Ferrari's name only. The IDDE allegation is attributed ("accused of").
-// Two line-edits applied per editor: the analytical "this matters because" opener
-// recast, and the "the question is" construction rewritten as a statement.
 const piece: EditorialEntry = {
   slug: 'v3n8q2xk6w',
-  kicker: 'Money and Power',
-  headline: 'Farage’s Property Problem Is Not About Property',
-  standfirst:
-    'The Times reports that Nigel Farage and his partner Laure Ferrari hold a mortgage-free property portfolio worth more than £4 million, some of it off the parliamentary register. He may be technically compliant. For the man who spent thirty years attacking Westminster opacity, technically compliant is the problem.',
+  kicker: 'Standards',
+  headline: `Parliament Says Farage Does Not Have to List Assets Owned by His Company`,
+  standfirst: `A Times investigation has identified more than £4 million of residential property owned by Nigel Farage, his company and his partner Laure Ferrari. Only two residential properties appear in Farage's Register of Members' Financial Interests. Parliament has already investigated an asset inside the same company and ruled it did not need separate registration.`,
   publishedAt: '2026-07-05',
   authorByline: 'opengovt',
-  kind: 'briefing',
   body: [
-    { type: 'paragraph', text: 'The Times reported that Nigel Farage and his partner Laure Ferrari have a mortgage-free property portfolio worth more than £4 million. The properties include a home in Clacton purchased by Ferrari in cash during the 2024 campaign, two residential properties in Folkestone and Hythe held through Farage’s company Thorn In Side Ltd, and other assets. Some of these interests appear on the parliamentary register. Others do not.' },
-    { type: 'paragraph', text: 'The parliamentary rules say company-owned properties do not need to be declared unless the MP personally uses or personally benefits from them. The Standards Commissioner has confirmed that interpretation in correspondence. So Farage may well be technically compliant. The register does not describe usage or occupancy, which means the public has no way to verify whether the exemption applies.' },
-    { type: 'paragraph', text: 'Strip the technical detail away and look at who is making the argument. Farage built a political career on the argument that Westminster politicians are self-serving, financially opaque and unaccountable to the public. He said the system needed someone from outside to clean it up. He is now the MP who has been found to have breached the Code of Conduct 17 times for late declarations of £384,000 in outside earnings. He is the subject of a formal Standards Commissioner inquiry over an undeclared £5 million gift from the man who funds two thirds of his party. His company owns properties that may or may not need to be on the register depending on an interpretation the public cannot verify. And his defence in every case has been the same: the rules say I do not have to.' },
-    { type: 'paragraph', text: 'The rules may say that. A man who spent thirty years telling everyone the rules were not good enough does not get to hide behind them when they protect him.' },
-    { type: 'pullQuote', text: 'Farage does not have a corruption problem. He has a transparency problem.' },
-    { type: 'paragraph', text: 'Ferrari’s role runs through several of these stories. She purchased the Clacton house in cash. Farage told voters during the campaign that he had bought a home in Clacton. Land Registry records showed the property was in Ferrari’s name only. She first met Farage in 2007 when she was working as a waitress in Strasbourg. She went on to work as his EU parliamentary aide, ran the IDDE think tank that was accused of illegally diverting public money for UKIP’s benefit, and was a founding member of The Movement alongside Steve Bannon. She is not a peripheral figure. She is central to the financial and political operation around Farage, and several of the assets now under scrutiny are in her name.' },
-    { type: 'paragraph', text: 'Farage does not have a corruption problem. He has a transparency problem. And for a politician whose entire brand is built on transparency, that is worse.' },
+    { type: 'paragraph', text: `A Times investigation has identified more than £4 million of residential property owned by Nigel Farage, his company and his partner Laure Ferrari.` },
+    { type: 'paragraph', text: `Only two residential properties appear in Farage's Register of Members' Financial Interests.` },
+    { type: 'paragraph', text: `That sounds, at first, like a question about whether Farage has declared everything he should.` },
+    { type: 'paragraph', text: `Parliament has already considered almost exactly that question.` },
+    { type: 'paragraph', text: `Last year the Parliamentary Commissioner for Standards investigated Farage after he publicly said he owned a commercial fishing boat. The boat did not appear separately in his register.` },
+    { type: 'paragraph', text: `Farage explained that it belonged to Thorn In The Side Ltd, a company he controlled and whose shareholding and directorship he had declared.` },
+    { type: 'paragraph', text: `The Commissioner asked the Registrar of Members' Financial Interests whether assets owned by that company should themselves be registered.` },
+    { type: 'paragraph', text: `The answer was explicit:` },
+    { type: 'paragraph', text: `"The rules do not require Members to register assets wholly owned by a company of which they are a shareholder."` },
+    { type: 'paragraph', text: `The Registrar added that Farage's position as sole director and sole shareholder did not change that advice. The Commissioner therefore concluded that the fishing boat was an asset of the company rather than Farage personally and did not uphold the complaint.` },
+    { type: 'paragraph', text: `That ruling matters more to the current property story than the value of Farage's houses.` },
+    { type: 'paragraph', text: `Farage's parliamentary register lists one residential property in Tandridge and another in Folkestone and Hythe. It separately records his shareholding and unpaid directorship in Thorn In The Side Ltd.` },
+    { type: 'paragraph', text: `Companies House records Farage as the person with significant control of Thorn In The Side, owning at least 75 per cent of its shares.` },
+    { type: 'paragraph', text: `According to The Times, the company owns two properties on the Kent coast. One is reflected in Farage's property declarations and the other is not. Farage told the newspaper that the second did not need separate registration because it was owned by the company. He said the other had been declared out of an "abundance of caution".` },
+    { type: 'paragraph', text: `On the evidence available, describing the undeclared company property as a hidden house would go too far.` },
+    { type: 'paragraph', text: `Parliament's own Registrar has already said that company assets do not have to be individually registered simply because an MP owns the company.` },
+    { type: 'paragraph', text: `The rules instead divide the information.` },
+    { type: 'paragraph', text: `Land and property personally owned or held by an MP is registrable once it passes the relevant thresholds, subject to exemptions for personal residential use. Shareholdings are registered separately when they exceed 15 per cent of a company or meet the alternative value test.` },
+    { type: 'paragraph', text: `That creates a real disclosure gap.` },
+    { type: 'paragraph', text: `A voter looking at Farage's parliamentary entry can see that he controls Thorn In The Side.` },
+    { type: 'paragraph', text: `They cannot see from that entry what property the company owns.` },
+    { type: 'paragraph', text: `The same issue has already arisen with another asset inside the company. Farage publicly described the fishing vessel as something he owned. Parliament nevertheless treated the vessel itself as belonging to the company and therefore outside the requirement for separate registration.` },
+    { type: 'paragraph', text: `The Register is not supposed to be a complete inventory of an MP's wealth.` },
+    { type: 'paragraph', text: `Its stated purpose is to disclose financial interests and material benefits which could reasonably be thought to influence an MP's actions, speeches or votes.` },
+    { type: 'paragraph', text: `There are good reasons not to require MPs to list every asset held by every business in which they own shares. A trading company could own vehicles, equipment, intellectual property and hundreds of other assets.` },
+    { type: 'paragraph', text: `Property is different in one important respect. It can represent a very large store of wealth while remaining one corporate layer removed from the parliamentary register.` },
+    { type: 'paragraph', text: `That does not mean Farage has broken the rules.` },
+    { type: 'paragraph', text: `It means the rules can produce a register that is accurate without being particularly revealing.` },
+    { type: 'paragraph', text: `Farage does have a proven record of failing to meet Parliament's registration deadlines.` },
+    { type: 'paragraph', text: `In January, Standards Commissioner Daniel Greenberg concluded that Farage had breached Rule 5 of the MPs' Code 17 times by registering interests late.` },
+    { type: 'paragraph', text: `The entries listed in the Commissioner's decision total £384,064.75.` },
+    { type: 'paragraph', text: `Greenberg described the number of breaches and the value of some of the interests as sufficiently serious that using Parliament's rectification process was a "finely balanced decision". But he accepted Farage's explanation that the failures resulted from staffing and administrative problems and concluded that they were inadvertent.` },
+    { type: 'paragraph', text: `Farage accepted responsibility, apologised and introduced new procedures for handling declarations.` },
+    { type: 'paragraph', text: `Seventeen late registrations are 17 breaches of the rules. They are not a finding that Farage deliberately concealed his financial interests.` },
+    { type: 'paragraph', text: `A different Rule 5 investigation remains unresolved.` },
+    { type: 'paragraph', text: `The Parliamentary Commissioner opened an inquiry on 13 May 2026 into an alleged failure by Farage to register an interest. Parliament publishes the rule being investigated but does not disclose the evidence or detailed allegation while an inquiry is active.` },
+    { type: 'paragraph', text: `Contemporaneous reporting has linked that inquiry to a £5 million gift from Christopher Harborne, received before Farage became an MP.` },
+    { type: 'paragraph', text: `Farage has argued that the money did not require registration. His explanations have included that it was intended for his security and, later, that he regarded it as a reward for his Brexit campaigning. The Commissioner has made no finding.` },
+    { type: 'paragraph', text: `The Clacton house is another issue that needs separating from the registration rules.` },
+    { type: 'paragraph', text: `Farage publicly said in 2024 that he had bought a home in the constituency. Land Registry reporting later established that the £885,000 property belonged solely to Ferrari.` },
+    { type: 'paragraph', text: `Farage subsequently acknowledged that he had been wrong to describe himself as the buyer and said the money and property were Ferrari's. He has denied giving or lending her the purchase money.` },
+    { type: 'paragraph', text: `That does not turn Ferrari's house into Farage's property for parliamentary-registration purposes.` },
+    { type: 'paragraph', text: `It does show why precision about ownership matters.` },
+    { type: 'paragraph', text: `The Times investigation has exposed something worth scrutinising, but the evidence points somewhere slightly different from a straightforward undeclared-property scandal.` },
+    { type: 'paragraph', text: `Farage registers his controlling interest in Thorn In The Side. Parliament has previously investigated an undeclared asset held inside that same company and ruled that the asset did not itself have to appear in his register.` },
+    { type: 'paragraph', text: `The Registrar went further: even being the company's sole shareholder and director did not alter that conclusion.` },
+    { type: 'paragraph', text: `If the same rule applies to its residential property, the absence of those assets from Farage's personal property declarations is not evidence that he has evaded the rules.` },
+    { type: 'paragraph', text: `It is evidence of what the rules leave out.` },
   ],
+  evidence: {
+    recordsReviewed: [
+      `Parliamentary Commissioner for Standards, Nigel Farage MP: commercial fishing vessel investigation, published 1 September 2025: the complaint was received 16 July 2025 and the investigation opened 28 July 2025; written evidence includes the Registrar of Members' Financial Interests' letter of 5 August 2025, which states that company-owned assets do not themselves require registration merely because an MP is a shareholder, and that Farage's status as sole director and sole shareholder did not alter that advice; the Commissioner found the complaint not upheld, concluding the vessel belonged to Thorn In The Side Ltd rather than Farage personally`,
+      `House of Commons, Code of Conduct together with the Guide to the Rules relating to the Conduct of Members: sets out the registration requirements for land and property, shareholdings and miscellaneous interests, and the overall purpose of the Register of Members' Financial Interests`,
+      `UK Parliament, Register of Members' Financial Interests: Nigel Farage: records two residential property interests, in Tandridge and Folkestone and Hythe, and Farage's shareholding and directorship in Thorn In The Side Ltd`,
+      `Companies House, Thorn In The Side Ltd: records Farage as the company's active person with significant control, with ownership of at least 75 per cent of its shares`,
+      `Parliamentary Commissioner for Standards, Nigel Farage rectification decision, 20 January 2026: establishes 17 breaches of Rule 5 for late registration, records the individual interests involved and concludes that the failures were inadvertent because of staffing and administrative problems`,
+      `Parliamentary Commissioner for Standards, current investigations: records the Rule 5 investigation into Farage opened on 13 May 2026 for an alleged failure to register an interest; Parliament has not published the underlying evidence while the inquiry remains active`,
+      `The Times, Nigel Farage's £4m property portfolio and the transparency question, July 2026: reports the residential properties associated with Farage, Thorn In The Side and Laure Ferrari and Farage's explanation for the differing treatment of the company-owned properties`,
+      `Guardian reporting on the Harborne gift and Clacton property: records the £5 million gift linked in contemporaneous reporting to the live standards investigation, Farage's explanations for it, and his later acknowledgement that the constituency house he had described as his own was bought and owned solely by Ferrari`,
+    ],
+    lastChecked: '5 October 2026',
+  },
 };
 
 export default piece;

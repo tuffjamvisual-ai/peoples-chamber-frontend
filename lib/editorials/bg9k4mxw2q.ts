@@ -1,49 +1,86 @@
 import type { EditorialEntry } from './types';
 
-// Briefing: MBR Acres (beagle breeder near Huntingdon) brought under the Public
-// Order Act 2023 key-national-infrastructure regime via SI. Fact-checked
-// 2026-08-01 against real sources this session: the Public Order Act 2023
-// (Interference With Use or Operation of Key National Infrastructure)
-// Regulations 2025 (laid 27 Nov 2025) added "life sciences infrastructure";
-// Sarah Jones (Policing Minister) presented it to the Third Delegated
-// Legislation Committee on 17 Dec 2025, passed 10 to 2; Commons deferred
-// division 14 Jan 2026 approved 301 to 110; Lords debated 4 Feb 2026; Camp
-// Beagle outside MBR Acres since June 2021; Ben Obese-Jecty (Con, Huntingdon)
-// 27 Apr 2026 Westminster Hall remarks; Animal Aid granted permission for
-// judicial review (consultation challenge). McCarthy "grind to a halt" quote
-// confirmed in Hansard. Body updated 2026-08-01 to the author's final version
-// (paragraph grouping); "Sarah Jones, then the policing minister" named on first
-// mention.
 const piece: EditorialEntry = {
   slug: 'bg9k4mxw2q',
-  kicker: 'Protest and the Law',
-  headline: 'A Beagle Breeder Is Now Covered by the Same Protest Law as a Power Station',
-  standfirst:
-    'Ministers made the change after one 70-minute Commons committee sitting. The decision is now heading to the High Court.',
+  kicker: 'Law & Protest',
+  headline: `A Beagle Breeder Now Falls Under the Same Protest Offence as Power Stations`,
+  standfirst: `MBR Acres breeds beagles intended for use in laboratory research. Since 12 February, it falls within a criminal offence originally created to protect infrastructure including railways, airports, oil and gas facilities and electricity generation. The government did not name MBR Acres in the legislation — ministers changed the definition of "key national infrastructure" by adding a new category covering life sciences premises. The High Court has now given permission for a challenge to whether they had the legal power to do so.`,
   publishedAt: '2026-08-01',
   authorByline: 'opengovt',
-  kind: 'briefing',
   body: [
-    { type: 'paragraph', text: 'MBR Acres breeds beagles for laboratory research. It does not make vaccines, develop medicines or carry out experiments. Since February, its site near Huntingdon has been classed as key national infrastructure.' },
-    { type: 'paragraph', text: 'The same part of the Public Order Act covers railways, airports, oil facilities and power stations. Anyone convicted of interfering with their operation can be jailed for up to 12 months. Sarah Jones, then the policing minister, said protesters had disrupted research and medical supply chains. Her regulations also protected companies breeding animals for laboratories. The protection was not limited to major drug factories. It covered animal-testing sites, university laboratories and businesses supplying animals for experiments. MBR Acres was pulled in with them.' },
-    { type: 'paragraph', text: 'There was no new Bill. Ministers added “life sciences infrastructure” to the Public Order Act through secondary legislation. The main Commons examination took place in a committee room on 17 December 2025. It began at 2.30pm and ended at 3.40pm.' },
-    { type: 'paragraph', text: 'Kerry McCarthy said the country would not grind to a halt if MBR Acres was occasionally stopped from supplying beagles. Olivia Blake had worked as a biomedical scientist. She called the use of the term national infrastructure “quite honestly, hilarious”. Veteran Conservative Sir Roger Gale supported the original Public Order Act. He still described this addition as “half-baked”. The committee approved the regulations by ten votes to two.' },
-    { type: 'paragraph', text: 'MPs were later allowed to vote on them, but they did not get another Commons debate. The measure passed by 301 votes to 110 through a deferred division on 14 January. The Lords approved it after a full debate on 4 February. It became law eight days later.' },
-    { type: 'paragraph', text: 'Camp Beagle had been outside MBR Acres throughout.' },
-    { type: 'paragraph', text: 'The protest camp has occupied land near the breeder’s gates since June 2021. Campaigners have also emailed companies working with the site and asked them to pull out. Ben Obese-Jecty, the Conservative MP for Huntingdon, believes this is why the government acted. He told Parliament in April that it would be “extremely naive” to think the regulations were introduced for any other reason. Obese-Jecty said pressure from activists had brought MBR Acres within days of closing. According to him, the email campaign had played a large part. He also believes messages urging companies to stop supplying the site could now be treated as criminal interference.' },
-    { type: 'paragraph', text: 'No court has tested that claim.' },
-    { type: 'paragraph', text: 'Ministers insist peaceful protest remains lawful. The offence concerns deliberate or reckless interference, and somebody charged can argue that they had a reasonable excuse. That still leaves campaigners guessing about pressure on suppliers.' },
-    { type: 'paragraph', text: 'Animal Aid is challenging the regulations before a protester becomes the first test case. The charity says MBR Acres should never have been put on the list. Its lawyers argue that ministers used the word “infrastructure” to cover something Parliament never intended. It is also challenging the consultation. The Home Office spoke to the police, prosecutors and the Office for Life Sciences. Animal Aid says industry representatives were approached as well. Animal protection groups were not. The High Court allowed the judicial review to proceed on 29 July. The regulations have not been overturned, but Animal Aid’s challenge will now be heard.' },
+    { type: 'paragraph', text: `MBR Acres breeds beagles intended for use in laboratory research. The Home Office confirmed in 2022 that the company does not need or hold a project licence for breeding the dogs, but does hold an establishment licence under the Animals (Scientific Procedures) Act. A later Home Office inspection recorded that a separate project licence held primarily elsewhere also had additional availability at MBR Acres, allowing some animals there to be used in regulated procedures.` },
+    { type: 'paragraph', text: `Since 12 February, that is enough to bring the site within a criminal offence originally created to protect infrastructure including railways, airports, oil and gas facilities and electricity generation.` },
+    { type: 'paragraph', text: `The government did not name MBR Acres in the legislation.` },
+    { type: 'paragraph', text: `Instead, ministers changed the definition of "key national infrastructure" in the Public Order Act 2023 by adding an entire new category: life sciences infrastructure.` },
+    { type: 'paragraph', text: `The definition covers premises primarily used for pharmaceutical research, development or manufacturing, together with infrastructure used for or in connection with activities authorised under the Animals (Scientific Procedures) Act 1986. The policing minister told MPs explicitly that this included suppliers of animals for research as well as pharmaceutical laboratories, vaccine manufacturers and university laboratories using animals.` },
+    { type: 'paragraph', text: `MBR Acres therefore falls within the same section 7 offence that already applies to power stations and major transport infrastructure.` },
+    { type: 'paragraph', text: `A person commits that offence if they deliberately or recklessly do something that prevents or significantly delays the infrastructure being used or operated for its intended purpose. There is a defence of reasonable excuse. On conviction on indictment, the maximum sentence is 12 months in prison, an unlimited fine or both.` },
+    { type: 'paragraph', text: `That is narrower than banning protest outside a laboratory or breeder.` },
+    { type: 'paragraph', text: `It is also much broader than the law that existed before February.` },
+    { type: 'paragraph', text: `The government's own explanatory memorandum said existing public-order powers were insufficient to deal with tactics being used against the life sciences sector. It cited repeated obstruction of access to sites and said disruption threatened supply chains, pandemic preparedness and the continued presence of life sciences businesses in Britain.` },
+    { type: 'paragraph', text: `The memorandum did not identify MBR Acres.` },
+    { type: 'paragraph', text: `MPs did.` },
+    { type: 'paragraph', text: `Kerry McCarthy, the Labour MP for Bristol East, told the committee considering the regulations that she did not accept that the facilities being discussed constituted key national infrastructure. She singled out MBR Acres, saying Britain would not "grind to a halt" if its supply of beagles to laboratories were occasionally obstructed.` },
+    { type: 'paragraph', text: `Olivia Blake, another Labour MP and a former biomedical scientist, said calling such premises national infrastructure was "quite honestly, hilarious". She questioned whether every establishment operating under an Animals (Scientific Procedures) Act licence could potentially fall within the definition.` },
+    { type: 'paragraph', text: `Sir Roger Gale supported the original Public Order Act but opposed the expansion, calling the regulations a "half-baked measure".` },
+    { type: 'paragraph', text: `The regulations were not introduced through a new Bill.` },
+    { type: 'paragraph', text: `The Public Order Act already gave the Home Secretary power to add further categories of key national infrastructure through secondary legislation. Ministers used that power.` },
+    { type: 'paragraph', text: `The main Commons examination took place in the Third Delegated Legislation Committee on 17 December 2025. It started at 2.30pm and finished at 3.40pm. The committee approved the regulations by ten votes to two.` },
+    { type: 'paragraph', text: `Several MPs asked for the measure to receive a full Commons debate.` },
+    { type: 'paragraph', text: `It did not.` },
+    { type: 'paragraph', text: `The approval motion was eventually put to MPs through a deferred division. On 14 January 2026 the Commons approved it by 301 votes to 110.` },
+    { type: 'paragraph', text: `The House of Lords debated the measure on 4 February. Peers rejected an attempt by Green peer Baroness Bennett to stop it and approved the regulations. They were made on 5 February as SI 2026/112 and came into force seven days later.` },
+    { type: 'paragraph', text: `The title changed with the calendar. Parliament considered the draft Public Order Act 2023 (Interference With Use or Operation of Key National Infrastructure) Regulations 2025. Once made in February, they became the 2026 Regulations.` },
+    { type: 'paragraph', text: `The government's justification was wider than MBR Acres.` },
+    { type: 'paragraph', text: `Sarah Jones, then policing minister, argued that disruption to pharmaceutical research and its supply chains could damage Britain's ability to respond to another pandemic. The Home Office said the life sciences sector employed more than 350,000 people and generated almost £150 billion in annual turnover.` },
+    { type: 'paragraph', text: `There is a defensible reason for protecting vaccine production, pharmaceutical laboratories and research facilities from serious disruption.` },
+    { type: 'paragraph', text: `The controversy is how far ministers extended that protection.` },
+    { type: 'paragraph', text: `The statutory definition does not require an individual facility to manufacture a vaccine, develop a medicine or itself perform experiments. Suppliers of animals used by laboratories are inside the category too.` },
+    { type: 'paragraph', text: `The government's economic analysis estimated that the expansion could produce around 40 additional offences a year, although it described that estimate as low confidence because protest activity is unpredictable.` },
+    { type: 'paragraph', text: `It calculated £1.44 million in costs over ten years and no monetised benefits, while arguing that preventing disruption to the sector would provide benefits that could not readily be priced.` },
+    { type: 'paragraph', text: `The way ministers consulted before making the change is now part of a High Court challenge.` },
+    { type: 'paragraph', text: `The explanatory memorandum says consultation was conducted informally because the government considered the threat urgent. It specifically records engagement with the National Police Chiefs' Council, the National Police Coordination Centre and local police forces.` },
+    { type: 'paragraph', text: `A subsequent parliamentary answer said the Home Office had also undertaken targeted engagement with the Crown Prosecution Service and the Office for Life Sciences.` },
+    { type: 'paragraph', text: `The published consultation account does not record equivalent engagement with animal protection organisations or groups concerned with protest rights.` },
+    { type: 'paragraph', text: `Animal Aid says life sciences interests were consulted while organisations representing the people whose campaigning would be affected were not. It filed for judicial review in March, arguing both that the regulations exceeded the power Parliament had given ministers and that the consultation process was unfair.` },
+    { type: 'paragraph', text: `Its first argument goes to the meaning of the word "infrastructure".` },
+    { type: 'paragraph', text: `Section 7 allowed ministers to add another kind of key national infrastructure to the statutory list. Animal Aid argues that Parliament contemplated nationally significant systems such as transport, energy and utilities, not every establishment caught by a broad industrial category.` },
+    { type: 'paragraph', text: `The government says the power allows exactly this sort of addition and that the life sciences sector requires protection because of its role in medical research, pharmaceutical supply and pandemic preparedness.` },
+    { type: 'paragraph', text: `The High Court granted Animal Aid permission in late July to take the challenge to a full judicial review hearing. Permission does not mean the court has decided the regulations are unlawful. It means the claim is arguable enough to proceed.` },
+    { type: 'paragraph', text: `MBR Acres has sat at the centre of the political argument even though it is nowhere in the statutory instrument.` },
+    { type: 'paragraph', text: `Camp Beagle has maintained a protest presence outside the Wyton site since 2021. Campaigners have also targeted companies doing business with the breeder and urged suppliers and customers to withdraw their services.` },
+    { type: 'paragraph', text: `Ben Obese-Jecty, the Conservative MP for Huntingdon, went further in Parliament in April.` },
+    { type: 'paragraph', text: `He said it would be "extremely naive" to think the regulations had been introduced for any reason other than Camp Beagle. He claimed pressure from activists, particularly an email campaign, had brought MBR Acres within days of closure.` },
+    { type: 'paragraph', text: `That was his assessment. The government has not said the regulations were created specifically for MBR Acres.` },
+    { type: 'paragraph', text: `Obese-Jecty also claimed that emailing a supplier and asking it to stop providing services to the breeder could itself become a criminal offence under section 7.` },
+    { type: 'paragraph', text: `During the same April debate, Ian Murray, the minister responding for the government, directly rejected Obese-Jecty's interpretation. He said the law criminalised interference or planned interference with key national infrastructure but "does not cover the email situation he talked about."` },
+    { type: 'paragraph', text: `The Home Office had already given a more cautious answer in January.` },
+    { type: 'paragraph', text: `Asked by Obese-Jecty whether online activity could fall within section 7, Sarah Jones said the answer would depend on the facts of the individual case and would ultimately be a matter for police, prosecutors and the courts.` },
+    { type: 'paragraph', text: `So there is still an unresolved boundary around online campaigning, but the published record does not support the simple claim that an ordinary email asking a company to boycott MBR Acres is automatically a criminal offence.` },
+    { type: 'paragraph', text: `No reported court case has yet established that an ordinary email asking a supplier to boycott MBR Acres amounts to an offence under section 7.` },
+    { type: 'paragraph', text: `Ministers repeatedly said the amendment did not prohibit peaceful protest. Section 7 requires actual interference with the use or operation of the protected infrastructure, together with intention or recklessness, and provides a reasonable-excuse defence.` },
+    { type: 'paragraph', text: `That does not answer the separate question now before the High Court: whether ministers were entitled to place such a wide range of life sciences premises within the statutory category in the first place.` },
+    { type: 'paragraph', text: `MBR Acres does not manufacture medicines or vaccines. It breeds animals intended primarily for use elsewhere in regulated procedures, though Home Office inspection records show some animals bred there have also been used under a project licence held primarily at another site.` },
+    { type: 'paragraph', text: `Parliament nevertheless passed a definition broad enough to put that breeding facility inside the same criminal provision used to protect airports, railways, oil and gas infrastructure and electricity generation.` },
+    { type: 'paragraph', text: `The High Court will now decide whether ministers had the legal power to draw the category that widely.` },
   ],
   evidence: {
     recordsReviewed: [
-      'Public Order Act 2023 (Interference With Use or Operation of Key National Infrastructure) Regulations 2025',
-      'Third Delegated Legislation Committee, Hansard, 17 December 2025 (approved 10 to 2)',
-      'Commons deferred division, 14 January 2026 (301 to 110)',
-      'House of Lords debate, 4 February 2026',
-      'Animal Aid judicial-review permission, 29 July 2026',
+      `Public Order Act 2023, sections 7 and 8, as amended: defines the offence of interfering with key national infrastructure, the reasonable-excuse defence, penalties and the new definition of life sciences infrastructure`,
+      `Public Order Act 2023 (Interference With Use or Operation of Key National Infrastructure) Regulations 2026, SI 2026/112: added life sciences infrastructure to the statutory list and came into force on 12 February 2026`,
+      `Home Office Explanatory Memorandum to the draft regulations: sets out the government's rationale, the scope of the definition, its assessment of existing police powers and the informal consultation process`,
+      `Home Office Economic Note: estimates around 40 additional offences annually on a low-confidence basis and £1.44 million of present-value costs over ten years, with no monetised benefits`,
+      `Third Delegated Legislation Committee, Hansard, 17 December 2025: records the statements by Sarah Jones, Kerry McCarthy, Olivia Blake and Sir Roger Gale, the committee's 10 to 2 vote and the 2.30pm to 3.40pm sitting`,
+      `House of Commons Votes and Proceedings, 14 January 2026: records approval of the regulations by 301 votes to 110 through a deferred division`,
+      `House of Lords debate, 4 February 2026: records the arguments for and against extending the key-national-infrastructure offence to life sciences facilities, and the defeat of Baroness Bennett's fatal motion`,
+      `Home Office written answer 102103, 13 January 2026: confirms targeted engagement with police, the Crown Prosecution Service and the Office for Life Sciences`,
+      `Home Office written answer 101529, 9 January 2026: states that whether online activity falls within section 7 is fact-specific and ultimately a matter for police, prosecutors and courts`,
+      `Hansard, Animal Testing debate, 27 April 2026: records Ben Obese-Jecty's claims about Camp Beagle and supplier emails and Ian Murray's ministerial response that the law did not cover the email scenario he described`,
+      `Written Question 110614, tabled by Beth Winter 24 January 2022, answered by Kit Malthouse 1 February 2022: confirms MBR Acres does not need or hold a project licence for breeding dogs but holds an establishment licence under ASPA`,
+      `Home Office unannounced inspection of MBR Acres, 25 April 2024: records that a bio-products production project licence held primarily elsewhere had additional availability at MBR Acres, with some breeding animals also used under that licence`,
+      `Animal Aid judicial-review material and counsel's announcement of permission: sets out Animal Aid's challenge to the vires of the regulations and the fairness of the consultation, and confirms that the High Court has granted permission for the claim to proceed`,
     ],
-    lastChecked: '2026-08-01',
+    lastChecked: '5 October 2026',
   },
 };
 

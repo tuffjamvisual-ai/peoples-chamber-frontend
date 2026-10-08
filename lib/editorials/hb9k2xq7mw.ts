@@ -1,37 +1,67 @@
 import type { EditorialEntry } from './types';
 
-// Investigation. Bill provisions cross-checked against reporting (The Block,
-// Protos, The Nerve, Bloomberg, Channel 4 / The Conversation factchecks): 10%
-// CGT, Bitcoin Reserve Fund, HMRC Bitcoin acceptance, bank non-discrimination;
-// £275,650 Stack BTC (Kwarteng); Harborne ~12% Tether; BoE £20k stablecoin cap
-// / Telegraph column; "ultimate form of tyranny"; Brickell "caught out"; Farage
-// speaks to Harborne "once a month or every six weeks", "none of your business"
-// (BBC). Two accuracy fixes vs source copy: "endeavors" (American spelling, the
-// stated point) and the spending quote corrected to "Ferraris".
 const piece: EditorialEntry = {
   slug: 'hb9k2xq7mw',
-  kicker: 'Money and Power',
-  headline: 'The Crypto Bill Reform UK Published, Then Deleted',
-  standfirst:
-    'Reform did not campaign on cryptocurrency in 2024. It later produced a detailed crypto bill. The bill contained measures that would benefit crypto holders, crypto firms and stablecoin issuers. The party’s biggest donor has major interests in the same sector. The bill was then removed from the party website without explanation.',
+  kicker: 'Reform UK',
+  headline: `Reform Published a Crypto Bill Promising Tax Cuts and a Bitcoin Reserve. Then It Disappeared`,
+  standfirst: `On 29 May 2025, Nigel Farage stood on stage at the Bitcoin Conference in Las Vegas holding a piece of draft British legislation. He told the audience Reform UK would campaign for its Cryptoassets and Digital Finance Bill and put it into law if the party won a general election. A year later, the bill disappeared from Reform's website.`,
   publishedAt: '2026-07-08',
   authorByline: 'opengovt',
   body: [
-    { type: 'paragraph', text: 'Section 1 would have cut capital gains tax on crypto gains to 10 per cent. That would benefit crypto holders.' },
-    { type: 'paragraph', text: 'Section 4 would have created a sovereign Bitcoin Reserve Fund as part of the UK’s official reserves. The bill said Bitcoin should be the fund’s principal holding and that one of its aims was “signalling confidence in digital assets”.' },
-    { type: 'paragraph', text: 'Section 5 would have required HMRC to accept Bitcoin for tax payments from the day the bill came into force.' },
-    { type: 'paragraph', text: 'Section 3 would have made it harder for banks to refuse service to crypto users unless they could justify the decision. That goes directly to “de-risking”, where banks shut or refuse accounts they consider too risky.' },
-    { type: 'paragraph', text: 'For crypto firms, access to banking is not a side issue. It is one of the barriers between the industry and the mainstream financial system.' },
-    { type: 'paragraph', text: 'Four months after launching the bill, Farage and Reform chairman Zia Yusuf wrote in the Telegraph attacking the Bank of England’s proposed £20,000 cap on individual holdings of sterling stablecoins. Removing or weakening that cap would benefit stablecoin issuers.' },
-    { type: 'paragraph', text: 'Farage has also lobbied against a state-backed digital pound, calling it “the ultimate form of tyranny”. A digital pound would compete with commercial stablecoins.' },
-    { type: 'paragraph', text: 'Farage has personally invested £275,650 in Stack BTC, a Bitcoin business chaired by former Chancellor Kwasi Kwarteng.' },
-    { type: 'paragraph', text: 'The draft bill was rough in places. Section 2(5) does not read as a complete sentence. Section 4(6)(c) contains a typo, using “though” instead of “through”. Section 6(5) uses the American spelling “endeavors” in a document formatted as an Act of the UK Parliament.' },
-    { type: 'paragraph', text: 'The drafting errors do not explain why the bill was removed.' },
-    { type: 'paragraph', text: 'Phil Brickell MP, chair of the All-Party Parliamentary Group on Anti-Corruption and Responsible Tax, said Reform appeared to have been “caught out” and called on Farage to disclose correspondence and meetings with crypto billionaire donors.' },
-    { type: 'paragraph', text: 'Farage has said he speaks to Harborne “maybe once a month, maybe once every six weeks” and insists he has not promised him anything in return for his donation. He told the BBC the £5 million gift was “none of your business” and said he could spend it on Ferraris if he wanted. He has described himself as someone who “can’t be bought by anybody”.' },
-    { type: 'paragraph', text: 'Harborne has said he gave the money because of his admiration for Farage’s work on Brexit. Reform says the gift was completely unconditional.' },
-    { type: 'paragraph', text: 'Reform has not explained why the bill disappeared. It has not said whether it still supports the provisions. It has not published a replacement. It has not explained why a party with no manifesto crypto policy produced a crypto bill before producing equivalent draft legislation on the issues it actually campaigned on.' },
+    { type: 'paragraph', text: `On 29 May 2025, Nigel Farage stood on stage at the Bitcoin Conference in Las Vegas holding a piece of draft British legislation.` },
+    { type: 'paragraph', text: `He told the audience Reform UK would campaign for its Cryptoassets and Digital Finance Bill and put it into law if the party won a general election. At the same event, Reform announced that it would accept donations in Bitcoin and other cryptocurrencies.` },
+    { type: 'paragraph', text: `A year later, the bill disappeared from Reform's website.` },
+    { type: 'paragraph', text: `It was removed from the party's policy pages around the end of May 2026. The original Reform PDF address now returns a 404 error. Reform was asked by The Nerve why it had removed the document and whether it still supported its proposals. The publication said it received no response.` },
+    { type: 'paragraph', text: `The document itself survives in cached and third-party copies.` },
+    { type: 'paragraph', text: `Its first section would impose a 10 per cent capital gains tax rate on crypto gains, where a higher rate would otherwise apply. Crypto gains are currently subject to the normal capital gains tax regime, including rates of 18 per cent and 24 per cent depending on the taxpayer and circumstances. The proposal would therefore reduce the tax bill for affected investors disposing of cryptoassets at a gain.` },
+    { type: 'paragraph', text: `Section 3 would stop banks and payment providers refusing or withdrawing services solely because a customer lawfully dealt in cryptoassets. More unusually, it placed the burden on the financial institution to prove that a refusal had another legitimate reason.` },
+    { type: 'paragraph', text: `Section 4 instructed the Treasury to establish a Bitcoin Reserve Fund as part of Britain's official reserves.` },
+    { type: 'paragraph', text: `Bitcoin had to be its principal holding. The stated purposes included diversifying UK reserves, improving public finances through long-term holdings and, explicitly, "signalling confidence in digital assets".` },
+    { type: 'paragraph', text: `Section 5 required HMRC to build a system for accepting tax payments in approved cryptocurrencies. Bitcoin would automatically qualify when the provision came into force. HMRC could either convert the payment into sterling or transfer the cryptocurrency into the proposed reserve fund.` },
+    { type: 'paragraph', text: `There was nothing inherently improper about Reform developing policies favourable to cryptocurrency. Parties routinely propose lower taxes or different regulation for industries they believe can generate investment and growth.` },
+    { type: 'paragraph', text: `Reform's stated argument was that Britain could attract crypto and blockchain businesses by offering lower taxation and lighter regulation. It described the bill as an attempt to make the UK a leading centre for the industry after Brexit.` },
+    { type: 'paragraph', text: `What makes the disappearance of the bill worth explaining is what happened around it.` },
+    { type: 'paragraph', text: `Cryptocurrency had barely featured in Reform's 2024 general election programme. A search of its 28-page Our Contract with You produces no reference to "crypto". The document did oppose the creation of a central bank digital currency and promised action against "de-banking", but contained none of the detailed crypto tax, reserve or regulatory proposals that appeared less than a year later.` },
+    { type: 'paragraph', text: `The Las Vegas bill was substantially more developed than that manifesto position. Reform had drafted provisions governing taxation, banking, Treasury reserves, HMRC payments and an FCA regulatory sandbox.` },
+    { type: 'paragraph', text: `Farage's own financial exposure to the sector subsequently increased.` },
+    { type: 'paragraph', text: `On 9 March 2026, Stack BTC announced that Farage had invested £215,000 in the company through shares held by Thorn In The Side Ltd, which he owns. Stack described itself as building a portfolio of businesses alongside a Bitcoin treasury and said its strategy aligned with Farage's advocacy of Bitcoin. The investment gave him 4.3 million shares, then representing 6.31 per cent of the company.` },
+    { type: 'paragraph', text: `Stack BTC is chaired by former Chancellor Kwasi Kwarteng. Kwarteng and his wife together hold about 5.88 per cent of the company.` },
+    { type: 'paragraph', text: `Nine days later he agreed to invest another £60,650, taking the total committed through the two transactions to £275,650.` },
+    { type: 'paragraph', text: `Farage has registered the Stack BTC shares with Parliament.` },
+    { type: 'paragraph', text: `There is a separate financial relationship with Christopher Harborne, Reform's largest donor.` },
+    { type: 'paragraph', text: `Electoral Commission records show Harborne gave Reform £9 million in 2025, followed by a further £3 million later that year. He is also reported to hold about 12 per cent of Tether, the company behind the world's largest stablecoin.` },
+    { type: 'paragraph', text: `Harborne also gave Farage a personal gift of £5 million in 2024. The gift was not publicly disclosed at the time and is now the subject of an investigation by the Parliamentary Commissioner for Standards into whether Farage failed to register an interest. That investigation is ongoing and has made no finding against him.` },
+    { type: 'paragraph', text: `Farage has given several descriptions of the gift. He has said it was intended to provide security, described it as private and said Harborne gave it as a reward for his years campaigning for Brexit. He says it was unconditional and that he "cannot be bought by anybody".` },
+    { type: 'paragraph', text: `When asked in December about Harborne's donations to Reform, Farage said the two spoke "maybe once a month, maybe once every six weeks" and that he had promised him nothing in return.` },
+    { type: 'paragraph', text: `The bill itself does not contain a special provision for Tether or Harborne.` },
+    { type: 'paragraph', text: `Stablecoins are not a substantial part of it. The more direct overlap came later, when Farage and then-Reform chairman Zia Yusuf opposed the Bank of England's proposed limit on individual holdings of sterling stablecoins.` },
+    { type: 'paragraph', text: `The Bank had proposed a temporary limit of £20,000 per person because it was concerned that a rapid movement of money from bank deposits into stablecoins could affect banks' ability to provide credit.` },
+    { type: 'paragraph', text: `By June 2026, the Bank had abandoned that approach following wider industry objections over cost and practicality. It replaced individual holding limits with a proposed £40 billion temporary issuance limit for each systemic stablecoin. There is no evidence that Farage's intervention caused that change. The Bank says it changed course following consultation feedback from the industry and other stakeholders.` },
+    { type: 'paragraph', text: `Farage has also opposed a state-backed digital pound.` },
+    { type: 'paragraph', text: `He raised the issue directly with Bank of England governor Andrew Bailey in September 2025 and has described a central bank digital currency as the "ultimate form of tyranny". Reform's opposition to a digital pound predates Harborne's later large donations to the party and was already stated in its 2024 manifesto.` },
+    { type: 'paragraph', text: `That chronology is important. The evidence shows overlapping interests. It does not establish that Harborne paid for Reform's crypto policies or that Farage advocated them in return for money.` },
+    { type: 'paragraph', text: `Labour MP Phil Brickell, chair of the All-Party Parliamentary Group on Anti-Corruption and Responsible Tax, has nevertheless called for Farage to disclose correspondence and meetings with crypto donors. Brickell and Labour MP Joe Powell have also referred Farage's contact with the Bank of England to the parliamentary standards commissioner. A referral is not a finding that parliamentary rules were broken.` },
+    { type: 'paragraph', text: `The drafting of Reform's bill raises questions of its own.` },
+    { type: 'paragraph', text: `Section 2(5) reads: "The FCA must make rules specifying that the participant" before continuing into a list, leaving the sentence grammatically incomplete. Section 4 says the reserve should improve public finances "though" long-term holdings, apparently meaning "through". Section 6 uses the American spelling "endeavors".` },
+    { type: 'paragraph', text: `None of those drafting defects explains why Reform removed the document.` },
+    { type: 'paragraph', text: `At launch, the party called it a statement of intent. Farage said it would become law under a Reform government.` },
+    { type: 'paragraph', text: `By 8 July 2026, the bill was no longer on Reform's website, its original PDF link was dead, and the party had not publicly explained whether the policy had been withdrawn, was being rewritten or remained its position.` },
   ],
+  evidence: {
+    recordsReviewed: [
+      `Reform UK, Cryptoassets and Digital Finance Bill, published May 2025: the proposed 10 per cent capital gains tax rate, regulatory sandbox, banking protections, Bitcoin Reserve Fund, cryptocurrency tax payments and wording of the draft legislation — the original Reform URL has since been removed; indexed and third-party copies preserve the document`,
+      `Reform UK, Our Contract with You, June 2024: confirms that the general election programme contained no crypto policy beyond opposition to a central bank digital currency and broader language on de-banking`,
+      `Bitcoin Conference reporting, 29 to 30 May 2025: confirms Farage's launch of the bill in Las Vegas, the commitment to introduce it under a Reform government and the announcement that Reform would accept cryptocurrency donations`,
+      `The Nerve, Reform's vanishing crypto bill, 30 June 2026: the timing of the bill's removal, Reform's failure to answer questions about whether it still supported the proposals, and Phil Brickell's request for disclosure of contacts with crypto donors`,
+      `Stack BTC, regulatory announcements, 9 and 18 March 2026: Farage's £215,000 initial investment, the later £60,650 investment, his shareholding through Thorn In The Side Ltd, Stack's Bitcoin treasury strategy, and that the company is chaired by former Chancellor Kwasi Kwarteng, who with his wife holds about 5.88 per cent of it`,
+      `House of Commons Register of Members' Financial Interests: confirms Farage's registration of shares in Stack BTC held through Thorn In The Side Ltd`,
+      `Electoral Commission donation records: confirm Harborne's reported donations to Reform, including the £3 million accepted in November 2025`,
+      `Parliamentary Commissioner for Standards: confirms an ongoing investigation into Farage under Rule 5 for alleged failure to register an interest — it records an investigation, not a finding of wrongdoing`,
+      `Bank of England, stablecoin consultation and June 2026 policy statement: the original £20,000 proposed individual holding limit, the reasons for it and the subsequent decision to replace personal limits with a £40 billion temporary issuance guardrail for each systemic stablecoin`,
+      `Bank of England meeting reporting, September 2025: confirms that Farage raised the digital pound directly with governor Andrew Bailey`,
+    ],
+    lastChecked: '4 October 2026',
+  },
 };
 
 export default piece;

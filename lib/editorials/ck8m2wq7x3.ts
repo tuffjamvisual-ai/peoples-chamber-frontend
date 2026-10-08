@@ -1,25 +1,51 @@
 import type { EditorialEntry } from './types';
 
-// Briefing: council-tax court summonses. Fact-checked per FLAGS: 1,430,726 summoned
-// 2024/25 and <200 councils responding (GMB FOI); Rachel Harrison, GMB National
-// Secretary, "completely broken"; West Midlands 239,000 / £490m (Coventry Telegraph);
-// Blackpool £32m / 25,388 (Blackpool Gazette); Coventry 8,322; April repayment-plan
-// changes (LocalGov); Band D up 66% since 2010; 295 of 384 at max increase; at least
-// eight councils effectively bankrupt (earlier research).
 const piece: EditorialEntry = {
   slug: 'ck8m2wq7x3',
-  kicker: 'Councils and Money',
-  headline: '1.5 Million People Dragged to Court Over Council Tax. The Councils Doing the Dragging Are Broke Too.',
-  standfirst:
-    'At least 1,430,726 people were summoned to court over unpaid council tax in 2024/25, from GMB freedom of information requests. Councils are raising bills because central funding does not cover demand, then taking residents to court when they cannot pay. The system, GMB says, is completely broken.',
+  kicker: 'Local Government',
+  headline: `GMB's Regional Data Show Nearly 1 Million Council Tax Court Actions in England. New Safeguards Start in 2027`,
+  standfirst: `GMB's published regional data record 992,536 council tax court actions in England in 2024/25, although the union's figures contain an unresolved discrepancy that prevents a clean national total. Ministers have already decided the current enforcement system needs replacing. The new rules will not begin until April 2027.`,
   publishedAt: '2026-07-08',
   authorByline: 'opengovt',
-  kind: 'briefing',
   body: [
-    { type: 'paragraph', text: 'At least 1,430,726 people were summoned to court over unpaid council tax in 2024/25. That figure comes from GMB freedom of information requests to every council in Britain with collection responsibility. Fewer than 200 replied within the deadline. The true number is higher. Nobody knows how much higher because the councils that did not respond are the ones least likely to want the public knowing.' },
-    { type: 'paragraph', text: 'Rachel Harrison, GMB National Secretary, called the system “completely broken.” She is right. The banding system has not been revalued since 1991. Councils are raising bills because central government funding does not cover demand. Then they are taking residents to court when those residents cannot pay the increased bill for the reduced service. In the West Midlands alone, 239,000 people were summoned and £490 million is owed. In Blackpool, £32 million is outstanding and 25,388 accounts are in arrears. In Coventry, 8,322 households went to court in a single year.' },
-    { type: 'paragraph', text: 'The government announced changes in April giving households more time to settle arrears and requiring councils to work on repayment plans before going to court. That is a start. It does not fix a system where the average Band D bill has risen 66 percent since 2010, where 295 of 384 councils used the maximum increase available last year, and where at least eight councils have effectively gone bankrupt. The bill goes up. The services go down. And when people cannot pay, the state takes them to court to fund the services it is no longer providing.' },
+    { type: 'paragraph', text: `GMB's published regional data record 992,536 council tax court actions in England in 2024/25, although the union's figures contain an unresolved discrepancy that prevents a clean national total.` },
+    { type: 'paragraph', text: `GMB sent Freedom of Information requests to councils across Great Britain responsible for collecting council tax. Almost 200 replied within the statutory deadline. Its published table records entries in a "Court 24/25" column for each region. Summing the nine English regional entries gives 992,536. Councils that did not respond are absent from the exercise altogether.` },
+    { type: 'paragraph', text: `There is also a discrepancy in GMB's own national figures.` },
+    { type: 'paragraph', text: `The text accompanying its investigation says 1,430,726 people were summoned to court across Great Britain. The regional table on the same page totals 1,505,126 court entries, a difference of 74,400. GMB variously describes the figures as people, summonses and court cases.` },
+    { type: 'paragraph', text: `Neither of those totals reconciles cleanly with the regional breakdown either. Adding the English, Scottish and Welsh regional entries together gives 1,272,272 — some 232,854 short of the table's own printed total of 1,505,126. GMB has not published an explanation for the gap.` },
+    { type: 'paragraph', text: `The defensible finding is therefore not a single precise national total. It is that responding councils reported court enforcement on a scale running into nearly a million cases in England alone, with the true national total unavailable from the published exercise.` },
+    { type: 'paragraph', text: `The same responses recorded 4,593,838 council tax accounts in arrears, more than 3.2 million accounts subject to debt-management proceedings and just over £4.6 billion outstanding across Great Britain.` },
+    { type: 'paragraph', text: `England is now changing the rules governing how quickly a missed council tax payment can escalate.` },
+    { type: 'paragraph', text: `Ministers have already decided that households should have substantially longer before they lose the right to continue paying by instalments. Under reforms announced in April, that period will extend to at least 63 days after the first missed payment. Councils will also have to follow statutory steps before formal enforcement, and the costs they can add for seeking a liability order will be capped at £100.` },
+    { type: 'paragraph', text: `Those protections will not begin until April 2027.` },
+    { type: 'paragraph', text: `The current regulations give councils considerably more scope to move quickly.` },
+    { type: 'paragraph', text: `They do not prescribe a minimum period between an instalment being missed and a reminder being sent. The government's latest consultation says practices therefore vary between councils. If the arrears remain unpaid, the existing system can ultimately make the remaining annual balance payable before a council seeks a liability order from the magistrates' court.` },
+    { type: 'paragraph', text: `The replacement is much more prescriptive.` },
+    { type: 'paragraph', text: `Under proposals published on 1 July, a final notice could not be issued earlier than 41 days after the missed instalment, or until at least 14 days after the most recent reminder. The household would then have 21 days to pay the amount demanded. If it remained unpaid, the rest of the year's bill could become due on day 63.` },
+    { type: 'paragraph', text: `The government also wants reminder notices to direct households towards debt advice, payment plans, discounts and other support rather than immediately emphasising the most severe enforcement powers.` },
+    { type: 'paragraph', text: `Ministers have not concluded that councils should stop pursuing unpaid council tax.` },
+    { type: 'paragraph', text: `Council tax is a major source of local government income, and the government says councils must retain the ability to enforce debts against people who can pay but deliberately do not. Councils have warned that slowing the process could affect in-year collection rates and cash flow. The government is seeking evidence on those costs before the new rules are finalised.` },
+    { type: 'paragraph', text: `The average Band D council tax bill in England is £2,392 in 2026/27, up £111, or 4.9 per cent, in a year. Of 384 authorities subject to referendum principles, 274 used the maximum increase available without a referendum and another 50 came close.` },
+    { type: 'paragraph', text: `There is already a direct precedent for the 63-day rule.` },
+    { type: 'paragraph', text: `Wales introduced essentially the same minimum period on 1 April 2026. Welsh councils must now give households at least 63 days from a missed payment before applying for a liability order on the unpaid annual balance, with a reminder and final notice required first.` },
+    { type: 'paragraph', text: `England's own government response explicitly says its reform is aligned with the change in Wales.` },
+    { type: 'paragraph', text: `It is too early to say what the Welsh change has done to collection rates or court action. The official Welsh collection statistics covering April 2026 to March 2027 are not due until June 2027.` },
+    { type: 'paragraph', text: `That leaves an unusual position in England.` },
+    { type: 'paragraph', text: `The government has already decided that households need more time before council tax arrears can escalate towards court enforcement. It has settled on a 63-day minimum, a model already operating in Wales, and is now consulting on the detailed notices councils must issue.` },
+    { type: 'paragraph', text: `For the rest of the current financial year, English councils will continue using the existing statutory timetable.` },
   ],
+  evidence: {
+    recordsReviewed: [
+      `GMB, council tax Freedom of Information investigation, 10 June 2026: reports 1,430,726 people summoned in its accompanying text but publishes a regional table totalling 1,505,126 in its "Court 24/25" column; the nine English regional entries sum to 992,536; adding Scotland and Wales gives 1,272,272, which does not reconcile with the table's own printed total; it also records 4,593,838 accounts in arrears, 3,231,480 subject to debt-management proceedings and more than £4.6 billion outstanding`,
+      `Ministry of Housing, Communities and Local Government, Modernising and improving the administration of council tax: government response, 15 April 2026: confirms the decision to extend the period before loss of instalments to at least 63 days, introduce statutory pre-enforcement steps and cap liability-order costs at £100; it says the changes are intended to take effect from April 2027 and states explicitly that the 63-day change "aligns with the change being introduced in Wales from April this year"`,
+      `Ministry of Housing, Communities and Local Government, Improving enforcement of council tax, 1 July 2026: sets out the proposed detailed process, including the 41-day minimum before a final notice and a further 21 days before the annual balance can become due; it also records concerns about the effect on council collection rates and cash flow`,
+      `Ministry of Housing, Communities and Local Government, Council Tax Information Letter 3/2026, 15 April 2026: confirms that the reforms require secondary legislation and are intended to begin in April 2027`,
+      `Ministry of Housing, Communities and Local Government, Council Tax levels set by local authorities in England 2026 to 2027, 25 March 2026: records an average Band D bill of £2,392, up 4.9 per cent, with 274 of 384 authorities using the maximum referendum flexibility and another 50 close to it`,
+      `Welsh Government, Council Tax collection framework, 7 April 2026: confirms that Wales introduced a 63-day minimum period from 1 April 2026, with reminder and final notices before an application for a liability order`,
+      `Welsh Government, council tax collection statistics release schedule: shows that the first full-year collection data covering the new Welsh regime, April 2026 to March 2027, are scheduled for publication in June 2027`,
+    ],
+    lastChecked: '5 October 2026',
+  },
 };
 
 export default piece;

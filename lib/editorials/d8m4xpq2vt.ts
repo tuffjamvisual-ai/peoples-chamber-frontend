@@ -1,25 +1,68 @@
 import type { EditorialEntry } from './types';
 
-// Digital services tax vs Trump's 100 percent tariff threat. Every figure
-// fact-checked against HMRC/Treasury (DST £808m 2024/25, up from £678m), ONS
-// (£59.3bn UK goods to the US, 2024), the 8 May 2025 UK-US deal (DST left in
-// place), Trump's verbatim Truth Social quote, and the June 2026 Labour
-// leadership situation (Starmer resigned 22 June; Burnham presumptive successor).
 const piece: EditorialEntry = {
   slug: 'd8m4xpq2vt',
-  kicker: 'Trade and Power',
-  headline: 'Hand Over £800 Million Or Lose £60 Billion',
-  standfirst:
-    'Trump is threatening a 100 percent tariff on every UK good sold to America unless Britain scraps a digital tax worth a fraction of the trade at stake. The tax will go. The real lesson is that a deal with this White House lasts exactly as long as it suits him.',
+  kicker: 'Trade',
+  headline: `Trump Threatens Britain Over an £808m Tech Tax. The 100% Tariff Is Not Yet a UK Tariff`,
+  standfirst: `Donald Trump threatened on 26 June to impose a 100 per cent tariff on goods from countries that tax American digital companies. Britain already does. Its Digital Services Tax raised £808 million in 2024-25 and UK businesses exported £59.7 billion of goods to the United States in 2025. But as of 30 June, Trump had not imposed either tariff on British goods.`,
   publishedAt: '2026-06-30',
   authorByline: 'opengovt',
   body: [
-    { type: 'paragraph', text: 'Forget the headline for a second. Look at the numbers. The digital services tax raises £800 million a year. The UK exports roughly £60 billion in goods to the US. Trump is threatening a 100 percent tariff on all of it unless we drop the tax. That is not a negotiation. That is being told to hand over £800 million or lose £60 billion. Nobody is choosing the £800 million. The tax is dead, everyone in Whitehall knows it, and the only question is how they dress up the retreat.' },
-    { type: 'paragraph', text: 'What makes this properly awkward is that the tax was not Labour’s idea. The Conservatives introduced it in 2020. Trump signed a trade deal with the UK in May 2025 knowing the tax was still in place. He did not ask for it to be removed then. Now he is threatening to tear up the deal he signed 13 months ago over a tax he already knew about. The message is not about the 2 percent levy. The message is that any deal with this White House lasts exactly as long as it is convenient.' },
-    { type: 'pullQuote', text: 'Any deal with this White House lasts exactly as long as it is convenient.' },
-    { type: 'paragraph', text: 'Burnham inherits this in about three weeks. Trump has already called him “extremely liberal.” Lammy spent years calling Trump a woman-hating, neo-Nazi sympathising sociopath before spending his time as Foreign Secretary trying to build bridges. Relations are already strained over Iran. Now the incoming Prime Minister has to decide whether to cave on the tax immediately and look weak, or resist and risk a tariff war the UK cannot win.' },
-    { type: 'paragraph', text: 'The smart money says the tax gets quietly folded into some broader “digital economy framework” that sounds like reform and works like surrender. That is how these things always end. The interesting bit is not whether Britain backs down. It is what Trump asks for next once he knows it works.' },
+    { type: 'paragraph', text: `Donald Trump threatened on 26 June to impose a 100 per cent tariff on goods from countries that tax American digital companies.` },
+    { type: 'paragraph', text: `Britain already does.` },
+    { type: 'paragraph', text: `Its Digital Services Tax has operated since 2020 and raised £808 million in 2024-25, according to the Treasury. UK businesses exported £59.7 billion of goods to the United States in 2025.` },
+    { type: 'paragraph', text: `Those figures make the threat look brutally simple. Give up an £808 million tax or put almost £60 billion of exports at risk.` },
+    { type: 'paragraph', text: `It is not quite that simple.` },
+    { type: 'paragraph', text: `Trump has not announced a 100 per cent tariff specifically on Britain. His 26 June statement referred to countries imposing digital services taxes on American companies and focused on European countries he said were discussing their introduction. Britain already has one. The White House had not, by 30 June, published an order applying a 100 per cent tariff to British goods or explained how the threat would apply to an existing UK tax.` },
+    { type: 'paragraph', text: `There is no ambiguity about Trump's position on Britain itself.` },
+    { type: 'paragraph', text: `On 23 April he was asked directly about the UK Digital Services Tax. He said Britain should "be careful" and that if it did not drop the tax, the United States would "probably put a big tariff on the UK".` },
+    { type: 'paragraph', text: `Asked about the size of any tariff, Trump said it would be worth more than the revenue Britain was collecting from the tax.` },
+    { type: 'paragraph', text: `The tax applies at 2 per cent to revenues from certain search engines, social media services and online marketplaces deriving value from UK users. It applies only to groups with more than £500 million of worldwide revenue from those activities and more than £25 million linked to UK users.` },
+    { type: 'paragraph', text: `The Treasury says the tax was introduced because conventional corporation tax rules did not adequately capture value generated by users in countries where large digital companies might have little physical presence. It has always described the measure as temporary, to be removed if an adequate international replacement is agreed.` },
+    { type: 'paragraph', text: `Receipts have risen quickly. The tax collected £380 million in 2021-22, £576 million the following year, £678 million in 2023-24 and £808 million in 2024-25.` },
+    { type: 'paragraph', text: `The United States has objected almost from the beginning.` },
+    { type: 'paragraph', text: `A US Trade Representative investigation concluded in January 2021 that the British tax discriminated against American companies, departed from established international tax principles and burdened US commerce. The Biden administration later proposed additional tariffs of up to 25 per cent on selected British goods.` },
+    { type: 'paragraph', text: `Those tariffs were announced and immediately suspended while international tax negotiations continued. The trade action was subsequently terminated after Britain and several other European countries reached a transitional agreement with the United States over the planned OECD reforms.` },
+    { type: 'paragraph', text: `The international replacement never arrived in the form originally envisaged. Britain's tax remained.` },
+    { type: 'paragraph', text: `That history shows the dispute did not suddenly appear after the UK-US economic agreement signed in May 2025.` },
+    { type: 'paragraph', text: `Trump and Keir Starmer agreed the general terms of the Economic Prosperity Deal on 8 May 2025, five years after Britain's Digital Services Tax had come into force and four years after the US government had formally found it actionable under American trade law.` },
+    { type: 'paragraph', text: `The agreement did not settle the tax dispute.` },
+    { type: 'paragraph', text: `It cut or limited US tariffs in sectors including cars, steel and aluminium and set out further negotiations over digital trade. It was not a comprehensive free trade agreement protecting all British exports from future tariffs.` },
+    { type: 'paragraph', text: `The document also expressly allows either country to terminate the arrangement by giving written notice to the other.` },
+    { type: 'paragraph', text: `So the fact that Trump agreed the deal while knowing the British tax existed does not mean he agreed never to challenge it later.` },
+    { type: 'paragraph', text: `It does show the limit of the protection the deal provides.` },
+    { type: 'paragraph', text: `The £59.7 billion export figure also needs handling carefully.` },
+    { type: 'paragraph', text: `A 100 per cent tariff would not mean Britain automatically "loses £59.7 billion". The tariff would be charged on imports entering the United States. Its effects would depend on which products were covered, whether there were exemptions, how much of the cost exporters and American importers absorbed, how customers responded and whether trade was redirected elsewhere.` },
+    { type: 'paragraph', text: `The likely damage could still be severe.` },
+    { type: 'paragraph', text: `There is already evidence from Trump's earlier tariffs. ONS figures show UK goods exports to the United States fell by £1.5 billion, or 24.7 per cent, between March and April 2025, when the first new US tariffs took effect. Exports remained below their pre-tariff levels through February 2026.` },
+    { type: 'paragraph', text: `Cars were among the industries affected.` },
+    { type: 'paragraph', text: `The May 2025 economic deal subsequently secured a lower US tariff for a quota of 100,000 UK vehicles a year, one example of why the government regarded the agreement as economically valuable.` },
+    { type: 'paragraph', text: `A blanket 100 per cent tariff would be on another scale altogether.` },
+    { type: 'paragraph', text: `There is also a question over how Trump could impose it.` },
+    { type: 'paragraph', text: `In February, the US Supreme Court ruled that the International Emergency Economic Powers Act did not give the president authority to impose tariffs. The court said the power to levy tariffs belongs to Congress and requires statutory authority when delegated to the executive.` },
+    { type: 'paragraph', text: `That does not leave the White House powerless.` },
+    { type: 'paragraph', text: `Other US trade laws provide routes for tariffs in particular circumstances. Section 301 of the Trade Act is especially relevant because the United States has already investigated Britain's Digital Services Tax under it and previously approved retaliatory tariffs.` },
+    { type: 'paragraph', text: `But the 2021 action against Britain was terminated. A presidential social-media post threatening a 100 per cent tariff is therefore not the same thing as a tariff having been legally imposed at the border.` },
+    { type: 'paragraph', text: `Britain is negotiating through an awkward political transition as well.` },
+    { type: 'paragraph', text: `Starmer announced on 22 June that he would resign as Labour leader. Andy Burnham entered the contest and was the clear frontrunner by the end of the month, but nominations had not yet opened and he was not prime minister on 30 June.` },
+    { type: 'paragraph', text: `Whoever conducts the next stage of the talks inherits a dispute that predates the current Labour government.` },
+    { type: 'paragraph', text: `The Conservatives introduced the Digital Services Tax in 2020. Labour retained it. The United States challenged it under Joe Biden and Donald Trump has escalated that objection into an explicit tariff threat.` },
+    { type: 'paragraph', text: `The government therefore has a real choice to make about the tax, but not yet the binary choice in the original headline.` },
+    { type: 'paragraph', text: `Trump has explicitly threatened Britain with additional tariffs unless the Digital Services Tax is removed, and has separately threatened a 100 per cent tariff against any country imposing one. As of 30 June, he had not imposed either tariff on British goods.` },
   ],
+  evidence: {
+    recordsReviewed: [
+      `HM Treasury, Digital Services Tax Review, 26 November 2025: supports the design and purpose of the 2 per cent tax, its status as an interim measure, the full annual receipts series (£380m 2021-22, £576m 2022-23, £678m 2023-24, £808m 2024-25) and the £500 million/£25 million revenue thresholds`,
+      `Department for Business and Trade, United States Trade and Investment Factsheet, 23 June 2026: supports the £59.7 billion value of UK goods exports to the United States in 2025 and £202.7 billion of total goods and services exports`,
+      `Reuters, 23 April 2026: records Trump's specific threat to impose a "big tariff" on the UK unless it dropped the Digital Services Tax and his statement that retaliation would be worth more than the tax collected`,
+      `Reuters, 26 June 2026: records Trump's subsequent threat of a 100 per cent tariff on goods from countries imposing digital services taxes on American companies`,
+      `Office for National Statistics, UK trade with the United States, 1 May 2026: supports the 24.7 per cent fall in goods exports between March and April 2025 and the finding that exports remained below pre-tariff levels through February 2026`,
+      `UK Government and White House, General Terms for the US-UK Economic Prosperity Deal, 8 May 2025: supports the scope of the agreement, the 100,000-vehicle tariff quota, planned further digital-trade negotiations and the provision allowing either country to terminate the arrangement on written notice`,
+      `US Trade Representative, UK Digital Services Tax investigation, 2021: supports the US finding that the British tax was discriminatory and actionable under Section 301, the proposed retaliatory tariffs, their suspension and the later termination of the trade action`,
+      `US Supreme Court, Learning Resources Inc v Trump, 20 February 2026: supports the ruling that the International Emergency Economic Powers Act does not authorise the president to impose tariffs`,
+    ],
+    lastChecked: '5 October 2026',
+  },
 };
 
 export default piece;
