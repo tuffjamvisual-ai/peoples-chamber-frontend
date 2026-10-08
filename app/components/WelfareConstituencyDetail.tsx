@@ -74,6 +74,23 @@ function claimantText(c: ClaimantCount | undefined): string | null {
   return `${formatCount(c.value)} ${noun}${change}`
 }
 
+// PIP Motability: constituency-only (no local-authority equivalent),
+// England & Wales only (PIP is devolved in Scotland), so this is only
+// ever populated on the full-scope payload and only ever shown on the
+// PIP row specifically.
+type PipMotability = {
+  enhancedClaimants: number
+  standardClaimants: number
+  nilClaimants: number
+  unknownClaimants: number
+  periodEnd: string
+}
+
+function motabilityText(m: PipMotability | null | undefined): string | null {
+  if (!m) return null
+  return `${formatCount(m.enhancedClaimants)} eligible for a Motability vehicle`
+}
+
 type MpInfo = {
   memberId: string
   name: string
@@ -88,6 +105,7 @@ type FullPayload = {
   constituencyName: string | null
   mp: MpInfo | null
   claimantCounts?: Record<string, ClaimantCount>
+  pipMotability?: PipMotability | null
   data: {
     constituency_gss_code: string
     headline_period_end: string
@@ -214,12 +232,13 @@ function FullView({ payload }: { payload: FullPayload }) {
         {BENEFIT_ORDER.map((key) => {
           const cc = payload.claimantCounts?.[CLAIMANT_METRIC_FOR_BENEFIT[key]]
           const ccText = claimantText(cc)
+          const motText = key === 'pip_spend_estimated_annual' ? motabilityText(payload.pipMotability) : null
           return (
             <DataRow
               key={key}
               label={BENEFIT_LABELS[key]}
               value={formatGBP(m.benefit_breakdown[key])}
-              sub={`${formatGBPPerResident(m.benefit_breakdown[key] / d.population)} per resident${ccText ? ` · ${ccText}` : ''} · Period ending ${formatPeriodEnd(m.benefit_period_ends[key])} · baseline ${formatGBP(m.baseline_benefit_breakdown[key])} (${formatPeriodEnd(m.baseline_benefit_period_ends[key])})`}
+              sub={`${formatGBPPerResident(m.benefit_breakdown[key] / d.population)} per resident${ccText ? ` · ${ccText}` : ''}${motText ? ` · ${motText}` : ''} · Period ending ${formatPeriodEnd(m.benefit_period_ends[key])} · baseline ${formatGBP(m.baseline_benefit_breakdown[key])} (${formatPeriodEnd(m.baseline_benefit_period_ends[key])})`}
             />
           )
         })}

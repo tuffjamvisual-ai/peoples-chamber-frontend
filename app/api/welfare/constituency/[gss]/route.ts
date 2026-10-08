@@ -71,6 +71,44 @@ type ClaimantCount = {
   percentChange: number | null;
 };
 
+// PIP Motability (enhanced-rate mobility component), confirmed live in
+// welfare_constituency_metrics under metric_key='pip_motability_enhanced_claimants'
+// — one row per GB constituency (632 total, no baseline row — this is a
+// snapshot metric, not a two-year-change one). Constituency-only: no
+// local-authority equivalent exists, and Scotland is excluded (PIP is
+// devolved there, same as the main PIP spend/claimant metrics) since
+// this is only ever requested from the non-Scotland branch below.
+type PipMotability = {
+  enhancedClaimants: number;
+  standardClaimants: number;
+  nilClaimants: number;
+  unknownClaimants: number;
+  periodEnd: string;
+};
+
+async function fetchPipMotability(gss: string): Promise<PipMotability | null> {
+  const { data, error } = await supabase
+    .from('welfare_constituency_metrics')
+    .select('value, period_end, metadata_json')
+    .eq('constituency_gss_code', gss)
+    .eq('metric_key', 'pip_motability_enhanced_claimants')
+    .maybeSingle();
+
+  if (error || !data) {
+    if (error) console.error('welfare PIP motability error:', error.message);
+    return null;
+  }
+
+  const m = (data.metadata_json || {}) as { standard?: number; nil?: number; unknown_or_missing?: number };
+  return {
+    enhancedClaimants: data.value,
+    standardClaimants: m.standard ?? 0,
+    nilClaimants: m.nil ?? 0,
+    unknownClaimants: m.unknown_or_missing ?? 0,
+    periodEnd: data.period_end,
+  };
+}
+
 async function fetchClaimantCounts(
   gss: string,
   metricKeys: readonly string[],
@@ -153,12 +191,14 @@ export async function GET(
       .single();
 
     const claimantCounts = await fetchClaimantCounts(gss, FULL_CLAIMANT_METRIC_KEYS);
+    const pipMotability = await fetchPipMotability(gss);
 
     return NextResponse.json({
       scope: 'full',
       data,
       constituencyName: mp?.constituency ?? null,
       claimantCounts,
+      pipMotability,
       mp: mp
         ? {
             memberId: mp.member_id,
