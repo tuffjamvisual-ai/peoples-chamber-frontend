@@ -69,7 +69,7 @@ export async function GET(
     // the partial-scope (Scotland) branch below already does.
     const { data: mp } = await supabase
       .from('mps')
-      .select('member_id, name, constituency, party, party_abbreviation, party_colour')
+      .select('member_id, name, constituency, party, party_abbreviation, party_colour, latest_election_majority')
       .eq('constituency_gss_code', gss)
       .single();
 
@@ -84,6 +84,7 @@ export async function GET(
             party: mp.party,
             partyAbbreviation: mp.party_abbreviation,
             partyColour: mp.party_colour,
+            latestElectionMajority: mp.latest_election_majority,
           }
         : null,
     });
@@ -122,7 +123,7 @@ export async function GET(
   // Also fetch constituency name + MP from mps table
   const { data: mp } = await supabase
     .from('mps')
-    .select('member_id, name, constituency, party, party_abbreviation, party_colour')
+    .select('member_id, name, constituency, party, party_abbreviation, party_colour, latest_election_majority')
     .eq('constituency_gss_code', gss)
     .single();
 
@@ -136,6 +137,7 @@ export async function GET(
           party: mp.party,
           partyAbbreviation: mp.party_abbreviation,
           partyColour: mp.party_colour,
+          latestElectionMajority: mp.latest_election_majority,
         }
       : null,
     benefits,

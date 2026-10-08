@@ -48,6 +48,7 @@ type MpInfo = {
   party?: string | null
   partyAbbreviation?: string | null
   partyColour?: string | null
+  latestElectionMajority?: number | null
 }
 
 type FullPayload = {
@@ -224,9 +225,16 @@ function PartialView({ payload }: { payload: PartialPayload }) {
 
 // mp.name is already stored with a trailing " MP" (e.g. "Kevin Bonavia
 // MP") — confirmed directly against a live mps row — so this only adds
-// the party, never duplicates the "MP" suffix.
+// the party and majority, never duplicates the "MP" suffix. Majority is
+// omitted when null (older MPs not yet backfilled, or a rare edge case
+// the Members API didn't return a result for) rather than showing a
+// misleading "majority —".
 function mpLabel(mp: MpInfo): string {
-  return mp.party ? `${mp.name} (${mp.party})` : mp.name
+  let label = mp.party ? `${mp.name} (${mp.party})` : mp.name
+  if (mp.latestElectionMajority != null) {
+    label += ` · majority ${formatCount(mp.latestElectionMajority)}`
+  }
+  return label
 }
 
 function Header({ kind, name, sub, gssCode, partial }: { kind: string; name: string; sub?: string; gssCode?: string; partial?: boolean }) {
