@@ -94,11 +94,30 @@ function medianWageSub(w: MedianWage | null | undefined): string | null {
   return `Full-time employees working in this area · Period ending ${formatPeriodEnd(w.periodEnd)}`
 }
 
+// LCWRA (Limited Capability for Work and Work-Related Activity) share
+// of the Universal Credit health caseload — same shape as the
+// constituency tier's UcLcwra type.
+type UcLcwra = {
+  lcwraValue: number | null
+  lcw: number | null
+  combinedTotal: number | null
+  lcwraRatioPercent: number | null
+  periodEnd: string
+  status: string
+}
+
+function lcwraText(w: UcLcwra | null | undefined): string | null {
+  if (!w) return null
+  if (w.status === 'suppressed' || w.lcwraValue == null || w.lcwraRatioPercent == null) return null
+  return `${w.lcwraRatioPercent.toFixed(1)}% of the assessed UC health caseload are LCWRA (${formatCount(w.lcwraValue)} of ${formatCount(w.combinedTotal ?? 0)})`
+}
+
 type FullPayload = {
   scope: 'full'
   councilSlug: string | null
   claimantCounts?: Record<string, ClaimantCount>
   medianWage?: MedianWage | null
+  ucLcwra?: UcLcwra | null
   data: {
     council_gss_code: string
     council_name: string
@@ -128,6 +147,7 @@ type PartialPayload = {
   councilSlug: string | null
   claimantCounts?: Record<string, ClaimantCount>
   medianWage?: MedianWage | null
+  ucLcwra?: UcLcwra | null
   benefits: Record<string, { value: number; periodEnd: string; unit: string; status: string }>
   note: string
 }
@@ -228,12 +248,13 @@ function FullView({ payload }: { payload: FullPayload }) {
         {BENEFIT_ORDER.map((key) => {
           const cc = payload.claimantCounts?.[CLAIMANT_METRIC_FOR_BENEFIT[key]]
           const ccText = claimantText(cc)
+          const lcwraTextValue = key === 'uc_spend_estimated_annual' ? lcwraText(payload.ucLcwra) : null
           return (
             <DataRow
               key={key}
               label={BENEFIT_LABELS[key]}
               value={formatGBP(m.benefit_breakdown[key])}
-              sub={`${formatGBPPerResident(m.benefit_breakdown[key] / d.population)} per resident${ccText ? ` · ${ccText}` : ''} · Period ending ${formatPeriodEnd(m.benefit_period_ends[key])} · baseline ${formatGBP(m.baseline_benefit_breakdown[key])} (${formatPeriodEnd(m.baseline_benefit_period_ends[key])})`}
+              sub={`${formatGBPPerResident(m.benefit_breakdown[key] / d.population)} per resident${ccText ? ` · ${ccText}` : ''}${lcwraTextValue ? ` · ${lcwraTextValue}` : ''} · Period ending ${formatPeriodEnd(m.benefit_period_ends[key])} · baseline ${formatGBP(m.baseline_benefit_breakdown[key])} (${formatPeriodEnd(m.baseline_benefit_period_ends[key])})`}
             />
           )
         })}
@@ -267,12 +288,13 @@ function PartialView({ payload }: { payload: PartialPayload }) {
           if (!b) return null
           const cc = payload.claimantCounts?.[CLAIMANT_METRIC_FOR_BENEFIT[key]]
           const ccText = claimantText(cc)
+          const lcwraTextValue = key === 'uc_spend_estimated_annual' ? lcwraText(payload.ucLcwra) : null
           return (
             <DataRow
               key={key}
               label={BENEFIT_LABELS[key]}
               value={formatGBP(b.value)}
-              sub={`${ccText ? `${ccText} · ` : ''}Period ending ${formatPeriodEnd(b.periodEnd)}`}
+              sub={`${ccText ? `${ccText} · ` : ''}${lcwraTextValue ? `${lcwraTextValue} · ` : ''}Period ending ${formatPeriodEnd(b.periodEnd)}`}
             />
           )
         })}

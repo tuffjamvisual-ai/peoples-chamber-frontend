@@ -102,6 +102,46 @@ async function fetchMedianWage(gss: string): Promise<MedianWage | null> {
   return { value: data.value, periodEnd: data.period_end, status: data.status };
 }
 
+// LCWRA (Limited Capability for Work and Work-Related Activity) share
+// of the Universal Credit health caseload, confirmed live in
+// welfare_local_authority_metrics under metric_key='uc_lcwra_claimants'
+// — same shape as the constituency tier. UC/WCA is not devolved to
+// Scotland, so this is requested from BOTH the full-scope (England &
+// Wales) and partial-scope (Scotland) branches below, same as
+// medianWage above.
+type UcLcwra = {
+  lcwraValue: number | null;
+  lcw: number | null;
+  combinedTotal: number | null;
+  lcwraRatioPercent: number | null;
+  periodEnd: string;
+  status: string;
+};
+
+async function fetchUcLcwra(gss: string): Promise<UcLcwra | null> {
+  const { data, error } = await supabase
+    .from('welfare_local_authority_metrics')
+    .select('value, period_end, status, metadata_json')
+    .eq('council_gss_code', gss)
+    .eq('metric_key', 'uc_lcwra_claimants')
+    .maybeSingle();
+
+  if (error || !data) {
+    if (error) console.error('welfare LA UC LCWRA error:', error.message);
+    return null;
+  }
+
+  const m = (data.metadata_json || {}) as { lcw?: number; combined_total?: number; lcwra_ratio_percent?: number };
+  return {
+    lcwraValue: data.value,
+    lcw: m.lcw ?? null,
+    combinedTotal: m.combined_total ?? null,
+    lcwraRatioPercent: m.lcwra_ratio_percent ?? null,
+    periodEnd: data.period_end,
+    status: data.status,
+  };
+}
+
 async function fetchClaimantCounts(
   gss: string,
   metricKeys: readonly string[],
@@ -191,8 +231,9 @@ export async function GET(
 
     const claimantCounts = await fetchClaimantCounts(gss, FULL_CLAIMANT_METRIC_KEYS);
     const medianWage = await fetchMedianWage(gss);
+    const ucLcwra = await fetchUcLcwra(gss);
 
-    return NextResponse.json({ scope: 'full', data, councilSlug: council?.slug ?? null, claimantCounts, medianWage });
+    return NextResponse.json({ scope: 'full', data, councilSlug: council?.slug ?? null, claimantCounts, medianWage, ucLcwra });
   }
 
   // ── partial scope: read live metrics for 3 reserved benefits ─────────
@@ -237,6 +278,7 @@ export async function GET(
 
   const claimantCounts = await fetchClaimantCounts(gss, PARTIAL_CLAIMANT_METRIC_KEYS);
   const medianWage = await fetchMedianWage(gss);
+  const ucLcwra = await fetchUcLcwra(gss);
 
   return NextResponse.json({
     scope: 'partial',
@@ -244,6 +286,7 @@ export async function GET(
     councilSlug: council?.slug ?? null,
     claimantCounts,
     medianWage,
+    ucLcwra,
     benefits,
     note: 'PIP, DLA, and Carer\'s Allowance are devolved in Scotland. Only UC, Housing Benefit, and ESA (GB-wide reserved benefits) are shown. No national ranking is available.',
   });
