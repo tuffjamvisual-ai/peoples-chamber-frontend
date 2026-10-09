@@ -153,7 +153,7 @@ type PartialPayload = {
 
 type Payload = FullPayload | PartialPayload
 
-export default function WelfareLocalAuthorityDetail({ gss }: { gss: string }) {
+export default function WelfareLocalAuthorityDetail({ gss }: { gss: string; embedded?: boolean }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [payload, setPayload] = useState<Payload | null>(null)

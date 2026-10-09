@@ -8,6 +8,7 @@ import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
+import WelfareLocalAuthorityDetail from '../../components/WelfareLocalAuthorityDetail';
 
 export const revalidate = 21600;
 
@@ -58,6 +59,19 @@ type CouncilFull = {
 
 type RelatedCouncil = { slug: string; name: string; short_name: string | null; political_control: string | null };
 
+// Barnsley and Sheffield only: the councils table uses the new 2025
+// boundary-reorganisation codes (E08000038 / E08000039), but the welfare
+// data (welfare_local_authority_metrics / welfare_local_authority_summary,
+// populated via DWP/Nomis imports) uses the old pre-2025 codes
+// (E08000016 / E08000019) — see the same map's comment in
+// app/api/welfare/local-authority/[gss]/route.ts for the full
+// explanation. This is the reverse direction: councils.gss_code → the
+// welfare tables' key.
+const COUNCILS_TO_WELFARE_GSS: Record<string, string> = {
+  E08000038: 'E08000016', // Barnsley
+  E08000039: 'E08000019', // Sheffield
+};
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const { data } = await supabase.from('councils').select('name, type_label, country').eq('slug', slug).single();
@@ -98,6 +112,19 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
   const hasLeadership = c.political_control != null || c.leader_name != null || c.chief_exec != null;
   const hasOverview =
     c.population != null || c.founded_year != null || c.website_url != null;
+
+  // Welfare spending section: counties are upper-tier aggregates with no
+  // welfare row of their own (districts/unitaries hold the actual
+  // benefit data) — the "Districts under X" list below is the correct
+  // drill-down path for those, so this section is skipped for them.
+  // Northern Ireland councils are also excluded: the welfare explorer is
+  // GB-only (England/Wales/Scotland — DWP Stat-Xplore and ONS/Nomis
+  // don't cover NI benefits the same way), and NI GSS codes (starting
+  // "N") don't match the welfare API's accepted shape (/^[EWS]\d{8}$/)
+  // anyway, so showing this section there would only ever surface a
+  // confusing "no data found" error rather than a genuine gap.
+  const welfareGss = COUNCILS_TO_WELFARE_GSS[c.gss_code] ?? c.gss_code;
+  const showWelfare = c.type !== 'county' && /^[EWS]\d{8}$/.test(welfareGss);
 
   return (
     <OpenGovShell pageStamp="Councils">
@@ -190,6 +217,15 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
               } />
             )}
           </Section>
+        )}
+
+        {showWelfare && (
+          <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
+            <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
+              Welfare spending
+            </h2>
+            <WelfareLocalAuthorityDetail gss={welfareGss} embedded />
+          </section>
         )}
 
         {!hasLeadership && !hasFinance && !hasOverview && (
