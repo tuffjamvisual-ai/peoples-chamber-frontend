@@ -153,7 +153,7 @@ type PartialPayload = {
 
 type Payload = FullPayload | PartialPayload
 
-export default function WelfareLocalAuthorityDetail({ gss }: { gss: string; embedded?: boolean }) {
+export default function WelfareLocalAuthorityDetail({ gss, embedded }: { gss: string; embedded?: boolean }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [payload, setPayload] = useState<Payload | null>(null)
@@ -199,23 +199,25 @@ export default function WelfareLocalAuthorityDetail({ gss }: { gss: string; embe
         fontFamily: SERIF,
       }}
     >
-      {payload.scope === 'full' ? <FullView payload={payload} /> : <PartialView payload={payload} />}
+      {payload.scope === 'full' ? <FullView payload={payload} embedded={embedded} /> : <PartialView payload={payload} embedded={embedded} />}
     </article>
   )
 }
 
-function FullView({ payload }: { payload: FullPayload }) {
+function FullView({ payload, embedded }: { payload: FullPayload; embedded?: boolean }) {
   const d = payload.data
   const m = d.metadata_json
 
   return (
     <>
-      <Header
-        kind="Local authority"
-        name={d.council_name}
-        gssCode={d.council_gss_code}
-        councilSlug={payload.councilSlug}
-      />
+      {!embedded && (
+        <Header
+          kind="Local authority"
+          name={d.council_name}
+          gssCode={d.council_gss_code}
+          councilSlug={payload.councilSlug}
+        />
+      )}
 
       <Section title="Headline figures">
         <DataRow label="Total six-benefit spend" value={formatGBP(d.total_six_benefit_spend)} sub={`Period ending ${formatPeriodEnd(d.headline_period_end)}`} />
@@ -258,16 +260,18 @@ function FullView({ payload }: { payload: FullPayload }) {
   )
 }
 
-function PartialView({ payload }: { payload: PartialPayload }) {
+function PartialView({ payload, embedded }: { payload: PartialPayload; embedded?: boolean }) {
   const reservedOrder = ['uc_spend_estimated_annual', 'hb_spend_estimated_annual', 'esa_spend_estimated_annual']
   return (
     <>
-      <Header
-        kind="Local authority"
-        name={payload.councilName || 'Scotland'}
-        partial
-        councilSlug={payload.councilSlug}
-      />
+      {!embedded && (
+        <Header
+          kind="Local authority"
+          name={payload.councilName || 'Scotland'}
+          partial
+          councilSlug={payload.councilSlug}
+        />
+      )}
 
       <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
         <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.75, color: INK, margin: 0 }}>{payload.note}</p>
