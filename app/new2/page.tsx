@@ -22,7 +22,8 @@ import { Oswald, Roboto_Condensed } from 'next/font/google';
 // We load them through next/font instead: self-hosted, reliable, and it avoids the name
 // clash with the app's own next/font "Oswald" (which only registers 400;600 and made the
 // masthead title render too wide / wrap). Unique CSS variables keep this page isolated.
-const oswald = Oswald({ subsets: ['latin'], weight: ['500', '700'], variable: '--f-oswald', display: 'swap' });
+const oswald500 = Oswald({ subsets: ['latin'], weight: ['500'], variable: '--f-oswald-500', display: 'swap' });
+const oswald = Oswald({ subsets: ['latin'], weight: ['700'], variable: '--f-oswald', display: 'swap' });
 const robotoCond = Roboto_Condensed({ subsets: ['latin'], weight: ['700'], variable: '--f-roboto-cond', display: 'swap' });
 
 export const metadata: Metadata = {
@@ -172,8 +173,8 @@ export default async function New2Page({
           justify-content: center;
           color: var(--red);
         }
-        .new2-root .issue-title { font-family: var(--f-oswald), 'Oswald', serif; font-size: 35px; color: #111; letter-spacing: 1px; }
-        .new2-root .issue-date { font-family: var(--f-oswald), 'Oswald', serif; font-size: 17px; margin-top: 8px; }
+        .new2-root .issue-title { font-family: var(--f-oswald-500), var(--f-oswald), 'Oswald', serif; font-size: 35px; color: #111; letter-spacing: 1px; }
+        .new2-root .issue-date { font-family: var(--f-oswald-500), var(--f-oswald), 'Oswald', serif; font-size: 17px; margin-top: 8px; }
         .new2-root .issue-rule { width: 120px; height: 1px; background: var(--red); margin-top: 8px; }
         .new2-root .tiny-star { position: absolute; font-size: 21px; color: var(--red); background: var(--paper-light); padding: 0 8px; }
         .new2-root .tiny-star.top { top: -15px; }
@@ -256,7 +257,7 @@ export default async function New2Page({
         }
       `}</style>
 
-      <div className={`new2-root ${oswald.variable} ${robotoCond.variable}`}>
+      <div className={`new2-root ${oswald500.variable} ${oswald.variable} ${robotoCond.variable}`}>
         <main className="page-shell">
           <section className="paper" aria-label="opengovt front page">
             <header className="masthead">
