@@ -59,6 +59,78 @@ type CouncilFull = {
 
 type RelatedCouncil = { slug: string; name: string; short_name: string | null; political_control: string | null };
 
+type PublicHealthMetricRow = {
+  metric_key: string;
+  value: number | null;
+  unit: string | null;
+  source: string;
+  nation: string;
+  period_label: string | null;
+};
+
+const PUBLIC_HEALTH_SOURCE_LABELS: Record<string, string> = {
+  fingertips: 'OHID Fingertips',
+  scottish_health_survey: 'Scottish Health Survey',
+  ons_life_expectancy_gb: 'ONS',
+  ons_life_expectancy_ni: 'ONS',
+};
+
+type ServiceSpendingRow = {
+  service_category: string;
+  value_pounds: number | null;
+  source: string;
+  period_label: string | null;
+};
+
+const SERVICE_SPENDING_SOURCE_LABELS: Record<string, string> = {
+  mhclg_rsx: 'MHCLG (outturn)',
+  scotland_lfr: 'Scottish Government (outturn)',
+  statswales: 'StatsWales (outturn)',
+};
+
+// The single category in each nation's data that represents the whole
+// council's spending, rather than one service — used to show a
+// prominent total and excluded from the per-service breakdown list
+// below it. Scotland's 8 LFR workbooks have no such aggregate category
+// at all (confirmed live on 2026-10-09), so its total is computed by
+// summing its 8 real service rows instead.
+const SERVICE_SPENDING_AGGREGATE_CATEGORY: Record<string, string> = {
+  England: 'Total Service Expenditure',
+  Wales: 'Revenue expenditure',
+};
+
+// Nation-specific council tax composition, each confirmed against a
+// primary source on 2026-10-09 rather than reused from the England
+// wording: Scotland has no police/fire precept at all (Police Scotland
+// and the Scottish Fire and Rescue Service are single national bodies
+// funded directly by the Scottish Government — confirmed via Argyll &
+// Bute's own "your council tax bill explained" page, which lists only
+// council tax plus Scottish Water's water/sewerage charges); Wales has
+// a police precept and town/community council precepts but NO fire
+// precept (fire authorities are funded by a levy on their constituent
+// councils, confirmed via North Wales Fire and Rescue's own budget
+// booklet, so fire cost sits inside the council's own spending, not a
+// separate bill line) and is single-tier throughout (no county/district
+// split).
+const COUNCIL_TAX_CAVEAT_BY_NATION: Record<string, string> = {
+  England:
+    'This is the council’s own share only. Police and fire precepts — and, in two-tier areas, the county or district precept — are added separately for the final bill. See Council Spending by Service below for how this council itself spends.',
+  Scotland:
+    'This is the council’s own charge. Scottish Water’s water and sewerage charges are added on the same bill. Police Scotland and the Scottish Fire and Rescue Service are national bodies funded by the Scottish Government, not through council tax. See Council Spending by Service below for how this council itself spends.',
+  Wales:
+    'This is the council’s own share. The police precept, and any town or community council precept, are added separately for the final bill. Fire services in Wales are funded by a levy on the council itself, not shown as a separate precept here. See Council Spending by Service below for how this council itself spends.',
+};
+
+// Rounds to the nearest £m and formats negative values with a proper
+// minus sign before the £ (not "£-7m") — flagged from a live browser
+// check on 2026-10-09 (Birmingham's "Planning and development services"
+// row).
+function formatPoundsMillions(valuePounds: number): string {
+  const millions = Math.round(valuePounds / 1000000);
+  const abs = Math.abs(millions).toLocaleString();
+  return millions < 0 ? `−£${abs}m` : `£${abs}m`;
+}
+
 // Barnsley and Sheffield: no translation needed. This used to translate
 // councils.gss_code on the assumption it stored the new 2025
 // boundary-reorganisation codes (E08000038 / E08000039) while the
@@ -127,6 +199,60 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
   const welfareGss = c.gss_code;
   const showWelfare = c.type !== 'county' && /^[EWS]\d{8}$/.test(welfareGss);
 
+  // Public health metrics: same county exclusion as welfare — upper-tier
+  // counties have no row of their own in council_public_health_metrics
+  // (every source publishes at district/unitary/council level, not
+  // county level), so this section is skipped for them too, same
+  // drill-down-via-districts reasoning as welfare above.
+  const { data: publicHealthRows } = c.type !== 'county'
+    ? await supabase
+        .from('council_public_health_metrics')
+        .select('metric_key, value, unit, source, nation, period_label')
+        .eq('council_gss_code', c.gss_code)
+    : { data: [] };
+  const publicHealthByKey = new Map(
+    ((publicHealthRows || []) as PublicHealthMetricRow[]).map((r) => [r.metric_key, r]),
+  );
+  const showPublicHealth = publicHealthByKey.size > 0;
+
+  // Service spending breakdown: unlike welfare/public health, English
+  // county councils DO have their own real rows here (education, social
+  // care, highways etc. are genuinely county-level services in a
+  // two-tier area), so no county exclusion is applied. Northern Ireland
+  // councils get zero rows by design — confirmed via the NI Audit
+  // Office's own report that no comparable breakdown is published for
+  // NI — and the section simply doesn't render for them.
+  const { data: serviceSpendingRows } = await supabase
+    .from('council_service_spending')
+    .select('service_category, value_pounds, source, period_label')
+    .eq('council_gss_code', c.gss_code);
+  const allSpendingRows = (serviceSpendingRows || []) as ServiceSpendingRow[];
+  const aggregateCategory = SERVICE_SPENDING_AGGREGATE_CATEGORY[c.country];
+  const spendingAggregateRow = aggregateCategory
+    ? allSpendingRows.find((r) => r.service_category === aggregateCategory)
+    : undefined;
+  const spendingBreakdownRows = allSpendingRows
+    .filter((r) => r.service_category !== aggregateCategory && r.value_pounds != null)
+    .sort((a, b) => (b.value_pounds ?? 0) - (a.value_pounds ?? 0));
+  const spendingTotalPounds =
+    spendingAggregateRow?.value_pounds ??
+    (spendingBreakdownRows.length > 0
+      ? spendingBreakdownRows.reduce((sum, r) => sum + (r.value_pounds ?? 0), 0)
+      : null);
+  const spendingPeriodLabel = (spendingAggregateRow ?? spendingBreakdownRows[0])?.period_label ?? null;
+  const spendingSource = (spendingAggregateRow ?? spendingBreakdownRows[0])?.source ?? null;
+  const showServiceSpending = spendingBreakdownRows.length > 0;
+  // Rows that round to £0m are hidden from the displayed list (not from
+  // the total, which is still computed from every row) — flagged from a
+  // live browser check on 2026-10-09: Birmingham showing "Police
+  // services £0m" / "Fire and rescue services £0m" reads as "this
+  // council spends nothing on policing," when the real reason is simply
+  // that policing/fire aren't this council's own function and are
+  // funded via a separate precept instead.
+  const spendingDisplayRows = spendingBreakdownRows.filter(
+    (r) => r.value_pounds != null && Math.round(r.value_pounds / 1000000) !== 0,
+  );
+
   return (
     <OpenGovShell pageStamp="Councils">
       <BackLink
@@ -192,7 +318,15 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
         {hasFinance && (
           <Section title="Finance">
             <DataRow label="Annual revenue budget" value={c.revenue_budget_mn != null ? `£${c.revenue_budget_mn.toLocaleString()}m` : null} />
-            <DataRow label="Council tax (Band D)" value={c.council_tax_band_d_pounds != null ? `£${c.council_tax_band_d_pounds.toLocaleString()}` : null} />
+            <DataRow
+              label="Council tax (Band D)"
+              value={c.council_tax_band_d_pounds != null ? `£${c.council_tax_band_d_pounds.toLocaleString()}` : null}
+              sub={
+                c.council_tax_band_d_pounds != null
+                  ? COUNCIL_TAX_CAVEAT_BY_NATION[c.country] || null
+                  : null
+              }
+            />
             {c.ni_district_rate_poundage != null && (
               <DataRow
                 label="District rate (NI)"
@@ -227,6 +361,51 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
             </h2>
             <WelfareLocalAuthorityDetail gss={welfareGss} embedded />
           </section>
+        )}
+
+        {showPublicHealth && (
+          <Section title="Public Health">
+            <PublicHealthRow label="Smoking (adults)" row={publicHealthByKey.get('smoking_prevalence')} nation={c.country} />
+            <PublicHealthRow label="Physically active (adults)" row={publicHealthByKey.get('physical_activity_prevalence')} nation={c.country} />
+            <PublicHealthRow label="Overweight or obese (adults)" row={publicHealthByKey.get('obesity_prevalence')} nation={c.country} />
+            <PublicHealthRow label="Life expectancy (male)" row={publicHealthByKey.get('life_expectancy_male')} nation={c.country} isYears />
+            <PublicHealthRow label="Life expectancy (female)" row={publicHealthByKey.get('life_expectancy_female')} nation={c.country} isYears />
+          </Section>
+        )}
+
+        {showServiceSpending && (
+          <Section title="Council Spending by Service">
+            <DataRow
+              label="Total"
+              value={spendingTotalPounds != null ? formatPoundsMillions(spendingTotalPounds) : null}
+              sub={
+                [
+                  spendingPeriodLabel,
+                  spendingSource ? SERVICE_SPENDING_SOURCE_LABELS[spendingSource] || spendingSource : null,
+                  !spendingAggregateRow
+                    ? `Sum of this council's ${spendingBreakdownRows.length} reported service categories — ${c.country} does not publish a single total figure in this source.`
+                    : null,
+                  c.revenue_budget_mn != null
+                    ? 'May not match "Annual revenue budget" above — that figure is a different accounting measure (budgeted resource requirement) for a different year than this outturn total.'
+                    : null,
+                ]
+                  .filter(Boolean)
+                  .join(' · ')
+              }
+            />
+            {spendingDisplayRows.map((row) => (
+              <DataRow
+                key={row.service_category}
+                label={row.service_category}
+                value={row.value_pounds != null ? formatPoundsMillions(row.value_pounds) : null}
+                sub={
+                  row.service_category === 'Council fund housing and housing benefit'
+                    ? 'May overlap with the Housing Benefit figure shown in the Welfare section above — StatsWales does not document how the two relate.'
+                    : null
+                }
+              />
+            ))}
+          </Section>
         )}
 
         {!hasLeadership && !hasFinance && !hasOverview && (
@@ -298,6 +477,43 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       </dl>
     </section>
   );
+}
+
+function PublicHealthRow({
+  label,
+  row,
+  nation,
+  isYears,
+}: {
+  label: string;
+  row: PublicHealthMetricRow | undefined;
+  nation: string;
+  isYears?: boolean;
+}) {
+  // No row at all (shouldn't normally happen given showPublicHealth's
+  // check, but covers a council missing just this one metric) — skip
+  // rather than show a misleading "no data" for something never queried.
+  if (!row) return null;
+
+  if (row.value == null) {
+    // Deliberately worded as "no data available" rather than "not
+    // available" or "unsupported" — see the migration's note: this
+    // reflects that no local-authority-level source currently exists
+    // for this nation, not a permanent gap.
+    return (
+      <DataRow
+        label={label}
+        value="No data available"
+        sub={`Not currently published at local-authority level for ${nation}.`}
+      />
+    );
+  }
+
+  const formattedValue = isYears ? `${row.value.toFixed(1)} years` : `${row.value.toFixed(1)}%`;
+  const sourceLabel = PUBLIC_HEALTH_SOURCE_LABELS[row.source] || row.source;
+  const sub = row.period_label ? `${row.period_label} · ${sourceLabel}` : sourceLabel;
+
+  return <DataRow label={label} value={formattedValue} sub={sub} />;
 }
 
 function DataRow({ label, value, sub, valueColour }: { label: string; value: React.ReactNode | null; sub?: string | null; valueColour?: string }) {
