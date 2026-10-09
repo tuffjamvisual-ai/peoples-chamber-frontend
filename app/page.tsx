@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase';
 import { govUrlToSlug } from '@/lib/govUrlSlug';
 import { normalizeOrg, resolveOrgHref } from '@/lib/govOrgSlug';
 import { departments } from '@/lib/departments';
+import CouncilSearch from './components/CouncilSearch';
 import './home-front.css';
 
 function fmtGovDate(iso: string | null | undefined): string {
@@ -174,6 +175,16 @@ export default async function HomePage() {
                   </button>
                 </div>
               </form>
+
+              <section aria-label="Find your local authority" style={{ marginBottom: '28px' }}>
+                <h2 style={{ fontFamily: "'Special Elite', monospace", fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 2px' }}>
+                  Local authority data
+                </h2>
+                <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '12px', color: 'rgba(20,16,13,0.55)', margin: '0 0 12px', letterSpacing: '0.04em' }}>
+                  Every UK council&rsquo;s spending, leadership, finances and welfare caseload on one page
+                </p>
+                <CouncilSearch />
+              </section>
 
               <div style={{ display: 'flex', gap: '28px', marginBottom: '24px', flexWrap: 'wrap' }}>
                 {counts.mps > 0 && (
