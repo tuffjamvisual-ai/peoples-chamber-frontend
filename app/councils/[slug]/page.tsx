@@ -59,18 +59,19 @@ type CouncilFull = {
 
 type RelatedCouncil = { slug: string; name: string; short_name: string | null; political_control: string | null };
 
-// Barnsley and Sheffield only: the councils table uses the new 2025
-// boundary-reorganisation codes (E08000038 / E08000039), but the welfare
-// data (welfare_local_authority_metrics / welfare_local_authority_summary,
-// populated via DWP/Nomis imports) uses the old pre-2025 codes
-// (E08000016 / E08000019) — see the same map's comment in
-// app/api/welfare/local-authority/[gss]/route.ts for the full
-// explanation. This is the reverse direction: councils.gss_code → the
-// welfare tables' key.
-const COUNCILS_TO_WELFARE_GSS: Record<string, string> = {
-  E08000038: 'E08000016', // Barnsley
-  E08000039: 'E08000019', // Sheffield
-};
+// Barnsley and Sheffield: no translation needed. This used to translate
+// councils.gss_code on the assumption it stored the new 2025
+// boundary-reorganisation codes (E08000038 / E08000039) while the
+// welfare tables used the old pre-2025 codes (E08000016 / E08000019).
+// That assumption was never actually checked against the real table —
+// confirmed directly on 2026-10-09 while building the full-UK public
+// health metrics import that councils.gss_code stores the OLD codes
+// for these two councils too, same as the welfare tables. This map was
+// a harmless no-op in practice (the lookup below always fell through to
+// its `?? c.gss_code` fallback), but it documented a wrong assumption
+// that caused two real bugs elsewhere — see app/api/councils/lookup/
+// route.ts and app/api/welfare/local-authority/[gss]/route.ts — so it's
+// removed here rather than left as misleading dead code.
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -123,7 +124,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
   // "N") don't match the welfare API's accepted shape (/^[EWS]\d{8}$/)
   // anyway, so showing this section there would only ever surface a
   // confusing "no data found" error rather than a genuine gap.
-  const welfareGss = COUNCILS_TO_WELFARE_GSS[c.gss_code] ?? c.gss_code;
+  const welfareGss = c.gss_code;
   const showWelfare = c.type !== 'county' && /^[EWS]\d{8}$/.test(welfareGss);
 
   return (

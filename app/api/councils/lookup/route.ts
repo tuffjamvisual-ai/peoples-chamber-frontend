@@ -20,19 +20,19 @@ export const dynamic = 'force-dynamic';
 // documented in /api/welfare/lookup. Falls back to admin_district, which
 // reliably gives S12 codes, exactly as that route does.
 //
-// BARNSLEY / SHEFFIELD: lau2 returns the old pre-2025 DWP/Nomis-vintage
-// codes (E08000016 / E08000019) for these two councils specifically, but
-// the councils table was updated with the new 2025 boundary-reorganisation
-// codes (E08000038 / E08000039) — see the same translation map's comment
-// in app/api/welfare/local-authority/[gss]/route.ts for the full
-// explanation. Translated here, for this lookup only.
+// BARNSLEY / SHEFFIELD: NO translation needed. lau2 returns the old
+// pre-2025 DWP/Nomis-vintage codes (E08000016 / E08000019) for these two
+// councils, and — confirmed directly against the live councils table on
+// 2026-10-09 while building the full-UK public health metrics import —
+// councils.gss_code ALSO stores those same old codes, not the new 2025
+// boundary-reorganisation codes (E08000038 / E08000039) as earlier
+// comments in this codebase assumed. That assumption was never actually
+// checked against the real table; this route was translating a correct
+// lau2 code into a code that doesn't exist in councils.gss_code at all,
+// so every Barnsley/Sheffield postcode lookup here was returning
+// 'notfound'. The fix is simply: don't translate, use lau2 as-is.
 
 const POSTCODE_RE = /^[A-Z]{1,2}\d[A-Z\d]?\d[A-Z]{2}$/;
-
-const BARNSLEY_SHEFFIELD_NEW_CODES: Record<string, string> = {
-  E08000016: 'E08000038', // Barnsley
-  E08000019: 'E08000039', // Sheffield
-};
 
 type PostcodesIoResult = {
   admin_district?: string | null;
@@ -68,8 +68,6 @@ export async function GET(req: NextRequest) {
   if (!councilGss) {
     return NextResponse.json({ error: 'notfound', message: "Couldn't determine a council for that postcode." }, { status: 404 });
   }
-
-  councilGss = BARNSLEY_SHEFFIELD_NEW_CODES[councilGss] ?? councilGss;
 
   const { data, error } = await supabase
     .from('councils')

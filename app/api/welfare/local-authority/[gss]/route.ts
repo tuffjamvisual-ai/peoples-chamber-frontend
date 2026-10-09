@@ -22,13 +22,14 @@ export const dynamic = 'force-dynamic';
 // BARNSLEY / SHEFFIELD CODE VINTAGE
 // ───────────────────────────────────
 // postcodes.io's lau2 field returns old pre-2025 GSS codes for these
-// two councils (E08000016 / E08000019) which is also what DWP/Nomis
-// use, so lookup → welfare data join works without any translation.
-// HOWEVER the councils table (used here to get the LA's slug for the
-// "view council profile" link) was updated with the new 2025 codes
-// (E08000038 / E08000039). We translate for that one specific lookup
-// only — nowhere else — so welfare data keying and scope detection
-// continue to use the old codes throughout.
+// two councils (E08000016 / E08000019), which is also what DWP/Nomis
+// use AND what the councils table itself stores — confirmed directly
+// against the live councils table on 2026-10-09. No translation is
+// needed anywhere in this route; the codebase previously assumed the
+// councils table had been updated to the new 2025 codes (E08000038 /
+// E08000039) and translated for the "view council profile" slug lookup
+// on that basis, which was wrong and silently broke that one link for
+// these two councils (fixed in this same update).
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -188,13 +189,18 @@ async function fetchClaimantCounts(
   return result;
 }
 
-// Barnsley and Sheffield only: maps old DWP-vintage codes (welfare tables)
-// to new 2025 council-reorganisation codes (councils table slugs).
-// Do NOT use this map for anything except the councils table slug lookup.
-const BARNSLEY_SHEFFIELD_NEW_CODES: Record<string, string> = {
-  E08000016: 'E08000038', // Barnsley
-  E08000019: 'E08000039', // Sheffield
-};
+// Barnsley and Sheffield: NO translation needed for the councils table
+// slug lookup below. This used to translate the old DWP-vintage codes
+// (E08000016/E08000019, which `gss` correctly is here) to the "new 2025
+// council-reorganisation codes" (E08000038/E08000039) on the assumption
+// that councils.gss_code had been updated to those new codes. That was
+// never actually checked against the real table — confirmed directly on
+// 2026-10-09 while building the full-UK public health metrics import
+// that councils.gss_code still stores the OLD codes for these two
+// councils, same as the welfare tables. Translating made the slug
+// lookup below query a code that doesn't exist in councils.gss_code at
+// all, so the "view council profile" link silently came back null for
+// Barnsley and Sheffield specifically. Fix: use gss as-is, no map.
 
 export async function GET(
   _req: NextRequest,
@@ -221,12 +227,10 @@ export async function GET(
     }
 
     // councils table slug lookup (for "view council profile" link)
-    // Translate Barnsley/Sheffield to their new 2025 codes for this lookup only
-    const councilsGss = BARNSLEY_SHEFFIELD_NEW_CODES[gss] ?? gss;
     const { data: council } = await supabase
       .from('councils')
       .select('slug')
-      .eq('gss_code', councilsGss)
+      .eq('gss_code', gss)
       .single();
 
     const claimantCounts = await fetchClaimantCounts(gss, FULL_CLAIMANT_METRIC_KEYS);
@@ -268,12 +272,11 @@ export async function GET(
     }
   }
 
-  // councils table slug lookup (Scottish councils also have rows, using new codes if applicable)
-  const councilsGss = BARNSLEY_SHEFFIELD_NEW_CODES[gss] ?? gss;
+  // councils table slug lookup
   const { data: council } = await supabase
     .from('councils')
     .select('slug')
-    .eq('gss_code', councilsGss)
+    .eq('gss_code', gss)
     .single();
 
   const claimantCounts = await fetchClaimantCounts(gss, PARTIAL_CLAIMANT_METRIC_KEYS);
