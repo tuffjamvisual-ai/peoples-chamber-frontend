@@ -16,7 +16,6 @@ const EW_LA_COUNT = 318
 const INK = '#14100d'
 const INK_SOFT = 'rgba(20,16,13,0.65)'
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)'
-const PARCHMENT_CREAM = '#efe6d2'
 const ACCENT = '#7a1612'
 const SERIF = 'EB Garamond, Garamond, Georgia, "Times New Roman", serif'
 const MONO = 'Special Elite, monospace'
@@ -196,10 +195,6 @@ export default function WelfareLocalAuthorityDetail({ gss }: { gss: string }) {
   return (
     <article
       style={{
-        background: `${PARCHMENT_CREAM} url('/bill-parchment.webp') center top / 100% auto repeat-y`,
-        border: '1px solid rgba(26,20,14,0.3)',
-        boxShadow: '0 1px 0 rgba(26,20,14,0.05), 0 22px 44px -22px rgba(26,20,14,0.35)',
-        padding: 'clamp(28px, 4vw, 56px) clamp(24px, 4vw, 60px)',
         color: '#1a140e',
         fontFamily: SERIF,
       }}
