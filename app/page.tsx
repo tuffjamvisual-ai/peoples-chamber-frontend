@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { unstable_cache } from 'next/cache';
 import JsonLd, { buildHomepageGraph } from '@/lib/JsonLd';
 import OpenGovShell from './components/OpenGovShell';
 import { computeReaderViAggregate, READER_VI_PARTIES } from '@/lib/readerVi';
@@ -18,25 +17,6 @@ function fmtGovDate(iso: string | null | undefined): string {
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-const getHomepageCounts = unstable_cache(
-  async () => {
-    const [mpsRes, releasesRes, divisionsRes] = await Promise.all([
-      supabase.from('mps').select('*', { count: 'exact', head: true }).eq('current_member', true),
-      supabase.from('press_releases').select('*', { count: 'exact', head: true }).not('removed_upstream', 'is', true).not('gov_url', 'is', null),
-      supabase.from('commons_divisions_fts').select('*', { count: 'exact', head: true }),
-    ]);
-    if (mpsRes.error) console.error('getHomepageCounts mps error:', mpsRes.error.message);
-    if (releasesRes.error) console.error('getHomepageCounts releases error:', releasesRes.error.message);
-    if (divisionsRes.error) console.error('getHomepageCounts divisions error:', divisionsRes.error.message);
-    return {
-      mps:           mpsRes.count       ?? 0,
-      pressReleases: releasesRes.count  ?? 0,
-      divisions:     divisionsRes.count ?? 0,
-    };
-  },
-  ['homepage-counts'],
-  { revalidate: 86400 },
-);
 
 // The new "OPEN GOVERNMENT" front page: the dossier-folder template (OpenGovShell)
 // with the front-page article layout. Replaces the previous pca-art newspaper.
@@ -124,8 +104,6 @@ export default async function HomePage() {
     })
     .slice(0, 5);
 
-  const counts = await getHomepageCounts();
-
   return (
     <>
       <JsonLd data={buildHomepageGraph()} />
@@ -186,38 +164,6 @@ export default async function HomePage() {
                 <CouncilSearch />
               </section>
 
-              <div style={{ display: 'flex', gap: '28px', marginBottom: '24px', flexWrap: 'wrap' }}>
-                {counts.mps > 0 && (
-                  <div>
-                    <span style={{ fontFamily: "'Special Elite', monospace", fontSize: '26px', fontWeight: 700, color: '#14100d', display: 'block', lineHeight: 1 }}>
-                      {counts.mps.toLocaleString('en-GB')}
-                    </span>
-                    <span style={{ fontFamily: "'Special Elite', monospace", fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.2em', color: 'rgba(20,16,13,0.45)', display: 'block', marginTop: '5px' }}>
-                      MPs profiled
-                    </span>
-                  </div>
-                )}
-                {counts.pressReleases > 0 && (
-                  <div>
-                    <span style={{ fontFamily: "'Special Elite', monospace", fontSize: '26px', fontWeight: 700, color: '#14100d', display: 'block', lineHeight: 1 }}>
-                      {counts.pressReleases.toLocaleString('en-GB')}
-                    </span>
-                    <span style={{ fontFamily: "'Special Elite', monospace", fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.2em', color: 'rgba(20,16,13,0.45)', display: 'block', marginTop: '5px' }}>
-                      Government releases archived
-                    </span>
-                  </div>
-                )}
-                {counts.divisions > 0 && (
-                  <div>
-                    <span style={{ fontFamily: "'Special Elite', monospace", fontSize: '26px', fontWeight: 700, color: '#14100d', display: 'block', lineHeight: 1 }}>
-                      {counts.divisions.toLocaleString('en-GB')}
-                    </span>
-                    <span style={{ fontFamily: "'Special Elite', monospace", fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.2em', color: 'rgba(20,16,13,0.45)', display: 'block', marginTop: '5px' }}>
-                      Commons divisions
-                    </span>
-                  </div>
-                )}
-              </div>
 
               <section className="og-intro">
                 <h2 className="og-intro-head">About</h2>
