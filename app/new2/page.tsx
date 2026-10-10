@@ -181,12 +181,12 @@ export default async function New2Page({
         .new2-root .tiny-star.bottom { bottom: -15px; }
 
         .new2-root .title-block { text-align: center; position: relative; padding-right: 14px; }
-        .new2-root .small-the { position: absolute; left: 84px; top: -40px; font-family: var(--f-oswald), 'Oswald'; font-size: 41px; }
+        .new2-root .small-the { position: absolute; left: 84px; top: -40px; font-family: var(--f-oswald-500), var(--f-oswald), 'Oswald'; font-size: 41px; }
         .new2-root .small-the span { display: inline-block; width: 48px; border-top: 2px solid var(--red); margin-left: 14px; transform: translateY(-12px); }
         .new2-root .crown-row { position: absolute; top: -57px; left: 40%; display: flex; gap: 30px; align-items: center; color: var(--red); font-size: 24px; }
         .new2-root .crown { font-size: 56px; line-height: 1; }
         .new2-root h1 { font-family: var(--f-oswald), 'Oswald', Impact, serif; font-size: 80px; font-weight: 700; letter-spacing: 1px; margin: 0; line-height: .9; white-space: nowrap; }
-        .new2-root p { font-family: var(--f-oswald), 'Oswald'; font-size: 32px; color: var(--red); margin: 28px 0 0; letter-spacing: 1px; }
+        .new2-root p { font-family: var(--f-oswald-500), var(--f-oswald), 'Oswald'; font-size: 32px; color: var(--red); margin: 28px 0 0; letter-spacing: 1px; }
         .new2-root p b { display: inline-block; width: 74px; height: 2px; background: var(--red); margin: 0 24px 9px; }
 
         .new2-root .nav-bar {
@@ -199,7 +199,7 @@ export default async function New2Page({
           display: flex;
           align-items: center;
           justify-content: space-between;
-          font-family: var(--f-oswald), 'Oswald';
+          font-family: var(--f-oswald-500), var(--f-oswald), 'Oswald';
           font-size: 17px;
         }
         .new2-root .nav-bar a:not(:last-child)::after { content: '|'; color: var(--red); margin-left: 24px; }
@@ -240,7 +240,7 @@ export default async function New2Page({
           display: flex;
           align-items: center;
           gap: 25px;
-          font-family: var(--f-oswald), 'Oswald';
+          font-family: var(--f-oswald-500), var(--f-oswald), 'Oswald';
           font-size: 16px;
         }
         .new2-root .footer i { height: 42px; border-left: 2px solid var(--red); margin: 0 22px; }
