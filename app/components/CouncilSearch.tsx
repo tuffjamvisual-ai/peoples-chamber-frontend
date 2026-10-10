@@ -50,6 +50,7 @@ export default function CouncilSearch() {
   const [postcodeResult, setPostcodeResult] = useState<CouncilResult | null>(null)
   const [nameSuggestions, setNameSuggestions] = useState<CouncilResult[]>([])
   const [open, setOpen] = useState(false)
+  const [showHelp, setShowHelp] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const boxRef = useRef<HTMLFormElement>(null)
 
@@ -103,7 +104,10 @@ export default function CouncilSearch() {
   // Close the dropdown on an outside click.
   useEffect(() => {
     function onClick(e: MouseEvent) {
-      if (boxRef.current && !boxRef.current.contains(e.target as Node)) setOpen(false)
+      if (boxRef.current && !boxRef.current.contains(e.target as Node)) {
+        setOpen(false)
+        setShowHelp(false)
+      }
     }
     document.addEventListener('mousedown', onClick)
     return () => document.removeEventListener('mousedown', onClick)
@@ -152,8 +156,41 @@ export default function CouncilSearch() {
       ref={boxRef}
       style={{ position: 'relative', background: PAPER, border: `2px solid ${INK}`, padding: '18px 20px', fontFamily: SERIF, color: INK, boxShadow: '3px 3px 0 rgba(20,16,13,0.18)' }}
     >
-      <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: 'clamp(18px, 2.4vw, 24px)', lineHeight: 1.1, marginBottom: '10px', letterSpacing: '-0.01em' }}>
-        Find your local authority
+      <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+        <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: 'clamp(18px, 2.4vw, 24px)', lineHeight: 1.1, letterSpacing: '-0.01em' }}>
+          Find your local authority
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowHelp((v) => !v)}
+          aria-expanded={showHelp}
+          aria-label="How to use this search"
+          style={{
+            flex: '0 0 auto', width: '20px', height: '20px', borderRadius: '50%',
+            border: `1.5px solid ${INK}`, background: 'transparent', color: INK,
+            fontFamily: SERIF, fontStyle: 'italic', fontWeight: 700, fontSize: '13px',
+            lineHeight: 1, cursor: 'pointer', padding: 0,
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          i
+        </button>
+
+        {showHelp && (
+          <div
+            role="note"
+            style={{
+              position: 'absolute', left: 0, top: 'calc(100% + 8px)', zIndex: 21,
+              maxWidth: '360px', background: '#fbf4e3', border: `1px solid ${INK}`,
+              boxShadow: '3px 3px 0 rgba(20,16,13,0.18)', padding: '12px 14px',
+              fontFamily: SERIF, fontSize: '14.5px', lineHeight: 1.5, color: INK,
+            }}
+          >
+            Type a UK postcode to jump straight to your council&rsquo;s page. Type a council or
+            area name instead to see a list of matches. Covers all councils in England, Scotland,
+            Wales and Northern Ireland.
+          </div>
+        )}
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'stretch' }}>
         <input
