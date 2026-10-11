@@ -203,6 +203,10 @@
     {
       "path": "/api/sync-homelessness",
       "schedule": "20 8 * * 2"
+    },
+    {
+      "path": "/api/sync-claimant-count",
+      "schedule": "25 8 * * *"
     }
   ]
 }

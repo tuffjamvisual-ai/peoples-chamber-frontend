@@ -71,6 +71,8 @@ export const DATA_SOURCES: DataSource[] = [
   // MHCLG statutory homelessness is quarterly; the weekly check returns 0 rows on most runs,
   // so the zero-run tolerance covers a quarter plus a slipped release (~20 weeks).
   { key: 'council_homelessness',    table: 'council_homelessness', column: 'synced_at', cadence: 'quarterly', label: 'Homelessness by council', source: 'MHCLG statutory homelessness statistics', page: '/councils/[slug]', syncRoute: '/api/sync-homelessness', zeroRunTolerance: 20 },
+  // synced_at advances every run: the daily sync rewrites the latest 3 months for every council.
+  { key: 'council_claimant_count',  table: 'council_claimant_count', column: 'synced_at', cadence: 'monthly', label: 'Claimant count by council', source: 'ONS Claimant Count (Nomis)', page: '/councils/[slug]', syncRoute: '/api/sync-claimant-count' },
 ];
 
 export function dataSource(key: string): DataSource | undefined {

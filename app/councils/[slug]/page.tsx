@@ -13,6 +13,7 @@ import CouncilCrimeSection from '../../components/CouncilCrimeSection';
 import CouncilChildPovertySection from '../../components/CouncilChildPovertySection';
 import CouncilHousePricesSection from '../../components/CouncilHousePricesSection';
 import CouncilHomelessnessSection from '../../components/CouncilHomelessnessSection';
+import CouncilClaimantCountSection from '../../components/CouncilClaimantCountSection';
 
 export const revalidate = 21600;
 
@@ -413,6 +414,9 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
           }
           isCounty={c.type === 'county'}
         />
+
+        {/* Claimant count: every council, counties included, has its own figures. */}
+        <CouncilClaimantCountSection gssCode={c.gss_code} />
 
         {showServiceSpending && (
           <Section title="Council Spending by Service">
