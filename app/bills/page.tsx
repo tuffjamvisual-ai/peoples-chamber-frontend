@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { getBillsPage } from '@/lib/data';
 import BillsGrid from '../components/BillsGrid';
 import BillsGridMobile from '../components/BillsGridMobile';
-import ScrollToTopButton from '../components/ScrollToTopButton';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import AllBillsIndex from './AllBillsIndex';
@@ -65,7 +64,6 @@ export default async function BillsPage({ searchParams }: PageProps) {
 
       <AllBillsIndex />
 
-      <ScrollToTopButton />
     </OpenGovShell>
   );
 }

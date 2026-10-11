@@ -18,9 +18,8 @@ import type { CSSProperties } from 'react';
 //     making the click toggle gives mobile users a tap-to-open path
 //     too. Sub-items are the only navigation surface.
 //
-// Style: a vintage parchment slip pinned beneath the masthead.
-// Uses the same /bill-parchment.webp texture as the bills/councils
-// pages, a slight rotation for the hand-tacked feel, a tiny red
+// Style: a cream paper slip pinned beneath the masthead (the parchment
+// texture was removed site-wide), a slight rotation for the hand-tacked feel, a tiny red
 // star header rule echoing the masthead, and red-ink hairlines
 // between items instead of the previous grey lines.
 
@@ -125,10 +124,8 @@ export default function HotspotDropdown({
     transform: 'rotate(-0.4deg)',
     transformOrigin: 'top center',
     minWidth: '236px',
-    // Parchment texture (same file as the bills + councils pages) over
-    // a cream wash, so the panel reads as torn from the masthead paper
-    // stock rather than as a system menu.
-    background: "#efe6d2 url('/bill-parchment.webp') center top / 100% auto repeat",
+    // Plain cream (the parchment texture was removed site-wide).
+    background: "#efe6d2",
     // No rectangle border: layered shadows instead — an inner cream
     // highlight + a soft outer ink halo + a deeper warm drop shadow.
     boxShadow: [

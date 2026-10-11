@@ -2,7 +2,6 @@ import Image from 'next/image';
 import MagazineProfileSections from './MagazineProfileSections';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
-import ScrollToTopButton from '../../components/ScrollToTopButton';
 
 // Rubber-stamp distress texture (patchy ink), matching the OpenGovShell stamps.
 const STAMP_DISTRESS = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='340' height='150'><filter id='d'><feTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='2' seed='6' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -0.4 1.12'/></filter><rect width='100%' height='100%' filter='url(%23d)'/></svg>")`;
@@ -183,7 +182,6 @@ export default function MpDossier({
 
       {footer && <div style={{ marginTop: '48px' }}>{footer}</div>}
 
-      <ScrollToTopButton />
     </OpenGovShell>
   );
 }

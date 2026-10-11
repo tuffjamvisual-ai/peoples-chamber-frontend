@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
-import ScrollToTopButton from '../components/ScrollToTopButton';
 import { topics } from '@/lib/topics';
 
 export const revalidate = 86400;
@@ -60,7 +59,6 @@ export default function TopicsIndexPage() {
         ))}
       </div>
 
-      <ScrollToTopButton />
     </OpenGovShell>
   );
 }

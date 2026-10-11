@@ -17,7 +17,6 @@
 
 import type { Metadata } from 'next';
 import OpenGovShell from '../components/OpenGovShell';
-import ScrollToTopButton from '../components/ScrollToTopButton';
 import BackLink from '../components/BackLink';
 
 export const revalidate = 86400;
@@ -169,14 +168,11 @@ export default function BudgetTradeOffsPage() {
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontFamily: MONO, fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase' }}
       />
 
-      {/* Same parchment article as /bills/[id] and /bills/[id]/full so
-          this page reads as part of the dossier line, not a folder dump. */}
+      {/* No parchment card: content sits directly on the page, like the
+          council, department and MP pages. */}
       <article
         style={{
-          background: "#efe6d2 url('/bill-parchment.webp') center top / 100% auto repeat-y",
-          border: '1px solid rgba(26,20,14,0.3)',
-          boxShadow: '0 1px 0 rgba(26,20,14,0.05), 0 22px 44px -22px rgba(26,20,14,0.35)',
-          padding: 'clamp(28px, 4vw, 56px) clamp(24px, 4vw, 60px)',
+          padding: 'clamp(8px, 2vw, 24px) 0',
           color: '#1a140e',
           fontFamily: SERIF,
         }}
@@ -215,7 +211,6 @@ export default function BudgetTradeOffsPage() {
         </div>
       </article>
 
-      <ScrollToTopButton />
     </OpenGovShell>
   );
 }

@@ -12,7 +12,6 @@
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../../components/OpenGovShell';
 import PartySidebar from '../../../components/PartySidebar';
-import ScrollToTopButton from '../../../components/ScrollToTopButton';
 import { type EvidencePanelProps } from '../../../components/EvidencePanel';
 
 export const revalidate = 21600;
@@ -187,7 +186,6 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
         </div>
       </PartySidebar>
 
-      <ScrollToTopButton />
     </OpenGovShell>
   );
 }

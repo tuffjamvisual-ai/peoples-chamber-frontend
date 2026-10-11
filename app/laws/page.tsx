@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import LawsClient from './LawsClient'
-import ScrollToTopButton from '../components/ScrollToTopButton'
 import OpenGovShell from '../components/OpenGovShell'
 import BackLink from '../components/BackLink';
 // Render on demand — large Supabase query (all Acts) hits the 60s
@@ -54,7 +53,6 @@ export default async function LawsPage() {
 
       <LawsClient laws={laws || []} />
 
-      <ScrollToTopButton />
     </OpenGovShell>
   )
 }

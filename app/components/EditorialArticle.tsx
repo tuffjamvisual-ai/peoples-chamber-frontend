@@ -5,7 +5,6 @@
 import Link from 'next/link';
 import OpenGovShell from './OpenGovShell';
 import BackLink from './BackLink';
-import ScrollToTopButton from './ScrollToTopButton';
 import EvidencePanel from './EvidencePanel';
 import RelatedLinks from './RelatedLinks';
 import KeyStat from './KeyStat';
@@ -92,7 +91,6 @@ export default function EditorialArticle({ piece, stamp, backHref }: { piece: Ed
         relatedProgrammeSlugs={piece.relatedProgrammeSlugs}
       />
 
-      <ScrollToTopButton />
     </OpenGovShell>
   );
 }

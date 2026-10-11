@@ -12,7 +12,6 @@
 
 import type { Metadata } from 'next';
 import OpenGovShell from '../components/OpenGovShell';
-import ScrollToTopButton from '../components/ScrollToTopButton';
 import BackLink from '../components/BackLink';
 
 export const revalidate = 86400;
@@ -252,7 +251,6 @@ export default function YourTaxPoundPage() {
         </p>
       </footer>
 
-      <ScrollToTopButton />
     </OpenGovShell>
   );
 }

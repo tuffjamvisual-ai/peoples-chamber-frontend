@@ -5,7 +5,6 @@ import { departments } from '@/lib/departments';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
-import ScrollToTopButton from '../components/ScrollToTopButton';
 import { fmtMillions } from '@/lib/department-civil-service';
 
 export const metadata: Metadata = {
@@ -134,7 +133,6 @@ export default async function SpendingPage() {
           </section>
         )}
       </div>
-      <ScrollToTopButton />
       <LastUpdated sourceKey="department_budgets" />
     </OpenGovShell>
   );

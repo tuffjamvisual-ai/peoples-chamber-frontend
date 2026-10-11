@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
-import ScrollToTopButton from '../components/ScrollToTopButton';
 
 // Browsable index of Commons divisions (recorded votes), newest first. Each
 // links to the in-house division page. Data we already hold in mp_division_votes
@@ -116,7 +115,6 @@ export default async function DivisionsIndexPage({
         </nav>
       )}
 
-      <ScrollToTopButton />
       <LastUpdated sourceKey="division_votes" />
     </OpenGovShell>
   );

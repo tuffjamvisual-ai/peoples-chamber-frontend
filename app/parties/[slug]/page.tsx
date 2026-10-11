@@ -10,7 +10,6 @@
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import PartySidebar from '../../components/PartySidebar';
-import ScrollToTopButton from '../../components/ScrollToTopButton';
 
 export const revalidate = 21600;
 
@@ -272,7 +271,6 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
 
       </PartySidebar>
 
-      <ScrollToTopButton />
     </OpenGovShell>
   );
 }

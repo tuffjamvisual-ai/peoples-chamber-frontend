@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import LastUpdated from '../components/LastUpdated';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
-import ScrollToTopButton from '../components/ScrollToTopButton';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 
@@ -288,7 +287,6 @@ export default async function ExpensesPage() {
         </div>
       </section>
 
-      <ScrollToTopButton />
       <LastUpdated sourceKey="mp_expenses" />
     </OpenGovShell>
   );

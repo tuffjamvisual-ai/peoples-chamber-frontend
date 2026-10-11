@@ -7,7 +7,6 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
-import ScrollToTopButton from '../components/ScrollToTopButton';
 import { fmtMoney, loadAll } from './_lib/data';
 
 export const revalidate = 86400;
@@ -23,7 +22,6 @@ const INK = '#14100d';
 const INK_SOFT = 'rgba(20,16,13,0.7)';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
 const ACCENT = '#6b2417';
-const PARCHMENT_CREAM = '#efe6d2';
 const SERIF = 'EB Garamond, Garamond, Georgia, "Times New Roman", serif';
 const MONO = 'Special Elite, monospace';
 
@@ -39,12 +37,11 @@ export default async function SecondJobsLanding() {
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
       />
 
+      {/* No parchment card: content sits directly on the page, like the
+          council, department and MP pages. */}
       <article
         style={{
-          background: `${PARCHMENT_CREAM} url('/bill-parchment.webp') center top / 100% auto repeat-y`,
-          border: '1px solid rgba(26,20,14,0.3)',
-          boxShadow: '0 1px 0 rgba(26,20,14,0.05), 0 22px 44px -22px rgba(26,20,14,0.35)',
-          padding: 'clamp(28px, 4vw, 56px) clamp(24px, 4vw, 60px)',
+          padding: 'clamp(8px, 2vw, 24px) 0',
           color: '#1a140e',
           fontFamily: SERIF,
         }}
@@ -103,7 +100,7 @@ export default async function SecondJobsLanding() {
         </h2>
 
         {/* Party tiles styled to match the nav-bar dropdown panel
-            vocabulary: parchment texture, layered shadows in place of
+            vocabulary: plain cream paper (parchment texture removed), layered shadows in place of
             a hard border, slight per-tile rotation, small ★ header
             band with red-ink hairline, mono uppercase meta lines. */}
         <style>{`
@@ -113,7 +110,7 @@ export default async function SecondJobsLanding() {
             padding: 14px 16px 16px;
             color: ${INK};
             text-decoration: none;
-            background: #efe6d2 url('/bill-parchment.webp') center top / 100% auto repeat;
+            background: #efe6d2;
             font-family: ${SERIF};
             box-shadow:
               inset 0 0 0 1px rgba(255,247,228,0.35),
@@ -189,7 +186,6 @@ export default async function SecondJobsLanding() {
           without a per-payment figure are not summed.
         </section>
 
-        <ScrollToTopButton />
       </article>
     </OpenGovShell>
   );

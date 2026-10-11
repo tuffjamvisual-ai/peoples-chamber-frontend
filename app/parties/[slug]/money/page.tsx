@@ -16,7 +16,6 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../../components/OpenGovShell';
 import PartySidebar from '../../../components/PartySidebar';
-import ScrollToTopButton from '../../../components/ScrollToTopButton';
 import { sectorForDonor } from '@/lib/donor-sectors';
 import { donorNameToSlug } from '../../../donors/[slug]/page';
 
@@ -329,7 +328,6 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
 
       </PartySidebar>
 
-      <ScrollToTopButton />
     </OpenGovShell>
   );
 }

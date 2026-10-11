@@ -12,7 +12,6 @@ import LastUpdated from '../components/LastUpdated';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
-import ScrollToTopButton from '../components/ScrollToTopButton';
 
 export const revalidate = 21600;
 
@@ -167,7 +166,6 @@ export default async function CouncilsIndex() {
                     </div>
                   );
                 })}
-                <ScrollToTopButton />
               </section>
             );
           })}

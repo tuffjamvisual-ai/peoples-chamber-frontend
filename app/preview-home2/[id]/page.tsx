@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import '../../components/magazine-layout.css';
-import ScrollToTopButton from '../../components/ScrollToTopButton';
 
 import MagazineNav from '../../components/MagazineNav';
 export const revalidate = 600;
@@ -203,7 +202,6 @@ export default async function PreviewHome2Dynamic({ params }: PageProps) {
             </div>
           </div>
         </div>
-        <ScrollToTopButton />
       </div>
     </div>
   );

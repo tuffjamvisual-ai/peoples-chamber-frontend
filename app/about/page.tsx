@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import ScrollToTopButton from '../components/ScrollToTopButton';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 
@@ -55,7 +54,6 @@ export default function AboutPage() {
         </div>
       </article>
 
-      <ScrollToTopButton />
     </OpenGovShell>
   );
 }

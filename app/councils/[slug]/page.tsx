@@ -7,7 +7,6 @@ import { supabase } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
-import ScrollToTopButton from '../../components/ScrollToTopButton';
 import CouncilTabs from './CouncilTabs';
 import WelfareLocalAuthorityDetail from '../../components/WelfareLocalAuthorityDetail';
 import CouncilCrimeSection from '../../components/CouncilCrimeSection';
@@ -570,7 +569,6 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
           }}
         />
 
-        <ScrollToTopButton />
       </article>
     </OpenGovShell>
   );

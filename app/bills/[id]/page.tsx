@@ -9,7 +9,6 @@
 
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
-import ScrollToTopButton from '../../components/ScrollToTopButton'
 import BillVotingClient from './BillVotingClient'
 import OpenGovShell from '../../components/OpenGovShell'
 import BackLink from '../../components/BackLink';
@@ -510,7 +509,6 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
         commonsDivisionId={bill.commons_division_id ?? null}
       />
 
-      <ScrollToTopButton />
     </OpenGovShell>
   )
 }

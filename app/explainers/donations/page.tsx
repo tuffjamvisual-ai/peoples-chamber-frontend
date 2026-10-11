@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
-import ScrollToTopButton from '../../components/ScrollToTopButton';
 
 export const metadata: Metadata = {
   title: "How UK Political Donations Work and Why the System Fails",
@@ -71,7 +70,6 @@ export default function DonationsExplainer() {
         </p>
       </article>
 
-      <ScrollToTopButton />
     </OpenGovShell>
   );
 }

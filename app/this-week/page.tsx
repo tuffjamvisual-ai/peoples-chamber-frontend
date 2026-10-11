@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import OpenGovShell from '../components/OpenGovShell'
 import BackLink from '../components/BackLink'
-import ScrollToTopButton from '../components/ScrollToTopButton'
 
 // Reflects the current week's Commons business on a 10-minute ISR window, so
 // visitors are served from cache rather than triggering two live Parliament API
@@ -172,7 +171,6 @@ export default async function ThisWeekPage() {
         })}
       </section>
 
-      <ScrollToTopButton />
     </OpenGovShell>
   )
 }

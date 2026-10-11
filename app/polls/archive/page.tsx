@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import OpenGovShell from '../../components/OpenGovShell'
 import BackLink from '../../components/BackLink'
-import ScrollToTopButton from '../../components/ScrollToTopButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -103,7 +102,6 @@ export default async function ArchivedPollsPage() {
         })}
       </div>
 
-      <ScrollToTopButton />
     </OpenGovShell>
   )
 }

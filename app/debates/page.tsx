@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
-import ScrollToTopButton from '../components/ScrollToTopButton';
 
 // Commons debates index. Metadata is held in our `debates` table (synced daily
 // from Hansard); the full transcript is rendered in-house on /debates/[extId].
@@ -195,7 +194,6 @@ export default async function DebatesPage({
         </nav>
       )}
 
-      <ScrollToTopButton />
     </OpenGovShell>
   );
 }

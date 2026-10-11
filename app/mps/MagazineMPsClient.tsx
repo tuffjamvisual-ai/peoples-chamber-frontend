@@ -15,7 +15,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import ScrollToTopButton from '../components/ScrollToTopButton';
 import { normaliseParty, isCoop, resolvePartyColour } from '@/lib/party-helpers';
 
 interface MP {
@@ -113,7 +112,6 @@ export default function MagazineMPsClient({ mps, expand }: { mps: MP[]; expand?:
         />
       )}
 
-      <ScrollToTopButton />
     </div>
   );
 }

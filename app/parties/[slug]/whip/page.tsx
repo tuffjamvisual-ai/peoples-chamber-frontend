@@ -13,7 +13,6 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../../components/OpenGovShell';
 import PartySidebar from '../../../components/PartySidebar';
-import ScrollToTopButton from '../../../components/ScrollToTopButton';
 
 export const revalidate = 21600;
 export function generateStaticParams() { return []; }
@@ -290,7 +289,6 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
 
       </PartySidebar>
 
-      <ScrollToTopButton />
     </OpenGovShell>
   );
 }

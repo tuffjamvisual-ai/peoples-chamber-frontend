@@ -14,7 +14,6 @@ import { supabase } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
-import ScrollToTopButton from '../../components/ScrollToTopButton';
 
 export const revalidate = 86400;
 
@@ -222,7 +221,6 @@ export default async function SecretariatPage({ params }: PageProps) {
         </ul>
       </section>
 
-      <ScrollToTopButton />
     </OpenGovShell>
   );
 }

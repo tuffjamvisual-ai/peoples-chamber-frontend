@@ -12,7 +12,6 @@ import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
-import ScrollToTopButton from '../components/ScrollToTopButton';
 
 export const revalidate = 3600;
 
@@ -313,11 +312,6 @@ export default async function PartiesIndex() {
                     Coming soon. The 2024 manifesto positions for this party are being researched.
                   </p>
                 )}
-                {/* Back-to-top arrow at the end of every party section.
-                    Reuses the shared ScrollToTopButton (rotated arrow,
-                    centred, smooth scroll). Lets readers jump back up
-                    without scrolling through every party below them. */}
-                <ScrollToTopButton />
               </section>
             );
           })}

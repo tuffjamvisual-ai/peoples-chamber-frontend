@@ -10,7 +10,6 @@ import { supabase } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
-import ScrollToTopButton from '../../components/ScrollToTopButton';
 import { sectorForDonor } from '@/lib/donor-sectors';
 
 export const revalidate = 86400;
@@ -437,7 +436,6 @@ export default async function DonorPage({ params }: PageProps) {
         )}
       </section>
 
-      <ScrollToTopButton />
     </OpenGovShell>
   );
 }

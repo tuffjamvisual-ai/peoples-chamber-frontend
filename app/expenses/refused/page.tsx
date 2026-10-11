@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
-import ScrollToTopButton from '../../components/ScrollToTopButton';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 
@@ -233,7 +232,6 @@ export default async function RefusedExpensesPage() {
         </table>
       </section>
 
-<ScrollToTopButton />
     </OpenGovShell>
   );
 }

@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import PollsClient from './PollsClient'
-import ScrollToTopButton from '../components/ScrollToTopButton'
 import OpenGovShell from '../components/OpenGovShell'
 import BackLink from '../components/BackLink';
 import VotingIntegrity from '../components/VotingIntegrity';
@@ -38,7 +37,6 @@ export default function PollsPage() {
 
       <PollsClient />
 
-      <ScrollToTopButton />
     </OpenGovShell>
   )
 }

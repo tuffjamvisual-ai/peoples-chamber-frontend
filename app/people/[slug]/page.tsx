@@ -10,7 +10,6 @@
 
 import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import ScrollToTopButton from '../../components/ScrollToTopButton';
 import PeopleProfileSections, { type Role, type Interest, type PeerFinance } from './PeopleProfileSections';
 import OpenGovShell from '../../components/OpenGovShell';
 import type { ScsBand } from '@/lib/civil-service-salaries';
@@ -253,7 +252,6 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
           </>
         )}
 
-        <ScrollToTopButton />
     </OpenGovShell>
   );
 }

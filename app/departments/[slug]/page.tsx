@@ -2,7 +2,6 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { departments } from '@/lib/departments';
-import ScrollToTopButton from '../../components/ScrollToTopButton';
 import DepartmentMasthead from './DepartmentMasthead';
 import DepartmentStaff from './DepartmentStaff';
 import DepartmentTabs from './DepartmentTabs';
@@ -247,7 +246,6 @@ export default async function DepartmentPage({ params }: PageProps) {
         <DepartmentTabs tabs={tabs} slots={slots} />
       </div>
 
-      <ScrollToTopButton />
     </OpenGovShell>
   );
 }

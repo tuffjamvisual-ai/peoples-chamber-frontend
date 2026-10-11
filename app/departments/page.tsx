@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { departments } from '@/lib/departments';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
-import ScrollToTopButton from '../components/ScrollToTopButton';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 
@@ -140,7 +139,6 @@ export default async function DepartmentsPage() {
         })}
       </ul>
 
-      <ScrollToTopButton />
     </OpenGovShell>
   );
 }

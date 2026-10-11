@@ -5,7 +5,6 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import ServiceIndicator, { servicesForTopic } from '../../components/ServiceIndicator';
 import BackLink from '../../components/BackLink';
-import ScrollToTopButton from '../../components/ScrollToTopButton';
 import { getTopic, topics } from '@/lib/topics';
 import { departments } from '@/lib/departments';
 import { editorials } from '@/lib/editorials';
@@ -203,7 +202,6 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
         </section>
       )}
 
-      <ScrollToTopButton />
     </OpenGovShell>
   );
 }

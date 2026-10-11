@@ -5,7 +5,6 @@ import { departments } from '@/lib/departments';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
-import ScrollToTopButton from '../components/ScrollToTopButton';
 import { fmtHeadcount } from '@/lib/department-civil-service';
 
 export const metadata: Metadata = {
@@ -144,7 +143,6 @@ export default async function CivilServicePage() {
           </section>
         )}
       </div>
-      <ScrollToTopButton />
       <LastUpdated sourceKey="department_staffing" />
     </OpenGovShell>
   );
