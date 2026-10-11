@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import type { DatabaseSize } from '@/lib/database-size';
 
 // Email sending is "armed but inert" until RESEND_API_KEY is set. When it is
 // absent, sendVerificationEmail is a no-op and signup auto-verifies accounts so
@@ -205,6 +206,48 @@ export async function sendFreshnessAlert(stale: StaleSource[]) {
     const resend = new Resend(key);
     const { data, error } = await resend.emails.send({
       from, to: FRESHNESS_NOTIFY_TO, subject: `opengovt data freshness: ${stale.length} source${stale.length === 1 ? '' : 's'} overdue`, text, html,
+    });
+    if (error) return { sent: false, reason: error.message };
+    return { sent: true, id: data?.id };
+  } catch (e) {
+    return { sent: false, reason: (e as Error).message };
+  }
+}
+
+// Database disk warning — fired by /api/monitor-freshness when disk use (database
+// + WAL) passes WARNING_GB or URGENT_GB (lib/database-size.ts). Repeats once a day
+// while it stays over. Same recipient as the freshness alert. Inert until
+// RESEND_API_KEY is set. Never throws.
+export async function sendDatabaseSizeAlert(size: DatabaseSize) {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return { sent: false, reason: 'no_api_key' };
+  if (size.level === 'ok') return { sent: false, reason: 'below_threshold' };
+  const from = process.env.RESEND_FROM || 'opengovt <onboarding@resend.dev>';
+
+  const urgent = size.level === 'urgent';
+  const gb = (n: number) => `${n.toFixed(2)} GB`;
+  const headline = urgent
+    ? `URGENT: database disk at ${gb(size.usedGb)} of ${gb(size.limitGb)}`
+    : `Database disk at ${gb(size.usedGb)} of ${gb(size.limitGb)}`;
+  const lines = [
+    `Disk used: ${gb(size.usedGb)} of ${gb(size.limitGb)} (${size.usedPct}%).`,
+    `Database: ${gb(size.databaseGb)}. WAL: ${size.walGb == null ? 'could not be read' : gb(size.walGb)}.`,
+    `Supabase switches the project to read-only at ${gb(size.readOnlyAtGb)}, when every sync stops saving data.`,
+    `Room left before that: ${gb(Math.max(0, size.headroomGb))}.`,
+    urgent
+      ? 'Action needed now: free up space or raise the disk limit in Supabase.'
+      : 'No action needed yet, but plan to free up space or raise the disk limit.',
+  ];
+  const text = `${headline}\n\n${lines.join('\n')}\n`;
+  const html = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;color:#14100d">
+      <p style="margin:0 0 12px;font-weight:bold;color:${urgent ? '#7a1612' : '#14100d'}">${headline}</p>
+      <ul style="margin:0;padding-left:18px">${lines.map((l) => `<li style="margin:0 0 6px">${l}</li>`).join('')}</ul>
+    </div>`;
+
+  try {
+    const resend = new Resend(key);
+    const { data, error } = await resend.emails.send({
+      from, to: FRESHNESS_NOTIFY_TO, subject: `opengovt ${headline.charAt(0).toLowerCase()}${headline.slice(1)}`, text, html,
     });
     if (error) return { sent: false, reason: error.message };
     return { sent: true, id: data?.id };

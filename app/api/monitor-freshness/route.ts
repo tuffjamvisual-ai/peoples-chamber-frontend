@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { DATA_SOURCES, CADENCE_MAX_AGE_DAYS, DEFAULT_ZERO_RUN_TOLERANCE, newestTimestamp, ageInDays } from '@/lib/data-freshness';
-import { sendFreshnessAlert, type StaleSource } from '@/lib/email';
+import { sendFreshnessAlert, sendDatabaseSizeAlert, type StaleSource } from '@/lib/email';
+import { getDatabaseSize } from '@/lib/database-size';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -16,6 +17,9 @@ export const maxDuration = 300;
 //          (upstream may have moved/changed) — surfaced in the JSON, not emailed.
 // Info   = sources with no automated sync yet, or a configured route not yet
 //          instrumented — reported, never alerted.
+//
+// Disk = the database size check (lib/database-size.ts): emails once a day while
+//          disk use is over 5 GB (warning) or 7 GB (urgent) of the 8 GB disk.
 //
 // Guarded by CRON_SECRET. Returns the full dashboard as JSON for manual checks.
 export async function GET(req: NextRequest) {
@@ -121,8 +125,17 @@ export async function GET(req: NextRequest) {
     ? await sendFreshnessAlert(emailAlerts)
     : { sent: false, reason: healedRoutes.size ? 'self_healed' : 'nothing_stale' };
 
+  // Database disk check: reported every run, emailed only when over a threshold.
+  const { size: databaseSize, error: databaseSizeError } = await getDatabaseSize();
+  const databaseSizeEmail = databaseSize && databaseSize.level !== 'ok'
+    ? await sendDatabaseSizeAlert(databaseSize)
+    : { sent: false, reason: databaseSize ? 'below_threshold' : 'size_unavailable' };
+
   return NextResponse.json({
     ok: true,
+    databaseSize,
+    databaseSizeError: databaseSizeError ?? null,
+    databaseSizeEmail,
     checkedAt: now.toISOString(),
     alertCount: alerts.length,
     emailedAlertCount: emailAlerts.length,
