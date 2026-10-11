@@ -76,6 +76,9 @@ export const DATA_SOURCES: DataSource[] = [
   // Ofsted publishes a new snapshot twice a year (June and November); the weekly check returns 0 rows
   // on most runs, so the zero-run tolerance covers the ~6 months between snapshots plus slippage.
   { key: 'school_inspections',      table: 'school_inspections', column: 'synced_at', cadence: 'quarterly', label: 'School inspections', source: 'Ofsted state-funded schools inspections and outcomes', page: '/councils/[slug]', syncRoute: '/api/sync-school-inspections', zeroRunTolerance: 32 },
+  // DESNZ publishes sub-regional fuel poverty once a year (May); the weekly check returns 0 rows
+  // on most runs, so the zero-run tolerance covers a year plus slippage.
+  { key: 'council_fuel_poverty',    table: 'council_fuel_poverty', column: 'synced_at', cadence: 'quarterly', label: 'Fuel poverty by council', source: 'DESNZ sub-regional fuel poverty statistics', page: '/councils/[slug]', syncRoute: '/api/sync-fuel-poverty', zeroRunTolerance: 60 },
 ];
 
 export function dataSource(key: string): DataSource | undefined {

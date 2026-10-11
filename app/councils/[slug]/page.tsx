@@ -11,6 +11,7 @@ import ScrollToTopButton from '../../components/ScrollToTopButton';
 import WelfareLocalAuthorityDetail from '../../components/WelfareLocalAuthorityDetail';
 import CouncilCrimeSection from '../../components/CouncilCrimeSection';
 import CouncilChildPovertySection from '../../components/CouncilChildPovertySection';
+import CouncilFuelPovertySection from '../../components/CouncilFuelPovertySection';
 import CouncilHousePricesSection from '../../components/CouncilHousePricesSection';
 import CouncilHomelessnessSection from '../../components/CouncilHomelessnessSection';
 import CouncilClaimantCountSection from '../../components/CouncilClaimantCountSection';
@@ -400,6 +401,16 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
               : [c.gss_code]
           }
           isCounty={c.type === 'county'}
+        />
+
+        {/* Fuel poverty: every English council has its own figure; a county's neighbourhoods come from its districts. */}
+        <CouncilFuelPovertySection
+          gssCode={c.gss_code}
+          neighbourhoodCodes={
+            c.type === 'county'
+              ? children.map((d) => d.gss_code).filter((g): g is string => !!g)
+              : c.gss_code ? [c.gss_code] : []
+          }
         />
 
         {/* House prices: every council with a published series, county

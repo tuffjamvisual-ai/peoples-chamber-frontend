@@ -211,6 +211,10 @@
     {
       "path": "/api/sync-school-inspections",
       "schedule": "30 8 * * 3"
+    },
+    {
+      "path": "/api/sync-fuel-poverty",
+      "schedule": "35 8 * * 4"
     }
   ]
 }
