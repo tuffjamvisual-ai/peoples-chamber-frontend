@@ -17,6 +17,7 @@ import CouncilHomelessnessSection from '../../components/CouncilHomelessnessSect
 import CouncilClaimantCountSection from '../../components/CouncilClaimantCountSection';
 import CouncilSchoolInspectionsSection from '../../components/CouncilSchoolInspectionsSection';
 import CouncilRoadCasualtiesSection from '../../components/CouncilRoadCasualtiesSection';
+import CouncilConnectivitySection from '../../components/CouncilConnectivitySection';
 
 export const revalidate = 21600;
 
@@ -445,6 +446,16 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
           isDistrict={c.type === 'district'}
           countyName={parent ? parent.name : null}
           countySlug={parent ? parent.slug : null}
+        />
+
+        {/* Broadband and mobile: districts/unitaries have their own figures; a county sums its districts. */}
+        <CouncilConnectivitySection
+          gssCodes={
+            c.type === 'county'
+              ? children.map((d) => d.gss_code).filter((g): g is string => !!g)
+              : c.gss_code ? [c.gss_code] : []
+          }
+          isCounty={c.type === 'county'}
         />
 
         {showServiceSpending && (

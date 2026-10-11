@@ -82,6 +82,9 @@ export const DATA_SOURCES: DataSource[] = [
   // DfT publishes a new RAS0403 edition once a year (July); the weekly check returns 0 rows on
   // most runs, so the zero-run tolerance covers a year plus slippage.
   { key: 'council_road_casualties', table: 'council_road_casualties', column: 'synced_at', cadence: 'quarterly', label: 'Road casualties by council', source: 'DfT reported road casualties (RAS0403)', page: '/councils/[slug]', syncRoute: '/api/sync-road-casualties', zeroRunTolerance: 60 },
+  // Ofcom publishes Connected Nations data a few times a year; the weekly check returns 0 rows on
+  // most runs, so the zero-run tolerance covers the gap between releases plus slippage.
+  { key: 'council_connectivity',    table: 'council_broadband', column: 'synced_at', cadence: 'quarterly', label: 'Broadband and mobile coverage by council', source: 'Ofcom Connected Nations', page: '/councils/[slug]', syncRoute: '/api/sync-connectivity', zeroRunTolerance: 40 },
 ];
 
 export function dataSource(key: string): DataSource | undefined {

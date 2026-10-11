@@ -219,6 +219,10 @@
     {
       "path": "/api/sync-road-casualties",
       "schedule": "40 8 * * 5"
+    },
+    {
+      "path": "/api/sync-connectivity",
+      "schedule": "45 8 * * 1"
     }
   ]
 }
