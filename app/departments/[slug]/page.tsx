@@ -7,6 +7,7 @@ import DepartmentMasthead from './DepartmentMasthead';
 import DepartmentStaff from './DepartmentStaff';
 import DepartmentTabs from './DepartmentTabs';
 import { BudgetSlot, AgenciesSlot, ContactSlot, ReleasesSlot, InvestigationsSlot, ProgrammesSlot, type PressReleaseItem, type InvestigationItem, type ProgrammeItem } from './DepartmentSlots';
+import { getDepartmentGrants, GrantsSlot } from './GrantsSlot';
 import { DEPARTMENT_BUDGETS } from '@/lib/department-budgets';
 import OpenGovShell from '../../components/OpenGovShell';
 import { getGovukDept } from '../../api/govuk-dept/route';
@@ -153,6 +154,13 @@ export default async function DepartmentPage({ params }: PageProps) {
   if (budget) {
     tabs.push({ id: 'budget', label: 'Budget', rotate: '0.1deg' });
     slots.budget = <BudgetSlot budget={budget} />;
+  }
+  // Grants tab: Cabinet Office Government grants register, grouped under this
+  // department with its agencies. Only shown when the department has rows.
+  const grants = await getDepartmentGrants(slug);
+  if (grants) {
+    tabs.push({ id: 'grants', label: 'Grants', rotate: '-0.05deg' });
+    slots.grants = <GrantsSlot grants={grants} />;
   }
   if (agencies.length > 0) {
     tabs.push({ id: 'agencies', label: 'Agencies', rotate: '-0.15deg' });
