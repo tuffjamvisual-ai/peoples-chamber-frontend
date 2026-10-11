@@ -1,0 +1,46 @@
+name: Council Crime Data (weekly)
+
+# Refreshes council_crime_stats for England & Wales council pages from
+# data.police.uk (re-imports the newest 12 months so the monthly release and
+# any revisions are picked up). Runs here rather than as a Vercel cron
+# because the source archive is ~1.7 GB; the script reads only the CSVs it
+# needs via HTTP range requests.
+# data.police.uk publishes monthly; running weekly means a new release is
+# picked up within a week. Records the heartbeat
+# /github-actions/council-crime-police-uk for the freshness monitor.
+#
+# Not here, by design:
+#   - Northern Ireland: PSNI's web pages block automated visits (Cloudflare,
+#     HTTP 403 for every user agent, verified 2026-10-11), so each month's
+#     workbook link can't be discovered automatically. Refreshed by hand
+#     monthly: node scripts/import-council-crime.js --source=psni --url=<link> --heartbeat
+#     (the freshness monitor emails if it goes 35+ days without an update).
+#   - Scotland: annual; node scripts/import-council-crime.js --source=scotland --url=<new tables>
+# Repository is public, so GitHub-hosted runner minutes are free.
+
+on:
+  schedule:
+    - cron: '20 5 * * 2'
+  workflow_dispatch:
+
+jobs:
+  council-crime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      NEXT_PUBLIC_SUPABASE_URL: https://nwnsvnbudmfkhhwcjwwr.supabase.co
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: England & Wales (data.police.uk, newest 12 months)
+        run: node scripts/import-council-crime.js --source=police-uk --months=12 --heartbeat

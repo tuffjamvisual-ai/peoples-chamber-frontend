@@ -9,6 +9,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 import WelfareLocalAuthorityDetail from '../../components/WelfareLocalAuthorityDetail';
+import CouncilCrimeSection from '../../components/CouncilCrimeSection';
 
 export const revalidate = 21600;
 
@@ -57,7 +58,7 @@ type CouncilFull = {
   description: string | null;
 };
 
-type RelatedCouncil = { slug: string; name: string; short_name: string | null; political_control: string | null };
+type RelatedCouncil = { slug: string; name: string; short_name: string | null; political_control: string | null; gss_code?: string | null };
 
 type PublicHealthMetricRow = {
   metric_key: string;
@@ -175,7 +176,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
       ? supabase.from('councils').select('slug, name, short_name, political_control').eq('slug', c.parent_slug).single()
       : Promise.resolve({ data: null }),
     c.type === 'county'
-      ? supabase.from('councils').select('slug, name, short_name, political_control').eq('parent_slug', c.slug).order('name')
+      ? supabase.from('councils').select('slug, name, short_name, political_control, gss_code').eq('parent_slug', c.slug).order('name')
       : Promise.resolve({ data: [] }),
   ]);
   const parent: RelatedCouncil | null = (parentRow as RelatedCouncil | null) || null;
@@ -372,6 +373,19 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
             <PublicHealthRow label="Life expectancy (female)" row={publicHealthByKey.get('life_expectancy_female')} nation={c.country} isYears />
           </Section>
         )}
+
+        {/* Crime: district/unitary councils use their own rows; a county's
+            figures are the sum of its districts (no county-level rows exist
+            in any source). Renders nothing when there's no data. */}
+        <CouncilCrimeSection
+          gssCodes={
+            c.type === 'county'
+              ? children.map((d) => d.gss_code).filter((g): g is string => !!g)
+              : [c.gss_code]
+          }
+          population={c.population}
+          isCounty={c.type === 'county'}
+        />
 
         {showServiceSpending && (
           <Section title="Council Spending by Service">

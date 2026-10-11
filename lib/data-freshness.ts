@@ -57,6 +57,14 @@ export const DATA_SOURCES: DataSource[] = [
   // synced_at advances every run: each run re-fetches new/changed motions plus the 300
   // least recently checked.
   { key: 'early_day_motions',    table: 'early_day_motions',     column: 'synced_at',    cadence: 'daily',     label: 'Early Day Motions',          source: 'UK Parliament Oral Questions and Motions API', page: '/mps/[id]',                 syncRoute: '/api/sync-edms' },
+  // Council crime: England & Wales runs in GitHub Actions (.github/workflows/council-crime-weekly.yml),
+  // not a Vercel route; NI is run by hand. The script records a heartbeat under these keys. If one goes overdue the
+  // monitor's self-heal can't call it (it isn't a site route), so it falls through to the
+  // alert email, which is the right outcome.
+  { key: 'council_crime_police_uk', table: 'council_crime_stats', column: 'updated_at',  cadence: 'weekly',    label: 'Council crime (England & Wales)', source: 'data.police.uk', page: '/councils/[slug]',          syncRoute: '/github-actions/council-crime-police-uk' },
+  // NI is refreshed by hand monthly (PSNI's pages block automated access), so it's on a
+  // monthly cadence: the alert email doubles as the reminder to run the update.
+  { key: 'council_crime_psni',      table: 'council_crime_stats', column: 'updated_at',  cadence: 'monthly',   label: 'Council crime (Northern Ireland)', source: 'PSNI recorded crime tables', page: '/councils/[slug]', syncRoute: '/github-actions/council-crime-psni' },
 ];
 
 export function dataSource(key: string): DataSource | undefined {
