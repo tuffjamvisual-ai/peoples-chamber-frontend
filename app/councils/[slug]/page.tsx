@@ -16,6 +16,7 @@ import CouncilHousePricesSection from '../../components/CouncilHousePricesSectio
 import CouncilHomelessnessSection from '../../components/CouncilHomelessnessSection';
 import CouncilClaimantCountSection from '../../components/CouncilClaimantCountSection';
 import CouncilSchoolInspectionsSection from '../../components/CouncilSchoolInspectionsSection';
+import CouncilRoadCasualtiesSection from '../../components/CouncilRoadCasualtiesSection';
 
 export const revalidate = 21600;
 
@@ -432,6 +433,14 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
 
         {/* Schools: education authorities show Ofsted results; districts point to their county. */}
         <CouncilSchoolInspectionsSection
+          gssCode={c.gss_code}
+          isDistrict={c.type === 'district'}
+          countyName={parent ? parent.name : null}
+          countySlug={parent ? parent.slug : null}
+        />
+
+        {/* Road casualties: highway authorities show DfT figures; districts point to their county. */}
+        <CouncilRoadCasualtiesSection
           gssCode={c.gss_code}
           isDistrict={c.type === 'district'}
           countyName={parent ? parent.name : null}

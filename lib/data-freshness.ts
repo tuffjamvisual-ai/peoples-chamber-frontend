@@ -79,6 +79,9 @@ export const DATA_SOURCES: DataSource[] = [
   // DESNZ publishes sub-regional fuel poverty once a year (May); the weekly check returns 0 rows
   // on most runs, so the zero-run tolerance covers a year plus slippage.
   { key: 'council_fuel_poverty',    table: 'council_fuel_poverty', column: 'synced_at', cadence: 'quarterly', label: 'Fuel poverty by council', source: 'DESNZ sub-regional fuel poverty statistics', page: '/councils/[slug]', syncRoute: '/api/sync-fuel-poverty', zeroRunTolerance: 60 },
+  // DfT publishes a new RAS0403 edition once a year (July); the weekly check returns 0 rows on
+  // most runs, so the zero-run tolerance covers a year plus slippage.
+  { key: 'council_road_casualties', table: 'council_road_casualties', column: 'synced_at', cadence: 'quarterly', label: 'Road casualties by council', source: 'DfT reported road casualties (RAS0403)', page: '/councils/[slug]', syncRoute: '/api/sync-road-casualties', zeroRunTolerance: 60 },
 ];
 
 export function dataSource(key: string): DataSource | undefined {
