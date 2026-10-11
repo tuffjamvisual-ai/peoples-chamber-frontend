@@ -8,6 +8,7 @@ import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
+import CouncilTabs from './CouncilTabs';
 import WelfareLocalAuthorityDetail from '../../components/WelfareLocalAuthorityDetail';
 import CouncilCrimeSection from '../../components/CouncilCrimeSection';
 import CouncilChildPovertySection from '../../components/CouncilChildPovertySection';
@@ -35,7 +36,6 @@ export async function generateStaticParams() {
 const INK = '#14100d';
 const INK_SOFT = 'rgba(20,16,13,0.7)';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
-const PARCHMENT_CREAM = '#efe6d2';
 const ACCENT = '#7a1612';
 const SERIF = 'EB Garamond, Garamond, Georgia, "Times New Roman", serif';
 const MONO = 'Special Elite, monospace';
@@ -271,12 +271,11 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: INK, textDecoration: 'none', fontFamily: MONO, fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase' }}
       />
 
+      {/* No parchment card: content sits directly on the page, like the
+          department and MP pages. */}
       <article
         style={{
-          background: `${PARCHMENT_CREAM} url('/bill-parchment.webp') center top / 100% auto repeat-y`,
-          border: '1px solid rgba(26,20,14,0.3)',
-          boxShadow: '0 1px 0 rgba(26,20,14,0.05), 0 22px 44px -22px rgba(26,20,14,0.35)',
-          padding: 'clamp(28px, 4vw, 56px) clamp(24px, 4vw, 60px)',
+          padding: 'clamp(8px, 2vw, 24px) 0',
           color: '#1a140e',
           fontFamily: SERIF,
         }}
@@ -309,241 +308,267 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
           </div>
         </header>
 
-        {c.description && (
-          <p style={{ fontFamily: MONO, fontSize: 'clamp(15px, 1.15vw, 15px)', lineHeight: 1.75, margin: '0 auto 28px', maxWidth: '46em', color: INK }}>
-            {c.description}
-          </p>
-        )}
+        {/* Sections are grouped into tabs (same pattern as the department and
+            MP pages). Every tab's content is server-rendered; CouncilTabs only
+            switches which one is visible and hides tabs with no figures. */}
+        <CouncilTabs
+          tabs={[
+            { id: 'overview', label: 'Overview', rotate: '0.1deg' },
+            { id: 'money', label: 'Money', rotate: '-0.12deg' },
+            { id: 'work', label: 'Work & benefits', rotate: '0.08deg' },
+            { id: 'housing', label: 'Housing', rotate: '-0.05deg' },
+            { id: 'crime', label: 'Crime & roads', rotate: '0.06deg' },
+            { id: 'health', label: 'Health', rotate: '-0.1deg' },
+            { id: 'schools', label: 'Schools', rotate: '0.05deg' },
+            { id: 'broadband', label: 'Broadband & mobile', rotate: '-0.08deg' },
+          ]}
+          slots={{
+            overview: <>
+              {c.description && (
+                <p style={{ fontFamily: MONO, fontSize: 'clamp(15px, 1.15vw, 15px)', lineHeight: 1.75, margin: '0 auto 28px', maxWidth: '46em', color: INK }}>
+                  {c.description}
+                </p>
+              )}
 
-        {hasLeadership && (
-          <Section title="Political Control & Leadership">
-            <DataRow label="Political control" value={c.political_control} sub={c.political_control_status} />
-            <DataRow label="Leader" value={c.leader_name} sub={c.leader_party} />
-            <DataRow label="Chief executive" value={c.chief_exec} />
-            <DataRow label="Last election" value={c.last_election_year?.toString() ?? null} />
-          </Section>
-        )}
+              {hasLeadership && (
+                <Section title="Political Control & Leadership">
+                  <DataRow label="Political control" value={c.political_control} sub={c.political_control_status} />
+                  <DataRow label="Leader" value={c.leader_name} sub={c.leader_party} />
+                  <DataRow label="Chief executive" value={c.chief_exec} />
+                  <DataRow label="Last election" value={c.last_election_year?.toString() ?? null} />
+                </Section>
+              )}
 
-        {hasFinance && (
-          <Section title="Finance">
-            <DataRow label="Annual revenue budget" value={c.revenue_budget_mn != null ? `£${c.revenue_budget_mn.toLocaleString()}m` : null} />
-            <DataRow
-              label="Council tax (Band D)"
-              value={c.council_tax_band_d_pounds != null ? `£${c.council_tax_band_d_pounds.toLocaleString()}` : null}
-              sub={
-                c.council_tax_band_d_pounds != null
-                  ? COUNCIL_TAX_CAVEAT_BY_NATION[c.country] || null
-                  : null
-              }
-            />
-            {c.ni_district_rate_poundage != null && (
-              <DataRow
-                label="District rate (NI)"
-                value={`${(c.ni_district_rate_poundage * 100).toFixed(4)}p per £ of capital value`}
-                sub="Northern Ireland has no council tax. This is the council-set portion of domestic rates; a Stormont-set regional rate (5.559p in 2026-27) is added on top to produce the final bill."
-              />
-            )}
-            {c.section_114_year && (
-              <DataRow label="Section 114 notice" value={`Issued ${c.section_114_year}`} valueColour={ACCENT} />
-            )}
-          </Section>
-        )}
+              {hasOverview && (
+                <Section title="Overview">
+                  <DataRow label="Population" value={c.population?.toLocaleString() ?? null} />
+                  <DataRow label="Founded" value={c.founded_year?.toString() ?? null} />
+                  {c.website_url && (
+                    <DataRow label="Website" value={
+                      <a href={c.website_url} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>
+                        {c.website_url.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                      </a>
+                    } />
+                  )}
+                </Section>
+              )}
 
-        {hasOverview && (
-          <Section title="Overview">
-            <DataRow label="Population" value={c.population?.toLocaleString() ?? null} />
-            <DataRow label="Founded" value={c.founded_year?.toString() ?? null} />
-            {c.website_url && (
-              <DataRow label="Website" value={
-                <a href={c.website_url} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>
-                  {c.website_url.replace(/^https?:\/\//, '').replace(/\/$/, '')}
-                </a>
-              } />
-            )}
-          </Section>
-        )}
+              {!hasLeadership && !hasFinance && !hasOverview && (
+                <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
+                  <p style={{ fontFamily: MONO, fontSize: '15px', fontStyle: 'italic', color: INK_SOFT, margin: 0, lineHeight: 1.7 }}>
+                    Research pending. Political control, leadership, budget and council tax for {c.name} are
+                    being added in stages alongside the other 381 principal authorities. The {c.type_label}{' '}
+                    listing is the foundation; live data lands phase by phase.
+                  </p>
+                </section>
+              )}
 
-        {showWelfare && (
-          <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
-            <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
-              Welfare spending
-            </h2>
-            <WelfareLocalAuthorityDetail gss={welfareGss} embedded />
-          </section>
-        )}
-
-        {showPublicHealth && (
-          <Section title="Public Health">
-            <PublicHealthRow label="Smoking (adults)" row={publicHealthByKey.get('smoking_prevalence')} nation={c.country} />
-            <PublicHealthRow label="Physically active (adults)" row={publicHealthByKey.get('physical_activity_prevalence')} nation={c.country} />
-            <PublicHealthRow label="Overweight or obese (adults)" row={publicHealthByKey.get('obesity_prevalence')} nation={c.country} />
-            <PublicHealthRow label="Life expectancy (male)" row={publicHealthByKey.get('life_expectancy_male')} nation={c.country} isYears />
-            <PublicHealthRow label="Life expectancy (female)" row={publicHealthByKey.get('life_expectancy_female')} nation={c.country} isYears />
-          </Section>
-        )}
-
-        {/* Crime: district/unitary councils use their own rows; a county's
-            figures are the sum of its districts (no county-level rows exist
-            in any source). Renders nothing when there's no data. */}
-        <CouncilCrimeSection
-          gssCodes={
-            c.type === 'county'
-              ? children.map((d) => d.gss_code).filter((g): g is string => !!g)
-              : [c.gss_code]
-          }
-          population={c.population}
-          isCounty={c.type === 'county'}
-        />
-
-        {/* Child poverty: same district/county logic as crime. */}
-        <CouncilChildPovertySection
-          gssCodes={
-            c.type === 'county'
-              ? children.map((d) => d.gss_code).filter((g): g is string => !!g)
-              : [c.gss_code]
-          }
-          isCounty={c.type === 'county'}
-        />
-
-        {/* Fuel poverty: every English council has its own figure; a county's neighbourhoods come from its districts. */}
-        <CouncilFuelPovertySection
-          gssCode={c.gss_code}
-          neighbourhoodCodes={
-            c.type === 'county'
-              ? children.map((d) => d.gss_code).filter((g): g is string => !!g)
-              : c.gss_code ? [c.gss_code] : []
-          }
-        />
-
-        {/* House prices: every council with a published series, county
-            councils included, has its own HPI figures, so no summing. */}
-        <CouncilHousePricesSection gssCode={c.gss_code} />
-
-        {/* Homelessness (England): same district/county logic as crime. */}
-        <CouncilHomelessnessSection
-          gssCodes={
-            c.type === 'county'
-              ? children.map((d) => d.gss_code).filter((g): g is string => !!g)
-              : c.gss_code ? [c.gss_code] : []
-          }
-          isCounty={c.type === 'county'}
-        />
-
-        {/* Claimant count: every council, counties included, has its own figures. */}
-        <CouncilClaimantCountSection gssCode={c.gss_code} />
-
-        {/* Schools: education authorities show Ofsted results; districts point to their county. */}
-        <CouncilSchoolInspectionsSection
-          gssCode={c.gss_code}
-          isDistrict={c.type === 'district'}
-          countyName={parent ? parent.name : null}
-          countySlug={parent ? parent.slug : null}
-        />
-
-        {/* Road casualties: highway authorities show DfT figures; districts point to their county. */}
-        <CouncilRoadCasualtiesSection
-          gssCode={c.gss_code}
-          isDistrict={c.type === 'district'}
-          countyName={parent ? parent.name : null}
-          countySlug={parent ? parent.slug : null}
-        />
-
-        {/* Broadband and mobile: districts/unitaries have their own figures; a county sums its districts. */}
-        <CouncilConnectivitySection
-          gssCodes={
-            c.type === 'county'
-              ? children.map((d) => d.gss_code).filter((g): g is string => !!g)
-              : c.gss_code ? [c.gss_code] : []
-          }
-          isCounty={c.type === 'county'}
-        />
-
-        {showServiceSpending && (
-          <Section title="Council Spending by Service">
-            <DataRow
-              label="Total"
-              value={spendingTotalPounds != null ? formatPoundsMillions(spendingTotalPounds) : null}
-              sub={
-                [
-                  spendingPeriodLabel,
-                  spendingSource ? SERVICE_SPENDING_SOURCE_LABELS[spendingSource] || spendingSource : null,
-                  !spendingAggregateRow
-                    ? `Sum of this council's ${spendingBreakdownRows.length} reported service categories — ${c.country} does not publish a single total figure in this source.`
-                    : null,
-                  c.revenue_budget_mn != null
-                    ? 'May not match "Annual revenue budget" above — that figure is a different accounting measure (budgeted resource requirement) for a different year than this outturn total.'
-                    : null,
-                ]
-                  .filter(Boolean)
-                  .join(' · ')
-              }
-            />
-            {spendingDisplayRows.map((row) => (
-              <DataRow
-                key={row.service_category}
-                label={row.service_category}
-                value={row.value_pounds != null ? formatPoundsMillions(row.value_pounds) : null}
-                sub={
-                  row.service_category === 'Council fund housing and housing benefit'
-                    ? 'May overlap with the Housing Benefit figure shown in the Welfare section above — StatsWales does not document how the two relate.'
-                    : null
-                }
-              />
-            ))}
-          </Section>
-        )}
-
-        {!hasLeadership && !hasFinance && !hasOverview && (
-          <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
-            <p style={{ fontFamily: MONO, fontSize: '15px', fontStyle: 'italic', color: INK_SOFT, margin: 0, lineHeight: 1.7 }}>
-              Research pending. Political control, leadership, budget and council tax for {c.name} are
-              being added in stages alongside the other 381 principal authorities. The {c.type_label}{' '}
-              listing is the foundation; live data lands phase by phase.
-            </p>
-          </section>
-        )}
-
-        {children.length > 0 && (
-          <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
-            <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
-              Districts under {c.short_name || c.name} · {children.length}
-            </h2>
-            <ul
-              style={{
-                listStyle: 'none',
-                padding: 0,
-                margin: 0,
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-                gap: '4px 16px',
-              }}
-            >
-              {children.map((d) => (
-                <li key={d.slug}>
-                  <a
-                    href={`/councils/${d.slug}`}
+              {children.length > 0 && (
+                <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
+                  <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
+                    Districts under {c.short_name || c.name} · {children.length}
+                  </h2>
+                  <ul
                     style={{
-                      display: 'block',
-                      padding: '6px 0',
-                      color: INK,
-                      textDecoration: 'none',
-                      fontFamily: MONO,
-                      fontSize: '15px',
-                      lineHeight: 1.55,
+                      listStyle: 'none',
+                      padding: 0,
+                      margin: 0,
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+                      gap: '4px 16px',
                     }}
                   >
-                    {d.short_name || d.name}
-                    {d.political_control && (
-                      <span style={{ display: 'block', fontSize: '15px', color: INK_SOFT, marginTop: '1px' }}>
-                        {d.political_control}
-                      </span>
-                    )}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
+                    {children.map((d) => (
+                      <li key={d.slug}>
+                        <a
+                          href={`/councils/${d.slug}`}
+                          style={{
+                            display: 'block',
+                            padding: '6px 0',
+                            color: INK,
+                            textDecoration: 'none',
+                            fontFamily: MONO,
+                            fontSize: '15px',
+                            lineHeight: 1.55,
+                          }}
+                        >
+                          {d.short_name || d.name}
+                          {d.political_control && (
+                            <span style={{ display: 'block', fontSize: '15px', color: INK_SOFT, marginTop: '1px' }}>
+                              {d.political_control}
+                            </span>
+                          )}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+            </>,
+            money: <>
+              {hasFinance && (
+                <Section title="Finance">
+                  <DataRow label="Annual revenue budget" value={c.revenue_budget_mn != null ? `£${c.revenue_budget_mn.toLocaleString()}m` : null} />
+                  <DataRow
+                    label="Council tax (Band D)"
+                    value={c.council_tax_band_d_pounds != null ? `£${c.council_tax_band_d_pounds.toLocaleString()}` : null}
+                    sub={
+                      c.council_tax_band_d_pounds != null
+                        ? COUNCIL_TAX_CAVEAT_BY_NATION[c.country] || null
+                        : null
+                    }
+                  />
+                  {c.ni_district_rate_poundage != null && (
+                    <DataRow
+                      label="District rate (NI)"
+                      value={`${(c.ni_district_rate_poundage * 100).toFixed(4)}p per £ of capital value`}
+                      sub="Northern Ireland has no council tax. This is the council-set portion of domestic rates; a Stormont-set regional rate (5.559p in 2026-27) is added on top to produce the final bill."
+                    />
+                  )}
+                  {c.section_114_year && (
+                    <DataRow label="Section 114 notice" value={`Issued ${c.section_114_year}`} valueColour={ACCENT} />
+                  )}
+                </Section>
+              )}
+
+              {showServiceSpending && (
+                <Section title="Council Spending by Service">
+                  <DataRow
+                    label="Total"
+                    value={spendingTotalPounds != null ? formatPoundsMillions(spendingTotalPounds) : null}
+                    sub={
+                      [
+                        spendingPeriodLabel,
+                        spendingSource ? SERVICE_SPENDING_SOURCE_LABELS[spendingSource] || spendingSource : null,
+                        !spendingAggregateRow
+                          ? `Sum of this council's ${spendingBreakdownRows.length} reported service categories — ${c.country} does not publish a single total figure in this source.`
+                          : null,
+                        c.revenue_budget_mn != null
+                          ? 'May not match "Annual revenue budget" above — that figure is a different accounting measure (budgeted resource requirement) for a different year than this outturn total.'
+                          : null,
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')
+                    }
+                  />
+                  {spendingDisplayRows.map((row) => (
+                    <DataRow
+                      key={row.service_category}
+                      label={row.service_category}
+                      value={row.value_pounds != null ? formatPoundsMillions(row.value_pounds) : null}
+                      sub={
+                        row.service_category === 'Council fund housing and housing benefit'
+                          ? 'May overlap with the Housing Benefit figure shown under Welfare spending in the Work & benefits tab — StatsWales does not document how the two relate.'
+                          : null
+                      }
+                    />
+                  ))}
+                </Section>
+              )}
+            </>,
+            work: <>
+              {/* Claimant count: every council, counties included, has its own figures. */}
+              <CouncilClaimantCountSection gssCode={c.gss_code} />
+
+              {showWelfare && (
+                <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
+                  <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
+                    Welfare spending
+                  </h2>
+                  <WelfareLocalAuthorityDetail gss={welfareGss} embedded />
+                </section>
+              )}
+
+              {/* Child poverty: same district/county logic as crime. */}
+              <CouncilChildPovertySection
+                gssCodes={
+                  c.type === 'county'
+                    ? children.map((d) => d.gss_code).filter((g): g is string => !!g)
+                    : [c.gss_code]
+                }
+                isCounty={c.type === 'county'}
+              />
+
+              {/* Fuel poverty: every English council has its own figure; a county's neighbourhoods come from its districts. */}
+              <CouncilFuelPovertySection
+                gssCode={c.gss_code}
+                neighbourhoodCodes={
+                  c.type === 'county'
+                    ? children.map((d) => d.gss_code).filter((g): g is string => !!g)
+                    : c.gss_code ? [c.gss_code] : []
+                }
+              />
+            </>,
+            housing: <>
+              {/* House prices: every council with a published series, county
+                  councils included, has its own HPI figures, so no summing. */}
+              <CouncilHousePricesSection gssCode={c.gss_code} />
+
+              {/* Homelessness (England): same district/county logic as crime. */}
+              <CouncilHomelessnessSection
+                gssCodes={
+                  c.type === 'county'
+                    ? children.map((d) => d.gss_code).filter((g): g is string => !!g)
+                    : c.gss_code ? [c.gss_code] : []
+                }
+                isCounty={c.type === 'county'}
+              />
+            </>,
+            crime: <>
+              {/* Crime: district/unitary councils use their own rows; a county's
+                  figures are the sum of its districts (no county-level rows exist
+                  in any source). Renders nothing when there's no data. */}
+              <CouncilCrimeSection
+                gssCodes={
+                  c.type === 'county'
+                    ? children.map((d) => d.gss_code).filter((g): g is string => !!g)
+                    : [c.gss_code]
+                }
+                population={c.population}
+                isCounty={c.type === 'county'}
+              />
+
+              {/* Road casualties: highway authorities show DfT figures; districts point to their county. */}
+              <CouncilRoadCasualtiesSection
+                gssCode={c.gss_code}
+                isDistrict={c.type === 'district'}
+                countyName={parent ? parent.name : null}
+                countySlug={parent ? parent.slug : null}
+              />
+            </>,
+            health: <>
+              {showPublicHealth && (
+                <Section title="Public Health">
+                  <PublicHealthRow label="Smoking (adults)" row={publicHealthByKey.get('smoking_prevalence')} nation={c.country} />
+                  <PublicHealthRow label="Physically active (adults)" row={publicHealthByKey.get('physical_activity_prevalence')} nation={c.country} />
+                  <PublicHealthRow label="Overweight or obese (adults)" row={publicHealthByKey.get('obesity_prevalence')} nation={c.country} />
+                  <PublicHealthRow label="Life expectancy (male)" row={publicHealthByKey.get('life_expectancy_male')} nation={c.country} isYears />
+                  <PublicHealthRow label="Life expectancy (female)" row={publicHealthByKey.get('life_expectancy_female')} nation={c.country} isYears />
+                </Section>
+              )}
+            </>,
+            schools: <>
+              {/* Schools: education authorities show Ofsted results; districts point to their county. */}
+              <CouncilSchoolInspectionsSection
+                gssCode={c.gss_code}
+                isDistrict={c.type === 'district'}
+                countyName={parent ? parent.name : null}
+                countySlug={parent ? parent.slug : null}
+              />
+            </>,
+            broadband: <>
+              {/* Broadband and mobile: districts/unitaries have their own figures; a county sums its districts. */}
+              <CouncilConnectivitySection
+                gssCodes={
+                  c.type === 'county'
+                    ? children.map((d) => d.gss_code).filter((g): g is string => !!g)
+                    : c.gss_code ? [c.gss_code] : []
+                }
+                isCounty={c.type === 'county'}
+              />
+            </>,
+          }}
+        />
 
         <ScrollToTopButton />
       </article>

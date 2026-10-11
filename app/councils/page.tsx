@@ -26,7 +26,6 @@ export const metadata: Metadata = {
 const INK = '#14100d';
 const INK_SOFT = 'rgba(20,16,13,0.7)';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
-const PARCHMENT_CREAM = '#efe6d2';
 const SERIF = 'EB Garamond, Garamond, Georgia, "Times New Roman", serif';
 const MONO = 'Special Elite, monospace';
 
@@ -75,12 +74,11 @@ export default async function CouncilsIndex() {
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: '#14100d', textDecoration: 'none', fontFamily: 'Special Elite, monospace', fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase' }}
       />
+      {/* No parchment card: content sits directly on the page, like the
+          council, department and MP pages. */}
       <article
         style={{
-          background: `${PARCHMENT_CREAM} url('/bill-parchment.webp') center top / 100% auto repeat-y`,
-          border: '1px solid rgba(26,20,14,0.3)',
-          boxShadow: '0 1px 0 rgba(26,20,14,0.05), 0 22px 44px -22px rgba(26,20,14,0.35)',
-          padding: 'clamp(28px, 4vw, 56px) clamp(24px, 4vw, 60px)',
+          padding: 'clamp(8px, 2vw, 24px) 0',
           color: '#1a140e',
           fontFamily: SERIF,
         }}

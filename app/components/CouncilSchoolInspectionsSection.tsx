@@ -145,7 +145,11 @@ export default async function CouncilSchoolInspectionsSection({
 
   const earlier = schools.filter((s) => !s.rc_inspection_date && s.oeif_overall);
   const oeifCounts = OEIF_ORDER.map((k) => ({ key: k, n: earlier.filter((s) => s.oeif_overall === k).length })).filter((x) => x.n > 0);
-  const neverGraded = schools.filter((s) => !s.rc_inspection_date && !s.oeif_overall).length;
+  // Schools without a report card or a previous-framework graded result in Ofsted's file:
+  // most have an ungraded inspection on record; the rest have no inspection at all.
+  const ungradedOnly = schools.filter((s) => !s.rc_inspection_date && !s.oeif_overall && s.ungraded_outcome);
+  const ungradedCounts = [...ungradedOnly.reduce((m, s) => m.set(s.ungraded_outcome as string, (m.get(s.ungraded_outcome as string) || 0) + 1), new Map<string, number>()).entries()].sort((a, b) => b[1] - a[1]);
+  const notInspected = schools.filter((s) => !s.rc_inspection_date && !s.oeif_inspection_date && !s.ungraded_date && !s.oeif_overall).length;
 
   const concern = schools.filter((s) => s.most_recent_category && CATEGORY[s.most_recent_category]);
   const hasPredecessor = schools.some((s) => latest(s).predecessor);
@@ -204,12 +208,28 @@ export default async function CouncilSchoolInspectionsSection({
               ))}
             </tbody>
           </table>
-          {neverGraded > 0 && (
-            <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: '0 0 18px' }}>
-              {fmtNum(neverGraded)} {neverGraded === 1 ? 'school has' : 'schools have'} no graded inspection on record (for example, new schools).
-            </p>
-          )}
         </>
+      )}
+
+      {ungradedCounts.length > 0 && (
+        <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '8px' }}>
+          <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '14px', color: INK, paddingBottom: '6px' }}>
+            Schools whose only inspection in Ofsted&rsquo;s file is an ungraded one ({fmtNum(ungradedOnly.length)}), by outcome
+          </caption>
+          <tbody>
+            {ungradedCounts.map(([outcome, n]) => (
+              <tr key={outcome} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
+                <td style={{ padding: '6px 20px 6px 0' }}>{outcome}</td>
+                <td style={{ padding: '6px 0', textAlign: 'right' }}>{fmtNum(n)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      {notInspected > 0 && (
+        <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: '0 0 18px' }}>
+          {fmtNum(notInspected)} {notInspected === 1 ? 'school has' : 'schools have'} no inspection on record yet (for example, newly opened schools).
+        </p>
       )}
 
       {concern.length > 0 && (
