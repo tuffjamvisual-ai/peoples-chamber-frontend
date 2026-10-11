@@ -14,6 +14,7 @@ import CouncilChildPovertySection from '../../components/CouncilChildPovertySect
 import CouncilHousePricesSection from '../../components/CouncilHousePricesSection';
 import CouncilHomelessnessSection from '../../components/CouncilHomelessnessSection';
 import CouncilClaimantCountSection from '../../components/CouncilClaimantCountSection';
+import CouncilSchoolInspectionsSection from '../../components/CouncilSchoolInspectionsSection';
 
 export const revalidate = 21600;
 
@@ -417,6 +418,14 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
 
         {/* Claimant count: every council, counties included, has its own figures. */}
         <CouncilClaimantCountSection gssCode={c.gss_code} />
+
+        {/* Schools: education authorities show Ofsted results; districts point to their county. */}
+        <CouncilSchoolInspectionsSection
+          gssCode={c.gss_code}
+          isDistrict={c.type === 'district'}
+          countyName={parent ? parent.name : null}
+          countySlug={parent ? parent.slug : null}
+        />
 
         {showServiceSpending && (
           <Section title="Council Spending by Service">

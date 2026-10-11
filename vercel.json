@@ -207,6 +207,10 @@
     {
       "path": "/api/sync-claimant-count",
       "schedule": "25 8 * * *"
+    },
+    {
+      "path": "/api/sync-school-inspections",
+      "schedule": "30 8 * * 3"
     }
   ]
 }
