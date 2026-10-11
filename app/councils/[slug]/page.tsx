@@ -10,6 +10,7 @@ import BackLink from '../../components/BackLink';
 import ScrollToTopButton from '../../components/ScrollToTopButton';
 import WelfareLocalAuthorityDetail from '../../components/WelfareLocalAuthorityDetail';
 import CouncilCrimeSection from '../../components/CouncilCrimeSection';
+import CouncilChildPovertySection from '../../components/CouncilChildPovertySection';
 
 export const revalidate = 21600;
 
@@ -384,6 +385,16 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
               : [c.gss_code]
           }
           population={c.population}
+          isCounty={c.type === 'county'}
+        />
+
+        {/* Child poverty: same district/county logic as crime. */}
+        <CouncilChildPovertySection
+          gssCodes={
+            c.type === 'county'
+              ? children.map((d) => d.gss_code).filter((g): g is string => !!g)
+              : [c.gss_code]
+          }
           isCounty={c.type === 'county'}
         />
 
