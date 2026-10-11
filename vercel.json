@@ -191,6 +191,10 @@
     {
       "path": "/api/sync-lords-votes",
       "schedule": "15 7 * * *"
+    },
+    {
+      "path": "/api/sync-edms",
+      "schedule": "45 7 * * *"
     }
   ]
 }

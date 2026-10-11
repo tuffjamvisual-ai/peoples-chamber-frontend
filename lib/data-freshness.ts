@@ -54,6 +54,9 @@ export const DATA_SOURCES: DataSource[] = [
   // synced_at advances every run: each run re-fetches the 14 days before the newest
   // stored division, so it re-writes rows even through recess.
   { key: 'lords_divisions',      table: 'lords_divisions',       column: 'synced_at',    cadence: 'daily',     label: 'Lords votes',                source: 'UK Parliament Lords Votes API', page: '/bills/[id]',                          syncRoute: '/api/sync-lords-votes' },
+  // synced_at advances every run: each run re-fetches new/changed motions plus the 300
+  // least recently checked.
+  { key: 'early_day_motions',    table: 'early_day_motions',     column: 'synced_at',    cadence: 'daily',     label: 'Early Day Motions',          source: 'UK Parliament Oral Questions and Motions API', page: '/mps/[id]',                 syncRoute: '/api/sync-edms' },
 ];
 
 export function dataSource(key: string): DataSource | undefined {

@@ -7,7 +7,7 @@ import { COMMITTEE_IDS } from '@/lib/committees';
 
 const COMMITTEE_ID_SET = new Set<number>(COMMITTEE_IDS);
 
-type SectionId = 'bio' | 'career' | 'contact' | 'voting' | 'bills' | 'house' | 'petitions' | 'interests' | 'roles' | 'earnings' | 'donations' | 'diary' | 'expenses';
+type SectionId = 'bio' | 'career' | 'contact' | 'voting' | 'bills' | 'house' | 'petitions' | 'edms' | 'interests' | 'roles' | 'earnings' | 'donations' | 'diary' | 'expenses';
 
 // TEMPORARY: hide the Political Biography tab + section on every MP profile.
 // Bios stay in the database untouched; this only stops them rendering. To
@@ -25,6 +25,7 @@ const ALL_SECTIONS: Array<{ id: SectionId; label: string; rotate: string }> = [
   { id: 'bills',     label: 'BILLS SPONSORED',  rotate: '-0.2deg' },
   { id: 'house',     label: 'IN THE HOUSE',     rotate: '0.12deg' },
   { id: 'petitions', label: 'PETITIONS',        rotate: '-0.1deg' },
+  { id: 'edms',      label: 'EARLY DAY MOTIONS', rotate: '0.1deg' },
   { id: 'interests', label: 'INTERESTS',        rotate: '0.1deg' },
   { id: 'roles',     label: 'ROLES',            rotate: '-0.15deg' },
   { id: 'earnings',  label: 'EARNINGS',         rotate: '0.2deg' },
@@ -312,6 +313,8 @@ interface Props {
   constituencyPetitions?: ConstituencyPetition[];
   /** Newest petitions sync time, for the tab's "last updated" line. */
   petitionsLastUpdated?: string | null;
+  /** Early Day Motions this MP started and signed (withdrawn signatures excluded). */
+  edms?: MpEdms | null;
 }
 
 type ConstituencyPetition = {
@@ -327,6 +330,27 @@ type ConstituencyPetition = {
   governmentResponseAt: string | null;
   debatedOn: string | null;
   url: string;
+};
+
+type MpEdmEntry = {
+  id: number;
+  title: string;
+  uin: string | null;
+  dateTabled: string;
+  signatureCount: number;
+  withdrawn: boolean;
+  isPrayer: boolean;
+  isAmendment: boolean;
+  signedAt: string | null;
+  role: 'started' | 'sponsor' | 'signed';
+};
+
+type MpEdms = {
+  startedCount: number;
+  signedCount: number;
+  started: MpEdmEntry[];
+  signed: MpEdmEntry[];
+  lastUpdated: string | null;
 };
 
 type Contribution = {
@@ -445,6 +469,7 @@ export default function MagazineProfileSections({
   compactExpenses = false,
   constituencyPetitions = [],
   petitionsLastUpdated = null,
+  edms = null,
 }: Props) {
   const has: Record<SectionId, boolean> = {
     bio: (!HIDE_POLITICAL_BIO || BIO_VISIBLE_MEMBER_IDS.has(memberId)) && paragraphs.length > 0,
@@ -454,6 +479,7 @@ export default function MagazineProfileSections({
     bills: sponsoredBills.length > 0,
     house: contributions.length > 0,
     petitions: constituencyPetitions.length > 0,
+    edms: !!edms && (edms.startedCount > 0 || edms.signedCount > 0),
     interests: interests.length > 0,
     roles: !!(
       committeeMemberships.length > 0 ||
@@ -1069,6 +1095,72 @@ export default function MagazineProfileSections({
               {petitionsLastUpdated && (
                 <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '13px', color: '#14100d', opacity: 1, margin: '18px 0 0' }}>
                   Petition signatures last updated {fmtDate(petitionsLastUpdated)}. Source: UK Parliament Petitions (petition.parliament.uk).
+                </p>
+              )}
+            </>
+          );
+        })()}
+
+        {active === 'edms' && edms && (() => {
+          const SHOWN_OPEN = 20;
+          const fmtNum = (n: number) => n.toLocaleString('en-GB');
+          const chip: React.CSSProperties = { fontSize: '13px', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '1px 6px', border: '1px solid #14100d', color: '#14100d', whiteSpace: 'nowrap' };
+          const item = (e: MpEdmEntry) => (
+            <li key={`${e.role}-${e.id}`} style={{ padding: '11px 0', borderBottom: inkDivider }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'baseline', flexWrap: 'wrap' }}>
+                <a href={`https://edm.parliament.uk/early-day-motion/${e.id}`} target="_blank" rel="noopener noreferrer" style={{ ...inkLink, fontWeight: 'bold', fontSize: '15px' }}>{e.title}</a>
+                {e.role === 'sponsor' && <span style={chip}>Sponsor</span>}
+                {e.isPrayer && <span style={chip}>Prayer against regulations</span>}
+                {e.isAmendment && <span style={chip}>Amendment</span>}
+                {e.withdrawn && <span style={chip}>Motion withdrawn</span>}
+              </div>
+              <div style={{ fontSize: '15px', marginTop: '3px', color: '#14100d' }}>
+                {e.role === 'started'
+                  ? <>Tabled {fmtDate(e.dateTabled)}</>
+                  : <>Signed {fmtDate(e.signedAt ?? e.dateTabled)}</>}
+                {' · '}{fmtNum(e.signatureCount)} {e.signatureCount === 1 ? 'signature' : 'signatures'} in total
+                {e.uin && <> · EDM {e.uin}</>}
+              </div>
+            </li>
+          );
+          const list = (label: string, entries: MpEdmEntry[], total: number) => {
+            if (entries.length === 0) return null;
+            const open = entries.slice(0, SHOWN_OPEN);
+            const rest = entries.slice(SHOWN_OPEN);
+            return (
+              <>
+                <h3 style={sectionH3}>{label} · {fmtNum(total)}</h3>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>{open.map(item)}</ul>
+                {rest.length > 0 && (
+                  <details style={{ marginTop: '10px' }}>
+                    <summary style={{ fontSize: '15px', fontWeight: 'bold', color: '#7a1612', cursor: 'pointer' }}>
+                      Show {fmtNum(rest.length)} more
+                    </summary>
+                    <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>{rest.map(item)}</ul>
+                  </details>
+                )}
+                {total > entries.length && (
+                  <p style={{ fontSize: '14px', color: '#14100d', margin: '8px 0 0' }}>
+                    Showing the {fmtNum(entries.length)} most recent of {fmtNum(total)}.
+                  </p>
+                )}
+              </>
+            );
+          };
+          return (
+            <>
+              <h2 style={sectionH2}>Early Day Motions</h2>
+              <p style={{ fontSize: '15px', marginBottom: '12px', color: '#14100d' }}>
+                <strong>Started {fmtNum(edms.startedCount)}</strong> {edms.startedCount === 1 ? 'motion' : 'motions'} · <strong>Signed {fmtNum(edms.signedCount)}</strong>
+              </p>
+              <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '14px', lineHeight: 1.6, color: '#14100d', opacity: 1, border: '1px dashed rgba(20,16,13,0.45)', padding: '10px 12px', marginBottom: '8px' }}>
+                Early Day Motions are formal statements MPs table in the House of Commons to put a cause or concern on record. Other MPs sign them to show support. Very few are ever debated. This covers motions tabled since the July 2024 general election. &ldquo;Sponsor&rdquo; marks the first six MPs to sign a motion. Signatures an MP later withdrew are not shown.
+              </p>
+              {list('Motions started', edms.started, edms.startedCount)}
+              {list('Motions signed', edms.signed, edms.signedCount)}
+              {edms.lastUpdated && (
+                <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '13px', color: '#14100d', opacity: 1, margin: '18px 0 0' }}>
+                  Early Day Motions last updated {fmtDate(edms.lastUpdated)}. Source: UK Parliament (edm.parliament.uk).
                 </p>
               )}
             </>

@@ -68,6 +68,20 @@ type PetitionSignatureRow = {
   } | null;
 };
 
+// Early Day Motions: how many of each list the server sends to the tab
+// (20 show open, the rest sit behind a "Show all" fold).
+const EDMS_FETCHED = 500;
+
+type EdmJoined = {
+  title: string;
+  uin_with_suffix: string | null;
+  date_tabled: string;
+  signature_count: number;
+  status: string;
+  is_prayer: boolean;
+  amendment_to_motion_id: number | null;
+};
+
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return Promise.race([
     promise,
@@ -360,6 +374,52 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         .catch(() => ({ rows: [], lastUpdated: null }))
     : Promise.resolve({ rows: [], lastUpdated: null });
 
+  // Early Day Motions this MP started (primary sponsor) and signed
+  // (sponsoring_order > 1, i.e. every signature except the primary
+  // sponsor's own; withdrawn signatures excluded). Counts come from
+  // head-only queries so they're exact even past the EDMS_FETCHED cap.
+  // Failures or a slow response degrade to an empty tab (hidden).
+  type EdmTabData = {
+    started: Array<{ id: number } & EdmJoined>;
+    signed: Array<{ edm_id: number; sponsoring_order: number | null; signed_at: string | null; early_day_motions: EdmJoined | null }>;
+    startedCount: number;
+    signedCount: number;
+    lastUpdated: string | null;
+  };
+  const pEdms: Promise<EdmTabData> = withTimeout(
+    Promise.all([
+      supabase
+        .from('early_day_motions')
+        .select('id, title, uin_with_suffix, date_tabled, signature_count, status, is_prayer, amendment_to_motion_id', { count: 'exact' })
+        .eq('primary_sponsor_id', memberId)
+        .order('date_tabled', { ascending: false })
+        .limit(EDMS_FETCHED),
+      supabase
+        .from('early_day_motion_signatures')
+        .select('edm_id, sponsoring_order, signed_at, early_day_motions(title, uin_with_suffix, date_tabled, signature_count, status, is_prayer, amendment_to_motion_id)', { count: 'exact' })
+        .eq('member_id', memberId)
+        .eq('is_withdrawn', false)
+        .gt('sponsoring_order', 1)
+        .order('signed_at', { ascending: false })
+        .limit(EDMS_FETCHED),
+      supabase
+        .from('early_day_motions')
+        .select('synced_at')
+        .order('synced_at', { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+    ]),
+    5000,
+  )
+    .then(([startedRes, signedRes, syncRes]) => ({
+      started: (startedRes.data as unknown as EdmTabData['started'] | null) ?? [],
+      signed: (signedRes.data as unknown as EdmTabData['signed'] | null) ?? [],
+      startedCount: startedRes.count ?? 0,
+      signedCount: signedRes.count ?? 0,
+      lastUpdated: (syncRes.data?.synced_at as string | undefined) ?? null,
+    }))
+    .catch(() => ({ started: [], signed: [], startedCount: 0, signedCount: 0, lastUpdated: null }));
+
   // Ministerial diary — meetings + hospitality recorded by gov.uk.
   // Only ministers have entries; backbenchers fall through with empty
   // arrays. minister_name is text (display-name format, no honorifics)
@@ -379,6 +439,31 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   // Recent Hansard chamber contributions (mp_contributions), keyed by member_id.
   const { data: contributionsData } = await pContribs;
   const contributions = contributionsData || [];
+
+  const edmsRes = await pEdms;
+  const edmEntry = (id: number, e: EdmJoined) => ({
+    id,
+    title: e.title,
+    uin: e.uin_with_suffix,
+    dateTabled: e.date_tabled,
+    signatureCount: e.signature_count,
+    withdrawn: e.status === 'withdrawn',
+    isPrayer: e.is_prayer,
+    isAmendment: e.amendment_to_motion_id != null,
+  });
+  const mpEdms = {
+    startedCount: edmsRes.startedCount,
+    signedCount: edmsRes.signedCount,
+    started: edmsRes.started.map((e) => ({ ...edmEntry(e.id, e), signedAt: null as string | null, role: 'started' as const })),
+    signed: edmsRes.signed
+      .filter((s) => s.early_day_motions)
+      .map((s) => ({
+        ...edmEntry(s.edm_id, s.early_day_motions!),
+        signedAt: s.signed_at,
+        role: (s.sponsoring_order != null && s.sponsoring_order <= 6 ? 'sponsor' : 'signed') as 'sponsor' | 'signed',
+      })),
+    lastUpdated: edmsRes.lastUpdated,
+  };
 
   const petitionsRes = await pPetitions;
   // Drop any row whose joined petition is missing (should not happen given
@@ -630,6 +715,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         committeeMemberships: committeeMembershipsRes.data ?? [],
         constituencyPetitions,
         petitionsLastUpdated: petitionsRes.lastUpdated,
+        edms: mpEdms,
       }}
       footer={
         /* Server-rendered RelatedLinks: same-party MPs, sponsored bills,
