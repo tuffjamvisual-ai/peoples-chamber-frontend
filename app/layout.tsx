@@ -3,6 +3,7 @@ import { Playfair_Display, Anton, Oswald, Abril_Fatface } from "next/font/google
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
 import SoftRegisterPrompt from "./components/SoftRegisterPrompt";
+import FloatingScrollDownButton from "./components/FloatingScrollDownButton";
 import { Analytics } from "@vercel/analytics/react";
 
 // Magazine-template typography stack. Special Elite is loaded via
@@ -155,6 +156,8 @@ export default function RootLayout({
           {children}
           <SoftRegisterPrompt />
         </AuthProvider>
+        {/* Floating jump-to-bottom arrow on every page (styled like the Claude chat app's). */}
+        <FloatingScrollDownButton />
         <Analytics />
       </body>
     </html>
