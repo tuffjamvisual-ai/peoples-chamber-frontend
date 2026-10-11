@@ -51,6 +51,9 @@ export const DATA_SOURCES: DataSource[] = [
   // synced_at is set on every write, so it advances on every successful daily run even
   // when no new petition crossed the threshold (open petitions are re-fetched daily).
   { key: 'petitions',            table: 'petitions',             column: 'synced_at',    cadence: 'daily',     label: 'Petition signatures',        source: 'UK Parliament Petitions (petition.parliament.uk)', page: '/mps/[id]',                    syncRoute: '/api/sync-petitions' },
+  // synced_at advances every run: each run re-fetches the 14 days before the newest
+  // stored division, so it re-writes rows even through recess.
+  { key: 'lords_divisions',      table: 'lords_divisions',       column: 'synced_at',    cadence: 'daily',     label: 'Lords votes',                source: 'UK Parliament Lords Votes API', page: '/bills/[id]',                          syncRoute: '/api/sync-lords-votes' },
 ];
 
 export function dataSource(key: string): DataSource | undefined {

@@ -15,6 +15,7 @@ import OpenGovShell from '../../components/OpenGovShell'
 import BackLink from '../../components/BackLink';
 import JsonLd, { buildBillLegislation } from '@/lib/JsonLd';
 import RelatedLinks from '@/app/components/RelatedLinks';
+import LastUpdated from '@/app/components/LastUpdated';
 import type { Metadata } from 'next'
 export const revalidate = 3600
 
@@ -106,8 +107,20 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
   const billId = parseInt(id, 10)
   if (!Number.isFinite(billId)) notFound()
 
-  const { data: bill } = await supabase.from('bill').select('*').eq('id', billId).single()
+  const [{ data: bill }, { data: lordsDivisionRows }] = await Promise.all([
+    supabase.from('bill').select('*').eq('id', billId).single(),
+    // House of Lords divisions linked to this bill (lords_divisions.bill_id,
+    // resolved by lib/lords-votes.ts). Newest first. A failed query just
+    // hides the section.
+    supabase
+      .from('lords_divisions')
+      .select('division_id, division_date, division_number, motion_text, content_count, not_content_count, is_government_win, is_whipped, party_breakdown')
+      .eq('bill_id', billId)
+      .order('division_date', { ascending: false })
+      .order('division_number', { ascending: false }),
+  ])
   if (!bill) notFound()
+  const lordsDivisions = (lordsDivisionRows ?? []) as LordsDivision[]
 
   // Stages are cached in bill.stages (refreshed daily by
   // /api/sync-bill-stages). No live Parliament-API call here.
@@ -421,6 +434,9 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
         </div>
       </section>
 
+      {/* How the Lords voted — formal Lords divisions on this bill. */}
+      {lordsDivisions.length > 0 && <LordsVotesSection divisions={lordsDivisions} />}
+
       {/* Sponsor */}
       {bill.sponsor_name && (
         <section style={{ marginBottom: '34px', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '24px' }}>
@@ -509,6 +525,110 @@ function explanationPoints(raw: string): string[] {
     if (Array.isArray(parsed)) return parsed.map((p) => String(p))
   } catch {}
   return raw.split('\n').filter(Boolean)
+}
+
+type LordsDivision = {
+  division_id: number
+  division_date: string
+  division_number: number | null
+  motion_text: string | null
+  content_count: number
+  not_content_count: number
+  is_government_win: boolean | null
+  is_whipped: boolean | null
+  party_breakdown: { party: string; content: number; not_content: number }[] | null
+}
+
+// How many Lords divisions show before the rest fold into a <details>.
+const LORDS_SHOWN_OPEN = 5
+
+function fmtLordsDate(d: string): string {
+  const dt = new Date(`${d}T00:00:00Z`)
+  return Number.isNaN(dt.getTime())
+    ? d
+    : dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
+}
+
+// motion_text is already plain text (HTML stripped at sync). Drop the
+// procedural closing "The House divided:" line, which adds nothing here.
+function cleanMotion(text: string | null): string | null {
+  if (!text) return null
+  const t = text.replace(/\s*The House divided:?\s*$/i, '').trim()
+  return t || null
+}
+
+function LordsDivisionItem({ d }: { d: LordsDivision }) {
+  const total = d.content_count + d.not_content_count
+  const contentPct = total > 0 ? Math.round((d.content_count / total) * 100) : 0
+  const notContentPct = total > 0 ? 100 - contentPct : 0
+  const motion = cleanMotion(d.motion_text)
+  // Win/defeat is only meaningful when the government whipped the vote.
+  const govLabel =
+    d.is_whipped === true && d.is_government_win === true ? { text: 'Government won', colour: SUCCESS }
+    : d.is_whipped === true && d.is_government_win === false ? { text: 'Government defeated', colour: DANGER }
+    : null
+  const parties = (d.party_breakdown ?? []).filter((p) => p.content + p.not_content > 0)
+  return (
+    <li style={{ padding: '16px 0', borderBottom: `1px solid ${INK_HAIRLINE}` }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'baseline', marginBottom: '8px' }}>
+        <span style={{ fontFamily: MONO, fontSize: '15px', fontWeight: 'bold', color: INK }}>{fmtLordsDate(d.division_date)}</span>
+        {govLabel && <Tag colour={govLabel.colour}>{govLabel.text}</Tag>}
+      </div>
+      {motion && (
+        <p style={{ fontFamily: SERIF, fontSize: '16px', lineHeight: 1.55, color: INK, margin: '0 0 12px', whiteSpace: 'pre-line' }}>
+          {motion}
+        </p>
+      )}
+      <VoteBar
+        label="Peers' vote"
+        totalLabel={`${total.toLocaleString()} peers`}
+        yesPct={contentPct}
+        noPct={notContentPct}
+        yesText={`Content · ${d.content_count.toLocaleString()}`}
+        noText={`Not content · ${d.not_content_count.toLocaleString()}`}
+      />
+      {parties.length > 0 && (
+        <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: '10px 0 0' }}>
+          {parties.map((p, i) => (
+            <span key={p.party}>
+              {i > 0 && ' · '}
+              <strong>{p.party}</strong> {p.content.toLocaleString()} content, {p.not_content.toLocaleString()} not content
+            </span>
+          ))}
+        </p>
+      )}
+    </li>
+  )
+}
+
+function LordsVotesSection({ divisions }: { divisions: LordsDivision[] }) {
+  const open = divisions.slice(0, LORDS_SHOWN_OPEN)
+  const rest = divisions.slice(LORDS_SHOWN_OPEN)
+  return (
+    <section style={{ marginBottom: '38px', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '24px' }}>
+      <Eyebrow>How the Lords voted</Eyebrow>
+      <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: '0 0 6px' }}>
+        {divisions.length.toLocaleString()} formal {divisions.length === 1 ? 'vote' : 'votes'} in the House of Lords on this bill, newest first.
+      </p>
+      <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.7, color: INK, margin: '0 0 8px' }}>
+        These are the occasions when peers formally divided and every vote was recorded. Most decisions in the Lords, including on many amendments, are agreed without a recorded vote, so they do not appear here.
+      </p>
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+        {open.map((d) => <LordsDivisionItem key={d.division_id} d={d} />)}
+      </ul>
+      {rest.length > 0 && (
+        <details style={{ marginTop: '12px' }}>
+          <summary style={{ fontFamily: MONO, fontSize: '15px', fontWeight: 'bold', color: ACCENT, cursor: 'pointer' }}>
+            Show {rest.length.toLocaleString()} earlier Lords {rest.length === 1 ? 'vote' : 'votes'}
+          </summary>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {rest.map((d) => <LordsDivisionItem key={d.division_id} d={d} />)}
+          </ul>
+        </details>
+      )}
+      <LastUpdated sourceKey="lords_divisions" />
+    </section>
+  )
 }
 
 function Eyebrow({ children }: { children: React.ReactNode }) {

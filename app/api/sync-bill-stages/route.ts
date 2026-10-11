@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { fetchAllBillStages, deriveCurrentStage } from '@/lib/bill-stages';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -9,16 +10,14 @@ export const maxDuration = 300;
 // to a per-run cap so a single 300s function invocation stays within
 // budget. Run daily via Vercel Cron / GitHub Actions to keep the
 // /bills/[id] render path purely Supabase-backed.
+//
+// Stages are fetched in full via lib/bill-stages.ts. The Bills API pages
+// at 20 stages by default, and this route previously stored only that
+// first page, truncating long bills (missing later stages and Royal Assent,
+// and deriving the wrong current_stage).
 
 const RUN_CAP = 600; // bills to refresh per invocation (600 × 150ms ≈ 90s)
-const PARLIAMENT_API = 'https://bills-api.parliament.uk/api/v1/Bills';
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-async function fetchStages(parliamentId: number) {
-  const res = await fetch(`${PARLIAMENT_API}/${parliamentId}/Stages`);
-  if (!res.ok) throw new Error(`Bills API ${res.status}`);
-  return res.json();
-}
 
 export async function GET(req: Request) {
   const expected = process.env.CRON_SECRET;
@@ -54,22 +53,11 @@ export async function GET(req: Request) {
 
   for (const row of targets) {
     try {
-      const stages = await fetchStages(row.parliament_id);
+      const stages = await fetchAllBillStages(row.parliament_id);
 
-      // Derive headline current_stage + stage_date from the freshest
-      // dated stage in the JSON we just fetched. Stages without a
-      // stageSittings date (future/scheduled) are ignored for this
-      // purpose so we surface the last *actually-occurred* stage.
-      const today = new Date().toISOString().slice(0, 10);
-      const items: Array<{ description?: string; stageSittings?: Array<{ date?: string }> }> =
-        Array.isArray(stages?.items) ? stages.items : [];
-      const dated = items
-        .map((s) => ({ s, date: s.stageSittings?.[0]?.date }))
-        .filter((x): x is { s: typeof items[number]; date: string } => typeof x.date === 'string' && x.date.slice(0, 10) <= today)
-        .sort((a, b) => b.date.localeCompare(a.date));
-      const latest = dated[0];
-      const current_stage = latest?.s.description ?? null;
-      const stage_date = latest?.date?.slice(0, 10) ?? null;
+      // Headline current_stage + stage_date from the freshest dated stage
+      // (future/scheduled sittings ignored), now from the COMPLETE list.
+      const { current_stage, stage_date } = deriveCurrentStage(stages.items);
 
       const { error } = await supabase
         .from('bill')
