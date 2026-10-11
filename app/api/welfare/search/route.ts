@@ -98,11 +98,14 @@ export async function GET(req: NextRequest) {
     { data: laData, error: laErr },
     { data: countyData, error: countyErr },
   ] = await Promise.all([
-    // Constituencies: from mps table
+    // Constituencies: from mps table. Northern Ireland codes (N05...) are
+    // excluded: NI MPs carry their ONS code for the petitions feature, but
+    // the welfare explorer is GB-only and has no NI data to show.
     supabase
       .from('mps')
       .select('constituency_gss_code, constituency')
       .ilike('constituency', pattern)
+      .not('constituency_gss_code', 'like', 'N%')
       .order('constituency')
       .limit(8),
 

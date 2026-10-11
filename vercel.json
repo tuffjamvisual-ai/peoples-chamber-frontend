@@ -183,6 +183,10 @@
     {
       "path": "/api/cron/sync-programmes",
       "schedule": "30 9 * * *"
+    },
+    {
+      "path": "/api/sync-petitions",
+      "schedule": "45 6 * * *"
     }
   ]
 }

@@ -44,6 +44,30 @@ function escapeIlike(s: string): string {
   return s.replace(/[\\%_]/g, (m) => `\\${m}`);
 }
 
+// How many of the constituency's most-signed petitions the Petitions tab shows.
+const PETITIONS_SHOWN = 20;
+
+// Row shape of the petition_constituency_signatures query with its embedded
+// petitions row (many-to-one via the petition_id foreign key, so PostgREST
+// returns a single object, not an array).
+type PetitionSignatureRow = {
+  petition_id: number;
+  signature_count: number;
+  rank_in_petition: number;
+  share_of_petition_pct: number | null;
+  petitions: {
+    action: string;
+    state: string;
+    signature_count: number;
+    constituency_count: number | null;
+    opened_at: string | null;
+    closed_at: string | null;
+    government_response_at: string | null;
+    debated_on: string | null;
+    url: string;
+  } | null;
+};
+
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return Promise.race([
     promise,
@@ -304,6 +328,38 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       )
     : Promise.resolve({ data: [] });
 
+  // Petitions most signed in this MP's constituency (petition.parliament.uk,
+  // petitions with 10,000+ signatures only — threshold stated to readers on
+  // the Petitions tab). Joined on the 2024-boundary ONS code stored on mps.
+  // Plus the newest synced_at for the tab's "last updated" line. Failures
+  // or a slow response degrade to an empty tab (hidden) rather than
+  // breaking the whole profile.
+  const constituencyGss = (mp.constituency_gss_code as string | null) ?? null;
+  const pPetitions: Promise<{ rows: PetitionSignatureRow[]; lastUpdated: string | null }> = constituencyGss
+    ? withTimeout(
+        Promise.all([
+          supabase
+            .from('petition_constituency_signatures')
+            .select('petition_id, signature_count, rank_in_petition, share_of_petition_pct, petitions(action, state, signature_count, constituency_count, opened_at, closed_at, government_response_at, debated_on, url)')
+            .eq('constituency_gss_code', constituencyGss)
+            .order('signature_count', { ascending: false })
+            .limit(PETITIONS_SHOWN),
+          supabase
+            .from('petitions')
+            .select('synced_at')
+            .order('synced_at', { ascending: false })
+            .limit(1)
+            .maybeSingle(),
+        ]),
+        5000,
+      )
+        .then(([sigRes, syncRes]) => ({
+          rows: (sigRes.data as unknown as PetitionSignatureRow[] | null) ?? [],
+          lastUpdated: (syncRes.data?.synced_at as string | undefined) ?? null,
+        }))
+        .catch(() => ({ rows: [], lastUpdated: null }))
+    : Promise.resolve({ rows: [], lastUpdated: null });
+
   // Ministerial diary — meetings + hospitality recorded by gov.uk.
   // Only ministers have entries; backbenchers fall through with empty
   // arrays. minister_name is text (display-name format, no honorifics)
@@ -323,6 +379,26 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   // Recent Hansard chamber contributions (mp_contributions), keyed by member_id.
   const { data: contributionsData } = await pContribs;
   const contributions = contributionsData || [];
+
+  const petitionsRes = await pPetitions;
+  // Drop any row whose joined petition is missing (should not happen given
+  // the foreign key, but never render a half-empty entry).
+  const constituencyPetitions = petitionsRes.rows
+    .filter((r) => r.petitions && r.petitions.action)
+    .map((r) => ({
+      petitionId: r.petition_id,
+      title: r.petitions!.action,
+      state: r.petitions!.state,
+      localSignatures: r.signature_count,
+      rank: r.rank_in_petition,
+      rankOutOf: r.petitions!.constituency_count,
+      totalSignatures: r.petitions!.signature_count,
+      openedAt: r.petitions!.opened_at,
+      closedAt: r.petitions!.closed_at,
+      governmentResponseAt: r.petitions!.government_response_at,
+      debatedOn: r.petitions!.debated_on,
+      url: r.petitions!.url,
+    }));
 
   // APPGs (All-Party Parliamentary Groups) this MP is officer of, with
   // each group's registered funders. Sourced from mySociety/appg-
@@ -552,6 +628,8 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         expenses: expensesRes.data || [],
         expensesDetail: expensesDetailRes.data || [],
         committeeMemberships: committeeMembershipsRes.data ?? [],
+        constituencyPetitions,
+        petitionsLastUpdated: petitionsRes.lastUpdated,
       }}
       footer={
         /* Server-rendered RelatedLinks: same-party MPs, sponsored bills,

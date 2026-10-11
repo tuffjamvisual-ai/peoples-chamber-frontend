@@ -7,7 +7,7 @@ import { COMMITTEE_IDS } from '@/lib/committees';
 
 const COMMITTEE_ID_SET = new Set<number>(COMMITTEE_IDS);
 
-type SectionId = 'bio' | 'career' | 'contact' | 'voting' | 'bills' | 'house' | 'interests' | 'roles' | 'earnings' | 'donations' | 'diary' | 'expenses';
+type SectionId = 'bio' | 'career' | 'contact' | 'voting' | 'bills' | 'house' | 'petitions' | 'interests' | 'roles' | 'earnings' | 'donations' | 'diary' | 'expenses';
 
 // TEMPORARY: hide the Political Biography tab + section on every MP profile.
 // Bios stay in the database untouched; this only stops them rendering. To
@@ -24,6 +24,7 @@ const ALL_SECTIONS: Array<{ id: SectionId; label: string; rotate: string }> = [
   { id: 'voting',    label: 'VOTING RECORD',    rotate: '0.15deg' },
   { id: 'bills',     label: 'BILLS SPONSORED',  rotate: '-0.2deg' },
   { id: 'house',     label: 'IN THE HOUSE',     rotate: '0.12deg' },
+  { id: 'petitions', label: 'PETITIONS',        rotate: '-0.1deg' },
   { id: 'interests', label: 'INTERESTS',        rotate: '0.1deg' },
   { id: 'roles',     label: 'ROLES',            rotate: '-0.15deg' },
   { id: 'earnings',  label: 'EARNINGS',         rotate: '0.2deg' },
@@ -307,7 +308,26 @@ interface Props {
   // Landing page only: abbreviate the expenses column headers and drop any breakdown
   // column that is zero across every year, so the table fits a narrow folder.
   compactExpenses?: boolean;
+  /** Petitions (10,000+ signatures only) most signed in this MP's constituency. */
+  constituencyPetitions?: ConstituencyPetition[];
+  /** Newest petitions sync time, for the tab's "last updated" line. */
+  petitionsLastUpdated?: string | null;
 }
+
+type ConstituencyPetition = {
+  petitionId: number;
+  title: string;
+  state: string;
+  localSignatures: number;
+  rank: number;
+  rankOutOf: number | null;
+  totalSignatures: number;
+  openedAt: string | null;
+  closedAt: string | null;
+  governmentResponseAt: string | null;
+  debatedOn: string | null;
+  url: string;
+};
 
 type Contribution = {
   debate_title: string | null;
@@ -423,6 +443,8 @@ export default function MagazineProfileSections({
   jsSticky = false,
   stickyScale = 1,
   compactExpenses = false,
+  constituencyPetitions = [],
+  petitionsLastUpdated = null,
 }: Props) {
   const has: Record<SectionId, boolean> = {
     bio: (!HIDE_POLITICAL_BIO || BIO_VISIBLE_MEMBER_IDS.has(memberId)) && paragraphs.length > 0,
@@ -431,6 +453,7 @@ export default function MagazineProfileSections({
     voting: (totalVotes ?? votes.length) > 0,
     bills: sponsoredBills.length > 0,
     house: contributions.length > 0,
+    petitions: constituencyPetitions.length > 0,
     interests: interests.length > 0,
     roles: !!(
       committeeMemberships.length > 0 ||
@@ -999,6 +1022,58 @@ export default function MagazineProfileSections({
             </ul>
           </>
         )}
+
+        {active === 'petitions' && (() => {
+          const fmtNum = (n: number) => n.toLocaleString('en-GB');
+          const ordinal = (n: number) => {
+            const mod100 = n % 100;
+            if (mod100 >= 11 && mod100 <= 13) return `${n}th`;
+            const suffix = ({ 1: 'st', 2: 'nd', 3: 'rd' } as Record<number, string>)[n % 10] ?? 'th';
+            return `${n}${suffix}`;
+          };
+          const rankText = (p: ConstituencyPetition) => {
+            if (p.rankOutOf == null) return `${ordinal(p.rank)} highest constituency`;
+            if (p.rankOutOf >= 650) return `${ordinal(p.rank)} highest of all ${fmtNum(p.rankOutOf)} constituencies`;
+            return `${ordinal(p.rank)} highest of the ${fmtNum(p.rankOutOf)} constituencies with signatures`;
+          };
+          const chip: React.CSSProperties = { fontSize: '13px', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '1px 6px', border: '1px solid #14100d', color: '#14100d', whiteSpace: 'nowrap' };
+          return (
+            <>
+              <h2 style={sectionH2}>Petitions</h2>
+              <p style={{ fontSize: '15px', marginBottom: '12px', color: '#14100d' }}>
+                The petitions most signed by people in this constituency.
+              </p>
+              {/* Threshold note: always visible above the list, full black per
+                  house rule for small explanatory text. The threshold must stay
+                  in sync with PETITION_SIGNATURE_THRESHOLD (lib/petitions.ts). */}
+              <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '14px', lineHeight: 1.6, color: '#14100d', opacity: 1, border: '1px dashed rgba(20,16,13,0.45)', padding: '10px 12px', marginBottom: '18px' }}>
+                This shows petitions from the current Parliament on the{' '}
+                <a href="https://petition.parliament.uk" target="_blank" rel="noopener noreferrer" style={inkLink}>UK Parliament petitions website</a>{' '}
+                that reached 10,000 signatures, the point at which the government must respond. Petitions with fewer signatures are not included. Constituency counts come from the petitions site, are based on the postcode each signer gives, and are updated daily.
+              </p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {constituencyPetitions.map((p) => (
+                  <li key={p.petitionId} style={{ padding: '12px 0', borderBottom: inkDivider }}>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'baseline', flexWrap: 'wrap' }}>
+                      <a href={p.url} target="_blank" rel="noopener noreferrer" style={{ ...inkLink, fontWeight: 'bold', fontSize: '15px' }}>{p.title}</a>
+                      <span style={chip}>{p.state === 'open' ? 'Open' : 'Closed'}</span>
+                      {p.governmentResponseAt && <span style={chip}>Government responded {fmtDate(p.governmentResponseAt)}</span>}
+                      {p.debatedOn && <span style={chip}>Debated {fmtDate(p.debatedOn)}</span>}
+                    </div>
+                    <div style={{ fontSize: '15px', marginTop: '4px', color: '#14100d' }}>
+                      <strong>{fmtNum(p.localSignatures)}</strong> {p.localSignatures === 1 ? 'signature' : 'signatures'} here · {rankText(p)} · {fmtNum(p.totalSignatures)} signatures in total
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              {petitionsLastUpdated && (
+                <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '13px', color: '#14100d', opacity: 1, margin: '18px 0 0' }}>
+                  Petition signatures last updated {fmtDate(petitionsLastUpdated)}. Source: UK Parliament Petitions (petition.parliament.uk).
+                </p>
+              )}
+            </>
+          );
+        })()}
 
         {active === 'interests' && (() => {
           // Register taxonomy folded into 7 themed buckets so a reader

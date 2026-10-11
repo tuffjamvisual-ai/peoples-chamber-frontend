@@ -48,6 +48,9 @@ export const DATA_SOURCES: DataSource[] = [
   { key: 'division_votes',       table: 'mp_division_votes',     column: 'created_at',   cadence: 'daily',     label: 'Commons division votes',     source: 'Commons Votes API',             page: '/divisions',                            syncRoute: '/api/sync-commons-votes-api', zeroRunTolerance: 14 },
   { key: 'registered_interests', table: 'mp_registered_interests', column: 'last_seen_date', cadence: 'daily', label: 'Register of interests',      source: 'UK Parliament',                 page: '/transparency/register-of-interests',   syncRoute: '/api/sync-registered-interests', zeroRunTolerance: 14 },
   { key: 'hansard_contributions', table: 'mp_contributions',       column: 'updated_at',   cadence: 'daily',    label: 'Hansard chamber contributions', source: 'UK Parliament Members API',    page: '/mps/[id]',                         syncRoute: '/api/sync-hansard-contributions' },
+  // synced_at is set on every write, so it advances on every successful daily run even
+  // when no new petition crossed the threshold (open petitions are re-fetched daily).
+  { key: 'petitions',            table: 'petitions',             column: 'synced_at',    cadence: 'daily',     label: 'Petition signatures',        source: 'UK Parliament Petitions (petition.parliament.uk)', page: '/mps/[id]',                    syncRoute: '/api/sync-petitions' },
 ];
 
 export function dataSource(key: string): DataSource | undefined {
