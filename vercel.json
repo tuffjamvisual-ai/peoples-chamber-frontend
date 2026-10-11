@@ -199,6 +199,10 @@
     {
       "path": "/api/sync-house-prices",
       "schedule": "15 8 * * *"
+    },
+    {
+      "path": "/api/sync-homelessness",
+      "schedule": "20 8 * * 2"
     }
   ]
 }

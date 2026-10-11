@@ -12,6 +12,7 @@ import WelfareLocalAuthorityDetail from '../../components/WelfareLocalAuthorityD
 import CouncilCrimeSection from '../../components/CouncilCrimeSection';
 import CouncilChildPovertySection from '../../components/CouncilChildPovertySection';
 import CouncilHousePricesSection from '../../components/CouncilHousePricesSection';
+import CouncilHomelessnessSection from '../../components/CouncilHomelessnessSection';
 
 export const revalidate = 21600;
 
@@ -402,6 +403,16 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
         {/* House prices: every council with a published series, county
             councils included, has its own HPI figures, so no summing. */}
         <CouncilHousePricesSection gssCode={c.gss_code} />
+
+        {/* Homelessness (England): same district/county logic as crime. */}
+        <CouncilHomelessnessSection
+          gssCodes={
+            c.type === 'county'
+              ? children.map((d) => d.gss_code).filter((g): g is string => !!g)
+              : c.gss_code ? [c.gss_code] : []
+          }
+          isCounty={c.type === 'county'}
+        />
 
         {showServiceSpending && (
           <Section title="Council Spending by Service">

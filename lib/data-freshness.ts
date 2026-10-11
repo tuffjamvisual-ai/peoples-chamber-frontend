@@ -68,6 +68,9 @@ export const DATA_SOURCES: DataSource[] = [
   // UK HPI is released monthly (2nd-4th Wednesday), so the daily check returns 0 rows on
   // most days; the zero-run tolerance covers the longest gap between releases (~6 weeks).
   { key: 'council_house_prices',    table: 'council_house_prices', column: 'synced_at', cadence: 'monthly',   label: 'House prices by council', source: 'HM Land Registry UK House Price Index', page: '/councils/[slug]', syncRoute: '/api/sync-house-prices', zeroRunTolerance: 45 },
+  // MHCLG statutory homelessness is quarterly; the weekly check returns 0 rows on most runs,
+  // so the zero-run tolerance covers a quarter plus a slipped release (~20 weeks).
+  { key: 'council_homelessness',    table: 'council_homelessness', column: 'synced_at', cadence: 'quarterly', label: 'Homelessness by council', source: 'MHCLG statutory homelessness statistics', page: '/councils/[slug]', syncRoute: '/api/sync-homelessness', zeroRunTolerance: 20 },
 ];
 
 export function dataSource(key: string): DataSource | undefined {
