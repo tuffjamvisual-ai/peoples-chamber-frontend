@@ -65,6 +65,9 @@ export const DATA_SOURCES: DataSource[] = [
   // NI is refreshed by hand monthly (PSNI's pages block automated access), so it's on a
   // monthly cadence: the alert email doubles as the reminder to run the update.
   { key: 'council_crime_psni',      table: 'council_crime_stats', column: 'updated_at',  cadence: 'monthly',   label: 'Council crime (Northern Ireland)', source: 'PSNI recorded crime tables', page: '/councils/[slug]', syncRoute: '/github-actions/council-crime-psni' },
+  // UK HPI is released monthly (2nd-4th Wednesday), so the daily check returns 0 rows on
+  // most days; the zero-run tolerance covers the longest gap between releases (~6 weeks).
+  { key: 'council_house_prices',    table: 'council_house_prices', column: 'synced_at', cadence: 'monthly',   label: 'House prices by council', source: 'HM Land Registry UK House Price Index', page: '/councils/[slug]', syncRoute: '/api/sync-house-prices', zeroRunTolerance: 45 },
 ];
 
 export function dataSource(key: string): DataSource | undefined {

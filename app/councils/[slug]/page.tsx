@@ -11,6 +11,7 @@ import ScrollToTopButton from '../../components/ScrollToTopButton';
 import WelfareLocalAuthorityDetail from '../../components/WelfareLocalAuthorityDetail';
 import CouncilCrimeSection from '../../components/CouncilCrimeSection';
 import CouncilChildPovertySection from '../../components/CouncilChildPovertySection';
+import CouncilHousePricesSection from '../../components/CouncilHousePricesSection';
 
 export const revalidate = 21600;
 
@@ -397,6 +398,10 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
           }
           isCounty={c.type === 'county'}
         />
+
+        {/* House prices: every council with a published series, county
+            councils included, has its own HPI figures, so no summing. */}
+        <CouncilHousePricesSection gssCode={c.gss_code} />
 
         {showServiceSpending && (
           <Section title="Council Spending by Service">
