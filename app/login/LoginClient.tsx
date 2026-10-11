@@ -24,6 +24,7 @@ export default function LoginClient() {
   const [postcode, setPostcode] = useState('');
   const [honeypot, setHoneypot] = useState('');
   const [ageConfirmed, setAgeConfirmed] = useState(false);
+  const [newsletterOptIn, setNewsletterOptIn] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -64,7 +65,7 @@ export default function LoginClient() {
           setLoading(false);
           return;
         }
-        await signup(email, password, postcode, username);
+        await signup(email, password, postcode, username, undefined, newsletterOptIn);
         onAuthDone();
       } else if (mode === 'login') {
         await login(email, password);
@@ -164,6 +165,23 @@ export default function LoginClient() {
                 <label htmlFor="ageConfirm" className="text-sm text-white">
                   I confirm I am 18 years of age or older
                 </label>
+              </div>
+
+              <div className="rounded-lg border border-white/20 p-4 space-y-2">
+                <p className="text-sm text-white font-medium">Open Govt Weekly</p>
+                <p className="text-xs text-white/80 leading-relaxed">What government announced. What the evidence shows. What happened next. Investigations, overlooked documents and public spending stories — no gossip, no press-release rewrites. Delivered every Sunday.</p>
+                <div className="flex items-start gap-2 pt-1">
+                  <input
+                    type="checkbox"
+                    id="newsletterOptIn"
+                    checked={newsletterOptIn}
+                    onChange={(e) => setNewsletterOptIn(e.target.checked)}
+                    className="mt-1"
+                  />
+                  <label htmlFor="newsletterOptIn" className="text-sm text-white cursor-pointer">
+                    Yes, send me the weekly newsletter
+                  </label>
+                </div>
               </div>
             </>
           )}

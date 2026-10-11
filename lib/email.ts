@@ -18,6 +18,7 @@ export async function sendSignupNotification(user: {
   username?: string | null;
   emailVerified: boolean;
   createdAt?: string | null;
+  newsletterOptIn?: boolean;
 }) {
   const key = process.env.RESEND_API_KEY;
   if (!key) return { sent: false, reason: 'no_api_key' };
@@ -30,11 +31,16 @@ export async function sendSignupNotification(user: {
   });
   const username = user.username?.trim() || '— not provided';
   const status = user.emailVerified ? 'auto-verified (email confirmation off)' : 'pending email confirmation';
+  const newsletter = user.newsletterOptIn ? 'Yes — opted in' : 'No';
+  const subject = user.newsletterOptIn
+    ? `New opengovt signup (newsletter): ${user.email}`
+    : `New opengovt signup: ${user.email}`;
 
   const text =
     `New user registered on opengovt.\n\n` +
     `Email:      ${user.email}\n` +
     `Username:   ${username}\n` +
+    `Newsletter: ${newsletter}\n` +
     `Verified:   ${status}\n` +
     `Signed up:  ${timestamp} (UK time)\n`;
   const html = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;color:#14100d">
@@ -42,6 +48,7 @@ export async function sendSignupNotification(user: {
       <table style="border-collapse:collapse;font-size:15px">
         <tr><td style="padding:2px 14px 2px 0;color:#555">Email</td><td>${user.email}</td></tr>
         <tr><td style="padding:2px 14px 2px 0;color:#555">Username</td><td>${username}</td></tr>
+        <tr><td style="padding:2px 14px 2px 0;color:#555">Newsletter</td><td style="font-weight:${user.newsletterOptIn ? 'bold' : 'normal'};color:${user.newsletterOptIn ? '#2a6e1f' : 'inherit'}">${newsletter}</td></tr>
         <tr><td style="padding:2px 14px 2px 0;color:#555">Verified</td><td>${status}</td></tr>
         <tr><td style="padding:2px 14px 2px 0;color:#555">Signed up</td><td>${timestamp} (UK time)</td></tr>
       </table>
@@ -54,7 +61,7 @@ export async function sendSignupNotification(user: {
     // `error`, not as an exception. Inspect it so we never report a false
     // `sent: true`. `throw` is reserved for network/transport failures.
     const { data, error } = await resend.emails.send({
-      from, to: SIGNUP_NOTIFY_TO, subject: `New opengovt signup: ${user.email}`, text, html,
+      from, to: SIGNUP_NOTIFY_TO, subject, text, html,
     });
     if (error) return { sent: false, reason: error.message, to: SIGNUP_NOTIFY_TO, from };
     return { sent: true, id: data?.id, to: SIGNUP_NOTIFY_TO, from };

@@ -13,7 +13,7 @@ type AuthContextType = {
   user: User | null;
   authLoading: boolean;
   login: (email: string, password: string) => Promise<{ needsPasswordReset: true; email: string } | undefined>;
-  signup: (email: string, password: string, postcode?: string, username?: string, returnTo?: string) => Promise<{ needsVerification: boolean }>;
+  signup: (email: string, password: string, postcode?: string, username?: string, returnTo?: string, newsletterOptIn?: boolean) => Promise<{ needsVerification: boolean }>;
   logout: () => void;
   setAuthedUser: (user: User) => void;
 };
@@ -83,11 +83,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('user', JSON.stringify(data.user));
   };
 
-  const signup = async (email: string, password: string, postcode?: string, username?: string, returnTo?: string) => {
+  const signup = async (email: string, password: string, postcode?: string, username?: string, returnTo?: string, newsletterOptIn?: boolean) => {
     const response = await fetch('/api/auth/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, postcode, username, returnTo })
+      body: JSON.stringify({ email, password, postcode, username, returnTo, newsletterOptIn: newsletterOptIn ?? false })
     });
 
     const data = await response.json();

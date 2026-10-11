@@ -101,6 +101,7 @@ export default function MagazineLoginClient() {
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
   const [signupPostcode, setSignupPostcode] = useState('');
+  const [signupNewsletter, setSignupNewsletter] = useState(false);
 
   // forgot fields
   const [forgotEmail, setForgotEmail] = useState('');
@@ -161,7 +162,7 @@ export default function MagazineLoginClient() {
     if (!pwOk) { setError('Password must be 8 or more characters with a letter and a number'); return; }
     setLoading(true);
     try {
-      const res = await signup(signupEmail.trim(), signupPassword, signupPostcode.trim(), signupName.trim(), returnTo !== '/' ? returnTo : undefined);
+      const res = await signup(signupEmail.trim(), signupPassword, signupPostcode.trim(), signupName.trim(), returnTo !== '/' ? returnTo : undefined, signupNewsletter);
       if (res?.needsVerification) {
         setLoading(false);
         setNotice('Account created. Check your email for a confirmation link, then sign in to start voting.');
@@ -285,6 +286,23 @@ export default function MagazineLoginClient() {
 
             <label style={label} htmlFor="su-postcode">Postcode <span style={{ opacity: 0.6 }}>(optional)</span></label>
             <input id="su-postcode" type="text" autoComplete="postal-code" value={signupPostcode} onChange={(e) => setSignupPostcode(e.target.value)} style={input} />
+
+            <div style={{ border: '1px solid rgba(20,16,13,0.18)', padding: '14px', margin: '4px 0 20px' }}>
+              <p style={{ margin: '0 0 4px', fontSize: '15px', fontWeight: 700 }}>Open Govt Weekly</p>
+              <p style={{ margin: '0 0 12px', fontSize: '14px', lineHeight: 1.5, opacity: 0.75 }}>What government announced. What the evidence shows. What happened next. Investigations, overlooked documents and public spending stories — no gossip, no press-release rewrites. Delivered every Sunday.</p>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                <input
+                  id="su-newsletter"
+                  type="checkbox"
+                  checked={signupNewsletter}
+                  onChange={(e) => setSignupNewsletter(e.target.checked)}
+                  style={{ marginTop: '3px', flexShrink: 0 }}
+                />
+                <label htmlFor="su-newsletter" style={{ fontSize: '15px', lineHeight: 1.4, cursor: 'pointer' }}>
+                  Yes, send me the weekly newsletter
+                </label>
+              </div>
+            </div>
 
             <button type="submit" disabled={loading} style={button}>{loading ? 'Creating account…' : 'Create Account'}</button>
 

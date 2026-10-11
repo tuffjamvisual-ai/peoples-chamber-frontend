@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
     const username = (body.username as string | undefined)?.trim();
     const postcode = (body.postcode as string | undefined)?.trim().toUpperCase() ?? null;
     const email = (body.email as string | undefined)?.trim().toLowerCase();
+    const newsletterOptIn = body.newsletterOptIn === true;
     const rawReturnTo = (body.returnTo as string | undefined) ?? null;
     // Only store a safe relative path; reject anything that could be an open redirect.
     const pendingReturnTo =
@@ -111,6 +112,7 @@ export async function POST(request: NextRequest) {
         password: hashedPassword,
         postcode,
         username,
+        newsletter_opt_in: newsletterOptIn,
         email_verified: verified,
         verification_token: verified ? null : token,
         verification_sent_at: verified ? null : new Date().toISOString(),
@@ -139,6 +141,7 @@ export async function POST(request: NextRequest) {
       username: user.username,
       emailVerified: user.email_verified,
       createdAt: user.created_at,
+      newsletterOptIn,
     }).catch((e) => console.error('Signup notification failed:', e));
 
     if (verified) {
