@@ -188,7 +188,7 @@ export default async function PartySecondJobsList({ params }: { params: Promise<
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '14px 16px', background: 'rgba(255,247,228,0.5)' }}>
+    <div style={{ borderTop: `2px solid ${INK}`, padding: '10px 0 4px' }}>
       <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.22em', color: INK_SOFT, margin: '0 0 6px', fontWeight: 'bold', fontFamily: MONO }}>
         {label}
       </p>

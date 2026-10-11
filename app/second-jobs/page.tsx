@@ -99,56 +99,35 @@ export default async function SecondJobsLanding() {
           By party · click through for detail
         </h2>
 
-        {/* Party tiles styled to match the nav-bar dropdown panel
-            vocabulary: plain cream paper (parchment texture removed), layered shadows in place of
-            a hard border, slight per-tile rotation, small ★ header
-            band with red-ink hairline, mono uppercase meta lines. */}
+        {/* Party list: plain rows on the folder (no cards), separated by
+            hairlines, with a light tint on hover. */}
         <style>{`
           .pca-party-tile {
-            position: relative;
             display: block;
-            padding: 14px 16px 16px;
+            padding: 14px 4px 16px;
             color: ${INK};
             text-decoration: none;
-            background: #efe6d2;
             font-family: ${SERIF};
-            box-shadow:
-              inset 0 0 0 1px rgba(255,247,228,0.35),
-              0 0 0 1px rgba(60,42,28,0.35),
-              0 1px 0 rgba(255,247,228,0.5),
-              0 14px 26px -12px rgba(50,30,18,0.45);
-            transition: transform 180ms ease, box-shadow 180ms ease;
+            border-bottom: 1px solid ${INK_HAIRLINE};
+            transition: background 150ms ease;
           }
-          .pca-party-tile:nth-child(3n+1) { transform: rotate(-0.45deg); }
-          .pca-party-tile:nth-child(3n+2) { transform: rotate(0.3deg); }
-          .pca-party-tile:nth-child(3n)   { transform: rotate(-0.2deg); }
-          .pca-party-tile:hover {
-            transform: rotate(0deg) translateY(-2px);
-            box-shadow:
-              inset 0 0 0 1px rgba(255,247,228,0.45),
-              0 0 0 1px rgba(122,22,18,0.55),
-              0 1px 0 rgba(255,247,228,0.6),
-              0 22px 36px -14px rgba(50,30,18,0.6);
-          }
+          .pca-party-tile:hover { background: rgba(122,22,18,0.06); }
           .pca-party-tile .pca-tile-head {
-            display: flex; align-items: center; justify-content: center;
-            gap: 8px; padding: 4px 0 6px;
-            font-family: ${SERIF};
-            font-size: 10px;
-            letter-spacing: 0.28em;
+            font-family: ${MONO};
+            font-size: 13px;
+            letter-spacing: 0.18em;
             text-transform: uppercase;
-            color: rgba(20,16,13,0.55);
-            border-bottom: 1px solid rgba(122,22,18,0.35);
-            margin: -2px 8px 10px;
+            color: ${INK_SOFT};
+            margin: 0 0 6px;
           }
-          .pca-party-tile .pca-tile-head .pca-star { color: ${ACCENT}; }
         `}</style>
 
         <div
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-            gap: '18px',
+            columnGap: '28px',
+            borderTop: `1px solid ${INK_HAIRLINE}`,
           }}
         >
           {partyTotals.map((p) => (
@@ -157,10 +136,8 @@ export default async function SecondJobsLanding() {
               href={`/second-jobs/${p.slug}`}
               className="no-hover-scale pca-party-tile"
             >
-              <div aria-hidden className="pca-tile-head">
-                <span className="pca-star">★</span>
-                <span>{p.mps} MP{p.mps === 1 ? '' : 's'}</span>
-                <span className="pca-star">★</span>
+              <div className="pca-tile-head">
+                {p.mps} MP{p.mps === 1 ? '' : 's'}
               </div>
               <div style={{ fontFamily: SERIF, fontSize: 'clamp(18px, 2vw, 22px)', fontWeight: 600, marginBottom: '6px', lineHeight: 1.2 }}>
                 {p.label} <span style={{ opacity: 0.55 }}>→</span>
@@ -193,7 +170,7 @@ export default async function SecondJobsLanding() {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '14px 16px', background: 'rgba(255,247,228,0.5)' }}>
+    <div style={{ borderTop: `2px solid ${INK}`, padding: '10px 0 4px' }}>
       <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.22em', color: INK_SOFT, margin: '0 0 6px', fontWeight: 'bold', fontFamily: MONO }}>
         {label}
       </p>

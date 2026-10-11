@@ -51,6 +51,22 @@ export default function CouncilTabs({ tabs, slots }: { tabs: Tab[]; slots: Recor
   // On phones the chips are a sideways-scrolling row: keep the open tab's chip in view
   // (moves the row only, never the page).
   const navRef = useRef<HTMLElement | null>(null);
+
+  // Soft fade at the right edge of the phone chip row while there are more
+  // tabs off to the right; it goes once the row is scrolled to the end.
+  const [moreRight, setMoreRight] = useState(false);
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+    const check = () => setMoreRight(nav.scrollLeft + nav.clientWidth < nav.scrollWidth - 2);
+    check();
+    nav.addEventListener('scroll', check, { passive: true });
+    window.addEventListener('resize', check);
+    return () => {
+      nav.removeEventListener('scroll', check);
+      window.removeEventListener('resize', check);
+    };
+  }, [visible]);
   useEffect(() => {
     const nav = navRef.current;
     if (!nav || nav.scrollWidth <= nav.clientWidth) return;
@@ -80,18 +96,20 @@ export default function CouncilTabs({ tabs, slots }: { tabs: Tab[]; slots: Recor
     // the screen on phones instead of scrolling inside its own box.
     <div className="council-tabs" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: '16px' }}>
       <style>{`
-        .council-tabs nav { display:flex; flex-direction:row; gap:4px; overflow-x:auto; -webkit-overflow-scrolling:touch; padding:4px 0 8px; border-bottom:1px solid rgba(20,16,13,0.2); }
+        .council-tabs nav { display:flex; flex-direction:row; gap:4px; overflow-x:auto; -webkit-overflow-scrolling:touch; padding:4px 0 8px; border-bottom:1px solid rgba(20,16,13,0.2); scrollbar-width:none; }
+        .council-tabs nav::-webkit-scrollbar { display:none; }
+        .council-tabs nav.more-right { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); }
         .council-tabs nav button { white-space:nowrap; flex:0 0 auto; }
         @media (min-width: 1024px) {
           .council-tabs { grid-template-columns: 200px minmax(0, 1fr) !important; gap: 28px !important; }
           .council-tabs aside { position: relative; }
-          .council-tabs nav { position: sticky; top: 24px; flex-direction:column; overflow:visible; border-bottom:none; padding:8px; }
+          .council-tabs nav { position: sticky; top: 24px; flex-direction:column; overflow:visible; border-bottom:none; padding:8px; -webkit-mask-image:none !important; mask-image:none !important; }
           .council-tabs nav button { white-space:normal; }
         }
         ${hideEmptyCss}
       `}</style>
       <aside>
-        <nav ref={navRef} aria-label="Council information">
+        <nav ref={navRef} aria-label="Council information" className={moreRight ? 'more-right' : undefined}>
           {tabs.filter((t) => visible.includes(t.id)).map((t) => {
             const isActive = t.id === active;
             return (
