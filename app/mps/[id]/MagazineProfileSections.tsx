@@ -1556,7 +1556,11 @@ export default function MagazineProfileSections({
                     Plus {undisclosedRoleCount} registered {undisclosedRoleCount === 1 ? 'role that declares' : 'roles that declare'} no income (typically directorships or shareholdings), so actual outside earnings are higher than the figure shown.
                   </li>
                 )}
-                <li style={{ marginTop: '16px', fontSize: '15px', color: '#14100d' }}>Public spend (IPSA, {earnings.public_spend_year ?? ', '}): {fmtMoney(earnings.public_spend)}</li>
+                <li style={{ marginTop: '16px', fontSize: '15px', color: '#14100d' }}>
+                  {earnings.public_spend_year
+                    ? <>Public spend (IPSA, {earnings.public_spend_year}): {fmtMoney(earnings.public_spend)}</>
+                    : <>Public spend (IPSA): none published yet</>}
+                </li>
               </ul>
 
               <div style={{ marginTop: '28px', padding: '18px 20px', border: '1px solid rgba(20,16,13,0.25)', borderTop: '3px solid #6b2417', background: 'rgba(107,36,23,0.03)' }}>

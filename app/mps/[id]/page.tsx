@@ -126,8 +126,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const name = mp.display_name || mp.name;
   const party = normaliseParty(mp.party) || mp.party || '';
   const sinceYear = mp.start_date ? new Date(mp.start_date).getFullYear() : null;
+  const untilYear = mp.end_date ? new Date(mp.end_date).getFullYear() : null;
+  const isFormer = mp.current_member === false;
 
-  const head = `${name}, ${[party, mp.constituency && `MP for ${mp.constituency}`].filter(Boolean).join(', ')}${sinceYear ? ` since ${sinceYear}` : ''}.`;
+  // Former MPs (left the Commons) read "former MP for X (2015–2026)" rather than
+  // "MP for X since 2015".
+  const head = isFormer
+    ? `${name}, ${[party, mp.constituency && `former MP for ${mp.constituency}${sinceYear && untilYear ? ` (${sinceYear}–${untilYear})` : ''}`].filter(Boolean).join(', ')}.`
+    : `${name}, ${[party, mp.constituency && `MP for ${mp.constituency}`].filter(Boolean).join(', ')}${sinceYear ? ` since ${sinceYear}` : ''}.`;
 
   const facts: string[] = [];
   const vc = votesCountRes.count ?? 0;
@@ -661,6 +667,9 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       memberId={memberId}
       fullName={fullName}
       constituency={mp.constituency ?? null}
+      formerMember={mp.current_member === false}
+      servedFromYear={mp.start_date ? new Date(mp.start_date).getFullYear() : null}
+      servedToYear={mp.end_date ? new Date(mp.end_date).getFullYear() : null}
       partyDisplay={partyDisplay}
       partyExpand={partyDisplay || mp.party || ''}
       partyColour={partyColour}

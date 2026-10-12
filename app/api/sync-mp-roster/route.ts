@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
 
 export const dynamic = 'force-dynamic';
@@ -13,6 +13,19 @@ export const maxDuration = 300;
 // This closes the two gaps that /api/sync-mp-parties does not cover: that route
 // only updates the party of MPs ALREADY flagged current, so it never inserts a
 // new MP and never retires a departed one. Runs nightly via vercel.json crons.
+//
+// It also FILLS PROFILE GAPS for current MPs (added Oct 2026, after the Holborn and
+// St Pancras by-election showed new MPs never got roles or contact details):
+//   - a current MP with no mp_biography row gets one, filled with their posts,
+//     committees, seats and party history from the Members API Biography endpoint.
+//     political_bio stays null (the handwritten narrative is never written by a
+//     sync). From then on /api/sync-member-biography keeps the posts current; it
+//     only updates EXISTING rows, which is why new MPs need this first row.
+//   - a current MP with no mp_contact row gets one 'primary' row built the same
+//     way as the existing rows (email + phone from the Parliamentary office entry,
+//     website, X/Twitter). If Parliament hasn't published contact details yet
+//     (normal for the first weeks after a by-election), nothing is written and
+//     the next nightly run tries again.
 // Photos are intentionally left null for new rows (the parliament thumbnail host
 // is not whitelisted in next.config.ts); the photo re-hosting pipeline handles
 // those separately, and the page shows a letter-avatar until then.
@@ -88,6 +101,133 @@ async function buildRecord(memberId: number) {
   };
 }
 
+// ---- Profile gap filling (mp_biography / mp_contact) ----
+
+const GAP_FILL_MAX = 50; // safety cap per run; normally only a handful of MPs
+
+type BioEntry = {
+  id: number;
+  name: string;
+  house?: number;
+  startDate: string | null;
+  endDate: string | null;
+  additionalInfo: string | null;
+  additionalInfoLink: string | null;
+};
+
+// Same shape /api/sync-member-biography stores, so the two routes agree.
+function normEntry(p: Record<string, unknown>): BioEntry {
+  return {
+    id: p.id as number,
+    name: (p.name as string) ?? '',
+    house: p.house as number | undefined,
+    startDate: (p.startDate as string) ?? null,
+    endDate: (p.endDate as string) ?? null,
+    additionalInfo: (p.additionalInfo as string) ?? null,
+    additionalInfoLink: (p.additionalInfoLink as string) ?? null,
+  };
+}
+
+async function fetchJson(url: string): Promise<Record<string, unknown> | null> {
+  try {
+    const res = await fetch(url, { headers: { 'User-Agent': UA, accept: 'application/json' } });
+    if (!res.ok) return null;
+    return (await res.json()) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
+async function buildBiographyRow(memberId: number) {
+  const json = await fetchJson(`${MEMBER}/${memberId}/Biography`);
+  if (!json) return null;
+  const v = (json.value ?? {}) as Record<string, unknown>;
+  const arr = (k: string) => ((v[k] as Record<string, unknown>[]) || []).map(normEntry).filter((p) => p.id != null);
+  return {
+    member_id: memberId,
+    representations: arr('representations'),
+    government_posts: arr('governmentPosts'),
+    opposition_posts: arr('oppositionPosts'),
+    committee_memberships: arr('committeeMemberships'),
+    party_history: arr('partyAffiliations'),
+    bio_source: 'members-api',
+  };
+}
+
+// Returns null when Parliament has published no usable contact details yet.
+async function buildContactRow(memberId: number) {
+  const json = await fetchJson(`${MEMBER}/${memberId}/Contact`);
+  if (!json) return null;
+  const entries = ((json.value as Record<string, unknown>[]) || []);
+  const str = (x: unknown) => (typeof x === 'string' && x.trim() ? x.trim() : null);
+  const byType = (re: RegExp) => entries.find((e) => re.test(String(e.type ?? '')));
+  const office = byType(/^parliamentary office$/i);
+  const anyWithEmail = entries.find((e) => str(e.email));
+  const anyWithPhone = entries.find((e) => str(e.phone));
+  const row = {
+    member_id: memberId,
+    contact_type: 'primary',
+    email: str(office?.email) ?? str(anyWithEmail?.email),
+    phone: str(office?.phone) ?? str(anyWithPhone?.phone),
+    website: str(byType(/^website$/i)?.line1),
+    twitter: str(byType(/twitter/i)?.line1),
+  };
+  if (!row.email && !row.phone && !row.website && !row.twitter) return null;
+  return row;
+}
+
+// All member_ids present in a table (paged past the 1000-row limit).
+async function idsIn(supabase: SupabaseClient, table: string): Promise<Set<number>> {
+  const out = new Set<number>();
+  const PAGE = 1000;
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await supabase.from(table).select('member_id').range(from, from + PAGE - 1);
+    if (error || !data || data.length === 0) break;
+    for (const r of data) out.add(r.member_id as number);
+    if (data.length < PAGE) break;
+  }
+  return out;
+}
+
+// dryRun: fetch and build the rows but write nothing (used for testing).
+async function fillProfileGaps(supabase: SupabaseClient, dryRun = false) {
+  const { data: cur } = await supabase.from('mps').select('member_id').eq('current_member', true);
+  const currentIds = (cur || []).map((r) => r.member_id as number);
+  const [bioIds, contactIds] = await Promise.all([idsIn(supabase, 'mp_biography'), idsIn(supabase, 'mp_contact')]);
+
+  const biographyCreated: number[] = [];
+  const contactCreated: number[] = [];
+  const contactNotPublished: number[] = [];
+
+  for (const id of currentIds.filter((i) => !bioIds.has(i)).slice(0, GAP_FILL_MAX)) {
+    const row = await buildBiographyRow(id);
+    if (!row) continue;
+    if (dryRun) { biographyCreated.push(id); continue; }
+    // ignoreDuplicates: never overwrite a row that appeared in the meantime.
+    const { error } = await supabase.from('mp_biography').upsert(row, { onConflict: 'member_id', ignoreDuplicates: true });
+    if (!error) {
+      biographyCreated.push(id);
+      revalidatePath(`/mps/${id}`);
+    }
+  }
+
+  for (const id of currentIds.filter((i) => !contactIds.has(i)).slice(0, GAP_FILL_MAX)) {
+    const row = await buildContactRow(id);
+    if (!row) {
+      contactNotPublished.push(id);
+      continue;
+    }
+    if (dryRun) { contactCreated.push(id); continue; }
+    const { error } = await supabase.from('mp_contact').insert(row);
+    if (!error) {
+      contactCreated.push(id);
+      revalidatePath(`/mps/${id}`);
+    }
+  }
+
+  return { biographyCreated, contactCreated, contactNotPublished };
+}
+
 export async function GET(req: Request) {
   const expected = process.env.CRON_SECRET;
   if (expected && req.headers.get('authorization') !== `Bearer ${expected}`) {
@@ -103,6 +243,19 @@ export async function GET(req: Request) {
     );
   }
   const supabase = createClient(url, key);
+
+  // ?dryRun=1 previews the profile gap filling only and writes nothing. The
+  // add/retire roster logic is skipped entirely in a dry run.
+  if (new URL(req.url).searchParams.get('dryRun') === '1') {
+    const preview = await fillProfileGaps(supabase, true);
+    return NextResponse.json({
+      ok: true,
+      dryRun: true,
+      wouldCreateBiographyRows: preview.biographyCreated,
+      wouldCreateContactRows: preview.contactCreated,
+      contactNotYetPublished: preview.contactNotPublished,
+    });
+  }
 
   // Current DB roster.
   const { data: dbRows, error } = await supabase.from('mps').select('member_id, current_member, retirement_pending_since');
@@ -184,6 +337,9 @@ export async function GET(req: Request) {
     }
   }
 
+  // Fill missing biography / contact rows for current MPs (see header note).
+  const gaps = await fillProfileGaps(supabase);
+
   if (added.length || retired.length) {
     revalidatePath('/mps');
     revalidatePath('/');
@@ -201,5 +357,8 @@ export async function GET(req: Request) {
     retiredMemberIds: retired,
     pendingMemberIds: pending,
     clearedMemberIds: cleared,
+    biographyRowsCreated: gaps.biographyCreated,
+    contactRowsCreated: gaps.contactCreated,
+    contactNotYetPublished: gaps.contactNotPublished,
   });
 }

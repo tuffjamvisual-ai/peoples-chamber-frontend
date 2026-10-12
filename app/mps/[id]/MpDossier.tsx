@@ -8,7 +8,7 @@ const STAMP_DISTRESS = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/20
 
 // MPs who have resigned their seat — renders a "Resigned" rubber stamp on the
 // bottom-left of the profile photo. Add member_ids here as needed.
-const RESIGNED_MEMBER_IDS = new Set<number>([5091]); // Nigel Farage (Clacton)
+const RESIGNED_MEMBER_IDS = new Set<number>([5091, 4514]); // Nigel Farage (Clacton), Sir Keir Starmer (Holborn and St Pancras, resigned 1 Sep 2026)
 
 // An MP profile rendered into the shared dossier shell: the folder holds the MP's polaroid
 // header + the full interactive profile sections. The newspaper masthead / folder frame all
@@ -24,6 +24,11 @@ interface MpDossierProps {
   memberId: number;
   fullName: string;
   constituency: string | null;
+  /** True when the MP has left the Commons (mps.current_member = false). The
+      heading then reads "Former MP for X (2015–2026)" instead of "MP for X". */
+  formerMember?: boolean;
+  servedFromYear?: number | null;
+  servedToYear?: number | null;
   partyDisplay: string | null;
   partyExpand: string; // value for the back-to-list ?expand= link
   partyColour: string;
@@ -42,6 +47,9 @@ export default function MpDossier({
   memberId,
   fullName,
   constituency,
+  formerMember = false,
+  servedFromYear = null,
+  servedToYear = null,
   partyDisplay,
   partyExpand,
   partyColour,
@@ -161,7 +169,11 @@ export default function MpDossier({
         <div className="pca-mp-bio" style={{ flex: '1 1 auto', marginTop: '6%', marginLeft: '-4%' }}>
           <div style={{ fontSize: 'clamp(22px, 3.4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', textShadow: '1px 1px 0 rgba(0,0,0,0.1)', lineHeight: 1.05, marginBottom: '4%' }}>{fullName}</div>
           {constituency && (
-            <div style={{ fontSize: 'clamp(15px, 1.9vw, 25px)', marginBottom: '3%' }}>MP for {constituency}</div>
+            <div style={{ fontSize: 'clamp(15px, 1.9vw, 25px)', marginBottom: '3%' }}>
+              {formerMember
+                ? `Former MP for ${constituency}${servedFromYear && servedToYear ? ` (${servedFromYear}–${servedToYear})` : ''}`
+                : `MP for ${constituency}`}
+            </div>
           )}
           {partyDisplay && (
             <div style={{ fontSize: 'clamp(15px, 1.9vw, 25px)' }}>

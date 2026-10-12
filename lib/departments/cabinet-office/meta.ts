@@ -4,7 +4,7 @@ const meta: DepartmentMeta = {
   slug: 'cabinet-office',
   name: 'Cabinet Office',
   shortName: 'Cabinet Office',
-  minister: 'Sir Keir Starmer KCB KC',
+  minister: 'Louise Haigh', // fallback only; the page reads dept_ministers
   ministerParty: 'labour',
   ministerPhoto: 'https://assets.publishing.service.gov.uk/media/66881349d9d35187868f454c/s465_53836009867_63fd6cdffe_b.jpg',
   controlZones: [
