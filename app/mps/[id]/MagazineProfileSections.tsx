@@ -294,6 +294,12 @@ interface Props {
     career_history?: Array<{ role: string; organisation?: string | null; period?: string | null; detail?: string | null }> | null;
     education?: string[] | null;
     career_background?: string | null;
+    /** Visibility switch (mp_biography.bio_visible). Replaces the code list below. */
+    bio_visible?: boolean | null;
+    /** Named sources behind the written biography: [{ title, url, supports }]. */
+    bio_sources?: Array<{ title: string; url?: string | null; supports?: string | null }> | null;
+    /** Date the written biography was last fully fact-checked (YYYY-MM-DD). */
+    bio_last_reviewed?: string | null;
   } | null;
   earnings: Earnings;
   declaredDonations?: { total: number; entryCount: number; asOf: string | null };
@@ -472,8 +478,17 @@ export default function MagazineProfileSections({
   petitionsLastUpdated = null,
   edms = null,
 }: Props) {
+  // Biography visibility: the database switch (mp_biography.bio_visible) decides
+  // whenever that column exists (the page selects the whole row, so it arrives as
+  // true/false). The code list BIO_VISIBLE_MEMBER_IDS is only used if the column
+  // is missing, i.e. before the 2026-10-12e migration has run; delete the list
+  // once that migration is live everywhere.
+  const bioVisible = !HIDE_POLITICAL_BIO || (
+    bio && typeof bio.bio_visible === 'boolean' ? bio.bio_visible : BIO_VISIBLE_MEMBER_IDS.has(memberId)
+  );
+
   const has: Record<SectionId, boolean> = {
-    bio: (!HIDE_POLITICAL_BIO || BIO_VISIBLE_MEMBER_IDS.has(memberId)) && paragraphs.length > 0,
+    bio: bioVisible && paragraphs.length > 0,
     career: !!((bio?.career_history && bio.career_history.length > 0) || (bio?.education && bio.education.length > 0) || bio?.career_background),
     contact: !!(contact && (contact.phone || contact.email || contact.website || contact.twitter || contact.address_line1)),
     voting: (totalVotes ?? votes.length) > 0,
@@ -777,7 +792,7 @@ export default function MagazineProfileSections({
             )}
           </>
         )}
-        {active === 'bio' && (!HIDE_POLITICAL_BIO || BIO_VISIBLE_MEMBER_IDS.has(memberId)) && (
+        {active === 'bio' && bioVisible && (
           <>
             <h2 style={sectionH2}>Political Biography</h2>
 
@@ -796,6 +811,33 @@ export default function MagazineProfileSections({
                 return <p key={idx} style={{ marginBottom: '16px', transform: `rotate(${rot})` }}>{para}</p>;
               })}
             </div>
+
+            {(bio?.bio_last_reviewed || (bio?.bio_sources && bio.bio_sources.length > 0)) && (
+              <div className="mp-bio-provenance" style={{ marginTop: '8px', paddingTop: '12px', borderTop: '1px solid rgba(20,16,13,0.18)', fontSize: '14px' }}>
+                {bio?.bio_last_reviewed && (
+                  <p style={{ margin: '0 0 8px', opacity: 0.75 }}>
+                    Last reviewed: {new Date(`${bio.bio_last_reviewed}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  </p>
+                )}
+                {bio?.bio_sources && bio.bio_sources.length > 0 && (
+                  <details>
+                    <summary style={{ cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: '13px' }}>
+                      Sources ({bio.bio_sources.length})
+                    </summary>
+                    <ol style={{ margin: '10px 0 0', paddingLeft: '20px', lineHeight: 1.55 }}>
+                      {bio.bio_sources.map((src, i) => (
+                        <li key={i} style={{ marginBottom: '6px' }}>
+                          {src.url ? (
+                            <a href={src.url} target="_blank" rel="noopener noreferrer" style={{ color: '#7a1612' }}>{src.title}</a>
+                          ) : src.title}
+                          {src.supports && <span style={{ opacity: 0.7 }}>: {src.supports}</span>}
+                        </li>
+                      ))}
+                    </ol>
+                  </details>
+                )}
+              </div>
+            )}
 
             {conductFindings.length > 0 && (
               <section style={{ marginTop: '32px', padding: '14px 16px', border: '1px solid #a64030', background: 'rgba(166,64,48,0.04)' }}>

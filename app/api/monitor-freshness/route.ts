@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { DATA_SOURCES, CADENCE_MAX_AGE_DAYS, DEFAULT_ZERO_RUN_TOLERANCE, newestTimestamp, ageInDays } from '@/lib/data-freshness';
-import { sendFreshnessAlert, sendDatabaseSizeAlert, type StaleSource } from '@/lib/email';
+import { sendFreshnessAlert, sendDatabaseSizeAlert, sendBioReviewAlert, type StaleSource, type BioReviewFlag } from '@/lib/email';
 import { getDatabaseSize } from '@/lib/database-size';
 
 export const dynamic = 'force-dynamic';
@@ -20,6 +20,9 @@ export const maxDuration = 300;
 //
 // Disk = the database size check (lib/database-size.ts): emails once a day while
 //          disk use is over 5 GB (warning) or 7 GB (urgent) of the 8 GB disk.
+// Bios  = written MP biographies flagged for review by the nightly syncs
+//          (lib/bio-review.ts): all outstanding flags are listed; flags raised
+//          in the last 24 hours are emailed.
 //
 // Guarded by CRON_SECRET. Returns the full dashboard as JSON for manual checks.
 export async function GET(req: NextRequest) {
@@ -131,8 +134,37 @@ export async function GET(req: NextRequest) {
     ? await sendDatabaseSizeAlert(databaseSize)
     : { sent: false, reason: databaseSize ? 'below_threshold' : 'size_unavailable' };
 
+  // Biography review flags (outstanding list + email for the last 24 hours).
+  const bioReview: { outstanding: number; newLast24h: BioReviewFlag[]; all: BioReviewFlag[] } = { outstanding: 0, newLast24h: [], all: [] };
+  {
+    const { data: flagged } = await supabaseAdmin
+      .from('mp_biography')
+      .select('member_id, bio_review_reason, bio_review_flagged_at')
+      .not('bio_review_reason', 'is', null)
+      .order('bio_review_flagged_at', { ascending: false })
+      .limit(500);
+    const ids = (flagged || []).map((r) => r.member_id as number);
+    const names = new Map<number, string>();
+    if (ids.length) {
+      const { data: mpRows } = await supabaseAdmin.from('mps').select('member_id, display_name').in('member_id', ids);
+      for (const r of mpRows || []) names.set(r.member_id as number, (r.display_name as string) || String(r.member_id));
+    }
+    const dayAgo = now.getTime() - 24 * 3600 * 1000;
+    bioReview.all = (flagged || []).map((r) => ({
+      memberId: r.member_id as number,
+      name: names.get(r.member_id as number) || String(r.member_id),
+      reason: r.bio_review_reason as string,
+      flaggedAt: r.bio_review_flagged_at as string,
+    }));
+    bioReview.outstanding = bioReview.all.length;
+    bioReview.newLast24h = bioReview.all.filter((f) => f.flaggedAt && new Date(f.flaggedAt).getTime() >= dayAgo);
+  }
+  const bioReviewEmail = await sendBioReviewAlert(bioReview.newLast24h, bioReview.outstanding);
+
   return NextResponse.json({
     ok: true,
+    bioReview,
+    bioReviewEmail,
     databaseSize,
     databaseSizeError: databaseSizeError ?? null,
     databaseSizeEmail,

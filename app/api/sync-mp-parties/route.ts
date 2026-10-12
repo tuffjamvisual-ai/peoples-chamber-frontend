@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
+import { flagBioReview, ukDate } from '@/lib/bio-review';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -107,6 +108,8 @@ export async function GET(req: Request) {
       if (!upErr) {
         changes.push({ member_id: id, name: (m.display_name as string) || '', from: dbParty, to: apiParty });
         revalidatePath(`/mps/${id}`);
+        // The written biography may now describe the wrong party.
+        await flagBioReview(supabase, id, `Party changed from ${dbParty || 'unknown'} to ${apiParty} (${ukDate(null)})`);
       }
     }
   }

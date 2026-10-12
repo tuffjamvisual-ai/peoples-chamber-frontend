@@ -1,6 +1,13 @@
 import { Resend } from 'resend';
 import type { DatabaseSize } from '@/lib/database-size';
 
+export interface BioReviewFlag {
+  memberId: number;
+  name: string;
+  reason: string;
+  flaggedAt: string;
+}
+
 // Email sending is "armed but inert" until RESEND_API_KEY is set. When it is
 // absent, sendVerificationEmail is a no-op and signup auto-verifies accounts so
 // nothing breaks. Once the key (and a verified RESEND_FROM domain) are added,
@@ -249,6 +256,33 @@ export async function sendDatabaseSizeAlert(size: DatabaseSize) {
     const { data, error } = await resend.emails.send({
       from, to: FRESHNESS_NOTIFY_TO, subject: `opengovt ${headline.charAt(0).toLowerCase()}${headline.slice(1)}`, text, html,
     });
+    if (error) return { sent: false, reason: error.message };
+    return { sent: true, id: data?.id };
+  } catch (e) {
+    return { sent: false, reason: (e as Error).message };
+  }
+}
+
+// Biography review alert — fired by /api/monitor-freshness when the nightly syncs
+// have flagged written MP biographies for review in the last 24 hours (party
+// change, a post starting or ending, an MP leaving, a new MP with no biography).
+// Same recipient as the freshness alert. Inert until RESEND_API_KEY is set. Never throws.
+export async function sendBioReviewAlert(flags: BioReviewFlag[], outstanding: number) {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return { sent: false, reason: 'no_api_key' };
+  if (flags.length === 0) return { sent: false, reason: 'nothing_new' };
+  const from = process.env.RESEND_FROM || 'opengovt <onboarding@resend.dev>';
+  const esc = (x: string) => x.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const line = (f: BioReviewFlag) => `${f.name}: ${f.reason} (https://www.opengovt.uk/mps/${f.memberId})`;
+  const headline = `${flags.length} MP biograph${flags.length === 1 ? 'y needs' : 'ies need'} review`;
+  const text = `${headline} (${outstanding} outstanding in total).\n\n${flags.map(line).join('\n')}\n`;
+  const html = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;color:#14100d">
+      <p style="margin:0 0 12px;font-weight:bold">${headline} (${outstanding} outstanding in total).</p>
+      <ul style="margin:0;padding-left:18px">${flags.map((f) => `<li style="margin:0 0 6px"><a href="https://www.opengovt.uk/mps/${f.memberId}">${esc(f.name)}</a>: ${esc(f.reason)}</li>`).join('')}</ul>
+    </div>`;
+  try {
+    const resend = new Resend(key);
+    const { data, error } = await resend.emails.send({ from, to: FRESHNESS_NOTIFY_TO, subject: `opengovt: ${headline}`, text, html });
     if (error) return { sent: false, reason: error.message };
     return { sent: true, id: data?.id };
   } catch (e) {

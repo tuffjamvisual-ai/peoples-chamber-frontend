@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
+import { flagBioReview, ukDate } from '@/lib/bio-review';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -208,6 +209,7 @@ async function fillProfileGaps(supabase: SupabaseClient, dryRun = false) {
     if (!error) {
       biographyCreated.push(id);
       revalidatePath(`/mps/${id}`);
+      await flagBioReview(supabase, id, `New MP with no written biography yet (row created ${ukDate(null)})`);
     }
   }
 
@@ -333,6 +335,7 @@ export async function GET(req: Request) {
       if (!rErr) {
         retired.push(id);
         revalidatePath(`/mps/${id}`);
+        await flagBioReview(supabase, id, `Left the Commons (${ukDate(today)})`);
       }
     }
   }

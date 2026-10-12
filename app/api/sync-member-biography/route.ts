@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { flagBioReview, ukDate } from '@/lib/bio-review';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -87,6 +88,23 @@ function reconcile(existing: Post[] | null, source: Post[], overridden: Set<numb
   }
   // Existing posts absent from the source are kept as-is (never deleted).
   return { merged: Array.from(byId.values()), changed };
+}
+
+// Plain-English list of posts that started or ended between the stored array and
+// the live source (same override rules as reconcile), for the biography review flag.
+function postChanges(existing: Post[] | null, source: Post[], overridden: Set<number>): string[] {
+  const byId = new Map<number, Post>((existing || []).map((p) => [p.id, p]));
+  const out: string[] = [];
+  for (const src of source) {
+    if (overridden.has(src.id)) continue;
+    const cur = byId.get(src.id);
+    if (!cur) {
+      if (!src.endDate) out.push(`Started: ${src.name}${src.startDate ? ` (${ukDate(src.startDate)})` : ''}`);
+    } else if (!(cur.endDate != null && cur.endDate !== '') && src.endDate) {
+      out.push(`Ended: ${src.name} (${ukDate(src.endDate)})`);
+    }
+  }
+  return out;
 }
 
 async function pool<T>(items: T[], size: number, worker: (t: T) => Promise<void>) {
@@ -178,7 +196,16 @@ export async function GET(req: Request) {
         committee_memberships: m.merged,
       })
       .eq('member_id', memberId);
-    if (!upErr) updated++;
+    if (!upErr) {
+      updated++;
+      // Government or opposition posts starting or ending can make the written
+      // biography out of date. Committee changes are too frequent to flag.
+      const changes = [
+        ...postChanges(row.government_posts as Post[] | null, bio.gov, ov),
+        ...postChanges(row.opposition_posts as Post[] | null, bio.opp, ov),
+      ];
+      if (changes.length) await flagBioReview(supabase, memberId, changes.join('; '));
+    }
   });
 
   return NextResponse.json({
