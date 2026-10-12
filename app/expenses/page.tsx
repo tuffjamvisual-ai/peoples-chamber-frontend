@@ -239,7 +239,7 @@ export default async function ExpensesPage() {
         </p>
         <h2
           style={{
-            fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
+            fontFamily: 'Special Elite, monospace',
             fontSize: 'clamp(20px, 2.4vw, 28px)',
             fontWeight: 'bold',
             letterSpacing: '-0.01em',
@@ -323,7 +323,7 @@ function SimpleRow({
         gap: '6px',
         padding: '7px 4px',
         color: INK,
-        fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
+        fontFamily: 'Special Elite, monospace',
       }}
     >
       {/* Card-link pattern: an absolutely positioned Link covers the

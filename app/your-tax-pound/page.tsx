@@ -141,7 +141,7 @@ export default function YourTaxPoundPage() {
         .tp-section:last-child { border-bottom: none; }
         .tp-row { display: flex; align-items: baseline; gap: 18px; margin-bottom: 8px; flex-wrap: wrap; }
         .tp-pence { font-family: 'Special Elite', monospace; font-size: 42px; font-weight: bold; color: ${ACCENT}; line-height: 1; min-width: 84px; }
-        .tp-cat { font-family: 'Georgia', 'Times New Roman', serif; font-size: 26px; font-weight: bold; letter-spacing: -0.01em; }
+        .tp-cat { font-family: 'Special Elite', monospace; font-size: 26px; font-weight: bold; letter-spacing: -0.01em; }
         .tp-share { font-family: 'Special Elite', monospace; font-size: 13px; opacity: 0.55; margin-left: auto; }
         .tp-prose { font-family: 'Special Elite', monospace; font-size: 16px; line-height: 1.65; color: ${INK}; max-width: 70ch; margin: 8px 0 0 0; }
         .tp-dept { display: inline-block; margin-top: 10px; font-family: 'Special Elite', monospace; font-size: 13px; opacity: 0.7; color: ${INK}; text-decoration: none; }

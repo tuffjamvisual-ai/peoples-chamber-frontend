@@ -28,7 +28,7 @@ export async function generateStaticParams() {
 const INK = '#14100d';
 const ACCENT = '#7a1612';
 const MONO = 'Special Elite, monospace';
-const SERIF = 'EB Garamond, Garamond, Georgia, "Times New Roman", serif';
+const SERIF = 'Special Elite, monospace';
 
 type DebateItem = {
   ItemType?: string;

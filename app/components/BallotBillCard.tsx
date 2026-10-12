@@ -71,7 +71,7 @@ export default function BallotBillCard({ bill, userVote = null, onClick }: Props
         display: 'flex',
         overflow: 'hidden',
         cursor: 'pointer',
-        fontFamily: 'Georgia, "Times New Roman", serif',
+        fontFamily: 'Special Elite, monospace',
       }}
     >
       {/* Tear-off stub: perforated edge, vertical title + serial number */}
@@ -105,7 +105,7 @@ export default function BallotBillCard({ bill, userVote = null, onClick }: Props
           </div>
         )}
 
-        <h3 style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '18px', fontWeight: 'bold', lineHeight: 1.3, letterSpacing: '-0.01em', margin: 0, display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2, overflow: 'hidden' }}>
+        <h3 style={{ fontFamily: 'Special Elite, monospace', fontSize: '18px', fontWeight: 'bold', lineHeight: 1.3, letterSpacing: '-0.01em', margin: 0, display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2, overflow: 'hidden' }}>
           {bill.title}
         </h3>
 
@@ -119,10 +119,10 @@ export default function BallotBillCard({ bill, userVote = null, onClick }: Props
           {total > 0 ? (
             <>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '5px' }}>
-                <span style={{ fontFamily: 'Georgia, serif', fontSize: '20px', fontWeight: 'bold', color: SUCCESS, lineHeight: 1 }}>
+                <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '20px', fontWeight: 'bold', color: SUCCESS, lineHeight: 1 }}>
                   {yesPercent}%<span style={{ fontFamily: 'Special Elite, monospace', fontSize: '9px', color: INK_SOFT, letterSpacing: '0.12em', marginLeft: '4px' }}>AYE</span>
                 </span>
-                <span style={{ fontFamily: 'Georgia, serif', fontSize: '20px', fontWeight: 'bold', color: DANGER, lineHeight: 1 }}>
+                <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '20px', fontWeight: 'bold', color: DANGER, lineHeight: 1 }}>
                   <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '9px', color: INK_SOFT, letterSpacing: '0.12em', marginRight: '4px' }}>NO</span>{noPercent}%
                 </span>
               </div>

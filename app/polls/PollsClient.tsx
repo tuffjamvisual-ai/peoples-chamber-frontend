@@ -305,7 +305,7 @@ function PollCard({
           </div>
         )}
 
-        <h3 style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '18px', fontWeight: 'bold', lineHeight: 1.3, letterSpacing: '-0.01em', margin: 0 }}>
+        <h3 style={{ fontFamily: 'Special Elite, monospace', fontSize: '18px', fontWeight: 'bold', lineHeight: 1.3, letterSpacing: '-0.01em', margin: 0 }}>
           {poll.question}
         </h3>
 
@@ -330,10 +330,10 @@ function PollCard({
             <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', letterSpacing: '0.08em', color: INK_SOFT }}>{total.toLocaleString()} votes</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '5px' }}>
-            <span style={{ fontFamily: 'Georgia, serif', fontSize: '20px', fontWeight: 'bold', color: SUCCESS, lineHeight: 1 }}>
+            <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '20px', fontWeight: 'bold', color: SUCCESS, lineHeight: 1 }}>
               {yesPercent}%<span style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', color: INK_SOFT, letterSpacing: '0.12em', marginLeft: '4px' }}>AYE</span>
             </span>
-            <span style={{ fontFamily: 'Georgia, serif', fontSize: '20px', fontWeight: 'bold', color: DANGER, lineHeight: 1 }}>
+            <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '20px', fontWeight: 'bold', color: DANGER, lineHeight: 1 }}>
               <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', color: INK_SOFT, letterSpacing: '0.12em', marginRight: '4px' }}>NO</span>{noPercent}%
             </span>
           </div>
@@ -400,7 +400,7 @@ function BallotRow({
         textAlign: 'left',
       }}
     >
-      <span style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '17px', fontWeight: 'bold', color: INK, minWidth: '52px' }}>{label}</span>
+      <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '17px', fontWeight: 'bold', color: INK, minWidth: '52px' }}>{label}</span>
       <span aria-hidden style={{ flex: 1, borderBottom: `1px dotted ${INK_HAIRLINE}`, alignSelf: 'flex-end', marginBottom: '7px' }} />
       <span
         style={{
@@ -494,7 +494,7 @@ function VIBallotCard({ tilt }: { tilt: number }) {
         <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '8px' }}>
           Voting intention
         </div>
-        <h3 style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '18px', fontWeight: 'bold', lineHeight: 1.3, letterSpacing: '-0.01em', margin: 0 }}>
+        <h3 style={{ fontFamily: 'Special Elite, monospace', fontSize: '18px', fontWeight: 'bold', lineHeight: 1.3, letterSpacing: '-0.01em', margin: 0 }}>
           If a general election were held tomorrow, how would you vote?
         </h3>
         <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', fontStyle: 'italic', color: INK_SOFT, letterSpacing: '0.03em', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '9px' }}>
@@ -505,7 +505,7 @@ function VIBallotCard({ tilt }: { tilt: number }) {
             <button key={p.key} onClick={() => cast(p.key)} disabled={busy}
               style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', background: 'transparent', border: 'none', padding: '6px 0', cursor: 'pointer', textAlign: 'left' }}>
               <span aria-hidden style={{ width: '11px', height: '11px', borderRadius: '2px', background: p.colour, flexShrink: 0 }} />
-              <span style={{ fontFamily: 'Georgia, serif', fontSize: '16px', fontWeight: 'bold', color: INK }}>{p.label}</span>
+              <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '16px', fontWeight: 'bold', color: INK }}>{p.label}</span>
               <span aria-hidden style={{ flex: 1, borderBottom: `1px dotted ${INK_HAIRLINE}`, alignSelf: 'flex-end', marginBottom: '6px' }} />
               <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', color: INK_SOFT, fontVariantNumeric: 'tabular-nums', minWidth: '38px', textAlign: 'right' }}>{pct(p.key)}%</span>
               <span style={{ width: '26px', height: '26px', border: `1.5px solid ${INK}`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', fontWeight: 'bold', lineHeight: 1, color: ACCENT, flexShrink: 0 }}>

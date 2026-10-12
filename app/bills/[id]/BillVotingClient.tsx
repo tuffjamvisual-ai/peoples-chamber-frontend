@@ -130,7 +130,7 @@ function BallotRow({
       }}
     >
       <span style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
-        <span style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: '19px', fontWeight: 'bold', color: INK }}>{label}</span>
+        <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '19px', fontWeight: 'bold', color: INK }}>{label}</span>
         <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', letterSpacing: '0.05em', color: INK_SOFT, marginTop: '2px' }}>{sub}</span>
       </span>
       <span

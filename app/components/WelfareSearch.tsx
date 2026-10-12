@@ -22,7 +22,7 @@ const PAPER = '#f4e8d4'
 const INK = '#14100d'
 const INK_SOFT = 'rgba(20,16,13,0.65)'
 const ACCENT = '#7a1612'
-const SERIF = '"EB Garamond", Garamond, Georgia, "Times New Roman", serif'
+const SERIF = 'Special Elite, monospace'
 const POSTCODE_RE = /^[A-Z]{1,2}\d[A-Z\d]?\d[A-Z]{2}$/
 
 type LookupResult = {

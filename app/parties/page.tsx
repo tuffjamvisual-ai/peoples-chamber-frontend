@@ -20,7 +20,7 @@ const INK_SOFT = 'rgba(20,16,13,0.7)';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
 const PARCHMENT_CREAM = '#efe6d2';
 const ACCENT = '#7a1612';
-const SERIF = 'EB Garamond, Garamond, Georgia, "Times New Roman", serif';
+const SERIF = 'Special Elite, monospace';
 const MONO = 'Special Elite, monospace';
 
 export const metadata: Metadata = {

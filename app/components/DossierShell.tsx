@@ -290,7 +290,7 @@ export default function DossierShell({
                 top: '6.4%',
                 width: '21%',
                 textAlign: 'center',
-                fontFamily: 'var(--font-abril), Georgia, serif',
+                fontFamily: 'Special Elite, monospace',
                 color: '#6b2417',
                 lineHeight: 1.1,
                 pointerEvents: 'none',

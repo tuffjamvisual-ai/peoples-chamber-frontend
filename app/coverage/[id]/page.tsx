@@ -21,7 +21,7 @@ export async function generateStaticParams() {
 
 const INK = '#14100d'
 const ACCENT = '#6b2417'
-const SERIF = '"Georgia", "Charter", "Times New Roman", serif'
+const SERIF = 'Special Elite, monospace'
 
 type CoverageRow = {
   id: number

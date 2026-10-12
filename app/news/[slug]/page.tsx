@@ -11,7 +11,7 @@ import { getDeptContext } from '../../api/department-context/route'
 
 export const revalidate = 3600
 
-const SERIF = '"Georgia", "Charter", "Times New Roman", serif'
+const SERIF = 'Special Elite, monospace'
 const INK = '#14100d'
 const ACCENT = '#6b2417'
 

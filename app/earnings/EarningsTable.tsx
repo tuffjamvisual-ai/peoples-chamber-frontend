@@ -166,7 +166,7 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
                       <Link
                         href={`/mps/${r.member_id}#earnings`}
                         className="text-[#14100d] font-semibold hover:underline block truncate text-[17px]"
-                        style={{ fontFamily: '"Georgia", "Charter", "Times New Roman", serif' }}
+                        style={{ fontFamily: 'Special Elite, monospace' }}
                       >
                         {r.name}
                       </Link>

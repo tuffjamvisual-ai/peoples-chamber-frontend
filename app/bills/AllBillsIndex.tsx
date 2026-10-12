@@ -30,7 +30,7 @@ const INK_SOFT = 'rgba(20,16,13,0.7)';
 const INK_HAIRLINE = 'rgba(20,16,13,0.18)';
 const ACCENT = '#7a1612';
 const MONO = 'Special Elite, monospace';
-const SERIF = 'Georgia, "Times New Roman", serif';
+const SERIF = 'Special Elite, monospace';
 
 async function fetchAllSitemapBills(): Promise<BillRow[]> {
   // Same filter as app/sitemap.ts: bills with a Commons division, or

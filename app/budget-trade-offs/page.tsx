@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 const INK = '#14100d';
 const INK_SOFT = 'rgba(20,16,13,0.7)';
 const ACCENT = '#6b2417';
-const SERIF = 'EB Garamond, Garamond, Georgia, "Times New Roman", serif';
+const SERIF = 'Special Elite, monospace';
 const MONO = 'Special Elite, monospace';
 
 const BODY = `TOTAL GOVERNMENT DEPARTMENTAL BUDGET: £900bn annually

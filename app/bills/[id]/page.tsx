@@ -90,7 +90,7 @@ const ACCENT = '#7a1612'
 const SUCCESS = '#4e6b34'
 const DANGER = '#8a2f20'
 const WARN = '#b88a30'
-const SERIF = 'Georgia, "Times New Roman", serif'
+const SERIF = 'Special Elite, monospace'
 const MONO = 'Special Elite, monospace'
 
 type Stage = {
@@ -200,14 +200,14 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
         style={{
           padding: 0,
           color: '#1a140e',
-          fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
+          fontFamily: 'Special Elite, monospace',
         }}
       >
       <header
         style={{
           marginBottom: '32px',
           color: '#1a140e',
-          fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
+          fontFamily: 'Special Elite, monospace',
         }}
       >
         {/* Ruled title bar */}

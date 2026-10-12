@@ -333,7 +333,7 @@ export default async function DivisionDetailPage({ params }: PageProps) {
         </p>
         <h1
           style={{
-            fontFamily: '"EB Garamond", Georgia, serif',
+            fontFamily: 'Special Elite, monospace',
             fontSize: 'clamp(28px, 4vw, 46px)',
             fontWeight: 'bold',
             letterSpacing: '-0.02em',

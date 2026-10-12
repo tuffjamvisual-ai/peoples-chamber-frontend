@@ -46,8 +46,8 @@ const ACCENT = '#7a1612';
 const SUCCESS = '#3f5a2a';
 const DANGER = '#7a2a1f';
 
-const SERIF = '"EB Garamond","Cormorant Garamond","Garamond",Georgia,"Times New Roman",serif';
-const SERIF_DISPLAY = '"EB Garamond","Cormorant Garamond","Garamond",Georgia,"Times New Roman",serif';
+const SERIF = 'Special Elite, monospace';
+const SERIF_DISPLAY = 'Special Elite, monospace';
 const MONO = '"Special Elite", "Courier New", monospace';
 
 function fmtDate(d?: string | null) {

@@ -48,7 +48,7 @@ const INK = '#14100d'
 const INK_SOFT = 'rgba(20,16,13,0.7)'
 const INK_HAIRLINE = 'rgba(20,16,13,0.3)'
 const ACCENT = '#7a1612'
-const SERIF = 'Georgia, "Times New Roman", serif'
+const SERIF = 'Special Elite, monospace'
 const MONO = 'Special Elite, monospace'
 
 // Sort order for the publication-type groupings. Anything not on
@@ -208,7 +208,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
         style={{
           padding: 0,
           color: '#1a140e',
-          fontFamily: 'EB Garamond, Garamond, Georgia, "Times New Roman", serif',
+          fontFamily: 'Special Elite, monospace',
         }}
       >
 
