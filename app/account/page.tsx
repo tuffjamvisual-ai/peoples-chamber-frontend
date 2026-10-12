@@ -30,6 +30,9 @@ export default function AccountPage() {
   const { user, authLoading, logout } = useAuth()
   const [data, setData] = useState<{ bills: BillVote[]; polls: PollVote[] } | null>(null)
   const [loading, setLoading] = useState(true)
+  const [newsletter, setNewsletter] = useState(false)
+  const [newsletterSaving, setNewsletterSaving] = useState(false)
+  const [newsletterSaved, setNewsletterSaved] = useState(false)
 
   useEffect(() => {
     if (!user) { setLoading(false); return }
@@ -37,7 +40,26 @@ export default function AccountPage() {
       .then((r) => r.json())
       .then((d) => { setData(d); setLoading(false) })
       .catch(() => setLoading(false))
+    fetch('/api/account/newsletter')
+      .then((r) => r.json())
+      .then((d) => { if (typeof d.newsletter_opt_in === 'boolean') setNewsletter(d.newsletter_opt_in) })
+      .catch(() => {})
   }, [user])
+
+  async function saveNewsletter() {
+    setNewsletterSaving(true)
+    setNewsletterSaved(false)
+    try {
+      await fetch('/api/account/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newsletter_opt_in: newsletter }),
+      })
+      setNewsletterSaved(true)
+    } finally {
+      setNewsletterSaving(false)
+    }
+  }
 
   return (
     <OpenGovShell pageStamp="Account">
@@ -76,6 +98,38 @@ export default function AccountPage() {
             >
               Log out
             </button>
+          </div>
+
+          {/* Newsletter preference */}
+          <div style={{ borderTop: `1px solid ${HAIRLINE}`, paddingTop: '20px', marginBottom: '32px' }}>
+            <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.16em', textTransform: 'uppercase', color: ACCENT, marginBottom: '12px' }}>
+              Open Govt Weekly
+            </h2>
+            <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, opacity: 0.75, marginBottom: '14px', maxWidth: '560px' }}>
+              What government announced. What the evidence shows. What happened next. Investigations, overlooked documents and public spending stories. Delivered every Sunday.
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+              <input
+                id="acct-newsletter"
+                type="checkbox"
+                checked={newsletter}
+                onChange={(e) => { setNewsletter(e.target.checked); setNewsletterSaved(false) }}
+                style={{ width: '16px', height: '16px', cursor: 'pointer', flexShrink: 0 }}
+              />
+              <label htmlFor="acct-newsletter" style={{ fontFamily: MONO, fontSize: '15px', color: INK, cursor: 'pointer' }}>
+                Yes, send me the weekly newsletter
+              </label>
+            </div>
+            <button
+              onClick={saveNewsletter}
+              disabled={newsletterSaving}
+              style={{ fontFamily: MONO, fontSize: '14px', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#fff', background: ACCENT, border: 'none', borderRadius: '3px', padding: '7px 14px', cursor: 'pointer', opacity: newsletterSaving ? 0.55 : 1 }}
+            >
+              {newsletterSaving ? 'Saving…' : 'Save preference'}
+            </button>
+            {newsletterSaved && (
+              <span style={{ fontFamily: MONO, fontSize: '14px', color: SUCCESS, marginLeft: '12px' }}>Saved.</span>
+            )}
           </div>
 
           {loading && <p style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>Loading your votes…</p>}
