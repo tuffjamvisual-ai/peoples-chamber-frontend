@@ -287,7 +287,7 @@ export default async function HomePage() {
                 <div className="og-cta">See what MPs are voting on &rarr;</div>
               </a>
 
-              <a className="og-block og-card" href="/login?mode=signup">
+              <a className="og-block og-card" href="/login?mode=signup&newsletter=1">
                 <div className="og-kicker" style={{ color: 'var(--ink-soft)', letterSpacing: '0.18em' }}>Weekly newsletter</div>
                 <div className="og-head">What government announced. What the evidence shows. What happened next.</div>
                 <p>Open Govt Weekly brings you the most important investigations, overlooked documents, questionable claims and public spending stories from the week.</p>

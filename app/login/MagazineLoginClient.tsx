@@ -101,7 +101,9 @@ export default function MagazineLoginClient() {
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
   const [signupPostcode, setSignupPostcode] = useState('');
-  const [signupNewsletter, setSignupNewsletter] = useState(false);
+  const [signupNewsletter, setSignupNewsletter] = useState(
+    searchParams.get('newsletter') === '1',
+  );
 
   // forgot fields
   const [forgotEmail, setForgotEmail] = useState('');
