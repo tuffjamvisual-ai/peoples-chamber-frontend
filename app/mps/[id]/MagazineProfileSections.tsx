@@ -602,6 +602,36 @@ export default function MagazineProfileSections({
       .finally(() => setDonationsLoading(false));
   }, [active, memberId, donationsPayload, donationsLoading]);
 
+  // Phones and tablets (below the lg breakpoint, 1024px): the section buttons
+  // become one sideways-swiping row instead of a 13-button column, so the
+  // biography starts near the top of the page. A soft fade on the right shows
+  // there are more tabs; it goes once the row is scrolled to the end. The open
+  // tab's button is kept in view (moves the row only, never the page).
+  const sectionNavRef = useRef<HTMLElement | null>(null);
+  const [navMoreRight, setNavMoreRight] = useState(false);
+  useEffect(() => {
+    const nav = sectionNavRef.current;
+    if (!nav) return;
+    const check = () => setNavMoreRight(nav.scrollWidth > nav.clientWidth && nav.scrollLeft + nav.clientWidth < nav.scrollWidth - 2);
+    check();
+    nav.addEventListener('scroll', check, { passive: true });
+    window.addEventListener('resize', check);
+    return () => {
+      nav.removeEventListener('scroll', check);
+      window.removeEventListener('resize', check);
+    };
+  }, []);
+  useEffect(() => {
+    const nav = sectionNavRef.current;
+    if (!nav || nav.scrollWidth <= nav.clientWidth) return;
+    const btn = nav.querySelector<HTMLButtonElement>(`[data-section="${active}"]`);
+    if (!btn) return;
+    const left = btn.offsetLeft - nav.offsetLeft;
+    if (left < nav.scrollLeft || left + btn.offsetWidth > nav.scrollLeft + nav.clientWidth) {
+      nav.scrollLeft = Math.max(0, left - 16);
+    }
+  }, [active]);
+
   const select = (id: SectionId) => {
     setActive(id);
     if (typeof window !== 'undefined') history.replaceState(null, '', `#${id}`);
@@ -652,19 +682,37 @@ export default function MagazineProfileSections({
           taller ones doesn't change the page height — which reflowed the
           centred folder and jogged the scroll position. Tabs with genuinely
           long tables (voting, donations) still grow past this. */}
-      <style>{`@media (min-width: 1024px){ .mp-sections-content{ min-height: 82vh } }`}</style>
+      <style>{`
+        @media (min-width: 1024px){ .mp-sections-content{ min-height: 82vh } }
+        @media (max-width: 1023px){
+          .mp-sections-nav { flex-direction: row !important; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; margin-right: 0 !important; padding: 4px 0 0 !important; gap: 2px !important; border-bottom: 1px solid rgba(20,16,13,0.2); }
+          .mp-sections-nav::-webkit-scrollbar { display: none; }
+          .mp-sections-nav.more-right { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); }
+          .mp-sections-nav button { white-space: nowrap; flex: 0 0 auto; transform: none !important; border-left: none !important; border-bottom: 3px solid transparent !important; box-shadow: none !important; padding: 10px 12px !important; font-size: 14px !important; }
+          .mp-sections-nav button[data-active="true"] { border-bottom-color: #7a1612 !important; }
+          .mp-sections-content { padding: 20px 2px !important; }
+        }
+      `}</style>
       <aside className="lg:col-span-1" style={{ marginLeft: '-13%' }}>
         <div
           ref={stickyRef}
           className={jsSticky ? undefined : 'lg:sticky lg:top-16'}
           style={jsSticky ? { transform: `translateY(${stickyOffset}px)`, willChange: 'transform' } : undefined}
         >
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 8px 8px', marginRight: '24px' }}>
+          <nav
+            ref={sectionNavRef}
+            aria-label="MP profile sections"
+            className={`mp-sections-nav${navMoreRight ? ' more-right' : ''}`}
+            style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px 8px 8px', marginRight: '24px' }}
+          >
             {sections.map((s) => {
               const isActive = active === s.id;
               return (
                 <button
                   key={s.id}
+                  data-section={s.id}
+                  data-active={isActive ? 'true' : 'false'}
+                  aria-pressed={isActive}
                   onClick={() => select(s.id)}
                   style={{
                     padding: '12px 16px',
