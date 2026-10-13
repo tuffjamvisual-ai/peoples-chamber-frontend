@@ -6,10 +6,14 @@
 //     overflow), placed in its constituency and council from its grid reference.
 //   * Northern Ireland: NI Water Event Duration Monitor workbook (2023-2025),
 //     constituency and council as named by NI Water.
+//   * Scotland: Scottish Water overflow event data (reported to SEPA 2021-2025 and
+//     non-reported 2022-2025), placed from its coordinates like England
+//     (scripts/import-sewage-scotland.js). Totals per area are rebuilt from every
+//     source, so the one England-return overflow in Scottish Borders is included
+//     in that area's figures.
 //
-// Wales and Scotland are not loaded yet. Two English-return overflows sit just
-// over the border (one in Wales, one in Scotland); they are left out of every
-// ranking here so a Welsh or Scottish area never appears with a partial count.
+// Wales is not loaded yet. One English-return overflow sits in Wales (Flintshire);
+// Welsh areas are left out of every ranking here so none appears with a partial count.
 //
 // Rankings: "1" is the area with the most spill hours. Council rankings are of
 // council areas (districts, unitaries, metropolitan and London boroughs) with at
@@ -34,7 +38,7 @@ export type AreaTotal = {
 };
 
 export type Overflow = {
-  source: 'EA' | 'NIW';
+  source: 'EA' | 'NIW' | 'SW';
   site_id: string;
   year: number;
   company: string;
@@ -48,6 +52,7 @@ export type Overflow = {
   spill_count: number | null;
   spill_hours: number | null;
   monitoring_pct: number | null;
+  volume_m3: number | null;
 };
 
 export type CouncilRef = { slug: string; name: string; short_name: string | null; type: string; gss_code: string | null; parent_slug: string | null };
@@ -55,9 +60,10 @@ export type CouncilRef = { slug: string; name: string; short_name: string | null
 const n = (v: unknown): number => (v == null ? 0 : Number(v));
 const nn = (v: unknown): number | null => (v == null ? null : Number(v));
 
-// Nations covered so far: England (E) and Northern Ireland (N).
-export const isCoveredCode = (code: string | null | undefined): boolean => !!code && /^[EN]/.test(code);
-export const nationOfCode = (code: string): 'England' | 'Northern Ireland' | null => (code.startsWith('E') ? 'England' : code.startsWith('N') ? 'Northern Ireland' : null);
+// Nations covered so far: England (E), Scotland (S) and Northern Ireland (N).
+export type CoveredNation = 'England' | 'Scotland' | 'Northern Ireland';
+export const isCoveredCode = (code: string | null | undefined): boolean => !!code && /^[ESN]/.test(code);
+export const nationOfCode = (code: string): CoveredNation | null => (code.startsWith('E') ? 'England' : code.startsWith('S') ? 'Scotland' : code.startsWith('N') ? 'Northern Ireland' : null);
 
 // Reads every row of a query in pages of 1,000 (the API's default cap).
 async function readAll<T>(build: (from: number, to: number) => PromiseLike<{ data: unknown[] | null; error: { message: string } | null }>): Promise<T[]> {
@@ -93,16 +99,16 @@ export async function getAreaTotals(): Promise<AreaTotal[]> {
 }
 
 // Latest year of figures for each nation.
-export function latestYears(totals: AreaTotal[]): Record<'England' | 'Northern Ireland', number | null> {
+export function latestYears(totals: AreaTotal[]): Record<CoveredNation, number | null> {
   const max = (nation: string) => totals.filter((t) => t.nation === nation).reduce<number | null>((m, t) => (m == null || t.year > m ? t.year : m), null);
-  return { England: max('England'), 'Northern Ireland': max('Northern Ireland') };
+  return { England: max('England'), Scotland: max('Scotland'), 'Northern Ireland': max('Northern Ireland') };
 }
 
-const OVERFLOW_COLUMNS = 'source, site_id, year, company, site_name, site_name_operator, receiving_water, constituency_gss_code, council_gss_code, placement, placement_distance_m, spill_count, spill_hours, monitoring_pct';
+const OVERFLOW_COLUMNS = 'source, site_id, year, company, site_name, site_name_operator, receiving_water, constituency_gss_code, council_gss_code, placement, placement_distance_m, spill_count, spill_hours, monitoring_pct, volume_m3';
 
 function toOverflow(r: Record<string, unknown>): Overflow {
   return {
-    source: r.source as 'EA' | 'NIW',
+    source: r.source as 'EA' | 'NIW' | 'SW',
     site_id: String(r.site_id),
     year: n(r.year),
     company: String(r.company),
@@ -116,6 +122,7 @@ function toOverflow(r: Record<string, unknown>): Overflow {
     spill_count: nn(r.spill_count),
     spill_hours: nn(r.spill_hours),
     monitoring_pct: nn(r.monitoring_pct),
+    volume_m3: nn(r.volume_m3),
   };
 }
 
@@ -186,7 +193,7 @@ export type CompanyTotal = { company: string; nation: string; overflows: number;
 export function companyTotals(overflows: Overflow[]): CompanyTotal[] {
   const map = new Map<string, CompanyTotal>();
   for (const o of overflows) {
-    const nation = o.source === 'NIW' ? 'Northern Ireland' : 'England';
+    const nation = o.source === 'NIW' ? 'Northern Ireland' : o.source === 'SW' ? 'Scotland' : 'England';
     const k = `${nation}|${o.company}`;
     const c = map.get(k) ?? { company: o.company, nation, overflows: 0, withData: 0, spilled: 0, spills: 0, hours: 0 };
     c.overflows++;

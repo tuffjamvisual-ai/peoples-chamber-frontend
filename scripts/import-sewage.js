@@ -514,13 +514,10 @@ const nationOf = (code) => ({ E: 'England', W: 'Wales', S: 'Scotland', N: 'North
     if (error) throw new Error(`stale delete ${src}: ${error.message}`);
     console.log(`  ${src}: ${count || 0} rows no longer in the data removed`);
   }
-  for (let i = 0; i < tl.length; i += 500) {
-    const { error } = await db.from('sewage_area_totals').upsert(tl.slice(i, i + 500).map((t) => ({ ...t, synced_at: new Date().toISOString() })), { onConflict: 'area_type,area_gss_code,year' });
-    if (error) throw new Error(`sewage_area_totals upsert at ${i}: ${error.message}`);
-  }
-  const yearsWritten = [...new Set(tl.map((t) => t.year))];
-  const { error: tErr, count: tCount } = await db.from('sewage_area_totals').delete({ count: 'exact' }).in('year', yearsWritten).lt('synced_at', runStart);
-  if (tErr) throw new Error(`stale totals delete: ${tErr.message}`);
-  console.log(`  sewage_area_totals: ${tl.length} rows saved; ${tCount || 0} stale rows removed`);
+  // Area totals are rebuilt inside the database from every overflow in every source
+  // (migration 2026-10-13a), so Scotland's and England's figures never overwrite each other.
+  const { data: totalRows, error: tErr } = await db.rpc('refresh_sewage_area_totals');
+  if (tErr) throw new Error(`refresh_sewage_area_totals: ${tErr.message}`);
+  console.log(`  sewage_area_totals: rebuilt from all sources, ${totalRows} rows`);
   console.log('\nWRITE complete.');
 })().catch((e) => { console.error('FAILED: ' + e.message); process.exit(1); });

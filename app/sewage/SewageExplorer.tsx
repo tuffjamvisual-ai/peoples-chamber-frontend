@@ -37,8 +37,10 @@ const ordinal = (k: number) => {
   const s = ['th', 'st', 'nd', 'rd'], v = k % 100;
   return `${k}${s[(v - 20) % 10] || s[v] || s[0]}`;
 };
-const avg = (r: ExplorerRow) => (r.overflows ? r.hours / r.overflows : 0);
-const share = (r: ExplorerRow) => (r.overflows ? (r.spilled / r.overflows) * 100 : 0);
+// Averages and shares use only overflows with figures for the year, so an
+// overflow with no monitoring data does not count as "didn't spill".
+const avg = (r: ExplorerRow) => (r.withData ? r.hours / r.withData : 0);
+const share = (r: ExplorerRow) => (r.withData ? (r.spilled / r.withData) * 100 : 0);
 
 const SORTS: { key: SortKey; label: string }[] = [
   { key: 'hours', label: 'Total hours' },
@@ -75,7 +77,7 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
 
   const rows = useMemo(() => {
     if (!table) return [];
-    const eligible = sort === 'avg' || sort === 'share' ? table.rows.filter((r) => r.overflows >= MIN_FOR_AVERAGES) : table.rows;
+    const eligible = sort === 'avg' || sort === 'share' ? table.rows.filter((r) => r.withData >= MIN_FOR_AVERAGES) : table.rows;
     const value = (r: ExplorerRow) => (sort === 'hours' ? r.hours : sort === 'avg' ? avg(r) : sort === 'share' ? share(r) : r.spills);
     return [...eligible].sort((a, b) => value(b) - value(a) || a.name.localeCompare(b.name));
   }, [table, sort]);
@@ -123,8 +125,8 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
         </p>
       );
     }
-    const msg = code && /^[WS]/.test(code)
-      ? 'figures for Wales and Scotland are not on Open Govt yet.'
+    const msg = code && /^W/.test(code)
+      ? 'figures for Wales are not on Open Govt yet.'
       : code ? 'no storm overflows are listed in this area.' : 'not found for this postcode.';
     return <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: '0 0 8px' }}><strong>{label}{name ? `: ${name}` : ''}</strong> — {msg}</p>;
   };
@@ -185,7 +187,7 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
         {table && (
           <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: '0 0 10px' }}>
             {table.nation}, {table.year}. {fmtInt(table.rows.length)} {table.areaWord}.
-            {excluded > 0 && ` Averages and shares rank only areas with at least ${MIN_FOR_AVERAGES} overflows, so ${fmtInt(excluded)} smaller area${excluded === 1 ? ' is' : 's are'} left out of this view.`}
+            {excluded > 0 && ` Averages and shares rank only areas with figures for at least ${MIN_FOR_AVERAGES} overflows, so ${fmtInt(excluded)} smaller area${excluded === 1 ? ' is' : 's are'} left out of this view.`}
           </p>
         )}
         <div style={{ overflowX: 'auto' }}>

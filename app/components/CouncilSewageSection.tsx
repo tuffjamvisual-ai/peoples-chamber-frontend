@@ -1,13 +1,13 @@
-// "Sewage spills" section for council pages (server component, England and
-// Northern Ireland). Reads sewage_area_totals and sewage_overflows via
+// "Sewage spills" section for council pages (server component, England,
+// Scotland and Northern Ireland). Reads sewage_area_totals and sewage_overflows via
 // lib/sewage.ts; see scripts/migrations/2026-10-12h-sewage-overflows.sql.
 //
 // Storm overflows are run by water companies, not councils: the section says
 // so plainly and names the companies. County councils have no figures of
 // their own (they are not in the ONS council boundaries), so a county shows
-// the total of its districts. Welsh and Scottish councils show nothing until
-// those nations' data is loaded (an English-return overflow just over the
-// border would otherwise appear as a misleading partial count).
+// the total of its districts. Welsh councils show nothing until Welsh data is
+// loaded (the one English-return overflow in Wales would otherwise appear as a
+// misleading partial count).
 
 import { getAreaTotals, latestYears, getCouncilOverflows, getCouncilRefs, rankByHours, countyTotals, isCoveredCode, nationOfCode, fmtInt, fmtHours, ordinal } from '@/lib/sewage';
 import type { Overflow, AreaTotal } from '@/lib/sewage';
@@ -55,7 +55,7 @@ export default async function CouncilSewageSection({
     const r = ranked.find((c) => c.area_gss_code === gssCode);
     if (!r) return null;
     mine = r; rank = r.rank; of = r.of;
-    rankGroup = nation === 'England' ? 'council areas in England with storm overflows' : 'council areas in Northern Ireland';
+    rankGroup = nation === 'England' ? 'council areas in England with storm overflows' : nation === 'Scotland' ? 'council areas in Scotland' : 'council areas in Northern Ireland';
   }
 
   let overflows: Overflow[];
@@ -67,6 +67,9 @@ export default async function CouncilSewageSection({
   const companies = [...companyHours.entries()].sort((a, b) => b[1] - a[1]).map(([c]) => c);
   const offshore = overflows.filter((o) => o.placement === 'nearest' || o.placement === 'tidal').length;
   const noData = mine.overflows - mine.overflows_with_data;
+
+  // Scotland: spill volume is published for overflows reported to SEPA.
+  const showVolume = overflows.some((o) => o.volume_m3 != null);
 
   // Northern Ireland: earlier years from NI Water's workbook.
   const niYears = nation === 'Northern Ireland'
@@ -88,6 +91,7 @@ export default async function CouncilSewageSection({
             <th style={{ ...th, textAlign: 'right' }}>Spills</th>
             <th style={{ ...th, textAlign: 'right' }}>Hours</th>
             <th style={{ ...th, textAlign: 'right' }}>Monitor working</th>
+            {showVolume && <th style={{ ...th, textAlign: 'right' }}>Volume (m³)</th>}
           </tr>
         </thead>
         <tbody>
@@ -101,6 +105,7 @@ export default async function CouncilSewageSection({
               <td style={tdNum}>{o.spill_count == null ? 'not reported' : fmtInt(o.spill_count)}</td>
               <td style={tdNum}>{o.spill_hours == null ? 'not reported' : fmtHours(o.spill_hours)}</td>
               <td style={tdNum}>{o.monitoring_pct == null ? '—' : `${Math.round(o.monitoring_pct)}%`}</td>
+              {showVolume && <td style={tdNum}>{o.volume_m3 == null ? '—' : fmtInt(o.volume_m3)}</td>}
             </tr>
           ))}
         </tbody>
@@ -110,7 +115,9 @@ export default async function CouncilSewageSection({
 
   const sourceLine = nation === 'England'
     ? `Source: Environment Agency, Event Duration Monitoring storm overflow annual return ${year}. Locations placed in council areas using Office for National Statistics boundaries. Contains public sector information licensed under the Open Government Licence v3.0. Contains OS data © Crown copyright and database right 2026.`
-    : `Source: NI Water, Event Duration Monitor data (${year} figures). Council areas as given by NI Water.`;
+    : nation === 'Scotland'
+      ? `Source: Scottish Water, overflow event data (${year} figures), licensed under the Open Government Licence${companies.length > 1 ? '; Environment Agency storm overflow annual return for English water company overflows' : ''}. Locations placed in council areas using Office for National Statistics boundaries (contains OS data © Crown copyright and database right 2026).`
+      : `Source: NI Water, Event Duration Monitor data (${year} figures). Council areas as given by NI Water.`;
 
   return (
     <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
@@ -123,7 +130,7 @@ export default async function CouncilSewageSection({
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: '0 0 14px' }}>
         {[
           `${fmtInt(mine.spill_count)} spills counted`,
-          `${fmtInt(mine.overflows_spilled)} of ${fmtInt(mine.overflows)} overflows spilled at least once`,
+          `${fmtInt(mine.overflows_spilled)} of ${fmtInt(mine.overflows_with_data)} overflows with figures spilled at least once`,
           rank != null && of != null ? `${ordinal(rank)} most spill hours of ${of} ${rankGroup}` : null,
         ].filter(Boolean).join(' · ')}
       </p>
@@ -178,6 +185,7 @@ export default async function CouncilSewageSection({
         {isCounty && 'Figures for this county are the total of its district councils. '}
         A storm overflow releases diluted sewage into a river or the sea when sewers are overloaded, usually in heavy rain. Hours are the total time all spills lasted.{' '}
         {nation === 'England' && 'Spills are counted the Environment Agency’s way: any discharge in the first 12 hours counts as one spill, and each further 24-hour block counts as another. '}
+        {nation === 'Scotland' && 'Scottish Water counts each separate spill, and for some overflows publishes only spills longer than 15 minutes 30 seconds, so these figures are not directly comparable with England’s. Volume is published only for overflows reported to the Scottish Environment Protection Agency (SEPA). '}
         {noData > 0 && `${fmtInt(noData)} overflow${noData === 1 ? ' has' : 's have'} no figures for ${year}, so the totals may be lower than the true amount. `}
         {offshore > 0 && `${fmtInt(offshore)} overflow${offshore === 1 ? ' discharges' : 's discharge'} below the high-tide line or out at sea and ${offshore === 1 ? 'is' : 'are'} counted with the nearest council area. `}
         <a href="/sewage" style={{ color: INK, textDecoration: 'underline' }}>Compare every council, constituency and water company</a>.

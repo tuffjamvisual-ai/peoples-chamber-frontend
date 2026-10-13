@@ -46,3 +46,6 @@ public/bill-parchment.webp.bak
 public/bill-parchment.webp.prev
 public/bill-parchment.webp.prev2
 .env*.local
+
+# Scottish Water overflow workbooks, downloaded by hand for scripts/import-sewage-scotland.js
+data/sewage-scotland/
