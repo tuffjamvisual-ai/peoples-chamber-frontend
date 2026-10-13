@@ -49,7 +49,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
   const orFrom = (col: string, kws: string[]) => kws.map((k) => `${col}.ilike.%${k}%`).join(',');
 
   const [divRes, billRes, contribRes, mpRes, pollRes] = await Promise.all([
-    supabase.from('commons_divisions_titled')
+    supabase.from('commons_divisions_fts')
       .select('division_date_only, division_number, division_title')
       .or(orFrom('division_title', topic.keywords))
       .order('division_date_only', { ascending: false })

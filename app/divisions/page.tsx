@@ -7,7 +7,10 @@ import BackLink from '../components/BackLink';
 
 // Browsable index of Commons divisions (recorded votes), newest first. Each
 // links to the in-house division page. Data we already hold in mp_division_votes
-// (surfaced one row per division via the commons_divisions_titled view).
+// (surfaced one row per division via commons_divisions_fts, the materialized copy of
+// the commons_divisions_titled view: the live view re-aggregates ~1.14M vote rows and
+// exceeds the anon role's 3-second statement timeout. refresh_sitemap_views(), called
+// after every votes sync, refreshes the copy).
 export const revalidate = 600;
 
 export const metadata: Metadata = {
@@ -36,7 +39,7 @@ export default async function DivisionsIndexPage({
   const from = (pageNum - 1) * PER_PAGE;
 
   const { data, count } = await supabase
-    .from('commons_divisions_titled')
+    .from('commons_divisions_fts')
     .select('division_date_only, division_number, division_title', { count: 'exact' })
     .order('division_date_only', { ascending: false })
     .order('division_number', { ascending: false })

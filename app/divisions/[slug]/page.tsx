@@ -176,12 +176,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 // Prerender a small set of division pages at build time. The list does NOT
 // need to be complete — its presence is what enables ISR caching for the
 // whole route. Pages not listed here render on first request and are cached
-// from then on (see revalidate above, 24h). commons_divisions_titled is the
-// same view the /divisions index uses: one row per division, so no dedupe
-// is needed against the per-MP rows in mp_division_votes.
+// from then on (see revalidate above, 24h). commons_divisions_fts is the
+// same source the /divisions index uses: one row per division (a materialized
+// copy of commons_divisions_titled, fast enough for the anon role's 3-second
+// timeout), so no dedupe is needed against the per-MP rows in mp_division_votes.
 export async function generateStaticParams() {
   const { data, error } = await supabase
-    .from('commons_divisions_titled')
+    .from('commons_divisions_fts')
     .select('division_date_only, division_number')
     .not('division_date_only', 'is', null)
     .not('division_number', 'is', null)
@@ -193,7 +194,7 @@ export async function generateStaticParams() {
   }
   if (!data || data.length === 0) {
     throw new Error(
-      'generateStaticParams(/divisions/[slug]): commons_divisions_titled returned no rows'
+      'generateStaticParams(/divisions/[slug]): commons_divisions_fts returned no rows'
     );
   }
   const seen = new Set<string>();
