@@ -254,9 +254,12 @@ async function GET_impl(req: Request) {
   // Upsert by (department_slug, financial_year, source)
   // editorial_prose is INTENTIONALLY not in the row payload — it's seeded
   // separately and we never want to overwrite curated copy on a refresh.
+  // updated_at is set on every refresh (the column default only applies when a row is
+  // first inserted), so "last updated" and the freshness monitor reflect each run.
+  const refreshedAt = new Date().toISOString();
   const { error } = await supabase
     .from('department_budgets')
-    .upsert(allRows, { onConflict: 'department_slug,financial_year,source', ignoreDuplicates: false });
+    .upsert(allRows.map((r) => ({ ...r, updated_at: refreshedAt })), { onConflict: 'department_slug,financial_year,source', ignoreDuplicates: false });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   // Compute year-on-year change for the most recent year.

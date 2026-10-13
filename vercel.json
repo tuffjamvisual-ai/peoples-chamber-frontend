@@ -222,7 +222,7 @@
     },
     {
       "path": "/api/sync-connectivity",
-      "schedule": "45 8 * * 1"
+      "schedule": "45 8 1 * *"
     }
   ]
 }

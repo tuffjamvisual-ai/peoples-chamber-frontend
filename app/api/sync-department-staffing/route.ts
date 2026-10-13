@@ -233,9 +233,12 @@ async function GET_impl(req: Request) {
   }
 
   // 6. Upsert by (department_slug, period_end_date)
+  // updated_at is set on every refresh (the column default only applies when a row is
+  // first inserted), so "last updated" and the freshness monitor reflect each run.
+  const refreshedAt = new Date().toISOString();
   const { error } = await supabase
     .from('department_staffing')
-    .upsert(out, { onConflict: 'department_slug,period_end_date' });
+    .upsert(out.map((r) => ({ ...r, updated_at: refreshedAt })), { onConflict: 'department_slug,period_end_date' });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   return NextResponse.json({

@@ -11,7 +11,7 @@
 import { supabaseAdmin } from '@/lib/supabase-admin';
 
 // Response fields sync routes use for their written-row count, in priority order.
-const ROW_KEYS = ['rows_written', 'rowsWritten', 'upserted', 'inserted', 'written', 'synced', 'processed', 'count', 'appgs', 'rows'];
+const ROW_KEYS = ['rows_written', 'rowsWritten', 'rowsInserted', 'upserted', 'inserted', 'written', 'synced', 'processed', 'count', 'appgs', 'rows'];
 
 export async function recordSyncRun(route: string, status: number, rows: number | null): Promise<void> {
   try {
