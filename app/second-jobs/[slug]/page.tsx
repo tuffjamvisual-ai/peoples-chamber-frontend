@@ -84,9 +84,9 @@ export default async function PartySecondJobsList({ params }: { params: Promise<
             marginBottom: '32px',
           }}
         >
-          <Stat label="MPs with second jobs" value={items.length.toString()} />
-          <Stat label="Individual payments declared" value={partyClaims.toLocaleString('en-GB')} />
-          <Stat label="Party total (lower bound)" value={fmtMoney(partyTotal)} />
+          <Stat label="MPs with paid outside roles" value={items.length.toString()} />
+          <Stat label="Payments with a £ figure" value={partyClaims.toLocaleString('en-GB')} />
+          <Stat label="Party total of those payments (lower bound)" value={fmtMoney(partyTotal)} />
         </div>
 
         <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 16px' }}>

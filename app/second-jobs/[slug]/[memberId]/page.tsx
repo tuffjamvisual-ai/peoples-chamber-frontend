@@ -83,7 +83,7 @@ export default async function MpSecondJobsDetail({ params }: { params: Promise<{
           </h1>
           <div style={{ marginTop: '14px', display: 'flex', justifyContent: 'center', gap: '24px', flexWrap: 'wrap', fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', color: INK_SOFT }}>
             <span><span style={{ color: INK, fontWeight: 700, fontSize: '15px' }}>{fmtMoney(item.total)}</span> · Declared total</span>
-            <span><span style={{ color: INK, fontWeight: 700, fontSize: '15px' }}>{item.claimCount}</span> · Payments on record</span>
+            <span><span style={{ color: INK, fontWeight: 700, fontSize: '15px' }}>{item.claimCount}</span> · Payments with a £ figure</span>
             <span><span style={{ color: INK, fontWeight: 700, fontSize: '15px' }}>{item.rows.length}</span> · Role{item.rows.length === 1 ? '' : 's'} registered</span>
           </div>
         </header>

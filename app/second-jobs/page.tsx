@@ -7,7 +7,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
-import { fmtMoney, loadAll } from './_lib/data';
+import { fmtMoney, fmtUpdated, loadAll } from './_lib/data';
 
 export const revalidate = 86400;
 
@@ -26,7 +26,8 @@ const SERIF = 'Special Elite, monospace';
 const MONO = 'Special Elite, monospace';
 
 export default async function SecondJobsLanding() {
-  const { partyTotals, grandTotal, grandClaims, totalMps } = await loadAll();
+  const { partyTotals, grandTotal, grandClaims, totalMps, mpsWithPayments, summaryUpdated } = await loadAll();
+  const asOf = fmtUpdated(summaryUpdated);
 
   return (
     <OpenGovShell pageStamp="Second Jobs">
@@ -90,10 +91,13 @@ export default async function SecondJobsLanding() {
             marginBottom: '32px',
           }}
         >
-          <Stat label="MPs with second jobs" value={totalMps.toString()} />
-          <Stat label="Individual payments declared" value={grandClaims.toLocaleString('en-GB')} />
-          <Stat label="Declared total (lower bound)" value={fmtMoney(grandTotal)} />
+          <Stat label="MPs with paid outside roles" value={totalMps.toString()} />
+          <Stat label="Payments with a £ figure" value={grandClaims.toLocaleString('en-GB')} />
+          <Stat label="Total of those payments (lower bound)" value={fmtMoney(grandTotal)} />
         </div>
+        <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: '-18px 0 28px', maxWidth: '46em' }}>
+          What these count: <strong>MPs with paid outside roles</strong> is every current MP with at least one entry under “Employment and earnings” in the current Register (roles that have ended are not counted). {mpsWithPayments} of them have at least one payment registered with a £ figure; the rest declare a role, salary or range without itemised payments. <strong>Payments with a £ figure</strong> and the <strong>total</strong> add up only those itemised payments in current entries, so the total is a lower bound.{asOf ? ` Figures as of ${asOf}.` : ''}
+        </p>
 
         <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
           By party · click through for detail
@@ -158,9 +162,11 @@ export default async function SecondJobsLanding() {
           <strong style={{ color: INK }}>Methodology.</strong> Drawn from the Members’
           Register of Financial Interests (members-api.parliament.uk) for current MPs
           only. Roles are taken from category “1. Employment and earnings”.
-          Each MP’s headline total is the sum of explicit “Payment: £X”
+          Only entries in the current Register are used; roles that have ended are
+          left out. Each MP’s headline total is the sum of explicit “Payment: £X”
           amounts found in the registered child entries. Ranges and salaried roles
-          without a per-payment figure are not summed.
+          without a per-payment figure are not summed. Totals are rebuilt every night
+          from the latest Register.
         </section>
 
       </article>

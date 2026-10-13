@@ -23,9 +23,14 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Install PostgreSQL client (for psql backfills)
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
-      - name: Sync GOV.UK department data
-        run: node scripts/sync-govuk-data.js
-        continue-on-error: true   # temporary — under investigation; do not let this kill the rest of the pipeline
+      # GOV.UK department data, agency data, ministers' meetings and hospitality, revolving door
+      # (ACOBA) and GOV.UK press releases moved to Vercel cron routes on 15 May 2026 (commit
+      # ffa3e30: app/api/sync-govuk-data, sync-agency-cache, sync-ministers-meetings,
+      # sync-ministers-hospitality, sync-revolving-door, sync-press-releases). Their old script
+      # steps were removed from here on 13 Oct 2026: the scripts no longer exist, and the
+      # agency step (which had no continue-on-error) stopped every later step from running.
+      # The Register of Consultant Lobbyists step was also removed: its script does not exist
+      # and there is no route for it yet (to be restored separately).
       - name: Backfill ministerial salary bands (preserves the dept_ministers.salary_band column that sync-govuk-data wipes via delete+insert)
         env:
           DATABASE_URL_RAW: ${{ secrets.DATABASE_URL }}
@@ -37,10 +42,6 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: node scripts/generate-department-contexts.js
-      - name: Sync agency data
-        run: node scripts/sync-agency-data.js
-      - name: Sync ministers' meetings
-        run: node scripts/sync-ministers-meetings.js
         continue-on-error: true
       - name: Enrich ministers' meetings (Haiku org descriptions)
         env:
@@ -50,17 +51,8 @@ jobs:
       - name: Sync APPGs
         run: node scripts/sync-appgs.js
         continue-on-error: true
-      - name: Sync ministers' hospitality
-        run: node scripts/sync-ministers-hospitality.js
-        continue-on-error: true
-      - name: Sync revolving door (ACOBA)
-        run: node scripts/sync-revolving-door.js
-        continue-on-error: true
       - name: Sync committee proceedings (Playwright)
         run: node scripts/sync-committee-proceedings.js
-        continue-on-error: true
-      - name: Sync Register of Consultant Lobbyists (Playwright)
-        run: node scripts/sync-lobbyist-register.js
         continue-on-error: true
       - name: Sync government contracts
         run: node scripts/sync-government-contracts.js
@@ -72,9 +64,6 @@ jobs:
         env:
           COMPANIES_HOUSE_API_KEY: ${{ secrets.COMPANIES_HOUSE_API_KEY }}
         run: node scripts/sync-companies-house.js
-        continue-on-error: true
-      - name: Sync GOV.UK press releases (powers the homepage news strip)
-        run: node scripts/sync-press-releases.js
         continue-on-error: true
       - name: Sync independent UK political coverage with People's Chamber commentary (Haiku)
         env:
@@ -99,22 +88,28 @@ jobs:
           DATABASE_URL_RAW: ${{ secrets.DATABASE_URL }}
         run: |
           export DATABASE_URL="$(printf '%s' "$DATABASE_URL_RAW" | tr -d '[:space:]')"
+          # One transaction: the table is never left empty if the rebuild fails. Current register
+          # entries only (is_current), so ended roles and old payments are not counted.
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
-          TRUNCATE mp_outside_earnings_summary;
+          BEGIN;
+          DELETE FROM mp_outside_earnings_summary;
           WITH payments AS (
             SELECT i.member_id, i.id AS parent_row_id,
               substring(c->>'interest' FROM 'Payment:\s*£([0-9][0-9,]*(?:\.[0-9]+)?)') AS amt_text
             FROM mp_registered_interests i
             CROSS JOIN LATERAL jsonb_array_elements(coalesce(i.child_interests, '[]'::jsonb)) AS c
             WHERE i.category_name = '1. Employment and earnings'
+              AND i.is_current
               AND coalesce((c->>'isCorrection')::boolean, false) = false
           )
-          INSERT INTO mp_outside_earnings_summary (member_id, total_extracted, claim_count, source_count)
+          INSERT INTO mp_outside_earnings_summary (member_id, total_extracted, claim_count, source_count, updated_at)
           SELECT member_id,
             SUM(replace(amt_text, ',', '')::numeric),
             COUNT(*) FILTER (WHERE amt_text IS NOT NULL),
-            COUNT(DISTINCT parent_row_id) FILTER (WHERE amt_text IS NOT NULL)
+            COUNT(DISTINCT parent_row_id) FILTER (WHERE amt_text IS NOT NULL),
+            now()
           FROM payments WHERE amt_text IS NOT NULL GROUP BY member_id;
+          COMMIT;
           SQL
         continue-on-error: true
       - name: Trigger Vercel redeploy

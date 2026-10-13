@@ -52,6 +52,7 @@ export type Summary = {
   member_id: number;
   total_extracted: number;
   claim_count: number;
+  updated_at: string | null;
 };
 
 export type MpDetail = {
@@ -112,6 +113,13 @@ export function parsePayment(text: string): Payment {
   return out;
 }
 
+// "13 October 2026" from a timestamp, for the "figures as of" line.
+export function fmtUpdated(ts: string | null): string | null {
+  if (!ts) return null;
+  const d = new Date(ts);
+  return Number.isNaN(d.getTime()) ? null : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' });
+}
+
 export function fmtMoney(n: number): string {
   if (!n) return '£0';
   return '£' + Math.round(n).toLocaleString('en-GB');
@@ -146,15 +154,34 @@ export async function loadAll(): Promise<{
   grandTotal: number;
   grandClaims: number;
   totalMps: number;
+  mpsWithPayments: number;
+  summaryUpdated: string | null;
 }> {
-  const [{ data: summaries }, { data: interests }, { data: mps }] = await Promise.all([
+  // Current register entries only (is_current): an MP whose only "Employment and
+  // earnings" entry has ended is not counted. Read in pages of 1,000 in a fixed order
+  // so no row is missed. The earnings summary is rebuilt nightly from current entries
+  // (.github/workflows/daily-context-update.yml).
+  const readInterests = async (): Promise<InterestRow[]> => {
+    const out: InterestRow[] = [];
+    for (let from = 0; ; from += 1000) {
+      const { data, error } = await supabase
+        .from('mp_registered_interests')
+        .select('member_id, interest_text, child_interests')
+        .ilike('category_name', '%Employment and earnings%')
+        .eq('is_current', true)
+        .order('id', { ascending: true })
+        .range(from, from + 999);
+      if (error) throw new Error(`mp_registered_interests: ${error.message}`);
+      out.push(...((data as InterestRow[]) || []));
+      if (!data || data.length < 1000) break;
+    }
+    return out;
+  };
+  const [{ data: summaries }, interests, { data: mps }] = await Promise.all([
     supabase
       .from('mp_outside_earnings_summary')
-      .select('member_id, total_extracted, claim_count'),
-    supabase
-      .from('mp_registered_interests')
-      .select('member_id, interest_text, child_interests')
-      .ilike('category_name', '%Employment and earnings%'),
+      .select('member_id, total_extracted, claim_count, updated_at'),
+    readInterests(),
     supabase
       .from('mps')
       .select('member_id, display_name, name, constituency, party, party_colour')
@@ -169,7 +196,7 @@ export async function loadAll(): Promise<{
   );
 
   const interestsByMember = new Map<number, InterestRow[]>();
-  for (const row of (interests as InterestRow[]) || []) {
+  for (const row of interests) {
     if (!mpByMember.has(row.member_id)) continue;
     if (!interestsByMember.has(row.member_id)) interestsByMember.set(row.member_id, []);
     interestsByMember.get(row.member_id)!.push(row);
@@ -179,6 +206,7 @@ export async function loadAll(): Promise<{
   let grandTotal = 0;
   let grandClaims = 0;
   let totalMps = 0;
+  let mpsWithPayments = 0;
   for (const [memberId, rows] of interestsByMember) {
     const mp = mpByMember.get(memberId)!;
     const summary = summaryByMember.get(memberId);
@@ -187,6 +215,7 @@ export async function loadAll(): Promise<{
     grandTotal += total;
     grandClaims += claimCount;
     totalMps += 1;
+    if (claimCount > 0) mpsWithPayments += 1;
     const slug = partyToSlug(mp.party);
     if (!bySlug.has(slug)) bySlug.set(slug, []);
     bySlug.get(slug)!.push({ mp, total, claimCount, rows });
@@ -209,5 +238,6 @@ export async function loadAll(): Promise<{
     })
     .sort((a, b) => b.total - a.total || b.mps - a.mps);
 
-  return { bySlug, summaryByMember, partyTotals, grandTotal, grandClaims, totalMps };
+  const summaryUpdated = ((summaries as Summary[]) || []).reduce<string | null>((m, r) => (r.updated_at && (!m || r.updated_at > m) ? r.updated_at : m), null);
+  return { bySlug, summaryByMember, partyTotals, grandTotal, grandClaims, totalMps, mpsWithPayments, summaryUpdated };
 }
