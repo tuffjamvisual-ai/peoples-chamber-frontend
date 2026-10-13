@@ -19,6 +19,7 @@ const NAV: NavItem[] = [
     { label: 'Find Your MP', href: '/find-your-mp' },
     { label: 'All MPs', href: '/mps' },
     { label: 'MP Activity', href: '/transparency/mp-activity' },
+    { label: 'MP Earnings', href: '/earnings' },
   ] },
   { label: 'Parliament', href: '/bills', children: [
     { label: 'Bills', href: '/bills' },
@@ -26,6 +27,7 @@ const NAV: NavItem[] = [
     { label: 'Commons Debates', href: '/debates' },
     { label: 'Divisions', href: '/divisions' },
     { label: 'Press Releases', href: '/transparency/press-releases' },
+    { label: 'Laws', href: '/laws' },
   ] },
   { label: 'Parties', href: '/parties', children: [
     { label: 'Manifesto Comparisons', href: '/parties' },
@@ -45,7 +47,17 @@ const NAV: NavItem[] = [
     { label: 'Restore Britain', href: '/parties/restore-britain/bio' },
     { label: 'Your Party', href: '/parties/your-party/bio' },
   ] },
-  { label: 'Departments', href: '/departments' },
+  { label: 'Departments', href: '/departments', children: [
+    { label: 'All Departments', href: '/departments' },
+    { label: 'Department Budgets', href: '/spending' },
+    { label: 'Civil Service', href: '/civil-service' },
+    { label: 'Your Tax Pound', href: '/your-tax-pound' },
+    { label: 'Budget Trade-offs', href: '/budget-trade-offs' },
+  ] },
+  { label: 'Local', href: '/councils', children: [
+    { label: 'Councils', href: '/councils' },
+    { label: 'Sewage Spills', href: '/sewage' },
+  ] },
   { label: 'Accountability', href: '/transparency', children: [
     { label: 'State Dashboard', href: '/transparency/state-dashboard' },
     { label: 'Welfare Spending', href: '/tools/welfare' },
@@ -54,7 +66,9 @@ const NAV: NavItem[] = [
     { label: 'Second Jobs', href: '/second-jobs' },
     { label: 'Revolving Door', href: '/transparency/revolving-door' },
     { label: 'Special Advisers', href: '/transparency/special-advisers' },
+    { label: 'Money & Power', href: '/money' },
     { label: 'Donations', href: '/transparency/donations' },
+    { label: 'Donors', href: '/donors' },
     { label: 'Government Contracts', href: '/transparency/contracts' },
     { label: 'APPG Funding', href: '/transparency/appgs' },
     { label: 'Ministers Meetings', href: '/transparency/ministers-meetings' },
