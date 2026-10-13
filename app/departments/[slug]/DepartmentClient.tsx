@@ -125,6 +125,11 @@ export default function DepartmentClient({ slug, govukData, streetContext, budge
               </button>
             </div>
             <p className="text-[#14100d] text-[16px] leading-[1.7] mb-6">{activeZoneData.context}</p>
+            {activeZoneData.link && (
+              <p className="text-[#14100d] text-[16px] leading-[1.7] mb-6 -mt-3">
+                <a href={activeZoneData.link.href} className="underline">{activeZoneData.link.label}</a>
+              </p>
+            )}
             <ul className="grid grid-cols-1 md:grid-cols-2 gap-px  ">
               {activeZoneData.positions.map((pos) => {
                 const party = parties.find((p) => p.id === pos.partyId);

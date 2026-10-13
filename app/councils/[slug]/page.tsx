@@ -18,6 +18,7 @@ import CouncilClaimantCountSection from '../../components/CouncilClaimantCountSe
 import CouncilSchoolInspectionsSection from '../../components/CouncilSchoolInspectionsSection';
 import CouncilRoadCasualtiesSection from '../../components/CouncilRoadCasualtiesSection';
 import CouncilConnectivitySection from '../../components/CouncilConnectivitySection';
+import CouncilSewageSection from '../../components/CouncilSewageSection';
 
 export const revalidate = 21600;
 
@@ -320,6 +321,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
             { id: 'health', label: 'Health', rotate: '-0.1deg' },
             { id: 'schools', label: 'Schools', rotate: '0.05deg' },
             { id: 'broadband', label: 'Broadband & mobile', rotate: '-0.08deg' },
+            { id: 'sewage', label: 'Sewage', rotate: '0.07deg' },
           ]}
           slots={{
             overview: <>
@@ -564,6 +566,14 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                     : c.gss_code ? [c.gss_code] : []
                 }
                 isCounty={c.type === 'county'}
+              />
+            </>,
+            sewage: <>
+              {/* Sewage spills: England and NI; a county sums its districts. Water companies run overflows. */}
+              <CouncilSewageSection
+                gssCode={c.gss_code}
+                isCounty={c.type === 'county'}
+                districtCodes={children.map((d) => d.gss_code).filter((g): g is string => !!g)}
               />
             </>,
           }}

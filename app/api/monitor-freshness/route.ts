@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { DATA_SOURCES, CADENCE_MAX_AGE_DAYS, DEFAULT_ZERO_RUN_TOLERANCE, newestTimestamp, ageInDays } from '@/lib/data-freshness';
-import { sendFreshnessAlert, sendDatabaseSizeAlert, sendBioReviewAlert, type StaleSource, type BioReviewFlag } from '@/lib/email';
+import { sendFreshnessAlert, sendDatabaseSizeAlert, sendBioReviewAlert, sendSewageReleaseAlert, type StaleSource, type BioReviewFlag } from '@/lib/email';
 import { getDatabaseSize } from '@/lib/database-size';
 
 export const dynamic = 'force-dynamic';
@@ -20,6 +20,9 @@ export const maxDuration = 300;
 //
 // Disk = the database size check (lib/database-size.ts): emails once a day while
 //          disk use is over 5 GB (warning) or 7 GB (urgent) of the 8 GB disk.
+// Sewage = storm overflow figures are loaded by hand once a year: checks the
+//          data.gov.uk page for an Environment Agency annual return newer than
+//          the year in sewage_overflows and emails daily until it is imported.
 // Bios  = written MP biographies flagged for review by the nightly syncs
 //          (lib/bio-review.ts): all outstanding flags are listed; flags raised
 //          in the last 24 hours are emailed.
@@ -161,10 +164,33 @@ export async function GET(req: NextRequest) {
   }
   const bioReviewEmail = await sendBioReviewAlert(bioReview.newLast24h, bioReview.outstanding);
 
+  // New Environment Agency storm overflow return (loaded by hand with scripts/import-sewage.js).
+  const sewageRelease: { storedYear: number | null; latestListedYear: number | null; fileUrl: string | null; error?: string } = { storedYear: null, latestListedYear: null, fileUrl: null };
+  let sewageReleaseEmail: { sent: boolean; reason?: string; id?: string } = { sent: false, reason: 'not_checked' };
+  try {
+    const { data: yr } = await supabaseAdmin.from('sewage_overflows').select('year').eq('source', 'EA').order('year', { ascending: false }).limit(1);
+    sewageRelease.storedYear = (yr?.[0]?.year as number | undefined) ?? null;
+    const page = await fetch('https://www.data.gov.uk/dataset/19f6064d-7356-466f-844e-d20ea10ae9fd/event-duration-monitoring-storm-overflows-annual-returns', { headers: { 'User-Agent': 'opengovt/1.0 (+https://opengovt.uk)' }, signal: AbortSignal.timeout(20000) });
+    if (!page.ok) throw new Error(`data.gov.uk ${page.status}`);
+    const html = await page.text();
+    for (const m of html.matchAll(/href="([^"]*EDM_(\d{4})_Storm_Overflow_Annual_Return\.zip[^"]*)"/gi)) {
+      const y = Number(m[2]);
+      if (sewageRelease.latestListedYear == null || y > sewageRelease.latestListedYear) { sewageRelease.latestListedYear = y; sewageRelease.fileUrl = m[1].replace(/&amp;/g, '&'); }
+    }
+    if (sewageRelease.latestListedYear == null) sewageReleaseEmail = { sent: false, reason: 'no_return_links_found' };
+    else if (sewageRelease.storedYear != null && sewageRelease.latestListedYear > sewageRelease.storedYear && sewageRelease.fileUrl) {
+      sewageReleaseEmail = await sendSewageReleaseAlert(sewageRelease.latestListedYear, sewageRelease.storedYear, sewageRelease.fileUrl);
+    } else sewageReleaseEmail = { sent: false, reason: 'up_to_date' };
+  } catch (e) {
+    sewageRelease.error = (e as Error).message;
+  }
+
   return NextResponse.json({
     ok: true,
     bioReview,
     bioReviewEmail,
+    sewageRelease,
+    sewageReleaseEmail,
     databaseSize,
     databaseSizeError: databaseSizeError ?? null,
     databaseSizeEmail,

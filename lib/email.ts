@@ -263,6 +263,37 @@ export async function sendDatabaseSizeAlert(size: DatabaseSize) {
   }
 }
 
+// New storm overflow return — fired by /api/monitor-freshness when data.gov.uk
+// lists an Environment Agency annual return for a later year than the one in
+// sewage_overflows. Repeats daily until the new year is imported (the import is
+// run by hand: node scripts/import-sewage.js, then --write). Same recipient as the
+// freshness alert. Inert until RESEND_API_KEY is set. Never throws.
+export async function sendSewageReleaseAlert(newYear: number, storedYear: number | null, fileUrl: string) {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return { sent: false, reason: 'no_api_key' };
+  const from = process.env.RESEND_FROM || 'opengovt <onboarding@resend.dev>';
+  const headline = `New storm overflow figures: Environment Agency ${newYear} return published`;
+  const lines = [
+    `data.gov.uk now lists the Environment Agency's storm overflow annual return for ${newYear}.`,
+    `The site currently shows ${storedYear ?? 'no'} figures for England.`,
+    `File: ${fileUrl}`,
+    `To load it: update EA_YEAR and EA_ZIP in scripts/import-sewage.js, run the dry run, check the report, then run it with --write.`,
+  ];
+  const text = `${headline}\n\n${lines.join('\n')}\n`;
+  const html = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;color:#14100d">
+      <p style="margin:0 0 12px;font-weight:bold">${headline}</p>
+      <ul style="margin:0;padding-left:18px">${lines.map((l) => `<li style="margin:0 0 6px">${l}</li>`).join('')}</ul>
+    </div>`;
+  try {
+    const resend = new Resend(key);
+    const { data, error } = await resend.emails.send({ from, to: FRESHNESS_NOTIFY_TO, subject: `opengovt ${headline.charAt(0).toLowerCase()}${headline.slice(1)}`, text, html });
+    if (error) return { sent: false, reason: error.message };
+    return { sent: true, id: data?.id };
+  } catch (e) {
+    return { sent: false, reason: (e as Error).message };
+  }
+}
+
 // Biography review alert — fired by /api/monitor-freshness when the nightly syncs
 // have flagged written MP biographies for review in the last 24 hours (party
 // change, a post starting or ending, an MP leaving, a new MP with no biography).

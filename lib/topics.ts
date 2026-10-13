@@ -18,6 +18,8 @@ export type TopicDef = {
   editorialSlugs: string[];
   // Substring keywords matched against poll questions.
   pollKeywords: string[];
+  // Open Govt data pages for this topic, listed under "Data on Open Govt".
+  dataPages?: { href: string; title: string; description: string }[];
 };
 
 export const topics: TopicDef[] = [
@@ -108,6 +110,9 @@ export const topics: TopicDef[] = [
     keywords: ['climate', 'energy', 'net zero', 'carbon', 'renewable', 'electricity', 'emission', 'petroleum', 'environment', 'water', 'sewage'],
     editorialSlugs: [],
     pollKeywords: ['energy', 'oil', 'gas', 'climate', 'north sea', 'net zero'],
+    dataPages: [
+      { href: '/sewage', title: 'Sewage spills', description: 'How long storm overflows spilled sewage in every council area and constituency in England and Northern Ireland, and for each water company.' },
+    ],
   },
   {
     slug: 'justice-and-policing',

@@ -85,6 +85,10 @@ export const DATA_SOURCES: DataSource[] = [
   // Ofcom publishes Connected Nations data a few times a year; the weekly check returns 0 rows on
   // most runs, so the zero-run tolerance covers the gap between releases plus slippage.
   { key: 'council_connectivity',    table: 'council_broadband', column: 'synced_at', cadence: 'quarterly', label: 'Broadband and mobile coverage by council', source: 'Ofcom Connected Nations', page: '/councils/[slug]', syncRoute: '/api/sync-connectivity', zeroRunTolerance: 40 },
+  // Storm overflows: the Environment Agency publishes its annual return once a year and NI Water
+  // updates its workbook occasionally. Both are loaded by hand (scripts/import-sewage.js); the
+  // monitor emails when a new EA year appears on data.gov.uk (see api/monitor-freshness).
+  { key: 'sewage_overflows',        table: 'sewage_overflows', column: 'synced_at', cadence: 'quarterly', label: 'Storm overflow figures', source: 'Environment Agency storm overflow annual return; NI Water Event Duration Monitor data', page: '/sewage' /* loaded by hand; no automated sync */ },
 ];
 
 export function dataSource(key: string): DataSource | undefined {

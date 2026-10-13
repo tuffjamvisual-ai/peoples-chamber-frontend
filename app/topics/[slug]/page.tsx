@@ -118,6 +118,19 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
         </section>
       )}
 
+      {/* Open Govt data pages for this topic */}
+      {topic.dataPages && topic.dataPages.length > 0 && (
+        <section style={{ marginBottom: '6%' }}>
+          <h2 style={sectionH2}>Data on Open Govt</h2>
+          {topic.dataPages.map((d) => (
+            <Link key={d.href} href={d.href} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, border: `1px solid ${HAIRLINE}`, padding: '16px 18px', marginBottom: '10px' }}>
+              <div style={{ fontSize: 'clamp(17px, 2vw, 22px)', fontWeight: 'bold', marginBottom: '4px' }}>{d.title} <span style={{ color: ACCENT }}>→</span></div>
+              <p style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0 }}>{d.description}</p>
+            </Link>
+          ))}
+        </section>
+      )}
+
       <ServiceIndicator services={servicesForTopic(topic.slug)} />
 
       {/* Top MPs */}

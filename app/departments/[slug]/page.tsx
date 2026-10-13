@@ -122,6 +122,11 @@ export default async function DepartmentPage({ params }: PageProps) {
 
   const tabs: { id: string; label: string; rotate: string }[] = [];
   const slots: Record<string, ReactNode> = {};
+  // Open Govt data pages for a department, shown at the end of its About tab.
+  const DATA_PAGES: Record<string, { href: string; title: string; description: string }[]> = {
+    environment: [{ href: '/sewage', title: 'Sewage spills', description: 'How long storm overflows spilled sewage in every council area and constituency in England and Northern Ireland, and for each water company.' }],
+  };
+  const dataPages = DATA_PAGES[slug] ?? [];
   if (reportText.trim()) {
     tabs.push({ id: 'assessment', label: 'About', rotate: '0.1deg' });
     const aboutParas = reportText.split(/\n\n+/).map((p) => p.trim()).filter(Boolean);
@@ -130,6 +135,17 @@ export default async function DepartmentPage({ params }: PageProps) {
         {aboutParas.map((para, idx) => (
           <p key={idx} className="text-[#14100d] text-[16px] leading-[1.7] mb-3" style={{ whiteSpace: 'pre-wrap' }}>{para}</p>
         ))}
+        {dataPages.length > 0 && (
+          <div className="mt-6">
+            <h3 className="text-[#14100d] text-[15px] uppercase tracking-[0.2em] font-bold mb-3">Data on Open Govt</h3>
+            {dataPages.map((d) => (
+              <a key={d.href} href={d.href} className="block border border-[rgba(20,16,13,0.2)] px-4 py-3 mb-3 text-[#14100d] no-underline">
+                <span className="block text-[18px] font-bold mb-1">{d.title} →</span>
+                <span className="block text-[15px] leading-[1.6]">{d.description}</span>
+              </a>
+            ))}
+          </div>
+        )}
       </section>
     );
   }

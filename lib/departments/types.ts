@@ -8,6 +8,7 @@ export type ControlZoneData = {
   zone: string;
   context: string;
   positions: PartyPosition[];
+  link?: { href: string; label: string }; // an Open Govt page with the figures for this topic
 };
 
 export type DepartmentMeta = {
