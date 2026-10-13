@@ -91,6 +91,9 @@ export const DATA_SOURCES: DataSource[] = [
   // downloads, so its two workbooks are downloaded in a browser); the monitor emails when a new EA
   // year appears on data.gov.uk (see api/monitor-freshness).
   { key: 'sewage_overflows',        table: 'sewage_overflows', column: 'synced_at', cadence: 'quarterly', label: 'Storm overflow figures', source: 'Environment Agency storm overflow annual return; Scottish Water overflow event data; NI Water Event Duration Monitor data', page: '/sewage' /* loaded by hand; no automated sync */ },
+  // Council area league table: written by scripts/score-areas.js --write, run by hand when its
+  // source figures change (no automated sync).
+  { key: 'council_league_table',    table: 'area_ratings', column: 'synced_at', cadence: 'quarterly', label: 'Council area ratings', source: 'Open Govt calculation from Ofsted, ONS, DfT, police.uk, DWP, DESNZ, MHCLG, Defra, Environment Agency and Ofcom figures', page: '/councils/league-table' /* run by hand; no automated sync */ },
 ];
 
 export function dataSource(key: string): DataSource | undefined {

@@ -49,3 +49,6 @@ public/bill-parchment.webp.prev2
 
 # Scottish Water overflow workbooks, downloaded by hand for scripts/import-sewage-scotland.js
 data/sewage-scotland/
+
+# Saved CQC council assessment results (scripts/import-council-ratings.js --with-cqc)
+data/council-ratings/

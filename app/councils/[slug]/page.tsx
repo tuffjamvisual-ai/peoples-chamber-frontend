@@ -19,6 +19,7 @@ import CouncilSchoolInspectionsSection from '../../components/CouncilSchoolInspe
 import CouncilRoadCasualtiesSection from '../../components/CouncilRoadCasualtiesSection';
 import CouncilConnectivitySection from '../../components/CouncilConnectivitySection';
 import CouncilSewageSection from '../../components/CouncilSewageSection';
+import CouncilRatingsSection from '../../components/CouncilRatingsSection';
 
 export const revalidate = 21600;
 
@@ -314,6 +315,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
         <CouncilTabs
           tabs={[
             { id: 'overview', label: 'Overview', rotate: '0.1deg' },
+            { id: 'ratings', label: 'Ratings', rotate: '-0.06deg' },
             { id: 'money', label: 'Money', rotate: '-0.12deg' },
             { id: 'work', label: 'Work & benefits', rotate: '0.08deg' },
             { id: 'housing', label: 'Housing', rotate: '-0.05deg' },
@@ -566,6 +568,15 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                     : c.gss_code ? [c.gss_code] : []
                 }
                 isCounty={c.type === 'county'}
+              />
+            </>,
+            ratings: <>
+              {/* Area league table (England): area rating, council services score, similar councils, financial health. */}
+              <CouncilRatingsSection
+                gssCode={c.gss_code}
+                type={c.type}
+                name={c.short_name || c.name}
+                districtCodes={children.map((d) => d.gss_code).filter((g): g is string => !!g)}
               />
             </>,
             sewage: <>

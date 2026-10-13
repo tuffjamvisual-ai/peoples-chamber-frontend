@@ -56,6 +56,7 @@ const NAV: NavItem[] = [
   ] },
   { label: 'Local', href: '/councils', children: [
     { label: 'Councils', href: '/councils' },
+    { label: 'Council League Table', href: '/councils/league-table' },
     { label: 'Sewage Spills', href: '/sewage' },
   ] },
   { label: 'Accountability', href: '/transparency', children: [

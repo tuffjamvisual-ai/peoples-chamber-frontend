@@ -115,6 +115,10 @@ export default async function CouncilsIndex() {
           budgets are being added in stages; most rows still carry only the foundation data.
         </p>
 
+        <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.75, margin: '0 auto 28px', maxWidth: '46em', color: INK, borderTop: `1px solid ${INK}`, borderBottom: `1px solid ${INK}`, padding: '10px 0' }}>
+          <a href="/councils/league-table" style={{ color: INK, fontWeight: 'bold' }}>Council area league table</a>: how every council area in England compares on schools, safety, health, jobs, housing, environment and connectivity, with a separate score for council services and warnings such as section 114 notices.
+        </p>
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
           {COUNTRY_ORDER.filter((c) => grouped[c]).map((country) => {
             const byType = grouped[country];
