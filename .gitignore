@@ -52,3 +52,7 @@ data/sewage-scotland/
 
 # Saved CQC council assessment results (scripts/import-council-ratings.js --with-cqc)
 data/council-ratings/
+
+# Outgoing emails and send records for scripts/mail (private correspondence)
+scripts/mail/outbox/
+scripts/mail/sent-log/
