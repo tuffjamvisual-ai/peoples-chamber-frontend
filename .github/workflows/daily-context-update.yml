@@ -20,7 +20,9 @@ jobs:
       - name: Install dependencies
         run: npm install @anthropic-ai/sdk @supabase/supabase-js csv-parse playwright ws
       - name: Install Playwright Chromium
-        run: npx playwright install --with-deps chromium
+        # Use the project's own playwright package (the one the scripts require), so the
+        # browser build matches it; npx could pick @playwright/test's older CLI instead.
+        run: node node_modules/playwright/cli.js install --with-deps chromium
       - name: Install PostgreSQL client (for psql backfills)
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
       # GOV.UK department data, agency data, ministers' meetings and hospitality, revolving door
@@ -49,7 +51,11 @@ jobs:
         run: node scripts/enrich-ministers-meetings.js
         continue-on-error: true
       - name: Sync APPGs
-        run: node scripts/sync-appgs.js
+        env:
+          DATABASE_URL_RAW: ${{ secrets.DATABASE_URL }}
+        run: |
+          export DATABASE_URL="$(printf '%s' "$DATABASE_URL_RAW" | tr -d '[:space:]')"
+          node scripts/sync-appgs.js
         continue-on-error: true
       - name: Sync committee proceedings (Playwright)
         run: node scripts/sync-committee-proceedings.js
@@ -60,11 +66,11 @@ jobs:
       - name: Sync MP division votes
         run: node scripts/sync-mp-votes.js
         continue-on-error: true
-      - name: Sync Companies House
-        env:
-          COMPANIES_HOUSE_API_KEY: ${{ secrets.COMPANIES_HOUSE_API_KEY }}
-        run: node scripts/sync-companies-house.js
-        continue-on-error: true
+      # Companies House step removed 13 Oct 2026: the Companies House section was switched
+      # off on 3 June and nothing on the site reads companies_house; the script took the top
+      # search result with no check it was the same company (e.g. "News UK" matched to an
+      # unrelated firm), and its ~380 rate-limited lookups made this job run for over half an
+      # hour. The table is kept. Restore only with matching on company numbers.
       - name: Sync independent UK political coverage with People's Chamber commentary (Haiku)
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
