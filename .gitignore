@@ -59,3 +59,7 @@ scripts/mail/sent-log/
 
 # Working files for the lobbying index hand review (scripts/build-lobbying-index.js)
 data/lobbying/
+
+# Registrar of Consultant Lobbyists files, downloaded by hand (scripts/import-orcl-returns.js); the manifest is kept
+data/orcl/*
+!data/orcl/manifest.csv
