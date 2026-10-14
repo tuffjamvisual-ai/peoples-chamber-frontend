@@ -26,11 +26,9 @@ const JSONLD_WEBPAGE = {
 
 const INK = '#14100d'
 
-// Lobbyist Register section removed 2026-06-02. The statutory UK Register of
-// Consultant Lobbyists (1,251 rows still in the lobbyist_register table) only
-// covers consultant lobbyists, not the much larger in-house lobbying universe,
-// and the underlying disclosure is too thin to be journalistically useful.
-// Hidden until a better source can be identified. DB data preserved.
+// Lobbyist Register section removed 2026-06-02 (old lobbyist_register table, kept but
+// unused). Replaced 14 Oct 2026 by /lobbying, which joins ministers' meetings to the
+// Registrar of Consultant Lobbyists quarterly returns (orcl_client_returns).
 //
 // Companies House section removed 2026-06-03. The companies_house table only
 // holds a thin slice of director/PSC links to MPs and ministers — limited
@@ -39,6 +37,7 @@ const INK = '#14100d'
 const SECTIONS: { slug: string; title: string; description: string; href?: string }[] = [
   { slug: 'register-of-interests', title: "Register of Members' Financial Interests", description: "What MPs declare to Parliament: gifts, hospitality, employment, overseas visits, property and shareholdings. Searchable across every MP by donor, category and date. Separate from Electoral Commission political donations.", href: '/transparency/register-of-interests' },
   { slug: 'mp-activity',        title: 'MP Activity: Most Active & Fewest Contributions', description: 'Every current MP ranked by how often they have spoken in the Commons this Parliament and how many words, taken straight from the Hansard record.', href: '/transparency/mp-activity' },
+  { slug: 'lobbying',           title: 'Lobbying',                         description: 'Which companies, trade bodies, unions and charities meet ministers most, and which consultant lobbying firms act for which clients, from the Register of Consultant Lobbyists.', href: '/lobbying' },
   { slug: 'ministers-meetings', title: "Ministers' Meetings", description: 'Records of meetings ministers have held with external organisations and lobbyists, published quarterly under GOV.UK transparency releases.' },
   { slug: 'appgs',              title: 'All Party Parliamentary Groups',   description: 'Cross party informal interest groups in Parliament, the funding they receive, and the secretariat support behind them.' },
   { slug: 'hospitality',        title: "Ministers' Hospitality",           description: 'Gifts, hospitality and overseas travel accepted by ministers, published quarterly by every department.' },

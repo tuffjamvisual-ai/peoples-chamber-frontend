@@ -30,7 +30,7 @@ startup coalition,org,Startup Coalition,trade_body,
 food and drink federation,org,Food and Drink Federation,trade_body,
 uk hospitality,org,UKHospitality,trade_body,
 energy networks association,org,Energy Networks Association,trade_body,
-trades union congress,org,Trades Union Congress,trade_body,
+trades union congress,org,Trades Union Congress,union,federation of unions (type corrected from trade_body on 14 Oct 2026)
 confederation of british industry,org,Confederation of British Industry,trade_body,
 ukhospitality,same_as,UKHospitality,,
 british chamber of commerce,same_as,British Chambers of Commerce,,

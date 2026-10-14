@@ -94,6 +94,8 @@ export const DATA_SOURCES: DataSource[] = [
   // Council area league table: written by scripts/score-areas.js --write, run by hand when its
   // source figures change (no automated sync).
   { key: 'council_league_table',    table: 'area_ratings', column: 'synced_at', cadence: 'quarterly', label: 'Council area ratings', source: 'Open Govt calculation from Ofsted, ONS, DfT, police.uk, DWP, DESNZ, MHCLG, Defra, Environment Agency and Ofcom figures', page: '/councils/league-table' /* run by hand; no automated sync */ },
+  { key: 'lobbying_meetings',       table: 'lobby_meeting_mentions', column: 'built_at', cadence: 'quarterly', label: 'Ministers\u2019 meetings lobbying index', source: 'GOV.UK ministers\u2019 meetings transparency returns', page: '/lobbying' /* rebuilt by scripts/build-lobbying-index.js */ },
+  { key: 'consultant_lobbyists',    table: 'orcl_client_returns', column: 'built_at', cadence: 'quarterly', label: 'Consultant lobbyists and their clients', source: 'Registrar of Consultant Lobbyists quarterly returns', page: '/lobbying' /* files downloaded by hand; scripts/import-orcl-returns.js */ },
 ];
 
 export function dataSource(key: string): DataSource | undefined {

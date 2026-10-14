@@ -2,8 +2,8 @@
 // Build the lobbying index (migration scripts/migrations/2026-10-13i-lobbying-index.sql).
 //
 //   1. Reads GOV.UK's official organisations list (Open Government Licence) and makes sure
-//      every public body has a lobby_orgs record (source 'govuk', its exact title and, where
-//      safe, its abbreviation as spellings). These names also protect commas inside official
+//      every public body has a lobby_orgs record (source 'govuk', its exact title as the only
+//      spelling; abbreviations are not used). These names also protect commas inside official
 //      titles ("Department for Business, Energy and Industrial Strategy") when splitting.
 //   2. Reads every ministers' meeting, splits roundtable entries into separate organisations,
 //      normalises each name and matches it against lobby_org_aliases; names in
@@ -86,9 +86,9 @@ function parseDate(raw) {
   const slugs = new Set(orgs.map((o) => o.slug));
   console.log(`existing: ${orgs.length} organisations, ${aliases.length} spellings, ${excluded.length} excluded names`);
 
-  // Abbreviations are used as spellings only when unique, 3+ characters, and not a plain word.
-  const abbrCount = new Map();
-  for (const g of gov) { const a = normaliseName(g.abbreviation); if (a) abbrCount.set(a, (abbrCount.get(a) || 0) + 1); }
+  // Only GOV.UK's full titles are used as spellings. Its abbreviations are NOT: checked
+  // against meeting topics, many meant other organisations ("Sage", "GLA", "PPF", "TPAS").
+  // Correct short forms are added through the hand review (scripts/load-lobbying-review.js).
   const newGovOrgs = [];
   const newGovAliases = [];
   const govNames = new Set();
@@ -102,8 +102,6 @@ function parseDate(raw) {
     slugs.add(slug);
     const rec = { slug, name: g.title, org_type: 'public_body', source: 'govuk', reviewed: false, notes: `GOV.UK organisation${g.slug ? ` /government/organisations/${g.slug}` : ''}${g.status && g.status !== 'live' ? ` (${g.status})` : ''}` };
     const spellings = [{ alias_norm: n, alias_example: g.title, source: 'govuk' }];
-    const a = normaliseName(g.abbreviation);
-    if (a && a.length >= 3 && abbrCount.get(a) === 1 && a !== n && !aliasMap.has(a) && /[a-z]/.test(a) && !/\s/.test(a)) spellings.push({ alias_norm: a, alias_example: g.abbreviation, source: 'govuk' });
     newGovOrgs.push(rec);
     newGovAliases.push({ slug, spellings });
     // Provisional ids so the dry run can match against these names too.

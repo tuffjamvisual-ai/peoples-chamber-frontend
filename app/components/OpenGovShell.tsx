@@ -65,6 +65,7 @@ const NAV: NavItem[] = [
     { label: 'Register of Interests', href: '/transparency/register-of-interests' },
     { label: 'Expenses', href: '/expenses' },
     { label: 'Second Jobs', href: '/second-jobs' },
+    { label: 'Lobbying', href: '/lobbying' },
     { label: 'Revolving Door', href: '/transparency/revolving-door' },
     { label: 'Special Advisers', href: '/transparency/special-advisers' },
     { label: 'Money & Power', href: '/money' },
