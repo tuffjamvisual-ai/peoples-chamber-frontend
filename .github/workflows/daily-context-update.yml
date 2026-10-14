@@ -40,16 +40,10 @@ jobs:
           export DATABASE_URL="$(printf '%s' "$DATABASE_URL_RAW" | tr -d '[:space:]')"
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/backfill-dept-ministers-bands.sql
         continue-on-error: true
-      - name: Update street contexts
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: node scripts/generate-department-contexts.js
-        continue-on-error: true
-      - name: Enrich ministers' meetings (Haiku org descriptions)
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: node scripts/enrich-ministers-meetings.js
-        continue-on-error: true
+      # Department context (generate-department-contexts.js) and ministers' meetings
+      # organisation descriptions (enrich-ministers-meetings.js) switched off 14 Oct 2026 by
+      # the site owner: the Anthropic API is no longer used. Text already written stays on
+      # the site. The scripts are kept; restore only with a new ANTHROPIC_API_KEY secret.
       - name: Sync APPGs
         env:
           DATABASE_URL_RAW: ${{ secrets.DATABASE_URL }}
@@ -71,14 +65,9 @@ jobs:
       # search result with no check it was the same company (e.g. "News UK" matched to an
       # unrelated firm), and its ~380 rate-limited lookups made this job run for over half an
       # hour. The table is kept. Restore only with matching on company numbers.
-      - name: Sync independent UK political coverage with People's Chamber commentary (Haiku)
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          DATABASE_URL_RAW: ${{ secrets.DATABASE_URL }}
-        run: |
-          export DATABASE_URL="$(printf '%s' "$DATABASE_URL_RAW" | tr -d '[:space:]')"
-          node scripts/sync-political-news.js --limit=8
-        continue-on-error: true
+      # Political news with commentary (sync-political-news.js) switched off 14 Oct 2026 by
+      # the site owner: the Anthropic API is no longer used, and the script needs it to run.
+      # Stories already stored stay on the site. Restore only with a new ANTHROPIC_API_KEY secret.
       - name: Sync MP registered interests (powers the Interests tab + outside earnings)
         run: node scripts/sync-mp-interests.js
         continue-on-error: true
