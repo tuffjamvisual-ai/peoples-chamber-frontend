@@ -203,6 +203,13 @@ function parseDate(raw) {
   if (!WRITE) { console.log('\nDRY RUN complete. Nothing was written.'); return; }
   if (dupes.length) throw new Error('duplicate keys');
 
+  // Safety: ministers_meetings is deleted and re-inserted on every sync. If this runs in that
+  // gap it reads far fewer meetings, and the stale-row delete below would wipe the index.
+  // Refuse to write if the new mentions are fewer than 90% of those saved now.
+  const { count: savedNow, error: cErr } = await db.from('lobby_meeting_mentions').select('id', { count: 'exact', head: true });
+  if (cErr) throw new Error(`count lobby_meeting_mentions: ${cErr.message}`);
+  if (savedNow && mentions.length < savedNow * 0.9) throw new Error(`only ${mentions.length} mentions now against ${savedNow} saved; ministers' meetings may be mid-sync. Nothing written.`);
+
   // ── Write ──────────────────────────────────────────────────────────────────
   console.log('\n--- Writing ---');
   for (let i = 0; i < newGovOrgs.length; i += 500) {
@@ -228,5 +235,8 @@ function parseDate(raw) {
   const { error: d, count } = await db.from('lobby_meeting_mentions').delete({ count: 'exact' }).lt('built_at', runStart);
   if (d) throw new Error(`stale delete: ${d.message}`);
   console.log(`  lobby_meeting_mentions: ${rows.length} saved; ${count || 0} no longer in the meetings data removed`);
+  const { data: rv, error: rErr } = await db.rpc('refresh_lobbying_views');
+  if (rErr) throw new Error(`refresh_lobbying_views: ${rErr.message}`);
+  console.log(`  /lobbying figures refreshed: ${JSON.stringify(rv)}`);
   console.log('\nWRITE complete.');
 })().catch((e) => { console.error('FAILED: ' + e.message); process.exit(1); });

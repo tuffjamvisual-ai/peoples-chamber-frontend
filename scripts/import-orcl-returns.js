@@ -294,5 +294,8 @@ async function filesFromWeb() {
   const { error: d, count } = await db.from('orcl_client_returns').delete({ count: 'exact' }).lt('built_at', runStart);
   if (d) throw new Error(`stale delete: ${d.message}`);
   console.log(`  orcl_client_returns: ${rows.length} saved; ${count || 0} no longer published removed`);
+  const { data: rv, error: rErr } = await db.rpc('refresh_lobbying_views');
+  if (rErr) throw new Error(`refresh_lobbying_views: ${rErr.message}`);
+  console.log(`  /lobbying figures refreshed: ${JSON.stringify(rv)}`);
   console.log('\nWRITE complete.');
 })().catch((e) => fail(e.message));

@@ -107,5 +107,11 @@ jobs:
           COMMIT;
           SQL
         continue-on-error: true
+      - name: Rebuild lobbying index and refresh the /lobbying figures
+        # Matches new ministers' meetings to organisations and refreshes the saved figures
+        # (lobby_org_rankings, lobby_summary), so "last 12 months" moves on each day.
+        # Refuses to write if ministers_meetings looks mid-sync (see the script).
+        run: node scripts/build-lobbying-index.js --write
+        continue-on-error: true
       - name: Trigger Vercel redeploy
         run: curl -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
