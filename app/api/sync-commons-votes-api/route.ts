@@ -216,6 +216,18 @@ async function GET_impl(req: Request) {
       }
     }
 
+    // The refresh at the top ran before this run's inserts, so the divisions list, topics
+    // and search (commons_divisions_fts) would miss the new divisions until the next run.
+    // Refresh again when anything was added. Same rule as above: an error is reported in
+    // the response but does not undo the inserts.
+    let postInsertRefresh: { sitemap_bill_ids: number; sitemap_divisions: number } | null = null;
+    let postInsertRefreshError: string | null = null;
+    if (!dryRun && divisionsAdded > 0) {
+      const { data: d2, error: e2 } = await supabase.rpc('refresh_sitemap_views');
+      postInsertRefresh = d2 as { sitemap_bill_ids: number; sitemap_divisions: number } | null;
+      postInsertRefreshError = e2 ? e2.message : null;
+    }
+
     // Resolve member names for both-lobby voters (best-effort; former MPs may be absent).
     if (bothLobbyVotes.length > 0) {
       const memberIds = [...new Set(bothLobbyVotes.map((c) => c.memberId))];
@@ -225,7 +237,7 @@ async function GET_impl(req: Request) {
     }
 
     const base = {
-      ok: !insertErrors.length && !sitemapRefreshError,
+      ok: !insertErrors.length && !sitemapRefreshError && !postInsertRefreshError,
       dryRun,
       range: [fromStr, toStr],
       divisionsInRange: list.length,
@@ -233,6 +245,8 @@ async function GET_impl(req: Request) {
       partial,
       sitemapRefresh: sitemapCounts as { sitemap_bill_ids: number; sitemap_divisions: number } | null,
       ...(sitemapRefreshError ? { sitemapRefreshError: sitemapRefreshError.message } : {}),
+      ...(postInsertRefresh ? { postInsertRefresh } : {}),
+      ...(postInsertRefreshError ? { postInsertRefreshError } : {}),
       ...(insertErrors.length ? { errors: insertErrors } : {}),
       ...(bothLobbyVotes.length ? { bothLobbyVotes } : {}),
       ...(partial && stoppedBefore ? { stoppedBefore, note: `Time budget reached. Resume with startDate=${stoppedBefore}&endDate=${toStr}` } : {}),
