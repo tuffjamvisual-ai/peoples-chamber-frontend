@@ -35,7 +35,7 @@ export async function generateStaticParams() {
 }
 
 const INK = '#14100d';
-const INK_SOFT = 'rgba(20,16,13,0.7)';
+const INK_SOFT = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
 const ACCENT = '#7a1612';
 const SERIF = 'Special Elite, monospace';

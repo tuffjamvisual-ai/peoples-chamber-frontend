@@ -130,7 +130,7 @@ export default async function CouncilRoadCasualtiesSection({
               </div>
             ))}
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: MONO, fontSize: '13px', color: INK, marginTop: '4px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: MONO, fontSize: '14px', color: INK, marginTop: '4px' }}>
             <span>{years[0]}</span>
             <span>{latest}</span>
           </div>
@@ -163,7 +163,7 @@ export default async function CouncilRoadCasualtiesSection({
                 </tbody>
               </table>
             </div>
-            {caveatYears.length > 0 && <p style={{ fontFamily: MONO, fontSize: '13px', color: INK, margin: '6px 0 0' }}>* DfT flags unexpected data collection issues affecting some police forces&rsquo; figures for these years.</p>}
+            {caveatYears.length > 0 && <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: '6px 0 0' }}>* DfT flags unexpected data collection issues affecting some police forces&rsquo; figures for these years.</p>}
           </details>
         </figure>
       )}
@@ -193,7 +193,7 @@ export default async function CouncilRoadCasualtiesSection({
       <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
         These are casualties in collisions reported to the police on all roads in the council&rsquo;s area, including motorways and trunk roads it doesn&rsquo;t manage. Police forces have moved to an injury-based recording system that classes more injuries as serious, so the Department for Transport publishes an adjusted &ldquo;killed or seriously injured&rdquo; estimate to allow fair comparison between years; the trend uses the adjusted figure, and the road-user table uses figures as recorded. Rates are per billion miles driven by motor vehicles in the area.
       </p>
-      <p style={{ fontFamily: MONO, fontSize: '13px', color: INK, margin: 0 }}>
+      <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: 0 }}>
         Source: Department for Transport, Reported road casualties Great Britain ({release}). Contains public sector information licensed under the Open Government Licence v3.0.
       </p>
     </section>

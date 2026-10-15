@@ -92,7 +92,7 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              color: 'rgba(20,16,13,0.45)',
+              color: '#14100d',
               fontSize: '18px',
               lineHeight: 1,
               padding: '4px',
@@ -113,7 +113,7 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
               style={{
                 padding: '4px 11px',
                 fontFamily: MONO,
-                fontSize: '12px',
+                fontSize: '14px',
                 letterSpacing: '0.08em',
                 color: active ? '#fff' : 'rgba(20,16,13,0.55)',
                 background: active ? ACCENT : 'transparent',
@@ -138,7 +138,7 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
           }}
           style={{
             fontFamily: MONO,
-            fontSize: '12px',
+            fontSize: '14px',
             letterSpacing: '0.06em',
             color: dept ? INK : 'rgba(20,16,13,0.45)',
             background: CREAM,
@@ -159,7 +159,7 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
             style={{
               padding: '4px 11px',
               fontFamily: MONO,
-              fontSize: '12px',
+              fontSize: '14px',
               letterSpacing: '0.08em',
               color: defaultSort !== 'newest' ? '#fff' : 'rgba(20,16,13,0.55)',
               background: defaultSort !== 'newest' ? ACCENT : 'transparent',
@@ -174,7 +174,7 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
             style={{
               padding: '4px 11px',
               fontFamily: MONO,
-              fontSize: '12px',
+              fontSize: '14px',
               letterSpacing: '0.08em',
               color: defaultSort === 'newest' ? '#fff' : 'rgba(20,16,13,0.55)',
               background: defaultSort === 'newest' ? ACCENT : 'transparent',

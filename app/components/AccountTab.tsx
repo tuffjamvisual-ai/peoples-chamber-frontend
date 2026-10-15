@@ -15,7 +15,7 @@ export default function AccountTab() {
   const { user, logout } = useAuth();
 
   if (!user) {
-    return <Link href="/login">Log in / Sign up</Link>;
+    return <Link href="/login">Log in<span className="ng-tab-signup"> / Sign up</span></Link>;
   }
 
   return (

@@ -155,10 +155,10 @@ export default async function HomePage() {
               </form>
 
               <section aria-label="Find your local authority" style={{ marginBottom: '28px' }}>
-                <h2 style={{ fontFamily: "'Special Elite', monospace", fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 2px' }}>
+                <h2 style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 2px' }}>
                   Local authority data
                 </h2>
-                <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '12px', color: 'rgba(20,16,13,0.55)', margin: '0 0 12px', letterSpacing: '0.04em' }}>
+                <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', color: '#14100d', margin: '0 0 12px', letterSpacing: '0.04em' }}>
                   Every UK council&rsquo;s spending, leadership, finances and welfare caseload on one page
                 </p>
                 <CouncilSearch />
@@ -195,10 +195,10 @@ export default async function HomePage() {
 
               {whitehallItems.length > 0 && (
                 <section aria-label="Latest from Whitehall" style={{ marginTop: '28px', paddingTop: '18px', borderTop: '2px solid rgba(20,16,13,0.18)' }}>
-                  <h2 style={{ fontFamily: "'Special Elite', monospace", fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 2px' }}>
+                  <h2 style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 2px' }}>
                     Latest from Whitehall
                   </h2>
-                  <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '12px', color: 'rgba(20,16,13,0.55)', margin: '0 0 12px', letterSpacing: '0.04em' }}>
+                  <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', color: '#14100d', margin: '0 0 12px', letterSpacing: '0.04em' }}>
                     Government press releases, published as issued
                   </p>
                   <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
@@ -207,7 +207,7 @@ export default async function HomePage() {
                         <a href={`/news/${slug}`} style={{ display: 'block', fontFamily: "'Special Elite', monospace", fontSize: '15px', color: '#14100d', textDecoration: 'none', lineHeight: 1.38 }}>
                           {title}
                         </a>
-                        <span style={{ display: 'block', fontFamily: "'Special Elite', monospace", fontSize: '12px', color: 'rgba(20,16,13,0.55)', marginTop: '3px' }}>
+                        <span style={{ display: 'block', fontFamily: "'Special Elite', monospace", fontSize: '14px', color: '#14100d', marginTop: '3px' }}>
                           {orgHref ? (
                             <a href={orgHref} style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: '2px' }}>{organisation}</a>
                           ) : organisation}

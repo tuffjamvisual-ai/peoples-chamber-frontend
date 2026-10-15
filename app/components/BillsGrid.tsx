@@ -181,7 +181,7 @@ export default function BillsGrid({ initialBills, currentPage, totalPages }: Pro
         }}
       />
 
-      <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', color: 'rgba(20,16,13,0.7)', marginBottom: '16px' }}>
+      <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', color: '#14100d', marginBottom: '16px' }}>
         {searching
           ? 'Searching…'
           : searchResults
@@ -202,7 +202,7 @@ export default function BillsGrid({ initialBills, currentPage, totalPages }: Pro
 
       {paginatedBills.length === 0 && (
         <div className="text-center py-12">
-          <p style={{ color: 'rgba(20,16,13,0.7)', fontFamily: 'Special Elite, monospace' }}>No bills found matching your filters.</p>
+          <p style={{ color: '#14100d', fontFamily: 'Special Elite, monospace' }}>No bills found matching your filters.</p>
         </div>
       )}
 

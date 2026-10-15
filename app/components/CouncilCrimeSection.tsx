@@ -205,7 +205,7 @@ export default async function CouncilCrimeSection({
               </div>
             ))}
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: MONO, fontSize: '13px', color: INK, marginTop: '4px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: MONO, fontSize: '14px', color: INK, marginTop: '4px' }}>
             <span>{fmtMonthShort(trend[0].month)}</span>
             <span>{fmtMonthShort(trend[trend.length - 1].month)}</span>
           </div>
@@ -252,7 +252,7 @@ export default async function CouncilCrimeSection({
         {isCounty && 'Figures for this county are the total of its district councils. '}
         {SOURCE_NOTES[source] ?? ''}
       </p>
-      <p style={{ fontFamily: MONO, fontSize: '13px', color: INK, margin: 0 }}>
+      <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: 0 }}>
         Crime figures last updated {fmtDate(updatedAt)}.
       </p>
     </section>

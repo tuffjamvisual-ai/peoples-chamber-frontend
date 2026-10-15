@@ -20,7 +20,7 @@ import { useRouter } from 'next/navigation'
 
 const PAPER = '#f4e8d4'
 const INK = '#14100d'
-const INK_SOFT = 'rgba(20,16,13,0.65)'
+const INK_SOFT = '#14100d'
 const ACCENT = '#7a1612'
 const SERIF = 'Special Elite, monospace'
 const POSTCODE_RE = /^[A-Z]{1,2}\d[A-Z\d]?\d[A-Z]{2}$/
@@ -223,10 +223,10 @@ export default function WelfareSearch() {
                   <span>
                     {r.name}
                     {'scope' in r && r.scope === 'partial' && (
-                      <span style={{ marginLeft: '8px', fontSize: '12px', color: ACCENT, letterSpacing: '0.04em' }}>PARTIAL DATA</span>
+                      <span style={{ marginLeft: '8px', fontSize: '14px', color: ACCENT, letterSpacing: '0.04em' }}>PARTIAL DATA</span>
                     )}
                   </span>
-                  <span style={{ fontSize: '13px', color: INK_SOFT, letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+                  <span style={{ fontSize: '14px', color: INK_SOFT, letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
                     {resultTypeLabel(r)}
                     {r.type === 'county' ? ` · ${r.constituencyCount}` : ''}
                   </span>
@@ -242,7 +242,7 @@ export default function WelfareSearch() {
 
 function ResultLink({ label, name, href, partial }: { label: string; name: string; href: string; partial: boolean }) {
   const ACCENT_LOCAL = '#7a1612'
-  const INK_SOFT_LOCAL = 'rgba(20,16,13,0.65)'
+  const INK_SOFT_LOCAL = '#14100d'
   return (
     <a
       href={href}
@@ -253,7 +253,7 @@ function ResultLink({ label, name, href, partial }: { label: string; name: strin
       }}
     >
       <span>
-        <span style={{ display: 'block', fontSize: '13px', letterSpacing: '0.08em', textTransform: 'uppercase', color: INK_SOFT_LOCAL }}>{label}</span>
+        <span style={{ display: 'block', fontSize: '14px', letterSpacing: '0.08em', textTransform: 'uppercase', color: INK_SOFT_LOCAL }}>{label}</span>
         <span style={{ display: 'block', fontSize: '18px', fontWeight: 600 }}>{name}</span>
       </span>
       <span style={{ fontSize: '15px', color: ACCENT_LOCAL, whiteSpace: 'nowrap' }}>

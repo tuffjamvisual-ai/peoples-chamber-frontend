@@ -20,7 +20,7 @@ export default async function LastUpdated({ sourceKey }: { sourceKey: string }) 
     <p
       style={{
         fontFamily: 'Special Elite, monospace',
-        fontSize: '13px',
+        fontSize: '14px',
         color: '#14100d',
         opacity: 1,
         margin: '18px 0 0',

@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 };
 
 const INK = '#14100d';
-const INK_SOFT = 'rgba(20,16,13,0.7)';
+const INK_SOFT = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
 const ACCENT = '#6b2417';
 const SERIF = 'Special Elite, monospace';
@@ -118,7 +118,7 @@ export default async function SecondJobsLanding() {
           .pca-party-tile:hover { background: rgba(122,22,18,0.06); }
           .pca-party-tile .pca-tile-head {
             font-family: ${MONO};
-            font-size: 13px;
+            font-size: 14px;
             letter-spacing: 0.18em;
             text-transform: uppercase;
             color: ${INK_SOFT};

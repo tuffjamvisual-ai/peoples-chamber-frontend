@@ -141,7 +141,7 @@ export function ReleasesSlot({ releases }: { releases: PressReleaseItem[] }) {
             >
               {r.title}
             </Link>
-            <span style={{ display: 'block', fontFamily: 'Special Elite, monospace', fontSize: '13px', color: 'rgba(20,16,13,0.55)', marginTop: '3px' }}>
+            <span style={{ display: 'block', fontFamily: 'Special Elite, monospace', fontSize: '14px', color: '#14100d', marginTop: '3px' }}>
               {r.organisation && r.published_at ? `${r.organisation} · ` : (r.organisation ?? '')}
               {r.published_at
                 ? new Date(r.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -168,11 +168,11 @@ export function InvestigationsSlot({ investigations }: { investigations: Investi
               {item.headline}
             </Link>
             {item.standfirst && (
-              <p style={{ fontSize: '14px', color: 'rgba(20,16,13,0.75)', margin: '3px 0 0', lineHeight: 1.5 }}>
+              <p style={{ fontSize: '14px', color: '#14100d', margin: '3px 0 0', lineHeight: 1.5 }}>
                 {item.standfirst}
               </p>
             )}
-            <span style={{ display: 'block', fontFamily: 'Special Elite, monospace', fontSize: '13px', color: 'rgba(20,16,13,0.55)', marginTop: '4px' }}>
+            <span style={{ display: 'block', fontFamily: 'Special Elite, monospace', fontSize: '14px', color: '#14100d', marginTop: '4px' }}>
               {item.kicker ? `${item.kicker} · ` : ''}
               {new Date(item.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
             </span>
@@ -210,7 +210,7 @@ export function ProgrammesSlot({ programmes }: { programmes: ProgrammeItem[] }) 
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px' }}>
                 <span style={{
                   fontFamily: 'Special Elite, monospace',
-                  fontSize: '10px', letterSpacing: '0.12em',
+                  fontSize: '14px', letterSpacing: '0.12em',
                   textTransform: 'uppercase', color: statusColour,
                   border: `1px solid ${statusColour}`,
                   padding: '1px 5px', flexShrink: 0,
@@ -225,7 +225,7 @@ export function ProgrammesSlot({ programmes }: { programmes: ProgrammeItem[] }) 
                 </Link>
               </div>
               {prog.summary && (
-                <p style={{ fontSize: '14px', color: 'rgba(20,16,13,0.75)', margin: '3px 0 0', lineHeight: 1.5 }}>
+                <p style={{ fontSize: '14px', color: '#14100d', margin: '3px 0 0', lineHeight: 1.5 }}>
                   {prog.summary.length > 140 ? prog.summary.slice(0, 140) + '…' : prog.summary}
                 </p>
               )}

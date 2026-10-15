@@ -150,7 +150,7 @@ export default async function CouncilHousePricesSection({ gssCode }: { gssCode: 
               </div>
             ))}
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: MONO, fontSize: '13px', color: INK, marginTop: '4px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: MONO, fontSize: '14px', color: INK, marginTop: '4px' }}>
             <span>{trend[0].month.slice(0, 4)}</span>
             <span>{trend[trend.length - 1].month.slice(0, 4)}</span>
           </div>
@@ -198,7 +198,7 @@ export default async function CouncilHousePricesSection({ gssCode }: { gssCode: 
         Average prices are HM Land Registry&rsquo;s estimates for the whole area, adjusted for the mix of homes sold, not the price of any one home. Figures for the latest months are provisional: sales can take weeks or months to be registered, so each month is revised for a year after it is first published. Sales counts are published about three months behind prices. In areas with fewer sales, figures can swing noticeably from month to month.
         {isNI && ' Land Registry does not publish a breakdown by type of home or buyer for Northern Ireland councils.'}
       </p>
-      <p style={{ fontFamily: MONO, fontSize: '13px', color: INK, margin: 0 }}>
+      <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: 0 }}>
         Source: HM Land Registry, UK House Price Index ({releaseLabel} data). Contains HM Land Registry data &copy; Crown copyright and database right {releaseTag.slice(0, 4)}. This data is licensed under the Open Government Licence v3.0.
       </p>
     </Section>

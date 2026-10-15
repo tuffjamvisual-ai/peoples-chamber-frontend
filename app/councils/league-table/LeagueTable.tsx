@@ -119,7 +119,7 @@ export default function LeagueTable({ rows, topics, parts }: { rows: ClientRow[]
         .lt-details > div { flex: 1 1 180px; min-width: 0; }
         @media (max-width: 760px) {
           .lt-wide { display: none; }
-          .lt-table { font-size: 13px !important; }
+          .lt-table { font-size: 14px !important; }
           .lt-table th, .lt-table td { padding-right: 5px !important; }
           .lt-table td { overflow-wrap: anywhere; }
           .lt-table th { white-space: normal !important; }
@@ -144,7 +144,7 @@ export default function LeagueTable({ rows, topics, parts }: { rows: ClientRow[]
         <input id="lt-search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="e.g. Leeds"
           style={{ fontFamily: MONO, fontSize: '15px', padding: '6px 8px', border: `1px solid ${INK}`, background: 'transparent', color: INK, width: '12em' }} />
       </div>
-      <p style={{ fontFamily: MONO, fontSize: '13px', color: INK, margin: '0 0 8px' }}>
+      <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: '0 0 8px' }}>
         {list.length} area{list.length === 1 ? '' : 's'} shown. Click a column heading to sort; click ▸ for the details.
       </p>
       <div style={{ overflowX: 'auto' }}>
@@ -182,7 +182,7 @@ export default function LeagueTable({ rows, topics, parts }: { rows: ClientRow[]
                     <td className="lt-wide" style={tdNum}>{fmt(score)}</td>
                     {view === 'services' && <td className="lt-wide" style={tdNum}>{r.peer ? `${ordinal(r.peer.rank)} of ${r.peer.of}` : '–'}</td>}
                     {cols.map((c) => <td key={c.key} className="lt-wide" style={tdNum}>{fmt(view === 'area' ? r.topics[c.key] : r.services[c.key])}</td>)}
-                    <td style={{ ...td, color: ACCENT, fontSize: '13px' }}>
+                    <td style={{ ...td, color: ACCENT, fontSize: '14px' }}>
                       {r.flags.length === 0 ? '' : r.flags.map((f) => <div key={f.label + f.county}>{f.label}{f.county ? ' (county)' : ''}</div>)}
                     </td>
                   </tr>

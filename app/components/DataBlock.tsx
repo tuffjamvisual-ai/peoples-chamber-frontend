@@ -1,6 +1,6 @@
 const ACCENT = '#7a1612';
 const INK = '#14100d';
-const INK_SOFT = 'rgba(20,16,13,0.6)';
+const INK_SOFT = '#14100d';
 const MONO = '"Special Elite", monospace';
 
 export default function DataBlock({
@@ -28,7 +28,7 @@ export default function DataBlock({
       <p
         style={{
           fontFamily: MONO,
-          fontSize: '11px',
+          fontSize: '14px',
           fontWeight: 700,
           textTransform: 'uppercase',
           letterSpacing: '0.22em',
@@ -82,7 +82,7 @@ export default function DataBlock({
         <p
           style={{
             fontFamily: MONO,
-            fontSize: '12px',
+            fontSize: '14px',
             color: INK_SOFT,
             margin: '0',
             paddingTop: '10px',

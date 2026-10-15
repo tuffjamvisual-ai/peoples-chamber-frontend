@@ -20,7 +20,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 export const dynamic = 'force-dynamic';
 
 const INK = '#14100d';
-const INK_SOFT = 'rgba(20,16,13,0.7)';
+const INK_SOFT = '#14100d';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
 const ACCENT = '#7a1612';
 const MONO = '"Special Elite", monospace';
@@ -130,7 +130,7 @@ export default async function BriefingPage({ params }: { params: Promise<{ slug:
           {(b.sources as unknown[])
             .filter((s): s is string => typeof s === 'string')
             .map((src, i) => (
-              <p key={i} style={{ fontFamily: MONO, fontSize: '13px', color: INK_SOFT, margin: '0 0 6px', wordBreak: 'break-all', lineHeight: 1.5 }}>
+              <p key={i} style={{ fontFamily: MONO, fontSize: '14px', color: INK_SOFT, margin: '0 0 6px', wordBreak: 'break-all', lineHeight: 1.5 }}>
                 {src}
               </p>
             ))}

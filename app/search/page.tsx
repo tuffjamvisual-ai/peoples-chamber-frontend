@@ -39,7 +39,7 @@ function ResultRow({ r }: { r: SearchResult }) {
         <span
           style={{
             fontFamily: MONO,
-            fontSize: '11px',
+            fontSize: '14px',
             letterSpacing: '0.1em',
             color: meta.color,
             border: `1px solid ${meta.color}`,
@@ -68,11 +68,11 @@ function ResultRow({ r }: { r: SearchResult }) {
             {r.title}
           </Link>
           {r.standfirst && (
-            <p style={{ fontSize: '14px', color: 'rgba(20,16,13,0.7)', margin: '0 0 5px', lineHeight: 1.55 }}>
+            <p style={{ fontSize: '14px', color: '#14100d', margin: '0 0 5px', lineHeight: 1.55 }}>
               {r.standfirst.length > 200 ? r.standfirst.slice(0, 200) + '…' : r.standfirst}
             </p>
           )}
-          <span style={{ fontFamily: MONO, fontSize: '12px', color: 'rgba(20,16,13,0.45)' }}>
+          <span style={{ fontFamily: MONO, fontSize: '14px', color: '#14100d' }}>
             {r.date ? fmtDate(r.date) : ''}
             {r.kicker       ? (r.date ? ` · ${r.kicker}` : r.kicker) : ''}
             {r.org          ? (r.date ? ` · ${r.org}`    : r.org)    : ''}
@@ -136,7 +136,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
         }}>
           Search
         </h1>
-        <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', color: 'rgba(20,16,13,0.75)' }}>
+        <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', color: '#14100d' }}>
           Investigations, press releases, briefings, bills, votes and MPs — searched together.
         </p>
       </header>
@@ -147,7 +147,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
       {q.length >= 2 && results.length === 0 && (
         <div style={{ padding: '40px 0', textAlign: 'center' }}>
           <p style={{ fontSize: '17px', color: INK, marginBottom: '6px' }}>No results for &ldquo;{q}&rdquo;</p>
-          <p style={{ fontSize: '14px', color: 'rgba(20,16,13,0.55)' }}>
+          <p style={{ fontSize: '14px', color: '#14100d' }}>
             Try different keywords, or{' '}
             <Link href="/departments" style={{ color: ACCENT }}>browse departments</Link>
           </p>
@@ -156,7 +156,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
 
       {results.length > 0 && (
         <section>
-          <p style={{ fontFamily: MONO, fontSize: '13px', color: 'rgba(20,16,13,0.45)', marginBottom: '12px' }}>
+          <p style={{ fontFamily: MONO, fontSize: '14px', color: '#14100d', marginBottom: '12px' }}>
             {results.length >= (isPhrase(q) ? PHRASE_LIMIT : TOTAL_LIMIT) ? `${isPhrase(q) ? PHRASE_LIMIT : TOTAL_LIMIT}+ results` : `${results.length} result${results.length === 1 ? '' : 's'}`}
             {type !== 'all' && ` · ${TYPE_META[type]?.label ?? type} only`}
           </p>
@@ -168,7 +168,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
 
       {!q && (
         <div>
-          <p style={{ fontFamily: MONO, fontSize: '13px', color: 'rgba(20,16,13,0.45)', marginBottom: '12px', letterSpacing: '0.05em' }}>
+          <p style={{ fontFamily: MONO, fontSize: '14px', color: '#14100d', marginBottom: '12px', letterSpacing: '0.05em' }}>
             POPULAR SEARCHES
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -179,8 +179,8 @@ export default async function SearchPage({ searchParams }: PageProps) {
                 style={{
                   padding: '6px 13px',
                   fontFamily: MONO,
-                  fontSize: '13px',
-                  color: 'rgba(20,16,13,0.55)',
+                  fontSize: '14px',
+                  color: '#14100d',
                   border: `1px solid ${HAIRLINE}`,
                   textDecoration: 'none',
                   display: 'inline-block',

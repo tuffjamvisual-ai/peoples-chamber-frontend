@@ -21,9 +21,9 @@ export default function Timeline({ entries }: { entries: TimelineRow[] }) {
       {entries.length > 0 && (
         <section style={{ marginBottom: '40px', maxWidth: '720px' }}>
           <h2 style={{
-            fontFamily: MONO, fontSize: '13px',
+            fontFamily: MONO, fontSize: '14px',
             textTransform: 'uppercase', letterSpacing: '0.2em',
-            color: 'rgba(20,16,13,0.45)',
+            color: '#14100d',
             marginBottom: '16px', fontWeight: 'normal',
           }}>
             Timeline
@@ -38,8 +38,8 @@ export default function Timeline({ entries }: { entries: TimelineRow[] }) {
                   display: 'block',
                 }} />
                 <p style={{
-                  fontFamily: MONO, fontSize: '12px',
-                  color: 'rgba(20,16,13,0.45)',
+                  fontFamily: MONO, fontSize: '14px',
+                  color: '#14100d',
                   margin: '0 0 4px',
                   textTransform: 'uppercase', letterSpacing: '0.08em',
                 }}>
@@ -52,7 +52,7 @@ export default function Timeline({ entries }: { entries: TimelineRow[] }) {
                       marginLeft: '10px',
                       border: '1px solid rgba(20,16,13,0.3)',
                       padding: '1px 6px',
-                      fontSize: '10px',
+                      fontSize: '14px',
                       letterSpacing: '0.08em',
                       verticalAlign: 'middle',
                     }}>
@@ -67,19 +67,19 @@ export default function Timeline({ entries }: { entries: TimelineRow[] }) {
                   <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: '0 0 6px', fontWeight: 600 }}>
                     {fmtNumber(entry.figure_value)}
                     {entry.figure_unit ? (
-                      <span style={{ fontWeight: 'normal', color: 'rgba(20,16,13,0.55)', marginLeft: '5px' }}>
+                      <span style={{ fontWeight: 'normal', color: '#14100d', marginLeft: '5px' }}>
                         {entry.figure_unit}
                       </span>
                     ) : null}
                   </p>
                 )}
                 {entry.body && (
-                  <p style={{ fontSize: '15px', lineHeight: 1.65, color: 'rgba(20,16,13,0.75)', margin: '0 0 6px' }}>
+                  <p style={{ fontSize: '15px', lineHeight: 1.65, color: '#14100d', margin: '0 0 6px' }}>
                     {entry.body}
                   </p>
                 )}
                 {entry.source_label && (
-                  <p style={{ fontFamily: MONO, fontSize: '12px', color: 'rgba(20,16,13,0.45)', margin: 0 }}>
+                  <p style={{ fontFamily: MONO, fontSize: '14px', color: '#14100d', margin: 0 }}>
                     Source: {entry.source_label}
                   </p>
                 )}

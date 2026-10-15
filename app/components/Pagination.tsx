@@ -35,7 +35,7 @@ interface Props {
 }
 
 const INK = '#14100d';
-const INK_SOFT = 'rgba(20,16,13,0.7)';
+const INK_SOFT = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.25)';
 const CREAM = '#f4e8d4';
 const MONO = 'Special Elite, monospace';
@@ -86,7 +86,7 @@ const activeLinkStyle: React.CSSProperties = {
 
 const disabledLinkStyle: React.CSSProperties = {
   ...baseLinkStyle,
-  color: 'rgba(20,16,13,0.35)',
+  color: '#14100d',
   pointerEvents: 'none',
   cursor: 'default',
 };

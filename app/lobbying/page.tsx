@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 };
 
 const INK = '#14100d';
-const INK_SOFT = 'rgba(20,16,13,0.7)';
+const INK_SOFT = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
 const ACCENT = '#6b2417';
 const SERIF = 'Special Elite, monospace';
@@ -128,7 +128,7 @@ export default async function LobbyingPage() {
         </p>
         {latestQuarter && firms.length > 0 && (
           <>
-            <h3 style={{ fontFamily: MONO, fontSize: '13px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK, margin: '0 0 8px', fontWeight: 'bold' }}>
+            <h3 style={{ fontFamily: MONO, fontSize: '14px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK, margin: '0 0 8px', fontWeight: 'bold' }}>
               Firms with the most clients, {quarterLabel(latestQuarter)}
             </h3>
             <ol style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', borderTop: `1px solid ${INK_HAIRLINE}`, maxWidth: '46em' }}>

@@ -137,7 +137,7 @@ async function DeptContextBlock({ organisation }: { organisation: string | null 
       aria-label={`About ${organisation}`}
       style={{ marginTop: '36px', paddingTop: '18px', borderTop: '2px solid rgba(20,16,13,0.18)', maxWidth: '680px' }}
     >
-      <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 10px' }}>
+      <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 10px' }}>
         About this department
       </p>
       <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '15px', lineHeight: 1.7, color: '#14100d', margin: '0 0 12px' }}>
@@ -145,7 +145,7 @@ async function DeptContextBlock({ organisation }: { organisation: string | null 
       </p>
       <Link
         href={`/departments/${deptSlug}`}
-        style={{ fontFamily: "'Special Elite', monospace", fontSize: '13px', color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px', letterSpacing: '0.04em' }}
+        style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px', letterSpacing: '0.04em' }}
       >
         Full department profile →
       </Link>
@@ -180,7 +180,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
       <article>
         <header style={{ marginBottom: '5%', paddingBottom: '24px', borderBottom: `1px solid rgba(20,16,13,0.2)` }}>
           {/* A2 — SOURCE badge: visually separates government content from opengovt reporting */}
-          <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 10px', display: 'inline-block', border: '1px solid #7a1612', padding: '2px 7px 1px' }}>
+          <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 10px', display: 'inline-block', border: '1px solid #7a1612', padding: '2px 7px 1px' }}>
             Source: GOV.UK
           </p>
           <p className="text-[15px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>
@@ -191,7 +191,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
           </h1>
           {/* A1 — original source attribution; plain text per no-offsite-links rule */}
           {release.gov_url && !release.removed_upstream && (
-            <p style={{ marginTop: '14px', fontFamily: "'Special Elite', monospace", fontSize: '13px', color: ACCENT, letterSpacing: '0.04em', wordBreak: 'break-all' }}>
+            <p style={{ marginTop: '14px', fontFamily: "'Special Elite', monospace", fontSize: '14px', color: ACCENT, letterSpacing: '0.04em', wordBreak: 'break-all' }}>
               Original: {release.gov_url}
             </p>
           )}

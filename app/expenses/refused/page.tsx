@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export const revalidate = 3600;
 
 const INK = '#14100d';
-const INK_SOFT = 'rgba(20,16,13,0.7)';
+const INK_SOFT = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
 const ACCENT = '#6b2417';
 const DANGER = '#a64030';

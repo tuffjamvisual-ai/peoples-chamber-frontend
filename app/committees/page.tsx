@@ -106,7 +106,7 @@ export default async function CommitteesIndexPage() {
         return (
           <section key={group.label} className="mb-12">
             <h2
-              className="text-xs uppercase tracking-[0.25em] mb-5 pb-2 border-b"
+              className="text-[14px] uppercase tracking-[0.25em] mb-5 pb-2 border-b"
               style={{ color: ACCENT, fontFamily: MONO, borderColor: `${INK}22` }}
             >
               {group.label}
@@ -135,7 +135,7 @@ export default async function CommitteesIndexPage() {
         );
       })}
 
-      <p className="text-xs mt-8" style={{ color: `${INK}66`, fontFamily: MONO }}>
+      <p className="text-[14px] mt-8" style={{ color: `${INK}66`, fontFamily: MONO }}>
         Source: UK Parliament members and committees APIs. Updated nightly.
       </p>
     </OpenGovShell>

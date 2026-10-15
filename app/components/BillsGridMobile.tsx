@@ -225,7 +225,7 @@ export default function BillsGridMobile({ initialBills, currentPage, totalPages 
 
       {filteredBills.length === 0 && (
         <div className="text-center py-12">
-          <p style={{ color: 'rgba(20,16,13,0.7)', fontFamily: 'Special Elite, monospace' }}>
+          <p style={{ color: '#14100d', fontFamily: 'Special Elite, monospace' }}>
             {searching ? 'Searching…' : searchResults ? `No bills match "${searchTerm.trim()}".` : 'No active bills found.'}
           </p>
         </div>

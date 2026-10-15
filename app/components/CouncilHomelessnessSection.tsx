@@ -199,7 +199,7 @@ export default async function CouncilHomelessnessSection({ gssCodes, isCounty }:
               </div>
             ))}
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: MONO, fontSize: '13px', color: INK, marginTop: '4px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: MONO, fontSize: '14px', color: INK, marginTop: '4px' }}>
             <span>{shortQ(trend[0].p)}</span>
             <span>{shortQ(newest)}</span>
           </div>
@@ -270,7 +270,7 @@ export default async function CouncilHomelessnessSection({ gssCodes, isCounty }:
         {gaps.length > 0 && ` No temporary accommodation figure is available for: ${gaps.join(', ')}.`}
         {periods[0] > '2019-04-01' && ` Figures start in ${labelOf(periods[0])}, when this council was created.`}
       </p>
-      <p style={{ fontFamily: MONO, fontSize: '13px', color: INK, margin: 0 }}>
+      <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: 0 }}>
         Source: Ministry of Housing, Communities and Local Government, Statutory homelessness: detailed local authority level tables (accredited official statistics). Contains public sector information licensed under the Open Government Licence v3.0.
       </p>
     </section>

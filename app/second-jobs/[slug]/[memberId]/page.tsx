@@ -13,7 +13,7 @@ export function generateStaticParams() { return []; }
 export const revalidate = 86400;
 
 const INK = '#14100d';
-const INK_SOFT = 'rgba(20,16,13,0.7)';
+const INK_SOFT = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
 const ACCENT = '#6b2417';
 const SERIF = 'Special Elite, monospace';

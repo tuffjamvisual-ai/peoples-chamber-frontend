@@ -49,8 +49,8 @@ export default function KeyStat({
         <p
           style={{
             fontFamily: MONO,
-            fontSize: '13px',
-            color: 'rgba(20,16,13,0.6)',
+            fontSize: '14px',
+            color: '#14100d',
             margin: '0',
             lineHeight: 1.5,
           }}

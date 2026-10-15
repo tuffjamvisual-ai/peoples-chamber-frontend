@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 };
 
 const INK = '#14100d';
-const INK_SOFT = 'rgba(20,16,13,0.7)';
+const INK_SOFT = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
 const ACCENT = '#7a1612';
 const SERIF = 'Special Elite, monospace';
@@ -109,7 +109,7 @@ export default async function LeagueTablePage() {
             Warning flags: an Ofsted judgement of Inadequate for children’s services; a section 114 notice (dates from the published record); current government intervention or a best value inspection (GOV.UK list of statutory interventions); exceptional financial support from government, by financial year; and usable reserves (money a council holds that is not tied to schools or public health) below zero or down by half or more in {data.reservesYear ?? 'the latest year'}. For a district, flags marked “county” belong to its county council.
           </p>
           <div style={{ overflowX: 'auto', marginBottom: '14px' }}>
-            <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '13px', color: INK, width: '100%', minWidth: '640px' }}>
+            <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '14px', color: INK, width: '100%', minWidth: '640px' }}>
               <thead>
                 <tr>
                   <th style={th}>Topic</th>
@@ -135,7 +135,7 @@ export default async function LeagueTablePage() {
           <p style={para}>
             Crime is recorded crimes per 1,000 residents over 12 months, not counting anti-social behaviour. Greater Manchester’s published figures are incomplete, so its boroughs are not scored on crime. City of London and the Isles of Scilly are too small to compare fairly and are listed separately. Statistical Neighbours: Ministry of Housing, Communities and Local Government model, 1 July 2026. Council finance: MHCLG revenue outturn 2024-25 (reserves), GOV.UK exceptional financial support and intervention pages.
           </p>
-          <p style={{ fontFamily: MONO, fontSize: '13px', lineHeight: 1.6, color: INK, margin: 0, maxWidth: '46em' }}>
+          <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: 0, maxWidth: '46em' }}>
             Government sources are published under the Open Government Licence v3.0. Ofcom Connected Nations data is published by Ofcom. Police recorded crime from data.police.uk under the Open Government Licence.
           </p>
         </section>

@@ -270,13 +270,13 @@ export default async function CouncilSchoolInspectionsSection({
             </tbody>
           </table>
         </div>
-        {hasPredecessor && <p style={{ fontFamily: MONO, fontSize: '13px', color: INK, margin: '6px 0 0' }}>* Inspection of a predecessor school (for example, before it became an academy).</p>}
+        {hasPredecessor && <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: '6px 0 0' }}>* Inspection of a predecessor school (for example, before it became an academy).</p>}
       </details>
 
       <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
         Since 10 November 2025 Ofsted inspects schools under a renewed framework and publishes a report card grading up to eight areas on a five-point scale, plus whether safeguarding standards are met. Ofsted says these grades cannot be compared with grades from the previous framework, so they are shown separately. Graded inspections between 1 September 2024 and 9 November 2025 gave no overall grade (&ldquo;Not judged&rdquo;). Ungraded inspections check whether a school is still at its previous grade; the &ldquo;Earlier inspections&rdquo; figures use the last graded inspection.
       </p>
-      <p style={{ fontFamily: MONO, fontSize: '13px', color: INK, margin: 0 }}>
+      <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: 0 }}>
         Source: Ofsted, State-funded schools inspections and outcomes as at {fmtDate(snapshot)} (official statistics). Contains public sector information licensed under the Open Government Licence v3.0.
       </p>
     </section>

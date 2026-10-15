@@ -821,7 +821,7 @@ export default function MagazineProfileSections({
                 )}
                 {bio?.bio_sources && bio.bio_sources.length > 0 && (
                   <details>
-                    <summary style={{ cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: '13px' }}>
+                    <summary style={{ cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: '14px' }}>
                       Sources ({bio.bio_sources.length})
                     </summary>
                     <ol style={{ margin: '10px 0 0', paddingLeft: '20px', lineHeight: 1.55 }}>
@@ -1153,7 +1153,7 @@ export default function MagazineProfileSections({
             if (p.rankOutOf >= 650) return `${ordinal(p.rank)} highest of all ${fmtNum(p.rankOutOf)} constituencies`;
             return `${ordinal(p.rank)} highest of the ${fmtNum(p.rankOutOf)} constituencies with signatures`;
           };
-          const chip: React.CSSProperties = { fontSize: '13px', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '1px 6px', border: '1px solid #14100d', color: '#14100d', whiteSpace: 'nowrap' };
+          const chip: React.CSSProperties = { fontSize: '14px', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '1px 6px', border: '1px solid #14100d', color: '#14100d', whiteSpace: 'nowrap' };
           return (
             <>
               <h2 style={sectionH2}>Petitions</h2>
@@ -1184,7 +1184,7 @@ export default function MagazineProfileSections({
                 ))}
               </ul>
               {petitionsLastUpdated && (
-                <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '13px', color: '#14100d', opacity: 1, margin: '18px 0 0' }}>
+                <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '14px', color: '#14100d', opacity: 1, margin: '18px 0 0' }}>
                   Petition signatures last updated {fmtDate(petitionsLastUpdated)}. Source: UK Parliament Petitions (petition.parliament.uk).
                 </p>
               )}
@@ -1195,7 +1195,7 @@ export default function MagazineProfileSections({
         {active === 'edms' && edms && (() => {
           const SHOWN_OPEN = 20;
           const fmtNum = (n: number) => n.toLocaleString('en-GB');
-          const chip: React.CSSProperties = { fontSize: '13px', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '1px 6px', border: '1px solid #14100d', color: '#14100d', whiteSpace: 'nowrap' };
+          const chip: React.CSSProperties = { fontSize: '14px', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '1px 6px', border: '1px solid #14100d', color: '#14100d', whiteSpace: 'nowrap' };
           const item = (e: MpEdmEntry) => (
             <li key={`${e.role}-${e.id}`} style={{ padding: '11px 0', borderBottom: inkDivider }}>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'baseline', flexWrap: 'wrap' }}>
@@ -1250,7 +1250,7 @@ export default function MagazineProfileSections({
               {list('Motions started', edms.started, edms.startedCount)}
               {list('Motions signed', edms.signed, edms.signedCount)}
               {edms.lastUpdated && (
-                <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '13px', color: '#14100d', opacity: 1, margin: '18px 0 0' }}>
+                <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '14px', color: '#14100d', opacity: 1, margin: '18px 0 0' }}>
                   Early Day Motions last updated {fmtDate(edms.lastUpdated)}. Source: UK Parliament (edm.parliament.uk).
                 </p>
               )}
@@ -1348,7 +1348,7 @@ export default function MagazineProfileSections({
                             <span>{name}</span>
                           )}
                           {m.role === 'Chair' && (
-                            <span style={{ ...pillStyle, color: '#a64030', border: '1px solid #a64030', fontSize: '11px' }}>Chair</span>
+                            <span style={{ ...pillStyle, color: '#a64030', border: '1px solid #a64030', fontSize: '14px' }}>Chair</span>
                           )}
                         </li>
                       );
@@ -1373,11 +1373,11 @@ export default function MagazineProfileSections({
                                 <span>{name}</span>
                               )}
                               {m.role === 'Chair' && (
-                                <span style={{ ...pillStyle, color: '#a64030', border: '1px solid #a64030', fontSize: '11px' }}>Chair</span>
+                                <span style={{ ...pillStyle, color: '#a64030', border: '1px solid #a64030', fontSize: '14px' }}>Chair</span>
                               )}
                             </span>
                             {m.start_date && (
-                              <span style={{ fontSize: '13px', opacity: 0.6, fontFamily: 'monospace' }}>
+                              <span style={{ fontSize: '14px', opacity: 0.6, fontFamily: 'monospace' }}>
                                 {fmtDate(m.start_date)}{m.end_date ? ` – ${fmtDate(m.end_date)}` : ''}
                               </span>
                             )}
@@ -1722,7 +1722,7 @@ export default function MagazineProfileSections({
                                 )}
                                 {/* FX-converted note */}
                                 {r.fx && (
-                                  <span style={{ ...pillStyle, color: 'rgba(20,16,13,0.6)', border: '1px solid rgba(20,16,13,0.25)' }} title="Amount converted from a non-GBP original">
+                                  <span style={{ ...pillStyle, color: '#14100d', border: '1px solid rgba(20,16,13,0.25)' }} title="Amount converted from a non-GBP original">
                                     £ converted
                                   </span>
                                 )}
@@ -1976,7 +1976,7 @@ export default function MagazineProfileSections({
                           </div>
                           <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '3px' }}>
                             {d.donor_type && (
-                              <span style={{ ...pillStyle, color: 'rgba(20,16,13,0.7)', border: '1px solid rgba(20,16,13,0.25)' }}>{d.donor_type}</span>
+                              <span style={{ ...pillStyle, color: '#14100d', border: '1px solid rgba(20,16,13,0.25)' }}>{d.donor_type}</span>
                             )}
                             {sector && (
                               <span style={{ ...pillStyle, color: sector.colour, border: `1px solid ${sector.colour}` }}>{sector.label}</span>

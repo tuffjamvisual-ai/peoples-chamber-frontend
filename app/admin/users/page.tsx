@@ -48,7 +48,7 @@ export default async function AdminUsersPage() {
       <p style={{ color: '#555', marginBottom: '1.5rem' }}>
         Total: <strong>{total}</strong> &nbsp;|&nbsp; Active (last 15 min): <strong>{active}</strong>
       </p>
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
         <thead>
           <tr style={{ borderBottom: '2px solid #ccc', textAlign: 'left' }}>
             {['ID', 'Username', 'Email domain', 'Created', 'Last seen'].map(h => (

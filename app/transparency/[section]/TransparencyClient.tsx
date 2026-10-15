@@ -456,7 +456,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                   <p className="text-[15px] leading-[1.7] mb-1" style={{ fontFamily: 'Special Elite, monospace' }}>
                     {[supplier, deptLabel, value].filter(Boolean).join(' · ')}
                     {status && (
-                      <span className="ml-3 text-[13px] uppercase tracking-[0.12em] font-bold" style={{ color: statusColour }}>
+                      <span className="ml-3 text-[14px] uppercase tracking-[0.12em] font-bold" style={{ color: statusColour }}>
                         {status}
                       </span>
                     )}

@@ -22,14 +22,14 @@ const MONO = 'Special Elite, monospace';
 
 const h2: CSSProperties = { fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' };
 const para: CSSProperties = { fontFamily: MONO, fontSize: '15px', lineHeight: 1.75, color: INK, margin: '0 0 14px', maxWidth: '46em' };
-const small: CSSProperties = { fontFamily: MONO, fontSize: '13px', lineHeight: 1.6, color: INK, margin: '0 0 10px', maxWidth: '46em' };
+const small: CSSProperties = { fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: '0 0 10px', maxWidth: '46em' };
 const section: CSSProperties = { borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' };
 const th: CSSProperties = { textAlign: 'left', padding: '6px 10px 6px 0', borderBottom: `1px solid ${INK}`, fontWeight: 'normal', verticalAlign: 'bottom' };
 const td: CSSProperties = { padding: '6px 10px 6px 0', borderBottom: `1px solid ${INK_HAIRLINE}`, verticalAlign: 'top' };
 const tdNum: CSSProperties = { ...td, textAlign: 'right', whiteSpace: 'nowrap' };
 
 const NARROW_CSS = `@media (max-width: 760px) {
-  .cr-table { font-size: 13px !important; }
+  .cr-table { font-size: 14px !important; }
   .cr-table th, .cr-table td { padding-right: 5px !important; overflow-wrap: anywhere; }
   .cr-table th { white-space: normal !important; }
 }`;
@@ -167,7 +167,7 @@ export default async function CouncilRatingsSection({
                       <td style={td}>{link(d.code, d.name)}</td>
                       <td style={td}>{d.areaRank ? `${ordinal(d.areaRank)} · band ${d.areaBand}${d.nearBoundary ? ' ≈' : ''}` : 'Not ranked'}</td>
                       <td style={td}>{d.servicesRank ? `${ordinal(d.servicesRank)} · band ${d.servicesBand}` : '–'}</td>
-                      <td style={{ ...td, fontSize: '13px' }}><Flags flags={d.flags.filter((f) => !f.county)} /></td>
+                      <td style={{ ...td, fontSize: '14px' }}><Flags flags={d.flags.filter((f) => !f.county)} /></td>
                     </tr>
                   ))}
                 </tbody>
@@ -189,7 +189,7 @@ export default async function CouncilRatingsSection({
                     <tr key={code} style={code === gssCode ? { fontWeight: 'bold' } : undefined}>
                       <td style={td}>{code === gssCode ? name : link(code)}</td>
                       <td style={td}>{data.ofstedByCouncil.get(code)?.grade ?? '–'}</td>
-                      <td style={{ ...td, fontSize: '13px', fontWeight: 'normal' }}><Flags flags={data.flagsByCouncil.get(code) ?? []} /></td>
+                      <td style={{ ...td, fontSize: '14px', fontWeight: 'normal' }}><Flags flags={data.flagsByCouncil.get(code) ?? []} /></td>
                     </tr>
                   ))}
                 </tbody>
@@ -279,7 +279,7 @@ export default async function CouncilRatingsSection({
                       <td style={td}>{code === gssCode ? name : link(code, n?.name)}</td>
                       <td style={td}>{n?.areaBand != null ? `${n.areaBand}${n.nearBoundary ? ' ≈' : ''}` : '–'}</td>
                       <td style={tdNum}>{fmt1(n?.servicesScore)}</td>
-                      <td style={{ ...td, fontSize: '13px', fontWeight: 'normal' }}><Flags flags={n ? n.flags : data.flagsByCouncil.get(code) ?? []} /></td>
+                      <td style={{ ...td, fontSize: '14px', fontWeight: 'normal' }}><Flags flags={n ? n.flags : data.flagsByCouncil.get(code) ?? []} /></td>
                     </tr>
                   );
                 })}

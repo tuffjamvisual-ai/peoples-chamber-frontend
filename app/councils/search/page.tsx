@@ -12,7 +12,7 @@ import BackLink from '../../components/BackLink';
 export const dynamic = 'force-dynamic';
 
 const INK = '#14100d';
-const INK_SOFT = 'rgba(20,16,13,0.7)';
+const INK_SOFT = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
 const SERIF = 'Special Elite, monospace';
 const MONO = 'Special Elite, monospace';
@@ -122,7 +122,7 @@ export default async function CouncilSearchPage({ searchParams }: { searchParams
                     }}
                   >
                     <span>{c.short_name || c.name}</span>
-                    <span style={{ fontSize: '13px', color: INK_SOFT, letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+                    <span style={{ fontSize: '14px', color: INK_SOFT, letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
                       {c.type_label} · {c.country}
                     </span>
                   </a>

@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 };
 
 const INK = '#14100d';
-const INK_SOFT = 'rgba(20,16,13,0.7)';
+const INK_SOFT = '#14100d';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
 const ACCENT = '#7a1612';
 
@@ -38,7 +38,7 @@ export default function EditorialsIndexPage() {
       />
 
       <header style={{ marginBottom: '4%' }}>
-        <h1 style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(12px, 1.6vw, 19px)', fontWeight: 'bold', letterSpacing: '0.01em', lineHeight: 1.05, marginBottom: '14px' }}>
+        <h1 style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(14px, 1.6vw, 19px)', fontWeight: 'bold', letterSpacing: '0.01em', lineHeight: 1.05, marginBottom: '14px' }}>
           Editorials &amp; Investigations
         </h1>
       </header>

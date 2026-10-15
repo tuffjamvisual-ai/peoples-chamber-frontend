@@ -32,7 +32,7 @@ export default function ClientSearch() {
 
   return (
     <div style={{ maxWidth: '46em' }}>
-      <h3 style={{ fontFamily: FONT, fontSize: '13px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK, margin: '0 0 8px', fontWeight: 'bold' }}>
+      <h3 style={{ fontFamily: FONT, fontSize: '14px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK, margin: '0 0 8px', fontWeight: 'bold' }}>
         Who lobbies for…
       </h3>
       <form onSubmit={onSubmit} role="search" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '14px' }}>
@@ -59,14 +59,14 @@ export default function ClientSearch() {
               <div style={{ fontSize: '16px', fontWeight: 700, overflowWrap: 'anywhere' }}>{r.client}</div>
               {r.firms.map((f) => (
                 <div key={f.firm} style={{ fontSize: '15px', lineHeight: 1.6, marginTop: '4px', overflowWrap: 'anywhere' }}>
-                  {f.firm} <span style={{ fontSize: '13px' }}>({f.quarters.join('; ')})</span>
+                  {f.firm} <span style={{ fontSize: '14px' }}>({f.quarters.join('; ')})</span>
                 </div>
               ))}
             </li>
           ))}
         </ul>
       )}
-      {state.truncated && <p style={{ fontFamily: FONT, fontSize: '13px', color: INK, marginTop: '8px' }}>Showing the first matches only. Type more of the name to narrow it down.</p>}
+      {state.truncated && <p style={{ fontFamily: FONT, fontSize: '14px', color: INK, marginTop: '8px' }}>Showing the first matches only. Type more of the name to narrow it down.</p>}
     </div>
   );
 }

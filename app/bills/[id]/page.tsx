@@ -83,7 +83,7 @@ export async function generateMetadata(
 }
 
 const INK = '#14100d'
-const INK_SOFT = 'rgba(20,16,13,0.7)'
+const INK_SOFT = '#14100d'
 const INK_HAIRLINE = 'rgba(20,16,13,0.3)'
 const CREAM_DEEP = '#dcd4c0'
 const ACCENT = '#7a1612'
@@ -189,7 +189,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: INK, textDecoration: 'none', transform: 'rotate(-0.2deg)' }}
       />
 
-      <p style={{ fontFamily: MONO, fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: ACCENT, margin: '0 0 10px', display: 'inline-block', border: `1px solid ${ACCENT}`, padding: '2px 7px 1px' }}>
+      <p style={{ fontFamily: MONO, fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: ACCENT, margin: '0 0 10px', display: 'inline-block', border: `1px solid ${ACCENT}`, padding: '2px 7px 1px' }}>
         Source: Parliament
       </p>
 

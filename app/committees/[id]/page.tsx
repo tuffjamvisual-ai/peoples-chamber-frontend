@@ -142,7 +142,7 @@ export default async function CommitteeProfilePage({ params }: Props) {
         }}
       />
 
-      <p style={{ fontFamily: MONO, fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: ACCENT, margin: '0 0 10px', display: 'inline-block', border: `1px solid ${ACCENT}`, padding: '2px 7px 1px' }}>
+      <p style={{ fontFamily: MONO, fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: ACCENT, margin: '0 0 10px', display: 'inline-block', border: `1px solid ${ACCENT}`, padding: '2px 7px 1px' }}>
         Source: Parliament
       </p>
 
@@ -173,7 +173,7 @@ export default async function CommitteeProfilePage({ params }: Props) {
       {/* Current membership */}
       <section className="mb-12">
         <h2
-          className="text-xs uppercase tracking-[0.25em] mb-5 pb-2 border-b"
+          className="text-[14px] uppercase tracking-[0.25em] mb-5 pb-2 border-b"
           style={{ color: ACCENT, fontFamily: MONO, borderColor: `${INK}22` }}
         >
           Current members ({currentMemberships.length})
@@ -202,7 +202,7 @@ export default async function CommitteeProfilePage({ params }: Props) {
                         Member {m.member_id}
                       </span>
                     )}
-                    <span className="text-xs ml-2" style={{ color: `${INK}88`, fontFamily: MONO }}>
+                    <span className="text-[14px] ml-2" style={{ color: `${INK}88`, fontFamily: MONO }}>
                       {mp?.party ?? ''}
                       {mp?.constituency ? ` · ${mp.constituency}` : ''}
                       {m.role === 'Chair' ? ' · Chair' : ''}
@@ -219,7 +219,7 @@ export default async function CommitteeProfilePage({ params }: Props) {
       {formerMemberships.length > 0 && (
         <section className="mb-8">
           <h2
-            className="text-xs uppercase tracking-[0.25em] mb-3 pb-2 border-b"
+            className="text-[14px] uppercase tracking-[0.25em] mb-3 pb-2 border-b"
             style={{ color: `${INK}66`, fontFamily: MONO, borderColor: `${INK}18` }}
           >
             Former members
@@ -230,7 +230,7 @@ export default async function CommitteeProfilePage({ params }: Props) {
         </section>
       )}
 
-      <p className="text-xs mt-6" style={{ color: `${INK}55`, fontFamily: MONO }}>
+      <p className="text-[14px] mt-6" style={{ color: `${INK}55`, fontFamily: MONO }}>
         Source: UK Parliament members and committees APIs. Updated nightly.
       </p>
     </OpenGovShell>

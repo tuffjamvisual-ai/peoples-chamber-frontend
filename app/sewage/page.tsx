@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 };
 
 const INK = '#14100d';
-const INK_SOFT = 'rgba(20,16,13,0.7)';
+const INK_SOFT = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
 const ACCENT = '#7a1612';
 const SERIF = 'Special Elite, monospace';
@@ -205,7 +205,7 @@ export default async function SewagePage() {
           <p style={para}>
             Wales is not included yet. Natural Resources Wales and Dwr Cymru Welsh Water publish their own figures, which Open Govt is working to add.
           </p>
-          <p style={{ fontFamily: MONO, fontSize: '13px', lineHeight: 1.6, color: INK, margin: 0, maxWidth: '46em' }}>
+          <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: 0, maxWidth: '46em' }}>
             Sources: Environment Agency, Event Duration Monitoring storm overflow annual return {eaYear}, and Office for National Statistics boundaries, both licensed under the Open Government Licence v3.0 (contains OS data © Crown copyright and database right 2026). Scottish Water, Reported Overflow Event Data to SEPA and Non-Reported Overflow Event Data (2026), licensed under the Open Government Licence. NI Water, Event Duration Monitor data, as published by NI Water.
           </p>
         </section>

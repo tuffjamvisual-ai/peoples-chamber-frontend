@@ -118,7 +118,7 @@ export default async function CouncilClaimantCountSection({ gssCode }: { gssCode
               </div>
             ))}
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: MONO, fontSize: '13px', color: INK, marginTop: '4px', gap: '8px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: MONO, fontSize: '14px', color: INK, marginTop: '4px', gap: '8px' }}>
             <span>{yearly[0].month.slice(0, 4)}</span>
             {ucIndex > 0 && <span style={{ color: ACCENT }}>┊ from 2013: includes Universal Credit</span>}
             <span>{latest.month.slice(0, 4)}</span>
@@ -156,7 +156,7 @@ export default async function CouncilClaimantCountSection({ gssCode }: { gssCode
                 ))}
               </tbody>
             </table>
-            {ucIndex > 0 && <p style={{ fontFamily: MONO, fontSize: '13px', color: INK, margin: '6px 0 0' }}>* Before 2013: Unemployment Benefit or Jobseeker&rsquo;s Allowance claimants only. — means no share was published for that year.</p>}
+            {ucIndex > 0 && <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: '6px 0 0' }}>* Before 2013: Unemployment Benefit or Jobseeker&rsquo;s Allowance claimants only. — means no share was published for that year.</p>}
           </details>
         </figure>
       )}
@@ -165,7 +165,7 @@ export default async function CouncilClaimantCountSection({ gssCode }: { gssCode
         The Claimant Count is people claiming Jobseeker&rsquo;s Allowance plus people on Universal Credit who are required to look for work. Before 2013 it counted only Unemployment Benefit or Jobseeker&rsquo;s Allowance claimants, so earlier years are not strictly comparable. Universal Credit requires more people to search for work than Jobseeker&rsquo;s Allowance did, so as it replaced older benefits from 2013, part of the rise in the count reflects that change rather than more unemployment. It is not the official unemployment rate, which comes from a survey. The latest month can be revised.
         {rows[0].month > '1986-01-01' && ` Figures for this council start in ${fmtMonth(rows[0].month)}.`}
       </p>
-      <p style={{ fontFamily: MONO, fontSize: '13px', color: INK, margin: 0 }}>
+      <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: 0 }}>
         Source: Office for National Statistics, Claimant Count (via Nomis). Contains public sector information licensed under the Open Government Licence v3.0.
       </p>
     </section>

@@ -22,7 +22,7 @@ import { normaliseParty } from '@/lib/party-helpers'
 
 const PAPER = '#f4e8d4'
 const INK = '#14100d'
-const INK_SOFT = 'rgba(20,16,13,0.65)'
+const INK_SOFT = '#14100d'
 const ACCENT = '#7a1612'
 const SERIF = 'Special Elite, monospace'
 const POSTCODE_RE = /^[A-Z]{1,2}\d[A-Z\d]?\d[A-Z]{2}$/
@@ -196,7 +196,7 @@ export default function PostcodeLookup({ heading = 'Who is your MP?' }: { headin
               }}
             >
               <span>
-                <span style={{ display: 'block', fontSize: '13px', letterSpacing: '0.08em', textTransform: 'uppercase', color: INK_SOFT }}>Your MP</span>
+                <span style={{ display: 'block', fontSize: '14px', letterSpacing: '0.08em', textTransform: 'uppercase', color: INK_SOFT }}>Your MP</span>
                 <span style={{ display: 'block', fontSize: '18px', fontWeight: 600 }}>{postcodeResult.name}</span>
               </span>
               <span style={{ fontSize: '15px', color: ACCENT, whiteSpace: 'nowrap' }}>View profile →</span>
@@ -221,7 +221,7 @@ export default function PostcodeLookup({ heading = 'Who is your MP?' }: { headin
                       {r.name}
                       {r.constituency && <span style={{ color: INK_SOFT }}> — {r.constituency}</span>}
                     </span>
-                    <span style={{ fontSize: '13px', color: INK_SOFT, letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+                    <span style={{ fontSize: '14px', color: INK_SOFT, letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
                       {normaliseParty(r.party)}
                     </span>
                   </a>

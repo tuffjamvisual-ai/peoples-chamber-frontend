@@ -209,7 +209,7 @@ export default function HotspotDropdown({
             fontSize: '15px',
             letterSpacing: '0.28em',
             textTransform: 'uppercase',
-            color: 'rgba(20,16,13,0.55)',
+            color: '#14100d',
             borderBottom: '1px solid rgba(122,22,18,0.35)',
             margin: '0 12px',
           }}
@@ -247,7 +247,7 @@ export default function HotspotDropdown({
           top: 50%;
           transform: translateY(-50%);
           color: #7a1612;
-          font-size: 10px;
+          font-size: 14px;
         }
       `}</style>
     </div>

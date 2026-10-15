@@ -99,7 +99,7 @@ export default async function CouncilSewageSection({
             <tr key={`${o.source}-${o.site_id}`}>
               <td style={td}>
                 {o.site_name || o.site_name_operator || o.site_id}
-                {o.receiving_water && <span style={{ display: 'block', fontSize: '13px' }}>into {o.receiving_water}</span>}
+                {o.receiving_water && <span style={{ display: 'block', fontSize: '14px' }}>into {o.receiving_water}</span>}
               </td>
               <td style={{ ...td, whiteSpace: 'nowrap' }}>{o.company}</td>
               <td style={tdNum}>{o.spill_count == null ? 'not reported' : fmtInt(o.spill_count)}</td>
@@ -190,7 +190,7 @@ export default async function CouncilSewageSection({
         {offshore > 0 && `${fmtInt(offshore)} overflow${offshore === 1 ? ' discharges' : 's discharge'} below the high-tide line or out at sea and ${offshore === 1 ? 'is' : 'are'} counted with the nearest council area. `}
         <a href="/sewage" style={{ color: INK, textDecoration: 'underline' }}>Compare every council, constituency and water company</a>.
       </p>
-      <p style={{ fontFamily: MONO, fontSize: '13px', color: INK, margin: 0 }}>{sourceLine}</p>
+      <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: 0 }}>{sourceLine}</p>
     </section>
   );
 }

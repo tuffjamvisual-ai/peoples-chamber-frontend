@@ -12,7 +12,7 @@ export const revalidate = 86400;
 export function generateStaticParams() { return []; }
 
 const INK = '#14100d';
-const INK_SOFT = 'rgba(20,16,13,0.7)';
+const INK_SOFT = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
 const ACCENT = '#6b2417';
 const FONT = 'Special Elite, monospace';
@@ -71,7 +71,7 @@ export default async function LobbyingOrgPage({ params }: { params: Promise<{ sl
           <>
             <style>{`
               .lbo-table { width: 100%; border-collapse: collapse; font-family: ${FONT}; color: ${INK}; font-size: 15px; }
-              .lbo-table th { text-align: left; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; padding: 8px 6px; border-bottom: 1.5px solid ${INK}; }
+              .lbo-table th { text-align: left; font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase; padding: 8px 6px; border-bottom: 1.5px solid ${INK}; }
               .lbo-table td { padding: 9px 6px; border-bottom: 1px solid ${INK_HAIRLINE}; vertical-align: top; overflow-wrap: anywhere; }
               .lbo-date { white-space: nowrap; }
               @media (max-width: 640px) {
@@ -87,7 +87,7 @@ export default async function LobbyingOrgPage({ params }: { params: Promise<{ sl
                 {meetings.map((m) => (
                   <tr key={m.meeting_key}>
                     <td className="lbo-date">{meetingDate(m)}</td>
-                    <td>{m.minister_name}{cleanDept(m.minister_dept) ? <span style={{ display: 'block', fontSize: '13px' }}>{cleanDept(m.minister_dept)}</span> : null}</td>
+                    <td>{m.minister_name}{cleanDept(m.minister_dept) ? <span style={{ display: 'block', fontSize: '14px' }}>{cleanDept(m.minister_dept)}</span> : null}</td>
                     <td>{m.purpose || '—'}</td>
                   </tr>
                 ))}
@@ -105,7 +105,7 @@ export default async function LobbyingOrgPage({ params }: { params: Promise<{ sl
               <li key={f.firm} style={{ padding: '10px 2px', borderBottom: `1px solid ${INK_HAIRLINE}`, color: INK }}>
                 <div style={{ fontSize: '16px', fontWeight: 700, overflowWrap: 'anywhere' }}>{f.firm}</div>
                 <div style={{ fontSize: '15px', lineHeight: 1.6, overflowWrap: 'anywhere' }}>{f.quarters.map((q) => q.label).join('; ')}</div>
-                {f.clientAs !== org.name && <div style={{ fontSize: '13px' }}>Client named as “{f.clientAs}”</div>}
+                {f.clientAs !== org.name && <div style={{ fontSize: '14px' }}>Client named as “{f.clientAs}”</div>}
               </li>
             ))}
           </ul>

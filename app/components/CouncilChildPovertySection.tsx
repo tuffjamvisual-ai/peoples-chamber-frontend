@@ -120,7 +120,7 @@ export default async function CouncilChildPovertySection({ gssCodes, isCounty }:
         {isCounty && 'Figures for this county are the total of its district councils. '}
         A child is counted if their family&rsquo;s income is below 60% of the UK median for that year and the family claimed Child Benefit plus at least one other benefit (Universal Credit, tax credits or Housing Benefit). The two measures can differ a lot: housing costs push the after-housing-costs figure far higher in expensive areas such as London. Figures are provisional and years before 2021-22 are not comparable, so the trend starts there.
       </p>
-      <p style={{ fontFamily: MONO, fontSize: '13px', color: INK, margin: 0 }}>
+      <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: 0 }}>
         Source: Department for Work and Pensions, Children in Low Income Families: local area statistics ({release}).
       </p>
     </section>

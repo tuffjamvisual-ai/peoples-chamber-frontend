@@ -52,7 +52,7 @@ A transparent system is one that ordinary people can understand without speciali
 
 // Dossier ink-on-parchment palette
 const INK = '#14100d';
-const INK_SOFT = 'rgba(20,16,13,0.7)';
+const INK_SOFT = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
 const ACCENT = '#6b2417';
 
@@ -407,7 +407,7 @@ function SimpleRow({
       <span
         style={{
           fontFamily: 'Special Elite, monospace',
-          fontSize: '8px',
+          fontSize: '14px',
           textTransform: 'uppercase',
           letterSpacing: '0.15em',
           color: ACCENT,

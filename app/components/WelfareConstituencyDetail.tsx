@@ -17,7 +17,7 @@ import { formatGBP, formatCount, formatSignedPercent, formatGBPPerResident, form
 const EW_CONSTITUENCY_COUNT = 575
 
 const INK = '#14100d'
-const INK_SOFT = 'rgba(20,16,13,0.65)'
+const INK_SOFT = '#14100d'
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)'
 const ACCENT = '#7a1612'
 const SERIF = 'Special Elite, monospace'
@@ -411,7 +411,7 @@ function DataRow({ label, value, sub, valueColour }: { label: string; value: Rea
       </dt>
       <dd style={{ padding: '12px 0', borderBottom: `1px solid ${INK_HAIRLINE}`, margin: 0, fontFamily: MONO, fontSize: '15px', lineHeight: 1.55, color: valueColour || INK }}>
         {value}
-        {sub && <span style={{ display: 'block', fontSize: '13px', color: INK_SOFT, marginTop: '2px' }}>{sub}</span>}
+        {sub && <span style={{ display: 'block', fontSize: '14px', color: INK_SOFT, marginTop: '2px' }}>{sub}</span>}
       </dd>
     </div>
   )

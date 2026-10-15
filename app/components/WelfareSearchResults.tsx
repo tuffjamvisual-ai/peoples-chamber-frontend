@@ -13,7 +13,7 @@ import { useSearchParams } from 'next/navigation'
 // /api/welfare/search returns for that param.
 
 const INK = '#14100d'
-const INK_SOFT = 'rgba(20,16,13,0.65)'
+const INK_SOFT = '#14100d'
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)'
 const ACCENT = '#7a1612'
 const SERIF = 'Special Elite, monospace'
@@ -144,10 +144,10 @@ function ResultGroup({ title, items }: { title: string; items: { key: string; hr
             <a href={item.href} style={{ display: 'block', padding: '8px 0', color: INK, textDecoration: 'none', fontFamily: SERIF, fontSize: '17px', borderBottom: `1px solid ${INK_HAIRLINE}` }}>
               {item.name}
               {item.partial && (
-                <span style={{ marginLeft: '8px', fontSize: '12px', color: ACCENT, letterSpacing: '0.04em', fontFamily: MONO }}>PARTIAL DATA</span>
+                <span style={{ marginLeft: '8px', fontSize: '14px', color: ACCENT, letterSpacing: '0.04em', fontFamily: MONO }}>PARTIAL DATA</span>
               )}
               {item.sub && (
-                <span style={{ display: 'block', fontSize: '13px', color: INK_SOFT, marginTop: '2px', fontFamily: MONO }}>{item.sub}</span>
+                <span style={{ display: 'block', fontSize: '14px', color: INK_SOFT, marginTop: '2px', fontFamily: MONO }}>{item.sub}</span>
               )}
             </a>
           </li>

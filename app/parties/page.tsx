@@ -16,7 +16,7 @@ import BackLink from '../components/BackLink';
 export const revalidate = 3600;
 
 const INK = '#14100d';
-const INK_SOFT = 'rgba(20,16,13,0.7)';
+const INK_SOFT = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
 const PARCHMENT_CREAM = '#efe6d2';
 const ACCENT = '#7a1612';

@@ -228,7 +228,7 @@ const navLinkStyle: React.CSSProperties = {
   fontFamily: 'Special Elite, monospace', fontSize: '15px', color: INK, textDecoration: 'none',
   border: `1px solid ${HAIRLINE}`, padding: '8px 14px', whiteSpace: 'nowrap',
 };
-const navDisabledStyle: React.CSSProperties = { ...navLinkStyle, color: 'rgba(20,16,13,0.35)', pointerEvents: 'none' };
+const navDisabledStyle: React.CSSProperties = { ...navLinkStyle, color: '#14100d', pointerEvents: 'none' };
 const dayLabelStyle: React.CSSProperties = {
   fontFamily: 'Special Elite, monospace', fontSize: 'clamp(15px, 2.4vw, 21px)', fontWeight: 700,
   color: INK, textAlign: 'center', flex: '1 1 auto',

@@ -54,7 +54,7 @@ export default async function ProgrammesIndexPage() {
         </h1>
         <p style={{
           fontFamily: MONO, fontSize: '15px',
-          color: 'rgba(20,16,13,0.6)',
+          color: '#14100d',
           letterSpacing: '0.03em',
         }}>
           Major government policy commitments, tracked over time.
@@ -62,7 +62,7 @@ export default async function ProgrammesIndexPage() {
       </header>
 
       {programmes.length === 0 && (
-        <p style={{ fontFamily: MONO, fontSize: '15px', color: 'rgba(20,16,13,0.5)' }}>
+        <p style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d' }}>
           No programmes published yet.
         </p>
       )}
@@ -70,7 +70,7 @@ export default async function ProgrammesIndexPage() {
       {groups.map(({ status, items }) => (
         <section key={status} style={{ marginBottom: '48px' }}>
           <h2 style={{
-            fontFamily: MONO, fontSize: '12px',
+            fontFamily: MONO, fontSize: '14px',
             textTransform: 'uppercase', letterSpacing: '0.25em',
             color: STATUS_COLOUR[status] ?? INK,
             marginBottom: '16px', fontWeight: 'normal',
@@ -106,7 +106,7 @@ function ProgrammeCard({ prog }: { prog: ProgrammeWithFigure }) {
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
         <span style={{
-          fontFamily: MONO, fontSize: '10px', letterSpacing: '0.12em',
+          fontFamily: MONO, fontSize: '14px', letterSpacing: '0.12em',
           textTransform: 'uppercase', color: statusColour,
           border: `1px solid ${statusColour}`,
           padding: '1px 6px', flexShrink: 0,
@@ -121,7 +121,7 @@ function ProgrammeCard({ prog }: { prog: ProgrammeWithFigure }) {
       {prog.summary && (
         <p style={{
           fontSize: '14px', lineHeight: 1.6,
-          color: 'rgba(20,16,13,0.72)',
+          color: '#14100d',
           margin: '4px 0 0',
           maxWidth: '680px',
         }}>
@@ -135,11 +135,11 @@ function ProgrammeCard({ prog }: { prog: ProgrammeWithFigure }) {
             {fmtNumber(prog.currentEntry.figure_value!)}
           </span>
           {prog.currentEntry.figure_unit && (
-            <span style={{ fontFamily: MONO, fontSize: '13px', fontWeight: 'normal', color: 'rgba(20,16,13,0.6)', marginLeft: '5px' }}>
+            <span style={{ fontFamily: MONO, fontSize: '14px', fontWeight: 'normal', color: '#14100d', marginLeft: '5px' }}>
               {prog.currentEntry.figure_unit}
             </span>
           )}
-          <span style={{ fontFamily: MONO, fontSize: '11px', color: 'rgba(20,16,13,0.45)', marginLeft: '10px', letterSpacing: '0.04em' }}>
+          <span style={{ fontFamily: MONO, fontSize: '14px', color: '#14100d', marginLeft: '10px', letterSpacing: '0.04em' }}>
             {fmtDate(prog.currentEntry.entry_date)}
           </span>
         </p>
@@ -147,8 +147,8 @@ function ProgrammeCard({ prog }: { prog: ProgrammeWithFigure }) {
 
       {prog.target_figure !== null && (
         <p style={{
-          fontFamily: MONO, fontSize: '12px',
-          color: 'rgba(20,16,13,0.4)',
+          fontFamily: MONO, fontSize: '14px',
+          color: '#14100d',
           margin: '4px 0 0', letterSpacing: '0.04em',
         }}>
           Target: {fmtNumber(prog.target_figure)}

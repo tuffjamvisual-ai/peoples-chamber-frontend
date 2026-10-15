@@ -24,7 +24,7 @@ import { useRouter } from 'next/navigation'
 
 const PAPER = '#f4e8d4'
 const INK = '#14100d'
-const INK_SOFT = 'rgba(20,16,13,0.65)'
+const INK_SOFT = '#14100d'
 const ACCENT = '#7a1612'
 const SERIF = 'Special Elite, monospace'
 const POSTCODE_RE = /^[A-Z]{1,2}\d[A-Z\d]?\d[A-Z]{2}$/
@@ -168,7 +168,7 @@ export default function CouncilSearch() {
           style={{
             flex: '0 0 auto', width: '20px', height: '20px', borderRadius: '50%',
             border: `1.5px solid ${INK}`, background: 'transparent', color: INK,
-            fontFamily: SERIF, fontStyle: 'italic', fontWeight: 700, fontSize: '13px',
+            fontFamily: SERIF, fontStyle: 'italic', fontWeight: 700, fontSize: '14px',
             lineHeight: 1, cursor: 'pointer', padding: 0,
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
           }}
@@ -232,7 +232,7 @@ export default function CouncilSearch() {
               }}
             >
               <span>
-                <span style={{ display: 'block', fontSize: '13px', letterSpacing: '0.08em', textTransform: 'uppercase', color: INK_SOFT }}>Your local authority</span>
+                <span style={{ display: 'block', fontSize: '14px', letterSpacing: '0.08em', textTransform: 'uppercase', color: INK_SOFT }}>Your local authority</span>
                 <span style={{ display: 'block', fontSize: '18px', fontWeight: 600 }}>{postcodeResult.shortName || postcodeResult.name}</span>
               </span>
               <span style={{ fontSize: '15px', color: ACCENT, whiteSpace: 'nowrap' }}>View council profile →</span>
@@ -254,7 +254,7 @@ export default function CouncilSearch() {
                     style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '10px', padding: '9px 14px', textDecoration: 'none', color: INK, fontFamily: SERIF, fontSize: '16px', borderBottom: '1px solid rgba(20,16,13,0.12)' }}
                   >
                     <span>{r.shortName || r.name}</span>
-                    <span style={{ fontSize: '13px', color: INK_SOFT, letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+                    <span style={{ fontSize: '14px', color: INK_SOFT, letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
                       {r.typeLabel}
                     </span>
                   </a>
