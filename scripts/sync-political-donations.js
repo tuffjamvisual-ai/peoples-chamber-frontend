@@ -155,4 +155,5 @@ async function main() {
   console.log('[political-donations] done.');
 }
 
-main().catch((e) => { console.error('[political-donations] fatal:', e?.message || e); process.exit(0); });
+// A fatal error must fail the run (exit 1) so the workflow reports it; it used to exit 0.
+main().catch((e) => { console.error('[political-donations] fatal:', e?.message || e); process.exit(1); });

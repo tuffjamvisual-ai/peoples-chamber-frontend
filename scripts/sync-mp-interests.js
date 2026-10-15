@@ -78,7 +78,9 @@ async function fetchInterests(memberId) {
   while (true) {
     const url = `https://interests-api.parliament.uk/api/v1/Interests?MemberId=${memberId}&ExpandChildInterests=True&Take=${take}&Skip=${skip}&SortOrder=PublishingDateDescending`;
     const res = await fetch(url);
-    if (!res.ok) return all;
+    // A failed page used to return the pages read so far, and the MP's entries were then
+    // replaced with that partial list. Fail this MP instead; their saved entries are kept.
+    if (!res.ok) throw new Error(`Interests API ${res.status} at skip ${skip}`);
     const data = await res.json();
     const items = data.items || [];
     all.push(...items);
@@ -112,6 +114,7 @@ async function main() {
 
   const progress = loadProgress();
   const done = new Set(progress.processedMemberIds);
+  const failures = [];
 
   for (let i = 0; i < mps.length; i++) {
     const mp = mps[i];
@@ -132,14 +135,19 @@ async function main() {
           registered_date: it.registrationDate || it.publishedDate || null,
         }));
 
-        await supabase.from('mp_interests')
-          .delete()
-          .eq('member_id', mp.id);
-
+        // Insert the new list first and remove the old rows only once it is saved, so a
+        // failed insert can never leave the MP with no entries (it used to delete first).
+        const { data: oldRows, error: oldErr } = await supabase.from('mp_interests').select('id').eq('member_id', mp.id);
+        if (oldErr) throw new Error(`read existing: ${oldErr.message}`);
         for (let j = 0; j < rows.length; j += 500) {
           const chunk = rows.slice(j, j + 500);
           const { error } = await supabase.from('mp_interests').insert(chunk);
-          if (error) console.log(`  ! insert error: ${error.message}`);
+          if (error) throw new Error(`insert: ${error.message}`);
+        }
+        const oldIds = (oldRows || []).map((r) => r.id);
+        for (let j = 0; j < oldIds.length; j += 200) {
+          const { error } = await supabase.from('mp_interests').delete().in('id', oldIds.slice(j, j + 200));
+          if (error) throw new Error(`remove old rows: ${error.message}`);
         }
         console.log(`  ✓ ${rows.length} interests`);
       } else {
@@ -147,6 +155,7 @@ async function main() {
       }
     } catch (e) {
       console.log(`  ! ${e.message}`);
+      failures.push(`${mp.id}: ${e.message}`);
     }
 
     done.add(mp.id);
@@ -155,6 +164,10 @@ async function main() {
     await sleep(DELAY_MS);
   }
 
+  if (failures.length) {
+    console.error(`${failures.length} MP${failures.length === 1 ? '' : 's'} failed:\n  ${failures.slice(0, 20).join('\n  ')}`);
+    process.exit(1);
+  }
   console.log('Done.');
 }
 

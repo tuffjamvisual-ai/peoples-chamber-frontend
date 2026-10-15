@@ -289,4 +289,5 @@ async function main() {
   console.log(`[committee] content extraction: ${succeeded}/${attempted} succeeded`);
 }
 
-main().catch((e) => { console.error('[committee] fatal:', e?.message || e); process.exit(0); });
+// A fatal error must fail the run (exit 1) so the workflow reports it; it used to exit 0.
+main().catch((e) => { console.error('[committee] fatal:', e?.message || e); process.exit(1); });

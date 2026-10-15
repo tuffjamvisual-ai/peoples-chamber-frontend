@@ -99,6 +99,9 @@ export async function GET(req: NextRequest) {
   for (const s of sources) {
     const route = s.syncRoute;
     if (s.runStatus !== 'overdue' || !route) continue;
+    // GitHub workflow steps record their runs under /github-actions/...; they cannot be
+    // started from here, so they are emailed rather than healed.
+    if (!route.startsWith('/api/')) continue;
     if (Date.now() - healStart > HEAL_BUDGET_MS) {
       heals.push({ route, triggered: false, ok: false, reason: 'heal budget exhausted; will retry next run' });
       continue;

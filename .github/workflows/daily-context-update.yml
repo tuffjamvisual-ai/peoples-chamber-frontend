@@ -34,6 +34,7 @@ jobs:
       # The Register of Consultant Lobbyists step was also removed: its script does not exist
       # and there is no route for it yet (to be restored separately).
       - name: Backfill ministerial salary bands (preserves the dept_ministers.salary_band column that sync-govuk-data wipes via delete+insert)
+        id: minister-salary-bands
         env:
           DATABASE_URL_RAW: ${{ secrets.DATABASE_URL }}
         run: |
@@ -44,18 +45,14 @@ jobs:
       # organisation descriptions (enrich-ministers-meetings.js) switched off 14 Oct 2026 by
       # the site owner: the Anthropic API is no longer used. Text already written stays on
       # the site. The scripts are kept; restore only with a new ANTHROPIC_API_KEY secret.
-      - name: Sync APPGs
-        env:
-          DATABASE_URL_RAW: ${{ secrets.DATABASE_URL }}
-        run: |
-          export DATABASE_URL="$(printf '%s' "$DATABASE_URL_RAW" | tr -d '[:space:]')"
-          node scripts/sync-appgs.js
-        continue-on-error: true
+      # One job per table (15 Oct 2026). APPGs are refreshed by the Vercel route
+      # /api/sync-appgs (weekly, Mondays) and government contracts by /api/sync-government-contracts
+      # (daily 03:00, the version that upserts on the contract's own identifiers). The older
+      # script copies of both ran here as well and wrote the same tables a second time (the
+      # contracts script without the fix against duplicate rows), so those steps were removed.
       - name: Sync committee proceedings (Playwright)
+        id: committee-proceedings
         run: node scripts/sync-committee-proceedings.js
-        continue-on-error: true
-      - name: Sync government contracts
-        run: node scripts/sync-government-contracts.js
         continue-on-error: true
       # "Sync MP division votes" (scripts/sync-mp-votes.js) removed 15 Oct 2026: every insert
       # failed (its ON CONFLICT target matches no constraint), and its rows would have counted
@@ -71,9 +68,11 @@ jobs:
       # the site owner: the Anthropic API is no longer used, and the script needs it to run.
       # Stories already stored stay on the site. Restore only with a new ANTHROPIC_API_KEY secret.
       - name: Sync MP registered interests (powers the Interests tab + outside earnings)
+        id: mp-interests
         run: node scripts/sync-mp-interests.js
         continue-on-error: true
       - name: Sync IPSA expenses (year-end totals and itemised claims, years worked out from today)
+        id: ipsa-expenses
         env:
           DATABASE_URL_RAW: ${{ secrets.DATABASE_URL }}
         run: |
@@ -93,9 +92,11 @@ jobs:
       # Every current MP's register in one run (the Vercel route did 150 MPs per call and its
       # follow-on calls stopped on 14 July 2026, leaving ~500 MPs' registers out of date).
       - name: Refresh every MP's register of interests (Members API, powers the Interests tab, second jobs and donations)
+        id: registered-interests
         run: node scripts/sync-registered-interests.js --write
         continue-on-error: true
       - name: Recompute outside-earnings summary (depends on mp_registered_interests)
+        id: outside-earnings
         env:
           DATABASE_URL_RAW: ${{ secrets.DATABASE_URL }}
         run: |
@@ -125,6 +126,7 @@ jobs:
           SQL
         continue-on-error: true
       - name: Fill new MPs' constituency codes and latest election results
+        id: new-mps
         # New MPs (by-elections) arrive through the daily roster sync without these two fields;
         # both scripts only write where the Parliament data matches the MP's constituency.
         run: |
@@ -132,6 +134,7 @@ jobs:
           node scripts/import-mp-election-results.js --live
         continue-on-error: true
       - name: Rebuild lobbying index and refresh the /lobbying figures
+        id: lobbying-index
         # Matches new ministers' meetings to organisations and refreshes the saved figures
         # (lobby_org_rankings, lobby_summary), so "last 12 months" moves on each day.
         # Refuses to write if ministers_meetings looks mid-sync (see the script).
@@ -139,3 +142,8 @@ jobs:
         continue-on-error: true
       - name: Trigger Vercel redeploy
         run: curl -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
+      - name: Report step results (fails the run if any step failed, so GitHub emails the owner)
+        if: always()
+        env:
+          STEPS_JSON: ${{ toJSON(steps) }}
+        run: node scripts/report-workflow-steps.js

@@ -19,4 +19,11 @@ jobs:
       - name: Install dependencies
         run: npm install @supabase/supabase-js ws
       - name: Sync political donations (full window since 2024-07-04)
+        id: political-donations
         run: node scripts/sync-political-donations.js
+        continue-on-error: true
+      - name: Report step results (fails the run if any step failed, so GitHub emails the owner)
+        if: always()
+        env:
+          STEPS_JSON: ${{ toJSON(steps) }}
+        run: node scripts/report-workflow-steps.js

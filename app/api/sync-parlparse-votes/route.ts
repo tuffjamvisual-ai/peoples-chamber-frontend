@@ -1,3 +1,7 @@
+// NOT SCHEDULED since 15 Oct 2026 (one job per table): new Commons votes come only from
+// /api/sync-commons-votes-api, which also saves official totals, each MP's party on the day
+// and the rebellion flags. The parlparse feed stopped in January 2026. Kept for manual use.
+//
 // Daily ParlParse vote sync — keeps mp_division_votes fresh with the ~10×
 // coverage parlparse provides over Commons Votes API alone.
 //

@@ -26,15 +26,23 @@ jobs:
         run: npm install @anthropic-ai/sdk @supabase/supabase-js csv-parse playwright ws
       
       - name: Sync bills (incremental)
-        run: node sync-bills-incremental.js
+        id: bills
+        run: node sync-bills-incremental.js --write
+        continue-on-error: true
 
       - name: Match bill divisions
+        id: bill-divisions
         run: node scripts/sync-bill-divisions.js
       
       # Bill explanations (generate-ai-explanations.js) switched off 14 Oct 2026 by the site
       # owner: the Anthropic API is no longer used. Explanations already written stay on the
       # site. Restore only with a new ANTHROPIC_API_KEY secret.
 
-      - name: Download MP voting data (Sundays only)
-        if: github.event.schedule == '0 2 * * 0'
-        run: node download-all-divisions-fixed.js
+      # "Download MP voting data (Sundays only)" (download-all-divisions-fixed.js) removed
+      # 15 Oct 2026: its condition never matched the daily schedule, so it never ran, and its
+      # rough title matching duplicated "Match bill divisions" above.
+      - name: Report step results (fails the run if any step failed, so GitHub emails the owner)
+        if: always()
+        env:
+          STEPS_JSON: ${{ toJSON(steps) }}
+        run: node scripts/report-workflow-steps.js

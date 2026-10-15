@@ -1,0 +1,27 @@
+name: Data Health Check
+
+# Every evening, after the day's refresh jobs (GitHub workflows at 00:00 and 02:00 UTC,
+# Vercel cron routes through the day, freshness monitor at 16:00). Checks that each job ran
+# and succeeded and that the data matches Parliament (scripts/check-data-health.js). A failed
+# check fails this run, and GitHub emails the owner. Read-only: it changes nothing.
+
+on:
+  schedule:
+    - cron: '40 17 * * *'
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      NEXT_PUBLIC_SUPABASE_URL: https://nwnsvnbudmfkhhwcjwwr.supabase.co
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+      - name: Install dependencies
+        run: npm install @supabase/supabase-js
+      - name: Check data health
+        run: node scripts/check-data-health.js

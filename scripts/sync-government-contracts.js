@@ -159,4 +159,5 @@ async function main() {
   console.log(`[contracts] scanned ${totalReleases} release packages, inserted ${totalInserted} rows`);
 }
 
-main().catch((e) => { console.error('[contracts] fatal:', e?.message || e); process.exit(0); });
+// A fatal error must fail the run (exit 1) so the workflow reports it; it used to exit 0.
+main().catch((e) => { console.error('[contracts] fatal:', e?.message || e); process.exit(1); });

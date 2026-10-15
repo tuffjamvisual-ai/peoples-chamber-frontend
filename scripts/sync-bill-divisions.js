@@ -203,13 +203,16 @@ async function main() {
   // Update bill rows
   let updated = 0, errors = 0;
   for (const m of matches) {
+    // Fills bills that have no Commons division yet; never replaces one already saved
+    // (app/api/sync-bill-commons-votes fills the same fields for Third Readings, and the two
+    // used to overwrite each other).
     const { error } = await supabase.from('bill').update({
       commons_division_id:    m.divisionId,
       commons_division_title: m.divisionTitle,
       commons_vote_date:      m.voteDate,
       commons_ayes:           m.ayes,
       commons_noes:           m.noes,
-    }).eq('id', m.billId);
+    }).eq('id', m.billId).is('commons_division_id', null);
     if (error) { console.error(`  update error bill ${m.billId}:`, error.message); errors++; }
     else updated++;
     await sleep(50);
@@ -222,6 +225,8 @@ async function main() {
   fs.mkdirSync(path.dirname(MAP_FILE), { recursive: true });
   fs.writeFileSync(MAP_FILE, JSON.stringify(map, null, 2));
   console.log(`[bill-divisions] wrote ${MAP_FILE} (${Object.keys(map).length} entries)`);
+  // Any failed update fails the run so the workflow reports it.
+  if (errors) process.exit(1);
 }
 
 main().catch(e => { console.error('[bill-divisions] fatal:', e?.message || e); process.exit(1); });

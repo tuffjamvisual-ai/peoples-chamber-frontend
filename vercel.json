@@ -97,10 +97,6 @@
       "schedule": "30 2 * * *"
     },
     {
-      "path": "/api/sync-parlparse-votes",
-      "schedule": "30 8 * * *"
-    },
-    {
       "path": "/api/sync-commons-votes-api",
       "schedule": "0 9 * * *"
     },
