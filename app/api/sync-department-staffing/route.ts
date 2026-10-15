@@ -28,7 +28,10 @@ const ONS_LANDING =
 // We scrape the landing page for the latest dated URL rather than use
 // /current/ — ONS's /current/ endpoint 404s intermittently behind their
 // CDN, while the dated URLs (e.g. /december2025/) are stable.
-const URL_PATTERN = /\/employmentandlabourmarket\/peopleinwork\/publicsectorpersonnel\/datasets\/publicsectoremploymentreferencetable\/([a-z]+\d{4})\/datasets8\.xlsx/g;
+// The file name changes between releases (datasets8.xlsx, datasets.xlsx, datasets3.xlsx), so
+// match any datasets<N>.xlsx. Fixed 15 Oct 2026: the old pattern only matched datasets8.xlsx
+// and kept loading December 2025 after the March and June 2026 releases came out.
+const URL_PATTERN = /\/employmentandlabourmarket\/peopleinwork\/publicsectorpersonnel\/datasets\/publicsectoremploymentreferencetable\/([a-z]+\d{4})\/datasets\d*\.xlsx/g;
 const UA = 'PeoplesChamber/1.0 (+thepeopleschamber.uk)';
 
 // Months in publication order so the latest sort works numerically

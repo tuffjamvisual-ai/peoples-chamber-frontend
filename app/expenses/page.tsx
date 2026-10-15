@@ -5,12 +5,24 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 
-export const metadata: Metadata = {
-  title: "Top-Spending MPs 2024-25, IPSA Business Cost Rankings",
-  description:
-    "The ten UK MPs who claimed the highest IPSA business costs in 2024-25. Office, staffing, travel and accommodation broken down by category, year on year change shown.",
-  alternates: { canonical: '/expenses' },
-};
+// The latest financial year IPSA has published full-year totals for (e.g. '24_25').
+// IPSA publishes year-end totals months after the year closes, so this moves on by itself.
+async function latestYear(): Promise<string> {
+  const { data } = await supabase.from('mp_expenses_summary').select('year').order('year', { ascending: false }).limit(1);
+  return (data && data[0] && (data[0] as { year: string }).year) || '24_25';
+}
+// '24_25' -> '2024-25' (titles) and '2024 / 2025' (page text).
+const yearShort = (y: string) => `20${y.slice(0, 2)}-${y.slice(3, 5)}`;
+const yearLong = (y: string) => `20${y.slice(0, 2)} / 20${y.slice(3, 5)}`;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const y = yearShort(await latestYear());
+  return {
+    title: `Top-Spending MPs ${y}, IPSA Business Cost Rankings`,
+    description: `The ten UK MPs who claimed the highest IPSA business costs in ${y}. Office, staffing, travel and accommodation broken down by category, year on year change shown.`,
+    alternates: { canonical: '/expenses' },
+  };
+}
 
 // Render on demand. See app/departments/page.tsx for rationale —
 // Vercel's 3-worker build saturates Supabase when this, /departments,
@@ -18,8 +30,6 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic'
 export const revalidate = 3600;
 
-const YEAR = '24_25';
-const YEAR_LABEL = '2024 / 2025';
 
 // Feature essay rendered below the Top 10 list. Stored as one
 // blank-line-separated string and split into <p> elements so the
@@ -83,6 +93,8 @@ type MpRow = {
 };
 
 export default async function ExpensesPage() {
+  const YEAR = await latestYear();
+  const YEAR_LABEL = yearLong(YEAR);
   // Fetch a few extra rows so we can drop any non-current MPs and still hit 10.
   const { data: expenseRows } = await supabase
     .from('mp_expenses_summary')

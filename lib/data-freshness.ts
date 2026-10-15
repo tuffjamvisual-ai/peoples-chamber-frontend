@@ -8,7 +8,7 @@
 
 import { supabase } from '@/lib/supabase';
 
-export type Cadence = 'daily' | 'weekly' | 'monthly' | 'quarterly';
+export type Cadence = 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'annual';
 
 export interface DataSource {
   key: string;      // stable id used by <LastUpdated sourceKey="..." />
@@ -35,6 +35,7 @@ export const CADENCE_MAX_AGE_DAYS: Record<Cadence, number> = {
   weekly: 9,
   monthly: 35,
   quarterly: 100,
+  annual: 400,
 };
 
 export const DATA_SOURCES: DataSource[] = [
@@ -42,7 +43,10 @@ export const DATA_SOURCES: DataSource[] = [
   { key: 'department_staffing',  table: 'department_staffing',   column: 'updated_at',   cadence: 'weekly',    label: 'Civil service staffing',     source: 'Cabinet Office workforce data', page: '/civil-service',                        syncRoute: '/api/sync-department-staffing' },
   { key: 'appgs',                table: 'appgs',                 column: 'scraped_at',   cadence: 'weekly',    label: 'APPG register',              source: 'mySociety / UK Parliament APPG register', page: '/secretariats',                     syncRoute: '/api/sync-appgs' },
   { key: 'government_contracts', table: 'government_contracts',  column: 'updated_at',   cadence: 'daily',     label: 'Government contracts',       source: 'Find a Tender (OCDS)',          page: '/donations/government-contractors',     syncRoute: '/api/sync-government-contracts' },
-  { key: 'councils',             table: 'councils',              column: 'updated_at',   cadence: 'weekly',    label: 'Council data',               source: 'MHCLG / council accounts',      page: '/councils' /* no automated sync yet */ },
+  // Council details (leaders, party control, council tax, finance) are kept up to date by hand:
+  // council tax each March, leaders after the May elections, finance once a year. There is no
+  // reliable automated feed of council leaders, so this is checked yearly, not weekly.
+  { key: 'councils',             table: 'councils',              column: 'updated_at',   cadence: 'annual',    label: 'Council details',            source: 'MHCLG and council publications, updated by hand', page: '/councils' },
   { key: 'mp_expenses',          table: 'mp_expenses_detail',    column: 'updated_at',   cadence: 'quarterly', label: 'MP expenses',                source: 'IPSA',                          page: '/expenses' /* IPSA is quarterly; no cron */ },
   { key: 'press_releases',       table: 'press_releases',        column: 'published_at', cadence: 'daily',     label: 'Government press releases',   source: 'GOV.UK',                        page: '/transparency/press-releases',          syncRoute: '/api/sync-press-releases' },
   { key: 'division_votes',       table: 'mp_division_votes',     column: 'created_at',   cadence: 'daily',     label: 'Commons division votes',     source: 'Commons Votes API',             page: '/divisions',                            syncRoute: '/api/sync-commons-votes-api', zeroRunTolerance: 14 },

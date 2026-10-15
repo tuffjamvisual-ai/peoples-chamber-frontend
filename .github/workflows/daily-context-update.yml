@@ -71,12 +71,22 @@ jobs:
       - name: Sync MP registered interests (powers the Interests tab + outside earnings)
         run: node scripts/sync-mp-interests.js
         continue-on-error: true
-      - name: Sync IPSA expenses (annual totals — cheap, ~1k rows)
+      - name: Sync IPSA expenses (year-end totals and itemised claims, years worked out from today)
         env:
           DATABASE_URL_RAW: ${{ secrets.DATABASE_URL }}
         run: |
           export DATABASE_URL="$(printf '%s' "$DATABASE_URL_RAW" | tr -d '[:space:]')"
-          node scripts/sync-ipsa-expenses.js 24_25 23_24
+          # IPSA financial years run April to March and are named like 25_26.
+          Y=$(date -u +%Y); M=$(date -u +%-m)
+          if [ "$M" -ge 4 ]; then S=$Y; else S=$((Y - 1)); fi
+          fy() { printf '%02d_%02d' $(( $1 % 100 )) $(( ($1 + 1) % 100 )); }
+          CUR=$(fy $S); PREV=$(fy $((S - 1))); PREV2=$(fy $((S - 2)))
+          echo "IPSA years: current $CUR, previous $PREV, before that $PREV2"
+          # Year-end totals: last two closed years (IPSA publishes them months after the year ends;
+          # a year not yet published is skipped by the script).
+          node scripts/sync-ipsa-expenses.js $PREV $PREV2
+          # Itemised claims: the current year (filling in every two months) and the last one.
+          node scripts/sync-ipsa-expenses-detail.js $CUR $PREV
         continue-on-error: true
       - name: Recompute outside-earnings summary (depends on mp_registered_interests)
         env:
@@ -106,6 +116,13 @@ jobs:
           FROM payments WHERE amt_text IS NOT NULL GROUP BY member_id;
           COMMIT;
           SQL
+        continue-on-error: true
+      - name: Fill new MPs' constituency codes and latest election results
+        # New MPs (by-elections) arrive through the daily roster sync without these two fields;
+        # both scripts only write where the Parliament data matches the MP's constituency.
+        run: |
+          node scripts/backfill-mps-constituency-gss.js --live
+          node scripts/import-mp-election-results.js --live
         continue-on-error: true
       - name: Rebuild lobbying index and refresh the /lobbying figures
         # Matches new ministers' meetings to organisations and refreshes the saved figures
