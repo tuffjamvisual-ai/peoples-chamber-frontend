@@ -5,6 +5,13 @@
 //   node scripts/sync-ipsa-expenses-detail.js                # default: 24_25
 //   node scripts/sync-ipsa-expenses-detail.js 24_25 23_24
 //
+// History (added 15 Oct 2026): older years for MPs serving now only, checked first:
+//   node scripts/sync-ipsa-expenses-detail.js --current-mps-only --dry-run 22_23 21_22 ...
+//   node scripts/sync-ipsa-expenses-detail.js --current-mps-only 22_23 21_22 ...
+//   --current-mps-only  keep only claims by MPs with mps.current_member = true
+//   --dry-run           download and count rows per year; load nothing
+// Each downloaded file is held in memory and a temporary folder only, then removed.
+//
 // Source: https://www.theipsa.org.uk/api/download?type=individualBusinessCosts&year=YY_YY
 // 24 columns: Parliamentary ID, Year, Date, Claim Number, Name, Constituency,
 // Category, Cost Type, Short Description, Details, Journey Type, From, To,
@@ -22,7 +29,11 @@ const { execFileSync } = require('child_process');
 const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) { console.error('DATABASE_URL required'); process.exit(1); }
 
-const argv = process.argv.slice(2);
+const rawArgs = process.argv.slice(2);
+const CURRENT_ONLY = rawArgs.includes('--current-mps-only');
+const DRY_RUN = rawArgs.includes('--dry-run');
+const argv = rawArgs.filter((a) => !a.startsWith('--'));
+for (const y of argv) if (!/^\d{2}_\d{2}$/.test(y)) { console.error(`not a year like 22_23: ${y}`); process.exit(1); }
 // IPSA publishes detail (individualBusinessCosts) per quarter with ~2-3
 // months lag, so the very-latest months drift in over time. Re-sync is
 // idempotent per year (deletes by year, then COPYs the fresh CSV), so
@@ -87,7 +98,15 @@ async function fetchYear(year) {
   return res.text();
 }
 
-function rowsToTsv(year, csvText) {
+// Member ids of MPs serving now (for --current-mps-only).
+function currentMpIds() {
+  const out = execFileSync('psql', [DATABASE_URL, '-v', 'ON_ERROR_STOP=1', '-t', '-A', '-c', 'SELECT member_id FROM mps WHERE current_member = true'], { encoding: 'utf8' });
+  const ids = new Set(out.split('\n').map((l) => parseInt(l.trim(), 10)).filter(Number.isFinite));
+  if (ids.size < 600) throw new Error(`only ${ids.size} current MPs found; expected about 650`);
+  return ids;
+}
+
+function rowsToTsv(year, csvText, keepIds) {
   const rows = parseCsv(csvText);
   if (rows.length < 2) return [0, ''];
   const header = rows[0].map((h) => h.trim());
@@ -129,6 +148,7 @@ function rowsToTsv(year, csvText) {
     if (r.length < header.length - 1) continue;
     const pid = parseInt(String(r[cols.pid]).trim(), 10);
     if (!Number.isFinite(pid)) continue;
+    if (keepIds && !keepIds.has(pid)) continue;
     out.push([
       csvEsc(r[cols.claim] || ''),
       String(pid),
@@ -162,7 +182,10 @@ function rowsToTsv(year, csvText) {
 
 async function main() {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ipsa-detail-'));
-  console.log(`Staging dir: ${tmpDir}`);
+  console.log(`Staging dir: ${tmpDir}${CURRENT_ONLY ? ' (current MPs only)' : ''}${DRY_RUN ? ' (DRY RUN: nothing will be loaded)' : ''}`);
+  const keepIds = CURRENT_ONLY ? currentMpIds() : null;
+  if (keepIds) console.log(`  ${keepIds.size} current MPs`);
+  let totalRows = 0;
 
   for (const year of YEARS) {
     // IPSA returns either 403 (year not enabled) or a header-only CSV
@@ -176,12 +199,14 @@ async function main() {
       console.log(`  year ${year}: ${e.message} — skipping`);
       continue;
     }
-    const [count, tsv] = rowsToTsv(year, csv);
+    const [count, tsv] = rowsToTsv(year, csv, keepIds);
+    totalRows += count;
     if (count === 0) {
       console.log(`  year ${year}: 0 rows — skipping (IPSA hasn't published any detail yet)`);
       continue;
     }
-    console.log(`  year ${year}: parsed ${count} rows`);
+    console.log(`  year ${year}: parsed ${count} rows (file ${(csv.length / 1e6).toFixed(1)} MB)`);
+    if (DRY_RUN) continue;
     const stagePath = path.join(tmpDir, `${year}.csv`);
     fs.writeFileSync(stagePath, tsv);
 
@@ -203,7 +228,7 @@ COMMIT;
   // Cleanup
   for (const f of fs.readdirSync(tmpDir)) fs.unlinkSync(path.join(tmpDir, f));
   fs.rmdirSync(tmpDir);
-  console.log('Done.');
+  console.log(`${DRY_RUN ? 'DRY RUN complete. Nothing was loaded. Rows that would be loaded' : 'Done. Rows loaded'}: ${totalRows}`);
 }
 
 main().catch((e) => { console.error('Error:', e.message || e); process.exit(1); });
