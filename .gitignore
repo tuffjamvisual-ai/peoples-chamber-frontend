@@ -63,3 +63,6 @@ data/lobbying/
 # Registrar of Consultant Lobbyists files, downloaded by hand (scripts/import-orcl-returns.js); the manifest is kept
 data/orcl/*
 !data/orcl/manifest.csv
+
+# Open Council Data UK compositions file, downloaded by hand (scripts/import-council-composition.js)
+data/opencouncildata/
