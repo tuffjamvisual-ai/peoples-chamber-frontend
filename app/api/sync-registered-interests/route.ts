@@ -5,6 +5,11 @@ import { createClient } from '@supabase/supabase-js';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
+// NOT SCHEDULED since 15 Oct 2026: the nightly refresh is scripts/sync-registered-interests.js
+// in the Daily Department Updates workflow, which covers every MP in one run. This route's
+// self-chaining (below) stopped reaching MPs after the first 150 on 14 July 2026. Kept for
+// manual use with ?start=&limit=&chain=0.
+//
 // Refreshes mp_registered_interests from Parliament's RegisteredInterests
 // API for every current MP. Schema model: one row per top-level interest
 // (keyed by member_id + interest_id), with each entry's childInterests

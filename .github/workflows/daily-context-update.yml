@@ -57,9 +57,11 @@ jobs:
       - name: Sync government contracts
         run: node scripts/sync-government-contracts.js
         continue-on-error: true
-      - name: Sync MP division votes
-        run: node scripts/sync-mp-votes.js
-        continue-on-error: true
+      # "Sync MP division votes" (scripts/sync-mp-votes.js) removed 15 Oct 2026: every insert
+      # failed (its ON CONFLICT target matches no constraint), and its rows would have counted
+      # tellers as voters and left division_date_only, division_number and party empty. New
+      # Commons votes come from the Vercel route /api/sync-commons-votes-api (daily 09:00 UTC),
+      # which also saves official totals, each MP's party on the day and the rebellion flags.
       # Companies House step removed 13 Oct 2026: the Companies House section was switched
       # off on 3 June and nothing on the site reads companies_house; the script took the top
       # search result with no check it was the same company (e.g. "News UK" matched to an
@@ -87,6 +89,11 @@ jobs:
           node scripts/sync-ipsa-expenses.js $PREV $PREV2
           # Itemised claims: the current year (filling in every two months) and the last one.
           node scripts/sync-ipsa-expenses-detail.js $CUR $PREV
+        continue-on-error: true
+      # Every current MP's register in one run (the Vercel route did 150 MPs per call and its
+      # follow-on calls stopped on 14 July 2026, leaving ~500 MPs' registers out of date).
+      - name: Refresh every MP's register of interests (Members API, powers the Interests tab, second jobs and donations)
+        run: node scripts/sync-registered-interests.js --write
         continue-on-error: true
       - name: Recompute outside-earnings summary (depends on mp_registered_interests)
         env:
