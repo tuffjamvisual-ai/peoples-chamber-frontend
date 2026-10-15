@@ -38,6 +38,8 @@ interface PageProps {
 }
 
 const VOTES_PER_PAGE = 20;
+// Start of the current Parliament (general election, 4 July 2024).
+const PARL_START = '2024-07-04';
 
 // Treat the query as a plain literal — escape PostgREST ILIKE wildcards.
 function escapeIlike(s: string): string {
@@ -245,10 +247,15 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       .range(0, 999),
     supabase.from('dept_ministers').select('salary_band, dept_slug').eq('member_id', memberId).not('salary_band', 'is', null),
     supabase.from('mp_outside_earnings_summary').select('total_extracted, claim_count, source_count').eq('member_id', memberId).maybeSingle(),
-    // Live rebellion count from the per-vote is_rebellion flag (parlparse).
-    // mp_activity_metrics.rebellions_total is broken (0 for every MP), so we
-    // count the flag directly to match the party whip page.
-    supabase.from('mp_division_votes').select('id', { count: 'exact', head: true }).eq('member_id', memberId).eq('is_rebellion', true),
+    // Votes against most of their party (is_rebellion, set from the MP's party on the day
+    // of the vote; see the 2026-10-15c migration): since the July 2024 election with the
+    // votes cast in that time, and across all the votes we hold. Same rule and counts as
+    // the party whip page.
+    Promise.all([
+      supabase.from('mp_division_votes').select('id', { count: 'exact', head: true }).eq('member_id', memberId).eq('is_rebellion', true).gte('division_date_only', PARL_START),
+      supabase.from('mp_division_votes').select('id', { count: 'exact', head: true }).eq('member_id', memberId).in('vote_type', ['aye', 'no']).gte('division_date_only', PARL_START),
+      supabase.from('mp_division_votes').select('id', { count: 'exact', head: true }).eq('member_id', memberId).eq('is_rebellion', true),
+    ]).then(([a, b, c]) => ({ sinceElection: a.count ?? 0, votesSinceElection: b.count ?? 0, allVotes: c.count ?? 0 })),
     // Select committee memberships — current (end_date null) first, former newest-first.
     // Folded into this batch rather than awaited separately to avoid a serial round-trip.
     supabase
@@ -698,7 +705,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         contributions,
         conductFindings: conductRes.data || [],
         activity: activityRes.data || null,
-        rebellionsCount: rebellionsCountRes.count ?? 0,
+        rebellions: rebellionsCountRes,
         partyWhipSlug,
         totalVotes: votesCountRes.count ?? votesWithSi.length,
         votePage,

@@ -1,12 +1,12 @@
-// Per-party whip cohesion + rebellion dossier — /parties/[slug]/whip
+// Per-party whip cohesion and votes against the party — /parties/[slug]/whip
 //
-// Computed from mp_division_votes. For each division this Parliament,
-// classify how the party voted as a bloc (which side won the party-
-// internal majority) and tally everyone who voted the other way as a
-// rebel for that division.
+// From the saved figures party_division_splits and party_member_vote_stats (built from
+// mp_division_votes; see scripts/migrations/2026-10-15c-division-parties-rebellions.sql).
+// In each division since the July 2024 election, the party's side is the one most of its
+// MPs took; an MP who voted the other way is counted as voting against the party. MPs are
+// counted under their party on the day of the vote.
 //
-// Independents get a placeholder note because Independent has no whip
-// to rebel against — the calculation is meaningless for them.
+// Independents and the Speaker get a note instead: there is no party line to measure.
 
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -35,19 +35,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const name = party?.name || 'Party';
   return {
     title: `${name}, whip cohesion + rebellions`,
-    description: `How tightly the ${name} votes together in the Commons, and which MPs break from the party line most often. Computed from every recorded division this Parliament.`,
+    description: `How tightly ${name} MPs vote together in the Commons, and which of its MPs vote against most of the party most often. Every division since the July 2024 election.`,
     alternates: { canonical: `/parties/${slug}/whip` },
   };
 }
 
-type VoteRow = {
-  member_id: number;
-  division_date_only: string;
-  division_number: number;
-  vote_type: string;
-};
-
-type MpRow = { member_id: number; display_name: string | null; party: string | null };
 
 export default async function PartyWhip({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -66,59 +58,61 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
     );
   }
 
-  // Party-string variants. Labour rolls in Co-op & Co-op merged labels.
-  const partyVariants =
-    party.slug === 'labour'
-      ? ['Labour', 'Labour (Co-op)', 'Labour and Co-operative']
-      : [party.mp_party_string];
-
-  // All current MPs in this party
-  const { data: rawMps } = await supabase
-    .from('mps')
-    .select('member_id, display_name, party')
-    .eq('current_member', true)
-    .in('party', partyVariants);
-  const mps = (rawMps || []) as MpRow[];
-  const memberIds = mps.map((m) => m.member_id);
-  if (memberIds.length === 0) {
+  // Votes are grouped by the party the MP belonged to on the day of each vote, as the
+  // Commons Votes API records it (mp_division_votes.party; Labour and Labour Co-op are both
+  // "Labour" there). Saved figures: party_division_splits and party_member_vote_stats, this
+  // Parliament only (2026-10-15c migration).
+  const partyName = party.mp_party_string;
+  if (/^independent/i.test(partyName) || partyName === 'Speaker') {
     return (
       <OpenGovShell pageStamp="Parties">
-        <p style={{ fontSize: '18px', lineHeight: 1.7 }}>No current MPs found for this party.</p>
+        <p style={{ fontSize: '18px', lineHeight: 1.7 }}>{party.name} have no party whip, so there is no party line to vote against.</p>
       </OpenGovShell>
     );
   }
-  const mpById = new Map<number, MpRow>(mps.map((m) => [m.member_id, m]));
 
-  // Every aye/no vote cast by these MPs this Parliament
-  const PAGE = 1000;
-  const votes: VoteRow[] = [];
-  for (let from = 0; ; from += PAGE) {
+  type SplitRow = { division_id: number; division_date_only: string; division_number: number; division_title: string | null; ayes: number; noes: number };
+  type StatRow = { member_id: number; votes: number; rebellions: number; last_vote: string };
+  const splits: SplitRow[] = [];
+  for (let from = 0; ; from += 1000) {
     const { data, error } = await supabase
-      .from('mp_division_votes')
-      .select('member_id, division_date_only, division_number, vote_type, is_teller')
-      .in('member_id', memberIds)
-      .eq('is_teller', false)
-      .in('vote_type', ['aye', 'no'])
-      .range(from, from + PAGE - 1);
-    if (error || !data || data.length === 0) break;
-    votes.push(...(data as VoteRow[]));
-    if (data.length < PAGE) break;
+      .from('party_division_splits')
+      .select('division_id, division_date_only, division_number, division_title, ayes, noes')
+      .eq('party', partyName)
+      .order('division_id')
+      .range(from, from + 999);
+    if (error || !data) break;
+    splits.push(...(data as SplitRow[]));
+    if (data.length < 1000) break;
+  }
+  const stats: StatRow[] = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await supabase
+      .from('party_member_vote_stats')
+      .select('member_id, votes, rebellions, last_vote')
+      .eq('party', partyName)
+      .order('member_id')
+      .range(from, from + 999);
+    if (error || !data) break;
+    stats.push(...(data as StatRow[]));
+    if (data.length < 1000) break;
+  }
+  if (splits.length === 0) {
+    return (
+      <OpenGovShell pageStamp="Parties">
+        <p style={{ fontSize: '18px', lineHeight: 1.7 }}>No Commons votes recorded for {party.name} MPs since the July 2024 election.</p>
+      </OpenGovShell>
+    );
   }
 
-  // Per-division aye/no counts inside the party
-  const divisionStats = new Map<string, { ayes: number; noes: number; key: string; date: string; num: number }>();
-  for (const v of votes) {
-    const key = `${v.division_date_only}|${v.division_number}`;
-    const ex = divisionStats.get(key) ?? { ayes: 0, noes: 0, key, date: v.division_date_only, num: v.division_number };
-    if (v.vote_type === 'aye') ex.ayes += 1;
-    else if (v.vote_type === 'no') ex.noes += 1;
-    divisionStats.set(key, ex);
-  }
-  const divisions = Array.from(divisionStats.values());
+  const divisions = splits.map((d) => ({
+    key: String(d.division_id), date: d.division_date_only, num: d.division_number,
+    title: (d.division_title || '').trim(), ayes: d.ayes, noes: d.noes,
+  }));
   const divisionsCount = divisions.length;
 
-  // Cohesion: of all aye/no votes cast by MPs in this party, what
-  // fraction were on the party's winning side per division?
+  // Cohesion: of all aye/no votes cast by MPs in this party, what fraction were on the
+  // side most of the party took in that division?
   let aligned = 0, total = 0, unanimous = 0;
   for (const d of divisions) {
     total += d.ayes + d.noes;
@@ -128,29 +122,10 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
   const cohesionPct = total > 0 ? (aligned / total) * 100 : 0;
   const unanimousPct = divisionsCount > 0 ? (unanimous / divisionsCount) * 100 : 0;
 
-  // Per-MP rebellion count
-  const partyMajorityByDivision = new Map<string, 'aye' | 'no' | null>();
-  for (const d of divisions) {
-    if (d.ayes === d.noes) partyMajorityByDivision.set(d.key, null);
-    else partyMajorityByDivision.set(d.key, d.ayes > d.noes ? 'aye' : 'no');
-  }
-  type RebelDiv = { date: string; num: number; key: string };
-  type RebelAgg = { memberId: number; name: string; rebellions: number; totalVotes: number; rebelDivs: RebelDiv[] };
-  const byMp = new Map<number, RebelAgg>();
-  for (const v of votes) {
-    const ex = byMp.get(v.member_id) ?? { memberId: v.member_id, name: mpById.get(v.member_id)?.display_name || `MP ${v.member_id}`, rebellions: 0, totalVotes: 0, rebelDivs: [] };
-    ex.totalVotes += 1;
-    const key = `${v.division_date_only}|${v.division_number}`;
-    const majority = partyMajorityByDivision.get(key);
-    if (majority && v.vote_type !== majority) {
-      ex.rebellions += 1;
-      ex.rebelDivs.push({ date: v.division_date_only, num: v.division_number, key });
-    }
-    byMp.set(v.member_id, ex);
-  }
-  const rebelRanked = Array.from(byMp.values())
-    .filter((m) => m.totalVotes >= 20)
-    .sort((a, b) => b.rebellions - a.rebellions);
+  // Most votes against the party, among MPs with at least 20 votes as a member of it.
+  const rebelRanked = stats
+    .filter((m) => m.votes >= 20 && m.rebellions > 0)
+    .sort((a, b) => b.rebellions - a.rebellions || b.rebellions / b.votes - a.rebellions / a.votes);
 
   // Top "most divided" — divisions where the party was split closest to 50:50
   const mostDivided = divisions
@@ -158,37 +133,52 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
     .sort((a, b) => Math.min(b.ayes, b.noes) / (b.ayes + b.noes) - Math.min(a.ayes, a.noes) / (a.ayes + a.noes))
     .slice(0, 15);
 
-  // The rebels we render, each with their specific rebellion divisions
-  // (most recent first), capped per MP for display.
   const REBELS_SHOWN = 25;
   const DIVS_PER_REBEL = 8;
-  const topRebels = rebelRanked.slice(0, REBELS_SHOWN).map((r) => ({
-    ...r,
-    rebelDivs: [...r.rebelDivs].sort((a, b) => b.date.localeCompare(a.date)),
-  }));
+  const topIds = rebelRanked.slice(0, REBELS_SHOWN).map((r) => r.member_id);
 
-  // Division titles we need: the most-divided list plus the (capped)
-  // rebellion divisions shown under each MP. The title is denormalised
-  // onto every mp_division_votes row; fetch in chunks to stay within URL
-  // length limits.
-  const neededDivs = new Map<string, { date: string; num: number }>();
-  for (const d of mostDivided) neededDivs.set(d.key, { date: d.date, num: d.num });
-  for (const r of topRebels) for (const k of r.rebelDivs.slice(0, DIVS_PER_REBEL)) neededDivs.set(k.key, { date: k.date, num: k.num });
-  const titleByKey = new Map<string, string>();
-  const lookupList = Array.from(neededDivs.values());
-  for (let i = 0; i < lookupList.length; i += 80) {
-    const chunk = lookupList.slice(i, i + 80);
-    const orClause = chunk.map((d) => `and(division_date_only.eq.${d.date},division_number.eq.${d.num})`).join(',');
-    const { data: titleRows } = await supabase
-      .from('mp_division_votes')
-      .select('division_date_only, division_number, division_title')
-      .or(orClause)
-      .limit(4000);
-    for (const r of (titleRows || []) as Array<{ division_date_only: string; division_number: number; division_title: string | null }>) {
-      const k = `${r.division_date_only}|${r.division_number}`;
-      if (!titleByKey.has(k) && r.division_title) titleByKey.set(k, r.division_title);
+  // Names, and today's party for anyone who has since left.
+  type MpRow = { member_id: number; display_name: string | null; name: string | null; party: string | null; current_member: boolean | null };
+  const mpById = new Map<number, MpRow>();
+  if (topIds.length) {
+    const { data: mpRows } = await supabase.from('mps').select('member_id, display_name, name, party, current_member').in('member_id', topIds);
+    for (const m of (mpRows || []) as MpRow[]) mpById.set(m.member_id, m);
+  }
+
+  // The votes against the party for the MPs shown, newest first.
+  type RebelVote = { member_id: number; division_date_only: string; division_number: number; division_title: string | null };
+  const rebelVotes: RebelVote[] = [];
+  if (topIds.length) {
+    for (let from = 0; ; from += 1000) {
+      const { data, error } = await supabase
+        .from('mp_division_votes')
+        .select('member_id, division_date_only, division_number, division_title')
+        .eq('party', partyName)
+        .eq('is_rebellion', true)
+        .gte('division_date_only', '2024-07-04')
+        .in('member_id', topIds)
+        .order('division_date_only', { ascending: false })
+        .order('id', { ascending: false })
+        .range(from, from + 999);
+      if (error || !data) break;
+      rebelVotes.push(...(data as RebelVote[]));
+      if (data.length < 1000) break;
     }
   }
+  const sameParty = (a: string | null) => (a || '').replace(/\s*\(Co-op\)$/i, '').trim() === partyName;
+  const topRebels = rebelRanked.slice(0, REBELS_SHOWN).map((r) => {
+    const mp = mpById.get(r.member_id);
+    return {
+      memberId: r.member_id,
+      name: mp?.display_name || mp?.name || `MP ${r.member_id}`,
+      now: mp && (!mp.current_member ? 'no longer an MP' : !sameParty(mp.party) ? `now ${mp.party || 'Independent'}` : null),
+      rebellions: r.rebellions,
+      totalVotes: r.votes,
+      rebelDivs: rebelVotes.filter((v) => v.member_id === r.member_id).map((v) => ({
+        key: `${v.division_date_only}|${v.division_number}`, date: v.division_date_only, num: v.division_number, title: (v.division_title || '').trim(),
+      })),
+    };
+  });
 
   const accent = party.party_colour || ACCENT;
 
@@ -207,20 +197,26 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
           {party.name} · Whip cohesion + rebellion
         </p>
         <h1 style={{ fontFamily: 'Special Elite, monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
-          How tightly the {party.name} votes together
+          How tightly {party.name} MPs vote together
         </h1>
         <div style={{ height: '4px', background: accent, width: '80px', marginBottom: '12px' }} />
         <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '60ch' }}>
-          Computed from every recorded Commons division in the current Parliament. For each division we look at how the party&rsquo;s MPs voted as a bloc and treat anyone on the opposite side from their party&rsquo;s internal majority as a rebel on that division. Tells you how often the whip holds and which MPs break it.
+          Every Commons division since the July 2024 election. In each one we take the side most {party.name} MPs voted for, and count any {party.name} MP who voted the other way as voting against the party. MPs are counted under the party they belonged to on the day of the vote. Free votes, where MPs are not told how to vote, are not marked by Parliament, so they are included.
         </p>
       </header>
 
       <PartySidebar party={party} active="whip">
 
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '12px', marginBottom: '28px' }}>
+        <Tile label="Voted with the party" value={`${cohesionPct.toFixed(1)}%`} sub={`of ${total.toLocaleString('en-GB')} votes by ${party.name} MPs`} />
+        <Tile label="Divisions" value={divisionsCount.toLocaleString('en-GB')} sub="with at least one of its MPs voting" />
+        <Tile label="All on one side" value={`${unanimousPct.toFixed(0)}%`} sub={`${unanimous.toLocaleString('en-GB')} divisions with no ${party.name} MP voting the other way`} />
+      </div>
 
       <section style={{ marginBottom: '32px' }}>
-        <h2 style={sectionH2}>Top rebels · MPs voting against the party whip most often</h2>
-        <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '14px' }}>Calculation requires &ge; 20 recorded votes by the MP. Excludes tellers and unanimous divisions where the &ldquo;rebellion&rdquo; would be meaningless. Each name links to the MP; the divisions listed are the specific votes where they broke from the party line.</p>
+        <h2 style={sectionH2}>MPs who voted against most of their party most often</h2>
+        <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '14px' }}>MPs with at least 20 votes as a {party.name} MP. A division where the party split exactly evenly counts for no one. Each name links to the MP; the divisions listed are their most recent votes against the party.</p>
+        {topRebels.length === 0 && <p style={{ fontSize: '15px' }}>No {party.name} MP has voted against most of the party since the July 2024 election.</p>}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {topRebels.map((r, i) => {
             const shown = r.rebelDivs.slice(0, DIVS_PER_REBEL);
@@ -230,14 +226,15 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
                   <span style={{ opacity: 0.55, fontFamily: 'monospace' }}>{i + 1}.</span>
                   <Link href={`/mps/${r.memberId}`} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold' }}>{r.name}</Link>
-                  <span style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>{r.rebellions} rebellions</span>
+                  {r.now && <span style={{ fontSize: '15px', opacity: 0.75 }}>({r.now})</span>}
+                  <span style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>{r.rebellions} vote{r.rebellions === 1 ? '' : 's'} against</span>
                   <span style={{ fontFamily: 'monospace', opacity: 0.65, fontSize: '15px' }}>{((r.rebellions / r.totalVotes) * 100).toFixed(1)}% of {r.totalVotes} votes</span>
                 </div>
                 {shown.length > 0 && (
                   <div style={{ fontSize: '15px', marginTop: '5px', lineHeight: 1.55 }}>
                     {shown.map((k, j) => (
                       <span key={k.key}>
-                        <Link href={`/divisions/pw-${k.date}-${k.num}-commons`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '2px' }}>{titleByKey.get(k.key) || `Division ${k.num} (${k.date})`}</Link>
+                        <Link href={`/divisions/pw-${k.date}-${k.num}-commons`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '2px' }}>{k.title || `Division ${k.num} (${k.date})`}</Link>
                         {j < shown.length - 1 ? '; ' : ''}
                       </span>
                     ))}
@@ -270,7 +267,7 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
             <tbody>
               {mostDivided.map((d) => {
                 const split = Math.min(d.ayes, d.noes) / (d.ayes + d.noes);
-                const title = titleByKey.get(d.key) || `Division ${d.num}`;
+                const title = d.title || `Division ${d.num}`;
                 return (
                   <tr key={d.key} style={{ borderBottom: `1px solid ${HAIRLINE}` }}>
                     <td style={{ ...td, fontFamily: 'monospace', fontSize: '15px', opacity: 0.7 }}>{d.date}</td>

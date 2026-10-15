@@ -278,10 +278,10 @@ interface Props {
   activity?: ActivityMetrics | null;
   /** Recent Hansard chamber contributions (Members API ContributionSummary). */
   contributions?: Contribution[];
-  /** Live rebellion count from the per-vote is_rebellion flag (parlparse),
-      matching the party whip page. mp_activity_metrics.rebellions_total is
-      broken (0 for every MP) so we no longer use it. */
-  rebellionsCount?: number;
+  /** Votes against most of their party (is_rebellion, from the party on the day of the
+      vote): since the July 2024 election, the aye/no votes cast in that time, and across
+      all the votes we hold. Same rule as the party whip page. */
+  rebellions?: { sinceElection: number; votesSinceElection: number; allVotes: number };
   /** Party slug for the full-rebellion-analysis link to /parties/<slug>/whip. */
   partyWhipSlug?: string | null;
   bio: {
@@ -464,7 +464,7 @@ export default function MagazineProfileSections({
   conductFindings = [],
   activity = null,
   contributions = [],
-  rebellionsCount = 0,
+  rebellions = { sinceElection: 0, votesSinceElection: 0, allVotes: 0 },
   partyWhipSlug = null,
   bio,
   earnings,
@@ -900,35 +900,46 @@ export default function MagazineProfileSections({
           <>
             <h2 style={sectionH2}>Voting Record</h2>
 
-            {/* Rebellion summary — the activity stat strip was removed
-                2026-06-06, but the rebellion count is worth surfacing on its
-                own. Individual rebel votes are flagged REBEL in the list. */}
+            {/* Votes against most of their own party. Individual votes are marked REBEL in
+                the list. Counted from the party the MP belonged to on the day of each vote. */}
             {(() => {
-              const rebelRate = totalVotes && totalVotes > 0 ? (rebellionsCount / totalVotes) * 100 : null;
+              const { sinceElection, votesSinceElection, allVotes } = rebellions;
+              const plural = (n: number) => `${n.toLocaleString('en-GB')} time${n === 1 ? '' : 's'}`;
+              const red = { color: '#7a1612', fontWeight: 'bold' as const };
               return (
-              <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', marginBottom: '14px', lineHeight: 1.5 }}>
-                {rebellionsCount > 0 ? (
-                  <>
-                    <span style={{ color: '#7a1612', fontWeight: 'bold' }}>Voted against the party line {rebellionsCount.toLocaleString()} time{rebellionsCount === 1 ? '' : 's'}</span>
-                    {rebelRate != null && (
-                      <span style={{ opacity: 0.75 }}> · {rebelRate.toFixed(1)}% of recorded votes</span>
-                    )}
-                    <span style={{ opacity: 0.75 }}>. Rebel votes are marked </span>
-                    <span style={{ color: '#7a1612', fontWeight: 'bold' }}>REBEL</span>
-                    <span style={{ opacity: 0.75 }}> below.</span>
-                  </>
-                ) : (
-                  <span style={{ opacity: 0.7 }}>No votes against the party line recorded this Parliament.</span>
-                )}
-                {partyWhipSlug && (
-                  <>
-                    {' '}
-                    <Link href={`/parties/${partyWhipSlug}/whip`} style={{ color: '#7a1612', fontWeight: 'bold', textDecoration: 'underline', textUnderlineOffset: '2px' }}>
-                      Full rebellion analysis →
-                    </Link>
-                  </>
-                )}
-              </p>
+              <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', marginBottom: '14px', lineHeight: 1.5 }}>
+                <p style={{ margin: '0 0 4px' }}>
+                  {votesSinceElection > 0 ? (
+                    sinceElection > 0 ? (
+                      <>
+                        <span style={red}>Voted against most of their party {plural(sinceElection)} since the July 2024 election</span>
+                        <span> · {((sinceElection / votesSinceElection) * 100).toFixed(1)}% of their {votesSinceElection.toLocaleString('en-GB')} votes in that time. These votes are marked </span>
+                        <span style={red}>REBEL</span><span> below.</span>
+                      </>
+                    ) : (
+                      <span>Has not voted against most of their party since the July 2024 election.</span>
+                    )
+                  ) : allVotes > 0 ? (
+                    <>
+                      <span style={red}>Voted against most of their party {plural(allVotes)} in the votes we hold (from 2016)</span>
+                      <span>. These votes are marked </span><span style={red}>REBEL</span><span> below.</span>
+                    </>
+                  ) : (
+                    <span>No votes against most of their party in the votes we hold.</span>
+                  )}
+                </p>
+                <p style={{ margin: 0 }}>
+                  Counted using their party on the day of each vote. Free votes, where MPs are not told how to vote, are included.
+                  {partyWhipSlug && (
+                    <>
+                      {' '}
+                      <Link href={`/parties/${partyWhipSlug}/whip`} style={{ color: '#7a1612', fontWeight: 'bold', textDecoration: 'underline', textUnderlineOffset: '2px' }}>
+                        How their party votes →
+                      </Link>
+                    </>
+                  )}
+                </p>
+              </div>
               );
             })()}
 

@@ -10,8 +10,13 @@ export const maxDuration = 300;
 // feed, which can lag or freeze (it stalled at mid-Jan 2026 while the House
 // kept voting). This route pulls member-level Ayes/Noes straight from
 // Parliament for recent divisions, deduped by (date, division number) so it
-// never collides with parlparse-sourced rows. Rebellion flags are not computed
-// here (left to recompute-activity-metrics / the parlparse path).
+// never collides with parlparse-sourced rows.
+//
+// Each vote row carries the MP's party on the day (from the API), and
+// apply_division_parties() then flags votes against the majority of that party
+// (is_rebellion). A division already in the database but not yet given parties
+// (for example one the parlparse job added first) is fetched again for that and
+// for its official totals. See the 2026-10-15c migration.
 //
 // Optional query params (for historical backfill):
 //   startDate  YYYY-MM-DD  — start of custom range (requires endDate)
@@ -31,7 +36,7 @@ const PAGE = 25;
 const MAX_RANGE_DAYS = 400;
 const TIME_BUDGET_MS = 260_000; // leave 40 s of margin before Vercel's 300 s hard limit
 
-type ApiMember = { MemberId: number };
+type ApiMember = { MemberId: number; Party?: string | null; Name?: string };
 type ApiDivision = { DivisionId: number; Number: number; Date: string; Title: string };
 type ApiDetail = ApiDivision & { Ayes: ApiMember[]; Noes: ApiMember[]; AyeTellers: ApiMember[]; NoTellers: ApiMember[]; AyeCount?: number; NoCount?: number; IsDeferred?: boolean };
 
@@ -125,6 +130,18 @@ async function GET_impl(req: Request) {
     }
     const seen = new Set((have || []).map((r) => `${r.division_date_only}#${r.division_number}`));
 
+    // Divisions whose parties and rebellion flags are already done.
+    const applied = new Set<number>();
+    const listIds = [...new Set(list.map((d) => d.DivisionId))];
+    for (let i = 0; i < listIds.length; i += 200) {
+      const { data: doneRows, error: doneErr } = await supabase.from('commons_division_totals').select('division_id')
+        .in('division_id', listIds.slice(i, i + 200)).not('parties_applied_at', 'is', null);
+      if (doneErr) throw new Error(`parties check failed: ${doneErr.message}`);
+      for (const r of doneRows || []) applied.add(r.division_id as number);
+    }
+    let partiesApplied = 0;
+    const partyErrors: { divisionId: number; message: string }[] = [];
+
     let divisionsAdded = 0;
     let rowsInserted  = 0;
     let divisionsSkipped = 0;
@@ -143,7 +160,8 @@ async function GET_impl(req: Request) {
       }
 
       const dateOnly = (d.Date || '').slice(0, 10);
-      if (seen.has(`${dateOnly}#${d.Number}`)) { divisionsSkipped++; continue; }
+      const already = seen.has(`${dateOnly}#${d.Number}`);
+      if (already && applied.has(d.DivisionId)) { divisionsSkipped++; continue; }
 
       const detRes = await fetch(`${API}/division/${d.DivisionId}.json`);
       if (!detRes.ok) { apiErrors.push({ divisionId: d.DivisionId, status: detRes.status }); continue; }
@@ -157,6 +175,7 @@ async function GET_impl(req: Request) {
             member_id: m.MemberId, division_id: det.DivisionId, vote_type: vote,
             division_date: ts, division_title: det.Title || null, division_number: det.Number,
             division_date_only: dateOnly, source: 'commonsvotes-api', is_teller: teller, is_rebellion: false,
+            party: m.Party ? String(m.Party).trim() : null,
           });
         }
       };
@@ -193,7 +212,7 @@ async function GET_impl(req: Request) {
       if (!finalRows.length) continue;
 
       if (dryRun) {
-        dryRunWould.push({ date: dateOnly, number: det.Number, title: det.Title || null, estimatedRows: finalRows.length });
+        if (!already) dryRunWould.push({ date: dateOnly, number: det.Number, title: det.Title || null, estimatedRows: finalRows.length });
         continue;
       }
 
@@ -208,8 +227,19 @@ async function GET_impl(req: Request) {
         }, { onConflict: 'division_id' });
       }
 
+      // Party on the day for every voter, then the votes-against-party flags.
+      const applyParties = async () => {
+        const members = finalRows.filter((r) => r.party).map((r) => ({ member_id: r.member_id, party: r.party }));
+        const { error: apErr } = await supabase.rpc('apply_division_parties', { p_division_id: det.DivisionId, p_members: members });
+        if (apErr) partyErrors.push({ divisionId: det.DivisionId, message: apErr.message });
+        else partiesApplied++;
+      };
+
+      if (already) { await applyParties(); divisionsSkipped++; continue; }
+
       const { error: insErr } = await supabase.from('mp_division_votes').insert(finalRows);
       if (!insErr) {
+        await applyParties();
         divisionsAdded++;
         rowsInserted += finalRows.length;
       } else if (insErr.code === '23505') {
@@ -239,6 +269,15 @@ async function GET_impl(req: Request) {
       postInsertRefreshError = e2 ? e2.message : null;
     }
 
+    // Party whip pages read saved figures; refresh them when any division changed.
+    let whipRefresh: unknown = null;
+    let whipRefreshError: string | null = null;
+    if (!dryRun && partiesApplied > 0) {
+      const { data: w, error: we } = await supabase.rpc('refresh_whip_views');
+      whipRefresh = w;
+      whipRefreshError = we ? we.message : null;
+    }
+
     // Resolve member names for both-lobby voters (best-effort; former MPs may be absent).
     if (bothLobbyVotes.length > 0) {
       const memberIds = [...new Set(bothLobbyVotes.map((c) => c.memberId))];
@@ -248,7 +287,7 @@ async function GET_impl(req: Request) {
     }
 
     const base = {
-      ok: !insertErrors.length && !sitemapRefreshError && !postInsertRefreshError,
+      ok: !insertErrors.length && !sitemapRefreshError && !postInsertRefreshError && !partyErrors.length && !whipRefreshError,
       dryRun,
       range: [fromStr, toStr],
       divisionsInRange: list.length,
@@ -259,6 +298,10 @@ async function GET_impl(req: Request) {
       ...(postInsertRefresh ? { postInsertRefresh } : {}),
       ...(postInsertRefreshError ? { postInsertRefreshError } : {}),
       ...(insertErrors.length ? { errors: insertErrors } : {}),
+      partiesApplied,
+      ...(partyErrors.length ? { partyErrors } : {}),
+      ...(whipRefresh ? { whipRefresh } : {}),
+      ...(whipRefreshError ? { whipRefreshError } : {}),
       ...(bothLobbyVotes.length ? { bothLobbyVotes } : {}),
       ...(partial && stoppedBefore ? { stoppedBefore, note: `Time budget reached. Resume with startDate=${stoppedBefore}&endDate=${toStr}` } : {}),
       ...(apiErrors.length ? { apiErrors } : {}),
