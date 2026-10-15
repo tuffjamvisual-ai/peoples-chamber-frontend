@@ -3,6 +3,7 @@
 // political control, leadership and finance phases land.
 
 import type { Metadata } from 'next';
+import { administrationLabel, seatsLine, type CouncilComposition } from '@/lib/council-composition';
 import { supabase } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
@@ -180,14 +181,16 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
   // counties) in a single round-trip — the parent_slug column makes
   // the relationship explicit. Counties have null parent_slug; child
   // districts are read by querying parent_slug = this slug.
-  const [{ data: parentRow }, { data: childRows }] = await Promise.all([
+  const [{ data: parentRow }, { data: childRows }, { data: compRow }] = await Promise.all([
     c.parent_slug
       ? supabase.from('councils').select('slug, name, short_name, political_control').eq('slug', c.parent_slug).single()
       : Promise.resolve({ data: null }),
     c.type === 'county'
       ? supabase.from('councils').select('slug, name, short_name, political_control, gss_code').eq('parent_slug', c.slug).order('name')
       : Promise.resolve({ data: [] }),
+    supabase.from('council_composition').select('snapshot_year, total_seats, seats, majority_party, administration_code').eq('council_slug', c.slug).limit(1).maybeSingle(),
   ]);
+  const comp = (compRow as CouncilComposition | null) || null;
   const parent: RelatedCouncil | null = (parentRow as RelatedCouncil | null) || null;
   const children: RelatedCouncil[] = (childRows || []) as RelatedCouncil[];
 
@@ -335,7 +338,15 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
 
               {hasLeadership && (
                 <Section title="Political Control & Leadership">
-                  <DataRow label="Political control" value={c.political_control} sub={c.political_control_status} />
+                  <DataRow label="Political control" value={c.political_control} sub={controlStatusText(c.political_control_status)} />
+                  {comp && <DataRow label="Run by" value={administrationLabel(comp.administration_code)} />}
+                  {comp && comp.total_seats > 0 && (
+                    <DataRow
+                      label="Seats"
+                      value={`${seatsLine(comp)} (${comp.total_seats} seats)`}
+                      sub={`As at May ${comp.snapshot_year}. "Independents and others" includes local parties. Source: Open Council Data UK (public domain).`}
+                    />
+                  )}
                   <DataRow label="Leader" value={c.leader_name} sub={c.leader_party} />
                   <DataRow label="Chief executive" value={c.chief_exec} />
                   <DataRow label="Last election" value={c.last_election_year?.toString() ?? null} />
@@ -593,6 +604,20 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
       </article>
     </OpenGovShell>
   );
+}
+
+// Stored status values are short codes ("majority", "NOC (largest: Labour 48/99)").
+// Show them in plain English.
+function controlStatusText(status: string | null): string | null {
+  if (!status) return null;
+  const noc = status.match(/^NOC \(largest: (.+) (\d+)\/(\d+)\)$/);
+  if (noc) return `Largest party: ${noc[1]}, ${noc[2]} of ${noc[3]} seats`;
+  if (/^noc$/i.test(status)) return null;
+  if (/^majority$/i.test(status)) return 'Majority of seats';
+  if (/^(largest|largest party)$/i.test(status)) return 'Largest party';
+  const mayor = status.match(/^majority \(directly elected mayor: (.+)\)$/i);
+  if (mayor) return `Directly elected mayor: ${mayor[1]}`;
+  return status;
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
