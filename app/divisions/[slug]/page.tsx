@@ -229,6 +229,15 @@ export default async function DivisionDetailPage({ params }: PageProps) {
 
   if (!voteRows || voteRows.length === 0) notFound();
 
+  // Official totals from Parliament (tellers not included). The vote rows include the tellers
+  // and can miss a voter Parliament's list does not name, so they are only a fallback.
+  const { data: totalsRow } = await supabase
+    .from('commons_division_totals')
+    .select('aye_count, no_count, aye_tellers, no_tellers')
+    .eq('division_id', (voteRows[0] as { division_id: number }).division_id)
+    .maybeSingle();
+  const totals = totalsRow as { aye_count: number; no_count: number; aye_tellers: string[]; no_tellers: string[] } | null;
+
   // MP lookup — single batch on the distinct member_ids.
   const memberIds = Array.from(new Set(voteRows.map((v) => v.member_id)));
   const { data: mpRows } = await supabase
@@ -285,6 +294,10 @@ export default async function DivisionDetailPage({ params }: PageProps) {
   const noes = votes.filter((v) => v.vote_type === 'no');
   const boths = votes.filter((v) => v.vote_type === 'both');
   const tellers = votes.filter((v) => v.is_teller);
+  const ayeTotal = totals ? totals.aye_count : ayes.filter((v) => !v.is_teller).length;
+  const noTotal = totals ? totals.no_count : noes.filter((v) => !v.is_teller).length;
+  const ayeNamed = ayes.filter((v) => !v.is_teller).length;
+  const noNamed = noes.filter((v) => !v.is_teller).length;
 
   // Party ordering: largest delegation in THIS division first.
   function groupByParty(rows: Vote[]): Array<{ party: string; partyColour: string; rows: Vote[] }> {
@@ -368,17 +381,15 @@ export default async function DivisionDetailPage({ params }: PageProps) {
           transform: 'rotate(-0.15deg)',
         }}
       >
-        <span style={{ color: SUCCESS, fontWeight: 'bold' }}>{ayes.length} Aye</span>
+        <span style={{ color: SUCCESS, fontWeight: 'bold' }}>{ayeTotal} Aye</span>
         {'  /  '}
-        <span style={{ color: DANGER, fontWeight: 'bold' }}>{noes.length} No</span>
+        <span style={{ color: DANGER, fontWeight: 'bold' }}>{noTotal} No</span>
         {'  ·  '}
         <span style={{ color: ACCENT }}>
-          {ayes.length > noes.length ? 'majority ' : ayes.length < noes.length ? 'lost by ' : 'tied · margin '}
-          {Math.abs(ayes.length - noes.length)}
+          {ayeTotal > noTotal ? 'majority ' : ayeTotal < noTotal ? 'lost by ' : 'tied · margin '}
+          {Math.abs(ayeTotal - noTotal)}
         </span>
-        {'  ·  '}
-        {votes.length} MPs recorded
-        {tellers.length > 0 && <>{'  ·  '}{tellers.length} tellers</>}
+        {tellers.length > 0 && <>{'  ·  '}{tellers.length} tellers (not counted)</>}
         {boths.length > 0 && <>{'  ·  '}{boths.length} both</>}
       </p>
 
@@ -402,9 +413,14 @@ export default async function DivisionDetailPage({ params }: PageProps) {
         <h2 style={sectionH2}>How MPs voted</h2>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px', marginTop: '24px' }}>
-          <VoteColumn heading={`Voted AYE (${ayes.length})`} groups={ayeGroups} accent={SUCCESS} />
-          <VoteColumn heading={`Voted NO (${noes.length})`} groups={noeGroups} accent={DANGER} />
+          <VoteColumn heading={`Voted AYE (${ayeTotal})`} groups={ayeGroups} accent={SUCCESS} />
+          <VoteColumn heading={`Voted NO (${noTotal})`} groups={noeGroups} accent={DANGER} />
         </div>
+        {totals && (ayeNamed !== ayeTotal || noNamed !== noTotal) && (
+          <p style={{ fontFamily: '"Special Elite", monospace', fontSize: '14px', lineHeight: 1.6, marginTop: '16px' }}>
+            Totals are Parliament&rsquo;s official count, which does not include the tellers. Parliament&rsquo;s published list names {ayeNamed} of the {ayeTotal} Aye voters and {noNamed} of the {noTotal} No voters; tellers are listed and marked but not counted.
+          </p>
+        )}
       </section>
 
       {boths.length > 0 && (

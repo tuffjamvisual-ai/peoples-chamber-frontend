@@ -33,7 +33,7 @@ const TIME_BUDGET_MS = 260_000; // leave 40 s of margin before Vercel's 300 s ha
 
 type ApiMember = { MemberId: number };
 type ApiDivision = { DivisionId: number; Number: number; Date: string; Title: string };
-type ApiDetail = ApiDivision & { Ayes: ApiMember[]; Noes: ApiMember[]; AyeTellers: ApiMember[]; NoTellers: ApiMember[] };
+type ApiDetail = ApiDivision & { Ayes: ApiMember[]; Noes: ApiMember[]; AyeTellers: ApiMember[]; NoTellers: ApiMember[]; AyeCount?: number; NoCount?: number; IsDeferred?: boolean };
 
 async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
@@ -195,6 +195,17 @@ async function GET_impl(req: Request) {
       if (dryRun) {
         dryRunWould.push({ date: dateOnly, number: det.Number, title: det.Title || null, estimatedRows: finalRows.length });
         continue;
+      }
+
+      // Official totals (tellers not included) for the division page; see the 2026-10-15b migration.
+      if (typeof det.AyeCount === 'number' && typeof det.NoCount === 'number') {
+        await supabase.from('commons_division_totals').upsert({
+          division_id: det.DivisionId, division_number: det.Number, division_date: dateOnly, title: det.Title || null,
+          aye_count: det.AyeCount, no_count: det.NoCount,
+          aye_tellers: (det.AyeTellers || []).map((m) => (m as { Name?: string }).Name).filter(Boolean),
+          no_tellers: (det.NoTellers || []).map((m) => (m as { Name?: string }).Name).filter(Boolean),
+          is_deferred: !!det.IsDeferred, synced_at: new Date().toISOString(),
+        }, { onConflict: 'division_id' });
       }
 
       const { error: insErr } = await supabase.from('mp_division_votes').insert(finalRows);
