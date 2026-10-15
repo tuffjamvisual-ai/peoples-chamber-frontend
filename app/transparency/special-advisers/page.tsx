@@ -26,8 +26,8 @@ const AREA_DEPT: Record<string, string> = {
   'Cabinet Office': 'cabinet-office', DBT: 'business-trade', MHCLG: 'housing',
   DHSC: 'health', MoJ: 'justice', DESNZ: 'energy', Defra: 'environment', DfT: 'transport', DfE: 'education',
   'Home Office': 'home-office', 'Foreign Office': 'foreign-office', DWP: 'work-pensions', NIO: 'northern-ireland-office',
-  'Lords Leader & Whips': 'lords-leader', 'Commons Leader & Whips': 'commons-leader', HMT: 'treasury', DCMS: 'culture',
-  MOD: 'defence',
+  'Lords Leader & Whips': 'lords-leader', 'Commons Leader & Whips': 'commons-leader', 'HM Treasury': 'treasury', DCMS: 'culture',
+  MoD: 'defence', 'Scotland Office': 'scotland-office', 'Wales Office': 'wales-office',
 };
 const deptFor = (area: string): string | null => AREA_DEPT[area] ?? resolveOrgToDeptSlug(area);
 
@@ -55,7 +55,7 @@ async function fetchAll<T>(table: string, columns: string): Promise<T[]> {
   const PAGE = 1000;
   const out: T[] = [];
   for (let from = 0; ; from += PAGE) {
-    const { data, error } = await supabase.from(table).select(columns).range(from, from + PAGE - 1);
+    const { data, error } = await supabase.from(table).select(columns).order('id', { ascending: true }).range(from, from + PAGE - 1);
     if (error || !data || data.length === 0) break;
     out.push(...(data as T[]));
     if (data.length < PAGE) break;

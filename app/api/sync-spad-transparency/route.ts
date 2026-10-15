@@ -76,11 +76,23 @@ function headerIndex(headers: string[], wanted: RegExp): number {
   return -1;
 }
 
-function isNilReturn(row: string[]): boolean {
-  // Skip the name (col 0); a row is a Nil Return if every OTHER cell
-  // matches the gov.uk convention.
-  const tail = row.slice(1);
-  return tail.length > 0 && tail.every((v) => /^nil\s*return$/i.test((v || '').trim()));
+// A row is a nil return when, apart from the adviser's name, it holds only "nil return" style
+// entries (including typos such as "Nil Retrun"), blanks or dates. Fixed 15 Oct 2026: the old
+// test assumed the name was in the first column and that every other cell said exactly
+// "Nil return", so most nil returns were saved as declarations (18 of 20 "gifts" were nil).
+const NIL_CELL = /^(nil(\s*re?t[a-z]*)?|n\/?a|none|-+)$/i;
+const DATE_CELL = /^(\d{1,2}[\/.\-]\d{1,2}[\/.\-]\d{2,4}|\d{4}-\d{2}-\d{2}|[a-z]{3,9}\s+\d{4}|\d{1,2}\s+[a-z]{3,9}\s+\d{4})$/i;
+function isNilReturn(row: string[], nameCol: number): boolean {
+  const cells = row.filter((_, i) => i !== nameCol).map((v) => (v || '').trim()).filter(Boolean);
+  if (!cells.some((v) => NIL_CELL.test(v))) return false;
+  return cells.every((v) => NIL_CELL.test(v) || DATE_CELL.test(v));
+}
+
+// One roster entry per adviser per area, even when files spell the name differently
+// ("Rebecca Hughes" / "Rebecca Mary Hughes"): keyed on first and last name.
+function rosterKey(name: string, area: string): string {
+  const parts = name.toLowerCase().replace(/[^a-z\s'-]/g, ' ').split(/\s+/).filter(Boolean);
+  return `${area}|${parts[0] || ''}|${parts[parts.length - 1] || ''}`;
 }
 
 // ---- area mapping ------------------------------------------------------
@@ -111,6 +123,9 @@ function areaFromTitle(title: string): string {
   if (t.startsWith('mhclg')) return 'MHCLG';
   if (t.startsWith('scotland office')) return 'Scotland Office';
   if (t.startsWith('wales office')) return 'Wales Office';
+  // UK Export Finance is part of the Department for Business and Trade; its returns list the
+  // same DBT advisers, so they belong under DBT rather than as separate "UKEF" groups.
+  if (t.startsWith('ukef') || t.includes('uk export finance')) return 'DBT';
   return title.split(':')[0].split('—')[0].trim();
 }
 
@@ -180,6 +195,7 @@ export async function GET(req: Request) {
   const hosps: Array<ParsedRow & { area: string; quarter: string; source_pub_slug: string }> = [];
   const meets: Array<ParsedRow & { area: string; quarter: string; source_pub_slug: string }> = [];
   const rosterSet = new Set<string>();   // key = `${name}|${area}`
+  const rosterNames = new Map<string, string>(); // rosterKey -> first spelling seen
   const errors: string[] = [];
 
   for (const pub of pubs) {
@@ -207,8 +223,9 @@ export async function GET(req: Request) {
           const row = rows[r];
           const name = (row[nameCol] || '').trim();
           if (!name || name === 'name') continue;
-          rosterSet.add(`${name}|${area}`);
-          if (isNilReturn(row)) continue;
+          const rk = rosterKey(name, area);
+          if (!rosterNames.has(rk)) { rosterNames.set(rk, name); rosterSet.add(`${name}|${area}`); }
+          if (isNilReturn(row, nameCol)) continue;
 
           if (stream === 'gifts') {
             gifts.push({
@@ -250,6 +267,13 @@ export async function GET(req: Request) {
     } catch (e) {
       errors.push(`${pub.link}: ${e instanceof Error ? e.message : String(e)}`);
     }
+  }
+
+  // Safety: the tables are emptied and refilled below. If this run read far fewer advisers than
+  // are saved now (publications failed to download, or a time-out), keep the saved data.
+  const { count: savedRoster } = await supabase.from('special_advisers').select('id', { count: 'exact', head: true });
+  if (savedRoster && rosterSet.size < savedRoster * 0.6) {
+    return NextResponse.json({ ok: false, error: `only ${rosterSet.size} advisers read against ${savedRoster} saved; nothing replaced`, errors: errors.slice(0, 10) }, { status: 502 });
   }
 
   // 4. Replace tables atomically (truncate-then-insert; no archive).
