@@ -38,9 +38,11 @@ export default function ExploreNext({ piece }: { piece: EditorialEntry }) {
   const all = Object.values(editorials).filter((e) => e.slug !== piece.slug && (e.kind === 'briefing') === isBriefing);
   const topicSlugs = new Set(pieceTopics.flatMap((t) => t.editorialSlugs));
   const byDate = (a: EditorialEntry, b: EditorialEntry) => (b.publishedAt || '').localeCompare(a.publishedAt || '');
-  const sameTopic = all.filter((e) => topicSlugs.has(e.slug)).sort(byDate);
-  const rest = all.filter((e) => !topicSlugs.has(e.slug)).sort(byDate);
-  const next = [...sameTopic, ...rest].slice(0, 3);
+  const picked = (piece.readNext || []).map((s) => editorials[s]).filter((e): e is EditorialEntry => !!e && e.slug !== piece.slug);
+  const pickedSlugs = new Set(picked.map((e) => e.slug));
+  const sameTopic = all.filter((e) => topicSlugs.has(e.slug) && !pickedSlugs.has(e.slug)).sort(byDate);
+  const rest = all.filter((e) => !topicSlugs.has(e.slug) && !pickedSlugs.has(e.slug)).sort(byDate);
+  const next = [...picked, ...sameTopic, ...rest].slice(0, 3);
   const base = isBriefing ? '/briefings' : '/editorials';
 
   if (!data.length && !next.length) return null;

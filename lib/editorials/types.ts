@@ -41,6 +41,9 @@ export type EditorialEntry = {
   // Optional hand-picked links for the "Explore next" block at the foot of the piece
   // (app/components/ExploreNext.tsx): the data pages behind the story. Internal paths only.
   explore?: { href: string; label: string; note?: string }[];
+  // Optional hand-picked editorial slugs shown first under "More investigations" in the
+  // Explore next block, before the automatic same-topic and newest picks.
+  readNext?: string[];
 };
 
 export type Block =

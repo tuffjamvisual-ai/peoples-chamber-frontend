@@ -105,6 +105,7 @@ const piece: EditorialEntry = {
     { type: 'paragraph', text: `Woking is on it after years of borrowing and commercial failures left it with debt measured in billions. Somerset is on it while dealing with severe continuing spending pressures and service demand. Warrington is on it while dismantling parts of a debt-backed commercial strategy. Croydon remains on it while servicing debt inherited from its earlier collapse.` },
     { type: 'paragraph', text: `The same government support mechanism is now being used for all of them.` },
   ],
+  readNext: ['cq4r8vn2mp', 'pc7m3wq9k2'],
   explore: [
     { href: '/councils/league-table', label: 'Council League Table', note: 'How every council area compares on schools, safety, health, housing, money and more' },
     { href: '/councils', label: 'All 382 UK councils', note: 'Leadership, finance, council tax and our assessment for each council' },
