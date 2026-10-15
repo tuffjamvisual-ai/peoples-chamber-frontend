@@ -16,11 +16,25 @@ import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
+import SeeAlso from '../../components/SeeAlso';
+import Link from 'next/link';
+import { resolveOrgToDeptSlug } from '@/lib/govOrgSlug';
+
+// The returns label departments by short name. Map them to department pages; anything
+// not listed falls back to the GOV.UK name lookup, and unknown names get no link.
+const AREA_DEPT: Record<string, string> = {
+  'Cabinet Office': 'cabinet-office', DBT: 'business-trade', MHCLG: 'housing',
+  DHSC: 'health', MoJ: 'justice', DESNZ: 'energy', Defra: 'environment', DfT: 'transport', DfE: 'education',
+  'Home Office': 'home-office', 'Foreign Office': 'foreign-office', DWP: 'work-pensions', NIO: 'northern-ireland-office',
+  'Lords Leader & Whips': 'lords-leader', 'Commons Leader & Whips': 'commons-leader', HMT: 'treasury', DCMS: 'culture',
+  MOD: 'defence',
+};
+const deptFor = (area: string): string | null => AREA_DEPT[area] ?? resolveOrgToDeptSlug(area);
 
 export const revalidate = 3600;
 
 const INK = '#14100d';
-const INK_SOFT = 'rgba(20,16,13,0.7)';
+const INK_SOFT = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.25)';
 const CREAM = '#ebe5d8';
 const ACCENT = '#7a1612';
@@ -127,6 +141,11 @@ export default async function SpecialAdvisersPage() {
             <summary style={{ cursor: 'pointer', fontFamily: '"Special Elite", monospace', fontSize: '15px', fontWeight: 'bold', padding: '6px 0', color: ACCENT, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
               {area} · {list.length}
             </summary>
+            {deptFor(area) && (
+              <p style={{ margin: '4px 0 0', fontFamily: '"Special Elite", monospace', fontSize: '15px' }}>
+                <Link href={`/departments/${deptFor(area)}`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Department page: ministers, budget and record →</Link>
+              </p>
+            )}
             <ul style={{ listStyle: 'none', padding: '8px 0', margin: 0, columns: '2 280px', columnGap: '24px', fontSize: '15px', fontFamily: '"Special Elite", monospace' }}>
               {list.sort((a, b) => a.name.localeCompare(b.name)).map((r) => (
                 <li key={`${r.area}|${r.name}`} style={{ padding: '2px 0', breakInside: 'avoid' }}>{r.name}</li>
@@ -257,6 +276,14 @@ export default async function SpecialAdvisersPage() {
           </table>
         </section>
       )}
+
+      <SeeAlso links={[
+        { href: '/transparency/revolving-door', label: 'Revolving Door', note: 'Former ministers and officials taking outside jobs, and the conditions attached' },
+        { href: '/lobbying', label: 'Lobbying', note: 'Who meets ministers most, and which lobbying firms act for which clients' },
+        { href: '/transparency/ministers-meetings', label: "Ministers' meetings", note: 'Every published meeting between ministers and outside organisations' },
+        { href: '/transparency/hospitality', label: "Ministers' hospitality", note: 'Gifts, hospitality and travel accepted by ministers' },
+        { href: '/departments', label: 'All government departments', note: 'Ministers, budgets, staff and record for each department' },
+      ]} />
 
     </OpenGovShell>
   );

@@ -7,13 +7,14 @@ import OpenGovShell from './OpenGovShell';
 import BackLink from './BackLink';
 import EvidencePanel from './EvidencePanel';
 import RelatedLinks from './RelatedLinks';
+import ExploreNext from './ExploreNext';
 import KeyStat from './KeyStat';
 import DataBlock from './DataBlock';
 import type { Block, EditorialEntry } from '@/lib/editorials/types';
 import ContentBadge from './ContentBadge';
 
 const INK = '#14100d';
-const INK_SOFT = 'rgba(20,16,13,0.7)';
+const INK_SOFT = '#14100d';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
 const ACCENT = '#7a1612';
 
@@ -91,14 +92,37 @@ export default function EditorialArticle({ piece, stamp, backHref }: { piece: Ed
         relatedProgrammeSlugs={piece.relatedProgrammeSlugs}
       />
 
+      <ExploreNext piece={piece} />
+
     </OpenGovShell>
   );
+}
+
+// Inline links in editorial text, written as [words](/internal/path). Only paths on this
+// site (starting with "/") become links; anything else is left as plain text.
+const INLINE_LINK = /\[([^\]]+)\]\((\/[^)\s]*)\)/g;
+function withLinks(text: string): React.ReactNode {
+  if (!text.includes('](/')) return text;
+  const out: React.ReactNode[] = [];
+  let last = 0;
+  for (const m of text.matchAll(INLINE_LINK)) {
+    const at = m.index ?? 0;
+    if (at > last) out.push(text.slice(last, at));
+    out.push(
+      <Link key={at} href={m[2]} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px', textDecorationColor: ACCENT }}>
+        {m[1]}
+      </Link>
+    );
+    last = at + m[0].length;
+  }
+  if (last < text.length) out.push(text.slice(last));
+  return out;
 }
 
 function renderBlock(block: Block, i: number): React.ReactNode {
   switch (block.type) {
     case 'paragraph':
-      return <p key={i} style={{ marginBottom: '20px' }}>{block.text}</p>;
+      return <p key={i} style={{ marginBottom: '20px' }}>{withLinks(block.text)}</p>;
     case 'statBlock':
       return <KeyStat key={i} stat={block.stat} label={block.label} context={block.context} />;
     case 'dataBlock':
@@ -175,7 +199,7 @@ function renderBlock(block: Block, i: number): React.ReactNode {
             </h3>
           </div>
           <p style={{ fontFamily: '"Special Elite", monospace', fontSize: '15px', color: ACCENT, marginBottom: '18px', letterSpacing: '0.02em', fontWeight: 'bold' }}>{block.topLine}</p>
-          {block.paragraphs.map((para, j) => (<p key={j} style={{ marginBottom: '18px' }}>{para}</p>))}
+          {block.paragraphs.map((para, j) => (<p key={j} style={{ marginBottom: '18px' }}>{withLinks(para)}</p>))}
           <p style={{ marginTop: '18px', padding: '2px 0 2px 14px', borderLeft: `3px solid ${ACCENT}`, fontFamily: '"Special Elite", monospace', fontSize: '15px', fontWeight: 'bold' }}>
             <span style={{ color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.1em', marginRight: '6px' }}>Verdict:</span>
             {block.verdict}
@@ -197,7 +221,7 @@ function renderBlock(block: Block, i: number): React.ReactNode {
             )}
           </div>
           <p style={{ fontFamily: '"Special Elite", monospace', fontSize: '15px', color: ACCENT, marginBottom: '18px', letterSpacing: '0.02em', fontWeight: 'bold' }}>{block.topLine}</p>
-          {block.paragraphs.map((para, j) => (<p key={j} style={{ marginBottom: '18px' }}>{para}</p>))}
+          {block.paragraphs.map((para, j) => (<p key={j} style={{ marginBottom: '18px' }}>{withLinks(para)}</p>))}
           <p style={{ marginTop: '18px', padding: '2px 0 2px 14px', borderLeft: `3px solid ${ACCENT}`, fontFamily: '"Special Elite", monospace', fontSize: '15px', fontWeight: 'bold' }}>
             <span style={{ color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.1em', marginRight: '6px' }}>Verdict:</span>
             {block.verdict}

@@ -38,6 +38,9 @@ export type EditorialEntry = {
   relatedMemberIds?: number[];
   relatedBillIds?: number[];
   relatedProgrammeSlugs?: string[];
+  // Optional hand-picked links for the "Explore next" block at the foot of the piece
+  // (app/components/ExploreNext.tsx): the data pages behind the story. Internal paths only.
+  explore?: { href: string; label: string; note?: string }[];
 };
 
 export type Block =
