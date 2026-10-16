@@ -353,3 +353,45 @@ export async function sendNewsletterConfirmation(to: string, token: string, base
   }
 }
 
+// Owner notification: fires when someone CONFIRMS a newsletter subscription (the click in the
+// confirmation email), so unconfirmed or mistyped sign-ups do not notify. Requested by the
+// owner, 16 Oct 2026. Never throws; the caller treats it as fire-and-forget.
+export async function sendNewsletterSubscriberNotification(sub: {
+  email: string;
+  source?: string | null;
+  confirmedAt: string;
+  totalConfirmed?: number | null;
+}) {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return { sent: false, reason: 'no_api_key' };
+  const from = process.env.RESEND_FROM || 'opengovt <onboarding@resend.dev>';
+  const when = new Date(sub.confirmedAt).toLocaleString('en-GB', {
+    timeZone: 'Europe/London', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
+  });
+  const where = sub.source === 'newsletter-page' ? 'Newsletter page' : sub.source === 'homepage' ? 'Homepage' : (sub.source || 'Not recorded');
+  const total = typeof sub.totalConfirmed === 'number' ? String(sub.totalConfirmed) : 'Not available';
+  const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const text =
+    `New newsletter subscriber (confirmed)\n\n` +
+    `Email: ${sub.email}\nSigned up from: ${where}\nConfirmed: ${when} (UK time)\nConfirmed subscribers in total: ${total}\n`;
+  const html = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#14100d">
+      <p style="margin:0 0 10px;font-weight:bold">New newsletter subscriber (confirmed)</p>
+      <table style="border-collapse:collapse">
+        <tr><td style="padding:2px 14px 2px 0;color:#555">Email</td><td>${esc(sub.email)}</td></tr>
+        <tr><td style="padding:2px 14px 2px 0;color:#555">Signed up from</td><td>${esc(where)}</td></tr>
+        <tr><td style="padding:2px 14px 2px 0;color:#555">Confirmed</td><td>${when} (UK time)</td></tr>
+        <tr><td style="padding:2px 14px 2px 0;color:#555">Confirmed subscribers in total</td><td>${total}</td></tr>
+      </table>
+    </div>`;
+  try {
+    const resend = new Resend(key);
+    const { data, error } = await resend.emails.send({
+      from, to: SIGNUP_NOTIFY_TO, subject: `New opengovt newsletter subscriber: ${sub.email}`, text, html,
+    });
+    if (error) return { sent: false, reason: error.message };
+    return { sent: true, id: data?.id };
+  } catch (e) {
+    return { sent: false, reason: (e as Error).message };
+  }
+}
+
