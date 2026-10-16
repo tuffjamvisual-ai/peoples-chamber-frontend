@@ -3,6 +3,7 @@
 // suspenders alongside the next.config redirects).
 
 import type { Metadata } from 'next';
+import { metaDescription } from '@/lib/meta-description';
 import { notFound, permanentRedirect } from 'next/navigation';
 import EditorialArticle from '../../components/EditorialArticle';
 import { editorials } from '@/lib/editorials';
@@ -17,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const piece = editorials[slug];
   if (!piece || piece.kind === 'briefing') return { title: 'Editorial' };
   const SITE_URL = 'https://www.opengovt.uk';
-  const description = piece.standfirst.slice(0, 200);
+  const description = metaDescription(piece.standfirst);
   const canonical = `/editorials/${slug}`;
   const ogImage = `${SITE_URL}/og-image.png`;
   return {

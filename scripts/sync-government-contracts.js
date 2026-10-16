@@ -6,6 +6,13 @@
 // `nextCursor`) and emit one row per AWARD inside each release — releases
 // still in the tender stage (no awards array) are skipped because the
 // table represents awarded contracts.
+// RETIRED 16 Oct 2026. This script inserted rows with no OCDS identifiers on every run, so the
+// same contract was stored many times (24,155 such rows, cleaned up by migration 2026-10-16d).
+// Contracts are synced by the Vercel route /api/sync-government-contracts, which upserts on
+// (ocid, award_id, contract_id). The database now refuses new rows without an ocid.
+console.error('[contracts] This script is retired. Contracts are synced by /api/sync-government-contracts.');
+process.exit(1);
+
 const { createClient } = require('@supabase/supabase-js');
 const ws = require('ws');
 

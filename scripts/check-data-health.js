@@ -16,7 +16,8 @@
 //    - Commons and Lords division counts since the July 2024 election equal Parliament's
 //    - every Commons division has official totals and party/rebellion flags applied
 //    - every current MP with register entries was checked in the last 3 days
-//    - bills: none with a stage list but no current stage, none untitled, both Houses present
+//    - bills: none with a stage that has sat but no current stage, none untitled, both Houses present
+//    - no contract rows without a Find a Tender identifier since the 16 Oct 2026 clean-up
 //    - the party whip figures were rebuilt in the last 2 days
 //
 // Usage: node scripts/check-data-health.js     (read-only; exit 1 when a check fails)
@@ -45,8 +46,9 @@ async function check(name, fn) {
 async function count(table, build) {
   let q = db.from(table).select('*', { count: 'exact', head: true });
   if (build) q = build(q);
-  const { count: n, error } = await q;
-  if (error) throw new Error(`${table}: ${error.message}`);
+  const { count: n, error, status } = await q;
+  // A HEAD request that times out returns no body, so error.message can be empty: show the code and HTTP status too.
+  if (error) throw new Error(`${table}: ${error.message || error.code || 'no message'} (HTTP ${status}${status === 500 || error.code === '57014' ? ', likely a statement timeout' : ''})`);
   return n ?? 0;
 }
 
@@ -144,13 +146,31 @@ function readSources() {
   });
 
   await check('Bills complete', async () => {
-    const noStage = await count('bill', (q) => q.not('stages->items->0', 'is', null).is('current_stage', null));
+    // A bill only needs a current stage once one of its stages has actually sat. Bills whose listed
+    // stages have no sitting date yet (e.g. a Lords private member's bill awaiting 2nd reading) are
+    // correctly shown without one, so they are not counted.
+    const { data: noStageRows, error: nsErr } = await db.from('bill').select('parliament_id, stages').not('stages->items->0', 'is', null).is('current_stage', null).order('id').limit(1000);
+    if (nsErr) throw new Error(`bill: ${nsErr.message}`);
+    const today = iso(now);
+    const noStageIds = (noStageRows || []).filter((b) => (b.stages?.items || []).some((st) => {
+      const d = st?.stageSittings?.[0]?.date;
+      return typeof d === 'string' && d.slice(0, 10) <= today;
+    })).map((b) => b.parliament_id);
+    const noStage = noStageIds.length;
     const untitled = await count('bill', (q) => q.or('title.is.null,title.eq.,title.eq.Untitled Bill'));
     const commons = await count('bill', (q) => q.eq('originating_house', 'Commons'));
     const lords = await count('bill', (q) => q.eq('originating_house', 'Lords'));
     const placeholder = await count('bill', (q) => q.eq('description', 'No description available'));
-    const msg = `with stages but no current stage: ${noStage}; untitled: ${untitled}; started in Commons ${commons}, Lords ${lords}; placeholder descriptions: ${placeholder}`;
+    const msg = `with a stage that has sat but no current stage: ${noStage}${noStage ? ` (bills ${noStageIds.slice(0, 8).join(', ')})` : ''}; untitled: ${untitled}; started in Commons ${commons}, Lords ${lords}; placeholder descriptions: ${placeholder}`;
     noStage === 0 && untitled === 0 && commons > 0 && lords > 0 && placeholder === 0 ? pass('Bills complete', msg) : fail('Bills complete', msg);
+  });
+
+  await check('Contracts have no duplicates', async () => {
+    // Every contract row must carry its Find a Tender identifier (ocid). Rows without one were
+    // duplicates written by the retired script; the database refuses new ones, so any here is a fault.
+    const noOcid = await count('government_contracts', (q) => q.is('ocid', null).gt('updated_at', '2026-10-16T23:59:59Z'));
+    const msg = `contract rows without a Find a Tender identifier added since the 16 Oct 2026 clean-up: ${noOcid}`;
+    noOcid === 0 ? pass('Contracts have no duplicates', msg) : fail('Contracts have no duplicates', msg);
   });
 
   await check('Party whip figures rebuilt', async () => {

@@ -21,8 +21,14 @@ function kebab(name) {
     .replace(/^-+|-+$/g, '');
 }
 
+// The progress file lets an interrupted run carry on where it stopped. It used to be kept
+// forever, so a second run silently skipped every MP and still printed "Done.". Now it is
+// only used if it is less than 6 hours old, and it is removed when a run finishes cleanly.
+const PROGRESS_MAX_AGE_MS = 6 * 60 * 60 * 1000;
 function loadProgress() {
   try {
+    const age = Date.now() - fs.statSync(PROGRESS_FILE).mtimeMs;
+    if (age > PROGRESS_MAX_AGE_MS) return { processedMemberIds: [] };
     return JSON.parse(fs.readFileSync(PROGRESS_FILE, 'utf8'));
   } catch {
     return { processedMemberIds: [] };
@@ -77,10 +83,26 @@ async function fetchInterests(memberId) {
   const take = 100;
   while (true) {
     const url = `https://interests-api.parliament.uk/api/v1/Interests?MemberId=${memberId}&ExpandChildInterests=True&Take=${take}&Skip=${skip}&SortOrder=PublishingDateDescending`;
-    const res = await fetch(url);
+    // Parliament's Interests API sometimes answers 500 for one request and fine on the next
+    // (16 Oct 2026: 2 of 650 MPs). Retry server errors and network failures 3 times, waiting
+    // 2s, 5s, then 10s. A 4xx answer is not retried.
+    let res = null;
+    let lastErr = '';
+    for (const wait of [0, 2000, 5000, 10000]) {
+      if (wait) await sleep(wait);
+      try {
+        res = await fetch(url, { signal: AbortSignal.timeout(30000) });
+        if (res.ok || res.status < 500) break;
+        lastErr = `Interests API ${res.status} at skip ${skip}`;
+      } catch (e) {
+        res = null;
+        lastErr = `Interests API request failed at skip ${skip}: ${e.message}`;
+      }
+    }
     // A failed page used to return the pages read so far, and the MP's entries were then
     // replaced with that partial list. Fail this MP instead; their saved entries are kept.
-    if (!res.ok) throw new Error(`Interests API ${res.status} at skip ${skip}`);
+    if (!res) throw new Error(lastErr);
+    if (!res.ok) throw new Error(res.status >= 500 ? `${lastErr} (after 3 retries)` : `Interests API ${res.status} at skip ${skip}`);
     const data = await res.json();
     const items = data.items || [];
     all.push(...items);
@@ -115,6 +137,7 @@ async function main() {
   const progress = loadProgress();
   const done = new Set(progress.processedMemberIds);
   const failures = [];
+  if (done.size) console.log(`  carrying on an interrupted run: ${done.size} MPs already refreshed in the last 6 hours are skipped`);
 
   for (let i = 0; i < mps.length; i++) {
     const mp = mps[i];
@@ -153,14 +176,15 @@ async function main() {
       } else {
         console.log('  — no interests');
       }
+      // Only a successful MP is marked done, so a re-run tries the failed ones again.
+      done.add(mp.id);
+      progress.processedMemberIds = [...done];
+      saveProgress(progress);
     } catch (e) {
       console.log(`  ! ${e.message}`);
       failures.push(`${mp.id}: ${e.message}`);
     }
 
-    done.add(mp.id);
-    progress.processedMemberIds = [...done];
-    saveProgress(progress);
     await sleep(DELAY_MS);
   }
 
@@ -168,7 +192,8 @@ async function main() {
     console.error(`${failures.length} MP${failures.length === 1 ? '' : 's'} failed:\n  ${failures.slice(0, 20).join('\n  ')}`);
     process.exit(1);
   }
-  console.log('Done.');
+  try { fs.unlinkSync(PROGRESS_FILE); } catch { /* already gone */ }
+  console.log(`Done. ${mps.length} MPs refreshed.`);
 }
 
 main().catch(e => { console.error(e); process.exit(1); });

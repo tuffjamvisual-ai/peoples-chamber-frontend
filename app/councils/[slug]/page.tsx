@@ -3,6 +3,7 @@
 // political control, leadership and finance phases land.
 
 import type { Metadata } from 'next';
+import { metaDescription } from '@/lib/meta-description';
 import { administrationLabel, seatsLine, type CouncilComposition } from '@/lib/council-composition';
 import { supabase } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
@@ -158,11 +159,15 @@ function formatPoundsMillions(valuePounds: number): string {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const { data } = await supabase.from('councils').select('name, type_label, country').eq('slug', slug).single();
+  const { data } = await supabase.from('councils').select('name, type_label, country, political_control, population').eq('slug', slug).single();
   if (!data) return { title: 'Council not found' };
+  // A description that says what the page offers, not just the council's type (all 382
+  // councils had a one-line description; search engine check, 16 Oct 2026).
+  const who = data.political_control ? ` Run by ${data.political_control === 'No overall control' ? 'no single party (no overall control)' : data.political_control}.` : '';
+  const pop = data.population ? ` Population ${Number(data.population).toLocaleString('en-GB')}.` : '';
   return {
     title: `${data.name}`,
-    description: `${data.name}, ${data.type_label}, ${data.country}.`,
+    description: metaDescription(`${data.name}, ${data.type_label.toLowerCase()} in ${data.country}.${who}${pop} Spending, services and how the area compares.`),
     alternates: { canonical: `/councils/${slug}` },
   };
 }
@@ -360,7 +365,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                   {c.website_url && (
                     <DataRow label="Website" value={
                       <a href={c.website_url} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>
-                        {c.website_url.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                        {c.website_url.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/.*$/, '')}
                       </a>
                     } />
                   )}
@@ -677,7 +682,7 @@ function DataRow({ label, value, sub, valueColour }: { label: string; value: Rea
       <dt style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.04em', padding: '12px 16px 12px 0', borderBottom: `1px solid ${INK_HAIRLINE}`, color: INK_SOFT }}>
         {label}
       </dt>
-      <dd style={{ padding: '12px 0', borderBottom: `1px solid ${INK_HAIRLINE}`, margin: 0, fontFamily: MONO, fontSize: '15px', lineHeight: 1.55, color: valueColour || INK }}>
+      <dd style={{ padding: '12px 0', borderBottom: `1px solid ${INK_HAIRLINE}`, margin: 0, fontFamily: MONO, fontSize: '15px', lineHeight: 1.55, color: valueColour || INK, minWidth: 0, overflowWrap: 'anywhere' }}>
         {value}
         {sub && <span style={{ display: 'block', fontSize: '15px', color: INK_SOFT, marginTop: '2px' }}>{sub}</span>}
       </dd>

@@ -26,7 +26,7 @@ const MONO = 'Special Elite, monospace';
 export const metadata: Metadata = {
   title: "UK Party Manifestos 2024, Side by Side Policy Comparison",
   description:
-    "Compare 2024 General Election manifestos from Labour, Conservative, Reform, Lib Dem, SNP, Green and 9 other UK parties across 11 policy themes, with post election shifts marked.",
+    "Compare the 2024 General Election manifestos of Labour, Conservative, Reform, Lib Dem, SNP, Green and 9 other parties across 11 policy themes.",
   alternates: { canonical: '/parties' },
 };
 
@@ -127,12 +127,17 @@ async function getAll(): Promise<{ parties: Party[]; byParty: Record<string, Rec
   return { parties, byParty, mpCounts };
 }
 
-// Cell extract: first sentence (or first ~140 chars) so the row fits
-// without wrapping into an unreadable wall. Full text on the dossier.
+// Cell extract: first sentence so the row fits without wrapping into an unreadable wall.
+// Full text on the dossier. A sentence ends at . ! or ? followed by a space or the end of
+// the text, so a decimal point never ends it: the old rule cut "1.5 million homes" to
+// "Labour pledged 1." (ChatGPT audit, 15 Oct 2026). Long sentences are cut at a word boundary.
 function extract(text: string): string {
-  const firstSentence = text.match(/^[^.!?]+[.!?]/);
-  const s = firstSentence ? firstSentence[0] : text.slice(0, 140);
-  return s.length > 180 ? s.slice(0, 177) + '…' : s;
+  const t = text.trim();
+  const m = t.match(/^[\s\S]*?(?<!\b(?:Mr|Mrs|Ms|Dr|St|No|e\.g|i\.e|etc))[.!?](?=\s|$)/);
+  const s = m ? m[0] : t;
+  if (s.length <= 180) return s;
+  const cut = s.slice(0, 178);
+  return cut.slice(0, cut.lastIndexOf(' ') > 120 ? cut.lastIndexOf(' ') : 178).replace(/[,;:\s]+$/, '') + '…';
 }
 
 export default async function PartiesIndex() {

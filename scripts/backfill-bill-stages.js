@@ -18,6 +18,7 @@
  *                     items than the stored totalResults) — the bills hit by
  *                     the old single-page fetch
  *   --limit=N         cap how many bills to process (useful for testing)
+ *   --bill=N          one bill only (Parliament's bill id)
  *
  * Stages are fetched IN FULL: the Bills API pages at 20 stages by default
  * and this script previously stored only that first page. Same paging as
@@ -34,6 +35,7 @@ const DRY_RUN = process.argv.includes('--dry-run');
 const ONLY_MISSING = process.argv.includes('--only-missing');
 const ONLY_TRUNCATED = process.argv.includes('--only-truncated');
 const limitFlag = process.argv.find((a) => a.startsWith('--limit='));
+const BILL_ONLY = Number((process.argv.find((a) => a.startsWith('--bill=')) || '').slice(7)) || null;
 const LIMIT = limitFlag ? parseInt(limitFlag.split('=')[1], 10) : Infinity;
 
 const DATABASE_URL = process.env.DATABASE_URL;
@@ -101,7 +103,8 @@ function deriveCurrentStage(items) {
 async function run() {
   const where = ONLY_TRUNCATED
     ? "AND stages IS NOT NULL AND jsonb_array_length(COALESCE(stages->'items', '[]'::jsonb)) < COALESCE((stages->>'totalResults')::int, 0)"
-    : ONLY_MISSING ? 'AND stages IS NULL' : '';
+    : ONLY_MISSING ? 'AND stages IS NULL'
+    : BILL_ONLY ? `AND parliament_id = ${BILL_ONLY}` : '';
   const lines = psqlT(
     `SELECT id, parliament_id FROM bill WHERE parliament_id IS NOT NULL ${where} ORDER BY parliament_id;`,
   ).trim().split('\n').filter(Boolean);

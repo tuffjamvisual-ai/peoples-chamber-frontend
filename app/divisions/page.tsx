@@ -15,7 +15,7 @@ export const revalidate = 600;
 
 export const metadata: Metadata = {
   title: 'Commons Divisions',
-  description: 'Every recorded vote in the House of Commons this Parliament, newest first, with how the House divided on each.',
+  description: 'Every recorded vote in the House of Commons since March 2016, newest first, with how the House divided on each.',
   alternates: { canonical: '/divisions' },
 };
 
@@ -73,7 +73,7 @@ export default async function DivisionsIndexPage({
           Commons Divisions
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', color: INK }}>
-          Every recorded vote in the House of Commons this Parliament, newest first. Open any division to see how every MP voted.
+          Every recorded vote in the House of Commons since March 2016, newest first. Open any division to see how every MP voted.
         </p>
       </header>
 

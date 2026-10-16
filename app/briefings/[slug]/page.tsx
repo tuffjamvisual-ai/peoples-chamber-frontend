@@ -7,6 +7,7 @@
 // Anything matching neither 404s.
 
 import type { Metadata } from 'next';
+import { metaDescription } from '@/lib/meta-description';
 import { notFound } from 'next/navigation';
 import EditorialArticle from '../../components/EditorialArticle';
 import OpenGovShell from '../../components/OpenGovShell';
@@ -51,7 +52,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (piece && piece.kind === 'briefing') {
     return {
       title: piece.headline,
-      description: piece.standfirst.slice(0, 200),
+      description: metaDescription(piece.standfirst),
       alternates: { canonical: `/briefings/${slug}` },
     };
   }
@@ -59,7 +60,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (b) {
     return {
       title: b.headline,
-      description: b.body.slice(0, 155),
+      description: metaDescription(b.body),
       alternates: { canonical: `/briefings/${slug}` },
       ...(b.is_published ? {} : { robots: { index: false, follow: false } }),
     };

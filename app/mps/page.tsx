@@ -11,7 +11,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: "UK MPs, Voting Records, Earnings & Registered Interests",
   description:
-    "Profiles of all 650 UK Members of Parliament, voting records, parliamentary divisions, expenses, registered interests and contact details. Search by name, party or constituency.",
+    "Profiles of all 650 UK MPs: voting records, expenses, registered interests and contact details. Search by name, party or constituency.",
   alternates: { canonical: '/mps' },
 };
 
@@ -41,6 +41,14 @@ export default async function MPsPage() {
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-9%', marginBottom: '14px', color: '#14100d', textDecoration: 'none', transform: 'rotate(-0.2deg)' }}
       />
+      {/* Page heading (h1) for screen readers and search engines; the page had none
+          (ChatGPT audit, 15 Oct 2026). */}
+      <h1 style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 'bold', letterSpacing: '-0.02em', lineHeight: 1.15, margin: '0 0 8px', transform: 'rotate(-0.3deg)' }}>
+        Members of Parliament
+      </h1>
+      <p style={{ fontSize: '16px', lineHeight: 1.6, margin: '0 0 18px', maxWidth: '60ch' }}>
+        All {mps.length.toLocaleString('en-GB')} MPs. Search by name, party, constituency or postcode.
+      </p>
       <Suspense fallback={<div style={{ minHeight: '400px' }} />}>
         <MagazineMPsClient mps={mps} />
       </Suspense>

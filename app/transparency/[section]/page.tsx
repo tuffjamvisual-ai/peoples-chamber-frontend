@@ -51,8 +51,19 @@ export default async function TransparencySectionPage({
   const config = SECTIONS[section]
   if (!config) notFound()
 
-  // Donations uses server-side search; all other sections ignore q.
-  const searchTerm = section === 'donations' && q?.trim() ? q.trim() : null
+  // Every section searches its whole table on the server. Characters that would break the
+  // filter syntax are dropped from the search words.
+  const SEARCH_COLS: Record<string, string[]> = {
+    donations: ['donor_name', 'recipient_name'],
+    contracts: ['supplier', 'title', 'dept_slug'],
+    'ministers-meetings': ['minister_name', 'organisation', 'purpose'],
+    hospitality: ['minister_name', 'donor', 'description'],
+    'revolving-door': ['person_name', 'organisation', 'new_role', 'previous_role'],
+    appgs: ['appg_name', 'chair', 'purpose'],
+  }
+  const cleaned = (q || '').replace(/[,()*%"\\]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 100)
+  const searchTerm = cleaned && SEARCH_COLS[section] ? cleaned : null
+  const searchFilter = searchTerm ? SEARCH_COLS[section].map((c) => `${c}.ilike.%${searchTerm}%`).join(',') : null
 
   const page = Math.max(1, parseInt(pageParam || '1', 10) || 1)
   const from = (page - 1) * PAGE_LIMIT
@@ -65,10 +76,7 @@ export default async function TransparencySectionPage({
 
   // Total count (with search filter applied for donations).
   let countQ = supabase.from(config.table).select('*', { count: 'exact', head: true })
-  if (searchTerm) {
-    const like = `%${searchTerm}%`
-    countQ = countQ.or(`donor_name.ilike.${like},recipient_name.ilike.${like}`)
-  }
+  if (searchFilter) countQ = countQ.or(searchFilter)
   if (section === 'ministers-meetings') countQ = countQ.lte('meeting_date', todayIso)
   if (section === 'hospitality') countQ = countQ.lte('hospitality_date', todayIso)
   const { count: total } = await countQ
@@ -76,10 +84,7 @@ export default async function TransparencySectionPage({
   // Data rows — server-side paginated via .range().
   let dataQ = supabase.from(config.table).select('*').range(from, to)
   if (config.orderBy) dataQ = dataQ.order(config.orderBy, { ascending: false, nullsFirst: false })
-  if (searchTerm) {
-    const like = `%${searchTerm}%`
-    dataQ = dataQ.or(`donor_name.ilike.${like},recipient_name.ilike.${like}`)
-  }
+  if (searchFilter) dataQ = dataQ.or(searchFilter)
   if (section === 'ministers-meetings') dataQ = dataQ.lte('meeting_date', todayIso)
   if (section === 'hospitality') dataQ = dataQ.lte('hospitality_date', todayIso)
   const { data: rows, error } = await dataQ
@@ -117,10 +122,10 @@ export default async function TransparencySectionPage({
         <p className="text-[#14100d] text-[15px] leading-[1.7] max-w-2xl">
           {searchTerm ? (
             <>
-              <span className="font-mono text-[#14100d] text-base font-bold">{rowCount.toLocaleString()}</span>
-              {' '}result{rowCount === 1 ? '' : 's'} for &ldquo;{searchTerm}&rdquo;
-              {totalCount > rowCount && (
-                <> showing first {rowCount.toLocaleString()} of {totalCount.toLocaleString()} matches</>
+              <span className="font-mono text-[#14100d] text-base font-bold">{totalCount.toLocaleString()}</span>
+              {' '}record{totalCount === 1 ? '' : 's'} match &ldquo;{searchTerm}&rdquo;
+              {totalPages > 1 && (
+                <>, showing {from + 1} to {Math.min(to + 1, totalCount)} (page {page} of {totalPages})</>
               )}
               .{' '}
               <Link href={`/transparency/${section}`} className="underline hover:text-[#14100d]">
@@ -134,7 +139,7 @@ export default async function TransparencySectionPage({
               {totalPages > 1 && (
                 <> Showing rows {from + 1} to {Math.min(to + 1, totalCount)} (page {page} of {totalPages}).</>
               )}
-              {section === 'donations' && ' Search by donor or recipient name to filter.'}
+              {' '}Search below to look through every record.
             </>
           )}
         </p>

@@ -14,7 +14,7 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: "UK Political Donors: Who Funds Westminster",
   description:
-    "Every named donor in the UK Electoral Commission's political donations register, ranked by total given. Click through to see exactly which parties, MPs and constituencies each donor has funded.",
+    "Every named donor in the Electoral Commission's register, ranked by total given, with the parties, MPs and constituencies each one funded.",
   alternates: { canonical: '/donors' },
 };
 

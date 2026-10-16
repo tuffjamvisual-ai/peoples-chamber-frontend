@@ -104,7 +104,18 @@ function Pagination({
 }
 
 export default function TransparencyClient({ rows, sectionTitle, section, total, searchQuery }: Props) {
-  const isDonations = section === 'donations'
+  // Every section now searches the whole dataset on the server (the q= address). The old
+  // in-page filter only looked through the 100 rows on screen, so a search of 45,107
+  // contracts for "Ecotricity" said "0 of 100 matching" (ChatGPT audit, 15 Oct 2026).
+  const isDonations = true
+  const PLACEHOLDER: Record<string, string> = {
+    donations: 'Search by donor or recipient…',
+    contracts: 'Search by supplier, buyer or contract title…',
+    'ministers-meetings': 'Search by minister, organisation or purpose…',
+    hospitality: 'Search by minister, giver or description…',
+    'revolving-door': 'Search by person, organisation or role…',
+    appgs: 'Search by group name, chair or purpose…',
+  }
 
   // Client-side search state (non-donations sections only)
   const [query, setQuery] = useState('')
@@ -138,14 +149,14 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
           Search
         </label>
         {isDonations ? (
-          <form method="GET" className="flex gap-2 max-w-md">
+          <form method="GET" className="flex flex-wrap gap-2 max-w-md">
             <input
               id="transparency-search"
               name="q"
               type="search"
               defaultValue={searchQuery}
-              placeholder="Search by donor or recipient…"
-              className="flex-1 bg-[#14100d]/5 border border-[#14100d]/20 text-[#14100d] text-[15px] rounded-sm px-4 py-3 leading-[1.7] placeholder:text-[#14100d]/40 focus:outline-none focus:border-[#14100d] transition-colors"
+              placeholder={PLACEHOLDER[section ?? ''] ?? 'Search…'}
+              className="flex-1 min-w-0 basis-48 bg-[#14100d]/5 border border-[#14100d]/20 text-[#14100d] text-[15px] rounded-sm px-4 py-3 leading-[1.7] placeholder:text-[#14100d]/40 focus:outline-none focus:border-[#14100d] transition-colors"
             />
             <button
               type="submit"

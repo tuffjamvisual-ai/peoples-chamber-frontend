@@ -93,6 +93,10 @@ export default async function DepartmentsPage() {
       }}>
         {departments.map((dept, idx) => {
           const photo = photoBySlug.get(dept.slug);
+          // The head of department comes from the live GOV.UK ministers list (dept_ministers),
+          // never the hand-written lib/departments files, which had gone out of date (the
+          // Treasury card was labelled Rachel Reeves after John Healey became Chancellor).
+          const headName = headBySlug.get(dept.slug)?.name || null;
           const tilt = ((idx % 5) - 2) * 1.5 - 0.5;
 
           return (
@@ -114,7 +118,7 @@ export default async function DepartmentsPage() {
                     /* eslint-disable-next-line @next/next/no-img-element */
                     <img
                       src={photo}
-                      alt={dept.minister}
+                      alt={headName ? `${headName}, head of ${dept.name}` : dept.name}
                       loading="lazy"
                       style={{ display: 'block', width: '84px', height: '96px', objectFit: 'cover', filter: 'contrast(1.05) sepia(0.05)' }}
                     />
@@ -132,6 +136,9 @@ export default async function DepartmentsPage() {
                   <h2 style={{ fontSize: dept.name.length > 35 ? '15px' : '17px', fontWeight: 'bold', lineHeight: 1.25 }}>
                     {dept.name}
                   </h2>
+                  {headName && (
+                    <p style={{ fontSize: '15px', lineHeight: 1.4, margin: '4px 0 0', overflowWrap: 'anywhere' }}>{headName}</p>
+                  )}
                 </div>
               </Link>
             </li>

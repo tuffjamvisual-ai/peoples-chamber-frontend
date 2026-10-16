@@ -1,4 +1,5 @@
 import { cache } from 'react';
+import { metaDescription } from '@/lib/meta-description';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
@@ -150,8 +151,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
   }
 
-  let description = head + (facts.length ? ' ' + facts.join(', ') + '.' : '');
-  if (description.length > 200) description = description.slice(0, 197).trimEnd() + '…';
+  // Add facts while the whole description fits in a search result (160 characters); a fact
+  // that does not fit is left out rather than cut mid-sentence. A long division title is the
+  // usual one left out.
+  const kept: string[] = [];
+  for (const f of facts) {
+    const next = `${head} ${[...kept, f].join(', ')}.`;
+    if (next.length <= 160) kept.push(f);
+  }
+  const description = metaDescription(head + (kept.length ? ' ' + kept.join(', ') + '.' : ''));
 
   return {
     title: name,

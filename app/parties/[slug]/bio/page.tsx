@@ -96,17 +96,17 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
           DONATIONS / WEBSITE metrics row was removed 2026-06-03 per
           user request — the bio leads directly under the colour bar. */}
       <div style={{ marginTop: '5%', marginBottom: '5%' }}>
-        <div
+        <h1
           style={{
             fontSize: 'clamp(28px, 4.6vw, 60px)',
             fontWeight: 'bold',
             letterSpacing: '-0.02em',
             lineHeight: 1.05,
-            marginBottom: '12px',
+            margin: '0 0 12px',
           }}
         >
           {party.name}
-        </div>
+        </h1>
         <div
           aria-hidden
           style={{

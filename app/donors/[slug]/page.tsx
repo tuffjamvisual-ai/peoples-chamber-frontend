@@ -11,6 +11,7 @@ import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { sectorForDonor } from '@/lib/donor-sectors';
+import { departments } from '@/lib/departments';
 
 export const revalidate = 86400;
 
@@ -236,13 +237,20 @@ export default async function DonorPage({ params }: PageProps) {
   const matchedContracts = ((contractHits || []) as ContractRow[]).filter((c) =>
     c.supplier && c.supplier.toUpperCase().replace(/\s+/g, ' ').trim() === normName,
   );
-  const contractsByDept = new Map<string, { dept: string; count: number; total: number }>();
+  // The buyer on a contract is often not a government department (academy trusts, councils,
+  // NHS bodies), so only a buyer we have a department page for is linked; others are shown by
+  // name. Linking every buyer to /departments/<buyer> gave 404s (ChatGPT audit, 15 Oct 2026).
+  // A value the buyer did not publish is counted as unpublished, never as £0.
+  const deptBySlug = new Map(departments.map((d) => [d.slug, d.name]));
+  const buyerName = (slug: string) => deptBySlug.get(slug) ?? slug.split('-').map((w) => (w.length > 3 || /^(nhs|uk|hm)$/i.test(w) ? w.charAt(0).toUpperCase() + w.slice(1) : w)).join(' ').replace(/^./, (c) => c.toUpperCase());
+  const contractsByDept = new Map<string, { dept: string; name: string; isDept: boolean; count: number; total: number; unpublished: number }>();
   for (const c of matchedContracts) {
-    const ex = contractsByDept.get(c.dept_slug) ?? { dept: c.dept_slug, count: 0, total: 0 };
+    const ex = contractsByDept.get(c.dept_slug) ?? { dept: c.dept_slug, name: buyerName(c.dept_slug), isDept: deptBySlug.has(c.dept_slug), count: 0, total: 0, unpublished: 0 };
     ex.count += 1;
-    ex.total += Number(c.value || 0);
+    if (c.value == null) ex.unpublished += 1; else ex.total += Number(c.value);
     contractsByDept.set(c.dept_slug, ex);
   }
+  const unpublishedValues = matchedContracts.filter((c) => c.value == null).length;
   const contractDeptRows = Array.from(contractsByDept.values()).sort((a, b) => b.total - a.total);
   const totalContractValue = matchedContracts.reduce((s, c) => s + Number(c.value || 0), 0);
   let appgsFunded: Array<{ slug: string; title: string; category: string | null }> = [];
@@ -374,12 +382,12 @@ export default async function DonorPage({ params }: PageProps) {
 
       {matchedContracts.length > 0 && (
         <section style={{ marginBottom: '28px', padding: '14px 16px', background: 'rgba(20,16,13,0.04)', borderLeft: `3px solid ${DANGER}` }}>
-          <h2 style={{ ...sectionH2, marginTop: 0, marginBottom: '8px' }}>Also holds {matchedContracts.length} UK government contract{matchedContracts.length === 1 ? '' : 's'} · {fmtMoney(totalContractValue)}</h2>
-          <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '12px' }}>This donor name also appears on the gov.uk Contracts Finder register as a public-sector supplier. The match is an exact name overlap; no causal link is implied between the donations on this page and the contracts below. Departments awarding the work:</p>
+          <h2 style={{ ...sectionH2, marginTop: 0, marginBottom: '8px' }}>Also holds {matchedContracts.length} UK public-sector contract{matchedContracts.length === 1 ? '' : 's'}{unpublishedValues === matchedContracts.length ? ' · values not published' : ` · ${fmtMoney(totalContractValue)}${unpublishedValues ? ` (value not published for ${unpublishedValues})` : ''}`}</h2>
+          <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '12px' }}>This donor name also appears as a supplier on Find a Tender, the government's register of public contracts. The match is an exact name overlap; no causal link is implied between the donations on this page and the contracts below. Public bodies awarding the work:</p>
           <table style={{ ...tableStyle, marginBottom: '8px' }}>
             <thead>
               <tr style={headerRow}>
-                <th style={{ ...th, textAlign: 'left' }}>Department</th>
+                <th style={{ ...th, textAlign: 'left' }}>Contracting authority</th>
                 <th style={th}>Contracts</th>
                 <th style={{ ...th, textAlign: 'right' }}>Total value</th>
               </tr>
@@ -388,10 +396,14 @@ export default async function DonorPage({ params }: PageProps) {
               {contractDeptRows.map((r) => (
                 <tr key={r.dept} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                   <td style={{ ...td, textAlign: 'left' }}>
-                    <Link href={`/departments/${r.dept}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.dept}</Link>
+                    {r.isDept
+                      ? <Link href={`/departments/${r.dept}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.name}</Link>
+                      : r.name}
                   </td>
                   <td style={td}>{r.count}</td>
-                  <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(r.total)}</td>
+                  <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>
+                    {r.unpublished === r.count ? 'Not published' : `${fmtMoney(r.total)}${r.unpublished ? ` + ${r.unpublished} unpublished` : ''}`}
+                  </td>
                 </tr>
               ))}
             </tbody>

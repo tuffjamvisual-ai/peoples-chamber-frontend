@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { departments } from '@/lib/departments';
 import { editorials } from '@/lib/editorials';
 import { COMMITTEE_IDS } from '@/lib/committees';
+import { topics } from '@/lib/topics';
 
 const SITE = 'https://www.opengovt.uk';
 
@@ -94,10 +95,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/councils`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${SITE}/sewage`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${SITE}/councils/league-table`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${SITE}/editorials/cq4r8vn2mp`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${SITE}/second-jobs`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/lobbying`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/committees`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE}/briefings`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE}/topics`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE}/divisions`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
   ];
 
   const transparencyEntries: MetadataRoute.Sitemap = transparencySections.map((s) => ({
@@ -116,8 +119,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Every editorial registered in lib/editorials, driven off the registry
   // so new pieces are picked up automatically (no hardcoded slug list).
+  // Briefings live at /briefings/<slug> (their /editorials/ address only redirects there).
   const editorialEntries: MetadataRoute.Sitemap = Object.values(editorials).map((e) => ({
-    url: `${SITE}/editorials/${e.slug}`,
+    url: `${SITE}/${e.kind === 'briefing' ? 'briefings' : 'editorials'}/${e.slug}`,
     lastModified: e.publishedAt ? new Date(e.publishedAt) : now,
     changeFrequency: 'monthly',
     priority: 0.9,
@@ -280,8 +284,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  // Topic pages and lobbying organisation pages were reachable only through links
+  // (search engine check, 16 Oct 2026).
+  const topicEntries: MetadataRoute.Sitemap = topics.map((t) => ({
+    url: `${SITE}/topics/${t.slug}`,
+    lastModified: now,
+    changeFrequency: 'weekly',
+    priority: 0.8,
+  }));
+  const lobbyOrgs = await fetchAllRows<{ slug: string }>('lobby_org_rankings', 'slug', (q) => q.order('org_id'));
+  const lobbyEntries: MetadataRoute.Sitemap = lobbyOrgs.filter((o) => o.slug).map((o) => ({
+    url: `${SITE}/lobbying/${o.slug}`,
+    lastModified: now,
+    changeFrequency: 'monthly',
+    priority: 0.5,
+  }));
+
   return [
     ...staticEntries,
+    ...topicEntries,
+    ...lobbyEntries,
     ...transparencyEntries,
     ...deptEntries,
     ...editorialEntries,

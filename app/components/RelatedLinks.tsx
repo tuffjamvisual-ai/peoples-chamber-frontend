@@ -76,6 +76,8 @@ type VoteRow = {
   vote_type: string;
   is_rebellion: boolean;
   bill_id: number | null;
+  division_date_only?: string | null;
+  division_number?: number | null;
 };
 
 type SponsoredBill = {
@@ -137,19 +139,26 @@ function renderMp(props: MpProps) {
       {recentVotes.length > 0 && (
         <section style={sectionStyle}>
           <span style={labelStyle}>Recent votes</span>
-          {recentVotes.map((v, i) => (
-            <Link
-              key={i}
-              href={v.bill_id ? `/bills/${v.bill_id}` : '#'}
-              style={itemStyle}
-            >
-              {v.division_title || 'Division'}
-              <span style={subStyle}>
-                {fmtDate(v.division_date)} · {v.vote_type.toUpperCase()}
-                {v.is_rebellion ? ' · REBEL' : ''}
-              </span>
-            </Link>
-          ))}
+          {recentVotes.map((v, i) => {
+            // Each vote opens its own division page (how every MP voted); the bill page only
+            // when the division can't be identified. It used to link to the bill or to '#',
+            // so most links went nowhere (ChatGPT audit, 15 Oct 2026).
+            const href = v.division_date_only && v.division_number
+              ? `/divisions/pw-${v.division_date_only}-${v.division_number}`
+              : v.bill_id ? `/bills/${v.bill_id}` : null;
+            const body = (
+              <>
+                {v.division_title || 'Division'}
+                <span style={subStyle}>
+                  {fmtDate(v.division_date)} · {v.vote_type.toUpperCase()}
+                  {v.is_rebellion ? ' · REBEL' : ''}
+                </span>
+              </>
+            );
+            return href
+              ? <Link key={i} href={href} style={itemStyle}>{body}</Link>
+              : <span key={i} style={itemStyle}>{body}</span>;
+          })}
         </section>
       )}
 
