@@ -1,5 +1,7 @@
 'use client';
 
+import { billSummary } from '@/lib/bill-summary';
+
 // Bills listing card styled as a Victorian-era UK Parliamentary Bill
 // cover sheet (Representation of the People Bill template):
 //   - thin-ruled title bar
@@ -19,6 +21,7 @@ type Bill = {
   originating_house?: string | null;
   plain_summary?: string | null;
   description?: string | null;
+  long_title?: string | null;
   sponsor_name?: string | null;
   introduced_date?: string | null;
   stage_date?: string | null;
@@ -69,7 +72,7 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
   const hasDivision = cAye != null && cNo != null && cAye + cNo > 0;
 
   // Trim summary to a digestible cover-paragraph length.
-  const summarySrc = (bill.plain_summary || bill.description || '').trim();
+  const summarySrc = billSummary(bill);
   const summary = summarySrc.length > 360 ? summarySrc.slice(0, 357).trim() + '…' : summarySrc;
 
   return (

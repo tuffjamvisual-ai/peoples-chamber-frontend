@@ -209,40 +209,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  // Individual press release detail pages — same slug derivation as the
-  // /transparency/press-releases index page. The full GOV.UK archive (~45k
-  // rows back to 2007) was backfilled 2026-07-11, so cap the sitemap to the
-  // most recent 5,000 to stay well under the 50,000-URL per-file sitemap limit.
-  // Older releases remain crawlable via the day-navigation and search UI.
-  const NEWS_SITEMAP_CAP = 5000;
-  const releases: { gov_url: string | null; published_at: string | null }[] = [];
-  for (let off = 0; off < NEWS_SITEMAP_CAP; off += 1000) {
-    const { data } = await supabase
-      .from('press_releases')
-      .select('gov_url, published_at')
-      .order('published_at', { ascending: false, nullsFirst: false })
-      .range(off, off + 999);
-    if (!data || data.length === 0) break;
-    releases.push(...data);
-    if (data.length < 1000) break;
-  }
-  const newsEntries: MetadataRoute.Sitemap = releases
-    .map((r) => {
-      // Exclude committee-report rows (committees.parliament.uk) — numeric slugs,
-      // stub content, not permanent URLs. Filtering here rather than server-side
-      // to avoid a full-table scan that triggers Supabase statement timeout.
-      if (!r.gov_url?.includes('gov.uk')) return null;
-      const match = r.gov_url?.match(/\/([a-z0-9-]+)\/?$/i);
-      const slug = match ? match[1] : null;
-      if (!slug) return null;
-      return {
-        url: `${SITE}/news/${slug}`,
-        lastModified: r.published_at ? new Date(r.published_at) : now,
-        changeFrequency: 'monthly' as const,
-        priority: 0.5,
-      };
-    })
-    .filter((e): e is NonNullable<typeof e> => e !== null);
+  // Republished GOV.UK press releases (/news/[slug]) are not listed: they are word-for-word
+  // copies of GOV.UK pages, so they are noindex and Google is pointed at the originals
+  // (Search Console review, 16 Oct 2026: 4,923 of 10,425 sitemap URLs were these copies).
 
   // Every UK principal local authority — 382 councils across England,
   // Scotland, Wales and Northern Ireland. Per-council pages at
@@ -310,7 +279,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...partyEntries,
     ...billEntries,
     ...mpEntries,
-    ...newsEntries,
     ...councilEntries,
     ...divisionEntries,
     ...committeeEntries,

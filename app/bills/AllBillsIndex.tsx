@@ -33,27 +33,32 @@ const MONO = 'Special Elite, monospace';
 const SERIF = 'Special Elite, monospace';
 
 async function fetchAllSitemapBills(): Promise<BillRow[]> {
-  // Same filter as app/sitemap.ts: bills with a Commons division, or
-  // Royal Assent, or a known stage. Drops the ~2,700 placeholder /
-  // never-progressed bills already filtered from the sitemap.
-  const PAGE_SIZE = 1000;
+  // Exactly the bills the sitemap lists (app/sitemap.ts), i.e. the indexable ones: a recorded
+  // Commons vote, an active stage, an Act, or a Commons division of its own. The old filter
+  // (any bill with a current stage) listed almost all 4,000 bills once stages were restored,
+  // making /bills 3.1 MB of HTML (audit X12), and linked noindexed pages.
+  const ACTIVE_STAGE = /committee|report|3rd reading|third reading|consideration/;
+  const voted = new Set<number>();
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await supabase.from('sitemap_bill_ids').select('bill_id').order('bill_id').range(from, from + 999);
+    if (error) { console.error('AllBillsIndex voted ids:', error); break; }
+    for (const r of data || []) voted.add(r.bill_id as number);
+    if (!data || data.length < 1000) break;
+  }
   const out: BillRow[] = [];
-  let from = 0;
-  for (;;) {
+  for (let from = 0; ; from += 1000) {
     const { data, error } = await supabase
       .from('bill')
-      .select('id, title, current_stage, is_act, bill_withdrawn, is_defeated')
-      .or('commons_division_id.not.is.null,is_act.eq.true,current_stage.not.is.null')
+      .select('id, title, current_stage, status, is_act, bill_withdrawn, is_defeated, commons_division_id')
       .order('title', { ascending: true })
-      .range(from, from + PAGE_SIZE - 1);
-    if (error) {
-      console.error('AllBillsIndex fetch error:', error);
-      break;
+      .order('id', { ascending: true })
+      .range(from, from + 999);
+    if (error) { console.error('AllBillsIndex fetch error:', error); break; }
+    for (const b of (data || []) as (BillRow & { status: string | null; commons_division_id: number | null })[]) {
+      const ok = voted.has(b.id) || ACTIVE_STAGE.test((b.status || '').toLowerCase()) || b.is_act === true || b.commons_division_id != null;
+      if (ok) out.push(b);
     }
-    if (!data || data.length === 0) break;
-    out.push(...(data as BillRow[]));
-    if (data.length < PAGE_SIZE) break;
-    from += PAGE_SIZE;
+    if (!data || data.length < 1000) break;
   }
   return out;
 }

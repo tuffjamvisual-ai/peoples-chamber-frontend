@@ -11,8 +11,8 @@ import type { EditorialEntry } from '@/lib/editorials/types';
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: 'Editorials & Investigations',
-  description: 'Long-form investigations and editorials from opengovt.',
+  title: 'Investigations',
+  description: 'Every Open Govt investigation, newest first, with its date and summary. Each piece is checked against the public record.',
   alternates: { canonical: '/editorials' },
 };
 
@@ -39,7 +39,7 @@ export default function EditorialsIndexPage() {
 
       <header style={{ marginBottom: '4%' }}>
         <h1 style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(14px, 1.6vw, 19px)', fontWeight: 'bold', letterSpacing: '0.01em', lineHeight: 1.05, marginBottom: '14px' }}>
-          Editorials &amp; Investigations
+          Investigations
         </h1>
       </header>
 
@@ -59,6 +59,12 @@ export default function EditorialsIndexPage() {
             <h2 style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(22px, 2.6vw, 32px)', fontWeight: 'bold', letterSpacing: '0.01em', lineHeight: 1.1, marginBottom: '8px' }}>
               {e.headline} <span style={{ color: ACCENT }}>&rarr;</span>
             </h2>
+            <div style={{ fontSize: '15px', color: INK_SOFT, marginBottom: '6px' }}>
+              {new Date(e.publishedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })}
+            </div>
+            {e.standfirst && (
+              <p style={{ fontSize: '15px', lineHeight: 1.6, margin: 0, maxWidth: '46em' }}>{e.standfirst}</p>
+            )}
           </Link>
         ))}
       </div>

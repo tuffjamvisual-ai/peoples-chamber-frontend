@@ -12,6 +12,7 @@ import LastUpdated from '../components/LastUpdated';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
+import CouncilSearch from '../components/CouncilSearch';
 
 export const revalidate = 21600;
 
@@ -111,12 +112,16 @@ export default async function CouncilsIndex() {
         >
           Every UK principal authority, county councils, district councils, unitaries, metropolitan
           and London boroughs, and Northern Irish councils. 382 in total. Click any council to read
-          who runs it, how much it spends, and what it does. Political control, leadership and
-          budgets are being added in stages; most rows still carry only the foundation data.
+          who runs it, how much it spends, and what it does.
         </p>
 
+        <div style={{ maxWidth: '46em', margin: '0 auto 28px' }}>
+          <div style={{ fontFamily: MONO, fontSize: '15px', marginBottom: '8px', color: INK }}>Find a council by postcode or name</div>
+          <CouncilSearch />
+        </div>
+
         <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.75, margin: '0 auto 28px', maxWidth: '46em', color: INK, borderTop: `1px solid ${INK}`, borderBottom: `1px solid ${INK}`, padding: '10px 0' }}>
-          <a href="/councils/league-table" style={{ color: INK, fontWeight: 'bold' }}>Council area league table</a>: how every council area in England compares on schools, safety, health, jobs, housing, environment and connectivity, with a separate score for council services and warnings such as section 114 notices.
+          <a href="/councils/league-table" style={{ color: INK, fontWeight: 'bold' }}>How council areas compare</a>: how every council area in England compares on schools, safety, health, jobs, housing, environment and connectivity, with a separate score for selected council services and warnings such as section 114 notices.
         </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>

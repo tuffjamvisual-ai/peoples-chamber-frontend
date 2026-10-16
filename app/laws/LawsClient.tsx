@@ -1,5 +1,7 @@
 'use client'
 
+import { billSummary } from '@/lib/bill-summary';
+
 import { useState, useMemo, useEffect } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
@@ -12,6 +14,7 @@ type Law = {
   title: string
   plain_summary: string | null
   description?: string | null
+  long_title?: string | null
   current_stage?: string | null
   last_update: string | null
   stage_date?: string | null
@@ -48,7 +51,7 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
     return laws.filter(
       (law) =>
         law.title.toLowerCase().includes(q) ||
-        (law.plain_summary && law.plain_summary.toLowerCase().includes(q))
+        billSummary(law).toLowerCase().includes(q)
     )
   }, [laws, search])
 
@@ -260,7 +263,7 @@ function LawCard({ law, tilt }: { law: Law; tilt: number }) {
         {law.title}
       </h3>
 
-      {law.plain_summary && (
+      {billSummary(law) && (
         <p
           style={{
             fontSize: '15px',
@@ -273,7 +276,7 @@ function LawCard({ law, tilt }: { law: Law; tilt: number }) {
             overflow: 'hidden',
           }}
         >
-          {law.plain_summary}
+          {billSummary(law)}
         </p>
       )}
 

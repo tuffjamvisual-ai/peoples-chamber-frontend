@@ -209,7 +209,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     supabase.from('mp_biography').select('*').eq('member_id', memberId).single(),
     supabase
       .from('bill')
-      .select('id, title, status, current_stage, plain_summary, is_act, last_update')
+      .select('id, title, status, current_stage, description, long_title, is_act, last_update')
       .eq('sponsor_member_id', memberId)
       .order('created_at', { ascending: false }),
     // 20-per-page paginated voting record. ParlParse backfill (2026-06-05)

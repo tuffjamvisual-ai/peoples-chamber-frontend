@@ -1,3 +1,4 @@
+import { billSummary as officialBillSummary } from '@/lib/bill-summary';
 // Server-rendered division detail page. Slug matches the ParlParse identifier
 // format we already use to identify divisions: pw-YYYY-MM-DD-N-commons.
 //
@@ -147,12 +148,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const topic = stripProceduralSuffix(row.division_title ?? `Commons Division ${divisionNumber}`);
 
-  // Description: prefer the bill's plain-English summary, then an SI
+  // Description: prefer Parliament's summary of the bill, then an SI
   // explanatory note, then a procedural explainer, then a generic line.
   let billSummary: string | null = null;
   if (row.bill_id != null) {
-    const { data: bill } = await supabase.from('bill').select('plain_summary').eq('id', row.bill_id).maybeSingle();
-    billSummary = bill?.plain_summary ?? null;
+    const { data: bill } = await supabase.from('bill').select('title, description, long_title').eq('id', row.bill_id).maybeSingle();
+    billSummary = bill ? officialBillSummary(bill) || null : null;
   }
   let siDescription: string | null = null;
   if (!billSummary && row.division_id != null) {
@@ -264,11 +265,11 @@ export default async function DivisionDetailPage({ params }: PageProps) {
   if (billId != null) {
     const { data: bill } = await supabase
       .from('bill')
-      .select('title, plain_summary')
+      .select('title, description, long_title')
       .eq('id', billId)
       .maybeSingle();
     billTitle = bill?.title ?? null;
-    billSummary = bill?.plain_summary ?? null;
+    billSummary = bill ? officialBillSummary(bill) || null : null;
   }
 
   // SI description fallback: if this is a statutory instrument division

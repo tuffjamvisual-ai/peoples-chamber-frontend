@@ -8,6 +8,21 @@ import RelatedLinks from '../../components/RelatedLinks';
 import { govUrlToSlug } from '@/lib/govUrlSlug'
 import { resolveOrgToDeptSlug } from '@/lib/govOrgSlug'
 import { getDeptContext } from '../../api/department-context/route'
+import { editorials } from '@/lib/editorials'
+import type { EditorialEntry } from '@/lib/editorials/types'
+
+// Plain text of an HTML fragment, for comparing the summary with the body's opening.
+const plain = (html: string) => html.replace(/<[^>]+>/g, ' ').replace(/&[a-z#0-9]+;/gi, ' ').replace(/\s+/g, ' ').trim().toLowerCase()
+
+// Open Govt investigations about the department that issued a release (audit E4).
+function relatedInvestigations(organisation: string | null): EditorialEntry[] {
+  const dept = organisation ? resolveOrgToDeptSlug(organisation) : null
+  if (!dept) return []
+  return (Object.values(editorials) as EditorialEntry[])
+    .filter((e) => e.kind !== 'briefing' && (e.relatedDeptSlugs || []).includes(dept))
+    .sort((a, b) => (b.publishedAt || '').localeCompare(a.publishedAt || ''))
+    .slice(0, 3)
+}
 
 export const revalidate = 3600
 
@@ -109,6 +124,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: release.title,
     description: release.description || `${release.organisation || 'UK Government'} press release.`,
     alternates: { canonical: `/news/${slug}` },
+    // A word-for-word copy of a GOV.UK release: kept for readers, never indexed, so the
+    // GOV.UK original is the one search engines show (Search Console review, 16 Oct 2026).
+    robots: { index: false, follow: true },
   }
 }
 
@@ -213,7 +231,9 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
           </div>
         )}
 
-        {release.description && (
+        {/* The summary is left out when the body opens with the same words (audit E4: the
+            opening paragraph used to appear twice). */}
+        {release.description && !(bodyHtml && plain(bodyHtml).slice(0, 400).includes(plain(release.description).slice(0, 80))) && (
           <p
             className="text-[17px] sm:text-[19px] leading-[1.55] text-[#14100d]/95 mb-6"
             style={{ fontFamily: SERIF, fontStyle: 'italic' }}
@@ -234,6 +254,23 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
         )}
 
       </article>
+
+      {(() => {
+        const related = relatedInvestigations(release.organisation)
+        if (!related.length) return null
+        return (
+          <aside aria-label="Open Govt reporting" style={{ marginTop: '36px', paddingTop: '18px', borderTop: '2px solid rgba(20,16,13,0.18)', maxWidth: '680px' }}>
+            <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 10px' }}>
+              Open Govt reporting on this department
+            </p>
+            {related.map((e) => (
+              <p key={e.slug} style={{ fontFamily: "'Special Elite', monospace", fontSize: '15px', lineHeight: 1.6, margin: '0 0 8px' }}>
+                <Link href={`/editorials/${e.slug}`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{e.headline}</Link>
+              </p>
+            ))}
+          </aside>
+        )
+      })()}
 
       {/* A6 — department / SoS / more-from-org related links */}
       <RelatedLinks

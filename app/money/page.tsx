@@ -75,37 +75,37 @@ export default async function MoneyLanding() {
           The money that moves through UK politics
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.7, maxWidth: '60ch' }}>
-          Every fact below is on a public register. Some are on the Electoral Commission&rsquo;s donations log. Some are on gov.uk&rsquo;s Contracts Finder. Some are on the Register of Members&rsquo; Financial Interests. Some are on the APPG register or the gov.uk transparency feeds. Each one publishes its own slice on its own page in its own format. Reading them side by side is what produces the picture below; that is what no other tool currently does.
+          Every fact below is on a public register: the Electoral Commission&rsquo;s donations register, Find a Tender and Contracts Finder, the Register of Members&rsquo; Financial Interests, the APPG register and the GOV.UK transparency releases. Each publishes its own part in its own format. This page reads them side by side, so a donor, an MP and a contract can be seen together.
         </p>
       </header>
 
       <section style={{ marginBottom: '40px' }}>
         <h2 style={sectionH2}>Headline cross-references</h2>
-        <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '20px' }}>The four strongest patterns in the data. Each one is a join of two registers nobody else joins.</p>
+        <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '20px' }}>Four places where two registers name the same people or organisations.</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '18px' }}>
           <HeroTile
             href="/donations/double-dip"
-            label="Double-dip"
-            headline="MPs paid twice from the same source"
-            teaser="Rishi Sunak ↔ Hoover Institution. Gavin Williamson ↔ RTC Education. Jeremy Hunt + George Freeman ↔ Oxford Institute. Three MPs all ↔ GB News. Same body pays them as employees AND donates to their politics."
+            label="Employer and donor"
+            headline="MPs paid by a body that also donated to them"
+            teaser="Organisations listed in an MP's register both as a paying employer or client and as a donor to that MP. Each pairing comes from the MP's own declarations."
           />
           <HeroTile
             href="/donations/government-contractors"
             label="Public-sector contractors who donate"
-            headline="£120M of contracts. £2.5M of donations. Same companies."
-            teaser="PwC, KPMG, Deloitte and Ernst & Young between them hold £120M+ in declared public-sector contracts and have given £2.5M+ in declared political donations. Microsoft, SSE, Randox, Grant Thornton same dual-role."
+            headline="Companies with public contracts that also donate"
+            teaser="Companies that appear both in the government contracts records and in the Electoral Commission's donations register, with the totals from each."
           />
           <HeroTile
             href="/donations/sponsored-visits"
             label="Who paid for MPs to travel"
             headline={`${n.sponsored.toLocaleString()} declared paid trips`}
-            teaser="Hong Kong Government paid for 30 MP trips totalling £280k. Conservative Friends of Israel paid for 98. The Qatari, Saudi, Taiwanese and Indian foreign ministries all appear in the top tier. The full paymaster league."
+            teaser="Every overseas visit MPs declared as paid for by someone else, ranked by who paid, with the number of trips and their declared value."
           />
           <HeroTile
             href="/donors"
-            label="Donor profiles with auto-contracts panel"
-            headline="Every Big Four donor profile shows the contracts side too"
-            teaser="Visit /donors/pricewaterhousecoopers-llp and you get the political donations PLUS the public-sector contracts PLUS the APPG funding under one cream paper. Two government registers in one frame."
+            label="Donor profiles"
+            headline="Each donor's donations, contracts and APPG funding together"
+            teaser="A donor's profile shows its political donations and, where the same organisation holds public contracts or funds all-party groups, those records too."
           />
         </div>
       </section>
@@ -113,21 +113,21 @@ export default async function MoneyLanding() {
       <section style={{ marginBottom: '40px' }}>
         <h2 style={sectionH2}>Sector and contest pivots</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
-          <SecondaryTile href="/donations/foreign" label="Foreign-source map" sub={`USA £617k, Saudi £214k, Qatar £203k, UAE £171k. ${n.foreign.toLocaleString()} declared donations from outside the UK.`} />
-          <SecondaryTile href="/donations/leadership-contests" label="Leadership-race money" sub="2016 Owen Smith £400k. 2022 Truss + Sunak £400k. The donors writing cheques into specific leadership contests, by candidate." />
-          <SecondaryTile href="/donations/constituencies" label="Money on the ground" sub="Twickenham £997k. Richmond Park CLP £667k from just 20 donations. West Suffolk £491k. Which UK seats get bankrolled." />
-          <SecondaryTile href="/donations/bequest" label="Dead-donor money" sub={`£27M of declared bequests to UK parties. Conservatives lead. Sinn Féin's £2.8M from 6 estates includes one £2.4M individual.`} />
-          <SecondaryTile href="/secretariats" label="APPG secretariats" sub="Policy Connect runs 6 lobby groups. Hanbury, GK Strategy, Lodestone, CalComms, Stewart Public Affairs all on 3. The lobby-firm league." />
-          <SecondaryTile href="/appg-funders" label={`APPG funders · ${n.appgFunders}`} sub="BAE Systems pays for 3 different APPGs. Joseph Rowntree Charitable Trust pays for 2. The funders buying parliamentary access." />
+          <SecondaryTile href="/donations/foreign" label="Money from abroad" sub={`${n.foreign.toLocaleString()} declared donations from outside the UK, by country.`} />
+          <SecondaryTile href="/donations/leadership-contests" label="Leadership-race money" sub="Donations declared for party leadership contests, by contest and candidate." />
+          <SecondaryTile href="/donations/constituencies" label="Money by constituency" sub="Donations to local parties and candidates, totalled by constituency." />
+          <SecondaryTile href="/donations/bequest" label="Bequests" sub="Money left to parties in wills, as declared to the Electoral Commission, by party and estate." />
+          <SecondaryTile href="/secretariats" label="APPG secretariats" sub="The organisations that run all-party groups' secretariats, and how many groups each runs." />
+          <SecondaryTile href="/appg-funders" label={`APPG funders · ${n.appgFunders}`} sub="Who funds all-party parliamentary groups, and how many groups each funds." />
         </div>
       </section>
 
       <section style={{ marginBottom: '40px' }}>
-        <h2 style={sectionH2}>Compliance pivots</h2>
+        <h2 style={sectionH2}>Reporting and compliance</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
-          <SecondaryTile href="/donations/late-disclosed" label="Late disclosures" sub="14,859 donations declared 90+ days after acceptance. 1,054 declared over a year late. Worst gap: 13 years." />
-          <SecondaryTile href="/donations/impermissible" label="Returned donations" sub="166 donations the EC ruled impermissible. Reform UK appears repeatedly on recent direct-bank-transfer entries." />
-          <SecondaryTile href="/donations/trust-funded" label="Trust-routed money" sub={`${n.trust} declared donations from 65 trusts. The beneficial-ownership shield UK law allows.`} />
+          <SecondaryTile href="/donations/late-disclosed" label="Late disclosures" sub="Donations reported to the Electoral Commission long after they were accepted, with the gap in days." />
+          <SecondaryTile href="/donations/impermissible" label="Returned donations" sub="Donations the Electoral Commission records as impermissible, and what happened to them." />
+          <SecondaryTile href="/donations/trust-funded" label="Trust-routed money" sub={`${n.trust} declared donations from trusts, by trust and recipient.`} />
         </div>
       </section>
 

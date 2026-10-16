@@ -56,7 +56,7 @@ const NAV: NavItem[] = [
   ] },
   { label: 'Local', href: '/councils', children: [
     { label: 'Councils', href: '/councils' },
-    { label: 'Council League Table', href: '/councils/league-table' },
+    { label: 'How Council Areas Compare', href: '/councils/league-table' },
     { label: 'Sewage Spills', href: '/sewage' },
   ] },
   { label: 'Accountability', href: '/transparency', children: [
@@ -123,7 +123,7 @@ export default function OpenGovShell({
           <div className="ng-tab" style={{ transform: 'rotate(-2.5deg)' }}>
             <AccountTab />
             <span aria-hidden style={{ display: 'inline-block', width: '1px', height: '0.95em', background: 'currentColor', opacity: 0.5, margin: '0 7px' }} />
-            <a href="/support">Support Us</a>
+            <a href="/donate">Support Us</a>
           </div>
 
           <div className="og-masthead-wrap" style={{ position: 'absolute', top: '3.6%', left: '5%', width: '90%', textAlign: 'left', zIndex: 5, pointerEvents: 'none', transform: 'rotate(-2.5deg)' }}>

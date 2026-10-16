@@ -44,6 +44,51 @@ export const MEASURE_SOURCES: Record<string, string> = {
   planning_major: 'MHCLG, planning applications statistics (table P151a)',
   planning_nonmajor: 'MHCLG, planning applications statistics (table P153)',
 };
+// Where each source can be checked (audit L1). Landing pages, checked 16 Oct 2026.
+export const MEASURE_SOURCE_URLS: Record<string, string> = {
+  schools_quality: 'https://www.gov.uk/government/statistical-data-sets/monthly-management-information-ofsteds-school-inspections-outcomes',
+  childrens_services: 'https://www.gov.uk/government/collections/childrens-social-care-statistics',
+  crime: 'https://data.police.uk/data/',
+  roads: 'https://www.gov.uk/government/statistical-data-sets/road-safety-statistics-data-tables',
+  life_exp_f: 'https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/healthandlifeexpectancies/datasets/lifeexpectancyforlocalareasofgreatbritain',
+  life_exp_m: 'https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/healthandlifeexpectancies/datasets/lifeexpectancyforlocalareasofgreatbritain',
+  obesity: 'https://fingertips.phe.org.uk/',
+  claimants: 'https://www.nomisweb.co.uk/sources/cc',
+  child_poverty: 'https://www.gov.uk/government/collections/children-in-low-income-families-local-area-statistics',
+  fuel_poverty: 'https://www.gov.uk/government/statistics/sub-regional-fuel-poverty-report-2026-2024-data',
+  temp_accommodation: 'https://www.gov.uk/government/statistical-data-sets/live-tables-on-homelessness',
+  affordability: 'https://www.ons.gov.uk/peoplepopulationandcommunity/housing/datasets/ratioofhousepricetoresidencebasedearningslowerquartileandmedian',
+  recycling: 'https://www.gov.uk/government/statistics/local-authority-collected-waste-management-annual-results',
+  sewage: 'https://www.data.gov.uk/dataset/19f6064d-7356-466f-844e-d20ea10ae9fd/event-duration-monitoring-storm-overflows-annual-returns',
+  gigabit: 'https://www.ofcom.org.uk/phones-and-broadband/coverage-and-speeds/',
+  indoor_4g_all: 'https://www.ofcom.org.uk/phones-and-broadband/coverage-and-speeds/',
+  planning_major: 'https://www.gov.uk/government/statistical-data-sets/live-tables-on-planning-application-statistics',
+  planning_nonmajor: 'https://www.gov.uk/government/statistical-data-sets/live-tables-on-planning-application-statistics',
+};
+// Who is mainly responsible for what each measure counts (audit L11). Many measures depend
+// on far more than any one body; the wording says so.
+export const MEASURE_RESPONSIBLE: Record<string, string> = {
+  schools_quality: 'Schools and academy trusts; the council for its own maintained schools',
+  childrens_services: 'County or unitary council',
+  crime: 'Police force, with councils sharing community safety duties',
+  roads: 'Highway authority (county or unitary council; National Highways for motorways and trunk roads)',
+  life_exp_f: 'Many factors; NHS and council public health play a part',
+  life_exp_m: 'Many factors; NHS and council public health play a part',
+  obesity: 'Many factors; council public health plays a part',
+  claimants: 'Local economy; Department for Work and Pensions runs the benefit',
+  child_poverty: 'Incomes and benefits, set mostly by UK government',
+  fuel_poverty: 'Energy prices, incomes and housing; mostly UK government policy',
+  temp_accommodation: 'Housing authority (district or unitary council)',
+  affordability: 'Housing market; councils plan for new homes',
+  recycling: 'Waste collection authority (district or unitary council)',
+  sewage: 'Water company',
+  gigabit: 'Telecoms companies; Ofcom regulates',
+  indoor_4g_all: 'Mobile companies; Ofcom regulates',
+  planning_major: 'Local planning authority (district or unitary council)',
+  planning_nonmajor: 'Local planning authority (district or unitary council)',
+};
+export const STAT_NEIGHBOURS_URL = 'https://assets.publishing.service.gov.uk/media/6a452aee1c8bd7ce25a5e8fa/010726_MHCLG_Statistical_Neighbours.xlsx';
+
 export const MEASURE_TOPIC: Record<string, string> = {
   schools_quality: 'Schools and children', childrens_services: 'Schools and children',
   crime: 'Safety', roads: 'Safety',
@@ -159,7 +204,7 @@ export type LeagueData = {
   rows: LeagueRow[];          // ranked areas
   separate: LeagueRow[];      // listed separately (too small to rank fairly)
   councils: CouncilRef[];
-  measureInfo: { key: string; label: string; period: string | null; better: string; topic: string; source: string }[];
+  measureInfo: { key: string; label: string; period: string | null; better: string; topic: string; source: string; sourceUrl: string | null; responsible: string }[];
   stability: { versions: number; near: number; never: number; ranked: number };
   reservesYear: string | null;
   // Every English council's own flags (district flags without Ofsted, which counties hold),
@@ -248,7 +293,7 @@ export const getLeagueData = cache(async (): Promise<LeagueData> => {
   const seen = new Map<string, { label: string; period: string | null; better: string }>();
   for (const r of all) for (const [k, m] of Object.entries(r.measures)) if (!seen.has(k)) seen.set(k, { label: m.label, period: m.period, better: m.better });
   const order = Object.keys(MEASURE_TOPIC);
-  const measureInfo = order.filter((k) => seen.has(k)).map((k) => ({ key: k, ...seen.get(k)!, period: formatPeriod(seen.get(k)!.period), topic: MEASURE_TOPIC[k], source: MEASURE_SOURCES[k] ?? '' }));
+  const measureInfo = order.filter((k) => seen.has(k)).map((k) => ({ key: k, ...seen.get(k)!, period: formatPeriod(seen.get(k)!.period), topic: MEASURE_TOPIC[k], source: MEASURE_SOURCES[k] ?? '', sourceUrl: MEASURE_SOURCE_URLS[k] ?? null, responsible: MEASURE_RESPONSIBLE[k] ?? '' }));
 
   const versions = rows.find((r) => r.bandVersions != null)?.bandVersions ?? 0;
   const stability = {

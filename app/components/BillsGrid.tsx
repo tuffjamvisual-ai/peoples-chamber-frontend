@@ -1,5 +1,7 @@
 'use client';
 
+import { billSummary } from '@/lib/bill-summary';
+
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
@@ -145,7 +147,7 @@ export default function BillsGrid({ initialBills, currentPage, totalPages }: Pro
     if (parliamentVotedFilter) filtered = filtered.filter((bill: any) => bill.commons_ayes !== null && bill.commons_noes !== null);
     if (youVotedFilter) filtered = filtered.filter((bill: any) => userVotes[bill.id]);
     if (notVotedFilter) filtered = filtered.filter((bill: any) => !userVotes[bill.id]);
-    if (hasSummaryFilter) filtered = filtered.filter((bill: any) => bill.plain_summary);
+    if (hasSummaryFilter) filtered = filtered.filter((bill: any) => billSummary(bill));
 
     if (sortBy === 'trending') {
       filtered.sort((a: any, b: any) => 

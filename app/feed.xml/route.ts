@@ -1,3 +1,4 @@
+import { billSummary } from '@/lib/bill-summary';
 // /feed.xml — RSS 2.0 feed serving the 50 most recently updated MP
 // profiles and bills. Pulls from existing mps + bill tables with no new
 // indices required; sorts the unioned stream by recency and renders one
@@ -96,7 +97,7 @@ async function fetchMpItems(): Promise<FeedItem[]> {
 async function fetchBillItems(): Promise<FeedItem[]> {
   const { data: billRows } = await supabase
     .from('bill')
-    .select('id, title, plain_summary, current_stage, sponsor_name, last_update, is_act')
+    .select('id, title, description, long_title, current_stage, sponsor_name, last_update, is_act')
     .or(
       'commons_division_id.not.is.null,is_act.eq.true,current_stage.not.is.null',
     )
@@ -108,13 +109,14 @@ async function fetchBillItems(): Promise<FeedItem[]> {
     (b: {
       id: number;
       title: string;
-      plain_summary: string | null;
+      description: string | null;
+      long_title: string | null;
       current_stage: string | null;
       sponsor_name: string | null;
       last_update: string | null;
       is_act: boolean | null;
     }) => {
-      const lead = firstSentence(b.plain_summary, 200);
+      const lead = firstSentence(billSummary(b), 200);
       const statusBits: string[] = [];
       if (b.is_act) statusBits.push('Now an Act of Parliament');
       else if (b.current_stage) statusBits.push(`Currently at ${b.current_stage}`);

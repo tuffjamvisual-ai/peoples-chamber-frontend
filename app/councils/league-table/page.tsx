@@ -14,12 +14,12 @@ import BackLink from '../../components/BackLink';
 import LastUpdated from '../../components/LastUpdated';
 import LeagueTable from './LeagueTable';
 import type { ClientRow } from './LeagueTable';
-import { getLeagueData, TOPIC_NAMES, SERVICE_PARTS } from '@/lib/council-league';
+import { getLeagueData, TOPIC_NAMES, SERVICE_PARTS, STAT_NEIGHBOURS_URL } from '@/lib/council-league';
 
 export const revalidate = 21600;
 
 export const metadata: Metadata = {
-  title: 'Council area league table for England',
+  title: 'How council areas in England compare',
   description:
     'How every council area in England compares on schools, safety, health, jobs and poverty, housing, environment, connectivity and local services, with a separate score for the services councils run and warnings such as section 114 notices.',
   alternates: { canonical: '/councils/league-table' },
@@ -42,10 +42,13 @@ export default async function LeagueTablePage() {
     areaScore: r.areaScore, areaRank: r.areaRank, areaBand: r.areaBand, nearBoundary: r.nearBoundary,
     bandChanges: r.bandChanges, bandVersions: r.bandVersions, topics: r.topics,
     servicesScore: r.servicesScore, servicesRank: r.servicesRank, servicesBand: r.servicesBand, services: r.services,
-    peer: r.peer, flags: r.flags.map((f) => ({ label: f.label, county: f.county })),
+    peer: r.peer, flags: r.flags.map((f) => ({ label: f.label, county: f.county, kind: f.kind })),
   });
   const rows = data.rows.map(toClient);
-  const flagged = data.rows.filter((r) => r.flags.length > 0).length;
+  // Areas with a flag of their own, counted once; districts whose only flags belong to their
+  // county are counted separately so a county's flag is not counted once per district (audit L10).
+  const flagged = data.rows.filter((r) => r.flags.some((f) => !f.county)).length;
+  const countyOnly = data.rows.filter((r) => r.flags.length > 0 && r.flags.every((f) => f.county)).length;
   const { stability } = data;
 
   const th: CSSProperties = { textAlign: 'left', padding: '6px 10px 6px 0', borderBottom: `1px solid ${INK}`, fontWeight: 'normal', verticalAlign: 'bottom' };
@@ -65,15 +68,18 @@ export default async function LeagueTablePage() {
             England · {stability.ranked} council areas
           </div>
           <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(28px, 3.4vw, 44px)', fontWeight: 500, letterSpacing: '0.005em', lineHeight: 1.18, margin: 0 }}>
-            Council Area League Table
+            How Council Areas Compare
           </h1>
+          <div style={{ fontFamily: MONO, fontSize: '15px', marginTop: '8px' }}>
+            An area rating and a separate score for selected council services. Not a ranking of how well councils are run.
+          </div>
         </header>
 
         <p style={para}>
           Two separate tables. The <strong>area rating</strong> shows how each area compares with the rest of England on eight topics, from schools and crime to health, housing and broadband. Much of that depends on things no council controls, such as local incomes and history, so it describes the area, not how well the council is run.
         </p>
         <p style={para}>
-          The <strong>council services</strong> score covers services councils run: schools, children’s services, recycling and planning. Each area is also placed among the 15 councils the government judges most like it, which is the fairest comparison. Warning flags show serious problems on the record, such as a section 114 notice (a council declaring it cannot balance its budget), with their dates. {flagged} areas have at least one.
+          The <strong>selected council services</strong> score covers four services councils run: schools, children’s services, recycling and planning. It does not cover every service, so it is not a verdict on the whole council. Each area is also placed among the 15 councils the government judges most like it, which is the fairest comparison. Warning flags show serious problems on the record, such as a section 114 notice (a council declaring it cannot balance its budget), with their dates, split into formal action and signs of financial pressure. {flagged} areas have a flag of their own{countyOnly > 0 ? `, and ${countyOnly} more districts have only a flag held by their county council` : ''}.
         </p>
         <p style={para}>
           Bands split the ranked areas into fifths: band 1 is the top fifth, band 5 the bottom. An area marked <span style={{ color: ACCENT }}>≈</span> is close to the edge of its band, so a small change in method could move it into the next one.
@@ -97,7 +103,7 @@ export default async function LeagueTablePage() {
         <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
           <h2 style={h2}>How the scores work</h2>
           <p style={para}>
-            Each measure is scored from 0 to 100 by where the area sits among all areas in England: the lowest figure scores 0, the highest 100, and areas with the same figure share a score. A topic’s score is the average of its measures, and the area score is the average of the eight topic scores, each counting the same. An area needs figures for at least six of the eight topics to be ranked; a missing figure never counts against it. For a district, county-run services (schools, children’s services) and health figures published only for the county come from its county.
+            Each measure is scored from 0 to 100 by where the area sits among all areas in England: the lowest figure scores 0, the highest 100, and areas with the same figure share a score. A topic’s score is the average of its measures, and the area score is the average of the eight topic scores, each counting the same. Topics count equally because there is no agreed way to say one matters more than another; the weight test below shows how much the order depends on that choice. An area needs figures for at least six of the eight topics to be ranked; a missing figure never counts against it. For a district, county-run services (schools, children’s services) and health figures published only for the county come from its county.
           </p>
           <p style={para}>
             The council services score averages four parts: schools, children’s services, recycling and planning (major and other decisions averaged, so planning counts once). An area needs at least three of the four. Adult social care will join when the Care Quality Commission’s ratings can be added.
@@ -116,6 +122,7 @@ export default async function LeagueTablePage() {
                   <th style={th}>Measure</th>
                   <th style={th}>Better</th>
                   <th style={th}>Period</th>
+                  <th style={th}>Mainly responsible</th>
                   <th style={th}>Source</th>
                 </tr>
               </thead>
@@ -126,14 +133,18 @@ export default async function LeagueTablePage() {
                     <td style={td}>{m.label}</td>
                     <td style={td}>{m.better === 'higher' ? 'Higher' : 'Lower'}</td>
                     <td style={td}>{m.period ?? '–'}</td>
-                    <td style={td}>{m.source}</td>
+                    <td style={td}>{m.responsible}</td>
+                    <td style={td}>{m.sourceUrl ? <a href={m.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{m.source}</a> : m.source}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
           <p style={para}>
-            Crime is recorded crimes per 1,000 residents over 12 months, not counting anti-social behaviour. Greater Manchester’s published figures are incomplete, so its boroughs are not scored on crime. City of London and the Isles of Scilly are too small to compare fairly and are listed separately. Statistical Neighbours: Ministry of Housing, Communities and Local Government model, 1 July 2026. Council finance: MHCLG revenue outturn 2024-25 (reserves), GOV.UK exceptional financial support and intervention pages.
+            Roads use the Department for Transport’s adjusted counts of people killed or seriously injured. Police forces record injuries in different ways, and some changed systems in recent years; the adjusted figures correct for that so areas can be compared. They are counted per billion vehicle miles on the highway authority’s roads.
+          </p>
+          <p style={para}>
+            Crime is recorded crimes per 1,000 residents over 12 months, not counting anti-social behaviour. Greater Manchester’s published figures are incomplete, so its boroughs are not scored on crime. City of London and the Isles of Scilly are too small to compare fairly and are listed separately. Statistical Neighbours: <a href={STAT_NEIGHBOURS_URL} style={{ color: INK }}>Ministry of Housing, Communities and Local Government model, 1 July 2026</a>. Council finance: MHCLG revenue outturn 2024-25 (reserves), GOV.UK exceptional financial support and intervention pages.
           </p>
           <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: 0, maxWidth: '46em' }}>
             Government sources are published under the Open Government Licence v3.0. Ofcom Connected Nations data is published by Ofcom. Police recorded crime from data.police.uk under the Open Government Licence.

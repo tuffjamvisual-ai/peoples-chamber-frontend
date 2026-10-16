@@ -1,3 +1,4 @@
+import { billSummary } from '@/lib/bill-summary';
 import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 
@@ -15,19 +16,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       // Single string literal — Supabase's compile-time type inference
       // can't parse a runtime-concatenated select, and falls back to
       // GenericStringError, which then trips every bill.* access below.
-      'title, long_title, current_stage, plain_summary, is_act, is_defeated, bill_withdrawn, commons_division_id, commons_ayes, commons_noes, sponsor_name, sponsors'
+      'title, long_title, description, current_stage, is_act, is_defeated, bill_withdrawn, commons_division_id, commons_ayes, commons_noes, sponsor_name, sponsors'
     )
     .eq('id', billId)
     .single();
   if (!bill) return { title: 'Bill' };
   const title = bill.title || bill.long_title || `Bill ${billId}`;
 
-  // First sentence of the AI summary, capped at ~130 chars so we have
+  // First sentence of Parliament's summary, capped at ~130 chars so we have
   // room for a status fragment + sponsor name. Tackles Soft 404 (each
   // bill gets a unique snippet) and Duplicate without canonical (same-
   // titled siblings now diverge because their division / stage /
   // sponsor differ). GSC 2026-06-04.
-  const summary = (bill.plain_summary || '').replace(/\s+/g, ' ').trim();
+  const summary = billSummary(bill);
   let lead = '';
   if (summary) {
     const period = summary.indexOf('.');

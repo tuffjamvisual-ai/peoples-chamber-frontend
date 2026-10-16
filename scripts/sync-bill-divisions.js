@@ -9,8 +9,8 @@
 //   1. Exact normalised match on the pre-colon segment of the division title
 //      ("Pension Schemes Bill: Third Reading" → "Pension Schemes Bill")
 //   2. Jaccard word-overlap >= 0.65 on the same segment vs bill title
-// Where a bill has multiple matching divisions, we prefer Third Reading,
-// then Second Reading, then the most recent division by date.
+// Only Second and Third Reading divisions are used (the vote on the bill itself); Third
+// Reading is preferred, then Second Reading, then the most recent by date.
 
 const fs = require('fs');
 const path = require('path');
@@ -59,18 +59,52 @@ function jaccard(a, b) {
 // "Pension Schemes Bill: Third Reading" → "Pension Schemes Bill"
 // "Pension Schemes Bill"               → "Pension Schemes Bill"
 function billSegment(divTitle) {
-  const colon = divTitle.indexOf(':');
-  return (colon !== -1 ? divTitle.slice(0, colon) : divTitle).trim();
+  let t = String(divTitle || '').trim();
+  // "Third Reading of the European Union (Withdrawal Agreement) Bill"
+  t = t.replace(/^(second|third) reading of (the )?/i, '');
+  const colon = t.indexOf(':');
+  t = (colon !== -1 ? t.slice(0, colon) : t).trim();
+  // "Bank of England and Financial Services (Third Reading) Bill"
+  return t.replace(/\s*\((second|third) reading\)\s*/i, ' ').replace(/\s+/g, ' ').trim();
 }
 
-// Preference score for a division — prefer the definitive vote on a bill.
+// 4 = Third Reading, 3 = Second Reading, 0 = anything else. A reading counts only when the
+// division IS the reading: the words after the bill name end with it and are not an
+// amendment, motion or instruction about it ("Reasoned Amendment to Second Reading" is not
+// the vote on the bill, audit P10). "(Amendment)" inside the bill's own name is fine.
 function stageScore(title) {
-  const t = title.toLowerCase();
-  if (/third reading/.test(t))  return 4;
-  if (/second reading/.test(t)) return 3;
-  if (/report stage/.test(t))   return 2;
-  if (/committee stage/.test(t)) return 1;
+  const t = String(title || '').trim();
+  const lower = t.toLowerCase();
+  const pre = lower.match(/^(second|third) reading of /);
+  if (pre) return pre[1] === 'third' ? 4 : 3;
+  const inName = lower.match(/\((second|third) reading\)\s*bill/);
+  if (inName) return inName[1] === 'third' ? 4 : 3;
+  const colon = t.indexOf(':');
+  if (colon === -1) return 0;
+  const rest = lower.slice(colon + 1).trim();
+  if (/amendment|amdt|motion|instruction|resolution|programme|revival|closure/.test(rest)) return 0;
+  if (/^third reading[\s.]*$/.test(rest)) return 4;
+  if (/^second reading[\s.]*$/.test(rest)) return 3;
   return 0;
+}
+
+// The days a bill was before Parliament: first to last stage sitting, a day either side.
+// A division outside that window is not on this bill, however alike the names (the 2016
+// Investigatory Powers Bill vote was matched to the 2024 Investigatory Powers (Amendment)
+// Act, audit P10).
+const DAY = 86400000;
+function billWindow(bill) {
+  const dates = [];
+  for (const st of (bill.stages && bill.stages.items) || []) {
+    for (const s of st.stageSittings || []) if (s && s.date) dates.push(new Date(s.date).getTime());
+  }
+  if (!dates.length) return null;
+  return { from: Math.min(...dates) - DAY, to: Math.max(...dates) + DAY };
+}
+
+// "X Act 2016" → "x bill"; "X Bill [HL]" → "x bill", so an Act and the bill it came from compare equal.
+function billName(title) {
+  return normalise(String(title || '').replace(/\[(hl|lords)\]/ig, '').replace(/\s+act(\s+\d{4})?\s*$/i, ' bill'));
 }
 
 // ─── Fetch all divisions ──────────────────────────────────────────────────
@@ -101,7 +135,7 @@ async function loadBills() {
   const bills = [];
   let from = 0;
   while (true) {
-    const { data, error } = await supabase.from('bill').select('id, title').range(from, from + 999);
+    const { data, error } = await supabase.from('bill').select('id, title, stages').order('id').range(from, from + 999);
     if (error) { console.error('[bill-divisions] bill fetch error:', error.message); break; }
     if (!data || data.length === 0) break;
     bills.push(...data);
@@ -114,47 +148,40 @@ async function loadBills() {
 // ─── Match ────────────────────────────────────────────────────────────────
 
 function matchDivisionsToBills(divisions, bills) {
-  // Exact-match lookup: normalised bill title → bill
-  const exactMap = new Map();
-  for (const bill of bills) exactMap.set(normalise(bill.title), bill);
-
-  // Keyword sets for fuzzy fallback
-  const billKws = bills.map(b => ({ bill: b, kws: keyWords(b.title) }));
+  const prepared = bills
+    .map((b) => ({ bill: b, name: billName(b.title), kws: keyWords(String(b.title || '').replace(/\[(hl|lords)\]/ig, '')), win: billWindow(b) }))
+    .filter((p) => p.win); // a bill with no sitting dates cannot be checked, so is not matched
 
   // bill_id → best-candidate division
   const candidates = new Map();
+  // division id → bill id, for every matched division
+  const divisionBill = new Map();
 
   for (const div of divisions) {
     const seg = billSegment(div.Title);
-    const normSeg = normalise(seg);
-
-    let matchedBill = null;
-    let confidence = 0;
-
-    // 1. Exact
-    if (exactMap.has(normSeg)) {
-      matchedBill = exactMap.get(normSeg);
-      confidence = 1.0;
-    }
-
-    // 2. Fuzzy fallback
-    if (!matchedBill) {
-      const segKws = keyWords(seg);
-      if (segKws.size < 2) continue; // too short to match reliably
-      let best = 0, bestBill = null;
-      for (const { bill, kws } of billKws) {
-        const score = jaccard(segKws, kws);
-        if (score > best) { best = score; bestBill = bill; }
-      }
-      if (best >= FUZZY_THRESHOLD) { matchedBill = bestBill; confidence = best; }
-    }
-
-    if (!matchedBill) continue;
-
-    const existing = candidates.get(matchedBill.id);
-    const thisScore = stageScore(div.Title);
+    const segName = billName(seg);
+    const segKws = keyWords(seg.replace(/\[(hl|lords)\]/ig, ''));
     const divDate = new Date(div.Date).getTime();
 
+    // Bills whose name matches (exactly, or by word overlap) AND that were before Parliament
+    // on the day of the vote. Exact name beats overlap; higher overlap beats lower.
+    let matchedBill = null;
+    let confidence = 0;
+    for (const p of prepared) {
+      if (divDate < p.win.from || divDate > p.win.to) continue;
+      let score = 0;
+      if (p.name === segName) score = 1.0;
+      else if (segKws.size >= 2) { const j = jaccard(segKws, p.kws); if (j >= FUZZY_THRESHOLD) score = Math.min(j, 0.99); }
+      if (score > confidence) { confidence = score; matchedBill = p.bill; }
+    }
+    if (!matchedBill) continue;
+
+    // Every matched division maps to its bill for vote rows (data/division-bill-map.json),
+    // including amendment votes; only the bill's own headline figure is readings-only.
+    divisionBill.set(div.DivisionId, matchedBill.id);
+    const thisScore = stageScore(div.Title);
+    if (thisScore < 3) continue;
+    const existing = candidates.get(matchedBill.id);
     if (
       !existing ||
       thisScore > existing.stageScore ||
@@ -175,7 +202,7 @@ function matchDivisionsToBills(divisions, bills) {
     }
   }
 
-  return [...candidates.values()];
+  return { matches: [...candidates.values()], divisionBill };
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────
@@ -190,7 +217,7 @@ async function main() {
   console.log(`[bill-divisions] ${divisions.length} divisions fetched`);
 
   console.log('[bill-divisions] matching…');
-  const matches = matchDivisionsToBills(divisions, bills);
+  const { matches, divisionBill } = matchDivisionsToBills(divisions, bills);
   console.log(`[bill-divisions] ${matches.length} bills matched`);
 
   if (matches.length === 0) { console.log('[bill-divisions] nothing to update.'); return; }
@@ -221,7 +248,7 @@ async function main() {
 
   // Write division→bill_id mapping for sync-mp-votes.js
   const map = {};
-  for (const m of matches) map[m.divisionId] = m.billId;
+  for (const [divisionId, billId] of divisionBill) map[divisionId] = billId;
   fs.mkdirSync(path.dirname(MAP_FILE), { recursive: true });
   fs.writeFileSync(MAP_FILE, JSON.stringify(map, null, 2));
   console.log(`[bill-divisions] wrote ${MAP_FILE} (${Object.keys(map).length} entries)`);

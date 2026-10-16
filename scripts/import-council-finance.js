@@ -7,9 +7,10 @@
 // report has been approved.
 //
 // Sources:
-//   * Section 114 reports: verified list below. Each date checked against the published
-//     record of notices (Wikipedia "Section 114 notice", which cites the councils' own
-//     reports) and the Commons committee report "Financial distress in local authorities".
+//   * Section 114 reports: verified list below, from the Commons Levelling Up, Housing and
+//     Communities Committee report "Financial distress in local authorities" (HC 56, 2024),
+//     footnote 3, which lists every notice since 2018. Exact dates where the published record
+//     gives a day; Northumberland is given by month only (May 2022), so it has no day.
 //     Warnings that a notice might be needed are NOT included.
 //   * Exceptional financial support: GOV.UK pages "Exceptional financial support for local
 //     authorities for <year>" (Open Government Licence). Councils are matched by name;
@@ -33,13 +34,14 @@ const { createClient } = require('@supabase/supabase-js');
 const WRITE = process.argv.includes('--write');
 const UA = { 'User-Agent': 'opengovt-import/1.0' };
 const CODE_ALIASES = { E08000038: 'E08000016', E08000039: 'E08000019' };
-const S114_SOURCE = 'https://en.wikipedia.org/wiki/Section_114_notice';
-const S114_SOURCE_2 = 'https://publications.parliament.uk/pa/cm5804/cmselect/cmcomloc/56/report.html';
+const S114_SOURCE = 'https://publications.parliament.uk/pa/cm5804/cmselect/cmcomloc/56/report.html';
+const S114_SOURCE_TEXT = 'House of Commons Levelling Up, Housing and Communities Committee, Financial distress in local authorities (HC 56, 2024), footnote 3';
 // name used to find the council in our table, and the date of each section 114 report
 const SECTION_114 = [
   ['Croydon', '2020-11-11'], ['Croydon', '2020-12-02'], ['Croydon', '2022-11-22'],
   ['Slough', '2021-07-02'],
   ['Nottingham', '2021-12-15'], ['Nottingham', '2023-11-29'],
+  ['Northumberland', '2022-05'],
   ['Thurrock', '2022-12-19'],
   ['Woking', '2023-06-07'],
   ['Birmingham', '2023-09-05'],
@@ -88,7 +90,7 @@ const content = (path) => get(`https://www.gov.uk/api/content${path}`, 'json');
   console.log('\n--- 1. Section 114 reports (verified list) ---');
   for (const [n, date] of SECTION_114) {
     const c = find(n);
-    events.push({ council_gss_code: c.gss_code, event_type: 'section_114', period: date, event_date: date, amount_gbp: null, detail: { council: c.name }, source: 'Section 114 reports (published record of notices; Commons committee report on financial distress)', source_url: S114_SOURCE });
+    events.push({ council_gss_code: c.gss_code, event_type: 'section_114', period: date, event_date: date.length === 10 ? date : null, amount_gbp: null, detail: { council: c.name }, source: S114_SOURCE_TEXT, source_url: S114_SOURCE });
     console.log(`  ${c.name}: ${date}`);
   }
   const tableYears = eng.filter((c) => c.section_114_year).map((c) => `${c.name} ${c.section_114_year}`);

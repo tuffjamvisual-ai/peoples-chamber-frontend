@@ -420,9 +420,18 @@ function AllPartiesView({
 
       {searching ? (
         matches.length === 0 ? (
+          // A postcode (whole or part-typed) never matches a name, so "No MPs match" would
+          // show while the lookup runs or before the postcode is complete (audit M5).
+          POSTCODE_RE.test(searchTerm.toUpperCase().replace(/\s+/g, '')) ? null
+          : /^[A-Z]{1,2}\d[A-Z\d]?\s?\d?[A-Z]?$/i.test(searchTerm.trim()) ? (
+            <p style={{ fontSize: '15px', opacity: 0.7, marginTop: '8px' }}>
+              Keep typing the full postcode to find the MP.
+            </p>
+          ) : (
           <p style={{ fontSize: '15px', opacity: 0.7, marginTop: '8px' }}>
             No MPs match &ldquo;{searchTerm}&rdquo;.
           </p>
+          )
         ) : (
           <>
             <div

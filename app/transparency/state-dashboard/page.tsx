@@ -74,7 +74,7 @@ export default async function StateDashboard() {
   return (
     <OpenGovShell pageStamp="Broken State">
       <a href="/transparency" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}>
-        ← Transparency Hub
+        ← Accountability
       </a>
 
       <header style={{ marginBottom: '28px' }}>

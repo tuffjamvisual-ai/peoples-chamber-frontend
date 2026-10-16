@@ -17,7 +17,7 @@ const JSONLD_WEBPAGE = {
   '@context': 'https://schema.org',
   '@type': 'WebPage',
   '@id': 'https://www.opengovt.uk/transparency#page',
-  name: 'UK Government Transparency Hub',
+  name: 'Accountability: UK government transparency data',
   description:
     "UK government transparency data: ministerial meetings, hospitality declarations, political donations, public contracts, revolving door and more — drawn from public registers.",
   isPartOf: { '@id': 'https://www.opengovt.uk/#website' },
@@ -67,7 +67,7 @@ export default function TransparencyHubPage() {
 
       <header style={{ marginBottom: '5%' }}>
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
-          Transparency Hub
+          Accountability
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
           {SECTIONS.length} datasets covering how ministers, MPs, donors, contractors and former officials interact with the UK state, plus the daily press release feed and the full local council register. Each section links to a searchable list of the underlying records.

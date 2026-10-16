@@ -121,6 +121,24 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
   if (!bill) notFound()
   const lordsDivisions = (lordsDivisionRows ?? []) as LordsDivision[]
 
+  // Which Commons division the MPs' figure comes from, so the page can name and link it
+  // (audit P3). Looked up by the Commons Votes division id saved on the bill.
+  let commonsDivisionHref: string | null = null
+  if (bill.commons_division_id != null) {
+    const { data: dv } = await supabase
+      .from('mp_division_votes')
+      .select('division_date_only, division_number')
+      .eq('division_id', bill.commons_division_id)
+      .limit(1)
+      .maybeSingle()
+    if (dv?.division_date_only && dv?.division_number != null) {
+      commonsDivisionHref = `/divisions/pw-${String(dv.division_date_only).slice(0, 10)}-${dv.division_number}`
+    }
+  }
+  const commonsDivisionDate = bill.commons_vote_date
+    ? new Date(bill.commons_vote_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
+    : null
+
   // Stages are cached in bill.stages (refreshed daily by
   // /api/sync-bill-stages). No live Parliament-API call here.
   const stagesData = bill.stages as { items?: Stage[] } | null
@@ -246,10 +264,10 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
 
         {/* Bill body — the full description sits INSIDE the cover sheet
             so the page doesn't extend below the template. Priority:
-            description (richest) > long_title (formal preamble) >
-            plain_summary (last resort). Set in typewriter, justified. */}
+            description (richest) > long_title (formal preamble). The AI-written
+            plain_summary is not shown (audit P9). Set in typewriter, justified. */}
         {(() => {
-          const pickRaw = [bill.description, bill.long_title, bill.plain_summary].find(
+          const pickRaw = [bill.description, bill.long_title].find(
             (t) =>
               !!t &&
               t.trim().toLowerCase() !== 'no description available' &&
@@ -366,7 +384,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
           {/* The count so far */}
           <div style={{ borderTop: `1px solid ${INK}`, marginTop: '24px', paddingTop: '20px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
             <VoteBar
-              label="The people's count"
+              label="Open Govt visitors' votes"
               totalLabel={`${totalVotes.toLocaleString()} ${totalVotes === 1 ? 'vote' : 'votes'}`}
               yesPct={yesPercent}
               noPct={noPercent}
@@ -374,6 +392,9 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
               noText={`${noPercent}% No · ${noVotes.toLocaleString()}`}
               empty={totalVotes === 0}
             />
+            <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK_SOFT, margin: '-8px 0 0' }}>
+              Votes cast on this site by visitors who chose to vote. They are not a poll of the public.
+            </p>
 
             {(() => {
               // For 0/0 bills the Commons Votes API holds no division record.
@@ -414,17 +435,29 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
               )
             })()}
 
+            {bill.commons_division_title && (bill.commons_ayes || bill.commons_noes) ? (
+              <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK_SOFT, margin: '-8px 0 0' }}>
+                Commons division:{' '}
+                {commonsDivisionHref ? (
+                  <a href={commonsDivisionHref} style={{ color: INK, textDecoration: 'underline' }}>{bill.commons_division_title}</a>
+                ) : (
+                  <span>{bill.commons_division_title}</span>
+                )}
+                {commonsDivisionDate ? `, ${commonsDivisionDate}` : ''}
+              </p>
+            ) : null}
+
             {democraticGap !== null && (
               <div style={{ borderLeft: `3px solid ${outcomeMismatch ? WARN : ACCENT}`, padding: '12px 18px', background: CREAM_DEEP }}>
                 <div style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.22em', fontWeight: 'bold', color: outcomeMismatch ? WARN : ACCENT, marginBottom: '5px' }}>
-                  The democratic gap
+                  Gap between site voters and MPs
                 </div>
                 <p style={{ fontFamily: SERIF, fontSize: '16px', fontWeight: 'bold', lineHeight: 1.4, margin: 0 }}>
-                  {democraticGap}% {democraticGap > 20 ? ',  a wide gap' : democraticGap > 10 ? ',  a moderate gap' : ',  a narrow gap'}
+                  {democraticGap} percentage points{democraticGap > 20 ? ', a wide gap' : democraticGap > 10 ? ', a moderate gap' : ', a narrow gap'}
                 </p>
                 {outcomeMismatch && (
                   <p style={{ fontFamily: MONO, fontSize: '15px', marginTop: '6px', lineHeight: 1.7, color: INK_SOFT }}>
-                    Outcome mismatch, the public would {yesPercent > 50 ? 'pass' : 'block'} this bill, but Parliament {mpAyePercent > 50 ? 'passed' : 'rejected'} it.
+                    Outcome mismatch: site voters would {yesPercent > 50 ? 'pass' : 'block'} this bill, but MPs {mpAyePercent > 50 ? 'passed' : 'rejected'} it in this division.
                   </p>
                 )}
               </div>

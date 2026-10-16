@@ -41,7 +41,17 @@ export default function ExploreNext({ piece }: { piece: EditorialEntry }) {
   const picked = (piece.readNext || []).map((s) => editorials[s]).filter((e): e is EditorialEntry => !!e && e.slug !== piece.slug);
   const pickedSlugs = new Set(picked.map((e) => e.slug));
   const sameTopic = all.filter((e) => topicSlugs.has(e.slug) && !pickedSlugs.has(e.slug)).sort(byDate);
-  const rest = all.filter((e) => !topicSlugs.has(e.slug) && !pickedSlugs.has(e.slug)).sort(byDate);
+  // Then the pieces whose headline and standfirst share the most subject words with this one
+  // (so a piece on tagging finds the earlier tagging investigation, audit E2), then the newest.
+  const STOP = new Set(['the', 'and', 'for', 'with', 'that', 'this', 'from', 'into', 'over', 'what', 'when', 'who', 'how', 'why', 'are', 'was', 'were', 'has', 'have', 'its', 'their', 'they', 'but', 'not', 'more', 'than', 'after', 'about', 'which', 'will', 'been', 'government', 'minister', 'ministers', 'uk', 'britain', 'british']);
+  const words = (e: EditorialEntry) => new Set(`${e.headline} ${e.standfirst || ''}`.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter((w) => w.length > 3 && !STOP.has(w)).map((w) => w.replace(/(ing|ed|es|s)$/, '')));
+  const mine = words(piece);
+  const overlap = (e: EditorialEntry) => { let n = 0; for (const w of words(e)) if (mine.has(w)) n++; return n; };
+  const rest = all
+    .filter((e) => !topicSlugs.has(e.slug) && !pickedSlugs.has(e.slug))
+    .map((e) => ({ e, n: overlap(e) }))
+    .sort((a, b) => (b.n >= 2 ? b.n : 0) - (a.n >= 2 ? a.n : 0) || byDate(a.e, b.e))
+    .map((x) => x.e);
   const next = [...picked, ...sameTopic, ...rest].slice(0, 3);
   const base = isBriefing ? '/briefings' : '/editorials';
 

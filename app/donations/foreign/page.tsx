@@ -53,43 +53,35 @@ type Row = {
   accepted_date: string | null;
 };
 
-// Paging the donations register is the slow part; the aggregated output is
-// small, so cache it for a day rather than recompute on every request.
+const UK_LIST = Array.from(UK_EQUIVALENTS).map((c) => `"${c}"`).join(',');
+
+// Country totals come from the view foreign_donations_by_country (migration 2026-10-16j); the
+// page used to page every donation through the API, unordered, taking 12 seconds (audit X11).
 const loadForeign = unstable_cache(
   async () => {
-    const PAGE = 1000;
-    const rows: Row[] = [];
-    for (let from = 0; ; from += PAGE) {
-      const { data, error } = await supabase
-        .from('political_donations')
-        .select('id, donor_name, donor_type, recipient_name, recipient_type, addr_country, amount, accepted_date')
-        .not('addr_country', 'is', null)
-        .neq('addr_country', '')
-        .order('amount', { ascending: false })
-        .range(from, from + PAGE - 1);
-      if (error || !data || data.length === 0) break;
-      rows.push(...(data as Row[]));
-      if (data.length < PAGE) break;
-    }
-    const foreign = rows.filter((r) => r.addr_country && !UK_EQUIVALENTS.has(r.addr_country.trim()));
-
-    type CountryAgg = { country: string; total: number; count: number; topDonor: string; topAmount: number };
-    const byCountry = new Map<string, CountryAgg>();
-    for (const r of foreign) {
-      const c = (r.addr_country || '').trim();
-      const amt = Number(r.amount || 0);
-      const ex = byCountry.get(c) ?? { country: c, total: 0, count: 0, topDonor: '', topAmount: 0 };
-      ex.total += amt;
-      ex.count += 1;
-      if (amt > ex.topAmount && r.donor_name) { ex.topAmount = amt; ex.topDonor = r.donor_name; }
-      byCountry.set(c, ex);
-    }
-    const countries = Array.from(byCountry.values()).sort((a, b) => b.total - a.total);
-    const totalAll = foreign.reduce((s, r) => s + Number(r.amount || 0), 0);
-    const topSingle = [...foreign].sort((a, b) => Number(b.amount || 0) - Number(a.amount || 0)).slice(0, 40);
-    return { foreignCount: foreign.length, totalAll, countries, topSingle };
+    const { data: cRows, error: cErr } = await supabase
+      .from('foreign_donations_by_country')
+      .select('country, total, donations, top_donor, top_amount')
+      .order('total', { ascending: false })
+      .limit(1000);
+    if (cErr) throw new Error(`foreign_donations_by_country: ${cErr.message}`);
+    const countries = (cRows || []).map((r) => ({ country: r.country as string, total: Number(r.total), count: Number(r.donations), topDonor: (r.top_donor as string) || '', topAmount: Number(r.top_amount || 0) }));
+    const foreignCount = countries.reduce((s, c) => s + c.count, 0);
+    const totalAll = countries.reduce((s, c) => s + c.total, 0);
+    const { data: top, error: tErr } = await supabase
+      .from('political_donations')
+      .select('id, donor_name, donor_type, recipient_name, recipient_type, addr_country, amount, accepted_date')
+      .not('addr_country', 'is', null)
+      .neq('addr_country', '')
+      .not('addr_country', 'in', `(${UK_LIST})`)
+      .order('amount', { ascending: false, nullsFirst: false })
+      .order('id')
+      .limit(40);
+    if (tErr) throw new Error(`political_donations: ${tErr.message}`);
+    const topSingle = (top || []) as Row[];
+    return { foreignCount, totalAll, countries, topSingle };
   },
-  ['foreign-donations-v1'],
+  ['foreign-donations-v2'],
   { revalidate: 86400 },
 );
 
@@ -108,7 +100,7 @@ export default async function ForeignDonationsPage() {
           Foreign-source donations to UK politics
         </h1>
         <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
-          The Electoral Commission records the address country of every donor. {foreignCount} declared donations carry a non-UK country totalling £{Math.round(totalAll).toLocaleString()} across {countries.length} different jurisdictions. The register filters illegal foreign sources before publication, so every entry below is legally permissible. That does not make the pattern unimportant: it shows whose money reaches Westminster from where.
+          The Electoral Commission records the address country of every donor. {foreignCount} declared donations carry a non-UK country totalling £{Math.round(totalAll).toLocaleString()} across {countries.length} different jurisdictions. An overseas address does not by itself make a donation impermissible: the Electoral Commission decides which donors are permissible. The table shows where declared donors' addresses are.
         </p>
       </header>
 

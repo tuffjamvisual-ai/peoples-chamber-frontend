@@ -1,3 +1,4 @@
+import { readingStage, divisionBillSegment, billNameKey, billWindow } from '@/lib/bill-reading';
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
@@ -43,23 +44,21 @@ async function searchDivisions(searchTerm: string): Promise<Division[]> {
   return (await res.json()) as Division[];
 }
 
-// Pick the most canonical division for the bill. Preference order:
-//   1. "<billName>: Third Reading"
-//   2. "<billName> Third Reading" (some titles drop the colon)
-//   3. any "Third Reading" mention
-//   4. "Second Reading" as fallback
-//   5. the most recent matching division otherwise
-function pickDivision(billName: string, divisions: Division[]): Division | null {
-  const bn = billName.toLowerCase();
-  const matches = divisions.filter((d) => d.Title.toLowerCase().includes(bn.replace(/\s+bill$/, '')));
-  if (matches.length === 0) return null;
-  const isThird = (d: Division) => /third reading/i.test(d.Title);
-  const isSecond = (d: Division) => /second reading/i.test(d.Title);
-  const thirds = matches.filter(isThird);
-  if (thirds.length > 0) return thirds.sort((a, b) => b.Date.localeCompare(a.Date))[0];
-  const seconds = matches.filter(isSecond);
-  if (seconds.length > 0) return seconds.sort((a, b) => b.Date.localeCompare(a.Date))[0];
-  return matches.sort((a, b) => b.Date.localeCompare(a.Date))[0];
+// Pick the vote on the bill itself (lib/bill-reading.ts, audit P10): a division on this bill's
+// name, held while the bill was before Parliament, that IS its Third Reading (preferred) or
+// Second Reading. Amendment and motion divisions, and same-named bills from other sessions,
+// are never used.
+function pickDivision(bill: { title: string | null; stages: unknown }, divisions: Division[]): Division | null {
+  const win = billWindow(bill.stages as Parameters<typeof billWindow>[0]);
+  if (!win) return null;
+  const key = billNameKey(bill.title || '');
+  const own = divisions.filter((d) => {
+    const t = new Date(d.Date).getTime();
+    return t >= win.from && t <= win.to && billNameKey(divisionBillSegment(d.Title)) === key && readingStage(d.Title) > 0;
+  });
+  if (!own.length) return null;
+  const best = Math.max(...own.map((d) => readingStage(d.Title)));
+  return own.filter((d) => readingStage(d.Title) === best).sort((a, b) => b.Date.localeCompare(a.Date))[0];
 }
 
 export async function GET(req: Request) {
@@ -81,7 +80,7 @@ export async function GET(req: Request) {
   // order-with-nullsFirst is unreliable so we filter explicitly.
   let { data: rows, error: selErr } = await supabase
     .from('bill')
-    .select('id, parliament_id, title')
+    .select('id, parliament_id, title, stages')
     .or('commons_ayes.is.null,commons_ayes.eq.0')
     .not('parliament_id', 'is', null)
     .is('commons_vote_tried_at', null)
@@ -91,7 +90,7 @@ export async function GET(req: Request) {
     // has divisions that weren't there before.
     ({ data: rows, error: selErr } = await supabase
       .from('bill')
-      .select('id, parliament_id, title')
+      .select('id, parliament_id, title, stages')
       .or('commons_ayes.is.null,commons_ayes.eq.0')
       .not('parliament_id', 'is', null)
       .order('commons_vote_tried_at', { ascending: true })
@@ -110,7 +109,7 @@ export async function GET(req: Request) {
       const billName = billNameFromActTitle(bill.title || '');
       if (!billName) continue;
       const divisions = await searchDivisions(billName);
-      const chosen = pickDivision(billName, divisions);
+      const chosen = pickDivision(bill, divisions);
       // Always stamp tried_at so the SELECT advances to the next batch
       // next run, whether or not we got a match.
       const now = new Date().toISOString();

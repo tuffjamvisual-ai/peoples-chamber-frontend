@@ -7,7 +7,9 @@
 import { Fragment, useMemo, useState } from 'react';
 import type { CSSProperties } from 'react';
 
-export type ClientFlag = { label: string; county: boolean };
+export type ClientFlag = { label: string; county: boolean; kind: string };
+// Formal action taken against or by a council, kept apart from signs of financial pressure (audit L9).
+const FORMAL = new Set(['ofsted', 's114', 'intervention', 'inspection']);
 export type ClientRow = {
   code: string;
   name: string;
@@ -127,12 +129,12 @@ export default function LeagueTable({ rows, topics, parts }: { rows: ClientRow[]
       `}</style>
       <div role="tablist" aria-label="Choose a table" style={{ marginBottom: '6px' }}>
         <button type="button" role="tab" aria-selected={view === 'area'} onClick={() => { setView('area'); setSort('rank'); setDesc(false); setShowAll(false); setOpen(null); }} style={btn(view === 'area')}>Area rating</button>
-        <button type="button" role="tab" aria-selected={view === 'services'} onClick={() => { setView('services'); setSort('rank'); setDesc(false); setShowAll(false); setOpen(null); }} style={btn(view === 'services')}>Council services</button>
+        <button type="button" role="tab" aria-selected={view === 'services'} onClick={() => { setView('services'); setSort('rank'); setDesc(false); setShowAll(false); setOpen(null); }} style={btn(view === 'services')}>Selected council services</button>
       </div>
       <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: '0 0 10px', maxWidth: '46em' }}>
         {view === 'area'
-          ? 'How each area compares on eight topics: schools and children, safety, health, jobs and poverty, housing, environment, connectivity and local services. This describes the area, not how well the council is run.'
-          : "How the services councils run for each area compare: schools, children's services, recycling and planning. For a district, schools and children's services are run by its county council. “In its group” compares the area with the 15 councils most like it (government Statistical Neighbours)."}
+          ? 'How each area compares on eight topics: schools and children, safety, health, jobs and poverty, housing, environment, connectivity and local services. This describes the area, not how well the council is run: it is not a ranking of councils.'
+          : "How four of the services councils run compare for each area: schools, children's services, recycling and planning. It does not cover every council service. For a district, schools and children's services are run by its county council. “In its group” compares the area with the 15 councils most like it (government Statistical Neighbours)."}
       </p>
       <div aria-label="Council type" style={{ marginBottom: '4px' }}>
         {TYPES.map((t) => (
@@ -179,11 +181,26 @@ export default function LeagueTable({ rows, topics, parts }: { rows: ClientRow[]
                       {band} <span className="lt-wide">· {BAND_WORDS[band ?? 0]}</span>
                       {view === 'area' && r.nearBoundary && <span title="Close to the edge of its band: see How the scores work" style={{ color: ACCENT }}> ≈</span>}
                     </td>
-                    <td className="lt-wide" style={tdNum}>{fmt(score)}</td>
+                    <td className="lt-wide" style={tdNum} title={`Based on ${cols.filter((c) => (view === 'area' ? r.topics[c.key] : r.services[c.key]) != null).length} of ${cols.length}`}>
+                      {fmt(score)}
+                      {cols.some((c) => (view === 'area' ? r.topics[c.key] : r.services[c.key]) == null) && (
+                        <span style={{ fontSize: '12px' }}> ({cols.filter((c) => (view === 'area' ? r.topics[c.key] : r.services[c.key]) != null).length}/{cols.length})</span>
+                      )}
+                    </td>
                     {view === 'services' && <td className="lt-wide" style={tdNum}>{r.peer ? `${ordinal(r.peer.rank)} of ${r.peer.of}` : '–'}</td>}
                     {cols.map((c) => <td key={c.key} className="lt-wide" style={tdNum}>{fmt(view === 'area' ? r.topics[c.key] : r.services[c.key])}</td>)}
                     <td style={{ ...td, color: ACCENT, fontSize: '14px' }}>
-                      {r.flags.length === 0 ? '' : r.flags.map((f) => <div key={f.label + f.county}>{f.label}{f.county ? ' (county)' : ''}</div>)}
+                      {r.flags.length === 0 ? '' : (
+                        <>
+                          {[['Formal action', r.flags.filter((f) => FORMAL.has(f.kind))], ['Financial pressure', r.flags.filter((f) => !FORMAL.has(f.kind))]].map(([group, fs]) =>
+                            (fs as ClientFlag[]).length === 0 ? null : (
+                              <div key={group as string} style={{ marginBottom: '4px' }}>
+                                <div style={{ color: INK, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{group as string}</div>
+                                {(fs as ClientFlag[]).map((f) => <div key={f.label + f.county}>{f.label}{f.county ? ' (county)' : ''}</div>)}
+                              </div>
+                            ))}
+                        </>
+                      )}
                     </td>
                   </tr>
                   {isOpen && (
@@ -200,7 +217,12 @@ export default function LeagueTable({ rows, topics, parts }: { rows: ClientRow[]
                           {view === 'area'
                             ? <>Area rank {r.areaRank} of {rows.filter((x) => x.areaRank != null).length}{r.bandChanges != null && r.bandVersions ? `. In the weight test its band changed in ${r.bandChanges} of ${r.bandVersions} versions${r.nearBoundary ? ', so it is close to the edge of its band' : ''}` : ''}. Council services rank {r.servicesRank ?? '–'}.</>
                             : <>Council services rank {r.servicesRank} of {rows.filter((x) => x.servicesRank != null).length}. Area rank {r.areaRank ?? '–'}.</>}
-                          {' '}Scores run from 0 (lowest of all areas) to 100 (highest); a dash means no figures.
+                          {' '}{(() => {
+                            const have = cols.filter((c) => (view === 'area' ? r.topics[c.key] : r.services[c.key]) != null);
+                            const missing = cols.filter((c) => (view === 'area' ? r.topics[c.key] : r.services[c.key]) == null).map((c) => c.label);
+                            return `Based on ${have.length} of ${cols.length} ${view === 'area' ? 'topics' : 'services'}${missing.length ? `; no figures for ${missing.join(', ')}` : ''}.`;
+                          })()}
+                          {' '}Scores run from 0 (lowest of all areas) to 100 (highest).
                           {r.href && <> <a href={r.href} style={{ color: INK }}>Council page</a>.</>}
                         </p>
                       </td>

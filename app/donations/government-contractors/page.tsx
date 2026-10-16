@@ -1,12 +1,8 @@
 // /donations/government-contractors — companies that both donate to
 // UK political parties AND hold public-sector contracts.
 //
-// This is the killer cross-reference the EC register and gov.uk's
-// contracts-finder both publish — separately. Walking from one to
-// the other manually means searching every donor name against every
-// contract supplier. The match list is short but politically loaded:
-// the Big Four professional-services firms, Microsoft, SSE, Randox
-// (Covid PCR contracts) and others appear on both registers.
+// The Electoral Commission register and the government contracts records are published
+// separately; this joins them by name (view contractor_donor_matches).
 //
 // Match rule: exact case-insensitive whitespace-normalised supplier
 // name = donor name. Conservative — it misses subsidiary chains and
@@ -27,7 +23,7 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: 'UK government contractors who donate to UK political parties',
   description:
-    'Direct cross-reference: every UK company appearing both on the gov.uk contracts register and the Electoral Commission donations register, ranked by total political donations.',
+    'Companies that appear in both the UK government contracts records and the Electoral Commission donations register, ranked by total political donations.',
   alternates: { canonical: '/donations/government-contractors' },
 };
 
@@ -36,81 +32,32 @@ const INK_HAIRLINE = 'rgba(20,16,13,0.25)';
 const CREAM = '#ebe5d8';
 const ACCENT = '#7a1612';
 
-function norm(name: string): string {
-  return name.toUpperCase().replace(/\s+/g, ' ').trim();
-}
+type Cross = { displayName: string; norm: string; contracts: number; contractValue: number; donations: number; donated: number };
 
-type SupplierAgg = { name: string; norm: string; contracts: number; contractValue: number };
-type DonorAgg = { name: string; norm: string; donations: number; donated: number };
-
-async function fetchSuppliers(): Promise<SupplierAgg[]> {
-  // ~40k contracts — paginate and aggregate in JS.
-  const PAGE = 1000;
-  const map = new Map<string, SupplierAgg>();
-  for (let from = 0; ; from += PAGE) {
-    const { data, error } = await supabase
-      .from('government_contracts')
-      .select('supplier, value')
-      .not('supplier', 'is', null)
-      .range(from, from + PAGE - 1);
-    if (error || !data || data.length === 0) break;
-    for (const r of data as Array<{ supplier: string | null; value: number | null }>) {
-      if (!r.supplier) continue;
-      const n = norm(r.supplier);
-      const ex = map.get(n) ?? { name: r.supplier, norm: n, contracts: 0, contractValue: 0 };
-      ex.contracts += 1;
-      ex.contractValue += Number(r.value || 0);
-      map.set(n, ex);
-    }
-    if (data.length < PAGE) break;
-  }
-  return Array.from(map.values());
-}
-
-async function fetchDonors(): Promise<DonorAgg[]> {
-  const PAGE = 1000;
-  const map = new Map<string, DonorAgg>();
-  for (let from = 0; ; from += PAGE) {
-    const { data, error } = await supabase
-      .from('political_donations')
-      .select('donor_name, amount')
-      .not('donor_name', 'is', null)
-      .range(from, from + PAGE - 1);
-    if (error || !data || data.length === 0) break;
-    for (const r of data as Array<{ donor_name: string | null; amount: number | null }>) {
-      if (!r.donor_name) continue;
-      const n = norm(r.donor_name);
-      const ex = map.get(n) ?? { name: r.donor_name, norm: n, donations: 0, donated: 0 };
-      ex.donations += 1;
-      ex.donated += Number(r.amount || 0);
-      map.set(n, ex);
-    }
-    if (data.length < PAGE) break;
-  }
-  return Array.from(map.values());
-}
-
-// The cross-reference is expensive — it pages both registers (~40k contracts +
-// all donations) and joins in JS. The matched result is small, so cache it for
-// a day rather than recomputing on every request.
+// The cross-reference is done in the database (view contractor_donor_matches, migration
+// 2026-10-16j): the page used to page ~30k contracts and every donation through the API and
+// join them here, which took 17 seconds on a first load (audit X11). Cached for a day.
 const loadMatched = unstable_cache(
   async () => {
-    const [suppliers, donors] = await Promise.all([fetchSuppliers(), fetchDonors()]);
-    const donorByNorm = new Map<string, DonorAgg>();
-    for (const d of donors) donorByNorm.set(d.norm, d);
-    type Cross = { displayName: string; norm: string; contracts: number; contractValue: number; donations: number; donated: number };
     const matched: Cross[] = [];
-    for (const s of suppliers) {
-      const d = donorByNorm.get(s.norm);
-      if (!d) continue;
-      matched.push({ displayName: d.name, norm: s.norm, contracts: s.contracts, contractValue: s.contractValue, donations: d.donations, donated: d.donated });
+    for (let from = 0; ; from += 1000) {
+      const { data, error } = await supabase
+        .from('contractor_donor_matches')
+        .select('display_name, norm, contracts, contract_value, donations, donated')
+        .order('norm')
+        .range(from, from + 999);
+      if (error) throw new Error(`contractor_donor_matches: ${error.message}`);
+      for (const r of data || []) {
+        matched.push({ displayName: r.display_name, norm: r.norm, contracts: Number(r.contracts), contractValue: Number(r.contract_value), donations: Number(r.donations), donated: Number(r.donated) });
+      }
+      if (!data || data.length < 1000) break;
     }
     matched.sort((a, b) => b.donated - a.donated);
     const totalDonated = matched.reduce((s, m) => s + m.donated, 0);
     const totalContractValue = matched.reduce((s, m) => s + m.contractValue, 0);
     return { matched, totalDonated, totalContractValue };
   },
-  ['gov-contractors-matched-v1'],
+  ['gov-contractors-matched-v2'],
   { revalidate: 86400 },
 );
 
@@ -129,7 +76,7 @@ export default async function ContractorsWhoDonatePage() {
           UK government contractors who donate to UK political parties
         </h1>
         <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
-          {matched.length} companies appear on both the gov.uk contracts register and the Electoral Commission donations register under the same name. Between them they hold &pound;{Math.round(totalContractValue).toLocaleString()} in declared public-sector contracts and have given &pound;{Math.round(totalDonated).toLocaleString()} in declared political donations. The list is dominated by the Big Four professional-services firms &mdash; PwC, KPMG, Deloitte and EY &mdash; followed by Microsoft, SSE, Randox (the Covid PCR processor) and a handful of others. Match rule is conservative: exact case-insensitive name. Subsidiaries, trading names and rebrands are missed.
+          {matched.length} companies appear on both the government contracts records (Find a Tender) and the Electoral Commission donations register under the same name. Between them they hold &pound;{Math.round(totalContractValue).toLocaleString()} in declared public-sector contracts and have given &pound;{Math.round(totalDonated).toLocaleString()} in declared political donations. The largest donors among them are listed first. Match rule is conservative: exact case-insensitive name. Subsidiaries, trading names and rebrands are missed.
         </p>
       </header>
 
@@ -164,7 +111,7 @@ export default async function ContractorsWhoDonatePage() {
       </section>
 
       <section style={{ background: CREAM, padding: '12px 14px', fontSize: '15px', lineHeight: 1.6, marginBottom: '24px' }}>
-        <strong>What this list isn&rsquo;t.</strong> A company appearing on both registers does not mean its contracts were obtained as a result of its donations. UK procurement law forbids that linkage and every contract here was awarded through a formal procurement process. What the list does show is the small number of firms that are simultaneously public-sector suppliers and political donors. The Big Four together have given over &pound;2.5 million in declared political donations while holding over &pound;120 million in declared public-sector work; that overlap is the kind of dual-role pattern the public has a clear interest in seeing in one place.
+        <strong>What this list isn&rsquo;t.</strong> A company appearing on both registers does not mean its contracts were obtained as a result of its donations. What the list does show is the firms that are both public-sector suppliers and political donors, with the totals from each register, so the overlap can be seen in one place.
       </section>
 
       <p style={{ fontSize: '15px', color: '#14100d', opacity: 1 }}>
