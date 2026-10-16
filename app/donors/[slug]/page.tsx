@@ -46,6 +46,13 @@ export function donorNameToSlug(name: string): string {
 // "Children's" and "and" must not be required (Forstmann Little & Co): a trailing "s" is
 // dropped from longer words and "and" is skipped. Fixes donor pages that 404'd although
 // they were linked (link crawl, 16 Oct 2026).
+// '2026-03-04' -> '4 Mar 2026'.
+function fmtDay(iso: string | null | undefined): string {
+  if (!iso) return '–';
+  const d = new Date(iso);
+  return isNaN(d.getTime()) ? '–' : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
 function narrowTokens(slug: string): string[] {
   return slug
     .split('-')
@@ -239,10 +246,10 @@ export default async function DonorPage({ params }: PageProps) {
   const normName = canonicalName.toUpperCase().replace(/\s+/g, ' ').trim();
   const { data: contractHits } = await supabase
     .from('government_contracts')
-    .select('id, dept_slug, title, value, awarded_date, supplier')
+    .select('id, dept_slug, title, value, awarded_date, supplier, ocid')
     .ilike('supplier', `%${ranked[0] ?? canonicalName}%`)
     .limit(500);
-  type ContractRow = { id: number; dept_slug: string; title: string | null; value: number | null; awarded_date: string | null; supplier: string | null };
+  type ContractRow = { id: number; dept_slug: string; title: string | null; value: number | null; awarded_date: string | null; supplier: string | null; ocid: string | null };
   const matchedContracts = ((contractHits || []) as ContractRow[]).filter((c) =>
     c.supplier && c.supplier.toUpperCase().replace(/\s+/g, ' ').trim() === normName,
   );
@@ -261,6 +268,9 @@ export default async function DonorPage({ params }: PageProps) {
   }
   const unpublishedValues = matchedContracts.filter((c) => c.value == null).length;
   const contractDeptRows = Array.from(contractsByDept.values()).sort((a, b) => b.total - a.total);
+  // Record-level list (audit reassessment, 16 Oct 2026): each contract, newest first, linked to
+  // its procurement record on Find a Tender by OCID.
+  const contractRecords = [...matchedContracts].sort((a, b) => (b.awarded_date || '').localeCompare(a.awarded_date || ''));
   const totalContractValue = matchedContracts.reduce((s, c) => s + Number(c.value || 0), 0);
   let appgsFunded: Array<{ slug: string; title: string; category: string | null }> = [];
   if (matchedAppgFunderRows.length > 0) {
@@ -417,6 +427,41 @@ export default async function DonorPage({ params }: PageProps) {
               ))}
             </tbody>
           </table>
+          <h3 style={{ fontFamily: '"Special Elite", monospace', fontSize: '17px', fontWeight: 'bold', margin: '16px 0 8px' }}>Each contract{contractRecords.length > 50 ? ` · newest 50 of ${contractRecords.length}` : ''}</h3>
+          <div style={{ overflowX: 'auto', marginBottom: '10px' }}>
+            <table style={{ ...tableStyle, minWidth: '560px' }}>
+              <thead>
+                <tr style={headerRow}>
+                  <th style={{ ...th, textAlign: 'left' }}>Contract</th>
+                  <th style={{ ...th, textAlign: 'left' }}>Buyer</th>
+                  <th style={th}>Awarded</th>
+                  <th style={{ ...th, textAlign: 'right' }}>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                {contractRecords.slice(0, 50).map((c) => (
+                  <tr key={c.id} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
+                    <td style={{ ...td, textAlign: 'left', overflowWrap: 'anywhere' }}>
+                      {c.title || 'Untitled contract'}
+                      {c.ocid && (
+                        <>
+                          <br />
+                          <a href={`https://www.find-tender.service.gov.uk/Procurement/${encodeURIComponent(c.ocid)}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '14px', color: ACCENT, textDecoration: 'underline' }}>View on Find a Tender ↗</a>
+                        </>
+                      )}
+                    </td>
+                    <td style={{ ...td, textAlign: 'left' }}>
+                      {deptBySlug.has(c.dept_slug)
+                        ? <Link href={`/departments/${c.dept_slug}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{buyerName(c.dept_slug)}</Link>
+                        : buyerName(c.dept_slug)}
+                    </td>
+                    <td style={{ ...td, whiteSpace: 'nowrap' }}>{fmtDay(c.awarded_date)}</td>
+                    <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>{c.value == null ? 'Not published' : fmtMoney(c.value)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           <Link href="/donations/government-contractors" style={{ fontSize: '15px', color: ACCENT, textDecoration: 'underline' }}>See the full contractor-donor cross-reference &rarr;</Link>
         </section>
       )}
@@ -455,6 +500,50 @@ export default async function DonorPage({ params }: PageProps) {
         {recipientRows.length > 50 && (
           <p style={{ fontSize: '15px', opacity: 0.7, marginTop: '8px' }}>Showing top 50 of {recipientRows.length}.</p>
         )}
+      </section>
+
+      {/* Record-level list (audit reassessment, 16 Oct 2026): every donation, newest first, with
+          its Electoral Commission reference, so a reader can check the original entry. */}
+      <section style={{ marginBottom: '32px' }}>
+        <h2 style={sectionH2}>Each donation{donations.length > 100 ? ` · newest 100 of ${donations.length}` : ''}</h2>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ ...tableStyle, minWidth: '600px' }}>
+            <thead>
+              <tr style={headerRow}>
+                <th style={th}>Accepted</th>
+                <th style={{ ...th, textAlign: 'left' }}>Recipient</th>
+                <th style={{ ...th, textAlign: 'left' }}>Type</th>
+                <th style={{ ...th, textAlign: 'right' }}>Amount</th>
+                <th style={th}>EC reference</th>
+              </tr>
+            </thead>
+            <tbody>
+              {donations.slice(0, 100).map((d) => {
+                const mp = d.recipient_name ? mpByName.get(d.recipient_name.trim()) : undefined;
+                const notes = [d.returned_date ? 'Returned' : null, d.impermissibility_reason ? 'Impermissible' : null].filter(Boolean).join(' · ');
+                return (
+                  <tr key={d.id} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
+                    <td style={{ ...td, whiteSpace: 'nowrap' }}>{fmtDay(d.accepted_date || d.received_date)}</td>
+                    <td style={{ ...td, textAlign: 'left', overflowWrap: 'anywhere' }}>
+                      {mp ? <Link href={`/mps/${mp.member_id}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{d.recipient_name}</Link> : (d.recipient_name || 'Not recorded')}
+                      {d.accounting_unit_name && d.accounting_unit_name !== d.recipient_name && <span style={{ display: 'block', fontSize: '14px', opacity: 0.75 }}>{d.accounting_unit_name}</span>}
+                    </td>
+                    <td style={{ ...td, textAlign: 'left' }}>
+                      {d.nature || '–'}
+                      {notes && <span style={{ display: 'block', fontSize: '14px', color: DANGER }}>{notes}</span>}
+                    </td>
+                    <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(d.amount)}</td>
+                    <td style={{ ...td, whiteSpace: 'nowrap' }}>
+                      {d.ec_ref ? (
+                        <a href={`https://search.electoralcommission.org.uk/Search/Donations?currentPage=1&rows=10&query=${encodeURIComponent(d.ec_ref)}&sort=AcceptedDate&order=desc`} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline' }}>{d.ec_ref} ↗</a>
+                      ) : '–'}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </section>
 
     </OpenGovShell>

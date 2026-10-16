@@ -15,6 +15,7 @@ import LastUpdated from '../../components/LastUpdated';
 import LeagueTable from './LeagueTable';
 import type { ClientRow } from './LeagueTable';
 import { getLeagueData, TOPIC_NAMES, SERVICE_PARTS, STAT_NEIGHBOURS_URL } from '@/lib/council-league';
+import type { MeasureDetail } from '@/lib/council-league';
 
 export const revalidate = 21600;
 
@@ -37,12 +38,24 @@ const para: CSSProperties = { fontFamily: MONO, fontSize: '15px', lineHeight: 1.
 
 export default async function LeagueTablePage() {
   const data = await getLeagueData();
+  // The area's two highest- and two lowest-scoring measures (audit reassessment, 16 Oct 2026:
+  // explain what is behind a position using the existing measures, with no new judgement).
+  const measureExtremes = (ms: Record<string, MeasureDetail>): ClientRow['extremes'] => {
+    const scored = Object.values(ms)
+      .filter((m) => m.score != null)
+      .map((m) => ({ label: m.label, value: m.value, period: m.period, score: m.score as number }))
+      .sort((a, b) => b.score - a.score);
+    const high = scored.slice(0, 2);
+    const low = scored.slice(Math.max(high.length, scored.length - 2)).reverse();
+    return { high, low };
+  };
   const toClient = (r: (typeof data.rows)[number]): ClientRow => ({
     code: r.code, name: r.name, href: r.slug ? `/councils/${r.slug}` : null, type: r.type,
     areaScore: r.areaScore, areaRank: r.areaRank, areaBand: r.areaBand, nearBoundary: r.nearBoundary,
     bandChanges: r.bandChanges, bandVersions: r.bandVersions, topics: r.topics,
     servicesScore: r.servicesScore, servicesRank: r.servicesRank, servicesBand: r.servicesBand, services: r.services,
     peer: r.peer, flags: r.flags.map((f) => ({ label: f.label, county: f.county, kind: f.kind })),
+    extremes: measureExtremes(r.measures),
   });
   const rows = data.rows.map(toClient);
   // Areas with a flag of their own, counted once; districts whose only flags belong to their

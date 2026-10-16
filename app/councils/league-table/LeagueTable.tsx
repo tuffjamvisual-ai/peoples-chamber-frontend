@@ -28,7 +28,13 @@ export type ClientRow = {
   services: Record<string, number>;
   peer: { rank: number; of: number } | null;
   flags: ClientFlag[];
+  // Area view only: the two highest- and two lowest-scoring measures (score 0-100).
+  extremes: { high: Extreme[]; low: Extreme[] };
 };
+type Extreme = { label: string; value: number; period: string | null; score: number };
+
+const fmtValue = (v: number) => v.toLocaleString('en-GB', { maximumFractionDigits: 1 });
+const extremeText = (m: Extreme) => `${m.label}: ${fmtValue(m.value)}${m.period ? ` (${m.period})` : ''}, score ${Math.round(m.score)}`;
 
 type View = 'area' | 'services';
 type SortKey = 'rank' | 'name' | string; // a topic name or service part key sorts by that score
@@ -213,6 +219,31 @@ export default function LeagueTable({ rows, topics, parts }: { rows: ClientRow[]
                           ))}
                           {view === 'services' && <div>In its group: <strong>{r.peer ? `${ordinal(r.peer.rank)} of ${r.peer.of}` : '–'}</strong></div>}
                         </div>
+                        {(() => {
+                          // What is behind the position: highest and lowest scores, from the same figures.
+                          if (view === 'area') {
+                            const { high, low } = r.extremes;
+                            if (!high.length) return null;
+                            return (
+                              <div style={{ margin: '8px 0 0', maxWidth: '46em', lineHeight: 1.6 }}>
+                                <div><strong>Highest scores:</strong> {high.map(extremeText).join('; ')}.</div>
+                                {low.length > 0 && <div><strong>Lowest scores:</strong> {low.map(extremeText).join('; ')}.</div>}
+                              </div>
+                            );
+                          }
+                          const sp = cols
+                            .map((c) => ({ label: c.label, score: r.services[c.key] }))
+                            .filter((x): x is { label: string; score: number } => x.score != null)
+                            .sort((a, b) => b.score - a.score);
+                          if (sp.length < 2) return null;
+                          const top = sp[0];
+                          const bottom = sp[sp.length - 1];
+                          return (
+                            <div style={{ margin: '8px 0 0', maxWidth: '46em', lineHeight: 1.6 }}>
+                              <strong>Highest service score:</strong> {top.label}, {Math.round(top.score)}. <strong>Lowest:</strong> {bottom.label}, {Math.round(bottom.score)}.
+                            </div>
+                          );
+                        })()}
                         <p style={{ margin: '8px 0 0', maxWidth: '46em', lineHeight: 1.6 }}>
                           {view === 'area'
                             ? <>Area rank {r.areaRank} of {rows.filter((x) => x.areaRank != null).length}{r.bandChanges != null && r.bandVersions ? `. In the weight test its band changed in ${r.bandChanges} of ${r.bandVersions} versions${r.nearBoundary ? ', so it is close to the edge of its band' : ''}` : ''}. Council services rank {r.servicesRank ?? '–'}.</>
