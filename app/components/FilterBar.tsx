@@ -66,7 +66,7 @@ export default function FilterBar({ onFiltersChange }: FilterBarProps) {
   return (
     <div style={{ marginBottom: '24px' }}>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '12px', alignItems: 'baseline' }}>
-        <input
+        <input aria-label="Search bills"
           type="text"
           placeholder="Search bills…"
           value={search}
@@ -74,19 +74,19 @@ export default function FilterBar({ onFiltersChange }: FilterBarProps) {
           style={{ ...field, flex: '1 1 280px', maxWidth: '420px' }}
         />
 
-        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} style={{ ...field, cursor: 'pointer' }}>
+        <select aria-label="Sort bills" value={sortBy} onChange={(e) => setSortBy(e.target.value)} style={{ ...field, cursor: 'pointer' }}>
           <option value="trending">Most voted</option>
           <option value="newest">Newest first</option>
           <option value="oldest">Oldest first</option>
         </select>
 
-        <select value={house} onChange={(e) => setHouse(e.target.value)} style={{ ...field, cursor: 'pointer' }}>
+        <select aria-label="Filter by House" value={house} onChange={(e) => setHouse(e.target.value)} style={{ ...field, cursor: 'pointer' }}>
           <option value="">House: All</option>
           <option value="Commons">Commons</option>
           <option value="Lords">Lords</option>
         </select>
 
-        <select value={session} onChange={(e) => setSession(e.target.value)} style={{ ...field, cursor: 'pointer' }}>
+        <select aria-label="Filter by session" value={session} onChange={(e) => setSession(e.target.value)} style={{ ...field, cursor: 'pointer' }}>
           <option value="">Session: All</option>
           <option value="39">Session 39</option>
           <option value="38">Session 38</option>
@@ -95,7 +95,7 @@ export default function FilterBar({ onFiltersChange }: FilterBarProps) {
           <option value="35">Session 35</option>
         </select>
 
-        <select value={stage} onChange={(e) => setStage(e.target.value)} style={{ ...field, cursor: 'pointer' }}>
+        <select aria-label="Filter by stage" value={stage} onChange={(e) => setStage(e.target.value)} style={{ ...field, cursor: 'pointer' }}>
           <option value="">Stage: All</option>
           <option value="1st reading">1st Reading</option>
           <option value="2nd reading">2nd Reading</option>

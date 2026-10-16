@@ -40,7 +40,7 @@ export function secretariatNameToSlug(name: string): string {
   return name
     .toLowerCase()
     .replace(/&/g, ' and ')
-    .replace(/'/g, '')
+    .replace(/['’‘]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 100);
@@ -51,14 +51,11 @@ interface PageProps {
 }
 
 async function findCanonicalName(slug: string): Promise<string | null> {
-  const tokens = slug.split('-').filter((t) => t.length >= 2);
-  if (tokens.length === 0) return null;
-  let q = supabase.from('appgs').select('secretariat').not('secretariat', 'is', null).limit(2000);
-  const ranked = tokens.slice().sort((a, b) => b.length - a.length).slice(0, 3);
-  for (const t of ranked) {
-    q = q.ilike('secretariat', `%${t}%`);
-  }
-  const { data } = await q;
+  // Every secretariat name is read and compared by slug. The old database filter used words
+  // from the slug, which missed names with apostrophes or "&" (Women's Aid, Images & Co), so
+  // their pages 404'd although the list linked them (link crawl, 16 Oct 2026).
+  if (!slug) return null;
+  const { data } = await supabase.from('appgs').select('secretariat').not('secretariat', 'is', null).order('slug').limit(5000);
   if (!data) return null;
   const counts = new Map<string, number>();
   for (const r of data as Array<{ secretariat: string | null }>) {
@@ -100,14 +97,8 @@ export default async function SecretariatPage({ params }: PageProps) {
   const canonicalName = await findCanonicalName(slug);
   if (!canonicalName) notFound();
 
-  const tokens = slug.split('-').filter((t) => t.length >= 2);
-  const ranked = tokens.slice().sort((a, b) => b.length - a.length).slice(0, 3);
-
-  // All APPGs run by this secretariat. ILIKE narrows; client-side slug
-  // match exactness avoids false positives.
-  let q = supabase.from('appgs').select('slug, title, category, purpose, secretariat, secretariat_url, registrable_benefits, website_url').limit(500);
-  for (const t of ranked) q = q.ilike('secretariat', `%${t}%`);
-  const { data: rawAppgs } = await q;
+  // All APPGs run by this secretariat, matched by exact name.
+  const { data: rawAppgs } = await supabase.from('appgs').select('slug, title, category, purpose, secretariat, secretariat_url, registrable_benefits, website_url').eq('secretariat', canonicalName).limit(500);
   const appgs = ((rawAppgs ?? []) as AppgRow[]).filter((a) =>
     a.secretariat && secretariatNameToSlug(a.secretariat) === slug,
   );

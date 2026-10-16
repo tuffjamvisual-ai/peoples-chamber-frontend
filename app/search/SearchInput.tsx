@@ -59,6 +59,7 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
     <div style={{ marginBottom: '32px' }}>
       <form onSubmit={handleSubmit} style={{ position: 'relative', marginBottom: '14px' }}>
         <input
+          aria-label="Search the site"
           type="text"
           value={q}
           onChange={(e) => setQ(e.target.value)}
@@ -130,6 +131,7 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center', marginTop: '10px' }}>
         <select
+          aria-label="Filter by department"
           value={dept}
           onChange={(e) => {
             const newDept = e.target.value;

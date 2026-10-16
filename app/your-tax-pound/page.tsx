@@ -64,7 +64,7 @@ const BUCKETS: Bucket[] = [
     pence: 9, sharePct: 9.1,
     category: 'Education',
     prose:
-      "Schools, sixth forms, further education colleges, apprenticeships, early years (the so called free hours), tuition fee support and student loans, and the education research budget. Funded through grants to local authorities for state schools and direct to academies and colleges. The VAT on private school fees and the free breakfast clubs commitments sit inside this envelope. Scotland, Wales and Northern Ireland education spending is devolved through Barnett and shows on their devolved budgets.",
+      "Schools, sixth forms, further education colleges, apprenticeships, early years (the so-called free hours), tuition fee support and student loans, and the education research budget. Funded through grants to local authorities for state schools and direct to academies and colleges. The VAT on private school fees and the free breakfast clubs commitments sit inside this envelope. Scotland, Wales and Northern Ireland education spending is devolved through Barnett and shows on their devolved budgets.",
     deptHref: '/departments/education',
     deptLabel: 'Department for Education',
   },
@@ -95,14 +95,14 @@ const BUCKETS: Bucket[] = [
     category: 'Public order and safety',
     prose:
       "Police, prisons, courts and tribunals, probation, the Crown Prosecution Service, fire and rescue services and immigration enforcement. The prisons capacity crisis through 2024 and 2025, the asylum accommodation overspend, the Border Security Command, the small boats enforcement budget and the post Sentencing Review costs all sit inside this line.",
-    deptHref: '/departments/home',
+    deptHref: '/departments/home-office',
     deptLabel: 'Home Office',
   },
   {
     pence: 2, sharePct: 2.4,
-    category: 'Long term care',
+    category: 'Long-term care',
     prose:
-      "Adult social care, care homes, domiciliary care, support for working age disabled adults. Funded primarily by local authorities through council tax and central government grant. The Dilnot cap on care costs was legislated under Hunt for October 2023, deferred to October 2025, then scrapped entirely by Reeves in July 2024. Long term care funding is the largest unresolved structural question in domestic public policy.",
+      "Adult social care, care homes, domiciliary care, support for working age disabled adults. Funded primarily by local authorities through council tax and central government grant. The Dilnot cap on care costs was legislated under Hunt for October 2023, deferred to October 2025, then scrapped entirely by Reeves in July 2024. Long-term care funding is the largest unresolved structural question in domestic public policy.",
     deptHref: '/departments/health',
     deptLabel: 'Department of Health and Social Care',
   },
@@ -111,7 +111,7 @@ const BUCKETS: Bucket[] = [
     category: 'Housing and community amenities',
     prose:
       "Central government investment in social housing, parts of housing benefit not counted under social security, water and waste regulation, planning policy support, energy market regulation and Building Safety Regulator costs. Labour's commitment to 1.5 million homes over the parliament will pull this line upwards as social housing investment ramps.",
-    deptHref: '/departments/housing-communities',
+    deptHref: '/departments/housing',
     deptLabel: 'Ministry of Housing, Communities and Local Government',
   },
   {

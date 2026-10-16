@@ -85,7 +85,15 @@ const nextConfig: NextConfig = {
       { source: '/editorials/w7q2m9rk5t', destination: '/briefings/w7q2m9rk5t', statusCode: 301 as const },
       { source: '/editorials/r4n8k2wq7m', destination: '/briefings/r4n8k2wq7m', statusCode: 301 as const },
     ];
-    return [...editorialRedirects, ...briefingRedirects, ...(await councilRedirects())];
+    // Three addresses Search Console reported as Not found (16 Oct 2026): an old donor-page link
+    // that treated a council as a department, a peer (Lord Rowe-Beddoe, no MP page) and a
+    // debate no longer in the archive. Each goes to the page that now covers it.
+    const notFoundRedirects = [
+      { source: '/departments/london-borough-of-enfield', destination: '/councils/enfield', statusCode: 301 as const },
+      { source: '/mps/3806', destination: '/mps', statusCode: 301 as const },
+      { source: '/debates/d0c004a3-7ec2-451d-8ae1-bf32a1165e98', destination: '/debates', statusCode: 301 as const },
+    ];
+    return [...editorialRedirects, ...briefingRedirects, ...notFoundRedirects, ...(await councilRedirects())];
   },
   images: {
     remotePatterns: [

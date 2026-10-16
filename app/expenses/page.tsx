@@ -19,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const y = yearShort(await latestYear());
   return {
     title: `Top-Spending MPs ${y}, IPSA Business Cost Rankings`,
-    description: `The ten UK MPs who claimed the highest IPSA business costs in ${y}. Office, staffing, travel and accommodation broken down by category, year on year change shown.`,
+    description: `The ten UK MPs who claimed the highest IPSA business costs in ${y}. Office, staffing, travel and accommodation broken down by category, year-on-year change shown.`,
     alternates: { canonical: '/expenses' },
   };
 }

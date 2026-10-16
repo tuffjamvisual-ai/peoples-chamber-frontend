@@ -2,6 +2,9 @@ import type { EditorialEntry } from './types';
 
 const piece: EditorialEntry = {
   slug: 'k3p9w7nx2d',
+  // Moved to Briefings (next.config.ts 301s /editorials/<slug> here); without this the
+  // redirect led to a 404 (link crawl, 16 Oct 2026).
+  kind: 'briefing',
   kicker: 'Defence',
   headline: `96 Days After Saying Work Would Begin on the A38 and A46, Government Put Both at Risk to Fund Defence`,
   standfirst: `On 26 March, the government's Road Investment Strategy said work would begin on the A38 Derby Junctions and A46 Newark Bypass during the five-year road period. Ninety-six days later, the Defence Investment Plan funding document named both as candidates for cancellation. Neither has entered its main construction contract. No final decision has been taken.`,

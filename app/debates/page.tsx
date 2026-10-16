@@ -138,7 +138,7 @@ export default async function DebatesPage({
 
       <form action="/debates" method="get" style={{ marginBottom: '20px' }}>
         {section && <input type="hidden" name="section" value={section} />}
-        <input
+        <input aria-label="Search debates by title"
           type="text"
           name="q"
           defaultValue={q}

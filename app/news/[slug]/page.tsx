@@ -46,12 +46,16 @@ async function getPressRelease(slug: string): Promise<PressRelease | null> {
   // last path segment of gov_url, which is the GOV.UK-canonical news slug.
   const safeSlug = slug.replace(/[^a-z0-9-]/gi, '')
   if (!safeSlug) return null
-  const { data } = await supabase
+  // Indexed slug column (migration 2026-10-16k). A database error throws rather than
+  // returning null, so a slow moment can never be served, and cached, as a 404.
+  const { data, error } = await supabase
     .from('press_releases')
     .select('id, title, description, organisation, published_at, gov_url, body, removed_upstream')
-    .ilike('gov_url', `%/${safeSlug}`)
+    .eq('news_slug', safeSlug.toLowerCase())
+    .order('published_at', { ascending: false, nullsFirst: false })
     .limit(1)
     .maybeSingle()
+  if (error) throw new Error(`press_releases lookup failed: ${error.message}`)
   return data
 }
 

@@ -2,6 +2,9 @@ import type { EditorialEntry } from './types';
 
 const piece: EditorialEntry = {
   slug: 'w7q2m9rk5t',
+  // Moved to Briefings (next.config.ts 301s /editorials/<slug> here); without this the
+  // redirect led to a 404 (link crawl, 16 Oct 2026).
+  kind: 'briefing',
   kicker: 'Defence',
   headline: `Burnham Was Briefed on Starmer's Defence Plan but Not Told About the £4.7bn Budget Requirement, Reports Say`,
   standfirst: `Keir Starmer announced an additional £15 billion of defence spending power on 30 June. The Treasury's financing table identified measures worth £10.3 billion. Multiple outlets reported the same account: Burnham had been briefed on the plan but had not been told about the £4.7 billion funding requirement before it emerged publicly.`,

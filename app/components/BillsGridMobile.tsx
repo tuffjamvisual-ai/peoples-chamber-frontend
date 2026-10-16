@@ -177,7 +177,7 @@ export default function BillsGridMobile({ initialBills, currentPage, totalPages 
   return (
     <>
       <div className="sticky top-20 z-40 px-4 py-3" style={{ background: CREAM, borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-        <input
+        <input aria-label="Search bills"
           type="text"
           placeholder="Search bills…"
           value={searchTerm}

@@ -116,7 +116,7 @@ export default async function HomePage() {
 
               <form action="/search" method="get" style={{ marginBottom: '28px' }}>
                 <div style={{ position: 'relative' }}>
-                  <input
+                  <input aria-label="Search the site"
                     type="text"
                     name="q"
                     placeholder="Search a minister, department, policy, vote or government announcement"

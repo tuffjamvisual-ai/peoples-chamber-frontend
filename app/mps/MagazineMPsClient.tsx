@@ -163,7 +163,7 @@ function SearchInput({
 
   return (
     <div style={{ marginBottom: '24px' }}>
-      <input
+      <input aria-label="Search MPs by name, party, constituency or postcode"
         type="text"
         placeholder="Search MPs by name, party, constituency or postcode…"
         value={searchTerm}

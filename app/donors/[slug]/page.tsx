@@ -35,10 +35,24 @@ export function donorNameToSlug(name: string): string {
   return name
     .toLowerCase()
     .replace(/&/g, ' and ')
-    .replace(/'/g, '')
+    .replace(/['’‘]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 100);
+}
+
+// Words from a slug used to narrow the database search before the exact slug comparison.
+// The slug drops apostrophes and turns "&" into "and", so "childrens" must still find
+// "Children's" and "and" must not be required (Forstmann Little & Co): a trailing "s" is
+// dropped from longer words and "and" is skipped. Fixes donor pages that 404'd although
+// they were linked (link crawl, 16 Oct 2026).
+function narrowTokens(slug: string): string[] {
+  return slug
+    .split('-')
+    .filter((t) => t.length >= 2 && t !== 'and')
+    .map((t) => (t.length > 3 && t.endsWith('s') ? t.slice(0, -1) : t))
+    .sort((a, b) => b.length - a.length)
+    .slice(0, 3);
 }
 
 // Prerender a small set of donor pages at build time. The list does NOT
@@ -113,13 +127,9 @@ async function findDonorByMatchingSlug(slug: string): Promise<string | null> {
   // values and computing the slug client-side. Cheap because we can use
   // a relevant ILIKE narrowing first.
   // Split slug into significant tokens and require each to be a substring.
-  const tokens = slug.split('-').filter((t) => t.length >= 2);
-  if (tokens.length === 0) return null;
+  const ranked = narrowTokens(slug);
+  if (ranked.length === 0) return null;
   let q = supabase.from('political_donations').select('donor_name').limit(5000);
-  // Most distinguishing token first — for two-token slugs use both, for
-  // longer slugs use the two longest tokens to reduce false-positive
-  // candidate volume.
-  const ranked = tokens.slice().sort((a, b) => b.length - a.length).slice(0, 3);
   for (const t of ranked) {
     q = q.ilike('donor_name', `%${t}%`);
   }
@@ -165,8 +175,7 @@ export default async function DonorPage({ params }: PageProps) {
   if (!canonicalName) notFound();
 
   // Pull every donation under any name variant that hashes to this slug.
-  const tokens = slug.split('-').filter((t) => t.length >= 2);
-  const ranked = tokens.slice().sort((a, b) => b.length - a.length).slice(0, 3);
+  const ranked = narrowTokens(slug);
   let dq = supabase
     .from('political_donations')
     .select('id, donor_name, donor_type, donor_status, amount, accepted_date, received_date, reported_date, nature, recipient_name, recipient_type, accounting_unit_name, is_anonymous, is_reported_pre_poll, returned_date, impermissibility_reason, attempted_concealment, trust_name, trust_creator_name, company_registration_number, addr_line1, addr_town, addr_country, ec_ref')

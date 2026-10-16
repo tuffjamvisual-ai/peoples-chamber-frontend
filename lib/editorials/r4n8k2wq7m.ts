@@ -2,6 +2,9 @@ import type { EditorialEntry } from './types';
 
 const piece: EditorialEntry = {
   slug: 'r4n8k2wq7m',
+  // Moved to Briefings (next.config.ts 301s /editorials/<slug> here); without this the
+  // redirect led to a 404 (link crawl, 16 Oct 2026).
+  kind: 'briefing',
   kicker: 'Race and Politics',
   headline: `Immigration Attitudes Have Hardened. Recorded Race Hate Crime and NHS Racist Abuse Have Risen`,
   standfirst: `The latest comparable police figures show race hate crime up 6 per cent in a year. The Royal College of Nursing says reported racial abuse or discrimination involving nursing staff increased by 78 per cent between 2022 and 2025. Over roughly the same period, British Social Attitudes recorded a substantial fall in the proportion of people who thought migration was good for the economy or enriched British culture.`,
