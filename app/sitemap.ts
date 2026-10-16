@@ -90,6 +90,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/donations/double-dip`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
     { url: `${SITE}/appg-funders`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${SITE}/about`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${SITE}/newsletter`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${SITE}/your-tax-pound`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${SITE}/budget-trade-offs`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${SITE}/councils`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },

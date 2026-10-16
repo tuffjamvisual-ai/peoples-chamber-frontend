@@ -89,7 +89,7 @@ const piece: EditorialEntry = {
       `Government response to the Joint Committee on Human Rights report, HC 1404, 16 October 2025: the government's decision to consider mandatory human-rights due diligence, a forced-labour import ban and a civil failure-to-prevent action through its Responsible Business Conduct Review rather than commit to them in its response`,
       `Court of Appeal, R (World Uyghur Congress) v National Crime Agency [2024] EWCA Civ 715, 27 June 2024: the ruling that the NCA's earlier decision on whether to investigate cotton imports was based on errors of law and that the decision had to be reconsidered`,
       `Lord Alton to Graeme Biggar, Director General of the National Crime Agency, 15 July 2026: the committee's statement that, more than two years after the Court of Appeal judgment, it was unaware of a fresh NCA decision on whether to investigate, and its request for a timetable and details of other action on forced-labour imports`,
-      `Home Office written answers HL1647 and HL1648, tabled by Lord Alton on 6 July 2026 and answered by Lord Hanson on 15 July 2026: the government's position on shipping-manifest data and its statement that the Home Office does not routinely assess whether imported goods may have been produced using forced labour`,
+      { text: `Home Office written answers HL1647 and HL1648, tabled by Lord Alton on 6 July 2026 and answered by Lord Hanson on 15 July 2026: the government's position on shipping-manifest data and its statement that the Home Office does not routinely assess whether imported goods may have been produced using forced labour`, url: 'https://questions-statements.parliament.uk/written-questions/detail/2026-07-06/HL1647' },
     ],
     lastChecked: '4 October 2026',
   },

@@ -72,8 +72,8 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      `HM Treasury, Main Supply Estimates 2026 to 2027, 29 April 2026: sets out departmental spending plans for 2026/27 and explains that the Estimates seek parliamentary authority for the voted element of plans established through the Spending Review and subsequent fiscal events`,
-      `House of Commons Library, Main Estimates: Government spending plans for 2026/27: explains the spending totals and the parliamentary process, including Estimates Days, roll-up motions and MPs' ability to reduce but not increase selected Estimates`,
+      { text: `HM Treasury, Main Supply Estimates 2026 to 2027, 29 April 2026: sets out departmental spending plans for 2026/27 and explains that the Estimates seek parliamentary authority for the voted element of plans established through the Spending Review and subsequent fiscal events`, url: 'https://www.gov.uk/government/publications/main-supply-estimates-2026-to-2027' },
+      { text: `House of Commons Library, Main Estimates: Government spending plans for 2026/27: explains the spending totals and the parliamentary process, including Estimates Days, roll-up motions and MPs' ability to reduce but not increase selected Estimates`, url: 'https://www.gov.uk/government/collections/hmt-main-estimates' },
       `House of Commons, business for 29 and 30 June 2026: records the six subjects selected for debate across the two Main Estimates days`,
       `Hansard, Main Estimates 2026/27, 30 June 2026: records Commons approval of the outstanding Estimates and the resolutions on further current resources, capital resources and Consolidated Fund cash`,
       `Hansard, Supply and Appropriation (Main Estimates) Bill, 1 July 2026: records the second and third readings being put forthwith and agreed without substantive debate`,

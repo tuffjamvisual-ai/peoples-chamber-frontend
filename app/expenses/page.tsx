@@ -5,15 +5,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 
-// The latest financial year IPSA has published full-year totals for (e.g. '24_25').
-// IPSA publishes year-end totals months after the year closes, so this moves on by itself.
-async function latestYear(): Promise<string> {
-  const { data } = await supabase.from('mp_expenses_summary').select('year').order('year', { ascending: false }).limit(1);
-  return (data && data[0] && (data[0] as { year: string }).year) || '24_25';
-}
-// '24_25' -> '2024-25' (titles) and '2024 / 2025' (page text).
-const yearShort = (y: string) => `20${y.slice(0, 2)}-${y.slice(3, 5)}`;
-const yearLong = (y: string) => `20${y.slice(0, 2)} / 20${y.slice(3, 5)}`;
+import { latestExpensesYear as latestYear, expensesYearShort as yearShort, expensesYearLong as yearLong } from '@/lib/expenses-year';
 
 export async function generateMetadata(): Promise<Metadata> {
   const y = yearShort(await latestYear());

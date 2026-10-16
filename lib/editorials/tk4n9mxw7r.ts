@@ -34,7 +34,7 @@ const piece: EditorialEntry = {
   evidence: {
     recordsReviewed: [
       `House of Commons Public Accounts Committee, "Government's intervention in British Steel Ltd", 18 September 2026: steel-pipe classification example, risks to downstream manufacturers, the department's acknowledgment that smaller firms could be put out of business, the 12-month review timetable and the committee's recommendations for a formal complaints route and more detailed classifications`,
-      `Department for Business and Trade, "UK's steel trade measure from 1 July 2026", updated 1 October 2026: 51 per cent quota reduction, 50 per cent out-of-quota tariff, 20 product categories, government statement that the measure applies to products that can be made in the UK, and removal of commodity codes 72173049 and 72173090 from 1 October`,
+      { text: `Department for Business and Trade, "UK's steel trade measure from 1 July 2026", updated 1 October 2026: 51 per cent quota reduction, 50 per cent out-of-quota tariff, 20 product categories, government statement that the measure applies to products that can be made in the UK, and removal of commodity codes 72173049 and 72173090 from 1 October`, url: 'https://www.gov.uk/government/publications/uks-steel-trade-measure-from-1-july-2026' },
       `Department for Business and Trade, UK Steel Strategy, March 2026: consultation evidence from steel producers and downstream users, the intention to consider downstream supply, the electricity-cost survey results, the decline in UK steel production and the wider rationale for trade protection`,
     ],
     lastChecked: '3 October 2026',

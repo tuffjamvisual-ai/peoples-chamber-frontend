@@ -131,7 +131,7 @@ const piece: EditorialEntry = {
       `Northamptonshire County Council Best Value Inspection and statutory intervention records: establish the causes of the 2018 failure and the subsequent reorganisation into two unitary councils`,
       `Liverpool City Council and government intervention records: establish the end of statutory intervention on 9 June 2024 and the subsequent non-statutory improvement arrangements`,
       `Tower Hamlets Best Value Inspection and statutory intervention records: establish the previous 2014-18 intervention, the findings of the 2024 inspection and the strengthened intervention announced in March 2026`,
-      `Ministry of Housing, Communities and Local Government, Exceptional Financial Support for 2026/27: lists the councils receiving in-principle capitalisation support and the amounts agreed`,
+      { text: `Ministry of Housing, Communities and Local Government, Exceptional Financial Support for 2026/27: lists the councils receiving in-principle capitalisation support and the amounts agreed`, url: 'https://www.gov.uk/guidance/exceptional-financial-support-for-local-authorities-for-2026-27' },
     ],
     lastChecked: '5 October 2026',
   },

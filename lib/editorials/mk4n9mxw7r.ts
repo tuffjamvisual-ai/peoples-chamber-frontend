@@ -29,7 +29,7 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      `Department for Business and Trade, "Applications open for scheme to slash electricity bills for over 10,000 manufacturers", 1 October 2026: 10,000-plus eligible firms, up to 25 per cent bill reduction, opening and closing dates for applications, government's description of the scheme`,
+      { text: `Department for Business and Trade, "Applications open for scheme to slash electricity bills for over 10,000 manufacturers", 1 October 2026: 10,000-plus eligible firms, up to 25 per cent bill reduction, opening and closing dates for applications, government's description of the scheme`, url: 'https://www.gov.uk/government/news/applications-open-for-scheme-to-slash-electricity-bills-for-over-10000-manufacturers' },
       `Written Ministerial Statement, "British Industrial Competitiveness Scheme", 16 April 2026: £40/MWh policy-cost relief figure and the charges covered by the scheme`,
       `Department for Business and Trade, government response to the BICS eligibility and approach consultation, April 2026: final pro-rating rules, investment and growth rationale, 2030 review point and 2035 end date`,
       `Parliamentary written answer, 8 July 2026: estimate that BICS will cost around £600 million a year and the government's explanation of how the cost will be funded`,

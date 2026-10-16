@@ -36,8 +36,10 @@
 .og-bottom .og-col:last-child { padding-right: 0; }
 
 /* ---- Responsive ---- */
+/* min-width 0 stops a long search placeholder pushing the column past the folder edge on phones. */
+.og-main, .og-rail { min-width: 0; }
 @media (max-width: 1024px) {
-  .og-lead { grid-template-columns: 1fr; }
+  .og-lead { grid-template-columns: minmax(0, 1fr); }
   .og-main { padding-right: 0; }
   .og-rail { padding-left: 0; border-left: none; margin-top: 18px; padding-top: 16px; }
 }
@@ -48,5 +50,7 @@
   .og-masthead { flex-direction: column; align-items: flex-start; gap: 8px; }
   .og-nav { justify-content: flex-start; }
   .og-sub { display: none; }
+  /* Clear the "Front Page" stamp, which sits over the first line on narrow screens. */
+  .og-intro-line { padding-top: 26px; }
 }
 

@@ -74,7 +74,7 @@ const piece: EditorialEntry = {
       'UK Parliament written question answered 16 April 2026: government statement of "no intention to nationalise the water industry"',
       'Sir Jon Cunliffe, speech on the Independent Water Commission\'s final report (GOV.UK)',
       'Sir Jon Cunliffe, address on the Water Commission\'s future plans (GOV.UK) — source for Thames Water debt-structure quote',
-      'Andy Burnham, statement to the House of Commons, 1 September 2026 — "leaking monument" quote',
+      { text: 'Andy Burnham, statement to the House of Commons, 1 September 2026 — "leaking monument" quote', url: 'https://www.gov.uk/government/speeches/pm-statement-to-the-house-of-commons-1-september-2026' },
     ],
     lastChecked: '30 September 2026',
   },

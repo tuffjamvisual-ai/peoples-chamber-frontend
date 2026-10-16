@@ -38,6 +38,9 @@ export default function PrivacyPage() {
           When you create an account, we collect your email address, which is required for verification and, if you opt in, to send you updates about the site.
         </p>
         <p style={p}>
+          If you sign up for the newsletter without an account, we store only your email address, when you signed up, and whether you have confirmed or unsubscribed. It is used only to send Open Govt Weekly. You are added only after you click the confirmation link we email you, and every newsletter includes a one-click unsubscribe link.
+        </p>
+        <p style={p}>
           If you choose to provide it, we also collect your postcode, used solely to identify your parliamentary constituency and connect you with your local MP through the Find Your MP feature.
         </p>
         <p style={p}>

@@ -8,21 +8,11 @@ import RelatedLinks from '../../components/RelatedLinks';
 import { govUrlToSlug } from '@/lib/govUrlSlug'
 import { resolveOrgToDeptSlug } from '@/lib/govOrgSlug'
 import { getDeptContext } from '../../api/department-context/route'
-import { editorials } from '@/lib/editorials'
+import { piecesExaminingRelease } from '@/lib/editorials/release-links'
 import type { EditorialEntry } from '@/lib/editorials/types'
 
 // Plain text of an HTML fragment, for comparing the summary with the body's opening.
 const plain = (html: string) => html.replace(/<[^>]+>/g, ' ').replace(/&[a-z#0-9]+;/gi, ' ').replace(/\s+/g, ' ').trim().toLowerCase()
-
-// Open Govt investigations about the department that issued a release (audit E4).
-function relatedInvestigations(organisation: string | null): EditorialEntry[] {
-  const dept = organisation ? resolveOrgToDeptSlug(organisation) : null
-  if (!dept) return []
-  return (Object.values(editorials) as EditorialEntry[])
-    .filter((e) => e.kind !== 'briefing' && (e.relatedDeptSlugs || []).includes(dept))
-    .sort((a, b) => (b.publishedAt || '').localeCompare(a.publishedAt || ''))
-    .slice(0, 3)
-}
 
 export const revalidate = 3600
 
@@ -151,7 +141,9 @@ async function DeptContextBlock({ organisation }: { organisation: string | null 
   const { street_context } = await getDeptContext(deptSlug);
   if (!street_context) return null;
 
-  const firstPara = street_context.split(/\n\n+/)[0]?.trim() ?? '';
+  // First two sentences only (audit reassessment: the full paragraph pushed the release down).
+  const firstPara = (street_context.split(/\n\n+/)[0]?.trim() ?? '')
+    .split(/(?<=[.!?])\s+(?=[A-Z])/).slice(0, 2).join(' ');
   if (!firstPara) return null;
 
   return (
@@ -175,6 +167,29 @@ async function DeptContextBlock({ organisation }: { organisation: string | null 
   );
 }
 
+// "Read our investigation" box (audit reassessment, 16 Oct 2026): shown under the headline,
+// and again after the release, when an Open Govt piece cites this exact release in its
+// "How this piece was checked" list.
+function InvestigationBox({ pieces, placement }: { pieces: EditorialEntry[]; placement: 'top' | 'end' }) {
+  if (!pieces.length) return null
+  const one = pieces.length === 1
+  return (
+    <aside
+      aria-label="Open Govt investigation of this announcement"
+      style={{ margin: placement === 'top' ? '0 0 28px' : '36px 0 0', padding: '14px 16px', border: `1.5px solid ${ACCENT}`, borderLeft: `5px solid ${ACCENT}`, background: 'rgba(107,36,23,0.05)', maxWidth: '680px' }}
+    >
+      <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.18em', color: '#7a1612', margin: '0 0 8px' }}>
+        {one ? 'Read our investigation into this announcement' : 'Read our investigations into this announcement'}
+      </p>
+      {pieces.map((e) => (
+        <p key={e.slug} style={{ fontFamily: "'Special Elite', monospace", fontSize: '16px', lineHeight: 1.5, margin: '0 0 6px' }}>
+          <Link href={`/${e.kind === 'briefing' ? 'briefings' : 'editorials'}/${e.slug}`} style={{ color: INK, fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{e.headline} →</Link>
+        </p>
+      ))}
+    </aside>
+  )
+}
+
 export default async function NewsArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const release = await getPressRelease(slug)
@@ -185,6 +200,8 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
   // Only fall back to a live fetch for rows not yet backfilled — and never for
   // releases GOV.UK has removed (that fetch would just 404).
   const bodyHtml = release.body || (release.removed_upstream ? null : await getBodyHtmlLive(release.gov_url || ''))
+
+  const examined = piecesExaminingRelease(release.title, release.gov_url)
 
   const dateLabel = release.published_at
     ? new Date(release.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -211,18 +228,15 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
           <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', lineHeight: 1.1, color: INK, transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
             {release.title}
           </h1>
-          {/* A1 — original source attribution; plain text per no-offsite-links rule */}
+          {/* A1 — original source, linked (owner's decision, 16 Oct 2026; previously plain text). */}
           {release.gov_url && !release.removed_upstream && (
             <p style={{ marginTop: '14px', fontFamily: "'Special Elite', monospace", fontSize: '14px', color: ACCENT, letterSpacing: '0.04em', wordBreak: 'break-all' }}>
-              Original: {release.gov_url}
+              Original: <a href={release.gov_url} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{release.gov_url.replace(/^https?:\/\//, '')}</a>
             </p>
           )}
         </header>
 
-        {/* B1 — department context: first paragraph of street_context for the issuing dept.
-            Positioned here (between header and body) so it contextualises the release
-            before the reader reaches the text. */}
-        <DeptContextBlock organisation={release.organisation} />
+        <InvestigationBox pieces={examined} placement="top" />
 
         {release.removed_upstream && (
           <div
@@ -235,9 +249,10 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
           </div>
         )}
 
-        {/* The summary is left out when the body opens with the same words (audit E4: the
-            opening paragraph used to appear twice). */}
-        {release.description && !(bodyHtml && plain(bodyHtml).slice(0, 400).includes(plain(release.description).slice(0, 80))) && (
+        {/* The summary is left out when the body's opening repeats it (audit E4: the opening
+            paragraph used to appear twice). The first 1,500 characters are checked because
+            many releases open with a bullet list before the first paragraph. */}
+        {release.description && !(bodyHtml && plain(bodyHtml).slice(0, 1500).includes(plain(release.description).slice(0, 80))) && (
           <p
             className="text-[17px] sm:text-[19px] leading-[1.55] text-[#14100d]/95 mb-6"
             style={{ fontFamily: SERIF, fontStyle: 'italic' }}
@@ -259,22 +274,10 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
 
       </article>
 
-      {(() => {
-        const related = relatedInvestigations(release.organisation)
-        if (!related.length) return null
-        return (
-          <aside aria-label="Open Govt reporting" style={{ marginTop: '36px', paddingTop: '18px', borderTop: '2px solid rgba(20,16,13,0.18)', maxWidth: '680px' }}>
-            <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 10px' }}>
-              Open Govt reporting on this department
-            </p>
-            {related.map((e) => (
-              <p key={e.slug} style={{ fontFamily: "'Special Elite', monospace", fontSize: '15px', lineHeight: 1.6, margin: '0 0 8px' }}>
-                <Link href={`/editorials/${e.slug}`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{e.headline}</Link>
-              </p>
-            ))}
-          </aside>
-        )
-      })()}
+      <InvestigationBox pieces={examined} placement="end" />
+
+      {/* B1 — department context, after the release so the release itself comes first. */}
+      <DeptContextBlock organisation={release.organisation} />
 
       {/* A6 — department / SoS / more-from-org related links */}
       <RelatedLinks

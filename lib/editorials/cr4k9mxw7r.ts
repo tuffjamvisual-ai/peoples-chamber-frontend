@@ -31,9 +31,9 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      `Ministry of Justice, "Specialist rape courts rolled out across the country", 21 September 2026: nationwide rollout, fixed trial dates, courtroom changes, funding description, Prime Minister Andy Burnham's announcement, the 424-day average completion figure, victim-withdrawal statement and Rape Crisis response`,
-      `Ministry of Justice, "New pilots to boost support for rape victims in court", 16 June 2022: Leeds, Newcastle and Snaresbrook pilot, October 2022 start and the stated aim of tackling the backlog and reducing delays`,
-      `Ministry of Justice, "Specialist Sexual Violence Support Measures: a qualitative assessment", 3 September 2026: assessment methodology, unsuccessful victim-survivor recruitment, findings on training, witness suites and technology, and the absence of quantitative delay or backlog findings`,
+      { text: `Ministry of Justice, "Specialist rape courts rolled out across the country", 21 September 2026: nationwide rollout, fixed trial dates, courtroom changes, funding description, Prime Minister Andy Burnham's announcement, the 424-day average completion figure, victim-withdrawal statement and Rape Crisis response`, url: 'https://www.gov.uk/government/news/specialist-rape-courts-rolled-out-across-the-country' },
+      { text: `Ministry of Justice, "New pilots to boost support for rape victims in court", 16 June 2022: Leeds, Newcastle and Snaresbrook pilot, October 2022 start and the stated aim of tackling the backlog and reducing delays`, url: 'https://www.gov.uk/government/news/new-pilots-to-boost-support-for-rape-victims-in-court' },
+      { text: `Ministry of Justice, "Specialist Sexual Violence Support Measures: a qualitative assessment", 3 September 2026: assessment methodology, unsuccessful victim-survivor recruitment, findings on training, witness suites and technology, and the absence of quantitative delay or backlog findings`, url: 'https://www.gov.uk/government/publications/specialist-sexual-violence-support-measures-a-qualitative-assessment' },
       `Ministry of Justice, Criminal Court Statistics Quarterly: April to June 2026, published 24 September 2026: sexual-offence and rape caseloads, cases open for a year or more, rape receipts, overall Crown Court backlog, case age, trial effectiveness, vacated trials and reasons for delay`,
     ],
     lastChecked: '3 October 2026',

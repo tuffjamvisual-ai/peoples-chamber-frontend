@@ -58,7 +58,7 @@ const piece: EditorialEntry = {
   evidence: {
     recordsReviewed: [
       `Ministry of Justice, Annex: Management Information, Electronic Monitoring Status Statistics: June 2026, 23 July 2026: establishes that 5,043 people with electronic monitoring orders had no equipment assigned, the reasons recorded for non-installation and the 1,596 cases where installed equipment had not communicated for at least 14 days`,
-      `Ministry of Justice, Electronic Monitoring Statistics Publication, England and Wales: June 2026, 23 July 2026: provides the wider caseload figures and explains the data-cleaning exercise which closed expired orders that had remained recorded as active`,
+      { text: `Ministry of Justice, Electronic Monitoring Statistics Publication, England and Wales: June 2026, 23 July 2026: provides the wider caseload figures and explains the data-cleaning exercise which closed expired orders that had remained recorded as active`, url: 'https://www.gov.uk/government/collections/electronic-monitoring-statistics-publication' },
       `National Audit Office, Electronic monitoring: improving resilience to meet increasing demand, 10 July 2026: provides the 8,900 cases under review, fitting performance, breach-processing times, alert volumes, probation staffing shortfall, planned expansion and the NAO's conclusion on system-wide risks`,
       `Ministry of Justice, Assessing the effectiveness of Radio Frequency Electronic Monitoring, 2025: reports the impact evaluation of curfew monitoring and its relationship with proven reoffending`,
       `Ministry of Justice, Impact evaluation of the acquisitive crime electronic monitoring project: 12 month+ cohort, 28 August 2025: evaluates GPS tagging of prison leavers convicted of acquisitive offences`,

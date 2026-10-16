@@ -35,10 +35,10 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      `Department for Energy Security and Net Zero and Great British Energy, "Great British Grid to speed up connections and cut bills", 29 September 2026: structure and intended role of Great British Grid, competitive tendering, connection reforms, the 300GW queue figure, start-up funding and the statement that its long-term budget will be considered at a future Spending Review`,
+      { text: `Department for Energy Security and Net Zero and Great British Energy, "Great British Grid to speed up connections and cut bills", 29 September 2026: structure and intended role of Great British Grid, competitive tendering, connection reforms, the 300GW queue figure, start-up funding and the statement that its long-term budget will be considered at a future Spending Review`, url: 'https://www.gov.uk/government/news/great-british-grid-to-speed-up-connections-and-cut-bills' },
       `Great British Energy, Annual Report and Accounts 2025/26, published 14 September 2026: reporting period, £14.2 million operating expenditure, £14.1 million loss, £5.8 million Highland Wind investment, £16.8 million liabilities and net liability position, capitalisation facility drawdown detail, workforce composition and the treatment of pre-Royal Assent costs`,
       `Great British Energy Strategic Plan, December 2025: 15GW portfolio target, £15 billion private-finance target, community-energy and jobs targets, commercial investment model and 2030 income objective`,
-      `HM Treasury, Spending Review 2025: commitment of more than £8.3 billion across Great British Energy and Great British Energy-Nuclear`,
+      { text: `HM Treasury, Spending Review 2025: commitment of more than £8.3 billion across Great British Energy and Great British Energy-Nuclear`, url: 'https://www.gov.uk/government/collections/spending-review-2025' },
       `Great British Energy Annual Report, funding structure: expected £5.3 billion multi-year capitalisation of the main Great British Energy company through 2029/30`,
       `DESNZ, Great British Energy public-sector solar programme: £255 million programme and the schools, NHS and military-site rollout`,
       `National Audit Office, "Upgrading the electricity transmission network", September 2026: delivery risks, state of the existing network and the requirement for stronger oversight and transparent monitoring`,

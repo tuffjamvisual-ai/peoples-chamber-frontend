@@ -9,8 +9,13 @@ const ACCENT = '#6b2417';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
 const MONO = "'Special Elite', monospace";
 
+// A record is plain text, or text with a link to the document itself (added 16 Oct 2026 at
+// the owner's request: sources link to the exact document where one could be found and
+// opened; anything without a stable public page stays as text).
+export type EvidenceRecord = string | { text: string; url?: string };
+
 export type EvidencePanelProps = {
-  recordsReviewed?: string[];
+  recordsReviewed?: EvidenceRecord[];
   contacted?: string;
   response?: string;
   lastChecked?: string; // human label, e.g. "11 July 2026"
@@ -25,7 +30,7 @@ export type EvidencePanelProps = {
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr', gap: '8px 16px', padding: '7px 0', borderTop: `1px solid ${HAIRLINE}` }}>
+    <div className="ev-row" style={{ padding: '7px 0', borderTop: `1px solid ${HAIRLINE}` }}>
       <div style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.12em', color: ACCENT }}>{label}</div>
       <div style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK }}>{children}</div>
     </div>
@@ -45,11 +50,36 @@ export default function EvidencePanel({
       aria-label="How this piece was checked"
       style={{ marginTop: '44px', padding: '18px 20px 8px', border: `1px solid ${HAIRLINE}`, borderTop: `3px solid ${ACCENT}`, background: 'rgba(107,36,23,0.03)' }}
     >
+      {/* Label beside the text on wider screens; stacked above it on phones, where a 150px
+          label column left the records a few characters wide. */}
+      <style>{`
+        .ev-row { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 8px 16px; }
+        @media (max-width: 600px) { .ev-row { grid-template-columns: minmax(0, 1fr); gap: 4px; } }
+      `}</style>
       <p style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', color: ACCENT, margin: '0 0 6px' }}>
         How this piece was checked
       </p>
       {recordsReviewed && recordsReviewed.length > 0 && (
-        <Row label="Records reviewed">{recordsReviewed.join('; ')}</Row>
+        <Row label="Records reviewed">
+          <ul style={{ margin: 0, paddingLeft: '1.1em' }}>
+            {recordsReviewed.map((r, i) => {
+              const text = typeof r === 'string' ? r : r.text;
+              const url = typeof r === 'string' ? undefined : r.url;
+              // Link the part before the first colon (publisher, title, date); the notes after it stay as text.
+              const cut = text.indexOf(': ');
+              const head = cut > 0 ? text.slice(0, cut) : text;
+              const rest = cut > 0 ? text.slice(cut) : '';
+              return (
+                <li key={i} style={{ marginBottom: '6px', overflowWrap: 'anywhere' }}>
+                  {url ? (
+                    <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{head}</a>
+                  ) : head}
+                  {rest}
+                </li>
+              );
+            })}
+          </ul>
+        </Row>
       )}
       {contacted && <Row label="Contacted">{contacted}</Row>}
       {response && <Row label="Response">{response}</Row>}

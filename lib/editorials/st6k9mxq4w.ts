@@ -50,7 +50,7 @@ const piece: EditorialEntry = {
       `Department for Business, Innovation and Skills, An improved higher education package, 8 December 2010: Vince Cable's announcement confirming annual earnings uprating of the £21,000 threshold from 2016`,
       `Department for Business, Innovation and Skills, Consultation on freezing the student loan repayment threshold, 2015, and government response: the first decision to apply a threshold freeze to existing Plan 2 borrowers and the government's financial-sustainability rationale`,
       `Student Loans Company, Income Contingent Student Loan repayment plans and interest rates: the historical Plan 2 repayment thresholds and current repayment structure`,
-      `HM Treasury, Budget 2025, 26 November 2025: the decision to freeze the £29,385 Plan 2 repayment threshold from April 2027 and the government's stated justification for the measure`,
+      { text: `HM Treasury, Budget 2025, 26 November 2025: the decision to freeze the £29,385 Plan 2 repayment threshold from April 2027 and the government's stated justification for the measure`, url: 'https://www.gov.uk/government/topical-events/budget-2025' },
       `HM Treasury, Budget 2025 policy costings: the forecast fiscal effects of the Plan 2 threshold measure, including £255 million in 2027-28 and £355 million in 2029-30`,
       `Office for Budget Responsibility, Economic and fiscal outlook, November 2025: the finding that both repayment and interest-rate thresholds were frozen and the estimate that the changes increase cash receipts by around £400 million a year in the medium term`,
     ],

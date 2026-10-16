@@ -320,3 +320,36 @@ export async function sendBioReviewAlert(flags: BioReviewFlag[], outstanding: nu
     return { sent: false, reason: (e as Error).message };
   }
 }
+
+// Newsletter confirmation (double opt-in) for the email-only sign-up. The address is only
+// added to the list when its owner clicks the link. Never throws.
+export async function sendNewsletterConfirmation(to: string, token: string, baseUrl: string) {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return { sent: false, reason: 'no_api_key' };
+  const from = process.env.RESEND_FROM || 'opengovt <onboarding@resend.dev>';
+  const confirm = `${baseUrl}/api/newsletter/confirm?token=${encodeURIComponent(token)}`;
+  const unsubscribe = `${baseUrl}/api/newsletter/unsubscribe?token=${encodeURIComponent(token)}`;
+  const text =
+    `Please confirm you want the opengovt weekly newsletter, sent on Sundays.\n\n` +
+    `Confirm: ${confirm}\n\n` +
+    `If you did not ask for this, ignore this email and you will not be added.\n` +
+    `Unsubscribe at any time: ${unsubscribe}\n`;
+  const html = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#14100d">
+      <p>Please confirm you want the opengovt weekly newsletter, sent on Sundays.</p>
+      <p><a href="${confirm}" style="display:inline-block;background:#7a1612;color:#ffffff;padding:10px 16px;text-decoration:none;font-weight:bold">Confirm my subscription</a></p>
+      <p style="color:#555">If you did not ask for this, ignore this email and you will not be added.</p>
+      <p style="color:#555;font-size:13px">Unsubscribe at any time: <a href="${unsubscribe}" style="color:#555">${unsubscribe}</a></p>
+    </div>`;
+  try {
+    const resend = new Resend(key);
+    const { data, error } = await resend.emails.send({
+      from, to, subject: 'Confirm your opengovt newsletter subscription', text, html,
+      headers: { 'List-Unsubscribe': `<${unsubscribe}>` },
+    });
+    if (error) return { sent: false, reason: error.message };
+    return { sent: true, id: data?.id };
+  } catch (e) {
+    return { sent: false, reason: (e as Error).message };
+  }
+}
+

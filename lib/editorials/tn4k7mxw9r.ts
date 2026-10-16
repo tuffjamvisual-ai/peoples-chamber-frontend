@@ -76,7 +76,7 @@ const piece: EditorialEntry = {
     recordsReviewed: [
       'Department for Business, Innovation, Science and Trade, 27 September 2026: "New lithium mine in Cornwall to unlock Britain\'s industrial potential and support skilled jobs"',
       'Thrive Renewables, 26 February 2026: "UK generates first ever geothermal electricity at United Downs"',
-      'Department for Business and Trade, UK Battery Strategy, December 2023',
+      { text: 'Department for Business and Trade, UK Battery Strategy, December 2023', url: 'https://www.gov.uk/government/publications/uk-battery-strategy' },
       'Advanced Propulsion Centre case study, August 2026: "GEL Geothermal: Europe\'s first \'technical grade\' lithium carbonate on a commercial scale"',
       'Cornwall and Isles of Scilly Growth Programme: "United Downs Geothermal Project"',
       'Law, R. et al., Stanford Geothermal Workshop, 2019: "The United Downs Deep Geothermal Power Project"',

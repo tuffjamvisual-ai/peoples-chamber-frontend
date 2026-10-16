@@ -49,10 +49,10 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      `Department for Business and Trade, Make Work Pay: employment rights for unpaid carers and parents of seriously ill children, 9 June 2026: confirms that the government is formally considering further employment rights for parents of seriously ill children and that the consultation includes Hugh's Law`,
+      { text: `Department for Business and Trade, Make Work Pay: employment rights for unpaid carers and parents of seriously ill children, 9 June 2026: confirms that the government is formally considering further employment rights for parents of seriously ill children and that the consultation includes Hugh's Law`, url: 'https://www.gov.uk/government/consultations/make-work-pay-employment-rights-for-unpaid-carers-and-parents-of-seriously-ill-children' },
       `Department for Business and Trade, consultation announcement, 9 June 2026: confirms that proposals under consideration include Hugh's Law and possible paid leave, with the consultation running until 1 September 2026`,
       `GOV.UK, Statutory Parental Bereavement Pay and Leave: establishes the existing two-week statutory leave entitlement, day-one eligibility for leave, employment protections and the separate qualifying conditions and rate for statutory pay`,
-      `Hansard, Seriously Ill Children: Financial Support for Parents, 25 March 2025: records the parliamentary case for Hugh's Law, the gap facing parents of seriously ill children and the earlier £750-a-month support proposal`,
+      { text: `Hansard, Seriously Ill Children: Financial Support for Parents, 25 March 2025: records the parliamentary case for Hugh's Law, the gap facing parents of seriously ill children and the earlier £750-a-month support proposal`, url: 'https://www.gov.uk/government/consultations/make-work-pay-employment-rights-for-unpaid-carers-and-parents-of-seriously-ill-children' },
       `PA reporting of the Walk In Our Shoes event, 3 July 2026: records hundreds of children's shoes being placed in Parliament Square by bereaved families, the call for a bereaved-parent support package and the connection with the Hugh's Law campaign`,
       `Hugh's Law campaign: sets out the campaign's current proposal for statutory paid leave and employment protection for parents of seriously ill children`,
     ],

@@ -74,7 +74,7 @@ const piece: EditorialEntry = {
       `Ofwat, South East Water licence Condition P26 decision, 14 July 2026: records the investment-grade credit-rating breach and requirements for a financing plan, Performance Improvement Plan and independent monitor`,
       `South East Water, response to Ofwat undertakings, 14 July 2026: gives the company's explanation for agreeing the redress package and its acceptance of Ofwat's findings`,
       `South East Water, announcement of John Halsall as CEO-designate, 22 June 2026: records the appointment intended to replace David Hinton and the company's stated plans for operational change`,
-      `UK Parliament written answer 15844, 9 July 2026, and the 2026 King's Speech: confirm that the Clean Water Bill had been announced but that ministers had not provided a specific introduction date, saying it would be brought forward "in due course"`,
+      { text: `UK Parliament written answer 15844, 9 July 2026, and the 2026 King's Speech: confirm that the Clean Water Bill had been announced but that ministers had not provided a specific introduction date, saying it would be brought forward "in due course"`, url: 'https://questions-statements.parliament.uk/written-questions/detail/2026-07-03/15844' },
     ],
     lastChecked: '5 October 2026',
   },

@@ -21,6 +21,9 @@ const paragraphs = [
   `Opengovt is independent. It is not part of Parliament, GOV.UK or any government body. It takes no government funding and carries no party label.`,
 ];
 
+// Moved here from the homepage About block (audit reassessment, 16 Oct 2026), which is now one line.
+const NAME_NOTE = `We changed our name to opengovt in 2026 as a courtesy, to avoid confusion with another organisation.`;
+
 export default function AboutPage() {
   return (
     <OpenGovShell pageStamp="About">
@@ -51,6 +54,8 @@ export default function AboutPage() {
               </p>
             );
           })}
+          <h2 style={{ fontSize: '1.1em', fontWeight: 'bold', marginTop: '28px', marginBottom: '6px' }}>A note on our name</h2>
+          <p style={{ marginBottom: '20px' }}>{NAME_NOTE}</p>
         </div>
       </article>
 

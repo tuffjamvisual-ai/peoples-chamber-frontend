@@ -34,7 +34,7 @@ const piece: EditorialEntry = {
       `National Audit Office, Reducing the backlog in the Crown Court, originally published May 2024 and revised March 2025: records the previous government's 53,000-case ambition, the £477 million recovery funding and the NAO's finding that the target was no longer achievable`,
       `House of Commons Public Accounts Committee, Crown Court backlogs, 5 March 2025: examines the failure of the previous backlog reduction plan and the Ministry of Justice's management of Crown Court capacity and demand`,
       `HM Treasury and Ministry of Justice, government response to the Public Accounts Committee, May 2025: sets out the government's measures on sitting days, judicial recruitment, court maintenance and legal aid, while acknowledging that those measures alone would not reduce the outstanding caseload`,
-      `House of Commons written answer 111040, 13 February 2026: records the government's statement that 139,000 Crown Court sitting days would be required merely to keep pace with projected 2030 demand, against current judicial capacity of around 113,000 days`,
+      { text: `House of Commons written answer 111040, 13 February 2026: records the government's statement that 139,000 Crown Court sitting days would be required merely to keep pace with projected 2030 demand, against current judicial capacity of around 113,000 days`, url: 'https://questions-statements.parliament.uk/written-questions/detail/2026-02-04/111040' },
     ],
     lastChecked: '5 October 2026',
   },

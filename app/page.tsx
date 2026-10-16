@@ -8,6 +8,8 @@ import { govUrlToSlug } from '@/lib/govUrlSlug';
 import { normalizeOrg, resolveOrgHref } from '@/lib/govOrgSlug';
 import { departments } from '@/lib/departments';
 import CouncilSearch from './components/CouncilSearch';
+import NewsletterSignup from './components/NewsletterSignup';
+import { latestExpensesYear, expensesYearShort } from '@/lib/expenses-year';
 import './home-front.css';
 
 function fmtGovDate(iso: string | null | undefined): string {
@@ -92,6 +94,7 @@ export default async function HomePage() {
       .limit(10),
     supabase.from('agency_cache').select('slug, name'),
   ]);
+  const expensesYear = expensesYearShort(await latestExpensesYear());
   const agencyExact = new Map<string, string>((agencyRows ?? []).map((r) => [r.name, r.slug]));
   const agencyNorm = new Map<string, string>((agencyRows ?? []).map((r) => [normalizeOrg(r.name), r.slug]));
   const whitehallItems = (rawPressReleases ?? [])
@@ -110,8 +113,8 @@ export default async function HomePage() {
       <OpenGovShell pageStamp="Front Page" brandAsHeading>
               <div className="og-lead">
             <div className="og-main">
-              <p style={{ fontFamily: "'Special Elite', monospace", fontSize: 'clamp(16px, 1.9vw, 22px)', letterSpacing: '0.01em', color: '#14100d', marginBottom: '18px', lineHeight: 1.45 }}>
-                Search what government said, what Parliament did, and what happened next.
+              <p className="og-intro-line" style={{ fontFamily: "'Special Elite', monospace", fontSize: 'clamp(16px, 1.9vw, 22px)', letterSpacing: '0.01em', color: '#14100d', marginBottom: '18px', lineHeight: 1.45 }}>
+                Opengovt is an independent record of how power is used in Britain: search what government said, what Parliament did, and what happened next. <a href="/about" style={{ color: '#7a1612', fontSize: '0.8em', textDecoration: 'underline', textUnderlineOffset: '3px', whiteSpace: 'nowrap' }}>About us &rarr;</a>
               </p>
 
               <form action="/search" method="get" style={{ marginBottom: '28px' }}>
@@ -154,33 +157,6 @@ export default async function HomePage() {
                 </div>
               </form>
 
-              <section aria-label="Find your local authority" style={{ marginBottom: '28px' }}>
-                <h2 style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 2px' }}>
-                  Local authority data
-                </h2>
-                <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', color: '#14100d', margin: '0 0 12px', letterSpacing: '0.04em' }}>
-                  Every UK council&rsquo;s spending, leadership, finances and welfare caseload on one page
-                </p>
-                <CouncilSearch />
-              </section>
-
-
-              <section className="og-intro">
-                <h2 className="og-intro-head">About</h2>
-                <p>Opengovt tracks how power is used in Britain.</p>
-                <p>We record how MPs vote, what they declare, what they earn outside Parliament and what they claim in expenses. We also compare what councils charge residents with what they provide in return.</p>
-                <p>The record is drawn from named public sources: Hansard for divisions and debates, the Register of Members&rsquo; Financial Interests for declarations, House of Commons data for expenses, the Electoral Commission for donations, Companies House for directorships, and government statistics for departmental performance. Each figure links back to where it came from.</p>
-                <p>MP profiles use caricatures instead of official portraits because politics already comes with enough image management. We are not here to add to it.</p>
-                <p>Our journalists publish without bylines. The work should stand or fall on whether it is accurate. Every factual claim is checked against a public record before publication; when something is wrong and it is found, it is corrected and the correction is logged.</p>
-                <p>Readers can also record how they would have voted on the same Commons divisions MPs faced, then compare their choices with their own MP&rsquo;s.</p>
-                {/* AI-tools clause temporarily removed pending a disclosure decision. Original ending:
-                    "How the site is made, including its use of AI tools alongside primary-source verification, is set out on the ... page." */}
-                <p>Opengovt is independent. It is not part of Parliament, GOV.UK or any government body. It takes no government funding and carries no party label.</p>
-                <h3 style={{ fontSize: '1.1em', fontWeight: 'bold', marginTop: '22px', marginBottom: '6px' }}>A note on our name</h3>
-                <p>We changed our name to opengovt in 2026 as a courtesy, to avoid confusion with another organisation.</p>
-                <div aria-hidden style={{ width: '50%', maxWidth: '220px', height: '3px', background: '#7a1612', marginTop: '18px', borderRadius: '1px' }} />
-              </section>
-
               <a className="og-block" href={`/editorials/${slot1.slug}`}>
                 <div className="og-head">{slot1.headline}</div>
                 <div className="og-standfirst">{slot1.standfirst}</div>
@@ -192,6 +168,16 @@ export default async function HomePage() {
                 <div className="og-head">{slot2.headline} <span style={{ color: '#14100d' }}>&rarr;</span></div>
                 <p>{slot2.standfirst}</p>
               </a>
+
+              <section aria-label="Find your local authority" style={{ marginTop: '28px', marginBottom: '28px' }}>
+                <h2 style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 2px' }}>
+                  Local authority data
+                </h2>
+                <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', color: '#14100d', margin: '0 0 12px', letterSpacing: '0.04em' }}>
+                  Every UK council&rsquo;s spending, leadership, finances and welfare caseload on one page
+                </p>
+                <CouncilSearch />
+              </section>
 
               {whitehallItems.length > 0 && (
                 <section aria-label="Latest from Whitehall" style={{ marginTop: '28px', paddingTop: '18px', borderTop: '2px solid rgba(20,16,13,0.18)' }}>
@@ -265,7 +251,7 @@ export default async function HomePage() {
 
               <a className="og-block og-card" href="/expenses">
                 <div className="og-head">The biggest expenses bill</div>
-                <p>The ten biggest claimants ran up the largest bills last financial year. See which MPs spent the most and on what.</p>
+                <p>The ten biggest claimants ran up the largest bills in {expensesYear}. See which MPs spent the most and on what.</p>
                 <div className="og-cta">See the full top ten &rarr;</div>
               </a>
 
@@ -287,14 +273,14 @@ export default async function HomePage() {
                 <div className="og-cta">See what MPs are voting on &rarr;</div>
               </a>
 
-              <a className="og-block og-card" href="/login?mode=signup&newsletter=1">
+              <div className="og-block og-card" id="newsletter">
                 <div className="og-kicker" style={{ color: 'var(--ink-soft)', letterSpacing: '0.18em' }}>Weekly newsletter</div>
                 <div className="og-head">What government announced. What the evidence shows. What happened next.</div>
                 <p>Open Govt Weekly brings you the most important investigations, overlooked documents, questionable claims and public spending stories from the week.</p>
                 <p style={{ marginTop: '8px' }}>No Westminster gossip. No press-release rewrites. Just the facts worth knowing.</p>
                 <p style={{ marginTop: '8px', fontWeight: 700 }}>Delivered every Sunday.</p>
-                <div className="og-cta">Sign up free &rarr;</div>
-              </a>
+                <NewsletterSignup source="homepage" />
+              </div>
             </div>
           </div>
 

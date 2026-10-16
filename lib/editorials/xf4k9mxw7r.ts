@@ -41,13 +41,13 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      `Environment Agency, Cefas and Natural Resources Wales, "Salmon numbers in England hit lowest level on record", 16 September 2026: the 95 per cent figure, comparison with 88 per cent the previous year, marine survival estimates, domestic freshwater pressures and the 2026 to 2032 recovery commitments`,
+      { text: `Environment Agency, Cefas and Natural Resources Wales, "Salmon numbers in England hit lowest level on record", 16 September 2026: the 95 per cent figure, comparison with 88 per cent the previous year, marine survival estimates, domestic freshwater pressures and the 2026 to 2032 recovery commitments`, url: 'https://www.gov.uk/government/news/salmon-numbers-in-england-hit-lowest-level-on-record' },
       `Environment Agency, "England's salmon stocks: what the latest data tells us", 17 September 2026: the 40-of-42 river figure, freshwater and marine pressures, salmon lifecycle, local recovery examples and detailed 2032 programme commitments`,
       `Environment Agency, "Restoring salmon stocks: our journey to a new approach", 6 May 2016: launch and five elements of the Salmon Five Point Approach and earlier barrier-removal and abstraction work`,
       `Assessment of Salmon Stocks and Fisheries in England and Wales, background reports: confirmation that the Salmon Five Point Approach ended in 2021 and that a successor remained in development in subsequent reporting`,
-      `Environment Agency, Salmonid and freshwater fisheries statistics: historical risk classifications showing 40 per cent of English rivers in the two healthier categories in 2006, 19 per cent in 2015 and 12 per cent in 2020`,
+      { text: `Environment Agency, Salmonid and freshwater fisheries statistics: historical risk classifications showing 40 per cent of English rivers in the two healthier categories in 2006, 19 per cent in 2015 and 12 per cent in 2020`, url: 'https://www.gov.uk/government/collections/salmonid-and-freshwater-fisheries-statistics-reports-and-supplementary-data-tables' },
       `Office for Statistics Regulation, Review of Assessment of Salmon Stocks and Fisheries Statistics, 18 May 2026: status of the publication outside official statistics and recommendations on governance, release practices, accessibility and methodology transparency`,
-      `Cefas, Environment Agency and Natural Resources Wales, "Assessment of salmon stocks in England and Wales in 2025": publication and correction history of the latest assessment`,
+      { text: `Cefas, Environment Agency and Natural Resources Wales, "Assessment of salmon stocks in England and Wales in 2025": publication and correction history of the latest assessment`, url: 'https://www.gov.uk/government/publications/assessment-of-salmon-stocks-in-england-and-wales-in-2025' },
     ],
     lastChecked: '3 October 2026',
   },

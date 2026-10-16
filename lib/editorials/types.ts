@@ -25,7 +25,8 @@ export type EditorialEntry = {
   body: Block[];                // dispatched by `type`
   // Optional evidence panel data (populated during the reporting-texture pass).
   evidence?: {
-    recordsReviewed?: string[];
+    // Plain text, or { text, url } when the exact document has been found and opened.
+    recordsReviewed?: (string | { text: string; url?: string })[];
     contacted?: string;
     response?: string;
     lastChecked?: string;
@@ -52,7 +53,7 @@ export type Block =
   // label is what it measures, context is an optional source/explanatory line.
   | { type: 'statBlock'; stat: string; label: string; context?: string }
   // Structured data block. headlineFigure is the primary value, context explains
-  // what it measures, source is plain text (no links — house rule), sourceDate
+  // what it measures, source is plain text, sourceDate
   // is an optional year/period, historicalComparison is an optional trend line.
   | { type: 'dataBlock'; headlineFigure: string; context: string; source: string; sourceDate?: string; historicalComparison?: string }
   // A level-3 heading may carry an optional polaroid portrait, floated to

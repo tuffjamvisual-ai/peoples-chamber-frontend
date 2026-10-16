@@ -92,7 +92,7 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      `HM Treasury, appointment to the Manor of Northstead, 8 July 2026: confirms Farage's formal resignation from the House of Commons`,
+      { text: `HM Treasury, appointment to the Manor of Northstead, 8 July 2026: confirms Farage's formal resignation from the House of Commons`, url: 'https://www.gov.uk/government/news/manor-of-northstead--3' },
       `House of Commons, Procedural Protocol in respect of the Code of Conduct: states that an investigation is suspended when an MP ceases to be a Member and resumes if that Member is re-elected`,
       `UK Parliament, Parliamentary Commissioner for Standards: records the formal Rule 5 investigation into Nigel Farage concerning an alleged failure to register an interest, opened on 13 May 2026`,
       `ITV News, Clacton by-election, 8 and 10 July 2026: records Farage's decision to seek re-election, the 13 August polling date, the boycott by major parties and the suspension of the standards investigation following his resignation`,
