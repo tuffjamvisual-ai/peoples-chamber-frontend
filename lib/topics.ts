@@ -15,6 +15,9 @@ export type TopicDef = {
   // Substring keywords matched (case-insensitive) against division + bill titles.
   keywords: string[];
   // Editorial slugs (lib/editorials) hand-mapped to this topic.
+  // Investigations and briefings on this subject, assigned by hand (all existing pieces
+  // assigned 16 Oct 2026 after the reassessment found most topic pages listed none).
+  // A piece can sit in several topics. Add new pieces here when they are published.
   editorialSlugs: string[];
   // Substring keywords matched against poll questions.
   pollKeywords: string[];
@@ -31,7 +34,7 @@ export const topics: TopicDef[] = [
     departmentSlugs: ['housing'],
     deptApiNames: ['Ministry of Housing, Communities and Local Government'],
     keywords: ['housing', 'homeless', 'renter', 'leasehold', 'tenant', 'landlord', 'planning', 'building safety', 'levelling up'],
-    editorialSlugs: ['cq4r8vn2mp', 'awsucrmvr1', 'ten-worst-performing-councils-england'],
+    editorialSlugs: ['cq4r8vn2mp', 'awsucrmvr1', 'ten-worst-performing-councils-england', 'nq7x4km2wp', 'bm4k9mxw7r', 'rs8k4mxw9n', 'wk4n9mxw7r', 'qm4n9mxw7r', 'ck8m2wq7x3', 'ew4k9mxn7r'],
     pollKeywords: ['housing', 'home', 'tenant', 'leasehold', 'council tax', 'empty home'],
   },
   {
@@ -42,7 +45,7 @@ export const topics: TopicDef[] = [
     departmentSlugs: ['home-office'],
     deptApiNames: ['Home Office'],
     keywords: ['immigration', 'asylum', 'migrant', 'border', 'refugee', 'deport', 'nationality', 'illegal migration', 'small boat'],
-    editorialSlugs: [],
+    editorialSlugs: ['as6k2mwx9q', 'k9m4qxw7n2', 'q4m8k2xw7n', 'r4n8k2wq7m'],
     pollKeywords: ['immigration', 'asylum', 'channel crossing', 'deport', 'echr', 'human rights'],
   },
   {
@@ -53,7 +56,7 @@ export const topics: TopicDef[] = [
     departmentSlugs: ['health'],
     deptApiNames: ['Department of Health and Social Care'],
     keywords: ['nhs', 'health', 'hospital', 'social care', 'mental health', 'medicine', 'patient', 'tobacco', 'dentist'],
-    editorialSlugs: [],
+    editorialSlugs: ['nh4k9mxw7r', 'rc8m4kqx7n', 'hx4m2kq9w7', 'kv4n9mxw7r'],
     pollKeywords: ['nhs', 'health', 'social care', 'hospital'],
   },
   {
@@ -64,7 +67,7 @@ export const topics: TopicDef[] = [
     departmentSlugs: ['defence'],
     deptApiNames: ['Ministry of Defence'],
     keywords: ['defence', 'armed forces', 'military', 'veteran', 'nuclear', 'nato', 'ukraine', 'army', 'navy', 'royal air force'],
-    editorialSlugs: [],
+    editorialSlugs: ['dn4p8rk2wq', 'p9k4w2rx7m', 'mf7k3qxw9n', 'q4m8k2xw7n', 'w7q2m9rk5t', 'k3p9w7nx2d', 'mi5k7qxw9n'],
     pollKeywords: ['defence', 'war', 'military', 'airstrike', 'iran', 'middle east'],
   },
   {
@@ -75,7 +78,7 @@ export const topics: TopicDef[] = [
     departmentSlugs: ['education'],
     deptApiNames: ['Department for Education'],
     keywords: ['education', 'school', 'teacher', 'pupil', 'universit', 'student', 'childcare', 'skills', 'apprentic', 'special educational needs'],
-    editorialSlugs: [],
+    editorialSlugs: ['pc7m3wq9k2', 'st6k9mxq4w'],
     pollKeywords: ['school', 'education', 'tuition', 'university', 'childcare'],
   },
   {
@@ -86,7 +89,7 @@ export const topics: TopicDef[] = [
     departmentSlugs: ['treasury', 'business-trade'],
     deptApiNames: ['Treasury', 'Department for Business and Trade'],
     keywords: ['tax', 'budget', 'finance bill', 'fiscal', 'national insurance', 'vat', 'economy', 'spending', 'pensions tax', 'business rates'],
-    editorialSlugs: ['whr8acs2gf', 'd8m4xpq2vt'],
+    editorialSlugs: ['whr8acs2gf', 'd8m4xpq2vt', 'se9k4m2xq7', 'm7k4qxw9n2', 'skq4m9xw2t', 'vk4n9mxw7r', 'vq8k3mxw7n', 'tk4n9mxw7r', 'mk4n9mxw7r', 'tq6m4kx9w2', 'bk7m3wq9x2', 'td4k9mxw7r'],
     pollKeywords: ['tax', 'national insurance', 'capital gains', 'spending', 'budget'],
   },
   {
@@ -97,7 +100,7 @@ export const topics: TopicDef[] = [
     departmentSlugs: ['work-pensions'],
     deptApiNames: ['Department for Work and Pensions'],
     keywords: ['welfare', 'benefit', 'universal credit', 'pension', 'disabilit', 'poverty', 'pip', 'winter fuel', 'state pension'],
-    editorialSlugs: [],
+    editorialSlugs: ['kv4n9mxw7r', 'hl7k2mx9w4', 'vt6k9mxw3n'],
     pollKeywords: ['welfare', 'benefit', 'pip', 'pension', 'winter fuel', 'disability'],
   },
   {
@@ -108,7 +111,7 @@ export const topics: TopicDef[] = [
     departmentSlugs: ['energy', 'environment'],
     deptApiNames: ['Department for Energy Security and Net Zero', 'Department for Environment, Food and Rural Affairs'],
     keywords: ['climate', 'energy', 'net zero', 'carbon', 'renewable', 'electricity', 'emission', 'petroleum', 'environment', 'water', 'sewage'],
-    editorialSlugs: [],
+    editorialSlugs: ['dw4k9mxw7r', 'pf7k3mxw9q', 'xf4k9mxw7r', 'hw9k4mxq2t', 'gw4k9mxn7r', 'vb8k4mxn9r', 'tn4k7mxw9r', 'mk4n9mxw7r', 'vt6k9mxw3n'],
     pollKeywords: ['energy', 'oil', 'gas', 'climate', 'north sea', 'net zero'],
     dataPages: [
       { href: '/sewage', title: 'Sewage spills', description: 'How long storm overflows spilled sewage in every council area and constituency in England and Northern Ireland, and for each water company.' },
@@ -122,7 +125,7 @@ export const topics: TopicDef[] = [
     departmentSlugs: ['justice', 'home-office'],
     deptApiNames: ['Ministry of Justice', 'Home Office'],
     keywords: ['justice', 'police', 'policing', 'crime', 'sentenc', 'prison', 'court', 'criminal', 'offence', 'victims', 'sexual'],
-    editorialSlugs: ['xm7co0hssx'],
+    editorialSlugs: ['xm7co0hssx', 'cr4k9mxw7r', 'em7k4mxw9n', 'jx4m9wk2q7', 'px4n9mxw7r', 'pn8k4qxw2r', 'pk9v2mrx4t', 'hx7n4qw2mk', 'obd5xiiexy', 'fr9k2mxw7q', 'bg9k4mxw2q', 'pb4k9mxw7r', 'ia4k9mxw7r', 'hn4k9mxw7r', 'ms9k4qxw7n', 'mi5k7qxw9n'],
     pollKeywords: ['crime', 'police', 'sentence', 'prison', 'grooming', 'justice'],
   },
   {
@@ -133,7 +136,7 @@ export const topics: TopicDef[] = [
     departmentSlugs: ['transport'],
     deptApiNames: ['Department for Transport'],
     keywords: ['transport', 'rail', 'railway', 'road', 'hs2', 'bus', 'aviation', 'driver', 'highway', 'cycling', 'electric vehicle'],
-    editorialSlugs: [],
+    editorialSlugs: ['gx4k9mxw7r', 'k3p9w7nx2d'],
     pollKeywords: ['transport', 'rail', 'hs2', 'road', 'bus', 'driver'],
   },
   {
@@ -144,7 +147,7 @@ export const topics: TopicDef[] = [
     departmentSlugs: ['foreign-office'],
     deptApiNames: ['Foreign, Commonwealth and Development Office'],
     keywords: ['foreign', 'sanction', 'gaza', 'israel', 'iran', 'ukraine', 'diplomat', 'overseas', 'commonwealth', 'trade agreement', 'development'],
-    editorialSlugs: ['d8m4xpq2vt'],
+    editorialSlugs: ['d8m4xpq2vt', 'mn8k4qxw7v', 'rk9m4qxw7d', 'q4m8k2xw7n', 'tk4n9mxw7r'],
     pollKeywords: ['foreign', 'iran', 'israel', 'gaza', 'middle east', 'ukraine'],
   },
   {
@@ -155,7 +158,7 @@ export const topics: TopicDef[] = [
     departmentSlugs: [],
     deptApiNames: ['Cabinet Office'],
     keywords: ['constitution', 'house of lords', 'electoral', 'devolution', 'referendum', 'elections act', 'recall', 'standards', 'boundary'],
-    editorialSlugs: ['kxlkhj1jgj', 'power-for-sale-20-politicians-who-cashed-in', 'the-revolving-door', 'when-did-politicians-stop-taking-responsibility', 'britains-most-disgraced-politicians', 'kp7m2xqv9d'],
+    editorialSlugs: ['kxlkhj1jgj', 'power-for-sale-20-politicians-who-cashed-in', 'the-revolving-door', 'when-did-politicians-stop-taking-responsibility', 'britains-most-disgraced-politicians', 'kp7m2xqv9d', 'siicjkcsr6', 'ag7k4mxq9w', 'v3n8q2xk6w', 'wq7m4kx2np', 'qn4k9mxw7r', 'td4k9mxw7r', '6vui3xxze9', 'bn6k4qxw27', 'p4w9k2xr7n', 'hb9k2xq7mw', 'q7m3k9xw2r', 'dk9m2xq7w4', 'mn8k4qxw7v', 'rk9m4qxw7d'],
     pollKeywords: ['proportional representation', 'no confidence', 'second job', 'attendance', 'recall', 'lords', 'donation', 'gift'],
   },
 ];

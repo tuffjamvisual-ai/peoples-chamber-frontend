@@ -88,7 +88,9 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
     .slice(0, 5);
 
   const dept = topic.departmentSlugs.length ? departments.find((d) => d.slug === topic.departmentSlugs[0]) : undefined;
-  const relatedEditorials = topic.editorialSlugs.map((s) => editorials[s]).filter(Boolean);
+  // Newest first (topic hubs now list every piece on the subject, 16 Oct 2026).
+  const relatedEditorials = topic.editorialSlugs.map((s) => editorials[s]).filter(Boolean)
+    .sort((a, b) => (b.publishedAt || '').localeCompare(a.publishedAt || ''));
   const poll = (pollRes.data || [])[0];
 
   return (
@@ -184,7 +186,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
         <section style={{ marginBottom: '6%' }}>
           <h2 style={sectionH2}>Investigations</h2>
           {relatedEditorials.map((e) => (
-            <Link key={e.slug} href={`/editorials/${e.slug}`} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '11px 0' }}>
+            <Link key={e.slug} href={`/${e.kind === 'briefing' ? 'briefings' : 'editorials'}/${e.slug}`} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '11px 0' }}>
               <div style={{ fontSize: '16px', fontWeight: 'bold', lineHeight: 1.3 }}>{e.headline} <span style={{ color: ACCENT }}>→</span></div>
               <p style={{ fontSize: '15px', color: INK, marginTop: '4px', lineHeight: 1.5 }}>{e.standfirst}</p>
             </Link>
