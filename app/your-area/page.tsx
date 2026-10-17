@@ -173,8 +173,20 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
 
   const cards: Card[] = [];
   const missing: string[] = [];
+  // Why a topic has no figures here, where the reason is the source's coverage
+  // (the same nation checks the loaders apply). Otherwise no reason is given.
+  const areaCode = code ?? constituencyCode ?? '';
+  const nation = areaCode[0];
+  const NATION_NAME: Record<string, string> = { E: 'England', W: 'Wales', S: 'Scotland', N: 'Northern Ireland' };
+  const reasonFor = (title: string): string | null => {
+    const t = title.toLowerCase();
+    if (nation !== 'E' && (t === 'homelessness' || t === 'fuel poverty' || t === 'schools' || t === 'council area rating')) return 'published for England only';
+    if (nation === 'N' && t.startsWith('road casualties')) return 'published for Great Britain only';
+    if (nation === 'W' && t === 'sewage spills') return 'Welsh figures are not on Open Govt yet';
+    return null;
+  };
   const add = (title: string, ok: unknown, card: () => Omit<Card, 'title'>) => {
-    if (ok) cards.push({ title, ...card() }); else missing.push(title.toLowerCase());
+    if (ok) cards.push({ title, ...card() }); else missing.push(title);
   };
 
   add('Crime', council && crime, () => ({
@@ -187,12 +199,19 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
   add(county ? `Road casualties in ${county.short_name || county.name}` : 'Road casualties', eduOrRoadsCouncil && roads && (roads.killed != null || roads.ksi != null), () => ({
     key: 'roads', href: page(eduOrRoadsCouncil, 'crime'), linkText: 'Road casualties in full',
     lines: [
-      <p key="a" style={big}>
-        {roads!.killed != null && <><strong>{n0(roads!.killed)}</strong> killed</>}
-        {roads!.killed != null && roads!.ksi != null && ', '}
-        {roads!.ksi != null && <><strong>{n0(roads!.ksi)}</strong> killed or seriously injured</>}
-        {' '}on the roads, {roads!.year}
-      </p>,
+      roads!.ksi != null && roads!.killed != null ? (() => {
+        // Seriously injured = killed or seriously injured, less those killed.
+        const injured = Math.max(0, Math.round(roads!.ksi!) - roads!.killed!);
+        return (
+          <p key="a" style={big}>
+            <strong>{n0(injured)}</strong> {injured === 1 ? 'person' : 'people'} seriously injured and <strong>{n0(roads!.killed!)}</strong> killed on the roads in {roads!.year}
+          </p>
+        );
+      })() : roads!.ksi != null ? (
+        <p key="a" style={big}><strong>{n0(roads!.ksi)}</strong> {Math.round(roads!.ksi) === 1 ? 'person' : 'people'} killed or seriously injured on the roads in {roads!.year}</p>
+      ) : (
+        <p key="a" style={big}><strong>{n0(roads!.killed!)}</strong> {roads!.killed === 1 ? 'person' : 'people'} killed on the roads in {roads!.year}</p>
+      ),
       county ? <p key="b" style={para}>Figures for the whole of {county.name}, which looks after the roads here, not just {council?.short_name || council?.name}.</p> : null,
     ],
   }));
@@ -315,7 +334,7 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
         ranks.length ? <p key="b" style={para}>Its districts are ranked one by one: from {ordinal(ranks[0].areaRank!)} ({ranks[0].name}) to {ordinal(ranks[ranks.length - 1].areaRank!)} ({ranks[ranks.length - 1].name}) of {n0(league.stability.ranked)} areas in England</p> : null,
       ],
     }));
-    const i = missing.indexOf('council area rating');
+    const i = missing.indexOf('Council area rating');
     if (i >= 0) missing.splice(i, 1);
   }
 
@@ -389,7 +408,8 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
 
       {missing.length > 0 && (
         <p style={{ ...para, marginTop: '20px', opacity: 0.8 }}>
-          No figures for this area on: {missing.join(', ')}.
+          Not shown for {NATION_NAME[nation] ? `this area (${NATION_NAME[nation]})` : 'this area'}:{' '}
+          {missing.map((m) => { const r = reasonFor(m); return r ? `${m} (${r})` : `${m} (no figures held for this area)`; }).join('; ')}.
         </p>
       )}
     </Shell>
