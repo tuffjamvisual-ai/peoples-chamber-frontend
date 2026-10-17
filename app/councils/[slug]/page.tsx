@@ -349,7 +349,9 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
               {hasLeadership && (
                 <Section title="Political Control & Leadership">
                   <DataRow label="Political control" value={c.political_control} sub={controlStatusText(c.political_control_status)} />
-                  {comp && <DataRow label="Run by" value={administrationLabel(comp.administration_code)} />}
+                  {/* The publisher's administration label is left out when it contradicts the seats shown
+                      below (e.g. "minority" while one named party holds more than half the seats). */}
+                  {comp && !runByContradictsSeats(comp) && <DataRow label="Run by" value={administrationLabel(comp.administration_code)} />}
                   {comp && comp.total_seats > 0 && (
                     <DataRow
                       label="Seats"
@@ -618,6 +620,12 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
 
 // Stored status values are short codes ("majority", "NOC (largest: Labour 48/99)").
 // Show them in plain English.
+function runByContradictsSeats(comp: { administration_code: string | null; seats: Record<string, number>; total_seats: number }): boolean {
+  const code = (comp.administration_code || '').trim();
+  if (!/\smin$/i.test(code) || !comp.total_seats) return false;
+  return Object.entries(comp.seats).some(([party, n]) => party !== 'other' && n * 2 > comp.total_seats);
+}
+
 function controlStatusText(status: string | null): string | null {
   if (!status) return null;
   const noc = status.match(/^NOC \(largest: (.+) (\d+)\/(\d+)\)$/);

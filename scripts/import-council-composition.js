@@ -100,7 +100,9 @@ const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABA
     if (!total || sum !== total) problems.push(`${r[col('authority')]} ${year}: seats add up to ${sum}, total says ${total}`);
     const ranked = PARTIES.map((p) => [p, seats[p]]).sort((a, b) => b[1] - a[1]);
     const [largest, largestSeats] = ranked[0];
-    const majority = largestSeats * 2 > total ? largest : null;
+    // "other" lumps independents and local parties together, so it can never be one group's
+    // majority (Broxtowe and Tandridge were wrongly shown as majority-controlled, 17 Oct 2026).
+    const majority = largestSeats * 2 > total && largest !== 'other' ? largest : null;
     const admin = (r[col('majority')] || '').trim();
     const council = byGss.get(gss);
     if (!council) unmatched.push(`${r[col('authority')]} (${gss})`);
