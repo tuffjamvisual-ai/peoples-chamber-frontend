@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import JsonLd, { buildHomepageGraph } from '@/lib/JsonLd';
 import OpenGovShell from './components/OpenGovShell';
-import { computeReaderViAggregate, READER_VI_PARTIES } from '@/lib/readerVi';
 import { editorials } from '@/lib/editorials';
 import { supabase } from '@/lib/supabase';
 import { govUrlToSlug } from '@/lib/govUrlSlug';
@@ -32,18 +31,6 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  // The homepage election card reads the SAME reader voting-intention aggregate
-  // as the /polls ballot (lib/readerVi) — live reader votes plus the shared seed
-  // — so the two can never show different numbers. Percentages use the same total
-  // and Math.round as the /polls card.
-  const { tally, total } = await computeReaderViAggregate();
-  const topParties = total > 0
-    ? READER_VI_PARTIES
-        .map((p) => ({ ...p, value: Math.round(((tally[p.key] || 0) / total) * 100) }))
-        .sort((a, b) => b.value - a.value)
-    : [];
-  const max = topParties[0]?.value || 1;
-  const asOfLabel = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
   // Investigation pool: all entries where kind is absent (investigations only),
   // sorted publishedAt DESC then by registry declaration order as tiebreaker.
@@ -207,31 +194,8 @@ export default async function HomePage() {
             </div>
 
             <div className="og-rail">
-              <a className="og-block og-card" href="/polls">
-                <div className="og-kicker" style={{ letterSpacing: '0.18em' }}>
-                  <span style={{ color: '#14100d' }}>If an Election Were Held Now</span>
-                  {asOfLabel ? <span style={{ color: 'var(--ink-soft)' }}> · as of {asOfLabel}</span> : null}
-                </div>
-                {topParties.length > 0 ? (
-                  <>
-                    <div style={{ margin: '10px 0 12px' }}>
-                      {topParties.map((p) => (
-                        <div key={p.key} style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '6px 0' }}>
-                          <span style={{ width: '78px', fontFamily: "'Special Elite', monospace", fontSize: '15px', color: '#14100d' }}>{p.label}</span>
-                          <span style={{ flex: 1, height: '11px', background: 'rgba(20,16,13,0.10)', position: 'relative', borderRadius: '1px' }}>
-                            <span aria-hidden style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: `${(p.value / max) * 100}%`, background: p.colour, borderRadius: '1px' }} />
-                          </span>
-                          <span style={{ width: '54px', textAlign: 'right', fontFamily: "'Special Elite', monospace", fontSize: '15px', fontWeight: 700, color: '#14100d', fontVariantNumeric: 'tabular-nums' }}>{p.value}%</span>
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                ) : (
-                  <div className="og-head">Have your say</div>
-                )}
-                <div className="og-cta">Vote now &rarr;</div>
-              </a>
-
+              {/* "If an Election Were Held Now" reader card removed 17 Oct 2026 (owner's decision): its
+                  total was a launch seed of 4,106 votes plus 1 real reader vote. */}
               <a className="og-block og-card" href="/bills">
                 <div className="og-kicker" style={{ color: 'var(--ink-soft)', letterSpacing: '0.18em' }}>From the House this week</div>
                 <div className="og-head">Every bill. Every vote. Every law.</div>

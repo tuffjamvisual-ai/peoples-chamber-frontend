@@ -13,6 +13,10 @@ type Poll = {
   vote_count_no: number
   created_at: string
   explainer: string | null
+  // Added 17 Oct 2026 (poll briefing audit): links to the records the briefing relies on,
+  // and the date its facts were last checked.
+  explainer_sources?: { label: string; url: string }[] | null
+  explainer_checked?: string | null
 }
 
 type SortOption = 'newest' | 'popular'
@@ -221,7 +225,9 @@ export default function PollsClient() {
               marginBottom: '32px',
             }}
           >
-            {!search && <VIBallotCard tilt={-0.4} />}
+            {/* Reader voting-intention card removed 17 Oct 2026 (owner's decision): its total was a launch
+                seed of 4,106 votes plus 1 real reader vote, so it could not honestly be shown as reader opinion.
+                VIBallotCard is kept below, unused, in case real-votes-only display is wanted later. */}
             {filtered.map((poll, idx) => (
               <PollCard
                 key={poll.id}
@@ -314,6 +320,20 @@ function PollCard({
             {poll.explainer}
           </p>
         )}
+        {(poll.explainer_sources?.length || poll.explainer_checked) ? (
+          <p style={{ fontSize: '14px', lineHeight: 1.5, color: INK_SOFT, margin: 0 }}>
+            {poll.explainer_sources && poll.explainer_sources.length > 0 && (
+              <>
+                Sources:{' '}
+                {poll.explainer_sources.map((x, i) => (
+                  <span key={x.url}>{i > 0 ? '; ' : ''}<a href={x.url} {...(x.url.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})} style={{ color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>{x.label}</a></span>
+                ))}
+                {'. '}
+              </>
+            )}
+            {poll.explainer_checked && <>Facts checked {new Date(poll.explainer_checked).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })}.</>}
+          </p>
+        ) : null}
 
         <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', fontStyle: 'italic', color: INK_SOFT, letterSpacing: '0.03em', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '9px' }}>
           Mark one box with a cross.
@@ -444,6 +464,7 @@ function fmtVIDate(iso: string | null): string {
   try { return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) } catch { return '' }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function VIBallotCard({ tilt }: { tilt: number }) {
   const router = useRouter()
   const { user, authLoading } = useAuth()
