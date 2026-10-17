@@ -338,6 +338,26 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
     if (i >= 0) missing.splice(i, 1);
   }
 
+  // Share the topics between two columns of even height: each topic goes to the
+  // shorter column so far, judged by how much text it holds (headline text is
+  // larger, so it counts double). Order is kept within each column.
+  const textLen = (n: ReactNode): number => {
+    if (n == null || typeof n === 'boolean') return 0;
+    if (typeof n === 'string' || typeof n === 'number') return String(n).length;
+    if (Array.isArray(n)) return n.reduce((t: number, x) => t + textLen(x), 0);
+    const el = n as { props?: { children?: ReactNode; style?: CSSProperties } };
+    const inner = textLen(el.props?.children ?? null);
+    return el.props?.style === big ? inner * 2 : inner;
+  };
+  const columns: Card[][] = [[], []];
+  const heights = [0, 0];
+  for (const c of cards) {
+    const w = 120 + textLen(c.lines);
+    const i = heights[0] <= heights[1] ? 0 : 1;
+    columns[i].push(c);
+    heights[i] += w;
+  }
+
   const control = (c: Council) =>
     c.political_control ? (c.political_control === 'No overall control' ? 'No party has overall control' : `Run by ${c.political_control}`) : null;
 
@@ -349,8 +369,11 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
         </p>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px', marginBottom: '28px' }}>
-        <section style={{ border: `1px solid ${HAIRLINE}`, borderTop: `3px solid ${ACCENT}`, padding: '16px 18px' }}>
+      {/* Two newspaper columns, no boxes: items flow down one column then the next,
+          so a short item never leaves a gap beside a long one. One column on phones. */}
+      <style>{`.ya-two{display:grid;grid-template-columns:1fr 1fr;column-gap:44px;align-items:start}@media (max-width:760px){.ya-two{grid-template-columns:1fr}}`}</style>
+      <div className="ya-two" style={{ marginBottom: '8px' }}>
+        <section style={{ borderTop: `3px solid ${ACCENT}`, padding: '14px 0 18px' }}>
           <h2 style={h2}>{!constituencyCode && areaMps.length > 1 ? 'MPs for this area' : 'Your MP'}</h2>
           {!constituencyCode && areaMps.length > 0 ? (
             <>
@@ -374,7 +397,7 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
           )}
         </section>
 
-        <section style={{ border: `1px solid ${HAIRLINE}`, borderTop: `3px solid ${ACCENT}`, padding: '16px 18px' }}>
+        <section style={{ borderTop: `3px solid ${ACCENT}`, padding: '14px 0 18px' }}>
           <h2 style={h2}>Your council</h2>
           {council ? (
             <>
@@ -395,13 +418,17 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
       </div>
 
       {cards.length > 0 && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
-          {cards.map((c) => (
-            <section key={c.key} style={{ border: `1px solid ${HAIRLINE}`, padding: '16px 18px', display: 'flex', flexDirection: 'column' }}>
-              <h2 style={h2}>{c.title}</h2>
-              <div style={{ flex: 1 }}>{c.lines}</div>
-              <p style={{ ...para, marginTop: '8px', marginBottom: 0 }}><a href={c.href} style={link}>{c.linkText} →</a></p>
-            </section>
+        <div className="ya-two">
+          {columns.map((col, ci) => (
+            <div key={ci}>
+              {col.map((c) => (
+                <section key={c.key} style={{ borderTop: `1px solid ${HAIRLINE}`, padding: '14px 0 18px' }}>
+                  <h2 style={h2}>{c.title}</h2>
+                  <div>{c.lines}</div>
+                  <p style={{ ...para, marginTop: '8px', marginBottom: 0 }}><a href={c.href} style={link}>{c.linkText} →</a></p>
+                </section>
+              ))}
+            </div>
           ))}
         </div>
       )}
