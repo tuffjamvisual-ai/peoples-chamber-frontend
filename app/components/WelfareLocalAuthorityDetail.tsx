@@ -158,7 +158,42 @@ type PartialPayload = {
   note: string
 }
 
-type Payload = FullPayload | PartialPayload
+type NiBenefitRow = {
+  key: string
+  label: string
+  spend: number
+  claimants: number
+  period: string | null
+  year: number | null
+  baseline: number | null
+  baselinePeriod: string | null
+  baselineYear: number | null
+  percentChange: number | null
+}
+
+// Northern Ireland: built from Department for Communities and NISRA tables, because DWP's
+// figures do not cover Northern Ireland (17 Oct 2026). Spend is estimated from NI-wide averages.
+type NiPayload = {
+  scope: 'ni'
+  councilName: string | null
+  councilSlug: string | null
+  population: number | null
+  total: number
+  perResident: number | null
+  rankTotal: number
+  rankPerResident: number | null
+  ranked: number
+  benefits: NiBenefitRow[]
+  method: {
+    uc: { households: number; meanMonthly: number; niSpend: number; period: string }
+    pipAverageWeekly: number
+    caWeekly: number
+    averages: { dla: number; esa: number }
+  }
+  sources: { label: string; url: string }[]
+}
+
+type Payload = FullPayload | PartialPayload | NiPayload
 
 export default function WelfareLocalAuthorityDetail({ gss, embedded }: { gss: string; embedded?: boolean }) {
   const [loading, setLoading] = useState(true)
@@ -206,7 +241,7 @@ export default function WelfareLocalAuthorityDetail({ gss, embedded }: { gss: st
         fontFamily: SERIF,
       }}
     >
-      {payload.scope === 'full' ? <FullView payload={payload} embedded={embedded} /> : <PartialView payload={payload} embedded={embedded} />}
+      {payload.scope === 'full' ? <FullView payload={payload} embedded={embedded} /> : payload.scope === 'ni' ? <NiView payload={payload} /> : <PartialView payload={payload} embedded={embedded} />}
     </article>
   )
 }
@@ -377,3 +412,61 @@ function DataRow({ label, value, sub, valueColour }: { label: string; value: Rea
     </div>
   )
 }
+
+const monthYear = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' }) : '')
+
+function NiView({ payload }: { payload: NiPayload }) {
+  const m = payload.method
+  const basis: Record<string, string> = {
+    uc: `Northern Ireland's Universal Credit spend (${formatCount(m.uc.households)} households in payment × £${formatCount(m.uc.meanMonthly)} a month average) shared by this council's share of claimants`,
+    pip: `claims × £${m.pipAverageWeekly.toFixed(2)} a week, the average award worked out from Northern Ireland's mix of PIP award levels at 2026/27 rates`,
+    dla: `claimants × £${m.averages.dla.toFixed(2)} a week, the Northern Ireland average payment`,
+    ca: `claimants × £${m.caWeekly.toFixed(2)} a week, the 2026/27 rate`,
+    esa: `claimants × £${m.averages.esa.toFixed(2)} a week, the Northern Ireland average payment`,
+  }
+  return (
+    <>
+      <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '16px', marginBottom: '22px' }}>
+        <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: 0 }}>
+          {`Benefits in Northern Ireland are run by the Department for Communities, not DWP. These figures come from its published statistics and NISRA's. Spending is an estimate: claimants in this council multiplied by Northern Ireland-wide average payments, because average payments are not published by council. Housing Benefit is not published by council area in Northern Ireland, so the total covers five benefits. Ranks compare the ${payload.ranked} Northern Ireland councils.`}
+        </p>
+      </section>
+
+      <Section title="Headline figures">
+        <DataRow label="Estimated five-benefit spend" value={formatGBP(payload.total)} sub="A year, at the latest published caseloads" />
+        <DataRow label="Spend per resident" value={payload.perResident != null ? formatGBPPerResident(payload.perResident) : null} />
+        <DataRow label="Rank by total spend" value={`#${payload.rankTotal} of ${payload.ranked}`} sub="Rank 1 = highest estimated spend among Northern Ireland councils" />
+        <DataRow label="Rank by spend per resident" value={payload.rankPerResident != null ? `#${payload.rankPerResident} of ${payload.ranked}` : null} />
+        <DataRow label="Population" value={payload.population != null ? formatCount(payload.population) : null} />
+      </Section>
+
+      <Section title="Per-benefit breakdown">
+        {payload.benefits.map((b) => {
+          const when = b.period ? monthYear(b.period) : b.year != null ? String(b.year) : ''
+          const was = b.baselinePeriod ? monthYear(b.baselinePeriod) : b.baselineYear != null ? String(b.baselineYear) : ''
+          const change = b.percentChange != null ? ` (${formatSignedPercent(b.percentChange)} since ${was})` : ''
+          return (
+            <DataRow
+              key={b.key}
+              label={b.label}
+              value={formatGBP(b.spend)}
+              sub={`${payload.perResident != null && payload.population ? `${formatGBPPerResident(b.spend / payload.population)} per resident · ` : ''}${formatCount(b.claimants)} claimants${change} · ${when} · Estimate: ${basis[b.key] ?? ''}`}
+            />
+          )
+        })}
+        <DataRow label="Housing Benefit" value="Not published by council area" sub="Northern Ireland Housing Statistics give Housing Benefit receipt for Northern Ireland as a whole, not by council" />
+      </Section>
+
+      <section style={{ marginBottom: '8px' }}>
+        <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.7, color: INK, margin: 0 }}>
+          Sources:{' '}
+          {payload.sources.map((x, i) => (
+            <span key={x.url}>{i > 0 ? '; ' : ''}<a href={x.url} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{x.label}</a></span>
+          ))}
+          . Open Government Licence v3.0.
+        </p>
+      </section>
+    </>
+  )
+}
+

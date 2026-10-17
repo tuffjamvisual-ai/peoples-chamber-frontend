@@ -219,7 +219,8 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
   // confusing "no data found" error rather than a genuine gap.
   const welfareGss = c.gss_code;
   // Counties show the sum of their districts (the welfare API adds them up), 17 Oct 2026.
-  const showWelfare = /^[EWS]\d{8}$/.test(welfareGss);
+  // Northern Ireland councils (N09) are included from 17 Oct 2026 (Department for Communities figures).
+  const showWelfare = /^[EWSN]\d{8}$/.test(welfareGss);
 
   // Public health metrics: same county exclusion as welfare — upper-tier
   // counties have no row of their own in council_public_health_metrics

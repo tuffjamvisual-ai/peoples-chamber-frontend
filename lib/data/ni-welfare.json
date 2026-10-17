@@ -1,0 +1,440 @@
+{
+ "built": "2026-10-17",
+ "councils": {
+  "N09000001": {
+   "uc": {
+    "claimants": 17680.0,
+    "baseline": 12540.0,
+    "baselinePeriod": "2024-05-31",
+    "period": "2026-05-31",
+    "spend": 186968722.5521581
+   },
+   "pip": {
+    "claimants": 16240.0,
+    "period": "2026-05-31",
+    "spend": 127776355.26142089
+   },
+   "ca": {
+    "claimants": 4990.0,
+    "baseline": 4800.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 22432046.0
+   },
+   "dla": {
+    "claimants": 5250.0,
+    "baseline": 5250.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 35296170.0
+   },
+   "esa": {
+    "claimants": 6270.0,
+    "baseline": 7270.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 45211966.8
+   }
+  },
+  "N09000011": {
+   "uc": {
+    "claimants": 18120.0,
+    "baseline": 13340.0,
+    "baselinePeriod": "2024-05-31",
+    "period": "2026-05-31",
+    "spend": 191621790.307981
+   },
+   "pip": {
+    "claimants": 16630.0,
+    "period": "2026-05-31",
+    "spend": 130844876.10821609
+   },
+   "ca": {
+    "claimants": 5710.0,
+    "baseline": 5460.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 25668734.0
+   },
+   "dla": {
+    "claimants": 5120.0,
+    "baseline": 5210.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 34422169.599999994
+   },
+   "esa": {
+    "claimants": 6390.0,
+    "baseline": 7190.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 46077267.599999994
+   }
+  },
+  "N09000002": {
+   "uc": {
+    "claimants": 28170.0,
+    "baseline": 20820.0,
+    "baselinePeriod": "2024-05-31",
+    "period": "2026-05-31",
+    "spend": 297902087.91257316
+   },
+   "pip": {
+    "claimants": 23520.0,
+    "period": "2026-05-31",
+    "spend": 185055411.06826472
+   },
+   "ca": {
+    "claimants": 8420.0,
+    "baseline": 8130.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 37851268.0
+   },
+   "dla": {
+    "claimants": 7610.0,
+    "baseline": 7630.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 51162638.8
+   },
+   "esa": {
+    "claimants": 9360.0,
+    "baseline": 10710.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 67493462.39999999
+   }
+  },
+  "N09000003": {
+   "uc": {
+    "claimants": 67460.0,
+    "baseline": 43880.0,
+    "baselinePeriod": "2024-05-31",
+    "period": "2026-05-31",
+    "spend": 713399888.1995806
+   },
+   "pip": {
+    "claimants": 51940.0,
+    "period": "2026-05-31",
+    "spend": 408664032.77575123
+   },
+   "ca": {
+    "claimants": 15350.0,
+    "baseline": 15300.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 69004390.0
+   },
+   "dla": {
+    "claimants": 15600.0,
+    "baseline": 15760.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 104880047.99999999
+   },
+   "esa": {
+    "claimants": 19720.0,
+    "baseline": 24100.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 142197764.79999998
+   }
+  },
+  "N09000004": {
+   "uc": {
+    "claimants": 20050.0,
+    "baseline": 14580.0,
+    "baselinePeriod": "2024-05-31",
+    "period": "2026-05-31",
+    "spend": 212031837.5096589
+   },
+   "pip": {
+    "claimants": 16980.0,
+    "period": "2026-05-31",
+    "spend": 133598676.86816052
+   },
+   "ca": {
+    "claimants": 6200.0,
+    "baseline": 6080.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 27871480.0
+   },
+   "dla": {
+    "claimants": 4730.0,
+    "baseline": 4790.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 31800168.4
+   },
+   "esa": {
+    "claimants": 6890.0,
+    "baseline": 8010.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 49682687.599999994
+   }
+  },
+  "N09000005": {
+   "uc": {
+    "claimants": 31620.0,
+    "baseline": 20800.0,
+    "baselinePeriod": "2024-05-31",
+    "period": "2026-05-31",
+    "spend": 334386369.1798212
+   },
+   "pip": {
+    "claimants": 25890.0,
+    "period": "2026-05-31",
+    "spend": 203702576.21417406
+   },
+   "ca": {
+    "claimants": 8680.0,
+    "baseline": 8510.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 39020072.0
+   },
+   "dla": {
+    "claimants": 7200.0,
+    "baseline": 7390.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 48406176.0
+   },
+   "esa": {
+    "claimants": 9450.0,
+    "baseline": 11170.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 68142437.99999999
+   }
+  },
+  "N09000006": {
+   "uc": {
+    "claimants": 14730.0,
+    "baseline": 10150.0,
+    "baselinePeriod": "2024-05-31",
+    "period": "2026-05-31",
+    "spend": 155772018.28016338
+   },
+   "pip": {
+    "claimants": 13750.0,
+    "period": "2026-05-31",
+    "spend": 108185029.85495917
+   },
+   "ca": {
+    "claimants": 4710.0,
+    "baseline": 4630.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 21173334.0
+   },
+   "dla": {
+    "claimants": 4550.0,
+    "baseline": 4710.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 30590014.0
+   },
+   "esa": {
+    "claimants": 5330.0,
+    "baseline": 6220.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 38433777.199999996
+   }
+  },
+  "N09000007": {
+   "uc": {
+    "claimants": 14420.0,
+    "baseline": 10550.0,
+    "baselinePeriod": "2024-05-31",
+    "period": "2026-05-31",
+    "spend": 152493720.54310632
+   },
+   "pip": {
+    "claimants": 13160.0,
+    "period": "2026-05-31",
+    "spend": 103542908.57391003
+   },
+   "ca": {
+    "claimants": 4230.0,
+    "baseline": 4050.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 19015542.0
+   },
+   "dla": {
+    "claimants": 4600.0,
+    "baseline": 4610.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 30926168.0
+   },
+   "esa": {
+    "claimants": 4860.0,
+    "baseline": 5490.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 35044682.4
+   }
+  },
+  "N09000008": {
+   "uc": {
+    "claimants": 17490.0,
+    "baseline": 12660.0,
+    "baselinePeriod": "2024-05-31",
+    "period": "2026-05-31",
+    "spend": 184959443.2939618
+   },
+   "pip": {
+    "claimants": 15200.0,
+    "period": "2026-05-31",
+    "spend": 119593633.00330034
+   },
+   "ca": {
+    "claimants": 4880.0,
+    "baseline": 4770.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 21937552.0
+   },
+   "dla": {
+    "claimants": 4610.0,
+    "baseline": 4630.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 30993398.799999997
+   },
+   "esa": {
+    "claimants": 6310.0,
+    "baseline": 7230.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 45500400.4
+   }
+  },
+  "N09000009": {
+   "uc": {
+    "claimants": 17750.0,
+    "baseline": 12760.0,
+    "baselinePeriod": "2024-05-31",
+    "period": "2026-05-31",
+    "spend": 187708983.33149356
+   },
+   "pip": {
+    "claimants": 15480.0,
+    "period": "2026-05-31",
+    "spend": 121796673.61125587
+   },
+   "ca": {
+    "claimants": 6260.0,
+    "baseline": 6130.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 28141204.0
+   },
+   "dla": {
+    "claimants": 5660.0,
+    "baseline": 5810.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 38052632.8
+   },
+   "esa": {
+    "claimants": 5910.0,
+    "baseline": 6850.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 42616064.4
+   }
+  },
+  "N09000010": {
+   "uc": {
+    "claimants": 24140.0,
+    "baseline": 16820.0,
+    "baselinePeriod": "2024-05-31",
+    "period": "2026-05-31",
+    "spend": 255284217.33083123
+   },
+   "pip": {
+    "claimants": 21020.0,
+    "period": "2026-05-31",
+    "spend": 165385405.64009035
+   },
+   "ca": {
+    "claimants": 7960.0,
+    "baseline": 7750.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 35783384.0
+   },
+   "dla": {
+    "claimants": 6970.0,
+    "baseline": 7050.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 46859867.599999994
+   },
+   "esa": {
+    "claimants": 7970.0,
+    "baseline": 9320.0,
+    "baselineYear": 2023,
+    "year": 2025,
+    "spend": 57470394.8
+   }
+  }
+ },
+ "method": {
+  "uc": {
+   "period": "2026-05-31",
+   "households": 226800.0,
+   "meanMonthly": 1056.0,
+   "niSpend": 2874009600.0,
+   "file": "dfc-ni-uc-stats-supp-tables-may-2026.ods"
+  },
+  "pipAverageWeekly": 151.31,
+  "pipPeriod": "2026-05-31",
+  "pipRates": {
+   "dl_enh": 114.6,
+   "dl_std": 76.7,
+   "mob_enh": 80.0,
+   "mob_std": 30.3
+  },
+  "caWeekly": 86.45,
+  "averages": {
+   "dla": 129.29,
+   "esa": 138.67
+  },
+  "averagesSource": "NI Benefit Statistics Summary, May 2026 (DfC/NISRA), average weekly payment for Northern Ireland",
+  "bslgdYears": {
+   "CA": 2025,
+   "DLA": 2025,
+   "ESA": 2025
+  }
+ },
+ "sources": [
+  {
+   "label": "Universal Credit Statistics, May 2026 (Department for Communities)",
+   "url": "https://www.communities-ni.gov.uk/publications/universal-credit-statistics-may-2026"
+  },
+  {
+   "label": "Personal Independence Payment Statistics, May 2026 (Department for Communities)",
+   "url": "https://www.communities-ni.gov.uk/publications/personal-independence-payment-statistics-may-2026"
+  },
+  {
+   "label": "Benefit Statistics by Local Government District (NISRA Data Portal, BSLGD)",
+   "url": "https://ws-data.nisra.gov.uk/public/api.restful/PxStat.Data.Cube_API.ReadDataset/BSLGD/CSV/1.0/en"
+  },
+  {
+   "label": "NI Benefit Statistics Summary, May 2026 (average weekly payments)",
+   "url": "https://www.communities-ni.gov.uk/publications/benefits-statistics-summary-publication-accredited-official-statistics-may-2026"
+  },
+  {
+   "label": "Benefit and pension rates 2026 to 2027 (GOV.UK)",
+   "url": "https://www.gov.uk/government/publications/benefit-and-pension-rates-2026-to-2027/proposed-benefit-and-pension-rates-2026-to-2027"
+  }
+ ]
+}

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import niWelfare from '@/lib/data/ni-welfare.json';
 
 export const dynamic = 'force-dynamic';
 
@@ -203,6 +204,59 @@ async function fetchClaimantCounts(
 // Barnsley and Sheffield specifically. Fix: use gss as-is, no map.
 
 
+
+type NiBenefit = { claimants: number; spend: number; period?: string; year?: number; baseline?: number | null; baselinePeriod?: string; baselineYear?: number | null };
+const NI_ORDER: { key: string; label: string; unit: string }[] = [
+  { key: 'uc', label: 'Universal Credit', unit: 'claimants' },
+  { key: 'pip', label: 'Personal Independence Payment (PIP)', unit: 'claimants' },
+  { key: 'dla', label: 'Disability Living Allowance (DLA)', unit: 'claimants' },
+  { key: 'ca', label: "Carer's Allowance", unit: 'claimants' },
+  { key: 'esa', label: 'Employment and Support Allowance (ESA)', unit: 'claimants' },
+];
+
+async function northernIreland(gss: string) {
+  const data = niWelfare as unknown as { built: string; councils: Record<string, Record<string, NiBenefit>>; method: Record<string, unknown>; sources: { label: string; url: string }[] };
+  const mine = data.councils[gss];
+  if (!mine) return { error: 'No welfare data found for this council.' };
+  const { data: councils, error } = await supabase.from('councils').select('slug, name, gss_code, population').like('gss_code', 'N09%');
+  if (error || !councils) return { error: 'Welfare data is unavailable right now.' };
+  const total = (code: string) => NI_ORDER.reduce((t, b) => t + (data.councils[code]?.[b.key]?.spend ?? 0), 0);
+  const rows = councils.filter((c) => data.councils[c.gss_code]).map((c) => {
+    const t = total(c.gss_code);
+    return { code: c.gss_code, total: t, perResident: c.population ? t / Number(c.population) : null };
+  });
+  const me = councils.find((c) => c.gss_code === gss);
+  const myTotal = total(gss);
+  const myPer = me?.population ? myTotal / Number(me.population) : null;
+  const rankTotal = 1 + rows.filter((r) => r.total > myTotal + 1e-6).length;
+  const rankPer = myPer == null ? null : 1 + rows.filter((r) => r.perResident != null && r.perResident > myPer + 1e-9).length;
+  return {
+    scope: 'ni' as const,
+    councilName: me?.name ?? null,
+    councilSlug: me?.slug ?? null,
+    population: me?.population ? Number(me.population) : null,
+    total: myTotal,
+    perResident: myPer,
+    rankTotal,
+    rankPerResident: rankPer,
+    ranked: rows.length,
+    benefits: NI_ORDER.map((b) => {
+      const v = mine[b.key];
+      if (!v) return null;
+      const pct = v.baseline ? ((v.claimants - v.baseline) / v.baseline) * 100 : null;
+      return {
+        key: b.key, label: b.label, spend: v.spend, claimants: v.claimants,
+        period: v.period ?? null, year: v.year ?? null,
+        baseline: v.baseline ?? null, baselinePeriod: v.baselinePeriod ?? null, baselineYear: v.baselineYear ?? null,
+        percentChange: pct,
+      };
+    }).filter(Boolean),
+    method: data.method,
+    sources: data.sources,
+    built: data.built,
+  };
+}
+
 type SummaryRow = {
   council_gss_code: string;
   council_name: string;
@@ -352,8 +406,17 @@ export async function GET(
 ) {
   const { gss: rawGss } = await params;
   const gss = (rawGss || '').toUpperCase();
-  if (!/^[EWS]\d{8}$/.test(gss)) {
+  if (!/^[EWSN]\d{8}$/.test(gss)) {
     return NextResponse.json({ error: 'invalid', message: 'Invalid GSS code.' }, { status: 400 });
+  }
+
+  // ── Northern Ireland (N09 codes) ─────────────────────────────────────
+  // DWP's figures do not cover Northern Ireland. lib/data/ni-welfare.json is built by
+  // scripts/build-ni-welfare.py from Department for Communities and NISRA tables (17 Oct 2026).
+  if (gss.startsWith('N09')) {
+    const ni = await northernIreland(gss);
+    if ('error' in ni) return NextResponse.json({ error: 'notfound', message: ni.error }, { status: 404 });
+    return NextResponse.json(ni);
   }
 
   // ── county scope (English two-tier county councils, E10 codes) ──────────
