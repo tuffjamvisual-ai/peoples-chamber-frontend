@@ -27,7 +27,7 @@ const piece: EditorialEntry = {
     { type: 'paragraph', text: `It does show that one of its ministers had not seen the final Treasury financing breakdown before publication.` },
     { type: 'paragraph', text: `Starmer's answer was that governments do not have to announce every financing measure at the same time as a spending commitment.` },
     { type: 'paragraph', text: `At Prime Minister's Questions on 1 July he pointed to roughly £22 billion of fiscal headroom created at the previous Budget and compared the defence announcement with earlier spending decisions made between Budgets.` },
-    { type: 'paragraph', text: `He cited the Conservative government's five-year NHS funding announcement in 2018, when ministers similarly said the detailed financing would be set out later.` },
+    { type: 'paragraph', text: `He cited the Conservative government's announcement in 2018 of NHS funding over five years, when ministers similarly said the detailed financing would be set out later.` },
     { type: 'paragraph', text: `That is a legitimate defence.` },
     { type: 'paragraph', text: `Fiscal headroom means the margin by which the government's forecast satisfies its fiscal rules. Having £22 billion of it can give a government scope to increase spending without immediately breaching those rules.` },
     { type: 'paragraph', text: `It is not the same thing as identifying where £4.7 billion will come from.` },
@@ -56,7 +56,7 @@ const piece: EditorialEntry = {
   evidence: {
     recordsReviewed: [
       `HM Treasury and Ministry of Defence, The Defence Investment Plan Funding Explainer, 30 June 2026: sets out the £15 billion additional package, the £10.3 billion of identified financing, the £4.7 billion marked "To be funded at Budget 2026", its annual profile, departmental capital reductions, transport and energy savings and the distinction between £11.6 billion of additional cash and £15 billion of additional spending power`,
-      `Hansard, Defence Funding, 30 June 2026: records Rachel Reeves's statement to Parliament, the full funding table, the £298 billion four-year defence plan and the 2.7 per cent NATO spending trajectory`,
+      `Hansard, Defence Funding, 30 June 2026: records Rachel Reeves's statement to Parliament, the full funding table, the £298 billion defence plan over four years and the 2.7 per cent NATO spending trajectory`,
       `Hansard, Prime Minister's Questions, 1 July 2026: records Starmer's defence of announcing the spending outside a Budget and his reliance on approximately £22 billion of fiscal headroom`,
       `Institute for Fiscal Studies, From fiscal rules to fiscal traffic lights, February 2026, and Office for Budget Responsibility, November 2025 Economic and Fiscal Outlook: establish what fiscal headroom measures and record the roughly £22 billion margin following the November 2025 Budget`,
       `Sky News interview with Luke Pollard, reported by Press Association, 1 July 2026: records Pollard's statement that he first saw the detailed funding breakdown on publication day and his understanding of Downing Street's contact with Burnham's team`,

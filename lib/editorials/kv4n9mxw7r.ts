@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'kv4n9mxw7r',
   kicker: 'Social Care',
-  headline: `Government Plans £15bn-a-Year Pension Saving Before Full Cost of National Care Service Is Known`,
+  headline: `Government Plans £15bn a Year Pension Saving Before Full Cost of National Care Service Is Known`,
   standfirst: `The government will change the State Pension triple lock from April 2030, saving around £15 billion a year by the end of the 2030s in cash terms. Part of those savings will fund a new National Care Service offering free personal care. The full design and cost of the service will not be known until Baroness Casey's commission reports in summer 2027, and the service will not launch until the next Parliament.`,
   publishedAt: '2026-09-29',
   authorByline: 'opengovt',
@@ -28,11 +28,11 @@ const piece: EditorialEntry = {
     { type: 'heading', level: 2, text: `Free personal care is not the same as a free care home` },
     { type: 'paragraph', text: `The government intends to redirect part of that spending into social care.` },
     { type: 'paragraph', text: `There is a clear argument for doing so.` },
-    { type: 'paragraph', text: `England's care system leaves many people facing substantial costs, while councils spend heavily on adult social care and families often have to navigate a complicated means-tested system.` },
+    { type: 'paragraph', text: `England's care system leaves many people facing substantial costs, while councils spend heavily on adult social care and families often have to navigate a complicated means tested system.` },
     { type: 'paragraph', text: `But the phrase "free social care" would go too far.` },
     { type: 'paragraph', text: `The proposed National Care Service is intended to provide free personal care, described by the government as help with things like "eating, bathing and using the toilet."` },
     { type: 'paragraph', text: `It will not automatically make care homes free.` },
-    { type: 'paragraph', text: `Accommodation, food and other living costs, what the government calls "bed and board," would remain outside the promise, subject to existing means-tested contributions.` },
+    { type: 'paragraph', text: `Accommodation, food and other living costs, what the government calls "bed and board," would remain outside the promise, subject to existing means tested contributions.` },
     { type: 'paragraph', text: `That distinction matters.` },
     { type: 'paragraph', text: `A person entering residential care could receive free personal care but still face a large bill for the room and other charges.` },
     { type: 'paragraph', text: `The government says around one in seven older adults can currently face lifetime care costs above £100,000.` },
@@ -76,7 +76,7 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      'GOV.UK, 29 September 2026: "Prime Minister Andy Burnham sets out plans for a new National Care Service": NCS proposal (free personal care based on need, introduced in phases, "fully funded, and not through borrowing"); personal-care examples ("eating, bathing and using the toilet"); exclusion of "bed and board"; triple lock reform wording and April 2030 start date; "one in seven" older adults facing lifetime costs above £100,000; Baroness Casey commission summer 2027 reporting date',
+      'GOV.UK, 29 September 2026: "Prime Minister Andy Burnham sets out plans for a new National Care Service": NCS proposal (free personal care based on need, introduced in phases, "fully funded, and not through borrowing"); examples of personal care ("eating, bathing and using the toilet"); exclusion of "bed and board"; triple lock reform wording and April 2030 start date; "one in seven" older adults facing lifetime costs above £100,000; Baroness Casey commission summer 2027 reporting date',
       { text: 'DWP, "State Pension uprating" analysis, 2026: projected savings from adjusted triple lock: £15bn (2039/40) and £50bn (2049/50) nominal; £11bn and £30bn respectively in today\'s prices; current and adjusted uprating formulas; relative pensioner poverty after housing costs projected to fall from around 14% in 2024/25 to around 8% in 2049/50 under revised system', url: 'https://www.gov.uk/government/publications/state-pension-uprating-analysis-2026' },
     ],
     lastChecked: '30 September 2026',
