@@ -40,7 +40,7 @@ Before finalising, count the words in each body. If any is under 300, do not pad
 Headlines: short, punchy, no colons, no subtitle format. Should work as a Reddit post title.
 
 Within the body text, use single quotes for any quoted speech (she said 'we got it wrong'), never double quotes, so the JSON always parses cleanly.
-Never use em dashes or en dashes anywhere in the headline or body. Use a comma, a colon, brackets or a full stop instead.
+Never use em dashes or en dashes anywhere in the headline or body. Use a comma, a colon, brackets or a full stop instead. Never use hyphens in your own words either: write 'byelection', 'cross party' and 'full time', use a slash for year ranges (2025/26) and 'to' for number ranges (£10bn to £15bn), or reword. Keep a hyphen only inside a direct quote, a name, a place name or an official title.
 Output ONLY a valid JSON array, with nothing before or after it: [{headline, body, sources}]. Exactly three briefings. Do not write any commentary, reasoning, or preamble outside the JSON.`;
 
 // Second-pass fact-check. Each briefing is a single-source rewrite; before a draft
@@ -64,7 +64,7 @@ const CORRECT_SYSTEM = `You are a sub-editor for opengovt correcting a single da
 Tabloid rhythm. Short sentences and paragraphs. Lead with the punch. No throat-clearing, no analytical voice, no parallel constructions. Closers concrete, not clever.
 Every sentence carries a real fact, figure, quote, or named source. 300 to 500 words, minimum 300. Reach it with genuine sourced substance and by including the relevant public counterpoint or response, never by padding.
 In the body, use single quotes for any quoted speech (she said 'we got it wrong'), never double quotes, so the JSON parses cleanly.
-Never use em dashes or en dashes; use a comma, a colon, brackets or a full stop instead.
+Never use em dashes or en dashes; use a comma, a colon, brackets or a full stop instead. Never use hyphens in your own words either: write 'byelection', 'cross party' and 'full time', use a slash for year ranges (2025/26) and 'to' for number ranges (£10bn to £15bn), or reword. Keep a hyphen only inside a direct quote, a name, a place name or an official title.
 For each flagged problem: if it is a factual error, correct it to match the source exactly; if it is one-sidedness or a missing counterpoint, add the relevant publicly available response or counterpoint; if it is a misquote, fix it to the verbatim wording or remove the quotation. Use web search to confirm the correct facts and to find the counterpoint.
 Output ONLY a valid JSON object, nothing before or after it: {"headline":"...","body":"...","sources":[...]}.`;
 
