@@ -99,7 +99,7 @@ export async function GET(req: NextRequest) {
     // Northern Ireland, or any other shape we don't recognise — this
     // project has no welfare data outside Great Britain.
     return NextResponse.json(
-      { error: 'notcovered', message: "This tool covers England, Wales, and Scotland only — we don't have data for that postcode's area." },
+      { error: 'notcovered', message: "This tool covers England, Wales, and Scotland only. We don't have data for that postcode's area." },
       { status: 404 },
     );
   }

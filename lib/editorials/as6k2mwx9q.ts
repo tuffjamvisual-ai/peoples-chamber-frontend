@@ -4,7 +4,7 @@ const piece: EditorialEntry = {
   slug: 'as6k2mwx9q',
   kicker: 'Immigration',
   headline: `£4.9bn on Asylum, and the Home Office Still Cannot Say How Many Failed Claimants Remain`,
-  standfirst: `The Home Office and Ministry of Justice spent around £4.9 billion on the asylum system in 2024/25. A Public Accounts Committee report published in June found that the Home Office still cannot say with confidence how many failed asylum seekers remain in Britain — it knew where "some" were, but could not establish with certainty who had left the country and who was still here.`,
+  standfirst: `The Home Office and Ministry of Justice spent around £4.9 billion on the asylum system in 2024/25. A Public Accounts Committee report published in June found that the Home Office still cannot say with confidence how many failed asylum seekers remain in Britain. It knew where "some" were, but could not establish with certainty who had left the country and who was still here.`,
   publishedAt: '2026-07-14',
   authorByline: 'opengovt',
   body: [

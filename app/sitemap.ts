@@ -137,11 +137,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const stateMap = new Map(((refreshStates as RefreshState[]) || []).map((r) => [r.view_name, r]));
   for (const [viewName, floor] of [['sitemap_bill_ids', 50], ['sitemap_divisions', 2000]] as [string, number][]) {
     const state = stateMap.get(viewName);
-    if (!state) throw new Error(`sitemap: ${viewName} missing from sitemap_refresh_state — run refresh_sitemap_views() or check migration`);
+    if (!state) throw new Error(`sitemap: ${viewName} missing from sitemap_refresh_state; run refresh_sitemap_views() or check migration`);
     const ageMs = Date.now() - new Date(state.refreshed_at).getTime();
     if (ageMs > SEVEN_DAYS_MS) {
       const ageDays = (ageMs / (1000 * 60 * 60 * 24)).toFixed(1);
-      throw new Error(`sitemap: ${viewName} last refreshed ${ageDays} days ago — exceeds 7-day limit`);
+      throw new Error(`sitemap: ${viewName} last refreshed ${ageDays} days ago; exceeds 7-day limit`);
     }
     if (state.row_count < floor) throw new Error(`sitemap: ${viewName} had only ${state.row_count} rows at last refresh (floor: ${floor})`);
   }

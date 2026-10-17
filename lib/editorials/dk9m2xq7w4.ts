@@ -44,7 +44,7 @@ const piece: EditorialEntry = {
   evidence: {
     recordsReviewed: [
       `Democratic Unionist Party, statement announcing the review, 26 June 2026: the party's acknowledgement that some people may have known about inappropriate behaviour which was not reported to party officers`,
-      `Democratic Unionist Party, Statement – Democratic Unionist Party, 9 July 2026: the initial terms of reference, the appointment of iNEQE and Jim Gamble, the party's assertion that it had received no complaint about Donaldson's behaviour, and the statement that fuller terms would be published later`,
+      `Democratic Unionist Party, Statement, Democratic Unionist Party, 9 July 2026: the initial terms of reference, the appointment of iNEQE and Jim Gamble, the party's assertion that it had received no complaint about Donaldson's behaviour, and the statement that fuller terms would be published later`,
       `UTV, interview and reporting on Gavin Robinson, 29 June 2026: Robinson's statement that current and former members held information which had not been shared through party channels`,
       `UTV, 26 June 2026: Paul Givan's account that rumours he had heard concerned adults and were not understood to involve criminal behaviour or offences against children`,
       `Press Association reporting on Edwin Poots, 30 June 2026: Poots's account of concerns involving unwanted texts and his statement that nothing relayed to him suggested a criminal or safeguarding matter`,

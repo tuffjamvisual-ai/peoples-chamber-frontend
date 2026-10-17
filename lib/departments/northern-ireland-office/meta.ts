@@ -19,7 +19,7 @@ const meta: DepartmentMeta = {
     'NI Security',
     'NI in the Union'
   ],
-  description: 'Liaises between Westminster and Stormont — a brief that is either entirely manageable or impossibly delicate, depending on the week.',
+  description: 'Liaises between Westminster and Stormont: a brief that is either entirely manageable or impossibly delicate, depending on the week.',
   streetContext: '',
 };
 

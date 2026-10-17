@@ -35,8 +35,8 @@ const NARROW_CSS = `@media (max-width: 760px) {
 }`;
 
 const GRADE_WORDS = ['', 'Outstanding', 'Good', 'Requires improvement', 'Inadequate'];
-const fmt1 = (v: number | null | undefined) => (v == null ? '–' : (Math.round(v * 10) / 10).toFixed(1));
-const gbpM = (thousands: number | null) => (thousands == null ? '–' : `${thousands < 0 ? '−' : ''}£${(Math.abs(thousands) / 1000).toFixed(1)}m`);
+const fmt1 = (v: number | null | undefined) => (v == null ? 'n/a' : (Math.round(v * 10) / 10).toFixed(1));
+const gbpM = (thousands: number | null) => (thousands == null ? 'n/a' : `${thousands < 0 ? '−' : ''}£${(Math.abs(thousands) / 1000).toFixed(1)}m`);
 
 function measureValue(key: string, value: number): string {
   if (key === 'childrens_services') return GRADE_WORDS[Math.round(value)] ?? String(value);
@@ -166,7 +166,7 @@ export default async function CouncilRatingsSection({
                     <tr key={d.code}>
                       <td style={td}>{link(d.code, d.name)}</td>
                       <td style={td}>{d.areaRank ? `${ordinal(d.areaRank)} · band ${d.areaBand}${d.nearBoundary ? ' ≈' : ''}` : 'Not ranked'}</td>
-                      <td style={td}>{d.servicesRank ? `${ordinal(d.servicesRank)} · band ${d.servicesBand}` : '–'}</td>
+                      <td style={td}>{d.servicesRank ? `${ordinal(d.servicesRank)} · band ${d.servicesBand}` : 'n/a'}</td>
                       <td style={{ ...td, fontSize: '14px' }}><Flags flags={d.flags.filter((f) => !f.county)} /></td>
                     </tr>
                   ))}
@@ -188,7 +188,7 @@ export default async function CouncilRatingsSection({
                   {[gssCode, ...neighbours].map((code) => (
                     <tr key={code} style={code === gssCode ? { fontWeight: 'bold' } : undefined}>
                       <td style={td}>{code === gssCode ? name : link(code)}</td>
-                      <td style={td}>{data.ofstedByCouncil.get(code)?.grade ?? '–'}</td>
+                      <td style={td}>{data.ofstedByCouncil.get(code)?.grade ?? 'n/a'}</td>
                       <td style={{ ...td, fontSize: '14px', fontWeight: 'normal' }}><Flags flags={data.flagsByCouncil.get(code) ?? []} /></td>
                     </tr>
                   ))}
@@ -277,7 +277,7 @@ export default async function CouncilRatingsSection({
                   return (
                     <tr key={code} style={code === gssCode ? { fontWeight: 'bold' } : undefined}>
                       <td style={td}>{code === gssCode ? name : link(code, n?.name)}</td>
-                      <td style={td}>{n?.areaBand != null ? `${n.areaBand}${n.nearBoundary ? ' ≈' : ''}` : '–'}</td>
+                      <td style={td}>{n?.areaBand != null ? `${n.areaBand}${n.nearBoundary ? ' ≈' : ''}` : 'n/a'}</td>
                       <td style={tdNum}>{fmt1(n?.servicesScore)}</td>
                       <td style={{ ...td, fontSize: '14px', fontWeight: 'normal' }}><Flags flags={n ? n.flags : data.flagsByCouncil.get(code) ?? []} /></td>
                     </tr>

@@ -4,7 +4,7 @@ const piece: EditorialEntry = {
   slug: 'hl7k2mx9w4',
   kicker: 'Commentary',
   headline: `Bereaved Parents Laid Their Children's Shoes Outside Parliament. The Gap Starts Before a Child Dies`,
-  standfirst: `Hundreds of children's shoes were laid in Parliament Square by families whose children had died. The protest was tied to Hugh's Law — a campaign for statutory paid leave for parents of seriously ill children. Britain already has bereavement leave. What it does not have is a dedicated statutory right to paid leave for the period when a family is trying to stop the death from happening.`,
+  standfirst: `Hundreds of children's shoes were laid in Parliament Square by families whose children had died. The protest was tied to Hugh's Law, a campaign for statutory paid leave for parents of seriously ill children. Britain already has bereavement leave. What it does not have is a dedicated statutory right to paid leave for the period when a family is trying to stop the death from happening.`,
   publishedAt: '2026-07-10',
   authorByline: 'opengovt',
   body: [

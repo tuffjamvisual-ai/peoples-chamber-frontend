@@ -145,7 +145,7 @@ export default async function LeagueTablePage() {
                     <td style={td}>{m.topic}</td>
                     <td style={td}>{m.label}</td>
                     <td style={td}>{m.better === 'higher' ? 'Higher' : 'Lower'}</td>
-                    <td style={td}>{m.period ?? '–'}</td>
+                    <td style={td}>{m.period ?? 'n/a'}</td>
                     <td style={td}>{m.responsible}</td>
                     <td style={td}>{m.sourceUrl ? <a href={m.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{m.source}</a> : m.source}</td>
                   </tr>

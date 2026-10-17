@@ -19,7 +19,7 @@ const meta: DepartmentMeta = {
     'cross border Issues',
     'Scotland in the Union'
   ],
-  description: 'Represents Scotland in Westminster and Westminster in Scotland — in roughly that order on Mondays, and the other order on Tuesdays.',
+  description: 'Represents Scotland in Westminster and Westminster in Scotland, in roughly that order on Mondays, and the other order on Tuesdays.',
   streetContext: '',
 };
 

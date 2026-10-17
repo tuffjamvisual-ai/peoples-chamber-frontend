@@ -29,7 +29,7 @@ const meta: DepartmentMeta = {
     'Veterinary Services',
     'Climate Adaptation'
   ],
-  description: 'Looks after farms, food, wildlife, and the rivers — currently best known for the state of the rivers.',
+  description: 'Looks after farms, food, wildlife, and the rivers. Currently best known for the state of the rivers.',
   streetContext: '',
 };
 

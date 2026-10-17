@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { govukSlugs } from '@/lib/govuk-slugs';
 import { supabase } from '@/lib/supabase';
+import { jsonWithoutEmDashes } from '@/lib/no-em-dash'
 
 export const revalidate = 3600;
 
@@ -81,7 +82,7 @@ async function fetchGovukJson(govukSlug: string) {
       { next: { revalidate: 3600 } },
     );
     if (!res.ok) return null;
-    return await res.json();
+    return await jsonWithoutEmDashes<any>(res);
   } catch {
     return null;
   }

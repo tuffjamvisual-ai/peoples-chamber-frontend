@@ -4,7 +4,7 @@ const piece: EditorialEntry = {
   slug: 'whr8acs2gf',
   kicker: 'Labour Government',
   headline: `Labour Promised Not to Raise National Insurance. The OBR Says Workers Bear Most of the Rise`,
-  standfirst: `Labour's 2024 manifesto said it would not increase National Insurance. Four months after the election, Rachel Reeves increased employer National Insurance. The OBR estimates that by 2026/27, 76 per cent of the long-run cost will ultimately be reflected in lower real wages. Labour's defence — that the promise referred to taxes paid directly by working people — was not what the manifesto said.`,
+  standfirst: `Labour's 2024 manifesto said it would not increase National Insurance. Four months after the election, Rachel Reeves increased employer National Insurance. The OBR estimates that by 2026/27, 76 per cent of the long-run cost will ultimately be reflected in lower real wages. Labour's defence, that the promise referred to taxes paid directly by working people, was not what the manifesto said.`,
   publishedAt: '2026-06-23',
   authorByline: 'opengovt',
   body: [

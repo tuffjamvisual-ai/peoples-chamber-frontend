@@ -4,7 +4,7 @@ const piece: EditorialEntry = {
   slug: 'the-revolving-door',
   kicker: 'Political Ethics',
   headline: `Former Ministers Can Lobby Government Again After Two Years. The Rules Are Now Under Review`,
-  standfirst: `Former ministers are normally banned from lobbying the government for two years after leaving office. After two years, those restrictions expire. That limit mattered when David Cameron lobbied ministers and officials for Greensill Capital. The Commons Treasury Committee found he had not broken the rules — and directed its criticism at the rules themselves. Five years later, the government is reviewing them again.`,
+  standfirst: `Former ministers are normally banned from lobbying the government for two years after leaving office. After two years, those restrictions expire. That limit mattered when David Cameron lobbied ministers and officials for Greensill Capital. The Commons Treasury Committee found he had not broken the rules, and directed its criticism at the rules themselves. Five years later, the government is reviewing them again.`,
   publishedAt: '2026-06-11',
   authorByline: 'opengovt',
   body: [

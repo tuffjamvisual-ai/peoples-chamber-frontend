@@ -4,7 +4,7 @@ const piece: EditorialEntry = {
   slug: 'britains-most-disgraced-politicians',
   kicker: 'Political Accountability',
   headline: `Eleven Political Scandals, and What Actually Brought Them Down`,
-  standfirst: `At Newry Crown Court on 22 June, a jury convicted Jeffrey Donaldson of 18 sexual offences. His case belongs in any account of political disgrace — but it does not fit the comforting old line that the cover-up is always worse than the original offence. Sometimes the original offence is worse.`,
+  standfirst: `At Newry Crown Court on 22 June, a jury convicted Jeffrey Donaldson of 18 sexual offences. His case belongs in any account of political disgrace, but it does not fit the comforting old line that the cover-up is always worse than the original offence. Sometimes the original offence is worse.`,
   publishedAt: '2026-06-22',
   authorByline: 'opengovt',
   body: [

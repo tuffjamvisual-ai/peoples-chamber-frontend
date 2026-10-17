@@ -4,7 +4,7 @@ const piece: EditorialEntry = {
   slug: 'pk9v2mrx4t',
   kicker: 'Public Spending',
   headline: `Prison Expansion Programme Wrote Off £24m Without Naming the Projects`,
-  standfirst: `HM Prison and Probation Service wrote off almost £24 million from its prison expansion programme after construction projects were reduced in scope and a supplier failed. The published accounts do not identify the three losses individually — no names, no per-project amounts, no prison places affected. The losses sit inside a programme already running four years late and nearly double its original budget.`,
+  standfirst: `HM Prison and Probation Service wrote off almost £24 million from its prison expansion programme after construction projects were reduced in scope and a supplier failed. The published accounts do not identify the three losses individually: no names, no per-project amounts, no prison places affected. The losses sit inside a programme already running four years late and nearly double its original budget.`,
   publishedAt: '2026-08-03',
   authorByline: 'opengovt',
   body: [

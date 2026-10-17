@@ -144,12 +144,12 @@ async function GET_impl(req: Request) {
 
   for (let page = 0; page < maxPages; page++) {
     if (Date.now() > deadline) {
-      pagesError = `time budget ${BUDGET_MS}ms reached at page ${page} — returning cleanly with partial progress`;
+      pagesError = `time budget ${BUDGET_MS}ms reached at page ${page}; returning cleanly with partial progress`;
       console.error(`[contracts] ${pagesError}`);
       break;
     }
     const { data, error } = await fetchPage(url);
-    if (error) { pagesError = `page ${page}: ${error}`; console.error(`[contracts] ${pagesError} — stopping, keeping prior progress`); break; }
+    if (error) { pagesError = `page ${page}: ${error}`; console.error(`[contracts] ${pagesError}; stopping, keeping prior progress`); break; }
     const releases = Array.isArray(data.releases) ? data.releases : [];
     if (releases.length === 0) break;
     scanned += releases.length;
@@ -161,7 +161,7 @@ async function GET_impl(req: Request) {
       if (bErr) {
         // Isolate the malformed record: retry the batch row-by-row so one bad
         // OCID is logged and skipped instead of dropping the whole batch.
-        console.error(`[contracts] batch upsert failed (${bErr.message}) — retrying row-by-row`);
+        console.error(`[contracts] batch upsert failed (${bErr.message}); retrying row-by-row`);
         for (const row of batch) { (await upsertRow(row)) ? upserted++ : skippedBad++; }
       } else {
         upserted += batch.length;

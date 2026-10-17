@@ -126,7 +126,7 @@ const SERVICE_SPENDING_AGGREGATE_CATEGORY: Record<string, string> = {
 // split).
 const COUNCIL_TAX_CAVEAT_BY_NATION: Record<string, string> = {
   England:
-    'This is the council’s own share only. Police and fire precepts — and, in two-tier areas, the county or district precept — are added separately for the final bill. See Council Spending by Service below for how this council itself spends.',
+    'This is the council’s own share only. Police and fire precepts (and, in two-tier areas, the county or district precept) are added separately for the final bill. See Council Spending by Service below for how this council itself spends.',
   Scotland:
     'This is the council’s own charge. Scottish Water’s water and sewerage charges are added on the same bill. Police Scotland and the Scottish Fire and Rescue Service are national bodies funded by the Scottish Government, not through council tax. See Council Spending by Service below for how this council itself spends.',
   Wales:
@@ -460,10 +460,10 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                         spendingPeriodLabel,
                         spendingSource ? SERVICE_SPENDING_SOURCE_LABELS[spendingSource] || spendingSource : null,
                         !spendingAggregateRow
-                          ? `Sum of this council's ${spendingBreakdownRows.length} reported service categories — ${c.country} does not publish a single total figure in this source.`
+                          ? `Sum of this council's ${spendingBreakdownRows.length} reported service categories. ${c.country} does not publish a single total figure in this source.`
                           : null,
                         c.revenue_budget_mn != null
-                          ? 'May not match "Annual revenue budget" above — that figure is a different accounting measure (budgeted resource requirement) for a different year than this outturn total.'
+                          ? 'May not match "Annual revenue budget" above. That figure is a different accounting measure (budgeted resource requirement) for a different year than this outturn total.'
                           : null,
                       ]
                         .filter(Boolean)
@@ -477,7 +477,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                       value={row.value_pounds != null ? formatPoundsMillions(row.value_pounds) : null}
                       sub={
                         row.service_category === 'Council fund housing and housing benefit'
-                          ? 'May overlap with the Housing Benefit figure shown under Welfare spending in the Work & benefits tab — StatsWales does not document how the two relate.'
+                          ? 'May overlap with the Housing Benefit figure shown under Welfare spending in the Work & benefits tab. StatsWales does not document how the two relate.'
                           : null
                       }
                     />

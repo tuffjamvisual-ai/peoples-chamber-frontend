@@ -4,7 +4,7 @@ const piece: EditorialEntry = {
   slug: '6vui3xxze9',
   kicker: 'The Leadership',
   headline: `379 Labour MPs Back Burnham. Members Are Now Unlikely to Get a Vote`,
-  standfirst: `Andy Burnham has finished the parliamentary stage of Labour's leadership election with 379 MP nominations out of a possible 403. His only nominal rival received one. Unless he fails the affiliate stage, Labour members will not get a leadership ballot — he will instead be formally declared leader at a special conference on Friday.`,
+  standfirst: `Andy Burnham has finished the parliamentary stage of Labour's leadership election with 379 MP nominations out of a possible 403. His only nominal rival received one. Unless he fails the affiliate stage, Labour members will not get a leadership ballot. He will instead be formally declared leader at a special conference on Friday.`,
   publishedAt: '2026-07-15',
   authorByline: 'opengovt',
   body: [

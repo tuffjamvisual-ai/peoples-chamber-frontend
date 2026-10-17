@@ -34,9 +34,9 @@ export default async function AdminUsersPage() {
   const active = activeRes.count ?? 0;
   const rows = (listRes.data ?? []).map(u => ({
     id: u.id as number,
-    username: (u.username as string | null) ?? '—',
-    domain: (u.email as string | null) ? '@' + (u.email as string).split('@')[1] : '—',
-    created: (u.created_at as string | null) ? (u.created_at as string).slice(0, 10) : '—',
+    username: (u.username as string | null) ?? 'n/a',
+    domain: (u.email as string | null) ? '@' + (u.email as string).split('@')[1] : 'n/a',
+    created: (u.created_at as string | null) ? (u.created_at as string).slice(0, 10) : 'n/a',
     lastSeen: (u.last_seen_at as string | null)
       ? (u.last_seen_at as string).slice(0, 16).replace('T', ' ') + ' UTC'
       : 'never',

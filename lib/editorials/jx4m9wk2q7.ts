@@ -4,7 +4,7 @@ const piece: EditorialEntry = {
   slug: 'jx4m9wk2q7',
   kicker: 'Criminal Justice',
   headline: `Crown Court Caseload Fell by 37 Cases. More Than 22,000 Have Been Open for a Year`,
-  standfirst: `The Crown Court ended March with 80,061 open cases — 37 fewer than three months earlier, but still 5 per cent higher than a year before. The more serious movement was inside that total: 22,124 cases had been open for at least a year, the highest number in the current series, up 24 per cent in twelve months. More than half involved violence or sexual offences.`,
+  standfirst: `The Crown Court ended March with 80,061 open cases, 37 fewer than three months earlier, but still 5 per cent higher than a year before. The more serious movement was inside that total: 22,124 cases had been open for at least a year, the highest number in the current series, up 24 per cent in twelve months. More than half involved violence or sexual offences.`,
   publishedAt: '2026-07-11',
   authorByline: 'opengovt',
   body: [

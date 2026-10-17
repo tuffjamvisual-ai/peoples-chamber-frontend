@@ -57,7 +57,7 @@ const ordinal = (k: number) => {
   const s = ['th', 'st', 'nd', 'rd'], v = k % 100;
   return `${k}${s[(v - 20) % 10] || s[v] || s[0]}`;
 };
-const fmt = (v: number | null | undefined) => (v == null ? '–' : (Math.round(v * 10) / 10).toFixed(1));
+const fmt = (v: number | null | undefined) => (v == null ? 'n/a' : (Math.round(v * 10) / 10).toFixed(1));
 
 const btn = (on: boolean): CSSProperties => ({
   fontFamily: MONO, fontSize: '14px', padding: '6px 10px', margin: '0 8px 8px 0', cursor: 'pointer',
@@ -193,7 +193,7 @@ export default function LeagueTable({ rows, topics, parts }: { rows: ClientRow[]
                         <span style={{ fontSize: '12px' }}> ({cols.filter((c) => (view === 'area' ? r.topics[c.key] : r.services[c.key]) != null).length}/{cols.length})</span>
                       )}
                     </td>
-                    {view === 'services' && <td className="lt-wide" style={tdNum}>{r.peer ? `${ordinal(r.peer.rank)} of ${r.peer.of}` : '–'}</td>}
+                    {view === 'services' && <td className="lt-wide" style={tdNum}>{r.peer ? `${ordinal(r.peer.rank)} of ${r.peer.of}` : 'n/a'}</td>}
                     {cols.map((c) => <td key={c.key} className="lt-wide" style={tdNum}>{fmt(view === 'area' ? r.topics[c.key] : r.services[c.key])}</td>)}
                     <td style={{ ...td, color: ACCENT, fontSize: '14px' }}>
                       {r.flags.length === 0 ? '' : (
@@ -217,7 +217,7 @@ export default function LeagueTable({ rows, topics, parts }: { rows: ClientRow[]
                           {cols.map((c) => (
                             <div key={c.key}>{c.label}: <strong>{fmt(view === 'area' ? r.topics[c.key] : r.services[c.key])}</strong></div>
                           ))}
-                          {view === 'services' && <div>In its group: <strong>{r.peer ? `${ordinal(r.peer.rank)} of ${r.peer.of}` : '–'}</strong></div>}
+                          {view === 'services' && <div>In its group: <strong>{r.peer ? `${ordinal(r.peer.rank)} of ${r.peer.of}` : 'n/a'}</strong></div>}
                         </div>
                         {(() => {
                           // What is behind the position: highest and lowest scores, from the same figures.
@@ -246,8 +246,8 @@ export default function LeagueTable({ rows, topics, parts }: { rows: ClientRow[]
                         })()}
                         <p style={{ margin: '8px 0 0', maxWidth: '46em', lineHeight: 1.6 }}>
                           {view === 'area'
-                            ? <>Area rank {r.areaRank} of {rows.filter((x) => x.areaRank != null).length}{r.bandChanges != null && r.bandVersions ? `. In the weight test its band changed in ${r.bandChanges} of ${r.bandVersions} versions${r.nearBoundary ? ', so it is close to the edge of its band' : ''}` : ''}. Council services rank {r.servicesRank ?? '–'}.</>
-                            : <>Council services rank {r.servicesRank} of {rows.filter((x) => x.servicesRank != null).length}. Area rank {r.areaRank ?? '–'}.</>}
+                            ? <>Area rank {r.areaRank} of {rows.filter((x) => x.areaRank != null).length}{r.bandChanges != null && r.bandVersions ? `. In the weight test its band changed in ${r.bandChanges} of ${r.bandVersions} versions${r.nearBoundary ? ', so it is close to the edge of its band' : ''}` : ''}. Council services rank {r.servicesRank ?? 'n/a'}.</>
+                            : <>Council services rank {r.servicesRank} of {rows.filter((x) => x.servicesRank != null).length}. Area rank {r.areaRank ?? 'n/a'}.</>}
                           {' '}{(() => {
                             const have = cols.filter((c) => (view === 'area' ? r.topics[c.key] : r.services[c.key]) != null);
                             const missing = cols.filter((c) => (view === 'area' ? r.topics[c.key] : r.services[c.key]) == null).map((c) => c.label);

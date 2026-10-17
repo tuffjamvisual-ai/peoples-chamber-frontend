@@ -104,8 +104,8 @@ export default async function CouncilSewageSection({
               <td style={{ ...td, whiteSpace: 'nowrap' }}>{o.company}</td>
               <td style={tdNum}>{o.spill_count == null ? 'not reported' : fmtInt(o.spill_count)}</td>
               <td style={tdNum}>{o.spill_hours == null ? 'not reported' : fmtHours(o.spill_hours)}</td>
-              <td style={tdNum}>{o.monitoring_pct == null ? '—' : `${Math.round(o.monitoring_pct)}%`}</td>
-              {showVolume && <td style={tdNum}>{o.volume_m3 == null ? '—' : fmtInt(o.volume_m3)}</td>}
+              <td style={tdNum}>{o.monitoring_pct == null ? 'n/a' : `${Math.round(o.monitoring_pct)}%`}</td>
+              {showVolume && <td style={tdNum}>{o.volume_m3 == null ? 'n/a' : fmtInt(o.volume_m3)}</td>}
             </tr>
           ))}
         </tbody>

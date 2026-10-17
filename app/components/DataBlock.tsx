@@ -18,7 +18,7 @@ export default function DataBlock({
 }) {
   return (
     <div
-      aria-label={`Data: ${headlineFigure} — ${context}`}
+      aria-label={`Data: ${headlineFigure}, ${context}`}
       style={{
         margin: '32px 0',
         border: `1px solid rgba(20,16,13,0.18)`,

@@ -171,7 +171,7 @@ export default function MpDossier({
           {constituency && (
             <div style={{ fontSize: 'clamp(15px, 1.9vw, 25px)', marginBottom: '3%' }}>
               {formerMember
-                ? `Former MP for ${constituency}${servedFromYear && servedToYear ? ` (${servedFromYear}–${servedToYear})` : ''}`
+                ? `Former MP for ${constituency}${servedFromYear && servedToYear ? ` (${servedFromYear} to ${servedToYear})` : ''}`
                 : `MP for ${constituency}`}
             </div>
           )}

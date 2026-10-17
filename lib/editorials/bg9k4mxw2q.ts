@@ -4,7 +4,7 @@ const piece: EditorialEntry = {
   slug: 'bg9k4mxw2q',
   kicker: 'Law & Protest',
   headline: `A Beagle Breeder Now Falls Under the Same Protest Offence as Power Stations`,
-  standfirst: `MBR Acres breeds beagles intended for use in laboratory research. Since 12 February, it falls within a criminal offence originally created to protect infrastructure including railways, airports, oil and gas facilities and electricity generation. The government did not name MBR Acres in the legislation — ministers changed the definition of "key national infrastructure" by adding a new category covering life sciences premises. The High Court has now given permission for a challenge to whether they had the legal power to do so.`,
+  standfirst: `MBR Acres breeds beagles intended for use in laboratory research. Since 12 February, it falls within a criminal offence originally created to protect infrastructure including railways, airports, oil and gas facilities and electricity generation. The government did not name MBR Acres in the legislation. Ministers changed the definition of "key national infrastructure" by adding a new category covering life sciences premises. The High Court has now given permission for a challenge to whether they had the legal power to do so.`,
   publishedAt: '2026-08-01',
   authorByline: 'opengovt',
   body: [

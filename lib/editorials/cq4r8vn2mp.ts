@@ -4,7 +4,7 @@ const piece: EditorialEntry = {
   slug: 'cq4r8vn2mp',
   kicker: 'Local Government',
   headline: `England's Ten Highest Council Tax Areas, and Who Actually Takes the Money`,
-  standfirst: `Dorset has the highest average Band D council tax in England this year at £2,765.02. But five of the ten highest areas are district council areas where most of the bill is not set by the district council at all — it goes to county councils, police, fire services and parish or town councils. In two of them, the district council did not increase its own charge at all this year.`,
+  standfirst: `Dorset has the highest average Band D council tax in England this year at £2,765.02. But five of the ten highest areas are district council areas where most of the bill is not set by the district council at all. It goes to county councils, police, fire services and parish or town councils. In two of them, the district council did not increase its own charge at all this year.`,
   publishedAt: '2026-07-03',
   authorByline: 'opengovt',
   body: [

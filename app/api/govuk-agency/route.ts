@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { jsonWithoutEmDashes } from '@/lib/no-em-dash'
 
 export const revalidate = 3600;
 
@@ -33,7 +34,7 @@ export async function GET(request: Request) {
 
     // Fallback to GOV.UK API
     const res = await fetch(`https://www.gov.uk/api/content/government/organisations/${slug}`, { next: { revalidate: 3600 } });
-    const data = await res.json();
+    const data = await jsonWithoutEmDashes<any>(res);
 
     const name = data.title || '';
     const description = data.description || '';

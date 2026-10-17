@@ -19,7 +19,7 @@ const meta: DepartmentMeta = {
     'Commons Reform',
     'Speaker Relations'
   ],
-  description: 'Decides what the Commons debates, in what order, and — crucially — what it doesn\'t get round to.',
+  description: 'Decides what the Commons debates, in what order and, crucially, what it doesn\'t get round to.',
   streetContext: '',
 };
 

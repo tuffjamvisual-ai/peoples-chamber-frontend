@@ -27,7 +27,7 @@ export default function WelfareExplorerPage() {
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '640px', color: INK }}>
           See Universal Credit, Housing Benefit, Personal Independence Payment, Disability
           Living Allowance, Carer&rsquo;s Allowance and Employment and Support Allowance spending
-          and caseloads for your constituency or local authority &mdash; ranked against every
+          and caseloads for your constituency or local authority, ranked against every
           other area in England, Wales and Scotland, with the two-year change in spend.
         </p>
         <p style={{ fontSize: '14px', lineHeight: 1.7, maxWidth: '640px', color: '#14100d', marginTop: '10px' }}>

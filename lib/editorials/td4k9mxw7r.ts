@@ -103,8 +103,8 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      'Ministry of Housing, Communities and Local Government / GOV.UK, 10 September 2026: "Local leaders handed powers to drive investment in communities" — eligible authorities, percentage-model rationale, collection responsibility, exemptions, early-2028 spending-plan timeline',
-      'Government response to the Overnight Visitor Levy consultation — 706/1,223 (58%) for national cap vs 19% against; 60% opposing percentage model vs 21% supporting; 46% opposing provider liability vs 28% supporting; "market-distorting effects" cap reasoning; accessible-room and carer\'s-room findings; government confirmation it holds no comparative accessible/non-accessible room pricing data',
+      'Ministry of Housing, Communities and Local Government / GOV.UK, 10 September 2026: "Local leaders handed powers to drive investment in communities": eligible authorities, percentage-model rationale, collection responsibility, exemptions, early-2028 spending-plan timeline',
+      'Government response to the Overnight Visitor Levy consultation: 706/1,223 (58%) for national cap vs 19% against; 60% opposing percentage model vs 21% supporting; 46% opposing provider liability vs 28% supporting; "market-distorting effects" cap reasoning; accessible-room and carer\'s-room findings; government confirmation it holds no comparative accessible/non-accessible room pricing data',
     ],
     lastChecked: '30 September 2026',
   },

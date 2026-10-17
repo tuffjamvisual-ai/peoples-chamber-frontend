@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
 
     const cookieSet = await setSessionCookie(user.id);
     if (!cookieSet) {
-      console.error('change-password: SESSION_SECRET missing or too short — no session cookie issued');
+      console.error('change-password: SESSION_SECRET missing or too short; no session cookie issued');
       return NextResponse.json({ error: 'Server configuration error. Please contact support.' }, { status: 500 });
     }
     return NextResponse.json({ user: { id: user.id, email: user.email, username: user.username, postcode: user.postcode } });

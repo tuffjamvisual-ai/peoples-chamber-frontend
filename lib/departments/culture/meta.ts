@@ -29,7 +29,7 @@ const meta: DepartmentMeta = {
     'Copyright',
     'Public Monuments'
   ],
-  description: 'Oversees broadcasting, the arts, sport and gambling — the four things politicians insist they have no opinions about, then issue opinions on.',
+  description: 'Oversees broadcasting, the arts, sport and gambling: the four things politicians insist they have no opinions about, then issue opinions on.',
   streetContext: '',
 };
 

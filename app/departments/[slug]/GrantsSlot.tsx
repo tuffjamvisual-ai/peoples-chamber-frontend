@@ -142,7 +142,7 @@ export function GrantsSlot({ grants }: { grants: DepartmentGrants }) {
               <tr key={i} style={{ borderBottom: `1px solid ${HAIRLINE}` }}>
                 <td style={td}>{a.recipient ?? <em>Name not published</em>}</td>
                 <td style={td}>
-                  {a.scheme ?? '—'}
+                  {a.scheme ?? 'n/a'}
                   {a.funder && <span style={{ display: 'block', fontSize: '14px' }}>{a.funder}</span>}
                 </td>
                 <td style={tdNum}>{fmtMoney(a.amount)}</td>

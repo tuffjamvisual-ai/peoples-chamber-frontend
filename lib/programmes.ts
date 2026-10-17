@@ -16,7 +16,7 @@
 //                         getLiveProgrammes(), so the logic lives exactly once.
 
 import { supabase } from '@/lib/supabase';
-import { supabaseAdmin } from '@/lib/supabase-admin';
+import { supabaseAdminRead as supabaseAdmin } from '@/lib/supabase-admin';
 
 export type ProgrammeRow = {
   id: number;

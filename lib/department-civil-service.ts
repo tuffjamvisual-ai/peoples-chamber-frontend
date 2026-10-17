@@ -98,5 +98,5 @@ export function fmtPayBand(floor: number | null | undefined, ceiling: number | n
   if (floor == null || ceiling == null) return null;
   const f = floor.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 });
   const c = ceiling.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 });
-  return `${f} – ${c}`;
+  return `${f} to ${c}`;
 }

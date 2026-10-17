@@ -261,8 +261,8 @@ export default async function CouncilSchoolInspectionsSection({
                 return (
                   <tr key={s.urn} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                     <td style={td}>{link(s, s.school_name)}</td>
-                    <td style={td}>{s.phase ?? '—'}</td>
-                    <td style={{ ...td, whiteSpace: 'nowrap' }}>{l.date ? fmtDate(l.date) : '—'}</td>
+                    <td style={td}>{s.phase ?? 'n/a'}</td>
+                    <td style={{ ...td, whiteSpace: 'nowrap' }}>{l.date ? fmtDate(l.date) : 'n/a'}</td>
                     <td style={td}>{l.text}{l.predecessor ? ' *' : ''}</td>
                   </tr>
                 );

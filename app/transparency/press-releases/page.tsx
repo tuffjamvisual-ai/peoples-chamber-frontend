@@ -337,7 +337,7 @@ export default async function PressReleasesIndexPage({
           ) : (
             <span style={navDisabledStyle}>&larr; Earlier</span>
           )}
-          <span style={dayLabelStyle}>{currentDate ? fmtLongDate(currentDate) : '—'}</span>
+          <span style={dayLabelStyle}>{currentDate ? fmtLongDate(currentDate) : 'n/a'}</span>
           {nextDate ? (
             <Link href={`/transparency/press-releases?date=${nextDate}`} style={navLinkStyle} className="no-hover-scale">Later &rarr;</Link>
           ) : (

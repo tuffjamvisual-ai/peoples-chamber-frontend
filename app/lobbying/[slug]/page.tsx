@@ -88,7 +88,7 @@ export default async function LobbyingOrgPage({ params }: { params: Promise<{ sl
                   <tr key={m.meeting_key}>
                     <td className="lbo-date">{meetingDate(m)}</td>
                     <td>{m.minister_name}{cleanDept(m.minister_dept) ? <span style={{ display: 'block', fontSize: '14px' }}>{cleanDept(m.minister_dept)}</span> : null}</td>
-                    <td>{m.purpose || '—'}</td>
+                    <td>{m.purpose || 'n/a'}</td>
                   </tr>
                 ))}
               </tbody>

@@ -26,7 +26,7 @@ const piece: EditorialEntry = {
     recordsReviewed: [
       { text: `Ministry of Housing, Communities and Local Government, "Statement from MHCLG Secretary of State", 30 September 2026: the 2023 notification, the department's reason for not previously discussing its status, the potential Health and Safety at Work Act offence, and Angela Rayner's statement on government responsibility`, url: 'https://www.gov.uk/government/news/statement-from-mhclg-secretary-of-state' },
       `Metropolitan Police, "Met submits all Grenfell files to the CPS for charging decisions", 30 September 2026: the 20 companies and organisations, 54 individuals, potential offence categories, scale of the investigation and expected CPS timetable`,
-      `Social Housing and Inside Housing trade press reporting, 30 September–1 October 2026: RBKC's and the London Fire Brigade's separate confirmations that they are also referred to the CPS, and the distinction between RBKC's potential corporate manslaughter exposure and MHCLG's Health and Safety at Work Act-only referral`,
+      `Social Housing and Inside Housing trade press reporting, 30 September to 1 October 2026: RBKC's and the London Fire Brigade's separate confirmations that they are also referred to the CPS, and the distinction between RBKC's potential corporate manslaughter exposure and MHCLG's Health and Safety at Work Act-only referral`,
       `MHCLG, Grenfell Tower Inquiry Government Progress Report, September 2026: the 61 tracked recommendations, completion figures, construction-industry breakdown, 2029 timetable and remediation data for 4,697 buildings`,
     ],
     lastChecked: '3 October 2026',

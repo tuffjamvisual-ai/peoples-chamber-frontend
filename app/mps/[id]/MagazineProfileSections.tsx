@@ -1391,7 +1391,7 @@ export default function MagazineProfileSections({
                             </span>
                             {m.start_date && (
                               <span style={{ fontSize: '14px', opacity: 0.6, fontFamily: 'monospace' }}>
-                                {fmtDate(m.start_date)}{m.end_date ? ` – ${fmtDate(m.end_date)}` : ''}
+                                {fmtDate(m.start_date)}{m.end_date ? ` to ${fmtDate(m.end_date)}` : ''}
                               </span>
                             )}
                           </li>
@@ -1741,7 +1741,7 @@ export default function MagazineProfileSections({
                                 )}
                               </div>
                             </td>
-                            <td style={{ padding: '6px 4px', fontFamily: 'monospace' }}>{r.count > 0 ? r.count : '—'}</td>
+                            <td style={{ padding: '6px 4px', fontFamily: 'monospace' }}>{r.count > 0 ? r.count : 'n/a'}</td>
                             <td style={{ padding: '6px 4px', fontFamily: 'monospace' }}>{r.hours > 0 ? r.hours.toLocaleString('en-GB') : ', '}</td>
                             <td style={{ padding: '6px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap' }}>
                               {hourly !== null ? fmtMoney(hourly) : ', '}

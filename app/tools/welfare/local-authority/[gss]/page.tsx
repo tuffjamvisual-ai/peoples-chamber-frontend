@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ gss: stri
   const name = data?.council_name || null
   if (!name) return { title: 'Local authority not found' }
   return {
-    title: `${name} — Welfare Spending`,
+    title: `${name}: Welfare Spending`,
     description: `Universal Credit, Housing Benefit, PIP, DLA, Carer's Allowance and ESA spending and caseloads for ${name}.`,
     alternates: { canonical: `/tools/welfare/local-authority/${gssCode}` },
   }

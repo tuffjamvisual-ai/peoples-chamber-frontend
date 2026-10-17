@@ -149,7 +149,7 @@ export default async function CouncilRoadCasualtiesSection({
                 </thead>
                 <tbody>
                   {[...years].reverse().map((y) => {
-                    const cell = (m: string, d = 0) => { const v = get(y, m)?.casualties; return v == null ? '—' : d ? v.toFixed(d) : fmtNum(v); };
+                    const cell = (m: string, d = 0) => { const v = get(y, m)?.casualties; return v == null ? 'n/a' : d ? v.toFixed(d) : fmtNum(v); };
                     return (
                       <tr key={y}>
                         <td style={{ padding: '2px 14px 2px 0' }}>{y}{caveatYears.includes(y) ? ' *' : ''}</td>
@@ -182,8 +182,8 @@ export default async function CouncilRoadCasualtiesSection({
             {userRows.map((u) => (
               <tr key={u.label} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <td style={{ padding: '6px 20px 6px 0' }}>{u.label}</td>
-                <td style={{ padding: '6px 20px 6px 0', textAlign: 'right' }}>{u.killed != null ? fmtNum(Number(u.killed)) : '—'}</td>
-                <td style={{ padding: '6px 0', textAlign: 'right' }}>{u.ksi != null ? fmtNum(Number(u.ksi)) : '—'}</td>
+                <td style={{ padding: '6px 20px 6px 0', textAlign: 'right' }}>{u.killed != null ? fmtNum(Number(u.killed)) : 'n/a'}</td>
+                <td style={{ padding: '6px 0', textAlign: 'right' }}>{u.ksi != null ? fmtNum(Number(u.ksi)) : 'n/a'}</td>
               </tr>
             ))}
           </tbody>

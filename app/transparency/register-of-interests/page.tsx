@@ -64,7 +64,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   const sp = await searchParams;
   const filtered = !!(one(sp.q) || one(sp.mp) || one(sp.cat) || one(sp.from) || one(sp.to) || (one(sp.page) && one(sp.page) !== '1'));
   return {
-    title: "Register of Members' Financial Interests — Search Every MP",
+    title: "Register of Members' Financial Interests: Search Every MP",
     description:
       "Search the Register of Members' Financial Interests: gifts, hospitality, employment, overseas visits, property and shareholdings declared by every UK MP. Filter by MP, category and date. Separate from Electoral Commission political donations.",
     alternates: { canonical: '/transparency/register-of-interests' },
@@ -215,7 +215,7 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
         {/* Explicit distinction from Electoral Commission donations. */}
         <div style={{ marginTop: '16px', padding: '12px 16px', border: `1px solid ${HAIRLINE}`, borderLeft: `3px solid ${ACCENT}`, background: 'rgba(107,36,23,0.04)', maxWidth: '760px' }}>
           <p style={{ margin: 0, fontSize: '15px', lineHeight: 1.65, color: INK }}>
-            This is the <strong>parliamentary register</strong> — declarations MPs make about their own interests. It is separate from{' '}
+            This is the <strong>parliamentary register</strong>: declarations MPs make about their own interests. It is separate from{' '}
             <Link href="/transparency/donations" style={{ color: ACCENT, textDecoration: 'underline' }}>
               political donations
             </Link>{' '}
@@ -265,7 +265,7 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
                 {selectedMpName || 'This MP'} has no entries in the register
               </p>
               <p style={{ fontSize: '15px', lineHeight: 1.6, margin: 0, opacity: 0.8 }}>
-                Nothing is recorded for this MP in the Register of Members&rsquo; Financial Interests. That is a valid state — not every MP has a registrable interest.
+                Nothing is recorded for this MP in the Register of Members&rsquo; Financial Interests. That is a valid state; not every MP has a registrable interest.
               </p>
             </>
           ) : (

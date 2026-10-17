@@ -49,14 +49,14 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      `Reform UK, Cryptoassets and Digital Finance Bill, published May 2025: the proposed 10 per cent capital gains tax rate, regulatory sandbox, banking protections, Bitcoin Reserve Fund, cryptocurrency tax payments and wording of the draft legislation — the original Reform URL has since been removed; indexed and third-party copies preserve the document`,
+      `Reform UK, Cryptoassets and Digital Finance Bill, published May 2025: the proposed 10 per cent capital gains tax rate, regulatory sandbox, banking protections, Bitcoin Reserve Fund, cryptocurrency tax payments and wording of the draft legislation; the original Reform URL has since been removed; indexed and third-party copies preserve the document`,
       `Reform UK, Our Contract with You, June 2024: confirms that the general election programme contained no crypto policy beyond opposition to a central bank digital currency and broader language on de-banking`,
       `Bitcoin Conference reporting, 29 to 30 May 2025: confirms Farage's launch of the bill in Las Vegas, the commitment to introduce it under a Reform government and the announcement that Reform would accept cryptocurrency donations`,
       `The Nerve, Reform's vanishing crypto bill, 30 June 2026: the timing of the bill's removal, Reform's failure to answer questions about whether it still supported the proposals, and Phil Brickell's request for disclosure of contacts with crypto donors`,
       `Stack BTC, regulatory announcements, 9 and 18 March 2026: Farage's £215,000 initial investment, the later £60,650 investment, his shareholding through Thorn In The Side Ltd, Stack's Bitcoin treasury strategy, and that the company is chaired by former Chancellor Kwasi Kwarteng, who with his wife holds about 5.88 per cent of it`,
       `House of Commons Register of Members' Financial Interests: confirms Farage's registration of shares in Stack BTC held through Thorn In The Side Ltd`,
       `Electoral Commission donation records: confirm Harborne's reported donations to Reform, including the £3 million accepted in November 2025`,
-      `Parliamentary Commissioner for Standards: confirms an ongoing investigation into Farage under Rule 5 for alleged failure to register an interest — it records an investigation, not a finding of wrongdoing`,
+      `Parliamentary Commissioner for Standards: confirms an ongoing investigation into Farage under Rule 5 for alleged failure to register an interest. It records an investigation, not a finding of wrongdoing`,
       `Bank of England, stablecoin consultation and June 2026 policy statement: the original £20,000 proposed individual holding limit, the reasons for it and the subsequent decision to replace personal limits with a £40 billion temporary issuance guardrail for each systemic stablecoin`,
       `Bank of England meeting reporting, September 2025: confirms that Farage raised the digital pound directly with governor Andrew Bailey`,
     ],

@@ -128,7 +128,7 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
     const msg = code && /^W/.test(code)
       ? 'figures for Wales are not on Open Govt yet.'
       : code ? 'no storm overflows are listed in this area.' : 'not found for this postcode.';
-    return <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: '0 0 8px' }}><strong>{label}{name ? `: ${name}` : ''}</strong> — {msg}</p>;
+    return <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: '0 0 8px' }}><strong>{label}{name ? `: ${name}` : ''}</strong>: {msg}</p>;
   };
 
   const th: CSSProperties = { textAlign: 'left', padding: '6px 10px 6px 0', borderBottom: `1px solid ${INK}`, fontWeight: 'normal', whiteSpace: 'nowrap' };

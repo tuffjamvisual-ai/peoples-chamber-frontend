@@ -87,7 +87,7 @@ export default function LobbyRanking({ tabs, sinceLabel }: { tabs: RankingTab[];
                 </td>
                 <td className="num" style={{ fontWeight: 700 }}>{r.meetings}</td>
                 <td className="num lb-wide">{r.ministers}</td>
-                <td className="num lb-wide">{r.lobbyingFirms > 0 ? r.lobbyingFirms : '–'}</td>
+                <td className="num lb-wide">{r.lobbyingFirms > 0 ? r.lobbyingFirms : 'n/a'}</td>
               </tr>
             ))}
           </tbody>

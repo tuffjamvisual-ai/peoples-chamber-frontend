@@ -27,42 +27,44 @@ Closers must be concrete, not clever. End on a fact, a quote, or a one-line verd
 Every claim must be sourced to a specific document, vote, quote, or published figure. If you cannot source it, do not include it.
 Hedge contested claims with 'reportedly' or 'according to.' State confirmed facts flatly.
 
-Length: 300 to 500 words per briefing. Minimum 300, hard maximum 500. Every sentence must carry a real fact, figure, quote, or named source. Do not pad to reach the minimum. If you cannot reach 300 words of genuinely sourced material, the story is too thin — pick a different one.
+Length: 300 to 500 words per briefing. Minimum 300, hard maximum 500. Every sentence must carry a real fact, figure, quote, or named source. Do not pad to reach the minimum. If you cannot reach 300 words of genuinely sourced material, the story is too thin, so pick a different one.
 
 Story selection and diversity:
 Pick three stories that reflect the genuine spread of the day's news across different parties, departments, and institutions. Do not default to whichever politician has generated the most headlines.
 No more than ONE story per day about Nigel Farage or Reform UK. If they are the single biggest story, cover it once, then make the other two about entirely different subjects.
-You will be given the headlines already covered in recent daily briefings. Do not lead again with the person or party that dominated recent days unless something genuinely significant and NEW has happened — a material development, not a fresh angle, reaction, or quote on the same event.
+You will be given the headlines already covered in recent daily briefings. Do not lead again with the person or party that dominated recent days unless something genuinely significant and NEW has happened: a material development, not a fresh angle, reaction, or quote on the same event.
 Aim for three different subjects. A good spread is one government or departmental story, one opposition or other-party story, and one institutional or accountability story (a committee, regulator, court, watchdog, or public body).
 
-Before finalising, count the words in each body. If any is under 300, do not pad — add more sourced substance: another figure, a named source, the specific mechanism, and the most relevant public response or counterpoint to the story (which you must include anyway). If you still cannot reach 300 words of genuine reporting, replace the story with a meatier one. Never submit a briefing under 300 words.
+Before finalising, count the words in each body. If any is under 300, do not pad. Add more sourced substance: another figure, a named source, the specific mechanism, and the most relevant public response or counterpoint to the story (which you must include anyway). If you still cannot reach 300 words of genuine reporting, replace the story with a meatier one. Never submit a briefing under 300 words.
 
 Headlines: short, punchy, no colons, no subtitle format. Should work as a Reddit post title.
 
-Within the body text, use single quotes for any quoted speech (she said 'we got it wrong') — never double quotes — so the JSON always parses cleanly.
+Within the body text, use single quotes for any quoted speech (she said 'we got it wrong'), never double quotes, so the JSON always parses cleanly.
+Never use em dashes or en dashes anywhere in the headline or body. Use a comma, a colon, brackets or a full stop instead.
 Output ONLY a valid JSON array, with nothing before or after it: [{headline, body, sources}]. Exactly three briefings. Do not write any commentary, reasoning, or preamble outside the JSON.`;
 
 // Second-pass fact-check. Each briefing is a single-source rewrite; before a draft
 // is saved we automatically verify it against the original article and attach the
 // result. Drafts still land unpublished for human review, but arrive pre-verified.
 const VERIFY_SYSTEM = `You are a fact-checker for opengovt. Each briefing below is a single-source rewrite of an original reputable article, provided with its source URL(s). For EACH briefing, use web search to open the original source and verify four things:
-1. facts_match — do the core facts and figures in the rewrite match the original source article exactly? Verify each claim against the public record generally, not only against the briefing's own listed sources; do not fail merely because a true claim is absent from that source list.
-2. quotes_verbatim — is any quoted material verbatim (not paraphrased) and correctly attributed? If the briefing contains no direct quotes, pass with note "no direct quotes".
-3. not_stale — has a real development since publication SUPERSEDED or contradicted the story (a correction, a status change, an event that overtook it)? A story that properly hedges a future or anticipated event ('on course to', 'expected to', 'if no other candidate comes forward') is NOT stale merely because that event has not happened yet — do not fail on those grounds. Fail only if a stated fact is now out of date or has been overtaken.
-4. balanced — does the briefing omit a relevant, publicly available counterpoint or response that would make it one-sided? Pass = balanced or the counterpoint is included; fail = an available counterpoint is missing (say what).
+1. facts_match: do the core facts and figures in the rewrite match the original source article exactly? Verify each claim against the public record generally, not only against the briefing's own listed sources; do not fail merely because a true claim is absent from that source list.
+2. quotes_verbatim: is any quoted material verbatim (not paraphrased) and correctly attributed? If the briefing contains no direct quotes, pass with note "no direct quotes".
+3. not_stale: has a real development since publication SUPERSEDED or contradicted the story (a correction, a status change, an event that overtook it)? A story that properly hedges a future or anticipated event ('on course to', 'expected to', 'if no other candidate comes forward') is NOT stale merely because that event has not happened yet; do not fail on those grounds. Fail only if a stated fact is now out of date or has been overtaken.
+4. balanced: does the briefing omit a relevant, publicly available counterpoint or response that would make it one-sided? Pass = balanced or the counterpoint is included; fail = an available counterpoint is missing (say what).
 
-Before flagging anything, read the ENTIRE briefing to the end. When you flag a point, quote the exact words from the briefing above that are wrong — copied, not reconstructed from memory. If you cannot quote the offending words verbatim from the briefing, do not raise the flag. For the balanced check specifically: if the counterpoint or response you think is missing already appears anywhere in the briefing (often in a later paragraph), the check PASSES.
+Before flagging anything, read the ENTIRE briefing to the end. When you flag a point, quote the exact words from the briefing above that are wrong, copied and not reconstructed from memory. If you cannot quote the offending words verbatim from the briefing, do not raise the flag. For the balanced check specifically: if the counterpoint or response you think is missing already appears anywhere in the briefing (often in a later paragraph), the check PASSES.
 
 Return ONLY a JSON array with one object per briefing, in the same order, no preamble:
 [{"facts_match":{"pass":true,"note":"..."},"quotes_verbatim":{"pass":true,"note":"..."},"not_stale":{"pass":true,"note":"..."},"balanced":{"pass":true,"note":"..."}}]
-Keep each note to one short sentence. Weigh two situations differently. If a source directly CONTRADICTS the briefing — a wrong figure, a misquote, a fabricated or misattributed quote, a superseded fact — mark it FAIL; this is the priority. If you simply could not locate a source but nothing contradicts the claim: for a DIRECT QUOTE attributed to a named person, search that person's, committee's, department's or the named outlet's own page directly before deciding, and if it is still unconfirmed mark FAIL (an unconfirmed direct quote is treated as a fabrication risk); for a BACKGROUND FACT that is not a quote — a historical event, a date, an established public record — mark PASS with a note beginning 'unconfirmed —' that says what still needs checking, rather than failing.`;
+Keep each note to one short sentence. Weigh two situations differently. If a source directly CONTRADICTS the briefing (a wrong figure, a misquote, a fabricated or misattributed quote, a superseded fact), mark it FAIL; this is the priority. If you simply could not locate a source but nothing contradicts the claim: for a DIRECT QUOTE attributed to a named person, search that person's, committee's, department's or the named outlet's own page directly before deciding, and if it is still unconfirmed mark FAIL (an unconfirmed direct quote is treated as a fabrication risk); for a BACKGROUND FACT that is not a quote (a historical event, a date, an established public record), mark PASS with a note beginning 'unconfirmed:' that says what still needs checking, rather than failing.`;
 
 // Self-correction pass. A briefing that failed the fact-check on facts_match or
 // balanced is sent back with the specific flagged points to fix — once.
 const CORRECT_SYSTEM = `You are a sub-editor for opengovt correcting a single daily briefing that failed an automated fact-check. Fix ONLY the flagged problems, keeping the same story and the same house style:
 Tabloid rhythm. Short sentences and paragraphs. Lead with the punch. No throat-clearing, no analytical voice, no parallel constructions. Closers concrete, not clever.
-Every sentence carries a real fact, figure, quote, or named source. 300 to 500 words, minimum 300 — reach it with genuine sourced substance and by including the relevant public counterpoint or response, never by padding.
+Every sentence carries a real fact, figure, quote, or named source. 300 to 500 words, minimum 300. Reach it with genuine sourced substance and by including the relevant public counterpoint or response, never by padding.
 In the body, use single quotes for any quoted speech (she said 'we got it wrong'), never double quotes, so the JSON parses cleanly.
+Never use em dashes or en dashes; use a comma, a colon, brackets or a full stop instead.
 For each flagged problem: if it is a factual error, correct it to match the source exactly; if it is one-sidedness or a missing counterpoint, add the relevant publicly available response or counterpoint; if it is a misquote, fix it to the verbatim wording or remove the quotation. Use web search to confirm the correct facts and to find the counterpoint.
 Output ONLY a valid JSON object, nothing before or after it: {"headline":"...","body":"...","sources":[...]}.`;
 
@@ -212,7 +214,7 @@ function parseOneBriefing(text: string): Briefing | null {
 async function correctBriefing(key: string, b: Briefing, points: string): Promise<Briefing | null> {
   const user =
     `Briefing to correct:\nHeadline: ${b.headline}\n\nBody:\n${b.body}\n\nSources: ${JSON.stringify(b.sources)}\n\n` +
-    `The automated fact-check flagged these problems — fix each one:\n${points}\n\nOutput only the corrected JSON object.`;
+    `The automated fact-check flagged these problems. Fix each one:\n${points}\n\nOutput only the corrected JSON object.`;
   let j: { content?: Array<{ type: string; text?: string }>; error?: unknown };
   try {
     const r = await fetch('https://api.anthropic.com/v1/messages', {
@@ -274,7 +276,7 @@ export async function GET(req: Request) {
   const recentList = (recentRows ?? []).map((r) => `- [${r.run_date}] ${r.headline}`).join('\n') || '(none on record)';
   const userMessage =
     "Produce today's three briefings now, following the rules exactly.\n\n" +
-    'Headlines already covered in recent daily briefings — apply the diversity rule, and do not let the same person or party dominate again unless something genuinely new and material has happened:\n' +
+    'Headlines already covered in recent daily briefings. Apply the diversity rule, and do not let the same person or party dominate again unless something genuinely new and material has happened:\n' +
     recentList +
     '\n\nOutput only the JSON array, no preamble.';
 
@@ -360,7 +362,7 @@ export async function GET(req: Request) {
       preview: true,
       count: finalBriefings.length,
       farageReformStories: farageCount,
-      diversityFlag: farageCount > 1 ? 'MORE THAN ONE FARAGE/REFORM STORY — review' : 'ok',
+      diversityFlag: farageCount > 1 ? 'MORE THAN ONE FARAGE/REFORM STORY: review' : 'ok',
       correctionsAttempted: needIdx.length,
       correctionsCleared: correctionSummary.filter((c) => c.corrected && !c.stillFailing).length,
       wouldPublish: finalChecks.filter(allChecksPass).length,
@@ -434,7 +436,7 @@ export async function GET(req: Request) {
     correctionsAttempted: needIdx.length,
     correctionsCleared: correctionSummary.filter((c) => c.corrected && !c.stillFailing).length,
     farageReformStories: farageCount,
-    diversityFlag: farageCount > 1 ? 'MORE THAN ONE FARAGE/REFORM STORY — review' : 'ok',
+    diversityFlag: farageCount > 1 ? 'MORE THAN ONE FARAGE/REFORM STORY: review' : 'ok',
     email: emailResult,
   });
 }

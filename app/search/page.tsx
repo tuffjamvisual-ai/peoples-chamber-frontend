@@ -137,7 +137,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
           Search
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', color: '#14100d' }}>
-          Investigations, press releases, briefings, bills, votes and MPs — searched together.
+          Investigations, press releases, briefings, bills, votes and MPs, searched together.
         </p>
       </header>
 

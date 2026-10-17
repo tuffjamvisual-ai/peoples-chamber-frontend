@@ -90,7 +90,7 @@ export default async function BequestPage() {
           Money left to UK parties in wills
         </h1>
         <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
-          {rows.length} declared donations from {donorRanked.length}+ distinct estates totalling &pound;{Math.round(totalAll).toLocaleString()} are flagged on the Electoral Commission register as bequests. These are gifts the donor cannot be asked about, made by people who have died after writing political loyalty into their will. The Conservatives hold the largest share by some margin; small parties depend disproportionately on individual large bequests &mdash; Sinn F&eacute;in&rsquo;s six declared bequests average over &pound;460k each.
+          {rows.length} declared donations from {donorRanked.length}+ distinct estates totalling &pound;{Math.round(totalAll).toLocaleString()} are flagged on the Electoral Commission register as bequests. These are gifts the donor cannot be asked about, made by people who have died after writing political loyalty into their will. The Conservatives hold the largest share by some margin; small parties depend disproportionately on individual large bequests: Sinn F&eacute;in&rsquo;s six declared bequests average over &pound;460k each.
         </p>
       </header>
 

@@ -91,7 +91,7 @@ export default async function ProgrammePage(
           background: 'rgba(122,22,18,0.06)',
           fontFamily: MONO, fontSize: '15px', color: ACCENT,
         }}>
-          NOT LIVE — pending review. Not public, not listed, not indexed.
+          NOT LIVE: pending review. Not public, not listed, not indexed.
         </div>
       )}
 

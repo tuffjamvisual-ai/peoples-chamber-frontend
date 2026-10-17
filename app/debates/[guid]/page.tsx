@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { sanitizeHtml as sanitize } from '@/lib/html-sanitize';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
+import { jsonWithoutEmDashes } from '@/lib/no-em-dash'
 
 // In-house rendering of a Hansard debate. opengovt never links out, so rather
 // than send readers to hansard.parliament.uk we pull the debate transcript from
@@ -52,7 +53,7 @@ async function getDebate(guid: string): Promise<Debate | null> {
       next: { revalidate: 86400 },
     });
     if (!res.ok) return null;
-    return (await res.json()) as Debate;
+    return await jsonWithoutEmDashes<Debate>(res);
   } catch {
     return null;
   }

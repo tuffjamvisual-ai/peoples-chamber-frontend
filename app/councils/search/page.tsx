@@ -28,7 +28,7 @@ type Council = {
 export async function generateMetadata({ searchParams }: { searchParams: Promise<{ q?: string }> }): Promise<Metadata> {
   const { q } = await searchParams;
   return {
-    title: q ? `"${q}" — Council search` : 'Council search',
+    title: q ? `"${q}": Council search` : 'Council search',
     alternates: { canonical: '/councils/search' },
   };
 }

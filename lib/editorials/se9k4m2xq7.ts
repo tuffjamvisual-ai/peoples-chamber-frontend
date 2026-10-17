@@ -4,7 +4,7 @@ const piece: EditorialEntry = {
   slug: 'se9k4m2xq7',
   kicker: 'Public Spending',
   headline: `MPs Approved £1.15 Trillion of Departmental Resources. Most Estimates Were Never Debated`,
-  standfirst: `The House of Commons passed a bill appropriating more than £1.15 trillion of departmental resources for 2026/27. Its second and third readings on 1 July were completed without substantive debate. That is not an accidental shortcut — it is how Supply legislation works. But most departmental Estimates never received their own Commons debate before Parliament approved them.`,
+  standfirst: `The House of Commons passed a bill appropriating more than £1.15 trillion of departmental resources for 2026/27. Its second and third readings on 1 July were completed without substantive debate. That is not an accidental shortcut. It is how Supply legislation works. But most departmental Estimates never received their own Commons debate before Parliament approved them.`,
   publishedAt: '2026-07-13',
   authorByline: 'opengovt',
   body: [

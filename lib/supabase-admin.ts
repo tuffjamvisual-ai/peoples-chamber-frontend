@@ -1,4 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { fetchWithoutEmDashes } from './no-em-dash';
 
 // Service-role Supabase client for TRUSTED server-side writes/reads in API
 // routes only. It bypasses Row Level Security, so it must never be imported
@@ -35,3 +36,27 @@ export const supabaseAdmin = new Proxy({} as SupabaseClient, {
     return typeof value === 'function' ? (value as (...a: unknown[]) => unknown).bind(c) : value;
   },
 });
+
+// Read-only display use of the service-role client (pages and API routes that show stored
+// text to readers). Same as supabaseAdmin, but reads pass through the no-em-dash rule
+// (lib/no-em-dash.ts). Never use this one in sync jobs that read and write back.
+let readClient: SupabaseClient | null = null;
+function getRead(): SupabaseClient {
+  if (!readClient) {
+    readClient = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { persistSession: false, autoRefreshToken: false }, global: { fetch: fetchWithoutEmDashes } },
+    );
+  }
+  return readClient;
+}
+
+export const supabaseAdminRead = new Proxy({} as SupabaseClient, {
+  get(_target, prop) {
+    const c = getRead() as unknown as Record<string | symbol, unknown>;
+    const value = c[prop];
+    return typeof value === 'function' ? (value as (...a: unknown[]) => unknown).bind(c) : value;
+  },
+});
+

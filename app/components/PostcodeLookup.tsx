@@ -219,7 +219,7 @@ export default function PostcodeLookup({ heading = 'Who is your MP?' }: { headin
                   >
                     <span>
                       {r.name}
-                      {r.constituency && <span style={{ color: INK_SOFT }}> — {r.constituency}</span>}
+                      {r.constituency && <span style={{ color: INK_SOFT }}>, {r.constituency}</span>}
                     </span>
                     <span style={{ fontSize: '14px', color: INK_SOFT, letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
                       {normaliseParty(r.party)}

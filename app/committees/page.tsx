@@ -6,7 +6,7 @@ import OpenGovShell from '../components/OpenGovShell';
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: 'Select Committees — UK Parliament',
+  title: 'Select Committees: UK Parliament',
   description: 'Current membership of the 29 select and cross-cutting committees of the House of Commons, sourced from UK Parliament.',
   alternates: { canonical: '/committees' },
 };

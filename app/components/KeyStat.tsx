@@ -13,7 +13,7 @@ export default function KeyStat({
 }) {
   return (
     <div
-      aria-label={`${stat} — ${label}`}
+      aria-label={`${stat}, ${label}`}
       style={{
         margin: '32px 0',
         padding: '20px 24px 18px',

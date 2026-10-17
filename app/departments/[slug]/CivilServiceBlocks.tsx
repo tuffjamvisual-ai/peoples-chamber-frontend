@@ -89,7 +89,7 @@ export function BudgetBlock({ row }: { row: DepartmentBudgetRow | null }) {
             <ChangeChip pct={row.change_from_previous_percent} />
           </p>
           <p className="text-[#14100d] text-[15px] mt-1" style={{ opacity: 0.8 }}>
-            Resource DEL {rdel ?? '—'} · Capital DEL {cdel ?? '—'} · FY {row.financial_year} plans · HM Treasury Main Estimates
+            Resource DEL {rdel ?? 'n/a'} · Capital DEL {cdel ?? 'n/a'} · FY {row.financial_year} plans · HM Treasury Main Estimates
           </p>
           {row.caveat_note && (
             <p className="text-[#14100d] text-[15px] mt-2" style={{ opacity: 0.65 }}>

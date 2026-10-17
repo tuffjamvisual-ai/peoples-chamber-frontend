@@ -8,7 +8,7 @@ import BackLink from '../components/BackLink';
 import { fmtMillions } from '@/lib/department-civil-service';
 
 export const metadata: Metadata = {
-  title: 'UK Department Budgets — Total DEL by Department',
+  title: 'UK Department Budgets: Total DEL by Department',
   description:
     "Total Departmental Expenditure Limits for every UK government department, ranked.",
   alternates: { canonical: '/spending' },

@@ -153,7 +153,7 @@ function ProgrammeCard({ prog }: { prog: ProgrammeWithFigure }) {
         }}>
           Target: {fmtNumber(prog.target_figure)}
           {prog.target_unit ? ` ${prog.target_unit}` : ''}
-          {prog.target_label ? ` — ${prog.target_label}` : ''}
+          {prog.target_label ? `: ${prog.target_label}` : ''}
         </p>
       )}
     </Link>

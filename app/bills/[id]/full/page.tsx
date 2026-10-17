@@ -19,6 +19,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import OpenGovShell from '../../../components/OpenGovShell'
 import BackLink from '../../../components/BackLink';
+import { jsonWithoutEmDashes } from '@/lib/no-em-dash'
 
 export const revalidate = 86400  // re-fetch from Parliament once a day
 
@@ -154,9 +155,9 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
       fetch(`https://bills-api.parliament.uk/api/v1/Bills/${bill.parliament_id}`, headers),
       fetch(`https://bills-api.parliament.uk/api/v1/Bills/${bill.parliament_id}/Publications`, headers),
     ])
-    if (metaRes.ok) billMeta = (await metaRes.json()) as ApiBill
+    if (metaRes.ok) billMeta = await jsonWithoutEmDashes<ApiBill>(metaRes)
     if (pubRes.ok) {
-      const json = (await pubRes.json()) as { publications?: ApiPublication[] }
+      const json = await jsonWithoutEmDashes<{ publications?: ApiPublication[] }>(pubRes)
       publications = json.publications || []
     } else if (!metaRes.ok) {
       apiError = `Parliament API returned HTTP ${pubRes.status}.`

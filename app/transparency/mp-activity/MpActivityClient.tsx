@@ -148,7 +148,7 @@ export default function MpActivityClient({ rows }: { rows: Row[] }) {
                     </span>
                   )}
                 </td>
-                <td style={{ ...td, fontFamily: MONO, fontSize: '15px' }}>{r.party || '—'}</td>
+                <td style={{ ...td, fontFamily: MONO, fontSize: '15px' }}>{r.party || 'n/a'}</td>
                 <td style={num}>{r.total.toLocaleString()}</td>
                 <td style={num}>{r.words.toLocaleString()}</td>
                 <td style={num}>{r.writtenQuestions.toLocaleString()}</td>

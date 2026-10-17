@@ -126,7 +126,7 @@ async function GET_impl(req: Request) {
           .gte('division_date_only', fromStr));
     if (dedupErr) throw new Error(`dedup query failed: ${dedupErr.message}`);
     if ((have || []).length === 1000) {
-      throw new Error('Dedup query returned exactly 1000 rows — possible PostgREST truncation. Narrow the date range and retry.');
+      throw new Error('Dedup query returned exactly 1000 rows: possible PostgREST truncation. Narrow the date range and retry.');
     }
     const seen = new Set((have || []).map((r) => `${r.division_date_only}#${r.division_number}`));
 

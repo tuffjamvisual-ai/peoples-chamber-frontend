@@ -14,7 +14,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { editorials } from '@/lib/editorials';
 import type { EditorialEntry } from '@/lib/editorials/types';
-import { supabaseAdmin } from '@/lib/supabase-admin';
+import { supabaseAdminRead as supabaseAdmin } from '@/lib/supabase-admin';
 
 // Dynamic so DB drafts are viewable immediately after the cron run and a flip to
 // published shows without a rebuild. File-based briefings render fine here too.
@@ -94,7 +94,7 @@ export default async function BriefingPage({ params }: { params: Promise<{ slug:
 
       {!b.is_published && (
         <div style={{ margin: '0 0 20px', padding: '10px 14px', border: `1px solid ${ACCENT}`, background: 'rgba(122,22,18,0.06)', fontFamily: MONO, fontSize: '15px', color: ACCENT }}>
-          DRAFT — auto-generated, pending review. Not public, not listed, not indexed. Verify every claim before publishing.
+          DRAFT: auto-generated, pending review. Not public, not listed, not indexed. Verify every claim before publishing.
         </div>
       )}
 

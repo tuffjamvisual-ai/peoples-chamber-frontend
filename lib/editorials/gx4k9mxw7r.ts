@@ -76,10 +76,10 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      'GOV.UK, 28 September 2026: "Government explores buying trains over leasing in new rail strategy" — GBR to assess ownership vs leasing vs other financing case by case; leasing no longer the default for new trains; £2.5bn decade-long ROSCO dividend figure; "substantial savings" language (unquantified); existing leasing contracts remain; "more than £4bn a year" leasing-and-maintenance cost claim; "first time in 30 years" coordinated-approach claim',
-      'ORR Data Portal, Rail Industry Finance statistics, April 2024 to March 2025 — precise £4.1bn rolling-stock figure (£2.7bn leasing / £1.5bn maintenance / £61m other income); £11.9bn government funding (down 7% year-on-year, 46% of industry income); £11.5bn fares (up 8.3%); £275m ROSCO dividend total for 2024/25 (down 19% on prior year)',
-      'ORR, Review of the Rolling Stock Transparency Order 2009 — Final Decision, 4 December 2025 — Transparency Order "continues to be appropriate and proportionate"; to be retained with updated wording. Distinct from the "have not been alleviated" finding, which is from ORR\'s earlier final report of 28 April 2020',
-      'ORR, Rolling Stock Maintenance Market Review, Statement of Scope, 29 April 2026 — scope of ongoing maintenance-market review; expected autumn 2026 conclusion',
+      'GOV.UK, 28 September 2026: "Government explores buying trains over leasing in new rail strategy": GBR to assess ownership vs leasing vs other financing case by case; leasing no longer the default for new trains; £2.5bn decade-long ROSCO dividend figure; "substantial savings" language (unquantified); existing leasing contracts remain; "more than £4bn a year" leasing-and-maintenance cost claim; "first time in 30 years" coordinated-approach claim',
+      'ORR Data Portal, Rail Industry Finance statistics, April 2024 to March 2025: precise £4.1bn rolling-stock figure (£2.7bn leasing / £1.5bn maintenance / £61m other income); £11.9bn government funding (down 7% year-on-year, 46% of industry income); £11.5bn fares (up 8.3%); £275m ROSCO dividend total for 2024/25 (down 19% on prior year)',
+      'ORR, Review of the Rolling Stock Transparency Order 2009, Final Decision, 4 December 2025: Transparency Order "continues to be appropriate and proportionate"; to be retained with updated wording. Distinct from the "have not been alleviated" finding, which is from ORR\'s earlier final report of 28 April 2020',
+      'ORR, Rolling Stock Maintenance Market Review, Statement of Scope, 29 April 2026: scope of ongoing maintenance-market review; expected autumn 2026 conclusion',
     ],
     lastChecked: '30 September 2026',
   },

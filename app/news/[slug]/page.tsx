@@ -9,6 +9,7 @@ import { govUrlToSlug } from '@/lib/govUrlSlug'
 import { resolveOrgToDeptSlug } from '@/lib/govOrgSlug'
 import { getDeptContext } from '../../api/department-context/route'
 import { piecesExaminingRelease } from '@/lib/editorials/release-links'
+import { withoutEmDashes } from '@/lib/no-em-dash'
 import type { EditorialEntry } from '@/lib/editorials/types'
 
 // Plain text of an HTML fragment, for comparing the summary with the body's opening.
@@ -104,7 +105,7 @@ async function getBodyHtmlLive(govUrl: string): Promise<string | null> {
     })
     if (!res.ok) return null
     const data: { details?: { body?: string } } = await res.json()
-    return data.details?.body || null
+    return data.details?.body ? withoutEmDashes(data.details.body) : null
   } catch {
     return null
   }

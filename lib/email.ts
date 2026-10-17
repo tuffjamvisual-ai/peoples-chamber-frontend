@@ -37,9 +37,9 @@ export async function sendSignupNotification(user: {
     timeZone: 'Europe/London', day: 'numeric', month: 'long', year: 'numeric',
     hour: '2-digit', minute: '2-digit',
   });
-  const username = user.username?.trim() || '— not provided';
+  const username = user.username?.trim() || 'Not provided';
   const status = user.emailVerified ? 'auto-verified (email confirmation off)' : 'pending email confirmation';
-  const newsletter = user.newsletterOptIn ? 'Yes — opted in' : 'No';
+  const newsletter = user.newsletterOptIn ? 'Yes, opted in' : 'No';
   const subject = user.newsletterOptIn
     ? `New opengovt signup (newsletter): ${user.email}`
     : `New opengovt signup: ${user.email}`;
@@ -93,7 +93,7 @@ export async function sendBriefingNotification(
   const base = 'https://www.opengovt.uk';
   const state = opts?.published
     ? 'These are PUBLISHED and live.'
-    : 'These are DRAFTS — not public, not listed, not indexed. Review every claim, then flip is_published to true to publish.';
+    : 'These are DRAFTS: not public, not listed, not indexed. Review every claim, then flip is_published to true to publish.';
 
   const lines = briefings.map((b, i) => `${i + 1}. ${b.headline}\n   ${base}/briefings/${b.slug}`).join('\n\n');
   const text = `opengovt daily briefings ready for review.\n\n${state}\n\n${lines}\n`;
@@ -110,7 +110,7 @@ export async function sendBriefingNotification(
     await resend.emails.send({
       from,
       to: BRIEFINGS_NOTIFY_TO,
-      subject: `opengovt briefings for review — ${new Date().toLocaleDateString('en-GB', { timeZone: 'Europe/London', day: 'numeric', month: 'short' })} (${briefings.length})`,
+      subject: `opengovt briefings for review: ${new Date().toLocaleDateString('en-GB', { timeZone: 'Europe/London', day: 'numeric', month: 'short' })} (${briefings.length})`,
       text,
       html,
     });
@@ -199,13 +199,13 @@ export async function sendFreshnessAlert(stale: StaleSource[]) {
       : 'never';
     const age = s.ageDays == null ? 'no successful run on record' : `sync last ran ${s.ageDays} day${s.ageDays === 1 ? '' : 's'} ago`;
     const last = s.lastRanAt ? ` (last run wrote ${s.lastRows ?? '?'} rows on ${ran}, HTTP ${s.lastStatus ?? '?'})` : '';
-    return `${s.page} is serving stale data: ${s.label} — ${age}${last}.`;
+    return `${s.page} is serving stale data: ${s.label}, ${age}${last}.`;
   };
 
   const lines = stale.map(fmt);
-  const text = `Data freshness alert — ${stale.length} source${stale.length === 1 ? '' : 's'} overdue.\n\n${lines.join('\n')}\n`;
+  const text = `Data freshness alert: ${stale.length} source${stale.length === 1 ? '' : 's'} overdue.\n\n${lines.join('\n')}\n`;
   const html = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;color:#14100d">
-      <p style="margin:0 0 12px;font-weight:bold">Data freshness alert — ${stale.length} source${stale.length === 1 ? '' : 's'} overdue.</p>
+      <p style="margin:0 0 12px;font-weight:bold">Data freshness alert: ${stale.length} source${stale.length === 1 ? '' : 's'} overdue.</p>
       <ul style="margin:0;padding-left:18px">${lines.map((l) => `<li style="margin:0 0 6px">${l}</li>`).join('')}</ul>
     </div>`;
 

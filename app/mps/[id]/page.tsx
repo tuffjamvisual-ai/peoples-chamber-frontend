@@ -135,7 +135,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // Former MPs (left the Commons) read "former MP for X (2015–2026)" rather than
   // "MP for X since 2015".
   const head = isFormer
-    ? `${name}, ${[party, mp.constituency && `former MP for ${mp.constituency}${sinceYear && untilYear ? ` (${sinceYear}–${untilYear})` : ''}`].filter(Boolean).join(', ')}.`
+    ? `${name}, ${[party, mp.constituency && `former MP for ${mp.constituency}${sinceYear && untilYear ? ` (${sinceYear} to ${untilYear})` : ''}`].filter(Boolean).join(', ')}.`
     : `${name}, ${[party, mp.constituency && `MP for ${mp.constituency}`].filter(Boolean).join(', ')}${sinceYear ? ` since ${sinceYear}` : ''}.`;
 
   const facts: string[] = [];

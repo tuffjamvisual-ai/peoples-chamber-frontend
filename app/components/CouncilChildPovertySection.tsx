@@ -42,7 +42,7 @@ function combine(rows: Row[], codes: string[], measure: string, fye: number): Fi
 }
 
 const fmtNum = (n: number) => Math.round(n).toLocaleString('en-GB');
-const fmtPct = (p: number | null) => (p == null ? '—' : `${p.toFixed(1)}%`);
+const fmtPct = (p: number | null) => (p == null ? 'n/a' : `${p.toFixed(1)}%`);
 const fyLabel = (fye: number) => `${fye - 1}-${String(fye).slice(2)}`;
 
 export default async function CouncilChildPovertySection({ gssCodes, isCounty }: { gssCodes: string[]; isCounty: boolean }) {

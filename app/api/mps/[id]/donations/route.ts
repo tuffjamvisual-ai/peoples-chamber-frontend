@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
+import { supabaseAdminRead as supabase } from '@/lib/supabase-admin';
 import { SECTORS, sectorForDonor, sectorForVote, ALL_VOTE_KEYWORDS } from '@/lib/donor-sectors';
 
 export const dynamic = 'force-dynamic';

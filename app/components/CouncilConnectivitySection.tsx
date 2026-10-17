@@ -29,7 +29,7 @@ type M = {
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const fmtMonth = (iso: string) => `${MONTHS[Number(iso.slice(5, 7)) - 1]} ${iso.slice(0, 4)}`;
 const fmtNum = (n: number) => Math.round(n).toLocaleString('en-GB');
-const pct = (n: number | null) => (n == null ? '—' : `${n.toFixed(1)}%`);
+const pct = (n: number | null) => (n == null ? 'n/a' : `${n.toFixed(1)}%`);
 
 export default async function CouncilConnectivitySection({ gssCodes, isCounty }: { gssCodes: string[]; isCounty: boolean }) {
   if (gssCodes.length === 0) return null;

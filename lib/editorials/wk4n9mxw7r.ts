@@ -49,7 +49,7 @@ const piece: EditorialEntry = {
       `House of Commons Hansard, Planning and Infrastructure Bill, 9 June 2025: Dan Tomlinson's estimate of around 160,000 stalled homes, his comments on project-level mitigation, his status as a backbench MP rather than a minister at that date, and Chris Hinchliff's proposed environmental safeguard`,
       `MHCLG, Local Nutrient Mitigation Fund Round 2, October/November 2024: £8.85 million Norfolk allocation and the government's statement that it was intended to unlock more than 5,000 homes`,
       `Local Government Association, "Learning from the Local Nutrient Mitigation Fund", 2026: more than 3,000 homes reportedly released through Norfolk Environmental Credits, at least 3,000 further homes of mitigation capacity in the pipeline, and the status of the fund's capital commitments`,
-      `The Guardian, reporting on the Norfolk EDP consultation, 24 September 2026: reported earlier modelling range of roughly £5,400 to £60,500 per dwelling and environmental criticism of the proposed £2,675 levy — not available in GOV.UK material retrieved for this review`,
+      `The Guardian, reporting on the Norfolk EDP consultation, 24 September 2026: reported earlier modelling range of roughly £5,400 to £60,500 per dwelling and environmental criticism of the proposed £2,675 levy: not available in GOV.UK material retrieved for this review`,
     ],
     lastChecked: '3 October 2026',
   },

@@ -19,7 +19,7 @@ const meta: DepartmentMeta = {
     'Welsh Language Policy',
     'Infrastructure in Wales'
   ],
-  description: 'Communicates Welsh views to Westminster, and Westminster\'s views back to Cardiff Bay — often with a small adjustment in tone each way.',
+  description: 'Communicates Welsh views to Westminster, and Westminster\'s views back to Cardiff Bay, often with a small adjustment in tone each way.',
   streetContext: '',
 };
 

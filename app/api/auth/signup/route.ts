@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
     if (verified) {
       const cookieSet = await setSessionCookie(user.id);
       if (!cookieSet) {
-        console.error('Signup: SESSION_SECRET missing or too short — no session cookie issued');
+        console.error('Signup: SESSION_SECRET missing or too short; no session cookie issued');
         return NextResponse.json({ error: 'Server configuration error. Please contact support.' }, { status: 500 });
       }
     }

@@ -139,7 +139,7 @@ export default async function CouncilClaimantCountSection({ gssCode }: { gssCode
                   <tr key={r.month}>
                     <td style={{ padding: '2px 16px 2px 0' }}>{fmtMonth(r.month)}</td>
                     <td style={{ padding: '2px 16px 2px 0', textAlign: 'right' }}>{fmtNum(r.claimants as number)}</td>
-                    <td style={{ padding: '2px 0', textAlign: 'right' }}>{r.rate != null ? `${r.rate.toFixed(1)}%` : '—'}</td>
+                    <td style={{ padding: '2px 0', textAlign: 'right' }}>{r.rate != null ? `${r.rate.toFixed(1)}%` : 'n/a'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -151,12 +151,12 @@ export default async function CouncilClaimantCountSection({ gssCode }: { gssCode
                   <tr key={r.month}>
                     <td style={{ padding: '2px 16px 2px 0' }}>{fmtMonth(r.month)}{r.month < '2013-01-01' && ucIndex > 0 ? ' *' : ''}</td>
                     <td style={{ padding: '2px 16px 2px 0', textAlign: 'right' }}>{fmtNum(r.claimants as number)}</td>
-                    <td style={{ padding: '2px 0', textAlign: 'right' }}>{r.rate != null ? `${r.rate.toFixed(1)}%` : '—'}</td>
+                    <td style={{ padding: '2px 0', textAlign: 'right' }}>{r.rate != null ? `${r.rate.toFixed(1)}%` : 'n/a'}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            {ucIndex > 0 && <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: '6px 0 0' }}>* Before 2013: Unemployment Benefit or Jobseeker&rsquo;s Allowance claimants only. — means no share was published for that year.</p>}
+            {ucIndex > 0 && <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: '6px 0 0' }}>* Before 2013: Unemployment Benefit or Jobseeker&rsquo;s Allowance claimants only. n/a means no share was published for that year.</p>}
           </details>
         </figure>
       )}

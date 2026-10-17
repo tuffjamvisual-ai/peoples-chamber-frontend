@@ -51,7 +51,7 @@ const SELECT = 'month, average_price, change_1m_pct, change_12m_pct, sales_volum
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const fmtMonth = (iso: string) => `${MONTHS[Number(iso.slice(5, 7)) - 1]} ${iso.slice(0, 4)}`;
 const fmtPrice = (n: number) => `£${Math.round(n).toLocaleString('en-GB')}`;
-const fmtChange = (p: number | null) => (p == null ? '—' : `${p > 0 ? '+' : p < 0 ? '−' : ''}${Math.abs(p).toFixed(1)}%`);
+const fmtChange = (p: number | null) => (p == null ? 'n/a' : `${p > 0 ? '+' : p < 0 ? '−' : ''}${Math.abs(p).toFixed(1)}%`);
 
 function Section({ children }: { children: React.ReactNode }) {
   return (

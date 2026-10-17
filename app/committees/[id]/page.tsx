@@ -73,7 +73,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .single();
   if (!data) return { title: 'Committee' };
   return {
-    title: `${data.name} — UK Parliament`,
+    title: `${data.name}: UK Parliament`,
     description: `Current members of the ${data.name}, sourced from UK Parliament.`,
     alternates: { canonical: `/committees/${id}` },
   };

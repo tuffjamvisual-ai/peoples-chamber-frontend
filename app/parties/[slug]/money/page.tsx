@@ -272,7 +272,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
       {sectorRows.length > 0 && (
         <section style={{ marginBottom: '32px' }}>
           <h2 style={sectionH2}>Top funding sectors</h2>
-          <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '10px' }}>Donor names matched against the site&rsquo;s sector classifier. Untagged donors (individuals, generic companies) are not included &mdash; this is the political-economy view.</p>
+          <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '10px' }}>Donor names matched against the site&rsquo;s sector classifier. Untagged donors (individuals, generic companies) are not included; this is the political-economy view.</p>
           <table style={tableStyle}>
             <thead>
               <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>

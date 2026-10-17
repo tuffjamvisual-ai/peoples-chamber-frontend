@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
 
     const cookieHeader = makeSessionCookieHeader(user.id);
     if (!cookieHeader) {
-      console.error('[login] SESSION_SECRET missing or too short — no session cookie issued');
+      console.error('[login] SESSION_SECRET missing or too short; no session cookie issued');
       return NextResponse.json({ error: 'Server configuration error. Please contact support.' }, { status: 500 });
     }
 

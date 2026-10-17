@@ -48,9 +48,9 @@ export function donorNameToSlug(name: string): string {
 // they were linked (link crawl, 16 Oct 2026).
 // '2026-03-04' -> '4 Mar 2026'.
 function fmtDay(iso: string | null | undefined): string {
-  if (!iso) return '–';
+  if (!iso) return 'n/a';
   const d = new Date(iso);
-  return isNaN(d.getTime()) ? '–' : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  return isNaN(d.getTime()) ? 'n/a' : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 function narrowTokens(slug: string): string[] {
@@ -529,14 +529,14 @@ export default async function DonorPage({ params }: PageProps) {
                       {d.accounting_unit_name && d.accounting_unit_name !== d.recipient_name && <span style={{ display: 'block', fontSize: '14px', opacity: 0.75 }}>{d.accounting_unit_name}</span>}
                     </td>
                     <td style={{ ...td, textAlign: 'left' }}>
-                      {d.nature || '–'}
+                      {d.nature || 'n/a'}
                       {notes && <span style={{ display: 'block', fontSize: '14px', color: DANGER }}>{notes}</span>}
                     </td>
                     <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(d.amount)}</td>
                     <td style={{ ...td, whiteSpace: 'nowrap' }}>
                       {d.ec_ref ? (
                         <a href={`https://search.electoralcommission.org.uk/Search/Donations?currentPage=1&rows=10&query=${encodeURIComponent(d.ec_ref)}&sort=AcceptedDate&order=desc`} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline' }}>{d.ec_ref} ↗</a>
-                      ) : '–'}
+                      ) : 'n/a'}
                     </td>
                   </tr>
                 );
