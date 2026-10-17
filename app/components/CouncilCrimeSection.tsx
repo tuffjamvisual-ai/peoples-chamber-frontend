@@ -80,15 +80,10 @@ const SOURCE_NOTES: Record<string, string> = {
     'Source: Scottish Government, Recorded Crime in Scotland (Accredited Official Statistics). Published once a year for each financial year (April to March). The rate per 1,000 residents is the Scottish Government’s own published rate.',
 };
 
-export default async function CouncilCrimeSection({
-  gssCodes,
-  population,
-  isCounty,
-}: {
-  gssCodes: string[];
-  population: number | null;
-  isCounty: boolean;
-}) {
+export type CrimeHeadline = { total: number; periodText: string; change: string | null; ratePer1000: number | null };
+
+// Shared by this section and the area summary (/your-area), so both show the same figure.
+export async function loadCrime(gssCodes: string[], population: number | null) {
   if (gssCodes.length === 0) return null;
 
   // Latest period first (one cheap query), then just the window needed.
@@ -109,7 +104,7 @@ export default async function CouncilCrimeSection({
   if (rows.length === 0) return null;
   const updatedAt = rows.reduce((m, r) => (r.updated_at > m ? r.updated_at : m), rows[0].updated_at);
 
-  let headline: { total: number; periodText: string; change: string | null; ratePer1000: number | null };
+  let headline: CrimeHeadline;
   let categories: { name: string; count: number }[];
   let trend: { month: string; total: number }[] = [];
 
@@ -169,6 +164,21 @@ export default async function CouncilCrimeSection({
       .sort((a, b) => b.count - a.count);
   }
 
+  return { headline, categories, trend, updatedAt, source, monthly };
+}
+
+export default async function CouncilCrimeSection({
+  gssCodes,
+  population,
+  isCounty,
+}: {
+  gssCodes: string[];
+  population: number | null;
+  isCounty: boolean;
+}) {
+  const loaded = await loadCrime(gssCodes, population);
+  if (!loaded) return null;
+  const { headline, categories, trend, updatedAt, source, monthly } = loaded;
   const maxTrend = Math.max(1, ...trend.map((t) => t.total));
 
   return (

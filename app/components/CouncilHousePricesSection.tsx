@@ -64,6 +64,26 @@ function Section({ children }: { children: React.ReactNode }) {
   );
 }
 
+// For the area summary (/your-area): the same latest average price and 12 month
+// change this section leads with (the latest month that has an average price).
+export async function loadHousePriceHeadline(gssCode: string | null) {
+  if (!gssCode) return null;
+  const { data } = await supabase
+    .from('council_house_prices')
+    .select('month, average_price, change_12m_pct')
+    .eq('council_gss_code', gssCode)
+    .not('average_price', 'is', null)
+    .order('month', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (!data) return null;
+  return {
+    price: Number(data.average_price),
+    month: fmtMonth(data.month as string),
+    change12: data.change_12m_pct == null ? null : Number(data.change_12m_pct),
+  };
+}
+
 export default async function CouncilHousePricesSection({ gssCode }: { gssCode: string | null }) {
   if (!gssCode) return null;
 

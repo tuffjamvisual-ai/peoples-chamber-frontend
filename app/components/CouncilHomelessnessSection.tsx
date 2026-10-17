@@ -54,7 +54,7 @@ const SELECT = 'council_gss_code, period_start, period_label, owed_duty_total, o
 const fmtNum = (n: number) => Math.round(n).toLocaleString('en-GB');
 const fmtRate = (n: number) => n.toFixed(1);
 const QUARTER_END: Record<string, string> = { '01': '31 March', '04': '30 June', '07': '30 September', '10': '31 December' };
-const quarterEnd = (p: string) => `${QUARTER_END[p.slice(5, 7)]} ${p.slice(0, 4)}`;
+export const quarterEnd = (p: string) => `${QUARTER_END[p.slice(5, 7)]} ${p.slice(0, 4)}`;
 const shortQ = (p: string) => `Q${(Number(p.slice(5, 7)) + 2) / 3} ${p.slice(0, 4)}`;
 
 // PostgREST caps responses at 1,000 rows; a county's ~12 districts x ~28
@@ -76,7 +76,8 @@ async function fetchAll(codes: string[]): Promise<Row[]> {
   return out;
 }
 
-export default async function CouncilHomelessnessSection({ gssCodes, isCounty }: { gssCodes: string[]; isCounty: boolean }) {
+// Shared by this section and the area summary (/your-area), so both show the same figures.
+export async function loadHomelessness(gssCodes: string[]) {
   if (gssCodes.length === 0 || !gssCodes.every((c) => c.startsWith('E'))) return null;
   const rows = await fetchAll(gssCodes);
   if (rows.length === 0) return null;
@@ -132,6 +133,14 @@ export default async function CouncilHomelessnessSection({ gssCodes, isCounty }:
   const maxTA = Math.max(1, ...trend.map((t) => t.ta ?? 0));
   const gaps = trend.filter((t) => t.ta == null).map((t) => labelOf(t.p));
   const per1000 = (n: number | null, hh: number | null) => (n != null && hh ? n / hh : null);
+
+  return { byPeriod, periods, labelOf, combine, newest, latestA1, latestTA, provisional, hhA1, owed, prevention, relief, s21, hhTA, ta, taKids, children, anotherLA, noAccom, types, typeRows, trend, maxTA, gaps, per1000 };
+}
+
+export default async function CouncilHomelessnessSection({ gssCodes, isCounty }: { gssCodes: string[]; isCounty: boolean }) {
+  const loaded = await loadHomelessness(gssCodes);
+  if (!loaded) return null;
+  const { byPeriod, periods, labelOf, combine, newest, latestA1, latestTA, provisional, hhA1, owed, prevention, relief, s21, hhTA, ta, taKids, children, anotherLA, noAccom, types, typeRows, trend, maxTA, gaps, per1000 } = loaded;
 
   const stat = (label: string, value: number | null, sub: string | null) =>
     value != null && (

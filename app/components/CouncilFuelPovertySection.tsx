@@ -38,7 +38,8 @@ async function fetchLsoas(codes: string[], year: number): Promise<Lsoa[]> {
   return out;
 }
 
-export default async function CouncilFuelPovertySection({ gssCode, neighbourhoodCodes }: { gssCode: string | null; neighbourhoodCodes: string[] }) {
+// Shared by this section and the area summary (/your-area), so both show the same figure.
+export async function loadFuelPoverty(gssCode: string | null) {
   if (!gssCode || !gssCode.startsWith('E')) return null;
   const { data } = await supabase
     .from('council_fuel_poverty')
@@ -53,6 +54,14 @@ export default async function CouncilFuelPovertySection({ gssCode, neighbourhood
   const england = rows.find((r) => r.council_gss_code === 'E92000001' && r.data_year === year) ?? null;
   const pct = Number(mine.percentage);
   const engPct = england ? Number(england.percentage) : null;
+
+  return { mine, year, pct, engPct };
+}
+
+export default async function CouncilFuelPovertySection({ gssCode, neighbourhoodCodes }: { gssCode: string | null; neighbourhoodCodes: string[] }) {
+  const loaded = await loadFuelPoverty(gssCode);
+  if (!loaded) return null;
+  const { mine, year, pct, engPct } = loaded;
 
   const lsoas = neighbourhoodCodes.length ? await fetchLsoas(neighbourhoodCodes, year) : [];
   const sorted = [...lsoas].sort((a, b) => b.percentage - a.percentage);

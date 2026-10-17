@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { govUrlToSlug } from '@/lib/govUrlSlug';
 import { normalizeOrg, resolveOrgHref } from '@/lib/govOrgSlug';
 import { departments } from '@/lib/departments';
-import CouncilSearch from './components/CouncilSearch';
+import AreaSearch from './components/AreaSearch';
 import NewsletterSignup from './components/NewsletterSignup';
 import { latestExpensesYear, expensesYearShort } from '@/lib/expenses-year';
 import './home-front.css';
@@ -144,6 +144,8 @@ export default async function HomePage() {
                 </div>
               </form>
 
+              <AreaSearch tight />
+
               <a className="og-block" href={`/editorials/${slot1.slug}`}>
                 <div className="og-head">{slot1.headline}</div>
                 <div className="og-standfirst">{slot1.standfirst}</div>
@@ -156,15 +158,6 @@ export default async function HomePage() {
                 <p>{slot2.standfirst}</p>
               </a>
 
-              <section aria-label="Find your local authority" style={{ marginTop: '28px', marginBottom: '28px' }}>
-                <h2 style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 2px' }}>
-                  Local authority data
-                </h2>
-                <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', color: '#14100d', margin: '0 0 12px', letterSpacing: '0.04em' }}>
-                  Every UK council&rsquo;s spending, leadership, finances and welfare caseload on one page
-                </p>
-                <CouncilSearch />
-              </section>
 
               {whitehallItems.length > 0 && (
                 <section aria-label="Latest from Whitehall" style={{ marginTop: '28px', paddingTop: '18px', borderTop: '2px solid rgba(20,16,13,0.18)' }}>

@@ -45,7 +45,8 @@ const fmtNum = (n: number) => Math.round(n).toLocaleString('en-GB');
 const fmtPct = (p: number | null) => (p == null ? 'n/a' : `${p.toFixed(1)}%`);
 const fyLabel = (fye: number) => `${fye - 1}-${String(fye).slice(2)}`;
 
-export default async function CouncilChildPovertySection({ gssCodes, isCounty }: { gssCodes: string[]; isCounty: boolean }) {
+// Shared by this section and the area summary (/your-area), so both show the same figure.
+export async function loadChildPoverty(gssCodes: string[]) {
   if (gssCodes.length === 0) return null;
   const { data } = await supabase
     .from('council_child_poverty')
@@ -65,6 +66,13 @@ export default async function CouncilChildPovertySection({ gssCodes, isCounty }:
   if (!ahc && !bhc) return null;
   const release = rows[0].release_label;
 
+  return { latest, ahc, bhc, trend, release };
+}
+
+export default async function CouncilChildPovertySection({ gssCodes, isCounty }: { gssCodes: string[]; isCounty: boolean }) {
+  const loaded = await loadChildPoverty(gssCodes);
+  if (!loaded) return null;
+  const { latest, ahc, bhc, trend, release } = loaded;
   const stat = (label: string, fig: Figure | null, sub: string) =>
     fig && (
       <div style={{ flex: '1 1 220px', borderLeft: `3px solid ${INK}`, padding: '4px 0 4px 12px' }}>

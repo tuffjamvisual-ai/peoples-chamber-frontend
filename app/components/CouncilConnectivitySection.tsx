@@ -31,6 +31,30 @@ const fmtMonth = (iso: string) => `${MONTHS[Number(iso.slice(5, 7)) - 1]} ${iso.
 const fmtNum = (n: number) => Math.round(n).toLocaleString('en-GB');
 const pct = (n: number | null) => (n == null ? 'n/a' : `${n.toFixed(1)}%`);
 
+// For the area summary (/your-area): the same gigabit share this section leads with
+// (a county is the total of its districts, and only when every district has figures).
+export async function loadBroadbandHeadline(gssCodes: string[]) {
+  if (gssCodes.length === 0) return null;
+  const { data } = await supabase
+    .from('council_broadband')
+    .select('council_gss_code, data_month, all_premises, gigabit_n')
+    .in('council_gss_code', gssCodes)
+    .order('data_month', { ascending: false })
+    .limit(1000);
+  const all = (data ?? []) as { council_gss_code: string; data_month: string; all_premises: number; gigabit_n: number | null }[];
+  if (all.length === 0) return null;
+  const month = all[0].data_month;
+  const rows = all.filter((r) => r.data_month === month);
+  if (rows.length < gssCodes.length || rows.some((r) => r.gigabit_n == null)) return null;
+  const premises = rows.reduce((t, r) => t + Number(r.all_premises), 0);
+  if (!premises) return null;
+  return {
+    gigabitPct: (rows.reduce((t, r) => t + Number(r.gigabit_n), 0) / premises) * 100,
+    premises,
+    month: fmtMonth(month),
+  };
+}
+
 export default async function CouncilConnectivitySection({ gssCodes, isCounty }: { gssCodes: string[]; isCounty: boolean }) {
   if (gssCodes.length === 0) return null;
   const [{ data: bData }, { data: mData }] = await Promise.all([

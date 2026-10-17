@@ -42,6 +42,21 @@ function Heading() {
   );
 }
 
+// For the area summary (/your-area): the same latest year figures this section
+// leads with. gssCode is the highway authority (the county council in two tier areas).
+export async function loadRoadHeadline(gssCode: string | null) {
+  if (!gssCode || !/^[EWS]/.test(gssCode)) return null;
+  const { data } = await supabase.from('council_road_casualties').select('year, measure, casualties').eq('council_gss_code', gssCode).order('year', { ascending: false }).limit(50);
+  const rows = ((data ?? []) as { year: number; measure: string; casualties: number | null }[]);
+  if (rows.length === 0) return null;
+  const latest = rows[0].year;
+  const get = (m: string) => {
+    const v = rows.find((r) => r.year === latest && r.measure === m)?.casualties;
+    return v == null ? null : Number(v);
+  };
+  return { year: latest, killed: get('killed'), ksi: get('ksi_adjusted') ?? get('ksi_unadjusted'), all: get('all') };
+}
+
 export default async function CouncilRoadCasualtiesSection({
   gssCode,
   isDistrict,

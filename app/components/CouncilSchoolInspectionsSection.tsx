@@ -103,6 +103,21 @@ function Heading() {
   );
 }
 
+// For the area summary (/your-area): the same school and pupil counts this section
+// leads with, plus the number of schools in a category of concern. gssCode is the
+// education authority (the county council in two tier areas).
+export async function loadSchoolsHeadline(gssCode: string | null) {
+  if (!gssCode || !gssCode.startsWith('E')) return null;
+  const schools = await fetchSchools(gssCode);
+  if (schools.length === 0) return null;
+  return {
+    count: schools.length,
+    pupils: schools.reduce((t, s) => t + (s.pupils ?? 0), 0),
+    snapshot: fmtDate(schools[0].snapshot_date),
+    concern: schools.filter((s) => s.most_recent_category && CATEGORY[s.most_recent_category]).length,
+  };
+}
+
 export default async function CouncilSchoolInspectionsSection({
   gssCode,
   isDistrict,

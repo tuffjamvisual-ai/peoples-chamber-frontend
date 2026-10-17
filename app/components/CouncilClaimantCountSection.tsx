@@ -34,6 +34,31 @@ const fmtMonth = (iso: string) => `${MONTHS[Number(iso.slice(5, 7)) - 1]} ${iso.
 const fmtNum = (n: number) => Math.round(n).toLocaleString('en-GB');
 const fmtSigned = (n: number) => `${n > 0 ? '+' : n < 0 ? '−' : ''}${fmtNum(Math.abs(n))}`;
 
+// For the area summary (/your-area): the same latest count, rate and change on a
+// year earlier that this section leads with.
+export async function loadClaimantHeadline(gssCode: string | null) {
+  if (!gssCode) return null;
+  const { data } = await supabase
+    .from('council_claimant_count')
+    .select('month, claimants, rate')
+    .eq('council_gss_code', gssCode)
+    .not('claimants', 'is', null)
+    .order('month', { ascending: false })
+    .limit(13);
+  const rows = (data ?? []) as { month: string; claimants: number; rate: number | null }[];
+  if (rows.length === 0) return null;
+  const latest = rows[0];
+  const yearAgoMonth = `${Number(latest.month.slice(0, 4)) - 1}${latest.month.slice(4)}`;
+  const yearAgo = rows.find((r) => r.month === yearAgoMonth) ?? null;
+  return {
+    claimants: Number(latest.claimants),
+    month: fmtMonth(latest.month),
+    rate: latest.rate == null ? null : Number(latest.rate),
+    change: yearAgo ? Number(latest.claimants) - Number(yearAgo.claimants) : null,
+    yearAgoMonth: yearAgo ? fmtMonth(yearAgo.month) : null,
+  };
+}
+
 export default async function CouncilClaimantCountSection({ gssCode }: { gssCode: string | null }) {
   if (!gssCode) return null;
   // ~490 monthly rows per council (from January 1986), under PostgREST's 1,000-row cap.
