@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { fmtPeriod } from '@/lib/dashboard-format';
 
 // Compact embed of Broken State Dashboard headline indicators, for department and
 // topic pages. Reads dashboard_indicators for the services mapped to that page and
@@ -39,7 +40,7 @@ function fmt(v: number | null, unit: string): string {
 export default async function ServiceIndicator({ services }: { services: string[] }) {
   if (!services.length) return null;
   const { data } = await supabase.from('dashboard_indicators').select('*').in('service', services);
-  const rows = ((data || []) as Array<{ service: string; label: string; value: number; unit: string; trend: string }>);
+  const rows = ((data || []) as Array<{ service: string; label: string; value: number; unit: string; trend: string; period: string }>);
   if (!rows.length) return null;
   rows.sort((a, b) => services.indexOf(a.service) - services.indexOf(b.service));
 
@@ -54,15 +55,15 @@ export default async function ServiceIndicator({ services }: { services: string[
         Public services performance
       </h2>
       <p style={{ fontSize: '15px', color: INK, opacity: 0.75, marginBottom: '16px', maxWidth: '60ch' }}>
-        How the services this department runs are performing now, against a pre-pandemic baseline.
-        {worsening > 0 && <> <strong style={{ color: '#7a1612' }}>{worsening} worsening.</strong></>}
+        Latest official figures for these public services, with the direction of each measure over the long term.
+        {worsening > 0 && <> <strong style={{ color: '#7a1612' }}>{worsening} worsening over the long term.</strong></>}
       </p>
       <div style={{ border: `1px solid ${HAIRLINE}`, borderTop: `3px solid ${ACCENT}`, background: 'rgba(20,16,13,0.02)' }}>
         {rows.map((r, i) => {
           const t = TREND[r.trend] || TREND.flat;
           return (
             <div key={r.service + i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '14px', padding: '15px 18px', borderTop: i ? `1px solid ${HAIRLINE}` : 'none', borderLeft: `4px solid ${t.fg}` }}>
-              <span style={{ fontSize: '16px', color: INK }}>{r.label}</span>
+              <span style={{ fontSize: '16px', color: INK }}>{r.label} <span style={{ opacity: 0.6 }}>({fmtPeriod(r.period)})</span></span>
               <span style={{ display: 'flex', alignItems: 'baseline', gap: '12px', whiteSpace: 'nowrap' }}>
                 <strong style={{ fontSize: '23px', color: INK }}>{fmt(r.value, r.unit)}</strong>
                 <span style={{ fontSize: '15px', fontWeight: 'bold', color: t.fg }}>{t.mark} {t.label}</span>

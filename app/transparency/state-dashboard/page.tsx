@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
+import { fmtPeriod, fmtChange } from '@/lib/dashboard-format';
 
 export const revalidate = 3600;
 
@@ -21,6 +22,8 @@ type Ind = {
   baseline_value: number | null; baseline_period: string | null;
   trend: string; direction_good: string;
   source_name: string; update_method: string; definition_note: string | null;
+  recent_change: string | null; recent_direction: string | null;
+  source_url: string | null; checked_on: string | null;
 };
 
 const SERVICE_META: Record<string, { name: string }> = {
@@ -42,6 +45,11 @@ const TREND: Record<string, { label: string; fg: string; bg: string; mark: strin
   improving: { label: 'Improving', fg: '#2f6b3a', bg: 'rgba(47,107,58,0.12)', mark: '▲' },
   flat: { label: 'Broadly flat', fg: 'rgba(20,16,13,0.55)', bg: 'rgba(20,16,13,0.06)', mark: '▬' },
 };
+function fmtDay(d: string | null): string | null {
+  if (!d) return null;
+  const t = new Date(`${d}T12:00:00Z`);
+  return Number.isNaN(t.getTime()) ? null : t.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' });
+}
 const rank = (t: string) => (t === 'worsening' ? 0 : t === 'flat' ? 1 : 2);
 
 function fmt(v: number | null, unit: string): string {
@@ -49,11 +57,6 @@ function fmt(v: number | null, unit: string): string {
   if (unit === '%') return `${v}%`;
   if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(2)}m`;
   return v.toLocaleString('en-GB');
-}
-function delta(r: Ind): string | null {
-  if (r.baseline_value == null) return null;
-  if (r.unit === '%') { const d = r.value - r.baseline_value; return `${d > 0 ? '+' : ''}${d.toFixed(1)} pts`; }
-  const d = (r.value / r.baseline_value - 1) * 100; return `${d > 0 ? '+' : ''}${d.toFixed(0)}%`;
 }
 
 export default async function StateDashboard() {
@@ -83,11 +86,12 @@ export default async function StateDashboard() {
           The Broken State
         </h1>
         <p style={{ fontSize: '17px', lineHeight: 1.7, maxWidth: '680px', color: INK }}>
-          Nine public services, tracked from official government statistics against a pre-pandemic (2019) baseline. Each figure shows where it is now and which way it is heading.
+          Ten measures across nine public services, taken from official statistics. Each measure shows its latest figure, the change since its own starting point where a comparable figure exists, and its most recent movement with the period it covers.
         </p>
       </header>
 
       {/* At-a-glance summary */}
+      <p style={{ fontSize: '15px', color: INK, opacity: 0.7, marginBottom: '8px' }}>Direction of each measure over the long term (the recent direction where no comparable starting figure exists)</p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0', border: `1px solid ${HAIRLINE}`, marginBottom: '28px' }}>
         {(['worsening', 'flat', 'improving'] as const).map((k, i) => {
           const t = TREND[k];
@@ -111,21 +115,33 @@ export default async function StateDashboard() {
               <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', color: INK, opacity: 0.55, marginBottom: '10px' }}>{SERVICE_META[s].name}</p>
               {inds.map((r, i) => {
                 const t = TREND[r.trend] || TREND.flat;
-                const d = delta(r);
+                const rt = r.recent_direction ? TREND[r.recent_direction] || TREND.flat : null;
+                const d = fmtChange(r);
+                const checked = fmtDay(r.checked_on);
                 return (
                   <div key={r.indicator_key} style={{ borderTop: i ? `1px solid ${HAIRLINE}` : 'none', paddingTop: i ? '14px' : 0, marginTop: i ? '14px' : 0 }}>
                     <div style={{ fontSize: '15px', color: INK, marginBottom: '6px', lineHeight: 1.3 }}>{r.label}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                      <span style={{ fontSize: '34px', fontWeight: 'bold', color: INK, lineHeight: 1 }}>{fmt(r.value, r.unit)}</span>
-                      <span style={{ fontSize: '15px', fontWeight: 'bold', color: t.fg, background: t.bg, padding: '3px 9px', borderRadius: 20 }}>{t.mark} {t.label}</span>
-                    </div>
+                    <div style={{ fontSize: '34px', fontWeight: 'bold', color: INK, lineHeight: 1 }}>{fmt(r.value, r.unit)}</div>
+                    <div style={{ fontSize: '15px', color: INK, opacity: 0.6, marginTop: '6px' }}>As of {fmtPeriod(r.period)}</div>
                     {d && r.baseline_period && (
-                      <div style={{ fontSize: '15px', color: t.fg, fontWeight: 'bold', marginTop: '8px' }}>{d} <span style={{ color: INK, opacity: 0.6, fontWeight: 'normal' }}>since {r.baseline_period}</span></div>
+                      <div style={{ fontSize: '15px', marginTop: '8px', lineHeight: 1.45 }}>
+                        <span style={{ fontWeight: 'bold', color: t.fg, background: t.bg, padding: '2px 8px', borderRadius: 20 }}>{t.mark} {t.label}</span>{' '}
+                        <span style={{ color: INK }}>Since {fmtPeriod(r.baseline_period)}: <strong style={{ color: t.fg }}>{d}</strong></span>
+                      </div>
                     )}
-                    <div style={{ fontSize: '15px', color: INK, opacity: 0.6, marginTop: '4px' }}>As of {r.period} · {r.update_method === 'auto' ? 'auto-updated' : 'reviewed quarterly'}</div>
+                    {r.recent_change && rt && (
+                      <div style={{ fontSize: '15px', marginTop: '8px', lineHeight: 1.45 }}>
+                        <span style={{ fontWeight: 'bold', color: rt.fg, background: rt.bg, padding: '2px 8px', borderRadius: 20 }}>{rt.mark} {rt.label}</span>{' '}
+                        <span style={{ color: INK }}>Recent: {r.recent_change}</span>
+                      </div>
+                    )}
                     {r.definition_note && <div style={{ fontSize: '15px', color: INK, opacity: 0.75, marginTop: '10px', lineHeight: 1.55 }}>{r.definition_note}</div>}
                     <div style={{ fontSize: '15px', color: INK, opacity: 0.6, marginTop: '10px' }}>
-                      Source: {r.source_name}
+                      Source:{' '}
+                      {r.source_url
+                        ? <a href={r.source_url} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline' }}>{r.source_name}</a>
+                        : r.source_name}
+                      {checked && <> · Checked against the source on {checked}</>}
                       {COUNCIL_LINKED.has(r.service) && <> · <a href="/councils" style={{ color: ACCENT, textDecoration: 'underline' }}>by council</a></>}
                     </div>
                   </div>
@@ -137,7 +153,7 @@ export default async function StateDashboard() {
       </div>
 
       <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '680px', color: INK, opacity: 0.7, marginTop: '32px' }}>
-        Figures are for England, except the justice indicators (police, criminal courts and prisons), which cover England and Wales. Automated indicators are parsed directly from the published data file; the rest are reviewed each quarter. Where a definition changes, the series is versioned rather than spliced.
+        Figures are for England, except the justice indicators (police, criminal courts and prisons), which cover England and Wales. Each figure is entered by hand from the source named on its card and shows the date it was last checked. Where a published measure changes, no change over the long term is shown rather than joining two different series.
       </p>
     </OpenGovShell>
   );

@@ -14,7 +14,16 @@ Tuned & verified against live files: ae, rtt, homelessness, courts, prisons.
 charge (Home Office outcomes) still a scaffold: the % is not a single cell and must
 be computed from charged-count / total-offences in the outcomes table.
 """
-import sys, re, subprocess, io
+import sys, re, subprocess, io, datetime
+
+
+def nhs_year(lag_days):
+    # NHS England files each financial year (April to March) on its own page, named like "2026-27".
+    # Data is published weeks after the month it covers, so pick the year of the month the latest
+    # file is about, not of today.
+    d = datetime.date.today() - datetime.timedelta(days=lag_days)
+    start = d.year if d.month >= 4 else d.year - 1
+    return f"{start}-{str(start + 1)[2:]}"
 import pandas as pd
 
 def curl(url, binary=True):
@@ -28,7 +37,7 @@ def find_link(page_url, pattern):
 
 # ---- A&E all-types 4-hour % (NHS monthly CSV) ---------------------------------
 def ae():
-    page = "https://www.england.nhs.uk/statistics/statistical-work-areas/ae-waiting-times-and-activity/ae-attendances-and-emergency-admissions-2025-26/"
+    page = "https://www.england.nhs.uk/statistics/statistical-work-areas/ae-waiting-times-and-activity/ae-attendances-and-emergency-admissions-" + nhs_year(45) + "/"
     csv = find_link(page, r'Monthly-AE.*\.csv')
     df = pd.read_csv(io.BytesIO(curl(csv)), low_memory=False)
     att = [c for c in df.columns if re.search(r'A&E attendances', c, re.I)]
@@ -40,7 +49,7 @@ def ae():
 
 # ---- RTT incomplete pathways with estimates (NHS Overview Timeseries XLSX) -----
 def rtt():
-    page = "https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-data-2026-27/"
+    page = "https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-data-" + nhs_year(75) + "/"
     x = find_link(page, r'RTT-Overview-Timeseries.*\.xlsx')
     df = pd.read_excel(io.BytesIO(curl(x)), sheet_name='Full Time Series', header=None)
     # the with-estimates total is the largest incomplete stock (4-10m band)
