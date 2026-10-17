@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import OpenGovShell from '../components/OpenGovShell'
 import BackLink from '../components/BackLink';
+import { balanceColumns, TWO_COLUMN_CSS } from '@/lib/balance-columns'
 
 export const revalidate = 3600
 
@@ -43,8 +44,8 @@ export default function ContactPage() {
   return (
     <OpenGovShell pageStamp="Contact">
       <style>{`
-        .c-card { transition: background-color 150ms ease, border-color 150ms ease; }
-        .c-card:hover { background-color: rgba(20,16,13,0.06); border-left-color: ${INK}; }
+        .c-card h2 { transition: color 150ms ease; }
+        .c-card:hover h2 { color: #6b2417; text-decoration: underline; text-underline-offset: 3px; }
       `}</style>
 
       <BackLink
@@ -72,19 +73,25 @@ export default function ContactPage() {
         </p>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
-        {CHANNELS.map((c) => (
-          <a
-            key={c.subject}
-            href={`mailto:${EMAIL}?subject=${encodeURIComponent(c.subject)}`}
-            className="c-card no-hover-scale"
-            style={{ display: 'block', padding: '18px 20px', border: '1px solid rgba(20,16,13,0.25)', borderLeft: '3px solid rgba(20,16,13,0.4)', color: INK, textDecoration: 'none' }}
-          >
-            <h2 style={{ fontSize: '21px', fontWeight: 'bold', marginBottom: '6px', lineHeight: 1.15 }}>
-              {c.label} <span style={{ opacity: 0.55 }}>→</span>
-            </h2>
-            <p style={{ fontSize: '15px', lineHeight: 1.6, opacity: 0.85 }}>{c.body}</p>
-          </a>
+      {/* Two balanced columns, no boxes. */}
+      <style>{TWO_COLUMN_CSS}</style>
+      <div className="og-two">
+        {balanceColumns(CHANNELS, (c) => 3 + c.body.length / 45).map((col, ci) => (
+          <div key={ci}>
+            {col.map((c) => (
+              <a
+                key={c.subject}
+                href={`mailto:${EMAIL}?subject=${encodeURIComponent(c.subject)}`}
+                className="c-card no-hover-scale"
+                style={{ display: 'block', padding: '14px 0 18px', borderTop: '1px solid rgba(20,16,13,0.25)', color: INK, textDecoration: 'none' }}
+              >
+                <h2 style={{ fontSize: '21px', fontWeight: 'bold', marginBottom: '6px', lineHeight: 1.15 }}>
+                  {c.label} <span style={{ opacity: 0.55 }}>→</span>
+                </h2>
+                <p style={{ fontSize: '15px', lineHeight: 1.6, opacity: 0.85 }}>{c.body}</p>
+              </a>
+            ))}
+          </div>
         ))}
       </div>
 

@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
+import { balanceColumns, TWO_COLUMN_CSS } from '@/lib/balance-columns';
 
 export const revalidate = 86400;
 
@@ -25,9 +26,7 @@ export const metadata: Metadata = {
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.25)';
-const CREAM = '#ebe5d8';
 const ACCENT = '#7a1612';
-const DANGER = '#a64030';
 
 // Pull headline numbers from the data so each tile carries a real
 // figure. Done as a single Promise.all batch.
@@ -79,59 +78,53 @@ export default async function MoneyLanding() {
         </p>
       </header>
 
+      {/* Two columns of links, no boxes. */}
+      <style>{TWO_COLUMN_CSS}</style>
       <section style={{ marginBottom: '40px' }}>
         <h2 style={sectionH2}>Headline links between registers</h2>
         <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '20px' }}>Four places where two registers name the same people or organisations.</p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '18px' }}>
-          <HeroTile
-            href="/donations/double-dip"
-            label="Employer and donor"
-            headline="MPs paid by a body that also donated to them"
-            teaser="Organisations listed in an MP's register both as a paying employer or client and as a donor to that MP. Each pairing comes from the MP's own declarations."
-          />
-          <HeroTile
-            href="/donations/government-contractors"
-            label="Public contractors who donate"
-            headline="Companies with public contracts that also donate"
-            teaser="Companies that appear both in the government contracts records and in the Electoral Commission's donations register, with the totals from each."
-          />
-          <HeroTile
-            href="/donations/sponsored-visits"
-            label="Who paid for MPs to travel"
-            headline={`${n.sponsored.toLocaleString()} declared paid trips`}
-            teaser="Every overseas visit MPs declared as paid for by someone else, ranked by who paid, with the number of trips and their declared value."
-          />
-          <HeroTile
-            href="/donors"
-            label="Donor profiles"
-            headline="Each donor's donations, contracts and APPG funding together"
-            teaser="A donor's profile shows its political donations and, where the same organisation holds public contracts or funds APPGs, those records too."
-          />
+        <div className="og-two">
+          {balanceColumns([
+          { href: '/donations/double-dip', label: 'Employer and donor', headline: 'MPs paid by a body that also donated to them', teaser: "Organisations listed in an MP's register both as a paying employer or client and as a donor to that MP. Each pairing comes from the MP's own declarations." },
+          { href: '/donations/government-contractors', label: 'Public contractors who donate', headline: 'Companies with public contracts that also donate', teaser: "Companies that appear both in the government contracts records and in the Electoral Commission's donations register, with the totals from each." },
+          { href: '/donations/sponsored-visits', label: 'Who paid for MPs to travel', headline: `${n.sponsored.toLocaleString()} declared paid trips`, teaser: 'Every overseas visit MPs declared as paid for by someone else, ranked by who paid, with the number of trips and their declared value.' },
+          { href: '/donors', label: 'Donor profiles', headline: "Each donor's donations, contracts and APPG funding together", teaser: "A donor's profile shows its political donations and, where the same organisation holds public contracts or funds APPGs, those records too." },
+          ], (t) => 4 + t.teaser.length / 45).map((col, ci) => (
+            <div key={ci}>{col.map((t) => <HeroTile key={t.href} {...t} />)}</div>
+          ))}
         </div>
       </section>
 
       <section style={{ marginBottom: '40px' }}>
         <h2 style={sectionH2}>Sector and contest pivots</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
-          <SecondaryTile href="/donations/foreign" label="Money from abroad" sub={`${n.foreign.toLocaleString()} declared donations from outside the UK, by country.`} />
-          <SecondaryTile href="/donations/leadership-contests" label="Money in leadership races" sub="Donations declared for party leadership contests, by contest and candidate." />
-          <SecondaryTile href="/donations/constituencies" label="Money by constituency" sub="Donations to local parties and candidates, totalled by constituency." />
-          <SecondaryTile href="/donations/bequest" label="Bequests" sub="Money left to parties in wills, as declared to the Electoral Commission, by party and estate." />
-          <SecondaryTile href="/secretariats" label="APPG secretariats" sub="The organisations that run APPG secretariats, and how many groups each runs." />
-          <SecondaryTile href="/appg-funders" label={`APPG funders · ${n.appgFunders}`} sub="Who funds APPGs, and how many groups each funds." />
+        <div className="og-two">
+          {balanceColumns([
+            { href: '/donations/foreign', label: 'Money from abroad', sub: `${n.foreign.toLocaleString()} declared donations from outside the UK, by country.` },
+            { href: '/donations/leadership-contests', label: 'Money in leadership races', sub: 'Donations declared for party leadership contests, by contest and candidate.' },
+            { href: '/donations/constituencies', label: 'Money by constituency', sub: 'Donations to local parties and candidates, totalled by constituency.' },
+            { href: '/donations/bequest', label: 'Bequests', sub: 'Money left to parties in wills, as declared to the Electoral Commission, by party and estate.' },
+            { href: '/secretariats', label: 'APPG secretariats', sub: 'The organisations that run APPG secretariats, and how many groups each runs.' },
+            { href: '/appg-funders', label: `APPG funders · ${n.appgFunders}`, sub: 'Who funds APPGs, and how many groups each funds.' },
+          ], (t) => 2 + t.sub.length / 45).map((col, ci) => (
+            <div key={ci}>{col.map((t) => <SecondaryTile key={t.href} {...t} />)}</div>
+          ))}
         </div>
       </section>
 
       <section style={{ marginBottom: '40px' }}>
         <h2 style={sectionH2}>Reporting and compliance</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
-          <SecondaryTile href="/donations/late-disclosed" label="Late disclosures" sub="Donations reported to the Electoral Commission long after they were accepted, with the gap in days." />
-          <SecondaryTile href="/donations/impermissible" label="Returned donations" sub="Donations the Electoral Commission records as impermissible, and what happened to them." />
-          <SecondaryTile href="/donations/trust-funded" label="Money routed via trusts" sub={`${n.trust} declared donations from trusts, by trust and recipient.`} />
+        <div className="og-two">
+          {balanceColumns([
+            { href: '/donations/late-disclosed', label: 'Late disclosures', sub: 'Donations reported to the Electoral Commission long after they were accepted, with the gap in days.' },
+            { href: '/donations/impermissible', label: 'Returned donations', sub: 'Donations the Electoral Commission records as impermissible, and what happened to them.' },
+            { href: '/donations/trust-funded', label: 'Money routed via trusts', sub: `${n.trust} declared donations from trusts, by trust and recipient.` },
+          ], (t) => 2 + t.sub.length / 45).map((col, ci) => (
+            <div key={ci}>{col.map((t) => <SecondaryTile key={t.href} {...t} />)}</div>
+          ))}
         </div>
       </section>
 
-      <section style={{ background: CREAM, padding: '18px 22px', fontSize: '15px', lineHeight: 1.65, borderLeft: `3px solid ${DANGER}` }}>
+      <section style={{ fontSize: '15px', lineHeight: 1.65, borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '14px' }}>
         <strong>What none of this is.</strong> A pattern visible on more than one public register is not evidence of wrongdoing. UK MPs are legally allowed to take outside employment income, attend visits paid for by foreign governments, accept political donations, and officer All-Party Parliamentary Groups provided each is declared on its appropriate register. UK companies are legally allowed to bid for public contracts and donate to political parties provided each is declared. What none of this is is hidden. What much of it has been until now is unfindable. Putting it in one place is the work.
       </section>
 
@@ -144,7 +137,7 @@ export default async function MoneyLanding() {
 
 function HeroTile({ href, label, headline, teaser }: { href: string; label: string; headline: string; teaser: string }) {
   return (
-    <Link href={href} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, padding: '18px 20px', border: `1px solid ${INK_HAIRLINE}`, background: CREAM, transition: 'transform 0.15s ease' }}>
+    <Link href={href} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, padding: '14px 0 20px', borderTop: `1px solid ${INK_HAIRLINE}` }}>
       <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', opacity: 0.75, marginBottom: '8px', color: ACCENT, fontFamily: '"Special Elite", monospace' }}>{label}</div>
       <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '20px', fontWeight: 'bold', lineHeight: 1.2, marginBottom: '10px' }}>{headline}</div>
       <p style={{ fontFamily: '"Special Elite", monospace', fontSize: '15px', lineHeight: 1.55, opacity: 0.8, margin: 0 }}>{teaser}</p>
@@ -155,7 +148,7 @@ function HeroTile({ href, label, headline, teaser }: { href: string; label: stri
 
 function SecondaryTile({ href, label, sub }: { href: string; label: string; sub: string }) {
   return (
-    <Link href={href} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, padding: '12px 14px', border: `1px solid ${INK_HAIRLINE}` }}>
+    <Link href={href} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, padding: '12px 0 16px', borderTop: `1px solid ${INK_HAIRLINE}` }}>
       <div style={{ fontFamily: '"Special Elite", monospace', fontSize: '15px', fontWeight: 'bold', color: ACCENT, marginBottom: '6px' }}>{label} &rarr;</div>
       <p style={{ fontSize: '15px', lineHeight: 1.55, opacity: 0.8, margin: 0 }}>{sub}</p>
     </Link>

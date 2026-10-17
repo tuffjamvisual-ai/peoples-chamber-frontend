@@ -8,7 +8,10 @@
 
 import type { Metadata } from 'next';
 import type { CSSProperties, ReactNode } from 'react';
+import { redirect } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { POSTCODE_RE, cleanPostcode, codesForPostcode, codesForPoint, findPlaces, findCouncilByName, LookupError } from '@/lib/area-lookup';
+import type { AreaCodes, Place } from '@/lib/area-lookup';
 import { normaliseParty } from '@/lib/party-helpers';
 import OpenGovShell from '../components/OpenGovShell';
 import AreaSearch from '../components/AreaSearch';
@@ -23,6 +26,7 @@ import { loadRoadHeadline } from '../components/CouncilRoadCasualtiesSection';
 import { loadBroadbandHeadline } from '../components/CouncilConnectivitySection';
 import { getAreaTotals, getCouncilRefs, countyTotals, latestYears, nationOfCode, rankByHours, ordinal as sewageOrdinal } from '@/lib/sewage';
 import { getLeagueData, bandLabel, ordinal } from '@/lib/council-league';
+import { balanceColumns, TWO_COLUMN_CSS } from '@/lib/balance-columns';
 
 export const dynamic = 'force-dynamic';
 
@@ -80,9 +84,58 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
   const place = one(sp.place).replace(/[^\p{L}\p{N} '’.,()-]/gu, '').slice(0, 60) || null;
 
   if (!councilCode && !constituencyCode) {
+    // A search sent without the page script (?q=, or ?lat=&lon=&place= after picking
+    // a place): look it up here and go to the codes address, never keeping the postcode.
+    const q = one(sp.q).trim().slice(0, 60);
+    const lat = Number(one(sp.lat)), lon = Number(one(sp.lon));
+    let target: (AreaCodes & { place: string | null }) | null = null;
+    let choices: Place[] = [];
+    let message: string | null = null;
+    try {
+      if (one(sp.lat) && one(sp.lon)) {
+        target = { ...(await codesForPoint(lat, lon)), place };
+      } else if (q) {
+        if (POSTCODE_RE.test(cleanPostcode(q))) {
+          target = { ...(await codesForPostcode(q)), place: null };
+        } else {
+          const council = await findCouncilByName(q);
+          if (council) {
+            target = { councilCode: council.gss_code, councilName: council.name, constituencyCode: null, constituencyName: null, place: null };
+          } else {
+            const places = await findPlaces(q);
+            if (places.length === 1) target = { ...(await codesForPoint(places[0].lat, places[0].lon)), place: places[0].name };
+            else if (places.length > 1) choices = places;
+            else message = 'No town, village or council has that name. Check the spelling or enter a postcode.';
+          }
+        }
+      }
+    } catch (e) {
+      message = e instanceof LookupError ? e.message : 'Lookup is unavailable right now. Please try again.';
+    }
+    if (target && (target.councilCode || target.constituencyCode)) {
+      const p = new URLSearchParams();
+      if (target.councilCode) p.set('council', target.councilCode);
+      if (target.constituencyCode) p.set('constituency', target.constituencyCode);
+      if (target.place) p.set('place', target.place);
+      redirect(`/your-area?${p.toString()}`);
+    }
     return (
       <Shell>
-        <p style={para}>Enter a postcode or a town to see your MP, your council and the latest figures for your area.</p>
+        {message && <p style={{ ...para, color: ACCENT }}>{message}</p>}
+        {choices.length > 0 ? (
+          <>
+            <p style={para}>More than one place has that name. Which one?</p>
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 12px' }}>
+              {choices.map((c) => (
+                <li key={c.label} style={{ ...para, marginBottom: '4px' }}>
+                  <a href={`/your-area?lat=${c.lat}&lon=${c.lon}&place=${encodeURIComponent(c.name)}`} style={link}>{c.label}</a>
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          !message && <p style={para}>Enter a postcode, town or council to see your MP, your council and the latest figures for your area.</p>
+        )}
       </Shell>
     );
   }
@@ -338,9 +391,9 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
     if (i >= 0) missing.splice(i, 1);
   }
 
-  // Share the topics between two columns of even height: each topic goes to the
-  // shorter column so far, judged by how much text it holds (headline text is
-  // larger, so it counts double). Order is kept within each column.
+  // Two columns of even height, cut once so the reading order runs down the left
+  // column and then the right. Height is judged by how much text a topic holds
+  // (headline text is larger, so it counts double).
   const textLen = (n: ReactNode): number => {
     if (n == null || typeof n === 'boolean') return 0;
     if (typeof n === 'string' || typeof n === 'number') return String(n).length;
@@ -349,14 +402,7 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
     const inner = textLen(el.props?.children ?? null);
     return el.props?.style === big ? inner * 2 : inner;
   };
-  const columns: Card[][] = [[], []];
-  const heights = [0, 0];
-  for (const c of cards) {
-    const w = 120 + textLen(c.lines);
-    const i = heights[0] <= heights[1] ? 0 : 1;
-    columns[i].push(c);
-    heights[i] += w;
-  }
+  const columns = balanceColumns(cards, (c) => 120 + textLen(c.lines));
 
   const control = (c: Council) =>
     c.political_control ? (c.political_control === 'No overall control' ? 'No party has overall control' : `Run by ${c.political_control}`) : null;
@@ -371,8 +417,8 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
 
       {/* Two newspaper columns, no boxes: items flow down one column then the next,
           so a short item never leaves a gap beside a long one. One column on phones. */}
-      <style>{`.ya-two{display:grid;grid-template-columns:1fr 1fr;column-gap:44px;align-items:start}@media (max-width:760px){.ya-two{grid-template-columns:1fr}}`}</style>
-      <div className="ya-two" style={{ marginBottom: '8px' }}>
+      <style>{TWO_COLUMN_CSS}</style>
+      <div className="og-two" style={{ marginBottom: '8px' }}>
         <section style={{ borderTop: `3px solid ${ACCENT}`, padding: '14px 0 18px' }}>
           <h2 style={h2}>{!constituencyCode && areaMps.length > 1 ? 'MPs for this area' : 'Your MP'}</h2>
           {!constituencyCode && areaMps.length > 0 ? (
@@ -418,7 +464,7 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
       </div>
 
       {cards.length > 0 && (
-        <div className="ya-two">
+        <div className="og-two">
           {columns.map((col, ci) => (
             <div key={ci}>
               {col.map((c) => (

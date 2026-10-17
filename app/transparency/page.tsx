@@ -3,6 +3,7 @@ import Link from 'next/link'
 import OpenGovShell from '../components/OpenGovShell'
 import BackLink from '../components/BackLink';
 import JsonLd from '@/lib/JsonLd';
+import { balanceColumns, TWO_COLUMN_CSS } from '@/lib/balance-columns'
 
 export const revalidate = 3600
 
@@ -54,8 +55,8 @@ export default function TransparencyHubPage() {
     <OpenGovShell pageStamp="Transparency">
       <JsonLd data={JSONLD_WEBPAGE} />
       <style>{`
-        .t-card { transition: background-color 150ms ease, border-color 150ms ease; }
-        .t-card:hover { background-color: rgba(20,16,13,0.06); border-left-color: ${INK}; }
+        .t-card h2 { transition: color 150ms ease; }
+        .t-card:hover h2 { color: #6b2417; text-decoration: underline; text-underline-offset: 3px; }
       `}</style>
 
       <BackLink
@@ -77,22 +78,28 @@ export default function TransparencyHubPage() {
         </p>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
-        {SECTIONS.map((s, i) => (
-          <Link
-            key={s.slug}
-            href={s.href ?? `/transparency/${s.slug}`}
-            className="t-card no-hover-scale"
-            style={{ display: 'block', padding: '18px 20px', border: '1px solid rgba(20,16,13,0.25)', borderLeft: '3px solid rgba(20,16,13,0.4)', color: INK, textDecoration: 'none' }}
-          >
-            <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', opacity: 0.55, marginBottom: '8px' }}>
-              Dataset · {String(i + 1).padStart(2, '0')}
-            </div>
-            <h2 style={{ fontSize: '21px', fontWeight: 'bold', marginBottom: '6px', lineHeight: 1.15 }}>
-              {s.title} <span style={{ opacity: 0.55 }}>→</span>
-            </h2>
-            <p style={{ fontSize: '15px', lineHeight: 1.6, opacity: 0.85 }}>{s.description}</p>
-          </Link>
+      {/* Two balanced columns, no boxes; reading order runs down the left column, then the right. */}
+      <style>{TWO_COLUMN_CSS}</style>
+      <div className="og-two">
+        {balanceColumns(SECTIONS.map((s, i) => ({ s, i })), ({ s }) => 4 + s.description.length / 45).map((col, ci) => (
+          <div key={ci}>
+            {col.map(({ s, i }) => (
+              <Link
+                key={s.slug}
+                href={s.href ?? `/transparency/${s.slug}`}
+                className="t-card no-hover-scale"
+                style={{ display: 'block', padding: '14px 0 18px', borderTop: '1px solid rgba(20,16,13,0.25)', color: INK, textDecoration: 'none' }}
+              >
+                <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', opacity: 0.55, marginBottom: '8px' }}>
+                  Dataset · {String(i + 1).padStart(2, '0')}
+                </div>
+                <h2 style={{ fontSize: '21px', fontWeight: 'bold', marginBottom: '6px', lineHeight: 1.15 }}>
+                  {s.title} <span style={{ opacity: 0.55 }}>→</span>
+                </h2>
+                <p style={{ fontSize: '15px', lineHeight: 1.6, opacity: 0.85 }}>{s.description}</p>
+              </Link>
+            ))}
+          </div>
         ))}
       </div>
     </OpenGovShell>

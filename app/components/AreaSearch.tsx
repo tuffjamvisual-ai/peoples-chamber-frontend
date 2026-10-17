@@ -32,6 +32,14 @@ export default function AreaSearch({ tight = false }: { tight?: boolean }) {
   const [open, setOpen] = useState(false);
   const boxRef = useRef<HTMLElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // The box is uncontrolled, so anything typed before the page finishes loading
+  // stays in it; pick that text up once the script is running.
+  useEffect(() => {
+    const v = inputRef.current?.value ?? '';
+    if (v) setQ(v);
+  }, []);
 
   // Council suggestions while a name is typed (not for postcodes).
   useEffect(() => {
@@ -95,20 +103,25 @@ export default function AreaSearch({ tight = false }: { tight?: boolean }) {
 
   function onSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!q.trim()) return;
+    const text = (inputRef.current?.value ?? q).trim();
+    if (!text) return;
     setChoices([]);
     setOpen(false);
-    lookup(`/api/area/lookup?q=${encodeURIComponent(q.trim())}`);
+    lookup(`/api/area/lookup?q=${encodeURIComponent(text)}`);
   }
 
   return (
     <section ref={boxRef} aria-label="Your area" style={{ marginTop: tight ? '-16px' : 0, marginBottom: '28px' }}>
-      <form onSubmit={onSubmit}>
+      {/* Without the script (or before it has loaded) the form still works: it goes to
+          /your-area?q=..., which does the same lookup on the server. */}
+      <form action="/your-area" method="get" onSubmit={onSubmit}>
         <div style={{ position: 'relative' }}>
           <input
             aria-label="Your postcode, town or council"
+            ref={inputRef}
             type="text"
-            value={q}
+            name="q"
+            defaultValue=""
             onChange={(e) => { setQ(e.target.value); setError(null); }}
             onFocus={() => councils.length > 0 && setOpen(true)}
             autoComplete="postal-code"

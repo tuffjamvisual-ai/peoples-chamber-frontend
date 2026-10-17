@@ -3,6 +3,7 @@ import Link from 'next/link';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import { topics } from '@/lib/topics';
+import { balanceColumns, TWO_COLUMN_CSS } from '@/lib/balance-columns';
 
 export const revalidate = 86400;
 
@@ -43,19 +44,25 @@ export default function TopicsIndexPage() {
         </p>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
-        {topics.map((t) => (
-          <Link
-            key={t.slug}
-            href={`/topics/${t.slug}`}
-            className="no-hover-scale"
-            style={{ display: 'block', textDecoration: 'none', color: INK, border: `1px solid ${HAIRLINE}`, padding: '18px 20px', background: 'rgba(122,22,18,0.02)' }}
-          >
-            <div style={{ fontFamily: MONO, fontSize: 'clamp(18px, 2vw, 22px)', fontWeight: 'bold', marginBottom: '8px' }}>
-              {t.title} <span style={{ color: ACCENT }}>→</span>
-            </div>
-            <p style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0 }}>{firstSentence(t.blurb)}</p>
-          </Link>
+      {/* Two balanced columns, no boxes. */}
+      <style>{TWO_COLUMN_CSS}</style>
+      <div className="og-two">
+        {balanceColumns(topics, (t) => 3 + firstSentence(t.blurb).length / 45).map((col, ci) => (
+          <div key={ci}>
+            {col.map((t) => (
+              <Link
+                key={t.slug}
+                href={`/topics/${t.slug}`}
+                className="no-hover-scale"
+                style={{ display: 'block', textDecoration: 'none', color: INK, borderTop: `1px solid ${HAIRLINE}`, padding: '14px 0 18px' }}
+              >
+                <div style={{ fontFamily: MONO, fontSize: 'clamp(18px, 2vw, 22px)', fontWeight: 'bold', marginBottom: '8px' }}>
+                  {t.title} <span style={{ color: ACCENT }}>→</span>
+                </div>
+                <p style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0 }}>{firstSentence(t.blurb)}</p>
+              </Link>
+            ))}
+          </div>
         ))}
       </div>
 

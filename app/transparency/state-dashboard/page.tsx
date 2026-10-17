@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import { fmtPeriod, fmtChange } from '@/lib/dashboard-format';
+import { balanceColumns, TWO_COLUMN_CSS } from '@/lib/balance-columns';
 
 export const revalidate = 3600;
 
@@ -74,6 +75,54 @@ export default async function StateDashboard() {
     flat: rows.filter((r) => r.trend === 'flat').length,
   };
 
+  const renderService = (s: string) => {
+    const inds = byService.get(s)!.slice().sort((a, b) => rank(a.trend) - rank(b.trend));
+    const cardTrend = inds.reduce((w, r) => (rank(r.trend) < rank(w) ? r.trend : w), 'improving');
+    const accent = TREND[cardTrend].fg;
+    return (
+      <section key={s} style={{ borderTop: `3px solid ${accent}`, padding: '14px 0 22px' }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', color: INK, opacity: 0.55, marginBottom: '10px' }}>{SERVICE_META[s].name}</p>
+        {inds.map((r, i) => {
+          const t = TREND[r.trend] || TREND.flat;
+          const rt = r.recent_direction ? TREND[r.recent_direction] || TREND.flat : null;
+          const d = fmtChange(r);
+          const checked = fmtDay(r.checked_on);
+          return (
+            <div key={r.indicator_key} style={{ borderTop: i ? `1px solid ${HAIRLINE}` : 'none', paddingTop: i ? '14px' : 0, marginTop: i ? '14px' : 0 }}>
+              <div style={{ fontSize: '15px', color: INK, marginBottom: '6px', lineHeight: 1.3 }}>{r.label}</div>
+              <div style={{ fontSize: '34px', fontWeight: 'bold', color: INK, lineHeight: 1 }}>{fmt(r.value, r.unit)}</div>
+              <div style={{ fontSize: '15px', color: INK, opacity: 0.6, marginTop: '6px' }}>As of {fmtPeriod(r.period)}</div>
+              {d && r.baseline_period && (
+                <div style={{ fontSize: '15px', marginTop: '8px', lineHeight: 1.45 }}>
+                  <span style={{ fontWeight: 'bold', color: t.fg, background: t.bg, padding: '2px 8px', borderRadius: 20 }}>{t.mark} {t.label}</span>{' '}
+                  <span style={{ color: INK }}>Since {fmtPeriod(r.baseline_period)}: <strong style={{ color: t.fg }}>{d}</strong></span>
+                </div>
+              )}
+              {r.recent_change && rt && (
+                <div style={{ fontSize: '15px', marginTop: '8px', lineHeight: 1.45 }}>
+                  <span style={{ fontWeight: 'bold', color: rt.fg, background: rt.bg, padding: '2px 8px', borderRadius: 20 }}>{rt.mark} {rt.label}</span>{' '}
+                  <span style={{ color: INK }}>Recent: {r.recent_change}</span>
+                </div>
+              )}
+              {r.definition_note && <div style={{ fontSize: '15px', color: INK, opacity: 0.75, marginTop: '10px', lineHeight: 1.55 }}>{r.definition_note}</div>}
+              <div style={{ fontSize: '15px', color: INK, opacity: 0.6, marginTop: '10px' }}>
+                Source:{' '}
+                {r.source_url
+                  ? <a href={r.source_url} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline' }}>{r.source_name}</a>
+                  : r.source_name}
+                {checked && <> · Checked against the source on {checked}</>}
+                {COUNCIL_LINKED.has(r.service) && <> · <a href="/councils" style={{ color: ACCENT, textDecoration: 'underline' }}>by council</a></>}
+              </div>
+            </div>
+          );
+        })}
+      </section>
+    );
+  };
+  // Height estimate: each measure's lines plus its note.
+  const serviceColumns = balanceColumns(services, (s) =>
+    byService.get(s)!.reduce((t, r) => t + 6 + (r.recent_change ? 1 : 0) + (r.definition_note ? r.definition_note.length / 55 : 0), 2));
+
   return (
     <OpenGovShell pageStamp="Broken State">
       <a href="/transparency" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}>
@@ -92,7 +141,7 @@ export default async function StateDashboard() {
 
       {/* At-a-glance summary */}
       <p style={{ fontSize: '15px', color: INK, opacity: 0.7, marginBottom: '8px' }}>Direction of each measure over the long term (the recent direction where no comparable starting figure exists)</p>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0', border: `1px solid ${HAIRLINE}`, marginBottom: '28px' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0', marginBottom: '28px' }}>
         {(['worsening', 'flat', 'improving'] as const).map((k, i) => {
           const t = TREND[k];
           return (
@@ -104,52 +153,15 @@ export default async function StateDashboard() {
         })}
       </div>
 
-      {/* Service cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
-        {services.map((s) => {
-          const inds = byService.get(s)!.slice().sort((a, b) => rank(a.trend) - rank(b.trend));
-          const cardTrend = inds.reduce((w, r) => (rank(r.trend) < rank(w) ? r.trend : w), 'improving');
-          const accent = TREND[cardTrend].fg;
-          return (
-            <section key={s} style={{ border: `1px solid ${HAIRLINE}`, borderLeft: `4px solid ${accent}`, padding: '16px 20px', display: 'flex', flexDirection: 'column' }}>
-              <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', color: INK, opacity: 0.55, marginBottom: '10px' }}>{SERVICE_META[s].name}</p>
-              {inds.map((r, i) => {
-                const t = TREND[r.trend] || TREND.flat;
-                const rt = r.recent_direction ? TREND[r.recent_direction] || TREND.flat : null;
-                const d = fmtChange(r);
-                const checked = fmtDay(r.checked_on);
-                return (
-                  <div key={r.indicator_key} style={{ borderTop: i ? `1px solid ${HAIRLINE}` : 'none', paddingTop: i ? '14px' : 0, marginTop: i ? '14px' : 0 }}>
-                    <div style={{ fontSize: '15px', color: INK, marginBottom: '6px', lineHeight: 1.3 }}>{r.label}</div>
-                    <div style={{ fontSize: '34px', fontWeight: 'bold', color: INK, lineHeight: 1 }}>{fmt(r.value, r.unit)}</div>
-                    <div style={{ fontSize: '15px', color: INK, opacity: 0.6, marginTop: '6px' }}>As of {fmtPeriod(r.period)}</div>
-                    {d && r.baseline_period && (
-                      <div style={{ fontSize: '15px', marginTop: '8px', lineHeight: 1.45 }}>
-                        <span style={{ fontWeight: 'bold', color: t.fg, background: t.bg, padding: '2px 8px', borderRadius: 20 }}>{t.mark} {t.label}</span>{' '}
-                        <span style={{ color: INK }}>Since {fmtPeriod(r.baseline_period)}: <strong style={{ color: t.fg }}>{d}</strong></span>
-                      </div>
-                    )}
-                    {r.recent_change && rt && (
-                      <div style={{ fontSize: '15px', marginTop: '8px', lineHeight: 1.45 }}>
-                        <span style={{ fontWeight: 'bold', color: rt.fg, background: rt.bg, padding: '2px 8px', borderRadius: 20 }}>{rt.mark} {rt.label}</span>{' '}
-                        <span style={{ color: INK }}>Recent: {r.recent_change}</span>
-                      </div>
-                    )}
-                    {r.definition_note && <div style={{ fontSize: '15px', color: INK, opacity: 0.75, marginTop: '10px', lineHeight: 1.55 }}>{r.definition_note}</div>}
-                    <div style={{ fontSize: '15px', color: INK, opacity: 0.6, marginTop: '10px' }}>
-                      Source:{' '}
-                      {r.source_url
-                        ? <a href={r.source_url} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline' }}>{r.source_name}</a>
-                        : r.source_name}
-                      {checked && <> · Checked against the source on {checked}</>}
-                      {COUNCIL_LINKED.has(r.service) && <> · <a href="/councils" style={{ color: ACCENT, textDecoration: 'underline' }}>by council</a></>}
-                    </div>
-                  </div>
-                );
-              })}
-            </section>
-          );
-        })}
+      {/* Services in two balanced columns, no boxes. The coloured rule above each
+          service keeps its worst long term direction. */}
+      <style>{TWO_COLUMN_CSS}</style>
+      <div className="og-two">
+        {serviceColumns.map((col, ci) => (
+          <div key={ci}>
+            {col.map((s) => renderService(s))}
+          </div>
+        ))}
       </div>
 
       <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '680px', color: INK, opacity: 0.7, marginTop: '32px' }}>
