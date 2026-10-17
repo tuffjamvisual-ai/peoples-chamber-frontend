@@ -135,6 +135,21 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
     districtCodes = ((kids ?? []) as { gss_code: string | null }[]).map((k) => k.gss_code).filter((g): g is string => !!g);
   }
 
+  // Petitions most signed in the constituency (petition.parliament.uk, petitions that
+  // reached 10,000 signatures only, as on the MP profile's Petitions tab).
+  type PetitionRow = { petition_id: number; signature_count: number; petitions: { action: string; state: string; url: string } | null };
+  let petitions: PetitionRow[] = [];
+  if (constituencyCode) {
+    const { data, error } = await supabase
+      .from('petition_constituency_signatures')
+      .select('petition_id, signature_count, petitions(action, state, url)')
+      .eq('constituency_gss_code', constituencyCode)
+      .order('signature_count', { ascending: false })
+      .limit(3);
+    if (error) console.error('your-area petitions:', error.message);
+    else petitions = ((data ?? []) as unknown as PetitionRow[]).filter((r) => r.petitions?.action);
+  }
+
   const code = council?.gss_code ?? null;
   const summed = council?.type === 'county' ? districtCodes : code ? [code] : [];
   const eduOrRoads = county?.gss_code ?? code; // county council in two tier areas
@@ -257,6 +272,25 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
   if (code) sewageQs.set('council', code);
   if (constituencyCode) sewageQs.set('constituency', constituencyCode);
   add('Sewage spills', sewageLines.length > 0, () => ({ key: 'sewage', href: `/sewage?${sewageQs.toString()}#your-area`, linkText: 'Sewage spills in full', lines: sewageLines }));
+
+  if (constituencyCode) {
+    const where = mp?.constituency ?? constituencyName ?? 'this constituency';
+    add('Petitions', petitions.length > 0, () => ({
+      key: 'petitions', href: mp ? `/mps/${mp.member_id}#petitions` : 'https://petition.parliament.uk/', linkText: mp ? `Petitions in ${where} in full` : 'Parliament petitions site',
+      lines: [
+        <p key="h" style={{ ...para, marginBottom: '8px' }}>Most signed in {where}</p>,
+        <ol key="l" style={{ margin: '0 0 6px', paddingLeft: '20px' }}>
+          {petitions.map((p) => (
+            <li key={p.petition_id} style={{ ...para, marginBottom: '6px' }}>
+              <a href={p.petitions!.url} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{p.petitions!.action}</a>
+              <br />{n0(p.signature_count)} signatures here · {p.petitions!.state === 'open' ? 'open' : 'closed'}
+            </li>
+          ))}
+        </ol>,
+        <p key="n" style={{ ...para, fontSize: '14px', opacity: 0.8 }}>Petitions that reached 10,000 signatures in this Parliament.</p>,
+      ],
+    }));
+  }
 
   const leagueRow = league ? [...league.rows, ...league.separate].find((r) => r.code === code) : null;
   add('Council area rating', council && leagueRow && leagueRow.areaRank != null, () => ({
