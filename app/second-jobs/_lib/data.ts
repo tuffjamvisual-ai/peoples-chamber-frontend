@@ -160,14 +160,16 @@ export async function loadAll(): Promise<{
   // Current register entries only (is_current): an MP whose only "Employment and
   // earnings" entry has ended is not counted. Read in pages of 1,000 in a fixed order
   // so no row is missed. The earnings summary is rebuilt nightly from current entries
-  // (.github/workflows/daily-context-update.yml).
+  // (.github/workflows/daily-context-update.yml). The category is matched exactly so the
+  // category index is used: an ILIKE '%...%' scanned the whole table and hit the 3 s anon
+  // timeout while ~350 pages prerendered at once (Vercel build of 4dedcf4, 17 Oct 2026).
   const readInterests = async (): Promise<InterestRow[]> => {
     const out: InterestRow[] = [];
     for (let from = 0; ; from += 1000) {
       const { data, error } = await supabase
         .from('mp_registered_interests')
         .select('member_id, interest_text, child_interests')
-        .ilike('category_name', '%Employment and earnings%')
+        .eq('category_name', '1. Employment and earnings')
         .eq('is_current', true)
         .order('id', { ascending: true })
         .range(from, from + 999);
