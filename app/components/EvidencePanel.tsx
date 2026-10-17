@@ -83,7 +83,7 @@ export default function EvidencePanel({
       )}
       {contacted && <Row label="Contacted">{contacted}</Row>}
       {response && <Row label="Response">{response}</Row>}
-      {lastChecked && <Row label="Last fact-checked">{lastChecked}</Row>}
+      {lastChecked && <Row label="Facts last checked">{lastChecked}</Row>}
       <Row label="Corrections">
         Spotted an error? <a href={`mailto:${correctionsEmail}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{correctionsEmail}</a>. Corrections are logged.
       </Row>

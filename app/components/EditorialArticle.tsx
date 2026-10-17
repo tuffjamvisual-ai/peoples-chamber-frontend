@@ -70,7 +70,7 @@ export default function EditorialArticle({ piece, stamp, backHref }: { piece: Ed
             <div style={{ marginTop: '20px', borderLeft: `4px solid ${ACCENT}`, background: 'rgba(107,36,23,0.06)', padding: '10px 14px' }}>
               <span style={{ fontSize: '15px', fontWeight: 'bold', letterSpacing: '0.18em', textTransform: 'uppercase', color: ACCENT }}>Commentary</span>
               <span style={{ display: 'block', fontSize: '15px', color: INK, marginTop: '4px', fontStyle: 'italic', lineHeight: 1.5 }}>
-                This is an opinion piece. It reflects the author&rsquo;s view and is not one of our fact-checked investigations.
+                This is an opinion piece. It reflects the author&rsquo;s view and is not one of our investigations, which are checked against the facts.
               </span>
             </div>
           )}

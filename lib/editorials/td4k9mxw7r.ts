@@ -9,7 +9,7 @@ const piece: EditorialEntry = {
   authorByline: 'opengovt',
   body: [
     { type: 'paragraph', text: `English mayors and Foundation Strategic Authority leaders will be allowed to impose a new tax on overnight stays without a national cap on the rate, despite most respondents to the government's consultation supporting one.` },
-    { type: 'paragraph', text: `The new Overnight Visitor Levy will apply to paid accommodation such as hotels, B&Bs and short lets.` },
+    { type: 'paragraph', text: `The new Overnight Visitor Levy will apply to paid accommodation such as hotels, B&Bs and short term lets.` },
     { type: 'paragraph', text: `The government says the money can be used to support transport, public spaces, tourism and other local priorities.` },
     { type: 'paragraph', text: `But the consultation response shows that ministers rejected the majority view on several of the most important parts of the scheme.` },
     { type: 'paragraph', text: `Of respondents, 58 per cent supported a national cap on the maximum rate.` },
