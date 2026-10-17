@@ -28,7 +28,7 @@ const NAV: NavItem[] = [
   { label: 'opengovt Polls', href: '/polls', children: [
     { label: 'All Polls', href: '/polls' },
     { label: 'Your Tax Pound', href: '/your-tax-pound' },
-    { label: 'Budget Trade-Offs', href: '/budget-trade-offs' },
+    { label: 'Budget Choices', href: '/budget-trade-offs' },
   ] },
   { label: 'Parties', href: '/parties', children: [
     { label: 'Manifesto Comparisons', href: '/parties' },
@@ -105,7 +105,7 @@ export default function HomepageV2() {
               <div className="np-head">The Ten Worst Performing Councils In England</div>
               <div className="np-standfirst">How governance failures left residents paying more for less.</div>
               <p className="np-lede">
-                Eight English councils have declared themselves effectively bankrupt since 2018, accumulating more than &pound;5 billion in debt and deficit between them. One was abolished. Another went bankrupt three times. A commuter-belt borough with &pound;16 million of annual revenue borrowed its way to &pound;1.2 billion of debt. England&rsquo;s second city is still under government commissioners. One in five council leaders now expects to issue a Section 114 notice within two years. These are the councils that broke, the decisions that broke them, and the residents left paying the bill.
+                Eight English councils have declared themselves effectively bankrupt since 2018, accumulating more than &pound;5 billion in debt and deficit between them. One was abolished. Another went bankrupt three times. A borough in the commuter belt with &pound;16 million of annual revenue borrowed its way to &pound;1.2 billion of debt. England&rsquo;s second city is still under government commissioners. One in five council leaders now expects to issue a Section 114 notice within two years. These are the councils that broke, the decisions that broke them, and the residents left paying the bill.
               </p>
               <div className="np-cta">Read the full story &rarr;</div>
             </a>
@@ -134,7 +134,7 @@ export default function HomepageV2() {
               <div className="np-kicker">opengovt &middot; Investigation</div>
               <div className="np-head">Westminster&rsquo;s Culture of Impropriety: Why Trust Keeps Eroding</div>
               <p>
-                Ten serving MPs who broke the rules, the law or the trust of their constituents and remain in the Commons. Standards Committee findings, criminal records and contested registered interests, each entry independently fact-checked.
+                Ten serving MPs who broke the rules, the law or the trust of their constituents and remain in the Commons. Standards Committee findings, criminal records and contested registered interests, each entry checked independently for accuracy.
               </p>
               <div className="np-cta">Read the full story &rarr;</div>
             </a>

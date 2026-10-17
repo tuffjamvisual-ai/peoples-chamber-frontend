@@ -243,12 +243,12 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
                     Published pay band{salary.payPeriod ? ` (as at ${salary.payPeriod})` : ''}
                   </div>
                   <div style={{ fontSize: '22px', fontWeight: 'bold' }}>
-                    £{salary.actualPayFloor.toLocaleString()}-£{salary.actualPayCeiling.toLocaleString()}
+                    £{salary.actualPayFloor.toLocaleString()} to £{salary.actualPayCeiling.toLocaleString()}
                   </div>
                   {salary.fte != null && (
                     <div style={{ marginTop: '10px', fontSize: '15px' }}>
                       {salary.fte >= 0.999 ? (
-                        <span style={{ opacity: 0.8 }}>Full-time (FTE 1.00)</span>
+                        <span style={{ opacity: 0.8 }}>Works full time (FTE 1.00)</span>
                       ) : (
                         <>
                           <span style={{ fontWeight: 'bold', color: '#7a1612' }}>{salary.fte.toFixed(2)} FTE</span>
@@ -258,7 +258,7 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
                           </span>
                           {' · '}
                           <span style={{ opacity: 0.75, fontStyle: 'italic' }}>
-                            full-time equivalent ≈ £{Math.round(salary.actualPayFloor / salary.fte).toLocaleString()}-£{Math.round(salary.actualPayCeiling / salary.fte).toLocaleString()}
+                            pay if full time ≈ £{Math.round(salary.actualPayFloor / salary.fte).toLocaleString()} to £{Math.round(salary.actualPayCeiling / salary.fte).toLocaleString()}
                           </span>
                         </>
                       )}
@@ -271,10 +271,10 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
                     Cabinet Office published range for this grade
                   </div>
                   <div style={{ fontSize: '22px', fontWeight: 'bold' }}>
-                    £{SCS_BAND_RANGE[salary.scsBand][0].toLocaleString()}-£{SCS_BAND_RANGE[salary.scsBand][1].toLocaleString()}
+                    £{SCS_BAND_RANGE[salary.scsBand][0].toLocaleString()} to £{SCS_BAND_RANGE[salary.scsBand][1].toLocaleString()}
                   </div>
                   <div style={{ fontSize: '15px', opacity: 0.7, marginTop: '6px', fontStyle: 'italic' }}>
-                    Range from the 2025-26 Cabinet Office pay remit. Per-person actual pay is published quarterly in each department&apos;s organogram CSV.
+                    Range from the 2025/26 Cabinet Office pay remit. Actual pay for each person is published quarterly in each department&apos;s organogram CSV.
                   </div>
                 </div>
               ) : null}

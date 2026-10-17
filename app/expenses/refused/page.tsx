@@ -91,7 +91,7 @@ const REASON_LABEL: Record<string, string> = {
 const reasonLabel = (r: string) => REASON_LABEL[r.trim().toLowerCase()] ?? r;
 
 // IPSA years are named like "24_25" (April 2024 to March 2025).
-const yearLabel = (y: string) => { const m = y.match(/^(\d{2})_(\d{2})$/); return m ? `20${m[1]}-${m[2]}` : y; };
+const yearLabel = (y: string) => { const m = y.match(/^(\d{2})_(\d{2})$/); return m ? `20${m[1]}/${m[2]}` : y; };
 
 function aggregateYears(rows: DetailRow[]) {
   const m = new Map<string, { year: string; refused: number; refusedCount: number; repaid: number; repaidCount: number }>();

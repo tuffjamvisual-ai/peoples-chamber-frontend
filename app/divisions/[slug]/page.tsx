@@ -50,7 +50,7 @@ const PROCEDURAL_PATTERNS: Array<[RegExp, string]> = [
   [/business of the house/i,
    "A Business of the House motion governs how the Commons orders its time, including which days are given over to which sorts of debate. The government tables most of these; they pass routinely but are sometimes used to short-circuit opposition procedural objections."],
   [/carry-?over motion/i,
-   "A carry-over motion lets a bill that has not finished its passage in one parliamentary session continue in the next, rather than restarting from scratch. Without one, an incomplete bill falls."],
+   "A motion to carry over lets a bill that has not finished its passage in one parliamentary session continue in the next, rather than restarting from scratch. Without one, an incomplete bill falls."],
   [/closure(\s|$)|closure of the question/i,
    "A closure motion forces an immediate vote on the question before the Commons, cutting off further debate. The Speaker must judge that the matter has been adequately discussed. Used by both government and opposition to shut down obstruction."],
   [/adjournment/i,
@@ -62,15 +62,15 @@ const PROCEDURAL_PATTERNS: Array<[RegExp, string]> = [
   [/^opposition day|opposition day debate|^supply and appropriation/i,
    "On an Opposition Day the largest opposition party chooses the topic of debate. The vote is symbolic, it doesn't change the law, but it forces the government to publicly take a position on the opposition's choice of question."],
   [/^unpublished divisions/i,
-   "An Unpublished Division is a vote held in a Public Bill Committee (the small cross-party group that scrutinises a bill clause by clause) whose result was not formally published in the main Commons division list. The vote still counts and shapes the bill, but it sits outside the headline numbered sequence."],
+   "An Unpublished Division is a vote held in a Public Bill Committee (the small group drawn from across the parties that scrutinises a bill clause by clause) whose result was not formally published in the main Commons division list. The vote still counts and shapes the bill, but it sits outside the headline numbered sequence."],
   [/^budget resolution/i,
-   "Budget Resolutions are the individual tax-and-spend propositions voted on the floor of the Commons in the week after the Budget. Each Resolution authorises a specific tax change (rates, thresholds, new duties) and together they form the basis of the Finance Bill."],
+   "Budget Resolutions are the individual propositions on tax and spending voted on the floor of the Commons in the week after the Budget. Each Resolution authorises a specific tax change (rates, thresholds, new duties) and together they form the basis of the Finance Bill."],
   [/^privilege$|breach of privilege/i,
    "A privilege motion arises when the conduct of a Member, or interference with the work of the Commons or its committees, is alleged to have breached the rights of Parliament. The vote authorises a referral, sanction or further investigation."],
   [/draft (.+) regulations? \d{4}/i,
-   "A Draft Statutory Instrument, secondary legislation made under powers granted by an existing Act. The Commons vote determines whether the Regulations come into force as written. SIs are how the day-to-day detail of UK law is set without primary legislation."],
+   "A Draft Statutory Instrument, secondary legislation made under powers granted by an existing Act. The Commons vote determines whether the Regulations come into force as written. SIs are how the working detail of UK law is set without primary legislation."],
   [/draft (.+) order \d{4}/i,
-   "A Draft Statutory Instrument, secondary legislation made under powers granted by an existing Act. The Commons vote determines whether the Order comes into force as written. SIs are how the day-to-day detail of UK law is set without primary legislation."],
+   "A Draft Statutory Instrument, secondary legislation made under powers granted by an existing Act. The Commons vote determines whether the Order comes into force as written. SIs are how the working detail of UK law is set without primary legislation."],
 ];
 
 function proceduralContext(title: string | null | undefined): string | null {

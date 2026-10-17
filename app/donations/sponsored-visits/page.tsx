@@ -21,6 +21,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
+import { fmtDate } from '@/lib/lobbying';
 import { donorNameToSlug } from '../../donors/[slug]/page';
 
 export const revalidate = 86400;
@@ -28,7 +29,7 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: 'Who paid for UK MPs\' trips: foreign governments, think tanks, lobby groups',
   description:
-    'Every sponsored visit declared to the Electoral Commission as a non-cash donation. Lists foreign-government paymasters, think tank invitations, and Friends-of-X group trips, grouped by sponsor and by recipient MP.',
+    'Every sponsored visit declared to the Electoral Commission as a donation in kind. Lists foreign governments that paid, think tank invitations, and trips by ‘Friends of’ groups, grouped by sponsor and by recipient MP.',
   alternates: { canonical: '/donations/sponsored-visits' },
 };
 
@@ -123,26 +124,26 @@ export default async function SponsoredVisitsPage() {
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
         <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
-          Paid-for travel · Sponsored visits and events
+          Travel paid by others · Sponsored visits and events
         </p>
         <h1 style={{ fontFamily: 'Special Elite, monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
           Who pays for UK MPs to travel
         </h1>
         <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
-          {rows.length.toLocaleString()} declared trips and events worth &pound;{Math.round(totalAll).toLocaleString()} appear on the Electoral Commission register as non-cash donations with a purpose-of-visit. These are sponsored visits: foreign governments, think tanks, lobby groups and individuals paying for MPs to travel, attend conferences, or meet heads of state. The single largest paymasters are Hong Kong&rsquo;s government, Conservative Friends of Israel and Labour Friends of Israel; the Ministries of Foreign Affairs of Qatar, Taiwan, Saudi Arabia, India and Japan all appear in the top tier.
+          {rows.length.toLocaleString()} declared trips and events worth &pound;{Math.round(totalAll).toLocaleString()} appear on the Electoral Commission register as donations in kind with a stated purpose of visit. These are sponsored visits: foreign governments, think tanks, lobby groups and individuals paying for MPs to travel, attend conferences, or meet heads of state. The single largest paymasters are Hong Kong&rsquo;s government, Conservative Friends of Israel and Labour Friends of Israel; the Ministries of Foreign Affairs of Qatar, Taiwan, Saudi Arabia, India and Japan all appear in the top tier.
         </p>
       </header>
 
       <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', marginBottom: '28px' }}>
-        <Tile label="Foreign-government trips" value={String(classifCounts['foreign-government'] || 0)} />
+        <Tile label="Foreign government trips" value={String(classifCounts['foreign-government'] || 0)} />
         <Tile label="'Friends of' group trips" value={String(classifCounts['friends-of'] || 0)} />
-        <Tile label="Think-tank invitations" value={String(classifCounts['think-tank'] || 0)} />
-        <Tile label="Company-paid trips" value={String(classifCounts['company'] || 0)} />
+        <Tile label="Think tank invitations" value={String(classifCounts['think-tank'] || 0)} />
+        <Tile label="Trips paid by companies" value={String(classifCounts['company'] || 0)} />
       </section>
 
       <section style={{ marginBottom: '32px' }}>
-        <h2 style={sectionH2}>Foreign-government paymasters</h2>
-        <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '8px' }}>State-actor sponsors paying directly for UK MPs to visit. Ranked by total declared value.</p>
+        <h2 style={sectionH2}>Foreign government paymasters</h2>
+        <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '8px' }}>Sponsors acting for a state, paying directly for UK MPs to visit. Ranked by total declared value.</p>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -169,7 +170,7 @@ export default async function SponsoredVisitsPage() {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>&lsquo;Friends of&rsquo; groups</h2>
-        <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '8px' }}>Foreign-affinity parliamentary groups paying for member-MP delegations. Often a soft-power channel for the country in question.</p>
+        <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '8px' }}>Parliamentary groups with an affinity for a foreign country, paying for delegations of their MP members. Often a channel of soft power for the country in question.</p>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -265,7 +266,7 @@ export default async function SponsoredVisitsPage() {
                   ) : <span style={{ opacity: 0.6 }}>(unknown)</span>}
                 </td>
                 <td style={{ padding: '6px', fontSize: '15px' }}>{r.recipient_name || ''}</td>
-                <td style={{ padding: '6px', fontFamily: 'monospace', fontSize: '15px', opacity: 0.7 }}>{r.accepted_date || ''}</td>
+                <td style={{ padding: '6px', fontFamily: 'monospace', fontSize: '15px', opacity: 0.7 }}>{fmtDate(r.accepted_date ?? null)}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(Number(r.amount || 0)).toLocaleString()}</td>
                 <td style={{ padding: '6px', fontSize: '15px', opacity: 0.85, maxWidth: '320px' }}>{r.purpose_of_visit}</td>
               </tr>

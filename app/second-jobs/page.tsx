@@ -78,7 +78,7 @@ export default async function SecondJobsLanding() {
           by party. Choose a party to see each MP, the role, the payer and every
           individual payment registered. Headline totals are a conservative lower
           bound, only payments with an explicit £ figure are summed, so
-          ranges and salaried roles without per-payment amounts are not in the
+          ranges and salaried roles without amounts for each payment are not in the
           numbers but are in the underlying lists.
         </p>
 
@@ -165,7 +165,7 @@ export default async function SecondJobsLanding() {
           Only entries in the current Register are used; roles that have ended are
           left out. Each MP’s headline total is the sum of explicit “Payment: £X”
           amounts found in the registered child entries. Ranges and salaried roles
-          without a per-payment figure are not summed. Totals are rebuilt every night
+          without a figure for each payment are not summed. Totals are rebuilt every night
           from the latest Register.
         </section>
 

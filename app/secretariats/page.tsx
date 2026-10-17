@@ -87,7 +87,7 @@ export default async function SecretariatsIndex() {
 
       <details style={{ marginBottom: '32px' }}>
         <summary style={{ cursor: 'pointer', fontFamily: '"Special Elite", monospace', fontSize: '15px', fontWeight: 'bold', padding: '8px 0' }}>
-          Single-APPG secretariats ({single.length})
+          Secretariats running one APPG ({single.length})
         </summary>
         <ul style={{ listStyle: 'none', padding: '8px 0', columns: '2 280px', columnGap: '24px', fontSize: '15px' }}>
           {single.map((r) => (

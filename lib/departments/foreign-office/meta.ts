@@ -8,7 +8,7 @@ const meta: DepartmentMeta = {
   ministerParty: 'labour',
   ministerPhoto: '',
   controlZones: [
-    'UK-EU Relations',
+    'UK EU Relations',
     'US Relations',
     'China Policy',
     'Russia Sanctions',
@@ -24,7 +24,7 @@ const meta: DepartmentMeta = {
     'Climate Diplomacy',
     'Human Rights Policy',
     'Sanctions',
-    'Counter-Terrorism Overseas',
+    'Counter Terrorism Overseas',
     'Refugee & Asylum Diplomacy',
     'Gibraltar',
     'Falklands'

@@ -123,7 +123,7 @@ export default async function LobbyingPage() {
         <h2 style={{ ...sectionHead, marginTop: '44px' }}>Consultant lobbyists</h2>
         <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: '0 0 16px', maxWidth: '46em' }}>
           Firms that lobby ministers or permanent secretaries for a paying client must register and
-          name their clients every quarter. In-house lobbyists, who work for the organisation they
+          name their clients every quarter. Lobbyists employed directly by the organisation they
           lobby for, do not have to register.
         </p>
         {latestQuarter && firms.length > 0 && (

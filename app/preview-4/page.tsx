@@ -27,7 +27,7 @@ const spinItems = [
     title:
       "MP claims £367,659 in expenses, insists it's “terribly efficient” compared to last year",
     copy:
-      "Stuart Andrew, MP for Daventry, has claimed £367,659 in business costs for 2024-25, earning the unofficial gold medal in this year's Big Spenders league.",
+      "Stuart Andrew, MP for Daventry, has claimed £367,659 in business costs for 2024/25, earning the unofficial gold medal in this year's Big Spenders league.",
   },
 ];
 
@@ -77,7 +77,7 @@ export default function HomePage() {
               ♜
             </div>
             <div>
-              <p className="issue-note">Public-record reporting</p>
+              <p className="issue-note">Reporting from public records</p>
               <h1>opengovt</h1>
               <p className="strapline">UK Government. In Public View.</p>
             </div>
@@ -260,7 +260,7 @@ export default function HomePage() {
             <p className="label-black">The Big Spenders · 2024 / 2025</p>
             <h2>Who&apos;s spending your money?</h2>
             <p>
-              The ten MPs with the biggest business-cost claims this year.
+              The ten MPs with the biggest claims for business costs this year.
               Mostly the ones whose constituencies are furthest from Westminster.
               Make of that what you will.
             </p>
@@ -322,7 +322,7 @@ export default function HomePage() {
             <span>Not funded by government or political parties.</span>
           </div>
           <div>
-            <strong>Real-time Data</strong>
+            <strong>Live Data</strong>
             <span>Live updates from official sources across the UK.</span>
           </div>
           <div>

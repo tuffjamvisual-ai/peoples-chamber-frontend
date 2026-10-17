@@ -52,7 +52,7 @@ const NAV: NavItem[] = [
     { label: 'Department Budgets', href: '/spending' },
     { label: 'Civil Service', href: '/civil-service' },
     { label: 'Your Tax Pound', href: '/your-tax-pound' },
-    { label: 'Budget Trade-offs', href: '/budget-trade-offs' },
+    { label: 'Budget Choices', href: '/budget-trade-offs' },
   ] },
   { label: 'Local', href: '/councils', children: [
     { label: 'Councils', href: '/councils' },

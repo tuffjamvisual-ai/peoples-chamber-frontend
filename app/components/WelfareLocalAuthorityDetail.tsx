@@ -90,7 +90,7 @@ function medianWageValue(w: MedianWage | null | undefined): string | null {
 function medianWageSub(w: MedianWage | null | undefined): string | null {
   if (!w) return null
   if (w.status === 'suppressed' || w.value == null) return `Statistically unreliable at this geography · Period ending ${formatPeriodEnd(w.periodEnd)}`
-  return `Full-time employees working in this area · Period ending ${formatPeriodEnd(w.periodEnd)}`
+  return `Employees working full time in this area · Period ending ${formatPeriodEnd(w.periodEnd)}`
 }
 
 // LCWRA (Limited Capability for Work and Work-Related Activity) share
@@ -277,7 +277,7 @@ function FullView({ payload, embedded }: { payload: FullPayload; embedded?: bool
       )}
 
       <Section title="Headline figures">
-        <DataRow label="Total six-benefit spend" value={formatGBP(d.total_six_benefit_spend)} sub={`Period ending ${formatPeriodEnd(d.headline_period_end)}`} />
+        <DataRow label="Total spend on six benefits" value={formatGBP(d.total_six_benefit_spend)} sub={`Period ending ${formatPeriodEnd(d.headline_period_end)}`} />
         <DataRow label="Spend per resident" value={formatGBPPerResident(d.spend_per_resident)} />
         <DataRow label="Rank by total spend" value={`#${formatCount(d.rank_total_spend)} of ${rankedOf}`} sub={agg ? 'Rank 1 = highest total spend among English county areas' : 'Rank 1 = highest total spend among England & Wales local authorities'} />
         <DataRow label="Rank by spend per resident" value={`#${formatCount(d.rank_spend_per_resident)} of ${rankedOf}`} />
@@ -285,7 +285,7 @@ function FullView({ payload, embedded }: { payload: FullPayload; embedded?: bool
         <DataRow label="Median annual pay (workplace)" value={medianWageValue(payload.medianWage)} sub={medianWageSub(payload.medianWage)} />
       </Section>
 
-      <Section title="Two-year change">
+      <Section title="Change over two years">
         <DataRow
           label={`${formatPeriodEnd(d.baseline_period_end)} → ${formatPeriodEnd(d.headline_period_end)}`}
           value={`${formatGBP(d.baseline_total_spend)} → ${formatGBP(d.total_six_benefit_spend)}`}
@@ -298,7 +298,7 @@ function FullView({ payload, embedded }: { payload: FullPayload; embedded?: bool
         />
       </Section>
 
-      <Section title="Per-benefit breakdown">
+      <Section title="Breakdown by benefit">
         {BENEFIT_ORDER.map((key) => {
           const cc = payload.claimantCounts?.[CLAIMANT_METRIC_FOR_BENEFIT[key]]
           const ccText = claimantText(cc)
@@ -338,7 +338,7 @@ function PartialView({ payload, embedded }: { payload: PartialPayload; embedded?
         <DataRow label="Median annual pay (workplace)" value={medianWageValue(payload.medianWage)} sub={medianWageSub(payload.medianWage)} />
       </Section>
 
-      <Section title="Reserved benefits (UK-wide, DWP-administered)">
+      <Section title="Reserved benefits (run by DWP across the UK)">
         {reservedOrder.map((key) => {
           const b = payload.benefits[key]
           if (!b) return null
@@ -428,19 +428,19 @@ function NiView({ payload }: { payload: NiPayload }) {
     <>
       <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '16px', marginBottom: '22px' }}>
         <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: 0 }}>
-          {`Benefits in Northern Ireland are run by the Department for Communities, not DWP. These figures come from its published statistics and NISRA's. Spending is an estimate: claimants in this council multiplied by Northern Ireland-wide average payments, because average payments are not published by council. Housing Benefit is not published by council area in Northern Ireland, so the total covers five benefits. Ranks compare the ${payload.ranked} Northern Ireland councils.`}
+          {`Benefits in Northern Ireland are run by the Department for Communities, not DWP. These figures come from its published statistics and NISRA's. Spending is an estimate: claimants in this council multiplied by average payments across Northern Ireland, because average payments are not published by council. Housing Benefit is not published by council area in Northern Ireland, so the total covers five benefits. Ranks compare the ${payload.ranked} Northern Ireland councils.`}
         </p>
       </section>
 
       <Section title="Headline figures">
-        <DataRow label="Estimated five-benefit spend" value={formatGBP(payload.total)} sub="A year, at the latest published caseloads" />
+        <DataRow label="Estimated spend on five benefits" value={formatGBP(payload.total)} sub="A year, at the latest published caseloads" />
         <DataRow label="Spend per resident" value={payload.perResident != null ? formatGBPPerResident(payload.perResident) : null} />
         <DataRow label="Rank by total spend" value={`#${payload.rankTotal} of ${payload.ranked}`} sub="Rank 1 = highest estimated spend among Northern Ireland councils" />
         <DataRow label="Rank by spend per resident" value={payload.rankPerResident != null ? `#${payload.rankPerResident} of ${payload.ranked}` : null} />
         <DataRow label="Population" value={payload.population != null ? formatCount(payload.population) : null} />
       </Section>
 
-      <Section title="Per-benefit breakdown">
+      <Section title="Breakdown by benefit">
         {payload.benefits.map((b) => {
           const when = b.period ? monthYear(b.period) : b.year != null ? String(b.year) : ''
           const was = b.baselinePeriod ? monthYear(b.baselinePeriod) : b.baselineYear != null ? String(b.baselineYear) : ''

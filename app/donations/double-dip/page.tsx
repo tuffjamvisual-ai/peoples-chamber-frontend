@@ -170,18 +170,18 @@ export default async function DoubleDipPage() {
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
         <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
-          Cross-register pattern · MPs paid twice from the same source
+          Pattern across registers · MPs paid twice from the same source
         </p>
         <h1 style={{ fontFamily: 'Special Elite, monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
-          The double-dip: MPs paid both as employees and as donors
+          Double dipping: MPs paid both as employees and as donors
         </h1>
         <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
-          {matches.length} confirmed pairings where an MP names an entity on their Register of Interests employment-and-earnings entry that also appears on the Electoral Commission donations register as a donor to that same MP. Both registers are public. Reading them side by side has not been possible until now. The match rule is deliberately conservative (an exact, case-insensitive entity name), so the list misses subsidiary chains and trading variants. Every pairing below is a direct same-entity overlap.
+          {matches.length} confirmed pairings where an MP names an entity on their Register of Interests employment and earnings entry that also appears on the Electoral Commission donations register as a donor to that same MP. Both registers are public. Reading them side by side has not been possible until now. The match rule is deliberately conservative (an exact entity name, ignoring case), so the list misses subsidiary chains and trading variants. Every pairing below is a direct overlap with the same entity.
         </p>
       </header>
 
       <section style={{ marginBottom: '32px' }}>
-        <h2 style={sectionH2}>Confirmed double-dip pairings</h2>
+        <h2 style={sectionH2}>Confirmed pairings</h2>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -212,11 +212,11 @@ export default async function DoubleDipPage() {
       </section>
 
       <section style={{ background: CREAM, padding: '12px 14px', fontSize: '15px', lineHeight: 1.6, marginBottom: '24px' }}>
-        <strong>What this list isn&rsquo;t.</strong> A double-dip pairing is not in itself a rule breach. UK MPs are legally allowed to take outside employment income and accept political donations from the same body provided both are declared on their respective registers. What the list shows is the small number of cases where the public has been told the same fact twice in two different places without ever being shown the overlap. The interpretation belongs to the reader.
+        <strong>What this list isn&rsquo;t.</strong> A pairing of this kind is not in itself a rule breach. UK MPs are legally allowed to take outside employment income and accept political donations from the same body provided both are declared on their respective registers. What the list shows is the small number of cases where the public has been told the same fact twice in two different places without ever being shown the overlap. The interpretation belongs to the reader.
       </section>
 
       <p style={{ fontSize: '15px', opacity: 0.6 }}>
-        Sources: parliament.uk Register of Members&rsquo; Financial Interests (category 1. Employment and earnings) cross-joined with the Electoral Commission donations register. Payer name extracted from the Register entry by taking everything before the first comma or opening parenthesis. Donation-to-MP match requires the EC recipient_name to include both the MP&rsquo;s first and last name.
+        Sources: parliament.uk Register of Members&rsquo; Financial Interests (category 1. Employment and earnings) matched against the Electoral Commission donations register. Payer name extracted from the Register entry by taking everything before the first comma or opening parenthesis. Matching a donation to an MP requires the EC recipient_name to include both the MP&rsquo;s first and last name.
       </p>
     </OpenGovShell>
   );

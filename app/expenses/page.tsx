@@ -10,8 +10,8 @@ import { latestExpensesYear as latestYear, expensesYearShort as yearShort, expen
 export async function generateMetadata(): Promise<Metadata> {
   const y = yearShort(await latestYear());
   return {
-    title: `Top-Spending MPs ${y}, IPSA Business Cost Rankings`,
-    description: `The ten UK MPs who claimed the highest IPSA business costs in ${y}. Office, staffing, travel and accommodation broken down by category, year-on-year change shown.`,
+    title: `Highest Spending MPs ${y}, IPSA Business Cost Rankings`,
+    description: `The ten UK MPs who claimed the highest IPSA business costs in ${y}. Office, staffing, travel and accommodation broken down by category, with the change on the previous year shown.`,
     alternates: { canonical: '/expenses' },
   };
 }

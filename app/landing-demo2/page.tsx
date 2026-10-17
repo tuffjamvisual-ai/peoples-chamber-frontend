@@ -20,7 +20,7 @@ const NAV: NavItem[] = [
   { label: 'opengovt Polls', href: '/polls', children: [
     { label: 'All Polls', href: '/polls' },
     { label: 'Your Tax Pound', href: '/your-tax-pound' },
-    { label: 'Budget Trade-Offs', href: '/budget-trade-offs' },
+    { label: 'Budget Choices', href: '/budget-trade-offs' },
   ] },
   { label: 'Parties', href: '/parties', children: [
     { label: 'Manifesto Comparisons', href: '/parties' },

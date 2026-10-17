@@ -19,7 +19,7 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: 'Money & Power · UK political money tracked across every register',
   description:
-    'Cross-register transparency: UK MPs paid twice from the same source, government contractors who donate, foreign-government-sponsored MP travel, APPG funders and lobby firms. The patterns hidden in plain sight across the EC, gov.uk and Register of Interests, in one place.',
+    'Transparency across registers: UK MPs paid twice from the same source, government contractors who donate, MP travel paid for by foreign governments, APPG funders and lobby firms. The patterns hidden in plain sight across the EC, gov.uk and Register of Interests, in one place.',
   alternates: { canonical: '/money' },
 };
 
@@ -69,7 +69,7 @@ export default async function MoneyLanding() {
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '32px' }}>
         <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
-          Money &amp; Power · Cross-register patterns
+          Money &amp; Power · Patterns across registers
         </p>
         <h1 style={{ fontFamily: 'Special Elite, monospace', fontSize: 'clamp(28px, 4vw, 52px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '14px', lineHeight: 1.05 }}>
           The money that moves through UK politics
@@ -80,7 +80,7 @@ export default async function MoneyLanding() {
       </header>
 
       <section style={{ marginBottom: '40px' }}>
-        <h2 style={sectionH2}>Headline cross-references</h2>
+        <h2 style={sectionH2}>Headline links between registers</h2>
         <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '20px' }}>Four places where two registers name the same people or organisations.</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '18px' }}>
           <HeroTile
@@ -91,7 +91,7 @@ export default async function MoneyLanding() {
           />
           <HeroTile
             href="/donations/government-contractors"
-            label="Public-sector contractors who donate"
+            label="Public contractors who donate"
             headline="Companies with public contracts that also donate"
             teaser="Companies that appear both in the government contracts records and in the Electoral Commission's donations register, with the totals from each."
           />
@@ -105,7 +105,7 @@ export default async function MoneyLanding() {
             href="/donors"
             label="Donor profiles"
             headline="Each donor's donations, contracts and APPG funding together"
-            teaser="A donor's profile shows its political donations and, where the same organisation holds public contracts or funds all-party groups, those records too."
+            teaser="A donor's profile shows its political donations and, where the same organisation holds public contracts or funds APPGs, those records too."
           />
         </div>
       </section>
@@ -114,11 +114,11 @@ export default async function MoneyLanding() {
         <h2 style={sectionH2}>Sector and contest pivots</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
           <SecondaryTile href="/donations/foreign" label="Money from abroad" sub={`${n.foreign.toLocaleString()} declared donations from outside the UK, by country.`} />
-          <SecondaryTile href="/donations/leadership-contests" label="Leadership-race money" sub="Donations declared for party leadership contests, by contest and candidate." />
+          <SecondaryTile href="/donations/leadership-contests" label="Money in leadership races" sub="Donations declared for party leadership contests, by contest and candidate." />
           <SecondaryTile href="/donations/constituencies" label="Money by constituency" sub="Donations to local parties and candidates, totalled by constituency." />
           <SecondaryTile href="/donations/bequest" label="Bequests" sub="Money left to parties in wills, as declared to the Electoral Commission, by party and estate." />
-          <SecondaryTile href="/secretariats" label="APPG secretariats" sub="The organisations that run all-party groups' secretariats, and how many groups each runs." />
-          <SecondaryTile href="/appg-funders" label={`APPG funders · ${n.appgFunders}`} sub="Who funds all-party parliamentary groups, and how many groups each funds." />
+          <SecondaryTile href="/secretariats" label="APPG secretariats" sub="The organisations that run APPG secretariats, and how many groups each runs." />
+          <SecondaryTile href="/appg-funders" label={`APPG funders · ${n.appgFunders}`} sub="Who funds APPGs, and how many groups each funds." />
         </div>
       </section>
 
@@ -127,12 +127,12 @@ export default async function MoneyLanding() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
           <SecondaryTile href="/donations/late-disclosed" label="Late disclosures" sub="Donations reported to the Electoral Commission long after they were accepted, with the gap in days." />
           <SecondaryTile href="/donations/impermissible" label="Returned donations" sub="Donations the Electoral Commission records as impermissible, and what happened to them." />
-          <SecondaryTile href="/donations/trust-funded" label="Trust-routed money" sub={`${n.trust} declared donations from trusts, by trust and recipient.`} />
+          <SecondaryTile href="/donations/trust-funded" label="Money routed via trusts" sub={`${n.trust} declared donations from trusts, by trust and recipient.`} />
         </div>
       </section>
 
       <section style={{ background: CREAM, padding: '18px 22px', fontSize: '15px', lineHeight: 1.65, borderLeft: `3px solid ${DANGER}` }}>
-        <strong>What none of this is.</strong> A pattern visible on more than one public register is not evidence of wrongdoing. UK MPs are legally allowed to take outside employment income, attend foreign-government-sponsored visits, accept political donations, and officer All-Party Parliamentary Groups provided each is declared on its appropriate register. UK companies are legally allowed to bid for public-sector work and donate to political parties provided each is declared. What none of this is is hidden. What much of it has been until now is unfindable. Putting it in one place is the work.
+        <strong>What none of this is.</strong> A pattern visible on more than one public register is not evidence of wrongdoing. UK MPs are legally allowed to take outside employment income, attend visits paid for by foreign governments, accept political donations, and officer All-Party Parliamentary Groups provided each is declared on its appropriate register. UK companies are legally allowed to bid for public contracts and donate to political parties provided each is declared. What none of this is is hidden. What much of it has been until now is unfindable. Putting it in one place is the work.
       </section>
 
       <p style={{ fontSize: '15px', opacity: 0.6, marginTop: '24px' }}>

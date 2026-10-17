@@ -64,7 +64,7 @@ const BUCKETS: Bucket[] = [
     pence: 9, sharePct: 9.1,
     category: 'Education',
     prose:
-      "Schools, sixth forms, further education colleges, apprenticeships, early years (the so-called free hours), tuition fee support and student loans, and the education research budget. Funded through grants to local authorities for state schools and direct to academies and colleges. The VAT on private school fees and the free breakfast clubs commitments sit inside this envelope. Scotland, Wales and Northern Ireland education spending is devolved through Barnett and shows on their devolved budgets.",
+      "Schools, sixth forms, further education colleges, apprenticeships, early years (often called the free hours), tuition fee support and student loans, and the education research budget. Funded through grants to local authorities for state schools and direct to academies and colleges. The VAT on private school fees and the free breakfast clubs commitments sit inside this envelope. Scotland, Wales and Northern Ireland education spending is devolved through Barnett and shows on their devolved budgets.",
     deptHref: '/departments/education',
     deptLabel: 'Department for Education',
   },
@@ -100,9 +100,9 @@ const BUCKETS: Bucket[] = [
   },
   {
     pence: 2, sharePct: 2.4,
-    category: 'Long-term care',
+    category: 'Adult social care',
     prose:
-      "Adult social care, care homes, domiciliary care, support for working age disabled adults. Funded primarily by local authorities through council tax and central government grant. The Dilnot cap on care costs was legislated under Hunt for October 2023, deferred to October 2025, then scrapped entirely by Reeves in July 2024. Long-term care funding is the largest unresolved structural question in domestic public policy.",
+      "Adult social care, care homes, domiciliary care, support for working age disabled adults. Funded primarily by local authorities through council tax and central government grant. The Dilnot cap on care costs was legislated under Hunt for October 2023, deferred to October 2025, then scrapped entirely by Reeves in July 2024. How to fund care over the long term is the largest unresolved structural question in domestic public policy.",
     deptHref: '/departments/health',
     deptLabel: 'Department of Health and Social Care',
   },
@@ -240,13 +240,13 @@ export default function YourTaxPoundPage() {
       <footer style={{ marginTop: '5%', paddingTop: '24px', borderTop: `2px solid ${INK}`, fontFamily: 'Special Elite, monospace', fontSize: '15px', lineHeight: 1.65, opacity: 0.78, maxWidth: '72ch' }}>
         <p style={{ margin: '0 0 8px 0' }}>
           <strong>Source.</strong> HM Treasury Public Expenditure Statistical Analyses (PESA), components of UK
-          government spending in 2022/23. Twelve-category view (eleven named + Other), commonly used by the
+          government spending in 2022/23. A view of twelve categories (eleven named + Other), commonly used by the
           Institute for Fiscal Studies and other budget commentators.
         </p>
         <p style={{ margin: '0' }}>
           <strong>Methodology.</strong> Shares are exact to one decimal place; pence figures rounded so the bar reads
           cleanly at scale. Scotland, Wales and Northern Ireland have their own devolved spending, their share comes
-          through the Barnett formula and lands inside the relevant UK-wide categories above (most visibly inside
+          through the Barnett formula and lands inside the relevant categories for the whole UK above (most visibly inside
           Health and Education).
         </p>
       </footer>

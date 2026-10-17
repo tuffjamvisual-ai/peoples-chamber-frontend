@@ -12,7 +12,7 @@ import {
 export const metadata: Metadata = {
   title: "UK MP Earnings vs Public Spend, Salary, Outside Earnings & IPSA Costs",
   description:
-    "Side-by-side comparison: every UK MP's personal earnings (base salary, ministerial supplement, outside earnings from the Register of Financial Interests) and their public spend.",
+    "Every UK MP's personal earnings (base salary, ministerial supplement, outside earnings from the Register of Financial Interests) set side by side with their public spend.",
   alternates: { canonical: '/earnings' },
 }
 
@@ -149,7 +149,7 @@ export default async function EarningsPage() {
         </p>
         <p>
           <strong className="text-[#14100d]">Ministerial supplement</strong>: paid on top of the base salary at
-          2010-frozen levels (PM £{MINISTERIAL_SUPPLEMENT.pm.toLocaleString()} claimed of £80,807 entitlement,
+          levels frozen since 2010 (PM £{MINISTERIAL_SUPPLEMENT.pm.toLocaleString()} claimed of £80,807 entitlement,
           Cabinet Minister £{MINISTERIAL_SUPPLEMENT.sos.toLocaleString()},
           Minister of State £{MINISTERIAL_SUPPLEMENT.minister_of_state.toLocaleString()},
           Parliamentary Under-Secretary £{MINISTERIAL_SUPPLEMENT.puss.toLocaleString()}). An MP holding two
@@ -160,11 +160,11 @@ export default async function EarningsPage() {
           &ldquo;Employment and earnings&rdquo; category of the Register of Members&apos; Financial Interests.
           Only entries with an explicit &ldquo;Payment: £X&rdquo; pattern are summed; ranges (&ldquo;£200 to £500&rdquo;)
           and unbanded entries are <em>excluded</em>, so the figure is a conservative lower bound. Corrections
-          and amendments are skipped to avoid double-counting. Many MPs declare interests without payment
+          and amendments are skipped to avoid counting anything twice. Many MPs declare interests without payment
           amounts (ongoing salaried roles, share interests, family employment) and these will not appear here.
         </p>
         <p>
-          <strong className="text-[#14100d]">Public spend</strong>: total of all IPSA-reimbursed business costs
+          <strong className="text-[#14100d]">Public spend</strong>: total of all business costs reimbursed by IPSA
           for {YEAR_LABEL} (staff, office, accommodation, travel, other). This is <em>not</em> personal income.
           Drill into any MP&apos;s profile for the line-item breakdown.
         </p>

@@ -41,7 +41,7 @@ export const topics: TopicDef[] = [
     slug: 'immigration',
     title: 'Immigration',
     blurb:
-      'Few subjects move votes like immigration, and few are argued about with less reference to the numbers. It covers legal migration and work visas, asylum and the small-boat crossings, the size of the backlog, the cost of hotel accommodation, and the repeated attempts by governments of both parties to deter arrivals through deals, deterrents and legislation. The questions are genuinely hard: how to meet international obligations, control the border, and run a system that is neither cruel nor a magnet, all at once.',
+      'Few subjects move votes like immigration, and few are argued about with less reference to the numbers. It covers legal migration and work visas, asylum and the crossings in small boats, the size of the backlog, the cost of hotel accommodation, and the repeated attempts by governments of both parties to deter arrivals through deals, deterrents and legislation. The questions are genuinely hard: how to meet international obligations, control the border, and run a system that is neither cruel nor a magnet, all at once.',
     departmentSlugs: ['home-office'],
     deptApiNames: ['Home Office'],
     keywords: ['immigration', 'asylum', 'migrant', 'border', 'refugee', 'deport', 'nationality', 'illegal migration', 'small boat'],
@@ -74,7 +74,7 @@ export const topics: TopicDef[] = [
     slug: 'education',
     title: 'Education',
     blurb:
-      'Education shapes every life chance the state can influence, from early years to university. Policy here covers school funding and standards, teacher recruitment and retention, special educational needs provision that is widely agreed to be in crisis, childcare costs, university finance and the balance between academic and vocational routes. It is an area where the effects of decisions take years to show and where short-term savings can do long-term damage, which makes scrutiny of what is promised against what is funded particularly important.',
+      'Education shapes every life chance the state can influence, from early years to university. Policy here covers school funding and standards, teacher recruitment and retention, special educational needs provision that is widely agreed to be in crisis, childcare costs, university finance and the balance between academic and vocational routes. It is an area where the effects of decisions take years to show and where quick savings can do lasting damage, which makes scrutiny of what is promised against what is funded particularly important.',
     departmentSlugs: ['education'],
     deptApiNames: ['Department for Education'],
     keywords: ['education', 'school', 'teacher', 'pupil', 'universit', 'student', 'childcare', 'skills', 'apprentic', 'special educational needs'],
@@ -96,7 +96,7 @@ export const topics: TopicDef[] = [
     slug: 'welfare-and-benefits',
     title: 'Welfare and Benefits',
     blurb:
-      'The welfare system is how the state supports people who cannot support themselves, through pensions, disability benefits, universal credit and the safety net beneath low-paid work. It is also one of the largest single areas of spending and a perennial political battleground, where every reform pits the cost to the taxpayer against the consequences for the people who rely on it. Pension policy, disability assessments, the level of working-age benefits and the rules that decide who qualifies are all decided here, and the human stakes are higher than almost anywhere else in government.',
+      'The welfare system is how the state supports people who cannot support themselves, through pensions, disability benefits, universal credit and the safety net beneath work on low pay. It is also one of the largest single areas of spending and a perennial political battleground, where every reform pits the cost to the taxpayer against the consequences for the people who rely on it. Pension policy, disability assessments, the level of benefits for people of working age and the rules that decide who qualifies are all decided here, and the human stakes are higher than almost anywhere else in government.',
     departmentSlugs: ['work-pensions'],
     deptApiNames: ['Department for Work and Pensions'],
     keywords: ['welfare', 'benefit', 'universal credit', 'pension', 'disabilit', 'poverty', 'pip', 'winter fuel', 'state pension'],
@@ -107,7 +107,7 @@ export const topics: TopicDef[] = [
     slug: 'climate-and-energy',
     title: 'Climate and Energy',
     blurb:
-      'Climate and energy policy decides both how much households pay to heat their homes and what kind of country is handed to the next generation. It covers the path to net zero, the mix of renewables, nuclear and fossil fuels, the future of North Sea oil and gas, energy security after the shock of the Ukraine war, and the cost of the transition and who bears it. The tension at its heart is real: the long-term case for decarbonisation against the immediate pressure of bills, jobs and supply, and governments are repeatedly forced to choose between them.',
+      'Climate and energy policy decides both how much households pay to heat their homes and what kind of country is handed to the next generation. It covers the path to net zero, the mix of renewables, nuclear and fossil fuels, the future of North Sea oil and gas, energy security after the shock of the Ukraine war, and the cost of the transition and who bears it. The tension at its heart is real: the case for decarbonisation over the long run against the immediate pressure of bills, jobs and supply, and governments are repeatedly forced to choose between them.',
     departmentSlugs: ['energy', 'environment'],
     deptApiNames: ['Department for Energy Security and Net Zero', 'Department for Environment, Food and Rural Affairs'],
     keywords: ['climate', 'energy', 'net zero', 'carbon', 'renewable', 'electricity', 'emission', 'petroleum', 'environment', 'water', 'sewage'],

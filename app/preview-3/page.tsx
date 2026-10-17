@@ -272,7 +272,7 @@ export default async function HomePage() {
 
                 <p className="mt-8 max-w-[560px] text-lg leading-8 text-black/80">
                   {leadStory?.description ||
-                    'We dig through the spin, follow the money, and fact-check the official line. Because democracy works better when the truth is in the open.'}
+                    'We dig through the spin, follow the money, and check the facts behind the official line. Because democracy works better when the truth is in the open.'}
                 </p>
 
                 <div className="mt-9 flex flex-wrap gap-4">
@@ -403,7 +403,7 @@ export default async function HomePage() {
               />
               <TrustItem
                 icon={<Clock3 />}
-                title="Real-time Data"
+                title="Live Data"
                 body="Live updates from official sources across the UK."
               />
               <TrustItem

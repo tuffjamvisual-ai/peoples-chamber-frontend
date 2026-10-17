@@ -68,7 +68,7 @@ export default function PreviewFooterPage() {
             textShadow: '1px 1px 0px rgba(0,0,0,0.1)',
           }}
         >
-          End of profile mock-up
+          End of profile mockup
         </h1>
         <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '720px', marginBottom: '24px' }}>
           This is filler content standing in for the bottom of an MP profile or department page

@@ -241,7 +241,7 @@ export default async function HomePage() {
                 <div className="og-kicker" style={{ color: 'var(--ink-soft)', letterSpacing: '0.18em' }}>Weekly newsletter</div>
                 <div className="og-head">What government announced. What the evidence shows. What happened next.</div>
                 <p>Open Govt Weekly brings you the most important investigations, overlooked documents, questionable claims and public spending stories from the week.</p>
-                <p style={{ marginTop: '8px' }}>No Westminster gossip. No press-release rewrites. Just the facts worth knowing.</p>
+                <p style={{ marginTop: '8px' }}>No Westminster gossip. No rewritten press releases. Just the facts worth knowing.</p>
                 <p style={{ marginTop: '8px', fontWeight: 700 }}>Delivered every Sunday.</p>
                 <NewsletterSignup source="homepage" />
               </div>

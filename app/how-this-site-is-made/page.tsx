@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   // AI-tools mention temporarily removed pending a disclosure decision. Original:
   //   'How opengovt is written, edited and fact-checked: AI tools for research and drafting, with primary-source verification against Hansard, the Register of Members’ Financial Interests, Companies House, the Electoral Commission and government statistics.',
   description:
-    'How opengovt is written, edited and fact-checked: primary-source verification against Hansard, the Register of Members’ Financial Interests, Companies House, the Electoral Commission and government statistics.',
+    'How opengovt is written, edited and checked for accuracy, with every fact verified against primary sources: Hansard, the Register of Members’ Financial Interests, Companies House, the Electoral Commission and government statistics.',
   alternates: { canonical: '/how-this-site-is-made' },
 };
 

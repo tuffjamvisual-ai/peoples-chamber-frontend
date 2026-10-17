@@ -403,7 +403,7 @@ export default async function DonorPage({ params }: PageProps) {
 
       {matchedContracts.length > 0 && (
         <section style={{ marginBottom: '28px', padding: '14px 16px', background: 'rgba(20,16,13,0.04)', borderLeft: `3px solid ${DANGER}` }}>
-          <h2 style={{ ...sectionH2, marginTop: 0, marginBottom: '8px' }}>Also holds {matchedContracts.length} UK public-sector contract{matchedContracts.length === 1 ? '' : 's'}{unpublishedValues === matchedContracts.length ? ' · values not published' : ` · ${fmtMoney(totalContractValue)}${unpublishedValues ? ` (value not published for ${unpublishedValues})` : ''}`}</h2>
+          <h2 style={{ ...sectionH2, marginTop: 0, marginBottom: '8px' }}>Also holds {matchedContracts.length} UK public contract{matchedContracts.length === 1 ? '' : 's'}{unpublishedValues === matchedContracts.length ? ' · values not published' : ` · ${fmtMoney(totalContractValue)}${unpublishedValues ? ` (value not published for ${unpublishedValues})` : ''}`}</h2>
           <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '12px' }}>This donor name also appears as a supplier on Find a Tender, the government's register of public contracts. The match is an exact name overlap; no causal link is implied between the donations on this page and the contracts below. Public bodies awarding the work:</p>
           <table style={{ ...tableStyle, marginBottom: '8px' }}>
             <thead>
@@ -464,7 +464,7 @@ export default async function DonorPage({ params }: PageProps) {
               </tbody>
             </table>
           </div>
-          <Link href="/donations/government-contractors" style={{ fontSize: '15px', color: ACCENT, textDecoration: 'underline' }}>See the full contractor-donor cross-reference &rarr;</Link>
+          <Link href="/donations/government-contractors" style={{ fontSize: '15px', color: ACCENT, textDecoration: 'underline' }}>See every contractor that also donates &rarr;</Link>
         </section>
       )}
 

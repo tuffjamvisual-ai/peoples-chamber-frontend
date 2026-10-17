@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     .select('id, status, token, last_sent_at')
     .eq('email', email) // stored lower-cased
     .maybeSingle();
-  if (readErr) return NextResponse.json({ error: 'Sign-up is unavailable just now. Please try again later.' }, { status: 500 });
+  if (readErr) return NextResponse.json({ error: 'Signing up is unavailable just now. Please try again later.' }, { status: 500 });
 
   if (existing?.status === 'confirmed') return NextResponse.json({ ok: true });
   if (existing?.last_sent_at && Date.now() - new Date(existing.last_sent_at).getTime() < RESEND_GAP_MS) {
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
       .eq('id', existing.id)
       .select('token')
       .single();
-    if (error || !data) return NextResponse.json({ error: 'Sign-up is unavailable just now. Please try again later.' }, { status: 500 });
+    if (error || !data) return NextResponse.json({ error: 'Signing up is unavailable just now. Please try again later.' }, { status: 500 });
     token = data.token;
   } else {
     const { data, error } = await supabase
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
       .insert({ email, source, last_sent_at: new Date().toISOString() })
       .select('token')
       .single();
-    if (error || !data) return NextResponse.json({ error: 'Sign-up is unavailable just now. Please try again later.' }, { status: 500 });
+    if (error || !data) return NextResponse.json({ error: 'Signing up is unavailable just now. Please try again later.' }, { status: 500 });
     token = data.token;
   }
 

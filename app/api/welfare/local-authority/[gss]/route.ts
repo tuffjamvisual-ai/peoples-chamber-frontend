@@ -509,6 +509,6 @@ export async function GET(
     medianWage,
     ucLcwra,
     benefits,
-    note: 'PIP, DLA, and Carer\'s Allowance are devolved in Scotland. Only UC, Housing Benefit, and ESA (GB-wide reserved benefits) are shown. No national ranking is available.',
+    note: 'PIP, DLA, and Carer\'s Allowance are devolved in Scotland. Only UC, Housing Benefit, and ESA (reserved benefits across Great Britain) are shown. No national ranking is available.',
   });
 }

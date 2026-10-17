@@ -159,8 +159,8 @@ export default async function MpSecondJobsDetail({ params }: { params: Promise<{
           <strong style={{ color: INK }}>Methodology.</strong> Drawn from the Members’
           Register of Financial Interests (members-api.parliament.uk) for current MPs
           only. Totals are the sum of explicit “Payment: £X” amounts in
-          registered child entries. Ranges and salaried roles without a per-payment
-          figure are not summed but the underlying roles still appear above.
+          registered child entries. Ranges and salaried roles without a figure for
+          each payment are not summed but the underlying roles still appear above.
         </section>
 
         <div style={{ marginTop: '20px', fontFamily: MONO, fontSize: '15px' }}>

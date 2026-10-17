@@ -35,7 +35,7 @@ export const DEPARTMENT_BUDGETS: Record<string, DepartmentBudget> = {
   education: {
     resourceDel: 100.6, capitalDel: 6.8, year: '2025/26',
     prose:
-      "Schools, sixth forms, further education colleges, apprenticeships, early years (the so-called free hours), tuition fee support and the student loan book including the RAB charge, the portion of student loans expected never to be repaid, accounted for as resource spending up front. The 10.7% drop in Resource DEL between 2024/25 and 2025/26 is driven entirely by a £17.9 billion reduction in the RAB charge, not by an underlying cut to schools funding.",
+      "Schools, sixth forms, further education colleges, apprenticeships, early years (known as the free hours), tuition fee support and the student loan book including the RAB charge, the portion of student loans expected never to be repaid, accounted for as resource spending up front. The 10.7% drop in Resource DEL between 2024/25 and 2025/26 is driven entirely by a £17.9 billion reduction in the RAB charge, not by an underlying cut to schools funding.",
   },
   defence: {
     resourceDel: 47.4, capitalDel: 23.1, year: '2025/26',

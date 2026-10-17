@@ -77,7 +77,7 @@ export default async function AppgFundersIndex() {
           Who pays for Westminster&rsquo;s All-Party Groups
         </h1>
         <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
-          {ranked.length} different organisations declared funding to one or more APPGs in the most recent register cycle. {multi.length} of them fund two or more groups: when one company sits across multiple APPGs, that&rsquo;s a single corporate lobbying spend buying multiple channels into Parliament. The defence prime BAE Systems funds three. The Joseph Rowntree Charitable Trust funds two. The rest single-fund a group typically aligned to their cause or sector.
+          {ranked.length} different organisations declared funding to one or more APPGs in the most recent register cycle. {multi.length} of them fund two or more groups: when one company sits across multiple APPGs, that&rsquo;s a single corporate lobbying spend buying multiple channels into Parliament. The defence prime BAE Systems funds three. The Joseph Rowntree Charitable Trust funds two. The rest each fund a single group typically aligned to their cause or sector.
         </p>
       </header>
 
@@ -119,7 +119,7 @@ export default async function AppgFundersIndex() {
 
       <details style={{ marginBottom: '32px' }}>
         <summary style={{ cursor: 'pointer', fontFamily: '"Special Elite", monospace', fontSize: '15px', fontWeight: 'bold', padding: '8px 0' }}>
-          Single-APPG funders ({single.length})
+          Funders of one APPG ({single.length})
         </summary>
         <ul style={{ listStyle: 'none', padding: '8px 0', columns: '2 280px', columnGap: '24px', fontSize: '15px' }}>
           {single.map((r) => (

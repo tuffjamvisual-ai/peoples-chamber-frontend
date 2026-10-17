@@ -48,7 +48,7 @@ const HOTSPOTS: Hotspot[] = [
       // public-priority polling.
       { label: 'All Polls',            href: '/polls' },
       { label: 'Your Tax Pound',       href: '/your-tax-pound' },
-      { label: 'Budget Trade-Offs',    href: '/budget-trade-offs' },
+      { label: 'Budget Choices',       href: '/budget-trade-offs' },
     ],
   },
   {

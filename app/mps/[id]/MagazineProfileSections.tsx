@@ -684,7 +684,7 @@ export default function MagazineProfileSections({
     { key: 'accommodation_spend',      label: 'Accommodation',        short: 'Accom.' },
     { key: 'travel_subsistence_spend', label: 'Travel + Subsistence', short: 'Travel' },
     { key: 'other_costs_spend',        label: 'Other costs',          short: 'Other' },
-    { key: 'winding_up_spend',         label: 'Winding-up',           short: 'Wind.' },
+    { key: 'winding_up_spend',         label: 'Winding up',           short: 'Wind.' },
   ];
   // Compact mode (landing folder): abbreviate headers and drop any column that is zero
   // across every year, so the table fits without horizontal scrolling.
@@ -1459,7 +1459,7 @@ export default function MagazineProfileSections({
               <>
                 <h3 style={sectionH3}>All-Party Parliamentary Groups officered</h3>
                 <p style={{ fontSize: '15px', opacity: 0.7, lineHeight: 1.55, marginBottom: '12px', maxWidth: '60ch' }}>
-                  APPGs are unofficial cross-party groups MPs run on specific topics. Each group&rsquo;s registered funders are the entities paying for its secretariat, research and events. Officers are the MPs responsible for the group. Together they are the formal lobbying channel inside Westminster, the one that doesn&rsquo;t appear on the Register of Members&rsquo; Financial Interests.
+                  APPGs are unofficial groups, drawn from across the parties, that MPs run on specific topics. Each group&rsquo;s registered funders are the entities paying for its secretariat, research and events. Officers are the MPs responsible for the group. Together they are the formal lobbying channel inside Westminster, the one that doesn&rsquo;t appear on the Register of Members&rsquo; Financial Interests.
                 </p>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: 1.55 }}>
                   {appgs.map((a) => (
@@ -1687,7 +1687,7 @@ export default function MagazineProfileSections({
                   )}
                 </p>
                 <p style={{ margin: '8px 0 0', fontSize: '15px', lineHeight: 1.55, color: '#14100d' }}>
-                  Register-declared figures only. Electoral Commission donations to the party appear on the Donations tab and
+                  Only figures declared in the Register. Electoral Commission donations to the party appear on the Donations tab and
                   are not included here. Amounts under investigation or not on the register are excluded.
                 </p>
               </div>
@@ -1735,7 +1735,7 @@ export default function MagazineProfileSections({
                                 )}
                                 {/* FX-converted note */}
                                 {r.fx && (
-                                  <span style={{ ...pillStyle, color: '#14100d', border: '1px solid rgba(20,16,13,0.25)' }} title="Amount converted from a non-GBP original">
+                                  <span style={{ ...pillStyle, color: '#14100d', border: '1px solid rgba(20,16,13,0.25)' }} title="Amount converted from another currency">
                                     £ converted
                                   </span>
                                 )}
@@ -1867,7 +1867,7 @@ export default function MagazineProfileSections({
                   <> Top 3 donors account for <strong>{concentrationPct.toFixed(1)}%</strong> of all donations.</>
                 )}
                 {prePollTotal > 0 && (
-                  <> Pre-poll period: <strong>{prePollPct.toFixed(1)}%</strong>.</>
+                  <> Declared during an election campaign: <strong>{prePollPct.toFixed(1)}%</strong>.</>
                 )}
               </p>
 
@@ -2035,7 +2035,7 @@ export default function MagazineProfileSections({
                   <section style={{ marginBottom: '24px', padding: '14px 16px', background: 'rgba(122,22,18,0.05)', borderLeft: '3px solid #7a1612' }}>
                     <h3 style={{ ...sectionH3, marginTop: 0, marginBottom: '8px' }}>Voted on bills touching their donor sectors</h3>
                     <p style={{ fontSize: '15px', opacity: 0.7, lineHeight: 1.55, marginBottom: '12px' }}>
-                      Each block below pairs a sector this MP received money from with every Commons division they voted on that touched that sector. Both halves of this data are public, the cross-reference is not. Read it and decide whether the pattern is coincidence or alignment.
+                      Each block below pairs a sector this MP received money from with every Commons division they voted on that touched that sector. Both halves of this data are public, the comparison is not. Read it and decide whether the pattern is coincidence or alignment.
                     </p>
                     {sectorCrossRef.map((s) => {
                       const stat = totalByKey.get(s.label.toLowerCase());
@@ -2129,7 +2129,7 @@ export default function MagazineProfileSections({
               )}
 
               <p style={{ marginTop: '8px', fontSize: '15px', opacity: 0.6, lineHeight: 1.55 }}>
-                Cash and non-cash combined: {fmtMoney(cashTotal)} cash, {fmtMoney(nonCashTotal)} non-cash.
+                Cash and in kind combined: {fmtMoney(cashTotal)} cash, {fmtMoney(nonCashTotal)} in kind.
               </p>
 
             </>
@@ -2486,7 +2486,7 @@ function DonationDetail({ d, crn }: { d: Donation; crn: string }) {
       {d.dealt_with_date && <Row label="Dealt with" value={fmtDate(d.dealt_with_date)} />}
       <Row label="Amount" value={fmtMoney(Number(d.amount) || 0)} />
       {Number(d.cash_value) > 0 && <Row label="Cash value" value={fmtMoneyOpt(d.cash_value)} />}
-      {Number(d.non_cash_value) > 0 && <Row label="Non-cash value" value={fmtMoneyOpt(d.non_cash_value)} />}
+      {Number(d.non_cash_value) > 0 && <Row label="Value in kind" value={fmtMoneyOpt(d.non_cash_value)} />}
       <Row label="Manner" value={fmt(d.manner_in_which_made)} />
       <Row label="Nature" value={fmt(d.nature)} />
       <Row label="Donation type" value={fmt(d.donor_type)} />
@@ -2520,7 +2520,7 @@ function DonationDetail({ d, crn }: { d: Donation; crn: string }) {
       {(d.reporting_period_name || d.reporting_period_type) && (
         <Row label="Reporting period" value={[d.reporting_period_name, d.reporting_period_type].filter(Boolean).join(' · ')} />
       )}
-      {d.is_reported_pre_poll === true && <Row label="Pre-poll" value="Yes, declared during an election campaign window" />}
+      {d.is_reported_pre_poll === true && <Row label="Campaign period" value="Yes, declared during an election campaign window" />}
       {d.is_aggregation === true && <Row label="Aggregation" value="Yes, sum of multiple smaller donations" />}
       {d.is_bequest === true && <Row label="Bequest" value="Yes, from a deceased estate" />}
       {d.is_sponsorship === true && <Row label="Sponsorship" value="Yes, sponsorship arrangement" />}

@@ -7,7 +7,7 @@ export const revalidate = 86400;
 
 export const metadata: Metadata = {
   title: 'Select Committees: UK Parliament',
-  description: 'Current membership of the 29 select and cross-cutting committees of the House of Commons, sourced from UK Parliament.',
+  description: 'Current membership of the 29 select committees of the House of Commons, including those whose work spans several departments, sourced from UK Parliament.',
   alternates: { canonical: '/committees' },
 };
 
@@ -35,7 +35,7 @@ type MpRow = {
 // Groups shown on the index, in display order.
 const GROUPS: { label: string; typeIds: number[] }[] = [
   { label: 'Departmental Select Committees', typeIds: [1] },
-  { label: 'Cross-Cutting Select Committees', typeIds: [22] },
+  { label: 'Select Committees Across Departments', typeIds: [22] },
   { label: 'Other Select Committees', typeIds: [3, 2, 4, 9, 23, 24, 26] },
 ];
 

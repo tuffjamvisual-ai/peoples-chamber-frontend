@@ -101,7 +101,7 @@ export default function UniteKingdomPage() {
             </p>
 
             <p style={body()}>
-              The political class spent £4.5 million on police to manage them, deployed 4,000 officers with drones and helicopters and live facial-recognition technology, and then promptly ignored what they were actually saying.
+              The political class spent £4.5 million on police to manage them, deployed 4,000 officers with drones and helicopters and live facial recognition technology, and then promptly ignored what they were actually saying.
             </p>
 
             <p style={body()}>
@@ -124,7 +124,7 @@ export default function UniteKingdomPage() {
             </p>
 
             <p style={body()}>
-              Crowds carried St George&rsquo;s Cross and Union flags, chanted about wanting their country back, and some wore red Make England Great Again hats. Christian imagery was visible throughout. Protesters carried crosses, waved crucifixes, and some dressed as Knights Templar. There was also a visible Iranian opposition presence waving pre-revolutionary flags, and supporters of Israel who saw the march as a stand for Judeo-Christian values.
+              Crowds carried St George&rsquo;s Cross and Union flags, chanted about wanting their country back, and some wore red Make England Great Again hats. Christian imagery was visible throughout. Protesters carried crosses, waved crucifixes, and some dressed as Knights Templar. There was also a visible Iranian opposition presence waving flags from before the revolution, and supporters of Israel who saw the march as a stand for Jewish and Christian values.
             </p>
 
             <p style={body()}>
@@ -134,7 +134,7 @@ export default function UniteKingdomPage() {
             <h2 style={h2()}>What Westminster Refuses to Admit</h2>
 
             <p style={body()}>
-              Mass immigration has changed Britain rapidly and profoundly. That is not a racist observation. It is a demographic fact. Between 1991 and 2021, the non-UK born population of England and Wales more than doubled from 3.8 million to 10 million. In some areas, the pace of change has been even faster. Communities that were socially cohesive thirty years ago are now deeply fragmented, not because people are inherently hostile to newcomers, but because the scale and speed of change has made integration impossible.
+              Mass immigration has changed Britain rapidly and profoundly. That is not a racist observation. It is a demographic fact. Between 1991 and 2021, the population of England and Wales born outside the UK more than doubled from 3.8 million to 10 million. In some areas, the pace of change has been even faster. Communities that were socially cohesive thirty years ago are now deeply fragmented, not because people are inherently hostile to newcomers, but because the scale and speed of change has made integration impossible.
             </p>
 
             <PhotoCard
@@ -151,7 +151,7 @@ export default function UniteKingdomPage() {
             </p>
 
             <p style={body()}>
-              The political class has spent years gaslighting ordinary people about their own lived experience. They have been told that immigration is good for the economy while watching their wages stagnate. They have been told that diversity is strength while watching their communities fragment. They have been told that multiculturalism works while watching integration fail. And they have been told that anyone who questions any of this is a far-right extremist who needs to be surveilled, arrested, or silenced.
+              The political class has spent years gaslighting ordinary people about their own lived experience. They have been told that immigration is good for the economy while watching their wages stagnate. They have been told that diversity is strength while watching their communities fragment. They have been told that multiculturalism works while watching integration fail. And they have been told that anyone who questions any of this is an extremist of the far right who needs to be surveilled, arrested, or silenced.
             </p>
 
             <h2 style={h2()}>The Real Extremism</h2>
@@ -161,7 +161,7 @@ export default function UniteKingdomPage() {
             </p>
 
             <p style={body()}>
-              What is extreme is deploying 4,000 police officers, drones, helicopters and live facial-recognition technology to monitor British citizens exercising their democratic right to protest, while simultaneously allowing illegal immigration to continue unchecked and doing almost nothing to remove people who have no right to be in the country.
+              What is extreme is deploying 4,000 police officers, drones, helicopters and live facial recognition technology to monitor British citizens exercising their democratic right to protest, while simultaneously allowing illegal immigration to continue unchecked and doing almost nothing to remove people who have no right to be in the country.
             </p>
 
             <p style={body()}>

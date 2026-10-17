@@ -20,15 +20,16 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
+import { fmtDate } from '@/lib/lobbying';
 import { donorNameToSlug } from '../../donors/[slug]/page';
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: 'Foreign-source political donations: UK politics money map by country',
+  title: 'Political donations from abroad: UK politics money map by country',
   description:
-    'Every UK political donation declared from outside the United Kingdom, grouped by donor country. Reveals which foreign-address donors fund which UK parties and parliamentary recipients.',
+    'Every UK political donation declared from outside the United Kingdom, grouped by donor country. Reveals which donors with foreign addresses fund which UK parties and parliamentary recipients.',
   alternates: { canonical: '/donations/foreign' },
 };
 
@@ -94,13 +95,13 @@ export default async function ForeignDonationsPage() {
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
         <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
-          Money map · Foreign-address donations
+          Money map · Donations from foreign addresses
         </p>
         <h1 style={{ fontFamily: 'Special Elite, monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
-          Foreign-source donations to UK politics
+          Donations to UK politics from abroad
         </h1>
         <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
-          The Electoral Commission records the address country of every donor. {foreignCount} declared donations carry a non-UK country totalling £{Math.round(totalAll).toLocaleString()} across {countries.length} different jurisdictions. An overseas address does not by itself make a donation impermissible: the Electoral Commission decides which donors are permissible. The table shows where declared donors' addresses are.
+          The Electoral Commission records the address country of every donor. {foreignCount} declared donations carry a country outside the UK, totalling £{Math.round(totalAll).toLocaleString()} across {countries.length} different jurisdictions. An overseas address does not by itself make a donation impermissible: the Electoral Commission decides which donors are permissible. The table shows where declared donors' addresses are.
         </p>
       </header>
 
@@ -135,7 +136,7 @@ export default async function ForeignDonationsPage() {
       </section>
 
       <section>
-        <h2 style={sectionH2}>Largest single foreign-address donations</h2>
+        <h2 style={sectionH2}>Largest single donations from foreign addresses</h2>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -156,7 +157,7 @@ export default async function ForeignDonationsPage() {
                 </td>
                 <td style={{ padding: '6px', fontSize: '15px' }}>{r.addr_country}</td>
                 <td style={{ padding: '6px', fontSize: '15px' }}>{r.recipient_name || ''}</td>
-                <td style={{ padding: '6px', fontSize: '15px', fontFamily: 'monospace', opacity: 0.7 }}>{r.accepted_date || ''}</td>
+                <td style={{ padding: '6px', fontSize: '15px', fontFamily: 'monospace', opacity: 0.7 }}>{fmtDate(r.accepted_date ?? null)}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(Number(r.amount || 0)).toLocaleString()}</td>
               </tr>
             ))}

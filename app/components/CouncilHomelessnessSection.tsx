@@ -120,7 +120,7 @@ export default async function CouncilHomelessnessSection({ gssCodes, isCounty }:
 
   const types: { label: string; total: Field; kids: Field }[] = [
     { label: 'Bed and breakfast hotels', total: 'ta_bb', kids: 'ta_bb_children' },
-    { label: 'Nightly-paid self-contained rooms or flats', total: 'ta_nightly_paid', kids: 'ta_nightly_paid_children' },
+    { label: 'Rooms or flats with own facilities, paid nightly', total: 'ta_nightly_paid', kids: 'ta_nightly_paid_children' },
     { label: 'Hostels and refuges', total: 'ta_hostels', kids: 'ta_hostels_children' },
     { label: 'Private homes leased for the purpose', total: 'ta_private_sector', kids: 'ta_private_sector_children' },
     { label: 'Council or housing association homes', total: 'ta_la_ha_stock', kids: 'ta_la_ha_stock_children' },
@@ -158,7 +158,7 @@ export default async function CouncilHomelessnessSection({ gssCodes, isCounty }:
             <strong>{fmtNum(owed)}</strong> households were owed help by the council because they were homeless or at risk, {labelOf(latestA1)}
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', margin: '12px 0 18px' }}>
-            {stat('Threatened with homelessness', prevention, preventionRate != null ? `${fmtRate(preventionRate)} per 1,000 households${s21 != null ? ` · ${fmtNum(s21)} after a section 21 (“no-fault”) eviction notice` : ''}` : null)}
+            {stat('Threatened with homelessness', prevention, preventionRate != null ? `${fmtRate(preventionRate)} per 1,000 households${s21 != null ? ` · ${fmtNum(s21)} after a section 21 (“no fault”) eviction notice` : ''}` : null)}
             {stat('Already homeless', relief, reliefRate != null ? `${fmtRate(reliefRate)} per 1,000 households` : null)}
           </div>
         </>
@@ -262,7 +262,7 @@ export default async function CouncilHomelessnessSection({ gssCodes, isCounty }:
 
       <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
         {isCounty && 'Housing and homelessness are district council responsibilities, so figures for this county are the total of its district councils; a quarter is shown only when every district reported it. '}
-        Councils must help households threatened with homelessness within 56 days (prevention duty) and those already homeless (relief duty), and may house them in temporary accommodation while longer-term housing is found.
+        Councils must help households threatened with homelessness within 56 days (prevention duty) and those already homeless (relief duty), and may house them in temporary accommodation while more settled housing is found.
         {latestA1 && latestA1 !== newest && ` Figures for ${labelOf(newest)} were not submitted, so the latest available quarter is shown.`}
         {latestTA && latestTA !== newest && latestA1 === newest && ` Temporary accommodation figures for ${labelOf(newest)} were not submitted, so the latest available quarter is shown.`}
         {provisional && ` Figures for ${labelOf(newest)} are provisional and may be revised.`}

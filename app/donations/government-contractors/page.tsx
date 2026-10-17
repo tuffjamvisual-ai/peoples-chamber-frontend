@@ -70,13 +70,13 @@ export default async function ContractorsWhoDonatePage() {
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
         <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
-          Cross-reference · Contractors who fund the parties choosing them
+          Cross reference · Contractors who fund the parties choosing them
         </p>
         <h1 style={{ fontFamily: 'Special Elite, monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
           UK government contractors who donate to UK political parties
         </h1>
         <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
-          {matched.length} companies appear on both the government contracts records (Find a Tender) and the Electoral Commission donations register under the same name. Between them they hold &pound;{Math.round(totalContractValue).toLocaleString()} in declared public-sector contracts and have given &pound;{Math.round(totalDonated).toLocaleString()} in declared political donations. The largest donors among them are listed first. Match rule is conservative: exact case-insensitive name. Subsidiaries, trading names and rebrands are missed.
+          {matched.length} companies appear on both the government contracts records (Find a Tender) and the Electoral Commission donations register under the same name. Between them they hold &pound;{Math.round(totalContractValue).toLocaleString()} in declared contracts with the public sector and have given &pound;{Math.round(totalDonated).toLocaleString()} in declared political donations. The largest donors among them are listed first. Match rule is conservative: exact name, ignoring capital letters. Subsidiaries, trading names and rebrands are missed.
         </p>
       </header>
 
@@ -111,11 +111,11 @@ export default async function ContractorsWhoDonatePage() {
       </section>
 
       <section style={{ background: CREAM, padding: '12px 14px', fontSize: '15px', lineHeight: 1.6, marginBottom: '24px' }}>
-        <strong>What this list isn&rsquo;t.</strong> A company appearing on both registers does not mean its contracts were obtained as a result of its donations. What the list does show is the firms that are both public-sector suppliers and political donors, with the totals from each register, so the overlap can be seen in one place.
+        <strong>What this list isn&rsquo;t.</strong> A company appearing on both registers does not mean its contracts were obtained as a result of its donations. What the list does show is the firms that both supply the public sector and give to political parties, with the totals from each register, so the overlap can be seen in one place.
       </section>
 
       <p style={{ fontSize: '15px', color: '#14100d', opacity: 1 }}>
-        Sources: Find a Tender (OCDS) + Electoral Commission donations register. Match rule: exact case-insensitive whitespace-normalised supplier name = donor name.
+        Sources: Find a Tender (OCDS) + Electoral Commission donations register. Match rule: supplier name = donor name exactly, ignoring capital letters and extra spaces.
       </p>
       <LastUpdated sourceKey="government_contracts" />
     </OpenGovShell>

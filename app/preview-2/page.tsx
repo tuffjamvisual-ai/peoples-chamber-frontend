@@ -137,8 +137,8 @@ export default function HomePage() {
                 </h1>
 
                 <p className="mt-8 max-w-[510px] text-lg leading-8 text-black/80">
-                  We dig through the spin, follow the money, and fact-check the
-                  official line. Because democracy works better when the truth is
+                  We dig through the spin, follow the money, and check the facts
+                  behind the official line. Because democracy works better when the truth is
                   in the open.
                 </p>
 
@@ -231,7 +231,7 @@ export default function HomePage() {
               />
               <TrustItem
                 icon={<Clock3 />}
-                title="Real-time Data"
+                title="Live Data"
                 body="Live updates from official sources across the UK."
               />
               <TrustItem

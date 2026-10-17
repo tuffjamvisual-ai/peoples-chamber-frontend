@@ -25,7 +25,7 @@ import { donorNameToSlug } from '../../donors/[slug]/page';
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: 'Late-disclosed political donations: when UK parties told the EC after the deadline',
+  title: 'Political donations disclosed late: when UK parties told the EC after the deadline',
   description:
     'Political donations declared to the Electoral Commission more than 90 days after acceptance, ranked by disclosure delay. UK parties are required to report large donations within 30 days; this page surfaces the gap.',
   alternates: { canonical: '/donations/late-disclosed' },
@@ -85,9 +85,9 @@ export default async function LateDisclosedPage() {
   enriched.sort((a, b) => b.gap - a.gap);
 
   const buckets = {
-    '90-180 days': enriched.filter((r) => r.gap > 90 && r.gap <= 180).length,
-    '180-365 days': enriched.filter((r) => r.gap > 180 && r.gap <= 365).length,
-    '1-2 years': enriched.filter((r) => r.gap > 365 && r.gap <= 730).length,
+    '90 to 180 days': enriched.filter((r) => r.gap > 90 && r.gap <= 180).length,
+    '180 to 365 days': enriched.filter((r) => r.gap > 180 && r.gap <= 365).length,
+    '1 to 2 years': enriched.filter((r) => r.gap > 365 && r.gap <= 730).length,
     'over 2 years': enriched.filter((r) => r.gap > 730).length,
   };
   const totalGt90 = enriched.length;
@@ -118,7 +118,7 @@ export default async function LateDisclosedPage() {
           Compliance · Disclosure delays
         </p>
         <h1 style={{ fontFamily: 'Special Elite, monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
-          Late-disclosed political donations
+          Political donations disclosed late
         </h1>
         <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
           UK law gives political parties and parliamentary recipients 30 days to report large donations to the Electoral Commission. {totalGt90.toLocaleString()} declared donations over &pound;1,500 show a gap of more than 90 days between acceptance and disclosure, worth &pound;{Math.round(totalAmount).toLocaleString()} in total. The longest gaps run to more than a decade.
@@ -194,7 +194,7 @@ export default async function LateDisclosedPage() {
       </section>
 
       <p style={{ fontSize: '15px', opacity: 0.6, marginTop: '24px' }}>
-        Calculated from Electoral Commission donations register: reported_date minus accepted_date, filtered to donations &gt; &pound;1,500 with a gap of more than 90 days. The 30-day statutory deadline applies to most registered parties and parliamentary recipients; thresholds vary by donee type.
+        Calculated from Electoral Commission donations register: reported_date minus accepted_date, filtered to donations &gt; &pound;1,500 with a gap of more than 90 days. The statutory deadline of 30 days applies to most registered parties and parliamentary recipients; thresholds vary by donee type.
       </p>
     </OpenGovShell>
   );

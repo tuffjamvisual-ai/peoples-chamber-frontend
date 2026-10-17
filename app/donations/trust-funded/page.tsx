@@ -20,7 +20,7 @@ import { donorNameToSlug } from '../../donors/[slug]/page';
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: 'Trust-routed political donations: who funds UK politics via trusts',
+  title: 'Political donations routed through trusts: who funds UK politics via trusts',
   description:
     'Political donations to UK parties and parliamentary recipients channelled through a trust rather than a named individual. Aggregated by trust, with the trust creator and recipient on every row.',
   alternates: { canonical: '/donations/trust-funded' },
@@ -92,13 +92,13 @@ export default async function TrustFundedPage() {
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
         <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
-          Beneficial-ownership shield · Trust donations
+          Shield for beneficial ownership · Trust donations
         </p>
         <h1 style={{ fontFamily: 'Special Elite, monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
           UK political donations routed through a trust
         </h1>
         <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
-          {rows.length} declared donations totalling &pound;{Math.round(totalAll).toLocaleString()} list a trust as the donor rather than a named individual or company. The Electoral Commission requires the trust creator&rsquo;s name and status to be recorded, but the working capital and the active beneficial chain stay one step removed from the public register. The list runs from the late-Victorian Liberal Club bequests still paying out today to modern opaque vehicles.
+          {rows.length} declared donations totalling &pound;{Math.round(totalAll).toLocaleString()} list a trust as the donor rather than a named individual or company. The Electoral Commission requires the trust creator&rsquo;s name and status to be recorded, but the working capital and the active beneficial chain stay one step removed from the public register. The list runs from the late Victorian Liberal Club bequests still paying out today to modern opaque vehicles.
         </p>
       </header>
 

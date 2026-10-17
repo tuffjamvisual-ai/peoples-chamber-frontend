@@ -126,7 +126,7 @@ const SERVICE_SPENDING_AGGREGATE_CATEGORY: Record<string, string> = {
 // split).
 const COUNCIL_TAX_CAVEAT_BY_NATION: Record<string, string> = {
   England:
-    'This is the council’s own share only. Police and fire precepts (and, in two-tier areas, the county or district precept) are added separately for the final bill. See Council Spending by Service below for how this council itself spends.',
+    'This is the council’s own share only. Police and fire precepts (and, in areas with two tiers of council, the county or district precept) are added separately for the final bill. See Council Spending by Service below for how this council itself spends.',
   Scotland:
     'This is the council’s own charge. Scottish Water’s water and sewerage charges are added on the same bill. Police Scotland and the Scottish Fire and Rescue Service are national bodies funded by the Scottish Government, not through council tax. See Council Spending by Service below for how this council itself spends.',
   Wales:
@@ -448,7 +448,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                     <DataRow
                       label="District rate (NI)"
                       value={`${(c.ni_district_rate_poundage * 100).toFixed(4)}p per £ of capital value`}
-                      sub="Northern Ireland has no council tax. This is the council-set portion of domestic rates; a Stormont-set regional rate (5.559p in 2026-27) is added on top to produce the final bill."
+                      sub="Northern Ireland has no council tax. This is the portion of domestic rates set by the council; a regional rate set by Stormont (5.559p in 2026/27) is added on top to produce the final bill."
                     />
                   )}
                   {c.section_114_year && (
@@ -676,7 +676,7 @@ function PublicHealthRow({
       <DataRow
         label={label}
         value="No data available"
-        sub={`Not currently published at local-authority level for ${nation}.`}
+        sub={`Not currently published at local authority level for ${nation}.`}
       />
     );
   }

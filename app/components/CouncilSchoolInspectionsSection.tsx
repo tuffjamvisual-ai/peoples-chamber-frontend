@@ -57,7 +57,7 @@ const RC_AREAS: { key: keyof School; label: string }[] = [
   { key: 'rc_personal_development', label: 'Personal development and wellbeing' },
   { key: 'rc_leadership', label: 'Leadership and governance' },
   { key: 'rc_early_years', label: 'Early years' },
-  { key: 'rc_post16', label: 'Post-16 provision' },
+  { key: 'rc_post16', label: 'Provision after age 16' },
 ];
 const OEIF_LABELS: Record<string, string> = { '1': 'Outstanding', '2': 'Good', '3': 'Requires improvement', '4': 'Inadequate', 'Not judged': 'Not judged (no overall grade given)' };
 const OEIF_ORDER = ['1', '2', '3', '4', 'Not judged'];
@@ -274,7 +274,7 @@ export default async function CouncilSchoolInspectionsSection({
       </details>
 
       <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
-        Since 10 November 2025 Ofsted inspects schools under a renewed framework and publishes a report card grading up to eight areas on a five-point scale, plus whether safeguarding standards are met. Ofsted says these grades cannot be compared with grades from the previous framework, so they are shown separately. Graded inspections between 1 September 2024 and 9 November 2025 gave no overall grade (&ldquo;Not judged&rdquo;). Ungraded inspections check whether a school is still at its previous grade; the &ldquo;Earlier inspections&rdquo; figures use the last graded inspection.
+        Since 10 November 2025 Ofsted inspects schools under a renewed framework and publishes a report card grading up to eight areas on a scale of five points, plus whether safeguarding standards are met. Ofsted says these grades cannot be compared with grades from the previous framework, so they are shown separately. Graded inspections between 1 September 2024 and 9 November 2025 gave no overall grade (&ldquo;Not judged&rdquo;). Ungraded inspections check whether a school is still at its previous grade; the &ldquo;Earlier inspections&rdquo; figures use the last graded inspection.
       </p>
       <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: 0 }}>
         Source: Ofsted, State-funded schools inspections and outcomes as at {fmtDate(snapshot)} (official statistics). Contains public sector information licensed under the Open Government Licence v3.0.

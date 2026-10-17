@@ -22,7 +22,7 @@ import BackLink from '../components/BackLink';
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: 'Budget Trade-offs',
+  title: 'Budget Choices',
   description:
     'What would it cost to fix everything? A cross departmental analysis showing how the £900bn budget actually divides, what each department says it needs, and the five fundamental choices Parliament keeps refusing to make.',
   alternates: { canonical: '/budget-trade-offs' },
@@ -37,48 +37,48 @@ const MONO = 'Special Elite, monospace';
 const BODY = `TOTAL GOVERNMENT DEPARTMENTAL BUDGET: £900bn annually
 
 COMMITTED BEFORE DISCRETIONARY ALLOCATION:
-- Social Protection (pensions, welfare): £410bn (46%)
-- Debt Interest: £100bn (8%)
-- Total committed: £510bn (57%)
-- Available for discretionary: £390bn (43%)
+• Social Protection (pensions, welfare): £410bn (46%)
+• Debt Interest: £100bn (8%)
+• Total committed: £510bn (57%)
+• Available for discretionary: £390bn (43%)
 
-WHAT EACH DEPARTMENT REQUESTS (FROM TRADE-OFF ANALYSIS)
+WHAT EACH DEPARTMENT REQUESTS
 
-1. NHS/DHSC - £15-18bn additional annually
-   - Most critical: waiting lists (7m+), staff burnout, social care collapse
-   - Realistic (Option E): £11bn available
-   - Gap: £4-7bn
+1. NHS/DHSC: £15bn to £18bn additional annually
+   • Most critical: waiting lists (7m+), staff burnout, social care collapse
+   • Realistic (Option E): £11bn available
+   • Gap: £4bn to £7bn
 
-2. DfE (Education) - £9-10bn additional annually
-   - Most critical: teacher recruitment, school repairs, SEN funding
-   - Realistic (Option E): £5bn available
-   - Gap: £4-5bn
+2. DfE (Education): £9bn to £10bn additional annually
+   • Most critical: teacher recruitment, school repairs, SEN funding
+   • Realistic (Option E): £5bn available
+   • Gap: £4bn to £5bn
 
-3. DWP (Benefits) - £9-10bn additional annually
-   - Most critical: UC benefit levels, disability assessments, two-child limit
-   - Realistic (Option E): £5.5bn available
-   - Gap: £3.5-4.5bn
+3. DWP (Benefits): £9bn to £10bn additional annually
+   • Most critical: UC benefit levels, disability assessments, two child limit
+   • Realistic (Option E): £5.5bn available
+   • Gap: £3.5bn to £4.5bn
 
-4. MHCLG (Housing) - £11-13bn additional annually
-   - Most critical: social housing, cladding, council funding
-   - Realistic (Option E): £7bn available
-   - Gap: £4-6bn
+4. MHCLG (Housing): £11bn to £13bn additional annually
+   • Most critical: social housing, cladding, council funding
+   • Realistic (Option E): £7bn available
+   • Gap: £4bn to £6bn
 
-5. Home Office - £2.5-3.5bn additional annually (net £1.5-2.5bn after asylum accommodation savings)
-   - Most critical: asylum processing, visas, policing
-   - Realistic (Option E): £2.5bn available
-   - Gap: £0 (roughly balanced)
+5. Home Office: £2.5bn to £3.5bn additional annually (net £1.5bn to £2.5bn after asylum accommodation savings)
+   • Most critical: asylum processing, visas, policing
+   • Realistic (Option E): £2.5bn available
+   • Gap: £0 (roughly balanced)
 
-6. DESNZ (Energy) - £5-7bn additional annually
-   - Most critical: grid acceleration, nuclear, heat pumps
-   - Realistic (Option E): £5bn available
-   - Gap: £0-2bn
+6. DESNZ (Energy): £5bn to £7bn additional annually
+   • Most critical: grid acceleration, nuclear, heat pumps
+   • Realistic (Option E): £5bn available
+   • Gap: £0 to £2bn
 
-7. Treasury - Distributes the budget (not a request)
+7. Treasury: Distributes the budget (not a request)
 
-TOTAL ADDITIONAL FUNDING REQUESTED: £52-63bn annually
+TOTAL ADDITIONAL FUNDING REQUESTED: £52bn to £63bn annually
 REALISTIC TOTAL AVAILABLE (combining all Option E scenarios): £36.5bn
-TOTAL GAP: £15-27bn
+TOTAL GAP: £15bn to £27bn
 
 THE HARD TRUTH
 
@@ -87,56 +87,56 @@ Britain's departmental budget is £900bn. Committed before discretionary allocat
 Remaining for ALL public services: £390bn
 
 Department spending (current):
-- NHS: £200bn
-- Schools: £80bn
-- DWP (admin/support): £70bn (pensions are in protected budget)
-- Defence: £70bn
-- Other: everything else (environment, culture, justice, transport, etc.)
+• NHS: £200bn
+• Schools: £80bn
+• DWP (admin/support): £70bn (pensions are in protected budget)
+• Defence: £70bn
+• Other: everything else (environment, culture, justice, transport, etc.)
 
-What departments say they need to function properly: additional £52-63bn
+What departments say they need to function properly: additional £52bn to £63bn
 
 Where this money would come from:
-1. Tax rises: 5-6p income tax OR 2-3p VAT OR equivalent
-2. Cut other departments: Defence (-£15bn), Transport (-£10bn), Environment (-£5bn), Other services (-£15-27bn)
-3. Cut protected benefits: Freeze state pension growth, means-test child benefit (politically impossible)
+1. Tax rises: 5p to 6p income tax OR 2p to 3p VAT OR equivalent
+2. Cut other departments: Defence (minus £15bn), Transport (minus £10bn), Environment (minus £5bn), Other services (minus £15bn to £27bn)
+3. Cut protected benefits: Freeze state pension growth, apply a means test to child benefit (politically impossible)
 4. Accept deterioration: Keep current funding, watch services decline
 
 THE REALISTIC SCENARIO (COMBINING ALL OPTION E PATHS)
 
 If government commits to:
-- Modest tax rises (raises ~£10bn)
-- Efficiency improvements across departments (frees ~£5bn)
-- Reallocations from lower to higher priorities (reallocates ~£3bn)
-- Growing economy at 2-3% annually (frees ~£5bn)
-- Total available: ~£23-28bn
+• Modest tax rises (raises ~£10bn)
+• Efficiency improvements across departments (frees ~£5bn)
+• Reallocations from lower to higher priorities (reallocates ~£3bn)
+• Growing economy at 2% to 3% annually (frees ~£5bn)
+• Total available: ~£23bn to £28bn
 
 Allocation:
-- NHS: £8bn (partial solution to waiting lists and social care)
-- Education: £4bn (teacher pay and school repairs, not full solution)
-- DWP: £3bn (modest UC increase, not adequate)
-- Housing: £4bn (some new homes, councils still struggle)
-- Home Office: £2bn (asylum processing improves)
-- Energy: £2bn (grid and renewable acceleration)
+• NHS: £8bn (partial solution to waiting lists and social care)
+• Education: £4bn (teacher pay and school repairs, not full solution)
+• DWP: £3bn (modest UC increase, not adequate)
+• Housing: £4bn (some new homes, councils still struggle)
+• Home Office: £2bn (asylum processing improves)
+• Energy: £2bn (grid and renewable acceleration)
 
-Result: visible improvement in all areas, but no area fully solved. Waiting lists fall from 7m to 5-6m (still problematic). Teacher pay rises, retention improves but doesn't solve shortage. Housing shortage continues. DWP benefit levels still inadequate.
+Result: visible improvement in all areas, but no area fully solved. Waiting lists fall from 7m to 5m to 6m (still problematic). Teacher pay rises, retention improves but doesn't solve shortage. Housing shortage continues. DWP benefit levels still inadequate.
 
 WHY THIS MATTERS
 
 The institutional reports show that most departments are constrained, not failed. They are operating within tight budgets and making difficult choices. Some institutions (DWP) are choosing cruelty within constraints. Some institutions (NHS) are trying to deliver the impossible.
 
-Treasury is the bottleneck. It distributes a fixed or slowly-growing budget among competing demands. Every allocation to one department is a choice not to allocate to another.
+Treasury is the bottleneck. It distributes a fixed or slowly growing budget among competing demands. Every allocation to one department is a choice not to allocate to another.
 
 Parliament has not forced Treasury to be honest about this. Departments make requests. Treasury allocates some funds. Services decline. Everyone blames departments for poor performance. Parliament doesn't ask Treasury why it allocated that particular level.
 
 THE FIVE FUNDAMENTAL CHOICES PARLIAMENT MUST MAKE
 
-1. Healthcare vs. Everything Else: Does society want NHS fully funded (costs £15-18bn more) or partially funded (accept waiting lists, longer delays)?
+1. Healthcare vs. Everything Else: Does society want NHS fully funded (costs £15bn to £18bn more) or partially funded (accept waiting lists, longer delays)?
 
-2. Education vs. Everything Else: Does society want schools properly resourced (costs £9-10bn more) or partially resourced (accept teacher shortages, deteriorating buildings)?
+2. Education vs. Everything Else: Does society want schools properly resourced (costs £9bn to £10bn more) or partially resourced (accept teacher shortages, deteriorating buildings)?
 
-3. Social Protection vs. Everything Else: Does society want welfare adequately funding the vulnerable (costs £9-10bn more) or keeping benefit levels low (cost: poverty, child outcomes)?
+3. Social Protection vs. Everything Else: Does society want welfare adequately funding the vulnerable (costs £9bn to £10bn more) or keeping benefit levels low (cost: poverty, child outcomes)?
 
-4. Housing vs. Everything Else: Does society want to solve housing crisis (costs £11-13bn more) or accept ongoing shortage and homelessness?
+4. Housing vs. Everything Else: Does society want to solve housing crisis (costs £11bn to £13bn more) or accept ongoing shortage and homelessness?
 
 5. Taxes vs. Services: Does society prefer lower taxes (require service cuts) or higher taxes (maintain/improve services)?
 
@@ -145,10 +145,10 @@ Currently: Parliament pretends all are possible. Result: all are partially done,
 RECOMMENDATION
 
 Treasury should present Parliament with a clear budget scenario document showing:
-- Current budget allocation by department
-- What each department needs to function properly
-- Which funding sources are available (tax rises, reallocation, efficiency)
-- What happens if each choice is made
+• Current budget allocation by department
+• What each department needs to function properly
+• Which funding sources are available (tax rises, reallocation, efficiency)
+• What happens if each choice is made
 
 Parliament should then vote on priorities explicitly. Not pretend all things are possible.
 
@@ -160,7 +160,7 @@ export default function BudgetTradeOffsPage() {
   const paragraphs = BODY.split(/\n\n+/).map((p) => p.trim()).filter(Boolean);
 
   return (
-    <OpenGovShell pageStamp="Budget Trade-Offs">
+    <OpenGovShell pageStamp="Budget Choices">
       <BackLink
         fallbackHref="/"
         label="← Back"
@@ -187,8 +187,8 @@ export default function BudgetTradeOffsPage() {
           <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK_SOFT, maxWidth: '46em' }}>
             Britain's £900bn departmental budget, what each department says it needs to
             function properly, what's realistically available, and the five fundamental
-            choices Parliament keeps refusing to make. Companion to the per-department
-            Institutional Performance Reports.
+            choices Parliament keeps refusing to make. Companion to the Institutional
+            Performance Reports for each department.
           </p>
         </header>
 

@@ -25,9 +25,9 @@ export const SERVICE_PARTS: { key: string; label: string }[] = [
 
 // Where each measure comes from (shown in the method section).
 export const MEASURE_SOURCES: Record<string, string> = {
-  schools_quality: 'Ofsted, state-funded school inspections (quality of education judgement)',
+  schools_quality: 'Ofsted, inspections of state schools (quality of education judgement)',
   childrens_services: "Ofsted, local authority children's services inspection outcomes",
-  crime: 'data.police.uk, street-level recorded crime',
+  crime: 'data.police.uk, recorded crime at street level',
   roads: 'Department for Transport, reported road casualties (table RAS0403)',
   life_exp_f: 'ONS, life expectancy for local areas',
   life_exp_m: 'ONS, life expectancy for local areas',

@@ -16,7 +16,7 @@ const ACCENT = '#7a1612';
 const FONT = "'Special Elite', monospace";
 
 const MESSAGES: Record<string, { head: string; body: string }> = {
-  confirmed: { head: 'You are subscribed.', body: 'Thank you. Open Govt Weekly will arrive on Sunday. Every email has a one-click unsubscribe link.' },
+  confirmed: { head: 'You are subscribed.', body: 'Thank you. Open Govt Weekly will arrive on Sunday. Every email has a link to unsubscribe in one click.' },
   unsubscribed: { head: 'You have been unsubscribed.', body: 'You will not receive any more newsletters. You can sign up again below at any time.' },
   invalid: { head: 'That link did not work.', body: 'It may have been copied incompletely. Enter your email below and we will send a new one.' },
   error: { head: 'Something went wrong.', body: 'Please try the link again in a few minutes.' },

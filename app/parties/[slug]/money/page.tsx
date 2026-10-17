@@ -132,7 +132,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
   const maxYearTotal = Math.max(...yearRows.map((y) => y.total), 1);
 
   // Central HQ vs constituency vs other
-  type UnitBucket = 'Central HQ' | 'Constituency-level' | 'Parliamentary office' | 'Regional / liaison' | 'Other';
+  type UnitBucket = 'Central HQ' | 'Constituency associations' | 'Parliamentary office' | 'Regional / liaison' | 'Other';
   function classifyUnit(name: string | null): UnitBucket {
     if (!name) return 'Other';
     const t = name.toLowerCase().trim();
@@ -140,7 +140,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
     if (t.includes('parliamentary office') || t.includes('westminster parliament') || t.includes('mp grouping') || t.includes('westminster group')) return 'Parliamentary office';
     if (t.match(/^(scotland|london|wales|northern ireland|north west|north east|south east|south west|east of england|east midlands|west midlands|yorkshire)$/) || t.includes('liaison') || t.includes('trade union') || t.includes('regional')) return 'Regional / liaison';
     if (t.includes('limited') || t.includes(' ltd') || t.includes(' plc') || t.includes('national party') || t.includes('national executive')) return 'Other';
-    return 'Constituency-level';
+    return 'Constituency associations';
   }
   const unitAgg = new Map<string, { bucket: string; total: number; count: number }>();
   for (const d of donations) {
@@ -201,7 +201,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
               <th style={th}>Donor type</th>
               <th style={{ ...th, textAlign: 'right' }}>Donations</th>
               <th style={{ ...th, textAlign: 'right' }}>Total</th>
-              <th style={{ ...th, textAlign: 'right' }}>% of all-time</th>
+              <th style={{ ...th, textAlign: 'right' }}>% of total</th>
             </tr>
           </thead>
           <tbody>
@@ -219,7 +219,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Year by year</h2>
-        <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '10px' }}>Declared total per calendar year. Election years and leadership-change years usually spike.</p>
+        <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '10px' }}>Declared total per calendar year. Totals usually spike in election years and in years when the leader changes.</p>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -253,7 +253,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
               <th style={th}>Where</th>
               <th style={{ ...th, textAlign: 'right' }}>Donations</th>
               <th style={{ ...th, textAlign: 'right' }}>Total</th>
-              <th style={{ ...th, textAlign: 'right' }}>% of all-time</th>
+              <th style={{ ...th, textAlign: 'right' }}>% of total</th>
             </tr>
           </thead>
           <tbody>
@@ -272,7 +272,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
       {sectorRows.length > 0 && (
         <section style={{ marginBottom: '32px' }}>
           <h2 style={sectionH2}>Top funding sectors</h2>
-          <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '10px' }}>Donor names matched against the site&rsquo;s sector classifier. Untagged donors (individuals, generic companies) are not included; this is the political-economy view.</p>
+          <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '10px' }}>Donor names matched against the site&rsquo;s sector classifier. Untagged donors (individuals, generic companies) are not included; this view shows which parts of the economy fund the party.</p>
           <table style={tableStyle}>
             <thead>
               <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -323,7 +323,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
       </section>
 
       <p style={{ fontSize: '15px', opacity: 0.6, marginTop: '24px' }}>
-        All-time, all accounting units. Includes both monetary donations and non-cash benefits.
+        Every year on record, all accounting units. Includes both monetary donations and benefits in kind.
       </p>
 
       </PartySidebar>

@@ -98,7 +98,7 @@ export default async function LobbyingOrgPage({ params }: { params: Promise<{ sl
 
         <h2 style={{ ...sectionHead, marginTop: '40px' }}>Consultant lobbying firms</h2>
         {lobbying.length === 0 ? (
-          <p style={para}>Not named as a client of a consultant lobbying firm on the Register of Consultant Lobbyists in the quarters we hold. In-house lobbying does not have to be registered.</p>
+          <p style={para}>Not named as a client of a consultant lobbying firm on the Register of Consultant Lobbyists in the quarters we hold. Lobbying done by an organisation&apos;s own staff does not have to be registered.</p>
         ) : (
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, borderTop: `1px solid ${INK_HAIRLINE}`, maxWidth: '46em' }}>
             {lobbying.map((f) => (

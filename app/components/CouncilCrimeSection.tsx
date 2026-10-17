@@ -73,7 +73,7 @@ function changeText(current: number, previous: number | null, period: string): s
 
 const SOURCE_NOTES: Record<string, string> = {
   police_uk:
-    'Source: data.police.uk, the official police crime data for England and Wales, summed to this council’s boundary from the small local area each crime is recorded in. Locations are approximate by design to protect privacy. Includes anti-social behaviour. Excludes fraud, which is recorded nationally, and the small number of crimes (about 1.4% in recent months) that police record with no location.',
+    'Source: data.police.uk, the official police crime data for England and Wales, summed to this council’s boundary from the small local area each crime is recorded in. Locations are approximate by design to protect privacy. Includes antisocial behaviour. Excludes fraud, which is recorded nationally, and the small number of crimes (about 1.4% in recent months) that police record with no location.',
   psni:
     'Source: Police Service of Northern Ireland, Police Recorded Crime monthly tables. PSNI’s 11 policing districts cover the same areas as Northern Ireland’s 11 councils.',
   scotland_rcs:

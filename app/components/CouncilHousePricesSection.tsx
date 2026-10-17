@@ -107,7 +107,7 @@ export default async function CouncilHousePricesSection({ gssCode }: { gssCode: 
     { label: 'Semi-detached', price: latest.semi_detached_price, change: latest.semi_detached_12m_pct },
     { label: 'Terraced', price: latest.terraced_price, change: latest.terraced_12m_pct },
     { label: 'Flat or maisonette', price: latest.flat_price, change: latest.flat_12m_pct },
-    { label: 'First-time buyers', price: latest.ftb_price, change: latest.ftb_12m_pct },
+    { label: 'First home buyers', price: latest.ftb_price, change: latest.ftb_12m_pct },
     { label: 'Existing owners moving home', price: latest.foo_price, change: latest.foo_12m_pct },
     { label: 'Cash buyers', price: latest.cash_price, change: latest.cash_12m_pct },
     { label: 'Mortgage buyers', price: latest.mortgage_price, change: latest.mortgage_12m_pct },

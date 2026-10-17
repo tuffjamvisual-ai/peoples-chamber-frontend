@@ -16,7 +16,7 @@ export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Briefings',
-  description: 'Daily news analysis from opengovt: the fact-checked story behind the day’s biggest political events.',
+  description: 'Daily news analysis from opengovt: the story behind the day’s biggest political events, checked against the facts.',
   alternates: { canonical: '/briefings' },
 };
 

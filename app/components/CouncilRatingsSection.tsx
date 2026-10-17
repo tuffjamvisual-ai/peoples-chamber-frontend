@@ -235,7 +235,7 @@ export default async function CouncilRatingsSection({
             </div>
           );
         })}
-        <p style={small}>Scores run from 0 (lowest of all areas in England) to 100 (highest). For a district, county-run services and health figures published only for the county come from its county.</p>
+        <p style={small}>Scores run from 0 (lowest of all areas in England) to 100 (highest). For a district, services run by the county and health figures published only for the county come from its county.</p>
       </section>
 
       <section style={section}>
