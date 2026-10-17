@@ -50,7 +50,7 @@ type Person = {
 async function getPersonAndInterests(
   slug: string,
 ): Promise<{ person: Person | null; interests: Interest[]; finance: PeerFinance | null }> {
-  const [{ data: cached }, { data: ministerRow }, { data: interestRows }, { data: financeRow }] =
+  const [{ data: cached, error: cachedErr }, { data: ministerRow }, { data: interestRows }, { data: financeRow }] =
     await Promise.all([
       supabase
         .from('person_cache')
@@ -73,6 +73,7 @@ async function getPersonAndInterests(
         .eq('slug', slug)
         .maybeSingle(),
     ]);
+  if (cachedErr) throw new Error(`person ${slug}: ${cachedErr.message}`);
 
   const interests = (interestRows || []) as Interest[];
   const finance = (financeRow as PeerFinance | null) || null;

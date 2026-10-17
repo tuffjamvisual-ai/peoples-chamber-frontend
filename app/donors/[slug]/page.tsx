@@ -140,7 +140,8 @@ async function findDonorByMatchingSlug(slug: string): Promise<string | null> {
   for (const t of ranked) {
     q = q.ilike('donor_name', `%${t}%`);
   }
-  const { data } = await q;
+  const { data, error } = await q;
+  if (error) throw new Error(`donor lookup: ${error.message}`);
   if (!data) return null;
   const candidates = new Set<string>();
   for (const r of data as Array<{ donor_name: string | null }>) {
@@ -191,7 +192,8 @@ export default async function DonorPage({ params }: PageProps) {
   for (const t of ranked) {
     dq = dq.ilike('donor_name', `%${t}%`);
   }
-  const { data: rawDonations } = await dq;
+  const { data: rawDonations, error: donErr } = await dq;
+  if (donErr) throw new Error(`donor donations: ${donErr.message}`);
   const donations = (rawDonations || []).filter((d: DonationRow) =>
     d.donor_name && donorNameToSlug(d.donor_name) === slug,
   );

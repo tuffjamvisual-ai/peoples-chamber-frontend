@@ -202,6 +202,150 @@ async function fetchClaimantCounts(
 // all, so the "view council profile" link silently came back null for
 // Barnsley and Sheffield specifically. Fix: use gss as-is, no map.
 
+
+type SummaryRow = {
+  council_gss_code: string;
+  council_name: string;
+  headline_period_end: string;
+  total_six_benefit_spend: number;
+  baseline_period_end: string;
+  baseline_total_spend: number;
+  population: number;
+  population_reference_year: number;
+  metadata_json: {
+    benefit_breakdown: Record<string, number>;
+    benefit_period_ends: Record<string, string>;
+    baseline_benefit_breakdown: Record<string, number>;
+    baseline_benefit_period_ends: Record<string, string>;
+  };
+};
+
+const mostCommon = (vals: string[]): { value: string; mixed: boolean } => {
+  const counts = new Map<string, number>();
+  for (const v of vals) counts.set(v, (counts.get(v) ?? 0) + 1);
+  const value = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
+  return { value, mixed: counts.size > 1 };
+};
+
+async function countyAggregate(gss: string) {
+  const [{ data: councils, error: cErr }, { data: summaries, error: sErr }] = await Promise.all([
+    supabase.from('councils').select('slug, name, short_name, type, gss_code, parent_slug').in('type', ['county', 'district']),
+    supabase.from('welfare_local_authority_summary').select('council_gss_code, council_name, headline_period_end, total_six_benefit_spend, baseline_period_end, baseline_total_spend, population, population_reference_year, metadata_json'),
+  ]);
+  if (cErr || sErr || !councils || !summaries) return { error: 'Welfare data is unavailable right now.' };
+  const county = councils.find((c) => c.gss_code === gss && c.type === 'county');
+  if (!county) return { error: 'No welfare data found for this local authority.' };
+  const bySummary = new Map((summaries as SummaryRow[]).map((r) => [r.council_gss_code, r]));
+  const districtsOf = (slug: string) => councils.filter((c) => c.type === 'district' && c.parent_slug === slug);
+
+  // Totals for every county, for the county-only ranking.
+  const totals = councils.filter((c) => c.type === 'county').map((c) => {
+    const rows = districtsOf(c.slug).map((d) => bySummary.get(d.gss_code)).filter((r): r is SummaryRow => !!r);
+    const total = rows.reduce((t, r) => t + Number(r.total_six_benefit_spend), 0);
+    const pop = rows.reduce((t, r) => t + Number(r.population), 0);
+    return { slug: c.slug, complete: rows.length > 0 && rows.length === districtsOf(c.slug).length, total, perResident: pop ? total / pop : 0 };
+  }).filter((t) => t.complete);
+
+  const districts = districtsOf(county.slug);
+  const rows = districts.map((d) => bySummary.get(d.gss_code)).filter((r): r is SummaryRow => !!r);
+  if (!districts.length || rows.length !== districts.length) {
+    return { error: 'Welfare figures are not available for every district in this county, so a county total cannot be given.' };
+  }
+
+  const sum = (f: (r: SummaryRow) => number) => rows.reduce((t, r) => t + Number(f(r) || 0), 0);
+  const keys = Object.keys(rows[0].metadata_json.benefit_breakdown);
+  const breakdown: Record<string, number> = {};
+  const baselineBreakdown: Record<string, number> = {};
+  const periodEnds: Record<string, string> = {};
+  const baselinePeriodEnds: Record<string, string> = {};
+  let mixed = false;
+  for (const k of keys) {
+    breakdown[k] = sum((r) => r.metadata_json.benefit_breakdown[k]);
+    baselineBreakdown[k] = sum((r) => r.metadata_json.baseline_benefit_breakdown[k]);
+    const pe = mostCommon(rows.map((r) => r.metadata_json.benefit_period_ends[k]));
+    const be = mostCommon(rows.map((r) => r.metadata_json.baseline_benefit_period_ends[k]));
+    periodEnds[k] = pe.value; baselinePeriodEnds[k] = be.value; mixed = mixed || pe.mixed || be.mixed;
+  }
+  const total = sum((r) => r.total_six_benefit_spend);
+  const baseline = sum((r) => r.baseline_total_spend);
+  const population = sum((r) => r.population);
+  const headline = mostCommon(rows.map((r) => r.headline_period_end));
+  const base = mostCommon(rows.map((r) => r.baseline_period_end));
+  const popYear = mostCommon(rows.map((r) => String(r.population_reference_year)));
+  mixed = mixed || headline.mixed || base.mixed || popYear.mixed;
+  const rankBy = (f: (t: (typeof totals)[number]) => number, v: number) => 1 + totals.filter((t) => f(t) > v + 1e-6).length;
+
+  // Caseloads add up too: sum each district's current and baseline counts.
+  const codes = districts.map((d) => d.gss_code);
+  const perDistrict = await Promise.all(codes.map((c) => fetchClaimantCounts(c, FULL_CLAIMANT_METRIC_KEYS)));
+  const claimantCounts: Record<string, ClaimantCount> = {};
+  for (const key of FULL_CLAIMANT_METRIC_KEYS) {
+    const parts = perDistrict.map((pc) => pc[key]).filter(Boolean);
+    if (parts.length !== codes.length) continue; // only when every district has it
+    const value = parts.reduce((t, p) => t + p.value, 0);
+    const hasBase = parts.every((p) => p.baselineValue != null);
+    const baselineValue = hasBase ? parts.reduce((t, p) => t + (p.baselineValue as number), 0) : null;
+    claimantCounts[key] = {
+      value,
+      periodEnd: mostCommon(parts.map((p) => p.periodEnd)).value,
+      unit: parts[0].unit,
+      baselineValue,
+      baselinePeriodEnd: hasBase ? mostCommon(parts.map((p) => p.baselinePeriodEnd as string)).value : null,
+      percentChange: baselineValue ? ((value - baselineValue) / baselineValue) * 100 : null,
+    };
+  }
+  const lc = await Promise.all(codes.map((c) => fetchUcLcwra(c)));
+  let ucLcwra: UcLcwra | null = null;
+  if (lc.every((x) => x && x.lcwraValue != null && x.combinedTotal != null && x.status !== 'suppressed')) {
+    const l = lc as UcLcwra[];
+    const lcwraValue = l.reduce((t, x) => t + (x.lcwraValue as number), 0);
+    const combinedTotal = l.reduce((t, x) => t + (x.combinedTotal as number), 0);
+    ucLcwra = {
+      lcwraValue,
+      lcw: l.every((x) => x.lcw != null) ? l.reduce((t, x) => t + (x.lcw as number), 0) : null,
+      combinedTotal,
+      lcwraRatioPercent: combinedTotal ? (lcwraValue / combinedTotal) * 100 : null,
+      periodEnd: mostCommon(l.map((x) => x.periodEnd)).value,
+      status: 'ok',
+    };
+  }
+
+  return {
+    scope: 'full' as const,
+    councilSlug: county.slug,
+    claimantCounts,
+    medianWage: null,
+    ucLcwra,
+    aggregate: {
+      kind: 'county' as const,
+      districts: districts.map((d) => ({ name: d.short_name || d.name, slug: d.slug })).sort((a, b) => a.name.localeCompare(b.name)),
+      areasRanked: totals.length,
+      mixedPeriods: mixed,
+    },
+    data: {
+      council_gss_code: gss,
+      council_name: county.name,
+      headline_period_end: headline.value,
+      total_six_benefit_spend: total,
+      spend_per_resident: population ? total / population : 0,
+      rank_total_spend: rankBy((t) => t.total, total),
+      rank_spend_per_resident: rankBy((t) => t.perResident, population ? total / population : 0),
+      baseline_period_end: base.value,
+      baseline_total_spend: baseline,
+      cash_change: total - baseline,
+      percentage_change: baseline ? ((total - baseline) / baseline) * 100 : null,
+      population,
+      population_reference_year: Number(popYear.value),
+      metadata_json: {
+        benefit_breakdown: breakdown,
+        benefit_period_ends: periodEnds,
+        baseline_benefit_breakdown: baselineBreakdown,
+        baseline_benefit_period_ends: baselinePeriodEnds,
+      },
+    },
+  };
+}
+
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ gss: string }> },
@@ -210,6 +354,17 @@ export async function GET(
   const gss = (rawGss || '').toUpperCase();
   if (!/^[EWS]\d{8}$/.test(gss)) {
     return NextResponse.json({ error: 'invalid', message: 'Invalid GSS code.' }, { status: 400 });
+  }
+
+  // ── county scope (English two-tier county councils, E10 codes) ──────────
+  // Welfare figures are published per district, so a county's figures are the sum of its
+  // district councils (owner's request, 17 Oct 2026). Money, caseloads and population add
+  // up exactly; medians (median pay) cannot be added, so that row is left out. Ranks are
+  // among the English county areas only.
+  if (gss.startsWith('E10')) {
+    const county = await countyAggregate(gss);
+    if ('error' in county) return NextResponse.json({ error: 'notfound', message: county.error }, { status: 404 });
+    return NextResponse.json(county);
   }
 
   const isScotland = gss.startsWith('S12');

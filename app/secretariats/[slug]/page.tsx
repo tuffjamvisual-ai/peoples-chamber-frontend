@@ -55,7 +55,8 @@ async function findCanonicalName(slug: string): Promise<string | null> {
   // from the slug, which missed names with apostrophes or "&" (Women's Aid, Images & Co), so
   // their pages 404'd although the list linked them (link crawl, 16 Oct 2026).
   if (!slug) return null;
-  const { data } = await supabase.from('appgs').select('secretariat').not('secretariat', 'is', null).order('slug').limit(5000);
+  const { data, error } = await supabase.from('appgs').select('secretariat').not('secretariat', 'is', null).order('slug').limit(5000);
+  if (error) throw new Error(`secretariat lookup: ${error.message}`);
   if (!data) return null;
   const counts = new Map<string, number>();
   for (const r of data as Array<{ secretariat: string | null }>) {
@@ -98,7 +99,8 @@ export default async function SecretariatPage({ params }: PageProps) {
   if (!canonicalName) notFound();
 
   // All APPGs run by this secretariat, matched by exact name.
-  const { data: rawAppgs } = await supabase.from('appgs').select('slug, title, category, purpose, secretariat, secretariat_url, registrable_benefits, website_url').eq('secretariat', canonicalName).limit(500);
+  const { data: rawAppgs, error: appgErr } = await supabase.from('appgs').select('slug, title, category, purpose, secretariat, secretariat_url, registrable_benefits, website_url').eq('secretariat', canonicalName).limit(500);
+  if (appgErr) throw new Error(`secretariat appgs: ${appgErr.message}`);
   const appgs = ((rawAppgs ?? []) as AppgRow[]).filter((a) =>
     a.secretariat && secretariatNameToSlug(a.secretariat) === slug,
   );

@@ -92,6 +92,7 @@ export default async function CommitteeProfilePage({ params }: Props) {
       .order('start_date', { ascending: false }),
   ]);
 
+  if (committeeRes.error) throw new Error(`committee ${idNum}: ${committeeRes.error.message}`);
   const committee = committeeRes.data;
   if (!committee) notFound();
 

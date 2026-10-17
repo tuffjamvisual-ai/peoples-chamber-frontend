@@ -174,11 +174,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function CouncilPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const { data: council } = await supabase
+  // A database error must not become a 404: ISR would cache the 404 for hours (Hartlepool and
+  // Knowsley were serving a cached 404 on 17 Oct 2026). Throwing keeps the last good page.
+  const { data: council, error: councilErr } = await supabase
     .from('councils')
     .select('*')
     .eq('slug', slug)
-    .single();
+    .maybeSingle();
+  if (councilErr) throw new Error(`council ${slug}: ${councilErr.message}`);
   if (!council) notFound();
   const c = council as CouncilFull;
 
@@ -215,7 +218,8 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
   // anyway, so showing this section there would only ever surface a
   // confusing "no data found" error rather than a genuine gap.
   const welfareGss = c.gss_code;
-  const showWelfare = c.type !== 'county' && /^[EWS]\d{8}$/.test(welfareGss);
+  // Counties show the sum of their districts (the welfare API adds them up), 17 Oct 2026.
+  const showWelfare = /^[EWS]\d{8}$/.test(welfareGss);
 
   // Public health metrics: same county exclusion as welfare — upper-tier
   // counties have no row of their own in council_public_health_metrics

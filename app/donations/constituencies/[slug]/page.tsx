@@ -39,7 +39,8 @@ async function findCanonicalUnit(slug: string): Promise<string | null> {
   const ranked = tokens.slice().sort((a, b) => b.length - a.length).slice(0, 3);
   let q = supabase.from('political_donations').select('accounting_unit_name').not('accounting_unit_name', 'is', null).limit(2000);
   for (const t of ranked) q = q.ilike('accounting_unit_name', `%${t}%`);
-  const { data } = await q;
+  const { data, error } = await q;
+  if (error) throw new Error(`constituency unit lookup: ${error.message}`);
   if (!data) return null;
   const counts = new Map<string, number>();
   for (const r of data as Array<{ accounting_unit_name: string | null }>) {
@@ -86,7 +87,8 @@ export default async function AssociationPage({ params }: PageProps) {
     .order('amount', { ascending: false })
     .limit(2000);
   for (const t of ranked) q = q.ilike('accounting_unit_name', `%${t}%`);
-  const { data: raw } = await q;
+  const { data: raw, error: rawErr } = await q;
+  if (rawErr) throw new Error(`constituency donations: ${rawErr.message}`);
   const rows = ((raw || []) as Row[]).filter((r) => r.accounting_unit_name && unitNameToSlug(r.accounting_unit_name) === slug);
   if (rows.length === 0) notFound();
 

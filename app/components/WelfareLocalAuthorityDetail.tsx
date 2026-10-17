@@ -114,6 +114,13 @@ function lcwraText(w: UcLcwra | null | undefined): string | null {
 type FullPayload = {
   scope: 'full'
   councilSlug: string | null
+  // Set for an English county council: the figures add up its district councils.
+  aggregate?: {
+    kind: 'county'
+    districts: { name: string; slug: string }[]
+    areasRanked: number
+    mixedPeriods: boolean
+  }
   claimantCounts?: Record<string, ClaimantCount>
   medianWage?: MedianWage | null
   ucLcwra?: UcLcwra | null
@@ -207,6 +214,8 @@ export default function WelfareLocalAuthorityDetail({ gss, embedded }: { gss: st
 function FullView({ payload, embedded }: { payload: FullPayload; embedded?: boolean }) {
   const d = payload.data
   const m = d.metadata_json
+  const agg = payload.aggregate
+  const rankedOf = agg ? agg.areasRanked : EW_LA_COUNT
 
   return (
     <>
@@ -219,11 +228,24 @@ function FullView({ payload, embedded }: { payload: FullPayload; embedded?: bool
         />
       )}
 
+      {agg && (
+        <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '16px', marginBottom: '22px' }}>
+          <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: 0 }}>
+            Benefits are paid and published by district, so these county figures add up the {agg.districts.length} district councils in the county:{' '}
+            {agg.districts.map((x, i) => (
+              <span key={x.slug}>{i > 0 ? ', ' : ''}<a href={`/councils/${x.slug}`} style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{x.name}</a></span>
+            ))}
+            {`. Ranks compare the ${agg.areasRanked} English county areas with each other. Median pay cannot be added up across districts, so it is shown on each district’s page instead.`}
+            {agg.mixedPeriods ? ' Not every district has published the same period yet; the period shown is the one most districts use.' : ''}
+          </p>
+        </section>
+      )}
+
       <Section title="Headline figures">
         <DataRow label="Total six-benefit spend" value={formatGBP(d.total_six_benefit_spend)} sub={`Period ending ${formatPeriodEnd(d.headline_period_end)}`} />
         <DataRow label="Spend per resident" value={formatGBPPerResident(d.spend_per_resident)} />
-        <DataRow label="Rank by total spend" value={`#${formatCount(d.rank_total_spend)} of ${EW_LA_COUNT}`} sub="Rank 1 = highest total spend among England & Wales local authorities" />
-        <DataRow label="Rank by spend per resident" value={`#${formatCount(d.rank_spend_per_resident)} of ${EW_LA_COUNT}`} />
+        <DataRow label="Rank by total spend" value={`#${formatCount(d.rank_total_spend)} of ${rankedOf}`} sub={agg ? 'Rank 1 = highest total spend among English county areas' : 'Rank 1 = highest total spend among England & Wales local authorities'} />
+        <DataRow label="Rank by spend per resident" value={`#${formatCount(d.rank_spend_per_resident)} of ${rankedOf}`} />
         <DataRow label="Population" value={`${formatCount(d.population)} (${d.population_reference_year})`} />
         <DataRow label="Median annual pay (workplace)" value={medianWageValue(payload.medianWage)} sub={medianWageSub(payload.medianWage)} />
       </Section>

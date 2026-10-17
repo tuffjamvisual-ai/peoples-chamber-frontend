@@ -222,11 +222,12 @@ export default async function DivisionDetailPage({ params }: PageProps) {
   const divisionNumber = parseInt(m[2], 10);
 
   // All vote rows for this division. Natural-key index makes this cheap.
-  const { data: voteRows } = await supabase
+  const { data: voteRows, error: voteErr } = await supabase
     .from('mp_division_votes')
     .select('member_id, vote_type, is_teller, is_rebellion, bill_id, division_title, division_date, division_id')
     .eq('division_date_only', dateOnly)
     .eq('division_number', divisionNumber);
+  if (voteErr) throw new Error(`division ${slug}: ${voteErr.message}`);
 
   if (!voteRows || voteRows.length === 0) notFound();
 

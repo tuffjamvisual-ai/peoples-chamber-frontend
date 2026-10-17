@@ -22,7 +22,9 @@ const BAND_RANK: Record<SalaryBand, number> = { pm: 4, sos: 3, minister_of_state
 // `mps` lookup so the row is fetched once, not twice, per render. select('*')
 // is a superset of the few columns metadata needs.
 const getMp = cache(async (memberId: number) => {
-  const { data } = await supabase.from('mps').select('*').eq('member_id', memberId).single();
+  // A database error must not become a cached 404 (see councils page); throw instead.
+  const { data, error } = await supabase.from('mps').select('*').eq('member_id', memberId).maybeSingle();
+  if (error) throw new Error(`mp ${memberId}: ${error.message}`);
   return data;
 });
 
