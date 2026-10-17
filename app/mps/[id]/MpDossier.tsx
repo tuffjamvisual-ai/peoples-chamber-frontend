@@ -8,7 +8,9 @@ const STAMP_DISTRESS = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/20
 
 // MPs who have resigned their seat — renders a "Resigned" rubber stamp on the
 // bottom-left of the profile photo. Add member_ids here as needed.
-const RESIGNED_MEMBER_IDS = new Set<number>([5091, 4514]); // Nigel Farage (Clacton), Sir Keir Starmer (Holborn and St Pancras, resigned 1 Sep 2026)
+// Nigel Farage (5091) removed 17 Oct 2026: he resigned Clacton in July 2026 but won the by-election on
+// 13 August 2026 and is a sitting MP again.
+const RESIGNED_MEMBER_IDS = new Set<number>([4514]); // Sir Keir Starmer (Holborn and St Pancras, resigned 1 Sep 2026)
 
 // An MP profile rendered into the shared dossier shell: the folder holds the MP's polaroid
 // header + the full interactive profile sections. The newspaper masthead / folder frame all
