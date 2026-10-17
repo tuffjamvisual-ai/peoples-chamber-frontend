@@ -5,8 +5,12 @@
 // the postcode result need no further database calls; the postcode search
 // only asks /api/sewage/lookup which council area and constituency a postcode
 // is in.
+//
+// Shareable links: the chosen table, sort order and postcode result are kept in
+// the address (?table=…&sort=…&council=…&constituency=…#your-area). Only the
+// area codes go in the link, never the postcode itself.
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { CSSProperties, FormEvent } from 'react';
 
 export type ExplorerRow = {
@@ -54,6 +58,8 @@ const btn = (on: boolean): CSSProperties => ({
   background: on ? INK : 'transparent', color: on ? '#f4efe6' : INK, border: `1px solid ${INK}`, borderRadius: 0,
 });
 
+const GSS = /^[ENSW]\d{8}$/;
+
 function hoursRank(rows: ExplorerRow[], code: string): { rank: number; of: number } | null {
   const sorted = [...rows].sort((a, b) => b.hours - a.hours);
   const i = sorted.findIndex((r) => r.code === code);
@@ -72,6 +78,50 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
   const [busy, setBusy] = useState(false);
   const [lookup, setLookup] = useState<Lookup | null>(null);
   const [lookupError, setLookupError] = useState<string | null>(null);
+  const [ready, setReady] = useState(false);
+  const [copied, setCopied] = useState<'yes' | 'no' | null>(null);
+
+  // Read a shared link once, on first load.
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    const t = q.get('table');
+    if (t && tables.some((x) => x.id === t)) setTableId(t);
+    const so = q.get('sort');
+    if (so && SORTS.some((x) => x.key === so)) setSort(so as SortKey);
+    const council = q.get('council');
+    const constituency = q.get('constituency');
+    const cc = council && GSS.test(council) ? council : null;
+    const pc = constituency && GSS.test(constituency) ? constituency : null;
+    if (cc || pc) {
+      const nameOf = (code: string | null) => (code ? tables.flatMap((x) => x.rows).find((r) => r.code === code)?.name ?? null : null);
+      setLookup({ postcode: '', councilCode: cc, councilName: nameOf(cc), constituencyCode: pc, constituencyName: nameOf(pc) });
+      if (window.location.hash === '#your-area') document.getElementById('your-area')?.scrollIntoView();
+    }
+    setReady(true);
+  }, [tables]);
+
+  // Keep the address in step with what is on screen, so it can be copied and shared.
+  useEffect(() => {
+    if (!ready) return;
+    const q = new URLSearchParams();
+    if (tableId && tableId !== tables[0]?.id) q.set('table', tableId);
+    if (sort !== 'hours') q.set('sort', sort);
+    if (lookup?.councilCode) q.set('council', lookup.councilCode);
+    if (lookup?.constituencyCode) q.set('constituency', lookup.constituencyCode);
+    const qs = q.toString();
+    const url = `${window.location.pathname}${qs ? `?${qs}` : ''}${lookup ? '#your-area' : ''}`;
+    window.history.replaceState(null, '', url);
+    setCopied(null);
+  }, [ready, tableId, sort, lookup, tables]);
+
+  async function copyLink() {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied('yes');
+    } catch {
+      setCopied('no');
+    }
+  }
 
   const table = tables.find((t) => t.id === tableId) ?? tables[0];
 
@@ -140,7 +190,7 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
 
   return (
     <div>
-      <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
+      <section id="your-area" style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
         <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
           Your area
         </h2>
@@ -161,6 +211,12 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
           <div>
             {resultLine('council', lookup.councilCode, lookup.councilName)}
             {resultLine('constituency', lookup.constituencyCode, lookup.constituencyName)}
+            <button type="button" onClick={copyLink} style={{ ...btn(false), marginTop: '6px' }}>Copy a link to this result</button>
+            <span style={{ fontFamily: MONO, fontSize: '14px', color: INK }}>
+              {copied === 'yes' && 'Link copied. It shows the council area and constituency, not your postcode.'}
+              {copied === 'no' && 'Copy the address from your browser bar. It shows the council area and constituency, not your postcode.'}
+              {copied === null && 'The link shows the council area and constituency, not your postcode.'}
+            </span>
           </div>
         )}
       </section>
