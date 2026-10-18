@@ -127,7 +127,24 @@ export default async function DepartmentPage({ params }: PageProps) {
     environment: [{ href: '/sewage', title: 'Sewage spills', description: 'How long storm overflows spilled sewage in every council area and constituency in England and Northern Ireland, and for each water company.' }],
   };
   const dataPages = DATA_PAGES[slug] ?? [];
-  if (reportText.trim()) {
+  // The About tab (the written account of each department) is hidden for now, on the
+  // owner's instruction (18 Oct 2026). Set to true to bring it back; the text is unchanged
+  // in the database. The "Data on Open Govt" links it carried get their own small tab.
+  const SHOW_DEPARTMENT_ABOUT = false;
+  if (!SHOW_DEPARTMENT_ABOUT && dataPages.length > 0) {
+    tabs.push({ id: 'data', label: 'Data', rotate: '0.1deg' });
+    slots.data = (
+      <section>
+        {dataPages.map((d) => (
+          <a key={d.href} href={d.href} className="block border-t border-[rgba(20,16,13,0.2)] py-3 mb-1 text-[#14100d] no-underline">
+            <span className="block text-[18px] font-bold mb-1">{d.title} →</span>
+            <span className="block text-[15px] leading-[1.6]">{d.description}</span>
+          </a>
+        ))}
+      </section>
+    );
+  }
+  if (SHOW_DEPARTMENT_ABOUT && reportText.trim()) {
     tabs.push({ id: 'assessment', label: 'About', rotate: '0.1deg' });
     const aboutParas = reportText.split(/\n\n+/).map((p) => p.trim()).filter(Boolean);
     slots.assessment = (
@@ -203,7 +220,7 @@ export default async function DepartmentPage({ params }: PageProps) {
       <JsonLd data={buildDepartmentOrg({
         slug,
         name: dept.name,
-        description: contextData.street_context || dept.description || null,
+        description: (SHOW_DEPARTMENT_ABOUT ? contextData.street_context : null) || dept.description || null,
         sosName: sos?.name || dept.minister || null,
         sosMemberId: sos?.member_id ?? null,
         sosRole: sos?.role || 'Secretary of State',

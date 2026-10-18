@@ -135,7 +135,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 //   • Any org not in DEPT_ORG_TO_SLUG (agencies, arm's-length bodies, etc.)
 // In all these cases the component returns null — no error, no empty box.
 async function DeptContextBlock({ organisation }: { organisation: string | null }) {
-  if (!organisation) return null;
+  // Hidden with the department About tab (owner's instruction, 18 Oct 2026); the
+  // department pages' SHOW_DEPARTMENT_ABOUT flag brings both back.
+  const SHOW_DEPARTMENT_ABOUT = false;
+  if (!SHOW_DEPARTMENT_ABOUT || !organisation) return null;
   const deptSlug = resolveOrgToDeptSlug(organisation);
   if (!deptSlug) return null;
 
