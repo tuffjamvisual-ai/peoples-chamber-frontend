@@ -31,6 +31,7 @@ const INK = '#14100d';
 const CREAM = '#ebe5d8';
 
 type Person = {
+  caricature: boolean;
   name: string;
   photo: string;
   currentRoles: Role[];
@@ -87,6 +88,8 @@ async function getPersonAndInterests(
         // authoritative source — sync runs would otherwise overwrite
         // them on the next refresh.
         photo: ministerRow?.photo_url || cached.photo || '',
+        // Manually uploaded pictures (dept_ministers.photo_url) are the site's caricatures.
+        caricature: !!ministerRow?.photo_url,
         currentRoles: (cached.current_roles as Role[]) || [],
         pastRoles: (cached.past_roles as Role[]) || [],
         politicalBio: (cached.political_bio as string | null) || null,
@@ -109,6 +112,7 @@ async function getPersonAndInterests(
       person: {
         name: ministerRow.name || '',
         photo: ministerRow.photo_url || '',
+        caricature: !!ministerRow.photo_url,
         currentRoles: [],
         pastRoles: [],
         politicalBio: null,
@@ -142,8 +146,12 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
   //   1. political_bio (manually authored — overrides anything from gov.uk)
   //   2. biography (gov.uk's HTML body — strip tags into plain paragraphs)
   //   3. description (top-level summary — single paragraph fallback)
+  // Biographies on these profiles (ministers, officials, board members) are hidden for
+  // now, as on MP profiles (owner's instruction, 18 Oct 2026). Set to true to restore;
+  // the text is unchanged in the database.
+  const SHOW_PERSON_BIO = false;
   const bioParagraphs = (() => {
-    if (!person) return [] as string[];
+    if (!person || !SHOW_PERSON_BIO) return [] as string[];
     if (person.politicalBio) {
       return person.politicalBio.split(/\n\n+/).map((p) => p.trim()).filter(Boolean);
     }
@@ -170,6 +178,19 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
     return [];
   })();
 
+  // Official photographs are shown only for MPs (owner's instruction, 18 Oct 2026); the
+  // site's caricatures always stay. Civil servants, board members and other officials
+  // without a caricature show no picture. A sitting MP is matched by name.
+  const norm = (n: string) => n.toLowerCase().replace(/^(the\s+)?(rt\.?\s+hon\.?\s+|right honourable\s+)?(sir\s+|dame\s+|dr\.?\s+|mr\.?\s+|mrs\.?\s+|ms\.?\s+)*/, '').replace(/\s+(kc|mp|cbe|obe|mbe)$/g, '').replace(/[^a-z ]/g, '').trim();
+  let isMp = false;
+  if (person?.name) {
+    const target = norm(person.name);
+    const last = target.split(' ').pop() || target;
+    const { data: mpRows } = await supabase.from('mps').select('name, display_name').eq('current_member', true).ilike('name', `%${last}%`).limit(50);
+    isMp = ((mpRows ?? []) as { name: string | null; display_name: string | null }[])
+      .some((m) => norm(m.name || '') === target || norm(m.display_name || '') === target);
+  }
+
   // Prefix "The Rt Hon" if gov.uk flagged them PC and the rendered
   // name doesn't already carry the honorific.
   const displayName = person
@@ -191,6 +212,7 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
           <>
             {/* Header — dossier polaroid + name + role */}
             <div style={{ display: 'flex', flexDirection: 'row-reverse', alignItems: 'flex-start', gap: '5%', marginBottom: '6%' }}>
+              {(isMp || person.caricature) && (
               <div
                 style={{
                   position: 'relative',
@@ -219,6 +241,7 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/paperclip.webp" alt="" aria-hidden style={{ position: 'absolute', top: '-30px', right: '-5px', width: '65px', height: 'auto', transform: 'rotate(180deg)', transformOrigin: 'center', pointerEvents: 'none', filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.35))' }} />
               </div>
+              )}
 
               <div style={{ flex: '1 1 auto', marginTop: '6%' }}>
                 <div style={{ fontSize: 'clamp(22px, 3.4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', textShadow: '1px 1px 0 rgba(0,0,0,0.1)', lineHeight: 1.05, marginBottom: '4%' }}>{displayName}</div>
