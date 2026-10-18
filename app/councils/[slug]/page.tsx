@@ -730,7 +730,7 @@ function lastElectionValue(year: number | null | undefined, comp: CouncilComposi
   return year.toString();
 }
 function lastElectionSub(year: number | null | undefined, comp: CouncilComposition | null, sum: ElectionSummary | null): string | null {
-  if (sum) return `Share of all votes cast across the council's ${sum.wards} wards and divisions; seats won at that election. Labour includes Labour and Co-operative candidates. Source: the council's published results.`;
+  if (sum) return `Share of all votes cast across the council's ${sum.wards} wards and divisions; seats won at that election. Labour includes Labour and Co-operative candidates. Source: ${sum.source || "the council's published results"}.`;
   // Only when the seats list is shown (the composition is from that election's year).
   if (comp && year && comp.snapshot_year === year && comp.total_seats > 0) return 'Seats on the council after that election (where a council elects a third of its seats at a time, this is the whole council). Vote shares are added once the full result is collected.';
   return null;

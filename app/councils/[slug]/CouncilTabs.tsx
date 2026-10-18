@@ -15,8 +15,7 @@
 // Each tab has an address ending (#schools, #housing, ...) so a tab can be
 // linked to directly; switching tabs updates it.
 //
-// The council page isn't zoomed (unlike the department page), so the
-// desktop sidebar uses plain CSS position: sticky.
+// The desktop sidebar floats with the page (see floatRef below), as on the MP profile page.
 
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
@@ -51,6 +50,41 @@ export default function CouncilTabs({ tabs, slots }: { tabs: Tab[]; slots: Recor
   // On phones the chips are a sideways-scrolling row: keep the open tab's chip in view
   // (moves the row only, never the page).
   const navRef = useRef<HTMLElement | null>(null);
+
+  // Floating sidebar, as on the MP profile page. CSS position: sticky can't work
+  // here because the page sits inside the tilted folder (a transformed ancestor),
+  // so on desktop the menu is moved down with translateY to stay about 24px from
+  // the top of the window, clamped to the bottom of the tab area. The page's
+  // visual scale is measured (visual height / layout height) rather than assumed.
+  const floatRef = useRef<HTMLDivElement | null>(null);
+  const [floatOffset, setFloatOffset] = useState(0);
+  useEffect(() => {
+    const el = floatRef.current;
+    if (!el) return;
+    const TOP_GAP = 24;
+    const desktop = window.matchMedia('(min-width: 1024px)');
+    const compute = () => {
+      if (!desktop.matches) { setFloatOffset(0); return; }
+      const parent = el.parentElement;
+      if (!parent) return;
+      const pr = parent.getBoundingClientRect();
+      const er = el.getBoundingClientRect();
+      const scale = el.offsetHeight ? er.height / el.offsetHeight : 1;
+      const maxVisual = Math.max(0, pr.height - er.height - 8);
+      const visualDelta = Math.max(0, Math.min(TOP_GAP - pr.top, maxVisual));
+      setFloatOffset(visualDelta / (scale || 1));
+    };
+    compute();
+    window.addEventListener('scroll', compute, { passive: true });
+    window.addEventListener('resize', compute);
+    desktop.addEventListener('change', compute);
+    return () => {
+      window.removeEventListener('scroll', compute);
+      window.removeEventListener('resize', compute);
+      desktop.removeEventListener('change', compute);
+    };
+    // Recompute after a tab change, which changes the height of the tab area.
+  }, [active]);
 
   // Soft fade at the right edge of the phone chip row while there are more
   // tabs off to the right; it goes once the row is scrolled to the end.
@@ -103,12 +137,13 @@ export default function CouncilTabs({ tabs, slots }: { tabs: Tab[]; slots: Recor
         @media (min-width: 1024px) {
           .council-tabs { grid-template-columns: 200px minmax(0, 1fr) !important; gap: 28px !important; }
           .council-tabs aside { position: relative; }
-          .council-tabs nav { position: sticky; top: 24px; flex-direction:column; overflow:visible; border-bottom:none; padding:8px; -webkit-mask-image:none !important; mask-image:none !important; }
+          .council-tabs nav { flex-direction:column; overflow:visible; border-bottom:none; padding:8px; -webkit-mask-image:none !important; mask-image:none !important; }
           .council-tabs nav button { white-space:normal; }
         }
         ${hideEmptyCss}
       `}</style>
       <aside>
+        <div ref={floatRef} style={{ transform: floatOffset ? `translateY(${floatOffset}px)` : undefined, willChange: 'transform' }}>
         <nav ref={navRef} aria-label="Council information" className={moreRight ? 'more-right' : undefined}>
           {tabs.filter((t) => visible.includes(t.id)).map((t) => {
             const isActive = t.id === active;
@@ -141,6 +176,7 @@ export default function CouncilTabs({ tabs, slots }: { tabs: Tab[]; slots: Recor
             );
           })}
         </nav>
+        </div>
       </aside>
 
       <div style={{ color: INK, minWidth: 0 }}>

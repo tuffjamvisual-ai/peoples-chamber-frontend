@@ -29,13 +29,13 @@ export function shortParty(name: string): string {
 }
 
 export type PartyResult = { party: string; votes: number; share: number; seats: number };
-export type ElectionSummary = { date: string; wards: number; seats: number; parties: PartyResult[] };
+export type ElectionSummary = { date: string; wards: number; seats: number; parties: PartyResult[]; source: string | null };
 
 export async function loadElectionSummary(gssCode: string | null): Promise<ElectionSummary | null> {
   if (!gssCode) return null;
   const { data: el, error } = await supabase
     .from('council_elections')
-    .select('id, election_date, wards_contested, seats_contested')
+    .select('id, election_date, wards_contested, seats_contested, source_note')
     .eq('council_gss_code', gssCode)
     .order('election_date', { ascending: false })
     .limit(20);
@@ -92,5 +92,5 @@ export async function loadElectionSummary(gssCode: string | null): Promise<Elect
   const parties = [...by.entries()]
     .map(([party, e]) => ({ party, votes: e.votes, share: (e.votes / total) * 100, seats: e.seats }))
     .sort((a, b) => b.votes - a.votes);
-  return { date: main.election_date as string, wards: wardIds.length, seats: parties.reduce((t, p) => t + p.seats, 0), parties };
+  return { date: main.election_date as string, wards: wardIds.length, seats: parties.reduce((t, p) => t + p.seats, 0), parties, source: (main.source_note as string | null) ?? null };
 }
