@@ -4,7 +4,8 @@
 
 import type { Metadata } from 'next';
 import { metaDescription } from '@/lib/meta-description';
-import { administrationLabel, seatsLine, type CouncilComposition } from '@/lib/council-composition';
+import { administrationLabel, seatsLine, seatName, type CouncilComposition } from '@/lib/council-composition';
+import type { ElectionSummary } from '@/lib/council-election-summary';
 import { supabase } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
@@ -22,6 +23,7 @@ import CouncilRoadCasualtiesSection from '../../components/CouncilRoadCasualties
 import CouncilConnectivitySection from '../../components/CouncilConnectivitySection';
 import CouncilSewageSection from '../../components/CouncilSewageSection';
 import CouncilRatingsSection from '../../components/CouncilRatingsSection';
+import { loadElectionSummary } from '@/lib/council-election-summary';
 
 export const revalidate = 21600;
 
@@ -199,6 +201,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
     supabase.from('council_composition').select('snapshot_year, total_seats, seats, majority_party, administration_code').eq('council_slug', c.slug).limit(1).maybeSingle(),
   ]);
   const comp = (compRow as CouncilComposition | null) || null;
+  const electionSummary = await loadElectionSummary(c.gss_code).catch(() => null);
   const parent: RelatedCouncil | null = (parentRow as RelatedCouncil | null) || null;
   const children: RelatedCouncil[] = (childRows || []) as RelatedCouncil[];
 
@@ -361,7 +364,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                   )}
                   <DataRow label="Leader" value={c.leader_name} sub={c.leader_party} />
                   <DataRow label="Chief executive" value={c.chief_exec} />
-                  <DataRow label="Last election" value={c.last_election_year?.toString() ?? null} />
+                  <DataRow label="Last election" value={lastElectionValue(c.last_election_year, comp, electionSummary)} sub={lastElectionSub(c.last_election_year, comp, electionSummary)} />
                 </Section>
               )}
 
@@ -686,6 +689,51 @@ function PublicHealthRow({
   const sub = row.period_label ? `${row.period_label} · ${sourceLabel}` : sourceLabel;
 
   return <DataRow label={label} value={formattedValue} sub={sub} />;
+}
+
+// "Last election" line: parties ranked 1st, 2nd, 3rd..., with each party's share of the
+// vote where the council's full result is held (lib/council-election-summary.ts),
+// otherwise seats only, from the May composition when that was the election year.
+const ORD = (k: number) => { const s = ['th', 'st', 'nd', 'rd'], v = k % 100; return `${k}${s[(v - 20) % 10] || s[v] || s[0]}`; };
+const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+function lastElectionValue(year: number | null | undefined, comp: CouncilComposition | null, sum: ElectionSummary | null): React.ReactNode | null {
+  if (sum) {
+    const d = sum.date;
+    const when = `${Number(d.slice(8, 10))} ${MONTH_NAMES[Number(d.slice(5, 7)) - 1]} ${d.slice(0, 4)}`;
+    return (
+      <>
+        <strong>{when}</strong>
+        <span style={{ display: 'block', marginTop: '4px' }}>
+          {sum.parties.filter((p) => p.share >= 0.5 || p.seats > 0).map((p, i) => (
+            <span key={p.party} style={{ display: 'block' }}>
+              {ORD(i + 1)} {p.party}: {p.share.toFixed(1)}% of the vote, {p.seats} seat{p.seats === 1 ? '' : 's'}
+            </span>
+          ))}
+        </span>
+      </>
+    );
+  }
+  if (!year) return null;
+  if (comp && comp.snapshot_year === year && comp.total_seats > 0) {
+    const ranked = Object.entries(comp.seats).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]);
+    return (
+      <>
+        <strong>May {year}</strong>
+        <span style={{ display: 'block', marginTop: '4px' }}>
+          {ranked.map(([p, n], i) => (
+            <span key={p} style={{ display: 'block' }}>{ORD(i + 1)} {seatName(p)}: {n} seat{n === 1 ? '' : 's'}</span>
+          ))}
+        </span>
+      </>
+    );
+  }
+  return year.toString();
+}
+function lastElectionSub(year: number | null | undefined, comp: CouncilComposition | null, sum: ElectionSummary | null): string | null {
+  if (sum) return `Share of all votes cast across the council's ${sum.wards} wards and divisions; seats won at that election. Labour includes Labour and Co-operative candidates. Source: the council's published results.`;
+  // Only when the seats list is shown (the composition is from that election's year).
+  if (comp && year && comp.snapshot_year === year && comp.total_seats > 0) return 'Seats on the council after that election (where a council elects a third of its seats at a time, this is the whole council). Vote shares are added once the full result is collected.';
+  return null;
 }
 
 function DataRow({ label, value, sub, valueColour }: { label: string; value: React.ReactNode | null; sub?: string | null; valueColour?: string }) {

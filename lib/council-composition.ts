@@ -19,6 +19,8 @@ const ADMIN_NAME: Record<string, string> = {
   PC: 'Plaid Cymru', SNP: 'SNP', IND: 'Independent', UKIP: 'UKIP', Aspire: 'Aspire',
 };
 
+export const seatName = (code: string) => SEAT_NAME[code] || code;
+
 // "Labour 48 · Conservative 14 · Green 11 ..." largest first, parties with no seats left out.
 export function seatsLine(c: CouncilComposition): string {
   return Object.entries(c.seats)
