@@ -12,6 +12,7 @@
 // Wording rule: the area rating describes the area, not how well the council is run.
 
 import type { CSSProperties } from 'react';
+import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
 import { getLeagueData, getCouncilFinance, TOPIC_NAMES, SERVICE_PARTS, MEASURE_TOPIC, formatPeriod, bandLabel, ordinal } from '@/lib/council-league';
 import type { LeagueRow, LeagueFlag, FinanceEvent, ReserveDetail } from '@/lib/council-league';
 
@@ -134,7 +135,10 @@ export default async function CouncilRatingsSection({
   const isCounty = type === 'county';
   if (!row && !isCounty) return null;
 
-  const linkToTable = (
+  // With the league table hidden (lib/feature-flags.ts), the tab keeps what is not a league score, topic score or
+  // rank: Ofsted grades, warning flags, similar councils and financial health.
+  const show = SHOW_LEAGUE_TABLE;
+  const linkToTable = show && (
     <p style={small}>
       <a href="/councils/league-table" style={{ color: INK }}>See every area in the council area league table</a>, with how the scores are worked out and where every figure comes from.
     </p>
@@ -142,14 +146,16 @@ export default async function CouncilRatingsSection({
 
   if (isCounty) {
     const ofsted = data.ofstedByCouncil.get(gssCode);
-    const districts = districtCodes.map((c) => byCode.get(c)).filter((r): r is LeagueRow => !!r).sort((a, b) => (a.areaRank ?? 999) - (b.areaRank ?? 999));
+    const districts = districtCodes.map((c) => byCode.get(c)).filter((r): r is LeagueRow => !!r)
+      // by rank when the league table is shown; by name when it is hidden, so the order does not give the ranking away
+      .sort((a, b) => (SHOW_LEAGUE_TABLE ? (a.areaRank ?? 999) - (b.areaRank ?? 999) : a.name.localeCompare(b.name)));
     return (
       <div>
         <style>{NARROW_CSS}</style>
         <section style={section}>
           <h2 style={h2}>Ratings</h2>
           <p style={para}>
-            County councils run services such as schools, children’s services and adult social care across their districts. The area league table rates each district area, so the county’s picture is the districts below.
+            County councils run services such as schools, children’s services and adult social care across their districts.{show && ' The area league table rates each district area, so the county’s picture is the districts below.'}
           </p>
           {ofsted?.grade && (
             <p style={para}>Ofsted children’s services: <strong style={ofsted.rank === 4 ? { color: ACCENT } : undefined}>{ofsted.grade}</strong> (inspection outcomes as at 31 March 2026).</p>
@@ -160,20 +166,20 @@ export default async function CouncilRatingsSection({
             <h2 style={h2}>District areas</h2>
             <div style={{ overflowX: 'auto' }}>
               <table className="cr-table" style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '14px', color: INK, width: '100%' }}>
-                <thead><tr><th style={th}>Area</th><th style={th}>Area rating</th><th style={th}>Council services</th><th style={th}>Warning flags</th></tr></thead>
+                <thead><tr><th style={th}>Area</th>{show && <><th style={th}>Area rating</th><th style={th}>Council services</th></>}<th style={th}>Warning flags</th></tr></thead>
                 <tbody>
                   {districts.map((d) => (
                     <tr key={d.code}>
                       <td style={td}>{link(d.code, d.name)}</td>
-                      <td style={td}>{d.areaRank ? `${ordinal(d.areaRank)} · band ${d.areaBand}${d.nearBoundary ? ' ≈' : ''}` : 'Not ranked'}</td>
-                      <td style={td}>{d.servicesRank ? `${ordinal(d.servicesRank)} · band ${d.servicesBand}` : 'n/a'}</td>
+                      {show && <td style={td}>{d.areaRank ? `${ordinal(d.areaRank)} · band ${d.areaBand}${d.nearBoundary ? ' ≈' : ''}` : 'Not ranked'}</td>}
+                      {show && <td style={td}>{d.servicesRank ? `${ordinal(d.servicesRank)} · band ${d.servicesBand}` : 'n/a'}</td>}
                       <td style={{ ...td, fontSize: '14px' }}><Flags flags={d.flags.filter((f) => !f.county)} /></td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-            <p style={small}>Ranks are out of {data.stability.ranked} areas in England. ≈ means close to the edge of its band.</p>
+            {show && <p style={small}>Ranks are out of {data.stability.ranked} areas in England. ≈ means close to the edge of its band.</p>}
           </section>
         )}
         <FinanceHealth events={finance.events} reserves={finance.reserves} name={name} />
@@ -207,6 +213,13 @@ export default async function CouncilRatingsSection({
   return (
     <div>
       <style>{NARROW_CSS}</style>
+      {!show && r.flags.length > 0 && (
+        <section style={section}>
+          <h2 style={h2}>Warning flags</h2>
+          <div style={para}><Flags flags={r.flags} /></div>
+        </section>
+      )}
+      {show && <>
       <section style={section}>
         <h2 style={h2}>Area rating</h2>
         {r.areaRank != null ? (
@@ -261,15 +274,16 @@ export default async function CouncilRatingsSection({
           <div style={{ ...para, marginTop: '10px' }}><strong>Warning flags</strong><Flags flags={r.flags} /></div>
         )}
       </section>
+      </>}
 
       {neighbours.length > 0 && (
         <section style={section}>
           <h2 style={h2}>Similar councils</h2>
-          <p style={para}>The 15 councils the government’s Statistical Neighbours model (1 July 2026) judges most like {name}, most similar first. This is the fairest comparison.</p>
+          <p style={para}>The 15 councils the government’s Statistical Neighbours model (1 July 2026) judges most like {name}, most similar first.{show && ' This is the fairest comparison.'}</p>
           <div style={{ overflowX: 'auto' }}>
             <table className="cr-table" style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '14px', color: INK, width: '100%' }}>
               <thead>
-                <tr><th style={th}>Council</th><th style={th}>Area band</th><th style={{ ...th, textAlign: 'right' }}>Services score</th><th style={th}>Warning flags</th></tr>
+                <tr><th style={th}>Council</th>{show && <><th style={th}>Area band</th><th style={{ ...th, textAlign: 'right' }}>Services score</th></>}<th style={th}>Warning flags</th></tr>
               </thead>
               <tbody>
                 {[gssCode, ...neighbours].map((code) => {
@@ -277,8 +291,8 @@ export default async function CouncilRatingsSection({
                   return (
                     <tr key={code} style={code === gssCode ? { fontWeight: 'bold' } : undefined}>
                       <td style={td}>{code === gssCode ? name : link(code, n?.name)}</td>
-                      <td style={td}>{n?.areaBand != null ? `${n.areaBand}${n.nearBoundary ? ' ≈' : ''}` : 'n/a'}</td>
-                      <td style={tdNum}>{fmt1(n?.servicesScore)}</td>
+                      {show && <td style={td}>{n?.areaBand != null ? `${n.areaBand}${n.nearBoundary ? ' ≈' : ''}` : 'n/a'}</td>}
+                      {show && <td style={tdNum}>{fmt1(n?.servicesScore)}</td>}
                       <td style={{ ...td, fontSize: '14px', fontWeight: 'normal' }}><Flags flags={n ? n.flags : data.flagsByCouncil.get(code) ?? []} /></td>
                     </tr>
                   );
@@ -286,7 +300,7 @@ export default async function CouncilRatingsSection({
               </tbody>
             </table>
           </div>
-          <p style={small}>≈ means close to the edge of its band.</p>
+          {show && <p style={small}>≈ means close to the edge of its band.</p>}
         </section>
       )}
 

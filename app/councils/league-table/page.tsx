@@ -14,6 +14,8 @@ import BackLink from '../../components/BackLink';
 import LastUpdated from '../../components/LastUpdated';
 import LeagueTable from './LeagueTable';
 import type { ClientRow } from './LeagueTable';
+import { notFound } from 'next/navigation';
+import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
 import { getLeagueData, TOPIC_NAMES, SERVICE_PARTS, STAT_NEIGHBOURS_URL } from '@/lib/council-league';
 import type { MeasureDetail } from '@/lib/council-league';
 
@@ -37,6 +39,7 @@ const h2: CSSProperties = { fontFamily: MONO, fontSize: '15px', letterSpacing: '
 const para: CSSProperties = { fontFamily: MONO, fontSize: '15px', lineHeight: 1.75, color: INK, margin: '0 0 14px', maxWidth: '46em' };
 
 export default async function LeagueTablePage() {
+  if (!SHOW_LEAGUE_TABLE) notFound(); // hidden (lib/feature-flags.ts)
   const data = await getLeagueData();
   // The area's two highest- and two lowest-scoring measures (audit reassessment, 16 Oct 2026:
   // explain what is behind a position using the existing measures, with no new judgement).

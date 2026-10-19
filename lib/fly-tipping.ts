@@ -47,8 +47,7 @@ export function flyTippingView(rows: FlyTippingRow[]): FlyTippingView | null {
   const notes: string[] = [];
 
   if (cur.incidents != null) {
-    const rate = cur.incidents_per_1000 != null
-      ? ` (${cur.incidents_per_1000.toLocaleString('en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} per 1,000 people)` : '';
+    // No rate is shown (owner's rule, 19 Oct 2026: no "per X" figures); incidents_per_1000 stays in the table only.
     let sub: string | undefined;
     if (prev && comparable(cur, prev)) {
       const pct = ((cur.incidents - (prev.incidents as number)) / (prev.incidents as number)) * 100;
@@ -59,7 +58,7 @@ export function flyTippingView(rows: FlyTippingRow[]): FlyTippingView | null {
     } else if (prev) {
       sub = `No comparison with ${yearLabel(prev.year)}: the two years were not counted the same way`;
     }
-    lines.push({ label: `Fly-tipping incidents, ${Y}`, value: `${num(cur.incidents)}${rate}`, sub });
+    lines.push({ label: `Fly-tipping incidents, ${Y}`, value: num(cur.incidents), sub });
   } else {
     lines.push({ label: `Fly-tipping incidents, ${Y}`, value: cur.summed_from_districts ? 'No county total for this year (see note)' : 'Not published for this council' });
   }
@@ -70,7 +69,6 @@ export function flyTippingView(rows: FlyTippingRow[]): FlyTippingView | null {
   if (cur.summed_from_districts) notes.push('County figures are the total of its district councils, which collect the waste and record fly-tipping.');
   if (PUBLIC_ONLY.test(cur.reporting_basis ?? '')) notes.push('This council counts only fly-tips reported by the public, not every incident it clears, so its figures are lower than a full count would be.');
   if (!cur.summed_from_districts && CHANGED.test(cur.reporting_basis ?? '')) notes.push(`This council changed how it counts fly-tips during ${Y}.`);
-  if (cur.rate_calculated && cur.incidents_per_1000 != null) notes.push('Rate per 1,000 people worked out by Open Govt from the ONS mid-year population estimate.');
   if (cur.nation === 'Wales' && cur.fpns_fly_tipping != null) notes.push('Welsh figures give one count of fixed penalty notices, not split by offence.');
   // a county's notes name the district whose figures are part-year
   if (!cur.summed_from_districts && cur.months_enforcement != null && cur.months_enforcement < 12) notes.push(`Enforcement figures cover ${cur.months_enforcement} months of ${Y}.`);

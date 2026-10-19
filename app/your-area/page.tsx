@@ -26,6 +26,7 @@ import { loadRoadHeadline } from '../components/CouncilRoadCasualtiesSection';
 import { loadBroadbandHeadline } from '../components/CouncilConnectivitySection';
 import { getAreaTotals, getCouncilRefs, countyTotals, latestYears, nationOfCode, rankByHours, ordinal as sewageOrdinal } from '@/lib/sewage';
 import { getLeagueData, bandLabel, ordinal } from '@/lib/council-league';
+import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
 import { balanceColumns, TWO_COLUMN_CSS } from '@/lib/balance-columns';
 
 export const dynamic = 'force-dynamic';
@@ -246,7 +247,7 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
     key: 'crime', href: page(council, 'crime'), linkText: 'Crime in full',
     lines: [
       <p key="a" style={big}><strong>{n0(crime!.headline.total)}</strong> crimes recorded {crime!.headline.periodText}</p>,
-      <p key="b" style={para}>{[crime!.headline.ratePer1000 != null ? `${crime!.headline.ratePer1000.toFixed(1)} per 1,000 residents` : null, crime!.headline.change].filter(Boolean).join(' · ')}</p>,
+      <p key="b" style={para}>{crime!.headline.change}</p>,
     ],
   }));
   add(county ? `Road casualties in ${county.short_name || county.name}` : 'Road casualties', eduOrRoadsCouncil && roads && (roads.killed != null || roads.ksi != null), () => ({
@@ -364,8 +365,9 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
     }));
   }
 
+  // League table hidden (lib/feature-flags.ts): no area rating card, and the county card keeps only its Ofsted grade.
   const leagueRow = league ? [...league.rows, ...league.separate].find((r) => r.code === code) : null;
-  add('Council area rating', council && leagueRow && leagueRow.areaRank != null, () => ({
+  if (SHOW_LEAGUE_TABLE) add('Council area rating', council && leagueRow && leagueRow.areaRank != null, () => ({
     key: 'ratings', href: page(council, 'ratings'), linkText: 'Ratings in full',
     lines: [
       <p key="a" style={big}><strong>{ordinal(leagueRow!.areaRank!)}</strong> of {n0(league!.stability.ranked)} areas in England</p>,
@@ -379,7 +381,7 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
   if (council?.type === 'county' && league) {
     const ofsted = league.ofstedByCouncil.get(council.gss_code ?? '');
     const all = [...league.rows, ...league.separate];
-    const ranks = districtCodes.map((c) => all.find((r) => r.code === c)).filter((r): r is NonNullable<typeof r> => !!r && r.areaRank != null).sort((a, b) => a.areaRank! - b.areaRank!);
+    const ranks = SHOW_LEAGUE_TABLE ? districtCodes.map((c) => all.find((r) => r.code === c)).filter((r): r is NonNullable<typeof r> => !!r && r.areaRank != null).sort((a, b) => a.areaRank! - b.areaRank!) : [];
     add('Council ratings', ofsted?.grade || ranks.length, () => ({
       key: 'ratings', href: page(council, 'ratings'), linkText: 'Ratings in full',
       lines: [

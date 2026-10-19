@@ -13,6 +13,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import CouncilSearch from '../components/CouncilSearch';
+import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
 
 export const revalidate = 21600;
 
@@ -120,9 +121,9 @@ export default async function CouncilsIndex() {
           <CouncilSearch />
         </div>
 
-        <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.75, margin: '0 auto 28px', maxWidth: '46em', color: INK, borderTop: `1px solid ${INK}`, borderBottom: `1px solid ${INK}`, padding: '10px 0' }}>
+        {SHOW_LEAGUE_TABLE && <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.75, margin: '0 auto 28px', maxWidth: '46em', color: INK, borderTop: `1px solid ${INK}`, borderBottom: `1px solid ${INK}`, padding: '10px 0' }}>
           <a href="/councils/league-table" style={{ color: INK, fontWeight: 'bold' }}>How council areas compare</a>: how every council area in England compares on schools, safety, health, jobs, housing, environment and connectivity, with a separate score for selected council services and warnings such as section 114 notices.
-        </p>
+        </p>}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
           {COUNTRY_ORDER.filter((c) => grouped[c]).map((country) => {

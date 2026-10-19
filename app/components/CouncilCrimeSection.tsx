@@ -77,7 +77,7 @@ const SOURCE_NOTES: Record<string, string> = {
   psni:
     'Source: Police Service of Northern Ireland, Police Recorded Crime monthly tables. PSNI’s 11 policing districts cover the same areas as Northern Ireland’s 11 councils.',
   scotland_rcs:
-    'Source: Scottish Government, Recorded Crime in Scotland (Accredited Official Statistics). Published once a year for each financial year (April to March). The rate per 1,000 residents is the Scottish Government’s own published rate.',
+    'Source: Scottish Government, Recorded Crime in Scotland (Accredited Official Statistics). Published once a year for each financial year (April to March).',
 };
 
 export type CrimeHeadline = { total: number; periodText: string; change: string | null; ratePer1000: number | null };
@@ -178,7 +178,7 @@ export default async function CouncilCrimeSection({
 }) {
   const loaded = await loadCrime(gssCodes, population);
   if (!loaded) return null;
-  const { headline, categories, trend, updatedAt, source, monthly } = loaded;
+  const { headline, categories, trend, updatedAt, source } = loaded;
   const maxTrend = Math.max(1, ...trend.map((t) => t.total));
 
   return (
@@ -191,10 +191,8 @@ export default async function CouncilCrimeSection({
         <strong>{fmtNum(headline.total)}</strong> crimes recorded {headline.periodText}
       </p>
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: '0 0 16px' }}>
-        {[
-          headline.ratePer1000 != null ? `${headline.ratePer1000.toFixed(1)} per 1,000 residents` : null,
-          headline.change,
-        ].filter(Boolean).join(' · ')}
+        {/* No rate per resident (owner's rule, 19 Oct 2026: no "per X" figures). */}
+        {headline.change}
       </p>
 
       {trend.length > 0 && (
@@ -241,7 +239,6 @@ export default async function CouncilCrimeSection({
             <tr style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
               <th style={{ textAlign: 'left', padding: '6px 8px 6px 0', fontWeight: 'bold' }}>Type of crime</th>
               <th style={{ textAlign: 'right', padding: '6px 0 6px 8px', fontWeight: 'bold' }}>Crimes</th>
-              {population && monthly && <th style={{ textAlign: 'right', padding: '6px 0 6px 8px', fontWeight: 'bold' }}>Per 1,000</th>}
             </tr>
           </thead>
           <tbody>
@@ -249,9 +246,6 @@ export default async function CouncilCrimeSection({
               <tr key={c.name} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <td style={{ padding: '6px 8px 6px 0' }}>{c.name}</td>
                 <td style={{ padding: '6px 0 6px 8px', textAlign: 'right' }}>{fmtNum(c.count)}</td>
-                {population && monthly && (
-                  <td style={{ padding: '6px 0 6px 8px', textAlign: 'right' }}>{((c.count / population) * 1000).toFixed(1)}</td>
-                )}
               </tr>
             ))}
           </tbody>

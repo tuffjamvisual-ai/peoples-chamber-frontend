@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { formatGBP, formatCount, formatSignedPercent, formatGBPPerResident, formatPeriodEnd } from '@/lib/welfare-format'
+import { formatGBP, formatCount, formatSignedPercent, formatPeriodEnd } from '@/lib/welfare-format'
 
 // Renders the body of /tools/welfare/constituency/[gss] — fetches
 // /api/welfare/constituency/[gss] client-side (same fetch-from-API
@@ -272,9 +272,7 @@ function FullView({ payload }: { payload: FullPayload }) {
 
       <Section title="Headline figures">
         <DataRow label="Total spend on six benefits" value={formatGBP(d.total_six_benefit_spend)} sub={`Period ending ${formatPeriodEnd(d.headline_period_end)}`} />
-        <DataRow label="Spend per resident" value={formatGBPPerResident(d.spend_per_resident)} />
         <DataRow label="Rank by total spend" value={`#${formatCount(d.rank_total_spend)} of ${EW_CONSTITUENCY_COUNT}`} sub="Rank 1 = highest total spend among England & Wales constituencies" />
-        <DataRow label="Rank by spend per resident" value={`#${formatCount(d.rank_spend_per_resident)} of ${EW_CONSTITUENCY_COUNT}`} />
         <DataRow label="Population" value={`${formatCount(d.population)} (${d.population_reference_year})`} />
         <DataRow label="Median annual pay (workplace)" value={medianWageValue(payload.medianWage)} sub={medianWageSub(payload.medianWage)} />
       </Section>
@@ -304,7 +302,7 @@ function FullView({ payload }: { payload: FullPayload }) {
               key={key}
               label={BENEFIT_LABELS[key]}
               value={formatGBP(m.benefit_breakdown[key])}
-              sub={`${formatGBPPerResident(m.benefit_breakdown[key] / d.population)} per resident${ccText ? ` · ${ccText}` : ''}${motText ? ` · ${motText}` : ''}${conditionText ? ` · ${conditionText}` : ''}${lcwraTextValue ? ` · ${lcwraTextValue}` : ''} · Period ending ${formatPeriodEnd(m.benefit_period_ends[key])} · baseline ${formatGBP(m.baseline_benefit_breakdown[key])} (${formatPeriodEnd(m.baseline_benefit_period_ends[key])})`}
+              sub={`${[ccText, motText, conditionText, lcwraTextValue].filter(Boolean).map((t) => `${t} · `).join('')}Period ending ${formatPeriodEnd(m.benefit_period_ends[key])} · baseline ${formatGBP(m.baseline_benefit_breakdown[key])} (${formatPeriodEnd(m.baseline_benefit_period_ends[key])})`}
             />
           )
         })}

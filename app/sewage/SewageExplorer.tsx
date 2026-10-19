@@ -27,7 +27,8 @@ export type ExplorerRow = {
 
 export type ExplorerTable = { id: string; label: string; nation: string; year: number; rows: ExplorerRow[]; areaWord: string };
 
-type SortKey = 'hours' | 'avg' | 'share' | 'spills';
+// No per-overflow average (owner's rule, 19 Oct 2026: no "per X" figures).
+type SortKey = 'hours' | 'share' | 'spills';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -41,14 +42,12 @@ const ordinal = (k: number) => {
   const s = ['th', 'st', 'nd', 'rd'], v = k % 100;
   return `${k}${s[(v - 20) % 10] || s[v] || s[0]}`;
 };
-// Averages and shares use only overflows with figures for the year, so an
+// Shares use only overflows with figures for the year, so an
 // overflow with no monitoring data does not count as "didn't spill".
-const avg = (r: ExplorerRow) => (r.withData ? r.hours / r.withData : 0);
 const share = (r: ExplorerRow) => (r.withData ? (r.spilled / r.withData) * 100 : 0);
 
 const SORTS: { key: SortKey; label: string }[] = [
   { key: 'hours', label: 'Total hours' },
-  { key: 'avg', label: 'Average hours per overflow' },
   { key: 'share', label: 'Share of overflows that spilled' },
   { key: 'spills', label: 'Spills counted' },
 ];
@@ -127,8 +126,8 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
 
   const rows = useMemo(() => {
     if (!table) return [];
-    const eligible = sort === 'avg' || sort === 'share' ? table.rows.filter((r) => r.withData >= MIN_FOR_AVERAGES) : table.rows;
-    const value = (r: ExplorerRow) => (sort === 'hours' ? r.hours : sort === 'avg' ? avg(r) : sort === 'share' ? share(r) : r.spills);
+    const eligible = sort === 'share' ? table.rows.filter((r) => r.withData >= MIN_FOR_AVERAGES) : table.rows;
+    const value = (r: ExplorerRow) => (sort === 'hours' ? r.hours : sort === 'share' ? share(r) : r.spills);
     return [...eligible].sort((a, b) => value(b) - value(a) || a.name.localeCompare(b.name));
   }, [table, sort]);
   const excluded = table ? table.rows.length - rows.length : 0;
@@ -243,7 +242,7 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
         {table && (
           <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: '0 0 10px' }}>
             {table.nation}, {table.year}. {fmtInt(table.rows.length)} {table.areaWord}.
-            {excluded > 0 && ` Averages and shares rank only areas with figures for at least ${MIN_FOR_AVERAGES} overflows, so ${fmtInt(excluded)} smaller area${excluded === 1 ? ' is' : 's are'} left out of this view.`}
+            {excluded > 0 && ` Shares rank only areas with figures for at least ${MIN_FOR_AVERAGES} overflows, so ${fmtInt(excluded)} smaller area${excluded === 1 ? ' is' : 's are'} left out of this view.`}
           </p>
         )}
         <div style={{ overflowX: 'auto' }}>
@@ -255,7 +254,6 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
                 {sortedHead('hours', 'Hours')}
                 {sortedHead('spills', 'Spills')}
                 <th style={{ ...th, textAlign: 'right' }}>Overflows</th>
-                {sortedHead('avg', 'Hours per overflow')}
                 {sortedHead('share', 'Spilled')}
                 <th style={th}>Water company</th>
               </tr>
@@ -268,7 +266,6 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
                   <td style={tdNum}>{fmtInt(r.hours)}</td>
                   <td style={tdNum}>{fmtInt(r.spills)}</td>
                   <td style={tdNum}>{fmtInt(r.overflows)}</td>
-                  <td style={tdNum}>{fmtInt(avg(r))}</td>
                   <td style={tdNum}>{Math.round(share(r))}%</td>
                   <td style={{ ...td, whiteSpace: 'nowrap' }}>{r.companies.join(', ')}</td>
                 </tr>

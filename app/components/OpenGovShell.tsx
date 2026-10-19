@@ -1,6 +1,7 @@
 import './opengov-shell.css';
 import { topics } from '@/lib/topics';
 import AccountTab from './AccountTab';
+import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
 
 // OpenGovShell — the shared "OPEN GOVERNMENT" page template.
 // Renders the folders-pile backdrop, the newb folder header (red-stamp masthead
@@ -56,7 +57,7 @@ const NAV: NavItem[] = [
   ] },
   { label: 'Local', href: '/councils', children: [
     { label: 'Councils', href: '/councils' },
-    { label: 'How Council Areas Compare', href: '/councils/league-table' },
+    ...(SHOW_LEAGUE_TABLE ? [{ label: 'How Council Areas Compare', href: '/councils/league-table' }] : []),
     { label: 'Sewage Spills', href: '/sewage' },
   ] },
   { label: 'Accountability', href: '/transparency', children: [

@@ -164,7 +164,6 @@ export default async function SewagePage() {
                   <th style={{ ...th, textAlign: 'right' }}>Overflows</th>
                   <th style={{ ...th, textAlign: 'right' }}>Spills</th>
                   <th style={{ ...th, textAlign: 'right' }}>Hours</th>
-                  <th style={{ ...th, textAlign: 'right' }}>Hours per overflow</th>
                   <th style={{ ...th, textAlign: 'right' }}>Spilled</th>
                 </tr>
               </thead>
@@ -175,7 +174,6 @@ export default async function SewagePage() {
                     <td style={tdNum}>{fmtInt(c.overflows)}</td>
                     <td style={tdNum}>{fmtInt(c.spills)}</td>
                     <td style={tdNum}>{fmtInt(c.hours)}</td>
-                    <td style={tdNum}>{fmtInt(c.withData ? c.hours / c.withData : 0)}</td>
                     <td style={tdNum}>{c.withData ? Math.round((c.spilled / c.withData) * 100) : 0}%</td>
                   </tr>
                 ))}
@@ -196,7 +194,7 @@ export default async function SewagePage() {
             {eaInWales.length > 0 && ` ${fmtInt(eaInWales.length)} overflow${eaInWales.length === 1 ? ' in the English return sits' : 's in the English return sit'} in Wales; ${eaInWales.length === 1 ? 'it is' : 'they are'} in the company totals but not in any table until Welsh figures are added.`}
           </p>
           <p style={para}>
-            Hours are the total time all spills lasted. “Hours per overflow” and “Spilled” use only overflows with figures for the year, so an overflow with no monitoring data is not counted as one that did not spill. Spills are counted the Environment Agency’s way: any discharge in the first 12 hours counts as one spill, and each further 24-hour block counts as another. {fmtInt(eaNoData)} English overflows have no figures for {eaYear}, so some totals may be lower than the true amount.
+            Hours are the total time all spills lasted. “Spilled” uses only overflows with figures for the year, so an overflow with no monitoring data is not counted as one that did not spill. Spills are counted the Environment Agency’s way: any discharge in the first 12 hours counts as one spill, and each further 24-hour block counts as another. {fmtInt(eaNoData)} English overflows have no figures for {eaYear}, so some totals may be lower than the true amount.
           </p>
           {swYear != null && (
             <p style={para}>

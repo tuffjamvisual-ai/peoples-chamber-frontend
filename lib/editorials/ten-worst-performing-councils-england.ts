@@ -1,4 +1,5 @@
 import type { EditorialEntry } from './types';
+import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
 
 const piece: EditorialEntry = {
   slug: 'ten-worst-performing-councils-england',
@@ -107,7 +108,7 @@ const piece: EditorialEntry = {
   ],
   readNext: ['cq4r8vn2mp', 'pc7m3wq9k2'],
   explore: [
-    { href: '/councils/league-table', label: 'Council League Table', note: 'How every council area compares on schools, safety, health, housing, money and more' },
+    ...(SHOW_LEAGUE_TABLE ? [{ href: '/councils/league-table', label: 'Council League Table', note: 'How every council area compares on schools, safety, health, housing, money and more' }] : []),
     { href: '/councils', label: 'All 382 UK councils', note: 'Leadership, finance, council tax and our assessment for each council' },
     { href: '/councils/woking', label: 'Woking Borough Council' },
     { href: '/councils/birmingham', label: 'Birmingham City Council' },

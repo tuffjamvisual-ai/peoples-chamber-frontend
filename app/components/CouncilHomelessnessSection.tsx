@@ -52,7 +52,6 @@ type Field = Exclude<keyof Row, 'council_gss_code' | 'period_start' | 'period_la
 const SELECT = 'council_gss_code, period_start, period_label, owed_duty_total, owed_prevention, owed_prevention_s21, owed_relief, households_thousands, ta_total, ta_with_children, ta_children, ta_bb, ta_bb_children, ta_nightly_paid, ta_nightly_paid_children, ta_hostels, ta_hostels_children, ta_private_sector, ta_private_sector_children, ta_la_ha_stock, ta_la_ha_stock_children, ta_other, ta_other_children, ta_in_another_la, ta_no_accommodation_secured, release_status';
 
 const fmtNum = (n: number) => Math.round(n).toLocaleString('en-GB');
-const fmtRate = (n: number) => n.toFixed(1);
 const QUARTER_END: Record<string, string> = { '01': '31 March', '04': '30 June', '07': '30 September', '10': '31 December' };
 export const quarterEnd = (p: string) => `${QUARTER_END[p.slice(5, 7)]} ${p.slice(0, 4)}`;
 const shortQ = (p: string) => `Q${(Number(p.slice(5, 7)) + 2) / 3} ${p.slice(0, 4)}`;
@@ -140,7 +139,7 @@ export async function loadHomelessness(gssCodes: string[]) {
 export default async function CouncilHomelessnessSection({ gssCodes, isCounty }: { gssCodes: string[]; isCounty: boolean }) {
   const loaded = await loadHomelessness(gssCodes);
   if (!loaded) return null;
-  const { byPeriod, periods, labelOf, combine, newest, latestA1, latestTA, provisional, hhA1, owed, prevention, relief, s21, hhTA, ta, taKids, children, anotherLA, noAccom, types, typeRows, trend, maxTA, gaps, per1000 } = loaded;
+  const { byPeriod, periods, labelOf, combine, newest, latestA1, latestTA, provisional, owed, prevention, relief, s21, ta, taKids, children, anotherLA, noAccom, types, typeRows, trend, maxTA, gaps } = loaded;
 
   const stat = (label: string, value: number | null, sub: string | null) =>
     value != null && (
@@ -151,9 +150,6 @@ export default async function CouncilHomelessnessSection({ gssCodes, isCounty }:
       </div>
     );
 
-  const preventionRate = per1000(prevention, hhA1);
-  const reliefRate = per1000(relief, hhA1);
-  const taRate = per1000(ta, hhTA);
 
   return (
     <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
@@ -167,8 +163,9 @@ export default async function CouncilHomelessnessSection({ gssCodes, isCounty }:
             <strong>{fmtNum(owed)}</strong> households were owed help by the council because they were homeless or at risk, {labelOf(latestA1)}
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', margin: '12px 0 18px' }}>
-            {stat('Threatened with homelessness', prevention, preventionRate != null ? `${fmtRate(preventionRate)} per 1,000 households${s21 != null ? ` · ${fmtNum(s21)} after a section 21 (“no fault”) eviction notice` : ''}` : null)}
-            {stat('Already homeless', relief, reliefRate != null ? `${fmtRate(reliefRate)} per 1,000 households` : null)}
+            {/* No rate per household (owner's rule, 19 Oct 2026: no "per X" figures). */}
+            {stat('Threatened with homelessness', prevention, s21 != null ? `${fmtNum(s21)} after a section 21 (“no fault”) eviction notice` : null)}
+            {stat('Already homeless', relief, null)}
           </div>
         </>
       )}
@@ -180,7 +177,6 @@ export default async function CouncilHomelessnessSection({ gssCodes, isCounty }:
           </p>
           <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: '0 0 16px' }}>
             {[
-              taRate != null ? `${fmtRate(taRate)} per 1,000 households` : null,
               taKids != null ? `${fmtNum(taKids)} with children` : null,
               children != null ? `${fmtNum(children)} children` : null,
             ].filter(Boolean).join(' · ')}

@@ -19,7 +19,7 @@ const ACCENT = '#7a1612';
 const SERIF = 'Special Elite, monospace';
 const MONO = 'Special Elite, monospace';
 
-type Row = { year: number; measure: string; casualties: number | null; rate_per_bn_miles: number | null; release_label: string };
+type Row = { year: number; measure: string; casualties: number | null; release_label: string };
 type UserRow = { year: number; road_user: string; measure: string; casualties: number | null };
 
 const fmtNum = (n: number) => Math.round(n).toLocaleString('en-GB');
@@ -54,7 +54,9 @@ export async function loadRoadHeadline(gssCode: string | null) {
     const v = rows.find((r) => r.year === latest && r.measure === m)?.casualties;
     return v == null ? null : Number(v);
   };
-  return { year: latest, killed: get('killed'), ksi: get('ksi_adjusted') ?? get('ksi_unadjusted'), all: get('all') };
+  // KSI as recorded, so "seriously injured" (KSI - killed) on Your area matches the council page's count
+  // (owner's decision, 19 Oct 2026); the adjusted estimate is used only for the trend chart.
+  return { year: latest, killed: get('killed'), ksi: get('ksi_unadjusted'), all: get('all') };
 }
 
 export default async function CouncilRoadCasualtiesSection({
@@ -85,19 +87,31 @@ export default async function CouncilRoadCasualtiesSection({
   }
 
   const [{ data }, { data: userData }] = await Promise.all([
-    supabase.from('council_road_casualties').select('year, measure, casualties, rate_per_bn_miles, release_label').eq('council_gss_code', gssCode).order('year').limit(1000),
+    supabase.from('council_road_casualties').select('year, measure, casualties, release_label').eq('council_gss_code', gssCode).order('year').limit(1000),
     supabase.from('council_road_casualties_users').select('year, road_user, measure, casualties').eq('council_gss_code', gssCode).order('year', { ascending: false }).limit(1000),
   ]);
-  const rows = ((data ?? []) as Row[]).map((r) => ({ ...r, casualties: r.casualties == null ? null : Number(r.casualties), rate_per_bn_miles: r.rate_per_bn_miles == null ? null : Number(r.rate_per_bn_miles) }));
+  const rows = ((data ?? []) as Row[]).map((r) => ({ ...r, casualties: r.casualties == null ? null : Number(r.casualties) }));
   if (rows.length === 0) return null;
   const years = [...new Set(rows.map((r) => r.year))].sort((a, b) => a - b);
   const latest = years[years.length - 1];
   const get = (y: number, m: string) => rows.find((r) => r.year === y && r.measure === m) ?? null;
-  const killed = get(latest, 'killed');
-  const ksi = get(latest, 'ksi_adjusted') ?? get(latest, 'ksi_unadjusted');
-  const all = get(latest, 'all');
-  const trend = years.map((y) => ({ y, v: get(y, 'ksi_adjusted')?.casualties ?? null }));
-  const maxT = Math.max(1, ...trend.map((t) => t.v ?? 0));
+  // Separate counts that add up to all casualties (owner's decision, 19 Oct 2026), from the figures as recorded by
+  // the police: seriously injured = KSI as recorded - killed; slightly injured = all casualties - KSI as recorded.
+  // No rates are shown (owner's rule: no "per X" figures).
+  const cnt = (y: number, m: string) => get(y, m)?.casualties ?? null;
+  const killedN = cnt(latest, 'killed');
+  const ksiRec = cnt(latest, 'ksi_unadjusted');
+  const allN = cnt(latest, 'all');
+  const seriousN = ksiRec != null && killedN != null ? ksiRec - killedN : null;
+  const slightN = allN != null && ksiRec != null ? allN - ksiRec : null;
+  // Per year: killed; seriously injured as recorded (KSI as recorded - killed) and as DfT estimates it so that years
+  // can be compared (KSI adjusted - killed), rounded to whole people; all casualties.
+  const minus = (a: number | null, b: number | null) => (a != null && b != null ? Math.round(a - b) : null);
+  const trend = years.map((y) => {
+    const killed = cnt(y, 'killed');
+    return { y, killed, seriousRecorded: minus(cnt(y, 'ksi_unadjusted'), killed), serious: minus(cnt(y, 'ksi_adjusted'), killed), all: cnt(y, 'all') };
+  });
+  const maxT = Math.max(1, ...trend.flatMap((t) => [t.killed ?? 0, t.serious ?? 0]));
 
   const users = ((userData ?? []) as UserRow[]).filter((u) => u.year === latest);
   const userRows = Object.keys(ROAD_USERS)
@@ -106,16 +120,16 @@ export default async function CouncilRoadCasualtiesSection({
       killed: users.find((u) => u.road_user === k && u.measure === 'killed')?.casualties ?? null,
       ksi: users.find((u) => u.road_user === k && u.measure === 'ksi_unadjusted')?.casualties ?? null,
     }))
-    .filter((u) => u.killed != null || u.ksi != null);
+    .map((u) => ({ ...u, serious: u.ksi != null && u.killed != null ? Number(u.ksi) - Number(u.killed) : null }))
+    .filter((u) => u.killed != null || u.serious != null);
   const release = rows[rows.length - 1].release_label;
   const caveatYears: number[] = years.filter((y) => y === 2022 || y === 2023);
 
-  const stat = (label: string, r: Row | null, decimals = 0) =>
-    r?.casualties != null && (
-      <div style={{ flex: '1 1 180px', borderLeft: `3px solid ${INK}`, padding: '4px 0 4px 12px' }}>
+  const stat = (label: string, n: number | null) =>
+    n != null && (
+      <div style={{ flex: '1 1 150px', borderLeft: `3px solid ${INK}`, padding: '4px 0 4px 12px' }}>
         <div style={{ fontFamily: MONO, fontSize: '14px', color: INK, marginBottom: '2px' }}>{label}</div>
-        <div style={{ fontFamily: SERIF, fontSize: '30px', lineHeight: 1.1, color: INK }}><strong>{decimals ? r.casualties.toFixed(decimals) : fmtNum(r.casualties)}</strong></div>
-        {r.rate_per_bn_miles != null && <div style={{ fontFamily: MONO, fontSize: '14px', color: INK }}>{r.rate_per_bn_miles.toFixed(1)} per billion vehicle miles</div>}
+        <div style={{ fontFamily: SERIF, fontSize: '30px', lineHeight: 1.1, color: INK }}><strong>{fmtNum(n)}</strong></div>
       </div>
     );
 
@@ -126,52 +140,72 @@ export default async function CouncilRoadCasualtiesSection({
         People killed or injured on roads reported to the police, {latest}
       </p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '18px' }}>
-        {stat('Killed', killed)}
-        {stat('Killed or seriously injured', ksi)}
-        {stat('All casualties', all)}
+        {stat('Killed', killedN)}
+        {stat('Seriously injured', seriousN)}
+        {stat('Slightly injured', slightN)}
+        {stat('All casualties', allN)}
       </div>
 
-      {trend.some((t) => t.v != null) && (
+      {trend.some((t) => t.killed != null || t.serious != null) && (() => {
+        // Two lines on one scale: killed, and seriously injured as DfT estimates it so that years can be compared
+        // (KSI adjusted - killed; DfT guide to severity adjustments, Table 3). Rounded to whole people.
+        const W = 600, H = 170, padL = 40, padR = 12, padT = 10, padB = 22;
+        const xs = (i: number) => padL + (trend.length === 1 ? 0 : (i * (W - padL - padR)) / (trend.length - 1));
+        const ys = (v: number) => padT + (H - padT - padB) * (1 - v / maxT);
+        const line = (k: 'killed' | 'serious') => trend.map((t, i) => (t[k] == null ? null : `${xs(i).toFixed(1)},${ys(t[k] as number).toFixed(1)}`)).filter(Boolean).join(' ');
+        const ticks = [0, Math.round(maxT / 2), Math.round(maxT)];
+        return (
         <figure style={{ margin: '0 0 18px' }}>
-          <figcaption style={{ fontFamily: MONO, fontSize: '14px', color: INK, marginBottom: '6px' }}>Killed or seriously injured each year (adjusted)</figcaption>
-          <div
+          <figcaption style={{ fontFamily: MONO, fontSize: '14px', color: INK, marginBottom: '6px' }}>Killed and seriously injured each year</figcaption>
+          <svg
             role="img"
-            aria-label={`Killed or seriously injured each year (adjusted), ${years[0]} to ${latest}. Full figures are in the Yearly figures table below.`}
-            style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: '90px', borderBottom: `1px solid ${INK}` }}
+            aria-label={`Killed and seriously injured (estimated so that years can be compared) each year, ${years[0]} to ${latest}. Full figures are in the Yearly figures table below.`}
+            viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 'auto', display: 'block', fontFamily: MONO }}
           >
-            {trend.map((t) => (
-              <div key={t.y} title={t.v != null ? `${t.y}: ${t.v.toFixed(0)} killed or seriously injured (adjusted)` : `${t.y}: not available`} style={{ flex: 1, height: '100%', display: 'flex', alignItems: 'flex-end', cursor: 'default' }}>
-                {t.v != null && <div style={{ width: '100%', height: `${Math.max(2, (t.v / maxT) * 100)}%`, background: INK, borderRadius: '2px 2px 0 0' }} />}
-              </div>
+            {ticks.map((t) => (
+              <g key={t}>
+                <line x1={padL} x2={W - padR} y1={ys(t)} y2={ys(t)} stroke={INK_HAIRLINE} strokeWidth={1} />
+                <text x={padL - 6} y={ys(t) + 4} textAnchor="end" fontSize="11" fill={INK}>{fmtNum(t)}</text>
+              </g>
             ))}
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: MONO, fontSize: '14px', color: INK, marginTop: '4px' }}>
-            <span>{years[0]}</span>
-            <span>{latest}</span>
+            <polyline points={line('serious')} fill="none" stroke={INK} strokeWidth={2.5} />
+            <polyline points={line('killed')} fill="none" stroke={ACCENT} strokeWidth={2.5} strokeDasharray="6 4" />
+            {trend.map((t, i) => (
+              <g key={t.y}>
+                {t.serious != null && <circle cx={xs(i)} cy={ys(t.serious)} r={3.5} fill={INK}><title>{`${t.y}: ${fmtNum(t.serious)} seriously injured (estimated so that years can be compared)`}</title></circle>}
+                {t.killed != null && <circle cx={xs(i)} cy={ys(t.killed)} r={3.5} fill={ACCENT}><title>{`${t.y}: ${fmtNum(t.killed)} killed`}</title></circle>}
+              </g>
+            ))}
+            <text x={padL} y={H - 4} fontSize="11" fill={INK}>{years[0]}</text>
+            <text x={W - padR} y={H - 4} fontSize="11" fill={INK} textAnchor="end">{latest}</text>
+          </svg>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 18px', fontFamily: MONO, fontSize: '14px', color: INK, marginTop: '6px' }}>
+            <span><span aria-hidden="true" style={{ display: 'inline-block', width: '22px', borderTop: `3px solid ${INK}`, verticalAlign: 'middle', marginRight: '6px' }} />Seriously injured (estimated so that years can be compared)</span>
+            <span><span aria-hidden="true" style={{ display: 'inline-block', width: '22px', borderTop: `3px dashed ${ACCENT}`, verticalAlign: 'middle', marginRight: '6px' }} />Killed</span>
           </div>
           <details style={{ marginTop: '6px' }}>
             <summary style={{ fontFamily: MONO, fontSize: '14px', color: ACCENT, cursor: 'pointer' }}>Yearly figures</summary>
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '14px', color: INK, marginTop: '6px', minWidth: '460px' }}>
+              <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '14px', color: INK, marginTop: '6px', minWidth: '520px' }}>
                 <thead>
                   <tr>
                     <th style={{ textAlign: 'left', padding: '2px 14px 2px 0', fontWeight: 'bold' }}>Year</th>
                     <th style={{ textAlign: 'right', padding: '2px 14px 2px 0', fontWeight: 'bold' }}>Killed</th>
-                    <th style={{ textAlign: 'right', padding: '2px 14px 2px 0', fontWeight: 'bold' }}>KSI as recorded</th>
-                    <th style={{ textAlign: 'right', padding: '2px 14px 2px 0', fontWeight: 'bold' }}>KSI adjusted</th>
+                    <th style={{ textAlign: 'right', padding: '2px 14px 2px 0', fontWeight: 'bold' }}>Seriously injured as recorded</th>
+                    <th style={{ textAlign: 'right', padding: '2px 14px 2px 0', fontWeight: 'bold' }}>Seriously injured (estimated)</th>
                     <th style={{ textAlign: 'right', padding: '2px 0', fontWeight: 'bold' }}>All casualties</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {[...years].reverse().map((y) => {
-                    const cell = (m: string, d = 0) => { const v = get(y, m)?.casualties; return v == null ? 'n/a' : d ? v.toFixed(d) : fmtNum(v); };
+                  {[...trend].reverse().map((t) => {
+                    const c = (v: number | null) => (v == null ? 'n/a' : fmtNum(v));
                     return (
-                      <tr key={y}>
-                        <td style={{ padding: '2px 14px 2px 0' }}>{y}{caveatYears.includes(y) ? ' *' : ''}</td>
-                        <td style={{ padding: '2px 14px 2px 0', textAlign: 'right' }}>{cell('killed')}</td>
-                        <td style={{ padding: '2px 14px 2px 0', textAlign: 'right' }}>{cell('ksi_unadjusted')}</td>
-                        <td style={{ padding: '2px 14px 2px 0', textAlign: 'right' }}>{cell('ksi_adjusted', 1)}</td>
-                        <td style={{ padding: '2px 0', textAlign: 'right' }}>{cell('all')}</td>
+                      <tr key={t.y}>
+                        <td style={{ padding: '2px 14px 2px 0' }}>{t.y}{caveatYears.includes(t.y) ? ' *' : ''}</td>
+                        <td style={{ padding: '2px 14px 2px 0', textAlign: 'right' }}>{c(t.killed)}</td>
+                        <td style={{ padding: '2px 14px 2px 0', textAlign: 'right' }}>{c(t.seriousRecorded)}</td>
+                        <td style={{ padding: '2px 14px 2px 0', textAlign: 'right' }}>{c(t.serious)}</td>
+                        <td style={{ padding: '2px 0', textAlign: 'right' }}>{c(t.all)}</td>
                       </tr>
                     );
                   })}
@@ -181,7 +215,8 @@ export default async function CouncilRoadCasualtiesSection({
             {caveatYears.length > 0 && <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: '6px 0 0' }}>* DfT flags unexpected data collection issues affecting some police forces&rsquo; figures for these years.</p>}
           </details>
         </figure>
-      )}
+        );
+      })()}
 
       {userRows.length > 0 && (
         <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '14px' }}>
@@ -190,7 +225,7 @@ export default async function CouncilRoadCasualtiesSection({
             <tr style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
               <th style={{ textAlign: 'left', padding: '6px 20px 6px 0', fontWeight: 'bold' }}>Road user</th>
               <th style={{ textAlign: 'right', padding: '6px 20px 6px 0', fontWeight: 'bold' }}>Killed</th>
-              <th style={{ textAlign: 'right', padding: '6px 0', fontWeight: 'bold' }}>Killed or seriously injured</th>
+              <th style={{ textAlign: 'right', padding: '6px 0', fontWeight: 'bold' }}>Seriously injured</th>
             </tr>
           </thead>
           <tbody>
@@ -198,7 +233,7 @@ export default async function CouncilRoadCasualtiesSection({
               <tr key={u.label} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <td style={{ padding: '6px 20px 6px 0' }}>{u.label}</td>
                 <td style={{ padding: '6px 20px 6px 0', textAlign: 'right' }}>{u.killed != null ? fmtNum(Number(u.killed)) : 'n/a'}</td>
-                <td style={{ padding: '6px 0', textAlign: 'right' }}>{u.ksi != null ? fmtNum(Number(u.ksi)) : 'n/a'}</td>
+                <td style={{ padding: '6px 0', textAlign: 'right' }}>{u.serious != null ? fmtNum(u.serious) : 'n/a'}</td>
               </tr>
             ))}
           </tbody>
@@ -206,7 +241,7 @@ export default async function CouncilRoadCasualtiesSection({
       )}
 
       <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
-        These are casualties in collisions reported to the police on all roads in the council&rsquo;s area, including motorways and trunk roads it doesn&rsquo;t manage. Police forces have moved to an injury-based recording system that classes more injuries as serious, so the Department for Transport publishes an adjusted &ldquo;killed or seriously injured&rdquo; estimate to allow fair comparison between years; the trend uses the adjusted figure, and the road-user table uses figures as recorded. Rates are per billion miles driven by motor vehicles in the area.
+        These are casualties in collisions reported to the police on all roads in the council&rsquo;s area, including motorways and trunk roads it doesn&rsquo;t manage. Killed, seriously injured and slightly injured are counts as recorded by the police and add up to all casualties. Police forces have moved to an injury-based recording system that classes more injuries as serious, so the Department for Transport estimates how many people would have been recorded as seriously injured if every force had used it. The chart uses that estimate, rounded to whole people, so that years can be compared.
       </p>
       <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: 0 }}>
         Source: Department for Transport, Reported road casualties Great Britain ({release}). Contains public sector information licensed under the Open Government Licence v3.0.

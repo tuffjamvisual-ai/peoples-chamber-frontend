@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { formatGBP, formatCount, formatSignedPercent, formatGBPPerResident, formatPeriodEnd } from '@/lib/welfare-format'
+import { formatGBP, formatCount, formatSignedPercent, formatPeriodEnd } from '@/lib/welfare-format'
 
 // Renders the body of /tools/welfare/local-authority/[gss] — mirrors
 // WelfareConstituencyDetail exactly (same fetch-from-API pattern, same
@@ -278,9 +278,7 @@ function FullView({ payload, embedded }: { payload: FullPayload; embedded?: bool
 
       <Section title="Headline figures">
         <DataRow label="Total spend on six benefits" value={formatGBP(d.total_six_benefit_spend)} sub={`Period ending ${formatPeriodEnd(d.headline_period_end)}`} />
-        <DataRow label="Spend per resident" value={formatGBPPerResident(d.spend_per_resident)} />
         <DataRow label="Rank by total spend" value={`#${formatCount(d.rank_total_spend)} of ${rankedOf}`} sub={agg ? 'Rank 1 = highest total spend among English county areas' : 'Rank 1 = highest total spend among England & Wales local authorities'} />
-        <DataRow label="Rank by spend per resident" value={`#${formatCount(d.rank_spend_per_resident)} of ${rankedOf}`} />
         <DataRow label="Population" value={`${formatCount(d.population)} (${d.population_reference_year})`} />
         <DataRow label="Median annual pay (workplace)" value={medianWageValue(payload.medianWage)} sub={medianWageSub(payload.medianWage)} />
       </Section>
@@ -308,7 +306,7 @@ function FullView({ payload, embedded }: { payload: FullPayload; embedded?: bool
               key={key}
               label={BENEFIT_LABELS[key]}
               value={formatGBP(m.benefit_breakdown[key])}
-              sub={`${formatGBPPerResident(m.benefit_breakdown[key] / d.population)} per resident${ccText ? ` · ${ccText}` : ''}${lcwraTextValue ? ` · ${lcwraTextValue}` : ''} · Period ending ${formatPeriodEnd(m.benefit_period_ends[key])} · baseline ${formatGBP(m.baseline_benefit_breakdown[key])} (${formatPeriodEnd(m.baseline_benefit_period_ends[key])})`}
+              sub={`${[ccText, lcwraTextValue].filter(Boolean).map((t) => `${t} · `).join('')}Period ending ${formatPeriodEnd(m.benefit_period_ends[key])} · baseline ${formatGBP(m.baseline_benefit_breakdown[key])} (${formatPeriodEnd(m.baseline_benefit_period_ends[key])})`}
             />
           )
         })}
@@ -434,9 +432,7 @@ function NiView({ payload }: { payload: NiPayload }) {
 
       <Section title="Headline figures">
         <DataRow label="Estimated spend on five benefits" value={formatGBP(payload.total)} sub="A year, at the latest published caseloads" />
-        <DataRow label="Spend per resident" value={payload.perResident != null ? formatGBPPerResident(payload.perResident) : null} />
         <DataRow label="Rank by total spend" value={`#${payload.rankTotal} of ${payload.ranked}`} sub="Rank 1 = highest estimated spend among Northern Ireland councils" />
-        <DataRow label="Rank by spend per resident" value={payload.rankPerResident != null ? `#${payload.rankPerResident} of ${payload.ranked}` : null} />
         <DataRow label="Population" value={payload.population != null ? formatCount(payload.population) : null} />
       </Section>
 
@@ -450,7 +446,7 @@ function NiView({ payload }: { payload: NiPayload }) {
               key={b.key}
               label={b.label}
               value={formatGBP(b.spend)}
-              sub={`${payload.perResident != null && payload.population ? `${formatGBPPerResident(b.spend / payload.population)} per resident · ` : ''}${formatCount(b.claimants)} claimants${change} · ${when} · Estimate: ${basis[b.key] ?? ''}`}
+              sub={`${formatCount(b.claimants)} claimants${change} · ${when} · Estimate: ${basis[b.key] ?? ''}`}
             />
           )
         })}
