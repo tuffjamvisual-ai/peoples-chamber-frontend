@@ -13,6 +13,8 @@
 import type { Metadata } from 'next';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
+import { notFound } from 'next/navigation';
+import { SHOW_YOUR_TAX_POUND } from '@/lib/feature-flags';
 
 export const revalidate = 86400;
 
@@ -131,6 +133,7 @@ const BUCKETS: Bucket[] = [
 ];
 
 export default function YourTaxPoundPage() {
+  if (!SHOW_YOUR_TAX_POUND) notFound(); // hidden (lib/feature-flags.ts)
   const totalPct = BUCKETS.reduce((s, b) => s + b.sharePct, 0);
   const totalPence = BUCKETS.reduce((s, b) => s + b.pence, 0);
 

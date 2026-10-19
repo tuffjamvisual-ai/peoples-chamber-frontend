@@ -1,5 +1,6 @@
 import ExpandingFolder from './ExpandingFolder';
 import HotspotDropdown from './HotspotDropdown';
+import { SHOW_YOUR_TAX_POUND, SHOW_BUDGET_CHOICES } from '@/lib/feature-flags';
 
 // The reusable "dossier" page shell: dark backdrop → People's Chamber newspaper masthead
 // (image + %-positioned nav hotspots + weekly issue line) → an empty expanding manila
@@ -47,8 +48,8 @@ const HOTSPOTS: Hotspot[] = [
       // (tax pound, budget trade-offs). All thematic neighbours of
       // public-priority polling.
       { label: 'All Polls',            href: '/polls' },
-      { label: 'Your Tax Pound',       href: '/your-tax-pound' },
-      { label: 'Budget Choices',       href: '/budget-trade-offs' },
+      ...(SHOW_YOUR_TAX_POUND ? [{ label: 'Your Tax Pound', href: '/your-tax-pound' }] : []),
+      ...(SHOW_BUDGET_CHOICES ? [{ label: 'Budget Choices', href: '/budget-trade-offs' }] : []),
     ],
   },
   {

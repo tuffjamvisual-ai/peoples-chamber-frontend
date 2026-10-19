@@ -18,6 +18,8 @@
 import type { Metadata } from 'next';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
+import { notFound } from 'next/navigation';
+import { SHOW_BUDGET_CHOICES } from '@/lib/feature-flags';
 
 export const revalidate = 86400;
 
@@ -157,6 +159,7 @@ The institutional reports show the detail. This document shows the landscape.
 The problem is not departmental failure. The problem is budgetary reality meeting political denial.`;
 
 export default function BudgetTradeOffsPage() {
+  if (!SHOW_BUDGET_CHOICES) notFound(); // hidden (lib/feature-flags.ts)
   const paragraphs = BODY.split(/\n\n+/).map((p) => p.trim()).filter(Boolean);
 
   return (

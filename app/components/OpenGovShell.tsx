@@ -1,7 +1,7 @@
 import './opengov-shell.css';
 import { topics } from '@/lib/topics';
 import AccountTab from './AccountTab';
-import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
+import { SHOW_LEAGUE_TABLE, SHOW_YOUR_TAX_POUND, SHOW_BUDGET_CHOICES } from '@/lib/feature-flags';
 
 // OpenGovShell — the shared "OPEN GOVERNMENT" page template.
 // Renders the folders-pile backdrop, the newb folder header (red-stamp masthead
@@ -52,8 +52,8 @@ const NAV: NavItem[] = [
     { label: 'All Departments', href: '/departments' },
     { label: 'Department Budgets', href: '/spending' },
     { label: 'Civil Service', href: '/civil-service' },
-    { label: 'Your Tax Pound', href: '/your-tax-pound' },
-    { label: 'Budget Choices', href: '/budget-trade-offs' },
+    ...(SHOW_YOUR_TAX_POUND ? [{ label: 'Your Tax Pound', href: '/your-tax-pound' }] : []),
+    ...(SHOW_BUDGET_CHOICES ? [{ label: 'Budget Choices', href: '/budget-trade-offs' }] : []),
   ] },
   { label: 'Local', href: '/councils', children: [
     { label: 'Councils', href: '/councils' },
