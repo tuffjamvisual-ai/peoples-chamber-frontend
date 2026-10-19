@@ -58,6 +58,9 @@ type CouncilFull = {
   gss_code: string;
   parent_slug: string | null;
   population: number | null;
+  population_year: string | null;       // e.g. 'mid-2025' (migration 2026-10-19r)
+  population_source: string | null;
+  population_source_url: string | null;
   political_control: string | null;
   political_control_status: string | null;
   leader_name: string | null;
@@ -382,7 +385,13 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
 
               {hasOverview && (
                 <Section title="Overview">
-                  <DataRow label="Population" value={c.population?.toLocaleString() ?? null} />
+                  <DataRow
+                    label={c.population_year ? `Population (${c.population_year} estimate)` : 'Population'}
+                    value={c.population?.toLocaleString('en-GB') ?? null}
+                    sub={c.population_source ? (c.population_source_url
+                      ? <>Source: <a href={c.population_source_url} target="_blank" rel="noopener noreferrer" style={{ color: INK_SOFT, textDecoration: 'underline' }}>{c.population_source}</a></>
+                      : `Source: ${c.population_source}`) : null}
+                  />
                   <DataRow label="Founded" value={c.founded_year?.toString() ?? null} />
                   {c.website_url && (
                     <DataRow label="Website" value={
