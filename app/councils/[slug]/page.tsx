@@ -208,7 +208,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
   const children: RelatedCouncil[] = (childRows || []) as RelatedCouncil[];
 
   const hasFinance = c.council_tax_band_d_pounds != null || c.revenue_budget_mn != null || c.ni_district_rate_poundage != null || councilTax != null;
-  const hasLeadership = c.political_control != null || c.leader_name != null || c.chief_exec != null;
+  const hasLeadership = c.political_control != null || c.chief_exec != null;
   const hasOverview =
     c.population != null || c.founded_year != null || c.website_url != null;
 
@@ -364,9 +364,10 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                       sub={`As at May ${comp.snapshot_year}. "Independents and others" includes local parties. Source: Open Council Data UK (public domain).`}
                     />
                   )}
-                  <DataRow label="Leader" value={c.leader_name} sub={c.leader_party} />
+                  {/* Leader hidden until re-sourced with its role and a source (owner's decision, 19 Oct 2026): the
+                      backfilled value is often the ceremonial mayor or chair, not who leads the council. */}
                   <DataRow label="Chief executive" value={c.chief_exec} />
-                  <DataRow label="Last election" value={lastElectionValue(c.last_election_year, comp, electionSummary)} sub={lastElectionSub(c.last_election_year, comp, electionSummary)} />
+                  <DataRow label="Last election" value={lastElectionValue(c.last_election_year, comp, electionSummary, c.slug)} sub={lastElectionSub(c.last_election_year, comp, electionSummary, c)} />
                 </Section>
               )}
 
@@ -743,8 +744,26 @@ function councilTaxSub(t: CouncilTax): string {
 // otherwise seats only, from the May composition when that was the election year.
 const ORD = (k: number) => { const s = ['th', 'st', 'nd', 'rd'], v = k % 100; return `${k}${s[(v - 20) % 10] || s[v] || s[0]}`; };
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-function lastElectionValue(year: number | null | undefined, comp: CouncilComposition | null, sum: ElectionSummary | null): React.ReactNode | null {
+// Wards or divisions, as each council names them (Democracy Club's division types): county councils and these
+// unitary councils elect by electoral division; Northern Ireland councils by district electoral area.
+const DIVISION_UNITARIES = new Set(['cornwall', 'durham', 'northumberland', 'shropshire', 'wiltshire']);
+function areaWord(c: { slug: string; type: string }): string {
+  if (c.type === 'county' || DIVISION_UNITARIES.has(c.slug)) return 'divisions';
+  if (c.type === 'ni-council') return 'district electoral areas';
+  return 'wards';
+}
+// Council size for the seats-up note, where the composition's total counts members not chosen at that election:
+// the City of London's 125 members are 100 Common Councillors, all elected at the full City-wide election, and 25
+// Aldermen elected separately (cityoflondon.gov.uk/about-us/voting-elections, read 19 Oct 2026).
+const SEATS_AT_ELECTION: Record<string, number> = { 'city-of-london-corporation': 100 };
+const councilSeats = (slug: string, comp: CouncilComposition | null): number => SEATS_AT_ELECTION[slug] ?? comp?.total_seats ?? 0;
+// Part of the council elected (by thirds or halves): seats on offer fewer than the council's seats. Party seats are
+// then shown out of the seats on offer, with a note.
+const partOf = (slug: string, comp: CouncilComposition | null, sum: ElectionSummary | null): boolean =>
+  !!(sum && councilSeats(slug, comp) > 0 && sum.seatsUp < councilSeats(slug, comp));
+function lastElectionValue(year: number | null | undefined, comp: CouncilComposition | null, sum: ElectionSummary | null, slug: string): React.ReactNode | null {
   if (sum) {
+    const part = partOf(slug, comp, sum);
     const d = sum.date;
     const when = `${Number(d.slice(8, 10))} ${MONTH_NAMES[Number(d.slice(5, 7)) - 1]} ${d.slice(0, 4)}`;
     return (
@@ -753,7 +772,7 @@ function lastElectionValue(year: number | null | undefined, comp: CouncilComposi
         <span style={{ display: 'block', marginTop: '4px' }}>
           {sum.parties.filter((p) => p.share >= 0.5 || p.seats > 0).map((p, i) => (
             <span key={p.party} style={{ display: 'block' }}>
-              {ORD(i + 1)} {p.party}: {p.share.toFixed(1)}% of {sum.stv ? 'first preference votes' : 'the vote'}, {p.seats} seat{p.seats === 1 ? '' : 's'}
+              {ORD(i + 1)} {p.party}: {p.share.toFixed(1)}% of {sum.stv ? 'first preference votes' : 'the vote'}, {p.seats}{part ? ` of ${sum.seatsUp}` : ''} seat{(part ? sum.seatsUp : p.seats) === 1 ? '' : 's'}
             </span>
           ))}
         </span>
@@ -776,7 +795,8 @@ function lastElectionValue(year: number | null | undefined, comp: CouncilComposi
   }
   return year.toString();
 }
-function lastElectionSub(year: number | null | undefined, comp: CouncilComposition | null, sum: ElectionSummary | null): string | null {
+function lastElectionSub(year: number | null | undefined, comp: CouncilComposition | null, sum: ElectionSummary | null, c: { slug: string; type: string }): string | null {
+  const upNote = sum && partOf(c.slug, comp, sum) ? `${sum.seatsUp} of the council's ${councilSeats(c.slug, comp)} seats were up for election. ` : '';
   const unopposed = sum && sum.unopposedSeats > 0
     ? ` ${sum.unopposedSeats} seat${sum.unopposedSeats === 1 ? ' was' : 's were'} filled unopposed, without a vote; vote shares cover the contested wards only.`
     : '';
@@ -788,8 +808,8 @@ function lastElectionSub(year: number | null | undefined, comp: CouncilCompositi
         ? ` Includes the ${p.ward} poll, postponed to ${fmt(p.date)}.`
         : ` Includes the ${p.ward} poll of ${fmt(p.date)}, held for seats left unfilled on ${fmt(sum.date)}.`).join('')
     : '';
-  if (sum?.stv) return unopposed.trim() + (unopposed ? ' ' : '') + `Share of all first preference votes across the council's ${sum.wards} wards (councillors here are elected by single transferable vote, where voters rank candidates); seats won at that election.${sum.labourCoop ? ' Labour includes Labour and Co-operative candidates.' : ''}${extra} Source: ${sum.source || "the council's published results"}.`;
-  if (sum) return (unopposed ? unopposed.trim() + ' ' : '') + `Share of all votes cast across the council's ${sum.wards} wards and divisions; seats won at that election.${sum.labourCoop ? ' Labour includes Labour and Co-operative candidates.' : ''}${extra} Source: ${sum.source || "the council's published results"}.`;
+  if (sum?.stv) return upNote + unopposed.trim() + (unopposed ? ' ' : '') + `Share of all first preference votes across the council's ${sum.wards} ${areaWord(c)} (councillors here are elected by single transferable vote, where voters rank candidates); seats won at that election.${sum.labourCoop ? ' Labour includes Labour and Co-operative candidates.' : ''}${extra} Source: ${sum.source || "the council's published results"}.`;
+  if (sum) return upNote + (unopposed ? unopposed.trim() + ' ' : '') + `Share of all votes cast across the council's ${sum.wards} ${areaWord(c)}; seats won at that election.${sum.labourCoop ? ' Labour includes Labour and Co-operative candidates.' : ''}${extra} Source: ${sum.source || "the council's published results"}.`;
   // Only when the seats list is shown (the composition is from that election's year).
   if (comp && year && comp.snapshot_year === year && comp.total_seats > 0) return 'Seats on the council after that election (where a council elects a third of its seats at a time, this is the whole council). Vote shares are added once the full result is collected.';
   return null;

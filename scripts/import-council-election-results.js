@@ -14,6 +14,11 @@
 //                         candidate, party, votes, elected (yes/no), electorate, turnout_pct,
 //                         ballots_rejected, source_url, election_date (the actual polling date;
 //                         blank means --date)
+//                         seats_offered (optional): seats on offer in the ward (Democracy Club). When it is
+//                         more than seats (the councillors returned), the ward must be uncontested (every candidate
+//                         elected unopposed, no votes) and the difference is saved as council_election_wards.
+//                         seats_unfilled (migration 2026-10-19l); a contested ward electing fewer than the seats on
+//                         offer is refused. Left out, it is taken to equal seats.
 //   --councils=file.json  {"<council as in the CSV>": {"gss_code": "E09000005",
 //                         "wards_by_date": {"2026-05-07": 29, "2026-06-18": 1}, "source_note": "..."}};
 //                         wards_by_date holds the Democracy Club ward count for each polling date
@@ -173,6 +178,8 @@ function checkWard(w, expectedSeats, stv, tie) {
   const el = w.cands.filter((c) => c.elected), un = w.cands.filter((c) => !c.elected);
   const unopposed = w.cands.every((c) => c.votes == null);
   if (el.length !== w.seats) errs.push(`check 1: ${el.length} elected, ${w.seats} seats`);
+  if (!Number.isInteger(w.offered) || w.offered < w.seats) errs.push(`seats on offer (${w.offered}) fewer than seats (${w.seats})`);
+  else if (w.offered > w.seats && !unopposed) errs.push(`fewer councillors (${w.seats}) than seats on offer (${w.offered}) in a contested ward`);
   if (unopposed) {
     if (w.cands.length !== w.seats || un.length) errs.push(`no votes, but ${w.cands.length} candidates for ${w.seats} seats: not an uncontested ward`);
   } else {
@@ -211,7 +218,8 @@ const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABA
       const key = r.ward_code || r.ward;
       if (!wards.has(key)) {
         wards.set(key, {
-          ward: r.ward, code: r.ward_code, codeSource: r.ward_code_source, seats: Number(r.seats), electorate: r.electorate ? Number(r.electorate) : null,
+          ward: r.ward, code: r.ward_code, codeSource: r.ward_code_source, seats: Number(r.seats),
+          offered: r.seats_offered ? Number(r.seats_offered) : Number(r.seats), electorate: r.electorate ? Number(r.electorate) : null,
           turnout: r.turnout_pct ? Number(r.turnout_pct) : null, rejected: r.ballots_rejected ? Number(r.ballots_rejected) : null,
           source: r.source_url, cands: [],
         });
@@ -272,6 +280,8 @@ const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABA
   console.log(`council elections (council and polling date) in the CSVs: ${councils.size}; ready to load: ${plan.length}; refused: ${refused.length ? new Set(refused.map((r) => r.split(" | ")[0].split(":")[0])).size : 0}; by-election only, left out: ${skipped.length}`);
   for (const p of plan) console.log(`  ${p.name} (${p.gss}): ${p.wards.length} wards, ${p.seats} seats, ${p.wards.reduce((s, w) => s + w.cands.length, 0)} candidates, turnout ${p.turnout ?? 'n/a'}%`);
   if (skipped.length) { console.log(`\nleft out, by-election only (pass --include-byelections to load) (${skipped.length}):`); for (const r of skipped) console.log(`  ${r}`); }
+  const unfilledWards = plan.flatMap((p) => p.wards.filter((w) => w.offered > w.seats).map((w) => `${p.name} | ${w.ward}: ${w.seats} returned of ${w.offered} seats on offer; ${w.offered - w.seats} left unfilled`));
+  if (unfilledWards.length) { console.log(`\nwards with seats left unfilled (too few candidates) (${unfilledWards.length}):`); for (const r of unfilledWards) console.log(`  ${r}`); }
   if (confirmedTies.length) { console.log(`\nties at the cut-off, winner confirmed (${confirmedTies.length}):`); for (const r of confirmedTies) console.log(`  ${r}`); }
   if (refused.length) { console.log(`\nrefused (${refused.length}):`); for (const r of refused) console.log(`  ${r}`); }
   if (missingParties.size) { console.log(`\nparty names not in ${PARTIES} (${missingParties.size}):`); for (const p of [...missingParties].sort()) console.log(`  ${p}`); }
@@ -314,7 +324,7 @@ const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABA
     for (const p of plan) {
       L.push(`INSERT INTO public.council_elections (council_gss_code, election_date, wards_contested, seats_contested, turnout_pct, source_note) VALUES (${[p.gss, p.date, p.wards.length, p.seats, p.turnout, p.source_note].map(q).join(', ')}) RETURNING id AS eid \\gset`);
       for (const w of p.wards) {
-        L.push(`INSERT INTO public.council_election_wards (election_id, ward_code, ward_code_source, ward_name, seats, electorate, turnout_pct, ballots_rejected, source_url) VALUES (:eid, ${[w.code, w.codeSource, w.ward, w.seats, w.electorate, w.turnout, w.rejected, w.source].map(q).join(', ')}) RETURNING id AS wid \\gset`);
+        L.push(`INSERT INTO public.council_election_wards (election_id, ward_code, ward_code_source, ward_name, seats, seats_unfilled, electorate, turnout_pct, ballots_rejected, source_url) VALUES (:eid, ${[w.code, w.codeSource, w.ward, w.seats, w.offered - w.seats, w.electorate, w.turnout, w.rejected, w.source].map(q).join(', ')}) RETURNING id AS wid \\gset`);
         const total = w.cands.reduce((t, k) => t + (k.votes || 0), 0);
         L.push('INSERT INTO public.council_election_candidates (ward_id, candidate_published, candidate_display, party_published, party_id, votes, share_pct, elected) VALUES');
         L.push(w.cands.map((k) => `  (:wid, ${[k.published, (p.displayOverrides[k.published] || displayName(k.published, w.surnameFirst)), k.party, k.party ? partyMap.get(k.party).party_id : 'no-description', k.votes,
@@ -351,7 +361,7 @@ const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABA
     nE++;
     for (const w of p.wards) {
       const { data: wr, error: we } = await db.from('council_election_wards').insert({
-        election_id: e.id, ward_code: w.code, ward_code_source: w.codeSource, ward_name: w.ward, seats: w.seats, electorate: w.electorate,
+        election_id: e.id, ward_code: w.code, ward_code_source: w.codeSource, ward_name: w.ward, seats: w.seats, seats_unfilled: w.offered - w.seats, electorate: w.electorate,
         turnout_pct: w.turnout, ballots_rejected: w.rejected, source_url: w.source,
       }).select('id').single();
       if (we) fail(`council_election_wards ${p.name} ${w.ward}: ${we.message} (council_elections row ${e.id} is in place; delete it to retry)`);

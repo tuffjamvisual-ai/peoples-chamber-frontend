@@ -50,7 +50,10 @@ export type ElectionSummary = { date: string; wards: number; seats: number; part
   turnout: number | null;   // council-wide turnout as stored for the main election; null when not held
   // single ward polls counted in with the main election: 'postponed' (the ward had no poll on the main day) or
   // 'unfilled' (the ward also appears in the main election, under-contested; this poll filled the seats left over)
-  extraPolls: { ward: string; date: string; reason: 'postponed' | 'unfilled' }[] };
+  extraPolls: { ward: string; date: string; reason: 'postponed' | 'unfilled' }[];
+  // seats on offer at the election: every counted poll's seats, plus seats left unfilled (too few candidates) that no
+  // counted later poll filled (e.g. Shetland's North Isles, 2022, filled at a by-election)
+  seatsUp: number };
 
 export async function loadElectionSummary(gssCode: string | null): Promise<ElectionSummary | null> {
   if (!gssCode) return null;
@@ -73,10 +76,16 @@ export async function loadElectionSummary(gssCode: string | null): Promise<Elect
     .filter((e) => e.id === main.id || (e.wards_contested < main.wards_contested && e.election_date > main.election_date && e.election_date <= until))
     .map((e) => e.id);
 
-  const { data: wards, error: wErr } = await supabase.from('council_election_wards').select('id, election_id, ward_name').in('election_id', ids).limit(1000);
-  if (wErr || !wards?.length) return null;
+  // seats_unfilled: seats left unfilled when too few candidates stood (migration 2026-10-19l).
+  type WardRow = { id: number; election_id: number; ward_name: string; seats: number; seats_unfilled: number };
+  const { data: wardData, error: wErr } = await supabase.from('council_election_wards').select('id, election_id, ward_name, seats, seats_unfilled').in('election_id', ids).limit(1000);
+  const wards = (wardData ?? []) as WardRow[];
+  if (wErr || !wards.length) return null;
   const wardIds = wards.map((w) => w.id as number);
   const mainWards = new Set(wards.filter((w) => w.election_id === main.id).map((w) => w.ward_name as string));
+  const laterPollWards = new Set(wards.filter((w) => w.election_id !== main.id).map((w) => w.ward_name));
+  const seatsUp = wards.reduce((t, w) => t + (w.seats ?? 0)
+    + (w.election_id === main.id && !laterPollWards.has(w.ward_name) ? w.seats_unfilled : 0), 0);
   const extraPolls = el
     .filter((e) => ids.includes(e.id) && e.id !== main.id)
     .flatMap((e) => wards.filter((w) => w.election_id === e.id).map((w) => ({
@@ -128,5 +137,5 @@ export async function loadElectionSummary(gssCode: string | null): Promise<Elect
     .sort((a, b) => b.votes - a.votes);
   return { date: main.election_date as string, wards: new Set(wards.map((w) => w.ward_name as string)).size,   // distinct wards (a ward with a later poll for unfilled seats counts once)
     seats: parties.reduce((t, p) => t + p.seats, 0), parties, source: (main.source_note as string | null) ?? null, stv: /^[SN]/.test(gssCode), unopposedSeats, labourCoop,
-    turnout: main.turnout_pct == null ? null : Number(main.turnout_pct), extraPolls };
+    turnout: main.turnout_pct == null ? null : Number(main.turnout_pct), extraPolls, seatsUp };
 }
