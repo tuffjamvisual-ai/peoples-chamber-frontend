@@ -18,7 +18,9 @@
 //                         "wards_by_date": {"2026-05-07": 29, "2026-06-18": 1}, "source_note": "..."}};
 //                         wards_by_date holds the Democracy Club ward count for each polling date
 //                         source_note is shown to readers ("Source: ..."); source_note_by_date, e.g.
-//                         {"2026-06-18": "..."}, overrides it for one polling date
+//                         {"2026-06-18": "..."}, overrides it for one polling date;
+//                         "display_names": {"<candidate as in the CSV>": "<display name>"} sets one candidate's
+//                         display name by hand (owner's decision), in place of the rule below
 //   --parties=file.csv    published_name, party_id, party_name, parties_slug
 //   --date=2026-05-07     default election date (default 2026-05-07)
 //                         "stv": true marks single transferable vote councils (Scotland, Northern Ireland):
@@ -257,7 +259,7 @@ const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABA
     const elect = list.filter((w) => w.electorate && w.turnout != null);
     const totalElectorate = elect.reduce((s, w) => s + w.electorate, 0);
     plan.push({
-      name, date, gss: c.gss_code, source_note: (c.source_note_by_date || {})[date] || c.source_note || `${cname}'s published results`, wards: list,
+      name, date, gss: c.gss_code, displayOverrides: c.display_names || {}, source_note: (c.source_note_by_date || {})[date] || c.source_note || `${cname}'s published results`, wards: list,
       seats: list.reduce((s, w) => s + w.seats, 0),
       turnout: totalElectorate ? Math.round((elect.reduce((s, w) => s + w.electorate * w.turnout, 0) / totalElectorate) * 100) / 100 : null,
     });
@@ -274,7 +276,7 @@ const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABA
   for (const p of plan.slice(0, 5)) for (const k of p.wards[0].cands.slice(0, 2)) console.log(`  "${k.published}" -> "${displayName(k.published, p.wards[0].surnameFirst)}"`);
   if (NAMES_OUT) {
     const lines = ['council\tward\tsurname_first_ward\tcandidate_published\tcandidate_display'];
-    for (const p of plan) for (const w of p.wards) for (const k of w.cands) lines.push([p.name, w.ward, w.surnameFirst ? 'yes' : 'no', k.published, displayName(k.published, w.surnameFirst)].join('\t'));
+    for (const p of plan) for (const w of p.wards) for (const k of w.cands) lines.push([p.name, w.ward, w.surnameFirst ? 'yes' : 'no', k.published, (p.displayOverrides[k.published] || displayName(k.published, w.surnameFirst))].join('\t'));
     fs.writeFileSync(NAMES_OUT, lines.join('\n') + '\n');
     console.log(`display names for every candidate written to ${NAMES_OUT}`);
   }
@@ -312,7 +314,7 @@ const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABA
         L.push(`INSERT INTO public.council_election_wards (election_id, ward_code, ward_code_source, ward_name, seats, electorate, turnout_pct, ballots_rejected, source_url) VALUES (:eid, ${[w.code, w.codeSource, w.ward, w.seats, w.electorate, w.turnout, w.rejected, w.source].map(q).join(', ')}) RETURNING id AS wid \\gset`);
         const total = w.cands.reduce((t, k) => t + (k.votes || 0), 0);
         L.push('INSERT INTO public.council_election_candidates (ward_id, candidate_published, candidate_display, party_published, party_id, votes, share_pct, elected) VALUES');
-        L.push(w.cands.map((k) => `  (:wid, ${[k.published, displayName(k.published, w.surnameFirst), k.party, k.party ? partyMap.get(k.party).party_id : 'no-description', k.votes,
+        L.push(w.cands.map((k) => `  (:wid, ${[k.published, (p.displayOverrides[k.published] || displayName(k.published, w.surnameFirst)), k.party, k.party ? partyMap.get(k.party).party_id : 'no-description', k.votes,
           k.votes == null ? null : total ? Math.round((k.votes / total) * 10000) / 100 : 0, k.elected].map(q).join(', ')})`).join(',\n') + ';');
       }
       L.push('');
@@ -353,7 +355,7 @@ const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABA
       nW++;
       const total = w.cands.reduce((s, k) => s + (k.votes || 0), 0);
       const { error: ce } = await db.from('council_election_candidates').insert(w.cands.map((k) => ({
-        ward_id: wr.id, candidate_published: k.published, candidate_display: displayName(k.published, w.surnameFirst),
+        ward_id: wr.id, candidate_published: k.published, candidate_display: (p.displayOverrides[k.published] || displayName(k.published, w.surnameFirst)),
         party_published: k.party, party_id: k.party ? partyMap.get(k.party).party_id : 'no-description', votes: k.votes,
         share_pct: k.votes == null ? null : total ? Math.round((k.votes / total) * 10000) / 100 : 0, elected: k.elected,
       })));
