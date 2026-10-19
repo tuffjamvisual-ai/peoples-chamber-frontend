@@ -296,5 +296,9 @@ function eventsSheetTotals(file, year) {
   const { data: totalRows, error: tErr } = await db.rpc('refresh_sewage_area_totals');
   if (tErr) throw new Error(`refresh_sewage_area_totals: ${tErr.message}`);
   console.log(`  sewage_area_totals: rebuilt from all sources, ${totalRows} rows`);
+  // /sewage reads these summaries, not every overflow (migration 2026-10-19k)
+  const { data: sumRows, error: sErr } = await db.rpc('refresh_sewage_summary');
+  if (sErr) throw new Error(`refresh_sewage_summary: ${sErr.message}`);
+  console.log(`  sewage summaries: rebuilt from all sources, ${sumRows} rows`);
   console.log('\nWRITE complete.');
 })().catch((e) => { console.error('FAILED: ' + e.message); process.exit(1); });

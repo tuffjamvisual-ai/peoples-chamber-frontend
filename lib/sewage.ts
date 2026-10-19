@@ -137,14 +137,44 @@ export async function getCouncilOverflows(codes: string[], year: number): Promis
   return rows.map(toOverflow);
 }
 
-// Every overflow for one year (all sources), for national aggregates.
-export async function getAllOverflows(year: number): Promise<Overflow[]> {
-  const rows = await readAll<Record<string, unknown>>((from, to) =>
-    supabase.from('sewage_overflows').select(OVERFLOW_COLUMNS)
-      .eq('year', year)
-      .order('source').order('site_id')
-      .range(from, to));
-  return rows.map(toOverflow);
+
+// Summaries for /sewage (migration 2026-10-19k), rebuilt by refresh_sewage_summary() after each import: per year, source,
+// water company and area ('nation' with area_gss_code '', 'council', 'constituency'), and one row of national figures and
+// notes per year and source. The page reads these instead of every overflow.
+export type CompanyAreaRow = {
+  year: number; source: 'EA' | 'NIW' | 'SW'; company: string; area_type: 'nation' | 'council' | 'constituency'; area_gss_code: string;
+  overflows: number; overflows_with_data: number; overflows_spilled: number; spill_count: number; spill_hours: number;
+};
+export type SourceStats = {
+  year: number; source: 'EA' | 'NIW' | 'SW'; overflows: number; overflows_with_data: number; spill_count: number; spill_hours: number;
+  tidal: number; nearest: number; unplaced_sites: string[]; sites_in_scotland: string[]; overflows_in_wales: number;
+  volume_m3: number | null; volume_overflows: number;
+};
+
+export async function getCompanyAreaTotals(shown: { source: 'EA' | 'NIW' | 'SW'; year: number }[]): Promise<CompanyAreaRow[]> {
+  const sets = await Promise.all(shown.map(({ source, year }) => readAll<Record<string, unknown>>((from, to) =>
+    supabase.from('sewage_company_area_totals')
+      .select('year, source, company, area_type, area_gss_code, overflows, overflows_with_data, overflows_spilled, spill_count, spill_hours')
+      .eq('source', source).eq('year', year)
+      .order('area_type').order('area_gss_code').order('company')
+      .range(from, to))));
+  return sets.flat().map((r) => ({
+    year: n(r.year), source: r.source as CompanyAreaRow['source'], company: String(r.company), area_type: r.area_type as CompanyAreaRow['area_type'],
+    area_gss_code: String(r.area_gss_code), overflows: n(r.overflows), overflows_with_data: n(r.overflows_with_data),
+    overflows_spilled: n(r.overflows_spilled), spill_count: n(r.spill_count), spill_hours: n(r.spill_hours),
+  }));
+}
+
+export async function getSourceStats(): Promise<SourceStats[]> {
+  const { data, error } = await supabase.from('sewage_source_stats')
+    .select('year, source, overflows, overflows_with_data, spill_count, spill_hours, tidal, nearest, unplaced_sites, sites_in_scotland, overflows_in_wales, volume_m3, volume_overflows');
+  if (error) throw new Error(error.message);
+  return ((data ?? []) as Record<string, unknown>[]).map((r) => ({
+    year: n(r.year), source: r.source as SourceStats['source'], overflows: n(r.overflows), overflows_with_data: n(r.overflows_with_data),
+    spill_count: n(r.spill_count), spill_hours: n(r.spill_hours), tidal: n(r.tidal), nearest: n(r.nearest),
+    unplaced_sites: (r.unplaced_sites as string[]) ?? [], sites_in_scotland: (r.sites_in_scotland as string[]) ?? [],
+    overflows_in_wales: n(r.overflows_in_wales), volume_m3: nn(r.volume_m3), volume_overflows: n(r.volume_overflows),
+  }));
 }
 
 export async function getCouncilRefs(): Promise<CouncilRef[]> {
@@ -189,37 +219,26 @@ export function countyTotals(councilTotals: AreaTotal[], councils: CouncilRef[],
 
 export type CompanyTotal = { company: string; nation: string; overflows: number; withData: number; spilled: number; spills: number; hours: number };
 
-// National figures per water company for one year (covered nations only).
-export function companyTotals(overflows: Overflow[]): CompanyTotal[] {
-  const map = new Map<string, CompanyTotal>();
-  for (const o of overflows) {
-    const nation = o.source === 'NIW' ? 'Northern Ireland' : o.source === 'SW' ? 'Scotland' : 'England';
-    const k = `${nation}|${o.company}`;
-    const c = map.get(k) ?? { company: o.company, nation, overflows: 0, withData: 0, spilled: 0, spills: 0, hours: 0 };
-    c.overflows++;
-    if (o.spill_count != null) c.withData++;
-    if ((o.spill_count ?? 0) > 0) c.spilled++;
-    c.spills += o.spill_count ?? 0;
-    c.hours += o.spill_hours ?? 0;
-    map.set(k, c);
-  }
-  return [...map.values()].map((c) => ({ ...c, hours: Math.round(c.hours) })).sort((a, b) => b.hours - a.hours);
+// National figures per water company for one year (covered nations only), from the summary's 'nation' rows.
+export function companyTotals(rows: CompanyAreaRow[]): CompanyTotal[] {
+  return rows.filter((r) => r.area_type === 'nation').map((r) => ({
+    company: r.company, nation: r.source === 'NIW' ? 'Northern Ireland' : r.source === 'SW' ? 'Scotland' : 'England',
+    overflows: r.overflows, withData: r.overflows_with_data, spilled: r.overflows_spilled, spills: r.spill_count, hours: Math.round(r.spill_hours),
+  })).sort((a, b) => b.hours - a.hours);
 }
 
-// Water companies responsible in each area ("council|E06000052" -> names, most hours first).
-export function companiesByArea(overflows: Overflow[]): Record<string, string[]> {
+// Water companies responsible in each area ("council|E06000052" -> names, most hours first; equal hours by name).
+export function companiesByArea(rows: CompanyAreaRow[]): Record<string, string[]> {
   const acc = new Map<string, Map<string, number>>();
-  const add = (key: string, company: string, hours: number) => {
+  for (const r of rows) {
+    if (r.area_type === 'nation') continue;
+    const key = `${r.area_type}|${r.area_gss_code}`;
     const m = acc.get(key) ?? new Map<string, number>();
-    m.set(company, (m.get(company) ?? 0) + hours);
+    m.set(r.company, (m.get(r.company) ?? 0) + r.spill_hours);
     acc.set(key, m);
-  };
-  for (const o of overflows) {
-    if (o.council_gss_code) add(`council|${o.council_gss_code}`, o.company, o.spill_hours ?? 0);
-    if (o.constituency_gss_code) add(`constituency|${o.constituency_gss_code}`, o.company, o.spill_hours ?? 0);
   }
   const out: Record<string, string[]> = {};
-  for (const [k, m] of acc) out[k] = [...m.entries()].sort((a, b) => b[1] - a[1]).map(([c]) => c);
+  for (const [k, m] of acc) out[k] = [...m.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([c]) => c);
   return out;
 }
 

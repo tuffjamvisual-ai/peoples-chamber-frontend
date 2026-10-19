@@ -14,9 +14,9 @@ import LastUpdated from '../components/LastUpdated';
 import SewageExplorer from './SewageExplorer';
 import type { ExplorerRow, ExplorerTable } from './SewageExplorer';
 import {
-  getAreaTotals, latestYears, getAllOverflows, getCouncilRefs, countyTotals, companyTotals, companiesByArea, fmtInt,
+  getAreaTotals, latestYears, getCompanyAreaTotals, getSourceStats, getCouncilRefs, countyTotals, companyTotals, companiesByArea, fmtInt,
 } from '@/lib/sewage';
-import type { AreaTotal, Overflow } from '@/lib/sewage';
+import type { AreaTotal, SourceStats } from '@/lib/sewage';
 import type { CSSProperties } from 'react';
 
 export const revalidate = 21600;
@@ -47,13 +47,16 @@ export default async function SewagePage() {
   const councils = await getCouncilRefs();
   const slugByCode = new Map(councils.filter((c) => c.gss_code).map((c) => [c.gss_code as string, c.slug]));
 
-  const yearsToRead = [...new Set([eaYear, niYear, swYear].filter((y): y is number => y != null))];
-  const overflowSets = await Promise.all(yearsToRead.map((y) => getAllOverflows(y)));
-  const ea: Overflow[] = overflowSets.flat().filter((o) => o.source === 'EA' && o.year === eaYear);
-  const ni: Overflow[] = overflowSets.flat().filter((o) => o.source === 'NIW' && o.year === niYear);
-  const sw: Overflow[] = overflowSets.flat().filter((o) => o.source === 'SW' && o.year === swYear);
-  const companies = companyTotals([...ea, ...ni, ...sw]);
-  const byArea = companiesByArea([...ea, ...ni, ...sw]);
+  // Summaries (migration 2026-10-19k) for the year shown for each source, not every overflow.
+  const shown = ([['EA', eaYear], ['NIW', niYear], ['SW', swYear]] as const)
+    .filter(([, y]) => y != null).map(([source, year]) => ({ source, year: year as number }));
+  const [companyRows, stats] = await Promise.all([getCompanyAreaTotals(shown), getSourceStats()]);
+  const NO_STATS: SourceStats = { year: 0, source: 'EA', overflows: 0, overflows_with_data: 0, spill_count: 0, spill_hours: 0, tidal: 0, nearest: 0,
+    unplaced_sites: [], sites_in_scotland: [], overflows_in_wales: 0, volume_m3: null, volume_overflows: 0 };
+  const statsOf = (source: string, year: number | null) => stats.find((x) => x.source === source && x.year === year) ?? NO_STATS;
+  const eaS = statsOf('EA', eaYear), niS = statsOf('NIW', niYear), swS = statsOf('SW', swYear);
+  const companies = companyTotals(companyRows);
+  const byArea = companiesByArea(companyRows);
 
   const toRow = (t: AreaTotal, href: string | null): ExplorerRow => ({
     code: t.area_gss_code, name: t.area_name, href,
@@ -73,8 +76,8 @@ export default async function SewagePage() {
     const countyCompanies = (code: string) => {
       const districts = councils.filter((d) => d.parent_slug && councils.find((c) => c.gss_code === code)?.slug === d.parent_slug).map((d) => d.gss_code);
       const seen = new Map<string, number>();
-      for (const o of ea) if (o.council_gss_code && districts.includes(o.council_gss_code)) seen.set(o.company, (seen.get(o.company) ?? 0) + (o.spill_hours ?? 0));
-      return [...seen.entries()].sort((a, b) => b[1] - a[1]).map(([c]) => c);
+      for (const r of companyRows) if (r.source === 'EA' && r.area_type === 'council' && districts.includes(r.area_gss_code)) seen.set(r.company, (seen.get(r.company) ?? 0) + r.spill_hours);
+      return [...seen.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([c]) => c);
     };
     tables.push({ id: 'eng-county', label: 'County councils (England)', nation: 'England', year: eaYear, areaWord: 'county council areas (totals of their districts)', rows: counties.map((t) => ({ ...toRow(t, councilHref(t.area_gss_code)), companies: countyCompanies(t.area_gss_code) })) });
     tables.push({ id: 'eng-constituency', label: 'Constituencies (England)', nation: 'England', year: eaYear, areaWord: 'constituencies with storm overflows', rows: pick('constituency', 'England', eaYear, 'E').map((t) => toRow(t, null)) });
@@ -88,23 +91,24 @@ export default async function SewagePage() {
     tables.push({ id: 'ni-constituency', label: 'Constituencies (Northern Ireland)', nation: 'Northern Ireland', year: niYear, areaWord: 'constituencies', rows: pick('constituency', 'Northern Ireland', niYear, 'N').map((t) => toRow(t, null)) });
   }
 
-  const sum = (rows: Overflow[], f: (o: Overflow) => number) => rows.reduce((t, o) => t + f(o), 0);
-  const eaHours = sum(ea, (o) => o.spill_hours ?? 0);
-  const eaSpills = sum(ea, (o) => o.spill_count ?? 0);
-  const eaNoData = ea.filter((o) => o.spill_count == null).length;
-  const niHours = sum(ni, (o) => o.spill_hours ?? 0);
-  const niSpills = sum(ni, (o) => o.spill_count ?? 0);
-  const niReporting = ni.filter((o) => o.spill_count != null).length;
-  const eaUnplaced = ea.filter((o) => o.placement === 'unplaced');
-  const eaOffshore = ea.filter((o) => o.placement === 'nearest').length;
-  const eaTidal = ea.filter((o) => o.placement === 'tidal').length;
-  const swHours = sum(sw, (o) => o.spill_hours ?? 0);
-  const swSpills = sum(sw, (o) => o.spill_count ?? 0);
-  const swReporting = sw.filter((o) => o.spill_count != null).length;
-  const swVolume = sw.filter((o) => o.volume_m3 != null);
-  const swVolumeTotal = sum(swVolume, (o) => o.volume_m3 ?? 0);
-  const eaInWales = ea.filter((o) => o.council_gss_code?.startsWith('W'));
-  const eaInScotland = ea.filter((o) => o.council_gss_code?.startsWith('S'));
+  // National figures and the notes' counts and names, from sewage_source_stats.
+  const ea = { length: eaS.overflows }, ni = { length: niS.overflows }, sw = { length: swS.overflows };
+  const eaHours = eaS.spill_hours;
+  const eaSpills = eaS.spill_count;
+  const eaNoData = eaS.overflows - eaS.overflows_with_data;
+  const niHours = niS.spill_hours;
+  const niSpills = niS.spill_count;
+  const niReporting = niS.overflows_with_data;
+  const eaUnplaced = eaS.unplaced_sites;
+  const eaOffshore = eaS.nearest;
+  const eaTidal = eaS.tidal;
+  const swHours = swS.spill_hours;
+  const swSpills = swS.spill_count;
+  const swReporting = swS.overflows_with_data;
+  const swVolume = { length: swS.volume_overflows };
+  const swVolumeTotal = swS.volume_m3 ?? 0;
+  const eaInWales = { length: eaS.overflows_in_wales };
+  const eaInScotland = eaS.sites_in_scotland;
 
   const th: CSSProperties = { textAlign: 'left', padding: '6px 10px 6px 0', borderBottom: `1px solid ${INK}`, fontWeight: 'normal', whiteSpace: 'nowrap' };
   const td: CSSProperties = { padding: '6px 10px 6px 0', borderBottom: `1px solid ${INK_HAIRLINE}` };
@@ -187,8 +191,8 @@ export default async function SewagePage() {
           <h2 style={h2}>How these figures are made</h2>
           <p style={para}>
             England: every storm overflow in the Environment Agency’s {eaYear} annual return ({fmtInt(ea.length)} overflows). Each one is placed in its council area and Westminster constituency from the grid reference of its outlet, using Office for National Statistics boundaries (July 2024 constituencies, May 2026 council areas). {fmtInt(eaTidal)} outlets lie below the high-tide line and are placed using the boundaries that extend out to sea. {fmtInt(eaOffshore)} lie further out and are counted with the nearest council area and constituency within 15 km; two of these were checked by hand and placed by the location of their treatment works instead (Ryde, Isle of Wight, and Hayle, Cornwall), because the nearest shore was a different area.
-            {eaUnplaced.length > 0 && ` ${fmtInt(eaUnplaced.length)} overflow${eaUnplaced.length === 1 ? ' could not be placed because its published grid reference is not valid' : 's could not be placed because their published grid references are not valid'} (${eaUnplaced.map((o) => o.site_name || o.site_id).join(', ')}); ${eaUnplaced.length === 1 ? 'it is' : 'they are'} included in the national and company totals but not in any area.`}
-            {eaInScotland.length > 0 && ` ${fmtInt(eaInScotland.length)} overflow${eaInScotland.length === 1 ? ' in the English return sits' : 's in the English return sit'} just over the border in Scotland (${eaInScotland.map((o) => o.site_name || o.site_id).join(', ')}); ${eaInScotland.length === 1 ? 'it is' : 'they are'} counted in the Scottish tables with Scottish Water’s overflows.`}
+            {eaUnplaced.length > 0 && ` ${fmtInt(eaUnplaced.length)} overflow${eaUnplaced.length === 1 ? ' could not be placed because its published grid reference is not valid' : 's could not be placed because their published grid references are not valid'} (${eaUnplaced.join(', ')}); ${eaUnplaced.length === 1 ? 'it is' : 'they are'} included in the national and company totals but not in any area.`}
+            {eaInScotland.length > 0 && ` ${fmtInt(eaInScotland.length)} overflow${eaInScotland.length === 1 ? ' in the English return sits' : 's in the English return sit'} just over the border in Scotland (${eaInScotland.join(', ')}); ${eaInScotland.length === 1 ? 'it is' : 'they are'} counted in the Scottish tables with Scottish Water’s overflows.`}
             {eaInWales.length > 0 && ` ${fmtInt(eaInWales.length)} overflow${eaInWales.length === 1 ? ' in the English return sits' : 's in the English return sit'} in Wales; ${eaInWales.length === 1 ? 'it is' : 'they are'} in the company totals but not in any table until Welsh figures are added.`}
           </p>
           <p style={para}>
