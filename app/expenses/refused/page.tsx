@@ -27,55 +27,25 @@ function fmtMoney(v: number | string | null | undefined): string {
   return '£' + Math.round(n).toLocaleString('en-GB');
 }
 
-type DetailRow = {
-  year: string | null;
-  member_id: number | null;
-  mp_name: string | null;
-  amount_not_paid: number | string | null;
-  amount_repaid: number | string | null;
-  reason_if_not_paid: string | null;
-};
-
 type MpLookup = { member_id: number; display_name: string | null; name: string | null; party: string | null };
 
 type Agg = { member_id: number; mp_name: string; total: number; count: number };
 
-// Paginate through every row where there was a refusal OR a repayment (about 2,200 rows).
-// Ordered by id so each page is a stable slice: without an order, pages could overlap or
-// skip rows, which showed as 35 extra repaid claims (15 Oct 2026).
-async function fetchRefusedRepaid(): Promise<DetailRow[]> {
-  const out: DetailRow[] = [];
-  const PAGE = 1000;
-  for (let from = 0; from < 50000; from += PAGE) {
-    const { data, error } = await supabase
-      .from('mp_expenses_detail')
-      .select('year, member_id, mp_name, amount_not_paid, amount_repaid, reason_if_not_paid')
-      .or('amount_not_paid.gt.0,amount_repaid.gt.0')
-      .order('id')
-      .range(from, from + PAGE - 1);
-    // A failed page must not publish partial totals: throw, so the last good version of the
-    // page stays up (a timeout here once showed one year instead of seventeen).
-    if (error) throw new Error(`mp_expenses_detail: ${error.message}`);
-    if (!data || data.length === 0) break;
-    out.push(...(data as DetailRow[]));
-    if (data.length < PAGE) break;
-  }
-  return out;
-}
-
-function aggregateBy(field: 'amount_not_paid' | 'amount_repaid', rows: DetailRow[]): Agg[] {
-  const m = new Map<number, Agg>();
-  for (const r of rows) {
-    const v = Number(r[field] ?? 0);
-    if (!(v > 0)) continue;
-    const key = r.member_id ?? -1;
-    const existing = m.get(key) ?? { member_id: key, mp_name: r.mp_name ?? 'Unknown', total: 0, count: 0 };
-    existing.total += v;
-    existing.count += 1;
-    if (r.mp_name) existing.mp_name = r.mp_name;
-    m.set(key, existing);
-  }
-  return Array.from(m.values()).sort((a, b) => b.total - a.total);
+// The page's summaries, worked out in the database (scripts/migrations/2026-10-19s-expenses-refused-summary.sql):
+// one call instead of reading every refused or repaid claim (4,621 rows in five pages, which could run past the
+// 3 s limit at build time). Serving MPs only, the same rules the page used to apply itself.
+type Summary = {
+  refused_by_mp: Agg[];
+  repaid_by_mp: Agg[];
+  by_year: { year: string; refused: number; refusedCount: number; repaid: number; repaidCount: number }[];
+  by_reason: { reason: string; count: number; total: number }[];
+  totals: { refused: number; refused_count: number; repaid: number; repaid_count: number; mps: number; rows: number };
+};
+async function fetchSummary(): Promise<Summary> {
+  const { data, error } = await supabase.rpc('expenses_refused_summary');
+  // A failed read must not publish empty totals: throw, so the last good version of the page stays up.
+  if (error || !data) throw new Error(`expenses_refused_summary: ${error?.message ?? 'no data'}`);
+  return data as Summary;
 }
 
 // IPSA's reason codes, written out in full where IPSA abbreviates them.
@@ -93,34 +63,7 @@ const reasonLabel = (r: string) => REASON_LABEL[r.trim().toLowerCase()] ?? r;
 // IPSA years are named like "24_25" (April 2024 to March 2025).
 const yearLabel = (y: string) => { const m = y.match(/^(\d{2})_(\d{2})$/); return m ? `20${m[1]}/${m[2]}` : y; };
 
-function aggregateYears(rows: DetailRow[]) {
-  const m = new Map<string, { year: string; refused: number; refusedCount: number; repaid: number; repaidCount: number }>();
-  for (const r of rows) {
-    const y = r.year || 'unknown';
-    const e = m.get(y) ?? { year: y, refused: 0, refusedCount: 0, repaid: 0, repaidCount: 0 };
-    const not = Number(r.amount_not_paid ?? 0);
-    const rep = Number(r.amount_repaid ?? 0);
-    if (not > 0) { e.refused += not; e.refusedCount += 1; }
-    if (rep > 0) { e.repaid += rep; e.repaidCount += 1; }
-    m.set(y, e);
-  }
-  return Array.from(m.values()).sort((a, b) => b.year.localeCompare(a.year));
-}
 
-function aggregateReasons(rows: DetailRow[]): Array<{ reason: string; count: number; total: number }> {
-  const m = new Map<string, { reason: string; count: number; total: number }>();
-  for (const r of rows) {
-    const not = Number(r.amount_not_paid ?? 0);
-    if (!(not > 0)) continue;
-    const reason = (r.reason_if_not_paid || '(no reason recorded)').trim();
-    const key = reason.toLowerCase();
-    const existing = m.get(key) ?? { reason, count: 0, total: 0 };
-    existing.count += 1;
-    existing.total += not;
-    m.set(key, existing);
-  }
-  return Array.from(m.values()).sort((a, b) => b.total - a.total);
-}
 
 // Current MPs only (site owner's decision, 15 Oct 2026): claims by MPs who have left the
 // Commons are not shown.
@@ -133,7 +76,8 @@ async function fetchCurrentMps(): Promise<Map<number, MpLookup>> {
       .eq('current_member', true)
       .order('member_id')
       .range(from, from + 999);
-    if (error || !data) break;
+    // Throw rather than stop early: a partial MP list would publish a page missing MPs (or empty).
+    if (error || !data) throw new Error(`mps: ${error?.message ?? 'no data'}`);
     for (const m of data as MpLookup[]) out.set(m.member_id, m);
     if (data.length < 1000) break;
   }
@@ -141,13 +85,12 @@ async function fetchCurrentMps(): Promise<Map<number, MpLookup>> {
 }
 
 export default async function RefusedExpensesPage() {
-  const [allRows, mpById] = await Promise.all([fetchRefusedRepaid(), fetchCurrentMps()]);
-  const rows = allRows.filter((r) => r.member_id != null && mpById.has(r.member_id));
+  const [summary, mpById] = await Promise.all([fetchSummary(), fetchCurrentMps()]);
   // Every serving MP with a refused or repaid claim; the first 25 show, the rest open below.
-  const refusedAgg = aggregateBy('amount_not_paid', rows);
-  const repaidAgg = aggregateBy('amount_repaid', rows);
-  const reasons = aggregateReasons(rows);
-  const years = aggregateYears(rows);
+  const refusedAgg = summary.refused_by_mp;
+  const repaidAgg = summary.repaid_by_mp;
+  const reasons = summary.by_reason;
+  const years = summary.by_year;
   // The newest year with IPSA's year-end totals published is complete; anything after it is
   // still being filled in as IPSA publishes claims every two months.
   const { data: lastFull } = await supabase.from('mp_expenses_summary').select('year').order('year', { ascending: false }).limit(1);
@@ -155,12 +98,12 @@ export default async function RefusedExpensesPage() {
   const isPartial = (y: string) => !!latestComplete && y > latestComplete;
   const firstYear = years.length ? years[years.length - 1].year : null;
   const lastYear = years.length ? years[0].year : null;
-  const distinctMps = new Set(rows.map((r) => r.member_id).filter((id): id is number => id != null && id > 0)).size;
+  const distinctMps = summary.totals.mps;
 
-  const totalRefusedAll = rows.reduce((s, r) => s + (Number(r.amount_not_paid) || 0), 0);
-  const totalRepaidAll = rows.reduce((s, r) => s + (Number(r.amount_repaid) || 0), 0);
-  const refusedClaimCount = rows.filter((r) => Number(r.amount_not_paid) > 0).length;
-  const repaidClaimCount = rows.filter((r) => Number(r.amount_repaid) > 0).length;
+  const totalRefusedAll = Number(summary.totals.refused);
+  const totalRepaidAll = Number(summary.totals.repaid);
+  const refusedClaimCount = summary.totals.refused_count;
+  const repaidClaimCount = summary.totals.repaid_count;
 
 
   return (
