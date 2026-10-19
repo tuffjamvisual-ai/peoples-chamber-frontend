@@ -21,6 +21,7 @@ import CouncilHomelessnessSection from '../../components/CouncilHomelessnessSect
 import CouncilClaimantCountSection from '../../components/CouncilClaimantCountSection';
 import CouncilSchoolInspectionsSection from '../../components/CouncilSchoolInspectionsSection';
 import CouncilRoadCasualtiesSection from '../../components/CouncilRoadCasualtiesSection';
+import CouncilFlyTippingSection from '../../components/CouncilFlyTippingSection';
 import CouncilConnectivitySection from '../../components/CouncilConnectivitySection';
 import CouncilSewageSection from '../../components/CouncilSewageSection';
 import CouncilRatingsSection from '../../components/CouncilRatingsSection';
@@ -579,6 +580,10 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                 countyName={parent ? parent.name : null}
                 countySlug={parent ? parent.slug : null}
               />
+
+              {/* Fly-tipping: England (Defra) and Wales (StatsWales); a county's figures are its districts' total.
+                  Scotland and Northern Ireland get one line: no official council figures are published. */}
+              <CouncilFlyTippingSection gssCode={c.gss_code} country={c.country} />
             </>,
             health: <>
               {showPublicHealth && (
