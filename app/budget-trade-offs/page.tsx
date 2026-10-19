@@ -19,16 +19,20 @@ import type { Metadata } from 'next';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import { notFound } from 'next/navigation';
-import { SHOW_BUDGET_CHOICES } from '@/lib/feature-flags';
+import { SHOW_BUDGET_CHOICES, HIDDEN_PAGE_METADATA } from '@/lib/feature-flags';
 
 export const revalidate = 86400;
 
-export const metadata: Metadata = {
+const PAGE_METADATA: Metadata = {
   title: 'Budget Choices',
   description:
     'What would it cost to fix everything? A cross departmental analysis showing how the £900bn budget actually divides, what each department says it needs, and the five fundamental choices Parliament keeps refusing to make.',
   alternates: { canonical: '/budget-trade-offs' },
 };
+// While hidden, the page says what a missing page says (not-found title, noindex), not its own title.
+export async function generateMetadata(): Promise<Metadata> {
+  return SHOW_BUDGET_CHOICES ? PAGE_METADATA : HIDDEN_PAGE_METADATA;
+}
 
 const INK = '#14100d';
 const INK_SOFT = '#14100d';

@@ -14,16 +14,20 @@ import type { Metadata } from 'next';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import { notFound } from 'next/navigation';
-import { SHOW_YOUR_TAX_POUND } from '@/lib/feature-flags';
+import { SHOW_YOUR_TAX_POUND, HIDDEN_PAGE_METADATA } from '@/lib/feature-flags';
 
 export const revalidate = 86400;
 
-export const metadata: Metadata = {
+const PAGE_METADATA: Metadata = {
   title: 'Your Tax Pound, Where £1 Goes',
   description:
     'Every pound of UK government spending broken down, NHS, pensions, welfare, education, debt interest, defence and the rest, with a paragraph explaining what each line actually buys.',
   alternates: { canonical: '/your-tax-pound' },
 };
+// While hidden, the page says what a missing page says (not-found title, noindex), not its own title.
+export async function generateMetadata(): Promise<Metadata> {
+  return SHOW_YOUR_TAX_POUND ? PAGE_METADATA : HIDDEN_PAGE_METADATA;
+}
 
 const INK = '#14100d';
 const ACCENT = '#6b2417';

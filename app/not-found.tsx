@@ -20,7 +20,9 @@ const SECTIONS: { href: string; label: string }[] = [
   { href: '/editorials', label: 'Investigations' },
 ];
 
-export const metadata: Metadata = { title: 'Page not found' };
+// noindex, nofollow: replaces the layout's "index, follow" on every 404, including pages hidden by a switch
+// (lib/feature-flags.ts), which render this page.
+export const metadata: Metadata = { title: 'Page not found', robots: { index: false, follow: false } };
 
 export default function NotFound() {
   return (

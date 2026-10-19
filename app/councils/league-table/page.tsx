@@ -15,18 +15,22 @@ import LastUpdated from '../../components/LastUpdated';
 import LeagueTable from './LeagueTable';
 import type { ClientRow } from './LeagueTable';
 import { notFound } from 'next/navigation';
-import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
+import { SHOW_LEAGUE_TABLE, HIDDEN_PAGE_METADATA } from '@/lib/feature-flags';
 import { getLeagueData, TOPIC_NAMES, SERVICE_PARTS, STAT_NEIGHBOURS_URL } from '@/lib/council-league';
 import type { MeasureDetail } from '@/lib/council-league';
 
 export const revalidate = 21600;
 
-export const metadata: Metadata = {
+const PAGE_METADATA: Metadata = {
   title: 'How council areas in England compare',
   description:
     'How every council area in England compares on schools, safety, health, jobs and poverty, housing, environment, connectivity and local services, with a separate score for the services councils run and warnings such as section 114 notices.',
   alternates: { canonical: '/councils/league-table' },
 };
+// While hidden, the page says what a missing page says (not-found title, noindex), not its own title.
+export async function generateMetadata(): Promise<Metadata> {
+  return SHOW_LEAGUE_TABLE ? PAGE_METADATA : HIDDEN_PAGE_METADATA;
+}
 
 const INK = '#14100d';
 const INK_SOFT = '#14100d';
