@@ -20,7 +20,8 @@
 //                         source_note is shown to readers ("Source: ..."); source_note_by_date, e.g.
 //                         {"2026-06-18": "..."}, overrides it for one polling date;
 //                         "display_names": {"<candidate as in the CSV>": "<display name>"} sets one candidate's
-//                         display name by hand (owner's decision), in place of the rule below
+//                         display name by hand (owner's decision), in place of the rule below;
+//                         "turnout_pct": 35.24 sets the council-wide turnout from the council's own published figure
 //   --parties=file.csv    published_name, party_id, party_name, parties_slug
 //   --date=2026-05-07     default election date (default 2026-05-07)
 //                         "stv": true marks single transferable vote councils (Scotland, Northern Ireland):
@@ -261,7 +262,9 @@ const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABA
     plan.push({
       name, date, gss: c.gss_code, displayOverrides: c.display_names || {}, source_note: (c.source_note_by_date || {})[date] || c.source_note || `${cname}'s published results`, wards: list,
       seats: list.reduce((s, w) => s + w.seats, 0),
-      turnout: totalElectorate ? Math.round((elect.reduce((s, w) => s + w.electorate * w.turnout, 0) / totalElectorate) * 100) / 100 : null,
+      // council-wide turnout: the council's own figure when given ("turnout_pct" in the councils file); otherwise worked
+      // out only when every ward has its electorate and turnout (a partial figure would mislead)
+      turnout: c.turnout_pct != null ? c.turnout_pct : totalElectorate && elect.length === list.length ? Math.round((elect.reduce((s, w) => s + w.electorate * w.turnout, 0) / totalElectorate) * 100) / 100 : null,
     });
   }
 
