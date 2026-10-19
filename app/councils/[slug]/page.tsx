@@ -5,7 +5,7 @@
 import type { Metadata } from 'next';
 import { metaDescription } from '@/lib/meta-description';
 import { administrationLabel, seatsLine, seatName, type CouncilComposition } from '@/lib/council-composition';
-import type { ElectionSummary } from '@/lib/council-election-summary';
+import { shortParty, type ElectionSummary } from '@/lib/council-election-summary';
 import { loadCouncilTax, type CouncilTax } from '@/lib/council-tax';
 import { supabase } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
@@ -61,6 +61,11 @@ type CouncilFull = {
   political_control_status: string | null;
   leader_name: string | null;
   leader_party: string | null;
+  leader_role: string | null;
+  leader_since: string | null;
+  leader_since_text: string | null;
+  leader_source_url: string | null;
+  leader_second_source_url: string | null;
   chief_exec: string | null;
   council_tax_band_d_pounds: number | null;
   ni_district_rate_poundage: number | null;
@@ -208,7 +213,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
   const children: RelatedCouncil[] = (childRows || []) as RelatedCouncil[];
 
   const hasFinance = c.council_tax_band_d_pounds != null || c.revenue_budget_mn != null || c.ni_district_rate_poundage != null || councilTax != null;
-  const hasLeadership = c.political_control != null || c.chief_exec != null;
+  const hasLeadership = c.political_control != null || c.chief_exec != null || c.leader_source_url != null;
   const hasOverview =
     c.population != null || c.founded_year != null || c.website_url != null;
 
@@ -364,8 +369,11 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                       sub={`As at May ${comp.snapshot_year}. "Independents and others" includes local parties. Source: Open Council Data UK (public domain).`}
                     />
                   )}
-                  {/* Leader hidden until re-sourced with its role and a source (owner's decision, 19 Oct 2026): the
-                      backfilled value is often the ceremonial mayor or chair, not who leads the council. */}
+                  {/* Shown only when the leader was read from a source (scripts/import-council-leaders.js, owner's
+                      decision, 19 Oct 2026); the old backfilled value was often the ceremonial mayor or chair. */}
+                  {c.leader_source_url && c.leader_role && (
+                    <DataRow label={c.leader_role} value={leaderValue(c)} sub={leaderSource(c)} />
+                  )}
                   <DataRow label="Chief executive" value={c.chief_exec} />
                   <DataRow label="Last election" value={lastElectionValue(c.last_election_year, comp, electionSummary, c.slug)} sub={lastElectionSub(c.last_election_year, comp, electionSummary, c)} />
                 </Section>
@@ -815,7 +823,36 @@ function lastElectionSub(year: number | null | undefined, comp: CouncilCompositi
   return null;
 }
 
-function DataRow({ label, value, sub, valueColour }: { label: string; value: React.ReactNode | null; sub?: string | null; valueColour?: string }) {
+// "<name>, <party> (since <date>)"; co-leaders are stored as "A and B" with parties "P / Q", in the same order.
+// A sourced row with no name is a post the council's own page confirms is vacant.
+function leaderValue(c: CouncilFull): string {
+  if (!c.leader_name) return 'vacant';
+  const names = c.leader_role === 'Co-leaders' ? c.leader_name.split(' and ') : [c.leader_name];
+  const parties = c.leader_party ? (names.length > 1 ? c.leader_party.split(' / ') : [c.leader_party]) : [];
+  const people = names.map((n, i) => (parties[i] ? `${n}, ${shortParty(parties[i])}` : n));
+  const who = people.length === 1 ? people[0]
+    : people.length === 2 ? `${people[0]}, and ${people[1]}`
+    : `${people.slice(0, -1).join('; ')}; and ${people[people.length - 1]}`;
+  const since = c.leader_since
+    ? new Date(`${c.leader_since}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
+    : c.leader_since_text;
+  return since ? `${who} (since ${since})` : who;
+}
+function leaderSource(c: CouncilFull): React.ReactNode {
+  const link = (href: string, text: string) => (
+    <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: INK_SOFT, textDecoration: 'underline' }}>{text}</a>
+  );
+  const src = c.leader_source_url as string;
+  const wiki = /^https:\/\/en\.wikipedia\.org\//.test(src);
+  return (
+    <>
+      Source: {link(src, wiki ? 'Wikipedia' : c.name)}
+      {c.leader_second_source_url && <>, {link(c.leader_second_source_url, c.name)}</>}
+    </>
+  );
+}
+
+function DataRow({ label, value, sub, valueColour }: { label: string; value: React.ReactNode | null; sub?: React.ReactNode | null; valueColour?: string }) {
   if (value == null || value === '') return null;
   return (
     <div style={{ display: 'contents' }}>
