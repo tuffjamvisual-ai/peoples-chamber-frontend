@@ -6,6 +6,7 @@
 
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { cache } from 'react';
 import { supabase } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
@@ -62,40 +63,13 @@ function narrowTokens(slug: string): string[] {
     .slice(0, 3);
 }
 
-// Prerender a small set of donor pages at build time. The list does NOT
-// need to be complete — its presence is what enables ISR caching for the
-// whole route. Pages not listed here are rendered on first request and
-// cached from then on (see revalidate above, 24h).
+// No donor pages are rendered at build (John's approval, 19 Oct 2026): each one renders on its first visit and
+// is cached from then on, refreshed after 24h (revalidate above). An empty list still makes the route
+// statically cached (ISR); dynamicParams is left at its default (true), so any donor slug renders on demand.
+// Pre-rendering 20 donor pages at build added full-table name lookups to the build's database load, and builds
+// failed on the 3s statement timeout.
 export async function generateStaticParams() {
-  const { data, error } = await supabase
-    .from('political_donations')
-    .select('donor_name')
-    .not('donor_name', 'is', null)
-    .limit(100);
-  if (error) {
-    throw new Error(
-      `generateStaticParams(/donors/[slug]) query failed: ${error.message}`
-    );
-  }
-  if (!data || data.length === 0) {
-    throw new Error(
-      'generateStaticParams(/donors/[slug]): political_donations returned no rows'
-    );
-  }
-  const seen = new Set<string>();
-  for (const row of data) {
-    const name = row.donor_name;
-    if (!name) continue;
-    const slug = donorNameToSlug(name);
-    if (slug) seen.add(slug);
-    if (seen.size >= 20) break;
-  }
-  if (seen.size === 0) {
-    throw new Error(
-      'generateStaticParams(/donors/[slug]): no usable slugs derived from donor_name'
-    );
-  }
-  return Array.from(seen).map((slug) => ({ slug }));
+  return [];
 }
 
 type DonationRow = {
@@ -129,7 +103,8 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-async function findDonorByMatchingSlug(slug: string): Promise<string | null> {
+// cache(): generateMetadata and the page both resolve the slug; the lookup runs once per request.
+const findDonorByMatchingSlug = cache(async (slug: string): Promise<string | null> => {
   // We don't store slugs in the DB; resolve by paging through donor_name
   // values and computing the slug client-side. Cheap because we can use
   // a relevant ILIKE narrowing first.
@@ -164,7 +139,7 @@ async function findDonorByMatchingSlug(slug: string): Promise<string | null> {
     counts.set(n, (counts.get(n) ?? 0) + 1);
   }
   return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? names[0];
-}
+});
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
