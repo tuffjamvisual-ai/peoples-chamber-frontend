@@ -6,6 +6,7 @@ import type { Metadata } from 'next';
 import { metaDescription } from '@/lib/meta-description';
 import { administrationLabel, seatsLine, seatName, type CouncilComposition } from '@/lib/council-composition';
 import type { ElectionSummary } from '@/lib/council-election-summary';
+import { loadCouncilTax, type CouncilTax } from '@/lib/council-tax';
 import { supabase } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
@@ -202,6 +203,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
   ]);
   const comp = (compRow as CouncilComposition | null) || null;
   const electionSummary = await loadElectionSummary(c.gss_code).catch(() => null);
+  const councilTax = await loadCouncilTax(c.gss_code).catch(() => null);
   const parent: RelatedCouncil | null = (parentRow as RelatedCouncil | null) || null;
   const children: RelatedCouncil[] = (childRows || []) as RelatedCouncil[];
 
@@ -438,15 +440,19 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
               {hasFinance && (
                 <Section title="Finance">
                   <DataRow label="Annual revenue budget" value={c.revenue_budget_mn != null ? `£${c.revenue_budget_mn.toLocaleString()}m` : null} />
-                  <DataRow
-                    label="Council tax (Band D)"
-                    value={c.council_tax_band_d_pounds != null ? `£${c.council_tax_band_d_pounds.toLocaleString()}` : null}
-                    sub={
-                      c.council_tax_band_d_pounds != null
-                        ? COUNCIL_TAX_CAVEAT_BY_NATION[c.country] || null
-                        : null
-                    }
-                  />
+                  {councilTax ? (
+                    <DataRow label={`Council tax ${councilTax.year.replace('-', '/')} (Band D)`} value={councilTaxValue(councilTax, c.name, c.type)} sub={councilTaxSub(councilTax)} />
+                  ) : (
+                    <DataRow
+                      label="Council tax (Band D)"
+                      value={c.council_tax_band_d_pounds != null ? `£${c.council_tax_band_d_pounds.toLocaleString()}` : null}
+                      sub={
+                        c.council_tax_band_d_pounds != null
+                          ? COUNCIL_TAX_CAVEAT_BY_NATION[c.country] || null
+                          : null
+                      }
+                    />
+                  )}
                   {c.ni_district_rate_poundage != null && (
                     <DataRow
                       label="District rate (NI)"
@@ -691,6 +697,45 @@ function PublicHealthRow({
   return <DataRow label={label} value={formattedValue} sub={sub} />;
 }
 
+// Council tax line: the whole Band D bill where it is known for the area, then each
+// part of it, with this council's own rise on the previous year.
+const gbp = (n: number) => `£${n.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+function councilTaxValue(t: CouncilTax, councilName: string, type: string): React.ReactNode {
+  const parts: [string, number | null][] = [
+    [councilName, t.council_band_d],
+    [t.county_name || 'County council', t.county_band_d],
+    [t.ca_name || 'Combined authority', t.ca_band_d],
+    ['Greater London Authority', t.gla_band_d],
+    [t.police_name || 'Police', t.police_band_d],
+    [t.fire_name || 'Fire', t.fire_band_d],
+    [t.nation === 'Wales' ? 'Community councils (average)' : 'Parish and town councils (average)', t.parish_avg_band_d],
+  ];
+  const shown = parts.filter((p): p is [string, number] => p[1] != null && p[1] > 0);
+  const change = t.council_band_d_prev ? t.council_band_d - t.council_band_d_prev : null;
+  const pct = change != null && t.council_band_d_prev ? (change / t.council_band_d_prev) * 100 : null;
+  return (
+    <>
+      {t.area_band_d != null && type !== 'county' && <strong>{gbp(t.area_band_d)} in total</strong>}
+      <span style={{ display: 'block', marginTop: t.area_band_d != null && type !== 'county' ? '4px' : 0 }}>
+        {shown.map(([name, v], i) => (
+          <span key={name} style={{ display: 'block' }}>
+            {name}: {i === 0 ? <strong>{gbp(v)}</strong> : gbp(v)}
+            {i === 0 && change != null && pct != null && ` (${change >= 0 ? 'up' : 'down'} ${gbp(Math.abs(change))}, ${Math.abs(pct).toFixed(1)}% on the year before)`}
+            {i === 0 && t.asc_band_d ? `, including ${gbp(t.asc_band_d)} for adult social care` : ''}
+          </span>
+        ))}
+      </span>
+    </>
+  );
+}
+function councilTaxSub(t: CouncilTax): string {
+  const base = 'Band D is the middle band that council tax is set from; most homes are in lower bands and pay less.';
+  const nation = t.nation === 'Scotland'
+    ? ' Scottish Water charges are added on the same bill; police and fire are funded nationally.'
+    : t.nation === 'Wales' ? ' Fire services in Wales are funded by a levy on the council, not a separate charge.' : '';
+  return `${base}${nation} Source: ${t.nation === 'England' ? 'Ministry of Housing, Communities and Local Government' : t.nation === 'Wales' ? 'Welsh Government' : 'Scottish Government'}, council tax levels ${t.year.replace('-', '/')}.`;
+}
+
 // "Last election" line: parties ranked 1st, 2nd, 3rd..., with each party's share of the
 // vote where the council's full result is held (lib/council-election-summary.ts),
 // otherwise seats only, from the May composition when that was the election year.
@@ -706,7 +751,7 @@ function lastElectionValue(year: number | null | undefined, comp: CouncilComposi
         <span style={{ display: 'block', marginTop: '4px' }}>
           {sum.parties.filter((p) => p.share >= 0.5 || p.seats > 0).map((p, i) => (
             <span key={p.party} style={{ display: 'block' }}>
-              {ORD(i + 1)} {p.party}: {p.share.toFixed(1)}% of the vote, {p.seats} seat{p.seats === 1 ? '' : 's'}
+              {ORD(i + 1)} {p.party}: {p.share.toFixed(1)}% of {sum.stv ? 'first preference votes' : 'the vote'}, {p.seats} seat{p.seats === 1 ? '' : 's'}
             </span>
           ))}
         </span>
@@ -730,7 +775,11 @@ function lastElectionValue(year: number | null | undefined, comp: CouncilComposi
   return year.toString();
 }
 function lastElectionSub(year: number | null | undefined, comp: CouncilComposition | null, sum: ElectionSummary | null): string | null {
-  if (sum) return `Share of all votes cast across the council's ${sum.wards} wards and divisions; seats won at that election. Labour includes Labour and Co-operative candidates. Source: ${sum.source || "the council's published results"}.`;
+  const unopposed = sum && sum.unopposedSeats > 0
+    ? ` ${sum.unopposedSeats} seat${sum.unopposedSeats === 1 ? ' was' : 's were'} filled unopposed, without a vote; vote shares cover the contested wards only.`
+    : '';
+  if (sum?.stv) return unopposed.trim() + (unopposed ? ' ' : '') + `Share of all first preference votes across the council's ${sum.wards} wards (councillors here are elected by single transferable vote, where voters rank candidates); seats won at that election.${sum.labourCoop ? ' Labour includes Labour and Co-operative candidates.' : ''} Source: ${sum.source || "the council's published results"}.`;
+  if (sum) return (unopposed ? unopposed.trim() + ' ' : '') + `Share of all votes cast across the council's ${sum.wards} wards and divisions; seats won at that election.${sum.labourCoop ? ' Labour includes Labour and Co-operative candidates.' : ''} Source: ${sum.source || "the council's published results"}.`;
   // Only when the seats list is shown (the composition is from that election's year).
   if (comp && year && comp.snapshot_year === year && comp.total_seats > 0) return 'Seats on the council after that election (where a council elects a third of its seats at a time, this is the whole council). Vote shares are added once the full result is collected.';
   return null;
