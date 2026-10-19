@@ -720,7 +720,9 @@ function councilTaxValue(t: CouncilTax, councilName: string, type: string): Reac
         {shown.map(([name, v], i) => (
           <span key={name} style={{ display: 'block' }}>
             {name}: {i === 0 ? <strong>{gbp(v)}</strong> : gbp(v)}
-            {i === 0 && change != null && pct != null && ` (${change >= 0 ? 'up' : 'down'} ${gbp(Math.abs(change))}, ${Math.abs(pct).toFixed(1)}% on the year before)`}
+            {i === 0 && change != null && pct != null && (Math.round(change * 100) === 0
+              ? ' (no change on last year)'
+              : ` (${change >= 0 ? 'up' : 'down'} ${gbp(Math.abs(change))}, ${Math.abs(pct).toFixed(1)}% on the year before)`)}
             {i === 0 && t.asc_band_d ? `, including ${gbp(t.asc_band_d)} for adult social care` : ''}
           </span>
         ))}
@@ -778,8 +780,16 @@ function lastElectionSub(year: number | null | undefined, comp: CouncilCompositi
   const unopposed = sum && sum.unopposedSeats > 0
     ? ` ${sum.unopposedSeats} seat${sum.unopposedSeats === 1 ? ' was' : 's were'} filled unopposed, without a vote; vote shares cover the contested wards only.`
     : '';
-  if (sum?.stv) return unopposed.trim() + (unopposed ? ' ' : '') + `Share of all first preference votes across the council's ${sum.wards} wards (councillors here are elected by single transferable vote, where voters rank candidates); seats won at that election.${sum.labourCoop ? ' Labour includes Labour and Co-operative candidates.' : ''} Source: ${sum.source || "the council's published results"}.`;
-  if (sum) return (unopposed ? unopposed.trim() + ' ' : '') + `Share of all votes cast across the council's ${sum.wards} wards and divisions; seats won at that election.${sum.labourCoop ? ' Labour includes Labour and Co-operative candidates.' : ''} Source: ${sum.source || "the council's published results"}.`;
+  // Turnout only where the council-wide figure is stored; a note for each extra poll counted in, with its reason.
+  const fmt = (d: string) => `${Number(d.slice(8, 10))} ${MONTH_NAMES[Number(d.slice(5, 7)) - 1]} ${d.slice(0, 4)}`;
+  const extra = sum
+    ? (sum.turnout != null ? ` Turnout ${sum.turnout}%.` : '') +
+      sum.extraPolls.map((p) => p.reason === 'postponed'
+        ? ` Includes the ${p.ward} poll, postponed to ${fmt(p.date)}.`
+        : ` Includes the ${p.ward} poll of ${fmt(p.date)}, held for seats left unfilled on ${fmt(sum.date)}.`).join('')
+    : '';
+  if (sum?.stv) return unopposed.trim() + (unopposed ? ' ' : '') + `Share of all first preference votes across the council's ${sum.wards} wards (councillors here are elected by single transferable vote, where voters rank candidates); seats won at that election.${sum.labourCoop ? ' Labour includes Labour and Co-operative candidates.' : ''}${extra} Source: ${sum.source || "the council's published results"}.`;
+  if (sum) return (unopposed ? unopposed.trim() + ' ' : '') + `Share of all votes cast across the council's ${sum.wards} wards and divisions; seats won at that election.${sum.labourCoop ? ' Labour includes Labour and Co-operative candidates.' : ''}${extra} Source: ${sum.source || "the council's published results"}.`;
   // Only when the seats list is shown (the composition is from that election's year).
   if (comp && year && comp.snapshot_year === year && comp.total_seats > 0) return 'Seats on the council after that election (where a council elects a third of its seats at a time, this is the whole council). Vote shares are added once the full result is collected.';
   return null;

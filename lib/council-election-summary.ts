@@ -31,32 +31,43 @@ export function shortParty(name: string): string {
 }
 
 export type PartyResult = { party: string; votes: number; share: number; seats: number };
-export type ElectionSummary = { date: string; wards: number; seats: number; parties: PartyResult[]; source: string | null; stv: boolean; unopposedSeats: number; labourCoop: boolean };
+export type ElectionSummary = { date: string; wards: number; seats: number; parties: PartyResult[]; source: string | null; stv: boolean; unopposedSeats: number; labourCoop: boolean;
+  turnout: number | null;   // council-wide turnout as stored for the main election; null when not held
+  // single ward polls counted in with the main election: 'postponed' (the ward had no poll on the main day) or
+  // 'unfilled' (the ward also appears in the main election, under-contested; this poll filled the seats left over)
+  extraPolls: { ward: string; date: string; reason: 'postponed' | 'unfilled' }[] };
 
 export async function loadElectionSummary(gssCode: string | null): Promise<ElectionSummary | null> {
   if (!gssCode) return null;
   const { data: el, error } = await supabase
     .from('council_elections')
-    .select('id, election_date, wards_contested, seats_contested, source_note')
+    .select('id, election_date, wards_contested, seats_contested, source_note, turnout_pct')
     .eq('council_gss_code', gssCode)
     .order('election_date', { ascending: false })
     .limit(20);
   if (error || !el?.length) return null; // tables not created yet, or no results held
-  // The main election is the latest with more than one ward; later single ward polls
-  // (postponed after a candidate died) belong to it.
-  const main = el.find((e) => e.wards_contested > 1) ?? el[0];
-  // Byelections are never counted in: only single ward polls within 60 days after the main
-  // election day (a postponed poll) are added, and byelection-only contests are not loaded.
-  const limit = new Date(`${main.election_date}T00:00:00Z`);
-  limit.setUTCDate(limit.getUTCDate() + 60);
-  const until = limit.toISOString().slice(0, 10);
+  // A smaller poll held within 60 days after a larger election belongs to it (a ward postponed after a candidate
+  // died, or a poll for seats left unfilled when too few stood). The main election is the latest one that is not
+  // such a poll. Byelections are never counted in: byelection-only contests are not loaded.
+  const plus60 = (d: string) => { const x = new Date(`${d}T00:00:00Z`); x.setUTCDate(x.getUTCDate() + 60); return x.toISOString().slice(0, 10); };
+  const isExtra = (e: (typeof el)[number]) =>
+    el.some((f) => f.wards_contested > e.wards_contested && f.election_date < e.election_date && e.election_date <= plus60(f.election_date as string));
+  const main = el.find((e) => !isExtra(e)) ?? el[0];
+  const until = plus60(main.election_date as string);
   const ids = el
-    .filter((e) => e.id === main.id || (e.wards_contested === 1 && e.election_date > main.election_date && e.election_date <= until))
+    .filter((e) => e.id === main.id || (e.wards_contested < main.wards_contested && e.election_date > main.election_date && e.election_date <= until))
     .map((e) => e.id);
 
-  const { data: wards, error: wErr } = await supabase.from('council_election_wards').select('id').in('election_id', ids).limit(1000);
+  const { data: wards, error: wErr } = await supabase.from('council_election_wards').select('id, election_id, ward_name').in('election_id', ids).limit(1000);
   if (wErr || !wards?.length) return null;
   const wardIds = wards.map((w) => w.id as number);
+  const mainWards = new Set(wards.filter((w) => w.election_id === main.id).map((w) => w.ward_name as string));
+  const extraPolls = el
+    .filter((e) => ids.includes(e.id) && e.id !== main.id)
+    .flatMap((e) => wards.filter((w) => w.election_id === e.id).map((w) => ({
+      ward: w.ward_name as string, date: e.election_date as string,
+      reason: (mainWards.has(w.ward_name as string) ? 'unfilled' : 'postponed') as 'postponed' | 'unfilled',
+    })));
 
   // votes is null for a candidate elected unopposed (no poll held in that ward).
   const rows: { party_id: string | null; party_published: string | null; votes: number | null; elected: boolean }[] = [];
@@ -100,5 +111,7 @@ export async function loadElectionSummary(gssCode: string | null): Promise<Elect
   const parties = [...by.entries()]
     .map(([party, e]) => ({ party, votes: e.votes, share: (e.votes / total) * 100, seats: e.seats }))
     .sort((a, b) => b.votes - a.votes);
-  return { date: main.election_date as string, wards: wardIds.length, seats: parties.reduce((t, p) => t + p.seats, 0), parties, source: (main.source_note as string | null) ?? null, stv: /^[SN]/.test(gssCode), unopposedSeats, labourCoop };
+  return { date: main.election_date as string, wards: new Set(wards.map((w) => w.ward_name as string)).size,   // distinct wards (a ward with a later poll for unfilled seats counts once)
+    seats: parties.reduce((t, p) => t + p.seats, 0), parties, source: (main.source_note as string | null) ?? null, stv: /^[SN]/.test(gssCode), unopposedSeats, labourCoop,
+    turnout: main.turnout_pct == null ? null : Number(main.turnout_pct), extraPolls };
 }
