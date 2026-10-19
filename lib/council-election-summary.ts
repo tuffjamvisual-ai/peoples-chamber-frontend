@@ -18,7 +18,22 @@ import { supabase } from '@/lib/supabase';
 export function shortParty(name: string): string {
   // A joint entry named as such ("Plaid Cymru and Green (joint)") is shown whole, not as its first party.
   if (/\(joint\)$/i.test(name.trim())) return name.trim();
+  // Joint descriptions registered as such: shown as "<parties> (joint)" (owner's decision, 19 Oct 2026). Others ending
+  // "(joint description)" are kept whole. Labour and Co-operative ("(joint description of ...)") counts with Labour below.
+  const JOINT: Record<string, string> = {
+    'Workers Party of Britain and The Oldham Group Party (joint description)': 'Workers Party and Oldham Group (joint)',
+    "Nork Residents' Association and Tattenham & Preston Residents (joint description)": 'Nork and Tattenhams Residents (joint)',
+  };
+  if (/\(joint description\)$/i.test(name.trim())) return JOINT[name.trim()] ?? name.trim();
   const n = name.replace(/\s*\([^)]*\)\s*/g, ' ').replace(/\s+/g, ' ').trim().replace(/^the /i, '');
+  // Commonly used names (owner's decision, 19 Oct 2026); other parties keep their registered names.
+  if (/^democratic unionist party\b/i.test(n)) return 'DUP';
+  if (/^alliance - alliance party of northern ireland$/i.test(n) || /^alliance party of northern ireland$/i.test(n)) return 'Alliance';
+  if (/^ulster unionist party\b/i.test(n)) return 'UUP';
+  if (/^traditional unionist voice\b/i.test(n)) return 'TUV';
+  if (/^progressive unionist party\b/i.test(n)) return 'PUP';
+  if (/^people before profit\b/i.test(n)) return 'People Before Profit';
+  if (/^trade unionist and socialist coalition$/i.test(n) || /^tusc$/i.test(n)) return 'TUSC';
   if (/^labour\b/i.test(n)) return 'Labour';
   if (/^conservative\b/i.test(n)) return 'Conservative';
   if (/^liberal democrat/i.test(n)) return 'Liberal Democrats';

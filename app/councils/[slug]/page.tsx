@@ -207,7 +207,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
   const parent: RelatedCouncil | null = (parentRow as RelatedCouncil | null) || null;
   const children: RelatedCouncil[] = (childRows || []) as RelatedCouncil[];
 
-  const hasFinance = c.council_tax_band_d_pounds != null || c.revenue_budget_mn != null || c.ni_district_rate_poundage != null;
+  const hasFinance = c.council_tax_band_d_pounds != null || c.revenue_budget_mn != null || c.ni_district_rate_poundage != null || councilTax != null;
   const hasLeadership = c.political_control != null || c.leader_name != null || c.chief_exec != null;
   const hasOverview =
     c.population != null || c.founded_year != null || c.website_url != null;
