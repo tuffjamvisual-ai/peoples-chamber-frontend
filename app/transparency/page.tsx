@@ -47,6 +47,7 @@ const SECTIONS: { slug: string; title: string; description: string; href?: strin
   { slug: 'donations',          title: 'Political Donations',              description: 'Reportable donations to political parties and individual MPs.' },
   { slug: 'contracts',          title: 'Government Contracts',             description: 'Awarded public sector contracts above the disclosure threshold, published via Contracts Finder.' },
   { slug: 'ministerial-directions', title: 'Ministerial Directions',       description: 'Every time a minister has formally overruled their department\'s accounting officer and ordered spending to go ahead, with the letters from both sides, since 2015.', href: '/transparency/ministerial-directions' },
+  { slug: 'major-projects', title: 'Major Projects',                       description: 'The government\'s biggest and riskiest projects, from the IPA and NISTA annual reports since March 2024: each project\'s rating, end date and whole-life cost by year, and what its department said.', href: '/transparency/major-projects' },
   { slug: 'press-releases',     title: 'Press Releases',                   description: 'Most recent UK Government press releases, pulled daily from GOV.UK. Each release links through to the full text announcement.' },
   { slug: 'councils',            title: 'Local Councils',                  description: 'Every UK principal local authority, 382 in total, with leadership, finance, council tax and editorial assessment for each.', href: '/councils' },
 ]

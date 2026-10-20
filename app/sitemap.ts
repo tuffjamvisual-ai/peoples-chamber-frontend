@@ -5,6 +5,7 @@ import { departments } from '@/lib/departments';
 import { editorials } from '@/lib/editorials';
 import { COMMITTEE_IDS } from '@/lib/committees';
 import { topics } from '@/lib/topics';
+import { fetchMajorProjectKeys, projectHref } from '@/lib/major-projects';
 
 const SITE = 'https://www.opengovt.uk';
 
@@ -78,6 +79,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/secretariats`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${SITE}/transparency/special-advisers`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/transparency/ministerial-directions`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${SITE}/transparency/major-projects`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${SITE}/civil-service`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/spending`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/donations/foreign`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
@@ -272,6 +274,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.5,
   }));
 
+  // Major project pages (/transparency/major-projects/<project_key>), one per project in major_projects.
+  // The annual reports come out once a year; a failed read leaves them out rather than failing the sitemap.
+  const majorProjectKeys = await fetchMajorProjectKeys().catch(() => [] as string[]);
+  const majorProjectEntries: MetadataRoute.Sitemap = majorProjectKeys.map((k) => ({
+    url: `${SITE}${projectHref(k)}`,
+    lastModified: now,
+    changeFrequency: 'yearly',
+    priority: 0.5,
+  }));
+
   return [
     ...staticEntries,
     ...topicEntries,
@@ -285,5 +297,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...councilEntries,
     ...divisionEntries,
     ...committeeEntries,
+    ...majorProjectEntries,
   ];
 }

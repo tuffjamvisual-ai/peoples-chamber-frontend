@@ -9,6 +9,8 @@ import { BudgetSlot, AgenciesSlot, ContactSlot, ReleasesSlot, InvestigationsSlot
 import { getDepartmentGrants, GrantsSlot } from './GrantsSlot';
 import { DirectionsSlot } from './DirectionsSlot';
 import { fetchDirections } from '@/lib/ministerial-directions';
+import { MajorProjectsSlot } from './MajorProjectsSlot';
+import { fetchMajorProjects } from '@/lib/major-projects';
 import { DEPARTMENT_BUDGETS } from '@/lib/department-budgets';
 import OpenGovShell from '../../components/OpenGovShell';
 import { getGovukDept } from '../../api/govuk-dept/route';
@@ -48,7 +50,7 @@ export default async function DepartmentPage({ params }: PageProps) {
   // B2: org names for this slug, used for the press releases tab query.
   const orgNames = DEPT_SLUG_TO_ORGS[slug] ?? [];
 
-  const [govukData, contextData, rawReleases, rawInvestigations, rawProgrammes, directions] = await Promise.all([
+  const [govukData, contextData, rawReleases, rawInvestigations, rawProgrammes, directions, majorProjects] = await Promise.all([
     getGovukDept(slug),
     getDeptContext(slug),
     // B2 — press releases tab: top 20 by published_at DESC across all
@@ -92,6 +94,9 @@ export default async function DepartmentPage({ params }: PageProps) {
     // Directions tab: ministerial directions tagged to this department (ministerial_directions.dept_slugs).
     // A failed read hides the tab rather than failing the department page.
     fetchDirections(slug).catch(() => []),
+    // Major projects tab: the department's projects in the Government Major Projects Portfolio (major_projects).
+    // A failed read hides the tab rather than failing the department page.
+    fetchMajorProjects(slug).catch(() => ({ projects: [], latestYear: 0 })),
   ]);
 
   const sos = govukData.ministers?.[0];
@@ -218,6 +223,11 @@ export default async function DepartmentPage({ params }: PageProps) {
   if (directions.length > 0) {
     tabs.push({ id: 'directions', label: 'Directions', rotate: '0.07deg' });
     slots.directions = <DirectionsSlot directions={directions} />;
+  }
+  // Major projects tab: only shown when the department has at least one project in the portfolio.
+  if (majorProjects.projects.length > 0) {
+    tabs.push({ id: 'major-projects', label: 'Major projects', rotate: '-0.04deg' });
+    slots['major-projects'] = <MajorProjectsSlot projects={majorProjects.projects} latestYear={majorProjects.latestYear} />;
   }
 
   if (pressPhone || socialMedia.length > 0) {
