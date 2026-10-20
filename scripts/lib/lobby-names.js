@@ -4,7 +4,7 @@
 'use strict';
 
 // Normalised spelling used for matching: lower case, "&" as "and", curly quotes and
-// punctuation removed, a leading "the" and trailing legal suffixes dropped, spaces collapsed.
+// punctuation removed, a leading "the" or "and" and trailing legal suffixes dropped, spaces collapsed.
 // "The Confederation of British Industry (CBI) Ltd." -> "confederation of british industry cbi"
 // Company-form words (Ltd, Limited, plc, LLP, Holdings) and a bracketed (GB) or (UK) are dropped wherever they
 // appear, not only at the end (owner's approval, 20 Oct 2026): "Arconic Manufacturing (GB) Ltd" ->
@@ -21,7 +21,8 @@ function normaliseBase(raw) {
   s = s.replace(/[’‘`]/g, "'").replace(/&/g, ' and ').replace(/\+/g, ' and ');
   s = s.replace(/'s\b/g, 's');
   s = s.replace(/[^a-z0-9]+/g, ' ').trim();
-  s = s.replace(/^the\s+/, '');
+  // a leading "the" or "and" ("and Essex County Council", a piece left after splitting a list) is dropped
+  for (;;) { const t = s.replace(/^(the|and)\s+/, ''); if (t === s) break; s = t; }
   for (;;) {
     const t = s.replace(/\s+(ltd|limited|plc|llp|inc|incorporated|co)$/, '');
     if (t === s) break;

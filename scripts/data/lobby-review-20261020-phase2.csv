@@ -1,0 +1,576 @@
+spelling,decision,org_name,org_type,notes
+7 steel,org,7 Steel,company,"type from its name, checked against meeting purposes; 13 mentions (DBT 12, Wales Office 1)"
+academy of medical royal colleges,org,Academy of Medical Royal Colleges,professional_body,"type read by hand; 13 mentions (DHSC 11, DSIT 1, DWP 1)"
+academy of medical sciences,org,Academy of Medical Sciences,professional_body,"type read by hand; 10 mentions (DSIT 8, DHSC 2)"
+acca,org,ACCA,professional_body,"type read by hand; 10 mentions (DBT 7, HMT 2, Scotland Office 1)"
+addleshaw goddard,org,Addleshaw Goddard,company,"type from its name, checked against meeting purposes; 13 mentions (HMT 5, DBT 3, Cabinet Office 2)"
+aecom,org,AECOM,company,"type from its name, checked against meeting purposes; 10 mentions (MHCLG 4, DBT 2, HMT 2)"
+agratas,org,Agratas,company,"type from its name, checked against meeting purposes; 11 mentions (DBT 11)"
+alan turing institute,org,Alan Turing Institute,academic,"type read by hand; 13 mentions (DSIT 10, Home Office 2, DfE 1)"
+amadeus capital partners,org,Amadeus Capital Partners,company,"type from its name, checked against meeting purposes; 11 mentions (DSIT 8, HMT 2, DBT 1)"
+amgen,org,Amgen,company,"type from its name, checked against meeting purposes; 10 mentions (DHSC 4, DSIT 3, DBT 2)"
+amnesty international,org,Amnesty International,charity,"type read by hand; 14 mentions (FCDO 5, Home Office 4, MOJ 2)"
+answer digital,org,Answer Digital,company,"type from its name, checked against meeting purposes; 13 mentions (DBT 13)"
+antisemitism policy trust,org,Antisemitism Policy Trust,charity,"type read by hand; 10 mentions (DSIT 4, DBT 2, Home Office 2)"
+aslef,org,ASLEF,union,"type from its name, checked against meeting purposes; 13 mentions (DBT 8, DfT 4, HMT 1)"
+association of british healthtech industries,org,Association of British HealthTech Industries,trade_body,"type from its name, checked against meeting purposes; 12 mentions (DHSC 12)"
+association of directors of adult social services,org,Association of Directors of Adult Social Services,professional_body,"type from its name, checked against meeting purposes; 11 mentions (DHSC 8, DBT 1, DfE 1)"
+atkinsrealis,org,AtkinsRealis,company,"type from its name, checked against meeting purposes; 11 mentions (DBT 4, MHCLG 3, HMT 2)"
+atom bank,org,Atom Bank,company,"type from its name, checked against meeting purposes; 10 mentions (HMT 9, Defra 1)"
+australiansuper,org,AustralianSuper,other,"type from its name, checked against meeting purposes; 10 mentions (DBT 4, Cabinet Office 2, DWP 2)"
+aware super,org,Aware Super,other,"type from its name, checked against meeting purposes; 12 mentions (DBT 6, HMT 2, Cabinet Office 1)"
+balderton capital,org,Balderton Capital,company,"type from its name, checked against meeting purposes; 12 mentions (DSIT 9, DBT 2, HMT 1)"
+bayer,org,Bayer,company,"type from its name, checked against meeting purposes; 10 mentions (DBT 5, DSIT 2, Cabinet Office 1)"
+bellway,org,Bellway,company,"type from its name, checked against meeting purposes; 10 mentions (MHCLG 7, DBT 2, DSIT 1)"
+biogen,org,Biogen,company,"type from its name, checked against meeting purposes; 12 mentions (DHSC 5, DSIT 4, DBT 2)"
+bny,org,BNY,company,"type from its name, checked against meeting purposes; 13 mentions (HMT 8, DBT 4, Cabinet Office 1)"
+boehringer ingelheim,org,Boehringer Ingelheim,company,"type from its name, checked against meeting purposes; 10 mentions (DBT 4, DSIT 3, Defra 2)"
+border to coast,org,Border to Coast,other,"type from its name, checked against meeting purposes; 10 mentions (HMT 6, MHCLG 2, DESNZ 1)"
+bristol airport,org,Bristol Airport,company,"type from its name, checked against meeting purposes; 11 mentions (HMT 4, DBT 3, DfT 3)"
+bristol myers squibb,org,Bristol Myers Squibb,company,"type from its name, checked against meeting purposes; 13 mentions (DSIT 4, DHSC 4, DBT 3)"
+british academy,org,British Academy,academic,type read by hand; 10 mentions (DSIT 10)
+british beauty council,org,British Beauty Council,trade_body,"type read by hand; 12 mentions (DBT 8, HMT 2, Defra 1)"
+british fashion council,org,British Fashion Council,trade_body,"type read by hand; 13 mentions (DBT 5, DCMS 3, DSIT 2)"
+british gas,org,British Gas,company,"type from its name, checked against meeting purposes; 13 mentions (DESNZ 11, DBT 1, DHSC 1)"
+british independent retailers association,org,British Independent Retailers Association,trade_body,"type from its name, checked against meeting purposes; 10 mentions (DBT 5, HMT 2, DWP 1)"
+british institute of innkeeping,org,British Institute of Innkeeping,professional_body,"type read by hand; 12 mentions (DBT 10, HMT 1, MHCLG 1)"
+british land,org,British Land,company,"type from its name, checked against meeting purposes; 13 mentions (MHCLG 9, DSIT 2, HMT 2)"
+british ports association,org,British Ports Association,trade_body,"type from its name, checked against meeting purposes; 10 mentions (DfT 6, Defra 3, DESNZ 1)"
+british veterinary association,org,British Veterinary Association,professional_body,"type read by hand; 10 mentions (Defra 9, Cabinet Office 1)"
+brookfield asset management,org,Brookfield Asset Management,company,"type from its name, checked against meeting purposes; 11 mentions (DBT 4, HMT 4, Cabinet Office 3)"
+business in the community,org,Business in the Community,charity,"type read by hand; 10 mentions (Cabinet Office 3, DBT 1, DfE 1)"
+carbon capture and storage association ccsa,org,Carbon Capture and Storage Association (CCSA),trade_body,"type from its name, checked against meeting purposes; 13 mentions (DESNZ 13)"
+care england,org,Care England,trade_body,"type read by hand; 11 mentions (DHSC 9, DBT 2)"
+caterpillar,org,Caterpillar,company,"type from its name, checked against meeting purposes; 12 mentions (DBT 12)"
+centre for homelessness impact,org,Centre for Homelessness Impact,think_tank,"type from its name, checked against meeting purposes; 11 mentions (MHCLG 9, DfE 1, DWP 1)"
+centre for mental health,org,Centre for Mental Health,think_tank,"type from its name, checked against meeting purposes; 12 mentions (DHSC 10, DWP 2)"
+centre for womens justice,org,Centre for Women's Justice,charity,"type read by hand; 14 mentions (Home Office 9, MOJ 4, DHSC 1)"
+ceramics uk,org,Ceramics UK,trade_body,"type from its name, checked against meeting purposes; 14 mentions (DBT 10, DESNZ 4)"
+chemical industries association,org,Chemical Industries Association,trade_body,"type from its name, checked against meeting purposes; 13 mentions (DBT 7, DESNZ 3, Defra 2)"
+christians against poverty,org,Christians Against Poverty,charity,"type read by hand; 10 mentions (DWP 6, DESNZ 2, Cabinet Office 1)"
+cisco,org,Cisco,company,"type from its name, checked against meeting purposes; 13 mentions (DBT 7, DSIT 4, Cabinet Office 1)"
+citi,org,Citi,company,"type from its name, checked against meeting purposes; 14 mentions (HMT 12, DBT 1, DfT 1)"
+cityfibre,org,CityFibre,company,"type from its name, checked against meeting purposes; 11 mentions (DSIT 6, DBT 2, HMT 2)"
+clearbank,org,Clearbank,company,"type from its name, checked against meeting purposes; 11 mentions (HMT 10, DBT 1)"
+clifford chance,org,Clifford Chance,company,"type from its name, checked against meeting purposes; 12 mentions (HMT 7, DBT 5)"
+climate outreach,org,Climate Outreach,charity,type read by hand; 10 mentions (DESNZ 10)
+co operatives uk,org,Co-operatives UK,trade_body,"type from its name, checked against meeting purposes; 10 mentions (HMT 4, Cabinet Office 2, DBT 2)"
+cohere,org,Cohere,company,"type from its name, checked against meeting purposes; 12 mentions (DSIT 8, Cabinet Office 2, DBT 2)"
+coinbase,org,Coinbase,company,"type from its name, checked against meeting purposes; 13 mentions (HMT 12, DBT 1)"
+community energy england,org,Community Energy England,trade_body,type read by hand; 12 mentions (DESNZ 12)
+community energy scotland,org,Community Energy Scotland,trade_body,"type read by hand; 10 mentions (DESNZ 9, Scotland Office 1)"
+compassion in world farming,org,Compassion in World Farming,charity,"type read by hand; 13 mentions (Defra 11, DBT 2)"
+consumer scotland,org,Consumer Scotland,public_body,type read by hand; 13 mentions (DESNZ 13)
+convention of scottish local authorities,org,Convention of Scottish Local Authorities,public_body,"type read by hand; 12 mentions (Scotland Office 5, MHCLG 4, Cabinet Office 1)"
+copenhagen infrastructure partners,org,Copenhagen Infrastructure Partners,company,"type from its name, checked against meeting purposes; 12 mentions (DESNZ 6, Wales Office 2, Cabinet Office 1)"
+core cities,org,Core Cities,public_body,"type read by hand; 14 mentions (MHCLG 11, Cabinet Office 1, DBT 1)"
+cornish lithium,org,Cornish Lithium,company,"type from its name, checked against meeting purposes; 13 mentions (DBT 10, Cabinet Office 1, HMT 1)"
+cranfield university,org,Cranfield University,academic,"type from its name, checked against meeting purposes; 10 mentions (DSIT 5, DBT 2, DfT 2)"
+cranswick,org,Cranswick,company,"type from its name, checked against meeting purposes; 10 mentions (Defra 10)"
+creative nature,org,Creative Nature,company,type read by hand; 10 mentions (DBT 10)
+creative uk,org,Creative UK,trade_body,"type from its name, checked against meeting purposes; 13 mentions (DBT 8, DCMS 3, DSIT 1)"
+darktrace,org,Darktrace,company,"type from its name, checked against meeting purposes; 14 mentions (DSIT 9, DBT 3, FCDO 2)"
+deliveroo,org,Deliveroo,company,"type from its name, checked against meeting purposes; 12 mentions (DBT 7, Cabinet Office 2, Defra 1)"
+early education and childcare coalition,org,Early Education and Childcare Coalition,campaign,type read by hand; 12 mentions (DfE 12)
+east midlands combined authority,org,East Midlands Combined Authority,public_body,"type from its name, checked against meeting purposes; 13 mentions (MHCLG 8, DfT 2, DBT 1)"
+ebay,org,eBay,company,"type from its name, checked against meeting purposes; 10 mentions (DBT 7, HMT 2, DfT 1)"
+end fuel poverty coalition,org,End Fuel Poverty Coalition,campaign,type read by hand; 11 mentions (DESNZ 11)
+energy saving trust,org,Energy Saving Trust,other,"type read by hand; 11 mentions (DESNZ 10, DfT 1)"
+energy systems catapult,org,Energy Systems Catapult,public_body,"type read by hand; 13 mentions (DESNZ 12, DSIT 1)"
+equinix,org,Equinix,company,"type from its name, checked against meeting purposes; 12 mentions (DSIT 6, DESNZ 5, DBT 1)"
+euroclear,org,Euroclear,company,"type from its name, checked against meeting purposes; 10 mentions (HMT 9, DBT 1)"
+experian,org,Experian,company,"type from its name, checked against meeting purposes; 10 mentions (HMT 5, DSIT 2, Cabinet Office 1)"
+fair4all finance,org,Fair4All Finance,other,"type read by hand; 10 mentions (HMT 9, DWP 1)"
+fidelity international,org,Fidelity International,company,"type from its name, checked against meeting purposes; 13 mentions (HMT 8, DBT 2, DWP 2)"
+finance and leasing association,org,Finance & Leasing Association,trade_body,"type from its name, checked against meeting purposes; 11 mentions (HMT 6, DBT 2, DESNZ 2)"
+food foundation,org,Food Foundation,charity,"type read by hand; 11 mentions (Defra 6, DWP 3, DfE 1)"
+football association,org,Football Association,other,"type read by hand; 14 mentions (DCMS 8, Cabinet Office 1, DBT 1)"
+francis crick institute,org,Francis Crick Institute,academic,"type read by hand; 12 mentions (DSIT 10, DHSC 2)"
+friends of the earth,org,Friends of the Earth,campaign,"type read by hand; 11 mentions (Defra 6, DESNZ 4, DBT 1)"
+fuels industry uk,org,Fuels Industry UK,trade_body,"type from its name, checked against meeting purposes; 14 mentions (DESNZ 8, DfT 4, Defra 1)"
+galop,org,Galop,charity,"type read by hand; 13 mentions (MHCLG 4, DfE 3, Home Office 3)"
+gates foundation,org,Gates Foundation,charity,"type read by hand; 14 mentions (FCDO 9, Cabinet Office 2, DSIT 2)"
+gatwick airport,org,Gatwick Airport,company,"type from its name, checked against meeting purposes; 12 mentions (DfT 6, DBT 3, HMT 3)"
+generation rent,org,Generation Rent,campaign,"type read by hand; 14 mentions (MHCLG 8, DESNZ 6)"
+global counsel,org,Global Counsel,company,"type read by hand; 11 mentions (DBT 3, DSIT 3, DESNZ 2)"
+green climate fund,org,Green Climate Fund,public_body,"type read by hand; 13 mentions (FCDO 8, DESNZ 5)"
+grenfell united,org,Grenfell United,campaign,"type read by hand; 11 mentions (MHCLG 10, DHSC 1)"
+haleon,org,Haleon,company,"type from its name, checked against meeting purposes; 14 mentions (DBT 8, HMT 3, Cabinet Office 2)"
+heat pump federation,org,Heat Pump Federation,trade_body,"type from its name, checked against meeting purposes; 12 mentions (DESNZ 12)"
+heineken,org,Heineken,company,"type from its name, checked against meeting purposes; 12 mentions (DBT 8, HMT 2, Defra 1)"
+helsing,org,Helsing,company,"type from its name, checked against meeting purposes; 10 mentions (DBT 3, MOD 3, HMT 2)"
+his majestys chief inspector of constabulary and his majestys chief inspector of fire and rescue services,org,His Majesty’s Chief Inspector of Constabulary and His Majesty’s Chief Inspector of Fire & Rescue Services,public_body,"type from its name, checked against meeting purposes; 11 mentions (Home Office 11)"
+hitachi,org,Hitachi,company,"type from its name, checked against meeting purposes; 13 mentions (DBT 5, DESNZ 5, Cabinet Office 2)"
+homeless link,org,Homeless Link,charity,"type read by hand; 13 mentions (MHCLG 12, DWP 1)"
+housing justice,org,Housing Justice,charity,type read by hand; 10 mentions (MHCLG 10)
+hull and east yorkshire combined authority,org,Hull and East Yorkshire Combined Authority,public_body,"type from its name, checked against meeting purposes; 10 mentions (MHCLG 8, DWP 2)"
+hydrogen delivery council,org,Hydrogen Delivery Council,other,"type read by hand; 10 mentions (DESNZ 9, DBT 1)"
+iberdrola,org,Iberdrola,company,"type from its name, checked against meeting purposes; 10 mentions (DBT 3, Cabinet Office 2, DESNZ 2)"
+ikea,org,IKEA,company,"type from its name, checked against meeting purposes; 12 mentions (DBT 6, Defra 2, Home Office 2)"
+imkaan,org,Imkaan,charity,"type read by hand; 13 mentions (Home Office 8, MHCLG 3, DHSC 2)"
+installation assurance authority,org,Installation Assurance Authority,other,"type read by hand; 10 mentions (DESNZ 9, MHCLG 1)"
+international rescue committee,org,International Rescue Committee,charity,"type read by hand; 12 mentions (FCDO 8, Home Office 3, MHCLG 1)"
+internet watch foundation,org,Internet Watch Foundation,charity,"type read by hand; 11 mentions (DSIT 6, Home Office 5)"
+ipsen,org,IPSEN,company,"type from its name, checked against meeting purposes; 10 mentions (DBT 3, DHSC 3, DSIT 2)"
+iq capital,org,IQ Capital,company,"type from its name, checked against meeting purposes; 12 mentions (DSIT 8, HMT 3, DBT 1)"
+itv,org,ITV,media,"type read by hand; 14 mentions (HMT 5, DCMS 3, DBT 2)"
+j p morgan,org,J.P. Morgan,company,"type from its name, checked against meeting purposes; 10 mentions (HMT 8, DBT 2)"
+james lister and sons,org,James Lister & Sons Limited,company,"type from its name, checked against meeting purposes; 10 mentions (DBT 10)"
+jcb,org,JCB,company,"type from its name, checked against meeting purposes; 13 mentions (DBT 9, DfT 3, MHCLG 1)"
+jet2,org,Jet2,company,"type from its name, checked against meeting purposes; 11 mentions (DfT 9, DBT 2)"
+john lewis,org,John Lewis Partnership,company,"retailer; ""John Lewis"" in the returns"
+jomas associates,org,Jomas Associates,company,"type from its name, checked against meeting purposes; 11 mentions (DBT 10, HMT 1)"
+justice,org,JUSTICE,charity,"type read by hand; 10 mentions (MOJ 6, Home Office 2, DSIT 1)"
+key cities,org,Key Cities,public_body,"type read by hand; 12 mentions (MHCLG 11, Cabinet Office 1)"
+kingfisher,org,Kingfisher,company,"type from its name, checked against meeting purposes; 13 mentions (DBT 10, Home Office 2, HMT 1)"
+laing o rourke,org,Laing O'Rourke,company,"type from its name, checked against meeting purposes; 10 mentions (DBT 4, Cabinet Office 1, Defra 1)"
+landsec,org,Landsec,company,"type from its name, checked against meeting purposes; 11 mentions (MHCLG 10, HMT 1)"
+law society of england and wales,org,Law Society of England and Wales,professional_body,"type read by hand; 10 mentions (DBT 5, MOJ 4, Cabinet Office 1)"
+law society of scotland,org,Law Society of Scotland,professional_body,"type read by hand; 13 mentions (DBT 5, OAG 4, Scotland Office 2)"
+lgbt foundation,org,LGBT Foundation,charity,"type read by hand; 11 mentions (DHSC 4, DfE 3, FCDO 2)"
+lidl,org,Lidl,company,"type from its name, checked against meeting purposes; 12 mentions (Defra 3, DBT 2, DWP 2)"
+lloyds bank foundation,org,Lloyds Bank Foundation,charity,"type read by hand; 10 mentions (Cabinet Office 4, MHCLG 3, DfE 1)"
+local trust,org,Local Trust,charity,"type read by hand; 10 mentions (MHCLG 8, Cabinet Office 2)"
+london victims commissioner,org,London Victims Commissioner,public_body,type read by hand; 12 mentions (MOJ 12)
+maersk,org,Maersk,company,"type from its name, checked against meeting purposes; 12 mentions (DfT 8, Cabinet Office 2, DBT 2)"
+magistrates association,org,Magistrates Association,professional_body,type read by hand; 10 mentions (MOJ 10)
+manchester airports group,org,Manchester Airports Group,company,"type from its name, checked against meeting purposes; 13 mentions (HMT 7, DBT 5, DfT 1)"
+marcegaglia,org,Marcegaglia,company,"type from its name, checked against meeting purposes; 10 mentions (DBT 8, Cabinet Office 1, Wales Office 1)"
+maritime uk,org,Maritime UK,trade_body,"type from its name, checked against meeting purposes; 10 mentions (DfT 8, DBT 1, DfE 1)"
+marks and spencer,org,Marks and Spencer,company,"type from its name, checked against meeting purposes; 13 mentions (Defra 5, DBT 2, DWP 2)"
+materials processing institute,org,Materials Processing Institute,other,"type read by hand; 11 mentions (DBT 9, HMT 1, Wales Office 1)"
+mbda,org,MBDA,company,"type from its name, checked against meeting purposes; 14 mentions (MOD 6, DBT 4, Cabinet Office 2)"
+mitie,org,Mitie,company,"type from its name, checked against meeting purposes; 13 mentions (DBT 4, Home Office 3, Cabinet Office 2)"
+molly rose foundation,org,Molly Rose Foundation,charity,"type read by hand; 11 mentions (DSIT 9, Cabinet Office 2)"
+msd,org,MSD,company,"type from its name, checked against meeting purposes; 12 mentions (DSIT 4, DBT 4, DHSC 2)"
+mumsnet,org,Mumsnet,media,"type read by hand; 10 mentions (DSIT 4, Cabinet Office 3, DBT 1)"
+musicians union,org,Musicians' Union,union,"type from its name, checked against meeting purposes; 12 mentions (DBT 5, DCMS 5, Cabinet Office 1)"
+national association of special educational needs,org,National Association of Special Educational Needs,professional_body,type read by hand; 13 mentions (DfE 13)
+national grid ventures,org,National Grid Ventures,company,"type from its name, checked against meeting purposes; 10 mentions (DESNZ 9, Cabinet Office 1)"
+national residential landlords association,org,National Residential Landlords Association,trade_body,"type from its name, checked against meeting purposes; 14 mentions (MHCLG 6, DESNZ 5, DWP 2)"
+national retrofit hub,org,National Retrofit Hub,other,type read by hand; 13 mentions (DESNZ 13)
+national union of journalists,org,National Union of Journalists,union,"type from its name, checked against meeting purposes; 11 mentions (DSIT 4, DCMS 3, DfE 1)"
+national union of mineworkers,org,National Union of Mineworkers,union,"type from its name, checked against meeting purposes; 10 mentions (DBT 4, DESNZ 4, Home Office 1)"
+navantia,org,Navantia,company,"type from its name, checked against meeting purposes; 11 mentions (NIO 4, MOD 3, DBT 1)"
+netflix,org,Netflix,company,"type from its name, checked against meeting purposes; 11 mentions (DCMS 6, DBT 2, Cabinet Office 1)"
+new economics foundation,org,New Economics Foundation,think_tank,"type read by hand; 10 mentions (DESNZ 8, Cabinet Office 1, DWP 1)"
+new local,org,New Local,think_tank,"type read by hand; 12 mentions (MHCLG 8, Cabinet Office 4)"
+news media association,org,News Media Association,trade_body,"type from its name, checked against meeting purposes; 13 mentions (DSIT 9, DBT 2, DCMS 1)"
+news uk,org,News UK,media,"type read by hand; 10 mentions (DSIT 4, Cabinet Office 4, DCMS 1)"
+northern housing consortium,org,Northern Housing Consortium,trade_body,"type read by hand; 10 mentions (MHCLG 8, DBT 1, DESNZ 1)"
+novo nordisk,org,Novo Nordisk,company,"type from its name, checked against meeting purposes; 10 mentions (DHSC 5, DSIT 3, Cabinet Office 1)"
+observer,org,The Observer,media,"type read by hand; 10 mentions (Cabinet Office 4, HMT 2, DCMS 1)"
+ocean winds,org,Ocean Winds,company,"type from its name, checked against meeting purposes; 13 mentions (DESNZ 12, HMT 1)"
+offshore renewable energy catapult,org,Offshore Renewable Energy Catapult,public_body,"type read by hand; 14 mentions (DESNZ 11, DBT 1, DSIT 1)"
+olio,org,OLIO,company,"type from its name, checked against meeting purposes; 10 mentions (DBT 8, Cabinet Office 1, HMT 1)"
+ontario teachers pension plan,org,Ontario Teachers' Pension Plan,other,"type from its name, checked against meeting purposes; 11 mentions (DESNZ 4, DBT 2, DSIT 2)"
+openai,org,OpenAI,company,"type from its name, checked against meeting purposes; 11 mentions (DSIT 10, DESNZ 1)"
+oracle,org,Oracle,company,"type from its name, checked against meeting purposes; 11 mentions (DSIT 4, DHSC 3, Cabinet Office 2)"
+oxford nanopore,org,Oxford Nanopore,company,"type from its name, checked against meeting purposes; 12 mentions (DSIT 10, DBT 2)"
+pall mall barbers,org,Pall Mall Barbers,company,"type from its name, checked against meeting purposes; 10 mentions (DBT 9, DHSC 1)"
+paypal,org,PayPal,company,"type from its name, checked against meeting purposes; 12 mentions (HMT 6, DBT 4, Cabinet Office 1)"
+pearson,org,Pearson,company,"type from its name, checked against meeting purposes; 14 mentions (DBT 9, DSIT 2, DfE 2)"
+petrofac,org,Petrofac,company,"type from its name, checked against meeting purposes; 11 mentions (DESNZ 9, DBT 1, HMT 1)"
+phillips 66,org,Phillips 66,company,"type from its name, checked against meeting purposes; 11 mentions (DESNZ 8, HMT 2, DfT 1)"
+places for people,org,Places for People,company,"type read by hand; 12 mentions (MHCLG 7, DESNZ 3, Cabinet Office 1)"
+playground global,org,Playground Global,company,"type from its name, checked against meeting purposes; 10 mentions (DSIT 8, Cabinet Office 1, HMT 1)"
+politico,org,POLITICO,media,"type read by hand; 10 mentions (Cabinet Office 4, HMT 2, Home Office 2)"
+port of tyne,org,Port of Tyne,other,"type from its name, checked against meeting purposes; 14 mentions (DfT 7, DBT 5, Cabinet Office 1)"
+power to change,org,Power to Change,charity,"type read by hand; 13 mentions (MHCLG 10, Cabinet Office 3)"
+prison officers association,org,Prison Officers Association,union,"type read by hand; 12 mentions (MOJ 9, HMT 2, DHSC 1)"
+prison reform trust,org,Prison Reform Trust,charity,"type read by hand; 12 mentions (MOJ 8, DHSC 3, DfE 1)"
+progressive energy,org,Progressive Energy,company,"type from its name, checked against meeting purposes; 11 mentions (DESNZ 11)"
+prologis,org,Prologis,company,"type from its name, checked against meeting purposes; 12 mentions (DSIT 5, DBT 3, HMT 2)"
+public and commercial services union,org,Public and Commercial Services Union,union,"type from its name, checked against meeting purposes; 13 mentions (Cabinet Office 4, DBT 3, DWP 2)"
+public digital,org,Public Digital,company,"type read by hand; 11 mentions (Cabinet Office 8, DWP 2, DSIT 1)"
+public first,org,Public First,company,"type read by hand; 10 mentions (DBT 3, DESNZ 2, DSIT 2)"
+publishers association,org,Publishers Association,trade_body,"type from its name, checked against meeting purposes; 10 mentions (DSIT 5, DCMS 3, DBT 2)"
+queens university belfast,org,Queen’s University Belfast,academic,"type from its name, checked against meeting purposes; 10 mentions (Cabinet Office 2, NIO 2, DBT 1)"
+railpen,org,Railpen,other,"type from its name, checked against meeting purposes; 10 mentions (DBT 2, DSIT 2, DWP 2)"
+rape crisis,org,Rape Crisis,charity,"type from its name, checked against meeting purposes; 13 mentions (Home Office 10, MOJ 2, DHSC 1)"
+relx,org,RELX,company,"type from its name, checked against meeting purposes; 12 mentions (DSIT 7, Cabinet Office 2, DBT 1)"
+retail sector council,org,Retail Sector Council,other,"type read by hand; 10 mentions (DBT 9, HMT 1)"
+rethink mental illness,org,Rethink Mental Illness,charity,"type read by hand; 14 mentions (DHSC 11, DWP 3)"
+rio tinto,org,Rio Tinto,company,"type from its name, checked against meeting purposes; 11 mentions (DBT 8, DESNZ 1, Defra 1)"
+robinhood,org,Robinhood,company,"type from its name, checked against meeting purposes; 13 mentions (HMT 10, Cabinet Office 1, DBT 1)"
+rothschild and,org,Rothschild & Co,company,"type from its name, checked against meeting purposes; 13 mentions (HMT 6, DBT 4, DESNZ 1)"
+royal college of obstetricians and gynaecologists,org,Royal College of Obstetricians and Gynaecologists,professional_body,"type read by hand; 11 mentions (DHSC 10, DWP 1)"
+royal college of paediatrics and child health,org,Royal College of Paediatrics and Child Health,professional_body,"type read by hand; 12 mentions (DHSC 4, DfE 3, Defra 2)"
+royal college of physicians,org,Royal College of Physicians,professional_body,"type read by hand; 11 mentions (DHSC 8, Defra 3)"
+rspca,org,RSPCA,charity,"type read by hand; 11 mentions (Defra 6, DBT 3, DSIT 2)"
+russell group,org,Russell Group,trade_body,"type read by hand; 10 mentions (DSIT 6, DHSC 2, DfE 1)"
+safran,org,Safran,company,"type from its name, checked against meeting purposes; 11 mentions (DBT 10, MOD 1)"
+salmon scotland,org,Salmon Scotland,trade_body,"type from its name, checked against meeting purposes; 10 mentions (Scotland Office 5, Defra 4, DBT 1)"
+schneider electric,org,Schneider Electric,company,"type from its name, checked against meeting purposes; 12 mentions (DBT 5, DESNZ 5, Cabinet Office 2)"
+scotch whisky association,org,Scotch Whisky Association,trade_body,"type from its name, checked against meeting purposes; 13 mentions (Scotland Office 7, Cabinet Office 2, DBT 2)"
+scottish power renewables,org,Scottish Power Renewables,company,"type from its name, checked against meeting purposes; 11 mentions (DESNZ 10, MHCLG 1)"
+sixth form colleges association,org,Sixth Form Colleges Association,trade_body,"type from its name, checked against meeting purposes; 10 mentions (DfE 10)"
+skills for care,org,Skills for Care,charity,"type read by hand; 12 mentions (DHSC 10, DBT 1, DWP 1)"
+skipton building society,org,Skipton Building Society,company,"type read by hand; 10 mentions (HMT 5, MHCLG 3, DESNZ 1)"
+smith and nephew,org,Smith+Nephew,company,"type from its name, checked against meeting purposes; 13 mentions (DBT 8, DHSC 3, DSIT 2)"
+solace,org,SOLACE,professional_body,"type read by hand; 10 mentions (MHCLG 7, DHSC 1, Home Office 1)"
+south east water,org,South East Water,company,"type from its name, checked against meeting purposes; 14 mentions (Defra 14)"
+southern water,org,Southern Water,company,"type from its name, checked against meeting purposes; 12 mentions (Defra 12)"
+special interest group of municipal authorities,org,Special Interest Group of Municipal Authorities,public_body,"type read by hand; 13 mentions (MHCLG 12, Cabinet Office 1)"
+speech and language uk,org,Speech and Language UK,charity,type read by hand; 11 mentions (DfE 11)
+spotify,org,Spotify,company,"type from its name, checked against meeting purposes; 10 mentions (DSIT 4, DBT 3, DCMS 2)"
+sse renewables,org,SSE Renewables,company,"type from its name, checked against meeting purposes; 14 mentions (DESNZ 9, Cabinet Office 2, Scotland Office 2)"
+st mungos,org,St Mungo's,charity,"type read by hand; 12 mentions (MHCLG 10, Cabinet Office 2)"
+star academies,org,Star Academies,academic,"type from its name, checked against meeting purposes; 10 mentions (MHCLG 5, DfE 4, DCMS 1)"
+statkraft,org,Statkraft,company,"type from its name, checked against meeting purposes; 13 mentions (DESNZ 11, MHCLG 1, Scotland Office 1)"
+stonewall,org,Stonewall,charity,"type read by hand; 11 mentions (DfE 5, FCDO 3, DHSC 2)"
+suez,org,Suez,company,"type from its name, checked against meeting purposes; 10 mentions (DESNZ 9, DBT 1)"
+surviving economic abuse,org,Surviving Economic Abuse,charity,"type read by hand; 10 mentions (HMT 4, DWP 2, Home Office 2)"
+sustainable aviation,org,Sustainable Aviation,trade_body,"type read by hand; 13 mentions (DfT 7, DBT 5, Wales Office 1)"
+sutton trust,org,The Sutton Trust,charity,"type read by hand; 10 mentions (DfE 7, DHSC 2, Cabinet Office 1)"
+swansea university,org,Swansea University,academic,"type from its name, checked against meeting purposes; 10 mentions (Wales Office 5, DSIT 3, DWP 1)"
+syngenta,org,Syngenta,company,"type from its name, checked against meeting purposes; 12 mentions (DBT 4, DESNZ 4, Defra 3)"
+synthesia,org,Synthesia,company,"type from its name, checked against meeting purposes; 14 mentions (DSIT 6, DBT 4, Cabinet Office 2)"
+tata consultancy services,org,Tata Consultancy Services,company,"type from its name, checked against meeting purposes; 11 mentions (DBT 4, DWP 3, DSIT 2)"
+thames water,org,Thames Water,company,"type from its name, checked against meeting purposes; 12 mentions (Defra 7, DBT 2, MHCLG 2)"
+thomas pocklington trust,org,Thomas Pocklington Trust,charity,"type read by hand; 11 mentions (DWP 5, DfE 3, DfT 3)"
+totalenergies,org,TotalEnergies,company,"type from its name, checked against meeting purposes; 14 mentions (DESNZ 6, DBT 3, HMT 2)"
+transport for london,org,Transport for London,public_body,"type read by hand; 13 mentions (DfT 10, DBT 1, HMT 1)"
+trustmark,org,TrustMark,other,type read by hand; 12 mentions (DESNZ 12)
+turner and townsend,org,Turner & Townsend,company,"type from its name, checked against meeting purposes; 10 mentions (DBT 6, DESNZ 1, DSIT 1)"
+uk biobank,org,UK Biobank,charity,"type read by hand; 10 mentions (DSIT 7, DHSC 3)"
+uk chamber of shipping,org,UK Chamber of Shipping,trade_body,"type from its name, checked against meeting purposes; 11 mentions (DfT 7, Cabinet Office 1, DESNZ 1)"
+uk community foundations,org,UK Community Foundations,charity,"type read by hand; 11 mentions (Cabinet Office 7, MHCLG 4)"
+uk green building council,org,UK Green Building Council,trade_body,"type read by hand; 11 mentions (DESNZ 9, MHCLG 2)"
+uk major ports group,org,UK Major Ports Group,trade_body,"type read by hand; 14 mentions (DfT 8, DESNZ 4, DBT 1)"
+uk power networks,org,UK Power Networks,company,"type from its name, checked against meeting purposes; 11 mentions (DESNZ 10, Cabinet Office 1)"
+ukie,org,UKIE,trade_body,"type from its name, checked against meeting purposes; 10 mentions (DCMS 5, DBT 3, DSIT 1)"
+ulster farmers union,org,Ulster Farmers Union,trade_body,"type from its name, checked against meeting purposes; 10 mentions (Defra 5, Cabinet Office 3, HMT 1)"
+university of glasgow,org,University of Glasgow,academic,"type from its name, checked against meeting purposes; 12 mentions (DSIT 4, DHSC 3, DBT 1)"
+university of leeds,org,University of Leeds,academic,"type from its name, checked against meeting purposes; 10 mentions (Defra 3, DSIT 3, DESNZ 1)"
+university of sheffield,org,University of Sheffield,academic,"type from its name, checked against meeting purposes; 11 mentions (DSIT 8, Cabinet Office 1, DfE 1)"
+university of southampton,org,University of Southampton,academic,"type from its name, checked against meeting purposes; 13 mentions (DSIT 7, DfT 2, DBT 1)"
+university of york,org,University of York,academic,"type from its name, checked against meeting purposes; 10 mentions (DWP 4, Defra 2, DfE 1)"
+urban transport group,org,Urban Transport Group,public_body,"type read by hand; 14 mentions (DfT 12, Cabinet Office 1, MHCLG 1)"
+visa,org,Visa,company,"type from its name, checked against meeting purposes; 12 mentions (DBT 6, HMT 5, MHCLG 1)"
+waymo,org,Waymo,company,"type from its name, checked against meeting purposes; 10 mentions (DfT 7, DBT 1, DSIT 1)"
+wildfowl and wetlands trust,org,Wildfowl and Wetlands Trust,charity,"type read by hand; 11 mentions (Defra 8, MHCLG 2, DESNZ 1)"
+womens budget group,org,Women's Budget Group,think_tank,"type read by hand; 11 mentions (DWP 5, DfE 2, DBT 1)"
+world animal protection,org,World Animal Protection,charity,type read by hand; 11 mentions (Defra 11)
+world food programme,org,World Food Programme,public_body,type read by hand; 14 mentions (FCDO 14)
+world wide fund for nature,org,World Wide Fund for Nature,charity,"type read by hand; 10 mentions (Defra 9, DBT 1)"
+x energy,org,X-Energy,company,"type from its name, checked against meeting purposes; 11 mentions (DESNZ 6, HMT 3, DBT 2)"
+yorkshire building society,org,Yorkshire Building Society,company,"type read by hand; 14 mentions (HMT 12, DHSC 2)"
+youtube,org,Youtube,company,"type from its name, checked against meeting purposes; 13 mentions (DSIT 6, DCMS 5, DBT 2)"
+zeroavia,org,ZeroAvia,company,"type from its name, checked against meeting purposes; 11 mentions (DBT 6, DfT 5)"
+ads group,same_as,ADS,,"company form or suffix (UK, Group, plc...); 16 meetings (DBT 4, MOD 3, DSIT 2)"
+age international,same_as,Age UK,,"company form or suffix (UK, Group, plc...); 2 meetings (FCDO 2)"
+agricultural and horticulture development board,same_as,Agriculture and Horticulture Development Board,,spelling (2 letters or fewer different); 1 meetings (Defra 1)
+airbus se,same_as,Airbus,,company form (SE)
+airbus uk,same_as,Airbus,,"company form or suffix (UK, Group, plc...); 6 meetings (DBT 4, Cabinet Office 1, DfT 1)"
+airlinesuk,same_as,Airlines UK,,"spacing (""Astra Zeneca"" / AstraZeneca); 1 meetings (DfT 1)"
+airportsuk,same_as,Airports UK,,"spacing (""Astra Zeneca"" / AstraZeneca); 6 meetings (DfT 6)"
+allian for intellectual property,same_as,Alliance for Intellectual Property,,spelling (2 letters or fewer different); 1 meetings (DBT 1)
+amazon uk,same_as,Amazon,,"company form or suffix (UK, Group, plc...); 6 meetings (DBT 3, DWP 2, DfT 1)"
+and association of directors of public health,same_as,Association of Directors of Public Health,,word order or punctuation; 1 meetings (Cabinet Office 1)
+and british business bank,same_as,British Business Bank,,word order or punctuation; 1 meetings (DBT 1)
+and essex county council,same_as,Essex County Council,,word order or punctuation; 1 meetings (MHCLG 1)
+and hm treasury,same_as,HM Treasury,,word order or punctuation; 1 meetings (DBT 1)
+and institute for public policy research,same_as,IPPR,,word order or punctuation; 1 meetings (DWP 1)
+and newport council,same_as,Newport City Council,,word order or punctuation; 1 meetings (MHCLG 1)
+and norfolk county council,same_as,Norfolk County Council,,word order or punctuation; 1 meetings (MHCLG 1)
+and westmorland and furness council,same_as,Westmorland and Furness Council,,word order or punctuation; 1 meetings (MHCLG 1)
+and xero,same_as,Xero,,word order or punctuation; 1 meetings (DBT 1)
+and york and north yorkshire combined authority,same_as,York and North Yorkshire Combined Authority,,word order or punctuation; 2 meetings (MHCLG 2)
+anglo amerian,same_as,Anglo American,,spelling (2 letters or fewer different); 1 meetings (DBT 1)
+angloamerican,same_as,Anglo American,,"spacing (""Astra Zeneca"" / AstraZeneca); 1 meetings (DBT 1)"
+apple uk,same_as,Apple,,"company form or suffix (UK, Group, plc...); 1 meetings (DHSC 1)"
+arup group,same_as,Arup,,"company form or suffix (UK, Group, plc...); 1 meetings (DBT 1)"
+association british insurers,same_as,Association of British Insurers,,word order or punctuation; 1 meetings (DBT 1)
+association for directors of public health,same_as,Association of Directors of Public Health,,word order or punctuation; 1 meetings (DHSC 1)
+association for police and crime commissioners,same_as,Association of Police and Crime Commissioners,,word order or punctuation; 1 meetings (DHSC 1)
+association of brirish insurers,same_as,Association of British Insurers,,spelling (2 letters or fewer different); 1 meetings (DWP 1)
+association of british pharmaceutical industry,same_as,Association of the British Pharmaceutical Industry,,"word order or punctuation; 6 meetings (DBT 3, DHSC 3)"
+association of convienence stores,same_as,Association of Convenience Stores,,spelling (2 letters or fewer different); 1 meetings (DWP 1)
+association of directors for public health,same_as,Association of Directors of Public Health,,word order or punctuation; 1 meetings (DHSC 1)
+association of schools and college leaders,same_as,ASCL,,spelling (2 letters or fewer different); 1 meetings (DfE 1)
+astra zeneca,same_as,AstraZeneca,,"spacing (""Astra Zeneca"" / AstraZeneca); 10 meetings (DHSC 6, DSIT 3, DBT 1)"
+astrazenaca,same_as,AstraZeneca,,spelling (2 letters or fewer different); 1 meetings (DBT 1)
+astrazeneca uk,same_as,AstraZeneca,,"company form or suffix (UK, Group, plc...); 2 meetings (DBT 1, DSIT 1)"
+astrazenica,same_as,AstraZeneca,,spelling (2 letters or fewer different); 1 meetings (DSIT 1)
+babcock international,same_as,Babcock,,"company form or suffix (UK, Group, plc...); 13 meetings (DBT 9, Cabinet Office 1, DfT 1)"
+barclays group,same_as,Barclays,,"company form or suffix (UK, Group, plc...); 3 meetings (HMT 3)"
+barclays uk,same_as,Barclays,,"company form or suffix (UK, Group, plc...); 7 meetings (HMT 5, DBT 1, MHCLG 1)"
+barrat redrow,same_as,Barratt Redrow,,spelling (2 letters or fewer different); 1 meetings (DESNZ 1)
+berkely group,same_as,Berkeley Group,,spelling (2 letters or fewer different); 1 meetings (MHCLG 1)
+berkley group,same_as,Berkeley Group,,spelling (2 letters or fewer different); 1 meetings (DWP 1)
+birmingham university,same_as,University of Birmingham,,"word order or punctuation; 3 meetings (DSIT 2, DESNZ 1)"
+blackrock uk,same_as,BlackRock,,"company form or suffix (UK, Group, plc...); 1 meetings (HMT 1)"
+blackstone group,same_as,Blackstone,,"company form or suffix (UK, Group, plc...); 2 meetings (Cabinet Office 2)"
+bloomberg europe,same_as,Bloomberg,,"company form or suffix (UK, Group, plc...); 2 meetings (HMT 2)"
+bmw group,same_as,BMW,,"company form or suffix (UK, Group, plc...); 3 meetings (DBT 2, DESNZ 1)"
+bmw uk,same_as,BMW,,"company form or suffix (UK, Group, plc...); 2 meetings (DBT 2)"
+boeing company,same_as,Boeing,,"company form or suffix (UK, Group, plc...); 2 meetings (Cabinet Office 1, DBT 1)"
+boeing global,same_as,Boeing,,"company form or suffix (UK, Group, plc...); 1 meetings (DBT 1)"
+boeing uk,same_as,Boeing,,"company form or suffix (UK, Group, plc...); 1 meetings (MOD 1)"
+boots uk,same_as,Boots,,"company form or suffix (UK, Group, plc...); 4 meetings (HMT 2, Cabinet Office 1, DBT 1)"
+bosch uk,same_as,Bosch,,"company form or suffix (UK, Group, plc...); 1 meetings (DBT 1)"
+bp group,same_as,BP,,"company form or suffix (UK, Group, plc...); 1 meetings (DESNZ 1)"
+british beer and pub assocation,same_as,British Beer & Pub Association,,spelling (2 letters or fewer different); 1 meetings (HMT 1)
+british medical assoication,same_as,British Medical Association,,spelling (2 letters or fewer different); 2 meetings (DHSC 2)
+british metals recycling associatio,same_as,British Metals Recycling Association,,spelling (2 letters or fewer different); 1 meetings (DBT 1)
+britishbusinessbank,same_as,British Business Bank,,"spacing (""Astra Zeneca"" / AstraZeneca); 1 meetings (DBT 1)"
+broadwayinitiative,same_as,Broadway Initiative,,"spacing (""Astra Zeneca"" / AstraZeneca); 1 meetings (DBT 1)"
+brookfield corporation,same_as,Brookfield,,"company form or suffix (UK, Group, plc...); 1 meetings (HMT 1)"
+bt group,same_as,BT,,"company form or suffix (UK, Group, plc...); 11 meetings (DBT 3, HMT 3, DfE 2)"
+bt international,same_as,BT,,"company form or suffix (UK, Group, plc...); 1 meetings (DBT 1)"
+bt international group,same_as,BT,,"company form or suffix (UK, Group, plc...); 1 meetings (FCDO 1)"
+building safet regulator,same_as,Building Safety Regulator,,spelling (2 letters or fewer different); 1 meetings (DESNZ 1)
+cambridge university,same_as,University of Cambridge,,"word order or punctuation; 8 meetings (DSIT 4, Cabinet Office 1, FCDO 1)"
+cambridgshire and peterborough combined authority,same_as,Cambridgeshire and Peterborough Combined Authority,,spelling (2 letters or fewer different); 1 meetings (DfT 1)
+cancer research,same_as,Cancer Research UK,,"company form or suffix (UK, Group, plc...); 2 meetings (Cabinet Office 1, Scotland Office 1)"
+chartered institute for housing,same_as,Chartered Institute of Housing,,word order or punctuation; 1 meetings (DESNZ 1)
+chartered institute for personnel and development,same_as,CIPD,,"word order or punctuation; 4 meetings (DBT 2, DWP 2)"
+chartered institute of personell and development,same_as,CIPD,,spelling (2 letters or fewer different); 1 meetings (DWP 1)
+chartered institutue of personnel and development,same_as,CIPD,,spelling (2 letters or fewer different); 1 meetings (DBT 1)
+chitchester council,same_as,Chichester District Council,,spelling (2 letters or fewer different); 1 meetings (Defra 1)
+citizen advice,same_as,Citizens Advice,,spelling (2 letters or fewer different); 1 meetings (DESNZ 1)
+city of london,same_as,City of London Corporation,,"company form or suffix (UK, Group, plc...); 3 meetings (DBT 2, Cabinet Office 1)"
+city of london coporation,same_as,City of London Corporation,,spelling (2 letters or fewer different); 1 meetings (DWP 1)
+co op group,same_as,Co-operative Group,,"company form or suffix (UK, Group, plc...); 4 meetings (HMT 3, DBT 1)"
+co operative uk,same_as,Co-operative Group,,"company form or suffix (UK, Group, plc...); 2 meetings (DESNZ 1, MHCLG 1)"
+coca cola company,same_as,Coca-Cola,,"company form or suffix (UK, Group, plc...); 1 meetings (HMT 1)"
+coca cola uk,same_as,Coca-Cola,,"company form or suffix (UK, Group, plc...); 1 meetings (Wales Office 1)"
+communications workers union,same_as,Communication Workers Union,,"spelling (2 letters or fewer different); 4 meetings (HMT 3, DBT 1)"
+competition and authority markets,same_as,Competition and Markets Authority,,word order or punctuation; 1 meetings (DESNZ 1)
+competition markets authority,same_as,Competition and Markets Authority,,"word order or punctuation; 2 meetings (Cabinet Office 1, Defra 1)"
+confederation for british industry,same_as,Confederation of British Industry,,"word order or punctuation; 4 meetings (DWP 2, DESNZ 1, HMT 1)"
+confederation of british industy,same_as,Confederation of British Industry,,spelling (2 letters or fewer different); 1 meetings (DBT 1)
+confederation of schools trust,same_as,Confederation of School Trusts,,spelling (2 letters or fewer different); 2 meetings (DfE 2)
+confederation of schools trusts,same_as,Confederation of School Trusts,,spelling (2 letters or fewer different); 3 meetings (DfE 3)
+coreweave international,same_as,CoreWeave,,"company form or suffix (UK, Group, plc...); 1 meetings (Scotland Office 1)"
+council of the isles of scilly,same_as,Isles of Scilly,,word order or punctuation; 2 meetings (MHCLG 2)
+country and land business association,same_as,Country Land and Business Association,,word order or punctuation; 1 meetings (Defra 1)
+country land business association,same_as,Country Land and Business Association,,word order or punctuation; 2 meetings (MHCLG 2)
+countryland and business association,same_as,Country Land and Business Association,,"spacing (""Astra Zeneca"" / AstraZeneca); 1 meetings (Defra 1)"
+county council network,same_as,County Councils Network,,"spelling (2 letters or fewer different); 6 meetings (MHCLG 4, DESNZ 1, Defra 1)"
+crown prosecution services,same_as,Crown Prosecution Service,,spelling (2 letters or fewer different); 1 meetings (Home Office 1)
+deutsche bank uk,same_as,Deutsche Bank,,"company form or suffix (UK, Group, plc...); 1 meetings (DBT 1)"
+deutschebank,same_as,Deutsche Bank,,"spacing (""Astra Zeneca"" / AstraZeneca); 2 meetings (HMT 2)"
+dhl international,same_as,DHL,,"company form or suffix (UK, Group, plc...); 1 meetings (DBT 1)"
+dhl uk,same_as,DHL,,"company form or suffix (UK, Group, plc...); 1 meetings (DESNZ 1)"
+dingley promise,same_as,Dingley's Promise,,spelling (2 letters or fewer different); 2 meetings (DfE 2)
+disability rights international,same_as,Disability Rights UK,,"company form or suffix (UK, Group, plc...); 1 meetings (FCDO 1)"
+district council network,same_as,District Councils' Network,,"spelling (2 letters or fewer different); 4 meetings (MHCLG 3, DESNZ 1)"
+domestic abuse commisioner,same_as,Domestic Abuse Commissioner,,spelling (2 letters or fewer different); 1 meetings (DHSC 1)
+domestic abuse commissoner,same_as,Domestic Abuse Commissioner,,spelling (2 letters or fewer different); 1 meetings (MOJ 1)
+dudley metropilitan borough council,same_as,Dudley Borough Council,,spelling (2 letters or fewer different); 1 meetings (MHCLG 1)
+e and,same_as,E.ON,,word order or punctuation; 1 meetings (DBT 1)
+e on uk,same_as,E.ON,,"company form or suffix (UK, Group, plc...); 6 meetings (DWP 3, DESNZ 2, DBT 1)"
+edf renewables uk,same_as,EDF,,"company form or suffix (UK, Group, plc...); 1 meetings (Wales Office 1)"
+edf uk,same_as,EDF,,"company form or suffix (UK, Group, plc...); 3 meetings (DESNZ 1, HMT 1, Scotland Office 1)"
+edinburgh city council,same_as,City of Edinburgh Council,,word order or punctuation; 1 meetings (Scotland Office 1)
+edinburgh university,same_as,University of Edinburgh,,"word order or punctuation; 7 meetings (Scotland Office 2, Cabinet Office 1, DBT 1)"
+eni uk,same_as,Eni,,"company form or suffix (UK, Group, plc...); 3 meetings (DESNZ 3)"
+eon uk,same_as,E.ON,,"company form or suffix (UK, Group, plc...); 1 meetings (DESNZ 1)"
+equinor uk,same_as,Equinor,,"company form or suffix (UK, Group, plc...); 1 meetings (HMT 1)"
+exxon mobil,same_as,ExxonMobil,,"spacing (""Astra Zeneca"" / AstraZeneca); 2 meetings (DESNZ 1, HMT 1)"
+exxonmobil uk,same_as,ExxonMobil,,"company form or suffix (UK, Group, plc...); 3 meetings (DESNZ 3)"
+exxonmobill,same_as,ExxonMobil,,spelling (2 letters or fewer different); 1 meetings (Scotland Office 1)
+ey uk,same_as,EY,,"company form or suffix (UK, Group, plc...); 1 meetings (DSIT 1)"
+family buisness uk,same_as,Family Business UK,,spelling (2 letters or fewer different); 1 meetings (DBT 1)
+federation for small businesses,same_as,Federation of Small Businesses,,word order or punctuation; 1 meetings (Cabinet Office 1)
+finanical times,same_as,Financial Times,,spelling (2 letters or fewer different); 1 meetings (DHSC 1)
+fire brigade union,same_as,Fire Brigades Union,,"spelling (2 letters or fewer different); 2 meetings (DWP 1, MHCLG 1)"
+flagship pinoeering,same_as,Flagship Pioneering,,spelling (2 letters or fewer different); 1 meetings (DSIT 1)
+flagship pioneering uk,same_as,Flagship Pioneering,,"company form or suffix (UK, Group, plc...); 1 meetings (DSIT 1)"
+food and drinks federation,same_as,Food and Drink Federation,,spelling (2 letters or fewer different); 1 meetings (DHSC 1)
+ford europe,same_as,Ford,,"company form or suffix (UK, Group, plc...); 1 meetings (DBT 1)"
+ford uk,same_as,Ford,,"company form or suffix (UK, Group, plc...); 1 meetings (DBT 1)"
+forth ports group,same_as,Forth Ports,,"company form or suffix (UK, Group, plc...); 1 meetings (DESNZ 1)"
+fourth ports,same_as,Forth Ports,,spelling (2 letters or fewer different); 1 meetings (HMT 1)
+gambling commision,same_as,Gambling Commission,,spelling (2 letters or fewer different); 1 meetings (DCMS 1)
+goldman sachs international,same_as,Goldman Sachs,,"company form or suffix (UK, Group, plc...); 1 meetings (HMT 1)"
+google uk,same_as,Google,,"company form or suffix (UK, Group, plc...); 5 meetings (Cabinet Office 2, DBT 2, HMT 1)"
+great london authority,same_as,Greater London Authority,,spelling (2 letters or fewer different); 1 meetings (MHCLG 1)
+greater manchester combines authority,same_as,Greater Manchester Combined Authority,,spelling (2 letters or fewer different); 1 meetings (MHCLG 1)
+green king,same_as,Greene King,,spelling (2 letters or fewer different); 2 meetings (DBT 2)
+greeneking,same_as,Greene King,,"spacing (""Astra Zeneca"" / AstraZeneca); 1 meetings (DBT 1)"
+health and saftey executive,same_as,Health and Safety Executive,,spelling (2 letters or fewer different); 1 meetings (Defra 1)
+heathrow airport group,same_as,Heathrow Airport,,"company form or suffix (UK, Group, plc...); 2 meetings (HMT 2)"
+high speed 2,same_as,High Speed Two (HS2) Limited,,short form
+horserace levy betting board,same_as,Horserace Betting Levy Board,,word order or punctuation; 1 meetings (DCMS 1)
+hsbc uk,same_as,HSBC,,"company form or suffix (UK, Group, plc...); 19 meetings (HMT 13, DESNZ 4, Cabinet Office 1)"
+hydrogen europe,same_as,Hydrogen UK,,"company form or suffix (UK, Group, plc...); 2 meetings (Cabinet Office 1, DESNZ 1)"
+ibm uk,same_as,IBM,,"company form or suffix (UK, Group, plc...); 1 meetings (DESNZ 1)"
+independent network association,same_as,Independent Networks Association,,spelling (2 letters or fewer different); 1 meetings (DESNZ 1)
+independent office of police conduct,same_as,Independent Office for Police Conduct,,word order or punctuation; 1 meetings (Cabinet Office 1)
+industrial strategy and advisory council,same_as,Industrial Strategy Advisory Council,,word order or punctuation; 1 meetings (HMT 1)
+ineos group,same_as,Ineos,,"company form or suffix (UK, Group, plc...); 1 meetings (Cabinet Office 1)"
+infrastructure and projects autority,same_as,Infrastructure and Projects Authority,,spelling (2 letters or fewer different); 1 meetings (DHSC 1)
+insititue for government,same_as,Institute for Government,,spelling (2 letters or fewer different); 1 meetings (MHCLG 1)
+insititute of directors,same_as,Institute of Directors,,spelling (2 letters or fewer different); 1 meetings (DBT 1)
+institute of director,same_as,Institute of Directors,,spelling (2 letters or fewer different); 1 meetings (DBT 1)
+institute of public policy research,same_as,IPPR,,word order or punctuation; 1 meetings (DWP 1)
+investment assocation,same_as,Investment Association,,spelling (2 letters or fewer different); 1 meetings (DBT 1)
+itv news,same_as,ITV,,ITV News is part of ITV
+jaguar landrover,same_as,Jaguar Land Rover,,"spacing (""Astra Zeneca"" / AstraZeneca); 1 meetings (Scotland Office 1)"
+johnson and matthey,same_as,Johnson Matthey,,word order or punctuation; 1 meetings (DBT 1)
+joseph roundtree foundation,same_as,Joseph Rowntree Foundation,,"spelling (2 letters or fewer different); 2 meetings (DfE 1, DWP 1)"
+kpmg international,same_as,KPMG,,"company form or suffix (UK, Group, plc...); 1 meetings (Defra 1)"
+kpmg uk,same_as,KPMG,,"company form or suffix (UK, Group, plc...); 3 meetings (HMT 2, DBT 1)"
+l and g,same_as,Legal & General,,abbreviation
+law commissioner,same_as,Law Commission,,"spelling (2 letters or fewer different); 1 meetings (MOJ 1); confirmed by purpose ""Discuss family justice"" (Law Commission family law work)"
+legal and general group,same_as,Legal & General,,"company form or suffix (UK, Group, plc...); 5 meetings (DSIT 2, Defra 1, DWP 1)"
+liverpool city regio combined authority,same_as,Liverpool City Region Combined Authority,,spelling (2 letters or fewer different); 2 meetings (MHCLG 2)
+llloyds of london,same_as,Lloyd's of London,,spelling (2 letters or fewer different); 1 meetings (HMT 1)
+lloyds baking group,same_as,Lloyds Banking Group,,spelling (2 letters or fewer different); 1 meetings (HMT 1)
+lloyds banking,same_as,Lloyds Banking Group,,"company form or suffix (UK, Group, plc...); 8 meetings (DBT 3, DESNZ 2, DWP 2)"
+lockhead martin,same_as,Lockheed Martin,,spelling (2 letters or fewer different); 1 meetings (MOD 1)
+logisitics uk,same_as,Logistics UK,,spelling (2 letters or fewer different); 1 meetings (DfT 1)
+logistic uk,same_as,Logistics UK,,spelling (2 letters or fewer different); 1 meetings (DBT 1)
+logisticsuk,same_as,Logistics UK,,"spacing (""Astra Zeneca"" / AstraZeneca); 1 meetings (Scotland Office 1)"
+london borough of croydon council,same_as,Croydon Borough Council,,word order or punctuation; 1 meetings (MHCLG 1)
+london borough of newham council,same_as,Newham Borough Council,,word order or punctuation; 1 meetings (DWP 1)
+london borough of sutton council,same_as,Sutton Borough Council,,word order or punctuation; 1 meetings (MHCLG 1)
+london borough of tower hamlets council,same_as,Tower Hamlets Borough Council,,word order or punctuation; 1 meetings (MHCLG 1)
+london stock exchange,same_as,London Stock Exchange Group,,"company form or suffix (UK, Group, plc...); 14 meetings (DBT 6, HMT 3, Cabinet Office 2)"
+lseg group,same_as,London Stock Exchange Group,,"company form or suffix (UK, Group, plc...); 1 meetings (DESNZ 1)"
+mace group,same_as,Mace,,"company form or suffix (UK, Group, plc...); 9 meetings (DBT 4, MHCLG 3, DfE 1)"
+macquarie group,same_as,Macquarie,,"company form or suffix (UK, Group, plc...); 10 meetings (DBT 4, HMT 3, Cabinet Office 1)"
+make,same_as,Make UK,,"company form or suffix (UK, Group, plc...); 1 meetings (HMT 1)"
+manchester university,same_as,University of Manchester,,"word order or punctuation; 5 meetings (DSIT 3, DCMS 1, MHCLG 1)"
+mannchester city council,same_as,Manchester City Council,,spelling (2 letters or fewer different); 1 meetings (DfT 1)
+mastercard europe,same_as,Mastercard,,"company form or suffix (UK, Group, plc...); 1 meetings (HMT 1)"
+mastercard uk,same_as,Mastercard,,"company form or suffix (UK, Group, plc...); 1 meetings (DBT 1)"
+mayor of cambridgeshire and peterborough,same_as,Cambridgeshire and Peterborough Combined Authority,,the Mayor leads the combined authority (check: a person)
+mayor of the west midlands,same_as,West Midlands Combined Authority,,the Mayor leads the combined authority (check: a person)
+mayor of york and north yorkshire,same_as,York and North Yorkshire Combined Authority,,the Mayor leads the combined authority (check: a person)
+mayors of london,same_as,Greater London Authority,,spelling (2 letters or fewer different); 1 meetings (Cabinet Office 1); confirmed by Council of Nations and Regions
+mayors of west yorkshire,same_as,West Yorkshire Combined Authority,,spelling (2 letters or fewer different); 1 meetings (Cabinet Office 1); confirmed by Council of Nations and Regions
+metropolitan police,same_as,Metropolitan Police Service,,short form
+microsoft corporation,same_as,Microsoft,,"company form or suffix (UK, Group, plc...); 1 meetings (Cabinet Office 1)"
+microsoft uk,same_as,Microsoft,,"company form or suffix (UK, Group, plc...); 7 meetings (Cabinet Office 1, DBT 1, DfE 1)"
+middlesborough borough council,same_as,Middlesbrough Council,,spelling (2 letters or fewer different); 1 meetings (MHCLG 1)
+mind uk,same_as,Mind,,"company form or suffix (UK, Group, plc...); 1 meetings (MHCLG 1)"
+mitsubishi electric corporation,same_as,Mitsubishi Electric,,"company form or suffix (UK, Group, plc...); 3 meetings (DBT 2, DESNZ 1)"
+morgan stanely,same_as,Morgan Stanley,,spelling (2 letters or fewer different); 1 meetings (HMT 1)
+morgan stanley europe,same_as,Morgan Stanley,,"company form or suffix (UK, Group, plc...); 1 meetings (HMT 1)"
+mott macdonald group,same_as,Mott MacDonald,,"company form or suffix (UK, Group, plc...); 1 meetings (MHCLG 1)"
+natioanl trust,same_as,National Trust,,spelling (2 letters or fewer different); 1 meetings (Defra 1)
+national association of headteachers,same_as,NAHT,,"spacing (""Astra Zeneca"" / AstraZeneca); 2 meetings (DfE 1, HMT 1)"
+national endowment for science,same_as,Nesta,,"split from ""National Endowment for Science, Technology and the Arts (Nesta)"""
+national energy system opporator,same_as,National Energy System Operator,,spelling (2 letters or fewer different); 1 meetings (DBT 1)
+national energy systems operator,same_as,National Energy System Operator,,"spelling (2 letters or fewer different); 7 meetings (DESNZ 6, Cabinet Office 1)"
+national famers union,same_as,National Farmers' Union,,spelling (2 letters or fewer different); 2 meetings (Defra 2)
+national farmer union,same_as,National Farmers' Union,,spelling (2 letters or fewer different); 1 meetings (Defra 1)
+national infrastructre commission,same_as,National Infrastructure Commission,,spelling (2 letters or fewer different); 1 meetings (DHSC 1)
+national institute for health care excellence,same_as,National Institute for Health and Care Excellence,,word order or punctuation; 1 meetings (HMT 1)
+natwest group,same_as,NatWest,,"company form or suffix (UK, Group, plc...); 13 meetings (HMT 7, DBT 5, DHSC 1)"
+neath and port talbot county borough council,same_as,Neath Port Talbot Council,,word order or punctuation; 2 meetings (Wales Office 2)
+new west end,same_as,New West End Company,,"company form or suffix (UK, Group, plc...); 2 meetings (DBT 2)"
+newstatesman,same_as,New Statesman,,"spacing (""Astra Zeneca"" / AstraZeneca); 1 meetings (DHSC 1)"
+nhse,same_as,NHS England,,abbreviation
+office for rail and road,same_as,Office of Rail and Road,,word order or punctuation; 1 meetings (HMT 1)
+offshore energies,same_as,Offshore Energies UK,,"company form or suffix (UK, Group, plc...); 3 meetings (DESNZ 2, Cabinet Office 1)"
+orsted group,same_as,Orsted,,"company form or suffix (UK, Group, plc...); 1 meetings (DESNZ 1)"
+orsted uk,same_as,Orsted,,"company form or suffix (UK, Group, plc...); 1 meetings (DESNZ 1)"
+oxford university,same_as,University of Oxford,,"word order or punctuation; 14 meetings (DSIT 11, DfT 1, FCDO 1)"
+petroineous,same_as,PetroIneos,,spelling (2 letters or fewer different); 2 meetings (DESNZ 2)
+pfizer uk,same_as,Pfizer,,"company form or suffix (UK, Group, plc...); 1 meetings (DSIT 1)"
+phoenix griup,same_as,Phoenix Group,,spelling (2 letters or fewer different); 1 meetings (HMT 1)
+police service northern ireland,same_as,Police Service of Northern Ireland,,word order or punctuation; 1 meetings (NIO 1)
+prison and probation ombudsman,same_as,Prisons and Probation Ombudsman,,spelling (2 letters or fewer different); 1 meetings (MOJ 1)
+prospect uk,same_as,Prospect,,"company form or suffix (UK, Group, plc...); 1 meetings (DBT 1)"
+rec,same_as,Recruitment and Employment Confederation,,"REC: meeting purposes are the Employment Rights Bill, zero hours contracts, the recruitment sector and REC events"
+regulatory horizon council,same_as,Regulatory Horizons Council,,spelling (2 letters or fewer different); 1 meetings (DSIT 1)
+renewables uk,same_as,RenewableUK,,"spelling (2 letters or fewer different); 10 meetings (DESNZ 8, DBT 1, MHCLG 1)"
+renewablesuk,same_as,RenewableUK,,spelling (2 letters or fewer different); 1 meetings (DESNZ 1)
+revolut uk,same_as,Revolut,,"company form or suffix (UK, Group, plc...); 2 meetings (HMT 2)"
+river trust,same_as,Rivers Trust,,"spelling (2 letters or fewer different); 1 meetings (Defra 1); confirmed by purpose ""Discussions on the Water Reform Bill"""
+roche group,same_as,Roche,,"company form or suffix (UK, Group, plc...); 3 meetings (DHSC 2, Cabinet Office 1)"
+roche uk,same_as,Roche,,"company form or suffix (UK, Group, plc...); 1 meetings (DBT 1)"
+royal collee of nursing,same_as,Royal College of Nursing,,spelling (2 letters or fewer different); 1 meetings (DHSC 1)
+royal collge of nursing,same_as,Royal College of Nursing,,spelling (2 letters or fewer different); 1 meetings (DWP 1)
+royal national institute for blind people,same_as,RNIB,,word order or punctuation; 1 meetings (DWP 1)
+royal society for protection for birds,same_as,RSPB,,word order or punctuation; 1 meetings (Defra 1)
+royal society for protection of birds,same_as,RSPB,,word order or punctuation; 2 meetings (Defra 2)
+royal society of protection of birds,same_as,RSPB,,word order or punctuation; 1 meetings (Defra 1)
+rwe group,same_as,RWE,,"company form or suffix (UK, Group, plc...); 1 meetings (HMT 1)"
+rwe uk,same_as,RWE,,"company form or suffix (UK, Group, plc...); 2 meetings (DESNZ 2)"
+sage group,same_as,Sage,,"company form or suffix (UK, Group, plc...); 4 meetings (Cabinet Office 2, DBT 1, DfE 1)"
+sainsbury s,same_as,Sainsbury's,,"spacing (""Astra Zeneca"" / AstraZeneca); 2 meetings (DBT 2)"
+save the children uk,same_as,Save the Children,,"company form or suffix (UK, Group, plc...); 4 meetings (DESNZ 2, FCDO 2)"
+scale up institute,same_as,ScaleUp Institute,,"spacing (""Astra Zeneca"" / AstraZeneca); 9 meetings (DBT 6, DSIT 2, HMT 1)"
+science museum,same_as,Science Museum Group,,"company form or suffix (UK, Group, plc...); 2 meetings (DBT 1, DSIT 1)"
+scottish governement,same_as,The Scottish Government,,spelling (2 letters or fewer different); 1 meetings (DHSC 1)
+scottish renewable,same_as,Scottish Renewables,,spelling (2 letters or fewer different); 1 meetings (DESNZ 1)
+scottishpower,same_as,ScottishPower,,"spacing (""Astra Zeneca"" / AstraZeneca); 8 meetings (DBT 3, DESNZ 3, HMT 2)"
+send sanctuary uk,same_as,SEND Sanctuary,,"company form or suffix (UK, Group, plc...); 1 meetings (DfE 1)"
+sense international,same_as,Sense,,"company form or suffix (UK, Group, plc...); 1 meetings (DWP 1)"
+shell international,same_as,Shell,,"company form or suffix (UK, Group, plc...); 1 meetings (DBT 1)"
+shell uk,same_as,Shell,,"company form or suffix (UK, Group, plc...); 4 meetings (DWP 2, DBT 1, DESNZ 1)"
+small business britan,same_as,Small Business Britain,,spelling (2 letters or fewer different); 1 meetings (DBT 1)
+small business britian,same_as,Small Business Britain,,spelling (2 letters or fewer different); 1 meetings (DBT 1)
+smallbusinessbritain,same_as,Small Business Britain,,"spacing (""Astra Zeneca"" / AstraZeneca); 1 meetings (DBT 1)"
+solar energy,same_as,Solar Energy UK,,"company form or suffix (UK, Group, plc...); 1 meetings (DWP 1)"
+solihul borough council,same_as,Solihull Borough Council,,spelling (2 letters or fewer different); 1 meetings (DHSC 1)
+standard charter,same_as,Standard Chartered,,spelling (2 letters or fewer different); 1 meetings (DBT 1)
+standard chartered bank,same_as,Standard Chartered,,the bank is the company
+standard chartered uk,same_as,Standard Chartered,,"company form or suffix (UK, Group, plc...); 1 meetings (FCDO 1)"
+standart chartered,same_as,Standard Chartered,,spelling (2 letters or fewer different); 1 meetings (DESNZ 1)
+start up coalition,same_as,Startup Coalition,,"spacing (""Astra Zeneca"" / AstraZeneca); 7 meetings (Cabinet Office 2, DBT 1, DESNZ 1)"
+startup coaliton,same_as,Startup Coalition,,spelling (2 letters or fewer different); 1 meetings (DSIT 1)
+stellantis uk,same_as,Stellantis,,"company form or suffix (UK, Group, plc...); 1 meetings (DBT 1)"
+strathclyde university,same_as,University of Strathclyde,,"word order or punctuation; 2 meetings (DESNZ 1, Home Office 1)"
+sutton london borough,same_as,Sutton Borough Council,,word order or punctuation; 1 meetings (Cabinet Office 1)
+swindon borough county council,same_as,Swindon Borough Council,,word order or punctuation; 1 meetings (DSIT 1)
+tata steel group,same_as,Tata Steel,,"company form or suffix (UK, Group, plc...); 1 meetings (DBT 1)"
+tata steel uk,same_as,Tata Steel,,"company form or suffix (UK, Group, plc...); 19 meetings (DBT 11, Wales Office 6, DESNZ 1)"
+taylor wimpy,same_as,Taylor Wimpey,,spelling (2 letters or fewer different); 1 meetings (DWP 1)
+technology and the arts nesta,same_as,Nesta,,"split from ""National Endowment for Science, Technology and the Arts (Nesta)"""
+terence higgins trust,same_as,Terrence Higgins Trust,,spelling (2 letters or fewer different); 2 meetings (DHSC 2)
+terrance higgins trust,same_as,Terrence Higgins Trust,,"spelling (2 letters or fewer different); 2 meetings (DHSC 1, FCDO 1)"
+thales global,same_as,Thales,,"company form or suffix (UK, Group, plc...); 1 meetings (DSIT 1)"
+thales group,same_as,Thales,,"company form or suffix (UK, Group, plc...); 10 meetings (MOD 8, HMT 1, Wales Office 1)"
+thales uk,same_as,Thales,,"company form or suffix (UK, Group, plc...); 3 meetings (Cabinet Office 1, DBT 1, Wales Office 1)"
+tokomak energy,same_as,Tokamak Energy,,spelling (2 letters or fewer different); 1 meetings (DBT 1)
+tony blair insitute,same_as,Tony Blair Institute,,spelling (2 letters or fewer different); 2 meetings (DSIT 2)
+total energies,same_as,TotalEnergies,,spacing
+toyota gb,same_as,Toyota,,"company form or suffix (UK, Group, plc...); 2 meetings (DBT 1, DESNZ 1)"
+toyota uk,same_as,Toyota,,"company form or suffix (UK, Group, plc...); 1 meetings (DBT 1)"
+trade unions congress,same_as,Trades Union Congress,,"spelling (2 letters or fewer different); 11 meetings (DBT 5, DWP 3, DHSC 3)"
+trades unions congress,same_as,Trades Union Congress,,spelling (2 letters or fewer different); 1 meetings (DBT 1)
+trussel trust,same_as,Trussell,,"spelling (2 letters or fewer different); 3 meetings (Defra 1, DWP 1, HMT 1)"
+uber uk,same_as,Uber,,"company form or suffix (UK, Group, plc...); 2 meetings (DSIT 1, DfT 1)"
+uk age,same_as,Age UK,,word order or punctuation; 1 meetings (FCDO 1)
+uk hopitality,same_as,UKHospitality,,spelling (2 letters or fewer different); 1 meetings (HMT 1)
+uk hopsitality,same_as,UKHospitality,,spelling (2 letters or fewer different); 1 meetings (HMT 1)
+uk reseach and innovation,same_as,UK Research and Innovation,,spelling (2 letters or fewer different); 1 meetings (DfT 1)
+ukexportfinance,same_as,UK Export Finance,,"spacing (""Astra Zeneca"" / AstraZeneca); 1 meetings (DBT 1)"
+ukfinance,same_as,UK Finance,,"spacing (""Astra Zeneca"" / AstraZeneca); 2 meetings (DBT 2)"
+union of shop distrbutive and allied workers,same_as,USDAW,,spelling (2 letters or fewer different); 1 meetings (DWP 1)
+univeristy of birmingham,same_as,University of Birmingham,,spelling (2 letters or fewer different); 1 meetings (DSIT 1)
+universities uk international,same_as,Universities UK,,"company form or suffix (UK, Group, plc...); 1 meetings (DBT 1)"
+university college of london,same_as,UCL,,word order or punctuation; 1 meetings (FCDO 1)
+vanguard europe,same_as,Vanguard,,"company form or suffix (UK, Group, plc...); 2 meetings (DBT 1, HMT 1)"
+vanguard uk,same_as,Vanguard,,"company form or suffix (UK, Group, plc...); 1 meetings (HMT 1)"
+vattenfall uk,same_as,Vattenfall,,"company form or suffix (UK, Group, plc...); 1 meetings (DESNZ 1)"
+vatternfall,same_as,Vattenfall,,spelling (2 letters or fewer different); 1 meetings (DESNZ 1)
+visit britain,same_as,VisitBritain,,"spacing (""Astra Zeneca"" / AstraZeneca); 1 meetings (DBT 1)"
+vistry group,same_as,Vistry,,"company form or suffix (UK, Group, plc...); 11 meetings (MHCLG 9, Cabinet Office 1, DESNZ 1)"
+vodafone group,same_as,Vodafone,,"company form or suffix (UK, Group, plc...); 5 meetings (DBT 3, DSIT 1, HMT 1)"
+vodafone three,same_as,VodafoneThree,,"spacing (""Astra Zeneca"" / AstraZeneca); 3 meetings (HMT 2, DSIT 1)"
+wealdon district council,same_as,Wealden District Council,,spelling (2 letters or fewer different); 1 meetings (Home Office 1)
+welsh governement,same_as,Welsh Government,,spelling (2 letters or fewer different); 1 meetings (DHSC 1)
+west england combined authority,same_as,West of England Combined Authority,,word order or punctuation; 1 meetings (MHCLG 1)
+west midlands combines authority,same_as,West Midlands Combined Authority,,spelling (2 letters or fewer different); 1 meetings (MHCLG 1)
+west morland and furness council,same_as,Westmorland and Furness Council,,"spacing (""Astra Zeneca"" / AstraZeneca); 1 meetings (MHCLG 1)"
+westmoreland and furness council,same_as,Westmorland and Furness Council,,spelling (2 letters or fewer different); 2 meetings (MHCLG 2)
+wildlife and countrysid link,same_as,Wildlife and Countryside Link,,spelling (2 letters or fewer different); 1 meetings (Defra 1)
+wildlife countryside link,same_as,Wildlife and Countryside Link,,word order or punctuation; 4 meetings (Defra 4)
+wilflife trusts,same_as,The Wildlife Trusts,,spelling (2 letters or fewer different); 1 meetings (Defra 1)
+woodland trusts,same_as,Woodland Trust,,spelling (2 letters or fewer different); 1 meetings (Defra 1)
+woodlands trust,same_as,Woodland Trust,,spelling (2 letters or fewer different); 1 meetings (DESNZ 1)
+world bank group,same_as,World Bank,,"company form or suffix (UK, Group, plc...); 10 meetings (FCDO 9, DESNZ 1)"
+york north yorkshire combined authority,same_as,York and North Yorkshire Combined Authority,,word order or punctuation; 1 meetings (MHCLG 1)
+youth endownment fund,same_as,Youth Endowment Fund,,spelling (2 letters or fewer different); 1 meetings (DCMS 1)
+chief executive officer,exclude,,,job title
+geordie greig,exclude,,,person
+roula khalaf,exclude,,,person
+ted verity,exclude,,,person
