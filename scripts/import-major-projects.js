@@ -25,6 +25,9 @@
 //     Real Prices)"; 'not stated' for March 2024 and 2025, whose files and reports give no basis.
 //   - Dates: 2024-03-31, 2024-03-31 00:00:00 and 31/03/2024 are read as dates; anything else (ranges, exemptions,
 //     "No") is kept word for word in start_text / end_text.
+//   - Evaluation plan (owner's approval, 20 Oct 2026): word for word from "Does the project have an evaluation plan?
+//     (self reported)" (March 2025) and "Evaluation Plan and Registry Link" (March 2026); the March 2024 file has no
+//     such column (NULL).
 //   - Department: the code as published; dept_slug from DEPT (case ignored). HMRC and VOA go on the Treasury tab
 //     (owner's decision). DSIT was split in the July 2026 reshuffle, so its projects get no department page until
 //     GOV.UK shows where each went (DSIT_TODAY); HMLR, ONS and NCA have none either. Those appear on
@@ -48,11 +51,13 @@ const REPORTS = [
   { year: 2025, basis: 'not stated', url: 'https://assets.publishing.service.gov.uk/media/6895fbb63080e72710b2e2ef/nista_annual_report_data_2425.csv',
     cols: { id: 'GMPP ID', name: 'Project Name', dept: 'Department', ipa: 'IPA Delivery Confidence Assessment', sro: 'SRO Delivery Confidence Assessment',
       ratingNarr: 'Departmental Commentary on Delivery Confidence Assessment Rating', start: 'Start Date', end: 'End Date',
-      schedNarr: 'Schedule Narrative', wlc: 'Whole Life Cost (£m)', costNarr: 'Costs Narrative' } },
+      schedNarr: 'Schedule Narrative', wlc: 'Whole Life Cost (£m)', costNarr: 'Costs Narrative',
+      evalPlan: 'Does the project have an evaluation plan?' } },
   { year: 2026, basis: 'real 2024/25', url: 'https://assets.publishing.service.gov.uk/media/6a4fb28da6586e258d371bfd/NISTA_Major_Projects_Annual_Report_2025-2026_Data.csv',
     cols: { id: 'Major Projects ID', name: 'Project Name', dept: 'Department', ipa: 'IPA Delivery Confidence Assessment', sro: 'SRO Delivery Confidence Assessment',
       ratingNarr: 'Departmental Commentary on Delivery Confidence Assessment Rating', start: 'Start Date', end: 'End Date',
-      schedNarr: 'Schedule Narrative', wlc: 'Whole Life Cost (£m, Presented in 2024/25 Real Prices)', costNarr: 'Costs Narrative' } },
+      schedNarr: 'Schedule Narrative', wlc: 'Whole Life Cost (£m, Presented in 2024/25 Real Prices)', costNarr: 'Costs Narrative',
+      evalPlan: 'Evaluation Plan and Registry Link' } },
 ];
 
 // Department code (upper case) -> /departments/<slug>. No entry: no department page (non-ministerial departments).
@@ -183,6 +188,7 @@ const slugName = (s) => s.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, ''
         whole_life_cost_m: cost, cost_text: costText, price_basis: rep.basis,
         start_date: s.date, start_text: s.text, end_date: e.date, end_text: e.text,
         cost_narrative: orNull(v('costNarr')), schedule_narrative: orNull(v('schedNarr')), rating_narrative: orNull(v('ratingNarr')),
+        evaluation_plan: col.evalPlan === undefined ? null : orNull(v('evalPlan')),
         source_url: rep.url,
       });
     }
@@ -205,10 +211,10 @@ const slugName = (s) => s.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, ''
   if (!/^[a-z0-9_]+$/.test(tag)) fail('give --sql-tag=<backup table suffix>, e.g. 20261021a');
   const q = (v) => (v == null ? 'NULL' : typeof v === 'number' ? String(v) : `'${String(v).replace(/'/g, "''")}'`);
   const C = ['project_key', 'project_id', 'report_year', 'data_as_at', 'name', 'department_code', 'dept_slug', 'rating', 'rating_column', 'rating_withheld',
-    'whole_life_cost_m', 'cost_text', 'price_basis', 'start_date', 'start_text', 'end_date', 'end_text', 'cost_narrative', 'schedule_narrative', 'rating_narrative', 'source_url'];
+    'whole_life_cost_m', 'cost_text', 'price_basis', 'start_date', 'start_text', 'end_date', 'end_text', 'cost_narrative', 'schedule_narrative', 'rating_narrative', 'evaluation_plan', 'source_url'];
   const L = ['\\set ON_ERROR_STOP on', 'BEGIN;', '',
     'DO $$ BEGIN',
-    `  IF EXISTS (SELECT 1 FROM public.major_projects) THEN EXECUTE 'CREATE TABLE public.major_projects_backup_${tag} AS SELECT * FROM public.major_projects'; END IF;`,
+    `  IF EXISTS (SELECT 1 FROM public.major_projects) THEN EXECUTE 'CREATE TABLE public.major_projects_backup_${tag} AS SELECT * FROM public.major_projects'; EXECUTE 'ALTER TABLE public.major_projects_backup_${tag} ENABLE ROW LEVEL SECURITY'; END IF;`,
     'END $$;',
     'DELETE FROM public.major_projects;'];
   for (const r of rows) L.push(`INSERT INTO public.major_projects (${C.join(', ')}) VALUES (${C.map((c) => q(r[c])).join(', ')});`);
@@ -217,6 +223,11 @@ const slugName = (s) => s.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, ''
     const n = rows.filter((r) => r.report_year === x.year).length;
     L.push(`  SELECT count(*) INTO n FROM public.major_projects WHERE report_year = ${x.year};`,
       `  IF n <> ${n} THEN RAISE EXCEPTION 'expected ${n} rows for ${x.year}, found %', n; END IF;`);
+  }
+  for (const x of REPORTS) {
+    const e = rows.filter((r) => r.report_year === x.year && r.evaluation_plan != null).length;
+    L.push(`  SELECT count(*) INTO n FROM public.major_projects WHERE report_year = ${x.year} AND evaluation_plan IS NOT NULL;`,
+      `  IF n <> ${e} THEN RAISE EXCEPTION 'expected ${e} evaluation plan entries for ${x.year}, found %', n; END IF;`);
   }
   L.push(`  SELECT count(*) INTO n FROM public.major_projects;`,
     `  IF n <> ${rows.length} THEN RAISE EXCEPTION 'expected ${rows.length} rows, found %', n; END IF;`,

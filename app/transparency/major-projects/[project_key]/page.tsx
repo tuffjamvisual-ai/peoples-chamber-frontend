@@ -8,7 +8,7 @@ import { notFound } from 'next/navigation';
 import OpenGovShell from '../../../components/OpenGovShell';
 import BackLink from '../../../components/BackLink';
 import { departments } from '@/lib/departments';
-import { fetchMajorProject, deptLabel, projectHref, REPORT_PAGES } from '@/lib/major-projects';
+import { fetchMajorProject, deptLabel, projectHref, evaluationLines, REPORT_PAGES } from '@/lib/major-projects';
 import { MajorProjectMeta, MajorProjectTable } from '../../../components/MajorProjectHistory';
 
 export const revalidate = 86400;
@@ -69,6 +69,17 @@ export default async function MajorProjectPage({ params }: Props) {
       </header>
 
       <MajorProjectTable p={p} />
+      {evaluationLines(p).map((e) => (
+        <p key={e.year} style={{ fontSize: '14px', lineHeight: 1.6, margin: '8px 0 0', maxWidth: '72ch' }}>
+          {e.stated ? (
+            <>Evaluation plan (the department&rsquo;s own statement, {e.dataAsAt}):{' '}
+              {e.parts.map((x, i) => (
+                <span key={i}>{i > 0 && ' · '}{x.href ? <a href={x.href} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{x.text}</a> : x.text}</span>
+              ))}
+            </>
+          ) : <>Evaluation plan: not stated in the {e.dataAsAt} report</>}
+        </p>
+      ))}
       <p style={{ fontSize: '14px', lineHeight: 1.6, margin: '10px 0 24px', maxWidth: '62ch' }}>
         Each year&rsquo;s cost is shown with its price basis. Costs are not compared between years: the March 2024 and March 2025 reports
         state no price basis, and from March 2026 costs are in 2024/25 prices.

@@ -11,6 +11,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { departments } from '@/lib/departments';
 import { fetchMajorProjects, deptLabel, ratingText, dateText, lastReported, projectHref, REPORT_PAGES } from '@/lib/major-projects';
+import EvaluationView from './EvaluationView';
 
 export const revalidate = 86400;
 
@@ -36,6 +37,9 @@ export default async function MajorProjectsPage() {
   }
   const codes = [...byDept.keys()].sort();
   const current = projects.filter((p) => p.latest.report_year === latestYear).length;
+  // Projects whose March 2025 entry was "No" to "Does the project have an evaluation plan? (self reported)".
+  const noPlan = projects.filter((p) => p.years.some((y) => y.report_year === 2025 && (y.evaluation_plan ?? '').trim() === 'No'))
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <OpenGovShell pageStamp="Transparency">
@@ -61,6 +65,16 @@ export default async function MajorProjectsPage() {
         </p>
       </header>
 
+      {noPlan.length > 0 && (
+        <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '-12px 0 24px' }}>
+          <a href="/transparency/major-projects?evaluation=no" style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>
+            In March 2025, {noPlan.length} projects said they had no evaluation plan.
+          </a>
+        </p>
+      )}
+
+      <EvaluationView
+        all={<>
       {codes.map((c) => {
         const ps = byDept.get(c)!;
         const slug = ps[0].latest.dept_slug;
@@ -90,6 +104,28 @@ export default async function MajorProjectsPage() {
           </section>
         );
       })}
+
+        </>}
+        noPlan={
+          <section style={{ marginBottom: '32px' }}>
+            <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 10px' }}>
+              No evaluation plan in March 2025 · {noPlan.length}
+            </h2>
+            <p style={{ fontSize: '14px', lineHeight: 1.6, margin: '0 0 8px', maxWidth: '62ch' }}>
+              Projects whose department answered &ldquo;No&rdquo; to &ldquo;Does the project have an evaluation plan? (self reported)&rdquo; in the March 2025 data.
+              {' '}<Link href="/transparency/major-projects" style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>All projects →</Link>
+            </p>
+            <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+              {noPlan.map((p) => (
+                <li key={p.key} style={{ borderBottom: '1px dotted rgba(20,16,13,0.15)', padding: '8px 0', fontSize: '14px', lineHeight: 1.5 }}>
+                  <Link href={projectHref(p.key)} style={{ color: INK, fontWeight: 600, fontSize: '15px', textDecoration: 'underline', textUnderlineOffset: '3px' }}>{p.name}</Link>
+                  {' · '}{deptLabel(p.latest.department_code)}
+                </li>
+              ))}
+            </ol>
+          </section>
+        }
+      />
 
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6 }}>
         Sources: {Object.values(REPORT_PAGES).map((r, i) => <span key={r.url}>{i > 0 && '; '}<a href={r.url} style={{ color: INK }}>{r.title}</a></span>)}.

@@ -11,6 +11,7 @@ export type MajorProjectRow = {
   rating_withheld: string | null; whole_life_cost_m: number | null; cost_text: string | null; price_basis: 'real 2024/25' | 'not stated';
   start_date: string | null; start_text: string | null; end_date: string | null; end_text: string | null;
   cost_narrative?: string | null; schedule_narrative?: string | null; rating_narrative?: string | null; source_url: string;
+  evaluation_plan?: string | null;
 };
 export type MajorProject = { key: string; id: string | null; name: string; latest: MajorProjectRow; years: MajorProjectRow[] };
 
@@ -30,7 +31,7 @@ const DEPT_LABELS: Record<string, string> = {
 export const deptLabel = (code: string) => DEPT_LABELS[code.toUpperCase()] ?? code;
 
 // The table's columns; the narratives are read only on a project's own page.
-const TABLE_COLS = 'project_key, project_id, report_year, data_as_at, name, department_code, dept_slug, rating, rating_column, rating_withheld, whole_life_cost_m, cost_text, price_basis, start_date, start_text, end_date, end_text, source_url';
+const TABLE_COLS = 'project_key, project_id, report_year, data_as_at, name, department_code, dept_slug, rating, rating_column, rating_withheld, whole_life_cost_m, cost_text, price_basis, start_date, start_text, end_date, end_text, source_url, evaluation_plan';
 const ALL_COLS = `${TABLE_COLS}, cost_narrative, schedule_narrative, rating_narrative`;
 
 function group(rows: MajorProjectRow[]): MajorProject[] {
@@ -123,3 +124,32 @@ export const lastReported = (p: MajorProject, latestYear: number) => (p.latest.r
 // Names that differ only in case, spacing or punctuation are the same name ("T Level Programme" / "T-LEVEL PROGRAMME").
 const sameName = (a: string, b: string) => a.toLowerCase().replace(/[^a-z0-9]+/g, '') === b.toLowerCase().replace(/[^a-z0-9]+/g, '');
 export const earlierNames = (p: MajorProject) => [...new Set(p.years.filter((y) => !sameName(y.name, p.name)).map((y) => `${y.name} (${y.data_as_at})`))];
+
+// ---------- evaluation plans (migration 2026-10-20g; owner's approval, 20 Oct 2026) ----------
+// The question was first asked in the March 2025 data; March 2024 has no such column, so it gets no line.
+export const EVALUATION_FIRST_YEAR = 2025;
+export type EvaluationPart = { text: string; href?: string };
+export type EvaluationLine = { year: number; dataAsAt: string; stated: boolean; parts: EvaluationPart[] };
+function linkLabel(u: string): EvaluationPart {
+  let host = '';
+  try { host = new URL(u).hostname; } catch { return { text: u }; }
+  if (host.endsWith('evaluation-registry.cabinetoffice.gov.uk')) {
+    if (/\/signin\b/.test(u)) return { text: 'Evaluation Registry (sign-in required)' };
+    if (/\/evaluation\//.test(u)) return { text: 'Evaluation Registry entry', href: u };
+    return { text: 'Evaluation Registry search', href: u };
+  }
+  if (host === 'www.gov.uk' || host === 'gov.uk') return { text: 'GOV.UK publication', href: u };
+  return { text: host.replace(/^www\./, ''), href: u };
+}
+// One line per year from March 2025, newest first: the department's own statement word for word, links labelled.
+export function evaluationLines(p: MajorProject): EvaluationLine[] {
+  return [...p.years].filter((y) => y.report_year >= EVALUATION_FIRST_YEAR).reverse().map((y) => {
+    const t = (y.evaluation_plan ?? '').trim();
+    if (!t) return { year: y.report_year, dataAsAt: y.data_as_at, stated: false, parts: [] };
+    const urls = t.match(/https?:\/\/[^\s,;]+/g);
+    if (!urls) return { year: y.report_year, dataAsAt: y.data_as_at, stated: true, parts: [{ text: t }] };
+    const seen = new Set<string>();
+    const parts = urls.map((u) => linkLabel(u.replace(/[.)]+$/, ''))).filter((x) => { const k = x.text + (x.href ?? ''); if (seen.has(k)) return false; seen.add(k); return true; });
+    return { year: y.report_year, dataAsAt: y.data_as_at, stated: true, parts };
+  });
+}
