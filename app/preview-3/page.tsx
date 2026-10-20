@@ -67,6 +67,7 @@ export default async function HomePage() {
     supabase
       .from('bill')
       .select('id, title, vote_count_yes, vote_count_no, vote_count_abstain, current_stage')
+      .is('hidden_reason', null)
       .order('vote_count_yes', { ascending: false })
       .limit(5),
     supabase

@@ -111,12 +111,13 @@ export default function BillsGridMobile({ initialBills, currentPage, totalPages 
     }
 
     if (activeTab === 'trending') {
+      // Aye + No, the total the card shows (abstentions are not shown), then id, as the server orders.
       filtered = filtered
         .map((bill: any) => ({
           ...bill,
-          totalVotes: bill.vote_count_yes + bill.vote_count_no + bill.vote_count_abstain
+          totalVotes: (bill.vote_count_yes || 0) + (bill.vote_count_no || 0)
         }))
-        .sort((a, b) => b.totalVotes - a.totalVotes);
+        .sort((a, b) => b.totalVotes - a.totalVotes || a.id - b.id);
     } else if (activeTab === 'controversial') {
       filtered = filtered
         .filter((bill: any) => {

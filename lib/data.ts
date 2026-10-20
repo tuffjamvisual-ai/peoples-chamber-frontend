@@ -43,6 +43,7 @@ export async function getBillsPage(
   // bill_current: bills going through Parliament now (introduced in or carried into the current session; not Acts,
   // withdrawn, defeated or at Royal Assent), so every page has `perPage` cards and the count matches. Earlier bills
   // are in the archive (/bills/sessions). The summary is cut to the card's length here, not in the browser.
+  // Ordered by public_votes (Aye + No, the total the card shows), then id.
   const cols =
     'id, parliament_id, title, category, description, long_title, current_stage, stage_date, originating_house, introduced_session_id, sponsor_name, sponsor_party, sponsor_party_colour, vote_count_yes, vote_count_no, vote_count_abstain, commons_ayes, commons_noes, last_update, bill_withdrawn, is_act';
   const safePage = Math.max(1, Math.floor(page) || 1);
@@ -53,7 +54,7 @@ export async function getBillsPage(
     const { data, count, error } = await supabase
       .from('bill_current')
       .select(cols, { count: 'exact' })
-      .order('vote_count_yes', { ascending: false })
+      .order('public_votes', { ascending: false })
       .order('id', { ascending: true })
       .range(from, to);
     if (error) {

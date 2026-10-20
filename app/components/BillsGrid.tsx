@@ -151,8 +151,9 @@ export default function BillsGrid({ initialBills, currentPage, totalPages, sessi
     if (hasSummaryFilter) filtered = filtered.filter((bill: any) => bill.summary ?? billSummary(bill));
 
     if (sortBy === 'trending') {
-      filtered.sort((a: any, b: any) => 
-        (b.vote_count_yes + b.vote_count_no + b.vote_count_abstain) - (a.vote_count_yes + a.vote_count_no + a.vote_count_abstain)
+      // "Most voted": Aye + No, the total the card shows (abstentions are not shown), then id, as the server orders.
+      filtered.sort((a: any, b: any) =>
+        ((b.vote_count_yes || 0) + (b.vote_count_no || 0)) - ((a.vote_count_yes || 0) + (a.vote_count_no || 0)) || a.id - b.id
       );
     } else if (sortBy === 'newest') {
       filtered.sort((a: any, b: any) => new Date(b.last_update).getTime() - new Date(a.last_update).getTime());

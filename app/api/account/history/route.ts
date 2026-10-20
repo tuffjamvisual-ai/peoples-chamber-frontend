@@ -21,12 +21,19 @@ export async function GET(request: NextRequest) {
     .order('created_at', { ascending: false });
   const billIds = [...new Set((bv || []).map((r) => r.bill_id))];
   const billTitles: Record<number, string> = {};
+  // A vote on a hidden bill (bill.hidden_reason: a duplicate or bad record) stays in the history but is not linked:
+  // that page returns 404.
+  const hidden = new Set<number>();
   if (billIds.length) {
-    const { data: bills } = await supabase.from('bill').select('id, title').in('id', billIds);
-    (bills || []).forEach((b: { id: number; title: string }) => { billTitles[b.id] = b.title; });
+    const { data: bills } = await supabase.from('bill').select('id, title, hidden_reason').in('id', billIds);
+    (bills || []).forEach((b: { id: number; title: string; hidden_reason: string | null }) => {
+      billTitles[b.id] = b.title;
+      if (b.hidden_reason) hidden.add(b.id);
+    });
   }
   const bills = (bv || []).map((r) => ({
     id: r.bill_id, title: billTitles[r.bill_id] || `Bill #${r.bill_id}`, choice: r.choice, created_at: r.created_at,
+    linkable: !hidden.has(r.bill_id),
   }));
 
   // Poll votes

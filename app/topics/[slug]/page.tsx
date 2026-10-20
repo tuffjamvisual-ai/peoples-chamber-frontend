@@ -56,6 +56,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
       .limit(10),
     supabase.from('bill')
       .select('id, title, is_act, current_stage, last_update')
+      .is('hidden_reason', null)
       .or(orFrom('title', topic.keywords))
       .order('last_update', { ascending: false })
       .limit(8),

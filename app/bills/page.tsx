@@ -4,10 +4,9 @@ import BillsGrid from '../components/BillsGrid';
 import BillsGridMobile from '../components/BillsGridMobile';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
-import AllBillsIndex from './AllBillsIndex';
 import VotingIntegrity from '../components/VotingIntegrity';
 import Link from 'next/link';
-import { getCurrentBillSessions, getParliamentSessions, sessionTitle } from '@/lib/parliament-sessions';
+import { getCurrentBillSessions, getParliamentSessions, getSessionBills, sessionBillGroup, sessionTitle, type SessionBillGroup } from '@/lib/parliament-sessions';
 
 const BILLS_PER_PAGE = 20;
 
@@ -37,6 +36,23 @@ export default async function BillsPage({ searchParams }: PageProps) {
     getParliamentSessions(),
   ]);
   const current = sessions.find((s) => s.is_current);
+  // "The 2026-27 session has 188 bills: 183 going through Parliament, ...", counted exactly as /bills/sessions/<id>.
+  const sessionCounts: Partial<Record<SessionBillGroup, number>> = {};
+  let sessionTotal = 0;
+  if (current) {
+    for (const b of await getSessionBills(current.id)) {
+      const g = sessionBillGroup(b, current.id, true);
+      sessionCounts[g] = (sessionCounts[g] || 0) + 1;
+      sessionTotal++;
+    }
+  }
+  const sessionParts = [
+    `${(sessionCounts.current || 0).toLocaleString()} going through Parliament`,
+    sessionCounts.law ? `${sessionCounts.law.toLocaleString()} ${sessionCounts.law === 1 ? 'has' : 'have'} become law` : '',
+    sessionCounts.withdrawn ? `${sessionCounts.withdrawn.toLocaleString()} withdrawn` : '',
+    sessionCounts.defeated ? `${sessionCounts.defeated.toLocaleString()} defeated` : '',
+    sessionCounts.carried ? `${sessionCounts.carried.toLocaleString()} carried over` : '',
+  ].filter(Boolean);
   const totalPages = Math.max(1, Math.ceil(totalCount / BILLS_PER_PAGE));
 
   return (
@@ -59,6 +75,11 @@ export default async function BillsPage({ searchParams }: PageProps) {
           Acts, withdrawn bills and bills from earlier sessions are in the{' '}
           <Link href="/bills/sessions" style={{ color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>archive of bills by session</Link>.
         </p>
+        {current && sessionTotal > 0 && (
+          <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', marginTop: '8px' }}>
+            The <Link href={`/bills/sessions/${current.id}`} style={{ color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>{sessionTitle(current)}</Link> has {sessionTotal.toLocaleString()} bills: {sessionParts.join(', ')}.
+          </p>
+        )}
         <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px', opacity: 0.7 }}>
           {totalCount === 0
             ? 'No bills going through Parliament right now'
@@ -75,7 +96,13 @@ export default async function BillsPage({ searchParams }: PageProps) {
         <BillsGrid initialBills={bills} currentPage={page} totalPages={totalPages} sessions={filterSessions} />
       </div>
 
-      <AllBillsIndex />
+      {/* Everything not going through Parliament now: the archive (every bill, by session) and the Acts. Replaces the
+          old "Browse all bills" index, so this page has one going-through-Parliament figure. The archive links every
+          bill page; the sitemap lists the indexable ones. */}
+      <nav aria-label="More bills" style={{ borderTop: '1px solid rgba(20,16,13,0.18)', marginTop: '40px', paddingTop: '20px', display: 'flex', flexWrap: 'wrap', gap: '12px 32px', fontSize: '17px' }}>
+        <Link href="/bills/sessions" style={{ color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>Every bill, by session (archive)</Link>
+        <Link href="/laws" style={{ color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>Acts of Parliament</Link>
+      </nav>
 
     </OpenGovShell>
   );

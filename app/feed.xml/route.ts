@@ -98,6 +98,7 @@ async function fetchBillItems(): Promise<FeedItem[]> {
   const { data: billRows } = await supabase
     .from('bill')
     .select('id, title, description, long_title, current_stage, sponsor_name, last_update, is_act')
+    .is('hidden_reason', null)
     .or(
       'commons_division_id.not.is.null,is_act.eq.true,current_stage.not.is.null',
     )

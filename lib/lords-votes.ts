@@ -134,7 +134,8 @@ export type BillMatcher = {
 export async function loadBillMatcher(db: SupabaseClient): Promise<BillMatcher> {
   const bills: BillRow[] = [];
   for (let from = 0; ; from += 1000) {
-    const { data, error } = await db.from('bill').select('id, title').order('id').range(from, from + 999);
+    // Hidden bills (bill.hidden_reason) are never matched: 4072 duplicates 4064's title.
+    const { data, error } = await db.from('bill').select('id, title').is('hidden_reason', null).order('id').range(from, from + 999);
     if (error) throw new Error(`bill read: ${error.message}`);
     for (const b of data ?? []) {
       if (typeof b.title === 'string' && b.title.trim()) bills.push({ id: b.id as number, title: b.title });

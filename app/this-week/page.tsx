@@ -78,7 +78,8 @@ export default async function ThisWeekPage() {
   const ids = bills.map((b) => b.billId)
   let internal: Record<number, number> = {}
   if (ids.length) {
-    const { data } = await supabase.from('bill').select('id, parliament_id').in('parliament_id', ids)
+    // Hidden bills (bill.hidden_reason) have no page, so they are not linked.
+    const { data } = await supabase.from('bill').select('id, parliament_id').in('parliament_id', ids).is('hidden_reason', null)
     internal = Object.fromEntries((data || []).map((r: { id: number; parliament_id: number }) => [r.parliament_id, r.id]))
   }
 

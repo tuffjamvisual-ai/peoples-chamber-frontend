@@ -12,7 +12,7 @@ const DANGER = '#8a2f20'
 const HAIRLINE = 'rgba(20,16,13,0.25)'
 const MONO = 'Special Elite, monospace'
 
-type BillVote = { id: number; title: string; choice: string; created_at: string | null }
+type BillVote = { id: number; title: string; choice: string; created_at: string | null; linkable?: boolean }
 type PollVote = { id: number; question: string; tag: string | null; choice: string; created_at: string | null }
 
 function label(c: string) { return c === 'yes' ? 'Aye' : c === 'no' ? 'No' : c === 'abstain' ? 'Abstain' : c }
@@ -142,12 +142,19 @@ export default function AccountPage() {
                   Bills you have voted on ({data.bills.length})
                 </h2>
                 {data.bills.length === 0 && <p style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>You have not voted on any bills yet.</p>}
-                {data.bills.map((b) => (
-                  <a key={b.id} href={`/bills/${b.id}`} className="no-hover-scale" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '10px 0' }}>
-                    <span style={{ fontSize: '15px', fontWeight: 'bold', lineHeight: 1.3 }}>{b.title}</span>
-                    <Badge choice={b.choice} />
-                  </a>
-                ))}
+                {data.bills.map((b) => {
+                  const rowStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '10px 0' } as const;
+                  const body = (
+                    <>
+                      <span style={{ fontSize: '15px', fontWeight: 'bold', lineHeight: 1.3 }}>{b.title}</span>
+                      <Badge choice={b.choice} />
+                    </>
+                  );
+                  // A hidden bill (a duplicate or bad record) has no page, so its row is not a link.
+                  return b.linkable === false
+                    ? <div key={b.id} style={rowStyle}>{body}</div>
+                    : <a key={b.id} href={`/bills/${b.id}`} className="no-hover-scale" style={rowStyle}>{body}</a>;
+                })}
               </section>
 
               {/* Poll votes */}

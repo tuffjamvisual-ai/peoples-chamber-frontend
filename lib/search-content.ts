@@ -185,6 +185,7 @@ async function queryBills(
     .from('bill')
     .select('id, title, current_stage, last_update')
     .textSearch('search_vec', q, { type: tsType, config: 'english' })
+    .is('hidden_reason', null)
     .order('last_update', { ascending: false, nullsFirst: false })
     .limit(limit);
 

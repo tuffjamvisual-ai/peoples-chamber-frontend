@@ -152,7 +152,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // explanatory note, then a procedural explainer, then a generic line.
   let billSummary: string | null = null;
   if (row.bill_id != null) {
-    const { data: bill } = await supabase.from('bill').select('title, description, long_title').eq('id', row.bill_id).maybeSingle();
+    const { data: bill } = await supabase.from('bill').select('title, description, long_title').eq('id', row.bill_id).is('hidden_reason', null).maybeSingle();
     billSummary = bill ? officialBillSummary(bill) || null : null;
   }
   let siDescription: string | null = null;
@@ -259,8 +259,8 @@ export default async function DivisionDetailPage({ params }: PageProps) {
     year: 'numeric',
   });
 
-  // Bill backlink: if any vote row has bill_id, link to that bill.
-  const billId = voteRows.find((v) => v.bill_id != null)?.bill_id ?? null;
+  // Bill backlink: if any vote row has bill_id, link to that bill (not a hidden one: bill.hidden_reason, a 404).
+  let billId = voteRows.find((v) => v.bill_id != null)?.bill_id ?? null;
   let billTitle: string | null = null;
   let billSummary: string | null = null;
   if (billId != null) {
@@ -268,7 +268,9 @@ export default async function DivisionDetailPage({ params }: PageProps) {
       .from('bill')
       .select('title, description, long_title')
       .eq('id', billId)
+      .is('hidden_reason', null)
       .maybeSingle();
+    if (!bill) billId = null;
     billTitle = bill?.title ?? null;
     billSummary = bill ? officialBillSummary(bill) || null : null;
   }

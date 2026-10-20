@@ -37,7 +37,7 @@ export default async function LandingPcaPage() {
     supabase.from('mps').select('*').eq('member_id', memberId).single(),
     supabase.from('mp_contact').select('*').eq('member_id', memberId).single(),
     supabase.from('mp_biography').select('*').eq('member_id', memberId).single(),
-    supabase.from('bill').select('id, title, status, current_stage, plain_summary, is_act, last_update').eq('sponsor_member_id', memberId).order('created_at', { ascending: false }),
+    supabase.from('bill').select('id, title, status, current_stage, plain_summary, is_act, last_update').eq('sponsor_member_id', memberId).is('hidden_reason', null).order('created_at', { ascending: false }),
     supabase.from('mp_division_votes').select('id, division_title, division_date, vote_type, is_rebellion, bill_id, division_id').eq('member_id', memberId).order('division_date', { ascending: false }).range(0, 199),
     supabase.from('mp_registered_interests').select('*').eq('member_id', memberId).eq('is_current', true).order('category_sort_order', { ascending: true }),
     supabase.from('mp_expenses_summary').select('*').eq('member_id', memberId).order('year', { ascending: false }),

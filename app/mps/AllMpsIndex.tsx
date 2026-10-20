@@ -10,7 +10,7 @@
 // discoverable only via the sitemap, which Google treats with lower
 // confidence than pages reachable via internal links.
 //
-// Mirrors app/bills/AllBillsIndex.tsx which closed the same gap for
+// Mirrors the former app/bills/AllBillsIndex.tsx (replaced 20 Oct 2026 by the bill archive), which closed the same gap for
 // bills (1,202 → 1,202 crawlable links in static HTML, confirmed
 // working). This file closes the equivalent gap for MPs.
 //

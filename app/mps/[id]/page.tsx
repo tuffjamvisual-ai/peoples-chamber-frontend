@@ -3,6 +3,7 @@ import { metaDescription } from '@/lib/meta-description';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { getHiddenBillIds } from '@/lib/hidden-bills';
 import { sumDeclaredDonations } from '@/lib/mpDonationsTotal';
 import MpDossier from './MpDossier';
 import RelatedLinks from '../../components/RelatedLinks';
@@ -213,6 +214,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       .from('bill')
       .select('id, title, status, current_stage, description, long_title, is_act, last_update')
       .eq('sponsor_member_id', memberId)
+      .is('hidden_reason', null)
       .order('created_at', { ascending: false }),
     // 20-per-page paginated voting record. ParlParse backfill (2026-06-05)
     // means some MPs now have hundreds of votes — Abbott alone has 308 —
@@ -626,8 +628,11 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       .in('division_id', siPageDivisionIds);
     siDivisionIds = new Set((siRows || []).map((r: { division_id: number }) => r.division_id));
   }
+  // A vote on a hidden bill (bill.hidden_reason) keeps its row but loses the bill link: that page is a 404.
+  const hiddenBills = (votesRes.data || []).some((v: { bill_id: number | null }) => v.bill_id != null) ? await getHiddenBillIds() : new Set<number>();
   const votesWithSi = (votesRes.data || []).map((v) => ({
     ...v,
+    bill_id: v.bill_id != null && hiddenBills.has(v.bill_id) ? null : v.bill_id,
     is_si: v.division_id != null && siDivisionIds.has(v.division_id),
   }));
 

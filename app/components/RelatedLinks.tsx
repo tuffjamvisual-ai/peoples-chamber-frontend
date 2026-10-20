@@ -214,6 +214,7 @@ async function renderBill(props: BillProps) {
         .select('id, title')
         .eq('sponsor_member_id', props.sponsorMemberId)
         .neq('id', props.billId)
+        .is('hidden_reason', null)
         .order('last_update', { ascending: false, nullsFirst: false })
         .range(0, 4),
       // Only current MPs have a /mps/<id> page. A former-MP sponsor (e.g. a bill
@@ -306,6 +307,7 @@ async function renderDepartment(props: DepartmentProps) {
       .from('bill')
       .select('id, title')
       .in('sponsor_member_id', props.ministerMemberIds)
+      .is('hidden_reason', null)
       .order('last_update', { ascending: false, nullsFirst: false })
       .range(0, 4);
     deptBills = data || [];
@@ -497,7 +499,7 @@ async function renderEditorial(props: EditorialProps) {
       ? supabase.from('mps').select('member_id, display_name').in('member_id', memberIds)
       : Promise.resolve({ data: [] as { member_id: number; display_name: string | null }[] }),
     billIds.length > 0
-      ? supabase.from('bill').select('id, title').in('id', billIds)
+      ? supabase.from('bill').select('id, title').in('id', billIds).is('hidden_reason', null)
       : Promise.resolve({ data: [] as { id: number; title: string }[] }),
     // Anon client — RLS enforces is_live=true; unresolved slugs simply return no row.
     programmeSlugs.length > 0
@@ -606,6 +608,7 @@ async function renderDivision(props: DivisionProps) {
     .from('bill')
     .select('id, title, sponsor_member_id')
     .ilike('title', candidateTitle)
+    .is('hidden_reason', null)
     .limit(2);
 
   if (!matchedBills || matchedBills.length !== 1) return null;
