@@ -8,6 +8,7 @@ import { administrationLabel, seatsLine, seatName, type CouncilComposition } fro
 import { shortParty, type ElectionSummary } from '@/lib/council-election-summary';
 import { loadCouncilTax, type CouncilTax } from '@/lib/council-tax';
 import { supabase } from '@/lib/supabase';
+import { SHOW_COUNCIL_FOUNDED } from '@/lib/feature-flags';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
@@ -70,7 +71,11 @@ type CouncilFull = {
   leader_since_text: string | null;
   leader_source_url: string | null;
   leader_second_source_url: string | null;
+  leader_checked_on: string | null;
   chief_exec: string | null;
+  chief_exec_note: string | null;        // shown in place of a name, e.g. 'Post abolished in 2026' (migration 2026-10-20c)
+  chief_exec_source_url: string | null;
+  chief_exec_checked_on: string | null;
   council_tax_band_d_pounds: number | null;
   ni_district_rate_poundage: number | null;
   revenue_budget_mn: number | null;
@@ -79,6 +84,7 @@ type CouncilFull = {
   founded_year: number | null;
   website_url: string | null;
   description: string | null;
+  wikipedia_url: string | null;
 };
 
 type RelatedCouncil = { slug: string; name: string; short_name: string | null; political_control: string | null; gss_code?: string | null };
@@ -217,9 +223,9 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
   const children: RelatedCouncil[] = (childRows || []) as RelatedCouncil[];
 
   const hasFinance = c.council_tax_band_d_pounds != null || c.revenue_budget_mn != null || c.ni_district_rate_poundage != null || councilTax != null;
-  const hasLeadership = c.political_control != null || c.chief_exec != null || c.leader_source_url != null;
+  const hasLeadership = c.political_control != null || c.chief_exec != null || c.chief_exec_note != null || c.leader_source_url != null;
   const hasOverview =
-    c.population != null || c.founded_year != null || c.website_url != null;
+    c.population != null || (SHOW_COUNCIL_FOUNDED && c.founded_year != null) || c.website_url != null;
 
   // Welfare spending section: counties are upper-tier aggregates with no
   // welfare row of their own (districts/unitaries hold the actual
@@ -359,6 +365,13 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                   {c.description}
                 </p>
               )}
+              {/* Descriptions are the lead of the council's Wikipedia article (CC BY-SA 4.0), so it is credited. */}
+              {c.description && c.wikipedia_url && (
+                <p style={{ fontFamily: MONO, fontSize: '13px', lineHeight: 1.6, margin: '-20px auto 28px', maxWidth: '46em', color: INK_SOFT, opacity: 0.8 }}>
+                  From <a href={c.wikipedia_url} target="_blank" rel="noopener noreferrer" style={{ color: INK_SOFT, textDecoration: 'underline' }}>Wikipedia</a>,
+                  {' '}under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer" style={{ color: INK_SOFT, textDecoration: 'underline' }}>CC BY-SA 4.0</a>.
+                </p>
+              )}
 
               {hasLeadership && (
                 <Section title="Political Control & Leadership">
@@ -378,7 +391,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                   {c.leader_source_url && c.leader_role && (
                     <DataRow label={c.leader_role} value={leaderValue(c)} sub={leaderSource(c)} />
                   )}
-                  <DataRow label="Chief executive" value={c.chief_exec} />
+                  <DataRow label="Chief executive" value={c.chief_exec ?? c.chief_exec_note} sub={chiefExecSource(c)} />
                   <DataRow label="Last election" value={lastElectionValue(c.last_election_year, comp, electionSummary, c.slug)} sub={lastElectionSub(c.last_election_year, comp, electionSummary, c)} />
                 </Section>
               )}
@@ -392,7 +405,8 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                       ? <>Source: <a href={c.population_source_url} target="_blank" rel="noopener noreferrer" style={{ color: INK_SOFT, textDecoration: 'underline' }}>{c.population_source}</a></>
                       : `Source: ${c.population_source}`) : null}
                   />
-                  <DataRow label="Founded" value={c.founded_year?.toString() ?? null} />
+                  {/* Founded year: hidden (owner's decision, 20 Oct 2026; SHOW_COUNCIL_FOUNDED). */}
+                  {SHOW_COUNCIL_FOUNDED && <DataRow label="Founded" value={c.founded_year?.toString() ?? null} />}
                   {c.website_url && (
                     <DataRow label="Website" value={
                       <a href={c.website_url} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>
@@ -862,6 +876,22 @@ function leaderSource(c: CouncilFull): React.ReactNode {
     <>
       Source: {link(src, wiki ? 'Wikipedia' : c.name)}
       {c.leader_second_source_url && <>, {link(c.leader_second_source_url, c.name)}</>}
+      {c.leader_checked_on && <>, checked {longDate(c.leader_checked_on)}</>}
+    </>
+  );
+}
+
+// '2026-10-20' -> '20 October 2026'.
+const longDate = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+
+// Where the chief executive was read, and when (migration 2026-10-20c): the council's Wikipedia article.
+function chiefExecSource(c: CouncilFull): React.ReactNode {
+  if (!c.chief_exec_source_url) return null;
+  const checked = c.chief_exec_checked_on ? longDate(c.chief_exec_checked_on) : null;
+  return (
+    <>
+      Source: <a href={c.chief_exec_source_url} target="_blank" rel="noopener noreferrer" style={{ color: INK_SOFT, textDecoration: 'underline' }}>Wikipedia</a>
+      {checked && <>, checked {checked}</>}
     </>
   );
 }

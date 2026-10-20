@@ -18,6 +18,11 @@ export const SHOW_BUDGET_CHOICES = false;
 // No page code is deleted: set to true to restore.
 export const SHOW_DEMO_PAGES = false;
 
+// Council pages' "Founded" row: hidden (owner's decision, 20 Oct 2026). The year mixes a town's charter, an earlier
+// district and the current council (e.g. Bristol 1835, Darlington 1974, most unitaries 1996). false: the row is not shown;
+// councils.founded_year is kept. Set to true to show it again.
+export const SHOW_COUNCIL_FOUNDED = false;
+
 // What a page hidden by one of these switches says about itself: the not-found page's title (app/not-found.tsx),
 // kept out of search engines, instead of its own title and description.
 export const HIDDEN_PAGE_METADATA: Metadata = { title: 'Page not found', robots: { index: false, follow: false } };
