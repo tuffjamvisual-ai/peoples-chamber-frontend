@@ -7,7 +7,7 @@ import Link from 'next/link';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { departments } from '@/lib/departments';
-import { fetchDirections, sortKey, dateLine, ministerLine, letterLinks } from '@/lib/ministerial-directions';
+import { fetchDirections, sortKey, dateLine, ministerLine, letterLinks, departmentsAtTheTime } from '@/lib/ministerial-directions';
 
 export const revalidate = 86400;
 
@@ -21,6 +21,29 @@ export const metadata: Metadata = {
   description: 'Every ministerial direction published on GOV.UK since 2015: what was directed, by which minister and department, when, and the letters themselves.',
   alternates: { canonical: '/transparency/ministerial-directions' },
 };
+
+const sameName = (a: string, b: string) => a.replace(/&/g, 'and').replace(/\s+/g, ' ').trim().toLowerCase() === b.replace(/&/g, 'and').replace(/\s+/g, ' ').trim().toLowerCase();
+const linkStyle = { color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' } as const;
+
+// The department as GOV.UK named it at the time, as text, with today's department page linked alongside
+// (owner's decision, 20 Oct 2026). Where the name then is today's name, the name itself is the link.
+function DepartmentLine({ d, deptName }: { d: Awaited<ReturnType<typeof fetchDirections>>[number]; deptName: Map<string, string> }) {
+  const then = departmentsAtTheTime(d);
+  const today = d.dept_slugs.map((s) => ({ slug: s, name: deptName.get(s) ?? s }));
+  const unchanged = then.length === today.length && then.every((t) => today.some((x) => sameName(t, x.name)));
+  return (
+    <p style={{ margin: '4px 0 0', fontFamily: MONO, fontSize: '15px', lineHeight: 1.6 }}>
+      {unchanged ? (
+        <>Department: {today.map((x, i) => <span key={x.slug}>{i > 0 && ', '}<Link href={`/departments/${x.slug}`} style={linkStyle}>{x.name}</Link></span>)}</>
+      ) : (
+        <>
+          Department at the time: {then.join(', ')}
+          {today.length > 0 && <> · Today: {today.map((x, i) => <span key={x.slug}>{i > 0 && ', '}<Link href={`/departments/${x.slug}`} style={linkStyle}>{x.name}</Link></span>)}</>}
+        </>
+      )}
+    </p>
+  );
+}
 
 export default async function MinisterialDirectionsPage() {
   const all = await fetchDirections();
@@ -62,10 +85,8 @@ export default async function MinisterialDirectionsPage() {
                 <p style={{ margin: 0, fontSize: '16px', fontWeight: 600, lineHeight: 1.45 }}>{d.subject}</p>
                 <p style={{ margin: '4px 0 0', fontFamily: MONO, fontSize: '15px', lineHeight: 1.6 }}>
                   {dateLine(d)} · {ministerLine(d)}
-                  {d.dept_slugs.map((s) => (
-                    <span key={s}> · <Link href={`/departments/${s}`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{deptName.get(s) ?? s}</Link></span>
-                  ))}
                 </p>
+                <DepartmentLine d={d} deptName={deptName} />
                 <p style={{ margin: '4px 0 0', fontFamily: MONO, fontSize: '15px' }}>
                   {letterLinks(d).map((l, i) => (
                     <span key={l.url}>{i > 0 && ' · '}<a href={l.url} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{l.label}</a></span>

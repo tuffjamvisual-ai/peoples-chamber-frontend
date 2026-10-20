@@ -1,7 +1,7 @@
 // Directions tab for a department page: the ministerial directions GOV.UK tags to this department,
 // newest first. Shown only when there is at least one (as the Programmes tab is).
 import Link from 'next/link';
-import { type Direction, dateLine, ministerLine, letterLinks } from '@/lib/ministerial-directions';
+import { type Direction, dateLine, ministerLine, letterLinks, departmentsAtTheTime } from '@/lib/ministerial-directions';
 
 const ACCENT = '#7a1612';
 const H2_CLS = 'text-[15px] uppercase tracking-[0.25em] mb-4 font-semibold';
@@ -18,6 +18,7 @@ export function DirectionsSlot({ directions }: { directions: Direction[] }) {
           <li key={d.slug} style={{ borderBottom: '1px dotted rgba(20,16,13,0.15)', padding: '10px 0' }}>
             <p style={{ fontSize: '15px', fontWeight: 600, lineHeight: 1.45, margin: 0 }}>{d.subject}</p>
             <p style={{ fontSize: '14px', margin: '3px 0 0', lineHeight: 1.5 }}>{dateLine(d)} · {ministerLine(d)}</p>
+            <p style={{ fontSize: '14px', margin: '3px 0 0', lineHeight: 1.5 }}>Department at the time: {departmentsAtTheTime(d).join(', ')}</p>
             <p style={{ fontSize: '14px', margin: '3px 0 0' }}>
               {letterLinks(d).map((l, i) => (
                 <span key={l.url}>{i > 0 && ' · '}<a href={l.url} style={{ color: '#14100d', textDecoration: 'underline', textUnderlineOffset: '3px' }}>{l.label}</a></span>
