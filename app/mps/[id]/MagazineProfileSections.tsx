@@ -518,18 +518,24 @@ export default function MagazineProfileSections({
   // Honour ?section= on initial mount so paginating the voting record
   // (which forces a full reload via the href-based <Pagination>) lands
   // the user back on the voting tab rather than the default first tab.
-  // Never auto-land on 'career' (Before Politics): a profile should open on
-  // its biography when there is one, otherwise the first non-career section.
-  // 'career' stays in the nav, just never as the default tab — otherwise the
-  // ~400 MPs with no bio open straight onto Before Politics and look like
-  // their bio was removed.
+  // Otherwise a profile opens on 'career' (Before Politics) whenever that
+  // section is shown for the MP (John's choice, 20 Oct 2026; it is shown only
+  // when the MP has career history, education or a career background), and
+  // on the first section shown when it is not.
   const initialActive: SectionId =
     initialSection && validIds.has(initialSection as SectionId)
       ? (initialSection as SectionId)
-      : has.bio
-        ? 'bio'
-        : (sections.find((s) => s.id !== 'career')?.id ?? sections[0]?.id ?? 'bio');
+      : has.career
+        ? 'career'
+        : (sections[0]?.id ?? 'bio');
   const [active, setActive] = useState<SectionId>(initialActive);
+  // ?section= in the address wins. The page is statically cached, so the server never sees the address
+  // (initialSection is null there); read it here once the page has loaded.
+  useEffect(() => {
+    const fromUrl = new URLSearchParams(window.location.search).get('section');
+    if (fromUrl && validIds.has(fromUrl as SectionId)) setActive(fromUrl as SectionId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [expandedYear, setExpandedYear] = useState<number | null>(null);
 
   // Voting-record paging/search is client-driven so the profile page itself
