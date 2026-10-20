@@ -12,6 +12,10 @@ export const SHOW_LEAGUE_TABLE = false;
 export const SHOW_YOUR_TAX_POUND = false;
 export const SHOW_BUDGET_CHOICES = false;
 
+// Demo homepages /homepage-v2 and /landing-demo2: hidden (owner's decision, 20 Oct 2026). false: the page returns 404.
+// No page code is deleted: set to true to restore.
+export const SHOW_DEMO_PAGES = false;
+
 // What a page hidden by one of these switches says about itself: the not-found page's title (app/not-found.tsx),
 // kept out of search engines, instead of its own title and description.
 export const HIDDEN_PAGE_METADATA: Metadata = { title: 'Page not found', robots: { index: false, follow: false } };

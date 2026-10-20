@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { SHOW_DEMO_PAGES, HIDDEN_PAGE_METADATA } from '@/lib/feature-flags';
 import OpenGovShell from '../components/OpenGovShell';
 import './newspaper.css';
 
@@ -10,10 +12,14 @@ import './newspaper.css';
 // responsive grid that stacks on mobile instead of an absolutely positioned
 // overlay. noindex while it lives alongside the live homepage.
 
-export const metadata: Metadata = {
+const PAGE_METADATA: Metadata = {
   title: "opengovt — Homepage v2 (preview)",
   robots: { index: false, follow: false },
 };
+// While hidden, the page says what a missing page says (not-found title, noindex), not its own title.
+export async function generateMetadata(): Promise<Metadata> {
+  return SHOW_DEMO_PAGES ? PAGE_METADATA : HIDDEN_PAGE_METADATA;
+}
 
 // Code nav bar rendered inside the folder above the front page. Mirrors the
 // masthead hotspots in OpenGovShell; kept local to this preview so the live
@@ -73,6 +79,7 @@ const NAV: NavItem[] = [
 ];
 
 export default function HomepageV2() {
+  if (!SHOW_DEMO_PAGES) notFound(); // hidden (lib/feature-flags.ts)
   return (
     <OpenGovShell pageStamp="Front Page">
       <div className="np">

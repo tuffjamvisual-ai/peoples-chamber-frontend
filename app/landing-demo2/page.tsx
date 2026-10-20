@@ -1,14 +1,20 @@
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { SHOW_DEMO_PAGES, HIDDEN_PAGE_METADATA } from '@/lib/feature-flags';
 import './landing-demo2.css';
 
 // /landing-demo2 — DEMO (noindex). Folders-pile backdrop; the newb back folder
 // carries the OPEN GOVERNMENT red-stamp masthead + nav; the dossier folder is an
 // expanding content sheet holding the landing-page articles.
 
-export const metadata: Metadata = {
+const PAGE_METADATA: Metadata = {
   title: 'OPEN GOVERNMENT — landing demo (preview)',
   robots: { index: false, follow: false },
 };
+// While hidden, the page says what a missing page says (not-found title, noindex), not its own title.
+export async function generateMetadata(): Promise<Metadata> {
+  return SHOW_DEMO_PAGES ? PAGE_METADATA : HIDDEN_PAGE_METADATA;
+}
 
 type NavItem = { label: string; href: string; children?: { label: string; href: string }[] };
 const NAV: NavItem[] = [
@@ -53,6 +59,7 @@ const NAV: NavItem[] = [
 ];
 
 export default function LandingDemo2() {
+  if (!SHOW_DEMO_PAGES) notFound(); // hidden (lib/feature-flags.ts)
   // Fine SVG noise used to mask the stamp so the ink looks patchy/distressed.
   const distress = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='340' height='150'><filter id='d'><feTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='2' seed='6' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -0.4 1.12'/></filter><rect width='100%' height='100%' filter='url(%23d)'/></svg>")`;
   return (
