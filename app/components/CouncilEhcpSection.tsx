@@ -101,10 +101,10 @@ export default async function CouncilEhcpSection({
     <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
       <Heading />
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: '0 0 10px' }}>
-        EHC plans issued in {shown.year}: <strong>{fmt(shown.plans_issued_ex as number)}</strong>.
+        EHC plans issued in {shown.year} (excluding exceptions): <strong>{fmt(shown.plans_issued_ex as number)}</strong>.
         {shown.within_20_weeks_ex != null && (
           <> Issued within 20 weeks: <strong>{fmt(shown.within_20_weeks_ex)}</strong>
-            {shown.pc_within_20_weeks_ex != null ? ` (DfE's ${shown.pc_within_20_weeks_ex}%)` : " (DfE gives no percentage)"}.</>
+            {shown.pc_within_20_weeks_ex != null ? ` (${shown.pc_within_20_weeks_ex}%)` : " (DfE gives no percentage)"}.</>
         )}
         {shown.over_1_year_ex != null && <> Took over a year: <strong>{fmt(shown.over_1_year_ex)}</strong>.</>}
       </p>
@@ -118,8 +118,8 @@ export default async function CouncilEhcpSection({
       )}
       <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: '0 0 8px' }}>
         An education, health and care (EHC) plan sets out the support a child or young person with special educational needs
-        must get; the council should issue one within 20 weeks of a request. Exceptions are left out: cases where the law
-        allows longer, such as a school being closed for the holidays or a family&rsquo;s exceptional circumstances.
+        must get; the council should issue one within 20 weeks of a request. All three figures leave out exceptions: cases
+        where the law allows longer, such as a school being closed for the holidays or a family&rsquo;s exceptional circumstances.
       </p>
       <p style={{ fontFamily: MONO, fontSize: '13px', lineHeight: 1.6, color: INK, margin: 0, opacity: 0.85 }}>
         Source: <a href={SOURCE_URL} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>DfE, Education, health and care plans, 2026 release</a>{' '}

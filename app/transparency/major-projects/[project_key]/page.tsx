@@ -20,6 +20,11 @@ const INK_HAIRLINE = 'rgba(20,16,13,0.25)';
 const MONO = '"Special Elite", monospace';
 
 type Props = { params: Promise<{ project_key: string }> };
+
+// Some returns stop mid-sentence ("This is primarily due to the following factors." with nothing after); the
+// published file itself ends there (checked against the IPA March 2024 CSV and XLSX, 20 Oct 2026), so say so.
+const ENDS_SHORT = /following factors[.,:\u201a]?\s*$/i;
+const asPublished = (t: string) => (ENDS_SHORT.test(t) ? `${t.trimEnd()} [text ends here in the published file]` : t);
 const keyOf = async (params: Props['params']) => {
   const raw = (await params).project_key;
   try { return decodeURIComponent(raw); } catch { return raw; }
@@ -72,11 +77,14 @@ export default async function MajorProjectPage({ params }: Props) {
       <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 'bold', margin: '0 0 10px' }}>
         The department&rsquo;s commentary
       </h2>
+      <p style={{ fontSize: '14px', lineHeight: 1.6, margin: '0 0 12px', maxWidth: '62ch' }}>
+        This is the department&rsquo;s own commentary. It may use different prices from the table above, so its figures may not match.
+      </p>
       {narratives.map((y, i) => (
         <details key={y.report_year} open={i === 0} style={{ borderTop: `1px solid ${INK_HAIRLINE}`, padding: '10px 0' }}>
           <summary style={{ fontSize: '15px', fontWeight: 600, cursor: 'pointer' }}>{y.data_as_at}</summary>
           {([['Rating', y.rating_narrative], ['Schedule', y.schedule_narrative], ['Cost', y.cost_narrative]] as const).map(([label, t]) => t && (
-            <p key={label} style={{ fontSize: '14px', lineHeight: 1.6, margin: '8px 0 0', whiteSpace: 'pre-line', maxWidth: '72ch' }}><em>{label}:</em> {t}</p>
+            <p key={label} style={{ fontSize: '14px', lineHeight: 1.6, margin: '8px 0 0', whiteSpace: 'pre-line', maxWidth: '72ch' }}><em>{label}:</em> {asPublished(t)}</p>
           ))}
           {!y.rating_narrative && !y.schedule_narrative && !y.cost_narrative && (
             <p style={{ fontSize: '14px', margin: '8px 0 0' }}>No commentary in the file for this year.</p>
