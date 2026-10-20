@@ -7,6 +7,8 @@ import DepartmentStaff from './DepartmentStaff';
 import DepartmentTabs from './DepartmentTabs';
 import { BudgetSlot, AgenciesSlot, ContactSlot, ReleasesSlot, InvestigationsSlot, ProgrammesSlot, type PressReleaseItem, type InvestigationItem, type ProgrammeItem } from './DepartmentSlots';
 import { getDepartmentGrants, GrantsSlot } from './GrantsSlot';
+import { DirectionsSlot } from './DirectionsSlot';
+import { fetchDirections } from '@/lib/ministerial-directions';
 import { DEPARTMENT_BUDGETS } from '@/lib/department-budgets';
 import OpenGovShell from '../../components/OpenGovShell';
 import { getGovukDept } from '../../api/govuk-dept/route';
@@ -46,7 +48,7 @@ export default async function DepartmentPage({ params }: PageProps) {
   // B2: org names for this slug, used for the press releases tab query.
   const orgNames = DEPT_SLUG_TO_ORGS[slug] ?? [];
 
-  const [govukData, contextData, rawReleases, rawInvestigations, rawProgrammes] = await Promise.all([
+  const [govukData, contextData, rawReleases, rawInvestigations, rawProgrammes, directions] = await Promise.all([
     getGovukDept(slug),
     getDeptContext(slug),
     // B2 — press releases tab: top 20 by published_at DESC across all
@@ -87,6 +89,9 @@ export default async function DepartmentPage({ params }: PageProps) {
       .eq('is_live', true)
       .order('name')
       .then(({ data }) => (data ?? []) as ProgrammeItem[]),
+    // Directions tab: ministerial directions tagged to this department (ministerial_directions.dept_slugs).
+    // A failed read hides the tab rather than failing the department page.
+    fetchDirections(slug).catch(() => []),
   ]);
 
   const sos = govukData.ministers?.[0];
@@ -208,6 +213,11 @@ export default async function DepartmentPage({ params }: PageProps) {
   if (rawProgrammes.length > 0) {
     tabs.push({ id: 'programmes', label: 'Programmes', rotate: '-0.06deg' });
     slots.programmes = <ProgrammesSlot programmes={rawProgrammes} />;
+  }
+  // Directions tab: only shown when GOV.UK has published at least one direction for this department.
+  if (directions.length > 0) {
+    tabs.push({ id: 'directions', label: 'Directions', rotate: '0.07deg' });
+    slots.directions = <DirectionsSlot directions={directions} />;
   }
 
   if (pressPhone || socialMedia.length > 0) {

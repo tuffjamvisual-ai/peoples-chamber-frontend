@@ -46,6 +46,7 @@ const SECTIONS: { slug: string; title: string; description: string; href?: strin
   { slug: 'the-revolving-door', title: 'The Revolving Door: Investigation', description: 'Our lead essay on how Westminster influence becomes a commodity once ministers leave office, opening into the twenty politicians who cashed in after public service.', href: '/editorials/the-revolving-door' },
   { slug: 'donations',          title: 'Political Donations',              description: 'Reportable donations to political parties and individual MPs.' },
   { slug: 'contracts',          title: 'Government Contracts',             description: 'Awarded public sector contracts above the disclosure threshold, published via Contracts Finder.' },
+  { slug: 'ministerial-directions', title: 'Ministerial Directions',       description: 'Every time a minister has formally overruled their department\'s accounting officer and ordered spending to go ahead, with the letters from both sides, since 2015.', href: '/transparency/ministerial-directions' },
   { slug: 'press-releases',     title: 'Press Releases',                   description: 'Most recent UK Government press releases, pulled daily from GOV.UK. Each release links through to the full text announcement.' },
   { slug: 'councils',            title: 'Local Councils',                  description: 'Every UK principal local authority, 382 in total, with leadership, finance, council tax and editorial assessment for each.', href: '/councils' },
 ]

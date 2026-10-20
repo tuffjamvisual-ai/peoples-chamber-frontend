@@ -77,6 +77,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/donors`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${SITE}/secretariats`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${SITE}/transparency/special-advisers`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE}/transparency/ministerial-directions`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${SITE}/civil-service`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/spending`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/donations/foreign`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
