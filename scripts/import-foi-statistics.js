@@ -5,26 +5,44 @@
 // DRY RUN BY DEFAULT: prints the report and writes nothing. --sql=file.sql writes one guarded transaction that
 // replaces every row. Rerunnable.
 //
-// Source: "Freedom of Information statistics: April to June 2026" (accredited official statistics, published
-// 16 Sep 2026), its "data" CSV, which holds the whole series: quarters Q1 2010 to Q2 2026 and calendar years 2010 to
-// 2025 (it agrees cell for cell with the January to March 2026 and annual 2025 files where they overlap, checked
-// 20 Oct 2026). Open Government Licence v3.0.
-//   One request: robots.txt is read first, then the CSV, 10 seconds apart (GOV.UK's Crawl-delay).
-//   --file=path   read the CSV from disk instead of downloading it
+// Source: the Cabinet Office's "Freedom of Information statistics" (accredited official statistics). Each release's
+// "published-data" CSV holds the whole series (quarters from Q1 2010 and calendar years from 2010), so each import
+// replaces the table. Open Government Licence v3.0.
+//
+// Which release (--latest, used by the weekly workflow .github/workflows/weekly-foi-statistics.yml):
+//   reads the collection (GOV.UK content API, /government/collections/freedom-of-information-statistics), takes the
+//   newest release whose period is newer than the latest in foi_statistics ("April to June 2026", or "annual 2025"
+//   when that year's row is missing), reads its page for the "published-data" CSV and downloads it. Nothing newer:
+//   prints "no new release" and writes nothing. The file's newest period must match the release's title, or the run
+//   stops (the April to June 2026 page's description named the previous quarter; the data did not).
+//   Requests: robots.txt first for each host, one at a time, 10 seconds apart.
+// Or --file=path (with --page=URL of its release page) to import a CSV already on disk.
 //
 // Rules: the headers used must be exactly as checked on 20 Oct 2026; "-" or a blank cell is NULL; commas are removed
-// from counts ("1,104" in some 2014 rows); percentages are stored as published (unrounded).
+// from counts ("1,104" in some 2014 rows); percentages are stored as published (unrounded). The transaction stops
+// if the new file has fewer rows than the table, or the counts after loading differ from the file's.
 const fs = require('fs');
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '..', '.env.local'), quiet: true });
+try { require('dotenv').config({ path: path.join(__dirname, '..', '.env.local'), quiet: true }); } catch { /* CI sets the environment */ }
 const { parse } = require('csv-parse/sync');
-const { UA } = require('./lib/polite-fetch');
+const { createClient } = require('@supabase/supabase-js');
+const { makePoliteFetch } = require('./lib/polite-fetch');
 
 const arg = (n, d = '') => (process.argv.find((a) => a.startsWith(`--${n}=`)) || `--${n}=${d}`).slice(n.length + 3);
 const fail = (m) => { console.error(m); process.exit(1); };
-const PAGE_URL = 'https://www.gov.uk/government/statistics/freedom-of-information-statistics-april-to-june-2026';
-const CSV_URL = 'https://assets.publishing.service.gov.uk/media/6aa2be9b9f95f408139c6637/foi-statistics-q2-2026-published-data.csv';
-const LATEST = 'Q2 2026';
+const GOVUK = 'https://www.gov.uk';
+const COLLECTION = '/government/collections/freedom-of-information-statistics';
+const QUARTER_TITLES = { 'january to march': 1, 'april to june': 2, 'july to september': 3, 'october to december': 4 };
+
+// "Freedom of Information statistics: April to June 2026" -> { period: 'Q2 2026', key }; "...: annual 2025" -> { period: '2025' }.
+function releasePeriod(title) {
+  const t = String(title || '').toLowerCase();
+  let m = t.match(/freedom of information statistics:\s*(january to march|april to june|july to september|october to december)\s+(20\d{2})$/);
+  if (m) return { period: `Q${QUARTER_TITLES[m[1]]} ${m[2]}`, key: Number(m[2]) * 4 + QUARTER_TITLES[m[1]] - 1, annual: false };
+  m = t.match(/freedom of information statistics:\s*annual\s+(20\d{2})$/);
+  if (m) return { period: m[1], key: Number(m[1]) * 4 + 3, annual: true };
+  return null;
+}
 
 // Our column -> the file's header, word for word.
 const COLS = {
@@ -74,17 +92,44 @@ function value(col, v, where) {
 }
 
 (async () => {
-  let bytes;
-  if (arg('file')) bytes = fs.readFileSync(arg('file'));
-  else {
-    // robots.txt first (assets.publishing.service.gov.uk had none on 20 Oct 2026: a 404 means no rules).
-    const robots = await fetch('https://assets.publishing.service.gov.uk/robots.txt', { headers: { 'User-Agent': UA }, redirect: 'manual' });
-    const rules = robots.ok ? await robots.text() : robots.status === 404 ? '' : 'Disallow: /';
-    if (/^Disallow:\s*\/(media)?\s*$/im.test(rules)) fail('robots.txt disallows the file');
-    await new Promise((r) => setTimeout(r, 10000));
-    const res = await fetch(CSV_URL, { headers: { 'User-Agent': UA }, redirect: 'manual' });
-    if (!res.ok) fail(`CSV: HTTP ${res.status}`);
-    bytes = Buffer.from(await res.arrayBuffer());
+  const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  const { data: cur, error: curErr } = await sb.from('foi_statistics').select('period, period_year, period_quarter')
+    .not('period_quarter', 'is', null).order('period_year', { ascending: false }).order('period_quarter', { ascending: false }).limit(1);
+  if (curErr) fail(`reading foi_statistics: ${curErr.message}`);
+  const curKey = cur && cur[0] ? cur[0].period_year * 4 + cur[0].period_quarter - 1 : -1;
+  const { count: curRows } = await sb.from('foi_statistics').select('body', { count: 'exact', head: true });
+  console.log(`foi_statistics now: latest quarter ${cur && cur[0] ? cur[0].period : 'none'}, ${curRows ?? 0} rows`);
+
+  let bytes, pageUrl, expected;
+  if (arg('file')) {
+    bytes = fs.readFileSync(arg('file'));
+    pageUrl = arg('page') || fail('--file needs --page=<the release page URL> for source_url');
+    expected = null;
+  } else if (process.argv.includes('--latest')) {
+    const { getJson, getBytes } = makePoliteFetch({ delayMs: 10000, log: (m) => console.log(m) });
+    const col = await getJson(`${GOVUK}/api/content${COLLECTION}`);
+    if (col.status !== 200) fail(`collection: HTTP ${col.status}`);
+    const docs = (col.json.links && col.json.links.documents) || [];
+    const releases = docs.map((d) => ({ ...releasePeriod(d.title), title: d.title, path: d.base_path })).filter((r) => r.period);
+    if (releases.length === 0) fail('no releases recognised in the collection (titles changed?)');
+    const years = new Set();
+    if (releases.some((r) => r.annual)) {
+      const { data: yr } = await sb.from('foi_statistics').select('period').is('period_quarter', null).limit(1000);
+      for (const y of yr || []) years.add(y.period);
+    }
+    const newer = releases.filter((r) => (r.annual ? !years.has(r.period) && r.key >= curKey : r.key > curKey)).sort((x, y) => y.key - x.key || Number(x.annual) - Number(y.annual));
+    if (newer.length === 0) { console.log(`no new release (newest in the collection: ${releases.sort((x, y) => y.key - x.key)[0].title})`); return; }
+    const rel = newer[0];
+    console.log(`new release: ${rel.title} (${rel.path})`);
+    const page = await getJson(`${GOVUK}/api/content${rel.path}`);
+    if (page.status !== 200) fail(`release page: HTTP ${page.status}`);
+    const csvs = ((page.json.details && page.json.details.attachments) || []).filter((x) => /published-data\.csv$/i.test(x.filename || x.url || ''));
+    if (csvs.length !== 1) fail(`expected one published-data CSV on ${rel.path}, found ${csvs.length}`);
+    const got = await getBytes(csvs[0].url);
+    if (got.status !== 200) fail(`CSV: HTTP ${got.status}`);
+    bytes = got.bytes; pageUrl = `${GOVUK}${rel.path}`; expected = rel;
+  } else {
+    fail('give --latest (find and import the newest release) or --file=path --page=URL');
   }
   const records = parse(bytes, { bom: true, columns: true, relax_column_count: false });
   const headers = Object.keys(records[0] || {});
@@ -103,22 +148,37 @@ function value(col, v, where) {
     for (const [col, h] of Object.entries(COLS)) row[col] = value(col, r[h], `${period} ${body} ${h}`);
     out.push(row);
   }
+  const quarters = out.filter((r) => r.period_quarter != null);
+  const top = quarters.reduce((m, r) => Math.max(m, r.period_year * 4 + r.period_quarter - 1), -1);
+  const LATEST = `Q${(top % 4) + 1} ${Math.floor(top / 4)}`;
+  if (expected) {
+    // The file must hold the release's own period: its newest quarter (or, for an annual release, that year's rows).
+    if (!expected.annual && LATEST !== expected.period) fail(`the release is ${expected.period} but the file's newest quarter is ${LATEST}`);
+    if (expected.annual && !out.some((r) => r.period === expected.period)) fail(`the release is annual ${expected.period} but the file has no ${expected.period} rows`);
+  }
+  if (top < curKey) fail(`the file's newest quarter (${LATEST}) is older than the table's`);
   const latest = out.filter((r) => r.period === LATEST);
   const periods = new Set(out.map((r) => r.period));
   console.log(`rows: ${out.length}; periods: ${periods.size} (${[...periods].filter((p) => p.startsWith('Q')).length} quarters, ${[...periods].filter((p) => !p.startsWith('Q')).length} years); bodies in ${LATEST}: ${latest.length}`);
-  if (latest.length !== 39) fail(`expected 39 bodies in ${LATEST}, found ${latest.length}`);
+  if (latest.length < 30) fail(`only ${latest.length} bodies in ${LATEST}; expected about 39`);
   for (const b of ['Home Office', 'Department for Work and Pensions', 'Cabinet Office']) {
     const r = latest.find((x) => x.body === b);
+    if (!r) { console.log(`  ${LATEST} ${b}: not in the file`); continue; }
     console.log(`  ${LATEST} ${b}: received ${r.received}, 20 days ${r.met_20_days} of ${r.received_ex} (${r.pct_met_20_days}%), extension ${r.permitted_extension}, late ${r.late}, granted ${r.granted_full} / partly ${r.partially_withheld} / fully ${r.fully_withheld} of ${r.resolvable}`);
   }
 
   if (!arg('sql')) { console.log('\nDry run: nothing written. Give --sql=file.sql to write the transaction.'); return; }
   const C = ['body', 'period', 'period_year', 'period_quarter', ...Object.keys(COLS)];
   const q = (v) => (v == null ? 'NULL' : typeof v === 'number' ? String(v) : `'${String(v).replace(/'/g, "''")}'`);
-  const L = ['\\set ON_ERROR_STOP on', 'BEGIN;', '', 'DELETE FROM public.foi_statistics;'];
+  const L = ['\\set ON_ERROR_STOP on', 'BEGIN;', '',
+    // Never replace the table with a shorter series than it holds.
+    'DO $$ DECLARE n int; BEGIN',
+    `  SELECT count(*) INTO n FROM public.foi_statistics; IF n > ${out.length} THEN RAISE EXCEPTION 'the table has % rows, the new file only ${out.length}', n; END IF;`,
+    'END $$;',
+    'DELETE FROM public.foi_statistics;'];
   for (let i = 0; i < out.length; i += 500) {
     L.push(`INSERT INTO public.foi_statistics (${C.join(', ')}, source_url) VALUES`,
-      out.slice(i, i + 500).map((r) => `(${C.map((c) => q(r[c])).join(', ')}, ${q(PAGE_URL)})`).join(',\n') + ';');
+      out.slice(i, i + 500).map((r) => `(${C.map((c) => q(r[c])).join(', ')}, ${q(pageUrl)})`).join(',\n') + ';');
   }
   L.push('', 'DO $$', 'DECLARE n int;', 'BEGIN',
     `  SELECT count(*) INTO n FROM public.foi_statistics; IF n <> ${out.length} THEN RAISE EXCEPTION 'expected ${out.length} rows, found %', n; END IF;`,

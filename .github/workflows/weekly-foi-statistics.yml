@@ -1,0 +1,43 @@
+name: Weekly FOI Statistics
+
+# Imports a new Cabinet Office "Freedom of Information statistics" release when one appears (owner's approval,
+# 20 Oct 2026). scripts/import-foi-statistics.js --latest reads the GOV.UK collection and only when a release is newer
+# than the latest period in foi_statistics downloads its published-data CSV and writes one guarded transaction
+# (foi.sql); otherwise it writes nothing and the psql step is skipped. Releases come quarterly, so most weeks do nothing.
+
+on:
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+jobs:
+  foi-statistics:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      NEXT_PUBLIC_SUPABASE_URL: https://nwnsvnbudmfkhhwcjwwr.supabase.co
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+      - name: Install dependencies
+        run: npm install @supabase/supabase-js csv-parse
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Check for a new FOI statistics release (writes foi.sql only if there is one)
+        id: foi-check
+        run: node scripts/import-foi-statistics.js --latest --sql=foi.sql
+      - name: Import the new release (one guarded transaction)
+        id: foi-import
+        if: steps.foi-check.outcome == 'success' && hashFiles('foi.sql') != ''
+        env:
+          DATABASE_URL_RAW: ${{ secrets.DATABASE_URL }}
+        run: |
+          export DATABASE_URL="$(printf '%s' "$DATABASE_URL_RAW" | tr -d '[:space:]')"
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -f foi.sql
+      - name: Report step results (fails the run if any step failed, so GitHub emails the owner)
+        if: always()
+        env:
+          STEPS_JSON: ${{ toJSON(steps) }}
+        run: node scripts/report-workflow-steps.js

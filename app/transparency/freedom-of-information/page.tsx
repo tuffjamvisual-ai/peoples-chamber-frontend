@@ -5,7 +5,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
-import { DEPT_BY_FOI_BODY, FOI_SOURCE, getFoiLatestQuarter, periodName } from '@/lib/foi-statistics';
+import { DEPT_BY_FOI_BODY, foiSource, getFoiLatestQuarter, periodName } from '@/lib/foi-statistics';
 import FoiTable, { type FoiTableRow } from './FoiTable';
 
 export const revalidate = 86400;
@@ -35,6 +35,7 @@ export default async function FreedomOfInformationPage() {
     resolvable: r.resolvable,
   }));
   const total = rows.reduce((n, r) => n + (r.received ?? 0), 0);
+  const source = latest && latest.rows[0] ? foiSource(latest.rows[0]) : null;
 
   return (
     <OpenGovShell pageStamp="Transparency">
@@ -66,10 +67,12 @@ export default async function FreedomOfInformationPage() {
           year&rsquo;s internal reviews and complaints to the Information Commissioner. More on Open Govt:{' '}
           <Link href="/transparency" style={{ color: INK, textDecoration: 'underline' }}>Transparency</Link>.
         </p>
-        <p style={{ opacity: 0.85, fontSize: '13px' }}>
-          Source: <a href={FOI_SOURCE.url} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>{FOI_SOURCE.label}</a>.
-          Contains public sector information licensed under the Open Government Licence v3.0.
-        </p>
+        {source && (
+          <p style={{ opacity: 0.85, fontSize: '13px' }}>
+            Source: <a href={source.url} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>{source.label}</a>.
+            Contains public sector information licensed under the Open Government Licence v3.0.
+          </p>
+        )}
       </div>
     </OpenGovShell>
   );

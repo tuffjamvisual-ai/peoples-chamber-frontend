@@ -4,10 +4,10 @@
 // counts (a percentage only from a base of 20 or more), internal reviews and ICO complaints for the calendar year.
 import { supabase } from './supabase';
 
-export const FOI_SOURCE = {
-  label: 'Cabinet Office, Freedom of Information statistics, April to June 2026 (Accredited official statistics)',
-  url: 'https://www.gov.uk/government/statistics/freedom-of-information-statistics-april-to-june-2026',
-};
+// The source line names the release the table was loaded from (source_url, kept up to date by the weekly import).
+export function foiSource(row: { period: string; source_url: string }): { label: string; url: string } {
+  return { label: `Cabinet Office, Freedom of Information statistics, ${periodName(row.period)} (Accredited official statistics)`, url: row.source_url };
+}
 export const FOI_PAGE = '/transparency/freedom-of-information';
 
 // Department page slug -> the FOI statistics' body name(s). The Business, Innovation, Science and Trade page shows
@@ -59,8 +59,9 @@ export type FoiRow = {
   ir_upheld_part: number | null;
   ir_overturned: number | null;
   ico_complaints: number | null;
+  source_url: string;
 };
-const COLS = 'body, period, period_year, period_quarter, received, received_ex, met_20_days, permitted_extension, late, pct_met_20_days, resolvable, granted_full, partially_withheld, fully_withheld, internal_reviews, ir_outcome_known, ir_upheld_full, ir_upheld_part, ir_overturned, ico_complaints';
+const COLS = 'body, period, period_year, period_quarter, received, received_ex, met_20_days, permitted_extension, late, pct_met_20_days, resolvable, granted_full, partially_withheld, fully_withheld, internal_reviews, ir_outcome_known, ir_upheld_full, ir_upheld_part, ir_overturned, ico_complaints, source_url';
 
 const QUARTER_NAMES = ['January to March', 'April to June', 'July to September', 'October to December'];
 // "Q2 2026" -> "April to June 2026"; "2025" -> "2025".

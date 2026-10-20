@@ -6,7 +6,7 @@
 //     reviews and complaints to the Information Commissioner for the calendar year, labelled as such.
 //   - "Ministers' meetings": the latest return in ministers_meetings and any quarter with none (lib/ministers-meetings-status.ts).
 import Link from 'next/link';
-import { FOI_PAGE, FOI_SOURCE, periodName, type DeptFoi } from '@/lib/foi-statistics';
+import { FOI_PAGE, foiSource, periodName, type DeptFoi } from '@/lib/foi-statistics';
 import type { MeetingsStatus } from '@/lib/ministers-meetings-status';
 
 const fmt = (n: number) => n.toLocaleString('en-GB');
@@ -90,7 +90,7 @@ export function TransparencySlot({ foi, meetings }: { foi: DeptFoi[]; meetings: 
             <Link href={FOI_PAGE} className="underline">All 39 bodies in the statistics, {periodName(foi[0].latest.period)} →</Link>
           </P>
           <p className="text-[#14100d] text-[13px] leading-[1.6] mb-6 opacity-85">
-            Source: <a href={FOI_SOURCE.url} target="_blank" rel="noopener noreferrer" className="underline">{FOI_SOURCE.label}</a>.
+            Source: <a href={foiSource(foi[0].latest).url} target="_blank" rel="noopener noreferrer" className="underline">{foiSource(foi[0].latest).label}</a>.
             Contains public sector information licensed under the Open Government Licence v3.0.
           </p>
         </>

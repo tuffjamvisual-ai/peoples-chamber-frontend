@@ -54,7 +54,17 @@ function makePoliteFetch({ cacheDir = null, delayMs = 1000, log = (m) => console
     return out;
   }
 
-  return { getJson, requestCount: () => requests };
+  // Raw bytes (for CSV files): same robots check, pause and redirect handling; not cached.
+  async function getBytes(url, hops = 3) {
+    if (!(await allowed(url))) throw new Error(`robots.txt disallows ${url}`);
+    const r = await fetch(url, { headers: { 'User-Agent': UA }, redirect: 'manual', signal: AbortSignal.timeout(120000) });
+    requests++;
+    await sleep(delayMs);
+    if ([301, 302, 303, 307, 308].includes(r.status) && hops) return getBytes(new URL(r.headers.get('location'), url).href, hops - 1);
+    return { status: r.status, bytes: r.status === 200 ? Buffer.from(await r.arrayBuffer()) : null };
+  }
+
+  return { getJson, getBytes, requestCount: () => requests };
 }
 
 module.exports = { makePoliteFetch, UA };
