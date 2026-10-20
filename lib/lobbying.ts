@@ -5,8 +5,9 @@
 //     scripts/build-lobbying-index.js)
 //   - consultant lobbyists and their clients, from the Registrar of Consultant Lobbyists
 //     quarterly returns (orcl_client_returns, built by scripts/import-orcl-returns.js)
-// Organisation names are matched only through spellings checked by hand or taken from
-// GOV.UK's official list; anything else stays unmatched and is not ranked.
+// Organisation names are matched only through spellings checked by hand, taken from GOV.UK's
+// official list, or our councils' names; anything else stays unmatched and is not ranked.
+// People, job titles and generic entries are excluded (kept in the meeting records, not ranked).
 //
 // Keep normalising rules in step with scripts/lib/lobby-names.js.
 
@@ -39,6 +40,8 @@ export type LobbySummary = {
   mentions_matched: number;
   mentions_unmatched: number;
   mentions_excluded: number;
+  meetings_counted: number;   // meetings naming at least one organisation that is not excluded (migration 2026-10-20f)
+  meetings_matched: number;   // of those, naming at least one matched organisation
   first_meeting: string | null;
   last_meeting: string | null;
   meetings_built_at: string | null;
@@ -90,6 +93,7 @@ export const getSummary = cache(async (): Promise<LobbySummary | null> => {
     ...r,
     meeting_entries: n(r.meeting_entries), mentions: n(r.mentions), mentions_matched: n(r.mentions_matched),
     mentions_unmatched: n(r.mentions_unmatched), mentions_excluded: n(r.mentions_excluded),
+    meetings_counted: n(r.meetings_counted), meetings_matched: n(r.meetings_matched),
     orcl_rows: n(r.orcl_rows), orcl_firms: n(r.orcl_firms), orcl_clients: n(r.orcl_clients),
   } as LobbySummary;
 });

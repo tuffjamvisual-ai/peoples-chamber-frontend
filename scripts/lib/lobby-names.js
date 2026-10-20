@@ -6,7 +6,17 @@
 // Normalised spelling used for matching: lower case, "&" as "and", curly quotes and
 // punctuation removed, a leading "the" and trailing legal suffixes dropped, spaces collapsed.
 // "The Confederation of British Industry (CBI) Ltd." -> "confederation of british industry cbi"
+// Company-form words (Ltd, Limited, plc, LLP, Holdings) and a bracketed (GB) or (UK) are dropped wherever they
+// appear, not only at the end (owner's approval, 20 Oct 2026): "Arconic Manufacturing (GB) Ltd" ->
+// "arconic manufacturing", "Rolls-Royce Holdings plc" -> "rolls royce". Only after another word: "Limited Edition Ltd"
+// -> "limited edition". A name made only of such words keeps them.
 function normaliseName(raw) {
+  const wide = normaliseBase(String(raw || '').replace(/\(\s*(gb|uk|u\.k\.)\s*\)/gi, ' '))
+    .replace(/(?<=\S) (ltd|limited|plc|llp|holdings)(?= |$)/g, '').replace(/\s+/g, ' ').trim();
+  return wide || normaliseBase(raw);
+}
+
+function normaliseBase(raw) {
   let s = String(raw || '').toLowerCase();
   s = s.replace(/[’‘`]/g, "'").replace(/&/g, ' and ').replace(/\+/g, ' and ');
   s = s.replace(/'s\b/g, 's');
@@ -111,8 +121,34 @@ function splitTopLevelCommas(text) {
 }
 
 // URL slug for an organisation page.
+// Our councils (councils table) in the forms ministers' returns use: "<name>", "<short> Council", "<short> County
+// Council", "<short> City Council", "London Borough of <short>", "Royal Borough of <short>" and so on. A form that
+// would name two councils is left out (returned in `ambiguous`), so it stays unmatched.
+const COUNCIL_FORMS = ['{b} Council', '{b} County Council', '{b} City Council', '{b} Borough Council', '{b} District Council',
+  '{b} Metropolitan Borough Council', '{b} Metropolitan District Council', '{b} County Borough Council', '{b} London Borough Council',
+  'London Borough of {b}', 'Royal Borough of {b}', 'Royal Borough of {b} Council', 'City of {b} Council', '{b} Unitary Authority'];
+function councilForms(councils) {
+  const forms = new Map();
+  const add = (form, slug) => {
+    const n = normaliseName(form);
+    if (!n) return;
+    if (!forms.has(n)) forms.set(n, { slugs: new Set(), example: form });
+    forms.get(n).slugs.add(slug);
+  };
+  for (const c of councils) {
+    add(c.name, c.slug);
+    for (const t of COUNCIL_FORMS) add(t.replace('{b}', c.short_name || c.name), c.slug);
+  }
+  const unique = new Map(); const ambiguous = [];
+  for (const [n, f] of forms) {
+    if (f.slugs.size === 1) unique.set(n, { slug: [...f.slugs][0], example: f.example });
+    else ambiguous.push({ norm: n, slugs: [...f.slugs] });
+  }
+  return { unique, ambiguous };
+}
+
 function slugify(name) {
   return normaliseName(name).replace(/\s+/g, '-').slice(0, 80) || 'organisation';
 }
 
-module.exports = { normaliseName, splitOrganisations, splitTopLevelCommas, stripBrackets, slugify };
+module.exports = { normaliseName, splitOrganisations, splitTopLevelCommas, stripBrackets, slugify, councilForms };

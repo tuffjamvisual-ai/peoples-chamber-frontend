@@ -1,6 +1,6 @@
 // /lobbying — who meets ministers, and who pays consultant lobbyists.
 // Organisation rankings come from the lobbying index (lib/lobbying.ts); only names matched
-// through hand-checked spellings or GOV.UK's official list are counted.
+// through hand-checked spellings, GOV.UK's official list or our councils' names are counted.
 
 import type { Metadata } from 'next';
 import type { CSSProperties } from 'react';
@@ -78,6 +78,11 @@ export default async function LobbyingPage() {
   const matchedShare = summary && summary.mentions - summary.mentions_excluded > 0
     ? Math.round((100 * summary.mentions_matched) / (summary.mentions - summary.mentions_excluded))
     : 0;
+  // Meetings naming at least one matched organisation, of meetings naming any organisation that is not excluded
+  // (owner's decision, 20 Oct 2026).
+  const meetingShare = summary && summary.meetings_counted > 0
+    ? Math.round((100 * summary.meetings_matched) / summary.meetings_counted)
+    : 0;
   const since = fmtDate(summary?.first_meeting || null);
 
   return (
@@ -113,6 +118,11 @@ export default async function LobbyingPage() {
         </div>
 
         <h2 style={sectionHead}>Who meets ministers most</h2>
+        {summary && summary.meetings_counted > 0 && (
+          <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, lineHeight: 1.6, margin: '-6px 0 14px', maxWidth: '46em' }}>
+            Rankings cover organisations matched so far, found in {meetingShare}% of meetings.
+          </p>
+        )}
         <LobbyRanking tabs={tabs} sinceLabel={since ? `Since ${since}` : 'All'} />
         {both > 0 && (
           <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: '14px 0 0', maxWidth: '46em' }}>
@@ -147,10 +157,10 @@ export default async function LobbyingPage() {
         <section style={{ marginTop: '40px', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', fontFamily: MONO, fontSize: '15px', color: INK, lineHeight: 1.7, maxWidth: '46em' }}>
           <strong>How this is counted.</strong> A meeting is one entry in a minister’s published
           return, so a meeting with two ministers counts once for each, as the government publishes
-          it. Organisations are counted only when their name matches a spelling checked by hand or
-          GOV.UK’s official list of public bodies; job titles, people’s names and names that could
-          mean more than one organisation are left out of the rankings but kept in the meeting
-          records.{summary ? ` So far ${matchedShare}% of the ${(summary.mentions - summary.mentions_excluded).toLocaleString('en-GB')} organisation names in the meeting returns are matched; the rest are still to be checked, so less frequent visitors may be missing from the rankings.` : ''}{' '}
+          it. Organisations are counted only when their name matches a spelling checked by hand,
+          GOV.UK’s official list of public bodies or the name of a council; people’s names, job titles,
+          generic entries (“various stakeholders”) and names that could mean more than one organisation
+          are left out of the rankings but kept in the meeting records.{summary ? ` So far ${matchedShare}% of the ${(summary.mentions - summary.mentions_excluded).toLocaleString('en-GB')} organisation names in the meeting returns are matched${summary.meetings_counted > 0 ? `, and a matched organisation is named in ${meetingShare}% of meetings` : ''}; the rest are still to be checked, so less frequent visitors may be missing from the rankings.` : ''}{' '}
           Departments publish their returns months after the meetings, so the most recent months
           are incomplete. The lobbyist register covers {summary ? registerSpan(summary.orcl_first_quarter, summary.orcl_last_quarter) : 'recent quarters'}.
           Sources: GOV.UK ministers’ meetings transparency returns and the Registrar of Consultant

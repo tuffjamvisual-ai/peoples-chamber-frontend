@@ -11,8 +11,19 @@
 //   3. Turns the published date into a real date and flags dates after today or unreadable.
 //   4. Writes lobby_meeting_mentions in full (new rows first, then old rows removed).
 //
+//   5. Councils (owner's approval, 20 Oct 2026): every council in our councils table becomes an organisation
+//      (source 'council', linked by council_slug) with the forms returns use ("Kent County Council", "London
+//      Borough of Camden"); a form that would name two councils is left out and stays unmatched.
+//   6. Dates and sources come from ministers_meetings as the sync now records them: the published date text,
+//      a note where the date could not be used, and the publication's address.
+//
 // DRY RUN BY DEFAULT: prints the report, writes NOTHING (including GOV.UK organisations).
 // Pass --write to save, only after the dry-run report has been approved.
+// --sql=file.sql writes the same changes as one guarded transaction instead (for a rehearsal with ROLLBACK).
+//   With it: --meetings-json=file reads the meetings from a reload report (scripts/reload-ministers-meetings.ts)
+//   instead of the table; --add-excluded=file adds names to lobby_excluded_names: a CSV (norm_name, reason,
+//   published_name), as scripts/data/lobby-exclusions-20261020.csv (the owner-approved list of 20 Oct 2026), or JSON;
+//   --renormalise rewrites stored spellings and excluded names under the current normalising rules.
 // Also writes data/lobbying/frequent-names.csv (names mentioned 10+ times) for the hand review.
 //
 // Usage:
@@ -25,9 +36,12 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { createClient } = require('@supabase/supabase-js');
-const { normaliseName, splitOrganisations, slugify } = require('./lib/lobby-names');
+const { normaliseName, splitOrganisations, slugify, councilForms } = require('./lib/lobby-names');
 
 const WRITE = process.argv.includes('--write');
+const arg = (n) => (process.argv.find((a) => a.startsWith(`--${n}=`)) || '').slice(n.length + 3);
+const SQL = arg('sql');
+const RENORMALISE = process.argv.includes('--renormalise');
 const GOVUK_ORGS = 'https://www.gov.uk/api/organisations';
 const UA = { 'User-Agent': 'opengovt-import/1.0 (+https://opengovt.uk)' };
 const TODAY = new Date().toISOString().slice(0, 10);
@@ -57,19 +71,17 @@ async function govukOrganisations() {
     const j = await res.json();
     for (const r of j.results || []) out.push({ title: r.title, abbreviation: r.details && r.details.abbreviation, slug: r.details && r.details.slug, status: r.details && r.details.govuk_status });
     url = j.next_page_url || null;
+    await new Promise((r) => setTimeout(r, 500)); // one request at a time, half a second apart
   }
   return out;
 }
 
-function parseDate(raw) {
-  const s = String(raw || '').trim();
-  let m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (!m) return { date: null, flag: 'unreadable' };
-  const [y, mo, d] = [Number(m[1]), Number(m[2]), Number(m[3])];
-  const dt = new Date(Date.UTC(y, mo - 1, d));
-  if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== mo - 1 || dt.getUTCDate() !== d) return { date: null, flag: 'unreadable' };
-  const iso = `${m[1]}-${m[2]}-${m[3]}`;
-  return { date: iso, flag: iso > TODAY ? 'future' : null };
+// Dates come from ministers_meetings already checked (lib/ministers-meetings-source.ts): an ISO date, or empty with
+// date_note saying why. A date after today is still flagged, in case a return was published before the meeting.
+function parseDate(iso) {
+  const s = String(iso || '').trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return { date: null, flag: 'unreadable' };
+  return { date: s, flag: s > TODAY ? 'future' : null };
 }
 
 (async () => {
@@ -81,6 +93,47 @@ function parseDate(raw) {
     readAll('lobby_org_aliases', 'alias_norm, org_id, source', ['alias_norm']),
     readAll('lobby_excluded_names', 'norm_name, reason', ['norm_name']),
   ]);
+  // --renormalise: stored spellings and excluded names were normalised under earlier rules; work out their spelling
+  // under the current rules. Two spellings of different organisations that would become one are reported and the
+  // stored spelling is left as it is (the run stops in --sql mode).
+  const aliasRenames = []; const aliasDrops = []; const aliasClashes = []; const excludedRenames = []; const excludedDrops = [];
+  if (RENORMALISE) {
+    const target = new Map();
+    for (const a of aliases) {
+      const n = normaliseName(a.alias_norm);
+      const t = target.get(n);
+      if (t && t.org_id !== a.org_id) { aliasClashes.push(`${n}: org ${t.org_id} and org ${a.org_id}`); continue; }
+      if (n === a.alias_norm) { target.set(n, a); continue; }
+      if (t) aliasDrops.push(a.alias_norm); else { aliasRenames.push([a.alias_norm, n]); target.set(n, a); }
+    }
+    // a spelling already in the new form wins over one that becomes it
+    for (const a of aliases) if (normaliseName(a.alias_norm) === a.alias_norm) target.set(a.alias_norm, a);
+    for (const [from, to] of [...aliasRenames]) if (target.get(to).alias_norm !== from) { aliasRenames.splice(aliasRenames.findIndex((r) => r[0] === from), 1); aliasDrops.push(from); }
+    for (const a of aliases) a.alias_norm = normaliseName(a.alias_norm);
+    const seenEx = new Set(excluded.filter((e) => normaliseName(e.norm_name) === e.norm_name).map((e) => e.norm_name));
+    for (const e of excluded) {
+      const n = normaliseName(e.norm_name);
+      if (n === e.norm_name) continue;
+      if (seenEx.has(n)) excludedDrops.push(e.norm_name); else { excludedRenames.push([e.norm_name, n]); seenEx.add(n); }
+      e.norm_name = n;
+    }
+    console.log(`renormalised: ${aliasRenames.length} spellings rewritten, ${aliasDrops.length} dropped as duplicates of the same organisation, ${aliasClashes.length} would join two organisations${aliasClashes.length ? `: ${aliasClashes.slice(0, 10).join('; ')}` : ''}; excluded names rewritten ${excludedRenames.length}, dropped ${excludedDrops.length}`);
+    if (SQL && aliasClashes.length) throw new Error('spellings would join two organisations; fix them before writing');
+  }
+  // --add-excluded: people, job titles and generic entries (owner's approval, 20 Oct 2026). Kept in the meeting
+  // records; left out of the rankings and of the matched share.
+  // A .csv (norm_name,reason,published_name: scripts/data/lobby-exclusions-20261020.csv) or a .json [{ norm, reason }].
+  const readExcluded = (f) => {
+    if (!f) return [];
+    if (!f.endsWith('.csv')) return JSON.parse(fs.readFileSync(f, 'utf8'));
+    const { parse } = require('csv-parse/sync');
+    return parse(fs.readFileSync(f), { columns: true }).map((r) => ({ norm: r.norm_name, reason: r.reason }));
+  };
+  const addExcluded = readExcluded(arg('add-excluded'));
+  const excludedHad = new Set(excluded.map((e) => e.norm_name));
+  const newExcluded = addExcluded.filter((e) => e.norm && !excludedHad.has(e.norm) && !aliases.some((a) => a.alias_norm === e.norm));
+  for (const e of newExcluded) excluded.push({ norm_name: e.norm, reason: e.reason });
+  if (addExcluded.length) console.log(`excluded names to add: ${newExcluded.length} (${Object.entries(newExcluded.reduce((m, e) => { m[e.reason] = (m[e.reason] || 0) + 1; return m; }, {})).map(([k, v]) => `${k} ${v}`).join(', ')})`);
   const aliasMap = new Map(aliases.map((a) => [a.alias_norm, a.org_id]));
   const excludedSet = new Set(excluded.map((e) => e.norm_name));
   const slugs = new Set(orgs.map((o) => o.slug));
@@ -109,10 +162,43 @@ function parseDate(raw) {
   }
   console.log(`GOV.UK organisations to add: ${newGovOrgs.length} (with ${newGovAliases.reduce((s, x) => s + x.spellings.length, 0)} spellings)`);
 
+  // ── 1b. Councils ───────────────────────────────────────────────────────────
+  const councils = await readAll('councils', 'slug, name, short_name', ['slug']);
+  let withCouncil = [];
+  try { withCouncil = await readAll('lobby_orgs', 'id, slug, council_slug', ['id']); } catch (e) { if (!/council_slug/.test(e.message)) throw e; } // before migration 2026-10-20f
+  const existingCouncilOrgs = new Map(withCouncil.filter((o) => o.council_slug).map((o) => [o.council_slug, o]));
+  const { unique: cForms, ambiguous: cAmbiguous } = councilForms(councils);
+  const newCouncilOrgs = []; const councilAliases = []; const councilLinks = []; let councilFormsTaken = 0;
+  const councilOrgRef = new Map();
+  for (const c of councils) {
+    const ex = existingCouncilOrgs.get(c.slug);
+    if (ex) { councilOrgRef.set(c.slug, ex.id); continue; }
+    // A council already added by hand ("Birmingham City Council"): that organisation is linked to the council and gets
+    // its other forms, rather than a second organisation for the same council.
+    let byForm = null;
+    for (const [n, f] of cForms) if (f.slug === c.slug && typeof aliasMap.get(n) === 'number') { byForm = aliasMap.get(n); break; }
+    if (byForm != null && !councilLinks.some((l) => l.org_id === byForm)) { councilOrgRef.set(c.slug, byForm); councilLinks.push({ org_id: byForm, council_slug: c.slug }); continue; }
+    let slug = slugify(c.name);
+    while (slugs.has(slug)) slug = `${slug}-council`;
+    slugs.add(slug);
+    newCouncilOrgs.push({ slug, name: c.name, org_type: 'public_body', source: 'council', council_slug: c.slug, reviewed: false, notes: `Council /councils/${c.slug}` });
+    councilOrgRef.set(c.slug, `new:${slug}`);
+  }
+  for (const [n, f] of cForms) {
+    if (aliasMap.has(n) || govNames.has(n)) { if (aliasMap.get(n) !== councilOrgRef.get(f.slug)) councilFormsTaken++; continue; } // already a spelling
+    const ref = councilOrgRef.get(f.slug);
+    councilAliases.push({ alias_norm: n, alias_example: f.example, source: 'council', council_slug: f.slug, ref });
+    aliasMap.set(n, ref);
+  }
+  console.log(`councils: ${councils.length}; organisations to add ${newCouncilOrgs.length}; existing organisations linked to their council ${councilLinks.length}; spellings to add ${councilAliases.length} (${councilFormsTaken} already another organisation's spelling, ${cAmbiguous.length} would name two councils${cAmbiguous.length ? `: ${cAmbiguous.slice(0, 10).map((a) => `${a.norm} (${a.slugs.join(', ')})`).join('; ')}` : ''})`);
+
   const isKnown = (norm) => aliasMap.has(norm) || govNames.has(norm) || excludedSet.has(norm);
 
   // ── 2. Meetings → mentions ─────────────────────────────────────────────────
-  const meetings = await readAll('ministers_meetings', 'minister_name, minister_dept, meeting_date, organisation, purpose, quarter, source_publication_slug', ['minister_name', 'minister_dept', 'meeting_date', 'organisation', 'purpose', 'quarter', 'source_publication_slug']);
+  const MCOLS = 'minister_name, minister_dept, meeting_date, meeting_date_raw, date_note, organisation, purpose, quarter, source_publication_slug, source_publication_url';
+  const meetings = arg('meetings-json')
+    ? JSON.parse(fs.readFileSync(arg('meetings-json'), 'utf8')).rows
+    : await readAll('ministers_meetings', MCOLS, ['minister_name', 'minister_dept', 'meeting_date', 'organisation', 'purpose', 'quarter', 'source_publication_slug', 'meeting_date_raw']);
   console.log(`\nministers' meetings read: ${meetings.length}`);
   const keyCount = new Map();
   const mentions = [];
@@ -127,7 +213,7 @@ function parseDate(raw) {
     const n = (keyCount.get(hash) || 0) + 1; keyCount.set(hash, n);
     const meeting_key = n === 1 ? hash : `${hash}-${n}`; // identical published rows stay separate
     const { date, flag } = parseDate(m.meeting_date);
-    if (flag) flags[flag].push(`${m.meeting_date} (${m.minister_name})`);
+    if (flag) flags[flag].push(`${m.meeting_date_raw ?? m.meeting_date} (${m.minister_name})`);
     const names = splitOrganisations(m.organisation, isKnown);
     if (!names.length) { blank++; continue; }
     if (names.length > 1) roundtables++;
@@ -155,8 +241,9 @@ function parseDate(raw) {
       mentions.push({
         meeting_key, position: i + 1,
         minister_name: m.minister_name, minister_dept: m.minister_dept || null,
-        meeting_date: date, meeting_date_raw: m.meeting_date || null, date_flag: flag,
+        meeting_date: date, meeting_date_raw: m.meeting_date_raw ?? m.meeting_date ?? null, date_flag: flag, date_note: m.date_note || null,
         purpose: m.purpose || null, quarter: m.quarter || null, source_publication_slug: m.source_publication_slug || null,
+        source_publication_url: m.source_publication_url || null,
         raw_name: raw.slice(0, 500), norm_name: norm,
         org_ref: orgRef ?? null,
         match_type: excludedSet.has(norm) ? 'excluded' : orgRef != null ? 'alias' : 'unmatched',
@@ -200,8 +287,14 @@ function parseDate(raw) {
   for (const x of mentions) { const k = `${x.meeting_key}#${x.position}`; if (seenKeys.has(k)) dupes.push(k); else seenKeys.add(k); }
   if (dupes.length) console.log(`DUPLICATE keys (must be fixed before writing): ${dupes.slice(0, 10).join(', ')}`);
 
+  if (SQL) {
+    if (dupes.length) throw new Error('duplicate keys');
+    writeSql(SQL, { newGovOrgs, newGovAliases, newCouncilOrgs, councilAliases, councilLinks, newExcluded, aliasRenames, aliasDrops, excludedRenames, excludedDrops, mentions });
+    return;
+  }
   if (!WRITE) { console.log('\nDRY RUN complete. Nothing was written.'); return; }
   if (dupes.length) throw new Error('duplicate keys');
+  if (RENORMALISE) throw new Error('--renormalise rewrites stored spellings: use --sql and run the transaction');
 
   // Safety: ministers_meetings is deleted and re-inserted on every sync. If this runs in that
   // gap it reads far fewer meetings, and the stale-row delete below would wipe the index.
@@ -212,18 +305,31 @@ function parseDate(raw) {
 
   // ── Write ──────────────────────────────────────────────────────────────────
   console.log('\n--- Writing ---');
-  for (let i = 0; i < newGovOrgs.length; i += 500) {
-    const { error } = await db.from('lobby_orgs').insert(newGovOrgs.slice(i, i + 500));
+  const orgsToAdd = [...newGovOrgs, ...newCouncilOrgs];
+  for (let i = 0; i < orgsToAdd.length; i += 500) {
+    const { error } = await db.from('lobby_orgs').insert(orgsToAdd.slice(i, i + 500));
     if (error) throw new Error(`lobby_orgs insert: ${error.message}`);
+  }
+  for (const l of councilLinks) {
+    const { error } = await db.from('lobby_orgs').update({ council_slug: l.council_slug, updated_at: new Date().toISOString() }).eq('id', l.org_id).is('council_slug', null);
+    if (error) throw new Error(`lobby_orgs council link: ${error.message}`);
+  }
+  if (newExcluded.length) {
+    const { error } = await db.from('lobby_excluded_names').upsert(newExcluded.map((e) => ({ norm_name: e.norm, reason: e.reason })), { onConflict: 'norm_name', ignoreDuplicates: true });
+    if (error) throw new Error(`lobby_excluded_names insert: ${error.message}`);
   }
   const fresh = await readAll('lobby_orgs', 'id, slug', ['id']);
   const idBySlug = new Map(fresh.map((o) => [o.slug, o.id]));
-  const aliasRows = newGovAliases.flatMap((g) => g.spellings.map((s) => ({ ...s, org_id: idBySlug.get(g.slug) })));
+  const resolveRef = (ref) => (typeof ref === 'string' && ref.startsWith('new:') ? idBySlug.get(ref.slice(4)) : ref);
+  const aliasRows = [
+    ...newGovAliases.flatMap((g) => g.spellings.map((s) => ({ ...s, org_id: idBySlug.get(g.slug) }))),
+    ...councilAliases.map((a) => ({ alias_norm: a.alias_norm, alias_example: a.alias_example, source: 'council', org_id: resolveRef(a.ref) })),
+  ];
   for (let i = 0; i < aliasRows.length; i += 500) {
     const { error } = await db.from('lobby_org_aliases').upsert(aliasRows.slice(i, i + 500), { onConflict: 'alias_norm', ignoreDuplicates: true });
     if (error) throw new Error(`lobby_org_aliases insert: ${error.message}`);
   }
-  console.log(`  lobby_orgs: ${newGovOrgs.length} GOV.UK organisations added; lobby_org_aliases: ${aliasRows.length} spellings added`);
+  console.log(`  lobby_orgs: ${newGovOrgs.length} GOV.UK organisations and ${newCouncilOrgs.length} councils added; lobby_org_aliases: ${aliasRows.length} spellings added; excluded names added: ${newExcluded.length}`);
 
   const resolve = (ref) => (ref == null ? null : typeof ref === 'string' && ref.startsWith('new:') ? idBySlug.get(ref.slice(4)) ?? null : ref);
   const runStart = new Date().toISOString();
@@ -240,3 +346,50 @@ function parseDate(raw) {
   console.log(`  /lobbying figures refreshed: ${JSON.stringify(rv)}`);
   console.log('\nWRITE complete.');
 })().catch((e) => { console.error('FAILED: ' + e.message); process.exit(1); });
+
+// One guarded transaction with the same changes as --write (for a rehearsal with ROLLBACK, then a run).
+function writeSql(file, x) {
+  const q = (v) => (v == null ? 'NULL' : typeof v === 'number' || typeof v === 'boolean' ? String(v) : `'${String(v).replace(/'/g, "''")}'`);
+  const orgRef = (ref) => (ref == null ? 'NULL' : typeof ref === 'string' && ref.startsWith('new:') ? `(SELECT id FROM public.lobby_orgs WHERE slug = ${q(ref.slice(4))})` : String(ref));
+  const L = ['\\set ON_ERROR_STOP on', 'BEGIN;', ''];
+  L.push('-- spellings and excluded names under the current normalising rules');
+  for (const n of x.aliasDrops) L.push(`DELETE FROM public.lobby_org_aliases WHERE alias_norm = ${q(n)};`);
+  for (const [a, b] of x.aliasRenames) L.push(`UPDATE public.lobby_org_aliases SET alias_norm = ${q(b)} WHERE alias_norm = ${q(a)};`);
+  for (const n of x.excludedDrops) L.push(`DELETE FROM public.lobby_excluded_names WHERE norm_name = ${q(n)};`);
+  for (const [a, b] of x.excludedRenames) L.push(`UPDATE public.lobby_excluded_names SET norm_name = ${q(b)} WHERE norm_name = ${q(a)};`);
+  L.push('', '-- organisations');
+  for (const o of [...x.newGovOrgs, ...x.newCouncilOrgs]) {
+    L.push(`INSERT INTO public.lobby_orgs (slug, name, org_type, source, reviewed, notes${o.council_slug ? ', council_slug' : ''}) VALUES (${[o.slug, o.name, o.org_type, o.source, o.reviewed, o.notes].map(q).join(', ')}${o.council_slug ? `, ${q(o.council_slug)}` : ''});`);
+  }
+  for (const l of x.councilLinks) L.push(`UPDATE public.lobby_orgs SET council_slug = ${q(l.council_slug)}, updated_at = now() WHERE id = ${l.org_id} AND council_slug IS NULL;`);
+  L.push('', '-- spellings');
+  for (const g of x.newGovAliases) for (const sp of g.spellings) L.push(`INSERT INTO public.lobby_org_aliases (alias_norm, org_id, alias_example, source) VALUES (${q(sp.alias_norm)}, ${orgRef('new:' + g.slug)}, ${q(sp.alias_example)}, 'govuk');`);
+  for (const a of x.councilAliases) L.push(`INSERT INTO public.lobby_org_aliases (alias_norm, org_id, alias_example, source) VALUES (${q(a.alias_norm)}, ${orgRef(a.ref)}, ${q(a.alias_example)}, 'council');`);
+  L.push('', '-- excluded names');
+  for (const e of x.newExcluded) L.push(`INSERT INTO public.lobby_excluded_names (norm_name, reason) VALUES (${q(e.norm)}, ${q(e.reason)});`);
+  L.push('', '-- mentions, replaced in full');
+  L.push('CREATE TEMP TABLE new_mentions (LIKE public.lobby_meeting_mentions INCLUDING DEFAULTS) ON COMMIT DROP;');
+  L.push('ALTER TABLE new_mentions ADD COLUMN org_slug text;');
+  const C = ['meeting_key', 'position', 'minister_name', 'minister_dept', 'meeting_date', 'meeting_date_raw', 'date_flag', 'date_note', 'purpose', 'quarter', 'source_publication_slug', 'source_publication_url', 'raw_name', 'norm_name', 'org_id', 'org_slug', 'match_type'];
+  for (let i = 0; i < x.mentions.length; i += 500) {
+    L.push(`INSERT INTO new_mentions (${C.join(', ')}) VALUES`);
+    L.push(x.mentions.slice(i, i + 500).map((m) => {
+      const ref = m.org_ref; const isNew = typeof ref === 'string' && ref.startsWith('new:');
+      const vals = { ...m, org_id: ref == null || isNew ? null : ref, org_slug: isNew ? ref.slice(4) : null };
+      return `(${C.map((c) => q(vals[c])).join(', ')})`;
+    }).join(',\n') + ';');
+  }
+  L.push('UPDATE new_mentions n SET org_id = o.id FROM public.lobby_orgs o WHERE n.org_slug IS NOT NULL AND o.slug = n.org_slug;');
+  L.push('DELETE FROM public.lobby_meeting_mentions;');
+  L.push(`INSERT INTO public.lobby_meeting_mentions (${C.filter((c) => c !== 'org_slug').join(', ')}) SELECT ${C.filter((c) => c !== 'org_slug').join(', ')} FROM new_mentions;`);
+  const by = (t) => x.mentions.filter((m) => m.match_type === t).length;
+  L.push('', 'DO $$', 'DECLARE n int;', 'BEGIN',
+    `  SELECT count(*) INTO n FROM public.lobby_meeting_mentions;`, `  IF n <> ${x.mentions.length} THEN RAISE EXCEPTION 'expected ${x.mentions.length} mentions, found %', n; END IF;`,
+    `  SELECT count(*) INTO n FROM public.lobby_meeting_mentions WHERE match_type = 'alias' AND org_id IS NOT NULL;`, `  IF n <> ${by('alias')} THEN RAISE EXCEPTION 'expected ${by('alias')} matched mentions with an organisation, found %', n; END IF;`,
+    `  SELECT count(*) INTO n FROM public.lobby_meeting_mentions WHERE match_type = 'excluded';`, `  IF n <> ${by('excluded')} THEN RAISE EXCEPTION 'expected ${by('excluded')} excluded mentions, found %', n; END IF;`,
+    `  SELECT count(*) INTO n FROM public.lobby_orgs WHERE council_slug IS NOT NULL;`, `  IF n <> ${x.newCouncilOrgs.length + x.councilLinks.length} THEN RAISE EXCEPTION 'expected ${x.newCouncilOrgs.length + x.councilLinks.length} organisations linked to councils, found %', n; END IF;`,
+    `  SELECT count(*) INTO n FROM (SELECT council_slug FROM public.lobby_orgs WHERE council_slug IS NOT NULL GROUP BY 1 HAVING count(*) > 1) d;`, `  IF n <> 0 THEN RAISE EXCEPTION '% councils have two organisations', n; END IF;`,
+    'END $$;', '', 'COMMIT;');
+  fs.writeFileSync(file, L.join('\n') + '\n');
+  console.log(`\nWrote ${file}: ${x.mentions.length} mentions, ${x.newGovOrgs.length + x.newCouncilOrgs.length} organisations, ${x.councilAliases.length} council spellings, ${x.newExcluded.length} excluded names, ${x.aliasRenames.length} spellings rewritten. Not run.`);
+}
