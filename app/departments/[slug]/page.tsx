@@ -10,6 +10,9 @@ import { getDepartmentGrants, GrantsSlot } from './GrantsSlot';
 import { DirectionsSlot } from './DirectionsSlot';
 import { fetchDirections } from '@/lib/ministerial-directions';
 import { MajorProjectsSlot } from './MajorProjectsSlot';
+import { TransparencySlot } from './TransparencySlot';
+import { getDeptFoi } from '@/lib/foi-statistics';
+import { getMeetingsStatus } from '@/lib/ministers-meetings-status';
 import { fetchMajorProjects } from '@/lib/major-projects';
 import { DEPARTMENT_BUDGETS } from '@/lib/department-budgets';
 import OpenGovShell from '../../components/OpenGovShell';
@@ -50,7 +53,7 @@ export default async function DepartmentPage({ params }: PageProps) {
   // B2: org names for this slug, used for the press releases tab query.
   const orgNames = DEPT_SLUG_TO_ORGS[slug] ?? [];
 
-  const [govukData, contextData, rawReleases, rawInvestigations, rawProgrammes, directions, majorProjects] = await Promise.all([
+  const [govukData, contextData, rawReleases, rawInvestigations, rawProgrammes, directions, majorProjects, foi, meetings] = await Promise.all([
     getGovukDept(slug),
     getDeptContext(slug),
     // B2 — press releases tab: top 20 by published_at DESC across all
@@ -97,6 +100,10 @@ export default async function DepartmentPage({ params }: PageProps) {
     // Major projects tab: the department's projects in the Government Major Projects Portfolio (major_projects).
     // A failed read hides the tab rather than failing the department page.
     fetchMajorProjects(slug).catch(() => ({ projects: [], latestYear: 0 })),
+    // Transparency tab: FOI statistics (foi_statistics) and the latest ministers' meetings return. A failed read
+    // leaves that part out rather than failing the department page.
+    getDeptFoi(slug).catch(() => []),
+    getMeetingsStatus(slug).catch(() => []),
   ]);
 
   const sos = govukData.ministers?.[0];
@@ -228,6 +235,12 @@ export default async function DepartmentPage({ params }: PageProps) {
   if (majorProjects.projects.length > 0) {
     tabs.push({ id: 'major-projects', label: 'Major projects', rotate: '-0.04deg' });
     slots['major-projects'] = <MajorProjectsSlot projects={majorProjects.projects} latestYear={majorProjects.latestYear} />;
+  }
+
+  // Transparency tab: Freedom of Information statistics and ministers' meetings returns.
+  if (foi.length > 0 || meetings.length > 0) {
+    tabs.push({ id: 'transparency', label: 'Transparency', rotate: '0.06deg' });
+    slots.transparency = <TransparencySlot foi={foi} meetings={meetings} />;
   }
 
   if (pressPhone || socialMedia.length > 0) {

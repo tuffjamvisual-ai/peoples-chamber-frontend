@@ -59,7 +59,15 @@ export type MeetingRow = {
   source_publication_slug: string;
   source_publication_url: string;
   source_csv_url: string;
+  source_published_on: string | null; // the UK date GOV.UK published the return (YYYY-MM-DD)
 };
+
+// GOV.UK's public_timestamp is UTC ("2025-06-25T23:00:00Z" is 26 June in the UK); the date shown is the UK one.
+export function ukDate(ts: string | null | undefined): string | null {
+  if (!ts) return null;
+  const t = new Date(ts);
+  return Number.isNaN(t.getTime()) ? null : new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London' }).format(t);
+}
 
 const json = (f: Fetched) => JSON.parse(new TextDecoder('utf-8').decode(f.bytes));
 
@@ -278,6 +286,7 @@ export function parseMeetingsCsv(bytes: Uint8Array, att: Attachment, pub: Public
       minister_name: minister, minister_dept: deptFromCsvTitle(att.title || ''), meeting_date: date, meeting_date_raw: raw || null, date_note: note,
       organisation: org || null, purpose: purpose.length ? purpose.join(' | ') : null, quarter: q ? q.label : null,
       source_publication_slug: slug, source_publication_url: `https://www.gov.uk${pub.link}`, source_csv_url: att.url,
+      source_published_on: ukDate(pub.public_timestamp),
     });
   }
   return { rows, encoding, problem: rows.length ? null : 'no meeting rows after the column headings' };

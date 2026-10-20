@@ -105,7 +105,7 @@ type PubReport = { dept: string; title: string; slug: string; published: string 
 
   if (!arg('sql')) { console.log('\nDry run: nothing written. Give --sql=file.sql to write the transaction.'); return; }
   const q = (v: unknown) => (v == null ? 'NULL' : `'${String(v).replace(/'/g, "''")}'`);
-  const C = ['minister_name', 'minister_dept', 'meeting_date', 'meeting_date_raw', 'date_note', 'organisation', 'purpose', 'quarter', 'source_publication_slug', 'source_publication_url', 'source_csv_url', 'govuk_org_slug'] as const;
+  const C = ['minister_name', 'minister_dept', 'meeting_date', 'meeting_date_raw', 'date_note', 'organisation', 'purpose', 'quarter', 'source_publication_slug', 'source_publication_url', 'source_csv_url', 'source_published_on', 'govuk_org_slug'] as const;
   const L = ['\\set ON_ERROR_STOP on', 'BEGIN;', '', 'DELETE FROM public.ministers_meetings;'];
   for (let i = 0; i < rows.length; i += 500) {
     L.push(`INSERT INTO public.ministers_meetings (${C.join(', ')}) VALUES`);

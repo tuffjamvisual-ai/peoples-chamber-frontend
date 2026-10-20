@@ -33,6 +33,17 @@ export default function DepartmentTabs({
   const containerRef = useRef<HTMLDivElement>(null);
   const [offset, setOffset] = useState(0);
 
+  // Open the tab named in the URL hash (e.g. /departments/home-office#transparency), as the council tabs do.
+  useEffect(() => {
+    const fromHash = () => {
+      const h = window.location.hash.replace(/^#/, '');
+      if (h && tabs.some((t) => t.id === h)) setActive(h);
+    };
+    fromHash();
+    window.addEventListener('hashchange', fromHash);
+    return () => window.removeEventListener('hashchange', fromHash);
+  }, [tabs]);
+
   useEffect(() => {
     const el = stickyRef.current;
     const container = containerRef.current;
