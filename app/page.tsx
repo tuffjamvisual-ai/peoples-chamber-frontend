@@ -101,7 +101,7 @@ export default async function HomePage() {
               <div className="og-lead">
             <div className="og-main">
               <p className="og-intro-line" style={{ fontFamily: "'Special Elite', monospace", fontSize: 'clamp(16px, 1.9vw, 22px)', letterSpacing: '0.01em', color: '#14100d', marginBottom: '18px', lineHeight: 1.45 }}>
-                Opengovt is an independent record of how power is used in Britain: search what government said, what Parliament did, and what happened next. <a href="/about" style={{ color: '#7a1612', fontSize: '0.8em', textDecoration: 'underline', textUnderlineOffset: '3px', whiteSpace: 'nowrap' }}>About us &rarr;</a>
+                Opengovt is an independent record of how power is used in Britain: search what government said, what Parliament did, and what happened next.
               </p>
 
               <form action="/search" method="get" style={{ marginBottom: '28px' }}>
