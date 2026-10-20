@@ -21,6 +21,7 @@ import CouncilHousePricesSection from '../../components/CouncilHousePricesSectio
 import CouncilHomelessnessSection from '../../components/CouncilHomelessnessSection';
 import CouncilClaimantCountSection from '../../components/CouncilClaimantCountSection';
 import CouncilSchoolInspectionsSection from '../../components/CouncilSchoolInspectionsSection';
+import CouncilEhcpSection from '../../components/CouncilEhcpSection';
 import CouncilRoadCasualtiesSection from '../../components/CouncilRoadCasualtiesSection';
 import CouncilFlyTippingSection from '../../components/CouncilFlyTippingSection';
 import CouncilConnectivitySection from '../../components/CouncilConnectivitySection';
@@ -622,6 +623,13 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
             schools: <>
               {/* Schools: education authorities show Ofsted results; districts point to their county. */}
               <CouncilSchoolInspectionsSection
+                gssCode={c.gss_code}
+                isDistrict={c.type === 'district'}
+                countyName={parent ? parent.name : null}
+                countySlug={parent ? parent.slug : null}
+              />
+              {/* EHC plans (DfE timeliness, council_ehcp): education authorities; districts point to their county. */}
+              <CouncilEhcpSection
                 gssCode={c.gss_code}
                 isDistrict={c.type === 'district'}
                 countyName={parent ? parent.name : null}
