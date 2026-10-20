@@ -15,6 +15,8 @@ type FilterBarProps = {
     hasSummary: boolean;
     search: string;
   }) => void;
+  // The sessions the listed bills come from, newest first, labelled by name (lib/parliament-sessions.ts).
+  sessions?: { id: number; label: string }[];
 };
 
 const INK = '#14100d';
@@ -48,7 +50,7 @@ function toggle(active: boolean): CSSProperties {
   };
 }
 
-export default function FilterBar({ onFiltersChange }: FilterBarProps) {
+export default function FilterBar({ onFiltersChange, sessions = [] }: FilterBarProps) {
   const [house, setHouse] = useState('');
   const [session, setSession] = useState('');
   const [stage, setStage] = useState('');
@@ -88,11 +90,9 @@ export default function FilterBar({ onFiltersChange }: FilterBarProps) {
 
         <select aria-label="Filter by session" value={session} onChange={(e) => setSession(e.target.value)} style={{ ...field, cursor: 'pointer' }}>
           <option value="">Session: All</option>
-          <option value="39">Session 39</option>
-          <option value="38">Session 38</option>
-          <option value="37">Session 37</option>
-          <option value="36">Session 36</option>
-          <option value="35">Session 35</option>
+          {sessions.map((s) => (
+            <option key={s.id} value={String(s.id)}>{s.label}</option>
+          ))}
         </select>
 
         <select aria-label="Filter by stage" value={stage} onChange={(e) => setStage(e.target.value)} style={{ ...field, cursor: 'pointer' }}>

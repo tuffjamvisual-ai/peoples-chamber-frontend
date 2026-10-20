@@ -6,19 +6,21 @@ import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import AllBillsIndex from './AllBillsIndex';
 import VotingIntegrity from '../components/VotingIntegrity';
+import Link from 'next/link';
+import { getCurrentBillSessions, getParliamentSessions, sessionTitle } from '@/lib/parliament-sessions';
 
 const BILLS_PER_PAGE = 20;
 
-// /bills paginates 4000 bills across 4 parallel range queries. At Vercel
-// build time, when other workers are also hammering Supabase for MP
-// pages, this exceeds the 60s/page budget. Render on demand.
+// /bills lists the bills going through Parliament now (lib/data.ts getBillsPage, from the bill_current view), 20 a
+// page; Acts, withdrawn bills and earlier sessions are in the archive at /bills/sessions. Rendered on demand so the
+// page and its count follow the nightly bill sync.
 export const dynamic = 'force-dynamic'
 export const revalidate = 600;
 
 export const metadata: Metadata = {
   title: "UK Parliament Bills Tracker, Live Stages, Votes & Acts",
   description:
-    "Every bill in UK Parliament. Current stage, how each MP voted, public verdict, and whether it became law. Track the route from Westminster paper to Act of Parliament.",
+    "The bills going through UK Parliament now: current stage, sponsor, how MPs voted and the public verdict. Every earlier bill, Act and withdrawn bill is in the archive by session.",
   alternates: { canonical: '/bills' },
 };
 
@@ -29,7 +31,12 @@ interface PageProps {
 export default async function BillsPage({ searchParams }: PageProps) {
   const { page: pageParam } = await searchParams;
   const page = Math.max(1, parseInt(pageParam || '1', 10) || 1);
-  const { bills, totalCount } = await getBillsPage(page, BILLS_PER_PAGE);
+  const [{ bills, totalCount }, filterSessions, sessions] = await Promise.all([
+    getBillsPage(page, BILLS_PER_PAGE),
+    getCurrentBillSessions(),
+    getParliamentSessions(),
+  ]);
+  const current = sessions.find((s) => s.is_current);
   const totalPages = Math.max(1, Math.ceil(totalCount / BILLS_PER_PAGE));
 
   return (
@@ -46,10 +53,16 @@ export default async function BillsPage({ searchParams }: PageProps) {
           Bills in Parliament
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
-          Every bill going through UK Parliament. How MPs voted. How you voted. The gap between the two.
+          The bills going through UK Parliament now: introduced in the {current ? sessionTitle(current) : 'current session'} or carried over into it. How MPs voted. How you voted. The gap between the two.
+        </p>
+        <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', marginTop: '8px' }}>
+          Acts, withdrawn bills and bills from earlier sessions are in the{' '}
+          <Link href="/bills/sessions" style={{ color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>archive of bills by session</Link>.
         </p>
         <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px', opacity: 0.7 }}>
-          Showing bills {(page - 1) * BILLS_PER_PAGE + 1}-{Math.min(page * BILLS_PER_PAGE, totalCount)} of {totalCount.toLocaleString()} · page {page} of {totalPages}
+          {totalCount === 0
+            ? 'No bills going through Parliament right now'
+            : <>Showing bills {(page - 1) * BILLS_PER_PAGE + 1}-{Math.min(page * BILLS_PER_PAGE, totalCount)} of {totalCount.toLocaleString()} going through Parliament · page {page} of {totalPages}</>}
         </p>
       </header>
 
@@ -59,7 +72,7 @@ export default async function BillsPage({ searchParams }: PageProps) {
         <BillsGridMobile initialBills={bills} currentPage={page} totalPages={totalPages} />
       </div>
       <div className="hidden md:block">
-        <BillsGrid initialBills={bills} currentPage={page} totalPages={totalPages} />
+        <BillsGrid initialBills={bills} currentPage={page} totalPages={totalPages} sessions={filterSessions} />
       </div>
 
       <AllBillsIndex />

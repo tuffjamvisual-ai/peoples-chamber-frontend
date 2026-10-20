@@ -15,7 +15,8 @@ export async function GET(request: NextRequest) {
     let query = supabase
       .from('bill')
       .select('*', { count: 'exact' })
-      .eq('status', 'Active');
+      .eq('status', 'Active')
+      .is('hidden_reason', null);
     
     // Apply filters
     if (search) {

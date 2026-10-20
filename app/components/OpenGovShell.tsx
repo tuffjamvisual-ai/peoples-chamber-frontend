@@ -117,7 +117,7 @@ export default function OpenGovShell({
 
       <div style={{ position: 'relative', zIndex: 1, width: 'min(96vw, 1240px)' }}>
         {/* Header: newb folder with the OPEN GOVERNMENT red stamp + nav + tab. */}
-        <div style={{ position: 'relative', width: '100%', aspectRatio: '1086 / 1448', containerType: 'inline-size' }}>
+        <div className="og-header" style={{ position: 'relative', width: '100%', aspectRatio: '1086 / 1448', containerType: 'inline-size' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/newb.webp" srcSet="/newb-800.webp 800w, /newb.webp 1086w" sizes="min(96vw, 1240px)" alt="" aria-hidden style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', userSelect: 'none', pointerEvents: 'none', transform: 'rotate(-2.5deg)', filter: 'saturate(0.84) drop-shadow(0 18px 38px rgba(0,0,0,0.55))' }} />
 

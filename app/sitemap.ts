@@ -184,9 +184,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     (q) => q.order('bill_id', { ascending: true }),
   );
   const votedBillIds = new Set<number>(votedBillIdRows.map((r) => r.bill_id));
+  // Hidden bills (bill.hidden_reason: duplicates, bad records) are never listed; their pages return 404.
   const allBills = await fetchAllRows<{ id: number; status: string | null; is_act: boolean | null; commons_division_id: number | null }>(
     'bill',
     'id, status, is_act, commons_division_id',
+    (q) => q.is('hidden_reason', null),
   );
   const bills = allBills.filter((b) => {
     const hasVotes = votedBillIds.has(b.id);
@@ -284,6 +286,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.5,
   }));
 
+  // The bill archive: /bills/sessions and one page per session that has bills. The current session changes daily;
+  // past sessions rarely. A failed read leaves the session pages out rather than failing the sitemap.
+  const billSessionIds = await fetchAllRows<{ session_id: number; is_current: boolean }>('parliament_session_bill_counts', 'session_id, is_current').catch(() => []);
+  const billSessionEntries: MetadataRoute.Sitemap = [
+    { url: `${SITE}/bills/sessions`, lastModified: now, changeFrequency: 'weekly', priority: 0.6 },
+    ...billSessionIds.map((r) => ({
+      url: `${SITE}/bills/sessions/${r.session_id}`,
+      lastModified: now,
+      changeFrequency: r.is_current ? ('daily' as const) : ('yearly' as const),
+      priority: r.is_current ? 0.6 : 0.4,
+    })),
+  ];
+
   return [
     ...staticEntries,
     ...topicEntries,
@@ -293,6 +308,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...editorialEntries,
     ...partyEntries,
     ...billEntries,
+    ...billSessionEntries,
     ...mpEntries,
     ...councilEntries,
     ...divisionEntries,

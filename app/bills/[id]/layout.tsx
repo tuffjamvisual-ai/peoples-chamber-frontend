@@ -16,11 +16,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       // Single string literal — Supabase's compile-time type inference
       // can't parse a runtime-concatenated select, and falls back to
       // GenericStringError, which then trips every bill.* access below.
-      'title, long_title, description, current_stage, is_act, is_defeated, bill_withdrawn, commons_division_id, commons_ayes, commons_noes, sponsor_name, sponsors'
+      'title, long_title, description, current_stage, is_act, is_defeated, bill_withdrawn, commons_division_id, commons_ayes, commons_noes, sponsor_name, sponsors, hidden_reason'
     )
     .eq('id', billId)
     .single();
   if (!bill) return { title: 'Bill' };
+  if (bill.hidden_reason) return { title: 'Bill not found', robots: { index: false, follow: false } };
   const title = bill.title || bill.long_title || `Bill ${billId}`;
 
   // First sentence of Parliament's summary, capped at ~130 chars so we have

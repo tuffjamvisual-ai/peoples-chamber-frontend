@@ -11,8 +11,16 @@
 .ng-nav > li > a { display: block; padding: 4px 7px; color: #14100d; text-decoration: none; border-left: 1px solid rgba(20, 16, 13, 0.25); white-space: nowrap; }
 .ng-nav > li:first-child > a { border-left: none; padding-left: 0; }
 .ng-nav > li > a:hover { color: #7a1612; }
-.ng-sub { list-style: none; margin: 0; padding: 6px 0; position: absolute; top: 100%; left: 0; min-width: 210px; max-height: 70vh; overflow-y: auto; background: #e8d6a4; border: 1px solid #14100d; box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3); opacity: 0; visibility: hidden; transform: translateY(-4px); transition: opacity 0.12s ease, transform 0.12s ease; z-index: 30; text-transform: none; }
-.ng-nav > li:hover .ng-sub, .ng-nav > li:focus-within .ng-sub { opacity: 1; visibility: visible; transform: none; }
+/* A closed dropdown is display: none, not just invisible: a hidden absolutely placed list still counts towards the
+   page's scroll width, and on a 390px phone the right-hand ones made every page 480px wide. The fade-in is kept with
+   @starting-style (browsers without it just show the list at once). */
+.ng-sub { list-style: none; margin: 0; padding: 6px 0; position: absolute; top: 100%; left: 0; min-width: 210px; max-height: 70vh; overflow-y: auto; background: #e8d6a4; border: 1px solid #14100d; box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3); display: none; opacity: 0; transform: translateY(-4px); transition: opacity 0.12s ease, transform 0.12s ease; z-index: 30; text-transform: none; }
+.ng-nav > li:hover .ng-sub, .ng-nav > li:focus-within .ng-sub { display: block; opacity: 1; transform: none; }
+@starting-style { .ng-nav > li:hover .ng-sub, .ng-nav > li:focus-within .ng-sub { opacity: 0; transform: translateY(-4px); } }
+/* The header is its own stacking context (container-type), and the dossier folder below overlaps it, so an open
+   dropdown would sit behind the page. Lift the header above the dossier (its page stamp is z-index 4) and the
+   phone filter bars (z-index 40) while a menu is open. */
+.og-header:has(.ng-nav > li:hover), .og-header:has(.ng-nav > li:focus-within) { z-index: 50; }
 .ng-sub > li > a { display: block; padding: 5px 16px; color: #14100d; text-decoration: none; letter-spacing: 0.06em; font-size: 14px; white-space: nowrap; }
 .ng-sub > li > a:hover { color: #7a1612; background: rgba(20, 16, 13, 0.06); }
 
@@ -63,6 +71,12 @@
   .og-navwrap { top: 13% !important; left: 4% !important; width: 92% !important; transform: rotate(-2.5deg) !important; }
   .og-navwrap .ng-nav { flex-wrap: wrap !important; justify-content: center !important; row-gap: 2px; column-gap: 0; font-size: 14px !important; letter-spacing: 0.03em !important; }
   .og-navwrap .ng-nav > li > a { padding: 2px 6px !important; border-left: none !important; }
+  /* An open dropdown spans the nav, under it, rather than hanging off its item: an item near the right edge
+     would otherwise push the list past the screen. */
+  .og-navwrap .ng-nav { position: relative; }
+  .og-navwrap .ng-nav > li { position: static; }
+  .og-navwrap .ng-sub { left: 0; right: 0; min-width: 0; }
+  .og-navwrap .ng-sub > li > a { white-space: normal; }
   .og-dossier { margin-top: -102% !important; }
   .dossier-content { padding: clamp(20px, 5cqw, 50px) clamp(16px, 5cqw, 40px) clamp(32px, 6cqw, 70px) !important; }
 }

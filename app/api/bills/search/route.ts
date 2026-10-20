@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { toCardBill } from '@/lib/data';
 
 // Live search endpoint for the /bills search bar. The grid components
 // previously filtered only the 20 server-paginated bills loaded for
@@ -10,11 +11,13 @@ import { supabase } from '@/lib/supabase';
 //
 // Acts and withdrawn bills are included — when a user types a name
 // into the search bar they're looking for that specific bill, not
-// just live ones. The visible columns mirror lib/data.ts getBillsPage
+// just live ones. The columns and the row shape (toCardBill, with the
+// summary cut to card length) are the same as lib/data.ts getBillsPage
 // so the BillCoverCard renders identically.
 
 const COLS =
-  'id, parliament_id, title, category, current_stage, stage_date, ' +
+  'id, parliament_id, title, category, description, long_title, current_stage, stage_date, ' +
+  'originating_house, introduced_session_id, ' +
   'sponsor_name, sponsor_party, sponsor_party_colour, ' +
   'vote_count_yes, vote_count_no, vote_count_abstain, ' +
   'commons_ayes, commons_noes, last_update, bill_withdrawn, is_act';
@@ -41,6 +44,7 @@ export async function GET(req: Request) {
     .from('bill')
     .select(COLS, { count: 'exact' })
     .ilike('title', pattern)
+    .is('hidden_reason', null)
     .order('last_update', { ascending: false, nullsFirst: false })
     .limit(MAX_RESULTS);
 
@@ -49,27 +53,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ bills: [], total: 0, error: error.message }, { status: 500 });
   }
 
-  type RawBill = {
-    vote_count_yes: number | null;
-    vote_count_no: number | null;
-    vote_count_abstain: number | null;
-    commons_ayes: number | null;
-    commons_noes: number | null;
-    [k: string]: unknown;
-  };
-  const rows = (data as unknown as RawBill[]) || [];
-  const bills = rows.map((b) => ({
-    ...b,
-    votes: {
-      yes: b.vote_count_yes || 0,
-      no: b.vote_count_no || 0,
-      abstain: b.vote_count_abstain || 0,
-    },
-    commons_votes:
-      b.commons_ayes !== null
-        ? { ayes: b.commons_ayes, noes: b.commons_noes as number }
-        : null,
-  }));
+  const bills = ((data as unknown as Record<string, unknown>[]) || []).map(toCardBill);
 
   return NextResponse.json({ bills, total: count ?? bills.length });
 }

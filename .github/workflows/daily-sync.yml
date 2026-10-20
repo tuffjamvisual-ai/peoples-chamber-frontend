@@ -33,6 +33,12 @@ jobs:
       - name: Match bill divisions
         id: bill-divisions
         run: node scripts/sync-bill-divisions.js
+
+      # Session names and dates for the bill archive (/bills/sessions), from Parliament's calendar API. One request;
+      # upserts, so a new session is named the day its first bill is synced.
+      - name: Load parliamentary sessions
+        id: parliament-sessions
+        run: node scripts/load-parliament-sessions.js --write
       
       # Bill explanations (generate-ai-explanations.js) switched off 14 Oct 2026 by the site
       # owner: the Anthropic API is no longer used. Explanations already written stay on the

@@ -29,9 +29,10 @@ type Props = {
   initialBills: any[];
   currentPage: number;
   totalPages: number;
+  sessions?: { id: number; label: string }[];
 };
 
-export default function BillsGrid({ initialBills, currentPage, totalPages }: Props) {
+export default function BillsGrid({ initialBills, currentPage, totalPages, sessions = [] }: Props) {
   const router = useRouter();
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
@@ -39,7 +40,7 @@ export default function BillsGrid({ initialBills, currentPage, totalPages }: Pro
   const [userVotes, setUserVotes] = useState<Record<number, string>>({});
   // Server-side search results — populated when the user types into
   // the FilterBar search input. Replaces `bills` for the duration of
-  // the search so we can show matches from across the full 3,893-bill
+  // the search so we can show matches from across the whole bill
   // table rather than the 20 server-paginated rows the page loaded.
   const [searchResults, setSearchResults] = useState<any[] | null>(null);
   const [searching, setSearching] = useState(false);
@@ -147,7 +148,7 @@ export default function BillsGrid({ initialBills, currentPage, totalPages }: Pro
     if (parliamentVotedFilter) filtered = filtered.filter((bill: any) => bill.commons_ayes !== null && bill.commons_noes !== null);
     if (youVotedFilter) filtered = filtered.filter((bill: any) => userVotes[bill.id]);
     if (notVotedFilter) filtered = filtered.filter((bill: any) => !userVotes[bill.id]);
-    if (hasSummaryFilter) filtered = filtered.filter((bill: any) => billSummary(bill));
+    if (hasSummaryFilter) filtered = filtered.filter((bill: any) => bill.summary ?? billSummary(bill));
 
     if (sortBy === 'trending') {
       filtered.sort((a: any, b: any) => 
@@ -170,6 +171,7 @@ export default function BillsGrid({ initialBills, currentPage, totalPages }: Pro
   return (
     <>
       <FilterBar
+        sessions={sessions}
         onFiltersChange={(filters) => {
           setSearchTerm(filters.search);
           setHouseFilter(filters.house);

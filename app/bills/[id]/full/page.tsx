@@ -132,10 +132,11 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
 
   const { data: bill } = await supabase
     .from('bill')
-    .select('id, parliament_id, title, current_stage, is_act')
+    .select('id, parliament_id, title, current_stage, is_act, hidden_reason')
     .eq('id', billId)
     .single()
-  if (!bill || bill.parliament_id == null) notFound()
+  // Hidden bills (bill.hidden_reason) return 404, as /bills/[id] does.
+  if (!bill || bill.parliament_id == null || bill.hidden_reason) notFound()
 
   // Two parallel live API calls, cached for 24 h. We need BOTH:
   //   - /Bills/{id}         -> longTitle (the rich "A Bill to..." formal

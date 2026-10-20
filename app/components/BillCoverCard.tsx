@@ -1,11 +1,11 @@
 'use client';
 
-import { billSummary } from '@/lib/bill-summary';
+import { billStageLine, billSummary, NO_SUMMARY_TEXT } from '@/lib/bill-summary';
 
 // Bills listing card styled as a Victorian-era UK Parliamentary Bill
 // cover sheet (Representation of the People Bill template):
 //   - thin-ruled title bar
-//   - [AS INTRODUCED] small caps
+//   - [Stage, date] small caps: the bill's current stage and its date
 //   - the iconic "A / BILL / TO" centrepiece
 //   - justified italic description
 //   - "Presented by [Sponsor], supported by..." sponsor block
@@ -20,6 +20,7 @@ type Bill = {
   current_stage?: string | null;
   originating_house?: string | null;
   plain_summary?: string | null;
+  summary?: string | null; // already cut to card length on the server (lib/data.ts toCardBill)
   description?: string | null;
   long_title?: string | null;
   sponsor_name?: string | null;
@@ -53,13 +54,6 @@ const SERIF = 'Special Elite, monospace';
 const SERIF_DISPLAY = 'Special Elite, monospace';
 const MONO = '"Special Elite", "Courier New", monospace';
 
-function fmtDate(d?: string | null) {
-  if (!d) return '';
-  try {
-    return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-  } catch { return ''; }
-}
-
 export default function BillCoverCard({ bill, userVote = null, onClick }: Props) {
   const yes = bill.vote_count_yes || 0;
   const no = bill.vote_count_no || 0;
@@ -72,7 +66,9 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
   const hasDivision = cAye != null && cNo != null && cAye + cNo > 0;
 
   // Trim summary to a digestible cover-paragraph length.
-  const summarySrc = billSummary(bill);
+  const summarySrc = bill.summary ?? billSummary(bill);
+  // "[Committee stage, 1 September 2026]"; either part alone if the other is missing; nothing if both are.
+  const stageLine = billStageLine(bill);
   const summary = summarySrc.length > 360 ? summarySrc.slice(0, 357).trim() + '…' : summarySrc;
 
   return (
@@ -91,7 +87,6 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
         display: 'flex',
         flexDirection: 'column',
         gap: '14px',
-        minHeight: '520px',
       }}
     >
       {/* Ruled title bar (matches the template's top boxed header) */}
@@ -104,6 +99,7 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
         }}
       >
         <h3
+          className="line-clamp-3 md:line-clamp-2"
           style={{
             margin: 0,
             fontFamily: SERIF_DISPLAY,
@@ -111,30 +107,28 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
             fontWeight: 500,
             letterSpacing: '0.005em',
             lineHeight: 1.25,
-            display: '-webkit-box',
-            WebkitBoxOrient: 'vertical',
-            WebkitLineClamp: 2,
-            overflow: 'hidden',
           }}
         >
           {bill.title}
         </h3>
       </div>
 
-      {/* [AS INTRODUCED] */}
-      <div
-        style={{
-          textAlign: 'center',
-          fontFamily: SERIF,
-          fontSize: '14px',
-          letterSpacing: '0.1em',
-          fontVariant: 'small-caps',
-          color: INK_SOFT,
-          marginTop: '2px',
-        }}
-      >
-        [As Introduced]
-      </div>
+      {/* [Stage, date] */}
+      {stageLine && (
+        <div
+          style={{
+            textAlign: 'center',
+            fontFamily: SERIF,
+            fontSize: '14px',
+            letterSpacing: '0.1em',
+            fontVariant: 'small-caps',
+            color: INK_SOFT,
+            marginTop: '2px',
+          }}
+        >
+          [{stageLine}]
+        </div>
+      )}
 
       {/* "A / B I L L / TO" centrepiece */}
       <div style={{ textAlign: 'center', margin: '4px 0 6px' }}>
@@ -155,8 +149,8 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
         <div style={{ fontFamily: SERIF_DISPLAY, fontSize: '15px', fontStyle: 'italic', color: INK, marginTop: '4px' }}>to</div>
       </div>
 
-      {/* Justified typewriter description */}
-      {summary && (
+      {/* Justified typewriter description, or a note that Parliament has published none */}
+      {summary ? (
         <p
           style={{
             margin: '4px 0 0',
@@ -171,6 +165,10 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
           }}
         >
           {summary}
+        </p>
+      ) : (
+        <p style={{ margin: '4px 0 0', fontFamily: MONO, fontSize: '15px', lineHeight: 1.65, fontStyle: 'italic', color: INK_SOFT, textAlign: 'center' }}>
+          {NO_SUMMARY_TEXT}
         </p>
       )}
 

@@ -9,6 +9,7 @@
 
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
+import { billStageLine, NO_SUMMARY_TEXT } from '@/lib/bill-summary'
 import BillVotingClient from './BillVotingClient'
 import OpenGovShell from '../../components/OpenGovShell'
 import BackLink from '../../components/BackLink';
@@ -118,7 +119,8 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
       .order('division_date', { ascending: false })
       .order('division_number', { ascending: false }),
   ])
-  if (!bill) notFound()
+  // Hidden bills (bill.hidden_reason: duplicates, bad records) return 404; nothing is deleted.
+  if (!bill || bill.hidden_reason) notFound()
   const lordsDivisions = (lordsDivisionRows ?? []) as LordsDivision[]
 
   // Which Commons division the MPs' figure comes from, so the page can name and link it
@@ -246,10 +248,12 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
           </h1>
         </div>
 
-        {/* [AS INTRODUCED] */}
-        <div style={{ textAlign: 'center', fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.1em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '24px' }}>
-          [As Introduced]
-        </div>
+        {/* [Stage, date], as on the bill cards; nothing if both are empty */}
+        {billStageLine(bill) && (
+          <div style={{ textAlign: 'center', fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.1em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '24px' }}>
+            [{billStageLine(bill)}]
+          </div>
+        )}
 
         {/* "A / BILL / TO" centrepiece */}
         <div style={{ textAlign: 'center', margin: '6px 0 22px' }}>
@@ -274,7 +278,13 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
               t.trim() !== (bill.title || '').trim()
           );
           const text = (pickRaw || '').trim();
-          if (!text) return null;
+          if (!text) {
+            return (
+              <p style={{ fontFamily: MONO, fontSize: 'clamp(15px, 1.15vw, 15px)', lineHeight: 1.75, margin: '0 auto 26px', maxWidth: '46em', color: INK_SOFT, fontStyle: 'italic', textAlign: 'center' }}>
+                {NO_SUMMARY_TEXT}
+              </p>
+            );
+          }
           return (
             <p
               style={{

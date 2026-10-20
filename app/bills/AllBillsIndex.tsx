@@ -50,6 +50,7 @@ async function fetchAllSitemapBills(): Promise<BillRow[]> {
     const { data, error } = await supabase
       .from('bill')
       .select('id, title, current_stage, status, is_act, bill_withdrawn, is_defeated, commons_division_id')
+      .is('hidden_reason', null)
       .order('title', { ascending: true })
       .order('id', { ascending: true })
       .range(from, from + 999);
