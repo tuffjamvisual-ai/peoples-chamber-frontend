@@ -150,7 +150,10 @@ export default async function CouncilOmbudsmanSection({ gssCode }: { gssCode: st
           : investigated > 0
           ? <>Of the {fmt(investigated)} investigated, <strong>{fmt(cur.upheld)} upheld</strong>{uphold ? ` (${uphold})` : ''}: the Ombudsman found fault, or found the council had already offered a suitable remedy.</>
           : <>Upheld: <strong>{fmt(cur.upheld)}</strong>{uphold ? ` (${uphold})` : ''}.</>}
-        {remedy && <> Upheld cases where the council had already put things right satisfactorily before the complaint reached the Ombudsman: <strong>{remedy}</strong>.</>}
+        {/* The percentage as published, out of the upheld count in the same file; no count is worked out from it. */}
+        {cur.satisfactory_remedy_pc != null
+          ? <> In <strong>{remedy}</strong> of the {fmt(cur.upheld)} upheld {cur.upheld === 1 ? 'case' : 'cases'}, the council had already put things right satisfactorily before the complaint reached the Ombudsman.</>
+          : remedy && <> Upheld cases where the council had already put things right satisfactorily before the complaint reached the Ombudsman: <strong>{remedy}</strong>.</>}
       </P>
       {(compliance || onTime) && (
         <P>
