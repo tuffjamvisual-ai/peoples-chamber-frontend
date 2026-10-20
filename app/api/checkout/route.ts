@@ -9,6 +9,9 @@ export const dynamic = 'force-dynamic';
 
 const MIN_PENCE = 100; // £1 floor
 const MAX_PENCE = 1_000_000; // £10,000 ceiling
+// Fixed return addresses: never built from the request's Origin header, which any site posting here could set.
+const SUCCESS_URL = 'https://www.opengovt.uk/donate/thank-you?session_id={CHECKOUT_SESSION_ID}';
+const CANCEL_URL = 'https://www.opengovt.uk/donate';
 
 export async function POST(req: Request) {
   const key = process.env.STRIPE_SECRET_KEY;
@@ -26,8 +29,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Please choose an amount between £1 and £10,000.' }, { status: 400 });
   }
 
-  const origin = req.headers.get('origin') || 'https://www.opengovt.uk';
-
   try {
     const stripe = new Stripe(key);
     const session = await stripe.checkout.sessions.create({
@@ -43,8 +44,8 @@ export async function POST(req: Request) {
           },
         },
       ],
-      success_url: `${origin}/donate/thank-you?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/donate`,
+      success_url: SUCCESS_URL,
+      cancel_url: CANCEL_URL,
     });
     return NextResponse.json({ url: session.url });
   } catch (e) {
