@@ -10,6 +10,9 @@
 // dark backdrop so the rounded corners show no white). Visit /blank-landing?debug=1
 // to reveal the hotspot hitboxes.
 
+import { notFound } from 'next/navigation';
+import { SHOW_DEMO_PAGES } from '@/lib/feature-flags';
+
 type Hotspot = { cls: string; href: string; label: string; left: string; top: string; width: string; height: string };
 
 // Verbatim from styles.css / hotspot-map.json (percentages of the 1023x1537 render).
@@ -89,6 +92,7 @@ export default async function BlankLanding({
 }: {
   searchParams: Promise<{ debug?: string }>;
 }) {
+  if (!SHOW_DEMO_PAGES) notFound(); // hidden (lib/feature-flags.ts)
   const { debug } = await searchParams;
   const isDebug = debug === '1' || debug === 'true';
 

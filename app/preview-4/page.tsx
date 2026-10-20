@@ -1,3 +1,5 @@
+import { notFound } from 'next/navigation';
+import { SHOW_DEMO_PAGES } from '@/lib/feature-flags';
 import './preview-4.css';
 
 const navItems = [
@@ -68,6 +70,7 @@ const pressItems = [
 ];
 
 export default function HomePage() {
+  if (!SHOW_DEMO_PAGES) notFound(); // hidden (lib/feature-flags.ts)
   return (
     <main className="site-frame">
       <div className="page-shell">

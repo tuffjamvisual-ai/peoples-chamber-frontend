@@ -1,3 +1,5 @@
+import { notFound } from 'next/navigation';
+import { SHOW_DEMO_PAGES } from '@/lib/feature-flags';
 import './preview-5.css';
 
 const navItems = [
@@ -111,6 +113,7 @@ const liveNumbers = [
 ];
 
 export default function HomePage() {
+  if (!SHOW_DEMO_PAGES) notFound(); // hidden (lib/feature-flags.ts)
   return (
     <main className="outer-stage">
       <div className="page-shell">

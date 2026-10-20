@@ -1,3 +1,4 @@
+import { SHOW_DEMO_PAGES } from '@/lib/feature-flags';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
@@ -16,6 +17,7 @@ interface PageProps {
 }
 
 export default async function PreviewHome2Dynamic({ params }: PageProps) {
+  if (!SHOW_DEMO_PAGES) notFound(); // hidden (lib/feature-flags.ts)
   const { id } = await params;
   const memberId = parseInt(id, 10);
   if (Number.isNaN(memberId)) notFound();

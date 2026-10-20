@@ -12,7 +12,9 @@ export const SHOW_LEAGUE_TABLE = false;
 export const SHOW_YOUR_TAX_POUND = false;
 export const SHOW_BUDGET_CHOICES = false;
 
-// Demo homepages /homepage-v2 and /landing-demo2: hidden (owner's decision, 20 Oct 2026). false: the page returns 404.
+// Demo and preview pages: hidden (owner's decisions, 20 Oct 2026). false: the page returns 404. Covers /homepage-v2,
+// /landing-demo2, /blank-landing, /folder-bg, /landing-demo, /landing-pca, /landing-preview, /landing1012, /new2,
+// /newspaper-demo, /preview, /preview-2 to /preview-5, /preview-footer, /preview-home2 and /template.
 // No page code is deleted: set to true to restore.
 export const SHOW_DEMO_PAGES = false;
 

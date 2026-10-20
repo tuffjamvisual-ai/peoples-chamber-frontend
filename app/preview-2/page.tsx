@@ -1,3 +1,5 @@
+import { notFound } from 'next/navigation';
+import { SHOW_DEMO_PAGES } from '@/lib/feature-flags';
 import {
   ArrowRight,
   Banknote,
@@ -41,6 +43,7 @@ const parties = [
 ];
 
 export default function HomePage() {
+  if (!SHOW_DEMO_PAGES) notFound(); // hidden (lib/feature-flags.ts)
   return (
     <main className="min-h-screen bg-[#f3f0e8] text-[#101010]">
       <div className="flex min-h-screen">

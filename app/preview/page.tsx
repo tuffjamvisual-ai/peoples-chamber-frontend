@@ -1,3 +1,5 @@
+import { notFound } from 'next/navigation';
+import { SHOW_DEMO_PAGES } from '@/lib/feature-flags';
 import Image from 'next/image';
 import Link from 'next/link';
 import MagazineShell from '../components/MagazineShell';
@@ -94,6 +96,7 @@ const linkCards: Card[] = [
 ];
 
 export default function PreviewPage() {
+  if (!SHOW_DEMO_PAGES) notFound(); // hidden (lib/feature-flags.ts)
   return (
     <MagazineShell>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-12">

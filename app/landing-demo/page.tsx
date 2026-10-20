@@ -1,11 +1,17 @@
+import { notFound } from 'next/navigation';
+import { SHOW_DEMO_PAGES, HIDDEN_PAGE_METADATA } from '@/lib/feature-flags';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import './landing-demo.css';
 
-export const metadata: Metadata = {
+const PAGE_METADATA: Metadata = {
   title: "opengovt, Clickable Landing Demo",
   robots: { index: false, follow: false },
 };
+// While hidden, the page says what a missing page says (not-found title, noindex), not its own title.
+export async function generateMetadata(): Promise<Metadata> {
+  return SHOW_DEMO_PAGES ? PAGE_METADATA : HIDDEN_PAGE_METADATA;
+}
 
 // Hotspots ported verbatim from the zip's index.html (positions in %,
 // hrefs kept as-authored). Several targets (/campaigns, /latest, /stories/…,
@@ -35,6 +41,7 @@ export default async function LandingDemo({
 }: {
   searchParams: Promise<{ debug?: string }>;
 }) {
+  if (!SHOW_DEMO_PAGES) notFound(); // hidden (lib/feature-flags.ts)
   const { debug } = await searchParams;
 
   return (

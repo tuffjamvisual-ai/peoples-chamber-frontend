@@ -15,6 +15,8 @@
 // SUPPORT US + ACCOUNT/INFO. The big content-space and the 3 lower "ghosts" are intentionally
 // non-clickable visual placeholders in the source — reproduced as such. /new2?debug=1 outlines
 // the hotspots.
+import { notFound } from 'next/navigation';
+import { SHOW_DEMO_PAGES, HIDDEN_PAGE_METADATA } from '@/lib/feature-flags';
 import type { Metadata } from 'next';
 import { Oswald, Roboto_Condensed } from 'next/font/google';
 
@@ -26,10 +28,14 @@ const oswald500 = Oswald({ subsets: ['latin'], weight: ['500'], variable: '--f-o
 const oswald = Oswald({ subsets: ['latin'], weight: ['700'], variable: '--f-oswald', display: 'swap' });
 const robotoCond = Roboto_Condensed({ subsets: ['latin'], weight: ['700'], variable: '--f-roboto-cond', display: 'swap' });
 
-export const metadata: Metadata = {
+const PAGE_METADATA: Metadata = {
   title: "opengovt, new2 replica",
   robots: { index: false, follow: false },
 };
+// While hidden, the page says what a missing page says (not-found title, noindex), not its own title.
+export async function generateMetadata(): Promise<Metadata> {
+  return SHOW_DEMO_PAGES ? PAGE_METADATA : HIDDEN_PAGE_METADATA;
+}
 
 const navItems = ['HOME', 'BILLS', 'LAWS', 'PEOPLES POLLS', 'MPS', 'DEPARTMENTS', 'TRANSPARENCY', 'CONTACT', 'LOGIN'];
 
@@ -90,6 +96,7 @@ export default async function New2Page({
 }: {
   searchParams: Promise<{ debug?: string }>;
 }) {
+  if (!SHOW_DEMO_PAGES) notFound(); // hidden (lib/feature-flags.ts)
   const sp = await searchParams;
   const debug = sp.debug === '1';
 

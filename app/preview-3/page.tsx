@@ -1,3 +1,5 @@
+import { notFound } from 'next/navigation';
+import { SHOW_DEMO_PAGES } from '@/lib/feature-flags';
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import {
@@ -47,6 +49,7 @@ function fmtRelative(d: string | null | undefined): string {
 }
 
 export default async function HomePage() {
+  if (!SHOW_DEMO_PAGES) notFound(); // hidden (lib/feature-flags.ts)
   const [
     { data: news },
     { data: bills },

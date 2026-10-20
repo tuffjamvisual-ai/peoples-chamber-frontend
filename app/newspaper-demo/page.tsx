@@ -1,3 +1,5 @@
+import { notFound } from 'next/navigation';
+import { SHOW_DEMO_PAGES } from '@/lib/feature-flags';
 import Navigation from '../components/Navigation'
 import SiteFooter from '../components/SiteFooter'
 import Link from 'next/link'
@@ -276,6 +278,7 @@ function SectionHead({ label, sub }: { label: string; sub: string }) {
 // =====================================================================
 
 export default function NewspaperDemo() {
+  if (!SHOW_DEMO_PAGES) notFound(); // hidden (lib/feature-flags.ts)
   return (
     <div style={{ background: GUTTER, minHeight: '100vh', color: '#fff', fontFamily: FONT }}>
       {/* Demo header (sits on gutter) */}

@@ -1,3 +1,5 @@
+import { notFound } from 'next/navigation';
+import { SHOW_DEMO_PAGES } from '@/lib/feature-flags';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -34,6 +36,7 @@ export default async function LandingPreview({
 }: {
   searchParams: Promise<{ clean?: string }>;
 }) {
+  if (!SHOW_DEMO_PAGES) notFound(); // hidden (lib/feature-flags.ts)
   const { clean } = await searchParams;
   const debug = clean === undefined;
 

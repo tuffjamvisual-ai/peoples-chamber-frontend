@@ -1,3 +1,5 @@
+import { notFound } from 'next/navigation';
+import { SHOW_DEMO_PAGES, HIDDEN_PAGE_METADATA } from '@/lib/feature-flags';
 import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 import MpDossier from '../mps/[id]/MpDossier';
@@ -11,10 +13,14 @@ import { normaliseParty, isCoop, partyColourForMember } from '@/lib/party-helper
 
 const BAND_RANK: Record<SalaryBand, number> = { pm: 4, sos: 3, minister_of_state: 2, puss: 1 };
 
-export const metadata: Metadata = {
+const PAGE_METADATA: Metadata = {
   title: "opengovt",
   robots: { index: false, follow: false },
 };
+// While hidden, the page says what a missing page says (not-found title, noindex), not its own title.
+export async function generateMetadata(): Promise<Metadata> {
+  return SHOW_DEMO_PAGES ? PAGE_METADATA : HIDDEN_PAGE_METADATA;
+}
 
 // ISR — render once, serve cached for 6h.
 export const revalidate = 21600;
@@ -22,6 +28,7 @@ export const revalidate = 21600;
 // Demo of the dossier profile template (Charlie Dewhirst, member 5169). The live profile
 // pages at /mps/[id] render the same shared <MpDossier> with each MP's own data.
 export default async function LandingPcaPage() {
+  if (!SHOW_DEMO_PAGES) notFound(); // hidden (lib/feature-flags.ts)
   const memberId = 5169;
   const [
     mpRes, contactRes, bioRes, sponsoredBillsRes, votesRes, interestsRes,
