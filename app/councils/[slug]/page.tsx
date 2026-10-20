@@ -27,6 +27,7 @@ import CouncilFlyTippingSection from '../../components/CouncilFlyTippingSection'
 import CouncilConnectivitySection from '../../components/CouncilConnectivitySection';
 import CouncilSewageSection from '../../components/CouncilSewageSection';
 import CouncilRatingsSection from '../../components/CouncilRatingsSection';
+import CouncilOmbudsmanSection from '../../components/CouncilOmbudsmanSection';
 import { loadElectionSummary } from '@/lib/council-election-summary';
 
 export const revalidate = 21600;
@@ -655,6 +656,8 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                 name={c.short_name || c.name}
                 districtCodes={children.map((d) => d.gss_code).filter((g): g is string => !!g)}
               />
+              {/* Ombudsman complaints (England, council_ombudsman): every council has its own figures. */}
+              <CouncilOmbudsmanSection gssCode={c.gss_code} />
             </>,
             sewage: <>
               {/* Sewage spills: England and NI; a county sums its districts. Water companies run overflows. */}
