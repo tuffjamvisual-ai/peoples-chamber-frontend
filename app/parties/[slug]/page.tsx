@@ -90,15 +90,14 @@ async function getPartyAndPolicies(slug: string): Promise<{
     mpCount = count || 0;
   }
 
-  // Donations total uses the exact EC recipient_name on
-  // political_donations. Sums all-time; the page line below labels it.
+  // Donations total uses the exact EC recipient_name on political_donations. Sums all-time; the page line below
+  // labels it. Summed in the database (party_donations_total, migration 2026-10-21b): the earlier read returned at
+  // most 1,000 rows, so parties with more donations than that showed a partial total.
   let donationsTotal = 0;
   if (party.recipient_name) {
-    const { data: donRows } = await supabase
-      .from('political_donations')
-      .select('amount')
-      .eq('recipient_name', party.recipient_name);
-    donationsTotal = (donRows || []).reduce((s, r) => s + (Number(r.amount) || 0), 0);
+    const { data: total, error: totalErr } = await supabase.rpc('party_donations_total', { p_recipient_name: party.recipient_name });
+    if (totalErr) throw new Error(`party_donations_total: ${totalErr.message}`);
+    donationsTotal = Number(total) || 0;
   }
 
   return { party, policies, mpCount, donationsTotal };

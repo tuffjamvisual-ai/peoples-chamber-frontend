@@ -54,13 +54,14 @@ export async function generateMetadata(
   const billId = parseInt(id, 10)
   if (!Number.isFinite(billId)) return {}
 
-  // Fetch the bill's stage/act/division flags and count its recorded division
-  // votes in parallel.
-  const [{ data: bill }, { count }] = await Promise.all([
+  // Fetch the bill's stage/act/division flags and whether any MP vote is recorded against it, in parallel. Only
+  // whether one exists matters, so one indexed row is read instead of counting them all (owner's approval,
+  // 21 Oct 2026; the count averaged 1.2 s during builds).
+  const [{ data: bill }, { data: oneVote }] = await Promise.all([
     supabase.from('bill').select('status, is_act, commons_division_id').eq('id', billId).single(),
-    supabase.from('mp_division_votes').select('id', { count: 'exact', head: true }).eq('bill_id', billId),
+    supabase.from('mp_division_votes').select('id').eq('bill_id', billId).limit(1),
   ])
-  const hasVotes = (count ?? 0) > 0
+  const hasVotes = (oneVote?.length ?? 0) > 0
 
   // Active-stage guard: a bill still progressing through Committee, Report,
   // 3rd Reading or Consideration is live and may have divisions we haven't

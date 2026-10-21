@@ -110,11 +110,12 @@ export async function GET(req: Request) {
   // Enrich the window's debates with a scannable summary and exact division
   // slugs (from the in-transcript division numbers, validated against our own
   // divisions so a "Vote held" badge never 404s).
-  const { data: vdivs } = await supabase
-    .from('commons_divisions_titled')
-    .select('division_date_only, division_number')
-    .gte('division_date_only', start);
-  const validDiv = new Set((vdivs || []).map((d) => `${d.division_date_only}#${d.division_number}`));
+  // Divisions held since the window start (commons_division_keys, migration 2026-10-21b; it replaced the
+  // commons_divisions_titled view, which grouped every vote row). A failed read stops the run rather than
+  // dropping every "Vote held" badge.
+  const { data: vdivs, error: vdivErr } = await supabase.rpc('commons_division_keys', { p_from: start, p_to: null });
+  if (vdivErr) throw new Error(`commons_division_keys: ${vdivErr.message}`);
+  const validDiv = new Set(((vdivs || []) as { division_date_only: string; division_number: number }[]).map((d) => `${d.division_date_only}#${d.division_number}`));
 
   let di = 0;
   async function enrichWorker() {

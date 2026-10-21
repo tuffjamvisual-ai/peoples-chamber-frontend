@@ -114,21 +114,16 @@ async function GET_impl(req: Request) {
       skip += PAGE;
     }
 
-    // Dedup: query commons_divisions_titled (ONE ROW PER DIVISION) rather than
-    // mp_division_votes (one row per MP vote). mp_division_votes returns thousands
-    // of rows for any real range and PostgREST silently truncates at 1000, causing
-    // the dedup to miss divisions whose vote rows fall after the cutoff. A full year
-    // in commons_divisions_titled is ~250 rows — well inside the cap.
-    const { data: have, error: dedupErr } = await (customRange
-      ? supabase.from('commons_divisions_titled').select('division_date_only, division_number')
-          .gte('division_date_only', fromStr).lte('division_date_only', toStr)
-      : supabase.from('commons_divisions_titled').select('division_date_only, division_number')
-          .gte('division_date_only', fromStr));
+    // Dedup: one row per division held (commons_division_keys, migration 2026-10-21b) rather than mp_division_votes
+    // (one row per MP vote), which returns thousands of rows for any real range and PostgREST silently truncates at
+    // 1000. The function gives what the commons_divisions_titled view gave without grouping all 1.15 million vote
+    // rows. A full year is ~300 rows, well inside the cap.
+    const { data: have, error: dedupErr } = await supabase.rpc('commons_division_keys', { p_from: fromStr, p_to: customRange ? toStr : null });
     if (dedupErr) throw new Error(`dedup query failed: ${dedupErr.message}`);
     if ((have || []).length === 1000) {
       throw new Error('Dedup query returned exactly 1000 rows: possible PostgREST truncation. Narrow the date range and retry.');
     }
-    const seen = new Set((have || []).map((r) => `${r.division_date_only}#${r.division_number}`));
+    const seen = new Set(((have || []) as { division_date_only: string; division_number: number }[]).map((r) => `${r.division_date_only}#${r.division_number}`));
 
     // Divisions whose parties and rebellion flags are already done.
     const applied = new Set<number>();

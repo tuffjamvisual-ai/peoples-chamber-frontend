@@ -48,7 +48,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
 
   const orFrom = (col: string, kws: string[]) => kws.map((k) => `${col}.ilike.%${k}%`).join(',');
 
-  const [divRes, billRes, contribRes, mpRes, pollRes] = await Promise.all([
+  const [divRes, billRes, topRes, pollRes] = await Promise.all([
     supabase.from('commons_divisions_fts')
       .select('division_date_only, division_number, division_title')
       .or(orFrom('division_title', topic.keywords))
@@ -60,8 +60,9 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
       .or(orFrom('title', topic.keywords))
       .order('last_update', { ascending: false })
       .limit(8),
-    supabase.from('mp_contribution_totals').select('member_id, wq_top_departments'),
-    supabase.from('mps').select('member_id, name, party').or('current_member.is.null,current_member.eq.true'),
+    // Top MPs by written questions to the topic's departments, ranked in the database (top_question_askers,
+    // migration 2026-10-21b) instead of reading every MP's totals here.
+    supabase.rpc('top_question_askers', { p_depts: topic.deptApiNames, p_limit: 5 }),
     supabase.from('polls')
       .select('id, question, vote_count_yes, vote_count_no, explainer')
       .eq('archived', false)
@@ -75,18 +76,9 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
   const bills = (billRes.data || []).slice().sort((a, b) => Number(!!a.is_act) - Number(!!b.is_act));
 
   // Top MPs by written questions to the topic's department(s).
-  const deptSet = new Set(topic.deptApiNames);
-  const nameById = new Map((mpRes.data || []).map((m) => [m.member_id as number, m]));
-  const topMps = (contribRes.data || [])
-    .map((r) => {
-      const arr = Array.isArray(r.wq_top_departments) ? (r.wq_top_departments as { dept: string; count: number }[]) : [];
-      let count = 0;
-      for (const e of arr) if (deptSet.has(e.dept)) count += Number(e.count) || 0;
-      return { member_id: r.member_id as number, count };
-    })
-    .filter((r) => r.count > 0 && nameById.has(r.member_id))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 5);
+  if (topRes.error) throw new Error(`top_question_askers: ${topRes.error.message}`);
+  const topMps = ((topRes.data || []) as { member_id: number; name: string | null; party: string | null; questions: number }[])
+    .map((r) => ({ member_id: r.member_id, count: Number(r.questions) || 0, name: r.name, party: r.party }));
 
   const dept = topic.departmentSlugs.length ? departments.find((d) => d.slug === topic.departmentSlugs[0]) : undefined;
   // Newest first (topic hubs now list every piece on the subject, 16 Oct 2026).
@@ -142,7 +134,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
           <h2 style={sectionH2}>MPs scrutinising this most</h2>
           <p style={{ fontSize: '15px', color: INK, marginBottom: '12px' }}>By written questions tabled to the department this Parliament.</p>
           {topMps.map((r, i) => {
-            const m = nameById.get(r.member_id)!;
+            const m = r;
             return (
               <Link key={r.member_id} href={`/mps/${r.member_id}`} className="no-hover-scale" style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '10px 0' }}>
                 <span style={{ fontWeight: 'bold' }}>{i + 1}. {String(m.name || '').replace(/\s+MP$/, '')} <span style={{ fontFamily: MONO, fontSize: '15px', fontWeight: 'normal' }}>{m.party || ''}</span></span>
