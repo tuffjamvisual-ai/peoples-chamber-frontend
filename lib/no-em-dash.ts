@@ -38,11 +38,34 @@ export function withoutEmDashes(text: string): string {
     .replace(MIDDLE, ', ');
 }
 
+// During `next build`, a database read that fails (a 5xx answer such as a statement timeout, or no answer) is tried
+// once more after 5 seconds before the page's own error stops the build (owner's approval, 21 Oct 2026: two builds
+// that day failed on a passing slowdown while other jobs were writing). Reads are GET/HEAD requests and calls to
+// read functions (POST /rest/v1/rpc/...); a second failure still stops the build. Outside a build nothing is retried.
+const BUILD_RETRY_MS = 5_000;
+const isBuild = () => process.env.NEXT_PHASE === 'phase-production-build';
+
+async function fetchRetryingReadsInBuild(input: Parameters<typeof fetch>[0], init: Parameters<typeof fetch>[1], method: string): Promise<Response> {
+  const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+  const isRead = method === 'GET' || method === 'HEAD' || (method === 'POST' && url.includes('/rest/v1/rpc/'));
+  if (!isBuild() || !isRead) return fetch(input, init);
+  let first: Response | null = null;
+  try {
+    first = await fetch(input, init);
+    if (first.status < 500) return first;
+  } catch {
+    // no answer: retried below
+  }
+  console.warn(`database read failed during build (${first ? `HTTP ${first.status}` : 'no answer'}); trying once more in ${BUILD_RETRY_MS / 1000} s: ${url.replace(/\?.*$/, '')}`);
+  await new Promise((r) => setTimeout(r, BUILD_RETRY_MS));
+  return fetch(input, init);
+}
+
 // A fetch for Supabase clients that applies the rule to every read (GET/HEAD) response.
 // Writes are passed through untouched, so nothing altered is ever written back.
 export const fetchWithoutEmDashes: typeof fetch = async (input, init) => {
-  const res = await fetch(input, init);
   const method = (init?.method || (input instanceof Request ? input.method : 'GET')).toUpperCase();
+  const res = await fetchRetryingReadsInBuild(input, init, method);
   if (method !== 'GET' && method !== 'HEAD') return res;
   const type = res.headers.get('content-type') || '';
   if (!type.includes('json')) return res;
