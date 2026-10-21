@@ -9,13 +9,14 @@ const INK = '#14100d'
 export async function generateMetadata({ params }: { params: Promise<{ gss: string }> }): Promise<Metadata> {
   const { gss } = await params
   const gssCode = (gss || '').toUpperCase()
-  const { data } = await supabase
+  const { data, error: dataErr } = await supabase
     .from('welfare_local_authority_metrics')
     .select('council_name')
     .eq('council_gss_code', gssCode)
     .eq('metric_key', 'population_mid_year')
     .limit(1)
     .maybeSingle()
+  if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/tools/welfare/local-authority/[gss] welfare_local_authority_metrics: ${dataErr.message}`);
   const name = data?.council_name || null
   if (!name) return { title: 'Local authority not found' }
   return {

@@ -41,12 +41,13 @@ async function fetchLsoas(codes: string[], year: number): Promise<Lsoa[]> {
 // Shared by this section and the area summary (/your-area), so both show the same figure.
 export async function loadFuelPoverty(gssCode: string | null) {
   if (!gssCode || !gssCode.startsWith('E')) return null;
-  const { data } = await supabase
+  const { data, error: dataErr } = await supabase
     .from('council_fuel_poverty')
     .select('council_gss_code, data_year, households, fuel_poor, percentage')
     .in('council_gss_code', [gssCode, 'E92000001'])
     .order('data_year', { ascending: false })
     .limit(20);
+  if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`CouncilFuelPovertySection council_fuel_poverty: ${dataErr.message}`);
   const rows = (data ?? []) as { council_gss_code: string; data_year: number; households: number; fuel_poor: number; percentage: number }[];
   const mine = rows.find((r) => r.council_gss_code === gssCode);
   if (!mine) return null;

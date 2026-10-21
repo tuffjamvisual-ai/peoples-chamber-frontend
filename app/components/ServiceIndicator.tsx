@@ -39,7 +39,8 @@ function fmt(v: number | null, unit: string): string {
 
 export default async function ServiceIndicator({ services }: { services: string[] }) {
   if (!services.length) return null;
-  const { data } = await supabase.from('dashboard_indicators').select('*').in('service', services);
+  const { data, error: dataErr } = await supabase.from('dashboard_indicators').select('*').in('service', services);
+  if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`ServiceIndicator dashboard_indicators: ${dataErr.message}`);
   const rows = ((data || []) as Array<{ service: string; label: string; value: number; unit: string; trend: string; period: string }>);
   if (!rows.length) return null;
   rows.sort((a, b) => services.indexOf(a.service) - services.indexOf(b.service));

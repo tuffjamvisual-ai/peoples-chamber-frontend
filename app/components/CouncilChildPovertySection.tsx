@@ -48,12 +48,13 @@ const fyLabel = (fye: number) => `${fye - 1}-${String(fye).slice(2)}`;
 // Shared by this section and the area summary (/your-area), so both show the same figure.
 export async function loadChildPoverty(gssCodes: string[]) {
   if (gssCodes.length === 0) return null;
-  const { data } = await supabase
+  const { data, error: dataErr } = await supabase
     .from('council_child_poverty')
     .select('council_gss_code, measure, fye, children_count, percentage, release_label')
     .in('council_gss_code', gssCodes)
     .in('measure', ['relative_ahc', 'relative_bhc'])
     .limit(1000);
+  if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`CouncilChildPovertySection council_child_poverty: ${dataErr.message}`);
   const rows = (data ?? []) as Row[];
   if (rows.length === 0) return null;
 

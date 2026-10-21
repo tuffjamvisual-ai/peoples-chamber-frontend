@@ -68,7 +68,7 @@ function Section({ children }: { children: React.ReactNode }) {
 // change this section leads with (the latest month that has an average price).
 export async function loadHousePriceHeadline(gssCode: string | null) {
   if (!gssCode) return null;
-  const { data } = await supabase
+  const { data, error: dataErr2 } = await supabase
     .from('council_house_prices')
     .select('month, average_price, change_12m_pct')
     .eq('council_gss_code', gssCode)
@@ -76,6 +76,7 @@ export async function loadHousePriceHeadline(gssCode: string | null) {
     .order('month', { ascending: false })
     .limit(1)
     .maybeSingle();
+  if (dataErr2 && dataErr2.code !== 'PGRST116') throw new Error(`CouncilHousePricesSection council_house_prices: ${dataErr2.message}`);
   if (!data) return null;
   return {
     price: Number(data.average_price),
@@ -89,12 +90,13 @@ export default async function CouncilHousePricesSection({ gssCode }: { gssCode: 
 
   // A council has at most ~380 monthly rows (Jan 1995 onwards), under
   // PostgREST's 1,000-row cap.
-  const { data } = await supabase
+  const { data, error: dataErr } = await supabase
     .from('council_house_prices')
     .select(SELECT)
     .eq('council_gss_code', gssCode)
     .order('month', { ascending: true })
     .limit(1000);
+  if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`CouncilHousePricesSection council_house_prices: ${dataErr.message}`);
   const rows = ((data ?? []) as Row[]).map((r) => {
     const out = { ...r } as Record<string, unknown>;
     for (const [k, v] of Object.entries(r)) if (k !== 'month' && k !== 'release_tag' && v != null) out[k] = Number(v);

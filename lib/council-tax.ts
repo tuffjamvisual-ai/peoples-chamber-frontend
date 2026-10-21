@@ -35,7 +35,9 @@ export async function loadCouncilTax(gssCode: string | null): Promise<CouncilTax
     .order('year', { ascending: false })
     .limit(1)
     .maybeSingle();
-  if (error || !data) return null; // table not created yet, or no row for this council
+  // A failed read throws (owner's approval, 21 Oct 2026); no row for this council is still null.
+  if (error) throw new Error(`council_tax_levels ${gssCode}: ${error.message}`);
+  if (!data) return null;
   const num = (v: unknown) => (v == null ? null : Number(v));
   return {
     ...(data as CouncilTax),

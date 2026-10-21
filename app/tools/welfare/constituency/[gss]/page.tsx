@@ -9,11 +9,12 @@ const INK = '#14100d'
 export async function generateMetadata({ params }: { params: Promise<{ gss: string }> }): Promise<Metadata> {
   const { gss } = await params
   const gssCode = (gss || '').toUpperCase()
-  const { data } = await supabase
+  const { data, error: dataErr } = await supabase
     .from('mps')
     .select('constituency')
     .eq('constituency_gss_code', gssCode)
     .maybeSingle()
+  if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/tools/welfare/constituency/[gss] mps: ${dataErr.message}`);
   const name = data?.constituency || null
   if (!name) return { title: 'Constituency not found' }
   return {

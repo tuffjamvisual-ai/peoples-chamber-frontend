@@ -63,7 +63,9 @@ export async function loadElectionSummary(gssCode: string | null): Promise<Elect
     .eq('council_gss_code', gssCode)
     .order('election_date', { ascending: false })
     .limit(20);
-  if (error || !el?.length) return null; // tables not created yet, or no results held
+  // A failed read throws (owner's approval, 21 Oct 2026); no elections held is still null.
+  if (error) throw new Error(`council_elections ${gssCode}: ${error.message}`);
+  if (!el?.length) return null;
   // A smaller poll held within 60 days after a larger election belongs to it (a ward postponed after a candidate
   // died, or a poll for seats left unfilled when too few stood). The main election is the latest one that is not
   // such a poll. Byelections are never counted in: byelection-only contests are not loaded.
@@ -80,7 +82,8 @@ export async function loadElectionSummary(gssCode: string | null): Promise<Elect
   type WardRow = { id: number; election_id: number; ward_name: string; seats: number; seats_unfilled: number };
   const { data: wardData, error: wErr } = await supabase.from('council_election_wards').select('id, election_id, ward_name, seats, seats_unfilled').in('election_id', ids).limit(1000);
   const wards = (wardData ?? []) as WardRow[];
-  if (wErr || !wards.length) return null;
+  if (wErr) throw new Error(`council_election_wards ${gssCode}: ${wErr.message}`);
+  if (!wards.length) return null;
   const wardIds = wards.map((w) => w.id as number);
   const mainWards = new Set(wards.filter((w) => w.election_id === main.id).map((w) => w.ward_name as string));
   const laterPollWards = new Set(wards.filter((w) => w.election_id !== main.id).map((w) => w.ward_name));
@@ -103,7 +106,7 @@ export async function loadElectionSummary(gssCode: string | null): Promise<Elect
         .in('ward_id', wardIds.slice(i, i + 100))
         .order('id')
         .range(from, from + 999);
-      if (cErr) return null;
+      if (cErr) throw new Error(`council_election_candidates ${gssCode}: ${cErr.message}`);
       rows.push(...((data ?? []) as typeof rows));
       if (!data || data.length < 1000) break;
     }
@@ -113,7 +116,8 @@ export async function loadElectionSummary(gssCode: string | null): Promise<Elect
   const pids = [...new Set(rows.map((r) => r.party_id).filter((p): p is string => !!p))];
   const names = new Map<string, string>();
   if (pids.length) {
-    const { data: pn } = await supabase.from('party_names').select('party_id, party_name').in('party_id', pids);
+    const { data: pn, error: pnErr } = await supabase.from('party_names').select('party_id, party_name').in('party_id', pids);
+    if (pnErr && pnErr.code !== 'PGRST116') throw new Error(`council-election-summary party_names: ${pnErr.message}`);
     for (const p of (pn ?? []) as { party_id: string; party_name: string }[]) names.set(p.party_id, p.party_name);
   }
   const by = new Map<string, { votes: number; seats: number }>();

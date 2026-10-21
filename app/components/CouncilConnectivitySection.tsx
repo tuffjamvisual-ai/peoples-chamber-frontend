@@ -35,12 +35,13 @@ const pct = (n: number | null) => (n == null ? 'n/a' : `${n.toFixed(1)}%`);
 // (a county is the total of its districts, and only when every district has figures).
 export async function loadBroadbandHeadline(gssCodes: string[]) {
   if (gssCodes.length === 0) return null;
-  const { data } = await supabase
+  const { data, error: dataErr } = await supabase
     .from('council_broadband')
     .select('council_gss_code, data_month, all_premises, gigabit_n')
     .in('council_gss_code', gssCodes)
     .order('data_month', { ascending: false })
     .limit(1000);
+  if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`CouncilConnectivitySection council_broadband: ${dataErr.message}`);
   const all = (data ?? []) as { council_gss_code: string; data_month: string; all_premises: number; gigabit_n: number | null }[];
   if (all.length === 0) return null;
   const month = all[0].data_month;
@@ -57,10 +58,12 @@ export async function loadBroadbandHeadline(gssCodes: string[]) {
 
 export default async function CouncilConnectivitySection({ gssCodes, isCounty }: { gssCodes: string[]; isCounty: boolean }) {
   if (gssCodes.length === 0) return null;
-  const [{ data: bData }, { data: mData }] = await Promise.all([
+  const [{ data: bData, error: bDataErr }, { data: mData, error: mDataErr }] = await Promise.all([
     supabase.from('council_broadband').select('council_gss_code, data_month, all_premises, sfbb_n, ufbb100_n, ufbb300_n, full_fibre_n, gigabit_n, unable_10_n, unable_decent_n, ff_takeup_of_all_pct').in('council_gss_code', gssCodes).order('data_month', { ascending: false }).limit(1000),
     supabase.from('council_mobile_coverage').select('council_gss_code, data_month, prem_count, pixel_count, g4_in_none_pct, g4_in_all_pct, g4_out_none_pct, g4_geo_none_pct, g5_out_none_pct, voice_in_none_pct').in('council_gss_code', gssCodes).order('data_month', { ascending: false }).limit(1000),
   ]);
+  // A failed read throws (owner's approval, 21 Oct 2026), so the last good version stays up.
+  for (const e of [bDataErr, mDataErr]) if (e && e.code !== 'PGRST116') throw new Error(`CouncilConnectivitySection (council_broadband, council_mobile_coverage): ${e.message}`);
   const bAll = (bData ?? []) as B[];
   if (bAll.length === 0) return null;
   const month = bAll[0].data_month;

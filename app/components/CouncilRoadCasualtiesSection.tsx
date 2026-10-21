@@ -46,7 +46,8 @@ function Heading() {
 // leads with. gssCode is the highway authority (the county council in two tier areas).
 export async function loadRoadHeadline(gssCode: string | null) {
   if (!gssCode || !/^[EWS]/.test(gssCode)) return null;
-  const { data } = await supabase.from('council_road_casualties').select('year, measure, casualties').eq('council_gss_code', gssCode).order('year', { ascending: false }).limit(50);
+  const { data, error: dataErr2 } = await supabase.from('council_road_casualties').select('year, measure, casualties').eq('council_gss_code', gssCode).order('year', { ascending: false }).limit(50);
+  if (dataErr2 && dataErr2.code !== 'PGRST116') throw new Error(`CouncilRoadCasualtiesSection council_road_casualties: ${dataErr2.message}`);
   const rows = ((data ?? []) as { year: number; measure: string; casualties: number | null }[]);
   if (rows.length === 0) return null;
   const latest = rows[0].year;
@@ -86,10 +87,12 @@ export default async function CouncilRoadCasualtiesSection({
     );
   }
 
-  const [{ data }, { data: userData }] = await Promise.all([
+  const [{ data, error: dataErr }, { data: userData, error: userDataErr }] = await Promise.all([
     supabase.from('council_road_casualties').select('year, measure, casualties, release_label').eq('council_gss_code', gssCode).order('year').limit(1000),
     supabase.from('council_road_casualties_users').select('year, road_user, measure, casualties').eq('council_gss_code', gssCode).order('year', { ascending: false }).limit(1000),
   ]);
+  // A failed read throws (owner's approval, 21 Oct 2026), so the last good version stays up.
+  for (const e of [dataErr, userDataErr]) if (e && e.code !== 'PGRST116') throw new Error(`CouncilRoadCasualtiesSection (council_road_casualties, council_road_casualties_users): ${e.message}`);
   const rows = ((data ?? []) as Row[]).map((r) => ({ ...r, casualties: r.casualties == null ? null : Number(r.casualties) }));
   if (rows.length === 0) return null;
   const years = [...new Set(rows.map((r) => r.year))].sort((a, b) => a - b);

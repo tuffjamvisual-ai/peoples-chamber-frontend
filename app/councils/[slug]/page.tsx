@@ -173,7 +173,8 @@ function formatPoundsMillions(valuePounds: number): string {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const { data } = await supabase.from('councils').select('name, type_label, country, political_control, population').eq('slug', slug).single();
+  const { data, error: dataErr } = await supabase.from('councils').select('name, type_label, country, political_control, population').eq('slug', slug).single();
+  if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/councils/[slug] councils: ${dataErr.message}`);
   if (!data) return { title: 'Council not found' };
   // A description that says what the page offers, not just the council's type (all 382
   // councils had a one-line description; search engine check, 16 Oct 2026).
@@ -203,18 +204,21 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
   // counties) in a single round-trip — the parent_slug column makes
   // the relationship explicit. Counties have null parent_slug; child
   // districts are read by querying parent_slug = this slug.
-  const [{ data: parentRow }, { data: childRows }, { data: compRow }] = await Promise.all([
+  const [{ data: parentRow, error: parentRowErr }, { data: childRows, error: childRowsErr }, { data: compRow, error: compRowErr }] = await Promise.all([
     c.parent_slug
       ? supabase.from('councils').select('slug, name, short_name, political_control').eq('slug', c.parent_slug).single()
-      : Promise.resolve({ data: null }),
+      : Promise.resolve({ data: null, error: null }),
     c.type === 'county'
       ? supabase.from('councils').select('slug, name, short_name, political_control, gss_code').eq('parent_slug', c.slug).order('name')
-      : Promise.resolve({ data: [] }),
+      : Promise.resolve({ data: [], error: null }),
     supabase.from('council_composition').select('snapshot_year, total_seats, seats, majority_party, administration_code').eq('council_slug', c.slug).limit(1).maybeSingle(),
   ]);
+  // A failed read throws (owner's approval, 21 Oct 2026), so the last good version stays up.
+  for (const e of [parentRowErr, childRowsErr, compRowErr]) if (e && e.code !== 'PGRST116') throw new Error(`/councils/[slug] (councils, council_composition): ${e.message}`);
   const comp = (compRow as CouncilComposition | null) || null;
-  const electionSummary = await loadElectionSummary(c.gss_code).catch(() => null);
-  const councilTax = await loadCouncilTax(c.gss_code).catch(() => null);
+  // A failed read throws, so the last good page stays up (owner's approval, 21 Oct 2026); no data is null.
+  const electionSummary = await loadElectionSummary(c.gss_code);
+  const councilTax = await loadCouncilTax(c.gss_code);
   const parent: RelatedCouncil | null = (parentRow as RelatedCouncil | null) || null;
   const children: RelatedCouncil[] = (childRows || []) as RelatedCouncil[];
 
@@ -261,10 +265,11 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
   // councils get zero rows by design — confirmed via the NI Audit
   // Office's own report that no comparable breakdown is published for
   // NI — and the section simply doesn't render for them.
-  const { data: serviceSpendingRows } = await supabase
+  const { data: serviceSpendingRows, error: serviceSpendingRowsErr } = await supabase
     .from('council_service_spending')
     .select('service_category, value_pounds, source, period_label')
     .eq('council_gss_code', c.gss_code);
+  if (serviceSpendingRowsErr && serviceSpendingRowsErr.code !== 'PGRST116') throw new Error(`/councils/[slug] council_service_spending: ${serviceSpendingRowsErr.message}`);
   const allSpendingRows = (serviceSpendingRows || []) as ServiceSpendingRow[];
   const aggregateCategory = SERVICE_SPENDING_AGGREGATE_CATEGORY[c.country];
   const spendingAggregateRow = aggregateCategory

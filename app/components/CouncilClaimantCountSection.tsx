@@ -38,13 +38,14 @@ const fmtSigned = (n: number) => `${n > 0 ? '+' : n < 0 ? '−' : ''}${fmtNum(Ma
 // year earlier that this section leads with.
 export async function loadClaimantHeadline(gssCode: string | null) {
   if (!gssCode) return null;
-  const { data } = await supabase
+  const { data, error: dataErr2 } = await supabase
     .from('council_claimant_count')
     .select('month, claimants, rate')
     .eq('council_gss_code', gssCode)
     .not('claimants', 'is', null)
     .order('month', { ascending: false })
     .limit(13);
+  if (dataErr2 && dataErr2.code !== 'PGRST116') throw new Error(`CouncilClaimantCountSection council_claimant_count: ${dataErr2.message}`);
   const rows = (data ?? []) as { month: string; claimants: number; rate: number | null }[];
   if (rows.length === 0) return null;
   const latest = rows[0];
@@ -62,12 +63,13 @@ export async function loadClaimantHeadline(gssCode: string | null) {
 export default async function CouncilClaimantCountSection({ gssCode }: { gssCode: string | null }) {
   if (!gssCode) return null;
   // ~490 monthly rows per council (from January 1986), under PostgREST's 1,000-row cap.
-  const { data } = await supabase
+  const { data, error: dataErr } = await supabase
     .from('council_claimant_count')
     .select('month, claimants, claimants_men, claimants_women, rate, rate_men, rate_women')
     .eq('council_gss_code', gssCode)
     .order('month', { ascending: true })
     .limit(1000);
+  if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`CouncilClaimantCountSection council_claimant_count: ${dataErr.message}`);
   const rows = ((data ?? []) as Row[])
     .map((r) => ({ ...r, rate: r.rate == null ? null : Number(r.rate), rate_men: r.rate_men == null ? null : Number(r.rate_men), rate_women: r.rate_women == null ? null : Number(r.rate_women) }))
     .filter((r) => r.claimants != null);

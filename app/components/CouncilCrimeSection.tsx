@@ -87,13 +87,14 @@ export async function loadCrime(gssCodes: string[], population: number | null) {
   if (gssCodes.length === 0) return null;
 
   // Latest period first (one cheap query), then just the window needed.
-  const { data: latestRow } = await supabase
+  const { data: latestRow, error: latestRowErr } = await supabase
     .from('council_crime_stats')
     .select('source, period_type, period_start')
     .in('council_gss_code', gssCodes)
     .order('period_start', { ascending: false })
     .limit(1)
     .maybeSingle();
+  if (latestRowErr && latestRowErr.code !== 'PGRST116') throw new Error(`CouncilCrimeSection council_crime_stats: ${latestRowErr.message}`);
   if (!latestRow) return null;
 
   const monthly = latestRow.period_type === 'month';
