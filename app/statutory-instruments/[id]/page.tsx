@@ -40,11 +40,12 @@ export default async function SIDetailPage({ params }: { params: Promise<{ id: s
   const divisionId = parseInt(id, 10)
   if (!Number.isFinite(divisionId)) notFound()
 
-  const { data: si } = await supabase
+  const { data: si, error: siErr } = await supabase
     .from('statutory_instrument')
     .select('*')
     .eq('division_id', divisionId)
     .single()
+  if (siErr && siErr.code !== 'PGRST116') throw new Error(`/statutory-instruments/[id] statutory_instrument: ${siErr.message}`);
   if (!si) notFound()
 
   // mp_division_votes has no FK to mps, so PostgREST can't embed it (PGRST200)
@@ -52,11 +53,12 @@ export default async function SIDetailPage({ params }: { params: Promise<{ id: s
   // Fetch the vote rows, then look up MP metadata separately and merge in JS.
   // Orphan voters (member_id absent from mps) render without a profile link
   // instead of failing the whole query.
-  const { data: voteRows } = await supabase
+  const { data: voteRows, error: voteRowsErr } = await supabase
     .from('mp_division_votes')
     .select('vote_type, member_id, is_rebellion')
     .eq('division_id', divisionId)
     .order('vote_type')
+  if (voteRowsErr && voteRowsErr.code !== 'PGRST116') throw new Error(`/statutory-instruments/[id] mp_division_votes: ${voteRowsErr.message}`);
 
   const memberIds = [...new Set((voteRows ?? []).map((v) => v.member_id))]
   const mpRows = memberIds.length

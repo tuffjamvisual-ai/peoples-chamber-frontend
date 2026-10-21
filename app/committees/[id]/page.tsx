@@ -66,11 +66,12 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const { data } = await supabase
+  const { data, error: dataErr2 } = await supabase
     .from('committees')
     .select('name')
     .eq('id', Number(id))
     .single();
+  if (dataErr2 && dataErr2.code !== 'PGRST116') throw new Error(`/committees/[id] committees: ${dataErr2.message}`);
   if (!data) return { title: 'Committee' };
   return {
     title: `${data.name}: UK Parliament`,
@@ -104,10 +105,11 @@ export default async function CommitteeProfilePage({ params }: Props) {
   const currentMemberIds = currentMemberships.map((m) => m.member_id);
   let mpRows: { member_id: number; display_name: string; list_as: string; party: string | null; constituency: string | null }[] = [];
   if (currentMemberIds.length > 0) {
-    const { data } = await supabase
+    const { data, error: dataErr } = await supabase
       .from('mps')
       .select('member_id, display_name, list_as, party, constituency')
       .in('member_id', currentMemberIds);
+    if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/committees/[id] mps: ${dataErr.message}`);
     mpRows = data ?? [];
   }
 

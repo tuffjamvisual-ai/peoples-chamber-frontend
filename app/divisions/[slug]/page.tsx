@@ -130,7 +130,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const dateOnly = m[1];
   const divisionNumber = parseInt(m[2], 10);
 
-  const { data: row } = await supabase
+  const { data: row, error: rowErr } = await supabase
     .from('mp_division_votes')
     .select('division_title, division_date, bill_id, division_id')
     .eq('division_date_only', dateOnly)
@@ -138,6 +138,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     .order('bill_id', { ascending: true, nullsFirst: false })
     .limit(1)
     .maybeSingle();
+  if (rowErr && rowErr.code !== 'PGRST116') throw new Error(`/divisions/[slug] mp_division_votes: ${rowErr.message}`);
   if (!row) return { title: 'Division' };
 
   const dateLabel = new Date(row.division_date).toLocaleDateString('en-GB', {
@@ -152,12 +153,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // explanatory note, then a procedural explainer, then a generic line.
   let billSummary: string | null = null;
   if (row.bill_id != null) {
-    const { data: bill } = await supabase.from('bill').select('title, description, long_title').eq('id', row.bill_id).is('hidden_reason', null).maybeSingle();
+    const { data: bill, error: billErr2 } = await supabase.from('bill').select('title, description, long_title').eq('id', row.bill_id).is('hidden_reason', null).maybeSingle();
+    if (billErr2 && billErr2.code !== 'PGRST116') throw new Error(`/divisions/[slug] bill: ${billErr2.message}`);
     billSummary = bill ? officialBillSummary(bill) || null : null;
   }
   let siDescription: string | null = null;
   if (!billSummary && row.division_id != null) {
-    const { data: si } = await supabase.from('statutory_instrument').select('description').eq('division_id', row.division_id).maybeSingle();
+    const { data: si, error: siErr2 } = await supabase.from('statutory_instrument').select('description').eq('division_id', row.division_id).maybeSingle();
+    if (siErr2 && siErr2.code !== 'PGRST116') throw new Error(`/divisions/[slug] statutory_instrument: ${siErr2.message}`);
     siDescription = si?.description ?? null;
   }
 
@@ -233,19 +236,21 @@ export default async function DivisionDetailPage({ params }: PageProps) {
 
   // Official totals from Parliament (tellers not included). The vote rows include the tellers
   // and can miss a voter Parliament's list does not name, so they are only a fallback.
-  const { data: totalsRow } = await supabase
+  const { data: totalsRow, error: totalsRowErr } = await supabase
     .from('commons_division_totals')
     .select('aye_count, no_count, aye_tellers, no_tellers')
     .eq('division_id', (voteRows[0] as { division_id: number }).division_id)
     .maybeSingle();
+  if (totalsRowErr && totalsRowErr.code !== 'PGRST116') throw new Error(`/divisions/[slug] commons_division_totals: ${totalsRowErr.message}`);
   const totals = totalsRow as { aye_count: number; no_count: number; aye_tellers: string[]; no_tellers: string[] } | null;
 
   // MP lookup — single batch on the distinct member_ids.
   const memberIds = Array.from(new Set(voteRows.map((v) => v.member_id)));
-  const { data: mpRows } = await supabase
+  const { data: mpRows, error: mpRowsErr } = await supabase
     .from('mps')
     .select('member_id, display_name, name, party, party_colour, constituency, photo_url')
     .in('member_id', memberIds);
+  if (mpRowsErr && mpRowsErr.code !== 'PGRST116') throw new Error(`/divisions/[slug] mps: ${mpRowsErr.message}`);
   const mpById = new Map<number, MpRow>((mpRows ?? []).map((m) => [m.member_id, m as MpRow]));
 
   const votes: Vote[] = voteRows.map((v) => ({ ...v, mp: mpById.get(v.member_id) ?? null }));
@@ -264,12 +269,13 @@ export default async function DivisionDetailPage({ params }: PageProps) {
   let billTitle: string | null = null;
   let billSummary: string | null = null;
   if (billId != null) {
-    const { data: bill } = await supabase
+    const { data: bill, error: billErr } = await supabase
       .from('bill')
       .select('title, description, long_title')
       .eq('id', billId)
       .is('hidden_reason', null)
       .maybeSingle();
+    if (billErr && billErr.code !== 'PGRST116') throw new Error(`/divisions/[slug] bill: ${billErr.message}`);
     if (!bill) billId = null;
     billTitle = bill?.title ?? null;
     billSummary = bill ? officialBillSummary(bill) || null : null;
@@ -281,11 +287,12 @@ export default async function DivisionDetailPage({ params }: PageProps) {
   const cvaId = voteRows.find((v) => v.division_id != null)?.division_id ?? null;
   let siDescription: string | null = null;
   if (!billSummary && cvaId != null) {
-    const { data: si } = await supabase
+    const { data: si, error: siErr } = await supabase
       .from('statutory_instrument')
       .select('description')
       .eq('division_id', cvaId)
       .maybeSingle();
+    if (siErr && siErr.code !== 'PGRST116') throw new Error(`/divisions/[slug] statutory_instrument: ${siErr.message}`);
     siDescription = si?.description ?? null;
   }
 

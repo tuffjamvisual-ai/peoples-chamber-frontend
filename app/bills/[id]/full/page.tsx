@@ -130,11 +130,13 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
   const billId = parseInt(id, 10)
   if (!Number.isFinite(billId)) notFound()
 
-  const { data: bill } = await supabase
+  const { data: bill, error: billErr } = await supabase
     .from('bill')
     .select('id, parliament_id, title, current_stage, is_act, hidden_reason')
     .eq('id', billId)
     .single()
+  // A failed read throws (owner's approval, 21 Oct 2026); "no row" (PGRST116) stays a 404.
+  if (billErr && billErr.code !== 'PGRST116') throw new Error(`full bill: ${billErr.message}`)
   // Hidden bills (bill.hidden_reason) return 404, as /bills/[id] does.
   if (!bill || bill.parliament_id == null || bill.hidden_reason) notFound()
 

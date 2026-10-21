@@ -206,11 +206,12 @@ export default async function DonorPage({ params }: PageProps) {
   const recipientRows = Array.from(byRecipient.values()).sort((a, b) => b.total - a.total);
 
   // Cross-link: APPGs this donor funds (using their canonical name)
-  const { data: appgFunderHits } = await supabase
+  const { data: appgFunderHits, error: appgFunderHitsErr } = await supabase
     .from('appg_funders')
     .select('appg_slug, value_band, description, received_date, source')
     .ilike('source', `%${ranked[0] ?? canonicalName}%`)
     .limit(200);
+  if (appgFunderHitsErr && appgFunderHitsErr.code !== 'PGRST116') throw new Error(`/donors/[slug] appg_funders: ${appgFunderHitsErr.message}`);
   const matchedAppgFunderRows = (appgFunderHits || []).filter(
     (f: { source: string }) => donorNameToSlug(f.source) === slug,
   );
@@ -221,11 +222,12 @@ export default async function DonorPage({ params }: PageProps) {
   // only shows a contracts panel when the EC and gov.uk registers
   // agree on the entity. Limited to current/recent contracts.
   const normName = canonicalName.toUpperCase().replace(/\s+/g, ' ').trim();
-  const { data: contractHits } = await supabase
+  const { data: contractHits, error: contractHitsErr } = await supabase
     .from('government_contracts')
     .select('id, dept_slug, title, value, awarded_date, supplier, ocid')
     .ilike('supplier', `%${ranked[0] ?? canonicalName}%`)
     .limit(500);
+  if (contractHitsErr && contractHitsErr.code !== 'PGRST116') throw new Error(`/donors/[slug] government_contracts: ${contractHitsErr.message}`);
   type ContractRow = { id: number; dept_slug: string; title: string | null; value: number | null; awarded_date: string | null; supplier: string | null; ocid: string | null };
   const matchedContracts = ((contractHits || []) as ContractRow[]).filter((c) =>
     c.supplier && c.supplier.toUpperCase().replace(/\s+/g, ' ').trim() === normName,
@@ -252,10 +254,11 @@ export default async function DonorPage({ params }: PageProps) {
   let appgsFunded: Array<{ slug: string; title: string; category: string | null }> = [];
   if (matchedAppgFunderRows.length > 0) {
     const slugs = Array.from(new Set(matchedAppgFunderRows.map((f) => f.appg_slug)));
-    const { data: appgRows } = await supabase
+    const { data: appgRows, error: appgRowsErr } = await supabase
       .from('appgs')
       .select('slug, title, category')
       .in('slug', slugs);
+    if (appgRowsErr && appgRowsErr.code !== 'PGRST116') throw new Error(`/donors/[slug] appgs: ${appgRowsErr.message}`);
     appgsFunded = (appgRows || []) as Array<{ slug: string; title: string; category: string | null }>;
   }
 
@@ -270,7 +273,8 @@ export default async function DonorPage({ params }: PageProps) {
   if (uniqueMpNames.length > 0) {
     // For each unique recipient name, try to find a current MP that matches.
     // We just need first-word + last-word substring match.
-    const { data: mps } = await supabase.from('mps').select('member_id, display_name, name').eq('current_member', true);
+    const { data: mps, error: mpsErr } = await supabase.from('mps').select('member_id, display_name, name').eq('current_member', true);
+    if (mpsErr && mpsErr.code !== 'PGRST116') throw new Error(`/donors/[slug] mps: ${mpsErr.message}`);
     if (mps) {
       for (const rn of uniqueMpNames) {
         const lower = rn.toLowerCase();

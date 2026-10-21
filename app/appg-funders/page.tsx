@@ -25,11 +25,12 @@ const ACCENT = '#7a1612';
 
 export default async function AppgFundersIndex() {
   // Pull every funder row with appg slug. ~520 rows total.
-  const { data: funders } = await supabase
+  const { data: funders, error: fundersErr } = await supabase
     .from('appg_funders')
     .select('source, appg_slug, value_band')
     .not('source', 'is', null)
     .limit(2000);
+  if (fundersErr && fundersErr.code !== 'PGRST116') throw new Error(`/appg-funders appg_funders: ${fundersErr.message}`);
 
   type Agg = { name: string; appgs: Set<string>; paymentLines: number };
   const byFunder = new Map<string, Agg>();
@@ -55,11 +56,12 @@ export default async function AppgFundersIndex() {
   const ecMatchedSlugs = new Set<string>();
   if (multi.length > 0) {
     const names = multi.map((m) => m.name);
-    const { data: ec } = await supabase
+    const { data: ec, error: ecErr } = await supabase
       .from('political_donations')
       .select('donor_name')
       .in('donor_name', names)
       .limit(2000);
+    if (ecErr && ecErr.code !== 'PGRST116') throw new Error(`/appg-funders political_donations: ${ecErr.message}`);
     for (const r of (ec || []) as Array<{ donor_name: string | null }>) {
       if (r.donor_name) ecMatchedSlugs.add(donorNameToSlug(r.donor_name));
     }

@@ -65,10 +65,11 @@ export default async function CommitteesIndexPage() {
 
   let mps: MpRow[] = [];
   if (chairMemberIds.length > 0) {
-    const { data } = await supabase
+    const { data, error: dataErr } = await supabase
       .from('mps')
       .select('member_id, display_name')
       .in('member_id', chairMemberIds);
+    if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/committees mps: ${dataErr.message}`);
     mps = data ?? [];
   }
 

@@ -127,10 +127,11 @@ export default async function AssociationPage({ params }: PageProps) {
   const cleanUnit = canonicalName.replace(/\bConstituency\b/i, '').replace(/\bAssociation\b/i, '').replace(/\bCLP\b/i, '').trim();
   let matchedMp: { member_id: number; display_name: string | null; constituency: string | null } | null = null;
   if (cleanUnit) {
-    const { data: mps } = await supabase
+    const { data: mps, error: mpsErr } = await supabase
       .from('mps')
       .select('member_id, display_name, constituency')
       .eq('current_member', true);
+    if (mpsErr && mpsErr.code !== 'PGRST116') throw new Error(`/donations/constituencies/[slug] mps: ${mpsErr.message}`);
     if (mps) {
       const target = cleanUnit.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
       for (const m of mps as Array<{ member_id: number; display_name: string | null; constituency: string | null }>) {

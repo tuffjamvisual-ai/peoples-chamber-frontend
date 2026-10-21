@@ -69,7 +69,9 @@ export default async function LateDisclosedPage() {
       .gte('amount', 1500)
       .order('reported_date', { ascending: false })
       .range(from, from + PAGE - 1);
-    if (error || !data || data.length === 0) break;
+    // A failed read throws (owner's approval, 21 Oct 2026); it used to end the list early, publishing part of it.
+    if (error) throw new Error(`late-disclosed political_donations: ${error.message}`);
+    if (!data || data.length === 0) break;
     rows.push(...(data as Row[]));
     if (data.length < PAGE) break;
     if (rows.length > 50_000) break; // safety

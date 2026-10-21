@@ -10,7 +10,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const billId = parseInt(id);
   if (Number.isNaN(billId)) return { title: 'Bill' };
-  const { data: bill } = await supabase
+  const { data: bill, error: billErr } = await supabase
     .from('bill')
     .select(
       // Single string literal — Supabase's compile-time type inference
@@ -20,6 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     )
     .eq('id', billId)
     .single();
+  if (billErr && billErr.code !== 'PGRST116') throw new Error(`/bills/[id] bill: ${billErr.message}`);
   if (!bill) return { title: 'Bill' };
   if (bill.hidden_reason) return { title: 'Bill not found', robots: { index: false, follow: false } };
   const title = bill.title || bill.long_title || `Bill ${billId}`;

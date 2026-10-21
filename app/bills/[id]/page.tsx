@@ -57,10 +57,12 @@ export async function generateMetadata(
   // Fetch the bill's stage/act/division flags and whether any MP vote is recorded against it, in parallel. Only
   // whether one exists matters, so one indexed row is read instead of counting them all (owner's approval,
   // 21 Oct 2026; the count averaged 1.2 s during builds).
-  const [{ data: bill }, { data: oneVote }] = await Promise.all([
+  const [{ data: bill, error: billErr1 }, { data: oneVote, error: oneVoteErr }] = await Promise.all([
     supabase.from('bill').select('status, is_act, commons_division_id').eq('id', billId).single(),
     supabase.from('mp_division_votes').select('id').eq('bill_id', billId).limit(1),
   ])
+  // A failed read throws (owner's approval, 21 Oct 2026), so the last good version stays up.
+  for (const e of [billErr1, oneVoteErr]) if (e && e.code !== 'PGRST116') throw new Error(`/bills/[id] (bill, mp_division_votes): ${e.message}`);
   const hasVotes = (oneVote?.length ?? 0) > 0
 
   // Active-stage guard: a bill still progressing through Committee, Report,
@@ -108,7 +110,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
   const billId = parseInt(id, 10)
   if (!Number.isFinite(billId)) notFound()
 
-  const [{ data: bill }, { data: lordsDivisionRows }] = await Promise.all([
+  const [{ data: bill, error: billErr }, { data: lordsDivisionRows, error: lordsDivisionRowsErr }] = await Promise.all([
     supabase.from('bill').select('*').eq('id', billId).single(),
     // House of Lords divisions linked to this bill (lords_divisions.bill_id,
     // resolved by lib/lords-votes.ts). Newest first. A failed query just
@@ -120,6 +122,8 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
       .order('division_date', { ascending: false })
       .order('division_number', { ascending: false }),
   ])
+  // A failed read throws (owner's approval, 21 Oct 2026), so the last good version stays up.
+  for (const e of [billErr, lordsDivisionRowsErr]) if (e && e.code !== 'PGRST116') throw new Error(`/bills/[id] (bill, lords_divisions): ${e.message}`);
   // Hidden bills (bill.hidden_reason: duplicates, bad records) return 404; nothing is deleted.
   if (!bill || bill.hidden_reason) notFound()
   const lordsDivisions = (lordsDivisionRows ?? []) as LordsDivision[]
@@ -128,12 +132,13 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
   // (audit P3). Looked up by the Commons Votes division id saved on the bill.
   let commonsDivisionHref: string | null = null
   if (bill.commons_division_id != null) {
-    const { data: dv } = await supabase
+    const { data: dv, error: dvErr } = await supabase
       .from('mp_division_votes')
       .select('division_date_only, division_number')
       .eq('division_id', bill.commons_division_id)
       .limit(1)
       .maybeSingle()
+    if (dvErr && dvErr.code !== 'PGRST116') throw new Error(`/bills/[id] mp_division_votes: ${dvErr.message}`);
     if (dv?.division_date_only && dv?.division_number != null) {
       commonsDivisionHref = `/divisions/pw-${String(dv.division_date_only).slice(0, 10)}-${dv.division_number}`
     }
