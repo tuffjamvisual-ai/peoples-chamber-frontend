@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { createClient } from '@supabase/supabase-js';
+import { noticeRows, uniqueNoticeRows, type NoticeRow } from '@/lib/contract-notices';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -16,6 +17,10 @@ export const maxDuration = 300;
 // skipped rather than killing the whole run (which would leave a partial update
 // AND miss the heartbeat write). Pagination stops cleanly on a fetch error,
 // keeping prior progress.
+//
+// Every release is also written to contract_notices (migration 2026-10-21k): one row per notice, contract and value
+// type, for contract histories (/contracts/[ocid]). A published release never changes, so re-running the window
+// rewrites identical rows.
 
 const API = 'https://www.find-tender.service.gov.uk/api/1.0/ocdsReleasePackages';
 const LIMIT = 100;
@@ -134,7 +139,7 @@ async function GET_impl(req: Request) {
 
   const now = new Date().toISOString();
   let url = `${API}?${new URLSearchParams({ updatedFrom: isoMinusDays(windowDays), limit: String(LIMIT) })}`;
-  let scanned = 0, upserted = 0, skippedBad = 0, pagesError: string | null = null;
+  let scanned = 0, upserted = 0, skippedBad = 0, noticesWritten = 0, noticesFailed = 0, pagesError: string | null = null;
 
   async function upsertRow(row: ContractRow): Promise<boolean> {
     const { error } = await supabase.from('government_contracts').upsert(row, { onConflict: 'ocid,award_id,contract_id' });
@@ -168,13 +173,23 @@ async function GET_impl(req: Request) {
       }
     }
 
+    const notices: NoticeRow[] = uniqueNoticeRows(releases.flatMap((r: any) => noticeRows(r)));
+    for (let i = 0; i < notices.length; i += 200) {
+      const batch = notices.slice(i, i + 200);
+      const { error: nErr } = await supabase.from('contract_notices').upsert(batch, { onConflict: 'ocid,release_id,contract_key,value_type' });
+      if (nErr) { noticesFailed += batch.length; console.error(`[contracts] contract_notices batch failed: ${nErr.message}`); }
+      else noticesWritten += batch.length;
+    }
+
     const next = data?.links?.next;
     if (!next) break;
     url = next;
     await sleep(DELAY_MS);
   }
 
-  return NextResponse.json({ ok: true, scanned, rows_written: upserted, skippedBad, pagesError, windowDays, maxPages, syncedAt: now });
+  return NextResponse.json({ ok: noticesFailed === 0, scanned, rows_written: upserted, skippedBad, notices_written: noticesWritten, notices_failed: noticesFailed, pagesError, windowDays, maxPages, syncedAt: now },
+    // A failed contract_notices write shows as a failed run in sync_heartbeat (the contracts themselves are saved).
+    { status: noticesFailed ? 500 : 200 });
 }
 
 export const GET = withHeartbeat('/api/sync-government-contracts', GET_impl);
