@@ -39,17 +39,18 @@ type Cross = { displayName: string; norm: string; contracts: number; contractVal
 // join them here, which took 17 seconds on a first load (audit X11). Cached for a day.
 // Since migration 2026-10-21j the view counts each contract once (not each notice), leaves out change notices a
 // newer notice supersedes, and counts frameworks as places without adding their value (potential value, not
-// spending).
+// spending). The page reads the stored copy (migration 2026-10-21l, refreshed by the daily contracts sync): the
+// view itself takes up to 3 s.
 const loadMatched = unstable_cache(
   async () => {
     const matched: Cross[] = [];
     for (let from = 0; ; from += 1000) {
       const { data, error } = await supabase
-        .from('contractor_donor_matches')
+        .from('contractor_donor_matches_stored')
         .select('display_name, norm, contracts, contract_value, donations, donated, framework_places')
         .order('norm')
         .range(from, from + 999);
-      if (error) throw new Error(`contractor_donor_matches: ${error.message}`);
+      if (error) throw new Error(`contractor_donor_matches_stored: ${error.message}`);
       for (const r of data || []) {
         matched.push({ displayName: r.display_name, norm: r.norm, contracts: Number(r.contracts), contractValue: Number(r.contract_value), donations: Number(r.donations), donated: Number(r.donated), frameworkPlaces: Number(r.framework_places) });
       }
@@ -62,7 +63,7 @@ const loadMatched = unstable_cache(
     const totalFrameworkPlaces = matched.reduce((s, m) => s + m.frameworkPlaces, 0);
     return { matched, totalDonated, totalContractValue, totalContracts, totalFrameworkPlaces };
   },
-  ['gov-contractors-matched-v3'],
+  ['gov-contractors-matched-v4'],
   { revalidate: 86400 },
 );
 

@@ -187,9 +187,14 @@ async function GET_impl(req: Request) {
     await sleep(DELAY_MS);
   }
 
-  return NextResponse.json({ ok: noticesFailed === 0, scanned, rows_written: upserted, skippedBad, notices_written: noticesWritten, notices_failed: noticesFailed, pagesError, windowDays, maxPages, syncedAt: now },
-    // A failed contract_notices write shows as a failed run in sync_heartbeat (the contracts themselves are saved).
-    { status: noticesFailed ? 500 : 200 });
+  // The contractor totals page reads a stored copy of contractor_donor_matches (migration 2026-10-21l); bring it up
+  // to date with what was just written.
+  const { error: refreshErr } = await supabase.rpc('refresh_contractor_donor_matches');
+  if (refreshErr) console.error(`[contracts] refresh_contractor_donor_matches failed: ${refreshErr.message}`);
+
+  return NextResponse.json({ ok: noticesFailed === 0 && !refreshErr, matches_refreshed: !refreshErr, scanned, rows_written: upserted, skippedBad, notices_written: noticesWritten, notices_failed: noticesFailed, pagesError, windowDays, maxPages, syncedAt: now },
+    // A failed contract_notices write or refresh shows as a failed run in sync_heartbeat (the contracts are saved).
+    { status: noticesFailed || refreshErr ? 500 : 200 });
 }
 
 export const GET = withHeartbeat('/api/sync-government-contracts', GET_impl);
