@@ -46,7 +46,9 @@ function sessionName(desc) {
   const ids = new Set(rows.map((r) => r.id));
   console.log(`IDs 31, 32, 33 in the calendar: ${[31, 32, 33].filter((i) => ids.has(i)).join(', ') || 'none'}`);
 
-  const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  // The service role key when there is one (the nightly workflow): the anon key written into daily-sync.yml was
+  // no longer valid ("Invalid API key"), which is what failed this step on 21 Oct 2026.
+  const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
   const used = new Set();
   for (let from = 0; ; from += 1000) {
     const { data, error } = await sb.from('bill').select('introduced_session_id').order('id').range(from, from + 999);
