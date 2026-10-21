@@ -1,5 +1,6 @@
 'use client';
 
+import { pageview } from '@vercel/analytics';
 import { billSummary } from '@/lib/bill-summary';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -669,10 +670,24 @@ export default function MagazineProfileSections({
     }
   }, [active]);
 
+  // A tab change is a page view (owner's approval, 21 Oct 2026): the address becomes ?section=<id> through
+  // history.pushState (no reload; Back returns to the previous tab) and Vercel Analytics is told, because its own
+  // tracking only counts a change of path. #<id> links still open a tab (the hashchange effect above).
   const select = (id: SectionId) => {
+    if (id === active) return;
     setActive(id);
-    if (typeof window !== 'undefined') history.replaceState(null, '', `#${id}`);
+    if (typeof window === 'undefined') return;
+    window.history.pushState(null, '', `${window.location.pathname}?section=${id}`);
+    pageview({ path: window.location.pathname });
   };
+  useEffect(() => {
+    const onPop = () => {
+      const fromUrl = new URLSearchParams(window.location.search).get('section') || window.location.hash.slice(1);
+      setActive(fromUrl && validIds.has(fromUrl as SectionId) ? (fromUrl as SectionId) : initialActive);
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, [validIds, initialActive]);
 
   // Index expense claims by year for the drilldown.
   const claimsByYear = useMemo(() => {

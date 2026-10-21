@@ -10,6 +10,7 @@
 // CSS position:sticky is broken under the zoom:1.18 wrapper in page.tsx,
 // so we use the same JS translateY trick as the landing-page MP folder.
 
+import { pageview } from '@vercel/analytics';
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 
@@ -33,16 +34,30 @@ export default function DepartmentTabs({
   const containerRef = useRef<HTMLDivElement>(null);
   const [offset, setOffset] = useState(0);
 
-  // Open the tab named in the URL hash (e.g. /departments/home-office#transparency), as the council tabs do.
+  // Open the tab named in the address: ?tab=<id>, or the hash (e.g. /departments/home-office#transparency), as the
+  // council tabs do. Back and Forward reopen the tab that address names.
   useEffect(() => {
-    const fromHash = () => {
-      const h = window.location.hash.replace(/^#/, '');
-      if (h && tabs.some((t) => t.id === h)) setActive(h);
+    const fromUrl = () => {
+      const t = new URLSearchParams(window.location.search).get('tab') || window.location.hash.replace(/^#/, '');
+      setActive(t && tabs.some((x) => x.id === t) ? t : (tabs[0]?.id ?? ''));
     };
-    fromHash();
-    window.addEventListener('hashchange', fromHash);
-    return () => window.removeEventListener('hashchange', fromHash);
+    fromUrl();
+    window.addEventListener('hashchange', fromUrl);
+    window.addEventListener('popstate', fromUrl);
+    return () => {
+      window.removeEventListener('hashchange', fromUrl);
+      window.removeEventListener('popstate', fromUrl);
+    };
   }, [tabs]);
+
+  // A tab change is a page view (owner's approval, 21 Oct 2026): ?tab=<id> through history.pushState (no reload) and
+  // Vercel Analytics is told, because its own tracking only counts a change of path.
+  const choose = (id: string) => {
+    if (id === active) return;
+    setActive(id);
+    window.history.pushState(null, '', `${window.location.pathname}?tab=${id}`);
+    pageview({ path: window.location.pathname });
+  };
 
   useEffect(() => {
     const el = stickyRef.current;
@@ -80,7 +95,7 @@ export default function DepartmentTabs({
               return (
                 <button
                   key={t.id}
-                  onClick={() => setActive(t.id)}
+                  onClick={() => choose(t.id)}
                   style={{
                     padding: '12px 16px',
                     border: 'none',
