@@ -13,6 +13,7 @@
 // facts with dates, shown beside the scores, never folded into them.
 
 import { cache } from 'react';
+import { unstable_cache } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 
 export const TOPIC_NAMES = ['Schools and children', 'Safety', 'Health', 'Jobs and poverty', 'Housing', 'Environment', 'Connectivity', 'Local services'] as const;
@@ -214,8 +215,29 @@ export type LeagueData = {
   neighboursOf: Map<string, string[]>;
 };
 
+// Built once and kept in Next's data cache (owner's approval, 21 Oct 2026): every council page's Ratings tab and the
+// league page used to rebuild it from six national tables on each render (about 12 reads, 0.4-0.5 s, 1.2 MB). The
+// cached copy is tagged COUNCIL_LEAGUE_TAG, refreshed every 6 hours, and refreshed at once when scripts/score-areas.js
+// or the council finance, ratings and neighbours imports write (they call /api/revalidate-councils). A failed read
+// throws and is not cached. The Maps are stored as entry lists (the cache holds JSON) and rebuilt on read.
+export const COUNCIL_LEAGUE_TAG = 'council-league';
+type LeagueDataJson = Omit<LeagueData, 'flagsByCouncil' | 'ofstedByCouncil' | 'neighboursOf'> & {
+  flagsByCouncil: [string, LeagueFlag[]][];
+  ofstedByCouncil: [string, { grade: string | null; rank: number | null }][];
+  neighboursOf: [string, string[]][];
+};
+const cachedLeagueJson = unstable_cache(async (): Promise<LeagueDataJson> => {
+  const d = await buildLeagueData();
+  return { ...d, flagsByCouncil: [...d.flagsByCouncil], ofstedByCouncil: [...d.ofstedByCouncil], neighboursOf: [...d.neighboursOf] };
+}, ['council-league-v1'], { tags: [COUNCIL_LEAGUE_TAG], revalidate: 21600 });
+
 // Read once per request: the league page and every council page's Ratings tab share it.
 export const getLeagueData = cache(async (): Promise<LeagueData> => {
+  const j = await cachedLeagueJson();
+  return { ...j, flagsByCouncil: new Map(j.flagsByCouncil), ofstedByCouncil: new Map(j.ofstedByCouncil), neighboursOf: new Map(j.neighboursOf) };
+});
+
+async function buildLeagueData(): Promise<LeagueData> {
   const [ratings, councils, events, reserveRows, ofstedRows, neighbours] = await Promise.all([
     readAll<Record<string, unknown>>((f, t) => supabase.from('area_ratings')
       .select('area_gss_code, area_name, area_score, area_rank, area_band, areas_ranked, topic_scores, measures, services_score, services_rank, services_band, services_ranked, services_detail, band_changes, band_versions, near_band_boundary, excluded_reason, method_version')
@@ -311,7 +333,7 @@ export const getLeagueData = cache(async (): Promise<LeagueData> => {
   }
 
   return { rows, separate, councils, measureInfo, stability, reservesYear, flagsByCouncil, ofstedByCouncil: ofsted, neighboursOf: peersOf };
-});
+}
 
 export type FinanceEvent = { event_type: string; period: string; event_date: string | null; amount_gbp: number | null; source: string; source_url: string };
 export type ReserveDetail = {

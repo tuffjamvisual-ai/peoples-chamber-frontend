@@ -242,5 +242,7 @@ const content = (path) => get(`https://www.gov.uk/api/content${path}`, 'json');
   };
   await up('council_finance_events', events, 'council_gss_code,event_type,period');
   await up('council_reserves', reserves, 'council_gss_code,financial_year');
+  // Rebuild the site's cached council league data now rather than within 6 hours.
+  await require('./lib/refresh-site').refreshCouncilPages();
   console.log('\nWRITE complete.');
 })().catch((e) => { console.error('FAILED: ' + e.message); process.exit(1); });

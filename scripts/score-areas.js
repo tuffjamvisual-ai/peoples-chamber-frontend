@@ -173,5 +173,7 @@ const r1 = (x) => (x == null ? '-' : Math.round(x * 10) / 10);
   const { error: d, count } = await db.from('area_ratings').delete({ count: 'exact' }).lt('synced_at', runStart);
   if (d) throw new Error(`area_ratings stale delete: ${d.message}`);
   console.log(`  area_ratings: ${rows.length} saved; ${count || 0} areas no longer present removed`);
+  // Rebuild the site's cached council league data now rather than within 6 hours.
+  await require('./lib/refresh-site').refreshCouncilPages();
   console.log('\nWRITE complete.');
 })().catch((e) => { console.error('FAILED: ' + e.message); process.exit(1); });

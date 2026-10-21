@@ -100,5 +100,7 @@ const isCode = (x) => /^E\d{8}$/.test(x);
   const { error: d, count } = await db.from('council_statistical_neighbours').delete({ count: 'exact' }).lt('synced_at', runStart);
   if (d) throw new Error(`stale delete: ${d.message}`);
   console.log(`  council_statistical_neighbours: ${out.length} saved; ${count || 0} no longer in the model removed`);
+  // Rebuild the site's cached council league data now rather than within 6 hours.
+  await require('./lib/refresh-site').refreshCouncilPages();
   console.log('\nWRITE complete.');
 })().catch((e) => { console.error('FAILED: ' + e.message); process.exit(1); });
