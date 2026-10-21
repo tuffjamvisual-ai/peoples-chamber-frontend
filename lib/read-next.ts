@@ -50,7 +50,20 @@ const plainName = (n: string) => n.replace(/^(The\s+)?((Rt\.?\s+Hon\.?|Sir|Dame|
 type Minister = { member_id: number | null; name: string; role: string; dept_slug: string; is_secretary_of_state: boolean | null };
 // Current ministers (dept_ministers), named without titles. Most rows (80 of 121) carry no member_id, so it is filled
 // from the current MP with the same name; ministers who are not MPs (peers) keep none and are not linked.
-async function currentMinisters(): Promise<Minister[]> {
+// Shared for 10 minutes within one server process (the build prerenders 100 news pages at once, each of which used
+// to read every minister and MP); a failed read is not kept.
+function memo<T>(load: () => Promise<T>, ttlMs = 10 * 60 * 1000): () => Promise<T> {
+  let cached: { at: number; p: Promise<T> } | null = null;
+  return () => {
+    if (cached && Date.now() - cached.at < ttlMs) return cached.p;
+    const p = load();
+    cached = { at: Date.now(), p };
+    p.catch(() => { if (cached?.p === p) cached = null; });
+    return p;
+  };
+}
+const currentMinisters = memo(loadCurrentMinisters);
+async function loadCurrentMinisters(): Promise<Minister[]> {
   const [{ data, error }, { data: mps, error: mpErr }] = await Promise.all([
     supabase.from('dept_ministers').select('member_id, name, role, dept_slug, is_secretary_of_state').or('resigned.is.null,resigned.eq.false'),
     supabase.from('mps').select('member_id, name').eq('current_member', true).range(0, 999),
@@ -91,6 +104,12 @@ export async function newsReadNext(r: { id: number; title: string; organisation:
   return pick.result();
 }
 
+const currentMps = memo(async () => {
+  const { data, error } = await supabase.from('mps').select('member_id, name, constituency').eq('current_member', true).range(0, 999);
+  if (error) throw new Error(`read next: mps: ${error.message}`);
+  return (data || []) as { member_id: number; name: string | null; constituency: string | null }[];
+});
+
 // ---------- Editorials ----------
 // 1. MPs named in full in the text (current MPs), up to 2. 2. Departments named in full, up to 2. 3. The next
 //    pieces on the same subject after the three ExploreNext shows, up to 2. ExploreNext's links (data pages, topic
@@ -99,9 +118,7 @@ export async function editorialReadNext(piece: EditorialEntry): Promise<ReadNext
   const sel = exploreNextSelection(piece);
   const pick = new Picker(sel.hrefs);
   const text = piece.body.map((b) => ('text' in b && typeof b.text === 'string' ? b.text : '')).join(' ').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
-  const { data, error } = await supabase.from('mps').select('member_id, name, constituency').eq('current_member', true).range(0, 999);
-  if (error) throw new Error(`read next: mps: ${error.message}`);
-  const mps = ((data || []) as { member_id: number; name: string | null; constituency: string | null }[])
+  const mps = (await currentMps())
     .map((m) => ({ ...m, plainName: (m.name || '').replace(/^(Rt Hon |Sir |Dame |Dr |Mr |Mrs |Ms )+/i, '').trim() }))
     .filter((m) => m.plainName.split(/\s+/).length >= 2)
     .map((m) => ({ ...m, at: text.search(new RegExp(`(^|[^A-Za-z])${esc(m.plainName)}($|[^A-Za-z])`)) }))
