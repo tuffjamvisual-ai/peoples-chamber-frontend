@@ -8,17 +8,21 @@ export const maxDuration = 300;
 // Daily: refresh per-MP total spoken contributions + word count for the current
 // Parliament (since 2024-07-04) from the Hansard API, into mp_contribution_totals.
 // Word count is computed from ContributionTextFull (Parliament publishes no word
-// count). Processes the BATCH stalest MPs (plus any current MP missing from the
-// table) per run so it fits the function time limit; cycles the full roster
-// every few days. Counts/words are exact and complete per MP at each refresh.
+// count). Takes current MPs never refreshed first, then the oldest
+// spoken_synced_at (this sync's own time: updated_at is also set nightly by the
+// written-questions sync). Each MP is saved as soon as it is counted, and no new
+// MP starts after TIME_BUDGET_MS, so a run always returns inside maxDuration and
+// the next carries on (until 21 Oct 2026 it saved only at the end and every run
+// timed out, saving nothing). Counts/words are exact and complete per MP.
 
 const API = 'https://hansard-api.parliament.uk/search/contributions/Spoken.json';
 const START = '2024-07-04';
 const BATCH = 220;
 const CONCURRENCY = 8;
+const TIME_BUDGET_MS = 210_000; // an MP with many speeches can take 40 s or more once started
 
 async function fetchJson(url: string) {
-  const res = await fetch(url, { headers: { 'User-Agent': 'opengovt/1.0', Accept: 'application/json' } });
+  const res = await fetch(url, { headers: { 'User-Agent': 'opengovt/1.0', Accept: 'application/json' }, signal: AbortSignal.timeout(30_000) });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
@@ -48,6 +52,7 @@ async function memberTotals(id: number): Promise<{ member_id: number; total: num
 }
 
 async function GET_impl(req: Request) {
+  const started = Date.now();
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
   if (req.headers.get('authorization') !== `Bearer ${expected}`) {
@@ -59,40 +64,39 @@ async function GET_impl(req: Request) {
   const supabase = createClient(url, key);
 
   // Current MPs + their last-refresh time; missing-from-table first, then stalest.
-  const { data: mps } = await supabase.from('mps').select('member_id').or('current_member.is.null,current_member.eq.true');
-  const { data: have } = await supabase.from('mp_contribution_totals').select('member_id, updated_at');
-  const updatedAt = new Map((have || []).map((r) => [r.member_id, r.updated_at as string]));
+  const { data: mps, error: mpsErr } = await supabase.from('mps').select('member_id').or('current_member.is.null,current_member.eq.true');
+  const { data: have, error: haveErr } = await supabase.from('mp_contribution_totals').select('member_id, spoken_synced_at');
+  if (mpsErr || haveErr) return NextResponse.json({ error: (mpsErr || haveErr)!.message }, { status: 500 });
+  const updatedAt = new Map((have || []).map((r) => [r.member_id, (r.spoken_synced_at as string | null) || '']));
   const queue = (mps || [])
     .map((m) => ({ id: m.member_id as number, u: updatedAt.get(m.member_id as number) || '' }))
     .sort((a, b) => a.u.localeCompare(b.u)) // '' (missing) sorts first, then oldest
     .slice(0, BATCH)
     .map((x) => x.id);
 
-  const results: { member_id: number; total: number; words: number; ok: boolean }[] = [];
-  let i = 0;
+  let i = 0, upserted = 0, skipped = 0, writeErrors = 0, skippedForTime = 0;
   async function worker() {
     while (i < queue.length) {
+      if (Date.now() - started > TIME_BUDGET_MS) { skippedForTime = queue.length - i; i = queue.length; return; }
       const id = queue[i++];
-      try { results.push(await memberTotals(id)); } catch { /* skip */ }
+      let r;
+      try { r = await memberTotals(id); } catch { skipped++; continue; }
+      // Only an MP whose every page was read is saved; the others keep their last good value and come first next run.
+      if (!r.ok) { skipped++; continue; }
+      const now = new Date().toISOString();
+      const { error } = await supabase.from('mp_contribution_totals').upsert({
+        member_id: r.member_id, total_contributions: r.total, word_count: r.words,
+        parliament_start: START, updated_at: now, spoken_synced_at: now,
+      }, { onConflict: 'member_id' });
+      if (error) writeErrors++; else upserted++;
     }
   }
   await Promise.all(Array.from({ length: CONCURRENCY }, () => worker()));
 
-  // Only write MPs whose fetch fully succeeded; skipped ones keep their last
-  // good value and are picked up next run (they sort as stalest).
-  const good = results.filter((r) => r.ok);
-  const skipped = results.length - good.length;
-  let upserted = 0;
-  for (let k = 0; k < good.length; k += 100) {
-    const batch = good.slice(k, k + 100).map((r) => ({
-      member_id: r.member_id, total_contributions: r.total, word_count: r.words,
-      parliament_start: START, updated_at: new Date().toISOString(),
-    }));
-    const { error } = await supabase.from('mp_contribution_totals').upsert(batch, { onConflict: 'member_id' });
-    if (!error) upserted += batch.length;
-  }
-
-  return NextResponse.json({ ok: true, refreshed: upserted, skipped, batch: queue.length, syncedAt: new Date().toISOString() });
+  return NextResponse.json({
+    ok: writeErrors === 0, rows_written: upserted, skipped, write_errors: writeErrors, skipped_for_time: skippedForTime,
+    batch: queue.length, duration_ms: Date.now() - started, syncedAt: new Date().toISOString(),
+  }, { status: queue.length > 0 && upserted === 0 ? 502 : 200 });
 }
 
 export const GET = withHeartbeat('/api/sync-mp-contributions', GET_impl);
