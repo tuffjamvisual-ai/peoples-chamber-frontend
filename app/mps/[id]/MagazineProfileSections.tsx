@@ -306,7 +306,8 @@ interface Props {
   earnings: Earnings;
   declaredDonations?: { total: number; entryCount: number; asOf: string | null };
   expenses: ExpenseSummary[];
-  expensesDetail: ExpenseClaim[];
+  /** Individual claims; when not given, the Expenses tab fetches them from /api/mps/[id]/expenses on first open. */
+  expensesDetail?: ExpenseClaim[];
   committeeMemberships?: CommitteeMembership[];
   // Opt-in (landing page only): float the sidebar with a JS scroll handler instead of
   // CSS position: sticky, so it survives a transformed ancestor (the tilted folder).
@@ -615,6 +616,19 @@ export default function MagazineProfileSections({
     return () => window.removeEventListener('hashchange', apply);
   }, [validIds]);
 
+  // Expense claims load when the Expenses tab is first opened (owner's approval, 21 Oct 2026), not with the page.
+  const [expenseClaims, setExpenseClaims] = useState<ExpenseClaim[] | null>(expensesDetail ?? null);
+  const [expenseClaimsFailed, setExpenseClaimsFailed] = useState(false);
+  useEffect(() => {
+    if (active !== 'expenses' || expenseClaims !== null || expenseClaimsFailed) return;
+    let cancelled = false;
+    fetch(`/api/mps/${memberId}/expenses`)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+      .then((data: { claims: ExpenseClaim[] }) => { if (!cancelled) setExpenseClaims(data.claims || []); })
+      .catch(() => { if (!cancelled) setExpenseClaimsFailed(true); });
+    return () => { cancelled = true; };
+  }, [active, memberId, expenseClaims, expenseClaimsFailed]);
+
   useEffect(() => {
     if (active !== 'donations' || donationsPayload !== null || donationsLoading) return;
     setDonationsLoading(true);
@@ -663,12 +677,12 @@ export default function MagazineProfileSections({
   // Index expense claims by year for the drilldown.
   const claimsByYear = useMemo(() => {
     const map = new Map<number, ExpenseClaim[]>();
-    for (const c of expensesDetail) {
+    for (const c of expenseClaims ?? []) {
       if (!map.has(c.year)) map.set(c.year, []);
       map.get(c.year)!.push(c);
     }
     return map;
-  }, [expensesDetail]);
+  }, [expenseClaims]);
 
   const currentCommittees = useMemo(
     () =>
@@ -2270,8 +2284,9 @@ export default function MagazineProfileSections({
           // Powerful accountability signal that was previously invisible —
           // amount_not_paid + amount_repaid + reason_if_not_paid columns
           // are populated by IPSA but weren't surfaced anywhere.
-          const refused: ExpenseClaim[] = expensesDetail.filter((c) => Number(c.amount_not_paid) > 0);
-          const repaid:  ExpenseClaim[] = expensesDetail.filter((c) => Number(c.amount_repaid) > 0);
+          const claims = expenseClaims ?? [];
+          const refused: ExpenseClaim[] = claims.filter((c) => Number(c.amount_not_paid) > 0);
+          const repaid:  ExpenseClaim[] = claims.filter((c) => Number(c.amount_repaid) > 0);
           const refusedTotal = refused.reduce((s, c) => s + Number(c.amount_not_paid ?? 0), 0);
           const repaidTotal  = repaid.reduce((s, c) => s + Number(c.amount_repaid ?? 0), 0);
           return (
@@ -2281,6 +2296,12 @@ export default function MagazineProfileSections({
             <p style={{ marginBottom: '16px', fontSize: '15px', opacity: 0.6, lineHeight: 1.55 }}>
               The IPSA financial year runs 1 April to 31 March. Annual totals are published a few months after each year ends; individual claims are released quarterly with a two to three month lag, so the most recent months in any year are typically still filling in.
             </p>
+            {expenseClaims === null && !expenseClaimsFailed && (
+              <p style={{ marginBottom: '16px', fontSize: '15px', opacity: 0.7 }}>Loading the individual claims…</p>
+            )}
+            {expenseClaimsFailed && (
+              <p style={{ marginBottom: '16px', fontSize: '15px' }}>The individual claims could not be loaded. The yearly totals below are complete.</p>
+            )}
 
             {(refused.length > 0 || repaid.length > 0) && (
               <section style={{ marginBottom: '24px', padding: '12px 14px', border: '1px solid rgba(20,16,13,0.25)', background: 'rgba(166,64,48,0.05)' }}>
