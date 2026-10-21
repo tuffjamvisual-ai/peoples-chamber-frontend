@@ -2,6 +2,7 @@
   "regions": [
     "dub1"
   ],
+  "ignoreCommand": "bash scripts/vercel-ignore-build.sh",
   "headers": [
     {
       "source": "/api/(.*)",
