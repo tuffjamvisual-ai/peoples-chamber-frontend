@@ -5,6 +5,7 @@ import { AuthProvider } from "./context/AuthContext";
 import SoftRegisterPrompt from "./components/SoftRegisterPrompt";
 import FloatingScrollDownButton from "./components/FloatingScrollDownButton";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 // Magazine-template typography stack. Special Elite is loaded via
 // @font-face in globals.css and consumed by --font-typewriter.
@@ -159,6 +160,9 @@ export default function RootLayout({
         {/* Floating jump-to-bottom arrow on every page (styled like the Claude chat app's). */}
         <FloatingScrollDownButton />
         <Analytics />
+        {/* Speed Insights, free tier (owner's approval, 21 Oct 2026): half of visits are sampled to stay under
+         * the 10,000 events a rolling 30 days allows; Speed Insights Plus is not enabled. */}
+        <SpeedInsights sampleRate={0.5} />
       </body>
     </html>
   );
