@@ -81,6 +81,21 @@ const toIsoDate = (v) => {
   return `${m[3]}-${m[2]}-${m[1]}`;
 };
 
+// IPSA's own file has a few claims dated in the future: in 2025-26, "26/12/2026" on a claim whose other lines are
+// January 2026 (checked 21 Oct 2026). A date later than today is moved back one year when that puts it inside its
+// expense year (1 April to 31 March); anything else is kept as published, since many claims are dated after their
+// year ends and those cannot be told apart from mistakes.
+let datesCorrected = 0;
+const today = new Date().toISOString().slice(0, 10);
+const claimDate = (v, year) => {
+  const iso = toIsoDate(v);
+  const m = /^(\d{2})_(\d{2})$/.exec(String(year || ''));
+  if (!iso || !m || iso <= today) return iso;
+  const back = `${Number(iso.slice(0, 4)) - 1}${iso.slice(4)}`;
+  if (back >= `20${m[1]}-04-01` && back <= `20${m[2]}-03-31`) { datesCorrected++; return back; }
+  return iso;
+};
+
 // CSV-safe escape for a field about to be written into our staging file
 const csvEsc = (v) => {
   if (v == null) return '';
@@ -107,6 +122,7 @@ function currentMpIds() {
 }
 
 function rowsToTsv(year, csvText, keepIds) {
+  datesCorrected = 0;
   const rows = parseCsv(csvText);
   if (rows.length < 2) return [0, ''];
   const header = rows[0].map((h) => h.trim());
@@ -153,7 +169,7 @@ function rowsToTsv(year, csvText, keepIds) {
       csvEsc(r[cols.claim] || ''),
       String(pid),
       csvEsc(year),
-      csvEsc(toIsoDate(r[cols.date])),
+      csvEsc(claimDate(r[cols.date], year)),
       csvEsc(r[cols.name] || ''),
       csvEsc(r[cols.cons] || ''),
       csvEsc(r[cols.cat] || ''),
@@ -205,7 +221,7 @@ async function main() {
       console.log(`  year ${year}: 0 rows — skipping (IPSA hasn't published any detail yet)`);
       continue;
     }
-    console.log(`  year ${year}: parsed ${count} rows (file ${(csv.length / 1e6).toFixed(1)} MB)`);
+    console.log(`  year ${year}: parsed ${count} rows (file ${(csv.length / 1e6).toFixed(1)} MB); claim dates moved back a year: ${datesCorrected}`);
     if (DRY_RUN) continue;
     const stagePath = path.join(tmpDir, `${year}.csv`);
     fs.writeFileSync(stagePath, tsv);
