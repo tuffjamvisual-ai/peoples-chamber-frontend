@@ -12,6 +12,7 @@
 import { getAreaTotals, latestYears, getCouncilOverflows, getCouncilRefs, rankByHours, countyTotals, isCoveredCode, nationOfCode, fmtInt, fmtHours, ordinal } from '@/lib/sewage';
 import type { Overflow, AreaTotal } from '@/lib/sewage';
 import type { CSSProperties } from 'react';
+import Link from 'next/link';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -23,10 +24,14 @@ export default async function CouncilSewageSection({
   gssCode,
   isCounty,
   districtCodes,
+  fullListHref,
 }: {
   gssCode: string | null;
   isCounty: boolean;
   districtCodes: string[];
+  /** On the council page: link the full list of overflows (its own page) instead of including it (owner's approval,
+   * 21 Oct 2026). Omitted on /councils/[slug]/sewage itself. */
+  fullListHref?: string;
 }) {
   if (!gssCode || !isCoveredCode(gssCode)) return null;
   const nation = nationOfCode(gssCode);
@@ -140,20 +145,24 @@ export default async function CouncilSewageSection({
         {companies.join(', ')}.
       </p>
 
-      {overflows.length > 0 && (
+      {/* The council page shows the top 15 and links the rest (fullListHref); /councils/[slug]/sewage shows them all. */}
+      {overflows.length > 0 && (fullListHref || overflows.length <= TOP) && (
         <>
           <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: '0 0 6px' }}>
             {overflows.length > TOP ? `The ${TOP} overflows with the longest spills` : 'Every overflow in this area'}
           </p>
           {overflowTable(overflows.slice(0, TOP))}
           {overflows.length > TOP && (
-            <details style={{ marginBottom: '14px' }}>
-              <summary style={{ fontFamily: MONO, fontSize: '14px', color: INK, cursor: 'pointer', textDecoration: 'underline' }}>
-                All {fmtInt(overflows.length)} overflows
-              </summary>
-              <div style={{ marginTop: '10px' }}>{overflowTable(overflows)}</div>
-            </details>
+            <p style={{ fontFamily: MONO, fontSize: '15px', margin: '0 0 14px' }}>
+              <Link href={fullListHref!} style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>All {fmtInt(overflows.length)} overflows in this area →</Link>
+            </p>
           )}
+        </>
+      )}
+      {overflows.length > TOP && !fullListHref && (
+        <>
+          <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: '0 0 6px' }}>Every overflow in this area, longest spills first</p>
+          {overflowTable(overflows)}
         </>
       )}
 

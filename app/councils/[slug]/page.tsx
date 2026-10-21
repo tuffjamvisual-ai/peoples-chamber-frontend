@@ -628,6 +628,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                 isDistrict={c.type === 'district'}
                 countyName={parent ? parent.name : null}
                 countySlug={parent ? parent.slug : null}
+                fullListHref={`/councils/${c.slug}/schools`}
               />
               {/* EHC plans (DfE timeliness, council_ehcp): education authorities; districts point to their county. */}
               <CouncilEhcpSection
@@ -665,6 +666,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                 gssCode={c.gss_code}
                 isCounty={c.type === 'county'}
                 districtCodes={children.map((d) => d.gss_code).filter((g): g is string => !!g)}
+                fullListHref={`/councils/${c.slug}/sewage`}
               />
             </>,
           }}
