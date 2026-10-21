@@ -28,7 +28,6 @@ jobs:
     env:
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       NEXT_PUBLIC_SUPABASE_URL: https://nwnsvnbudmfkhhwcjwwr.supabase.co
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53bnN2bmJ1ZG1ma2hod2Nqd3dyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyMTI5NzUsImV4cCI6MjA1OTc4ODk3NX0.yaJwVht69eri_00gOKNhpata1iqZJTZNYdNiN_hLZC8
 
     steps:
       - uses: actions/checkout@v4
@@ -58,7 +57,6 @@ jobs:
           echo "DATABASE_URL_RAW:            ${#DATABASE_URL_RAW} chars"
           echo "SUPABASE_SERVICE_ROLE_KEY:   ${#SUPABASE_SERVICE_ROLE_KEY} chars"
           echo "NEXT_PUBLIC_SUPABASE_URL:    $NEXT_PUBLIC_SUPABASE_URL"
-          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY: ${#NEXT_PUBLIC_SUPABASE_ANON_KEY} chars"
           if [ -z "$ANTHROPIC_API_KEY" ]; then
             echo "::error::ANTHROPIC_API_KEY secret is empty — repo Secrets need it set"
             exit 1

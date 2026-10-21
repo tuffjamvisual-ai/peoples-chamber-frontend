@@ -12,7 +12,8 @@
 //   node scripts/sync-political-news.js --dry-run        # fetch, build the prompts, do NOT call Anthropic, do NOT write
 //   node scripts/sync-political-news.js --limit=2        # cap items per source for cheap testing
 //
-// Required env: ANTHROPIC_API_KEY, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, DATABASE_URL.
+// Required env: ANTHROPIC_API_KEY, NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, DATABASE_URL.
+// (Read with the service role key since 21 Oct 2026: the anon key the test workflow hard-coded was no longer valid.)
 
 require('dotenv').config({ path: '.env.local' })
 const fs = require('fs')
@@ -28,15 +29,15 @@ const LIMIT = (() => {
 })()
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
-const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 const DATABASE_URL = process.env.DATABASE_URL
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
 
-if (!SUPABASE_URL || !ANON_KEY) { console.error('Supabase env missing'); process.exit(1) }
+if (!SUPABASE_URL || !SERVICE_KEY) { console.error('NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY missing'); process.exit(1) }
 if (!DATABASE_URL) { console.error('DATABASE_URL required (psql writes bypass anon RLS)'); process.exit(1) }
 if (!DRY_RUN && !ANTHROPIC_API_KEY) { console.error('ANTHROPIC_API_KEY required for live mode (use --dry-run to skip)'); process.exit(1) }
 
-const sb = createClient(SUPABASE_URL, ANON_KEY, { realtime: { transport: ws } })
+const sb = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false }, realtime: { transport: ws } })
 
 // Haiku 4.5 pricing (Nov 2025): $1.00 / 1M input tokens, $5.00 / 1M output tokens.
 const HAIKU_MODEL = 'claude-haiku-4-5-20251001'
