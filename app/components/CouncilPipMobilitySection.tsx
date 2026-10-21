@@ -2,11 +2,11 @@
 // (scripts/migrations/2026-10-21t-council-pip-mobility.sql): England and Wales from DWP Stat-Xplore; a county
 // council's figure is its districts added up, each district listed with its own figure. Hidden where no figures are
 // held (Scotland has moved to Adult Disability Payment; Northern Ireland runs its own system). Wording in
-// lib/pip-mobility.ts.
+// lib/pip-mobility.ts. Under the figure, one UK-wide line on Motability Scheme leases (Motability Operations).
 
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
-import { changeLine, derivedNote, eligibleLine, sourceLine, type PipMobilityRow } from '@/lib/pip-mobility';
+import { changeLine, derivedNote, eligibleLine, sourceLine, UK_SCHEME_LINE, UK_SCHEME_SOURCE, type PipMobilityRow } from '@/lib/pip-mobility';
 
 const INK = '#14100d';
 const INK_SOFT = '#14100d';
@@ -48,6 +48,10 @@ export default async function CouncilPipMobilitySection({ gssCode }: { gssCode: 
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.55, color: INK, margin: 0 }}>
         {eligibleLine(cur.enhanced)}
         {change && <span style={{ display: 'block', color: INK_SOFT, marginTop: '2px' }}>{change}</span>}
+      </p>
+      <p style={small}>
+        {UK_SCHEME_LINE}{' '}
+        <a href={UK_SCHEME_SOURCE.url} target="_blank" rel="noopener noreferrer" style={{ color: INK }}>{UK_SCHEME_SOURCE.label}</a>
       </p>
       {districts.length > 0 && (
         <>

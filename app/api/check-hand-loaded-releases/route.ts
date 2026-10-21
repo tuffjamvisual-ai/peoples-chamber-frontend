@@ -46,7 +46,13 @@ async function GET_impl(req: Request) {
     }
     const update: Record<string, unknown> = { last_checked_at: now.toISOString() };
     try {
-      const res = await fetch(d.check_url!, { headers: { 'User-Agent': UA, Accept: 'application/json, text/html' }, signal: AbortSignal.timeout(30_000), cache: 'no-store' });
+      // Stat-Xplore's schema API needs the API key (STAT_XPLORE_API_KEY, set on the project); other sources are public.
+      const headers: Record<string, string> = { 'User-Agent': UA, Accept: 'application/json, text/html' };
+      if (d.check_url!.startsWith('https://stat-xplore.dwp.gov.uk/')) {
+        if (!process.env.STAT_XPLORE_API_KEY) throw new Error('STAT_XPLORE_API_KEY not set');
+        headers.APIKey = process.env.STAT_XPLORE_API_KEY;
+      }
+      const res = await fetch(d.check_url!, { headers, signal: AbortSignal.timeout(30_000), cache: 'no-store' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const newest = newestPeriod(await res.text(), d.period_pattern!);
       const held = periodKey(d.held_period);

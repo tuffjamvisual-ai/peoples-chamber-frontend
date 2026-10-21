@@ -34,3 +34,10 @@ export function derivedNote(districts: number): string {
 }
 
 export const sourceLine = (period: string) => `Source: DWP Stat-Xplore, PIP, ${monthLabel(period)}`;
+
+// One national line under the council figure (John's wording, 21 Oct 2026).
+export const UK_SCHEME_LINE = 'Across the UK, more than 890,000 vehicles were leased through the Motability Scheme at 30 September 2025.';
+export const UK_SCHEME_SOURCE = {
+  label: 'Motability Operations annual report and accounts 2025',
+  url: 'https://www.mo.co.uk/media/xviibgvr/motability-operations-annual-report-and-accounts-2025.pdf',
+};
