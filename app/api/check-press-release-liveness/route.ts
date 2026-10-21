@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+import { withHeartbeat } from '@/lib/sync-heartbeat';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -27,7 +28,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 type Row = { id: number; gov_url: string | null; body: string | null };
 
-export async function GET(req: Request) {
+async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
   if (req.headers.get('authorization') !== `Bearer ${expected}`) {
@@ -94,3 +95,5 @@ export async function GET(req: Request) {
     syncedAt: nowIso(),
   });
 }
+
+export const GET = withHeartbeat('/api/check-press-release-liveness', GET_impl);

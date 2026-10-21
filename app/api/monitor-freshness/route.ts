@@ -1,9 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { DATA_SOURCES, CADENCE_MAX_AGE_DAYS, DEFAULT_ZERO_RUN_TOLERANCE, newestTimestamp, ageInDays } from '@/lib/data-freshness';
 import { sendFreshnessAlert, sendDatabaseSizeAlert, sendBioReviewAlert, sendSewageReleaseAlert, type StaleSource, type BioReviewFlag } from '@/lib/email';
 import { getDatabaseSize } from '@/lib/database-size';
-
+import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { lastFireAtOrBefore } from '@/lib/cron-schedule';
+import vercelConfig from '../../../vercel.json';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -13,6 +15,10 @@ export const maxDuration = 300;
 //
 // Alert  = a source WITH a heartbeat whose last run is older than its cadence
 //          allows, OR whose last run returned a non-2xx status.
+//          Also any route or workflow step whose last run returned a 5xx, and any
+//          vercel.json cron with no run recorded since its last scheduled time
+//          (30 minutes' grace): a run that times out records nothing, so a
+//          missed window is how a 504 shows up (owner's approval, 21 Oct 2026).
 // Watch  = a source that runs fine but has returned zero rows for many runs
 //          (upstream may have moved/changed) — surfaced in the JSON, not emailed.
 // Info   = sources with no automated sync yet, or a configured route not yet
@@ -28,7 +34,7 @@ export const maxDuration = 300;
 //          in the last 24 hours are emailed.
 //
 // Guarded by CRON_SECRET. Returns the full dashboard as JSON for manual checks.
-export async function GET(req: NextRequest) {
+async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
   if (req.headers.get('authorization') !== `Bearer ${expected}`) {
@@ -82,6 +88,39 @@ export async function GET(req: NextRequest) {
       zeroRunTolerance: src.zeroRunTolerance ?? DEFAULT_ZERO_RUN_TOLERANCE,
       contentNewest: content ? content.toISOString() : null, contentAgeDays,
     });
+  }
+
+  // Every cron and workflow step, whether or not it feeds a source above: a 5xx last run, or a cron with no run since
+  // its last scheduled time.
+  const alerted = new Set(alerts.map((a) => a.route));
+  const cronRoutes = new Map<string, string>();
+  for (const c of vercelConfig.crons) if (!c.path.includes('?')) cronRoutes.set(c.path, c.schedule);
+  const HEARTBEATS_ADDED = new Date('2026-10-21T20:00:00Z');
+  const missedRuns: Array<{ route: string; due: string; lastRanAt: string | null }> = [];
+  for (const [route, schedule] of cronRoutes) {
+    if (route === '/api/monitor-freshness' || alerted.has(route)) continue;
+    const due = lastFireAtOrBefore(schedule, new Date(now.getTime() - 30 * 60_000));
+    const h = hb.get(route);
+    if (!due || (h && new Date(h.last_ran_at) >= due)) continue;
+    // Crons given a heartbeat on 21 Oct 2026 have no row until their first run since then.
+    if (!h && due < HEARTBEATS_ADDED) continue;
+    missedRuns.push({ route, due: due.toISOString(), lastRanAt: h?.last_ran_at ?? null });
+    alerts.push({
+      label: route, page: route, route, ageDays: h ? ageInDays(new Date(h.last_ran_at), now) : null,
+      lastRanAt: h?.last_ran_at ?? null, lastRows: h?.last_rows ?? null, lastStatus: h?.last_status ?? null,
+      reason: `no run recorded since its ${due.toISOString().slice(0, 16).replace('T', ' ')} UTC schedule (timed out, or did not start)`,
+    });
+    alerted.add(route);
+  }
+  const serverErrors: Array<{ route: string; status: number; lastRanAt: string }> = [];
+  for (const h of hb.values()) {
+    if (alerted.has(h.route) || h.last_status == null || h.last_status < 500) continue;
+    serverErrors.push({ route: h.route, status: h.last_status, lastRanAt: h.last_ran_at });
+    alerts.push({
+      label: h.route, page: h.route, route: h.route, ageDays: ageInDays(new Date(h.last_ran_at), now),
+      lastRanAt: h.last_ran_at, lastRows: h.last_rows, lastStatus: h.last_status, reason: `last run failed with HTTP ${h.last_status}`,
+    });
+    alerted.add(h.route);
   }
 
   // Self-heal: for routes that are OVERDUE (the cron didn't run in time — the same
@@ -201,6 +240,8 @@ export async function GET(req: NextRequest) {
     databaseSizeEmail,
     checkedAt: now.toISOString(),
     alertCount: alerts.length,
+    missedRuns,
+    serverErrors,
     emailedAlertCount: emailAlerts.length,
     selfHealed: [...healedRoutes],
     heals,
@@ -209,3 +250,5 @@ export async function GET(req: NextRequest) {
     sources,
   });
 }
+
+export const GET = withHeartbeat('/api/monitor-freshness', GET_impl);

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { govukSlugs } from '@/lib/govuk-slugs';
 
+import { withHeartbeat } from '@/lib/sync-heartbeat';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
@@ -39,7 +40,7 @@ async function fetchContacts(govukSlug: string): Promise<Contacts> {
   return { social_media_links, foi_email, press_phone };
 }
 
-export async function GET(req: Request) {
+async function GET_impl(req: Request) {
   // Vercel Cron sends `Authorization: Bearer <CRON_SECRET>`. GitHub
   // Actions or manual curl callers should send the same header.
   const expected = process.env.CRON_SECRET;
@@ -88,3 +89,5 @@ export async function GET(req: Request) {
     results,
   });
 }
+
+export const GET = withHeartbeat('/api/sync-department-contacts', GET_impl);

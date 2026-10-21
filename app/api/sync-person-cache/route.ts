@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { bandForCivilServiceRole, type ScsBand } from '@/lib/civil-service-salaries';
 
+import { withHeartbeat } from '@/lib/sync-heartbeat';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -87,7 +88,7 @@ async function fetchPerson(slug: string): Promise<Person> {
   };
 }
 
-export async function GET(req: Request) {
+async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
   if (req.headers.get('authorization') !== `Bearer ${expected}`) {
@@ -153,3 +154,5 @@ export async function GET(req: Request) {
     results,
   });
 }
+
+export const GET = withHeartbeat('/api/sync-person-cache', GET_impl);

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+import { withHeartbeat } from '@/lib/sync-heartbeat';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -57,7 +58,7 @@ async function fetchSponsors(parliamentId: number): Promise<StoredSponsor[]> {
     .sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
-export async function GET(req: Request) {
+async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
   if (expected && req.headers.get('authorization') !== `Bearer ${expected}`) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
@@ -116,3 +117,5 @@ export async function GET(req: Request) {
     syncedAt: new Date().toISOString(),
   });
 }
+
+export const GET = withHeartbeat('/api/sync-bill-sponsors', GET_impl);

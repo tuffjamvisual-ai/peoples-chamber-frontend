@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { flagBioReview, ukDate } from '@/lib/bio-review';
 
+import { withHeartbeat } from '@/lib/sync-heartbeat';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -118,7 +119,7 @@ async function pool<T>(items: T[], size: number, worker: (t: T) => Promise<void>
   await Promise.all(runners);
 }
 
-export async function GET(req: Request) {
+async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
   if (req.headers.get('authorization') !== `Bearer ${expected}`) {
@@ -219,3 +220,5 @@ export async function GET(req: Request) {
     elapsed_ms: Date.now() - startedAt,
   });
 }
+
+export const GET = withHeartbeat('/api/sync-member-biography', GET_impl);

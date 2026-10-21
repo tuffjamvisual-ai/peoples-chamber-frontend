@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+import { withHeartbeat } from '@/lib/sync-heartbeat';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -46,7 +47,7 @@ async function memberTotals(id: number): Promise<{ member_id: number; total: num
   return { member_id: id, total: total || 0, words, ok };
 }
 
-export async function GET(req: Request) {
+async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
   if (req.headers.get('authorization') !== `Bearer ${expected}`) {
@@ -93,3 +94,5 @@ export async function GET(req: Request) {
 
   return NextResponse.json({ ok: true, refreshed: upserted, skipped, batch: queue.length, syncedAt: new Date().toISOString() });
 }
+
+export const GET = withHeartbeat('/api/sync-mp-contributions', GET_impl);

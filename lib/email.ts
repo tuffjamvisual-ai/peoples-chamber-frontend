@@ -185,6 +185,7 @@ export interface StaleSource {
   lastRanAt: string | null; // ISO
   lastRows: number | null;
   lastStatus: number | null;
+  reason?: string;          // when set, the alert line says this instead of "serving stale data"
 }
 
 export async function sendFreshnessAlert(stale: StaleSource[]) {
@@ -199,6 +200,7 @@ export async function sendFreshnessAlert(stale: StaleSource[]) {
       : 'never';
     const age = s.ageDays == null ? 'no successful run on record' : `sync last ran ${s.ageDays} day${s.ageDays === 1 ? '' : 's'} ago`;
     const last = s.lastRanAt ? ` (last run wrote ${s.lastRows ?? '?'} rows on ${ran}, HTTP ${s.lastStatus ?? '?'})` : '';
+    if (s.reason) return `${s.label}: ${s.reason}${last}.`;
     return `${s.page} is serving stale data: ${s.label}, ${age}${last}.`;
   };
 

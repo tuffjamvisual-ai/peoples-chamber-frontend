@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+import { withHeartbeat } from '@/lib/sync-heartbeat';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -13,7 +14,7 @@ export const maxDuration = 300;
 const BASE = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.opengovt.uk';
 const TARGETS = ['/api/sync-member-biography', '/api/sync-govuk-data', '/api/sync-person-cache'];
 
-export async function GET(req: Request) {
+async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
   if (req.headers.get('authorization') !== `Bearer ${expected}`) {
@@ -41,3 +42,5 @@ export async function GET(req: Request) {
   const ran = results.map((r, i) => (r.status === 'fulfilled' ? r.value : { path: TARGETS[i], status: 'error' }));
   return NextResponse.json({ ok: true, reshuffle_mode: true, action: 'ran', ran });
 }
+
+export const GET = withHeartbeat('/api/sync-reshuffle-tick', GET_impl);

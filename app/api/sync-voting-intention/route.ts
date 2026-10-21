@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { fetchAndParseWikipedia, fetchAndParseBritPolls, mergeAndDedup, type VIPoll } from '@/lib/votingIntention';
 
+import { withHeartbeat } from '@/lib/sync-heartbeat';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
@@ -14,7 +15,7 @@ export const maxDuration = 60;
 
 const WIKI_MIN_ROWS = 30;
 
-export async function GET(req: Request) {
+async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
   if (req.headers.get('authorization') !== `Bearer ${expected}`) {
@@ -74,3 +75,5 @@ export async function GET(req: Request) {
     syncedAt: now,
   });
 }
+
+export const GET = withHeartbeat('/api/sync-voting-intention', GET_impl);

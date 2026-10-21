@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { parse } from 'csv-parse/sync';
 
+import { withHeartbeat } from '@/lib/sync-heartbeat';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -276,7 +277,7 @@ async function parseCsv(att: Attachment, publicationSlug: string): Promise<Row[]
   return rows;
 }
 
-export async function GET(req: Request) {
+async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
   if (req.headers.get('authorization') !== `Bearer ${expected}`) {
@@ -427,3 +428,5 @@ export async function GET(req: Request) {
     );
   }
 }
+
+export const GET = withHeartbeat('/api/sync-ministers-hospitality', GET_impl);

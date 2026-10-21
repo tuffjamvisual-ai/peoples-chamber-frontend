@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 
+import { withHeartbeat } from '@/lib/sync-heartbeat';
 // Nightly programme timeline seeder.
 //
 // For each live (or draft) programme in policy_programmes, runs a websearch
@@ -78,7 +79,7 @@ type TimelineInsert = {
   };
 };
 
-export async function GET(req: Request) {
+async function GET_impl(req: Request) {
   // ── Auth (identical to daily-briefings pattern) ──────────────────────────
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
@@ -293,3 +294,5 @@ export async function GET(req: Request) {
     results,
   });
 }
+
+export const GET = withHeartbeat('/api/cron/sync-programmes', GET_impl);

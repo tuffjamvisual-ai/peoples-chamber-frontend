@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { govukSlugs } from '@/lib/govuk-slugs';
 
+import { withHeartbeat } from '@/lib/sync-heartbeat';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -274,7 +275,7 @@ async function syncDept(supabase: SupabaseClient, deptSlug: string, govukSlug: s
   };
 }
 
-export async function GET(req: Request) {
+async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
   if (req.headers.get('authorization') !== `Bearer ${expected}`) {
@@ -367,3 +368,5 @@ export async function GET(req: Request) {
     results,
   });
 }
+
+export const GET = withHeartbeat('/api/sync-govuk-data', GET_impl);
