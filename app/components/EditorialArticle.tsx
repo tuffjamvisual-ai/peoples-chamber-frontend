@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 // Shared editorial article renderer. Used by both /editorials/[slug]
 // (Investigations) and /briefings/[slug] (Briefings) — the only differences
 // between the two are the page stamp and the back-link target, passed in.
@@ -7,6 +8,9 @@ import OpenGovShell from './OpenGovShell';
 import BackLink from './BackLink';
 import EvidencePanel from './EvidencePanel';
 import RelatedLinks from './RelatedLinks';
+import ReadNext from './ReadNext';
+import type { ReadNextLink } from '@/lib/read-next';
+import { editorialReadNextIndex } from '@/lib/read-next';
 import ExploreNext from './ExploreNext';
 import KeyStat from './KeyStat';
 import DataBlock from './DataBlock';
@@ -18,7 +22,9 @@ const INK_SOFT = '#14100d';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
 const ACCENT = '#7a1612';
 
-export default function EditorialArticle({ piece, stamp, backHref }: { piece: EditorialEntry; stamp: string; backHref: string }) {
+export default function EditorialArticle({ piece, stamp, backHref, readNext = [] }: { piece: EditorialEntry; stamp: string; backHref: string; readNext?: ReadNextLink[] }) {
+  // Read next goes after the opening of the piece (lib/read-next.ts editorialReadNextIndex; -1 = after the body).
+  const readNextAt = readNext.length ? editorialReadNextIndex(piece) : -2;
   return (
     <OpenGovShell pageStamp={stamp}>
       <BackLink fallbackHref={backHref} label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
@@ -77,7 +83,13 @@ export default function EditorialArticle({ piece, stamp, backHref }: { piece: Ed
         </header>
 
         <article style={{ fontFamily: '"Special Elite", monospace', fontSize: '16px', lineHeight: 1.75, color: INK }}>
-          {piece.body.map((block, i) => renderBlock(block, i))}
+          {piece.body.map((block, i) => (
+            <Fragment key={`b${i}`}>
+              {renderBlock(block, i)}
+              {i === readNextAt && <ReadNext links={readNext} />}
+            </Fragment>
+          ))}
+          {readNextAt === -1 && <ReadNext links={readNext} />}
         </article>
 
       </div>

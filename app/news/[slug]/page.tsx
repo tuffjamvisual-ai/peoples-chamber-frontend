@@ -4,7 +4,9 @@ import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import OpenGovShell from '../../components/OpenGovShell'
 import BackLink from '../../components/BackLink';
-import RelatedLinks from '../../components/RelatedLinks';
+import RelatedLinks from '../../components/RelatedLinks'
+import ReadNext, { splitAfterParagraph } from '../../components/ReadNext'
+import { newsReadNext } from '@/lib/read-next';
 import { govUrlToSlug } from '@/lib/govUrlSlug'
 import { resolveOrgToDeptSlug } from '@/lib/govOrgSlug'
 import { getDeptContext } from '../../api/department-context/route'
@@ -206,6 +208,9 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
   const bodyHtml = release.body || (release.removed_upstream ? null : await getBodyHtmlLive(release.gov_url || ''))
 
   const examined = piecesExaminingRelease(release.title, release.gov_url)
+  // Read next after the third paragraph (or after the body when it has fewer than five), lib/read-next.ts.
+  const readNext = await newsReadNext({ id: release.id, title: release.title, organisation: release.organisation, body: release.body, description: release.description })
+  const bodyParts = bodyHtml ? splitAfterParagraph(bodyHtml, 3, 5) : null
 
   const dateLabel = release.published_at
     ? new Date(release.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -265,11 +270,20 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
           </p>
         )}
 
-        {bodyHtml ? (
-          <div
-            className="prose max-w-none text-[15px] leading-[1.7] text-[#14100d]"
-            dangerouslySetInnerHTML={{ __html: bodyHtml }}
-          />
+        {bodyHtml && bodyParts ? (
+          <>
+            <div className="prose max-w-none text-[15px] leading-[1.7] text-[#14100d]" dangerouslySetInnerHTML={{ __html: bodyParts[0] }} />
+            <ReadNext links={readNext} />
+            <div className="prose max-w-none text-[15px] leading-[1.7] text-[#14100d]" dangerouslySetInnerHTML={{ __html: bodyParts[1] }} />
+          </>
+        ) : bodyHtml ? (
+          <>
+            <div
+              className="prose max-w-none text-[15px] leading-[1.7] text-[#14100d]"
+              dangerouslySetInnerHTML={{ __html: bodyHtml }}
+            />
+            <ReadNext links={readNext} />
+          </>
         ) : (
           <p className="text-[15px] text-[#14100d]/80 leading-[1.7]">
             Full content for this release isn&apos;t available in our archive yet. The summary above is taken from the original announcement.

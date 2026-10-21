@@ -6,6 +6,7 @@ import type { Metadata } from 'next';
 import { metaDescription } from '@/lib/meta-description';
 import { notFound, permanentRedirect } from 'next/navigation';
 import EditorialArticle from '../../components/EditorialArticle';
+import { editorialReadNext } from '@/lib/read-next';
 import { editorials } from '@/lib/editorials';
 import type { EditorialEntry } from '@/lib/editorials/types';
 import JsonLd, { buildEditorialArticle } from '@/lib/JsonLd';
@@ -62,7 +63,7 @@ export default async function EditorialPage({ params }: { params: Promise<{ slug
           author: piece.authorByline ?? null,
         })}
       />
-      <EditorialArticle piece={piece} stamp="Investigations" backHref="/editorials" />
+      <EditorialArticle piece={piece} stamp="Investigations" backHref="/editorials" readNext={await editorialReadNext(piece)} />
     </>
   );
 }

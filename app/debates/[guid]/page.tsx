@@ -1,3 +1,6 @@
+import { Fragment } from 'react';
+import ReadNext from '../../components/ReadNext';
+import { debateReadNext } from '@/lib/read-next';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -172,6 +175,14 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
   if (drowErr) throw new Error(`debate ${guid} divisions: ${drowErr.message}`);
   const divisionIds: string[] = Array.isArray(drow?.division_ids) ? (drow!.division_ids as string[]) : [];
 
+  // Read next (lib/read-next.ts) after the fourth contribution, or after the transcript in a short debate. Only
+  // speakers we hold an MP page for count.
+  const readNext = await debateReadNext({
+    title: ov?.Title || '',
+    speakers: groups.map((g) => ({ memberId: g.memberId != null && linkable.has(g.memberId) ? g.memberId : null, html: g.html, attribution: g.speaker })),
+  });
+  const readNextAfter = groups.length >= 6 ? 3 : groups.length - 1;
+
   return (
     <OpenGovShell pageStamp="Debate">
       <BackLink
@@ -225,8 +236,8 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
           <p style={{ fontFamily: MONO, fontSize: '15px', opacity: 0.7 }}>No transcript text is available for this debate.</p>
         ) : (
           groups.map((g, i) => (
+            <Fragment key={i}>
             <div
-              key={i}
               style={{
                 marginBottom: '30px',
                 paddingLeft: g.speaker ? '16px' : 0,
@@ -250,6 +261,8 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
                 dangerouslySetInnerHTML={{ __html: g.html }}
               />
             </div>
+            {i === readNextAfter && <ReadNext links={readNext} />}
+            </Fragment>
           ))
         )}
       </div>
