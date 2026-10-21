@@ -1,0 +1,43 @@
+name: Bills full repair (weekly)
+
+# Every bill in Parliament's Bills API, re-read and re-saved once a week (owner's approval, 21 Oct 2026). The daily
+# sync (daily-sync.yml) reads only bills changed since our newest saved update; this catches anything that misses,
+# such as a bill whose update time Parliament set earlier than one we already hold. About 3 hours at the Bills
+# API's pace (one request per bill, 200 ms apart).
+on:
+  schedule:
+    - cron: '41 4 * * 0'
+  workflow_dispatch:
+
+jobs:
+  repair-bills:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    env:
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      NEXT_PUBLIC_SUPABASE_URL: https://nwnsvnbudmfkhhwcjwwr.supabase.co
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+
+      - name: Install dependencies
+        run: npm install @supabase/supabase-js ws
+
+      - name: Repair every bill
+        id: bills-full
+        timeout-minutes: 280
+        continue-on-error: true
+        run: node sync-bills-incremental.js --all --write
+
+      - name: Report step results (fails the run if any step failed, so GitHub emails the owner)
+        if: always()
+        timeout-minutes: 2
+        env:
+          STEPS_JSON: ${{ toJSON(steps) }}
+        run: node scripts/report-workflow-steps.js

@@ -8,6 +8,11 @@
 // It also saved every bill as starting in the House of Lords.
 //
 // Now, for each bill updated since the newest last_update we hold (or every bill with --all):
+//   - which bills changed: the list sorted DateUpdatedDescending, read until the first bill last updated before
+//     that time (21 Oct 2026). The Bills API has no "updated since" filter: its OpenAPI file lists none, and the
+//     UpdatedSince this used to send was ignored, so every night read and rewrote all ~4,060 bills (up to 3h19m).
+//     Bills are then saved oldest first, so a run that stops part way never leaves a newer bill saved ahead of an
+//     older one it missed. A bill whose lastUpdate equals the one we hold is skipped.
 //   - the list endpoint gives title, houses, isAct, isDefeated, billWithdrawn, lastUpdate,
 //     session and the current stage's name (status)
 //   - the bill's own endpoint (/Bills/{id}) gives longTitle, summary and the sponsors
@@ -61,6 +66,10 @@ const house = (h) => {
   return t === 'commons' || t === '1' ? 'Commons' : t === 'lords' || t === '2' ? 'Lords' : null;
 };
 
+// The Bills API gives lastUpdate without a timezone (e.g. 2026-10-21T14:53:59.5056397); the database stores it as
+// UTC, so it is read as UTC here too.
+const apiTime = (s) => (s ? Date.parse(/[zZ]|[+-]\d\d:?\d\d$/.test(s) ? s : `${s}Z`) : NaN);
+
 const clean = (s) => {
   const t = typeof s === 'string' ? s.trim() : '';
   return t ? t : null;
@@ -90,14 +99,18 @@ const clean = (s) => {
     if (!one) throw new Error(`bill ${ONE} not found in the Bills API`);
     list.push(one);
   }
+  let pages = 0;
   for (let skip = 0; !ONE; skip += 20) {
-    const page = await getJson(`${API}/Bills?Skip=${skip}&Take=20${since ? `&UpdatedSince=${encodeURIComponent(since)}` : ''}&SortOrder=DateUpdatedDescending`);
+    const page = await getJson(`${API}/Bills?Skip=${skip}&Take=20&SortOrder=DateUpdatedDescending`);
+    pages++;
     const items = (page && page.items) || [];
-    list.push(...items);
-    if (items.length < 20 || (page.totalResults && list.length >= page.totalResults)) break;
+    const fresh = since ? items.filter((b) => apiTime(b.lastUpdate) >= Date.parse(since)) : items;
+    list.push(...fresh);
+    if (items.length < 20 || fresh.length < items.length || (page.totalResults && skip + 20 >= page.totalResults)) break;
     await sleep(DELAY_MS);
   }
-  console.log(`bills to check: ${list.length}`);
+  if (!ONE) list.reverse();
+  console.log(`bills to check: ${list.length} (${pages} list page${pages === 1 ? '' : 's'})`);
 
   // Fields that are never replaced with an empty value: if Parliament's answer is missing
   // one we already hold, the saved value is kept (and counted), so a changed or broken API
@@ -105,17 +118,19 @@ const clean = (s) => {
   const PROTECTED = ['title', 'long_title', 'category', 'originating_house', 'sponsor_name', 'sponsor_party', 'sponsor_constituency'];
   const existing = new Map();
   for (let from = 0; ; from += 1000) {
-    const { data, error } = await supabase.from('bill').select(`id, parliament_id, ${PROTECTED.join(', ')}`).not('parliament_id', 'is', null).order('id').range(from, from + 999);
+    const { data, error } = await supabase.from('bill').select(`id, parliament_id, last_update, ${PROTECTED.join(', ')}`).not('parliament_id', 'is', null).order('id').range(from, from + 999);
     if (error) throw new Error(`existing bills: ${error.message}`);
     for (const r of data) existing.set(r.parliament_id, r);
     if (data.length < 1000) break;
   }
   const keptFields = {};
 
-  let updated = 0, added = 0, failed = 0, noSponsor = 0;
+  let updated = 0, added = 0, failed = 0, noSponsor = 0, unchanged = 0;
   const failures = [];
   const examples = [];
   for (const b of list) {
+    const held = existing.get(b.billId);
+    if (!ALL && !ONE && held && held.last_update && Date.parse(held.last_update) === apiTime(b.lastUpdate)) { unchanged++; continue; }
     try {
       const detail = (await getJson(`${API}/Bills/${b.billId}`)) || {};
       const lead = (detail.sponsors || []).slice().sort((x, y) => (x.sortOrder ?? 999) - (y.sortOrder ?? 999))[0];
@@ -169,7 +184,7 @@ const clean = (s) => {
   }
 
   console.log(`examples:\n  ${examples.join('\n  ')}`);
-  console.log(`${WRITE ? '' : 'would be '}updated: ${updated}; ${WRITE ? '' : 'would be '}added: ${added}; failed: ${failed}; no member sponsor (e.g. private bills): ${noSponsor}`);
+  console.log(`${WRITE ? '' : 'would be '}updated: ${updated}; ${WRITE ? '' : 'would be '}added: ${added}; unchanged (skipped): ${unchanged}; failed: ${failed}; no member sponsor (e.g. private bills): ${noSponsor}`);
   const kept = Object.entries(keptFields);
   console.log(`saved values kept because Parliament's answer was empty: ${kept.length ? kept.map(([f, n]) => `${f} ${n}`).join(', ') : 'none'}`);
   if (failures.length) console.log(`failures:\n  ${failures.join('\n  ')}`);

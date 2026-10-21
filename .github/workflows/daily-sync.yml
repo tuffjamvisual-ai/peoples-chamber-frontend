@@ -2,12 +2,18 @@ name: Daily Data Sync
 
 on:
   schedule:
-    - cron: '0 2 * * *'
+    # 02:23 UTC: GitHub delays scheduled runs most at the top of the hour (runs set for 02:00 started 06:28 to
+    # 07:13 in Oct 2026). It still promises no start time.
+    - cron: '23 2 * * *'
   workflow_dispatch:
 
 jobs:
   sync-data:
     runs-on: ubuntu-latest
+    # A normal run takes under 10 minutes. 60 (above the steps' own limits, 44 minutes in all) stops a hung run
+    # long before GitHub's 6-hour limit; the report step still runs (if: always()) and fails the run, so GitHub
+    # emails the owner.
+    timeout-minutes: 60
     env:
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       NEXT_PUBLIC_SUPABASE_URL: https://nwnsvnbudmfkhhwcjwwr.supabase.co
@@ -25,19 +31,28 @@ jobs:
       - name: Install dependencies
         run: npm install @anthropic-ai/sdk @supabase/supabase-js csv-parse playwright ws
       
+      # Only bills Parliament changed since our newest saved update (about 1 minute). The full repair of every
+      # bill runs on Sundays in bills-full-repair.yml.
       - name: Sync bills (incremental)
         id: bills
+        timeout-minutes: 20
         run: node sync-bills-incremental.js --write
         continue-on-error: true
 
+      # A step that fails or hits its time limit does not stop the steps after it; the report step lists it and
+      # fails the run.
       - name: Match bill divisions
         id: bill-divisions
+        timeout-minutes: 15
+        continue-on-error: true
         run: node scripts/sync-bill-divisions.js
 
       # Session names and dates for the bill archive (/bills/sessions), from Parliament's calendar API. One request;
       # upserts, so a new session is named the day its first bill is synced.
       - name: Load parliamentary sessions
         id: parliament-sessions
+        timeout-minutes: 5
+        continue-on-error: true
         run: node scripts/load-parliament-sessions.js --write
       
       # Rebuild /bills and the session archive now rather than within 10 minutes of the next visit
@@ -46,6 +61,7 @@ jobs:
       - name: Refresh the bill pages
         id: revalidate-bills
         if: steps.bills.outcome == 'success'
+        timeout-minutes: 2
         env:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
@@ -66,6 +82,7 @@ jobs:
       # rough title matching duplicated "Match bill divisions" above.
       - name: Report step results (fails the run if any step failed, so GitHub emails the owner)
         if: always()
+        timeout-minutes: 2
         env:
           STEPS_JSON: ${{ toJSON(steps) }}
         run: node scripts/report-workflow-steps.js
