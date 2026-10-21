@@ -10,11 +10,12 @@ export default async function AdminUsersPage() {
   const userId = verifySessionToken(token);
   if (!userId) return notFound();
 
-  const { data: me } = await supabaseAdmin
+  const { data: me, error: meErr } = await supabaseAdmin
     .from('users')
     .select('is_admin')
     .eq('id', userId)
     .single();
+  if (meErr && meErr.code !== 'PGRST116') throw new Error(`/admin/users users: ${meErr.message}`);
   if (!me?.is_admin) return notFound();
 
   const fifteenMinsAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();

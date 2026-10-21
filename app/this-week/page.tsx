@@ -79,7 +79,8 @@ export default async function ThisWeekPage() {
   let internal: Record<number, number> = {}
   if (ids.length) {
     // Hidden bills (bill.hidden_reason) have no page, so they are not linked.
-    const { data } = await supabase.from('bill').select('id, parliament_id').in('parliament_id', ids).is('hidden_reason', null)
+    const { data, error: dataErr2 } = await supabase.from('bill').select('id, parliament_id').in('parliament_id', ids).is('hidden_reason', null)
+    if (dataErr2 && dataErr2.code !== 'PGRST116') throw new Error(`/this-week bill: ${dataErr2.message}`);
     internal = Object.fromEntries((data || []).map((r: { id: number; parliament_id: number }) => [r.parliament_id, r.id]))
   }
 
@@ -90,10 +91,11 @@ export default async function ThisWeekPage() {
   const divIds = divisions.map((d) => d.DivisionId)
   let divSlug: Record<number, string> = {}
   if (divIds.length) {
-    const { data } = await supabase
+    const { data, error: dataErr } = await supabase
       .from('mp_division_votes')
       .select('division_id, division_date_only, division_number')
       .in('division_id', divIds)
+    if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/this-week mp_division_votes: ${dataErr.message}`);
     divSlug = Object.fromEntries(
       (data || [])
         .filter((r: { division_date_only: string | null; division_number: number | null }) => r.division_date_only && r.division_number != null)

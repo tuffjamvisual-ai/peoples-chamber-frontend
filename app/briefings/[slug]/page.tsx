@@ -37,11 +37,12 @@ interface BriefingRow {
 }
 
 async function getDbBriefing(slug: string): Promise<BriefingRow | null> {
-  const { data } = await supabaseAdmin
+  const { data, error: dataErr } = await supabaseAdmin
     .from('briefings')
     .select('slug, headline, body, sources, is_published, published_at, created_at')
     .eq('slug', slug)
     .maybeSingle();
+  if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/briefings/[slug] briefings: ${dataErr.message}`);
   return (data as BriefingRow) ?? null;
 }
 

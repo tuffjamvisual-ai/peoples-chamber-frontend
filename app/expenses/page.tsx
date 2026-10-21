@@ -88,7 +88,7 @@ export default async function ExpensesPage() {
   const YEAR = await latestYear();
   const YEAR_LABEL = yearLong(YEAR);
   // Fetch a few extra rows so we can drop any non-current MPs and still hit 10.
-  const { data: expenseRows } = await supabase
+  const { data: expenseRows, error: expenseRowsErr } = await supabase
     .from('mp_expenses_summary')
     .select(
       'member_id, year, total_spend, staffing_spend, office_spend, accommodation_spend, travel_subsistence_spend, other_costs_spend, winding_up_spend'
@@ -96,6 +96,7 @@ export default async function ExpensesPage() {
     .eq('year', YEAR)
     .order('total_spend', { ascending: false, nullsFirst: false })
     .limit(20);
+  if (expenseRowsErr && expenseRowsErr.code !== 'PGRST116') throw new Error(`/expenses mp_expenses_summary: ${expenseRowsErr.message}`);
 
   const ids = (expenseRows || []).map((r: ExpenseRow) => r.member_id);
 

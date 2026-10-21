@@ -17,11 +17,12 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 // the sync that raised it. Does nothing if the MP has no biography row.
 export async function flagBioReview(supabase: SupabaseClient, memberId: number, reason: string): Promise<boolean> {
   try {
-    const { data } = await supabase
+    const { data, error: dataErr } = await supabase
       .from('mp_biography')
       .select('bio_review_reason')
       .eq('member_id', memberId)
       .limit(1);
+    if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`bio-review mp_biography: ${dataErr.message}`);
     const row = data?.[0];
     if (!row) return false;
     const existing = (row.bio_review_reason as string | null) || '';

@@ -29,11 +29,12 @@ type Poll = {
 }
 
 export default async function ArchivedPollsPage() {
-  const { data } = await supabase
+  const { data, error: dataErr } = await supabase
     .from('polls')
     .select('id, question, constituency, vote_count_yes, vote_count_no, explainer')
     .eq('archived', true)
     .order('id', { ascending: false })
+  if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/polls/archive polls: ${dataErr.message}`);
 
   const polls = (data || []) as Poll[]
 

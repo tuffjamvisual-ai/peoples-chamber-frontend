@@ -100,13 +100,14 @@ export async function getLiveProgrammes(): Promise<ProgrammeWithFigure[]> {
 
 /** Single programme by slug — supabaseAdmin bypasses RLS for draft preview. */
 export async function getProgramme(slug: string): Promise<ProgrammeRow | null> {
-  const { data } = await supabaseAdmin
+  const { data, error: dataErr } = await supabaseAdmin
     .from('policy_programmes')
     .select(
       'id, slug, name, dept_slugs, status, summary, started_date, target_label, target_figure, target_unit, is_live',
     )
     .eq('slug', slug)
     .maybeSingle();
+  if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`programmes policy_programmes: ${dataErr.message}`);
   return (data as ProgrammeRow) ?? null;
 }
 

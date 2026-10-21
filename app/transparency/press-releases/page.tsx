@@ -188,33 +188,20 @@ function fmtShortDate(dateStr: string): string {
 
 const SEARCH_PER = 100;
 
-// Busiest days (GOV.UK) for the day-view quick-jump. Aggregates ~1,900 dates,
-// so cache it hourly (per the heavy-aggregation caching pattern) rather than
-// recomputing on every day-mode render.
-const getBusiestDays = unstable_cache(
-  async (): Promise<Array<{ date: string; count: number }>> => {
-    const counts = new Map<string, number>();
-    for (let from = 0; ; from += 1000) {
-      const { data } = await supabase
-        .from('press_releases')
-        .select('published_at')
-        .ilike('gov_url', '%gov.uk%')
-        .range(from, from + 999);
-      if (!data || data.length === 0) break;
-      for (const r of data) {
-        const d = (r.published_at as string | null)?.slice(0, 10);
-        if (d) counts.set(d, (counts.get(d) || 0) + 1);
-      }
-      if (data.length < 1000) break;
-    }
-    return Array.from(counts.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 8)
-      .map(([date, count]) => ({ date, count }));
+// The GOV.UK release total and the busiest days (for the day-view quick-jump), from one database pass
+// (press_release_stats, migration 2026-10-21i; owner's approval, 21 Oct 2026), cached hourly. It replaced an exact
+// count on every request and 47 page reads of the whole table. A failed read throws and is not cached.
+const getPressStats = unstable_cache(
+  async (): Promise<{ govTotal: number; busiestDays: Array<{ date: string; count: number }> }> => {
+    const { data, error } = await supabase.rpc('press_release_stats');
+    if (error || !data) throw new Error(`press_release_stats: ${error?.message ?? 'no data'}`);
+    const j = data as { gov_total: number; busiest_days: { date: string; count: number }[] };
+    return { govTotal: Number(j.gov_total) || 0, busiestDays: (j.busiest_days || []).map((d) => ({ date: String(d.date), count: Number(d.count) })) };
   },
-  ['press-releases-busiest-days'],
+  ['press-release-stats-v1'],
   { revalidate: 3600 },
 );
+const getBusiestDays = async () => (await getPressStats()).busiestDays;
 
 const inputStyle: React.CSSProperties = {
   fontFamily: 'Special Elite, monospace', fontSize: '15px', color: INK,
@@ -247,11 +234,7 @@ export default async function PressReleasesIndexPage({
   const pageNum = Math.max(1, parseInt(sp.page || '1', 10) || 1);
 
   // Headline count of GOV.UK rows, shown in the intro in both modes.
-  const govCountRes = await supabase
-    .from('press_releases')
-    .select('id', { count: 'exact', head: true })
-    .ilike('gov_url', '%gov.uk%');
-  const govTotal = govCountRes.count ?? 0;
+  const govTotal = (await getPressStats()).govTotal;
 
   let content: React.ReactNode;
 

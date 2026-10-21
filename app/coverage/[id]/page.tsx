@@ -36,12 +36,13 @@ type CoverageRow = {
 }
 
 async function getRow(id: number): Promise<CoverageRow | null> {
-  const { data } = await supabase
+  const { data, error: dataErr } = await supabase
     .from('uk_political_news')
     .select('id, source_url, source_outlet, source_title, source_excerpt, published_at, commentary, related_link_href, related_link_label')
     .eq('id', id)
     .eq('is_published', true)
     .maybeSingle()
+  if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/coverage/[id] uk_political_news: ${dataErr.message}`);
   return data
 }
 

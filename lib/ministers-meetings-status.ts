@@ -74,7 +74,8 @@ export async function getMeetingsStatus(slug: string, today = new Date()): Promi
   if (!orgs) return [];
   const { data, error } = await supabase.from('ministers_meetings_quarters').select('govuk_org_slug, quarter, published_on')
     .in('govuk_org_slug', orgs.map((o) => o.org));
-  if (error) { console.error('getMeetingsStatus:', error.message); return []; }
+  // A failed read throws (owner's approval, 21 Oct 2026) rather than showing every quarter as missing.
+  if (error) throw new Error(`ministers_meetings_quarters: ${error.message}`);
   const rows = (data || []) as { govuk_org_slug: string; quarter: string; published_on: string | null }[];
   const due = lastDueQuarter(today);
   const first = FIRST_CHECKED.year * 4 + FIRST_CHECKED.quarter - 1;

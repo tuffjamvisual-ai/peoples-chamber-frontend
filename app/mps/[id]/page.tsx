@@ -542,11 +542,12 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       const chunkSize = 100;
       for (let i = 0; i < funderNames.length; i += chunkSize) {
         const chunk = funderNames.slice(i, i + chunkSize);
-        const { data: matches } = await supabase
+        const { data: matches, error: matchesErr } = await supabase
           .from('political_donations')
           .select('donor_name, amount')
           .in('donor_name', chunk)
           .limit(5000);
+        if (matchesErr && matchesErr.code !== 'PGRST116') throw new Error(`/mps/[id] political_donations: ${matchesErr.message}`);
         for (const m of (matches || []) as Array<{ donor_name: string | null; amount: number | string | null }>) {
           const name = (m.donor_name || '').trim();
           if (!name) continue;
@@ -597,10 +598,11 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     .filter((d): d is number => d != null);
   let siDivisionIds = new Set<number>();
   if (siPageDivisionIds.length) {
-    const { data: siRows } = await supabase
+    const { data: siRows, error: siRowsErr } = await supabase
       .from('statutory_instrument')
       .select('division_id')
       .in('division_id', siPageDivisionIds);
+    if (siRowsErr && siRowsErr.code !== 'PGRST116') throw new Error(`/mps/[id] statutory_instrument: ${siRowsErr.message}`);
     siDivisionIds = new Set((siRows || []).map((r: { division_id: number }) => r.division_id));
   }
   // A vote on a hidden bill (bill.hidden_reason) keeps its row but loses the bill link: that page is a 404.

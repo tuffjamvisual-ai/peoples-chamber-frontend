@@ -162,10 +162,11 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
   const memberIds = Array.from(new Set(interests.map((r) => r.member_id)));
   let mpsById = new Map<number, MpRow>();
   if (memberIds.length) {
-    const { data: mpRows } = await supabase
+    const { data: mpRows, error: mpRowsErr } = await supabase
       .from('mps')
       .select('member_id, name, display_name, photo_url')
       .in('member_id', memberIds);
+    if (mpRowsErr && mpRowsErr.code !== 'PGRST116') throw new Error(`/transparency/register-of-interests mps: ${mpRowsErr.message}`);
     mpsById = new Map((mpRows ?? []).map((m) => [m.member_id, m as MpRow]));
   }
 

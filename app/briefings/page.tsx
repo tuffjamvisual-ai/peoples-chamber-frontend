@@ -38,11 +38,12 @@ export default async function BriefingsIndexPage() {
     .filter((e) => e.kind === 'briefing')
     .map((e) => ({ slug: e.slug, kicker: e.kicker || 'Briefing', headline: e.headline, standfirst: e.standfirst, dateISO: e.publishedAt }));
 
-  const { data: dbRows } = await supabase
+  const { data: dbRows, error: dbRowsErr } = await supabase
     .from('briefings')
     .select('slug, headline, body, published_at, created_at')
     .eq('is_published', true)
     .order('published_at', { ascending: false });
+  if (dbRowsErr && dbRowsErr.code !== 'PGRST116') throw new Error(`/briefings briefings: ${dbRowsErr.message}`);
 
   const dbItems: Item[] = (dbRows ?? []).map((r) => ({
     slug: r.slug as string,

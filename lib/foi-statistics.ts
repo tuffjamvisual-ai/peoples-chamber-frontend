@@ -72,8 +72,9 @@ export function periodName(period: string): string {
 
 // The latest quarter in the table, e.g. { period: 'Q2 2026', year: 2026, quarter: 2 }.
 export async function latestFoiQuarter(): Promise<{ period: string; year: number; quarter: number } | null> {
-  const { data } = await supabase.from('foi_statistics').select('period, period_year, period_quarter')
+  const { data, error: dataErr } = await supabase.from('foi_statistics').select('period, period_year, period_quarter')
     .not('period_quarter', 'is', null).order('period_year', { ascending: false }).order('period_quarter', { ascending: false }).limit(1).maybeSingle();
+  if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`foi-statistics foi_statistics: ${dataErr.message}`);
   return data ? { period: data.period as string, year: data.period_year as number, quarter: data.period_quarter as number } : null;
 }
 
@@ -90,7 +91,9 @@ export async function getDeptFoi(slug: string): Promise<DeptFoi[]> {
   const annual = String(latest.year - 1);
   const { data, error } = await supabase.from('foi_statistics').select(COLS)
     .in('body', bodies.map((b) => b.body)).in('period', [latest.period, earlier, annual]);
-  if (error || !data) return [];
+  // A failed read throws (owner's approval, 21 Oct 2026), so the department page keeps its last good version.
+  if (error) throw new Error(`foi_statistics (department): ${error.message}`);
+  if (!data) return [];
   const rows = data as FoiRow[];
   const pick = (body: string, period: string) => rows.find((r) => r.body === body && r.period === period) ?? null;
   return bodies.flatMap((b) => {
@@ -104,7 +107,8 @@ export async function getFoiLatestQuarter(): Promise<{ period: string; rows: Foi
   const latest = await latestFoiQuarter();
   if (!latest) return null;
   const { data, error } = await supabase.from('foi_statistics').select(COLS).eq('period', latest.period).order('body');
-  if (error || !data) return null;
+  if (error) throw new Error(`foi_statistics (latest quarter): ${error.message}`);
+  if (!data) return null;
   return { period: latest.period, rows: data as FoiRow[] };
 }
 

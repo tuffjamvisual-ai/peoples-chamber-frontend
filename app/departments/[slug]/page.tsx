@@ -95,17 +95,17 @@ export default async function DepartmentPage({ params }: PageProps) {
       .contains('dept_slugs', [slug])
       .eq('is_live', true)
       .order('name')
-      .then(({ data }) => (data ?? []) as ProgrammeItem[]),
-    // Directions tab: ministerial directions tagged to this department (ministerial_directions.dept_slugs).
-    // A failed read hides the tab rather than failing the department page.
-    fetchDirections(slug).catch(() => []),
-    // Major projects tab: the department's projects in the Government Major Projects Portfolio (major_projects).
-    // A failed read hides the tab rather than failing the department page.
-    fetchMajorProjects(slug).catch(() => ({ projects: [], latestYear: 0 })),
-    // Transparency tab: FOI statistics (foi_statistics) and the latest ministers' meetings return. A failed read
-    // leaves that part out rather than failing the department page.
-    getDeptFoi(slug).catch(() => []),
-    getMeetingsStatus(slug).catch(() => []),
+      .then(({ data, error }) => {
+        if (error) throw new Error(`/departments/[slug] policy_programmes: ${error.message}`);
+        return (data ?? []) as ProgrammeItem[];
+      }),
+    // The tabs below read ministerial directions, major projects, FOI statistics and the latest ministers' meetings
+    // return. A failed read throws (owner's approval, 21 Oct 2026), so the last good department page stays up rather
+    // than one with a tab missing.
+    fetchDirections(slug),
+    fetchMajorProjects(slug),
+    getDeptFoi(slug),
+    getMeetingsStatus(slug),
   ]);
 
   const sos = govukData.ministers?.[0];

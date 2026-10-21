@@ -23,13 +23,14 @@ export type PopParty = { key: string; label: string; colour: string; value: numb
 
 export async function getPollOfPolls(): Promise<{ parties: PopParty[]; asOf: string | null }> {
   const cols = ['fieldwork_end', ...POP_PARTIES.map((p) => p.col)].join(', ');
-  const { data } = await supabase
+  const { data, error: dataErr } = await supabase
     .from('vi_polls')
     .select(cols)
     .eq('poll_type', 'standard')
     .eq('area', 'GB')
     .order('fieldwork_end', { ascending: false })
     .limit(10);
+  if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`pollOfPolls vi_polls: ${dataErr.message}`);
   const rows = (data || []) as unknown as Record<string, number | string | null>[];
   const parties: PopParty[] = POP_PARTIES.map((p) => {
     const vals = rows.map((r) => r[p.col]).filter((v): v is number => typeof v === 'number');

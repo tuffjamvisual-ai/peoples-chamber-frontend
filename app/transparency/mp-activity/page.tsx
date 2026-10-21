@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 const INK = '#14100d'
 
 export default async function MpActivityPage() {
-  const [{ data: totals }, { data: mps }, { data: ministers }] = await Promise.all([
+  const [{ data: totals, error: totalsErr }, { data: mps, error: mpsErr }, { data: ministers, error: ministersErr }] = await Promise.all([
     supabase.from('mp_contribution_totals').select('member_id, total_contributions, word_count, written_questions, wq_top_departments'),
     supabase.from('mps').select('member_id, name, party, constituency, start_date').or('current_member.is.null,current_member.eq.true'),
     // Government ministers AND whips (Assistant Whip, Junior Lord of the Treasury,
@@ -23,6 +23,8 @@ export default async function MpActivityPage() {
     // questions" ranking, since they table few or none by role.
     supabase.from('dept_ministers').select('member_id').or('resigned.is.null,resigned.eq.false'),
   ])
+  // A failed read throws (owner's approval, 21 Oct 2026), so the last good version stays up.
+  for (const e of [totalsErr, mpsErr, ministersErr]) if (e && e.code !== 'PGRST116') throw new Error(`/transparency/mp-activity (mp_contribution_totals, mps, dept_ministers): ${e.message}`);
   // Exclude MPs elected at a by-election within the last six months: their term
   // is too short to rank fairly against MPs who have sat the whole Parliament,
   // so they would otherwise appear bottom of the "fewest contributions" list on a few days'

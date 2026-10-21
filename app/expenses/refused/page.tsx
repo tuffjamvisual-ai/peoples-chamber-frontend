@@ -93,7 +93,8 @@ export default async function RefusedExpensesPage() {
   const years = summary.by_year;
   // The newest year with IPSA's year-end totals published is complete; anything after it is
   // still being filled in as IPSA publishes claims every two months.
-  const { data: lastFull } = await supabase.from('mp_expenses_summary').select('year').order('year', { ascending: false }).limit(1);
+  const { data: lastFull, error: lastFullErr } = await supabase.from('mp_expenses_summary').select('year').order('year', { ascending: false }).limit(1);
+  if (lastFullErr && lastFullErr.code !== 'PGRST116') throw new Error(`/expenses/refused mp_expenses_summary: ${lastFullErr.message}`);
   const latestComplete = (lastFull?.[0]?.year as string | undefined) ?? null;
   const isPartial = (y: string) => !!latestComplete && y > latestComplete;
   const firstYear = years.length ? years[years.length - 1].year : null;

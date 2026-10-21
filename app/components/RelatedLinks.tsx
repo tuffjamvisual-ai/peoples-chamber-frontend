@@ -208,7 +208,7 @@ async function renderBill(props: BillProps) {
   let siblingBills: Array<{ id: number; title: string }> = [];
   let sponsorHasProfile = false;
   if (props.sponsorMemberId != null) {
-    const [{ data: bills }, { data: sponsorRow }] = await Promise.all([
+    const [{ data: bills, error: billsErr }, { data: sponsorRow, error: sponsorRowErr }] = await Promise.all([
       supabase
         .from('bill')
         .select('id, title')
@@ -221,6 +221,8 @@ async function renderBill(props: BillProps) {
       // from an earlier Parliament) has no profile, so link only if present.
       supabase.from('mps').select('member_id').eq('member_id', props.sponsorMemberId).maybeSingle(),
     ]);
+    // A failed read throws (owner's approval, 21 Oct 2026), so the last good version stays up.
+    for (const e of [billsErr, sponsorRowErr]) if (e && e.code !== 'PGRST116') throw new Error(`RelatedLinks (bill, mps): ${e.message}`);
     siblingBills = bills || [];
     sponsorHasProfile = !!sponsorRow;
   }
@@ -293,23 +295,25 @@ async function renderDepartment(props: DepartmentProps) {
   // the dept page)
   let ministerLinks: Array<{ member_id: number; display_name: string | null; constituency: string | null; party: string | null }> = [];
   if (props.ministerMemberIds.length > 0) {
-    const { data } = await supabase
+    const { data, error: dataErr2 } = await supabase
       .from('mps')
       .select('member_id, display_name, constituency, party')
       .in('member_id', props.ministerMemberIds);
+    if (dataErr2 && dataErr2.code !== 'PGRST116') throw new Error(`RelatedLinks mps: ${dataErr2.message}`);
     ministerLinks = data || [];
   }
 
   // Bills sponsored by any minister of this dept (top 5 most recent)
   let deptBills: Array<{ id: number; title: string }> = [];
   if (props.ministerMemberIds.length > 0) {
-    const { data } = await supabase
+    const { data, error: dataErr } = await supabase
       .from('bill')
       .select('id, title')
       .in('sponsor_member_id', props.ministerMemberIds)
       .is('hidden_reason', null)
       .order('last_update', { ascending: false, nullsFirst: false })
       .range(0, 4);
+    if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`RelatedLinks bill: ${dataErr.message}`);
     deptBills = data || [];
   }
 
@@ -604,12 +608,13 @@ async function renderDivision(props: DivisionProps) {
 
   // Fetch up to 2 to detect ambiguity — 2 results means we cannot know which
   // bill is correct, so we show nothing rather than guess.
-  const { data: matchedBills } = await supabase
+  const { data: matchedBills, error: matchedBillsErr } = await supabase
     .from('bill')
     .select('id, title, sponsor_member_id')
     .ilike('title', candidateTitle)
     .is('hidden_reason', null)
     .limit(2);
+  if (matchedBillsErr && matchedBillsErr.code !== 'PGRST116') throw new Error(`RelatedLinks bill: ${matchedBillsErr.message}`);
 
   if (!matchedBills || matchedBills.length !== 1) return null;
 
@@ -620,13 +625,14 @@ async function renderDivision(props: DivisionProps) {
   let deptSlug: string | null = null;
   let deptName: string | null = null;
   if (bill.sponsor_member_id != null) {
-    const { data: dmRow } = await supabase
+    const { data: dmRow, error: dmRowErr } = await supabase
       .from('dept_ministers')
       .select('dept_slug')
       .eq('member_id', bill.sponsor_member_id)
       .neq('resigned', true)
       .limit(1)
       .maybeSingle();
+    if (dmRowErr && dmRowErr.code !== 'PGRST116') throw new Error(`RelatedLinks dept_ministers: ${dmRowErr.message}`);
     if (dmRow?.dept_slug) {
       deptSlug = dmRow.dept_slug;
       deptName = departments.find((d) => d.slug === deptSlug)?.name ?? deptSlug;

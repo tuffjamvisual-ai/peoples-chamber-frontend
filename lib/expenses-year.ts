@@ -5,7 +5,8 @@ import { supabase } from '@/lib/supabase';
 // Shared by /expenses and the homepage card, so both always name the same year
 // (audit reassessment, 16 Oct 2026: the homepage said "last financial year").
 export async function latestExpensesYear(): Promise<string> {
-  const { data } = await supabase.from('mp_expenses_summary').select('year').order('year', { ascending: false }).limit(1);
+  const { data, error: dataErr } = await supabase.from('mp_expenses_summary').select('year').order('year', { ascending: false }).limit(1);
+  if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`expenses-year mp_expenses_summary: ${dataErr.message}`);
   return (data && data[0] && (data[0] as { year: string }).year) || '24_25';
 }
 // '24_25' -> '2024/25' (titles and short text) and '2024 / 2025' (page text). A slash, not a

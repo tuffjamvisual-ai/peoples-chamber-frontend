@@ -25,12 +25,13 @@ export const READER_VI_PARTIES: { key: string; label: string; colour: string }[]
 let cachedPollId: number | null = null;
 export async function viPollId(): Promise<number | null> {
   if (cachedPollId != null) return cachedPollId;
-  const { data } = await supabase
+  const { data, error: dataErr } = await supabase
     .from('polls')
     .select('id')
     .eq('poll_type', 'voting_intention')
     .limit(1)
     .maybeSingle();
+  if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`readerVi polls: ${dataErr.message}`);
   cachedPollId = (data?.id as number) ?? null;
   return cachedPollId;
 }
@@ -54,12 +55,14 @@ export async function computeReaderViAggregate(): Promise<{
   const pollId = await viPollId();
   if (pollId == null) return { tally, total: 0, seeded: false };
 
-  const { data: counts } = await supabase.rpc('reader_vi_vote_counts', { p_poll_id: pollId });
+  const { data: counts, error: countsErr } = await supabase.rpc('reader_vi_vote_counts', { p_poll_id: pollId });
+  if (countsErr && countsErr.code !== 'PGRST116') throw new Error(`readerVi reader_vi_vote_counts: ${countsErr.message}`);
   for (const c of (counts || []) as { cat: string; n: number | string }[]) {
     if (c.cat in tally) tally[c.cat] += Number(c.n);
   }
 
-  const { data: seedRows } = await supabase.from('reader_vi_tally').select('party, count');
+  const { data: seedRows, error: seedRowsErr } = await supabase.from('reader_vi_tally').select('party, count');
+  if (seedRowsErr && seedRowsErr.code !== 'PGRST116') throw new Error(`readerVi reader_vi_tally: ${seedRowsErr.message}`);
   let seedTotal = 0;
   for (const s of (seedRows || []) as { party: string; count: number }[]) {
     if (s.party in tally) { tally[s.party] += s.count; seedTotal += s.count; }
