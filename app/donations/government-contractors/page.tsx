@@ -32,37 +32,42 @@ const INK_HAIRLINE = 'rgba(20,16,13,0.25)';
 const CREAM = '#ebe5d8';
 const ACCENT = '#7a1612';
 
-type Cross = { displayName: string; norm: string; contracts: number; contractValue: number; donations: number; donated: number };
+type Cross = { displayName: string; norm: string; contracts: number; contractValue: number; donations: number; donated: number; frameworkPlaces: number };
 
 // The cross-reference is done in the database (view contractor_donor_matches, migration
 // 2026-10-16j): the page used to page ~30k contracts and every donation through the API and
 // join them here, which took 17 seconds on a first load (audit X11). Cached for a day.
+// Since migration 2026-10-21j the view counts each contract once (not each notice), leaves out change notices a
+// newer notice supersedes, and counts frameworks as places without adding their value (potential value, not
+// spending).
 const loadMatched = unstable_cache(
   async () => {
     const matched: Cross[] = [];
     for (let from = 0; ; from += 1000) {
       const { data, error } = await supabase
         .from('contractor_donor_matches')
-        .select('display_name, norm, contracts, contract_value, donations, donated')
+        .select('display_name, norm, contracts, contract_value, donations, donated, framework_places')
         .order('norm')
         .range(from, from + 999);
       if (error) throw new Error(`contractor_donor_matches: ${error.message}`);
       for (const r of data || []) {
-        matched.push({ displayName: r.display_name, norm: r.norm, contracts: Number(r.contracts), contractValue: Number(r.contract_value), donations: Number(r.donations), donated: Number(r.donated) });
+        matched.push({ displayName: r.display_name, norm: r.norm, contracts: Number(r.contracts), contractValue: Number(r.contract_value), donations: Number(r.donations), donated: Number(r.donated), frameworkPlaces: Number(r.framework_places) });
       }
       if (!data || data.length < 1000) break;
     }
     matched.sort((a, b) => b.donated - a.donated);
     const totalDonated = matched.reduce((s, m) => s + m.donated, 0);
     const totalContractValue = matched.reduce((s, m) => s + m.contractValue, 0);
-    return { matched, totalDonated, totalContractValue };
+    const totalContracts = matched.reduce((s, m) => s + m.contracts, 0);
+    const totalFrameworkPlaces = matched.reduce((s, m) => s + m.frameworkPlaces, 0);
+    return { matched, totalDonated, totalContractValue, totalContracts, totalFrameworkPlaces };
   },
-  ['gov-contractors-matched-v2'],
+  ['gov-contractors-matched-v3'],
   { revalidate: 86400 },
 );
 
 export default async function ContractorsWhoDonatePage() {
-  const { matched, totalDonated, totalContractValue } = await loadMatched();
+  const { matched, totalDonated, totalContractValue, totalContracts, totalFrameworkPlaces } = await loadMatched();
 
   return (
     <OpenGovShell pageStamp="Donations">
@@ -76,7 +81,7 @@ export default async function ContractorsWhoDonatePage() {
           UK government contractors who donate to UK political parties
         </h1>
         <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
-          {matched.length} companies appear on both the government contracts records (Find a Tender) and the Electoral Commission donations register under the same name. Between them they hold &pound;{Math.round(totalContractValue).toLocaleString()} in declared contracts with the public sector and have given &pound;{Math.round(totalDonated).toLocaleString()} in declared political donations. The largest donors among them are listed first. Match rule is conservative: exact name, ignoring capital letters. Subsidiaries, trading names and rebrands are missed.
+          {matched.length} companies appear on both the government contracts records (Find a Tender) and the Electoral Commission donations register under the same name. Between them they hold {totalContracts.toLocaleString()} public sector contracts worth &pound;{Math.round(totalContractValue).toLocaleString()} where a value is published{totalFrameworkPlaces ? <>, and {totalFrameworkPlaces} framework place{totalFrameworkPlaces === 1 ? '' : 's'} (not added in: a framework&rsquo;s value is potential value, not spending)</> : null}, and have given &pound;{Math.round(totalDonated).toLocaleString()} in declared political donations. The largest donors among them are listed first. Match rule is conservative: exact name, ignoring capital letters. Subsidiaries, trading names and rebrands are missed.
         </p>
       </header>
 
@@ -89,6 +94,7 @@ export default async function ContractorsWhoDonatePage() {
               <th style={{ padding: '8px 6px' }}>Company</th>
               <th style={{ padding: '8px 6px', textAlign: 'right' }}>Contracts</th>
               <th style={{ padding: '8px 6px', textAlign: 'right' }}>Contract value</th>
+              <th style={{ padding: '8px 6px', textAlign: 'right' }}>Frameworks</th>
               <th style={{ padding: '8px 6px', textAlign: 'right' }}>Donations</th>
               <th style={{ padding: '8px 6px', textAlign: 'right' }}>Political giving</th>
             </tr>
@@ -102,6 +108,7 @@ export default async function ContractorsWhoDonatePage() {
                 </td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{m.contracts}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>£{Math.round(m.contractValue).toLocaleString()}</td>
+                <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{m.frameworkPlaces || ''}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{m.donations}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(m.donated).toLocaleString()}</td>
               </tr>
@@ -115,7 +122,7 @@ export default async function ContractorsWhoDonatePage() {
       </section>
 
       <p style={{ fontSize: '15px', color: '#14100d', opacity: 1 }}>
-        Sources: Find a Tender (OCDS) + Electoral Commission donations register. Match rule: supplier name = donor name exactly, ignoring capital letters and extra spaces.
+        Sources: Find a Tender (OCDS) + Electoral Commission donations register. Match rule: supplier name = donor name exactly, ignoring capital letters and extra spaces. Counting: Find a Tender publishes several notices for one contract (an award, its contract details, later changes); each contract is counted once at its latest value. Frameworks are counted as places, not added to the contract value: a framework&rsquo;s value is the most that every supplier on it could be paid, potential value, not spending.
       </p>
       <LastUpdated sourceKey="government_contracts" />
     </OpenGovShell>

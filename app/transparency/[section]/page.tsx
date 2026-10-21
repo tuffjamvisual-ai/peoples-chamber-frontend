@@ -135,7 +135,7 @@ export default async function TransparencySectionPage({
           ) : (
             <>
               <span className="font-mono text-[#14100d] text-base font-bold">{totalCount.toLocaleString()}</span>
-              {' '}record{totalCount === 1 ? '' : 's'} in this dataset.
+              {' '}{section === 'contracts' ? 'notice' : 'record'}{totalCount === 1 ? '' : 's'} in this dataset.
               {totalPages > 1 && (
                 <> Showing rows {from + 1} to {Math.min(to + 1, totalCount)} (page {page} of {totalPages}).</>
               )}
@@ -159,6 +159,11 @@ export default async function TransparencySectionPage({
               <Link href="/appg-funders" className="font-mono underline" style={{ color: ACCENT }}>Who funds them &rarr;</Link>
             </div>
           </>
+        )}
+        {section === 'contracts' && (
+          <p className="text-[#14100d] text-[15px] leading-[1.7] max-w-2xl mt-6">
+            Each row is a notice published on Find a Tender, not a separate contract: one contract can appear as an award, its contract details and later changes. A framework&rsquo;s value is the most that every supplier on it could be paid: potential value, not spending. Do not add these values up.
+          </p>
         )}
         {section === 'donations' && (
           <p className="text-[#14100d] text-[15px] leading-[1.7] max-w-2xl mt-6">
