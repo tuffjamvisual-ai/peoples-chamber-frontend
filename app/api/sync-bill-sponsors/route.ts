@@ -5,17 +5,20 @@ import { withHeartbeat } from '@/lib/sync-heartbeat';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
-// Refreshes bill.sponsors from Parliament's Bills API. Per cron tick this
-// refreshes bills whose sponsors_synced_at is older than 7d OR null (the
-// printed Bill sponsor/supporter list rarely changes after first
-// reading, so a weekly TTL is plenty), up to a per-run cap so a single
-// 300s function invocation stays within budget.
+// Refreshes bill.sponsors from Parliament's Bills API. Each daily run
+// refreshes bills whose sponsors_synced_at is null (new bills) or older than
+// 30 days (the printed Bill sponsor/supporter list rarely changes after first
+// reading), stalest first, inside a time budget.
 //
 // Output shape stored on bill.sponsors:
 //   { items: [ { name, party, memberId, memberFrom, sortOrder, isMember } ] }
 // Empty items array == fetched but Parliament returned no sponsors.
 
-const RUN_CAP = 1500; // bills per invocation (~120ms each ≈ 180s)
+const RUN_CAP = 1500; // bills read from the queue per run; the time budget usually stops it first
+// Time-budgeted (21 Oct 2026): 1,500 bills one at a time at about 1.5 s each could never finish in 300 s, so both
+// weekly runs timed out. No new bill starts after TIME_BUDGET_MS; each is saved as it is read, and the stalest go
+// first, so the next run carries on. About 160 bills a run, daily: the whole list well inside 30 days.
+const TIME_BUDGET_MS = 240_000;
 const PARLIAMENT_API = 'https://bills-api.parliament.uk/api/v1/Bills';
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -37,7 +40,7 @@ type StoredSponsor = {
 };
 
 async function fetchSponsors(parliamentId: number): Promise<StoredSponsor[]> {
-  const res = await fetch(`${PARLIAMENT_API}/${parliamentId}`);
+  const res = await fetch(`${PARLIAMENT_API}/${parliamentId}`, { signal: AbortSignal.timeout(20_000) });
   if (!res.ok) throw new Error(`Bills API ${res.status}`);
   const j = (await res.json()) as ApiBill;
   return (j.sponsors || [])
@@ -59,6 +62,7 @@ async function fetchSponsors(parliamentId: number): Promise<StoredSponsor[]> {
 }
 
 async function GET_impl(req: Request) {
+  const started = Date.now();
   const expected = process.env.CRON_SECRET;
   if (expected && req.headers.get('authorization') !== `Bearer ${expected}`) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
@@ -74,7 +78,7 @@ async function GET_impl(req: Request) {
   }
   const supabase = createClient(url, key);
 
-  const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const { data: rows, error: selErr } = await supabase
     .from('bill')
     .select('id, parliament_id, sponsors_synced_at')
@@ -88,8 +92,10 @@ async function GET_impl(req: Request) {
   let ok = 0,
     fail = 0;
   const failures: Array<{ id: number; detail: string }> = [];
+  let skippedForTime = 0;
 
-  for (const row of targets) {
+  for (const [i, row] of targets.entries()) {
+    if (Date.now() - started > TIME_BUDGET_MS) { skippedForTime = targets.length - i; break; }
     try {
       const items = await fetchSponsors(row.parliament_id);
       const { error } = await supabase
@@ -110,12 +116,13 @@ async function GET_impl(req: Request) {
 
   return NextResponse.json({
     targeted: targets.length,
-    ok,
+    rows_written: ok,
     fail,
     failures,
-    note: targets.length === RUN_CAP ? `Hit per-run cap of ${RUN_CAP}. Re-run to continue.` : 'complete',
+    skipped_for_time: skippedForTime,
+    duration_ms: Date.now() - started,
     syncedAt: new Date().toISOString(),
-  });
+  }, { status: targets.length > 0 && ok === 0 ? 502 : 200 });
 }
 
 export const GET = withHeartbeat('/api/sync-bill-sponsors', GET_impl);

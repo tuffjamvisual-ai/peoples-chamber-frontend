@@ -54,7 +54,7 @@
     },
     {
       "path": "/api/sync-bill-sponsors",
-      "schedule": "0 9 * * 1"
+      "schedule": "0 9 * * *"
     },
     {
       "path": "/api/sync-civil-service-salaries",

@@ -14,10 +14,18 @@ export const maxDuration = 300;
 // that clearly passed (Tobacco and Vapes, etc.).
 //
 // Targets: every bill whose commons_ayes is null/0 — same idempotent
-// pattern as sync-bill-stages. Run weekly; backfill catches any new
-// acts since the last sync.
+// pattern as sync-bill-stages. Never-tried bills first, then those last
+// tried more than RETRY_DAYS ago. Runs daily.
+//
+// Time-budgeted (21 Oct 2026): it took up to 600 bills one at a time
+// with no limit, and timed out at 300 s on 3 of its last 7 runs. No new
+// bill starts after TIME_BUDGET_MS, and each search has a 20 s limit;
+// every bill is saved (or stamped as tried) as it goes, so the next run
+// carries on.
 
 const RUN_CAP = 600; // bills per invocation
+const TIME_BUDGET_MS = 240_000;
+const RETRY_DAYS = 7;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 type Division = {
@@ -41,7 +49,7 @@ async function searchDivisions(searchTerm: string): Promise<Division[]> {
   // take=100 so big-ticket bills (Employment Rights, Online Safety etc.)
   // don't bury the Third Reading under 25 Lords-amendment motions.
   const url = `https://commonsvotes-api.parliament.uk/data/divisions.json/search?queryParameters.searchTerm=${encodeURIComponent(searchTerm)}&queryParameters.take=100`;
-  const res = await fetch(url);
+  const res = await fetch(url, { signal: AbortSignal.timeout(20_000) });
   if (!res.ok) throw new Error(`Commons Votes API ${res.status}`);
   return (await res.json()) as Division[];
 }
@@ -64,6 +72,7 @@ function pickDivision(bill: { title: string | null; stages: unknown }, divisions
 }
 
 async function GET_impl(req: Request) {
+  const started = Date.now();
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
   if (req.headers.get('authorization') !== `Bearer ${expected}`) {
@@ -95,6 +104,7 @@ async function GET_impl(req: Request) {
       .select('id, parliament_id, title, stages')
       .or('commons_ayes.is.null,commons_ayes.eq.0')
       .not('parliament_id', 'is', null)
+      .lt('commons_vote_tried_at', new Date(Date.now() - RETRY_DAYS * 86_400_000).toISOString())
       .order('commons_vote_tried_at', { ascending: true })
       .limit(RUN_CAP));
   }
@@ -105,8 +115,10 @@ async function GET_impl(req: Request) {
   let noMatch = 0;
   let fail = 0;
   const failures: Array<{ id: number; detail: string }> = [];
+  let skippedForTime = 0;
 
-  for (const bill of targets) {
+  for (const [i, bill] of targets.entries()) {
+    if (Date.now() - started > TIME_BUDGET_MS) { skippedForTime = targets.length - i; break; }
     try {
       const billName = billNameFromActTitle(bill.title || '');
       if (!billName) continue;
@@ -145,13 +157,15 @@ async function GET_impl(req: Request) {
 
   return NextResponse.json({
     targeted: targets.length,
+    rows_written: updated + noMatch,
     updated,
     noMatch,
     fail,
     failures,
-    note: targets.length === RUN_CAP ? `Hit per-run cap of ${RUN_CAP}. Re-run.` : 'complete',
+    skipped_for_time: skippedForTime,
+    duration_ms: Date.now() - started,
     syncedAt: new Date().toISOString(),
-  });
+  }, { status: targets.length > 0 && updated + noMatch === 0 ? 502 : 200 });
 }
 
 export const GET = withHeartbeat('/api/sync-bill-commons-votes', GET_impl);
