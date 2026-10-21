@@ -273,6 +273,16 @@ async function GET_impl(req: Request) {
       whipRefreshError = we ? we.message : null;
     }
 
+    // Statutory instruments are the Commons divisions on an SI (migration 2026-10-21n): add new ones and refresh
+    // vote counts whenever a division was added or changed.
+    let siRefresh: number | null = null;
+    let siRefreshError: string | null = null;
+    if (!dryRun && (divisionsAdded > 0 || partiesApplied > 0)) {
+      const { data: si, error: sie } = await supabase.rpc('refresh_statutory_instruments');
+      siRefresh = si as number | null;
+      siRefreshError = sie ? sie.message : null;
+    }
+
     // Resolve member names for both-lobby voters (best-effort; former MPs may be absent).
     if (bothLobbyVotes.length > 0) {
       const memberIds = [...new Set(bothLobbyVotes.map((c) => c.memberId))];
@@ -282,7 +292,7 @@ async function GET_impl(req: Request) {
     }
 
     const base = {
-      ok: !insertErrors.length && !sitemapRefreshError && !postInsertRefreshError && !partyErrors.length && !whipRefreshError,
+      ok: !insertErrors.length && !sitemapRefreshError && !postInsertRefreshError && !partyErrors.length && !whipRefreshError && !siRefreshError,
       dryRun,
       range: [fromStr, toStr],
       divisionsInRange: list.length,
@@ -297,6 +307,8 @@ async function GET_impl(req: Request) {
       ...(partyErrors.length ? { partyErrors } : {}),
       ...(whipRefresh ? { whipRefresh } : {}),
       ...(whipRefreshError ? { whipRefreshError } : {}),
+      ...(siRefresh != null ? { statutoryInstrumentsRefreshed: siRefresh } : {}),
+      ...(siRefreshError ? { siRefreshError } : {}),
       ...(bothLobbyVotes.length ? { bothLobbyVotes } : {}),
       ...(partial && stoppedBefore ? { stoppedBefore, note: `Time budget reached. Resume with startDate=${stoppedBefore}&endDate=${toStr}` } : {}),
       ...(apiErrors.length ? { apiErrors } : {}),
