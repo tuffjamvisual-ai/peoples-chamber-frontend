@@ -78,6 +78,23 @@ export async function fetchMajorProjects(deptSlug?: string): Promise<{ projects:
   return { projects, latestYear };
 }
 
+// For /transparency/major-projects: one line per project from its latest report, worked out in the database by
+// major_projects_list() (scripts/migrations/2026-10-21a-build-light-queries.sql), one call instead of reading all
+// 629 project-years and then the latest year (the read ran past anon's 3 s limit during the Vercel build of 335c2f4).
+// Same order as fetchMajorProjects(): still on the portfolio first, then by name.
+export type MajorProjectLine = {
+  key: string; name: string; noPlan2025: boolean;
+  latest: Pick<MajorProjectRow, 'name' | 'department_code' | 'dept_slug' | 'rating' | 'rating_column' | 'rating_withheld' | 'end_date' | 'end_text' | 'report_year' | 'data_as_at'>;
+};
+export async function fetchMajorProjectList(): Promise<{ projects: MajorProjectLine[]; latestYear: number }> {
+  const { data, error } = await supabase.rpc('major_projects_list');
+  if (error || !data) throw new Error(`major_projects_list: ${error?.message ?? 'no data'}`);
+  const { latest_year: latestYear, projects } = data as { latest_year: number; projects: (MajorProjectLine['latest'] & { project_key: string; no_plan_2025: boolean })[] };
+  const lines = projects.map(({ project_key, no_plan_2025, ...latest }) => ({ key: project_key, name: latest.name, noPlan2025: no_plan_2025, latest }));
+  lines.sort((a, b) => (b.latest.report_year === latestYear ? 1 : 0) - (a.latest.report_year === latestYear ? 1 : 0) || a.name.localeCompare(b.name));
+  return { projects: lines, latestYear };
+}
+
 // One project with its narratives, for /transparency/major-projects/[project_key].
 export async function fetchMajorProject(key: string): Promise<{ project: MajorProject | null; latestYear: number }> {
   const { data, error } = await supabase.from('major_projects').select(ALL_COLS).eq('project_key', key);
@@ -106,7 +123,7 @@ const titleCase = (s: string) => s.charAt(0) + s.slice(1).toLowerCase();
 const money = (m: number) => `£${m.toLocaleString('en-GB', { maximumFractionDigits: 2 })}m`;
 
 // Rating labels (owner's decision): the IPA/NISTA column and the SRO column. Withheld ratings show the file's wording.
-export function ratingText(r: MajorProjectRow): string {
+export function ratingText(r: Pick<MajorProjectRow, 'rating' | 'rating_column' | 'rating_withheld'>): string {
   if (r.rating) return `${titleCase(r.rating)} (${r.rating_column === 'IPA' ? "NISTA's independent assessment" : "the department's own assessment"})`;
   return r.rating_withheld ?? 'Not given';
 }
@@ -119,7 +136,7 @@ export function costText(r: MajorProjectRow): string {
   return 'Not given';
 }
 
-export const lastReported = (p: MajorProject, latestYear: number) => (p.latest.report_year < latestYear ? `Last reported ${p.latest.data_as_at}` : null);
+export const lastReported = (p: { latest: Pick<MajorProjectRow, 'report_year' | 'data_as_at'> }, latestYear: number) => (p.latest.report_year < latestYear ? `Last reported ${p.latest.data_as_at}` : null);
 
 // Names that differ only in case, spacing or punctuation are the same name ("T Level Programme" / "T-LEVEL PROGRAMME").
 const sameName = (a: string, b: string) => a.toLowerCase().replace(/[^a-z0-9]+/g, '') === b.toLowerCase().replace(/[^a-z0-9]+/g, '');

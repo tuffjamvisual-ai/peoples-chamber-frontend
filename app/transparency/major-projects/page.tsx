@@ -2,6 +2,7 @@
 // the IPA and NISTA annual reports. Reads major_projects (migration 2026-10-20d), loaded by
 // scripts/import-major-projects.js. Grouped by the department code in each project's latest report; each project
 // links to its own page with the department's commentary.
+// Read through major_projects_list() (migration 2026-10-21a), only what the list shows.
 // One line per project (owner's decision, 20 Oct 2026): name, latest rating, latest end date, and "Last reported"
 // for projects that have left; the history tables are on the project pages and the department tabs.
 
@@ -10,7 +11,7 @@ import Link from 'next/link';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { departments } from '@/lib/departments';
-import { fetchMajorProjects, deptLabel, ratingText, dateText, lastReported, projectHref, REPORT_PAGES } from '@/lib/major-projects';
+import { fetchMajorProjectList, deptLabel, ratingText, dateText, lastReported, projectHref, REPORT_PAGES } from '@/lib/major-projects';
 import EvaluationView from './EvaluationView';
 
 export const revalidate = 86400;
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
 };
 
 export default async function MajorProjectsPage() {
-  const { projects, latestYear } = await fetchMajorProjects();
+  const { projects, latestYear } = await fetchMajorProjectList();
   const deptName = new Map(departments.map((d) => [d.slug, d.name]));
   const byDept = new Map<string, typeof projects>();
   for (const p of projects) {
@@ -38,7 +39,7 @@ export default async function MajorProjectsPage() {
   const codes = [...byDept.keys()].sort();
   const current = projects.filter((p) => p.latest.report_year === latestYear).length;
   // Projects whose March 2025 entry was "No" to "Does the project have an evaluation plan? (self reported)".
-  const noPlan = projects.filter((p) => p.years.some((y) => y.report_year === 2025 && (y.evaluation_plan ?? '').trim() === 'No'))
+  const noPlan = projects.filter((p) => p.noPlan2025)
     .sort((a, b) => a.name.localeCompare(b.name));
 
   return (

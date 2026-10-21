@@ -7,7 +7,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
-import { fmtMoney, fmtUpdated, loadAll } from './_lib/data';
+import { fmtMoney, fmtUpdated, loadLanding } from './_lib/data';
 
 export const revalidate = 86400;
 
@@ -26,7 +26,7 @@ const SERIF = 'Special Elite, monospace';
 const MONO = 'Special Elite, monospace';
 
 export default async function SecondJobsLanding() {
-  const { partyTotals, grandTotal, grandClaims, totalMps, mpsWithPayments, summaryUpdated } = await loadAll();
+  const { partyTotals, grandTotal, grandClaims, totalMps, mpsWithPayments, summaryUpdated } = await loadLanding();
   const asOf = fmtUpdated(summaryUpdated);
 
   return (

@@ -179,7 +179,8 @@ export async function loadAll(): Promise<{
     }
     return out;
   };
-  const [{ data: summaries }, interests, { data: mps }] = await Promise.all([
+  // A failed read throws (so the build fails and the last good page stays up) rather than showing empty totals.
+  const [{ data: summaries, error: summariesError }, interests, { data: mps, error: mpsError }] = await Promise.all([
     supabase
       .from('mp_outside_earnings_summary')
       .select('member_id, total_extracted, claim_count, updated_at'),
@@ -189,6 +190,8 @@ export async function loadAll(): Promise<{
       .select('member_id, display_name, name, constituency, party, party_colour')
       .eq('current_member', true),
   ]);
+  if (summariesError || !summaries) throw new Error(`mp_outside_earnings_summary: ${summariesError?.message ?? 'no data'}`);
+  if (mpsError || !mps) throw new Error(`mps: ${mpsError?.message ?? 'no data'}`);
 
   const summaryByMember = new Map<number, Summary>(
     ((summaries as Summary[]) || []).map((s) => [s.member_id, s])
@@ -226,7 +229,13 @@ export async function loadAll(): Promise<{
     detail.sort((a, b) => b.total - a.total);
   }
 
-  const partyTotals: PartyAggregate[] = Array.from(bySlug.entries())
+  const summaryUpdated = ((summaries as Summary[]) || []).reduce<string | null>((m, r) => (r.updated_at && (!m || r.updated_at > m) ? r.updated_at : m), null);
+  return { bySlug, summaryByMember, partyTotals: rollUp(bySlug), grandTotal, grandClaims, totalMps, mpsWithPayments, summaryUpdated };
+}
+
+// One line per party, highest total first; each party's MPs must already be sorted by total, highest first.
+function rollUp(bySlug: Map<string, { mp: { display_name: string | null; name: string | null }; total: number }[]>): PartyAggregate[] {
+  return Array.from(bySlug.entries())
     .map(([slug, items]) => {
       const total = items.reduce((s, i) => s + i.total, 0);
       const top = items[0];
@@ -239,7 +248,38 @@ export async function loadAll(): Promise<{
       };
     })
     .sort((a, b) => b.total - a.total || b.mps - a.mps);
+}
 
-  const summaryUpdated = ((summaries as Summary[]) || []).reduce<string | null>((m, r) => (r.updated_at && (!m || r.updated_at > m) ? r.updated_at : m), null);
-  return { bySlug, summaryByMember, partyTotals, grandTotal, grandClaims, totalMps, mpsWithPayments, summaryUpdated };
+// For the /second-jobs landing page, which shows only the party totals: one call to second_jobs_summary()
+// (scripts/migrations/2026-10-21a-build-light-queries.sql) instead of reading every entry's text, which ran past
+// anon's 3 s limit during the Vercel build of 335c2f4 (20 Oct 2026). Same MPs, totals and order as loadAll().
+export async function loadLanding(): Promise<{
+  partyTotals: PartyAggregate[];
+  grandTotal: number;
+  grandClaims: number;
+  totalMps: number;
+  mpsWithPayments: number;
+  summaryUpdated: string | null;
+}> {
+  const { data, error } = await supabase.rpc('second_jobs_summary');
+  if (error || !data) throw new Error(`second_jobs_summary: ${error?.message ?? 'no data'}`);
+  const { mps, summary_updated } = data as {
+    mps: { member_id: number; display_name: string | null; name: string | null; party: string | null; total: number; claim_count: number }[];
+    summary_updated: string | null;
+  };
+  const bySlug = new Map<string, { mp: { display_name: string | null; name: string | null }; total: number }[]>();
+  let grandTotal = 0;
+  let grandClaims = 0;
+  let mpsWithPayments = 0;
+  for (const m of mps) {
+    const total = Number(m.total) || 0;
+    grandTotal += total;
+    grandClaims += m.claim_count || 0;
+    if (m.claim_count > 0) mpsWithPayments += 1;
+    const slug = partyToSlug(m.party);
+    if (!bySlug.has(slug)) bySlug.set(slug, []);
+    bySlug.get(slug)!.push({ mp: m, total });
+  }
+  for (const items of bySlug.values()) items.sort((a, b) => b.total - a.total);
+  return { partyTotals: rollUp(bySlug), grandTotal, grandClaims, totalMps: mps.length, mpsWithPayments, summaryUpdated: summary_updated };
 }
