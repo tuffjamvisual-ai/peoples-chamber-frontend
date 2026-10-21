@@ -46,70 +46,25 @@ type Row = {
   amount: number | null;
 };
 
-function daysBetween(a: string, b: string): number {
-  const ad = new Date(a).getTime();
-  const bd = new Date(b).getTime();
-  return Math.round((bd - ad) / 86_400_000);
-}
-
 export default async function LateDisclosedPage() {
-  // We can't compute date arithmetic server-side via PostgREST, so
-  // pull the candidate window (anything reported >120 days after
-  // accept happens to be the worst-cluster; we filter further in JS).
-  // Order by accepted_date desc so recent rows surface first; ranking
-  // in JS picks the actual leaders.
-  const PAGE = 1000;
-  const rows: Row[] = [];
-  for (let from = 0; ; from += PAGE) {
-    const { data, error } = await supabase
-      .from('political_donations')
-      .select('id, donor_name, recipient_name, recipient_type, accepted_date, reported_date, amount')
-      .not('accepted_date', 'is', null)
-      .not('reported_date', 'is', null)
-      .gte('amount', 1500)
-      .order('reported_date', { ascending: false })
-      .range(from, from + PAGE - 1);
-    // A failed read throws (owner's approval, 21 Oct 2026); it used to end the list early, publishing part of it.
-    if (error) throw new Error(`late-disclosed political_donations: ${error.message}`);
-    if (!data || data.length === 0) break;
-    rows.push(...(data as Row[]));
-    if (data.length < PAGE) break;
-    if (rows.length > 50_000) break; // safety
-  }
-
+  // Worked out in the database (late_disclosed_summary, migration 2026-10-21g; owner's approval, 21 Oct 2026): the page
+  // used to read every donation over £1,500 with both dates in pages of 1,000, stopping at 50,000 of the 53,919, and
+  // that read timed out a build. Same rules: a gap of more than 90 days between acceptance and disclosure.
   type Enriched = Row & { gap: number };
-  const enriched: Enriched[] = [];
-  for (const r of rows) {
-    if (!r.accepted_date || !r.reported_date) continue;
-    const gap = daysBetween(r.accepted_date, r.reported_date);
-    if (gap > 90) enriched.push({ ...r, gap });
-  }
-  enriched.sort((a, b) => b.gap - a.gap);
-
-  const buckets = {
-    '90 to 180 days': enriched.filter((r) => r.gap > 90 && r.gap <= 180).length,
-    '180 to 365 days': enriched.filter((r) => r.gap > 180 && r.gap <= 365).length,
-    '1 to 2 years': enriched.filter((r) => r.gap > 365 && r.gap <= 730).length,
-    'over 2 years': enriched.filter((r) => r.gap > 730).length,
-  };
-  const totalGt90 = enriched.length;
-  const totalAmount = enriched.reduce((s, r) => s + Number(r.amount || 0), 0);
-
-  // Aggregate by recipient: which parties / parliamentary recipients
-  // disclosed late the most?
   type Agg = { name: string; count: number; total: number; worstGap: number };
-  const byRecipient = new Map<string, Agg>();
-  for (const r of enriched) {
-    const n = (r.recipient_name || '(unknown)').trim();
-    const ex = byRecipient.get(n) ?? { name: n, count: 0, total: 0, worstGap: 0 };
-    ex.count += 1;
-    ex.total += Number(r.amount || 0);
-    if (r.gap > ex.worstGap) ex.worstGap = r.gap;
-    byRecipient.set(n, ex);
-  }
-  const recipientRanked = Array.from(byRecipient.values()).sort((a, b) => b.count - a.count).slice(0, 30);
-
-  const top50 = enriched.slice(0, 50);
+  const { data: summary, error } = await supabase.rpc('late_disclosed_summary');
+  if (error || !summary) throw new Error(`late_disclosed_summary: ${error?.message ?? 'no data'}`);
+  const sum = summary as { total_count: number; total_amount: number; buckets: Record<string, number>; by_recipient: Agg[]; top: Enriched[] };
+  const buckets = {
+    '90 to 180 days': Number(sum.buckets['90 to 180 days']) || 0,
+    '180 to 365 days': Number(sum.buckets['180 to 365 days']) || 0,
+    '1 to 2 years': Number(sum.buckets['1 to 2 years']) || 0,
+    'over 2 years': Number(sum.buckets['over 2 years']) || 0,
+  };
+  const totalGt90 = Number(sum.total_count) || 0;
+  const totalAmount = Number(sum.total_amount) || 0;
+  const recipientRanked = sum.by_recipient.map((r) => ({ ...r, count: Number(r.count), total: Number(r.total), worstGap: Number(r.worstGap) }));
+  const top50 = sum.top.map((r) => ({ ...r, gap: Number(r.gap), amount: r.amount == null ? null : Number(r.amount) }));
 
   return (
     <OpenGovShell pageStamp="Donations">
