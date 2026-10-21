@@ -50,7 +50,8 @@ function sessionName(desc) {
   const used = new Set();
   for (let from = 0; ; from += 1000) {
     const { data, error } = await sb.from('bill').select('introduced_session_id').order('id').range(from, from + 999);
-    if (error) throw error;
+    // Throw the message, not the error object: the 21 Oct 2026 failure printed only "[object Object]".
+    if (error) throw new Error(`bill read at row ${from}: ${error.message}`);
     for (const b of data) if (b.introduced_session_id != null) used.add(b.introduced_session_id);
     if (data.length < 1000) break;
   }
