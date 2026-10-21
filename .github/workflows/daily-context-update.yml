@@ -70,24 +70,27 @@ jobs:
         id: mp-interests
         run: node scripts/sync-mp-interests.js
         continue-on-error: true
-      - name: Sync IPSA expenses (year-end totals and itemised claims, years worked out from today)
-        id: ipsa-expenses
-        env:
-          DATABASE_URL_RAW: ${{ secrets.DATABASE_URL }}
-        run: |
-          export DATABASE_URL="$(printf '%s' "$DATABASE_URL_RAW" | tr -d '[:space:]')"
-          # IPSA financial years run April to March and are named like 25_26.
-          Y=$(date -u +%Y); M=$(date -u +%-m)
-          if [ "$M" -ge 4 ]; then S=$Y; else S=$((Y - 1)); fi
-          fy() { printf '%02d_%02d' $(( $1 % 100 )) $(( ($1 + 1) % 100 )); }
-          CUR=$(fy $S); PREV=$(fy $((S - 1))); PREV2=$(fy $((S - 2)))
-          echo "IPSA years: current $CUR, previous $PREV, before that $PREV2"
-          # Year-end totals: last two closed years (IPSA publishes them months after the year ends;
-          # a year not yet published is skipped by the script).
-          node scripts/sync-ipsa-expenses.js $PREV $PREV2
-          # Itemised claims: the current year (filling in every two months) and the last one.
-          node scripts/sync-ipsa-expenses-detail.js $CUR $PREV
-        continue-on-error: true
+      # paused 21 Oct 2026: theipsa.org.uk robots.txt disallows /api/*
+      # IPSA files are now downloaded by hand into data/ipsa/ and loaded with the same two scripts (see their headers);
+      # the Monday check (/api/check-hand-loaded-releases) emails when IPSA publishes newer figures.
+      # - name: Sync IPSA expenses (year-end totals and itemised claims, years worked out from today)
+      #   id: ipsa-expenses
+      #   env:
+      #     DATABASE_URL_RAW: ${{ secrets.DATABASE_URL }}
+      #   run: |
+      #     export DATABASE_URL="$(printf '%s' "$DATABASE_URL_RAW" | tr -d '[:space:]')"
+      #     # IPSA financial years run April to March and are named like 25_26.
+      #     Y=$(date -u +%Y); M=$(date -u +%-m)
+      #     if [ "$M" -ge 4 ]; then S=$Y; else S=$((Y - 1)); fi
+      #     fy() { printf '%02d_%02d' $(( $1 % 100 )) $(( ($1 + 1) % 100 )); }
+      #     CUR=$(fy $S); PREV=$(fy $((S - 1))); PREV2=$(fy $((S - 2)))
+      #     echo "IPSA years: current $CUR, previous $PREV, before that $PREV2"
+      #     # Year-end totals: last two closed years (IPSA publishes them months after the year ends;
+      #     # a year not yet published is skipped by the script).
+      #     node scripts/sync-ipsa-expenses.js $PREV $PREV2
+      #     # Itemised claims: the current year (filling in every two months) and the last one.
+      #     node scripts/sync-ipsa-expenses-detail.js $CUR $PREV
+      #   continue-on-error: true
       # Every current MP's register in one run (the Vercel route did 150 MPs per call and its
       # follow-on calls stopped on 14 July 2026, leaving ~500 MPs' registers out of date).
       - name: Refresh every MP's register of interests (Members API, powers the Interests tab, second jobs and donations)

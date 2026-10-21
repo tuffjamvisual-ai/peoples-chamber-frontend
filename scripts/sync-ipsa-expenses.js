@@ -5,8 +5,12 @@
 //   node scripts/sync-ipsa-expenses.js                # default: 24_25 and 23_24
 //   node scripts/sync-ipsa-expenses.js 24_25 23_24 22_23
 //
-// Source format reference:
-//   https://www.theipsa.org.uk/api/download?type=totalSpend&year=YY_YY
+// IPSA files are downloaded by hand (owner's decision, 21 Oct 2026): theipsa.org.uk's robots.txt disallows /api/*,
+// so nothing fetches them any more. Download the annual "Total spend" file for a year from
+// https://www.theipsa.org.uk/mp-costs/ in a browser and save it as data/ipsa/totalSpend_YY_YY.csv, then run this
+// script for that year.
+//
+// Source format reference (IPSA's totalSpend download):
 //   CSV columns: MP's name, Previous constituency, Constituency since 5 July 2024,
 //                Office budget, Reason..., Office spend, Remaining office budget,
 //                Staffing budget, Reason..., Staffing spend, Remaining...,
@@ -67,11 +71,10 @@ const sqlEsc = (v) => v == null ? 'NULL' : `'${String(v).replace(/'/g, "''")}'`;
 const sqlNum = (v) => v == null ? 'NULL' : String(v);
 
 async function fetchYear(year) {
-  const url = `https://www.theipsa.org.uk/api/download?type=totalSpend&year=${year}`;
-  console.log(`Fetching ${url}`);
-  const res = await fetch(url, { headers: { 'User-Agent': 'PeoplesChamber/1.0', Accept: 'text/csv,*/*' } });
-  if (!res.ok) throw new Error(`HTTP ${res.status} for year ${year}`);
-  return res.text();
+  const file = path.join(__dirname, '..', 'data', 'ipsa', `totalSpend_${year}.csv`);
+  if (!fs.existsSync(file)) throw new Error(`no file ${path.relative(process.cwd(), file)} (download it from IPSA in a browser)`);
+  console.log(`Reading ${path.relative(process.cwd(), file)}`);
+  return fs.readFileSync(file, 'utf8');
 }
 
 function rowsForYear(year, csvText) {

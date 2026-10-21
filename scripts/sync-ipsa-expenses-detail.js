@@ -12,7 +12,12 @@
 //   --dry-run           download and count rows per year; load nothing
 // Each downloaded file is held in memory and a temporary folder only, then removed.
 //
-// Source: https://www.theipsa.org.uk/api/download?type=individualBusinessCosts&year=YY_YY
+// IPSA files are downloaded by hand (owner's decision, 21 Oct 2026): theipsa.org.uk's robots.txt disallows /api/*,
+// so nothing fetches them any more. Download "Individual business costs" for a year from
+// https://www.theipsa.org.uk/mp-costs/ in a browser and save it as data/ipsa/individualBusinessCosts_YY_YY.csv
+// (for example data/ipsa/individualBusinessCosts_25_26.csv), then run this script for that year, with --dry-run first.
+// The Monday check (/api/check-hand-loaded-releases) emails John when IPSA publishes a newer release.
+// File format (as IPSA's download):
 // 24 columns: Parliamentary ID, Year, Date, Claim Number, Name, Constituency,
 // Category, Cost Type, Short Description, Details, Journey Type, From, To,
 // Travel, Nights, Mileage, Amount Claimed, Amount Paid, Amount Not Paid,
@@ -106,11 +111,10 @@ const csvEsc = (v) => {
 };
 
 async function fetchYear(year) {
-  const url = `https://www.theipsa.org.uk/api/download?type=individualBusinessCosts&year=${year}`;
-  console.log(`Fetching ${url}`);
-  const res = await fetch(url, { headers: { 'User-Agent': 'PeoplesChamber/1.0', Accept: 'text/csv,*/*' } });
-  if (!res.ok) throw new Error(`HTTP ${res.status} for year ${year}`);
-  return res.text();
+  const file = path.join(__dirname, '..', 'data', 'ipsa', `individualBusinessCosts_${year}.csv`);
+  if (!fs.existsSync(file)) throw new Error(`no file ${path.relative(process.cwd(), file)} (download it from IPSA in a browser)`);
+  console.log(`Reading ${path.relative(process.cwd(), file)}`);
+  return fs.readFileSync(file, 'utf8');
 }
 
 // Member ids of MPs serving now (for --current-mps-only).

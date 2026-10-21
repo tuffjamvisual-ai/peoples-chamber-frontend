@@ -66,3 +66,6 @@ data/orcl/*
 
 # Open Council Data UK compositions file, downloaded by hand (scripts/import-council-composition.js)
 data/opencouncildata/
+
+# IPSA files downloaded by hand in a browser (theipsa.org.uk robots.txt disallows /api/*)
+data/ipsa/
