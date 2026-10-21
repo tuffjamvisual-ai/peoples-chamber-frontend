@@ -46,7 +46,9 @@ export async function GET(req: NextRequest) {
   const sources = [];
 
   for (const src of DATA_SOURCES) {
-    const content = await newestTimestamp(src);
+    // One source's failed read is logged and treated as no data, as before, so the other sources are still checked.
+    let content: Date | null = null;
+    try { content = await newestTimestamp(src); } catch (e) { console.error('monitor-freshness:', (e as Error).message); }
     const contentAgeDays = content ? ageInDays(content, now) : null;
     const maxAge = CADENCE_MAX_AGE_DAYS[src.cadence];
 

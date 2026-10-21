@@ -56,7 +56,7 @@ async function getPartyAndPolicies(slug: string): Promise<{
   mpCount: number;
   donationsTotal: number;
 }> {
-  const [{ data: partyRow }, { data: policyRows }] = await Promise.all([
+  const [{ data: partyRow, error: partyErr }, { data: policyRows, error: policyErr }] = await Promise.all([
     supabase
       .from('parties')
       .select('slug, name, party_colour, website, founded_year, brief, critique, mp_party_string, recipient_name')
@@ -69,6 +69,9 @@ async function getPartyAndPolicies(slug: string): Promise<{
       .order('theme_order', { ascending: true }),
   ]);
 
+  // A failed read throws (owner's approval, 21 Oct 2026); before, it fell through to "no party" and a cached 404.
+  if (partyErr) throw new Error(`parties ${slug}: ${partyErr.message}`);
+  if (policyErr) throw new Error(`party_policies ${slug}: ${policyErr.message}`);
   if (!partyRow) return { party: null, policies: [], mpCount: 0, donationsTotal: 0 };
 
   const party = partyRow as Party;
@@ -83,10 +86,11 @@ async function getPartyAndPolicies(slug: string): Promise<{
       party.slug === 'labour'
         ? ['Labour', 'Labour (Co-op)', 'Labour and Co-operative']
         : [party.mp_party_string];
-    const { count } = await supabase
+    const { count, error: countErr } = await supabase
       .from('mps')
       .select('member_id', { count: 'exact', head: true })
       .in('party', variants);
+    if (countErr) throw new Error(`mps count ${slug}: ${countErr.message}`);
     mpCount = count || 0;
   }
 

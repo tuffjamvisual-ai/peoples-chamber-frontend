@@ -47,21 +47,24 @@ type FeedItem = {
 };
 
 async function fetchMpItems(): Promise<FeedItem[]> {
-  const { data: mpRows } = await supabase
+  // Failed reads throw (owner's approval, 21 Oct 2026), so the feed is never published without its items.
+  const { data: mpRows, error: mpErr } = await supabase
     .from('mps')
     .select('member_id, display_name, name, party, constituency, updated_at')
     .eq('current_member', true)
     .order('updated_at', { ascending: false, nullsFirst: false })
     .range(0, 24);
+  if (mpErr) throw new Error(`feed mps: ${mpErr.message}`);
   if (!mpRows || mpRows.length === 0) return [];
 
   // Bios are keyed by member_id. One join query gets us the prose for
   // the description first-sentence.
   const ids = mpRows.map((m: { member_id: number }) => m.member_id);
-  const { data: bios } = await supabase
+  const { data: bios, error: bioErr } = await supabase
     .from('mp_biography')
     .select('member_id, political_bio')
     .in('member_id', ids);
+  if (bioErr) throw new Error(`feed biographies: ${bioErr.message}`);
   const bioByMember = new Map<number, string>();
   (bios || []).forEach((b: { member_id: number; political_bio: string | null }) => {
     if (b.political_bio) bioByMember.set(b.member_id, b.political_bio);
@@ -95,7 +98,7 @@ async function fetchMpItems(): Promise<FeedItem[]> {
 }
 
 async function fetchBillItems(): Promise<FeedItem[]> {
-  const { data: billRows } = await supabase
+  const { data: billRows, error: billErr } = await supabase
     .from('bill')
     .select('id, title, description, long_title, current_stage, sponsor_name, last_update, is_act')
     .is('hidden_reason', null)
@@ -104,6 +107,7 @@ async function fetchBillItems(): Promise<FeedItem[]> {
     )
     .order('last_update', { ascending: false, nullsFirst: false })
     .range(0, 24);
+  if (billErr) throw new Error(`feed bills: ${billErr.message}`);
   if (!billRows || billRows.length === 0) return [];
 
   return billRows.map(

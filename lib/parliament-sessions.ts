@@ -55,10 +55,9 @@ export async function getParliamentSessions(): Promise<ParliamentSession[]> {
     supabase.from('parliament_session_bill_counts').select('session_id, bills_introduced, bills_carried_in, bills_listed, is_current'),
     supabase.from('parliament_sessions').select('id, name, number, parliament_number, session_number, start_date, end_date'),
   ]);
-  if (e1 || e2) {
-    console.error('getParliamentSessions:', e1 || e2);
-    return [];
-  }
+  // A failed read throws (owner's approval, 21 Oct 2026): a page built ahead keeps its last good version instead of
+  // being published with no sessions.
+  if (e1 || e2) throw new Error(`getParliamentSessions: ${(e1 || e2)!.message}`);
   const byId = new Map((names || []).map((n) => [n.id as number, n]));
   return (counts || [])
     .map((c) => {
@@ -94,10 +93,7 @@ export async function getSessionBills(sessionId: number): Promise<SessionBill[]>
       .order('title', { ascending: true })
       .order('bill_id', { ascending: true })
       .range(from, from + 999);
-    if (error) {
-      console.error('getSessionBills:', error);
-      break;
-    }
+    if (error) throw new Error(`getSessionBills(${sessionId}): ${error.message}`);
     out.push(...((data || []) as SessionBill[]));
     if (!data || data.length < 1000) break;
   }
@@ -107,10 +103,11 @@ export async function getSessionBills(sessionId: number): Promise<SessionBill[]>
 // The sessions the bills on /bills come from (the current one, and any a bill was carried over from), for the
 // Session filter.
 export async function getCurrentBillSessions(): Promise<{ id: number; label: string }[]> {
-  const [{ data: rows }, sessions] = await Promise.all([
+  const [{ data: rows, error }, sessions] = await Promise.all([
     supabase.from('bill_current').select('introduced_session_id').range(0, 999),
     getParliamentSessions(),
   ]);
+  if (error) throw new Error(`getCurrentBillSessions: ${error.message}`);
   const ids = [...new Set((rows || []).map((r) => r.introduced_session_id as number).filter((x) => x != null))].sort((a, b) => b - a);
   const byId = new Map(sessions.map((s) => [s.id, s]));
   return ids.map((id) => {

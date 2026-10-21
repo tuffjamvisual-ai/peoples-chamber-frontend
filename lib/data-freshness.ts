@@ -113,13 +113,16 @@ export function dataSource(key: string): DataSource | undefined {
 
 // Read the newest timestamp for a source. Uses the same anon client the pages
 // already read these tables with, so RLS that permits the page permits this.
+// A failed read throws (owner's approval, 21 Oct 2026), so a page built ahead keeps its last good version rather than
+// losing its "last updated" line; the freshness monitor catches it per source.
 export async function newestTimestamp(src: DataSource): Promise<Date | null> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from(src.table)
     .select(src.column)
     .order(src.column, { ascending: false })
     .limit(1)
     .maybeSingle();
+  if (error) throw new Error(`newestTimestamp(${src.table}.${src.column}): ${error.message}`);
   const raw = (data as Record<string, unknown> | null)?.[src.column];
   if (!raw) return null;
   const d = new Date(raw as string);

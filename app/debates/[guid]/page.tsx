@@ -48,15 +48,15 @@ type Debate = {
 };
 
 async function getDebate(guid: string): Promise<Debate | null> {
-  try {
-    const res = await fetch(`https://hansard-api.parliament.uk/Debates/Debate/${guid}.json`, {
-      next: { revalidate: 86400 },
-    });
-    if (!res.ok) return null;
-    return await jsonWithoutEmDashes<Debate>(res);
-  } catch {
-    return null;
-  }
+  const res = await fetch(`https://hansard-api.parliament.uk/Debates/Debate/${guid}.json`, {
+    next: { revalidate: 86400 },
+  });
+  // Only Hansard saying the id is unknown (it answers 400 or 404, or 200 with no Overview) makes this a missing
+  // debate. Any other failure (5xx, rate limit, network) throws (owner's approval, 21 Oct 2026): it used to return
+  // null, so a Hansard outage was published, and cached for a day, as a 404.
+  if (res.status === 404 || res.status === 400) return null;
+  if (!res.ok) throw new Error(`Hansard debate ${guid}: HTTP ${res.status}`);
+  return await jsonWithoutEmDashes<Debate>(res);
 }
 
 const plain = (html: string) => html.replace(/<[^>]+>/g, ' ').replace(/&#?\w+;/g, ' ').replace(/\s+/g, ' ').trim();
@@ -161,13 +161,15 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
   const memberIds = [...new Set(groups.map((g) => g.memberId).filter((x): x is number => x != null))];
   const linkable = new Set<number>();
   if (memberIds.length) {
-    const { data } = await supabase.from('mps').select('member_id').in('member_id', memberIds);
+    const { data, error } = await supabase.from('mps').select('member_id').in('member_id', memberIds);
+    if (error) throw new Error(`debate ${guid} speakers: ${error.message}`);
     for (const r of data || []) linkable.add(r.member_id as number);
   }
 
   // Divisions held in this debate, linked to our own division pages (populated
   // and validated by the debates sync, so these never 404).
-  const { data: drow } = await supabase.from('debates').select('division_ids').eq('hansard_ext_id', guid).maybeSingle();
+  const { data: drow, error: drowErr } = await supabase.from('debates').select('division_ids').eq('hansard_ext_id', guid).maybeSingle();
+  if (drowErr) throw new Error(`debate ${guid} divisions: ${drowErr.message}`);
   const divisionIds: string[] = Array.isArray(drow?.division_ids) ? (drow!.division_ids as string[]) : [];
 
   return (

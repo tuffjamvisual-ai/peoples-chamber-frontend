@@ -71,6 +71,11 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
       .limit(1),
   ]);
 
+  // A failed read throws (owner's approval, 21 Oct 2026): six topic pages were once built with no bills when this
+  // search timed out. The last good version stays up instead.
+  for (const [name, r] of [['divisions', divRes], ['bills', billRes], ['poll', pollRes]] as const) {
+    if (r.error) throw new Error(`topic ${slug} ${name}: ${r.error.message}`);
+  }
   const divisions = divRes.data || [];
   // Bills: active (not yet an Act) first, then most recent Acts.
   const bills = (billRes.data || []).slice().sort((a, b) => Number(!!a.is_act) - Number(!!b.is_act));
