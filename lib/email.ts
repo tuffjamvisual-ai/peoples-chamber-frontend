@@ -296,6 +296,38 @@ export async function sendSewageReleaseAlert(newYear: number, storedYear: number
   }
 }
 
+// New-release alert for datasets loaded by hand — fired by /api/check-hand-loaded-releases (weekly) when a source
+// page shows a release newer than the one held, or in a reminder dataset's month. Same recipient as the freshness
+// alert. Inert until RESEND_API_KEY is set. Never throws.
+export interface HandLoadedRelease {
+  key: string; label: string; held: string; newer: string | null; sourcePage: string; expectedRelease: string;
+}
+
+export async function sendHandLoadedReleaseAlert(items: HandLoadedRelease[]) {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return { sent: false, reason: 'no_api_key' };
+  if (items.length === 0) return { sent: false, reason: 'nothing new' };
+  const from = process.env.RESEND_FROM || 'opengovt <onboarding@resend.dev>';
+  const headline = `${items.length} hand-loaded dataset${items.length === 1 ? '' : 's'} to update`;
+  const lines = items.map((i) => i.newer
+    ? `${i.label}: the source now shows ${i.newer}; the site holds ${i.held}. Source: ${i.sourcePage}`
+    : `${i.label}: time to check for a new release (${i.expectedRelease}); the site holds ${i.held}. Source: ${i.sourcePage}`);
+  const text = `${headline}\n\n${lines.join('\n')}\n\nNothing has been imported; each needs its import script run by hand.\n`;
+  const html = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;color:#14100d">
+      <p style="margin:0 0 12px;font-weight:bold">${headline}</p>
+      <ul style="margin:0 0 12px;padding-left:18px">${lines.map((l) => `<li style="margin:0 0 6px">${l}</li>`).join('')}</ul>
+      <p style="margin:0">Nothing has been imported; each needs its import script run by hand.</p>
+    </div>`;
+  try {
+    const resend = new Resend(key);
+    const { data, error } = await resend.emails.send({ from, to: FRESHNESS_NOTIFY_TO, subject: `opengovt: ${headline}`, text, html });
+    if (error) return { sent: false, reason: error.message };
+    return { sent: true, id: data?.id };
+  } catch (e) {
+    return { sent: false, reason: (e as Error).message };
+  }
+}
+
 // Biography review alert — fired by /api/monitor-freshness when the nightly syncs
 // have flagged written MP biographies for review in the last 24 hours (party
 // change, a post starting or ending, an MP leaving, a new MP with no biography).

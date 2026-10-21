@@ -221,6 +221,10 @@
       "schedule": "40 8 * * 5"
     },
     {
+      "path": "/api/check-hand-loaded-releases",
+      "schedule": "20 10 * * 1"
+    },
+    {
       "path": "/api/sync-connectivity",
       "schedule": "45 8 1 * *"
     }
