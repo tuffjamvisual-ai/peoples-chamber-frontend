@@ -24,6 +24,7 @@ import operationHexagon from './hx7n4qw2mk';
 import mahmoodChancellor from './m7k4qxw9n2';
 import britishSteel from './vq8k3mxw7n';
 import tenWorstCouncils from './ten-worst-performing-councils-england';
+import bbcStreamingLicence from './bc4n8mxw2t';
 import biggestWestminsterScandals from './kxlkhj1jgj';
 import powerForSale from './power-for-sale-20-politicians-who-cashed-in';
 import whenDidPoliticiansStop from './when-did-politicians-stop-taking-responsibility';
@@ -183,4 +184,5 @@ export const editorials: EditorialRegistry = {
   [lordsBills.slug]: lordsBills,
   [burnhamNominations.slug]: burnhamNominations,
   [socialHousingFinance.slug]: socialHousingFinance,
+  [bbcStreamingLicence.slug]: bbcStreamingLicence,
 };
