@@ -41,26 +41,31 @@ export type EdmListEntry = { id: number; sponsorsCount: number | null };
 
 // Every EDM tabled on or after startDate, with the list endpoint's
 // SponsorsCount (used only for change detection). Paged 100 at a time
-// (take=100 live-verified) until PagingInfo.Total is reached.
-export async function listEdms(startDate: string, delayMs = 250): Promise<EdmListEntry[]> {
+// (take=100 live-verified) until PagingInfo.Total is reached. The first page
+// gives the total; the rest are read `concurrency` at a time (one at a time by
+// default), each request followed by a delayMs pause.
+export async function listEdms(startDate: string, delayMs = 250, concurrency = 1): Promise<EdmListEntry[]> {
   const out = new Map<number, EdmListEntry>();
   const take = 100;
-  let total = Infinity;
-  for (let skip = 0; skip < total && skip < 100_000; skip += take) {
+  const page = async (skip: number): Promise<number> => {
     const json = await fetchEdmJson(
       `${EDM_API}/EarlyDayMotions/list?parameters.tabledStartDate=${startDate}&parameters.orderBy=DateTabledAsc&parameters.skip=${skip}&parameters.take=${take}`,
     );
     const items: any[] = Array.isArray(json?.Response) ? json.Response : [];
-    if (typeof json?.PagingInfo?.Total === 'number') total = json.PagingInfo.Total;
     for (const it of items) {
       if (typeof it?.Id === 'number') {
         out.set(it.Id, { id: it.Id, sponsorsCount: typeof it.SponsorsCount === 'number' ? it.SponsorsCount : null });
       }
     }
-    if (items.length === 0) break;
     await sleep(delayMs);
-  }
-  if (Number.isFinite(total) && out.size < total) {
+    return typeof json?.PagingInfo?.Total === 'number' ? json.PagingInfo.Total : items.length;
+  };
+  const total = Math.min(await page(0), 100_000);
+  const skips: number[] = [];
+  for (let skip = take; skip < total; skip += take) skips.push(skip);
+  const worker = async () => { while (skips.length > 0) await page(skips.shift()!); };
+  await Promise.all(Array.from({ length: Math.max(1, concurrency) }, worker));
+  if (out.size < total) {
     throw new Error(`EDM list returned ${out.size} of ${total} motions`);
   }
   return [...out.values()];

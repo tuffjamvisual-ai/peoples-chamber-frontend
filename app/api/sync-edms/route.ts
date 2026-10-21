@@ -18,8 +18,17 @@ export const maxDuration = 300;
 //      motion withdrawn) are still picked up within about two weeks.
 // Time-budgeted so the route always returns (and records its heartbeat)
 // inside maxDuration; leftovers are picked up next run.
+//
+// The list is read LIST_CONCURRENCY pages at a time. Read one at a time it took
+// 104 to 216 s of the 240 s budget (12 to 20 Oct 2026), and on 18 and 21 Oct
+// over 240 s, so no motion was fetched and the run returned 502 with 0 rows.
+//
+// A second cron, 10 minutes later, calls this with ?retry=1: it runs again only
+// if the last run, within the past hour, ended with a 5xx (Parliament's API
+// failing, or nothing written); otherwise it returns without recording a run.
 
 const CONCURRENCY = 3;
+const LIST_CONCURRENCY = 3;
 const DELAY_MS = 250;
 const TIME_BUDGET_MS = 240_000;
 const ROLLING_REFRESH = 300;
@@ -35,7 +44,7 @@ async function GET_impl(req: Request) {
 
   let list: EdmListEntry[];
   try {
-    list = await listEdms(EDM_PARLIAMENT_START, DELAY_MS);
+    list = await listEdms(EDM_PARLIAMENT_START, DELAY_MS, LIST_CONCURRENCY);
   } catch (e) {
     return NextResponse.json({ error: 'list_fetch_failed', message: (e as Error).message }, { status: 502 });
   }
@@ -111,4 +120,20 @@ async function GET_impl(req: Request) {
   return NextResponse.json(body, { status });
 }
 
-export const GET = withHeartbeat('/api/sync-edms', GET_impl);
+const ROUTE = '/api/sync-edms';
+const run = withHeartbeat(ROUTE, GET_impl);
+
+export async function GET(req: Request): Promise<Response> {
+  if (new URL(req.url).searchParams.get('retry') !== '1') return run(req);
+  const expected = process.env.CRON_SECRET;
+  if (!expected || req.headers.get('authorization') !== `Bearer ${expected}`) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  }
+  const { data, error } = await supabase.from('sync_heartbeat').select('last_ran_at, last_status').eq('route', ROUTE).maybeSingle();
+  if (error) return NextResponse.json({ error: 'db', message: error.message }, { status: 500 });
+  const recent = data && Date.now() - new Date(data.last_ran_at as string).getTime() < 60 * 60_000;
+  if (!recent || (data.last_status as number) < 500) {
+    return NextResponse.json({ retry: false, reason: 'last run did not fail with a 5xx in the past hour', last_status: data?.last_status ?? null });
+  }
+  return run(req);
+}

@@ -193,6 +193,10 @@
       "schedule": "45 7 * * *"
     },
     {
+      "path": "/api/sync-edms?retry=1",
+      "schedule": "55 7 * * *"
+    },
+    {
       "path": "/api/sync-house-prices",
       "schedule": "15 8 * * *"
     },
