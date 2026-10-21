@@ -9,12 +9,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   // dept_agencies stores the row used by /api/govuk-agency to populate
   // the agency profile. Look up by slug for the headline name + acronym.
-  const { data: agency } = await supabase
+  const { data: agency, error: agencyErr } = await supabase
     .from('dept_agencies')
     .select('name, acronym, dept_slug')
     .eq('slug', slug)
     .limit(1)
     .maybeSingle();
+  if (agencyErr && agencyErr.code !== 'PGRST116') throw new Error(`/agencies/[slug] dept_agencies: ${agencyErr.message}`);
   if (!agency || !agency.name) return { title: 'Agency' };
   const title = agency.acronym ? `${agency.name} (${agency.acronym})` : agency.name;
   return {

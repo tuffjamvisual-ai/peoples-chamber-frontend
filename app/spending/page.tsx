@@ -31,11 +31,12 @@ type Row = {
 };
 
 export default async function SpendingPage() {
-  const { data: rows } = await supabase
+  const { data: rows, error: rowsErr } = await supabase
     .from('department_budgets')
     .select('department_slug,financial_year,resource_del_millions,capital_del_millions,total_del_millions,change_from_previous_percent,caveat_note,source_release_date')
     .eq('source', 'hmt_main_estimates')
     .order('financial_year', { ascending: false });
+  if (rowsErr && rowsErr.code !== 'PGRST116') throw new Error(`/spending department_budgets: ${rowsErr.message}`);
 
   const byDept = new Map<string, Row>();
   ((rows || []) as Row[]).forEach((r) => {

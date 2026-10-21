@@ -135,7 +135,8 @@ export default async function SecretariatPage({ params }: PageProps) {
   type MpRow = { member_id: number; display_name: string | null };
   let mpById = new Map<number, MpRow>();
   if (allOfficerIds.size > 0) {
-    const { data: mps } = await supabase.from('mps').select('member_id, display_name').in('member_id', Array.from(allOfficerIds));
+    const { data: mps, error: mpsErr } = await supabase.from('mps').select('member_id, display_name').in('member_id', Array.from(allOfficerIds));
+    if (mpsErr && mpsErr.code !== 'PGRST116') throw new Error(`/secretariats/[slug] mps: ${mpsErr.message}`);
     for (const m of (mps || []) as MpRow[]) mpById.set(m.member_id, m);
   }
 

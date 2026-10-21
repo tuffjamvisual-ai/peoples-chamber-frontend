@@ -129,7 +129,8 @@ function sourceLabel(url: string): string {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const { data: party } = await supabase.from('parties').select('name').eq('slug', slug).maybeSingle();
+  const { data: party, error: partyErr2 } = await supabase.from('parties').select('name').eq('slug', slug).maybeSingle();
+  if (partyErr2 && partyErr2.code !== 'PGRST116') throw new Error(`/parties/[slug] parties: ${partyErr2.message}`);
   const name = party?.name || 'Party';
   return {
     title: `${name}, Policies`,

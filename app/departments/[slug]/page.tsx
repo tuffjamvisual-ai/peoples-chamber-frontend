@@ -62,7 +62,7 @@ export default async function DepartmentPage({ params }: PageProps) {
     // handled automatically — neither slug is in DEPT_SLUG_TO_ORGS).
     (async () => {
       if (orgNames.length === 0) return [];
-      const { data } = await supabase
+      const { data, error: dataErr2 } = await supabase
         .from('press_releases')
         .select('title, organisation, published_at, gov_url')
         .in('organisation', orgNames)
@@ -70,18 +70,20 @@ export default async function DepartmentPage({ params }: PageProps) {
         .not('gov_url', 'is', null)
         .order('published_at', { ascending: false })
         .limit(20);
+      if (dataErr2 && dataErr2.code !== 'PGRST116') throw new Error(`/departments/[slug] press_releases: ${dataErr2.message}`);
       return data ?? [];
     })(),
     // B3 — investigations tab: editorials where related_dept_slugs contains
     // this slug. GIN index on related_dept_slugs makes this fast. kind IS NULL
     // filters to investigations only (briefings have kind = 'briefing').
     (async () => {
-      const { data } = await supabase
+      const { data, error: dataErr } = await supabase
         .from('editorials')
         .select('slug, headline, standfirst, published_at, kicker')
         .contains('related_dept_slugs', [slug])
         .is('kind', null)
         .order('published_at', { ascending: false });
+      if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/departments/[slug] editorials: ${dataErr.message}`);
       return data ?? [];
     })(),
     // B4 — programmes tab: live policy_programmes tagged with this dept slug.

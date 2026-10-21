@@ -71,11 +71,12 @@ const DEPT_SLUGS: Record<string, string> = {
 };
 
 async function getAgency(slug: string): Promise<AgencyData | null> {
-  const { data } = await supabase
+  const { data, error: dataErr } = await supabase
     .from('agency_cache')
     .select('name, description, body, acronym, ministers, board_members, parent_orgs, featured_docs, social_media')
     .eq('slug', slug)
     .maybeSingle();
+  if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/agencies/[slug] agency_cache: ${dataErr.message}`);
 
   if (!data) return null;
 

@@ -48,7 +48,8 @@ type Donation = {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const { data: party } = await supabase.from('parties').select('name').eq('slug', slug).maybeSingle();
+  const { data: party, error: partyErr } = await supabase.from('parties').select('name').eq('slug', slug).maybeSingle();
+  if (partyErr && partyErr.code !== 'PGRST116') throw new Error(`/parties/[slug]/money parties: ${partyErr.message}`);
   const name = party?.name || 'Party';
   return {
     title: `${name}, money map`,
@@ -59,11 +60,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function PartyMoney({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const { data: partyRow } = await supabase
+  const { data: partyRow, error: partyRowErr } = await supabase
     .from('parties')
     .select('slug, name, party_colour, recipient_name, mp_party_string')
     .eq('slug', slug)
     .maybeSingle();
+  if (partyRowErr && partyRowErr.code !== 'PGRST116') throw new Error(`/parties/[slug]/money parties: ${partyRowErr.message}`);
   const party = partyRow as Party | null;
 
   if (!party || !party.recipient_name) {

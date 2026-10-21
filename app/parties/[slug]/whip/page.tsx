@@ -31,7 +31,8 @@ type Party = {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const { data: party } = await supabase.from('parties').select('name').eq('slug', slug).maybeSingle();
+  const { data: party, error: partyErr } = await supabase.from('parties').select('name').eq('slug', slug).maybeSingle();
+  if (partyErr && partyErr.code !== 'PGRST116') throw new Error(`/parties/[slug]/whip parties: ${partyErr.message}`);
   const name = party?.name || 'Party';
   return {
     title: `${name}, whip cohesion + rebellions`,
@@ -43,11 +44,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function PartyWhip({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const { data: partyRow } = await supabase
+  const { data: partyRow, error: partyRowErr } = await supabase
     .from('parties')
     .select('slug, name, party_colour, mp_party_string')
     .eq('slug', slug)
     .maybeSingle();
+  if (partyRowErr && partyRowErr.code !== 'PGRST116') throw new Error(`/parties/[slug]/whip parties: ${partyRowErr.message}`);
   const party = partyRow as Party | null;
 
   if (!party || !party.mp_party_string) {
@@ -141,7 +143,8 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
   type MpRow = { member_id: number; display_name: string | null; name: string | null; party: string | null; current_member: boolean | null };
   const mpById = new Map<number, MpRow>();
   if (topIds.length) {
-    const { data: mpRows } = await supabase.from('mps').select('member_id, display_name, name, party, current_member').in('member_id', topIds);
+    const { data: mpRows, error: mpRowsErr } = await supabase.from('mps').select('member_id, display_name, name, party, current_member').in('member_id', topIds);
+    if (mpRowsErr && mpRowsErr.code !== 'PGRST116') throw new Error(`/parties/[slug]/whip mps: ${mpRowsErr.message}`);
     for (const m of (mpRows || []) as MpRow[]) mpById.set(m.member_id, m);
   }
 

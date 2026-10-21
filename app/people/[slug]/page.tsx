@@ -186,7 +186,8 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
   if (person?.name) {
     const target = norm(person.name);
     const last = target.split(' ').pop() || target;
-    const { data: mpRows } = await supabase.from('mps').select('name, display_name').eq('current_member', true).ilike('name', `%${last}%`).limit(50);
+    const { data: mpRows, error: mpRowsErr } = await supabase.from('mps').select('name, display_name').eq('current_member', true).ilike('name', `%${last}%`).limit(50);
+    if (mpRowsErr && mpRowsErr.code !== 'PGRST116') throw new Error(`/people/[slug] mps: ${mpRowsErr.message}`);
     isMp = ((mpRows ?? []) as { name: string | null; display_name: string | null }[])
       .some((m) => norm(m.name || '') === target || norm(m.display_name || '') === target);
   }

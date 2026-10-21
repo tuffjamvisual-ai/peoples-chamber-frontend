@@ -53,7 +53,8 @@ async function getPartyBio(slug: string): Promise<Party | null> {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const { data: party } = await supabase.from('parties').select('name').eq('slug', slug).maybeSingle();
+  const { data: party, error: partyErr } = await supabase.from('parties').select('name').eq('slug', slug).maybeSingle();
+  if (partyErr && partyErr.code !== 'PGRST116') throw new Error(`/parties/[slug]/bio parties: ${partyErr.message}`);
   const name = party?.name || 'Party';
   return {
     title: `${name}`,

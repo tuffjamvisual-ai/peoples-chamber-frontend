@@ -31,7 +31,7 @@ export default async function DepartmentsPage() {
       .trim();
   };
 
-  const [{ data: ministerRows }, { data: mpRows }] = await Promise.all([
+  const [{ data: ministerRows, error: ministerRowsErr }, { data: mpRows, error: mpRowsErr }] = await Promise.all([
     supabase
       .from('dept_ministers')
       .select('dept_slug, name, photo_url, member_id, is_secretary_of_state')
@@ -39,6 +39,8 @@ export default async function DepartmentsPage() {
       .order('id'),
     supabase.from('mps').select('member_id, name, display_name, photo_url').eq('current_member', true),
   ]);
+  // A failed read throws (owner's approval, 21 Oct 2026), so the last good version stays up.
+  for (const e of [ministerRowsErr, mpRowsErr]) if (e && e.code !== 'PGRST116') throw new Error(`/departments (dept_ministers, mps): ${e.message}`);
 
   const mpByName = new Map<string, { member_id: number; photo_url: string | null }>();
   (mpRows || []).forEach((mp) => {

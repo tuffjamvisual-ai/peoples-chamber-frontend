@@ -24,11 +24,12 @@ const CREAM = '#ebe5d8';
 const ACCENT = '#7a1612';
 
 export default async function SecretariatsIndex() {
-  const { data } = await supabase
+  const { data, error: dataErr } = await supabase
     .from('appgs')
     .select('secretariat, slug')
     .not('secretariat', 'is', null)
     .limit(2000);
+  if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/secretariats appgs: ${dataErr.message}`);
 
   const counts = new Map<string, { name: string; appgs: number }>();
   for (const r of (data || []) as Array<{ secretariat: string | null }>) {

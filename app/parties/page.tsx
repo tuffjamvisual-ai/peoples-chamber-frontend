@@ -82,7 +82,7 @@ const MP_PARTY_TO_SLUG: Record<string, string> = {
 };
 
 async function getAll(): Promise<{ parties: Party[]; byParty: Record<string, Record<string, Policy>>; mpCounts: Record<string, number> }> {
-  const [{ data: partyRows }, { data: policyRows }, { data: mpRows }] = await Promise.all([
+  const [{ data: partyRows, error: partyRowsErr }, { data: policyRows, error: policyRowsErr }, { data: mpRows, error: mpRowsErr }] = await Promise.all([
     supabase
       .from('parties')
       .select('slug, name, party_colour, founded_year')
@@ -98,6 +98,8 @@ async function getAll(): Promise<{ parties: Party[]; byParty: Record<string, Rec
       .select('party')
       .eq('current_member', true),
   ]);
+  // A failed read throws (owner's approval, 21 Oct 2026), so the last good version stays up.
+  for (const e of [partyRowsErr, policyRowsErr, mpRowsErr]) if (e && e.code !== 'PGRST116') throw new Error(`/parties (parties, party_policies, mps): ${e.message}`);
 
   const parties = (partyRows || []) as Party[];
 

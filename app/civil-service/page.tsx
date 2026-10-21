@@ -35,10 +35,11 @@ export default async function CivilServicePage() {
   // at a time so the latest period_end_date is shared across all rows
   // in any given sync — we still order by it defensively in case a sync
   // partially completes.
-  const { data: rows } = await supabase
+  const { data: rows, error: rowsErr } = await supabase
     .from('department_staffing')
     .select('department_slug,period,period_end_date,headcount,fte,change_from_previous_percent,is_proxy,proxy_note')
     .order('period_end_date', { ascending: false });
+  if (rowsErr && rowsErr.code !== 'PGRST116') throw new Error(`/civil-service department_staffing: ${rowsErr.message}`);
 
   const byDept = new Map<string, Row>();
   ((rows || []) as Row[]).forEach((r) => {

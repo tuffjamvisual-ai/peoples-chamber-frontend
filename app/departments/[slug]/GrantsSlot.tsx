@@ -21,16 +21,17 @@ export type DepartmentGrants = {
 };
 
 export async function getDepartmentGrants(slug: string): Promise<DepartmentGrants | null> {
-  const { data: summary } = await supabase
+  const { data: summary, error: summaryErr } = await supabase
     .from('government_grants_summary')
     .select('fy, body_name, award_count, total_amount')
     .eq('department_slug', slug)
     .order('fy', { ascending: false });
+  if (summaryErr && summaryErr.code !== 'PGRST116') throw new Error(`GrantsSlot government_grants_summary: ${summaryErr.message}`);
   if (!summary || summary.length === 0) return null;
   const fy = summary[0].fy as string;
   const rows = summary.filter((r) => r.fy === fy);
 
-  const [{ data: schemes }, { data: awards }] = await Promise.all([
+  const [{ data: schemes, error: schemesErr }, { data: awards, error: awardsErr }] = await Promise.all([
     supabase
       .from('government_grant_schemes')
       .select('title, managed_by, fy_value')
@@ -47,6 +48,8 @@ export async function getDepartmentGrants(slug: string): Promise<DepartmentGrant
       .order('amount', { ascending: false })
       .limit(20),
   ]);
+  // A failed read throws (owner's approval, 21 Oct 2026), so the last good version stays up.
+  for (const e of [schemesErr, awardsErr]) if (e && e.code !== 'PGRST116') throw new Error(`GrantsSlot (government_grant_schemes, government_grants): ${e.message}`);
 
   return {
     fy,
