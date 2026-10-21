@@ -12,6 +12,8 @@
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../../components/OpenGovShell';
 import PartySidebar from '../../../components/PartySidebar';
+import ReadNext from '../../../components/ReadNext';
+import { partyBioNextLinks, partySecondJobs } from '@/lib/party-links';
 import { type EvidencePanelProps } from '../../../components/EvidencePanel';
 
 export const revalidate = 21600;
@@ -39,11 +41,13 @@ type Party = {
 };
 
 async function getPartyBio(slug: string): Promise<Party | null> {
-  const { data: partyRow } = await supabase
+  const { data: partyRow, error } = await supabase
     .from('parties')
     .select('slug, name, party_colour, critique, mp_party_string, evidence')
     .eq('slug', slug)
     .maybeSingle();
+  // A failed read throws (owner's approval, 21 Oct 2026) rather than showing "Party not found".
+  if (error) throw new Error(`parties ${slug}: ${error.message}`);
   return (partyRow as Party | null) || null;
 }
 
@@ -183,6 +187,7 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
               {party.name}&apos;s manifesto vs record, 11 themes →
             </a>
           </section>
+          <ReadNext links={partyBioNextLinks(party, await partySecondJobs(party.mp_party_string))} />
         </div>
       </PartySidebar>
 

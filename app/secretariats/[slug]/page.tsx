@@ -14,6 +14,9 @@ import { supabase } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
+import ReadNext from '../../components/ReadNext';
+import type { ReadNextLink } from '@/lib/read-next';
+import { donorNameToSlug } from '../../donors/[slug]/page';
 
 export const revalidate = 86400;
 
@@ -138,6 +141,23 @@ export default async function SecretariatPage({ params }: PageProps) {
 
   const sampleSecretariatUrl = appgs.find((a) => a.secretariat_url)?.secretariat_url ?? null;
 
+  // Onward links (owner's approval, 21 Oct 2026): this organisation's own lobbying page (78 of the 454 secretariats
+  // have one) and donor page (17) when the name matches exactly, then the secretariats list and the lobbying index.
+  const exactName = canonicalName.replace(/[%_\\]/g, '');
+  const [lobbyRes, donorRes] = await Promise.all([
+    supabase.from('lobby_org_rankings').select('slug, name, meetings_all').ilike('name', exactName).limit(1),
+    supabase.from('political_donations').select('donor_name').ilike('donor_name', exactName).limit(1),
+  ]);
+  if (lobbyRes.error) throw new Error(`secretariat lobbying page: ${lobbyRes.error.message}`);
+  if (donorRes.error) throw new Error(`secretariat donor page: ${donorRes.error.message}`);
+  const nextLinks: ReadNextLink[] = [];
+  const lobby = (lobbyRes.data || [])[0] as { slug: string; name: string; meetings_all: number | null } | undefined;
+  if (lobby) nextLinks.push({ href: `/lobbying/${lobby.slug}`, label: `${lobby.name}: lobbying record`, note: lobby.meetings_all ? `${lobby.meetings_all.toLocaleString('en-GB')} published meetings with ministers, and its lobbying returns` : 'Its meetings with ministers and lobbying returns' });
+  const donor = (donorRes.data || [])[0] as { donor_name: string } | undefined;
+  if (donor) nextLinks.push({ href: `/donors/${donorNameToSlug(donor.donor_name)}`, label: `${donor.donor_name}: political donations`, note: 'Every donation it has declared to parties and politicians' });
+  nextLinks.push({ href: '/secretariats', label: 'Every APPG secretariat', note: 'Who runs the all-party groups inside Parliament' });
+  nextLinks.push({ href: '/lobbying', label: 'Lobbying: who meets ministers', note: 'Organisations ranked by their published meetings with ministers' });
+
   return (
     <OpenGovShell pageStamp="Secretariats">
       <BackLink fallbackHref="/secretariats" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
@@ -163,6 +183,8 @@ export default async function SecretariatPage({ params }: PageProps) {
       <section style={{ marginBottom: '28px', padding: '12px 14px', background: CREAM, fontSize: '15px', lineHeight: 1.6 }}>
         A secretariat is the entity that does the operational work of an All-Party Parliamentary Group: drafts agendas, briefs MPs, sends out invitations, books rooms, writes reports. When the secretariat is a lobby firm or PR firm, the APPG is a paid channel for the firm&rsquo;s clients to access MPs. The MPs officer the group, the firm supplies the staff and the policy line, the firm&rsquo;s clients (listed under Funders below) pay for the privilege.
       </section>
+
+      <ReadNext links={nextLinks} />
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>APPGs operated · {appgs.length}</h2>

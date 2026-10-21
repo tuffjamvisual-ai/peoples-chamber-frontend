@@ -10,6 +10,8 @@
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import PartySidebar from '../../components/PartySidebar';
+import Link from 'next/link';
+import { THEME_TOPIC, partySecondJobs } from '@/lib/party-links';
 
 export const revalidate = 21600;
 
@@ -139,6 +141,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function PartyDossier({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const { party, policies, mpCount, donationsTotal } = await getPartyAndPolicies(slug);
+  const secondJobs = party ? await partySecondJobs(party.mp_party_string) : null;
 
   if (!party) {
     return (
@@ -195,8 +198,13 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
           }}
         />
         {party.recipient_name && (
-          <div style={{ marginTop: '14px', fontFamily: 'Special Elite, monospace', fontSize: '15px', opacity: 0.6 }}>
-            {fmtMoney(donationsTotal)} lifetime declared
+          <div style={{ marginTop: '14px', fontFamily: 'Special Elite, monospace', fontSize: '15px' }}>
+            <Link href={`/parties/${party.slug}/money`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{fmtMoney(donationsTotal)} lifetime declared donations →</Link>
+          </div>
+        )}
+        {secondJobs && (
+          <div style={{ marginTop: '6px', fontFamily: 'Special Elite, monospace', fontSize: '15px' }}>
+            <Link href={`/second-jobs/${secondJobs.slug}`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{secondJobs.count} {party.name} MP{secondJobs.count === 1 ? ' has' : 's have'} paid roles outside Parliament →</Link>
           </div>
         )}
       </div>
@@ -266,6 +274,11 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
                   </div>
                   <p style={{ margin: 0 }}>{p.current_shift}</p>
                 </div>
+              )}
+              {THEME_TOPIC[p.theme] && (
+                <p style={{ margin: '12px 0 0', fontSize: '15px' }}>
+                  <Link href={`/topics/${THEME_TOPIC[p.theme].slug}`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Everything on {THEME_TOPIC[p.theme].title}: votes, bills, departments and reporting →</Link>
+                </p>
               )}
             </div>
           </section>
