@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import ServiceIndicator, { servicesForTopic } from '../../components/ServiceIndicator';
 import BackLink from '../../components/BackLink';
-import { getTopic, topics } from '@/lib/topics';
+import { getTopic, topics, SHARED_DEPARTMENTS, wholeWordsPattern } from '@/lib/topics';
 import { departments } from '@/lib/departments';
 import { editorials } from '@/lib/editorials';
 
@@ -46,27 +46,26 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
   const topic = getTopic(slug);
   if (!topic) notFound();
 
-  const orFrom = (col: string, kws: string[]) => kws.map((k) => `${col}.ilike.%${k}%`).join(',');
+  // Whole-word matching and bills by sponsoring department (rule B, lib/topics.ts).
+  const words = wholeWordsPattern(topic.words)!;
+  const exclude = wholeWordsPattern(topic.exclude);
+  let divQuery = supabase.from('commons_divisions_fts')
+    .select('division_date_only, division_number, division_title')
+    .filter('division_title', 'imatch', words);
+  if (exclude) divQuery = divQuery.not('division_title', 'imatch', exclude);
 
   const [divRes, billRes, topRes, pollRes] = await Promise.all([
-    supabase.from('commons_divisions_fts')
-      .select('division_date_only, division_number, division_title')
-      .or(orFrom('division_title', topic.keywords))
-      .order('division_date_only', { ascending: false })
-      .limit(10),
-    supabase.from('bill')
-      .select('id, title, is_act, current_stage, last_update')
-      .is('hidden_reason', null)
-      .or(orFrom('title', topic.keywords))
-      .order('last_update', { ascending: false })
-      .limit(8),
+    divQuery.order('division_date_only', { ascending: false }).limit(10),
+    supabase.rpc('topic_bills', {
+      p_depts: topic.billDepartments, p_shared: SHARED_DEPARTMENTS, p_words: topic.words, p_exclude: topic.exclude, p_limit: 8,
+    }),
     // Top MPs by written questions to the topic's departments, ranked in the database (top_question_askers,
     // migration 2026-10-21b) instead of reading every MP's totals here.
     supabase.rpc('top_question_askers', { p_depts: topic.deptApiNames, p_limit: 5 }),
     supabase.from('polls')
       .select('id, question, vote_count_yes, vote_count_no, explainer')
       .eq('archived', false)
-      .or(orFrom('question', topic.pollKeywords))
+      .filter('question', 'imatch', wholeWordsPattern(topic.pollWords)!)
       .order('created_at', { ascending: false })
       .limit(1),
   ]);
@@ -78,7 +77,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
   }
   const divisions = divRes.data || [];
   // Bills: active (not yet an Act) first, then most recent Acts.
-  const bills = (billRes.data || []).slice().sort((a, b) => Number(!!a.is_act) - Number(!!b.is_act));
+  const bills = ((billRes.data || []) as { id: number; title: string; is_act: boolean | null; current_stage: string | null; last_update: string }[]).slice().sort((a, b) => Number(!!a.is_act) - Number(!!b.is_act));
 
   // Top MPs by written questions to the topic's department(s).
   if (topRes.error) throw new Error(`top_question_askers: ${topRes.error.message}`);

@@ -11,8 +11,10 @@ export const maxDuration = 300;
 // reading), stalest first, inside a time budget.
 //
 // Output shape stored on bill.sponsors:
-//   { items: [ { name, party, memberId, memberFrom, sortOrder, isMember } ] }
+//   { items: [ { name, party, memberId, memberFrom, sortOrder, isMember, organisation } ] }
 // Empty items array == fetched but Parliament returned no sponsors.
+// Also stores bill_type_id (the API's billTypeId) and sponsor_departments (the distinct sponsors[].organisation.name,
+// the sponsoring department of a government bill), which the topic pages match on (migration 2026-10-21m).
 
 const RUN_CAP = 1500; // bills read from the queue per run; the time budget usually stops it first
 // Time-budgeted (21 Oct 2026): 1,500 bills one at a time at about 1.5 s each could never finish in 300 s, so both
@@ -28,7 +30,7 @@ type ApiSponsor = {
   member?: ApiMember | null;
   organisation?: { name?: string } | null;
 };
-type ApiBill = { sponsors?: ApiSponsor[] };
+type ApiBill = { sponsors?: ApiSponsor[]; billTypeId?: number };
 
 type StoredSponsor = {
   name: string;
@@ -37,13 +39,16 @@ type StoredSponsor = {
   memberFrom: string | null;
   sortOrder: number;
   isMember: boolean;
+  organisation: string | null;
 };
 
-async function fetchSponsors(parliamentId: number): Promise<StoredSponsor[]> {
+type Fetched = { items: StoredSponsor[]; billTypeId: number | null; departments: string[] };
+
+async function fetchSponsors(parliamentId: number): Promise<Fetched> {
   const res = await fetch(`${PARLIAMENT_API}/${parliamentId}`, { signal: AbortSignal.timeout(20_000) });
   if (!res.ok) throw new Error(`Bills API ${res.status}`);
   const j = (await res.json()) as ApiBill;
-  return (j.sponsors || [])
+  const items = (j.sponsors || [])
     .map((s, i) => {
       const m: ApiMember | null = s.member ?? null;
       const o = s.organisation ?? null;
@@ -55,10 +60,13 @@ async function fetchSponsors(parliamentId: number): Promise<StoredSponsor[]> {
         memberFrom: m?.memberFrom ?? null,
         sortOrder: s.sortOrder ?? i + 1,
         isMember: !!m,
+        organisation: o?.name?.trim() || null,
       };
     })
     .filter((s) => s.name)
     .sort((a, b) => a.sortOrder - b.sortOrder);
+  const departments = [...new Set(items.map((s) => s.organisation).filter((d): d is string => !!d))];
+  return { items, billTypeId: typeof j.billTypeId === 'number' ? j.billTypeId : null, departments };
 }
 
 async function GET_impl(req: Request) {
@@ -97,11 +105,13 @@ async function GET_impl(req: Request) {
   for (const [i, row] of targets.entries()) {
     if (Date.now() - started > TIME_BUDGET_MS) { skippedForTime = targets.length - i; break; }
     try {
-      const items = await fetchSponsors(row.parliament_id);
+      const { items, billTypeId, departments } = await fetchSponsors(row.parliament_id);
       const { error } = await supabase
         .from('bill')
         .update({
           sponsors: { items },
+          bill_type_id: billTypeId,
+          sponsor_departments: departments,
           sponsors_synced_at: new Date().toISOString(),
         })
         .eq('id', row.id);

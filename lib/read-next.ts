@@ -4,7 +4,7 @@
 // and newest releases; editorials: ExploreNext). A block with fewer than two links is not shown. A failed read throws,
 // like the pages' other reads, so a page built ahead keeps its last good version.
 import { supabase } from '@/lib/supabase';
-import { topics } from '@/lib/topics';
+import { topics, matchWords } from '@/lib/topics';
 import { departments } from '@/lib/departments';
 import type { EditorialEntry } from '@/lib/editorials/types';
 import { resolveOrgToDeptSlug } from '@/lib/govOrgSlug';
@@ -32,13 +32,12 @@ class Picker {
   result() { return this.links.length >= MIN_SHOWN ? this.links : []; }
 }
 
-// The topic hub whose keywords appear in a title (the first topic with the most matching keywords). Keywords match as
-// substrings, as on the topic pages themselves ("rail" matches "Railways").
+// The topic hub whose words appear in a title (the first topic with the most matching words). Words match whole words,
+// minus the topic's exclusions, as on the topic pages themselves (lib/topics.ts).
 function topicFor(title: string): ReadNextLink | null {
-  const lower = title.toLowerCase();
   let best: { t: (typeof topics)[number]; n: number } | null = null;
   for (const t of topics) {
-    const n = t.keywords.filter((k) => lower.includes(k.toLowerCase())).length;
+    const n = t.words.filter((w) => matchWords(title, [w], t.exclude)).length;
     if (n > 0 && (!best || n > best.n)) best = { t, n };
   }
   return best ? { href: `/topics/${best.t.slug}`, label: `Everything on ${best.t.title}`, note: 'Departments, votes, bills, MPs and reporting on this subject' } : null;
