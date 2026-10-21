@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Anton, Oswald, Abril_Fatface } from "next/font/google";
+import { Bebas_Neue } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
 import SoftRegisterPrompt from "./components/SoftRegisterPrompt";
@@ -7,31 +7,12 @@ import FloatingScrollDownButton from "./components/FloatingScrollDownButton";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
-// Magazine-template typography stack. Special Elite is loaded via
-// @font-face in globals.css and consumed by --font-typewriter.
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const anton = Anton({
-  variable: "--font-anton",
-  subsets: ["latin"],
-  weight: "400",
-  display: "swap",
-});
-
-const oswald = Oswald({
-  variable: "--font-oswald",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-// Heavy Didone display face — closest Google-Fonts match to the masthead's Playbill
-// woodtype; used for the landing-page issue line.
-const abril = Abril_Fatface({
-  variable: "--font-abril",
+// Special Elite (body copy) is self-hosted: @font-face in globals.css, preloaded below.
+// Bebas Neue (the masthead stamp, on every page) is self-hosted by next/font instead of a render-blocking
+// Google Fonts @import (owner's approval, 21 Oct 2026). Playfair Display, Anton, Oswald and Abril Fatface
+// were preloaded on every page but used by no live page, so they are no longer loaded.
+const bebas = Bebas_Neue({
+  variable: "--font-bebas",
   subsets: ["latin"],
   weight: "400",
   display: "swap",
@@ -129,7 +110,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${playfair.variable} ${anton.variable} ${oswald.variable} ${abril.variable} h-full antialiased`}>
+    <html lang="en" className={`${bebas.variable} h-full antialiased`}>
       <head>
         {/* Preload the Special Elite font so it's ready when the
          * magazine pages render — skips the 200-300ms fallback flash. */}
@@ -160,9 +141,9 @@ export default function RootLayout({
         {/* Floating jump-to-bottom arrow on every page (styled like the Claude chat app's). */}
         <FloatingScrollDownButton />
         <Analytics />
-        {/* Speed Insights, free tier (owner's approval, 21 Oct 2026): half of visits are sampled to stay under
+        {/* Speed Insights, free tier only (owner's approval, 21 Oct 2026): one visit in five is sampled to stay under
          * the 10,000 events a rolling 30 days allows; Speed Insights Plus is not enabled. */}
-        <SpeedInsights sampleRate={0.5} />
+        <SpeedInsights sampleRate={0.2} />
       </body>
     </html>
   );

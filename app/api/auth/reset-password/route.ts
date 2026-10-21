@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import bcrypt from 'bcryptjs';
-import { makeSessionCookieHeader } from '@/lib/session';
+import { makeSessionCookieHeader, makeSignedInFlagHeader } from '@/lib/session';
 
 const TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
 
@@ -69,6 +69,7 @@ export async function POST(request: NextRequest) {
       headers: [
         ['Content-Type', 'application/json'],
         ['Set-Cookie', cookieHeader],
+        ['Set-Cookie', makeSignedInFlagHeader()],
       ],
     });
   } catch (e) {

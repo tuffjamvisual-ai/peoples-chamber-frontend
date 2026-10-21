@@ -3,7 +3,9 @@
    account tab) and the dossier expanding folder (per-page stamp + content slot).
    Page content goes in .dossier-content. ng-/og-/dossier- prefixed. */
 
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+/* ---- Folders-pile backdrop: a 900px copy for phones (27 KiB instead of 155 KiB) ---- */
+.og-backdrop { background-image: url(/folders.webp); }
+@media (max-width: 640px) { .og-backdrop { background-image: url(/folders-900.webp); } }
 
 /* ---- Nav bar (real links + CSS dropdowns) ---- */
 .ng-nav { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: nowrap; justify-content: center; align-items: center; font-family: 'Special Elite', monospace; text-transform: uppercase; letter-spacing: 0.04em; color: #14100d; font-size: clamp(14px, 1.3cqw, 15px); text-shadow: 0.7px 0.7px 0 rgba(20, 16, 13, 0.42), -0.3px 0.2px 0.4px rgba(20, 16, 13, 0.24), 0 0 1.6px rgba(20, 16, 13, 0.3); }

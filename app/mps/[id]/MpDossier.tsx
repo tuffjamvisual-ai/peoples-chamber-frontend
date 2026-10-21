@@ -151,7 +151,7 @@ export default function MpDossier({
                 padding: '2px 10px 0',
                 color: '#7a1612',
                 opacity: 0.85,
-                fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
+                fontFamily: "var(--font-bebas), 'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
                 fontWeight: 400,
                 fontSize: '40px',
                 lineHeight: 1,

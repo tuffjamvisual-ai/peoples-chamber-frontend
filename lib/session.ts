@@ -13,6 +13,10 @@ import { cookies } from 'next/headers';
 
 const COOKIE_NAME = 'og_session';
 const MAX_AGE_SEC = 60 * 60 * 24 * 30; // 30 days
+// A readable marker set alongside the httpOnly session cookie, holding nothing but "1": the browser checks it before
+// calling /api/auth/me, so visitors who have never signed in make no call (owner's approval, 21 Oct 2026; the call
+// returned 401 to anonymous visitors 4,134 times a week). Identity still comes only from the signed session cookie.
+const SIGNED_IN_FLAG = 'og_signed_in';
 
 function getSecret(): string | null {
   const s = process.env.SESSION_SECRET?.trim();
@@ -52,6 +56,19 @@ export function makeSessionCookieHeader(userId: number): string | null {
   return parts.join('; ');
 }
 
+/** Raw Set-Cookie value for the signed-in marker, sent with makeSessionCookieHeader. */
+export function makeSignedInFlagHeader(): string {
+  const parts = [`${SIGNED_IN_FLAG}=1`, 'Path=/', `Max-Age=${MAX_AGE_SEC}`, 'SameSite=Lax'];
+  if (process.env.NODE_ENV === 'production') parts.push('Secure');
+  return parts.join('; ');
+}
+
+/** Set the signed-in marker with Next.js's cookies() API. */
+export async function setSignedInFlag(): Promise<void> {
+  const store = await cookies();
+  store.set(SIGNED_IN_FLAG, '1', { httpOnly: false, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/', maxAge: MAX_AGE_SEC });
+}
+
 /**
  * Set the signed session cookie using Next.js's cookies() API.
  * Returns false if SESSION_SECRET is missing or too short.
@@ -68,6 +85,7 @@ export async function setSessionCookie(userId: number): Promise<boolean> {
     path: '/',
     maxAge: MAX_AGE_SEC,
   });
+  await setSignedInFlag();
   return true;
 }
 
@@ -75,6 +93,7 @@ export async function setSessionCookie(userId: number): Promise<boolean> {
 export async function clearSessionCookie(): Promise<void> {
   const store = await cookies();
   store.delete(COOKIE_NAME);
+  store.delete(SIGNED_IN_FLAG);
 }
 
 /** Cookie name, exported so server components can read it via next/headers. */

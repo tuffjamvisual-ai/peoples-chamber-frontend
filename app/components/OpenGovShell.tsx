@@ -106,20 +106,21 @@ export default function OpenGovShell({
 }) {
   // Shared masthead brand styling; margin:0 neutralises the h1 default so the
   // <h1>/<span> variants render identically.
-  const brandStyle: React.CSSProperties = { display: 'inline-block', margin: 0, opacity: 0.8, border: '0.07em solid #6b2417', padding: '0.14em 0.32em 0.06em', fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1, color: '#6b2417', fontSize: 'clamp(24px, 4.6vw, 64px)' };
+  const brandStyle: React.CSSProperties = { display: 'inline-block', margin: 0, opacity: 0.8, border: '0.07em solid #6b2417', padding: '0.14em 0.32em 0.06em', fontFamily: "var(--font-bebas), 'Bebas Neue', Impact, 'Arial Narrow', sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1, color: '#6b2417', fontSize: 'clamp(24px, 4.6vw, 64px)' };
   return (
     <div
       className="ng-page"
       style={{ minHeight: '100vh', margin: 0, backgroundColor: '#140d07', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '3vh 0 8vh' }}
     >
       {/* Folders-pile backdrop, pinned to the viewport. */}
-      <div aria-hidden style={{ position: 'fixed', inset: 0, backgroundColor: '#140d07', backgroundImage: 'url(/folders.webp)', backgroundSize: '135%', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', zIndex: 0, pointerEvents: 'none' }} />
+      {/* The image is set in opengov-shell.css (.og-backdrop) so phones get the 900px version. */}
+      <div aria-hidden className="og-backdrop" style={{ position: 'fixed', inset: 0, backgroundColor: '#140d07', backgroundSize: '135%', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', zIndex: 0, pointerEvents: 'none' }} />
 
       <div style={{ position: 'relative', zIndex: 1, width: 'min(96vw, 1240px)' }}>
         {/* Header: newb folder with the OPEN GOVERNMENT red stamp + nav + tab. */}
         <div className="og-header" style={{ position: 'relative', width: '100%', aspectRatio: '1086 / 1448', containerType: 'inline-size' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/newb.webp" srcSet="/newb-800.webp 800w, /newb.webp 1086w" sizes="min(96vw, 1240px)" alt="" aria-hidden style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', userSelect: 'none', pointerEvents: 'none', transform: 'rotate(-2.5deg)', filter: 'saturate(0.84) drop-shadow(0 18px 38px rgba(0,0,0,0.55))' }} />
+          <img src="/newb.webp" srcSet="/newb-600.webp 600w, /newb-800.webp 800w, /newb.webp 1086w" sizes="min(96vw, 1240px)" fetchPriority="high" alt="" aria-hidden style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', userSelect: 'none', pointerEvents: 'none', transform: 'rotate(-2.5deg)', filter: 'saturate(0.84) drop-shadow(0 18px 38px rgba(0,0,0,0.55))' }} />
 
           <div className="ng-tab" style={{ transform: 'rotate(-2.5deg)' }}>
             <AccountTab />
@@ -161,7 +162,7 @@ export default function OpenGovShell({
 
           {pageStamp && (
             <div style={{ position: 'absolute', top: '1.4cqw', right: '4.5%', zIndex: 4, pointerEvents: 'none', ...stampStyle }}>
-              <span style={{ display: 'inline-block', opacity: 0.8, border: '0.07em solid #6b2417', padding: '0.16em 0.36em 0.08em', fontFamily: "'Bebas Neue', Impact, 'Arial Narrow', sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1, color: '#6b2417', fontSize: 'clamp(18px, 4cqw, 52px)' }}>{pageStamp}</span>
+              <span style={{ display: 'inline-block', opacity: 0.8, border: '0.07em solid #6b2417', padding: '0.16em 0.36em 0.08em', fontFamily: "var(--font-bebas), 'Bebas Neue', Impact, 'Arial Narrow', sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1, color: '#6b2417', fontSize: 'clamp(18px, 4cqw, 52px)' }}>{pageStamp}</span>
             </div>
           )}
 

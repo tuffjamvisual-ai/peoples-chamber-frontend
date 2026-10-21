@@ -56,7 +56,7 @@ export default function BillsGrid({ initialBills, currentPage, totalPages, sessi
 
   const goToPage = (p: number) => {
     const clamped = Math.min(Math.max(1, p), totalPages);
-    router.push(clamped === 1 ? '/bills' : `/bills?page=${clamped}`);
+    router.push(clamped === 1 ? '/bills' : `/bills/page/${clamped}`);
   };
 
   useEffect(() => {

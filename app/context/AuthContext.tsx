@@ -43,6 +43,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     //      Never wipe localStorage here — that created a sign-out loop where a
     //      transient /me failure would clear state and every subsequent action
     //      would redirect to login.
+    // Visitors who have never signed in (no stored user, no og_signed_in marker from lib/session.ts) have no session
+    // to check, so they make no call (owner's approval, 21 Oct 2026).
+    const hasSignedInMarker = document.cookie.split('; ').some((c) => c.startsWith('og_signed_in='));
+    if (!storedUser && !hasSignedInMarker) {
+      setAuthLoading(false);
+      return;
+    }
     fetch('/api/auth/me', { credentials: 'include' })
       .then(async (res) => {
         if (res.ok) {

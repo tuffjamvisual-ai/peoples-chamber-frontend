@@ -1,5 +1,6 @@
 import { readingStage, divisionBillSegment, billNameKey, billWindow } from '@/lib/bill-reading';
 import { NextResponse } from 'next/server';
+import { revalidateBillPages } from '@/lib/revalidate-bills';
 import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
@@ -137,6 +138,9 @@ export async function GET(req: Request) {
     }
     await sleep(120);
   }
+
+  // Show the new Commons votes on /bills and the session archive straight away (lib/revalidate-bills.ts).
+  if (updated > 0) revalidateBillPages();
 
   return NextResponse.json({
     targeted: targets.length,

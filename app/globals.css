@@ -24,9 +24,8 @@ html, body { max-width: 100%; overflow-x: hidden; }
   .og-page table { display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 }
 
-/* Self-hosted typewriter face — used for magazine body copy. The three
- * Google fonts (Playfair Display, Anton, Oswald) are loaded via
- * next/font in app/layout.tsx and surfaced as the CSS variables below. */
+/* Self-hosted typewriter face — used for magazine body copy. Bebas Neue is
+ * loaded by next/font in app/layout.tsx as --font-bebas. */
 @font-face {
   font-family: "Special Elite";
   font-style: normal;
@@ -39,20 +38,14 @@ html, body { max-width: 100%; overflow-x: hidden; }
 :root {
   --background: #1a1a1a;
   --foreground: #c9c9c9;
-  /* Magazine font roles. --font-playfair / --font-anton / --font-oswald
-   * are populated by next/font in layout.tsx. --font-typewriter wraps
-   * the self-hosted Special Elite face above. */
+  /* --font-typewriter wraps the self-hosted Special Elite face above. */
   --font-typewriter: "Special Elite", "Courier New", monospace;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  /* Tailwind utility aliases so `font-display`, `font-headline`,
-   * `font-label`, `font-typewriter` can be used on elements. */
-  --font-display: var(--font-playfair);
-  --font-headline: var(--font-anton);
-  --font-label: var(--font-oswald);
+  /* Tailwind utility alias so `font-typewriter` can be used on elements. */
   --font-typewriter: var(--font-typewriter);
 }
 

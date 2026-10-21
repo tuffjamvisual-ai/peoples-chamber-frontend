@@ -100,8 +100,11 @@ export const DATA_SOURCES: DataSource[] = [
   // Council area league table: written by scripts/score-areas.js --write, run by hand when its
   // source figures change (no automated sync).
   { key: 'council_league_table',    table: 'area_ratings', column: 'synced_at', cadence: 'quarterly', label: 'Council area ratings', source: 'Open Govt calculation from Ofsted, ONS, DfT, police.uk, DWP, DESNZ, MHCLG, Defra, Environment Agency and Ofcom figures', page: SHOW_LEAGUE_TABLE ? '/councils/league-table' : '/councils' /* run by hand; no automated sync */ },
-  { key: 'lobbying_meetings',       table: 'lobby_meeting_mentions', column: 'built_at', cadence: 'quarterly', label: 'Ministers\u2019 meetings lobbying index', source: 'GOV.UK ministers\u2019 meetings transparency returns', page: '/lobbying',                           syncRoute: '/github-actions/lobbying-index' /* scripts/build-lobbying-index.js, nightly */ },
-  { key: 'consultant_lobbyists',    table: 'orcl_client_returns', column: 'built_at', cadence: 'quarterly', label: 'Consultant lobbyists and their clients', source: 'Registrar of Consultant Lobbyists quarterly returns', page: '/lobbying' /* files downloaded by hand; scripts/import-orcl-returns.js */ },
+  // The two lobbying dates are read from the one-row lobby_summary (refreshed with each rebuild), not by finding the
+  // newest built_at across 55,814 mentions and 10,915 returns, which took up to 3.1 s and timed out builds
+  // (owner's approval, 21 Oct 2026).
+  { key: 'lobbying_meetings',       table: 'lobby_summary', column: 'meetings_built_at', cadence: 'quarterly', label: 'Ministers\u2019 meetings lobbying index', source: 'GOV.UK ministers\u2019 meetings transparency returns', page: '/lobbying',                           syncRoute: '/github-actions/lobbying-index' /* scripts/build-lobbying-index.js, nightly */ },
+  { key: 'consultant_lobbyists',    table: 'lobby_summary', column: 'orcl_built_at', cadence: 'quarterly', label: 'Consultant lobbyists and their clients', source: 'Registrar of Consultant Lobbyists quarterly returns', page: '/lobbying' /* files downloaded by hand; scripts/import-orcl-returns.js */ },
 ];
 
 export function dataSource(key: string): DataSource | undefined {

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import bcrypt from 'bcryptjs';
-import { makeSessionCookieHeader } from '@/lib/session';
+import { makeSessionCookieHeader, makeSignedInFlagHeader } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
 
@@ -57,6 +57,7 @@ export async function POST(request: NextRequest) {
       headers: [
         ['Content-Type', 'application/json'],
         ['Set-Cookie', cookieHeader],
+        ['Set-Cookie', makeSignedInFlagHeader()],
       ],
     });
 

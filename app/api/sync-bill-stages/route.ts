@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidateBillPages } from '@/lib/revalidate-bills';
 import { createClient } from '@supabase/supabase-js';
 import { fetchAllBillStages, deriveCurrentStage } from '@/lib/bill-stages';
 
@@ -76,6 +77,9 @@ export async function GET(req: Request) {
     }
     await sleep(150);
   }
+
+  // Show the new stages on /bills and the session archive straight away (lib/revalidate-bills.ts).
+  if (ok > 0) revalidateBillPages();
 
   return NextResponse.json({
     targeted: targets.length,

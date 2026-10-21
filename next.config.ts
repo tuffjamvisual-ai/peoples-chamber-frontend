@@ -93,7 +93,11 @@ const nextConfig: NextConfig = {
       { source: '/mps/3806', destination: '/mps', statusCode: 301 as const },
       { source: '/debates/d0c004a3-7ec2-451d-8ae1-bf32a1165e98', destination: '/debates', statusCode: 301 as const },
     ];
-    return [...editorialRedirects, ...briefingRedirects, ...notFoundRedirects, ...(await councilRedirects())];
+    // /bills?page=N moved to /bills/page/N so every page is cached (owner's approval, 21 Oct 2026).
+    const billsPageRedirects = [
+      { source: '/bills', has: [{ type: 'query' as const, key: 'page', value: '(?<p>[0-9]{1,4})' }], destination: '/bills/page/:p', permanent: true },
+    ];
+    return [...editorialRedirects, ...briefingRedirects, ...notFoundRedirects, ...billsPageRedirects, ...(await councilRedirects())];
   },
   images: {
     remotePatterns: [
