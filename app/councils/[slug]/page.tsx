@@ -24,6 +24,7 @@ import CouncilSchoolInspectionsSection from '../../components/CouncilSchoolInspe
 import CouncilEhcpSection from '../../components/CouncilEhcpSection';
 import CouncilRoadCasualtiesSection from '../../components/CouncilRoadCasualtiesSection';
 import CouncilFlyTippingSection from '../../components/CouncilFlyTippingSection';
+import CouncilPipMobilitySection from '../../components/CouncilPipMobilitySection';
 import CouncilConnectivitySection from '../../components/CouncilConnectivitySection';
 import CouncilSewageSection from '../../components/CouncilSewageSection';
 import CouncilRatingsSection from '../../components/CouncilRatingsSection';
@@ -547,6 +548,10 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                   <WelfareLocalAuthorityDetail gss={welfareGss} embedded />
                 </section>
               )}
+
+              {/* Motability: PIP enhanced mobility rate, England and Wales (DWP Stat-Xplore); a county's figure adds up
+                  its districts, each listed. Hidden where no figures are held. */}
+              <CouncilPipMobilitySection gssCode={c.gss_code} />
 
               {/* Child poverty: same district/county logic as crime. */}
               <CouncilChildPovertySection
