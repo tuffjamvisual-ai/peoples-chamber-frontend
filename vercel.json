@@ -118,7 +118,7 @@
     },
     {
       "path": "/api/recompute-activity-metrics",
-      "schedule": "0 12 * * 1"
+      "schedule": "35 12 * * 1"
     },
     {
       "path": "/api/sync-standards-committee",
