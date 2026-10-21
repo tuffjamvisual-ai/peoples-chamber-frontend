@@ -5,7 +5,7 @@ import { withHeartbeat } from '@/lib/sync-heartbeat';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
-// Daily: refresh per-MP total spoken contributions + word count for the current
+// Four times a day (03:40, 09:40, 15:40, 21:40 UTC; about 37 MPs a run, the whole list in 4 to 5 days): refresh per-MP total spoken contributions + word count for the current
 // Parliament (since 2024-07-04) from the Hansard API, into mp_contribution_totals.
 // Word count is computed from ContributionTextFull (Parliament publishes no word
 // count). Takes current MPs never refreshed first, then the oldest

@@ -106,7 +106,7 @@
     },
     {
       "path": "/api/sync-mp-contributions",
-      "schedule": "0 4 * * *"
+      "schedule": "40 3,9,15,21 * * *"
     },
     {
       "path": "/api/sync-debates",
