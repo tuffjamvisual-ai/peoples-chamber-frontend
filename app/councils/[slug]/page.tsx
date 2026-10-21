@@ -32,16 +32,10 @@ import { loadElectionSummary } from '@/lib/council-election-summary';
 
 export const revalidate = 21600;
 
-export async function generateStaticParams() {
-  const { data, error } = await supabase
-    .from('councils')
-    .select('slug')
-    .limit(20);
-  if (error || !data?.length) throw new Error(`generateStaticParams councils: ${error?.message || 'zero rows'}`);
-  const slugs = data.map((r) => String(r.slug)).filter(Boolean);
-  if (!slugs.length) throw new Error('generateStaticParams councils: zero usable values');
-  return slugs.map((slug) => ({ slug }));
-}
+// No council pages are built ahead (owner's approval, 21 Oct 2026: build reliability; each makes about 45 reads).
+// generateStaticParams returning [] keeps the route cached: each council renders on its first visit and is kept for
+// 6 hours (revalidate above).
+export function generateStaticParams() { return []; }
 
 const INK = '#14100d';
 const INK_SOFT = '#14100d';

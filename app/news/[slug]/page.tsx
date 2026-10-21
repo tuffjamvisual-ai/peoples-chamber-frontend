@@ -7,7 +7,6 @@ import BackLink from '../../components/BackLink';
 import RelatedLinks from '../../components/RelatedLinks'
 import ReadNext, { splitAfterParagraph } from '../../components/ReadNext'
 import { newsReadNext } from '@/lib/read-next';
-import { govUrlToSlug } from '@/lib/govUrlSlug'
 import { resolveOrgToDeptSlug } from '@/lib/govOrgSlug'
 import { getDeptContext } from '../../api/department-context/route'
 import { piecesExaminingRelease } from '@/lib/editorials/release-links'
@@ -52,44 +51,10 @@ async function getPressRelease(slug: string): Promise<PressRelease | null> {
   return data
 }
 
-// Prerender a small set of article pages at build time. The list does NOT
-// need to be complete — its presence is what enables ISR caching for the
-// whole route. Pages not listed here render on first request and are cached
-// from then on (see revalidate above, 1h). press_releases has no slug column,
-// so slugs are derived from the last path segment of gov_url, matching the
-// lookup in getPressRelease.
-export async function generateStaticParams() {
-  const { data, error } = await supabase
-    .from('press_releases')
-    .select('gov_url')
-    .not('gov_url', 'is', null)
-    .not('body', 'is', null)
-    .ilike('gov_url', '%gov.uk%')
-    .limit(100)
-  if (error) {
-    throw new Error(
-      `generateStaticParams(/news/[slug]) query failed: ${error.message}`
-    )
-  }
-  if (!data || data.length === 0) {
-    throw new Error(
-      'generateStaticParams(/news/[slug]): press_releases returned no rows'
-    )
-  }
-  const seen = new Set<string>()
-  for (const row of data) {
-    if (!row.gov_url) continue
-    const slug = govUrlToSlug(row.gov_url)
-    if (slug) seen.add(slug)
-    if (seen.size >= 20) break
-  }
-  if (seen.size === 0) {
-    throw new Error(
-      'generateStaticParams(/news/[slug]): no usable slugs derived from gov_url'
-    )
-  }
-  return Array.from(seen).map((slug) => ({ slug }))
-}
+// No article pages are built ahead (owner's approval, 21 Oct 2026: build reliability; the build prerendered 100,
+// each making several reads at once against the database). generateStaticParams returning [] keeps the route
+// cached: each page renders on its first visit and is kept for an hour (revalidate above).
+export function generateStaticParams() { return [] }
 
 // Fallback for rows that pre-date the body-column rollout. Once the backfill
 // has run and the next sync cycle has populated `body` for every retained

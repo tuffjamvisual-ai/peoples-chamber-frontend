@@ -68,6 +68,9 @@ async function councilRedirects() {
 }
 
 const nextConfig: NextConfig = {
+  // Build reliability (owner's approval, 21 Oct 2026): two prerender workers instead of one per CPU, so the build does
+  // not overload the database (reads queued for over 5 s and timed out at the 3 s limit).
+  experimental: { cpus: 2 },
   async redirects() {
     // Editorials moved from descriptive slugs to opaque random slugs.
     // Keep the old indexed URLs alive with permanent (308) redirects.
