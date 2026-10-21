@@ -26,7 +26,7 @@ export type EditorialEntry = {
   // Optional evidence panel data (populated during the reporting-texture pass).
   evidence?: {
     // Plain text, or { text, url } when the exact document has been found and opened.
-    recordsReviewed?: (string | { text: string; url?: string })[];
+    recordsReviewed?: (string | { text: string; url?: string; links?: { match: string; url: string }[] })[];
     contacted?: string;
     response?: string;
     lastChecked?: string;
