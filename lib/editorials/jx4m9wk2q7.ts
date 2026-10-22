@@ -29,7 +29,7 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      `Ministry of Justice, Criminal court statistics quarterly`,
+      { text: `Ministry of Justice, Criminal court statistics quarterly: January to March 2025, 26 Jun 2025`, links: [{ match: 'Ministry of Justice, Criminal court statistics quarterly: January to March 2025', url: 'https://www.gov.uk/government/statistics/criminal-court-statistics-quarterly-january-to-march-2025' }] },
       { text: `Ministry of Justice, Criminal court statistics quarterly: January to March 2026, 25 Jun 2026`, links: [{ match: 'Ministry of Justice, Criminal court statistics quarterly: January to March 2026', url: 'https://www.gov.uk/government/statistics/criminal-court-statistics-quarterly-january-to-march-2026' }] },
       `NAO, Reducing the backlog in the Crown Court, originally published May 2024 and revised March 2025`,
       `Commons PAC, Crown Court backlogs, 5 Mar 2025`,
