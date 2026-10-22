@@ -57,7 +57,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
   const [divRes, billRes, topRes, pollRes] = await Promise.all([
     divQuery.order('division_date_only', { ascending: false }).limit(10),
     supabase.rpc('topic_bills', {
-      p_depts: topic.billDepartments, p_shared: SHARED_DEPARTMENTS, p_words: topic.words, p_exclude: topic.exclude, p_limit: 40,
+      p_depts: topic.billDepartments, p_shared: SHARED_DEPARTMENTS, p_words: [...topic.words, ...(topic.billTitles || [])], p_exclude: topic.exclude, p_limit: 40,
     }),
     // Top MPs by written questions to the topic's departments, ranked in the database (top_question_askers,
     // migration 2026-10-21b) instead of reading every MP's totals here.

@@ -26,6 +26,9 @@ export type TopicDef = {
   exclude: string[];
   // Sponsoring departments (Bills API sponsors[].organisation.name, predecessors included) for government bills.
   billDepartments: string[];
+  // Bills added by name (owner's approval, 22 Oct 2026): exact titles, matched as whole phrases on top of words,
+  // for bills on the subject whose titles contain none of the words. Bills only, not divisions or Read next.
+  billTitles?: string[];
   // Editorial slugs (lib/editorials) hand-mapped to this topic.
   // Investigations and briefings on this subject, assigned by hand (all existing pieces
   // assigned 16 Oct 2026 after the reassessment found most topic pages listed none).
@@ -197,10 +200,26 @@ export const topics: TopicDef[] = [
     editorialSlugs: ['kxlkhj1jgj', 'power-for-sale-20-politicians-who-cashed-in', 'the-revolving-door', 'when-did-politicians-stop-taking-responsibility', 'britains-most-disgraced-politicians', 'kp7m2xqv9d', 'siicjkcsr6', 'ag7k4mxq9w', 'v3n8q2xk6w', 'wq7m4kx2np', 'qn4k9mxw7r', 'td4k9mxw7r', '6vui3xxze9', 'bn6k4qxw27', 'p4w9k2xr7n', 'hb9k2xq7mw', 'q7m3k9xw2r', 'dk9m2xq7w4', 'mn8k4qxw7v', 'rk9m4qxw7d'],
     pollWords: ['proportional representation', 'no confidence', 'second job', 'second jobs', 'attendance', 'recall', 'lords', 'donation', 'gift'],
   },
+  {
+    slug: 'culture-media-and-sport',
+    title: 'Culture, Media and Sport',
+    blurb:
+      'Culture, media and sport covers the institutions most people use without thinking of them as policy: the BBC and the licence fee, Channel 4 and S4C, local libraries and museums, the arts, the National Lottery and the sports clubs and stadiums that anchor a town. It also covers the rules on gambling, press regulation, ticket resale and the new independent regulator for English football. The sums involved are small beside health or welfare, but decisions here shape what is broadcast, what is preserved and who can afford to take part, and the BBC Charter, which expires at the end of 2027, puts the future of public service broadcasting on the table.',
+    departmentSlugs: ['culture'],
+    deptApiNames: ['Department for Digital, Culture, Media and Sport'],
+    words: ['culture', 'cultural', 'arts', 'museum', 'museums', 'gallery', 'galleries', 'heritage', 'listed buildings', 'media', 'broadcasting', 'broadcaster', 'broadcasters', 'bbc', 'television', 'tv licence', 'licence fee', 'channel 4', 's4c', 'press', 'newspaper', 'newspapers', 'journalism', 'journalists', 'sport', 'sports', 'sporting', 'football', 'cricket', 'olympic', 'olympics', 'commonwealth games', 'gambling', 'betting', 'lottery', 'lotteries', 'tourism', 'library', 'libraries', 'music', 'theatre', 'theatres', 'film', 'creative industries', 'tickets', 'ticketing'],
+    exclude: ['trees', 'chalk streams', 'social media', 'organ tourism'],
+    // DCMS also sponsored digital, data, telecoms and charities bills, so both names are shared (owner's approval,
+    // 22 Oct 2026): their bills need one of the words too.
+    billDepartments: ['Department for Culture, Media and Sport', 'Department for Digital, Culture, Media and Sport'],
+    billTitles: ['Video Recording Act 2010', 'Digital Switchover (Disclosure of Information) Act 2007'],
+    editorialSlugs: ['bc4n8mxw2t'],
+    pollWords: ['bbc', 'licence fee', 'gambling', 'football', 'sport', 'arts'],
+  },
 ];
 
 // Departments that cover several topics: their bills also need one of the topic's words.
-export const SHARED_DEPARTMENTS = ['Home Office', 'Ministry of Housing, Communities and Local Government', 'Department for Levelling Up, Housing and Communities', 'Department for Communities and Local Government', 'Cabinet Office', 'Department for Business, Energy and Industrial Strategy', 'HM Treasury'];
+export const SHARED_DEPARTMENTS = ['Home Office', 'Ministry of Housing, Communities and Local Government', 'Department for Levelling Up, Housing and Communities', 'Department for Communities and Local Government', 'Cabinet Office', 'Department for Business, Energy and Industrial Strategy', 'HM Treasury', 'Department for Culture, Media and Sport', 'Department for Digital, Culture, Media and Sport'];
 
 const escapeRegex = (w: string) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
