@@ -63,7 +63,7 @@ const piece: EditorialEntry = {
       `BT Group, results for the full year to 31 March 2026, published 21 May 2026, and BT Group Annual Report 2026`,
       `US Department of Justice Antitrust Division, 12 Jun 2026`,
       `Federal Communications Commission record of proceedings on foreign ownership of Paramount`,
-      `DCMS / CMA, DMGT and Telegraph merger inquiry, Feb 2026`,
+      `DCMS / CMA, Daily Mail and General Trust plc / Telegraph Media Group merger inquiry, Feb 2026`,
     ],
     lastChecked: '5 October 2026',
   },
