@@ -26,7 +26,7 @@ export default function PollsPage() {
           opengovt Polls
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
-          Have your say on the big questions in British politics. These are public opinion polls, not votes in Parliament. Log in or create an account to vote, then see where the public stands.
+          Have your say on issues in Parliament and government. These polls show the views of Open Govt users who choose to vote. They are not votes in Parliament or scientific opinion polls. Log in or create an account to vote, then see the results.
         </p>
         <a href="/polls/archive" className="no-hover-scale" style={{ display: 'inline-block', marginTop: '10px', fontFamily: 'Special Elite, monospace', fontSize: '15px', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#7a1612', textDecoration: 'underline' }}>
           View archived polls →
