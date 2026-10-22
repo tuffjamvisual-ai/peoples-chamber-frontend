@@ -94,7 +94,7 @@ import cornwallLithium from './tn4k7mxw9r';
 import stationFacialRecognition from './fr9k2mxw7q';
 import lordsBills from './siicjkcsr6';
 
-export const editorials: EditorialRegistry = {
+const allEditorials: EditorialRegistry = {
   [taggingRegime.slug]: taggingRegime,
   [grenfellCps.slug]: grenfellCps,
   [highStreetBoost.slug]: highStreetBoost,
@@ -186,3 +186,12 @@ export const editorials: EditorialRegistry = {
   [socialHousingFinance.slug]: socialHousingFinance,
   [bbcStreamingLicence.slug]: bbcStreamingLicence,
 };
+
+// Unpublished until their sources are added and checked (owner's decision, 22 Oct 2026). The files stay; leaving them
+// out of the registry takes them off their pages, the sitemap, listings, topic pages and Explore next, and the
+// editorials sync removes their rows from the database copy (search and department pages).
+export const UNPUBLISHED_EDITORIALS = ['q7m3k9xw2r', 'power-for-sale-20-politicians-who-cashed-in'];
+
+export const editorials: EditorialRegistry = Object.fromEntries(
+  Object.entries(allEditorials).filter(([slug]) => !UNPUBLISHED_EDITORIALS.includes(slug)),
+);

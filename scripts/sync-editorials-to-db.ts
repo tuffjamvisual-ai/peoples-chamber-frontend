@@ -13,7 +13,7 @@
 
 import { config } from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
-import { editorials } from '../lib/editorials/index';
+import { editorials, UNPUBLISHED_EDITORIALS } from '../lib/editorials/index';
 import type { Block } from '../lib/editorials/types';
 
 config({ path: '.env.local' });
@@ -114,6 +114,18 @@ async function main() {
       console.log(`  ok    ${piece.slug}`);
       ok++;
     }
+  }
+
+  // Unpublished pieces leave the database copy too, so search and department pages stop listing them.
+  const { error: delError, count } = await supabase
+    .from('editorials')
+    .delete({ count: 'exact' })
+    .in('slug', UNPUBLISHED_EDITORIALS);
+  if (delError) {
+    console.error(`  FAIL  removing unpublished pieces  ${delError.message}`);
+    failed++;
+  } else {
+    console.log(`  removed ${count ?? 0} unpublished (${UNPUBLISHED_EDITORIALS.join(', ')})`);
   }
 
   console.log(`\nsync-editorials: ${ok} ok, ${failed} failed`);
