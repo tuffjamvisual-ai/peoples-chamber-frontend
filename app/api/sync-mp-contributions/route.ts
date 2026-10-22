@@ -14,25 +14,34 @@ export const maxDuration = 300;
 // MP starts after TIME_BUDGET_MS, so a run always returns inside maxDuration and
 // the next carries on (until 21 Oct 2026 it saved only at the end and every run
 // timed out, saving nothing). Counts/words are exact and complete per MP.
+//
+// 22 Oct 2026 (owner's approval): every run ends inside RUN_BUDGET_MS (235 s). The 09:40 run that day saved 38 MPs
+// but was killed at 300 s (09:45:06): TIME_BUDGET_MS only stopped new MPs starting, and the MPs already being
+// counted ran on past the limit, so the heartbeat was never written and the run looked like it recorded nothing.
+// Now an MP still being counted at RUN_BUDGET_MS is stopped, not saved (a part count is never written), and comes
+// first next run; each request's timeout is cut to the time left.
 
 const API = 'https://hansard-api.parliament.uk/search/contributions/Spoken.json';
 const START = '2024-07-04';
 const BATCH = 220;
 const CONCURRENCY = 8;
-const TIME_BUDGET_MS = 210_000; // an MP with many speeches can take 40 s or more once started
+const TIME_BUDGET_MS = 170_000; // no new MP starts after this; an MP with many speeches can take 40 s or more
+const RUN_BUDGET_MS = 235_000;  // the whole run, MPs in progress included, ends by this
 
-async function fetchJson(url: string) {
-  const res = await fetch(url, { headers: { 'User-Agent': 'opengovt/1.0', Accept: 'application/json' }, signal: AbortSignal.timeout(30_000) });
+async function fetchJson(url: string, deadline: number) {
+  const left = deadline - Date.now();
+  if (left < 1_000) throw new Error('run budget reached');
+  const res = await fetch(url, { headers: { 'User-Agent': 'opengovt/1.0', Accept: 'application/json' }, signal: AbortSignal.timeout(Math.min(30_000, left)) });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
 
-async function memberTotals(id: number): Promise<{ member_id: number; total: number; words: number; ok: boolean }> {
+async function memberTotals(id: number, deadline: number): Promise<{ member_id: number; total: number; words: number; ok: boolean }> {
   let skip = 0, total: number | null = null, words = 0, fetched = 0, guard = 0, ok = true;
   while (guard++ < 200) {
     let j;
     try {
-      j = await fetchJson(`${API}?queryParameters.memberId=${id}&queryParameters.startDate=${START}&queryParameters.take=100&queryParameters.skip=${skip}`);
+      j = await fetchJson(`${API}?queryParameters.memberId=${id}&queryParameters.startDate=${START}&queryParameters.take=100&queryParameters.skip=${skip}`, deadline);
     } catch { ok = false; break; }   // a failed page must NOT be recorded as a real count
     if (total === null) total = j.SpokenResultCount || 0;
     const R = j.Results || [];
@@ -74,15 +83,16 @@ async function GET_impl(req: Request) {
     .slice(0, BATCH)
     .map((x) => x.id);
 
-  let i = 0, upserted = 0, skipped = 0, writeErrors = 0, skippedForTime = 0;
+  const deadline = started + RUN_BUDGET_MS;
+  let i = 0, upserted = 0, skipped = 0, writeErrors = 0, skippedForTime = 0, stoppedInProgress = 0;
   async function worker() {
     while (i < queue.length) {
       if (Date.now() - started > TIME_BUDGET_MS) { skippedForTime = queue.length - i; i = queue.length; return; }
       const id = queue[i++];
       let r;
-      try { r = await memberTotals(id); } catch { skipped++; continue; }
+      try { r = await memberTotals(id, deadline); } catch { skipped++; continue; }
       // Only an MP whose every page was read is saved; the others keep their last good value and come first next run.
-      if (!r.ok) { skipped++; continue; }
+      if (!r.ok) { if (Date.now() >= deadline - 1_000) stoppedInProgress++; else skipped++; continue; }
       const now = new Date().toISOString();
       const { error } = await supabase.from('mp_contribution_totals').upsert({
         member_id: r.member_id, total_contributions: r.total, word_count: r.words,
@@ -94,7 +104,7 @@ async function GET_impl(req: Request) {
   await Promise.all(Array.from({ length: CONCURRENCY }, () => worker()));
 
   return NextResponse.json({
-    ok: writeErrors === 0, rows_written: upserted, skipped, write_errors: writeErrors, skipped_for_time: skippedForTime,
+    ok: writeErrors === 0, rows_written: upserted, skipped, write_errors: writeErrors, skipped_for_time: skippedForTime, stopped_in_progress: stoppedInProgress,
     batch: queue.length, duration_ms: Date.now() - started, syncedAt: new Date().toISOString(),
   }, { status: queue.length > 0 && upserted === 0 ? 502 : 200 });
 }

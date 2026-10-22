@@ -161,6 +161,14 @@
       "schedule": "0 3 * * *"
     },
     {
+      "path": "/api/refresh-contractor-matches",
+      "schedule": "30 3 * * *"
+    },
+    {
+      "path": "/api/refresh-reader-stores",
+      "schedule": "20 4 * * *"
+    },
+    {
       "path": "/api/sync-hansard-contributions",
       "schedule": "0 2 * * *"
     },
