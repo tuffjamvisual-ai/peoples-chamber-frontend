@@ -4,14 +4,13 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import type { CSSProperties } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { safeReturnPath } from '@/lib/safe-return';
 
 const INK = '#14100d';
 const ACCENT = '#6b2417';
 
 function safeReturnTo(value: string | null): string {
-  if (!value) return '/';
-  if (value.startsWith('/') && !value.startsWith('//')) return value;
-  return '/';
+  return safeReturnPath(value) ?? '/';
 }
 
 const label: CSSProperties = {
@@ -117,6 +116,8 @@ export default function MagazineLoginClient() {
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  // Set when sign in is refused because the email address is not confirmed yet.
+  const [unverifiedEmail, setUnverifiedEmail] = useState('');
   const [notice, setNotice] = useState(() => {
     const v = searchParams.get('verified');
     return v === '1'
@@ -130,15 +131,42 @@ export default function MagazineLoginClient() {
     setMode(next);
     setError('');
     setNotice('');
+    setUnverifiedEmail('');
+  }
+
+  async function resendVerification() {
+    if (loading || !unverifiedEmail) return;
+    setLoading(true);
+    try {
+      const res = await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: unverifiedEmail }),
+      });
+      const data = await res.json().catch(() => ({}));
+      setError('');
+      setUnverifiedEmail('');
+      setNotice(data.message || 'If that address has an account waiting for confirmation, a new link is on its way.');
+    } catch {
+      setError('Something went wrong. Please try again.');
+    }
+    setLoading(false);
   }
 
   async function handleSignin(e: React.FormEvent) {
     e.preventDefault();
     if (loading) return;
     setError('');
+    setUnverifiedEmail('');
     setLoading(true);
     try {
       const result = await login(signinEmail.trim(), signinPassword);
+      if (result && 'needsVerification' in result) {
+        setError(result.message);
+        setUnverifiedEmail(result.email);
+        setLoading(false);
+        return;
+      }
       if (result?.needsPasswordReset) {
         setCpEmail(result.email);
         setIsForced(true);
@@ -240,6 +268,13 @@ export default function MagazineLoginClient() {
         {error && (
           <div role="alert" style={{ marginBottom: '18px', padding: '11px 14px', background: 'rgba(107,36,23,0.1)', border: `1px solid ${ACCENT}`, color: ACCENT, fontSize: '15px', lineHeight: 1.4 }}>
             {error}
+            {unverifiedEmail && (
+              <div style={{ marginTop: '10px' }}>
+                <button type="button" onClick={resendVerification} disabled={loading} style={{ background: 'none', border: 'none', padding: 0, color: ACCENT, fontSize: '15px', textDecoration: 'underline', cursor: 'pointer' }}>
+                  Send a new confirmation link
+                </button>
+              </div>
+            )}
           </div>
         )}
 

@@ -9,12 +9,13 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
+import { safeReturnPath } from '@/lib/safe-return';
 
 export default function LoginClient() {
   const router = useRouter();
   const params = useSearchParams();
   const initialMode = params.get('mode') === 'signup' ? 'signup' : 'login';
-  const returnTo = params.get('returnTo') || '/';
+  const returnTo = safeReturnPath(params.get('returnTo')) ?? '/';
 
   const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>(initialMode);
   const [email, setEmail] = useState('');

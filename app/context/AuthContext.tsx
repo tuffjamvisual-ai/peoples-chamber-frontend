@@ -12,7 +12,7 @@ type User = {
 type AuthContextType = {
   user: User | null;
   authLoading: boolean;
-  login: (email: string, password: string) => Promise<{ needsPasswordReset: true; email: string } | undefined>;
+  login: (email: string, password: string) => Promise<{ needsPasswordReset: true; email: string } | { needsVerification: true; email: string; message: string } | undefined>;
   signup: (email: string, password: string, postcode?: string, username?: string, returnTo?: string, newsletterOptIn?: boolean) => Promise<{ needsVerification: boolean }>;
   logout: () => void;
   setAuthedUser: (user: User) => void;
@@ -77,6 +77,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     const data = await response.json();
+
+    // Unconfirmed email address: no session; the page offers to resend the link.
+    if (response.status === 403 && data.needsVerification) {
+      return { needsVerification: true as const, email, message: data.error as string };
+    }
 
     if (!response.ok) {
       throw new Error(data.error || 'Login failed');

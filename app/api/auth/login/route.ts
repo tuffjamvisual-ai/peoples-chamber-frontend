@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
 
     const { data: user, error } = await supabase
       .from('users')
-      .select('id, email, password, username, postcode, force_password_reset')
+      .select('id, email, password, username, postcode, force_password_reset, email_verified')
       .eq('email', email)
       .single();
 
@@ -37,6 +37,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 401 }
+      );
+    }
+
+    // Correct password but the email address was never confirmed: no session (owner's approval,
+    // 22 Oct 2026). The page offers to resend the link through /api/auth/resend-verification.
+    if (!user.email_verified) {
+      return NextResponse.json(
+        { error: 'Please confirm your email address first. Check your inbox for the link, or send a new one.', needsVerification: true },
+        { status: 403 }
       );
     }
 

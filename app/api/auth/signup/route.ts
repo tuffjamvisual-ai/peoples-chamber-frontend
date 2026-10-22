@@ -8,6 +8,7 @@ import { randomUUID } from 'crypto';
 import { emailEnabled, sendVerificationEmail, sendSignupNotification } from '@/lib/email';
 import { setSessionCookie } from '@/lib/session';
 import disposableDomains from 'disposable-email-domains';
+import { safeReturnPath } from '@/lib/safe-return';
 
 // Permissive but blocks obvious garbage. Real format validation happens
 // at the deliverability layer (MX check + send a verification email).
@@ -38,11 +39,8 @@ export async function POST(request: NextRequest) {
     const email = (body.email as string | undefined)?.trim().toLowerCase();
     const newsletterOptIn = body.newsletterOptIn === true;
     const rawReturnTo = (body.returnTo as string | undefined) ?? null;
-    // Only store a safe relative path; reject anything that could be an open redirect.
-    const pendingReturnTo =
-      rawReturnTo && rawReturnTo.startsWith('/') && !rawReturnTo.startsWith('//')
-        ? rawReturnTo
-        : null;
+    // Only store a same-origin path; reject anything that could be an open redirect (lib/safe-return).
+    const pendingReturnTo = safeReturnPath(rawReturnTo);
 
     if (!email || !password || !username) {
       return NextResponse.json(

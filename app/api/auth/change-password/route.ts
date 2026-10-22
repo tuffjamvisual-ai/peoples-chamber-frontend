@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
 
     const { data: user, error } = await supabase
       .from('users')
-      .select('id, email, password, username, postcode')
+      .select('id, email, password, username, postcode, email_verified')
       .eq('email', email)
       .single();
 
@@ -40,6 +40,15 @@ export async function POST(request: NextRequest) {
     const valid = await bcrypt.compare(currentPassword, user.password);
     if (!valid) {
       return NextResponse.json({ error: 'Current password is incorrect' }, { status: 401 });
+    }
+
+    // This route signs the user in, so it applies the same rule as login: no session for an
+    // unconfirmed email address.
+    if (!user.email_verified) {
+      return NextResponse.json(
+        { error: 'Please confirm your email address first. Check your inbox for the link, or send a new one.', needsVerification: true },
+        { status: 403 },
+      );
     }
 
     const hashedNew = await bcrypt.hash(newPassword, 10);

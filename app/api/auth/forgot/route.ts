@@ -5,6 +5,10 @@ import { sendPasswordResetEmail } from '@/lib/email';
 
 // Always return this regardless of whether the email exists — prevents user enumeration.
 const GENERIC = { message: "If that address is registered, a reset link is on its way." };
+// At most one reset email per address every 10 minutes (owner's approval, 22 Oct 2026; same
+// pattern as the newsletter). A request inside the gap gets the same response and sends nothing,
+// and the link already sent stays valid.
+const RESEND_GAP_MS = 10 * 60 * 1000;
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,11 +20,12 @@ export async function POST(request: NextRequest) {
 
     const { data: user } = await supabase
       .from('users')
-      .select('id, email')
+      .select('id, email, reset_token_sent_at')
       .eq('email', email)
       .maybeSingle();
 
-    if (user) {
+    const lastSent = user?.reset_token_sent_at ? new Date(user.reset_token_sent_at).getTime() : 0;
+    if (user && Date.now() - lastSent >= RESEND_GAP_MS) {
       const token = randomUUID();
       const { error: dbErr } = await supabase
         .from('users')

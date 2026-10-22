@@ -8,7 +8,7 @@
  * Usage:
  *   node scripts/sync-staff-photos-to-storage.js [--limit=N]
  *
- * Required env: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY,
+ * Required env: NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
  *               DATABASE_URL (anon key for storage uploads; DB writes via
  *               direct psql since dept_* tables have read-only RLS).
  */
@@ -18,18 +18,19 @@ const { createClient } = require('@supabase/supabase-js');
 const { execSync } = require('child_process');
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+// Storage writes use the service key: the photos bucket no longer lets the public key list files (22 Oct 2026).
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const DATABASE_URL = process.env.DATABASE_URL;
 
-if (!SUPABASE_URL || !ANON_KEY || !DATABASE_URL) {
-  console.error('Missing env: need NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, DATABASE_URL');
+if (!SUPABASE_URL || !SERVICE_KEY || !DATABASE_URL) {
+  console.error('Missing env: need NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, DATABASE_URL');
   process.exit(1);
 }
 
 const limitArg = process.argv.find((a) => a.startsWith('--limit='));
 const LIMIT = limitArg ? parseInt(limitArg.split('=')[1], 10) : null;
 
-const s = createClient(SUPABASE_URL, ANON_KEY);
+const s = createClient(SUPABASE_URL, SERVICE_KEY);
 
 function psql(sql) {
   return execSync(`psql "${DATABASE_URL}" -t -A -F'|' -c ${JSON.stringify(sql)}`, { encoding: 'utf8' });

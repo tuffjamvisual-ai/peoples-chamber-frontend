@@ -9,7 +9,7 @@ const sharp = require('sharp');
 // Pipeline (one command, end-to-end):
 //   1. Read file (local --file or remote --url)
 //   2. Resize + re-encode as WebP@q82, max 800px on longest edge
-//   3. Upload to photos/mps/<id>.webp via anon key (bucket allows anon upsert)
+//   3. Upload to photos/mps/<id>.webp via the service key
 //   4. Compute versioned URL with ?v=<unix-timestamp> cache buster so the
 //      Vercel image optimiser re-fetches the new bytes
 //   5. Update mps.photo_url via direct psql (DATABASE_URL bypasses RLS;
@@ -54,7 +54,8 @@ if (!Number.isFinite(memberId)) {
 }
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+// Storage writes use the service key: the photos bucket no longer lets the public key list files (22 Oct 2026).
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const DATABASE_URL = process.env.DATABASE_URL;
 // CRON_SECRET is set in Vercel but typically not in .env.local — accept it
 // via --secret=<...> CLI arg as a fallback so revalidation works locally
@@ -66,8 +67,8 @@ const CRON_SECRET = arg('secret') ||
   null;
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.thepeopleschamber.uk';
 
-if (!SUPABASE_URL || !ANON_KEY) {
-  console.error('NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY missing in env');
+if (!SUPABASE_URL || !SERVICE_KEY) {
+  console.error('NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY missing in env');
   process.exit(1);
 }
 if (!DATABASE_URL) {
@@ -75,7 +76,7 @@ if (!DATABASE_URL) {
   process.exit(1);
 }
 
-const s = createClient(SUPABASE_URL, ANON_KEY, { realtime: { transport: ws } });
+const s = createClient(SUPABASE_URL, SERVICE_KEY, { realtime: { transport: ws } });
 
 async function readBytes() {
   if (fileArg) {
@@ -127,7 +128,7 @@ async function main() {
     return;
   }
 
-  // [3/9] Upload via anon key (bucket allows anon upsert)
+  // [3/9] Upload via the service key
   const { error: upErr } = await s.storage
     .from('photos')
     .upload(storagePath, buffer, { contentType: 'image/webp', upsert: true });

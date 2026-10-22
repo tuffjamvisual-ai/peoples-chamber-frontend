@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 import { verifySessionToken, SESSION_COOKIE_NAME } from '@/lib/session';
 import HumaniserClient from './HumaniserClient';
 
@@ -18,6 +19,9 @@ export const metadata: Metadata = {
 export default async function Page() {
   const store = await cookies();
   const userId = verifySessionToken(store.get(SESSION_COOKIE_NAME)?.value);
-  if (!userId) redirect('/login?next=/internal/humaniser');
+  if (!userId) redirect('/login?returnTo=/internal/humaniser');
+  // Administrators only (owner's approval, 22 Oct 2026); the API applies the same check.
+  const { data: me } = await supabaseAdmin.from('users').select('is_admin').eq('id', userId).maybeSingle();
+  if (!me?.is_admin) notFound();
   return <HumaniserClient />;
 }

@@ -1,6 +1,6 @@
 "use client";
 import { useState, type CSSProperties } from "react";
-import { buildSystemPrompt, buildUserMessage, MODES, DEFAULT_MODE, type HumaniserMode, type RedditStance } from "./prompt";
+import { MODES, DEFAULT_MODE, type HumaniserMode, type RedditStance } from "./prompt";
 
 const STANCES: { id: RedditStance; label: string }[] = [
   { id: "agree", label: "Agree" },
@@ -129,17 +129,8 @@ export default function HumaniserPage() {
       const response = await fetch("/api/internal/humanise", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-6",
-          max_tokens: 4096,
-          system: buildSystemPrompt(mode),
-          messages: [
-            {
-              role: "user",
-              content: buildUserMessage(mode, input, { comment, stance }),
-            },
-          ],
-        }),
+        // The server builds the prompt and picks the model; it only takes the mode and the text.
+        body: JSON.stringify({ mode, input, comment, stance }),
       });
 
       const data = await response.json();

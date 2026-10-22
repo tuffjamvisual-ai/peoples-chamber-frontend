@@ -62,7 +62,8 @@ if (!/^[a-z0-9-]+$/.test(slugArg)) {
 }
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+// Storage writes use the service key: the photos bucket no longer lets the public key list files (22 Oct 2026).
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const DATABASE_URL = process.env.DATABASE_URL;
 const CRON_SECRET = arg('secret') ||
   process.env.CRON_SECRET ||
@@ -70,8 +71,8 @@ const CRON_SECRET = arg('secret') ||
   null;
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.thepeopleschamber.uk';
 
-if (!SUPABASE_URL || !ANON_KEY) {
-  console.error('NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY missing in env');
+if (!SUPABASE_URL || !SERVICE_KEY) {
+  console.error('NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY missing in env');
   process.exit(1);
 }
 if (!DATABASE_URL) {
@@ -79,7 +80,7 @@ if (!DATABASE_URL) {
   process.exit(1);
 }
 
-const s = createClient(SUPABASE_URL, ANON_KEY, { realtime: { transport: ws } });
+const s = createClient(SUPABASE_URL, SERVICE_KEY, { realtime: { transport: ws } });
 
 async function readBytes() {
   if (fileArg) {
