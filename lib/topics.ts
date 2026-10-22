@@ -116,7 +116,7 @@ export const topics: TopicDef[] = [
     words: ['tax', 'taxes', 'taxation', 'budget', 'finance', 'fiscal', 'national insurance', 'vat', 'economy', 'economic', 'spending', 'business rates', 'customs'],
     exclude: ['student finance'],
     billDepartments: ['HM Treasury', 'Department for Business and Trade', 'Department for Business, Energy and Industrial Strategy', 'Department for Business, Innovation and Skills', 'Department for Business, Enterprise and Regulatory Reform', 'Department for International Trade', 'Department of Trade and Industry'],
-    editorialSlugs: ['whr8acs2gf', 'd8m4xpq2vt', 'se9k4m2xq7', 'm7k4qxw9n2', 'skq4m9xw2t', 'vk4n9mxw7r', 'vq8k3mxw7n', 'tk4n9mxw7r', 'mk4n9mxw7r', 'tq6m4kx9w2', 'bk7m3wq9x2', 'td4k9mxw7r'],
+    editorialSlugs: ['aq4pfusttu', 'whr8acs2gf', 'd8m4xpq2vt', 'se9k4m2xq7', 'm7k4qxw9n2', 'skq4m9xw2t', 'vk4n9mxw7r', 'vq8k3mxw7n', 'tk4n9mxw7r', 'mk4n9mxw7r', 'tq6m4kx9w2', 'bk7m3wq9x2', 'td4k9mxw7r'],
     pollWords: ['tax', 'national insurance', 'capital gains', 'spending', 'budget'],
   },
   {
