@@ -96,7 +96,7 @@ const piece: EditorialEntry = {
       `Prime Minister's Office, New digital ID scheme to be rolled out across UK, 26 Sep 2025`,
       `Commons Home Affairs Committee, Mandatory to manageable`,
       { text: `Written question 16720, 14 Jul 2026`, url: 'https://questions-statements.parliament.uk/written-questions/detail/2026-07-07/16720' },
-      `DSIT, Social media to be banned for under-16s, 15 Jun 2026`,
+      `DSIT, Social media to be banned for under 16s, 15 Jun 2026`,
       `Ofcom, age assurance guidance`,
     ],
     lastChecked: '5 October 2026',

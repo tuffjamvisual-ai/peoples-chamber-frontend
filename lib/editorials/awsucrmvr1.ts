@@ -68,7 +68,7 @@ const piece: EditorialEntry = {
       { text: `MHCLG, Council Tax levels set by local authorities in England 2026 to 2027`, url: 'https://www.gov.uk/government/statistics/council-tax-levels-set-by-local-authorities-in-england-2026-to-2027' },
       `DCLG, historic council tax statistics, including Council Tax levels set by local authorities in England 2011 to 2012`,
       `MHCLG, Local authority revenue expenditure and financing`,
-      `MHCLG, Fair Funding Review 2.0 and resources-adjustment technical note`,
+      `MHCLG, Fair Funding Review 2.0 and resources adjustment technical note`,
       `Commons Library, Why are local authorities going 'bankrupt'? and What happens if a council go bankrupt?`,
       `NAO, Local government financial sustainability, Feb 2025`,
       `MHCLG, local government investment reforms, May 2026`,

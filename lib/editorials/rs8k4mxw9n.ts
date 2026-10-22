@@ -58,7 +58,7 @@ const piece: EditorialEntry = {
       { text: `Prime Minister's Office and MHCLG, "New PM says government can bring back hope to Britain, and launches drive to end rough sleeping at the earliest opportunity", 20 Jul 2026`, url: 'https://www.gov.uk/government/news/new-pm-says-government-can-bring-back-hope-to-britain-and-launches-drive-to-end-rough-sleeping-at-the-earliest-opportunity' },
       { text: `Prime Minister's Office, "Andy Burnham's first speech as Prime Minister", 20 Jul 2026`, url: 'https://www.gov.uk/government/speeches/andy-burnhams-first-speech-as-prime-minister-20-july-2026' },
       `MHCLG, A National Plan to End Homelessness, 11 Dec 2025`,
-      `MHCLG, Long-Term Rough Sleeping Partnership Plan guidance, 20 May 2026`,
+      `MHCLG, Long Term Rough Sleeping Partnership Plan guidance, 20 May 2026`,
       { text: `MHCLG, Rough sleeping snapshot in England`, url: 'https://www.gov.uk/government/statistics/rough-sleeping-snapshot-in-england-autumn-2025' },
       `Greater Manchester Combined Authority, "Ending rough sleeping by 2020 - new Mayor puts words into action", May 2017`,
       `Andy Burnham, speech on homelessness, May 2019, published by Greater Manchester Combined Authority`,

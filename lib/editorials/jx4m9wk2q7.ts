@@ -30,7 +30,7 @@ const piece: EditorialEntry = {
   evidence: {
     recordsReviewed: [
       `Ministry of Justice, Criminal court statistics quarterly`,
-      `Ministry of Justice, Crown Court waiting-time statistics, Jan to Mar 2026`,
+      `Ministry of Justice, Crown Court waiting time statistics, Jan to Mar 2026`,
       `NAO, Reducing the backlog in the Crown Court, originally published May 2024 and revised March 2025`,
       `Commons PAC, Crown Court backlogs, 5 Mar 2025`,
       `HM Treasury and Ministry of Justice, government response to the PAC, May 2025`,

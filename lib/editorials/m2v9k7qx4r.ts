@@ -53,7 +53,7 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      `House of Commons, Lisa Nandy, Paramount-WBD Merger`,
+      `House of Commons, Lisa Nandy, Paramount and WBD Merger`,
       { text: `Enterprise Act 2002, sections 42, 58 and 58A`, url: 'https://www.legislation.gov.uk/ukpga/2002/40/contents' },
       `DCMS, Consultation on updating the media mergers regime, Nov 2024, and government response, May 2025`,
       { text: `The Enterprise Act 2002 (Amendment of Section 58 Considerations) Order 2025`, url: 'https://www.legislation.gov.uk/uksi/2025/737/contents/made' },
@@ -63,7 +63,7 @@ const piece: EditorialEntry = {
       `BT Group, results for the full year to 31 March 2026, published 21 May 2026, and BT Group Annual Report 2026`,
       `US Department of Justice Antitrust Division, 12 Jun 2026`,
       `Federal Communications Commission record of proceedings on foreign ownership of Paramount`,
-      `DCMS / CMA, DMGT-Telegraph merger inquiry, Feb 2026`,
+      `DCMS / CMA, DMGT and Telegraph merger inquiry, Feb 2026`,
     ],
     lastChecked: '5 October 2026',
   },

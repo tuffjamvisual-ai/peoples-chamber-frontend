@@ -76,7 +76,7 @@ const piece: EditorialEntry = {
       `National Crime Agency, Operation Beaconport`,
       `National Crime Agency, Operation Beaconport`,
       `Baroness Louise Casey, National Audit on Group-based Child Sexual Exploitation and Abuse, Jun 2025`,
-      `Professor Alexis Jay, Independent Inquiry into Child Sexual Exploitation in Rotherham 1997-2013, Aug 2014`,
+      `Professor Alexis Jay, Independent Inquiry into Child Sexual Exploitation in Rotherham 1997 to 2013, Aug 2014`,
       `DCLG, Rotherham intervention documents, 2015`,
       `National Crime Agency, Operation Stovewood, Mar 2025`,
       `Greater Manchester Combined Authority, Independent Assurance Review of Operation Augusta`,

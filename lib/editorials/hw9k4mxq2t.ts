@@ -21,7 +21,7 @@ const piece: EditorialEntry = {
     { type: 'paragraph', text: `The Inspectorate placed South East Water into a formal transformation programme, which it describes as one of its most significant interventions and one used when repeated failures cannot be dealt with adequately through individual enforcement actions.` },
     { type: 'paragraph', text: `The Environment, Food and Rural Affairs Committee reached an equally severe conclusion on 1 May.` },
     { type: 'paragraph', text: `Its report found that South East Water had failed to monitor important risks, maintain assets, prepare adequately for outages and learn from earlier incidents. It said the company had been warned repeatedly about weaknesses in its system and had failed to build sufficient resilience into parts of its network.` },
-    { type: 'paragraph', text: `The committee said it had no confidence in either the executive or non-executive leadership.` },
+    { type: 'paragraph', text: `The committee said it had no confidence in either the executive or non executive leadership.` },
     { type: 'paragraph', text: `Chair Chris Train resigned as the report was published. Chief executive David Hinton announced his resignation a week later. Parliament's own account subsequently said the committee's report had prompted both departures.` },
     { type: 'paragraph', text: `South East Water announced John Halsall as chief executive designate on 22 June, subject to regulatory approval. Lisa Clement had taken over as interim chair.` },
     { type: 'paragraph', text: `Changing the people at the top did not resolve the regulatory breaches.` },

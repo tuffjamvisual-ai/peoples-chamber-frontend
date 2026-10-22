@@ -46,7 +46,7 @@ const piece: EditorialEntry = {
     recordsReviewed: [
       { text: `Cabinet Office, Business Appointment Rules for Ministers, updated 13 Oct 2025`, url: 'https://www.gov.uk/government/publications/business-appointment-rules-for-ministers' },
       `Ministerial Code, current edition`,
-      `Independent Adviser on Ministerial Standards, Annual Report 2025-26, 28 May 2026`,
+      `Independent Adviser on Ministerial Standards, Annual Report 2025/26, 28 May 2026`,
       { text: `Written question 4212, 10 Jun 2026`, url: 'https://questions-statements.parliament.uk/written-questions/detail/2026-05-29/4212' },
       { text: `Cabinet Office, Ethics and Integrity Commission review, 11 Mar 2026`, url: 'https://www.gov.uk/government/news/ethics-and-integrity-commission-to-review-lobbying-disclosure-and-access-to-government' },
       `Commons Treasury Committee, Lessons from Greensill Capital, 2021`,
