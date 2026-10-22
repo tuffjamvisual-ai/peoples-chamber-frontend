@@ -55,13 +55,13 @@ const piece: EditorialEntry = {
   evidence: {
     recordsReviewed: [
       `Commons PAC, Financial sustainability of children's care homes, 16 January 2026 (HC 1233)`,
-      `HM Treasury, Government Response to the Committee of Public Accounts on the Fifty-seventh to the Sixty-first Reports of Session 2024 to 2026`,
+      `HM Treasury, Government Response to the Committee of Public Accounts on the Fifty-seventh to the Sixty-first Reports of Session 2024-26`,
       `DfE, CSC Financial Oversight Scheme`,
       { text: `CMA, Children's social care market study`, url: 'https://www.gov.uk/government/publications/childrens-social-care-market-study-final-report' },
       { text: `Ofsted, Ownership of children's social care providers in England 2025, 27 Nov 2025`, url: 'https://www.gov.uk/government/statistics/ownership-of-childrens-social-care-providers-in-england-2025' },
       `DfE, Children's Social Care Profit Cap`,
       { text: `Children's Wellbeing and Schools Act 2026, section 17`, url: 'https://www.legislation.gov.uk/ukpga/2026/21/section/17' },
-      `Local Government Association, High cost children's social care placements survey, Nov 2023`,
+      `Local Government Association, High-cost children's social care placements survey, Nov 2023`,
       `NAO, Managing children's residential care, Sep 2025`,
       { text: `MHCLG, Provisional local government finance settlement 2026 to 2027`, url: 'https://www.gov.uk/government/collections/provisional-local-government-finance-settlement-2026-2027-to-2028-29' },
     ],

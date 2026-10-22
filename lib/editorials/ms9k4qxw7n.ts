@@ -83,7 +83,7 @@ const piece: EditorialEntry = {
     recordsReviewed: [
       `Immigration and Asylum Bill, Bill 105, introduced 30 Jun 2026, clauses 44 to 49 and Schedule 5`,
       `Immigration and Asylum Bill, clause 52`,
-      `Joint Committee on Human Rights, Forced Labour in the UK's Supply Chains, Sixth Report of Session 2024/25, HC 633 / HL Paper 159, 24 Jul 2025`,
+      `Joint Committee on Human Rights, Forced Labour in the UK's Supply Chains, Sixth Report of Session 2024-25, HC 633 / HL Paper 159, 24 Jul 2025`,
       `Independent Review of the Modern Slavery Act 2015, final report, 2019`,
       `Joint Committee on Human Rights, "Chair welcomes stronger forced labour supply chain safeguards in Immigration and Asylum Bill", 15 Jul 2026`,
       `Government response to the Joint Committee on Human Rights report, HC 1404, 16 Oct 2025`,

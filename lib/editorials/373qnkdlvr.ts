@@ -48,7 +48,7 @@ const piece: EditorialEntry = {
       { text: `Commons oral questions (Open Govt), 10 Sep 2026`, url: 'https://opengovt.uk/debates/E0823345-D8AF-4717-8DDB-6C6EF616FCC7' },
       { text: `Commons Library CBP-11079, 3 Sep 2026`, url: 'https://commonslibrary.parliament.uk/research-briefings/cbp-11079/' },
       { text: `Prime Minister’s Office, No10 North open for business, 23 Jul 2026`, url: 'https://www.gov.uk/government/news/no10-north-open-for-business-as-the-governments-new-situation-room-for-making-britain-better' },
-      { text: `Cabinet Office Annual Report and Accounts 2025/26`, url: 'https://assets.publishing.service.gov.uk/media/6ac8c105e8ef5609e7c93447/46.36_CO_ARA_25-26__FINAL_WEB.pdf' },
+      { text: `Cabinet Office Annual Report and Accounts 2025 to 2026`, url: 'https://assets.publishing.service.gov.uk/media/6ac8c105e8ef5609e7c93447/46.36_CO_ARA_25-26__FINAL_WEB.pdf' },
     ],
     lastChecked: '2026-10-22',
   },

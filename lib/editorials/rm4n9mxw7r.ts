@@ -30,7 +30,7 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      `House of Commons Committee of Public Accounts, "Government compensation schemes", Twelfth Report of Session 2026/27 (HC 88), 9 Sep 2026`,
+      `House of Commons Committee of Public Accounts, "Government compensation schemes", Twelfth Report of Session 2026-27 (HC 88), 9 Sep 2026`,
       `NAO, "Government's compensation and financial recognition schemes", Apr 2026`,
       `PAC, oral and written evidence for "Government compensation schemes: update"`,
     ],

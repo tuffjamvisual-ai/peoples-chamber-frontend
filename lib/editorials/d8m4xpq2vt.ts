@@ -57,7 +57,7 @@ const piece: EditorialEntry = {
       `Reuters, 23 Apr 2026`,
       `Reuters, 26 Jun 2026`,
       `ONS, UK trade with the United States, 1 May 2026`,
-      `UK Government and White House, General Terms for the US and UK Economic Prosperity Deal, 8 May 2025`,
+      `UK Government and White House, General Terms for the US-UK Economic Prosperity Deal, 8 May 2025`,
       `US Trade Representative, UK Digital Services Tax investigation, 2021`,
       `US Supreme Court, Learning Resources Inc v Trump, 20 Feb 2026`,
     ],

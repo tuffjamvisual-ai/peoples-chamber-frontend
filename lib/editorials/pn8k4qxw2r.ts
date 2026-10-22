@@ -60,7 +60,7 @@ const piece: EditorialEntry = {
       { text: `Sentencing Act 2026 and explanatory notes`, url: 'https://www.legislation.gov.uk/ukpga/2026/2/contents' },
       `Ministry of Justice, Sentencing Bill impact assessment`,
       `NAO, Increasing the capacity of the prison estate to meet demand, 4 Dec 2024`,
-      `HM Prison and Probation Service, Annual Report and Accounts 2024/25`,
+      `HM Prison and Probation Service, Annual Report and Accounts 2024 to 2025`,
       `ITV News, interview and reporting with Justice Secretary Alex Norris, 4 Aug 2026`,
       `Court of Appeal, R v Long, Bowers and Cole [2020] EWCA Crim 1729`,
     ],

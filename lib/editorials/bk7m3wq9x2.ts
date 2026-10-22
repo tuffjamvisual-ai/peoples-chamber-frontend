@@ -53,7 +53,7 @@ const piece: EditorialEntry = {
   evidence: {
     recordsReviewed: [
       `LBC, Andy Burnham interview with Andrew Marr, 2 Jul 2026`,
-      { text: `HM Treasury, Effects of the business rates retail, hospitality and leisure multipliers and high value multiplier, 26 Nov 2025`, url: 'https://www.gov.uk/government/publications/effects-of-the-business-rates-retail-hospitality-and-leisure-multipliers-and-high-value-multiplier' },
+      { text: `HM Treasury, Effects of the business rates retail, hospitality and leisure multipliers and high-value multiplier, 26 Nov 2025`, url: 'https://www.gov.uk/government/publications/effects-of-the-business-rates-retail-hospitality-and-leisure-multipliers-and-high-value-multiplier' },
       `HM Treasury, Business rates`,
       { text: `HM Treasury, pubs and live music venues relief, 27 Jan 2026`, url: 'https://www.gov.uk/government/publications/12026-pubs-and-live-music-venues-relief-2026-to-2027' },
       `Association of Convenience Stores, 6 Jul 2026`,

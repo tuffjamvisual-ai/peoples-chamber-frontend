@@ -51,7 +51,7 @@ const piece: EditorialEntry = {
   evidence: {
     recordsReviewed: [
       `NAO, "The Ministry of Defence's management of its losses from fraud and other economic crime", 30 Jan 2026`,
-      `Commons PAC, "The MoD's tackling of economic crime and misconduct", Third Report of Session 2026/27, HC 91, 29 May 2026`,
+      `Commons PAC, "The MoD's tackling of economic crime and misconduct", Third Report of Session 2026-27, HC 91, 29 May 2026`,
       `PAC oral evidence, 5 Mar 2026`,
       `Ministry of Defence letter to the PAC, 20 Mar 2026`,
       { text: `HM Treasury / Ministry of Defence, Treasury Minutes`, url: 'https://www.gov.uk/government/collections/treasury-minutes' },

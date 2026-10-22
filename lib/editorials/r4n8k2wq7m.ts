@@ -48,13 +48,13 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      `Reuters, Anti migrant politics spark resurgence of racism, say some Britons of colour, 30 Jun 2026`,
+      `Reuters, Anti-migrant politics spark resurgence of racism, say some Britons of colour, 30 Jun 2026`,
       { text: `Home Office, Hate crime, England and Wales, year ending March 2025, 9 Oct 2025`, url: 'https://www.gov.uk/government/statistics/hate-crime-england-and-wales-year-ending-march-2025' },
       `Royal College of Nursing, Racism allowed to 'flourish' in NHS, 19 May 2026`,
       `Nursing and Midwifery Council, workforce survey, 4 Feb 2026`,
       `Nursing and Midwifery Council, register data, 18 Jun 2025`,
       `National Centre for Social Research, British Social Attitudes 43`,
-      `ONS, Long term international migration, provisional`,
+      `ONS, Long-term international migration, provisional`,
       { text: `Home Office, Immigration system statistics, year ending December 2025`, url: 'https://www.gov.uk/government/statistics/immigration-system-statistics-year-ending-december-2025' },
       `Home Office, Shabana Mahmood immigration speech, 5 Mar 2026`,
     ],

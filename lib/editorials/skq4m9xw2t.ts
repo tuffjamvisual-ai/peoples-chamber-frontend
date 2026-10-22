@@ -62,7 +62,7 @@ const piece: EditorialEntry = {
       `Commons Library, Local Government Finance Settlement 2026/27 to 2028/29 (CBP-10485); MHCLG, Exceptional Financial Support records for 2024/25, 2025/26 and 2026/27`,
       `MHCLG, Local Government Finance Settlement 2026/27, 11 Feb 2026`,
       { text: `DfE, Government confirms plans to permanently remove RAAC from all schools and colleges in England, Feb 2024`, url: 'https://www.gov.uk/government/news/government-confirms-plans-to-permanently-remove-raac-from-all-schools-and-colleges-in-england' },
-      `NAO, DfE departmental overview 2022/23`,
+      `NAO, DfE departmental overview 2022-23`,
       `OBR, Economic and fiscal outlook, Nov 2025`,
     ],
     lastChecked: '5 October 2026',
