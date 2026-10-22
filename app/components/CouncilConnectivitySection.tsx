@@ -141,7 +141,7 @@ export default async function CouncilConnectivitySection({ gssCodes, isCounty }:
 
       <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
         {isCounty && 'Figures for this county are the total of its district councils. '}
-        These figures show what is available, not what people buy. &ldquo;Decent&rdquo; broadband means 10 Mbit/s download and 1 Mbit/s upload, the standard set by the broadband Universal Service Obligation. Full-fibre use is the share of all premises with a full-fibre connection in use. Mobile figures count the four networks Ofcom reports (EE, O2, Three and Vodafone) and are modelled predictions of signal strength; 5G figures use Ofcom&rsquo;s high-confidence measure.
+        These figures show what is available, not what people buy. &ldquo;Decent&rdquo; broadband means 10 Mbit/s download and 1 Mbit/s upload, the standard set by the broadband Universal Service Obligation. Full fibre use is the share of all premises with a full fibre connection in use. Mobile figures count the four networks Ofcom reports (EE, O2, Three and Vodafone) and are modelled predictions of signal strength; 5G figures use Ofcom&rsquo;s high-confidence measure.
       </p>
       <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: 0 }}>
         Source: Ofcom, Connected Nations ({fmtMonth(month)} data). Contains public sector information licensed under the Open Government Licence v3.0.

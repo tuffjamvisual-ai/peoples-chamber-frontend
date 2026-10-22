@@ -37,7 +37,7 @@ export const MEASURE_SOURCES: Record<string, string> = {
   child_poverty: 'DWP, Children in low income families: local area statistics',
   fuel_poverty: 'DESNZ, sub-regional fuel poverty data',
   temp_accommodation: 'MHCLG, statutory homelessness detailed local authority tables',
-  affordability: 'ONS, house price to residence-based earnings ratio (table 5c)',
+  affordability: 'ONS, house price to residence based earnings ratio (table 5c)',
   recycling: 'Defra, local authority collected waste management statistics',
   sewage: 'Environment Agency, storm overflow annual return',
   gigabit: 'Ofcom, Connected Nations',

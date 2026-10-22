@@ -193,7 +193,7 @@ export default async function CouncilSewageSection({
       <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
         {isCounty && 'Figures for this county are the total of its district councils. '}
         A storm overflow releases diluted sewage into a river or the sea when sewers are overloaded, usually in heavy rain. Hours are the total time all spills lasted.{' '}
-        {nation === 'England' && 'Spills are counted the Environment Agency’s way: any discharge in the first 12 hours counts as one spill, and each further 24-hour block counts as another. '}
+        {nation === 'England' && 'Spills are counted the Environment Agency’s way: any discharge in the first 12 hours counts as one spill, and each further 24 hour block counts as another. '}
         {nation === 'Scotland' && 'Scottish Water counts each separate spill, and for some overflows publishes only spills longer than 15 minutes 30 seconds, so these figures are not directly comparable with England’s. Volume is published only for overflows reported to the Scottish Environment Protection Agency (SEPA). '}
         {noData > 0 && `${fmtInt(noData)} overflow${noData === 1 ? ' has' : 's have'} no figures for ${year}, so the totals may be lower than the true amount. `}
         {offshore > 0 && `${fmtInt(offshore)} overflow${offshore === 1 ? ' discharges' : 's discharge'} below the high-tide line or out at sea and ${offshore === 1 ? 'is' : 'are'} counted with the nearest council area. `}

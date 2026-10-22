@@ -1360,7 +1360,7 @@ export default function MagazineProfileSections({
             <>
               <h2 style={sectionH2}>Registered Interests</h2>
               <p style={{ marginBottom: '16px', fontSize: '15px', opacity: 0.7, lineHeight: 1.6 }}>
-                Mandatory declarations under the House of Commons Register of Members&rsquo; Financial Interests. Grouped by the Register&rsquo;s own categories: items potentially material to an MP&rsquo;s parliamentary work. This is the MP&rsquo;s own disclosure, the donor-side view of political donations lives on the Donations tab and may overlap with the &ldquo;Campaign &amp; office support&rdquo; section below.
+                Mandatory declarations under the House of Commons Register of Members&rsquo; Financial Interests. Grouped by the Register&rsquo;s own categories: items potentially material to an MP&rsquo;s parliamentary work. This is the MP&rsquo;s own disclosure, the donor side view of political donations lives on the Donations tab and may overlap with the &ldquo;Campaign &amp; office support&rdquo; section below.
               </p>
               {grouped.map((b) => (
                 <section key={b.key} style={{ marginBottom: '20px' }}>
@@ -1791,7 +1791,7 @@ export default function MagazineProfileSections({
               )}
 
               <p style={{ marginTop: '20px', fontSize: '15px', opacity: 0.6, lineHeight: 1.55 }}>
-                Base salary is set by IPSA and reviewed annually each 1 April. The ministerial supplement has been frozen at 2010 levels by successive prime ministers; figures shown are the rates actually drawn, not the statutory entitlement. Outside earnings come from the Register of Members&rsquo; Financial Interests and reflect cumulative declarations since this Parliament started; the Register is updated as MPs declare, typically within two weeks of the payment. Public spend is the most recent closed IPSA financial year on file, the current year is not totalled until IPSA reconciles year-end.
+                Base salary is set by IPSA and reviewed annually each 1 April. The ministerial supplement has been frozen at 2010 levels by successive prime ministers; figures shown are the rates actually drawn, not the statutory entitlement. Outside earnings come from the Register of Members&rsquo; Financial Interests and reflect cumulative declarations since this Parliament started; the Register is updated as MPs declare, typically within two weeks of the payment. Public spend is the most recent closed IPSA financial year on file, the current year is not totalled until IPSA reconciles year end.
               </p>
               {rows.some((r) => r.acoba) && (
                 <p style={{ marginTop: '12px', fontSize: '15px', opacity: 0.6, lineHeight: 1.55 }}>
@@ -2209,7 +2209,7 @@ export default function MagazineProfileSections({
             <>
               <h2 style={sectionH2}>Ministerial diary</h2>
               <p style={{ marginBottom: '16px', fontSize: '15px', opacity: 0.7, lineHeight: 1.6 }}>
-                Meetings and hospitality recorded by the relevant government department under the ministerial transparency regime. Published quarterly with a 2-3 month lag. Backbench engagements and constituency surgeries are not included.
+                Meetings and hospitality recorded by the relevant government department under the ministerial transparency regime. Published quarterly with a 2 to 3 month lag. Backbench engagements and constituency surgeries are not included.
               </p>
 
               {meetings.length > 0 && (

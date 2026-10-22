@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!d) return { title: 'Schools' };
   return {
     title: `Schools in ${d.c.name}: every Ofsted inspection`,
-    description: `Every state-funded school in ${d.c.name} with its latest Ofsted inspection, report card grades and any school in a category of concern.`,
+    description: `Every state funded school in ${d.c.name} with its latest Ofsted inspection, report card grades and any school in a category of concern.`,
     alternates: { canonical: `/councils/${slug}/schools` },
   };
 }
@@ -33,7 +33,7 @@ export default async function CouncilSchoolsPage({ params }: { params: Promise<{
       <BackLink fallbackHref={`/councils/${slug}#schools`} label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
       <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', margin: '0 0 8px' }}>Schools in {d.c.short_name || d.c.name}</h1>
       <p style={{ fontSize: '16px', lineHeight: 1.7, margin: '0 0 20px' }}>
-        <a href={`/councils/${slug}#schools`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{d.c.name}</a>: every state-funded school and its latest Ofsted inspection.
+        <a href={`/councils/${slug}#schools`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{d.c.name}</a>: every state funded school and its latest Ofsted inspection.
       </p>
       <CouncilSchoolInspectionsSection gssCode={d.c.gss_code} isDistrict={false} countyName={d.parent?.name ?? null} countySlug={d.parent?.slug ?? null} />
     </OpenGovShell>

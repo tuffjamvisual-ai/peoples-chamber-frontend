@@ -244,7 +244,7 @@ export default async function CouncilRoadCasualtiesSection({
       )}
 
       <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
-        These are casualties in collisions reported to the police on all roads in the council&rsquo;s area, including motorways and trunk roads it doesn&rsquo;t manage. Killed, seriously injured and slightly injured are counts as recorded by the police and add up to all casualties. Police forces have moved to an injury-based recording system that classes more injuries as serious, so the Department for Transport estimates how many people would have been recorded as seriously injured if every force had used it. The chart uses that estimate, rounded to whole people, so that years can be compared.
+        These are casualties in collisions reported to the police on all roads in the council&rsquo;s area, including motorways and trunk roads it doesn&rsquo;t manage. Killed, seriously injured and slightly injured are counts as recorded by the police and add up to all casualties. Police forces have moved to an injury based recording system that classes more injuries as serious, so the Department for Transport estimates how many people would have been recorded as seriously injured if every force had used it. The chart uses that estimate, rounded to whole people, so that years can be compared.
       </p>
       <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: 0 }}>
         Source: Department for Transport, Reported road casualties Great Britain ({release}). Contains public sector information licensed under the Open Government Licence v3.0.

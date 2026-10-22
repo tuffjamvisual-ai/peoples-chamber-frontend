@@ -23,7 +23,7 @@ const MONO = '"Special Elite", monospace';
 
 export const metadata: Metadata = {
   title: "Major projects: the government's biggest projects, year by year",
-  description: 'Every project in the Government Major Projects Portfolio since March 2024: its delivery confidence rating, end date and whole-life cost in each annual report, and what the department said.',
+  description: 'Every project in the Government Major Projects Portfolio since March 2024: its delivery confidence rating, end date and whole life cost in each annual report, and what the department said.',
   alternates: { canonical: '/transparency/major-projects' },
 };
 
@@ -53,7 +53,7 @@ export default async function MajorProjectsPage() {
         </h1>
         <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '62ch' }}>
           The Government Major Projects Portfolio is the list of the largest and riskiest projects departments run. Each March the
-          departments report every project&rsquo;s whole-life cost, its end date and a delivery confidence rating of Red, Amber or Green,
+          departments report every project&rsquo;s whole life cost, its end date and a delivery confidence rating of Red, Amber or Green,
           and the government&rsquo;s projects authority (the IPA until 2025, now NISTA) publishes them.
         </p>
         <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '62ch', marginTop: '10px' }}>

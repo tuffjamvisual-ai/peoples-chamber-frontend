@@ -12,7 +12,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: 'UK Parliament Bills by Session, 2004 to Now',
   description:
-    'Every bill in UK Parliament since the 2004-05 session, by session: which became law, which were withdrawn, carried over or ran out of time.',
+    'Every bill in UK Parliament since the 2004/05 session, by session: which became law, which were withdrawn, carried over or ran out of time.',
   alternates: { canonical: '/bills/sessions' },
 };
 
@@ -61,7 +61,7 @@ export default async function BillSessionsPage() {
       </ol>
 
       <p style={{ fontSize: '14px', lineHeight: 1.7, marginTop: '24px', opacity: 0.8, maxWidth: '720px' }}>
-        Our bill records start in the 2004-05 session, but the two earliest sessions hold only five bills: ones that were
+        Our bill records start in the 2004/05 session, but the two earliest sessions hold only five bills: ones that were
         carried over into later sessions and became Acts, such as the Crossrail Act 2008. Session names and dates:{' '}
         <a href={SESSIONS_SOURCE_URL} style={{ color: ACCENT }} rel="noopener">UK Parliament calendar</a>. Bills: UK Parliament Bills API.
       </p>

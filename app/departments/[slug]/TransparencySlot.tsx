@@ -81,7 +81,7 @@ export function TransparencySlot({ foi, meetings }: { foi: DeptFoi[]; meetings: 
           <H3>Freedom of Information</H3>
           {foi.map((f) => <FoiBody key={f.body} f={f} showLabel={foi.length > 1} />)}
           <P small>
-            The 20-day figure is out of the requests received, leaving out any put on hold or lapsed; the percentage is the
+            The 20 day figure is out of the requests received, leaving out any put on hold or lapsed; the percentage is the
             Cabinet Office&rsquo;s own, rounded. Resolvable requests are those not answered with advice alone or with
             &ldquo;information not held&rdquo;; any not granted or withheld had no response yet. Internal reviews and complaints to the
             Information Commissioner are published for whole years only.

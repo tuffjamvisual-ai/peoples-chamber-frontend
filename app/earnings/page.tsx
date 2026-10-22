@@ -129,7 +129,7 @@ export default async function EarningsPage() {
           MP earnings vs public spend
         </h1>
         <p style={{ fontSize: '17px', lineHeight: 1.7, maxWidth: '720px' }}>
-          The 50 highest-paid current MPs ranked by personal earnings. <strong>Personal earnings</strong> are
+          The 50 highest paid current MPs ranked by personal earnings. <strong>Personal earnings</strong> are
           money the MP actually receives: base salary, ministerial supplement, and declared outside earnings.
           <strong> Public spend</strong> is a separate column showing what IPSA reimburses for staff, office,
           travel and accommodation; it does <em>not</em> go into the MP&apos;s pocket.

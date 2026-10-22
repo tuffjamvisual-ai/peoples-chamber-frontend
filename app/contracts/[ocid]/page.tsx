@@ -197,7 +197,7 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
             <h2 style={sectionH2}>{h.title || title}{h.suppliers.length ? ` · ${h.suppliers.length > 3 ? `${h.suppliers.length} suppliers` : h.suppliers.join(', ')}` : ''}</h2>
             {h.awarded && (
               h.awarded.type === 'framework_maximum'
-                ? <p style={figure}><strong>Framework, {h.suppliers.length} supplier{h.suppliers.length === 1 ? '' : 's'}.</strong>{h.awarded.value != null && <> <strong>{gbp(h.awarded.value)} potential value, not spending.</strong> This is the most that could be spent through the framework; spending appears only through call-off contracts.</>}</p>
+                ? <p style={figure}><strong>Framework, {h.suppliers.length} supplier{h.suppliers.length === 1 ? '' : 's'}.</strong>{h.awarded.value != null && <> <strong>{gbp(h.awarded.value)} potential value, not spending.</strong> This is the most that could be spent through the framework; spending appears only through call off contracts.</>}</p>
                 : <p style={figure}><strong>Award published {fmtDay(h.awarded.date)}: {h.awarded.value != null ? gbp(h.awarded.value) : 'value not published'}</strong> (contract value)</p>
             )}
             {!h.awarded && <p style={figure}>The award is not in this record; the first notice we hold is a change.</p>}

@@ -115,7 +115,7 @@ export default function DonationsCounter({ total, entryCount, asOf }: Props) {
         Members&rsquo; Financial Interests (Category 2){asOf ? <>, as of <strong>{fmtDate(asOf)}</strong></> : null}.
       </p>
       <p style={{ margin: '8px 0 0', fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, opacity: 1 }}>
-        Register-declared figures only. Gifts and hospitality (benefits in kind) and Electoral Commission party donations
+        Figures declared in the Register only. Gifts and hospitality (benefits in kind) and Electoral Commission party donations
         are counted separately and are not included in this figure.
       </p>
     </div>

@@ -143,7 +143,7 @@ export default function ReaderVIPoll({ pollster, initialTally, initialTotal, ini
 
       {seeded && (
         <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.55, color: ACCENT, margin: '14px 0 0' }}>
-          These figures currently include the poll-of-polls average as a temporary launch baseline, and will move towards readers&rsquo; own choices as more people vote.
+          These figures currently include the poll of polls average as a temporary launch baseline, and will move towards readers&rsquo; own choices as more people vote.
         </p>
       )}
 

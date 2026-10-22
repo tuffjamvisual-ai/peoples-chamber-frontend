@@ -31,9 +31,9 @@ export default function HowThisSiteIsMadePage() {
           How this site is made
         </h1>
         {/* AI-tools sentence temporarily removed pending a disclosure decision. Original:
-          opengovt is written and edited by a small team using AI tools for research, drafting and data processing, alongside primary-source verification against Hansard, the Register of Members&rsquo; Financial Interests, Companies House, the Electoral Commission and government statistics. */}
+          opengovt is written and edited by a small team using AI tools for research, drafting and data processing, alongside primary source verification against Hansard, the Register of Members&rsquo; Financial Interests, Companies House, the Electoral Commission and government statistics. */}
         <p style={{ fontFamily: MONO, fontSize: '16px', lineHeight: 1.8, color: INK, marginBottom: '18px' }}>
-          opengovt is written and edited by a small team, with primary-source verification against Hansard, the Register of Members&rsquo; Financial Interests, Companies House, the Electoral Commission and government statistics.
+          opengovt is written and edited by a small team, with primary source verification against Hansard, the Register of Members&rsquo; Financial Interests, Companies House, the Electoral Commission and government statistics.
         </p>
         <p style={{ fontFamily: MONO, fontSize: '16px', lineHeight: 1.8, color: INK, marginBottom: '18px' }}>
           Every factual claim is checked against a named public record before publication. Mistakes happen. When they&rsquo;re found, they&rsquo;re corrected and the correction is logged.

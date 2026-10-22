@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!project) return { title: 'Major project not found', robots: { index: false, follow: false } };
   return {
     title: `${project.name}: major project history`,
-    description: `${project.name} (${deptLabel(project.latest.department_code)}) in the Government Major Projects Portfolio: delivery confidence rating, end date and whole-life cost in each annual report since March 2024, and the department's commentary.`,
+    description: `${project.name} (${deptLabel(project.latest.department_code)}) in the Government Major Projects Portfolio: delivery confidence rating, end date and whole life cost in each annual report since March 2024, and the department's commentary.`,
     alternates: { canonical: projectHref(project.key) },
   };
 }
