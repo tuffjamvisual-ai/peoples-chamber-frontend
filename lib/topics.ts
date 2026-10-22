@@ -197,7 +197,7 @@ export const topics: TopicDef[] = [
     words: ['constitution', 'constitutional', 'house of lords', 'electoral', 'elections', 'devolution', 'referendum', 'recall', 'standards in public life', 'ministerial standards', 'boundary', 'boundaries', 'proportional representation', 'votes at 16', 'representation of the people', 'local government reorganisation'],
     exclude: [],
     billDepartments: ['Cabinet Office', 'Office of the Leader of the House of Commons', 'Office of the Leader of the House of Lords', 'Northern Ireland Office', 'Scotland Office', 'Wales Office', 'Office of the Advocate General for Scotland', 'Prime Minister'],
-    editorialSlugs: ['kxlkhj1jgj', 'power-for-sale-20-politicians-who-cashed-in', 'the-revolving-door', 'when-did-politicians-stop-taking-responsibility', 'britains-most-disgraced-politicians', 'kp7m2xqv9d', 'siicjkcsr6', 'ag7k4mxq9w', 'v3n8q2xk6w', 'wq7m4kx2np', 'qn4k9mxw7r', 'td4k9mxw7r', '6vui3xxze9', 'bn6k4qxw27', 'p4w9k2xr7n', 'hb9k2xq7mw', 'q7m3k9xw2r', 'dk9m2xq7w4', 'mn8k4qxw7v', 'rk9m4qxw7d'],
+    editorialSlugs: ['373qnkdlvr', 'kxlkhj1jgj', 'power-for-sale-20-politicians-who-cashed-in', 'the-revolving-door', 'when-did-politicians-stop-taking-responsibility', 'britains-most-disgraced-politicians', 'kp7m2xqv9d', 'siicjkcsr6', 'ag7k4mxq9w', 'v3n8q2xk6w', 'wq7m4kx2np', 'qn4k9mxw7r', 'td4k9mxw7r', '6vui3xxze9', 'bn6k4qxw27', 'p4w9k2xr7n', 'hb9k2xq7mw', 'q7m3k9xw2r', 'dk9m2xq7w4', 'mn8k4qxw7v', 'rk9m4qxw7d'],
     pollWords: ['proportional representation', 'no confidence', 'second job', 'second jobs', 'attendance', 'recall', 'lords', 'donation', 'gift'],
   },
   {
