@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import ServiceIndicator, { servicesForTopic } from '../../components/ServiceIndicator';
 import BackLink from '../../components/BackLink';
-import { getTopic, topics, SHARED_DEPARTMENTS, wholeWordsPattern } from '@/lib/topics';
+import { getTopic, topics, topicBillArgs, newestPerTitle, wholeWordsPattern } from '@/lib/topics';
 import { departments } from '@/lib/departments';
 import { editorials } from '@/lib/editorials';
 
@@ -54,11 +54,14 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
     .filter('division_title', 'imatch', words);
   if (exclude) divQuery = divQuery.not('division_title', 'imatch', exclude);
 
-  const [divRes, billRes, topRes, pollRes] = await Promise.all([
+  const [divRes, billRes, actRes, namedRes, topRes, pollRes] = await Promise.all([
     divQuery.order('division_date_only', { ascending: false }).limit(10),
-    supabase.rpc('topic_bills', {
-      p_depts: topic.billDepartments, p_shared: SHARED_DEPARTMENTS, p_words: [...topic.words, ...(topic.billTitles || [])], p_exclude: topic.exclude, p_limit: 40,
-    }),
+    supabase.rpc('topic_bills', { ...topicBillArgs(topic), p_limit: 40 }),
+    // Key Acts (owner's approval, 22 Oct 2026): the 8 newest Acts, newest per title, then any Act named by title.
+    supabase.rpc('topic_bills_page', { ...topicBillArgs(topic), p_acts_only: true, p_limit: 40, p_offset: 0 }),
+    topic.billTitles?.length
+      ? supabase.from('bill').select('id, title, is_act, current_stage, last_update').in('title', topic.billTitles).eq('is_act', true).is('hidden_reason', null).order('last_update', { ascending: false })
+      : Promise.resolve({ data: [], error: null }),
     // Top MPs by written questions to the topic's departments, ranked in the database (top_question_askers,
     // migration 2026-10-21b) instead of reading every MP's totals here.
     supabase.rpc('top_question_askers', { p_depts: topic.deptApiNames, p_limit: 5 }),
@@ -72,23 +75,17 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
 
   // A failed read throws (owner's approval, 21 Oct 2026): six topic pages were once built with no bills when this
   // search timed out. The last good version stays up instead.
-  for (const [name, r] of [['divisions', divRes], ['bills', billRes], ['poll', pollRes]] as const) {
+  for (const [name, r] of [['divisions', divRes], ['bills', billRes], ['acts', actRes], ['named acts', namedRes], ['poll', pollRes]] as const) {
     if (r.error) throw new Error(`topic ${slug} ${name}: ${r.error.message}`);
   }
   const divisions = divRes.data || [];
+  type BillRow = { id: number; title: string; is_act: boolean | null; current_stage: string | null; last_update: string };
   // The same bill is often reintroduced each session under the same title (owner's approval, 22 Oct 2026): only the
   // newest of each title is listed, so the 8 shown are different bills. topic_bills returns newest first.
-  const seenTitles = new Set<string>();
-  const newestPerTitle = ((billRes.data || []) as { id: number; title: string; is_act: boolean | null; current_stage: string | null; last_update: string }[])
-    .filter((b) => {
-      const key = b.title.trim().replace(/\s+/g, ' ').toLowerCase();
-      if (seenTitles.has(key)) return false;
-      seenTitles.add(key);
-      return true;
-    })
-    .slice(0, 8);
+  const newest = newestPerTitle((billRes.data || []) as BillRow[]).slice(0, 8);
   // Bills: active (not yet an Act) first, then most recent Acts.
-  const bills = newestPerTitle.sort((a, b) => Number(!!a.is_act) - Number(!!b.is_act));
+  const bills = newest.sort((a, b) => Number(!!a.is_act) - Number(!!b.is_act));
+  const keyActs = newestPerTitle([...newestPerTitle((actRes.data || []) as BillRow[]).slice(0, 8), ...((namedRes.data || []) as BillRow[])]);
 
   // Top MPs by written questions to the topic's department(s).
   if (topRes.error) throw new Error(`top_question_askers: ${topRes.error.message}`);
@@ -187,6 +184,23 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
             </Link>
           ))}
         </section>
+      )}
+
+      {/* Key Acts, then the topic's full list of bills and Acts */}
+      {keyActs.length > 0 && (
+        <section style={{ marginBottom: '6%' }}>
+          <h2 style={sectionH2}>Key Acts</h2>
+          {keyActs.map((b) => (
+            <Link key={b.id} href={`/bills/${b.id}`} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '11px 0' }}>
+              <div style={{ fontSize: '16px', fontWeight: 'bold', lineHeight: 1.3 }}>{b.title}</div>
+            </Link>
+          ))}
+        </section>
+      )}
+      {(bills.length > 0 || keyActs.length > 0) && (
+        <p style={{ marginTop: '-4%', marginBottom: '6%', fontSize: '17px' }}>
+          <Link href={`/topics/${topic.slug}/bills`} style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>All bills and Acts on this topic</Link>
+        </p>
       )}
 
       {/* Related editorials */}

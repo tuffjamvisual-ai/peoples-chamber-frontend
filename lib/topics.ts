@@ -204,9 +204,10 @@ export const topics: TopicDef[] = [
     slug: 'culture-media-and-sport',
     title: 'Culture, Media and Sport',
     blurb:
-      'Culture, media and sport covers the institutions most people use without thinking of them as policy: the BBC and the licence fee, Channel 4 and S4C, local libraries and museums, the arts, the National Lottery and the sports clubs and stadiums that anchor a town. It also covers the rules on gambling, press regulation, ticket resale and the new independent regulator for English football. The sums involved are small beside health or welfare, but decisions here shape what is broadcast, what is preserved and who can afford to take part, and the BBC Charter, which expires at the end of 2027, puts the future of public service broadcasting on the table.',
+      "Culture, media and sport covers the BBC and the licence fee, Channel 4 and S4C, libraries and museums, the arts, the National Lottery and sport. It also covers the rules on gambling, press regulation and ticket resale, and the new independent regulator for English football. The BBC's Royal Charter expires at the end of 2027, and decisions on how the BBC is funded after that are due in a government White Paper.",
     departmentSlugs: ['culture'],
-    deptApiNames: ['Department for Digital, Culture, Media and Sport'],
+    // Written questions were answered as the Department for Culture, Media and Sport until the 2026 renaming.
+    deptApiNames: ['Department for Digital, Culture, Media and Sport', 'Department for Culture, Media and Sport'],
     words: ['culture', 'cultural', 'arts', 'museum', 'museums', 'gallery', 'galleries', 'heritage', 'listed buildings', 'media', 'broadcasting', 'broadcaster', 'broadcasters', 'bbc', 'television', 'tv licence', 'licence fee', 'channel 4', 's4c', 'press', 'newspaper', 'newspapers', 'journalism', 'journalists', 'sport', 'sports', 'sporting', 'football', 'cricket', 'olympic', 'olympics', 'commonwealth games', 'gambling', 'betting', 'lottery', 'lotteries', 'tourism', 'library', 'libraries', 'music', 'theatre', 'theatres', 'film', 'creative industries', 'tickets', 'ticketing'],
     exclude: ['trees', 'chalk streams', 'social media', 'organ tourism'],
     // DCMS also sponsored digital, data, telecoms and charities bills, so both names are shared (owner's approval,
@@ -234,6 +235,23 @@ export function matchWords(text: string, words: string[], exclude: string[] = []
   if (!words.length || (exclude.length && re(exclude).test(text))) return null;
   const m = text.match(re(words));
   return m ? m[2].toLowerCase() : null;
+}
+
+// The topic_bills / topic_bills_page arguments for a topic (rule B): named bills match as whole phrases too.
+export function topicBillArgs(t: TopicDef) {
+  return { p_depts: t.billDepartments, p_shared: SHARED_DEPARTMENTS, p_words: [...t.words, ...(t.billTitles || [])], p_exclude: t.exclude };
+}
+
+// Newest of each title (case and spacing ignored), in the order given (newest first); the same bill is often
+// reintroduced each session under the same title.
+export function newestPerTitle<T extends { title: string }>(bills: T[]): T[] {
+  const seen = new Set<string>();
+  return bills.filter((b) => {
+    const key = b.title.trim().replace(/\s+/g, ' ').toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 export function getTopic(slug: string): TopicDef | undefined {
