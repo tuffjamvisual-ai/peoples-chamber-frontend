@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
-import { randomUUID } from 'crypto';
+import { newToken } from '@/lib/auth-tokens';
 import { sendVerificationEmail } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
@@ -29,17 +29,17 @@ export async function POST(request: NextRequest) {
     const lastSent = user.verification_sent_at ? new Date(user.verification_sent_at).getTime() : 0;
     if (Date.now() - lastSent < RESEND_GAP_MS) return NextResponse.json(GENERIC);
 
-    const token = randomUUID();
+    const token = newToken();
     const { error } = await supabase
       .from('users')
-      .update({ verification_token: token, verification_sent_at: new Date().toISOString() })
+      .update({ verification_token: token.hash, verification_sent_at: new Date().toISOString() })
       .eq('id', user.id);
     if (error) {
       console.error('resend-verification: failed to store token:', error.message);
       return NextResponse.json(GENERIC);
     }
     const base = process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
-    await sendVerificationEmail(user.email, token, base);
+    await sendVerificationEmail(user.email, token.raw, base);
     return NextResponse.json(GENERIC);
   } catch (e) {
     console.error('resend-verification error:', e);

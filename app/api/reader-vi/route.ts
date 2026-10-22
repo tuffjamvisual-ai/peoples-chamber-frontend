@@ -56,12 +56,12 @@ async function readState(userId: number | null, freshAggregate = false) {
 }
 
 export async function GET(request: NextRequest) {
-  const userId = getSessionUserId(request);
+  const userId = await getSessionUserId(request);
   return NextResponse.json(await readState(userId));
 }
 
 export async function POST(request: NextRequest) {
-  const userId = getSessionUserId(request);
+  const userId = await getSessionUserId(request);
   if (userId == null) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 });
   await touchLastSeen(userId);
 

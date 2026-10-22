@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
 // POST /api/comments - Create a new comment
 export async function POST(request: NextRequest) {
   try {
-    const userId = getSessionUserId(request);
+    const userId = await getSessionUserId(request);
     if (userId == null) {
       return NextResponse.json({ error: 'Unauthorised' }, { status: 401 });
     }
@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
 // PUT /api/comments - Update a comment
 export async function PUT(request: NextRequest) {
   try {
-    const userId = getSessionUserId(request);
+    const userId = await getSessionUserId(request);
     if (userId == null) {
       return NextResponse.json({ error: 'Unauthorised' }, { status: 401 });
     }
@@ -220,7 +220,7 @@ export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const commentId = searchParams.get('commentId');
-    const userId = getSessionUserId(request);
+    const userId = await getSessionUserId(request);
 
     if (!commentId || userId == null) {
       return NextResponse.json(

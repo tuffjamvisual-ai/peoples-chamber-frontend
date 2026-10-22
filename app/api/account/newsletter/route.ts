@@ -5,7 +5,7 @@ import { getSessionUserId } from '@/lib/session';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
-  const userId = getSessionUserId(request);
+  const userId = await getSessionUserId(request);
   if (userId == null) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 });
 
   const { data, error } = await supabase
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const userId = getSessionUserId(request);
+  const userId = await getSessionUserId(request);
   if (userId == null) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 });
 
   const body = await request.json();

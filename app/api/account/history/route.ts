@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 // voted on, with the title/question and their choice. Two-step fetch (no
 // reliance on FK joins) so it works regardless of relationship config.
 export async function GET(request: NextRequest) {
-  const userId = getSessionUserId(request);
+  const userId = await getSessionUserId(request);
   if (userId == null) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 });
   await touchLastSeen(userId);
 

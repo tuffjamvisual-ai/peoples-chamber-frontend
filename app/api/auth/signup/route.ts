@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 
 export const dynamic = 'force-dynamic';
 import { resolveMx } from 'dns/promises';
-import { randomUUID } from 'crypto';
+import { BCRYPT_COST, newToken } from '@/lib/auth-tokens';
 import { emailEnabled, sendVerificationEmail, sendSignupNotification } from '@/lib/email';
 import { setSessionCookie } from '@/lib/session';
 import disposableDomains from 'disposable-email-domains';
@@ -77,11 +77,12 @@ export async function POST(request: NextRequest) {
       .eq('email', email)
       .single();
 
+    // An address that already has an account gets exactly the response a new account needing
+    // confirmation gets (owner's approval, 22 Oct 2026), so signup cannot be used to find out who
+    // is registered. The password is still hashed so the response takes about as long.
     if (existingEmail) {
-      return NextResponse.json(
-        { error: 'Email already registered' },
-        { status: 400 }
-      );
+      await bcrypt.hash(password, BCRYPT_COST);
+      return NextResponse.json({ needsVerification: true });
     }
 
     // Check if username already exists
@@ -91,16 +92,18 @@ export async function POST(request: NextRequest) {
       .eq('username', username)
       .single();
 
+    // Usernames must be unique and are shown publicly beside comments, so this one is reported, in
+    // words that say nothing about whether the email address is registered.
     if (existingUsername) {
       return NextResponse.json(
-        { error: 'Username already taken' },
+        { error: 'Please choose a different username. If you already have an account, sign in instead.' },
         { status: 400 }
       );
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, BCRYPT_COST);
 
-    const token = randomUUID();
+    const token = newToken();
     const verified = !emailEnabled; // auto-verify when email sending is not configured
 
     const { data: user, error } = await supabase
@@ -112,7 +115,7 @@ export async function POST(request: NextRequest) {
         username,
         newsletter_opt_in: newsletterOptIn,
         email_verified: verified,
-        verification_token: verified ? null : token,
+        verification_token: verified ? null : token.hash,
         verification_sent_at: verified ? null : new Date().toISOString(),
         pending_return_to: verified ? null : pendingReturnTo,
       })
@@ -129,7 +132,7 @@ export async function POST(request: NextRequest) {
 
     if (!verified) {
       const base = process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
-      await sendVerificationEmail(email, token, base);
+      await sendVerificationEmail(email, token.raw, base);
     }
 
     // Notify the contact inbox of the new signup. Fire-and-forget: a failed or
@@ -149,7 +152,9 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Server configuration error. Please contact support.' }, { status: 500 });
       }
     }
-    return NextResponse.json({ user, needsVerification: !verified });
+    // Same body as the existing-address case above when confirmation is needed.
+    if (!verified) return NextResponse.json({ needsVerification: true });
+    return NextResponse.json({ user, needsVerification: false });
 
   } catch (error) {
     console.error('Signup error:', error);

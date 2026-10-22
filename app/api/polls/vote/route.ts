@@ -6,7 +6,7 @@ import { touchLastSeen } from '@/lib/touch-last-seen';
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
-  const userId = getSessionUserId(request);
+  const userId = await getSessionUserId(request);
   if (userId == null) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 });
   await touchLastSeen(userId);
   const { pollId, choice } = await request.json();
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  const userId = getSessionUserId(request);
+  const userId = await getSessionUserId(request);
   if (userId == null) return NextResponse.json({ error: 'Unauthorised' }, { status: 401 });
   await touchLastSeen(userId);
 

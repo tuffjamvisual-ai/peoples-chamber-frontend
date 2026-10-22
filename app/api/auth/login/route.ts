@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import bcrypt from 'bcryptjs';
 import { makeSessionCookieHeader, makeSignedInFlagHeader } from '@/lib/session';
+import { BCRYPT_COST } from '@/lib/auth-tokens';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,6 +41,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Hashes made at a lower cost are upgraded on the next successful sign in. A failure here is
+    // logged and does not block the sign in.
+    if (bcrypt.getRounds(user.password) < BCRYPT_COST) {
+      const upgraded = await bcrypt.hash(password, BCRYPT_COST);
+      const { error: rehashErr } = await supabase.from('users').update({ password: upgraded }).eq('id', user.id);
+      if (rehashErr) console.error('[login] rehash failed:', rehashErr.message);
+    }
+
     // Correct password but the email address was never confirmed: no session (owner's approval,
     // 22 Oct 2026). The page offers to resend the link through /api/auth/resend-verification.
     if (!user.email_verified) {
@@ -54,7 +63,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ needsPasswordReset: true });
     }
 
-    const cookieHeader = makeSessionCookieHeader(user.id);
+    const cookieHeader = await makeSessionCookieHeader(user.id);
     if (!cookieHeader) {
       console.error('[login] SESSION_SECRET missing or too short; no session cookie issued');
       return NextResponse.json({ error: 'Server configuration error. Please contact support.' }, { status: 500 });

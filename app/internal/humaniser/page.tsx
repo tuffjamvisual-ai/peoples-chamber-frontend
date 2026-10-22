@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 export default async function Page() {
   const store = await cookies();
-  const userId = verifySessionToken(store.get(SESSION_COOKIE_NAME)?.value);
+  const userId = await verifySessionToken(store.get(SESSION_COOKIE_NAME)?.value);
   if (!userId) redirect('/login?returnTo=/internal/humaniser');
   // Administrators only (owner's approval, 22 Oct 2026); the API applies the same check.
   const { data: me } = await supabaseAdmin.from('users').select('is_admin').eq('id', userId).maybeSingle();

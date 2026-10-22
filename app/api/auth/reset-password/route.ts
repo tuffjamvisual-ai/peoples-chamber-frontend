@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import bcrypt from 'bcryptjs';
-import { makeSessionCookieHeader, makeSignedInFlagHeader } from '@/lib/session';
+import { bumpSessionVersion, makeSessionCookieHeader, makeSignedInFlagHeader } from '@/lib/session';
+import { BCRYPT_COST, hashToken } from '@/lib/auth-tokens';
 
 const TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
 
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
     const { data: user, error } = await supabase
       .from('users')
       .select('id, email, username, postcode, reset_token_sent_at')
-      .eq('reset_token', token)
+      .eq('reset_token', hashToken(token))
       .maybeSingle();
 
     if (error || !user) {
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const hashedNew = await bcrypt.hash(newPassword, 10);
+    const hashedNew = await bcrypt.hash(newPassword, BCRYPT_COST);
 
     await supabase
       .from('users')
@@ -59,8 +60,13 @@ export async function POST(request: NextRequest) {
       })
       .eq('id', user.id);
 
+    // Every session issued before the reset stops working; the new cookie below carries the new version.
+    if ((await bumpSessionVersion(user.id)) == null) {
+      return NextResponse.json({ error: 'Server error. Please try again.' }, { status: 500 });
+    }
+
     const userData = { id: user.id, email: user.email, username: user.username, postcode: user.postcode };
-    const cookieHeader = makeSessionCookieHeader(user.id);
+    const cookieHeader = await makeSessionCookieHeader(user.id);
     if (!cookieHeader) {
       return NextResponse.json({ error: 'Server configuration error.' }, { status: 500 });
     }

@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function AdminUsersPage() {
   const token = (await cookies()).get(SESSION_COOKIE_NAME)?.value;
-  const userId = verifySessionToken(token);
+  const userId = await verifySessionToken(token);
   if (!userId) return notFound();
 
   const { data: me, error: meErr } = await supabaseAdmin

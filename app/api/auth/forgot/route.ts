@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
-import { randomUUID } from 'crypto';
+import { newToken } from '@/lib/auth-tokens';
 import { sendPasswordResetEmail } from '@/lib/email';
 
 // Always return this regardless of whether the email exists — prevents user enumeration.
@@ -26,17 +26,18 @@ export async function POST(request: NextRequest) {
 
     const lastSent = user?.reset_token_sent_at ? new Date(user.reset_token_sent_at).getTime() : 0;
     if (user && Date.now() - lastSent >= RESEND_GAP_MS) {
-      const token = randomUUID();
+      // The email carries the raw token; the database keeps only its hash.
+      const token = newToken();
       const { error: dbErr } = await supabase
         .from('users')
-        .update({ reset_token: token, reset_token_sent_at: new Date().toISOString() })
+        .update({ reset_token: token.hash, reset_token_sent_at: new Date().toISOString() })
         .eq('id', user.id);
       if (dbErr) {
         console.error('forgot: failed to store reset token:', dbErr.message);
       } else {
         // Await the send — fire-and-forget is unsafe in serverless (process may
         // terminate before the Promise resolves).
-        const result = await sendPasswordResetEmail(user.email, token, base);
+        const result = await sendPasswordResetEmail(user.email, token.raw, base);
         if (!result.sent) {
           console.error('forgot: email not sent:', result.reason);
         }

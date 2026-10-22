@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import bcrypt from 'bcryptjs';
-import { setSessionCookie } from '@/lib/session';
+import { bumpSessionVersion, setSessionCookie } from '@/lib/session';
+import { BCRYPT_COST } from '@/lib/auth-tokens';
 
 export const dynamic = 'force-dynamic';
 
@@ -51,12 +52,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const hashedNew = await bcrypt.hash(newPassword, 10);
+    const hashedNew = await bcrypt.hash(newPassword, BCRYPT_COST);
 
     await supabase
       .from('users')
       .update({ password: hashedNew, force_password_reset: false })
       .eq('id', user.id);
+
+    // Every session issued before the change stops working; the new cookie carries the new version.
+    if ((await bumpSessionVersion(user.id)) == null) {
+      return NextResponse.json({ error: 'Server error. Please try again.' }, { status: 500 });
+    }
 
     const cookieSet = await setSessionCookie(user.id);
     if (!cookieSet) {

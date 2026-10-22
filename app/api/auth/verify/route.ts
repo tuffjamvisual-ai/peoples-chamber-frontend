@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { setSessionCookie } from '@/lib/session';
+import { hashToken, VERIFY_TOKEN_TTL_MS } from '@/lib/auth-tokens';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,13 +11,16 @@ export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get('token');
   if (!token) return NextResponse.redirect(`${base}/login?verified=invalid`);
 
+  // The database keeps only the token's hash; links last VERIFY_TOKEN_TTL_MS (7 days).
   const { data: u } = await supabase
     .from('users')
-    .select('id, pending_return_to')
-    .eq('verification_token', token)
+    .select('id, pending_return_to, verification_sent_at')
+    .eq('verification_token', hashToken(token))
     .maybeSingle();
 
   if (!u) return NextResponse.redirect(`${base}/login?verified=invalid`);
+  const sentAt = u.verification_sent_at ? new Date(u.verification_sent_at).getTime() : 0;
+  if (Date.now() - sentAt > VERIFY_TOKEN_TTL_MS) return NextResponse.redirect(`${base}/login?verified=invalid`);
 
   await supabase
     .from('users')

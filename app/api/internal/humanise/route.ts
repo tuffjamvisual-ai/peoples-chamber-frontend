@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     return err('Forbidden', 403);
   }
 
-  const userId = getSessionUserId(req);
+  const userId = await getSessionUserId(req);
   if (!userId) return err('Sign in required to use the Humaniser.', 401);
 
   const { data: me, error: meErr } = await supabaseAdmin.from('users').select('is_admin').eq('id', userId).maybeSingle();
