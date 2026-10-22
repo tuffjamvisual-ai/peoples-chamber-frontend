@@ -99,12 +99,12 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      `House of Commons Foreign Affairs Committee, The appointment of Peter Mandelson as British Ambassador to the United States, HC 504, 9 July 2026: the appointment chronology; absence of a formal process for political appointments; failure to consult the Foreign Office permanent secretary and foreign secretary; No 10 pressure; the committee's findings on Robbins's understanding of the Prime Minister's wishes; the missing audit trail; the limitations of the evidence on mitigations; and the majority conclusion that Robbins's dismissal appeared to occur without full due process and establishment of the facts`,
-      `Foreign Affairs Committee, oral evidence of Sir Oliver Robbins, 21 April 2026: Robbins's account of No 10's "constant chasing", his description of the UKSV case as it was orally presented to him, his statement that he had not seen the UKSV summary, his acceptance of accountability for the clearance decision, his defence of the confidentiality of vetting and his evidence about the circumstances of his dismissal`,
-      `Prime Minister's statement on the appointment of Peter Mandelson, House of Commons, 20 April 2026: Starmer's account of when he learned of the UKSV recommendation, his explanation of the authority the FCDO then had to make the final vetting decision, his assertion that ministers should have been told, his criticism of the September 2025 response to Parliament and his acceptance of responsibility for appointing Mandelson`,
-      `Foreign Secretary Yvette Cooper, letter to the Foreign Affairs Committee, 18 April 2026: the appointment of an interim permanent under-secretary following Robbins's departure and the Foreign Secretary's concern that information about Mandelson's vetting had not previously been supplied to ministers or Parliament`,
-      { text: `Cabinet Office and Foreign, Commonwealth and Development Office, "New Permanent Under-Secretary Appointed at the Foreign, Commonwealth & Development Office", 8 January 2025: Robbins's appointment, its approval by the Prime Minister and foreign secretary, and David Lammy's stated reasons for bringing him back into government`, url: 'https://www.gov.uk/government/news/new-permanent-under-secretary-appointed-at-the-foreign-commonwealth-and-development-office' },
-      `FDA, "Robbins submits legal challenge of his dismissal", 14 July 2026: the existence and stated grounds of Robbins's application for judicial review; claims remain allegations in live proceedings and had not been determined by the court at the time of publication`,
+      `Commons Foreign Affairs Committee, The appointment of Peter Mandelson as British Ambassador to the United States, HC 504, 9 Jul 2026`,
+      `Foreign Affairs Committee, oral evidence of Sir Oliver Robbins, 21 Apr 2026`,
+      `Prime Minister's statement on the appointment of Peter Mandelson, House of Commons, 20 Apr 2026`,
+      `Foreign Secretary Yvette Cooper, letter to the Foreign Affairs Committee, 18 Apr 2026`,
+      { text: `Cabinet Office and FCDO, "New Permanent Under-Secretary Appointed at the Foreign, Commonwealth & Development Office", 8 Jan 2025`, url: 'https://www.gov.uk/government/news/new-permanent-under-secretary-appointed-at-the-foreign-commonwealth-and-development-office' },
+      `FDA, "Robbins submits legal challenge of his dismissal", 14 Jul 2026`,
     ],
     lastChecked: '4 October 2026',
   },

@@ -46,12 +46,12 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      `Hollie Ridley resignation announcement, reported by the Guardian and LabourList, 3 July 2026: records Ridley's decision to leave after Labour conference, her personal reasons and her statement that the NEC should choose a successor to work alongside the next leader`,
-      `Guardian, Starmer ally Hollie Ridley appointed as Labour general secretary, 17 September 2024: records Ridley's role in Labour's 2024 field campaign, her relationship with Starmer's operation, her previous party roles and the circumstances of her appointment`,
-      `Labour Party Rule Book: sets out the role of the general secretary as secretary to the NEC and the disciplinary and organisational functions exercised through the office`,
-      `LabourList, The process and politics of picking Labour's general secretaries: describes the general secretary's responsibilities for election campaigning, senior staffing, internal processes and party rules, and the NEC's role in selecting the person who holds the post`,
-      `Guardian and LabourList, David Evans appointment, May 2020: records Jennie Formby's departure after Starmer became leader and the NEC's subsequent selection of Evans`,
-      `Labour Party, Leadership Election 2026 timetable: establishes the leadership nomination timetable under which Burnham was seeking to succeed Starmer when Ridley's departure was announced`,
+      `Hollie Ridley resignation announcement, reported by the Guardian and LabourList, 3 Jul 2026`,
+      `Guardian, Starmer ally Hollie Ridley appointed as Labour general secretary, 17 Sep 2024`,
+      `Labour Party Rule Book`,
+      `LabourList, The process and politics of picking Labour's general secretaries`,
+      `Guardian and LabourList, David Evans appointment, May 2020`,
+      `Labour Party, Leadership Election 2026 timetable`,
     ],
     lastChecked: '5 October 2026',
   },

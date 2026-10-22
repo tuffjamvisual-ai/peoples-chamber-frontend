@@ -38,9 +38,9 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      { text: `Department of Health and Social Care, "Over £1.5 billion to help NHS withstand year-round pressure", 9 September 2026: the package of more than £1.5 billion, £1.3 billion maintenance and resilience allocation, ten major projects, individual project descriptions, £32 million cooling and ventilation subset, funding source and detailed design status`, url: 'https://www.gov.uk/government/news/over-15-billion-to-help-nhs-withstand-year-round-pressure' },
-      { text: `Department of Health and Social Care, "10 Year Capital Plan for Health and Social Care", 8 July 2026: the £15.9 billion maintenance backlog, £4.9 billion 2015/16 comparison, growth in backlog categories of higher risk, 4,100 clinical service disruptions, 8,700 total incidents related to the estate, £6.75 billion Estates Safety Fund and 2025/26 maintenance programme`, url: 'https://www.gov.uk/government/publications/10-year-capital-plan-for-health-and-social-care' },
-      { text: `Department of Health and Social Care, "Estates Safety Fund: initial schemes and associated funding allocations, 2026 to 2030", 11 September 2026: the purpose of the Estates Safety Fund, the nature of works funded and confirmation that allocations will be updated as further schemes are approved`, url: 'https://www.gov.uk/government/publications/estates-safety-fund-initial-schemes-and-associated-funding-allocations-2026-to-2030' },
+      { text: `DHSC, "Over £1.5 billion to help NHS withstand year-round pressure", 9 Sep 2026`, url: 'https://www.gov.uk/government/news/over-15-billion-to-help-nhs-withstand-year-round-pressure' },
+      { text: `DHSC, "10 Year Capital Plan for Health and Social Care", 8 Jul 2026`, url: 'https://www.gov.uk/government/publications/10-year-capital-plan-for-health-and-social-care' },
+      { text: `DHSC, "Estates Safety Fund: initial schemes and associated funding allocations, 2026 to 2030", 11 Sep 2026`, url: 'https://www.gov.uk/government/publications/estates-safety-fund-initial-schemes-and-associated-funding-allocations-2026-to-2030' },
     ],
     lastChecked: '3 October 2026',
   },

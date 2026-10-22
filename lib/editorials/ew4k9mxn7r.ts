@@ -43,12 +43,12 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      { text: `Ministry of Housing, Communities and Local Government, "Councils' high-cost services to be transformed through £91m fund", 15 September 2026: the £91 million programme, £41 million/£50 million funding split, 14 participating councils, individual transformation allocations, project descriptions and the government's stated aim of reducing reliance on Exceptional Financial Support`, url: 'https://www.gov.uk/government/news/councils-high-cost-services-to-be-transformed-through-91m-fund' },
-      { text: `MHCLG, "Exceptional Financial Support for local authorities for 2026-27", updated 18 August 2026: individual 2026/27 EFS approvals, including the approximately £460.4 million combined allocation for the current year for the 14 councils receiving transformation funding, and distinguishing support for council general funds from HRA, police and entries for previous years`, url: 'https://www.gov.uk/guidance/exceptional-financial-support-for-local-authorities-for-2026-27' },
-      `MHCLG, "Local authority revenue expenditure and financing: 2026-27 budget, England", 11 June 2026: the official figure of 35 councils and £1.5 billion of Exceptional Financial Support, and the 2026/27 expenditure figures for adult social care, children's social care, housing and homelessness`,
-      { text: `MHCLG, "Exceptional Financial Support for local authorities for 2025-26": the figure of 30 councils for 2025/26`, url: 'https://www.gov.uk/guidance/exceptional-financial-support-for-local-authorities-for-2025-26' },
-      { text: `MHCLG, "Exceptional Financial Support for local authorities for 2024-25": the figure of 19 councils for 2024/25`, url: 'https://www.gov.uk/guidance/exceptional-financial-support-for-local-authorities-for-2024-25' },
-      { text: `MHCLG, "Best value standards and intervention: a statutory guide for best value authorities": the mechanics of Exceptional Financial Support, including the usual use of capitalisation directions, borrowing and capital receipts to meet revenue costs`, url: 'https://www.gov.uk/government/publications/best-value-standards-and-intervention-a-statutory-guide-for-best-value-authorities' },
+      { text: `MHCLG, "Councils' high-cost services to be transformed through £91m fund", 15 Sep 2026`, url: 'https://www.gov.uk/government/news/councils-high-cost-services-to-be-transformed-through-91m-fund' },
+      { text: `MHCLG, "Exceptional Financial Support for local authorities for 2026-27", updated 18 Aug 2026`, url: 'https://www.gov.uk/guidance/exceptional-financial-support-for-local-authorities-for-2026-27' },
+      `MHCLG, "Local authority revenue expenditure and financing: 2026-27 budget, England", 11 Jun 2026`,
+      { text: `MHCLG, "Exceptional Financial Support for local authorities for 2025-26"`, url: 'https://www.gov.uk/guidance/exceptional-financial-support-for-local-authorities-for-2025-26' },
+      { text: `MHCLG, "Exceptional Financial Support for local authorities for 2024-25"`, url: 'https://www.gov.uk/guidance/exceptional-financial-support-for-local-authorities-for-2024-25' },
+      { text: `MHCLG, "Best value standards and intervention: a statutory guide for best value authorities"`, url: 'https://www.gov.uk/government/publications/best-value-standards-and-intervention-a-statutory-guide-for-best-value-authorities' },
     ],
     lastChecked: '3 October 2026',
   },

@@ -29,10 +29,10 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      `House of Commons Public Accounts Committee, "Government's intervention in British Steel Ltd", 18 September 2026: £555 million working capital figure, £642 million projected spending, £1.3 million daily cost, structural unprofitability, production performance, absence of a settled business model or decarbonisation pathway, the £95 million departmental underspend and Treasury reserve funding, uncertainty over recovering the money advanced, the £2.5 billion/Scunthorpe exchange, and the "bought time rather than providing a solution" verdict`,
-      `Public Accounts Committee oral evidence session, 22 June 2026: underlying exchange on departmental underspends, Treasury reserve funding and the £2.5 billion commitment`,
-      `National Audit Office, "Investigation into the government's intervention in British Steel's Scunthorpe site", 16 March 2026: first nine months of spending, rationale for emergency intervention, absence of a clear end date and financial risks identified before nationalisation`,
-      `Department for Business and Trade, UK Steel Strategy, 19 March 2026: ambition for domestic supply of 40 to 50 per cent, historical domestic market shares, decline in UK production, national security rationale and OECD estimate of global overcapacity`,
+      `Commons PAC, "Government's intervention in British Steel Ltd", 18 Sep 2026`,
+      `PAC oral evidence session, 22 Jun 2026`,
+      `NAO, "Investigation into the government's intervention in British Steel's Scunthorpe site", 16 Mar 2026`,
+      `DBT, UK Steel Strategy, 19 Mar 2026`,
     ],
     lastChecked: '3 October 2026',
   },

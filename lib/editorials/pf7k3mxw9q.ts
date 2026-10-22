@@ -35,12 +35,12 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      `Environmental Audit Committee, Addressing the risks from Perfluoroalkyl and Polyfluoroalkyl Substances (PFAS), 23 April 2026: the proposed essential use approach, the recommendation to phase out PFAS in consumer products that are not essential from 2027, the remediation recommendations and evidence on existing contamination`,
-      `UK Government response to the Environmental Audit Committee, published 6 July 2026: the government's acknowledgement of a plausible risk of serious or irreversible pollution, its position on consumer restrictions, EU alignment, labelling, remediation funding and UK REACH reform`,
-      `Defra, PFAS Plan: building a safer future together, 3 February 2026: the government's existing programme on monitoring, drinking water, contaminated land, industrial emissions and its statement that action should not be unnecessarily delayed`,
-      `Environment Agency, PFAS: Evaluating the economic burden of remediating high-risk sites: the modelled estimate of £31 billion to £121 billion to remediate between 2,900 and 10,200 sites posing a high risk in England`,
-      `Health and Safety Executive, UK REACH work on PFAS in firefighting foams: the history of the 2023 regulatory review and the restriction process subsequently taken forward for firefighting foams`,
-      `European Chemicals Agency, PFAS universal restriction process, March to June 2026: the status of the proposed restriction across the EU, the scientific committees' support for a broad restriction with targeted derogations and the expected timetable for the final socioeconomic opinion`,
+      `Environmental Audit Committee, Addressing the risks from Perfluoroalkyl and Polyfluoroalkyl Substances (PFAS), 23 Apr 2026`,
+      `UK Government response to the Environmental Audit Committee, published 6 Jul 2026`,
+      `Defra, PFAS Plan`,
+      `Environment Agency, PFAS`,
+      `Health and Safety Executive, UK REACH work on PFAS in firefighting foams`,
+      `European Chemicals Agency, PFAS universal restriction process, Mar to Jun 2026`,
     ],
     lastChecked: '4 October 2026',
   },

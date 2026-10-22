@@ -30,9 +30,9 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      `House of Commons Committee of Public Accounts, "Government compensation schemes", Twelfth Report of Session 2026-27 (HC 88), 9 September 2026: the missed summer 2026 statement, the "not materialised" finding, recommendation for an independent compensation body, absence of permanent central oversight, findings on claimants' experience, evidence requirements, communication failures, processing delays and recommendations for designing schemes jointly with those affected`,
-      `National Audit Office, "Government's compensation and financial recognition schemes", April 2026: the £3.5 billion paid and £11.4 billion potentially outstanding (against a total anticipated cost of close to £14.9 billion, of which the Infected Blood Compensation Scheme accounts for £12.8 billion), the sample of seven schemes, the survey of 572 respondents and all its percentage findings, the Horizon Shortfall Scheme application and delay figures, the Windrush delay figures, and the £500,000 community fund`,
-      `Public Accounts Committee, oral and written evidence for "Government compensation schemes: update": departmental evidence on Windrush, Horizon, LGBT veterans and infected blood schemes, joint design of schemes with those affected, claims that have run for a long time and the government's consideration of an independent compensation body`,
+      `House of Commons Committee of Public Accounts, "Government compensation schemes", Twelfth Report of Session 2026-27 (HC 88), 9 Sep 2026`,
+      `NAO, "Government's compensation and financial recognition schemes", Apr 2026`,
+      `PAC, oral and written evidence for "Government compensation schemes: update"`,
     ],
     lastChecked: '3 October 2026',
   },

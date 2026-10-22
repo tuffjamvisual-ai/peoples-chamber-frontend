@@ -21,11 +21,11 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      { text: `MHCLG, "Boarded-up high streets brought back to life with £210m boost", 25 September 2026: £210 million total, £125 million Derelict Buildings Fund, £65 million for community assets, £10 million for High Street Rental Auctions, £10 million for the Co-operative Development Programme, Prime Minister Andy Burnham's announcement, and the statement that the money was already earmarked for high street support and regeneration`, url: 'https://www.gov.uk/government/news/boarded-up-high-streets-brought-back-to-life-with-210m-boost' },
-      { text: `MHCLG, "High streets revived and children given safe places to play", 21 March 2026: £301 million High Streets Innovation Partnerships programme and its stated purpose`, url: 'https://www.gov.uk/government/news/high-streets-revived-and-children-given-safe-places-to-play' },
-      { text: `MHCLG, "Pubs, shops and local assets protected with communities in charge", 16 June 2026: £61 million Community Right to Buy Fund and confirmation that it formed part of the £301 million announced previously`, url: 'https://www.gov.uk/government/news/pubs-shops-and-local-assets-protected-with-communities-in-charge' },
-      `MHCLG, Towns Fund evaluation: final findings, 17 July 2026: improvement of 3.8 percentage points in pride in place in the ten case study towns and the 97.9 per cent versus 91.3 per cent footfall comparison`,
-      `UK Parliament, Written Ministerial Statement HCWS1295, 2 February 2026: earlier £150 million high streets commitment`,
+      { text: `MHCLG, "Boarded-up high streets brought back to life with £210m boost", 25 Sep 2026`, url: 'https://www.gov.uk/government/news/boarded-up-high-streets-brought-back-to-life-with-210m-boost' },
+      { text: `MHCLG, "High streets revived and children given safe places to play", 21 Mar 2026`, url: 'https://www.gov.uk/government/news/high-streets-revived-and-children-given-safe-places-to-play' },
+      { text: `MHCLG, "Pubs, shops and local assets protected with communities in charge", 16 Jun 2026`, url: 'https://www.gov.uk/government/news/pubs-shops-and-local-assets-protected-with-communities-in-charge' },
+      `MHCLG, Towns Fund evaluation`,
+      `UK Parliament, Written Ministerial Statement HCWS1295, 2 Feb 2026`,
     ],
     lastChecked: '3 October 2026',
   },

@@ -50,11 +50,11 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      `National Audit Office, "The Ministry of Defence's management of its losses from fraud and other economic crime", 30 January 2026: the construction and limitations of the £1.5 billion estimate, current procurement expenditure of around £40 billion, planned overall departmental spending of £53.9 billion rising to £73.5 billion in 2028/29, expenditure and recoveries from countering fraud, the £17.5 million commercial leakage exercise and its £5 million cost, the registers of fraud risk and weaknesses in investigation and case management`,
-      `House of Commons Public Accounts Committee, "The MoD's tackling of economic crime and misconduct", Third Report of Session 2026-27, HC 91, 29 May 2026: the £400 million of supplier costs judged invalid, the distinction between rejected invoices and fraud, the committee's findings on returns from countering fraud, fragmented investigations and its recommendations to the department, and the claim (via its footnote 44) that procurement spending is expected to exceed £70 billion by 2028/29, a claim this piece found unsupported by the NAO passage the committee cites for it`,
-      `Public Accounts Committee oral evidence, 5 March 2026: Jeremy Pocklington's description of the £1.5 billion estimate as an "academic construct", his confirmation that procurement spending is currently around £40 billion with no £70 billion projection given, committee member Rupert Lowe's unconfirmed reference to spending reaching £75 billion, and officials' evidence about the distinction between commercial disputes, sharp practice and suspected fraud`,
-      `Ministry of Defence letter to the Public Accounts Committee, 20 March 2026: the programme of approximately one year for developing a better estimate of fraud losses, initial work on less complex categories by the end of 2026, the expectation that procurement will be harder to quantify, and the absence of any £70 billion or £75 billion procurement projection in the department's written evidence`,
-      { text: `HM Treasury / Ministry of Defence, Treasury Minutes: Government Response to the Committee of Public Accounts, published 4 August 2026: the government's acceptance of the committee's recommendations, the autumn strategy for countering fraud, new enterprise risk register, changes in senior responsibility, April 2027 commercial fraud playbook, integrated investigation plans, November recovery plan, work on data analytics and the 2028 timetable for the finance system`, url: 'https://www.gov.uk/government/collections/treasury-minutes' },
+      `NAO, "The Ministry of Defence's management of its losses from fraud and other economic crime", 30 Jan 2026`,
+      `Commons PAC, "The MoD's tackling of economic crime and misconduct", Third Report of Session 2026-27, HC 91, 29 May 2026`,
+      `PAC oral evidence, 5 Mar 2026`,
+      `Ministry of Defence letter to the PAC, 20 Mar 2026`,
+      { text: `HM Treasury / Ministry of Defence, Treasury Minutes`, url: 'https://www.gov.uk/government/collections/treasury-minutes' },
     ],
     lastChecked: '3 October 2026',
   },

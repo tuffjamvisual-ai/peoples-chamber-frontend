@@ -34,11 +34,11 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      { text: `UK Parliament, written question 18207, "Railway Stations: Biometrics", answered by Department for Transport minister Keir Mather, 4 August 2026: the 17 deployments, stations and dates, no confirmed watchlist matches, one false alert, no arrests specifically following facial recognition, and the separate claim of 13 arrests linked to the deployments and reduced crime while LFR was operating`, url: 'https://questions-statements.parliament.uk/written-questions/detail/2026-07-13/18207' },
-      `British Transport Police, "Overt Live Facial Recognition Policy", version 2.5: BTP's deployment criteria, watchlist rules, requirements to notify the public, alternative routes, performance metrics, publication requirements and planned measures to reduce crime`,
-      `British Transport Police, "Live Facial Recognition: Legal Mandate", 10 February 2026: the force's reliance on common law policing powers, PACE, human rights and data protection law; its treatment of consent; and its account of the Bridges judgments`,
-      `British Transport Police, "British Transport Police to launch trial of Live Facial Recognition technology today", 11 February 2026: the launch date, purpose of the pilot, officer review of alerts, deletion of images that do not match and availability of alternative routes`,
-      { text: `Home Office, "Consultation on a new legal framework for law enforcement use of biometrics, facial recognition and similar technologies", 4 December 2025: the government's description of the current legal framework, its proposal for more specific legislation and statutory oversight, and the Metropolitan Police figure of 962 arrests attributed to LFR between September 2024 and September 2025`, url: 'https://www.gov.uk/government/consultations/legal-framework-for-using-facial-recognition-in-law-enforcement' },
+      { text: `Written question 18207, 4 Aug 2026`, url: 'https://questions-statements.parliament.uk/written-questions/detail/2026-07-13/18207' },
+      `British Transport Police, "Overt Live Facial Recognition Policy", version 2.5`,
+      `British Transport Police, "Live Facial Recognition: Legal Mandate", 10 Feb 2026`,
+      `British Transport Police, "British Transport Police to launch trial of Live Facial Recognition technology today", 11 Feb 2026`,
+      { text: `Home Office, "Consultation on a new legal framework for law enforcement use of biometrics, facial recognition and similar technologies", 4 Dec 2025`, url: 'https://www.gov.uk/government/consultations/legal-framework-for-using-facial-recognition-in-law-enforcement' },
     ],
     lastChecked: '3 October 2026',
   },

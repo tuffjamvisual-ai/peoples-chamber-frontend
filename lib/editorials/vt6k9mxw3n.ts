@@ -30,11 +30,11 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      `HM Treasury, VAT on electricity announcement, 21 July 2026: the reduction from 20 per cent to 5 per cent for the remainder of this parliament and the £850 million cost in 2026/27`,
-      `OBR, Economic and Fiscal Outlook, November 2025: the £1.8 billion digital ID programme cost over the Spending Review period, made up of roughly £500 million in costs for setting up and £1.3 billion in running costs, with a provisional annual cost of £600 million, treated as an unfunded departmental spending pressure`,
-      `House of Commons Science, Innovation and Technology Committee, oral evidence session with Darren Jones, March 2026: Jones's statement that the £1.8 billion figure was the OBR's own estimate disputed by the government, and that the final cost was unknown because the scheme's design had not been settled`,
-      `MoneySavingExpert, Martin Lewis analysis of the electricity VAT cut, July 2026: the 4.8 per cent estimated cash reduction once standing charges and elements not subject to VAT are accounted for, the gap between the £45 headline figure and typical household experience, and the risk that a rising price cap absorbs the cut's benefit`,
-      `Ofgem price cap determination, relevant quarter: the basis on which the annualised £45 saving figure was calculated`,
+      `HM Treasury, VAT on electricity announcement, 21 Jul 2026`,
+      `OBR, Economic and Fiscal Outlook, Nov 2025`,
+      `Commons Science, Innovation and Technology Committee, oral evidence session with Darren Jones, Mar 2026`,
+      `MoneySavingExpert, Martin Lewis analysis of the electricity VAT cut, Jul 2026`,
+      `Ofgem price cap determination, relevant quarter`,
     ],
     lastChecked: '4 October 2026',
   },

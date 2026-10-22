@@ -84,10 +84,10 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      'GOV.UK, "Crime and Policing Act 2026: impact assessments," published 29 September 2026: publication date, Royal Assent date (29 April 2026), collection listing the three assessments at enactment stage (criminal law, abortion, other measures)',
-      'Home Office/Ministry of Justice, "Crime and Policing Act: criminal law measures economic impact assessment" (enactment stage): £208.9m net present cost over ten years; £24.5m average annual cost; agency breakdown (£8.9m police, £15.0m HMPPS, £0.2m HMCTS, £0.4m Legal Aid Agency); estimate at steady state of 5,000 recorded crimes/400+ prosecutions/300+ convictions; Measure 1H wording on penetrative offences against children under 16; blank Date field; "SELECT SIGNATORY" placeholder; no monetised benefits identified',
-      'Home Office/Ministry of Justice, "Crime and Policing Bill: criminal law measures impact assessment" (Bill stage, February 2025): original £97.0m net present cost over ten years; £9.7m average annual cost; document dated 13 February 2025; ministerial signature dated 21 February 2025',
-      { text: 'GOV.UK, "Crime and Policing Bill 2025: impact assessments" collection: criminal law measures assessment first published 25 February 2025 alongside Bill introduction; further assessments of specific measures (crossbows, bladed articles) added as late as 3 December 2025 as the Bill progressed', url: 'https://www.gov.uk/government/publications/crime-and-policing-bill-2025-economic-notes' },
+      `GOV.UK, "Crime and Policing Act 2026: impact assessments," published 29 Sep 2026`,
+      `Home Office/Ministry of Justice, "Crime and Policing Act: criminal law measures economic impact assessment" (enactment stage)`,
+      `Home Office/Ministry of Justice, "Crime and Policing Bill: criminal law measures impact assessment" (Bill stage, February 2025)`,
+      { text: `GOV.UK, "Crime and Policing Bill 2025: impact assessments" collection`, url: 'https://www.gov.uk/government/publications/crime-and-policing-bill-2025-economic-notes' },
     ],
     lastChecked: '30 September 2026',
   },

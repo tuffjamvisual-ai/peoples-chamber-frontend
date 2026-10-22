@@ -92,12 +92,12 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      `Cabinet Office, Making public services work for you with your digital identity, March 2026: sets out the proposed national digital ID, its voluntary status, information it could contain, selective disclosure, alternative access routes, privacy and security proposals and possible use across public services and the wider economy; records the public consultation's 5 May 2026 close and the subsequent People's Panel concluding 21 June 2026, described by the Cabinet Office as the end of the formal consultation process`,
-      `Prime Minister's Office, New digital ID scheme to be rolled out across UK, 26 September 2025: records the original commitment that digital ID would be mandatory for checks on the right to work`,
-      `House of Commons Home Affairs Committee, Mandatory to manageable: the government's plans for digital ID, 20 May 2026: records the January reversal of mandatory government digital ID, examines data security and digital exclusion, identifies concerns about function creep and recommends parliamentary approval for significant future expansion`,
-      { text: `Department for Science, Innovation and Technology, Written Question 16720, answered 14 July 2026: Kanishka Narayan states that Ofcom is assessing age assurance methods for the social media restrictions for children under 16 and that any use of digital identity services would remain voluntary`, url: 'https://questions-statements.parliament.uk/written-questions/detail/2026-07-07/16720' },
-      `Department for Science, Innovation and Technology, Social media to be banned for under-16s, 15 June 2026: establishes the proposed restriction for children under 16 and expected spring 2027 implementation`,
-      `Ofcom, age assurance guidance: identifies methods potentially capable of highly effective age assurance, including facial age estimation, matching against photo ID, open banking, checks through mobile networks and digital identity services`,
+      `Cabinet Office, Making public services work for you with your digital identity, Mar 2026`,
+      `Prime Minister's Office, New digital ID scheme to be rolled out across UK, 26 Sep 2025`,
+      `Commons Home Affairs Committee, Mandatory to manageable`,
+      { text: `Written question 16720, 14 Jul 2026`, url: 'https://questions-statements.parliament.uk/written-questions/detail/2026-07-07/16720' },
+      `DSIT, Social media to be banned for under-16s, 15 Jun 2026`,
+      `Ofcom, age assurance guidance`,
     ],
     lastChecked: '5 October 2026',
   },

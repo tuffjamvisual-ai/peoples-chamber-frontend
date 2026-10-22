@@ -26,12 +26,12 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      { text: `Defra, "No hiding place: new tracking system exposes waste criminals like never before", 1 October 2026: figure of 12,000 sites, requirements to report in near real time, Environment Agency use of the data and the government's description of the launch`, url: 'https://www.gov.uk/government/news/no-hiding-place-new-tracking-system-exposes-waste-criminals-like-never-before' },
-      { text: `Defra and Environment Agency, "Developing the digital waste tracking service", updated 1 October 2026: phased rollout, spring 2027 date for the public beta, October 2027 mandatory carrier date, estimated numbers of operators, description of move towards a more complete service from end to end`, url: 'https://www.gov.uk/government/publications/digital-waste-tracking-service' },
-      `House of Lords Secondary Legislation Scrutiny Committee, Digital Waste Tracking Regulations scrutiny: committee's finding that the October regulations establish only the first phase and that further legislation is required for the full system`,
-      { text: `Regulatory Policy Committee, opinion on mandatory digital waste tracking, 7 May 2026: £40.8 million annual equivalent direct business cost, £174.1 million negative business NPV, £172.1 million positive overall NPV, figures for small businesses, cautions about modelling and evidence base including benefits possibly overstated and IT system life of 15 years`, url: 'https://www.gov.uk/government/publications/rpc-opinion-impact-of-mandatory-digital-waste-tracking' },
-      `Defra waste strategy monitoring data: £924 million estimate of waste crime for 2018/19 and component categories (£392 million flytipping, £236 million illegal waste sites, £120 million waste misclassification and fraud)`,
-      `National Audit Office, investigation into government action to combat waste crime in England, 2022: no official government estimate of the economic cost of waste crime; warning about weaknesses in the underlying data`,
+      { text: `Defra, "No hiding place: new tracking system exposes waste criminals like never before", 1 Oct 2026`, url: 'https://www.gov.uk/government/news/no-hiding-place-new-tracking-system-exposes-waste-criminals-like-never-before' },
+      { text: `Defra and Environment Agency, "Developing the digital waste tracking service", updated 1 Oct 2026`, url: 'https://www.gov.uk/government/publications/digital-waste-tracking-service' },
+      `House of Lords Secondary Legislation Scrutiny Committee, Digital Waste Tracking Regulations scrutiny`,
+      { text: `Regulatory Policy Committee, opinion on mandatory digital waste tracking, 7 May 2026`, url: 'https://www.gov.uk/government/publications/rpc-opinion-impact-of-mandatory-digital-waste-tracking' },
+      `Defra waste strategy monitoring data`,
+      `NAO, investigation into government action to combat waste crime in England, 2022`,
     ],
     lastChecked: '2 October 2026',
   },

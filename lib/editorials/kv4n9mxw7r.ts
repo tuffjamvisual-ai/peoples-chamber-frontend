@@ -76,8 +76,8 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      'GOV.UK, 29 September 2026: "Prime Minister Andy Burnham sets out plans for a new National Care Service": NCS proposal (free personal care based on need, introduced in phases, "fully funded, and not through borrowing"); examples of personal care ("eating, bathing and using the toilet"); exclusion of "bed and board"; triple lock reform wording and April 2030 start date; "one in seven" older adults facing lifetime costs above £100,000; Baroness Casey commission summer 2027 reporting date',
-      { text: 'DWP, "State Pension uprating" analysis, 2026: projected savings from adjusted triple lock: £15bn (2039/40) and £50bn (2049/50) nominal; £11bn and £30bn respectively in today\'s prices; current and adjusted uprating formulas; relative pensioner poverty after housing costs projected to fall from around 14% in 2024/25 to around 8% in 2049/50 under revised system', url: 'https://www.gov.uk/government/publications/state-pension-uprating-analysis-2026' },
+      `GOV.UK, 29 Sep 2026`,
+      { text: `DWP, "State Pension uprating" analysis, 2026`, url: 'https://www.gov.uk/government/publications/state-pension-uprating-analysis-2026' },
     ],
     lastChecked: '30 September 2026',
   },

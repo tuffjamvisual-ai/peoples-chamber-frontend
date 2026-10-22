@@ -29,12 +29,12 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      `Ministry of Justice, Criminal court statistics quarterly: January to March 2026, 25 June 2026: records 80,061 open Crown Court cases, the quarterly reduction of 37 cases, 22,124 cases open for a year or more, the median age of 196 days, offence breakdowns and Crown Court receipts and disposals`,
-      `Ministry of Justice, Crown Court waiting-time statistics, January to March 2026: records the median wait of 48 weeks for defendants completing a jury trial following a plea of not guilty and the median of 66.3 weeks for defendants remaining on bail`,
-      `National Audit Office, Reducing the backlog in the Crown Court, originally published May 2024 and revised March 2025: records the previous government's ambition of 53,000 cases, the £477 million recovery funding and the NAO's finding that the target was no longer achievable`,
-      `House of Commons Public Accounts Committee, Crown Court backlogs, 5 March 2025: examines the failure of the previous backlog reduction plan and the Ministry of Justice's management of Crown Court capacity and demand`,
-      `HM Treasury and Ministry of Justice, government response to the Public Accounts Committee, May 2025: sets out the government's measures on sitting days, judicial recruitment, court maintenance and legal aid, while acknowledging that those measures alone would not reduce the outstanding caseload`,
-      { text: `House of Commons written answer 111040, 13 February 2026: records the government's statement that 139,000 Crown Court sitting days would be required merely to keep pace with projected 2030 demand, against current judicial capacity of around 113,000 days`, url: 'https://questions-statements.parliament.uk/written-questions/detail/2026-02-04/111040' },
+      `Ministry of Justice, Criminal court statistics quarterly`,
+      `Ministry of Justice, Crown Court waiting-time statistics, Jan to Mar 2026`,
+      `NAO, Reducing the backlog in the Crown Court, originally published May 2024 and revised March 2025`,
+      `Commons PAC, Crown Court backlogs, 5 Mar 2025`,
+      `HM Treasury and Ministry of Justice, government response to the PAC, May 2025`,
+      { text: `House of Commons written answer 111040, 13 Feb 2026`, url: 'https://questions-statements.parliament.uk/written-questions/detail/2026-02-04/111040' },
     ],
     lastChecked: '5 October 2026',
   },

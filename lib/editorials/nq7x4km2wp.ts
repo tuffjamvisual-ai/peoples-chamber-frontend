@@ -33,12 +33,12 @@ const piece: EditorialEntry = {
   ],
   evidence: {
     recordsReviewed: [
-      { text: `Regulator of Social Housing, 2026 Financial Forecasts of Private Registered Providers, 6 October 2026: primary source for debt, financing facilities, loan repayments, development, repairs, grant, interest cover, rent assumptions, provider segmentation, economic sensitivity modelling and contractual commitments, including the figure of £54.7bn for new facilities, the £34.7bn loan repayments figure and the conclusion in its financing section that "at least £20bn" is new borrowing, and the quote that the financial position "may be beginning to stabilise"`, url: 'https://www.gov.uk/government/publications/2026-financial-forecasts-of-private-registered-providers' },
-      { text: `Regulator of Social Housing, "Social housing landlords to invest record amounts in repairs and new homes", 6 October 2026: uses the wording "£54.7bn of new borrowing" without distinguishing refinancing from additional borrowing`, url: 'https://www.gov.uk/government/news/social-housing-landlords-to-invest-record-amounts-in-repairs-and-new-homes' },
-      { text: `Regulator of Social Housing, 2025 Financial Forecasts of Private Registered Providers, 15 January 2026: previous forecast set, including the £124.2bn 2031 debt figure, the figure of 106.4 per cent for interest cover over five years, the £54bn repairs spending figure and the regulator's warning that forecast improvements in interest cover had historically not subsequently been achieved`, url: 'https://www.gov.uk/government/publications/2025-financial-forecasts-of-private-registered-providers' },
-      { text: `Regulator of Social Housing, Rent Standard 2026, 2 February 2026: confirms the settlement over ten years under which social landlords may generally increase Social Rent and Affordable Rent by up to CPI plus one percentage point annually`, url: 'https://www.gov.uk/government/publications/rent-standard-2026' },
-      `Ministry of Housing, Communities and Local Government, Social Rent convergence outcome, 2026: confirms the additional weekly convergence increases permitted from April 2027 for Social Rent properties below formula rent`,
-      `Ministry of Housing, Communities and Local Government, first Social and Affordable Homes Programme allocations, 24 to 25 August 2026: confirms nearly £10 billion in initial allocations intended to support more than 70,000 homes within the wider £39 billion programme`,
+      { text: `Regulator of Social Housing, 2026 Financial Forecasts of Private Registered Providers, 6 Oct 2026`, url: 'https://www.gov.uk/government/publications/2026-financial-forecasts-of-private-registered-providers' },
+      { text: `Regulator of Social Housing, "Social housing landlords to invest record amounts in repairs and new homes", 6 Oct 2026`, url: 'https://www.gov.uk/government/news/social-housing-landlords-to-invest-record-amounts-in-repairs-and-new-homes' },
+      { text: `Regulator of Social Housing, 2025 Financial Forecasts of Private Registered Providers, 15 Jan 2026`, url: 'https://www.gov.uk/government/publications/2025-financial-forecasts-of-private-registered-providers' },
+      { text: `Regulator of Social Housing, Rent Standard 2026, 2 Feb 2026`, url: 'https://www.gov.uk/government/publications/rent-standard-2026' },
+      `MHCLG, Social Rent convergence outcome, 2026`,
+      `MHCLG, first Social and Affordable Homes Programme allocations, 24 to 25 Aug 2026`,
     ],
     lastChecked: '6 October 2026',
   },
