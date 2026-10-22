@@ -1443,7 +1443,8 @@ export default function MagazineProfileSections({
               <>
                 <h3 style={sectionH3}>Parliamentary career</h3>
                 <ul style={{ listStyle: 'none', padding: 0 }}>
-                  {bio.representations.map((r, i) => (
+                  {/* Newest seat first for every MP (owner's approval, 22 Oct 2026). */}
+                  {[...bio.representations].sort((a, b) => (b.startDate || '').localeCompare(a.startDate || '')).map((r, i) => (
                     <li key={i} style={{ padding: '6px 0', borderBottom: inkDivider }}>
                       <strong>{r.name}</strong>
                       <div style={{ fontSize: '15px', opacity: 0.75, fontFamily: 'monospace' }}>
