@@ -29,6 +29,7 @@ import supportedHousingLicensing from './x4g3y1z5d8';
 import no10NorthCosts from './373qnkdlvr';
 import digitalSpending from './aq4pfusttu';
 import kirkleesStockCondition from './fxdep4e6wh';
+import policeAiMisconduct from './ai755882dw';
 import biggestWestminsterScandals from './kxlkhj1jgj';
 import powerForSale from './power-for-sale-20-politicians-who-cashed-in';
 import whenDidPoliticiansStop from './when-did-politicians-stop-taking-responsibility';
@@ -193,6 +194,7 @@ const allEditorials: EditorialRegistry = {
   [no10NorthCosts.slug]: no10NorthCosts,
   [digitalSpending.slug]: digitalSpending,
   [kirkleesStockCondition.slug]: kirkleesStockCondition,
+  [policeAiMisconduct.slug]: policeAiMisconduct,
 };
 
 // Unpublished until their sources are added and checked (owner's decision, 22 Oct 2026). The files stay; leaving them
