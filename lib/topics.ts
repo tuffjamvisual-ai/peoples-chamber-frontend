@@ -204,7 +204,7 @@ export const topics: TopicDef[] = [
     slug: 'culture-media-and-sport',
     title: 'Culture, Media and Sport',
     blurb:
-      "Culture, media and sport covers the BBC and the licence fee, Channel 4 and S4C, libraries and museums, the arts, the National Lottery and sport. It also covers the rules on gambling, press regulation and ticket resale, and the new independent regulator for English football. The BBC's Royal Charter expires at the end of 2027, and decisions on how the BBC is funded after that are due in a government White Paper.",
+      'Culture, media and sport covers the BBC and the licence fee, Channel 4 and S4C, libraries and museums, the arts, the National Lottery and sport. It also covers the rules on gambling, press regulation and ticket resale, and the new independent regulator for English football. The BBC’s Royal Charter expires at the end of 2027, and decisions on how the BBC is funded after that are due in a government White Paper.',
     departmentSlugs: ['culture'],
     // Written questions were answered as the Department for Culture, Media and Sport until the 2026 renaming.
     deptApiNames: ['Department for Digital, Culture, Media and Sport', 'Department for Culture, Media and Sport'],
