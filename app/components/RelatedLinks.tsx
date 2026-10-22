@@ -16,6 +16,7 @@ import { supabase } from '@/lib/supabase';
 import { resolveOrgToDeptSlug } from '@/lib/govOrgSlug';
 import { govUrlToSlug } from '@/lib/govUrlSlug';
 import { departments } from '@/lib/departments';
+import { optionalSection } from '@/lib/optional-section';
 
 const ACCENT = '#7a1612';
 const INK = '#14100d';
@@ -664,7 +665,15 @@ async function renderDivision(props: DivisionProps) {
 
 // ============================= Entry point ===============================
 
+// An optional section: if its reads fail it is left out and the error logged, not the whole page failed
+// (lib/optional-section.ts, owner's approval, 22 Oct 2026).
 export default async function RelatedLinks(
+  props: MpProps | BillProps | DepartmentProps | PressReleaseProps | DivisionProps | EditorialProps,
+) {
+  return optionalSection(`RelatedLinks (${props.variant})`, () => renderVariant(props), null);
+}
+
+async function renderVariant(
   props: MpProps | BillProps | DepartmentProps | PressReleaseProps | DivisionProps | EditorialProps,
 ) {
   if (props.variant === 'mp') return renderMp(props);

@@ -1,14 +1,15 @@
 // "Read next" blocks on news, editorial and debate pages (owner's approval, 21 Oct 2026): 3 to 5 links placed after
 // the opening of the piece, as well as the existing end sections. Each rule runs in order, a link is used once, and a
 // link the page already shows in its end sections is left out (news: RelatedLinks' department, Secretary of State
-// and newest releases; editorials: ExploreNext). A block with fewer than two links is not shown. A failed read throws,
-// like the pages' other reads, so a page built ahead keeps its last good version.
+// and newest releases; editorials: ExploreNext). A block with fewer than two links is not shown. A block whose read
+// fails is left out and the error logged (lib/optional-section.ts, 22 Oct 2026); it no longer fails the page.
 import { supabase } from '@/lib/supabase';
 import { topics, matchWords } from '@/lib/topics';
 import { departments } from '@/lib/departments';
 import type { EditorialEntry } from '@/lib/editorials/types';
 import { resolveOrgToDeptSlug } from '@/lib/govOrgSlug';
 import { exploreNextSelection } from '@/lib/explore-next';
+import { optionalSection } from '@/lib/optional-section';
 
 export type ReadNextLink = { href: string; label: string; note?: string };
 
@@ -81,7 +82,7 @@ async function loadCurrentMinisters(): Promise<Minister[]> {
 //    RelatedLinks already). 2. Up to 2 releases from the same organisation within 180 days that match the title most
 //    closely (related_press_releases, migration 2026-10-21d; it leaves out the "More from" list). 3. The topic hub
 //    matching the title. The department page is in RelatedLinks, so it is not repeated here.
-export async function newsReadNext(r: { id: number; title: string; organisation: string | null; body: string | null; description: string | null }): Promise<ReadNextLink[]> {
+async function newsReadNextImpl(r: { id: number; title: string; organisation: string | null; body: string | null; description: string | null }): Promise<ReadNextLink[]> {
   const deptSlug = r.organisation ? resolveOrgToDeptSlug(r.organisation) : null;
   const text = plain(`${r.description || ''} ${r.body || ''}`);
   const [ministers, related] = await Promise.all([
@@ -113,7 +114,7 @@ const currentMps = memo(async () => {
 // 1. MPs named in full in the text (current MPs), up to 2. 2. Departments named in full, up to 2. 3. The next
 //    pieces on the same subject after the three ExploreNext shows, up to 2. ExploreNext's links (data pages, topic
 //    hubs, hand-picked and related pieces) are not repeated.
-export async function editorialReadNext(piece: EditorialEntry): Promise<ReadNextLink[]> {
+async function editorialReadNextImpl(piece: EditorialEntry): Promise<ReadNextLink[]> {
   const sel = exploreNextSelection(piece);
   const pick = new Picker(sel.hrefs);
   const text = piece.body.map((b) => ('text' in b && typeof b.text === 'string' ? b.text : '')).join(' ').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
@@ -149,7 +150,7 @@ function departmentInRole(attribution: string) {
   }
   return null;
 }
-export async function debateReadNext(d: { title: string; speakers: { memberId: number | null; html: string; attribution: string }[] }): Promise<ReadNextLink[]> {
+async function debateReadNextImpl(d: { title: string; speakers: { memberId: number | null; html: string; attribution: string }[] }): Promise<ReadNextLink[]> {
   const pick = new Picker([]);
   const withId = d.speakers.filter((s) => s.memberId != null);
   const opening = withId[0];
@@ -209,3 +210,11 @@ export function editorialReadNextIndex(piece: EditorialEntry): number {
   }
   return paraAt[3];
 }
+
+// Entry points: a failed read leaves the block out (lib/optional-section.ts).
+export const newsReadNext = (r: Parameters<typeof newsReadNextImpl>[0]) =>
+  optionalSection(`read next (news ${r.id})`, () => newsReadNextImpl(r), [] as ReadNextLink[]);
+export const editorialReadNext = (piece: EditorialEntry) =>
+  optionalSection(`read next (editorial ${piece.slug})`, () => editorialReadNextImpl(piece), [] as ReadNextLink[]);
+export const debateReadNext = (d: Parameters<typeof debateReadNextImpl>[0]) =>
+  optionalSection(`read next (debate ${d.title})`, () => debateReadNextImpl(d), [] as ReadNextLink[]);

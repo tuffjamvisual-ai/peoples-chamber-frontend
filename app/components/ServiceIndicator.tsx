@@ -40,7 +40,11 @@ function fmt(v: number | null, unit: string): string {
 export default async function ServiceIndicator({ services }: { services: string[] }) {
   if (!services.length) return null;
   const { data, error: dataErr } = await supabase.from('dashboard_indicators').select('*').in('service', services);
-  if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`ServiceIndicator dashboard_indicators: ${dataErr.message}`);
+  // An optional side panel: a failed read leaves it out and logs the error (lib/optional-section.ts, 22 Oct 2026).
+  if (dataErr && dataErr.code !== 'PGRST116') {
+    console.error(`[optional section hidden] ServiceIndicator dashboard_indicators: ${dataErr.message}`);
+    return null;
+  }
   const rows = ((data || []) as Array<{ service: string; label: string; value: number; unit: string; trend: string; period: string }>);
   if (!rows.length) return null;
   rows.sort((a, b) => services.indexOf(a.service) - services.indexOf(b.service));
