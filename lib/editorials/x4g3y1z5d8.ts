@@ -28,7 +28,7 @@ const piece: EditorialEntry = {
       `Government response, Supported Housing regulation, 16 Apr 2026`,
       `Consultation on draft regulations, 15 Oct 2026`,
       `Draft Supported Housing (Licensing) (England) Regulations 2027`,
-      `Written questions 35568 and 35574, 16 Oct 2026`,
+      { text: `Written questions 35568 and 35574, 16 Oct 2026`, links: [{ match: '35568', url: 'https://questions-statements.parliament.uk/written-questions/detail/2026-10-16/35568' }, { match: '35574', url: 'https://questions-statements.parliament.uk/written-questions/detail/2026-10-16/35574' }] },
       `Oversight pilots evaluation, 7 Apr 2022`,
       `Local Government Lawyer, first consultation, 20 Feb 2025`,
     ],
