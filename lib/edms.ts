@@ -12,9 +12,9 @@ export const EDM_PARLIAMENT_START = '2024-07-04';
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-export async function fetchEdmJson(url: string): Promise<any> {
+export async function fetchEdmJson(url: string, attempts = 4): Promise<any> {
   let lastErr: unknown;
-  for (let attempt = 1; attempt <= 4; attempt++) {
+  for (let attempt = 1; attempt <= attempts; attempt++) {
     try {
       const res = await fetch(url, {
         headers: { 'User-Agent': 'opengovt/1.0 (+https://opengovt.uk)', Accept: 'application/json' },
@@ -30,7 +30,7 @@ export async function fetchEdmJson(url: string): Promise<any> {
       return await res.json();
     } catch (e) {
       lastErr = e;
-      if ((e as { noRetry?: boolean }).noRetry) break;
+      if ((e as { noRetry?: boolean }).noRetry || attempt === attempts) break;
       await sleep(1000 * attempt * attempt); // 1s, 4s, 9s
     }
   }
@@ -69,6 +69,59 @@ export async function listEdms(startDate: string, delayMs = 250, concurrency = 1
     throw new Error(`EDM list returned ${out.size} of ${total} motions`);
   }
   return [...out.values()];
+}
+
+// The list, read so it can stop and carry on (owner's approval, 22 Oct 2026). `done` holds the pages already read
+// (by skip, from an earlier run); only the others are fetched, `concurrency` at a time, each tried up to 3 times
+// (1 s and 4 s apart). Stops starting pages at `deadline`. Returns every page read so far and whether the list is
+// complete; nothing is thrown for a page that failed, it is simply left for the next run.
+export type EdmListPages = { total: number; pages: Record<string, EdmListEntry[]> };
+
+export async function listEdmsResumable(
+  startDate: string, done: EdmListPages | null, deadline: number, delayMs = 250, concurrency = 3,
+): Promise<{ state: EdmListPages; complete: boolean; motions: number; pagesRead: number; pagesFailed: number; lastError: string | null }> {
+  const take = 100;
+  const pages: Record<string, EdmListEntry[]> = { ...(done?.pages ?? {}) };
+  let total = done?.total ?? -1;
+  let pagesRead = 0, pagesFailed = 0;
+  let lastError: string | null = null;
+  const read = async (skip: number): Promise<boolean> => {
+    try {
+      const json = await fetchEdmJson(
+        `${EDM_API}/EarlyDayMotions/list?parameters.tabledStartDate=${startDate}&parameters.orderBy=DateTabledAsc&parameters.skip=${skip}&parameters.take=${take}`,
+        3,
+      );
+      const items: any[] = Array.isArray(json?.Response) ? json.Response : [];
+      pages[String(skip)] = items
+        .filter((it) => typeof it?.Id === 'number')
+        .map((it) => ({ id: it.Id, sponsorsCount: typeof it.SponsorsCount === 'number' ? it.SponsorsCount : null }));
+      // The first page read in a run sets the total (motions are added all the time).
+      if (typeof json?.PagingInfo?.Total === 'number' && (skip === 0 || total < 0)) total = Math.min(json.PagingInfo.Total, 100_000);
+      pagesRead++;
+      await sleep(delayMs);
+      return true;
+    } catch (e) {
+      pagesFailed++;
+      lastError = `page skip=${skip}: ${(e as Error).message}`;
+      return false;
+    }
+  };
+  // Page 0 is read again each run: new motions are added at the end (oldest first), so it gives the new total.
+  if (Date.now() < deadline) await read(0);
+  if (total < 0) return { state: { total: 0, pages }, complete: false, motions: 0, pagesRead, pagesFailed, lastError };
+  const skips: number[] = [];
+  for (let skip = take; skip < total; skip += take) if (!pages[String(skip)] || skip + take >= total) skips.push(skip);
+  const worker = async () => {
+    while (skips.length > 0 && Date.now() < deadline) await read(skips.shift()!);
+  };
+  await Promise.all(Array.from({ length: Math.max(1, concurrency) }, worker));
+  const ids = new Set<number>();
+  for (let skip = 0; skip < total; skip += take) for (const e of pages[String(skip)] ?? []) ids.add(e.id);
+  // Complete when every page is in hand. Pages kept from an earlier run can be out of step by a motion or two if the
+  // list changed in between; the caller starts afresh next time (`motions` short of `total`).
+  let complete = true;
+  for (let skip = 0; skip < total; skip += take) if (!pages[String(skip)]) complete = false;
+  return { state: { total, pages }, complete, motions: ids.size, pagesRead, pagesFailed, lastError };
 }
 
 function statusText(v: unknown): 'published' | 'withdrawn' {

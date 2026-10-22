@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
-import { EDM_API, EDM_PARLIAMENT_START, fetchEdmJson, listEdms, buildEdmRows, writeEdm, type EdmListEntry } from '@/lib/edms';
+import { EDM_API, EDM_PARLIAMENT_START, fetchEdmJson, listEdmsResumable, buildEdmRows, writeEdm, type EdmListEntry, type EdmListPages } from '@/lib/edms';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -23,6 +23,11 @@ export const maxDuration = 300;
 // 104 to 216 s of the 240 s budget (12 to 20 Oct 2026), and on 18 and 21 Oct
 // over 240 s, so no motion was fetched and the run returned 502 with 0 rows.
 //
+// 22 Oct 2026 (owner's approval): the list read can stop and carry on. Each page is tried up to 3 times (1 s and 4 s
+// apart); the list stops starting pages at LIST_BUDGET_MS, and the pages read are saved in sync_cursor, so the next
+// run reads only the rest (and page 0 and the last page again, which change). Motions found so far are fetched with
+// the time left, and the run returns 200 when anything was saved. On 22 Oct the full run took 236 s of its 240 s.
+//
 // A second cron, 10 minutes later, calls this with ?retry=1: it runs again only
 // if the last run, within the past hour, ended with a 5xx (Parliament's API
 // failing, or nothing written); otherwise it returns without recording a run.
@@ -32,6 +37,9 @@ const LIST_CONCURRENCY = 3;
 const DELAY_MS = 250;
 const TIME_BUDGET_MS = 240_000;
 const ROLLING_REFRESH = 300;
+const LIST_BUDGET_MS = 150_000;
+const ROUTE = '/api/sync-edms';
+const CURSOR_MAX_AGE_MS = 36 * 3_600_000; // pages saved longer ago are read again
 
 async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
@@ -42,11 +50,26 @@ async function GET_impl(req: Request) {
 
   const started = Date.now();
 
-  let list: EdmListEntry[];
-  try {
-    list = await listEdms(EDM_PARLIAMENT_START, DELAY_MS, LIST_CONCURRENCY);
-  } catch (e) {
-    return NextResponse.json({ error: 'list_fetch_failed', message: (e as Error).message }, { status: 502 });
+  // Pages saved by an earlier run that stopped part way.
+  let saved: EdmListPages | null = null;
+  {
+    const { data: cur } = await supabase.from('sync_cursor').select('cursor, updated_at').eq('route', ROUTE).maybeSingle();
+    if (cur && Date.now() - new Date(cur.updated_at as string).getTime() < CURSOR_MAX_AGE_MS) saved = cur.cursor as EdmListPages;
+  }
+  const listed = await listEdmsResumable(EDM_PARLIAMENT_START, saved, started + LIST_BUDGET_MS, DELAY_MS, LIST_CONCURRENCY);
+  const byId = new Map<number, EdmListEntry>();
+  for (const entries of Object.values(listed.state.pages)) for (const e of entries) byId.set(e.id, e);
+  const list = [...byId.values()];
+  // Keep the pages for the next run while the list is incomplete; once complete (or out of step), start afresh.
+  let cursorError: string | null = null;
+  if (!listed.complete && list.length > 0) {
+    const { error } = await supabase.from('sync_cursor').upsert({ route: ROUTE, cursor: listed.state, updated_at: new Date().toISOString() }, { onConflict: 'route' });
+    if (error) cursorError = error.message;
+  } else if (saved) {
+    await supabase.from('sync_cursor').delete().eq('route', ROUTE);
+  }
+  if (list.length === 0) {
+    return NextResponse.json({ error: 'list_fetch_failed', message: listed.lastError ?? 'no page of the motion list could be read', pages_failed: listed.pagesFailed }, { status: 502 });
   }
 
   // Stored state (paged: PostgREST returns at most 1,000 rows per call).
@@ -104,7 +127,14 @@ async function GET_impl(req: Request) {
   await Promise.all(Array.from({ length: CONCURRENCY }, worker));
 
   const body = {
-    ok: failures.length === 0,
+    ok: failures.length === 0 && listed.complete,
+    list_complete: listed.complete,
+    list_total: listed.state.total,
+    list_pages_read: listed.pagesRead,
+    list_pages_failed: listed.pagesFailed,
+    list_pages_from_last_run: saved ? Object.keys(saved.pages ?? {}).length : 0,
+    ...(listed.lastError ? { list_last_error: listed.lastError } : {}),
+    ...(cursorError ? { cursor_error: cursorError } : {}),
     motions_listed: list.length,
     new_or_changed: changed.length,
     rolling_refresh: rolling.length,
@@ -116,11 +146,11 @@ async function GET_impl(req: Request) {
     failure_count: failures.length,
     duration_ms: Date.now() - started,
   };
-  const status = total > 0 && processed === 0 ? 502 : 200;
+  // 200 when anything was saved, or when there was nothing to do and the list was read in full.
+  const status = processed > 0 || (total === 0 && listed.complete) ? 200 : 502;
   return NextResponse.json(body, { status });
 }
 
-const ROUTE = '/api/sync-edms';
 const run = withHeartbeat(ROUTE, GET_impl);
 
 export async function GET(req: Request): Promise<Response> {
