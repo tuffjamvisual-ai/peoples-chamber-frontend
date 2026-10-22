@@ -3,6 +3,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { flagBioReview, ukDate } from '@/lib/bio-review';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { buildRepresentations, fetchHistory, sameRepresentations } from '@/lib/commons-representations';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -24,6 +25,11 @@ export const maxDuration = 300;
 //     three structured post arrays. The handwritten narrative (political_bio /
 //     description / biography) is permanently excluded from all automated writes;
 //     do not add those columns to the update() below.
+//  4. Seats (representations, added 22 Oct 2026 with the owner's approval) come from
+//     the History endpoint, which keeps breaks in membership that Biography merges
+//     (lib/commons-representations). They are overwritten only when Parliament's data
+//     differs, never with an empty list, and never for a member whose override list
+//     names one of their constituency ids.
 
 const MEMBERS_API = 'https://members-api.parliament.uk/api/Members';
 const CONCURRENCY = 6;
@@ -162,8 +168,12 @@ async function GET_impl(req: Request) {
     }
   }
 
+  // Commons History for every member, 20 per request, fetched once before the per-member work.
+  const history = await fetchHistory(memberIds);
+
   let processed = 0;
   let updated = 0;
+  let seatsUpdated = 0;
   let apiMisses = 0;
   let timedOut = false;
 
@@ -175,7 +185,7 @@ async function GET_impl(req: Request) {
 
     const { data: rowArr } = await supabase
       .from('mp_biography')
-      .select('government_posts, opposition_posts, committee_memberships')
+      .select('government_posts, opposition_posts, committee_memberships, representations')
       .eq('member_id', memberId)
       .limit(1);
     const row = rowArr?.[0];
@@ -185,7 +195,14 @@ async function GET_impl(req: Request) {
     const g = reconcile(row.government_posts as Post[] | null, bio.gov, ov);
     const o = reconcile(row.opposition_posts as Post[] | null, bio.opp, ov);
     const m = reconcile(row.committee_memberships as Post[] | null, bio.cmte, ov);
-    if (!g.changed && !o.changed && !m.changed) return;
+
+    const h = history.get(memberId);
+    const seats = h ? await buildRepresentations(h) : [];
+    const seatsChanged = seats.length > 0
+      && !seats.some((s) => ov.has(s.id))
+      && !((row.representations as { id: number }[] | null) || []).some((s) => ov.has(s.id))
+      && !sameRepresentations(row.representations, seats);
+    if (!g.changed && !o.changed && !m.changed && !seatsChanged) return;
 
     // NOTE: political_bio / description / biography are intentionally NOT in this
     // update — the handwritten narrative is permanently excluded from sync writes.
@@ -195,10 +212,12 @@ async function GET_impl(req: Request) {
         government_posts: g.merged,
         opposition_posts: o.merged,
         committee_memberships: m.merged,
+        ...(seatsChanged ? { representations: seats } : {}),
       })
       .eq('member_id', memberId);
     if (!upErr) {
       updated++;
+      if (seatsChanged) seatsUpdated++;
       // Government or opposition posts starting or ending can make the written
       // biography out of date. Committee changes are too frequent to flag.
       const changes = [
@@ -211,10 +230,12 @@ async function GET_impl(req: Request) {
 
   return NextResponse.json({
     ok: true,
-    source: 'members-api Biography',
+    source: 'members-api Biography and History',
     members_with_bio: memberIds.length,
     processed,
     updated,
+    seats_updated: seatsUpdated,
+    history_members: history.size,
     api_misses: apiMisses,
     timed_out: timedOut,
     elapsed_ms: Date.now() - startedAt,

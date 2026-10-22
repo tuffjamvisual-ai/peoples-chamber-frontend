@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
 import { flagBioReview, ukDate } from '@/lib/bio-review';
+import { buildRepresentations, fetchHistory } from '@/lib/commons-representations';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 export const dynamic = 'force-dynamic';
@@ -145,9 +146,11 @@ async function buildBiographyRow(memberId: number) {
   if (!json) return null;
   const v = (json.value ?? {}) as Record<string, unknown>;
   const arr = (k: string) => ((v[k] as Record<string, unknown>[]) || []).map(normEntry).filter((p) => p.id != null);
+  // Seats come from History, which keeps breaks the Biography endpoint merges (lib/commons-representations).
+  const history = (await fetchHistory([memberId])).get(memberId);
   return {
     member_id: memberId,
-    representations: arr('representations'),
+    representations: history ? await buildRepresentations(history) : arr('representations'),
     government_posts: arr('governmentPosts'),
     opposition_posts: arr('oppositionPosts'),
     committee_memberships: arr('committeeMemberships'),

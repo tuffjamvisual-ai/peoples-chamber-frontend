@@ -194,7 +194,8 @@ type Donation = {
   explanatory_notes?: string | null;
   ec_ref?: string | null;
 };
-type Representation = { name: string; startDate: string; endDate?: string | null };
+// endReason: how a break in membership began, in plain words (lib/commons-representations).
+type Representation = { name: string; startDate: string; endDate?: string | null; endReason?: string | null };
 type PartyHistoryEntry = { party?: string; name?: string; startDate?: string; endDate?: string | null };
 type ExpenseSummary = {
   year: number;
@@ -1447,6 +1448,7 @@ export default function MagazineProfileSections({
                       <strong>{r.name}</strong>
                       <div style={{ fontSize: '15px', opacity: 0.75, fontFamily: 'monospace' }}>
                         {fmtDate(r.startDate)}, {r.endDate ? fmtDate(r.endDate) : 'present'}
+                        {r.endDate && r.endReason ? ` · ${r.endReason}` : ''}
                       </div>
                     </li>
                   ))}
