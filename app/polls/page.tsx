@@ -7,7 +7,7 @@ import VotingIntegrity from '../components/VotingIntegrity';
 export const metadata: Metadata = {
   title: "opengovt Polls",
   description:
-    'Public opinion polls on the big questions in British politics. Have your say and see where the public stands.',
+    'Polls on issues in Parliament and government. Have your say and see the results.',
   alternates: { canonical: '/polls' },
 }
 

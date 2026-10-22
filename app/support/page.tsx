@@ -44,7 +44,7 @@ export default function SupportPage() {
 
       <h3 className="font-bold mt-4 mb-2 text-[#14100d]">How does voting work?</h3>
       <p className="text-[#14100d] mb-4">
-        Create an account, browse bills, and click Support, Oppose, or Abstain. Your vote is recorded and contributes to public opinion statistics.
+        Create an account, browse bills, and click Support, Oppose, or Abstain. Your vote is recorded and added to the totals shown on the site.
       </p>
 
       <h3 className="font-bold mt-4 mb-2 text-[#14100d]">Can I change my vote?</h3>
