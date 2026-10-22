@@ -52,7 +52,9 @@ export function sessionDates(s: Pick<ParliamentSession, 'start_date' | 'end_date
 // Every session that has bills, newest first.
 export async function getParliamentSessions(): Promise<ParliamentSession[]> {
   const [{ data: counts, error: e1 }, { data: names, error: e2 }] = await Promise.all([
-    supabase.from('parliament_session_bill_counts').select('session_id, bills_introduced, bills_carried_in, bills_listed, is_current'),
+    // Stored copies of parliament_session_bill_counts and bill_in_session (migration 2026-10-22h), refreshed after each
+    // bill stages and sponsors sync: the views worked every bill's sessions out on each read and timed out on cold reads.
+    supabase.from('parliament_session_bill_counts_stored').select('session_id, bills_introduced, bills_carried_in, bills_listed, is_current'),
     supabase.from('parliament_sessions').select('id, name, number, parliament_number, session_number, start_date, end_date'),
   ]);
   // A failed read throws (owner's approval, 21 Oct 2026): a page built ahead keeps its last good version instead of
@@ -87,7 +89,7 @@ export async function getSessionBills(sessionId: number): Promise<SessionBill[]>
   const out: SessionBill[] = [];
   for (let from = 0; ; from += 1000) {
     const { data, error } = await supabase
-      .from('bill_in_session')
+      .from('bill_in_session_stored')
       .select('bill_id, title, current_stage, stage_date, is_act, bill_withdrawn, is_defeated, originating_house, sponsor_name, introduced_here, introduced_session_id, latest_session_id')
       .eq('session_id', sessionId)
       .order('title', { ascending: true })

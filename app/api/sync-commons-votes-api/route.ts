@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { createClient } from '@supabase/supabase-js';
+import { refreshStore, type StoreRefreshResult } from '@/lib/refresh-stores';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -273,6 +274,10 @@ async function GET_impl(req: Request) {
       whipRefreshError = we ? we.message : null;
     }
 
+    // MP pages read stored vote counts (lib/refresh-stores.ts); a failed refresh is reported, not a failed sync.
+    let voteCountsRefresh: StoreRefreshResult | null = null;
+    if (!dryRun && (divisionsAdded > 0 || partiesApplied > 0)) voteCountsRefresh = await refreshStore(supabase, 'refresh_vote_counts');
+
     // Statutory instruments are the Commons divisions on an SI (migration 2026-10-21n): add new ones and refresh
     // vote counts whenever a division was added or changed.
     let siRefresh: number | null = null;
@@ -307,6 +312,7 @@ async function GET_impl(req: Request) {
       ...(partyErrors.length ? { partyErrors } : {}),
       ...(whipRefresh ? { whipRefresh } : {}),
       ...(whipRefreshError ? { whipRefreshError } : {}),
+      ...(voteCountsRefresh ? { voteCountsRefresh } : {}),
       ...(siRefresh != null ? { statutoryInstrumentsRefreshed: siRefresh } : {}),
       ...(siRefreshError ? { siRefreshError } : {}),
       ...(bothLobbyVotes.length ? { bothLobbyVotes } : {}),

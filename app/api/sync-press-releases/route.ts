@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { createClient } from '@supabase/supabase-js';
+import { refreshStore } from '@/lib/refresh-stores';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -89,12 +90,16 @@ async function GET_impl(req: Request) {
     // rows are still retained separately by sync-commons-press-releases.
     const trimmed = 0;
 
+    // /transparency/press-releases reads stored totals (lib/refresh-stores.ts); a failed refresh does not fail the sync.
+    const statsRefresh = upserted > 0 ? await refreshStore(supabase, 'refresh_press_release_stats') : null;
+
     return NextResponse.json({
       ok: true,
       fetched: results.length,
       upserted,
       bodiesFetched,
       trimmed,
+      stats_refresh: statsRefresh,
       syncedAt: new Date().toISOString(),
     });
   } catch (err) {

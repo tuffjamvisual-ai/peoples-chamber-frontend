@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { revalidateBillPages } from '@/lib/revalidate-bills';
 import { createClient } from '@supabase/supabase-js';
+import { refreshStore } from '@/lib/refresh-stores';
 import { fetchAllBillStages, deriveCurrentStage } from '@/lib/bill-stages';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 
@@ -98,6 +99,8 @@ async function GET_impl(req: Request) {
 
   // Show the new stages on /bills and the session archive straight away (lib/revalidate-bills.ts).
   if (ok > 0) revalidateBillPages();
+  // The session pages and topic bill lists read stored copies of the bills (lib/refresh-stores.ts).
+  const storesRefresh = ok > 0 ? await refreshStore(supabase, 'refresh_bill_stores') : null;
 
   const { count: remaining } = await supabase.from('bill').select('id', { count: 'exact', head: true })
     .not('parliament_id', 'is', null).or(`stages_synced_at.is.null,stages_synced_at.lt.${cutoff}`);
@@ -108,6 +111,7 @@ async function GET_impl(req: Request) {
     failures,
     skipped_for_time: skippedForTime,
     still_due: remaining ?? null,
+    stores_refresh: storesRefresh,
     duration_ms: Date.now() - started,
     syncedAt: new Date().toISOString(),
   }, { status: targets.length > 0 && ok === 0 ? 502 : 200 });

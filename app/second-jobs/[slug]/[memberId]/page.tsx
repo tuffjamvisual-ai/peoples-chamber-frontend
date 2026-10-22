@@ -7,7 +7,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../../components/OpenGovShell';
 import BackLink from '../../../components/BackLink';
-import { fmtMoney, loadAll, parseParent, parsePayment, slugToLabel } from '../../_lib/data';
+import { fmtMoney, loadMember, parseParent, parsePayment, slugToLabel } from '../../_lib/data';
 
 export function generateStaticParams() { return []; }
 export const revalidate = 86400;
@@ -21,9 +21,7 @@ const MONO = 'Special Elite, monospace';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string; memberId: string }> }): Promise<Metadata> {
   const { slug, memberId } = await params;
-  const { bySlug } = await loadAll();
-  const items = bySlug.get(slug) || [];
-  const item = items.find((i) => i.mp.member_id === Number(memberId));
+  const item = Number.isFinite(Number(memberId)) ? await loadMember(slug, Number(memberId)) : null;
   const name = item?.mp.display_name || item?.mp.name || 'MP';
   return {
     title: `${name}, second jobs`,
@@ -37,10 +35,7 @@ export default async function MpSecondJobsDetail({ params }: { params: Promise<{
   const memberIdNum = Number(memberId);
   if (!Number.isFinite(memberIdNum)) notFound();
 
-  const { bySlug } = await loadAll();
-  const items = bySlug.get(slug);
-  if (!items || items.length === 0) notFound();
-  const item = items.find((i) => i.mp.member_id === memberIdNum);
+  const item = await loadMember(slug, memberIdNum);
   if (!item) notFound();
 
   const label = slugToLabel(slug);

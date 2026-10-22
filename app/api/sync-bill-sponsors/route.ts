@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { refreshStore } from '@/lib/refresh-stores';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 export const dynamic = 'force-dynamic';
@@ -124,12 +125,16 @@ async function GET_impl(req: Request) {
     await sleep(120);
   }
 
+  // The topic bill lists read a stored copy of the bills' sponsoring departments (lib/refresh-stores.ts).
+  const storesRefresh = ok > 0 ? await refreshStore(supabase, 'refresh_bill_stores') : null;
+
   return NextResponse.json({
     targeted: targets.length,
     rows_written: ok,
     fail,
     failures,
     skipped_for_time: skippedForTime,
+    stores_refresh: storesRefresh,
     duration_ms: Date.now() - started,
     syncedAt: new Date().toISOString(),
   }, { status: targets.length > 0 && ok === 0 ? 502 : 200 });
