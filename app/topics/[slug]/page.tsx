@@ -57,7 +57,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
   const [divRes, billRes, topRes, pollRes] = await Promise.all([
     divQuery.order('division_date_only', { ascending: false }).limit(10),
     supabase.rpc('topic_bills', {
-      p_depts: topic.billDepartments, p_shared: SHARED_DEPARTMENTS, p_words: topic.words, p_exclude: topic.exclude, p_limit: 8,
+      p_depts: topic.billDepartments, p_shared: SHARED_DEPARTMENTS, p_words: topic.words, p_exclude: topic.exclude, p_limit: 40,
     }),
     // Top MPs by written questions to the topic's departments, ranked in the database (top_question_askers,
     // migration 2026-10-21b) instead of reading every MP's totals here.
@@ -76,8 +76,19 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
     if (r.error) throw new Error(`topic ${slug} ${name}: ${r.error.message}`);
   }
   const divisions = divRes.data || [];
+  // The same bill is often reintroduced each session under the same title (owner's approval, 22 Oct 2026): only the
+  // newest of each title is listed, so the 8 shown are different bills. topic_bills returns newest first.
+  const seenTitles = new Set<string>();
+  const newestPerTitle = ((billRes.data || []) as { id: number; title: string; is_act: boolean | null; current_stage: string | null; last_update: string }[])
+    .filter((b) => {
+      const key = b.title.trim().replace(/\s+/g, ' ').toLowerCase();
+      if (seenTitles.has(key)) return false;
+      seenTitles.add(key);
+      return true;
+    })
+    .slice(0, 8);
   // Bills: active (not yet an Act) first, then most recent Acts.
-  const bills = ((billRes.data || []) as { id: number; title: string; is_act: boolean | null; current_stage: string | null; last_update: string }[]).slice().sort((a, b) => Number(!!a.is_act) - Number(!!b.is_act));
+  const bills = newestPerTitle.sort((a, b) => Number(!!a.is_act) - Number(!!b.is_act));
 
   // Top MPs by written questions to the topic's department(s).
   if (topRes.error) throw new Error(`top_question_askers: ${topRes.error.message}`);
