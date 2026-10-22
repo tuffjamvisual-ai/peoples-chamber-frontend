@@ -26,6 +26,7 @@ import britishSteel from './vq8k3mxw7n';
 import tenWorstCouncils from './ten-worst-performing-councils-england';
 import bbcStreamingLicence from './bc4n8mxw2t';
 import supportedHousingLicensing from './x4g3y1z5d8';
+import no10NorthCosts from './373qnkdlvr';
 import biggestWestminsterScandals from './kxlkhj1jgj';
 import powerForSale from './power-for-sale-20-politicians-who-cashed-in';
 import whenDidPoliticiansStop from './when-did-politicians-stop-taking-responsibility';
@@ -187,6 +188,7 @@ const allEditorials: EditorialRegistry = {
   [socialHousingFinance.slug]: socialHousingFinance,
   [bbcStreamingLicence.slug]: bbcStreamingLicence,
   [supportedHousingLicensing.slug]: supportedHousingLicensing,
+  [no10NorthCosts.slug]: no10NorthCosts,
 };
 
 // Unpublished until their sources are added and checked (owner's decision, 22 Oct 2026). The files stay; leaving them
