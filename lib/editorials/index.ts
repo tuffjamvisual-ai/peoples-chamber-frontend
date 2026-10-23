@@ -30,6 +30,8 @@ import no10NorthCosts from './373qnkdlvr';
 import digitalSpending from './aq4pfusttu';
 import kirkleesStockCondition from './fxdep4e6wh';
 import policeAiMisconduct from './ai755882dw';
+import heyloAdministration from './cq8m4xw2hl';
+import hindleyDischarge from './pw7k3nq9hd';
 import biggestWestminsterScandals from './kxlkhj1jgj';
 import powerForSale from './power-for-sale-20-politicians-who-cashed-in';
 import whenDidPoliticiansStop from './when-did-politicians-stop-taking-responsibility';
@@ -195,6 +197,8 @@ const allEditorials: EditorialRegistry = {
   [digitalSpending.slug]: digitalSpending,
   [kirkleesStockCondition.slug]: kirkleesStockCondition,
   [policeAiMisconduct.slug]: policeAiMisconduct,
+  [heyloAdministration.slug]: heyloAdministration,
+  [hindleyDischarge.slug]: hindleyDischarge,
 };
 
 // Unpublished until their sources are added and checked (owner's decision, 22 Oct 2026). The files stay; leaving them
