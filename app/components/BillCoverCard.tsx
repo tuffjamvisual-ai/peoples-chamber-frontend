@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { billStageLine, billSummary, NO_SUMMARY_TEXT } from '@/lib/bill-summary';
 
 // Bills listing card styled as a Victorian-era UK Parliamentary Bill
@@ -38,7 +39,6 @@ type Bill = {
 type Props = {
   bill: Bill;
   userVote?: 'yes' | 'no' | null;
-  onClick: () => void;
 };
 
 const INK = '#1a140e';
@@ -54,7 +54,7 @@ const SERIF = 'Special Elite, monospace';
 const SERIF_DISPLAY = 'Special Elite, monospace';
 const MONO = '"Special Elite", "Courier New", monospace';
 
-export default function BillCoverCard({ bill, userVote = null, onClick }: Props) {
+export default function BillCoverCard({ bill, userVote = null }: Props) {
   const yes = bill.vote_count_yes || 0;
   const no = bill.vote_count_no || 0;
   const total = yes + no;
@@ -71,13 +71,13 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
   const stageLine = billStageLine(bill);
   const summary = summarySrc.length > 360 ? summarySrc.slice(0, 357).trim() + '…' : summarySrc;
 
+  // A real link to the bill (23 Oct 2026): opens in a new tab, shows its address, and is reachable by keyboard
+  // with a visible focus ring (.bill-card-link in globals.css). The card inside keeps its layout.
   return (
+    <Link href={`/bills/${bill.id}`} className="bill-card-link no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>
     <div
-      onClick={onClick}
-      className="no-hover-scale"
       style={{
         position: 'relative',
-        cursor: 'pointer',
         background: PARCHMENT, // plain cream (parchment texture removed)
         color: INK,
         border: `1px solid ${INK_HAIRLINE}`,
@@ -278,5 +278,6 @@ export default function BillCoverCard({ bill, userVote = null, onClick }: Props)
         </div>
       )}
     </div>
+    </Link>
   );
 }

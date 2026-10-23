@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import type { CSSProperties } from 'react';
 import BillCoverCard from './BillCoverCard';
 import Pagination from './Pagination';
+import { useSearchParamQ } from './useSearchParamQ';
 
 const INK = '#14100d';
 const CREAM = '#ebe5d8';
@@ -26,11 +27,13 @@ type Props = {
   initialBills: any[];
   currentPage: number;
   totalPages: number;
+  totalCount: number;
+  perPage: number;
 };
 
 type TabType = 'trending' | 'controversial' | 'latest' | 'voted';
 
-export default function BillsGridMobile({ initialBills, currentPage, totalPages }: Props) {
+export default function BillsGridMobile({ initialBills, currentPage, totalPages, totalCount, perPage }: Props) {
   const router = useRouter();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('latest');
@@ -42,6 +45,8 @@ export default function BillsGridMobile({ initialBills, currentPage, totalPages 
   // we cover the whole table, not just the current 20-row page.
   const [searchResults, setSearchResults] = useState<any[] | null>(null);
   const [searching, setSearching] = useState(false);
+  // ?q= in the address bar (see useSearchParamQ): restored once on load.
+  useSearchParamQ(searchTerm, setSearchTerm);
 
   const goToPage = (p: number) => {
     const clamped = Math.min(Math.max(1, p), totalPages);
@@ -213,13 +218,24 @@ export default function BillsGridMobile({ initialBills, currentPage, totalPages 
         </div>
       </div>
 
+      <div className="px-4 pt-4">
+        <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', color: '#14100d', opacity: 0.7, marginBottom: '16px' }}>
+        {searching
+          ? 'Searching…'
+          : searchResults
+          ? `${filteredBills.length} match${filteredBills.length === 1 ? '' : 'es'} for "${searchTerm.trim()}" across all bills, including Acts and withdrawn bills${filteredBills.length === 50 ? ' (first 50 shown, narrow the term)' : ''}`
+          : totalCount === 0
+          ? 'No bills going through Parliament right now'
+          : `Showing bills ${(currentPage - 1) * perPage + 1}-${Math.min(currentPage * perPage, totalCount)} of ${totalCount.toLocaleString()} going through Parliament · page ${currentPage} of ${totalPages}`}
+      </p>
+      </div>
+
       <div className="p-4 space-y-4" key={activeTab}>
         {filteredBills.map((bill: any) => (
           <BillCoverCard
             key={bill.id}
             bill={bill}
             userVote={(userVotes[bill.id] as 'yes' | 'no' | undefined) ?? null}
-            onClick={() => router.push(`/bills/${bill.id}`)}
           />
         ))}
       </div>

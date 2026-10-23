@@ -88,21 +88,25 @@ export default async function ThisWeekPage() {
   // links to the on-site division page (no outbound links). Divisions not yet
   // synced into mp_division_votes render without a link rather than pointing off
   // site; they become linkable once the daily votes sync picks them up.
+  // One row per division, read in parallel (23 Oct 2026): a single .in() over all of them returned every MP's vote
+  // row and stopped at the 1,000 row cap, so only the first two or three divisions got a link.
   const divIds = divisions.map((d) => d.DivisionId)
   let divSlug: Record<number, string> = {}
   if (divIds.length) {
-    const { data, error: dataErr } = await supabase
-      .from('mp_division_votes')
-      .select('division_id, division_date_only, division_number')
-      .in('division_id', divIds)
-    if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/this-week mp_division_votes: ${dataErr.message}`);
+    const found = await Promise.all(divIds.map(async (id) => {
+      const { data, error: dataErr } = await supabase
+        .from('mp_division_votes')
+        .select('division_id, division_date_only, division_number')
+        .eq('division_id', id)
+        .limit(1)
+        .maybeSingle()
+      if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/this-week mp_division_votes ${id}: ${dataErr.message}`);
+      return data as { division_id: number; division_date_only: string | null; division_number: number | null } | null
+    }))
     divSlug = Object.fromEntries(
-      (data || [])
-        .filter((r: { division_date_only: string | null; division_number: number | null }) => r.division_date_only && r.division_number != null)
-        .map((r: { division_id: number; division_date_only: string; division_number: number }) => [
-          r.division_id,
-          `/divisions/pw-${r.division_date_only}-${r.division_number}-commons`,
-        ]),
+      found
+        .filter((r): r is { division_id: number; division_date_only: string; division_number: number } => !!r && !!r.division_date_only && r.division_number != null)
+        .map((r) => [r.division_id, `/divisions/pw-${r.division_date_only}-${r.division_number}-commons`]),
     )
   }
 
@@ -164,6 +168,9 @@ export default async function ThisWeekPage() {
               <div style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '4px' }}>
                 {fmt(d.Date)}{typeof d.AyeCount === 'number' ? ` · Ayes ${d.AyeCount} / Noes ${d.NoCount}` : ''}
               </div>
+              {!href && (
+                <div style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '4px' }}>Full voting list not yet available</div>
+              )}
             </>
           )
           const rowStyle = { display: 'block', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '12px 0' } as const

@@ -17,6 +17,7 @@ type FilterBarProps = {
   }) => void;
   // The sessions the listed bills come from, newest first, labelled by name (lib/parliament-sessions.ts).
   sessions?: { id: number; label: string }[];
+  initialSearch?: string;
 };
 
 const INK = '#14100d';
@@ -50,7 +51,7 @@ function toggle(active: boolean): CSSProperties {
   };
 }
 
-export default function FilterBar({ onFiltersChange, sessions = [] }: FilterBarProps) {
+export default function FilterBar({ onFiltersChange, sessions = [], initialSearch = '' }: FilterBarProps) {
   const [house, setHouse] = useState('');
   const [session, setSession] = useState('');
   const [stage, setStage] = useState('');
@@ -59,7 +60,8 @@ export default function FilterBar({ onFiltersChange, sessions = [] }: FilterBarP
   const [youVoted, setYouVoted] = useState(false);
   const [notVoted, setNotVoted] = useState(false);
   const [hasSummary, setHasSummary] = useState(false);
-  const [search, setSearch] = useState('');
+  // Starts from a search restored from the address bar (?q=); the grid remounts this bar when it reads one.
+  const [search, setSearch] = useState(initialSearch);
 
   useEffect(() => {
     onFiltersChange({ house, session, stage, sortBy, parliamentVoted, youVoted, notVoted, hasSummary, search });

@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
-import ContinueToArticle from '../components/ContinueToArticle';
 import { editorials } from '@/lib/editorials';
 import type { EditorialEntry } from '@/lib/editorials/types';
 import { listSummary } from '@/lib/editorials/list-summary';
 import { supabase } from '@/lib/supabase';
+import { topics, matchWords } from '@/lib/topics';
+import ReportsArchive, { type ArchiveItem } from './ReportsArchive';
 
 // Reports (owner's approval, 23 Oct 2026): one list of every published investigation, file briefing and published
 // database briefing, newest first. It replaces the /editorials and /briefings lists, which now redirect here; the
@@ -22,8 +22,6 @@ export const metadata: Metadata = {
 };
 
 const INK = '#14100d';
-const HAIRLINE = 'rgba(20,16,13,0.25)';
-const ACCENT = '#7a1612';
 
 type ReportType = 'Investigation' | 'Briefing' | 'Commentary';
 
@@ -34,6 +32,7 @@ interface Item {
   headline: string;
   summary: string;
   date: string; // ISO date or timestamp
+  topics: string[];
 }
 
 function typeOf(e: EditorialEntry): ReportType {
@@ -42,6 +41,8 @@ function typeOf(e: EditorialEntry): ReportType {
 }
 
 export default async function ReportsPage() {
+  // Topics, as the topic pages assign them: investigations and file briefings by each topic's editorialSlugs, and
+  // published database briefings by the topic's words on headline and summary.
   const fileItems: Item[] = (Object.values(editorials) as EditorialEntry[]).map((e) => ({
     href: `/${e.kind === 'briefing' ? 'briefings' : 'editorials'}/${e.slug}`,
     type: typeOf(e),
@@ -49,6 +50,7 @@ export default async function ReportsPage() {
     headline: e.headline,
     summary: listSummary(e),
     date: e.publishedAt,
+    topics: topics.filter((t) => t.editorialSlugs.includes(e.slug)).map((t) => t.slug),
   }));
 
   const { data: dbRows, error: dbErr } = await supabase
@@ -67,6 +69,7 @@ export default async function ReportsPage() {
     // The approved summary (migration 2026-10-23c), or the opening of the body when there is none.
     summary: (r.summary as string | null) || String(r.body || '').replace(/\s+/g, ' ').slice(0, 180).trim() + '…',
     date: (r.published_at as string) || (r.created_at as string),
+    topics: topics.filter((t) => matchWords(`${r.headline} ${r.summary ?? ''}`, t.words, t.exclude)).map((t) => t.slug),
   }));
 
   const items = [...fileItems, ...dbItems].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
@@ -86,32 +89,13 @@ export default async function ReportsPage() {
         </h1>
       </header>
 
-      <div style={{ borderTop: `1px solid ${HAIRLINE}`, fontFamily: '"Special Elite", monospace' }}>
-        {items.map((e) => (
-          <Link
-            key={e.href}
-            href={e.href}
-            className="no-hover-scale"
-            style={{ display: 'block', padding: '22px 0', borderBottom: `1px solid ${HAIRLINE}`, textDecoration: 'none', color: INK }}
-          >
-            {/* The type, then the piece's own kicker when it says something the type does not. */}
-            <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.28em', color: ACCENT, fontWeight: 'bold', marginBottom: '8px' }}>
-              {e.type}
-              {e.kicker && e.kicker.toLowerCase() !== e.type.toLowerCase() ? ` · ${e.kicker}` : ''}
-            </div>
-            <h2 style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(22px, 2.6vw, 32px)', fontWeight: 'bold', letterSpacing: '0.01em', lineHeight: 1.1, marginBottom: '8px' }}>
-              {e.headline}
-            </h2>
-            <div style={{ fontSize: '15px', color: INK, marginBottom: '6px' }}>
-              {new Date(e.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })}
-            </div>
-            {e.summary && (
-              <p style={{ fontSize: '15px', lineHeight: 1.6, margin: 0, maxWidth: '46em' }}>{e.summary}</p>
-            )}
-            <ContinueToArticle />
-          </Link>
-        ))}
-      </div>
+      <ReportsArchive
+        topics={topics.map((t) => ({ slug: t.slug, title: t.title }))}
+        items={items.map((e): ArchiveItem => ({
+          href: e.href, type: e.type, kicker: e.kicker, headline: e.headline, summary: e.summary, topics: e.topics,
+          dateLabel: new Date(e.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }),
+        }))}
+      />
     </OpenGovShell>
   );
 }

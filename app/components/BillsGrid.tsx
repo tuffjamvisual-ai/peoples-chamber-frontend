@@ -9,6 +9,7 @@ import type { CSSProperties } from 'react';
 import FilterBar from './FilterBar';
 import BillCoverCard from './BillCoverCard';
 import Pagination from './Pagination';
+import { useSearchParamQ } from './useSearchParamQ';
 
 const INK = '#14100d';
 const CREAM = '#ebe5d8';
@@ -29,10 +30,12 @@ type Props = {
   initialBills: any[];
   currentPage: number;
   totalPages: number;
+  totalCount: number;
+  perPage: number;
   sessions?: { id: number; label: string }[];
 };
 
-export default function BillsGrid({ initialBills, currentPage, totalPages, sessions = [] }: Props) {
+export default function BillsGrid({ initialBills, currentPage, totalPages, totalCount, perPage, sessions = [] }: Props) {
   const router = useRouter();
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
@@ -53,6 +56,9 @@ export default function BillsGrid({ initialBills, currentPage, totalPages, sessi
   const [youVotedFilter, setYouVotedFilter] = useState(false);
   const [notVotedFilter, setNotVotedFilter] = useState(false);
   const [hasSummaryFilter, setHasSummaryFilter] = useState(false);
+  // ?q= in the address bar (see useSearchParamQ); a restored term remounts the FilterBar with it.
+  const [initialSearch, setInitialSearch] = useState('');
+  useSearchParamQ(searchTerm, setInitialSearch);
 
   const goToPage = (p: number) => {
     const clamped = Math.min(Math.max(1, p), totalPages);
@@ -172,7 +178,9 @@ export default function BillsGrid({ initialBills, currentPage, totalPages, sessi
   return (
     <>
       <FilterBar
+        key={initialSearch}
         sessions={sessions}
+        initialSearch={initialSearch}
         onFiltersChange={(filters) => {
           setSearchTerm(filters.search);
           setHouseFilter(filters.house);
@@ -186,13 +194,16 @@ export default function BillsGrid({ initialBills, currentPage, totalPages, sessi
         }}
       />
 
-      <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', color: '#14100d', marginBottom: '16px' }}>
+      {/* The one count on the page (23 Oct 2026): the page's place in the list, or the search's matches. */}
+      <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', color: '#14100d', opacity: 0.7, marginBottom: '16px' }}>
         {searching
           ? 'Searching…'
           : searchResults
-          ? `${filteredBills.length} match${filteredBills.length === 1 ? '' : 'es'} for "${searchTerm.trim()}"${filteredBills.length === 50 ? ' (first 50 shown, narrow the term)' : ''}`
-          : `${paginatedBills.length} of ${filteredBills.length} bills shown`}
-      </div>
+          ? `${filteredBills.length} match${filteredBills.length === 1 ? '' : 'es'} for "${searchTerm.trim()}" across all bills, including Acts and withdrawn bills${filteredBills.length === 50 ? ' (first 50 shown, narrow the term)' : ''}`
+          : totalCount === 0
+          ? 'No bills going through Parliament right now'
+          : `Showing bills ${(currentPage - 1) * perPage + 1}-${Math.min(currentPage * perPage, totalCount)} of ${totalCount.toLocaleString()} going through Parliament · page ${currentPage} of ${totalPages}`}
+      </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-7 mb-8">
         {paginatedBills.map((bill: any) => (
@@ -200,7 +211,6 @@ export default function BillsGrid({ initialBills, currentPage, totalPages, sessi
             key={bill.id}
             bill={bill}
             userVote={(userVotes[bill.id] as 'yes' | 'no' | undefined) ?? null}
-            onClick={() => router.push(`/bills/${bill.id}`)}
           />
         ))}
       </div>

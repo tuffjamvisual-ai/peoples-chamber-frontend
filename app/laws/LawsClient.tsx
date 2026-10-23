@@ -133,7 +133,6 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
                 key={law.id}
                 bill={law}
                 userVote={null}
-                onClick={() => router.push(`/bills/${law.id}`)}
               />
             ))}
           </div>

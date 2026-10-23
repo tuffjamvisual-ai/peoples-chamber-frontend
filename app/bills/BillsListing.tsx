@@ -65,20 +65,15 @@ export default async function BillsListing({ page }: { page: number }) {
             The <Link href={`/bills/sessions/${current.id}`} style={{ color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>{sessionTitle(current)}</Link> has {sessionTotal.toLocaleString()} bills: {sessionParts.join(', ')}.
           </p>
         )}
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px', opacity: 0.7 }}>
-          {totalCount === 0
-            ? 'No bills going through Parliament right now'
-            : <>Showing bills {(page - 1) * BILLS_PER_PAGE + 1}-{Math.min(page * BILLS_PER_PAGE, totalCount)} of {totalCount.toLocaleString()} going through Parliament · page {page} of {totalPages}</>}
-        </p>
       </header>
 
       <VotingIntegrity />
 
       <div className="md:hidden">
-        <BillsGridMobile initialBills={bills} currentPage={page} totalPages={totalPages} />
+        <BillsGridMobile initialBills={bills} currentPage={page} totalPages={totalPages} totalCount={totalCount} perPage={BILLS_PER_PAGE} />
       </div>
       <div className="hidden md:block">
-        <BillsGrid initialBills={bills} currentPage={page} totalPages={totalPages} sessions={filterSessions} />
+        <BillsGrid initialBills={bills} currentPage={page} totalPages={totalPages} totalCount={totalCount} perPage={BILLS_PER_PAGE} sessions={filterSessions} />
       </div>
 
       {/* Everything not going through Parliament now: the archive (every bill, by session) and the Acts. Replaces the
