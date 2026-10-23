@@ -36,6 +36,7 @@ import asylumHmos from './hm4q9xk2ta';
 import insulinSupport from './in6v2kq8wr';
 import referralWorklists from './er5t8wq3mz';
 import sussexSavings from './us3k7pm2qv';
+import hmrcTaxDebt from './tx4d9rm2kb';
 import biggestWestminsterScandals from './kxlkhj1jgj';
 import powerForSale from './power-for-sale-20-politicians-who-cashed-in';
 import whenDidPoliticiansStop from './when-did-politicians-stop-taking-responsibility';
@@ -207,6 +208,7 @@ const allEditorials: EditorialRegistry = {
   [insulinSupport.slug]: insulinSupport,
   [referralWorklists.slug]: referralWorklists,
   [sussexSavings.slug]: sussexSavings,
+  [hmrcTaxDebt.slug]: hmrcTaxDebt,
 };
 
 // Unpublished until their sources are added and checked (owner's decision, 22 Oct 2026). The files stay; leaving them
