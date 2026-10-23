@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: "er5t8wq3mz",
   kicker: 'Investigation',
-  headline: "1.3 Million NHS Referral Entries Vanished From Worklists in Six Months. The National Safety Log Never Mentioned the Risk",
+  headline: "1.3 Million NHS Worklist Entries Vanish in Six Months",
   standfirst:
     "The NHS e-Referral Service, supplied by NHS England, automatically removed more than 1.3 million entries from hospital worklists between February and July 2026, after 180 days without recorded action and with no warning. Entries \"just disappear\", the Health Services Safety Investigations Body (HSSIB) reported on 22 October. The national hazard log, which is meant to record every clinical risk in the system, made no mention of the function.",
   summary: "NHS England’s referral system removed 1.3 million worklist entries in six months. Its safety log never mentioned the risk.",

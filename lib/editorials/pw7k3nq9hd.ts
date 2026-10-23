@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: "pw7k3nq9hd",
   kicker: 'Investigation',
-  headline: "Coroner Blamed Cornwall’s Social Care Shortage in 2024. Months Later, Pamela Hindley Left Hospital in a Discharge Push Before Her Home Was Made Safe",
+  headline: "Pamela Hindley Was Sent Home Before Her House Was Made Safe",
   standfirst:
     "Pamela Hindley, 80, was discharged from Royal Cornwall Hospital on 15 November 2024 during a planned \"rapid discharge event\" that set targets well above normal discharge rates. She was frail, at risk of falls and walking with a zimmer frame. Therapy paperwork was not completed before she left, so community services were not alerted to check whether her home was safe.",
   summary: "A coroner blamed Cornwall’s social care shortage in 2024. Months later, Pamela Hindley left hospital before her home was made safe.",

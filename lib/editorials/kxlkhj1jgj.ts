@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'kxlkhj1jgj',
   kicker: 'Political Standards',
-  headline: `Ten Westminster Controversies, and What Was Actually Proved`,
+  headline: `Ten Westminster Scandals: What Was Actually Proved`,
   standfirst: `A minister resigning over a breach of the Ministerial Code is not the same thing as an MP being suspended by their party. A parliamentary standards finding is not the same thing as an allegation. A political reversal is not misconduct at all. Across ten of the most prominent political controversies of the current Parliament, the record ranges from established breaches to live investigations, internal party discipline and arguments about hypocrisy in which nobody has been found to have broken any rule.`,
   summary: "Across ten Westminster controversies, what was proved ranges from established breaches to live investigations and cases where no rule was broken.",
   publishedAt: '2026-06-08',

@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: "in6v2kq8wr",
   kicker: 'Investigation',
-  headline: "Patients Died Without the Help They Needed to Take Insulin. The NHS Fix Won't Arrive Until 2028",
+  headline: "Insulin Support Failures Linked to Patient Deaths",
   standfirst:
     "NHS England plans to publish national guidance and an assessment tool to help people manage insulin safely at home in March 2028. That is 22 months after the Health Services Safety Investigations Body recommended them in a report describing incidents in which failures of support had contributed to deaths.",
   summary: "Investigators linked insulin support failures to patient deaths. NHS England plans to publish the national fix in March 2028.",

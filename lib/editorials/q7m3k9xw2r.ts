@@ -7,7 +7,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'q7m3k9xw2r',
   kicker: 'Money and Power',
-  headline: `Reform UK’s Deleted Crypto Bill and the Billionaire Who Funds the Party`,
+  headline: `Reform Deleted Farage’s Crypto Bill Without Saying Why`,
   standfirst: `Nigel Farage launched Reform UK’s Cryptoassets and Digital Finance Bill in May 2025 and said he would enact it as Prime Minister, but a year and a day later the party removed it from its website and did not respond when asked why.`,
   summary: "Reform UK removed the crypto bill Nigel Farage promised to enact as Prime Minister from its website and did not say why.",
   publishedAt: '2026-10-22',

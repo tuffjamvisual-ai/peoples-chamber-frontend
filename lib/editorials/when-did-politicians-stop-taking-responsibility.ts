@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'when-did-politicians-stop-taking-responsibility',
   kicker: 'Constitutional Affairs',
-  headline: `Ministers Still Have to Answer for Departmental Failure. They Do Not Have to Resign for It`,
+  headline: `Ministers Answer for Failure but Needn't Resign`,
   standfirst: `When Agriculture Minister Sir Thomas Dugdale resigned over the Crichel Down affair in 1954, he told the Commons that a minister had to accept responsibility for the mistakes and inefficiency of officials in his department. The episode is still regularly treated as evidence of an older political culture in which ministers resigned when the machinery beneath them failed. The history is less straightforward.`,
   summary: "Ministers still have to answer for failures in their departments, but they do not have to resign over them.",
   publishedAt: '2026-06-11',

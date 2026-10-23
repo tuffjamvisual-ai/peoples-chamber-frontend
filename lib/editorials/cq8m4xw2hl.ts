@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: "cq8m4xw2hl",
   kicker: 'Investigation',
-  headline: "Regulator Warned Heylo in 2022 That It Had Lost Control of Its Homes. Administrators Now Decide the Future of Nearly 3,500",
+  headline: "Administrators Take Charge of Nearly 3,500 Heylo Homes",
   standfirst:
     "Decisions about nearly 3,500 shared ownership homes now rest with administrators. The landlord’s board was not told in good time that investors had called a default, and the matter was never referred to the Regulator of Social Housing before the companies holding the homes collapsed.",
   summary: "The regulator warned in 2022 that Heylo had ceded control of its homes. Administrators now decide the future of nearly 3,500.",

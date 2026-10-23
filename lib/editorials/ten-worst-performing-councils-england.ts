@@ -4,7 +4,7 @@ import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
 const piece: EditorialEntry = {
   slug: 'ten-worst-performing-councils-england',
   kicker: 'Local Government',
-  headline: `Ten of England's Most Serious Council Failures`,
+  headline: `England's 10 Worst Council Failures Since 2018`,
   standfirst: `There is no official league table of England's worst councils, and pretending there is would create more certainty than the evidence allows. This ranking looks at the severity of documented failures since 2018: Section 114 notices, Best Value findings, unsustainable debt, government intervention, failures of financial control and the length of the recovery required.`,
   summary: "With no official league table, this ranks England’s ten most serious documented council failures since 2018 by severity.",
   publishedAt: '2026-06-08',

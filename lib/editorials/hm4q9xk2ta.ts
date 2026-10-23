@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: "hm4q9xk2ta",
   kicker: 'Investigation',
-  headline: "Asylum Hotel Use Has Halved. The Home Office Will Not Say How Many People Live in Its HMOs, or How Many Are Unlicensed",
+  headline: "Home Office Won’t Publish How Many Asylum HMOs It Uses",
   standfirst:
     "At the end of June, 16,021 people seeking asylum were living in hotels, half the number a year earlier. Another 73,068 were in other accommodation, up 3 per cent: initial accommodation, dispersal housing and other contingency sites. The Home Office will not publish basic facts about the private housing that now holds most of them.",
   summary: "Hotel use has halved, but the Home Office will not publish how many asylum HMOs it uses or how many lack licences.",
