@@ -1,11 +1,11 @@
 // Cron: tops up mp_activity_metrics.speeches_year + questions_year
-// from members-api.parliament.uk for the N MPs least-recently-refreshed.
+// from members-api.parliament.uk for the next N MPs after the saved cursor (sync_cursor), unfilled rows first.
 //
 // Why N per run instead of all 650:
 //   members-api ~100-200ms per call × 2 calls × 650 MPs = 200-260s
 //   even with high concurrency. That's close to the 300s function cap
-//   AND has zero margin if the upstream slows. We refresh the 150 most
-//   stale rows per run — at 4 runs per day (every 6h) the full table
+//   AND has zero margin if the upstream slows. We refresh the next 150
+//   rows per run — at 4 runs per day (every 6h) the full table
 //   cycles every ~4 days, well inside the weekly meaningful-change
 //   window for activity metrics.
 //
@@ -21,11 +21,17 @@ export const maxDuration = 270;
 
 const BATCH = 150;
 const CONCURRENCY = 12;
-// Timeouts (owner's approval, 23 Oct 2026; the 06:15 and 12:15 runs that day hit the 270 s limit): each request
-// gives up after 20 s, which counts as a failure for that MP only; no new MP starts after TIME_BUDGET, so anything
-// still in flight ends within 20 s of it, well inside maxDuration; and results are saved every SAVE_EVERY MPs, so a
-// run cut short keeps what it did.
+const ROUTE = '/api/sync-members-contributions';
+// Hard deadline (owner's approval, 23 Oct 2026; the 06:15 and 12:15 runs that day hit the 270 s limit, and every run
+// re-read the same lowest-count MPs): one deadline is set when the run starts, and the run returns before it. Every
+// request is aborted at the earlier of its own 20 s timeout and the deadline, less FINAL_SAVE_MS kept for the closing
+// save; no request or mid-run save starts with less than RESERVE_MS left; and the rows fetched and the progress cursor
+// are always saved before the run returns, so it ends well inside maxDuration and the next run carries on from there.
+const DEADLINE_MS = 235_000;
+const RESERVE_MS = 15_000;
+const FINAL_SAVE_MS = 5_000;
 const REQUEST_TIMEOUT_MS = 20_000;
+const DB_TIMEOUT_MS = 10_000;
 const SAVE_EVERY = 25;
 const TWELVE_MONTHS_AGO = (() => {
   const d = new Date();
@@ -33,21 +39,41 @@ const TWELVE_MONTHS_AGO = (() => {
   return d;
 })();
 
-class RequestTimeout extends Error {}
+// For local tests only: a shorter deadline (MEMBERS_CONTRIB_DEADLINE_MS). Never honoured on Vercel production.
+function deadlineMs(): number {
+  const override = Number(process.env.MEMBERS_CONTRIB_DEADLINE_MS);
+  if (process.env.VERCEL_ENV !== 'production' && Number.isFinite(override) && override > 0) return override;
+  return DEADLINE_MS;
+}
 
-async function fetchJson(url: string) {
+class RequestTimeout extends Error {}
+class DeadlineReached extends Error {}
+
+async function fetchJson(url: string, deadline: number) {
+  const left = deadline - Date.now();
+  if (left < RESERVE_MS) throw new DeadlineReached('deadline');
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
+  const untilStop = left - FINAL_SAVE_MS; // requests end by the deadline less the time kept for the closing save
+  const byDeadline = untilStop < REQUEST_TIMEOUT_MS;
+  const timer = setTimeout(() => ctrl.abort(), Math.min(REQUEST_TIMEOUT_MS, untilStop));
   try {
     const res = await fetch(url, { headers: { 'User-Agent': 'PeoplesChamber/1.0', 'Accept': 'application/json' }, signal: ctrl.signal });
-    if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return await res.json();
   } catch (e) {
-    if (ctrl.signal.aborted) throw new RequestTimeout(`timed out after ${REQUEST_TIMEOUT_MS} ms: ${url}`);
+    if (ctrl.signal.aborted) throw byDeadline ? new DeadlineReached('deadline') : new RequestTimeout('request timed out');
     throw e;
   } finally {
     clearTimeout(timer);
   }
+}
+
+// Database calls get their own timeout, so a stalled save cannot hold the run past the limit.
+function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), DB_TIMEOUT_MS);
+  init?.signal?.addEventListener('abort', () => ctrl.abort());
+  return fetch(input, { ...init, signal: ctrl.signal }).finally(() => clearTimeout(timer));
 }
 
 // Members API ContributionSummary and WrittenQuestions both silently
@@ -61,10 +87,10 @@ async function fetchJson(url: string) {
 //     which is the CAREER TOTAL (no working 12-month filter exists).
 const cutoffIso = TWELVE_MONTHS_AGO.toISOString().slice(0, 10);
 
-async function speechesAndQuestions(memberId: number): Promise<{ speeches: number; questions: number }> {
+async function speechesAndQuestions(memberId: number, deadline: number): Promise<{ speeches: number; questions: number }> {
   const [spokenJson, wqJson] = await Promise.all([
-    fetchJson(`https://hansard-api.parliament.uk/search/contributions/Spoken.json?queryParameters.memberId=${memberId}&queryParameters.startDate=${cutoffIso}`),
-    fetchJson(`https://members-api.parliament.uk/api/Members/${memberId}/WrittenQuestions?take=1`),
+    fetchJson(`https://hansard-api.parliament.uk/search/contributions/Spoken.json?queryParameters.memberId=${memberId}&queryParameters.startDate=${cutoffIso}`, deadline),
+    fetchJson(`https://members-api.parliament.uk/api/Members/${memberId}/WrittenQuestions?take=1`, deadline),
   ]);
   return {
     speeches: Number(spokenJson.SpokenResultCount) || 0,
@@ -82,33 +108,54 @@ async function GET_impl(req: Request) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) return NextResponse.json({ error: 'Supabase env missing' }, { status: 500 });
-  const supabase = createClient(url, key);
+  const supabase = createClient(url, key, { global: { fetch: fetchWithTimeout } });
 
   const startedAt = Date.now();
-  const TIME_BUDGET = 200_000;
+  const deadline = startedAt + deadlineMs();
+  const done = (extra: Record<string, unknown>) => {
+    // Run time and counts only; no MP data.
+    console.log(`[sync-members-contributions] ${Date.now() - startedAt} ms, ${String(extra.processed ?? 0)} rows saved`);
+    return extra;
+  };
 
-  // Find the N MPs whose contributions/questions are most stale.
-  // We use a separate marker — speeches_year IS NULL bubbles to the top
-  // (fresh-installed rows), then oldest refreshed_at next.
-  // (refreshed_at is shared with the division-aggregate recompute, but
-  // we don't have a separate marker for the contribution fields so we
-  // accept the modest over-coverage: contribution sync runs more often
-  // than weekly recompute anyway.)
-  const { data: targets, error: tErr } = await supabase
-    .from('mp_activity_metrics')
-    .select('member_id, speeches_year, refreshed_at')
-    .order('speeches_year', { ascending: true, nullsFirst: true })
-    .order('refreshed_at', { ascending: true })
-    .limit(BATCH);
-  if (tErr) return NextResponse.json({ error: tErr.message }, { status: 500 });
-  if (!targets || targets.length === 0) return NextResponse.json({ ok: true, processed: 0, note: 'no rows in mp_activity_metrics' });
+  // Which MPs: any row never filled (speeches_year IS NULL) first, then the next MPs by member_id after the saved
+  // cursor, wrapping round to the start, so every run moves on through all of them. (The old order, speeches_year
+  // then refreshed_at, picked the same lowest-count MPs every run.)
+  const { data: cur, error: cErr } = await supabase.from('sync_cursor').select('cursor').eq('route', ROUTE).maybeSingle();
+  if (cErr) return NextResponse.json(done({ ok: false, error: `cursor read: ${cErr.message}`, processed: 0 }), { status: 500 });
+  const after = Number((cur?.cursor as { after?: number } | null)?.after) || 0;
 
+  const { data: unfilled, error: uErr } = await supabase
+    .from('mp_activity_metrics').select('member_id').is('speeches_year', null).order('member_id').limit(BATCH);
+  if (uErr) return NextResponse.json(done({ ok: false, error: uErr.message, processed: 0 }), { status: 500 });
+  const priority = (unfilled ?? []).map((r) => r.member_id as number);
+  const pick = async (gt: number, n: number) => {
+    if (n <= 0) return [] as number[];
+    const { data, error } = await supabase
+      .from('mp_activity_metrics').select('member_id').not('speeches_year', 'is', null).gt('member_id', gt).order('member_id').limit(n);
+    if (error) throw new Error(error.message);
+    return (data ?? []).map((r) => r.member_id as number);
+  };
+  let sequence: number[];
+  try {
+    const first = await pick(after, BATCH - priority.length);
+    // Wrap round: start again from the lowest member_id, without repeating any picked above.
+    const rest = await pick(0, BATCH - priority.length - first.length);
+    sequence = [...first, ...rest.filter((id) => !first.includes(id) && id <= after)];
+  } catch (e) {
+    return NextResponse.json(done({ ok: false, error: (e as Error).message, processed: 0 }), { status: 500 });
+  }
+  const targets = [...priority, ...sequence];
+  if (targets.length === 0) return NextResponse.json(done({ ok: true, processed: 0, note: 'no rows in mp_activity_metrics' }));
+
+  type State = 'pending' | 'fetched' | 'saved' | 'failed' | 'stopped';
+  const state = new Map<number, State>(targets.map((id) => [id, 'pending']));
   const queue = [...targets];
   let pending: { member_id: number; speeches_year: number; questions_year: number; refreshed_at: string }[] = [];
   let processed = 0; // rows saved
   let failures = 0;
   let requestTimeouts = 0;
-  let timedOut = false;
+  let stoppedAtDeadline = false;
   let saveError: string | null = null;
   let lastSave: Promise<void> = Promise.resolve();
 
@@ -120,21 +167,26 @@ async function GET_impl(req: Request) {
     lastSave = lastSave.then(async () => {
       const { error: upErr } = await supabase.from('mp_activity_metrics').upsert(rows, { onConflict: 'member_id' });
       if (upErr) saveError = saveError ?? upErr.message;
-      else processed += rows.length;
+      else { processed += rows.length; for (const r of rows) state.set(r.member_id, 'saved'); }
     });
     return lastSave;
   }
 
   async function worker() {
     while (queue.length > 0) {
-      if (Date.now() - startedAt > TIME_BUDGET) { timedOut = true; return; }
-      const t = queue.shift();
-      if (!t) return;
+      // No new request with less than RESERVE_MS left.
+      if (deadline - Date.now() < RESERVE_MS) { stoppedAtDeadline = true; return; }
+      const id = queue.shift();
+      if (id === undefined) return;
       try {
-        const r = await speechesAndQuestions(t.member_id);
-        pending.push({ member_id: t.member_id, speeches_year: r.speeches, questions_year: r.questions, refreshed_at: new Date().toISOString() });
-        if (pending.length >= SAVE_EVERY) await save();
+        const r = await speechesAndQuestions(id, deadline);
+        state.set(id, 'fetched');
+        pending.push({ member_id: id, speeches_year: r.speeches, questions_year: r.questions, refreshed_at: new Date().toISOString() });
+        // Mid-run saves only while there is time; whatever is left is saved below, before returning.
+        if (pending.length >= SAVE_EVERY && deadline - Date.now() >= RESERVE_MS) await save();
       } catch (e) {
+        if (e instanceof DeadlineReached) { state.set(id, 'stopped'); stoppedAtDeadline = true; return; }
+        state.set(id, 'failed');
         failures++;
         if (e instanceof RequestTimeout) requestTimeouts++;
       }
@@ -143,18 +195,37 @@ async function GET_impl(req: Request) {
   await Promise.all(Array.from({ length: CONCURRENCY }, () => worker()));
   await save();
 
-  const body = {
+  // The cursor moves past every MP in the sequence up to the first one not finished (not started, stopped at the
+  // deadline, or not saved); an MP whose requests failed outright is passed over until the next full round.
+  let newAfter = after;
+  for (const id of sequence) {
+    const st = state.get(id);
+    if (st === 'saved' || st === 'failed') newAfter = id;
+    else break;
+  }
+  let cursorError: string | null = null;
+  if (newAfter !== after) {
+    const { error } = await supabase.from('sync_cursor').upsert(
+      { route: ROUTE, cursor: { after: newAfter }, updated_at: new Date().toISOString() }, { onConflict: 'route' });
+    if (error) cursorError = error.message;
+  }
+
+  const notStarted = [...state.values()].filter((st) => st === 'pending' || st === 'stopped').length;
+  const body = done({
     requested: targets.length,
     processed,
     failures,
     request_timeouts: requestTimeouts,
-    timed_out: timedOut,
+    not_started: notStarted,
+    timed_out: stoppedAtDeadline,
+    cursor_from: after,
+    cursor_to: newAfter,
     elapsed_ms: Date.now() - startedAt,
     syncedAt: new Date().toISOString(),
-  };
-  // A run cut short by the budget is still a success with its real row count (the heartbeat reads `processed`);
-  // only a failed save is an error.
-  if (saveError) return NextResponse.json({ ok: false, error: saveError, ...body }, { status: 500 });
+  });
+  // A run stopped at the deadline is still a success with its real row count (the heartbeat reads `processed`);
+  // a failed save of rows or of the cursor is an error.
+  if (saveError || cursorError) return NextResponse.json({ ok: false, error: saveError ?? `cursor save: ${cursorError}`, ...body }, { status: 500 });
   return NextResponse.json({ ok: true, ...body });
 }
 
