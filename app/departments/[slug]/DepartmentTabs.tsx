@@ -64,6 +64,8 @@ export default function DepartmentTabs({
     const container = containerRef.current;
     if (!el || !container) return;
     const compute = () => {
+      // Below 1024px the tabs sit above the content in one column, so sticking would slide them over the cards.
+      if (!window.matchMedia('(min-width: 1024px)').matches) { setOffset(0); return; }
       const pr = container.getBoundingClientRect();
       const er = el.getBoundingClientRect();
       const maxVisual = Math.max(0, pr.height - er.height - 8);

@@ -2,9 +2,11 @@
 // links; owner's approval, 21 Oct 2026). Server component; renders nothing when there are no links.
 import Link from 'next/link';
 import type { ReadNextLink } from '@/lib/read-next';
+import ContinueToArticle from './ContinueToArticle';
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';
+// Items that are articles get the "Continue to full article" line; MPs, departments and topics do not.
 
 export default function ReadNext({ links }: { links: ReadNextLink[] }) {
   if (!links.length) return null;
@@ -13,8 +15,9 @@ export default function ReadNext({ links }: { links: ReadNextLink[] }) {
       <p style={{ fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.18em', color: ACCENT, margin: '0 0 6px' }}>Read next</p>
       {links.map((l) => (
         <Link key={l.href} href={l.href} className="no-hover-scale" style={{ display: 'block', padding: '7px 0', borderTop: '1px dotted rgba(20,16,13,0.25)', color: INK, textDecoration: 'none' }}>
-          <span style={{ fontSize: '16px', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '3px', overflowWrap: 'anywhere' }}>{l.label} →</span>
+          <span style={{ fontSize: '16px', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '3px', overflowWrap: 'anywhere' }}>{l.label}</span>
           {l.note && <span style={{ display: 'block', fontSize: '14px', lineHeight: 1.5, marginTop: '2px' }}>{l.note}</span>}
+          {/^\/(news|editorials|briefings)\//.test(l.href) && <ContinueToArticle style={{ fontSize: '14px', marginTop: '4px' }} />}
         </Link>
       ))}
     </aside>
