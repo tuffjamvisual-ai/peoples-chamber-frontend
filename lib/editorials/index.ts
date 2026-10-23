@@ -201,7 +201,7 @@ const allEditorials: EditorialRegistry = {
 // out of the registry takes them off their pages, the sitemap, listings, topic pages and Explore next, and the
 // editorials sync removes their rows from the database copy (search and department pages).
 // The last four were removed from the registry earlier but stayed in the database copy (owner's decision, 22 Oct 2026).
-export const UNPUBLISHED_EDITORIALS = ['power-for-sale-20-politicians-who-cashed-in', '7pqvf1c0db', 'fogrncq5oy', 'hg0gkukta5', 'eoi32xxnct'];
+export const UNPUBLISHED_EDITORIALS = ['7pqvf1c0db', 'fogrncq5oy', 'hg0gkukta5', 'eoi32xxnct'];
 
 export const editorials: EditorialRegistry = Object.fromEntries(
   Object.entries(allEditorials).filter(([slug]) => !UNPUBLISHED_EDITORIALS.includes(slug)),
