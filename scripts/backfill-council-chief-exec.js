@@ -51,7 +51,7 @@ const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) { console.error('DATABASE_URL not set'); process.exit(1); }
 
 const DRY_RUN   = !process.argv.includes('--live');
-const UA        = 'PeoplesChamber/1.0 (https://opengovt.uk; tuffjamvisual@gmail.com)';
+const UA        = 'PeoplesChamber/1.0 (https://opengovt.uk; contact@opengovt.uk)';
 const DELAY_MS  = 250; // polite inter-request pause
 
 // ── DB helpers ────────────────────────────────────────────────────────────

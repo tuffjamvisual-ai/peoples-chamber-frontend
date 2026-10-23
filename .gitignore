@@ -56,6 +56,7 @@ data/council-ratings/
 # Outgoing emails and send records for scripts/mail (private correspondence)
 scripts/mail/outbox/
 scripts/mail/sent-log/
+scripts/mail/pending-replies.md
 
 # Working files for the lobbying index hand review (scripts/build-lobbying-index.js)
 data/lobbying/

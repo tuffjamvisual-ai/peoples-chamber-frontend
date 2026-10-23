@@ -42,7 +42,7 @@ const ONS_LOOKUP_CSV_URL =
   'https://open-geography-portalx-ons.hub.arcgis.com/api/download/v1/items/9a876e4777bc47e392e670a7b8bc3f5c/csv?layers=0';
 
 const DRY_RUN = !process.argv.includes('--live');
-const UA = 'PeoplesChamber-ConstituencyGssBackfill/1.0 (https://opengovt.uk; tuffjamvisual@gmail.com)';
+const UA = 'PeoplesChamber-ConstituencyGssBackfill/1.0 (https://opengovt.uk; contact@opengovt.uk)';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 

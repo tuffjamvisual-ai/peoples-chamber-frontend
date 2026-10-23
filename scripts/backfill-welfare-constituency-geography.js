@@ -47,7 +47,7 @@ const SOURCE_NAME = 'ons_ward_pcon_lad_ctyua';
 const DATASET_ID = 'ward-to-westminster-parliamentary-constituency-to-lad-to-ctyua-may-2025-lookup-in-the-uk';
 
 const DRY_RUN = !process.argv.includes('--live');
-const UA = 'PeoplesChamber-WelfareGeographyBackfill/1.0 (https://opengovt.uk; tuffjamvisual@gmail.com)';
+const UA = 'PeoplesChamber-WelfareGeographyBackfill/1.0 (https://opengovt.uk; contact@opengovt.uk)';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 

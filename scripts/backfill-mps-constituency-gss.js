@@ -51,7 +51,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const ONS_LOOKUP_CSV_URL =
   'https://open-geography-portalx-ons.hub.arcgis.com/api/download/v1/items/ac27c7721e664440adcc9e862505c8bc/csv?layers=0';
-const UA = 'PeoplesChamber-MpsGssBackfill/1.0 (https://opengovt.uk; tuffjamvisual@gmail.com)';
+const UA = 'PeoplesChamber-MpsGssBackfill/1.0 (https://opengovt.uk; contact@opengovt.uk)';
 
 const LIVE = process.argv.includes('--live');
 
