@@ -9,6 +9,7 @@ import { sanitizeHtml as sanitize } from '@/lib/html-sanitize';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { jsonWithoutEmDashes } from '@/lib/no-em-dash'
+import { metaDescription } from '@/lib/meta-description'
 
 // In-house rendering of a Hansard debate. opengovt never links out, so rather
 // than send readers to hansard.parliament.uk we pull the debate transcript from
@@ -95,6 +96,21 @@ function fmtDate(s?: string) {
   return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
+// The chair and group interjections, which neither open a debate nor count as speakers.
+const CHAIR_RE = /^(?:(?:Mr|Madam|Madame)\s+)?(?:Deputy\s+)?Speaker\b|^The\s+(?:Deputy\s+)?(?:Speaker|Chair|Chairman|Chairwoman|Lord\s+Speaker)\b|^(?:The\s+)?Lord\s+Speaker\b|^(?:The\s+)?(?:Deputy\s+Chairman|Chairman)\s+of\s+Committees|^(?:Several\s+)?Hon\.?\s+Members|^Several\s+hon|^Noble\s+Lords|^(?:An\s+)?Hon\.?\s+Member\b/i;
+
+// A speaker's name as Hansard attributes it: "Sarah Champion (Rotherham) (Lab)" is Sarah Champion; a minister
+// answering by office, "The Minister for Social Security (Sir Stephen Timms)", is the name in the brackets.
+function speakerName(attributed: string): string {
+  const groups = [...attributed.matchAll(/\(([^()]*)\)/g)].map((m) => m[1].trim());
+  const head = attributed.replace(/\s*\([^()]*\)/g, '').trim();
+  if (/^The\s/i.test(head)) {
+    const name = groups.find((g) => /\s/.test(g) && !/^(Lab|Con|LD|SNP|DUP|PC|Ind|Green|Reform|CB|Non-Afl|Bishops?)\b/i.test(g));
+    if (name) return name;
+  }
+  return head || attributed.trim();
+}
+
 // Flatten a debate + its child debates into an ordered list of items.
 function allItems(d: Debate): DebateItem[] {
   const out: DebateItem[] = [...(d.Items || [])];
@@ -134,7 +150,16 @@ export async function generateMetadata({ params }: { params: Promise<{ guid: str
   const { guid } = await params;
   const d = await getDebate(guid);
   const title = d?.Overview?.Title?.trim() || 'Debate';
-  return { title: `${title}`, alternates: { canonical: `/debates/${guid}` } };
+  // Description (owner's approval, 23 Oct 2026) from Hansard's own record: the House and date, the first speaker
+  // after the chair (the opener) and how many people spoke, when the record names them.
+  const ov = d?.Overview;
+  const speakers = d ? [...new Set(allItems(d).map((it) => (it.AttributedTo || '').trim()).filter((a) => a && !CHAIR_RE.test(a)))] : [];
+  const lead = speakers[0] ? speakerName(speakers[0]) : null;
+  const parts = [`${ov?.House ? `${ov.House} debate` : 'Debate'}${ov?.Date ? `, ${fmtDate(ov.Date)}` : ''}`];
+  if (lead) parts.push(`led by ${lead}`);
+  if (speakers.length > 1) parts.push(`with ${speakers.length} speakers`);
+  const description = metaDescription(`${parts.join(', ')}. Read what was said and who spoke.`);
+  return { title: `${title}`, description, alternates: { canonical: `/debates/${guid}` } };
 }
 
 export default async function DebatePage({ params }: { params: Promise<{ guid: string }> }) {

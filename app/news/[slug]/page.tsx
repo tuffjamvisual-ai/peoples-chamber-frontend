@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import OpenGovShell from '../../components/OpenGovShell'
 import BackLink from '../../components/BackLink';
 import RelatedLinks from '../../components/RelatedLinks'
+import { metaDescription } from '@/lib/meta-description'
 import ReadNext, { splitAfterParagraph } from '../../components/ReadNext'
 import { newsReadNext } from '@/lib/read-next';
 import { resolveOrgToDeptSlug } from '@/lib/govOrgSlug'
@@ -82,9 +83,30 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const release = await getPressRelease(slug)
   if (!release) return { title: 'Press release' }
+  // Search title and description (owner's approval, 23 Oct 2026). The GOV.UK headline is kept as written, with
+  // doubled and trailing spaces removed. The description says only what this page shows: the issuing department
+  // and date, then the minister (the Secretary of State in Related) and Open Govt's reports when it shows them.
+  const org = release.organisation?.replace(/\s+/g, ' ').trim() || null
+  const deptSlug = org ? resolveOrgToDeptSlug(org) : null
+  let hasMinister = false
+  if (deptSlug) {
+    const { data: sos, error: sosErr } = await supabase.from('dept_ministers').select('name')
+      .eq('dept_slug', deptSlug).eq('is_secretary_of_state', true).neq('resigned', true).maybeSingle()
+    if (sosErr && sosErr.code !== 'PGRST116') throw new Error(`/news/[slug] metadata minister: ${sosErr.message}`)
+    hasMinister = !!sos
+  }
+  const hasReports = piecesExaminingRelease(release.title, release.gov_url).length > 0
+  const date = release.published_at
+    ? new Date(release.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' })
+    : null
+  let description = [org ? `${org} announcement` : 'Announcement', date].filter(Boolean).join(', ')
+  if (hasMinister && hasReports) description += ', with the minister responsible and Open Govt’s related reports.'
+  else if (hasMinister) description += ', with the minister responsible.'
+  else if (hasReports) description += ', with Open Govt’s related reports.'
+  else description += deptSlug ? '. Linked to the department’s record on Open Govt.' : '.'
   return {
-    title: release.title,
-    description: release.description || `${release.organisation || 'UK Government'} press release.`,
+    title: release.title.replace(/\s+/g, ' ').trim(),
+    description: metaDescription(description),
     alternates: { canonical: `/news/${slug}` },
     // A word-for-word copy of a GOV.UK release: kept for readers, never indexed, so the
     // GOV.UK original is the one search engines show (Search Console review, 16 Oct 2026).

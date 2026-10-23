@@ -9,6 +9,7 @@
 // reading 600 separate pages.
 
 import type { Metadata } from 'next';
+import { metaDescription } from '@/lib/meta-description';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
@@ -78,7 +79,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!name) return { title: 'Secretariat' };
   return {
     title: `${name}: every All-Party Parliamentary Group operated by this secretariat`,
-    description: `${name} acts as secretariat for one or more APPGs in Westminster. Lists every group operated, the MPs officering them, and the registered funders paying the firm.`,
+    description: metaDescription(`${name} acts as secretariat for one or more APPGs in Westminster. Lists every group operated, the MPs officering them, and the registered funders paying the firm.`),
     alternates: { canonical: `/secretariats/${slug}` },
   };
 }

@@ -22,6 +22,8 @@ export const DEPT_ORG_TO_SLUG: Record<string, string> = {
   'Department for Business and Trade':                  'business-trade',
   'Department for Business, Innovation, Science and Trade': 'business-trade',
   'Department for Culture, Media & Sport':              'culture',
+  // DCMS's 2017 to 2023 name, which older releases carry (owner's approval, 23 Oct 2026).
+  'Department for Digital, Culture, Media & Sport':     'culture',
   'Department for Education':                           'education',
   'Department for Energy Security & Net Zero':          'energy',
   'Department for Environment, Food & Rural Affairs':   'environment',

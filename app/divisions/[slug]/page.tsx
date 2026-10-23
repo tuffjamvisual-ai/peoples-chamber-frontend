@@ -1,4 +1,5 @@
 import { billSummary as officialBillSummary } from '@/lib/bill-summary';
+import { metaDescription } from '@/lib/meta-description';
 // Server-rendered division detail page. Slug matches the ParlParse identifier
 // format we already use to identify divisions: pw-YYYY-MM-DD-N-commons.
 //
@@ -147,32 +148,52 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     year: 'numeric',
   });
 
-  const topic = stripProceduralSuffix(row.division_title ?? `Commons Division ${divisionNumber}`);
-
-  // Description: prefer Parliament's summary of the bill, then an SI
-  // explanatory note, then a procedural explainer, then a generic line.
-  let billSummary: string | null = null;
+  // Search title and description (owner's approval, 23 Oct 2026), built from the division's own data only.
+  // Title: the motion title, then the bill's name when the motion title does not already contain it, then the date.
+  const motion = (row.division_title ?? '').replace(/\s+/g, ' ').trim() || `Commons Division ${divisionNumber}`;
+  let billName: string | null = null;
   if (row.bill_id != null) {
-    const { data: bill, error: billErr2 } = await supabase.from('bill').select('title, description, long_title').eq('id', row.bill_id).is('hidden_reason', null).maybeSingle();
+    const { data: bill, error: billErr2 } = await supabase.from('bill').select('title').eq('id', row.bill_id).is('hidden_reason', null).maybeSingle();
     if (billErr2 && billErr2.code !== 'PGRST116') throw new Error(`/divisions/[slug] bill: ${billErr2.message}`);
-    billSummary = bill ? officialBillSummary(bill) || null : null;
+    billName = (bill?.title as string | undefined)?.replace(/\s+/g, ' ').trim() || null;
   }
-  let siDescription: string | null = null;
-  if (!billSummary && row.division_id != null) {
-    const { data: si, error: siErr2 } = await supabase.from('statutory_instrument').select('description').eq('division_id', row.division_id).maybeSingle();
-    if (siErr2 && siErr2.code !== 'PGRST116') throw new Error(`/divisions/[slug] statutory_instrument: ${siErr2.message}`);
-    siDescription = si?.description ?? null;
-  }
+  // "X Act 2022" was "X Bill" when the vote was held, so compare on the name without Bill, Act and the year.
+  const billCore = billName ? billName.replace(/\s*(\[[^\]]*\]|\bBill\b|\bAct\b(\s+\d{4})?)\s*/gi, ' ').replace(/\s+/g, ' ').trim().toLowerCase() : '';
+  const showBill = !!billName && !!billCore && !motion.toLowerCase().includes(billCore);
+  const title = `How every MP voted on ${motion}${showBill ? `, ${billName}` : ''}, ${dateLabel}`;
 
-  const title = `How every MP voted on ${topic}, ${dateLabel}`;
-  const description =
-    billSummary ||
-    siDescription ||
-    proceduralContext(row.division_title) ||
-    `How every MP voted on ${topic} in the House of Commons on ${dateLabel}.`;
+  // Description: the official totals (tellers not counted) from Parliament, or the named votes when there are
+  // none, and the result they give. A tie is left without a result: the data does not record the casting vote.
+  let ayes: number | null = null, noes: number | null = null;
+  if (row.division_id != null) {
+    const { data: t, error: tErr } = await supabase.from('commons_division_totals').select('aye_count, no_count').eq('division_id', row.division_id).maybeSingle();
+    if (tErr && tErr.code !== 'PGRST116') throw new Error(`/divisions/[slug] commons_division_totals: ${tErr.message}`);
+    if (t) { ayes = t.aye_count as number; noes = t.no_count as number; }
+  }
+  if (ayes == null || noes == null) {
+    const count = (voteType: string) => supabase.from('mp_division_votes').select('member_id', { count: 'exact', head: true })
+      .eq('division_date_only', dateOnly).eq('division_number', divisionNumber).eq('vote_type', voteType).not('is_teller', 'is', true);
+    const [a, n] = await Promise.all([count('aye'), count('no')]);
+    if (a.error) throw new Error(`/divisions/[slug] aye count: ${a.error.message}`);
+    if (n.error) throw new Error(`/divisions/[slug] no count: ${n.error.message}`);
+    ayes = a.count ?? 0; noes = n.count ?? 0;
+  }
+  // The motion's short title: for a bill stage ("X Bill Report Stage: New Clause 5"), what was voted on, then the bill.
+  const colon = motion.lastIndexOf(': ');
+  const shortMotion = colon > 0 && /\bBill\b/i.test(motion.slice(0, colon))
+    ? `${motion.slice(colon + 2)} to the ${stripProceduralSuffix(motion.slice(0, colon))}`
+    : motion;
+  const result = ayes > noes ? 'passed' : ayes < noes ? 'rejected' : null;
+  // Over 160 characters: first drop " [Lords]" from the bill name (description only, never the title), then the
+  // call to action.
+  const describe = (motionText: string, cta: boolean) =>
+    `Ayes ${ayes}, Noes ${noes}: ${result ? `MPs ${result} ${motionText}` : motionText} on ${dateLabel}.${cta ? ' See how every MP voted.' : ''}`;
+  let description = describe(shortMotion, true);
+  if (description.length > 160) description = describe(shortMotion.replace(/\s*\[Lords\]/g, ''), true);
+  if (description.length > 160) description = metaDescription(describe(shortMotion.replace(/\s*\[Lords\]/g, ''), false));
   return {
     title: title.length > 200 ? title.slice(0, 197).trimEnd() + '…' : title,
-    description: description.length > 200 ? description.slice(0, 197).trimEnd() + '…' : description,
+    description,
     alternates: { canonical: `/divisions/${slug}` },
   };
 }
