@@ -6,6 +6,7 @@
 //
 // The email is a JSON file in scripts/mail/outbox/ (kept out of Git):
 //   { "to": "someone@example.org", "cc": "optional", "subject": "...", "text": "plain text body" }
+// A reply can also give "inReplyTo" and "references" (Message-IDs, space separated) so it threads.
 //
 // Login comes from .env.local (typed in by the site owner, never printed):
 //   CONTACT_MAIL_USER=contact@opengovt.uk
@@ -58,6 +59,9 @@ const isEmail = (s) => typeof s === 'string' && /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+
   if (ccList.length && !ccList.every(isEmail)) fail('"cc" contains an invalid email address');
   if (!email.subject || !String(email.subject).trim()) fail('"subject" is empty');
   if (!email.text || !String(email.text).trim()) fail('"text" is empty');
+  const isMsgIds = (s) => s == null || /^(<[^<>\s]+@[^<>\s]+>\s*)+$/.test(String(s).trim());
+  if (!isMsgIds(email.inReplyTo)) fail('"inReplyTo" must be one or more <message-id> values');
+  if (!isMsgIds(email.references)) fail('"references" must be one or more <message-id> values');
 
   const base = path.basename(file, '.json');
   const logFile = path.join(LOG_DIR, `${base}.json`);
@@ -69,6 +73,8 @@ const isEmail = (s) => typeof s === 'string' && /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+
     cc: ccList.length ? ccList : undefined,
     subject: String(email.subject).trim(),
     text: String(email.text),
+    inReplyTo: email.inReplyTo ? String(email.inReplyTo).trim() : undefined,
+    references: email.references ? String(email.references).trim() : undefined,
   };
 
   console.log('--- EMAIL PREVIEW ---');
@@ -76,6 +82,8 @@ const isEmail = (s) => typeof s === 'string' && /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+
   console.log(`To:      ${toList.join(', ')}`);
   if (ccList.length) console.log(`Cc:      ${ccList.join(', ')}`);
   console.log(`Subject: ${message.subject}`);
+  if (message.inReplyTo) console.log(`In-Reply-To: ${message.inReplyTo}`);
+  if (message.references) console.log(`References:  ${message.references}`);
   console.log('');
   console.log(message.text);
   console.log('--- END ---');
