@@ -77,7 +77,7 @@ export const topics: TopicDef[] = [
     words: ['nhs', 'health', 'hospital', 'hospitals', 'social care', 'mental health', 'medicine', 'medicines', 'medical', 'patient', 'patients', 'tobacco', 'vapes', 'dentist', 'dentists', 'dental', 'hospice', 'hospices', 'assisted dying'],
     exclude: ['health and safety'],
     billDepartments: ['Department of Health and Social Care', 'Department of Health'],
-    editorialSlugs: ['nh4k9mxw7r', 'rc8m4kqx7n', 'hx4m2kq9w7', 'kv4n9mxw7r', 'pw7k3nq9hd'],
+    editorialSlugs: ['nh4k9mxw7r', 'rc8m4kqx7n', 'hx4m2kq9w7', 'kv4n9mxw7r', 'pw7k3nq9hd', 'in6v2kq8wr'],
     pollWords: ['nhs', 'health', 'social care', 'hospital'],
   },
   {
