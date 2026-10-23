@@ -146,7 +146,7 @@ const piece: EditorialEntry = {
       { text: "Committee on Standards, Christopher Pincher, 6 Jul 2023", url: "https://api.parliament.uk/committees/publications/40781" },
       { text: "Civil Service World, Simon McDonald on Pincher, 5 Jul 2022", url: "https://www.civilserviceworld.com/professions/article/exfco-perm-sec-no10-needs-to-come-clean-on-pincher-story" },
       { text: "Hansard, Harold Wilson on John Stonehouse, 17 Dec 1974", url: "https://api.parliament.uk/historic-hansard/commons/1974/dec/17/the-right-honourable-member-for-walsall" },
-      { text: "Express & Star, The Cabinet Minister: John Stonehouse", url: "https://www.expressandstar.com/news/crime/the-cabinet-minister-john-stonehouse-5887328" },
+      { text: "Express & Star, John Stonehouse profile", url: "https://www.expressandstar.com/news/crime/the-cabinet-minister-john-stonehouse-5887328" },
       { text: "Radio Prague, MI5 history and John Stonehouse, 7 Oct 2009", url: "https://english.radio.cz/history-british-secret-service-uncovers-czechoslovak-infiltration-success-8580376" },
       { text: "AP, Donaldson convicted, 22 Jun 2026", url: "https://cfjctoday.com/2026/06/22/northern-irelands-former-unionist-leader-convicted-of-decades-old-child-sex-abuse-claims/" },
       { text: "PSNI, Jeffrey Donaldson sentenced to 15 years, 15 Oct 2026", url: "https://www.psni.police.uk/latest-news/jeffrey-donaldson-sentenced-15-years-non-recent-child-sexual-abuse-offences" },
