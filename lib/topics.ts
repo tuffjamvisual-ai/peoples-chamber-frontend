@@ -64,7 +64,7 @@ export const topics: TopicDef[] = [
     words: ['immigration', 'asylum', 'migrant', 'migrants', 'migration', 'border', 'borders', 'refugee', 'refugees', 'deportation', 'nationality', 'small boats'],
     exclude: [],
     billDepartments: ['Home Office'],
-    editorialSlugs: ['as6k2mwx9q', 'k9m4qxw7n2', 'q4m8k2xw7n', 'r4n8k2wq7m'],
+    editorialSlugs: ['as6k2mwx9q', 'k9m4qxw7n2', 'q4m8k2xw7n', 'r4n8k2wq7m', 'hm4q9xk2ta'],
     pollWords: ['immigration', 'asylum', 'channel crossing', 'channel crossings', 'deport', 'deportation', 'deportations', 'echr', 'human rights'],
   },
   {
