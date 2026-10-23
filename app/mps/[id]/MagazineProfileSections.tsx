@@ -379,6 +379,12 @@ type Contribution = {
   hansard_url: string | null;
 };
 
+// IPSA financial year keys ("24_25") as readers write them ("2024/25"). The key itself stays as stored.
+const fmtExpenseYear = (y: number | string): string => {
+  const m = /^(\d{2}|\d{4})_(\d{2})$/.exec(String(y));
+  return m ? `${m[1].length === 2 ? `20${m[1]}` : m[1]}/${m[2]}` : String(y);
+};
+
 const fmtMoney = (n: number) =>
   new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 }).format(n || 0);
 
@@ -2410,10 +2416,10 @@ export default function MagazineProfileSections({
                               onClick={(ev) => { ev.stopPropagation(); toggle(); }}
                               style={{ background: 'none', border: 0, padding: 0, margin: 0, font: 'inherit', fontWeight: 'bold', color: 'inherit', cursor: 'pointer', textAlign: 'left' }}
                             >
-                              {e.year}<span aria-hidden="true">{expanded ? ' ▾' : ' ▸'}</span>
+                              {fmtExpenseYear(e.year)}<span aria-hidden="true">{expanded ? ' ▾' : ' ▸'}</span>
                               <span className="sr-only"> claims</span>
                             </button>
-                          ) : e.year}
+                          ) : fmtExpenseYear(e.year)}
                         </td>
                         {breakdownLabels.map((b) => (
                           <td key={b.key} style={{ padding: '4px 3px', fontFamily: 'monospace', fontSize: '15px', whiteSpace: 'nowrap' }}>{fmtMoney(Number(e[b.key]) || 0)}</td>
@@ -2427,7 +2433,7 @@ export default function MagazineProfileSections({
                           {expanded && (
                           <td colSpan={breakdownLabels.length + 2} style={{ padding: '0 3px 8px', background: 'rgba(122,22,18,0.04)' }}>
                             <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.06em', padding: '6px 0', opacity: 0.8 }}>
-                              {yearClaims.length} claims in {e.year}
+                              {yearClaims.length} claims in {fmtExpenseYear(e.year)}
                             </div>
                             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px', tableLayout: 'auto' }}>
                               <thead>
