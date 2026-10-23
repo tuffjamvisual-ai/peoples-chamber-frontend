@@ -57,6 +57,8 @@ export async function getBillsPage(
       .order('public_votes', { ascending: false })
       .order('id', { ascending: true })
       .range(from, to);
+    // PGRST103: the page is past the last one. No bills, so /bills/page/N returns notFound() (404); not an error.
+    if (error?.code === 'PGRST103') return { bills: [], totalCount: 0 };
     if (error) {
       console.error('getBillsPage error:', error);
       return { bills: [], totalCount: 0 };

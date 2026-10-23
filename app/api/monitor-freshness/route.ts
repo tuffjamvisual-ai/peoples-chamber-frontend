@@ -96,6 +96,9 @@ async function GET_impl(req: Request) {
   const cronRoutes = new Map<string, string>();
   for (const c of vercelConfig.crons) if (!c.path.includes('?')) cronRoutes.set(c.path, c.schedule);
   const HEARTBEATS_ADDED = new Date('2026-10-21T20:00:00Z');
+  // Run expected, zero rows normal: alerted only for a missed run or a failed one, never for a run of zero rows.
+  // The reshuffle tick changes nothing unless reshuffle mode is on.
+  const ZERO_ROWS_NORMAL = new Set(['/api/sync-reshuffle-tick']);
   const missedRuns: Array<{ route: string; due: string; lastRanAt: string | null }> = [];
   for (const [route, schedule] of cronRoutes) {
     if (route === '/api/monitor-freshness' || alerted.has(route)) continue;
@@ -166,7 +169,7 @@ async function GET_impl(req: Request) {
   // sources (Commons votes, register of interests) carry a higher tolerance so normal
   // weekend/recess quiet doesn't park them here. Surfaced, not emailed.
   const zeroRunWatch = sources
-    .filter((s) => s.runStatus === 'ok' && s.zeroRunStreak >= s.zeroRunTolerance)
+    .filter((s) => s.runStatus === 'ok' && s.zeroRunStreak >= s.zeroRunTolerance && !ZERO_ROWS_NORMAL.has(s.syncRoute ?? ''))
     .map((s) => ({ page: s.page, route: s.syncRoute, zeroRunStreak: s.zeroRunStreak, tolerance: s.zeroRunTolerance }));
 
   // Email only what self-heal did NOT recover.
@@ -247,6 +250,7 @@ async function GET_impl(req: Request) {
     heals,
     alertEmail,
     zeroRunWatch,
+    zeroRowsNormal: [...ZERO_ROWS_NORMAL],
     sources,
   });
 }

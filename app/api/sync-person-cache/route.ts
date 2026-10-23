@@ -147,9 +147,12 @@ async function GET_impl(req: Request) {
     }
   }
 
+  const refreshed = results.filter((r) => r.status === 'ok').length;
   return NextResponse.json({
-    ok: results.filter((r) => r.status === 'ok').length,
+    ok: refreshed,
     fail: results.filter((r) => r.status === 'fail').length,
+    // People refreshed; the heartbeat records this as the run's row count.
+    count: refreshed,
     syncedAt: new Date().toISOString(),
     results,
   });

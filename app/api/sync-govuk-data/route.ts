@@ -341,6 +341,7 @@ async function GET_impl(req: Request) {
   }
 
   const results: Array<{ deptSlug: string; status: 'ok' | 'fail' | 'skipped'; detail: string }> = [];
+  let rowsWritten = 0;
   for (const [deptSlug, govukSlug] of Object.entries(govukSlugs)) {
     if (excluded.has(deptSlug)) {
       results.push({ deptSlug, status: 'skipped', detail: 'dept_sync_exclude (manual override active)' });
@@ -348,6 +349,7 @@ async function GET_impl(req: Request) {
     }
     try {
       const r = await syncDept(supabase, deptSlug, govukSlug);
+      rowsWritten += r.ministers + r.officials + r.agencies;
       results.push({
         deptSlug,
         status: 'ok',
@@ -363,6 +365,8 @@ async function GET_impl(req: Request) {
     ok: results.filter((r) => r.status === 'ok').length,
     fail: results.filter((r) => r.status === 'fail').length,
     skipped: results.filter((r) => r.status === 'skipped').length,
+    // Minister, official and agency rows written; the heartbeat records this as the run's row count.
+    rows_written: rowsWritten,
     autoCleared,
     syncedAt: new Date().toISOString(),
     results,
