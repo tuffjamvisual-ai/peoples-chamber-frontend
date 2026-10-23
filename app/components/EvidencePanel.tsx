@@ -14,6 +14,15 @@ const MONO = "'Special Elite', monospace";
 
 export type { EvidenceRecord };
 
+// "Facts last checked" as written, except an ISO date (YYYY-MM-DD), which shows as "23 October 2026".
+export function formatLastChecked(value: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!m) return value;
+  const d = new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])));
+  if (d.getUTCFullYear() !== Number(m[1]) || d.getUTCMonth() !== Number(m[2]) - 1 || d.getUTCDate() !== Number(m[3])) return value;
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+}
+
 export type EvidencePanelProps = {
   recordsReviewed?: EvidenceRecord[];
   contacted?: string;
@@ -75,7 +84,7 @@ export default function EvidencePanel({
       )}
       {contacted && <Row label="Contacted">{contacted}</Row>}
       {response && <Row label="Response">{response}</Row>}
-      {lastChecked && <Row label="Facts last checked">{lastChecked}</Row>}
+      {lastChecked && <Row label="Facts last checked">{formatLastChecked(lastChecked)}</Row>}
       <Row label="Corrections">
         Spotted an error? <a href={`mailto:${correctionsEmail}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{correctionsEmail}</a>. Corrections are logged.
       </Row>

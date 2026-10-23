@@ -4,6 +4,7 @@ import Link from 'next/link';
 import OpenGovShell from './OpenGovShell';
 import BackLink from './BackLink';
 import { SourcesList, linkStyle, type EvidenceRecord } from './SourcesList';
+import { formatLastChecked } from './EvidencePanel';
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';
@@ -29,7 +30,7 @@ export default function SourcesPage({ stamp, articleHref, headline, records, las
         <SourcesList records={records} />
         {lastChecked && (
           <p style={{ marginTop: '18px' }}>
-            <span style={{ ...linkStyle, textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Facts last checked</span> {lastChecked}
+            <span style={{ ...linkStyle, textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Facts last checked</span> {formatLastChecked(lastChecked)}
           </p>
         )}
       </div>
