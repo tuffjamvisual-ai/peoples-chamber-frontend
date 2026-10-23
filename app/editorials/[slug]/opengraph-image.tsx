@@ -18,12 +18,14 @@ const ACCENT = '#7a1612';
 
 const specialElite = await readFile(join(process.cwd(), 'public/fonts/special-elite.ttf'));
 
-// Longer headlines get a smaller size so every headline fits on the card.
+// Headline size (23 Oct 2026, larger so it reads as a thumbnail): 72px up to 60 characters, then scaling down evenly
+// to 48px at 130 characters (the longest headline), and no smaller beyond that.
+const HEADLINE_BLOCK_HEIGHT = 315; // half the card
 function headlineSize(text: string): number {
-  if (text.length <= 50) return 72;
-  if (text.length <= 80) return 60;
-  if (text.length <= 110) return 52;
-  return 44;
+  const n = text.length;
+  if (n <= 60) return 72;
+  if (n >= 130) return 48;
+  return Math.round(72 - ((n - 60) / 70) * 24);
 }
 
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
@@ -53,7 +55,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
             {kicker}
           </div>
         </div>
-        <div style={{ display: 'flex', fontSize: headlineSize(headline), lineHeight: 1.15 }}>
+        <div style={{ display: 'flex', alignItems: 'center', height: HEADLINE_BLOCK_HEIGHT, fontSize: headlineSize(headline), lineHeight: 1.12 }}>
           {headline}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
