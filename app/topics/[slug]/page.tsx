@@ -8,6 +8,8 @@ import BackLink from '../../components/BackLink';
 import { getTopic, topics, topicBillArgs, newestPerTitle, wholeWordsPattern } from '@/lib/topics';
 import { departments } from '@/lib/departments';
 import { editorials } from '@/lib/editorials';
+import { listSummary } from '@/lib/editorials/list-summary';
+import ContinueToArticle from '../../components/ContinueToArticle';
 
 export const revalidate = 86400;
 
@@ -209,8 +211,9 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
           <h2 style={sectionH2}>Investigations</h2>
           {relatedEditorials.map((e) => (
             <Link key={e.slug} href={`/${e.kind === 'briefing' ? 'briefings' : 'editorials'}/${e.slug}`} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '11px 0' }}>
-              <div style={{ fontSize: '16px', fontWeight: 'bold', lineHeight: 1.3 }}>{e.headline} <span style={{ color: ACCENT }}>→</span></div>
-              <p style={{ fontSize: '15px', color: INK, marginTop: '4px', lineHeight: 1.5 }}>{e.standfirst}</p>
+              <div style={{ fontSize: '16px', fontWeight: 'bold', lineHeight: 1.3 }}>{e.headline}</div>
+              <p style={{ fontSize: '15px', color: INK, marginTop: '4px', lineHeight: 1.5 }}>{listSummary(e)}</p>
+              <ContinueToArticle style={{ marginTop: '4px' }} />
             </Link>
           ))}
         </section>

@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Modern Slavery',
   headline: `Government Plans £1m Forced Labour Reporting Fines. Companies Still Will Not Have to Check Their Supply Chains`,
   standfirst: `Companies that fail to comply with Britain's modern slavery reporting rules could face substantial fines under legislation now before Parliament. The proposed rules are considerably tougher than the existing system. They still would not require a company to carry out due diligence on human rights in its supply chain. Under the Immigration and Asylum Bill, a business could state that it had carried out no assessment of whether forced labour risks existed, explain why it had not done so, and still comply with the reporting requirement.`,
+  summary: "Planned £1m fines for breaking modern slavery reporting rules will still not require companies to check their supply chains for forced labour.",
   publishedAt: '2026-07-16',
   authorByline: 'opengovt',
   body: [

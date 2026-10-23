@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Health',
   headline: `Government Announces £1.5bn NHS Estate Programme as Repair Backlog Stands at £15.9bn`,
   standfirst: `The government has allocated more than £1.5 billion to hospital buildings and infrastructure across England while its own capital plan puts the NHS maintenance backlog at £15.9 billion. More than £1.3 billion of the September package is for maintenance, safety and resilience work. The money comes from the existing £6.75 billion Estates Safety Fund already set out in the government's July 10 Year Capital Plan, not a new September allocation.`,
+  summary: "The government’s £1.5bn NHS estate programme comes from an existing fund, while the repair backlog stands at £15.9bn.",
   publishedAt: '2026-09-09',
   authorByline: 'opengovt',
   body: [

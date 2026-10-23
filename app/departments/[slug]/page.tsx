@@ -79,7 +79,7 @@ export default async function DepartmentPage({ params }: PageProps) {
     (async () => {
       const { data, error: dataErr } = await supabase
         .from('editorials')
-        .select('slug, headline, standfirst, published_at, kicker')
+        .select('slug, headline, standfirst, summary, published_at, kicker')
         .contains('related_dept_slugs', [slug])
         .is('kind', null)
         .order('published_at', { ascending: false });

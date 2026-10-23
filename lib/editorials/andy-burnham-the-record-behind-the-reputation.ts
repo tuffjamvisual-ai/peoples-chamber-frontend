@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Labour Leadership',
   headline: `Andy Burnham: The Record Behind the Reputation`,
   standfirst: `Keir Starmer resigned as Labour leader on 22 June, four days after Andy Burnham won the Makerfield byelection with 54.8 per cent of the vote. Burnham is now the frontrunner to replace him. His record in Greater Manchester is more complicated than either his supporters or critics usually acknowledge.`,
+  summary: "Andy Burnham is the frontrunner to replace Starmer, and his Greater Manchester record is more complicated than supporters or critics usually acknowledge.",
   publishedAt: '2026-06-23',
   authorByline: 'opengovt',
   body: [

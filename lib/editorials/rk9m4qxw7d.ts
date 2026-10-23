@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Accountability',
   headline: `Starmer Sacked Olly Robbins Over Mandelson Vetting. MPs Say the Facts Had Not Been Established`,
   standfirst: `Sir Olly Robbins was dismissed as the Foreign Office's most senior civil servant over the decision to grant Peter Mandelson security clearance. Three months later, the Foreign Affairs Committee found that Robbins had inherited an appointment No 10 had already announced, obtained royal approval for and presented to the United States. It concluded that his dismissal appeared to have taken place "without full due process and the establishment of the facts".`,
+  summary: "Starmer sacked Olly Robbins over Mandelson’s vetting, but MPs say his dismissal came before the facts had been established.",
   publishedAt: '2026-07-30',
   authorByline: 'opengovt',
   body: [

@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Industry',
   headline: `British Steel Is Costing Taxpayers £1.3m a Day Without a Costed Plan for Its Future`,
   standfirst: `British Steel is costing around £1.3 million a day in public money, more than a year after emergency intervention prevented the closure of its Scunthorpe blast furnaces. The Public Accounts Committee says the intervention bought time but not a solution. The Department for Business and Trade still cannot provide Parliament with indicative estimates of future expenditure, a preferred decarbonisation route or a timetable for returning the company to financial sustainability.`,
+  summary: "British Steel is costing taxpayers around £1.3m a day, and the government still has no costed plan for its future.",
   publishedAt: '2026-09-18',
   authorByline: 'opengovt',
   body: [

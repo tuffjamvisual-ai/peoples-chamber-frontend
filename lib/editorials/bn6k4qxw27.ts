@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'The Leadership',
   headline: `Burnham Became Labour Leader With 379 MP Nominations and No Membership Ballot`,
   standfirst: `Andy Burnham became Labour leader on Friday without a vote of the party's membership. He did not defeat another candidate. No other Labour MP secured enough nominations to reach the ballot. He received nominations from 379 Labour MPs and 23 affiliated organisations and is expected to enter Downing Street on Monday.`,
+  summary: "Andy Burnham became Labour leader with 379 MP nominations and no membership ballot, because no other candidate reached the ballot.",
   publishedAt: '2026-07-18',
   authorByline: 'opengovt',
   body: [

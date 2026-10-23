@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Justice',
   headline: `Specialist Rape Courts Return Without Evidence the 2022 Pilot Cut Delays`,
   standfirst: `Every Crown Court in England and Wales will get a specialist rape courtroom with fixed trial dates, private waiting areas and facilities for recording evidence in advance. Many of those measures were piloted at Leeds, Newcastle and Snaresbrook from October 2022. The Ministry of Justice published its assessment on 3 September 2026; it was qualitative only and produced no figures on whether cases at those courts were completed more quickly or the backlog fell. The announcement does not reference the pilot or its findings.`,
+  summary: "Specialist rape courtrooms are coming to every Crown Court without evidence that the 2022 pilot cut delays.",
   publishedAt: '2026-09-21',
   authorByline: 'opengovt',
   body: [

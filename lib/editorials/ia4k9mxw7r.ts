@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Accountability',
   headline: `Government Publishes £209m Crime Law Costing Five Months After Parliament Passed It`,
   standfirst: `The government published a £208.9 million cost estimate for criminal law measures in the Crime and Policing Act five months after the legislation received Royal Assent in April 2026. The figure is more than double the £97 million estimated at Bill stage. The document published at enactment carries a blank date field and no ministerial signature.`,
+  summary: "The government costed the Crime and Policing Act at £209m five months after it became law, more than double the earlier estimate.",
   publishedAt: '2026-09-29',
   authorByline: 'opengovt',
   body: [

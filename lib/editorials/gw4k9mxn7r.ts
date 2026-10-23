@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Public Ownership',
   headline: `Government Opens Door to Water Ownership but Stops Short of Walking Through It`,
   standfirst: `The government has announced what it calls a "pathway to stronger public control" of England's water industry. No water company is being taken into public ownership. The distinction matters.`,
+  summary: "The government has announced a “pathway to stronger public control” of water, but no company is being taken into public ownership.",
   publishedAt: '2026-09-30',
   authorByline: 'opengovt',
   body: [

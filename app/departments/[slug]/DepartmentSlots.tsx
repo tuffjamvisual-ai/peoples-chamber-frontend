@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { listSummary } from '@/lib/editorials/list-summary';
+import ContinueToArticle from '@/app/components/ContinueToArticle';
 import { type DepartmentBudget, fmtBn, totalSpend } from '@/lib/department-budgets';
 
 export type PressReleaseItem = {
@@ -12,6 +14,7 @@ export type InvestigationItem = {
   slug: string;
   headline: string;
   standfirst: string | null;
+  summary: string | null;
   published_at: string;
   kicker: string | null;
 };
@@ -161,21 +164,19 @@ export function InvestigationsSlot({ investigations }: { investigations: Investi
       <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
         {investigations.map((item, i) => (
           <li key={i} style={{ borderBottom: '1px dotted rgba(20,16,13,0.15)', padding: '10px 0' }}>
-            <Link
-              href={`/editorials/${item.slug}`}
-              style={{ display: 'block', fontSize: '15px', color: '#14100d', textDecoration: 'none', lineHeight: 1.45, fontWeight: 600 }}
-            >
-              {item.headline}
+            <Link href={`/editorials/${item.slug}`} className="no-hover-scale" style={{ display: 'block', color: '#14100d', textDecoration: 'none' }}>
+              <span style={{ display: 'block', fontSize: '15px', lineHeight: 1.45, fontWeight: 600 }}>{item.headline}</span>
+              {listSummary(item) && (
+                <span style={{ display: 'block', fontSize: '14px', margin: '3px 0 0', lineHeight: 1.5 }}>
+                  {listSummary(item)}
+                </span>
+              )}
+              <span style={{ display: 'block', fontFamily: 'Special Elite, monospace', fontSize: '14px', marginTop: '4px' }}>
+                {item.kicker ? `${item.kicker} · ` : ''}
+                {new Date(item.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+              </span>
+              <ContinueToArticle style={{ fontSize: '14px', marginTop: '4px' }} />
             </Link>
-            {item.standfirst && (
-              <p style={{ fontSize: '14px', color: '#14100d', margin: '3px 0 0', lineHeight: 1.5 }}>
-                {item.standfirst}
-              </p>
-            )}
-            <span style={{ display: 'block', fontFamily: 'Special Elite, monospace', fontSize: '14px', color: '#14100d', marginTop: '4px' }}>
-              {item.kicker ? `${item.kicker} · ` : ''}
-              {new Date(item.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-            </span>
           </li>
         ))}
       </ol>

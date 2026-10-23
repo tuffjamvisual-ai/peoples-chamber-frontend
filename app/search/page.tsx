@@ -72,6 +72,11 @@ function ResultRow({ r }: { r: SearchResult }) {
               {r.standfirst.length > 200 ? r.standfirst.slice(0, 200) + '…' : r.standfirst}
             </p>
           )}
+          {r.type === 'editorial' && (
+            <Link href={r.url} style={{ display: 'block', fontSize: '15px', color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px', margin: '0 0 5px' }}>
+              Continue to full article
+            </Link>
+          )}
           <span style={{ fontFamily: MONO, fontSize: '14px', color: '#14100d' }}>
             {r.date ? fmtDate(r.date) : ''}
             {r.kicker       ? (r.date ? ` · ${r.kicker}` : r.kicker) : ''}

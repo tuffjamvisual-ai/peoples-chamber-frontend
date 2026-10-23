@@ -12,6 +12,8 @@
 import Link from 'next/link';
 import type { EditorialEntry } from '@/lib/editorials/types';
 import { exploreNextSelection } from '@/lib/explore-next';
+import { listSummary } from '@/lib/editorials/list-summary';
+import ContinueToArticle from './ContinueToArticle';
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';
@@ -69,7 +71,8 @@ function PieceLink({ e, base }: { e: EditorialEntry; base: string }) {
   return (
     <Link href={`${base}/${e.slug}`} className="xn-link no-hover-scale">
       <span className="xn-title">{e.headline}</span>
-      {e.standfirst && <span className="xn-note">{e.standfirst.length > 160 ? `${e.standfirst.slice(0, 157).trimEnd()}…` : e.standfirst}</span>}
+      {listSummary(e) && <span className="xn-note">{listSummary(e)}</span>}
+      <ContinueToArticle style={{ fontSize: '14px', marginTop: '4px' }} />
     </Link>
   );
 }

@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import JsonLd, { buildHomepageGraph } from '@/lib/JsonLd';
 import OpenGovShell from './components/OpenGovShell';
 import { editorials } from '@/lib/editorials';
+import { listSummary } from '@/lib/editorials/list-summary';
+import ContinueToArticle from './components/ContinueToArticle';
 import { supabase } from '@/lib/supabase';
 import { govUrlToSlug } from '@/lib/govUrlSlug';
 import { normalizeOrg, resolveOrgHref } from '@/lib/govOrgSlug';
@@ -148,14 +150,15 @@ export default async function HomePage() {
 
               <a className="og-block" href={`/editorials/${slot1.slug}`}>
                 <div className="og-head">{slot1.headline}</div>
-                <div className="og-standfirst">{slot1.standfirst}</div>
+                <div className="og-standfirst">{listSummary(slot1)}</div>
                 {ledeText && <p className="og-lede">{ledeText}</p>}
-                <div className="og-cta">Read the full story &rarr;</div>
+                <ContinueToArticle />
               </a>
 
               <a className="og-block og-brief" href={`/editorials/${slot2.slug}`}>
-                <div className="og-head">{slot2.headline} <span style={{ color: '#14100d' }}>&rarr;</span></div>
-                <p>{slot2.standfirst}</p>
+                <div className="og-head">{slot2.headline}</div>
+                <p>{listSummary(slot2)}</p>
+                <ContinueToArticle />
               </a>
 
 
@@ -196,14 +199,15 @@ export default async function HomePage() {
               </a>
 
               <a className="og-block og-brief" href={`/editorials/${slot3.slug}`}>
-                <div className="og-head">{slot3.headline} <span style={{ color: '#14100d' }}>&rarr;</span></div>
-                <p>{slot3.standfirst}</p>
+                <div className="og-head">{slot3.headline}</div>
+                <p>{listSummary(slot3)}</p>
+                <ContinueToArticle />
               </a>
 
               <a className="og-block og-brief" href={`/editorials/${slot4.slug}`}>
                 <div className="og-head">{slot4.headline}</div>
-                <p>{slot4.standfirst}</p>
-                <div className="og-cta">Read the full story &rarr;</div>
+                <p>{listSummary(slot4)}</p>
+                <ContinueToArticle />
               </a>
 
               <a className="og-block og-card" href="/expenses">

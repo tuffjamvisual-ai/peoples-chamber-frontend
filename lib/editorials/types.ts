@@ -6,6 +6,9 @@ export type EditorialEntry = {
   slug: string;
   headline: string;
   standfirst: string;
+  // One sentence of 22 words or fewer for article lists. Lists fall back to the standfirst when it is missing;
+  // the article page always shows the full standfirst.
+  summary?: string;
   publishedAt: string;          // ISO date
   authorByline: string;
   // 'briefing' = daily news analysis (lives only in the Briefings section);

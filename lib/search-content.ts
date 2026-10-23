@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import { govUrlToSlug } from '@/lib/govUrlSlug';
 import { DEPT_SLUG_TO_ORGS } from '@/lib/govOrgSlug';
+import { listSummary } from '@/lib/editorials/list-summary';
 
 export type SearchResultType =
   | 'editorial'
@@ -78,7 +79,7 @@ async function queryEditorials(
   const limit = tsType === 'phrase' ? PHRASE_PER_TABLE : PER_TABLE;
   let query = supabase
     .from('editorials')
-    .select('slug, headline, standfirst, published_at, kicker')
+    .select('slug, headline, standfirst, summary, published_at, kicker')
     .textSearch('search_vec', q, { type: tsType, config: 'english' })
     .order('published_at', { ascending: false })
     .limit(limit);
@@ -93,7 +94,7 @@ async function queryEditorials(
   return (data ?? []).map((r) => ({
     type: 'editorial' as const,
     title: r.headline,
-    standfirst: r.standfirst ?? undefined,
+    standfirst: listSummary(r) || undefined,
     date: toDateStr(r.published_at),
     url: `/editorials/${r.slug}`,
     kicker: r.kicker ?? undefined,

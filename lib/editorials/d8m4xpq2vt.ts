@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Trade',
   headline: `Trump Threatens Britain Over an £808m Tech Tax. The 100% Tariff Is Not Yet a UK Tariff`,
   standfirst: `Donald Trump threatened on 26 June to impose a 100 per cent tariff on goods from countries that tax American digital companies. Britain already does. Its Digital Services Tax raised £808 million in 2024/25 and UK businesses exported £59.7 billion of goods to the United States in 2025. But as of 30 June, Trump had not imposed either tariff on British goods.`,
+  summary: "Trump has threatened a 100 per cent tariff over Britain’s £808m digital tax, but has not yet imposed it on UK goods.",
   publishedAt: '2026-06-30',
   authorByline: 'opengovt',
   body: [

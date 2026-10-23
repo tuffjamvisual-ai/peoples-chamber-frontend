@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Housing',
   headline: `Kirklees Owns 21,286 Council Homes. It Has Up to Date Condition Records for Around a Quarter`,
   standfirst: `The Regulator of Social Housing has given Kirklees Council a C3 consumer grade after finding it held up to date condition and hazard information for around a quarter of its 21,286 homes.`,
+  summary: "The social housing regulator graded Kirklees C3 after finding up to date condition records for around a quarter of its 21,286 homes.",
   publishedAt: '2026-10-22',
   authorByline: 'opengovt',
   body: [

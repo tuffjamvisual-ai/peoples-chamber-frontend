@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Commentary',
   headline: `Digital ID Will Be Voluntary. Parliament Has Already Warned About Function Creep`,
   standfirst: `The government's digital ID will be voluntary. That is not merely ministerial reassurance. The consultation document says so explicitly. But voluntary in law is not the same as voluntary in practice. Parliament's Home Affairs Committee has already warned about function creep and recommended that future expansions require statutory scrutiny. The government has not yet said which protections will end up in legislation.`,
+  summary: "Digital ID will be voluntary in law, but MPs have warned of function creep and the legal protections are not yet set.",
   publishedAt: '2026-07-17',
   authorByline: 'opengovt',
   body: [

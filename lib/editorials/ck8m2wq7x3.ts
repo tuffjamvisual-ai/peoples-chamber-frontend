@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Local Government',
   headline: `GMB's Regional Data Show Nearly 1 Million Council Tax Court Actions in England. New Safeguards Start in 2027`,
   standfirst: `GMB's published regional data record 992,536 council tax court actions in England in 2024/25, although the union's figures contain an unresolved discrepancy that prevents a clean national total. Ministers have already decided the current enforcement system needs replacing. The new rules will not begin until April 2027.`,
+  summary: "GMB’s regional data show nearly 1 million council tax court actions in England, and new safeguards will not start until April 2027.",
   publishedAt: '2026-07-08',
   authorByline: 'opengovt',
   body: [

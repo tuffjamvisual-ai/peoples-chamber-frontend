@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Prisons',
   headline: `Government Has Not Published Updated Capacity Modelling for Its Revised Prison Release Plan`,
   standfirst: `Around 5,000 prisoners are expected to have their release dates brought forward under revised sentencing rules beginning in October, after the government excluded rape, serious sexual offences against children and grooming offences from the changes. The Ministry of Justice's latest capacity model predates those exclusions and no updated version accompanied the announcement.`,
+  summary: "Around 5,000 prisoners are expected to be released earlier under revised rules, but no updated capacity modelling has been published.",
   publishedAt: '2026-08-04',
   authorByline: 'opengovt',
   body: [

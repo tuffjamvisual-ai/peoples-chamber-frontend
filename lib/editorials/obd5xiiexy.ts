@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Policing',
   headline: `Government Says Police DVLA Access Is Not for Facial Recognition. Its Draft Rules Do Not Ban It`,
   standfirst: `The Home Office opened a consultation on 7 July on new rules governing police access to driving licence records. The government says explicitly that this is not a proposal to allow police to search the driving licence database using facial recognition. Neither the Crime and Policing Act 2026 nor the draft regulations published alongside the consultation contain an express prohibition on using DVLA images for facial recognition searches.`,
+  summary: "The government says police access to DVLA records is not for facial recognition, but its draft rules do not ban it.",
   publishedAt: '2026-07-07',
   authorByline: 'opengovt',
   body: [

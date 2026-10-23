@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Asylum Accommodation',
   headline: `Home Office Plans 3,750 More Asylum Places Before It Has a Performance Regime for Existing Large Sites`,
   standfirst: `The Home Office is considering three former military sites capable of accommodating around 3,750 asylum seekers between them. Two could remain in use for at least ten years. It is planning that expansion while still developing the performance regime for the large asylum sites it already operates. Five months after promising revised KPIs by February 2026, border security minister Alex Norris told MPs in July that a dedicated framework for Wethersfield and Crowborough was still being developed.`,
+  summary: "The Home Office plans 3,750 more asylum places before it has a performance regime for the large sites it already runs.",
   publishedAt: '2026-07-21',
   authorByline: 'opengovt',
   body: [

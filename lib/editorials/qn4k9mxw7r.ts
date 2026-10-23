@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Accountability',
   headline: `Cabinet Office Circulates New Consultation Guidance Before Publishing Replacement Rules`,
   standfirst: `The Cabinet Office is changing the rules Whitehall uses to decide when the public should be formally consulted, while general guidance supporting the new approach has already been circulated inside government. The replacement Consultation Principles have not yet been published. A Cabinet Office minister told Parliament there is "no current plan" to place the new internal guidance in the Commons Library.`,
+  summary: "The Cabinet Office has circulated new consultation guidance inside government before publishing the replacement Consultation Principles.",
   publishedAt: '2026-09-10',
   authorByline: 'opengovt',
   body: [

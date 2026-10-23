@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Housing',
   headline: `Regulator Calls £54.7bn of Social Housing Finance 'New Borrowing'. Its Own Report Says Much of It Is Refinancing.`,
   standfirst: `England's large social landlords expect to spend £59 billion repairing and maintaining existing homes over the next five years while increasing development. The Regulator of Social Housing's press release describes £54.7 billion as "new borrowing". Its own report says a substantial part of that sum replaces existing loans as they mature.`,
+  summary: "The social housing regulator calls £54.7bn “new borrowing”, but its own report says much of that sum refinances existing loans.",
   publishedAt: '2026-10-06',
   authorByline: 'opengovt',
   body: [

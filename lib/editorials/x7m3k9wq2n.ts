@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Social Policy',
   headline: `The State Now Accepts Responsibility for Forced Adoption. Its £4m Package Includes No Compensation`,
   standfirst: `Keir Starmer apologised on behalf of the state on 2 July to mothers, adopted people and families harmed by historical forced adoption practices in England. The apology came with £4 million of support over three years. It did not include individual financial compensation.`,
+  summary: "The state now accepts responsibility for forced adoption, but its £4m support package includes no individual compensation.",
   publishedAt: '2026-07-06',
   authorByline: 'opengovt',
   body: [

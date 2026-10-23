@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Defence',
   headline: `MoD Overturned 884 Afghan Special Forces Refusals After Failing to Use Key Records`,
   standfirst: `The Ministry of Defence eventually overturned 884 refusals involving former members of Afghan specialist units who had worked alongside British forces, after a review found that earlier decisions had been made without properly using records held by the UK government. A Defence Committee report found serious administrative failings and said the high reversal rate meant the original decisions could not be regarded as reliable.`,
+  summary: "The MoD overturned 884 refusals of former Afghan special forces after earlier decisions failed to use key UK government records.",
   publishedAt: '2026-08-03',
   authorByline: 'opengovt',
   body: [

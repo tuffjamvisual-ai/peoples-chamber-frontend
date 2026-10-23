@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Water & Utilities',
   headline: `South East Water's Bosses Are Gone. Its Turnaround Plan Still Has to Be Written`,
   standfirst: `South East Water has lost its chair and chief executive after MPs declared they had no confidence in the company's leadership. Regulators have since formally found breaches of statutory and licence obligations, accepted legally enforceable undertakings and required the company to produce plans it has not yet completed. An independent monitor will report directly to Ofwat on whether those plans are delivered.`,
+  summary: "South East Water’s chair and chief executive have gone, but the turnaround plans regulators require have still to be written.",
   publishedAt: '2026-07-20',
   authorByline: 'opengovt',
   body: [

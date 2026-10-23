@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Environment',
   headline: `Ministers Accept PFAS Pollution Could Be Irreversible but Give No Date for Consumer Restrictions`,
   standfirst: `On 6 July, the government responded to a parliamentary proposal to begin phasing PFAS out of products such as food packaging, cookware and school uniforms from 2027. It did not accept the timetable. Ministers said they would wait to see how the EU's proposed wider restriction deals with consumer products that are not essential. The same response says there is "plausible evidence" that continued PFAS emissions could cause serious or irreversible pollution.`,
+  summary: "Ministers accept PFAS pollution could be irreversible but have given no date for restricting the chemicals in consumer products.",
   publishedAt: '2026-07-16',
   authorByline: 'opengovt',
   body: [

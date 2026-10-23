@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Policing',
   headline: `Operation Hexagon Arrested an Oldham Campaigner. GMP Has Never Reviewed What the Operation Did`,
   standfirst: `In March this year, Greater Manchester Police was asked what Operation Hexagon's official scope was. The force did not provide a document setting it out. It replied that the information was already in the public domain through a Google search. The same Freedom of Information request asked whether Hexagon had ever been reviewed for its legality, conduct or effectiveness. GMP's answer was no.`,
+  summary: "Operation Hexagon arrested an Oldham campaigner, and GMP says it has never reviewed the operation’s legality, conduct or effectiveness.",
   publishedAt: '2026-07-16',
   authorByline: 'opengovt',
   body: [

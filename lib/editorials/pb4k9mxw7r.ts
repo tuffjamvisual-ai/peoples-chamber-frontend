@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Economic Crime',
   headline: `Government Adds 500 More Economic Crime Officers Without a Recovery Target to Match`,
   standfirst: `Home Secretary Shabana Mahmood announced on 15 September that the government will fund more than 500 additional enforcement specialists for economic crime, as part of its £550 million Anti money laundering and asset recovery strategy: 2026 to 2029. The strategy does not attach a number to how much extra criminal money the new investment is expected to recover.`,
+  summary: "The government is funding more than 500 extra economic crime officers without a target for how much criminal money they should recover.",
   publishedAt: '2026-09-15',
   authorByline: 'opengovt',
   body: [

@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Social Care',
   headline: `Government Plans £15bn a Year Pension Saving Before Full Cost of National Care Service Is Known`,
   standfirst: `The government will change the State Pension triple lock from April 2030, saving around £15 billion a year by the end of the 2030s in cash terms. Part of those savings will fund a new National Care Service offering free personal care. The full design and cost of the service will not be known until Baroness Casey's commission reports in summer 2027, and the service will not launch until the next Parliament.`,
+  summary: "The government plans to save around £15bn a year from the triple lock before the National Care Service’s full cost is known.",
   publishedAt: '2026-09-29',
   authorByline: 'opengovt',
   body: [

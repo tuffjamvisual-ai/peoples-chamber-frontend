@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Environment',
   headline: `Government Says Waste Criminals Have 'No Hiding Place'. Full Mandatory Tracking Is Still a Year Away`,
   standfirst: `Digital reporting became compulsory for more than 12,000 permitted waste sites in England from 1 October. Waste carriers, brokers and dealers are not required to join until October 2027. Defra's own implementation guidance describes the current system as the first stage of a phased rollout. The evidence base for the policy's £900 million annual estimate of waste crime was last refreshed in 2018/19.`,
+  summary: "The government says waste criminals have “no hiding place”, but carriers and brokers need not join digital tracking until October 2027.",
   publishedAt: '2026-10-01',
   authorByline: 'opengovt',
   body: [

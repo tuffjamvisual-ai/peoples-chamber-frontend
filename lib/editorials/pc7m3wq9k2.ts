@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Child Welfare',
   headline: `Private Providers Control 74% of Children's Home Places. DfE Still Cannot Say What a Fair Price Is`,
   standfirst: `Private companies provide 74 per cent of children's home places in England. The Department for Education told MPs it still does not fully understand what a reasonable price for residential care should be. That leaves councils buying places in a market where they have a legal duty to find a home for a child, shortages can leave them competing against one another for the same beds, and the department responsible does not have direct sight of the contracts behind the prices being charged.`,
+  summary: "Private providers control 74 per cent of children’s home places, and the DfE still cannot say what a fair price is.",
   publishedAt: '2026-07-03',
   authorByline: 'opengovt',
   body: [

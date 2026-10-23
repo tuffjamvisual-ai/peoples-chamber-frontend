@@ -90,6 +90,7 @@ async function main() {
       slug:               piece.slug,
       headline:           piece.headline,
       standfirst:         piece.standfirst,
+      summary:            piece.summary ?? null,
       published_at:       piece.publishedAt,
       author_byline:      piece.authorByline,
       kind:               piece.kind   ?? null,

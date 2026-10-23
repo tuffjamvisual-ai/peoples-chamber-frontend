@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Broadcasting',
   headline: `Ministers Are Considering Charging Streaming Only Households for the BBC Without Publishing What It Would Raise or Cost to Enforce`,
   standfirst: `Households that watch only YouTube, Netflix or other on demand services could be required to contribute towards the BBC under options being considered by the Culture Secretary. No figures have been published for how many would pay, what the BBC would receive or what enforcement would cost.`,
+  summary: "Ministers are considering charging streaming only households for the BBC without publishing what it would raise or cost to enforce.",
   publishedAt: '2026-10-21',
   authorByline: 'opengovt',
   body: [

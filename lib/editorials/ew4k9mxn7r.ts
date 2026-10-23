@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Local Government',
   headline: `Government Adds £91m Reform Fund as 35 Councils Are Approved for £1.5bn of Exceptional Support`,
   standfirst: `The government is giving 14 financially troubled councils £91 million to redesign expensive services in an attempt to reduce their reliance on Exceptional Financial Support. Those same 14 authorities have already been approved for about £460.4 million of Exceptional Financial Support in 2026/27. Across England, 35 councils have been approved for £1.5 billion this year.`,
+  summary: "The government is giving 14 financially troubled councils £91m to reform services as 35 councils are approved for £1.5bn of exceptional support.",
   publishedAt: '2026-09-15',
   authorByline: 'opengovt',
   body: [

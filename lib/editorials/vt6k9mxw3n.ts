@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Cost of Living',
   headline: `Burnham's £45 Electricity Cut Is Funded by Savings the Government Had Not Yet Identified`,
   standfirst: `Andy Burnham's government has announced a £850 million cut to VAT on electricity bills, funded in part by scrapping the digital ID programme. The savings from that cancellation have not yet been published. Cancelling digital ID removes a genuine future spending pressure, but the government has not published the departmental arithmetic showing how £600 million of annual digital ID pressure becomes £850 million available for the VAT measure in 2026/27.`,
+  summary: "Burnham’s £45 electricity cut is funded partly by digital ID savings the government has not yet identified or published.",
   publishedAt: '2026-07-21',
   authorByline: 'opengovt',
   body: [

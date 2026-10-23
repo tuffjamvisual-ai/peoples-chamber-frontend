@@ -4,6 +4,8 @@ import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import { editorials } from '@/lib/editorials';
 import type { EditorialEntry } from '@/lib/editorials/types';
+import { listSummary } from '@/lib/editorials/list-summary';
+import ContinueToArticle from '../components/ContinueToArticle';
 
 // Auto-generated index of every editorial registered in lib/editorials.
 // New pieces appear here automatically once registered in the registry.
@@ -57,14 +59,15 @@ export default function EditorialsIndexPage() {
               </div>
             )}
             <h2 style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(22px, 2.6vw, 32px)', fontWeight: 'bold', letterSpacing: '0.01em', lineHeight: 1.1, marginBottom: '8px' }}>
-              {e.headline} <span style={{ color: ACCENT }}>&rarr;</span>
+              {e.headline}
             </h2>
             <div style={{ fontSize: '15px', color: INK_SOFT, marginBottom: '6px' }}>
               {new Date(e.publishedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })}
             </div>
-            {e.standfirst && (
-              <p style={{ fontSize: '15px', lineHeight: 1.6, margin: 0, maxWidth: '46em' }}>{e.standfirst}</p>
+            {listSummary(e) && (
+              <p style={{ fontSize: '15px', lineHeight: 1.6, margin: 0, maxWidth: '46em' }}>{listSummary(e)}</p>
             )}
+            <ContinueToArticle />
           </Link>
         ))}
       </div>

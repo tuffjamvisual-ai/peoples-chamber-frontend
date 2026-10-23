@@ -8,6 +8,7 @@ const piece: EditorialEntry = {
   kicker: 'Defence',
   headline: `Burnham Was Briefed on Starmer's Defence Plan but Not Told About the £4.7bn Budget Requirement, Reports Say`,
   standfirst: `Keir Starmer announced an additional £15 billion of defence spending power on 30 June. The Treasury's financing table identified measures worth £10.3 billion. Multiple outlets reported the same account: Burnham had been briefed on the plan but had not been told about the £4.7 billion funding requirement before it emerged publicly.`,
+  summary: "Burnham was briefed on Starmer’s defence plan but not told about the £4.7bn budget requirement, several outlets report.",
   publishedAt: '2026-07-03',
   authorByline: 'opengovt',
   body: [

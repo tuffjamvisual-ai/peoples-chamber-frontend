@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Safeguarding',
   headline: `DUP Says Members Had Information About Donaldson. No Complaint Reached Party Officers`,
   standfirst: `DUP leader Gavin Robinson said on 29 June that it was "clear" some current and former members of his party had information about Jeffrey Donaldson's conduct before his arrest and did not pass it through the party's reporting channels. That does not establish that those members knew Donaldson was sexually abusing children. The distinction is now central to an independent review commissioned by the DUP after Donaldson was convicted of 18 sexual offences against two women when they were children.`,
+  summary: "DUP leader Gavin Robinson says some members’ information about Donaldson never reached the party, which does not show they knew of abuse.",
   publishedAt: '2026-07-16',
   authorByline: 'opengovt',
   body: [

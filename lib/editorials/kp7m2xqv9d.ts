@@ -6,6 +6,7 @@ const piece: EditorialEntry = {
   headline: 'The Empty Benches: Which MPs Are Not Turning Up To Vote',
   standfirst:
     'The Commons average voting participation this Parliament is just under 70 percent, across the 558 divisions held up to 30 June 2026. The MPs below are well under it. Some have reasons. Some do not.',
+  summary: "Up to 30 June 2026, Commons voting participation averaged just under 70 per cent, and some MPs fell well below it.",
   publishedAt: '2026-06-30',
   authorByline: 'opengovt',
   body: [

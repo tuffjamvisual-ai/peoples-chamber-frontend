@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Drug Pricing',
   headline: `NHS Paid 70p for These Tablets. Eight Years Later It Was £88`,
   standfirst: `In April 2008, the NHS was being charged 70p for a pack of 10mg hydrocortisone tablets. By March 2016, the reimbursement figure had reached £88. Annual NHS spending on the drug rose from around £500,000 to more than £80 million. On 28 July, the Court of Appeal upheld the Competition and Markets Authority's finding that the companies responsible had abused a dominant market position by charging excessive and unfair prices.`,
+  summary: "NHS hydrocortisone prices rose from 70p to £88 a pack, and the Court of Appeal has upheld the finding of excessive pricing.",
   publishedAt: '2026-07-28',
   authorByline: 'opengovt',
   body: [

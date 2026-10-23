@@ -195,7 +195,7 @@ function renderBlock(block: Block, i: number): React.ReactNode {
       return (
         <p key={i} style={{ margin: '36px 0 8px', paddingTop: '22px', borderTop: `1px solid ${HAIRLINE}` }}>
           <Link href={block.href} style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(15px, 1.7vw, 19px)', fontWeight: 'bold', color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '4px', letterSpacing: '0.02em' }}>
-            {block.text} →
+            {block.text}
           </Link>
         </p>
       );

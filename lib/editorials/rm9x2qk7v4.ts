@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'The Leadership',
   headline: `Hollie Ridley Is Leaving. Labour's Next Leader Will Inherit a Vacancy at the Top of the Party Machine`,
   standfirst: `Labour's general secretary Hollie Ridley will step down after the party conference in September. She announced her departure on 3 July, saying the decision was partly personal and partly about the leadership transition. If Andy Burnham becomes leader, one of the most powerful unelected positions inside Labour will become vacant within weeks of him taking control.`,
+  summary: "Labour general secretary Hollie Ridley is leaving, so the party’s next leader will inherit a vacancy at the top of its machine.",
   publishedAt: '2026-07-12',
   authorByline: 'opengovt',
   body: [

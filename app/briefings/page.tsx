@@ -4,6 +4,8 @@ import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import { editorials } from '@/lib/editorials';
 import type { EditorialEntry } from '@/lib/editorials/types';
+import { listSummary } from '@/lib/editorials/list-summary';
+import ContinueToArticle from '../components/ContinueToArticle';
 import { supabase } from '@/lib/supabase';
 
 // Briefings: short daily news analysis, distinct from long-form Investigations.
@@ -36,7 +38,7 @@ interface Item {
 export default async function BriefingsIndexPage() {
   const fileItems: Item[] = (Object.values(editorials) as EditorialEntry[])
     .filter((e) => e.kind === 'briefing')
-    .map((e) => ({ slug: e.slug, kicker: e.kicker || 'Briefing', headline: e.headline, standfirst: e.standfirst, dateISO: e.publishedAt }));
+    .map((e) => ({ slug: e.slug, kicker: e.kicker || 'Briefing', headline: e.headline, standfirst: listSummary(e), dateISO: e.publishedAt }));
 
   const { data: dbRows, error: dbRowsErr } = await supabase
     .from('briefings')
@@ -83,11 +85,12 @@ export default async function BriefingsIndexPage() {
               {e.kicker}
             </div>
             <h2 style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(22px, 2.6vw, 32px)', fontWeight: 'bold', letterSpacing: '0.01em', lineHeight: 1.1, marginBottom: '8px' }}>
-              {e.headline} <span style={{ color: ACCENT }}>&rarr;</span>
+              {e.headline}
             </h2>
             <p style={{ fontFamily: '"Special Elite", monospace', fontSize: '17px', lineHeight: 1.45, color: INK_SOFT, marginBottom: '8px' }}>
               {e.standfirst}
             </p>
+            <ContinueToArticle style={{ marginTop: 0, marginBottom: '8px' }} />
             <div style={{ fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase', color: INK_SOFT }}>
               {new Date(e.dateISO).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
             </div>

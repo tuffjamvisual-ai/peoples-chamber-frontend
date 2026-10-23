@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'The Leadership',
   headline: `Burnham Says Warehouses Can Fund High Street Tax Cuts. He Has Not Shown the Sums`,
   standfirst: `Andy Burnham says higher business rates on warehouses will fund cuts for pubs and high street businesses. An outside estimate puts his proposed Small Business Rates Relief changes alone at around £880 million a year. The existing warehouse surcharge raises roughly £90 million a year. Burnham has not published the rate he would charge, the properties he would target or the revenue he expects.`,
+  summary: "Andy Burnham says higher business rates on warehouses can fund high street tax cuts, but he has not published the sums.",
   publishedAt: '2026-07-07',
   authorByline: 'opengovt',
   body: [

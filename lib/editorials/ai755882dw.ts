@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Policing',
   headline: `£75m for Police AI. The Watchdog Says Officers Could Face Misconduct Cases Without Knowing They Broke the Rules`,
   standfirst: `The Independent Office for Police Conduct has warned that police officers and staff could enter the misconduct system without knowing they have broken their force’s rules on artificial intelligence, four months after the Home Office launched a national AI centre backed by at least £75 million.`,
+  summary: "Officers could face misconduct cases without knowing they broke AI rules, the police watchdog warns, months after a £75m AI centre opened.",
   publishedAt: '2026-10-22',
   authorByline: 'opengovt',
   body: [

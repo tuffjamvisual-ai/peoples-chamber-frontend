@@ -5,6 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Reform UK',
   headline: `Reform Published a Crypto Bill Promising Tax Cuts and a Bitcoin Reserve. Then It Disappeared`,
   standfirst: `On 29 May 2025, Nigel Farage stood on stage at the Bitcoin Conference in Las Vegas holding a piece of draft British legislation. He told the audience Reform UK would campaign for its Cryptoassets and Digital Finance Bill and put it into law if the party won a general election. A year later, the bill disappeared from Reform's website.`,
+  summary: "Reform UK published a crypto bill promising tax cuts and a Bitcoin reserve, and a year later it disappeared from its website.",
   publishedAt: '2026-07-08',
   authorByline: 'opengovt',
   body: [
