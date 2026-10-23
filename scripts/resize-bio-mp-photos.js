@@ -22,12 +22,12 @@ const { execSync } = require('child_process');
 const sharp = require('sharp');
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const ANON_KEY     = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const SERVICE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const DATABASE_URL = process.env.DATABASE_URL;
 const DRY_RUN      = process.env.DRY_RUN === 'true';
 
-if (!SUPABASE_URL || !ANON_KEY) {
-  console.error('NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY missing');
+if (!SUPABASE_URL || !SERVICE_KEY) {
+  console.error('NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY missing');
   process.exit(1);
 }
 if (!DATABASE_URL && !DRY_RUN) {
@@ -39,7 +39,8 @@ const RESIZE_MAX_PX = 800;
 const WEBP_QUALITY  = 82;
 const THROTTLE_MS   = 250;
 
-const supabase = createClient(SUPABASE_URL, ANON_KEY);
+// Uploads to the photos bucket need the service role key: storage.objects has RLS on and no policies (Batch D, 23 Oct 2026).
+const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
 
 function psql(sql) {
   return execSync(`psql "${DATABASE_URL}" -t -A -F'|' -v ON_ERROR_STOP=1`, {
