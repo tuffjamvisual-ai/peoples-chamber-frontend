@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { sendBriefingNotification } from '@/lib/email';
 
+// Disabled at John's instruction, 23 Oct 2026: GET and POST return 410 Gone after the auth check (see ROUTE_DISABLED).
 // Daily automated briefings. Triggered by Vercel cron (GET) at 06:00 and 07:00
 // UTC; the in-route Europe/London guard means the work only runs at 07:00 UK
 // local, year-round across BST/GMT. Calls the Anthropic Messages API with the
@@ -76,6 +77,12 @@ const MODEL = 'claude-sonnet-4-6';
 // true AND re-add { "path": "/api/cron/daily-briefings", "schedule": "0 6 * * *" }
 // to the "crons" array in vercel.json, then redeploy. No other code was changed.
 const PIPELINE_ENABLED = false;
+
+// Disabled at John's instruction, 23 Oct 2026. Both handlers return 410 Gone straight after the auth check, before any
+// API call or database write, whatever the query string (?test=1 and ?preview=1 included). Everything below that
+// return is kept, unreachable, for the record.
+const ROUTE_DISABLED = true;
+const gone = () => NextResponse.json({ disabled: true }, { status: 410 });
 
 function ukDate(): string {
   // en-CA gives YYYY-MM-DD
@@ -243,6 +250,8 @@ export async function GET(req: Request) {
   if (req.headers.get('authorization') !== `Bearer ${expected}`) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
+  // Disabled at John's instruction, 23 Oct 2026.
+  if (ROUTE_DISABLED) return gone();
 
   if (!PIPELINE_ENABLED) {
     return NextResponse.json(
@@ -450,6 +459,8 @@ export async function POST(req: Request) {
   if (!expected || req.headers.get('authorization') !== `Bearer ${expected}`) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
+  // Disabled at John's instruction, 23 Oct 2026.
+  if (ROUTE_DISABLED) return gone();
   if (!PIPELINE_ENABLED) {
     return NextResponse.json({ ok: false, paused: true, message: 'Daily-briefings verify-test is paused (PIPELINE_ENABLED=false).' }, { status: 200 });
   }
