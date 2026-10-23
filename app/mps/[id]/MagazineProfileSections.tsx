@@ -327,7 +327,11 @@ interface Props {
   petitionsLastUpdated?: string | null;
   /** Early Day Motions this MP started and signed (withdrawn signatures excluded). */
   edms?: MpEdms | null;
+  /** Reports whose relatedMemberIds include this MP: up to five, newest first, and how many there are in all. */
+  reports?: MpReports | null;
 }
+
+export type MpReports = { items: { href: string; headline: string; date: string; summary: string }[]; total: number };
 
 type ConstituencyPetition = {
   petitionId: number;
@@ -488,6 +492,7 @@ export default function MagazineProfileSections({
   constituencyPetitions = [],
   petitionsLastUpdated = null,
   edms = null,
+  reports = null,
 }: Props) {
   // Biography visibility: the database switch (mp_biography.bio_visible) decides
   // whenever that column exists (the page selects the whole row, so it arrives as
@@ -882,6 +887,8 @@ export default function MagazineProfileSections({
                 )}
               </div>
             )}
+
+            <ReportsMentioning reports={reports} />
 
             {conductFindings.length > 0 && (
               <section style={{ marginTop: '32px', padding: '14px 16px', border: '1px solid #a64030', background: 'rgba(166,64,48,0.04)' }}>
@@ -2496,8 +2503,35 @@ export default function MagazineProfileSections({
           </>
           );
         })()}
+        {/* An MP with reports but no biography tab still gets the list, at the end of the tab the profile opens on. */}
+        {!has.bio && active === initialActive && <ReportsMentioning reports={reports} />}
       </div>
     </div>
+  );
+}
+
+// "Reports mentioning this MP" (23 Oct 2026): from the editorial registry at build time, below the biography.
+// Nothing at all when the MP has none.
+function ReportsMentioning({ reports }: { reports: MpReports | null }) {
+  if (!reports || reports.items.length === 0) return null;
+  return (
+    <section aria-labelledby="mp-reports-heading" style={{ marginTop: '32px' }}>
+      <h3 id="mp-reports-heading" style={sectionH3}>Reports mentioning this MP</h3>
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: 1.55 }}>
+        {reports.items.map((r) => (
+          <li key={r.href} style={{ padding: '10px 0', borderBottom: inkDivider }}>
+            <Link href={r.href} style={{ ...inkLink, fontWeight: 'bold' }}>{r.headline}</Link>
+            <div style={{ fontFamily: 'monospace', fontSize: '15px', opacity: 0.75, margin: '2px 0 4px' }}>{r.date}</div>
+            {r.summary && <p style={{ margin: 0 }}>{r.summary}</p>}
+          </li>
+        ))}
+      </ul>
+      {reports.total > reports.items.length && (
+        <p style={{ marginTop: '10px', fontSize: '15px' }}>
+          <Link href="/reports" style={inkLink}>All reports</Link>
+        </p>
+      )}
+    </section>
   );
 }
 

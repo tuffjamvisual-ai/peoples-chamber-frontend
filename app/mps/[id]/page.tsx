@@ -15,6 +15,9 @@ import {
 } from '@/lib/ministerial-salaries';
 import { normaliseParty, isCoop, partyColourForMember } from '@/lib/party-helpers';
 import JsonLd, { buildMpPerson } from '@/lib/JsonLd';
+import { editorials } from '@/lib/editorials';
+import { listSummary } from '@/lib/editorials/list-summary';
+import type { MpReports } from './MagazineProfileSections';
 
 const BAND_RANK: Record<SalaryBand, number> = { pm: 4, sos: 3, minister_of_state: 2, puss: 1 };
 
@@ -169,6 +172,24 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: name,
     description,
     alternates: { canonical: `/mps/${memberId}` },
+  };
+}
+
+// Reports mentioning this MP (23 Oct 2026): every published piece whose relatedMemberIds include the MP, newest first,
+// from the editorial registry at build time (no database query). Up to five are shown, with a link to /reports if more.
+function reportsFor(memberId: number): MpReports | null {
+  const all = Object.values(editorials)
+    .filter((e) => (e.relatedMemberIds ?? []).includes(memberId))
+    .sort((a, b) => (a.publishedAt < b.publishedAt ? 1 : a.publishedAt > b.publishedAt ? -1 : 0));
+  if (all.length === 0) return null;
+  return {
+    total: all.length,
+    items: all.slice(0, 5).map((e) => ({
+      href: `/${e.kind === 'briefing' ? 'briefings' : 'editorials'}/${e.slug}`,
+      headline: e.headline,
+      date: new Date(e.publishedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }),
+      summary: listSummary(e),
+    })),
   };
 }
 
@@ -726,6 +747,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         constituencyPetitions,
         petitionsLastUpdated: petitionsRes.lastUpdated,
         edms: mpEdms,
+        reports: reportsFor(memberId),
       }}
       footer={
         /* Server-rendered RelatedLinks: same-party MPs, sponsored bills,

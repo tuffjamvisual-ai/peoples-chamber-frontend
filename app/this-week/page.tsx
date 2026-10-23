@@ -12,7 +12,7 @@ export const revalidate = 600
 
 export const metadata: Metadata = {
   title: 'This Week in Parliament',
-  description: 'The bills before the House of Commons this week and the most recent votes MPs have held.',
+  description: 'The bills coming up in the House of Commons over the next seven days, and the most recent votes MPs have held.',
   alternates: { canonical: '/this-week' },
 }
 
@@ -26,13 +26,23 @@ type Stage = { description?: string; house?: string; stageSittings?: Sitting[] }
 type BillItem = { billId: number; shortTitle: string; currentHouse?: string; lastUpdate?: string; isAct?: boolean; billWithdrawn?: string | null; currentStage?: Stage }
 type Division = { DivisionId: number; Date: string; Title: string; AyeCount?: number; NoCount?: number }
 
+// The bills window (23 Oct 2026): today and the next six days, rolling, as UK calendar dates (YYYY-MM-DD in London).
+// Sittings are UK dates too, so they are compared as plain dates.
+function londonYmd(d: Date): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d)
+}
 function weekRange() {
-  const now = new Date()
-  const day = now.getUTCDay() // 0 Sun .. 6 Sat
-  const diffToMon = (day + 6) % 7
-  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - diffToMon))
-  const end = new Date(start.getTime() + 6 * 86400000)
+  const start = londonYmd(new Date())
+  const end = new Date(Date.parse(`${start}T12:00:00Z`) + 6 * 86400000).toISOString().slice(0, 10)
   return { start, end }
+}
+
+// Recent divisions still look back from the Monday of the current week, less seven days, as before.
+function divisionsFrom(): string {
+  const now = new Date()
+  const diffToMon = (now.getUTCDay() + 6) % 7
+  const monday = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - diffToMon)
+  return new Date(monday - 7 * 86400000).toISOString().slice(0, 10)
 }
 
 async function getCommonsBills() {
@@ -42,12 +52,12 @@ async function getCommonsBills() {
     const j = await jsonWithoutEmDashes<any>(res)
     const items: BillItem[] = (j.items || []).filter((b: BillItem) => !b.isAct && !b.billWithdrawn)
     const { start, end } = weekRange()
-    // Bills with a COMMONS stage sitting this week.
+    // Bills with a COMMONS stage sitting from today to six days ahead.
     const thisWeek = items.filter((b) =>
       b.currentStage?.house === 'Commons' &&
       (b.currentStage.stageSittings || []).some((s) => {
-        const d = new Date(s.date)
-        return d >= start && d <= new Date(end.getTime() + 86400000)
+        const d = (s.date || '').slice(0, 10)
+        return d >= start && d <= end
       })
     )
     if (thisWeek.length) return thisWeek.slice(0, 12)
@@ -60,8 +70,7 @@ async function getCommonsBills() {
 
 async function getRecentDivisions() {
   try {
-    const { start } = weekRange()
-    const from = new Date(start.getTime() - 7 * 86400000).toISOString().slice(0, 10)
+    const from = divisionsFrom()
     const to = new Date().toISOString().slice(0, 10)
     const res = await fetch(`https://commonsvotes-api.parliament.uk/data/divisions.json/search?queryParameters.startDate=${from}&queryParameters.endDate=${to}&queryParameters.take=12`, { next: { revalidate: 600 } })
     if (!res.ok) return [] as Division[]
