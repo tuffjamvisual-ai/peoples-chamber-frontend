@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: "us3k7pm2qv",
   kicker: 'Investigation',
-  headline: "Sussex NHS Trust Missed Its Savings Target by £12m. Now It Plans £140m More While Cutting 1,500 Posts",
+  headline: "Sussex NHS Trust to Cut 1,500 Posts, UNISON Says",
   standfirst:
     "University Hospitals Sussex NHS Foundation Trust delivered £96.8 million of savings in 2025/26 against a plan of £109 million, falling £12.2 million short. For 2026/27 it plans an \"Efficiency Programme of £140m\" and a 5 per cent increase in treatment capacity, while UNISON says it is cutting more than 1,500 funded posts.",
   summary: "The Sussex trust missed last year’s savings by £12.2m. It now plans £140m more while UNISON says 1,500 posts go.",
