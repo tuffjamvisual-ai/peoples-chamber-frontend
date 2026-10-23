@@ -100,7 +100,13 @@ const nextConfig: NextConfig = {
     const billsPageRedirects = [
       { source: '/bills', has: [{ type: 'query' as const, key: 'page', value: '(?<p>[0-9]{1,4})' }], destination: '/bills/page/:p', permanent: true },
     ];
-    return [...editorialRedirects, ...briefingRedirects, ...notFoundRedirects, ...billsPageRedirects, ...(await councilRedirects())];
+    // Investigations and Briefings merged into Reports (owner's approval, 23 Oct 2026): the two list pages move to
+    // /reports (the query string, ?page= included, is passed through). Article and /sources addresses are unchanged.
+    const reportsRedirects = [
+      { source: '/editorials', destination: '/reports', statusCode: 301 as const },
+      { source: '/briefings', destination: '/reports', statusCode: 301 as const },
+    ];
+    return [...editorialRedirects, ...briefingRedirects, ...notFoundRedirects, ...billsPageRedirects, ...reportsRedirects, ...(await councilRedirects())];
   },
   images: {
     remotePatterns: [

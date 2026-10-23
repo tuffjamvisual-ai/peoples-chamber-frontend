@@ -28,6 +28,6 @@ export default async function EditorialSourcesPage({ params }: { params: Promise
   const records = piece.evidence?.recordsReviewed ?? [];
   if (!records.length) notFound();
   return (
-    <SourcesPage stamp="Investigations" articleHref={`/editorials/${slug}`} headline={piece.headline} records={records} lastChecked={piece.evidence?.lastChecked} />
+    <SourcesPage stamp="Reports" articleHref={`/editorials/${slug}`} headline={piece.headline} records={records} lastChecked={piece.evidence?.lastChecked} />
   );
 }

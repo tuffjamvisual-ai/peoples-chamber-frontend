@@ -43,13 +43,13 @@ export default async function BriefingSourcesPage({ params }: { params: Promise<
   if (piece && piece.kind === 'briefing') {
     const records = piece.evidence?.recordsReviewed ?? [];
     if (!records.length) notFound();
-    return <SourcesPage stamp="Briefing" articleHref={articleHref} headline={piece.headline} records={records} lastChecked={piece.evidence?.lastChecked} />;
+    return <SourcesPage stamp="Reports" articleHref={articleHref} headline={piece.headline} records={records} lastChecked={piece.evidence?.lastChecked} />;
   }
 
   const b = await getDbBriefing(slug);
   if (!b || !b.sources.length) notFound();
   return (
-    <OpenGovShell pageStamp="Briefing">
+    <OpenGovShell pageStamp="Reports">
       <BackLink fallbackHref={articleHref} label="← Back to article" className="no-hover-scale" style={backStyle} />
       <header>
         <div style={kickerStyle}>Sources</div>

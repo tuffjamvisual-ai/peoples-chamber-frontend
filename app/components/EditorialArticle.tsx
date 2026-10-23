@@ -27,7 +27,7 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
   const readNextAt = readNext.length ? editorialReadNextIndex(piece) : -2;
   return (
     <OpenGovShell pageStamp={stamp}>
-      <BackLink fallbackHref={backHref} label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
+      <BackLink fallbackHref={backHref} label="← Reports" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       {piece.heroImage && (
         <figure style={{ position: 'relative', margin: '0 0 28px', maxWidth: '100%' }}>

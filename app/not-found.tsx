@@ -17,7 +17,7 @@ const SECTIONS: { href: string; label: string }[] = [
   { href: '/departments', label: 'Departments' },
   { href: '/councils', label: 'Councils' },
   { href: '/transparency', label: 'Accountability' },
-  { href: '/editorials', label: 'Investigations' },
+  { href: '/reports', label: 'Reports' },
 ];
 
 // noindex, nofollow: replaces the layout's "index, follow" on every 404, including pages hidden by a switch

@@ -17,6 +17,9 @@ export type InvestigationItem = {
   summary: string | null;
   published_at: string;
   kicker: string | null;
+  // The article address and the type label, as on /reports (23 Oct 2026).
+  href: string;
+  type: 'Investigation' | 'Briefing' | 'Commentary';
 };
 
 // Server-rendered content blocks for the department profile tabs
@@ -160,11 +163,11 @@ export function ReleasesSlot({ releases }: { releases: PressReleaseItem[] }) {
 export function InvestigationsSlot({ investigations }: { investigations: InvestigationItem[] }) {
   return (
     <section>
-      <h2 className={H2_CLS} style={{ color: ACCENT }}>Investigations ({investigations.length})</h2>
+      <h2 className={H2_CLS} style={{ color: ACCENT }}>Reports ({investigations.length})</h2>
       <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
         {investigations.map((item, i) => (
           <li key={i} style={{ borderBottom: '1px dotted rgba(20,16,13,0.15)', padding: '10px 0' }}>
-            <Link href={`/editorials/${item.slug}`} className="no-hover-scale" style={{ display: 'block', color: '#14100d', textDecoration: 'none' }}>
+            <Link href={item.href} className="no-hover-scale" style={{ display: 'block', color: '#14100d', textDecoration: 'none' }}>
               <span style={{ display: 'block', fontSize: '15px', lineHeight: 1.45, fontWeight: 600 }}>{item.headline}</span>
               {listSummary(item) && (
                 <span style={{ display: 'block', fontSize: '14px', margin: '3px 0 0', lineHeight: 1.5 }}>
@@ -172,7 +175,7 @@ export function InvestigationsSlot({ investigations }: { investigations: Investi
                 </span>
               )}
               <span style={{ display: 'block', fontFamily: 'Special Elite, monospace', fontSize: '14px', marginTop: '4px' }}>
-                {item.kicker ? `${item.kicker} · ` : ''}
+                {item.type} · {item.kicker && item.kicker.toLowerCase() !== item.type.toLowerCase() ? `${item.kicker} · ` : ''}
                 {new Date(item.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
               </span>
               <ContinueToArticle style={{ fontSize: '14px', marginTop: '4px' }} />

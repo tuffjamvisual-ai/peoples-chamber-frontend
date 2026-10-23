@@ -76,7 +76,7 @@ export default async function BriefingPage({ params }: { params: Promise<{ slug:
   // 1. File-based briefing.
   const piece = editorials[slug] as EditorialEntry | undefined;
   if (piece && piece.kind === 'briefing') {
-    return <EditorialArticle piece={piece} stamp="Briefing" backHref="/briefings" basePath="/briefings" />;
+    return <EditorialArticle piece={piece} stamp="Reports" backHref="/reports" basePath="/briefings" />;
   }
 
   // 2. DB briefing (cron-generated). Drafts render for review; published render normally.
@@ -87,10 +87,10 @@ export default async function BriefingPage({ params }: { params: Promise<{ slug:
   const sourceCount = Array.isArray(b.sources) ? (b.sources as unknown[]).filter((s) => typeof s === 'string').length : 0;
 
   return (
-    <OpenGovShell pageStamp="Briefing">
+    <OpenGovShell pageStamp="Reports">
       <BackLink
-        fallbackHref="/briefings"
-        label="← Briefings"
+        fallbackHref="/reports"
+        label="← Reports"
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
       />

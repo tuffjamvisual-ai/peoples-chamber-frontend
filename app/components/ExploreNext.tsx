@@ -22,7 +22,7 @@ const FONT = '"Special Elite", monospace';
 
 
 export default function ExploreNext({ piece }: { piece: EditorialEntry }) {
-  const { isBriefing, base, data, next, latest } = exploreNextSelection(piece);
+  const { base, data, next, latest } = exploreNextSelection(piece);
   if (!data.length && !next.length && !latest.length) return null;
 
   return (
@@ -46,19 +46,19 @@ export default function ExploreNext({ piece }: { piece: EditorialEntry }) {
       )}
       {next.length > 0 && (
         <section style={{ marginBottom: latest.length ? '26px' : 0 }}>
-          <h2 style={heading}>{isBriefing ? 'More briefings' : 'More investigations'}</h2>
+          <h2 style={heading}>More reports</h2>
           {next.map((e) => <PieceLink key={e.slug} e={e} base={base} />)}
         </section>
       )}
       {latest.length > 0 && (
         <section>
-          <h2 style={heading}>{isBriefing ? 'Latest briefings' : 'Latest investigations'}</h2>
+          <h2 style={heading}>Latest reports</h2>
           {latest.map((e) => <PieceLink key={e.slug} e={e} base={base} />)}
         </section>
       )}
       {(next.length > 0 || latest.length > 0) && (
-        <Link href={base} className="xn-link no-hover-scale" style={{ borderBottom: 0 }}>
-          <span className="xn-title">All {isBriefing ? 'briefings' : 'investigations'} →</span>
+        <Link href="/reports" className="xn-link no-hover-scale" style={{ borderBottom: 0 }}>
+          <span className="xn-title">All reports →</span>
         </Link>
       )}
     </aside>

@@ -69,6 +69,6 @@ export function exploreNextSelection(piece: EditorialEntry): {
 
   // Pieces on the same subject that ExploreNext has no room for (Read next offers the first of these).
   const moreRelated = related.filter((e) => !used.has(e.slug));
-  const hrefs = [...data.map((d) => d.href), ...next.map((e) => `${base}/${e.slug}`), ...latest.map((e) => `${base}/${e.slug}`), base];
+  const hrefs = [...data.map((d) => d.href), ...next.map((e) => `${base}/${e.slug}`), ...latest.map((e) => `${base}/${e.slug}`), '/reports'];
   return { isBriefing, base, data, next, latest, moreRelated, hrefs };
 }

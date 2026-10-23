@@ -77,10 +77,7 @@ const NAV: NavItem[] = [
     { label: 'Ministers Meetings', href: '/transparency/ministers-meetings' },
     { label: 'Ministers Hospitality', href: '/transparency/hospitality' },
   ] },
-  { label: 'Reports', href: '/editorials', children: [
-    { label: 'Investigations', href: '/editorials' },
-    { label: 'Briefings', href: '/briefings' },
-  ] },
+  { label: 'Reports', href: '/reports' },
   { label: 'Vote', href: '/polls', children: [
     { label: "opengovt Polls", href: '/polls' },
     { label: 'Vote on Bills', href: '/bills' },

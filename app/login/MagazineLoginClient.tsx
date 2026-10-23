@@ -326,7 +326,7 @@ export default function MagazineLoginClient() {
 
             <div style={{ border: '1px solid rgba(20,16,13,0.18)', padding: '14px', margin: '4px 0 20px' }}>
               <p style={{ margin: '0 0 4px', fontSize: '20px', fontWeight: 700 }}>Open Govt Weekly</p>
-              <p style={{ margin: '0 0 12px', fontSize: '14px', lineHeight: 1.5, opacity: 0.75 }}>What government announced. What the evidence shows. What happened next. Investigations, overlooked documents and public spending stories. No gossip, no rewritten press releases. Delivered every Sunday.</p>
+              <p style={{ margin: '0 0 12px', fontSize: '14px', lineHeight: 1.5, opacity: 0.75 }}>What government announced. What the evidence shows. What happened next. Reports, overlooked documents and public spending stories. No gossip, no rewritten press releases. Delivered every Sunday.</p>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
                 <input
                   id="su-newsletter"

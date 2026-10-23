@@ -150,7 +150,7 @@ function InvestigationBox({ pieces, placement }: { pieces: EditorialEntry[]; pla
       style={{ margin: placement === 'top' ? '0 0 28px' : '36px 0 0', padding: '14px 16px', border: `1.5px solid ${ACCENT}`, borderLeft: `5px solid ${ACCENT}`, background: 'rgba(107,36,23,0.05)', maxWidth: '680px' }}
     >
       <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.18em', color: '#7a1612', margin: '0 0 8px' }}>
-        {one ? 'Read our investigation into this announcement' : 'Read our investigations into this announcement'}
+        {one ? 'Read our report on this announcement' : 'Read our reports on this announcement'}
       </p>
       {pieces.map((e) => (
         <p key={e.slug} style={{ fontFamily: "'Special Elite', monospace", fontSize: '16px', lineHeight: 1.5, margin: '0 0 6px' }}>

@@ -18,6 +18,8 @@ import { DEPARTMENT_BUDGETS } from '@/lib/department-budgets';
 import OpenGovShell from '../../components/OpenGovShell';
 import { getGovukDept } from '../../api/govuk-dept/route';
 import { supabase } from '@/lib/supabase';
+import { editorials } from '@/lib/editorials';
+import { topics, matchWords } from '@/lib/topics';
 import { getDeptContext } from '../../api/department-context/route';
 import BackLink from '../../components/BackLink';
 import JsonLd, { buildDepartmentOrg } from '@/lib/JsonLd';
@@ -73,18 +75,36 @@ export default async function DepartmentPage({ params }: PageProps) {
       if (dataErr2 && dataErr2.code !== 'PGRST116') throw new Error(`/departments/[slug] press_releases: ${dataErr2.message}`);
       return data ?? [];
     })(),
-    // B3 — investigations tab: editorials where related_dept_slugs contains
-    // this slug. GIN index on related_dept_slugs makes this fast. kind IS NULL
-    // filters to investigations only (briefings have kind = 'briefing').
-    (async () => {
-      const { data, error: dataErr } = await supabase
-        .from('editorials')
-        .select('slug, headline, standfirst, summary, published_at, kicker')
-        .contains('related_dept_slugs', [slug])
-        .is('kind', null)
-        .order('published_at', { ascending: false });
-      if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/departments/[slug] editorials: ${dataErr.message}`);
-      return data ?? [];
+    // B3 — Reports tab (owner's approval, 23 Oct 2026): investigations and file briefings whose related_dept_slugs
+    // contain this slug (GIN index on related_dept_slugs), plus published database briefings matched by the words of
+    // the topics this department belongs to, as topic pages match them. Drafts stay out: the public key only reads
+    // published briefings, and the filter says so too.
+    (async (): Promise<InvestigationItem[]> => {
+      const deptTopics = topics.filter((t) => t.departmentSlugs.includes(slug));
+      const [edRes, brRes] = await Promise.all([
+        supabase
+          .from('editorials')
+          .select('slug, headline, standfirst, summary, published_at, kicker, kind')
+          .contains('related_dept_slugs', [slug])
+          .order('published_at', { ascending: false }),
+        deptTopics.length
+          ? supabase.from('briefings').select('slug, headline, summary, body, published_at, created_at').eq('is_published', true)
+          : Promise.resolve({ data: [], error: null }),
+      ]);
+      if (edRes.error && edRes.error.code !== 'PGRST116') throw new Error(`/departments/[slug] editorials: ${edRes.error.message}`);
+      if (brRes.error && brRes.error.code !== 'PGRST116') throw new Error(`/departments/[slug] briefings: ${brRes.error.message}`);
+      const fromEditorials: InvestigationItem[] = (edRes.data ?? []).map((r) => ({
+        slug: r.slug, headline: r.headline, standfirst: r.standfirst, summary: r.summary, published_at: r.published_at, kicker: r.kicker,
+        href: `/${r.kind === 'briefing' ? 'briefings' : 'editorials'}/${r.slug}`,
+        type: editorials[r.slug]?.opinion ? 'Commentary' : r.kind === 'briefing' ? 'Briefing' : 'Investigation',
+      }));
+      const fromBriefings: InvestigationItem[] = ((brRes.data ?? []) as { slug: string; headline: string; summary: string | null; body: string | null; published_at: string | null; created_at: string }[])
+        .filter((b) => deptTopics.some((t) => matchWords(`${b.headline} ${b.summary ?? ''}`, t.words, t.exclude)))
+        .map((b) => ({
+          slug: b.slug, headline: b.headline, standfirst: String(b.body || '').replace(/\s+/g, ' ').slice(0, 180).trim() + '…', summary: b.summary,
+          published_at: b.published_at || b.created_at, kicker: 'Daily Briefing', href: `/briefings/${b.slug}`, type: 'Briefing',
+        }));
+      return [...fromEditorials, ...fromBriefings].sort((a, b) => (a.published_at < b.published_at ? 1 : a.published_at > b.published_at ? -1 : 0));
     })(),
     // B4 — programmes tab: live policy_programmes tagged with this dept slug.
     // GIN index on dept_slugs (policy_programmes_dept_slugs_idx) makes the
@@ -218,9 +238,9 @@ export default async function DepartmentPage({ params }: PageProps) {
     slots.releases = <ReleasesSlot releases={pressReleases} />;
   }
   // B3 — investigations tab: only shown when at least one tagged investigation exists.
-  const investigations = rawInvestigations as InvestigationItem[];
+  const investigations = rawInvestigations;
   if (investigations.length > 0) {
-    tabs.push({ id: 'investigations', label: 'Investigations', rotate: '0.05deg' });
+    tabs.push({ id: 'investigations', label: 'Reports', rotate: '0.05deg' });
     slots.investigations = <InvestigationsSlot investigations={investigations} />;
   }
   // B4 — programmes tab: only shown when at least one live programme is tagged.
@@ -272,7 +292,7 @@ export default async function DepartmentPage({ params }: PageProps) {
       </h1>
       <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', color: '#14100d', margin: '0 0 14px', letterSpacing: '0.04em' }}>
         <Link href={`/search?dept=${slug}`} style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: '2px' }}>
-          Search releases and investigations →
+          Search releases and reports →
         </Link>
       </p>
 

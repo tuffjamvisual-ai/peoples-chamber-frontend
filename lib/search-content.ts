@@ -273,7 +273,8 @@ export async function searchContent(
   const tasks: Promise<SearchResult[]>[] = [];
   if (want('editorial'))    tasks.push(queryEditorials(effectiveQ, tsType, dept, from, to));
   if (want('pressRelease')) tasks.push(queryPressReleases(effectiveQ, tsType, dept, from, to));
-  if (want('briefing'))     tasks.push(queryBriefings(effectiveQ, tsType, from, to));
+  // The Reports filter (type=editorial) covers database briefings too (23 Oct 2026).
+  if (want('briefing') || type === 'editorial') tasks.push(queryBriefings(effectiveQ, tsType, from, to));
   if (want('bill'))         tasks.push(queryBills(effectiveQ, tsType, from, to));
   if (want('division'))     tasks.push(queryDivisions(effectiveQ, tsType, from, to));
   if (want('mp'))           tasks.push(queryMPs(effectiveQ, tsType));

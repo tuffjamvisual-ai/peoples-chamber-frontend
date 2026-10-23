@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import ServiceIndicator, { servicesForTopic } from '../../components/ServiceIndicator';
 import BackLink from '../../components/BackLink';
-import { getTopic, topics, topicBillArgs, newestPerTitle, wholeWordsPattern } from '@/lib/topics';
+import { getTopic, topics, topicBillArgs, newestPerTitle, wholeWordsPattern, matchWords } from '@/lib/topics';
 import { departments } from '@/lib/departments';
 import { editorials } from '@/lib/editorials';
 import { listSummary } from '@/lib/editorials/list-summary';
@@ -56,7 +56,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
     .filter('division_title', 'imatch', words);
   if (exclude) divQuery = divQuery.not('division_title', 'imatch', exclude);
 
-  const [divRes, billRes, actRes, namedRes, topRes, pollRes] = await Promise.all([
+  const [divRes, billRes, actRes, namedRes, topRes, pollRes, briefRes] = await Promise.all([
     divQuery.order('division_date_only', { ascending: false }).limit(10),
     supabase.rpc('topic_bills', { ...topicBillArgs(topic), p_limit: 40 }),
     // Key Acts (owner's approval, 22 Oct 2026): the 8 newest Acts, newest per title, then any Act named by title.
@@ -73,11 +73,13 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
       .filter('question', 'imatch', wholeWordsPattern(topic.pollWords)!)
       .order('created_at', { ascending: false })
       .limit(1),
+    // Published database briefings, matched to the topic below by its words (Reports, 23 Oct 2026).
+    supabase.from('briefings').select('slug, headline, summary, published_at, created_at').eq('is_published', true),
   ]);
 
   // A failed read throws (owner's approval, 21 Oct 2026): six topic pages were once built with no bills when this
   // search timed out. The last good version stays up instead.
-  for (const [name, r] of [['divisions', divRes], ['bills', billRes], ['acts', actRes], ['named acts', namedRes], ['poll', pollRes]] as const) {
+  for (const [name, r] of [['divisions', divRes], ['bills', billRes], ['acts', actRes], ['named acts', namedRes], ['poll', pollRes], ['briefings', briefRes]] as const) {
     if (r.error) throw new Error(`topic ${slug} ${name}: ${r.error.message}`);
   }
   const divisions = divRes.data || [];
@@ -96,8 +98,16 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
 
   const dept = topic.departmentSlugs.length ? departments.find((d) => d.slug === topic.departmentSlugs[0]) : undefined;
   // Newest first (topic hubs now list every piece on the subject, 16 Oct 2026).
-  const relatedEditorials = topic.editorialSlugs.map((s) => editorials[s]).filter(Boolean)
-    .sort((a, b) => (b.publishedAt || '').localeCompare(a.publishedAt || ''));
+  // Reports on the topic: investigations and file briefings from editorialSlugs, plus published database
+  // briefings whose headline and summary match the topic's words (owner's approval, 23 Oct 2026).
+  const relatedEditorials = [
+    ...topic.editorialSlugs.map((s) => editorials[s]).filter(Boolean).map((e) => ({
+      href: `/${e.kind === 'briefing' ? 'briefings' : 'editorials'}/${e.slug}`, headline: e.headline, summary: listSummary(e), date: e.publishedAt || '',
+    })),
+    ...((briefRes.data || []) as { slug: string; headline: string; summary: string | null; published_at: string | null; created_at: string }[])
+      .filter((b) => matchWords(`${b.headline} ${b.summary ?? ''}`, topic.words, topic.exclude))
+      .map((b) => ({ href: `/briefings/${b.slug}`, headline: b.headline, summary: b.summary ?? '', date: (b.published_at || b.created_at).slice(0, 10) })),
+  ].sort((a, b) => b.date.localeCompare(a.date));
   const poll = (pollRes.data || [])[0];
 
   return (
@@ -208,11 +218,11 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
       {/* Related editorials */}
       {relatedEditorials.length > 0 && (
         <section style={{ marginBottom: '6%' }}>
-          <h2 style={sectionH2}>Investigations</h2>
+          <h2 style={sectionH2}>Reports</h2>
           {relatedEditorials.map((e) => (
-            <Link key={e.slug} href={`/${e.kind === 'briefing' ? 'briefings' : 'editorials'}/${e.slug}`} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '11px 0' }}>
+            <Link key={e.href} href={e.href} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '11px 0' }}>
               <div style={{ fontSize: '16px', fontWeight: 'bold', lineHeight: 1.3 }}>{e.headline}</div>
-              <p style={{ fontSize: '15px', color: INK, marginTop: '4px', lineHeight: 1.5 }}>{listSummary(e)}</p>
+              {e.summary && <p style={{ fontSize: '15px', color: INK, marginTop: '4px', lineHeight: 1.5 }}>{e.summary}</p>}
               <ContinueToArticle style={{ marginTop: '4px' }} />
             </Link>
           ))}

@@ -12,9 +12,9 @@ const MONO = "'Special Elite', monospace";
 
 const TYPE_CHIPS = [
   { value: 'all',          label: 'All' },
-  { value: 'editorial',    label: 'Investigations' },
+  // Investigations and briefings are one filter, Reports (23 Oct 2026); type=briefing links still work.
+  { value: 'editorial',    label: 'Reports' },
   { value: 'pressRelease', label: 'Releases' },
-  { value: 'briefing',     label: 'Briefings' },
   { value: 'bill',         label: 'Bills' },
   { value: 'division',     label: 'Divisions' },
   { value: 'mp',           label: 'MPs' },

@@ -69,7 +69,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/transparency`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
     { url: `${SITE}/transparency/register-of-interests`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
     { url: `${SITE}/money`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
-    { url: `${SITE}/editorials`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE}/reports`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/laws`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/polls`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/expenses`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
@@ -104,7 +104,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/second-jobs`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/lobbying`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/committees`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${SITE}/briefings`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/topics`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/divisions`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
   ];

@@ -63,7 +63,7 @@ export default async function EditorialPage({ params }: { params: Promise<{ slug
           author: piece.authorByline ?? null,
         })}
       />
-      <EditorialArticle piece={piece} stamp="Investigations" backHref="/editorials" basePath="/editorials" readNext={await editorialReadNext(piece)} />
+      <EditorialArticle piece={piece} stamp="Reports" backHref="/reports" basePath="/editorials" readNext={await editorialReadNext(piece)} />
     </>
   );
 }

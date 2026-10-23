@@ -12,9 +12,9 @@ const HAIRLINE = 'rgba(20,16,13,0.15)';
 const MONO = "'Special Elite', monospace";
 
 const TYPE_META: Record<string, { label: string; color: string }> = {
-  editorial:    { label: 'Investigation', color: '#7a1612' },
+  editorial:    { label: 'Report',        color: '#7a1612' },
   pressRelease: { label: 'Release',       color: '#1a5c36' },
-  briefing:     { label: 'Briefing',      color: '#1a3a6e' },
+  briefing:     { label: 'Report',        color: '#1a3a6e' },
   bill:         { label: 'Bill',          color: '#5c2a7a' },
   division:     { label: 'Division',      color: '#7a5c12' },
   mp:           { label: 'MP',            color: '#3a3a3a' },
@@ -142,7 +142,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
           Search
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', color: '#14100d' }}>
-          Investigations, press releases, briefings, bills, votes and MPs, searched together.
+          Reports, press releases, bills, votes and MPs, searched together.
         </p>
       </header>
 
@@ -163,7 +163,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
         <section>
           <p style={{ fontFamily: MONO, fontSize: '14px', color: '#14100d', marginBottom: '12px' }}>
             {results.length >= (isPhrase(q) ? PHRASE_LIMIT : TOTAL_LIMIT) ? `${isPhrase(q) ? PHRASE_LIMIT : TOTAL_LIMIT}+ results` : `${results.length} result${results.length === 1 ? '' : 's'}`}
-            {type !== 'all' && ` · ${TYPE_META[type]?.label ?? type} only`}
+            {type !== 'all' && ` · ${type === 'editorial' || type === 'briefing' ? 'Reports' : TYPE_META[type]?.label ?? type} only`}
           </p>
           <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {results.map((r, i) => <ResultRow key={i} r={r} />)}
