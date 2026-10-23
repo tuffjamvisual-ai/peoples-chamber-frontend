@@ -8,7 +8,7 @@ import RelatedLinks from '../../components/RelatedLinks'
 import { metaDescription } from '@/lib/meta-description'
 import ReadNext, { splitAfterParagraph } from '../../components/ReadNext'
 import { newsReadNext } from '@/lib/read-next';
-import { resolveOrgToDeptSlug, isFormerDeptName } from '@/lib/govOrgSlug'
+import { resolveOrgToDeptSlug } from '@/lib/govOrgSlug'
 import { getDeptContext } from '../../api/department-context/route'
 import { piecesExaminingRelease } from '@/lib/editorials/release-links'
 import { withoutEmDashes } from '@/lib/no-em-dash'
@@ -88,14 +88,22 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   // and date, then the minister (the Secretary of State in Related) and Open Govt's reports when it shows them.
   const org = release.organisation?.replace(/\s+/g, ' ').trim() || null
   const deptSlug = org ? resolveOrgToDeptSlug(org) : null
-  // The Related box shows today's Secretary of State. Under a former department name that is not the minister who
-  // held the post on the announcement date, so the line is left out (owner's approval, 23 Oct 2026).
+  // The Related box shows today's Secretary of State. The line says "with the minister responsible" only when the
+  // release is dated on or after the day they took that post, from their GOV.UK record (person_cache, the same
+  // person the Related box shows); otherwise, or with no start date, it is left out (owner's approval, 23 Oct 2026).
   let hasMinister = false
-  if (deptSlug && !isFormerDeptName(org!)) {
-    const { data: sos, error: sosErr } = await supabase.from('dept_ministers').select('name')
+  if (deptSlug && release.published_at) {
+    const { data: sos, error: sosErr } = await supabase.from('dept_ministers').select('slug, role')
       .eq('dept_slug', deptSlug).eq('is_secretary_of_state', true).neq('resigned', true).maybeSingle()
     if (sosErr && sosErr.code !== 'PGRST116') throw new Error(`/news/[slug] metadata minister: ${sosErr.message}`)
-    hasMinister = !!sos
+    if (sos?.slug) {
+      const { data: person, error: personErr } = await supabase.from('person_cache').select('current_roles').eq('slug', sos.slug).maybeSingle()
+      if (personErr && personErr.code !== 'PGRST116') throw new Error(`/news/[slug] metadata minister start: ${personErr.message}`)
+      const post = ((person?.current_roles as { title?: string; startDate?: string }[] | null) || [])
+        .find((r) => (r.title || '').trim().toLowerCase() === String(sos.role || '').trim().toLowerCase())
+      const started = post?.startDate ? new Date(post.startDate) : null
+      hasMinister = !!started && !Number.isNaN(started.getTime()) && new Date(release.published_at) >= started
+    }
   }
   const hasReports = piecesExaminingRelease(release.title, release.gov_url).length > 0
   const date = release.published_at

@@ -24,8 +24,9 @@ export const DEPT_ORG_TO_SLUG: Record<string, string> = {
   'Department for Culture, Media & Sport':              'culture',
   // The department's own name; the "for ... &" spelling above never matched it (owner's approval, 23 Oct 2026).
   'Department of Health and Social Care':               'health',
-  // Former names of existing departments, which older releases carry (owner's approval, 23 Oct 2026). Listed in
-  // FORMER_DEPT_NAMES below too. Agencies, regulators and No 10 are deliberately not mapped to a department.
+  // The culture department's current name, since July 2026 (the "Culture, Media & Sport" name above is the
+  // previous one), and former names of existing departments, which older releases carry (owner's approval,
+  // 23 Oct 2026). Agencies, regulators and No 10 are deliberately not mapped to a department.
   'Department for Digital, Culture, Media & Sport':     'culture',
   'Foreign & Commonwealth Office':                      'foreign-office',
   'Department for International Development':           'foreign-office',
@@ -117,27 +118,6 @@ export function resolveOrgHref(
   const alias = ORG_ALIAS[norm];
   if (alias) return alias;
   return null;
-}
-
-// Former names of existing departments (owner's approval, 23 Oct 2026). A release under one of these names was
-// issued before the rename, so today's Secretary of State, which the page shows, is not the minister who held the
-// post then.
-const FORMER_DEPT_NAMES = new Set([
-  'Department for Digital, Culture, Media & Sport',
-  'Foreign & Commonwealth Office',
-  'Department for International Development',
-  'Ministry of Housing, Communities & Local Government (2018 to 2021)',
-  'Department for Levelling Up, Housing and Communities',
-  'Office of the Secretary of State for Wales',
-  'Office of the Secretary of State for Scotland',
-  'Department for Business, Innovation & Skills',
-  'Department for Business, Energy & Industrial Strategy',
-  'Department for International Trade',
-  'Department of Energy & Climate Change',
-].map(normalizeOrg));
-
-export function isFormerDeptName(name: string): boolean {
-  return FORMER_DEPT_NAMES.has(normalizeOrg(name));
 }
 
 // Resolves a press_releases.organisation string to a department_context slug only.
