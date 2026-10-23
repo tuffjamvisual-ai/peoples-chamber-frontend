@@ -44,7 +44,7 @@ export default function SupportPage() {
 
       <h3 className="font-bold mt-4 mb-2 text-[#14100d]">How does voting work?</h3>
       <p className="text-[#14100d] mb-4">
-        Create an account, browse bills, and vote Aye or No on any bill. Your vote is recorded and added to the totals shown on the site.
+        Create an account, open any bill and vote Aye or No. Your vote is recorded and added to the totals shown on the site.
       </p>
 
       <h3 className="font-bold mt-4 mb-2 text-[#14100d]">Can I change my vote?</h3>
