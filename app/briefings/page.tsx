@@ -42,7 +42,7 @@ export default async function BriefingsIndexPage() {
 
   const { data: dbRows, error: dbRowsErr } = await supabase
     .from('briefings')
-    .select('slug, headline, body, published_at, created_at')
+    .select('slug, headline, summary, body, published_at, created_at')
     .eq('is_published', true)
     .order('published_at', { ascending: false });
   if (dbRowsErr && dbRowsErr.code !== 'PGRST116') throw new Error(`/briefings briefings: ${dbRowsErr.message}`);
@@ -51,7 +51,8 @@ export default async function BriefingsIndexPage() {
     slug: r.slug as string,
     kicker: 'Daily Briefing',
     headline: r.headline as string,
-    standfirst: String(r.body || '').replace(/\s+/g, ' ').slice(0, 180).trim() + '…',
+    // The approved summary (migration 2026-10-23c), or the opening of the body when there is none.
+    standfirst: (r.summary as string | null) || String(r.body || '').replace(/\s+/g, ' ').slice(0, 180).trim() + '…',
     dateISO: (r.published_at as string) || (r.created_at as string),
   }));
 
