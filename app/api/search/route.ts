@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { searchContent, VALID_SEARCH_TYPES, type SearchResult, type SearchResultType } from '@/lib/search-content';
+import { searchContent, searchCouncils, VALID_SEARCH_TYPES, type SearchResult, type SearchResultType } from '@/lib/search-content';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,6 +23,10 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const results = await searchContent(q, type, dept, from, to);
-  return NextResponse.json({ q, type, results });
+  // Councils are a separate group, as on /search: only with type=all and no department or date filter.
+  const [results, councils] = await Promise.all([
+    searchContent(q, type, dept, from, to),
+    type === 'all' && !dept && !from && !to ? searchCouncils(q) : Promise.resolve([]),
+  ]);
+  return NextResponse.json({ q, type, results, councils });
 }

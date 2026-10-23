@@ -111,6 +111,9 @@ export default async function ThisWeekPage() {
   }
 
   const fmt = (d: string) => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+  // Sittings are UK calendar dates (YYYY-MM-DDT00:00:00), compared with today's date in London as plain dates.
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
+  const fmtDay = (ymd: string) => new Date(`${ymd}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
 
   return (
     <OpenGovShell pageStamp="This Week">
@@ -136,13 +139,17 @@ export default async function ThisWeekPage() {
         </h2>
         {bills.length === 0 && <p style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>No Commons bills listed right now (the House may be in recess).</p>}
         {bills.map((b) => {
-          const sitting = (b.currentStage?.stageSittings || []).map((s) => s.date).sort().slice(-1)[0]
+          // The next sitting of the current stage on or after today; if none is upcoming, the latest past one.
+          const days = (b.currentStage?.stageSittings || []).map((s) => (s.date || '').slice(0, 10)).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort()
+          const next = days.find((d) => d >= today)
+          const last = days.filter((d) => d < today).slice(-1)[0]
+          const sitting = next ? `next sitting ${fmtDay(next)}` : last ? `last sitting ${fmtDay(last)}` : null
           const href = internal[b.billId] ? `/bills/${internal[b.billId]}` : null
           const inner = (
             <>
               <div style={{ fontSize: 'clamp(16px, 1.9vw, 20px)', fontWeight: 'bold', lineHeight: 1.3 }}>{b.shortTitle}</div>
               <div style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '4px' }}>
-                {b.currentStage?.description || 'Before the Commons'}{sitting ? ` · ${fmt(sitting)}` : ''}
+                {b.currentStage?.description || 'Before the Commons'}{sitting ? ` · ${sitting}` : ''}
               </div>
             </>
           )

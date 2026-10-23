@@ -3,7 +3,7 @@
 import { pageview } from '@vercel/analytics';
 import { billSummary } from '@/lib/bill-summary';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import MoneyCountUp from '../../components/MoneyCountUp';
 import { COMMITTEE_IDS } from '@/lib/committees';
@@ -2390,23 +2390,41 @@ export default function MagazineProfileSections({
                 {expenses.map((e) => {
                   const expanded = expandedYear === e.year;
                   const yearClaims = claimsByYear.get(e.year) || [];
+                  const detailId = `expense-claims-${e.year}`;
+                  const toggle = () => setExpandedYear(expanded ? null : e.year);
                   return (
-                    <>
+                    <Fragment key={e.year}>
+                      {/* The row still opens on a mouse click; the year is a real button for keyboard and screen reader
+                          users (23 Oct 2026), and its own click does not bubble so the year does not toggle twice. */}
                       <tr
-                        key={`row-${e.year}`}
-                        onClick={() => setExpandedYear(expanded ? null : e.year)}
+                        onClick={yearClaims.length > 0 ? toggle : undefined}
                         style={{ borderBottom: inkDivider, cursor: yearClaims.length > 0 ? 'pointer' : 'default' }}
                       >
                         <td style={{ padding: '4px 3px', fontWeight: 'bold' }}>
-                          {e.year}{yearClaims.length > 0 ? (expanded ? ' ▾' : ' ▸') : ''}
+                          {yearClaims.length > 0 ? (
+                            <button
+                              type="button"
+                              className="focus-ring"
+                              aria-expanded={expanded}
+                              aria-controls={detailId}
+                              onClick={(ev) => { ev.stopPropagation(); toggle(); }}
+                              style={{ background: 'none', border: 0, padding: 0, margin: 0, font: 'inherit', fontWeight: 'bold', color: 'inherit', cursor: 'pointer', textAlign: 'left' }}
+                            >
+                              {e.year}<span aria-hidden="true">{expanded ? ' ▾' : ' ▸'}</span>
+                              <span className="sr-only"> claims</span>
+                            </button>
+                          ) : e.year}
                         </td>
                         {breakdownLabels.map((b) => (
                           <td key={b.key} style={{ padding: '4px 3px', fontFamily: 'monospace', fontSize: '15px', whiteSpace: 'nowrap' }}>{fmtMoney(Number(e[b.key]) || 0)}</td>
                         ))}
                         <td style={{ padding: '4px 3px', fontFamily: 'monospace', fontWeight: 'bold', textAlign: 'right', whiteSpace: 'nowrap' }}>{fmtMoney(Number(e.total_spend) || 0)}</td>
                       </tr>
-                      {expanded && yearClaims.length > 0 && (
-                        <tr key={`detail-${e.year}`}>
+                      {/* Always in the page when the year has claims, so aria-controls points at it; hidden and empty
+                          until opened. */}
+                      {yearClaims.length > 0 && (
+                        <tr id={detailId} hidden={!expanded}>
+                          {expanded && (
                           <td colSpan={breakdownLabels.length + 2} style={{ padding: '0 3px 8px', background: 'rgba(122,22,18,0.04)' }}>
                             <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.06em', padding: '6px 0', opacity: 0.8 }}>
                               {yearClaims.length} claims in {e.year}
@@ -2461,9 +2479,10 @@ export default function MagazineProfileSections({
                               <div style={{ padding: '6px 3px', fontSize: '15px', opacity: 0.7 }}>Showing first 200 of {yearClaims.length} claims.</div>
                             )}
                           </td>
+                          )}
                         </tr>
                       )}
-                    </>
+                    </Fragment>
                   );
                 })}
               </tbody>

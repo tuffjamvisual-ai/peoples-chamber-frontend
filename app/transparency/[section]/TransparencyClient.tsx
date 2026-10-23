@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 
 type Row = Record<string, unknown>
@@ -10,6 +11,7 @@ interface Props {
   section?: string
   total: number
   searchQuery: string
+  linkedOcids?: string[]   // contracts: OCIDs with an on-site /contracts/<ocid> page
 }
 
 const ACCENT = '#6b2417'
@@ -103,7 +105,8 @@ function Pagination({
   )
 }
 
-export default function TransparencyClient({ rows, sectionTitle, section, total, searchQuery }: Props) {
+export default function TransparencyClient({ rows, sectionTitle, section, total, searchQuery, linkedOcids }: Props) {
+  const linked = useMemo(() => new Set(linkedOcids ?? []), [linkedOcids])
   // Every section now searches the whole dataset on the server (the q= address). The old
   // in-page filter only looked through the 100 rows on screen, so a search of 45,107
   // contracts for "Ecotricity" said "0 of 100 matching" (ChatGPT audit, 15 Oct 2026).
@@ -459,7 +462,11 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
               return (
                 <li key={i} className="p-5 border-l-2 border-l-[#14100d]">
                   <div className="flex items-baseline justify-between gap-4 mb-1.5">
-                    <h3 className="text-[#14100d] text-base font-bold leading-snug tracking-tight">{title}</h3>
+                    <h3 className="text-[#14100d] text-base font-bold leading-snug tracking-tight">
+                      {ocid && linked.has(ocid) ? (
+                        <Link href={`/contracts/${ocid}`} className="focus-ring hover:underline" style={{ color: 'inherit', textUnderlineOffset: '3px' }}>{title}</Link>
+                      ) : title}
+                    </h3>
                     {awardedDate && (
                       <span className="text-[#14100d] text-[15px] font-mono whitespace-nowrap uppercase tracking-[0.15em]">{awardedDate}</span>
                     )}

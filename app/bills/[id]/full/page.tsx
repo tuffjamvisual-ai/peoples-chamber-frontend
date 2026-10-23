@@ -13,6 +13,8 @@
 // API document-download endpoint; we just link to them. Each
 // publication exposes either `links[].url` (direct CDN URL) or
 // `files[]` (need to build the /Documents/{fileId}/Download URL).
+// Checked against the live API on 23 Oct 2026 (Immigration and Asylum
+// Bill: 65 links, 42 files; no publication had both or neither).
 
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
@@ -116,6 +118,16 @@ function fmtDate(iso?: string): string {
   const d = new Date(iso)
   if (!Number.isFinite(d.getTime())) return ''
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+// Where a publication's title links (23 Oct 2026): its own link, else its first file through the Bills API
+// download endpoint, else the bill's publications page on Parliament's website.
+function publicationHref(p: ApiPublication, parliamentId: number): string {
+  const link = p.links?.[0]?.url
+  if (link) return link
+  const file = p.files?.[0]
+  if (file?.id != null) return `https://bills-api.parliament.uk/api/v1/Publications/${p.id}/Documents/${file.id}/Download`
+  return `https://bills.parliament.uk/bills/${parliamentId}/publications`
 }
 
 function fmtSize(bytes?: number): string {
@@ -350,9 +362,16 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
                       gap: '16px', borderBottom: `1px dotted ${INK_HAIRLINE}`, paddingBottom: '8px',
                     }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <span style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.5, color: INK }}>
+                        <a
+                          href={publicationHref(p, bill.parliament_id)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="focus-ring"
+                          style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.5, color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}
+                        >
                           {p.title || '(untitled publication)'}
-                        </span>
+                          <span className="sr-only"> (opens on Parliament&rsquo;s website)</span>
+                        </a>
                         {p.house && (
                           <span style={{ marginLeft: '10px', fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', color: INK_SOFT }}>
                             {p.house}

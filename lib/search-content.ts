@@ -253,6 +253,36 @@ async function queryMPs(q: string, tsType: TsType): Promise<SearchResult[]> {
   }));
 }
 
+// Council profiles (23 Oct 2026): matched on the council's name or short name, as the council search does, and
+// shown as their own group above the other results rather than mixed into them.
+export type CouncilSearchResult = { slug: string; name: string; typeLabel: string | null; country: string | null };
+const COUNCIL_LIMIT = 10;
+
+export async function searchCouncils(q: string): Promise<CouncilSearchResult[]> {
+  const term = (isPhrase(q) ? unwrapPhrase(q) : q).trim();
+  // % and _ are ilike wildcards; commas and parentheses would break the .or() filter.
+  const safe = term.replace(/[%_,()\\"]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 100);
+  if (safe.length < 2) return [];
+  const pattern = `%${safe}%`;
+  const { data, error } = await supabase
+    .from('councils')
+    .select('slug, name, short_name, type_label, country')
+    .or(`name.ilike.${pattern},short_name.ilike.${pattern}`)
+    .order('name', { ascending: true })
+    .limit(COUNCIL_LIMIT);
+  if (error) {
+    console.warn('[search] councils error:', error.message);
+    return [];
+  }
+  const lower = safe.toLowerCase();
+  const exact = (r: { name: string; short_name: string | null }) =>
+    r.name.toLowerCase() === lower || (r.short_name ?? '').toLowerCase() === lower ? 0 : 1;
+  return (data ?? [])
+    .slice()
+    .sort((x, y) => exact(x) - exact(y))
+    .map((r) => ({ slug: r.slug, name: r.name, typeLabel: r.type_label ?? null, country: r.country ?? null }));
+}
+
 export async function searchContent(
   q: string,
   type: string,

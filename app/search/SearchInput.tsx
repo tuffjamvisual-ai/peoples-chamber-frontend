@@ -57,7 +57,9 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
 
   return (
     <div style={{ marginBottom: '32px' }}>
-      <form onSubmit={handleSubmit} style={{ position: 'relative', marginBottom: '14px' }}>
+      {/* A visible Search button (23 Oct 2026), styled as the council search's. */}
+      <form onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'stretch', gap: '8px', marginBottom: '14px' }}>
+        <div style={{ position: 'relative', flex: '1 1 auto', minWidth: 0 }}>
         <input
           aria-label="Search the site"
           type="text"
@@ -102,6 +104,13 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
             ✕
           </button>
         )}
+        </div>
+        <button
+          type="submit"
+          style={{ flex: '0 0 auto', fontFamily: 'Special Elite, monospace', fontWeight: 700, fontSize: '17px', letterSpacing: '0.04em', color: '#fff', background: ACCENT, border: 'none', borderRadius: 0, padding: '11px 24px', cursor: 'pointer' }}
+        >
+          Search
+        </button>
       </form>
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '7px' }}>

@@ -10,6 +10,7 @@ export const revalidate = 3600
 
 const ACCENT = '#6b2417'
 const PAGE_LIMIT = 100   // rows per page
+const OCID_RE = /^ocds-[a-z0-9]+-[A-Za-z0-9-]+$/   // as app/contracts/[ocid]/page.tsx accepts
 
 // 'lobbyists' slug removed 2026-06-02. 'companies' slug removed
 // 2026-06-03 — see comments in app/transparency/page.tsx. Both URLs
@@ -97,6 +98,19 @@ export default async function TransparencySectionPage({
 
   if (error) {
     console.error(`[transparency/${section}] supabase error querying '${config.table}':`, error.message || error)
+  }
+
+  // Contracts (23 Oct 2026): an entry's title links to /contracts/<ocid> only when that OCID has rows in
+  // contract_notices, checked for the whole page in one call (migration 2026-10-23h). If the check fails the list
+  // still shows, without the links.
+  let linkedOcids: string[] = []
+  if (section === 'contracts' && rows?.length) {
+    const ocids = [...new Set(rows.map((r) => r.ocid).filter((o): o is string => typeof o === 'string' && OCID_RE.test(o)))]
+    if (ocids.length) {
+      const { data: found, error: ocidErr } = await supabase.rpc('contract_ocids_with_notices', { p_ocids: ocids })
+      if (ocidErr) console.error('[transparency/contracts] contract_ocids_with_notices:', ocidErr.message)
+      else linkedOcids = (found as string[] | null) ?? []
+    }
   }
 
   const rowCount = rows?.length ?? 0
@@ -209,6 +223,7 @@ export default async function TransparencySectionPage({
         section={section}
         total={totalCount}
         searchQuery={searchTerm ?? ''}
+        linkedOcids={linkedOcids}
       />
 
       <Pagination

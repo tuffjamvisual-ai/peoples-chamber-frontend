@@ -92,8 +92,10 @@ a:hover {
   transform: none;
 }
 
-/* Bill cover cards are links (23 Oct 2026): a visible ring when reached by keyboard. */
-.bill-card-link:focus-visible {
+/* Bill cover cards are links (23 Oct 2026): a visible ring when reached by keyboard. .focus-ring gives any other
+ * link or button the same ring. */
+.bill-card-link:focus-visible,
+.focus-ring:focus-visible {
   outline: 3px solid #7a1612;
   outline-offset: 4px;
 }

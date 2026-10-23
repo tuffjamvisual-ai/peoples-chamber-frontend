@@ -99,11 +99,12 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
     stats.push(...(data as StatRow[]));
     if (data.length < 1000) break;
   }
+  // No whip data (23 Oct 2026): the normal heading and party navigation, and one plain line.
   if (splits.length === 0) {
     return (
-      <OpenGovShell pageStamp="Parties">
-        <p style={{ fontSize: '18px', lineHeight: 1.7 }}>No Commons votes recorded for {party.name} MPs since the July 2024 election.</p>
-      </OpenGovShell>
+      <WhipFrame party={party}>
+        <p style={{ fontSize: '15px', lineHeight: 1.7 }}>No Commons votes are recorded for {party.name} MPs since the July 2024 election, so there is no voting record to measure.</p>
+      </WhipFrame>
     );
   }
 
@@ -289,6 +290,36 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
 
       </PartySidebar>
 
+    </OpenGovShell>
+  );
+}
+
+// The page's back link, heading and party navigation without the figures, for a party with nothing to measure.
+function WhipFrame({ party, children }: { party: Party; children: React.ReactNode }) {
+  const accent = party.party_colour || ACCENT;
+  return (
+    <OpenGovShell pageStamp="Parties">
+      <a
+        href={`/parties/${party.slug}`}
+        className="no-hover-scale"
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
+      >
+        ← {party.name}
+      </a>
+
+      <header style={{ borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+          {party.name} · Whip cohesion + rebellion
+        </p>
+        <h1 style={{ fontFamily: 'Special Elite, monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
+          How tightly {party.name} MPs vote together
+        </h1>
+        <div style={{ height: '4px', background: accent, width: '80px', marginBottom: '12px' }} />
+      </header>
+
+      <PartySidebar party={party} active="whip">
+        {children}
+      </PartySidebar>
     </OpenGovShell>
   );
 }

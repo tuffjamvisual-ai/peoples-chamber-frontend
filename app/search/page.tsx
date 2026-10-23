@@ -2,7 +2,7 @@ import Link from 'next/link';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import SearchInput from './SearchInput';
-import { searchContent, isPhrase, PHRASE_LIMIT, TOTAL_LIMIT, type SearchResult } from '@/lib/search-content';
+import { searchContent, searchCouncils, isPhrase, PHRASE_LIMIT, TOTAL_LIMIT, type SearchResult, type CouncilSearchResult } from '@/lib/search-content';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,6 +19,7 @@ const TYPE_META: Record<string, { label: string; color: string }> = {
   division:     { label: 'Division',      color: '#7a5c12' },
   mp:           { label: 'MP',            color: '#3a3a3a' },
 };
+const COUNCIL_META = { label: 'Council', color: '#1a5c5c' };
 
 const POPULAR = [
   'knife crime', 'small boats', 'NHS', 'energy bills',
@@ -91,6 +92,45 @@ function ResultRow({ r }: { r: SearchResult }) {
   );
 }
 
+// A council profile, in the same row style as the other results.
+function CouncilRow({ c }: { c: CouncilSearchResult }) {
+  return (
+    <li style={{ borderBottom: `1px dotted ${HAIRLINE}`, padding: '12px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+        <span
+          style={{
+            fontFamily: MONO,
+            fontSize: '15px',
+            letterSpacing: '0.1em',
+            color: COUNCIL_META.color,
+            border: `1px solid ${COUNCIL_META.color}`,
+            padding: '2px 6px',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+            marginTop: '3px',
+            textTransform: 'uppercase',
+          }}
+        >
+          {COUNCIL_META.label}
+        </span>
+        <div style={{ minWidth: 0 }}>
+          <Link
+            href={`/councils/${c.slug}`}
+            style={{ display: 'block', fontSize: '16px', fontWeight: 600, color: INK, textDecoration: 'none', lineHeight: 1.4 }}
+          >
+            {c.name}
+          </Link>
+          {(c.typeLabel || c.country) && (
+            <span style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d' }}>
+              {[c.typeLabel, c.country].filter(Boolean).join(' · ')}
+            </span>
+          )}
+        </div>
+      </div>
+    </li>
+  );
+}
+
 type PageProps = {
   searchParams: Promise<{
     q?: string;
@@ -111,9 +151,11 @@ export default async function SearchPage({ searchParams }: PageProps) {
   const to   = sp.to    ?? null;
   const sort = (sp.sort === 'newest' ? 'newest' : 'relevance') as 'relevance' | 'newest';
 
-  const results: SearchResult[] = q.length >= 2
-    ? await searchContent(q, type, dept, from, to, sort)
-    : [];
+  // Councils are their own group, shown with All selected; a department or date filter does not apply to them.
+  const wantCouncils = q.length >= 2 && type === 'all' && !dept && !from && !to;
+  const [results, councils]: [SearchResult[], CouncilSearchResult[]] = q.length >= 2
+    ? await Promise.all([searchContent(q, type, dept, from, to, sort), wantCouncils ? searchCouncils(q) : Promise.resolve([])])
+    : [[], []];
 
   return (
     <OpenGovShell pageStamp="Search">
@@ -142,14 +184,14 @@ export default async function SearchPage({ searchParams }: PageProps) {
           Search
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', color: '#14100d' }}>
-          Reports, press releases, bills, votes and MPs, searched together.
+          Reports, press releases, bills, votes, MPs and councils, searched together.
         </p>
       </header>
 
       {/* key remounts on q|type change so useState reinitialises with the current URL value */}
       <SearchInput key={q + '|' + type + '|' + (dept ?? '') + '|' + sort} defaultQ={q} defaultType={type} defaultDept={dept ?? ''} defaultSort={sort} />
 
-      {q.length >= 2 && results.length === 0 && (
+      {q.length >= 2 && results.length === 0 && councils.length === 0 && (
         <div style={{ padding: '40px 0', textAlign: 'center' }}>
           <p style={{ fontSize: '17px', color: INK, marginBottom: '6px' }}>No results for &ldquo;{q}&rdquo;</p>
           <p style={{ fontSize: '14px', color: '#14100d' }}>
@@ -157,6 +199,17 @@ export default async function SearchPage({ searchParams }: PageProps) {
             <Link href="/departments" style={{ color: ACCENT }}>browse departments</Link>
           </p>
         </div>
+      )}
+
+      {councils.length > 0 && (
+        <section aria-labelledby="search-councils" style={{ marginBottom: '28px' }}>
+          <h2 id="search-councils" style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+            Councils · {councils.length}
+          </h2>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {councils.map((c) => <CouncilRow key={c.slug} c={c} />)}
+          </ul>
+        </section>
       )}
 
       {results.length > 0 && (
