@@ -22,7 +22,7 @@ const INK_SOFT = '#14100d';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
 const ACCENT = '#7a1612';
 
-export default function EditorialArticle({ piece, stamp, backHref, readNext = [] }: { piece: EditorialEntry; stamp: string; backHref: string; readNext?: ReadNextLink[] }) {
+export default function EditorialArticle({ piece, stamp, backHref, basePath, readNext = [] }: { piece: EditorialEntry; stamp: string; backHref: string; basePath: '/editorials' | '/briefings'; readNext?: ReadNextLink[] }) {
   // Read next goes after the opening of the piece (lib/read-next.ts editorialReadNextIndex; -1 = after the body).
   const readNextAt = readNext.length ? editorialReadNextIndex(piece) : -2;
   return (
@@ -94,7 +94,7 @@ export default function EditorialArticle({ piece, stamp, backHref, readNext = []
 
       </div>
 
-      {piece.evidence && <EvidencePanel {...piece.evidence} />}
+      {piece.evidence && <EvidencePanel {...piece.evidence} sourcesHref={`${basePath}/${piece.slug}/sources`} />}
 
       <RelatedLinks
         variant="editorial"

@@ -8,6 +8,7 @@
 
 import type { Metadata } from 'next';
 import { metaDescription } from '@/lib/meta-description';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import EditorialArticle from '../../components/EditorialArticle';
 import OpenGovShell from '../../components/OpenGovShell';
@@ -75,7 +76,7 @@ export default async function BriefingPage({ params }: { params: Promise<{ slug:
   // 1. File-based briefing.
   const piece = editorials[slug] as EditorialEntry | undefined;
   if (piece && piece.kind === 'briefing') {
-    return <EditorialArticle piece={piece} stamp="Briefing" backHref="/briefings" />;
+    return <EditorialArticle piece={piece} stamp="Briefing" backHref="/briefings" basePath="/briefings" />;
   }
 
   // 2. DB briefing (cron-generated). Drafts render for review; published render normally.
@@ -83,6 +84,7 @@ export default async function BriefingPage({ params }: { params: Promise<{ slug:
   if (!b) notFound();
 
   const paragraphs = b.body.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+  const sourceCount = Array.isArray(b.sources) ? (b.sources as unknown[]).filter((s) => typeof s === 'string').length : 0;
 
   return (
     <OpenGovShell pageStamp="Briefing">
@@ -119,9 +121,9 @@ export default async function BriefingPage({ params }: { params: Promise<{ slug:
         ))}
       </article>
 
-      {/* Sources checked by the automated fact-check pipeline. Rendered as plain
-          text so readers can verify claims without offsite links in editorial copy. */}
-      {Array.isArray(b.sources) && (b.sources as unknown[]).filter((s) => typeof s === 'string').length > 0 && (
+      {/* Sources checked by the automated fact-check pipeline: one link to /briefings/<slug>/sources, which lists
+          them (23 Oct 2026). */}
+      {sourceCount > 0 && (
         <aside
           aria-label="Sources checked"
           style={{ marginTop: '36px', border: `1px solid ${HAIRLINE}`, borderTop: `3px solid ${ACCENT}`, padding: '16px 18px 10px', background: 'rgba(107,36,23,0.03)' }}
@@ -129,13 +131,9 @@ export default async function BriefingPage({ params }: { params: Promise<{ slug:
           <p style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', color: ACCENT, margin: '0 0 10px' }}>
             Sources checked
           </p>
-          {(b.sources as unknown[])
-            .filter((s): s is string => typeof s === 'string')
-            .map((src, i) => (
-              <p key={i} style={{ fontFamily: MONO, fontSize: '14px', color: INK_SOFT, margin: '0 0 6px', wordBreak: 'break-all', lineHeight: 1.5 }}>
-                {src}
-              </p>
-            ))}
+          <p style={{ fontFamily: MONO, fontSize: '14px', margin: '0 0 6px', lineHeight: 1.5 }}>
+            <Link href={`/briefings/${slug}/sources`} style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Sources ({sourceCount})</Link>
+          </p>
         </aside>
       )}
     </OpenGovShell>
