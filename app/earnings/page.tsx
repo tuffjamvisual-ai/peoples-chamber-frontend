@@ -158,8 +158,10 @@ export default async function EarningsPage() {
         <p>
           <strong className="text-[#14100d]">Outside earnings</strong>: extracted by regex from the
           &ldquo;Employment and earnings&rdquo; category of the Register of Members&apos; Financial Interests.
-          Only entries with an explicit &ldquo;Payment: £X&rdquo; pattern are summed; ranges (&ldquo;£200 to £500&rdquo;)
-          and unbanded entries are <em>excluded</em>, so the figure is a conservative lower bound. Corrections
+          Only one-off entries with an explicit &ldquo;Payment: £X&rdquo; pattern are summed. Regular pay (an
+          amount a month, a quarter or a year) is listed separately on each MP&apos;s second jobs page and is not
+          added to this figure; ranges (&ldquo;£200 to £500&rdquo;) and unbanded entries are <em>excluded</em>, so the
+          figure is a conservative lower bound. Corrections
           and amendments are skipped to avoid counting anything twice. Many MPs declare interests without payment
           amounts (ongoing salaried roles, share interests, family employment) and these will not appear here.
         </p>

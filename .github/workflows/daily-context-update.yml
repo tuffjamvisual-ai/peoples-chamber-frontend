@@ -104,7 +104,10 @@ jobs:
         run: |
           export DATABASE_URL="$(printf '%s' "$DATABASE_URL_RAW" | tr -d '[:space:]')"
           # One transaction: the table is never left empty if the rebuild fails. Current register
-          # entries only (is_current), so ended roles and old payments are not counted.
+          # entries only (is_current), so ended roles and old payments are not counted. One-off
+          # "Payment: £X" amounts only: a rate ("£X a month", "per annum" and so on) is never added
+          # (owner's approval, 23 Oct 2026). The table has no column for rates, so the second jobs
+          # pages list regular pay from the register entries themselves.
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
           BEGIN;
           DELETE FROM mp_outside_earnings_summary;
@@ -116,6 +119,8 @@ jobs:
             WHERE i.category_name = '1. Employment and earnings'
               AND i.is_current
               AND coalesce((c->>'isCorrection')::boolean, false) = false
+              -- The same rate test as parsePayment in app/second-jobs/_lib/data.ts.
+              AND c->>'interest' !~* 'Payment:\s*£[0-9][0-9,]*(\.[0-9]+)?\s*(a|per)\s+(month|quarter|year|annum|week|day|hour)\M'
           )
           INSERT INTO mp_outside_earnings_summary (member_id, total_extracted, claim_count, source_count, updated_at)
           SELECT member_id,

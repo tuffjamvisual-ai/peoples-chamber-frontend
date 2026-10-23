@@ -77,9 +77,9 @@ export default async function SecondJobsLanding() {
           Every current MP with a paid employment outside Parliament, organised
           by party. Choose a party to see each MP, the role, the payer and every
           individual payment registered. Headline totals are a conservative lower
-          bound, only payments with an explicit £ figure are summed, so
-          ranges and salaried roles without amounts for each payment are not in the
-          numbers but are in the underlying lists.
+          bound: only one-off payments with an explicit £ figure are summed. Regular
+          pay (an amount a month, a quarter or a year), ranges and roles without
+          amounts are not in the totals, but are in the underlying lists.
         </p>
 
         {/* Headline stats trio */}
@@ -163,10 +163,11 @@ export default async function SecondJobsLanding() {
           Register of Financial Interests (members-api.parliament.uk) for current MPs
           only. Roles are taken from category “1. Employment and earnings”.
           Only entries in the current Register are used; roles that have ended are
-          left out. Each MP’s headline total is the sum of explicit “Payment: £X”
-          amounts found in the registered child entries. Ranges and salaried roles
-          without a figure for each payment are not summed. Totals are rebuilt every night
-          from the latest Register.
+          left out. Each MP’s headline total is the sum of one-off “Payment: £X”
+          amounts in the registered payment entries. Regular pay (an amount a month, a
+          quarter or a year) is listed separately on each MP’s page with its period and is
+          not added to the total or to other rates. Ranges and roles without a figure are
+          not summed. Totals are rebuilt every night from the latest Register.
         </section>
 
       </article>

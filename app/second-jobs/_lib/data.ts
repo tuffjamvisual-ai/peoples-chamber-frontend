@@ -32,7 +32,7 @@ export const MP_PARTY_TO_SLUG: Record<string, string> = {
   'Independent': 'independent',
 };
 
-export type ChildPayment = { interest?: string };
+export type ChildPayment = { interest?: string; isCorrection?: boolean };
 
 export type InterestRow = {
   member_id: number;
@@ -61,7 +61,16 @@ export type MpDetail = {
   total: number;
   claimCount: number;
   rows: InterestRow[];
+  regularPay: RegularPay[];
 };
+
+// A rate declared as regular pay, e.g. "£1,174.80 a month" for a council allowance. Listed with its period and
+// payer; never converted to a yearly figure, added together or put into the one-off total (owner's approval,
+// 23 Oct 2026).
+// `until` is the end date as the Register writes it ("8 April 2025"), from the payment entry or else the role;
+// `ended` is true once that date has passed. `donatedToCharity` follows the Register's "Donated to: a charity" or
+// "Paid directly to: a charity" (owner's approval, 23 Oct 2026).
+export type RegularPay = { amount: number; period: string; payer: string | null; until: string | null; ended: boolean; covers: string | null; donatedToCharity: boolean; donatedPart: string | null };
 
 export type PartyAggregate = {
   slug: string;
@@ -95,22 +104,109 @@ export function parseParent(text: string): ParentParsed {
 
 export type Payment = {
   amount: number | null;
+  // "month", "quarter", "year", "week", "day" or "hour" when the amount is a rate ("£X a month"), else null.
+  period: string | null;
+  // Which line the amount came from: only one-off "Payment: £X" amounts are summed.
+  source: 'payment' | 'remuneration' | null;
+  // End date as written ("8 April 2025"), from this entry's "Until:" line or else the role's; ended once it has passed.
+  until: string | null;
+  ended: boolean;
+  // The Register records the money as going to a charity: "Donated to: a charity", "Paid directly to: a charity", or a
+  // sentence saying it was donated to a named charity. `donatedPart` is set when only part went: the amount as
+  // written ("£1,000") or "remainder".
+  donatedToCharity: boolean;
+  donatedPart: string | null;
+  // For a rate, the period the amount covers when the Register says so, from its "(i.e. ...)" note, e.g. "July to
+  // December 2025". Quoted, never recalculated.
+  covers: string | null;
   raw: string;
   receivedOn: string | null;
   hours: string | null;
   ultimatePayer: string | null;
 };
 
-export function parsePayment(text: string): Payment {
-  const out: Payment = { amount: null, raw: text, receivedOn: null, hours: null, ultimatePayer: null };
-  const amt = /Payment:\s*£([\d,]+(?:\.\d+)?)/i.exec(text) || /Remuneration:\s*£([\d,]+(?:\.\d+)?)/i.exec(text);
-  if (amt) out.amount = Number(amt[1].replace(/,/g, ''));
+// "8 April 2025" from an "Until: 8 April 2025." line, or null.
+export function untilDate(text: string): string | null {
+  return /Until:\s*(\d{1,2}\s+[A-Za-z]+\s+\d{4})/i.exec(text)?.[1] ?? null;
+}
+
+// True once the day after `until` has begun in London.
+function hasEnded(until: string | null): boolean {
+  if (!until) return false;
+  const end = new Date(`${until} 23:59:59 UTC`);
+  return !Number.isNaN(end.getTime()) && end.getTime() < Date.now();
+}
+
+export function parsePayment(text: string, roleText = ''): Payment {
+  const until = untilDate(text) ?? untilDate(roleText);
+  const out: Payment = { amount: null, period: null, source: null, until, ended: hasEnded(until),
+    donatedToCharity: /^\s*(?:Donated to|Paid directly to):\s*a charity\b/im.test(text), donatedPart: null, covers: null,
+    raw: text, receivedOn: null, hours: null, ultimatePayer: null };
+  // A sentence saying the money was donated to a charity: "Full amount donated to St. Leonard's Hospice, York
+  // (Charity Number: 509294)". Recipients the text does not call a charity (community organisations, family) are
+  // not flagged.
+  const charityLine = text.split(/\r?\n/).find((l) => /\bdonat(?:ed|ion)\b/i.test(l) && /\bcharit(?:y|ies|able)\b/i.test(l));
+  const part = charityLine && /remainder\s+(?:was\s+|is\s+|will\s+be\s+)?donated/i.test(charityLine)
+    ? 'remainder'
+    : charityLine ? /donated\s+(£[\d,]+(?:\.\d+)?)/i.exec(charityLine)?.[1] ?? null : null;
+  if (charityLine) out.donatedToCharity = true;
+  const pay = /Payment:\s*£([\d,]+(?:\.\d+)?)/i.exec(text);
+  const amt = pay || /Remuneration:\s*£([\d,]+(?:\.\d+)?)/i.exec(text);
+  if (amt) {
+    out.amount = Number(amt[1].replace(/,/g, ''));
+    out.source = pay ? 'payment' : 'remuneration';
+    // A rate: the amount is followed by "a month", "per annum" and so on. The same test as the nightly summary
+    // (.github/workflows/daily-context-update.yml).
+    const per = /^\s*(?:a|per)\s+(month|quarter|year|annum|week|day|hour)\b/i.exec(text.slice(amt.index + amt[0].length));
+    if (per) out.period = per[1].toLowerCase() === 'annum' ? 'year' : per[1].toLowerCase();
+    if (out.period) {
+      const note = /\bperiod\b[^()\r\n]{0,80}\(i\.e\.\s*([^)\r\n]+)\)/i.exec(text);
+      if (note) out.covers = note[1].trim().replace(/\s+-\s+/g, ' to ');
+    }
+  }
+  // Part of the payment: only when the donated amount differs from the payment itself.
+  if (part === 'remainder') out.donatedPart = 'remainder';
+  else if (part && out.amount != null && Number(part.replace(/[£,]/g, '')) !== out.amount) out.donatedPart = part;
   const rec = /Received on:\s*([^.\n]+)/i.exec(text);
   if (rec) out.receivedOn = rec[1].trim();
   const hrs = /Hours:\s*([0-9.]+\s*(?:hrs?|hours?)?(?:\s*a\s*year)?)/i.exec(text);
   if (hrs) out.hours = hrs[1].trim();
   const ult = /Ultimate payer:\s*([^\n|]+)/i.exec(text);
   if (ult) out.ultimatePayer = ult[1].trim();
+  return out;
+}
+
+// A one-off "Payment: £X" amount, the only kind summed into the declared total.
+export function isOneOff(p: Payment): boolean {
+  return p.amount != null && p.source === 'payment' && !p.period;
+}
+
+// "£1,175 a month" for a rate, with ", ended 8 April 2025" once it has ended, and "(donated to charity)" where the
+// Register says so; "£1,175" for a one-off amount.
+export function fmtAmount(p: { amount: number | null; period: string | null; until: string | null; ended: boolean; covers: string | null; donatedToCharity: boolean; donatedPart: string | null }): string {
+  if (p.amount == null) return '';
+  // A rate whose Register note says what it covers: "£1,096,544, registered as a year; covers July to December 2025".
+  let s = !p.period ? fmtMoney(p.amount)
+    : p.covers ? `${fmtMoney(p.amount)}, registered as a ${p.period}; covers ${p.covers}`
+    : `${fmtMoney(p.amount)} a ${p.period}`;
+  if (p.period && p.ended && p.until) s += `, ended ${p.until}`;
+  if (p.donatedPart) s += ` (${p.donatedPart} donated to charity)`;
+  else if (p.donatedToCharity) s += ' (donated to charity)';
+  return s;
+}
+
+// Every rate in an MP's current entries, with its payer (the part of the Payer line before the address).
+// Corrections are left out, as the summary leaves them out.
+export function regularPayFrom(rows: InterestRow[]): RegularPay[] {
+  const out: RegularPay[] = [];
+  for (const row of rows) {
+    const payer = parseParent(row.interest_text).payer?.split(',')[0].trim() || null;
+    for (const c of row.child_interests || []) {
+      if (c.isCorrection) continue;
+      const p = parsePayment(c.interest || '', row.interest_text);
+      if (p.amount != null && p.period) out.push({ amount: p.amount, period: p.period, payer, until: p.until, ended: p.ended, covers: p.covers, donatedToCharity: p.donatedToCharity, donatedPart: p.donatedPart });
+    }
+  }
   return out;
 }
 
@@ -224,7 +320,7 @@ export async function loadAll(): Promise<{
     if (claimCount > 0) mpsWithPayments += 1;
     const slug = partyToSlug(mp.party);
     if (!bySlug.has(slug)) bySlug.set(slug, []);
-    bySlug.get(slug)!.push({ mp, total, claimCount, rows });
+    bySlug.get(slug)!.push({ mp, total, claimCount, rows, regularPay: regularPayFrom(rows) });
   }
   for (const detail of bySlug.values()) {
     detail.sort((a, b) => b.total - a.total);
@@ -305,5 +401,5 @@ export const loadMember = cache(async (slug: string, memberId: number): Promise<
   if (summaryError) throw new Error(`mp_outside_earnings_summary: ${summaryError.message}`);
   if (!mp || !rows?.length || partyToSlug((mp as MpRow).party) !== slug) return null;
   const s = summary as Summary | null;
-  return { mp: mp as MpRow, total: Number(s?.total_extracted) || 0, claimCount: s?.claim_count || 0, rows: rows as InterestRow[] };
+  return { mp: mp as MpRow, total: Number(s?.total_extracted) || 0, claimCount: s?.claim_count || 0, rows: rows as InterestRow[], regularPay: regularPayFrom(rows as InterestRow[]) };
 });

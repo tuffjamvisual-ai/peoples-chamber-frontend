@@ -176,9 +176,10 @@ export default async function PartySecondJobsList({ params }: { params: Promise<
         <section style={{ marginTop: '40px', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', fontFamily: MONO, fontSize: '15px', color: INK_SOFT, lineHeight: 1.7 }}>
           <strong style={{ color: INK }}>Methodology.</strong> Drawn from the Members’
           Register of Financial Interests (members-api.parliament.uk) for current MPs
-          only. Totals are the sum of explicit “Payment: £X” amounts in
-          registered child entries. Ranges and salaried roles without a figure
-          for each payment are not summed.
+          only. Totals are the sum of one-off “Payment: £X” amounts in registered
+          payment entries. Regular pay (an amount a month, a quarter or a year) is
+          listed separately on each MP’s page with its period and is not added to the
+          total or to other rates. Ranges and roles without a figure are not summed.
         </section>
 
       </article>
