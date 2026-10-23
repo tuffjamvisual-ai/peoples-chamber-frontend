@@ -9,7 +9,7 @@ import EditorialArticle from '../../components/EditorialArticle';
 import { editorialReadNext } from '@/lib/read-next';
 import { editorials } from '@/lib/editorials';
 import type { EditorialEntry } from '@/lib/editorials/types';
-import JsonLd, { buildEditorialArticle } from '@/lib/JsonLd';
+import JsonLd, { buildEditorialArticle, buildBreadcrumbs } from '@/lib/JsonLd';
 
 export const revalidate = 86400;
 export function generateStaticParams() { return []; }
@@ -21,14 +21,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const SITE_URL = 'https://www.opengovt.uk';
   const description = metaDescription(piece.standfirst);
   const canonical = `/editorials/${slug}`;
-  const ogImage = `${SITE_URL}/og-image.png`;
+  // Each piece's own share image (./opengraph-image.tsx, 23 Oct 2026). Next.js fills og:image from that file; the
+  // same address is given here so twitter:image points to it as well.
+  const ogImage = `${SITE_URL}${canonical}/opengraph-image`;
   return {
     title: `${piece.headline}`,
     description,
     alternates: { canonical },
-    // Per-article OG/Twitter. Re-declare the default image because Next.js
-    // shallow-merges metadata: setting openGraph here drops the root layout's
-    // openGraph.images unless we repeat them.
+    // Per-article OG/Twitter, each with the piece's own image.
     openGraph: {
       type: 'article',
       siteName: 'opengovt',
@@ -61,8 +61,10 @@ export default async function EditorialPage({ params }: { params: Promise<{ slug
           description: piece.standfirst ?? null,
           datePublished: piece.publishedAt ?? null,
           author: piece.authorByline ?? null,
+          lastChecked: piece.evidence?.lastChecked ?? null,
         })}
       />
+      <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'Reports', path: '/reports' }, { name: piece.headline, path: `/editorials/${slug}` }])} />
       <EditorialArticle piece={piece} stamp="Reports" backHref="/reports" basePath="/editorials" readNext={await editorialReadNext(piece)} />
     </>
   );

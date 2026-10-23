@@ -30,6 +30,7 @@ import CouncilSewageSection from '../../components/CouncilSewageSection';
 import CouncilRatingsSection from '../../components/CouncilRatingsSection';
 import CouncilOmbudsmanSection from '../../components/CouncilOmbudsmanSection';
 import { loadElectionSummary } from '@/lib/council-election-summary';
+import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 
 export const revalidate = 21600;
 
@@ -300,6 +301,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
 
   return (
     <OpenGovShell pageStamp="Councils">
+      <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'Councils', path: '/councils' }, { name: c.name, path: `/councils/${c.slug}` }])} />
       <BackLink
         fallbackHref="/councils"
         label="← Back"

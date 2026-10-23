@@ -14,7 +14,7 @@ import {
   type SalaryBand,
 } from '@/lib/ministerial-salaries';
 import { normaliseParty, isCoop, partyColourForMember } from '@/lib/party-helpers';
-import JsonLd, { buildMpPerson } from '@/lib/JsonLd';
+import JsonLd, { buildMpPerson, buildBreadcrumbs } from '@/lib/JsonLd';
 import { editorials } from '@/lib/editorials';
 import { listSummary } from '@/lib/editorials/list-summary';
 import type { MpReports } from './MagazineProfileSections';
@@ -683,6 +683,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         constituency: mp.constituency,
         photoUrl: mp.photo_url,
       })} />
+      <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'MPs', path: '/mps' }, { name: fullName, path: `/mps/${memberId}` }])} />
     <MpDossier
       memberId={memberId}
       fullName={fullName}

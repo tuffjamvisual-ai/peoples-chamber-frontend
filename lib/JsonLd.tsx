@@ -1,8 +1,8 @@
 // Server-rendered <script type="application/ld+json"> injector.
 //
-// One component, six schemas (WebSite/Organization for the homepage,
+// One component, seven schemas (WebSite/Organization for the homepage,
 // Person for MPs, Legislation for bills, GovernmentOrganization for
-// departments, WebPage for transparency surfaces). Each call site
+// departments, WebPage for transparency surfaces, BreadcrumbList). Each call site
 // builds its own payload from existing data and passes the object
 // through; this file only handles the serialisation + script tag.
 //
@@ -72,6 +72,17 @@ function editorialDateIso(raw: string): string {
   return s;
 }
 
+// A UK date as the editorials write it ("23 October 2026") or an ISO date, as an ISO timestamp; null if neither.
+const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+export function ukDateIso(raw: string | null | undefined): string | null {
+  const s = (raw ?? '').trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return editorialDateIso(s);
+  const m = /^(\d{1,2}) ([A-Za-z]+) (\d{4})$/.exec(s);
+  const month = m ? MONTHS.indexOf(m[2].toLowerCase()) : -1;
+  if (!m || month < 0) return null;
+  return `${m[3]}-${String(month + 1).padStart(2, '0')}-${m[1].padStart(2, '0')}T00:00:00Z`;
+}
+
 // NewsArticle for editorial/investigation pages — the content most likely to
 // earn rich results. headline + datePublished are the load-bearing fields.
 export function buildEditorialArticle(opts: {
@@ -80,18 +91,21 @@ export function buildEditorialArticle(opts: {
   description?: string | null;
   datePublished?: string | null;
   author?: string | null;
+  /** evidence.lastChecked, as written ("23 October 2026" or ISO); dateModified falls back to datePublished. */
+  lastChecked?: string | null;
 }) {
+  const published = opts.datePublished ? editorialDateIso(opts.datePublished) : null;
+  const modified = ukDateIso(opts.lastChecked) ?? published;
   return {
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',
     headline: opts.headline,
     ...(opts.description ? { description: opts.description } : {}),
-    // Only datePublished is tracked in the editorial source data. Omit
-    // dateModified rather than duplicating datePublished into it, which
-    // wrongly asserts the piece was edited on its publish date.
-    ...(opts.datePublished
-      ? { datePublished: editorialDateIso(opts.datePublished) }
-      : {}),
+    ...(published ? { datePublished: published } : {}),
+    // dateModified (23 Oct 2026): the date the piece's facts were last checked, or its publish date.
+    ...(modified ? { dateModified: modified } : {}),
+    // The piece's own share image (app/editorials/[slug]/opengraph-image.tsx).
+    image: { '@type': 'ImageObject', url: `${SITE}/editorials/${opts.slug}/opengraph-image`, width: 1200, height: 630 },
     author: { '@type': 'Organization', name: opts.author || 'opengovt', url: `${SITE}/` },
     publisher: {
       '@type': 'Organization',
@@ -106,6 +120,20 @@ export function buildEditorialArticle(opts: {
     },
     mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE}/editorials/${opts.slug}` },
     url: `${SITE}/editorials/${opts.slug}`,
+  };
+}
+
+// BreadcrumbList (23 Oct 2026): Home, the section, then the page itself, with absolute URLs.
+export function buildBreadcrumbs(items: { name: string; path: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((it, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: it.name,
+      item: `${SITE}${it.path}`,
+    })),
   };
 }
 
@@ -150,11 +178,10 @@ export function buildBillLegislation(opts: {
   isWithdrawn: boolean;
   sponsorName: string | null;
 }) {
-  let status: string | undefined;
-  if (opts.isAct) status = 'InForce';
-  else if (opts.isWithdrawn) status = 'Discontinued';
-  else if (opts.isDefeated) status = 'Discontinued';
-  else status = 'Proposed';
+  // legislationLegalForce (23 Oct 2026; legislationStatus is not a schema.org property): a bill, whether before
+  // Parliament, withdrawn or defeated, is not in force. An Act's commencement can follow Royal Assent, so no force
+  // status is claimed for it.
+  const legalForce = opts.isAct ? undefined : 'https://schema.org/NotInForce';
 
   return {
     '@context': 'https://schema.org',
@@ -168,7 +195,7 @@ export function buildBillLegislation(opts: {
       name: 'United Kingdom',
     },
     legislationType: opts.isAct ? 'Act' : 'Bill',
-    legislationStatus: status,
+    legislationLegalForce: legalForce,
     sponsor: opts.sponsorName
       ? { '@type': 'Person', name: opts.sponsorName }
       : undefined,

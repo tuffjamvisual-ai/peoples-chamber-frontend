@@ -13,7 +13,7 @@ import { billStageLine, NO_SUMMARY_TEXT } from '@/lib/bill-summary'
 import BillVotingClient from './BillVotingClient'
 import OpenGovShell from '../../components/OpenGovShell'
 import BackLink from '../../components/BackLink';
-import JsonLd, { buildBillLegislation } from '@/lib/JsonLd';
+import JsonLd, { buildBillLegislation, buildBreadcrumbs } from '@/lib/JsonLd';
 import RelatedLinks from '@/app/components/RelatedLinks';
 import LastUpdated from '@/app/components/LastUpdated';
 import type { Metadata } from 'next'
@@ -208,6 +208,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
           bill.sponsor_name ||
           null,
       })} />
+      <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'Bills', path: '/bills' }, { name: bill.title || bill.long_title || `Bill ${billId}`, path: `/bills/${billId}` }])} />
       <BackLink
         fallbackHref="/bills"
         label="← Back"
