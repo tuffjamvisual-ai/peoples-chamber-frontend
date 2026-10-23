@@ -21,16 +21,33 @@ export const maxDuration = 270;
 
 const BATCH = 150;
 const CONCURRENCY = 12;
+// Timeouts (owner's approval, 23 Oct 2026; the 06:15 and 12:15 runs that day hit the 270 s limit): each request
+// gives up after 20 s, which counts as a failure for that MP only; no new MP starts after TIME_BUDGET, so anything
+// still in flight ends within 20 s of it, well inside maxDuration; and results are saved every SAVE_EVERY MPs, so a
+// run cut short keeps what it did.
+const REQUEST_TIMEOUT_MS = 20_000;
+const SAVE_EVERY = 25;
 const TWELVE_MONTHS_AGO = (() => {
   const d = new Date();
   d.setMonth(d.getMonth() - 12);
   return d;
 })();
 
+class RequestTimeout extends Error {}
+
 async function fetchJson(url: string) {
-  const res = await fetch(url, { headers: { 'User-Agent': 'PeoplesChamber/1.0', 'Accept': 'application/json' } });
-  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-  return res.json();
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    const res = await fetch(url, { headers: { 'User-Agent': 'PeoplesChamber/1.0', 'Accept': 'application/json' }, signal: ctrl.signal });
+    if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+    return await res.json();
+  } catch (e) {
+    if (ctrl.signal.aborted) throw new RequestTimeout(`timed out after ${REQUEST_TIMEOUT_MS} ms: ${url}`);
+    throw e;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 // Members API ContributionSummary and WrittenQuestions both silently
@@ -68,7 +85,7 @@ async function GET_impl(req: Request) {
   const supabase = createClient(url, key);
 
   const startedAt = Date.now();
-  const TIME_BUDGET = 240_000;
+  const TIME_BUDGET = 200_000;
 
   // Find the N MPs whose contributions/questions are most stale.
   // We use a separate marker — speeches_year IS NULL bubbles to the top
@@ -87,9 +104,26 @@ async function GET_impl(req: Request) {
   if (!targets || targets.length === 0) return NextResponse.json({ ok: true, processed: 0, note: 'no rows in mp_activity_metrics' });
 
   const queue = [...targets];
-  const results = new Map<number, { speeches: number; questions: number }>();
+  let pending: { member_id: number; speeches_year: number; questions_year: number; refreshed_at: string }[] = [];
+  let processed = 0; // rows saved
   let failures = 0;
+  let requestTimeouts = 0;
   let timedOut = false;
+  let saveError: string | null = null;
+  let lastSave: Promise<void> = Promise.resolve();
+
+  // Saves are chained, so two workers never upsert at once and every row is written exactly once.
+  function save(): Promise<void> {
+    const rows = pending;
+    pending = [];
+    if (!rows.length) return lastSave;
+    lastSave = lastSave.then(async () => {
+      const { error: upErr } = await supabase.from('mp_activity_metrics').upsert(rows, { onConflict: 'member_id' });
+      if (upErr) saveError = saveError ?? upErr.message;
+      else processed += rows.length;
+    });
+    return lastSave;
+  }
 
   async function worker() {
     while (queue.length > 0) {
@@ -98,38 +132,30 @@ async function GET_impl(req: Request) {
       if (!t) return;
       try {
         const r = await speechesAndQuestions(t.member_id);
-        results.set(t.member_id, r);
-      } catch {
+        pending.push({ member_id: t.member_id, speeches_year: r.speeches, questions_year: r.questions, refreshed_at: new Date().toISOString() });
+        if (pending.length >= SAVE_EVERY) await save();
+      } catch (e) {
         failures++;
+        if (e instanceof RequestTimeout) requestTimeouts++;
       }
     }
   }
   await Promise.all(Array.from({ length: CONCURRENCY }, () => worker()));
+  await save();
 
-  // Batched upsert via supabase-js for the rows we got.
-  const refreshedAt = new Date().toISOString();
-  const rows = Array.from(results.entries()).map(([member_id, r]) => ({
-    member_id,
-    speeches_year: r.speeches,
-    questions_year: r.questions,
-    refreshed_at: refreshedAt,
-  }));
-  if (rows.length > 0) {
-    const { error: upErr } = await supabase
-      .from('mp_activity_metrics')
-      .upsert(rows, { onConflict: 'member_id' });
-    if (upErr) return NextResponse.json({ error: upErr.message, processed: rows.length }, { status: 500 });
-  }
-
-  return NextResponse.json({
-    ok: true,
+  const body = {
     requested: targets.length,
-    processed: rows.length,
+    processed,
     failures,
+    request_timeouts: requestTimeouts,
     timed_out: timedOut,
     elapsed_ms: Date.now() - startedAt,
-    syncedAt: refreshedAt,
-  });
+    syncedAt: new Date().toISOString(),
+  };
+  // A run cut short by the budget is still a success with its real row count (the heartbeat reads `processed`);
+  // only a failed save is an error.
+  if (saveError) return NextResponse.json({ ok: false, error: saveError, ...body }, { status: 500 });
+  return NextResponse.json({ ok: true, ...body });
 }
 
 export const GET = withHeartbeat('/api/sync-members-contributions', GET_impl);
