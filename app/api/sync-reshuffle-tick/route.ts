@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { rowCount, withHeartbeat } from '@/lib/sync-heartbeat';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -10,6 +10,9 @@ export const maxDuration = 300;
 // the three minister syncs in parallel so the site reconciles ~every 2 hours
 // during a reshuffle. When the window has expired it flips the flag off and
 // no-ops. Off ordinary days this is 12 tiny DB reads/day and nothing else.
+// `count` (the heartbeat's row count) is the changes found: the rows the three
+// syncs report writing, 1 when the flag is switched off, and 0 when reshuffle
+// mode is off, which is most runs.
 
 const BASE = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.opengovt.uk';
 const TARGETS = ['/api/sync-member-biography', '/api/sync-govuk-data', '/api/sync-person-cache'];
@@ -26,21 +29,28 @@ async function GET_impl(req: Request) {
   const supabase = createClient(url, key);
 
   const { data } = await supabase.from('sync_flags').select('active, expires_at').eq('key', 'reshuffle_mode').maybeSingle();
-  if (!data?.active) return NextResponse.json({ ok: true, reshuffle_mode: false, action: 'skipped' });
+  if (!data?.active) return NextResponse.json({ ok: true, reshuffle_mode: false, action: 'skipped', count: 0 });
 
   // Auto-revert once the window closes.
   if (data.expires_at && Date.now() >= new Date(data.expires_at).getTime()) {
     await supabase.from('sync_flags').update({ active: false, expires_at: null, updated_at: new Date().toISOString() }).eq('key', 'reshuffle_mode');
-    return NextResponse.json({ ok: true, reshuffle_mode: true, action: 'auto-reverted' });
+    return NextResponse.json({ ok: true, reshuffle_mode: true, action: 'auto-reverted', count: 1 });
   }
 
   // Active window: fan out to the three syncs in parallel (each is its own
   // function execution with its own budget; parallel keeps wall-time ~= slowest).
   const results = await Promise.allSettled(
-    TARGETS.map((path) => fetch(`${BASE}${path}`, { headers: { authorization: `Bearer ${expected}` } }).then((r) => ({ path, status: r.status }))),
+    TARGETS.map((path) =>
+      fetch(`${BASE}${path}`, { headers: { authorization: `Bearer ${expected}` } }).then(async (r) => ({
+        path,
+        status: r.status,
+        rows: rowCount(await r.json().catch(() => null)),
+      })),
+    ),
   );
-  const ran = results.map((r, i) => (r.status === 'fulfilled' ? r.value : { path: TARGETS[i], status: 'error' }));
-  return NextResponse.json({ ok: true, reshuffle_mode: true, action: 'ran', ran });
+  const ran = results.map((r, i) => (r.status === 'fulfilled' ? r.value : { path: TARGETS[i], status: 'error', rows: null }));
+  const count = ran.reduce((n, r) => n + (r.rows ?? 0), 0);
+  return NextResponse.json({ ok: true, reshuffle_mode: true, action: 'ran', count, ran });
 }
 
 export const GET = withHeartbeat('/api/sync-reshuffle-tick', GET_impl);

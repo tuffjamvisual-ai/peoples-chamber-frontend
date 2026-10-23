@@ -13,6 +13,15 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 // Response fields sync routes use for their written-row count, in priority order.
 const ROW_KEYS = ['rows_written', 'rowsWritten', 'rowsInserted', 'upserted', 'inserted', 'written', 'synced', 'processed', 'count', 'appgs', 'rows'];
 
+// The row count a sync route's JSON body reports, or null when it reports none.
+export function rowCount(body: unknown): number | null {
+  const b = body as Record<string, unknown> | null;
+  for (const k of ROW_KEYS) {
+    if (typeof b?.[k] === 'number') return b[k] as number;
+  }
+  return null;
+}
+
 export async function recordSyncRun(route: string, status: number, rows: number | null): Promise<void> {
   try {
     await supabaseAdmin.rpc('record_sync_run', { p_route: route, p_status: status, p_rows: rows });
@@ -31,10 +40,7 @@ export function withHeartbeat(
     if (res.status !== 401 && res.status !== 405) {
       let rows: number | null = null;
       try {
-        const body = await res.clone().json();
-        for (const k of ROW_KEYS) {
-          if (typeof body?.[k] === 'number') { rows = body[k]; break; }
-        }
+        rows = rowCount(await res.clone().json());
       } catch {
         // non-JSON body — record the run with an unknown row count.
       }

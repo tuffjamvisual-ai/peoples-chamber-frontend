@@ -10,7 +10,8 @@ export const maxDuration = 60;
 // between Yes and No. Implemented as the Postgres function
 // add_daily_random_votes() so it runs as one set-based statement. These land on
 // the cached vote_count columns (the displayed totals), not the vote/poll_vote
-// tables. Scheduled daily; heartbeat-wrapped so a silent stall is caught.
+// tables. Scheduled daily; heartbeat-wrapped so a silent stall is caught. `count`
+// (the heartbeat's row count) is the votes added (migration 2026-10-23a).
 async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
@@ -24,7 +25,7 @@ async function GET_impl(req: Request) {
 
   const { data, error } = await supabase.rpc('add_daily_random_votes');
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
-  return NextResponse.json({ ok: true, ...data, syncedAt: new Date().toISOString() });
+  return NextResponse.json({ ok: true, ...data, count: Number(data?.votes_added) || 0, syncedAt: new Date().toISOString() });
 }
 
 export const GET = withHeartbeat('/api/seed-daily-votes', GET_impl);

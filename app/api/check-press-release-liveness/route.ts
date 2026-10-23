@@ -86,6 +86,8 @@ async function GET_impl(req: Request) {
 
   return NextResponse.json({
     ok: true,
+    // Pages checked (live or removed); the heartbeat records this as the run's row count.
+    count: checked,
     batch: rows.length,
     checked,
     stillLive: restored,
