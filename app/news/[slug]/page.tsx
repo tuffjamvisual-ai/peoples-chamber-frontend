@@ -8,7 +8,7 @@ import RelatedLinks from '../../components/RelatedLinks'
 import { metaDescription } from '@/lib/meta-description'
 import ReadNext, { splitAfterParagraph } from '../../components/ReadNext'
 import { newsReadNext } from '@/lib/read-next';
-import { resolveOrgToDeptSlug } from '@/lib/govOrgSlug'
+import { resolveOrgToDeptSlug, isFormerDeptName } from '@/lib/govOrgSlug'
 import { getDeptContext } from '../../api/department-context/route'
 import { piecesExaminingRelease } from '@/lib/editorials/release-links'
 import { withoutEmDashes } from '@/lib/no-em-dash'
@@ -88,8 +88,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   // and date, then the minister (the Secretary of State in Related) and Open Govt's reports when it shows them.
   const org = release.organisation?.replace(/\s+/g, ' ').trim() || null
   const deptSlug = org ? resolveOrgToDeptSlug(org) : null
+  // The Related box shows today's Secretary of State. Under a former department name that is not the minister who
+  // held the post on the announcement date, so the line is left out (owner's approval, 23 Oct 2026).
   let hasMinister = false
-  if (deptSlug) {
+  if (deptSlug && !isFormerDeptName(org!)) {
     const { data: sos, error: sosErr } = await supabase.from('dept_ministers').select('name')
       .eq('dept_slug', deptSlug).eq('is_secretary_of_state', true).neq('resigned', true).maybeSingle()
     if (sosErr && sosErr.code !== 'PGRST116') throw new Error(`/news/[slug] metadata minister: ${sosErr.message}`)

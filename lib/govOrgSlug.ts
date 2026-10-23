@@ -22,8 +22,21 @@ export const DEPT_ORG_TO_SLUG: Record<string, string> = {
   'Department for Business and Trade':                  'business-trade',
   'Department for Business, Innovation, Science and Trade': 'business-trade',
   'Department for Culture, Media & Sport':              'culture',
-  // DCMS's 2017 to 2023 name, which older releases carry (owner's approval, 23 Oct 2026).
+  // The department's own name; the "for ... &" spelling above never matched it (owner's approval, 23 Oct 2026).
+  'Department of Health and Social Care':               'health',
+  // Former names of existing departments, which older releases carry (owner's approval, 23 Oct 2026). Listed in
+  // FORMER_DEPT_NAMES below too. Agencies, regulators and No 10 are deliberately not mapped to a department.
   'Department for Digital, Culture, Media & Sport':     'culture',
+  'Foreign & Commonwealth Office':                      'foreign-office',
+  'Department for International Development':           'foreign-office',
+  'Ministry of Housing, Communities & Local Government (2018 to 2021)': 'housing',
+  'Department for Levelling Up, Housing and Communities': 'housing',
+  'Office of the Secretary of State for Wales':         'wales-office',
+  'Office of the Secretary of State for Scotland':      'scotland-office',
+  'Department for Business, Innovation & Skills':       'business-trade',
+  'Department for Business, Energy & Industrial Strategy': 'business-trade',
+  'Department for International Trade':                 'business-trade',
+  'Department of Energy & Climate Change':              'energy',
   'Department for Education':                           'education',
   'Department for Energy Security & Net Zero':          'energy',
   'Department for Environment, Food & Rural Affairs':   'environment',
@@ -47,23 +60,23 @@ export const DEPT_ORG_TO_SLUG: Record<string, string> = {
 export const DEPT_SLUG_TO_ORGS: Record<string, string[]> = {
   'attorney-general':      ["Attorney General's Office"],
   'cabinet-office':        ['Cabinet Office'],
-  'business-trade':        ['Department for Business and Trade', 'Department for Business, Innovation, Science and Trade', 'Department for Business, Energy & Industrial Strategy', 'Department for Business, Innovation & Skills'],
-  'culture':               ['Department for Culture, Media & Sport', 'Department for Digital, Culture, Media & Sport'],
+  'business-trade':        ['Department for Business and Trade', 'Department for Business, Innovation, Science and Trade', 'Department for Business, Energy & Industrial Strategy', 'Department for Business, Innovation & Skills', 'Department for International Trade'],
+  'culture':               ['Department for Culture, Media & Sport', 'Department for Digital, Culture, Media & Sport', 'Department for Digital, Culture, Media and Sport'],
   'education':             ['Department for Education'],
   'energy':                ['Department for Energy Security & Net Zero', 'Department of Energy & Climate Change'],
   'environment':           ['Department for Environment, Food & Rural Affairs'],
-  'health':                ['Department for Health & Social Care', 'Department of Health'],
+  'health':                ['Department for Health & Social Care', 'Department of Health and Social Care', 'Department of Health'],
   'transport':             ['Department for Transport'],
   'work-pensions':         ['Department for Work & Pensions'],
-  'foreign-office':        ['Foreign, Commonwealth & Development Office', 'Foreign & Commonwealth Office'],
+  'foreign-office':        ['Foreign, Commonwealth & Development Office', 'Foreign & Commonwealth Office', 'Department for International Development'],
   'treasury':              ['HM Treasury'],
   'home-office':           ['Home Office'],
   'defence':               ['Ministry of Defence'],
-  'housing':               ['Ministry of Housing, Communities & Local Government', 'Department for Levelling Up, Housing and Communities', 'Department for Communities and Local Government'],
+  'housing':               ['Ministry of Housing, Communities & Local Government', 'Ministry of Housing, Communities & Local Government (2018 to 2021)', 'Department for Levelling Up, Housing and Communities', 'Department for Communities and Local Government'],
   'justice':               ['Ministry of Justice'],
   'northern-ireland-office': ['Northern Ireland Office'],
-  'scotland-office':       ['Scotland Office'],
-  'wales-office':          ['Wales Office'],
+  'scotland-office':       ['Scotland Office', 'Office of the Secretary of State for Scotland'],
+  'wales-office':          ['Wales Office', 'Office of the Secretary of State for Wales'],
 };
 
 export function normalizeOrg(s: string): string {
@@ -104,6 +117,27 @@ export function resolveOrgHref(
   const alias = ORG_ALIAS[norm];
   if (alias) return alias;
   return null;
+}
+
+// Former names of existing departments (owner's approval, 23 Oct 2026). A release under one of these names was
+// issued before the rename, so today's Secretary of State, which the page shows, is not the minister who held the
+// post then.
+const FORMER_DEPT_NAMES = new Set([
+  'Department for Digital, Culture, Media & Sport',
+  'Foreign & Commonwealth Office',
+  'Department for International Development',
+  'Ministry of Housing, Communities & Local Government (2018 to 2021)',
+  'Department for Levelling Up, Housing and Communities',
+  'Office of the Secretary of State for Wales',
+  'Office of the Secretary of State for Scotland',
+  'Department for Business, Innovation & Skills',
+  'Department for Business, Energy & Industrial Strategy',
+  'Department for International Trade',
+  'Department of Energy & Climate Change',
+].map(normalizeOrg));
+
+export function isFormerDeptName(name: string): boolean {
+  return FORMER_DEPT_NAMES.has(normalizeOrg(name));
 }
 
 // Resolves a press_releases.organisation string to a department_context slug only.

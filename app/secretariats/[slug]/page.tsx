@@ -79,7 +79,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!name) return { title: 'Secretariat' };
   return {
     title: `${name}: every All-Party Parliamentary Group operated by this secretariat`,
-    description: metaDescription(`${name} acts as secretariat for one or more APPGs in Westminster. Lists every group operated, the MPs officering them, and the registered funders paying the firm.`),
+    description: metaDescription(`${name} runs the secretariat for APPGs in Westminster: every group, the MPs officering them and the funders paying the firm.`),
     alternates: { canonical: `/secretariats/${slug}` },
   };
 }
