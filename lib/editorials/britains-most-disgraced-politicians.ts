@@ -10,7 +10,7 @@ const piece: EditorialEntry = {
   authorByline: 'opengovt',
   body: [
     { type: 'paragraph', text: `At Newry Crown Court on 22 June, a jury convicted Jeffrey Donaldson of 18 sexual offences against two women who were children when the abuse took place.` },
-    { type: 'paragraph', text: `The former DUP leader was found guilty of one count of rape, 13 counts of indecent assault and four counts of gross indecency. The offences stretched from 1985 to 2008. He was remanded in custody and told to expect a lengthy prison sentence.` },
+    { type: 'paragraph', text: `The former DUP leader was found guilty of one count of rape, 13 counts of indecent assault and four counts of gross indecency. The offences stretched from 1985 to 2008. He was remanded in custody. On 15 October 2026, at the same court, he was sentenced to 15 years in prison.` },
     { type: 'paragraph', text: `His wife Eleanor had been ruled medically unfit to stand trial. In a separate trial of the facts, the jury found that she had carried out acts of aiding and abetting. That process cannot produce a criminal conviction and should not be described as one.` },
     { type: 'paragraph', text: `Donaldson's case belongs in any account of political disgrace, but it does not fit the comforting old line that the cover up is always worse than the original offence.` },
     { type: 'paragraph', text: `Sometimes the original offence is worse.` },
@@ -120,7 +120,7 @@ const piece: EditorialEntry = {
     { type: 'paragraph', text: `There is no equivalent argument available for Donaldson.` },
     { type: 'paragraph', text: `His political career was not destroyed because of how he dealt with a lesser scandal after the event.` },
     { type: 'paragraph', text: `A jury convicted him of rape and 17 other sexual offences against children.` },
-    { type: 'paragraph', text: `He left Newry Crown Court in custody.` },
+    { type: 'paragraph', text: `He was jailed for 15 years.` },
   ],
   evidence: {
     recordsReviewed: [
@@ -139,8 +139,9 @@ const piece: EditorialEntry = {
       `House of Commons and Commons Library records concerning John Stonehouse`,
       `Christopher Andrew, The Defence of the Realm, as reported on publication in 2009`,
       `Newry Crown Court proceedings, 22 Jun 2026`,
+    `PSNI, Jeffrey Donaldson sentenced to 15 years, 15 Oct 2026`,
     ],
-    lastChecked: '5 October 2026',
+    lastChecked: '23 October 2026',
   },
 };
 
