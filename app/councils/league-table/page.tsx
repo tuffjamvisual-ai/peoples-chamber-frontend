@@ -14,8 +14,8 @@ import BackLink from '../../components/BackLink';
 import LastUpdated from '../../components/LastUpdated';
 import LeagueTable from './LeagueTable';
 import type { ClientRow } from './LeagueTable';
-import { notFound } from 'next/navigation';
-import { SHOW_LEAGUE_TABLE, HIDDEN_PAGE_METADATA } from '@/lib/feature-flags';
+import Link from 'next/link';
+import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
 import { getLeagueData, TOPIC_NAMES, SERVICE_PARTS, STAT_NEIGHBOURS_URL } from '@/lib/council-league';
 import type { MeasureDetail } from '@/lib/council-league';
 
@@ -27,9 +27,16 @@ const PAGE_METADATA: Metadata = {
     'How every council area in England compares on schools, safety, health, jobs and poverty, housing, environment, connectivity and local services, with a separate score for the services councils run and warnings such as section 114 notices.',
   alternates: { canonical: '/councils/league-table' },
 };
-// While hidden, the page says what a missing page says (not-found title, noindex), not its own title.
+// While hidden (23 Oct 2026), the page is a short withdrawal notice: kept out of search engines but its links followed,
+// and out of the sitemap (app/sitemap.ts lists the page only when SHOW_LEAGUE_TABLE is true).
+const WITHDRAWN_SENTENCE = 'The council league table has been withdrawn while its measures are reviewed.';
+const WITHDRAWN_METADATA: Metadata = {
+  title: 'Council league table withdrawn',
+  description: WITHDRAWN_SENTENCE,
+  robots: { index: false, follow: true },
+};
 export async function generateMetadata(): Promise<Metadata> {
-  return SHOW_LEAGUE_TABLE ? PAGE_METADATA : HIDDEN_PAGE_METADATA;
+  return SHOW_LEAGUE_TABLE ? PAGE_METADATA : WITHDRAWN_METADATA;
 }
 
 const INK = '#14100d';
@@ -42,8 +49,35 @@ const MONO = 'Special Elite, monospace';
 const h2: CSSProperties = { fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' };
 const para: CSSProperties = { fontFamily: MONO, fontSize: '15px', lineHeight: 1.75, color: INK, margin: '0 0 14px', maxWidth: '46em' };
 
+function WithdrawnNotice() {
+  const link: CSSProperties = { color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' };
+  return (
+    <OpenGovShell pageStamp="League table">
+      <BackLink
+        fallbackHref="/councils"
+        label="← Back"
+        className="no-hover-scale"
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: INK, textDecoration: 'none', fontFamily: MONO, fontSize: '15px' }}
+      />
+      <article style={{ padding: 'clamp(8px, 2vw, 24px) 0', color: '#1a140e', fontFamily: SERIF }}>
+        <header style={{ borderTop: `1.5px solid ${INK}`, borderBottom: `1.5px solid ${INK}`, padding: '14px 12px', textAlign: 'center', marginBottom: '28px' }}>
+          <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(28px, 3.4vw, 44px)', fontWeight: 500, letterSpacing: '0.005em', lineHeight: 1.18, margin: 0 }}>
+            Council league table withdrawn
+          </h1>
+        </header>
+        <p style={para}>{WITHDRAWN_SENTENCE}</p>
+        <p style={para}>
+          <Link href="/councils" style={link}>All councils</Link>
+          {' · '}
+          <Link href="/councils/search" style={link}>Search for a council</Link>
+        </p>
+      </article>
+    </OpenGovShell>
+  );
+}
+
 export default async function LeagueTablePage() {
-  if (!SHOW_LEAGUE_TABLE) notFound(); // hidden (lib/feature-flags.ts)
+  if (!SHOW_LEAGUE_TABLE) return <WithdrawnNotice />; // hidden (lib/feature-flags.ts): the notice, not the table
   const data = await getLeagueData();
   // The area's two highest- and two lowest-scoring measures (audit reassessment, 16 Oct 2026:
   // explain what is behind a position using the existing measures, with no new judgement).

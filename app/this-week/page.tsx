@@ -129,13 +129,13 @@ export default async function ThisWeekPage() {
           This Week in Parliament
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', color: INK }}>
-          The bills before the House of Commons this week and the most recent votes MPs have held. Updated live from Parliament. Individual divisions are not scheduled in advance, so a bill being debated may or may not be put to a vote.
+          The bills coming up in the House of Commons over the next seven days, and the most recent votes MPs have held. Updated live from Parliament. Individual divisions are not scheduled in advance, so a bill being debated may or may not be put to a vote.
         </p>
       </header>
 
       <section style={{ marginBottom: '8%' }}>
         <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.16em', textTransform: 'uppercase', color: ACCENT, borderBottom: `2px solid ${ACCENT}`, paddingBottom: '6px', marginBottom: '14px' }}>
-          Before the Commons
+          Coming up in the Commons, next seven days
         </h2>
         {bills.length === 0 && <p style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>No Commons bills listed right now (the House may be in recess).</p>}
         {bills.map((b) => {

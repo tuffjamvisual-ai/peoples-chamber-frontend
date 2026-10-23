@@ -9,7 +9,7 @@ import TransparencyClient from './TransparencyClient'
 export const revalidate = 3600
 
 const ACCENT = '#6b2417'
-const PAGE_LIMIT = 100   // rows per page
+const PAGE_LIMIT = 50    // rows per page: the only pager on these lists (23 Oct 2026)
 const OCID_RE = /^ocds-[a-z0-9]+-[A-Za-z0-9-]+$/   // as app/contracts/[ocid]/page.tsx accepts
 
 // 'lobbyists' slug removed 2026-06-02. 'companies' slug removed
@@ -138,8 +138,8 @@ export default async function TransparencySectionPage({
             <>
               <span className="font-mono text-[#14100d] text-base font-bold">{totalCount.toLocaleString()}</span>
               {' '}record{totalCount === 1 ? '' : 's'} match &ldquo;{searchTerm}&rdquo;
-              {totalPages > 1 && (
-                <>, showing {from + 1} to {Math.min(to + 1, totalCount)} (page {page} of {totalPages})</>
+              {totalPages > 1 && rowCount > 0 && (
+                <>, showing {from + 1} to {from + rowCount} (page {page} of {totalPages})</>
               )}
               .{' '}
               <Link href={`/transparency/${section}`} className="underline hover:text-[#14100d]">
@@ -150,8 +150,8 @@ export default async function TransparencySectionPage({
             <>
               <span className="font-mono text-[#14100d] text-base font-bold">{totalCount.toLocaleString()}</span>
               {' '}{section === 'contracts' ? 'notice' : 'record'}{totalCount === 1 ? '' : 's'} in this dataset.
-              {totalPages > 1 && (
-                <> Showing rows {from + 1} to {Math.min(to + 1, totalCount)} (page {page} of {totalPages}).</>
+              {totalPages > 1 && rowCount > 0 && (
+                <> Showing rows {from + 1} to {from + rowCount} (page {page} of {totalPages}).</>
               )}
               {' '}Search below to look through every record.
             </>

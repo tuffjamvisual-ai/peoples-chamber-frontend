@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 
 type Row = Record<string, unknown>
 
@@ -15,7 +15,6 @@ interface Props {
 }
 
 const ACCENT = '#6b2417'
-const PAGE_SIZE = 50
 
 function formatAmount(v: unknown): string | null {
   const n = typeof v === 'number' ? v : typeof v === 'string' && v.trim() ? Number(v) : NaN
@@ -66,51 +65,12 @@ function formatValue(v: unknown): string {
   return JSON.stringify(v)
 }
 
-function Pagination({
-  page,
-  totalPages,
-  onPrev,
-  onNext,
-  filteredCount,
-}: {
-  page: number
-  totalPages: number
-  onPrev: () => void
-  onNext: () => void
-  filteredCount: number
-}) {
-  if (totalPages <= 1) return null
-  const start = page * PAGE_SIZE + 1
-  const end = Math.min((page + 1) * PAGE_SIZE, filteredCount)
-  return (
-    <div className="flex items-center justify-between mt-8 pt-6 border-t border-[#14100d]/20">
-      <button
-        onClick={onPrev}
-        disabled={page === 0}
-        className="px-4 py-2 text-[15px] uppercase tracking-[0.2em] font-mono border border-[#14100d]/20 text-[#14100d] hover:border-[#14100d] hover:text-[#14100d] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-      >
-        ← Previous
-      </button>
-      <span className="text-[15px] font-mono text-[#14100d] uppercase tracking-[0.15em]">
-        {start}-{end} of {filteredCount.toLocaleString()}
-      </span>
-      <button
-        onClick={onNext}
-        disabled={page >= totalPages - 1}
-        className="px-4 py-2 text-[15px] uppercase tracking-[0.2em] font-mono border border-[#14100d]/20 text-[#14100d] hover:border-[#14100d] hover:text-[#14100d] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-      >
-        Next →
-      </button>
-    </div>
-  )
-}
-
 export default function TransparencyClient({ rows, sectionTitle, section, total, searchQuery, linkedOcids }: Props) {
   const linked = useMemo(() => new Set(linkedOcids ?? []), [linkedOcids])
-  // Every section now searches the whole dataset on the server (the q= address). The old
-  // in-page filter only looked through the 100 rows on screen, so a search of 45,107
-  // contracts for "Ecotricity" said "0 of 100 matching" (ChatGPT audit, 15 Oct 2026).
-  const isDonations = true
+  // Every section searches the whole dataset on the server (the q= address), and pages on the server (?page=N, 50 a
+  // page, the one set of page controls below the list). The old in-page filter only looked through the rows on screen,
+  // so a search of 45,107 contracts for "Ecotricity" said "0 of 100 matching" (ChatGPT audit, 15 Oct 2026); the
+  // in-page Previous/Next was a second pager inside the server page and was lost on Back (removed 23 Oct 2026).
   const PLACEHOLDER: Record<string, string> = {
     donations: 'Search by donor or recipient…',
     contracts: 'Search by supplier, buyer or contract title…',
@@ -119,22 +79,6 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
     'revolving-door': 'Search by person, organisation or role…',
     appgs: 'Search by group name, chair or purpose…',
   }
-
-  // Client-side search state (non-donations sections only)
-  const [query, setQuery] = useState('')
-  const [page, setPage] = useState(0)
-
-  // Reset to page 0 whenever the client-side filter changes
-  useEffect(() => { setPage(0) }, [query])
-
-  const filtered = useMemo(() => {
-    if (isDonations || !query.trim()) return rows
-    const q = query.toLowerCase()
-    return rows.filter((row) => Object.values(row).some((v) => formatValue(v).toLowerCase().includes(q)))
-  }, [rows, query, isDonations])
-
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
-  const paged = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
 
   if (rows.length === 0 && !searchQuery) {
     return (
@@ -146,45 +90,27 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
 
   return (
     <>
-      {/* Search — server-side form for donations, client-side input for others */}
+      {/* Search: a server-side form, so it covers the whole dataset. */}
       <div className="mb-8">
         <label htmlFor="transparency-search" className="block text-[15px] uppercase tracking-[0.25em] text-[#14100d] font-medium mb-2">
           Search
         </label>
-        {isDonations ? (
-          <form method="GET" className="flex flex-wrap gap-2 max-w-md">
-            <input
-              id="transparency-search"
-              name="q"
-              type="search"
-              defaultValue={searchQuery}
-              placeholder={PLACEHOLDER[section ?? ''] ?? 'Search…'}
-              className="flex-1 min-w-0 basis-48 bg-[#14100d]/5 border border-[#14100d]/20 text-[#14100d] text-[15px] rounded-sm px-4 py-3 leading-[1.7] placeholder:text-[#14100d]/40 focus:outline-none focus:border-[#14100d] transition-colors"
-            />
-            <button
-              type="submit"
-              className="px-4 py-3 text-[15px] uppercase tracking-[0.2em] font-mono border border-[#14100d]/20 text-[#14100d] hover:border-[#14100d] hover:text-[#14100d] transition-colors whitespace-nowrap"
-            >
-              Search
-            </button>
-          </form>
-        ) : (
-          <>
-            <input
-              id="transparency-search"
-              type="search"
-              placeholder={`Search ${rows.length.toLocaleString()} records…`}
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="w-full max-w-md bg-[#14100d]/5 border border-[#14100d]/20 text-[#14100d] text-[15px] rounded-sm px-4 py-3 leading-[1.7] placeholder:text-[#14100d]/40 focus:outline-none focus:border-[#14100d] transition-colors"
-            />
-            {query && (
-              <p className="text-[#14100d] text-[15px] mt-2 font-mono uppercase tracking-[0.15em]">
-                {filtered.length.toLocaleString()} of {rows.length.toLocaleString()} matching
-              </p>
-            )}
-          </>
-        )}
+        <form method="GET" className="flex flex-wrap gap-2 max-w-md">
+          <input
+            id="transparency-search"
+            name="q"
+            type="search"
+            defaultValue={searchQuery}
+            placeholder={PLACEHOLDER[section ?? ''] ?? 'Search…'}
+            className="flex-1 min-w-0 basis-48 bg-[#14100d]/5 border border-[#14100d]/20 text-[#14100d] text-[15px] rounded-sm px-4 py-3 leading-[1.7] placeholder:text-[#14100d]/40 focus:outline-none focus:border-[#14100d] transition-colors"
+          />
+          <button
+            type="submit"
+            className="px-4 py-3 text-[15px] uppercase tracking-[0.2em] font-mono border border-[#14100d]/20 text-[#14100d] hover:border-[#14100d] hover:text-[#14100d] transition-colors whitespace-nowrap"
+          >
+            Search
+          </button>
+        </form>
       </div>
 
       {rows.length === 0 && searchQuery ? (
@@ -194,7 +120,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
       ) : section === 'revolving-door' ? (
         <>
           <ul className="border border-[#14100d]/20 divide-y divide-[#14100d]/10">
-            {paged.map((row, i) => {
+            {rows.map((row, i) => {
               const personName = (row.person_name as string) || '(unknown)'
               const previousRole = row.previous_role as string | null
               const newRole = row.new_role as string | null
@@ -225,12 +151,11 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
               )
             })}
           </ul>
-          <Pagination page={page} totalPages={totalPages} onPrev={() => setPage(p => p - 1)} onNext={() => setPage(p => p + 1)} filteredCount={filtered.length} />
         </>
       ) : section === 'ministers-meetings' ? (
         <>
           <ul className="border border-[#14100d]/20 divide-y divide-[#14100d]/10">
-            {paged.map((row, i) => {
+            {rows.map((row, i) => {
               const minister = (row.minister_name as string) || '(unknown minister)'
               const dept = row.minister_dept as string | null
               const organisation = row.organisation as string | null
@@ -257,12 +182,11 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
               )
             })}
           </ul>
-          <Pagination page={page} totalPages={totalPages} onPrev={() => setPage(p => p - 1)} onNext={() => setPage(p => p + 1)} filteredCount={filtered.length} />
         </>
       ) : section === 'hospitality' ? (
         <>
           <ul className="border border-[#14100d]/20 divide-y divide-[#14100d]/10">
-            {paged.map((row, i) => {
+            {rows.map((row, i) => {
               const minister = (row.minister_name as string) || '(unknown minister)'
               const dept = row.minister_dept as string | null
               const donor = row.donor as string | null
@@ -296,7 +220,6 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
               )
             })}
           </ul>
-          <Pagination page={page} totalPages={totalPages} onPrev={() => setPage(p => p - 1)} onNext={() => setPage(p => p + 1)} filteredCount={filtered.length} />
         </>
       ) : section === 'donations' ? (
         <ul className="border border-[#14100d]/20 divide-y divide-[#14100d]/10">
@@ -437,7 +360,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
       ) : section === 'contracts' ? (
         <>
           <ul className="border border-[#14100d]/20 divide-y divide-[#14100d]/10">
-            {paged.map((row, i) => {
+            {rows.map((row, i) => {
               const title       = (row.title as string | null) || '(untitled)'
               const supplier    = row.supplier as string | null
               const value       = formatAmount(row.value)
@@ -498,12 +421,11 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
               )
             })}
           </ul>
-          <Pagination page={page} totalPages={totalPages} onPrev={() => setPage(p => p - 1)} onNext={() => setPage(p => p + 1)} filteredCount={filtered.length} />
         </>
       ) : (
         <>
           <ul className="border border-[#14100d]/20 divide-y divide-[#14100d]/10">
-            {paged.map((row, i) => {
+            {rows.map((row, i) => {
               const { key: titleKey, value: titleValue } = pickTitle(row)
               const dateValue = pickDate(row)
               const otherEntries = Object.entries(row).filter(
@@ -534,7 +456,6 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
               )
             })}
           </ul>
-          <Pagination page={page} totalPages={totalPages} onPrev={() => setPage(p => p - 1)} onNext={() => setPage(p => p + 1)} filteredCount={filtered.length} />
         </>
       )}
     </>
