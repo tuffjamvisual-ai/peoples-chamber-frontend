@@ -9,7 +9,10 @@
 //     to /mps. The MP profile back-link from /mps/[id]?from=<party>
 //     still routes here via the same `expand` param.
 //
-// Search filters inside whichever view is active.
+// Search filters inside whichever view is active. The search term lives in the address bar as ?q= (24 Oct 2026,
+// as on /reports): kept in step with history.replaceState, so no new history entries, and read back on first render.
+// Back from a profile (the browser's or the site's "← Back", which uses history) or a reload then shows the same
+// search. A full postcode is never written there: it opens the MP, and restoring it would open them again on Back.
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -40,7 +43,19 @@ export default function MagazineMPsClient({ mps, expand }: { mps: MP[]; expand?:
   const selectedParty = expand !== undefined ? expand : searchParams.get('expand');
   const pageParam = parseInt(searchParams.get('page') || '1', 10);
   const requestedPage = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
-  const [searchTerm, setSearchTerm] = useState('');
+  // The address bar's ?q= on first render. This component renders in the browser only (it reads useSearchParams under
+  // the page's Suspense boundary), so the server HTML never disagrees with it.
+  const [searchTerm, setSearchTerm] = useState(() => searchParams.get('q') ?? '');
+
+  // Keep ?q= in step with the box, beside ?expand= and ?page=, without adding history entries. It also runs when the
+  // address changes (a party, page or "All parties" link), since those links do not carry ?q= and the search stays.
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const term = searchTerm.trim();
+    if (term && !POSTCODE_RE.test(term.toUpperCase().replace(/\s+/g, ''))) url.searchParams.set('q', term);
+    else url.searchParams.delete('q');
+    if (url.href !== window.location.href) window.history.replaceState(window.history.state, '', url.href);
+  }, [searchTerm, searchParams]);
 
   const filteredMPs = useMemo(() => {
     if (!searchTerm.trim()) return mps;
