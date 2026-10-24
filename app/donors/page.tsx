@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import { donorNameToSlug } from './[slug]/page';
+import DonorSearch from './DonorSearch';
 
 export const revalidate = 86400;
 
@@ -76,6 +77,8 @@ export default async function DonorsIndex() {
           The 200 biggest UK political donors by lifetime giving. The Electoral Commission&rsquo;s own search lets you filter by recipient. It does not let you ask: who has this donor backed? This page does. Click any donor to see every party, MP, constituency association and APPG they have funded.
         </p>
       </header>
+
+      <DonorSearch />
 
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px', fontFamily: '"Special Elite", monospace' }}>
         <thead>

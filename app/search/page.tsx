@@ -3,6 +3,7 @@ import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import SearchInput from './SearchInput';
 import { searchContent, searchCouncils, isPhrase, PHRASE_LIMIT, TOTAL_LIMIT, type SearchResult, type CouncilSearchResult } from '@/lib/search-content';
+import { searchDonorNames, type DonorNameResult } from '@/lib/donor-search';
 
 export const dynamic = 'force-dynamic';
 
@@ -131,6 +132,45 @@ function CouncilRow({ c }: { c: CouncilSearchResult }) {
   );
 }
 
+// A donor name, in the same row style as the other results: the name as registered and its record count.
+const DONORS_SHOWN = 10;
+const DONOR_META = { label: 'Donor', color: '#5c3a1a' };
+function DonorRow({ d }: { d: DonorNameResult }) {
+  return (
+    <li style={{ borderBottom: `1px dotted ${HAIRLINE}`, padding: '12px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+        <span
+          style={{
+            fontFamily: MONO,
+            fontSize: '15px',
+            letterSpacing: '0.1em',
+            color: DONOR_META.color,
+            border: `1px solid ${DONOR_META.color}`,
+            padding: '2px 6px',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+            marginTop: '3px',
+            textTransform: 'uppercase',
+          }}
+        >
+          {DONOR_META.label}
+        </span>
+        <div style={{ minWidth: 0 }}>
+          <Link
+            href={`/donors/${d.slug}`}
+            style={{ display: 'block', fontSize: '16px', fontWeight: 600, color: INK, textDecoration: 'none', lineHeight: 1.4, overflowWrap: 'anywhere' }}
+          >
+            {d.name}
+          </Link>
+          <span style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d' }}>
+            {d.records.toLocaleString('en-GB')} donation record{d.records === 1 ? '' : 's'}
+          </span>
+        </div>
+      </div>
+    </li>
+  );
+}
+
 type PageProps = {
   searchParams: Promise<{
     q?: string;
@@ -153,9 +193,17 @@ export default async function SearchPage({ searchParams }: PageProps) {
 
   // Councils are their own group, shown with All selected; a department or date filter does not apply to them.
   const wantCouncils = q.length >= 2 && type === 'all' && !dept && !from && !to;
-  const [results, councils]: [SearchResult[], CouncilSearchResult[]] = q.length >= 2
-    ? await Promise.all([searchContent(q, type, dept, from, to, sort), wantCouncils ? searchCouncils(q) : Promise.resolve([])])
-    : [[], []];
+  // Donor names (24 Oct 2026): the same rule as councils. Name matches only, linked when the donor page exists
+  // (lib/donor-search.ts); the first DONORS_SHOWN, with the full list on /donors.
+  const [results, councils, donorSearch]: [SearchResult[], CouncilSearchResult[], { results: DonorNameResult[]; more: boolean }] = q.length >= 2
+    ? await Promise.all([
+        searchContent(q, type, dept, from, to, sort),
+        wantCouncils ? searchCouncils(q) : Promise.resolve([]),
+        wantCouncils ? searchDonorNames(q) : Promise.resolve({ results: [], more: false }),
+      ])
+    : [[], [], { results: [], more: false }];
+  const linkedDonors = donorSearch.results.filter((d) => d.slug);
+  const donors = linkedDonors.slice(0, DONORS_SHOWN);
 
   return (
     <OpenGovShell pageStamp="Search">
@@ -191,7 +239,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
       {/* key remounts on q|type change so useState reinitialises with the current URL value */}
       <SearchInput key={q + '|' + type + '|' + (dept ?? '') + '|' + sort} defaultQ={q} defaultType={type} defaultDept={dept ?? ''} defaultSort={sort} />
 
-      {q.length >= 2 && results.length === 0 && councils.length === 0 && (
+      {q.length >= 2 && results.length === 0 && councils.length === 0 && donors.length === 0 && (
         <div style={{ padding: '40px 0', textAlign: 'center' }}>
           <p style={{ fontSize: '17px', color: INK, marginBottom: '6px' }}>No results for &ldquo;{q}&rdquo;</p>
           <p style={{ fontSize: '14px', color: '#14100d' }}>
@@ -209,6 +257,22 @@ export default async function SearchPage({ searchParams }: PageProps) {
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {councils.map((c) => <CouncilRow key={c.slug} c={c} />)}
           </ul>
+        </section>
+      )}
+
+      {donors.length > 0 && (
+        <section aria-labelledby="search-donors" style={{ marginBottom: '28px' }}>
+          <h2 id="search-donors" style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+            Donor names (as registered with the Electoral Commission) · {linkedDonors.length}{donorSearch.more ? '+' : ''}
+          </h2>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {donors.map((d) => <DonorRow key={d.slug} d={d} />)}
+          </ul>
+          {(linkedDonors.length > donors.length || donorSearch.more) && (
+            <p style={{ fontFamily: MONO, fontSize: '15px', marginTop: '8px' }}>
+              <Link href={`/donors?q=${encodeURIComponent(q)}`} style={{ color: ACCENT }}>All donor names matching &ldquo;{q}&rdquo;</Link>
+            </p>
+          )}
         </section>
       )}
 
