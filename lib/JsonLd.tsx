@@ -83,6 +83,13 @@ export function ukDateIso(raw: string | null | undefined): string | null {
   return `${m[3]}-${String(month + 1).padStart(2, '0')}-${m[1].padStart(2, '0')}T00:00:00Z`;
 }
 
+// When a report last changed, as an ISO timestamp: the date its facts were last checked (evidence.lastChecked, as
+// written), or else its publish date; null if it has neither. The one rule for both the NewsArticle dateModified and
+// the sitemap's <lastmod> (24 Oct 2026), so the two can never disagree.
+export function editorialModifiedIso(lastChecked: string | null | undefined, publishedAt: string | null | undefined): string | null {
+  return ukDateIso(lastChecked) ?? (publishedAt ? editorialDateIso(publishedAt) : null);
+}
+
 // NewsArticle for editorial/investigation pages — the content most likely to
 // earn rich results. headline + datePublished are the load-bearing fields.
 export function buildEditorialArticle(opts: {
@@ -95,7 +102,7 @@ export function buildEditorialArticle(opts: {
   lastChecked?: string | null;
 }) {
   const published = opts.datePublished ? editorialDateIso(opts.datePublished) : null;
-  const modified = ukDateIso(opts.lastChecked) ?? published;
+  const modified = editorialModifiedIso(opts.lastChecked, opts.datePublished);
   return {
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',

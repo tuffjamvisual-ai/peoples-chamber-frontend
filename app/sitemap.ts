@@ -3,6 +3,7 @@ import type { MetadataRoute } from 'next';
 import { supabase } from '@/lib/supabase';
 import { departments } from '@/lib/departments';
 import { editorials } from '@/lib/editorials';
+import { editorialModifiedIso } from '@/lib/JsonLd';
 import { COMMITTEE_IDS } from '@/lib/committees';
 import { topics } from '@/lib/topics';
 import { fetchMajorProjectKeys, projectHref } from '@/lib/major-projects';
@@ -127,7 +128,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Briefings live at /briefings/<slug> (their /editorials/ address only redirects there).
   const editorialEntries: MetadataRoute.Sitemap = Object.values(editorials).map((e) => ({
     url: `${SITE}/${e.kind === 'briefing' ? 'briefings' : 'editorials'}/${e.slug}`,
-    lastModified: e.publishedAt ? new Date(e.publishedAt) : now,
+    // The date the report's facts were last checked, else its publish date: the same rule as its NewsArticle
+    // dateModified (lib/JsonLd.tsx editorialModifiedIso).
+    lastModified: (() => { const iso = editorialModifiedIso(e.evidence?.lastChecked, e.publishedAt); return iso ? new Date(iso) : now; })(),
     changeFrequency: 'monthly',
     priority: 0.9,
   }));
