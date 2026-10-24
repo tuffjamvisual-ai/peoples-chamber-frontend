@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'ai755882dw',
   kicker: 'Policing',
-  headline: `Officers Could Breach Police AI Rules Unknowingly, Watchdog Warns`,
+  headline: `Police Could Breach AI Rules Unknowingly, Watchdog Warns`,
   standfirst: `The Independent Office for Police Conduct has warned that police officers and staff could enter the misconduct system without knowing they have broken their force’s rules on artificial intelligence, four months after the Home Office launched a national AI centre backed by at least £75 million.`,
   summary: "Officers could face misconduct cases without knowing they broke AI rules, the police watchdog warns, months after a £75m AI centre opened.",
   publishedAt: '2026-10-22',
