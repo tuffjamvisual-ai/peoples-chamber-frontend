@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: '373qnkdlvr',
   kicker: 'Accountability',
-  headline: `No 10 North Has Been Open Three Months. The Cabinet Office Has Not Told Parliament What It Costs`,
+  headline: `No 10 North's Running Costs Still Not Given to Parliament`,
   standfirst: `MPs have repeatedly asked what the Prime Minister’s Manchester office costs to set up, run, staff and travel to. The Cabinet Office has not given a total for any of them, and the only itemised costs on record came out under the Freedom of Information Act.`,
   summary: "No 10 North has been open three months, and the Cabinet Office still has not told Parliament what it costs.",
   publishedAt: '2026-10-22',

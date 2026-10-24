@@ -6,7 +6,7 @@ const piece: EditorialEntry = {
   // redirect led to a 404 (link crawl, 16 Oct 2026).
   kind: 'briefing',
   kicker: 'Defence',
-  headline: `96 Days After Saying Work Would Begin on the A38 and A46, Government Put Both at Risk to Fund Defence`,
+  headline: `A38 and A46 Upgrades Put at Risk to Fund Defence`,
   standfirst: `On 26 March, the government's Road Investment Strategy said work would begin on the A38 Derby Junctions and A46 Newark Bypass during the road period of five years. After 96 days, the Defence Investment Plan funding document named both as candidates for cancellation. Neither has entered its main construction contract. No final decision has been taken.`,
   summary: "96 days after saying work would begin on the A38 and A46, the government named both as possible cuts to fund defence.",
   publishedAt: '2026-07-01',

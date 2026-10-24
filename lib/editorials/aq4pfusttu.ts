@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'aq4pfusttu',
   kicker: 'Public Spending',
-  headline: `The Government Says It Cannot Yet Publish What It Spends on Digital Reform. It Still Promotes a £45bn Savings Figure`,
+  headline: `No Digital Spending Figures, but a £45bn Savings Claim`,
   standfirst: `The government has told MPs that annual figures for what the public sector spends on digital transformation are not currently feasible from its finance systems, and gave no date for changing that. The £45 billion a year it says digitising public services could save is a modelled estimate that MPs called “worryingly optimistic”.`,
   summary: "The government says it cannot yet publish its digital reform spending, but still promotes a £45bn savings figure MPs called “worryingly optimistic”.",
   publishedAt: '2026-10-22',

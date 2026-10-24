@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'dn4p8rk2wq',
   kicker: 'Defence',
-  headline: `Government Says Its Defence Plan Will Support 60,000 More Jobs. Its Model Does Not Count the Jobs Lost Elsewhere`,
+  headline: `Defence Plan's 60,000 Jobs Claim Leaves Out Losses Elsewhere`,
   standfirst: `The government says its Defence Investment Plan will support nearly 60,000 additional jobs by 2029/30. Its own methodology does not estimate how many jobs may disappear from the spending programmes being cut to pay for it. The Ministry of Defence made that limitation explicit in a methodology paper published on 8 July.`,
   summary: "The government says its defence plan will support nearly 60,000 more jobs, but its model does not count jobs cut elsewhere.",
   publishedAt: '2026-07-09',
