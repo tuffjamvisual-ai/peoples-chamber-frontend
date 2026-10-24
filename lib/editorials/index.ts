@@ -107,6 +107,7 @@ import stationFacialRecognition from './fr9k2mxw7q';
 import lordsBills from './siicjkcsr6';
 import threeDefenceSecretaries from './mr6k2vq9xt';
 import labourPollsConfidence from './pc4w8nq2tk';
+import helpToBuyCost from './hz7w3nq5rk';
 
 const allEditorials: EditorialRegistry = {
   [taggingRegime.slug]: taggingRegime,
@@ -213,6 +214,7 @@ const allEditorials: EditorialRegistry = {
   [hmrcTaxDebt.slug]: hmrcTaxDebt,
   [threeDefenceSecretaries.slug]: threeDefenceSecretaries,
   [labourPollsConfidence.slug]: labourPollsConfidence,
+  [helpToBuyCost.slug]: helpToBuyCost,
 };
 
 // Unpublished until their sources are added and checked (owner's decision, 22 Oct 2026). The files stay; leaving them
