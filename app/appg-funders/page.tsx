@@ -10,6 +10,8 @@ import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import { donorNameToSlug } from '../donors/[slug]/page';
 import { donorPageSlug } from '@/lib/donor-slug';
+import { readAll, inList } from '@/lib/read-all';
+import { storedSpellings } from '@/lib/donor-registry';
 
 export const revalidate = 86400;
 
@@ -56,15 +58,17 @@ export default async function AppgFundersIndex() {
   // the cross-link probe to keep this single-query.
   const ecMatchedSlugs = new Set<string>();
   if (multi.length > 0) {
-    const names = multi.map((m) => m.name);
-    const { data: ec, error: ecErr } = await supabase
-      .from('political_donations')
-      .select('donor_name')
-      .in('donor_name', names)
-      .limit(2000);
-    if (ecErr && ecErr.code !== 'PGRST116') throw new Error(`/appg-funders political_donations: ${ecErr.message}`);
-    for (const r of (ec || []) as Array<{ donor_name: string | null }>) {
-      if (r.donor_name) ecMatchedSlugs.add(donorNameToSlug(r.donor_name));
+    // Every stored spelling of each name, quoted, so donor names saved with leading or trailing spaces match, and every
+    // row via lib/read-all.ts (the old .limit(2000) stopped at the API's 1,000 rows). 24 Oct 2026, report 37.
+    const spellings = await storedSpellings(multi.map((m) => m.name));
+    const ec = await readAll<{ donor_name: string | null }>(() => supabase.from('political_donations'), {
+      columns: 'id, donor_name',
+      filter: (q) => q.filter('donor_name', 'in', inList(spellings)),
+      orderBy: 'id',
+      label: '/appg-funders political_donations',
+    });
+    for (const r of ec) {
+      if (r.donor_name?.trim()) ecMatchedSlugs.add(donorNameToSlug(r.donor_name.trim()));
     }
   }
 

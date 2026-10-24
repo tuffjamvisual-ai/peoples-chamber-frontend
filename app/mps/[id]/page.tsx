@@ -19,6 +19,8 @@ import { mpReportItems, MP_REPORTS_SHOWN } from '@/lib/mp-reports';
 import type { MpReports } from './MagazineProfileSections';
 import { fitTitle, TITLE_SUFFIX, TITLE_MAX } from '@/lib/seo-title';
 import { displayMpName } from '@/lib/mp-name';
+import { readAll, inList } from '@/lib/read-all';
+import { storedSpellings } from '@/lib/donor-registry';
 
 const BAND_RANK: Record<SalaryBand, number> = { pm: 4, sos: 3, minister_of_state: 2, puss: 1 };
 
@@ -561,19 +563,21 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     // APPG secretariat AND gives to MPs / parties. We flag each
     // funder with their EC donation total when matched.
     const funderNames = Array.from(new Set(((fundersRes.data || []) as AppgFunderRow[]).map((f) => f.source.trim()).filter((s) => s && s !== '(unspecified)')));
-    let funderDonationByName = new Map<string, { totalAmount: number; donationCount: number }>();
+    const funderDonationByName = new Map<string, { totalAmount: number; donationCount: number }>();
     if (funderNames.length > 0) {
-      // Chunk the IN clause — PostgREST gets unhappy past ~200 names
+      // Chunk the IN clause — PostgREST gets unhappy past ~200 names.
+      // Every stored spelling of each name, quoted, so donor names saved with leading or trailing spaces match, and
+      // every row via lib/read-all.ts (the old .limit(5000) still stopped at the API's 1,000 rows). 24 Oct 2026, report 37.
       const chunkSize = 100;
       for (let i = 0; i < funderNames.length; i += chunkSize) {
-        const chunk = funderNames.slice(i, i + chunkSize);
-        const { data: matches, error: matchesErr } = await supabase
-          .from('political_donations')
-          .select('donor_name, amount')
-          .in('donor_name', chunk)
-          .limit(5000);
-        if (matchesErr && matchesErr.code !== 'PGRST116') throw new Error(`/mps/[id] political_donations: ${matchesErr.message}`);
-        for (const m of (matches || []) as Array<{ donor_name: string | null; amount: number | string | null }>) {
+        const spellings = await storedSpellings(funderNames.slice(i, i + chunkSize));
+        const matches = await readAll<{ donor_name: string | null; amount: number | string | null }>(() => supabase.from('political_donations'), {
+          columns: 'id, donor_name, amount',
+          filter: (q) => q.filter('donor_name', 'in', inList(spellings)),
+          orderBy: 'id',
+          label: '/mps/[id] APPG funder donations',
+        });
+        for (const m of matches) {
           const name = (m.donor_name || '').trim();
           if (!name) continue;
           const ex = funderDonationByName.get(name) ?? { totalAmount: 0, donationCount: 0 };

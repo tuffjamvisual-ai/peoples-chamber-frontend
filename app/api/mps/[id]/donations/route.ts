@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdminRead as supabase } from '@/lib/supabase-admin';
 import { SECTORS, sectorForDonor, sectorForVote, ALL_VOTE_KEYWORDS } from '@/lib/donor-sectors';
-import { readAll } from '@/lib/read-all';
+import { readAll, inList } from '@/lib/read-all';
+import { storedSpellings } from '@/lib/donor-registry';
 
 export const dynamic = 'force-dynamic';
 
@@ -64,11 +65,13 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   if (donorNames.length > 0) {
     // Every row for these donors (24 Oct 2026, report 36): a single read stopped at 1,000 rows, in no order, so for
     // MPs whose donors give often (15 MPs today) the other recipients and totals were an arbitrary part of the record.
+    // Every stored spelling of each name, quoted, so names saved with leading or trailing spaces match too (report 37).
+    const spellings = await storedSpellings(donorNames.slice(0, 60));
     const otherRows = await readAll<{ donor_name: string | null; recipient_name: string | null; amount: number | string | null }>(
       () => supabase.from('political_donations'),
       {
         columns: 'id, donor_name, recipient_name, amount',
-        filter: (q) => q.in('donor_name', donorNames.slice(0, 60)).not('recipient_name', 'is', null),
+        filter: (q) => q.filter('donor_name', 'in', inList(spellings)).not('recipient_name', 'is', null),
         orderBy: 'id',
         label: `/api/mps/${memberId}/donations other recipients`,
       },

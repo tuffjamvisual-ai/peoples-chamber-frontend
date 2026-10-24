@@ -19,7 +19,9 @@ export type DonorPageEntry = {
   others: { slug: string; label: string }[]; // other names that share this page's base slug (collisions)
 };
 
-export type DonorRegistry = { bySlug: Map<string, DonorPageEntry> };
+// byTrimmed: each name with surrounding spaces removed -> every spelling stored for it (13,605 rows carry leading or
+// trailing spaces on 24 Oct 2026), so an exact read can match them all (see storedSpellings).
+export type DonorRegistry = { bySlug: Map<string, DonorPageEntry>; byTrimmed: Map<string, string[]> };
 
 const TTL_MS = 24 * 60 * 60 * 1000;
 const PAGE = 1000;
@@ -76,6 +78,11 @@ async function build(): Promise<DonorRegistry> {
     byKey.set(key, g);
     groups.set(base, byKey);
   }
+  const byTrimmed = new Map<string, string[]>();
+  for (const raw of counts.keys()) {
+    const t = raw.trim();
+    byTrimmed.set(t, [...(byTrimmed.get(t) ?? []), raw]);
+  }
   const bySlug = new Map<string, DonorPageEntry>();
   for (const [base, byKey] of groups) {
     const entries = [...byKey.values()].map((g) => {
@@ -100,7 +107,7 @@ async function build(): Promise<DonorRegistry> {
       });
     });
   }
-  return { bySlug };
+  return { bySlug, byTrimmed };
 }
 
 export function donorRegistry(): Promise<DonorRegistry> {
@@ -110,4 +117,20 @@ export function donorRegistry(): Promise<DonorRegistry> {
     registry.catch(() => { if (cached?.registry === registry) cached = null; }); // a failed read is retried next time
   }
   return cached.registry;
+}
+
+// Every stored spelling of these donor names, including those saved with leading or trailing spaces, which an exact
+// .in('donor_name', names) read misses (24 Oct 2026, report 37). Use with inList (lib/read-all.ts), which quotes each
+// value so PostgREST keeps the spaces: q.filter('donor_name', 'in', inList(await storedSpellings(names))).
+// A name not in the register is returned as given, trimmed.
+export async function storedSpellings(names: string[]): Promise<string[]> {
+  const { byTrimmed } = await donorRegistry();
+  const out = new Set<string>();
+  for (const n of names) {
+    const t = n.trim();
+    if (!t) continue;
+    out.add(t);
+    for (const s of byTrimmed.get(t) ?? []) out.add(s);
+  }
+  return [...out];
 }
