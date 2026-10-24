@@ -18,6 +18,7 @@ import JsonLd, { buildMpPerson, buildBreadcrumbs } from '@/lib/JsonLd';
 import { editorials } from '@/lib/editorials';
 import { listSummary } from '@/lib/editorials/list-summary';
 import type { MpReports } from './MagazineProfileSections';
+import { fitTitle } from '@/lib/seo-title';
 
 const BAND_RANK: Record<SalaryBand, number> = { pm: 4, sos: 3, minister_of_state: 2, puss: 1 };
 
@@ -168,8 +169,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
   const description = metaDescription(head + (kept.length ? ' ' + kept.join(', ') + '.' : ''));
 
+  // Title (owner's approval, 24 Oct 2026): the seat as well as the name, within 60 characters with the suffix
+  // (lib/seo-title.ts); otherwise "<name> MP", or "<name>, former MP" for a former member.
+  const title = isFormer
+    ? fitTitle(...(mp.constituency ? [`${name}, former MP for ${mp.constituency}`] : []), `${name}, former MP`)
+    : fitTitle(...(mp.constituency ? [`${name}, MP for ${mp.constituency}`] : []), `${name} MP`);
+
   return {
-    title: name,
+    title,
     description,
     alternates: { canonical: `/mps/${memberId}` },
   };

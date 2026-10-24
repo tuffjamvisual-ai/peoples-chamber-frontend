@@ -10,6 +10,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { jsonWithoutEmDashes } from '@/lib/no-em-dash'
 import { metaDescription } from '@/lib/meta-description'
+import { shortDate, fitTitle } from '@/lib/seo-title'
 
 // In-house rendering of a Hansard debate. opengovt never links out, so rather
 // than send readers to hansard.parliament.uk we pull the debate transcript from
@@ -159,7 +160,13 @@ export async function generateMetadata({ params }: { params: Promise<{ guid: str
   if (lead) parts.push(`led by ${lead}`);
   if (speakers.length > 1) parts.push(`with ${speakers.length} speakers`);
   const description = metaDescription(`${parts.join(', ')}. Read what was said and who spoke.`);
-  return { title: `${title}`, description, alternates: { canonical: `/debates/${guid.toUpperCase()}` } };
+  // Title (owner's approval, 24 Oct 2026): the debate title with the House and date, then with the date only, within 60
+  // characters with the suffix (lib/seo-title.ts); otherwise the debate title alone.
+  const day = shortDate(ov?.Date);
+  const fullTitle = d
+    ? fitTitle(...(ov?.House && day ? [`${title}, ${ov.House} debate ${day}`] : []), ...(day ? [`${title}, ${day}`] : []), title)
+    : title;
+  return { title: fullTitle, description, alternates: { canonical: `/debates/${guid.toUpperCase()}` } };
 }
 
 export default async function DebatePage({ params }: { params: Promise<{ guid: string }> }) {

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import { metaDescription } from '@/lib/meta-description'
+import { fitTitle } from '@/lib/seo-title'
 
 type FirstRole = { title?: string | null; organisation?: string | null }
 
@@ -22,8 +23,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const description = roleTitle
     ? metaDescription(`${name}, ${roleTitle}${org && !roleTitle.toLowerCase().includes(org.toLowerCase()) ? ` at ${org}` : ''}: current roles, declared interests and career.`)
     : `${niceName}, current roles, financial interests and political career on opengovt.`
+  // Title (owner's approval, 24 Oct 2026): the name with the first current role, or with its organisation, within 60
+  // characters with the suffix (lib/seo-title.ts); otherwise the name alone, as before.
+  const title = roleTitle
+    ? fitTitle(`${name}, ${roleTitle}`, ...(org ? [`${name}, ${org}`] : []), niceName)
+    : niceName
   return {
-    title: niceName,
+    title,
     description,
     alternates: { canonical: `/people/${slug}` },
   }

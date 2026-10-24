@@ -19,7 +19,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const piece = editorials[slug];
   if (!piece || piece.kind === 'briefing') return { title: 'Editorial' };
   const SITE_URL = 'https://www.opengovt.uk';
-  const description = metaDescription(piece.standfirst);
+  // Description (owner's approval, 24 Oct 2026): the piece's summary where it has one, else its standfirst; the same
+  // text goes to openGraph and twitter.
+  const description = metaDescription(piece.summary?.trim() ? piece.summary : piece.standfirst);
   const canonical = `/editorials/${slug}`;
   // Each piece's own share image (./opengraph-image.tsx, 23 Oct 2026). Next.js fills og:image from that file; the
   // same address is given here so twitter:image points to it as well.
