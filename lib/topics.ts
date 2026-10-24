@@ -90,7 +90,7 @@ export const topics: TopicDef[] = [
     words: ['defence', 'armed forces', 'military', 'veteran', 'veterans', 'nato', 'army', 'navy', 'royal air force', 'service personnel', 'overseas operations'],
     exclude: [],
     billDepartments: ['Ministry of Defence'],
-    editorialSlugs: ['dn4p8rk2wq', 'p9k4w2rx7m', 'mf7k3qxw9n', 'q4m8k2xw7n', 'w7q2m9rk5t', 'k3p9w7nx2d', 'mi5k7qxw9n'],
+    editorialSlugs: ['dn4p8rk2wq', 'p9k4w2rx7m', 'mf7k3qxw9n', 'q4m8k2xw7n', 'w7q2m9rk5t', 'k3p9w7nx2d', 'mi5k7qxw9n', 'onha85twx7'],
     pollWords: ['defence', 'war', 'military', 'airstrike', 'iran', 'middle east'],
   },
   {

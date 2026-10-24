@@ -111,6 +111,7 @@ import helpToBuyCost from './hz7w3nq5rk';
 import captureCompensation from './cp4w8xq2rn';
 import fordeReforms from './fq7m2wx9kd';
 import sendPlansDeficit from './mxredcgexu';
+import bulwarkSale from './onha85twx7';
 
 const allEditorials: EditorialRegistry = {
   [taggingRegime.slug]: taggingRegime,
@@ -221,6 +222,7 @@ const allEditorials: EditorialRegistry = {
   [captureCompensation.slug]: captureCompensation,
   [fordeReforms.slug]: fordeReforms,
   [sendPlansDeficit.slug]: sendPlansDeficit,
+  [bulwarkSale.slug]: bulwarkSale,
 };
 
 // Unpublished until their sources are added and checked (owner's decision, 22 Oct 2026). The files stay; leaving them
