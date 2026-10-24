@@ -8,6 +8,7 @@
 
 import type { Metadata } from 'next';
 import { metaDescription } from '@/lib/meta-description';
+import { TITLE_SUFFIX, TITLE_MAX } from '@/lib/seo-title';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import EditorialArticle from '../../components/EditorialArticle';
@@ -48,12 +49,18 @@ async function getDbBriefing(slug: string): Promise<BriefingRow | null> {
 }
 
 
+// Search title (owner's approval, 24 Oct 2026), the same rule as reports: a headline that would take the full title past
+// 60 characters with the " | opengovt" suffix is used on its own; shorter ones keep the suffix (lib/seo-title.ts).
+function searchTitle(headline: string): Metadata['title'] {
+  return headline.length + TITLE_SUFFIX.length > TITLE_MAX ? { absolute: headline } : headline;
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const piece = editorials[slug];
   if (piece && piece.kind === 'briefing') {
     return {
-      title: piece.headline,
+      title: searchTitle(piece.headline),
       description: metaDescription(piece.standfirst),
       alternates: { canonical: `/briefings/${slug}` },
     };
@@ -61,7 +68,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const b = await getDbBriefing(slug);
   if (b) {
     return {
-      title: b.headline,
+      title: searchTitle(b.headline),
       description: metaDescription(b.body),
       alternates: { canonical: `/briefings/${slug}` },
       ...(b.is_published ? {} : { robots: { index: false, follow: false } }),

@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'p4w9k2xr7n',
   kicker: 'Political Finance',
-  headline: `Christopher Harborne Has Put More Than £30m Into British Politics. One £5m Gift Is Still Under Investigation`,
+  headline: `Harborne's Over £30m in Donations Includes £5m Under Inquiry`,
   standfirst: `Christopher Harborne gave Reform UK £3 million in November 2025. Three months earlier he had given it £9 million, then the largest single donation from a living person to a British political party. Add his earlier donations to Reform and the Brexit Party, a £1 million payment to Boris Johnson's office and a £5 million personal gift to Nigel Farage (still under parliamentary investigation) and his disclosed or subsequently revealed funding of British politics exceeds £30 million.`,
   summary: "Christopher Harborne has put more than £30m into British politics, including a £5m gift to Nigel Farage still under parliamentary investigation.",
   publishedAt: '2026-07-01',

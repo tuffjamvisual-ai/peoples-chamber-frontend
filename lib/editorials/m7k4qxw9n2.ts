@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'm7k4qxw9n2',
   kicker: 'The Treasury',
-  headline: `John Healey Resigned Over Treasury Restraint. Five Weeks Later He Was Put in Charge of the Treasury`,
+  headline: `Healey Quit Over Treasury Limits, Then Became Chancellor`,
   standfirst: `Five weeks ago, John Healey resigned as defence secretary because he said the Treasury would not provide enough money for Britain's armed forces. On 20 July, Andy Burnham made him Chancellor of the Exchequer. Healey now controls the department whose spending restraint helped prompt his resignation.`,
   summary: "John Healey resigned over Treasury restraint on defence, and five weeks later Andy Burnham put him in charge of the Treasury.",
   publishedAt: '2026-07-20',

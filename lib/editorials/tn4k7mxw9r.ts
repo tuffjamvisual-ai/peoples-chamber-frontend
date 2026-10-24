@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'tn4k7mxw9r',
   kicker: 'Critical Minerals',
-  headline: `Government's Cornwall lithium claim raises questions over battery numbers and environmental impact`,
+  headline: `Cornwall Lithium Battery Claim Differs From Earlier Figures`,
   standfirst: `Ministers say an expansion backed by the government in Cornwall will produce enough lithium for more than 180,000 electric car batteries a year. Earlier government and company figures point to a very different number.`,
   summary: "Ministers say Cornwall will produce lithium for more than 180,000 car batteries a year, but earlier figures point to a different number.",
   publishedAt: '2026-09-29',

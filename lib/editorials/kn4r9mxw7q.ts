@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'kn4r9mxw7q',
   kicker: 'Online Safety',
-  headline: `Government Promises Nude Images Will Be 'Impossible' for Children Under 18 Without Publishing Accuracy Standard`,
+  headline: `Child Nude Image Block Promised With No Accuracy Standard`,
   standfirst: `The government is preparing legislation intended to make it impossible for anyone under 18 to take, view or send nude images on smartphones and tablets. It has not published the accuracy standard the technology for detecting images would have to meet, nor how many legitimate images could be wrongly classified before a system designed to block rather than warn would be considered unacceptable.`,
   summary: "The government promises nude images will be “impossible” for under 18s but has not published the accuracy standard the technology must meet.",
   publishedAt: '2026-09-09',
