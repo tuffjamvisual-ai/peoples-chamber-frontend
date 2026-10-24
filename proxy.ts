@@ -21,7 +21,23 @@ function sweep(now: number) {
   lastSweep = now
 }
 
+// One address per debate (owner's approval, 24 Oct 2026): Hansard GUIDs are case-insensitive, so every debate used
+// to open at both its upper and lower-case GUID, each with a self canonical. Upper case is the canonical form (the
+// case most of Hansard's own IDs and the site's links use); any other spelling is 301'd to it here, before the page.
+const DEBATE_GUID = /^\/debates\/([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})\/?$/
+
 export function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl
+  if (pathname.startsWith('/debates/')) {
+    const guid = pathname.match(DEBATE_GUID)?.[1]
+    if (guid && guid !== guid.toUpperCase()) {
+      const url = request.nextUrl.clone()
+      url.pathname = `/debates/${guid.toUpperCase()}`
+      return NextResponse.redirect(url, 301)
+    }
+    return NextResponse.next()
+  }
+
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0] ||
              request.headers.get('x-real-ip') ||
              'unknown'
@@ -48,5 +64,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/api/:path*'],
+  matcher: ['/api/:path*', '/debates/:guid'],
 }

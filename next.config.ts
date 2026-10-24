@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { departments } from "./lib/departments";
 
 // Optional: opt-in bundle analyzer. Enable with:
 //   npm install -D @next/bundle-analyzer
@@ -67,6 +68,40 @@ async function councilRedirects() {
   }
 }
 
+// Public bodies that are agencies, not departments (owner's approval, 24 Oct 2026): old /departments/<slug> addresses
+// for them 404'd. 301 each to /agencies/<slug>, but only where agency_cache holds that slug (so the agency page has
+// something to show) and no department uses it. Built at build time from agency_cache, like the council map above;
+// added after the council redirects so those keep their place. No redirects if the DB is unreachable at build.
+async function agencyRedirects() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return [];
+  try {
+    const res = await fetch(`${url}/rest/v1/agency_cache?select=slug`, {
+      headers: { apikey: key, authorization: `Bearer ${key}` },
+    });
+    if (!res.ok) {
+      console.warn(`[next.config] agencyRedirects: agency_cache fetch ${res.status} — skipping`);
+      return [];
+    }
+    const rows = (await res.json()) as { slug: string | null }[];
+    const deptSlugs = new Set(departments.map((d) => d.slug));
+    const slugs = [...new Set(rows.map((r) => r.slug).filter((s): s is string => !!s && /^[a-z0-9-]+$/.test(s) && !deptSlugs.has(s)))];
+    // A few alternation patterns rather than one redirect per agency: 230 separate entries would take the redirect
+    // count past the 1,000 at which Next.js warns of slower routing. Each pattern is kept under 3,500 characters.
+    const groups: string[][] = [[]];
+    for (const s of slugs) {
+      const g = groups[groups.length - 1];
+      if (g.length && g.join('|').length + s.length + 1 > 3500) groups.push([s]);
+      else g.push(s);
+    }
+    return groups.filter((g) => g.length).map((g) => ({ source: `/departments/:slug(${g.join('|')})`, destination: '/agencies/:slug', statusCode: 301 as const }));
+  } catch (err) {
+    console.warn('[next.config] agencyRedirects failed — skipping:', (err as Error).message);
+    return [];
+  }
+}
+
 const nextConfig: NextConfig = {
   // Build reliability (owner's approval, 21 Oct 2026): two prerender workers instead of one per CPU, so the build does
   // not overload the database (reads queued for over 5 s and timed out at the 3 s limit).
@@ -106,7 +141,7 @@ const nextConfig: NextConfig = {
       { source: '/editorials', destination: '/reports', statusCode: 301 as const },
       { source: '/briefings', destination: '/reports', statusCode: 301 as const },
     ];
-    return [...editorialRedirects, ...briefingRedirects, ...notFoundRedirects, ...billsPageRedirects, ...reportsRedirects, ...(await councilRedirects())];
+    return [...editorialRedirects, ...briefingRedirects, ...notFoundRedirects, ...billsPageRedirects, ...reportsRedirects, ...(await councilRedirects()), ...(await agencyRedirects())];
   },
   images: {
     remotePatterns: [

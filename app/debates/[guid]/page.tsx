@@ -25,7 +25,7 @@ export async function generateStaticParams() {
     .select('hansard_ext_id')
     .limit(3);
   if (error || !data?.length) throw new Error(`generateStaticParams debates: ${error?.message || 'zero rows'}`);
-  const guids = data.map((r) => String(r.hansard_ext_id)).filter(Boolean);
+  const guids = data.map((r) => String(r.hansard_ext_id).toUpperCase()).filter(Boolean);
   if (!guids.length) throw new Error('generateStaticParams debates: zero usable values');
   return guids.map((guid) => ({ guid }));
 }
@@ -159,7 +159,7 @@ export async function generateMetadata({ params }: { params: Promise<{ guid: str
   if (lead) parts.push(`led by ${lead}`);
   if (speakers.length > 1) parts.push(`with ${speakers.length} speakers`);
   const description = metaDescription(`${parts.join(', ')}. Read what was said and who spoke.`);
-  return { title: `${title}`, description, alternates: { canonical: `/debates/${guid}` } };
+  return { title: `${title}`, description, alternates: { canonical: `/debates/${guid.toUpperCase()}` } };
 }
 
 export default async function DebatePage({ params }: { params: Promise<{ guid: string }> }) {
@@ -196,7 +196,8 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
 
   // Divisions held in this debate, linked to our own division pages (populated
   // and validated by the debates sync, so these never 404).
-  const { data: drow, error: drowErr } = await supabase.from('debates').select('division_ids').eq('hansard_ext_id', guid).maybeSingle();
+  // The table keeps Hansard's own case, which is lower for some debates, while the address is always upper case.
+  const { data: drow, error: drowErr } = await supabase.from('debates').select('division_ids').in('hansard_ext_id', [guid, guid.toLowerCase()]).maybeSingle();
   if (drowErr) throw new Error(`debate ${guid} divisions: ${drowErr.message}`);
   const divisionIds: string[] = Array.isArray(drow?.division_ids) ? (drow!.division_ids as string[]) : [];
 
@@ -294,13 +295,13 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
 
       <nav aria-label="Adjacent debates" style={{ display: 'flex', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap', maxWidth: '46em', margin: '40px auto 0', borderTop: '1px solid rgba(20,16,13,0.25)', paddingTop: '18px' }}>
         {ov?.PreviousDebateExtId ? (
-          <Link href={`/debates/${ov.PreviousDebateExtId}`} className="no-hover-scale" style={{ flex: '1 1 240px', textDecoration: 'none', color: INK }}>
+          <Link href={`/debates/${ov.PreviousDebateExtId.toUpperCase()}`} className="no-hover-scale" style={{ flex: '1 1 240px', textDecoration: 'none', color: INK }}>
             <div style={{ fontFamily: MONO, fontSize: '15px', color: ACCENT, marginBottom: '4px' }}>← Previous debate</div>
             <div style={{ fontFamily: SERIF, fontSize: '16px' }}>{dehyphen(ov.PreviousDebateTitle?.trim() || 'Previous')}</div>
           </Link>
         ) : <span />}
         {ov?.NextDebateExtId ? (
-          <Link href={`/debates/${ov.NextDebateExtId}`} className="no-hover-scale" style={{ flex: '1 1 240px', textDecoration: 'none', color: INK, textAlign: 'right' }}>
+          <Link href={`/debates/${ov.NextDebateExtId.toUpperCase()}`} className="no-hover-scale" style={{ flex: '1 1 240px', textDecoration: 'none', color: INK, textAlign: 'right' }}>
             <div style={{ fontFamily: MONO, fontSize: '15px', color: ACCENT, marginBottom: '4px' }}>Next debate →</div>
             <div style={{ fontFamily: SERIF, fontSize: '16px' }}>{dehyphen(ov.NextDebateTitle?.trim() || 'Next')}</div>
           </Link>

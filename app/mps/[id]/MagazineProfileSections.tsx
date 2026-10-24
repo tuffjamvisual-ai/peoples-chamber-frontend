@@ -450,7 +450,7 @@ const pillStyle: React.CSSProperties = {
 // transcript inside the site.
 function debateUrl(c: Contribution): string | null {
   const guid = c.hansard_url?.match(/Debate\/([0-9A-Fa-f-]+)\.json/i)?.[1];
-  return guid ? `/debates/${guid}` : null;
+  return guid ? `/debates/${guid.toUpperCase()}` : null;
 }
 
 // House style: no hyphens. Letter-letter only, so number ranges keep theirs.

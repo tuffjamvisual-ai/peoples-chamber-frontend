@@ -163,7 +163,7 @@ export default async function DebatesPage({
           </h2>
           {group.items.map((d) => (
             <div key={d.hansard_ext_id} style={{ borderBottom: `1px solid ${HAIRLINE}`, padding: '11px 0' }}>
-              <Link href={`/debates/${d.hansard_ext_id}`} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK }}>
+              <Link href={`/debates/${String(d.hansard_ext_id).toUpperCase()}`} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK }}>
                 <div style={{ fontSize: 'clamp(15px, 1.8vw, 19px)', fontWeight: 'bold', lineHeight: 1.3 }}>{d.title}</div>
                 {d.summary && <div style={{ fontSize: '15px', color: INK, marginTop: '4px', lineHeight: 1.5 }}>{d.summary}</div>}
                 <div style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '3px' }}>{d.section}</div>

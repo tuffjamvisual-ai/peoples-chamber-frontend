@@ -2,6 +2,7 @@
 // /api/sync-agency-cache) directly — drops the previous client useEffect
 // that fetched /api/govuk-agency after mount.
 
+import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import Link from 'next/link';
@@ -96,11 +97,13 @@ async function getAgency(slug: string): Promise<AgencyData | null> {
 export default async function AgencyPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const agency = await getAgency(slug);
+  // No agency_cache row means no agency page: a real 404 (owner's approval, 24 Oct 2026), not a 200 "not found" page.
+  if (!agency) notFound();
 
   // Back-link target: if we can map a parent organisation to one of our
   // department pages, go straight back there; otherwise fall back to the
   // full departments index.
-  const parentDept = agency?.parentOrgs
+  const parentDept = agency.parentOrgs
     .map((org) => ({ name: org.name, slug: DEPT_SLUGS[org.slug] }))
     .find((d) => d.slug);
   const backHref = parentDept ? `/departments/${parentDept.slug}` : '/departments';
@@ -127,8 +130,6 @@ export default async function AgencyPage({ params }: { params: Promise<{ slug: s
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
       />
-
-      {!agency && <div className="text-[#14100d] text-sm">Agency not found.</div>}
 
       {agency && (
         <>
