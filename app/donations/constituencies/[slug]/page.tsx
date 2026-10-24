@@ -2,12 +2,16 @@
 // constituency-level accounting unit, the donor league for that
 // association, and a cross-link to the current sitting MP for the
 // constituency (when the unit name resolves to one).
+//
+// One party's unit per page (24 Oct 2026, report 38): a unit name several parties use is a chooser listing each
+// party's unit, and national headquarters units ("Central Party") list each party's national accounts. See
+// lib/association-units.ts.
 
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
-import { readAll } from '@/lib/read-all';
 import { notFound } from 'next/navigation';
+import { resolveAssociation, type AssociationView } from '@/lib/association-units';
 import OpenGovShell from '../../../components/OpenGovShell';
 import BackLink from '../../../components/BackLink';
 import { donorPageSlug } from '@/lib/donor-slug';
@@ -21,44 +25,28 @@ const INK_HAIRLINE = 'rgba(20,16,13,0.25)';
 const CREAM = '#ebe5d8';
 const ACCENT = '#7a1612';
 
-export function unitNameToSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/&/g, ' and ')
-    .replace(/[/']/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 100);
-}
-
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-async function findCanonicalUnit(slug: string): Promise<string | null> {
-  const tokens = slug.split('-').filter((t) => t.length >= 2);
-  if (tokens.length === 0) return null;
-  const ranked = tokens.slice().sort((a, b) => b.length - a.length).slice(0, 3);
-  // Every matching row (24 Oct 2026, report 36): a single read stopped at 1,000 of them (22,824 for "central-party").
-  const data = await readAll<{ accounting_unit_name: string | null }>(() => supabase.from('political_donations'), {
-    columns: 'id, accounting_unit_name',
-    filter: (q) => ranked.reduce((acc, t) => acc.ilike('accounting_unit_name', `%${t}%`), q.not('accounting_unit_name', 'is', null)),
-    orderBy: 'id',
-    label: 'constituency unit lookup',
-  });
-  const counts = new Map<string, number>();
-  for (const r of data as Array<{ accounting_unit_name: string | null }>) {
-    const n = (r.accounting_unit_name || '').trim();
-    if (!n) continue;
-    if (unitNameToSlug(n) === slug) counts.set(n, (counts.get(n) ?? 0) + 1);
-  }
-  return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
-}
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const name = await findCanonicalUnit(slug);
-  if (!name) return { title: 'Constituency association' };
+  const view = await resolveAssociation(slug);
+  if (!view) return { title: 'Constituency association' };
+  if (view.kind === 'chooser') {
+    return view.national
+      ? {
+          title: `${view.unitName} accounts by party: national party donations`,
+          description: `Donations declared to each party's national accounts (${view.unitName}), by party. These are national party accounts, not constituency associations.`,
+          alternates: { canonical: `/donations/constituencies/${slug}` },
+        }
+      : {
+          title: `${view.unitName}: local party accounts by party`,
+          description: `${view.parties.length} parties have an accounting unit named ${view.unitName}. Choose a party to see its declared donations.`,
+          alternates: { canonical: `/donations/constituencies/${slug}` },
+        };
+  }
+  const name = view.unitName;
   return {
     title: `${name}: declared donations to this UK constituency association`,
     description: `Every Electoral Commission donation declared to ${name}, ranked by donor.`,
@@ -66,33 +54,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-type Row = {
-  id: number;
-  donor_name: string | null;
-  donor_type: string | null;
-  recipient_name: string | null;
-  accounting_unit_name: string | null;
-  amount: number | null;
-  accepted_date: string | null;
-  nature: string | null;
-};
-
 export default async function AssociationPage({ params }: PageProps) {
   const { slug } = await params;
-  const canonicalName = await findCanonicalUnit(slug);
-  if (!canonicalName) notFound();
-
-  const tokens = slug.split('-').filter((t) => t.length >= 2);
-  const ranked = tokens.slice().sort((a, b) => b.length - a.length).slice(0, 3);
-  // Every donation to this association, largest first (24 Oct 2026, report 36): this read stopped at the 1,000 largest,
-  // so the total, count and donor league were incomplete where more matched ("central-party", 22,824 rows).
-  const raw = await readAll<Row>(() => supabase.from('political_donations'), {
-    columns: 'id, donor_name, donor_type, recipient_name, accounting_unit_name, amount, accepted_date, nature',
-    filter: (q) => ranked.reduce((acc, t) => acc.ilike('accounting_unit_name', `%${t}%`), q.not('accounting_unit_name', 'is', null)),
-    orderBy: [{ column: 'amount', ascending: false }, { column: 'id' }],
-    label: 'constituency donations',
-  });
-  const rows = raw.filter((r) => r.accounting_unit_name && unitNameToSlug(r.accounting_unit_name) === slug);
+  // Every donation to this association, largest first (24 Oct 2026, report 36: all rows, not the 1,000 largest).
+  const view = await resolveAssociation(slug);
+  if (!view) notFound();
+  if (view.kind === 'chooser') return <UnitChooser view={view} />;
+  const canonicalName = view.unitName;
+  const rows = view.rows;
   if (rows.length === 0) notFound();
 
   const total = rows.reduce((s, r) => s + Number(r.amount || 0), 0);
@@ -207,6 +176,54 @@ export default async function AssociationPage({ params }: PageProps) {
       </section>
 
 </OpenGovShell>
+  );
+}
+
+// A unit name several parties use, or a national headquarters unit: each party's figures and a link, never a combined
+// total or a mixed donor league.
+function UnitChooser({ view }: { view: Extract<AssociationView, { kind: 'chooser' }> }) {
+  return (
+    <OpenGovShell pageStamp="Donations">
+      <BackLink fallbackHref="/donations/constituencies" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
+
+      <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+          {view.national ? 'National party accounts · Donations declared' : 'Local party accounts · Choose a party'}
+        </p>
+        <h1 style={{ fontFamily: 'Special Elite, monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
+          {view.national ? `${view.unitName} accounts by party` : view.unitName}
+        </h1>
+        <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
+          {view.national
+            ? <>&ldquo;{view.unitName}&rdquo; is the name {view.parties.length} parties use for their national accounts in the Electoral Commission register. These are national party accounts, not constituency associations, so each party is shown separately. Where a party has a money page, its name links to it.</>
+            : <>{view.parties.length} parties have an accounting unit called &ldquo;{view.unitName}&rdquo;. Each is a separate party&rsquo;s local accounts, so they are not added together. Choose a party to see its donations and donors.</>}
+        </p>
+      </header>
+
+      <section style={{ marginBottom: '32px' }}>
+        <h2 style={sectionH2}>By party · {view.parties.length}</h2>
+        <table style={tableStyle}>
+          <thead>
+            <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
+              <th style={{ padding: '8px 6px' }}>Party</th>
+              <th style={{ padding: '8px 6px', textAlign: 'right' }}>Donations</th>
+              <th style={{ padding: '8px 6px', textAlign: 'right' }}>Total received</th>
+            </tr>
+          </thead>
+          <tbody>
+            {view.parties.map((p) => (
+              <tr key={p.party.name} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
+                <td style={{ padding: '6px' }}>
+                  {p.href ? <Link href={p.href} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold' }}>{p.party.name}</Link> : <>{p.party.name}</>}
+                </td>
+                <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{p.count.toLocaleString()}</td>
+                <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(p.total).toLocaleString()}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    </OpenGovShell>
   );
 }
 

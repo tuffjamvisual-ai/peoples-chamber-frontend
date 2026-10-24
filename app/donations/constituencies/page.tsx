@@ -19,7 +19,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { donorPageSlug } from '@/lib/donor-slug';
-import { unitNameToSlug } from './[slug]/page';
+import { unitNameToSlug, partyRefs, isNationalUnit } from '@/lib/association-units';
 import { readAll } from '@/lib/read-all';
 
 export const dynamic = 'force-dynamic'
@@ -41,7 +41,7 @@ const ACCENT = '#7a1612';
 // regional liaisons, councillor associations etc).
 function isLikelyConstituency(name: string): boolean {
   const t = name.toLowerCase();
-  if (t === 'central party' || t.includes('central office')) return false;
+  if (isNationalUnit(name) || t.includes('central office')) return false;
   if (t.includes('parliamentary office') || t.includes('westminster parliament')) return false;
   if (t.includes('westminster group') || t.includes('mp grouping')) return false;
   if (t.includes('trade union') || t.includes('liaison')) return false;
@@ -68,27 +68,53 @@ const loadConstituencies = unstable_cache(
   async () => {
     // Every row in a stable order, failing loudly (24 Oct 2026, report 36): lib/read-all.ts. The loop it replaces stopped
     // quietly on an error, had no unique tiebreaker and stopped after 60,000 rows.
-    const rows = await readAll<Row>(() => supabase.from('political_donations'), {
+    const allRows = await readAll<Row>(() => supabase.from('political_donations'), {
       columns: 'id, donor_name, recipient_name, accounting_unit_name, amount, accepted_date',
-      // sub-£1.5k entries are usually small unaggregated cash; under EC threshold
-      filter: (q) => q.not('accounting_unit_name', 'is', null).neq('accounting_unit_name', '').gte('amount', 1500),
+      filter: (q) => q.not('accounting_unit_name', 'is', null).neq('accounting_unit_name', ''),
       orderBy: [{ column: 'accepted_date', ascending: false }, { column: 'id' }],
       label: '/donations/constituencies',
     });
+    // The parties using each unit slug, over every row (as the association pages count them), so a unit name several
+    // parties use links to that party's page (<unit slug>-<party slug>) and never adds parties together (report 38).
+    const ref = await partyRefs();
+    const partiesBySlug = new Map<string, Set<string>>();
+    for (const r of allRows) {
+      const s = unitNameToSlug(r.accounting_unit_name || '');
+      if (!s) continue;
+      const set = partiesBySlug.get(s) ?? new Set<string>();
+      set.add(ref(r.recipient_name).name);
+      partiesBySlug.set(s, set);
+    }
+    // sub-£1.5k entries are usually small unaggregated cash; under EC threshold
+    const rows = allRows.filter((r) => Number(r.amount || 0) >= 1500);
 
-    type Agg = { unit: string; party: string | null; count: number; total: number; topDonor: string; topAmount: number };
+    // One row per party and unit (24 Oct 2026, report 38): keyed by the unit's slug, as its page is, and labelled with
+    // the most used spelling.
+    type Agg = { slug: string; href: string; spellings: Map<string, number>; party: string | null; count: number; total: number; topDonor: string; topAmount: number };
     const byUnit = new Map<string, Agg>();
     for (const r of rows) {
       const u = (r.accounting_unit_name || '').trim();
       if (!u || !isLikelyConstituency(u)) continue;
+      const slug = unitNameToSlug(u);
+      if (!slug) continue;
+      const party = ref(r.recipient_name);
+      const key = `${party.name}|${slug}`;
+      const shared = (partiesBySlug.get(slug)?.size ?? 0) > 1;
       const amt = Number(r.amount || 0);
-      const ex = byUnit.get(u) ?? { unit: u, party: r.recipient_name, count: 0, total: 0, topDonor: '', topAmount: 0 };
+      const ex = byUnit.get(key) ?? {
+        slug, href: `/donations/constituencies/${shared ? `${slug}-${party.slug}` : slug}`,
+        spellings: new Map<string, number>(), party: r.recipient_name, count: 0, total: 0, topDonor: '', topAmount: 0,
+      };
+      ex.spellings.set(u, (ex.spellings.get(u) ?? 0) + 1);
       ex.count += 1;
       ex.total += amt;
       if (amt > ex.topAmount && r.donor_name) { ex.topAmount = amt; ex.topDonor = r.donor_name; }
-      byUnit.set(u, ex);
+      byUnit.set(key, ex);
     }
-    const constituencies = Array.from(byUnit.values()).sort((a, b) => b.total - a.total).slice(0, 200);
+    const constituencies = Array.from(byUnit.values())
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 200)
+      .map(({ spellings, ...c }) => ({ ...c, unit: [...spellings.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0][0] }));
 
     // Aggregate of the excluded "central / parliamentary / regional" pools so a
     // reader sees what the constituency rows DON'T include.
@@ -101,7 +127,7 @@ const loadConstituencies = unstable_cache(
     const rowsTotal = rows.reduce((s, r) => s + Number(r.amount || 0), 0);
     return { constituencies, centralTotal, constituencyTotal, rowsTotal };
   },
-  ['constituency-donations-v1'],
+  ['constituency-donations-v2'],
   { revalidate: 86400 },
 );
 
@@ -142,10 +168,10 @@ export default async function ConstituencyDonationsPage() {
           </thead>
           <tbody>
             {constituencies.map((c, i) => (
-              <tr key={c.unit} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
+              <tr key={c.href} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <td style={{ padding: '6px', opacity: 0.6 }}>{i + 1}</td>
                 <td style={{ padding: '6px' }}>
-                  <Link href={`/donations/constituencies/${unitNameToSlug(c.unit)}`} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold' }}>{c.unit}</Link>
+                  <Link href={c.href} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold' }}>{c.unit}</Link>
                 </td>
                 <td style={{ padding: '6px', fontSize: '15px', opacity: 0.75 }}>{c.party || ''}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{c.count}</td>
