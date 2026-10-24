@@ -9,6 +9,7 @@ import { getTopic, topics, topicBillArgs, newestPerTitle, wholeWordsPattern, mat
 import { departments } from '@/lib/departments';
 import { editorials } from '@/lib/editorials';
 import { listSummary } from '@/lib/editorials/list-summary';
+import { readingLabel, textReadingLabel } from '@/lib/reading-time';
 import ContinueToArticle from '../../components/ContinueToArticle';
 
 export const revalidate = 86400;
@@ -74,7 +75,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
       .order('created_at', { ascending: false })
       .limit(1),
     // Published database briefings, matched to the topic below by its words (Reports, 23 Oct 2026).
-    supabase.from('briefings').select('slug, headline, summary, published_at, created_at').eq('is_published', true),
+    supabase.from('briefings').select('slug, headline, summary, body, published_at, created_at').eq('is_published', true),
   ]);
 
   // A failed read throws (owner's approval, 21 Oct 2026): six topic pages were once built with no bills when this
@@ -102,11 +103,11 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
   // briefings whose headline and summary match the topic's words (owner's approval, 23 Oct 2026).
   const relatedEditorials = [
     ...topic.editorialSlugs.map((s) => editorials[s]).filter(Boolean).map((e) => ({
-      href: `/${e.kind === 'briefing' ? 'briefings' : 'editorials'}/${e.slug}`, headline: e.headline, summary: listSummary(e), date: e.publishedAt || '',
+      href: `/${e.kind === 'briefing' ? 'briefings' : 'editorials'}/${e.slug}`, headline: e.headline, summary: listSummary(e), date: e.publishedAt || '', readingLabel: readingLabel(e),
     })),
-    ...((briefRes.data || []) as { slug: string; headline: string; summary: string | null; published_at: string | null; created_at: string }[])
+    ...((briefRes.data || []) as { slug: string; headline: string; summary: string | null; body: string | null; published_at: string | null; created_at: string }[])
       .filter((b) => matchWords(`${b.headline} ${b.summary ?? ''}`, topic.words, topic.exclude))
-      .map((b) => ({ href: `/briefings/${b.slug}`, headline: b.headline, summary: b.summary ?? '', date: (b.published_at || b.created_at).slice(0, 10) })),
+      .map((b) => ({ href: `/briefings/${b.slug}`, headline: b.headline, summary: b.summary ?? '', date: (b.published_at || b.created_at).slice(0, 10), readingLabel: textReadingLabel(b.headline, b.body) })),
   ].sort((a, b) => b.date.localeCompare(a.date));
   const poll = (pollRes.data || [])[0];
 
@@ -222,6 +223,8 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
           {relatedEditorials.map((e) => (
             <Link key={e.href} href={e.href} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, borderBottom: `1px solid ${HAIRLINE}`, padding: '11px 0' }}>
               <div style={{ fontSize: '16px', fontWeight: 'bold', lineHeight: 1.3 }}>{e.headline}</div>
+              {/* These cards carry no date, so the reading time sits on its own line under the headline. */}
+              <div style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '3px' }}>{e.readingLabel}</div>
               {e.summary && <p style={{ fontSize: '15px', color: INK, marginTop: '4px', lineHeight: 1.5 }}>{e.summary}</p>}
               <ContinueToArticle style={{ marginTop: '4px' }} />
             </Link>

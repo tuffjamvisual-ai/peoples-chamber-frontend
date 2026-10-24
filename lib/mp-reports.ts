@@ -3,10 +3,11 @@
 // MP_REPORTS_SHOWN; /mps/<id>/reports lists them all.
 import { editorials } from '@/lib/editorials';
 import { listSummary } from '@/lib/editorials/list-summary';
+import { readingLabel } from '@/lib/reading-time';
 
 export const MP_REPORTS_SHOWN = 10;
 
-export type MpReportItem = { href: string; headline: string; date: string; summary: string };
+export type MpReportItem = { href: string; headline: string; date: string; readingLabel: string; summary: string };
 
 export function mpReportItems(memberId: number): MpReportItem[] {
   return Object.values(editorials)
@@ -16,6 +17,7 @@ export function mpReportItems(memberId: number): MpReportItem[] {
       href: `/${e.kind === 'briefing' ? 'briefings' : 'editorials'}/${e.slug}`,
       headline: e.headline,
       date: new Date(e.publishedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }),
+      readingLabel: readingLabel(e),
       summary: listSummary(e),
     }));
 }

@@ -16,6 +16,7 @@ import KeyStat from './KeyStat';
 import DataBlock from './DataBlock';
 import type { Block, EditorialEntry } from '@/lib/editorials/types';
 import ContentBadge from './ContentBadge';
+import { readingLabel } from '@/lib/reading-time';
 
 const INK = '#14100d';
 const INK_SOFT = '#14100d';
@@ -69,7 +70,7 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
           </div>
           {piece.publishedAt && (
             <div style={{ marginTop: '8px', fontSize: '15px', color: INK_SOFT, fontFamily: '"Special Elite", monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-              {new Date(piece.publishedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+              {new Date(piece.publishedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} · {readingLabel(piece)}
             </div>
           )}
           {piece.opinion && (

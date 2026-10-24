@@ -3,6 +3,7 @@ import JsonLd, { buildHomepageGraph } from '@/lib/JsonLd';
 import OpenGovShell from './components/OpenGovShell';
 import { editorials } from '@/lib/editorials';
 import { listSummary } from '@/lib/editorials/list-summary';
+import { readingLabel } from '@/lib/reading-time';
 import ContinueToArticle from './components/ContinueToArticle';
 import { supabase } from '@/lib/supabase';
 import { govUrlToSlug } from '@/lib/govUrlSlug';
@@ -170,6 +171,7 @@ export default async function HomePage() {
 
               <a className="og-block" href={`/editorials/${slot1.slug}`}>
                 <div className="og-head">{slot1.headline}</div>
+                <div style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{readingLabel(slot1)}</div>
                 <div className="og-standfirst">{listSummary(slot1)}</div>
                 {ledeText && <p className="og-lede">{ledeText}</p>}
                 <ContinueToArticle />
@@ -177,6 +179,7 @@ export default async function HomePage() {
 
               <a className="og-block og-brief" href={`/editorials/${slot2.slug}`}>
                 <div className="og-head">{slot2.headline}</div>
+                <div style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{readingLabel(slot2)}</div>
                 <p>{listSummary(slot2)}</p>
                 <ContinueToArticle />
               </a>
@@ -220,12 +223,14 @@ export default async function HomePage() {
 
               <a className="og-block og-brief" href={`/editorials/${slot3.slug}`}>
                 <div className="og-head">{slot3.headline}</div>
+                <div style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{readingLabel(slot3)}</div>
                 <p>{listSummary(slot3)}</p>
                 <ContinueToArticle />
               </a>
 
               <a className="og-block og-brief" href={`/editorials/${slot4.slug}`}>
                 <div className="og-head">{slot4.headline}</div>
+                <div style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{readingLabel(slot4)}</div>
                 <p>{listSummary(slot4)}</p>
                 <ContinueToArticle />
               </a>

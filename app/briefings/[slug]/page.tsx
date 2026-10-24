@@ -17,6 +17,7 @@ import BackLink from '../../components/BackLink';
 import { editorials } from '@/lib/editorials';
 import type { EditorialEntry } from '@/lib/editorials/types';
 import { supabaseAdminRead as supabaseAdmin } from '@/lib/supabase-admin';
+import { textReadingLabel } from '@/lib/reading-time';
 
 // Dynamic so DB drafts are viewable immediately after the cron run and a flip to
 // published shows without a rebuild. File-based briefings render fine here too.
@@ -117,7 +118,7 @@ export default async function BriefingPage({ params }: { params: Promise<{ slug:
         </h1>
         {(b.published_at || b.created_at) && (
           <div style={{ fontFamily: MONO, fontSize: '15px', color: INK_SOFT, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-            {new Date(b.published_at || b.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+            {new Date(b.published_at || b.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} · {textReadingLabel(b.headline, b.body)}
           </div>
         )}
       </header>

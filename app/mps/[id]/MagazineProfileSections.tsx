@@ -335,7 +335,7 @@ interface Props {
   reports?: MpReports | null;
 }
 
-export type MpReports = { items: { href: string; headline: string; date: string; summary: string }[]; total: number; memberId: number; mpName: string };
+export type MpReports = { items: { href: string; headline: string; date: string; readingLabel: string; summary: string }[]; total: number; memberId: number; mpName: string };
 
 type ConstituencyPetition = {
   petitionId: number;
@@ -2579,7 +2579,7 @@ export function MpReportList({ items }: { items: MpReports['items'] }) {
       {items.map((r) => (
         <li key={r.href} style={{ padding: '10px 0', borderBottom: inkDivider }}>
           <Link href={r.href} style={{ ...inkLink, fontWeight: 'bold' }}>{r.headline}</Link>
-          <div style={{ fontFamily: 'monospace', fontSize: '15px', opacity: 0.75, margin: '2px 0 4px' }}>{r.date}</div>
+          <div style={{ fontFamily: 'monospace', fontSize: '15px', opacity: 0.75, margin: '2px 0 4px' }}>{r.date} · {r.readingLabel}</div>
           {r.summary && <p style={{ margin: 0 }}>{r.summary}</p>}
         </li>
       ))}

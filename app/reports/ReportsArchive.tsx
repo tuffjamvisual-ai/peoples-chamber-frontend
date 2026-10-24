@@ -16,6 +16,7 @@ export type ArchiveItem = {
   headline: string;
   summary: string;
   dateLabel: string;
+  readingLabel: string; // "6 min read" (lib/reading-time.ts)
   topics: string[];
 };
 
@@ -146,7 +147,7 @@ export default function ReportsArchive({ items, topics }: { items: ArchiveItem[]
             <h2 style={{ fontFamily: MONO, fontSize: 'clamp(22px, 2.6vw, 32px)', fontWeight: 'bold', letterSpacing: '0.01em', lineHeight: 1.1, marginBottom: '8px' }}>
               {e.headline}
             </h2>
-            <div style={{ fontSize: '15px', color: INK, marginBottom: '6px' }}>{e.dateLabel}</div>
+            <div style={{ fontSize: '15px', color: INK, marginBottom: '6px' }}>{e.dateLabel} · {e.readingLabel}</div>
             {e.summary && <p style={{ fontSize: '15px', lineHeight: 1.6, margin: 0, maxWidth: '46em' }}>{e.summary}</p>}
             <ContinueToArticle />
           </Link>
