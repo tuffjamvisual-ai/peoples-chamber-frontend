@@ -1,6 +1,7 @@
 // Reading time for reports ("6 min read"), shown on the article pages and beside the date in report lists.
-// Words are runs of non-whitespace in the headline, the standfirst and every text field of every body block (each
-// block's string values are walked, nested arrays and objects included, so no block type is missed). Fields that are
+// Words are runs of non-whitespace in what the article page shows: the headline and every text field of every body
+// block (each block's string values are walked, nested arrays and objects included, so no block type is missed). The
+// standfirst is not counted, as the article page does not display it (24 Oct 2026). Fields that are
 // links or images (href, photoHref, src, photo, councilSlug), alt text, the block type, and strings that are
 // themselves URLs or paths are skipped; inline links written as [words](/path) count their words only.
 // minutes = ceil(words / 238), at least 1: 238 words a minute is the average adult silent reading speed for
@@ -31,7 +32,7 @@ function wordsIn(value: unknown): number {
 }
 
 export function entryWords(entry: EditorialEntry): number {
-  return countWords(entry.headline) + countWords(entry.standfirst) + wordsIn(entry.body);
+  return countWords(entry.headline) + wordsIn(entry.body);
 }
 
 export function minutesForWords(words: number): number {

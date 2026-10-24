@@ -72,7 +72,8 @@ export default async function ReportsPage() {
     // The approved summary (migration 2026-10-23c), or the opening of the body when there is none.
     summary: (r.summary as string | null) || String(r.body || '').replace(/\s+/g, ' ').slice(0, 180).trim() + '…',
     date: (r.published_at as string) || (r.created_at as string),
-    readingLabel: textReadingLabel(r.headline as string, r.body as string | null),
+    // Database briefings: words in the headline, summary and body, at the same rate as the file reports.
+    readingLabel: textReadingLabel(r.headline as string, r.summary as string | null, r.body as string | null),
     topics: topics.filter((t) => matchWords(`${r.headline} ${r.summary ?? ''}`, t.words, t.exclude)).map((t) => t.slug),
   }));
 
@@ -95,10 +96,16 @@ export default async function ReportsPage() {
 
       <ReportsArchive
         topics={topics.map((t) => ({ slug: t.slug, title: t.title }))}
-        items={items.map((e): ArchiveItem => ({
-          href: e.href, type: e.type, kicker: e.kicker, headline: e.headline, summary: e.summary, topics: e.topics, readingLabel: e.readingLabel,
-          dateLabel: new Date(e.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }),
-        }))}
+        items={items.map((e): ArchiveItem => {
+          const d = new Date(e.date);
+          return {
+            href: e.href, type: e.type, kicker: e.kicker, headline: e.headline, summary: e.summary, topics: e.topics, readingLabel: e.readingLabel,
+            dateLabel: d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }),
+            // Month grouping (two-column archive): "2026-10" and "October 2026", in UTC like the date.
+            monthKey: d.toISOString().slice(0, 7),
+            monthLabel: d.toLocaleDateString('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' }),
+          };
+        })}
       />
     </OpenGovShell>
   );

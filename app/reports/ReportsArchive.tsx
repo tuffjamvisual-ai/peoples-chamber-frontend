@@ -8,6 +8,8 @@ import ContinueToArticle from '../components/ContinueToArticle';
 // is rendered into the page's HTML by the server; the client only hides the ones that do not match or are on another
 // page, so search engines see the full list and the page stays cached. q, topic, type and page live in the address
 // bar (history.replaceState), so Back from a report restores them.
+// Two columns grouped by month (24 Oct 2026): each month's visible reports sit under a month heading in a two-column
+// grid (one column below 720px). A month with no visible report on the current page is hidden with its heading.
 
 export type ArchiveItem = {
   href: string;
@@ -16,6 +18,8 @@ export type ArchiveItem = {
   headline: string;
   summary: string;
   dateLabel: string;
+  monthKey: string;   // "2026-10"
+  monthLabel: string; // "October 2026"
   readingLabel: string; // "6 min read" (lib/reading-time.ts)
   topics: string[];
 };
@@ -111,6 +115,18 @@ export default function ReportsArchive({ items, topics }: { items: ArchiveItem[]
     return out;
   }, [matches, page]);
 
+  // Items grouped by month, in their existing order (newest first), each with its index into items.
+  const months = useMemo(() => {
+    const out: { key: string; label: string; idx: number[] }[] = [];
+    items.forEach((e, i) => {
+      const last = out[out.length - 1];
+      if (last && last.key === e.monthKey) last.idx.push(i);
+      else out.push({ key: e.monthKey, label: e.monthLabel, idx: [i] });
+    });
+    return out;
+  }, [items]);
+  const firstShownMonth = months.findIndex((m) => m.idx.some((i) => visible[i]));
+
   return (
     <>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '12px', alignItems: 'baseline' }}>
@@ -130,28 +146,49 @@ export default function ReportsArchive({ items, topics }: { items: ArchiveItem[]
         {state.q.trim() ? `${count} report${count === 1 ? '' : 's'} matching "${state.q.trim()}"` : `${count} report${count === 1 ? '' : 's'}`}
       </p>
 
-      <div style={{ borderTop: `1px solid ${HAIRLINE}`, fontFamily: MONO }}>
-        {items.map((e, i) => (
-          <Link
-            key={e.href}
-            href={e.href}
-            className="no-hover-scale"
-            hidden={!visible[i]}
-            style={{ display: visible[i] ? 'block' : 'none', padding: '22px 0', borderBottom: `1px solid ${HAIRLINE}`, textDecoration: 'none', color: INK }}
-          >
-            {/* The type, then the piece's own kicker when it says something the type does not. */}
-            <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.28em', color: ACCENT, fontWeight: 'bold', marginBottom: '8px' }}>
-              {e.type}
-              {e.kicker && e.kicker.toLowerCase() !== e.type.toLowerCase() ? ` · ${e.kicker}` : ''}
-            </div>
-            <h2 style={{ fontFamily: MONO, fontSize: 'clamp(22px, 2.6vw, 32px)', fontWeight: 'bold', letterSpacing: '0.01em', lineHeight: 1.1, marginBottom: '8px' }}>
-              {e.headline}
-            </h2>
-            <div style={{ fontSize: '15px', color: INK, marginBottom: '6px' }}>{e.dateLabel} · {e.readingLabel}</div>
-            {e.summary && <p style={{ fontSize: '15px', lineHeight: 1.6, margin: 0, maxWidth: '46em' }}>{e.summary}</p>}
-            <ContinueToArticle />
-          </Link>
-        ))}
+      {/* Inline styles cannot hold a media query: the grid's columns live in this class. */}
+      <style>{`
+        .reports-month-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 40px; row-gap: 0; align-items: stretch; }
+        @media (max-width: 719.98px) { .reports-month-grid { grid-template-columns: minmax(0, 1fr); } }
+      `}</style>
+      <div style={{ fontFamily: MONO }}>
+        {months.map((m, mi) => {
+          const shown = m.idx.some((i) => visible[i]);
+          return (
+            <section key={m.key} hidden={!shown} style={{ display: shown ? 'block' : 'none' }}>
+              <h2 style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 'bold', color: INK, borderBottom: `1px solid ${INK_HAIRLINE}`, padding: mi === firstShownMonth ? '0 0 8px' : '28px 0 8px', margin: 0 }}>
+                {m.label}
+              </h2>
+              <div className="reports-month-grid">
+                {m.idx.map((i) => {
+                  const e = items[i];
+                  return (
+                    <Link
+                      key={e.href}
+                      href={e.href}
+                      className="no-hover-scale"
+                      hidden={!visible[i]}
+                      style={{ display: visible[i] ? 'flex' : 'none', flexDirection: 'column', height: '100%', padding: '22px 0', borderBottom: `1px solid ${HAIRLINE}`, textDecoration: 'none', color: INK }}
+                    >
+                      {/* The type, then the piece's own kicker when it says something the type does not. */}
+                      <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.22em', color: ACCENT, fontWeight: 'bold', marginBottom: '8px' }}>
+                        {e.type}
+                        {e.kicker && e.kicker.toLowerCase() !== e.type.toLowerCase() ? ` · ${e.kicker}` : ''}
+                      </div>
+                      <h3 style={{ fontFamily: MONO, fontSize: 'clamp(19px, 1.9vw, 25px)', fontWeight: 'bold', letterSpacing: '0.01em', lineHeight: 1.15, marginBottom: '8px' }}>
+                        {e.headline}
+                      </h3>
+                      <div style={{ fontSize: '14px', color: INK, marginBottom: '6px' }}>{e.dateLabel} · {e.readingLabel}</div>
+                      {e.summary && <p style={{ fontSize: '15px', lineHeight: 1.55, margin: 0 }}>{e.summary}</p>}
+                      {/* Pushed to the foot of the card so cards in the same row line up. */}
+                      <ContinueToArticle style={{ marginTop: 'auto', paddingTop: '6px' }} />
+                    </Link>
+                  );
+                })}
+              </div>
+            </section>
+          );
+        })}
         {count === 0 && <p style={{ padding: '22px 0', fontSize: '15px', color: INK }}>No reports match.</p>}
       </div>
 
