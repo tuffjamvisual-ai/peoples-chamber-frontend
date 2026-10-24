@@ -16,6 +16,7 @@ import { departments } from '@/lib/departments';
 import { countableContracts, isFrameworkRow } from '@/lib/contract-counting';
 import { donorNameToSlug, narrowTokens } from '@/lib/donor-slug';
 import { ecDonationSearchUrl } from '@/lib/ec-links';
+import { relatedDonorNames } from '@/lib/donor-related';
 
 export const revalidate = 86400;
 
@@ -159,6 +160,9 @@ export default async function DonorPage({ params }: PageProps) {
   );
 
   if (donations.length === 0) notFound();
+
+  // Other donor pages with a similar name (lib/donor-related.ts): a name similarity only, nothing is combined.
+  const relatedNames = await relatedDonorNames(canonicalName, slug);
 
   // Roll-ups
   const total = donations.reduce((s, d) => s + (Number(d.amount) || 0), 0);
@@ -326,11 +330,34 @@ export default async function DonorPage({ params }: PageProps) {
       </header>
 
       <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px', marginBottom: '28px' }}>
-        <Tile label="Total given" value={fmtMoney(total)} sub={`${donations.length} donations`} accent={ACCENT} />
+        <Tile label="Total given under this registered name" value={fmtMoney(total)} sub={`${donations.length} donations`} accent={ACCENT} />
         <Tile label="Recipients" value={String(recipientRows.length)} sub="distinct entities" accent={INK_SOFT} />
         <Tile label="Period" value={firstDate && lastDate ? `${(new Date(firstDate)).getFullYear()}, ${(new Date(lastDate)).getFullYear()}` : ''} sub="first to last accepted" accent={INK_SOFT} />
         {flaggedReturned + flaggedImpermissible + flaggedConcealment > 0 && (
           <Tile label="Flagged" value={String(flaggedReturned + flaggedImpermissible + flaggedConcealment)} sub={`${flaggedReturned} returned · ${flaggedImpermissible} impermissible · ${flaggedConcealment} concealment`} accent={DANGER} />
+        )}
+      </section>
+
+      {/* Registered names (24 Oct 2026): these totals cover this name only. Similar names are listed as possibly
+          related, never combined. */}
+      <section aria-label="About these totals" style={{ marginTop: '-14px', marginBottom: '28px', fontSize: '15px', lineHeight: 1.6 }}>
+        <p style={{ margin: 0, maxWidth: '70ch' }}>
+          The Electoral Commission records donors by the name given on each report. The same person or company may appear under more than one name; these totals are not combined.
+        </p>
+        {relatedNames.length > 0 && (
+          <div style={{ marginTop: '14px' }}>
+            <h2 style={{ ...sectionH2, marginBottom: '4px' }}>Other donor names that may be related</h2>
+            <p style={{ margin: '0 0 8px', opacity: 0.8, maxWidth: '70ch' }}>
+              A name similarity only, not a confirmed identity: these names share the first and last word with this one once titles and punctuation are set aside. Each has its own page and totals.
+            </p>
+            <ul style={{ margin: 0, paddingLeft: '1.2em' }}>
+              {relatedNames.map((r) => (
+                <li key={r.slug} style={{ marginBottom: '2px' }}>
+                  <Link href={`/donors/${r.slug}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.name}</Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </section>
 
