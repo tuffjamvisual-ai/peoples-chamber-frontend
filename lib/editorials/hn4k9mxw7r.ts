@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'hn4k9mxw7r',
   kicker: 'Accountability',
-  headline: `MHCLG, RBKC and London Fire Brigade Among Bodies Referred to CPS After Grenfell Investigation`,
+  headline: `Housing Ministry Referred to Prosecutors Over Grenfell`,
   standfirst: `The Ministry of Housing, Communities and Local Government, the Royal Borough of Kensington and Chelsea and the London Fire Brigade are among the organisations referred to the Crown Prosecution Service following the Metropolitan Police's Grenfell investigation. MHCLG said it was notified in 2023 that it was under investigation, a fact not previously made public. RBKC is understood to face potential consideration of corporate manslaughter as well as health and safety offences; MHCLG's statement specifies only a Health and Safety at Work Act offence.`,
   summary: "MHCLG, RBKC and London Fire Brigade are among the bodies referred to the CPS after the Metropolitan Police’s Grenfell investigation.",
   publishedAt: '2026-09-30',

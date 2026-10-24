@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'mi5k7qxw9n',
   kicker: 'National Security',
-  headline: `MI5 Gave False Evidence to the Courts After an Officer Lied About What He Told the BBC`,
+  headline: `MI5 Gave Courts False Evidence After Officer Lied`,
   standfirst: `In June 2020, a senior MI5 officer told a BBC journalist that Agent X was an MI5 informant. Less than two years later, MI5 gave the High Court a witness statement saying that had never happened. The statement was false. An investigation of 213 pages, published on 16 July, has now established that the officer who made the original disclosure knew throughout that he had done so and later fabricated an account denying it.`,
   summary: "MI5 gave false evidence to the courts after one of its officers lied about what he had told the BBC.",
   publishedAt: '2026-07-16',

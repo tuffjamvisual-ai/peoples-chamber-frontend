@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'px4n9mxw7r',
   kicker: 'Justice',
-  headline: `Government Calls Tagging Regime Britain's Toughest Ever as Inspectors Warn of 'False Sense of Assurance'`,
+  headline: `'Toughest Ever' Tagging Risks False Assurance, Inspectors Warn`,
   standfirst: `From 1 October, the government says offenders leaving prison will face the toughest supervision in British history, with expanded tagging, new location restriction zones and access to data in near real time for probation staff. Two days earlier, HM Inspectorate of Probation warned the system risks creating a "false sense of assurance" if technology is not matched by effective practice. The National Audit Office said in July that further expansion "will not be effective or efficient" without fixing weaknesses in governance and data quality that the department has already identified.`,
   summary: "The government calls its tagging regime Britain’s toughest ever, while inspectors warn it risks creating a “false sense of assurance”.",
   publishedAt: '2026-10-01',

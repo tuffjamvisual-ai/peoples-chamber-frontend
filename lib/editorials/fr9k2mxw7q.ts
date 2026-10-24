@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'fr9k2mxw7q',
   kicker: 'Surveillance',
-  headline: `17 Facial Recognition Deployments at London Stations Produced No Watchlist Matches`,
+  headline: `Station Face Scans Ran 17 Times and Caught No One`,
   standfirst: `British Transport Police used live facial recognition at seven London railway stations on 17 occasions between February and July without producing a confirmed match to anybody on its watchlists. One person was stopped after the system generated an alert. Police established that they were not the person being sought. No arrest resulted from facial recognition during any of the 17 deployments.`,
   summary: "Seventeen live facial recognition deployments at London stations produced no confirmed watchlist matches and no arrests.",
   publishedAt: '2026-08-04',

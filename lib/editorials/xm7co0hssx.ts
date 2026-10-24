@@ -3,9 +3,9 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'xm7co0hssx',
   kicker: 'Child Protection',
-  headline: `Police Are Reopening Grooming Cases They Previously Closed`,
+  headline: `Police in Eight Areas Ordered to Reopen Closed Grooming Cases`,
   standfirst: `On 15 June, the National Crime Agency said police forces had been ordered to reopen previously closed child sexual exploitation cases in eight force areas because reviewers had found possible lines of inquiry that had not been exhausted. The cases form part of Operation Beaconport, the national police review created after Baroness Louise Casey's 2025 National Audit on Group-based Child Sexual Exploitation and Abuse.`,
-  summary: "Police in eight force areas have been ordered to reopen closed grooming cases after reviewers found possible lines of inquiry not exhausted.",
+  summary: "Police in eight force areas have been ordered to reopen closed grooming cases that reviewers say may have viable lines of inquiry.",
   publishedAt: '2026-06-24',
   authorByline: 'opengovt',
   body: [

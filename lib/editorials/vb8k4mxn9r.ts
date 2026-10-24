@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'vb8k4mxn9r',
   kicker: 'Energy & Infrastructure',
-  headline: `Great British Grid Launched Without a Long Term Budget, First Project or Estimate of Bill Savings`,
+  headline: `Great British Grid Has No First Project or Savings Estimate`,
   standfirst: `The government has created Great British Grid to invest public capital in electricity transmission infrastructure alongside private investors. Its budget for the long term will be set at a future Spending Review. No first project has been identified and the launch documents contain no quantified estimate of how much its investments will reduce household bills.`,
   summary: "Great British Grid has launched without a long term budget, a first project or any estimate of household bill savings.",
   publishedAt: '2026-09-30',
