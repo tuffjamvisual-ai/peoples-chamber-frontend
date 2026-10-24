@@ -104,6 +104,7 @@ async function GET_impl(req: Request) {
 
   const { count: remaining } = await supabase.from('bill').select('id', { count: 'exact', head: true })
     .not('parliament_id', 'is', null).or(`stages_synced_at.is.null,stages_synced_at.lt.${cutoff}`);
+  if (fail > 0) console.error(JSON.stringify({ route: '/api/sync-bill-stages', targeted: targets.length, ok, fail, skipped_for_time: skippedForTime, first_failures: failures.slice(0, 5) }));
   return NextResponse.json({
     targeted: targets.length,
     rows_written: ok,
