@@ -96,6 +96,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/donations/double-dip`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
     { url: `${SITE}/appg-funders`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${SITE}/about`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
+    // Commission research (launched 24 Oct 2026).
+    { url: `${SITE}/commission`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${SITE}/commission/terms`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${SITE}/newsletter`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
     ...(SHOW_YOUR_TAX_POUND ? [{ url: `${SITE}/your-tax-pound`, lastModified: now, changeFrequency: 'monthly' as const, priority: 0.8 }] : []),
     ...(SHOW_BUDGET_CHOICES ? [{ url: `${SITE}/budget-trade-offs`, lastModified: now, changeFrequency: 'monthly' as const, priority: 0.8 }] : []),

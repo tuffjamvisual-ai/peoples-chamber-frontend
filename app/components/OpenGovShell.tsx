@@ -82,6 +82,7 @@ const NAV: NavItem[] = [
     { label: "opengovt Polls", href: '/polls' },
     { label: 'Vote on Bills', href: '/bills' },
   ] },
+  { label: 'Commission', href: '/commission' },
   { label: 'Contact', href: '/contact' },
 ];
 
@@ -133,7 +134,7 @@ export default function OpenGovShell({
             </a>
           </div>
 
-          <nav aria-label="Primary" className="og-navwrap" style={{ position: 'absolute', top: '10.6%', left: '2%', width: '96%', zIndex: 5, transform: 'translateX(5%) rotate(-2.5deg)' }}>
+          <nav aria-label="Primary" className="og-navwrap" style={{ position: 'absolute', top: '10.6%', left: '2%', width: '96%', zIndex: 5, transform: 'translateX(1.5%) rotate(-2.5deg)' }}>
             <ul className="ng-nav">
               {NAV.map((item) => (
                 <li key={item.label}>
@@ -175,6 +176,8 @@ export default function OpenGovShell({
                 <a href="/terms" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Terms</a>
                 <span aria-hidden style={{ opacity: 0.4 }}>·</span>
                 <a href="/contact" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Contact</a>
+                <span aria-hidden style={{ opacity: 0.4 }}>·</span>
+                <a href="/commission" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Commission research</a>
                 <span style={{ flex: '1 1 auto', minWidth: '12px' }} />
                 <span style={{ color: '#14100d' }}>opengovt · independent and nonpartisan</span>
               </div>

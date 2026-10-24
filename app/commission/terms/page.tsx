@@ -3,13 +3,12 @@ import Link from 'next/link';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 
-// Terms for commissioned research (owner's brief, 24 Oct 2026). Live but UNLINKED and noindex for the owner's
-// review, like /commission.
+// Terms for commissioned research (owner's brief, 24 Oct 2026; launched the same day with /commission).
 
 export const metadata: Metadata = {
   title: 'Terms for commissioned research',
   description: 'The terms that apply when you commission research from Open Govt.',
-  robots: { index: false, follow: false },
+  alternates: { canonical: '/commission/terms' },
 };
 
 const INK = '#14100d';

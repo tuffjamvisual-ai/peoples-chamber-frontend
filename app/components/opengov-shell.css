@@ -48,11 +48,12 @@
 .dossier-frame .d-bottom { width: 100%; aspect-ratio: 1023 / 157; background: url('/folder-bottom.webp') no-repeat; background-size: 100% 100%; margin-top: -5%; -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 26%); mask-image: linear-gradient(180deg, transparent 0%, #000 26%); }
 .dossier-content { position: relative; z-index: 1; padding: clamp(64px, 12cqw, 150px) clamp(28px, 8.5cqw, 96px) clamp(40px, 7cqw, 90px); }
 
-/* ---- Tablet and small laptop (761-1150px): the nav no longer fits on one
+/* ---- Tablet and small laptop (761-1260px): the nav no longer fits on one
    line, so let it wrap onto two centred lines, drop the slight shift to the
    right (it pushed the nav off the edge), and lower the folder so the second
-   line shows. Above 1150px the desktop layout is unchanged. ---- */
-@media (min-width: 761px) and (max-width: 1150px) {
+   line shows. Above 1260px the desktop layout is unchanged. (1150px until 24 Oct 2026, when the Commission
+   menu item made the one-line menu run past the folder between 1151 and 1260px.) ---- */
+@media (min-width: 761px) and (max-width: 1260px) {
   .og-navwrap { left: 5% !important; width: 90% !important; transform: rotate(-2.5deg) !important; }
   .og-navwrap .ng-nav { flex-wrap: wrap !important; justify-content: center !important; row-gap: 2px; font-size: clamp(14px, 1.5cqw, 14px) !important; }
   .og-navwrap .ng-nav > li > a { padding: 3px 8px !important; }

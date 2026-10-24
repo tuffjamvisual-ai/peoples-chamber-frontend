@@ -4,13 +4,13 @@ import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import CommissionForm from './CommissionForm';
 
-// Commission research (owner's brief, 24 Oct 2026). Live but UNLINKED and noindex for the owner's review: not in the
-// menu, the footer or the sitemap.
+// Commission research (owner's brief, 24 Oct 2026; launched the same day): in the menu, the footer, the contact page
+// and the sitemap.
 
 export const metadata: Metadata = {
   title: 'Commission research',
   description: 'Commission an independent, fully sourced research report from Open Govt.',
-  robots: { index: false, follow: false },
+  alternates: { canonical: '/commission' },
 };
 
 const INK = '#14100d';

@@ -17,7 +17,8 @@ const INK = '#14100d'
 
 const EMAIL = 'contact@opengovt.uk'
 
-const CHANNELS = [
+// Each entry opens an email with its subject, or (with href) goes to a page on the site.
+const CHANNELS: { label: string; body: string; subject: string; href?: string }[] = [
   {
     label: 'Corrections',
     body: 'Spotted something wrong in an MP record, a bill, a vote or a department page? Tell us what and where, and we will check it against the source and fix it.',
@@ -32,6 +33,12 @@ const CHANNELS = [
     label: 'Press',
     body: 'Media enquiries, interviews and background for stories.',
     subject: 'Press enquiry',
+  },
+  {
+    label: 'Commission research',
+    body: 'Need a specific question answered from the public record? Commission a sourced research report.',
+    subject: 'Commission research',
+    href: '/commission',
   },
   {
     label: 'General',
@@ -81,7 +88,7 @@ export default function ContactPage() {
             {col.map((c) => (
               <a
                 key={c.subject}
-                href={`mailto:${EMAIL}?subject=${encodeURIComponent(c.subject)}`}
+                href={c.href ?? `mailto:${EMAIL}?subject=${encodeURIComponent(c.subject)}`}
                 className="c-card no-hover-scale"
                 style={{ display: 'block', padding: '14px 0 18px', borderTop: '1px solid rgba(20,16,13,0.25)', color: INK, textDecoration: 'none' }}
               >
