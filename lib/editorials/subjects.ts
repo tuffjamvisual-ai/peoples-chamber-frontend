@@ -59,7 +59,7 @@ export const SUBJECTS: Record<string, string[]> = {
     'qn4k9mxw7r', 'rm4n9mxw7r',
   ],
   'Money in politics': [
-    'p4w9k2xr7n', 'hb9k2xq7mw', 'q7m3k9xw2r', 'v3n8q2xk6w', 'zt7m4kq9xw', 'power-for-sale-20-politicians-who-cashed-in',
+    'p4w9k2xr7n', 'q7m3k9xw2r', 'v3n8q2xk6w', 'zt7m4kq9xw', 'power-for-sale-20-politicians-who-cashed-in',
   ],
   'Online safety, data and surveillance': [
     'kn4r9mxw7q', 'wq7m4kx2np', 'fr9k2mxw7q', 'obd5xiiexy', 'tq6m4kx9w2',

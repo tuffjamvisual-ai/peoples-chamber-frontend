@@ -141,7 +141,13 @@ const nextConfig: NextConfig = {
       { source: '/editorials', destination: '/reports', statusCode: 301 as const },
       { source: '/briefings', destination: '/reports', statusCode: 301 as const },
     ];
-    return [...editorialRedirects, ...briefingRedirects, ...notFoundRedirects, ...billsPageRedirects, ...reportsRedirects, ...(await councilRedirects()), ...(await agencyRedirects())];
+    // The two Reform crypto bill reports merged (owner's approval, 24 Oct 2026): the older one, hb9k2xq7mw, and its
+    // sources page 301 to q7m3k9xw2r.
+    const mergedReportRedirects = [
+      { source: '/editorials/hb9k2xq7mw', destination: '/editorials/q7m3k9xw2r', statusCode: 301 as const },
+      { source: '/editorials/hb9k2xq7mw/sources', destination: '/editorials/q7m3k9xw2r/sources', statusCode: 301 as const },
+    ];
+    return [...editorialRedirects, ...briefingRedirects, ...notFoundRedirects, ...mergedReportRedirects, ...billsPageRedirects, ...reportsRedirects, ...(await councilRedirects()), ...(await agencyRedirects())];
   },
   images: {
     remotePatterns: [
