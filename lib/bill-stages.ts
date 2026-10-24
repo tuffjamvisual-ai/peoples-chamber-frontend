@@ -22,6 +22,16 @@ const MAX_PAGES = 20; // 2,000 stages — far beyond any real bill; guards a run
 type StageItem = { description?: string; stageSittings?: Array<{ date?: string }>; [k: string]: unknown };
 export type BillStagesJson = { items: StageItem[]; totalResults: number; itemsPerPage: number; [k: string]: unknown };
 
+// The Bills API answers 404 for a bill it no longer has (24 Oct 2026: three bills had returned 404 since June). Thrown
+// so the sync can tell "not found" from a real failure; every other status throws a plain Error as before.
+export class BillNotFoundError extends Error {
+  readonly status = 404;
+  constructor(parliamentId: number) {
+    super(`Bills API 404 for bill ${parliamentId}`);
+    this.name = 'BillNotFoundError';
+  }
+}
+
 export async function fetchAllBillStages(parliamentId: number): Promise<BillStagesJson> {
   const items: StageItem[] = [];
   let totalResults = 0;
@@ -32,6 +42,7 @@ export async function fetchAllBillStages(parliamentId: number): Promise<BillStag
       cache: 'no-store',
       signal: AbortSignal.timeout(30_000),
     });
+    if (res.status === 404) throw new BillNotFoundError(parliamentId);
     if (!res.ok) throw new Error(`Bills API ${res.status}`);
     const json = await res.json();
     if (!first) first = json;

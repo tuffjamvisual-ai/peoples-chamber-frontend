@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { revalidateBillPages } from '@/lib/revalidate-bills';
 import { createClient } from '@supabase/supabase-js';
 import { refreshStore } from '@/lib/refresh-stores';
-import { fetchAllBillStages, deriveCurrentStage } from '@/lib/bill-stages';
+import { fetchAllBillStages, deriveCurrentStage, BillNotFoundError } from '@/lib/bill-stages';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 
 export const dynamic = 'force-dynamic';
@@ -63,7 +63,7 @@ async function GET_impl(req: Request) {
 
   const targets = rows || [];
   const queue = [...targets];
-  let ok = 0, fail = 0, skippedForTime = 0;
+  let ok = 0, fail = 0, notFound = 0, skippedForTime = 0;
   const failures: Array<{ id: number; detail: string }> = [];
 
   async function worker() {
@@ -89,6 +89,13 @@ async function GET_impl(req: Request) {
         if (error) throw error;
         ok++;
       } catch (err) {
+        if (err instanceof BillNotFoundError) {
+          // The Bills API no longer has this bill (24 Oct 2026). Its stored stages, current_stage and stage_date are
+          // kept; only stages_synced_at moves, so it is retried after the normal stale window instead of every run.
+          const { error: touchErr } = await supabase.from('bill').update({ stages_synced_at: new Date().toISOString() }).eq('id', row.id);
+          if (!touchErr) { notFound++; await sleep(DELAY_MS); continue; }
+          err = touchErr;
+        }
         fail++;
         if (failures.length < 20) failures.push({ id: row.id, detail: (err as Error).message });
       }
@@ -104,18 +111,19 @@ async function GET_impl(req: Request) {
 
   const { count: remaining } = await supabase.from('bill').select('id', { count: 'exact', head: true })
     .not('parliament_id', 'is', null).or(`stages_synced_at.is.null,stages_synced_at.lt.${cutoff}`);
-  if (fail > 0) console.error(JSON.stringify({ route: '/api/sync-bill-stages', targeted: targets.length, ok, fail, skipped_for_time: skippedForTime, first_failures: failures.slice(0, 5) }));
+  if (fail > 0) console.error(JSON.stringify({ route: '/api/sync-bill-stages', targeted: targets.length, ok, fail, not_found: notFound, skipped_for_time: skippedForTime, first_failures: failures.slice(0, 5) }));
   return NextResponse.json({
     targeted: targets.length,
     rows_written: ok,
     fail,
+    not_found: notFound,
     failures,
     skipped_for_time: skippedForTime,
     still_due: remaining ?? null,
     stores_refresh: storesRefresh,
     duration_ms: Date.now() - started,
     syncedAt: new Date().toISOString(),
-  }, { status: targets.length > 0 && ok === 0 ? 502 : 200 });
+  }, { status: targets.length > 0 && ok === 0 && notFound < targets.length ? 502 : 200 });
 }
 
 export const GET = withHeartbeat('/api/sync-bill-stages', GET_impl);
