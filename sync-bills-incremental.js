@@ -75,6 +75,10 @@ const clean = (s) => {
   return t ? t : null;
 };
 
+// A short title with no letters once a trailing "Bill" (and any dots before it) is taken off, such as ".", ". Bill"
+// or "Bill", is a placeholder, not a title (bill 3912 was saved as ". Bill", 24 Oct 2026).
+const placeholderTitle = (t) => !/[A-Za-z]/.test(t.replace(/\bBill\s*$/i, ''));
+
 (async () => {
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) throw new Error('SUPABASE_SERVICE_ROLE_KEY not set');
 
@@ -138,7 +142,12 @@ const clean = (s) => {
       if (!member) noSponsor++;
       const row = {
         parliament_id: b.billId,
-        title: clean(b.shortTitle) || 'Untitled Bill',
+        title: (() => {
+          const t = clean(b.shortTitle);
+          if (t && !placeholderTitle(t)) return t;
+          if (t) console.warn(`bill ${b.billId}: short title ${JSON.stringify(t)} has no words; saved as "Untitled Bill"`);
+          return 'Untitled Bill';
+        })(),
         long_title: clean(detail.longTitle),
         description: clean(detail.summary),
         category: categoryByType.get(b.billTypeId) || null,

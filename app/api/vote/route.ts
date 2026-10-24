@@ -96,6 +96,21 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Hidden bills (bill.hidden_reason: duplicates and bad records) have no page and take no votes (24 Oct 2026).
+    // A bill that does not exist, or is hidden, gets 404 and nothing is recorded.
+    const { data: target, error: targetErr } = await supabase
+      .from('bill')
+      .select('id, hidden_reason')
+      .eq('id', billId)
+      .maybeSingle();
+    if (targetErr) {
+      console.error('Vote bill lookup error:', targetErr);
+      return NextResponse.json({ error: 'Failed to submit vote' }, { status: 500 });
+    }
+    if (!target || target.hidden_reason) {
+      return NextResponse.json({ error: 'Bill not found' }, { status: 404 });
+    }
+
     // Check if user already voted on this bill
     const { data: existingVote } = await supabase
       .from('vote')

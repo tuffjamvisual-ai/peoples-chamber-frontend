@@ -56,6 +56,8 @@ async function GET_impl(req: Request) {
     .from('bill')
     .select('id, parliament_id, stages_synced_at')
     .not('parliament_id', 'is', null)
+    // Hidden bills (bill.hidden_reason) have no page and are not refreshed (24 Oct 2026).
+    .is('hidden_reason', null)
     .or(`stages_synced_at.is.null,stages_synced_at.lt.${cutoff}`)
     .order('stages_synced_at', { ascending: true, nullsFirst: true })
     .limit(RUN_CAP);
@@ -110,7 +112,7 @@ async function GET_impl(req: Request) {
   const storesRefresh = ok > 0 ? await refreshStore(supabase, 'refresh_bill_stores') : null;
 
   const { count: remaining } = await supabase.from('bill').select('id', { count: 'exact', head: true })
-    .not('parliament_id', 'is', null).or(`stages_synced_at.is.null,stages_synced_at.lt.${cutoff}`);
+    .not('parliament_id', 'is', null).is('hidden_reason', null).or(`stages_synced_at.is.null,stages_synced_at.lt.${cutoff}`);
   if (fail > 0) console.error(JSON.stringify({ route: '/api/sync-bill-stages', targeted: targets.length, ok, fail, not_found: notFound, skipped_for_time: skippedForTime, first_failures: failures.slice(0, 5) }));
   return NextResponse.json({
     targeted: targets.length,

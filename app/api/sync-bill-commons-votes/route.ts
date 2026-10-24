@@ -94,6 +94,8 @@ async function GET_impl(req: Request) {
     .select('id, parliament_id, title, stages')
     .or('commons_ayes.is.null,commons_ayes.eq.0')
     .not('parliament_id', 'is', null)
+    // Hidden bills (bill.hidden_reason) have no page and are not refreshed (24 Oct 2026).
+    .is('hidden_reason', null)
     .is('commons_vote_tried_at', null)
     .limit(RUN_CAP);
   if (!selErr && (!rows || rows.length === 0)) {
@@ -104,6 +106,7 @@ async function GET_impl(req: Request) {
       .select('id, parliament_id, title, stages')
       .or('commons_ayes.is.null,commons_ayes.eq.0')
       .not('parliament_id', 'is', null)
+      .is('hidden_reason', null)
       .lt('commons_vote_tried_at', new Date(Date.now() - RETRY_DAYS * 86_400_000).toISOString())
       .order('commons_vote_tried_at', { ascending: true })
       .limit(RUN_CAP));

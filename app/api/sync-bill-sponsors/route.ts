@@ -45,8 +45,17 @@ type StoredSponsor = {
 
 type Fetched = { items: StoredSponsor[]; billTypeId: number | null; departments: string[] };
 
+// The Bills API no longer has the bill (404): handled like the stages sync (lib/bill-stages.ts BillNotFoundError).
+class BillNotFoundError extends Error {
+  constructor(parliamentId: number) {
+    super(`Bills API 404 for bill ${parliamentId}`);
+    this.name = 'BillNotFoundError';
+  }
+}
+
 async function fetchSponsors(parliamentId: number): Promise<Fetched> {
   const res = await fetch(`${PARLIAMENT_API}/${parliamentId}`, { signal: AbortSignal.timeout(20_000) });
+  if (res.status === 404) throw new BillNotFoundError(parliamentId);
   if (!res.ok) throw new Error(`Bills API ${res.status}`);
   const j = (await res.json()) as ApiBill;
   const items = (j.sponsors || [])
@@ -92,6 +101,8 @@ async function GET_impl(req: Request) {
     .from('bill')
     .select('id, parliament_id, sponsors_synced_at')
     .not('parliament_id', 'is', null)
+    // Hidden bills (bill.hidden_reason) have no page and are not refreshed (24 Oct 2026).
+    .is('hidden_reason', null)
     .or(`sponsors_synced_at.is.null,sponsors_synced_at.lt.${cutoff}`)
     .order('sponsors_synced_at', { ascending: true, nullsFirst: true })
     .limit(RUN_CAP);
@@ -99,7 +110,8 @@ async function GET_impl(req: Request) {
 
   const targets = rows || [];
   let ok = 0,
-    fail = 0;
+    fail = 0,
+    notFound = 0;
   const failures: Array<{ id: number; detail: string }> = [];
   let skippedForTime = 0;
 
@@ -119,6 +131,13 @@ async function GET_impl(req: Request) {
       if (error) throw error;
       ok++;
     } catch (err) {
+      if (err instanceof BillNotFoundError) {
+        // The Bills API no longer has this bill (24 Oct 2026). Its stored sponsors are kept; only sponsors_synced_at
+        // moves, so it is retried after the normal 30 days instead of every run.
+        const { error: touchErr } = await supabase.from('bill').update({ sponsors_synced_at: new Date().toISOString() }).eq('id', row.id);
+        if (!touchErr) { notFound++; await sleep(120); continue; }
+        err = touchErr;
+      }
       fail++;
       if (failures.length < 20) failures.push({ id: row.id, detail: (err as Error).message });
     }
@@ -132,12 +151,13 @@ async function GET_impl(req: Request) {
     targeted: targets.length,
     rows_written: ok,
     fail,
+    not_found: notFound,
     failures,
     skipped_for_time: skippedForTime,
     stores_refresh: storesRefresh,
     duration_ms: Date.now() - started,
     syncedAt: new Date().toISOString(),
-  }, { status: targets.length > 0 && ok === 0 ? 502 : 200 });
+  }, { status: targets.length > 0 && ok === 0 && notFound < targets.length ? 502 : 200 });
 }
 
 export const GET = withHeartbeat('/api/sync-bill-sponsors', GET_impl);
