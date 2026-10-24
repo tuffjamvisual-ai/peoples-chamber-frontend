@@ -195,13 +195,13 @@ export default async function SearchPage({ searchParams }: PageProps) {
   const wantCouncils = q.length >= 2 && type === 'all' && !dept && !from && !to;
   // Donor names (24 Oct 2026): the same rule as councils. Name matches only, linked when the donor page exists
   // (lib/donor-search.ts); the first DONORS_SHOWN, with the full list on /donors.
-  const [results, councils, donorSearch]: [SearchResult[], CouncilSearchResult[], { results: DonorNameResult[]; more: boolean }] = q.length >= 2
+  const [results, councils, donorSearch]: [SearchResult[], CouncilSearchResult[], { results: DonorNameResult[]; more: boolean; totalNames: number }] = q.length >= 2
     ? await Promise.all([
         searchContent(q, type, dept, from, to, sort),
         wantCouncils ? searchCouncils(q) : Promise.resolve([]),
-        wantCouncils ? searchDonorNames(q) : Promise.resolve({ results: [], more: false }),
+        wantCouncils ? searchDonorNames(q) : Promise.resolve({ results: [], more: false, totalNames: 0 }),
       ])
-    : [[], [], { results: [], more: false }];
+    : [[], [], { results: [], more: false, totalNames: 0 }];
   const linkedDonors = donorSearch.results.filter((d) => d.slug);
   const donors = linkedDonors.slice(0, DONORS_SHOWN);
 
@@ -263,7 +263,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
       {donors.length > 0 && (
         <section aria-labelledby="search-donors" style={{ marginBottom: '28px' }}>
           <h2 id="search-donors" style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-            Donor names (as registered with the Electoral Commission) · {linkedDonors.length}{donorSearch.more ? '+' : ''}
+            Donor names (as registered with the Electoral Commission) · {(donorSearch.more ? donorSearch.totalNames : linkedDonors.length).toLocaleString('en-GB')}
           </h2>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {donors.map((d) => <DonorRow key={d.slug} d={d} />)}

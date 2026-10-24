@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdminRead as supabase } from '@/lib/supabase-admin';
 import { SECTORS, sectorForDonor, sectorForVote, ALL_VOTE_KEYWORDS } from '@/lib/donor-sectors';
+import { readAll } from '@/lib/read-all';
 
 export const dynamic = 'force-dynamic';
 
@@ -61,13 +62,18 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
   const donorOtherRecipients: Array<{ donor_name: string; recipients: Array<{ recipient: string; total: number }> }> = [];
   if (donorNames.length > 0) {
-    const { data: otherRows } = await supabase
-      .from('political_donations')
-      .select('donor_name, recipient_name, amount')
-      .in('donor_name', donorNames.slice(0, 60))
-      .not('recipient_name', 'is', null)
-      .limit(5000);
-    if (otherRows) {
+    // Every row for these donors (24 Oct 2026, report 36): a single read stopped at 1,000 rows, in no order, so for
+    // MPs whose donors give often (15 MPs today) the other recipients and totals were an arbitrary part of the record.
+    const otherRows = await readAll<{ donor_name: string | null; recipient_name: string | null; amount: number | string | null }>(
+      () => supabase.from('political_donations'),
+      {
+        columns: 'id, donor_name, recipient_name, amount',
+        filter: (q) => q.in('donor_name', donorNames.slice(0, 60)).not('recipient_name', 'is', null),
+        orderBy: 'id',
+        label: `/api/mps/${memberId}/donations other recipients`,
+      },
+    );
+    {
       const agg = new Map<string, Map<string, number>>();
       for (const r of otherRows as Array<{ donor_name: string | null; recipient_name: string | null; amount: number | string | null }>) {
         const dn = (r.donor_name || '').trim();

@@ -6,6 +6,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import { readAll } from '@/lib/read-all';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../../components/OpenGovShell';
 import BackLink from '../../../components/BackLink';
@@ -38,11 +39,13 @@ async function findCanonicalUnit(slug: string): Promise<string | null> {
   const tokens = slug.split('-').filter((t) => t.length >= 2);
   if (tokens.length === 0) return null;
   const ranked = tokens.slice().sort((a, b) => b.length - a.length).slice(0, 3);
-  let q = supabase.from('political_donations').select('accounting_unit_name').not('accounting_unit_name', 'is', null).limit(2000);
-  for (const t of ranked) q = q.ilike('accounting_unit_name', `%${t}%`);
-  const { data, error } = await q;
-  if (error) throw new Error(`constituency unit lookup: ${error.message}`);
-  if (!data) return null;
+  // Every matching row (24 Oct 2026, report 36): a single read stopped at 1,000 of them (22,824 for "central-party").
+  const data = await readAll<{ accounting_unit_name: string | null }>(() => supabase.from('political_donations'), {
+    columns: 'id, accounting_unit_name',
+    filter: (q) => ranked.reduce((acc, t) => acc.ilike('accounting_unit_name', `%${t}%`), q.not('accounting_unit_name', 'is', null)),
+    orderBy: 'id',
+    label: 'constituency unit lookup',
+  });
   const counts = new Map<string, number>();
   for (const r of data as Array<{ accounting_unit_name: string | null }>) {
     const n = (r.accounting_unit_name || '').trim();
@@ -81,16 +84,15 @@ export default async function AssociationPage({ params }: PageProps) {
 
   const tokens = slug.split('-').filter((t) => t.length >= 2);
   const ranked = tokens.slice().sort((a, b) => b.length - a.length).slice(0, 3);
-  let q = supabase
-    .from('political_donations')
-    .select('id, donor_name, donor_type, recipient_name, accounting_unit_name, amount, accepted_date, nature')
-    .not('accounting_unit_name', 'is', null)
-    .order('amount', { ascending: false })
-    .limit(2000);
-  for (const t of ranked) q = q.ilike('accounting_unit_name', `%${t}%`);
-  const { data: raw, error: rawErr } = await q;
-  if (rawErr) throw new Error(`constituency donations: ${rawErr.message}`);
-  const rows = ((raw || []) as Row[]).filter((r) => r.accounting_unit_name && unitNameToSlug(r.accounting_unit_name) === slug);
+  // Every donation to this association, largest first (24 Oct 2026, report 36): this read stopped at the 1,000 largest,
+  // so the total, count and donor league were incomplete where more matched ("central-party", 22,824 rows).
+  const raw = await readAll<Row>(() => supabase.from('political_donations'), {
+    columns: 'id, donor_name, donor_type, recipient_name, accounting_unit_name, amount, accepted_date, nature',
+    filter: (q) => ranked.reduce((acc, t) => acc.ilike('accounting_unit_name', `%${t}%`), q.not('accounting_unit_name', 'is', null)),
+    orderBy: [{ column: 'amount', ascending: false }, { column: 'id' }],
+    label: 'constituency donations',
+  });
+  const rows = raw.filter((r) => r.accounting_unit_name && unitNameToSlug(r.accounting_unit_name) === slug);
   if (rows.length === 0) notFound();
 
   const total = rows.reduce((s, r) => s + Number(r.amount || 0), 0);

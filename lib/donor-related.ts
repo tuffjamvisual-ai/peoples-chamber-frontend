@@ -5,6 +5,7 @@
 // and totals.
 import { supabase } from '@/lib/supabase';
 import { donorNameToSlug, donorPageSlug } from '@/lib/donor-slug';
+import { readAll } from '@/lib/read-all';
 
 // Personal titles removed before comparing names.
 const TITLES = new Set(['mr', 'mrs', 'ms', 'miss', 'mx', 'dr', 'sir', 'lord', 'lady', 'dame', 'baroness', 'baron', 'rt', 'hon', 'prof']);
@@ -49,12 +50,16 @@ export async function relatedDonorNames(name: string, ownSlug: string): Promise<
   // Narrow the database read with the key's words (two letters or more), then compare the key exactly.
   const narrow = [...new Set([first, last])].filter((w) => w.length >= 2);
   if (narrow.length === 0) return [];
-  let q = supabase.from('political_donations').select('donor_name').not('donor_name', 'is', null);
-  for (const w of narrow) q = q.ilike('donor_name', `%${w}%`);
-  const { data, error } = await q.limit(3000);
-  if (error) throw new Error(`related donor names: ${error.message}`);
+  // Every candidate row (24 Oct 2026, report 36): a single read stopped at 1,000 rows, in no order, so for common name
+  // pairs (6 over 1,000 rows, the largest 1,628) the list could miss names. lib/read-all.ts.
+  const data = await readAll<{ donor_name: string | null }>(() => supabase.from('political_donations'), {
+    columns: 'id, donor_name',
+    filter: (q) => narrow.reduce((acc, w) => acc.ilike('donor_name', `%${w}%`), q.not('donor_name', 'is', null)),
+    orderBy: 'id',
+    label: 'related donor names',
+  });
   const bySlug = new Map<string, Map<string, number>>();
-  for (const r of (data ?? []) as { donor_name: string | null }[]) {
+  for (const r of data) {
     const n = (r.donor_name ?? '').trim();
     if (!n || donorNameKey(n) !== key) continue;
     const s = donorNameToSlug(n);

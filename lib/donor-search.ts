@@ -5,6 +5,7 @@
 // (lib/donor-slug.ts donorPageSlug). Name matches only: no attempt is made to join different names for one donor.
 import { supabase } from '@/lib/supabase';
 import { donorNameToSlug, donorPageSlug } from '@/lib/donor-slug';
+import { readAll } from '@/lib/read-all';
 
 export type DonorNameResult = {
   name: string;          // the most used registered spelling for this donor page
@@ -12,8 +13,7 @@ export type DonorNameResult = {
   records: number;       // donation records under the name(s) behind this page
 };
 
-export const DONOR_SEARCH_ROWS = 5000; // donation rows read per search
-export const DONOR_SEARCH_RESULTS = 50; // donor names returned
+export const DONOR_SEARCH_RESULTS = 50; // donor names returned (a ranked first page)
 
 // Words of two characters or more; LIKE wildcards are escaped so they match literally.
 function words(q: string): string[] {
@@ -25,14 +25,18 @@ function words(q: string): string[] {
     .map((w) => w.replace(/[\\%_]/g, (c) => `\\${c}`));
 }
 
-export async function searchDonorNames(q: string): Promise<{ results: DonorNameResult[]; more: boolean }> {
+// totalNames is the number of donor pages that match; more is true when the returned first page is shorter than that.
+export async function searchDonorNames(q: string): Promise<{ results: DonorNameResult[]; more: boolean; totalNames: number }> {
   const ws = words(q);
-  if (ws.length === 0) return { results: [], more: false };
-  let query = supabase.from('political_donations').select('donor_name').not('donor_name', 'is', null);
-  for (const w of ws) query = query.ilike('donor_name', `%${w}%`);
-  const { data, error } = await query.limit(DONOR_SEARCH_ROWS);
-  if (error) throw new Error(`donor search: ${error.message}`);
-  const rows = (data ?? []) as { donor_name: string | null }[];
+  if (ws.length === 0) return { results: [], more: false, totalNames: 0 };
+  // Every matching row (24 Oct 2026, report 36): a single read stopped at 1,000 rows in no order, so common words
+  // ("Ltd", 6,787 rows) gave an arbitrary part of the names and understated record counts. lib/read-all.ts.
+  const rows = await readAll<{ donor_name: string | null }>(() => supabase.from('political_donations'), {
+    columns: 'id, donor_name',
+    filter: (query) => ws.reduce((acc, w) => acc.ilike('donor_name', `%${w}%`), query.not('donor_name', 'is', null)),
+    orderBy: 'id',
+    label: 'donor search',
+  });
 
   // Count each spelling, then group spellings by the donor page they share.
   const bySlug = new Map<string, Map<string, number>>();
@@ -50,5 +54,5 @@ export async function searchDonorNames(q: string): Promise<{ results: DonorNameR
     return { name, slug: donorPageSlug(name), records };
   });
   all.sort((a, b) => b.records - a.records || a.name.localeCompare(b.name, 'en-GB'));
-  return { results: all.slice(0, DONOR_SEARCH_RESULTS), more: all.length > DONOR_SEARCH_RESULTS || rows.length >= DONOR_SEARCH_ROWS };
+  return { results: all.slice(0, DONOR_SEARCH_RESULTS), more: all.length > DONOR_SEARCH_RESULTS, totalNames: all.length };
 }

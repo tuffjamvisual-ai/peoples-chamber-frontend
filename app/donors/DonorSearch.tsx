@@ -29,12 +29,12 @@ const field: CSSProperties = {
   boxSizing: 'border-box',
 };
 
-type State = { status: 'idle' | 'loading' | 'done' | 'error'; term: string; results: DonorNameResult[]; more: boolean };
+type State = { status: 'idle' | 'loading' | 'done' | 'error'; term: string; results: DonorNameResult[]; more: boolean; totalNames: number };
 
 export default function DonorSearch() {
   const [q, setQ] = useState('');
   const [ready, setReady] = useState(false);
-  const [state, setState] = useState<State>({ status: 'idle', term: '', results: [], more: false });
+  const [state, setState] = useState<State>({ status: 'idle', term: '', results: [], more: false, totalNames: 0 });
 
   // Read ?q= once, after mount (the server renders the page without a search).
   useEffect(() => {
@@ -57,17 +57,17 @@ export default function DonorSearch() {
         const res = await fetch(`/api/donors/search?q=${encodeURIComponent(term)}`);
         const body = await res.json();
         if (cancelled) return;
-        if (!res.ok) { setState({ status: 'error', term, results: [], more: false }); return; }
-        setState({ status: 'done', term, results: body.results ?? [], more: !!body.more });
+        if (!res.ok) { setState({ status: 'error', term, results: [], more: false, totalNames: 0 }); return; }
+        setState({ status: 'done', term, results: body.results ?? [], more: !!body.more, totalNames: Number(body.totalNames) || (body.results ?? []).length });
       } catch {
-        if (!cancelled) setState({ status: 'error', term, results: [], more: false });
+        if (!cancelled) setState({ status: 'error', term, results: [], more: false, totalNames: 0 });
       }
     }, 250);
     return () => { cancelled = true; clearTimeout(t); };
   }, [q, ready]);
 
   // A term of under two characters is no search, whatever the last answer was.
-  const shown: State = q.trim().length >= 2 ? state : { status: 'idle', term: '', results: [], more: false };
+  const shown: State = q.trim().length >= 2 ? state : { status: 'idle', term: '', results: [], more: false, totalNames: 0 };
 
   return (
     <section aria-label="Search donors" style={{ marginBottom: '28px', fontFamily: MONO, color: INK }}>
@@ -96,7 +96,7 @@ export default function DonorSearch() {
       {shown.status === 'done' && shown.results.length > 0 && (
         <div style={{ marginTop: '14px' }}>
           <p aria-live="polite" style={{ fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.12em', opacity: 0.75, margin: '0 0 8px' }}>
-            {shown.results.length}{shown.more ? '+' : ''} donor name{shown.results.length === 1 ? '' : 's'} matching &ldquo;{shown.term}&rdquo;
+            {shown.totalNames.toLocaleString('en-GB')} donor name{shown.totalNames === 1 ? '' : 's'} matching &ldquo;{shown.term}&rdquo;{shown.more ? `, showing the ${shown.results.length} with the most records` : ''}
           </p>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, borderTop: `1px solid ${HAIRLINE}` }}>
             {shown.results.map((r) => (

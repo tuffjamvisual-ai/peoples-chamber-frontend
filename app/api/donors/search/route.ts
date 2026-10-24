@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   const q = (new URL(request.url).searchParams.get('q') ?? '').trim().slice(0, 100);
-  if (q.length < 2) return NextResponse.json({ results: [], more: false });
+  if (q.length < 2) return NextResponse.json({ results: [], more: false, totalNames: 0 });
   try {
     return NextResponse.json(await searchDonorNames(q), { headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400' } });
   } catch (e) {
