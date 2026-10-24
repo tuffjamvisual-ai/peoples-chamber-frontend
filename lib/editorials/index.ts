@@ -113,6 +113,7 @@ import fordeReforms from './fq7m2wx9kd';
 import sendPlansDeficit from './mxredcgexu';
 import bulwarkSale from './onha85twx7';
 import pfiHandback from './2k888r5iqy';
+import dwpAlgorithm from './2qlh4c2zii';
 
 const allEditorials: EditorialRegistry = {
   [taggingRegime.slug]: taggingRegime,
@@ -225,6 +226,7 @@ const allEditorials: EditorialRegistry = {
   [sendPlansDeficit.slug]: sendPlansDeficit,
   [bulwarkSale.slug]: bulwarkSale,
   [pfiHandback.slug]: pfiHandback,
+  [dwpAlgorithm.slug]: dwpAlgorithm,
 };
 
 // Unpublished until their sources are added and checked (owner's decision, 22 Oct 2026). The files stay; leaving them

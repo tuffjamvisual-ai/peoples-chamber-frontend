@@ -129,7 +129,7 @@ export const topics: TopicDef[] = [
     words: ['welfare', 'benefit', 'benefits', 'universal credit', 'pension', 'pensions', 'disability', 'disabilities', 'disabled', 'poverty', 'pip', 'personal independence payment', 'winter fuel', 'state pension', 'child benefit', 'carers', 'carer'],
     exclude: [],
     billDepartments: ['Department for Work and Pensions'],
-    editorialSlugs: ['kv4n9mxw7r', 'hl7k2mx9w4', 'vt6k9mxw3n'],
+    editorialSlugs: ['kv4n9mxw7r', 'hl7k2mx9w4', 'vt6k9mxw3n', '2qlh4c2zii'],
     pollWords: ['welfare', 'benefit', 'pip', 'pension', 'winter fuel', 'disability'],
   },
   {
