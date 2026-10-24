@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'gx4k9mxw7r',
   kicker: 'Rail',
-  headline: `Britain Pays Billions to Lease Its Trains. Now Government Is Asking Whether It Should Own Them`,
+  headline: `Train Leasing Firms Paid Out £275m as Ministers Weigh Ownership`,
   standfirst: `For 30 years, Britain's railway has financed its trains through private leasing companies. The government has now said public ownership of future rolling stock should be assessed case by case. Franchised operators spent £4.1 billion on rolling stock in 2024/25; rolling stock companies paid out £275 million in dividends the same year. Ministers say buying trains could produce "substantial savings" but have not published the calculations.`,
   summary: "Britain pays billions to lease its trains, and the government now says public ownership should be assessed case by case.",
   publishedAt: '2026-09-28',

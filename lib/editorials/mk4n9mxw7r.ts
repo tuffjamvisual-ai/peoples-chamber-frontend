@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'mk4n9mxw7r',
   kicker: 'Industry',
-  headline: `Government Opens £600m a Year Industry Subsidy Before Earlier Energy Support Has Shown Its Investment Return`,
+  headline: `£600m Factory Energy Subsidy Opens Before Earlier Scheme Is Evaluated`,
   standfirst: `Applications have opened for the British Industrial Competitiveness Scheme, expected to cost around £600 million a year and cut electricity bills for more than 10,000 manufacturers by up to 25 per cent. A comparable scheme, the British Industry Supercharger, has been running since April 2024. No published evaluation shows how much additional investment, production or employment resulted from that support.`,
   summary: "The government has opened a £600m a year industry subsidy with no published evaluation of what earlier energy support achieved.",
   publishedAt: '2026-10-01',

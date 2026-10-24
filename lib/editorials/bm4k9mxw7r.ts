@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'bm4k9mxw7r',
   kicker: 'Housing',
-  headline: `Government Revives Help to Buy Model Before Publishing Rules Meant to Fix Its Targeting Problem`,
+  headline: `Help to Buy Model Returns Before Its Income Limits Are Set`,
   standfirst: `Andy Burnham announced Your First Home on 26 September: an equity loan scheme for people buying their first home requiring a 2.5 per cent deposit, with government providing up to 20 per cent of the purchase price. The household income cap and local property price limits intended to target it better than Help to Buy will not be published until the Budget. The latest evaluation of Help to Buy found that 46 per cent of customers said they could not have bought without it; earlier research examined by the NAO put that figure at 37 per cent.`,
   summary: "The government has revived the Help to Buy model before publishing the income and price limits meant to fix its targeting problem.",
   publishedAt: '2026-09-26',

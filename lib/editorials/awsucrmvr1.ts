@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'awsucrmvr1',
   kicker: 'Local Government',
-  headline: `Council Tax Has Risen 66% Since 2010. The Bill Still Does Not Tell You Which Council Is Better Run`,
+  headline: `Council Tax Has Risen 66% Since 2010`,
   standfirst: `The average Band D council tax bill in England was £1,439 in 2010/11. For 2026/27 it is £2,392, an increase of £953, or 66 per cent in cash terms. The difference between areas is even larger: Dorset charges £2,765 and Wandsworth £1,028. But that £1,737 gap cannot sensibly be read as £1,737 worth of difference in council performance.`,
   summary: "Council tax has risen 66 per cent since 2010, but the bill still does not show which council is better run.",
   publishedAt: '2026-06-23',

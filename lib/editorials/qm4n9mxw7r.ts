@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'qm4n9mxw7r',
   kicker: 'Regeneration',
-  headline: `Government's £210m High Street Package Uses Money Already Earmarked for Regeneration`,
+  headline: `Burnham's £210m High Street Package Is Already Earmarked Money`,
   standfirst: `Andy Burnham announced £210 million for derelict buildings, threatened community assets and empty high street premises. MHCLG's own announcement states the money comes from funding already earmarked for high street support and regeneration. The department has not published a reconciliation showing which earlier budget lines supply each part of the package.`,
   summary: "The government’s £210m high street package uses money already earmarked for regeneration, with no published breakdown of where each part comes from.",
   publishedAt: '2026-09-25',

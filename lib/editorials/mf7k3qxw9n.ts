@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'mf7k3qxw9n',
   kicker: 'Defence',
-  headline: `MoD Blocked £400m of Supplier Costs but Still Cannot Reliably Estimate Its Fraud Losses`,
+  headline: `MoD Still Can't Say How Much It Loses to Fraud`,
   standfirst: `The Ministry of Defence stopped around £400 million of costs claimed by suppliers in 2024/25 because it judged them invalid. Most were not fraud. But the figure sits beside a problem the MoD has yet to solve: it does not have a reliable estimate of how much money it actually loses to fraud. Its published estimate of £1.5 billion a year was described by the Permanent Secretary as "essentially an academic construct".`,
   summary: "The MoD blocked £400m of supplier costs but still cannot reliably estimate how much it loses to fraud.",
   publishedAt: '2026-08-04',

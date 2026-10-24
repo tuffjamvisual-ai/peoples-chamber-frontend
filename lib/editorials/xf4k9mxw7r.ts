@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'xf4k9mxw7r',
   kicker: 'Environment',
-  headline: `Ten Years After Salmon Recovery Plan Launched, 95% of England's Principal Rivers Are Still at Risk`,
+  headline: `40 of England's 42 Main Salmon Rivers Are Now at Risk`,
   standfirst: `Ten years after the Environment Agency launched a national programme to restore England's salmon stocks, 40 of the country's 42 principal salmon rivers are now classified as at risk or probably at risk of failing to sustain their populations. That is 95 per cent, up from 88 per cent in the previous assessment and the worst position recorded. The Environment Agency has set out another programme over the long term, running to 2032.`,
   summary: "Ten years after the salmon recovery plan launched, 95 per cent of England’s principal salmon rivers are still at risk.",
   publishedAt: '2026-09-16',
