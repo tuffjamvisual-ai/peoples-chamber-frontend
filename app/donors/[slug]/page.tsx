@@ -17,6 +17,7 @@ import { countableContracts, isFrameworkRow } from '@/lib/contract-counting';
 import { donorNameToSlug, narrowTokens } from '@/lib/donor-slug';
 import { ecDonationSearchUrl } from '@/lib/ec-links';
 import { relatedDonorNames } from '@/lib/donor-related';
+import { donorRegistry } from '@/lib/donor-registry';
 
 export const revalidate = 86400;
 
@@ -89,7 +90,8 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-// cache(): generateMetadata and the page both resolve the slug; the lookup runs once per request.
+// The word search used before 24 Oct 2026, kept only as a fallback for a slug the exact registry does not hold, so no
+// old address breaks (resolveDonor below).
 const findDonorByMatchingSlug = cache(async (slug: string): Promise<string | null> => {
   // We don't store slugs in the DB; resolve by paging through donor_name
   // values and computing the slug client-side. Cheap because we can use
@@ -127,9 +129,23 @@ const findDonorByMatchingSlug = cache(async (slug: string): Promise<string | nul
   return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? names[0];
 });
 
+type ResolvedDonor = { name: string; names: string[] | null; others: { slug: string; label: string }[] };
+
+// cache(): generateMetadata and the page both resolve the slug; the lookup runs once per request.
+// Exact first (24 Oct 2026): the slug is looked up among every registered donor name (lib/donor-registry.ts) and the
+// page reads that donor's records by exact name. Only a slug the registry does not hold falls back to the old word
+// search, and that is logged.
+const resolveDonor = cache(async (slug: string): Promise<ResolvedDonor | null> => {
+  const entry = (await donorRegistry()).bySlug.get(slug);
+  if (entry) return { name: entry.label, names: entry.names, others: entry.others };
+  const name = await findDonorByMatchingSlug(slug);
+  if (name) console.warn(`/donors/${slug}: not an exact donor name; found by the word search fallback`);
+  return name ? { name, names: null, others: [] } : null;
+});
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const name = await findDonorByMatchingSlug(slug);
+  const name = (await resolveDonor(slug))?.name;
   if (!name) return { title: 'Donor' };
   return {
     title: `${name}: every UK political donation recorded by the Electoral Commission`,
@@ -140,24 +156,44 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function DonorPage({ params }: PageProps) {
   const { slug } = await params;
-  const canonicalName = await findDonorByMatchingSlug(slug);
-  if (!canonicalName) notFound();
+  const resolved = await resolveDonor(slug);
+  if (!resolved) notFound();
+  const canonicalName = resolved.name;
 
-  // Pull every donation under any name variant that hashes to this slug.
+  // Every donation under this donor's registered name(s). Exact names when the registry holds the slug (every record,
+  // newest first); otherwise the old word search, filtered to names whose slug matches.
   const ranked = narrowTokens(slug);
-  let dq = supabase
-    .from('political_donations')
-    .select('id, donor_name, donor_type, donor_status, amount, accepted_date, received_date, reported_date, nature, recipient_name, recipient_type, accounting_unit_name, is_anonymous, is_reported_pre_poll, returned_date, impermissibility_reason, attempted_concealment, trust_name, trust_creator_name, company_registration_number, addr_line1, addr_town, addr_country, ec_ref')
-    .order('accepted_date', { ascending: false })
-    .limit(2000);
-  for (const t of ranked) {
-    dq = dq.ilike('donor_name', `%${t}%`);
+  const DONATION_COLS = 'id, donor_name, donor_type, donor_status, amount, accepted_date, received_date, reported_date, nature, recipient_name, recipient_type, accounting_unit_name, is_anonymous, is_reported_pre_poll, returned_date, impermissibility_reason, attempted_concealment, trust_name, trust_creator_name, company_registration_number, addr_line1, addr_town, addr_country, ec_ref';
+  let donations: DonationRow[] = [];
+  if (resolved.names) {
+    for (let i = 0; i < resolved.names.length; i += 100) {
+      const chunk = resolved.names.slice(i, i + 100);
+      for (let from = 0; ; from += 1000) {
+        // Every name quoted: supabase-js's .in() quotes a value only when it holds a comma or a bracket, and PostgREST
+        // trims an unquoted one, so a name stored with a leading space (" Christopher Harborne") would match nothing.
+        const list = `(${chunk.map((n) => `"${n.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`).join(',')})`;
+        const { data, error } = await supabase.from('political_donations').select(DONATION_COLS)
+          .filter('donor_name', 'in', list).order('accepted_date', { ascending: false }).order('id', { ascending: true }).range(from, from + 999);
+        if (error) throw new Error(`donor donations: ${error.message}`);
+        donations.push(...((data ?? []) as DonationRow[]));
+        if (!data || data.length < 1000) break;
+      }
+    }
+    // Newest first across all spellings (no date first, as the database orders them).
+    donations.sort((a, b) => (a.accepted_date === b.accepted_date ? a.id - b.id : !a.accepted_date ? -1 : !b.accepted_date ? 1 : a.accepted_date < b.accepted_date ? 1 : -1));
+  } else {
+    let dq = supabase
+      .from('political_donations')
+      .select(DONATION_COLS)
+      .order('accepted_date', { ascending: false })
+      .limit(2000);
+    for (const t of ranked) {
+      dq = dq.ilike('donor_name', `%${t}%`);
+    }
+    const { data: rawDonations, error: donErr } = await dq;
+    if (donErr) throw new Error(`donor donations: ${donErr.message}`);
+    donations = ((rawDonations || []) as DonationRow[]).filter((d) => d.donor_name && donorNameToSlug(d.donor_name) === slug);
   }
-  const { data: rawDonations, error: donErr } = await dq;
-  if (donErr) throw new Error(`donor donations: ${donErr.message}`);
-  const donations = (rawDonations || []).filter((d: DonationRow) =>
-    d.donor_name && donorNameToSlug(d.donor_name) === slug,
-  );
 
   if (donations.length === 0) notFound();
 
@@ -315,6 +351,14 @@ export default async function DonorPage({ params }: PageProps) {
         <h1 style={{ fontFamily: 'Special Elite, monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '8px', lineHeight: 1.15 }}>
           {canonicalName}
         </h1>
+        {resolved.others.length > 0 && (
+          <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 8px' }}>
+            A different registered name has the same web address; its records are on their own page:{' '}
+            {resolved.others.map((o, k) => (
+              <span key={o.slug}>{k > 0 && ', '}<Link href={`/donors/${o.slug}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{o.label}</Link></span>
+            ))}
+          </p>
+        )}
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
           {donations[0].donor_type && (
             <span style={{ fontSize: '15px', padding: '3px 8px', border: `1px solid ${INK_HAIRLINE}`, color: INK_SOFT }}>{donations[0].donor_type}</span>

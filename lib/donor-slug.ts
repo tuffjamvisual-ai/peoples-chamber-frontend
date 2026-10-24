@@ -1,6 +1,6 @@
 // Donor page slugs (moved here from app/donors/[slug]/page.tsx on 24 Oct 2026 so client components can use them).
-// Donor pages are not stored: /donors/<slug> finds its donor by searching political_donations.donor_name for the
-// slug's narrowTokens (each must appear in the name, ignoring case) and then comparing donorNameToSlug exactly.
+// /donors/<slug> finds its donor by exact name through lib/donor-registry.ts; narrowTokens serves the word search it
+// falls back to for a slug the registry does not hold, and the page's other cross-references.
 
 // Same canonical slug rule we use across the site.
 export function donorNameToSlug(name: string): string {
@@ -27,24 +27,10 @@ export function narrowTokens(slug: string): string[] {
     .slice(0, 3);
 }
 
-// Search words too common to find one donor on their own: "limited" and "ltd" each appear in thousands of donation
-// rows (4,312 and 6,787 on 24 Oct 2026), more than the 2,000 the donor page reads, so a donor whose only search word is
-// one of them ("T C Limited", "T S L Ltd") is not found and its page 404s.
-const TOO_COMMON_ALONE = new Set(['limited', 'ltd']);
-
-// The /donors/<slug> for a donor name, or null when that page would not find the donor: the slug is empty, it has no
-// word to search on, a search word is not in the name as written (an apostrophe inside a word, as in "O'Brien" ->
-// "obrien", or "dec'd"), or its only search word is too common (above). A record links to a donor page only when this
-// returns a slug. Checked on 24 Oct 2026 against all 19,262 donor names: the 69 refused for a missing word and the 3
-// refused as too common all 404; 151 sampled linkable names all open a donor page.
+// The /donors/<slug> for a donor name (24 Oct 2026): every registered donor name has a page, because donor pages now
+// find their donor by exact name (lib/donor-registry.ts) instead of by searching words from the slug, so the earlier
+// "page exists" checks are no longer needed. Null only for an empty name or one with no letters or digits. When two
+// different names share a slug, the page at that slug links to the other name's page.
 export function donorPageSlug(name: string | null | undefined): string | null {
-  const n = (name ?? '').trim();
-  if (!n) return null;
-  const slug = donorNameToSlug(n);
-  if (!slug) return null;
-  const tokens = narrowTokens(slug);
-  if (tokens.length === 0) return null;
-  if (tokens.length === 1 && TOO_COMMON_ALONE.has(tokens[0])) return null;
-  const lower = n.toLowerCase();
-  return tokens.every((t) => lower.includes(t)) ? slug : null;
+  return donorNameToSlug((name ?? '').trim()) || null;
 }
