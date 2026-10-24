@@ -2,6 +2,8 @@
 
 import Link from 'next/link'
 import { useMemo } from 'react'
+import { donorPageSlug } from '@/lib/donor-slug'
+import { ecDonationSearchUrl } from '@/lib/ec-links'
 
 type Row = Record<string, unknown>
 
@@ -259,6 +261,8 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
             const accountingUnitName = row.accounting_unit_name as string | null
             const recipientType = row.recipient_type as string | null
             const ecRef = row.ec_ref as string | null
+            // The donor's page, only when /donors/<slug> can find this donor (lib/donor-slug.ts): never a link that 404s.
+            const donorSlug = donorPageSlug(row.donor_name as string | null)
 
             // Build a list of address segments
             const addressParts = [
@@ -350,7 +354,8 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                     {companyRegNumber && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Company no.</dt><dd className="text-[#14100d]">{companyRegNumber}</dd></>)}
                     {addressParts.length > 0 && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Donor address</dt><dd className="text-[#14100d]">{addressParts.join(', ')}</dd></>)}
                     {explanatoryNotes && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">EC notes</dt><dd className="text-[#14100d] whitespace-pre-line">{explanatoryNotes}</dd></>)}
-                    {ecRef && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">EC reference</dt><dd className="text-[#14100d] font-mono">{ecRef}</dd></>)}
+                    {ecRef && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">EC reference</dt><dd className="text-[#14100d] font-mono"><a href={ecDonationSearchUrl(ecRef)} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline' }}>{ecRef} ↗</a></dd></>)}
+                    {donorSlug && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Donor profile</dt><dd className="text-[#14100d]"><Link href={`/donors/${donorSlug}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{donor}</Link></dd></>)}
                   </dl>
                 </details>
               </li>

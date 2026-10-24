@@ -8,6 +8,8 @@ import Link from 'next/link';
 import MoneyCountUp from '../../components/MoneyCountUp';
 import { COMMITTEE_IDS } from '@/lib/committees';
 import { sortTimeline, yearsLabel, type BackgroundEntry } from '@/lib/background-timeline';
+import { ecDonationSearchUrl } from '@/lib/ec-links';
+import { donorPageSlug } from '@/lib/donor-slug';
 
 const COMMITTEE_ID_SET = new Set<number>(COMMITTEE_IDS);
 
@@ -2076,13 +2078,14 @@ export default function MagazineProfileSections({
                   {donorRows.map((d) => {
                     const sector = sectorFor(d.name);
                     const others = otherByDonor.get(d.name) ?? [];
-                    // Slug matches the rule used by /donors/[slug]
-                    const donorSlug = d.name.toLowerCase().replace(/&/g, ' and ').replace(/'/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 100);
+                    // The donor's page, only when /donors/<slug> can find this donor (lib/donor-slug.ts, 24 Oct 2026);
+                    // otherwise the name is shown without a link rather than linking to a 404.
+                    const donorSlug = donorPageSlug(d.name);
                     return (
                       <tr key={d.name} style={{ borderBottom: inkDivider, verticalAlign: 'top' }}>
                         <td style={{ padding: '5px 4px' }}>
                           <div style={{ fontWeight: 'bold' }}>
-                            <Link href={`/donors/${donorSlug}`} style={inkLink}>{d.name}</Link>
+                            {donorSlug ? <Link href={`/donors/${donorSlug}`} style={inkLink}>{d.name}</Link> : d.name}
                             {d.crn && (
                               <>
                                 {' '}
@@ -2716,7 +2719,7 @@ function DonationDetail({ d, crn }: { d: Donation; crn: string }) {
           label="EC reference"
           value={
             <a
-              href={`https://search.electoralcommission.org.uk/Search/Donations?currentPage=1&rows=10&query=${encodeURIComponent(d.ec_ref)}&sort=AcceptedDate&order=desc`}
+              href={ecDonationSearchUrl(d.ec_ref)}
               target="_blank"
               rel="noopener noreferrer"
               style={inkLink}

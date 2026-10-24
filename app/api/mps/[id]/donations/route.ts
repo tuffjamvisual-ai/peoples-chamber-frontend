@@ -33,10 +33,11 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ donations: [], donorOtherRecipients: [], sectorCrossRef: [], constituencyDonations: [] });
   }
 
-  // 1. Direct donations
+  // 1. Direct donations. ec_ref (24 Oct 2026): each record's "EC reference" row links to the Electoral Commission's
+  // search; the profile already drew that link but the reference was never read, so it never showed.
   const { data: rawDonations } = await supabase
     .from('political_donations')
-    .select('id, donor_name, donor_type, amount, accepted_date, received_date, reported_date, nature, recipient_name, recipient_type, is_reported_pre_poll, returned_date, impermissibility_reason, attempted_concealment, company_registration_number, trust_name, trust_creator_name')
+    .select('id, donor_name, donor_type, amount, accepted_date, received_date, reported_date, nature, recipient_name, recipient_type, is_reported_pre_poll, returned_date, impermissibility_reason, attempted_concealment, company_registration_number, trust_name, trust_creator_name, ec_ref')
     .in('recipient_type', ['MP - Member of Parliament', 'Regulated Donee', 'Members Association', 'Member of Registered Political Party'])
     .ilike('recipient_name', `%${firstWord}%`)
     .ilike('recipient_name', `%${lastWord}%`)

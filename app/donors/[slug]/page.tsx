@@ -14,6 +14,8 @@ import BackLink from '../../components/BackLink';
 import { sectorForDonor } from '@/lib/donor-sectors';
 import { departments } from '@/lib/departments';
 import { countableContracts, isFrameworkRow } from '@/lib/contract-counting';
+import { donorNameToSlug, narrowTokens } from '@/lib/donor-slug';
+import { ecDonationSearchUrl } from '@/lib/ec-links';
 
 export const revalidate = 86400;
 
@@ -32,22 +34,10 @@ function fmtMoney(v: number | string | null | undefined): string {
   return '£' + Math.round(n).toLocaleString('en-GB');
 }
 
-// Same canonical slug rule we use across the site.
-export function donorNameToSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/&/g, ' and ')
-    .replace(/['’‘]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 100);
-}
+// The slug rule and its search words live in lib/donor-slug.ts (24 Oct 2026); donorNameToSlug is still exported here
+// for the pages that import it from this file.
+export { donorNameToSlug };
 
-// Words from a slug used to narrow the database search before the exact slug comparison.
-// The slug drops apostrophes and turns "&" into "and", so "childrens" must still find
-// "Children's" and "and" must not be required (Forstmann Little & Co): a trailing "s" is
-// dropped from longer words and "and" is skipped. Fixes donor pages that 404'd although
-// they were linked (link crawl, 16 Oct 2026).
 // '2026-03-04' -> '4 Mar 2026'.
 function fmtDay(iso: string | null | undefined): string {
   if (!iso) return 'n/a';
@@ -57,15 +47,6 @@ function fmtDay(iso: string | null | undefined): string {
 
 // Words too common in company names to narrow a supplier search (narrowTokens drops a final "s", so "service").
 const COMPANY_SUFFIXES = new Set(['limited', 'ltd', 'plc', 'llp', 'group', 'holding', 'company', 'service', 'uk', 'the', 'international', 'trust', 'partnership']);
-
-function narrowTokens(slug: string): string[] {
-  return slug
-    .split('-')
-    .filter((t) => t.length >= 2 && t !== 'and')
-    .map((t) => (t.length > 3 && t.endsWith('s') ? t.slice(0, -1) : t))
-    .sort((a, b) => b.length - a.length)
-    .slice(0, 3);
-}
 
 // No donor pages are rendered at build (John's approval, 19 Oct 2026): each one renders on its first visit and
 // is cached from then on, refreshed after 24h (revalidate above). An empty list still makes the route
@@ -534,7 +515,7 @@ export default async function DonorPage({ params }: PageProps) {
                     <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(d.amount)}</td>
                     <td style={{ ...td, whiteSpace: 'nowrap' }}>
                       {d.ec_ref ? (
-                        <a href={`https://search.electoralcommission.org.uk/Search/Donations?currentPage=1&rows=10&query=${encodeURIComponent(d.ec_ref)}&sort=AcceptedDate&order=desc`} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline' }}>{d.ec_ref} ↗</a>
+                        <a href={ecDonationSearchUrl(d.ec_ref)} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline' }}>{d.ec_ref} ↗</a>
                       ) : 'n/a'}
                     </td>
                   </tr>
