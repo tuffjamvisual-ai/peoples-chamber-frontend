@@ -7,6 +7,7 @@ import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import MoneyCountUp from '../../components/MoneyCountUp';
 import { COMMITTEE_IDS } from '@/lib/committees';
+import { sortTimeline, yearsLabel, type BackgroundEntry } from '@/lib/background-timeline';
 
 const COMMITTEE_ID_SET = new Set<number>(COMMITTEE_IDS);
 
@@ -23,7 +24,7 @@ const BIO_VISIBLE_MEMBER_IDS = new Set<number>([1427, 400, 3914, 420, 5099, 4263
 
 const ALL_SECTIONS: Array<{ id: SectionId; label: string; rotate: string }> = [
   { id: 'bio',       label: 'POLITICAL BIO',    rotate: '0.1deg' },
-  { id: 'career',    label: 'BEFORE POLITICS',  rotate: '-0.12deg' },
+  { id: 'career',    label: 'BACKGROUND',       rotate: '-0.12deg' },
   { id: 'contact',   label: 'CONTACT',          rotate: '-0.1deg' },
   { id: 'voting',    label: 'VOTING RECORD',    rotate: '0.15deg' },
   { id: 'bills',     label: 'BILLS SPONSORED',  rotate: '-0.2deg' },
@@ -290,14 +291,17 @@ interface Props {
   partyWhipSlug?: string | null;
   bio: {
     representations?: Representation[];
-    government_posts?: Array<{ name: string }>;
-    opposition_posts?: Array<{ name: string }>;
+    government_posts?: Array<{ name: string; startDate?: string | null; endDate?: string | null }>;
+    opposition_posts?: Array<{ name: string; startDate?: string | null; endDate?: string | null }>;
     committee_memberships?: Array<{ id?: number; name?: string } | string>;
     party_history?: PartyHistoryEntry[];
     occupation_before_politics?: string | null;
     career_history?: Array<{ role: string; organisation?: string | null; period?: string | null; detail?: string | null }> | null;
     education?: string[] | null;
     career_background?: string | null;
+    /** Sourced Background timeline (mp_biography.background_timeline, lib/background-timeline.ts) and its check date. */
+    background_timeline?: BackgroundEntry[] | null;
+    background_last_checked?: string | null;
     /** Visibility switch (mp_biography.bio_visible). Replaces the code list below. */
     bio_visible?: boolean | null;
     /** Named sources behind the written biography: [{ title, url, supports }]. */
@@ -394,6 +398,29 @@ const fmtMoney = (n: number) =>
 
 const fmtDate = (s?: string | null) =>
   s ? new Date(s).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+
+// Background tab (24 Oct 2026): the timeline's phase headings, in order, and the shared row layout. The years sit
+// in a column beside each entry on wide screens and above it on narrow ones (flex wrap), so nothing scrolls sideways.
+const TIMELINE_PHASES: Array<{ phase: BackgroundEntry['phase']; heading: string }> = [
+  { phase: 'education', heading: 'Education' },
+  { phase: 'career', heading: 'Career' },
+  { phase: 'politics', heading: 'Into politics' },
+];
+const backgroundLabel: React.CSSProperties = { fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.12em', color: '#7a1612', fontWeight: 'bold', marginBottom: '12px' };
+function TimelineRow({ years, last, children }: { years: string; last: boolean; children: React.ReactNode }) {
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', columnGap: '18px', rowGap: '2px', marginBottom: '14px', paddingBottom: '12px', borderBottom: last ? 'none' : '1px solid rgba(20,16,13,0.15)' }}>
+      <div style={{ flex: '0 0 190px', fontSize: '15px', opacity: 0.7, fontFamily: 'monospace', paddingTop: '2px' }}>{years}</div>
+      <div style={{ flex: '1 1 220px', minWidth: 0 }}>{children}</div>
+    </div>
+  );
+}
+// "24 October 2026" from a stored YYYY-MM-DD date, read from its parts so the day never shifts with the time zone.
+const DAY_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+function dayMonthYear(iso: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+  return m ? `${Number(m[3])} ${DAY_MONTHS[Number(m[2]) - 1]} ${m[1]}` : iso;
+}
 
 const sectionH2: React.CSSProperties = {
   fontSize: '26px',
@@ -503,9 +530,23 @@ export default function MagazineProfileSections({
     bio && typeof bio.bio_visible === 'boolean' ? bio.bio_visible : BIO_VISIBLE_MEMBER_IDS.has(memberId)
   );
 
+  // Background tab: the sourced timeline in phase and date order, and "In Parliament" from the stored seat and post
+  // records (synced nightly; no API calls here): every seat, then government and opposition posts, oldest first.
+  const timeline = sortTimeline(bio?.background_timeline ?? []);
+  const inParliament: Array<{ years: string; title: string; note: string | null }> = [
+    ...[...(bio?.representations ?? [])]
+      .sort((a, b) => (a.startDate || '').localeCompare(b.startDate || ''))
+      .map((r) => ({ years: `${fmtDate(r.startDate)} to ${r.endDate ? fmtDate(r.endDate) : 'today'}`, title: `MP for ${r.name}`, note: r.endDate && r.endReason ? r.endReason : null })),
+    ...[...(bio?.government_posts ?? []), ...(bio?.opposition_posts ?? [])]
+      .sort((a, b) => (a.startDate || '').localeCompare(b.startDate || ''))
+      .map((p) => ({ years: p.startDate ? `${fmtDate(p.startDate)} to ${p.endDate ? fmtDate(p.endDate) : 'today'}` : '', title: p.name, note: null })),
+  ];
+
   const has: Record<SectionId, boolean> = {
     bio: bioVisible && paragraphs.length > 0,
-    career: !!((bio?.career_history && bio.career_history.length > 0) || (bio?.education && bio.education.length > 0) || bio?.career_background),
+    // Background (24 Oct 2026): shown for a sourced timeline, the older career/education fields, or a seat record.
+    career: !!((bio?.background_timeline && bio.background_timeline.length > 0) || (bio?.career_history && bio.career_history.length > 0)
+      || (bio?.education && bio.education.length > 0) || bio?.career_background || (bio?.representations && bio.representations.length > 0)),
     contact: !!(contact && (contact.phone || contact.email || contact.website || contact.twitter || contact.address_line1)),
     voting: (totalVotes ?? votes.length) > 0,
     bills: sponsoredBills.length > 0,
@@ -532,10 +573,10 @@ export default function MagazineProfileSections({
   // Honour ?section= on initial mount so paginating the voting record
   // (which forces a full reload via the href-based <Pagination>) lands
   // the user back on the voting tab rather than the default first tab.
-  // Otherwise a profile opens on 'career' (Before Politics) whenever that
-  // section is shown for the MP (John's choice, 20 Oct 2026; it is shown only
-  // when the MP has career history, education or a career background), and
-  // on the first section shown when it is not.
+  // Otherwise a profile opens on 'career' (Background) whenever that
+  // section is shown for the MP (John's choice, 20 Oct 2026; since 24 Oct 2026
+  // it is shown for a timeline, career history, education, a career background
+  // or a seat record), and on the first section shown when it is not.
   const initialActive: SectionId =
     initialSection && validIds.has(initialSection as SectionId)
       ? (initialSection as SectionId)
@@ -806,7 +847,33 @@ export default function MagazineProfileSections({
       <div className="lg:col-span-3 p-6 sm:p-8 mp-sections-content" style={{ color: '#14100d', fontFamily: 'Special Elite, monospace' }}>
         {active === 'career' && (
           <>
-            <h2 style={sectionH2}>Before Politics</h2>
+            <h2 style={sectionH2}>Background</h2>
+            {timeline.length > 0 ? (
+              <>
+                <p style={{ fontSize: '15px', opacity: 0.7, marginBottom: '24px' }}>From education to today. Each entry links to its source.</p>
+                {TIMELINE_PHASES.map(({ phase, heading }) => {
+                  const rows = timeline.filter((e) => e.phase === phase);
+                  if (rows.length === 0) return null;
+                  return (
+                    <div key={phase} style={{ marginBottom: '26px' }}>
+                      <div style={backgroundLabel}>{heading}</div>
+                      {rows.map((e, idx) => (
+                        <TimelineRow key={idx} years={yearsLabel(e.start, e.end)} last={idx === rows.length - 1}>
+                          <div style={{ fontSize: '17px', fontWeight: 'bold', lineHeight: 1.3 }}>{e.title}</div>
+                          {e.organisation && <div style={{ fontSize: '15px', opacity: 0.85, marginTop: '2px' }}>{e.organisation}</div>}
+                          {e.detail && <div style={{ fontSize: '15px', lineHeight: 1.6, marginTop: '6px' }}>{e.detail}</div>}
+                          <a href={e.source.url} target="_blank" rel="noopener noreferrer" style={{ ...inkLink, fontSize: '15px', display: 'inline-block', marginTop: '4px' }}>Source</a>
+                        </TimelineRow>
+                      ))}
+                    </div>
+                  );
+                })}
+                {bio?.background_last_checked && (
+                  <p style={{ fontSize: '15px', opacity: 0.7, marginBottom: '26px' }}>Last checked: {dayMonthYear(bio.background_last_checked)}</p>
+                )}
+              </>
+            ) : (
+            <>
             <p style={{ fontSize: '15px', opacity: 0.7, marginBottom: '24px' }}>Qualifications and career before entering Parliament, so you can weigh an MP&rsquo;s relevant background.</p>
 
             {bio?.education && bio.education.length > 0 && (
@@ -837,6 +904,20 @@ export default function MagazineProfileSections({
               <div style={{ marginTop: '26px', paddingTop: '20px', borderTop: '1px solid rgba(20,16,13,0.15)' }}>
                 <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.12em', color: '#7a1612', fontWeight: 'bold', marginBottom: '8px' }}>Background</div>
                 <p style={{ fontSize: '15px', lineHeight: 1.75 }}>{bio.career_background}</p>
+              </div>
+            )}
+            </>
+            )}
+
+            {inParliament.length > 0 && (
+              <div style={{ marginTop: '26px', paddingTop: '20px', borderTop: '1px solid rgba(20,16,13,0.15)' }}>
+                <div style={backgroundLabel}>In Parliament</div>
+                {inParliament.map((r, idx) => (
+                  <TimelineRow key={idx} years={r.years} last={idx === inParliament.length - 1}>
+                    <div style={{ fontSize: '17px', fontWeight: 'bold', lineHeight: 1.3 }}>{r.title}</div>
+                    {r.note && <div style={{ fontSize: '15px', opacity: 0.85, marginTop: '2px' }}>{r.note}</div>}
+                  </TimelineRow>
+                ))}
               </div>
             )}
           </>
