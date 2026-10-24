@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
-import { donorNameToSlug } from './[slug]/page';
+import { donorPageSlug } from '@/lib/donor-slug';
 import DonorSearch from './DonorSearch';
 
 export const revalidate = 86400;
@@ -95,9 +95,11 @@ export default async function DonorsIndex() {
             <tr key={d.donor_name} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
               <td style={{ padding: '6px', opacity: 0.6 }}>{i + 1}</td>
               <td style={{ padding: '6px' }}>
-                <Link href={`/donors/${donorNameToSlug(d.donor_name)}`} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold' }}>
+                {donorPageSlug(d.donor_name) ? <Link href={`/donors/${donorPageSlug(d.donor_name)}`} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold' }}>
                   {d.donor_name}
-                </Link>
+                </Link> : <>
+                  {d.donor_name}
+                </>}
               </td>
               <td style={{ padding: '6px', textAlign: 'center' }}>{d.count.toLocaleString()}</td>
               <td style={{ padding: '6px', textAlign: 'center' }}>{d.recipients}</td>

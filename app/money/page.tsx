@@ -74,7 +74,7 @@ export default async function MoneyLanding() {
           The money that moves through UK politics
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.7, maxWidth: '60ch' }}>
-          Every fact below is on a public register: the Electoral Commission&rsquo;s donations register, Find a Tender and Contracts Finder, the Register of Members&rsquo; Financial Interests, the APPG register and the GOV.UK transparency releases. Each publishes its own part in its own format. This page reads them side by side, so a donor, an MP and a contract can be seen together.
+          Every fact below is on a public register: the Electoral Commission&rsquo;s donations register, Find a Tender, the Register of Members&rsquo; Financial Interests, the APPG register and the GOV.UK transparency releases. Each publishes its own part in its own format. This page reads them side by side, so a donor, an MP and a contract can be seen together.
         </p>
       </header>
 
@@ -129,7 +129,7 @@ export default async function MoneyLanding() {
       </section>
 
       <p style={{ fontSize: '15px', opacity: 0.6, marginTop: '24px' }}>
-        Sources, in order: Electoral Commission donations register, gov.uk Contracts Finder, parliament.uk Register of Members&rsquo; Financial Interests, mySociety APPG membership dataset, gov.uk transparency feeds. All five refresh on weekly or daily crons. Each figure on this page is derived from current data; click through to any tile for the underlying rows.
+        Sources, in order: Electoral Commission donations register, Find a Tender (gov.uk contract notices), parliament.uk Register of Members&rsquo; Financial Interests, mySociety APPG membership dataset, gov.uk transparency feeds. All five refresh on weekly or daily crons. Each figure on this page is derived from current data; click through to any tile for the underlying rows.
       </p>
     </OpenGovShell>
   );

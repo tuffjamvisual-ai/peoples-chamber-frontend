@@ -9,7 +9,7 @@ import { supabase } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../../components/OpenGovShell';
 import BackLink from '../../../components/BackLink';
-import { donorNameToSlug } from '../../../donors/[slug]/page';
+import { donorPageSlug } from '@/lib/donor-slug';
 
 export const revalidate = 86400;
 export function generateStaticParams() { return []; }
@@ -190,7 +190,7 @@ export default async function AssociationPage({ params }: PageProps) {
               <tr key={d.name} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <td style={{ padding: '6px', opacity: 0.6 }}>{i + 1}</td>
                 <td style={{ padding: '6px' }}>
-                  <Link href={`/donors/${donorNameToSlug(d.name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{d.name}</Link>
+                  {donorPageSlug(d.name) ? <Link href={`/donors/${donorPageSlug(d.name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{d.name}</Link> : <>{d.name}</>}
                 </td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{d.count}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(d.total).toLocaleString()}</td>

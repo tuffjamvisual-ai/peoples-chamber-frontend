@@ -12,7 +12,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
-import { donorNameToSlug } from '../../donors/[slug]/page';
+import { donorPageSlug } from '@/lib/donor-slug';
 
 export const revalidate = 86400;
 
@@ -155,7 +155,7 @@ export default async function LeadershipContestsPage() {
                     <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(cand.total).toLocaleString()}</td>
                     <td style={{ padding: '6px', fontSize: '15px' }}>
                       {cand.topDonor ? (
-                        <Link href={`/donors/${donorNameToSlug(cand.topDonor)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{cand.topDonor}</Link>
+                        donorPageSlug(cand.topDonor) ? <Link href={`/donors/${donorPageSlug(cand.topDonor)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{cand.topDonor}</Link> : <>{cand.topDonor}</>
                       ) : <span style={{ opacity: 0.6 }}></span>}
                       {cand.topAmount > 0 && <span style={{ opacity: 0.6, fontFamily: 'monospace', marginLeft: '6px' }}>£{Math.round(cand.topAmount).toLocaleString()}</span>}
                     </td>
@@ -184,7 +184,7 @@ export default async function LeadershipContestsPage() {
               <tr key={r.id} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <td style={{ padding: '6px', fontSize: '15px' }}>
                   {r.donor_name ? (
-                    <Link href={`/donors/${donorNameToSlug(r.donor_name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.donor_name}</Link>
+                    donorPageSlug(r.donor_name) ? <Link href={`/donors/${donorPageSlug(r.donor_name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.donor_name}</Link> : <>{r.donor_name}</>
                   ) : <span style={{ opacity: 0.6 }}>(unknown)</span>}
                 </td>
                 <td style={{ padding: '6px', fontSize: '15px' }}>{r.recipient_name || ''}</td>

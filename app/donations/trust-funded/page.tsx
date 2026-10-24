@@ -15,7 +15,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
-import { donorNameToSlug } from '../../donors/[slug]/page';
+import { donorPageSlug } from '@/lib/donor-slug';
 
 export const revalidate = 86400;
 
@@ -152,7 +152,7 @@ export default async function TrustFundedPage() {
               <tr key={r.id} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <td style={{ padding: '6px', fontSize: '15px' }}>
                   {r.donor_name ? (
-                    <Link href={`/donors/${donorNameToSlug(r.donor_name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.trust_name}</Link>
+                    donorPageSlug(r.donor_name) ? <Link href={`/donors/${donorPageSlug(r.donor_name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.trust_name}</Link> : <>{r.trust_name}</>
                   ) : <strong>{r.trust_name}</strong>}
                 </td>
                 <td style={{ padding: '6px', fontSize: '15px' }}>{r.recipient_name || ''}</td>

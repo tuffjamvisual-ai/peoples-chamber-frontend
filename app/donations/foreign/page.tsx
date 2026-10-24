@@ -21,7 +21,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { fmtDate } from '@/lib/lobbying';
-import { donorNameToSlug } from '../../donors/[slug]/page';
+import { donorPageSlug } from '@/lib/donor-slug';
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 86400;
@@ -126,7 +126,7 @@ export default async function ForeignDonationsPage() {
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{c.count}</td>
                 <td style={{ padding: '6px', fontSize: '15px' }}>
                   {c.topDonor ? (
-                    <Link href={`/donors/${donorNameToSlug(c.topDonor)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{c.topDonor}</Link>
+                    donorPageSlug(c.topDonor) ? <Link href={`/donors/${donorPageSlug(c.topDonor)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{c.topDonor}</Link> : <>{c.topDonor}</>
                   ) : <span style={{ opacity: 0.6 }}></span>}
                 </td>
               </tr>
@@ -152,7 +152,7 @@ export default async function ForeignDonationsPage() {
               <tr key={r.id} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <td style={{ padding: '6px' }}>
                   {r.donor_name ? (
-                    <Link href={`/donors/${donorNameToSlug(r.donor_name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.donor_name}</Link>
+                    donorPageSlug(r.donor_name) ? <Link href={`/donors/${donorPageSlug(r.donor_name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.donor_name}</Link> : <>{r.donor_name}</>
                   ) : <span style={{ opacity: 0.6 }}>(unknown)</span>}
                 </td>
                 <td style={{ padding: '6px', fontSize: '15px' }}>{r.addr_country}</td>

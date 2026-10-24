@@ -143,7 +143,7 @@ export default async function CouncilSchoolInspectionsSection({
         <Heading />
         <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0 }}>
           Schools here are the responsibility of{' '}
-          <a href={`/councils/${countySlug}`} style={{ color: INK, textDecoration: 'underline' }}>{countyName}</a>
+          <a href={`/councils/${countySlug}#schools`} style={{ color: INK, textDecoration: 'underline' }}>{countyName}</a>
           , which publishes Ofsted inspection results for every state school in the county.
         </p>
       </section>

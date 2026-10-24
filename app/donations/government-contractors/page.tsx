@@ -15,7 +15,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
-import { donorNameToSlug } from '../../donors/[slug]/page';
+import { donorPageSlug } from '@/lib/donor-slug';
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 86400;
@@ -105,7 +105,7 @@ export default async function ContractorsWhoDonatePage() {
               <tr key={m.norm} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <td style={{ padding: '6px', opacity: 0.6 }}>{i + 1}</td>
                 <td style={{ padding: '6px' }}>
-                  <Link href={`/donors/${donorNameToSlug(m.displayName)}`} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold' }}>{m.displayName}</Link>
+                  {donorPageSlug(m.displayName) ? <Link href={`/donors/${donorPageSlug(m.displayName)}`} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold' }}>{m.displayName}</Link> : <>{m.displayName}</>}
                 </td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{m.contracts}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>£{Math.round(m.contractValue).toLocaleString()}</td>

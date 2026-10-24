@@ -17,7 +17,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import ReadNext from '../../components/ReadNext';
 import type { ReadNextLink } from '@/lib/read-next';
-import { donorNameToSlug } from '../../donors/[slug]/page';
+import { donorPageSlug } from '@/lib/donor-slug';
 
 export const revalidate = 86400;
 
@@ -156,7 +156,9 @@ export default async function SecretariatPage({ params }: PageProps) {
   const lobby = (lobbyRes.data || [])[0] as { slug: string; name: string; meetings_all: number | null } | undefined;
   if (lobby) nextLinks.push({ href: `/lobbying/${lobby.slug}`, label: `${lobby.name}: lobbying record`, note: lobby.meetings_all ? `${lobby.meetings_all.toLocaleString('en-GB')} published meetings with ministers, and its lobbying returns` : 'Its meetings with ministers and lobbying returns' });
   const donor = (donorRes.data || [])[0] as { donor_name: string } | undefined;
-  if (donor) nextLinks.push({ href: `/donors/${donorNameToSlug(donor.donor_name)}`, label: `${donor.donor_name}: political donations`, note: 'Every donation it has declared to parties and politicians' });
+  // Linked only when /donors/<slug> can find this donor (lib/donor-slug.ts).
+  const donorSlug = donor ? donorPageSlug(donor.donor_name) : null;
+  if (donor && donorSlug) nextLinks.push({ href: `/donors/${donorSlug}`, label: `${donor.donor_name}: political donations`, note: 'Every donation it has declared to parties and politicians' });
   nextLinks.push({ href: '/secretariats', label: 'Every APPG secretariat', note: 'Who runs the all-party groups inside Parliament' });
   nextLinks.push({ href: '/lobbying', label: 'Lobbying: who meets ministers', note: 'Organisations ranked by their published meetings with ministers' });
 

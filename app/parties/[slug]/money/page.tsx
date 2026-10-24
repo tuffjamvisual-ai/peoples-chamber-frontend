@@ -17,7 +17,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../../components/OpenGovShell';
 import PartySidebar from '../../../components/PartySidebar';
 import { sectorForDonor } from '@/lib/donor-sectors';
-import { donorNameToSlug } from '../../../donors/[slug]/page';
+import { donorPageSlug } from '@/lib/donor-slug';
 
 export const revalidate = 21600;
 export function generateStaticParams() { return []; }
@@ -313,7 +313,7 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
               <tr key={d.name} style={{ borderBottom: `1px solid ${HAIRLINE}` }}>
                 <td style={{ ...td, opacity: 0.6 }}>{i + 1}</td>
                 <td style={td}>
-                  <Link href={`/donors/${donorNameToSlug(d.name)}`} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold' }}>{d.name}</Link>
+                  {donorPageSlug(d.name) ? <Link href={`/donors/${donorPageSlug(d.name)}`} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold' }}>{d.name}</Link> : <>{d.name}</>}
                 </td>
                 <td style={{ ...td, fontSize: '15px', opacity: 0.75 }}>{d.donorType || ''}</td>
                 <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace' }}>{d.count}</td>

@@ -14,7 +14,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
-import { donorNameToSlug } from '../../donors/[slug]/page';
+import { donorPageSlug } from '@/lib/donor-slug';
 
 export const revalidate = 86400;
 
@@ -136,7 +136,7 @@ export default async function BequestPage() {
               <tr key={r.name} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <td style={{ padding: '6px', opacity: 0.6 }}>{i + 1}</td>
                 <td style={{ padding: '6px' }}>
-                  <Link href={`/donors/${donorNameToSlug(r.name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.name}</Link>
+                  {donorPageSlug(r.name) ? <Link href={`/donors/${donorPageSlug(r.name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.name}</Link> : <>{r.name}</>}
                 </td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{r.count}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(r.total).toLocaleString()}</td>

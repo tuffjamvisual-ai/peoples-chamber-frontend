@@ -177,6 +177,7 @@ export default async function TransparencySectionPage({
         {section === 'contracts' && (
           <p className="text-[#14100d] text-[15px] leading-[1.7] max-w-2xl mt-6">
             Each row is a notice published on Find a Tender, not a separate contract: one contract can appear as an award, its contract details and later changes. A framework&rsquo;s value is the most that every supplier on it could be paid: potential value, not spending. Do not add these values up.
+            {' '}The notices are read every day from Find a Tender&rsquo;s open data service (find-tender.service.gov.uk). Notices published only on Contracts Finder, where many lower value contracts appear, are not included.
           </p>
         )}
         {section === 'donations' && (

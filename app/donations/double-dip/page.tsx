@@ -22,7 +22,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
-import { donorNameToSlug } from '../../donors/[slug]/page';
+import { donorPageSlug } from '@/lib/donor-slug';
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 86400;
@@ -125,7 +125,7 @@ const loadMatches = unstable_cache(
   // Confirmed pairings: MP names payer X on Register of Interests AND
   // EC register shows donor with same normalised name giving to a
   // recipient that contains both MP's first AND last names.
-  type Match = { memberId: number; mpName: string; payerDisplay: string; donorName: string; donorSlug: string; donationCount: number; donatedTotal: number; payerAppearances: number };
+  type Match = { memberId: number; mpName: string; payerDisplay: string; donorName: string; donorSlug: string | null; donationCount: number; donatedTotal: number; payerAppearances: number };
   const matches: Match[] = [];
   for (const [memberId, payerMap] of payerByMp) {
     const mp = mpById.get(memberId);
@@ -147,7 +147,8 @@ const loadMatches = unstable_cache(
         mpName: mp.display_name,
         payerDisplay: payerInfo.display,
         donorName: donations[0].donor_name!,
-        donorSlug: donorNameToSlug(donations[0].donor_name!),
+        // The donor's page, only when /donors/<slug> can find this donor (lib/donor-slug.ts); otherwise plain text.
+        donorSlug: donorPageSlug(donations[0].donor_name!),
         donationCount: matched.length,
         donatedTotal: matchedTotal,
         payerAppearances: payerInfo.appearances,
@@ -194,13 +195,13 @@ export default async function DoubleDipPage() {
           </thead>
           <tbody>
             {matches.map((m, i) => (
-              <tr key={`${m.memberId}-${m.donorSlug}`} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
+              <tr key={`${m.memberId}-${m.donorName}`} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <td style={{ padding: '6px', opacity: 0.6 }}>{i + 1}</td>
                 <td style={{ padding: '6px' }}>
                   <Link href={`/mps/${m.memberId}`} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold' }}>{m.mpName}</Link>
                 </td>
                 <td style={{ padding: '6px' }}>
-                  <Link href={`/donors/${m.donorSlug}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{m.donorName}</Link>
+                  {m.donorSlug ? <Link href={`/donors/${m.donorSlug}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{m.donorName}</Link> : m.donorName}
                   {m.payerAppearances > 1 && <span style={{ fontSize: '15px', opacity: 0.6, marginLeft: '6px' }}>· {m.payerAppearances} entries</span>}
                 </td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{m.donationCount}</td>

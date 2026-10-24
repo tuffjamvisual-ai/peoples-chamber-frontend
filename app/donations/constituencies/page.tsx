@@ -18,7 +18,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
-import { donorNameToSlug } from '../../donors/[slug]/page';
+import { donorPageSlug } from '@/lib/donor-slug';
 import { unitNameToSlug } from './[slug]/page';
 
 export const dynamic = 'force-dynamic'
@@ -159,7 +159,7 @@ export default async function ConstituencyDonationsPage() {
                 <td style={{ padding: '6px', fontSize: '15px' }}>
                   {c.topDonor ? (
                     <>
-                      <Link href={`/donors/${donorNameToSlug(c.topDonor)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{c.topDonor}</Link>
+                      {donorPageSlug(c.topDonor) ? <Link href={`/donors/${donorPageSlug(c.topDonor)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{c.topDonor}</Link> : <>{c.topDonor}</>}
                       <span style={{ opacity: 0.6, fontFamily: 'monospace', marginLeft: '6px' }}>£{Math.round(c.topAmount).toLocaleString()}</span>
                     </>
                   ) : <span style={{ opacity: 0.6 }}></span>}

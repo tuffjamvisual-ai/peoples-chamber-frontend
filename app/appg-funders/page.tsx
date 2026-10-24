@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import { donorNameToSlug } from '../donors/[slug]/page';
+import { donorPageSlug } from '@/lib/donor-slug';
 
 export const revalidate = 86400;
 
@@ -98,7 +99,8 @@ export default async function AppgFundersIndex() {
           <tbody>
             {multi.map((r, i) => {
               const slug = donorNameToSlug(r.name);
-              const hasEcRecord = ecMatchedSlugs.has(slug);
+              // Linked only when /donors/<slug> can find this donor (lib/donor-slug.ts), not just when the slug matches.
+              const hasEcRecord = ecMatchedSlugs.has(slug) && donorPageSlug(r.name) === slug;
               return (
                 <tr key={r.name} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                   <td style={{ padding: '6px', opacity: 0.6 }}>{i + 1}</td>

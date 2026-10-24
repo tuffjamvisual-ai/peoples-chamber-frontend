@@ -22,7 +22,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { fmtDate } from '@/lib/lobbying';
-import { donorNameToSlug } from '../../donors/[slug]/page';
+import { donorPageSlug } from '@/lib/donor-slug';
 
 export const revalidate = 86400;
 
@@ -158,7 +158,7 @@ export default async function SponsoredVisitsPage() {
               <tr key={s.name} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <td style={{ padding: '6px', opacity: 0.6 }}>{i + 1}</td>
                 <td style={{ padding: '6px' }}>
-                  <Link href={`/donors/${donorNameToSlug(s.name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}><strong>{s.name}</strong></Link>
+                  {donorPageSlug(s.name) ? <Link href={`/donors/${donorPageSlug(s.name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}><strong>{s.name}</strong></Link> : <><strong>{s.name}</strong></>}
                 </td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{s.count}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(s.total).toLocaleString()}</td>
@@ -185,7 +185,7 @@ export default async function SponsoredVisitsPage() {
               <tr key={s.name} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <td style={{ padding: '6px', opacity: 0.6 }}>{i + 1}</td>
                 <td style={{ padding: '6px' }}>
-                  <Link href={`/donors/${donorNameToSlug(s.name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}><strong>{s.name}</strong></Link>
+                  {donorPageSlug(s.name) ? <Link href={`/donors/${donorPageSlug(s.name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}><strong>{s.name}</strong></Link> : <><strong>{s.name}</strong></>}
                 </td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{s.count}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(s.total).toLocaleString()}</td>
@@ -211,7 +211,7 @@ export default async function SponsoredVisitsPage() {
               <tr key={s.name} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <td style={{ padding: '6px', opacity: 0.6 }}>{i + 1}</td>
                 <td style={{ padding: '6px' }}>
-                  <Link href={`/donors/${donorNameToSlug(s.name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}><strong>{s.name}</strong></Link>
+                  {donorPageSlug(s.name) ? <Link href={`/donors/${donorPageSlug(s.name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}><strong>{s.name}</strong></Link> : <><strong>{s.name}</strong></>}
                 </td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{s.count}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(s.total).toLocaleString()}</td>
@@ -262,7 +262,7 @@ export default async function SponsoredVisitsPage() {
               <tr key={r.id} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <td style={{ padding: '6px', fontSize: '15px' }}>
                   {r.donor_name ? (
-                    <Link href={`/donors/${donorNameToSlug(r.donor_name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.donor_name}</Link>
+                    donorPageSlug(r.donor_name) ? <Link href={`/donors/${donorPageSlug(r.donor_name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.donor_name}</Link> : <>{r.donor_name}</>
                   ) : <span style={{ opacity: 0.6 }}>(unknown)</span>}
                 </td>
                 <td style={{ padding: '6px', fontSize: '15px' }}>{r.recipient_name || ''}</td>
