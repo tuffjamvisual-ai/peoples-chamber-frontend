@@ -16,6 +16,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { donorPageSlug } from '@/lib/donor-slug';
+import { readAll } from '@/lib/read-all';
 
 export const revalidate = 86400;
 
@@ -68,19 +69,14 @@ function normaliseReason(raw: string | null): string {
 }
 
 export default async function ImpermissiblePage() {
-  const PAGE = 1000;
-  const rows: Row[] = [];
-  for (let from = 0; ; from += PAGE) {
-    const { data, error } = await supabase
-      .from('political_donations')
-      .select('id, donor_name, recipient_name, recipient_type, impermissibility_reason, returned_date, amount, accepted_date')
-      .not('impermissibility_reason', 'is', null)
-      .order('amount', { ascending: false })
-      .range(from, from + PAGE - 1);
-    if (error || !data || data.length === 0) break;
-    rows.push(...(data as Row[]));
-    if (data.length < PAGE) break;
-  }
+  // Every row in a stable order, failing loudly (24 Oct 2026, report 36): lib/read-all.ts. The loop it replaces stopped
+  // quietly on an error (showing partial figures) and was ordered only by a column with ties.
+  const rows = await readAll<Row>(() => supabase.from('political_donations'), {
+    columns: 'id, donor_name, recipient_name, recipient_type, impermissibility_reason, returned_date, amount, accepted_date',
+    filter: (q) => q.not('impermissibility_reason', 'is', null),
+    orderBy: [{ column: 'amount', ascending: false }, { column: 'id' }],
+    label: '/donations/impermissible',
+  });
 
   // Reason buckets
   const reasons = new Map<string, { reason: string; count: number; total: number }>();

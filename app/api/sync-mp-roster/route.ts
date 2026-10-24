@@ -182,12 +182,15 @@ async function buildContactRow(memberId: number) {
 }
 
 // All member_ids present in a table (paged past the 1000-row limit).
+// Ordered by member_id (unique in both tables) so paging is stable, and a failed page fails the run instead of
+// returning part of the list, which would make existing rows look missing (24 Oct 2026, report 36).
 async function idsIn(supabase: SupabaseClient, table: string): Promise<Set<number>> {
   const out = new Set<number>();
   const PAGE = 1000;
   for (let from = 0; ; from += PAGE) {
-    const { data, error } = await supabase.from(table).select('member_id').range(from, from + PAGE - 1);
-    if (error || !data || data.length === 0) break;
+    const { data, error } = await supabase.from(table).select('member_id').order('member_id').range(from, from + PAGE - 1);
+    if (error) throw new Error(`${table} member ids: ${error.message}`);
+    if (!data || data.length === 0) break;
     for (const r of data) out.add(r.member_id as number);
     if (data.length < PAGE) break;
   }
@@ -196,7 +199,8 @@ async function idsIn(supabase: SupabaseClient, table: string): Promise<Set<numbe
 
 // dryRun: fetch and build the rows but write nothing (used for testing).
 async function fillProfileGaps(supabase: SupabaseClient, dryRun = false) {
-  const { data: cur } = await supabase.from('mps').select('member_id').eq('current_member', true);
+  const { data: cur, error: curErr } = await supabase.from('mps').select('member_id').eq('current_member', true);
+  if (curErr) throw new Error(`current MPs: ${curErr.message}`);
   const currentIds = (cur || []).map((r) => r.member_id as number);
   const [bioIds, contactIds] = await Promise.all([idsIn(supabase, 'mp_biography'), idsIn(supabase, 'mp_contact')]);
 
@@ -253,7 +257,12 @@ async function GET_impl(req: Request) {
   // ?dryRun=1 previews the profile gap filling only and writes nothing. The
   // add/retire roster logic is skipped entirely in a dry run.
   if (new URL(req.url).searchParams.get('dryRun') === '1') {
-    const preview = await fillProfileGaps(supabase, true);
+    let preview: Awaited<ReturnType<typeof fillProfileGaps>>;
+    try {
+      preview = await fillProfileGaps(supabase, true);
+    } catch (e) {
+      return NextResponse.json({ ok: false, dryRun: true, error: (e as Error).message }, { status: 500 });
+    }
     return NextResponse.json({
       ok: true,
       dryRun: true,
@@ -345,7 +354,20 @@ async function GET_impl(req: Request) {
   }
 
   // Fill missing biography / contact rows for current MPs (see header note).
-  const gaps = await fillProfileGaps(supabase);
+  // A failed read fails the run (status 500, recorded by the heartbeat) rather than filling gaps from a partial list.
+  let gaps: Awaited<ReturnType<typeof fillProfileGaps>>;
+  try {
+    gaps = await fillProfileGaps(supabase);
+  } catch (e) {
+    if (added.length || retired.length) {
+      revalidatePath('/mps');
+      revalidatePath('/');
+    }
+    return NextResponse.json(
+      { ok: false, error: `profile gap filling: ${(e as Error).message}`, added: added.length, retired: retired.length },
+      { status: 500 },
+    );
+  }
 
   if (added.length || retired.length) {
     revalidatePath('/mps');

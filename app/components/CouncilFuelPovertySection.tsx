@@ -10,6 +10,7 @@
 // estimates as a trend.
 
 import { supabase } from '@/lib/supabase';
+import { readAll } from '@/lib/read-all';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -22,20 +23,15 @@ type Lsoa = { lsoa_name: string; households: number; fuel_poor: number; percenta
 const fmtNum = (n: number) => Math.round(n).toLocaleString('en-GB');
 
 async function fetchLsoas(codes: string[], year: number): Promise<Lsoa[]> {
-  const out: Lsoa[] = [];
-  for (let from = 0; from < 20_000; from += 1000) {
-    const { data, error } = await supabase
-      .from('council_fuel_poverty_lsoa')
-      .select('lsoa_name, households, fuel_poor, percentage')
-      .in('council_gss_code', codes)
-      .eq('data_year', year)
-      .order('lsoa_code')
-      .range(from, from + 999);
-    if (error || !data) break;
-    out.push(...(data as Lsoa[]).map((l) => ({ ...l, percentage: Number(l.percentage) })));
-    if (data.length < 1000) break;
-  }
-  return out;
+  // (24 Oct 2026, report 36): every row via lib/read-all.ts, which throws on a failed page instead of stopping
+  // quietly, so the page keeps its last good version rather than showing part of the figures. lsoa_code is unique within one data_year (primary key lsoa_code, data_year).
+  const rows = await readAll<Lsoa>(() => supabase.from('council_fuel_poverty_lsoa'), {
+    columns: 'lsoa_name, households, fuel_poor, percentage',
+    filter: (q) => q.in('council_gss_code', codes).eq('data_year', year),
+    orderBy: 'lsoa_code',
+    label: 'CouncilFuelPovertySection',
+  });
+  return rows.map((l) => ({ ...l, percentage: Number(l.percentage) }));
 }
 
 // Shared by this section and the area summary (/your-area), so both show the same figure.

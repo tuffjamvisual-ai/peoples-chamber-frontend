@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import { readAll } from '@/lib/read-all';
 import OpenGovShell from '../components/OpenGovShell';
 import { displayMpName } from '@/lib/mp-name';
 
@@ -46,14 +47,19 @@ export default async function CommitteesIndexPage() {
       .from('committees')
       .select('id, name, committee_type_id')
       .order('name'),
-    supabase
-      .from('mp_committee_memberships')
-      .select('committee_id, member_id, role')
-      .is('end_date', null),
+    // Every current membership (24 Oct 2026, report 36): a single read stops at 1,000 rows (822 today), in the
+    // table's primary key order so paging is stable. lib/read-all.ts throws on any failure.
+    readAll<MembershipRow>(() => supabase.from('mp_committee_memberships'), {
+      columns: 'committee_id, member_id, role',
+      filter: (q) => q.is('end_date', null),
+      orderBy: ['member_id', 'committee_id', 'start_date'].map((column) => ({ column })),
+      label: '/committees memberships',
+    }),
   ]);
+  if (committeesRes.error) throw new Error(`/committees committees: ${committeesRes.error.message}`);
 
   const committees: CommitteeRow[] = committeesRes.data ?? [];
-  const memberships: MembershipRow[] = membershipsRes.data ?? [];
+  const memberships: MembershipRow[] = membershipsRes;
 
   // Collect chair member_ids so we can fetch their display names.
   const chairMemberIds = [

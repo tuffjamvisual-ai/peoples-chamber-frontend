@@ -162,6 +162,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const parties = await fetchAllRows<{ slug: string; recipient_name: string | null; mp_party_string: string | null }>(
     'parties',
     'slug, recipient_name, mp_party_string',
+    (q) => q.order('slug', { ascending: true }),
   );
   const partyEntries: MetadataRoute.Sitemap = [];
   for (const p of parties) {
@@ -194,7 +195,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const allBills = await fetchAllRows<{ id: number; status: string | null; is_act: boolean | null; commons_division_id: number | null }>(
     'bill',
     'id, status, is_act, commons_division_id',
-    (q) => q.is('hidden_reason', null),
+    // Ordered by id so paging is stable (24 Oct 2026, report 36): unordered pages can repeat or skip rows.
+    (q) => q.is('hidden_reason', null).order('id', { ascending: true }),
   );
   const bills = allBills.filter((b) => {
     const hasVotes = votedBillIds.has(b.id);
@@ -230,7 +232,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Scotland, Wales and Northern Ireland. Per-council pages at
   // /councils/[slug] were previously orphaned (no sitemap entry); added
   // 2026-06-04 alongside the press release entries.
-  const councils = await fetchAllRows<{ slug: string }>('councils', 'slug');
+  const councils = await fetchAllRows<{ slug: string }>('councils', 'slug', (q) => q.order('slug', { ascending: true }));
   const councilEntries: MetadataRoute.Sitemap = councils.map((c) => ({
     url: `${SITE}/councils/${c.slug}`,
     lastModified: now,
@@ -294,7 +296,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // The bill archive: /bills/sessions and one page per session that has bills. The current session changes daily;
   // past sessions rarely. A failed read leaves the session pages out rather than failing the sitemap.
-  const billSessionIds = await fetchAllRows<{ session_id: number; is_current: boolean }>('parliament_session_bill_counts', 'session_id, is_current').catch(() => []);
+  const billSessionIds = await fetchAllRows<{ session_id: number; is_current: boolean }>('parliament_session_bill_counts', 'session_id, is_current', (q) => q.order('session_id', { ascending: true })).catch(() => []);
   const billSessionEntries: MetadataRoute.Sitemap = [
     { url: `${SITE}/bills/sessions`, lastModified: now, changeFrequency: 'weekly', priority: 0.6 },
     ...billSessionIds.map((r) => ({

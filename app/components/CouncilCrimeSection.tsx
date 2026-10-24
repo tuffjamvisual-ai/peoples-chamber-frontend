@@ -13,6 +13,7 @@
 // figures available as a table under "Monthly figures".
 
 import { supabase } from '@/lib/supabase';
+import { readAll } from '@/lib/read-all';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -38,16 +39,17 @@ const SELECT = 'council_gss_code, source, period_type, period_start, period_labe
 // PostgREST returns at most 1,000 rows per call; a county's 24 months
 // across a dozen districts is several thousand, so page through.
 async function fetchAll(codes: string[], fromDate: string | null): Promise<CrimeRow[]> {
-  const out: CrimeRow[] = [];
-  for (let from = 0; from < 50_000; from += 1000) {
-    let q = supabase.from('council_crime_stats').select(SELECT).in('council_gss_code', codes);
-    if (fromDate) q = q.gte('period_start', fromDate);
-    const { data, error } = await q.order('period_start', { ascending: true }).order('id', { ascending: true }).range(from, from + 999);
-    if (error || !data) break;
-    out.push(...(data as CrimeRow[]));
-    if (data.length < 1000) break;
-  }
-  return out;
+  // (24 Oct 2026, report 36): every row via lib/read-all.ts, which throws on a failed page instead of stopping
+  // quietly, so the page keeps its last good version rather than showing part of the figures. The 50,000 row cap is gone.
+  return readAll<CrimeRow>(() => supabase.from('council_crime_stats'), {
+    columns: SELECT,
+    filter: (q) => {
+      const byCouncil = q.in('council_gss_code', codes);
+      return fromDate ? byCouncil.gte('period_start', fromDate) : byCouncil;
+    },
+    orderBy: [{ column: 'period_start' }, { column: 'id' }],
+    label: 'CouncilCrimeSection',
+  });
 }
 
 function addMonths(isoDate: string, n: number): string {

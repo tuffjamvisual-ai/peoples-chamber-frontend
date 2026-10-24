@@ -24,6 +24,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { donorPageSlug } from '@/lib/donor-slug';
 import { displayMpName } from '@/lib/mp-name';
+import { readAll } from '@/lib/read-all';
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 86400;
@@ -58,44 +59,37 @@ type InterestRow = { member_id: number; interest_text: string };
 type DonationRow = { donor_name: string | null; recipient_name: string | null; amount: number | null };
 
 async function fetchEmploymentPayers(): Promise<Map<number, Map<string, { display: string; appearances: number }>>> {
-  const PAGE = 1000;
+  // Every row in a stable order, failing loudly (24 Oct 2026, report 36): lib/read-all.ts. The loop it replaces paged
+  // with no order and stopped quietly on an error.
   const out = new Map<number, Map<string, { display: string; appearances: number }>>();
-  for (let from = 0; ; from += PAGE) {
-    const { data, error } = await supabase
-      .from('mp_registered_interests')
-      .select('member_id, interest_text')
-      .eq('category_name', '1. Employment and earnings')
-      .range(from, from + PAGE - 1);
-    if (error || !data || data.length === 0) break;
-    for (const r of data as InterestRow[]) {
-      const payer = extractPayerName(r.interest_text || '');
-      if (!payer || payer.length < 3) continue;
-      const n = norm(payer);
-      if (!out.has(r.member_id)) out.set(r.member_id, new Map());
-      const inner = out.get(r.member_id)!;
-      const ex = inner.get(n) ?? { display: payer, appearances: 0 };
-      ex.appearances += 1;
-      inner.set(n, ex);
-    }
-    if (data.length < PAGE) break;
+  const interests = await readAll<InterestRow>(() => supabase.from('mp_registered_interests'), {
+    columns: 'id, member_id, interest_text',
+    filter: (q) => q.eq('category_name', '1. Employment and earnings'),
+    orderBy: 'id',
+    label: '/donations/double-dip interests',
+  });
+  for (const r of interests) {
+    const payer = extractPayerName(r.interest_text || '');
+    if (!payer || payer.length < 3) continue;
+    const n = norm(payer);
+    if (!out.has(r.member_id)) out.set(r.member_id, new Map());
+    const inner = out.get(r.member_id)!;
+    const ex = inner.get(n) ?? { display: payer, appearances: 0 };
+    ex.appearances += 1;
+    inner.set(n, ex);
   }
   return out;
 }
 
 async function fetchAllDonations(): Promise<DonationRow[]> {
-  const PAGE = 1000;
-  const out: DonationRow[] = [];
-  for (let from = 0; ; from += PAGE) {
-    const { data, error } = await supabase
-      .from('political_donations')
-      .select('donor_name, recipient_name, amount')
-      .not('donor_name', 'is', null)
-      .range(from, from + PAGE - 1);
-    if (error || !data || data.length === 0) break;
-    out.push(...(data as DonationRow[]));
-    if (data.length < PAGE) break;
-  }
-  return out;
+  // Every row in a stable order, failing loudly (24 Oct 2026, report 36): lib/read-all.ts. The loop it replaces paged
+  // with no order and stopped quietly on an error.
+  return readAll<DonationRow>(() => supabase.from('political_donations'), {
+    columns: 'id, donor_name, recipient_name, amount',
+    filter: (q) => q.not('donor_name', 'is', null),
+    orderBy: 'id',
+    label: '/donations/double-dip donations',
+  });
 }
 
 // The join pages the donations register and the interests table and matches in

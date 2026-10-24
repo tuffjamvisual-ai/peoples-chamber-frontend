@@ -15,6 +15,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { donorPageSlug } from '@/lib/donor-slug';
+import { readAll } from '@/lib/read-all';
 
 export const revalidate = 86400;
 
@@ -39,19 +40,14 @@ type Row = {
 };
 
 export default async function BequestPage() {
-  const PAGE = 1000;
-  const rows: Row[] = [];
-  for (let from = 0; ; from += PAGE) {
-    const { data, error } = await supabase
-      .from('political_donations')
-      .select('id, donor_name, recipient_name, amount, accepted_date')
-      .eq('is_bequest', true)
-      .order('amount', { ascending: false })
-      .range(from, from + PAGE - 1);
-    if (error || !data || data.length === 0) break;
-    rows.push(...(data as Row[]));
-    if (data.length < PAGE) break;
-  }
+  // Every row in a stable order, failing loudly (24 Oct 2026, report 36): lib/read-all.ts. The loop it replaces stopped
+  // quietly on an error (showing partial figures) and was ordered only by a column with ties.
+  const rows = await readAll<Row>(() => supabase.from('political_donations'), {
+    columns: 'id, donor_name, recipient_name, amount, accepted_date',
+    filter: (q) => q.eq('is_bequest', true),
+    orderBy: [{ column: 'amount', ascending: false }, { column: 'id' }],
+    label: '/donations/bequest',
+  });
 
   // Recipient league
   type Agg = { name: string; count: number; total: number };

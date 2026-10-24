@@ -84,7 +84,8 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
       .eq('party', partyName)
       .order('division_id')
       .range(from, from + 999);
-    if (error || !data) break;
+    if (error) throw new Error(`/parties/${slug}/whip party_division_splits: ${error.message}`); // loud, not partial (report 36)
+    if (!data) break;
     splits.push(...(data as SplitRow[]));
     if (data.length < 1000) break;
   }
@@ -96,7 +97,8 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
       .eq('party', partyName)
       .order('member_id')
       .range(from, from + 999);
-    if (error || !data) break;
+    if (error) throw new Error(`/parties/${slug}/whip party_member_vote_stats: ${error.message}`); // loud, not partial (report 36)
+    if (!data) break;
     stats.push(...(data as StatRow[]));
     if (data.length < 1000) break;
   }
@@ -165,7 +167,8 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
         .order('division_date_only', { ascending: false })
         .order('id', { ascending: false })
         .range(from, from + 999);
-      if (error || !data) break;
+      if (error) throw new Error(`/parties/${slug}/whip rebel votes: ${error.message}`); // loud, not partial (report 36)
+      if (!data) break;
       rebelVotes.push(...(data as RebelVote[]));
       if (data.length < 1000) break;
     }

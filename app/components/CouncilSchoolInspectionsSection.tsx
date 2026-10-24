@@ -12,6 +12,7 @@
 
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import { readAll } from '@/lib/read-all';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -81,14 +82,14 @@ function latest(s: School): { date: string | null; text: string; predecessor: bo
 }
 
 async function fetchSchools(code: string): Promise<School[]> {
-  const out: School[] = [];
-  for (let from = 0; from < 10_000; from += 1000) {
-    const { data, error } = await supabase.from('school_inspections').select(SELECT).eq('la_gss_code', code).order('school_name').range(from, from + 999);
-    if (error || !data) break;
-    out.push(...(data as School[]));
-    if (data.length < 1000) break;
-  }
-  return out;
+  // (24 Oct 2026, report 36): every row via lib/read-all.ts, which throws on a failed page instead of stopping
+  // quietly, so the page keeps its last good version rather than showing part of the figures. urn (the primary key) breaks ties between schools with the same name.
+  return readAll<School>(() => supabase.from('school_inspections'), {
+    columns: SELECT,
+    filter: (q) => q.eq('la_gss_code', code),
+    orderBy: [{ column: 'school_name' }, { column: 'urn' }],
+    label: 'CouncilSchoolInspectionsSection',
+  });
 }
 
 const th: React.CSSProperties = { textAlign: 'left', padding: '6px 8px 6px 0', fontWeight: 'bold' };

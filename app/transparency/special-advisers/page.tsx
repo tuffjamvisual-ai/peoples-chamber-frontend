@@ -56,7 +56,9 @@ async function fetchAll<T>(table: string, columns: string): Promise<T[]> {
   const out: T[] = [];
   for (let from = 0; ; from += PAGE) {
     const { data, error } = await supabase.from(table).select(columns).order('id', { ascending: true }).range(from, from + PAGE - 1);
-    if (error || !data || data.length === 0) break;
+    // Throw rather than stop (24 Oct 2026, report 36), so a failed page keeps the last good version up.
+    if (error) throw new Error(`/transparency/special-advisers ${table}: ${error.message}`);
+    if (!data || data.length === 0) break;
     out.push(...(data as T[]));
     if (data.length < PAGE) break;
   }

@@ -18,6 +18,7 @@ import OpenGovShell from '../../../components/OpenGovShell';
 import PartySidebar from '../../../components/PartySidebar';
 import { sectorForDonor } from '@/lib/donor-sectors';
 import { donorPageSlug } from '@/lib/donor-slug';
+import { readAll } from '@/lib/read-all';
 
 export const revalidate = 21600;
 export function generateStaticParams() { return []; }
@@ -78,18 +79,14 @@ export default async function PartyMoney({ params }: { params: Promise<{ slug: s
 
   // Pull everything declared against this party's EC recipient name.
   // Most major parties have 10-20k records; pagination handles it.
-  const PAGE = 1000;
-  const donations: Donation[] = [];
-  for (let from = 0; ; from += PAGE) {
-    const { data, error } = await supabase
-      .from('political_donations')
-      .select('donor_name, donor_type, amount, accepted_date, received_date, reported_date, accounting_unit_name, nature')
-      .eq('recipient_name', party.recipient_name)
-      .range(from, from + PAGE - 1);
-    if (error || !data || data.length === 0) break;
-    donations.push(...(data as Donation[]));
-    if (data.length < PAGE) break;
-  }
+  // Every row in a stable order, failing loudly (24 Oct 2026, report 36): lib/read-all.ts. The loop it replaces paged
+  // with no order and stopped quietly on an error.
+  const donations = await readAll<Donation>(() => supabase.from('political_donations'), {
+    columns: 'id, donor_name, donor_type, amount, accepted_date, received_date, reported_date, accounting_unit_name, nature',
+    filter: (q) => q.eq('recipient_name', party.recipient_name),
+    orderBy: 'id',
+    label: `/parties/${slug}/money`,
+  });
 
   const total = donations.reduce((s, d) => s + Number(d.amount || 0), 0);
 

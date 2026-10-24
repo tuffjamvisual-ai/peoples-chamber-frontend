@@ -12,6 +12,7 @@
 // figures in a table under "Quarterly figures".
 
 import { supabase } from '@/lib/supabase';
+import { readAll } from '@/lib/read-all';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -59,20 +60,14 @@ const shortQ = (p: string) => `Q${(Number(p.slice(5, 7)) + 2) / 3} ${p.slice(0, 
 // PostgREST caps responses at 1,000 rows; a county's ~12 districts x ~28
 // quarters is under that, but page anyway so growth can't truncate it.
 async function fetchAll(codes: string[]): Promise<Row[]> {
-  const out: Row[] = [];
-  for (let from = 0; from < 20_000; from += 1000) {
-    const { data, error } = await supabase
-      .from('council_homelessness')
-      .select(SELECT)
-      .in('council_gss_code', codes)
-      .order('period_start', { ascending: true })
-      .order('council_gss_code', { ascending: true })
-      .range(from, from + 999);
-    if (error || !data) break;
-    out.push(...(data as Row[]));
-    if (data.length < 1000) break;
-  }
-  return out;
+  // (24 Oct 2026, report 36): every row via lib/read-all.ts, which throws on a failed page instead of stopping
+  // quietly, so the page keeps its last good version rather than showing part of the figures. The order is the primary key (council_gss_code, period_start).
+  return readAll<Row>(() => supabase.from('council_homelessness'), {
+    columns: SELECT,
+    filter: (q) => q.in('council_gss_code', codes),
+    orderBy: [{ column: 'period_start' }, { column: 'council_gss_code' }],
+    label: 'CouncilHomelessnessSection',
+  });
 }
 
 // Shared by this section and the area summary (/your-area), so both show the same figures.

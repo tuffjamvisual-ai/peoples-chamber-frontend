@@ -21,6 +21,7 @@
 
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import { readAll } from '@/lib/read-all';
 import { displayMpName } from '@/lib/mp-name';
 
 type MpRow = {
@@ -38,26 +39,14 @@ const ACCENT = '#7a1612';
 const MONO = 'Special Elite, monospace';
 
 async function fetchAllCurrentMps(): Promise<MpRow[]> {
-  const PAGE_SIZE = 1000;
-  const out: MpRow[] = [];
-  let from = 0;
-  for (;;) {
-    const { data, error } = await supabase
-      .from('mps')
-      .select('member_id, display_name, name, party, constituency')
-      .eq('current_member', true)
-      .order('display_name', { ascending: true })
-      .range(from, from + PAGE_SIZE - 1);
-    if (error) {
-      console.error('AllMpsIndex fetch error:', error);
-      break;
-    }
-    if (!data || data.length === 0) break;
-    out.push(...(data as MpRow[]));
-    if (data.length < PAGE_SIZE) break;
-    from += PAGE_SIZE;
-  }
-  return out;
+  // (24 Oct 2026, report 36): every row via lib/read-all.ts, which throws on a failed page instead of stopping
+  // quietly, so the page keeps its last good version rather than showing part of the figures. member_id breaks ties between equal names.
+  return readAll<MpRow>(() => supabase.from('mps'), {
+    columns: 'member_id, display_name, name, party, constituency',
+    filter: (q) => q.eq('current_member', true),
+    orderBy: [{ column: 'display_name' }, { column: 'member_id' }],
+    label: 'AllMpsIndex',
+  });
 }
 
 export default async function AllMpsIndex() {

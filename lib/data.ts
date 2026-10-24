@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { readAll } from './read-all';
 import { cardSummary } from './bill-summary';
 
 export type Bill = {
@@ -90,44 +91,25 @@ export function toCardBill(bill: Record<string, unknown>): Bill {
   };
 }
 
+// A bill row as read by getAllBills, before the votes objects are added.
+type BillRow = Omit<Bill, 'votes' | 'commons_votes'> & { commons_ayes: number | null; commons_noes: number | null };
+
 export async function getAllBills(): Promise<Bill[]> {
-  // Supabase project-level db-max-rows caps each response at 1000 even
-  // when .range() asks for more, so we issue four parallel range queries
-  // and concatenate. This holds 4000 bills; revisit when the table grows
-  // past that.
+  // Every visible bill via lib/read-all.ts (24 Oct 2026, report 36), replacing four fixed range queries that held
+  // at most 4,000 bills and were ordered only by vote_count_yes (ties could repeat or skip bills across pages).
+  // Nothing calls this today. Still returns [] on failure, as before.
   const cols =
     'id, parliament_id, title, category, current_stage, stage_date, sponsor_name, sponsor_party, sponsor_party_colour, vote_count_yes, vote_count_no, vote_count_abstain, commons_ayes, commons_noes, last_update, bill_withdrawn, is_act';
 
-  const batch = (from: number, to: number) =>
-    supabase
-      .from('bill')
-      .select(cols)
-      .is('hidden_reason', null)
-      .order('vote_count_yes', { ascending: false })
-      .range(from, to);
-
   try {
-    const [b1, b2, b3, b4] = await Promise.all([
-      batch(0, 999),
-      batch(1000, 1999),
-      batch(2000, 2999),
-      batch(3000, 3999),
-    ]);
+    const bills = await readAll<BillRow>(() => supabase.from('bill'), {
+      columns: cols,
+      filter: (q) => q.is('hidden_reason', null),
+      orderBy: [{ column: 'vote_count_yes', ascending: false }, { column: 'id' }],
+      label: 'getAllBills',
+    });
 
-    const firstError = b1.error || b2.error || b3.error || b4.error;
-    if (firstError) {
-      console.error('Error fetching bills:', firstError);
-      return [];
-    }
-
-    const bills = [
-      ...(b1.data || []),
-      ...(b2.data || []),
-      ...(b3.data || []),
-      ...(b4.data || []),
-    ];
-
-    return bills.map((bill: any) => ({
+    return bills.map((bill) => ({
       ...bill,
       votes: {
         yes: bill.vote_count_yes || 0,
@@ -138,7 +120,7 @@ export async function getAllBills(): Promise<Bill[]> {
         bill.commons_ayes !== null
           ? { ayes: bill.commons_ayes, noes: bill.commons_noes }
           : null,
-    }));
+    }) as Bill);
   } catch (error) {
     console.error('Error in getAllBills:', error);
     return [];

@@ -20,6 +20,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { donorPageSlug } from '@/lib/donor-slug';
 import { unitNameToSlug } from './[slug]/page';
+import { readAll } from '@/lib/read-all';
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 86400;
@@ -65,22 +66,15 @@ type Row = {
 // small, so cache them for a day rather than recompute on every request.
 const loadConstituencies = unstable_cache(
   async () => {
-    const PAGE = 1000;
-    const rows: Row[] = [];
-    for (let from = 0; ; from += PAGE) {
-      const { data, error } = await supabase
-        .from('political_donations')
-        .select('id, donor_name, recipient_name, accounting_unit_name, amount, accepted_date')
-        .not('accounting_unit_name', 'is', null)
-        .neq('accounting_unit_name', '')
-        .gte('amount', 1500)  // sub-£1.5k entries are usually small unaggregated cash; under EC threshold
-        .order('accepted_date', { ascending: false })
-        .range(from, from + PAGE - 1);
-      if (error || !data || data.length === 0) break;
-      rows.push(...(data as Row[]));
-      if (data.length < PAGE) break;
-      if (rows.length > 60_000) break;
-    }
+    // Every row in a stable order, failing loudly (24 Oct 2026, report 36): lib/read-all.ts. The loop it replaces stopped
+    // quietly on an error, had no unique tiebreaker and stopped after 60,000 rows.
+    const rows = await readAll<Row>(() => supabase.from('political_donations'), {
+      columns: 'id, donor_name, recipient_name, accounting_unit_name, amount, accepted_date',
+      // sub-£1.5k entries are usually small unaggregated cash; under EC threshold
+      filter: (q) => q.not('accounting_unit_name', 'is', null).neq('accounting_unit_name', '').gte('amount', 1500),
+      orderBy: [{ column: 'accepted_date', ascending: false }, { column: 'id' }],
+      label: '/donations/constituencies',
+    });
 
     type Agg = { unit: string; party: string | null; count: number; total: number; topDonor: string; topAmount: number };
     const byUnit = new Map<string, Agg>();
