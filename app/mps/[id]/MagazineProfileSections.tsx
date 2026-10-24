@@ -291,8 +291,8 @@ interface Props {
   partyWhipSlug?: string | null;
   bio: {
     representations?: Representation[];
-    government_posts?: Array<{ name: string; startDate?: string | null; endDate?: string | null }>;
-    opposition_posts?: Array<{ name: string; startDate?: string | null; endDate?: string | null }>;
+    government_posts?: Array<{ name: string }>;
+    opposition_posts?: Array<{ name: string }>;
     committee_memberships?: Array<{ id?: number; name?: string } | string>;
     party_history?: PartyHistoryEntry[];
     occupation_before_politics?: string | null;
@@ -530,23 +530,14 @@ export default function MagazineProfileSections({
     bio && typeof bio.bio_visible === 'boolean' ? bio.bio_visible : BIO_VISIBLE_MEMBER_IDS.has(memberId)
   );
 
-  // Background tab: the sourced timeline in phase and date order, and "In Parliament" from the stored seat and post
-  // records (synced nightly; no API calls here): every seat, then government and opposition posts, oldest first.
+  // Background tab: the sourced timeline in phase and date order.
   const timeline = sortTimeline(bio?.background_timeline ?? []);
-  const inParliament: Array<{ years: string; title: string; note: string | null }> = [
-    ...[...(bio?.representations ?? [])]
-      .sort((a, b) => (a.startDate || '').localeCompare(b.startDate || ''))
-      .map((r) => ({ years: `${fmtDate(r.startDate)} to ${r.endDate ? fmtDate(r.endDate) : 'today'}`, title: `MP for ${r.name}`, note: r.endDate && r.endReason ? r.endReason : null })),
-    ...[...(bio?.government_posts ?? []), ...(bio?.opposition_posts ?? [])]
-      .sort((a, b) => (a.startDate || '').localeCompare(b.startDate || ''))
-      .map((p) => ({ years: p.startDate ? `${fmtDate(p.startDate)} to ${p.endDate ? fmtDate(p.endDate) : 'today'}` : '', title: p.name, note: null })),
-  ];
 
   const has: Record<SectionId, boolean> = {
     bio: bioVisible && paragraphs.length > 0,
-    // Background (24 Oct 2026): shown for a sourced timeline, the older career/education fields, or a seat record.
+    // Background (24 Oct 2026): shown for a sourced timeline or the older career/education fields.
     career: !!((bio?.background_timeline && bio.background_timeline.length > 0) || (bio?.career_history && bio.career_history.length > 0)
-      || (bio?.education && bio.education.length > 0) || bio?.career_background || (bio?.representations && bio.representations.length > 0)),
+      || (bio?.education && bio.education.length > 0) || bio?.career_background),
     contact: !!(contact && (contact.phone || contact.email || contact.website || contact.twitter || contact.address_line1)),
     voting: (totalVotes ?? votes.length) > 0,
     bills: sponsoredBills.length > 0,
@@ -575,8 +566,8 @@ export default function MagazineProfileSections({
   // the user back on the voting tab rather than the default first tab.
   // Otherwise a profile opens on 'career' (Background) whenever that
   // section is shown for the MP (John's choice, 20 Oct 2026; since 24 Oct 2026
-  // it is shown for a timeline, career history, education, a career background
-  // or a seat record), and on the first section shown when it is not.
+  // it is shown for a timeline, career history, education or a career
+  // background), and on the first section shown when it is not.
   const initialActive: SectionId =
     initialSection && validIds.has(initialSection as SectionId)
       ? (initialSection as SectionId)
@@ -907,18 +898,6 @@ export default function MagazineProfileSections({
               </div>
             )}
             </>
-            )}
-
-            {inParliament.length > 0 && (
-              <div style={{ marginTop: '26px', paddingTop: '20px', borderTop: '1px solid rgba(20,16,13,0.15)' }}>
-                <div style={backgroundLabel}>In Parliament</div>
-                {inParliament.map((r, idx) => (
-                  <TimelineRow key={idx} years={r.years} last={idx === inParliament.length - 1}>
-                    <div style={{ fontSize: '17px', fontWeight: 'bold', lineHeight: 1.3 }}>{r.title}</div>
-                    {r.note && <div style={{ fontSize: '15px', opacity: 0.85, marginTop: '2px' }}>{r.note}</div>}
-                  </TimelineRow>
-                ))}
-              </div>
             )}
           </>
         )}
