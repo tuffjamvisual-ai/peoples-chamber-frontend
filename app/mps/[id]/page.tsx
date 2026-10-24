@@ -17,7 +17,7 @@ import { normaliseParty, isCoop, partyColourForMember } from '@/lib/party-helper
 import JsonLd, { buildMpPerson, buildBreadcrumbs } from '@/lib/JsonLd';
 import { mpReportItems, MP_REPORTS_SHOWN } from '@/lib/mp-reports';
 import type { MpReports } from './MagazineProfileSections';
-import { fitTitle } from '@/lib/seo-title';
+import { fitTitle, TITLE_SUFFIX, TITLE_MAX } from '@/lib/seo-title';
 
 const BAND_RANK: Record<SalaryBand, number> = { pm: 4, sos: 3, minister_of_state: 2, puss: 1 };
 
@@ -169,10 +169,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const description = metaDescription(head + (kept.length ? ' ' + kept.join(', ') + '.' : ''));
 
   // Title (owner's approval, 24 Oct 2026): the seat as well as the name, within 60 characters with the suffix
-  // (lib/seo-title.ts); otherwise "<name> MP", or "<name>, former MP" for a former member.
-  const title = isFormer
+  // (lib/seo-title.ts); "<name>, former MP" for a former member whose seat does not fit.
+  // A current MP's title always names the seat (24 Oct 2026): 87 of the 650 did not fit with " | opengovt" and fell
+  // back to "<name> MP", so those use "<name>, MP for <seat>" on its own, without the suffix, as long report
+  // headlines do. "<name> MP" is left only for an MP with no seat recorded.
+  const seatTitle = mp.constituency ? `${name}, MP for ${mp.constituency}` : null;
+  const title: Metadata['title'] = isFormer
     ? fitTitle(...(mp.constituency ? [`${name}, former MP for ${mp.constituency}`] : []), `${name}, former MP`)
-    : fitTitle(...(mp.constituency ? [`${name}, MP for ${mp.constituency}`] : []), `${name} MP`);
+    : seatTitle
+      ? seatTitle.length + TITLE_SUFFIX.length > TITLE_MAX ? { absolute: seatTitle } : seatTitle
+      : `${name} MP`;
 
   return {
     title,
