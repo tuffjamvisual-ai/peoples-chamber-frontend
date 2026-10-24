@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'x4g3y1z5d8',
   kicker: 'Housing',
-  headline: `Three Years After the Law, MHCLG’s Own Draft Rules Push Supported Housing Licensing Into 2027`,
+  headline: `Supported Housing Licensing Pushed Into 2027, Three Years On`,
   standfirst: `Parliament passed the law allowing councils to license supported housing in June 2023. The department told MPs in May it was aiming for winter 2026, but the draft regulations it published on 15 October are dated 2027, with the start date left blank.`,
   summary: "Three years after Parliament passed the law, MHCLG’s own draft rules push supported housing licensing into 2027, with the start date blank.",
   publishedAt: '2026-10-22',

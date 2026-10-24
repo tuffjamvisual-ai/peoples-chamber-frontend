@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'p9k4w2rx7m',
   kicker: 'Defence',
-  headline: `Starmer Committed £15bn to Defence. £4.7bn Had No Identified Funding Source Beyond Budget 2026`,
+  headline: `£4.7bn of £15bn Defence Pledge Had No Identified Funding`,
   standfirst: `Keir Starmer announced an additional £15 billion of defence spending power over four years on 30 June. The Treasury's funding table published the same day identified where £10.3 billion would come from. Against the remaining £4.7 billion, it said only: "To be funded at Budget 2026."`,
   summary: "Starmer committed £15bn more to defence, but £4.7bn of it had no identified funding source beyond Budget 2026.",
   publishedAt: '2026-07-04',

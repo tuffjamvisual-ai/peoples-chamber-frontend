@@ -6,7 +6,7 @@ const piece: EditorialEntry = {
   // redirect led to a 404 (link crawl, 16 Oct 2026).
   kind: 'briefing',
   kicker: 'Race and Politics',
-  headline: `Immigration Attitudes Have Hardened. Recorded Race Hate Crime and NHS Racist Abuse Have Risen`,
+  headline: `Immigration Views Harden as Recorded Race Hate Crime Rises`,
   standfirst: `The latest comparable police figures show race hate crime up 6 per cent in a year. The Royal College of Nursing says reported racial abuse or discrimination involving nursing staff increased by 78 per cent between 2022 and 2025. Over roughly the same period, British Social Attitudes recorded a substantial fall in the proportion of people who thought migration was good for the economy or enriched British culture.`,
   summary: "Attitudes to immigration have hardened while recorded race hate crime and racist abuse of NHS nursing staff have risen.",
   publishedAt: '2026-06-30',

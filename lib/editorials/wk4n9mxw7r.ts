@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'wk4n9mxw7r',
   kicker: 'Planning',
-  headline: `Norfolk Developers Could Pay £2,675 a Home Instead of Arranging Their Own Nutrient Mitigation`,
+  headline: `Norfolk Builders Could Pay £2,675 a Home to Offset Nutrients`,
   standfirst: `Developers in parts of Norfolk could pay a flat £2,675 levy per home instead of arranging nutrient pollution mitigation for each project, under the first Environmental Delivery Plan proposed through the government's Nature Restoration Fund. Natural England says it could provide capacity for up to 15,780 homes. The consultation closes 27 October. Environmental groups have questioned whether the proposed charge is high enough.`,
   summary: "Norfolk developers could pay £2,675 a home instead of arranging their own nutrient mitigation, and environmental groups question whether that is enough.",
   publishedAt: '2026-09-18',
