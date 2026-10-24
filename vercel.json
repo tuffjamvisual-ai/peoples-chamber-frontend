@@ -173,10 +173,6 @@
       "schedule": "0 2 * * *"
     },
     {
-      "path": "/api/seed-daily-votes",
-      "schedule": "0 1 * * *"
-    },
-    {
       "path": "/api/monitor-freshness",
       "schedule": "0 16 * * *"
     },
