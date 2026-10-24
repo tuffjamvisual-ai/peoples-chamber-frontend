@@ -17,6 +17,7 @@ import { resolveOrgToDeptSlug } from '@/lib/govOrgSlug';
 import { govUrlToSlug } from '@/lib/govUrlSlug';
 import { departments } from '@/lib/departments';
 import { optionalSection } from '@/lib/optional-section';
+import { displayMpName } from '@/lib/mp-name';
 
 const ACCENT = '#7a1612';
 const INK = '#14100d';
@@ -180,7 +181,7 @@ function renderMp(props: MpProps) {
           <span style={labelStyle}>Other {props.party} MPs</span>
           {partyPeers.map((p) => (
             <Link key={p.member_id} href={`/mps/${p.member_id}`} style={itemStyle}>
-              {p.display_name}
+              {displayMpName(p.display_name)}
               {p.constituency && <span style={subStyle}>{p.constituency}</span>}
             </Link>
           ))}
@@ -331,7 +332,7 @@ async function renderDepartment(props: DepartmentProps) {
           <span style={labelStyle}>Ministers, MP profiles</span>
           {ministerLinks.map((m) => (
             <Link key={m.member_id} href={`/mps/${m.member_id}`} style={itemStyle}>
-              {m.display_name}
+              {displayMpName(m.display_name)}
               {m.constituency && (
                 <span style={subStyle}>
                   {m.party ? `${m.party} · ` : ''}
@@ -542,7 +543,7 @@ async function renderEditorial(props: EditorialProps) {
           <span style={labelStyle}>People</span>
           {mps.map((m) => (
             <Link key={m.member_id} href={`/mps/${m.member_id}`} style={itemStyle}>
-              {m.display_name ?? `Member ${m.member_id}`}
+              {displayMpName(m.display_name) ?? `Member ${m.member_id}`}
             </Link>
           ))}
         </section>

@@ -6,6 +6,7 @@ import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 
 import { latestExpensesYear as latestYear, expensesYearShort as yearShort, expensesYearLong as yearLong } from '@/lib/expenses-year';
+import { displayMpName } from '@/lib/mp-name';
 
 export async function generateMetadata(): Promise<Metadata> {
   const y = yearShort(await latestYear());
@@ -212,7 +213,7 @@ export default async function ExpensesPage() {
             rank={i + 1}
             total={x.row.total_spend}
             memberId={x.mp.member_id}
-            name={x.mp.display_name || x.mp.name || ''}
+            name={displayMpName(x.mp.display_name || x.mp.name || '')}
           />
         ))}
       </ol>

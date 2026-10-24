@@ -10,6 +10,7 @@ import { notFound } from 'next/navigation';
 import OpenGovShell from '../../../components/OpenGovShell';
 import BackLink from '../../../components/BackLink';
 import { donorPageSlug } from '@/lib/donor-slug';
+import { displayMpName } from '@/lib/mp-name';
 
 export const revalidate = 86400;
 export function generateStaticParams() { return []; }
@@ -160,7 +161,7 @@ export default async function AssociationPage({ params }: PageProps) {
           {party && <span style={{ padding: '3px 8px', border: `1px solid ${INK_HAIRLINE}` }}>{party}</span>}
           {matchedMp && (
             <Link href={`/mps/${matchedMp.member_id}`} style={{ padding: '3px 8px', border: `1px solid ${ACCENT}`, color: ACCENT, textDecoration: 'none' }}>
-              Sitting MP: {matchedMp.display_name} &rarr;
+              Sitting MP: {displayMpName(matchedMp.display_name)} &rarr;
             </Link>
           )}
         </div>

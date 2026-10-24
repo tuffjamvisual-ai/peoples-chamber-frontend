@@ -10,6 +10,7 @@ import type { EditorialEntry } from '@/lib/editorials/types';
 import { resolveOrgToDeptSlug } from '@/lib/govOrgSlug';
 import { exploreNextSelection } from '@/lib/explore-next';
 import { optionalSection } from '@/lib/optional-section';
+import { displayMpName } from '@/lib/mp-name';
 
 export type ReadNextLink = { href: string; label: string; note?: string };
 
@@ -167,7 +168,7 @@ async function debateReadNextImpl(d: { title: string; speakers: { memberId: numb
   const mpById = new Map(((mpRes.data || []) as { member_id: number; name: string | null; constituency: string | null; constituency_gss_code: string | null }[]).map((m) => [m.member_id, m]));
   const op = opening ? mpById.get(opening.memberId as number) : undefined;
   if (op) {
-    pick.add({ href: `/mps/${op.member_id}`, label: (op.name || '').replace(/^(Rt Hon |Sir |Dame |Dr )+/i, '').replace(/\s+MP$/, ''), note: op.constituency ? `MP for ${op.constituency}, who opened the debate` : 'Opened the debate' });
+    pick.add({ href: `/mps/${op.member_id}`, label: displayMpName((op.name || '').replace(/^(Rt Hon |Sir |Dame |Dr )+/i, '').replace(/\s+MP$/, '')), note: op.constituency ? `MP for ${op.constituency}, who opened the debate` : 'Opened the debate' });
     if (op.constituency_gss_code) {
       const { data: geo, error: geoErr } = await supabase.from('welfare_constituency_geography').select('council_gss_code, council_name').eq('constituency_gss_code', op.constituency_gss_code).limit(5);
       if (geoErr) throw new Error(`read next: constituency councils: ${geoErr.message}`);

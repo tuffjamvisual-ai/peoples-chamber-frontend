@@ -5,6 +5,7 @@
 // the script can import it under tsx.
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { displayMpName } from '@/lib/mp-name';
 
 export const EDM_API = 'https://oralquestionsandmotions-api.parliament.uk';
 // Start of the current Parliament (general election 4 July 2024).
@@ -161,7 +162,7 @@ export function buildEdmRows(
     const row: EdmSignatureRow = {
       edm_id: r.Id,
       member_id: s.MemberId,
-      member_name: (typeof s.Member?.Name === 'string' && s.Member.Name) || `Member ${s.MemberId}`,
+      member_name: displayMpName((typeof s.Member?.Name === 'string' && s.Member.Name) || `Member ${s.MemberId}`),
       party: (typeof s.Member?.Party === 'string' && s.Member.Party) || null,
       sponsoring_order: typeof s.SponsoringOrder === 'number' ? s.SponsoringOrder : null,
       signed_at: typeof s.CreatedWhen === 'string' ? s.CreatedWhen : null,

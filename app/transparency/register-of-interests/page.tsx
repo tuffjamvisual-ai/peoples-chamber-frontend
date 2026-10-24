@@ -8,6 +8,7 @@ import Pagination from '../../components/Pagination';
 import RegisterSearchClient from './RegisterSearchClient';
 import DonationsCounter from './DonationsCounter';
 import { getDeclaredMpDonationsTotal } from '@/lib/mpDonationsTotal';
+import { displayMpName } from '@/lib/mp-name';
 
 // The Register of Members' Financial Interests — a searchable, cross-MP view of
 // what MPs declare to Parliament (gifts, hospitality, employment, property,
@@ -172,7 +173,7 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
 
   const mpOptions = (mpListRes.data ?? []).map((m) => ({
     id: m.member_id as number,
-    name: (m.display_name as string) || (m.name as string),
+    name: displayMpName((m.display_name as string) || (m.name as string)),
   }));
 
   // Name of the selected MP (for the "no interests registered" nil-return state).
@@ -288,7 +289,7 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
       <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         {interests.map((row) => {
           const mp = mpsById.get(row.member_id);
-          const mpName = mp ? mp.display_name || mp.name : `Member ${row.member_id}`;
+          const mpName = mp ? displayMpName(mp.display_name || mp.name) : `Member ${row.member_id}`;
           return (
             <article key={row.id} style={{ border: `1px solid ${HAIRLINE}`, borderLeft: `3px solid ${ACCENT}`, padding: '16px 18px', background: 'rgba(20,16,13,0.015)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '10px' }}>

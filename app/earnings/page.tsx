@@ -8,6 +8,7 @@ import {
   MINISTERIAL_SUPPLEMENT,
   type SalaryBand,
 } from '@/lib/ministerial-salaries'
+import { displayMpName } from '@/lib/mp-name';
 
 export const metadata: Metadata = {
   title: "UK MP Earnings vs Public Spend, Salary, Outside Earnings & IPSA Costs",
@@ -97,7 +98,7 @@ export default async function EarningsPage() {
     const base = MP_BASE_SALARY_2026
     return {
       member_id: m.member_id,
-      name: m.display_name || m.name || '',
+      name: displayMpName(m.display_name || m.name || ''),
       constituency: m.constituency,
       party: m.party,
       party_colour: m.party_colour,

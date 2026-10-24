@@ -7,6 +7,7 @@ import { mpReportItems } from '@/lib/mp-reports';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import OpenGovShell from '../../../components/OpenGovShell';
 import { MpReportList } from '../MagazineProfileSections';
+import { displayMpName } from '@/lib/mp-name';
 
 // Every report that names an MP (owner's approval, 24 Oct 2026), the full list behind the profile's "Reports mentioning
 // this MP", newest first, from the editorial registry at build time (lib/mp-reports.ts). Rendered on first request and
@@ -23,7 +24,7 @@ const getMpName = cache(async (memberId: number): Promise<string | null> => {
   const { data, error } = await supabase.from('mps').select('display_name, name').eq('member_id', memberId).maybeSingle();
   if (error) throw new Error(`/mps/[id]/reports mps: ${error.message}`);
   if (!data) return null;
-  return (data.display_name || data.name || '').trim() || null;
+  return displayMpName((data.display_name || data.name || '').trim()) || null;
 });
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
+import { displayMpName } from '@/lib/mp-name';
 
 export const revalidate = 86400;
 
@@ -73,7 +74,7 @@ export default async function CommitteesIndexPage() {
     mps = data ?? [];
   }
 
-  const mpById = new Map(mps.map((m) => [m.member_id, m.display_name]));
+  const mpById = new Map(mps.map((m) => [m.member_id, displayMpName(m.display_name)]));
 
   // Build per-committee stats.
   const stats = new Map<number, { count: number; chair: string | null }>();

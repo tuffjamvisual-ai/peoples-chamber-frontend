@@ -8,6 +8,7 @@ import { notFound } from 'next/navigation';
 import OpenGovShell from '../../../components/OpenGovShell';
 import BackLink from '../../../components/BackLink';
 import { fmtAmount, fmtMoney, isOneOff, loadMember, parseParent, parsePayment, slugToLabel } from '../../_lib/data';
+import { displayMpName } from '@/lib/mp-name';
 
 export function generateStaticParams() { return []; }
 export const revalidate = 86400;
@@ -22,7 +23,7 @@ const MONO = 'Special Elite, monospace';
 export async function generateMetadata({ params }: { params: Promise<{ slug: string; memberId: string }> }): Promise<Metadata> {
   const { slug, memberId } = await params;
   const item = Number.isFinite(Number(memberId)) ? await loadMember(slug, Number(memberId)) : null;
-  const name = item?.mp.display_name || item?.mp.name || 'MP';
+  const name = displayMpName(item?.mp.display_name || item?.mp.name) || 'MP';
   return {
     title: `${name}, second jobs`,
     description: `${name}: declared outside earnings, roles, payers and individual payments from the Register of Members’ Financial Interests.`,
@@ -42,7 +43,7 @@ export default async function MpSecondJobsDetail({ params }: { params: Promise<{
   if (!item) notFound();
 
   const label = slugToLabel(slug);
-  const name = item.mp.display_name || item.mp.name || '';
+  const name = displayMpName(item.mp.display_name || item.mp.name || '');
   const partyColour = item.mp.party_colour ? '#' + item.mp.party_colour.replace('#', '') : '#7697a2';
 
   return (

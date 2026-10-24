@@ -28,6 +28,7 @@ import { getAreaTotals, getCouncilRefs, countyTotals, latestYears, nationOfCode,
 import { getLeagueData, bandLabel, ordinal } from '@/lib/council-league';
 import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
 import { balanceColumns, TWO_COLUMN_CSS } from '@/lib/balance-columns';
+import { displayMpName } from '@/lib/mp-name';
 
 export const dynamic = 'force-dynamic';
 
@@ -428,7 +429,7 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 6px' }}>
                 {areaMps.map((m) => (
                   <li key={m.member_id} style={{ ...para, marginBottom: '4px' }}>
-                    <a href={`/mps/${m.member_id}`} style={{ color: INK }}><strong>{m.display_name || m.name}</strong></a> · {normaliseParty(m.party)} · {m.constituency}
+                    <a href={`/mps/${m.member_id}`} style={{ color: INK }}><strong>{displayMpName(m.display_name || m.name)}</strong></a> · {normaliseParty(m.party)} · {m.constituency}
                   </li>
                 ))}
               </ul>
@@ -436,7 +437,7 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
             </>
           ) : mp ? (
             <>
-              <p style={big}><a href={`/mps/${mp.member_id}`} style={{ color: INK }}><strong>{mp.display_name || mp.name}</strong></a></p>
+              <p style={big}><a href={`/mps/${mp.member_id}`} style={{ color: INK }}><strong>{displayMpName(mp.display_name || mp.name)}</strong></a></p>
               <p style={para}>{normaliseParty(mp.party)} · {mp.constituency}</p>
               <p style={para}><a href={`/mps/${mp.member_id}`} style={link}>Votes, expenses, interests and speeches</a></p>
             </>

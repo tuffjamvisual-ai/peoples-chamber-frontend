@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import OpenGovShell from '../../components/OpenGovShell'
 import BackLink from '../../components/BackLink';
+import { displayMpName } from '@/lib/mp-name';
 
 export const revalidate = 86400
 
@@ -201,7 +202,7 @@ function VoteColumn({ heading, rows, accent }: { heading: string; rows: VoteRow[
         {rows.map((v) => (
           <li key={v.member_id} style={{ padding: '6px 0', borderBottom: `1px solid ${INK_HAIRLINE}` }}>
             <Link href={`/mps/${v.member_id}`} style={{ color: INK, textDecoration: 'none' }}>
-              <strong>{v.mps?.display_name ?? `Member ${v.member_id}`}</strong>
+              <strong>{displayMpName(v.mps?.display_name) ?? `Member ${v.member_id}`}</strong>
               {v.mps?.party && (
                 <span style={{ fontSize: '15px', opacity: 0.7 }}> · {v.mps.party}</span>
               )}

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { displayMpName } from '@/lib/mp-name';
 
 export const dynamic = 'force-dynamic';
 
@@ -50,7 +51,7 @@ export async function GET(req: NextRequest) {
 
   const results = (data || []).map((r) => ({
     memberId: r.member_id,
-    name: r.name,
+    name: displayMpName(r.name),
     constituency: r.constituency,
     party: r.party,
   }));

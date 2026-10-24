@@ -10,6 +10,7 @@ import {
   type SalaryBand,
 } from '@/lib/ministerial-salaries';
 import { normaliseParty, isCoop, partyColourForMember } from '@/lib/party-helpers';
+import { displayMpName } from '@/lib/mp-name';
 
 const BAND_RANK: Record<SalaryBand, number> = { pm: 4, sos: 3, minister_of_state: 2, puss: 1 };
 
@@ -71,7 +72,7 @@ export default async function LandingPcaPage() {
   };
   const bioParas = (bioRes.data?.political_bio ?? '').split(/\n\n+/).map((p: string) => p.trim()).filter((p: string) => p.length > 0);
 
-  const fullName = mp?.display_name || mp?.name || '';
+  const fullName = displayMpName(mp?.display_name || mp?.name || '');
   const partyColour = partyColourForMember(mp?.party, mp?.party_colour);
   const partyDisplay = normaliseParty(mp?.party);
   const partyIsCoop = isCoop(mp?.party);

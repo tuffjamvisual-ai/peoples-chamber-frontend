@@ -18,6 +18,7 @@ import BackLink from '../../components/BackLink';
 import ReadNext from '../../components/ReadNext';
 import type { ReadNextLink } from '@/lib/read-next';
 import { donorPageSlug } from '@/lib/donor-slug';
+import { displayMpName } from '@/lib/mp-name';
 
 export const revalidate = 86400;
 
@@ -210,7 +211,7 @@ export default async function SecretariatPage({ params }: PageProps) {
                       <span key={i}>
                         {i > 0 && ', '}
                         {o.member_id && mpById.has(o.member_id) ? (
-                          <Link href={`/mps/${o.member_id}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{mpById.get(o.member_id)!.display_name || o.name_at_time}</Link>
+                          <Link href={`/mps/${o.member_id}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{displayMpName(mpById.get(o.member_id)!.display_name) || o.name_at_time}</Link>
                         ) : (
                           o.name_at_time
                         )}

@@ -5,6 +5,7 @@ import MagazineMPsClient from './MagazineMPsClient';
 import AllMpsIndex from './AllMpsIndex';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
+import { displayMpName } from '@/lib/mp-name';
 
 export const revalidate = 3600;
 
@@ -26,7 +27,10 @@ export default async function MPsPage() {
 
   const mps = (rows || []).map((r) => ({
     member_id: r.member_id,
-    name: r.display_name || r.name || '',
+    // Shown without a courtesy title (lib/mp-name.ts); the name as Parliament writes it is kept for the search box,
+    // so "Mrs Badenoch" still finds Kemi Badenoch.
+    name: displayMpName(r.display_name || r.name || ''),
+    search_name: r.display_name || r.name || '',
     party: r.party,
     party_colour: r.party_colour,
     constituency: r.constituency,

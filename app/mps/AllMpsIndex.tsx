@@ -21,6 +21,7 @@
 
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import { displayMpName } from '@/lib/mp-name';
 
 type MpRow = {
   member_id: number;
@@ -152,7 +153,7 @@ export default async function AllMpsIndex() {
             {members.map((m) => (
               <li key={m.member_id}>
                 <Link href={`/mps/${m.member_id}`} style={itemStyle}>
-                  {m.display_name || m.name || `MP ${m.member_id}`}
+                  {displayMpName(m.display_name || m.name) || `MP ${m.member_id}`}
                   {m.constituency && <span style={subStyle}>{m.constituency}</span>}
                 </Link>
               </li>

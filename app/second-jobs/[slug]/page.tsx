@@ -9,6 +9,7 @@ import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { fmtMoney, loadAll, slugToLabel } from '../_lib/data';
+import { displayMpName } from '@/lib/mp-name';
 
 export function generateStaticParams() { return []; }
 export const revalidate = 86400;
@@ -110,7 +111,7 @@ export default async function PartySecondJobsList({ params }: { params: Promise<
         >
           {items.map((item, idx) => {
             const partyColour = item.mp.party_colour ? '#' + item.mp.party_colour.replace('#', '') : '#7697a2';
-            const name = item.mp.display_name || item.mp.name || '';
+            const name = displayMpName(item.mp.display_name || item.mp.name || '');
             return (
               <li
                 key={item.mp.member_id}

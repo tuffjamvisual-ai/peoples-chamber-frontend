@@ -7,6 +7,7 @@ import { billSummary } from '@/lib/bill-summary';
 // Added 2026-06-05 as SEO Phase 1 Task 4. ISR cached for 30 min.
 
 import { supabase } from '@/lib/supabase';
+import { displayMpName } from '@/lib/mp-name';
 
 export const revalidate = 1800;
 
@@ -79,7 +80,7 @@ async function fetchMpItems(): Promise<FeedItem[]> {
       constituency: string | null;
       updated_at: string | null;
     }) => {
-      const fullName = m.display_name || m.name || `MP ${m.member_id}`;
+      const fullName = displayMpName(m.display_name || m.name) || `MP ${m.member_id}`;
       const subtitle = [m.party, m.constituency ? `MP for ${m.constituency}` : null]
         .filter(Boolean)
         .join(', ');

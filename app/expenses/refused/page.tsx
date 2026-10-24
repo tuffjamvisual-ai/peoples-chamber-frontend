@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
+import { displayMpName } from '@/lib/mp-name';
 
 export const metadata: Metadata = {
   title: "MP Expenses Refused or Repaid, IPSA Rejections, Late Submissions & Repayments",
@@ -275,7 +276,7 @@ function MpRows({ rows, mpById, start }: { rows: Agg[]; mpById: Map<number, MpLo
             <td style={{ ...td, textAlign: 'left' }}>
               {mp ? (
                 <Link href={`/mps/${a.member_id}`} style={{ color: ACCENT, textDecoration: 'none', fontWeight: 'bold' }}>
-                  {mp.display_name ?? mp.name ?? a.mp_name}
+                  {displayMpName(mp.display_name ?? mp.name ?? a.mp_name)}
                 </Link>
               ) : (
                 a.mp_name

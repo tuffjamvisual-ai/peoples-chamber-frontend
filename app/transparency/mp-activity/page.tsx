@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase'
 import OpenGovShell from '../../components/OpenGovShell'
 import BackLink from '../../components/BackLink'
 import MpActivityClient, { type Row } from './MpActivityClient'
+import { displayMpName } from '@/lib/mp-name';
 
 export const dynamic = 'force-dynamic'
 
@@ -38,7 +39,7 @@ export default async function MpActivityPage() {
       const t = tmap.get(m.member_id) as { total_contributions?: number; word_count?: number; written_questions?: number; wq_top_departments?: { dept: string; count: number }[] } | undefined
       return {
         member_id: m.member_id as number,
-        name: String(m.name || '').replace(/\s+MP$/, ''),
+        name: displayMpName(String(m.name || '').replace(/\s+MP$/, '')),
         party: (m.party as string) || null,
         constituency: (m.constituency as string) || null,
         total: t?.total_contributions ?? 0,

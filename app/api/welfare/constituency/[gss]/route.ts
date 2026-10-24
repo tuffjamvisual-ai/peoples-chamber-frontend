@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { displayMpName } from '@/lib/mp-name';
 
 export const dynamic = 'force-dynamic';
 
@@ -334,7 +335,7 @@ export async function GET(
       mp: mp
         ? {
             memberId: mp.member_id,
-            name: mp.name,
+            name: displayMpName(mp.name),
             party: mp.party,
             partyAbbreviation: mp.party_abbreviation,
             partyColour: mp.party_colour,
@@ -394,7 +395,7 @@ export async function GET(
     mp: mp
       ? {
           memberId: mp.member_id,
-          name: mp.name,
+          name: displayMpName(mp.name),
           party: mp.party,
           partyAbbreviation: mp.party_abbreviation,
           partyColour: mp.party_colour,

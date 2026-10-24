@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { displayMpName } from '@/lib/mp-name';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,5 +40,5 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'nomp', message: `We couldn't find an MP for ${constituency}.`, constituency }, { status: 404 });
   }
 
-  return NextResponse.json({ memberId: mp.member_id, name: mp.name, constituency: mp.constituency });
+  return NextResponse.json({ memberId: mp.member_id, name: displayMpName(mp.name), constituency: mp.constituency });
 }

@@ -25,6 +25,7 @@ interface MP {
   name: string;
   photo_url: string | null;
   party: string;
+  search_name?: string; // the name as Parliament writes it (with any courtesy title), matched by the search box
   constituency: string;
   party_colour?: string | null;
 }
@@ -59,13 +60,13 @@ export default function MagazineMPsClient({ mps, expand }: { mps: MP[]; expand?:
 
   const filteredMPs = useMemo(() => {
     if (!searchTerm.trim()) return mps;
-    const q = searchTerm.toLowerCase();
-    return mps.filter(
-      (mp) =>
-        mp.name.toLowerCase().includes(q) ||
-        (mp.constituency || '').toLowerCase().includes(q) ||
-        (mp.party || '').toLowerCase().includes(q),
-    );
+    // Every word of the search must appear in the MP's name (as shown, or as Parliament writes it with any courtesy
+    // title), constituency or party, so "Mrs Badenoch" and "Kemi Badenoch" both find Kemi Badenoch (24 Oct 2026).
+    const words = searchTerm.toLowerCase().split(/\s+/).filter(Boolean);
+    return mps.filter((mp) => {
+      const hay = [mp.name, mp.search_name || '', mp.constituency || '', mp.party || ''].join(' ').toLowerCase();
+      return words.every((w) => hay.includes(w));
+    });
   }, [mps, searchTerm]);
 
   const mpsByParty = useMemo(() => {

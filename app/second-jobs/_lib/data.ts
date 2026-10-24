@@ -4,6 +4,7 @@
 
 import { cache } from 'react';
 import { supabase } from '@/lib/supabase';
+import { displayMpName } from '@/lib/mp-name';
 
 // Mapping copied from app/parties/page.tsx so the two surfaces use
 // the same slug rollups. Labour and Labour (Co-op) collapse to one
@@ -341,7 +342,7 @@ function rollUp(bySlug: Map<string, { mp: { display_name: string | null; name: s
         label: slugToLabel(slug),
         mps: items.length,
         total,
-        topMp: top ? { name: top.mp.display_name || top.mp.name || '', total: top.total } : null,
+        topMp: top ? { name: displayMpName(top.mp.display_name || top.mp.name || ''), total: top.total } : null,
       };
     })
     .sort((a, b) => b.total - a.total || b.mps - a.mps);

@@ -6,6 +6,7 @@ import { sanitizeHtml } from '@/lib/html-sanitize';
 import { COMMITTEE_IDS } from '@/lib/committees';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
+import { displayMpName } from '@/lib/mp-name';
 
 // dynamicParams = false: any committee ID not in generateStaticParams returns a
 // clean Next.js 404 without hitting the database. mp_committee_memberships holds
@@ -198,7 +199,7 @@ export default async function CommitteeProfilePage({ params }: Props) {
                         className="font-semibold text-sm hover:underline"
                         style={{ color: INK }}
                       >
-                        {mp.display_name}
+                        {displayMpName(mp.display_name)}
                       </Link>
                     ) : (
                       <span className="font-semibold text-sm" style={{ color: INK }}>

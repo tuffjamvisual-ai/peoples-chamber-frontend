@@ -23,6 +23,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { donorPageSlug } from '@/lib/donor-slug';
+import { displayMpName } from '@/lib/mp-name';
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 86400;
@@ -144,7 +145,7 @@ const loadMatches = unstable_cache(
       const matchedTotal = matched.reduce((s, d) => s + Number(d.amount || 0), 0);
       matches.push({
         memberId,
-        mpName: mp.display_name,
+        mpName: displayMpName(mp.display_name),
         payerDisplay: payerInfo.display,
         donorName: donations[0].donor_name!,
         // The donor's page, only when /donors/<slug> can find this donor (lib/donor-slug.ts); otherwise plain text.

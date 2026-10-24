@@ -20,6 +20,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { partyColourForMember, normaliseParty } from '@/lib/party-helpers';
 import RelatedLinks from '../../components/RelatedLinks';
+import { displayMpName } from '@/lib/mp-name';
 
 export const revalidate = 86400;  // divisions don't change after the vote happens
 
@@ -465,7 +466,7 @@ export default async function DivisionDetailPage({ params }: PageProps) {
             {boths.map((v) => (
               <li key={v.member_id} style={{ padding: '4px 0' }}>
                 <MpVoteLink vote={v}>
-                  {v.mp?.display_name ?? v.mp?.name ?? `Member ${v.member_id}`}
+                  {displayMpName(v.mp?.display_name ?? v.mp?.name) ?? `Member ${v.member_id}`}
                   {v.mp?.party && <span style={{ opacity: 0.6 }}> · {normaliseParty(v.mp.party) || v.mp.party}</span>}
                 </MpVoteLink>
               </li>
@@ -526,7 +527,7 @@ function VoteColumn({
             {g.rows.map((v) => (
               <li key={v.member_id} style={{ padding: '4px 0', borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <MpVoteLink vote={v}>
-                  {v.mp?.display_name ?? v.mp?.name ?? `Member ${v.member_id}`}
+                  {displayMpName(v.mp?.display_name ?? v.mp?.name) ?? `Member ${v.member_id}`}
                   {v.is_teller && (
                     <span style={{ marginLeft: '6px', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.1em', color: INK_SOFT, border: `1px solid ${INK_HAIRLINE}`, padding: '1px 5px' }}>
                       Teller

@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase';
 import { govUrlToSlug } from '@/lib/govUrlSlug';
 import { DEPT_SLUG_TO_ORGS } from '@/lib/govOrgSlug';
 import { listSummary } from '@/lib/editorials/list-summary';
+import { displayMpName } from '@/lib/mp-name';
 
 export type SearchResultType =
   | 'editorial'
@@ -246,7 +247,7 @@ async function queryMPs(q: string, tsType: TsType): Promise<SearchResult[]> {
 
   return (data ?? []).map((r) => ({
     type: 'mp' as const,
-    title: r.display_name ?? r.member_id?.toString() ?? '',
+    title: displayMpName(r.display_name) ?? r.member_id?.toString() ?? '',
     constituency: r.constituency ?? undefined,
     party: r.party ?? undefined,
     url: `/mps/${r.member_id}`,

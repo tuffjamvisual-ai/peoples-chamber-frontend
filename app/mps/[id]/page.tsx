@@ -18,6 +18,7 @@ import JsonLd, { buildMpPerson, buildBreadcrumbs } from '@/lib/JsonLd';
 import { mpReportItems, MP_REPORTS_SHOWN } from '@/lib/mp-reports';
 import type { MpReports } from './MagazineProfileSections';
 import { fitTitle, TITLE_SUFFIX, TITLE_MAX } from '@/lib/seo-title';
+import { displayMpName } from '@/lib/mp-name';
 
 const BAND_RANK: Record<SalaryBand, number> = { pm: 4, sos: 3, minister_of_state: 2, puss: 1 };
 
@@ -133,7 +134,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!mp) return { title: 'MP profile' };
 
-  const name = mp.display_name || mp.name;
+  const name = displayMpName(mp.display_name || mp.name);
   const party = normaliseParty(mp.party) || mp.party || '';
   const sinceYear = mp.start_date ? new Date(mp.start_date).getFullYear() : null;
   const untilYear = mp.end_date ? new Date(mp.end_date).getFullYear() : null;
@@ -660,7 +661,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     public_spend_year: latestExpense?.year || null,
   };
 
-  const fullName = mp.display_name || mp.name || '';
+  const fullName = displayMpName(mp.display_name || mp.name || '');
   const partyColour = partyColourForMember(mp.party, mp.party_colour);
   const partyDisplay = normaliseParty(mp.party);
   const partyIsCoop = isCoop(mp.party);

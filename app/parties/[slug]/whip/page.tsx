@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../../components/OpenGovShell';
 import PartySidebar from '../../../components/PartySidebar';
+import { displayMpName } from '@/lib/mp-name';
 
 export const revalidate = 21600;
 export function generateStaticParams() { return []; }
@@ -174,7 +175,7 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
     const mp = mpById.get(r.member_id);
     return {
       memberId: r.member_id,
-      name: mp?.display_name || mp?.name || `MP ${r.member_id}`,
+      name: displayMpName(mp?.display_name || mp?.name) || `MP ${r.member_id}`,
       now: mp && (!mp.current_member ? 'no longer an MP' : !sameParty(mp.party) ? `now ${mp.party || 'Independent'}` : null),
       rebellions: r.rebellions,
       totalVotes: r.votes,
