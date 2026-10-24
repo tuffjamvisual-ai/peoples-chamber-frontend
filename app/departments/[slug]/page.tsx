@@ -146,14 +146,16 @@ export default async function DepartmentPage({ params }: PageProps) {
   const childOrgsRaw = govukData.childOrgs || [];
   // Enrich each agency with a short description from agency_cache (keyed by
   // the gov.uk org slug) so the Agencies tab shows the full name + summary.
+  // The same read says which bodies have an agency page (owner's approval, 24 Oct 2026): only those are linked.
   const agencySlugs = childOrgsRaw.map((o) => o.url.split('/government/organisations/')[1] || '').filter(Boolean);
-  const { data: agencyDescRows } = agencySlugs.length
+  const { data: agencyDescRows, error: agencyDescErr } = agencySlugs.length
     ? await supabase.from('agency_cache').select('slug, description').in('slug', agencySlugs)
-    : { data: [] as { slug: string; description: string | null }[] };
+    : { data: [] as { slug: string; description: string | null }[], error: null };
+  if (agencyDescErr) throw new Error(`/departments/[slug] agency_cache: ${agencyDescErr.message}`);
   const descBySlug = new Map((agencyDescRows || []).map((r) => [r.slug, (r.description || '').trim()]));
   const agencies = childOrgsRaw.map((o) => {
     const agSlug = o.url.split('/government/organisations/')[1] || '';
-    return { name: o.name, acronym: o.acronym, slug: agSlug, description: descBySlug.get(agSlug) || '' };
+    return { name: o.name, acronym: o.acronym, slug: agSlug, description: descBySlug.get(agSlug) || '', hasPage: descBySlug.has(agSlug) };
   });
   const socialMedia = govukData.socialMedia || [];
   const pressPhone = govukData.pressPhone || '';

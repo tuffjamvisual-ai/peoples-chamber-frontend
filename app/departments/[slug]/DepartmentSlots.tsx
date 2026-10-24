@@ -48,7 +48,7 @@ export function BudgetSlot({ budget }: { budget: DepartmentBudget | null }) {
   );
 }
 
-type Agency = { name: string; slug: string; acronym?: string; description?: string };
+type Agency = { name: string; slug: string; acronym?: string; description?: string; hasPage: boolean };
 
 // Trim a gov.uk org description to a short summary: first sentence(s) up to
 // ~220 chars, cut on a word boundary.
@@ -74,14 +74,22 @@ export function AgenciesSlot({ agencies }: { agencies: Agency[] }) {
       <ul className="flex flex-col gap-5">
         {agencies.map((org, i) => (
           <li key={i} style={{ borderLeft: '2px solid rgba(20,16,13,0.12)', paddingLeft: '14px' }}>
-            <Link
-              href={'/agencies/' + org.slug}
-              className="text-[16px] font-semibold text-[#14100d] hover:text-[#7a1612] transition-colors"
-              style={{ textDecoration: 'underline', textUnderlineOffset: '3px', lineHeight: 1.3, display: 'inline-block' }}
-            >
-              {org.name}
-              {org.acronym && org.acronym.toLowerCase() !== org.name.toLowerCase() ? ` (${org.acronym})` : ''}
-            </Link>
+            {/* Linked only when agency_cache has the body, so /agencies/<slug> has a page; otherwise the name alone. */}
+            {org.hasPage ? (
+              <Link
+                href={'/agencies/' + org.slug}
+                className="text-[16px] font-semibold text-[#14100d] hover:text-[#7a1612] transition-colors"
+                style={{ textDecoration: 'underline', textUnderlineOffset: '3px', lineHeight: 1.3, display: 'inline-block' }}
+              >
+                {org.name}
+                {org.acronym && org.acronym.toLowerCase() !== org.name.toLowerCase() ? ` (${org.acronym})` : ''}
+              </Link>
+            ) : (
+              <span className="text-[16px] font-semibold text-[#14100d]" style={{ lineHeight: 1.3, display: 'inline-block' }}>
+                {org.name}
+                {org.acronym && org.acronym.toLowerCase() !== org.name.toLowerCase() ? ` (${org.acronym})` : ''}
+              </span>
+            )}
             {org.description && (
               <p className="text-[15px] leading-[1.6] mt-1" style={{ opacity: 0.85 }}>{shortSummary(org.description)}</p>
             )}
