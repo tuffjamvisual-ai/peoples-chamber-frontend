@@ -32,20 +32,38 @@ type DonorAgg = { donor_name: string; total: number; count: number; recipients: 
 
 export default async function DonorsIndex() {
   // Pull top donors. Postgrest doesn't have a SUM aggregate via the rest
-  // surface but we can fetch raw rows and roll up in JS — 50k rows is
-  // ~5 MB transit, fine for a daily-revalidated page.
+  // surface but we can fetch raw rows and roll up in JS (about 71,000 rows, fine for a daily-revalidated page).
+  // Every row is read (24 Oct 2026): the loop used to stop at 60,000 rows, unordered, while the register held 70,961,
+  // so later donations were left out of the ranking. The rows are now counted first and read in id order, eight pages
+  // at a time, and a failed read throws so the last good version of the page stays up.
   const PAGE = 1000;
-  const rows: Array<{ donor_name: string | null; amount: number | string | null; recipient_name: string | null }> = [];
-  for (let from = 0; from < 60000; from += PAGE) {
-    const { data, error } = await supabase
-      .from('political_donations')
-      .select('donor_name, amount, recipient_name')
-      .not('donor_name', 'is', null)
-      .range(from, from + PAGE - 1);
-    if (error || !data || data.length === 0) break;
-    rows.push(...data);
-    if (data.length < PAGE) break;
+  const BATCH = 8;
+  type Row = { donor_name: string | null; amount: number | string | null; recipient_name: string | null };
+  const { count, error: countErr } = await supabase
+    .from('political_donations')
+    .select('id', { count: 'exact', head: true })
+    .not('donor_name', 'is', null);
+  if (countErr) throw new Error(`/donors donation count: ${countErr.message}`);
+  const pages = Math.ceil((count ?? 0) / PAGE);
+  const rows: Row[] = [];
+  for (let first = 0; first < pages; first += BATCH) {
+    const batch = await Promise.all(
+      Array.from({ length: Math.min(BATCH, pages - first) }, (_, k) => {
+        const from = (first + k) * PAGE;
+        return supabase
+          .from('political_donations')
+          .select('donor_name, amount, recipient_name')
+          .not('donor_name', 'is', null)
+          .order('id', { ascending: true })
+          .range(from, from + PAGE - 1);
+      }),
+    );
+    for (const { data, error } of batch) {
+      if (error) throw new Error(`/donors donations: ${error.message}`);
+      rows.push(...((data ?? []) as Row[]));
+    }
   }
+  if (rows.length < (count ?? 0)) throw new Error(`/donors read ${rows.length} of ${count} donation rows`);
 
   const agg = new Map<string, DonorAgg & { recipients_set: Set<string> }>();
   for (const r of rows) {
