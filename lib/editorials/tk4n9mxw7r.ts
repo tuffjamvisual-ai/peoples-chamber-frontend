@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'tk4n9mxw7r',
   kicker: 'Trade',
-  headline: `Government Steel Tariffs Can Hit Products Britain Does Not Make`,
+  headline: `Steel Tariffs Can Hit Products Britain Does Not Make`,
   standfirst: `The government says its steel trade measure applies to products that can be made in Britain. The Public Accounts Committee found that the commodity codes used to enforce it can also catch specifications that British producers do not make, leaving UK manufacturers facing a 50 per cent tariff on steel they cannot source domestically. The department acknowledged that smaller companies could be put out of business. A formal review is not planned for 12 months.`,
   summary: "The government’s steel tariffs can hit products Britain does not make, leaving some UK manufacturers facing a 50 per cent tariff.",
   publishedAt: '2026-09-18',

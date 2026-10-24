@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'zt7m4kq9xw',
   kicker: 'Commentary',
-  headline: `They Call Farage's Clacton Vote a Stunt. So Why Are They Handing Him the Stage?`,
+  headline: `Rivals Call Clacton a Stunt but Hand Farage the Stage`,
   standfirst: `Nigel Farage resigned as MP for Clacton while under parliamentary standards investigation and announced he would fight the resulting byelection. Labour, the Conservatives, Liberal Democrats, Greens and Restore Britain have all declined to stand against him. They say the election is a stunt. By refusing to fight it, they have given him the stage almost to himself.`,
   summary: "Rival parties call Farage’s Clacton by election a stunt, yet by refusing to stand against him they have handed him the stage.",
   publishedAt: '2026-07-16',

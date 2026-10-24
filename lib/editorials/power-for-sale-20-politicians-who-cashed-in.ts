@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'power-for-sale-20-politicians-who-cashed-in',
   kicker: 'Investigation',
-  headline: "Power For Sale? Nineteen Politicians Who Turned Public Office Into Private Income",
+  headline: "Nineteen Politicians Who Turned Office Into Private Income",
   standfirst:
     "Nineteen politicians who turned public office into private income, some after leaving government, some while still serving. A few broke the rules. Many did not. The pattern is the point: a system built to protect the appearance of propriety more than propriety itself, where public power is converted into private leverage and then wrapped in technical compliance. From Cameron’s Greensill messages to Shapps’s missile firm, the watchdog could advise and publish, but never punish, and in October 2025 it was closed.",
   summary: "Nineteen politicians turned public office into private income. A few broke rules, most did not, and the watchdog has since been abolished.",

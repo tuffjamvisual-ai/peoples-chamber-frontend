@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'as6k2mwx9q',
   kicker: 'Immigration',
-  headline: `£4.9bn on Asylum, and the Home Office Still Cannot Say How Many Failed Claimants Remain`,
+  headline: `£4.9bn on Asylum, but Failed Claimant Numbers Unknown`,
   standfirst: `The Home Office and Ministry of Justice spent around £4.9 billion on the asylum system in 2024/25. A Public Accounts Committee report published in June found that the Home Office still cannot say with confidence how many failed asylum seekers remain in Britain. It knew where "some" were, but could not establish with certainty who had left the country and who was still here.`,
   summary: "The asylum system cost around £4.9bn in 2024/25, yet the Home Office still cannot say how many failed claimants remain.",
   publishedAt: '2026-07-14',

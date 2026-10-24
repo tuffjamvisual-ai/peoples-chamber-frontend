@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'tq6m4kx9w2',
   kicker: 'Technology',
-  headline: `Britain Has Announced £1.6bn for Sovereign AI Without Saying What It Must Control`,
+  headline: `£1.6bn for Sovereign AI Without Saying What It Must Control`,
   standfirst: `The government has invested £1.6 billion in Britain's "sovereign AI capabilities": £500 million for the Sovereign AI fund and £1.1 billion for an AI hardware plan. Three weeks later, the House of Commons Science, Innovation and Technology Committee said ministers had still not set out which technological capabilities Britain needs to control, which it can share with allies and which it is prepared to obtain from overseas.`,
   summary: "Britain has announced £1.6bn for sovereign AI, but MPs say ministers have not set out which capabilities Britain must control.",
   publishedAt: '2026-07-16',

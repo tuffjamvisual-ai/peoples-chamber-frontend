@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: "andy-burnham-the-record-behind-the-reputation",
   kicker: 'Prime Minister',
-  headline: "Burnham’s Record: Buses Delivered, Rough Sleeping Pledge Missed",
+  headline: "Burnham's Record: Buses Delivered, Rough Sleeping Missed",
   standfirst: "Andy Burnham became Prime Minister on 20 July 2026, a month after winning his way back into Parliament. His record as Mayor of Greater Manchester and as a minister includes a transformed bus network, a missed promise on rough sleeping, a costly reversal on clean air and contested decisions over Mid Staffordshire and Hillsborough.",
   summary: "Burnham became Prime Minister in July. His record includes delivered buses, a missed rough sleeping pledge and a costly clean air reversal.",
   publishedAt: '2026-06-23',

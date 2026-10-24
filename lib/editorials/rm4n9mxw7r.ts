@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'rm4n9mxw7r',
   kicker: 'Accountability',
-  headline: `Government Misses Compensation Reform Deadline as Claimants Report Being Retraumatised`,
+  headline: `Compensation Reform Deadline Missed as Claimants Report Harm`,
   standfirst: `The government has missed its own deadline to set out whether it will create an independent body to design and run compensation schemes for people harmed by public bodies. A Public Accounts Committee survey found 76 per cent of claimants said the process had been distressing or retraumatising. The same administrative failures keep appearing across Windrush, Horizon, infected blood and LGBT veterans schemes.`,
   summary: "The government has missed its compensation reform deadline, as 76 per cent of claimants surveyed said the process was distressing or retraumatising.",
   publishedAt: '2026-09-09',

@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'vq8k3mxw7n',
   kicker: 'Public Money',
-  headline: `Government Says British Steel Is Worth Nothing. Taxpayer Support Has Already Reached £555m`,
+  headline: `British Steel Valued at Nothing After £555m of Support`,
   standfirst: `British Steel passed into public ownership on 16 July. In the same statement announcing the nationalisation, the government said its view was that the company's current commercial value was nil. By 18 June, the government had provided British Steel with about £555 million of working capital. The government has now committed itself to further spending without publishing an estimate of the eventual bill.`,
   summary: "The government says British Steel is worth nothing, yet taxpayer support has reached about £555m with no estimate of the eventual bill.",
   publishedAt: '2026-07-16',

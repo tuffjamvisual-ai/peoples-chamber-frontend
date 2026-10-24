@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'v3n8q2xk6w',
   kicker: 'Standards',
-  headline: `Parliament Says Farage Does Not Have to List Assets Owned by His Company`,
+  headline: `Farage Need Not List Assets Owned by His Company`,
   standfirst: `A Times investigation has identified more than £4 million of residential property owned by Nigel Farage, his company and his partner Laure Ferrari. Only two residential properties appear in Farage's Register of Members' Financial Interests. Parliament has already investigated an asset inside the same company and ruled it did not need separate registration.`,
   summary: "Parliament says Nigel Farage does not have to list assets owned by his company in his register of interests.",
   publishedAt: '2026-07-05',

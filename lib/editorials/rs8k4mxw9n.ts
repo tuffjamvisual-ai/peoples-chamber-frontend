@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'rs8k4mxw9n',
   kicker: 'Homelessness',
-  headline: `Burnham Pledges to End Long Term Rough Sleeping but Gives No Date for Reaching Zero`,
+  headline: `Burnham's Rough Sleeping Pledge Has No Date for Zero`,
   standfirst: `Andy Burnham has committed his government to ending long term rough sleeping across the UK "at the earliest opportunity", backed by an initial £340 million programme. The announcement does not say when that should happen. It sits on top of an existing government target to halve long term rough sleeping in England by the end of this Parliament, measured from a published baseline of 3,427 people.`,
   summary: "Andy Burnham has pledged to end long term rough sleeping but has given no date for reaching zero.",
   publishedAt: '2026-07-21',

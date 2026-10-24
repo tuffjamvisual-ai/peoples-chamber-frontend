@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'siicjkcsr6',
   kicker: 'Parliament',
-  headline: `Lords Advanced Three Reform Bills. Ministers Said No to All Three`,
+  headline: `Ministers Backed None of Three Lords Reform Bills`,
   standfirst: `Three private members' bills dealing with problems Parliament has argued over for years passed their second readings in the House of Lords on 17 July. One addresses financial protection for unmarried couples. Another would criminalise deceptive sexual relationships by undercover officers. The third would allow UK courts to make preliminary genocide findings. The government declined to support any of them in their present form.`,
   summary: "Three reform bills passed their second readings in the Lords, and ministers declined to support any of them in their present form.",
   publishedAt: '2026-07-19',

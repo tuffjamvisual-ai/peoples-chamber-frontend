@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'skq4m9xw2t',
   kicker: 'Opinion',
-  headline: `State of the UK: Britain Keeps Funding the Consequences of Delayed Decisions`,
+  headline: `State of the UK: Paying for Delayed Decisions`,
   standfirst: `On 30 June, Keir Starmer announced another £15 billion for defence over the next four years. The remaining £4.7 billion has not yet been allocated. The Defence Investment Plan arrives in a country already carrying the cost of decisions that were priced too late, postponed for years or repeatedly redesigned.`,
   summary: "Britain keeps paying for decisions that were priced too late, postponed or redesigned, and new defence spending arrives on top of them.",
   publishedAt: '2026-07-04',

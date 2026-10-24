@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'rc8m4kqx7n',
   kicker: 'Health',
-  headline: `Seven RAAC Hospitals to Stay Open Beyond 2030 as Replacements Run to 2032/33`,
+  headline: `Seven RAAC Hospitals to Stay Open Beyond 2030`,
   standfirst: `Seven hospitals built predominantly from reinforced autoclaved aerated concrete will remain in use beyond 2030, with the last replacements now expected to be completed in 2032/33. More than £500 million has already been spent on mitigation. A further £440 million of operational capital is being provided to the seven trusts over four years while replacements are built.`,
   summary: "Seven RAAC hospitals will stay in use beyond 2030, with the last replacements not expected until 2032/33.",
   publishedAt: '2026-08-04',

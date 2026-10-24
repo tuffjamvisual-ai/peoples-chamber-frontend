@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'ag7k4mxq9w',
   kicker: 'Accountability',
-  headline: `Six Threat Cases Against Parliamentarians Should Have Brought Election Bans. None Did`,
+  headline: `Six Threat Cases Should Have Brought Election Bans. None Did`,
   standfirst: `Six people prosecuted over threats against parliamentarians should have received bans of five years from standing for elected office, according to the Speaker's Conference examining the security of politicians. None did. The courts gave no recorded reasons for omitting the orders. Crown Prosecution Service records do not show whether the orders were considered.`,
   summary: "Six people prosecuted over threats to parliamentarians should have been banned from standing for elected office, but none were.",
   publishedAt: '2026-07-16',

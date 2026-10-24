@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'mn8k4qxw7v',
   kicker: 'Accountability',
-  headline: `Mandelson Was Cleared Against UK Vetting Advice. Parliament Still Cannot See Why`,
+  headline: `Mandelson Cleared Against Vetting Advice, Reasons Withheld`,
   standfirst: `On 28 January 2025, UK Security Vetting recommended that Peter Mandelson should not receive Developed Vetting clearance for his new job as Britain's ambassador to the United States. The following day, the Foreign Office granted it anyway. More than a year later, Parliament still does not have the record showing in detail why the recommendation was rejected or what security measures were imposed as a result.`,
   summary: "Peter Mandelson was given security clearance against UK Security Vetting’s advice, and Parliament still cannot see why.",
   publishedAt: '2026-07-16',

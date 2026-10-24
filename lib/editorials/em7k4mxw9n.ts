@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'em7k4mxw9n',
   kicker: 'Criminal Justice',
-  headline: `5,043 People With Electronic Monitoring Orders Had No Equipment Assigned`,
+  headline: `5,043 People on Tagging Orders Had No Equipment Assigned`,
   standfirst: `More than 5,000 people subject to electronic monitoring orders had no monitoring equipment assigned to them at the end of June. Another 1,596 had equipment installed but it had not communicated with the monitoring system for at least 14 days. The figures were published after the National Audit Office warned that the government did not know accurately how many people who should have been monitored were not being monitored.`,
   summary: "5,043 people with electronic monitoring orders had no monitoring equipment assigned to them at the end of June.",
   publishedAt: '2026-08-02',
