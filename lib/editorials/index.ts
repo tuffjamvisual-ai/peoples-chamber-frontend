@@ -110,6 +110,7 @@ import labourPollsConfidence from './pc4w8nq2tk';
 import helpToBuyCost from './hz7w3nq5rk';
 import captureCompensation from './cp4w8xq2rn';
 import fordeReforms from './fq7m2wx9kd';
+import sendPlansDeficit from './mxredcgexu';
 
 const allEditorials: EditorialRegistry = {
   [taggingRegime.slug]: taggingRegime,
@@ -219,6 +220,7 @@ const allEditorials: EditorialRegistry = {
   [helpToBuyCost.slug]: helpToBuyCost,
   [captureCompensation.slug]: captureCompensation,
   [fordeReforms.slug]: fordeReforms,
+  [sendPlansDeficit.slug]: sendPlansDeficit,
 };
 
 // Unpublished until their sources are added and checked (owner's decision, 22 Oct 2026). The files stay; leaving them
