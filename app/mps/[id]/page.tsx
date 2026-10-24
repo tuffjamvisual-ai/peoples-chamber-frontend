@@ -15,8 +15,7 @@ import {
 } from '@/lib/ministerial-salaries';
 import { normaliseParty, isCoop, partyColourForMember } from '@/lib/party-helpers';
 import JsonLd, { buildMpPerson, buildBreadcrumbs } from '@/lib/JsonLd';
-import { editorials } from '@/lib/editorials';
-import { listSummary } from '@/lib/editorials/list-summary';
+import { mpReportItems, MP_REPORTS_SHOWN } from '@/lib/mp-reports';
 import type { MpReports } from './MagazineProfileSections';
 import { fitTitle } from '@/lib/seo-title';
 
@@ -182,22 +181,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-// Reports mentioning this MP (23 Oct 2026): every published piece whose relatedMemberIds include the MP, newest first,
-// from the editorial registry at build time (no database query). Up to five are shown, with a link to /reports if more.
-function reportsFor(memberId: number): MpReports | null {
-  const all = Object.values(editorials)
-    .filter((e) => (e.relatedMemberIds ?? []).includes(memberId))
-    .sort((a, b) => (a.publishedAt < b.publishedAt ? 1 : a.publishedAt > b.publishedAt ? -1 : 0));
+// Reports mentioning this MP (23 Oct 2026; up to 10 from 24 Oct 2026): every published piece whose relatedMemberIds
+// include the MP, newest first, from the editorial registry at build time (no database query, lib/mp-reports.ts). Up to
+// ten are shown, with a link to the full list at /mps/<id>/reports if there are more.
+function reportsFor(memberId: number, mpName: string): MpReports | null {
+  const all = mpReportItems(memberId);
   if (all.length === 0) return null;
-  return {
-    total: all.length,
-    items: all.slice(0, 5).map((e) => ({
-      href: `/${e.kind === 'briefing' ? 'briefings' : 'editorials'}/${e.slug}`,
-      headline: e.headline,
-      date: new Date(e.publishedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }),
-      summary: listSummary(e),
-    })),
-  };
+  return { total: all.length, items: all.slice(0, MP_REPORTS_SHOWN), memberId, mpName };
 }
 
 export default async function MPMagazineProfile({ params }: PageProps) {
@@ -755,7 +745,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         constituencyPetitions,
         petitionsLastUpdated: petitionsRes.lastUpdated,
         edms: mpEdms,
-        reports: reportsFor(memberId),
+        reports: reportsFor(memberId, fullName),
       }}
       footer={
         /* Server-rendered RelatedLinks: same-party MPs, sponsored bills,

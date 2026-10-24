@@ -331,7 +331,7 @@ interface Props {
   reports?: MpReports | null;
 }
 
-export type MpReports = { items: { href: string; headline: string; date: string; summary: string }[]; total: number };
+export type MpReports = { items: { href: string; headline: string; date: string; summary: string }[]; total: number; memberId: number; mpName: string };
 
 type ConstituencyPetition = {
   petitionId: number;
@@ -2512,23 +2512,30 @@ export default function MagazineProfileSections({
 
 // "Reports mentioning this MP" (23 Oct 2026): from the editorial registry at build time, below the biography.
 // Nothing at all when the MP has none.
+// The list itself, shared with the full list at /mps/<id>/reports so both read the same.
+export function MpReportList({ items }: { items: MpReports['items'] }) {
+  return (
+    <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: 1.55 }}>
+      {items.map((r) => (
+        <li key={r.href} style={{ padding: '10px 0', borderBottom: inkDivider }}>
+          <Link href={r.href} style={{ ...inkLink, fontWeight: 'bold' }}>{r.headline}</Link>
+          <div style={{ fontFamily: 'monospace', fontSize: '15px', opacity: 0.75, margin: '2px 0 4px' }}>{r.date}</div>
+          {r.summary && <p style={{ margin: 0 }}>{r.summary}</p>}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function ReportsMentioning({ reports }: { reports: MpReports | null }) {
   if (!reports || reports.items.length === 0) return null;
   return (
     <section aria-labelledby="mp-reports-heading" style={{ marginTop: '32px' }}>
       <h3 id="mp-reports-heading" style={sectionH3}>Reports mentioning this MP</h3>
-      <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: 1.55 }}>
-        {reports.items.map((r) => (
-          <li key={r.href} style={{ padding: '10px 0', borderBottom: inkDivider }}>
-            <Link href={r.href} style={{ ...inkLink, fontWeight: 'bold' }}>{r.headline}</Link>
-            <div style={{ fontFamily: 'monospace', fontSize: '15px', opacity: 0.75, margin: '2px 0 4px' }}>{r.date}</div>
-            {r.summary && <p style={{ margin: 0 }}>{r.summary}</p>}
-          </li>
-        ))}
-      </ul>
+      <MpReportList items={reports.items} />
       {reports.total > reports.items.length && (
         <p style={{ marginTop: '10px', fontSize: '15px' }}>
-          <Link href="/reports" style={inkLink}>All reports</Link>
+          <Link href={`/mps/${reports.memberId}/reports`} style={inkLink}>All {reports.total} reports mentioning {reports.mpName}</Link>
         </p>
       )}
     </section>
