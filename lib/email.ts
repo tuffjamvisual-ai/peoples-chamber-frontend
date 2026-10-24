@@ -429,3 +429,53 @@ export async function sendNewsletterSubscriberNotification(sub: {
   }
 }
 
+
+// Commission research requests (owner's brief, 24 Oct 2026): the request from /commission, in plain text, to the
+// contact inbox, with reply-to set to the client so a reply goes straight to them. The client is not emailed. Uses the
+// same key and sender as the emails above; returns { sent: false, reason: 'no_api_key' } when RESEND_API_KEY is
+// missing (the route answers 503 before calling this). Never throws.
+const COMMISSION_TO = 'contact@opengovt.uk';
+
+export async function sendCommissionRequest(r: {
+  name: string;
+  email: string;
+  organisation: string;
+  package: string;
+  question: string;
+  deadline: string;
+  publish: string;
+}) {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return { sent: false, reason: 'no_api_key' };
+  const from = process.env.RESEND_FROM || 'opengovt <onboarding@resend.dev>';
+  const received = new Date().toLocaleString('en-GB', {
+    timeZone: 'Europe/London', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
+  });
+  const text =
+    `Research request from opengovt.uk/commission\n\n` +
+    `Name:          ${r.name}\n` +
+    `Email:         ${r.email}\n` +
+    `Organisation:  ${r.organisation || 'Not given'}\n` +
+    `Package:       ${r.package}\n` +
+    `Deadline:      ${r.deadline || 'None given'}\n` +
+    `Publishing:    ${r.publish}\n` +
+    `Terms read:    Yes\n` +
+    `Received:      ${received} (UK time)\n\n` +
+    `Question:\n${r.question}\n\n` +
+    `Reply to this email to answer the client directly.\n`;
+
+  try {
+    const resend = new Resend(key);
+    const { data, error } = await resend.emails.send({
+      from,
+      to: COMMISSION_TO,
+      replyTo: r.email,
+      subject: `Research request: ${r.package} from ${r.name}`,
+      text,
+    });
+    if (error) return { sent: false, reason: error.message };
+    return { sent: true, id: data?.id };
+  } catch (e) {
+    return { sent: false, reason: (e as Error).message };
+  }
+}
