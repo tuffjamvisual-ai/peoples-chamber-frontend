@@ -158,7 +158,7 @@ export const topics: TopicDef[] = [
     words: ['justice', 'police', 'policing', 'crime', 'crimes', 'sentencing', 'sentence', 'sentences', 'prison', 'prisons', 'court', 'courts', 'criminal', 'offence', 'offences', 'offenders', 'victims', 'sexual'],
     exclude: [],
     billDepartments: ['Ministry of Justice', 'Home Office'],
-    editorialSlugs: ['xm7co0hssx', 'cr4k9mxw7r', 'em7k4mxw9n', 'jx4m9wk2q7', 'px4n9mxw7r', 'pn8k4qxw2r', 'pk9v2mrx4t', 'hx7n4qw2mk', 'obd5xiiexy', 'fr9k2mxw7q', 'bg9k4mxw2q', 'pb4k9mxw7r', 'ia4k9mxw7r', 'hn4k9mxw7r', 'ms9k4qxw7n', 'mi5k7qxw9n', 'ai755882dw'],
+    editorialSlugs: ['xm7co0hssx', 'cr4k9mxw7r', 'em7k4mxw9n', 'jx4m9wk2q7', 'px4n9mxw7r', 'pn8k4qxw2r', 'pk9v2mrx4t', 'hx7n4qw2mk', 'obd5xiiexy', 'fr9k2mxw7q', 'bg9k4mxw2q', 'pb4k9mxw7r', 'ia4k9mxw7r', 'hn4k9mxw7r', 'ms9k4qxw7n', 'mi5k7qxw9n', 'ai755882dw', 'cp4w8xq2rn'],
     pollWords: ['crime', 'police', 'sentence', 'prison', 'grooming', 'justice'],
   },
   {
