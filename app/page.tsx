@@ -25,11 +25,31 @@ function fmtGovDate(iso: string | null | undefined): string {
 // with the front-page article layout. Replaces the previous pca-art newspaper.
 export const revalidate = 3600;
 
+const HOME_DESCRIPTION =
+  'Track every UK MP, bill, vote and government department in one place: voting records, spending and Whitehall transparency data, free.';
+
 export const metadata: Metadata = {
   title: "opengovt | UK Parliament Tracker & Government Transparency",
-  description:
-    'Track every UK MP, bill, vote and government department in one place. Voting records, ministerial spending, party manifestos and Whitehall transparency data, free and unbranded.',
+  description: HOME_DESCRIPTION,
   alternates: { canonical: '/' },
+  // The home page's own openGraph and twitter (owner's approval, 24 Oct 2026), so its share text matches its search
+  // description. They repeat the root layout's values with this description: a page's openGraph or twitter replaces the
+  // layout's whole block. SITE_DESCRIPTION in app/layout.tsx is left as it is: other pages use it as their description.
+  openGraph: {
+    type: 'website',
+    siteName: 'opengovt',
+    title: 'opengovt',
+    description: HOME_DESCRIPTION,
+    url: 'https://www.opengovt.uk',
+    locale: 'en_GB',
+    images: [{ url: 'https://www.opengovt.uk/og-image.png', width: 1200, height: 630, type: 'image/png' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'opengovt',
+    description: HOME_DESCRIPTION,
+    images: ['https://www.opengovt.uk/og-image.png'],
+  },
 };
 
 export default async function HomePage() {

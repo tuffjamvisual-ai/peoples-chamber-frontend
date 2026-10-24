@@ -4,6 +4,7 @@
 
 import type { Metadata } from 'next';
 import { metaDescription } from '@/lib/meta-description';
+import { TITLE_SUFFIX, TITLE_MAX } from '@/lib/seo-title';
 import { notFound, permanentRedirect } from 'next/navigation';
 import EditorialArticle from '../../components/EditorialArticle';
 import { editorialReadNext } from '@/lib/read-next';
@@ -27,7 +28,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   // same address is given here so twitter:image points to it as well.
   const ogImage = `${SITE_URL}${canonical}/opengraph-image`;
   return {
-    title: `${piece.headline}`,
+    // Search title (owner's approval, 24 Oct 2026): a headline that would take the full title past 60 characters with
+    // the " | opengovt" suffix is used on its own; shorter ones keep the suffix (lib/seo-title.ts).
+    title: piece.headline.length + TITLE_SUFFIX.length > TITLE_MAX ? { absolute: piece.headline } : piece.headline,
     description,
     alternates: { canonical },
     // Per-article OG/Twitter, each with the piece's own image.

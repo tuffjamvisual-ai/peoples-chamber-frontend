@@ -42,7 +42,7 @@ const ACCENT = '#7a1612';
 export const metadata: Metadata = {
   title: "Special Advisers: Who Advises Each UK Minister",
   description:
-    'Every current UK Special Adviser, the department they work for, and the gifts, hospitality and meetings with senior media figures they declared in the most recent published quarter.',
+    'Every current UK Special Adviser, their department, and the gifts, hospitality and media meetings they declared in the latest published quarter.',
   alternates: { canonical: '/transparency/special-advisers' },
 };
 
