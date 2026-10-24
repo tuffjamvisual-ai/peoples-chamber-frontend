@@ -7,12 +7,11 @@
 // for projects that have left; the history tables are on the project pages and the department tabs.
 
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { departments } from '@/lib/departments';
 import { fetchMajorProjectList, deptLabel, ratingText, dateText, lastReported, projectHref, REPORT_PAGES } from '@/lib/major-projects';
-import EvaluationView from './EvaluationView';
+import MajorProjectsBrowser, { type ProjectLine } from './MajorProjectsBrowser';
 
 export const revalidate = 86400;
 
@@ -30,13 +29,25 @@ export const metadata: Metadata = {
 export default async function MajorProjectsPage() {
   const { projects, latestYear } = await fetchMajorProjectList();
   const deptName = new Map(departments.map((d) => [d.slug, d.name]));
-  const byDept = new Map<string, typeof projects>();
-  for (const p of projects) {
-    const k = p.latest.department_code.toUpperCase();
-    if (!byDept.has(k)) byDept.set(k, []);
-    byDept.get(k)!.push(p);
-  }
-  const codes = [...byDept.keys()].sort();
+  // What the list shows for each project, worked out here so the browser only filters (MajorProjectsBrowser).
+  const lines: ProjectLine[] = projects.map((p) => {
+    const code = p.latest.department_code.toUpperCase();
+    return {
+      key: p.key,
+      href: projectHref(p.key),
+      name: p.name,
+      deptCode: code,
+      deptLabel: deptLabel(code),
+      deptSlug: p.latest.dept_slug,
+      deptName: p.latest.dept_slug ? deptName.get(p.latest.dept_slug) ?? null : null,
+      rating: p.latest.rating,
+      ratingText: ratingText(p.latest),
+      endText: dateText(p.latest.end_date, p.latest.end_text),
+      reportYear: p.latest.report_year,
+      lastReported: lastReported(p, latestYear),
+      noPlan2025: p.noPlan2025,
+    };
+  });
   const current = projects.filter((p) => p.latest.report_year === latestYear).length;
   // Projects whose March 2025 entry was "No" to "Does the project have an evaluation plan? (self reported)".
   const noPlan = projects.filter((p) => p.noPlan2025)
@@ -74,59 +85,7 @@ export default async function MajorProjectsPage() {
         </p>
       )}
 
-      <EvaluationView
-        all={<>
-      {codes.map((c) => {
-        const ps = byDept.get(c)!;
-        const slug = ps[0].latest.dept_slug;
-        return (
-          <section key={c} style={{ marginBottom: '32px' }}>
-            <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 10px' }}>
-              {deptLabel(c)} · {ps.length}
-            </h2>
-            {slug && (
-              <p style={{ fontSize: '14px', margin: '0 0 6px' }}>
-                Department page: <Link href={`/departments/${slug}`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{deptName.get(slug) ?? slug}</Link>
-              </p>
-            )}
-            <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              {ps.map((p) => {
-                const left = lastReported(p, latestYear);
-                return (
-                  <li key={p.key} style={{ borderBottom: '1px dotted rgba(20,16,13,0.15)', padding: '8px 0', fontSize: '14px', lineHeight: 1.5 }}>
-                    <Link href={projectHref(p.key)} style={{ color: INK, fontWeight: 600, fontSize: '15px', textDecoration: 'underline', textUnderlineOffset: '3px' }}>{p.name}</Link>
-                    {' · '}{ratingText(p.latest)}
-                    {' · '}End date: {dateText(p.latest.end_date, p.latest.end_text)}
-                    {left && <>{' · '}<strong>{left}</strong></>}
-                  </li>
-                );
-              })}
-            </ol>
-          </section>
-        );
-      })}
-
-        </>}
-        noPlan={
-          <section style={{ marginBottom: '32px' }}>
-            <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 10px' }}>
-              No evaluation plan in March 2025 · {noPlan.length}
-            </h2>
-            <p style={{ fontSize: '14px', lineHeight: 1.6, margin: '0 0 8px', maxWidth: '62ch' }}>
-              Projects whose department answered &ldquo;No&rdquo; to &ldquo;Does the project have an evaluation plan? (self reported)&rdquo; in the March 2025 data.
-              {' '}<Link href="/transparency/major-projects" style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>All projects →</Link>
-            </p>
-            <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              {noPlan.map((p) => (
-                <li key={p.key} style={{ borderBottom: '1px dotted rgba(20,16,13,0.15)', padding: '8px 0', fontSize: '14px', lineHeight: 1.5 }}>
-                  <Link href={projectHref(p.key)} style={{ color: INK, fontWeight: 600, fontSize: '15px', textDecoration: 'underline', textUnderlineOffset: '3px' }}>{p.name}</Link>
-                  {' · '}{deptLabel(p.latest.department_code)}
-                </li>
-              ))}
-            </ol>
-          </section>
-        }
-      />
+      <MajorProjectsBrowser projects={lines} latestYear={latestYear} noPlanCount={noPlan.length} />
 
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6 }}>
         Sources: {Object.values(REPORT_PAGES).map((r, i) => <span key={r.url}>{i > 0 && '; '}<a href={r.url} style={{ color: INK }}>{r.title}</a></span>)}.
