@@ -1,0 +1,52 @@
+import type { EditorialEntry } from './types';
+
+const piece: EditorialEntry = {
+  slug: "mr6k2vq9xt",
+  kicker: 'Investigation',
+  headline: "Three Defence Secretaries in Six Weeks",
+  standfirst: "Andy Burnham’s first week as Prime Minister put 82 ministers into new jobs. MPs called for compulsory training and appraisal for ministers in 2013. The published appointment records still say nothing about how ministers are assessed or prepared for the departments they run.",
+  summary: "Defence had three secretaries in six weeks. MPs asked for compulsory minister training in 2013, and appointments still disclose no preparation.",
+  publishedAt: '2026-10-24',
+  authorByline: 'opengovt',
+  body: [
+    { type: 'paragraph', text: "On 11 June 2026 [John Healey](/mps/400) resigned as Defence Secretary over the funding in the delayed Defence Investment Plan, saying the decision could make the country \"less safe\". Dan Jarvis, a Home Office security minister, replaced him the same day. On 20 July Andy Burnham, in his first appointments as Prime Minister, moved Jarvis to the Cabinet Office and made [Wes Streeting](/mps/4504) Defence Secretary. The Ministry of Defence had three secretaries of state in six weeks." },
+    { type: 'paragraph', text: "Streeting had been Health and Social Care Secretary from July 2024 until 14 May 2026. At Defence his published responsibilities include the nuclear deterrent, the defence budget, strategic military policy, the Defence Investment Plan and relationships with partners including the United States, France and Ukraine." },
+    { type: 'paragraph', text: "The movement went well beyond Defence. The Institute for Government counted 82 ministers taking new roles in Burnham’s first week, 24 of them for the first time, and 13 of the 22 full Cabinet members in new roles. In 11 departments at least half the junior ministers came from elsewhere or were new to government." },
+    { type: 'paragraph', text: "[Alex Norris](/mps/4641) became Lord Chancellor and Justice Secretary after serving as a housing minister and then a Home Office minister. The Constitutional Reform Act 2005 lets the Prime Minister recommend someone as Lord Chancellor only if they appear \"qualified by experience\", and that experience may include serving as a minister or an MP as well as practising law. Norris’s official biography lists no legal qualification, and the Act does not require one. The Lord Chancellor is under a statutory duty to uphold the continued independence of the judiciary." },
+    { type: 'paragraph', text: "[Louise Haigh](/mps/4473) became First Secretary of State and Minister for the Cabinet Office, responsible for coordinating government priorities, national security policy coordination, Civil Service reform, propriety and ethics, and public appointments. She was Transport Secretary from July 2024 until she resigned on 29 November 2024, after reports of a conviction for fraud by misrepresentation over a work phone she had wrongly reported stolen after a 2013 mugging. She received a conditional discharge and said it was \"a genuine mistake from which I did not make any gain\"." },
+    { type: 'paragraph', text: "Some appointments drew directly on earlier experience. Healey, who held Treasury posts as Economic and then Financial Secretary between 2002 and 2007, returned as Chancellor of the Exchequer. [Miatta Fahnbulleh](/mps/5099), who has a doctorate in economic development, ran the New Economics Foundation from 2017 to 2023 and served as an energy minister from 2024 to 2025, became Energy Secretary." },
+    { type: 'paragraph', text: "The government’s appointment announcement of 20 July lists who got which job. Neither it nor the ministers’ official biographies say what induction, briefing or assessment came with each move." },
+    { type: 'paragraph', text: "Parliament asked for more. In June 2013 the Commons Political and Constitutional Reform Committee recommended mandatory training for new ministers, continuing development for experienced ones, basic training for shadow ministers before an expected election, and direct handovers from outgoing ministers to their successors. It also proposed a Cabinet Office minister responsible for ministerial development, including training and appraisal, and said secretaries of state should normally serve a full Parliament and junior ministers at least two years." },
+    { type: 'paragraph', text: "In its response of 10 April 2014 the government rejected a dedicated minister, saying ministerial development was a task for the Prime Minister, the Deputy Prime Minister, secretaries of state and other ministerial heads of departments. It rejected minimum terms as an unacceptable limit on the Prime Minister’s personal authority to appoint, while agreeing that continuity should be encouraged, especially in departments with much international business." },
+    { type: 'paragraph', text: "Some preparation does take place. The Institute for Government reported that ministers received induction sessions in July 2024, citing a parliamentary answer, though their content was not published. It also noted in July 2025 that there is no annual appraisal process for ministers." },
+    { type: 'paragraph', text: "The choice of ministers rests with the Prime Minister, and some advice behind appointments is properly confidential. What the public record shows is the turnover itself and, later, the results through spending records, official statistics, National Audit Office reports and evidence to select committees. At Defence, the Defence Investment Plan that Healey resigned over is now Streeting’s responsibility, after a secretary of state who served for less than six weeks." },
+  ],
+  evidence: {
+    recordsReviewed: [
+      { text: "Open Govt, Wes Streeting", url: "https://opengovt.uk/mps/4504" },
+      { text: "Open Govt, John Healey", url: "https://opengovt.uk/mps/400" },
+      { text: "Open Govt, Louise Haigh", url: "https://opengovt.uk/mps/4473" },
+      { text: "Open Govt, Alex Norris", url: "https://opengovt.uk/mps/4641" },
+      { text: "Open Govt, Miatta Fahnbulleh", url: "https://opengovt.uk/mps/5099" },
+      { text: "GOV.UK, Ministerial Appointments: July 2026, 20 Jul 2026", url: "https://www.gov.uk/government/news/ministerial-appointments-july-2026" },
+      { text: "GOV.UK, Wes Streeting", url: "https://www.gov.uk/government/people/wes-streeting" },
+      { text: "GOV.UK, Louise Haigh", url: "https://www.gov.uk/government/people/louise-haigh" },
+      { text: "GOV.UK, Alex Norris", url: "https://www.gov.uk/government/people/alex-norris" },
+      { text: "GOV.UK, John Healey", url: "https://www.gov.uk/government/people/john-healey" },
+      { text: "GOV.UK, Miatta Fahnbulleh", url: "https://www.gov.uk/government/people/miatta-fahnbulleh" },
+      { text: "ITV News, Healey resigns and Jarvis appointed, 11 Jun 2026", url: "https://www.itv.com/news/2026-06-11/dan-jarvis-appointed-as-new-defence-secretary" },
+      { text: "Institute for Government, Burnham’s government formation, 28 Jul 2026", url: "https://www.instituteforgovernment.org.uk/comment/six-things-learned-andy-burnhams-government-formation" },
+      { text: "Institute for Government, ministers learning on the job, 8 Jul 2025", url: "https://www.instituteforgovernment.org.uk/comment/one-year-post-keir-starmers-ministers-are-learning-job" },
+      { text: "Constitutional Reform Act 2005, section 2", url: "https://www.legislation.gov.uk/ukpga/2005/4/section/2" },
+      { text: "Constitutional Reform Act 2005, section 3", url: "https://www.legislation.gov.uk/ukpga/2005/4/section/3" },
+      { text: "AP, Haigh resigns as Transport Secretary, 29 Nov 2024", url: "https://www.news4jax.com/news/2024/11/29/uk-transport-secretary-quits-over-decade-old-cellphone-fraud-case/" },
+      { text: "Political and Constitutional Reform Committee, ministerial reshuffles report, 14 Jun 2013", url: "https://committees.parliament.uk/committee/200/political-and-constitutional-reform-committee/news/181171/reshuffles-report-published-chairs-comments/" },
+      { text: "Political and Constitutional Reform Committee, government response, 10 Apr 2014", url: "https://committees.parliament.uk/committee/200/political-and-constitutional-reform-committee/news/183141/government-agrees-with-committee-about-benefits-of-minimising-reshuffles/" },
+    ],
+    lastChecked: '24 October 2026',
+  },
+  relatedDeptSlugs: ['defence', 'justice', 'cabinet-office', 'treasury'],
+  relatedMemberIds: [4504, 400, 4473, 4641, 5099, 1427],
+};
+
+export default piece;

@@ -105,6 +105,7 @@ import waterOwnership from './gw4k9mxn7r';
 import cornwallLithium from './tn4k7mxw9r';
 import stationFacialRecognition from './fr9k2mxw7q';
 import lordsBills from './siicjkcsr6';
+import threeDefenceSecretaries from './mr6k2vq9xt';
 
 const allEditorials: EditorialRegistry = {
   [taggingRegime.slug]: taggingRegime,
@@ -209,6 +210,7 @@ const allEditorials: EditorialRegistry = {
   [referralWorklists.slug]: referralWorklists,
   [sussexSavings.slug]: sussexSavings,
   [hmrcTaxDebt.slug]: hmrcTaxDebt,
+  [threeDefenceSecretaries.slug]: threeDefenceSecretaries,
 };
 
 // Unpublished until their sources are added and checked (owner's decision, 22 Oct 2026). The files stay; leaving them
