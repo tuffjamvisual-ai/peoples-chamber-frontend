@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { noteSearch } from '@/lib/search-note';
 import { useRouter } from 'next/navigation';
 import { departments } from '@/lib/departments';
 
@@ -47,6 +48,9 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    // The sign up note's count, at the moment of the search (lib/search-note.ts), so the note never moves the results
+    // after they have been drawn.
+    noteSearch(q);
     navigate(q, defaultType, dept, defaultSort);
   }
 
