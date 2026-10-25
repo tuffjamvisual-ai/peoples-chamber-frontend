@@ -440,7 +440,6 @@ export async function sendCommissionRequest(r: {
   name: string;
   email: string;
   organisation: string;
-  package: string;
   question: string;
   deadline: string;
   publish: string;
@@ -456,7 +455,6 @@ export async function sendCommissionRequest(r: {
     `Name:          ${r.name}\n` +
     `Email:         ${r.email}\n` +
     `Organisation:  ${r.organisation || 'Not given'}\n` +
-    `Request type:  ${r.package}\n` +
     `Deadline:      ${r.deadline || 'None given'}\n` +
     `Publishing:    ${r.publish}\n` +
     `Terms read:    Yes\n` +
@@ -470,7 +468,7 @@ export async function sendCommissionRequest(r: {
       from,
       to: COMMISSION_TO,
       replyTo: r.email,
-      subject: `Research request: ${r.package} from ${r.name}`,
+      subject: `Research request from ${r.name}`,
       text,
     });
     if (error) return { sent: false, reason: error.message };

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState, type CSSProperties, type FormEvent } from 'react';
 import {
-  COMMISSION_PACKAGES, COMMISSION_PUBLISH, QUESTION_MAX, QUESTION_MIN, SUCCESS_MESSAGE, UNAVAILABLE_MESSAGE,
+  COMMISSION_PUBLISH, QUESTION_MAX, QUESTION_MIN, SUCCESS_MESSAGE, UNAVAILABLE_MESSAGE,
   normaliseCommission, todayUk, validateCommission, type CommissionErrors, type CommissionField,
 } from '@/lib/commission';
 
@@ -32,8 +32,8 @@ const label: CSSProperties = { display: 'block', fontSize: '15px', fontWeight: '
 const hint: CSSProperties = { fontSize: '14px', opacity: 0.75, margin: '4px 0 0' };
 const errorText: CSSProperties = { fontSize: '14px', color: ACCENT, fontWeight: 'bold', margin: '6px 0 0' };
 
-type Values = { name: string; email: string; organisation: string; package: string; question: string; deadline: string; publish: string; terms: boolean; website: string };
-const EMPTY: Values = { name: '', email: '', organisation: '', package: '', question: '', deadline: '', publish: '', terms: false, website: '' };
+type Values = { name: string; email: string; organisation: string; question: string; deadline: string; publish: string; terms: boolean; website: string };
+const EMPTY: Values = { name: '', email: '', organisation: '', question: '', deadline: '', publish: '', terms: false, website: '' };
 
 export default function CommissionForm() {
   const [v, setV] = useState<Values>(EMPTY);
@@ -105,15 +105,6 @@ export default function CommissionForm() {
         <label htmlFor="commission-organisation" style={label}>Organisation <span style={{ fontWeight: 'normal', opacity: 0.75 }}>(optional)</span></label>
         <input id="commission-organisation" name="organisation" type="text" autoComplete="organization" value={v.organisation} onChange={(e) => set('organisation', e.target.value)} style={border('organisation')} {...aria('organisation')} />
         {err('organisation')}
-      </div>
-
-      <div style={row}>
-        <label htmlFor="commission-package" style={label}>Type of request</label>
-        <select id="commission-package" name="package" value={v.package} onChange={(e) => set('package', e.target.value)} style={{ ...border('package'), cursor: 'pointer' }} {...aria('package')}>
-          <option value="">Choose a type of request</option>
-          {COMMISSION_PACKAGES.map((p) => <option key={p} value={p}>{p}</option>)}
-        </select>
-        {err('package')}
       </div>
 
       <div style={row}>

@@ -1,8 +1,8 @@
-// Commission research requests (owner's brief, 24 Oct 2026): the form fields and the rules that check them, shared by
+// Commission research requests (owner's brief, 24 Oct 2026; one service at £295 from 25 Oct 2026, so there is no type of
+// request to choose, report 54): the form fields and the rules that check them, shared by
 // the form (app/commission/CommissionForm.tsx) and the route that sends them (app/api/commission/route.ts), so the
 // browser and the server apply exactly the same rules.
 
-export const COMMISSION_PACKAGES = ['Quick check', 'Research report', 'Investigation', 'Not sure'] as const;
 export const COMMISSION_PUBLISH = ['Yes', 'No', 'Not sure'] as const;
 export const QUESTION_MIN = 30;
 export const QUESTION_MAX = 3000;
@@ -13,7 +13,6 @@ export type CommissionRequest = {
   name: string;
   email: string;
   organisation: string;
-  package: string;
   question: string;
   deadline: string; // YYYY-MM-DD or ''
   publish: string;
@@ -41,7 +40,6 @@ export function normaliseCommission(raw: Record<string, unknown>): CommissionReq
     name: line(raw.name),
     email: line(raw.email),
     organisation: line(raw.organisation),
-    package: line(raw.package),
     question: text(raw.question),
     deadline: line(raw.deadline),
     publish: line(raw.publish),
@@ -58,7 +56,6 @@ export function validateCommission(r: CommissionRequest, today = todayUk()): Com
   if (!r.email) e.email = 'Enter your email address.';
   else if (r.email.length > 254 || !EMAIL.test(r.email)) e.email = 'Enter a valid email address, like name@example.com.';
   if (r.organisation.length > 200) e.organisation = 'Use 200 characters or fewer.';
-  if (!(COMMISSION_PACKAGES as readonly string[]).includes(r.package)) e.package = 'Choose a type of request.';
   if (!r.question) e.question = 'Tell us your question.';
   else if (r.question.length < QUESTION_MIN) e.question = `Use at least ${QUESTION_MIN} characters (you have ${r.question.length}).`;
   else if (r.question.length > QUESTION_MAX) e.question = `Use ${QUESTION_MAX.toLocaleString('en-GB')} characters or fewer (you have ${r.question.length.toLocaleString('en-GB')}).`;
