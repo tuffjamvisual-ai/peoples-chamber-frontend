@@ -9,14 +9,17 @@
 //   DevTools applies it), and without throttling, from the browser's Performance API;
 // - the LCP element, the requests that finished before it (fonts, styles, scripts, images, data fetches), total
 //   JavaScript bytes, and every image's size and format.
+// - layout on phones (report 52): every route is also loaded, without throttling, at 320 and 414 px (--layout-widths),
+//   and at every width the check looks for sideways scroll and for a number or money value in a table cell or a card
+//   that is wider than its box (cut off), as "£108,433,986" was on the /donors cards at 320 px.
 // It fails (exit code 1) if any route is over a target: LCP 2.5 s throttled, 1 s unthrottled, server time 1 s, an HTTP
-// error, or any sideways scroll at 375 px. Layout shift over 0.1 is shown as a warning, and fails the run only with
+// error, any sideways scroll on a phone width (320, 375 or 414 px), or any clipped number. Layout shift over 0.1 is shown as a warning, and fails the run only with
 // --cls: on a first visit with an empty cache the Special Elite font arrives just after the first paint and the text
 // reflows (report 43); real visitors' CLS is near 0 (Speed Insights p75 at most 0.05 on 25 Oct 2026).
 //
 // Usage: npm run build && npx next start -p 3001, then
 //   npx tsx scripts/checks/speed-check.ts [--base http://127.0.0.1:3001] [--only /mps/4597,/] [--json out.json]
-//                                         [--viewports 375,1280] [--details] [--cls]
+//                                         [--viewports 375,1280] [--layout-widths 320,414] [--details] [--cls]
 // --details prints the LCP element, blocking requests and images for each page.
 
 import { chromium, type Browser } from 'playwright';
@@ -57,6 +60,13 @@ export const ROUTES: { route: string; path: string }[] = [
   { route: '/debates/[guid]', path: '/debates/1532738B-A3C2-4ACB-AE5B-0D7B8FAC2600' },
 ];
 
+// Pages with phone-only table layouts (cards and sticky columns, report 47), added to the phone layout pass although
+// they are not among the 30 most visited routes.
+export const PHONE_LAYOUT_EXTRA: { route: string; path: string }[] = [
+  { route: '/donors', path: '/donors' },
+  { route: '/sewage', path: '/sewage' },
+];
+
 export const TARGETS = { lcpThrottledMs: 2500, lcpUnthrottledMs: 1000, serverMs: 1000, cls: 0.1 };
 
 // Chrome DevTools "Fast 4G": 9 Mbps down, 1.5 Mbps up, 60 ms latency, each scaled the way DevTools applies its presets
@@ -90,12 +100,32 @@ const INIT_SCRIPT = `
   }).observe({ type: 'layout-shift', buffered: true });
 `;
 
+// Runs in the page: numbers and money values (for example 1,234 · £108,433,986 · 12.5% · £3.4bn) in a table cell or a
+// card whose box is narrower than the value, so part of it is cut off or spills out. A plain string, for the same reason
+// as INIT_SCRIPT.
+const CLIPPED_NUMBERS = `(() => {
+  var re = /^[-+\u2212]?[£$€]?\\s?[-+\u2212]?\\d[\\d,]*(\\.\\d+)?\\s?(%|k|m|bn|million|billion)?$/i;
+  var out = [];
+  document.querySelectorAll('td, th, [class*="card"], [class*="Card"], [class*="tile"], [class*="Tile"]').forEach(function (scope) {
+    var leaves = scope.children.length ? scope.querySelectorAll('*') : [scope];
+    [scope].concat(Array.prototype.slice.call(leaves)).forEach(function (el) {
+      if (el.children.length) return;
+      var t = (el.innerText || '').trim();
+      if (!t || !re.test(t)) return;
+      var box = el.closest('td, th') || el;
+      if (getComputedStyle(box).display.indexOf('inline') === 0) box = box.parentElement || box;
+      if (box.clientWidth > 0 && box.scrollWidth > box.clientWidth + 1) out.push(t + ' (' + box.scrollWidth + ' of ' + box.clientWidth + ' px)');
+    });
+  });
+  return Array.from(new Set(out));
+})()`;
+
 type Req = { url: string; type: string; startMs: number; endMs: number; bytes: number; blocking: boolean };
 type Img = { src: string; format: string; bytes: number; natural: string; shown: string };
 export type PageResult = {
   route: string; path: string; viewport: number; status: number; cache: string;
   serverMs: number; firstMs: number; cls: number; shifts: string[]; lcpMs: number; lcpUnthrottledMs: number; lcpElement: string;
-  jsBytes: number; beforeLcp: Req[]; images: Img[]; scrollWidth: number; clientWidth: number;
+  jsBytes: number; beforeLcp: Req[]; images: Img[]; scrollWidth: number; clientWidth: number; clipped: string[];
 };
 
 function arg(name: string): string | undefined {
@@ -147,6 +177,7 @@ async function measure(browser: Browser, base: string, path: string, viewport: n
     }));
     return { lcp: last, cls: w.__cls, shifts: w.__shifts, res, imgs, scrollWidth: document.documentElement.scrollWidth, clientWidth: document.documentElement.clientWidth };
   });
+  const clipped = (await page.evaluate(CLIPPED_NUMBERS)) as string[];
   await context.close();
   const fmt = (u: string) => {
     const t = types.get(u.startsWith('http') ? u : base + u) ?? '';
@@ -160,8 +191,21 @@ async function measure(browser: Browser, base: string, path: string, viewport: n
     jsBytes: data.res.filter((r) => r.type === 'script' || /\.js(\?|$)/.test(r.url)).reduce((s, r) => s + r.bytes, 0),
     beforeLcp: data.res.filter((r) => r.endMs <= data.lcp.t && r.type !== 'navigation'),
     images: data.imgs.map((i) => ({ ...i, format: fmt(i.src), bytes: byUrl.get(i.src)?.bytes ?? 0 })),
-    scrollWidth: data.scrollWidth, clientWidth: data.clientWidth,
+    scrollWidth: data.scrollWidth, clientWidth: data.clientWidth, clipped,
   };
+}
+
+// The phone layout pass: sideways scroll and clipped numbers at one width, without throttling or LCP.
+export async function layoutCheck(browser: Browser, base: string, path: string, width: number) {
+  const context = await browser.newContext({ viewport: { width, height: 812 }, deviceScaleFactor: 2 });
+  const page = await context.newPage();
+  const resp = await page.goto(base + path, { waitUntil: 'load', timeout: 120000 });
+  await page.evaluate(() => document.fonts.ready);
+  await page.waitForTimeout(500);
+  const sizes = await page.evaluate(() => [document.documentElement.scrollWidth, document.documentElement.clientWidth]);
+  const clipped = (await page.evaluate(CLIPPED_NUMBERS)) as string[];
+  await context.close();
+  return { status: resp?.status() ?? 0, scrollWidth: sizes[0], clientWidth: sizes[1], clipped };
 }
 
 export async function runSpeedCheck(base: string, routes = ROUTES, viewports = [375, 1280]): Promise<PageResult[]> {
@@ -176,7 +220,7 @@ export async function runSpeedCheck(base: string, routes = ROUTES, viewports = [
         out.push({ route: r.route, path: r.path, viewport: vp, status: t.status, cache: st.cache, serverMs: Math.round(st.ms),
           firstMs: Math.round(st.firstMs), cls: t.cls, shifts: t.shifts,
           lcpMs: t.lcpMs, lcpUnthrottledMs: u.lcpMs, lcpElement: t.lcpElement, jsBytes: t.jsBytes, beforeLcp: t.beforeLcp,
-          images: t.images, scrollWidth: t.scrollWidth, clientWidth: t.clientWidth });
+          images: t.images, scrollWidth: t.scrollWidth, clientWidth: t.clientWidth, clipped: t.clipped });
       }
     }
   } finally {
@@ -202,6 +246,7 @@ async function main() {
     if (!(r.lcpUnthrottledMs <= TARGETS.lcpUnthrottledMs)) over.push('LCP unthrottled');
     if (r.cls > TARGETS.cls && process.argv.includes('--cls')) over.push('layout shift');
     if (r.viewport < 600 && r.scrollWidth > r.clientWidth) over.push('sideways scroll');
+    if (r.clipped.length) over.push(`clipped numbers: ${r.clipped.slice(0, 3).join('; ')}`);
     if (over.length) failures++;
     const warn = r.cls > TARGETS.cls && !process.argv.includes('--cls') ? ' (warning: layout shift)' : '';
     console.log([r.route, r.path, r.viewport, r.status, r.cache, r.serverMs, r.firstMs, r.lcpMs, r.lcpUnthrottledMs, r.cls, kb(r.jsBytes), (over.length ? `OVER: ${over.join(', ')}` : 'ok') + warn].join(' | '));
@@ -212,8 +257,30 @@ async function main() {
       for (const i of r.images) console.log(`    image: ${i.src.slice(0, 110)} ${i.format} ${kb(i.bytes)} natural ${i.natural} shown ${i.shown}`);
     }
   }
+  // Phone layout pass at the other phone widths (320 and 414 px by default): sideways scroll and clipped numbers.
+  const layoutWidths = (arg('layout-widths') ?? '320,414').split(',').filter(Boolean).map(Number);
+  const layout: { route: string; path: string; width: number; scrollWidth: number; clientWidth: number; clipped: string[] }[] = [];
+  if (layoutWidths.length) {
+    const browser = await chromium.launch();
+    try {
+      console.log(`phone layout at ${layoutWidths.join(' and ')} px:`);
+      const layoutRoutes = only ? routes : [...routes, ...PHONE_LAYOUT_EXTRA];
+      for (const r of layoutRoutes) for (const w of layoutWidths) {
+        const l = await layoutCheck(browser, base, r.path, w);
+        layout.push({ route: r.route, path: r.path, width: w, ...l });
+        const over: string[] = [];
+        if (l.scrollWidth > l.clientWidth) over.push(`sideways scroll (${l.scrollWidth} of ${l.clientWidth})`);
+        if (l.clipped.length) over.push(`clipped numbers: ${l.clipped.slice(0, 3).join('; ')}`);
+        if (l.status >= 400) over.push(`HTTP ${l.status}`);
+        if (over.length) { failures++; console.log(`  ${r.path} at ${w} px: OVER: ${over.join(', ')}`); }
+      }
+    } finally {
+      await browser.close();
+    }
+    if (!layout.some((l) => l.scrollWidth > l.clientWidth || l.clipped.length)) console.log(`  all ${layout.length} page loads fit: no sideways scroll, no clipped numbers`);
+  }
   const json = arg('json');
-  if (json) writeFileSync(json, JSON.stringify(results, null, 2));
+  if (json) writeFileSync(json, JSON.stringify({ results, layout }, null, 2));
   console.log(failures ? `${failures} page loads over target` : 'all pages within target');
   process.exit(failures ? 1 : 0);
 }
