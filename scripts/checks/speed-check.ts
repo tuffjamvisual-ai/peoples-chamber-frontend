@@ -26,7 +26,7 @@ import { chromium, type Browser } from 'playwright';
 import { writeFileSync } from 'node:fs';
 
 // The 30 most visited routes (Vercel Web Analytics, 18 to 25 Oct 2026, page paths grouped into routes), each with
-// one representative page.
+// one representative page, plus the section pages (report 60).
 export const ROUTES: { route: string; path: string }[] = [
   { route: '/', path: '/' },
   { route: '/mps/[id]', path: '/mps/4597' },
@@ -58,13 +58,17 @@ export const ROUTES: { route: string; path: string }[] = [
   { route: '/transparency/mp-activity', path: '/transparency/mp-activity' },
   { route: '/parties', path: '/parties' },
   { route: '/debates/[guid]', path: '/debates/1532738B-A3C2-4ACB-AE5B-0D7B8FAC2600' },
+  // The section pages every header link now opens (report 60), one representative; the other six are in the phone
+  // layout pass below.
+  { route: '/sections/[slug]', path: '/sections/accountability' },
 ];
 
-// Pages with phone-only table layouts (cards and sticky columns, report 47), added to the phone layout pass although
-// they are not among the 30 most visited routes.
+// Pages with phone-only table layouts (cards and sticky columns, report 47) and the other six section pages (report
+// 60), added to the phone layout pass although they are not among the 30 most visited routes.
 export const PHONE_LAYOUT_EXTRA: { route: string; path: string }[] = [
   { route: '/donors', path: '/donors' },
   { route: '/sewage', path: '/sewage' },
+  ...['mps', 'parliament', 'parties', 'departments', 'local', 'vote'].map((s) => ({ route: '/sections/[slug]', path: `/sections/${s}` })),
 ];
 
 export const TARGETS = { lcpThrottledMs: 2500, lcpUnthrottledMs: 1000, serverMs: 1000, cls: 0.1 };

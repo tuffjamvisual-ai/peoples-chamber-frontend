@@ -2,8 +2,9 @@ import './opengov-shell.css';
 import { preload } from 'react-dom';
 import Link from 'next/link';
 import AccountTab from './AccountTab';
-import { NAV } from '@/lib/site-nav';
+import { NAV, menuHref } from '@/lib/site-nav';
 import MobileMenu from './MobileMenu';
+import HeaderNav from './HeaderNav';
 
 // OpenGovShell — the shared "OPEN GOVERNMENT" page template.
 // Renders the folders-pile backdrop, the newb folder header (red-stamp masthead
@@ -69,21 +70,11 @@ export default function OpenGovShell({
           </div>
 
           {/* Phones (under 768px): the one-row header's search and menu icons (MobileMenu.tsx); hidden from 768px up. */}
-          <MobileMenu sections={NAV.map(({ label, href }) => ({ label, href }))} />
+          <MobileMenu sections={NAV.map((item) => ({ label: item.label, href: menuHref(item) }))} />
 
           <nav aria-label="Primary" className="og-navwrap" style={{ position: 'absolute', top: '10.6%', left: '2%', width: '96%', zIndex: 5, transform: 'translateX(1.5%) rotate(-2.5deg)' }}>
-            <ul className="ng-nav">
-              {NAV.map((item) => (
-                <li key={item.label}>
-                  <a href={item.href}>{item.label}</a>
-                  {item.children && (
-                    <ul className="ng-sub">
-                      {item.children.map((c) => (<li key={c.href}><a href={c.href}>{c.label}</a></li>))}
-                    </ul>
-                  )}
-                </li>
-              ))}
-            </ul>
+            {/* No dropdowns (report 60): each section links to its page listing every link in it (HeaderNav.tsx). */}
+            <HeaderNav />
           </nav>
         </div>
 

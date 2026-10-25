@@ -6,6 +6,7 @@ import { editorials } from '@/lib/editorials';
 import { editorialModifiedIso } from '@/lib/JsonLd';
 import { COMMITTEE_IDS } from '@/lib/committees';
 import { topics } from '@/lib/topics';
+import { SECTION_PAGES } from '@/lib/site-nav';
 import { fetchMajorProjectKeys, projectHref } from '@/lib/major-projects';
 
 const SITE = 'https://www.opengovt.uk';
@@ -109,6 +110,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/lobbying`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/committees`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/topics`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    // The section pages the header links to (report 60).
+    ...SECTION_PAGES.map((s) => ({ url: `${SITE}/sections/${s.slug}`, lastModified: now, changeFrequency: 'monthly' as const, priority: 0.7 })),
     { url: `${SITE}/divisions`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
   ];
 
