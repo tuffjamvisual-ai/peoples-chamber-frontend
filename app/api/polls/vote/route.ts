@@ -36,7 +36,8 @@ export async function POST(request: NextRequest) {
 
   const { error: voteError } = await supabase
     .from('poll_vote')
-    .insert({ user_id: userId, poll_id: pollId, choice });
+    // The time is sent as well as left to the column default, the same as bill votes (25 Oct 2026, report 58).
+    .insert({ user_id: userId, poll_id: pollId, choice, created_at: new Date().toISOString() });
 
   if (voteError) return NextResponse.json({ error: voteError.message }, { status: 500 });
 

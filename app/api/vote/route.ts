@@ -153,13 +153,15 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Insert vote
+    // Insert vote. vote.created_at has no default, so the time is sent (25 Oct 2026, report 58): before this, bill
+    // votes were stored with no date. A changed vote keeps its first time; change_bill_vote does not set it.
     const { error: voteError } = await supabase
       .from('vote')
       .insert({
         user_id: userId,
         bill_id: billId,
-        choice
+        choice,
+        created_at: new Date().toISOString(),
       });
     
     if (voteError) {
