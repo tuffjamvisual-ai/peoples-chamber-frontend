@@ -7,29 +7,30 @@
 .og-backdrop { background-image: url(/folders.webp); }
 @media (max-width: 640px) { .og-backdrop { background-image: url(/folders-900.webp); } }
 
-/* ---- Nav bar (real links + CSS dropdowns) ---- */
-.ng-nav { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: nowrap; justify-content: center; align-items: center; font-family: var(--font-special-elite), monospace; text-transform: uppercase; letter-spacing: 0.04em; color: #14100d; font-size: clamp(14px, 1.3cqw, 15px); text-shadow: 0.7px 0.7px 0 rgba(20, 16, 13, 0.42), -0.3px 0.2px 0.4px rgba(20, 16, 13, 0.24), 0 0 1.6px rgba(20, 16, 13, 0.3); }
-.ng-nav > li { position: relative; }
-.ng-nav > li > a { display: block; padding: 4px 7px; color: #14100d; text-decoration: none; border-left: 1px solid rgba(20, 16, 13, 0.25); white-space: nowrap; }
-.ng-nav > li:first-child > a { border-left: none; padding-left: 0; }
-.ng-nav > li > a:hover { color: #7a1612; }
-/* A closed dropdown is display: none, not just invisible: a hidden absolutely placed list still counts towards the
-   page's scroll width, and on a 390px phone the right-hand ones made every page 480px wide. The fade-in is kept with
-   @starting-style (browsers without it just show the list at once). */
-.ng-sub { list-style: none; margin: 0; padding: 6px 0; position: absolute; top: 100%; left: 0; min-width: 210px; max-height: 70vh; overflow-y: auto; background: #e8d6a4; border: 1px solid #14100d; box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3); display: none; opacity: 0; transform: translateY(-4px); transition: opacity 0.12s ease, transform 0.12s ease; z-index: 30; text-transform: none; }
-.ng-nav > li:hover .ng-sub, .ng-nav > li:focus-within .ng-sub { display: block; opacity: 1; transform: none; }
-@starting-style { .ng-nav > li:hover .ng-sub, .ng-nav > li:focus-within .ng-sub { opacity: 0; transform: translateY(-4px); } }
-/* The header is its own stacking context (container-type), and the dossier folder below overlaps it, so an open
-   dropdown would sit behind the page. Lift the header above the dossier (its page stamp is z-index 4) and the
-   phone filter bars (z-index 40) while a menu is open. */
-.og-header:has(.ng-nav > li:hover), .og-header:has(.ng-nav > li:focus-within) { z-index: 50; }
-.ng-sub > li > a { display: block; padding: 5px 16px; color: #14100d; text-decoration: none; letter-spacing: 0.06em; font-size: 14px; white-space: nowrap; }
-.ng-sub > li > a:hover { color: #7a1612; background: rgba(20, 16, 13, 0.06); }
-
-/* ---- Account / sign-up tab ---- */
-.ng-tab { position: absolute; top: 3.2%; right: 12%; z-index: 6; display: flex; gap: 6px; align-items: center; font-family: var(--font-special-elite), monospace; text-transform: uppercase; letter-spacing: 0.05em; font-size: clamp(14px, 1.5cqw, 18px); text-shadow: 0.7px 0.7px 0 rgba(20, 16, 13, 0.42), -0.3px 0.2px 0.4px rgba(20, 16, 13, 0.24), 0 0 1.6px rgba(20, 16, 13, 0.3); }
-.ng-tab a { color: #14100d; text-decoration: none; -webkit-text-stroke: 0.4px currentColor; }
-.ng-tab a:hover { color: #7a1612; }
+/* ---- Desktop header (1180px and up; owner's choice, 25 Oct 2026, report 57, the TaxPayers' Alliance pattern) ----
+   One row on the folder, no dropdowns: the wordmark (links home), the section links (DesktopNav.tsx), then a search
+   icon, the account link, Support Us and one filled Commission research button. Text is 14px Special Elite, the site's
+   minimum; below 1180px the row does not fit at that size, so the phone header is used there instead (below).
+   Each section's pages are listed on its landing page ("In this section", SectionLinks.tsx). */
+@media (min-width: 1180px) {
+  .og-drow { position: absolute; top: 8.9%; left: 2.6%; width: 91.4%; z-index: 5; display: flex; align-items: center; justify-content: space-between; flex-wrap: nowrap; gap: 8px; transform: rotate(-2.5deg); font-family: var(--font-special-elite), monospace; text-transform: uppercase; color: #14100d; font-size: 14px; letter-spacing: -0.03em; white-space: nowrap; text-shadow: 0.7px 0.7px 0 rgba(20, 16, 13, 0.42), -0.3px 0.2px 0.4px rgba(20, 16, 13, 0.24), 0 0 1.6px rgba(20, 16, 13, 0.3); }
+  .og-drow .og-masthead-wrap { position: static !important; width: auto !important; transform: none !important; flex: none; pointer-events: auto !important; }
+  .og-drow .og-brand { font-size: 22px !important; text-shadow: none; }
+  .og-dnav { flex: none; }
+  .og-dnav ul { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; flex-wrap: nowrap; }
+  .og-dnav a { display: block; padding: 4px 3px; color: #14100d; text-decoration: none; text-underline-offset: 5px; text-decoration-thickness: 2px; }
+  .og-dnav a[aria-current] { text-decoration: underline; color: #7a1612; }
+  .og-dright { flex: none; display: flex; align-items: center; gap: 8px; }
+  .og-dright a { color: #14100d; text-decoration: none; -webkit-text-stroke: 0.3px currentColor; }
+  .og-dsearch { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 28px; }
+  .og-dacct { display: inline-flex; align-items: center; }
+  .og-dacct .ng-tab-signup { display: none; }
+  .og-drow .og-dcta { display: inline-block; padding: 6px 8px 5px; background: #7a1612; color: #f3e6c4; -webkit-text-stroke: 0; text-shadow: none; border-radius: 2px; }
+  .og-dnav a:hover, .og-dright a:not(.og-dcta):hover { color: #7a1612; }
+  .og-drow .og-dcta:hover { background: #5e100d; }
+  .og-drow a:focus-visible { outline: 2px solid #7a1612; outline-offset: 3px; }
+  .og-drow .og-dcta:focus-visible { outline-color: #14100d; }
+}
 
 .ng-page a { -webkit-tap-highlight-color: transparent; }
 /* No hover movement anywhere in the shell (global a:hover scale already removed). */
@@ -48,47 +49,14 @@
 .dossier-frame .d-bottom { width: 100%; aspect-ratio: 1023 / 157; background: url('/folder-bottom.webp') no-repeat; background-size: 100% 100%; margin-top: -5%; -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 26%); mask-image: linear-gradient(180deg, transparent 0%, #000 26%); }
 .dossier-content { position: relative; z-index: 1; padding: clamp(64px, 12cqw, 150px) clamp(28px, 8.5cqw, 96px) clamp(40px, 7cqw, 90px); }
 
-/* ---- Tablet and small laptop (761-1260px): the nav no longer fits on one
-   line, so let it wrap onto two centred lines, drop the slight shift to the
-   right (it pushed the nav off the edge), and lower the folder so the second
-   line shows. Above 1260px the desktop layout is unchanged. (1150px until 24 Oct 2026, when the Commission
-   menu item made the one-line menu run past the folder between 1151 and 1260px.) ---- */
-@media (min-width: 761px) and (max-width: 1260px) {
-  .og-navwrap { left: 5% !important; width: 90% !important; transform: rotate(-2.5deg) !important; }
-  .og-navwrap .ng-nav { flex-wrap: wrap !important; justify-content: center !important; row-gap: 2px; font-size: clamp(14px, 1.5cqw, 14px) !important; }
-  .og-navwrap .ng-nav > li > a { padding: 3px 8px !important; }
-  .og-dossier { margin-top: -109% !important; }
-}
-
 /* ---- Mobile: the desktop chrome is positioned by inline %; override with
-   !important. Let the nav wrap, drop the dossier down to make room, hide the
-   overlapping account tab, and widen the content. ---- */
+   !important. Move the wordmark, drop the dossier down and widen the content. ---- */
 @media (max-width: 760px) {
-  /* The same desktop nav (.og-navwrap) shows on mobile, wrapped to fit. */
-  /* Keep the account/support tab in the top-right of the folder, just smaller
-     and stacked so it clears the masthead. */
-  .ng-tab { top: 2.6% !important; right: 9% !important; flex-direction: column !important; align-items: center !important; gap: 2px !important; line-height: 1.25 !important; font-size: 14px !important; text-align: center; }
-  .ng-tab a { white-space: nowrap; }
-  .ng-tab > span { display: none !important; }
   .og-masthead-wrap { top: 3.5% !important; left: 6% !important; width: 88% !important; }
-  .og-navwrap { top: 13% !important; left: 4% !important; width: 92% !important; transform: rotate(-2.5deg) !important; }
-  .og-navwrap .ng-nav { flex-wrap: wrap !important; justify-content: center !important; row-gap: 2px; column-gap: 0; font-size: 14px !important; letter-spacing: 0.03em !important; }
-  .og-navwrap .ng-nav > li > a { padding: 2px 6px !important; border-left: none !important; }
-  /* An open dropdown spans the nav, under it, rather than hanging off its item: an item near the right edge
-     would otherwise push the list past the screen. */
-  .og-navwrap .ng-nav { position: relative; }
-  .og-navwrap .ng-nav > li { position: static; }
-  .og-navwrap .ng-sub { left: 0; right: 0; min-width: 0; }
-  .og-navwrap .ng-sub > li > a { white-space: normal; }
   .og-dossier { margin-top: -102% !important; }
   .dossier-content { padding: clamp(20px, 5cqw, 50px) clamp(16px, 5cqw, 40px) clamp(32px, 6cqw, 70px) !important; }
 }
 @media (max-width: 480px) {
-  /* 14px minimum (legibility pass): tighter spacing so the nav keeps to three lines,
-     and the folder sits a little lower to clear it. Checked at 320-480px wide. */
-  .og-navwrap .ng-nav { font-size: 14px !important; letter-spacing: 0.01em !important; }
-  .og-navwrap .ng-nav > li > a { padding: 2px 5px !important; }
-  .ng-tab { font-size: 14px !important; letter-spacing: 0.01em !important; }
   .og-dossier { margin-top: -87% !important; }
 }
 /* Narrowest phones: the nav wraps to three lines, so the folder sits lower. */
@@ -102,13 +70,15 @@
   .og-dossier { margin-top: -72% !important; }
 }
 
-/* ---- Phones (under 768px, 25 Oct 2026, report 47): one-row header and a full screen section menu ----
+/* ---- Phones and tablets (under 1180px; report 47, widened from 768px in report 57): one-row header and a full screen
+   section menu ----
    The wordmark keeps its place on the folder; a search icon and a menu icon sit on the same row (MobileMenu.tsx). The
    wrapping nav and the account tab are hidden (the account links are in the menu panel), and the dossier folder starts
-   just below the row: the header image is 1448/1086 = 133.33% of its width tall. From 768px up none of this shows. */
+   just below the row: the header image is 1448/1086 = 133.33% of its width tall. From 1180px up none of this shows. */
 .og-mbar, .og-menu-panel { display: none; }
-@media (max-width: 767px) {
-  .og-navwrap, .ng-tab { display: none !important; }
+@media (max-width: 1179px) {
+  .og-drow { display: contents; }
+  .og-dnav, .og-dright { display: none !important; }
   .og-mbar { display: flex; position: absolute; top: 2.6%; right: 5%; z-index: 6; gap: 2px; align-items: center; transform: rotate(-2.5deg); }
   .og-mbar-btn { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; margin: 0; border: 0; background: transparent; color: #14100d; cursor: pointer; text-decoration: none; -webkit-tap-highlight-color: transparent; }
   .og-mbar-btn:focus-visible { outline: 2px solid #7a1612; outline-offset: 2px; }
@@ -123,4 +93,12 @@
   .og-menu-account { margin-top: 20px; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.05em; }
   .og-menu-account a { color: #14100d; text-decoration: none; padding: 10px 6px; }
   .og-menu-sep { display: inline-block; width: 1px; height: 1em; background: currentColor; opacity: 0.5; margin: 0 6px; }
+}
+
+/* ---- Tablets (768-1179px, report 57): the phone header, with the folder lowered to clear the wordmark, which is
+   larger here than on a phone (its size follows the screen width), and the icons moved in to sit on the folder's tab.
+   Under 768px the phone rule above applies. ---- */
+@media (min-width: 768px) and (max-width: 1179px) {
+  .og-dossier { margin-top: -119.5% !important; }
+  .og-mbar { right: 9%; top: 3.4%; }
 }
