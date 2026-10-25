@@ -18,6 +18,7 @@ import { donorNameToSlug, narrowTokens } from '@/lib/donor-slug';
 import { ecDonationSearchUrl } from '@/lib/ec-links';
 import { relatedDonorNames } from '@/lib/donor-related';
 import { donorRegistry } from '@/lib/donor-registry';
+import PhoneTable from '../../components/PhoneTable';
 
 export const revalidate = 86400;
 
@@ -560,7 +561,8 @@ export default async function DonorPage({ params }: PageProps) {
           its Electoral Commission reference, so a reader can check the original entry. */}
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Each donation{donations.length > 100 ? ` · newest 100 of ${donations.length}` : ''}</h2>
-        <div style={{ overflowX: 'auto' }}>
+        {/* Phones (report 47): the date column stays put while the other columns scroll, with a hint when more are out of view. */}
+        <PhoneTable sticky={1}>
           <table style={{ ...tableStyle, minWidth: '600px' }}>
             <thead>
               <tr style={headerRow}>
@@ -597,7 +599,7 @@ export default async function DonorPage({ params }: PageProps) {
               })}
             </tbody>
           </table>
-        </div>
+        </PhoneTable>
       </section>
 
     </OpenGovShell>

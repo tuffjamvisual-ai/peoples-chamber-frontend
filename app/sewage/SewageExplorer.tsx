@@ -12,6 +12,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import type { CSSProperties, FormEvent } from 'react';
+import PhoneTable from '../components/PhoneTable';
 
 export type ExplorerRow = {
   code: string;
@@ -245,7 +246,8 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
             {excluded > 0 && ` Shares rank only areas with figures for at least ${MIN_FOR_AVERAGES} overflows, so ${fmtInt(excluded)} smaller area${excluded === 1 ? ' is' : 's are'} left out of this view.`}
           </p>
         )}
-        <div style={{ overflowX: 'auto' }}>
+        {/* Phones (report 47): the rank and area columns stay put while the figures scroll, with a hint when more are out of view. */}
+        <PhoneTable sticky={2}>
           <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '14px', color: INK, width: '100%', minWidth: '640px' }}>
             <thead>
               <tr>
@@ -272,7 +274,7 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
               ))}
             </tbody>
           </table>
-        </div>
+        </PhoneTable>
         {rows.length > FIRST && (
           <button type="button" onClick={() => setShowAll((v) => !v)} style={{ ...btn(false), marginTop: '12px' }}>
             {showAll ? `Show the first ${FIRST}` : `Show all ${fmtInt(rows.length)}`}

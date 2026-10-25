@@ -10,6 +10,7 @@ import { COMMITTEE_IDS } from '@/lib/committees';
 import { sortTimeline, yearsLabel, type BackgroundEntry } from '@/lib/background-timeline';
 import { ecDonationSearchUrl } from '@/lib/ec-links';
 import { donorPageSlug } from '@/lib/donor-slug';
+import PhoneTable from '../../components/PhoneTable';
 
 const COMMITTEE_ID_SET = new Set<number>(COMMITTEE_IDS);
 
@@ -2474,6 +2475,10 @@ export default function MagazineProfileSections({
                 4px 6px → 3px 3px on the drilldown) so all seven breakdown
                 columns fit inside the folder content width without
                 horizontal scroll. Numeric cells drop to 12px monospace. */}
+            {/* Phones (report 47): the table scrolls sideways inside its box with the year column staying put, and a hint
+                shows while columns are out of view (before, the whole table scrolled, year included, with no sign of the
+                Travel and Total columns past the folder edge). */}
+            <PhoneTable sticky={1}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px', tableLayout: 'auto' }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid rgba(20,16,13,0.4)', textAlign: 'left' }}>
@@ -2585,6 +2590,7 @@ export default function MagazineProfileSections({
                 })}
               </tbody>
             </table>
+            </PhoneTable>
           </>
           );
         })()}

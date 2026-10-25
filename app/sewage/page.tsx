@@ -18,6 +18,7 @@ import {
 } from '@/lib/sewage';
 import type { AreaTotal, SourceStats } from '@/lib/sewage';
 import type { CSSProperties } from 'react';
+import PhoneTable from '../components/PhoneTable';
 
 export const revalidate = 21600;
 
@@ -156,7 +157,8 @@ export default async function SewagePage() {
 
         <section style={{ borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' }}>
           <h2 style={h2}>Water companies</h2>
-          <div style={{ overflowX: 'auto' }}>
+          {/* Phones (report 47): the company column stays put while the figures scroll, with a hint when more are out of view. */}
+          <PhoneTable sticky={1}>
             <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '14px', color: INK, width: '100%', minWidth: '600px' }}>
               <thead>
                 <tr>
@@ -179,7 +181,7 @@ export default async function SewagePage() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </PhoneTable>
           <p style={{ ...para, fontSize: '14px', marginTop: '10px' }}>
             Dwr Cymru Welsh Water’s figures here are only the overflows listed in the Environment Agency’s return for England.
           </p>

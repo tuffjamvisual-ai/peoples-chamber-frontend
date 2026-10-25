@@ -9,6 +9,7 @@ import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import { donorPageSlug } from '@/lib/donor-slug';
 import DonorSearch from './DonorSearch';
+import '../components/phone-table.css';
 
 export const revalidate = 86400;
 
@@ -98,7 +99,8 @@ export default async function DonorsIndex() {
 
       <DonorSearch />
 
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px', fontFamily: 'var(--font-special-elite), monospace' }}>
+      {/* Phones (under 768px, report 47): one card per donor (phone-table.css .pt-cards), five columns did not fit. */}
+      <table className="pt-cards" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px', fontFamily: 'var(--font-special-elite), monospace' }}>
         <thead>
           <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
             <th style={{ padding: '8px 6px' }}>#</th>
@@ -111,17 +113,17 @@ export default async function DonorsIndex() {
         <tbody>
           {top.map((d, i) => (
             <tr key={d.donor_name} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-              <td style={{ padding: '6px', opacity: 0.6 }}>{i + 1}</td>
-              <td style={{ padding: '6px' }}>
+              <td data-label="#" style={{ padding: '6px', opacity: 0.6 }}>{i + 1}</td>
+              <td data-label="" className="pt-card-title" style={{ padding: '6px' }}>
                 {donorPageSlug(d.donor_name) ? <Link href={`/donors/${donorPageSlug(d.donor_name)}`} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold' }}>
                   {d.donor_name}
                 </Link> : <>
                   {d.donor_name}
                 </>}
               </td>
-              <td style={{ padding: '6px', textAlign: 'center' }}>{d.count.toLocaleString()}</td>
-              <td style={{ padding: '6px', textAlign: 'center' }}>{d.recipients}</td>
-              <td style={{ padding: '6px', textAlign: 'right', fontWeight: 'bold', fontFamily: 'monospace' }}>{fmtMoney(d.total)}</td>
+              <td data-label="Donations" style={{ padding: '6px', textAlign: 'center' }}>{d.count.toLocaleString()}</td>
+              <td data-label="Recipients" style={{ padding: '6px', textAlign: 'center' }}>{d.recipients}</td>
+              <td data-label="Lifetime total" style={{ padding: '6px', textAlign: 'right', fontWeight: 'bold', fontFamily: 'monospace' }}>{fmtMoney(d.total)}</td>
             </tr>
           ))}
         </tbody>

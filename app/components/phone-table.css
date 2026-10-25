@@ -1,0 +1,32 @@
+/* Wide tables on phones (PhoneTable.tsx, report 47). The pinned cells take the dossier paper's colour so the columns
+   scrolling under them do not show through. */
+.pt-box { position: relative; }
+@media (max-width: 767px) {
+  .pt-box { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+  /* globals.css makes every dossier table on a phone a sideways-scrolling block; inside this box the box scrolls instead,
+     so the table stays a table and its first column can stay put. */
+  .og-page .pt-box > table { display: table; width: auto !important; min-width: 100%; max-width: none; overflow: visible; }
+  /* Only the table's own rows: a nested table (an expanded row) and full-width cells (colspan) are left alone. */
+  .pt-box > table > * > tr > :is(th, td):not([colspan]) { white-space: nowrap; }
+  .pt-sticky-1 > table > * > tr > :first-child:not([colspan]),
+  .pt-sticky-2 > table > * > tr > :first-child:not([colspan]),
+  .pt-sticky-2 > table > * > tr > :nth-child(2):not([colspan]) { position: sticky; left: 0; z-index: 1; background: #ecd9a6; }
+  .pt-sticky-2 > table > * > tr > :nth-child(2):not([colspan]) { left: var(--pt-left2, 2.2em); white-space: normal; min-width: 7em; max-width: 9em; }
+  /* The pinned column wraps and stays under half the box, so the scrolling columns are never hidden behind it. */
+  .pt-sticky-1 > table > * > tr > :first-child:not([colspan]) { white-space: normal; min-width: 6em; max-width: 9.5em; }
+  .pt-sticky-1 > table > * > tr > :first-child:not([colspan]),
+  .pt-sticky-2 > table > * > tr > :nth-child(2):not([colspan]) { box-shadow: 3px 0 4px -3px rgba(20, 16, 13, 0.35); }
+  .pt-box[data-more="1"]::before { content: 'Scroll for more columns \2192'; position: sticky; left: 0; display: block; margin: 0 0 6px; font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; color: #7a1612; }
+}
+
+/* Cards (a table with more than four columns that reads better as one card per row): under 768px each row is a card
+   and each cell shows its column name (data-label) before the value. The headings stay for screen readers. */
+@media (max-width: 767px) {
+  .pt-cards thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .pt-cards, .pt-cards tbody, .pt-cards tr, .pt-cards td { display: block; width: 100%; box-sizing: border-box; }
+  .pt-cards tr { padding: 10px 0; border-bottom: 1px solid rgba(20, 16, 13, 0.25); }
+  .pt-cards td { display: flex; justify-content: space-between; gap: 12px; padding: 2px 0 !important; text-align: right !important; border: 0 !important; }
+  .pt-cards td::before { content: attr(data-label); text-align: left; text-transform: uppercase; letter-spacing: 0.06em; font-size: 14px; opacity: 0.7; flex: 0 0 auto; }
+  .pt-cards td[data-label=""]::before { content: none; }
+  .pt-cards td.pt-card-title { display: block; text-align: left !important; font-size: 17px; padding-bottom: 4px !important; }
+}
