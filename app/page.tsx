@@ -190,6 +190,17 @@ export default async function HomePage() {
                 <ContinueToArticle />
               </a>
 
+              {/* Commission research (owner's request, 25 Oct 2026, report 50): one promotion, straight after the lead
+                  story. Labelled as a service so it reads apart from the journalism. Plain server-rendered markup:
+                  no image and no script. */}
+              <section className="og-promo" aria-labelledby="og-promo-head">
+                <div className="og-kicker">Open Govt service</div>
+                <h2 id="og-promo-head" className="og-promo-head">Need a question answered from the public record?</h2>
+                <p>Commission an independent, fully sourced research report. Every figure cited; the findings are ours, not the client&rsquo;s.</p>
+                <p className="og-promo-price">One fee for any request: £295, including data not yet on Open Govt</p>
+                <Link href="/commission" className="og-promo-btn">Commission research</Link>
+              </section>
+
               <a className="og-block og-brief" href={`/editorials/${slot2.slug}`}>
                 <div className="og-head">{slot2.headline}</div>
                 <div style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '14px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{readingLabel(slot2)}</div>
