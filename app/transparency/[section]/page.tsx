@@ -13,6 +13,24 @@ const ACCENT = '#6b2417'
 const PAGE_LIMIT = 50    // rows per page: the only pager on these lists (23 Oct 2026)
 const OCID_RE = /^ocds-[a-z0-9]+-[A-Za-z0-9-]+$/   // as app/contracts/[ocid]/page.tsx accepts
 
+// Revolving door coverage, read from the data (25 Oct 2026, report 63) rather than written into the intro. ACOBA closed
+// on 13 October 2025; rows dated after that come from the Independent Adviser on Ministerial Standards' published
+// advice for former ministers (app/api/sync-ministers-bars), rows up to it from ACOBA (app/api/sync-revolving-door).
+const ACOBA_CLOSED = '2025-10-13'
+const longDate = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
+
+async function revolvingDoorRange() {
+  const one = async (asc: boolean, cmp?: ['lte' | 'gt', string]) => {
+    let q = supabase.from('revolving_door').select('approval_date').not('approval_date', 'is', null).order('approval_date', { ascending: asc }).limit(1)
+    if (cmp) q = cmp[0] === 'lte' ? q.lte('approval_date', cmp[1]) : q.gt('approval_date', cmp[1])
+    const { data, error } = await q
+    if (error) throw new Error(`revolving_door range: ${error.message}`)
+    return (data?.[0]?.approval_date as string | undefined) ?? null
+  }
+  const [first, latest, lastAcoba, firstAfter] = await Promise.all([one(true), one(false), one(false, ['lte', ACOBA_CLOSED]), one(true, ['gt', ACOBA_CLOSED])])
+  return { first, latest, lastAcoba, firstAfter }
+}
+
 // 'lobbyists' slug removed 2026-06-02. 'companies' slug removed
 // 2026-06-03 — see comments in app/transparency/page.tsx. Both URLs
 // now return 404 via the !config guard in generateMetadata + the
@@ -91,6 +109,8 @@ export default async function TransparencySectionPage({
   if (section === 'hospitality') dataQ = dataQ.lte('hospitality_date', todayIso)
   const { data: rows, error } = await dataQ
 
+  const range = section === 'revolving-door' ? await revolvingDoorRange() : null
+
   const totalPages = Math.max(1, Math.ceil((total ?? 0) / PAGE_LIMIT))
   const baseUrl = `/transparency/${section}`
   const qPart = searchTerm ? `&q=${encodeURIComponent(searchTerm)}` : ''
@@ -160,7 +180,14 @@ export default async function TransparencySectionPage({
         </p>
         {section === 'revolving-door' && (
           <p className="text-[#14100d] text-[15px] leading-[1.7] max-w-2xl mt-6">
-            The revolving door refers to senior government officials and ministers leaving public service to take up roles in the private sector, often in industries they previously regulated or had influence over. These appointments were reviewed by the Advisory Committee on Business Appointments (ACOBA), which could attach conditions such as waiting periods or restrictions on lobbying former colleagues. ACOBA closed on 13 October 2025 and the records below are complete up to that date. Responsibility has since passed to the Civil Service Commission for senior officials and special advisers, and to the Independent Adviser on Ministerial Standards for former ministers, both under the new Ethics and Integrity Commission.
+            The revolving door refers to senior government officials and ministers leaving public service to take up roles in the private sector, often in industries they previously regulated or had influence over. Until it closed on 13 October 2025 these appointments were reviewed by the Advisory Committee on Business Appointments (ACOBA), which could attach conditions such as waiting periods or restrictions on lobbying former colleagues. Responsibility has since passed to the Civil Service Commission for senior officials and special advisers, and to the Independent Adviser on Ministerial Standards for former ministers, both under the new Ethics and Integrity Commission.
+          </p>
+        )}
+        {section === 'revolving-door' && range?.first && range.latest && (
+          <p className="text-[#14100d] text-[15px] leading-[1.7] max-w-2xl mt-4">
+            {range.firstAfter
+              ? <>Records from {longDate(range.first)} to {longDate(range.latest)}. Those up to {longDate(range.lastAcoba ?? range.first)} are from the Advisory Committee on Business Appointments; those from {longDate(range.firstAfter)} are the advice the Independent Adviser on Ministerial Standards has published for former ministers. Advice for senior officials and special advisers since ACOBA closed is not included yet.</>
+              : <>Records from {longDate(range.first)} to {longDate(range.latest)}, from the Advisory Committee on Business Appointments.</>}
           </p>
         )}
         {section === 'appgs' && (

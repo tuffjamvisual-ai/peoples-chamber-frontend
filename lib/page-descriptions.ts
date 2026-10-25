@@ -5,7 +5,7 @@
 // /transparency/<section> (app/transparency/[section]/page.tsx), and /expenses.
 export const PAGE_DESCRIPTIONS: Record<string, string> = {
   '/transparency/revolving-door':
-    'Jobs taken by former ministers and senior officials after leaving government, as reviewed by the Advisory Committee on Business Appointments.',
+    'Jobs taken by former ministers and officials after leaving government: ACOBA advice until it closed, then the Independent Adviser\'s advice for ministers.',
   '/transparency/donations':
     'Electoral Commission records of donations to parties and candidates: who gave, who received, how much, cash or in kind, and when it was reported.',
   '/transparency/contracts':
