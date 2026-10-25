@@ -137,6 +137,12 @@ function fmtSize(bytes?: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
+// True when Parliament has not updated the bill for 90 days (see the Bills API cache below).
+function isSettled(lastUpdate: string | null): boolean {
+  const t = lastUpdate ? Date.parse(lastUpdate) : NaN
+  return Number.isFinite(t) && Date.now() - t > 90 * 24 * 60 * 60 * 1000
+}
+
 export default async function FullBillPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const billId = parseInt(id, 10)
@@ -144,7 +150,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
 
   const { data: bill, error: billErr } = await supabase
     .from('bill')
-    .select('id, parliament_id, title, current_stage, is_act, hidden_reason')
+    .select('id, parliament_id, title, current_stage, is_act, hidden_reason, last_update')
     .eq('id', billId)
     .single()
   // A failed read throws (owner's approval, 21 Oct 2026); "no row" (PGRST116) stays a 404.
@@ -164,7 +170,11 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
   let publications: ApiPublication[] = []
   let billMeta: ApiBill | null = null
   let apiError: string | null = null
-  const headers = { headers: { Accept: 'application/json' }, next: { revalidate: 86400 } }
+  // A bill Parliament has not updated for 90 days (an Act, or a bill from an earlier session) gets no new
+  // publications, so its API answer is kept for 30 days instead of 1 (25 Oct 2026, report 43): crawlers walk all of
+  // about 4,000 bills, and an uncached Bills API call from Vercel took up to 2.4 s (p95). Current bills (188 on
+  // 25 Oct 2026) stay at a day. The page itself still rebuilds daily, from the cached answer.
+  const headers = { headers: { Accept: 'application/json' }, next: { revalidate: isSettled(bill.last_update) ? 30 * 86400 : 86400 } }
   try {
     const [metaRes, pubRes] = await Promise.all([
       fetch(`https://bills-api.parliament.uk/api/v1/Bills/${bill.parliament_id}`, headers),

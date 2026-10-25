@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import JsonLd, { buildHomepageGraph } from '@/lib/JsonLd';
 import OpenGovShell from './components/OpenGovShell';
 import { editorials } from '@/lib/editorials';
@@ -25,6 +26,12 @@ function fmtGovDate(iso: string | null | undefined): string {
 // The new "OPEN GOVERNMENT" front page: the dossier-folder template (OpenGovShell)
 // with the front-page article layout. Replaces the previous pca-art newspaper.
 export const revalidate = 3600;
+// Database reads on this page go through Next's data cache (25 Oct 2026, report 43). Every deploy empties the page
+// cache, so the first visit after each deploy rendered the page from scratch; Supabase reads were never cached (754,130
+// reads in 48 h, none from the cache). With this line they are kept for the page's revalidate period, and that cache
+// survives deploys, so those renders read from it instead of the database. A stale entry is read again before the page
+// is stored, so the page is never older than its revalidate period; revalidatePath and revalidateTag still refresh it.
+export const fetchCache = 'default-cache';
 
 const HOME_DESCRIPTION =
   'Track every UK MP, bill, vote and government department in one place: voting records, spending and Whitehall transparency data, free.';
@@ -53,6 +60,12 @@ export const metadata: Metadata = {
   },
 };
 
+// Days since 1 Jan 1970 (UTC): the homepage's featured pieces rotate on it. A function outside the component, so the
+// render reads the clock through one named call (react-hooks/purity).
+function todayIndex(): number {
+  return Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+}
+
 export default async function HomePage() {
 
   // Investigation pool: all entries where kind is absent (investigations only),
@@ -69,7 +82,7 @@ export default async function HomePage() {
   });
   // All 4 slots rotate daily through the 16 most recent editorials so newer
   // stories cycle through every position rather than locking into place.
-  const dayIndex = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+  const dayIndex = todayIndex();
   const featuredPool = investigations.slice(0, Math.min(16, investigations.length));
   const shuffled = [...featuredPool];
   let rngSeed = dayIndex;
@@ -215,43 +228,43 @@ export default async function HomePage() {
             <div className="og-rail">
               {/* "If an Election Were Held Now" reader card removed 17 Oct 2026 (owner's decision): its
                   total was a launch seed of 4,106 votes plus 1 real reader vote. */}
-              <a className="og-block og-card" href="/bills">
+              <Link className="og-block og-card" href="/bills">
                 <div className="og-kicker" style={{ color: 'var(--ink-soft)', letterSpacing: '0.18em' }}>From the House this week</div>
                 <div className="og-head">Every bill. Every vote. Every law.</div>
                 <p>Follow what Parliament is doing right now, in plain English, then cast your own vote on every bill. <span className="og-cta" style={{ whiteSpace: 'nowrap' }}>Vote now &rarr;</span></p>
-              </a>
+              </Link>
 
-              <a className="og-block og-brief" href={`/editorials/${slot3.slug}`}>
+              <Link className="og-block og-brief" href={`/editorials/${slot3.slug}`}>
                 <div className="og-head">{slot3.headline}</div>
                 <div style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{readingLabel(slot3)}</div>
                 <p>{listSummary(slot3)}</p>
                 <ContinueToArticle />
-              </a>
+              </Link>
 
-              <a className="og-block og-brief" href={`/editorials/${slot4.slug}`}>
+              <Link className="og-block og-brief" href={`/editorials/${slot4.slug}`}>
                 <div className="og-head">{slot4.headline}</div>
                 <div style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{readingLabel(slot4)}</div>
                 <p>{listSummary(slot4)}</p>
                 <ContinueToArticle />
-              </a>
+              </Link>
 
-              <a className="og-block og-card" href="/expenses">
+              <Link className="og-block og-card" href="/expenses">
                 <div className="og-head">The biggest expenses bill</div>
                 <p>The ten biggest claimants ran up the largest bills in {expensesYear}. See which MPs spent the most and on what.</p>
                 <div className="og-cta">See the full top ten &rarr;</div>
-              </a>
+              </Link>
 
-              <a className="og-block og-card" href="/parties">
+              <Link className="og-block og-card" href="/parties">
                 <div className="og-head">Every manifesto. Every shift.</div>
                 <p>What each of the fifteen UK parties told voters in 2024, what they have done since, and where the gap is widest.</p>
                 <div className="og-cta">Read the dossiers &rarr;</div>
-              </a>
+              </Link>
 
-              <a className="og-block og-card" href="/departments">
+              <Link className="og-block og-card" href="/departments">
                 <div className="og-head">Who runs Whitehall</div>
                 <p>All {departments.length} ministerial departments assessed against the public record of what they were set up to do.</p>
                 <div className="og-cta">See the departments &rarr;</div>
-              </a>
+              </Link>
 
               <a className="og-block og-card" href="/this-week">
                 <div className="og-head">This week in Parliament</div>

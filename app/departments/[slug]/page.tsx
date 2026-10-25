@@ -40,6 +40,12 @@ export function generateStaticParams() {
 // ISR — refresh prerendered HTML hourly so any backend changes
 // (dept_ministers, dept_agencies, etc.) propagate without a deploy.
 export const revalidate = 3600;
+// Database reads on this page go through Next's data cache (25 Oct 2026, report 43). Every deploy empties the page
+// cache, so the first visit after each deploy rendered the page from scratch; Supabase reads were never cached (754,130
+// reads in 48 h, none from the cache). With this line they are kept for the page's revalidate period, and that cache
+// survives deploys, so those renders read from it instead of the database. A stale entry is read again before the page
+// is stored, so the page is never older than its revalidate period; revalidatePath and revalidateTag still refresh it.
+export const fetchCache = 'default-cache';
 
 export default async function DepartmentPage({ params }: PageProps) {
   const { slug } = await params;

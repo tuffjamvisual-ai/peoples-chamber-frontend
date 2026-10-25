@@ -12,8 +12,9 @@ export const metadata: Metadata = {
   alternates: { canonical: '/departments' },
 };
 
-// Render on demand, then cache at the edge for 1 hour via revalidate.
-export const dynamic = 'force-dynamic'
+// Cached and rebuilt at most hourly (25 Oct 2026, report 43). It used to be force-dynamic, which ignores revalidate and
+// rendered the page for every visitor; the build-time database pressure that prompted that has gone (the build now
+// uses 2 workers and the page's reads take well under a second).
 export const revalidate = 3600;
 
 const ink = '#14100d';

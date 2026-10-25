@@ -17,10 +17,8 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-// Render on demand. See app/departments/page.tsx for rationale —
-// Vercel's 3-worker build saturates Supabase when this, /departments,
-// and /earnings all prerender concurrently.
-export const dynamic = 'force-dynamic'
+// Cached and rebuilt at most hourly (25 Oct 2026, report 43); it used to be force-dynamic, rendered for every visitor.
+// See app/departments/page.tsx.
 export const revalidate = 3600;
 
 

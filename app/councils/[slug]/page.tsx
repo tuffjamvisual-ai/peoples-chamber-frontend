@@ -33,6 +33,12 @@ import { loadElectionSummary } from '@/lib/council-election-summary';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 
 export const revalidate = 21600;
+// Database reads on this page go through Next's data cache (25 Oct 2026, report 43). Every deploy empties the page
+// cache, so the first visit after each deploy rendered the page from scratch; Supabase reads were never cached (754,130
+// reads in 48 h, none from the cache). With this line they are kept for the page's revalidate period, and that cache
+// survives deploys, so those renders read from it instead of the database. A stale entry is read again before the page
+// is stored, so the page is never older than its revalidate period; revalidatePath and revalidateTag still refresh it.
+export const fetchCache = 'default-cache';
 
 // No council pages are built ahead (owner's approval, 21 Oct 2026: build reliability; each makes about 45 reads).
 // generateStaticParams returning [] keeps the route cached: each council renders on its first visit and is kept for
@@ -206,7 +212,12 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
   // counties) in a single round-trip — the parent_slug column makes
   // the relationship explicit. Counties have null parent_slug; child
   // districts are read by querying parent_slug = this slug.
-  const [{ data: parentRow, error: parentRowErr }, { data: childRows, error: childRowsErr }, { data: compRow, error: compRowErr }] = await Promise.all([
+  // These reads all depend only on the council row, so they run together (25 Oct 2026, report 43): one after another
+  // they took about 0.5 s of every render. Public health and service spending are explained further down.
+  const [
+    { data: parentRow, error: parentRowErr }, { data: childRows, error: childRowsErr }, { data: compRow, error: compRowErr },
+    electionSummary, councilTax, { data: publicHealthRows }, { data: serviceSpendingRows, error: serviceSpendingRowsErr },
+  ] = await Promise.all([
     c.parent_slug
       ? supabase.from('councils').select('slug, name, short_name, political_control').eq('slug', c.parent_slug).single()
       : Promise.resolve({ data: null, error: null }),
@@ -214,13 +225,17 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
       ? supabase.from('councils').select('slug, name, short_name, political_control, gss_code').eq('parent_slug', c.slug).order('name')
       : Promise.resolve({ data: [], error: null }),
     supabase.from('council_composition').select('snapshot_year, total_seats, seats, majority_party, administration_code').eq('council_slug', c.slug).limit(1).maybeSingle(),
+    // A failed read throws, so the last good page stays up (owner's approval, 21 Oct 2026); no data is null.
+    loadElectionSummary(c.gss_code),
+    loadCouncilTax(c.gss_code),
+    c.type !== 'county'
+      ? supabase.from('council_public_health_metrics').select('metric_key, value, unit, source, nation, period_label').eq('council_gss_code', c.gss_code)
+      : Promise.resolve({ data: [] }),
+    supabase.from('council_service_spending').select('service_category, value_pounds, source, period_label').eq('council_gss_code', c.gss_code),
   ]);
   // A failed read throws (owner's approval, 21 Oct 2026), so the last good version stays up.
   for (const e of [parentRowErr, childRowsErr, compRowErr]) if (e && e.code !== 'PGRST116') throw new Error(`/councils/[slug] (councils, council_composition): ${e.message}`);
   const comp = (compRow as CouncilComposition | null) || null;
-  // A failed read throws, so the last good page stays up (owner's approval, 21 Oct 2026); no data is null.
-  const electionSummary = await loadElectionSummary(c.gss_code);
-  const councilTax = await loadCouncilTax(c.gss_code);
   const parent: RelatedCouncil | null = (parentRow as RelatedCouncil | null) || null;
   const children: RelatedCouncil[] = (childRows || []) as RelatedCouncil[];
 
@@ -248,13 +263,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
   // counties have no row of their own in council_public_health_metrics
   // (every source publishes at district/unitary/council level, not
   // county level), so this section is skipped for them too, same
-  // drill-down-via-districts reasoning as welfare above.
-  const { data: publicHealthRows } = c.type !== 'county'
-    ? await supabase
-        .from('council_public_health_metrics')
-        .select('metric_key, value, unit, source, nation, period_label')
-        .eq('council_gss_code', c.gss_code)
-    : { data: [] };
+  // drill-down-via-districts reasoning as welfare above. (Read with the others above.)
   const publicHealthByKey = new Map(
     ((publicHealthRows || []) as PublicHealthMetricRow[]).map((r) => [r.metric_key, r]),
   );
@@ -266,11 +275,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
   // two-tier area), so no county exclusion is applied. Northern Ireland
   // councils get zero rows by design — confirmed via the NI Audit
   // Office's own report that no comparable breakdown is published for
-  // NI — and the section simply doesn't render for them.
-  const { data: serviceSpendingRows, error: serviceSpendingRowsErr } = await supabase
-    .from('council_service_spending')
-    .select('service_category, value_pounds, source, period_label')
-    .eq('council_gss_code', c.gss_code);
+  // NI — and the section simply doesn't render for them. (Read with the others above.)
   if (serviceSpendingRowsErr && serviceSpendingRowsErr.code !== 'PGRST116') throw new Error(`/councils/[slug] council_service_spending: ${serviceSpendingRowsErr.message}`);
   const allSpendingRows = (serviceSpendingRows || []) as ServiceSpendingRow[];
   const aggregateCategory = SERVICE_SPENDING_AGGREGATE_CATEGORY[c.country];

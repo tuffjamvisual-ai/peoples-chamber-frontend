@@ -12,6 +12,12 @@ export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 export const revalidate = 86400;
 
+// Built at build time for every investigation (25 Oct 2026, report 43). Without this list the image route was dynamic
+// and drew the image again on every request (p95 1.2 s).
+export function generateStaticParams() {
+  return Object.entries(editorials).filter(([, p]) => p.kind !== 'briefing').map(([slug]) => ({ slug }));
+}
+
 const INK = '#14100d';
 const CREAM = '#f4e8d4';
 const ACCENT = '#7a1612';

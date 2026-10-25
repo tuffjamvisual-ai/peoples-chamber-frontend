@@ -47,9 +47,12 @@ function divisionsFrom(): string {
 
 async function getCommonsBills() {
   try {
-    const res = await fetch('https://bills-api.parliament.uk/api/v1/Bills?SortOrder=DateUpdatedDescending', { next: { revalidate: 600 } })
+    // Kept for an hour (25 Oct 2026, report 43): this list answers slowly whenever Parliament's own cache is cold (p50
+    // 7.4 s, p95 27 s from Vercel), and at 10 minutes nearly every rebuild of this page waited for it. The page still
+    // rebuilds every 10 minutes, with the divisions below as fresh as before.
+    const res = await fetch('https://bills-api.parliament.uk/api/v1/Bills?SortOrder=DateUpdatedDescending', { next: { revalidate: 3600 } })
     if (!res.ok) return [] as BillItem[]
-    const j = await jsonWithoutEmDashes<any>(res)
+    const j = await jsonWithoutEmDashes<{ items?: BillItem[] }>(res)
     const items: BillItem[] = (j.items || []).filter((b: BillItem) => !b.isAct && !b.billWithdrawn)
     const { start, end } = weekRange()
     // Bills with a COMMONS stage sitting from today to six days ahead.

@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, cache } from 'react';
 import ReadNext from '../../components/ReadNext';
 import { debateReadNext } from '@/lib/read-next';
 import type { Metadata } from 'next';
@@ -52,9 +52,22 @@ type Debate = {
   ChildDebates?: Debate[] | null;
 };
 
+// This debate's row in our debates table (its sitting date and the divisions held in it), read once per render.
+// The table keeps Hansard's own case, which is lower for some debates, while the address is always upper case.
+const debateRow = cache(async (guid: string): Promise<{ sitting_date: string | null; division_ids: unknown } | null> => {
+  const { data, error } = await supabase.from('debates').select('sitting_date, division_ids').in('hansard_ext_id', [guid, guid.toLowerCase()]).maybeSingle();
+  if (error) throw new Error(`debate ${guid} divisions: ${error.message}`);
+  return data;
+});
+
+// A Hansard record does not change once the sitting is a fortnight old, so its transcript is kept for 30 days instead
+// of 1 (25 Oct 2026, report 43): crawlers walk about 11,000 debates, and an uncached Hansard call from Vercel took up
+// to 0.9 s (p95). Recent sittings, and debates not in our table, stay at a day. The page still rebuilds daily.
 async function getDebate(guid: string): Promise<Debate | null> {
+  const sat = (await debateRow(guid))?.sitting_date;
+  const settled = !!sat && Date.now() - Date.parse(sat) > 14 * 24 * 60 * 60 * 1000;
   const res = await fetch(`https://hansard-api.parliament.uk/Debates/Debate/${guid}.json`, {
-    next: { revalidate: 86400 },
+    next: { revalidate: settled ? 30 * 86400 : 86400 },
   });
   // Only Hansard saying the id is unknown (it answers 400 or 404, or 200 with no Overview) makes this a missing
   // debate. Any other failure (5xx, rate limit, network) throws (owner's approval, 21 Oct 2026): it used to return
@@ -203,9 +216,7 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
 
   // Divisions held in this debate, linked to our own division pages (populated
   // and validated by the debates sync, so these never 404).
-  // The table keeps Hansard's own case, which is lower for some debates, while the address is always upper case.
-  const { data: drow, error: drowErr } = await supabase.from('debates').select('division_ids').in('hansard_ext_id', [guid, guid.toLowerCase()]).maybeSingle();
-  if (drowErr) throw new Error(`debate ${guid} divisions: ${drowErr.message}`);
+  const drow = await debateRow(guid);
   const divisionIds: string[] = Array.isArray(drow?.division_ids) ? (drow!.division_ids as string[]) : [];
 
   // Read next (lib/read-next.ts) after the fourth contribution, or after the transcript in a short debate. Only
