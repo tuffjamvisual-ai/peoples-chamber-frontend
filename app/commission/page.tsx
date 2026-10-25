@@ -40,7 +40,11 @@ export default function CommissionPage() {
       {/* The one service card: centred at a readable width on wide screens, the full width on phones. */}
       <style>{`
         .cm-service { max-width: 560px; margin: 0 auto; }
-        @media (max-width: 767px) { .cm-service { max-width: none; } }
+        .cm-centred { max-width: 560px; margin-left: auto; margin-right: auto; text-align: center; }
+        @media (max-width: 767px) {
+          .cm-service { max-width: none; }
+          .cm-centred { max-width: none; text-align: left; }
+        }
       `}</style>
 
       <BackLink
@@ -61,15 +65,15 @@ export default function CommissionPage() {
       </header>
 
       <section aria-label="The service" style={{ marginBottom: '5%' }}>
-        <p style={{ fontSize: '17px', fontWeight: 'bold', lineHeight: 1.6, margin: '0 0 4px' }}>One fee for every request: £295, paid once. No subscriptions, no extras.</p>
-        <p style={{ fontSize: '16px', lineHeight: 1.6, margin: '0 0 18px' }}>Your fee covers research into any public record, including data not yet published on Open Govt.</p>
+        <p className="cm-centred" style={{ fontSize: '17px', fontWeight: 'bold', lineHeight: 1.6, marginTop: 0, marginBottom: '4px' }}>One fee for every request: £295, paid once. No subscriptions, no extras.</p>
+        <p className="cm-centred" style={{ fontSize: '16px', lineHeight: 1.6, marginTop: 0, marginBottom: '18px' }}>Your fee covers research into any public record, including data not yet published on Open Govt.</p>
         <div className="cm-service" style={{ borderTop: `3px solid ${INK}`, borderBottom: `1px solid ${HAIRLINE}`, padding: '16px 0 18px', display: 'flex', flexDirection: 'column' }}>
           <h2 style={{ ...h2, marginBottom: '6px' }}>{SERVICE.name}</h2>
           <p style={{ fontSize: '18px', fontWeight: 'bold', color: ACCENT, margin: '0 0 10px' }}>{SERVICE.price}</p>
           <p style={{ fontSize: '15px', lineHeight: 1.65, margin: '0 0 12px' }}>{SERVICE.body}</p>
           <p style={{ fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.12em', margin: 'auto 0 0', opacity: 0.8 }}>{SERVICE.delivery}</p>
         </div>
-        <p style={{ fontSize: '15px', lineHeight: 1.6, marginTop: '16px' }}>Prices are fixed for the scope agreed in your quote.</p>
+        <p className="cm-centred" style={{ fontSize: '15px', lineHeight: 1.6, marginTop: '16px' }}>Prices are fixed for the scope agreed in your quote.</p>
       </section>
 
       <section aria-labelledby="cm-how" style={{ marginBottom: '5%' }}>
