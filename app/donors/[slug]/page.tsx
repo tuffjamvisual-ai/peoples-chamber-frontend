@@ -137,7 +137,10 @@ type ResolvedDonor = { name: string; names: string[] | null; others: { slug: str
 // search, and that is logged.
 const resolveDonor = cache(async (slug: string): Promise<ResolvedDonor | null> => {
   const entry = (await donorRegistry()).bySlug.get(slug);
-  if (entry) return { name: entry.label, names: entry.names, others: entry.others };
+  // Each stored spelling and its trimmed form (25 Oct 2026, report 41): the registry is kept in memory for a day, so after
+  // a clean up of stored names (report 39 trimmed 13,626) a cached " Christopher Harborne" would otherwise match no
+  // record and the page would 404. A trimmed form has the same letters, so it never belongs to another donor's page.
+  if (entry) return { name: entry.label, names: [...new Set(entry.names.flatMap((n) => [n, n.trim()]))], others: entry.others };
   const name = await findDonorByMatchingSlug(slug);
   if (name) console.warn(`/donors/${slug}: not an exact donor name; found by the word search fallback`);
   return name ? { name, names: null, others: [] } : null;
@@ -300,7 +303,7 @@ export default async function DonorPage({ params }: PageProps) {
     .filter((n) => n);
   const uniqueMpNames = Array.from(new Set(mpRecipientNames));
   type MpRow = { member_id: number; display_name: string | null; name: string | null };
-  let mpByName = new Map<string, MpRow>();
+  const mpByName = new Map<string, MpRow>();
   if (uniqueMpNames.length > 0) {
     // For each unique recipient name, try to find a current MP that matches.
     // We just need first-word + last-word substring match.
@@ -445,7 +448,7 @@ export default async function DonorPage({ params }: PageProps) {
       {contractRecords.length > 0 && (
         <section style={{ marginBottom: '28px', padding: '14px 16px', background: 'rgba(20,16,13,0.04)', borderLeft: `3px solid ${DANGER}` }}>
           <h2 style={{ ...sectionH2, marginTop: 0, marginBottom: '8px' }}>{matchedContracts.length === 0 ? `On ${matchedFrameworks.length} UK public framework${matchedFrameworks.length === 1 ? '' : 's'}` : `Also holds ${matchedContracts.length} UK public contract${matchedContracts.length === 1 ? '' : 's'}`}{matchedContracts.length === 0 ? '' : unpublishedValues === matchedContracts.length ? ' · values not published' : ` · ${fmtMoney(totalContractValue)}${unpublishedValues ? ` (value not published for ${unpublishedValues})` : ''}`}{matchedFrameworks.length && matchedContracts.length ? ` · on ${matchedFrameworks.length} framework${matchedFrameworks.length === 1 ? '' : 's'}` : ''}</h2>
-          <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '12px' }}>This donor name also appears as a supplier on Find a Tender, the government's register of public contracts. The match is an exact name overlap; no causal link is implied between the donations on this page and the contracts below.{matchedContracts.length > 0 ? ' Public bodies awarding the work:' : ''}</p>
+          <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '12px' }}>This donor name also appears as a supplier on Find a Tender, the government&rsquo;s register of public contracts. The match is an exact name overlap; no causal link is implied between the donations on this page and the contracts below.{matchedContracts.length > 0 ? ' Public bodies awarding the work:' : ''}</p>
           {matchedContracts.length > 0 && (
           <table style={{ ...tableStyle, marginBottom: '8px' }}>
             <thead>
