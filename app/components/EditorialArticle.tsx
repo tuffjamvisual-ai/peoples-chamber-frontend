@@ -54,22 +54,22 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
         </figure>
       )}
 
-      <div style={{ fontFamily: '"Special Elite", monospace', width: '100%' }}>
+      <div style={{ fontFamily: 'var(--font-special-elite), monospace', width: '100%' }}>
         <header style={{ borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '24px', marginBottom: '28px' }}>
           <ContentBadge kind={piece.kind} opinion={piece.opinion} />
           {piece.kicker && (
-            <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '14px', color: ACCENT, fontFamily: '"Special Elite", monospace', fontWeight: 'bold' }}>
+            <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '14px', color: ACCENT, fontFamily: 'var(--font-special-elite), monospace', fontWeight: 'bold' }}>
               {piece.kicker}
             </p>
           )}
-          <h1 style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(24px, 3.4vw, 40px)', fontWeight: 'bold', letterSpacing: '0.01em', lineHeight: 1.1, marginBottom: '20px' }}>
+          <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(24px, 3.4vw, 40px)', fontWeight: 'bold', letterSpacing: '0.01em', lineHeight: 1.1, marginBottom: '20px' }}>
             {piece.headline}
           </h1>
-          <div style={{ marginTop: '20px', fontSize: '15px', color: INK_SOFT, fontFamily: '"Special Elite", monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+          <div style={{ marginTop: '20px', fontSize: '15px', color: INK_SOFT, fontFamily: 'var(--font-special-elite), monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
             By {piece.authorByline}
           </div>
           {piece.publishedAt && (
-            <div style={{ marginTop: '8px', fontSize: '15px', color: INK_SOFT, fontFamily: '"Special Elite", monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+            <div style={{ marginTop: '8px', fontSize: '15px', color: INK_SOFT, fontFamily: 'var(--font-special-elite), monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
               {new Date(piece.publishedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} · {readingLabel(piece)}
             </div>
           )}
@@ -83,7 +83,7 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
           )}
         </header>
 
-        <article style={{ fontFamily: '"Special Elite", monospace', fontSize: '16px', lineHeight: 1.75, color: INK }}>
+        <article style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '16px', lineHeight: 1.75, color: INK }}>
           {piece.body.map((block, i) => (
             <Fragment key={`b${i}`}>
               {renderBlock(block, i)}
@@ -143,13 +143,13 @@ function renderBlock(block: Block, i: number): React.ReactNode {
     case 'heading': {
       if (block.level === 2) {
         return (
-          <h2 key={i} style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(24px, 3vw, 34px)', fontWeight: 'bold', letterSpacing: '0.01em', marginTop: '36px', marginBottom: '16px', borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '8px' }}>
+          <h2 key={i} style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(24px, 3vw, 34px)', fontWeight: 'bold', letterSpacing: '0.01em', marginTop: '36px', marginBottom: '16px', borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '8px' }}>
             {block.text}
           </h2>
         );
       }
       const h3 = (
-        <h3 key={`${i}-h`} style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(20px, 2.2vw, 26px)', fontWeight: 'bold', marginTop: block.photo ? '4px' : '28px', marginBottom: '12px' }}>
+        <h3 key={`${i}-h`} style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(20px, 2.2vw, 26px)', fontWeight: 'bold', marginTop: block.photo ? '4px' : '28px', marginBottom: '12px' }}>
           {block.text}
         </h3>
       );
@@ -177,13 +177,13 @@ function renderBlock(block: Block, i: number): React.ReactNode {
     }
     case 'bioLine':
       return (
-        <p key={i} style={{ fontFamily: '"Special Elite", monospace', fontSize: '15px', color: ACCENT, fontWeight: 'bold', letterSpacing: '0.02em', lineHeight: 1.5, marginTop: '-6px', marginBottom: '18px' }}>
+        <p key={i} style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: ACCENT, fontWeight: 'bold', letterSpacing: '0.02em', lineHeight: 1.5, marginTop: '-6px', marginBottom: '18px' }}>
           {block.text}
         </p>
       );
     case 'pullQuote':
       return (
-        <blockquote key={i} style={{ borderLeft: `4px solid ${ACCENT}`, margin: '28px 0', padding: '8px 0 8px 22px', fontFamily: '"Special Elite", monospace', fontSize: 'clamp(20px, 2.2vw, 26px)', fontStyle: 'italic', lineHeight: 1.45, color: INK }}>
+        <blockquote key={i} style={{ borderLeft: `4px solid ${ACCENT}`, margin: '28px 0', padding: '8px 0 8px 22px', fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(20px, 2.2vw, 26px)', fontStyle: 'italic', lineHeight: 1.45, color: INK }}>
           {block.text}
         </blockquote>
       );
@@ -195,7 +195,7 @@ function renderBlock(block: Block, i: number): React.ReactNode {
     case 'cta':
       return (
         <p key={i} style={{ margin: '36px 0 8px', paddingTop: '22px', borderTop: `1px solid ${HAIRLINE}` }}>
-          <Link href={block.href} style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(15px, 1.7vw, 19px)', fontWeight: 'bold', color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '4px', letterSpacing: '0.02em' }}>
+          <Link href={block.href} style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(15px, 1.7vw, 19px)', fontWeight: 'bold', color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '4px', letterSpacing: '0.02em' }}>
             {block.text}
           </Link>
         </p>
@@ -204,16 +204,16 @@ function renderBlock(block: Block, i: number): React.ReactNode {
       return (
         <section key={i} style={{ marginTop: '40px', marginBottom: '32px', paddingBottom: '24px', borderBottom: `1px solid ${HAIRLINE}` }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '14px', marginBottom: '10px' }}>
-            <span style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(36px, 4vw, 54px)', fontWeight: 'bold', color: ACCENT, lineHeight: 1 }}>{block.rank}</span>
-            <h3 style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(20px, 2.4vw, 28px)', fontWeight: 'bold', letterSpacing: '0.04em', textTransform: 'uppercase', lineHeight: 1.15, margin: 0 }}>
+            <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(36px, 4vw, 54px)', fontWeight: 'bold', color: ACCENT, lineHeight: 1 }}>{block.rank}</span>
+            <h3 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(20px, 2.4vw, 28px)', fontWeight: 'bold', letterSpacing: '0.04em', textTransform: 'uppercase', lineHeight: 1.15, margin: 0 }}>
               {block.councilSlug ? (
                 <Link href={`/councils/${block.councilSlug}`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '4px' }}>{block.name}</Link>
               ) : block.name}
             </h3>
           </div>
-          <p style={{ fontFamily: '"Special Elite", monospace', fontSize: '15px', color: ACCENT, marginBottom: '18px', letterSpacing: '0.02em', fontWeight: 'bold' }}>{block.topLine}</p>
+          <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: ACCENT, marginBottom: '18px', letterSpacing: '0.02em', fontWeight: 'bold' }}>{block.topLine}</p>
           {block.paragraphs.map((para, j) => (<p key={j} style={{ marginBottom: '18px' }}>{withLinks(para)}</p>))}
-          <p style={{ marginTop: '18px', padding: '2px 0 2px 14px', borderLeft: `3px solid ${ACCENT}`, fontFamily: '"Special Elite", monospace', fontSize: '15px', fontWeight: 'bold' }}>
+          <p style={{ marginTop: '18px', padding: '2px 0 2px 14px', borderLeft: `3px solid ${ACCENT}`, fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', fontWeight: 'bold' }}>
             <span style={{ color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.1em', marginRight: '6px' }}>Verdict:</span>
             {block.verdict}
           </p>
@@ -223,19 +223,19 @@ function renderBlock(block: Block, i: number): React.ReactNode {
       return (
         <section key={i} style={{ marginTop: '40px', marginBottom: '32px', paddingBottom: '24px', borderBottom: `1px solid ${HAIRLINE}` }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '14px', marginBottom: '10px', flexWrap: 'wrap' }}>
-            <span style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(36px, 4vw, 54px)', fontWeight: 'bold', color: ACCENT, lineHeight: 1 }}>{block.rank}</span>
-            <h3 style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(20px, 2.4vw, 28px)', fontWeight: 'bold', letterSpacing: '0.04em', textTransform: 'uppercase', lineHeight: 1.15, margin: 0 }}>
+            <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(36px, 4vw, 54px)', fontWeight: 'bold', color: ACCENT, lineHeight: 1 }}>{block.rank}</span>
+            <h3 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(20px, 2.4vw, 28px)', fontWeight: 'bold', letterSpacing: '0.04em', textTransform: 'uppercase', lineHeight: 1.15, margin: 0 }}>
               {block.memberId ? (
                 <Link href={`/mps/${block.memberId}`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '4px' }}>{block.name}</Link>
               ) : block.name}
             </h3>
             {block.party && (
-              <span style={{ fontFamily: '"Special Elite", monospace', fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, padding: '3px 8px', border: `1px solid ${HAIRLINE}` }}>{block.party}</span>
+              <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, padding: '3px 8px', border: `1px solid ${HAIRLINE}` }}>{block.party}</span>
             )}
           </div>
-          <p style={{ fontFamily: '"Special Elite", monospace', fontSize: '15px', color: ACCENT, marginBottom: '18px', letterSpacing: '0.02em', fontWeight: 'bold' }}>{block.topLine}</p>
+          <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: ACCENT, marginBottom: '18px', letterSpacing: '0.02em', fontWeight: 'bold' }}>{block.topLine}</p>
           {block.paragraphs.map((para, j) => (<p key={j} style={{ marginBottom: '18px' }}>{withLinks(para)}</p>))}
-          <p style={{ marginTop: '18px', padding: '2px 0 2px 14px', borderLeft: `3px solid ${ACCENT}`, fontFamily: '"Special Elite", monospace', fontSize: '15px', fontWeight: 'bold' }}>
+          <p style={{ marginTop: '18px', padding: '2px 0 2px 14px', borderLeft: `3px solid ${ACCENT}`, fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', fontWeight: 'bold' }}>
             <span style={{ color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.1em', marginRight: '6px' }}>Verdict:</span>
             {block.verdict}
           </p>

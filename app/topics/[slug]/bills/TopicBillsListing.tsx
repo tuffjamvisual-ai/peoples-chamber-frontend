@@ -10,7 +10,7 @@ export const TOPIC_BILLS_PER_PAGE = 20;
 const INK = '#14100d';
 const ACCENT = '#7a1612';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
-const MONO = 'Special Elite, monospace';
+const MONO = 'var(--font-special-elite), monospace';
 const link: React.CSSProperties = { color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' };
 
 function fmtDate(d: string) {

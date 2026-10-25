@@ -38,7 +38,7 @@ const INK = '#14100d';
 const INK_SOFT = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.25)';
 const CREAM = '#f4e8d4';
-const MONO = 'Special Elite, monospace';
+const MONO = 'var(--font-special-elite), monospace';
 
 // Build the list of page-number tokens with ellipsis truncation.
 // Always include: first, last, current, current-1, current-2,

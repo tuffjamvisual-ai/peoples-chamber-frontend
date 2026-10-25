@@ -14,7 +14,7 @@ import { supabaseAdminRead as supabaseAdmin } from '@/lib/supabase-admin';
 export const dynamic = 'force-dynamic';
 
 const INK = '#14100d';
-const MONO = '"Special Elite", monospace';
+const MONO = 'var(--font-special-elite), monospace';
 
 async function getDbBriefing(slug: string): Promise<{ headline: string; sources: string[] } | null> {
   const { data, error } = await supabaseAdmin.from('briefings').select('headline, sources').eq('slug', slug).maybeSingle();

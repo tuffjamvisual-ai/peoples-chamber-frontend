@@ -9,7 +9,7 @@ type Result = { client: string; firms: { firm: string; quarters: string[] }[] };
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
-const FONT = 'Special Elite, monospace';
+const FONT = 'var(--font-special-elite), monospace';
 
 export default function ClientSearch() {
   const [q, setQ] = useState('');

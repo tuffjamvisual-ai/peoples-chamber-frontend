@@ -17,7 +17,7 @@ const mPageBtn = (disabled: boolean): CSSProperties => ({
   color: INK,
   border: `1px solid ${INK}`,
   borderRadius: 0,
-  fontFamily: 'Special Elite, monospace',
+  fontFamily: 'var(--font-special-elite), monospace',
   fontSize: '15px',
   cursor: disabled ? 'default' : 'pointer',
   opacity: disabled ? 0.3 : 1,
@@ -189,7 +189,7 @@ export default function BillsGridMobile({ initialBills, currentPage, totalPages,
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="max-w-xl mx-auto block w-full"
-          style={{ padding: '10px 14px', background: 'rgba(20,16,13,0.05)', color: INK, border: `1px solid ${INK_HAIRLINE}`, borderRadius: 0, fontFamily: 'Special Elite, monospace', fontSize: '15px', outline: 'none' }}
+          style={{ padding: '10px 14px', background: 'rgba(20,16,13,0.05)', color: INK, border: `1px solid ${INK_HAIRLINE}`, borderRadius: 0, fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', outline: 'none' }}
         />
       </div>
 
@@ -202,7 +202,7 @@ export default function BillsGridMobile({ initialBills, currentPage, totalPages,
               style={{
                 padding: '12px 14px',
                 whiteSpace: 'nowrap',
-                fontFamily: 'Special Elite, monospace',
+                fontFamily: 'var(--font-special-elite), monospace',
                 fontSize: '15px',
                 textTransform: 'uppercase',
                 letterSpacing: '0.1em',
@@ -219,7 +219,7 @@ export default function BillsGridMobile({ initialBills, currentPage, totalPages,
       </div>
 
       <div className="px-4 pt-4">
-        <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', color: '#14100d', opacity: 0.7, marginBottom: '16px' }}>
+        <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', color: '#14100d', opacity: 0.7, marginBottom: '16px' }}>
         {searching
           ? 'Searching…'
           : searchResults
@@ -242,7 +242,7 @@ export default function BillsGridMobile({ initialBills, currentPage, totalPages,
 
       {filteredBills.length === 0 && (
         <div className="text-center py-12">
-          <p style={{ color: '#14100d', fontFamily: 'Special Elite, monospace' }}>
+          <p style={{ color: '#14100d', fontFamily: 'var(--font-special-elite), monospace' }}>
             {searching ? 'Searching…' : searchResults ? `No bills match "${searchTerm.trim()}".` : 'No active bills found.'}
           </p>
         </div>

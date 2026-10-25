@@ -117,7 +117,7 @@ function ChalkButton({
         background: 'transparent',
         border: 'none',
         color: CHALK_TEXT,
-        fontFamily: 'Special Elite, monospace',
+        fontFamily: 'var(--font-special-elite), monospace',
         fontSize: '17px',
         fontWeight: 'bold',
         textTransform: 'uppercase',
@@ -178,7 +178,7 @@ export default function ChalkboardBillCard({ bill, userVote, onClick, onVote }: 
         backgroundImage: PAPER_GRAIN,
         padding: '18px',
         cursor: 'pointer',
-        fontFamily: 'Special Elite, monospace',
+        fontFamily: 'var(--font-special-elite), monospace',
         boxShadow: '0 3px 8px rgba(0,0,0,0.18)',
       }}
       className="no-hover-scale"

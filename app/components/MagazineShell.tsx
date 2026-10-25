@@ -63,7 +63,7 @@ export default function MagazineShell({
           position: 'relative',
           zIndex: 2,
           color: '#14100d',
-          fontFamily: 'Special Elite, monospace',
+          fontFamily: 'var(--font-special-elite), monospace',
           ...contentStyle,
         }}
       >

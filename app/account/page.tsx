@@ -10,7 +10,7 @@ const ACCENT = '#7a1612'
 const SUCCESS = '#4e6b34'
 const DANGER = '#8a2f20'
 const HAIRLINE = 'rgba(20,16,13,0.25)'
-const MONO = 'Special Elite, monospace'
+const MONO = 'var(--font-special-elite), monospace'
 
 type BillVote = { id: number; title: string; choice: string; created_at: string | null; linkable?: boolean }
 type PollVote = { id: number; question: string; tag: string | null; choice: string; created_at: string | null }

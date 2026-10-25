@@ -183,7 +183,7 @@ export default function PollsClient() {
             color: INK,
             border: `1px solid ${INK_HAIRLINE}`,
             borderRadius: 0,
-            fontFamily: 'Special Elite, monospace',
+            fontFamily: 'var(--font-special-elite), monospace',
             fontSize: '15px',
             outline: 'none',
           }}
@@ -197,7 +197,7 @@ export default function PollsClient() {
             color: INK,
             border: `1px solid ${INK_HAIRLINE}`,
             borderRadius: 0,
-            fontFamily: 'Special Elite, monospace',
+            fontFamily: 'var(--font-special-elite), monospace',
             fontSize: '15px',
             outline: 'none',
             cursor: 'pointer',
@@ -298,7 +298,7 @@ function PollCard({
           padding: '14px 0',
         }}
       >
-        <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'Special Elite, monospace', fontSize: '15px', letterSpacing: '0.06em', color: ACCENT, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+        <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.06em', color: ACCENT, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
           No. {String(poll.id).padStart(4, '0')}
         </span>
       </div>
@@ -306,12 +306,12 @@ function PollCard({
       {/* Main ballot */}
       <div style={{ flex: 1, minWidth: 0, padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: '11px' }}>
         {poll.constituency && (
-          <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '8px' }}>
+          <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '8px' }}>
             {poll.constituency}
           </div>
         )}
 
-        <h3 style={{ fontFamily: 'Special Elite, monospace', fontSize: '18px', fontWeight: 'bold', lineHeight: 1.3, letterSpacing: '-0.01em', margin: 0 }}>
+        <h3 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '18px', fontWeight: 'bold', lineHeight: 1.3, letterSpacing: '-0.01em', margin: 0 }}>
           {poll.question}
         </h3>
 
@@ -335,7 +335,7 @@ function PollCard({
           </p>
         ) : null}
 
-        <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', fontStyle: 'italic', color: INK_SOFT, letterSpacing: '0.03em', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '9px' }}>
+        <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', fontStyle: 'italic', color: INK_SOFT, letterSpacing: '0.03em', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '9px' }}>
           Mark one box with a cross.
         </div>
 
@@ -346,15 +346,15 @@ function PollCard({
 
         <div style={{ borderTop: `1px solid ${INK}`, paddingTop: '9px', marginTop: 'auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px' }}>
-            <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', letterSpacing: '0.2em', textTransform: 'uppercase', color: INK_SOFT }}>The count so far</span>
-            <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', letterSpacing: '0.08em', color: INK_SOFT }}>{total.toLocaleString()} votes</span>
+            <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.2em', textTransform: 'uppercase', color: INK_SOFT }}>The count so far</span>
+            <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.08em', color: INK_SOFT }}>{total.toLocaleString()} votes</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '5px' }}>
-            <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '20px', fontWeight: 'bold', color: SUCCESS, lineHeight: 1 }}>
-              {yesPercent}%<span style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', color: INK_SOFT, letterSpacing: '0.12em', marginLeft: '4px' }}>AYE</span>
+            <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '20px', fontWeight: 'bold', color: SUCCESS, lineHeight: 1 }}>
+              {yesPercent}%<span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: INK_SOFT, letterSpacing: '0.12em', marginLeft: '4px' }}>AYE</span>
             </span>
-            <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '20px', fontWeight: 'bold', color: DANGER, lineHeight: 1 }}>
-              <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', color: INK_SOFT, letterSpacing: '0.12em', marginRight: '4px' }}>NO</span>{noPercent}%
+            <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '20px', fontWeight: 'bold', color: DANGER, lineHeight: 1 }}>
+              <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: INK_SOFT, letterSpacing: '0.12em', marginRight: '4px' }}>NO</span>{noPercent}%
             </span>
           </div>
           <div style={{ display: 'flex', height: '10px', background: CREAM_DEEP, border: `1px solid ${INK_HAIRLINE}`, overflow: 'hidden' }} aria-hidden>
@@ -376,7 +376,7 @@ function PollCard({
             border: `3px double ${ACCENT}`,
             padding: '2px 9px',
             color: ACCENT,
-            fontFamily: 'Special Elite, monospace',
+            fontFamily: 'var(--font-special-elite), monospace',
             fontSize: '15px',
             fontWeight: 'bold',
             letterSpacing: '0.18em',
@@ -420,7 +420,7 @@ function BallotRow({
         textAlign: 'left',
       }}
     >
-      <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '17px', fontWeight: 'bold', color: INK, minWidth: '52px' }}>{label}</span>
+      <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '17px', fontWeight: 'bold', color: INK, minWidth: '52px' }}>{label}</span>
       <span aria-hidden style={{ flex: 1, borderBottom: `1px dotted ${INK_HAIRLINE}`, alignSelf: 'flex-end', marginBottom: '7px' }} />
       <span
         style={{
@@ -509,16 +509,16 @@ function VIBallotCard({ tilt }: { tilt: number }) {
   return (
     <div id="poll-73" style={{ scrollMarginTop: '90px', position: 'relative', background: 'transparent', color: INK, border: `3px double ${INK}`, boxShadow: '2px 3px 6px rgba(20,16,13,0.14)', transform: `rotate(${tilt}deg)`, display: 'flex', overflow: 'hidden' }}>
       <div style={{ flexShrink: 0, width: '34px', borderRight: '2px dashed rgba(20,16,13,0.4)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '14px 0' }}>
-        <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'Special Elite, monospace', fontSize: '15px', letterSpacing: '0.06em', color: ACCENT, fontWeight: 'bold', whiteSpace: 'nowrap' }}>No. 0073</span>
+        <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.06em', color: ACCENT, fontWeight: 'bold', whiteSpace: 'nowrap' }}>No. 0073</span>
       </div>
       <div style={{ flex: 1, minWidth: 0, padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: '11px' }}>
-        <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '8px' }}>
+        <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '8px' }}>
           Voting intention
         </div>
-        <h3 style={{ fontFamily: 'Special Elite, monospace', fontSize: '18px', fontWeight: 'bold', lineHeight: 1.3, letterSpacing: '-0.01em', margin: 0 }}>
+        <h3 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '18px', fontWeight: 'bold', lineHeight: 1.3, letterSpacing: '-0.01em', margin: 0 }}>
           If a general election were held tomorrow, how would you vote?
         </h3>
-        <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', fontStyle: 'italic', color: INK_SOFT, letterSpacing: '0.03em', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '9px' }}>
+        <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', fontStyle: 'italic', color: INK_SOFT, letterSpacing: '0.03em', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '9px' }}>
           Mark one box with a cross. You can change it any time.
         </div>
         <div>
@@ -526,9 +526,9 @@ function VIBallotCard({ tilt }: { tilt: number }) {
             <button key={p.key} onClick={() => cast(p.key)} disabled={busy}
               style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', background: 'transparent', border: 'none', padding: '6px 0', cursor: 'pointer', textAlign: 'left' }}>
               <span aria-hidden style={{ width: '11px', height: '11px', borderRadius: '2px', background: p.colour, flexShrink: 0 }} />
-              <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '16px', fontWeight: 'bold', color: INK }}>{p.label}</span>
+              <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '16px', fontWeight: 'bold', color: INK }}>{p.label}</span>
               <span aria-hidden style={{ flex: 1, borderBottom: `1px dotted ${INK_HAIRLINE}`, alignSelf: 'flex-end', marginBottom: '6px' }} />
-              <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', color: INK_SOFT, fontVariantNumeric: 'tabular-nums', minWidth: '38px', textAlign: 'right' }}>{pct(p.key)}%</span>
+              <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: INK_SOFT, fontVariantNumeric: 'tabular-nums', minWidth: '38px', textAlign: 'right' }}>{pct(p.key)}%</span>
               <span style={{ width: '26px', height: '26px', border: `1.5px solid ${INK}`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', fontWeight: 'bold', lineHeight: 1, color: ACCENT, flexShrink: 0 }}>
                 {userVote === p.key ? '✗' : ''}
               </span>
@@ -537,30 +537,30 @@ function VIBallotCard({ tilt }: { tilt: number }) {
           {otherOpen && (
             <div style={{ display: 'flex', gap: '8px', margin: '6px 0 0' }}>
               <input type="text" value={otherText} onChange={(e) => setOtherText(e.target.value)} maxLength={60} placeholder="Which party?"
-                style={{ flex: 1, fontFamily: 'Special Elite, monospace', fontSize: '15px', color: INK, padding: '6px 9px', border: `1px solid ${INK_HAIRLINE}`, background: '#fff' }} />
+                style={{ flex: 1, fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: INK, padding: '6px 9px', border: `1px solid ${INK_HAIRLINE}`, background: '#fff' }} />
               <button onClick={() => cast('another', otherText)} disabled={busy}
-                style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', color: '#f4e8d4', background: INK, border: `1px solid ${INK}`, padding: '6px 12px', cursor: 'pointer' }}>Vote</button>
+                style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: '#f4e8d4', background: INK, border: `1px solid ${INK}`, padding: '6px 12px', cursor: 'pointer' }}>Vote</button>
             </div>
           )}
         </div>
-        {err && <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', color: DANGER, margin: 0 }}>{err}</p>}
+        {err && <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: DANGER, margin: 0 }}>{err}</p>}
         <div style={{ borderTop: `1px solid ${INK}`, paddingTop: '9px', marginTop: 'auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', letterSpacing: '0.2em', textTransform: 'uppercase', color: INK_SOFT }}>The count so far</span>
-            <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', letterSpacing: '0.08em', color: INK_SOFT }}>{total.toLocaleString()} votes</span>
+            <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.2em', textTransform: 'uppercase', color: INK_SOFT }}>The count so far</span>
+            <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.08em', color: INK_SOFT }}>{total.toLocaleString()} votes</span>
           </div>
           {voted && (
-            <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', color: INK_SOFT, margin: '6px 0 0' }}>
+            <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: INK_SOFT, margin: '6px 0 0' }}>
               You last voted {currentLabel}{votedAt ? ` on ${fmtVIDate(votedAt)}` : ''}.
             </p>
           )}
           {!user && (
-            <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', color: INK_SOFT, margin: '6px 0 0' }}>Log in to cast your vote.</p>
+            <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: INK_SOFT, margin: '6px 0 0' }}>Log in to cast your vote.</p>
           )}
         </div>
       </div>
       {voted && (
-        <div aria-hidden style={{ position: 'absolute', top: '12px', right: '12px', transform: 'rotate(-13deg)', border: `3px double ${ACCENT}`, padding: '2px 9px', color: ACCENT, fontFamily: 'Special Elite, monospace', fontSize: '15px', fontWeight: 'bold', letterSpacing: '0.18em', textTransform: 'uppercase', pointerEvents: 'none' }}>Voted</div>
+        <div aria-hidden style={{ position: 'absolute', top: '12px', right: '12px', transform: 'rotate(-13deg)', border: `3px double ${ACCENT}`, padding: '2px 9px', color: ACCENT, fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', fontWeight: 'bold', letterSpacing: '0.18em', textTransform: 'uppercase', pointerEvents: 'none' }}>Voted</div>
       )}
     </div>
   )

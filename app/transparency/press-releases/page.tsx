@@ -78,7 +78,7 @@ function ReleaseList({ items, fallbackOrg }: { items: Release[]; fallbackOrg: st
           <>
             <div
               style={{
-                fontFamily: 'Special Elite, monospace',
+                fontFamily: 'var(--font-special-elite), monospace',
                 fontSize: '15px',
                 textTransform: 'uppercase',
                 letterSpacing: '0.18em',
@@ -91,7 +91,7 @@ function ReleaseList({ items, fallbackOrg }: { items: Release[]; fallbackOrg: st
             </div>
             <p
               style={{
-                fontFamily: 'Special Elite, monospace',
+                fontFamily: 'var(--font-special-elite), monospace',
                 fontSize: '15px',
                 lineHeight: 1.4,
                 color: INK,
@@ -104,7 +104,7 @@ function ReleaseList({ items, fallbackOrg }: { items: Release[]; fallbackOrg: st
             {r.description && (
               <p
                 style={{
-                  fontFamily: 'Special Elite, monospace',
+                  fontFamily: 'var(--font-special-elite), monospace',
                   fontSize: '15px',
                   lineHeight: 1.65,
                   color: INK,
@@ -135,7 +135,7 @@ function ReleaseList({ items, fallbackOrg }: { items: Release[]; fallbackOrg: st
 }
 
 const monthH3Style: React.CSSProperties = {
-  fontFamily: 'Special Elite, monospace',
+  fontFamily: 'var(--font-special-elite), monospace',
   fontSize: '15px',
   textTransform: 'uppercase',
   letterSpacing: '0.2em',
@@ -204,20 +204,20 @@ const getPressStats = unstable_cache(
 const getBusiestDays = async () => (await getPressStats()).busiestDays;
 
 const inputStyle: React.CSSProperties = {
-  fontFamily: 'Special Elite, monospace', fontSize: '15px', color: INK,
+  fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: INK,
   border: `1px solid ${HAIRLINE}`, background: 'transparent', padding: '8px 10px',
 };
 const btnStyle: React.CSSProperties = {
-  fontFamily: 'Special Elite, monospace', fontSize: '15px', color: CREAM, background: INK,
+  fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: CREAM, background: INK,
   border: `1px solid ${INK}`, padding: '8px 16px', cursor: 'pointer',
 };
 const navLinkStyle: React.CSSProperties = {
-  fontFamily: 'Special Elite, monospace', fontSize: '15px', color: INK, textDecoration: 'none',
+  fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: INK, textDecoration: 'none',
   border: `1px solid ${HAIRLINE}`, padding: '8px 14px', whiteSpace: 'nowrap',
 };
 const navDisabledStyle: React.CSSProperties = { ...navLinkStyle, color: '#14100d', pointerEvents: 'none' };
 const dayLabelStyle: React.CSSProperties = {
-  fontFamily: 'Special Elite, monospace', fontSize: 'clamp(15px, 2.4vw, 21px)', fontWeight: 700,
+  fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(15px, 2.4vw, 21px)', fontWeight: 700,
   color: INK, textAlign: 'center', flex: '1 1 auto',
 };
 
@@ -257,13 +257,13 @@ export default async function PressReleasesIndexPage({
     const com = matches.filter(isCommonsRow);
     content = (
       <div>
-        <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', color: INK, marginBottom: '24px' }}>
+        <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: INK, marginBottom: '24px' }}>
           <strong>{total.toLocaleString()}</strong> {total === 1 ? 'result' : 'results'} for &ldquo;<strong>{rawQ}</strong>&rdquo;
           {totalPages > 1 ? ` · page ${pageNum} of ${totalPages}` : ''}.{' '}
           <Link href="/transparency/press-releases" style={{ color: ACCENT, textDecoration: 'underline' }}>Clear search</Link>
         </p>
         {total === 0 ? (
-          <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', color: INK }}>No press releases match that search.</p>
+          <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: INK }}>No press releases match that search.</p>
         ) : (
           <>
             {gov.length > 0 && (
@@ -329,14 +329,14 @@ export default async function PressReleasesIndexPage({
         </div>
 
         <form method="GET" action="/transparency/press-releases" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
-          <label htmlFor="date-jump" style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', color: INK }}>Jump to date</label>
+          <label htmlFor="date-jump" style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: INK }}>Jump to date</label>
           <input id="date-jump" type="date" name="date" defaultValue={currentDate} min={earliestDate || undefined} max={latestDate || undefined} style={inputStyle} />
           <button type="submit" style={btnStyle}>Go</button>
         </form>
 
         {busiestDays.length > 0 && (
           <div style={{ marginBottom: '32px' }}>
-            <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', color: INK, marginBottom: '8px' }}>Jump to a busy day</p>
+            <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: INK, marginBottom: '8px' }}>Jump to a busy day</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
               {busiestDays.map((b) => (
                 <Link
@@ -353,7 +353,7 @@ export default async function PressReleasesIndexPage({
         )}
 
         {dayRows.length === 0 ? (
-          <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', color: INK }}>
+          <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: INK }}>
             No press releases were published on {currentDate ? fmtLongDate(currentDate) : 'this day'}.
           </p>
         ) : (
@@ -398,7 +398,7 @@ export default async function PressReleasesIndexPage({
       <header style={{ marginBottom: '28px' }}>
         <p
           style={{
-            fontFamily: 'Special Elite, monospace',
+            fontFamily: 'var(--font-special-elite), monospace',
             fontSize: '15px',
             textTransform: 'uppercase',
             letterSpacing: '0.3em',
@@ -423,7 +423,7 @@ export default async function PressReleasesIndexPage({
         </h1>
         <p
           style={{
-            fontFamily: 'Special Elite, monospace',
+            fontFamily: 'var(--font-special-elite), monospace',
             fontSize: '15px',
             lineHeight: 1.75,
             color: INK,

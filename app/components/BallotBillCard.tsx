@@ -71,7 +71,7 @@ export default function BallotBillCard({ bill, userVote = null, onClick }: Props
         display: 'flex',
         overflow: 'hidden',
         cursor: 'pointer',
-        fontFamily: 'Special Elite, monospace',
+        fontFamily: 'var(--font-special-elite), monospace',
       }}
     >
       {/* Tear-off stub: perforated edge, vertical title + serial number */}
@@ -87,11 +87,11 @@ export default function BallotBillCard({ bill, userVote = null, onClick }: Props
           padding: '14px 0',
         }}
       >
-        <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'Special Elite, monospace', fontSize: '14px', letterSpacing: '0.22em', textTransform: 'uppercase', color: INK_SOFT, whiteSpace: 'nowrap' }}>
+        <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'var(--font-special-elite), monospace', fontSize: '14px', letterSpacing: '0.22em', textTransform: 'uppercase', color: INK_SOFT, whiteSpace: 'nowrap' }}>
           The People&apos;s Bill
         </span>
         {serial && (
-          <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'Special Elite, monospace', fontSize: '15px', letterSpacing: '0.06em', color: ACCENT, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+          <span style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.06em', color: ACCENT, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
             No. {serial}
           </span>
         )}
@@ -100,30 +100,30 @@ export default function BallotBillCard({ bill, userVote = null, onClick }: Props
       {/* Main */}
       <div style={{ flex: 1, minWidth: 0, padding: '13px 16px', display: 'flex', flexDirection: 'column', gap: '9px' }}>
         {eyebrow && (
-          <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '6px' }}>
+          <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_SOFT, borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '6px' }}>
             {eyebrow}
           </div>
         )}
 
-        <h3 style={{ fontFamily: 'Special Elite, monospace', fontSize: '18px', fontWeight: 'bold', lineHeight: 1.3, letterSpacing: '-0.01em', margin: 0, display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2, overflow: 'hidden' }}>
+        <h3 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '18px', fontWeight: 'bold', lineHeight: 1.3, letterSpacing: '-0.01em', margin: 0, display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2, overflow: 'hidden' }}>
           {bill.title}
         </h3>
 
         {/* The people's count (read-only) */}
         <div style={{ borderTop: `1px solid ${INK}`, paddingTop: '8px', marginTop: 'auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px' }}>
-            <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '14px', letterSpacing: '0.2em', textTransform: 'uppercase', color: INK_SOFT }}>The people&apos;s count</span>
-            <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '14px', letterSpacing: '0.08em', color: INK_SOFT }}>{total.toLocaleString()} {total === 1 ? 'vote' : 'votes'}</span>
+            <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '14px', letterSpacing: '0.2em', textTransform: 'uppercase', color: INK_SOFT }}>The people&apos;s count</span>
+            <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '14px', letterSpacing: '0.08em', color: INK_SOFT }}>{total.toLocaleString()} {total === 1 ? 'vote' : 'votes'}</span>
           </div>
 
           {total > 0 ? (
             <>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '5px' }}>
-                <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '20px', fontWeight: 'bold', color: SUCCESS, lineHeight: 1 }}>
-                  {yesPercent}%<span style={{ fontFamily: 'Special Elite, monospace', fontSize: '14px', color: INK_SOFT, letterSpacing: '0.12em', marginLeft: '4px' }}>AYE</span>
+                <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '20px', fontWeight: 'bold', color: SUCCESS, lineHeight: 1 }}>
+                  {yesPercent}%<span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '14px', color: INK_SOFT, letterSpacing: '0.12em', marginLeft: '4px' }}>AYE</span>
                 </span>
-                <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '20px', fontWeight: 'bold', color: DANGER, lineHeight: 1 }}>
-                  <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '14px', color: INK_SOFT, letterSpacing: '0.12em', marginRight: '4px' }}>NO</span>{noPercent}%
+                <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '20px', fontWeight: 'bold', color: DANGER, lineHeight: 1 }}>
+                  <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '14px', color: INK_SOFT, letterSpacing: '0.12em', marginRight: '4px' }}>NO</span>{noPercent}%
                 </span>
               </div>
               <div style={{ display: 'flex', height: '10px', background: CREAM_DEEP, border: `1px solid ${INK_HAIRLINE}`, overflow: 'hidden' }} aria-hidden>
@@ -132,7 +132,7 @@ export default function BallotBillCard({ bill, userVote = null, onClick }: Props
               </div>
             </>
           ) : (
-            <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', fontStyle: 'italic', color: INK_SOFT, letterSpacing: '0.03em' }}>
+            <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', fontStyle: 'italic', color: INK_SOFT, letterSpacing: '0.03em' }}>
               No public votes yet, be the first.
             </div>
           )}
@@ -140,8 +140,8 @@ export default function BallotBillCard({ bill, userVote = null, onClick }: Props
           {/* How Parliament itself voted — only shown where the House divided */}
           {hasDivision && (
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: '8px', borderTop: `1px dotted ${INK_HAIRLINE}`, paddingTop: '7px' }}>
-              <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '14px', letterSpacing: '0.2em', textTransform: 'uppercase', color: INK_SOFT }}>How Parliament voted</span>
-              <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', letterSpacing: '0.04em', color: INK }}>
+              <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '14px', letterSpacing: '0.2em', textTransform: 'uppercase', color: INK_SOFT }}>How Parliament voted</span>
+              <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.04em', color: INK }}>
                 {(cAye || 0).toLocaleString()} Ayes &middot; {(cNo || 0).toLocaleString()} Noes
               </span>
             </div>
@@ -149,7 +149,7 @@ export default function BallotBillCard({ bill, userVote = null, onClick }: Props
         </div>
 
         {/* Through to the bill's page for the full text + to cast a vote */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '8px', fontFamily: 'Special Elite, monospace', fontSize: '15px', letterSpacing: '0.1em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '8px', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.1em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold' }}>
           <span>Read the full bill &amp; vote</span>
           <span aria-hidden>→</span>
         </div>
@@ -167,7 +167,7 @@ export default function BallotBillCard({ bill, userVote = null, onClick }: Props
             border: `3px double ${ACCENT}`,
             padding: '2px 9px',
             color: ACCENT,
-            fontFamily: 'Special Elite, monospace',
+            fontFamily: 'var(--font-special-elite), monospace',
             fontSize: '15px',
             fontWeight: 'bold',
             letterSpacing: '0.18em',

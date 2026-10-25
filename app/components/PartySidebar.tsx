@@ -68,7 +68,7 @@ export default function PartySidebar({
                   textTransform: 'uppercase',
                   letterSpacing: '0.08em',
                   color: INK,
-                  fontFamily: 'Special Elite, monospace',
+                  fontFamily: 'var(--font-special-elite), monospace',
                   textDecoration: 'none',
                   transform: `rotate(${item.rotate})`,
                   textAlign: 'left',

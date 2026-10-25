@@ -351,7 +351,7 @@ export default async function DonorPage({ params }: PageProps) {
         <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
           Donor · Electoral Commission record
         </p>
-        <h1 style={{ fontFamily: 'Special Elite, monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '8px', lineHeight: 1.15 }}>
+        <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '8px', lineHeight: 1.15 }}>
           {canonicalName}
         </h1>
         {resolved.others.length > 0 && (
@@ -478,7 +478,7 @@ export default async function DonorPage({ params }: PageProps) {
           {matchedFrameworks.length > 0 && (
             <p style={{ fontSize: '15px', marginBottom: '8px' }}>A framework&rsquo;s value is the most that every supplier on it could be paid: potential value, not spending. Framework values are listed below but are not added to the contract value.</p>
           )}
-          <h3 style={{ fontFamily: '"Special Elite", monospace', fontSize: '17px', fontWeight: 'bold', margin: '16px 0 8px' }}>Each contract{contractRecords.length > 50 ? ` · newest 50 of ${contractRecords.length}` : ''}</h3>
+          <h3 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '17px', fontWeight: 'bold', margin: '16px 0 8px' }}>Each contract{contractRecords.length > 50 ? ` · newest 50 of ${contractRecords.length}` : ''}</h3>
           <div style={{ overflowX: 'auto', marginBottom: '10px' }}>
             <table style={{ ...tableStyle, minWidth: '560px' }}>
               <thead>
@@ -605,7 +605,7 @@ export default async function DonorPage({ params }: PageProps) {
 }
 
 const sectionH2: React.CSSProperties = {
-  fontFamily: '"Special Elite", monospace',
+  fontFamily: 'var(--font-special-elite), monospace',
   fontSize: '22px',
   fontWeight: 'bold',
   borderBottom: `1px solid ${INK_HAIRLINE}`,
@@ -613,7 +613,7 @@ const sectionH2: React.CSSProperties = {
   marginBottom: '14px',
 };
 
-const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '15px', fontFamily: '"Special Elite", monospace' };
+const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '15px', fontFamily: 'var(--font-special-elite), monospace' };
 const headerRow: React.CSSProperties = { borderBottom: `2px solid ${INK}`, textAlign: 'center' };
 const th: React.CSSProperties = { padding: '8px 6px', fontSize: '15px', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 'bold' };
 const td: React.CSSProperties = { padding: '8px 6px', textAlign: 'center', fontSize: '15px', verticalAlign: 'top' };
@@ -622,7 +622,7 @@ function Tile({ label, value, sub, accent }: { label: string; value: string; sub
   return (
     <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '12px 14px', background: CREAM }}>
       <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
-      <div style={{ fontFamily: '"Special Elite", monospace', fontSize: '22px', fontWeight: 'bold', color: accent }}>{value}</div>
+      <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '22px', fontWeight: 'bold', color: accent }}>{value}</div>
       <div style={{ fontSize: '15px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
     </div>
   );

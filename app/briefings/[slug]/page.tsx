@@ -27,7 +27,7 @@ const INK = '#14100d';
 const INK_SOFT = '#14100d';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
 const ACCENT = '#7a1612';
-const MONO = '"Special Elite", monospace';
+const MONO = 'var(--font-special-elite), monospace';
 
 interface BriefingRow {
   slug: string;

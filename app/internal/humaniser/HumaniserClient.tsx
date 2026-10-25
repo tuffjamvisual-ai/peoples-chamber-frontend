@@ -241,7 +241,7 @@ export default function HumaniserPage() {
     <div style={{ minHeight: "100vh", backgroundColor: "#f4e8d4" }}>
       <div
         style={{
-          fontFamily: "Special Elite, monospace",
+          fontFamily: "var(--font-special-elite), monospace",
           color: "#14100d",
           padding: "32px 24px",
           maxWidth: "1200px",
@@ -408,7 +408,7 @@ export default function HumaniserPage() {
                 padding: "12px",
                 fontSize: "15px",
                 lineHeight: 1.6,
-                fontFamily: "Special Elite, monospace",
+                fontFamily: "var(--font-special-elite), monospace",
                 color: "#14100d",
                 backgroundColor: "#f4e8d4",
                 border: "1px solid #d4c8b4",
@@ -454,7 +454,7 @@ export default function HumaniserPage() {
               padding: "16px",
               fontSize: "15px",
               lineHeight: 1.7,
-              fontFamily: "Special Elite, monospace",
+              fontFamily: "var(--font-special-elite), monospace",
               color: "#14100d",
               backgroundColor: "#f4e8d4",
               border: "1px solid #d4c8b4",
@@ -496,7 +496,7 @@ export default function HumaniserPage() {
               padding: "16px",
               fontSize: "15px",
               lineHeight: 1.7,
-              fontFamily: "Special Elite, monospace",
+              fontFamily: "var(--font-special-elite), monospace",
               color: "#14100d",
               backgroundColor: "#faf4ea",
               border: "1px solid #d4c8b4",

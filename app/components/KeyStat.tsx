@@ -1,6 +1,6 @@
 const ACCENT = '#7a1612';
 const INK = '#14100d';
-const MONO = '"Special Elite", monospace';
+const MONO = 'var(--font-special-elite), monospace';
 
 export default function KeyStat({
   stat,

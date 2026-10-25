@@ -5,7 +5,7 @@ import BackLink from '../components/BackLink';
 export const revalidate = 86400;
 
 const INK = '#14100d';
-const MONO = "'Special Elite', monospace";
+const MONO = "var(--font-special-elite), monospace";
 
 export const metadata: Metadata = {
   title: 'How this site is made',

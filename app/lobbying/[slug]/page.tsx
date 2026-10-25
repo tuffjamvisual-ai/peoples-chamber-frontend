@@ -15,7 +15,7 @@ const INK = '#14100d';
 const INK_SOFT = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
 const ACCENT = '#6b2417';
-const FONT = 'Special Elite, monospace';
+const FONT = 'var(--font-special-elite), monospace';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;

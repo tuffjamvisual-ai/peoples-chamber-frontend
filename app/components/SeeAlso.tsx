@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';
-const FONT = '"Special Elite", monospace';
+const FONT = 'var(--font-special-elite), monospace';
 
 export type SeeAlsoLink = { href: string; label: string; note?: string };
 

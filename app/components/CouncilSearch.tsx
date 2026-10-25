@@ -26,7 +26,7 @@ const PAPER = '#f4e8d4'
 const INK = '#14100d'
 const INK_SOFT = '#14100d'
 const ACCENT = '#7a1612'
-const SERIF = 'Special Elite, monospace'
+const SERIF = 'var(--font-special-elite), monospace'
 const POSTCODE_RE = /^[A-Z]{1,2}\d[A-Z\d]?\d[A-Z]{2}$/
 
 type CouncilResult = {

@@ -41,7 +41,7 @@ export default function UniteKingdomPage() {
       <div
         style={{
           color: INK,
-          fontFamily: 'Special Elite, monospace',
+          fontFamily: 'var(--font-special-elite), monospace',
         }}
       >
         <article style={{ maxWidth: '1000px', margin: '0 auto' }}>

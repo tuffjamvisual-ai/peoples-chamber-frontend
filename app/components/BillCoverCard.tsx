@@ -50,9 +50,9 @@ const ACCENT = '#7a1612';
 const SUCCESS = '#3f5a2a';
 const DANGER = '#7a2a1f';
 
-const SERIF = 'Special Elite, monospace';
-const SERIF_DISPLAY = 'Special Elite, monospace';
-const MONO = '"Special Elite", "Courier New", monospace';
+const SERIF = 'var(--font-special-elite), monospace';
+const SERIF_DISPLAY = 'var(--font-special-elite), monospace';
+const MONO = 'var(--font-special-elite), "Courier New", monospace';
 
 export default function BillCoverCard({ bill, userVote = null }: Props) {
   const yes = bill.vote_count_yes || 0;

@@ -235,7 +235,7 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
                     style={{ display: 'block', width: '260px', height: '260px', objectFit: 'cover', filter: 'contrast(1.1) sepia(0.05)' }}
                   />
                 ) : (
-                  <div aria-hidden style={{ width: '260px', height: '260px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#d6cdb8', color: INK, fontSize: '64px', fontFamily: 'Special Elite, monospace' }}>
+                  <div aria-hidden style={{ width: '260px', height: '260px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#d6cdb8', color: INK, fontSize: '64px', fontFamily: 'var(--font-special-elite), monospace' }}>
                     {person.name.charAt(0) || '?'}
                   </div>
                 )}

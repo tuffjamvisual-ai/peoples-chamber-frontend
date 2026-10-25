@@ -8,7 +8,7 @@ const INK = '#14100d';
 const ACCENT = '#7a1612';
 const HAIRLINE = 'rgba(20,16,13,0.18)';
 const CREAM = '#f4e8d4';
-const MONO = "'Special Elite', monospace";
+const MONO = "var(--font-special-elite), monospace";
 
 const TYPE_CHIPS = [
   { value: 'all',          label: 'All' },
@@ -107,7 +107,7 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
         </div>
         <button
           type="submit"
-          style={{ flex: '0 0 auto', fontFamily: 'Special Elite, monospace', fontWeight: 700, fontSize: '17px', letterSpacing: '0.04em', color: '#fff', background: ACCENT, border: 'none', borderRadius: 0, padding: '11px 24px', cursor: 'pointer' }}
+          style={{ flex: '0 0 auto', fontFamily: 'var(--font-special-elite), monospace', fontWeight: 700, fontSize: '17px', letterSpacing: '0.04em', color: '#fff', background: ACCENT, border: 'none', borderRadius: 0, padding: '11px 24px', cursor: 'pointer' }}
         >
           Search
         </button>

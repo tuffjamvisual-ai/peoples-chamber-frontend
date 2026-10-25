@@ -1,5 +1,5 @@
 const ACCENT = '#7a1612';
-const MONO = "'Special Elite', monospace";
+const MONO = "var(--font-special-elite), monospace";
 
 const LABELS = {
   investigation: 'Open Govt · Investigation',

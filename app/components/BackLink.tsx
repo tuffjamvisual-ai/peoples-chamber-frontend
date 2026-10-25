@@ -41,7 +41,7 @@ export default function BackLink({ fallbackHref, label, className, style }: Prop
       href={fallbackHref}
       onClick={handleClick}
       className={className}
-      style={{ ...style, fontFamily: "'Special Elite', 'Courier New', monospace", fontSize: 'clamp(18px, 2.2vw, 28px)' }}
+      style={{ ...style, fontFamily: "var(--font-special-elite), 'Courier New', monospace", fontSize: 'clamp(18px, 2.2vw, 28px)' }}
     >
       {label}
     </a>

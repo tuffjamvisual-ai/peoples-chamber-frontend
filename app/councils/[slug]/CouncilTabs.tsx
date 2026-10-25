@@ -165,7 +165,7 @@ export default function CouncilTabs({ tabs, slots }: { tabs: Tab[]; slots: Recor
                   textTransform: 'uppercase',
                   letterSpacing: '0.08em',
                   color: INK,
-                  fontFamily: 'Special Elite, monospace',
+                  fontFamily: 'var(--font-special-elite), monospace',
                   transform: `rotate(${t.rotate})`,
                   textAlign: 'left',
                   cursor: 'pointer',

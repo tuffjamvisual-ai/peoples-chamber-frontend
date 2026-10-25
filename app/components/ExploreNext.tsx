@@ -18,7 +18,7 @@ import ContinueToArticle from './ContinueToArticle';
 const INK = '#14100d';
 const ACCENT = '#7a1612';
 const HAIRLINE = 'rgba(20,16,13,0.18)';
-const FONT = '"Special Elite", monospace';
+const FONT = 'var(--font-special-elite), monospace';
 
 
 export default function ExploreNext({ piece }: { piece: EditorialEntry }) {

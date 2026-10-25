@@ -62,7 +62,7 @@
     align-items: center;
     min-height: 56px;        /* comfortably tappable */
     padding: 0 8px;
-    font-family: 'Special Elite', monospace;
+    font-family: var(--font-special-elite), monospace;
     font-size: 24px;
     color: #14100d;
     text-decoration: none;

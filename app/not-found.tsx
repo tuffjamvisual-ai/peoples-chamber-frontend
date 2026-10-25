@@ -8,7 +8,7 @@ import OpenGovShell from './components/OpenGovShell';
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';
-const MONO = 'Special Elite, monospace';
+const MONO = 'var(--font-special-elite), monospace';
 
 const SECTIONS: { href: string; label: string }[] = [
   { href: '/mps', label: 'MPs' },

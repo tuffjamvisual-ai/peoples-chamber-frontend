@@ -26,7 +26,7 @@ export default function Toast({ message, onDone }: { message: string | null; onD
         zIndex: 9999,
         background: '#14100d',
         color: '#f4e8d4',
-        fontFamily: "'Special Elite', monospace",
+        fontFamily: "var(--font-special-elite), monospace",
         fontSize: '15px',
         letterSpacing: '0.03em',
         lineHeight: 1.4,

@@ -188,7 +188,7 @@ export default function DossierShell({
           width: 95%;
           margin: -114.2% 1.5% 0 3.5%;
           transform: none;
-          font-family: 'Special Elite', monospace;
+          font-family: var(--font-special-elite), monospace;
           color: #14100d;
         }
         @media (max-width: 640px) {
@@ -291,7 +291,7 @@ export default function DossierShell({
                 top: '6.4%',
                 width: '21%',
                 textAlign: 'center',
-                fontFamily: 'Special Elite, monospace',
+                fontFamily: 'var(--font-special-elite), monospace',
                 color: '#6b2417',
                 lineHeight: 1.1,
                 pointerEvents: 'none',

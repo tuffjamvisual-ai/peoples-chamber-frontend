@@ -243,7 +243,7 @@ export default async function ExpensesPage() {
         </p>
         <h2
           style={{
-            fontFamily: 'Special Elite, monospace',
+            fontFamily: 'var(--font-special-elite), monospace',
             fontSize: 'clamp(20px, 2.4vw, 28px)',
             fontWeight: 'bold',
             letterSpacing: '-0.01em',
@@ -258,7 +258,7 @@ export default async function ExpensesPage() {
         <div
           className="pca-cols"
           style={{
-            fontFamily: 'Special Elite, monospace',
+            fontFamily: 'var(--font-special-elite), monospace',
             // 14px in the essay (vs. 12px in the Top 10 listing above)
             // — the user wanted the story body slightly larger than
             // the classified list so the long-form prose breathes.
@@ -327,7 +327,7 @@ function SimpleRow({
         gap: '6px',
         padding: '7px 4px',
         color: INK,
-        fontFamily: 'Special Elite, monospace',
+        fontFamily: 'var(--font-special-elite), monospace',
       }}
     >
       {/* Card-link pattern: an absolutely positioned Link covers the
@@ -410,7 +410,7 @@ function SimpleRow({
       </span>
       <span
         style={{
-          fontFamily: 'Special Elite, monospace',
+          fontFamily: 'var(--font-special-elite), monospace',
           fontSize: '14px',
           textTransform: 'uppercase',
           letterSpacing: '0.15em',

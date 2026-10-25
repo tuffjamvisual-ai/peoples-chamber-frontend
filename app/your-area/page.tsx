@@ -42,7 +42,7 @@ export const metadata: Metadata = {
 const INK = '#14100d';
 const HAIRLINE = 'rgba(20,16,13,0.2)';
 const ACCENT = '#7a1612';
-const MONO = "'Special Elite', monospace";
+const MONO = "var(--font-special-elite), monospace";
 const GSS = /^[ENSW]\d{8}$/;
 
 const h2: CSSProperties = { fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 12px' };

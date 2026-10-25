@@ -114,7 +114,7 @@ export default async function SpecialAdvisersPage() {
         <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
           Transparency · Special Advisers
         </p>
-        <h1 style={{ fontFamily: 'Special Elite, monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '14px', lineHeight: 1.15 }}>
+        <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '14px', lineHeight: 1.15 }}>
           Who advises Whitehall, and what they declared
         </h1>
         <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '62ch' }}>
@@ -123,7 +123,7 @@ export default async function SpecialAdvisersPage() {
         <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '62ch', marginTop: '12px' }}>
           The Cabinet Office and the major Whitehall departments publish a quarterly return of each Special Adviser&rsquo;s gifts, hospitality, and meetings with senior media figures. This page is the consolidated view across every publishing department for the most recent quarter only. Older quarters are not retained.
         </p>
-        <p style={{ marginTop: '14px', fontFamily: '"Special Elite", monospace', fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: ACCENT }}>
+        <p style={{ marginTop: '14px', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: ACCENT }}>
           Quarter shown: {quarter}
         </p>
       </header>
@@ -140,15 +140,15 @@ export default async function SpecialAdvisersPage() {
         <h2 style={sectionH2}>Current roster · {roster.length} Special Advisers</h2>
         {areas.map(([area, list]) => (
           <details key={area} style={{ marginBottom: '12px', borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '8px' }}>
-            <summary style={{ cursor: 'pointer', fontFamily: '"Special Elite", monospace', fontSize: '15px', fontWeight: 'bold', padding: '6px 0', color: ACCENT, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            <summary style={{ cursor: 'pointer', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', fontWeight: 'bold', padding: '6px 0', color: ACCENT, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
               {area} · {list.length}
             </summary>
             {deptFor(area) && (
-              <p style={{ margin: '4px 0 0', fontFamily: '"Special Elite", monospace', fontSize: '15px' }}>
+              <p style={{ margin: '4px 0 0', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px' }}>
                 <Link href={`/departments/${deptFor(area)}`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Department page: ministers, budget and record →</Link>
               </p>
             )}
-            <ul style={{ listStyle: 'none', padding: '8px 0', margin: 0, columns: '2 280px', columnGap: '24px', fontSize: '15px', fontFamily: '"Special Elite", monospace' }}>
+            <ul style={{ listStyle: 'none', padding: '8px 0', margin: 0, columns: '2 280px', columnGap: '24px', fontSize: '15px', fontFamily: 'var(--font-special-elite), monospace' }}>
               {list.sort((a, b) => a.name.localeCompare(b.name)).map((r) => (
                 <li key={`${r.area}|${r.name}`} style={{ padding: '2px 0', breakInside: 'avoid' }}>{r.name}</li>
               ))}
@@ -295,20 +295,20 @@ function Tile({ label, value, sub }: { label: string; value: string; sub: string
   return (
     <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '12px 14px', background: CREAM }}>
       <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
-      <div style={{ fontFamily: '"Special Elite", monospace', fontSize: '22px', fontWeight: 'bold', color: ACCENT }}>{value}</div>
+      <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '22px', fontWeight: 'bold', color: ACCENT }}>{value}</div>
       <div style={{ fontSize: '15px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
     </div>
   );
 }
 
 const sectionH2: React.CSSProperties = {
-  fontFamily: '"Special Elite", monospace',
+  fontFamily: 'var(--font-special-elite), monospace',
   fontSize: '20px',
   fontWeight: 'bold',
   borderBottom: `1px solid ${INK_HAIRLINE}`,
   paddingBottom: '6px',
   marginBottom: '12px',
 };
-const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '15px', fontFamily: '"Special Elite", monospace' };
+const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '15px', fontFamily: 'var(--font-special-elite), monospace' };
 const th: React.CSSProperties = { padding: '8px 6px', fontSize: '15px', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 'bold' };
 const td: React.CSSProperties = { padding: '8px 6px', fontSize: '15px', verticalAlign: 'top' };

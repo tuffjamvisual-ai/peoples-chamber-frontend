@@ -65,7 +65,7 @@ const sectionH2: React.CSSProperties = {
   fontWeight: 'bold',
   marginBottom: '24px',
   color: '#14100d',
-  fontFamily: 'Special Elite, monospace',
+  fontFamily: 'var(--font-special-elite), monospace',
   transform: 'rotate(-0.2deg)',
   textShadow: '0.5px 0.5px 0px rgba(0,0,0,0.15)',
 };
@@ -149,7 +149,7 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
         </div>
       </aside>
 
-      <div className="lg:col-span-3 p-6 sm:p-8" style={{ color: '#14100d', fontFamily: 'Special Elite, monospace' }}>
+      <div className="lg:col-span-3 p-6 sm:p-8" style={{ color: '#14100d', fontFamily: 'var(--font-special-elite), monospace' }}>
         {active === 'bio' && (
           <>
             <h2 style={sectionH2}>Political Biography</h2>

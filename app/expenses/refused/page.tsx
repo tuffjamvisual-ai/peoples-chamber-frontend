@@ -121,7 +121,7 @@ export default async function RefusedExpensesPage() {
         <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85, transform: 'rotate(-0.2deg)' }}>
           IPSA · Accountability ledger
         </p>
-        <h1 style={{ fontFamily: 'Special Elite, monospace', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15, transform: 'rotate(-0.3deg)' }}>
+        <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15, transform: 'rotate(-0.3deg)' }}>
           Refused &amp; repaid: when IPSA says no
         </h1>
         <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '12px', maxWidth: '60ch' }}>
@@ -216,7 +216,7 @@ export default async function RefusedExpensesPage() {
 }
 
 const sectionH2: React.CSSProperties = {
-  fontFamily: '"Special Elite", monospace',
+  fontFamily: 'var(--font-special-elite), monospace',
   fontSize: '22px',
   fontWeight: 'bold',
   letterSpacing: '-0.01em',
@@ -229,7 +229,7 @@ const tableStyle: React.CSSProperties = {
   width: '100%',
   borderCollapse: 'collapse',
   fontSize: '15px',
-  fontFamily: '"Special Elite", monospace',
+  fontFamily: 'var(--font-special-elite), monospace',
 };
 
 const headerRow: React.CSSProperties = {
@@ -256,7 +256,7 @@ function Tile({ label, value, sub, accent }: { label: string; value: string; sub
   return (
     <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '12px 14px', background: 'rgba(255,255,255,0.04)' }}>
       <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
-      <div style={{ fontFamily: '"Special Elite", monospace', fontSize: '22px', fontWeight: 'bold', color: accent }}>{value}</div>
+      <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '22px', fontWeight: 'bold', color: accent }}>{value}</div>
       <div style={{ fontSize: '15px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
     </div>
   );

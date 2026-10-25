@@ -36,7 +36,7 @@ const INK = '#14100d';
 const INK_SOFT = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.18)';
 const ACCENT = '#7a1612';
-const MONO = 'Special Elite, monospace';
+const MONO = 'var(--font-special-elite), monospace';
 
 async function fetchAllCurrentMps(): Promise<MpRow[]> {
   // (24 Oct 2026, report 36): every row via lib/read-all.ts, which throws on a failed page instead of stopping

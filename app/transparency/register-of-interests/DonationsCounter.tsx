@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 const INK = '#14100d';
 const ACCENT = '#6b2417';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
-const MONO = "'Special Elite', monospace";
+const MONO = "var(--font-special-elite), monospace";
 
 type Props = {
   total: number;

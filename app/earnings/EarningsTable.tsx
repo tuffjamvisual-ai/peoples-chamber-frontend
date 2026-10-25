@@ -155,7 +155,7 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
                             color: '#14100d',
                             fontSize: '15px',
                             fontWeight: 'bold',
-                            fontFamily: 'Special Elite, monospace',
+                            fontFamily: 'var(--font-special-elite), monospace',
                           }}
                         >
                           {r.name.charAt(0) || '?'}
@@ -166,7 +166,7 @@ export default function EarningsTable({ rows, year }: { rows: EarningsRow[]; yea
                       <Link
                         href={`/mps/${r.member_id}#earnings`}
                         className="text-[#14100d] font-semibold hover:underline block truncate text-[17px]"
-                        style={{ fontFamily: 'Special Elite, monospace' }}
+                        style={{ fontFamily: 'var(--font-special-elite), monospace' }}
                       >
                         {r.name}
                       </Link>

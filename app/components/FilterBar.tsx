@@ -31,7 +31,7 @@ const field: CSSProperties = {
   color: INK,
   border: `1px solid ${INK_HAIRLINE}`,
   borderRadius: 0,
-  fontFamily: 'Special Elite, monospace',
+  fontFamily: 'var(--font-special-elite), monospace',
   fontSize: '15px',
   outline: 'none',
 };
@@ -43,7 +43,7 @@ function toggle(active: boolean): CSSProperties {
     color: active ? CREAM : INK,
     border: `1px solid ${active ? INK : INK_HAIRLINE}`,
     borderRadius: 0,
-    fontFamily: 'Special Elite, monospace',
+    fontFamily: 'var(--font-special-elite), monospace',
     fontSize: '15px',
     textTransform: 'uppercase',
     letterSpacing: '0.1em',

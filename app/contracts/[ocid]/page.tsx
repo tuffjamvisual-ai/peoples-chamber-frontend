@@ -179,7 +179,7 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
       <BackLink fallbackHref="/transparency/contracts" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)' }} />
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '16px', marginBottom: '20px' }}>
         <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '10px' }}>Contract history</p>
-        <h1 style={{ fontFamily: 'Special Elite, monospace', fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 'bold', lineHeight: 1.15, overflowWrap: 'anywhere' }}>{title}</h1>
+        <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 'bold', lineHeight: 1.15, overflowWrap: 'anywhere' }}>{title}</h1>
         <p style={{ fontSize: '16px', marginTop: '8px' }}>{buyer}</p>
         {estimate?.value != null && (
           <p style={{ fontSize: '15px', marginTop: '6px' }}>
@@ -259,8 +259,8 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
   );
 }
 
-const sectionH2: React.CSSProperties = { fontFamily: '"Special Elite", monospace', fontSize: '21px', fontWeight: 'bold', marginBottom: '10px', overflowWrap: 'anywhere' };
-const h3: React.CSSProperties = { fontFamily: '"Special Elite", monospace', fontSize: '17px', fontWeight: 'bold', margin: '12px 0 6px' };
+const sectionH2: React.CSSProperties = { fontFamily: 'var(--font-special-elite), monospace', fontSize: '21px', fontWeight: 'bold', marginBottom: '10px', overflowWrap: 'anywhere' };
+const h3: React.CSSProperties = { fontFamily: 'var(--font-special-elite), monospace', fontSize: '17px', fontWeight: 'bold', margin: '12px 0 6px' };
 const figure: React.CSSProperties = { fontSize: '16px', lineHeight: 1.6, margin: '6px 0' };
 const list: React.CSSProperties = { fontSize: '15px', lineHeight: 1.6, paddingLeft: '18px' };
 const link: React.CSSProperties = { color: ACCENT, textDecoration: 'underline' };

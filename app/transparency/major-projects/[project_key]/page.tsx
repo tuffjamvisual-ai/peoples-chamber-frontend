@@ -17,7 +17,7 @@ export async function generateStaticParams() { return []; }
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.25)';
-const MONO = '"Special Elite", monospace';
+const MONO = 'var(--font-special-elite), monospace';
 
 type Props = { params: Promise<{ project_key: string }> };
 

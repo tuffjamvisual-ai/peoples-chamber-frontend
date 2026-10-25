@@ -64,7 +64,7 @@ export default function DepartmentStaff({ govukData }: { govukData: StaffData | 
   }
 
   return (
-    <section style={{ fontFamily: 'Special Elite, monospace' }} className="text-[#14100d] mb-6">
+    <section style={{ fontFamily: 'var(--font-special-elite), monospace' }} className="text-[#14100d] mb-6">
       <h2 className="text-[15px] uppercase tracking-[0.25em] mb-4 font-semibold" style={{ color: ACCENT }}>
         Department Staff
       </h2>

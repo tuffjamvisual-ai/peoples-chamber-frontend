@@ -171,7 +171,7 @@ export default async function SecretariatPage({ params }: PageProps) {
         <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
           APPG Secretariat · Lobby firm dossier
         </p>
-        <h1 style={{ fontFamily: 'Special Elite, monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '8px', lineHeight: 1.15 }}>
+        <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '8px', lineHeight: 1.15 }}>
           {canonicalName}
         </h1>
         {sampleSecretariatUrl && (
@@ -246,7 +246,7 @@ export default async function SecretariatPage({ params }: PageProps) {
 }
 
 const sectionH2: React.CSSProperties = {
-  fontFamily: '"Special Elite", monospace',
+  fontFamily: 'var(--font-special-elite), monospace',
   fontSize: '22px',
   fontWeight: 'bold',
   borderBottom: `1px solid ${INK_HAIRLINE}`,
@@ -258,7 +258,7 @@ function Tile({ label, value, sub, accent }: { label: string; value: string; sub
   return (
     <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '12px 14px', background: CREAM }}>
       <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
-      <div style={{ fontFamily: '"Special Elite", monospace', fontSize: '22px', fontWeight: 'bold', color: accent }}>{value}</div>
+      <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '22px', fontWeight: 'bold', color: accent }}>{value}</div>
       <div style={{ fontSize: '15px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
     </div>
   );

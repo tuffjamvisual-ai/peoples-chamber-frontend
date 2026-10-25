@@ -9,7 +9,7 @@ import { useState } from 'react'
 
 const INK = '#14100d'
 const ACCENT = '#7a1612'
-const FONT = "'Special Elite', monospace"
+const FONT = "var(--font-special-elite), monospace"
 
 export default function NewsletterSignup({ source = 'homepage' }: { source?: string }) {
   const [email, setEmail] = useState('')

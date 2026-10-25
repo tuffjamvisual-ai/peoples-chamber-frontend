@@ -109,7 +109,7 @@ export default function DepartmentTabs({
                     textTransform: 'uppercase',
                     letterSpacing: '0.08em',
                     color: '#14100d',
-                    fontFamily: 'Special Elite, monospace',
+                    fontFamily: 'var(--font-special-elite), monospace',
                     transform: `rotate(${t.rotate})`,
                     textAlign: 'left',
                     cursor: 'pointer',
@@ -123,7 +123,7 @@ export default function DepartmentTabs({
         </div>
       </aside>
 
-      <div className="py-6 sm:py-8" style={{ color: '#14100d', fontFamily: 'Special Elite, monospace', minWidth: 0 }}>
+      <div className="py-6 sm:py-8" style={{ color: '#14100d', fontFamily: 'var(--font-special-elite), monospace', minWidth: 0 }}>
         {tabs.map((t) => (
           <div key={t.id} style={{ display: t.id === active ? 'block' : 'none' }}>
             {slots[t.id]}

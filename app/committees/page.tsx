@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 const INK = '#14100d';
 const ACCENT = '#6b2417';
-const MONO = 'Special Elite, monospace';
+const MONO = 'var(--font-special-elite), monospace';
 
 type CommitteeRow = {
   id: number;

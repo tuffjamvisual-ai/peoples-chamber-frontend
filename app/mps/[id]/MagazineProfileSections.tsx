@@ -429,7 +429,7 @@ const sectionH2: React.CSSProperties = {
   fontWeight: 'bold',
   marginBottom: '24px',
   color: '#14100d',
-  fontFamily: 'Special Elite, monospace',
+  fontFamily: 'var(--font-special-elite), monospace',
   transform: 'rotate(-0.2deg)',
   textShadow: '0.5px 0.5px 0px rgba(0,0,0,0.15)',
 };
@@ -440,7 +440,7 @@ const sectionH3: React.CSSProperties = {
   marginTop: '24px',
   marginBottom: '12px',
   color: '#14100d',
-  fontFamily: 'Special Elite, monospace',
+  fontFamily: 'var(--font-special-elite), monospace',
 };
 
 const inkLink: React.CSSProperties = { color: '#7a1612', textDecoration: 'underline' };
@@ -456,7 +456,7 @@ const thStyle: React.CSSProperties = {
 const callP: React.CSSProperties = {
   margin: 0,
   marginBottom: '10px',
-  fontFamily: 'Special Elite, monospace',
+  fontFamily: 'var(--font-special-elite), monospace',
   fontSize: '15px',
   lineHeight: 1.65,
 };
@@ -469,7 +469,7 @@ const pillStyle: React.CSSProperties = {
   fontSize: '15px',
   letterSpacing: '0.08em',
   textTransform: 'uppercase',
-  fontFamily: 'Special Elite, monospace',
+  fontFamily: 'var(--font-special-elite), monospace',
   background: 'transparent',
   whiteSpace: 'nowrap',
 };
@@ -858,7 +858,7 @@ export default function MagazineProfileSections({
         </div>
       </aside>
 
-      <div className="lg:col-span-3 p-6 sm:p-8 mp-sections-content" style={{ color: '#14100d', fontFamily: 'Special Elite, monospace' }}>
+      <div className="lg:col-span-3 p-6 sm:p-8 mp-sections-content" style={{ color: '#14100d', fontFamily: 'var(--font-special-elite), monospace' }}>
         {active === 'career' && (
           <>
             <h2 style={sectionH2}>Background</h2>
@@ -1041,7 +1041,7 @@ export default function MagazineProfileSections({
               const plural = (n: number) => `${n.toLocaleString('en-GB')} time${n === 1 ? '' : 's'}`;
               const red = { color: '#7a1612', fontWeight: 'bold' as const };
               return (
-              <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', marginBottom: '14px', lineHeight: 1.5 }}>
+              <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', marginBottom: '14px', lineHeight: 1.5 }}>
                 <p style={{ margin: '0 0 4px' }}>
                   {votesSinceElection > 0 ? (
                     sinceElection > 0 ? (
@@ -1088,7 +1088,7 @@ export default function MagazineProfileSections({
                 flexWrap: 'wrap',
                 alignItems: 'center',
                 marginBottom: '16px',
-                fontFamily: 'Special Elite, monospace',
+                fontFamily: 'var(--font-special-elite), monospace',
                 fontSize: '15px',
               }}
             >
@@ -1102,7 +1102,7 @@ export default function MagazineProfileSections({
                   flex: '1 1 220px',
                   minWidth: 0,
                   padding: '6px 10px',
-                  fontFamily: 'Special Elite, monospace',
+                  fontFamily: 'var(--font-special-elite), monospace',
                   fontSize: '15px',
                   color: '#14100d',
                   border: '1px solid rgba(20,16,13,0.3)',
@@ -1114,7 +1114,7 @@ export default function MagazineProfileSections({
                 disabled={vLoading}
                 style={{
                   padding: '6px 14px',
-                  fontFamily: 'Special Elite, monospace',
+                  fontFamily: 'var(--font-special-elite), monospace',
                   fontSize: '15px',
                   letterSpacing: '0.04em',
                   color: '#14100d',
@@ -1195,11 +1195,11 @@ export default function MagazineProfileSections({
               const totalPages = Math.ceil(voteTotal / votesPerPage);
               const prevOff = vLoading || vPage <= 1;
               const nextOff = vLoading || vPage >= totalPages;
-              const base = { fontFamily: 'Special Elite, monospace', fontSize: '15px', padding: '6px 14px', color: '#14100d', border: '1px solid rgba(20,16,13,0.3)', background: 'transparent' } as const;
+              const base = { fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', padding: '6px 14px', color: '#14100d', border: '1px solid rgba(20,16,13,0.3)', background: 'transparent' } as const;
               return (
                 <div style={{ marginTop: '24px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
                   <button type="button" disabled={prevOff} onClick={() => loadVotes(vPage - 1, vQuery)} style={{ ...base, cursor: prevOff ? 'default' : 'pointer', opacity: prevOff ? 0.4 : 1 }}>← Prev</button>
-                  <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', opacity: 0.8 }}>Page {vPage} of {totalPages}</span>
+                  <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', opacity: 0.8 }}>Page {vPage} of {totalPages}</span>
                   <button type="button" disabled={nextOff} onClick={() => loadVotes(vPage + 1, vQuery)} style={{ ...base, cursor: nextOff ? 'default' : 'pointer', opacity: nextOff ? 0.4 : 1 }}>Next →</button>
                 </div>
               );
@@ -1267,7 +1267,7 @@ export default function MagazineProfileSections({
                 return (
                   <li key={i} style={{ padding: '11px 0', borderBottom: inkDivider }}>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'baseline', flexWrap: 'wrap' }}>
-                      <span style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', opacity: 0.55, whiteSpace: 'nowrap' }}>{fmtDate(c.sitting_date)}</span>
+                      <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', opacity: 0.55, whiteSpace: 'nowrap' }}>{fmtDate(c.sitting_date)}</span>
                       {url ? (
                         <Link href={url} style={{ ...inkLink, fontWeight: 'bold', fontSize: '15px' }}>{dehyphen((c.debate_title || 'Debate').trim())}</Link>
                       ) : (
@@ -1308,7 +1308,7 @@ export default function MagazineProfileSections({
               {/* Threshold note: always visible above the list, full black per
                   house rule for small explanatory text. The threshold must stay
                   in sync with PETITION_SIGNATURE_THRESHOLD (lib/petitions.ts). */}
-              <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '14px', lineHeight: 1.6, color: '#14100d', opacity: 1, border: '1px dashed rgba(20,16,13,0.45)', padding: '10px 12px', marginBottom: '18px' }}>
+              <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '14px', lineHeight: 1.6, color: '#14100d', opacity: 1, border: '1px dashed rgba(20,16,13,0.45)', padding: '10px 12px', marginBottom: '18px' }}>
                 This shows petitions from the current Parliament on the{' '}
                 <a href="https://petition.parliament.uk" target="_blank" rel="noopener noreferrer" style={inkLink}>UK Parliament petitions website</a>{' '}
                 that reached 10,000 signatures, the point at which the government must respond. Petitions with fewer signatures are not included. Constituency counts come from the petitions site, are based on the postcode each signer gives, and are updated daily.
@@ -1329,7 +1329,7 @@ export default function MagazineProfileSections({
                 ))}
               </ul>
               {petitionsLastUpdated && (
-                <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '14px', color: '#14100d', opacity: 1, margin: '18px 0 0' }}>
+                <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '14px', color: '#14100d', opacity: 1, margin: '18px 0 0' }}>
                   Petition signatures last updated {fmtDate(petitionsLastUpdated)}. Source: UK Parliament Petitions (petition.parliament.uk).
                 </p>
               )}
@@ -1389,13 +1389,13 @@ export default function MagazineProfileSections({
               <p style={{ fontSize: '15px', marginBottom: '12px', color: '#14100d' }}>
                 <strong>Started {fmtNum(edms.startedCount)}</strong> {edms.startedCount === 1 ? 'motion' : 'motions'} · <strong>Signed {fmtNum(edms.signedCount)}</strong>
               </p>
-              <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '14px', lineHeight: 1.6, color: '#14100d', opacity: 1, border: '1px dashed rgba(20,16,13,0.45)', padding: '10px 12px', marginBottom: '8px' }}>
+              <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '14px', lineHeight: 1.6, color: '#14100d', opacity: 1, border: '1px dashed rgba(20,16,13,0.45)', padding: '10px 12px', marginBottom: '8px' }}>
                 Early Day Motions are formal statements MPs table in the House of Commons to put a cause or concern on record. Other MPs sign them to show support. Very few are ever debated. This covers motions tabled since the July 2024 general election. &ldquo;Sponsor&rdquo; marks the first six MPs to sign a motion. Signatures an MP later withdrew are not shown.
               </p>
               {list('Motions started', edms.started, edms.startedCount)}
               {list('Motions signed', edms.signed, edms.signedCount)}
               {edms.lastUpdated && (
-                <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '14px', color: '#14100d', opacity: 1, margin: '18px 0 0' }}>
+                <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '14px', color: '#14100d', opacity: 1, margin: '18px 0 0' }}>
                   Early Day Motions last updated {fmtDate(edms.lastUpdated)}. Source: UK Parliament (edm.parliament.uk).
                 </p>
               )}
@@ -1629,7 +1629,7 @@ export default function MagazineProfileSections({
                       })()}
                       {a.funders.length > 0 && (
                         <details style={{ marginTop: '6px', fontSize: '15px' }}>
-                          <summary style={{ cursor: 'pointer', fontFamily: 'Special Elite, monospace', color: '#7a1612' }}>
+                          <summary style={{ cursor: 'pointer', fontFamily: 'var(--font-special-elite), monospace', color: '#7a1612' }}>
                             Funders of this group ({a.funders.length})
                           </summary>
                           <ul style={{ listStyle: 'none', padding: '6px 0 0 12px', borderLeft: '2px solid rgba(122,22,18,0.25)', marginLeft: '6px', marginTop: '4px' }}>
@@ -1904,7 +1904,7 @@ export default function MagazineProfileSections({
         {active === 'donations' && (() => {
           // Until the data has arrived (not only while a request is open), so the tab never shows the empty state first.
           if (donationsLoading || donationsPayload === null) return (
-            <div style={{ padding: '60px 0', textAlign: 'center', color: '#888', fontFamily: 'Special Elite, monospace', fontSize: '15px' }}>
+            <div style={{ padding: '60px 0', textAlign: 'center', color: '#888', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px' }}>
               Loading donations...
             </div>
           );
@@ -1989,7 +1989,7 @@ export default function MagazineProfileSections({
                 <p style={callPLast}>
                   The UK&rsquo;s political donation system asks politicians to declare who funds them and trusts them to tell the truth. There is no independent audit of what MPs receive. Donations below £500 need not be declared at all. Unincorporated associations and trusts can donate without revealing who provided the money. A company registered at Companies House with entirely foreign ownership and no UK employees is a permissible donor. Fines for non compliance are low enough to be treated as a cost of doing business. No major reform has been implemented since 2000. The register records what politicians chose to disclose, not what actually happened.
                 </p>
-                <p style={{ margin: '10px 0 0 0', fontFamily: 'Special Elite, monospace', fontSize: '15px' }}>
+                <p style={{ margin: '10px 0 0 0', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px' }}>
                   <Link href="/explainers/donations" style={{ color: '#7a1612', textDecoration: 'underline' }}>
                     Read the full explainer &rarr;
                   </Link>
@@ -2033,7 +2033,7 @@ export default function MagazineProfileSections({
                       {constituencyDonations.length.toLocaleString()} donation{constituencyDonations.length === 1 ? '' : 's'} from {localDonorSet.size.toLocaleString()} donor{localDonorSet.size === 1 ? '' : 's'}, recorded against the local constituency association rather than against the MP individually. This is the channel through which the majority of substantive funding to major-party MPs flows. Same donors, same political effect, different accounting envelope.
                     </p>
                     <details>
-                      <summary style={{ cursor: 'pointer', fontFamily: 'Special Elite, monospace', fontWeight: 'bold', fontSize: '15px', padding: '6px 0' }}>
+                      <summary style={{ cursor: 'pointer', fontFamily: 'var(--font-special-elite), monospace', fontWeight: 'bold', fontSize: '15px', padding: '6px 0' }}>
                         Top donors to this MP&rsquo;s local association ({localDonorRows.length})
                       </summary>
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px', marginTop: '8px' }}>
@@ -2218,7 +2218,7 @@ export default function MagazineProfileSections({
 
               {donations.length > 0 && (
                 <details style={{ marginBottom: '20px' }}>
-                  <summary style={{ cursor: 'pointer', fontFamily: 'Special Elite, monospace', fontWeight: 'bold', fontSize: '15px', padding: '6px 0' }}>
+                  <summary style={{ cursor: 'pointer', fontFamily: 'var(--font-special-elite), monospace', fontWeight: 'bold', fontSize: '15px', padding: '6px 0' }}>
                     Every donation chronologically ({donations.length})
                   </summary>
                   <div style={{ marginTop: '8px' }}>
@@ -2318,7 +2318,7 @@ export default function MagazineProfileSections({
                   <h3 style={sectionH3}>Meetings <span style={{ opacity: 0.55, fontWeight: 'normal', fontSize: '15px' }}>({meetings.length.toLocaleString()})</span></h3>
                   <p style={{ fontSize: '15px', opacity: 0.7, marginBottom: '8px' }}>Distinct organisations met: {topOrgs.length.toLocaleString()}.</p>
                   <details style={{ marginBottom: '8px' }}>
-                    <summary style={{ cursor: 'pointer', fontFamily: 'Special Elite, monospace', fontWeight: 'bold', fontSize: '15px', padding: '6px 0' }}>
+                    <summary style={{ cursor: 'pointer', fontFamily: 'var(--font-special-elite), monospace', fontWeight: 'bold', fontSize: '15px', padding: '6px 0' }}>
                       Top organisations by meeting count
                     </summary>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px', marginTop: '8px' }}>
@@ -2341,7 +2341,7 @@ export default function MagazineProfileSections({
                     </table>
                   </details>
                   <details>
-                    <summary style={{ cursor: 'pointer', fontFamily: 'Special Elite, monospace', fontWeight: 'bold', fontSize: '15px', padding: '6px 0' }}>
+                    <summary style={{ cursor: 'pointer', fontFamily: 'var(--font-special-elite), monospace', fontWeight: 'bold', fontSize: '15px', padding: '6px 0' }}>
                       Every meeting chronologically
                     </summary>
                     <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: 1.55 }}>
@@ -2365,7 +2365,7 @@ export default function MagazineProfileSections({
                     Recorded value where stated: {fmtMoney(hospitalityCashTotal)} across {topDonors.length.toLocaleString()} distinct providers.
                   </p>
                   <details>
-                    <summary style={{ cursor: 'pointer', fontFamily: 'Special Elite, monospace', fontWeight: 'bold', fontSize: '15px', padding: '6px 0' }}>
+                    <summary style={{ cursor: 'pointer', fontFamily: 'var(--font-special-elite), monospace', fontWeight: 'bold', fontSize: '15px', padding: '6px 0' }}>
                       Hospitality by provider
                     </summary>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px', marginTop: '8px' }}>
@@ -2632,7 +2632,7 @@ function ActivityTile({ label, value, sub, href, hrefLabel, external }: { label:
     <div style={{ border: "1px solid rgba(20,16,13,0.25)", padding: "10px 12px", background: "rgba(255,255,255,0.04)", display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
       <div>
         <div style={{ fontSize: "15px", textTransform: "uppercase", letterSpacing: "0.18em", opacity: 0.7, marginBottom: "4px" }}>{label}</div>
-        <div style={{ fontFamily: "\"Special Elite\", monospace", fontSize: "22px", fontWeight: "bold", color: "#14100d" }}>{value}</div>
+        <div style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: "22px", fontWeight: "bold", color: "#14100d" }}>{value}</div>
         <div style={{ fontSize: "15px", opacity: 0.65, marginTop: "4px", lineHeight: 1.3 }}>{sub}</div>
       </div>
       {href && (
@@ -2642,12 +2642,12 @@ function ActivityTile({ label, value, sub, href, hrefLabel, external }: { label:
               href={href}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ color: '#7a1612', textDecoration: 'underline', fontFamily: 'Special Elite, monospace' }}
+              style={{ color: '#7a1612', textDecoration: 'underline', fontFamily: 'var(--font-special-elite), monospace' }}
             >
               {hrefLabel || 'View'} &rarr;
             </a>
           ) : (
-            <Link href={href} style={{ color: '#7a1612', textDecoration: 'underline', fontFamily: 'Special Elite, monospace' }}>
+            <Link href={href} style={{ color: '#7a1612', textDecoration: 'underline', fontFamily: 'var(--font-special-elite), monospace' }}>
               {hrefLabel || 'View'} &rarr;
             </Link>
           )}

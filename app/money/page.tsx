@@ -70,7 +70,7 @@ export default async function MoneyLanding() {
         <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
           Money &amp; Power · Patterns across registers
         </p>
-        <h1 style={{ fontFamily: 'Special Elite, monospace', fontSize: 'clamp(28px, 4vw, 52px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '14px', lineHeight: 1.05 }}>
+        <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 52px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '14px', lineHeight: 1.05 }}>
           The money that moves through UK politics
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.7, maxWidth: '60ch' }}>
@@ -138,9 +138,9 @@ export default async function MoneyLanding() {
 function HeroTile({ href, label, headline, teaser }: { href: string; label: string; headline: string; teaser: string }) {
   return (
     <Link href={href} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, padding: '14px 0 20px', borderTop: `1px solid ${INK_HAIRLINE}` }}>
-      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', opacity: 0.75, marginBottom: '8px', color: ACCENT, fontFamily: '"Special Elite", monospace' }}>{label}</div>
-      <div style={{ fontFamily: 'Special Elite, monospace', fontSize: '20px', fontWeight: 'bold', lineHeight: 1.2, marginBottom: '10px' }}>{headline}</div>
-      <p style={{ fontFamily: '"Special Elite", monospace', fontSize: '15px', lineHeight: 1.55, opacity: 0.8, margin: 0 }}>{teaser}</p>
+      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', opacity: 0.75, marginBottom: '8px', color: ACCENT, fontFamily: 'var(--font-special-elite), monospace' }}>{label}</div>
+      <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '20px', fontWeight: 'bold', lineHeight: 1.2, marginBottom: '10px' }}>{headline}</div>
+      <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', lineHeight: 1.55, opacity: 0.8, margin: 0 }}>{teaser}</p>
       <div style={{ marginTop: '12px', fontSize: '15px', color: ACCENT, fontWeight: 'bold' }}>Read the full table &rarr;</div>
     </Link>
   );
@@ -149,14 +149,14 @@ function HeroTile({ href, label, headline, teaser }: { href: string; label: stri
 function SecondaryTile({ href, label, sub }: { href: string; label: string; sub: string }) {
   return (
     <Link href={href} className="no-hover-scale" style={{ display: 'block', textDecoration: 'none', color: INK, padding: '12px 0 16px', borderTop: `1px solid ${INK_HAIRLINE}` }}>
-      <div style={{ fontFamily: '"Special Elite", monospace', fontSize: '15px', fontWeight: 'bold', color: ACCENT, marginBottom: '6px' }}>{label} &rarr;</div>
+      <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', fontWeight: 'bold', color: ACCENT, marginBottom: '6px' }}>{label} &rarr;</div>
       <p style={{ fontSize: '15px', lineHeight: 1.55, opacity: 0.8, margin: 0 }}>{sub}</p>
     </Link>
   );
 }
 
 const sectionH2: React.CSSProperties = {
-  fontFamily: '"Special Elite", monospace',
+  fontFamily: 'var(--font-special-elite), monospace',
   fontSize: '20px',
   fontWeight: 'bold',
   borderBottom: `1px solid ${INK_HAIRLINE}`,

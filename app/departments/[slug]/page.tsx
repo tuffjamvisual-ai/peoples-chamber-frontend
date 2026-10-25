@@ -298,7 +298,7 @@ export default async function DepartmentPage({ params }: PageProps) {
       <h1 style={{ fontSize: 'clamp(21px, 3vw, 33px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '6px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)', lineHeight: 1.1 }}>
         {dept.name}
       </h1>
-      <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', color: '#14100d', margin: '0 0 14px', letterSpacing: '0.04em' }}>
+      <p style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '14px', color: '#14100d', margin: '0 0 14px', letterSpacing: '0.04em' }}>
         <Link href={`/search?dept=${slug}`} style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: '2px' }}>
           Search releases and reports →
         </Link>
@@ -309,7 +309,7 @@ export default async function DepartmentPage({ params }: PageProps) {
         {/* Quip — the department's one-line characterisation, sits directly
             under the name (per-department, from meta.description). */}
         {dept.description && (
-          <p style={{ fontFamily: 'Special Elite, monospace', fontStyle: 'italic', fontSize: '17px', lineHeight: 1.55, maxWidth: '720px', marginTop: '-4px', marginBottom: '6%', opacity: 0.9 }}>
+          <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontStyle: 'italic', fontSize: '17px', lineHeight: 1.55, maxWidth: '720px', marginTop: '-4px', marginBottom: '6%', opacity: 0.9 }}>
             {dept.description}
           </p>
         )}

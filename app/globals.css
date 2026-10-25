@@ -24,8 +24,9 @@ html, body { max-width: 100%; overflow-x: hidden; }
   .og-page table { display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 }
 
-/* Self-hosted typewriter face — used for magazine body copy. Bebas Neue is
- * loaded by next/font in app/layout.tsx as --font-bebas. */
+/* Special Elite is loaded by next/font in app/layout.tsx as --font-special-elite, with a size-matched fallback
+ * (report 46). This older self-hosted face is kept only for the demo pages that still name "Special Elite"
+ * directly; browsers download it only when a page uses that name. Bebas Neue is next/font's --font-bebas. */
 @font-face {
   font-family: "Special Elite";
   font-style: normal;
@@ -35,11 +36,29 @@ html, body { max-width: 100%; overflow-x: hidden; }
        url("/fonts/special-elite.ttf") format("truetype");
 }
 
+/* Size-matched fallback for Special Elite (report 46): local Courier New scaled so that text drawn before the font
+ * arrives takes about the same space and does not move when it swaps in. 88.5% was chosen by measuring layout shift on
+ * the most visited pages (Courier New, a typewriter face like Special Elite, wraps lines much more like it than Arial;
+ * real page text measures 87.7%). The ascent and descent overrides give Special Elite's line box (0.703 + 0.297 em).
+ * Limited to the characters Special Elite has (its cmap): characters it lacks, such as the arrows, still come from
+ * each font stack's next font, as before. */
+@font-face {
+  font-family: "Special Elite Fallback";
+  src: local("Courier New"), local("CourierNewPSMT");
+  ascent-override: 79.45%;
+  descent-override: 33.55%;
+  line-gap-override: 0%;
+  size-adjust: 88.5%;
+  unicode-range: U+0020-007E, U+00A0-017E, U+01FC-01FF, U+0237, U+02C6-02C7, U+02D8-02DD, U+0312, U+0315, U+0326, U+03BC,
+    U+1E80-1E85, U+1EF2-1EF3, U+2013-2014, U+2018-201A, U+201C-201E, U+2020-2022, U+2026, U+2030, U+2039-203A, U+2044,
+    U+20AC, U+2122, U+2202, U+220F, U+2212, U+2248, U+2260, U+FB01-FB02;
+}
+
 :root {
   --background: #1a1a1a;
   --foreground: #c9c9c9;
-  /* --font-typewriter wraps the self-hosted Special Elite face above. */
-  --font-typewriter: "Special Elite", "Courier New", monospace;
+  /* --font-typewriter wraps Special Elite as loaded by next/font (app/layout.tsx). */
+  --font-typewriter: var(--font-special-elite), "Courier New", monospace;
 }
 
 @theme inline {

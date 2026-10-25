@@ -19,7 +19,7 @@ const pageBtn = (disabled: boolean): CSSProperties => ({
   color: INK,
   border: `1px solid ${INK}`,
   borderRadius: 0,
-  fontFamily: 'Special Elite, monospace',
+  fontFamily: 'var(--font-special-elite), monospace',
   fontSize: '15px',
   letterSpacing: '0.06em',
   cursor: disabled ? 'default' : 'pointer',
@@ -195,7 +195,7 @@ export default function BillsGrid({ initialBills, currentPage, totalPages, total
       />
 
       {/* The one count on the page (23 Oct 2026): the page's place in the list, or the search's matches. */}
-      <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', color: '#14100d', opacity: 0.7, marginBottom: '16px' }}>
+      <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', color: '#14100d', opacity: 0.7, marginBottom: '16px' }}>
         {searching
           ? 'Searching…'
           : searchResults
@@ -217,7 +217,7 @@ export default function BillsGrid({ initialBills, currentPage, totalPages, total
 
       {paginatedBills.length === 0 && (
         <div className="text-center py-12">
-          <p style={{ color: '#14100d', fontFamily: 'Special Elite, monospace' }}>No bills found matching your filters.</p>
+          <p style={{ color: '#14100d', fontFamily: 'var(--font-special-elite), monospace' }}>No bills found matching your filters.</p>
         </div>
       )}
 

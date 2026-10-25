@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@0,400;0,500;0,600;0,700;0,900;1,700;1,900&family=Permanent+Marker&family=Special+Elite&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@0,400;0,500;0,600;0,700;0,900;1,700;1,900&family=Permanent+Marker&display=swap');
 
 :root {
   --mag-oxblood:   #7a1612;
@@ -13,8 +13,8 @@
   --mag-blue:      #1c4c78;
   --mag-green:     #2f6b2c;
 
-  /* Only --font-nav (Special Elite) is referenced via var() in the app. */
-  --font-nav:       'Special Elite', 'Courier New', monospace;
+  /* Only --font-nav (Special Elite, loaded by next/font in app/layout.tsx) is referenced via var() in the app. */
+  --font-nav:       var(--font-special-elite), 'Courier New', monospace;
 }
 
 /* Magazine chrome — opt-in via MagazineNav / MagazineFooter.

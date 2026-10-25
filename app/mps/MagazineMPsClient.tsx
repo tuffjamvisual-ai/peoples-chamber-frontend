@@ -107,7 +107,7 @@ export default function MagazineMPsClient({ mps, expand }: { mps: MP[]; expand?:
     : 0;
 
   return (
-    <div style={{ padding: '32px 0', fontFamily: 'Special Elite, monospace', color: INK }}>
+    <div style={{ padding: '32px 0', fontFamily: 'var(--font-special-elite), monospace', color: INK }}>
       {partyExists ? (
         <SinglePartyView
           partyName={selectedParty!}

@@ -71,7 +71,7 @@ export default function DepartmentMasthead({ sos, budget }: Props) {
                   justifyContent: 'center',
                   fontSize: '64px',
                   color: ACCENT,
-                  fontFamily: 'Special Elite, monospace',
+                  fontFamily: 'var(--font-special-elite), monospace',
                 }}
               >
                 {sos.name.charAt(0)}
@@ -165,7 +165,7 @@ export default function DepartmentMasthead({ sos, budget }: Props) {
         >
           <div
             style={{
-              fontFamily: 'Special Elite, monospace',
+              fontFamily: 'var(--font-special-elite), monospace',
               fontSize: '15px',
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
@@ -186,7 +186,7 @@ export default function DepartmentMasthead({ sos, budget }: Props) {
           >
             <div
               style={{
-                fontFamily: 'Special Elite, monospace',
+                fontFamily: 'var(--font-special-elite), monospace',
                 fontSize: '30px',
                 fontWeight: 'bold',
                 color: '#6b2417',
@@ -197,7 +197,7 @@ export default function DepartmentMasthead({ sos, budget }: Props) {
             </div>
             <div
               style={{
-                fontFamily: 'Special Elite, monospace',
+                fontFamily: 'var(--font-special-elite), monospace',
                 fontSize: '15px',
                 opacity: 0.75,
               }}
@@ -208,7 +208,7 @@ export default function DepartmentMasthead({ sos, budget }: Props) {
           </div>
           <p
             style={{
-              fontFamily: 'Special Elite, monospace',
+              fontFamily: 'var(--font-special-elite), monospace',
               fontSize: '15px',
               lineHeight: 1.65,
               color: '#14100d',

@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';
-const FONT = "'Special Elite', monospace";
+const FONT = "var(--font-special-elite), monospace";
 
 const MESSAGES: Record<string, { head: string; body: string }> = {
   confirmed: { head: 'You are subscribed.', body: 'Thank you. Open Govt Weekly will arrive on Sunday. Every email has a link to unsubscribe in one click.' },

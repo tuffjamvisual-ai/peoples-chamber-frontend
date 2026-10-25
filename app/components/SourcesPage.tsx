@@ -8,7 +8,7 @@ import { formatLastChecked } from './EvidencePanel';
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';
-const MONO = '"Special Elite", monospace';
+const MONO = 'var(--font-special-elite), monospace';
 
 export const backStyle = { display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' } as const;
 export const kickerStyle = { fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', color: ACCENT, fontWeight: 'bold', marginBottom: '10px' } as const;

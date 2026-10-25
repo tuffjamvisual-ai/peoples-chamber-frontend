@@ -12,7 +12,7 @@ const INK = '#14100d';
 const INK_SOFT = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
 const ACCENT = '#7a1612';
-const MONO = 'Special Elite, monospace';
+const MONO = 'var(--font-special-elite), monospace';
 const small = { fontFamily: MONO, fontSize: '15px', color: INK_SOFT, lineHeight: 1.6, margin: '8px 0 0' } as const;
 
 export default async function CouncilPipMobilitySection({ gssCode }: { gssCode: string | null }) {

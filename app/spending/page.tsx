@@ -70,7 +70,7 @@ export default async function SpendingPage() {
       <h1 style={{ fontSize: 'clamp(24px, 3.4vw, 38px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)', lineHeight: 1.1 }}>
         Departmental spending, by total DEL
       </h1>
-      <div style={{ zoom: 1.18, fontFamily: 'Special Elite, monospace' }}>
+      <div style={{ zoom: 1.18, fontFamily: 'var(--font-special-elite), monospace' }}>
         <p style={{ fontSize: '16px', lineHeight: 1.7, marginBottom: '8px', maxWidth: '720px' }}>
           {fmtMillions(totalReported)} in Total Departmental Expenditure Limits across {reported.length} of the
           24 ministerial departments, FY {fy} plans. {top ? `${top.name} alone is ${topShare}% of it.` : ''}

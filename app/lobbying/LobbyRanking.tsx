@@ -21,7 +21,7 @@ export type RankingTab = { key: string; label: string; last12: RankedOrg[]; sinc
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
 const ACCENT = '#6b2417';
-const FONT = 'Special Elite, monospace';
+const FONT = 'var(--font-special-elite), monospace';
 
 export default function LobbyRanking({ tabs, sinceLabel }: { tabs: RankingTab[]; sinceLabel: string }) {
   const [tabKey, setTabKey] = useState(tabs[0]?.key || 'all');

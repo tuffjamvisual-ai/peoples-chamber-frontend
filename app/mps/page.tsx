@@ -47,7 +47,7 @@ export default async function MPsPage() {
       />
       {/* Page heading (h1) for screen readers and search engines; the page had none
           (ChatGPT audit, 15 Oct 2026). */}
-      <h1 style={{ fontFamily: '"Special Elite", monospace', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 'bold', letterSpacing: '-0.02em', lineHeight: 1.15, margin: '0 0 8px', transform: 'rotate(-0.3deg)' }}>
+      <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 'bold', letterSpacing: '-0.02em', lineHeight: 1.15, margin: '0 0 8px', transform: 'rotate(-0.3deg)' }}>
         Members of Parliament
       </h1>
       <p style={{ fontSize: '16px', lineHeight: 1.6, margin: '0 0 18px', maxWidth: '60ch' }}>

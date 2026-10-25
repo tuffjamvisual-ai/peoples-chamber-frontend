@@ -35,7 +35,7 @@ export default function ResetPasswordClient({ token }: { token: string }) {
 
   if (!token) {
     return (
-      <div style={{ maxWidth: '440px', margin: '0 auto', fontFamily: 'Special Elite, monospace', color: INK }}>
+      <div style={{ maxWidth: '440px', margin: '0 auto', fontFamily: 'var(--font-special-elite), monospace', color: INK }}>
         <p style={{ fontSize: '15px', opacity: 0.75 }}>
           This reset link is invalid.{' '}
           <a href="/login" style={{ color: ACCENT, textDecoration: 'underline' }}>Return to sign in</a>
@@ -69,7 +69,7 @@ export default function ResetPasswordClient({ token }: { token: string }) {
   }
 
   return (
-    <div style={{ maxWidth: '440px', margin: '0 auto', fontFamily: 'Special Elite, monospace', color: INK }}>
+    <div style={{ maxWidth: '440px', margin: '0 auto', fontFamily: 'var(--font-special-elite), monospace', color: INK }}>
       <style>{`
         .pc-reset input:focus { border-color: ${INK}; background: rgba(20,16,13,0.07); }
         .pc-reset button[type=submit]:hover { background: #2a211a; }

@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 
 const INK = '#14100d';
 const ACCENT = '#6b2417';
-const MONO = 'Special Elite, monospace';
+const MONO = 'var(--font-special-elite), monospace';
 
 type Party = { key: string; label: string; pollsterKey: string | null; colour: string };
 const PARTIES: Party[] = [

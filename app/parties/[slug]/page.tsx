@@ -199,12 +199,12 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
           }}
         />
         {party.recipient_name && (
-          <div style={{ marginTop: '14px', fontFamily: 'Special Elite, monospace', fontSize: '15px' }}>
+          <div style={{ marginTop: '14px', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px' }}>
             <Link href={`/parties/${party.slug}/money`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{fmtMoney(donationsTotal)} lifetime declared donations →</Link>
           </div>
         )}
         {secondJobs && (
-          <div style={{ marginTop: '6px', fontFamily: 'Special Elite, monospace', fontSize: '15px' }}>
+          <div style={{ marginTop: '6px', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px' }}>
             <Link href={`/second-jobs/${secondJobs.slug}`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{secondJobs.count} {party.name} MP{secondJobs.count === 1 ? ' has' : 's have'} paid roles outside Parliament →</Link>
           </div>
         )}
@@ -221,7 +221,7 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
           coloured callout, shift source. */}
       <div>
         {policies.length === 0 && (
-          <p style={{ fontFamily: 'Special Elite, monospace', fontSize: '16px', opacity: 0.7 }}>
+          <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '16px', opacity: 0.7 }}>
             Policy positions not yet researched for this party. Coming soon.
           </p>
         )}
@@ -246,7 +246,7 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
             </h2>
             <div
               style={{
-                fontFamily: 'Special Elite, monospace',
+                fontFamily: 'var(--font-special-elite), monospace',
                 fontSize: 'clamp(15px, 1.7vw, 19px)',
                 lineHeight: 1.65,
                 marginTop: '12px',

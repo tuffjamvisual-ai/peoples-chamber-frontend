@@ -135,7 +135,7 @@ export default function HotspotDropdown({
       '0 18px 32px -10px rgba(50,30,18,0.55)',           // warm drop shadow
     ].join(', '),
     padding: '6px 0 10px',
-    fontFamily: 'Special Elite, monospace',
+    fontFamily: 'var(--font-special-elite), monospace',
     color: '#14100d',
     // Safety net for long menus (PARTIES now lists all 15 parties +
     // Manifesto Comparisons). 70vh keeps the panel fully on-screen on
@@ -205,7 +205,7 @@ export default function HotspotDropdown({
             justifyContent: 'center',
             gap: '8px',
             padding: '4px 18px 8px',
-            fontFamily: 'Special Elite, monospace',
+            fontFamily: 'var(--font-special-elite), monospace',
             fontSize: '15px',
             letterSpacing: '0.28em',
             textTransform: 'uppercase',

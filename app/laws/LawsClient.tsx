@@ -100,7 +100,7 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
             color: INK,
             border: `1px solid ${INK_HAIRLINE}`,
             borderRadius: 0,
-            fontFamily: 'Special Elite, monospace',
+            fontFamily: 'var(--font-special-elite), monospace',
             fontSize: '15px',
             outline: 'none',
           }}
@@ -162,7 +162,7 @@ function PageLink({
     color: INK,
     background: 'transparent',
     textDecoration: 'none',
-    fontFamily: 'Special Elite, monospace',
+    fontFamily: 'var(--font-special-elite), monospace',
   } as const
 
   if (disabled) {

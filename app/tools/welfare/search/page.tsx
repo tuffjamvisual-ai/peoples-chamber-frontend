@@ -19,9 +19,9 @@ export default function WelfareSearchPage() {
         fallbackHref="/tools/welfare"
         label="← Back to search"
         className="no-hover-scale"
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontFamily: 'Special Elite, monospace', fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase' }}
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase' }}
       />
-      <Suspense fallback={<p style={{ fontFamily: 'Special Elite, monospace', fontSize: '15px', color: '#14100d' }}>Loading…</p>}>
+      <Suspense fallback={<p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: '#14100d' }}>Loading…</p>}>
         <WelfareSearchResults />
       </Suspense>
     </OpenGovShell>

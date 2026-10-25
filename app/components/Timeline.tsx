@@ -3,7 +3,7 @@ import { fmtDate, fmtNumber, type TimelineRow } from '@/lib/programmes';
 const INK      = '#14100d';
 const ACCENT   = '#7a1612';
 const HAIRLINE = 'rgba(20,16,13,0.15)';
-const MONO     = "'Special Elite', monospace";
+const MONO     = "var(--font-special-elite), monospace";
 
 const ENTRY_TYPE_LABEL: Record<string, string> = {
   first_announced:  'First announced',

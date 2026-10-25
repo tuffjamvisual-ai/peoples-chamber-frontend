@@ -15,8 +15,8 @@ import { readAll } from '@/lib/read-all';
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
 const ACCENT = '#7a1612';
-const SERIF = 'Special Elite, monospace';
-const MONO = 'Special Elite, monospace';
+const SERIF = 'var(--font-special-elite), monospace';
+const MONO = 'var(--font-special-elite), monospace';
 
 type Lsoa = { lsoa_name: string; households: number; fuel_poor: number; percentage: number };
 

@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 const INK = '#14100d';
 const ACCENT = '#7a1612';
 const HAIRLINE = 'rgba(20,16,13,0.15)';
-const MONO = "'Special Elite', monospace";
+const MONO = "var(--font-special-elite), monospace";
 
 const TYPE_META: Record<string, { label: string; color: string }> = {
   editorial:    { label: 'Report',        color: '#7a1612' },

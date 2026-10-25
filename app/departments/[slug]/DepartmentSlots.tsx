@@ -155,7 +155,7 @@ export function ReleasesSlot({ releases }: { releases: PressReleaseItem[] }) {
             >
               {r.title}
             </Link>
-            <span style={{ display: 'block', fontFamily: 'Special Elite, monospace', fontSize: '14px', color: '#14100d', marginTop: '3px' }}>
+            <span style={{ display: 'block', fontFamily: 'var(--font-special-elite), monospace', fontSize: '14px', color: '#14100d', marginTop: '3px' }}>
               {r.organisation && r.published_at ? `${r.organisation} · ` : (r.organisation ?? '')}
               {r.published_at
                 ? new Date(r.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -182,7 +182,7 @@ export function InvestigationsSlot({ investigations }: { investigations: Investi
                   {listSummary(item)}
                 </span>
               )}
-              <span style={{ display: 'block', fontFamily: 'Special Elite, monospace', fontSize: '14px', marginTop: '4px' }}>
+              <span style={{ display: 'block', fontFamily: 'var(--font-special-elite), monospace', fontSize: '14px', marginTop: '4px' }}>
                 {item.type} · {item.kicker && item.kicker.toLowerCase() !== item.type.toLowerCase() ? `${item.kicker} · ` : ''}
                 {new Date(item.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
               </span>
@@ -221,7 +221,7 @@ export function ProgrammesSlot({ programmes }: { programmes: ProgrammeItem[] }) 
             <li key={i} style={{ borderBottom: '1px dotted rgba(20,16,13,0.15)', padding: '10px 0' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px' }}>
                 <span style={{
-                  fontFamily: 'Special Elite, monospace',
+                  fontFamily: 'var(--font-special-elite), monospace',
                   fontSize: '14px', letterSpacing: '0.12em',
                   textTransform: 'uppercase', color: statusColour,
                   border: `1px solid ${statusColour}`,

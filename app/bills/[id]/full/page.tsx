@@ -51,8 +51,8 @@ const INK = '#14100d'
 const INK_SOFT = '#14100d'
 const INK_HAIRLINE = 'rgba(20,16,13,0.3)'
 const ACCENT = '#7a1612'
-const SERIF = 'Special Elite, monospace'
-const MONO = 'Special Elite, monospace'
+const SERIF = 'var(--font-special-elite), monospace'
+const MONO = 'var(--font-special-elite), monospace'
 
 // Sort order for the publication-type groupings. Anything not on
 // this list sorts to the end alphabetically — keeps obscure types
@@ -234,7 +234,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
         style={{
           padding: 0,
           color: '#1a140e',
-          fontFamily: 'Special Elite, monospace',
+          fontFamily: 'var(--font-special-elite), monospace',
         }}
       >
 

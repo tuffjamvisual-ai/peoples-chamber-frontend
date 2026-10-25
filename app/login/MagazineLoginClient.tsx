@@ -249,7 +249,7 @@ export default function MagazineLoginClient() {
   }
 
   return (
-    <div style={{ maxWidth: '440px', margin: '0 auto', fontFamily: 'Special Elite, monospace', color: INK }}>
+    <div style={{ maxWidth: '440px', margin: '0 auto', fontFamily: 'var(--font-special-elite), monospace', color: INK }}>
       <style>{`
         .pc-login input:focus { border-color: ${INK}; background: rgba(20,16,13,0.07); }
         .pc-login button[type=submit]:hover { background: #2a211a; }

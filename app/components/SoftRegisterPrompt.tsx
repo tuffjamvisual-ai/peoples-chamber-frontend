@@ -16,7 +16,7 @@ import { useAuth } from '../context/AuthContext';
 const PAPER = '#f4e8d4';
 const INK = '#14100d';
 const ACCENT = '#7a1612';
-const SERIF = 'Special Elite, monospace';
+const SERIF = 'var(--font-special-elite), monospace';
 const COOKIE = 'og_soft_prompt_seen';
 const EXCLUDED = ['/signup', '/login', '/about', '/privacy', '/terms'];
 

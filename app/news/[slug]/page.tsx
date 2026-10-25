@@ -19,7 +19,7 @@ const plain = (html: string) => html.replace(/<[^>]+>/g, ' ').replace(/&[a-z#0-9
 
 export const revalidate = 3600
 
-const SERIF = 'Special Elite, monospace'
+const SERIF = 'var(--font-special-elite), monospace'
 const INK = '#14100d'
 const ACCENT = '#6b2417'
 
@@ -154,15 +154,15 @@ async function DeptContextBlock({ organisation }: { organisation: string | null 
       aria-label={`About ${organisation}`}
       style={{ marginTop: '36px', paddingTop: '18px', borderTop: '2px solid rgba(20,16,13,0.18)', maxWidth: '680px' }}
     >
-      <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 10px' }}>
+      <p style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 10px' }}>
         About this department
       </p>
-      <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '15px', lineHeight: 1.7, color: '#14100d', margin: '0 0 12px' }}>
+      <p style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', lineHeight: 1.7, color: '#14100d', margin: '0 0 12px' }}>
         {firstPara}
       </p>
       <Link
         href={`/departments/${deptSlug}`}
-        style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px', letterSpacing: '0.04em' }}
+        style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '14px', color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px', letterSpacing: '0.04em' }}
       >
         Full department profile →
       </Link>
@@ -181,11 +181,11 @@ function InvestigationBox({ pieces, placement }: { pieces: EditorialEntry[]; pla
       aria-label="Open Govt investigation of this announcement"
       style={{ margin: placement === 'top' ? '0 0 28px' : '36px 0 0', padding: '14px 16px', border: `1.5px solid ${ACCENT}`, borderLeft: `5px solid ${ACCENT}`, background: 'rgba(107,36,23,0.05)', maxWidth: '680px' }}
     >
-      <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.18em', color: '#7a1612', margin: '0 0 8px' }}>
+      <p style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.18em', color: '#7a1612', margin: '0 0 8px' }}>
         {one ? 'Read our report on this announcement' : 'Read our reports on this announcement'}
       </p>
       {pieces.map((e) => (
-        <p key={e.slug} style={{ fontFamily: "'Special Elite', monospace", fontSize: '16px', lineHeight: 1.5, margin: '0 0 6px' }}>
+        <p key={e.slug} style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '16px', lineHeight: 1.5, margin: '0 0 6px' }}>
           <Link href={`/${e.kind === 'briefing' ? 'briefings' : 'editorials'}/${e.slug}`} style={{ color: INK, fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{e.headline} →</Link>
         </p>
       ))}
@@ -225,7 +225,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
       <article>
         <header style={{ marginBottom: '5%', paddingBottom: '24px', borderBottom: `1px solid rgba(20,16,13,0.2)` }}>
           {/* A2 — SOURCE badge: visually separates government content from opengovt reporting */}
-          <p style={{ fontFamily: "'Special Elite', monospace", fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 10px', display: 'inline-block', border: '1px solid #7a1612', padding: '2px 7px 1px' }}>
+          <p style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 10px', display: 'inline-block', border: '1px solid #7a1612', padding: '2px 7px 1px' }}>
             Source: GOV.UK
           </p>
           <p className="text-[15px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>
@@ -236,7 +236,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
           </h1>
           {/* A1 — original source, linked (owner's decision, 16 Oct 2026; previously plain text). */}
           {release.gov_url && !release.removed_upstream && (
-            <p style={{ marginTop: '14px', fontFamily: "'Special Elite', monospace", fontSize: '14px', color: ACCENT, letterSpacing: '0.04em', wordBreak: 'break-all' }}>
+            <p style={{ marginTop: '14px', fontFamily: "var(--font-special-elite), monospace", fontSize: '14px', color: ACCENT, letterSpacing: '0.04em', wordBreak: 'break-all' }}>
               Original: <a href={release.gov_url} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{release.gov_url.replace(/^https?:\/\//, '')}</a>
             </p>
           )}

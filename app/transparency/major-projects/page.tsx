@@ -18,7 +18,7 @@ export const revalidate = 86400;
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.25)';
 const ACCENT = '#7a1612';
-const MONO = '"Special Elite", monospace';
+const MONO = 'var(--font-special-elite), monospace';
 
 export const metadata: Metadata = {
   title: "Major projects: the government's biggest projects, year by year",

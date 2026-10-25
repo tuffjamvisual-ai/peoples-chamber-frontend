@@ -22,8 +22,8 @@ const INK = '#14100d';
 const INK_SOFT = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
 const ACCENT = '#6b2417';
-const SERIF = 'Special Elite, monospace';
-const MONO = 'Special Elite, monospace';
+const SERIF = 'var(--font-special-elite), monospace';
+const MONO = 'var(--font-special-elite), monospace';
 
 export default async function SecondJobsLanding() {
   const { partyTotals, grandTotal, grandClaims, totalMps, mpsWithPayments, summaryUpdated } = await loadLanding();

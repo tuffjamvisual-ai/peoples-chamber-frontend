@@ -12,7 +12,7 @@ export default function MpProfileError({
         maxWidth: '600px',
         margin: '10% auto',
         padding: '0 24px',
-        fontFamily: 'Special Elite, monospace',
+        fontFamily: 'var(--font-special-elite), monospace',
         color: '#14100d',
         textAlign: 'center',
       }}

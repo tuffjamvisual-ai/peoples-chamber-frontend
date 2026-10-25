@@ -37,8 +37,8 @@ export async function generateMetadata(): Promise<Metadata> {
 const INK = '#14100d';
 const INK_SOFT = '#14100d';
 const ACCENT = '#6b2417';
-const SERIF = 'Special Elite, monospace';
-const MONO = 'Special Elite, monospace';
+const SERIF = 'var(--font-special-elite), monospace';
+const MONO = 'var(--font-special-elite), monospace';
 
 const BODY = `TOTAL GOVERNMENT DEPARTMENTAL BUDGET: £900bn annually
 

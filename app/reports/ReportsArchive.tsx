@@ -28,7 +28,7 @@ const INK = '#14100d';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
 const INK_HAIRLINE = 'rgba(20,16,13,0.3)';
 const ACCENT = '#7a1612';
-const MONO = '"Special Elite", monospace';
+const MONO = 'var(--font-special-elite), monospace';
 const PER_PAGE = 20;
 const TYPES = ['Investigation', 'Briefing', 'Commentary'] as const;
 
@@ -39,7 +39,7 @@ const field: CSSProperties = {
   color: INK,
   border: `1px solid ${INK_HAIRLINE}`,
   borderRadius: 0,
-  fontFamily: 'Special Elite, monospace',
+  fontFamily: 'var(--font-special-elite), monospace',
   fontSize: '15px',
   outline: 'none',
 };
@@ -49,7 +49,7 @@ const pageBtn = (disabled: boolean): CSSProperties => ({
   color: INK,
   border: `1px solid ${INK}`,
   borderRadius: 0,
-  fontFamily: 'Special Elite, monospace',
+  fontFamily: 'var(--font-special-elite), monospace',
   fontSize: '15px',
   letterSpacing: '0.06em',
   cursor: disabled ? 'default' : 'pointer',

@@ -14,7 +14,7 @@ import { useRouter } from 'next/navigation';
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';
-const MONO = "'Special Elite', monospace";
+const MONO = "var(--font-special-elite), monospace";
 
 type Area = { kind: 'area'; place: string | null; councilCode: string | null; constituencyCode: string | null };
 type Choice = { name: string; label: string; lat: number; lon: number };

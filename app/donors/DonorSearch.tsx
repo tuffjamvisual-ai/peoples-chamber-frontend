@@ -12,7 +12,7 @@ const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.3)';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
 const ACCENT = '#7a1612';
-const MONO = '"Special Elite", monospace';
+const MONO = 'var(--font-special-elite), monospace';
 
 // Parchment form control, as on the /reports filter bar.
 const field: CSSProperties = {

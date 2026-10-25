@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Bebas_Neue } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
 import SoftRegisterPrompt from "./components/SoftRegisterPrompt";
@@ -7,10 +8,30 @@ import FloatingScrollDownButton from "./components/FloatingScrollDownButton";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
-// Special Elite (body copy) is self-hosted: @font-face in globals.css, preloaded below.
+// Special Elite (body copy) is loaded once here by next/font (25 Oct 2026, report 46): it preloads the font and adds a
+// fallback face sized to match it (adjustFontFallback), so text shown before the font arrives takes the same space and
+// does not jump when it swaps in (it moved by up to 0.17 CLS on a first visit). Pages name it through
+// var(--font-special-elite). next/font/local with the site's own file, as before (next/font/google serves the same
+// face in "latin" subsets).
+// The old @font-face in globals.css stays only for the demo pages, which still name "Special Elite" directly; a browser
+// fetches it only when a page uses that name.
 // Bebas Neue (the masthead stamp, on every page) is self-hosted by next/font instead of a render-blocking
 // Google Fonts @import (owner's approval, 21 Oct 2026). Playfair Display, Anton, Oswald and Abril Fatface
 // were preloaded on every page but used by no live page, so they are no longer loaded.
+const specialElite = localFont({
+  src: "../public/fonts/special-elite.woff2",
+  variable: "--font-special-elite",
+  weight: "400",
+  style: "normal",
+  display: "swap",
+  preload: true,
+  // The size-matched fallback is defined in globals.css ("Special Elite Fallback"), limited to the characters the font
+  // has: next/font's own fallback face covered every character, so arrows the font lacks (← →) were drawn from it,
+  // larger than before, instead of from each font stack's next font.
+  adjustFontFallback: false,
+  fallback: ["Special Elite Fallback"],
+});
+
 const bebas = Bebas_Neue({
   variable: "--font-bebas",
   subsets: ["latin"],
@@ -110,17 +131,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${bebas.variable} h-full antialiased`}>
+    <html lang="en" className={`${bebas.variable} ${specialElite.variable} h-full antialiased`}>
       <head>
-        {/* Preload the Special Elite font so it's ready when the
-         * magazine pages render — skips the 200-300ms fallback flash. */}
-        <link
-          rel="preload"
-          href="/fonts/special-elite.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
         {/* RSS feed discovery — Reader apps, GSC and aggregators read this. */}
         <link
           rel="alternate"

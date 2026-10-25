@@ -139,7 +139,7 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
             <section style={{ marginBottom: '40px' }}>
               <div
                 style={{
-                  fontFamily: 'Special Elite, monospace',
+                  fontFamily: 'var(--font-special-elite), monospace',
                   fontSize: 'clamp(16px, 1.6vw, 18px)',
                   lineHeight: 1.7,
                   color: INK,
@@ -160,7 +160,7 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
           ) : (
             <p
               style={{
-                fontFamily: 'Special Elite, monospace',
+                fontFamily: 'var(--font-special-elite), monospace',
                 fontSize: '16px',
                 opacity: 0.7,
                 marginBottom: '40px',
@@ -175,7 +175,7 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
             <a
               href={`/parties/${party.slug}`}
               style={{
-                fontFamily: 'Special Elite, monospace',
+                fontFamily: 'var(--font-special-elite), monospace',
                 fontSize: '15px',
                 letterSpacing: '0.12em',
                 textTransform: 'uppercase',

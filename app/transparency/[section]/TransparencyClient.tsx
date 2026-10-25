@@ -178,7 +178,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                     <p className="text-[15px] leading-[1.7] font-semibold mb-1" style={{ color: ACCENT }}>Met {organisation}</p>
                   )}
                   {purpose && (
-                    <p className="text-[#14100d] text-[15px] leading-[1.7]" style={{ fontFamily: 'Special Elite, monospace' }}>{purpose}</p>
+                    <p className="text-[#14100d] text-[15px] leading-[1.7]" style={{ fontFamily: 'var(--font-special-elite), monospace' }}>{purpose}</p>
                   )}
                 </li>
               )
@@ -213,7 +213,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                     <p className="text-[15px] leading-[1.7] font-semibold mb-1" style={{ color: ACCENT }}>From {donor}</p>
                   )}
                   {(description || valueFmt) && (
-                    <p className="text-[#14100d] text-[15px] leading-[1.7]" style={{ fontFamily: 'Special Elite, monospace' }}>
+                    <p className="text-[#14100d] text-[15px] leading-[1.7]" style={{ fontFamily: 'var(--font-special-elite), monospace' }}>
                       {description || ''}
                       {valueFmt && <>{description ? ' · ' : ''}{valueFmt}</>}
                     </p>
@@ -293,12 +293,12 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                     </span>
                   )}
                 </div>
-                <p className="text-[15px] text-[#14100d] leading-[1.7] mb-1" style={{ fontFamily: 'Special Elite, monospace' }}>
+                <p className="text-[15px] text-[#14100d] leading-[1.7] mb-1" style={{ fontFamily: 'var(--font-special-elite), monospace' }}>
                   from <span className="text-[#14100d] font-semibold">{donor}</span>
                   {donorType && <span className="text-[#14100d]"> · {donorType}</span>}
                   {recipientType && <span className="text-[#14100d]"> · recipient: {recipientType}</span>}
                 </p>
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[15px] text-[#14100d] uppercase tracking-[0.15em]" style={{ fontFamily: 'Special Elite, monospace' }}>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[15px] text-[#14100d] uppercase tracking-[0.15em]" style={{ fontFamily: 'var(--font-special-elite), monospace' }}>
                   {acceptedDate && <span>Accepted {acceptedDate}</span>}
                   {!acceptedDate && receivedDate && <span>Received {receivedDate}</span>}
                   {donationType && <span>· {donationType}</span>}
@@ -313,7 +313,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                         key={f.label}
                         className="text-[15px] uppercase tracking-[0.2em] font-bold px-2 py-0.5"
                         style={{
-                          fontFamily: 'Special Elite, monospace',
+                          fontFamily: 'var(--font-special-elite), monospace',
                           background: f.tone === 'warn' ? 'rgba(122,22,18,0.12)' : 'rgba(20,16,13,0.06)',
                           color: f.tone === 'warn' ? ACCENT : '#14100d',
                           border: `1px solid ${f.tone === 'warn' ? 'rgba(122,22,18,0.35)' : 'rgba(20,16,13,0.18)'}`,
@@ -328,13 +328,13 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                 <details className="mt-3">
                   <summary
                     className="cursor-pointer text-[15px] uppercase tracking-[0.2em] text-[#14100d]/70 font-bold inline-block"
-                    style={{ fontFamily: 'Special Elite, monospace' }}
+                    style={{ fontFamily: 'var(--font-special-elite), monospace' }}
                   >
                     Full record ▾
                   </summary>
                   <dl
                     className="mt-2 grid grid-cols-1 sm:grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-[15px] leading-[1.65]"
-                    style={{ fontFamily: 'Special Elite, monospace' }}
+                    style={{ fontFamily: 'var(--font-special-elite), monospace' }}
                   >
                     {cashValue && cashValue !== amount && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Cash value</dt><dd className="text-[#14100d]">{cashValue}</dd></>)}
                     {nonCashValue && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Non cash value</dt><dd className="text-[#14100d]">{nonCashValue}</dd></>)}
@@ -399,7 +399,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                       <span className="text-[#14100d] text-[15px] font-mono whitespace-nowrap uppercase tracking-[0.15em]">{awardedDate}</span>
                     )}
                   </div>
-                  <p className="text-[15px] leading-[1.7] mb-1" style={{ fontFamily: 'Special Elite, monospace' }}>
+                  <p className="text-[15px] leading-[1.7] mb-1" style={{ fontFamily: 'var(--font-special-elite), monospace' }}>
                     {[supplier, deptLabel, value].filter(Boolean).join(' · ')}
                     {status && (
                       <span className="ml-3 text-[14px] uppercase tracking-[0.12em] font-bold" style={{ color: statusColour }}>
@@ -411,10 +411,10 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                     <p className="text-[#14100d]/75 text-[15px] leading-[1.65] mt-1.5">{descTruncated}</p>
                   )}
                   <details className="mt-3">
-                    <summary className="cursor-pointer text-[15px] uppercase tracking-[0.2em] text-[#14100d]/70 font-bold inline-block" style={{ fontFamily: 'Special Elite, monospace' }}>
+                    <summary className="cursor-pointer text-[15px] uppercase tracking-[0.2em] text-[#14100d]/70 font-bold inline-block" style={{ fontFamily: 'var(--font-special-elite), monospace' }}>
                       Record identifiers ▾
                     </summary>
-                    <dl className="mt-2 grid grid-cols-1 sm:grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-[15px] leading-[1.65]" style={{ fontFamily: 'Special Elite, monospace' }}>
+                    <dl className="mt-2 grid grid-cols-1 sm:grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-[15px] leading-[1.65]" style={{ fontFamily: 'var(--font-special-elite), monospace' }}>
                       {ocid       && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">OCID</dt><dd className="text-[#14100d] font-mono break-all">{ocid}</dd></>)}
                       {awardId    && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Award ID</dt><dd className="text-[#14100d] font-mono">{awardId}</dd></>)}
                       {contractId && (<><dt className="text-[#14100d]/65 uppercase tracking-[0.15em]">Contract ID</dt><dd className="text-[#14100d] font-mono">{contractId}</dd></>)}

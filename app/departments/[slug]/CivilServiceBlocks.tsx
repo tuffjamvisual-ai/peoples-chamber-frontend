@@ -30,7 +30,7 @@ function ChangeChip({ pct }: { pct: number | null | undefined }) {
 
 export function WorkforceBlock({ row }: { row: DepartmentStaffingRow | null }) {
   return (
-    <section className="pb-6 mb-6" style={{ fontFamily: 'Special Elite, monospace' }}>
+    <section className="pb-6 mb-6" style={{ fontFamily: 'var(--font-special-elite), monospace' }}>
       <h2 className="text-[15px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>
         Workforce
       </h2>
@@ -62,7 +62,7 @@ export function WorkforceBlock({ row }: { row: DepartmentStaffingRow | null }) {
 export function BudgetBlock({ row }: { row: DepartmentBudgetRow | null }) {
   if (!row) {
     return (
-      <section className="pb-6 mb-6" style={{ fontFamily: 'Special Elite, monospace' }}>
+      <section className="pb-6 mb-6" style={{ fontFamily: 'var(--font-special-elite), monospace' }}>
         <h2 className="text-[15px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>
           Budget
         </h2>
@@ -78,7 +78,7 @@ export function BudgetBlock({ row }: { row: DepartmentBudgetRow | null }) {
   const cdel = fmtMillions(row.capital_del_millions);
 
   return (
-    <section className="pb-6 mb-6" style={{ fontFamily: 'Special Elite, monospace' }}>
+    <section className="pb-6 mb-6" style={{ fontFamily: 'var(--font-special-elite), monospace' }}>
       <h2 className="text-[15px] uppercase tracking-[0.25em] mb-3 font-semibold" style={{ color: ACCENT }}>
         Budget
       </h2>

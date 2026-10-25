@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 const INK      = '#14100d';
 const ACCENT   = '#7a1612';
 const HAIRLINE = 'rgba(20,16,13,0.15)';
-const MONO     = "'Special Elite', monospace";
+const MONO     = "var(--font-special-elite), monospace";
 
 const STATUS_COLOUR: Record<string, string> = {
   active:    '#1a5c36',
