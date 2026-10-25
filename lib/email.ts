@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import type { DatabaseSize } from '@/lib/database-size';
+import { VERIFY_TOKEN_TTL_DAYS } from '@/lib/auth-constants';
 
 export interface BioReviewFlag {
   memberId: number;
@@ -149,20 +150,30 @@ export async function sendPasswordResetEmail(to: string, token: string, baseUrl:
   });
 }
 
+// The confirmation email (wording and plain text version, 25 Oct 2026, report 70): one large button that works as an
+// ordinary link on any phone's mail app, the same link written out, the expiry, and a plain text part for mail apps
+// that do not show HTML.
 export async function sendVerificationEmail(to: string, token: string, baseUrl: string) {
   const key = process.env.RESEND_API_KEY;
   if (!key) return { sent: false, reason: 'no_api_key' };
   const from = process.env.RESEND_FROM || 'opengovt <onboarding@resend.dev>';
   const link = `${baseUrl}/api/auth/verify?token=${encodeURIComponent(token)}`;
+  const text =
+    `Welcome to Open Govt.\n\n` +
+    `Confirm your email address to start voting on bills and polls. Open this link:\n${link}\n\n` +
+    `You will be signed in and taken back to the page you were on. The link expires after ${VERIFY_TOKEN_TTL_DAYS} days.\n\n` +
+    `If you did not create an account, you can ignore this email.\n`;
   return deliver('confirmation', key, {
     from,
     to,
-    subject: 'Confirm your opengovt account',
-    html: `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#14100d">
-      <p>Welcome to opengovt.</p>
+    subject: 'Confirm your Open Govt account',
+    text,
+    html: `<div style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.6;color:#14100d;max-width:560px">
+      <p>Welcome to Open Govt.</p>
       <p>Confirm your email address to start voting on bills and polls:</p>
-      <p><a href="${link}" style="display:inline-block;background:#6b2417;color:#ffffff;padding:11px 20px;border-radius:4px;text-decoration:none">Confirm my email</a></p>
-      <p style="font-size:14px;color:#555">Or paste this link into your browser:<br>${link}</p>
+      <p style="margin:22px 0"><a href="${link}" style="display:inline-block;background:#6b2417;color:#ffffff;padding:14px 24px;border-radius:4px;text-decoration:none;font-size:17px;font-weight:bold">Confirm my email</a></p>
+      <p style="font-size:15px;color:#333">You will be signed in and taken back to the page you were on. The link expires after ${VERIFY_TOKEN_TTL_DAYS} days.</p>
+      <p style="font-size:14px;color:#555">If the button does not work, copy this link into your browser:<br><a href="${link}" style="color:#6b2417;word-break:break-all">${link}</a></p>
       <p style="font-size:14px;color:#555">If you did not create an account, you can ignore this email.</p>
     </div>`,
   });

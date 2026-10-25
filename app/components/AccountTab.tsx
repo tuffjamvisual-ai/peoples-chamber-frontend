@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 
 // Auth-aware account tab for the OpenGovShell header. Renders as a fragment so
@@ -13,9 +14,13 @@ const SEP = { display: 'inline-block', width: '1px', height: '0.95em', backgroun
 
 export default function AccountTab() {
   const { user, logout } = useAuth();
+  const pathname = usePathname();
 
   if (!user) {
-    return <Link href="/login">Log in<span className="ng-tab-signup"> / Sign up</span></Link>;
+    // The page the visitor is on goes with them (25 Oct 2026, report 70), so signing in, or confirming a new account's
+    // email, brings them back here. Not from the account pages themselves.
+    const here = pathname && !/^\/(login|signup|reset-password|account)(\/|$)/.test(pathname) && pathname !== '/' ? pathname : null;
+    return <Link href={here ? `/login?returnTo=${encodeURIComponent(here)}` : '/login'}>Log in<span className="ng-tab-signup"> / Sign up</span></Link>;
   }
 
   return (

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import type { CSSProperties } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { safeReturnPath } from '@/lib/safe-return';
+import { VERIFY_TOKEN_TTL_DAYS, maskEmail } from '@/lib/auth-constants';
 
 const INK = '#14100d';
 const ACCENT = '#6b2417';
@@ -77,7 +78,8 @@ function tab(active: boolean): CSSProperties {
   };
 }
 
-type Mode = 'signin' | 'signup' | 'forgot' | 'changePassword';
+// checkEmail (25 Oct 2026, report 70): the page shown after sign up, while the confirmation link is on its way.
+type Mode = 'signin' | 'signup' | 'forgot' | 'changePassword' | 'checkEmail';
 
 export default function MagazineLoginClient() {
   const router = useRouter();
@@ -118,6 +120,8 @@ export default function MagazineLoginClient() {
   const [loading, setLoading] = useState(false);
   // Set when sign in is refused because the email address is not confirmed yet.
   const [unverifiedEmail, setUnverifiedEmail] = useState('');
+  // The address a new account's confirmation link went to, for the "Check your email" page.
+  const [pendingEmail, setPendingEmail] = useState('');
   const [notice, setNotice] = useState(() => {
     const v = searchParams.get('verified');
     return v === '1'
@@ -134,14 +138,16 @@ export default function MagazineLoginClient() {
     setUnverifiedEmail('');
   }
 
-  async function resendVerification() {
-    if (loading || !unverifiedEmail) return;
+  // The reply is the same whether or not the address has an account (the 22 Oct 2026 rule), and the route sends at
+  // most one link per address every 10 minutes.
+  async function resendVerification(address = unverifiedEmail) {
+    if (loading || !address) return;
     setLoading(true);
     try {
       const res = await fetch('/api/auth/resend-verification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: unverifiedEmail }),
+        body: JSON.stringify({ email: address }),
       });
       const data = await res.json().catch(() => ({}));
       setError('');
@@ -195,7 +201,8 @@ export default function MagazineLoginClient() {
       const res = await signup(signupEmail.trim(), signupPassword, signupPostcode.trim(), signupName.trim(), returnTo !== '/' ? returnTo : undefined, signupNewsletter);
       if (res?.needsVerification) {
         setLoading(false);
-        setNotice('Account created. Check your email for a confirmation link, then sign in to start voting.');
+        setPendingEmail(signupEmail.trim());
+        switchMode('checkEmail');
         return;
       }
       router.push(returnTo);
@@ -270,8 +277,8 @@ export default function MagazineLoginClient() {
             {error}
             {unverifiedEmail && (
               <div style={{ marginTop: '10px' }}>
-                <button type="button" onClick={resendVerification} disabled={loading} style={{ background: 'none', border: 'none', padding: 0, color: ACCENT, fontSize: '15px', textDecoration: 'underline', cursor: 'pointer' }}>
-                  Send a new confirmation link
+                <button type="button" onClick={() => resendVerification()} disabled={loading} style={{ background: 'none', border: 'none', padding: 0, color: ACCENT, fontSize: '15px', textDecoration: 'underline', cursor: 'pointer' }}>
+                  Resend the link
                 </button>
               </div>
             )}
@@ -350,6 +357,33 @@ export default function MagazineLoginClient() {
               </button>
             </p>
           </form>
+        )}
+
+        {mode === 'checkEmail' && (
+          <div>
+            <h2 style={{ fontSize: 'clamp(20px, 2.6vw, 28px)', fontWeight: 'bold', letterSpacing: '-0.01em', margin: '0 0 14px' }}>
+              Check your email
+            </h2>
+            <p style={{ fontSize: '16px', lineHeight: 1.6, margin: '0 0 12px' }}>
+              We have sent a confirmation link to <strong>{maskEmail(pendingEmail)}</strong>.
+            </p>
+            <p style={{ fontSize: '16px', lineHeight: 1.6, margin: '0 0 12px' }}>
+              Open the email from Open Govt and press <strong>Confirm my email</strong>. You will be signed in and taken back
+              {returnTo !== '/' ? ' to the page you were on' : ' to Open Govt'}, ready to vote.
+            </p>
+            <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 20px' }}>
+              The link expires after {VERIFY_TOKEN_TTL_DAYS} days. If it has not arrived in a few minutes, check your spam or junk folder.
+            </p>
+            <button type="button" onClick={() => resendVerification(pendingEmail)} disabled={loading} style={button}>
+              {loading ? 'Sending…' : 'Resend the link'}
+            </button>
+            <p style={{ marginTop: '16px', fontSize: '15px' }}>
+              Wrong address?{' '}
+              <button type="button" onClick={() => { setSignupEmail(''); setSignupPassword(''); setPendingEmail(''); switchMode('signup'); }} style={ghostLink}>
+                Sign up again
+              </button>
+            </p>
+          </div>
         )}
 
         {mode === 'forgot' && (

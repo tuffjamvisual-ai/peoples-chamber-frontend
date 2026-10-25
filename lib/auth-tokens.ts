@@ -5,7 +5,7 @@
 import crypto from 'crypto';
 
 export const BCRYPT_COST = 12;
-export const VERIFY_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000; // confirmation links last 7 days
+export { VERIFY_TOKEN_TTL_MS } from './auth-constants'; // confirmation links last 7 days (lib/auth-constants.ts)
 
 export function hashToken(raw: string): string {
   return crypto.createHash('sha256').update(raw, 'utf8').digest('hex');
