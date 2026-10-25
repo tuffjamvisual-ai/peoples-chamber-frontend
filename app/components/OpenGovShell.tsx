@@ -1,9 +1,9 @@
 import './opengov-shell.css';
 import { preload } from 'react-dom';
 import Link from 'next/link';
-import { topics } from '@/lib/topics';
 import AccountTab from './AccountTab';
-import { SHOW_LEAGUE_TABLE, SHOW_YOUR_TAX_POUND, SHOW_BUDGET_CHOICES } from '@/lib/feature-flags';
+import { NAV } from '@/lib/site-nav';
+import MobileMenu from './MobileMenu';
 
 // OpenGovShell — the shared "OPEN GOVERNMENT" page template.
 // Renders the folders-pile backdrop, the newb folder header (red-stamp masthead
@@ -12,81 +12,6 @@ import { SHOW_LEAGUE_TABLE, SHOW_YOUR_TAX_POUND, SHOW_BUDGET_CHOICES } from '@/l
 //
 // `pageStamp` = the small stamp top-right of the dossier folder (e.g. "Front
 // Page", an MP's name). Replaces DossierShell as pages migrate to this look.
-
-type NavItem = { label: string; href: string; children?: { label: string; href: string }[] };
-const NAV: NavItem[] = [
-  { label: 'Home', href: '/' },
-  { label: 'Search', href: '/search' },
-  { label: 'Topics', href: '/topics', children: topics.map((t) => ({ label: t.title, href: `/topics/${t.slug}` })) },
-  { label: 'MPs', href: '/mps', children: [
-    { label: 'Find Your MP', href: '/find-your-mp' },
-    { label: 'All MPs', href: '/mps' },
-    { label: 'MP Activity', href: '/transparency/mp-activity' },
-    { label: 'MP Earnings', href: '/earnings' },
-  ] },
-  { label: 'Parliament', href: '/bills', children: [
-    { label: 'Bills', href: '/bills' },
-    { label: 'Select Committees', href: '/committees' },
-    { label: 'Commons Debates', href: '/debates' },
-    { label: 'Divisions', href: '/divisions' },
-    { label: 'Press Releases', href: '/transparency/press-releases' },
-    { label: 'Laws', href: '/laws' },
-  ] },
-  { label: 'Parties', href: '/parties', children: [
-    { label: 'Manifesto Comparisons', href: '/parties' },
-    { label: 'Labour', href: '/parties/labour/bio' },
-    { label: 'Conservative', href: '/parties/conservative/bio' },
-    { label: 'Liberal Democrats', href: '/parties/liberal-democrats/bio' },
-    { label: 'SNP', href: '/parties/snp/bio' },
-    { label: 'Reform UK', href: '/parties/reform-uk/bio' },
-    { label: 'Sinn Féin', href: '/parties/sinn-fein/bio' },
-    { label: 'Green Party', href: '/parties/green/bio' },
-    { label: 'DUP', href: '/parties/dup/bio' },
-    { label: 'Plaid Cymru', href: '/parties/plaid-cymru/bio' },
-    { label: 'SDLP', href: '/parties/sdlp/bio' },
-    { label: 'Alliance', href: '/parties/alliance/bio' },
-    { label: 'UUP', href: '/parties/uup/bio' },
-    { label: 'TUV', href: '/parties/tuv/bio' },
-    { label: 'Restore Britain', href: '/parties/restore-britain/bio' },
-    { label: 'Your Party', href: '/parties/your-party/bio' },
-  ] },
-  { label: 'Departments', href: '/departments', children: [
-    { label: 'All Departments', href: '/departments' },
-    { label: 'Department Budgets', href: '/spending' },
-    { label: 'Civil Service', href: '/civil-service' },
-    ...(SHOW_YOUR_TAX_POUND ? [{ label: 'Your Tax Pound', href: '/your-tax-pound' }] : []),
-    ...(SHOW_BUDGET_CHOICES ? [{ label: 'Budget Choices', href: '/budget-trade-offs' }] : []),
-  ] },
-  { label: 'Local', href: '/councils', children: [
-    { label: 'Councils', href: '/councils' },
-    ...(SHOW_LEAGUE_TABLE ? [{ label: 'How Council Areas Compare', href: '/councils/league-table' }] : []),
-    { label: 'Sewage Spills', href: '/sewage' },
-  ] },
-  { label: 'Accountability', href: '/transparency', children: [
-    { label: 'State Dashboard', href: '/transparency/state-dashboard' },
-    { label: 'Welfare Spending', href: '/tools/welfare' },
-    { label: 'Register of Interests', href: '/transparency/register-of-interests' },
-    { label: 'Expenses', href: '/expenses' },
-    { label: 'Second Jobs', href: '/second-jobs' },
-    { label: 'Lobbying', href: '/lobbying' },
-    { label: 'Revolving Door', href: '/transparency/revolving-door' },
-    { label: 'Special Advisers', href: '/transparency/special-advisers' },
-    { label: 'Money & Power', href: '/money' },
-    { label: 'Donations', href: '/transparency/donations' },
-    { label: 'Donors', href: '/donors' },
-    { label: 'Government Contracts', href: '/transparency/contracts' },
-    { label: 'APPG Funding', href: '/transparency/appgs' },
-    { label: 'Ministers Meetings', href: '/transparency/ministers-meetings' },
-    { label: 'Ministers Hospitality', href: '/transparency/hospitality' },
-  ] },
-  { label: 'Reports', href: '/reports' },
-  { label: 'Vote', href: '/polls', children: [
-    { label: "opengovt Polls", href: '/polls' },
-    { label: 'Vote on Bills', href: '/bills' },
-  ] },
-  { label: 'Commission', href: '/commission' },
-  { label: 'Contact', href: '/contact' },
-];
 
 // Fine SVG noise mask that gives the stamps a patchy/distressed ink.
 const DISTRESS = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='340' height='150'><filter id='d'><feTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='2' seed='6' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -0.4 1.12'/></filter><rect width='100%' height='100%' filter='url(%23d)'/></svg>")`;
@@ -142,6 +67,9 @@ export default function OpenGovShell({
                 : <span style={brandStyle}>opengovt</span>}
             </Link>
           </div>
+
+          {/* Phones (under 768px): the one-row header's search and menu icons (MobileMenu.tsx); hidden from 768px up. */}
+          <MobileMenu sections={NAV.map(({ label, href }) => ({ label, href }))} />
 
           <nav aria-label="Primary" className="og-navwrap" style={{ position: 'absolute', top: '10.6%', left: '2%', width: '96%', zIndex: 5, transform: 'translateX(1.5%) rotate(-2.5deg)' }}>
             <ul className="ng-nav">

@@ -101,3 +101,26 @@
 @media (max-width: 340px) {
   .og-dossier { margin-top: -72% !important; }
 }
+
+/* ---- Phones (under 768px, 25 Oct 2026, report 47): one-row header and a full screen section menu ----
+   The wordmark keeps its place on the folder; a search icon and a menu icon sit on the same row (MobileMenu.tsx). The
+   wrapping nav and the account tab are hidden (the account links are in the menu panel), and the dossier folder starts
+   just below the row: the header image is 1448/1086 = 133.33% of its width tall. From 768px up none of this shows. */
+.og-mbar, .og-menu-panel { display: none; }
+@media (max-width: 767px) {
+  .og-navwrap, .ng-tab { display: none !important; }
+  .og-mbar { display: flex; position: absolute; top: 2.6%; right: 5%; z-index: 6; gap: 2px; align-items: center; transform: rotate(-2.5deg); }
+  .og-mbar-btn { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; margin: 0; border: 0; background: transparent; color: #14100d; cursor: pointer; text-decoration: none; -webkit-tap-highlight-color: transparent; }
+  .og-mbar-btn:focus-visible { outline: 2px solid #7a1612; outline-offset: 2px; }
+  .og-dossier { margin-top: calc(-133.33% + 84px) !important; }
+  .og-menu-panel:not([hidden]) { display: flex; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh; box-sizing: border-box; z-index: 2147483000; flex-direction: column; align-items: center; overflow-y: auto; overscroll-behavior: contain; padding: 64px 20px 36px; background: #e8d6a4; color: #14100d; font-family: var(--font-special-elite), 'Courier New', monospace; }
+  .og-menu-close { position: absolute; top: 10px; right: 10px; width: 48px; height: 48px; display: inline-flex; align-items: center; justify-content: center; border: 0; background: transparent; color: #14100d; cursor: pointer; }
+  .og-menu-close:focus-visible, .og-menu-list a:focus-visible, .og-menu-cta:focus-visible, .og-menu-account a:focus-visible { outline: 2px solid #7a1612; outline-offset: 3px; }
+  .og-menu-list { list-style: none; margin: 0; padding: 0; text-align: center; }
+  .og-menu-list a { display: block; padding: 7px 16px; min-height: 44px; box-sizing: border-box; color: #14100d; text-decoration: none; text-transform: uppercase; letter-spacing: 0.06em; font-size: 22px; line-height: 30px; }
+  .og-menu-list a:active { color: #7a1612; }
+  .og-menu-cta { display: inline-block; margin-top: 22px; padding: 12px 22px; border: 2px solid #7a1612; color: #7a1612; text-decoration: none; text-transform: uppercase; letter-spacing: 0.06em; font-size: 18px; }
+  .og-menu-account { margin-top: 20px; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .og-menu-account a { color: #14100d; text-decoration: none; padding: 10px 6px; }
+  .og-menu-sep { display: inline-block; width: 1px; height: 1em; background: currentColor; opacity: 0.5; margin: 0 6px; }
+}

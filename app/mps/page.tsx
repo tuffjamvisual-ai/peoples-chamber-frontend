@@ -5,6 +5,7 @@ import MagazineMPsClient from './MagazineMPsClient';
 import AllMpsIndex from './AllMpsIndex';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
+import SectionLinks from '../components/SectionLinks';
 import { displayMpName } from '@/lib/mp-name';
 
 export const revalidate = 3600;
@@ -45,6 +46,7 @@ export default async function MPsPage() {
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-9%', marginBottom: '14px', color: '#14100d', textDecoration: 'none', transform: 'rotate(-0.2deg)' }}
       />
+      <SectionLinks section="MPs" />
       {/* Page heading (h1) for screen readers and search engines; the page had none
           (ChatGPT audit, 15 Oct 2026). */}
       <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 'bold', letterSpacing: '-0.02em', lineHeight: 1.15, margin: '0 0 8px', transform: 'rotate(-0.3deg)' }}>

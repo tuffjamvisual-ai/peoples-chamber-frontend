@@ -12,6 +12,7 @@ import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
+import SectionLinks from '../components/SectionLinks';
 
 export const revalidate = 3600;
 
@@ -153,6 +154,7 @@ export default async function PartiesIndex() {
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: '#14100d', textDecoration: 'none', transform: 'rotate(-0.2deg)' }}
       />
+      <SectionLinks section="Parties" />
       {/* Same parchment article wrapper used by /bills/[id] and
           /bills/[id]/full so the parties index reads as part of the
           dossier line rather than a cream table dropped on top of it. */}
