@@ -39,6 +39,6 @@ export function partyBioNextLinks(party: { slug: string; name: string }, secondJ
     { href: `/parties/${party.slug}/whip`, label: `${party.name}: the whip`, note: 'How often its MPs have voted against the party line' },
   ];
   if (secondJobs) links.push({ href: `/second-jobs/${secondJobs.slug}`, label: `${party.name} MPs with second jobs`, note: `${secondJobs.count} MP${secondJobs.count === 1 ? ' has' : 's have'} paid roles outside Parliament` });
-  links.push({ href: '/parties', label: 'Compare all the parties' });
+  links.push({ href: '/parties/manifestos', label: 'Compare all the parties' });
   return links.slice(0, 5);
 }

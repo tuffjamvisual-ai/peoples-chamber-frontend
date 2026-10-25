@@ -268,7 +268,7 @@ export default async function HomePage() {
                 <div className="og-cta">See the full top ten &rarr;</div>
               </Link>
 
-              <Link className="og-block og-card" href="/parties">
+              <Link className="og-block og-card" href="/parties/manifestos">
                 <div className="og-head">Every manifesto. Every shift.</div>
                 <p>What each of the fifteen UK parties told voters in 2024, what they have done since, and where the gap is widest.</p>
                 <div className="og-cta">Read the dossiers &rarr;</div>

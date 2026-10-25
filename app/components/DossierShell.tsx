@@ -57,12 +57,12 @@ const HOTSPOTS: Hotspot[] = [
     href: '/parties',
     xPct: 35.0, yPct: 21.3, wPct: 7.0, hPct: 2.8,
     children: [
-      // Manifesto Comparisons → comparison grid (/parties).
+      // Manifesto Comparisons → comparison grid (/parties/manifestos since report 64; /parties is the index).
       // Individual party links → bio page (/parties/<slug>/bio), which
       // shows the People's Verdict critique without the 11-theme
       // manifesto grid (that's still at /parties/<slug>). 2026-06-03.
       // MP-count desc order, matches the vertical stack on /parties.
-      { label: 'Manifesto Comparisons', href: '/parties' },
+      { label: 'Manifesto Comparisons', href: '/parties/manifestos' },
       { label: 'Labour',                href: '/parties/labour/bio' },
       { label: 'Conservative',          href: '/parties/conservative/bio' },
       { label: 'Liberal Democrats',     href: '/parties/liberal-democrats/bio' },

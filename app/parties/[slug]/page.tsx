@@ -157,7 +157,7 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
   return (
     <OpenGovShell pageStamp="Parties">
       <a
-        href="/parties"
+        href="/parties/manifestos"
         className="no-hover-scale"
         style={{
           display: 'inline-flex',

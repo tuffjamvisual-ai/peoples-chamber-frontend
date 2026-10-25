@@ -2,7 +2,7 @@
 // two places from here, so they cannot differ: the page's own meta description (what search engines show) and its row
 // on the section pages (lib/site-nav.ts, app/sections/[slug]/page.tsx). 120 to 155 characters each.
 
-// /transparency/<section> (app/transparency/[section]/page.tsx), and /expenses.
+// /transparency/<section> (app/transparency/[section]/page.tsx), /parties (app/parties/page.tsx) and /expenses.
 export const PAGE_DESCRIPTIONS: Record<string, string> = {
   '/transparency/revolving-door':
     'Jobs taken by former ministers and officials after leaving government: ACOBA advice until it closed, then the Independent Adviser\'s advice for ministers.',
@@ -16,6 +16,8 @@ export const PAGE_DESCRIPTIONS: Record<string, string> = {
     "Ministers' meetings with outside organisations, as published by each department: the minister, the date, who they met and the purpose given.",
   '/transparency/hospitality':
     'Hospitality received by ministers, as published by each department: the minister, the date, who gave it, what it was, any guest and its value.',
+  '/parties':
+    'The 15 UK parties Open Govt covers, each with its number of current MPs and a link to its promises against its record, its donations and its whip record.',
   '/expenses':
     'The ten MPs with the highest IPSA business costs in the latest year, ranked by total claimed across staffing, office, accommodation and travel.',
 };

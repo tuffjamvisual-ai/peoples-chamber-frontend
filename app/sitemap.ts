@@ -110,6 +110,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/lobbying`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/committees`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/topics`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    // The parties index and the 2024 manifesto comparison, which moved from /parties (report 64).
+    { url: `${SITE}/parties`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE}/parties/manifestos`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     // The section pages the header links to (report 60).
     ...SECTION_PAGES.map((s) => ({ url: `${SITE}/sections/${s.slug}`, lastModified: now, changeFrequency: 'monthly' as const, priority: 0.7 })),
     { url: `${SITE}/divisions`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },

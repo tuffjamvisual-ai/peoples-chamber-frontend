@@ -33,7 +33,7 @@ export default function PartySidebar({
     { key: 'money',     label: 'Money',                href: `/parties/${party.slug}/money`,  rotate: '0.1deg'   },
     { key: 'whip',      label: 'Whip',                 href: `/parties/${party.slug}/whip`,   rotate: '-0.12deg' },
     { key: 'mps',       label: `${party.name} MPs`,    href: `/mps?expand=${encodeURIComponent(mpsExpand)}#mps-list`, rotate: '0.1deg' },
-    { key: 'compare',   label: 'Compare Parties',      href: '/parties',                      rotate: '-0.1deg'  },
+    { key: 'compare',   label: 'Compare Parties',      href: '/parties/manifestos',           rotate: '-0.1deg'  },
   ];
 
   return (

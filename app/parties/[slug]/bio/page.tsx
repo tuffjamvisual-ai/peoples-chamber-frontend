@@ -81,7 +81,7 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
   return (
     <OpenGovShell pageStamp="Parties">
       <a
-        href="/parties"
+        href="/parties/manifestos"
         className="no-hover-scale"
         style={{
           display: 'inline-flex',
