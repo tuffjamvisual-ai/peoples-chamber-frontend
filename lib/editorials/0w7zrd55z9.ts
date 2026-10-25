@@ -5,7 +5,7 @@ const piece: EditorialEntry = {
   kicker: 'Investigation',
   headline: "Every Council 'Bankruptcy' Notice Since 2018, Listed",
   standfirst: "Councils cannot legally go bankrupt. The nearest equivalent is a section 114 notice from their chief finance officer. Ten councils issued 15 between February 2018 and January 2025.",
-  summary: "Fifteen section 114 notices from 2018 to October 2026, council by council, with dates, reasons and the officers who issued them.",
+  summary: "Fifteen section 114 notices issued since 2018, council by council, with dates, reasons and the officers who issued them.",
   publishedAt: '2026-10-25',
   authorByline: 'opengovt',
   body: [
