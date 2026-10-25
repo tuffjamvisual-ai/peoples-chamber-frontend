@@ -17,6 +17,12 @@ const OCID_RE = /^ocds-[a-z0-9]+-[A-Za-z0-9-]+$/   // as app/contracts/[ocid]/pa
 // on 13 October 2025; rows dated after that come from the Independent Adviser on Ministerial Standards' published
 // advice for former ministers (app/api/sync-ministers-bars), rows up to it from ACOBA (app/api/sync-revolving-door).
 const ACOBA_CLOSED = '2025-10-13'
+const REVOLVING_DOOR_SOURCES = [
+  { label: "ACOBA's closure, GOV.UK, 13 Oct 2025", url: 'https://www.gov.uk/government/news/closure-of-the-independent-advisory-committee-on-business-appointments-acoba' },
+  { label: 'Ethics and Integrity Commission announcement, GOV.UK, 21 Jul 2025', url: 'https://www.gov.uk/government/news/ethics-and-integrity-commission-to-drive-up-standards-across-the-public-sector' },
+  { label: 'ACOBA advice, GOV.UK', url: 'https://www.gov.uk/search/all?organisations%5B%5D=advisory-committee-on-business-appointments&order=updated-newest' },
+  { label: 'Independent Adviser advice for former ministers, GOV.UK', url: 'https://www.gov.uk/government/publications/advice-issued-under-the-business-appointment-rules-for-ministers/advice-issued-under-the-business-appointment-rules-for-ministers' },
+]
 const longDate = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
 
 async function revolvingDoorRange() {
@@ -188,6 +194,21 @@ export default async function TransparencySectionPage({
             {range.firstAfter
               ? <>Records from {longDate(range.first)} to {longDate(range.latest)}. Those up to {longDate(range.lastAcoba ?? range.first)} are from the Advisory Committee on Business Appointments; those from {longDate(range.firstAfter)} are the advice the Independent Adviser on Ministerial Standards has published for former ministers. Advice for senior officials and special advisers since ACOBA closed is not included yet.</>
               : <>Records from {longDate(range.first)} to {longDate(range.latest)}, from the Advisory Committee on Business Appointments.</>}
+          </p>
+        )}
+        {section === 'revolving-door' && (
+          // Sources (owner's approval, 25 Oct 2026, report 67): the two GOV.UK notices behind the intro, then the pages
+          // the data comes from. ACOBA's advice is read from the GOV.UK search API filtered to ACOBA
+          // (app/api/sync-revolving-door), shown here as the same search on GOV.UK; the Independent Adviser's advice from
+          // its one GOV.UK page (app/api/sync-ministers-bars).
+          <p className="text-[#14100d] text-[14px] leading-[1.6] max-w-2xl mt-3">
+            Sources:{' '}
+            {REVOLVING_DOOR_SOURCES.map((src, i) => (
+              <span key={src.url}>
+                {i > 0 && <span className="opacity-30" aria-hidden> · </span>}
+                <a href={src.url} target="_blank" rel="noopener noreferrer" className="underline" style={{ color: ACCENT }}>{src.label}</a>
+              </span>
+            ))}
           </p>
         )}
         {section === 'appgs' && (
