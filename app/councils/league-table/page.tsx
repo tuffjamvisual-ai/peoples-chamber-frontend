@@ -71,6 +71,8 @@ function WithdrawnNotice() {
         <p style={para}>
           Looking for the councils with the most serious failures? Read{' '}
           <Link href="/editorials/ten-worst-performing-councils-england" style={link}>England&rsquo;s 10 Worst Council Failures Since 2018</Link>.
+          {' '}Or read{' '}
+          <Link href="/editorials/0w7zrd55z9" style={link}>Every Council &lsquo;Bankruptcy&rsquo; Notice Since 2018, Listed</Link>.
         </p>
         <p style={para}>
           <Link href="/councils" style={link}>All councils</Link>
