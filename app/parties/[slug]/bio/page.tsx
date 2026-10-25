@@ -15,6 +15,7 @@ import PartySidebar from '../../../components/PartySidebar';
 import ReadNext from '../../../components/ReadNext';
 import { partyBioNextLinks, partySecondJobs } from '@/lib/party-links';
 import { type EvidencePanelProps } from '../../../components/EvidencePanel';
+import { partyDescription } from '@/lib/page-descriptions';
 
 export const revalidate = 21600;
 
@@ -58,7 +59,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const name = party?.name || 'Party';
   return {
     title: `${name}`,
-    description: `${name}, People's Verdict.`,
+    description: partyDescription(name),
     alternates: { canonical: `/parties/${slug}/bio` },
   };
 }

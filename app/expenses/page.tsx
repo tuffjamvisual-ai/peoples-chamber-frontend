@@ -7,12 +7,13 @@ import BackLink from '../components/BackLink';
 
 import { latestExpensesYear as latestYear, expensesYearShort as yearShort, expensesYearLong as yearLong } from '@/lib/expenses-year';
 import { displayMpName } from '@/lib/mp-name';
+import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions';
 
 export async function generateMetadata(): Promise<Metadata> {
   const y = yearShort(await latestYear());
   return {
     title: `Highest Spending MPs ${y}, IPSA Business Cost Rankings`,
-    description: `The ten UK MPs who claimed the highest IPSA business costs in ${y}. Office, staffing, travel and accommodation broken down by category, with the change on the previous year shown.`,
+    description: PAGE_DESCRIPTIONS['/expenses'],
     alternates: { canonical: '/expenses' },
   };
 }

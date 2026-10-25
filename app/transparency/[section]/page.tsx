@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions'
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -35,7 +36,7 @@ export async function generateMetadata({ params }: { params: Promise<{ section: 
   if (!config) return { title: 'Transparency' }
   return {
     title: config.title,
-    description: `${config.title}: public record data for UK government transparency.`,
+    description: PAGE_DESCRIPTIONS[`/transparency/${section}`] ?? `${config.title}: public record data for UK government transparency.`,
     alternates: { canonical: `/transparency/${section}` },
   }
 }
