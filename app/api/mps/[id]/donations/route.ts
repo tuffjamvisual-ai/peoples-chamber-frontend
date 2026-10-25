@@ -4,7 +4,12 @@ import { SECTORS, sectorForDonor, sectorForVote, ALL_VOTE_KEYWORDS } from '@/lib
 import { readAll, inList } from '@/lib/read-all';
 import { storedSpellings } from '@/lib/donor-registry';
 
-export const dynamic = 'force-dynamic';
+// Cached like the MP page (25 Oct 2026, report 43): the profile now fetches this as soon as the page is idle, so the
+// Donations tab opens at once, and the answer is kept for 6 hours (revalidate below) instead of being worked out for
+// every visitor (about 0.8 s warm, 4 s cold). A failed read throws, so a database error is never cached as an empty
+// list: the last good answer stays up. The params are read; search params are not used.
+export const dynamic = 'force-static';
+export const revalidate = 21600;
 
 function stripHonorific(name: string): string {
   return name
@@ -18,11 +23,12 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   const memberId = parseInt(id, 10);
   if (Number.isNaN(memberId)) return NextResponse.json({ error: 'invalid id' }, { status: 400 });
 
-  const { data: mp } = await supabase
+  const { data: mp, error: mpErr } = await supabase
     .from('mps')
     .select('display_name, name, constituency')
     .eq('member_id', memberId)
     .single();
+  if (mpErr && mpErr.code !== 'PGRST116') throw new Error(`/api/mps/${memberId}/donations mps: ${mpErr.message}`);
   if (!mp) return NextResponse.json({ error: 'not found' }, { status: 404 });
 
   const mpNameTop = (mp.display_name as string | null) || (mp.name as string | null) || '';
@@ -37,7 +43,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
   // 1. Direct donations. ec_ref (24 Oct 2026): each record's "EC reference" row links to the Electoral Commission's
   // search; the profile already drew that link but the reference was never read, so it never showed.
-  const { data: rawDonations } = await supabase
+  const { data: rawDonations, error: rawErr } = await supabase
     .from('political_donations')
     .select('id, donor_name, donor_type, amount, accepted_date, received_date, reported_date, nature, recipient_name, recipient_type, is_reported_pre_poll, returned_date, impermissibility_reason, attempted_concealment, company_registration_number, trust_name, trust_creator_name, ec_ref')
     .in('recipient_type', ['MP - Member of Parliament', 'Regulated Donee', 'Members Association', 'Member of Registered Political Party'])
@@ -45,6 +51,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     .ilike('recipient_name', `%${lastWord}%`)
     .order('accepted_date', { ascending: false })
     .limit(500);
+  if (rawErr) throw new Error(`/api/mps/${memberId}/donations direct: ${rawErr.message}`);
 
   type RawDonation = { id: number; recipient_name?: string | null; donor_name?: string | null; [key: string]: unknown };
 
@@ -104,7 +111,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   let sectorCrossRef: Array<{ key: string; label: string; colour: string; votes: unknown[] }> = [];
   if (donorSectorKeys.size > 0) {
     const orClause = ALL_VOTE_KEYWORDS.map((kw) => `division_title.ilike.%${kw.replace(/[%_,]/g, '')}%`).join(',');
-    const { data: rawVotes } = await supabase
+    const { data: rawVotes, error: votesErr } = await supabase
       .from('mp_division_votes')
       .select('id, division_title, division_date, division_date_only, division_number, vote_type, is_rebellion, division_id')
       .eq('member_id', memberId)
@@ -112,6 +119,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       .in('vote_type', ['aye', 'no', 'both'])
       .order('division_date', { ascending: false })
       .limit(500);
+    if (votesErr) throw new Error(`/api/mps/${memberId}/donations votes: ${votesErr.message}`);
 
     const sectorVotesByKey: Record<string, unknown[]> = {};
     for (const v of (rawVotes ?? []) as Array<{ division_title: string | null }>) {
@@ -143,12 +151,13 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       const safe = v.replace(/[%_,]/g, '');
       orParts.push(`accounting_unit_name.ilike.%${safe}%`);
     }
-    const { data: localRows } = await supabase
+    const { data: localRows, error: localErr } = await supabase
       .from('political_donations')
       .select('id, donor_name, donor_type, amount, accepted_date, received_date, reported_date, nature, recipient_type, accounting_unit_name, is_reported_pre_poll, returned_date, impermissibility_reason, attempted_concealment, trust_name, trust_creator_name, company_registration_number')
       .or(orParts.join(','))
       .order('accepted_date', { ascending: false })
       .limit(500);
+    if (localErr) throw new Error(`/api/mps/${memberId}/donations constituency: ${localErr.message}`);
 
     const conTokens = constituency.toLowerCase().replace(/&/g, 'and').split(/\s+/).filter((w) => w.length > 2 && !['and','the','of','for','upon','on','le'].includes(w));
     constituencyDonations = ((localRows ?? []) as Array<{ accounting_unit_name?: string | null }>).filter((r) => {

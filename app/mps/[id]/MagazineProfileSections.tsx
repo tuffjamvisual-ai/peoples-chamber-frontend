@@ -3,7 +3,7 @@
 import { pageview } from '@vercel/analytics';
 import { billSummary } from '@/lib/bill-summary';
 
-import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import MoneyCountUp from '../../components/MoneyCountUp';
 import { COMMITTEE_IDS } from '@/lib/committees';
@@ -663,28 +663,49 @@ export default function MagazineProfileSections({
     return () => window.removeEventListener('hashchange', apply);
   }, [validIds]);
 
-  // Expense claims load when the Expenses tab is first opened (owner's approval, 21 Oct 2026), not with the page.
+  // Expense claims and donations are not in the page HTML (owner's approval, 21 Oct 2026: they would add up to about
+  // 300 KB to every MP page). They used to load when their tab was first opened, so the tab showed "Loading" for up to
+  // a few seconds. Now both are fetched as soon as the page is idle after its first paint (25 Oct 2026, report 43), from
+  // cached API answers, so opening either tab is instant; opening a tab before then starts its fetch at once. Visitors
+  // who ask their browser to save data keep the old behaviour (fetched on opening the tab).
   const [expenseClaims, setExpenseClaims] = useState<ExpenseClaim[] | null>(expensesDetail ?? null);
   const [expenseClaimsFailed, setExpenseClaimsFailed] = useState(false);
-  useEffect(() => {
-    if (active !== 'expenses' || expenseClaims !== null || expenseClaimsFailed) return;
-    let cancelled = false;
+  const expensesRequested = useRef(expensesDetail != null);
+  const donationsRequested = useRef(false);
+  const loadExpenses = useCallback(() => {
+    if (expensesRequested.current) return;
+    expensesRequested.current = true;
     fetch(`/api/mps/${memberId}/expenses`)
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
-      .then((data: { claims: ExpenseClaim[] }) => { if (!cancelled) setExpenseClaims(data.claims || []); })
-      .catch(() => { if (!cancelled) setExpenseClaimsFailed(true); });
-    return () => { cancelled = true; };
-  }, [active, memberId, expenseClaims, expenseClaimsFailed]);
-
-  useEffect(() => {
-    if (active !== 'donations' || donationsPayload !== null || donationsLoading) return;
+      .then((data: { claims: ExpenseClaim[] }) => setExpenseClaims(data.claims || []))
+      .catch(() => setExpenseClaimsFailed(true));
+  }, [memberId]);
+  const loadDonations = useCallback(() => {
+    if (donationsRequested.current) return;
+    donationsRequested.current = true;
     setDonationsLoading(true);
     fetch(`/api/mps/${memberId}/donations`)
-      .then((r) => r.json())
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
       .then((data: DonationsPayload) => setDonationsPayload(data))
       .catch(() => setDonationsPayload({ donations: [], donorOtherRecipients: [], sectorCrossRef: [], constituencyDonations: [] }))
       .finally(() => setDonationsLoading(false));
-  }, [active, memberId, donationsPayload, donationsLoading]);
+  }, [memberId]);
+  useEffect(() => {
+    if (active === 'expenses') loadExpenses();
+    if (active === 'donations') loadDonations();
+  }, [active, loadExpenses, loadDonations]);
+  useEffect(() => {
+    const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+    if (saveData) return;
+    const start = () => { loadDonations(); loadExpenses(); };
+    const w = window as Window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void };
+    if (w.requestIdleCallback) {
+      const id = w.requestIdleCallback(start, { timeout: 3000 });
+      return () => w.cancelIdleCallback?.(id);
+    }
+    const t = setTimeout(start, 1500);
+    return () => clearTimeout(t);
+  }, [loadExpenses, loadDonations]);
 
   // Phones and tablets (below the lg breakpoint, 1024px): the section buttons
   // become one sideways-swiping row instead of a 13-button column, so the
@@ -1881,7 +1902,8 @@ export default function MagazineProfileSections({
         })()}
 
         {active === 'donations' && (() => {
-          if (donationsLoading) return (
+          // Until the data has arrived (not only while a request is open), so the tab never shows the empty state first.
+          if (donationsLoading || donationsPayload === null) return (
             <div style={{ padding: '60px 0', textAlign: 'center', color: '#888', fontFamily: 'Special Elite, monospace', fontSize: '15px' }}>
               Loading donations...
             </div>
