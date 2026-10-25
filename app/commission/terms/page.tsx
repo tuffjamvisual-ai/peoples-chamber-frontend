@@ -51,7 +51,7 @@ export default function CommissionTermsPage() {
       <p style={p}>Work starts once payment is received. Payment is by card through Stripe.</p>
 
       <h2 style={h2}>Changes</h2>
-      <p style={p}>Research reports and Investigations include one round of amendments, to fix errors or clarify wording within the agreed scope.</p>
+      <p style={p}>Every request includes one round of amendments to fix errors or clarify wording, within the agreed scope.</p>
       <p style={p}>New questions need a new quote.</p>
 
       <h2 style={h2}>Delivery</h2>
@@ -79,7 +79,7 @@ export default function CommissionTermsPage() {
       <p style={p}>If Open Govt is not VAT registered, no VAT is added.</p>
 
       <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '36px', opacity: 0.7 }}>
-        Last updated: 24 October 2026
+        Last updated: 25 October 2026
       </p>
     </OpenGovShell>
   );
