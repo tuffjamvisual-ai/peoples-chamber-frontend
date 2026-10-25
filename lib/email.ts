@@ -456,7 +456,7 @@ export async function sendCommissionRequest(r: {
     `Name:          ${r.name}\n` +
     `Email:         ${r.email}\n` +
     `Organisation:  ${r.organisation || 'Not given'}\n` +
-    `Package:       ${r.package}\n` +
+    `Request type:  ${r.package}\n` +
     `Deadline:      ${r.deadline || 'None given'}\n` +
     `Publishing:    ${r.publish}\n` +
     `Terms read:    Yes\n` +

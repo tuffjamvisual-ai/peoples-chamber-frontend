@@ -108,9 +108,9 @@ export default function CommissionForm() {
       </div>
 
       <div style={row}>
-        <label htmlFor="commission-package" style={label}>Package</label>
+        <label htmlFor="commission-package" style={label}>Type of request</label>
         <select id="commission-package" name="package" value={v.package} onChange={(e) => set('package', e.target.value)} style={{ ...border('package'), cursor: 'pointer' }} {...aria('package')}>
-          <option value="">Choose a package</option>
+          <option value="">Choose a type of request</option>
           {COMMISSION_PACKAGES.map((p) => <option key={p} value={p}>{p}</option>)}
         </select>
         {err('package')}

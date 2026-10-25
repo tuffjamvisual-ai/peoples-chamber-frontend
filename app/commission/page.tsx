@@ -17,22 +17,24 @@ const INK = '#14100d';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
 const ACCENT = '#7a1612';
 
+// One flat fee for every request (owner's decision, 25 Oct 2026, report 51): £295, paid once. The three request types,
+// their descriptions and delivery times are unchanged.
 const PACKAGES = [
   {
     name: 'Quick check',
-    price: '£265.50',
+    price: '£295',
     body: 'One specific question answered: a claim, a payment, a decision or a voting record. Every figure cited.',
     delivery: '5 working days',
   },
   {
     name: 'Research report',
-    price: 'from £1,350',
+    price: '£295',
     body: 'An agreed question answered in full: spending traced, decisions documented and responsibility named. Includes a source list, methodology, the underlying spreadsheet and one round of amendments.',
     delivery: '10 working days',
   },
   {
     name: 'Investigation',
-    price: 'from £2,700, quoted',
+    price: '£295',
     body: 'Several connected questions across public bodies and years. Everything in a research report, plus a briefing call.',
     delivery: 'agreed per commission',
   },
@@ -74,6 +76,8 @@ export default function CommissionPage() {
       </header>
 
       <section aria-label="Packages" style={{ marginBottom: '5%' }}>
+        <p style={{ fontSize: '17px', fontWeight: 'bold', lineHeight: 1.6, margin: '0 0 4px' }}>One fee for every request: £295, paid once. No subscriptions, no extras.</p>
+        <p style={{ fontSize: '16px', lineHeight: 1.6, margin: '0 0 18px' }}>Your fee covers research into any public record, including data not yet published on Open Govt.</p>
         <div className="cm-packages">
           {PACKAGES.map((p) => (
             <div key={p.name} style={{ borderTop: `3px solid ${INK}`, borderBottom: `1px solid ${HAIRLINE}`, padding: '16px 0 18px', display: 'flex', flexDirection: 'column' }}>
