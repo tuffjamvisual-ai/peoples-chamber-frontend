@@ -1,11 +1,10 @@
 'use client';
 
-// Phone and tablet header and menu (owner's choice, 25 Oct 2026, report 47; the TaxPayers' Alliance pattern; under 768px
-// at first, under 1180px since report 57, where the one-row desktop header does not fit at 14px): below 1180px the
+// Phone header and menu (owner's choice, 25 Oct 2026, report 47; the TaxPayers' Alliance pattern): under 768px the
 // header is one row, the wordmark with a search icon and a menu icon, and the menu icon opens a full screen panel
 // listing the 13 top level sections as large links, with "Commission research" as the one call to action. Each section's
-// landing page lists that section's pages ("In this section", SectionLinks.tsx), so every page in a section
-// is two taps away. Hidden from 1180px up (opengov-shell.css), where the one-row desktop header (DesktopNav.tsx) shows.
+// landing page lists that section's pages ("In this section", SectionLinks.tsx), so every page in the desktop dropdowns
+// is two taps away. Hidden from 768px up (opengov-shell.css), where the desktop header and dropdowns are unchanged.
 //
 // The panel closes on a link, the X, Escape and the browser's Back button. Opening it adds a history entry that keeps
 // Next.js's own router state (a bare entry would make Next.js reload the page on Back); a link first removes that entry,

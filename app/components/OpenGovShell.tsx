@@ -4,11 +4,10 @@ import Link from 'next/link';
 import AccountTab from './AccountTab';
 import { NAV } from '@/lib/site-nav';
 import MobileMenu from './MobileMenu';
-import DesktopNav from './DesktopNav';
 
 // OpenGovShell — the shared "OPEN GOVERNMENT" page template.
-// Renders the folders-pile backdrop, the newb folder header (one row: red-stamp
-// wordmark, section links, search, account, Support Us, Commission research) and the dossier expanding folder, with a per-page stamp.
+// Renders the folders-pile backdrop, the newb folder header (red-stamp masthead
+// + nav + account tab) and the dossier expanding folder, with a per-page stamp.
 // Drop page content into `children`; it renders inside the dossier folder.
 //
 // `pageStamp` = the small stamp top-right of the dossier folder (e.g. "Front
@@ -48,40 +47,44 @@ export default function OpenGovShell({
       <div aria-hidden className="og-backdrop" style={{ position: 'fixed', inset: 0, backgroundColor: '#140d07', backgroundSize: '135%', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', zIndex: 0, pointerEvents: 'none' }} />
 
       <div style={{ position: 'relative', zIndex: 1, width: 'min(96vw, 1240px)' }}>
-        {/* Header: newb folder with the one header row (wordmark, sections, account, Commission research). */}
+        {/* Header: newb folder with the OPEN GOVERNMENT red stamp + nav + tab. */}
         <div className="og-header" style={{ position: 'relative', width: '100%', aspectRatio: '1086 / 1448', containerType: 'inline-size' }}>
           {/* Phones (25 Oct 2026, report 43): sizes says 60vw below 640px so a 3x phone takes the 800px file (72 KB) and
               a 2x phone the 600px one (16 KB), not the full 1086px file (128 KB); still about twice the shown width. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/newb.webp" srcSet="/newb-600.webp 600w, /newb-800.webp 800w, /newb.webp 1086w" sizes="(max-width: 640px) 60vw, min(96vw, 1240px)" fetchPriority="high" alt="" aria-hidden style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', userSelect: 'none', pointerEvents: 'none', transform: 'rotate(-2.5deg)', filter: 'saturate(0.84) drop-shadow(0 18px 38px rgba(0,0,0,0.55))' }} />
 
-          {/* One header row (owner's choice, 25 Oct 2026, report 57, the TaxPayers' Alliance pattern). From 1180px up: the
-              wordmark, the section links (DesktopNav.tsx, no dropdowns), then search, the account link, Support Us and one
-              Commission research button. Below 1180px the row's box is display: contents, so the wordmark keeps its own
-              place on the folder and the rest is hidden; the phone header is MobileMenu.tsx. */}
-          <div className="og-drow">
-            <div className="og-masthead-wrap" style={{ position: 'absolute', top: '3.6%', left: '5%', width: '90%', textAlign: 'left', zIndex: 5, pointerEvents: 'none', transform: 'rotate(-2.5deg)' }}>
-              <Link href="/" className="og-brand-link" style={{ pointerEvents: 'auto', textDecoration: 'none' }}>
-                {brandAsHeading
-                  ? <h1 className="og-brand" style={brandStyle}>opengovt</h1>
-                  : <span className="og-brand" style={brandStyle}>opengovt</span>}
-              </Link>
-            </div>
-
-            <DesktopNav />
-
-            <div className="og-dright">
-              <Link href="/search" prefetch={false} className="og-dsearch" aria-label="Search">
-                <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.5 15.5 21 21" /></svg>
-              </Link>
-              <span className="og-dacct"><AccountTab /></span>
-              <Link href="/donate" prefetch={false}>Support Us</Link>
-              <Link href="/commission" prefetch={false} className="og-dcta">Commission research</Link>
-            </div>
+          <div className="ng-tab" style={{ transform: 'rotate(-2.5deg)' }}>
+            <AccountTab />
+            <span aria-hidden style={{ display: 'inline-block', width: '1px', height: '0.95em', background: 'currentColor', opacity: 0.5, margin: '0 7px' }} />
+            <Link href="/donate">Support Us</Link>
           </div>
 
-          {/* Phones and tablets (under 1180px): the header's search and menu icons (MobileMenu.tsx); hidden from 1180px up. */}
+          <div className="og-masthead-wrap" style={{ position: 'absolute', top: '3.6%', left: '5%', width: '90%', textAlign: 'left', zIndex: 5, pointerEvents: 'none', transform: 'rotate(-2.5deg)' }}>
+            <Link href="/" style={{ pointerEvents: 'auto', textDecoration: 'none' }}>
+              {brandAsHeading
+                ? <h1 style={brandStyle}>opengovt</h1>
+                : <span style={brandStyle}>opengovt</span>}
+            </Link>
+          </div>
+
+          {/* Phones (under 768px): the one-row header's search and menu icons (MobileMenu.tsx); hidden from 768px up. */}
           <MobileMenu sections={NAV.map(({ label, href }) => ({ label, href }))} />
+
+          <nav aria-label="Primary" className="og-navwrap" style={{ position: 'absolute', top: '10.6%', left: '2%', width: '96%', zIndex: 5, transform: 'translateX(1.5%) rotate(-2.5deg)' }}>
+            <ul className="ng-nav">
+              {NAV.map((item) => (
+                <li key={item.label}>
+                  <a href={item.href}>{item.label}</a>
+                  {item.children && (
+                    <ul className="ng-sub">
+                      {item.children.map((c) => (<li key={c.href}><a href={c.href}>{c.label}</a></li>))}
+                    </ul>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
 
         {/* Dossier expanding folder, overlapping up into the header. */}
