@@ -35,14 +35,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
-    // Hydrate from the og_session cookie. Two outcomes:
-    //   1. /me returns a user (200) — update state + localStorage (authoritative).
-    //   2. Anything else (401, 500, network failure) — keep whatever localStorage
-    //      had; the session cookie is the real auth gate and the vote/action APIs
-    //      will surface expiry errors when the user actually does something.
-    //      Never wipe localStorage here — that created a sign-out loop where a
-    //      transient /me failure would clear state and every subsequent action
-    //      would redirect to login.
+    // Hydrate from the og_session cookie. Three outcomes:
+    //   1. /me returns a user (200): update state + localStorage (authoritative).
+    //   2. 401: the session has ended (expired, signed out, password changed). /me has removed the cookies; forget the
+    //      stored user too, so the header, bill pages and polls show the visitor as signed out and a vote leads to the
+    //      sign in page (25 Oct 2026, report 58). Before this, a stored user outlived its session and every vote got
+    //      "Your session has expired".
+    //   3. Anything else (503 when the database cannot be read, a network failure): keep whatever localStorage had, so
+    //      a passing outage never signs anyone out.
     // Visitors who have never signed in (no stored user, no og_signed_in marker from lib/session.ts) have no session
     // to check, so they make no call (owner's approval, 21 Oct 2026).
     const hasSignedInMarker = document.cookie.split('; ').some((c) => c.startsWith('og_signed_in='));
@@ -59,7 +59,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             localStorage.setItem('user', JSON.stringify(data.user));
           }
         }
-        // Non-200 responses: leave user/localStorage unchanged.
+        else if (res.status === 401) {
+          setUser(null);
+          localStorage.removeItem('user');
+          document.cookie = 'og_signed_in=; Path=/; Max-Age=0; SameSite=Lax';
+        }
+        // Other responses: leave user/localStorage unchanged.
       })
       .catch(() => {
         // Network failure — keep localStorage user untouched.

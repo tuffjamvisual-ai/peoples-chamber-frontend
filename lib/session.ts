@@ -33,11 +33,18 @@ function sign(payload: string, secret: string): string {
   return crypto.createHmac('sha256', secret).update(payload).digest('base64url');
 }
 
+/** The user's current session_version: a number, 'missing' (no such user) or 'error' (the read failed). */
+async function readSessionVersion(userId: number): Promise<number | 'missing' | 'error'> {
+  const { data, error } = await supabaseAdmin.from('users').select('session_version').eq('id', userId).maybeSingle();
+  if (error) return 'error';
+  if (!data) return 'missing';
+  return Number(data.session_version);
+}
+
 /** The user's current session_version, or null if the user does not exist or the read failed. */
 async function currentSessionVersion(userId: number): Promise<number | null> {
-  const { data, error } = await supabaseAdmin.from('users').select('session_version').eq('id', userId).maybeSingle();
-  if (error || !data) return null;
-  return Number(data.session_version);
+  const v = await readSessionVersion(userId);
+  return typeof v === 'number' ? v : null;
 }
 
 /** Increase the user's session_version, ending every session issued before. Returns the new version. */
@@ -146,6 +153,42 @@ export async function verifySessionToken(token: string | undefined | null): Prom
   // A reset, password change or logout since this token was issued makes it stale.
   if ((await currentSessionVersion(uid)) !== version) return null;
   return uid;
+}
+
+/**
+ * The state of a session token (25 Oct 2026, report 58), for /api/auth/me: 'valid' with the user id; 'ended' when there
+ * is no token or it can never be valid again (bad signature, expired, an older session_version, a deleted user); or
+ * 'unknown' when the database could not be read, so a passing outage does not sign anyone out. verifySessionToken stays
+ * fail closed: it treats 'unknown' as no session.
+ */
+export async function sessionTokenState(token: string | undefined | null): Promise<{ state: 'valid'; userId: number } | { state: 'ended' } | { state: 'unknown' }> {
+  const secret = getSecret();
+  if (!secret) return { state: 'unknown' };
+  if (!token) return { state: 'ended' };
+  const lastDot = token.lastIndexOf('.');
+  if (lastDot < 0) return { state: 'ended' };
+  const payload = token.slice(0, lastDot);
+  const a = Buffer.from(token.slice(lastDot + 1));
+  const b = Buffer.from(sign(payload, secret));
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return { state: 'ended' };
+  const parts = payload.split('.');
+  if (parts.length !== 3) return { state: 'ended' };
+  const [uid, version, exp] = parts.map(Number);
+  if (!Number.isInteger(uid) || uid <= 0 || !Number.isInteger(version) || !Number.isFinite(exp)) return { state: 'ended' };
+  if (exp < Math.floor(Date.now() / 1000)) return { state: 'ended' };
+  const current = await readSessionVersion(uid);
+  if (current === 'error') return { state: 'unknown' };
+  if (current === 'missing' || current !== version) return { state: 'ended' };
+  return { state: 'valid', userId: uid };
+}
+
+/** Raw Set-Cookie values that remove the session cookie and the signed-in marker, for a response built by hand. */
+export function clearedSessionCookieHeaders(): string[] {
+  const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
+  return [
+    `${COOKIE_NAME}=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax${secure}`,
+    `${SIGNED_IN_FLAG}=; Path=/; Max-Age=0; SameSite=Lax${secure}`,
+  ];
 }
 
 /**
