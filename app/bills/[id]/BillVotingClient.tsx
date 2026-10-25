@@ -4,6 +4,10 @@
 // server-rendered ballot frame on the bill page; the running counts and
 // Parliament's division are rendered server-side around it. Casting a vote
 // posts to /api/vote then refreshes so the server counts update.
+// Changing a vote (owner's approval, 25 Oct 2026, report 53): while the bill is still going through Parliament the
+// visitor can mark the other box; /api/vote changes the stored vote. Once the bill is closed (an Act, withdrawn or
+// defeated) the page says so and shows the final choice. After every reply the boxes show the choice the server says
+// is stored, never just the box last clicked.
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -16,11 +20,14 @@ const INK_HAIRLINE = 'rgba(20,16,13,0.3)'
 const ACCENT = '#7a1612'
 
 type Choice = 'yes' | 'no'
+type Stored = Choice | 'abstain'
+const LABEL: Record<Stored, string> = { yes: 'Aye', no: 'No', abstain: 'Abstain' }
 
-export default function BillVotingClient({ billId }: { billId: number }) {
+export default function BillVotingClient({ billId, closed: closedAtRender = false }: { billId: number; closed?: boolean }) {
   const router = useRouter()
   const { user, authLoading } = useAuth()
-  const [userVote, setUserVote] = useState<Choice | null>(null)
+  const [userVote, setUserVote] = useState<Stored | null>(null)
+  const [closed, setClosed] = useState(closedAtRender)
   const [voting, setVoting] = useState(false)
   const [notice, setNotice] = useState<string | null>(null)
 
@@ -31,7 +38,7 @@ export default function BillVotingClient({ billId }: { billId: number }) {
     }
     fetch(`/api/vote?userId=${user.id}`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((d) => setUserVote((d?.votes?.[billId] as Choice) || null))
+      .then((d) => setUserVote((d?.votes?.[billId] as Stored) || null))
       .catch(() => {})
   }, [user, billId])
 
@@ -42,9 +49,13 @@ export default function BillVotingClient({ billId }: { billId: number }) {
       return
     }
     if (voting) return
-    // Already voted on this bill — tell them instead of silently doing nothing.
-    if (userVote) {
-      setNotice('You have already voted on this bill.')
+    if (closed) {
+      setNotice('Voting has closed on this bill.')
+      if (userVote) return
+    }
+    // Marking the box already marked changes nothing.
+    if (userVote === choice) {
+      setNotice(`Your vote is already ${LABEL[choice]}.`)
       return
     }
     setVoting(true)
@@ -55,16 +66,21 @@ export default function BillVotingClient({ billId }: { billId: number }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: user.id, billId, choice }),
       })
+      const d = await res.json().catch(() => null)
       if (res.ok) {
-        setUserVote(choice)
+        // The stored choice, as the server reports it.
+        if (d?.choice) setUserVote(d.choice as Stored)
+        if (d?.changed) setNotice(`Your vote has been changed to ${LABEL[d.choice as Stored] ?? d.choice}.`)
         router.refresh() // pull fresh server-rendered counts
       } else {
-        const d = await res.json().catch(() => null)
         if (res.status === 401) {
           setNotice('Your session has expired. Please refresh the page and sign in again.')
+          setVoting(false)
           return
         }
-        if (res.status === 400) setUserVote(choice) // server says already voted; reflect it
+        // A refusal carries the stored choice (existingChoice); show that, never the box just clicked.
+        if (d?.existingChoice) setUserVote(d.existingChoice as Stored)
+        if (d?.closed) setClosed(true)
         setNotice(d?.error || 'Your vote could not be recorded. Please try again.')
       }
     } catch {
@@ -74,18 +90,28 @@ export default function BillVotingClient({ billId }: { billId: number }) {
   }
 
   const hasVoted = userVote !== null
+  const status = closed
+    ? hasVoted
+      ? `Voting has closed on this bill. Your final vote: ${LABEL[userVote as Stored]}.`
+      : 'Voting has closed on this bill.'
+    : hasVoted
+    ? `Your vote: ${LABEL[userVote as Stored]}.`
+    : user
+    ? ''
+    : 'You will be asked to sign in before your vote is counted.'
 
   return (
     <div style={{ maxWidth: '440px', margin: '0 auto' }}>
-      <BallotRow label="Aye" sub="I support this bill" marked={userVote === 'yes'} dim={hasVoted && userVote !== 'yes'} disabled={voting} onClick={() => handleVote('yes')} />
-      <BallotRow label="No" sub="I oppose this bill" marked={userVote === 'no'} dim={hasVoted && userVote !== 'no'} disabled={voting} onClick={() => handleVote('no')} last />
+      <BallotRow label="Aye" sub="I support this bill" marked={userVote === 'yes'} dim={hasVoted && userVote !== 'yes'} disabled={voting || (closed && hasVoted)} onClick={() => handleVote('yes')} />
+      <BallotRow label="No" sub="I oppose this bill" marked={userVote === 'no'} dim={hasVoted && userVote !== 'no'} disabled={voting || (closed && hasVoted)} onClick={() => handleVote('no')} last />
 
-      <div style={{ textAlign: 'center', marginTop: '14px', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.06em', color: INK_SOFT }}>
-        {hasVoted
-          ? 'Your vote has been recorded. Thank you.'
-          : user
-          ? ''
-          : 'You will be asked to sign in before your vote is counted.'}
+      <div role="status" style={{ textAlign: 'center', marginTop: '14px', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.06em', color: INK_SOFT }}>
+        {status}
+        {hasVoted && !closed && (
+          <span style={{ display: 'block', marginTop: '6px', fontWeight: 'bold', color: ACCENT }}>
+            Change your vote: mark the other box while the bill is going through Parliament.
+          </span>
+        )}
       </div>
       <Toast message={notice} onDone={() => setNotice(null)} />
     </div>

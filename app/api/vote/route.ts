@@ -119,9 +119,36 @@ export async function POST(request: NextRequest) {
       .eq('bill_id', billId)
       .single();
     
+    // Changing a vote (owner's approval, 25 Oct 2026, report 53): while the bill is still going through Parliament a
+    // visitor may switch to another choice. public.change_bill_vote (migration 2026-10-25a) changes the vote row and
+    // moves exactly one count from the old choice to the new one in a single transaction, with the bill row locked.
+    // The same choice changes nothing. A closed bill (an Act, withdrawn or defeated) keeps the existing refusal, with
+    // the stored choice; a hidden one is refused above.
     if (existingVote) {
+      const counts = async () => {
+        const { data } = await supabase.from('bill').select('vote_count_yes, vote_count_no, vote_count_abstain').eq('id', billId).single();
+        return { yes: data?.vote_count_yes || 0, no: data?.vote_count_no || 0, abstain: data?.vote_count_abstain || 0 };
+      };
+      if (existingVote.choice === choice) {
+        return NextResponse.json({ success: true, unchanged: true, choice, votes: await counts() });
+      }
+      const { data: changed, error: changeErr } = await supabase.rpc('change_bill_vote', { p_user_id: userId, p_bill_id: Number(billId), p_choice: choice });
+      if (changeErr) {
+        console.error('Vote change error:', changeErr);
+        return NextResponse.json({ error: 'Failed to change vote', existingChoice: existingVote.choice }, { status: 500 });
+      }
+      const result = changed as { status: string; choice?: string; to?: string; votes?: { yes: number; no: number; abstain: number } };
+      if (result.status === 'changed') {
+        return NextResponse.json({ success: true, changed: true, choice: result.to, votes: result.votes });
+      }
+      if (result.status === 'unchanged') {
+        return NextResponse.json({ success: true, unchanged: true, choice: result.choice, votes: await counts() });
+      }
+      if (result.status === 'not_found') return NextResponse.json({ error: 'Bill not found' }, { status: 404 });
+      if (result.status === 'invalid') return NextResponse.json({ error: 'Invalid choice' }, { status: 400 });
+      // closed (or a vote that vanished meanwhile): the existing refusal, with the stored choice.
       return NextResponse.json(
-        { error: 'You have already voted on this bill', existingChoice: existingVote.choice },
+        { error: result.status === 'closed' ? 'Voting has closed on this bill' : 'You have already voted on this bill', closed: result.status === 'closed', existingChoice: result.choice ?? existingVote.choice },
         { status: 400 }
       );
     }

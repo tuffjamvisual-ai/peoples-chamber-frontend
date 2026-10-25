@@ -396,7 +396,8 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
             </div>
           </div>
 
-          <BillVotingClient billId={billId} />
+          {/* Closed bills (an Act, withdrawn or defeated) take no vote changes (report 53). */}
+          <BillVotingClient billId={billId} closed={bill.is_act === true || bill.bill_withdrawn != null || bill.is_defeated === true} />
 
           {/* The count so far */}
           <div style={{ borderTop: `1px solid ${INK}`, marginTop: '24px', paddingTop: '20px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
