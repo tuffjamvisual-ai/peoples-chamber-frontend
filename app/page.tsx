@@ -36,17 +36,20 @@ export const fetchCache = 'default-cache';
 const HOME_DESCRIPTION =
   'Track every UK MP, bill, vote and government department in one place: voting records, spending and Whitehall transparency data, free.';
 
+const HOME_TITLE = 'opengovt | UK Parliament Tracker & Government Transparency';
+
 export const metadata: Metadata = {
-  title: "opengovt | UK Parliament Tracker & Government Transparency",
+  title: HOME_TITLE,
   description: HOME_DESCRIPTION,
   alternates: { canonical: '/' },
   // The home page's own openGraph and twitter (owner's approval, 24 Oct 2026), so its share text matches its search
   // description. They repeat the root layout's values with this description: a page's openGraph or twitter replaces the
   // layout's whole block. SITE_DESCRIPTION in app/layout.tsx is left as it is: other pages use it as their description.
+  // The share title is the page's own title (report 63), as on every other page.
   openGraph: {
     type: 'website',
     siteName: 'opengovt',
-    title: 'opengovt',
+    title: HOME_TITLE,
     description: HOME_DESCRIPTION,
     url: 'https://www.opengovt.uk',
     locale: 'en_GB',
@@ -54,7 +57,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'opengovt',
+    title: HOME_TITLE,
     description: HOME_DESCRIPTION,
     images: ['https://www.opengovt.uk/og-image.png'],
   },

@@ -55,12 +55,14 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
+  // Link previews (25 Oct 2026, report 63): no title, description or url here, so Next.js fills og:title,
+  // og:description, twitter:title and twitter:description from each page's own title and description (its
+  // generateMetadata or metadata, lib/seo-title.ts, lib/page-descriptions.ts), and links to a page are not all
+  // previewed as the homepage. A page without a description of its own still gets SITE_DESCRIPTION through the
+  // description above. The image is the site's default; investigations set their own.
   openGraph: {
     type: "website",
     siteName: SITE_NAME,
-    title: SITE_NAME,
-    description: SITE_DESCRIPTION,
-    url: SITE_URL,
     locale: "en_GB",
     images: [
       {
@@ -73,8 +75,6 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: SITE_NAME,
-    description: SITE_DESCRIPTION,
     images: [`${SITE_URL}/og-image.png`],
   },
   robots: {
