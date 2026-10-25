@@ -294,8 +294,10 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
             <article key={row.id} style={{ border: `1px solid ${HAIRLINE}`, borderLeft: `3px solid ${ACCENT}`, padding: '16px 18px', background: 'rgba(20,16,13,0.015)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '10px' }}>
                 {mp?.photo_url && (
+                  // Lazy (25 Oct 2026, report 43): without it React preloads every photo in the list from the page head,
+                  // about 40 full-size photos competing with the page's own first paint (LCP 2.8 s on Fast 4G).
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={mp.photo_url} alt="" width={36} height={36} style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: `1px solid ${HAIRLINE}` }} />
+                  <img src={mp.photo_url} alt="" width={36} height={36} loading="lazy" decoding="async" style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: `1px solid ${HAIRLINE}` }} />
                 )}
                 <Link href={`/mps/${row.member_id}#interests`} style={{ fontSize: '17px', fontWeight: 700, color: INK, textDecoration: 'none' }}>
                   {mpName}

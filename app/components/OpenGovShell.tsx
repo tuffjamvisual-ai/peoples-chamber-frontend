@@ -1,4 +1,6 @@
 import './opengov-shell.css';
+import { preload } from 'react-dom';
+import Link from 'next/link';
 import { topics } from '@/lib/topics';
 import AccountTab from './AccountTab';
 import { SHOW_LEAGUE_TABLE, SHOW_YOUR_TAX_POUND, SHOW_BUDGET_CHOICES } from '@/lib/feature-flags';
@@ -104,6 +106,11 @@ export default function OpenGovShell({
 }) {
   // Shared masthead brand styling; margin:0 neutralises the h1 default so the
   // <h1>/<span> variants render identically.
+  // The folders backdrop is a CSS background (opengov-shell.css), so the browser only asked for it once the stylesheet
+  // had arrived, and on desktop it is the largest thing painted (the LCP). Preloading it from the page head starts the
+  // download with the HTML instead (25 Oct 2026, report 43); each width gets only the file its stylesheet uses.
+  preload('/folders.webp', { as: 'image', media: '(min-width: 641px)', fetchPriority: 'high' });
+  preload('/folders-900.webp', { as: 'image', media: '(max-width: 640px)' });
   const brandStyle: React.CSSProperties = { display: 'inline-block', margin: 0, opacity: 0.8, border: '0.07em solid #6b2417', padding: '0.14em 0.32em 0.06em', fontFamily: "var(--font-bebas), 'Bebas Neue', Impact, 'Arial Narrow', sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1, color: '#6b2417', fontSize: 'clamp(24px, 4.6vw, 64px)' };
   return (
     <div
@@ -117,21 +124,23 @@ export default function OpenGovShell({
       <div style={{ position: 'relative', zIndex: 1, width: 'min(96vw, 1240px)' }}>
         {/* Header: newb folder with the OPEN GOVERNMENT red stamp + nav + tab. */}
         <div className="og-header" style={{ position: 'relative', width: '100%', aspectRatio: '1086 / 1448', containerType: 'inline-size' }}>
+          {/* Phones (25 Oct 2026, report 43): sizes says 60vw below 640px so a 3x phone takes the 800px file (72 KB) and
+              a 2x phone the 600px one (16 KB), not the full 1086px file (128 KB); still about twice the shown width. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/newb.webp" srcSet="/newb-600.webp 600w, /newb-800.webp 800w, /newb.webp 1086w" sizes="min(96vw, 1240px)" fetchPriority="high" alt="" aria-hidden style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', userSelect: 'none', pointerEvents: 'none', transform: 'rotate(-2.5deg)', filter: 'saturate(0.84) drop-shadow(0 18px 38px rgba(0,0,0,0.55))' }} />
+          <img src="/newb.webp" srcSet="/newb-600.webp 600w, /newb-800.webp 800w, /newb.webp 1086w" sizes="(max-width: 640px) 60vw, min(96vw, 1240px)" fetchPriority="high" alt="" aria-hidden style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', userSelect: 'none', pointerEvents: 'none', transform: 'rotate(-2.5deg)', filter: 'saturate(0.84) drop-shadow(0 18px 38px rgba(0,0,0,0.55))' }} />
 
           <div className="ng-tab" style={{ transform: 'rotate(-2.5deg)' }}>
             <AccountTab />
             <span aria-hidden style={{ display: 'inline-block', width: '1px', height: '0.95em', background: 'currentColor', opacity: 0.5, margin: '0 7px' }} />
-            <a href="/donate">Support Us</a>
+            <Link href="/donate">Support Us</Link>
           </div>
 
           <div className="og-masthead-wrap" style={{ position: 'absolute', top: '3.6%', left: '5%', width: '90%', textAlign: 'left', zIndex: 5, pointerEvents: 'none', transform: 'rotate(-2.5deg)' }}>
-            <a href="/" style={{ pointerEvents: 'auto', textDecoration: 'none' }}>
+            <Link href="/" style={{ pointerEvents: 'auto', textDecoration: 'none' }}>
               {brandAsHeading
                 ? <h1 style={brandStyle}>opengovt</h1>
                 : <span style={brandStyle}>opengovt</span>}
-            </a>
+            </Link>
           </div>
 
           <nav aria-label="Primary" className="og-navwrap" style={{ position: 'absolute', top: '10.6%', left: '2%', width: '96%', zIndex: 5, transform: 'translateX(1.5%) rotate(-2.5deg)' }}>
