@@ -30,9 +30,9 @@
 .og-rail > :first-child { border-top: none; margin-top: 0; padding-top: 0; }
 .og-rail .og-card { margin-top: 14px; padding-top: 14px; }
 .og-rail > .og-card:first-child { border-top: none; margin-top: 0; padding-top: 0; }
-/* The Commission promo opens the rail (report 69): keep its own box padding, which the first child rule above would
-   remove, and space the card below it. */
-.og-rail > .og-promo { margin-top: 0; padding-top: 14px; }
+/* The Commission promo opens the rail (reports 69 and 75): the first child rule above removes the first item's top
+   border and padding, so the promo gets its full box back (border on all four sides, as .og-promo sets it). */
+.og-rail > .og-promo { margin-top: 0; padding-top: 14px; border-top: 1.5px solid var(--ink); }
 .og-main img, .og-card img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin-bottom: 12px; border: 1px solid var(--ink); }
 .og-main .og-head { margin-bottom: 6px; }
 
