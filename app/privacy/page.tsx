@@ -35,7 +35,7 @@ export default function PrivacyPage() {
 
         <h2 style={h2}>What we collect and how we use it</h2>
         <p style={p}>
-          When you create an account, we collect your email address, which is required for verification and, if you opt in, to send you updates about the site.
+          When you create an account, we collect your name, your email address and a password. Your email address is used to confirm your account, to sign you in, and, if you opt in, to send you the newsletter. When an account is created we send ourselves a short email with the name and email address, so we know a new account exists.
         </p>
         <p style={p}>
           If you sign up for the newsletter without an account, we store only your email address, when you signed up, and whether you have confirmed or unsubscribed. It is used only to send Open Govt Weekly. You are added only after you click the confirmation link we email you, and every newsletter includes a link that unsubscribes you in a single click.
@@ -44,20 +44,43 @@ export default function PrivacyPage() {
           If you choose to provide it, we also collect your postcode, used solely to identify your parliamentary constituency and connect you with your local MP through the Find Your MP feature.
         </p>
         <p style={p}>
-          When you vote on polls or parliamentary divisions, your vote is recorded against your account to prevent duplicate voting, but only aggregated results are ever published or shared. No individual voting record is made public.
+          When you vote on polls or bills, your vote is recorded against your account, with the time, to prevent duplicate voting, but only aggregated results are ever published or shared. No individual voting record is made public.
         </p>
         <p style={p}>
-          We do not collect your name, address, phone number, payment details or any other personal information. We do not share your email or postcode with any third party, and we will never send you marketing from other organisations.
+          We do not collect your home address, phone number or card details. Card payments are taken by Stripe on its own page (see below). We do not share your email or postcode with anyone except the services listed below, which process it only to run this site for us, and we will never send you marketing from other organisations.
+        </p>
+
+        <h2 style={h2}>Commission research requests</h2>
+        <p style={p}>
+          If you ask us for commissioned research, the form sends us your name, email address, organisation (if you give one), your question, any deadline, and whether you intend to publish the results. We use these only to reply with a quote and, if you go ahead, to do the work. The request is not stored in our database: it is sent by email to our inbox, where only we read it, and kept there as part of our correspondence with you.
+        </p>
+
+        <h2 style={h2}>Following and saved searches</h2>
+        <p style={p}>
+          If you follow MPs, donors, bills or organisations, or save searches, we keep that list so we can send you a weekly email of what changed. Because what you follow could show your political views, we only keep it with your clear agreement, which you give when you first follow something. You can stop the emails from any email, remove any item, or delete your account, and it is all deleted. We keep a record of the alert emails we send for up to 12 months, to keep within our sending limits. We do not share this with anyone, and we do not use it for advertising.
         </p>
 
         <h2 style={h2}>Cookies</h2>
         <p style={p}>
-          The site uses essential cookies required for the site to function, including session cookies for login and a cookie to record whether you have dismissed the registration prompt. We do not use advertising cookies. We do not use tracking cookies. We do not use Google Analytics or any third party analytics service.
+          The site uses essential cookies required for the site to function: a session cookie that keeps you signed in for up to 30 days, a small marker that tells the site you are signed in, and a cookie to record whether you have dismissed the registration prompt, which lasts until you close your browser. We do not use advertising cookies. We do not use tracking cookies. We do not use Google Analytics.
+        </p>
+        <p style={p}>
+          The site also keeps a few things in your browser&rsquo;s own storage, which are never sent to us: your account name and email address while you are signed in, so pages can show that you are signed in, and, for the sign up note on search, how many searches you have made in this visit and whether you closed the note (remembered for 30 days).
+        </p>
+
+        <h2 style={h2}>Analytics</h2>
+        <p style={p}>
+          We use Vercel Web Analytics to count page views and Vercel Speed Insights to measure how fast pages load. For each page view, Web Analytics records the page address, the page you came from, the time, your approximate location (country, region and city), and your browser, operating system and type of device. Speed Insights records the page, your network speed, browser, device, operating system and country, and the page&rsquo;s speed measurements, for one in five visits. They do not use third party cookies: Vercel tells visits apart with a code made from the request, which it deletes after 24 hours, and we only see totals that are not tied to any person or IP address.
+        </p>
+
+        <h2 style={h2}>Services that process data for us</h2>
+        <p style={p}>
+          Supabase stores our database, in Amazon Web Services&rsquo; Ireland region (eu-west-1). Vercel hosts the site and runs the analytics above. Resend sends our emails: account confirmation, password reset, the newsletter, alert emails and commission requests. Stripe takes card payments for donations and commissioned research on its own secure page; we receive confirmation of the payment, not your card details.
         </p>
 
         <h2 style={h2}>Data storage</h2>
         <p style={p}>
-          Your data is stored securely using Supabase, a cloud database service hosted in the European Union. Passwords are hashed and never stored in plain text. We do not have access to your password.
+          Your data is stored securely using Supabase, a cloud database service hosted in the European Union (Ireland). Passwords are hashed and never stored in plain text. We do not have access to your password.
         </p>
 
         <h2 style={h2}>Your rights</h2>
@@ -67,7 +90,7 @@ export default function PrivacyPage() {
 
         <h2 style={h2}>Data sharing</h2>
         <p style={p}>
-          We do not sell, rent, share or trade your personal data with any third party. We do not share data with advertisers. We do not share data with political parties, campaigns or government bodies.
+          We do not sell, rent, share or trade your personal data with any third party. The services listed above process it only to run this site for us. We do not share data with advertisers. We do not share data with political parties, campaigns or government bodies.
         </p>
 
         <h2 style={h2}>Changes to this policy</h2>
@@ -79,6 +102,8 @@ export default function PrivacyPage() {
         <p style={p}>
           For any questions about this policy or your data, email contact@opengovt.uk.
         </p>
+
+        <p style={{ ...p, marginTop: '30px', fontSize: '15px' }}>Last updated: 25 October 2026</p>
       </div>
     </OpenGovShell>
   )
