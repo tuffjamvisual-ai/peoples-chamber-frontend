@@ -32,7 +32,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!s) return {};
   return {
     title: s.item.label,
-    description: `${intro(s.item.label)} ${s.item.children!.map((c) => c.label).join(', ')}.`,
+    // With more than two groups (Parliament) the groups are named; otherwise every link.
+    description: `${intro(s.item.label)} ${(groups(s.item.children!).length > 2 ? groups(s.item.children!).map((g) => g.title) : s.item.children!.map((c) => c.label)).join(', ')}.`,
     alternates: { canonical: `/sections/${slug}` },
   };
 }
@@ -42,7 +43,15 @@ const ACCENT = '#7a1612';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
 const MONO = 'var(--font-special-elite), monospace';
 
-// The links in their order, split into their subheadings (only Accountability has any).
+// A subheading's anchor: "MPs" is #mps, "Money & Power" is #money-power.
+function anchor(title: string) {
+  return title.toLowerCase().replace(/&/g, ' ').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+// The 15 party cards (report 62): a compact grid, so the Parliament page stays scannable.
+const COMPACT_CSS = '.og-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px 14px;margin-top:6px}@media (max-width:900px){.og-cards{grid-template-columns:repeat(2,1fr)}}@media (max-width:520px){.og-cards{grid-template-columns:1fr}}';
+
+// The links in their order, split into their subheadings (Accountability has two, Parliament four).
 function groups(links: NavLink[]): { title: string | null; links: NavLink[] }[] {
   const out: { title: string | null; links: NavLink[] }[] = [];
   for (const l of links) {
@@ -58,6 +67,7 @@ export default async function SectionPage({ params }: { params: Promise<{ slug: 
   const s = find(slug);
   if (!s) notFound();
   const { item } = s;
+  const grouped = groups(item.children!);
   return (
     <OpenGovShell pageStamp={item.label}>
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: item.label, path: `/sections/${slug}` }])} />
@@ -75,14 +85,26 @@ export default async function SectionPage({ params }: { params: Promise<{ slug: 
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', color: INK, margin: 0 }}>{intro(item.label)}</p>
       </header>
 
-      <style>{TWO_COLUMN_GRID_CSS}</style>
-      {groups(item.children!).map((g) => (
-        <section key={g.title ?? 'all'} aria-label={g.title ?? undefined} style={{ marginBottom: '28px' }}>
+      <style>{TWO_COLUMN_GRID_CSS + COMPACT_CSS}</style>
+      {/* With more than two groups (Parliament), a row of links to each group first. */}
+      {grouped.length > 2 && (
+        <nav aria-label="On this page" style={{ margin: '0 0 22px', fontFamily: MONO, fontSize: '15px', lineHeight: 1.5 }}>
+          <span style={{ textTransform: 'uppercase', letterSpacing: '0.12em', fontSize: '14px', opacity: 0.75, marginRight: '8px' }}>On this page</span>
+          {grouped.map((g, i) => (
+            <span key={g.title} style={{ whiteSpace: 'nowrap' }}>
+              {i > 0 && <span aria-hidden style={{ opacity: 0.45, margin: '0 6px' }}>·</span>}
+              <a href={`#${anchor(g.title!)}`} className="no-hover-scale" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px', display: 'inline-block', padding: '4px 0' }}>{g.title}</a>
+            </span>
+          ))}
+        </nav>
+      )}
+      {grouped.map((g) => (
+        <section key={g.title ?? 'all'} id={g.title ? anchor(g.title) : undefined} aria-label={g.title ?? undefined} style={{ marginBottom: '28px', scrollMarginTop: '16px' }}>
           {g.title && (
             <h2 style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.12em', color: INK, margin: '0 0 6px' }}>{g.title}</h2>
           )}
           <div className="og-grid2">
-            {g.links.map((l) => (
+            {g.links.filter((l) => !l.compact).map((l) => (
               <Link
                 key={`${l.href}-${l.label}`}
                 href={l.href}
@@ -96,6 +118,23 @@ export default async function SectionPage({ params }: { params: Promise<{ slug: 
               </Link>
             ))}
           </div>
+          {g.links.some((l) => l.compact) && (
+            <div className="og-cards">
+              {g.links.filter((l) => l.compact).map((l) => (
+                <Link
+                  key={`${l.href}-${l.label}`}
+                  href={l.href}
+                  className="no-hover-scale"
+                  style={{ display: 'block', textDecoration: 'none', color: INK, border: `1px solid ${HAIRLINE}`, padding: '10px 12px 12px', minHeight: '44px' }}
+                >
+                  <div style={{ fontFamily: MONO, fontSize: '17px', fontWeight: 'bold', marginBottom: l.desc ? '4px' : 0 }}>
+                    {l.label} <span style={{ color: ACCENT }}>→</span>
+                  </div>
+                  {l.desc && <p style={{ fontSize: '14px', lineHeight: 1.5, color: INK, margin: 0 }}>{l.desc}</p>}
+                </Link>
+              ))}
+            </div>
+          )}
         </section>
       ))}
     </OpenGovShell>

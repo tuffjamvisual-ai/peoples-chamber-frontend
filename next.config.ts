@@ -147,7 +147,14 @@ const nextConfig: NextConfig = {
       { source: '/editorials/hb9k2xq7mw', destination: '/editorials/q7m3k9xw2r', statusCode: 301 as const },
       { source: '/editorials/hb9k2xq7mw/sources', destination: '/editorials/q7m3k9xw2r/sources', statusCode: 301 as const },
     ];
-    return [...editorialRedirects, ...briefingRedirects, ...notFoundRedirects, ...mergedReportRedirects, ...billsPageRedirects, ...reportsRedirects, ...(await councilRedirects()), ...(await agencyRedirects())];
+    // MPs, Parties and Departments became groups of Parliament in the menu (owner's decision, 25 Oct 2026, report 62):
+    // their section pages go permanently (308) to the matching group on the Parliament section page.
+    const sectionRedirects = [
+      { source: '/sections/mps', destination: '/sections/parliament#mps', permanent: true },
+      { source: '/sections/parties', destination: '/sections/parliament#parties', permanent: true },
+      { source: '/sections/departments', destination: '/sections/parliament#departments', permanent: true },
+    ];
+    return [...editorialRedirects, ...briefingRedirects, ...notFoundRedirects, ...mergedReportRedirects, ...billsPageRedirects, ...reportsRedirects, ...sectionRedirects, ...(await councilRedirects()), ...(await agencyRedirects())];
   },
   images: {
     remotePatterns: [

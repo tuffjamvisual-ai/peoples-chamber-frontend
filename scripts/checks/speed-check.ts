@@ -63,12 +63,12 @@ export const ROUTES: { route: string; path: string }[] = [
   { route: '/sections/[slug]', path: '/sections/accountability' },
 ];
 
-// Pages with phone-only table layouts (cards and sticky columns, report 47) and the other six section pages (report
-// 60), added to the phone layout pass although they are not among the 30 most visited routes.
+// Pages with phone-only table layouts (cards and sticky columns, report 47) and the other section pages (reports 60
+// and 62), added to the phone layout pass although they are not among the 30 most visited routes.
 export const PHONE_LAYOUT_EXTRA: { route: string; path: string }[] = [
   { route: '/donors', path: '/donors' },
   { route: '/sewage', path: '/sewage' },
-  ...['mps', 'parliament', 'parties', 'departments', 'local', 'vote'].map((s) => ({ route: '/sections/[slug]', path: `/sections/${s}` })),
+  ...['parliament', 'local', 'vote'].map((s) => ({ route: '/sections/[slug]', path: `/sections/${s}` })),
 ];
 
 export const TARGETS = { lcpThrottledMs: 2500, lcpUnthrottledMs: 1000, serverMs: 1000, cls: 0.1 };

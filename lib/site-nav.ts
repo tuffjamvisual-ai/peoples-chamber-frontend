@@ -11,51 +11,47 @@ import { PAGE_DESCRIPTIONS, partyDescription, PARTY_NAMES, VOTE_ON_BILLS_DESCRIP
 // app/sections/[slug]/page.tsx; Topics uses /topics, which already lists every topic). desc: one line from the
 // destination page's own meta description, shortened, shown on the section page (the ones in lib/page-descriptions.ts
 // are the page's meta description itself, report 61). group: a subheading on the section
-// page (Accountability has two).
-export type NavLink = { label: string; href: string; desc?: string; group?: string };
+// page (Accountability has two, Parliament four). compact: shown as a small name card in a grid on the section page
+// (the 15 parties).
+export type NavLink = { label: string; href: string; desc?: string; group?: string; compact?: boolean };
 export type NavItem = { label: string; href: string; page?: string; children?: NavLink[] };
 export const NAV: NavItem[] = [
   { label: 'Home', href: '/' },
   { label: 'Search', href: '/search' },
   { label: 'Topics', href: '/topics', page: '/topics', children: topics.map((t) => ({ label: t.title, href: `/topics/${t.slug}` })) },
-  { label: 'MPs', href: '/mps', page: '/sections/mps', children: [
-    { label: 'Find Your MP', href: '/find-your-mp', desc: 'Enter your postcode to find your MP, their voting record, expenses, declared interests and contributions.' },
-    { label: 'All MPs', href: '/mps', desc: 'Profiles of all 650 UK MPs: voting records, expenses, registered interests and contact details.' },
-    { label: 'MP Activity', href: '/transparency/mp-activity', desc: 'Every current MP ranked by how often they have spoken in Parliament this term, from Hansard.' },
-    { label: 'MP Earnings', href: '/earnings', desc: 'Every MP\'s personal earnings (salary, ministerial pay, outside earnings) beside their public spend.' },
-  ] },
+  // MPs, Parties and Departments are groups of Parliament since 25 Oct 2026 (owner's decision, report 62).
   { label: 'Parliament', href: '/bills', page: '/sections/parliament', children: [
-    { label: 'Bills', href: '/bills', desc: 'The bills going through Parliament now: stage, sponsor, how MPs voted and how Open Govt users voted.' },
-    { label: 'Select Committees', href: '/committees', desc: 'Current membership of the 29 House of Commons select committees, from UK Parliament.' },
-    { label: 'Commons Debates', href: '/debates', desc: 'Every debate held in the House of Commons this Parliament, by date and section.' },
-    { label: 'Divisions', href: '/divisions', desc: 'Every recorded vote in the House of Commons since March 2016, with how the House divided.' },
-    { label: 'Press Releases', href: '/transparency/press-releases', desc: 'UK Government department press releases from 2007 to today, plus Commons select committee reports.' },
-    { label: 'Laws', href: '/laws', desc: 'Acts of the UK Parliament that have received Royal Assent, with original sponsor and stage history.' },
-  ] },
-  { label: 'Parties', href: '/parties', page: '/sections/parties', children: [
-    { label: 'Manifesto Comparisons', href: '/parties', desc: 'Compare the 2024 General Election manifestos of 15 parties across 11 policy themes.' },
-    { label: 'Labour', href: '/parties/labour/bio', desc: partyDescription(PARTY_NAMES['labour']) },
-    { label: 'Conservative', href: '/parties/conservative/bio', desc: partyDescription(PARTY_NAMES['conservative']) },
-    { label: 'Liberal Democrats', href: '/parties/liberal-democrats/bio', desc: partyDescription(PARTY_NAMES['liberal-democrats']) },
-    { label: 'SNP', href: '/parties/snp/bio', desc: partyDescription(PARTY_NAMES['snp']) },
-    { label: 'Reform UK', href: '/parties/reform-uk/bio', desc: partyDescription(PARTY_NAMES['reform-uk']) },
-    { label: 'Sinn Féin', href: '/parties/sinn-fein/bio', desc: partyDescription(PARTY_NAMES['sinn-fein']) },
-    { label: 'Green Party', href: '/parties/green/bio', desc: partyDescription(PARTY_NAMES['green']) },
-    { label: 'DUP', href: '/parties/dup/bio', desc: partyDescription(PARTY_NAMES['dup']) },
-    { label: 'Plaid Cymru', href: '/parties/plaid-cymru/bio', desc: partyDescription(PARTY_NAMES['plaid-cymru']) },
-    { label: 'SDLP', href: '/parties/sdlp/bio', desc: partyDescription(PARTY_NAMES['sdlp']) },
-    { label: 'Alliance', href: '/parties/alliance/bio', desc: partyDescription(PARTY_NAMES['alliance']) },
-    { label: 'UUP', href: '/parties/uup/bio', desc: partyDescription(PARTY_NAMES['uup']) },
-    { label: 'TUV', href: '/parties/tuv/bio', desc: partyDescription(PARTY_NAMES['tuv']) },
-    { label: 'Restore Britain', href: '/parties/restore-britain/bio', desc: partyDescription(PARTY_NAMES['restore-britain']) },
-    { label: 'Your Party', href: '/parties/your-party/bio', desc: partyDescription(PARTY_NAMES['your-party']) },
-  ] },
-  { label: 'Departments', href: '/departments', page: '/sections/departments', children: [
-    { label: 'All Departments', href: '/departments', desc: 'All 23 UK government departments: Secretary of State, junior ministers, budget and a performance report.' },
-    { label: 'Department Budgets', href: '/spending', desc: 'Total Departmental Expenditure Limits for every UK government department, ranked.' },
-    { label: 'Civil Service', href: '/civil-service', desc: 'Headcount and FTE for every UK government department, ranked.' },
-    ...(SHOW_YOUR_TAX_POUND ? [{ label: 'Your Tax Pound', href: '/your-tax-pound' }] : []),
-    ...(SHOW_BUDGET_CHOICES ? [{ label: 'Budget Choices', href: '/budget-trade-offs' }] : []),
+    { group: 'MPs', label: 'Find Your MP', href: '/find-your-mp', desc: 'Enter your postcode to find your MP, their voting record, expenses, declared interests and contributions.' },
+    { group: 'MPs', label: 'All MPs', href: '/mps', desc: 'Profiles of all 650 UK MPs: voting records, expenses, registered interests and contact details.' },
+    { group: 'MPs', label: 'MP Activity', href: '/transparency/mp-activity', desc: 'Every current MP ranked by how often they have spoken in Parliament this term, from Hansard.' },
+    { group: 'MPs', label: 'MP Earnings', href: '/earnings', desc: 'Every MP\'s personal earnings (salary, ministerial pay, outside earnings) beside their public spend.' },
+    { group: 'Parliament', label: 'Bills', href: '/bills', desc: 'The bills going through Parliament now: stage, sponsor, how MPs voted and how Open Govt users voted.' },
+    { group: 'Parliament', label: 'Select Committees', href: '/committees', desc: 'Current membership of the 29 House of Commons select committees, from UK Parliament.' },
+    { group: 'Parliament', label: 'Commons Debates', href: '/debates', desc: 'Every debate held in the House of Commons this Parliament, by date and section.' },
+    { group: 'Parliament', label: 'Divisions', href: '/divisions', desc: 'Every recorded vote in the House of Commons since March 2016, with how the House divided.' },
+    { group: 'Parliament', label: 'Press Releases', href: '/transparency/press-releases', desc: 'UK Government department press releases from 2007 to today, plus Commons select committee reports.' },
+    { group: 'Parliament', label: 'Laws', href: '/laws', desc: 'Acts of the UK Parliament that have received Royal Assent, with original sponsor and stage history.' },
+    { group: 'Parties', label: 'Manifesto Comparisons', href: '/parties', desc: 'Compare the 2024 General Election manifestos of 15 parties across 11 policy themes.' },
+    { group: 'Parties', label: 'Labour', href: '/parties/labour/bio', compact: true, desc: partyDescription(PARTY_NAMES['labour']) },
+    { group: 'Parties', label: 'Conservative', href: '/parties/conservative/bio', compact: true, desc: partyDescription(PARTY_NAMES['conservative']) },
+    { group: 'Parties', label: 'Liberal Democrats', href: '/parties/liberal-democrats/bio', compact: true, desc: partyDescription(PARTY_NAMES['liberal-democrats']) },
+    { group: 'Parties', label: 'SNP', href: '/parties/snp/bio', compact: true, desc: partyDescription(PARTY_NAMES['snp']) },
+    { group: 'Parties', label: 'Reform UK', href: '/parties/reform-uk/bio', compact: true, desc: partyDescription(PARTY_NAMES['reform-uk']) },
+    { group: 'Parties', label: 'Sinn Féin', href: '/parties/sinn-fein/bio', compact: true, desc: partyDescription(PARTY_NAMES['sinn-fein']) },
+    { group: 'Parties', label: 'Green Party', href: '/parties/green/bio', compact: true, desc: partyDescription(PARTY_NAMES['green']) },
+    { group: 'Parties', label: 'DUP', href: '/parties/dup/bio', compact: true, desc: partyDescription(PARTY_NAMES['dup']) },
+    { group: 'Parties', label: 'Plaid Cymru', href: '/parties/plaid-cymru/bio', compact: true, desc: partyDescription(PARTY_NAMES['plaid-cymru']) },
+    { group: 'Parties', label: 'SDLP', href: '/parties/sdlp/bio', compact: true, desc: partyDescription(PARTY_NAMES['sdlp']) },
+    { group: 'Parties', label: 'Alliance', href: '/parties/alliance/bio', compact: true, desc: partyDescription(PARTY_NAMES['alliance']) },
+    { group: 'Parties', label: 'UUP', href: '/parties/uup/bio', compact: true, desc: partyDescription(PARTY_NAMES['uup']) },
+    { group: 'Parties', label: 'TUV', href: '/parties/tuv/bio', compact: true, desc: partyDescription(PARTY_NAMES['tuv']) },
+    { group: 'Parties', label: 'Restore Britain', href: '/parties/restore-britain/bio', compact: true, desc: partyDescription(PARTY_NAMES['restore-britain']) },
+    { group: 'Parties', label: 'Your Party', href: '/parties/your-party/bio', compact: true, desc: partyDescription(PARTY_NAMES['your-party']) },
+    { group: 'Departments', label: 'All Departments', href: '/departments', desc: 'All 23 UK government departments: Secretary of State, junior ministers, budget and a performance report.' },
+    { group: 'Departments', label: 'Department Budgets', href: '/spending', desc: 'Total Departmental Expenditure Limits for every UK government department, ranked.' },
+    { group: 'Departments', label: 'Civil Service', href: '/civil-service', desc: 'Headcount and FTE for every UK government department, ranked.' },
+    ...(SHOW_YOUR_TAX_POUND ? [{ group: 'Departments', label: 'Your Tax Pound', href: '/your-tax-pound' }] : []),
+    ...(SHOW_BUDGET_CHOICES ? [{ group: 'Departments', label: 'Budget Choices', href: '/budget-trade-offs' }] : []),
   ] },
   { label: 'Local', href: '/councils', page: '/sections/local', children: [
     { label: 'Councils', href: '/councils', desc: 'Every UK principal local authority, 382 in total, including Northern Irish councils.' },
@@ -88,9 +84,18 @@ export const NAV: NavItem[] = [
   { label: 'Contact', href: '/contact' },
 ];
 
-// The section whose landing page is this address, for the "In this section" rows.
-export function navSection(label: string): NavItem | undefined {
-  return NAV.find((n) => n.label === label);
+// The "In this section" row on a landing page (SectionLinks.tsx). `section` is a top level item (Topics, Local,
+// Accountability, Vote) or, under Parliament, one of its groups (MPs, Parliament, Parties, Departments): those rows
+// list their own group's links and end with "All of Parliament" (report 62).
+export const PARLIAMENT_GROUPS = ['MPs', 'Parliament', 'Parties', 'Departments'];
+export function sectionRow(section: string): { label: string; links: NavLink[] } | undefined {
+  if (PARLIAMENT_GROUPS.includes(section)) {
+    const parliament = NAV.find((n) => n.label === 'Parliament')!;
+    const links = parliament.children!.filter((c) => c.group === section);
+    return { label: section, links: [...links, { label: 'All of Parliament', href: parliament.page! }] };
+  }
+  const item = NAV.find((n) => n.label === section);
+  return item?.children?.length ? { label: item.label, links: item.children } : undefined;
 }
 
 // Where a click on a top level item goes: the section page when the section has one, otherwise its own page.
@@ -102,8 +107,9 @@ export function menuHref(item: NavItem): string {
 export const SECTION_PAGES = NAV.filter((n) => n.page?.startsWith('/sections/')).map((n) => ({ slug: n.page!.slice('/sections/'.length), item: n }));
 
 // The top level item a page belongs to, for aria-current in the header: the item whose own address, section page or
-// links is the longest match for the path (so /transparency/mp-activity is MPs, not Accountability). A tie goes to the
-// earlier item (/bills: Parliament, not Vote). Home matches only /.
+// links is the longest match for the path (so /transparency/mp-activity is Parliament, through its MPs group, not
+// Accountability; pages under MPs, Parties and Departments are Parliament). A tie goes to the earlier item (/bills:
+// Parliament, not Vote). Home matches only /.
 export function currentSection(pathname: string): string | null {
   const under = (href: string) => (href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(href + '/'));
   let best: { label: string; len: number } | null = null;
