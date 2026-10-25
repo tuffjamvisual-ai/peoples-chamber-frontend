@@ -14,6 +14,33 @@ export interface BioReviewFlag {
 // new accounts must confirm their email before they can vote.
 export const emailEnabled = !!process.env.RESEND_API_KEY;
 
+// Every send goes through deliver() (25 Oct 2026, report 58). Resend does not throw when it refuses a message (an
+// unverified sender domain, a bad recipient, a rate limit): the refusal comes back in `error`. Both that and a thrown
+// network error are logged with console.error (the error's name, HTTP status and message, with any email address in
+// the message replaced by [address]; never the recipient or a key) and returned as { sent: false, reason }, so no
+// caller can report a failed send as sent.
+type EmailPayload = Parameters<Resend['emails']['send']>[0];
+export type SendResult = { sent: true; id?: string } | { sent: false; reason: string };
+const ADDRESS = /[^\s@<>"'(),;:]+@[^\s@<>"'(),;:]+/g;
+const redact = (t: string) => t.replace(ADDRESS, '[address]');
+
+async function deliver(kind: string, key: string, payload: EmailPayload): Promise<SendResult> {
+  try {
+    const { data, error } = await new Resend(key).emails.send(payload);
+    if (error) {
+      const reason = redact(error.message || 'unknown error');
+      console.error(`[email] ${kind} not sent: ${error.name} (status ${error.statusCode ?? 'none'}): ${reason}`);
+      return { sent: false, reason };
+    }
+    return { sent: true, id: data?.id };
+  } catch (e) {
+    const err = e as Error;
+    const reason = redact(err?.message || String(e));
+    console.error(`[email] ${kind} not sent: ${err?.name || 'Error'} (status none): ${reason}`);
+    return { sent: false, reason };
+  }
+}
+
 // Admin notification: fires on every successful new-user registration to the
 // contact inbox. Reuses the same Resend key/sender as verification email and
 // is inert (no-op) until RESEND_API_KEY is set, matching the pattern above.
@@ -62,20 +89,9 @@ export async function sendSignupNotification(user: {
       </table>
     </div>`;
 
-  try {
-    const resend = new Resend(key);
-    // Resend resolves (does not throw) on API-level rejections — e.g. an
-    // unverified RESEND_FROM domain or an invalid recipient come back in
-    // `error`, not as an exception. Inspect it so we never report a false
-    // `sent: true`. `throw` is reserved for network/transport failures.
-    const { data, error } = await resend.emails.send({
-      from, to: SIGNUP_NOTIFY_TO, subject, text, html,
-    });
-    if (error) return { sent: false, reason: error.message, to: SIGNUP_NOTIFY_TO, from };
-    return { sent: true, id: data?.id, to: SIGNUP_NOTIFY_TO, from };
-  } catch (e) {
-    return { sent: false, reason: (e as Error).message, to: SIGNUP_NOTIFY_TO, from };
-  }
+  return { ...(await deliver('sign up notification', key, {
+    from, to: SIGNUP_NOTIFY_TO, subject, text, html,
+  })), to: SIGNUP_NOTIFY_TO, from };
 }
 
 // Fires from the daily-briefings cron once the three drafts are saved. Lists the
@@ -105,19 +121,13 @@ export async function sendBriefingNotification(
       </ol>
     </div>`;
 
-  try {
-    const resend = new Resend(key);
-    await resend.emails.send({
-      from,
-      to: BRIEFINGS_NOTIFY_TO,
-      subject: `opengovt briefings for review: ${new Date().toLocaleDateString('en-GB', { timeZone: 'Europe/London', day: 'numeric', month: 'short' })} (${briefings.length})`,
-      text,
-      html,
-    });
-    return { sent: true };
-  } catch (e) {
-    return { sent: false, reason: (e as Error).message };
-  }
+  return deliver('briefings notification', key, {
+    from,
+    to: BRIEFINGS_NOTIFY_TO,
+    subject: `opengovt briefings for review: ${new Date().toLocaleDateString('en-GB', { timeZone: 'Europe/London', day: 'numeric', month: 'short' })} (${briefings.length})`,
+    text,
+    html,
+  });
 }
 
 export async function sendPasswordResetEmail(to: string, token: string, baseUrl: string) {
@@ -125,25 +135,18 @@ export async function sendPasswordResetEmail(to: string, token: string, baseUrl:
   if (!key) return { sent: false, reason: 'no_api_key' };
   const from = process.env.RESEND_FROM || 'opengovt <onboarding@resend.dev>';
   const link = `${baseUrl}/reset-password?token=${encodeURIComponent(token)}`;
-  try {
-    const resend = new Resend(key);
-    const { data, error } = await resend.emails.send({
-      from,
-      to,
-      subject: 'Reset your opengovt password',
-      html: `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#14100d">
-        <p>You requested a password reset for your opengovt account.</p>
-        <p>Click the link below to set a new password. This link expires in 1 hour.</p>
-        <p><a href="${link}" style="display:inline-block;background:#6b2417;color:#ffffff;padding:11px 20px;border-radius:4px;text-decoration:none">Reset my password</a></p>
-        <p style="font-size:14px;color:#555">Or paste this link into your browser:<br>${link}</p>
-        <p style="font-size:14px;color:#555">If you did not request a reset, you can ignore this email. Your password has not changed.</p>
-      </div>`,
-    });
-    if (error) return { sent: false, reason: error.message };
-    return { sent: true, id: data?.id };
-  } catch (e) {
-    return { sent: false, reason: (e as Error).message };
-  }
+  return deliver('password reset', key, {
+    from,
+    to,
+    subject: 'Reset your opengovt password',
+    html: `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#14100d">
+      <p>You requested a password reset for your opengovt account.</p>
+      <p>Click the link below to set a new password. This link expires in 1 hour.</p>
+      <p><a href="${link}" style="display:inline-block;background:#6b2417;color:#ffffff;padding:11px 20px;border-radius:4px;text-decoration:none">Reset my password</a></p>
+      <p style="font-size:14px;color:#555">Or paste this link into your browser:<br>${link}</p>
+      <p style="font-size:14px;color:#555">If you did not request a reset, you can ignore this email. Your password has not changed.</p>
+    </div>`,
+  });
 }
 
 export async function sendVerificationEmail(to: string, token: string, baseUrl: string) {
@@ -151,24 +154,18 @@ export async function sendVerificationEmail(to: string, token: string, baseUrl: 
   if (!key) return { sent: false, reason: 'no_api_key' };
   const from = process.env.RESEND_FROM || 'opengovt <onboarding@resend.dev>';
   const link = `${baseUrl}/api/auth/verify?token=${encodeURIComponent(token)}`;
-  try {
-    const resend = new Resend(key);
-    await resend.emails.send({
-      from,
-      to,
-      subject: 'Confirm your opengovt account',
-      html: `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#14100d">
-        <p>Welcome to opengovt.</p>
-        <p>Confirm your email address to start voting on bills and polls:</p>
-        <p><a href="${link}" style="display:inline-block;background:#6b2417;color:#ffffff;padding:11px 20px;border-radius:4px;text-decoration:none">Confirm my email</a></p>
-        <p style="font-size:14px;color:#555">Or paste this link into your browser:<br>${link}</p>
-        <p style="font-size:14px;color:#555">If you did not create an account, you can ignore this email.</p>
-      </div>`,
-    });
-    return { sent: true };
-  } catch (e) {
-    return { sent: false, reason: (e as Error).message };
-  }
+  return deliver('confirmation', key, {
+    from,
+    to,
+    subject: 'Confirm your opengovt account',
+    html: `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#14100d">
+      <p>Welcome to opengovt.</p>
+      <p>Confirm your email address to start voting on bills and polls:</p>
+      <p><a href="${link}" style="display:inline-block;background:#6b2417;color:#ffffff;padding:11px 20px;border-radius:4px;text-decoration:none">Confirm my email</a></p>
+      <p style="font-size:14px;color:#555">Or paste this link into your browser:<br>${link}</p>
+      <p style="font-size:14px;color:#555">If you did not create an account, you can ignore this email.</p>
+    </div>`,
+  });
 }
 
 // Data freshness alert — fired by /api/monitor-freshness when one or more
@@ -211,16 +208,9 @@ export async function sendFreshnessAlert(stale: StaleSource[]) {
       <ul style="margin:0;padding-left:18px">${lines.map((l) => `<li style="margin:0 0 6px">${l}</li>`).join('')}</ul>
     </div>`;
 
-  try {
-    const resend = new Resend(key);
-    const { data, error } = await resend.emails.send({
-      from, to: FRESHNESS_NOTIFY_TO, subject: `opengovt data freshness: ${stale.length} source${stale.length === 1 ? '' : 's'} overdue`, text, html,
-    });
-    if (error) return { sent: false, reason: error.message };
-    return { sent: true, id: data?.id };
-  } catch (e) {
-    return { sent: false, reason: (e as Error).message };
-  }
+  return deliver('freshness alert', key, {
+    from, to: FRESHNESS_NOTIFY_TO, subject: `opengovt data freshness: ${stale.length} source${stale.length === 1 ? '' : 's'} overdue`, text, html,
+  });
 }
 
 // Database disk warning — fired by /api/monitor-freshness when disk use (database
@@ -253,16 +243,9 @@ export async function sendDatabaseSizeAlert(size: DatabaseSize) {
       <ul style="margin:0;padding-left:18px">${lines.map((l) => `<li style="margin:0 0 6px">${l}</li>`).join('')}</ul>
     </div>`;
 
-  try {
-    const resend = new Resend(key);
-    const { data, error } = await resend.emails.send({
-      from, to: FRESHNESS_NOTIFY_TO, subject: `opengovt ${headline.charAt(0).toLowerCase()}${headline.slice(1)}`, text, html,
-    });
-    if (error) return { sent: false, reason: error.message };
-    return { sent: true, id: data?.id };
-  } catch (e) {
-    return { sent: false, reason: (e as Error).message };
-  }
+  return deliver('database size alert', key, {
+    from, to: FRESHNESS_NOTIFY_TO, subject: `opengovt ${headline.charAt(0).toLowerCase()}${headline.slice(1)}`, text, html,
+  });
 }
 
 // New storm overflow return — fired by /api/monitor-freshness when data.gov.uk
@@ -286,14 +269,7 @@ export async function sendSewageReleaseAlert(newYear: number, storedYear: number
       <p style="margin:0 0 12px;font-weight:bold">${headline}</p>
       <ul style="margin:0;padding-left:18px">${lines.map((l) => `<li style="margin:0 0 6px">${l}</li>`).join('')}</ul>
     </div>`;
-  try {
-    const resend = new Resend(key);
-    const { data, error } = await resend.emails.send({ from, to: FRESHNESS_NOTIFY_TO, subject: `opengovt ${headline.charAt(0).toLowerCase()}${headline.slice(1)}`, text, html });
-    if (error) return { sent: false, reason: error.message };
-    return { sent: true, id: data?.id };
-  } catch (e) {
-    return { sent: false, reason: (e as Error).message };
-  }
+  return deliver('sewage release alert', key, { from, to: FRESHNESS_NOTIFY_TO, subject: `opengovt ${headline.charAt(0).toLowerCase()}${headline.slice(1)}`, text, html });
 }
 
 // New-release alert for datasets loaded by hand — fired by /api/check-hand-loaded-releases (weekly) when a source
@@ -318,14 +294,7 @@ export async function sendHandLoadedReleaseAlert(items: HandLoadedRelease[]) {
       <ul style="margin:0 0 12px;padding-left:18px">${lines.map((l) => `<li style="margin:0 0 6px">${l}</li>`).join('')}</ul>
       <p style="margin:0">Nothing has been imported; each needs its import script run by hand.</p>
     </div>`;
-  try {
-    const resend = new Resend(key);
-    const { data, error } = await resend.emails.send({ from, to: FRESHNESS_NOTIFY_TO, subject: `opengovt: ${headline}`, text, html });
-    if (error) return { sent: false, reason: error.message };
-    return { sent: true, id: data?.id };
-  } catch (e) {
-    return { sent: false, reason: (e as Error).message };
-  }
+  return deliver('hand loaded release alert', key, { from, to: FRESHNESS_NOTIFY_TO, subject: `opengovt: ${headline}`, text, html });
 }
 
 // Biography review alert — fired by /api/monitor-freshness when the nightly syncs
@@ -345,14 +314,7 @@ export async function sendBioReviewAlert(flags: BioReviewFlag[], outstanding: nu
       <p style="margin:0 0 12px;font-weight:bold">${headline} (${outstanding} outstanding in total).</p>
       <ul style="margin:0;padding-left:18px">${flags.map((f) => `<li style="margin:0 0 6px"><a href="https://www.opengovt.uk/mps/${f.memberId}">${esc(f.name)}</a>: ${esc(f.reason)}</li>`).join('')}</ul>
     </div>`;
-  try {
-    const resend = new Resend(key);
-    const { data, error } = await resend.emails.send({ from, to: FRESHNESS_NOTIFY_TO, subject: `opengovt: ${headline}`, text, html });
-    if (error) return { sent: false, reason: error.message };
-    return { sent: true, id: data?.id };
-  } catch (e) {
-    return { sent: false, reason: (e as Error).message };
-  }
+  return deliver('biography review alert', key, { from, to: FRESHNESS_NOTIFY_TO, subject: `opengovt: ${headline}`, text, html });
 }
 
 // Newsletter confirmation (double opt-in) for the email-only sign-up. The address is only
@@ -374,17 +336,10 @@ export async function sendNewsletterConfirmation(to: string, token: string, base
       <p style="color:#555">If you did not ask for this, ignore this email and you will not be added.</p>
       <p style="color:#555;font-size:13px">Unsubscribe at any time: <a href="${unsubscribe}" style="color:#555">${unsubscribe}</a></p>
     </div>`;
-  try {
-    const resend = new Resend(key);
-    const { data, error } = await resend.emails.send({
-      from, to, subject: 'Confirm your opengovt newsletter subscription', text, html,
-      headers: { 'List-Unsubscribe': `<${unsubscribe}>` },
-    });
-    if (error) return { sent: false, reason: error.message };
-    return { sent: true, id: data?.id };
-  } catch (e) {
-    return { sent: false, reason: (e as Error).message };
-  }
+  return deliver('newsletter confirmation', key, {
+    from, to, subject: 'Confirm your opengovt newsletter subscription', text, html,
+    headers: { 'List-Unsubscribe': `<${unsubscribe}>` },
+  });
 }
 
 // Owner notification: fires when someone CONFIRMS a newsletter subscription (the click in the
@@ -417,16 +372,9 @@ export async function sendNewsletterSubscriberNotification(sub: {
         <tr><td style="padding:2px 14px 2px 0;color:#555">Confirmed subscribers in total</td><td>${total}</td></tr>
       </table>
     </div>`;
-  try {
-    const resend = new Resend(key);
-    const { data, error } = await resend.emails.send({
-      from, to: SIGNUP_NOTIFY_TO, subject: `New opengovt newsletter subscriber: ${sub.email}`, text, html,
-    });
-    if (error) return { sent: false, reason: error.message };
-    return { sent: true, id: data?.id };
-  } catch (e) {
-    return { sent: false, reason: (e as Error).message };
-  }
+  return deliver('newsletter subscriber notification', key, {
+    from, to: SIGNUP_NOTIFY_TO, subject: `New opengovt newsletter subscriber: ${sub.email}`, text, html,
+  });
 }
 
 
@@ -462,18 +410,11 @@ export async function sendCommissionRequest(r: {
     `Question:\n${r.question}\n\n` +
     `Reply to this email to answer the client directly.\n`;
 
-  try {
-    const resend = new Resend(key);
-    const { data, error } = await resend.emails.send({
-      from,
-      to: COMMISSION_TO,
-      replyTo: r.email,
-      subject: `Research request from ${r.name}`,
-      text,
-    });
-    if (error) return { sent: false, reason: error.message };
-    return { sent: true, id: data?.id };
-  } catch (e) {
-    return { sent: false, reason: (e as Error).message };
-  }
+  return deliver('commission request', key, {
+    from,
+    to: COMMISSION_TO,
+    replyTo: r.email,
+    subject: `Research request from ${r.name}`,
+    text,
+  });
 }

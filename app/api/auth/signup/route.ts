@@ -106,6 +106,20 @@ export async function POST(request: NextRequest) {
     const token = newToken();
     const verified = !emailEnabled; // auto-verify when email sending is not configured
 
+    // The confirmation email is sent before the account is created (25 Oct 2026, report 58). If Resend refuses it or
+    // cannot be reached (lib/email.ts logs why), the visitor is told so and no account is made, so trying again later
+    // works instead of meeting "address already registered" with no email on the way.
+    if (!verified) {
+      const base = process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
+      const sent = await sendVerificationEmail(email, token.raw, base);
+      if (!sent.sent) {
+        return NextResponse.json(
+          { error: "We couldn't send your confirmation email. Please try again shortly or contact us." },
+          { status: 503 }
+        );
+      }
+    }
+
     const { data: user, error } = await supabase
       .from('users')
       .insert({
@@ -128,11 +142,6 @@ export async function POST(request: NextRequest) {
         { error: 'Failed to create account' },
         { status: 500 }
       );
-    }
-
-    if (!verified) {
-      const base = process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
-      await sendVerificationEmail(email, token.raw, base);
     }
 
     // Notify the contact inbox of the new signup. Fire-and-forget: a failed or
