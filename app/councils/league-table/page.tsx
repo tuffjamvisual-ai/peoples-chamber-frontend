@@ -66,6 +66,12 @@ function WithdrawnNotice() {
           </h1>
         </header>
         <p style={para}>{WITHDRAWN_SENTENCE}</p>
+        {/* Searchers for council rankings still land here (Search Console, 17 to 23 Oct 2026: 49 impressions); the
+            investigation is what they are looking for (owner's approval, 25 Oct 2026, report 44). */}
+        <p style={para}>
+          Looking for the councils with the most serious failures? Read{' '}
+          <Link href="/editorials/ten-worst-performing-councils-england" style={link}>England&rsquo;s 10 Worst Council Failures Since 2018</Link>.
+        </p>
         <p style={para}>
           <Link href="/councils" style={link}>All councils</Link>
           {' · '}
