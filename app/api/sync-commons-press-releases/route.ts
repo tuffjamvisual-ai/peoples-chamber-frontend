@@ -24,6 +24,7 @@ const COMMITTEES_API =
   'https://committees-api.parliament.uk/api/Publications?take=60';
 
 const REPORT_TYPES = new Set(['Report', 'Special Report']);
+const API_TIMEOUT_MS = 20_000;
 
 type Publication = {
   id: number;
@@ -87,9 +88,22 @@ async function GET_impl(req: Request) {
   const supabase = createClient(url, key);
 
   try {
-    const res = await fetch(COMMITTEES_API, {
-      headers: { Accept: 'application/json', 'User-Agent': 'PeoplesChamber/1.0' },
-    });
+    // A 20 s limit on the Committees API (25 Oct 2026, report 43): the request had none, so one slow answer used the
+    // whole 60 s and the run timed out (25 Oct 06:15). The next run, two hours later, reads the same newest 60 again.
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), API_TIMEOUT_MS);
+    let res: Response;
+    try {
+      res = await fetch(COMMITTEES_API, {
+        headers: { Accept: 'application/json', 'User-Agent': 'PeoplesChamber/1.0' },
+        signal: ctrl.signal,
+      });
+    } catch (e) {
+      if (ctrl.signal.aborted) return NextResponse.json({ ok: false, error: `committees-api: no answer within ${API_TIMEOUT_MS / 1000} s` }, { status: 504 });
+      throw e;
+    } finally {
+      clearTimeout(timer);
+    }
     if (!res.ok) return NextResponse.json({ error: `committees-api ${res.status}` }, { status: 502 });
 
     const data = (await res.json()) as { items?: Publication[] };
@@ -106,32 +120,50 @@ async function GET_impl(req: Request) {
       .sort((a, b) => (b.publicationStartDate || '').localeCompare(a.publicationStartDate || ''))
       .slice(0, 40);
 
-    let upserted = 0;
-    for (const p of reports) {
+    // Each report is written once (25 Oct 2026, report 43): the run used to upsert all of them, one request each, every
+    // two hours. Now it reads which are already stored, and writes only new reports and any whose details changed, in
+    // one request.
+    const now = new Date().toISOString();
+    const records = reports.map((p) => {
       const committee = p.committee?.name || 'House of Commons';
-      const govUrl = `https://committees.parliament.uk/publications/${p.id}`;
-      const record = {
+      return {
         title: p.description as string,
         description: p.type?.name === 'Special Report' ? 'Special report' : 'Select committee report',
         organisation: committee,
         published_at: p.publicationStartDate || null,
-        gov_url: govUrl,
+        gov_url: `https://committees.parliament.uk/publications/${p.id}`,
         body: buildBody(p, committee),
-        body_fetched_at: new Date().toISOString(),
-        fetched_at: new Date().toISOString(),
+        body_fetched_at: now,
+        fetched_at: now,
       };
-      const { error } = await supabase
-        .from('press_releases')
-        .upsert(record, { onConflict: 'gov_url' });
-      if (!error) upserted++;
+    });
+    const { data: stored, error: storedErr } = records.length
+      ? await supabase.from('press_releases').select('gov_url, title, description, organisation, published_at, body').in('gov_url', records.map((r) => r.gov_url))
+      : { data: [], error: null };
+    if (storedErr) return NextResponse.json({ ok: false, error: `stored reports: ${storedErr.message}` }, { status: 500 });
+    const byUrl = new Map((stored ?? []).map((r) => [r.gov_url as string, r]));
+    const sameTime = (a: string | null, b: string | null) => (a && b ? Date.parse(a) === Date.parse(b) : a === b);
+    const changed = records.filter((r) => {
+      const old = byUrl.get(r.gov_url);
+      return !old || old.title !== r.title || old.description !== r.description || old.organisation !== r.organisation
+        || old.body !== r.body || !sameTime(old.published_at as string | null, r.published_at);
+    });
+    let upserted = 0;
+    if (changed.length) {
+      const { error } = await supabase.from('press_releases').upsert(changed, { onConflict: 'gov_url' });
+      if (error) return NextResponse.json({ ok: false, error: `upsert: ${error.message}` }, { status: 500 });
+      upserted = changed.length;
     }
 
     return NextResponse.json({
       ok: true,
       fetched: items.length,
       commonsReports: reports.length,
+      added: changed.filter((r) => !byUrl.has(r.gov_url)).length,
+      updated: changed.filter((r) => byUrl.has(r.gov_url)).length,
+      unchanged: records.length - changed.length,
       upserted,
-      syncedAt: new Date().toISOString(),
+      syncedAt: now,
     });
   } catch (err) {
     return NextResponse.json({ ok: false, error: (err as Error).message }, { status: 500 });
