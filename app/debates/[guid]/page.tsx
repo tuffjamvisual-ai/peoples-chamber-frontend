@@ -219,13 +219,12 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
   const drow = await debateRow(guid);
   const divisionIds: string[] = Array.isArray(drow?.division_ids) ? (drow!.division_ids as string[]) : [];
 
-  // Read next (lib/read-next.ts) after the fourth contribution, or after the transcript in a short debate. Only
-  // speakers we hold an MP page for count.
+  // Read next (lib/read-next.ts) once, after the whole transcript and before the links to the adjacent debates (owner's
+  // request, 25 Oct 2026). Only speakers we hold an MP page for count.
   const readNext = await debateReadNext({
     title: ov?.Title || '',
     speakers: groups.map((g) => ({ memberId: g.memberId != null && linkable.has(g.memberId) ? g.memberId : null, html: g.html, attribution: g.speaker })),
   });
-  const readNextAfter = groups.length >= 6 ? 3 : groups.length - 1;
 
   return (
     <OpenGovShell pageStamp="Debate">
@@ -305,10 +304,10 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
                 dangerouslySetInnerHTML={{ __html: g.html }}
               />
             </div>
-            {i === readNextAfter && <ReadNext links={readNext} />}
             </Fragment>
           ))
         )}
+        {groups.length > 0 && <ReadNext links={readNext} />}
       </div>
 
       <nav aria-label="Adjacent debates" style={{ display: 'flex', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap', maxWidth: '46em', margin: '40px auto 0', borderTop: '1px solid rgba(20,16,13,0.25)', paddingTop: '18px' }}>

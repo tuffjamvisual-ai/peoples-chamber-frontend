@@ -1,5 +1,5 @@
-// "Read next" blocks on news, editorial and debate pages (owner's approval, 21 Oct 2026): 3 to 5 links placed after
-// the opening of the piece, as well as the existing end sections. Each rule runs in order, a link is used once, and a
+// "Read next" blocks on news, editorial and debate pages (owner's approval, 21 Oct 2026): 3 to 5 links, placed once
+// after the last of the text since 25 Oct 2026 (it used to sit part way through), as well as the existing end sections. Each rule runs in order, a link is used once, and a
 // link the page already shows in its end sections is left out (news: RelatedLinks' department, Secretary of State
 // and newest releases; editorials: ExploreNext). A block with fewer than two links is not shown. A block whose read
 // fails is left out and the error logged (lib/optional-section.ts, 22 Oct 2026); it no longer fails the page.
@@ -193,23 +193,6 @@ async function debateReadNextImpl(d: { title: string; speakers: { memberId: numb
   if (bill) pick.add({ href: `/bills/${bill.id}`, label: bill.title, note: 'The bill this debate is about' });
   pick.add(topicFor(d.title));
   return pick.result();
-}
-
-// Editorial placement (index of the block to put Read next after; -1 means after the body): before the first heading
-// that has at least three paragraphs above it, if that comes within the first six paragraphs; otherwise after the
-// fourth paragraph. A piece with fewer than five paragraphs gets the block after its body.
-export function editorialReadNextIndex(piece: EditorialEntry): number {
-  const paraAt: number[] = [];
-  piece.body.forEach((b, i) => { if (b.type === 'paragraph') paraAt.push(i); });
-  if (paraAt.length < 5) return -1;
-  let before = 0;
-  for (let i = 0; i < piece.body.length; i++) {
-    const b = piece.body[i];
-    if (b.type === 'heading' && before >= 3 && before <= 6) return i - 1;
-    if (b.type === 'paragraph') before++;
-    if (before > 6) break;
-  }
-  return paraAt[3];
 }
 
 // Entry points: a failed read leaves the block out (lib/optional-section.ts).

@@ -1,5 +1,6 @@
-// "Read next" block placed after the opening of news, editorial and debate pages (lib/read-next.ts chooses the
-// links; owner's approval, 21 Oct 2026). Server component; renders nothing when there are no links.
+// "Read next" block, placed once at the end of news, editorial, debate and secretariat pages, after the last of the
+// text (owner's request, 25 Oct 2026; it used to sit part way through). lib/read-next.ts chooses the links. Server
+// component; renders nothing when there are no links.
 import Link from 'next/link';
 import type { ReadNextLink } from '@/lib/read-next';
 import ContinueToArticle from './ContinueToArticle';
@@ -22,26 +23,4 @@ export default function ReadNext({ links }: { links: ReadNextLink[] }) {
       ))}
     </aside>
   );
-}
-
-// Split article HTML after its nth body paragraph: one at the shallowest depth paragraphs appear at (GOV.UK wraps the
-// whole body in one div), so the block never lands inside a list, quote or table. The block goes inside that
-// wrapper's level by closing and reopening nothing: the cut is between two sibling paragraphs. Returns null when
-// there are fewer than `min` such paragraphs.
-export function splitAfterParagraph(html: string, n: number, min: number): [string, string] | null {
-  const CONTAINERS = new Set(['div', 'blockquote', 'ul', 'ol', 'li', 'table', 'thead', 'tbody', 'tr', 'td', 'th', 'section', 'figure', 'aside', 'details']);
-  const ends: { depth: number; at: number }[] = [];
-  const re = /<(\/?)([a-zA-Z0-9]+)\b[^>]*>/g;
-  let depth = 0;
-  for (let m = re.exec(html); m; m = re.exec(html)) {
-    const closing = m[1] === '/', tag = m[2].toLowerCase();
-    if (CONTAINERS.has(tag)) { depth += closing ? -1 : 1; if (depth < 0) depth = 0; continue; }
-    if (tag === 'p' && closing) ends.push({ depth, at: m.index + m[0].length });
-  }
-  if (!ends.length) return null;
-  const top = Math.min(...ends.map((e) => e.depth));
-  const body = ends.filter((e) => e.depth === top);
-  if (body.length < min) return null;
-  const cut = body[n - 1].at;
-  return [html.slice(0, cut), html.slice(cut)];
 }

@@ -10,7 +10,6 @@ import EvidencePanel from './EvidencePanel';
 import RelatedLinks from './RelatedLinks';
 import ReadNext from './ReadNext';
 import type { ReadNextLink } from '@/lib/read-next';
-import { editorialReadNextIndex } from '@/lib/read-next';
 import ExploreNext from './ExploreNext';
 import KeyStat from './KeyStat';
 import DataBlock from './DataBlock';
@@ -24,8 +23,6 @@ const HAIRLINE = 'rgba(20,16,13,0.25)';
 const ACCENT = '#7a1612';
 
 export default function EditorialArticle({ piece, stamp, backHref, basePath, readNext = [] }: { piece: EditorialEntry; stamp: string; backHref: string; basePath: '/editorials' | '/briefings'; readNext?: ReadNextLink[] }) {
-  // Read next goes after the opening of the piece (lib/read-next.ts editorialReadNextIndex; -1 = after the body).
-  const readNextAt = readNext.length ? editorialReadNextIndex(piece) : -2;
   return (
     <OpenGovShell pageStamp={stamp}>
       <BackLink fallbackHref={backHref} label="← Reports" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
@@ -85,12 +82,10 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
 
         <article style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '16px', lineHeight: 1.75, color: INK }}>
           {piece.body.map((block, i) => (
-            <Fragment key={`b${i}`}>
-              {renderBlock(block, i)}
-              {i === readNextAt && <ReadNext links={readNext} />}
-            </Fragment>
+            <Fragment key={`b${i}`}>{renderBlock(block, i)}</Fragment>
           ))}
-          {readNextAt === -1 && <ReadNext links={readNext} />}
+          {/* Read next once, after the last block and before the evidence and sources (owner's request, 25 Oct 2026). */}
+          <ReadNext links={readNext} />
         </article>
 
       </div>

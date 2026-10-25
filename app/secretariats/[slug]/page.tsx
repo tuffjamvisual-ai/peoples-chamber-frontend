@@ -189,8 +189,6 @@ export default async function SecretariatPage({ params }: PageProps) {
         A secretariat is the entity that does the operational work of an All-Party Parliamentary Group: drafts agendas, briefs MPs, sends out invitations, books rooms, writes reports. When the secretariat is a lobby firm or PR firm, the APPG is a paid channel for the firm&rsquo;s clients to access MPs. The MPs officer the group, the firm supplies the staff and the policy line, the firm&rsquo;s clients (listed under Funders below) pay for the privilege.
       </section>
 
-      <ReadNext links={nextLinks} />
-
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>APPGs operated · {appgs.length}</h2>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px' }}>
@@ -240,6 +238,9 @@ export default async function SecretariatPage({ params }: PageProps) {
           })}
         </ul>
       </section>
+
+      {/* Read next at the end of the page, after every section (owner's request, 25 Oct 2026). */}
+      <ReadNext links={nextLinks} />
 
     </OpenGovShell>
   );
