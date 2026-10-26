@@ -53,7 +53,7 @@ export default async function Land101Page({
           place-items: center;
           padding: 24px;
           background: #120d09;
-          font-family: Georgia, "Times New Roman", serif;
+          font-family: Special Elite, monospace;
         }
         .land101-wrap {
           position: relative;
@@ -91,7 +91,7 @@ export default async function Land101Page({
           position: absolute;
           z-index: 20;
           pointer-events: none;
-          font-family: Georgia, "Times New Roman", serif;
+          font-family: Special Elite, monospace;
           font-weight: 700;
           letter-spacing: 0.04em;
           color: #6b1f14;

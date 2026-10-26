@@ -15,6 +15,13 @@
 // 26% (carried over from the /newspaper-preview fix) rather than 112's
 // verbatim top 66% / height 28%, which sat a little high on this artwork.
 
+import type { Metadata } from 'next';
+
+// Demo page: kept out of search results, like /land101, /mp121 and /newpage.
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
+
 type Hotspot = {
   label: string;
   href: string;
@@ -74,7 +81,7 @@ const baseCss = `
     place-items: center;
     padding: 24px;
     background: #120d09;
-    font-family: Georgia, "Times New Roman", serif;
+    font-family: Special Elite, monospace;
   }
 
   .preview-root .page-wrap {
@@ -120,7 +127,7 @@ const baseCss = `
     z-index: 20;
     display: flex;
     align-items: center;
-    font-family: Georgia, "Times New Roman", serif;
+    font-family: Special Elite, monospace;
     font-weight: 700;
     letter-spacing: 0.04em;
     color: #6b1f14;

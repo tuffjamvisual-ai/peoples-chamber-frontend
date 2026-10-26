@@ -7,6 +7,13 @@
 // 121's debug-hotspots.html.
 // Image: public/newspaper-landing.png (121's peoples-chamber-newspaper.png, 1033x1523).
 
+import type { Metadata } from 'next';
+
+// Demo page: kept out of search results, like /land101, /mp121 and /newpage.
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
+
 type Hotspot = {
   label: string;
   href: string;
@@ -47,7 +54,7 @@ const baseCss = `
     padding: 16px;
     box-sizing: border-box;
     background: #120d09;
-    font-family: Georgia, "Times New Roman", serif;
+    font-family: Special Elite, monospace;
   }
 
   .preview-root .page-wrap {

@@ -14,6 +14,13 @@
 // 1033/1523 + object-fit: fill are mandated by 101's README.
 // Visit /newspaper-101?debug=1 for the red alignment boxes.
 
+import type { Metadata } from 'next';
+
+// Demo page: kept out of search results, like /land101, /mp121 and /newpage.
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
+
 type Hotspot = { label: string; href: string; left: string; top: string; width: string; height: string };
 
 const hotspots: Hotspot[] = [
@@ -51,7 +58,7 @@ const baseCss = `
     place-items: center;
     padding: 24px;
     background: #120d09;
-    font-family: Georgia, "Times New Roman", serif;
+    font-family: Special Elite, monospace;
   }
 
   .preview-root .page-wrap {
@@ -97,7 +104,7 @@ const baseCss = `
     position: absolute;
     z-index: 20;
     pointer-events: none;
-    font-family: Georgia, "Times New Roman", serif;
+    font-family: Special Elite, monospace;
     font-weight: 700;
     letter-spacing: 0.04em;
     color: #6b1f14;

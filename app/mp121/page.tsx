@@ -136,21 +136,21 @@ export default async function Mp121Page({
         .mp121-root .issue-star { position: absolute; left: 50%; transform: translateX(-50%); color: var(--red); font-size: 20px; line-height: 1; background: var(--paper-light); padding: 0 9px; }
         .mp121-root .issue-star.top { top: -10px; }
         .mp121-root .issue-star.bottom { bottom: -10px; }
-        .mp121-root .issue-title { font-family: Rye, Georgia, serif; font-size: 29px; letter-spacing: .5px; }
+        .mp121-root .issue-title { font-family: Rye, Special Elite, monospace; font-size: 29px; letter-spacing: .5px; }
         .mp121-root .issue-rule { width: 90px; height: 1px; background: var(--red); margin: 12px auto 8px; }
         .mp121-root .issue-date { font-family: Oswald, Arial, sans-serif; font-size: 15px; color: var(--red); font-weight: 700; letter-spacing: .3px; }
 
         .mp121-root .brand-block { text-align: center; padding-top: 22px; }
-        .mp121-root .brand-top { display: inline-flex; align-items: center; gap: 16px; margin-right: 540px; font-family: Rye, Georgia, serif; font-size: 35px; }
+        .mp121-root .brand-top { display: inline-flex; align-items: center; gap: 16px; margin-right: 540px; font-family: Rye, Special Elite, monospace; font-size: 35px; }
         .mp121-root .brand-top i { display: block; width: 54px; height: 2px; background: var(--red); }
         .mp121-root .crown-row { height: 24px; margin-top: -20px; display: flex; justify-content: center; align-items: center; gap: 24px; color: var(--red); }
         .mp121-root .crown-row span { font-size: 22px; }
-        .mp121-root .crown { font-size: 54px; line-height: .5; transform: translateY(-5px); font-family: Georgia, serif; }
+        .mp121-root .crown { font-size: 54px; line-height: .5; transform: translateY(-5px); font-family: Special Elite, monospace; }
         /* Source spec is 77px; in this environment the @import Rye renders ~4% wider, so
            77px (803px) overflows its 737px column and clips. 70px (727px) fits one line in
            the column exactly as the reference shows. */
-        .mp121-root h1 { font-family: Rye, Georgia, serif; font-size: 70px; line-height: .86; margin: 13px 0 28px; letter-spacing: -2px; font-weight: 400; white-space: nowrap; }
-        .mp121-root .strapline { display: flex; align-items: center; justify-content: center; gap: 18px; color: var(--red); font-family: Rye, Georgia, serif; font-size: 25px; }
+        .mp121-root h1 { font-family: Rye, Special Elite, monospace; font-size: 70px; line-height: .86; margin: 13px 0 28px; letter-spacing: -2px; font-weight: 400; white-space: nowrap; }
+        .mp121-root .strapline { display: flex; align-items: center; justify-content: center; gap: 18px; color: var(--red); font-family: Rye, Special Elite, monospace; font-size: 25px; }
         .mp121-root .strapline i { display: block; width: 92px; height: 2px; background: var(--red); }
 
         .mp121-root .main-nav {

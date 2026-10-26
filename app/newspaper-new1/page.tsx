@@ -8,6 +8,13 @@
 // No overlay text. Reproduced verbatim from new1's index.html + styles.css.
 // aspect-ratio 1033/1523 + object-fit: fill. Visit ?debug=1 for red boxes.
 
+import type { Metadata } from 'next';
+
+// Demo page: kept out of search results, like /land101, /mp121 and /newpage.
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
+
 type Hotspot = { label: string; href: string; left: string; top: string; width: string; height: string };
 
 const hotspots: Hotspot[] = [
@@ -38,7 +45,7 @@ const baseCss = `
     place-items: center;
     padding: 24px;
     background: #120d09;
-    font-family: Georgia, "Times New Roman", serif;
+    font-family: Special Elite, monospace;
   }
 
   .preview-root .page-wrap {

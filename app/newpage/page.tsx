@@ -40,7 +40,7 @@ export default async function NewPage({
             radial-gradient(circle at 75% 85%, rgba(60, 42, 20, 0.10), transparent 30%),
             #c7b28b;
           color: var(--ink);
-          font-family: Georgia, "Times New Roman", serif;
+          font-family: Special Elite, monospace;
         }
         .newpage-root * { box-sizing: border-box; }
 

@@ -76,3 +76,28 @@ paste-key-here.txt
 
 # Claude prompts and reports (never commit)
 Claude outputs/
+
+# Private: outreach notes for scripts/mail (names, past contact); outbox and sent-log are already ignored
+scripts/mail/*.md
+# Working output at the repo root only (build, dry run and import logs; data exports); never matches subfolders
+/*.txt
+/*.jsonl
+/*.csv
+# Root working JSON and review notes, by name (so a new config .json or doc .md at the root is not hidden)
+/batch1.json
+/batch1-current-bios.json
+/opinion-pilot-input.json
+/opinion_pilot_edits.json
+/bio-bulk-fixes-review.md
+/bio-commentary-sample.md
+/opinion-pilot-review.md
+/template-and-roles-review.md
+# Previews and audits written by scripts (the tracked lookups in scripts/data stay tracked)
+scripts/data/*-preview.csv
+scripts/data/hyphen-audit-*.csv
+scripts/data/source-shortening-flagged.csv
+# LGSCO files downloaded by hand (the tracked copy is scripts/data/lgsco/)
+data/lgsco/
+
+# Next.js dev notice, rewritten by next dev
+/AGENTS.md
