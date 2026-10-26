@@ -70,3 +70,9 @@ data/opencouncildata/
 
 # IPSA files downloaded by hand in a browser (theipsa.org.uk robots.txt disallows /api/*)
 data/ipsa/
+
+# temporary key hand-off file (never commit)
+paste-key-here.txt
+
+# Claude prompts and reports (never commit)
+Claude outputs/
