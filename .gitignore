@@ -101,3 +101,8 @@ data/lgsco/
 
 # Next.js dev notice, rewritten by next dev
 /AGENTS.md
+
+# Local database backups (never commit)
+/backups-local/
+# Python compile cache
+__pycache__/
