@@ -6,6 +6,7 @@
 // once that link is clicked. Account creation is offered afterwards, not required.
 
 import { useState } from 'react'
+import { markNewsletterSubscribed } from '@/lib/newsletter-strip'
 
 const INK = '#14100d'
 const ACCENT = '#7a1612'
@@ -28,7 +29,7 @@ export default function NewsletterSignup({ source = 'homepage' }: { source?: str
         body: JSON.stringify({ email, website, source }),
       })
       const data = await res.json().catch(() => ({}))
-      if (res.ok) { setState('sent'); return }
+      if (res.ok) { setState('sent'); markNewsletterSubscribed(); return }
       setState('error')
       setMessage(data.error || 'Something went wrong. Please try again.')
     } catch {

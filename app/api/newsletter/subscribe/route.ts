@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
-import { sendNewsletterConfirmation } from '@/lib/email';
+import { emailEnabled, sendNewsletterConfirmation } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,6 +13,9 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const RESEND_GAP_MS = 10 * 60 * 1000; // at most one confirmation email per address every 10 minutes
 
 export async function POST(request: NextRequest) {
+  // No email key (local or preview builds): answer before touching the database, as /api/commission does, so no
+  // pending address is stored that could never be confirmed.
+  if (!emailEnabled) return NextResponse.json({ error: 'Signing up is unavailable just now. Please try again later.' }, { status: 503 });
   let body: { email?: unknown; website?: unknown; source?: unknown };
   try { body = await request.json(); } catch { return NextResponse.json({ error: 'Invalid request' }, { status: 400 }); }
 

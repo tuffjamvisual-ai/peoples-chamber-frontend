@@ -3,7 +3,7 @@ import { Bebas_Neue } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
-import SoftRegisterPrompt from "./components/SoftRegisterPrompt";
+import NewsletterStrip from "./components/NewsletterStrip";
 import FloatingScrollDownButton from "./components/FloatingScrollDownButton";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -148,7 +148,8 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <AuthProvider>
           {children}
-          <SoftRegisterPrompt />
+          {/* The newsletter strip replaced the sign up pop up (26 Oct 2026, report 78). */}
+          <NewsletterStrip />
         </AuthProvider>
         {/* Floating jump-to-bottom arrow on every page (styled like the Claude chat app's). */}
         <FloatingScrollDownButton />

@@ -118,3 +118,21 @@ a:hover {
   outline: 3px solid #7a1612;
   outline-offset: 4px;
 }
+
+/* Newsletter strip (app/components/NewsletterStrip.tsx, report 78): fixed to the bottom of the screen, parchment and
+   typewriter. On phones two rows (the text across the full width, then email, Sign up and close), never more than
+   80 px tall, even with a two line error message; from 768 px one row. Text never below 14 px; the email field is 16 px so phones do not zoom. */
+.og-strip { position: fixed; left: 0; right: 0; bottom: 0; z-index: 55; border-top: 1.5px solid #14100d; box-shadow: 0 -2px 10px rgba(20, 16, 13, 0.18); }
+.og-strip-inner { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "text text" "row close"; align-items: center; column-gap: 8px; row-gap: 4px; max-width: 960px; margin: 0 auto; padding: 4px 10px; box-sizing: border-box; }
+.og-strip-text { grid-area: text; margin: 0; font-size: 14px; line-height: 1.25; }
+.og-strip-row { grid-area: row; display: flex; gap: 6px; min-width: 0; }
+.og-strip-input { flex: 1 1 auto; min-width: 0; font-size: 16px; line-height: 1.15; padding: 4px 8px; background: #fbf4e6; box-sizing: border-box; }
+.og-strip-submit { flex: 0 0 auto; font-size: 15px; line-height: 1.15; padding: 4px 12px; }
+.og-strip-close { grid-area: close; width: 28px; height: 28px; padding: 0; border: none; background: none; font-size: 22px; line-height: 1; cursor: pointer; }
+.og-strip-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+@media (min-width: 768px) {
+  .og-strip-inner { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "text row close"; column-gap: 14px; padding: 10px 16px; }
+  .og-strip-text { font-size: 15px; }
+  .og-strip-row { max-width: 420px; }
+  .og-strip-input, .og-strip-submit { padding-top: 7px; padding-bottom: 7px; }
+}

@@ -4,6 +4,7 @@
 import type { Metadata } from 'next';
 import OpenGovShell from '../components/OpenGovShell';
 import NewsletterSignup from '../components/NewsletterSignup';
+import MarkNewsletterSubscribed from '../components/MarkNewsletterSubscribed';
 
 export const metadata: Metadata = {
   title: 'Newsletter',
@@ -28,6 +29,7 @@ export default async function NewsletterPage({ searchParams }: { searchParams: P
   return (
     <OpenGovShell pageStamp="Newsletter">
       <article style={{ fontFamily: FONT, color: INK, maxWidth: '640px', padding: 'clamp(8px, 2vw, 24px) 0' }}>
+        {status === 'confirmed' && <MarkNewsletterSubscribed />}
         {msg && (
           <div role="status" style={{ margin: '0 0 24px', padding: '12px 14px', border: `1.5px solid ${ACCENT}`, borderLeft: `5px solid ${ACCENT}`, background: 'rgba(122,22,18,0.05)' }}>
             <p style={{ margin: '0 0 4px', fontWeight: 700, fontSize: '17px' }}>{msg.head}</p>

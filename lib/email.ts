@@ -368,7 +368,7 @@ export async function sendNewsletterSubscriberNotification(sub: {
   const when = new Date(sub.confirmedAt).toLocaleString('en-GB', {
     timeZone: 'Europe/London', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
   });
-  const where = sub.source === 'newsletter-page' ? 'Newsletter page' : sub.source === 'homepage' ? 'Homepage' : (sub.source || 'Not recorded');
+  const where = sub.source === 'newsletter-page' ? 'Newsletter page' : sub.source === 'homepage' ? 'Homepage' : sub.source === 'strip' ? 'Newsletter strip' : (sub.source || 'Not recorded');
   const total = typeof sub.totalConfirmed === 'number' ? String(sub.totalConfirmed) : 'Not available';
   const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const text =

@@ -62,7 +62,7 @@ export default function PrivacyPage() {
 
         <h2 style={h2}>Cookies</h2>
         <p style={p}>
-          The site uses essential cookies required for the site to function: a session cookie that keeps you signed in for up to 30 days, a small marker that tells the site you are signed in, and a cookie to record whether you have dismissed the registration prompt, which lasts until you close your browser. We do not use advertising cookies. We do not use tracking cookies. We do not use Google Analytics.
+          The site uses essential cookies required for the site to function: a session cookie that keeps you signed in for up to 30 days, and a small marker that tells the site you are signed in. We do not use advertising cookies. We do not use tracking cookies. We do not use Google Analytics.
         </p>
         <p style={p}>
           The site also keeps a few things in your browser&rsquo;s own storage, which are never sent to us: your account name and email address while you are signed in, so pages can show that you are signed in, and, for the sign up note on search, how many searches you have made in this visit and whether you closed the note (remembered for 30 days).

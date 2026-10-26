@@ -15,6 +15,7 @@
 // fall back to the centre of the window.
 
 import { useEffect, useState } from 'react';
+import { STRIP_EVENT } from '@/lib/newsletter-strip';
 
 const BUTTON = 36;                 // px
 const GAP_FROM_SCREEN_BOTTOM = 24; // px
@@ -27,6 +28,15 @@ type Pos = { visible: boolean; atBottom: boolean; left: number | null; top: numb
 
 export default function FloatingScrollDownButton() {
   const [pos, setPos] = useState<Pos>({ visible: false, atBottom: false, left: null, top: null });
+  // Height of the newsletter strip while it shows (report 78): the arrow is lifted above it with a transform, which
+  // moves it without a layout shift.
+  const [lift, setLift] = useState(0);
+
+  useEffect(() => {
+    const onStrip = (e: Event) => setLift(Number((e as CustomEvent<number>).detail) || 0);
+    window.addEventListener(STRIP_EVENT, onStrip);
+    return () => window.removeEventListener(STRIP_EVENT, onStrip);
+  }, []);
 
   useEffect(() => {
     const measure = () => {
@@ -92,7 +102,7 @@ export default function FloatingScrollDownButton() {
         left: pos.left != null ? `${pos.left}px` : '50%',
         top: pos.top != null ? `${pos.top}px` : undefined,
         bottom: pos.top != null ? undefined : `${GAP_FROM_SCREEN_BOTTOM}px`,
-        transform: 'translateX(-50%)',
+        transform: lift ? `translate(-50%, -${lift}px)` : 'translateX(-50%)',
         width: `${BUTTON}px`,
         height: `${BUTTON}px`,
         borderRadius: '50%',
