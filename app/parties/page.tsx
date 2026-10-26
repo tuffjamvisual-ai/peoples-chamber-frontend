@@ -12,6 +12,8 @@ import { NAV } from '@/lib/site-nav';
 import { PAGE_DESCRIPTIONS, PARTY_NAMES, partyDescription } from '@/lib/page-descriptions';
 import { normaliseParty } from '@/lib/party-helpers';
 import { fitTitle } from '@/lib/seo-title';
+import ArticleEndSignup from '../components/ArticleEndSignup';
+import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 
 export const revalidate = 3600;
 
@@ -106,6 +108,8 @@ export default async function PartiesIndexPage() {
           Compare the 2024 manifestos →
         </Link>
       </p>
+      {/* Newsletter sign-up at the end of the page, for readers who are not signed in (report 81). */}
+      <ArticleEndSignup source="data-parties" line={DATA_SIGNUP_LINE} />
     </OpenGovShell>
   );
 }

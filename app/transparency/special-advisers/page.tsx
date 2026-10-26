@@ -19,6 +19,8 @@ import BackLink from '../../components/BackLink';
 import SeeAlso from '../../components/SeeAlso';
 import Link from 'next/link';
 import { resolveOrgToDeptSlug } from '@/lib/govOrgSlug';
+import ArticleEndSignup from '../../components/ArticleEndSignup';
+import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 
 // The returns label departments by short name. Map them to department pages; anything
 // not listed falls back to the GOV.UK name lookup, and unknown names get no link.
@@ -287,6 +289,8 @@ export default async function SpecialAdvisersPage() {
         { href: '/departments', label: 'All government departments', note: 'Ministers, budgets, staff and record for each department' },
       ]} />
 
+      {/* Newsletter sign-up at the end of the page, for readers who are not signed in (report 81). */}
+      <ArticleEndSignup source="data-special-advisers" line={DATA_SIGNUP_LINE} />
     </OpenGovShell>
   );
 }

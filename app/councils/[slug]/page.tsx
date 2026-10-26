@@ -31,6 +31,8 @@ import CouncilRatingsSection from '../../components/CouncilRatingsSection';
 import CouncilOmbudsmanSection from '../../components/CouncilOmbudsmanSection';
 import { loadElectionSummary } from '@/lib/council-election-summary';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
+import ArticleEndSignup from '../../components/ArticleEndSignup';
+import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 
 export const revalidate = 21600;
 // Database reads on this page go through Next's data cache (25 Oct 2026, report 43). Every deploy empties the page
@@ -684,6 +686,8 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
         />
 
       </article>
+      {/* Newsletter sign-up at the end of the page, for readers who are not signed in (report 81). */}
+      <ArticleEndSignup source="data-council-page" line={DATA_SIGNUP_LINE} />
     </OpenGovShell>
   );
 }

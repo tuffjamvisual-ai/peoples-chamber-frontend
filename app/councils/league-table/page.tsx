@@ -18,6 +18,8 @@ import Link from 'next/link';
 import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
 import { getLeagueData, TOPIC_NAMES, SERVICE_PARTS, STAT_NEIGHBOURS_URL } from '@/lib/council-league';
 import type { MeasureDetail } from '@/lib/council-league';
+import ArticleEndSignup from '../../components/ArticleEndSignup';
+import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 
 export const revalidate = 21600;
 
@@ -80,6 +82,8 @@ function WithdrawnNotice() {
           <Link href="/councils/search" style={link}>Search for a council</Link>
         </p>
       </article>
+      {/* Newsletter sign-up at the end of the page, for readers who are not signed in (report 81). */}
+      <ArticleEndSignup source="data-league-table" line={DATA_SIGNUP_LINE} />
     </OpenGovShell>
   );
 }
@@ -214,6 +218,8 @@ export default async function LeagueTablePage() {
         </section>
       </article>
       <LastUpdated sourceKey="council_league_table" />
+      {/* Newsletter sign-up at the end of the page, for readers who are not signed in (report 81). */}
+      <ArticleEndSignup source="data-league-table" line={DATA_SIGNUP_LINE} />
     </OpenGovShell>
   );
 }

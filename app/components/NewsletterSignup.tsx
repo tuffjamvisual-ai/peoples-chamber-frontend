@@ -1,7 +1,7 @@
 'use client'
 
 // Email-only newsletter sign-up (audit reassessment, 16 Oct 2026). Replaces the homepage
-// link to account registration: a reader who wants the Sunday email gives an email address
+// link to account registration: a reader who wants the weekly email gives an email address
 // and nothing else. The server sends a confirmation link; the address joins the list only
 // once that link is clicked. Account creation is offered afterwards, not required.
 
@@ -45,7 +45,7 @@ export default function NewsletterSignup({ source = 'homepage', minFontPx = 0 }:
     return (
       <div role="status" style={{ fontFamily: FONT, color: INK, marginTop: '12px', padding: '10px 12px', border: `1px solid ${ACCENT}`, background: 'rgba(122,22,18,0.05)' }}>
         <p style={{ margin: '0 0 6px', fontWeight: 700 }}>Check your inbox.</p>
-        <p style={{ margin: '0 0 8px', fontSize: '15px', lineHeight: 1.5 }}>We have sent a link to {email}. Click it to confirm, and the newsletter will start on Sunday.</p>
+        <p style={{ margin: '0 0 8px', fontSize: '15px', lineHeight: 1.5 }}>We have sent a link to {email}. Click it to confirm, and you will get the first issue.</p>
         <p style={{ margin: 0, fontSize: px(14), lineHeight: 1.5 }}>
           Want to vote on bills and compare your choices with your MP&rsquo;s?{' '}
           <a href="/login?mode=signup" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Create a free account &rarr;</a>

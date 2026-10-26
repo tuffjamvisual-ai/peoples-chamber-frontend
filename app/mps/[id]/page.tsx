@@ -21,6 +21,8 @@ import { fitTitle, TITLE_SUFFIX, TITLE_MAX } from '@/lib/seo-title';
 import { displayMpName } from '@/lib/mp-name';
 import { readAll, inList } from '@/lib/read-all';
 import { storedSpellings } from '@/lib/donor-registry';
+import ArticleEndSignup from '../../components/ArticleEndSignup';
+import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 
 const BAND_RANK: Record<SalaryBand, number> = { pm: 4, sos: 3, minister_of_state: 2, puss: 1 };
 
@@ -759,12 +761,15 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         reports: reportsFor(memberId, fullName),
       }}
       footer={
-        /* Server-rendered RelatedLinks: same-party MPs, sponsored bills,
+        <>
+        {/* Newsletter sign-up at the end of the profile, for readers who are not signed in (report 81). */}
+        <ArticleEndSignup source="data-mp-profile" line={DATA_SIGNUP_LINE} />
+        {/* Server-rendered RelatedLinks: same-party MPs, sponsored bills,
            recent votes, party page, optional ministerial dept. Lands as
            crawlable <a href> tags in static HTML for SEO. Wrapped in an
            sr-only-style 1px clipped container so the block is in the
            HTML response (Phase 1 SEO Check 15) but not visible at the
-           bottom of the dossier where the user reported it as clutter. */
+           bottom of the dossier where the user reported it as clutter. */}
         <div
           style={{
             position: 'absolute',
@@ -789,6 +794,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
             sponsoredBills={(sponsoredBillsRes.data || []).slice(0, 5)}
           />
         </div>
+        </>
       }
     />
     </>

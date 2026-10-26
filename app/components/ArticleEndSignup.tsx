@@ -13,7 +13,10 @@ const INK = '#14100d';
 const ACCENT = '#7a1612';
 const FONT = 'var(--font-special-elite), monospace';
 
-export default function ArticleEndSignup({ source }: { source: string }) {
+// line: the sentence under the heading. Articles use the default; data pages pass their own (report 81).
+const ARTICLE_LINE = 'The week\u2019s investigations, overlooked documents and public spending stories, in one email. Free, and you can unsubscribe at any time.';
+
+export default function ArticleEndSignup({ source, line = ARTICLE_LINE }: { source: string; line?: string }) {
   const { user, authLoading } = useAuth();
   if (!authLoading && user) return null;
   return (
@@ -26,7 +29,7 @@ export default function ArticleEndSignup({ source }: { source: string }) {
         Get the Open Govt Weekly
       </h2>
       <p style={{ fontSize: '16px', lineHeight: 1.6, margin: 0 }}>
-        The week&rsquo;s investigations, overlooked documents and public spending stories, in one email. Free, and you can unsubscribe at any time.
+        {line}
       </p>
       <NewsletterSignup source={source} minFontPx={15} />
     </section>

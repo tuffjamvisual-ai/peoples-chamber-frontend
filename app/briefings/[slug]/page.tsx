@@ -18,6 +18,7 @@ import { editorials } from '@/lib/editorials';
 import type { EditorialEntry } from '@/lib/editorials/types';
 import { supabaseAdminRead as supabaseAdmin } from '@/lib/supabase-admin';
 import { textReadingLabel } from '@/lib/reading-time';
+import ArticleEndSignup from '../../components/ArticleEndSignup';
 
 // Dynamic so DB drafts are viewable immediately after the cron run and a flip to
 // published shows without a rebuild. File-based briefings render fine here too.
@@ -128,6 +129,9 @@ export default async function BriefingPage({ params }: { params: Promise<{ slug:
           <p key={i} style={{ margin: '0 0 18px' }}>{p}</p>
         ))}
       </article>
+
+      {/* Newsletter sign-up after the briefing text, for readers who are not signed in (report 81). */}
+      <div style={{ maxWidth: '680px' }}><ArticleEndSignup source="article-end-briefings-db" /></div>
 
       {/* Sources checked by the automated fact-check pipeline: one link to /briefings/<slug>/sources, which lists
           them (23 Oct 2026). */}

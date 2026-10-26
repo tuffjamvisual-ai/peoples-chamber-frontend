@@ -6,6 +6,8 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import { fmtMillions } from '@/lib/department-civil-service';
+import ArticleEndSignup from '../components/ArticleEndSignup';
+import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 
 export const metadata: Metadata = {
   title: 'UK Department Budgets: Total DEL by Department',
@@ -135,6 +137,8 @@ export default async function SpendingPage() {
         )}
       </div>
       <LastUpdated sourceKey="department_budgets" />
+      {/* Newsletter sign-up at the end of the page, for readers who are not signed in (report 81). */}
+      <ArticleEndSignup source="data-spending" line={DATA_SIGNUP_LINE} />
     </OpenGovShell>
   );
 }
