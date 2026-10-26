@@ -11,7 +11,7 @@
 // shows again next visit. It never takes focus. While it shows, the page gets matching bottom padding so nothing is
 // hidden behind it, and the scroll arrow is lifted above it (the 'og-strip' event).
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
@@ -25,6 +25,8 @@ const EXCLUDED = ['/signup', '/login', '/newsletter', '/privacy', '/terms', '/co
 const SCROLL_SHARE = 0.6;
 const DWELL_MS = 45_000;
 const DONE_MS = 5_000;
+// The folder the strip lines up with (report 82): .og-dossier in OpenGovShell, .pca-folder in DossierShell.
+const FOLDER_SELECTOR = '.og-dossier, .pca-folder';
 
 // Kept outside the component so a closed strip stays closed across page changes in this visit, even without storage.
 let closedThisVisit = false;
@@ -61,6 +63,34 @@ export default function NewsletterStrip() {
   }, [eligible, pathname]);
 
   const visible = show && eligible;
+
+  // While visible: the same left edge and width as the folder (report 82), set before the strip is drawn so it never
+  // appears at one width and then moves. Pages with no folder keep the CSS default in globals.css (the folder's own
+  // width rules). Re-measured on resize, orientation change and any change in the folder's size.
+  useLayoutEffect(() => {
+    const box = boxRef.current;
+    if (!visible || !box) return;
+    const folder = document.querySelector<HTMLElement>(FOLDER_SELECTOR);
+    if (!folder) return;
+    const place = () => {
+      const r = folder.getBoundingClientRect();
+      box.style.left = `${r.left}px`;
+      box.style.width = `${r.width}px`;
+      box.style.right = 'auto';
+      box.style.marginLeft = '0';
+      box.style.marginRight = '0';
+    };
+    place();
+    window.addEventListener('resize', place);
+    window.addEventListener('orientationchange', place);
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(place) : null;
+    ro?.observe(folder);
+    return () => {
+      window.removeEventListener('resize', place);
+      window.removeEventListener('orientationchange', place);
+      ro?.disconnect();
+    };
+  }, [visible]);
 
   // While visible: bottom padding on the page equal to the strip's height, and tell the scroll arrow to lift.
   useEffect(() => {
@@ -137,7 +167,7 @@ export default function NewsletterStrip() {
         ) : state === 'error' ? (
           <p id="og-strip-text" role="alert" className="og-strip-text" style={{ color: ACCENT }}>{message}</p>
         ) : (
-          <p id="og-strip-text" className="og-strip-text">Get Open Govt Weekly by email.</p>
+          <p id="og-strip-text" className="og-strip-text">Get Open Govt Weekly by email</p>
         )}
         {state !== 'sent' && (
           <div className="og-strip-row">
