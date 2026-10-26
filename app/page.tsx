@@ -144,14 +144,17 @@ export default async function HomePage() {
               </p>
 
               <form action="/search" method="get" style={{ marginBottom: '28px' }}>
+                <label htmlFor="home-search-q" className="og-kicker og-search-label">Search Parliament</label>
                 <div style={{ position: 'relative' }}>
-                  <input aria-label="Search the site"
+                  <input aria-label="Search Parliament"
+                    id="home-search-q"
                     type="text"
                     name="q"
-                    placeholder="Search a minister, department, policy, vote or government announcement"
+                    placeholder="MPs, bills, votes, debates"
+                    className="og-search-input"
                     style={{
                       width: '100%',
-                      padding: '12px 48px 12px 14px',
+                      padding: '12px 36px 12px 14px',
                       fontFamily: "var(--font-special-elite), monospace",
                       fontSize: '15px',
                       color: '#14100d',
@@ -183,7 +186,7 @@ export default async function HomePage() {
                 </div>
               </form>
 
-              <AreaSearch tight />
+              <AreaSearch tight label="Search local authorities" placeholder="Postcode, town or council" />
 
               <a className="og-block" href={`/editorials/${slot1.slug}`}>
                 <div className="og-head">{slot1.headline}</div>

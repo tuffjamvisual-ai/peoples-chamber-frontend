@@ -67,3 +67,7 @@
   .og-intro-line { padding-top: 26px; }
 }
 
+/* Labels above the homepage search boxes (job 76): the small heading style, on its own line. */
+.og-search-label { display: block; margin-bottom: 8px; color: var(--ink-soft); letter-spacing: 0.18em; }
+/* The placeholders fit a 320 px phone at 14 px (the arrow button takes the right 31 px, so 36 px padding clears it). */
+.og-search-input::placeholder { font-size: 14px; }

@@ -8,7 +8,7 @@
 // picking one goes straight to that council's page. The results address carries
 // area codes only, never the postcode.
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -22,8 +22,10 @@ type CouncilHit = { slug: string; name: string; typeLabel: string | null; countr
 const POSTCODE_LIKE = /^[A-Za-z]{1,2}\d/;
 
 // tight: pull the box up under the site search on the homepage.
-export default function AreaSearch({ tight = false }: { tight?: boolean }) {
+// label, placeholder: the homepage shows a visible label and a shorter placeholder; /your-area keeps the old wording.
+export default function AreaSearch({ tight = false, label, placeholder }: { tight?: boolean; label?: string; placeholder?: string }) {
   const router = useRouter();
+  const inputId = useId();
   const [q, setQ] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -115,9 +117,11 @@ export default function AreaSearch({ tight = false }: { tight?: boolean }) {
       {/* Without the script (or before it has loaded) the form still works: it goes to
           /your-area?q=..., which does the same lookup on the server. */}
       <form action="/your-area" method="get" onSubmit={onSubmit}>
+        {label && <label htmlFor={inputId} className="og-kicker og-search-label">{label}</label>}
         <div style={{ position: 'relative' }}>
           <input
-            aria-label="Your postcode, town or council"
+            id={inputId}
+            aria-label={label ?? 'Your postcode, town or council'}
             ref={inputRef}
             type="text"
             name="q"
@@ -125,9 +129,10 @@ export default function AreaSearch({ tight = false }: { tight?: boolean }) {
             onChange={(e) => { setQ(e.target.value); setError(null); }}
             onFocus={() => councils.length > 0 && setOpen(true)}
             autoComplete="postal-code"
-            placeholder="Your area: enter a postcode, town or council to see your MP, council and local figures"
+            placeholder={placeholder ?? 'Your area: enter a postcode, town or council to see your MP, council and local figures'}
+            className={label ? 'og-search-input' : undefined}
             style={{
-              width: '100%', padding: '12px 48px 12px 14px', fontFamily: MONO, fontSize: '15px', color: INK,
+              width: '100%', padding: label ? '12px 36px 12px 14px' : '12px 48px 12px 14px', fontFamily: MONO, fontSize: '15px', color: INK,
               background: '#f4e8d4', border: '1px solid rgba(20,16,13,0.18)', outline: 'none', boxSizing: 'border-box',
             }}
           />
