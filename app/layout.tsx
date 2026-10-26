@@ -23,7 +23,11 @@ const specialElite = localFont({
   variable: "--font-special-elite",
   weight: "400",
   style: "normal",
-  display: "swap",
+  // "optional", not "swap" (26 Oct 2026): a late swap moved text when the font arrived (layout shift 0.053 on
+  // /parties at 414 px). With the preload the font is normally ready for the first paint; if it is not, that page keeps
+  // the size-matched fallback and the font is used from the next page on. "Times New Roman" and Courier New fallbacks
+  // were tried and made the shift larger.
+  display: "optional",
   preload: true,
   // The size-matched fallback is defined in globals.css ("Special Elite Fallback"), limited to the characters the font
   // has: next/font's own fallback face covered every character, so arrows the font lacks (← →) were drawn from it,
