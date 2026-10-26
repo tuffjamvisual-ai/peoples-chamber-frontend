@@ -106,7 +106,7 @@ export default function AccountPage() {
               Open Govt Weekly
             </h2>
             <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, opacity: 0.75, marginBottom: '14px', maxWidth: '560px' }}>
-              What government announced. What the evidence shows. What happened next. Reports, overlooked documents and public spending stories. Delivered every Sunday.
+              What government announced. What the evidence shows. What happened next. Reports, overlooked documents and public spending stories. Sign up now for the first issue.
             </p>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
               <input

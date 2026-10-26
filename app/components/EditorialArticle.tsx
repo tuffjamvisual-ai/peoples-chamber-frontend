@@ -9,6 +9,7 @@ import BackLink from './BackLink';
 import EvidencePanel from './EvidencePanel';
 import RelatedLinks from './RelatedLinks';
 import ReadNext from './ReadNext';
+import ArticleEndSignup from './ArticleEndSignup';
 import type { ReadNextLink } from '@/lib/read-next';
 import ExploreNext from './ExploreNext';
 import KeyStat from './KeyStat';
@@ -84,6 +85,8 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
           {piece.body.map((block, i) => (
             <Fragment key={`b${i}`}>{renderBlock(block, i)}</Fragment>
           ))}
+          {/* Newsletter sign-up after the article text, for readers who are not signed in (report 80). */}
+          <ArticleEndSignup source={`article-end-${basePath.slice(1)}`} />
           {/* Read next once, after the last block and before the evidence and sources (owner's request, 25 Oct 2026). */}
           <ReadNext links={readNext} />
         </article>

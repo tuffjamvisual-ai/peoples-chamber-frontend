@@ -7,6 +7,7 @@ import BackLink from '../../components/BackLink';
 import RelatedLinks from '../../components/RelatedLinks'
 import { metaDescription } from '@/lib/meta-description'
 import ReadNext from '../../components/ReadNext'
+import ArticleEndSignup from '../../components/ArticleEndSignup'
 import { newsReadNext } from '@/lib/read-next';
 import { resolveOrgToDeptSlug } from '@/lib/govOrgSlug'
 import { getDeptContext } from '../../api/department-context/route'
@@ -272,6 +273,8 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
               className="prose max-w-none text-[15px] leading-[1.7] text-[#14100d]"
               dangerouslySetInnerHTML={{ __html: bodyHtml }}
             />
+            {/* Newsletter sign-up after the release text, for readers who are not signed in (report 80). */}
+            <ArticleEndSignup source="article-end-news" />
             <ReadNext links={readNext} />
           </>
         ) : (

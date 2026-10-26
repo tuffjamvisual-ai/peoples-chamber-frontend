@@ -8,7 +8,7 @@ import MarkNewsletterSubscribed from '../components/MarkNewsletterSubscribed';
 
 export const metadata: Metadata = {
   title: 'Newsletter',
-  description: 'Open Govt Weekly: the week’s investigations, overlooked documents and public spending stories, by email every Sunday.',
+  description: 'Open Govt Weekly: the week’s investigations, overlooked documents and public spending stories, in one weekly email. Sign up for the first issue.',
   alternates: { canonical: '/newsletter' },
 };
 
@@ -39,7 +39,7 @@ export default async function NewsletterPage({ searchParams }: { searchParams: P
         <h1 style={{ fontFamily: FONT, fontSize: 'clamp(26px, 3.2vw, 40px)', fontWeight: 'bold', margin: '0 0 12px' }}>Open Govt Weekly</h1>
         <p style={{ fontSize: '17px', lineHeight: 1.7, margin: '0 0 10px' }}>What government announced. What the evidence shows. What happened next.</p>
         <p style={{ fontSize: '16px', lineHeight: 1.7, margin: '0 0 10px' }}>The most important investigations, overlooked documents, questionable claims and public spending stories from the week.</p>
-        <p style={{ fontSize: '16px', lineHeight: 1.7, margin: '0 0 10px', fontWeight: 700 }}>Delivered every Sunday.</p>
+        <p style={{ fontSize: '16px', lineHeight: 1.7, margin: '0 0 10px', fontWeight: 700 }}>A weekly email. Sign up now for the first issue.</p>
         <NewsletterSignup source="newsletter-page" />
       </article>
     </OpenGovShell>

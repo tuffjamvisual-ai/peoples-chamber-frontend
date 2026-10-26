@@ -12,7 +12,10 @@ const INK = '#14100d'
 const ACCENT = '#7a1612'
 const FONT = "var(--font-special-elite), monospace"
 
-export default function NewsletterSignup({ source = 'homepage' }: { source?: string }) {
+// minFontPx: raise the small print and label to at least this size (the article end box uses 15; the homepage and
+// /newsletter keep their sizes).
+export default function NewsletterSignup({ source = 'homepage', minFontPx = 0 }: { source?: string; minFontPx?: number }) {
+  const px = (n: number) => `${Math.max(n, minFontPx)}px`
   const [email, setEmail] = useState('')
   const [website, setWebsite] = useState('') // honeypot, hidden from people
   const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
@@ -43,7 +46,7 @@ export default function NewsletterSignup({ source = 'homepage' }: { source?: str
       <div role="status" style={{ fontFamily: FONT, color: INK, marginTop: '12px', padding: '10px 12px', border: `1px solid ${ACCENT}`, background: 'rgba(122,22,18,0.05)' }}>
         <p style={{ margin: '0 0 6px', fontWeight: 700 }}>Check your inbox.</p>
         <p style={{ margin: '0 0 8px', fontSize: '15px', lineHeight: 1.5 }}>We have sent a link to {email}. Click it to confirm, and the newsletter will start on Sunday.</p>
-        <p style={{ margin: 0, fontSize: '14px', lineHeight: 1.5 }}>
+        <p style={{ margin: 0, fontSize: px(14), lineHeight: 1.5 }}>
           Want to vote on bills and compare your choices with your MP&rsquo;s?{' '}
           <a href="/login?mode=signup" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Create a free account &rarr;</a>
         </p>
@@ -53,7 +56,7 @@ export default function NewsletterSignup({ source = 'homepage' }: { source?: str
 
   return (
     <form onSubmit={submit} style={{ marginTop: '12px' }} noValidate>
-      <label htmlFor={`nl-email-${source}`} style={{ display: 'block', fontFamily: FONT, fontSize: '14px', color: INK, marginBottom: '6px' }}>
+      <label htmlFor={`nl-email-${source}`} style={{ display: 'block', fontFamily: FONT, fontSize: px(14), color: INK, marginBottom: '6px' }}>
         Your email address
       </label>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -80,8 +83,8 @@ export default function NewsletterSignup({ source = 'homepage' }: { source?: str
       <div aria-hidden="true" style={{ position: 'absolute', left: '-10000px', width: 1, height: 1, overflow: 'hidden' }}>
         <label>Leave this empty<input type="text" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} /></label>
       </div>
-      {state === 'error' && <p role="alert" style={{ fontFamily: FONT, fontSize: '14px', color: ACCENT, margin: '8px 0 0' }}>{message}</p>}
-      <p style={{ fontFamily: FONT, fontSize: '13px', color: INK, margin: '8px 0 0', lineHeight: 1.5 }}>
+      {state === 'error' && <p role="alert" style={{ fontFamily: FONT, fontSize: px(14), color: ACCENT, margin: '8px 0 0' }}>{message}</p>}
+      <p style={{ fontFamily: FONT, fontSize: px(13), color: INK, margin: '8px 0 0', lineHeight: 1.5 }}>
         Email only, no account needed. Unsubscribe from any email in one click. <a href="/privacy" style={{ color: INK, textDecoration: 'underline' }}>Privacy</a>
       </p>
     </form>
