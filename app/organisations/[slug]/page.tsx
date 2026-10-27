@@ -14,7 +14,7 @@ import { cleanDept, quarterLabel } from '@/lib/lobbying';
 import { ecDonationSearchUrl } from '@/lib/ec-links';
 import {
   getOrganisation, getOrgDonations, getOrgContracts, getOrgGrants, getOrgRegistryRecords, companiesHouseUrl, grantNavUrl,
-  findTenderUrl, money, fmtDay, buyerLabel, orgSummaryLine,
+  findTenderUrl, money, fmtDay, buyerLabel, orgSummaryLine, nameNote,
 } from '@/lib/organisations';
 
 export const revalidate = 86400;
@@ -69,6 +69,7 @@ export default async function OrganisationPage({ params }: { params: Promise<{ s
         <header style={{ borderTop: `1.5px solid ${INK}`, borderBottom: `1.5px solid ${INK}`, padding: '14px 12px', textAlign: 'center', marginBottom: '20px' }}>
           <div style={{ fontSize: '15px', letterSpacing: '0.16em', fontVariant: 'small-caps', marginBottom: '4px' }}>Organisation · {typeLabel}</div>
           <h1 style={{ fontSize: 'clamp(26px, 3.2vw, 40px)', fontWeight: 500, lineHeight: 1.18, margin: 0, overflowWrap: 'anywhere' }}>{org.name}</h1>
+          {nameNote(org) && <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '8px auto 0', maxWidth: '40em' }}>{nameNote(org)}</p>}
         </header>
 
         <dl style={{ display: 'grid', gridTemplateColumns: 'minmax(0, max-content) minmax(0, 1fr)', gap: '6px 16px', fontSize: '15px', margin: '0 0 12px' }}>

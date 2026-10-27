@@ -154,7 +154,23 @@ const nextConfig: NextConfig = {
       { source: '/sections/parties', destination: '/sections/parliament#parties', permanent: true },
       { source: '/sections/departments', destination: '/sections/parliament#departments', permanent: true },
     ];
-    return [...editorialRedirects, ...briefingRedirects, ...notFoundRedirects, ...mergedReportRedirects, ...billsPageRedirects, ...reportsRedirects, ...sectionRedirects, ...(await councilRedirects()), ...(await agencyRedirects())];
+    // Organisations merged into their lobbying registry page once the registry recorded their Companies House number
+    // (owner, 27 Oct 2026, numbers checked on Companies House): the company page, and its record lists, go to the
+    // registry page.
+    const mergedOrganisations: [string, string][] = [
+      ['barnardos-00061625', 'barnardos'],
+      ['local-government-association-11177145', 'local-government-association'],
+      ['race-equality-foundation-03121679', 'race-equality-foundation'],
+      ['refuge-01412276', 'refuge'],
+      ['safelives-05203237', 'safelives'],
+      ['suzy-lamplugh-trust-02417823', 'suzy-lamplugh-trust'],
+    ];
+    const organisationRedirects = mergedOrganisations.flatMap(([from, to]) => [
+      { source: `/organisations/${from}`, destination: `/organisations/${to}`, permanent: true },
+      { source: `/organisations/${from}/:dataset(donations|contracts|grants)`, destination: `/organisations/${to}/:dataset`, permanent: true },
+      { source: `/organisations/${from}/opengraph-image`, destination: `/organisations/${to}/opengraph-image`, permanent: true },
+    ]);
+    return [...editorialRedirects, ...briefingRedirects, ...notFoundRedirects, ...organisationRedirects, ...mergedReportRedirects, ...billsPageRedirects, ...reportsRedirects, ...sectionRedirects, ...(await councilRedirects()), ...(await agencyRedirects())];
   },
   images: {
     remotePatterns: [

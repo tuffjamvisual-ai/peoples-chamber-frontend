@@ -70,10 +70,33 @@ function numbers<T extends Partial<OrgIndexRow>>(r: T): T {
   return out as T;
 }
 
+// A company page is named after how the records spell the company. Where that is a former name and the company is
+// not the organisation the name now belongs to, the page takes its Companies House name and a note (owner, 27 Oct
+// 2026, checked on Companies House). Keyed by Companies House number; company pages only.
+const COMPANY_NAME_CORRECTIONS: Record<string, { name: string; note: string }> = {
+  '09223384': {
+    name: 'National Grid Electricity Distribution plc',
+    note: 'Formerly Western Power Distribution plc (until 20 September 2022).',
+  },
+  '04570581': {
+    name: 'Rethink Trading Ltd',
+    note: 'Called Rethink Mental Illness Ltd until 2 February 2023. A separate company from the charity Rethink Mental Illness (01227970).',
+  },
+};
+
+export function nameNote(org: Pick<OrgIndexRow, 'kind' | 'company_number'>): string | null {
+  return (org.kind === 'company' && org.company_number && COMPANY_NAME_CORRECTIONS[org.company_number]?.note) || null;
+}
+
+function corrected<T extends Pick<OrgIndexRow, 'kind' | 'company_number' | 'name'>>(r: T): T {
+  const c = r.kind === 'company' && r.company_number ? COMPANY_NAME_CORRECTIONS[r.company_number] : undefined;
+  return c ? { ...r, name: c.name } : r;
+}
+
 export const getOrganisation = cache(async (slug: string): Promise<OrgIndexRow | null> => {
   const { data, error } = await supabase.from('organisation_index').select('*').eq('slug', slug).maybeSingle();
   if (error) throw new Error(`organisation_index ${slug}: ${error.message}`);
-  return data ? numbers(data as OrgIndexRow) : null;
+  return data ? corrected(numbers(data as OrgIndexRow)) : null;
 });
 
 const LIST_COLS = 'slug, kind, name, company_number, name_variants, donations, contracts, framework_places, grants, meetings, lobbying_quarters, datasets';
@@ -81,11 +104,11 @@ const LIST_COLS = 'slug, kind, name, company_number, name_variants, donations, c
 // Every page, for the index and the sitemap (about 1,800 rows).
 export const listOrganisations = cache(async (): Promise<OrgListRow[]> => {
   const rows = await readAll<OrgListRow>(() => supabase.from('organisation_index'), { columns: LIST_COLS, orderBy: 'slug', label: 'organisation_index' });
-  return rows.map(numbers);
+  return rows.map((r) => corrected(numbers(r)));
 });
 
 // The same list cached for an hour across requests, for /organisations and the Organisations group on /search.
-export const cachedOrganisationList = unstable_cache(async () => listOrganisations(), ['organisation-list-v1'], { revalidate: 3600 });
+export const cachedOrganisationList = unstable_cache(async () => listOrganisations(), ['organisation-list-v2'], { revalidate: 3600 });
 
 // A Companies House number as Companies House writes it (normalise_company_number in SQL), or null.
 export function normaliseCompanyNumber(raw: string): string | null {
