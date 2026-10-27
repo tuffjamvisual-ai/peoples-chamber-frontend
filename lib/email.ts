@@ -353,6 +353,34 @@ export async function sendNewsletterConfirmation(to: string, token: string, base
   });
 }
 
+// Where a newsletter sign up came from, in words, for the owner notification (owner, 27 Oct 2026). Data pages send
+// "data-<page>". A code not listed here is shown as it is.
+const SIGNUP_SOURCES: Record<string, string> = {
+  homepage: 'Homepage',
+  'newsletter-page': 'Newsletter page',
+  strip: 'Newsletter strip at the bottom of the screen',
+  'article-end-editorials': 'End of article: investigations and editorials',
+  'article-end-briefings': 'End of article: briefings',
+  'article-end-briefings-db': 'End of article: daily briefings',
+  'article-end-news': 'End of article: news',
+};
+const DATA_PAGES: Record<string, string> = {
+  'special-advisers': 'special advisers',
+  parties: 'parties',
+  councils: 'councils',
+  'mp-profile': 'MP profile',
+  spending: 'spending',
+  expenses: 'expenses',
+  'league-table': 'council league table',
+  'council-page': 'council page',
+};
+export function signupSourceName(source: string | null | undefined): string {
+  if (!source) return 'Not recorded';
+  if (SIGNUP_SOURCES[source]) return SIGNUP_SOURCES[source];
+  const data = source.startsWith('data-') ? DATA_PAGES[source.slice(5)] : undefined;
+  return data ? `Data page: ${data}` : source;
+}
+
 // Owner notification: fires when someone CONFIRMS a newsletter subscription (the click in the
 // confirmation email), so unconfirmed or mistyped sign-ups do not notify. Requested by the
 // owner, 16 Oct 2026. Never throws; the caller treats it as fire-and-forget.
@@ -368,7 +396,7 @@ export async function sendNewsletterSubscriberNotification(sub: {
   const when = new Date(sub.confirmedAt).toLocaleString('en-GB', {
     timeZone: 'Europe/London', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
   });
-  const where = sub.source === 'newsletter-page' ? 'Newsletter page' : sub.source === 'homepage' ? 'Homepage' : sub.source === 'strip' ? 'Newsletter strip' : (sub.source || 'Not recorded');
+  const where = signupSourceName(sub.source);
   const total = typeof sub.totalConfirmed === 'number' ? String(sub.totalConfirmed) : 'Not available';
   const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const text =
