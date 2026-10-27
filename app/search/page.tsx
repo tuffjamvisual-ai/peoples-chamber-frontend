@@ -6,6 +6,7 @@ import SignupNote from './SignupNote';
 import { SEARCH_NOTE_JS } from '@/lib/search-note';
 import { searchContent, searchCouncils, isPhrase, PHRASE_LIMIT, TOTAL_LIMIT, type SearchResult, type CouncilSearchResult } from '@/lib/search-content';
 import { searchDonorNames, type DonorNameResult } from '@/lib/donor-search';
+import { cachedOrganisationList, searchOrganisations, type OrgListRow } from '@/lib/organisations';
 
 export const dynamic = 'force-dynamic';
 
@@ -173,6 +174,46 @@ function DonorRow({ d }: { d: DonorNameResult }) {
   );
 }
 
+// An organisation page (report 71): name, Companies House number and what the page holds.
+const ORGS_SHOWN = 10;
+const ORG_META = { label: 'Organisation', color: '#3a4a1a' };
+function OrgRow({ o }: { o: OrgListRow }) {
+  const held = [o.donations && 'donations', (o.contracts || o.framework_places) && 'contracts', o.grants && 'grants', o.meetings && 'meetings with ministers', o.lobbying_quarters && 'lobbying'].filter(Boolean).join(', ');
+  return (
+    <li style={{ borderBottom: `1px dotted ${HAIRLINE}`, padding: '12px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+        <span
+          style={{
+            fontFamily: MONO,
+            fontSize: '15px',
+            letterSpacing: '0.1em',
+            color: ORG_META.color,
+            border: `1px solid ${ORG_META.color}`,
+            padding: '2px 6px',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+            marginTop: '3px',
+            textTransform: 'uppercase',
+          }}
+        >
+          {ORG_META.label}
+        </span>
+        <div style={{ minWidth: 0 }}>
+          <Link
+            href={`/organisations/${o.slug}`}
+            style={{ display: 'block', fontSize: '16px', fontWeight: 600, color: INK, textDecoration: 'none', lineHeight: 1.4, overflowWrap: 'anywhere' }}
+          >
+            {o.name}
+          </Link>
+          <span style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', overflowWrap: 'anywhere' }}>
+            {[o.company_number && `Companies House ${o.company_number}`, held].filter(Boolean).join(' · ')}
+          </span>
+        </div>
+      </div>
+    </li>
+  );
+}
+
 type PageProps = {
   searchParams: Promise<{
     q?: string;
@@ -197,13 +238,17 @@ export default async function SearchPage({ searchParams }: PageProps) {
   const wantCouncils = q.length >= 2 && type === 'all' && !dept && !from && !to;
   // Donor names (24 Oct 2026): the same rule as councils. Name matches only, linked when the donor page exists
   // (lib/donor-search.ts); the first DONORS_SHOWN, with the full list on /donors.
-  const [results, councils, donorSearch]: [SearchResult[], CouncilSearchResult[], { results: DonorNameResult[]; more: boolean; totalNames: number }] = q.length >= 2
+  // Organisations (report 71): the same rule; the first ORGS_SHOWN, with the rest on /organisations.
+  const [results, councils, donorSearch, orgList]: [SearchResult[], CouncilSearchResult[], { results: DonorNameResult[]; more: boolean; totalNames: number }, OrgListRow[]] = q.length >= 2
     ? await Promise.all([
         searchContent(q, type, dept, from, to, sort),
         wantCouncils ? searchCouncils(q) : Promise.resolve([]),
         wantCouncils ? searchDonorNames(q) : Promise.resolve({ results: [], more: false, totalNames: 0 }),
+        wantCouncils ? cachedOrganisationList() : Promise.resolve([]),
       ])
-    : [[], [], { results: [], more: false, totalNames: 0 }];
+    : [[], [], { results: [], more: false, totalNames: 0 }, []];
+  const orgMatches = orgList.length ? searchOrganisations(orgList, q) : [];
+  const orgs = orgMatches.slice(0, ORGS_SHOWN);
   const linkedDonors = donorSearch.results.filter((d) => d.slug);
   const donors = linkedDonors.slice(0, DONORS_SHOWN);
 
@@ -234,7 +279,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
           Search
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', color: '#14100d' }}>
-          Reports, press releases, bills, votes, MPs and councils, searched together.
+          Reports, press releases, bills, votes, MPs, councils, donors and organisations, searched together.
         </p>
       </header>
 
@@ -247,7 +292,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
       <SignupNote q={q} returnTo={'/search' + (q ? `?q=${encodeURIComponent(q)}` : '')} />
       <script dangerouslySetInnerHTML={{ __html: `${SEARCH_NOTE_JS}window.__ogNoteSearch(${JSON.stringify(q)});` }} />
 
-      {q.length >= 2 && results.length === 0 && councils.length === 0 && donors.length === 0 && (
+      {q.length >= 2 && results.length === 0 && councils.length === 0 && donors.length === 0 && orgs.length === 0 && (
         <div style={{ padding: '40px 0', textAlign: 'center' }}>
           <p style={{ fontSize: '17px', color: INK, marginBottom: '6px' }}>No results for &ldquo;{q}&rdquo;</p>
           <p style={{ fontSize: '14px', color: '#14100d' }}>
@@ -265,6 +310,22 @@ export default async function SearchPage({ searchParams }: PageProps) {
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {councils.map((c) => <CouncilRow key={c.slug} c={c} />)}
           </ul>
+        </section>
+      )}
+
+      {orgs.length > 0 && (
+        <section aria-labelledby="search-orgs" style={{ marginBottom: '28px' }}>
+          <h2 id="search-orgs" style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', marginBottom: '4px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+            Organisations · {orgMatches.length.toLocaleString('en-GB')}
+          </h2>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {orgs.map((o) => <OrgRow key={o.slug} o={o} />)}
+          </ul>
+          {orgMatches.length > orgs.length && (
+            <p style={{ fontFamily: MONO, fontSize: '15px', marginTop: '8px' }}>
+              <Link href={`/organisations?q=${encodeURIComponent(q)}`} style={{ color: ACCENT }}>All organisations matching &ldquo;{q}&rdquo;</Link>
+            </p>
+          )}
         </section>
       )}
 

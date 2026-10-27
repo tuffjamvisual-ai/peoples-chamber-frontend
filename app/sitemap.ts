@@ -108,6 +108,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...(SHOW_LEAGUE_TABLE ? [{ url: `${SITE}/councils/league-table`, lastModified: now, changeFrequency: 'monthly' as const, priority: 0.8 }] : []),
     { url: `${SITE}/second-jobs`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/lobbying`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE}/organisations`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${SITE}/committees`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/topics`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     // The parties index and the 2024 manifesto comparison, which moved from /parties (report 64).
@@ -290,6 +291,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.5,
   }));
 
+  // Organisation pages (report 71), one per organisation_index row. A failed read leaves them out rather than failing
+  // the sitemap.
+  const orgSlugs = await fetchAllRows<{ slug: string }>('organisation_index', 'slug', (q) => q.order('slug')).catch(() => [] as { slug: string }[]);
+  const orgEntries: MetadataRoute.Sitemap = orgSlugs.map((o) => ({
+    url: `${SITE}/organisations/${o.slug}`,
+    lastModified: now,
+    changeFrequency: 'weekly',
+    priority: 0.5,
+  }));
+
   // Major project pages (/transparency/major-projects/<project_key>), one per project in major_projects.
   // The annual reports come out once a year; a failed read leaves them out rather than failing the sitemap.
   const majorProjectKeys = await fetchMajorProjectKeys().catch(() => [] as string[]);
@@ -317,6 +328,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...staticEntries,
     ...topicEntries,
     ...lobbyEntries,
+    ...orgEntries,
     ...transparencyEntries,
     ...deptEntries,
     ...editorialEntries,

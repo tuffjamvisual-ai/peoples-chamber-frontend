@@ -165,6 +165,10 @@
       "schedule": "30 3 * * *"
     },
     {
+      "path": "/api/refresh-organisation-index",
+      "schedule": "45 4 * * *"
+    },
+    {
       "path": "/api/refresh-reader-stores",
       "schedule": "20 4 * * *"
     },

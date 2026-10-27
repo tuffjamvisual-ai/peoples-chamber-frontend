@@ -4,6 +4,8 @@
 
 // /transparency/<section> (app/transparency/[section]/page.tsx), /parties (app/parties/page.tsx) and /expenses.
 export const PAGE_DESCRIPTIONS: Record<string, string> = {
+  '/organisations':
+    'Every organisation with political donations, public contracts, grants, meetings with ministers or lobbying, matched by Companies House number.',
   '/transparency/revolving-door':
     'Jobs taken by former ministers and officials after leaving government: ACOBA advice until it closed, then the Independent Adviser\'s advice for ministers.',
   '/transparency/donations':

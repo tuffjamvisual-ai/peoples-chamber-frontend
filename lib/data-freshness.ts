@@ -105,6 +105,9 @@ export const DATA_SOURCES: DataSource[] = [
   // (owner's approval, 21 Oct 2026).
   { key: 'lobbying_meetings',       table: 'lobby_summary', column: 'meetings_built_at', cadence: 'quarterly', label: 'Ministers\u2019 meetings lobbying index', source: 'GOV.UK ministers\u2019 meetings transparency returns', page: '/lobbying',                           syncRoute: '/github-actions/lobbying-index' /* scripts/build-lobbying-index.js, nightly */ },
   { key: 'consultant_lobbyists',    table: 'lobby_summary', column: 'orcl_built_at', cadence: 'quarterly', label: 'Consultant lobbyists and their clients', source: 'Registrar of Consultant Lobbyists quarterly returns', page: '/lobbying' /* files downloaded by hand; scripts/import-orcl-returns.js */ },
+  // Organisation pages (report 71): organisation_index is rebuilt daily by refresh_organisation_index(); refreshed_at is
+  // the rebuild time on every row, so it advances on every successful run.
+  { key: 'organisation_index',      table: 'organisation_index', column: 'refreshed_at', cadence: 'daily', label: 'Organisation pages', source: 'Electoral Commission, Find a Tender, 360Giving grants, GOV.UK ministers\u2019 meetings and the Registrar of Consultant Lobbyists', page: '/organisations', syncRoute: '/api/refresh-organisation-index' },
 ];
 
 export function dataSource(key: string): DataSource | undefined {

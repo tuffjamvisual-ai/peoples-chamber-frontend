@@ -61,6 +61,9 @@ export const ROUTES: { route: string; path: string }[] = [
   // The section pages every header link now opens (report 60), one representative; the other six are in the phone
   // layout pass below.
   { route: '/sections/[slug]', path: '/sections/accountability' },
+  // Organisation pages (report 71): a company found by Companies House number, and a lobbying registry organisation.
+  { route: '/organisations/[slug]', path: '/organisations/kpmg-llp' },
+  { route: '/organisations/[slug]', path: '/organisations/rolls-royce' },
 ];
 
 // Pages with phone-only table layouts (cards and sticky columns, report 47) and the other section pages (reports 60

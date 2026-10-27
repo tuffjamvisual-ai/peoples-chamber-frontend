@@ -6,7 +6,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-export type StoreRefresh = 'refresh_bill_stores' | 'refresh_vote_counts' | 'refresh_press_release_stats' | 'refresh_contractor_donor_matches';
+export type StoreRefresh = 'refresh_bill_stores' | 'refresh_vote_counts' | 'refresh_press_release_stats' | 'refresh_contractor_donor_matches' | 'refresh_organisation_index';
 
 export type StoreRefreshResult = { fn: StoreRefresh; ok: boolean; ms: number; result?: unknown; error?: string };
 

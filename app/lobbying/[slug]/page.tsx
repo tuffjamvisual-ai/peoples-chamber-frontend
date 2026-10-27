@@ -7,6 +7,7 @@ import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { getOrgBySlug, getOrgMeetings, getOrgLobbying, cleanDept, fmtDate, ORG_TYPE_LABEL, type OrgMeeting } from '@/lib/lobbying';
+import { getOrganisation } from '@/lib/organisations';
 
 export const revalidate = 86400;
 export function generateStaticParams() { return []; }
@@ -38,7 +39,8 @@ export default async function LobbyingOrgPage({ params }: { params: Promise<{ sl
   const { slug } = await params;
   const org = await getOrgBySlug(slug);
   if (!org) notFound();
-  const [meetings, lobbying] = await Promise.all([getOrgMeetings(org.org_id), getOrgLobbying(org.org_id)]);
+  // The organisation page (report 71) has the same slug; public bodies and universities have none.
+  const [meetings, lobbying, orgPage] = await Promise.all([getOrgMeetings(org.org_id), getOrgLobbying(org.org_id), getOrganisation(org.slug)]);
   const spellings = [...new Set(meetings.map((m) => m.raw_name.trim()))].filter((s) => s !== org.name).slice(0, 12);
 
   return (
@@ -56,6 +58,11 @@ export default async function LobbyingOrgPage({ params }: { params: Promise<{ sl
           </div>
           <h1 style={{ fontSize: 'clamp(26px, 3.2vw, 40px)', fontWeight: 500, lineHeight: 1.18, margin: 0, overflowWrap: 'anywhere' }}>{org.name}</h1>
         </header>
+        {orgPage?.kind === 'registry' && orgPage.lobby_org_id === org.org_id && (
+          <p style={{ ...para, margin: '-12px 0 24px' }}>
+            <Link href={`/organisations/${org.slug}`} style={{ color: ACCENT }}>{org.name} across all our records</Link>
+          </p>
+        )}
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px', marginBottom: '28px' }}>
           <Stat label="Meetings with ministers" value={org.meetings_all.toLocaleString('en-GB')} />

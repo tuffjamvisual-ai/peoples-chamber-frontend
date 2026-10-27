@@ -67,6 +67,7 @@ export const NAV: NavItem[] = [
     { group: 'Accountability', label: 'Expenses', href: '/expenses', desc: PAGE_DESCRIPTIONS['/expenses'] },
     { group: 'Accountability', label: 'Second Jobs', href: '/second-jobs', desc: 'Every current MP with declared outside earnings, grouped by party: hours, totals and employers.' },
     { group: 'Accountability', label: 'Lobbying', href: '/lobbying', desc: 'Who meets ministers most often, and which consultant lobbying firms act for which clients.' },
+    { group: 'Accountability', label: 'Organisations', href: '/organisations', desc: PAGE_DESCRIPTIONS['/organisations'] },
     { group: 'Accountability', label: 'Revolving Door', href: '/transparency/revolving-door', desc: PAGE_DESCRIPTIONS['/transparency/revolving-door'] },
     { group: 'Accountability', label: 'Special Advisers', href: '/transparency/special-advisers', desc: 'Every current Special Adviser, their department, and the gifts, hospitality and meetings they declared.' },
     { group: 'Money & Power', label: 'Money & Power', href: '/money', desc: 'Patterns across registers: MPs paid twice, contractors who donate, APPG funders and lobby firms.' },
