@@ -3,6 +3,7 @@ import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import SearchInput from './SearchInput';
 import SignupNote from './SignupNote';
+import SaveSearchButton from './SaveSearchButton';
 import { SEARCH_NOTE_JS } from '@/lib/search-note';
 import { searchContent, searchCouncils, isPhrase, PHRASE_LIMIT, TOTAL_LIMIT, type SearchResult, type CouncilSearchResult } from '@/lib/search-content';
 import { searchDonorNames, type DonorNameResult } from '@/lib/donor-search';
@@ -291,6 +292,8 @@ export default async function SearchPage({ searchParams }: PageProps) {
       <style>{'.og-snote{display:none;align-items:flex-start;justify-content:space-between;gap:12px;margin:0 0 18px;padding:10px 12px;border:1px solid rgba(20,16,13,0.25);background:rgba(255,255,255,0.18);font-size:15px;line-height:1.5}.og-snote[data-show="1"]{display:flex}.og-snote-x{flex:none;min-width:32px;min-height:32px;background:none;border:0;font-size:22px;line-height:1;cursor:pointer;color:#14100d}.og-snote-x:focus-visible{outline:2px solid #7a1612;outline-offset:2px}'}</style>
       <SignupNote q={q} returnTo={'/search' + (q ? `?q=${encodeURIComponent(q)}` : '')} />
       <script dangerouslySetInnerHTML={{ __html: `${SEARCH_NOTE_JS}window.__ogNoteSearch(${JSON.stringify(q)});` }} />
+      {/* Signed in members can save the search (job 74 Part 5); lists and alerts are on /preferences. */}
+      <SaveSearchButton q={q} type={type} dept={dept} from={from} to={to} sort={sort} />
 
       {q.length >= 2 && results.length === 0 && councils.length === 0 && donors.length === 0 && orgs.length === 0 && (
         <div style={{ padding: '40px 0', textAlign: 'center' }}>
