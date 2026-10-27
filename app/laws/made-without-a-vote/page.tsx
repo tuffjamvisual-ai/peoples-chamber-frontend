@@ -29,10 +29,6 @@ const FLAGS: { key: SiFlag; label: string }[] = [
   { key: 'debated', label: 'Debated' },
 ];
 
-// The debated share comes from each instrument's timeline. The first load read none, so the share is hidden until the
-// last 12 months' timelines are in (owner, 27 Oct 2026).
-const SHOW_DEBATED_SHARE = false;
-
 export default async function MadeWithoutAVotePage({ searchParams }: { searchParams: Promise<{ page?: string; department?: string; procedure?: string; flag?: string }> }) {
   const sp = await searchParams;
   const page = Math.max(1, parseInt(sp.page || '1', 10) || 1);
@@ -67,7 +63,7 @@ export default async function MadeWithoutAVotePage({ searchParams }: { searchPar
           Ministers make most UK law themselves, through statutory instruments, using powers an Act of Parliament gives them. Under the negative procedure an instrument becomes law, or stays law, unless Parliament objects in time. Few are ever debated.
         </p>
         <p style={{ fontFamily: MONO, fontSize: '16px', fontWeight: 'bold', margin: 0 }}>
-          {year.laid.toLocaleString('en-GB')} laid before Parliament in the last 12 months{SHOW_DEBATED_SHARE ? <>; {year.debated.toLocaleString('en-GB')} of them were debated ({pct} per cent)</> : null}.
+          {year.laid.toLocaleString('en-GB')} laid before Parliament in the last 12 months; {year.debated.toLocaleString('en-GB')} of them were debated ({pct} per cent).
         </p>
       </header>
 
