@@ -13,7 +13,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { sectorForDonor } from '@/lib/donor-sectors';
 import { departments } from '@/lib/departments';
-import { countableContracts, isFrameworkRow } from '@/lib/contract-counting';
+import { normaliseCompanyNumber } from '@/lib/organisations';
 import { donorNameToSlug, narrowTokens } from '@/lib/donor-slug';
 import { ecDonationSearchUrl } from '@/lib/ec-links';
 import { relatedDonorNames } from '@/lib/donor-related';
@@ -49,8 +49,6 @@ function fmtDay(iso: string | null | undefined): string {
   return isNaN(d.getTime()) ? 'n/a' : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-// Words too common in company names to narrow a supplier search (narrowTokens drops a final "s", so "service").
-const COMPANY_SUFFIXES = new Set(['limited', 'ltd', 'plc', 'llp', 'group', 'holding', 'company', 'service', 'uk', 'the', 'international', 'trust', 'partnership']);
 
 // No donor pages are rendered at build (John's approval, 19 Oct 2026): each one renders on its first visit and
 // is cached from then on, refreshed after 24h (revalidate above). An empty list still makes the route
@@ -246,28 +244,31 @@ export default async function DonorPage({ params }: PageProps) {
     (f: { source: string }) => donorNameToSlug(f.source) === slug,
   );
 
-  // Cross-link: government contracts held by this donor under the same
-  // name. Match rule is the case-insensitive whitespace-normalised name
-  // (the same rule /donations/government-contractors uses) so a donor
-  // only shows a contracts panel when the EC and gov.uk registers
-  // agree on the entity. Limited to current/recent contracts.
-  const normName = canonicalName.toUpperCase().replace(/\s+/g, ' ').trim();
-  // Search on the longest word that is not a company suffix: "limited" matched thousands of suppliers, the 500-row
-  // cap was reached and Cadent Gas Limited's six contracts were never in it.
-  const supplierToken = ranked.find((w) => !COMPANY_SUFFIXES.has(w)) ?? ranked[0] ?? canonicalName;
-  const { data: contractHits, error: contractHitsErr } = await supabase
-    .from('government_contracts')
-    .select('id, dept_slug, title, value, awarded_date, supplier, ocid, contract_id')
-    .ilike('supplier', `%${supplierToken}%`)
-    .limit(500);
-  if (contractHitsErr && contractHitsErr.code !== 'PGRST116') throw new Error(`/donors/[slug] government_contracts: ${contractHitsErr.message}`);
-  type ContractRow = { id: number; dept_slug: string; title: string | null; value: number | null; awarded_date: string | null; supplier: string | null; ocid: string | null; contract_id: string | null };
-  const nameMatched = ((contractHits || []) as ContractRow[]).filter((c) =>
-    c.supplier && c.supplier.toUpperCase().replace(/\s+/g, ' ').trim() === normName,
-  );
-  // One row per Find a Tender notice, not per contract: lib/contract-counting.ts counts each contract once, leaves
-  // out change notices a newer notice supersedes, and keeps frameworks apart (potential value, never added up).
-  const { contracts: matchedContracts, frameworks: matchedFrameworks } = countableContracts(nameMatched);
+  // Cross-link: government contracts held by this donor, matched by Companies House number only (owner's rule, job 71
+  // Part 1; day job 27 Oct 2026 Part 2), never by name and never for individual donors. The donor's numbers come from
+  // its own donations that are not from individuals; their contracts come from organisation_contracts (migration
+  // 2026-10-27c): each counted contract (government_contracts_counted, one per notice, superseded change notices left
+  // out) whose Find a Tender notice gives the supplier exactly that one number, the same rows as /organisations and
+  // /donations/government-contractors. Frameworks are kept apart (potential value, never added up).
+  const donorNumbers = [...new Set(donations
+    .filter((d) => (d.donor_type ?? '') !== 'Individual' && d.company_registration_number)
+    .map((d) => normaliseCompanyNumber(d.company_registration_number as string))
+    .filter((n): n is string => !!n))];
+  type ContractRow = { id: number; dept_slug: string; title: string | null; value: number | null; awarded_date: string | null; supplier: string | null; ocid: string | null; is_framework: boolean };
+  let numberMatched: ContractRow[] = [];
+  if (donorNumbers.length) {
+    const { data: contractHits, error: contractHitsErr } = await supabase
+      .from('organisation_contracts')
+      .select('id, dept_slug, title, value, awarded_date, supplier, ocid, is_framework')
+      .in('company_number', donorNumbers)
+      .eq('superseded', false)
+      .order('awarded_date', { ascending: false, nullsFirst: false })
+      .limit(2000);
+    if (contractHitsErr) throw new Error(`/donors/[slug] organisation_contracts: ${contractHitsErr.message}`);
+    numberMatched = (contractHits || []) as ContractRow[];
+  }
+  const matchedContracts = numberMatched.filter((c) => !c.is_framework);
+  const matchedFrameworks = numberMatched.filter((c) => c.is_framework);
   // The buyer on a contract is often not a government department (academy trusts, councils,
   // NHS bodies), so only a buyer we have a department page for is linked; others are shown by
   // name. Linking every buyer to /departments/<buyer> gave 404s (ChatGPT audit, 15 Oct 2026).
@@ -454,7 +455,7 @@ export default async function DonorPage({ params }: PageProps) {
       {contractRecords.length > 0 && (
         <section style={{ marginBottom: '28px', padding: '14px 16px', background: 'rgba(20,16,13,0.04)', borderLeft: `3px solid ${DANGER}` }}>
           <h2 style={{ ...sectionH2, marginTop: 0, marginBottom: '8px' }}>{matchedContracts.length === 0 ? `On ${matchedFrameworks.length} UK public framework${matchedFrameworks.length === 1 ? '' : 's'}` : `Also holds ${matchedContracts.length} UK public contract${matchedContracts.length === 1 ? '' : 's'}`}{matchedContracts.length === 0 ? '' : unpublishedValues === matchedContracts.length ? ' · values not published' : ` · ${fmtMoney(totalContractValue)}${unpublishedValues ? ` (value not published for ${unpublishedValues})` : ''}`}{matchedFrameworks.length && matchedContracts.length ? ` · on ${matchedFrameworks.length} framework${matchedFrameworks.length === 1 ? '' : 's'}` : ''}</h2>
-          <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '12px' }}>This donor name also appears as a supplier on Find a Tender, the government&rsquo;s register of public contracts. The match is an exact name overlap; no causal link is implied between the donations on this page and the contracts below.{matchedContracts.length > 0 ? ' Public bodies awarding the work:' : ''}</p>
+          <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '12px' }}>This donor&rsquo;s Companies House number also appears for a supplier on Find a Tender, the government&rsquo;s register of public contracts. Contracts are matched by that number only, never by name; no causal link is implied between the donations on this page and the contracts below.{matchedContracts.length > 0 ? ' Public bodies awarding the work:' : ''}</p>
           {matchedContracts.length > 0 && (
           <table style={{ ...tableStyle, marginBottom: '8px' }}>
             <thead>
@@ -515,7 +516,7 @@ export default async function DonorPage({ params }: PageProps) {
                     <td style={{ ...td, whiteSpace: 'nowrap' }}>{fmtDay(c.awarded_date)}</td>
                     <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>
                       {c.value == null ? 'Not published' : fmtMoney(c.value)}
-                      {isFrameworkRow(c) && <span style={{ display: 'block', fontWeight: 'normal', fontSize: '14px' }}>framework maximum: potential value, not spending</span>}
+                      {c.is_framework && <span style={{ display: 'block', fontWeight: 'normal', fontSize: '14px' }}>framework maximum: potential value, not spending</span>}
                     </td>
                   </tr>
                 ))}
