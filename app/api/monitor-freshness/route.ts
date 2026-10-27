@@ -11,6 +11,8 @@ import vercelConfig from '../../../vercel.json';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
+const MEMBERS_REVIEW_AT = 300;
+
 // Freshness monitor. Alerts on the real failure mode — "the sync didn't run" —
 // using the per-route heartbeat (sync_heartbeat), NOT content age, so a
 // quarterly source that legitimately hasn't changed doesn't cry wolf.
@@ -207,6 +209,18 @@ async function GET_impl(req: Request) {
 
   // Email only what self-heal did NOT recover.
   const emailAlerts = alerts.filter((a) => !a.route || !healedRoutes.has(a.route));
+
+  // Members and the email plan (owner's decision, 25 Oct 2026, job 74): from 300 members with a confirmed address, a
+  // warning line in every daily email to review the Resend plan (the free plan's 100 a day carries about 400 members
+  // on weekly digests, report 72).
+  const { count: memberCount, error: memberErr } = await supabaseAdmin.from('users').select('id', { count: 'exact', head: true }).eq('email_verified', true);
+  if (memberErr) console.error('monitor-freshness: member count:', memberErr.message);
+  if ((memberCount ?? 0) >= MEMBERS_REVIEW_AT) {
+    emailAlerts.push({
+      label: 'Members', page: '/preferences', route: null, ageDays: null, lastRanAt: null, lastRows: null, lastStatus: null,
+      reason: `${(memberCount ?? 0).toLocaleString('en-GB')} members with a confirmed address (warning from ${MEMBERS_REVIEW_AT}): review the Resend plan before the weekly digests reach the free plan's 100 emails a day`,
+    });
+  }
   const alertEmail = emailAlerts.length > 0
     ? await sendFreshnessAlert(emailAlerts)
     : { sent: false, reason: healedRoutes.size ? 'self_healed' : 'nothing_stale' };
@@ -279,6 +293,7 @@ async function GET_impl(req: Request) {
     missedRuns,
     serverErrors,
     cycles,
+    members: { confirmed: memberCount ?? null, reviewResendPlanAt: MEMBERS_REVIEW_AT },
     emailedAlertCount: emailAlerts.length,
     selfHealed: [...healedRoutes],
     heals,

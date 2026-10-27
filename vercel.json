@@ -193,6 +193,10 @@
       "schedule": "43 6 * * *"
     },
     {
+      "path": "/api/send-member-digests",
+      "schedule": "24 7 * * *"
+    },
+    {
       "path": "/api/sync-lords-votes",
       "schedule": "27 7 * * *"
     },

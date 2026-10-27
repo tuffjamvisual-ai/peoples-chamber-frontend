@@ -429,3 +429,17 @@ export async function sendCommissionRequest(r: {
     text,
   });
 }
+
+// Members' weekly digest (job 74). Its own function and its own log (alert_log, lib/member-digest.ts), so the daily
+// cap of 60 digests only ever counts digests: confirmation, password reset, commission request and owner emails never
+// go through here and are never held back by it. Carries a one click unsubscribe (List-Unsubscribe with
+// List-Unsubscribe-Post) and a plain text part. Never throws.
+export async function sendMemberDigest(msg: { to: string; subject: string; text: string; html: string; unsubscribeUrl: string }): Promise<SendResult> {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return { sent: false, reason: 'no_api_key' };
+  const from = process.env.RESEND_FROM || 'opengovt <onboarding@resend.dev>';
+  return deliver('member digest', key, {
+    from, to: msg.to, subject: msg.subject, text: msg.text, html: msg.html,
+    headers: { 'List-Unsubscribe': `<${msg.unsubscribeUrl}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' },
+  });
+}
