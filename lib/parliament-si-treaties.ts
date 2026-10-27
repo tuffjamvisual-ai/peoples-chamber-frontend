@@ -156,7 +156,9 @@ export function siRowFromDetail(raw: Wrapped<ApiSi>, items: ApiBusinessItem[], l
   return {
     ...siRowFromSummary(s, now),
     laying_department: s.layingBody?.name || null,
-    committee_concerns: f.committee_concerns,
+    // The API's ConcernsRaisedByCommittee and MotionToStop lists stay true once set: a timeline step worded in a way the
+    // patterns above miss must not clear them (27 Oct 2026).
+    committee_concerns: f.committee_concerns || listFlags.committee,
     prayed_against: f.prayed_against || listFlags.motion,
     debated: f.debated,
     timeline,

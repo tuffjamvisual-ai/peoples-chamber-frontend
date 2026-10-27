@@ -199,9 +199,9 @@ export async function runSiTreatiesSync(deps: SyncDeps): Promise<SyncResult> {
           if (bi === 'budget') { stoppedByBudget = i < urgent; break; }
           if (bi === null) continue;
           const items = Array.isArray(bi) ? bi : bi.items;
-          const old = await stored<{ api_id: string; prayed_against: boolean }>('statutory_instruments', 'api_id, prayed_against', [item.id]);
+          const old = await stored<{ api_id: string; prayed_against: boolean; committee_concerns: boolean }>('statutory_instruments', 'api_id, prayed_against, committee_concerns', [item.id]);
           if (!old) break;
-          const row = siRowFromDetail(unwrap(detail), items as ApiBusinessItem[], { committee: false, motion: !!old.get(item.id)?.prayed_against }, now);
+          const row = siRowFromDetail(unwrap(detail), items as ApiBusinessItem[], { committee: !!old.get(item.id)?.committee_concerns, motion: !!old.get(item.id)?.prayed_against }, now);
           if (!(await upsert('statutory_instruments', [row]))) break;
           stats.siTimelines++;
         } else {
