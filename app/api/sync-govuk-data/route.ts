@@ -3,6 +3,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { govukSlugs } from '@/lib/govuk-slugs';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { politeFetch, isPoliteStop } from '@/lib/sync-budget';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -73,7 +74,7 @@ function classifyRoleRank(role: string): string {
 async function fetchPersonRoleHistory(slug: string): Promise<{ startedOn: string | null; previousRole: string | null }> {
   if (!slug) return { startedOn: null, previousRole: null };
   try {
-    const res = await fetch(`https://www.gov.uk/api/content/government/people/${slug}`, {
+    const res = await politeFetch(`https://www.gov.uk/api/content/government/people/${slug}`, {
       headers: { 'User-Agent': 'PeoplesChamber/1.0' },
       signal: AbortSignal.timeout(8000),
     });
@@ -88,7 +89,8 @@ async function fetchPersonRoleHistory(slug: string): Promise<{ startedOn: string
       .sort((a, b) => (b.details!.ended_on! || '').localeCompare(a.details!.ended_on! || ''));
     const previousRole = prior[0]?.links?.role?.[0]?.title || null;
     return { startedOn, previousRole };
-  } catch {
+  } catch (e) {
+    if (isPoliteStop(e)) throw e; // a 429 or the time budget: stop cleanly (lib/sync-budget.ts)
     return { startedOn: null, previousRole: null };
   }
 }
@@ -115,7 +117,7 @@ function normalizeName(s: string): string {
 }
 
 async function fetchOrg(govukSlug: string) {
-  const res = await fetch(`https://www.gov.uk/api/content/government/organisations/${govukSlug}`);
+  const res = await politeFetch(`https://www.gov.uk/api/content/government/organisations/${govukSlug}`);
   if (!res.ok) throw new Error(`gov.uk ${res.status}`);
   return res.json();
 }
@@ -335,7 +337,8 @@ async function GET_impl(req: Request) {
         excluded.delete(deptSlug);
         autoCleared.push(deptSlug);
       }
-    } catch {
+    } catch (e) {
+      if (isPoliteStop(e)) throw e; // a 429 or the time budget: stop cleanly (lib/sync-budget.ts)
       /* keep the lock if we can't verify */
     }
   }
@@ -356,6 +359,7 @@ async function GET_impl(req: Request) {
         detail: `mins=${r.ministers} (preserved ${r.preserved_min}), offs=${r.officials} (preserved ${r.preserved_off}), agencies=${r.agencies}`,
       });
     } catch (err) {
+      if (isPoliteStop(err)) throw err; // a 429 or the time budget: stop cleanly (lib/sync-budget.ts)
       results.push({ deptSlug, status: 'fail', detail: (err as Error).message });
     }
     await new Promise((r) => setTimeout(r, 200));

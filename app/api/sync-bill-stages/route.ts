@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { refreshStore } from '@/lib/refresh-stores';
 import { fetchAllBillStages, deriveCurrentStage, BillNotFoundError } from '@/lib/bill-stages';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { SyncBudget, isPoliteStop } from '@/lib/sync-budget';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -25,16 +26,22 @@ export const maxDuration = 300;
 // at 20 stages by default, and this route previously stored only that
 // first page, truncating long bills (missing later stages and Royal Assent,
 // and deriving the wrong current_stage).
+//
+// 27 Oct 2026 (job 79): it still timed out on 10 of its 31 runs in the 14 days to 26 Oct (the last on 24 Oct), because
+// bills already started ran on past the 240 s mark and the stores refresh came after. Now (lib/sync-budget.ts) no bill
+// starts after 70 per cent of maxDuration, each request's timeout is cut to the time left so the run ends by 80 per
+// cent, a 429 stops it cleanly, a bill stopped part way is not saved (it stays first in the queue), and the response
+// says partial: true while bills were left.
 
 const RUN_CAP = 900; // bills read from the queue per run; the time budget usually stops it first
 const CONCURRENCY = 3;
 const DELAY_MS = 150;
 const STALE_DAYS = 7;
-const TIME_BUDGET_MS = 240_000;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function GET_impl(req: Request) {
   const started = Date.now();
+  const budget = new SyncBudget(maxDuration);
   const expected = process.env.CRON_SECRET;
   if (expected && req.headers.get('authorization') !== `Bearer ${expected}`) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
@@ -66,14 +73,15 @@ async function GET_impl(req: Request) {
   const targets = rows || [];
   const queue = [...targets];
   let ok = 0, fail = 0, notFound = 0, skippedForTime = 0;
+  let stoppedBy: string | null = null;
   const failures: Array<{ id: number; detail: string }> = [];
 
   async function worker() {
     while (queue.length > 0) {
-      if (Date.now() - started > TIME_BUDGET_MS) { skippedForTime += queue.length; queue.length = 0; return; }
+      if (stoppedBy || budget.stopStarting()) { stoppedBy ??= 'time budget'; skippedForTime += queue.length; queue.length = 0; return; }
       const row = queue.shift()!;
       try {
-        const stages = await fetchAllBillStages(row.parliament_id);
+        const stages = await fetchAllBillStages(row.parliament_id, budget);
 
         // Headline current_stage + stage_date from the freshest dated stage
         // (future/scheduled sittings ignored), now from the COMPLETE list.
@@ -91,6 +99,8 @@ async function GET_impl(req: Request) {
         if (error) throw error;
         ok++;
       } catch (err) {
+        // Out of time or asked to stop: this bill is not saved and stays first in the queue.
+        if (isPoliteStop(err)) { stoppedBy ??= (err as Error).message; skippedForTime += 1 + queue.length; queue.length = 0; return; }
         if (err instanceof BillNotFoundError) {
           // The Bills API no longer has this bill (24 Oct 2026). Its stored stages, current_stage and stage_date are
           // kept; only stages_synced_at moves, so it is retried after the normal stale window instead of every run.
@@ -121,11 +131,14 @@ async function GET_impl(req: Request) {
     not_found: notFound,
     failures,
     skipped_for_time: skippedForTime,
+    // Bills still due after this run (changed, or not refreshed for STALE_DAYS); they come first next run.
+    partial: skippedForTime > 0 || (remaining ?? 0) > 0,
+    stopped_by: stoppedBy,
     still_due: remaining ?? null,
     stores_refresh: storesRefresh,
     duration_ms: Date.now() - started,
     syncedAt: new Date().toISOString(),
-  }, { status: targets.length > 0 && ok === 0 && notFound < targets.length ? 502 : 200 });
+  }, { status: targets.length > 0 && ok === 0 && notFound < targets.length && !(stoppedBy && fail === 0) ? 502 : 200 });
 }
 
 export const GET = withHeartbeat('/api/sync-bill-stages', GET_impl);

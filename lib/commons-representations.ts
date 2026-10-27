@@ -50,9 +50,11 @@ export interface HistoryMember {
 const day = (s: string) => Date.parse(s.slice(0, 10));
 const daysBetween = (a: string, b: string) => (day(b) - day(a)) / 86_400_000;
 
+// 20 s per request (job 79, 27 Oct 2026: it had none, so one stalled request could hold the biography sync past its
+// limit). A failed or limited request gives null, as before: the member's seats are then left as they are.
 async function getJson(url: string): Promise<unknown | null> {
   try {
-    const res = await fetch(url, { headers: HEADERS });
+    const res = await fetch(url, { headers: HEADERS, signal: AbortSignal.timeout(20_000) });
     return res.ok ? await res.json() : null;
   } catch {
     return null;

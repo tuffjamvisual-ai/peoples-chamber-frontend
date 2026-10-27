@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { createClient } from '@supabase/supabase-js';
 import * as XLSX from 'xlsx';
+import { politeFetch, DOWNLOAD_TIMEOUT_MS, isPoliteStop } from '@/lib/sync-budget';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 180;
@@ -84,7 +85,7 @@ function cleanLabel(raw: unknown): string {
 }
 
 async function fetchJson<T>(url: string): Promise<T> {
-  const res = await fetch(url, { headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(15000) });
+  const res = await politeFetch(url, { headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(15000) });
   if (!res.ok) throw new Error(`${url} → ${res.status}`);
   return (await res.json()) as T;
 }
@@ -159,7 +160,7 @@ async function GET_impl(req: Request) {
 
   // 1. Find publication slugs in the collection HTML, take the two most
   // recent FYs (most-recent for plans, one back for change-on-prev-year).
-  const html = await fetch(COLLECTION_URL, { headers: { 'User-Agent': UA } }).then((r) => r.text());
+  const html = await politeFetch(COLLECTION_URL, { headers: { 'User-Agent': UA } }).then((r) => r.text());
   const slugs = Array.from(
     new Set((html.match(/\/government\/publications\/main-supply-estimates-\d{4}-to-\d{2,4}/g) || [])
       .map((s) => s.replace('/government/publications/', '')))
@@ -175,7 +176,7 @@ async function GET_impl(req: Request) {
       const pub = await fetchJson<PubContent>(`https://www.gov.uk/api/content/government/publications/${slug}`);
       const dl = pickDelAttachment(pub);
       if (!dl) { results.push({ slug, financialYear: 'unknown', written: 0, note: 'no DEL XLSX attachment' }); continue; }
-      const buf = await fetch(dl.xlsxUrl, { headers: { 'User-Agent': UA } }).then((r) => r.arrayBuffer());
+      const buf = await politeFetch(dl.xlsxUrl, { headers: { 'User-Agent': UA } }, { timeoutMs: DOWNLOAD_TIMEOUT_MS }).then((r) => r.arrayBuffer());
       const wb = XLSX.read(Buffer.from(buf), { type: 'buffer' });
       const rdelRows = XLSX.utils.sheet_to_json<unknown[]>(wb.Sheets['RDEL'] || wb.Sheets[wb.SheetNames[0]], { header: 1, blankrows: false, defval: null });
       const cdelRows = XLSX.utils.sheet_to_json<unknown[]>(wb.Sheets['CDEL'] || wb.Sheets[wb.SheetNames[1]], { header: 1, blankrows: false, defval: null });
@@ -243,6 +244,7 @@ async function GET_impl(req: Request) {
       allRows.push(...written);
       results.push({ slug, financialYear: dl.financialYear, written: written.length });
     } catch (err) {
+      if (isPoliteStop(err)) throw err; // a 429 or the time budget: stop cleanly (lib/sync-budget.ts)
       results.push({ slug, financialYear: '?', written: 0, note: (err as Error).message });
     }
   }

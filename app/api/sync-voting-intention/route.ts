@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { fetchAndParseWikipedia, fetchAndParseBritPolls, mergeAndDedup, type VIPoll } from '@/lib/votingIntention';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { isPoliteStop } from '@/lib/sync-budget';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
@@ -31,13 +32,15 @@ async function GET_impl(req: Request) {
   try {
     wiki = await fetchAndParseWikipedia();
   } catch (e) {
+    if (isPoliteStop(e)) throw e; // a 429: stop cleanly (lib/sync-budget.ts)
     wikiError = (e as Error).message;
   }
 
   let brit: VIPoll[] = [];
   try {
     brit = await fetchAndParseBritPolls();
-  } catch {
+  } catch (e) {
+    if (isPoliteStop(e)) throw e; // a 429: stop cleanly (lib/sync-budget.ts)
     /* BritPolls is optional; ignore failure */
   }
 

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { findLatestRelease, downloadXlsx, parseRelease, writeRelease, storedDataYear, loadCouncilCodes } from '@/lib/fuel-poverty';
+import { isPoliteStop } from '@/lib/sync-budget';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -29,6 +30,7 @@ async function GET_impl(req: Request) {
     const written = await writeRelease(supabase, r);
     return NextResponse.json({ status: 'updated', data_year: rel.dataYear, previous_data_year: stored, rows_written: written });
   } catch (e) {
+    if (isPoliteStop(e)) throw e; // a 429: stop cleanly (lib/sync-budget.ts)
     return NextResponse.json({ error: 'sync_failed', message: (e as Error).message }, { status: 500 });
   }
 }

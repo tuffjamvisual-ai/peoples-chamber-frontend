@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { politeFetch, isPoliteStop } from '@/lib/sync-budget';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -18,7 +19,7 @@ type AgencyData = {
 };
 
 async function fetchAgency(slug: string): Promise<AgencyData> {
-  const res = await fetch(`https://www.gov.uk/api/content/government/organisations/${slug}`);
+  const res = await politeFetch(`https://www.gov.uk/api/content/government/organisations/${slug}`);
   if (!res.ok) throw new Error(`gov.uk ${res.status}`);
   const data = await res.json();
   const details = (data?.details || {}) as Record<string, unknown>;
@@ -106,6 +107,7 @@ async function GET_impl(req: Request) {
       if (error) throw error;
       results.push({ slug, status: 'ok' });
     } catch (err) {
+      if (isPoliteStop(err)) throw err; // a 429 or the time budget: stop cleanly (lib/sync-budget.ts)
       results.push({ slug, status: 'fail', detail: (err as Error).message });
     }
   }

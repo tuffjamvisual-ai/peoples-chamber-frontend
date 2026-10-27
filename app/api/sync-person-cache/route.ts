@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { bandForCivilServiceRole, type ScsBand } from '@/lib/civil-service-salaries';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -28,8 +29,13 @@ type Person = {
   scs_band: ScsBand | null; // derived from current role title
 };
 
-async function fetchPerson(slug: string): Promise<Person> {
-  const res = await fetch(`https://www.gov.uk/api/content/government/people/${slug}`);
+// 27 Oct 2026 (job 79): it ran to 160 s of 300 s with no timeout and no time limit, always in the same order, so a slow
+// day would have been killed before the last people. Now the people go stalest first (person_cache.last_synced, never
+// synced first), each request has a timeout cut to the time left (lib/sync-budget.ts), no person starts after 70 per
+// cent of maxDuration, the run ends by 80 per cent, a 429 stops it cleanly (the people not reached are first next run),
+// and a run in which nobody could be refreshed fails.
+async function fetchPerson(slug: string, budget: SyncBudget): Promise<Person> {
+  const res = await politeFetch(`https://www.gov.uk/api/content/government/people/${slug}`, {}, { budget });
   if (!res.ok) throw new Error(`gov.uk ${res.status}`);
   const data = await res.json();
 
@@ -104,6 +110,7 @@ async function GET_impl(req: Request) {
     );
   }
   const supabase = createClient(url, key);
+  const budget = new SyncBudget(maxDuration);
 
   // Source of truth: slugs in dept_ministers ∪ dept_officials.
   const [{ data: m }, { data: o }] = await Promise.all([
@@ -118,10 +125,23 @@ async function GET_impl(req: Request) {
     ),
   );
 
+  // Stalest first, so a run that stops early carries on next time.
+  const lastSynced = new Map<string, string>();
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await supabase.from('person_cache').select('slug, last_synced').order('slug').range(from, from + 999);
+    if (error) return NextResponse.json({ error: `person_cache: ${error.message}` }, { status: 500 });
+    for (const r of data ?? []) lastSynced.set(r.slug as string, (r.last_synced as string | null) ?? '');
+    if (!data || data.length < 1000) break;
+  }
+  slugs.sort((a, b) => (lastSynced.get(a) ?? '').localeCompare(lastSynced.get(b) ?? '') || a.localeCompare(b));
+
   const results: Array<{ slug: string; status: 'ok' | 'fail'; detail?: string }> = [];
-  for (const slug of slugs) {
+  let stoppedBy: string | null = null;
+  let notReached = 0;
+  for (const [i, slug] of slugs.entries()) {
+    if (budget.stopStarting()) { stoppedBy = 'time budget'; notReached = slugs.length - i; break; }
     try {
-      const p = await fetchPerson(slug);
+      const p = await fetchPerson(slug, budget);
 
       // Preserve a bucket photo URL if we already mirrored it locally.
       // gov.uk asset URLs rotate and we don't want every sync to undo
@@ -143,6 +163,7 @@ async function GET_impl(req: Request) {
       if (error) throw error;
       results.push({ slug, status: 'ok' });
     } catch (err) {
+      if (isPoliteStop(err)) { stoppedBy = (err as Error).message; notReached = slugs.length - i; break; }
       results.push({ slug, status: 'fail', detail: (err as Error).message });
     }
   }
@@ -150,12 +171,15 @@ async function GET_impl(req: Request) {
   const refreshed = results.filter((r) => r.status === 'ok').length;
   return NextResponse.json({
     ok: refreshed,
+    partial: stoppedBy !== null,
+    stopped_by: stoppedBy,
+    not_reached: notReached,
     fail: results.filter((r) => r.status === 'fail').length,
     // People refreshed; the heartbeat records this as the run's row count.
     count: refreshed,
     syncedAt: new Date().toISOString(),
     results,
-  });
+  }, { status: results.length > 0 && refreshed === 0 ? 502 : 200 });
 }
 
 export const GET = withHeartbeat('/api/sync-person-cache', GET_impl);

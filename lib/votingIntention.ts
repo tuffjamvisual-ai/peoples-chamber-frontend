@@ -1,4 +1,5 @@
 import { parse, type HTMLElement } from 'node-html-parser';
+import { politeFetch } from '@/lib/sync-budget';
 
 // Voting-intention ingestion. Wikipedia is the PRIMARY, authoritative source
 // (complete, all pollsters incl. Survation, CC BY-SA). BritPolls voting-intention.json
@@ -112,7 +113,7 @@ function headerToParty(text: string): keyof VIPoll | null {
 
 // --- Wikipedia --------------------------------------------------------------
 export async function fetchAndParseWikipedia(): Promise<VIPoll[]> {
-  const res = await fetch(WIKI_API, { headers: { 'User-Agent': UA, Accept: 'application/json' } });
+  const res = await politeFetch(WIKI_API, { headers: { 'User-Agent': UA, Accept: 'application/json' } });
   if (!res.ok) throw new Error(`wikipedia api ${res.status}`);
   const data = (await res.json()) as { parse?: { text?: string } };
   const html = data.parse?.text;
@@ -214,7 +215,7 @@ export async function fetchAndParseWikipedia(): Promise<VIPoll[]> {
 
 // --- BritPolls (secondary) --------------------------------------------------
 export async function fetchAndParseBritPolls(): Promise<VIPoll[]> {
-  const res = await fetch(BRITPOLLS_URL, { headers: { 'User-Agent': UA, Accept: 'application/json' } });
+  const res = await politeFetch(BRITPOLLS_URL, { headers: { 'User-Agent': UA, Accept: 'application/json' } });
   if (!res.ok) throw new Error(`britpolls ${res.status}`);
   const data = (await res.json()) as { polls?: Array<Record<string, unknown>> };
   const polls = data.polls || [];

@@ -8,6 +8,7 @@ import {
   writePetitionRows,
   PETITIONS_BASE,
 } from '@/lib/petitions';
+import { isPoliteStop } from '@/lib/sync-budget';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -43,6 +44,7 @@ async function GET_impl(req: Request) {
   try {
     openIds = await collectPetitionIdsAtThreshold('open', DELAY_MS);
   } catch (e) {
+    if (isPoliteStop(e)) throw e; // a 429: stop cleanly (lib/sync-budget.ts)
     return NextResponse.json({ error: 'list_fetch_failed', message: (e as Error).message }, { status: 502 });
   }
 
@@ -80,6 +82,7 @@ async function GET_impl(req: Request) {
         constituencyRows += built.constRows.length;
         processed++;
       } catch (e) {
+        if (isPoliteStop(e)) throw e; // a 429: stop cleanly (lib/sync-budget.ts)
         failures.push({ id, error: (e as Error).message });
       }
       await new Promise((r) => setTimeout(r, DELAY_MS));

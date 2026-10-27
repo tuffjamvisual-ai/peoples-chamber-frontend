@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { politeFetch, isPoliteStop } from '@/lib/sync-budget';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -30,7 +31,7 @@ function sectionLabel(s: string): string {
 }
 
 async function fetchJson(url: string) {
-  const res = await fetch(url, { headers: { 'User-Agent': 'opengovt/1.0', Accept: 'application/json' } });
+  const res = await politeFetch(url, { headers: { 'User-Agent': 'opengovt/1.0', Accept: 'application/json' } });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
@@ -84,7 +85,7 @@ async function GET_impl(req: Request) {
     let j;
     try {
       j = await fetchJson(`${API}?queryParameters.house=Commons&queryParameters.startDate=${start}&queryParameters.endDate=${end}&queryParameters.take=${TAKE}&queryParameters.skip=${skip}`);
-    } catch { break; }
+    } catch (e) { if (isPoliteStop(e)) throw e; break; }
     const R = j.Results || [];
     if (R.length === 0) break;
     for (const r of R) {
@@ -123,7 +124,7 @@ async function GET_impl(req: Request) {
     while (di < payload.length) {
       const d = payload[di++];
       let j;
-      try { j = await fetchJson(`${DETAIL}/${d.hansard_ext_id}.json`); } catch { continue; }
+      try { j = await fetchJson(`${DETAIL}/${d.hansard_ext_id}.json`); } catch (e) { if (isPoliteStop(e)) throw e; continue; }
       if (!j || !j.Overview) continue;
       const items: DItem[] = [], divs: DItem[] = [];
       walk(j, items, divs);

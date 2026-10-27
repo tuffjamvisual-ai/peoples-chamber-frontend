@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { refreshStore } from '@/lib/refresh-stores';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -21,7 +22,10 @@ const RUN_CAP = 1500; // bills read from the queue per run; the time budget usua
 // Time-budgeted (21 Oct 2026): 1,500 bills one at a time at about 1.5 s each could never finish in 300 s, so both
 // weekly runs timed out. No new bill starts after TIME_BUDGET_MS; each is saved as it is read, and the stalest go
 // first, so the next run carries on. About 160 bills a run, daily: the whole list well inside 30 days.
-const TIME_BUDGET_MS = 240_000;
+// 27 Oct 2026 (job 79): it timed out once (19 Oct) and ran to 241 s with the stores refresh still to come. The budget
+// is now lib/sync-budget.ts: no bill starts after 70 per cent of maxDuration, each request's timeout is cut to the time
+// left so the run ends by 80 per cent, a 429 stops it cleanly (the bill is not stamped, so it is first next run), and
+// the response says partial: true while bills were left.
 const PARLIAMENT_API = 'https://bills-api.parliament.uk/api/v1/Bills';
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -53,8 +57,8 @@ class BillNotFoundError extends Error {
   }
 }
 
-async function fetchSponsors(parliamentId: number): Promise<Fetched> {
-  const res = await fetch(`${PARLIAMENT_API}/${parliamentId}`, { signal: AbortSignal.timeout(20_000) });
+async function fetchSponsors(parliamentId: number, budget: SyncBudget): Promise<Fetched> {
+  const res = await politeFetch(`${PARLIAMENT_API}/${parliamentId}`, {}, { budget, timeoutMs: 20_000 });
   if (res.status === 404) throw new BillNotFoundError(parliamentId);
   if (!res.ok) throw new Error(`Bills API ${res.status}`);
   const j = (await res.json()) as ApiBill;
@@ -81,6 +85,7 @@ async function fetchSponsors(parliamentId: number): Promise<Fetched> {
 
 async function GET_impl(req: Request) {
   const started = Date.now();
+  const budget = new SyncBudget(maxDuration);
   const expected = process.env.CRON_SECRET;
   if (expected && req.headers.get('authorization') !== `Bearer ${expected}`) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
@@ -114,11 +119,12 @@ async function GET_impl(req: Request) {
     notFound = 0;
   const failures: Array<{ id: number; detail: string }> = [];
   let skippedForTime = 0;
+  let stoppedBy: string | null = null;
 
   for (const [i, row] of targets.entries()) {
-    if (Date.now() - started > TIME_BUDGET_MS) { skippedForTime = targets.length - i; break; }
+    if (budget.stopStarting()) { stoppedBy = 'time budget'; skippedForTime = targets.length - i; break; }
     try {
-      const { items, billTypeId, departments } = await fetchSponsors(row.parliament_id);
+      const { items, billTypeId, departments } = await fetchSponsors(row.parliament_id, budget);
       const { error } = await supabase
         .from('bill')
         .update({
@@ -131,6 +137,7 @@ async function GET_impl(req: Request) {
       if (error) throw error;
       ok++;
     } catch (err) {
+      if (isPoliteStop(err)) { stoppedBy = (err as Error).message; skippedForTime = targets.length - i; break; }
       if (err instanceof BillNotFoundError) {
         // The Bills API no longer has this bill (24 Oct 2026). Its stored sponsors are kept; only sponsors_synced_at
         // moves, so it is retried after the normal 30 days instead of every run.
@@ -154,10 +161,12 @@ async function GET_impl(req: Request) {
     not_found: notFound,
     failures,
     skipped_for_time: skippedForTime,
+    partial: skippedForTime > 0,
+    stopped_by: stoppedBy,
     stores_refresh: storesRefresh,
     duration_ms: Date.now() - started,
     syncedAt: new Date().toISOString(),
-  }, { status: targets.length > 0 && ok === 0 && notFound < targets.length ? 502 : 200 });
+  }, { status: targets.length > 0 && ok === 0 && notFound < targets.length && !(stoppedBy && fail === 0) ? 502 : 200 });
 }
 
 export const GET = withHeartbeat('/api/sync-bill-sponsors', GET_impl);

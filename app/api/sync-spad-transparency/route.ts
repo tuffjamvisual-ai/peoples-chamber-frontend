@@ -12,7 +12,7 @@
 // replaces the last one. The site always shows "this is the most
 // recent published quarter".
 //
-// Schedule: weekly Monday 14:45 UTC (vercel.json).
+// Schedule: weekly Monday 15:03 UTC (vercel.json).
 //
 // Notes on the CSV shape: every department publishes three files
 // per quarter (gifts / hospitality / media). Columns vary slightly
@@ -25,6 +25,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { politeFetch, DOWNLOAD_TIMEOUT_MS, isPoliteStop } from '@/lib/sync-budget';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 240;
 
@@ -165,7 +166,7 @@ async function GET_impl(req: Request) {
   // Searching for "special advisers' gifts" matches only the actual
   // transparency publications (not ACOBA advice, annual reports, etc).
   // We take the most recent one and read the quarter off its title.
-  const discoverRes = await fetch(`${SEARCH}?q=%22special+advisers%22+%22gifts%22&order=-public_timestamp&count=30`, { headers: { 'User-Agent': UA } })
+  const discoverRes = await politeFetch(`${SEARCH}?q=%22special+advisers%22+%22gifts%22&order=-public_timestamp&count=30`, { headers: { 'User-Agent': UA } })
     .then((r) => r.json() as Promise<{ results: SearchResult[] }>);
   let latestQuarter: string | null = null;
   for (const r of discoverRes.results || []) {
@@ -181,7 +182,7 @@ async function GET_impl(req: Request) {
   // string itself plus "special advisers"; that returns the ~13
   // departmental publications per quarter.
   const quarterQ = encodeURIComponent(`"${latestQuarter}" "special advisers"`);
-  const quarterRes = await fetch(`${SEARCH}?q=${quarterQ}&count=50`, { headers: { 'User-Agent': UA } })
+  const quarterRes = await politeFetch(`${SEARCH}?q=${quarterQ}&count=50`, { headers: { 'User-Agent': UA } })
     .then((r) => r.json() as Promise<{ results: SearchResult[] }>);
   const pubs = (quarterRes.results || []).filter((r) => {
     return r.title.includes(latestQuarter)
@@ -202,7 +203,7 @@ async function GET_impl(req: Request) {
   for (const pub of pubs) {
     if (Date.now() - startedAt > 180_000) { errors.push('time budget exhausted'); break; }
     try {
-      const contentRes = await fetch(`${CONTENT}${pub.link}`, { headers: { 'User-Agent': UA } });
+      const contentRes = await politeFetch(`${CONTENT}${pub.link}`, { headers: { 'User-Agent': UA } });
       if (!contentRes.ok) { errors.push(`content api ${pub.link} ${contentRes.status}`); continue; }
       const content = await contentRes.json() as { details?: { attachments?: Attachment[] } };
       const atts = content.details?.attachments || [];
@@ -210,7 +211,7 @@ async function GET_impl(req: Request) {
         const stream = streamFromTitle(a.title);
         if (!stream) continue;
         const area = areaFromTitle(a.title);
-        const csvRes = await fetch(a.url, { headers: { 'User-Agent': UA } });
+        const csvRes = await politeFetch(a.url, { headers: { 'User-Agent': UA } }, { timeoutMs: DOWNLOAD_TIMEOUT_MS });
         if (!csvRes.ok) { errors.push(`csv ${a.url} ${csvRes.status}`); continue; }
         const csv = await csvRes.text();
         const rows = parseCsv(csv);
@@ -266,6 +267,7 @@ async function GET_impl(req: Request) {
         }
       }
     } catch (e) {
+      if (isPoliteStop(e)) throw e; // a 429 or the time budget: stop cleanly (lib/sync-budget.ts)
       errors.push(`${pub.link}: ${e instanceof Error ? e.message : String(e)}`);
     }
   }

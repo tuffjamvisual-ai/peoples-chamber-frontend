@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export const dynamic = 'force-dynamic';
@@ -30,7 +31,10 @@ export const maxDuration = 300;
 const MEMBERS_API = 'https://members-api.parliament.uk/api/Members';
 const UA = 'PeoplesChamber-CommitteeSync/1.0';
 const BATCH = 100;
-const TIME_BUDGET_MS = 260_000;
+// 27 Oct 2026 (job 79): it ran to 262 s of 300 s, its budget was 260 s and its requests had no timeout. Now
+// (lib/sync-budget.ts) no member starts after 70 per cent of maxDuration, each request's timeout is cut to the time
+// left so the run ends by 80 per cent, and a 429 stops it cleanly (members not reached keep their old synced_at, so they
+// come first next run).
 const CALL_DELAY_MS = 300;
 
 interface CmteEntry {
@@ -47,16 +51,18 @@ function sleep(ms: number): Promise<void> {
 
 async function fetchBiographyCommittees(
   memberId: number,
+  budget: SyncBudget,
 ): Promise<{ entries: CmteEntry[]; status: number }> {
   try {
-    const res = await fetch(`${MEMBERS_API}/${memberId}/Biography`, {
+    const res = await politeFetch(`${MEMBERS_API}/${memberId}/Biography`, {
       headers: { 'User-Agent': UA, Accept: 'application/json' },
-    });
+    }, { budget });
     if (!res.ok) return { entries: [], status: res.status };
     const v = (await res.json())?.value ?? {};
     const entries = (v.committeeMemberships as CmteEntry[]) || [];
     return { entries, status: 200 };
-  } catch {
+  } catch (e) {
+    if (isPoliteStop(e)) throw e;
     return { entries: [], status: 0 };
   }
 }
@@ -84,6 +90,7 @@ async function GET_impl(req: Request) {
   const sp = new URL(req.url).searchParams;
   const dryRun = sp.get('dryRun') === 'true';
   const startedAt = Date.now();
+  const budget = new SyncBudget(maxDuration, { started: startedAt });
 
   // Select the BATCH current MPs with the oldest last-sync (NULLs first).
   // next_committee_sync_batch() LEFT JOINs mps against committee_sync_state so
@@ -106,18 +113,27 @@ async function GET_impl(req: Request) {
   let processed = 0;
   let upserted = 0;
   let partial = false;
+  let stoppedBy: string | null = null;
   const errors: { member_id: number; status?: number; message: string }[] = [];
   const dryRunWould: DryMember[] = [];
 
   for (const memberId of memberIds) {
-    if (Date.now() - startedAt > TIME_BUDGET_MS) {
+    if (budget.stopStarting()) {
       partial = true;
+      stoppedBy = 'time budget';
       break;
     }
 
     if (processed > 0) await sleep(CALL_DELAY_MS);
 
-    const result = await fetchBiographyCommittees(memberId);
+    let result: { entries: CmteEntry[]; status: number };
+    try {
+      result = await fetchBiographyCommittees(memberId, budget);
+    } catch (e) {
+      partial = true;
+      stoppedBy = (e as Error).message;
+      break;
+    }
     processed++;
 
     if (result.status !== 200) {
@@ -206,6 +222,7 @@ async function GET_impl(req: Request) {
     members_in_batch: memberIds.length,
     processed,
     partial,
+    stopped_by: stoppedBy,
     elapsed_ms,
     syncedAt: new Date().toISOString(),
     ...(errors.length ? { errors } : {}),

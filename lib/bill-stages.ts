@@ -15,6 +15,8 @@
 // is plain Node and carries an identical copy of this logic — mirror any
 // change there.
 
+import { politeFetch, type SyncBudget } from '@/lib/sync-budget';
+
 const PARLIAMENT_API = 'https://bills-api.parliament.uk/api/v1/Bills';
 const PAGE_SIZE = 100;
 const MAX_PAGES = 20; // 2,000 stages — far beyond any real bill; guards a runaway loop
@@ -32,16 +34,16 @@ export class BillNotFoundError extends Error {
   }
 }
 
-export async function fetchAllBillStages(parliamentId: number): Promise<BillStagesJson> {
+// With a budget (the sync), each request's timeout is cut to the time left and a 429 throws RateLimited
+// (lib/sync-budget.ts); without one (scripts), a 30 s timeout as before.
+export async function fetchAllBillStages(parliamentId: number, budget?: SyncBudget): Promise<BillStagesJson> {
   const items: StageItem[] = [];
   let totalResults = 0;
   let first: Record<string, unknown> | null = null;
 
   for (let page = 0; page < MAX_PAGES; page++) {
-    const res = await fetch(`${PARLIAMENT_API}/${parliamentId}/Stages?Take=${PAGE_SIZE}&Skip=${page * PAGE_SIZE}`, {
-      cache: 'no-store',
-      signal: AbortSignal.timeout(30_000),
-    });
+    const res = await politeFetch(`${PARLIAMENT_API}/${parliamentId}/Stages?Take=${PAGE_SIZE}&Skip=${page * PAGE_SIZE}`, { cache: 'no-store' },
+      { budget, timeoutMs: 30_000 });
     if (res.status === 404) throw new BillNotFoundError(parliamentId);
     if (!res.ok) throw new Error(`Bills API ${res.status}`);
     const json = await res.json();

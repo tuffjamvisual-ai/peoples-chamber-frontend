@@ -4,6 +4,7 @@
 // twice-yearly snapshot). Table: scripts/migrations/2026-10-11k-school-inspections.sql.
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { politeFetch, DOWNLOAD_TIMEOUT_MS } from '@/lib/sync-budget';
 
 const UA = { 'User-Agent': 'opengovt/1.0 (+https://opengovt.uk)' };
 const CONTENT_API = 'https://www.gov.uk/api/content/government/statistics/';
@@ -36,7 +37,7 @@ export async function findLatestSnapshot(now = new Date()): Promise<Snapshot | n
   candidates.sort((a, b) => b.date.localeCompare(a.date));
   for (const c of candidates) {
     if (c.date > now.toISOString().slice(0, 10)) continue;
-    const res = await fetch(CONTENT_API + c.slug, { headers: UA });
+    const res = await politeFetch(CONTENT_API + c.slug, { headers: UA });
     if (res.status === 404) continue;
     if (!res.ok) throw new Error(`GOV.UK Content API HTTP ${res.status} for ${c.slug}`);
     const json = await res.json();
@@ -50,7 +51,7 @@ export async function findLatestSnapshot(now = new Date()): Promise<Snapshot | n
 
 // The file is Windows-1252; decode as UTF-8 only if it is valid UTF-8.
 export async function downloadCsvText(url: string): Promise<string> {
-  const res = await fetch(url, { headers: UA });
+  const res = await politeFetch(url, { headers: UA }, { timeoutMs: DOWNLOAD_TIMEOUT_MS });
   if (!res.ok) throw new Error(`Ofsted CSV HTTP ${res.status}`);
   const buf = new Uint8Array(await res.arrayBuffer());
   try {

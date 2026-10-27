@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { politeFetch, isPoliteStop } from '@/lib/sync-budget';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -18,7 +19,7 @@ const START = '2024-07-04';
 const CONCURRENCY = 8;
 
 async function fetchJson(url: string): Promise<Record<string, unknown>> {
-  const res = await fetch(url, {
+  const res = await politeFetch(url, {
     headers: { 'User-Agent': 'opengovt/1.0', Accept: 'application/json' },
     redirect: 'follow',
     signal: AbortSignal.timeout(30_000),
@@ -54,7 +55,8 @@ async function memberWQ(id: number, sinceDate: string): Promise<WQResult> {
           `${API}?house=Commons&askingMemberId=${id}&tabledWhenFrom=${sinceDate}&take=100&skip=${skip}`,
         );
         break;
-      } catch {
+      } catch (e) {
+        if (isPoliteStop(e)) throw e; // a 429 or the time budget: stop cleanly (lib/sync-budget.ts)
         if (attempt === 2) ok = false;
         else await new Promise((r) => setTimeout(r, 1_000 * (attempt + 1)));
       }
@@ -150,7 +152,7 @@ async function GET_impl(req: Request) {
       const sinceDate = cursorMap.get(id)?.sinceDate ?? START;
       try {
         results.push(await memberWQ(id, sinceDate));
-      } catch { /* memberWQ handles retries; skip on unexpected throw */ }
+      } catch (e) { if (isPoliteStop(e)) throw e; /* memberWQ handles retries; skip on unexpected throw */ }
     }
   }
   await Promise.all(Array.from({ length: CONCURRENCY }, () => worker()));

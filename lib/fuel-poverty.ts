@@ -5,6 +5,7 @@
 
 import * as XLSX from 'xlsx';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { politeFetch, DOWNLOAD_TIMEOUT_MS } from '@/lib/sync-budget';
 
 const UA = { 'User-Agent': 'opengovt/1.0 (+https://opengovt.uk)' };
 const CONTENT_API = 'https://www.gov.uk/api/content/government/statistics/';
@@ -19,7 +20,7 @@ export async function findLatestRelease(now = new Date()): Promise<Release | nul
   for (const pubYear of [y + 1, y, y - 1, y - 2]) {
     const dataYear = pubYear - 2;
     const slug = `sub-regional-fuel-poverty-data-${pubYear}-${dataYear}-data`;
-    const res = await fetch(CONTENT_API + slug, { headers: UA });
+    const res = await politeFetch(CONTENT_API + slug, { headers: UA });
     if (res.status === 404) continue;
     if (!res.ok) throw new Error(`GOV.UK Content API HTTP ${res.status} for ${slug}`);
     const json = await res.json();
@@ -123,7 +124,7 @@ export function parseRelease(buf: Buffer, rel: Release, councilCodes: Set<string
 }
 
 export async function downloadXlsx(url: string): Promise<Buffer> {
-  const res = await fetch(url, { headers: UA });
+  const res = await politeFetch(url, { headers: UA }, { timeoutMs: DOWNLOAD_TIMEOUT_MS });
   if (!res.ok) throw new Error(`fuel poverty download HTTP ${res.status}`);
   return Buffer.from(await res.arrayBuffer());
 }

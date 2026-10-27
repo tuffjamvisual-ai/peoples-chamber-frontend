@@ -14,6 +14,7 @@
 
 import * as XLSX from 'xlsx';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { politeFetch, DOWNLOAD_TIMEOUT_MS } from '@/lib/sync-budget';
 
 export const HOMELESSNESS_CONTENT_API = 'https://www.gov.uk/api/content/government/statistical-data-sets/live-tables-on-homelessness';
 const UA = { 'User-Agent': 'opengovt/1.0 (+https://opengovt.uk)' };
@@ -126,7 +127,7 @@ export function readWorkbookSheets(buf: Buffer): Record<string, SheetRows> {
 }
 
 export async function listQuarterlyFiles(): Promise<HomelessnessFile[]> {
-  const res = await fetch(HOMELESSNESS_CONTENT_API, { headers: UA });
+  const res = await politeFetch(HOMELESSNESS_CONTENT_API, { headers: UA });
   if (!res.ok) throw new Error(`GOV.UK Content API HTTP ${res.status}`);
   const json = await res.json();
   const atts = ((json?.details?.attachments ?? []) as { title?: string; url?: string }[])
@@ -151,7 +152,7 @@ export async function listQuarterlyFiles(): Promise<HomelessnessFile[]> {
 }
 
 export async function downloadFile(url: string): Promise<Buffer> {
-  const res = await fetch(url, { headers: UA });
+  const res = await politeFetch(url, { headers: UA }, { timeoutMs: DOWNLOAD_TIMEOUT_MS });
   if (!res.ok) throw new Error(`download HTTP ${res.status}`);
   return Buffer.from(await res.arrayBuffer());
 }

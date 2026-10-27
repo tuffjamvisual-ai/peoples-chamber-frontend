@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { periodKey, isNewer, newestPeriod } from '@/lib/hand-loaded';
 import { sendHandLoadedReleaseAlert, type HandLoadedRelease } from '@/lib/email';
+import { politeFetch, isPoliteStop } from '@/lib/sync-budget';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
@@ -52,7 +53,7 @@ async function GET_impl(req: Request) {
         if (!process.env.STAT_XPLORE_API_KEY) throw new Error('STAT_XPLORE_API_KEY not set');
         headers.APIKey = process.env.STAT_XPLORE_API_KEY;
       }
-      const res = await fetch(d.check_url!, { headers, signal: AbortSignal.timeout(30_000), cache: 'no-store' });
+      const res = await politeFetch(d.check_url!, { headers, signal: AbortSignal.timeout(30_000), cache: 'no-store' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const newest = newestPeriod(await res.text(), d.period_pattern!);
       const held = periodKey(d.held_period);
@@ -65,6 +66,7 @@ async function GET_impl(req: Request) {
       }
       results.push({ key: d.key, status: newest ? 'checked' : 'no period found', found: newest?.text ?? null });
     } catch (e) {
+      if (isPoliteStop(e)) throw e; // a 429 or the time budget: stop cleanly (lib/sync-budget.ts)
       failed++;
       update.last_error = (e as Error).message;
       results.push({ key: d.key, status: `failed: ${(e as Error).message}` });

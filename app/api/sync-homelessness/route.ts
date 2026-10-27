@@ -10,6 +10,7 @@ import {
   storedSources,
   loadCouncilCodes,
 } from '@/lib/homelessness';
+import { isPoliteStop } from '@/lib/sync-budget';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -50,6 +51,7 @@ async function GET_impl(req: Request) {
         written += await writeHomelessnessRows(supabase, r.rows);
         loaded.push(`${f.periodLabel} (${f.status})`);
       } catch (e) {
+        if (isPoliteStop(e)) throw e; // a 429: stop cleanly (lib/sync-budget.ts)
         failed.push({ period: f.periodLabel, error: (e as Error).message });
       }
     }
@@ -57,6 +59,7 @@ async function GET_impl(req: Request) {
     const body = { status: todo.length ? 'checked' : 'up_to_date', loaded, failed, skipped_for_time: skippedForTime, rows_written: written };
     return NextResponse.json(body, { status: failed.length ? 500 : 200 });
   } catch (e) {
+    if (isPoliteStop(e)) throw e; // a 429: stop cleanly (lib/sync-budget.ts)
     return NextResponse.json({ error: 'sync_failed', message: (e as Error).message }, { status: 500 });
   }
 }

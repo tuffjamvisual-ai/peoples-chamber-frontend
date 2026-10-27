@@ -3,6 +3,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { ORGANOGRAM_DATASET_URL } from '@/lib/organogram-urls';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { politeFetch, DOWNLOAD_TIMEOUT_MS, isPoliteStop } from '@/lib/sync-budget';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -99,7 +100,7 @@ function lastFirstToSlug(name: string): string {
 }
 
 async function fetchLatestSeniorCsvUrl(datasetUrl: string): Promise<{ csvUrl: string; periodLabel: string } | null> {
-  const res = await fetch(datasetUrl, { headers: { 'User-Agent': 'PeoplesChamber/1.0' } });
+  const res = await politeFetch(datasetUrl, { headers: { 'User-Agent': 'PeoplesChamber/1.0' } });
   if (!res.ok) return null;
   const html = await res.text();
   const links = Array.from(
@@ -118,7 +119,7 @@ async function fetchLatestSeniorCsvUrl(datasetUrl: string): Promise<{ csvUrl: st
 async function syncDept(supabase: SupabaseClient, deptSlug: string, datasetUrl: string) {
   const latest = await fetchLatestSeniorCsvUrl(datasetUrl);
   if (!latest) return { deptSlug, matched: 0, updated: 0, note: 'no senior csv found' };
-  const csvRes = await fetch(latest.csvUrl, { headers: { 'User-Agent': 'PeoplesChamber/1.0' } });
+  const csvRes = await politeFetch(latest.csvUrl, { headers: { 'User-Agent': 'PeoplesChamber/1.0' } }, { timeoutMs: DOWNLOAD_TIMEOUT_MS });
   if (!csvRes.ok) return { deptSlug, matched: 0, updated: 0, note: `csv ${csvRes.status}` };
   const rows = parseCsv(await csvRes.text());
 
@@ -175,6 +176,7 @@ async function GET_impl(req: Request) {
     try {
       results.push(await syncDept(supabase, deptSlug, datasetUrl));
     } catch (err) {
+      if (isPoliteStop(err)) throw err; // a 429 or the time budget: stop cleanly (lib/sync-budget.ts)
       results.push({ deptSlug, matched: 0, updated: 0, note: 'err: ' + (err as Error).message });
     }
   }

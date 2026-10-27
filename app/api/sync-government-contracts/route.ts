@@ -125,9 +125,10 @@ function rowsFromRelease(r: any, now: string): ContractRow[] {
   return out;
 }
 
-async function fetchPage(url: string): Promise<{ data?: any; error?: string; status?: number; retryAfterS?: number | null }> {
+// A page's timeout is cut to the time left in the run (job 79, 27 Oct 2026: it had none).
+async function fetchPage(url: string, deadline: number): Promise<{ data?: any; error?: string; status?: number; retryAfterS?: number | null }> {
   try {
-    const res = await fetch(url, { headers: { Accept: 'application/json' } });
+    const res = await fetch(url, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(Math.max(1_000, Math.min(30_000, deadline - Date.now()))) });
     if (!res.ok) {
       // Retry-After is seconds or an HTTP date.
       const ra = res.headers.get('retry-after');
@@ -200,7 +201,7 @@ async function GET_impl(req: Request) {
       console.error(`[contracts] ${pagesError}`);
       break;
     }
-    let { data, error, status, retryAfterS } = await fetchPage(url);
+    let { data, error, status, retryAfterS } = await fetchPage(url, deadline);
     // 429: wait out a short Retry-After (twice at most, within the budget), otherwise stop and resume next run.
     while (status === 429 && rateLimitWaits < 2) {
       const waitS = retryAfterS ?? 10;
@@ -208,14 +209,14 @@ async function GET_impl(req: Request) {
       rateLimitWaits++;
       console.error(`[contracts] page ${page}: HTTP 429, waiting ${waitS}s as Retry-After asks`);
       await sleep(waitS * 1000);
-      ({ data, error, status, retryAfterS } = await fetchPage(url));
+      ({ data, error, status, retryAfterS } = await fetchPage(url, deadline));
     }
     if (error && resumedFrom && page === 0 && status && status >= 400 && status < 500 && status !== 429) {
       // The saved address no longer works: read the normal window instead.
       console.error(`[contracts] saved position failed (${error}); reading the ${windowDays}-day window instead`);
       resumedFrom = null;
       url = windowUrl;
-      ({ data, error, status, retryAfterS } = await fetchPage(url));
+      ({ data, error, status, retryAfterS } = await fetchPage(url, deadline));
     }
     if (error) {
       pagesError = `page ${page}: ${error}${status === 429 ? ` (Retry-After ${retryAfterS ?? 'not given'}s)` : ''}`;
@@ -272,8 +273,10 @@ async function GET_impl(req: Request) {
 
   // Success when contracts were saved, or when there was nothing new and nothing failed. The contractor totals are
   // refreshed by /api/refresh-contractor-matches.
-  const status = upserted > 0 || (!pagesError && skippedBad === 0) ? 200 : 502;
-  return NextResponse.json({ ok: status === 200 && noticesFailed === 0, scanned, rows_written: upserted, skippedBad, duplicates_dropped: duplicatesDropped,
+  // A run stopped by Find a Tender's rate limit (or the time budget) has saved its position: a clean partial run (job 79).
+  const politeStop = !!pagesError && (/HTTP 429/.test(pagesError) || pagesError.startsWith('time budget'));
+  const status = upserted > 0 || (!pagesError && skippedBad === 0) || (politeStop && skippedBad === 0) ? 200 : 502;
+  return NextResponse.json({ ok: status === 200 && noticesFailed === 0, partial: !!stoppedAt && !reachedEnd, scanned, rows_written: upserted, skippedBad, duplicates_dropped: duplicatesDropped,
     notices_written: noticesWritten, notices_failed: noticesFailed, pagesError, rate_limit_waits: rateLimitWaits,
     resumed_from_saved_position: resumedFrom, reached_end: reachedEnd, next_run_resumes: !!stoppedAt && !reachedEnd, cursor_saved: cursorSaved,
     windowDays, maxPages, syncedAt: now }, { status });

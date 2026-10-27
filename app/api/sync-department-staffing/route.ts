@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { createClient } from '@supabase/supabase-js';
 import * as XLSX from 'xlsx';
+import { politeFetch, DOWNLOAD_TIMEOUT_MS } from '@/lib/sync-budget';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
@@ -41,7 +42,7 @@ const MONTH_ORDER: Record<string, number> = {
 };
 
 async function discoverLatestXlsxUrl(): Promise<string | null> {
-  const html = await fetch(ONS_LANDING, { headers: { 'User-Agent': UA } }).then((r) => r.text());
+  const html = await politeFetch(ONS_LANDING, { headers: { 'User-Agent': UA } }).then((r) => r.text());
   // ONS XLSX downloads MUST go through the /file?uri= proxy — direct
   // /employmentandlabourmarket/... paths 404 even though the landing
   // page shows them as anchor hrefs.
@@ -158,7 +159,7 @@ async function GET_impl(req: Request) {
   // 1. Discover the latest dated XLSX URL and download it
   const xlsxUrl = await discoverLatestXlsxUrl();
   if (!xlsxUrl) return NextResponse.json({ error: 'could not discover latest XLSX URL' }, { status: 502 });
-  const res = await fetch(xlsxUrl, { headers: { 'User-Agent': UA } });
+  const res = await politeFetch(xlsxUrl, { headers: { 'User-Agent': UA } }, { timeoutMs: DOWNLOAD_TIMEOUT_MS });
   if (!res.ok) return NextResponse.json({ error: `ONS download ${res.status} for ${xlsxUrl}` }, { status: 502 });
   const buf = Buffer.from(await res.arrayBuffer());
   const wb = XLSX.read(buf, { type: 'buffer' });

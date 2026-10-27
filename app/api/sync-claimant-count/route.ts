@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { GEOGRAPHY_TYPES, fetchMonths, writeClaimantRows, loadCouncilCodes, type ClaimantRow } from '@/lib/claimant-count';
+import { isPoliteStop } from '@/lib/sync-budget';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -35,6 +36,7 @@ async function GET_impl(req: Request) {
     const months = [...new Set(rows.map((r) => r.month))].sort();
     return NextResponse.json({ status: 'updated', months, councils, rows_written: written });
   } catch (e) {
+    if (isPoliteStop(e)) throw e; // a 429: stop cleanly (lib/sync-budget.ts)
     return NextResponse.json({ error: 'sync_failed', message: (e as Error).message }, { status: 500 });
   }
 }

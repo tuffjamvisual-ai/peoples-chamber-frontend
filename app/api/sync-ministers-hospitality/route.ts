@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { parse } from 'csv-parse/sync';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { politeFetch, DOWNLOAD_TIMEOUT_MS, isPoliteStop } from '@/lib/sync-budget';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -193,7 +194,7 @@ async function findPublications(deptSlug: string): Promise<Publication[]> {
       `&q=${encodeURIComponent('ministers gifts hospitality')}` +
       `&filter_public_timestamp=${encodeURIComponent('from:' + CUTOFF_ISO)}` +
       `&order=-public_timestamp&count=${PAGE}&start=${start}`;
-    const res = await fetch(url);
+    const res = await politeFetch(url);
     if (!res.ok) break;
     const data = (await res.json()) as { results?: Publication[]; total?: number };
     const results = data.results || [];
@@ -207,14 +208,14 @@ async function findPublications(deptSlug: string): Promise<Publication[]> {
 }
 
 async function fetchAttachments(link: string): Promise<Attachment[]> {
-  const res = await fetch(`${CONTENT}${link}`);
+  const res = await politeFetch(`${CONTENT}${link}`);
   if (!res.ok) throw new Error(`Content API ${res.status} for ${link}`);
   const data = (await res.json()) as { details?: { attachments?: Attachment[] } };
   return data?.details?.attachments || [];
 }
 
 async function parseCsv(att: Attachment, publicationSlug: string): Promise<Row[]> {
-  const res = await fetch(att.url);
+  const res = await politeFetch(att.url, {}, { timeoutMs: DOWNLOAD_TIMEOUT_MS });
   if (!res.ok) return [];
   const text = await res.text();
   let records: Record<string, string>[];
@@ -358,7 +359,8 @@ async function GET_impl(req: Request) {
         let atts: Attachment[];
         try {
           atts = await fetchAttachments(pub.link);
-        } catch {
+        } catch (e) {
+          if (isPoliteStop(e)) throw e; // a 429 or the time budget: stop cleanly (lib/sync-budget.ts)
           continue;
         }
         const csvs = atts.filter(
@@ -422,6 +424,7 @@ async function GET_impl(req: Request) {
       syncedAt: new Date().toISOString(),
     });
   } catch (err) {
+    if (isPoliteStop(err)) throw err; // a 429: stop cleanly (lib/sync-budget.ts)
     return NextResponse.json(
       { ok: false, error: (err as Error).message, elapsed_ms: Date.now() - startedAt },
       { status: 500 },

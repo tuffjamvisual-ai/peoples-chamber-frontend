@@ -5,13 +5,16 @@
 // sync; the CLI tool is preserved for ad-hoc enrichment runs and
 // development).
 //
-// Schedule: '0 13 * * 1' (Monday 13:00 UTC) — after the activity-
-// metrics cron at 12:00. Light traffic: one API call, ~100 rows.
+// Schedule: weekly on Monday (vercel.json) — after the activity-metrics cron. Light traffic: one API call, ~100 rows.
+// 27 Oct 2026 (job 79): the call has a timeout cut to the run's budget (lib/sync-budget.ts), and a 429 stops the run
+// cleanly (withHeartbeat records it as a partial run; the next run reads everything again). Its one failure in the
+// 14 days to 26 Oct (19 Oct, HTTP 500) came from the database while other jobs were writing.
 
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { SyncBudget, politeFetch } from '@/lib/sync-budget';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
@@ -61,7 +64,7 @@ async function GET_impl(req: Request) {
   const startedAt = Date.now();
 
   // 1. Fetch publications
-  const res = await fetch(PUB_URL, { headers: { 'User-Agent': 'PeoplesChamber/1.0', 'Accept': 'application/json' } });
+  const res = await politeFetch(PUB_URL, { headers: { 'User-Agent': 'PeoplesChamber/1.0', 'Accept': 'application/json' } }, { budget: new SyncBudget(maxDuration, { started: startedAt }) });
   if (!res.ok) return NextResponse.json({ error: `committees-api HTTP ${res.status}` }, { status: 502 });
   const json = await res.json() as { items?: Pub[] };
   const reports = (json.items ?? []).filter((it) => it.type?.name === 'Report');
@@ -130,6 +133,7 @@ async function GET_impl(req: Request) {
     findings_extracted: findings.length,
     member_resolved: resolved,
     upserted: rows.length,
+    partial: false,
     elapsed_ms: Date.now() - startedAt,
     syncedAt: new Date().toISOString(),
   });

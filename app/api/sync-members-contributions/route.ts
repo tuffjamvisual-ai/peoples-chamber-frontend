@@ -9,13 +9,14 @@
 //   cycles every ~4 days, well inside the weekly meaningful-change
 //   window for activity metrics.
 //
-// Schedule: '15 */6 * * *' (every 6 hours, +15m so it doesn't collide
+// Schedule: '23 */6 * * *' since 27 Oct 2026 (every 6 hours, off the hour so it doesn't collide
 // with the other crons on the hour).
 
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { RateLimited, retryAfterSeconds } from '@/lib/sync-budget';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 270;
 
@@ -27,7 +28,9 @@ const ROUTE = '/api/sync-members-contributions';
 // request is aborted at the earlier of its own 20 s timeout and the deadline, less FINAL_SAVE_MS kept for the closing
 // save; no request or mid-run save starts with less than RESERVE_MS left; and the rows fetched and the progress cursor
 // are always saved before the run returns, so it ends well inside maxDuration and the next run carries on from there.
-const DEADLINE_MS = 235_000;
+// 27 Oct 2026 (job 79): the run now ends by 80 per cent of maxDuration (216 s of 270 s; was 235 s), a 429 from either
+// API stops it cleanly like the deadline (the MPs not reached are first next run), and the response says partial.
+const DEADLINE_MS = 216_000;
 const RESERVE_MS = 15_000;
 const FINAL_SAVE_MS = 5_000;
 const REQUEST_TIMEOUT_MS = 20_000;
@@ -58,9 +61,11 @@ async function fetchJson(url: string, deadline: number) {
   const timer = setTimeout(() => ctrl.abort(), Math.min(REQUEST_TIMEOUT_MS, untilStop));
   try {
     const res = await fetch(url, { headers: { 'User-Agent': 'PeoplesChamber/1.0', 'Accept': 'application/json' }, signal: ctrl.signal });
+    if (res.status === 429) throw new RateLimited(url, 429, retryAfterSeconds(res.headers.get('retry-after')));
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return await res.json();
   } catch (e) {
+    if (e instanceof RateLimited) throw e;
     if (ctrl.signal.aborted) throw byDeadline ? new DeadlineReached('deadline') : new RequestTimeout('request timed out');
     throw e;
   } finally {
@@ -156,6 +161,7 @@ async function GET_impl(req: Request) {
   let failures = 0;
   let requestTimeouts = 0;
   let stoppedAtDeadline = false;
+  let rateLimited: string | null = null;
   let saveError: string | null = null;
   let lastSave: Promise<void> = Promise.resolve();
 
@@ -186,6 +192,7 @@ async function GET_impl(req: Request) {
         if (pending.length >= SAVE_EVERY && deadline - Date.now() >= RESERVE_MS) await save();
       } catch (e) {
         if (e instanceof DeadlineReached) { state.set(id, 'stopped'); stoppedAtDeadline = true; return; }
+        if (e instanceof RateLimited) { state.set(id, 'stopped'); rateLimited = e.message; queue.length = 0; return; }
         state.set(id, 'failed');
         failures++;
         if (e instanceof RequestTimeout) requestTimeouts++;
@@ -218,6 +225,9 @@ async function GET_impl(req: Request) {
     request_timeouts: requestTimeouts,
     not_started: notStarted,
     timed_out: stoppedAtDeadline,
+    rate_limited: rateLimited,
+    // Stopped by the deadline or a rate limit with MPs not reached; they come first next run.
+    partial: notStarted > 0,
     cursor_from: after,
     cursor_to: newAfter,
     elapsed_ms: Date.now() - startedAt,

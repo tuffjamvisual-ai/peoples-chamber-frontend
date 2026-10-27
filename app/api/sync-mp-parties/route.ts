@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { flagBioReview, ukDate } from '@/lib/bio-review';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { politeFetch, isPoliteStop } from '@/lib/sync-budget';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -34,7 +35,7 @@ async function fetchAllParties(): Promise<Map<number, string>> {
   let skip = 0;
   let total = Infinity;
   while (skip < total) {
-    const res = await fetch(`${SEARCH}&skip=${skip}&take=20`, {
+    const res = await politeFetch(`${SEARCH}&skip=${skip}&take=20`, {
       headers: { 'User-Agent': UA, accept: 'application/json' },
     });
     if (!res.ok) throw new Error(`Members Search API ${res.status}`);
@@ -51,11 +52,12 @@ async function fetchAllParties(): Promise<Map<number, string>> {
 
 async function fetchOneParty(id: number): Promise<string | null> {
   try {
-    const res = await fetch(`${MEMBER}/${id}`, { headers: { 'User-Agent': UA, accept: 'application/json' } });
+    const res = await politeFetch(`${MEMBER}/${id}`, { headers: { 'User-Agent': UA, accept: 'application/json' } });
     if (!res.ok) return null;
     const v = (await res.json())?.value;
     return v?.latestParty?.name ?? null;
-  } catch {
+  } catch (e) {
+    if (isPoliteStop(e)) throw e; // a 429 or the time budget: stop cleanly (lib/sync-budget.ts)
     return null;
   }
 }
@@ -86,6 +88,7 @@ async function GET_impl(req: Request) {
   try {
     apiParties = await fetchAllParties();
   } catch (e) {
+    if (isPoliteStop(e)) throw e; // a 429: stop cleanly (lib/sync-budget.ts)
     return NextResponse.json({ error: e instanceof Error ? e.message : 'API fetch failed' }, { status: 502 });
   }
 

@@ -5,6 +5,7 @@
 
 import * as XLSX from 'xlsx';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { politeFetch, DOWNLOAD_TIMEOUT_MS } from '@/lib/sync-budget';
 
 const UA = { 'User-Agent': 'opengovt/1.0 (+https://opengovt.uk)' };
 const PAGE_API = 'https://www.gov.uk/api/content/government/statistical-data-sets/road-safety-statistics-data-tables';
@@ -37,14 +38,14 @@ function parseDate(s: string): string | null {
 // Every RAS0403 attachment on the road safety tables page, newest edition first
 // (by the "Date this data was first published" on its Table_of_contents sheet).
 export async function findLatestEdition(): Promise<Edition> {
-  const res = await fetch(PAGE_API, { headers: UA });
+  const res = await politeFetch(PAGE_API, { headers: UA });
   if (!res.ok) throw new Error(`GOV.UK Content API HTTP ${res.status}`);
   const json = await res.json();
   const urls = ((json?.details?.attachments ?? []) as { url?: string }[]).map((a) => String(a.url ?? '')).filter((u) => /\/ras0403[^/]*\.(ods|xlsx)$/i.test(u));
   if (urls.length === 0) throw new Error('No RAS0403 attachment on the road safety tables page');
   const editions: Edition[] = [];
   for (const url of urls) {
-    const r = await fetch(url, { headers: UA });
+    const r = await politeFetch(url, { headers: UA }, { timeoutMs: DOWNLOAD_TIMEOUT_MS });
     if (!r.ok) throw new Error(`RAS0403 download HTTP ${r.status}: ${url}`);
     const wb = XLSX.read(Buffer.from(await r.arrayBuffer()), { type: 'buffer' });
     const toc = wb.Sheets['Table_of_contents'];

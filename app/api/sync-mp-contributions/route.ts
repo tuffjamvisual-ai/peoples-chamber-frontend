@@ -2,10 +2,11 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { RateLimited, retryAfterSeconds } from '@/lib/sync-budget';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
-// Four times a day (03:40, 09:40, 15:40, 21:40 UTC; about 37 MPs a run, the whole list in 4 to 5 days): refresh per-MP total spoken contributions + word count for the current
+// Four times a day (03:43, 09:43, 15:43, 21:43 UTC; about 37 MPs a run, the whole list in 4 to 5 days): refresh per-MP total spoken contributions + word count for the current
 // Parliament (since 2024-07-04) from the Hansard API, into mp_contribution_totals.
 // Word count is computed from ContributionTextFull (Parliament publishes no word
 // count). Takes current MPs never refreshed first, then the oldest
@@ -20,6 +21,9 @@ export const maxDuration = 300;
 // counted ran on past the limit, so the heartbeat was never written and the run looked like it recorded nothing.
 // Now an MP still being counted at RUN_BUDGET_MS is stopped, not saved (a part count is never written), and comes
 // first next run; each request's timeout is cut to the time left.
+// 27 Oct 2026 (job 79): a 429 from the Hansard API stops the run cleanly (the MPs not reached come first next run),
+// The run is time-limited by design (about 37 MPs of the queue), so partial: true means MPs are overdue after it: any
+// current MP not refreshed for DUE_DAYS (the whole list goes round in 4 to 5 days).
 
 const API = 'https://hansard-api.parliament.uk/search/contributions/Spoken.json';
 const START = '2024-07-04';
@@ -27,11 +31,15 @@ const BATCH = 220;
 const CONCURRENCY = 8;
 const TIME_BUDGET_MS = 170_000; // no new MP starts after this; an MP with many speeches can take 40 s or more
 const RUN_BUDGET_MS = 235_000;  // the whole run, MPs in progress included, ends by this
+// A local test may shorten both (SYNC_TEST_BUDGET_MS, as in lib/sync-budget.ts); never on Vercel.
+const TEST_MS = !process.env.VERCEL ? Number(process.env.SYNC_TEST_BUDGET_MS) || 0 : 0;
+const DUE_DAYS = 7;
 
 async function fetchJson(url: string, deadline: number) {
   const left = deadline - Date.now();
   if (left < 1_000) throw new Error('run budget reached');
   const res = await fetch(url, { headers: { 'User-Agent': 'opengovt/1.0', Accept: 'application/json' }, signal: AbortSignal.timeout(Math.min(30_000, left)) });
+  if (res.status === 429) throw new RateLimited(url, 429, retryAfterSeconds(res.headers.get('retry-after')));
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
@@ -42,7 +50,7 @@ async function memberTotals(id: number, deadline: number): Promise<{ member_id: 
     let j;
     try {
       j = await fetchJson(`${API}?queryParameters.memberId=${id}&queryParameters.startDate=${START}&queryParameters.take=100&queryParameters.skip=${skip}`, deadline);
-    } catch { ok = false; break; }   // a failed page must NOT be recorded as a real count
+    } catch (e) { if (e instanceof RateLimited) throw e; ok = false; break; }   // a failed page must NOT be recorded as a real count
     if (total === null) total = j.SpokenResultCount || 0;
     const R = j.Results || [];
     if (R.length === 0) break;
@@ -83,14 +91,19 @@ async function GET_impl(req: Request) {
     .slice(0, BATCH)
     .map((x) => x.id);
 
-  const deadline = started + RUN_BUDGET_MS;
+  const deadline = started + (TEST_MS || RUN_BUDGET_MS);
+  const startCutoff = TEST_MS ? Math.round(TEST_MS * 0.7) : TIME_BUDGET_MS;
   let i = 0, upserted = 0, skipped = 0, writeErrors = 0, skippedForTime = 0, stoppedInProgress = 0;
+  let rateLimited: string | null = null;
   async function worker() {
     while (i < queue.length) {
-      if (Date.now() - started > TIME_BUDGET_MS) { skippedForTime = queue.length - i; i = queue.length; return; }
+      if (Date.now() - started > startCutoff) { skippedForTime = queue.length - i; i = queue.length; return; }
       const id = queue[i++];
       let r;
-      try { r = await memberTotals(id, deadline); } catch { skipped++; continue; }
+      try { r = await memberTotals(id, deadline); } catch (e) {
+        if (e instanceof RateLimited) { rateLimited = e.message; skippedForTime += queue.length - i; i = queue.length; return; }
+        skipped++; continue;
+      }
       // Only an MP whose every page was read is saved; the others keep their last good value and come first next run.
       if (!r.ok) { if (Date.now() >= deadline - 1_000) stoppedInProgress++; else skipped++; continue; }
       const now = new Date().toISOString();
@@ -103,10 +116,16 @@ async function GET_impl(req: Request) {
   }
   await Promise.all(Array.from({ length: CONCURRENCY }, () => worker()));
 
+  // Overdue after this run: current MPs never counted, or not counted for DUE_DAYS (the ones saved above are now fresh).
+  const dueBefore = new Date(Date.now() - DUE_DAYS * 86_400_000).toISOString();
+  const fresh = new Set((have || []).filter((r) => ((r.spoken_synced_at as string | null) || '') >= dueBefore).map((r) => r.member_id as number));
+  const overdue = Math.max(0, (mps || []).filter((m) => !fresh.has(m.member_id as number)).length - upserted);
+
   return NextResponse.json({
-    ok: writeErrors === 0, rows_written: upserted, skipped, write_errors: writeErrors, skipped_for_time: skippedForTime, stopped_in_progress: stoppedInProgress,
+    ok: writeErrors === 0, rows_written: upserted, skipped,
+    partial: overdue > 0, overdue, rate_limited: rateLimited, write_errors: writeErrors, skipped_for_time: skippedForTime, stopped_in_progress: stoppedInProgress,
     batch: queue.length, duration_ms: Date.now() - started, syncedAt: new Date().toISOString(),
-  }, { status: queue.length > 0 && upserted === 0 ? 502 : 200 });
+  }, { status: queue.length > 0 && upserted === 0 && skipped + writeErrors > 0 ? 502 : 200 });
 }
 
 export const GET = withHeartbeat('/api/sync-mp-contributions', GET_impl);

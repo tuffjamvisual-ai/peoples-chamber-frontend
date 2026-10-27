@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { politeFetch, isPoliteStop } from '@/lib/sync-budget';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -82,7 +83,7 @@ async function fetchAll(): Promise<Row[]> {
   let start = 0;
   while (true) {
     const url = `${SEARCH_URL}?filter_organisations=${ACOBA}&count=${PAGE_SIZE}&start=${start}&order=-public_timestamp`;
-    const res = await fetch(url);
+    const res = await politeFetch(url);
     if (!res.ok) break;
     const data = (await res.json()) as { results?: Array<{ title: string; public_timestamp?: string }>; total?: number };
     const results = data.results || [];
@@ -150,6 +151,7 @@ async function GET_impl(req: Request) {
       syncedAt: new Date().toISOString(),
     });
   } catch (err) {
+    if (isPoliteStop(err)) throw err; // a 429 or the time budget: stop cleanly (lib/sync-budget.ts)
     return NextResponse.json({ ok: false, error: (err as Error).message }, { status: 500 });
   }
 }

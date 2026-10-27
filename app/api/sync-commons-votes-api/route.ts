@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { createClient } from '@supabase/supabase-js';
 import { refreshStore, type StoreRefreshResult } from '@/lib/refresh-stores';
+import { politeFetch, isPoliteStop } from '@/lib/sync-budget';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -104,7 +105,7 @@ async function GET_impl(req: Request) {
     const list: ApiDivision[] = [];
     let skip = 0;
     while (skip < 10000) {
-      const pageRes = await fetch(
+      const pageRes = await politeFetch(
         `${API}/divisions.json/search?queryParameters.startDate=${fromStr}&queryParameters.endDate=${toStr}&queryParameters.take=${PAGE}&queryParameters.skip=${skip}`,
       );
       if (!pageRes.ok) return NextResponse.json({ ok: false, error: `list ${pageRes.status}` }, { status: 502 });
@@ -159,7 +160,7 @@ async function GET_impl(req: Request) {
       const already = seen.has(`${dateOnly}#${d.Number}`);
       if (already && applied.has(d.DivisionId)) { divisionsSkipped++; continue; }
 
-      const detRes = await fetch(`${API}/division/${d.DivisionId}.json`);
+      const detRes = await politeFetch(`${API}/division/${d.DivisionId}.json`);
       if (!detRes.ok) { apiErrors.push({ divisionId: d.DivisionId, status: detRes.status }); continue; }
       const det = (await detRes.json()) as ApiDetail;
       const ts = `${dateOnly} 00:00:00`;
@@ -334,6 +335,7 @@ async function GET_impl(req: Request) {
 
     return NextResponse.json({ ...base, divisionsAdded, rowsInserted }, { status: insertErrors.length ? 500 : 200 });
   } catch (err) {
+    if (isPoliteStop(err)) throw err; // a 429 or the time budget: stop cleanly (lib/sync-budget.ts)
     return NextResponse.json({ ok: false, error: (err as Error).message }, { status: 500 });
   }
 }

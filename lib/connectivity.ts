@@ -11,6 +11,7 @@
 
 import zlib from 'zlib';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { politeFetch, DOWNLOAD_TIMEOUT_MS } from '@/lib/sync-budget';
 
 const UA = { 'User-Agent': 'opengovt/1.0 (+https://opengovt.uk)' };
 const OFCOM = 'https://www.ofcom.org.uk/phones-and-broadband/coverage-and-speeds/';
@@ -35,7 +36,7 @@ export async function findLatestRelease(now = new Date()): Promise<Release> {
   const mobile = new Map<string, string>();
   const pages: string[] = [];
   for (const page of candidatePages(now)) {
-    const res = await fetch(page, { headers: UA });
+    const res = await politeFetch(page, { headers: UA });
     if (!res.ok) continue;
     pages.push(page);
     const html = await res.text();
@@ -147,7 +148,7 @@ export type MobileRow = {
 export type ParseResult = { broadband: BroadbandRow[]; mobile: MobileRow[]; ukPremises: number | null; unmatched: string[]; checks: string[] };
 
 export async function download(url: string): Promise<Buffer> {
-  const res = await fetch(url, { headers: UA });
+  const res = await politeFetch(url, { headers: UA }, { timeoutMs: DOWNLOAD_TIMEOUT_MS });
   if (!res.ok) throw new Error(`Ofcom download HTTP ${res.status}: ${url}`);
   return Buffer.from(await res.arrayBuffer());
 }

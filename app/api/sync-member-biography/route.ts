@@ -3,6 +3,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { flagBioReview, ukDate } from '@/lib/bio-review';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { SyncBudget, politeFetch, isPoliteStop, loadCursor, saveCursor } from '@/lib/sync-budget';
 import { buildRepresentations, fetchHistory, sameRepresentations } from '@/lib/commons-representations';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -33,7 +34,13 @@ export const maxDuration = 300;
 
 const MEMBERS_API = 'https://members-api.parliament.uk/api/Members';
 const CONCURRENCY = 6;
-const TIME_BUDGET_MS = 270_000;
+// 27 Oct 2026 (job 79): it ran to 281 s of 300 s (its budget was 270 s, 90 per cent), its requests had no timeout,
+// and every run started again from the lowest member id, so on a slow day the members at the end of the list were
+// never reached. Now (lib/sync-budget.ts) each run starts after the last member it finished (sync_cursor, wrapping
+// round), every request has a timeout cut to the time left, no member starts after 70 per cent of maxDuration, the run
+// ends by 80 per cent, a 429 stops it cleanly, and the response says partial: true until a full round is done.
+const ROUTE = '/api/sync-member-biography';
+const CURSOR_MAX_AGE_MS = 7 * 86_400_000;
 
 interface Post {
   id: number;
@@ -57,16 +64,17 @@ function normPost(p: Record<string, unknown>): Post {
   };
 }
 
-async function fetchBiography(memberId: number): Promise<{ gov: Post[]; opp: Post[]; cmte: Post[] } | null> {
+async function fetchBiography(memberId: number, budget: SyncBudget): Promise<{ gov: Post[]; opp: Post[]; cmte: Post[] } | null> {
   try {
-    const res = await fetch(`${MEMBERS_API}/${memberId}/Biography`, {
+    const res = await politeFetch(`${MEMBERS_API}/${memberId}/Biography`, {
       headers: { 'User-Agent': 'PeoplesChamber/1.0 (bio-sync)', Accept: 'application/json' },
-    });
+    }, { budget });
     if (!res.ok) return null;
     const v = ((await res.json())?.value ?? {}) as Record<string, unknown>;
     const arr = (k: string) => ((v[k] as Record<string, unknown>[]) || []).map(normPost).filter((p) => p.id != null);
     return { gov: arr('governmentPosts'), opp: arr('oppositionPosts'), cmte: arr('committeeMemberships') };
-  } catch {
+  } catch (e) {
+    if (isPoliteStop(e)) throw e;
     return null;
   }
 }
@@ -137,6 +145,7 @@ async function GET_impl(req: Request) {
   const supabase: SupabaseClient = createClient(url, key);
 
   const startedAt = Date.now();
+  const budget = new SyncBudget(maxDuration, { started: startedAt });
 
   // Overrides: member_id -> set of protected post ids.
   const overrideMap = new Map<number, Set<number>>();
@@ -168,74 +177,105 @@ async function GET_impl(req: Request) {
     }
   }
 
-  // Commons History for every member, 20 per request, fetched once before the per-member work.
-  const history = await fetchHistory(memberIds);
+  // Carry on after the last member finished; wrap round to the start.
+  let after = 0;
+  try { after = Number((await loadCursor<{ after?: number }>(supabase, ROUTE, CURSOR_MAX_AGE_MS))?.after) || 0; }
+  catch (e) { return NextResponse.json({ error: (e as Error).message }, { status: 500 }); }
+  const order = [...memberIds.filter((id) => id > after), ...memberIds.filter((id) => id <= after)];
 
+  // Members are handled 20 at a time: the Commons History for those 20 (one request), then their biographies. History
+  // used to be read for every member first, which took up to 92 s before any member was handled (job 79 test).
   let processed = 0;
   let updated = 0;
   let seatsUpdated = 0;
   let apiMisses = 0;
   let timedOut = false;
+  let stoppedBy: string | null = null;
+  const finished = new Set<number>();
+  let historyMembers = 0;
 
-  await pool(memberIds, CONCURRENCY, async (memberId) => {
-    if (Date.now() - startedAt > TIME_BUDGET_MS) { timedOut = true; return; }
-    const bio = await fetchBiography(memberId);
-    processed++;
-    if (!bio) { apiMisses++; return; }
+  for (let c = 0; c < order.length; c += 20) {
+    if (stoppedBy || budget.stopStarting()) { timedOut = true; stoppedBy ??= 'time budget'; break; }
+    const chunk = order.slice(c, c + 20);
+    const history = await fetchHistory(chunk);
+    historyMembers += history.size;
+    await pool(chunk, CONCURRENCY, async (memberId) => {
+      if (stoppedBy || budget.stopStarting()) { timedOut = true; stoppedBy ??= 'time budget'; return; }
+      let bio;
+      try { bio = await fetchBiography(memberId, budget); }
+      catch (e) { stoppedBy ??= (e as Error).message; timedOut = true; return; }
+      processed++;
+      finished.add(memberId);
+      if (!bio) { apiMisses++; return; }
 
-    const { data: rowArr } = await supabase
-      .from('mp_biography')
-      .select('government_posts, opposition_posts, committee_memberships, representations')
-      .eq('member_id', memberId)
-      .limit(1);
-    const row = rowArr?.[0];
-    if (!row) return;
+      const { data: rowArr } = await supabase
+        .from('mp_biography')
+        .select('government_posts, opposition_posts, committee_memberships, representations')
+        .eq('member_id', memberId)
+        .limit(1);
+      const row = rowArr?.[0];
+      if (!row) return;
 
-    const ov = overrideMap.get(memberId) || new Set<number>();
-    const g = reconcile(row.government_posts as Post[] | null, bio.gov, ov);
-    const o = reconcile(row.opposition_posts as Post[] | null, bio.opp, ov);
-    const m = reconcile(row.committee_memberships as Post[] | null, bio.cmte, ov);
+      const ov = overrideMap.get(memberId) || new Set<number>();
+      const g = reconcile(row.government_posts as Post[] | null, bio.gov, ov);
+      const o = reconcile(row.opposition_posts as Post[] | null, bio.opp, ov);
+      const m = reconcile(row.committee_memberships as Post[] | null, bio.cmte, ov);
 
-    const h = history.get(memberId);
-    const seats = h ? await buildRepresentations(h) : [];
-    const seatsChanged = seats.length > 0
-      && !seats.some((s) => ov.has(s.id))
-      && !((row.representations as { id: number }[] | null) || []).some((s) => ov.has(s.id))
-      && !sameRepresentations(row.representations, seats);
-    if (!g.changed && !o.changed && !m.changed && !seatsChanged) return;
+      const h = history.get(memberId);
+      const seats = h ? await buildRepresentations(h) : [];
+      const seatsChanged = seats.length > 0
+        && !seats.some((s) => ov.has(s.id))
+        && !((row.representations as { id: number }[] | null) || []).some((s) => ov.has(s.id))
+        && !sameRepresentations(row.representations, seats);
+      if (!g.changed && !o.changed && !m.changed && !seatsChanged) return;
 
-    // NOTE: political_bio / description / biography are intentionally NOT in this
-    // update — the handwritten narrative is permanently excluded from sync writes.
-    const { error: upErr } = await supabase
-      .from('mp_biography')
-      .update({
-        government_posts: g.merged,
-        opposition_posts: o.merged,
-        committee_memberships: m.merged,
-        ...(seatsChanged ? { representations: seats } : {}),
-      })
-      .eq('member_id', memberId);
-    if (!upErr) {
-      updated++;
-      if (seatsChanged) seatsUpdated++;
-      // Government or opposition posts starting or ending can make the written
-      // biography out of date. Committee changes are too frequent to flag.
-      const changes = [
-        ...postChanges(row.government_posts as Post[] | null, bio.gov, ov),
-        ...postChanges(row.opposition_posts as Post[] | null, bio.opp, ov),
-      ];
-      if (changes.length) await flagBioReview(supabase, memberId, changes.join('; '));
-    }
-  });
+      // NOTE: political_bio / description / biography are intentionally NOT in this
+      // update — the handwritten narrative is permanently excluded from sync writes.
+      const { error: upErr } = await supabase
+        .from('mp_biography')
+        .update({
+          government_posts: g.merged,
+          opposition_posts: o.merged,
+          committee_memberships: m.merged,
+          ...(seatsChanged ? { representations: seats } : {}),
+        })
+        .eq('member_id', memberId);
+      if (!upErr) {
+        updated++;
+        if (seatsChanged) seatsUpdated++;
+        // Government or opposition posts starting or ending can make the written
+        // biography out of date. Committee changes are too frequent to flag.
+        const changes = [
+          ...postChanges(row.government_posts as Post[] | null, bio.gov, ov),
+          ...postChanges(row.opposition_posts as Post[] | null, bio.opp, ov),
+        ];
+        if (changes.length) await flagBioReview(supabase, memberId, changes.join('; '));
+      }
+    });
+  }
+
+  // The cursor moves past every member in order up to the first one not finished; a full round clears it.
+  let newAfter = after;
+  let fullRound = true;
+  for (const id of order) {
+    if (!finished.has(id)) { fullRound = false; break; }
+    newAfter = id;
+  }
+  const cursorSaved = await saveCursor(supabase, ROUTE, fullRound ? null : { after: newAfter });
 
   return NextResponse.json({
     ok: true,
+    partial: !fullRound,
+    stopped_by: stoppedBy,
+    cursor_from: after,
+    cursor_to: fullRound ? null : newAfter,
+    cursor_saved: cursorSaved,
     source: 'members-api Biography and History',
     members_with_bio: memberIds.length,
     processed,
     updated,
     seats_updated: seatsUpdated,
-    history_members: history.size,
+    history_members: historyMembers,
     api_misses: apiMisses,
     timed_out: timedOut,
     elapsed_ms: Date.now() - startedAt,

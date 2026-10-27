@@ -6,6 +6,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { displayMpName } from '@/lib/mp-name';
+import { politeFetch, isPoliteStop, type SyncBudget } from '@/lib/sync-budget';
 
 export const EDM_API = 'https://oralquestionsandmotions-api.parliament.uk';
 // Start of the current Parliament (general election 4 July 2024).
@@ -13,16 +14,18 @@ export const EDM_PARLIAMENT_START = '2024-07-04';
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-export async function fetchEdmJson(url: string, attempts = 4): Promise<any> {
+// With a budget (the daily sync, lib/sync-budget.ts), each try's timeout is cut to the time left, a 429 is handled by
+// politeFetch (a short Retry-After waited out, otherwise RateLimited), and the budget or a rate limit is never retried.
+// Without one (scripts/import-edms.ts), 30 s per try as before.
+export async function fetchEdmJson(url: string, attempts = 4, budget?: SyncBudget): Promise<any> {
   let lastErr: unknown;
   for (let attempt = 1; attempt <= attempts; attempt++) {
     try {
-      const res = await fetch(url, {
+      const res = await politeFetch(url, {
         headers: { 'User-Agent': 'opengovt/1.0 (+https://opengovt.uk)', Accept: 'application/json' },
-        signal: AbortSignal.timeout(30_000),
         cache: 'no-store',
-      });
-      if (res.status === 429 || res.status >= 500) throw new Error(`HTTP ${res.status}`);
+      }, { budget, timeoutMs: 30_000 });
+      if (res.status >= 500) throw new Error(`HTTP ${res.status}`);
       if (!res.ok) {
         const err = new Error(`HTTP ${res.status} for ${url}`) as Error & { noRetry?: boolean };
         err.noRetry = true;
@@ -30,9 +33,12 @@ export async function fetchEdmJson(url: string, attempts = 4): Promise<any> {
       }
       return await res.json();
     } catch (e) {
+      if (isPoliteStop(e)) throw e;
       lastErr = e;
       if ((e as { noRetry?: boolean }).noRetry || attempt === attempts) break;
-      await sleep(1000 * attempt * attempt); // 1s, 4s, 9s
+      const wait = 1000 * attempt * attempt; // 1s, 4s, 9s
+      if (budget && budget.msLeft() < wait + 2_000) break;
+      await sleep(wait);
     }
   }
   throw lastErr;
@@ -79,18 +85,19 @@ export async function listEdms(startDate: string, delayMs = 250, concurrency = 1
 export type EdmListPages = { total: number; pages: Record<string, EdmListEntry[]> };
 
 export async function listEdmsResumable(
-  startDate: string, done: EdmListPages | null, deadline: number, delayMs = 250, concurrency = 3,
-): Promise<{ state: EdmListPages; complete: boolean; motions: number; pagesRead: number; pagesFailed: number; lastError: string | null }> {
+  startDate: string, done: EdmListPages | null, deadline: number, delayMs = 250, concurrency = 3, budget?: SyncBudget,
+): Promise<{ state: EdmListPages; complete: boolean; motions: number; pagesRead: number; pagesFailed: number; lastError: string | null; stoppedBy: string | null }> {
   const take = 100;
   const pages: Record<string, EdmListEntry[]> = { ...(done?.pages ?? {}) };
   let total = done?.total ?? -1;
   let pagesRead = 0, pagesFailed = 0;
   let lastError: string | null = null;
+  let stoppedBy: string | null = null;
   const read = async (skip: number): Promise<boolean> => {
     try {
       const json = await fetchEdmJson(
         `${EDM_API}/EarlyDayMotions/list?parameters.tabledStartDate=${startDate}&parameters.orderBy=DateTabledAsc&parameters.skip=${skip}&parameters.take=${take}`,
-        3,
+        3, budget,
       );
       const items: any[] = Array.isArray(json?.Response) ? json.Response : [];
       pages[String(skip)] = items
@@ -102,6 +109,8 @@ export async function listEdmsResumable(
       await sleep(delayMs);
       return true;
     } catch (e) {
+      // Out of time or asked to stop: no more pages this run; the pages read are kept for the next.
+      if (isPoliteStop(e)) { stoppedBy ??= (e as Error).message; return false; }
       pagesFailed++;
       lastError = `page skip=${skip}: ${(e as Error).message}`;
       return false;
@@ -109,11 +118,11 @@ export async function listEdmsResumable(
   };
   // Page 0 is read again each run: new motions are added at the end (oldest first), so it gives the new total.
   if (Date.now() < deadline) await read(0);
-  if (total < 0) return { state: { total: 0, pages }, complete: false, motions: 0, pagesRead, pagesFailed, lastError };
+  if (total < 0) return { state: { total: 0, pages }, complete: false, motions: 0, pagesRead, pagesFailed, lastError, stoppedBy };
   const skips: number[] = [];
   for (let skip = take; skip < total; skip += take) if (!pages[String(skip)] || skip + take >= total) skips.push(skip);
   const worker = async () => {
-    while (skips.length > 0 && Date.now() < deadline) await read(skips.shift()!);
+    while (skips.length > 0 && Date.now() < deadline && !stoppedBy) await read(skips.shift()!);
   };
   await Promise.all(Array.from({ length: Math.max(1, concurrency) }, worker));
   const ids = new Set<number>();
@@ -122,7 +131,7 @@ export async function listEdmsResumable(
   // list changed in between; the caller starts afresh next time (`motions` short of `total`).
   let complete = true;
   for (let skip = 0; skip < total; skip += take) if (!pages[String(skip)]) complete = false;
-  return { state: { total, pages }, complete, motions: ids.size, pagesRead, pagesFailed, lastError };
+  return { state: { total, pages }, complete, motions: ids.size, pagesRead, pagesFailed, lastError, stoppedBy };
 }
 
 function statusText(v: unknown): 'published' | 'withdrawn' {

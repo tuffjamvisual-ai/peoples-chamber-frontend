@@ -11,6 +11,7 @@
 // (scripts/migrations/2026-10-11-petitions.sql) and the backfill script.
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { politeFetch, isPoliteStop } from '@/lib/sync-budget';
 
 export const PETITION_SIGNATURE_THRESHOLD = 10000;
 export const PETITIONS_BASE = 'https://petition.parliament.uk';
@@ -21,7 +22,7 @@ export async function fetchPetitionJson(url: string): Promise<any> {
   let lastErr: unknown;
   for (let attempt = 1; attempt <= 4; attempt++) {
     try {
-      const res = await fetch(url, {
+      const res = await politeFetch(url, {
         headers: { 'User-Agent': 'opengovt/1.0 (+https://opengovt.uk)', Accept: 'application/json' },
         signal: AbortSignal.timeout(30_000),
         cache: 'no-store',
@@ -35,6 +36,7 @@ export async function fetchPetitionJson(url: string): Promise<any> {
       }
       return await res.json();
     } catch (e) {
+      if (isPoliteStop(e)) throw e; // a 429 or the time budget: stop cleanly (lib/sync-budget.ts)
       lastErr = e;
       if ((e as { noRetry?: boolean }).noRetry) break;
       await sleep(1000 * attempt * attempt); // 1s, 4s, 9s

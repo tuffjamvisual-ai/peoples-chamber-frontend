@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { findLatestEdition, parseEdition, writeEdition, storedReleaseLabel, loadCouncilCodes } from '@/lib/road-casualties';
+import { isPoliteStop } from '@/lib/sync-budget';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -26,6 +27,7 @@ async function GET_impl(req: Request) {
     const written = await writeEdition(supabase, r);
     return NextResponse.json({ status: 'updated', edition: ed.label, previous_edition: stored, years: r.years, rows_written: written });
   } catch (e) {
+    if (isPoliteStop(e)) throw e; // a 429: stop cleanly (lib/sync-budget.ts)
     return NextResponse.json({ error: 'sync_failed', message: (e as Error).message }, { status: 500 });
   }
 }

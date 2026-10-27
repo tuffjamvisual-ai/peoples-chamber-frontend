@@ -9,6 +9,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { parse } from 'node-html-parser';
+import { politeFetch, isPoliteStop } from '@/lib/sync-budget';
 
 export const LORDS_VOTES_API = 'https://lordsvotes-api.parliament.uk/data/Divisions';
 // Start of the current Parliament (general election 4 July 2024).
@@ -20,7 +21,7 @@ export async function fetchLordsJson(url: string): Promise<any> {
   let lastErr: unknown;
   for (let attempt = 1; attempt <= 4; attempt++) {
     try {
-      const res = await fetch(url, {
+      const res = await politeFetch(url, {
         headers: { 'User-Agent': 'opengovt/1.0 (+https://opengovt.uk)', Accept: 'application/json' },
         signal: AbortSignal.timeout(30_000),
         cache: 'no-store',
@@ -33,6 +34,7 @@ export async function fetchLordsJson(url: string): Promise<any> {
       }
       return await res.json();
     } catch (e) {
+      if (isPoliteStop(e)) throw e; // a 429 or the time budget: stop cleanly (lib/sync-budget.ts)
       lastErr = e;
       if ((e as { noRetry?: boolean }).noRetry) break;
       await sleep(1000 * attempt * attempt); // 1s, 4s, 9s

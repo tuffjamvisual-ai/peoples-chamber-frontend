@@ -9,6 +9,7 @@
 // 2 measures = 12,996 cells per request).
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { politeFetch, DOWNLOAD_TIMEOUT_MS } from '@/lib/sync-budget';
 
 const NOMIS = 'https://www.nomisweb.co.uk/api/v01/dataset/NM_162_1.data.csv';
 const UA = { 'User-Agent': 'opengovt/1.0 (+https://opengovt.uk)' };
@@ -73,7 +74,7 @@ export type FetchResult = { rows: ClaimantRow[]; unmatched: string[]; cells: num
 // Fetch the given month offsets (0 = latest) for one geography type.
 export async function fetchMonths(geoType: (typeof GEOGRAPHY_TYPES)[number], offsets: number[], councilCodes: Set<string>): Promise<FetchResult> {
   const url = `${NOMIS}?geography=${geoType.type}&date=${offsetsParam(offsets)}&gender=0,1,2&age=0&measure=1,2&measures=20100&select=date,date_name,geography_code,gender,measure,obs_value`;
-  const res = await fetch(url, { headers: UA });
+  const res = await politeFetch(url, { headers: UA }, { timeoutMs: DOWNLOAD_TIMEOUT_MS });
   if (!res.ok) throw new Error(`Nomis ${geoType.type} HTTP ${res.status}`);
   const text = await res.text();
   const lines = text.split('\n').map((l) => l.replace(/\r$/, '')).filter((l) => l.trim());

@@ -10,6 +10,7 @@ import {
   loadCouncilCodes,
   monthsBefore,
 } from '@/lib/house-prices';
+import { isPoliteStop } from '@/lib/sync-budget';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -60,6 +61,7 @@ async function GET_impl(req: Request) {
       rows_written: written,
     });
   } catch (e) {
+    if (isPoliteStop(e)) throw e; // a 429: stop cleanly (lib/sync-budget.ts)
     return NextResponse.json({ error: 'sync_failed', message: (e as Error).message }, { status: 500 });
   }
 }

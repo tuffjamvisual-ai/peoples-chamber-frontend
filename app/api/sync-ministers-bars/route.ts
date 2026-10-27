@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { politeFetch, DOWNLOAD_TIMEOUT_MS, isPoliteStop } from '@/lib/sync-budget';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -109,7 +110,7 @@ async function GET_impl(req: Request) {
   const supabase = createClient(url, key);
 
   try {
-    const res = await fetch(PAGE_URL);
+    const res = await politeFetch(PAGE_URL);
     if (!res.ok) return NextResponse.json({ ok: false, error: `fetch ${res.status}` }, { status: 502 });
     const rows = parseTable(await res.text());
 
@@ -123,12 +124,12 @@ async function GET_impl(req: Request) {
       const descs: string[] = [], conds: string[] = [];
       for (const letterUrl of r.urls) {
         try {
-          const lr = await fetch(letterUrl);
+          const lr = await politeFetch(letterUrl, {}, { timeoutMs: DOWNLOAD_TIMEOUT_MS });
           if (!lr.ok) continue;
           const { description, conditions } = parseLetter(await lr.text());
           if (description) descs.push(description);
           if (conditions) conds.push(conditions);
-        } catch { /* skip letter */ }
+        } catch (e) { if (isPoliteStop(e)) throw e; /* skip letter */ }
       }
       r.description = [...new Set(descs)].join(' ') || null;
       r.conditions = [...new Set(conds)].join('  ') || null;
@@ -145,6 +146,7 @@ async function GET_impl(req: Request) {
     }
     return NextResponse.json({ ok: true, parsed: rows.length, newRows: fresh.length, inserted, syncedAt: new Date().toISOString() });
   } catch (err) {
+    if (isPoliteStop(err)) throw err; // a 429 or the time budget: stop cleanly (lib/sync-budget.ts)
     return NextResponse.json({ ok: false, error: (err as Error).message }, { status: 500 });
   }
 }

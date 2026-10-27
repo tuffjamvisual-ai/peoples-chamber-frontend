@@ -5,6 +5,7 @@ import { flagBioReview, ukDate } from '@/lib/bio-review';
 import { buildRepresentations, fetchHistory } from '@/lib/commons-representations';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { politeFetch, isPoliteStop } from '@/lib/sync-budget';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -61,7 +62,7 @@ async function fetchAllCurrent(): Promise<Map<number, Record<string, unknown>>> 
   let skip = 0;
   let total = Infinity;
   while (skip < total) {
-    const res = await fetch(`${SEARCH}&skip=${skip}&take=20`, {
+    const res = await politeFetch(`${SEARCH}&skip=${skip}&take=20`, {
       headers: { 'User-Agent': UA, accept: 'application/json' },
     });
     if (!res.ok) throw new Error(`Members Search API ${res.status}`);
@@ -78,7 +79,7 @@ async function fetchAllCurrent(): Promise<Map<number, Record<string, unknown>>> 
 
 // Build a full mps row from a member's detail record (mirrors fetch-all-mps.js).
 async function buildRecord(memberId: number) {
-  const res = await fetch(`${MEMBER}/${memberId}`, {
+  const res = await politeFetch(`${MEMBER}/${memberId}`, {
     headers: { 'User-Agent': UA, accept: 'application/json' },
   });
   if (!res.ok) return null;
@@ -133,10 +134,11 @@ function normEntry(p: Record<string, unknown>): BioEntry {
 
 async function fetchJson(url: string): Promise<Record<string, unknown> | null> {
   try {
-    const res = await fetch(url, { headers: { 'User-Agent': UA, accept: 'application/json' } });
+    const res = await politeFetch(url, { headers: { 'User-Agent': UA, accept: 'application/json' } });
     if (!res.ok) return null;
     return (await res.json()) as Record<string, unknown>;
-  } catch {
+  } catch (e) {
+    if (isPoliteStop(e)) throw e; // a 429 or the time budget: stop cleanly (lib/sync-budget.ts)
     return null;
   }
 }
@@ -289,6 +291,7 @@ async function GET_impl(req: Request) {
   try {
     apiCurrent = await fetchAllCurrent();
   } catch (e) {
+    if (isPoliteStop(e)) throw e; // a 429: stop cleanly (lib/sync-budget.ts)
     return NextResponse.json({ error: e instanceof Error ? e.message : 'API fetch failed' }, { status: 502 });
   }
   // Guard against a partial/empty API response retiring the whole house.

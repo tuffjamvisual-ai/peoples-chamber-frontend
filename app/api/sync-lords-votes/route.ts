@@ -11,6 +11,7 @@ import {
   writeLordsDivision,
   type BillMatcher,
 } from '@/lib/lords-votes';
+import { isPoliteStop } from '@/lib/sync-budget';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -57,6 +58,7 @@ async function GET_impl(req: Request) {
   try {
     setup = await Promise.all([listLordsDivisionIds(startDate, DELAY_MS), loadBillMatcher(supabase)]);
   } catch (e) {
+    if (isPoliteStop(e)) throw e; // a 429: stop cleanly (lib/sync-budget.ts)
     return NextResponse.json({ error: 'setup_failed', message: (e as Error).message }, { status: 502 });
   }
   const [ids, matcher] = setup;
@@ -83,6 +85,7 @@ async function GET_impl(req: Request) {
         voteRows += built.votes.length;
         processed++;
       } catch (e) {
+        if (isPoliteStop(e)) throw e; // a 429: stop cleanly (lib/sync-budget.ts)
         failures.push({ id, error: (e as Error).message });
       }
       await new Promise((r) => setTimeout(r, DELAY_MS));

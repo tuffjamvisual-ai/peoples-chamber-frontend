@@ -4,13 +4,14 @@
 // Same parsing logic as scripts/sync-appgs.js (kept in sync; the CLI
 // script remains the canonical implementation for ad-hoc re-runs).
 //
-// Schedule: '30 14 * * 1' (Monday 14:30 UTC) — after the activity
+// Schedule: '47 14 * * 1' (Monday 14:47 UTC) — after the activity
 // and standards committee crons. mySociety's repo updates as the
 // Parliament Register updates so weekly is comfortable.
 
 import { NextResponse } from 'next/server';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { createClient } from '@supabase/supabase-js';
+import { politeFetch, DOWNLOAD_TIMEOUT_MS, isPoliteStop } from '@/lib/sync-budget';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 240;
@@ -68,7 +69,7 @@ function parseUkDate(s: string | undefined | null): string | null {
 }
 
 async function fetchJson(url: string) {
-  const res = await fetch(url, { headers: { 'User-Agent': 'PeoplesChamber/1.0', 'Accept': 'application/json' } });
+  const res = await politeFetch(url, { headers: { 'User-Agent': 'PeoplesChamber/1.0', 'Accept': 'application/json' } }, { timeoutMs: DOWNLOAD_TIMEOUT_MS });
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
   return res.json();
 }
@@ -165,6 +166,7 @@ async function GET_impl(req: Request) {
           });
         }
       } catch (e) {
+        if (isPoliteStop(e)) throw e; // a 429 or the time budget: stop cleanly (lib/sync-budget.ts)
         console.error(`appgs sync: ${path}: ${e instanceof Error ? e.message : String(e)}`);
       }
     }

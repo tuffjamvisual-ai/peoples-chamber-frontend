@@ -4,6 +4,7 @@ import { revalidateBillPages } from '@/lib/revalidate-bills';
 import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -22,9 +23,12 @@ export const maxDuration = 300;
 // bill starts after TIME_BUDGET_MS, and each search has a 20 s limit;
 // every bill is saved (or stamped as tried) as it goes, so the next run
 // carries on.
+//
+// 27 Oct 2026 (job 79): the budget is now lib/sync-budget.ts: no bill starts after 70 per cent of maxDuration, each
+// search's timeout is cut to the time left so the run ends by 80 per cent, a 429 stops it cleanly (the bill is not
+// stamped, so it is tried first next run), and the response says partial: true while bills were left.
 
 const RUN_CAP = 600; // bills per invocation
-const TIME_BUDGET_MS = 240_000;
 const RETRY_DAYS = 7;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -45,11 +49,11 @@ function billNameFromActTitle(title: string): string {
     .trim();
 }
 
-async function searchDivisions(searchTerm: string): Promise<Division[]> {
+async function searchDivisions(searchTerm: string, budget: SyncBudget): Promise<Division[]> {
   // take=100 so big-ticket bills (Employment Rights, Online Safety etc.)
   // don't bury the Third Reading under 25 Lords-amendment motions.
   const url = `https://commonsvotes-api.parliament.uk/data/divisions.json/search?queryParameters.searchTerm=${encodeURIComponent(searchTerm)}&queryParameters.take=100`;
-  const res = await fetch(url, { signal: AbortSignal.timeout(20_000) });
+  const res = await politeFetch(url, {}, { budget, timeoutMs: 20_000 });
   if (!res.ok) throw new Error(`Commons Votes API ${res.status}`);
   return (await res.json()) as Division[];
 }
@@ -73,6 +77,7 @@ function pickDivision(bill: { title: string | null; stages: unknown }, divisions
 
 async function GET_impl(req: Request) {
   const started = Date.now();
+  const budget = new SyncBudget(maxDuration);
   const expected = process.env.CRON_SECRET;
   if (!expected) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 });
   if (req.headers.get('authorization') !== `Bearer ${expected}`) {
@@ -119,13 +124,14 @@ async function GET_impl(req: Request) {
   let fail = 0;
   const failures: Array<{ id: number; detail: string }> = [];
   let skippedForTime = 0;
+  let stoppedBy: string | null = null;
 
   for (const [i, bill] of targets.entries()) {
-    if (Date.now() - started > TIME_BUDGET_MS) { skippedForTime = targets.length - i; break; }
+    if (budget.stopStarting()) { stoppedBy = 'time budget'; skippedForTime = targets.length - i; break; }
     try {
       const billName = billNameFromActTitle(bill.title || '');
       if (!billName) continue;
-      const divisions = await searchDivisions(billName);
+      const divisions = await searchDivisions(billName, budget);
       const chosen = pickDivision(bill, divisions);
       // Always stamp tried_at so the SELECT advances to the next batch
       // next run, whether or not we got a match.
@@ -149,6 +155,7 @@ async function GET_impl(req: Request) {
       if (error) throw error;
       updated++;
     } catch (err) {
+      if (isPoliteStop(err)) { stoppedBy = (err as Error).message; skippedForTime = targets.length - i; break; }
       fail++;
       if (failures.length < 20) failures.push({ id: bill.id, detail: (err as Error).message });
     }
@@ -166,9 +173,11 @@ async function GET_impl(req: Request) {
     fail,
     failures,
     skipped_for_time: skippedForTime,
+    partial: skippedForTime > 0,
+    stopped_by: stoppedBy,
     duration_ms: Date.now() - started,
     syncedAt: new Date().toISOString(),
-  }, { status: targets.length > 0 && updated + noMatch === 0 ? 502 : 200 });
+  }, { status: targets.length > 0 && updated + noMatch === 0 && !(stoppedBy && fail === 0) ? 502 : 200 });
 }
 
 export const GET = withHeartbeat('/api/sync-bill-commons-votes', GET_impl);

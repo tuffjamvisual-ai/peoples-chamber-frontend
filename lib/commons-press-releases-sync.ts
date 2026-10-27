@@ -114,7 +114,7 @@ export async function runCommonsPressReleasesSync(deps: SyncDeps): Promise<SyncR
   let stoppedByBudget = false;
   let gaveUpOn: number | null = null; // a page that did not answer twice in this run; the next run starts with it
 
-  async function readPage(skip: number, timeoutMs: number): Promise<{ items: Publication[] } | { noAnswer: true } | { error: string }> {
+  async function readPage(skip: number, timeoutMs: number): Promise<{ items: Publication[] } | { noAnswer: true } | { error: string } | { limited: string }> {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), timeoutMs);
     const t0 = Date.now();
@@ -123,6 +123,8 @@ export async function runCommonsPressReleasesSync(deps: SyncDeps): Promise<SyncR
         headers: { Accept: 'application/json', 'User-Agent': 'PeoplesChamber/1.0' },
         signal: ctrl.signal,
       });
+      // A 429 (job 79, 27 Oct 2026): stop cleanly and carry on next run, as for the time budget.
+      if (res.status === 429) return { limited: `committees-api 429 (skip ${skip})${res.headers.get('retry-after') ? `, Retry-After ${res.headers.get('retry-after')}` : ''}` };
       if (!res.ok) return { error: `committees-api ${res.status} (skip ${skip})` };
       const data = (await res.json()) as { items?: Publication[] };
       log(`page skip=${skip}: ${(data.items || []).length} items in ${Date.now() - t0} ms`);
@@ -184,12 +186,14 @@ export async function runCommonsPressReleasesSync(deps: SyncDeps): Promise<SyncR
   }
 
   let failure: { status: number; error: string } | null = null;
+  let rateLimited: string | null = null;
   while (queue.length) {
     const skip = queue[0];
     const timeLeft = left() - WRITE_RESERVE_MS;
     if (timeLeft < MIN_REQUEST_MS) { stoppedByBudget = true; break; }
     const page = await readPage(skip, Math.min(apiTimeoutMs, timeLeft));
     if ('error' in page) { failure = { status: 502, error: page.error }; break; }
+    if ('limited' in page) { rateLimited = page.limited; break; }
     if ('noAnswer' in page) {
       noAnswer.push({ skip, afterMs: Date.now() - started });
       queue.shift();
@@ -222,6 +226,7 @@ export async function runCommonsPressReleasesSync(deps: SyncDeps): Promise<SyncR
     ok: !failure && pagesRead.length > 0,
     partial: remaining.length > 0,
     stoppedByBudget,
+    rateLimited,
     gaveUpOn,
     resumedFrom: resumed ? (cur!.updated_at as string) : null,
     passStartedAt,
@@ -241,6 +246,8 @@ export async function runCommonsPressReleasesSync(deps: SyncDeps): Promise<SyncR
     ...(failure ? { error: failure.error } : {}),
   };
   if (failure) return { status: failure.status, body };
+  // Asked to slow down: a clean stop, whatever was read is kept and the next run carries on.
+  if (rateLimited) return { status: 200, body: { ...body, ok: true, partial: true } };
   // No page answered at all: the source is down, so fail loudly (the position is kept for the next run).
   if (!pagesRead.length) return { status: 504, body: { ...body, ok: false, error: `committees-api: no page answered within ${Math.round(apiTimeoutMs / 1000)} s` } };
   return { status: 200, body };

@@ -9,6 +9,7 @@
 // small enough for a serverless function.
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { politeFetch, DOWNLOAD_TIMEOUT_MS } from '@/lib/sync-budget';
 
 export const HPI_BASE = 'https://publicdata.landregistry.gov.uk/market-trend-data/house-price-index-data/';
 const UA = 'opengovt/1.0 (+https://opengovt.uk)';
@@ -92,14 +93,14 @@ export async function findLatestFullFile(now = new Date()): Promise<{ tag: strin
   for (let back = 0; back <= 6; back++) {
     const tag = monthTag(now, back);
     const url = fullFileUrl(tag);
-    const res = await fetch(url, { method: 'HEAD', headers: { 'User-Agent': UA } });
+    const res = await politeFetch(url, { method: 'HEAD', headers: { 'User-Agent': UA } });
     if (res.ok) return { tag, url };
   }
   return null;
 }
 
 export async function downloadFullFile(url: string): Promise<string> {
-  const res = await fetch(url, { headers: { 'User-Agent': UA } });
+  const res = await politeFetch(url, { headers: { 'User-Agent': UA } }, { timeoutMs: DOWNLOAD_TIMEOUT_MS });
   if (!res.ok) throw new Error(`UK HPI download HTTP ${res.status}`);
   return res.text();
 }

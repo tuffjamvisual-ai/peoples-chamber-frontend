@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { findLatestSnapshot, downloadCsvText, parseSnapshot, writeSnapshot, storedSnapshotDate, loadCouncils } from '@/lib/school-inspections';
+import { isPoliteStop } from '@/lib/sync-budget';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -33,6 +34,7 @@ async function GET_impl(req: Request) {
     const w = await writeSnapshot(supabase, r.rows, snap.date);
     return NextResponse.json({ status: 'updated', snapshot: snap.date, previous_snapshot: stored, removed: w.removed, rows_written: w.written });
   } catch (e) {
+    if (isPoliteStop(e)) throw e; // a 429: stop cleanly (lib/sync-budget.ts)
     return NextResponse.json({ error: 'sync_failed', message: (e as Error).message }, { status: 500 });
   }
 }

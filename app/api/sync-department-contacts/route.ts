@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { govukSlugs } from '@/lib/govuk-slugs';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { politeFetch, isPoliteStop } from '@/lib/sync-budget';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
@@ -13,7 +14,7 @@ type Contacts = {
 };
 
 async function fetchContacts(govukSlug: string): Promise<Contacts> {
-  const res = await fetch(
+  const res = await politeFetch(
     `https://www.gov.uk/api/content/government/organisations/${govukSlug}`,
   );
   if (!res.ok) throw new Error(`gov.uk ${res.status}`);
@@ -78,6 +79,7 @@ async function GET_impl(req: Request) {
       if (error) throw error;
       results.push({ deptSlug, status: 'ok', detail: `social=${c.social_media_links.length}` });
     } catch (err) {
+      if (isPoliteStop(err)) throw err; // a 429 or the time budget: stop cleanly (lib/sync-budget.ts)
       results.push({ deptSlug, status: 'fail', detail: (err as Error).message });
     }
   }

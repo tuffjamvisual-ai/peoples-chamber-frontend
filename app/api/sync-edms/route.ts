@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { SyncBudget, isPoliteStop } from '@/lib/sync-budget';
 import { EDM_API, EDM_PARLIAMENT_START, fetchEdmJson, listEdmsResumable, buildEdmRows, writeEdm, type EdmListEntry, type EdmListPages } from '@/lib/edms';
 
 export const dynamic = 'force-dynamic';
@@ -31,11 +32,15 @@ export const maxDuration = 300;
 // A second cron, 10 minutes later, calls this with ?retry=1: it runs again only
 // if the last run, within the past hour, ended with a 5xx (Parliament's API
 // failing, or nothing written); otherwise it returns without recording a run.
+//
+// 27 Oct 2026 (job 79): it failed twice in the 14 days to 26 Oct (502 on 18 and 21 Oct, both before the 22 Oct
+// change). A motion fetch could still run 30 s a try, four tries, past the 240 s mark. Now (lib/sync-budget.ts) every
+// try's timeout is cut to the time left, no motion starts after 70 per cent of maxDuration, the run ends by 80 per
+// cent, a 429 stops it cleanly, and the response says partial: true while the list or the motions were left part done.
 
 const CONCURRENCY = 3;
 const LIST_CONCURRENCY = 3;
 const DELAY_MS = 250;
-const TIME_BUDGET_MS = 240_000;
 const ROLLING_REFRESH = 300;
 const LIST_BUDGET_MS = 150_000;
 const ROUTE = '/api/sync-edms';
@@ -49,6 +54,7 @@ async function GET_impl(req: Request) {
   }
 
   const started = Date.now();
+  const budget = new SyncBudget(maxDuration, { started });
 
   // Pages saved by an earlier run that stopped part way.
   let saved: EdmListPages | null = null;
@@ -56,7 +62,7 @@ async function GET_impl(req: Request) {
     const { data: cur } = await supabase.from('sync_cursor').select('cursor, updated_at').eq('route', ROUTE).maybeSingle();
     if (cur && Date.now() - new Date(cur.updated_at as string).getTime() < CURSOR_MAX_AGE_MS) saved = cur.cursor as EdmListPages;
   }
-  const listed = await listEdmsResumable(EDM_PARLIAMENT_START, saved, started + LIST_BUDGET_MS, DELAY_MS, LIST_CONCURRENCY);
+  const listed = await listEdmsResumable(EDM_PARLIAMENT_START, saved, Math.min(started + LIST_BUDGET_MS, budget.deadline), DELAY_MS, LIST_CONCURRENCY, budget);
   const byId = new Map<number, EdmListEntry>();
   for (const entries of Object.values(listed.state.pages)) for (const e of entries) byId.set(e.id, e);
   const list = [...byId.values()];
@@ -69,6 +75,7 @@ async function GET_impl(req: Request) {
     await supabase.from('sync_cursor').delete().eq('route', ROUTE);
   }
   if (list.length === 0) {
+    if (listed.stoppedBy) return NextResponse.json({ ok: true, partial: true, stopped_by: listed.stoppedBy, rows_written: 0 });
     return NextResponse.json({ error: 'list_fetch_failed', message: listed.lastError ?? 'no page of the motion list could be read', pages_failed: listed.pagesFailed }, { status: 502 });
   }
 
@@ -102,23 +109,27 @@ async function GET_impl(req: Request) {
   let processed = 0;
   let signatureRows = 0;
   let skippedForTime = 0;
+  let stoppedBy: string | null = listed.stoppedBy;
   const failures: { id: number; error: string }[] = [];
 
   async function worker() {
     while (queue.length > 0) {
-      if (Date.now() - started > TIME_BUDGET_MS) {
+      if (stoppedBy || budget.stopStarting()) {
+        stoppedBy ??= 'time budget';
         skippedForTime += queue.length;
         queue.length = 0;
         return;
       }
       const entry = queue.shift()!;
       try {
-        const json = await fetchEdmJson(`${EDM_API}/EarlyDayMotion/${entry.id}`);
+        const json = await fetchEdmJson(`${EDM_API}/EarlyDayMotion/${entry.id}`, 4, budget);
         const built = buildEdmRows(json, entry.sponsorsCount);
         await writeEdm(supabase, built);
         signatureRows += built.signatures.length;
         processed++;
       } catch (e) {
+        // Out of time or asked to stop: this motion is left (it is still due next run).
+        if (isPoliteStop(e)) { stoppedBy ??= (e as Error).message; skippedForTime += 1 + queue.length; queue.length = 0; return; }
         failures.push({ id: entry.id, error: (e as Error).message });
       }
       await new Promise((r) => setTimeout(r, DELAY_MS));
@@ -142,12 +153,15 @@ async function GET_impl(req: Request) {
     rows_written: processed,
     signature_rows: signatureRows,
     skipped_for_time: skippedForTime,
+    partial: skippedForTime > 0 || !listed.complete,
+    stopped_by: stoppedBy,
     failures: failures.slice(0, 20),
     failure_count: failures.length,
     duration_ms: Date.now() - started,
   };
   // 200 when anything was saved, or when there was nothing to do and the list was read in full.
-  const status = processed > 0 || (total === 0 && listed.complete) ? 200 : 502;
+  // A run stopped by the budget or a rate limit with nothing failed is a clean partial run (job 79).
+  const status = processed > 0 || (total === 0 && listed.complete) || (stoppedBy && failures.length === 0 && listed.pagesFailed === 0) ? 200 : 502;
   return NextResponse.json(body, { status });
 }
 
