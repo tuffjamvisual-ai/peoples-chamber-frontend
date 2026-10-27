@@ -354,7 +354,7 @@ export async function sendNewsletterConfirmation(to: string, token: string, base
 }
 
 // Where a newsletter sign up came from, in words, for the owner notification (owner, 27 Oct 2026). Data pages send
-// "data-<page>". A code not listed here is shown as it is.
+// "data-<page>" and article ends "article-end-<section>"; one not listed is put into words. Any other code is shown as it is.
 const SIGNUP_SOURCES: Record<string, string> = {
   homepage: 'Homepage',
   'newsletter-page': 'Newsletter page',
@@ -373,12 +373,18 @@ const DATA_PAGES: Record<string, string> = {
   expenses: 'expenses',
   'league-table': 'council league table',
   'council-page': 'council page',
+  'laws-without-a-vote': 'laws made without a vote',
+  treaties: 'treaties',
+  organisations: 'organisations',
 };
 export function signupSourceName(source: string | null | undefined): string {
   if (!source) return 'Not recorded';
   if (SIGNUP_SOURCES[source]) return SIGNUP_SOURCES[source];
-  const data = source.startsWith('data-') ? DATA_PAGES[source.slice(5)] : undefined;
-  return data ? `Data page: ${data}` : source;
+  // Any other data-<name> or article-end-<name>: the name in words, dashes as spaces (owner, 27 Oct 2026).
+  const words = (code: string) => code.replace(/-+/g, ' ').trim();
+  if (source.startsWith('data-') && source.length > 5) return `Data page: ${DATA_PAGES[source.slice(5)] ?? words(source.slice(5))}`;
+  if (source.startsWith('article-end-') && source.length > 12) return `End of article: ${words(source.slice(12))}`;
+  return source;
 }
 
 // Owner notification: fires when someone CONFIRMS a newsletter subscription (the click in the
