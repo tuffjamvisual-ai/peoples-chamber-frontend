@@ -73,6 +73,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/money`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
     { url: `${SITE}/reports`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/laws`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    // Laws made without a vote and treaties, from UK Parliament's APIs (report 81).
+    { url: `${SITE}/laws/made-without-a-vote`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
+    { url: `${SITE}/treaties`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${SITE}/polls`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/expenses`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/expenses/refused`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },

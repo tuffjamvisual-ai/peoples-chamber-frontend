@@ -7,9 +7,24 @@ import Link from 'next/link'
 import OpenGovShell from '../../components/OpenGovShell'
 import BackLink from '../../components/BackLink';
 import { displayMpName } from '@/lib/mp-name';
+import { getSi, getSiVersions, isApiId } from '@/lib/si-treaties-data';
+import ApiInstrument from './ApiInstrument';
 import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 
 export const revalidate = 86400
+
+// Titles for API records (report 81); division pages keep the site default as before.
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<import('next').Metadata> {
+  const { id } = await params
+  if (!isApiId(id)) return {}
+  const si = await getSi(id)
+  if (!si) return {}
+  return {
+    title: si.title,
+    description: `${si.si_number ? `${si.si_number}: ` : ''}${si.procedure || 'Statutory instrument'} laid by ${si.laying_department || 'the government'} on ${si.laid_date || 'a date not given'}, with its path through Parliament.`.slice(0, 155),
+    alternates: { canonical: `/statutory-instruments/${id}` },
+  }
+}
 
 export async function generateStaticParams() {
   const { data, error } = await supabase
@@ -39,6 +54,13 @@ type VoteRow = {
 
 export default async function SIDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+  // An API id (letters and digits) is an instrument from the statutory_instruments table (report 81); a number is a
+  // Commons division on an instrument, shown below as before.
+  if (isApiId(id)) {
+    const si = await getSi(id)
+    if (!si) notFound()
+    return <ApiInstrument si={si} versions={await getSiVersions(si)} />
+  }
   const divisionId = parseInt(id, 10)
   if (!Number.isFinite(divisionId)) notFound()
 

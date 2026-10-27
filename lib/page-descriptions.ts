@@ -20,6 +20,10 @@ export const PAGE_DESCRIPTIONS: Record<string, string> = {
     'Hospitality received by ministers, as published by each department: the minister, the date, who gave it, what it was, any guest and its value.',
   '/parties':
     'The 15 UK parties Open Govt covers, each with its number of current MPs and a link to its promises against its record, its donations and its whip record.',
+  '/laws/made-without-a-vote':
+    'Every statutory instrument laid before Parliament: laws ministers make without a full Act, with procedure, department, scrutiny and debates.',
+  '/treaties':
+    'Every treaty laid before Parliament under the 2010 Act: laid date, department, objection deadline, committee work and whether scrutiny ended.',
   '/expenses':
     'The ten MPs with the highest IPSA business costs in the latest year, ranked by total claimed across staffing, office, accommodation and travel.',
 };

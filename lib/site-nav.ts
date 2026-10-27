@@ -31,6 +31,8 @@ export const NAV: NavItem[] = [
     { group: 'Parliament', label: 'Divisions', href: '/divisions', desc: 'Every recorded vote in the House of Commons since March 2016, with how the House divided.' },
     { group: 'Parliament', label: 'Press Releases', href: '/transparency/press-releases', desc: 'UK Government department press releases from 2007 to today, plus Commons select committee reports.' },
     { group: 'Parliament', label: 'Laws', href: '/laws', desc: 'Acts of the UK Parliament that have received Royal Assent, with original sponsor and stage history.' },
+    { group: 'Parliament', label: 'Laws Made Without a Vote', href: '/laws/made-without-a-vote', desc: PAGE_DESCRIPTIONS['/laws/made-without-a-vote'] },
+    { group: 'Parliament', label: 'Treaties', href: '/treaties', desc: PAGE_DESCRIPTIONS['/treaties'] },
     // /parties is the parties index and the 2024 manifesto comparison is /parties/manifestos (report 64).
     { group: 'Parties', label: 'All Parties', href: '/parties', desc: PAGE_DESCRIPTIONS['/parties'] },
     { group: 'Parties', label: 'Manifesto Comparisons', href: '/parties/manifestos', desc: 'Compare the 2024 General Election manifestos of 15 parties across 11 policy themes.' },
