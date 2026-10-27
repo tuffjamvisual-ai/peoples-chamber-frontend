@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase'
 import OpenGovShell from '../components/OpenGovShell'
 import BackLink from '../components/BackLink'
 import { jsonWithoutEmDashes } from '@/lib/no-em-dash'
+import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 
 // Reflects the current week's Commons business on a 10-minute ISR window, so
 // visitors are served from cache rather than triggering two live Parliament API
@@ -201,6 +202,7 @@ export default async function ThisWeekPage() {
         })}
       </section>
 
+      <ParliamentSourceCredit />
     </OpenGovShell>
   )
 }

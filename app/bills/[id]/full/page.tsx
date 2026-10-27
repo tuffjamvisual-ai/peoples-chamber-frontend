@@ -22,6 +22,7 @@ import Link from 'next/link'
 import OpenGovShell from '../../../components/OpenGovShell'
 import BackLink from '../../../components/BackLink';
 import { jsonWithoutEmDashes } from '@/lib/no-em-dash'
+import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 
 export const revalidate = 86400  // re-fetch from Parliament once a day
 
@@ -409,6 +410,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
         <Link href={`/bills/${billId}`} style={{ color: INK_SOFT, textDecoration: 'underline' }}>← back to summary</Link>
       </p>
       </article>
+      <ParliamentSourceCredit />
     </OpenGovShell>
   )
 }

@@ -14,6 +14,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../../components/OpenGovShell';
 import PartySidebar from '../../../components/PartySidebar';
 import { displayMpName } from '@/lib/mp-name';
+import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 
 export const revalidate = 21600;
 export function generateStaticParams() { return []; }
@@ -294,6 +295,7 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
 
       </PartySidebar>
 
+      <ParliamentSourceCredit />
     </OpenGovShell>
   );
 }

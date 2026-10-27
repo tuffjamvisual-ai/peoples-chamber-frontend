@@ -12,6 +12,7 @@ import { donorNameToSlug } from '../donors/[slug]/page';
 import { donorPageSlug } from '@/lib/donor-slug';
 import { readAll, inList } from '@/lib/read-all';
 import { storedSpellings } from '@/lib/donor-registry';
+import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 
 export const revalidate = 86400;
 
@@ -139,6 +140,7 @@ export default async function AppgFundersIndex() {
       <p style={{ fontSize: '15px', opacity: 0.6 }}>
         An entry on this list is the public sponsor / funder of an APPG&rsquo;s secretariat costs; it does not mean every member of the group endorses the funder.
       </p>
+      <ParliamentSourceCredit />
     </OpenGovShell>
   );
 }

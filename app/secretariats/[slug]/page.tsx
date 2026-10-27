@@ -19,6 +19,7 @@ import ReadNext from '../../components/ReadNext';
 import type { ReadNextLink } from '@/lib/read-next';
 import { donorPageSlug } from '@/lib/donor-slug';
 import { displayMpName } from '@/lib/mp-name';
+import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 
 export const revalidate = 86400;
 
@@ -238,6 +239,8 @@ export default async function SecretariatPage({ params }: PageProps) {
           })}
         </ul>
       </section>
+
+      <ParliamentSourceCredit />
 
       {/* Read next at the end of the page, after every section (owner's request, 25 Oct 2026). */}
       <ReadNext links={nextLinks} />

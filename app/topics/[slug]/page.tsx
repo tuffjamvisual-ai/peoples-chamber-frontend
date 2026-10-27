@@ -11,6 +11,7 @@ import { editorials } from '@/lib/editorials';
 import { listSummary } from '@/lib/editorials/list-summary';
 import { readingLabel, textReadingLabel } from '@/lib/reading-time';
 import ContinueToArticle from '../../components/ContinueToArticle';
+import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 
 export const revalidate = 86400;
 
@@ -255,6 +256,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
         </section>
       )}
 
+      <ParliamentSourceCredit />
     </OpenGovShell>
   );
 }

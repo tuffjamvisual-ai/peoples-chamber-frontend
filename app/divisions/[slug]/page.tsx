@@ -21,6 +21,7 @@ import BackLink from '../../components/BackLink';
 import { partyColourForMember, normaliseParty } from '@/lib/party-helpers';
 import RelatedLinks from '../../components/RelatedLinks';
 import { displayMpName } from '@/lib/mp-name';
+import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 
 export const revalidate = 86400;  // divisions don't change after the vote happens
 
@@ -474,6 +475,8 @@ export default async function DivisionDetailPage({ params }: PageProps) {
           </ul>
         </section>
       )}
+
+      <ParliamentSourceCredit />
 
       {/* B4 — bill + department related links via exact normalized title match */}
       <RelatedLinks variant="division" divisionTitle={title} />

@@ -6,6 +6,7 @@ import Link from 'next/link'
 import OpenGovShell from '../../components/OpenGovShell'
 import Pagination from '../../components/Pagination'
 import TransparencyClient from './TransparencyClient'
+import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 
 export const revalidate = 3600
 
@@ -282,6 +283,7 @@ export default async function TransparencySectionPage({
         baseUrl={baseUrl}
         qsExtra={searchTerm ? `&q=${encodeURIComponent(searchTerm)}` : ''}
       />
+      {section === 'appgs' && <ParliamentSourceCredit />}
     </OpenGovShell>
   )
 }

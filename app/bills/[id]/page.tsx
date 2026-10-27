@@ -17,6 +17,7 @@ import JsonLd, { buildBillLegislation, buildBreadcrumbs } from '@/lib/JsonLd';
 import RelatedLinks from '@/app/components/RelatedLinks';
 import LastUpdated from '@/app/components/LastUpdated';
 import type { Metadata } from 'next'
+import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 export const revalidate = 3600
 
 // Prerender a small set of bill pages at build time. The list does NOT need
@@ -560,6 +561,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
         commonsDivisionId={bill.commons_division_id ?? null}
       />
 
+      <ParliamentSourceCredit />
     </OpenGovShell>
   )
 }

@@ -4,6 +4,7 @@ import OpenGovShell from '../../components/OpenGovShell'
 import BackLink from '../../components/BackLink'
 import MpActivityClient, { type Row } from './MpActivityClient'
 import { displayMpName } from '@/lib/mp-name';
+import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 
 export const dynamic = 'force-dynamic'
 
@@ -72,6 +73,7 @@ export default async function MpActivityPage() {
 
       <MpActivityClient rows={rows} />
 
+      <ParliamentSourceCredit />
     </OpenGovShell>
   )
 }

@@ -8,6 +8,7 @@ import SectionLinks from '../components/SectionLinks';
 import VotingIntegrity from '../components/VotingIntegrity';
 import Link from 'next/link';
 import { getCurrentBillSessions, getParliamentSessions, getSessionBills, sessionBillGroup, sessionTitle, type SessionBillGroup } from '@/lib/parliament-sessions';
+import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 
 export const BILLS_PER_PAGE = 20;
 
@@ -86,6 +87,7 @@ export default async function BillsListing({ page }: { page: number }) {
         <Link href="/laws" style={{ color: '#7a1612', textDecoration: 'underline', textUnderlineOffset: '3px' }}>Acts of Parliament</Link>
       </nav>
 
+      <ParliamentSourceCredit />
     </OpenGovShell>
   );
 }

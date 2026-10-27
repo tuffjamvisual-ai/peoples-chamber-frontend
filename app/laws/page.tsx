@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase'
 import LawsClient from './LawsClient'
 import OpenGovShell from '../components/OpenGovShell'
 import BackLink from '../components/BackLink';
+import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 // Render on demand — large Supabase query (all Acts) hits the 60s
 // build-budget under concurrent worker pressure. Same pattern as
 // /bills, /departments, /earnings, /expenses.
@@ -54,6 +55,7 @@ export default async function LawsPage() {
 
       <LawsClient laws={laws || []} />
 
+      <ParliamentSourceCredit />
     </OpenGovShell>
   )
 }

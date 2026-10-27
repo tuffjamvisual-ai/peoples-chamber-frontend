@@ -7,6 +7,7 @@ import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import SectionLinks from '../components/SectionLinks';
 import { displayMpName } from '@/lib/mp-name';
+import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 
 export const revalidate = 3600;
 
@@ -58,6 +59,7 @@ export default async function MPsPage() {
       <Suspense fallback={<div style={{ minHeight: '400px' }} />}>
         <MagazineMPsClient mps={mps} />
       </Suspense>
+      <ParliamentSourceCredit />
       {/* Server-rendered link block — all current MP profiles as crawlable
           <a href="/mps/[id]"> tags, visually hidden (1px clip) but present
           in the HTML so crawlers reach every profile from this page.

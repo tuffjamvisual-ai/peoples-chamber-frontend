@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import Pagination from '../../components/Pagination';
+import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 
 // Static /transparency/press-releases route. Lives outside the dynamic
 // [section] route because press releases aren't a tabular dataset — each
@@ -455,6 +456,7 @@ export default async function PressReleasesIndexPage({
         .press-card:hover { opacity: 0.7; }
       `}</style>
       <LastUpdated sourceKey="press_releases" />
+      <ParliamentSourceCredit marginTop="6px" />
     </OpenGovShell>
   );
 }

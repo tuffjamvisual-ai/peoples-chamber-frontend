@@ -7,6 +7,7 @@ import Link from 'next/link'
 import OpenGovShell from '../../components/OpenGovShell'
 import BackLink from '../../components/BackLink';
 import { displayMpName } from '@/lib/mp-name';
+import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 
 export const revalidate = 86400
 
@@ -151,6 +152,7 @@ export default async function SIDetailPage({ params }: { params: Promise<{ id: s
           <VoteColumn heading={`Voted NO (${noes.length})`} rows={noes} accent={DANGER} />
         </div>
       </section>
+      <ParliamentSourceCredit />
     </OpenGovShell>
   )
 }
