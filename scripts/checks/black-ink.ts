@@ -20,7 +20,8 @@ type Finding = { page: string; text: string; colour: string; alpha: number; tag:
 // Fixed pages, plus one of each record page found from an index page.
 const FIXED = ['/', '/directory', '/parties', '/councils', '/councils/birmingham', '/mps/4597', '/bills', '/divisions', '/debates',
   '/donations/government-contractors', '/organisations', '/laws/made-without-a-vote', '/treaties', '/newsletter', '/login',
-  '/commission', '/search?q=nhs', '/sections/parliament'];
+  '/commission', '/search?q=nhs', '/sections/parliament',
+  '/bills/3887/full', '/bills/4017/full']; // a full bill with its text, and one with the PDF fallback
 const FIND_ONE: [string, RegExp][] = [
   ['/reports', /^\/editorials\/[a-z0-9]+$/], ['/reports', /^\/briefings\/[a-z0-9]+$/], ['/', /^\/news\/[a-z0-9-]+$/],
   ['/bills', /^\/bills\/\d+$/], ['/organisations', /^\/organisations\/[a-z0-9-]+$/],

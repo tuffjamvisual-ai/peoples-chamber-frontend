@@ -19,6 +19,7 @@ import LastUpdated from '@/app/components/LastUpdated';
 import type { Metadata } from 'next'
 import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 import FollowButton from '@/app/components/FollowButton';
+import { getBillPublications, latestText } from '@/lib/bill-text';
 export const revalidate = 3600
 
 // Prerender a small set of bill pages at build time. The list does NOT need
@@ -148,6 +149,23 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
   const commonsDivisionDate = bill.commons_vote_date
     ? new Date(bill.commons_vote_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
     : null
+
+  // The version the full bill page shows, for its link (owner, 27 Oct 2026). The same cached Bills API answer as
+  // /bills/[id]/full (lib/bill-text.ts: a day, or 30 days for a settled bill), so at most one call a day per bill; if it
+  // cannot be read the link shows without a version.
+  let fullBillVersion: string | null = null
+  if (bill.parliament_id != null) {
+    try {
+      const settled = !!bill.last_update && Date.now() - Date.parse(bill.last_update) > 90 * 86400_000
+      const latest = latestText(await getBillPublications(bill.parliament_id, settled))
+      if (latest) {
+        const d = latest.date ? new Date(`${latest.date}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : ''
+        fullBillVersion = `${latest.label}${d ? `, ${d}` : ''}`
+      }
+    } catch (e) {
+      console.error(`/bills/[id] ${billId} full bill version: ${(e as Error).message}`)
+    }
+  }
 
   // Stages are cached in bill.stages (refreshed daily by
   // /api/sync-bill-stages). No live Parliament-API call here.
@@ -316,10 +334,9 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
           );
         })()}
 
-        {/* See full bill — internal page at /bills/{id}/full pulls the
-            full publications list (bill text, Explanatory Notes, Impact
-            Assessments, amendment papers etc.) from the Parliament Bills
-            API and renders it in our own template. Linked here rather
+        {/* See full bill: /bills/{id}/full shows the text of the bill itself
+            (its latest version, named here) and every other document
+            Parliament has published for it, in our own template. Linked here rather
             than out to bills.parliament.uk so the reader stays in our
             shell. Visible for every bill in the table — universal
             parliament_id coverage. */}
@@ -339,6 +356,9 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
             >
               See full bill →
             </a>
+            {fullBillVersion && (
+              <p style={{ fontFamily: MONO, fontSize: '15px', margin: '6px 0 0', color: INK }}>{fullBillVersion}</p>
+            )}
           </div>
         )}
 
