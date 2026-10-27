@@ -18,6 +18,7 @@ export type NavItem = { label: string; href: string; page?: string; children?: N
 export const NAV: NavItem[] = [
   { label: 'Home', href: '/' },
   { label: 'Search', href: '/search' },
+  { label: 'Directory', href: '/directory' },
   { label: 'Topics', href: '/topics', page: '/topics', children: topics.map((t) => ({ label: t.title, href: `/topics/${t.slug}` })) },
   // MPs, Parties and Departments are groups of Parliament since 25 Oct 2026 (owner's decision, report 62).
   { label: 'Parliament', href: '/bills', page: '/sections/parliament', children: [

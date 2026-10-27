@@ -112,6 +112,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/second-jobs`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/lobbying`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/organisations`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
+    // Everything on the site, A to Z (owner, 27 Oct 2026).
+    { url: `${SITE}/directory`, lastModified: now, changeFrequency: 'weekly', priority: 0.6 },
     { url: `${SITE}/committees`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/topics`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     // The parties index and the 2024 manifesto comparison, which moved from /parties (report 64).
