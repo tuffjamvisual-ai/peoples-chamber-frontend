@@ -1,14 +1,14 @@
 'use client';
 
 // The sign up note above the search results (lib/search-note.ts). Hidden unless its data-show attribute is "1", which
-// only the note's own script sets (before hydration on a full load, so suppressHydrationWarning). Wording: alerts and
-// saved searches do not exist yet, so the note offers voting (owner: update the wording when alerts launch).
+// only the note's own script sets (before hydration on a full load, so suppressHydrationWarning). Wording: saved
+// searches and alerts went live on 27 Oct 2026 (job 74 Parts 3 to 5), so the note offers them.
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '../context/AuthContext';
 import { SEARCH_NOTE_ID, SEARCH_NOTE_DISMISS_KEY, SEARCH_NOTE_DAYS, noteSearch } from '@/lib/search-note';
 
-export const SEARCH_NOTE_TEXT = 'Sign up free to vote on bills and polls.';
+export const SEARCH_NOTE_TEXT = 'Sign up free to save searches and get alerts.';
 
 export default function SignupNote({ q, returnTo }: { q: string; returnTo: string }) {
   const { user } = useAuth();
