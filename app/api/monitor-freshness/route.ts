@@ -106,6 +106,14 @@ async function GET_impl(req: Request) {
   // The crons were restaggered on 27 Oct 2026 (job 79). A due time before then belongs to the old schedule, when the
   // job ran at a different minute, so it is not checked against the new one.
   const SCHEDULES_CHANGED = new Date('2026-10-27T04:00:00Z');
+  // When each recently added cron went live (its deploy was Ready). Until its first scheduled run after that, a cron
+  // has not missed anything, so a due time before it is not checked (owner, 27 Oct 2026). Add a cron here when it is
+  // added to vercel.json.
+  const CRON_ADDED: Record<string, string> = {
+    '/api/send-member-digests': '2026-10-27T12:34:22Z',               // job 74; first run 28 Oct 07:24 UTC
+    '/api/sweep-electoral-commission-donations': '2026-10-27T12:56:53Z', // first run 27 Oct 21:17 UTC
+    '/api/sync-statutory-instruments-treaties': '2026-10-27T13:26:54Z',  // first run 28 Oct 02:45 UTC
+  };
   // Run expected, zero rows normal: alerted only for a missed run or a failed one, never for a run of zero rows.
   // The reshuffle tick changes nothing unless reshuffle mode is on.
   const ZERO_ROWS_NORMAL = new Set(['/api/sync-reshuffle-tick']);
@@ -116,6 +124,7 @@ async function GET_impl(req: Request) {
     const h = hb.get(route);
     if (!due || (h && new Date(h.last_ran_at) >= due)) continue;
     if (due < SCHEDULES_CHANGED) continue;
+    if (CRON_ADDED[route] && due < new Date(CRON_ADDED[route])) continue;
     // Crons given a heartbeat on 21 Oct 2026 have no row until their first run since then.
     if (!h && due < HEARTBEATS_ADDED) continue;
     missedRuns.push({ route, due: due.toISOString(), lastRanAt: h?.last_ran_at ?? null });

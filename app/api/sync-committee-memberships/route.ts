@@ -114,7 +114,11 @@ async function GET_impl(req: Request) {
   let upserted = 0;
   let partial = false;
   let stoppedBy: string | null = null;
+  // errors: database writes that failed (the run fails, 500). apiFailures: members whose Biography could not be read
+  // (a timeout or an error answer from the Members API); they are not marked as checked, so they come first next run,
+  // and on their own they do not fail the run (27 Oct 2026: a few slow answers turned the 13:03 run into a 500).
   const errors: { member_id: number; status?: number; message: string }[] = [];
+  const apiFailures: { member_id: number; status: number; message: string }[] = [];
   const dryRunWould: DryMember[] = [];
 
   for (const memberId of memberIds) {
@@ -137,10 +141,10 @@ async function GET_impl(req: Request) {
     processed++;
 
     if (result.status !== 200) {
-      errors.push({
+      apiFailures.push({
         member_id: memberId,
         status: result.status,
-        message: result.status ? `Biography API ${result.status}` : 'fetch error',
+        message: result.status ? `Biography API ${result.status}` : 'no answer (timeout or network error)',
       });
       // Do not mark as synced on API failure — leave them at the head of the
       // queue so they are retried on the next run rather than skipped for a week.
@@ -215,9 +219,14 @@ async function GET_impl(req: Request) {
   }
 
   const elapsed_ms = Date.now() - startedAt;
+  if (apiFailures.length) console.warn(`[sync-committee-memberships] Members API failed for ${apiFailures.length} of ${processed} members: ${apiFailures.map((f) => `${f.member_id} (${f.message})`).join(', ')}`);
+  if (errors.length) console.error(`[sync-committee-memberships] ${errors.length} database write errors: ${errors.map((e) => `${e.member_id}: ${e.message}`).join('; ')}`);
+  // Every member tried failed at the source: the Members API is down or refusing, which is a failed run (502).
+  const sourceDown = processed > 0 && apiFailures.length === processed;
+  if (apiFailures.length) partial = true;
 
   const base = {
-    ok: errors.length === 0,
+    ok: errors.length === 0 && !sourceDown,
     dryRun,
     members_in_batch: memberIds.length,
     processed,
@@ -226,6 +235,7 @@ async function GET_impl(req: Request) {
     elapsed_ms,
     syncedAt: new Date().toISOString(),
     ...(errors.length ? { errors } : {}),
+    ...(apiFailures.length ? { api_failures: apiFailures } : {}),
   };
 
   if (dryRun) {
@@ -239,7 +249,7 @@ async function GET_impl(req: Request) {
     });
   }
 
-  return NextResponse.json({ ...base, upserted }, { status: errors.length ? 500 : 200 });
+  return NextResponse.json({ ...base, upserted }, { status: errors.length ? 500 : sourceDown ? 502 : 200 });
 }
 
 export const GET = withHeartbeat('/api/sync-committee-memberships', GET_impl);
