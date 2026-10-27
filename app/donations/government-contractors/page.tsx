@@ -2,11 +2,11 @@
 // UK political parties AND hold public-sector contracts.
 //
 // The Electoral Commission register and the government contracts records are published
-// separately; this joins them by name (view contractor_donor_matches).
+// separately; this joins them by Companies House number (view contractor_donor_matches).
 //
-// Match rule: exact case-insensitive whitespace-normalised supplier
-// name = donor name. Conservative — it misses subsidiary chains and
-// rebrands. Anything it does match is a direct same-entity overlap.
+// Match rule (migration 2026-10-25b, report 71): the supplier's Companies House number on Find a Tender equals the
+// donor's on the Electoral Commission register, both normalised by normalise_company_number(). Individual donors are
+// left out. Never by name: two companies, or a company and a person, with the same name are not linked.
 
 import type { Metadata } from 'next';
 import LastUpdated from '../../components/LastUpdated';
@@ -40,7 +40,7 @@ type Cross = { displayName: string; norm: string; contracts: number; contractVal
 // Since migration 2026-10-21j the view counts each contract once (not each notice), leaves out change notices a
 // newer notice supersedes, and counts frameworks as places without adding their value (potential value, not
 // spending). The page reads the stored copy (migration 2026-10-21l, refreshed by the daily contracts sync): the
-// view itself takes up to 3 s.
+// view itself takes up to 3 s. Since migration 2026-10-25b it matches by Companies House number only.
 const loadMatched = unstable_cache(
   async () => {
     const matched: Cross[] = [];
@@ -63,7 +63,7 @@ const loadMatched = unstable_cache(
     const totalFrameworkPlaces = matched.reduce((s, m) => s + m.frameworkPlaces, 0);
     return { matched, totalDonated, totalContractValue, totalContracts, totalFrameworkPlaces };
   },
-  ['gov-contractors-matched-v4'],
+  ['gov-contractors-matched-v5'],
   { revalidate: 86400 },
 );
 
@@ -82,7 +82,7 @@ export default async function ContractorsWhoDonatePage() {
           UK government contractors who donate to UK political parties
         </h1>
         <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
-          {matched.length} companies appear on both the government contracts records (Find a Tender) and the Electoral Commission donations register under the same name. Between them they hold {totalContracts.toLocaleString()} public sector contracts worth &pound;{Math.round(totalContractValue).toLocaleString()} where a value is published{totalFrameworkPlaces ? <>, and {totalFrameworkPlaces} framework place{totalFrameworkPlaces === 1 ? '' : 's'} (not added in: a framework&rsquo;s value is potential value, not spending)</> : null}, and have given &pound;{Math.round(totalDonated).toLocaleString()} in declared political donations. The largest donors among them are listed first. Match rule is conservative: exact name, ignoring capital letters. Subsidiaries, trading names and rebrands are missed.
+          {matched.length} companies appear on both the government contracts records (Find a Tender) and the Electoral Commission donations register with the same Companies House number. Between them they hold {totalContracts.toLocaleString()} public sector contracts worth &pound;{Math.round(totalContractValue).toLocaleString()} where a value is published{totalFrameworkPlaces ? <>, and {totalFrameworkPlaces} framework place{totalFrameworkPlaces === 1 ? '' : 's'} (not added in: a framework&rsquo;s value is potential value, not spending)</> : null}, and have given &pound;{Math.round(totalDonated).toLocaleString()} in declared political donations. The largest donors among them are listed first. Records are matched by Companies House number only, never by name, and donations from individuals are left out. A company is missed when either register gives no number for it, and subsidiaries are listed under their own numbers.
         </p>
       </header>
 
@@ -123,7 +123,7 @@ export default async function ContractorsWhoDonatePage() {
       </section>
 
       <p style={{ fontSize: '15px', color: '#14100d', opacity: 1 }}>
-        Sources: Find a Tender (OCDS) + Electoral Commission donations register. Match rule: supplier name = donor name exactly, ignoring capital letters and extra spaces. Counting: Find a Tender publishes several notices for one contract (an award, its contract details, later changes); each contract is counted once at its latest value. Frameworks are counted as places, not added to the contract value: a framework&rsquo;s value is the most that every supplier on it could be paid, potential value, not spending.
+        Sources: Find a Tender (OCDS) + Electoral Commission donations register. Match rule: the supplier&rsquo;s Companies House number on Find a Tender equals the donor&rsquo;s on the Electoral Commission register; a contract counts only when its notices give one number for that supplier. Counting: Find a Tender publishes several notices for one contract (an award, its contract details, later changes); each contract is counted once at its latest value. Frameworks are counted as places, not added to the contract value: a framework&rsquo;s value is the most that every supplier on it could be paid, potential value, not spending.
       </p>
       <LastUpdated sourceKey="government_contracts" />
     </OpenGovShell>
