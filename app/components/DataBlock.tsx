@@ -28,7 +28,7 @@ export default function DataBlock({
       <p
         style={{
           fontFamily: MONO,
-          fontSize: '14px',
+          fontSize: '15px',
           fontWeight: 700,
           textTransform: 'uppercase',
           letterSpacing: '0.22em',
@@ -69,7 +69,7 @@ export default function DataBlock({
           <p
             style={{
               fontFamily: MONO,
-              fontSize: '14px',
+              fontSize: '15px',
               color: INK_SOFT,
               margin: '0 0 10px',
               lineHeight: 1.5,
@@ -82,7 +82,7 @@ export default function DataBlock({
         <p
           style={{
             fontFamily: MONO,
-            fontSize: '14px',
+            fontSize: '15px',
             color: INK_SOFT,
             margin: '0',
             paddingTop: '10px',

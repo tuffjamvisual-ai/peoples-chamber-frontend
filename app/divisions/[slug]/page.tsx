@@ -362,7 +362,7 @@ export default async function DivisionDetailPage({ params }: PageProps) {
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
       />
 
-      <p style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: ACCENT, margin: '0 0 10px', display: 'inline-block', border: `1px solid ${ACCENT}`, padding: '2px 7px 1px' }}>
+      <p style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: ACCENT, margin: '0 0 10px', display: 'inline-block', border: `1px solid ${ACCENT}`, padding: '2px 7px 1px' }}>
         Source: Commons divisions
       </p>
 
@@ -450,7 +450,7 @@ export default async function DivisionDetailPage({ params }: PageProps) {
           <VoteColumn heading={`Voted NO (${noTotal})`} groups={noeGroups} accent={DANGER} />
         </div>
         {totals && (ayeNamed !== ayeTotal || noNamed !== noTotal) && (
-          <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '14px', lineHeight: 1.6, marginTop: '16px' }}>
+          <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', lineHeight: 1.6, marginTop: '16px' }}>
             Totals are Parliament&rsquo;s official count, which does not include the tellers. Parliament&rsquo;s published list names {ayeNamed} of the {ayeTotal} Aye voters and {noNamed} of the {noTotal} No voters; tellers are listed and marked but not counted.
           </p>
         )}
@@ -515,7 +515,7 @@ function VoteColumn({
 }) {
   return (
     <div>
-      <h3 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', borderBottom: `2px solid ${accent}`, paddingBottom: '6px', marginBottom: '12px', color: accent }}>
+      <h3 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', borderBottom: `2px solid ${accent}`, paddingBottom: '6px', marginBottom: '12px', color: '#14100d' }}>
         {heading}
       </h3>
       {groups.map((g) => (

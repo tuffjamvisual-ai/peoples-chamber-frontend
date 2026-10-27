@@ -254,7 +254,7 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
               }}
             >
               <div style={{ marginBottom: '8px' }}>
-                <span style={{ fontSize: '0.85em', letterSpacing: '0.04em' }}>
+                <span style={{ fontSize: 'max(15px, 0.85em)', letterSpacing: '0.04em' }}>
                   {p.position_label || '2024 MANIFESTO'}
                 </span>
               </div>
@@ -269,7 +269,7 @@ export default async function PartyDossier({ params }: { params: Promise<{ slug:
                   }}
                 >
                   <div style={{ marginBottom: '6px' }}>
-                    <span style={{ fontSize: '0.85em', letterSpacing: '0.04em' }}>
+                    <span style={{ fontSize: 'max(15px, 0.85em)', letterSpacing: '0.04em' }}>
                       SHIFT SINCE 2024
                     </span>
                   </div>

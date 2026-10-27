@@ -89,7 +89,7 @@ export default async function SectionPage({ params }: { params: Promise<{ slug: 
       {/* With more than two groups (Parliament), a row of links to each group first. */}
       {grouped.length > 2 && (
         <nav aria-label="On this page" style={{ margin: '0 0 22px', fontFamily: MONO, fontSize: '15px', lineHeight: 1.5 }}>
-          <span style={{ textTransform: 'uppercase', letterSpacing: '0.12em', fontSize: '14px', marginRight: '8px' }}>On this page</span>
+          <span style={{ textTransform: 'uppercase', letterSpacing: '0.12em', fontSize: '15px', marginRight: '8px' }}>On this page</span>
           {grouped.map((g, i) => (
             <span key={g.title} style={{ whiteSpace: 'nowrap' }}>
               {i > 0 && <span aria-hidden style={{ margin: '0 6px' }}>·</span>}
@@ -130,7 +130,7 @@ export default async function SectionPage({ params }: { params: Promise<{ slug: 
                   <div style={{ fontFamily: MONO, fontSize: '17px', fontWeight: 'bold', marginBottom: l.desc ? '4px' : 0 }}>
                     {l.label} <span style={{ color: ACCENT }}>→</span>
                   </div>
-                  {l.desc && <p style={{ fontSize: '14px', lineHeight: 1.5, color: INK, margin: 0 }}>{l.desc}</p>}
+                  {l.desc && <p style={{ fontSize: '15px', lineHeight: 1.5, color: INK, margin: 0 }}>{l.desc}</p>}
                 </Link>
               ))}
             </div>

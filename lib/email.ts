@@ -82,11 +82,11 @@ export async function sendSignupNotification(user: {
   const html = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;color:#14100d">
       <p style="margin:0 0 12px;font-weight:bold">New user registered on opengovt.</p>
       <table style="border-collapse:collapse;font-size:15px">
-        <tr><td style="padding:2px 14px 2px 0;color:#555">Email</td><td>${user.email}</td></tr>
-        <tr><td style="padding:2px 14px 2px 0;color:#555">Username</td><td>${username}</td></tr>
-        <tr><td style="padding:2px 14px 2px 0;color:#555">Newsletter</td><td style="font-weight:${user.newsletterOptIn ? 'bold' : 'normal'};color:${user.newsletterOptIn ? '#2a6e1f' : 'inherit'}">${newsletter}</td></tr>
-        <tr><td style="padding:2px 14px 2px 0;color:#555">Verified</td><td>${status}</td></tr>
-        <tr><td style="padding:2px 14px 2px 0;color:#555">Signed up</td><td>${timestamp} (UK time)</td></tr>
+        <tr><td style="padding:2px 14px 2px 0;color:#14100d">Email</td><td>${user.email}</td></tr>
+        <tr><td style="padding:2px 14px 2px 0;color:#14100d">Username</td><td>${username}</td></tr>
+        <tr><td style="padding:2px 14px 2px 0;color:#14100d">Newsletter</td><td style="font-weight:${user.newsletterOptIn ? 'bold' : 'normal'};color:#14100d">${newsletter}</td></tr>
+        <tr><td style="padding:2px 14px 2px 0;color:#14100d">Verified</td><td>${status}</td></tr>
+        <tr><td style="padding:2px 14px 2px 0;color:#14100d">Signed up</td><td>${timestamp} (UK time)</td></tr>
       </table>
     </div>`;
 
@@ -118,7 +118,7 @@ export async function sendBriefingNotification(
       <p style="margin:0 0 8px;font-weight:bold">opengovt daily briefings ready for review.</p>
       <p style="margin:0 0 16px;color:#7a1612">${state}</p>
       <ol style="margin:0;padding-left:18px">
-        ${briefings.map((b) => `<li style="margin:0 0 12px"><a href="${base}/briefings/${b.slug}" style="color:#14100d">${b.headline}</a></li>`).join('')}
+        ${briefings.map((b) => `<li style="margin:0 0 12px"><a href="${base}/briefings/${b.slug}" style="color:#7a1612">${b.headline}</a></li>`).join('')}
       </ol>
     </div>`;
 
@@ -143,9 +143,9 @@ export async function sendPasswordResetEmail(to: string, token: string, baseUrl:
     html: `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#14100d">
       <p>You requested a password reset for your opengovt account.</p>
       <p>Click the link below to set a new password. This link expires in 1 hour.</p>
-      <p><a href="${link}" style="display:inline-block;background:#6b2417;color:#ffffff;padding:11px 20px;border-radius:4px;text-decoration:none">Reset my password</a></p>
-      <p style="font-size:14px;color:#555">Or paste this link into your browser:<br>${link}</p>
-      <p style="font-size:14px;color:#555">If you did not request a reset, you can ignore this email. Your password has not changed.</p>
+      <p><a href="${link}" style="display:inline-block;background:#7a1612;color:#ffffff;padding:11px 20px;border-radius:4px;text-decoration:none">Reset my password</a></p>
+      <p style="font-size:14px;color:#14100d">Or paste this link into your browser:<br>${link}</p>
+      <p style="font-size:14px;color:#14100d">If you did not request a reset, you can ignore this email. Your password has not changed.</p>
     </div>`,
   });
 }
@@ -171,10 +171,10 @@ export async function sendVerificationEmail(to: string, token: string, baseUrl: 
     html: `<div style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.6;color:#14100d;max-width:560px">
       <p>Welcome to Open Govt.</p>
       <p>Confirm your email address to start voting on bills and polls:</p>
-      <p style="margin:22px 0"><a href="${link}" style="display:inline-block;background:#6b2417;color:#ffffff;padding:14px 24px;border-radius:4px;text-decoration:none;font-size:17px;font-weight:bold">Confirm my email</a></p>
-      <p style="font-size:15px;color:#333">You will be signed in and taken back to the page you were on. The link expires after ${VERIFY_TOKEN_TTL_DAYS} days.</p>
-      <p style="font-size:14px;color:#555">If the button does not work, copy this link into your browser:<br><a href="${link}" style="color:#6b2417;word-break:break-all">${link}</a></p>
-      <p style="font-size:14px;color:#555">If you did not create an account, you can ignore this email.</p>
+      <p style="margin:22px 0"><a href="${link}" style="display:inline-block;background:#7a1612;color:#ffffff;padding:14px 24px;border-radius:4px;text-decoration:none;font-size:17px;font-weight:bold">Confirm my email</a></p>
+      <p style="font-size:15px;color:#14100d">You will be signed in and taken back to the page you were on. The link expires after ${VERIFY_TOKEN_TTL_DAYS} days.</p>
+      <p style="font-size:14px;color:#14100d">If the button does not work, copy this link into your browser:<br><a href="${link}" style="color:#7a1612;word-break:break-all">${link}</a></p>
+      <p style="font-size:14px;color:#14100d">If you did not create an account, you can ignore this email.</p>
     </div>`,
   });
 }
@@ -323,7 +323,7 @@ export async function sendBioReviewAlert(flags: BioReviewFlag[], outstanding: nu
   const text = `${headline} (${outstanding} outstanding in total).\n\n${flags.map(line).join('\n')}\n`;
   const html = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;color:#14100d">
       <p style="margin:0 0 12px;font-weight:bold">${headline} (${outstanding} outstanding in total).</p>
-      <ul style="margin:0;padding-left:18px">${flags.map((f) => `<li style="margin:0 0 6px"><a href="https://www.opengovt.uk/mps/${f.memberId}">${esc(f.name)}</a>: ${esc(f.reason)}</li>`).join('')}</ul>
+      <ul style="margin:0;padding-left:18px">${flags.map((f) => `<li style="margin:0 0 6px"><a href="https://www.opengovt.uk/mps/${f.memberId}" style="color:#7a1612">${esc(f.name)}</a>: ${esc(f.reason)}</li>`).join('')}</ul>
     </div>`;
   return deliver('biography review alert', key, { from, to: FRESHNESS_NOTIFY_TO, subject: `opengovt: ${headline}`, text, html });
 }
@@ -344,8 +344,8 @@ export async function sendNewsletterConfirmation(to: string, token: string, base
   const html = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#14100d">
       <p>Please confirm you want Open Govt Weekly: the week's investigations, overlooked documents and public spending stories, in one email.</p>
       <p><a href="${confirm}" style="display:inline-block;background:#7a1612;color:#ffffff;padding:10px 16px;text-decoration:none;font-weight:bold">Confirm my subscription</a></p>
-      <p style="color:#555">If you did not ask for this, ignore this email and you will not be added.</p>
-      <p style="color:#555;font-size:13px">Unsubscribe at any time: <a href="${unsubscribe}" style="color:#555">${unsubscribe}</a></p>
+      <p style="color:#14100d">If you did not ask for this, ignore this email and you will not be added.</p>
+      <p style="color:#14100d;font-size:14px">Unsubscribe at any time: <a href="${unsubscribe}" style="color:#7a1612">${unsubscribe}</a></p>
     </div>`;
   return deliver('newsletter confirmation', key, {
     from, to, subject: 'Confirm your opengovt newsletter subscription', text, html,
@@ -411,10 +411,10 @@ export async function sendNewsletterSubscriberNotification(sub: {
   const html = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#14100d">
       <p style="margin:0 0 10px;font-weight:bold">New newsletter subscriber (confirmed)</p>
       <table style="border-collapse:collapse">
-        <tr><td style="padding:2px 14px 2px 0;color:#555">Email</td><td>${esc(sub.email)}</td></tr>
-        <tr><td style="padding:2px 14px 2px 0;color:#555">Signed up from</td><td>${esc(where)}</td></tr>
-        <tr><td style="padding:2px 14px 2px 0;color:#555">Confirmed</td><td>${when} (UK time)</td></tr>
-        <tr><td style="padding:2px 14px 2px 0;color:#555">Confirmed subscribers in total</td><td>${total}</td></tr>
+        <tr><td style="padding:2px 14px 2px 0;color:#14100d">Email</td><td>${esc(sub.email)}</td></tr>
+        <tr><td style="padding:2px 14px 2px 0;color:#14100d">Signed up from</td><td>${esc(where)}</td></tr>
+        <tr><td style="padding:2px 14px 2px 0;color:#14100d">Confirmed</td><td>${when} (UK time)</td></tr>
+        <tr><td style="padding:2px 14px 2px 0;color:#14100d">Confirmed subscribers in total</td><td>${total}</td></tr>
       </table>
     </div>`;
   return deliver('newsletter subscriber notification', key, {

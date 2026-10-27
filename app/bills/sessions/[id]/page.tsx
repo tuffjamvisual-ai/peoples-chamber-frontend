@@ -85,7 +85,7 @@ export default async function BillSessionPage({ params }: Props) {
           <h2 style={{ fontSize: '22px', fontWeight: 'bold', color: ACCENT, borderBottom: `1px solid ${ACCENT}`, paddingBottom: '6px', marginBottom: '6px' }}>
             {g.heading} <span style={{ fontWeight: 'normal', color: INK }}>({groups.get(g.key)!.length.toLocaleString()})</span>
           </h2>
-          <p style={{ fontSize: '14px', marginBottom: '8px' }}>{g.note}</p>
+          <p style={{ fontSize: '15px', marginBottom: '8px' }}>{g.note}</p>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {groups.get(g.key)!.map((b) => {
               const meta = [
@@ -100,7 +100,7 @@ export default async function BillSessionPage({ params }: Props) {
                   <Link href={`/bills/${b.bill_id}`} style={{ color: INK, fontSize: '16px', textDecoration: 'underline', textUnderlineOffset: '3px', textDecorationColor: HAIRLINE }}>
                     {b.title}
                   </Link>
-                  {meta.length > 0 && <div style={{ fontSize: '14px', marginTop: '2px' }}>{meta.join(' · ')}</div>}
+                  {meta.length > 0 && <div style={{ fontSize: '15px', marginTop: '2px' }}>{meta.join(' · ')}</div>}
                 </li>
               );
             })}

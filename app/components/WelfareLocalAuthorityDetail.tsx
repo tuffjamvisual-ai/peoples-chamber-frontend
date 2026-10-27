@@ -374,7 +374,7 @@ function Header({ kind, name, gssCode, partial, councilSlug }: { kind: string; n
       )}
       {councilSlug && (
         <div style={{ marginTop: '10px' }}>
-          <a href={`/councils/${councilSlug}`} style={{ fontFamily: MONO, fontSize: '14px', color: ACCENT, textDecoration: 'underline' }}>
+          <a href={`/councils/${councilSlug}`} style={{ fontFamily: MONO, fontSize: '15px', color: ACCENT, textDecoration: 'underline' }}>
             View council profile →
           </a>
         </div>
@@ -405,7 +405,7 @@ function DataRow({ label, value, sub, valueColour }: { label: string; value: Rea
       </dt>
       <dd style={{ padding: '12px 0', borderBottom: `1px solid ${INK_HAIRLINE}`, margin: 0, fontFamily: MONO, fontSize: '15px', lineHeight: 1.55, color: valueColour || INK }}>
         {value}
-        {sub && <span style={{ display: 'block', fontSize: '14px', color: INK_SOFT, marginTop: '2px' }}>{sub}</span>}
+        {sub && <span style={{ display: 'block', fontSize: '15px', color: INK_SOFT, marginTop: '2px' }}>{sub}</span>}
       </dd>
     </div>
   )
@@ -454,7 +454,7 @@ function NiView({ payload }: { payload: NiPayload }) {
       </Section>
 
       <section style={{ marginBottom: '8px' }}>
-        <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.7, color: INK, margin: 0 }}>
+        <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: 0 }}>
           Sources:{' '}
           {payload.sources.map((x, i) => (
             <span key={x.url}>{i > 0 ? '; ' : ''}<a href={x.url} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{x.label}</a></span>

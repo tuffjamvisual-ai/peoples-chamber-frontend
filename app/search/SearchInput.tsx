@@ -127,7 +127,7 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
               style={{
                 padding: '4px 11px',
                 fontFamily: MONO,
-                fontSize: '14px',
+                fontSize: '15px',
                 letterSpacing: '0.08em',
                 color: active ? '#fff' : '#14100d',
                 background: active ? ACCENT : 'transparent',
@@ -153,9 +153,9 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
           }}
           style={{
             fontFamily: MONO,
-            fontSize: '14px',
+            fontSize: '15px',
             letterSpacing: '0.06em',
-            color: dept ? INK : 'rgba(20,16,13,0.45)',
+            color: INK, fontStyle: dept ? 'normal' : 'italic',
             background: CREAM,
             border: `1px solid ${dept ? INK : HAIRLINE}`,
             padding: '4px 11px',
@@ -174,7 +174,7 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
             style={{
               padding: '4px 11px',
               fontFamily: MONO,
-              fontSize: '14px',
+              fontSize: '15px',
               letterSpacing: '0.08em',
               color: defaultSort !== 'newest' ? '#fff' : '#14100d',
               background: defaultSort !== 'newest' ? ACCENT : 'transparent',
@@ -189,7 +189,7 @@ export default function SearchInput({ defaultQ, defaultType, defaultDept, defaul
             style={{
               padding: '4px 11px',
               fontFamily: MONO,
-              fontSize: '14px',
+              fontSize: '15px',
               letterSpacing: '0.08em',
               color: defaultSort === 'newest' ? '#fff' : '#14100d',
               background: defaultSort === 'newest' ? ACCENT : 'transparent',

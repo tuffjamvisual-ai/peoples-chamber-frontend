@@ -24,7 +24,7 @@ const H3 = ({ children }: { children: React.ReactNode }) => (
   <h3 className="text-[#14100d] text-[15px] uppercase tracking-[0.2em] font-bold mb-3 mt-1">{children}</h3>
 );
 const P = ({ children, small }: { children: React.ReactNode; small?: boolean }) => (
-  <p className={`text-[#14100d] ${small ? 'text-[14px] leading-[1.6]' : 'text-[16px] leading-[1.7]'} mb-3`}>{children}</p>
+  <p className={`text-[#14100d] ${small ? 'text-[15px] leading-[1.6]' : 'text-[16px] leading-[1.7]'} mb-3`}>{children}</p>
 );
 
 function FoiBody({ f, showLabel }: { f: DeptFoi; showLabel: boolean }) {
@@ -89,7 +89,7 @@ export function TransparencySlot({ foi, meetings }: { foi: DeptFoi[]; meetings: 
           <P small>
             <Link href={FOI_PAGE} className="underline">All 39 bodies in the statistics, {periodName(foi[0].latest.period)} →</Link>
           </P>
-          <p className="text-[#14100d] text-[13px] leading-[1.6] mb-6">
+          <p className="text-[#14100d] text-[15px] leading-[1.6] mb-6">
             Source: <a href={foiSource(foi[0].latest).url} target="_blank" rel="noopener noreferrer" className="underline">{foiSource(foi[0].latest).label}</a>.
             Contains public sector information licensed under the Open Government Licence v3.0.
           </p>
@@ -109,7 +109,7 @@ export function TransparencySlot({ foi, meetings }: { foi: DeptFoi[]; meetings: 
               </P>
             </div>
           ))}
-          <p className="text-[#14100d] text-[13px] leading-[1.6] mb-2">
+          <p className="text-[#14100d] text-[15px] leading-[1.6] mb-2">
             Departments publish a quarterly return of ministers&rsquo; meetings with outside organisations on GOV.UK. A quarter
             is listed as missing once it ended more than three months ago; returns from January 2025 are checked.
           </p>

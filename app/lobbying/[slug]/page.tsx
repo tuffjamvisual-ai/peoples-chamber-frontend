@@ -51,7 +51,7 @@ export default async function LobbyingOrgPage({ params }: { params: Promise<{ sl
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
       />
-      <article style={{ padding: 'clamp(8px, 2vw, 24px) 0', color: '#14100d', fontFamily: FONT }}>
+      <article style={{ padding: 'clamp(15px, 2vw, 24px) 0', color: '#14100d', fontFamily: FONT }}>
         <header style={{ borderTop: `1.5px solid ${INK}`, borderBottom: `1.5px solid ${INK}`, padding: '14px 12px', textAlign: 'center', marginBottom: '28px' }}>
           <div style={{ fontSize: '15px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '4px' }}>
             <Link href="/lobbying" className="no-hover-scale" style={{ color: INK_SOFT, textDecoration: 'none' }}>Lobbying</Link> · {ORG_TYPE_LABEL[org.org_type]}
@@ -78,7 +78,7 @@ export default async function LobbyingOrgPage({ params }: { params: Promise<{ sl
           <>
             <style>{`
               .lbo-table { width: 100%; border-collapse: collapse; font-family: ${FONT}; color: ${INK}; font-size: 15px; }
-              .lbo-table th { text-align: left; font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase; padding: 8px 6px; border-bottom: 1.5px solid ${INK}; }
+              .lbo-table th { text-align: left; font-size: 15px; letter-spacing: 0.12em; text-transform: uppercase; padding: 8px 6px; border-bottom: 1.5px solid ${INK}; }
               .lbo-table td { padding: 9px 6px; border-bottom: 1px solid ${INK_HAIRLINE}; vertical-align: top; overflow-wrap: anywhere; }
               .lbo-date { white-space: nowrap; }
               @media (max-width: 640px) {
@@ -94,7 +94,7 @@ export default async function LobbyingOrgPage({ params }: { params: Promise<{ sl
                 {meetings.map((m) => (
                   <tr key={m.meeting_key}>
                     <td className="lbo-date">{meetingDate(m)}</td>
-                    <td>{m.minister_name}{cleanDept(m.minister_dept) ? <span style={{ display: 'block', fontSize: '14px' }}>{cleanDept(m.minister_dept)}</span> : null}</td>
+                    <td>{m.minister_name}{cleanDept(m.minister_dept) ? <span style={{ display: 'block', fontSize: '15px' }}>{cleanDept(m.minister_dept)}</span> : null}</td>
                     <td>{m.purpose || 'n/a'}</td>
                   </tr>
                 ))}
@@ -112,7 +112,7 @@ export default async function LobbyingOrgPage({ params }: { params: Promise<{ sl
               <li key={f.firm} style={{ padding: '10px 2px', borderBottom: `1px solid ${INK_HAIRLINE}`, color: INK }}>
                 <div style={{ fontSize: '16px', fontWeight: 700, overflowWrap: 'anywhere' }}>{f.firm}</div>
                 <div style={{ fontSize: '15px', lineHeight: 1.6, overflowWrap: 'anywhere' }}>{f.quarters.map((q) => q.label).join('; ')}</div>
-                {f.clientAs !== org.name && <div style={{ fontSize: '14px' }}>Client named as “{f.clientAs}”</div>}
+                {f.clientAs !== org.name && <div style={{ fontSize: '15px' }}>Client named as “{f.clientAs}”</div>}
               </li>
             ))}
           </ul>
@@ -137,7 +137,7 @@ const para = { fontFamily: FONT, fontSize: '15px', lineHeight: 1.7, color: INK, 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ borderTop: `2px solid ${INK}`, padding: '10px 0 4px' }}>
-      <p style={{ fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.18em', color: INK_SOFT, margin: '0 0 6px', fontWeight: 'bold', fontFamily: FONT }}>{label}</p>
+      <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', color: INK_SOFT, margin: '0 0 6px', fontWeight: 'bold', fontFamily: FONT }}>{label}</p>
       <p style={{ fontSize: 'clamp(18px, 2vw, 22px)', fontWeight: 700, color: INK, fontVariantNumeric: 'tabular-nums', margin: 0, lineHeight: 1.1, fontFamily: FONT }}>{value}</p>
     </div>
   );

@@ -223,10 +223,10 @@ export default function WelfareSearch() {
                   <span>
                     {r.name}
                     {'scope' in r && r.scope === 'partial' && (
-                      <span style={{ marginLeft: '8px', fontSize: '14px', color: ACCENT, letterSpacing: '0.04em' }}>PARTIAL DATA</span>
+                      <span style={{ marginLeft: '8px', fontSize: '15px', color: ACCENT, letterSpacing: '0.04em' }}>PARTIAL DATA</span>
                     )}
                   </span>
-                  <span style={{ fontSize: '14px', color: INK_SOFT, letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+                  <span style={{ fontSize: '15px', color: INK_SOFT, letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
                     {resultTypeLabel(r)}
                     {r.type === 'county' ? ` · ${r.constituencyCount}` : ''}
                   </span>
@@ -253,7 +253,7 @@ function ResultLink({ label, name, href, partial }: { label: string; name: strin
       }}
     >
       <span>
-        <span style={{ display: 'block', fontSize: '14px', letterSpacing: '0.08em', textTransform: 'uppercase', color: INK_SOFT_LOCAL }}>{label}</span>
+        <span style={{ display: 'block', fontSize: '15px', letterSpacing: '0.08em', textTransform: 'uppercase', color: INK_SOFT_LOCAL }}>{label}</span>
         <span style={{ display: 'block', fontSize: '18px', fontWeight: 600 }}>{name}</span>
       </span>
       <span style={{ fontSize: '15px', color: ACCENT_LOCAL, whiteSpace: 'nowrap' }}>

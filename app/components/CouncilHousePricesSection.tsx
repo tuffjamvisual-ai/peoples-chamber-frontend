@@ -154,7 +154,7 @@ export default async function CouncilHousePricesSection({ gssCode }: { gssCode: 
 
       {trend.length > 1 && (
         <figure style={{ margin: '0 0 18px' }}>
-          <figcaption style={{ fontFamily: MONO, fontSize: '14px', color: INK, marginBottom: '6px' }}>
+          <figcaption style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '6px' }}>
             Average price each {MONTHS[Number(mm) - 1]}
           </figcaption>
           <div
@@ -172,13 +172,13 @@ export default async function CouncilHousePricesSection({ gssCode }: { gssCode: 
               </div>
             ))}
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: MONO, fontSize: '14px', color: INK, marginTop: '4px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '4px' }}>
             <span>{trend[0].month.slice(0, 4)}</span>
             <span>{trend[trend.length - 1].month.slice(0, 4)}</span>
           </div>
           <details style={{ marginTop: '6px' }}>
-            <summary style={{ fontFamily: MONO, fontSize: '14px', color: ACCENT, cursor: 'pointer' }}>Yearly figures</summary>
-            <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '14px', color: INK, marginTop: '6px' }}>
+            <summary style={{ fontFamily: MONO, fontSize: '15px', color: ACCENT, cursor: 'pointer' }}>Yearly figures</summary>
+            <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '6px' }}>
               <tbody>
                 {trend.map((t) => (
                   <tr key={t.month}>
@@ -194,7 +194,7 @@ export default async function CouncilHousePricesSection({ gssCode }: { gssCode: 
 
       {breakdown.length > 0 && (
         <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '14px' }}>
-          <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '14px', color: INK, paddingBottom: '6px' }}>
+          <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '15px', color: INK, paddingBottom: '6px' }}>
             By type of home and buyer, {fmtMonth(latest.month)}
           </caption>
           <thead>
@@ -216,11 +216,11 @@ export default async function CouncilHousePricesSection({ gssCode }: { gssCode: 
         </table>
       )}
 
-      <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
         Average prices are HM Land Registry&rsquo;s estimates for the whole area, adjusted for the mix of homes sold, not the price of any one home. Figures for the latest months are provisional: sales can take weeks or months to be registered, so each month is revised for a year after it is first published. Sales counts are published about three months behind prices. In areas with fewer sales, figures can swing noticeably from month to month.
         {isNI && ' Land Registry does not publish a breakdown by type of home or buyer for Northern Ireland councils.'}
       </p>
-      <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: 0 }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: 0 }}>
         Source: HM Land Registry, UK House Price Index ({releaseLabel} data). Contains HM Land Registry data &copy; Crown copyright and database right {releaseTag.slice(0, 4)}. This data is licensed under the Open Government Licence v3.0.
       </p>
     </Section>

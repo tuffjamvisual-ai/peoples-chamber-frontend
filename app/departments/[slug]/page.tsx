@@ -292,13 +292,13 @@ export default async function DepartmentPage({ params }: PageProps) {
         fallbackHref="/departments"
         label="← Back"
         className="no-hover-scale"
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '-6%', marginBottom: '12px', color: '#14100d', textDecoration: 'none', fontSize: 'clamp(14px, 1.1vw, 14px)', transform: 'rotate(-0.2deg)' }}
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '-6%', marginBottom: '12px', color: '#14100d', textDecoration: 'none', fontSize: 'clamp(15px, 1.1vw, 14px)', transform: 'rotate(-0.2deg)' }}
       />
 
       <h1 style={{ fontSize: 'clamp(21px, 3vw, 33px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '6px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)', lineHeight: 1.1 }}>
         {dept.name}
       </h1>
-      <p style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '14px', color: '#14100d', margin: '0 0 14px', letterSpacing: '0.04em' }}>
+      <p style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', margin: '0 0 14px', letterSpacing: '0.04em' }}>
         <Link href={`/search?dept=${slug}`} style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: '2px' }}>
           Search releases and reports →
         </Link>

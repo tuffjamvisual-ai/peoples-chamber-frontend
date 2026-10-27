@@ -69,7 +69,7 @@ export default async function CouncilSearchPage({ searchParams }: { searchParams
           council, department and MP pages. */}
       <article
         style={{
-          padding: 'clamp(8px, 2vw, 24px) 0',
+          padding: 'clamp(15px, 2vw, 24px) 0',
           color: '#14100d',
           fontFamily: SERIF,
         }}
@@ -122,7 +122,7 @@ export default async function CouncilSearchPage({ searchParams }: { searchParams
                     }}
                   >
                     <span>{c.short_name || c.name}</span>
-                    <span style={{ fontSize: '14px', color: INK_SOFT, letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+                    <span style={{ fontSize: '15px', color: INK_SOFT, letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
                       {c.type_label} · {c.country}
                     </span>
                   </a>

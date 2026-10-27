@@ -208,7 +208,7 @@ export default function BillsGridMobile({ initialBills, currentPage, totalPages,
                 textTransform: 'uppercase',
                 letterSpacing: '0.1em',
                 background: 'transparent',
-                color: activeTab === tab ? INK : 'rgba(20,16,13,0.55)',
+                color: INK,
                 borderBottom: activeTab === tab ? `2px solid ${INK}` : '2px solid transparent',
                 cursor: 'pointer',
               }}

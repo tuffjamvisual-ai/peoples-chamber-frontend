@@ -95,7 +95,7 @@ export default async function CommitteesIndexPage() {
   return (
     <OpenGovShell pageStamp="Committees">
       <header className="mb-10">
-        <p className="text-sm uppercase tracking-[0.3em] mb-3" style={{ color: ACCENT, fontFamily: MONO }}>
+        <p className="text-[15px] uppercase tracking-[0.3em] mb-3" style={{ color: ACCENT, fontFamily: MONO }}>
           UK Parliament
         </p>
         <h1 className="text-3xl sm:text-4xl font-bold leading-tight" style={{ color: INK }}>
@@ -115,7 +115,7 @@ export default async function CommitteesIndexPage() {
         return (
           <section key={group.label} className="mb-12">
             <h2
-              className="text-[14px] uppercase tracking-[0.25em] mb-5 pb-2 border-b"
+              className="text-[15px] uppercase tracking-[0.25em] mb-5 pb-2 border-b"
               style={{ color: ACCENT, fontFamily: MONO, borderColor: `${INK}22` }}
             >
               {group.label}
@@ -132,7 +132,7 @@ export default async function CommitteesIndexPage() {
                     >
                       {c.name}
                     </Link>
-                    <span className="text-sm" style={{ color: INK, fontFamily: MONO }}>
+                    <span className="text-[15px]" style={{ color: INK, fontFamily: MONO }}>
                       {s ? `${s.count} member${s.count !== 1 ? 's' : ''}` : 'no data'}
                       {s?.chair ? ` · Chair: ${s.chair}` : ''}
                     </span>
@@ -144,7 +144,7 @@ export default async function CommitteesIndexPage() {
         );
       })}
 
-      <p className="text-[14px] mt-8" style={{ color: INK, fontFamily: MONO }}>
+      <p className="text-[15px] mt-8" style={{ color: INK, fontFamily: MONO }}>
         Source: UK Parliament members and committees APIs. Updated nightly.
       </p>
       <ParliamentSourceCredit marginTop="6px" />

@@ -32,7 +32,7 @@ export default function LobbyRanking({ tabs, sinceLabel }: { tabs: RankingTab[];
   const showType = tab.key === 'all';
 
   const btn = (active: boolean): CSSProperties => ({
-    fontFamily: FONT, fontSize: '14px', padding: '6px 10px', margin: '0 6px 6px 0', cursor: 'pointer',
+    fontFamily: FONT, fontSize: '15px', padding: '6px 10px', margin: '0 6px 6px 0', cursor: 'pointer',
     border: `1px solid ${active ? INK : INK_HAIRLINE}`, background: active ? INK : 'transparent', color: active ? '#f4ecd8' : INK,
   });
 
@@ -40,12 +40,12 @@ export default function LobbyRanking({ tabs, sinceLabel }: { tabs: RankingTab[];
     <div>
       <style>{`
         .lb-table { width: 100%; border-collapse: collapse; font-family: ${FONT}; color: ${INK}; font-size: 16px; }
-        .lb-table th { text-align: left; font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: bold; padding: 8px 6px; border-bottom: 1.5px solid ${INK}; }
+        .lb-table th { text-align: left; font-size: 15px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: bold; padding: 8px 6px; border-bottom: 1.5px solid ${INK}; }
         .lb-table td { padding: 9px 6px; border-bottom: 1px solid ${INK_HAIRLINE}; vertical-align: top; }
         .lb-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
         .lb-table a { color: ${INK}; text-decoration: none; overflow-wrap: anywhere; }
         .lb-table a:hover { color: ${ACCENT}; text-decoration: underline; }
-        .lb-sub { display: block; font-size: 14px; margin-top: 2px; }
+        .lb-sub { display: block; font-size: 15px; margin-top: 2px; }
         @media (max-width: 640px) {
           .lb-table { font-size: 15px; }
           .lb-wide { display: none; }

@@ -30,7 +30,7 @@ export default function WelfareExplorerPage() {
           and caseloads for your constituency or local authority, ranked against every
           other area in England, Wales and Scotland, with the change in spend over two years.
         </p>
-        <p style={{ fontSize: '14px', lineHeight: 1.7, maxWidth: '640px', color: '#14100d', marginTop: '10px' }}>
+        <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '640px', color: '#14100d', marginTop: '10px' }}>
           PIP, DLA and Carer&rsquo;s Allowance are devolved in Scotland, so Scottish results show
           the three benefits still administered by DWP (Universal Credit, Housing Benefit and
           ESA) rather than the full comparison of six benefits available for England and Wales.

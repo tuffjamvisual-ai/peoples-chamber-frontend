@@ -62,7 +62,7 @@ export default async function MajorProjectPage({ params }: Props) {
         </h1>
         <MajorProjectMeta p={p} latestYear={latestYear} showDepartment />
         {slug && deptName && (
-          <p style={{ fontSize: '14px', margin: '4px 0 0' }}>
+          <p style={{ fontSize: '15px', margin: '4px 0 0' }}>
             Department page: <Link href={`/departments/${slug}`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{deptName}</Link>
           </p>
         )}
@@ -70,7 +70,7 @@ export default async function MajorProjectPage({ params }: Props) {
 
       <MajorProjectTable p={p} />
       {evaluationLines(p).map((e) => (
-        <p key={e.year} style={{ fontSize: '14px', lineHeight: 1.6, margin: '8px 0 0', maxWidth: '72ch' }}>
+        <p key={e.year} style={{ fontSize: '15px', lineHeight: 1.6, margin: '8px 0 0', maxWidth: '72ch' }}>
           {e.stated ? (
             <>Evaluation plan (the department&rsquo;s own statement, {e.dataAsAt}):{' '}
               {e.parts.map((x, i) => (
@@ -80,7 +80,7 @@ export default async function MajorProjectPage({ params }: Props) {
           ) : <>Evaluation plan: not stated in the {e.dataAsAt} report</>}
         </p>
       ))}
-      <p style={{ fontSize: '14px', lineHeight: 1.6, margin: '10px 0 24px', maxWidth: '62ch' }}>
+      <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '10px 0 24px', maxWidth: '62ch' }}>
         Each year&rsquo;s cost is shown with its price basis. Costs are not compared between years: the March 2024 and March 2025 reports
         state no price basis, and from March 2026 costs are in 2024/25 prices.
       </p>
@@ -88,19 +88,19 @@ export default async function MajorProjectPage({ params }: Props) {
       <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 'bold', margin: '0 0 10px' }}>
         The department&rsquo;s commentary
       </h2>
-      <p style={{ fontSize: '14px', lineHeight: 1.6, margin: '0 0 12px', maxWidth: '62ch' }}>
+      <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 12px', maxWidth: '62ch' }}>
         This is the department&rsquo;s own commentary. It may use different prices from the table above, so its figures may not match.
       </p>
       {narratives.map((y, i) => (
         <details key={y.report_year} open={i === 0} style={{ borderTop: `1px solid ${INK_HAIRLINE}`, padding: '10px 0' }}>
           <summary style={{ fontSize: '15px', fontWeight: 600, cursor: 'pointer' }}>{y.data_as_at}</summary>
           {([['Rating', y.rating_narrative], ['Schedule', y.schedule_narrative], ['Cost', y.cost_narrative]] as const).map(([label, t]) => t && (
-            <p key={label} style={{ fontSize: '14px', lineHeight: 1.6, margin: '8px 0 0', whiteSpace: 'pre-line', maxWidth: '72ch' }}><em>{label}:</em> {asPublished(t)}</p>
+            <p key={label} style={{ fontSize: '15px', lineHeight: 1.6, margin: '8px 0 0', whiteSpace: 'pre-line', maxWidth: '72ch' }}><em>{label}:</em> {asPublished(t)}</p>
           ))}
           {!y.rating_narrative && !y.schedule_narrative && !y.cost_narrative && (
-            <p style={{ fontSize: '14px', margin: '8px 0 0' }}>No commentary in the file for this year.</p>
+            <p style={{ fontSize: '15px', margin: '8px 0 0' }}>No commentary in the file for this year.</p>
           )}
-          <p style={{ fontSize: '13px', margin: '8px 0 0' }}>
+          <p style={{ fontSize: '15px', margin: '8px 0 0' }}>
             Source: <a href={REPORT_PAGES[y.report_year]?.url} style={{ color: INK }}>{REPORT_PAGES[y.report_year]?.title}</a> (<a href={y.source_url} style={{ color: INK }}>data</a>)
           </p>
         </details>

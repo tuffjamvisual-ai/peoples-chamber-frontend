@@ -139,9 +139,9 @@ export default async function CouncilHomelessnessSection({ gssCodes, isCounty }:
   const stat = (label: string, value: number | null, sub: string | null) =>
     value != null && (
       <div style={{ flex: '1 1 200px', borderLeft: `3px solid ${INK}`, padding: '4px 0 4px 12px' }}>
-        <div style={{ fontFamily: MONO, fontSize: '14px', color: INK, marginBottom: '2px' }}>{label}</div>
+        <div style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '2px' }}>{label}</div>
         <div style={{ fontFamily: SERIF, fontSize: '30px', lineHeight: 1.1, color: INK }}><strong>{fmtNum(value)}</strong></div>
-        {sub && <div style={{ fontFamily: MONO, fontSize: '14px', color: INK }}>{sub}</div>}
+        {sub && <div style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>{sub}</div>}
       </div>
     );
 
@@ -181,7 +181,7 @@ export default async function CouncilHomelessnessSection({ gssCodes, isCounty }:
 
       {trend.some((t) => t.ta != null) && (
         <figure style={{ margin: '0 0 18px' }}>
-          <figcaption style={{ fontFamily: MONO, fontSize: '14px', color: INK, marginBottom: '6px' }}>Households in temporary accommodation at the end of each quarter</figcaption>
+          <figcaption style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '6px' }}>Households in temporary accommodation at the end of each quarter</figcaption>
           <div
             role="img"
             aria-label={`Households in temporary accommodation at the end of each quarter, ${labelOf(trend[0].p)} to ${labelOf(newest)}. Full figures are in the Quarterly figures table below.`}
@@ -199,13 +199,13 @@ export default async function CouncilHomelessnessSection({ gssCodes, isCounty }:
               </div>
             ))}
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: MONO, fontSize: '14px', color: INK, marginTop: '4px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '4px' }}>
             <span>{shortQ(trend[0].p)}</span>
             <span>{shortQ(newest)}</span>
           </div>
           <details style={{ marginTop: '6px' }}>
-            <summary style={{ fontFamily: MONO, fontSize: '14px', color: ACCENT, cursor: 'pointer' }}>Quarterly figures</summary>
-            <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '14px', color: INK, marginTop: '6px' }}>
+            <summary style={{ fontFamily: MONO, fontSize: '15px', color: ACCENT, cursor: 'pointer' }}>Quarterly figures</summary>
+            <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '6px' }}>
               <thead>
                 <tr>
                   <th style={{ textAlign: 'left', padding: '2px 16px 2px 0', fontWeight: 'bold' }}>Quarter</th>
@@ -229,7 +229,7 @@ export default async function CouncilHomelessnessSection({ gssCodes, isCounty }:
 
       {latestTA && typeRows.some((t) => t.total != null) && (
         <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '14px' }}>
-          <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '14px', color: INK, paddingBottom: '6px' }}>
+          <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '15px', color: INK, paddingBottom: '6px' }}>
             Type of temporary accommodation, {quarterEnd(latestTA)}
           </caption>
           <thead>
@@ -260,7 +260,7 @@ export default async function CouncilHomelessnessSection({ gssCodes, isCounty }:
         </p>
       )}
 
-      <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
         {isCounty && 'Housing and homelessness are district council responsibilities, so figures for this county are the total of its district councils; a quarter is shown only when every district reported it. '}
         Councils must help households threatened with homelessness within 56 days (prevention duty) and those already homeless (relief duty), and may house them in temporary accommodation while more settled housing is found.
         {latestA1 && latestA1 !== newest && ` Figures for ${labelOf(newest)} were not submitted, so the latest available quarter is shown.`}
@@ -270,7 +270,7 @@ export default async function CouncilHomelessnessSection({ gssCodes, isCounty }:
         {gaps.length > 0 && ` No temporary accommodation figure is available for: ${gaps.join(', ')}.`}
         {periods[0] > '2019-04-01' && ` Figures start in ${labelOf(periods[0])}, when this council was created.`}
       </p>
-      <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: 0 }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: 0 }}>
         Source: Ministry of Housing, Communities and Local Government, Statutory homelessness: detailed local authority level tables (accredited official statistics). Contains public sector information licensed under the Open Government Licence v3.0.
       </p>
     </section>

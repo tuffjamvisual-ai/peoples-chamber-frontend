@@ -131,7 +131,7 @@ export default async function CouncilRoadCasualtiesSection({
   const stat = (label: string, n: number | null) =>
     n != null && (
       <div style={{ flex: '1 1 150px', borderLeft: `3px solid ${INK}`, padding: '4px 0 4px 12px' }}>
-        <div style={{ fontFamily: MONO, fontSize: '14px', color: INK, marginBottom: '2px' }}>{label}</div>
+        <div style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '2px' }}>{label}</div>
         <div style={{ fontFamily: SERIF, fontSize: '30px', lineHeight: 1.1, color: INK }}><strong>{fmtNum(n)}</strong></div>
       </div>
     );
@@ -159,7 +159,7 @@ export default async function CouncilRoadCasualtiesSection({
         const ticks = [0, Math.round(maxT / 2), Math.round(maxT)];
         return (
         <figure style={{ margin: '0 0 18px' }}>
-          <figcaption style={{ fontFamily: MONO, fontSize: '14px', color: INK, marginBottom: '6px' }}>Killed and seriously injured each year</figcaption>
+          <figcaption style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '6px' }}>Killed and seriously injured each year</figcaption>
           <svg
             role="img"
             aria-label={`Killed and seriously injured (estimated so that years can be compared) each year, ${years[0]} to ${latest}. Full figures are in the Yearly figures table below.`}
@@ -168,7 +168,7 @@ export default async function CouncilRoadCasualtiesSection({
             {ticks.map((t) => (
               <g key={t}>
                 <line x1={padL} x2={W - padR} y1={ys(t)} y2={ys(t)} stroke={INK_HAIRLINE} strokeWidth={1} />
-                <text x={padL - 6} y={ys(t) + 4} textAnchor="end" fontSize="11" fill={INK}>{fmtNum(t)}</text>
+                <text x={padL - 6} y={ys(t) + 4} textAnchor="end" fontSize="15" fill={INK}>{fmtNum(t)}</text>
               </g>
             ))}
             <polyline points={line('serious')} fill="none" stroke={INK} strokeWidth={2.5} />
@@ -179,17 +179,17 @@ export default async function CouncilRoadCasualtiesSection({
                 {t.killed != null && <circle cx={xs(i)} cy={ys(t.killed)} r={3.5} fill={ACCENT}><title>{`${t.y}: ${fmtNum(t.killed)} killed`}</title></circle>}
               </g>
             ))}
-            <text x={padL} y={H - 4} fontSize="11" fill={INK}>{years[0]}</text>
-            <text x={W - padR} y={H - 4} fontSize="11" fill={INK} textAnchor="end">{latest}</text>
+            <text x={padL} y={H - 4} fontSize="15" fill={INK}>{years[0]}</text>
+            <text x={W - padR} y={H - 4} fontSize="15" fill={INK} textAnchor="end">{latest}</text>
           </svg>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 18px', fontFamily: MONO, fontSize: '14px', color: INK, marginTop: '6px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 18px', fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '6px' }}>
             <span><span aria-hidden="true" style={{ display: 'inline-block', width: '22px', borderTop: `3px solid ${INK}`, verticalAlign: 'middle', marginRight: '6px' }} />Seriously injured (estimated so that years can be compared)</span>
             <span><span aria-hidden="true" style={{ display: 'inline-block', width: '22px', borderTop: `3px dashed ${ACCENT}`, verticalAlign: 'middle', marginRight: '6px' }} />Killed</span>
           </div>
           <details style={{ marginTop: '6px' }}>
-            <summary style={{ fontFamily: MONO, fontSize: '14px', color: ACCENT, cursor: 'pointer' }}>Yearly figures</summary>
+            <summary style={{ fontFamily: MONO, fontSize: '15px', color: ACCENT, cursor: 'pointer' }}>Yearly figures</summary>
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '14px', color: INK, marginTop: '6px', minWidth: '520px' }}>
+              <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '6px', minWidth: '520px' }}>
                 <thead>
                   <tr>
                     <th style={{ textAlign: 'left', padding: '2px 14px 2px 0', fontWeight: 'bold' }}>Year</th>
@@ -215,7 +215,7 @@ export default async function CouncilRoadCasualtiesSection({
                 </tbody>
               </table>
             </div>
-            {caveatYears.length > 0 && <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: '6px 0 0' }}>* DfT flags unexpected data collection issues affecting some police forces&rsquo; figures for these years.</p>}
+            {caveatYears.length > 0 && <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '6px 0 0' }}>* DfT flags unexpected data collection issues affecting some police forces&rsquo; figures for these years.</p>}
           </details>
         </figure>
         );
@@ -223,7 +223,7 @@ export default async function CouncilRoadCasualtiesSection({
 
       {userRows.length > 0 && (
         <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '14px' }}>
-          <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '14px', color: INK, paddingBottom: '6px' }}>By road user, {latest}</caption>
+          <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '15px', color: INK, paddingBottom: '6px' }}>By road user, {latest}</caption>
           <thead>
             <tr style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
               <th style={{ textAlign: 'left', padding: '6px 20px 6px 0', fontWeight: 'bold' }}>Road user</th>
@@ -243,10 +243,10 @@ export default async function CouncilRoadCasualtiesSection({
         </table>
       )}
 
-      <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
         These are casualties in collisions reported to the police on all roads in the council&rsquo;s area, including motorways and trunk roads it doesn&rsquo;t manage. Killed, seriously injured and slightly injured are counts as recorded by the police and add up to all casualties. Police forces have moved to an injury based recording system that classes more injuries as serious, so the Department for Transport estimates how many people would have been recorded as seriously injured if every force had used it. The chart uses that estimate, rounded to whole people, so that years can be compared.
       </p>
-      <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: 0 }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: 0 }}>
         Source: Department for Transport, Reported road casualties Great Britain ({release}). Contains public sector information licensed under the Open Government Licence v3.0.
       </p>
     </section>

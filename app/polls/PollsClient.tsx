@@ -321,7 +321,7 @@ function PollCard({
           </p>
         )}
         {(poll.explainer_sources?.length || poll.explainer_checked) ? (
-          <p style={{ fontSize: '14px', lineHeight: 1.5, color: INK_SOFT, margin: 0 }}>
+          <p style={{ fontSize: '15px', lineHeight: 1.5, color: INK_SOFT, margin: 0 }}>
             {poll.explainer_sources && poll.explainer_sources.length > 0 && (
               <>
                 Sources:{' '}

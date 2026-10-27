@@ -402,7 +402,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
                   <p className="text-[15px] leading-[1.7] mb-1" style={{ fontFamily: 'var(--font-special-elite), monospace' }}>
                     {[supplier, deptLabel, value].filter(Boolean).join(' · ')}
                     {status && (
-                      <span className="ml-3 text-[14px] uppercase tracking-[0.12em] font-bold" style={{ color: statusColour }}>
+                      <span className="ml-3 text-[15px] uppercase tracking-[0.12em] font-bold" style={{ color: statusColour }}>
                         {status}
                       </span>
                     )}

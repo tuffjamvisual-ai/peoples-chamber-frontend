@@ -55,7 +55,7 @@ export default async function FreedomOfInformationPage() {
 
       {rows.length > 0 ? <FoiTable rows={rows} /> : <p>The figures could not be loaded.</p>}
 
-      <div style={{ fontSize: '14px', lineHeight: 1.7, maxWidth: '760px', marginTop: '20px' }}>
+      <div style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '760px', marginTop: '20px' }}>
         <p style={{ marginBottom: '10px' }}>
           &ldquo;Answered within 20 working days&rdquo; is out of the requests received, leaving out any put on hold or lapsed;
           the percentage is the Cabinet Office&rsquo;s own, rounded. &ldquo;Granted in full&rdquo; and &ldquo;fully withheld&rdquo;
@@ -68,7 +68,7 @@ export default async function FreedomOfInformationPage() {
           <Link href="/transparency" style={{ color: INK, textDecoration: 'underline' }}>Transparency</Link>.
         </p>
         {source && (
-          <p style={{ fontSize: '13px' }}>
+          <p style={{ fontSize: '15px' }}>
             Source: <a href={source.url} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>{source.label}</a>.
             Contains public sector information licensed under the Open Government Licence v3.0.
           </p>

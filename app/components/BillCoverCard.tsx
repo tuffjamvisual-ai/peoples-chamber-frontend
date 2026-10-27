@@ -117,7 +117,7 @@ export default function BillCoverCard({ bill, userVote = null }: Props) {
           style={{
             textAlign: 'center',
             fontFamily: SERIF,
-            fontSize: '14px',
+            fontSize: '15px',
             letterSpacing: '0.1em',
             fontVariant: 'small-caps',
             color: INK_SOFT,
@@ -177,7 +177,7 @@ export default function BillCoverCard({ bill, userVote = null }: Props) {
             textAlign: 'center',
             fontFamily: MONO,
             fontStyle: 'italic',
-            fontSize: '14px',
+            fontSize: '15px',
             color: INK,
             marginTop: 'auto',
             paddingTop: '6px',

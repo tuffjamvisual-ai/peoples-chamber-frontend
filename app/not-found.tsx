@@ -27,7 +27,7 @@ export const metadata: Metadata = { title: 'Page not found', robots: { index: fa
 export default function NotFound() {
   return (
     <OpenGovShell pageStamp="Not found">
-      <article style={{ fontFamily: MONO, color: INK, padding: 'clamp(8px, 2vw, 24px) 0' }}>
+      <article style={{ fontFamily: MONO, color: INK, padding: 'clamp(15px, 2vw, 24px) 0' }}>
         <h1 style={{ fontFamily: MONO, fontSize: 'clamp(26px, 3.2vw, 40px)', fontWeight: 'bold', margin: '0 0 12px' }}>
           Page not found
         </h1>

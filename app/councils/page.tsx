@@ -83,7 +83,7 @@ export default async function CouncilsIndex() {
           council, department and MP pages. */}
       <article
         style={{
-          padding: 'clamp(8px, 2vw, 24px) 0',
+          padding: 'clamp(15px, 2vw, 24px) 0',
           color: '#14100d',
           fontFamily: SERIF,
         }}

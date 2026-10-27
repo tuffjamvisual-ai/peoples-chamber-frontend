@@ -202,7 +202,7 @@ export default async function TransparencySectionPage({
           // the data comes from. ACOBA's advice is read from the GOV.UK search API filtered to ACOBA
           // (app/api/sync-revolving-door), shown here as the same search on GOV.UK; the Independent Adviser's advice from
           // its one GOV.UK page (app/api/sync-ministers-bars).
-          <p className="text-[#14100d] text-[14px] leading-[1.6] max-w-2xl mt-3">
+          <p className="text-[#14100d] text-[15px] leading-[1.6] max-w-2xl mt-3">
             Sources:{' '}
             {REVOLVING_DOOR_SOURCES.map((src, i) => (
               <span key={src.url}>

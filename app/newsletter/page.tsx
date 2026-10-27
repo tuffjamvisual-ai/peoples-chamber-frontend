@@ -28,7 +28,7 @@ export default async function NewsletterPage({ searchParams }: { searchParams: P
   const msg = status ? MESSAGES[status] : undefined;
   return (
     <OpenGovShell pageStamp="Newsletter">
-      <article style={{ fontFamily: FONT, color: INK, maxWidth: '640px', padding: 'clamp(8px, 2vw, 24px) 0' }}>
+      <article style={{ fontFamily: FONT, color: INK, maxWidth: '640px', padding: 'clamp(15px, 2vw, 24px) 0' }}>
         {status === 'confirmed' && <MarkNewsletterSubscribed />}
         {msg && (
           <div role="status" style={{ margin: '0 0 24px', padding: '12px 14px', border: `1.5px solid ${ACCENT}`, borderLeft: `5px solid ${ACCENT}`, background: 'rgba(122,22,18,0.05)' }}>

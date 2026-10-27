@@ -83,7 +83,7 @@ export default async function CouncilFuelPovertySection({ gssCode, neighbourhood
             {above != null && engPct != null ? `; ${fmtNum(above)} are above the England rate of ${engPct.toFixed(1)}%` : ''}.
           </p>
           <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK }}>
-            <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '14px', color: INK, paddingBottom: '6px' }}>Neighbourhoods with the highest estimated rates</caption>
+            <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '15px', color: INK, paddingBottom: '6px' }}>Neighbourhoods with the highest estimated rates</caption>
             <thead>
               <tr style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <th style={{ textAlign: 'left', padding: '6px 20px 6px 0', fontWeight: 'bold' }}>Neighbourhood</th>
@@ -104,10 +104,10 @@ export default async function CouncilFuelPovertySection({ gssCode, neighbourhood
         </div>
       )}
 
-      <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
         A household is counted as fuel poor if its home has an energy efficiency rating of band D or below and, after paying for housing and the energy it needs, its income is below the poverty line (60% of the national median). These are modelled estimates: the government advises using them for broad comparisons and to spot areas of particularly high or low fuel poverty, not to track year to year changes, so only the latest year is shown. Neighbourhoods are small census areas (lower layer super output areas) of roughly 1,500 people, named after their council and a reference number; their estimates are less certain than the council figure.
       </p>
-      <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: 0 }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: 0 }}>
         Source: Department for Energy Security and Net Zero, Sub-regional fuel poverty data ({year} data). Contains public sector information licensed under the Open Government Licence v3.0.
       </p>
     </section>

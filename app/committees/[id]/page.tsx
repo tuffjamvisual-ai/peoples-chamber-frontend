@@ -147,11 +147,11 @@ export default async function CommitteeProfilePage({ params }: Props) {
         }}
       />
 
-      <p style={{ fontFamily: MONO, fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: ACCENT, margin: '0 0 10px', display: 'inline-block', border: `1px solid ${ACCENT}`, padding: '2px 7px 1px' }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: ACCENT, margin: '0 0 10px', display: 'inline-block', border: `1px solid ${ACCENT}`, padding: '2px 7px 1px' }}>
         Source: Parliament
       </p>
 
-      <p className="text-sm uppercase tracking-[0.3em] mb-3" style={{ color: ACCENT, fontFamily: MONO }}>
+      <p className="text-[15px] uppercase tracking-[0.3em] mb-3" style={{ color: ACCENT, fontFamily: MONO }}>
         {committee.category} Committee
       </p>
 
@@ -160,7 +160,7 @@ export default async function CommitteeProfilePage({ params }: Props) {
           {committee.name}
         </h1>
         {committee.start_date && (
-          <p className="mt-2 text-sm" style={{ color: INK, fontFamily: MONO }}>
+          <p className="mt-2 text-[15px]" style={{ color: INK, fontFamily: MONO }}>
             Established {formatYear(committee.start_date)}
             {committee.end_date ? ` · Dissolved ${formatYear(committee.end_date)}` : ''}
           </p>
@@ -169,7 +169,7 @@ export default async function CommitteeProfilePage({ params }: Props) {
 
       {purposeHtml && (
         <div
-          className="mb-10 text-sm leading-relaxed pl-4 border-l-2 prose-p:mb-3"
+          className="mb-10 text-[15px] leading-relaxed pl-4 border-l-2 prose-p:mb-3"
           style={{ borderColor: ACCENT, color: INK }}
           dangerouslySetInnerHTML={{ __html: purposeHtml }}
         />
@@ -178,14 +178,14 @@ export default async function CommitteeProfilePage({ params }: Props) {
       {/* Current membership */}
       <section className="mb-12">
         <h2
-          className="text-[14px] uppercase tracking-[0.25em] mb-5 pb-2 border-b"
+          className="text-[15px] uppercase tracking-[0.25em] mb-5 pb-2 border-b"
           style={{ color: ACCENT, fontFamily: MONO, borderColor: `${INK}22` }}
         >
           Current members ({currentMemberships.length})
         </h2>
 
         {sortedCurrent.length === 0 ? (
-          <p className="text-sm" style={{ color: INK }}>No current members on record.</p>
+          <p className="text-[15px]" style={{ color: INK }}>No current members on record.</p>
         ) : (
           <div className="divide-y" style={{ borderColor: `${INK}18` }}>
             {sortedCurrent.map((m) => {
@@ -197,17 +197,17 @@ export default async function CommitteeProfilePage({ params }: Props) {
                     {mp ? (
                       <Link
                         href={`/mps/${m.member_id}`}
-                        className="font-semibold text-sm hover:underline"
+                        className="font-semibold text-[15px] hover:underline"
                         style={{ color: INK }}
                       >
                         {displayMpName(mp.display_name)}
                       </Link>
                     ) : (
-                      <span className="font-semibold text-sm" style={{ color: INK }}>
+                      <span className="font-semibold text-[15px]" style={{ color: INK }}>
                         Member {m.member_id}
                       </span>
                     )}
-                    <span className="text-[14px] ml-2" style={{ color: INK, fontFamily: MONO }}>
+                    <span className="text-[15px] ml-2" style={{ color: INK, fontFamily: MONO }}>
                       {mp?.party ?? ''}
                       {mp?.constituency ? ` · ${mp.constituency}` : ''}
                       {m.role === 'Chair' ? ' · Chair' : ''}
@@ -224,18 +224,18 @@ export default async function CommitteeProfilePage({ params }: Props) {
       {formerMemberships.length > 0 && (
         <section className="mb-8">
           <h2
-            className="text-[14px] uppercase tracking-[0.25em] mb-3 pb-2 border-b"
+            className="text-[15px] uppercase tracking-[0.25em] mb-3 pb-2 border-b"
             style={{ color: INK, fontFamily: MONO, borderColor: `${INK}18` }}
           >
             Former members
           </h2>
-          <p className="text-sm" style={{ color: INK }}>
+          <p className="text-[15px]" style={{ color: INK }}>
             {formerMemberships.length} former member{formerMemberships.length !== 1 ? 's' : ''} on record.
           </p>
         </section>
       )}
 
-      <p className="text-[14px] mt-6" style={{ color: INK, fontFamily: MONO }}>
+      <p className="text-[15px] mt-6" style={{ color: INK, fontFamily: MONO }}>
         Source: UK Parliament members and committees APIs. Updated nightly.
       </p>
       <ParliamentSourceCredit marginTop="6px" />

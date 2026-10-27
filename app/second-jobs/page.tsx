@@ -42,7 +42,7 @@ export default async function SecondJobsLanding() {
           council, department and MP pages. */}
       <article
         style={{
-          padding: 'clamp(8px, 2vw, 24px) 0',
+          padding: 'clamp(15px, 2vw, 24px) 0',
           color: '#14100d',
           fontFamily: SERIF,
         }}
@@ -118,7 +118,7 @@ export default async function SecondJobsLanding() {
           .pca-party-tile:hover { background: rgba(122,22,18,0.06); }
           .pca-party-tile .pca-tile-head {
             font-family: ${MONO};
-            font-size: 14px;
+            font-size: 15px;
             letter-spacing: 0.18em;
             text-transform: uppercase;
             color: ${INK_SOFT};

@@ -163,11 +163,11 @@ export function renderDigest(items: DigestItem[], unsubscribeUrl: string): { sub
     ${items.map((i) => `<div style="border-top:1px solid #d8d2c4;padding:12px 0">
       <p style="margin:0 0 6px;font-weight:bold"><a href="${esc(i.href)}" style="color:#7a1612">${esc(i.heading)}</a></p>
       ${i.lines.map((l) => `<p style="margin:0 0 4px;font-size:15px">${esc(l)}</p>`).join('')}
-      <p style="margin:6px 0 0;font-size:15px"><a href="${prefs}" style="color:#555">Unfollow</a></p>
+      <p style="margin:6px 0 0;font-size:15px"><a href="${prefs}" style="color:#7a1612">Unfollow</a></p>
     </div>`).join('')}
-    <p style="margin:18px 0 6px;font-size:15px;color:#333"><a href="${prefs}" style="color:#7a1612">Change these emails or what you follow</a></p>
-    <p style="margin:0 0 6px;font-size:15px;color:#333"><a href="${esc(unsubscribeUrl)}" style="color:#7a1612">Stop these emails</a></p>
-    <p style="margin:12px 0 0;font-size:15px;color:#555">You get this because you followed these pages on opengovt.uk. One email a week at most, only when something changed.</p>
+    <p style="margin:18px 0 6px;font-size:15px;color:#14100d"><a href="${prefs}" style="color:#7a1612">Change these emails or what you follow</a></p>
+    <p style="margin:0 0 6px;font-size:15px;color:#14100d"><a href="${esc(unsubscribeUrl)}" style="color:#7a1612">Stop these emails</a></p>
+    <p style="margin:12px 0 0;font-size:15px;color:#14100d">You get this because you followed these pages on opengovt.uk. One email a week at most, only when something changed.</p>
   </div>`;
   return { subject, text, html };
 }

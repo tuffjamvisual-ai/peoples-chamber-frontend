@@ -155,7 +155,7 @@ export function ReleasesSlot({ releases }: { releases: PressReleaseItem[] }) {
             >
               {r.title}
             </Link>
-            <span style={{ display: 'block', fontFamily: 'var(--font-special-elite), monospace', fontSize: '14px', color: '#14100d', marginTop: '3px' }}>
+            <span style={{ display: 'block', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: '#14100d', marginTop: '3px' }}>
               {r.organisation && r.published_at ? `${r.organisation} · ` : (r.organisation ?? '')}
               {r.published_at
                 ? new Date(r.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -178,15 +178,15 @@ export function InvestigationsSlot({ investigations }: { investigations: Investi
             <Link href={item.href} className="no-hover-scale" style={{ display: 'block', color: '#14100d', textDecoration: 'none' }}>
               <span style={{ display: 'block', fontSize: '15px', lineHeight: 1.45, fontWeight: 600 }}>{item.headline}</span>
               {listSummary(item) && (
-                <span style={{ display: 'block', fontSize: '14px', margin: '3px 0 0', lineHeight: 1.5 }}>
+                <span style={{ display: 'block', fontSize: '15px', margin: '3px 0 0', lineHeight: 1.5 }}>
                   {listSummary(item)}
                 </span>
               )}
-              <span style={{ display: 'block', fontFamily: 'var(--font-special-elite), monospace', fontSize: '14px', marginTop: '4px' }}>
+              <span style={{ display: 'block', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', marginTop: '4px' }}>
                 {item.type} · {item.kicker && item.kicker.toLowerCase() !== item.type.toLowerCase() ? `${item.kicker} · ` : ''}
                 {new Date(item.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
               </span>
-              <ContinueToArticle style={{ fontSize: '14px', marginTop: '4px' }} />
+              <ContinueToArticle style={{ fontSize: '15px', marginTop: '4px' }} />
             </Link>
           </li>
         ))}
@@ -222,7 +222,7 @@ export function ProgrammesSlot({ programmes }: { programmes: ProgrammeItem[] }) 
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px' }}>
                 <span style={{
                   fontFamily: 'var(--font-special-elite), monospace',
-                  fontSize: '14px', letterSpacing: '0.12em',
+                  fontSize: '15px', letterSpacing: '0.12em',
                   textTransform: 'uppercase', color: statusColour,
                   border: `1px solid ${statusColour}`,
                   padding: '1px 5px', flexShrink: 0,
@@ -237,7 +237,7 @@ export function ProgrammesSlot({ programmes }: { programmes: ProgrammeItem[] }) 
                 </Link>
               </div>
               {prog.summary && (
-                <p style={{ fontSize: '14px', color: '#14100d', margin: '3px 0 0', lineHeight: 1.5 }}>
+                <p style={{ fontSize: '15px', color: '#14100d', margin: '3px 0 0', lineHeight: 1.5 }}>
                   {prog.summary.length > 140 ? prog.summary.slice(0, 140) + '…' : prog.summary}
                 </p>
               )}

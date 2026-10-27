@@ -196,7 +196,7 @@ export default function PostcodeLookup({ heading = 'Who is your MP?' }: { headin
               }}
             >
               <span>
-                <span style={{ display: 'block', fontSize: '14px', letterSpacing: '0.08em', textTransform: 'uppercase', color: INK_SOFT }}>Your MP</span>
+                <span style={{ display: 'block', fontSize: '15px', letterSpacing: '0.08em', textTransform: 'uppercase', color: INK_SOFT }}>Your MP</span>
                 <span style={{ display: 'block', fontSize: '18px', fontWeight: 600 }}>{postcodeResult.name}</span>
               </span>
               <span style={{ fontSize: '15px', color: ACCENT, whiteSpace: 'nowrap' }}>View profile →</span>
@@ -221,7 +221,7 @@ export default function PostcodeLookup({ heading = 'Who is your MP?' }: { headin
                       {r.name}
                       {r.constituency && <span style={{ color: INK_SOFT }}>, {r.constituency}</span>}
                     </span>
-                    <span style={{ fontSize: '14px', color: INK_SOFT, letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+                    <span style={{ fontSize: '15px', color: INK_SOFT, letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
                       {normaliseParty(r.party)}
                     </span>
                   </a>

@@ -1,11 +1,11 @@
 /* ---- Shared bits ---- */
 .og-page a.og-block { text-decoration: none; color: inherit; }
 .og-block { display: block; }
-.og-kicker { font-family: var(--font-special-elite), monospace; text-transform: uppercase; letter-spacing: 0.22em; font-size: 14px; color: var(--accent); font-weight: bold; }
+.og-kicker { font-family: var(--font-special-elite), monospace; text-transform: uppercase; letter-spacing: 0.22em; font-size: 15px; color: var(--accent); font-weight: bold; }
 .og-head { font-family: var(--font-special-elite), 'Courier New', monospace; font-weight: 400; letter-spacing: 0.01em; line-height: 1.08; color: var(--ink); font-size: clamp(18px, 2.2vw, 26px); }
 .og-standfirst { font-style: italic; color: var(--ink-soft); font-size: 16px; line-height: 1.5; margin: 8px 0; }
 .og-lede { font-size: 16px; line-height: 1.5; margin: 8px 0; }
-.og-cta { font-family: var(--font-special-elite), monospace; text-transform: uppercase; letter-spacing: 0.08em; font-size: 14px; color: var(--accent); font-weight: bold; }
+.og-cta { font-family: var(--font-special-elite), monospace; text-transform: uppercase; letter-spacing: 0.08em; font-size: 15px; color: var(--accent); font-weight: bold; }
 
 /* "What this site does" intro (replaces the lead photo) */
 .og-intro { margin-bottom: 22px; }
@@ -70,4 +70,4 @@
 /* Labels above the homepage search boxes (job 76): the small heading style, on its own line. */
 .og-search-label { display: block; margin-bottom: 8px; color: var(--ink-soft); letter-spacing: 0.18em; }
 /* The placeholders fit a 320 px phone at 14 px (the arrow button takes the right 31 px, so 36 px padding clears it). */
-.og-search-input::placeholder { font-size: 14px; }
+.og-search-input::placeholder { font-size: 15px; }

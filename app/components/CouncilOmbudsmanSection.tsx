@@ -166,7 +166,7 @@ export default async function CouncilOmbudsmanSection({ gssCode }: { gssCode: st
       {changes && (
         <P>Change on {prev!.year}: {changes.map(([label, t]) => `${label} ${t}`).join('; ')}.</P>
       )}
-      <p style={{ fontFamily: MONO, fontSize: '13px', lineHeight: 1.6, color: INK, margin: 0 }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0 }}>
         Source: <a href={SOURCE_URL} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>Local Government and Social Care Ombudsman, annual review data {cur.year}</a>{' '}
         (1 April to 31 March; <a href={GUIDE_URL} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>how to read these figures</a>).
         {' '}© Commission for Local Administration in England. &ldquo;Investigated&rdquo; (upheld plus not upheld) and the changes on {prev ? prev.year : 'the year before'} are our sums from the published figures.

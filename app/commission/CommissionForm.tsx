@@ -29,8 +29,8 @@ const field: CSSProperties = {
   outline: 'none',
 };
 const label: CSSProperties = { display: 'block', fontSize: '15px', fontWeight: 'bold', marginBottom: '6px' };
-const hint: CSSProperties = { fontSize: '14px', margin: '4px 0 0' };
-const errorText: CSSProperties = { fontSize: '14px', color: ACCENT, fontWeight: 'bold', margin: '6px 0 0' };
+const hint: CSSProperties = { fontSize: '15px', margin: '4px 0 0' };
+const errorText: CSSProperties = { fontSize: '15px', color: ACCENT, fontWeight: 'bold', margin: '6px 0 0' };
 
 type Values = { name: string; email: string; organisation: string; question: string; deadline: string; publish: string; terms: boolean; website: string };
 const EMPTY: Values = { name: '', email: '', organisation: '', question: '', deadline: '', publish: '', terms: false, website: '' };

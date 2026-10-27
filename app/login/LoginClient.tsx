@@ -92,13 +92,13 @@ export default function LoginClient() {
         </h2>
 
         {error && (
-          <div className="mb-4 p-3 bg-[#8a3a3a]/20 border border-[#8a3a3a]/50 rounded text-[#e0a0a0] text-sm">
+          <div className="mb-4 p-3 bg-[#8a3a3a]/20 border border-[#8a3a3a]/50 rounded text-[#e0a0a0] text-[15px]">
             {error}
           </div>
         )}
 
         {success && (
-          <div className="mb-4 p-3 bg-white/10 border border-white/20 rounded text-white text-sm">
+          <div className="mb-4 p-3 bg-white/10 border border-white/20 rounded text-white text-[15px]">
             {success}
           </div>
         )}
@@ -163,14 +163,14 @@ export default function LoginClient() {
                   onChange={(e) => setAgeConfirmed(e.target.checked)}
                   className="mt-1"
                 />
-                <label htmlFor="ageConfirm" className="text-sm text-white">
+                <label htmlFor="ageConfirm" className="text-[15px] text-white">
                   I confirm I am 18 years of age or older
                 </label>
               </div>
 
               <div className="rounded-lg border border-white/20 p-4 space-y-2">
                 <p className="text-xl text-white font-bold">Open Govt Weekly</p>
-                <p className="text-[14px] text-white/80 leading-relaxed">What government announced. What the evidence shows. What happened next. Reports, overlooked documents and public spending stories. No gossip, no rewritten press releases. Sign up now for the first issue.</p>
+                <p className="text-[15px] text-white/80 leading-relaxed">What government announced. What the evidence shows. What happened next. Reports, overlooked documents and public spending stories. No gossip, no rewritten press releases. Sign up now for the first issue.</p>
                 <div className="flex items-start gap-2 pt-1">
                   <input
                     type="checkbox"
@@ -179,7 +179,7 @@ export default function LoginClient() {
                     onChange={(e) => setNewsletterOptIn(e.target.checked)}
                     className="mt-1"
                   />
-                  <label htmlFor="newsletterOptIn" className="text-sm text-white cursor-pointer">
+                  <label htmlFor="newsletterOptIn" className="text-[15px] text-white cursor-pointer">
                     Yes, send me the weekly newsletter
                   </label>
                 </div>
@@ -211,14 +211,14 @@ export default function LoginClient() {
           <div className="mt-4 text-center">
             <button
               onClick={() => setMode('forgot')}
-              className="text-sm text-white hover:text-white  hover:opacity-100"
+              className="text-[15px] text-white hover:text-white  hover:opacity-100"
             >
               Forgot password?
             </button>
           </div>
         )}
 
-        <div className="mt-6 text-center text-sm text-white">
+        <div className="mt-6 text-center text-[15px] text-white">
           {mode === 'login' ? (
             <>
               Don&apos;t have an account?{' '}

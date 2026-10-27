@@ -137,7 +137,7 @@ export default async function RefusedExpensesPage() {
         .rr-party-inline { display: none; }
         @media (max-width: 600px) {
           .rr-party { display: none; }
-          .rr-party-inline { display: block; font-weight: normal; font-size: 14px; }
+          .rr-party-inline { display: block; font-weight: normal; font-size: 15px; }
         }
       `}</style>
 
@@ -164,11 +164,11 @@ export default async function RefusedExpensesPage() {
                 <td style={{ ...td, textAlign: 'left' }}>{yearLabel(y.year)}{isPartial(y.year) ? ' (so far)' : ''}</td>
                 <td style={{ ...td, textAlign: 'right' }}>
                   <span style={{ fontFamily: 'monospace' }}>{fmtMoney(y.refused)}</span>
-                  <span style={{ display: 'block', fontSize: '14px' }}>{y.refusedCount.toLocaleString('en-GB')} claim{y.refusedCount === 1 ? '' : 's'}</span>
+                  <span style={{ display: 'block', fontSize: '15px' }}>{y.refusedCount.toLocaleString('en-GB')} claim{y.refusedCount === 1 ? '' : 's'}</span>
                 </td>
                 <td style={{ ...td, textAlign: 'right' }}>
                   <span style={{ fontFamily: 'monospace' }}>{fmtMoney(y.repaid)}</span>
-                  <span style={{ display: 'block', fontSize: '14px' }}>{y.repaidCount.toLocaleString('en-GB')} claim{y.repaidCount === 1 ? '' : 's'}</span>
+                  <span style={{ display: 'block', fontSize: '15px' }}>{y.repaidCount.toLocaleString('en-GB')} claim{y.repaidCount === 1 ? '' : 's'}</span>
                 </td>
               </tr>
             ))}
@@ -256,7 +256,7 @@ function Tile({ label, value, sub, accent }: { label: string; value: string; sub
   return (
     <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '12px 14px', background: 'rgba(255,255,255,0.04)' }}>
       <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: '4px' }}>{label}</div>
-      <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '22px', fontWeight: 'bold', color: accent }}>{value}</div>
+      <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '22px', fontWeight: 'bold', color: '#14100d', borderLeft: `3px solid ${accent}`, paddingLeft: '8px' }}>{value}</div>
       <div style={{ fontSize: '15px', marginTop: '4px' }}>{sub}</div>
     </div>
   );

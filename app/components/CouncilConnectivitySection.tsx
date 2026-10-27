@@ -91,7 +91,7 @@ export default async function CouncilConnectivitySection({ gssCodes, isCounty }:
 
   const row = (label: string, value: string, note?: string) => (
     <tr style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-      <td style={{ padding: '6px 16px 6px 0' }}>{label}{note && <span style={{ display: 'block', fontSize: '14px' }}>{note}</span>}</td>
+      <td style={{ padding: '6px 16px 6px 0' }}>{label}{note && <span style={{ display: 'block', fontSize: '15px' }}>{note}</span>}</td>
       <td style={{ padding: '6px 0', textAlign: 'right', whiteSpace: 'nowrap' }}>{value}</td>
     </tr>
   );
@@ -113,7 +113,7 @@ export default async function CouncilConnectivitySection({ gssCodes, isCounty }:
       </p>
 
       <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '16px', width: '100%', maxWidth: '560px' }}>
-        <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '14px', color: INK, paddingBottom: '6px' }}>Fixed broadband available to premises</caption>
+        <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '15px', color: INK, paddingBottom: '6px' }}>Fixed broadband available to premises</caption>
         <tbody>
           {row('Superfast (30 Mbit/s or more)', pct(share('sfbb_n')))}
           {row('Ultrafast (100 Mbit/s or more)', pct(share('ufbb100_n')))}
@@ -127,7 +127,7 @@ export default async function CouncilConnectivitySection({ gssCodes, isCounty }:
 
       {mComplete && (g4InNone != null || g5OutNone != null) && (
         <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '16px', width: '100%', maxWidth: '560px' }}>
-          <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '14px', color: INK, paddingBottom: '6px' }}>Mobile coverage</caption>
+          <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '15px', color: INK, paddingBottom: '6px' }}>Mobile coverage</caption>
           <tbody>
             {g4InNone != null && row('4G indoors from at least one network', pct(at(g4InNone)), 'share of premises')}
             {g4InAll != null && row('4G indoors from all four networks', pct(g4InAll), 'share of premises')}
@@ -139,11 +139,11 @@ export default async function CouncilConnectivitySection({ gssCodes, isCounty }:
         </table>
       )}
 
-      <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
         {isCounty && 'Figures for this county are the total of its district councils. '}
         These figures show what is available, not what people buy. &ldquo;Decent&rdquo; broadband means 10 Mbit/s download and 1 Mbit/s upload, the standard set by the broadband Universal Service Obligation. Full fibre use is the share of all premises with a full fibre connection in use. Mobile figures count the four networks Ofcom reports (EE, O2, Three and Vodafone) and are modelled predictions of signal strength; 5G figures use Ofcom&rsquo;s high-confidence measure.
       </p>
-      <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: 0 }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: 0 }}>
         Source: Ofcom, Connected Nations ({fmtMonth(month)} data). Contains public sector information licensed under the Open Government Licence v3.0.
       </p>
     </section>

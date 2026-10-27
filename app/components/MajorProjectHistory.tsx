@@ -6,7 +6,7 @@ import { type MajorProject, ratingText, dateText, costText, lastReported, earlie
 
 const INK = '#14100d';
 const HAIRLINE = 'rgba(20,16,13,0.15)';
-const cell = { padding: '4px 10px 4px 0', verticalAlign: 'top', fontSize: '14px', lineHeight: 1.5 } as const;
+const cell = { padding: '4px 10px 4px 0', verticalAlign: 'top', fontSize: '15px', lineHeight: 1.5 } as const;
 
 export function MajorProjectTable({ p }: { p: MajorProject }) {
   return (
@@ -39,7 +39,7 @@ export function MajorProjectMeta({ p, latestYear, showDepartment }: { p: MajorPr
   const left = lastReported(p, latestYear);
   const old = earlierNames(p);
   return (
-    <p style={{ fontSize: '14px', margin: '2px 0 6px', lineHeight: 1.5 }}>
+    <p style={{ fontSize: '15px', margin: '2px 0 6px', lineHeight: 1.5 }}>
       {showDepartment && <>{deptLabel(p.latest.department_code)} · </>}
       {p.id ?? 'No project ID in the file'}
       {left && <> · <strong>{left}</strong></>}
@@ -56,7 +56,7 @@ export function MajorProjectHistory({ p, latestYear, showDepartment }: { p: Majo
       </p>
       <MajorProjectMeta p={p} latestYear={latestYear} showDepartment={showDepartment} />
       <MajorProjectTable p={p} />
-      <p style={{ fontSize: '14px', margin: '6px 0 0' }}>
+      <p style={{ fontSize: '15px', margin: '6px 0 0' }}>
         <Link href={projectHref(p.key)} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>The department&rsquo;s commentary →</Link>
       </p>
     </li>

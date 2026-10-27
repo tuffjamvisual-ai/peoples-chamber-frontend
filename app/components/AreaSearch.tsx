@@ -150,7 +150,7 @@ export default function AreaSearch({ tight = false, label, placeholder }: { tigh
         </div>
         {open && councils.length > 0 && (
           <ul role="listbox" aria-label="Councils" style={{ listStyle: 'none', margin: 0, padding: '6px 0', border: '1px solid rgba(20,16,13,0.18)', borderTop: 'none', background: '#f4e8d4' }}>
-            <li style={{ fontFamily: MONO, fontSize: '13px', color: INK, padding: '2px 14px 4px', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Councils</li>
+            <li style={{ fontFamily: MONO, fontSize: '15px', color: INK, padding: '2px 14px 4px', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Councils</li>
             {councils.map((c) => (
               <li key={c.slug}>
                 <a href={`/councils/${c.slug}`} style={{ display: 'block', padding: '6px 14px', fontFamily: MONO, fontSize: '15px', color: INK, textDecoration: 'none' }}>
@@ -158,14 +158,14 @@ export default function AreaSearch({ tight = false, label, placeholder }: { tigh
                 </a>
               </li>
             ))}
-            <li style={{ fontFamily: MONO, fontSize: '13px', color: INK, padding: '6px 14px 2px' }}>Or press Enter to search for a town or village with this name</li>
+            <li style={{ fontFamily: MONO, fontSize: '15px', color: INK, padding: '6px 14px 2px' }}>Or press Enter to search for a town or village with this name</li>
           </ul>
         )}
       </form>
-      {error && <p role="alert" style={{ fontFamily: MONO, fontSize: '14px', color: ACCENT, margin: '8px 0 0' }}>{error}</p>}
+      {error && <p role="alert" style={{ fontFamily: MONO, fontSize: '15px', color: ACCENT, margin: '8px 0 0' }}>{error}</p>}
       {choices.length > 0 && (
         <div style={{ marginTop: '10px' }}>
-          <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: '0 0 6px' }}>More than one place has that name. Which one?</p>
+          <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 6px' }}>More than one place has that name. Which one?</p>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {choices.map((c) => (
               <li key={c.label} style={{ marginBottom: '4px' }}>

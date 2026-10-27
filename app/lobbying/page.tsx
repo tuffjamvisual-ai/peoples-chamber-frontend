@@ -94,7 +94,7 @@ export default async function LobbyingPage() {
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
       />
 
-      <article style={{ padding: 'clamp(8px, 2vw, 24px) 0', color: '#14100d', fontFamily: SERIF }}>
+      <article style={{ padding: 'clamp(15px, 2vw, 24px) 0', color: '#14100d', fontFamily: SERIF }}>
         <header style={{ borderTop: `1.5px solid ${INK}`, borderBottom: `1.5px solid ${INK}`, padding: '14px 12px', textAlign: 'center', marginBottom: '28px' }}>
           <div style={{ fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '4px' }}>
             Ministers’ meetings · Register of Consultant Lobbyists
@@ -138,7 +138,7 @@ export default async function LobbyingPage() {
         </p>
         {latestQuarter && firms.length > 0 && (
           <>
-            <h3 style={{ fontFamily: MONO, fontSize: '14px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK, margin: '0 0 8px', fontWeight: 'bold' }}>
+            <h3 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: INK, margin: '0 0 8px', fontWeight: 'bold' }}>
               Firms with the most clients, {quarterLabel(latestQuarter)}
             </h3>
             <ol style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', borderTop: `1px solid ${INK_HAIRLINE}`, maxWidth: '46em' }}>

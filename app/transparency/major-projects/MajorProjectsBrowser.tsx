@@ -134,11 +134,11 @@ export default function MajorProjectsBrowser({ projects, latestYear, noPlanCount
           No evaluation plan (March 2025)
         </label>
       </div>
-      <p style={{ fontSize: '14px', lineHeight: 1.6, margin: '0 0 6px', maxWidth: '70ch' }}>
+      <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 6px', maxWidth: '70ch' }}>
         The rating and department are each project&rsquo;s latest. &ldquo;Last reported&rdquo; means the project is not in the March {latestYear} report.
       </p>
       {state.evaluation === 'no' && (
-        <p style={{ fontSize: '14px', lineHeight: 1.6, margin: '0 0 6px', maxWidth: '62ch' }}>
+        <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 6px', maxWidth: '62ch' }}>
           No evaluation plan: projects whose department answered &ldquo;No&rdquo; to &ldquo;Does the project have an evaluation plan? (self reported)&rdquo; in the March 2025 data ({noPlanCount} projects).
         </p>
       )}
@@ -163,7 +163,7 @@ export default function MajorProjectsBrowser({ projects, latestYear, noPlanCount
               {first.deptLabel} · {filtered ? `${shown.length} of ${idx.length}` : idx.length}
             </h2>
             {first.deptSlug && (
-              <p style={{ fontSize: '14px', margin: '0 0 6px' }}>
+              <p style={{ fontSize: '15px', margin: '0 0 6px' }}>
                 Department page: <Link href={`/departments/${first.deptSlug}`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>{first.deptName ?? first.deptSlug}</Link>
               </p>
             )}
@@ -171,7 +171,7 @@ export default function MajorProjectsBrowser({ projects, latestYear, noPlanCount
               {idx.map((i) => {
                 const p = projects[i];
                 return (
-                  <li key={p.key} hidden={!visible[i]} style={{ display: visible[i] ? 'block' : 'none', borderBottom: '1px dotted rgba(20,16,13,0.15)', padding: '8px 0', fontSize: '14px', lineHeight: 1.5 }}>
+                  <li key={p.key} hidden={!visible[i]} style={{ display: visible[i] ? 'block' : 'none', borderBottom: '1px dotted rgba(20,16,13,0.15)', padding: '8px 0', fontSize: '15px', lineHeight: 1.5 }}>
                     <Link href={p.href} style={{ color: INK, fontWeight: 600, fontSize: '15px', textDecoration: 'underline', textUnderlineOffset: '3px' }}>{p.name}</Link>
                     {' · '}{p.ratingText}
                     {' · '}End date: {p.endText}

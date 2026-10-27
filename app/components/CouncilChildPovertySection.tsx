@@ -77,11 +77,11 @@ export default async function CouncilChildPovertySection({ gssCodes, isCounty }:
   const stat = (label: string, fig: Figure | null, sub: string) =>
     fig && (
       <div style={{ flex: '1 1 220px', borderLeft: `3px solid ${INK}`, padding: '4px 0 4px 12px' }}>
-        <div style={{ fontFamily: MONO, fontSize: '14px', color: INK, marginBottom: '2px' }}>{label}</div>
+        <div style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '2px' }}>{label}</div>
         <div style={{ fontFamily: SERIF, fontSize: '30px', lineHeight: 1.1, color: INK }}>
           <strong>{fmtPct(fig.pct)}</strong>
         </div>
-        <div style={{ fontFamily: MONO, fontSize: '14px', color: INK }}>
+        <div style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>
           {fmtNum(fig.count)} children · {sub}
         </div>
       </div>
@@ -103,7 +103,7 @@ export default async function CouncilChildPovertySection({ gssCodes, isCounty }:
 
       {trend.length > 1 && (
         <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '14px' }}>
-          <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '14px', color: INK, paddingBottom: '6px' }}>
+          <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '15px', color: INK, paddingBottom: '6px' }}>
             Before housing costs, by year
           </caption>
           <thead>
@@ -125,11 +125,11 @@ export default async function CouncilChildPovertySection({ gssCodes, isCounty }:
         </table>
       )}
 
-      <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
         {isCounty && 'Figures for this county are the total of its district councils. '}
         A child is counted if their family&rsquo;s income is below 60% of the UK median for that year and the family claimed Child Benefit plus at least one other benefit (Universal Credit, tax credits or Housing Benefit). The two measures can differ a lot: housing costs push the after-housing-costs figure far higher in expensive areas such as London. Figures are provisional and years before 2021/22 are not comparable, so the trend starts there.
       </p>
-      <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: 0 }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: 0 }}>
         Source: Department for Work and Pensions, Children in Low Income Families: local area statistics ({release}).
       </p>
     </section>

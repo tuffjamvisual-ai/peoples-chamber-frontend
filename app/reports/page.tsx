@@ -89,7 +89,7 @@ export default async function ReportsPage() {
       />
 
       <header style={{ marginBottom: '4%' }}>
-        <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(14px, 1.6vw, 19px)', fontWeight: 'bold', letterSpacing: '0.01em', lineHeight: 1.05, marginBottom: '14px' }}>
+        <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(15px, 1.6vw, 19px)', fontWeight: 'bold', letterSpacing: '0.01em', lineHeight: 1.05, marginBottom: '14px' }}>
           Reports
         </h1>
       </header>

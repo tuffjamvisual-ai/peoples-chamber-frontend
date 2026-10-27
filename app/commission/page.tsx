@@ -71,7 +71,7 @@ export default function CommissionPage() {
           <h2 style={{ ...h2, marginBottom: '6px' }}>{SERVICE.name}</h2>
           <p style={{ fontSize: '18px', fontWeight: 'bold', color: ACCENT, margin: '0 0 10px' }}>{SERVICE.price}</p>
           <p style={{ fontSize: '15px', lineHeight: 1.65, margin: '0 0 12px' }}>{SERVICE.body}</p>
-          <p style={{ fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.12em', margin: 'auto 0 0' }}>{SERVICE.delivery}</p>
+          <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.12em', margin: 'auto 0 0' }}>{SERVICE.delivery}</p>
         </div>
         <p className="cm-centred" style={{ fontSize: '15px', lineHeight: 1.6, marginTop: '16px' }}>Prices are fixed for the scope agreed in your quote.</p>
       </section>

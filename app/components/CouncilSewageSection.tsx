@@ -88,7 +88,7 @@ export default async function CouncilSewageSection({
 
   const overflowTable = (rows: Overflow[]) => (
     <div style={{ overflowX: 'auto', marginBottom: '12px' }}>
-      <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '14px', color: INK, width: '100%', minWidth: '520px' }}>
+      <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, width: '100%', minWidth: '520px' }}>
         <thead>
           <tr>
             <th style={th}>Overflow</th>
@@ -104,7 +104,7 @@ export default async function CouncilSewageSection({
             <tr key={`${o.source}-${o.site_id}`}>
               <td style={td}>
                 {o.site_name || o.site_name_operator || o.site_id}
-                {o.receiving_water && <span style={{ display: 'block', fontSize: '14px' }}>into {o.receiving_water}</span>}
+                {o.receiving_water && <span style={{ display: 'block', fontSize: '15px' }}>into {o.receiving_water}</span>}
               </td>
               <td style={{ ...td, whiteSpace: 'nowrap' }}>{o.company}</td>
               <td style={tdNum}>{o.spill_count == null ? 'not reported' : fmtInt(o.spill_count)}</td>
@@ -148,7 +148,7 @@ export default async function CouncilSewageSection({
       {/* The council page shows the top 15 and links the rest (fullListHref); /councils/[slug]/sewage shows them all. */}
       {overflows.length > 0 && (fullListHref || overflows.length <= TOP) && (
         <>
-          <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: '0 0 6px' }}>
+          <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 6px' }}>
             {overflows.length > TOP ? `The ${TOP} overflows with the longest spills` : 'Every overflow in this area'}
           </p>
           {overflowTable(overflows.slice(0, TOP))}
@@ -161,14 +161,14 @@ export default async function CouncilSewageSection({
       )}
       {overflows.length > TOP && !fullListHref && (
         <>
-          <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: '0 0 6px' }}>Every overflow in this area, longest spills first</p>
+          <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 6px' }}>Every overflow in this area, longest spills first</p>
           {overflowTable(overflows)}
         </>
       )}
 
       {niYears.length > 1 && (
-        <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '14px', color: INK, marginBottom: '14px', width: '100%', maxWidth: '560px' }}>
-          <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '14px', color: INK, paddingBottom: '6px' }}>Year by year</caption>
+        <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '14px', width: '100%', maxWidth: '560px' }}>
+          <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '15px', color: INK, paddingBottom: '6px' }}>Year by year</caption>
           <thead>
             <tr>
               <th style={th}>Year</th>
@@ -190,7 +190,7 @@ export default async function CouncilSewageSection({
         </table>
       )}
 
-      <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
         {isCounty && 'Figures for this county are the total of its district councils. '}
         A storm overflow releases diluted sewage into a river or the sea when sewers are overloaded, usually in heavy rain. Hours are the total time all spills lasted.{' '}
         {nation === 'England' && 'Spills are counted the Environment Agency’s way: any discharge in the first 12 hours counts as one spill, and each further 24 hour block counts as another. '}
@@ -199,7 +199,7 @@ export default async function CouncilSewageSection({
         {offshore > 0 && `${fmtInt(offshore)} overflow${offshore === 1 ? ' discharges' : 's discharge'} below the high-tide line or out at sea and ${offshore === 1 ? 'is' : 'are'} counted with the nearest council area. `}
         <a href="/sewage" style={{ color: INK, textDecoration: 'underline' }}>Compare every council, constituency and water company</a>.
       </p>
-      <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: 0 }}>{sourceLine}</p>
+      <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: 0 }}>{sourceLine}</p>
     </section>
   );
 }

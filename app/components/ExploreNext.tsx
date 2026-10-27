@@ -31,7 +31,7 @@ export default function ExploreNext({ piece }: { piece: EditorialEntry }) {
         .xn-link { display: block; padding: 10px 0; color: ${INK}; text-decoration: none; border-bottom: 1px dotted rgba(20,16,13,0.25); }
         .xn-link:hover .xn-title { color: ${ACCENT}; text-decoration: underline; }
         .xn-title { font-size: 16px; font-weight: bold; overflow-wrap: anywhere; }
-        .xn-note { display: block; font-size: 14px; line-height: 1.5; margin-top: 2px; }
+        .xn-note { display: block; font-size: 15px; line-height: 1.5; margin-top: 2px; }
       `}</style>
       {data.length > 0 && (
         <section style={{ marginBottom: '26px' }}>
@@ -72,7 +72,7 @@ function PieceLink({ e, base }: { e: EditorialEntry; base: string }) {
     <Link href={`${base}/${e.slug}`} className="xn-link no-hover-scale">
       <span className="xn-title">{e.headline}</span>
       {listSummary(e) && <span className="xn-note">{listSummary(e)}</span>}
-      <ContinueToArticle style={{ fontSize: '14px', marginTop: '4px' }} />
+      <ContinueToArticle style={{ fontSize: '15px', marginTop: '4px' }} />
     </Link>
   );
 }

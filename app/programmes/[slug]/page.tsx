@@ -98,7 +98,7 @@ export default async function ProgrammePage(
       <header style={{ marginBottom: '28px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
           <span style={{
-            fontFamily: MONO, fontSize: '14px', letterSpacing: '0.1em',
+            fontFamily: MONO, fontSize: '15px', letterSpacing: '0.1em',
             textTransform: 'uppercase', color: statusColour,
             border: `1px solid ${statusColour}`,
             padding: '2px 8px',
@@ -117,7 +117,7 @@ export default async function ProgrammePage(
         </h1>
         {prog.started_date && (
           <p style={{
-            fontFamily: MONO, fontSize: '14px',
+            fontFamily: MONO, fontSize: '15px',
             color: '#14100d',
             letterSpacing: '0.06em', textTransform: 'uppercase',
           }}>
@@ -145,7 +145,7 @@ export default async function ProgrammePage(
       }}>
         <div style={{ border: `1px solid ${HAIRLINE}`, padding: '16px 18px' }}>
           <p style={{
-            fontFamily: MONO, fontSize: '14px',
+            fontFamily: MONO, fontSize: '15px',
             textTransform: 'uppercase', letterSpacing: '0.15em',
             color: '#14100d', margin: '0 0 8px',
           }}>
@@ -155,7 +155,7 @@ export default async function ProgrammePage(
             <p style={{ fontSize: '28px', fontWeight: 'bold', color: INK, margin: '0 0 4px', lineHeight: 1 }}>
               {fmtNumber(prog.target_figure)}
               {prog.target_unit && (
-                <span style={{ fontSize: '14px', fontWeight: 'normal', color: '#14100d', marginLeft: '6px' }}>
+                <span style={{ fontSize: '15px', fontWeight: 'normal', color: '#14100d', marginLeft: '6px' }}>
                   {prog.target_unit}
                 </span>
               )}
@@ -163,14 +163,14 @@ export default async function ProgrammePage(
           )}
           {prog.target_label ? (
             <p style={{
-              fontFamily: MONO, fontSize: '14px',
+              fontFamily: MONO, fontSize: '15px',
               color: '#14100d',
               margin: prog.target_figure !== null ? '4px 0 0' : '0',
             }}>
               {prog.target_label}
             </p>
           ) : prog.target_figure === null ? (
-            <p style={{ fontFamily: MONO, fontSize: '14px', color: '#14100d', margin: 0 }}>
+            <p style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', margin: 0 }}>
               No target set
             </p>
           ) : null}
@@ -178,7 +178,7 @@ export default async function ProgrammePage(
 
         <div style={{ border: `1px solid ${HAIRLINE}`, padding: '16px 18px' }}>
           <p style={{
-            fontFamily: MONO, fontSize: '14px',
+            fontFamily: MONO, fontSize: '15px',
             textTransform: 'uppercase', letterSpacing: '0.15em',
             color: '#14100d', margin: '0 0 8px',
           }}>
@@ -189,17 +189,17 @@ export default async function ProgrammePage(
               <p style={{ fontSize: '28px', fontWeight: 'bold', color: INK, margin: '0 0 4px', lineHeight: 1 }}>
                 {fmtNumber(currentEntry.figure_value!)}
                 {currentEntry.figure_unit && (
-                  <span style={{ fontSize: '14px', fontWeight: 'normal', color: '#14100d', marginLeft: '6px' }}>
+                  <span style={{ fontSize: '15px', fontWeight: 'normal', color: '#14100d', marginLeft: '6px' }}>
                     {currentEntry.figure_unit}
                   </span>
                 )}
               </p>
-              <p style={{ fontFamily: MONO, fontSize: '14px', color: '#14100d', margin: '4px 0 0' }}>
+              <p style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', margin: '4px 0 0' }}>
                 {fmtDate(currentEntry.entry_date)}
               </p>
             </>
           ) : (
-            <p style={{ fontFamily: MONO, fontSize: '14px', color: '#14100d', margin: 0 }}>
+            <p style={{ fontFamily: MONO, fontSize: '15px', color: '#14100d', margin: 0 }}>
               No approved figure yet
             </p>
           )}
@@ -213,7 +213,7 @@ export default async function ProgrammePage(
       {deptMetas.length > 0 && (
         <section style={{ maxWidth: '720px' }}>
           <h2 style={{
-            fontFamily: MONO, fontSize: '14px',
+            fontFamily: MONO, fontSize: '15px',
             textTransform: 'uppercase', letterSpacing: '0.2em',
             color: '#14100d',
             marginBottom: '12px', fontWeight: 'normal',
@@ -226,7 +226,7 @@ export default async function ProgrammePage(
                 key={dept.slug}
                 href={`/departments/${dept.slug}`}
                 style={{
-                  fontFamily: MONO, fontSize: '14px', color: ACCENT,
+                  fontFamily: MONO, fontSize: '15px', color: ACCENT,
                   textDecoration: 'underline', textUnderlineOffset: '3px',
                   letterSpacing: '0.04em',
                 }}

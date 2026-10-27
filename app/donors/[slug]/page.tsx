@@ -504,7 +504,7 @@ export default async function DonorPage({ params }: PageProps) {
                       {c.ocid && (
                         <>
                           <br />
-                          <a href={`https://www.find-tender.service.gov.uk/Procurement/${encodeURIComponent(c.ocid)}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '14px', color: ACCENT, textDecoration: 'underline' }}>View on Find a Tender ↗</a>
+                          <a href={`https://www.find-tender.service.gov.uk/Procurement/${encodeURIComponent(c.ocid)}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px', color: ACCENT, textDecoration: 'underline' }}>View on Find a Tender ↗</a>
                         </>
                       )}
                     </td>
@@ -516,7 +516,7 @@ export default async function DonorPage({ params }: PageProps) {
                     <td style={{ ...td, whiteSpace: 'nowrap' }}>{fmtDay(c.awarded_date)}</td>
                     <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>
                       {c.value == null ? 'Not published' : fmtMoney(c.value)}
-                      {c.is_framework && <span style={{ display: 'block', fontWeight: 'normal', fontSize: '14px' }}>framework maximum: potential value, not spending</span>}
+                      {c.is_framework && <span style={{ display: 'block', fontWeight: 'normal', fontSize: '15px' }}>framework maximum: potential value, not spending</span>}
                     </td>
                   </tr>
                 ))}
@@ -588,11 +588,11 @@ export default async function DonorPage({ params }: PageProps) {
                     <td style={{ ...td, whiteSpace: 'nowrap' }}>{fmtDay(d.accepted_date || d.received_date)}</td>
                     <td style={{ ...td, textAlign: 'left', overflowWrap: 'anywhere' }}>
                       {mp ? <Link href={`/mps/${mp.member_id}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{d.recipient_name}</Link> : (d.recipient_name || 'Not recorded')}
-                      {d.accounting_unit_name && d.accounting_unit_name !== d.recipient_name && <span style={{ display: 'block', fontSize: '14px' }}>{d.accounting_unit_name}</span>}
+                      {d.accounting_unit_name && d.accounting_unit_name !== d.recipient_name && <span style={{ display: 'block', fontSize: '15px' }}>{d.accounting_unit_name}</span>}
                     </td>
                     <td style={{ ...td, textAlign: 'left' }}>
                       {d.nature || 'n/a'}
-                      {notes && <span style={{ display: 'block', fontSize: '14px', color: ACCENT }}>{notes}</span>}
+                      {notes && <span style={{ display: 'block', fontSize: '15px', color: ACCENT }}>{notes}</span>}
                     </td>
                     <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(d.amount)}</td>
                     <td style={{ ...td, whiteSpace: 'nowrap' }}>
@@ -630,7 +630,7 @@ function Tile({ label, value, sub, accent }: { label: string; value: string; sub
   return (
     <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '12px 14px', background: CREAM }}>
       <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: '4px' }}>{label}</div>
-      <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '22px', fontWeight: 'bold', color: accent }}>{value}</div>
+      <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '22px', fontWeight: 'bold', color: '#14100d', borderLeft: `3px solid ${accent}`, paddingLeft: '8px' }}>{value}</div>
       <div style={{ fontSize: '15px', marginTop: '4px' }}>{sub}</div>
     </div>
   );

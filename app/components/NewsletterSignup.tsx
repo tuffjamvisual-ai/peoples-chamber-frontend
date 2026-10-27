@@ -14,7 +14,7 @@ const FONT = "var(--font-special-elite), monospace"
 
 // minFontPx: raise the small print and label to at least this size (the article end box uses 15; the homepage and
 // /newsletter keep their sizes).
-export default function NewsletterSignup({ source = 'homepage', minFontPx = 0 }: { source?: string; minFontPx?: number }) {
+export default function NewsletterSignup({ source = 'homepage', minFontPx = 15 }: { source?: string; minFontPx?: number }) {
   const px = (n: number) => `${Math.max(n, minFontPx)}px`
   const [email, setEmail] = useState('')
   const [website, setWebsite] = useState('') // honeypot, hidden from people

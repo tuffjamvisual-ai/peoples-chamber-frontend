@@ -184,7 +184,7 @@ export default function MpDossier({
               <span style={{ display: 'inline-block', width: '0.7em', height: '0.7em', borderRadius: '50%', background: partyColour, marginRight: '0.4em', verticalAlign: 'middle' }} />
               {partyDisplay}
               {partyIsCoop && (
-                <span style={{ fontSize: '0.55em', marginLeft: '0.5em', textTransform: 'uppercase', letterSpacing: '0.08em', verticalAlign: 'middle' }}>(Lab &amp; Co-op)</span>
+                <span style={{ fontSize: 'max(15px, 0.55em)', marginLeft: '0.5em', textTransform: 'uppercase', letterSpacing: '0.08em', verticalAlign: 'middle' }}>(Lab &amp; Co-op)</span>
               )}
             </div>
           )}

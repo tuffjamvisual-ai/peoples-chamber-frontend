@@ -35,12 +35,12 @@ export default function FoiTable({ rows }: { rows: FoiTableRow[] }) {
     else { setSort(k); setDesc(k !== 'name'); }
   };
   const arrow = (k: SortKey) => (k === sort ? (desc ? ' ↓' : ' ↑') : '');
-  const th = 'text-left align-bottom py-2 pr-3 text-[13px] uppercase tracking-[0.12em] font-bold border-b-2 border-[#14100d]';
+  const th = 'text-left align-bottom py-2 pr-3 text-[15px] uppercase tracking-[0.12em] font-bold border-b-2 border-[#14100d]';
   const btn = 'underline underline-offset-2 text-left';
   const td = 'py-2 pr-3 align-top border-b border-[rgba(20,16,13,0.18)]';
   return (
     <div className="overflow-x-auto">
-      <p className="text-[#14100d] text-[14px] mb-2">
+      <p className="text-[#14100d] text-[15px] mb-2">
         Sort by:{' '}
         <button type="button" onClick={by('name')} className={btn}>name{arrow('name')}</button>{' · '}
         <button type="button" onClick={by('received')} className={btn}>requests received{arrow('received')}</button>{' · '}

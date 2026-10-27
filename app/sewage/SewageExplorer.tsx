@@ -54,7 +54,7 @@ const SORTS: { key: SortKey; label: string }[] = [
 ];
 
 const btn = (on: boolean): CSSProperties => ({
-  fontFamily: MONO, fontSize: '14px', padding: '6px 10px', margin: '0 8px 8px 0', cursor: 'pointer',
+  fontFamily: MONO, fontSize: '15px', padding: '6px 10px', margin: '0 8px 8px 0', cursor: 'pointer',
   background: on ? INK : 'transparent', color: on ? '#f4efe6' : INK, border: `1px solid ${INK}`, borderRadius: 0,
 });
 
@@ -212,7 +212,7 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
             {resultLine('council', lookup.councilCode, lookup.councilName)}
             {resultLine('constituency', lookup.constituencyCode, lookup.constituencyName)}
             <button type="button" onClick={copyLink} style={{ ...btn(false), marginTop: '6px' }}>Copy a link to this result</button>
-            <span style={{ fontFamily: MONO, fontSize: '14px', color: INK }}>
+            <span style={{ fontFamily: MONO, fontSize: '15px', color: INK }}>
               {copied === 'yes' && 'Link copied. It shows the council area and constituency, not your postcode.'}
               {copied === 'no' && 'Copy the address from your browser bar. It shows the council area and constituency, not your postcode.'}
               {copied === null && 'The link shows the council area and constituency, not your postcode.'}
@@ -233,7 +233,7 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
           ))}
         </div>
         <div aria-label="Sort by" style={{ marginBottom: '10px' }}>
-          <span style={{ fontFamily: MONO, fontSize: '14px', color: INK, marginRight: '8px' }}>Sort by:</span>
+          <span style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginRight: '8px' }}>Sort by:</span>
           {SORTS.map((s) => (
             <button key={s.key} type="button" aria-pressed={sort === s.key} onClick={() => { setSort(s.key); setShowAll(false); }} style={btn(sort === s.key)}>
               {s.label}
@@ -241,14 +241,14 @@ export default function SewageExplorer({ tables }: { tables: ExplorerTable[] }) 
           ))}
         </div>
         {table && (
-          <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: '0 0 10px' }}>
+          <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 10px' }}>
             {table.nation}, {table.year}. {fmtInt(table.rows.length)} {table.areaWord}.
             {excluded > 0 && ` Shares rank only areas with figures for at least ${MIN_FOR_AVERAGES} overflows, so ${fmtInt(excluded)} smaller area${excluded === 1 ? ' is' : 's are'} left out of this view.`}
           </p>
         )}
         {/* Phones (report 47): the rank and area columns stay put while the figures scroll, with a hint when more are out of view. */}
         <PhoneTable sticky={2}>
-          <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '14px', color: INK, width: '100%', minWidth: '640px' }}>
+          <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, width: '100%', minWidth: '640px' }}>
             <thead>
               <tr>
                 <th style={{ ...th, textAlign: 'right' }}>#</th>

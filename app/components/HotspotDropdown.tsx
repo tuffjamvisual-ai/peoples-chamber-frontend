@@ -247,7 +247,7 @@ export default function HotspotDropdown({
           top: 50%;
           transform: translateY(-50%);
           color: #7a1612;
-          font-size: 14px;
+          font-size: 15px;
         }
       `}</style>
     </div>

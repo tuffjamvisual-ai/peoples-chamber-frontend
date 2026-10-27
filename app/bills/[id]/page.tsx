@@ -236,7 +236,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: INK, textDecoration: 'none', transform: 'rotate(-0.2deg)' }}
       />
 
-      <p style={{ fontFamily: MONO, fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: ACCENT, margin: '0 0 10px', display: 'inline-block', border: `1px solid ${ACCENT}`, padding: '2px 7px 1px' }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: ACCENT, margin: '0 0 10px', display: 'inline-block', border: `1px solid ${ACCENT}`, padding: '2px 7px 1px' }}>
         Source: Parliament
       </p>
 
@@ -437,7 +437,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
               noText={`${noPercent}% No · ${noVotes.toLocaleString()}`}
               empty={totalVotes === 0}
             />
-            <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK_SOFT, margin: '-8px 0 0' }}>
+            <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK_SOFT, margin: '-8px 0 0' }}>
               Votes cast on this site by visitors who chose to vote. They are not a poll of the public.
             </p>
 
@@ -481,7 +481,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
             })()}
 
             {bill.commons_division_title && (bill.commons_ayes || bill.commons_noes) ? (
-              <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK_SOFT, margin: '-8px 0 0' }}>
+              <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK_SOFT, margin: '-8px 0 0' }}>
                 Commons division:{' '}
                 {commonsDivisionHref ? (
                   <a href={commonsDivisionHref} style={{ color: INK, textDecoration: 'underline' }}>{bill.commons_division_title}</a>
@@ -687,7 +687,7 @@ function LordsVotesSection({ divisions }: { divisions: LordsDivision[] }) {
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: '0 0 6px' }}>
         {divisions.length.toLocaleString()} formal {divisions.length === 1 ? 'vote' : 'votes'} in the House of Lords on this bill, newest first.
       </p>
-      <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.7, color: INK, margin: '0 0 8px' }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, margin: '0 0 8px' }}>
         These are the occasions when peers formally divided and every vote was recorded. Most decisions in the Lords, including on many amendments, are agreed without a recorded vote, so they do not appear here.
       </p>
       <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>

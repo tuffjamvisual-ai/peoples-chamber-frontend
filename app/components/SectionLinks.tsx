@@ -9,7 +9,7 @@ export default function SectionLinks({ section }: { section: string }) {
   if (!item?.links.length) return null;
   return (
     <nav aria-label={`In this section: ${item.label}`} style={{ margin: '0 0 18px', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', lineHeight: 1.5, color: '#14100d' }}>
-      <span style={{ textTransform: 'uppercase', letterSpacing: '0.12em', fontSize: '14px', marginRight: '8px' }}>In this section</span>
+      <span style={{ textTransform: 'uppercase', letterSpacing: '0.12em', fontSize: '15px', marginRight: '8px' }}>In this section</span>
       {item.links.map((c, i) => (
         <span key={`${c.href}-${c.label}`} style={{ whiteSpace: 'nowrap' }}>
           {i > 0 && <span aria-hidden style={{ margin: '0 6px' }}>·</span>}

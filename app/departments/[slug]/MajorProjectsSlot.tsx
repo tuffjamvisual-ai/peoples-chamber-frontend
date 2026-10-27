@@ -14,13 +14,13 @@ export function MajorProjectsSlot({ projects, latestYear }: { projects: MajorPro
   return (
     <section>
       <h2 className={H2_CLS} style={{ color: ACCENT }}>Major projects ({projects.length})</h2>
-      <p style={{ fontSize: '14px', lineHeight: 1.55, margin: '0 0 10px' }}>
+      <p style={{ fontSize: '15px', lineHeight: 1.55, margin: '0 0 10px' }}>
         {`The department’s projects in the Government Major Projects Portfolio, as reported each March. ${current} ${current === 1 ? 'is' : 'are'} in the March ${latestYear} report. Each year’s cost is shown with its price basis; costs are not compared between years, because only March ${latestYear} states one.`}
       </p>
       <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
         {projects.map((p) => <MajorProjectHistory key={p.key} p={p} latestYear={latestYear} showDepartment={mixed} />)}
       </ol>
-      <p style={{ fontSize: '14px', margin: '10px 0 0' }}>
+      <p style={{ fontSize: '15px', margin: '10px 0 0' }}>
         <Link href="/transparency/major-projects" style={{ color: '#14100d', textDecoration: 'underline', textUnderlineOffset: '3px' }}>Every major project, all departments →</Link>
       </p>
     </section>

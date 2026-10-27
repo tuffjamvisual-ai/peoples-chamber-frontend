@@ -61,7 +61,7 @@ function WithdrawnNotice() {
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: INK, textDecoration: 'none', fontFamily: MONO, fontSize: '15px' }}
       />
-      <article style={{ padding: 'clamp(8px, 2vw, 24px) 0', color: '#14100d', fontFamily: SERIF }}>
+      <article style={{ padding: 'clamp(15px, 2vw, 24px) 0', color: '#14100d', fontFamily: SERIF }}>
         <header style={{ borderTop: `1.5px solid ${INK}`, borderBottom: `1.5px solid ${INK}`, padding: '14px 12px', textAlign: 'center', marginBottom: '28px' }}>
           <h1 style={{ fontFamily: SERIF, fontSize: 'clamp(28px, 3.4vw, 44px)', fontWeight: 500, letterSpacing: '0.005em', lineHeight: 1.18, margin: 0 }}>
             Council league table withdrawn
@@ -128,7 +128,7 @@ export default async function LeagueTablePage() {
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '14px', color: INK, textDecoration: 'none', fontFamily: MONO, fontSize: '15px' }}
       />
-      <article style={{ padding: 'clamp(8px, 2vw, 24px) 0', color: '#14100d', fontFamily: SERIF }}>
+      <article style={{ padding: 'clamp(15px, 2vw, 24px) 0', color: '#14100d', fontFamily: SERIF }}>
         <header style={{ borderTop: `1.5px solid ${INK}`, borderBottom: `1.5px solid ${INK}`, padding: '14px 12px', textAlign: 'center', marginBottom: '28px' }}>
           <div style={{ fontFamily: SERIF, fontSize: '15px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '4px' }}>
             England · {stability.ranked} council areas
@@ -181,7 +181,7 @@ export default async function LeagueTablePage() {
             Warning flags: an Ofsted judgement of Inadequate for children’s services; a section 114 notice (dates from the published record); current government intervention or a best value inspection (GOV.UK list of statutory interventions); exceptional financial support from government, by financial year; and usable reserves (money a council holds that is not tied to schools or public health) below zero or down by half or more in {data.reservesYear ?? 'the latest year'}. For a district, flags marked “county” belong to its county council.
           </p>
           <div style={{ overflowX: 'auto', marginBottom: '14px' }}>
-            <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '14px', color: INK, width: '100%', minWidth: '640px' }}>
+            <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, width: '100%', minWidth: '640px' }}>
               <thead>
                 <tr>
                   <th style={th}>Topic</th>
@@ -212,7 +212,7 @@ export default async function LeagueTablePage() {
           <p style={para}>
             Crime is recorded crimes per 1,000 residents over 12 months, not counting antisocial behaviour. Greater Manchester’s published figures are incomplete, so its boroughs are not scored on crime. City of London and the Isles of Scilly are too small to compare fairly and are listed separately. Statistical Neighbours: <a href={STAT_NEIGHBOURS_URL} style={{ color: INK }}>Ministry of Housing, Communities and Local Government model, 1 July 2026</a>. Council finance: MHCLG revenue outturn 2024/25 (reserves), GOV.UK exceptional financial support and intervention pages.
           </p>
-          <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: 0, maxWidth: '46em' }}>
+          <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0, maxWidth: '46em' }}>
             Government sources are published under the Open Government Licence v3.0. Ofcom Connected Nations data is published by Ofcom. Police recorded crime from data.police.uk under the Open Government Licence.
           </p>
         </section>

@@ -59,7 +59,7 @@ export default async function BriefingSourcesPage({ params }: { params: Promise<
       </header>
       <div style={{ maxWidth: '760px' }}>
         {b.sources.map((src, i) => (
-          <p key={i} style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: '0 0 6px', wordBreak: 'break-all', lineHeight: 1.5 }}>
+          <p key={i} style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 6px', wordBreak: 'break-all', lineHeight: 1.5 }}>
             {src}
           </p>
         ))}

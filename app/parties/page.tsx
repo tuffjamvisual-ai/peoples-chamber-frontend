@@ -87,17 +87,17 @@ export default async function PartiesIndexPage() {
                 {PARTY_NAMES[slug]} <span style={{ color: ACCENT }}>→</span>
               </div>
               {n != null && (
-                <div style={{ fontFamily: MONO, fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>
+                <div style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>
                   {n.toLocaleString('en-GB')} current MP{n === 1 ? '' : 's'}
                 </div>
               )}
-              <p style={{ fontSize: '14px', lineHeight: 1.5, color: INK, margin: 0 }}>{partyDescription(PARTY_NAMES[slug])}</p>
+              <p style={{ fontSize: '15px', lineHeight: 1.5, color: INK, margin: 0 }}>{partyDescription(PARTY_NAMES[slug])}</p>
             </Link>
           );
         })}
       </div>
 
-      <p style={{ fontSize: '14px', lineHeight: 1.6, color: INK, margin: '14px 0 0' }}>
+      <p style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: '14px 0 0' }}>
         Current MPs: the MP roster, kept in step with the UK Parliament Members API each day, grouped as on{' '}
         <Link href="/mps" className="no-hover-scale" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>All MPs</Link>
         {' '}(Labour includes Labour and Co-operative MPs).

@@ -49,7 +49,7 @@ export default async function BillSessionsPage() {
               {sessionTitle(s)}
             </Link>
             {s.is_current && (
-              <span style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.12em', color: ACCENT, border: `1px solid ${ACCENT}`, padding: '1px 8px' }}>Current</span>
+              <span style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.12em', color: ACCENT, border: `1px solid ${ACCENT}`, padding: '1px 8px' }}>Current</span>
             )}
             <span style={{ fontSize: '15px' }}>{sessionDates(s)}</span>
             <span style={{ fontSize: '15px', marginLeft: 'auto' }}>
@@ -60,7 +60,7 @@ export default async function BillSessionsPage() {
         ))}
       </ol>
 
-      <p style={{ fontSize: '14px', lineHeight: 1.7, marginTop: '24px', maxWidth: '720px' }}>
+      <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '24px', maxWidth: '720px' }}>
         Our bill records start in the 2004/05 session, but the two earliest sessions hold only five bills: ones that were
         carried over into later sessions and became Acts, such as the Crossrail Act 2008. Session names and dates:{' '}
         <a href={SESSIONS_SOURCE_URL} style={{ color: ACCENT }} rel="noopener">UK Parliament calendar</a>. Bills: UK Parliament Bills API.

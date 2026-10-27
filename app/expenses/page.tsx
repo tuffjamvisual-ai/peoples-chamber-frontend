@@ -416,7 +416,7 @@ function SimpleRow({
       <span
         style={{
           fontFamily: 'var(--font-special-elite), monospace',
-          fontSize: '14px',
+          fontSize: '15px',
           textTransform: 'uppercase',
           letterSpacing: '0.15em',
           color: ACCENT,

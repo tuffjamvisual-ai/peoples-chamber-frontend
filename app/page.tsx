@@ -190,7 +190,7 @@ export default async function HomePage() {
 
               <a className="og-block" href={`/editorials/${slot1.slug}`}>
                 <div className="og-head">{slot1.headline}</div>
-                <div style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '14px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{readingLabel(slot1)}</div>
+                <div style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{readingLabel(slot1)}</div>
                 <div className="og-standfirst">{listSummary(slot1)}</div>
                 {ledeText && <p className="og-lede">{ledeText}</p>}
                 <ContinueToArticle />
@@ -198,7 +198,7 @@ export default async function HomePage() {
 
               <a className="og-block og-brief" href={`/editorials/${slot2.slug}`}>
                 <div className="og-head">{slot2.headline}</div>
-                <div style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '14px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{readingLabel(slot2)}</div>
+                <div style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{readingLabel(slot2)}</div>
                 <p>{listSummary(slot2)}</p>
                 <ContinueToArticle />
               </a>
@@ -206,10 +206,10 @@ export default async function HomePage() {
 
               {whitehallItems.length > 0 && (
                 <section aria-label="Latest from Whitehall" style={{ marginTop: '28px', paddingTop: '18px', borderTop: '2px solid rgba(20,16,13,0.18)' }}>
-                  <h2 style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 2px' }}>
+                  <h2 style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.22em', color: '#7a1612', margin: '0 0 2px' }}>
                     Latest from Whitehall
                   </h2>
-                  <p style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '14px', color: '#14100d', margin: '0 0 12px', letterSpacing: '0.04em' }}>
+                  <p style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', margin: '0 0 12px', letterSpacing: '0.04em' }}>
                     Government press releases, published as issued
                   </p>
                   <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
@@ -218,7 +218,7 @@ export default async function HomePage() {
                         <a href={`/news/${slug}`} style={{ display: 'block', fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', textDecoration: 'none', lineHeight: 1.38 }}>
                           {title}
                         </a>
-                        <span style={{ display: 'block', fontFamily: "var(--font-special-elite), monospace", fontSize: '14px', color: '#14100d', marginTop: '3px' }}>
+                        <span style={{ display: 'block', fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', marginTop: '3px' }}>
                           {orgHref ? (
                             <a href={orgHref} style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: '2px' }}>{organisation}</a>
                           ) : organisation}
@@ -255,14 +255,14 @@ export default async function HomePage() {
 
               <Link className="og-block og-brief" href={`/editorials/${slot3.slug}`}>
                 <div className="og-head">{slot3.headline}</div>
-                <div style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '14px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{readingLabel(slot3)}</div>
+                <div style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{readingLabel(slot3)}</div>
                 <p>{listSummary(slot3)}</p>
                 <ContinueToArticle />
               </Link>
 
               <Link className="og-block og-brief" href={`/editorials/${slot4.slug}`}>
                 <div className="og-head">{slot4.headline}</div>
-                <div style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '14px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{readingLabel(slot4)}</div>
+                <div style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', letterSpacing: '0.04em', margin: '0 0 6px' }}>{readingLabel(slot4)}</div>
                 <p>{listSummary(slot4)}</p>
                 <ContinueToArticle />
               </Link>

@@ -193,8 +193,8 @@ export default async function CouncilSchoolInspectionsSection({
           </p>
           {areaRows.length > 0 && (
             <div style={{ overflowX: 'auto', marginBottom: '18px' }}>
-              <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '14px', color: INK, minWidth: '560px', width: '100%' }}>
-                <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '14px', color: INK, paddingBottom: '6px' }}>Number of schools at each grade, by area</caption>
+              <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, minWidth: '560px', width: '100%' }}>
+                <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '15px', color: INK, paddingBottom: '6px' }}>Number of schools at each grade, by area</caption>
                 <thead>
                   <tr style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                     <th style={th}>Area</th>
@@ -219,7 +219,7 @@ export default async function CouncilSchoolInspectionsSection({
         <>
           <h3 style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 6px' }}>Earlier inspections (schools without a report card yet)</h3>
           <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '8px' }}>
-            <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '14px', color: INK, paddingBottom: '6px' }}>Overall effectiveness at the last graded inspection</caption>
+            <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '15px', color: INK, paddingBottom: '6px' }}>Overall effectiveness at the last graded inspection</caption>
             <tbody>
               {oeifCounts.map((x) => (
                 <tr key={x.key} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
@@ -234,7 +234,7 @@ export default async function CouncilSchoolInspectionsSection({
 
       {ungradedCounts.length > 0 && (
         <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '8px' }}>
-          <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '14px', color: INK, paddingBottom: '6px' }}>
+          <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '15px', color: INK, paddingBottom: '6px' }}>
             Schools whose only inspection in Ofsted&rsquo;s file is an ungraded one ({fmtNum(ungradedOnly.length)}), by outcome
           </caption>
           <tbody>
@@ -248,7 +248,7 @@ export default async function CouncilSchoolInspectionsSection({
         </table>
       )}
       {notInspected > 0 && (
-        <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: '0 0 18px' }}>
+        <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 18px' }}>
           {fmtNum(notInspected)} {notInspected === 1 ? 'school has' : 'schools have'} no inspection on record yet (for example, newly opened schools).
         </p>
       )}
@@ -270,9 +270,9 @@ export default async function CouncilSchoolInspectionsSection({
         </p>
       ) : (
       <details style={{ marginBottom: '14px' }}>
-        <summary style={{ fontFamily: MONO, fontSize: '14px', color: ACCENT, cursor: 'pointer' }}>All {fmtNum(schools.length)} schools</summary>
+        <summary style={{ fontFamily: MONO, fontSize: '15px', color: ACCENT, cursor: 'pointer' }}>All {fmtNum(schools.length)} schools</summary>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '14px', color: INK, marginTop: '6px', width: '100%', minWidth: '520px' }}>
+          <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '6px', width: '100%', minWidth: '520px' }}>
             <thead>
               <tr style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <th style={th}>School</th>
@@ -296,14 +296,14 @@ export default async function CouncilSchoolInspectionsSection({
             </tbody>
           </table>
         </div>
-        {hasPredecessor && <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: '6px 0 0' }}>* Inspection of a predecessor school (for example, before it became an academy).</p>}
+        {hasPredecessor && <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '6px 0 0' }}>* Inspection of a predecessor school (for example, before it became an academy).</p>}
       </details>
       )}
 
-      <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
         Since 10 November 2025 Ofsted inspects schools under a renewed framework and publishes a report card grading up to eight areas on a scale of five points, plus whether safeguarding standards are met. Ofsted says these grades cannot be compared with grades from the previous framework, so they are shown separately. Graded inspections between 1 September 2024 and 9 November 2025 gave no overall grade (&ldquo;Not judged&rdquo;). Ungraded inspections check whether a school is still at its previous grade; the &ldquo;Earlier inspections&rdquo; figures use the last graded inspection.
       </p>
-      <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: 0 }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: 0 }}>
         Source: Ofsted, State-funded schools inspections and outcomes as at {fmtDate(snapshot)} (official statistics). Contains public sector information licensed under the Open Government Licence v3.0.
       </p>
     </section>

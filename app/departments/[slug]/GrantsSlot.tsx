@@ -121,7 +121,7 @@ export function GrantsSlot({ grants }: { grants: DepartmentGrants }) {
               <tr key={`${s.title}-${i}`} style={{ borderBottom: `1px solid ${HAIRLINE}` }}>
                 <td style={td}>
                   {s.title}
-                  {s.funder && <span style={{ display: 'block', fontSize: '14px' }}>{s.funder}</span>}
+                  {s.funder && <span style={{ display: 'block', fontSize: '15px' }}>{s.funder}</span>}
                 </td>
                 <td style={tdNum}>{fmtMoney(s.value)}</td>
               </tr>
@@ -146,7 +146,7 @@ export function GrantsSlot({ grants }: { grants: DepartmentGrants }) {
                 <td style={td}>{a.recipient ?? <em>Name not published</em>}</td>
                 <td style={td}>
                   {a.scheme ?? 'n/a'}
-                  {a.funder && <span style={{ display: 'block', fontSize: '14px' }}>{a.funder}</span>}
+                  {a.funder && <span style={{ display: 'block', fontSize: '15px' }}>{a.funder}</span>}
                 </td>
                 <td style={tdNum}>{fmtMoney(a.amount)}</td>
               </tr>
@@ -155,7 +155,7 @@ export function GrantsSlot({ grants }: { grants: DepartmentGrants }) {
         </table>
       )}
 
-      <p style={{ fontSize: '14px', lineHeight: 1.6, marginBottom: '4px' }}>
+      <p style={{ fontSize: '15px', lineHeight: 1.6, marginBottom: '4px' }}>
         Source: Cabinet Office, Government grants register {fyLabel} (official statistics, published on GOV.UK). Includes grants paid by the department and the agencies and bodies it funds. Amounts are what was paid out in the financial year. Government withholds some recipients&rsquo; names for sensitivity reasons, and grants to individuals are not named here.
       </p>
     </section>

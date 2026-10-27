@@ -172,14 +172,14 @@ export default function ReportsArchive({ items, topics }: { items: ArchiveItem[]
                       style={{ display: visible[i] ? 'flex' : 'none', flexDirection: 'column', height: '100%', padding: '22px 0', borderBottom: `1px solid ${HAIRLINE}`, textDecoration: 'none', color: INK }}
                     >
                       {/* The type, then the piece's own kicker when it says something the type does not. */}
-                      <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.22em', color: ACCENT, fontWeight: 'bold', marginBottom: '8px' }}>
+                      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.22em', color: ACCENT, fontWeight: 'bold', marginBottom: '8px' }}>
                         {e.type}
                         {e.kicker && e.kicker.toLowerCase() !== e.type.toLowerCase() ? ` · ${e.kicker}` : ''}
                       </div>
                       <h3 style={{ fontFamily: MONO, fontSize: 'clamp(19px, 1.9vw, 25px)', fontWeight: 'bold', letterSpacing: '0.01em', lineHeight: 1.15, marginBottom: '8px' }}>
                         {e.headline}
                       </h3>
-                      <div style={{ fontSize: '14px', color: INK, marginBottom: '6px' }}>{e.dateLabel} · {e.readingLabel}</div>
+                      <div style={{ fontSize: '15px', color: INK, marginBottom: '6px' }}>{e.dateLabel} · {e.readingLabel}</div>
                       {e.summary && <p style={{ fontSize: '15px', lineHeight: 1.55, margin: 0 }}>{e.summary}</p>}
                       {/* Pushed to the foot of the card so cards in the same row line up. */}
                       <ContinueToArticle style={{ marginTop: 'auto', paddingTop: '6px' }} />

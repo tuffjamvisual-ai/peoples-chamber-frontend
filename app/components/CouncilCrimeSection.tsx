@@ -200,7 +200,7 @@ export default async function CouncilCrimeSection({
 
       {trend.length > 0 && (
         <figure style={{ margin: '0 0 18px' }}>
-          <figcaption style={{ fontFamily: MONO, fontSize: '14px', color: INK, marginBottom: '6px' }}>Crimes recorded each month</figcaption>
+          <figcaption style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '6px' }}>Crimes recorded each month</figcaption>
           <div
             role="img"
             aria-label={`Monthly crimes recorded, ${fmtMonth(trend[0].month)} to ${fmtMonth(trend[trend.length - 1].month)}. Full figures are in the Monthly figures table below.`}
@@ -216,13 +216,13 @@ export default async function CouncilCrimeSection({
               </div>
             ))}
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: MONO, fontSize: '14px', color: INK, marginTop: '4px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '4px' }}>
             <span>{fmtMonthShort(trend[0].month)}</span>
             <span>{fmtMonthShort(trend[trend.length - 1].month)}</span>
           </div>
           <details style={{ marginTop: '6px' }}>
-            <summary style={{ fontFamily: MONO, fontSize: '14px', color: ACCENT, cursor: 'pointer' }}>Monthly figures</summary>
-            <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '14px', color: INK, marginTop: '6px' }}>
+            <summary style={{ fontFamily: MONO, fontSize: '15px', color: ACCENT, cursor: 'pointer' }}>Monthly figures</summary>
+            <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '6px' }}>
               <tbody>
                 {trend.map((t) => (
                   <tr key={t.month}>
@@ -255,11 +255,11 @@ export default async function CouncilCrimeSection({
         </table>
       )}
 
-      <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
         {isCounty && 'Figures for this county are the total of its district councils. '}
         {SOURCE_NOTES[source] ?? ''}
       </p>
-      <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: 0 }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: 0 }}>
         Crime figures last updated {fmtDate(updatedAt)}.
       </p>
     </section>

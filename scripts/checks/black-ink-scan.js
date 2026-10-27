@@ -1,6 +1,7 @@
 // The in-page part of scripts/checks/black-ink.ts, as plain JavaScript: it runs inside the browser (page.evaluate),
 // so it is kept out of the TypeScript file, where tsx would add helpers the browser does not have.
-// Given the page's path, returns every visible piece of text that is not #14100d at full strength (see black-ink.ts).
+// Given the page's path, returns every visible piece of text that is not #14100d at full strength, and every visible
+// piece of text smaller than 15px (SVG text at the size it is drawn on screen), see black-ink.ts.
 /* eslint-disable @typescript-eslint/no-unused-expressions -- a bare function, read as text by black-ink.ts */
 (path) => {
     const INK = [20, 16, 13], ACCENT = [122, 22, 18];
@@ -16,12 +17,18 @@
       const t = (n.textContent || '').replace(/\s+/g, ' ').trim();
       if (!t || !/[\p{L}\p{N}£$%]/u.test(t)) continue;
       const el = n.parentElement; if (!el || seen.has(el)) continue; seen.add(el);
-      if (el.closest('script,style,noscript,svg,template')) continue;
+      if (el.closest('script,style,noscript,template')) continue;
       const cs = getComputedStyle(el);
       if (cs.visibility === 'hidden' || cs.display === 'none') continue;
       const range = document.createRange(); range.selectNodeContents(n); const r = range.getBoundingClientRect();
       if (r.width < 2 || r.height < 2) continue; // clipped to 1px for screen readers, or empty
       const op = opacityOf(el); if (op < 0.01) continue; // hidden on purpose
+      // Size: at least 15px as drawn. SVG text is scaled with its drawing, so its size is multiplied by the scale.
+      const svgEl = el.closest('svg');
+      const ctm = svgEl && el instanceof SVGGraphicsElement ? el.getScreenCTM() : null;
+      const px = parseFloat(cs.fontSize) * (ctm ? Math.hypot(ctm.a, ctm.b) : 1);
+      if (px < 14.95) out.push({ page: path, kind: 'size', text: t.slice(0, 40), colour: '', alpha: 1, size: Math.round(px * 10) / 10, tag: el.tagName.toLowerCase(), path: label(el) });
+      if (svgEl) continue; // chart colours are checked by eye: fills, not text colour
       const c = parse(cs.color); if (!c) continue;
       const alpha = Math.round(c.a * op * 1000) / 1000;
       // Light text (white, cream) is on a dark or red background: buttons, the red strip button, dark panels. The
@@ -29,14 +36,16 @@
       if (lum(c) > 0.4) continue;
       if (same(c, ACCENT) && alpha >= 0.999) continue;
       if (same(c, INK) && alpha >= 0.999) continue;
-      out.push({ page: path, text: t.slice(0, 40), colour: `rgb(${c.r},${c.g},${c.b})`, alpha, tag: el.tagName.toLowerCase(), path: label(el) });
+      out.push({ page: path, kind: 'colour', text: t.slice(0, 40), colour: `rgb(${c.r},${c.g},${c.b})`, alpha, tag: el.tagName.toLowerCase(), path: label(el) });
     }
     for (const inp of Array.from(document.querySelectorAll('input[placeholder],textarea[placeholder]'))) {
       const r = inp.getBoundingClientRect(); if (r.width < 2 || r.height < 2 || !inp.placeholder) continue;
       const c = parse(getComputedStyle(inp, '::placeholder').color); if (!c) continue;
       const alpha = Math.round(c.a * opacityOf(inp) * 1000) / 1000;
+      const px = parseFloat(getComputedStyle(inp).fontSize);
+      if (px < 14.95) out.push({ page: path, kind: 'size', text: inp.placeholder.slice(0, 40), colour: '', alpha: 1, size: px, tag: 'input', path: label(inp) });
       if (same(c, INK) && alpha >= 0.999) continue;
-      out.push({ page: path, text: inp.placeholder.slice(0, 40), colour: `rgb(${c.r},${c.g},${c.b})`, alpha, tag: 'placeholder', path: label(inp), placeholder: true });
+      out.push({ page: path, kind: 'colour', text: inp.placeholder.slice(0, 40), colour: `rgb(${c.r},${c.g},${c.b})`, alpha, tag: 'placeholder', path: label(inp), placeholder: true });
     }
     return out;
   }

@@ -23,7 +23,7 @@ export default function ContentBadge({
     <p
       style={{
         fontFamily: MONO,
-        fontSize: '14px',
+        fontSize: '15px',
         fontWeight: 700,
         textTransform: 'uppercase',
         letterSpacing: '0.22em',

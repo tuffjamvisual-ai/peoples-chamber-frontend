@@ -49,7 +49,7 @@ export default function KeyStat({
         <p
           style={{
             fontFamily: MONO,
-            fontSize: '14px',
+            fontSize: '15px',
             color: '#14100d',
             margin: '0',
             lineHeight: 1.5,

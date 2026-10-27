@@ -60,7 +60,7 @@ const ordinal = (k: number) => {
 const fmt = (v: number | null | undefined) => (v == null ? 'n/a' : (Math.round(v * 10) / 10).toFixed(1));
 
 const btn = (on: boolean): CSSProperties => ({
-  fontFamily: MONO, fontSize: '14px', padding: '6px 10px', margin: '0 8px 8px 0', cursor: 'pointer',
+  fontFamily: MONO, fontSize: '15px', padding: '6px 10px', margin: '0 8px 8px 0', cursor: 'pointer',
   background: on ? INK : 'transparent', color: on ? '#f4efe6' : INK, border: `1px solid ${INK}`, borderRadius: 0,
 });
 
@@ -127,7 +127,7 @@ export default function LeagueTable({ rows, topics, parts }: { rows: ClientRow[]
         .lt-details > div { flex: 1 1 180px; min-width: 0; }
         @media (max-width: 760px) {
           .lt-wide { display: none; }
-          .lt-table { font-size: 14px !important; }
+          .lt-table { font-size: 15px !important; }
           .lt-table th, .lt-table td { padding-right: 5px !important; }
           .lt-table td { overflow-wrap: anywhere; }
           .lt-table th { white-space: normal !important; }
@@ -137,7 +137,7 @@ export default function LeagueTable({ rows, topics, parts }: { rows: ClientRow[]
         <button type="button" role="tab" aria-selected={view === 'area'} onClick={() => { setView('area'); setSort('rank'); setDesc(false); setShowAll(false); setOpen(null); }} style={btn(view === 'area')}>Area rating</button>
         <button type="button" role="tab" aria-selected={view === 'services'} onClick={() => { setView('services'); setSort('rank'); setDesc(false); setShowAll(false); setOpen(null); }} style={btn(view === 'services')}>Selected council services</button>
       </div>
-      <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, margin: '0 0 10px', maxWidth: '46em' }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 10px', maxWidth: '46em' }}>
         {view === 'area'
           ? 'How each area compares on eight topics: schools and children, safety, health, jobs and poverty, housing, environment, connectivity and local services. This describes the area, not how well the council is run: it is not a ranking of councils.'
           : "How four of the services councils run compare for each area: schools, children's services, recycling and planning. It does not cover every council service. For a district, schools and children's services are run by its county council. “In its group” compares the area with the 15 councils most like it (government Statistical Neighbours)."}
@@ -148,15 +148,15 @@ export default function LeagueTable({ rows, topics, parts }: { rows: ClientRow[]
         ))}
       </div>
       <div style={{ marginBottom: '12px' }}>
-        <label htmlFor="lt-search" style={{ fontFamily: MONO, fontSize: '14px', color: INK, marginRight: '8px' }}>Find an area</label>
+        <label htmlFor="lt-search" style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginRight: '8px' }}>Find an area</label>
         <input id="lt-search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="e.g. Leeds"
           style={{ fontFamily: MONO, fontSize: '15px', padding: '6px 8px', border: `1px solid ${INK}`, background: 'transparent', color: INK, width: '12em' }} />
       </div>
-      <p style={{ fontFamily: MONO, fontSize: '14px', color: INK, margin: '0 0 8px' }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 8px' }}>
         {list.length} area{list.length === 1 ? '' : 's'} shown. Click a column heading to sort; click ▸ for the details.
       </p>
       <div style={{ overflowX: 'auto' }}>
-        <table className="lt-table" style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '14px', color: INK, width: '100%' }}>
+        <table className="lt-table" style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, width: '100%' }}>
           <thead>
             <tr>
               <th style={th}><span style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap' }}>Details</span></th>
@@ -190,18 +190,18 @@ export default function LeagueTable({ rows, topics, parts }: { rows: ClientRow[]
                     <td className="lt-wide" style={tdNum} title={`Based on ${cols.filter((c) => (view === 'area' ? r.topics[c.key] : r.services[c.key]) != null).length} of ${cols.length}`}>
                       {fmt(score)}
                       {cols.some((c) => (view === 'area' ? r.topics[c.key] : r.services[c.key]) == null) && (
-                        <span style={{ fontSize: '12px' }}> ({cols.filter((c) => (view === 'area' ? r.topics[c.key] : r.services[c.key]) != null).length}/{cols.length})</span>
+                        <span style={{ fontSize: '15px' }}> ({cols.filter((c) => (view === 'area' ? r.topics[c.key] : r.services[c.key]) != null).length}/{cols.length})</span>
                       )}
                     </td>
                     {view === 'services' && <td className="lt-wide" style={tdNum}>{r.peer ? `${ordinal(r.peer.rank)} of ${r.peer.of}` : 'n/a'}</td>}
                     {cols.map((c) => <td key={c.key} className="lt-wide" style={tdNum}>{fmt(view === 'area' ? r.topics[c.key] : r.services[c.key])}</td>)}
-                    <td style={{ ...td, color: ACCENT, fontSize: '14px' }}>
+                    <td style={{ ...td, color: ACCENT, fontSize: '15px' }}>
                       {r.flags.length === 0 ? '' : (
                         <>
                           {[['Formal action', r.flags.filter((f) => FORMAL.has(f.kind))], ['Financial pressure', r.flags.filter((f) => !FORMAL.has(f.kind))]].map(([group, fs]) =>
                             (fs as ClientFlag[]).length === 0 ? null : (
                               <div key={group as string} style={{ marginBottom: '4px' }}>
-                                <div style={{ color: INK, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{group as string}</div>
+                                <div style={{ color: INK, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{group as string}</div>
                                 {(fs as ClientFlag[]).map((f) => <div key={f.label + f.county}>{f.label}{f.county ? ' (county)' : ''}</div>)}
                               </div>
                             ))}

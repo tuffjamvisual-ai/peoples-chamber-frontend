@@ -70,7 +70,7 @@ export default async function CivilServicePage() {
       <BackLink
         fallbackHref="/transparency"
         label="← Back"
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '3%', marginBottom: '12px', color: ink, textDecoration: 'none', fontSize: 'clamp(14px, 1.1vw, 14px)', transform: 'rotate(-0.2deg)' }}
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '3%', marginBottom: '12px', color: ink, textDecoration: 'none', fontSize: 'clamp(15px, 1.1vw, 14px)', transform: 'rotate(-0.2deg)' }}
       />
       <h1 style={{ fontSize: 'clamp(24px, 3.4vw, 38px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)', lineHeight: 1.1 }}>
         The civil service, by department
@@ -102,7 +102,7 @@ export default async function CivilServicePage() {
                     <span style={{ fontSize: '15px', whiteSpace: 'nowrap' }}>
                       <strong>{fmtHeadcount(hc)}</strong>
                       {change != null && (
-                        <span style={{ marginLeft: 8, color: change >= 0 ? '#0a6f2a' : ACCENT, fontWeight: 600, fontSize: '15px' }}>
+                        <span style={{ marginLeft: 8, color: '#14100d', fontWeight: 600, fontSize: '15px' }}>
                           {change >= 0 ? '↑' : '↓'} {Math.abs(change).toFixed(1)}%
                         </span>
                       )}

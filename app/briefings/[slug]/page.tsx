@@ -143,7 +143,7 @@ export default async function BriefingPage({ params }: { params: Promise<{ slug:
           <p style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', color: ACCENT, margin: '0 0 10px' }}>
             Sources checked
           </p>
-          <p style={{ fontFamily: MONO, fontSize: '14px', margin: '0 0 6px', lineHeight: 1.5 }}>
+          <p style={{ fontFamily: MONO, fontSize: '15px', margin: '0 0 6px', lineHeight: 1.5 }}>
             <Link href={`/briefings/${slug}/sources`} style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Sources ({sourceCount})</Link>
           </p>
         </aside>

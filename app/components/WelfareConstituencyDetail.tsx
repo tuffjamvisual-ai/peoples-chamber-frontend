@@ -409,7 +409,7 @@ function DataRow({ label, value, sub, valueColour }: { label: string; value: Rea
       </dt>
       <dd style={{ padding: '12px 0', borderBottom: `1px solid ${INK_HAIRLINE}`, margin: 0, fontFamily: MONO, fontSize: '15px', lineHeight: 1.55, color: valueColour || INK }}>
         {value}
-        {sub && <span style={{ display: 'block', fontSize: '14px', color: INK_SOFT, marginTop: '2px' }}>{sub}</span>}
+        {sub && <span style={{ display: 'block', fontSize: '15px', color: INK_SOFT, marginTop: '2px' }}>{sub}</span>}
       </dd>
     </div>
   )
