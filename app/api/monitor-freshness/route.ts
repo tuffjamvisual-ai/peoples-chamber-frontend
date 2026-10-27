@@ -5,6 +5,8 @@ import { sendFreshnessAlert, sendDatabaseSizeAlert, sendBioReviewAlert, sendSewa
 import { getDatabaseSize } from '@/lib/database-size';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { lastFireAtOrBefore } from '@/lib/cron-schedule';
+import { cycleHours } from '@/lib/sync-cycles';
+import type { CycleState } from '@/lib/sync-heartbeat';
 import vercelConfig from '../../../vercel.json';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -19,6 +21,9 @@ export const maxDuration = 300;
 //          vercel.json cron with no run recorded since its last scheduled time
 //          (30 minutes' grace): a run that times out records nothing, so a
 //          missed window is how a 504 shows up (owner's approval, 21 Oct 2026).
+//          A run stopped by its time budget or a rate limit (200, partial: true) is healthy while the sync finishes a
+//          full pass within its expected period (lib/sync-cycles.ts); once its partial runs go on longer than that,
+//          it is alerted (job 79, 27 Oct 2026).
 // Watch  = a source that runs fine but has returned zero rows for many runs
 //          (upstream may have moved/changed) — surfaced in the JSON, not emailed.
 // Info   = sources with no automated sync yet, or a configured route not yet
@@ -96,6 +101,9 @@ async function GET_impl(req: Request) {
   const cronRoutes = new Map<string, string>();
   for (const c of vercelConfig.crons) if (!c.path.includes('?')) cronRoutes.set(c.path, c.schedule);
   const HEARTBEATS_ADDED = new Date('2026-10-21T20:00:00Z');
+  // The crons were restaggered on 27 Oct 2026 (job 79). A due time before then belongs to the old schedule, when the
+  // job ran at a different minute, so it is not checked against the new one.
+  const SCHEDULES_CHANGED = new Date('2026-10-27T04:00:00Z');
   // Run expected, zero rows normal: alerted only for a missed run or a failed one, never for a run of zero rows.
   // The reshuffle tick changes nothing unless reshuffle mode is on.
   const ZERO_ROWS_NORMAL = new Set(['/api/sync-reshuffle-tick']);
@@ -105,6 +113,7 @@ async function GET_impl(req: Request) {
     const due = lastFireAtOrBefore(schedule, new Date(now.getTime() - 30 * 60_000));
     const h = hb.get(route);
     if (!due || (h && new Date(h.last_ran_at) >= due)) continue;
+    if (due < SCHEDULES_CHANGED) continue;
     // Crons given a heartbeat on 21 Oct 2026 have no row until their first run since then.
     if (!h && due < HEARTBEATS_ADDED) continue;
     missedRuns.push({ route, due: due.toISOString(), lastRanAt: h?.last_ran_at ?? null });
@@ -126,10 +135,34 @@ async function GET_impl(req: Request) {
     alerted.add(h.route);
   }
 
+  // Partial runs (job 79): lib/sync-heartbeat.ts keeps "cycle:<route>" in sync_cursor for every run that reports a
+  // partial flag. Healthy while the current streak of partial runs is younger than the route's period.
+  const cycles: Array<{ route: string; lastCompleteAt: string | null; partialSince: string | null; partialRuns: number; periodHours: number; overdue: boolean }> = [];
+  {
+    const { data: cycleRows, error: cycleErr } = await supabaseAdmin.from('sync_cursor').select('route, cursor').like('route', 'cycle:%');
+    if (cycleErr) console.error('monitor-freshness: cycles:', cycleErr.message);
+    for (const r of cycleRows ?? []) {
+      const route = (r.route as string).slice('cycle:'.length);
+      const c = r.cursor as CycleState;
+      const periodHours = cycleHours(route, cronRoutes.get(route));
+      const overdue = !!c.partialSince && now.getTime() - new Date(c.partialSince).getTime() > periodHours * 3_600_000;
+      cycles.push({ route, lastCompleteAt: c.lastCompleteAt, partialSince: c.partialSince, partialRuns: c.partialRuns, periodHours, overdue });
+      if (overdue && !alerted.has(route)) {
+        const h = hb.get(route);
+        alerts.push({
+          label: route, page: route, route, ageDays: h ? ageInDays(new Date(h.last_ran_at), now) : null,
+          lastRanAt: h?.last_ran_at ?? null, lastRows: h?.last_rows ?? null, lastStatus: h?.last_status ?? null,
+          reason: `stopped part way on every run since ${c.partialSince!.slice(0, 16).replace('T', ' ')} UTC (${c.partialRuns} runs); no full pass within its expected ${Math.round(periodHours / 24)} days${c.lastCompleteAt ? `, last on ${c.lastCompleteAt.slice(0, 10)}` : ''}`,
+        });
+        alerted.add(route);
+      }
+    }
+  }
+
   // Self-heal: for routes that are OVERDUE (the cron didn't run in time — the same
   // signature a silent timeout produces, since the heartbeat is only written on a
   // clean return), trigger the sync directly rather than only emailing. This turns
-  // the reliably-firing 16:00 monitor into a fallback scheduler. We do NOT self-heal
+  // the reliably-firing daily monitor (17:03 UTC since 27 Oct 2026) into a fallback scheduler. We do NOT self-heal
   // 'failing' routes (they ran and returned non-2xx — re-running risks a tight error
   // loop; those still email for a human). Sequential, time-budgeted, so one slow sync
   // can't blow the monitor's own deadline; any not reached this run get another shot
@@ -245,6 +278,7 @@ async function GET_impl(req: Request) {
     alertCount: alerts.length,
     missedRuns,
     serverErrors,
+    cycles,
     emailedAlertCount: emailAlerts.length,
     selfHealed: [...healedRoutes],
     heals,
