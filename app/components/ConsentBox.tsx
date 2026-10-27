@@ -18,7 +18,7 @@ export default function ConsentBox({ onAgree, onCancel, busy }: { onAgree: () =>
   return (
     <div role="group" aria-label="Your agreement" style={{ marginTop: '12px', padding: '12px 14px', border: `1.5px solid ${ACCENT}`, background: 'rgba(122,22,18,0.04)', maxWidth: '620px', fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK }}>
       <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-        <input id={id} type="checkbox" checked={ticked} onChange={(e) => setTicked(e.target.checked)} style={{ width: '18px', height: '18px', marginTop: '3px', flexShrink: 0, cursor: 'pointer' }} />
+        <input id={id} type="checkbox" autoFocus checked={ticked} onChange={(e) => setTicked(e.target.checked)} style={{ width: '18px', height: '18px', marginTop: '3px', flexShrink: 0, cursor: 'pointer' }} />
         <label htmlFor={id} style={{ cursor: 'pointer' }}>{CONSENT_TEXT}</label>
       </div>
       <p style={{ margin: '8px 0 0' }}>

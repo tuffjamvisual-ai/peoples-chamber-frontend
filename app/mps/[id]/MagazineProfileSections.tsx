@@ -11,6 +11,7 @@ import { sortTimeline, yearsLabel, type BackgroundEntry } from '@/lib/background
 import { ecDonationSearchUrl } from '@/lib/ec-links';
 import { donorPageSlug } from '@/lib/donor-slug';
 import PhoneTable from '../../components/PhoneTable';
+import FollowButton from '../../components/FollowButton';
 
 const COMMITTEE_ID_SET = new Set<number>(COMMITTEE_IDS);
 
@@ -328,6 +329,11 @@ interface Props {
   // Landing page only: abbreviate the expenses column headers and drop any breakdown
   // column that is zero across every year, so the table fits a narrow folder.
   compactExpenses?: boolean;
+  /** Follow this MP as the last item of the sections nav (job 74; owner, 27 Oct 2026): the real profile pages only
+      (MpDossier followable), and never for a former member. */
+  followable?: boolean;
+  formerMember?: boolean;
+  fullName?: string;
   /** Petitions (10,000+ signatures only) most signed in this MP's constituency. */
   constituencyPetitions?: ConstituencyPetition[];
   /** Newest petitions sync time, for the tab's "last updated" line. */
@@ -519,6 +525,9 @@ export default function MagazineProfileSections({
   jsSticky = false,
   stickyScale = 1,
   compactExpenses = false,
+  followable = false,
+  formerMember = false,
+  fullName = '',
   constituencyPetitions = [],
   petitionsLastUpdated = null,
   edms = null,
@@ -722,9 +731,14 @@ export default function MagazineProfileSections({
     check();
     nav.addEventListener('scroll', check, { passive: true });
     window.addEventListener('resize', check);
+    // The Follow chip at the end of the row changes its text once the reader's state is known, which changes the
+    // row's width: check again then too.
+    const mo = new MutationObserver(check);
+    mo.observe(nav, { childList: true, subtree: true, characterData: true });
     return () => {
       nav.removeEventListener('scroll', check);
       window.removeEventListener('resize', check);
+      mo.disconnect();
     };
   }, []);
   useEffect(() => {
@@ -810,6 +824,7 @@ export default function MagazineProfileSections({
           .mp-sections-nav.more-right { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); }
           .mp-sections-nav button { white-space: nowrap; flex: 0 0 auto; transform: none !important; border-left: none !important; border-bottom: 3px solid transparent !important; box-shadow: none !important; padding: 10px 12px !important; font-size: 14px !important; }
           .mp-sections-nav button[data-active="true"] { border-bottom-color: #7a1612 !important; }
+          .mp-sections-nav .mp-follow-chip { width: auto !important; margin: 0 0 0 6px !important; border-top: none !important; box-shadow: inset 1px 0 0 rgba(20,16,13,0.25) !important; padding-left: 14px !important; }
           .mp-sections-content { padding: 20px 2px !important; }
         }
       `}</style>
@@ -855,6 +870,7 @@ export default function MagazineProfileSections({
                 </button>
               );
             })}
+            {followable && !formerMember && <FollowButton variant="sidebar" kind="mp" targetKey={String(memberId)} label={fullName || 'this MP'} />}
           </nav>
         </div>
       </aside>

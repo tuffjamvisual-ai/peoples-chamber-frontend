@@ -2,7 +2,6 @@ import Image from 'next/image';
 import MagazineProfileSections from './MagazineProfileSections';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
-import FollowButton from '../../components/FollowButton';
 
 // Rubber-stamp distress texture (patchy ink), matching the OpenGovShell stamps.
 const STAMP_DISTRESS = `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='340' height='150'><filter id='d'><feTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='2' seed='6' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -0.4 1.12'/></filter><rect width='100%' height='100%' filter='url(%23d)'/></svg>")`;
@@ -44,7 +43,7 @@ interface MpDossierProps {
       past it. Now that votes paginate at 20/page the folder ends quickly and
       anything placed outside floated on the dossier shell's dark background. */
   footer?: React.ReactNode;
-  /** Show the Follow button (job 74): the real profile pages only, so the /landing-pca demo stays as it was. */
+  /** Show Follow this MP in the sections sidebar (job 74): the real profile pages only, so the /landing-pca demo stays as it was. */
   followable?: boolean;
 }
 
@@ -193,12 +192,9 @@ export default function MpDossier({
         </div>
       </div>
 
-      {/* Follow this MP (job 74): a weekly email when they vote, register an interest or claim expenses. Current MPs only. */}
-      {followable && !formerMember && <FollowButton kind="mp" targetKey={String(memberId)} label={fullName} />}
-
       {/* Full interactive profile sections (scaled up via zoom to restore text size). */}
       <div className="pca-sections" style={{ zoom: 1.18 }}>
-        <MagazineProfileSections {...sections} memberId={memberId} jsSticky stickyScale={1.18} compactExpenses />
+        <MagazineProfileSections {...sections} memberId={memberId} followable={followable} formerMember={formerMember} fullName={fullName} jsSticky stickyScale={1.18} compactExpenses />
       </div>
 
       {footer && <div style={{ marginTop: '48px' }}>{footer}</div>}
