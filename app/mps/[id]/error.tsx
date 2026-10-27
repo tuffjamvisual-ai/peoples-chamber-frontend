@@ -27,7 +27,7 @@ export default function MpProfileError({
       >
         This page took too long to load
       </h1>
-      <p style={{ fontSize: '16px', lineHeight: 1.6, opacity: 0.75, marginBottom: '28px' }}>
+      <p style={{ fontSize: '16px', lineHeight: 1.6, marginBottom: '28px' }}>
         The data for this MP profile is loading slowly. Try again in a moment.
       </p>
       <button

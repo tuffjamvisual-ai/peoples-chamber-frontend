@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 };
 
 const INK = '#14100d';
-const ACCENT = '#6b2417';
+const ACCENT = '#7a1612';
 const MONO = 'var(--font-special-elite), monospace';
 
 type CommitteeRow = {
@@ -132,7 +132,7 @@ export default async function CommitteesIndexPage() {
                     >
                       {c.name}
                     </Link>
-                    <span className="text-sm" style={{ color: `${INK}99`, fontFamily: MONO }}>
+                    <span className="text-sm" style={{ color: INK, fontFamily: MONO }}>
                       {s ? `${s.count} member${s.count !== 1 ? 's' : ''}` : 'no data'}
                       {s?.chair ? ` · Chair: ${s.chair}` : ''}
                     </span>
@@ -144,7 +144,7 @@ export default async function CommitteesIndexPage() {
         );
       })}
 
-      <p className="text-[14px] mt-8" style={{ color: `${INK}66`, fontFamily: MONO }}>
+      <p className="text-[14px] mt-8" style={{ color: INK, fontFamily: MONO }}>
         Source: UK Parliament members and committees APIs. Updated nightly.
       </p>
       <ParliamentSourceCredit marginTop="6px" />

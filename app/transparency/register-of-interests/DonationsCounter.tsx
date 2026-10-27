@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 const INK = '#14100d';
-const ACCENT = '#6b2417';
+const ACCENT = '#7a1612';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
 const MONO = "var(--font-special-elite), monospace";
 

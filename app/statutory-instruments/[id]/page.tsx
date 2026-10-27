@@ -131,7 +131,6 @@ export default async function SIDetailPage({ params }: { params: Promise<{ id: s
             textTransform: 'uppercase',
             letterSpacing: '0.3em',
             marginBottom: '12px',
-            opacity: 0.85,
             transform: 'rotate(-0.2deg)',
           }}
         >
@@ -197,7 +196,7 @@ function Tag({ colour, children }: { colour: string; children: React.ReactNode }
         textTransform: 'uppercase',
         letterSpacing: '0.15em',
         fontWeight: 'bold',
-        color: colour,
+        color: '#14100d',
         border: `1px solid ${colour}`,
         background: 'transparent',
       }}
@@ -210,7 +209,7 @@ function Tag({ colour, children }: { colour: string; children: React.ReactNode }
 function Stat({ label, value, accent }: { label: string; value: number; accent: string }) {
   return (
     <div style={{ background: CREAM, padding: '16px', border: `1px solid ${INK_HAIRLINE}` }}>
-      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
+      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: '4px' }}>{label}</div>
       <div style={{ fontSize: '28px', fontWeight: 'bold', color: accent }}>{value}</div>
     </div>
   )
@@ -228,10 +227,10 @@ function VoteColumn({ heading, rows, accent }: { heading: string; rows: VoteRow[
             <Link href={`/mps/${v.member_id}`} style={{ color: INK, textDecoration: 'none' }}>
               <strong>{displayMpName(v.mps?.display_name) ?? `Member ${v.member_id}`}</strong>
               {v.mps?.party && (
-                <span style={{ fontSize: '15px', opacity: 0.7 }}> · {v.mps.party}</span>
+                <span style={{ fontSize: '15px' }}> · {v.mps.party}</span>
               )}
               {v.mps?.constituency && (
-                <div style={{ fontSize: '15px', opacity: 0.6 }}>{v.mps.constituency}</div>
+                <div style={{ fontSize: '15px' }}>{v.mps.constituency}</div>
               )}
               {v.is_rebellion && <span style={{ color: ACCENT, fontSize: '15px', fontWeight: 'bold' }}> · REBEL</span>}
             </Link>

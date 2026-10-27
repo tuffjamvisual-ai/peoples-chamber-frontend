@@ -118,7 +118,7 @@ export default async function SponsoredVisitsPage() {
       <BackLink fallbackHref="/transparency/donations" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px' }}>
           Travel paid by others · Sponsored visits and events
         </p>
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
@@ -138,7 +138,7 @@ export default async function SponsoredVisitsPage() {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Foreign government paymasters</h2>
-        <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '8px' }}>Sponsors acting for a state, paying directly for UK MPs to visit. Ranked by total declared value.</p>
+        <p style={{ fontSize: '15px', marginBottom: '8px' }}>Sponsors acting for a state, paying directly for UK MPs to visit. Ranked by total declared value.</p>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -151,7 +151,7 @@ export default async function SponsoredVisitsPage() {
           <tbody>
             {foreignGovs.map((s, i) => (
               <tr key={s.name} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-                <td style={{ padding: '6px', opacity: 0.6 }}>{i + 1}</td>
+                <td style={{ padding: '6px' }}>{i + 1}</td>
                 <td style={{ padding: '6px' }}>
                   {donorPageSlug(s.name) ? <Link href={`/donors/${donorPageSlug(s.name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}><strong>{s.name}</strong></Link> : <><strong>{s.name}</strong></>}
                 </td>
@@ -165,7 +165,7 @@ export default async function SponsoredVisitsPage() {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>&lsquo;Friends of&rsquo; groups</h2>
-        <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '8px' }}>Parliamentary groups with an affinity for a foreign country, paying for delegations of their MP members. Often a channel of soft power for the country in question.</p>
+        <p style={{ fontSize: '15px', marginBottom: '8px' }}>Parliamentary groups with an affinity for a foreign country, paying for delegations of their MP members. Often a channel of soft power for the country in question.</p>
         <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
@@ -178,7 +178,7 @@ export default async function SponsoredVisitsPage() {
           <tbody>
             {friendsOf.map((s, i) => (
               <tr key={s.name} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-                <td style={{ padding: '6px', opacity: 0.6 }}>{i + 1}</td>
+                <td style={{ padding: '6px' }}>{i + 1}</td>
                 <td style={{ padding: '6px' }}>
                   {donorPageSlug(s.name) ? <Link href={`/donors/${donorPageSlug(s.name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}><strong>{s.name}</strong></Link> : <><strong>{s.name}</strong></>}
                 </td>
@@ -204,7 +204,7 @@ export default async function SponsoredVisitsPage() {
           <tbody>
             {thinkTanks.map((s, i) => (
               <tr key={s.name} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-                <td style={{ padding: '6px', opacity: 0.6 }}>{i + 1}</td>
+                <td style={{ padding: '6px' }}>{i + 1}</td>
                 <td style={{ padding: '6px' }}>
                   {donorPageSlug(s.name) ? <Link href={`/donors/${donorPageSlug(s.name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}><strong>{s.name}</strong></Link> : <><strong>{s.name}</strong></>}
                 </td>
@@ -230,7 +230,7 @@ export default async function SponsoredVisitsPage() {
           <tbody>
             {recipientRanked.map((r, i) => (
               <tr key={r.name} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-                <td style={{ padding: '6px', opacity: 0.6 }}>{i + 1}</td>
+                <td style={{ padding: '6px' }}>{i + 1}</td>
                 <td style={{ padding: '6px' }}>{r.name}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{r.count}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(r.total).toLocaleString()}</td>
@@ -258,12 +258,12 @@ export default async function SponsoredVisitsPage() {
                 <td style={{ padding: '6px', fontSize: '15px' }}>
                   {r.donor_name ? (
                     donorPageSlug(r.donor_name) ? <Link href={`/donors/${donorPageSlug(r.donor_name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.donor_name}</Link> : <>{r.donor_name}</>
-                  ) : <span style={{ opacity: 0.6 }}>(unknown)</span>}
+                  ) : <span >(unknown)</span>}
                 </td>
                 <td style={{ padding: '6px', fontSize: '15px' }}>{r.recipient_name || ''}</td>
-                <td style={{ padding: '6px', fontFamily: 'monospace', fontSize: '15px', opacity: 0.7 }}>{fmtDate(r.accepted_date ?? null)}</td>
+                <td style={{ padding: '6px', fontFamily: 'monospace', fontSize: '15px' }}>{fmtDate(r.accepted_date ?? null)}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(Number(r.amount || 0)).toLocaleString()}</td>
-                <td style={{ padding: '6px', fontSize: '15px', opacity: 0.85, maxWidth: '320px' }}>{r.purpose_of_visit}</td>
+                <td style={{ padding: '6px', fontSize: '15px', maxWidth: '320px' }}>{r.purpose_of_visit}</td>
               </tr>
             ))}
           </tbody>
@@ -277,7 +277,7 @@ export default async function SponsoredVisitsPage() {
 function Tile({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '12px 14px', background: CREAM }}>
-      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
+      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: '4px' }}>{label}</div>
       <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '22px', fontWeight: 'bold', color: ACCENT }}>{value}</div>
     </div>
   );

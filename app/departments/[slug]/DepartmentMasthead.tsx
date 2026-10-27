@@ -92,7 +92,6 @@ export default function DepartmentMasthead({ sos, budget }: Props) {
                   height: '150px',
                   transform: 'rotate(-8deg)',
                   transformOrigin: 'center',
-                  opacity: 0.9,
                   pointerEvents: 'none',
                   zIndex: 3,
                   backgroundColor: '#7a1612',
@@ -159,7 +158,7 @@ export default function DepartmentMasthead({ sos, budget }: Props) {
           className="mb-8"
           style={{
             padding: '4px 0 4px 18px',
-            borderLeft: '4px solid #6b2417',
+            borderLeft: '4px solid #7a1612',
             maxWidth: '760px',
           }}
         >
@@ -169,7 +168,6 @@ export default function DepartmentMasthead({ sos, budget }: Props) {
               fontSize: '15px',
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
-              opacity: 0.6,
               marginBottom: '8px',
             }}
           >
@@ -189,7 +187,7 @@ export default function DepartmentMasthead({ sos, budget }: Props) {
                 fontFamily: 'var(--font-special-elite), monospace',
                 fontSize: '30px',
                 fontWeight: 'bold',
-                color: '#6b2417',
+                color: '#7a1612',
                 lineHeight: 1,
               }}
             >
@@ -199,7 +197,6 @@ export default function DepartmentMasthead({ sos, budget }: Props) {
               style={{
                 fontFamily: 'var(--font-special-elite), monospace',
                 fontSize: '15px',
-                opacity: 0.75,
               }}
             >
               Resource DEL {fmtBn(budget.resourceDel)} · Capital DEL {fmtBn(budget.capitalDel)}

@@ -30,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const INK = '#14100d';
-const ACCENT = '#6b2417';
+const ACCENT = '#7a1612';
 
 type Bucket = {
   pence: number;       // rounded for display
@@ -149,9 +149,9 @@ export default function YourTaxPoundPage() {
         .tp-row { display: flex; align-items: baseline; gap: 18px; margin-bottom: 8px; flex-wrap: wrap; }
         .tp-pence { font-family: var(--font-special-elite), monospace; font-size: 42px; font-weight: bold; color: ${ACCENT}; line-height: 1; min-width: 84px; }
         .tp-cat { font-family: var(--font-special-elite), monospace; font-size: 26px; font-weight: bold; letter-spacing: -0.01em; }
-        .tp-share { font-family: var(--font-special-elite), monospace; font-size: 14px; opacity: 0.55; margin-left: auto; }
+        .tp-share { font-family: var(--font-special-elite), monospace; font-size: 14px; margin-left: auto; }
         .tp-prose { font-family: var(--font-special-elite), monospace; font-size: 16px; line-height: 1.65; color: ${INK}; max-width: 70ch; margin: 8px 0 0 0; }
-        .tp-dept { display: inline-block; margin-top: 10px; font-family: var(--font-special-elite), monospace; font-size: 14px; opacity: 0.7; color: ${INK}; text-decoration: none; }
+        .tp-dept { display: inline-block; margin-top: 10px; font-family: var(--font-special-elite), monospace; font-size: 14px; color: ${INK}; text-decoration: none; }
         .tp-dept:hover { opacity: 1; text-decoration: underline; }
         .tp-bar { height: 28px; display: flex; width: 100%; margin: 18px 0 12px; border: 1px solid ${INK}; }
         .tp-bar > span { display: block; height: 100%; border-right: 1px solid rgba(20,16,13,0.25); }
@@ -166,13 +166,13 @@ export default function YourTaxPoundPage() {
       />
 
       <header style={{ marginBottom: '4%' }}>
-        <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '10px', opacity: 0.7 }}>
+        <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '10px' }}>
           Where Your Money Goes
         </p>
         <h1 style={{ fontSize: 'clamp(28px, 4.6vw, 56px)', fontWeight: 'bold', letterSpacing: '-0.02em', lineHeight: 1.0, marginBottom: '14px' }}>
           Your Tax Pound
         </h1>
-        <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(15px, 1.7vw, 18px)', lineHeight: 1.65, maxWidth: '74ch', opacity: 0.92 }}>
+        <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(15px, 1.7vw, 18px)', lineHeight: 1.65, maxWidth: '74ch' }}>
           For every £1 the UK government spends, this is where it goes. Twelve lines, eleven named categories
           covering most domestic policy, plus a real Other bucket of around 24p that catches government administration,
           business support, environment, culture, agriculture, contingency reserves and the parts of the budget that
@@ -198,7 +198,6 @@ export default function YourTaxPoundPage() {
           letterSpacing: '0.12em',
           textTransform: 'uppercase',
           color: INK,
-          opacity: 0.95,
         }}
       >
         HM Treasury · 2022 / 23
@@ -220,7 +219,7 @@ export default function YourTaxPoundPage() {
         })}
       </div>
 
-      <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', opacity: 0.7, marginBottom: '5%', textAlign: 'right' }}>
+      <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', marginBottom: '5%', textAlign: 'right' }}>
         Total: {totalPence}p · {totalPct.toFixed(1)}% of spending
       </p>
 
@@ -244,7 +243,7 @@ export default function YourTaxPoundPage() {
         ))}
       </div>
 
-      <footer style={{ marginTop: '5%', paddingTop: '24px', borderTop: `2px solid ${INK}`, fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', lineHeight: 1.65, opacity: 0.78, maxWidth: '72ch' }}>
+      <footer style={{ marginTop: '5%', paddingTop: '24px', borderTop: `2px solid ${INK}`, fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', lineHeight: 1.65, maxWidth: '72ch' }}>
         <p style={{ margin: '0 0 8px 0' }}>
           <strong>Source.</strong> HM Treasury Public Expenditure Statistical Analyses (PESA), components of UK
           government spending in 2022/23. A view of twelve categories (eleven named + Other), commonly used by the

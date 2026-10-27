@@ -113,7 +113,7 @@ export default async function LeadershipContestsPage() {
       <BackLink fallbackHref="/transparency/donations" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px' }}>
           Money in leadership races · Donations for a named post
         </p>
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
@@ -129,7 +129,7 @@ export default async function LeadershipContestsPage() {
         return (
           <section key={c.contest} style={{ marginBottom: '32px' }}>
             <h2 style={sectionH2}>
-              {c.contest} <span style={{ fontSize: '15px', opacity: 0.6, marginLeft: '8px' }}>{c.count} donations · &pound;{Math.round(c.total).toLocaleString()}</span>
+              {c.contest} <span style={{ fontSize: '15px', marginLeft: '8px' }}>{c.count} donations · &pound;{Math.round(c.total).toLocaleString()}</span>
             </h2>
             <table style={tableStyle}>
               <thead>
@@ -145,14 +145,14 @@ export default async function LeadershipContestsPage() {
                 {candidates.map((cand) => (
                   <tr key={cand.candidate} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                     <td style={{ padding: '6px' }}><strong>{cand.candidate}</strong></td>
-                    <td style={{ padding: '6px', fontFamily: 'monospace', opacity: 0.7 }}>{cand.year}</td>
+                    <td style={{ padding: '6px', fontFamily: 'monospace' }}>{cand.year}</td>
                     <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{cand.count}</td>
                     <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(cand.total).toLocaleString()}</td>
                     <td style={{ padding: '6px', fontSize: '15px' }}>
                       {cand.topDonor ? (
                         donorPageSlug(cand.topDonor) ? <Link href={`/donors/${donorPageSlug(cand.topDonor)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{cand.topDonor}</Link> : <>{cand.topDonor}</>
-                      ) : <span style={{ opacity: 0.6 }}></span>}
-                      {cand.topAmount > 0 && <span style={{ opacity: 0.6, fontFamily: 'monospace', marginLeft: '6px' }}>£{Math.round(cand.topAmount).toLocaleString()}</span>}
+                      ) : <span ></span>}
+                      {cand.topAmount > 0 && <span style={{ fontFamily: 'monospace', marginLeft: '6px' }}>£{Math.round(cand.topAmount).toLocaleString()}</span>}
                     </td>
                   </tr>
                 ))}
@@ -180,11 +180,11 @@ export default async function LeadershipContestsPage() {
                 <td style={{ padding: '6px', fontSize: '15px' }}>
                   {r.donor_name ? (
                     donorPageSlug(r.donor_name) ? <Link href={`/donors/${donorPageSlug(r.donor_name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.donor_name}</Link> : <>{r.donor_name}</>
-                  ) : <span style={{ opacity: 0.6 }}>(unknown)</span>}
+                  ) : <span >(unknown)</span>}
                 </td>
                 <td style={{ padding: '6px', fontSize: '15px' }}>{r.recipient_name || ''}</td>
-                <td style={{ padding: '6px', fontSize: '15px', opacity: 0.8 }}>{r.position_standing_for}</td>
-                <td style={{ padding: '6px', fontFamily: 'monospace', fontSize: '15px', opacity: 0.7 }}>{r.accepted_date || ''}</td>
+                <td style={{ padding: '6px', fontSize: '15px' }}>{r.position_standing_for}</td>
+                <td style={{ padding: '6px', fontFamily: 'monospace', fontSize: '15px' }}>{r.accepted_date || ''}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(Number(r.amount || 0)).toLocaleString()}</td>
               </tr>
             ))}

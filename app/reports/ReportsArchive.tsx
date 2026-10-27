@@ -53,7 +53,8 @@ const pageBtn = (disabled: boolean): CSSProperties => ({
   fontSize: '15px',
   letterSpacing: '0.06em',
   cursor: disabled ? 'default' : 'pointer',
-  opacity: disabled ? 0.3 : 1,
+  textDecoration: disabled ? 'line-through' : 'none', // black ink rule: struck through when unavailable, never greyed
+  borderStyle: disabled ? 'dashed' : 'solid',
 });
 
 type State = { q: string; topic: string; type: string; page: number };
@@ -142,7 +143,7 @@ export default function ReportsArchive({ items, topics }: { items: ArchiveItem[]
         </select>
       </div>
 
-      <p aria-live="polite" style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', color: INK, opacity: 0.7, margin: '0 0 16px' }}>
+      <p aria-live="polite" style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', color: INK, margin: '0 0 16px' }}>
         {state.q.trim() ? `${count} report${count === 1 ? '' : 's'} matching "${state.q.trim()}"` : `${count} report${count === 1 ? '' : 's'}`}
       </p>
 

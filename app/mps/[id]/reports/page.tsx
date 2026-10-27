@@ -56,7 +56,7 @@ export default async function MpReportsPage({ params }: { params: Promise<{ id: 
         ← {name}
       </Link>
       <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', color: INK, margin: '0 0 6px' }}>Reports mentioning {name}</h1>
-      <p style={{ fontSize: '15px', opacity: 0.75, margin: '0 0 18px' }}>
+      <p style={{ fontSize: '15px', margin: '0 0 18px' }}>
         {items.length} report{items.length === 1 ? '' : 's'}, newest first.
       </p>
       <MpReportList items={items} />

@@ -85,7 +85,7 @@ export function GrantsSlot({ grants }: { grants: DepartmentGrants }) {
     <section style={{ color: INK }}>
       <h2 className={H2_CLS} style={{ color: ACCENT }}>Grants · {grants.fy}</h2>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: '18px', flexWrap: 'wrap', marginBottom: '16px' }}>
-        <div style={{ fontSize: '30px', fontWeight: 'bold', color: '#6b2417', lineHeight: 1 }}>{fmtMoney(grants.totalAmount)}</div>
+        <div style={{ fontSize: '30px', fontWeight: 'bold', color: '#7a1612', lineHeight: 1 }}>{fmtMoney(grants.totalAmount)}</div>
         <div style={{ fontSize: '15px' }}>
           paid in grants in {fyLabel}, across {grants.awardCount.toLocaleString('en-GB')} awards
         </div>

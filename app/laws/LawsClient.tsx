@@ -7,6 +7,7 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import BillCoverCard from '../components/BillCoverCard'
 import Pagination from '../components/Pagination'
+import Unavailable from '@/app/components/Unavailable'
 
 type Law = {
   id: number
@@ -105,7 +106,7 @@ export default function LawsClient({ laws }: { laws: Law[] }) {
             outline: 'none',
           }}
         />
-        <span style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', opacity: 0.7 }}>
+        <span style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
           {filteredLaws.length === 0
             ? `0 of ${laws.length.toLocaleString()} shown`
             : `${firstShown.toLocaleString()}-${lastShown.toLocaleString()} of ${filteredLaws.length.toLocaleString()}${
@@ -167,12 +168,9 @@ function PageLink({
 
   if (disabled) {
     return (
-      <span
-        aria-disabled
-        style={{ ...baseStyle, opacity: 0.35, cursor: 'not-allowed' }}
-      >
+      <Unavailable style={{ ...baseStyle, borderStyle: 'dashed', cursor: 'not-allowed' }}>
         {children}
-      </span>
+      </Unavailable>
     )
   }
   return (

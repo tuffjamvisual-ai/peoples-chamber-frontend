@@ -57,7 +57,7 @@ export default async function ArchivedPollsPage() {
       </header>
 
       {polls.length === 0 && (
-        <p style={{ fontFamily: MONO, fontSize: '16px', opacity: 0.7 }}>No archived polls.</p>
+        <p style={{ fontFamily: MONO, fontSize: '16px' }}>No archived polls.</p>
       )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
@@ -66,7 +66,7 @@ export default async function ArchivedPollsPage() {
           const yesPct = total ? Math.round((p.vote_count_yes / total) * 100) : 0
           const noPct = total ? 100 - yesPct : 0
           return (
-            <article key={p.id} style={{ borderTop: `3px solid ${ACCENT}`, paddingTop: '16px', opacity: 0.92 }}>
+            <article key={p.id} style={{ borderTop: `3px solid ${ACCENT}`, paddingTop: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
                 {p.constituency && (
                   <span style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.16em', textTransform: 'uppercase', color: INK_SOFT }}>

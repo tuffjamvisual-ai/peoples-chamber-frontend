@@ -87,7 +87,7 @@ export default async function SpendingPage() {
                 <Link href={`/departments/${m.slug}`} style={{ display: 'block', color: ink, textDecoration: 'none' }}>
                   <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', marginBottom: '4px' }}>
                     <span style={{ fontSize: '15px' }}>
-                      <span style={{ opacity: 0.5, marginRight: 8 }}>{(i + 1).toString().padStart(2, '0')}</span>
+                      <span style={{ marginRight: 8 }}>{(i + 1).toString().padStart(2, '0')}</span>
                       {m.name}
                     </span>
                     <span style={{ fontSize: '15px', whiteSpace: 'nowrap' }}>
@@ -113,7 +113,7 @@ export default async function SpendingPage() {
             <h2 style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.25em', color: ACCENT, marginBottom: '12px', fontWeight: 600 }}>
               Not in Mains DEL
             </h2>
-            <p style={{ fontSize: '15px', lineHeight: 1.6, marginBottom: '16px', opacity: 0.8 }}>
+            <p style={{ fontSize: '15px', lineHeight: 1.6, marginBottom: '16px' }}>
               These departments are either bundled into a Mains aggregate
               (&ldquo;Law Officers&apos; Departments&rdquo;, &ldquo;Small and Independent Bodies&rdquo;) or
               fall outside the HM Treasury Estimates altogether (the two House
@@ -126,7 +126,7 @@ export default async function SpendingPage() {
                     {m.name}
                   </Link>
                   {m.row?.caveat_note && (
-                    <span style={{ display: 'block', fontSize: '15px', opacity: 0.7, marginTop: '2px' }}>
+                    <span style={{ display: 'block', fontSize: '15px', marginTop: '2px' }}>
                       {m.row.caveat_note}.
                     </span>
                   )}

@@ -139,7 +139,7 @@ export default async function ConstituencyDonationsPage() {
       <BackLink fallbackHref="/transparency/donations" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px' }}>
           Money on the ground · Donations by constituency
         </p>
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
@@ -148,7 +148,7 @@ export default async function ConstituencyDonationsPage() {
         <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '8px', maxWidth: '60ch' }}>
           UK political donations don&rsquo;t all land at central party HQ. Each declared donation carries an accounting unit telling you which branch of the party kept the money. Filtering out central HQ, regional liaisons, parliamentary funds and councillor associations leaves the pots held in each constituency. The top of the list is dominated by affluent shire seats with safe incumbents and a handful of strategic marginals. The EC&rsquo;s official register doesn&rsquo;t pivot this column. This page does.
         </p>
-        <p style={{ fontSize: '15px', opacity: 0.7, marginTop: '12px', lineHeight: 1.6 }}>
+        <p style={{ fontSize: '15px', marginTop: '12px', lineHeight: 1.6 }}>
           For context: of the &pound;{Math.round(rowsTotal).toLocaleString()} of declared donations &ge; &pound;1,500 with an accounting unit, &pound;{Math.round(centralTotal).toLocaleString()} ({Math.round(100 * centralTotal / (centralTotal + constituencyTotal))}%) went to central HQ, parliamentary or regional pools, and &pound;{Math.round(constituencyTotal).toLocaleString()} ({Math.round(100 * constituencyTotal / (centralTotal + constituencyTotal))}%) to constituency associations like those below.
         </p>
       </header>
@@ -169,20 +169,20 @@ export default async function ConstituencyDonationsPage() {
           <tbody>
             {constituencies.map((c, i) => (
               <tr key={c.href} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-                <td style={{ padding: '6px', opacity: 0.6 }}>{i + 1}</td>
+                <td style={{ padding: '6px' }}>{i + 1}</td>
                 <td style={{ padding: '6px' }}>
                   <Link href={c.href} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold' }}>{c.unit}</Link>
                 </td>
-                <td style={{ padding: '6px', fontSize: '15px', opacity: 0.75 }}>{c.party || ''}</td>
+                <td style={{ padding: '6px', fontSize: '15px' }}>{c.party || ''}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{c.count}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(c.total).toLocaleString()}</td>
                 <td style={{ padding: '6px', fontSize: '15px' }}>
                   {c.topDonor ? (
                     <>
                       {donorPageSlug(c.topDonor) ? <Link href={`/donors/${donorPageSlug(c.topDonor)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{c.topDonor}</Link> : <>{c.topDonor}</>}
-                      <span style={{ opacity: 0.6, fontFamily: 'monospace', marginLeft: '6px' }}>£{Math.round(c.topAmount).toLocaleString()}</span>
+                      <span style={{ fontFamily: 'monospace', marginLeft: '6px' }}>£{Math.round(c.topAmount).toLocaleString()}</span>
                     </>
-                  ) : <span style={{ opacity: 0.6 }}></span>}
+                  ) : <span ></span>}
                 </td>
               </tr>
             ))}

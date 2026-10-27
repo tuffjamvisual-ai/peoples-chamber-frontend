@@ -19,6 +19,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { normaliseParty, isCoop, resolvePartyColour } from '@/lib/party-helpers';
+import Unavailable from '@/app/components/Unavailable';
 
 interface MP {
   member_id: number;
@@ -204,7 +205,7 @@ function SearchInput({
           {pcErr ? pcErr : `Finding the MP for ${cleanPc}…`}
         </p>
       ) : (
-        <p style={{ marginTop: '8px', fontSize: '15px', opacity: 0.75 }}>
+        <p style={{ marginTop: '8px', fontSize: '15px' }}>
           {count} of {total} {label}
         </p>
       )}
@@ -262,9 +263,9 @@ function MPCard({ mp, fromParty, idx }: { mp: MP; fromParty: string; idx: number
         <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '4px', lineHeight: 1.25 }}>
           {mp.name}
         </h3>
-        <p style={{ fontSize: '15px', opacity: 0.8 }}>{mp.constituency}</p>
+        <p style={{ fontSize: '15px' }}>{mp.constituency}</p>
         {isCoop(mp.party) && (
-          <p style={{ fontSize: '15px', opacity: 0.65, marginTop: '2px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          <p style={{ fontSize: '15px', marginTop: '2px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
             Lab &amp; Co-op
           </p>
         )}
@@ -327,7 +328,7 @@ function SinglePartyView({
           <h2 style={{ fontSize: '32px', fontWeight: 'bold', letterSpacing: '-0.01em', transform: 'rotate(-0.2deg)' }}>
             {partyName}
           </h2>
-          <span style={{ fontSize: '15px', opacity: 0.75, marginLeft: '8px' }}>({totalInParty} MPs)</span>
+          <span style={{ fontSize: '15px', marginLeft: '8px' }}>({totalInParty} MPs)</span>
         </div>
       </header>
 
@@ -340,7 +341,7 @@ function SinglePartyView({
       />
 
       {partyMPs.length > MPS_PER_PAGE && (
-        <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '16px' }}>
+        <p style={{ fontSize: '15px', marginBottom: '16px' }}>
           Showing {startIdx + 1}-{endIdx} of {partyMPs.length.toLocaleString()} · page {currentPage} of {totalPages}
         </p>
       )}
@@ -359,7 +360,7 @@ function SinglePartyView({
       </div>
 
       {partyMPs.length === 0 && searchTerm.trim() && (
-        <p style={{ fontSize: '15px', opacity: 0.7, marginTop: '24px' }}>
+        <p style={{ fontSize: '15px', marginTop: '24px' }}>
           No MPs in {partyName} match &ldquo;{searchTerm}&rdquo;.
         </p>
       )}
@@ -381,7 +382,7 @@ function SinglePartyView({
               ← Previous
             </Link>
           ) : (
-            <span style={{ padding: '8px 14px', border: `1px solid ${INK_HAIRLINE}`, opacity: 0.35 }}>← Previous</span>
+            <Unavailable note="no earlier page" style={{ padding: '8px 14px', border: `1px dashed ${INK_HAIRLINE}` }}>← Previous</Unavailable>
           )}
           <span style={{ padding: '8px 14px', border: `1px solid ${INK_HAIRLINE}`, background: 'rgba(122,22,18,0.06)' }}>
             {currentPage} / {totalPages}
@@ -391,7 +392,7 @@ function SinglePartyView({
               Next →
             </Link>
           ) : (
-            <span style={{ padding: '8px 14px', border: `1px solid ${INK_HAIRLINE}`, opacity: 0.35 }}>Next →</span>
+            <Unavailable note="no later page" style={{ padding: '8px 14px', border: `1px dashed ${INK_HAIRLINE}` }}>Next →</Unavailable>
           )}
         </nav>
       )}
@@ -440,11 +441,11 @@ function AllPartiesView({
           // show while the lookup runs or before the postcode is complete (audit M5).
           POSTCODE_RE.test(searchTerm.toUpperCase().replace(/\s+/g, '')) ? null
           : /^[A-Z]{1,2}\d[A-Z\d]?\s?\d?[A-Z]?$/i.test(searchTerm.trim()) ? (
-            <p style={{ fontSize: '15px', opacity: 0.7, marginTop: '8px' }}>
+            <p style={{ fontSize: '15px', marginTop: '8px' }}>
               Keep typing the full postcode to find the MP.
             </p>
           ) : (
-          <p style={{ fontSize: '15px', opacity: 0.7, marginTop: '8px' }}>
+          <p style={{ fontSize: '15px', marginTop: '8px' }}>
             No MPs match &ldquo;{searchTerm}&rdquo;.
           </p>
           )
@@ -463,7 +464,7 @@ function AllPartiesView({
               ))}
             </div>
             {matches.length > CAP && (
-              <p style={{ fontSize: '15px', opacity: 0.75, marginTop: '16px' }}>
+              <p style={{ fontSize: '15px', marginTop: '16px' }}>
                 Showing the first {CAP} of {matches.length} matches. Refine your search to narrow it.
               </p>
             )}
@@ -502,7 +503,7 @@ function AllPartiesView({
                   style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', background: partyColour, flexShrink: 0 }}
                 />
                 <span style={{ fontSize: '18px', fontWeight: 'bold' }}>{party}</span>
-                <span style={{ fontSize: '15px', opacity: 0.75, marginLeft: '8px' }}>({partyMPs.length})</span>
+                <span style={{ fontSize: '15px', marginLeft: '8px' }}>({partyMPs.length})</span>
                 <span style={{ marginLeft: 'auto', fontSize: '22px', lineHeight: 1 }}>→</span>
               </Link>
             );

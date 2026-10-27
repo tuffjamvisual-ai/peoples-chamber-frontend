@@ -37,7 +37,7 @@ export default function OpenGovShell({
   // download with the HTML instead (25 Oct 2026, report 43); each width gets only the file its stylesheet uses.
   preload('/folders.webp', { as: 'image', media: '(min-width: 641px)', fetchPriority: 'high' });
   preload('/folders-900.webp', { as: 'image', media: '(max-width: 640px)' });
-  const brandStyle: React.CSSProperties = { display: 'inline-block', margin: 0, opacity: 0.8, border: '0.07em solid #6b2417', padding: '0.14em 0.32em 0.06em', fontFamily: "var(--font-bebas), 'Bebas Neue', Impact, 'Arial Narrow', sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1, color: '#6b2417', fontSize: 'clamp(24px, 4.6vw, 64px)' };
+  const brandStyle: React.CSSProperties = { display: 'inline-block', margin: 0, border: '0.07em solid #7a1612', padding: '0.14em 0.32em 0.06em', fontFamily: "var(--font-bebas), 'Bebas Neue', Impact, 'Arial Narrow', sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1, color: '#7a1612', fontSize: 'clamp(24px, 4.6vw, 64px)' };
   return (
     <div
       className="ng-page"
@@ -88,7 +88,7 @@ export default function OpenGovShell({
 
           {pageStamp && (
             <div style={{ position: 'absolute', top: '1.4cqw', right: '4.5%', zIndex: 4, pointerEvents: 'none', ...stampStyle }}>
-              <span style={{ display: 'inline-block', opacity: 0.8, border: '0.07em solid #6b2417', padding: '0.16em 0.36em 0.08em', fontFamily: "var(--font-bebas), 'Bebas Neue', Impact, 'Arial Narrow', sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1, color: '#6b2417', fontSize: 'clamp(18px, 4cqw, 52px)' }}>{pageStamp}</span>
+              <span style={{ display: 'inline-block', border: '0.07em solid #7a1612', padding: '0.16em 0.36em 0.08em', fontFamily: "var(--font-bebas), 'Bebas Neue', Impact, 'Arial Narrow', sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.1em', lineHeight: 1, color: '#7a1612', fontSize: 'clamp(18px, 4cqw, 52px)' }}>{pageStamp}</span>
             </div>
           )}
 
@@ -100,11 +100,11 @@ export default function OpenGovShell({
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px 12px' }}>
                 <a href="/privacy" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Privacy</a>
-                <span aria-hidden style={{ opacity: 0.4 }}>·</span>
+                <span aria-hidden >·</span>
                 <a href="/terms" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Terms</a>
-                <span aria-hidden style={{ opacity: 0.4 }}>·</span>
+                <span aria-hidden >·</span>
                 <a href="/contact" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Contact</a>
-                <span aria-hidden style={{ opacity: 0.4 }}>·</span>
+                <span aria-hidden >·</span>
                 <a href="/commission" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Commission research</a>
                 <span style={{ flex: '1 1 auto', minWidth: '12px' }} />
                 <span style={{ color: '#14100d' }}>opengovt · independent and nonpartisan</span>

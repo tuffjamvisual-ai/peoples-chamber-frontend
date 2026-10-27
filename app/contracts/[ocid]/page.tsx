@@ -214,7 +214,7 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
                         ? <>{gbp(c.oldValue)} → {gbp(c.newValue)} ({signed(c.newValue - c.oldValue)})</>
                         : c.newValue != null ? <>previous value not stated → {gbp(c.newValue)}</> : 'value not stated'}
                       {c.reason && <>. Reason: {short(c.reason)}</>}
-                      {c.repeats > 1 && <span style={{ opacity: 0.75 }}> (published {c.repeats} times that day)</span>}
+                      {c.repeats > 1 && <span > (published {c.repeats} times that day)</span>}
                     </li>
                   ))}
                 </ul>
@@ -230,7 +230,7 @@ export default async function ContractHistoryPage({ params }: { params: Promise<
                 {h.termination.reason && <> Reason: &ldquo;{short(h.termination.reason)}&rdquo;</>}
               </p>
             )}
-            {!h.changes.length && !h.termination && <p style={{ fontSize: '15px', opacity: 0.8 }}>No changes or termination have been published.</p>}
+            {!h.changes.length && !h.termination && <p style={{ fontSize: '15px' }}>No changes or termination have been published.</p>}
           </section>
         );
       })}

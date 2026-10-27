@@ -51,7 +51,7 @@ export default async function TopicBillsListing({ slug, page }: { slug: string; 
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
           Every bill and Act on this topic, most recently updated first: government bills sponsored by the departments responsible, and other bills whose titles name the subject. A bill reintroduced in a later session is listed once for each session.
         </p>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px', opacity: 0.7 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px' }}>
           {total === 0
             ? 'No bills on this topic'
             : <>Showing {(page - 1) * TOPIC_BILLS_PER_PAGE + 1}-{Math.min(page * TOPIC_BILLS_PER_PAGE, total)} of {total.toLocaleString()} · page {page} of {totalPages}</>}

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 
 const INK = '#14100d';
-const ACCENT = '#6b2417';
+const ACCENT = '#7a1612';
 const MONO = 'var(--font-special-elite), monospace';
 
 type Party = { key: string; label: string; pollsterKey: string | null; colour: string };
@@ -134,7 +134,7 @@ export default function ReaderVIPoll({ pollster, initialTally, initialTotal, ini
                 <span aria-hidden style={{ position: 'absolute', inset: '0 auto 0 0', width: `${(rv / maxReader) * 100}%`, background: p.colour, borderRadius: '1px' }} />
               </span>
               <span style={{ ...p15, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
-                {rv.toFixed(1)}%{pv != null ? <span style={{ opacity: 0.75 }}> · polls {pv.toFixed(1)}%</span> : null}
+                {rv.toFixed(1)}%{pv != null ? <span > · polls {pv.toFixed(1)}%</span> : null}
               </span>
             </div>
           );

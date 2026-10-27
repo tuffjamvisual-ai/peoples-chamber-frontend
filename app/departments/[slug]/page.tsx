@@ -309,7 +309,7 @@ export default async function DepartmentPage({ params }: PageProps) {
         {/* Quip — the department's one-line characterisation, sits directly
             under the name (per-department, from meta.description). */}
         {dept.description && (
-          <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontStyle: 'italic', fontSize: '17px', lineHeight: 1.55, maxWidth: '720px', marginTop: '-4px', marginBottom: '6%', opacity: 0.9 }}>
+          <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontStyle: 'italic', fontSize: '17px', lineHeight: 1.55, maxWidth: '720px', marginTop: '-4px', marginBottom: '6%' }}>
             {dept.description}
           </p>
         )}

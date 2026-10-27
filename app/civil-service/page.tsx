@@ -80,7 +80,7 @@ export default async function CivilServicePage() {
           {fmtHeadcount(totalReported)} civil servants across {reported.length} of the 24 ministerial
           departments, as at {topPeriod}. The five largest employers account for {topFiveShare}% of them.
         </p>
-        <p style={{ fontSize: '15px', lineHeight: 1.6, marginBottom: '32px', opacity: 0.8, maxWidth: '720px' }}>
+        <p style={{ fontSize: '15px', lineHeight: 1.6, marginBottom: '32px', maxWidth: '720px' }}>
           Figures are rounded to the nearest five. They count civil servants only. They do
           not include armed forces personnel (in MoD), NHS staff (in DHSC) or police officers
           (in the Home Office).
@@ -96,7 +96,7 @@ export default async function CivilServicePage() {
                 <Link href={`/departments/${m.slug}`} style={{ display: 'block', color: ink, textDecoration: 'none' }}>
                   <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', marginBottom: '4px' }}>
                     <span style={{ fontSize: '15px' }}>
-                      <span style={{ opacity: 0.5, marginRight: 8 }}>{(i + 1).toString().padStart(2, '0')}</span>
+                      <span style={{ marginRight: 8 }}>{(i + 1).toString().padStart(2, '0')}</span>
                       {m.name}
                     </span>
                     <span style={{ fontSize: '15px', whiteSpace: 'nowrap' }}>
@@ -122,7 +122,7 @@ export default async function CivilServicePage() {
             <h2 style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.25em', color: ACCENT, marginBottom: '12px', fontWeight: 600 }}>
               Not separately reported
             </h2>
-            <p style={{ fontSize: '15px', lineHeight: 1.6, marginBottom: '16px', opacity: 0.8 }}>
+            <p style={{ fontSize: '15px', lineHeight: 1.6, marginBottom: '16px' }}>
               The following ministerial departments either roll up into a larger ONS
               aggregate (e.g. the Attorney General&apos;s family) or sit inside the
               Cabinet Office cluster and are not separately broken out in Table 8.
@@ -134,7 +134,7 @@ export default async function CivilServicePage() {
                     {m.name}
                   </Link>
                   {m.row?.proxy_note && (
-                    <span style={{ display: 'block', fontSize: '15px', opacity: 0.7, marginTop: '2px' }}>
+                    <span style={{ display: 'block', fontSize: '15px', marginTop: '2px' }}>
                       {m.row.proxy_note}.
                     </span>
                   )}

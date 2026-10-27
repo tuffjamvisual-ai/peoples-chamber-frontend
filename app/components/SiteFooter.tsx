@@ -108,7 +108,6 @@ const linkStyle: React.CSSProperties = {
   fontSize: '15px',
   color: '#fff',
   textDecoration: 'none',
-  opacity: 0.85,
 }
 
 function FootLink({ href, children }: { href: string; children: React.ReactNode }) {

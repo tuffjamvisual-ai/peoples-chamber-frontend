@@ -41,14 +41,12 @@ type Props = {
   userVote?: 'yes' | 'no' | null;
 };
 
-const INK = '#1a140e';
-const INK_SOFT = 'rgba(26,20,14,0.7)';
+const INK = '#14100d';
+const INK_SOFT = '#14100d';
 const INK_HAIRLINE = 'rgba(26,20,14,0.3)';
 const PARCHMENT = '#efe6d2';
 const PARCHMENT_DEEP = '#e6dbc0';
 const ACCENT = '#7a1612';
-const SUCCESS = '#3f5a2a';
-const DANGER = '#7a2a1f';
 
 const SERIF = 'var(--font-special-elite), monospace';
 const SERIF_DISPLAY = 'var(--font-special-elite), monospace';
@@ -207,9 +205,9 @@ export default function BillCoverCard({ bill, userVote = null }: Props) {
         <span style={{ fontStyle: 'italic' }}>
           {total > 0 ? (
             <>
-              <span style={{ color: SUCCESS, fontWeight: 600 }}>{yesPercent}% Aye</span>
+              <span style={{ color: INK, fontWeight: 600 }}>{yesPercent}% Aye</span>
               {' · '}
-              <span style={{ color: DANGER, fontWeight: 600 }}>{noPercent}% No</span>
+              <span style={{ color: INK, fontWeight: 600 }}>{noPercent}% No</span>
               {' · '}
               {total.toLocaleString()} {total === 1 ? 'vote' : 'votes'}
             </>
@@ -244,7 +242,6 @@ export default function BillCoverCard({ bill, userVote = null }: Props) {
             fontVariant: 'small-caps',
             letterSpacing: '0.14em',
             fontWeight: 'bold',
-            opacity: 0.85,
             pointerEvents: 'none',
           }}
         >
@@ -270,7 +267,6 @@ export default function BillCoverCard({ bill, userVote = null }: Props) {
             fontVariant: 'small-caps',
             letterSpacing: '0.14em',
             fontWeight: 'bold',
-            opacity: 0.75,
             pointerEvents: 'none',
           }}
         >

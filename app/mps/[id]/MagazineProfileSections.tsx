@@ -419,7 +419,7 @@ const backgroundLabel: React.CSSProperties = { fontSize: '15px', textTransform: 
 function TimelineRow({ years, last, children }: { years: string; last: boolean; children: React.ReactNode }) {
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', columnGap: '18px', rowGap: '2px', marginBottom: '14px', paddingBottom: '12px', borderBottom: last ? 'none' : '1px solid rgba(20,16,13,0.15)' }}>
-      <div style={{ flex: '0 0 190px', fontSize: '15px', opacity: 0.7, fontFamily: 'monospace', paddingTop: '2px' }}>{years}</div>
+      <div style={{ flex: '0 0 190px', fontSize: '15px', fontFamily: 'monospace', paddingTop: '2px' }}>{years}</div>
       <div style={{ flex: '1 1 220px', minWidth: 0 }}>{children}</div>
     </div>
   );
@@ -881,7 +881,7 @@ export default function MagazineProfileSections({
             <h2 style={sectionH2}>Background</h2>
             {timeline.length > 0 ? (
               <>
-                <p style={{ fontSize: '15px', opacity: 0.7, marginBottom: '24px' }}>From education to today. Each entry links to its source.</p>
+                <p style={{ fontSize: '15px', marginBottom: '24px' }}>From education to today. Each entry links to its source.</p>
                 {TIMELINE_PHASES.map(({ phase, heading }) => {
                   const rows = timeline.filter((e) => e.phase === phase);
                   if (rows.length === 0) return null;
@@ -891,7 +891,7 @@ export default function MagazineProfileSections({
                       {rows.map((e, idx) => (
                         <TimelineRow key={idx} years={yearsLabel(e.start, e.end)} last={idx === rows.length - 1}>
                           <div style={{ fontSize: '17px', fontWeight: 'bold', lineHeight: 1.3 }}>{e.title}</div>
-                          {e.organisation && <div style={{ fontSize: '15px', opacity: 0.85, marginTop: '2px' }}>{e.organisation}</div>}
+                          {e.organisation && <div style={{ fontSize: '15px', marginTop: '2px' }}>{e.organisation}</div>}
                           {e.detail && <div style={{ fontSize: '15px', lineHeight: 1.6, marginTop: '6px' }}>{e.detail}</div>}
                           <a href={e.source.url} target="_blank" rel="noopener noreferrer" style={{ ...inkLink, fontSize: '15px', display: 'inline-block', marginTop: '4px' }}>Source</a>
                         </TimelineRow>
@@ -900,12 +900,12 @@ export default function MagazineProfileSections({
                   );
                 })}
                 {bio?.background_last_checked && (
-                  <p style={{ fontSize: '15px', opacity: 0.7, marginBottom: '26px' }}>Last checked: {dayMonthYear(bio.background_last_checked)}</p>
+                  <p style={{ fontSize: '15px', marginBottom: '26px' }}>Last checked: {dayMonthYear(bio.background_last_checked)}</p>
                 )}
               </>
             ) : (
             <>
-            <p style={{ fontSize: '15px', opacity: 0.7, marginBottom: '24px' }}>Qualifications and career before entering Parliament, so you can weigh an MP&rsquo;s relevant background.</p>
+            <p style={{ fontSize: '15px', marginBottom: '24px' }}>Qualifications and career before entering Parliament, so you can weigh an MP&rsquo;s relevant background.</p>
 
             {bio?.education && bio.education.length > 0 && (
               <div style={{ marginBottom: '26px' }}>
@@ -922,8 +922,8 @@ export default function MagazineProfileSections({
                   return (
                     <div key={idx} style={{ marginBottom: '18px', paddingBottom: '14px', borderBottom: last ? 'none' : '1px solid rgba(20,16,13,0.15)' }}>
                       <div style={{ fontSize: '17px', fontWeight: 'bold', lineHeight: 1.3 }}>{job.role}</div>
-                      {job.organisation && <div style={{ fontSize: '15px', opacity: 0.85, marginTop: '2px' }}>{job.organisation}</div>}
-                      {job.period && <div style={{ fontSize: '15px', opacity: 0.6, fontStyle: 'italic', marginTop: '2px' }}>{job.period}</div>}
+                      {job.organisation && <div style={{ fontSize: '15px', marginTop: '2px' }}>{job.organisation}</div>}
+                      {job.period && <div style={{ fontSize: '15px', fontStyle: 'italic', marginTop: '2px' }}>{job.period}</div>}
                       {job.detail && <div style={{ fontSize: '15px', lineHeight: 1.6, marginTop: '6px' }}>{job.detail}</div>}
                     </div>
                   );
@@ -964,7 +964,7 @@ export default function MagazineProfileSections({
             {(bio?.bio_last_reviewed || (bio?.bio_sources && bio.bio_sources.length > 0)) && (
               <div className="mp-bio-provenance" style={{ marginTop: '8px', paddingTop: '12px', borderTop: '1px solid rgba(20,16,13,0.18)', fontSize: '14px' }}>
                 {bio?.bio_last_reviewed && (
-                  <p style={{ margin: '0 0 8px', opacity: 0.75 }}>
+                  <p style={{ margin: '0 0 8px' }}>
                     Last reviewed: {new Date(`${bio.bio_last_reviewed}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                   </p>
                 )}
@@ -979,7 +979,7 @@ export default function MagazineProfileSections({
                           {src.url ? (
                             <a href={src.url} target="_blank" rel="noopener noreferrer" style={{ color: '#7a1612' }}>{src.title}</a>
                           ) : src.title}
-                          {src.supports && <span style={{ opacity: 0.7 }}>: {src.supports}</span>}
+                          {src.supports && <span >: {src.supports}</span>}
                         </li>
                       ))}
                     </ol>
@@ -993,9 +993,9 @@ export default function MagazineProfileSections({
             {conductFindings.length > 0 && (
               <section style={{ marginTop: '32px', padding: '14px 16px', border: '1px solid #a64030', background: 'rgba(166,64,48,0.04)' }}>
                 <h3 style={{ ...sectionH3, marginTop: 0, marginBottom: '8px', color: '#a64030' }}>
-                  Standards findings <span style={{ opacity: 0.6, fontWeight: 'normal', fontSize: '15px' }}>({conductFindings.length})</span>
+                  Standards findings <span style={{ fontWeight: 'normal', fontSize: '15px' }}>({conductFindings.length})</span>
                 </h3>
-                <p style={{ fontSize: '15px', opacity: 0.7, marginBottom: '12px' }}>
+                <p style={{ fontSize: '15px', marginBottom: '12px' }}>
                   Cases referred to the House of Commons Committee on Standards. The Committee publishes a numbered report for each case; outcome and penalty (where applicable) live inside the report PDF.
                 </p>
                 <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: 1.55 }}>
@@ -1006,7 +1006,7 @@ export default function MagazineProfileSections({
                         <span>{f.summary || `Finding against ${f.mp_name_at_time}`}</span>
                       </div>
                       {(f.outcome || f.rule_breached || f.penalty) && (
-                        <div style={{ fontSize: '15px', opacity: 0.75, marginTop: '4px' }}>
+                        <div style={{ fontSize: '15px', marginTop: '4px' }}>
                           {f.outcome && <span>Outcome: <strong>{f.outcome}</strong>. </span>}
                           {f.rule_breached && <span>Rule: {f.rule_breached}. </span>}
                           {f.penalty && <span>Penalty: {f.penalty}.</span>}
@@ -1201,7 +1201,7 @@ export default function MagazineProfileSections({
                       v.division_title
                     )}
                   </div>
-                  <div style={{ fontSize: '15px', opacity: 0.7 }}>
+                  <div style={{ fontSize: '15px' }}>
                     {fmtDate(v.division_date)} · <strong>{v.vote_type.toUpperCase()}</strong>
                     {v.is_rebellion && <span style={{ color: '#7a1612' }}> · REBEL</span>}
                   </div>
@@ -1215,16 +1215,16 @@ export default function MagazineProfileSections({
               const base = { fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', padding: '6px 14px', color: '#14100d', border: '1px solid rgba(20,16,13,0.3)', background: 'transparent' } as const;
               return (
                 <div style={{ marginTop: '24px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                  <button type="button" disabled={prevOff} onClick={() => loadVotes(vPage - 1, vQuery)} style={{ ...base, cursor: prevOff ? 'default' : 'pointer', opacity: prevOff ? 0.4 : 1 }}>← Prev</button>
-                  <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', opacity: 0.8 }}>Page {vPage} of {totalPages}</span>
-                  <button type="button" disabled={nextOff} onClick={() => loadVotes(vPage + 1, vQuery)} style={{ ...base, cursor: nextOff ? 'default' : 'pointer', opacity: nextOff ? 0.4 : 1 }}>Next →</button>
+                  <button type="button" disabled={prevOff} onClick={() => loadVotes(vPage - 1, vQuery)} style={{ ...base, cursor: prevOff ? 'default' : 'pointer', textDecoration: prevOff ? 'line-through' : 'none', borderStyle: prevOff ? 'dashed' : 'solid' }}>← Prev</button>
+                  <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px' }}>Page {vPage} of {totalPages}</span>
+                  <button type="button" disabled={nextOff} onClick={() => loadVotes(vPage + 1, vQuery)} style={{ ...base, cursor: nextOff ? 'default' : 'pointer', textDecoration: nextOff ? 'line-through' : 'none', borderStyle: nextOff ? 'dashed' : 'solid' }}>Next →</button>
                 </div>
               );
             })()}
 
             {/* Empty-state when a search returns nothing. */}
             {vQuery && voteList.length === 0 && !vLoading && (
-              <p style={{ marginTop: '20px', fontStyle: 'italic', opacity: 0.7 }}>
+              <p style={{ marginTop: '20px', fontStyle: 'italic' }}>
                 No divisions matched &ldquo;{vQuery}&rdquo;.{' '}
                 <button type="button" onClick={() => { setVSearchInput(''); loadVotes(1, ''); }} style={{ ...inkLink, background: 'none', border: 'none', cursor: 'pointer', padding: 0, font: 'inherit' }}>
                   Show all
@@ -1244,13 +1244,13 @@ export default function MagazineProfileSections({
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'baseline', flexWrap: 'wrap' }}>
                     <Link href={`/bills/${b.id}`} style={{ ...inkLink, fontWeight: 'bold' }}>{b.title}</Link>
                     {b.is_act && <span style={{ background: '#7a1612', color: '#f4e8d4', padding: '1px 6px', fontSize: '15px', letterSpacing: '0.08em' }}>✓ ACT</span>}
-                    {b.status && <span style={{ fontSize: '15px', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{b.status}</span>}
+                    {b.status && <span style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{b.status}</span>}
                   </div>
                   {b.current_stage && (
-                    <div style={{ fontSize: '15px', opacity: 0.75 }}>Stage: {b.current_stage}{b.last_update ? ` · updated ${fmtDate(b.last_update)}` : ''}</div>
+                    <div style={{ fontSize: '15px' }}>Stage: {b.current_stage}{b.last_update ? ` · updated ${fmtDate(b.last_update)}` : ''}</div>
                   )}
                   {billSummary(b) && (
-                    <p style={{ marginTop: '6px', fontSize: '15px', lineHeight: '1.55', opacity: 0.9 }}>{billSummary(b)}</p>
+                    <p style={{ marginTop: '6px', fontSize: '15px', lineHeight: '1.55' }}>{billSummary(b)}</p>
                   )}
                 </li>
               ))}
@@ -1261,7 +1261,7 @@ export default function MagazineProfileSections({
         {active === 'house' && (
           <>
             <h2 style={sectionH2}>In the House</h2>
-            <p style={{ fontSize: '15px', opacity: 0.7, marginBottom: '18px' }}>
+            <p style={{ fontSize: '15px', marginBottom: '18px' }}>
               The most recent debates this Member has taken part in, from the official Hansard record: speeches, questions, interventions and ministerial answers.
             </p>
             {activity && (activity.speeches_year != null || activity.questions_year != null) && (
@@ -1269,7 +1269,7 @@ export default function MagazineProfileSections({
                 {activity.speeches_year != null && <span><strong>{activity.speeches_year}</strong> speeches</span>}
                 {activity.speeches_year != null && activity.questions_year != null && ' · '}
                 {activity.questions_year != null && <span><strong>{activity.questions_year}</strong> questions</span>}
-                <span style={{ opacity: 0.6 }}> in the last year</span>
+                <span > in the last year</span>
               </p>
             )}
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
@@ -1284,16 +1284,16 @@ export default function MagazineProfileSections({
                 return (
                   <li key={i} style={{ padding: '11px 0', borderBottom: inkDivider }}>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'baseline', flexWrap: 'wrap' }}>
-                      <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', opacity: 0.55, whiteSpace: 'nowrap' }}>{fmtDate(c.sitting_date)}</span>
+                      <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', whiteSpace: 'nowrap' }}>{fmtDate(c.sitting_date)}</span>
                       {url ? (
                         <Link href={url} style={{ ...inkLink, fontWeight: 'bold', fontSize: '15px' }}>{dehyphen((c.debate_title || 'Debate').trim())}</Link>
                       ) : (
                         <span style={{ fontWeight: 'bold', fontSize: '15px' }}>{dehyphen((c.debate_title || 'Debate').trim())}</span>
                       )}
-                      {c.section && <span style={{ fontSize: '15px', opacity: 0.5, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{c.section}</span>}
+                      {c.section && <span style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{c.section}</span>}
                     </div>
                     {chips.length > 0 && (
-                      <div style={{ fontSize: '15px', opacity: 0.75, marginTop: '3px' }}>{chips.join(' · ')}</div>
+                      <div style={{ fontSize: '15px', marginTop: '3px' }}>{chips.join(' · ')}</div>
                     )}
                   </li>
                 );
@@ -1455,12 +1455,12 @@ export default function MagazineProfileSections({
             const children = Array.isArray(i.child_interests) ? i.child_interests : [];
             return (
               <li key={idx} style={{ padding: '8px 0', borderBottom: inkDivider }}>
-                <div style={{ fontSize: '15px', opacity: 0.55, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '2px' }}>{i.category_name}</div>
+                <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '2px' }}>{i.category_name}</div>
                 <div style={{ whiteSpace: 'pre-wrap' }}>{i.interest_text}</div>
                 {children.length > 0 && (
                   <ul style={{ listStyle: 'none', padding: 0, marginTop: '8px', marginLeft: '12px', borderLeft: '2px solid rgba(20,16,13,0.15)' }}>
                     {children.map((c, ci) => (
-                      <li key={c.id ?? ci} style={{ padding: '4px 0 4px 12px', fontSize: '15px', opacity: 0.9, whiteSpace: 'pre-wrap' }}>
+                      <li key={c.id ?? ci} style={{ padding: '4px 0 4px 12px', fontSize: '15px', whiteSpace: 'pre-wrap' }}>
                         {c.interest || ''}
                       </li>
                     ))}
@@ -1473,13 +1473,13 @@ export default function MagazineProfileSections({
           return (
             <>
               <h2 style={sectionH2}>Registered Interests</h2>
-              <p style={{ marginBottom: '16px', fontSize: '15px', opacity: 0.7, lineHeight: 1.6 }}>
+              <p style={{ marginBottom: '16px', fontSize: '15px', lineHeight: 1.6 }}>
                 Mandatory declarations under the House of Commons Register of Members&rsquo; Financial Interests. Grouped by the Register&rsquo;s own categories: items potentially material to an MP&rsquo;s parliamentary work. This is the MP&rsquo;s own disclosure, the donor side view of political donations lives on the Donations tab and may overlap with the &ldquo;Campaign &amp; office support&rdquo; section below.
               </p>
               {grouped.map((b) => (
                 <section key={b.key} style={{ marginBottom: '20px' }}>
                   <h3 style={{ ...sectionH3, marginTop: '8px' }}>
-                    {b.label} <span style={{ opacity: 0.55, fontWeight: 'normal', fontSize: '15px' }}>({b.rows.length})</span>
+                    {b.label} <span style={{ fontWeight: 'normal', fontSize: '15px' }}>({b.rows.length})</span>
                   </h3>
                   <ul style={{ listStyle: 'none', padding: 0, fontSize: '15px', lineHeight: '1.7' }}>
                     {b.rows.map((i, idx) => renderRow(i, idx))}
@@ -1519,7 +1519,7 @@ export default function MagazineProfileSections({
                 )}
                 {formerCommittees.length > 0 && (
                   <details>
-                    <summary style={{ cursor: 'pointer', fontSize: '15px', opacity: 0.7, userSelect: 'none', marginBottom: '4px' }}>
+                    <summary style={{ cursor: 'pointer', fontSize: '15px', userSelect: 'none', marginBottom: '4px' }}>
                       {formerCommittees.length} former membership{formerCommittees.length !== 1 ? 's' : ''}
                     </summary>
                     <ul style={{ listStyle: 'none', padding: '4px 0 0', margin: 0 }}>
@@ -1539,7 +1539,7 @@ export default function MagazineProfileSections({
                               )}
                             </span>
                             {m.start_date && (
-                              <span style={{ fontSize: '14px', opacity: 0.6, fontFamily: 'monospace' }}>
+                              <span style={{ fontSize: '14px', fontFamily: 'monospace' }}>
                                 {fmtDate(m.start_date)}{m.end_date ? ` to ${fmtDate(m.end_date)}` : ''}
                               </span>
                             )}
@@ -1560,7 +1560,7 @@ export default function MagazineProfileSections({
                   {[...bio.representations].sort((a, b) => (b.startDate || '').localeCompare(a.startDate || '')).map((r, i) => (
                     <li key={i} style={{ padding: '6px 0', borderBottom: inkDivider }}>
                       <strong>{r.name}</strong>
-                      <div style={{ fontSize: '15px', opacity: 0.75, fontFamily: 'monospace' }}>
+                      <div style={{ fontSize: '15px', fontFamily: 'monospace' }}>
                         {fmtDate(r.startDate)}, {r.endDate ? fmtDate(r.endDate) : 'present'}
                         {r.endDate && r.endReason ? ` · ${r.endReason}` : ''}
                       </div>
@@ -1596,7 +1596,7 @@ export default function MagazineProfileSections({
                     <li key={i} style={{ padding: '4px 0' }}>
                       <strong>{p.party || p.name}</strong>
                       {(p.startDate || p.endDate) && (
-                        <span style={{ marginLeft: '8px', fontSize: '15px', opacity: 0.75, fontFamily: 'monospace' }}>
+                        <span style={{ marginLeft: '8px', fontSize: '15px', fontFamily: 'monospace' }}>
                           {p.startDate ? fmtDate(p.startDate) : '?'}, {p.endDate ? fmtDate(p.endDate) : 'present'}
                         </span>
                       )}
@@ -1609,7 +1609,7 @@ export default function MagazineProfileSections({
             {appgs.length > 0 && (
               <>
                 <h3 style={sectionH3}>All-Party Parliamentary Groups officered</h3>
-                <p style={{ fontSize: '15px', opacity: 0.7, lineHeight: 1.55, marginBottom: '12px', maxWidth: '60ch' }}>
+                <p style={{ fontSize: '15px', lineHeight: 1.55, marginBottom: '12px', maxWidth: '60ch' }}>
                   APPGs are unofficial groups, drawn from across the parties, that MPs run on specific topics. Each group&rsquo;s registered funders are the entities paying for its secretariat, research and events. Officers are the MPs responsible for the group. Together they are the formal lobbying channel inside Westminster, the one that doesn&rsquo;t appear on the Register of Members&rsquo; Financial Interests.
                 </p>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: 1.55 }}>
@@ -1623,7 +1623,7 @@ export default function MagazineProfileSections({
                           </span>
                         )}
                         {a.category && (
-                          <span style={{ fontSize: '15px', opacity: 0.6 }}>{a.category}</span>
+                          <span style={{ fontSize: '15px' }}>{a.category}</span>
                         )}
                       </div>
                       {a.secretariat && (() => {
@@ -1635,8 +1635,8 @@ export default function MagazineProfileSections({
                           .replace(/^-+|-+$/g, '')
                           .slice(0, 100);
                         return (
-                          <div style={{ fontSize: '15px', marginTop: '4px', opacity: 0.85 }}>
-                            <span style={{ opacity: 0.6 }}>Secretariat:</span>{' '}
+                          <div style={{ fontSize: '15px', marginTop: '4px' }}>
+                            <span >Secretariat:</span>{' '}
                             <Link href={`/secretariats/${secSlug}`} style={inkLink}>{a.secretariat}</Link>
                             {a.secretariat_url && (
                               <> · <a href={a.secretariat_url} target="_blank" rel="noopener noreferrer" style={{ ...inkLink, fontSize: '15px' }}>website ↗</a></>
@@ -1653,19 +1653,19 @@ export default function MagazineProfileSections({
                             {a.funders.slice(0, 20).map((f, i) => (
                               <li key={i} style={{ padding: '4px 0', fontSize: '15px' }}>
                                 <strong>{f.source}</strong>
-                                {f.value_band && <span style={{ opacity: 0.75 }}> · £{f.value_band}</span>}
+                                {f.value_band && <span > · £{f.value_band}</span>}
                                 {f.ecMatch && f.ecMatch.donationCount > 0 && (
                                   <span style={{ marginLeft: '6px', ...pillStyle, color: '#7a1612', border: '1px solid #7a1612', fontSize: '15px' }} title="Also a registered political donor under this name in Electoral Commission records">
                                     Also donates · {fmtMoney(f.ecMatch.totalAmount)} · {f.ecMatch.donationCount}×
                                   </span>
                                 )}
                                 {f.description && (
-                                  <div style={{ opacity: 0.7, marginTop: '2px', whiteSpace: 'pre-wrap' }}>{f.description}</div>
+                                  <div style={{ marginTop: '2px', whiteSpace: 'pre-wrap' }}>{f.description}</div>
                                 )}
                               </li>
                             ))}
                             {a.funders.length > 20 && (
-                              <li style={{ opacity: 0.6 }}>… and {a.funders.length - 20} more</li>
+                              <li >… and {a.funders.length - 20} more</li>
                             )}
                           </ul>
                         </details>
@@ -1818,8 +1818,8 @@ export default function MagazineProfileSections({
                 </li>
               </ul>
 
-              <div style={{ marginTop: '28px', padding: '18px 20px', border: '1px solid rgba(20,16,13,0.25)', borderTop: '3px solid #6b2417', background: 'rgba(107,36,23,0.03)' }}>
-                <p style={{ margin: '0 0 8px', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', color: '#6b2417' }}>
+              <div style={{ marginTop: '28px', padding: '18px 20px', border: '1px solid rgba(20,16,13,0.25)', borderTop: '3px solid #7a1612', background: 'rgba(107,36,23,0.03)' }}>
+                <p style={{ margin: '0 0 8px', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', color: '#7a1612' }}>
                   Declared donations
                 </p>
                 <MoneyCountUp
@@ -1846,7 +1846,7 @@ export default function MagazineProfileSections({
               {rows.length > 0 && (
                 <>
                   <h3 style={{ ...sectionH3, marginTop: '28px' }}>Outside roles &amp; earnings by payer</h3>
-                  <p style={{ fontSize: '15px', opacity: 0.7, marginBottom: '8px', lineHeight: 1.5 }}>Includes every Category 1 declaration. Directorships and shareholdings register the role but not the income, so they show as &ldquo;Not disclosed&rdquo;.</p>
+                  <p style={{ fontSize: '15px', marginBottom: '8px', lineHeight: 1.5 }}>Includes every Category 1 declaration. Directorships and shareholdings register the role but not the income, so they show as &ldquo;Not disclosed&rdquo;.</p>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px', marginBottom: '8px', tableLayout: 'auto' }}>
                     <thead>
                       <tr style={{ borderBottom: '2px solid rgba(20,16,13,0.4)', textAlign: 'left' }}>
@@ -1867,7 +1867,7 @@ export default function MagazineProfileSections({
                             <td style={{ padding: '6px 4px' }}>
                               <div style={{ fontWeight: 'bold' }}>{r.payer}</div>
                               {roleList && (
-                                <div style={{ fontSize: '15px', opacity: 0.8, marginTop: '2px' }}>{roleList}</div>
+                                <div style={{ fontSize: '15px', marginTop: '2px' }}>{roleList}</div>
                               )}
                               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '4px' }}>
                                 {/* Status badge */}
@@ -1897,7 +1897,7 @@ export default function MagazineProfileSections({
                             <td style={{ padding: '6px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap' }}>
                               {hourly !== null ? fmtMoney(hourly) : ', '}
                             </td>
-                            <td style={{ padding: '6px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap', fontWeight: 'bold' }}>{r.count > 0 ? fmtMoney(r.total) : <span style={{ fontWeight: 'normal', opacity: 0.55 }}>Not disclosed</span>}</td>
+                            <td style={{ padding: '6px 4px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap', fontWeight: 'bold' }}>{r.count > 0 ? fmtMoney(r.total) : <span style={{ fontWeight: 'normal' }}>Not disclosed</span>}</td>
                           </tr>
                         );
                       })}
@@ -1906,11 +1906,11 @@ export default function MagazineProfileSections({
                 </>
               )}
 
-              <p style={{ marginTop: '20px', fontSize: '15px', opacity: 0.6, lineHeight: 1.55 }}>
+              <p style={{ marginTop: '20px', fontSize: '15px', lineHeight: 1.55 }}>
                 Base salary is set by IPSA and reviewed annually each 1 April. The ministerial supplement has been frozen at 2010 levels by successive prime ministers; figures shown are the rates actually drawn, not the statutory entitlement. Outside earnings come from the Register of Members&rsquo; Financial Interests and reflect cumulative declarations since this Parliament started; the Register is updated as MPs declare, typically within two weeks of the payment. Public spend is the most recent closed IPSA financial year on file, the current year is not totalled until IPSA reconciles year end.
               </p>
               {rows.some((r) => r.acoba) && (
-                <p style={{ marginTop: '12px', fontSize: '15px', opacity: 0.6, lineHeight: 1.55 }}>
+                <p style={{ marginTop: '12px', fontSize: '15px', lineHeight: 1.55 }}>
                   <strong>ACOBA</strong> is the Advisory Committee on Business Appointments, the independent body that vets new jobs taken by former ministers and senior officials in the two years after they leave government. It reviews each role for conflicts of interest and can recommend conditions such as lobbying bans or waiting periods, though it cannot block an appointment. &ldquo;ACOBA: Yes&rdquo; means the appointment was submitted for review; &ldquo;ACOBA: No&rdquo; means it was not, which is sometimes legitimate (the rules did not apply) and sometimes a story (an ex minister$1 bypassing the vetting).
                 </p>
               )}
@@ -1921,7 +1921,7 @@ export default function MagazineProfileSections({
         {active === 'donations' && (() => {
           // Until the data has arrived (not only while a request is open), so the tab never shows the empty state first.
           if (donationsLoading || donationsPayload === null) return (
-            <div style={{ padding: '60px 0', textAlign: 'center', color: '#888', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px' }}>
+            <div style={{ padding: '60px 0', textAlign: 'center', color: '#14100d', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px' }}>
               Loading donations...
             </div>
           );
@@ -2013,7 +2013,7 @@ export default function MagazineProfileSections({
                 </p>
               </section>
 
-              <p style={{ marginBottom: '8px', fontSize: '15px', opacity: 0.85 }}>
+              <p style={{ marginBottom: '8px', fontSize: '15px' }}>
                 <strong>{fmtMoney(total)}</strong> directed at this MP personally across {donations.length.toLocaleString()} donation{donations.length === 1 ? '' : 's'} from {donorRows.length.toLocaleString()} donor{donorRows.length === 1 ? '' : 's'}.
                 {donorRows.length >= 3 && (
                   <> Top 3 donors account for <strong>{concentrationPct.toFixed(1)}%</strong> of all donations.</>
@@ -2046,7 +2046,7 @@ export default function MagazineProfileSections({
                     <h3 style={{ ...sectionH3, marginTop: 0, marginBottom: '6px' }}>
                       Plus {fmtMoney(localTotal)} to this MP&rsquo;s local constituency party
                     </h3>
-                    <p style={{ fontSize: '15px', opacity: 0.75, lineHeight: 1.55, marginBottom: '12px' }}>
+                    <p style={{ fontSize: '15px', lineHeight: 1.55, marginBottom: '12px' }}>
                       {constituencyDonations.length.toLocaleString()} donation{constituencyDonations.length === 1 ? '' : 's'} from {localDonorSet.size.toLocaleString()} donor{localDonorSet.size === 1 ? '' : 's'}, recorded against the local constituency association rather than against the MP individually. This is the channel through which the majority of substantive funding to major-party MPs flows. Same donors, same political effect, different accounting envelope.
                     </p>
                     <details>
@@ -2079,7 +2079,7 @@ export default function MagazineProfileSections({
                           })}
                         </tbody>
                       </table>
-                      {localDonorRows.length > 50 && <p style={{ padding: '4px 0', fontSize: '15px', opacity: 0.7 }}>Showing top 50 of {localDonorRows.length}.</p>}
+                      {localDonorRows.length > 50 && <p style={{ padding: '4px 0', fontSize: '15px' }}>Showing top 50 of {localDonorRows.length}.</p>}
                     </details>
                   </section>
                 );
@@ -2152,13 +2152,13 @@ export default function MagazineProfileSections({
                             )}
                           </div>
                           {others.length > 0 && (
-                            <div style={{ fontSize: '15px', opacity: 0.7, marginTop: '4px' }}>
+                            <div style={{ fontSize: '15px', marginTop: '4px' }}>
                               Also funds:{' '}
                               {others.map((o, i) => (
                                 <span key={o.recipient}>
                                   {i > 0 && ', '}
                                   {o.recipient}
-                                  <span style={{ opacity: 0.6 }}> ({fmtMoney(o.total)})</span>
+                                  <span > ({fmtMoney(o.total)})</span>
                                 </span>
                               ))}
                             </div>
@@ -2187,7 +2187,7 @@ export default function MagazineProfileSections({
                 return (
                   <section style={{ marginBottom: '24px', padding: '14px 16px', background: 'rgba(122,22,18,0.05)', borderLeft: '3px solid #7a1612' }}>
                     <h3 style={{ ...sectionH3, marginTop: 0, marginBottom: '8px' }}>Voted on bills touching their donor sectors</h3>
-                    <p style={{ fontSize: '15px', opacity: 0.7, lineHeight: 1.55, marginBottom: '12px' }}>
+                    <p style={{ fontSize: '15px', lineHeight: 1.55, marginBottom: '12px' }}>
                       Each block below pairs a sector this MP received money from with every Commons division they voted on that touched that sector. Both halves of this data are public, the comparison is not. Read it and decide whether the pattern is coincidence or alignment.
                     </p>
                     {sectorCrossRef.map((s) => {
@@ -2195,9 +2195,9 @@ export default function MagazineProfileSections({
                       return (
                         <div key={s.key} style={{ marginBottom: '20px' }}>
                           <div style={{ display: 'flex', gap: '12px', alignItems: 'baseline', flexWrap: 'wrap', borderBottom: `2px solid ${s.colour}`, paddingBottom: '4px', marginBottom: '8px' }}>
-                            <span style={{ ...pillStyle, color: s.colour, border: `1px solid ${s.colour}`, fontSize: '15px' }}>{s.label}</span>
+                            <span style={{ ...pillStyle, color: '#14100d', border: `1px solid ${s.colour}`, fontSize: '15px' }}>{s.label}</span>
                             {stat && (
-                              <span style={{ fontSize: '15px', opacity: 0.75 }}>
+                              <span style={{ fontSize: '15px' }}>
                                 {fmtMoney(stat.total)} from {stat.donors.size} donor{stat.donors.size === 1 ? '' : 's'} · {s.votes.length} sector vote{s.votes.length === 1 ? '' : 's'}
                               </span>
                             )}
@@ -2211,7 +2211,7 @@ export default function MagazineProfileSections({
                                 : null;
                               return (
                                 <li key={v.id} style={{ padding: '4px 0', borderBottom: inkDivider, display: 'flex', gap: '10px', alignItems: 'baseline', flexWrap: 'wrap' }}>
-                                  <span style={{ fontFamily: 'monospace', opacity: 0.75, whiteSpace: 'nowrap' }}>{dateText}</span>
+                                  <span style={{ fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{dateText}</span>
                                   {slug ? (
                                     <Link href={`/divisions/${slug}`} style={{ ...inkLink, fontSize: '15px' }}>{v.division_title}</Link>
                                   ) : (
@@ -2224,7 +2224,7 @@ export default function MagazineProfileSections({
                             })}
                           </ul>
                           {s.votes.length > 20 && (
-                            <p style={{ fontSize: '15px', opacity: 0.6, margin: '4px 0 0 0' }}>Showing 20 of {s.votes.length}.</p>
+                            <p style={{ fontSize: '15px', margin: '4px 0 0 0' }}>Showing 20 of {s.votes.length}.</p>
                           )}
                         </div>
                       );
@@ -2261,13 +2261,13 @@ export default function MagazineProfileSections({
                       return (
                         <details key={d.id} style={{ borderBottom: '1px dashed rgba(20,16,13,0.15)', padding: '6px 0' }}>
                           <summary style={{ cursor: 'pointer', display: 'flex', gap: '10px', alignItems: 'baseline', flexWrap: 'wrap', fontSize: '15px' }}>
-                            <span style={{ fontFamily: 'monospace', whiteSpace: 'nowrap', opacity: 0.85 }}>{dateText}</span>
+                            <span style={{ fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{dateText}</span>
                             <span style={{ fontWeight: 'bold' }}>{d.donor_name || '(anonymous)'}</span>
-                            <span style={{ opacity: 0.7, fontSize: '15px' }}>{d.donor_type || ', '}</span>
-                            <span style={{ opacity: 0.7, fontSize: '15px' }}>· {d.nature || ', '}</span>
+                            <span style={{ fontSize: '15px' }}>{d.donor_type || ', '}</span>
+                            <span style={{ fontSize: '15px' }}>· {d.nature || ', '}</span>
                             <span style={{ marginLeft: 'auto', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(Number(d.amount) || 0)}</span>
                             {isRepeat && donorRunning != null && (
-                              <span style={{ fontFamily: 'monospace', fontSize: '15px', opacity: 0.7, whiteSpace: 'nowrap' }}>
+                              <span style={{ fontFamily: 'monospace', fontSize: '15px', whiteSpace: 'nowrap' }}>
                                 ({fmtMoney(donorRunning)} cumulative)
                               </span>
                             )}
@@ -2277,11 +2277,11 @@ export default function MagazineProfileSections({
                       );
                     })}
                   </div>
-                  {donations.length > 200 && <p style={{ padding: '6px 0', fontSize: '15px', opacity: 0.7 }}>Showing first 200 of {donations.length}.</p>}
+                  {donations.length > 200 && <p style={{ padding: '6px 0', fontSize: '15px' }}>Showing first 200 of {donations.length}.</p>}
                 </details>
               )}
 
-              <p style={{ marginTop: '8px', fontSize: '15px', opacity: 0.6, lineHeight: 1.55 }}>
+              <p style={{ marginTop: '8px', fontSize: '15px', lineHeight: 1.55 }}>
                 Cash and in kind combined: {fmtMoney(cashTotal)} cash, {fmtMoney(nonCashTotal)} in kind.
               </p>
 
@@ -2326,14 +2326,14 @@ export default function MagazineProfileSections({
           return (
             <>
               <h2 style={sectionH2}>Ministerial diary</h2>
-              <p style={{ marginBottom: '16px', fontSize: '15px', opacity: 0.7, lineHeight: 1.6 }}>
+              <p style={{ marginBottom: '16px', fontSize: '15px', lineHeight: 1.6 }}>
                 Meetings and hospitality recorded by the relevant government department under the ministerial transparency regime. Published quarterly with a 2 to 3 month lag. Backbench engagements and constituency surgeries are not included.
               </p>
 
               {meetings.length > 0 && (
                 <section style={{ marginBottom: '24px' }}>
-                  <h3 style={sectionH3}>Meetings <span style={{ opacity: 0.55, fontWeight: 'normal', fontSize: '15px' }}>({meetings.length.toLocaleString()})</span></h3>
-                  <p style={{ fontSize: '15px', opacity: 0.7, marginBottom: '8px' }}>Distinct organisations met: {topOrgs.length.toLocaleString()}.</p>
+                  <h3 style={sectionH3}>Meetings <span style={{ fontWeight: 'normal', fontSize: '15px' }}>({meetings.length.toLocaleString()})</span></h3>
+                  <p style={{ fontSize: '15px', marginBottom: '8px' }}>Distinct organisations met: {topOrgs.length.toLocaleString()}.</p>
                   <details style={{ marginBottom: '8px' }}>
                     <summary style={{ cursor: 'pointer', fontFamily: 'var(--font-special-elite), monospace', fontWeight: 'bold', fontSize: '15px', padding: '6px 0' }}>
                       Top organisations by meeting count
@@ -2366,19 +2366,19 @@ export default function MagazineProfileSections({
                         <li key={m.id} style={{ padding: '5px 0', borderBottom: '1px dashed rgba(20,16,13,0.15)' }}>
                           <span style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>{m.meeting_date ? new Date(m.meeting_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ', '}</span>
                           {' · '}{m.organisation || '(unspecified)'}
-                          {m.purpose && <div style={{ fontSize: '15px', opacity: 0.75, marginLeft: '8px' }}>{m.purpose}</div>}
+                          {m.purpose && <div style={{ fontSize: '15px', marginLeft: '8px' }}>{m.purpose}</div>}
                         </li>
                       ))}
                     </ul>
-                    {meetings.length > 300 && <p style={{ padding: '4px 0', fontSize: '15px', opacity: 0.7 }}>Showing first 300 of {meetings.length}.</p>}
+                    {meetings.length > 300 && <p style={{ padding: '4px 0', fontSize: '15px' }}>Showing first 300 of {meetings.length}.</p>}
                   </details>
                 </section>
               )}
 
               {hospitality.length > 0 && (
                 <section style={{ marginBottom: '24px' }}>
-                  <h3 style={sectionH3}>Hospitality received <span style={{ opacity: 0.55, fontWeight: 'normal', fontSize: '15px' }}>({hospitality.length.toLocaleString()})</span></h3>
-                  <p style={{ fontSize: '15px', opacity: 0.7, marginBottom: '8px' }}>
+                  <h3 style={sectionH3}>Hospitality received <span style={{ fontWeight: 'normal', fontSize: '15px' }}>({hospitality.length.toLocaleString()})</span></h3>
+                  <p style={{ fontSize: '15px', marginBottom: '8px' }}>
                     Recorded value where stated: {fmtMoney(hospitalityCashTotal)} across {topDonors.length.toLocaleString()} distinct providers.
                   </p>
                   <details>
@@ -2425,12 +2425,12 @@ export default function MagazineProfileSections({
           return (
           <>
             <h2 style={sectionH2}>Expenses</h2>
-            <p style={{ marginBottom: '8px', fontSize: '15px', opacity: 0.85 }}>Annual IPSA totals with category breakdown. Click a year to drill into individual claims.</p>
-            <p style={{ marginBottom: '16px', fontSize: '15px', opacity: 0.6, lineHeight: 1.55 }}>
+            <p style={{ marginBottom: '8px', fontSize: '15px' }}>Annual IPSA totals with category breakdown. Click a year to drill into individual claims.</p>
+            <p style={{ marginBottom: '16px', fontSize: '15px', lineHeight: 1.55 }}>
               The IPSA financial year runs 1 April to 31 March. Annual totals are published a few months after each year ends; individual claims are released quarterly with a two to three month lag, so the most recent months in any year are typically still filling in.
             </p>
             {expenseClaims === null && !expenseClaimsFailed && (
-              <p style={{ marginBottom: '16px', fontSize: '15px', opacity: 0.7 }}>Loading the individual claims…</p>
+              <p style={{ marginBottom: '16px', fontSize: '15px' }}>Loading the individual claims…</p>
             )}
             {expenseClaimsFailed && (
               <p style={{ marginBottom: '16px', fontSize: '15px' }}>The individual claims could not be loaded. The yearly totals below are complete.</p>
@@ -2462,11 +2462,11 @@ export default function MagazineProfileSections({
                           {' · '}{c.category || '?'}
                           {(c.short_description || c.cost_type) && <> · {c.short_description || c.cost_type}</>}
                           {', '}<strong>{fmtMoney(Number(c.amount_not_paid))}</strong>
-                          {c.reason_if_not_paid && <span style={{ opacity: 0.8 }}> · {c.reason_if_not_paid}</span>}
+                          {c.reason_if_not_paid && <span > · {c.reason_if_not_paid}</span>}
                         </li>
                       ))}
                     </ul>
-                    {refused.length > 50 && <p style={{ opacity: 0.7, padding: '4px 0' }}>Showing 50 of {refused.length}.</p>}
+                    {refused.length > 50 && <p style={{ padding: '4px 0' }}>Showing 50 of {refused.length}.</p>}
                   </details>
                 )}
                 {repaid.length > 0 && (
@@ -2482,7 +2482,7 @@ export default function MagazineProfileSections({
                         </li>
                       ))}
                     </ul>
-                    {repaid.length > 50 && <p style={{ opacity: 0.7, padding: '4px 0' }}>Showing 50 of {repaid.length}.</p>}
+                    {repaid.length > 50 && <p style={{ padding: '4px 0' }}>Showing 50 of {repaid.length}.</p>}
                   </details>
                 )}
               </section>
@@ -2545,7 +2545,7 @@ export default function MagazineProfileSections({
                         <tr id={detailId} hidden={!expanded}>
                           {expanded && (
                           <td colSpan={breakdownLabels.length + 2} style={{ padding: '0 3px 8px', background: 'rgba(122,22,18,0.04)' }}>
-                            <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.06em', padding: '6px 0', opacity: 0.8 }}>
+                            <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.06em', padding: '6px 0' }}>
                               {yearClaims.length} claims in {fmtExpenseYear(e.year)}
                             </div>
                             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px', tableLayout: 'auto' }}>
@@ -2565,7 +2565,6 @@ export default function MagazineProfileSections({
                                   const paid = Number(c.amount_paid) || 0;
                                   const notPaid = Number(c.amount_not_paid) || 0;
                                   const repaid = Number(c.amount_repaid) || 0;
-                                  const hasGap = claimed !== paid;
                                   // Compose description: short_description + cost_type when both exist,
                                   // plus travel route when the row is a travel claim.
                                   const route = (c.journey_from || c.journey_to)
@@ -2584,10 +2583,10 @@ export default function MagazineProfileSections({
                                       <td style={{ padding: '3px 3px' }}>{desc}</td>
                                       <td style={{ padding: '3px 3px', color: statusColor }}>
                                         {statusLabel}
-                                        {notPaid > 0 && <span style={{ display: 'block', fontSize: '15px', opacity: 0.85 }}>refused {fmtMoney(notPaid)}{c.reason_if_not_paid ? ` · ${c.reason_if_not_paid}` : ''}</span>}
-                                        {repaid > 0 && <span style={{ display: 'block', fontSize: '15px', opacity: 0.85 }}>repaid {fmtMoney(repaid)}</span>}
+                                        {notPaid > 0 && <span style={{ display: 'block', fontSize: '15px' }}>refused {fmtMoney(notPaid)}{c.reason_if_not_paid ? ` · ${c.reason_if_not_paid}` : ''}</span>}
+                                        {repaid > 0 && <span style={{ display: 'block', fontSize: '15px' }}>repaid {fmtMoney(repaid)}</span>}
                                       </td>
-                                      <td style={{ padding: '3px 3px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap', opacity: hasGap ? 1 : 0.7 }}>{fmtMoney(claimed)}</td>
+                                      <td style={{ padding: '3px 3px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap' }}>{fmtMoney(claimed)}</td>
                                       <td style={{ padding: '3px 3px', fontFamily: 'monospace', textAlign: 'right', whiteSpace: 'nowrap' }}>{fmtMoney(paid)}</td>
                                     </tr>
                                   );
@@ -2595,7 +2594,7 @@ export default function MagazineProfileSections({
                               </tbody>
                             </table>
                             {yearClaims.length > 200 && (
-                              <div style={{ padding: '6px 3px', fontSize: '15px', opacity: 0.7 }}>Showing first 200 of {yearClaims.length} claims.</div>
+                              <div style={{ padding: '6px 3px', fontSize: '15px' }}>Showing first 200 of {yearClaims.length} claims.</div>
                             )}
                           </td>
                           )}
@@ -2626,7 +2625,7 @@ export function MpReportList({ items }: { items: MpReports['items'] }) {
       {items.map((r) => (
         <li key={r.href} style={{ padding: '10px 0', borderBottom: inkDivider }}>
           <Link href={r.href} style={{ ...inkLink, fontWeight: 'bold' }}>{r.headline}</Link>
-          <div style={{ fontFamily: 'monospace', fontSize: '15px', opacity: 0.75, margin: '2px 0 4px' }}>{r.date} · {r.readingLabel}</div>
+          <div style={{ fontFamily: 'monospace', fontSize: '15px', margin: '2px 0 4px' }}>{r.date} · {r.readingLabel}</div>
           {r.summary && <p style={{ margin: 0 }}>{r.summary}</p>}
         </li>
       ))}
@@ -2653,9 +2652,9 @@ function ActivityTile({ label, value, sub, href, hrefLabel, external }: { label:
   return (
     <div style={{ border: "1px solid rgba(20,16,13,0.25)", padding: "10px 12px", background: "rgba(255,255,255,0.04)", display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
       <div>
-        <div style={{ fontSize: "15px", textTransform: "uppercase", letterSpacing: "0.18em", opacity: 0.7, marginBottom: "4px" }}>{label}</div>
+        <div style={{ fontSize: "15px", textTransform: "uppercase", letterSpacing: "0.18em", marginBottom: "4px" }}>{label}</div>
         <div style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: "22px", fontWeight: "bold", color: "#14100d" }}>{value}</div>
-        <div style={{ fontSize: "15px", opacity: 0.65, marginTop: "4px", lineHeight: 1.3 }}>{sub}</div>
+        <div style={{ fontSize: "15px", marginTop: "4px", lineHeight: 1.3 }}>{sub}</div>
       </div>
       {href && (
         <div style={{ marginTop: '8px', fontSize: '15px' }}>
@@ -2690,7 +2689,7 @@ function DonationDetail({ d, crn }: { d: Donation; crn: string }) {
   const fmtDate = (v: string | null | undefined) => (v ? new Date(v).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ', ');
   const Row = ({ label, value }: { label: string; value: React.ReactNode }) => (
     <>
-      <dt style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.6, padding: '2px 8px 2px 0' }}>{label}</dt>
+      <dt style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '2px 8px 2px 0' }}>{label}</dt>
       <dd style={{ fontSize: '15px', margin: 0, padding: '2px 0', wordBreak: 'break-word' }}>{value}</dd>
     </>
   );

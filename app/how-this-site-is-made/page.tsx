@@ -39,7 +39,7 @@ export default function HowThisSiteIsMadePage() {
           Every factual claim is checked against a named public record before publication. Mistakes happen. When they&rsquo;re found, they&rsquo;re corrected and the correction is logged.
         </p>
         <p style={{ fontFamily: MONO, fontSize: '16px', lineHeight: 1.8, color: INK, margin: 0 }}>
-          Contact: <a href="mailto:contact@opengovt.uk" style={{ color: '#6b2417', textDecoration: 'underline' }}>contact@opengovt.uk</a>
+          Contact: <a href="mailto:contact@opengovt.uk" style={{ color: '#7a1612', textDecoration: 'underline' }}>contact@opengovt.uk</a>
         </p>
       </article>
     </OpenGovShell>

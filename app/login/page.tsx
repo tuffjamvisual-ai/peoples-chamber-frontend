@@ -25,7 +25,7 @@ export default function LoginPage() {
         <h1 style={{ fontSize: 'clamp(26px, 3.6vw, 42px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '10px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
           Your Account
         </h1>
-        <p style={{ fontSize: '15px', lineHeight: 1.6, opacity: 0.78, maxWidth: '440px', margin: '0 auto' }}>
+        <p style={{ fontSize: '15px', lineHeight: 1.6, maxWidth: '440px', margin: '0 auto' }}>
           Sign in or create an account to follow MPs, track bills and have your say in the People&apos;s Polls.
         </p>
       </header>

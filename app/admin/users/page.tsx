@@ -46,7 +46,7 @@ export default async function AdminUsersPage() {
   return (
     <div style={{ fontFamily: 'system-ui, sans-serif', padding: '2rem', maxWidth: '1100px', margin: '0 auto' }}>
       <h1 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>User activity</h1>
-      <p style={{ color: '#555', marginBottom: '1.5rem' }}>
+      <p style={{ color: '#14100d', marginBottom: '1.5rem' }}>
         Total: <strong>{total}</strong> &nbsp;|&nbsp; Active (last 15 min): <strong>{active}</strong>
       </p>
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
@@ -62,7 +62,7 @@ export default async function AdminUsersPage() {
             <tr key={r.id} style={{ borderBottom: '1px solid #eee' }}>
               <td style={{ padding: '6px 12px', color: '#aaa' }}>{r.id}</td>
               <td style={{ padding: '6px 12px' }}>{r.username}</td>
-              <td style={{ padding: '6px 12px', color: '#666' }}>{r.domain}</td>
+              <td style={{ padding: '6px 12px', color: '#14100d' }}>{r.domain}</td>
               <td style={{ padding: '6px 12px', color: '#aaa' }}>{r.created}</td>
               <td style={{ padding: '6px 12px' }}>{r.lastSeen}</td>
             </tr>

@@ -121,7 +121,7 @@ export default async function CouncilEhcpSection({
         must get; the council should issue one within 20 weeks of a request. All three figures leave out exceptions: cases
         where the law allows longer, such as a school being closed for the holidays or a family&rsquo;s exceptional circumstances.
       </p>
-      <p style={{ fontFamily: MONO, fontSize: '13px', lineHeight: 1.6, color: INK, margin: 0, opacity: 0.85 }}>
+      <p style={{ fontFamily: MONO, fontSize: '13px', lineHeight: 1.6, color: INK, margin: 0 }}>
         Source: <a href={SOURCE_URL} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>DfE, Education, health and care plans, 2026 release</a>{' '}
         (calendar years). Contains public sector information licensed under the Open Government Licence v3.0.
       </p>

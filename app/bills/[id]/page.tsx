@@ -228,14 +228,14 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
       <article
         style={{
           padding: 0,
-          color: '#1a140e',
+          color: '#14100d',
           fontFamily: 'var(--font-special-elite), monospace',
         }}
       >
       <header
         style={{
           marginBottom: '32px',
-          color: '#1a140e',
+          color: '#14100d',
           fontFamily: 'var(--font-special-elite), monospace',
         }}
       >
@@ -474,7 +474,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
 
             {democraticGap !== null && (
               <div style={{ borderLeft: `3px solid ${outcomeMismatch ? WARN : ACCENT}`, padding: '12px 18px', background: CREAM_DEEP }}>
-                <div style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.22em', fontWeight: 'bold', color: outcomeMismatch ? WARN : ACCENT, marginBottom: '5px' }}>
+                <div style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.22em', fontWeight: 'bold', color: ACCENT, marginBottom: '5px' }}>
                   Gap between site voters and MPs
                 </div>
                 <p style={{ fontFamily: SERIF, fontSize: '16px', fontWeight: 'bold', lineHeight: 1.4, margin: 0 }}>
@@ -539,7 +539,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingTop: '14px', borderTop: `1px solid ${INK_HAIRLINE}` }}>
                 <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: SUCCESS, flexShrink: 0 }} />
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <span style={{ fontFamily: MONO, fontSize: '15px', fontWeight: 'bold', color: SUCCESS, textTransform: 'uppercase', letterSpacing: '0.14em' }}>Royal Assent</span>
+                  <span style={{ fontFamily: MONO, fontSize: '15px', fontWeight: 'bold', color: INK, textTransform: 'uppercase', letterSpacing: '0.14em' }}>Royal Assent</span>
                   {royalAssent.stageSittings[0]?.date && (
                     <span style={{ fontFamily: MONO, fontSize: '15px', color: INK_SOFT }}>{fmtDate(royalAssent.stageSittings[0].date)}</span>
                   )}
@@ -698,7 +698,7 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
 
 function Tag({ colour, children }: { colour: string; children: React.ReactNode }) {
   return (
-    <span style={{ display: 'inline-block', padding: '4px 10px', fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.13em', color: colour, border: `1px solid ${colour}`, background: 'transparent' }}>
+    <span style={{ display: 'inline-block', padding: '4px 10px', fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.13em', color: colour === ACCENT ? ACCENT : INK, border: `1px solid ${colour}`, background: 'transparent' }}>
       {children}
     </span>
   )
@@ -707,13 +707,13 @@ function Tag({ colour, children }: { colour: string; children: React.ReactNode }
 function ExplainerColumn({ label, colour, points }: { label: string; colour: string; points: string[] }) {
   return (
     <div style={{ borderLeft: `3px solid ${colour}`, padding: '14px 18px', background: CREAM_DEEP }}>
-      <p style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', fontWeight: 'bold', color: colour, marginBottom: '12px' }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', fontWeight: 'bold', color: colour === ACCENT ? ACCENT : INK, marginBottom: '12px' }}>
         {label}
       </p>
       <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {points.map((point, i) => (
           <li key={i} style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, display: 'flex', gap: '8px' }}>
-            <span style={{ color: colour, flexShrink: 0, fontWeight: 'bold' }}>, </span>
+            <span style={{ color: colour === ACCENT ? ACCENT : INK, flexShrink: 0, fontWeight: 'bold' }}>, </span>
             <span>{point.replace(/^[--]\s*/, '')}</span>
           </li>
         ))}
@@ -762,8 +762,8 @@ function VoteBar({
         </div>
       ) : (
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px', fontFamily: MONO, fontSize: '15px' }}>
-          <span style={{ color: SUCCESS, fontWeight: 'bold' }}>{yesText}</span>
-          <span style={{ color: DANGER, fontWeight: 'bold' }}>{noText}</span>
+          <span style={{ color: INK, fontWeight: 'bold' }}>{yesText}</span>
+          <span style={{ color: INK, fontWeight: 'bold' }}>{noText}</span>
         </div>
       )}
     </div>
@@ -773,7 +773,7 @@ function VoteBar({
 function StageGroup({ label, colour, stages }: { label: string; colour: string; stages: Stage[] }) {
   return (
     <div>
-      <p style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.22em', fontWeight: 'bold', marginBottom: '12px', color: colour }}>
+      <p style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.22em', fontWeight: 'bold', marginBottom: '12px', color: colour === ACCENT ? ACCENT : INK }}>
         {label}
       </p>
       <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>

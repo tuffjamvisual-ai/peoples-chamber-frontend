@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 const INK = '#14100d';
 const INK_SOFT = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.3)';
-const ACCENT = '#6b2417';
+const ACCENT = '#7a1612';
 const CREAM = '#ebe5d8';
 const PHOTO_SRC = '/link-cards/hero_illustration_1779025435.png';
 

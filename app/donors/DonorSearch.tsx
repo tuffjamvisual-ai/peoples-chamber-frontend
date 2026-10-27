@@ -79,7 +79,7 @@ export default function DonorSearch() {
         onChange={(e) => setQ(e.target.value)}
         style={field}
       />
-      <p style={{ fontSize: '14px', margin: '6px 0 0', opacity: 0.75 }}>
+      <p style={{ fontSize: '14px', margin: '6px 0 0' }}>
         Searches every donor name in the Electoral Commission register held here, not only the 200 listed below.
       </p>
 
@@ -95,7 +95,7 @@ export default function DonorSearch() {
       )}
       {shown.status === 'done' && shown.results.length > 0 && (
         <div style={{ marginTop: '14px' }}>
-          <p aria-live="polite" style={{ fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.12em', opacity: 0.75, margin: '0 0 8px' }}>
+          <p aria-live="polite" style={{ fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.12em', margin: '0 0 8px' }}>
             {shown.totalNames.toLocaleString('en-GB')} donor name{shown.totalNames === 1 ? '' : 's'} matching &ldquo;{shown.term}&rdquo;{shown.more ? `, showing the ${shown.results.length} with the most records` : ''}
           </p>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, borderTop: `1px solid ${HAIRLINE}` }}>
@@ -104,11 +104,11 @@ export default function DonorSearch() {
                 {r.slug
                   ? <Link href={`/donors/${r.slug}`} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold', minWidth: 0, overflowWrap: 'anywhere' }}>{r.name}</Link>
                   : <span style={{ fontWeight: 'bold', minWidth: 0, overflowWrap: 'anywhere' }}>{r.name}</span>}
-                <span style={{ whiteSpace: 'nowrap', opacity: 0.8 }}>{r.records.toLocaleString('en-GB')} record{r.records === 1 ? '' : 's'}</span>
+                <span style={{ whiteSpace: 'nowrap' }}>{r.records.toLocaleString('en-GB')} record{r.records === 1 ? '' : 's'}</span>
               </li>
             ))}
           </ul>
-          {shown.more && <p style={{ fontSize: '14px', marginTop: '8px', opacity: 0.75 }}>Showing the names with the most records. Add a word to narrow the search.</p>}
+          {shown.more && <p style={{ fontSize: '14px', marginTop: '8px' }}>Showing the names with the most records. Add a word to narrow the search.</p>}
         </div>
       )}
     </section>

@@ -153,7 +153,6 @@ export default function MpDossier({
                 borderRadius: '6px',
                 padding: '2px 10px 0',
                 color: '#7a1612',
-                opacity: 0.85,
                 fontFamily: "var(--font-bebas), 'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
                 fontWeight: 400,
                 fontSize: '40px',
@@ -185,7 +184,7 @@ export default function MpDossier({
               <span style={{ display: 'inline-block', width: '0.7em', height: '0.7em', borderRadius: '50%', background: partyColour, marginRight: '0.4em', verticalAlign: 'middle' }} />
               {partyDisplay}
               {partyIsCoop && (
-                <span style={{ fontSize: '0.55em', marginLeft: '0.5em', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.08em', verticalAlign: 'middle' }}>(Lab &amp; Co-op)</span>
+                <span style={{ fontSize: '0.55em', marginLeft: '0.5em', textTransform: 'uppercase', letterSpacing: '0.08em', verticalAlign: 'middle' }}>(Lab &amp; Co-op)</span>
               )}
             </div>
           )}

@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 const INK = '#14100d';
 const INK_SOFT = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
-const ACCENT = '#6b2417';
+const ACCENT = '#7a1612';
 const SERIF = 'var(--font-special-elite), monospace';
 const MONO = 'var(--font-special-elite), monospace';
 
@@ -43,7 +43,7 @@ export default async function SecondJobsLanding() {
       <article
         style={{
           padding: 'clamp(8px, 2vw, 24px) 0',
-          color: '#1a140e',
+          color: '#14100d',
           fontFamily: SERIF,
         }}
       >
@@ -144,7 +144,7 @@ export default async function SecondJobsLanding() {
                 {p.mps} MP{p.mps === 1 ? '' : 's'}
               </div>
               <div style={{ fontFamily: SERIF, fontSize: 'clamp(18px, 2vw, 22px)', fontWeight: 600, marginBottom: '6px', lineHeight: 1.2 }}>
-                {p.label} <span style={{ opacity: 0.55 }}>→</span>
+                {p.label} <span >→</span>
               </div>
               <div style={{ fontFamily: SERIF, fontSize: 'clamp(20px, 2.2vw, 26px)', fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: INK }}>
                 {fmtMoney(p.total)}

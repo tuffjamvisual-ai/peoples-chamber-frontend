@@ -23,7 +23,8 @@ const pageBtn = (disabled: boolean): CSSProperties => ({
   fontSize: '15px',
   letterSpacing: '0.06em',
   cursor: disabled ? 'default' : 'pointer',
-  opacity: disabled ? 0.3 : 1,
+  textDecoration: disabled ? 'line-through' : 'none', // black ink rule: struck through when unavailable, never greyed
+  borderStyle: disabled ? 'dashed' : 'solid',
 });
 
 type Props = {
@@ -195,7 +196,7 @@ export default function BillsGrid({ initialBills, currentPage, totalPages, total
       />
 
       {/* The one count on the page (23 Oct 2026): the page's place in the list, or the search's matches. */}
-      <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', color: '#14100d', opacity: 0.7, marginBottom: '16px' }}>
+      <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', color: '#14100d', marginBottom: '16px' }}>
         {searching
           ? 'Searching…'
           : searchResults

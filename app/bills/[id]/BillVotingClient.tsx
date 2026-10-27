@@ -102,8 +102,8 @@ export default function BillVotingClient({ billId, closed: closedAtRender = fals
 
   return (
     <div style={{ maxWidth: '440px', margin: '0 auto' }}>
-      <BallotRow label="Aye" sub="I support this bill" marked={userVote === 'yes'} dim={hasVoted && userVote !== 'yes'} disabled={voting || (closed && hasVoted)} onClick={() => handleVote('yes')} />
-      <BallotRow label="No" sub="I oppose this bill" marked={userVote === 'no'} dim={hasVoted && userVote !== 'no'} disabled={voting || (closed && hasVoted)} onClick={() => handleVote('no')} last />
+      <BallotRow label="Aye" sub="I support this bill" marked={userVote === 'yes'} disabled={voting || (closed && hasVoted)} onClick={() => handleVote('yes')} />
+      <BallotRow label="No" sub="I oppose this bill" marked={userVote === 'no'} disabled={voting || (closed && hasVoted)} onClick={() => handleVote('no')} last />
 
       <div role="status" style={{ textAlign: 'center', marginTop: '14px', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.06em', color: INK_SOFT }}>
         {status}
@@ -122,7 +122,6 @@ function BallotRow({
   label,
   sub,
   marked,
-  dim,
   disabled,
   onClick,
   last = false,
@@ -130,7 +129,6 @@ function BallotRow({
   label: string
   sub: string
   marked: boolean
-  dim: boolean
   disabled: boolean
   onClick: () => void
   last?: boolean
@@ -152,7 +150,6 @@ function BallotRow({
         padding: '12px 4px',
         cursor: disabled ? 'default' : 'pointer',
         textAlign: 'left',
-        opacity: dim ? 0.45 : 1,
       }}
     >
       <span style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>

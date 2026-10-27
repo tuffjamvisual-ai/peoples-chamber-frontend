@@ -52,7 +52,7 @@ export default function ContactPage() {
     <OpenGovShell pageStamp="Contact">
       <style>{`
         .c-card h2 { transition: color 150ms ease; }
-        .c-card:hover h2 { color: #6b2417; text-decoration: underline; text-underline-offset: 3px; }
+        .c-card:hover h2 { color: #7a1612; text-decoration: underline; text-underline-offset: 3px; }
       `}</style>
 
       <BackLink
@@ -73,7 +73,7 @@ export default function ContactPage() {
           <a
             href={`mailto:${EMAIL}`}
             className="no-hover-scale"
-            style={{ fontSize: 'clamp(20px, 2.6vw, 30px)', fontWeight: 'bold', color: '#6b2417', textDecoration: 'none', letterSpacing: '0.01em' }}
+            style={{ fontSize: 'clamp(20px, 2.6vw, 30px)', fontWeight: 'bold', color: '#7a1612', textDecoration: 'none', letterSpacing: '0.01em' }}
           >
             {EMAIL}
           </a>
@@ -93,9 +93,9 @@ export default function ContactPage() {
                 style={{ display: 'block', padding: '14px 0 18px', borderTop: '1px solid rgba(20,16,13,0.25)', color: INK, textDecoration: 'none' }}
               >
                 <h2 style={{ fontSize: '21px', fontWeight: 'bold', marginBottom: '6px', lineHeight: 1.15 }}>
-                  {c.label} <span style={{ opacity: 0.55 }}>→</span>
+                  {c.label} <span >→</span>
                 </h2>
-                <p style={{ fontSize: '15px', lineHeight: 1.6, opacity: 0.85 }}>{c.body}</p>
+                <p style={{ fontSize: '15px', lineHeight: 1.6 }}>{c.body}</p>
               </a>
             ))}
           </div>
@@ -104,12 +104,12 @@ export default function ContactPage() {
 
       <p style={{ fontSize: '15px', lineHeight: 1.7, marginTop: '4%' }}>
         Looking for help or answers to common questions? Visit our{' '}
-        <Link href="/support" className="no-hover-scale" style={{ color: '#6b2417', fontWeight: 'bold', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
+        <Link href="/support" className="no-hover-scale" style={{ color: '#7a1612', fontWeight: 'bold', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
           Support page
         </Link>.
       </p>
 
-      <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '5%', opacity: 0.6 }}>
+      <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '5%' }}>
         We aim to reply within a few working days.
       </p>
     </OpenGovShell>

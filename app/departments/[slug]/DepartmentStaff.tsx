@@ -106,7 +106,7 @@ function StaffGroup({
     <div className="mb-5">
       <p className="text-[15px] uppercase tracking-[0.2em] text-[#14100d] mb-1.5 font-semibold">{label}</p>
       {eyebrow && (
-        <p className="text-[#14100d] text-[15px] mb-2 italic" style={{ opacity: 0.75 }}>
+        <p className="text-[#14100d] text-[15px] mb-2 italic" >
           {eyebrow}
         </p>
       )}

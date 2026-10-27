@@ -20,7 +20,7 @@ export async function generateStaticParams() {
 }
 
 const INK = '#14100d';
-const ACCENT = '#6b2417';
+const ACCENT = '#7a1612';
 const MONO = 'var(--font-special-elite), monospace';
 
 const PARTY_COLOURS: Record<string, string> = {
@@ -160,7 +160,7 @@ export default async function CommitteeProfilePage({ params }: Props) {
           {committee.name}
         </h1>
         {committee.start_date && (
-          <p className="mt-2 text-sm" style={{ color: `${INK}88`, fontFamily: MONO }}>
+          <p className="mt-2 text-sm" style={{ color: INK, fontFamily: MONO }}>
             Established {formatYear(committee.start_date)}
             {committee.end_date ? ` · Dissolved ${formatYear(committee.end_date)}` : ''}
           </p>
@@ -170,7 +170,7 @@ export default async function CommitteeProfilePage({ params }: Props) {
       {purposeHtml && (
         <div
           className="mb-10 text-sm leading-relaxed pl-4 border-l-2 prose-p:mb-3"
-          style={{ borderColor: ACCENT, color: `${INK}cc` }}
+          style={{ borderColor: ACCENT, color: INK }}
           dangerouslySetInnerHTML={{ __html: purposeHtml }}
         />
       )}
@@ -185,7 +185,7 @@ export default async function CommitteeProfilePage({ params }: Props) {
         </h2>
 
         {sortedCurrent.length === 0 ? (
-          <p className="text-sm" style={{ color: `${INK}88` }}>No current members on record.</p>
+          <p className="text-sm" style={{ color: INK }}>No current members on record.</p>
         ) : (
           <div className="divide-y" style={{ borderColor: `${INK}18` }}>
             {sortedCurrent.map((m) => {
@@ -207,7 +207,7 @@ export default async function CommitteeProfilePage({ params }: Props) {
                         Member {m.member_id}
                       </span>
                     )}
-                    <span className="text-[14px] ml-2" style={{ color: `${INK}88`, fontFamily: MONO }}>
+                    <span className="text-[14px] ml-2" style={{ color: INK, fontFamily: MONO }}>
                       {mp?.party ?? ''}
                       {mp?.constituency ? ` · ${mp.constituency}` : ''}
                       {m.role === 'Chair' ? ' · Chair' : ''}
@@ -225,17 +225,17 @@ export default async function CommitteeProfilePage({ params }: Props) {
         <section className="mb-8">
           <h2
             className="text-[14px] uppercase tracking-[0.25em] mb-3 pb-2 border-b"
-            style={{ color: `${INK}66`, fontFamily: MONO, borderColor: `${INK}18` }}
+            style={{ color: INK, fontFamily: MONO, borderColor: `${INK}18` }}
           >
             Former members
           </h2>
-          <p className="text-sm" style={{ color: `${INK}88` }}>
+          <p className="text-sm" style={{ color: INK }}>
             {formerMemberships.length} former member{formerMemberships.length !== 1 ? 's' : ''} on record.
           </p>
         </section>
       )}
 
-      <p className="text-[14px] mt-6" style={{ color: `${INK}55`, fontFamily: MONO }}>
+      <p className="text-[14px] mt-6" style={{ color: INK, fontFamily: MONO }}>
         Source: UK Parliament members and committees APIs. Updated nightly.
       </p>
       <ParliamentSourceCredit marginTop="6px" />

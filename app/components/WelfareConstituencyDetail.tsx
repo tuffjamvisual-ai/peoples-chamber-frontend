@@ -248,7 +248,7 @@ export default function WelfareConstituencyDetail({ gss }: { gss: string }) {
   return (
     <article
       style={{
-        color: '#1a140e',
+        color: '#14100d',
         fontFamily: SERIF,
       }}
     >

@@ -321,7 +321,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
       <article
         style={{
           padding: 'clamp(8px, 2vw, 24px) 0',
-          color: '#1a140e',
+          color: '#14100d',
           fontFamily: SERIF,
         }}
       >
@@ -378,7 +378,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
               )}
               {/* Descriptions are the lead of the council's Wikipedia article (CC BY-SA 4.0), so it is credited. */}
               {c.description && c.wikipedia_url && (
-                <p style={{ fontFamily: MONO, fontSize: '13px', lineHeight: 1.6, margin: '-20px auto 28px', maxWidth: '46em', color: INK_SOFT, opacity: 0.8 }}>
+                <p style={{ fontFamily: MONO, fontSize: '13px', lineHeight: 1.6, margin: '-20px auto 28px', maxWidth: '46em', color: INK_SOFT }}>
                   From <a href={c.wikipedia_url} target="_blank" rel="noopener noreferrer" style={{ color: INK_SOFT, textDecoration: 'underline' }}>Wikipedia</a>,
                   {' '}under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer" style={{ color: INK_SOFT, textDecoration: 'underline' }}>CC BY-SA 4.0</a>.
                 </p>

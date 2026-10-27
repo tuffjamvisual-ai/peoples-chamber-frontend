@@ -211,7 +211,7 @@ export default function LoginClient() {
           <div className="mt-4 text-center">
             <button
               onClick={() => setMode('forgot')}
-              className="text-sm text-white hover:text-white opacity-80 hover:opacity-100"
+              className="text-sm text-white hover:text-white  hover:opacity-100"
             >
               Forgot password?
             </button>

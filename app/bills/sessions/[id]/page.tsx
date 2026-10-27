@@ -61,7 +61,7 @@ export default async function BillSessionPage({ params }: Props) {
       <BackLink fallbackHref="/bills/sessions" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ marginBottom: '28px' }}>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', opacity: 0.7, marginBottom: '8px' }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '8px' }}>
           <Link href="/bills/sessions" style={{ color: INK }}>Bills by session</Link>
           {session.parliament_number && session.session_number ? <> · Parliament {session.parliament_number}, session {session.session_number}</> : null}
         </p>
@@ -83,9 +83,9 @@ export default async function BillSessionPage({ params }: Props) {
       {SESSION_GROUPS.filter((g) => groups.has(g.key)).map((g) => (
         <section key={g.key} id={g.key} style={{ marginBottom: '32px', scrollMarginTop: '120px' }}>
           <h2 style={{ fontSize: '22px', fontWeight: 'bold', color: ACCENT, borderBottom: `1px solid ${ACCENT}`, paddingBottom: '6px', marginBottom: '6px' }}>
-            {g.heading} <span style={{ fontWeight: 'normal', color: INK, opacity: 0.7 }}>({groups.get(g.key)!.length.toLocaleString()})</span>
+            {g.heading} <span style={{ fontWeight: 'normal', color: INK }}>({groups.get(g.key)!.length.toLocaleString()})</span>
           </h2>
-          <p style={{ fontSize: '14px', opacity: 0.75, marginBottom: '8px' }}>{g.note}</p>
+          <p style={{ fontSize: '14px', marginBottom: '8px' }}>{g.note}</p>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {groups.get(g.key)!.map((b) => {
               const meta = [
@@ -100,7 +100,7 @@ export default async function BillSessionPage({ params }: Props) {
                   <Link href={`/bills/${b.bill_id}`} style={{ color: INK, fontSize: '16px', textDecoration: 'underline', textUnderlineOffset: '3px', textDecorationColor: HAIRLINE }}>
                     {b.title}
                   </Link>
-                  {meta.length > 0 && <div style={{ fontSize: '14px', opacity: 0.7, marginTop: '2px' }}>{meta.join(' · ')}</div>}
+                  {meta.length > 0 && <div style={{ fontSize: '14px', marginTop: '2px' }}>{meta.join(' · ')}</div>}
                 </li>
               );
             })}

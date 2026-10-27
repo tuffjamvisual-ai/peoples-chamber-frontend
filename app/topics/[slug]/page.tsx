@@ -245,7 +245,7 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
               const tot = yes + no || 1;
               return (
                 <div style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '12px' }}>
-                  Yes {Math.round((100 * yes) / tot)}% · No {Math.round((100 * no) / tot)}% <span style={{ opacity: 0.7 }}>({tot.toLocaleString()} votes)</span>
+                  Yes {Math.round((100 * yes) / tot)}% · No {Math.round((100 * no) / tot)}% <span >({tot.toLocaleString()} votes)</span>
                 </div>
               );
             })()}

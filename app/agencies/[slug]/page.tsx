@@ -22,7 +22,7 @@ export async function generateStaticParams() {
 }
 
 const INK = '#14100d';
-const ACCENT = '#6b2417';
+const ACCENT = '#7a1612';
 
 type Minister = { name: string; role: string; slug: string };
 type BoardMember = { name: string; role: string; slug: string };

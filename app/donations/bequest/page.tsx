@@ -79,7 +79,7 @@ export default async function BequestPage() {
       <BackLink fallbackHref="/transparency/donations" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px' }}>
           Posthumous giving · Bequests
         </p>
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
@@ -105,11 +105,11 @@ export default async function BequestPage() {
           <tbody>
             {recipientRanked.map((r, i) => (
               <tr key={r.name} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-                <td style={{ padding: '6px', opacity: 0.6 }}>{i + 1}</td>
+                <td style={{ padding: '6px' }}>{i + 1}</td>
                 <td style={{ padding: '6px' }}><strong>{r.name}</strong></td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{r.count}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(r.total).toLocaleString()}</td>
-                <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', opacity: 0.7 }}>£{Math.round(r.total / r.count).toLocaleString()}</td>
+                <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>£{Math.round(r.total / r.count).toLocaleString()}</td>
               </tr>
             ))}
           </tbody>
@@ -130,7 +130,7 @@ export default async function BequestPage() {
           <tbody>
             {donorRanked.map((r, i) => (
               <tr key={r.name} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-                <td style={{ padding: '6px', opacity: 0.6 }}>{i + 1}</td>
+                <td style={{ padding: '6px' }}>{i + 1}</td>
                 <td style={{ padding: '6px' }}>
                   {donorPageSlug(r.name) ? <Link href={`/donors/${donorPageSlug(r.name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{r.name}</Link> : <>{r.name}</>}
                 </td>

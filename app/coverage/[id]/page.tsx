@@ -20,7 +20,7 @@ export async function generateStaticParams() {
 }
 
 const INK = '#14100d'
-const ACCENT = '#6b2417'
+const ACCENT = '#7a1612'
 const SERIF = 'var(--font-special-elite), monospace'
 
 type CoverageRow = {

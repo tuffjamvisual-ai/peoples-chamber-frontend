@@ -26,10 +26,15 @@ export default function DirectoryFilter() {
       sec.hidden = inSection === 0;
       shown += inSection;
     });
-    // Letters with nothing left to show are greyed while a filter is on.
+    // A letter with nothing left to show is struck through and taken out of use while a filter is on (black ink rule:
+    // never greyed out).
     document.querySelectorAll<HTMLElement>('[data-letter-link]').forEach((a) => {
       const sec = document.querySelector<HTMLElement>(`#directory-list section[data-letter="${a.dataset.letterLink}"]`);
-      a.style.opacity = sec && !sec.hidden ? '1' : '0.35';
+      const off = !sec || sec.hidden;
+      a.style.textDecoration = off ? 'line-through' : 'none';
+      a.style.pointerEvents = off ? 'none' : '';
+      a.style.borderStyle = off ? 'dashed' : 'solid';
+      if (off) { a.setAttribute('aria-disabled', 'true'); a.setAttribute('tabindex', '-1'); } else { a.removeAttribute('aria-disabled'); a.removeAttribute('tabindex'); }
     });
     setNone(words.length > 0 && shown === 0);
   }

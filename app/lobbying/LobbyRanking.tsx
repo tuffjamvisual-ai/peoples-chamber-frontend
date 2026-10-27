@@ -20,7 +20,7 @@ export type RankingTab = { key: string; label: string; last12: RankedOrg[]; sinc
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
-const ACCENT = '#6b2417';
+const ACCENT = '#7a1612';
 const FONT = 'var(--font-special-elite), monospace';
 
 export default function LobbyRanking({ tabs, sinceLabel }: { tabs: RankingTab[]; sinceLabel: string }) {

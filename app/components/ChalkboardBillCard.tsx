@@ -244,7 +244,7 @@ export default function ChalkboardBillCard({ bill, userVote, onClick, onVote }: 
           }}
         >
           <span>✓ {yesPercent}%</span>
-          <span style={{ opacity: 0.85 }}>{total.toLocaleString()} votes</span>
+          <span >{total.toLocaleString()} votes</span>
           <span>✗ {noPercent}%</span>
         </div>
 

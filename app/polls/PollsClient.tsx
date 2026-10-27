@@ -350,10 +350,10 @@ function PollCard({
             <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.08em', color: INK_SOFT }}>{total.toLocaleString()} votes</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '5px' }}>
-            <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '20px', fontWeight: 'bold', color: SUCCESS, lineHeight: 1 }}>
+            <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '20px', fontWeight: 'bold', color: INK, lineHeight: 1 }}>
               {yesPercent}%<span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: INK_SOFT, letterSpacing: '0.12em', marginLeft: '4px' }}>AYE</span>
             </span>
-            <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '20px', fontWeight: 'bold', color: DANGER, lineHeight: 1 }}>
+            <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '20px', fontWeight: 'bold', color: INK, lineHeight: 1 }}>
               <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: INK_SOFT, letterSpacing: '0.12em', marginRight: '4px' }}>NO</span>{noPercent}%
             </span>
           </div>
@@ -543,7 +543,7 @@ function VIBallotCard({ tilt }: { tilt: number }) {
             </div>
           )}
         </div>
-        {err && <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: DANGER, margin: 0 }}>{err}</p>}
+        {err && <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: ACCENT, margin: 0 }}>{err}</p>}
         <div style={{ borderTop: `1px solid ${INK}`, paddingTop: '9px', marginTop: 'auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
             <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.2em', textTransform: 'uppercase', color: INK_SOFT }}>The count so far</span>

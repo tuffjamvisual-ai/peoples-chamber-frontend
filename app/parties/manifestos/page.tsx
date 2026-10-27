@@ -163,7 +163,7 @@ export default async function PartiesIndex() {
       <article
         style={{
           padding: 0,
-          color: '#1a140e',
+          color: '#14100d',
           fontFamily: SERIF,
         }}
       >

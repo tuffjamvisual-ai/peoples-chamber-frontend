@@ -150,15 +150,15 @@ export default function AreaSearch({ tight = false, label, placeholder }: { tigh
         </div>
         {open && councils.length > 0 && (
           <ul role="listbox" aria-label="Councils" style={{ listStyle: 'none', margin: 0, padding: '6px 0', border: '1px solid rgba(20,16,13,0.18)', borderTop: 'none', background: '#f4e8d4' }}>
-            <li style={{ fontFamily: MONO, fontSize: '13px', color: INK, opacity: 0.7, padding: '2px 14px 4px', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Councils</li>
+            <li style={{ fontFamily: MONO, fontSize: '13px', color: INK, padding: '2px 14px 4px', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Councils</li>
             {councils.map((c) => (
               <li key={c.slug}>
                 <a href={`/councils/${c.slug}`} style={{ display: 'block', padding: '6px 14px', fontFamily: MONO, fontSize: '15px', color: INK, textDecoration: 'none' }}>
-                  {c.name}{c.typeLabel ? <span style={{ opacity: 0.65 }}> · {c.typeLabel}</span> : null}
+                  {c.name}{c.typeLabel ? <span > · {c.typeLabel}</span> : null}
                 </a>
               </li>
             ))}
-            <li style={{ fontFamily: MONO, fontSize: '13px', color: INK, opacity: 0.7, padding: '6px 14px 2px' }}>Or press Enter to search for a town or village with this name</li>
+            <li style={{ fontFamily: MONO, fontSize: '13px', color: INK, padding: '6px 14px 2px' }}>Or press Enter to search for a town or village with this name</li>
           </ul>
         )}
       </form>

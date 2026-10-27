@@ -8,6 +8,7 @@ import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions';
 import { PROCEDURE_MEANING } from '@/lib/parliament-si-treaties';
 import { listSis, siYear, siDepartments, fmtDate, PER_PAGE, type SiFlag } from '@/lib/si-treaties-data';
 import ParliamentSourceCredit from '../../components/ParliamentSourceCredit';
+import Unavailable from '@/app/components/Unavailable';
 
 // Every statutory instrument laid before Parliament, newest laid first (report 81), from the statutory_instruments
 // table (UK Parliament Statutory Instruments API, loaded daily by /api/sync-statutory-instruments-treaties).
@@ -127,10 +128,10 @@ export default async function MadeWithoutAVotePage({ searchParams }: { searchPar
       {pages > 1 && (
         <nav aria-label="Pagination" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '10px', marginTop: '28px', fontFamily: MONO, fontSize: '15px' }}>
           {page > 1 ? <Link href={href(page - 1)} style={{ padding: '8px 14px', border: `1px solid ${HAIRLINE}`, color: INK, textDecoration: 'none' }}>← Previous</Link>
-            : <span style={{ padding: '8px 14px', border: `1px solid ${HAIRLINE}`, opacity: 0.35 }}>← Previous</span>}
+            : <Unavailable note="no earlier page" style={{ padding: '8px 14px', border: `1px dashed ${HAIRLINE}` }}>← Previous</Unavailable>}
           <span style={{ padding: '8px 14px', border: `1px solid ${HAIRLINE}` }}>{page} / {pages}</span>
           {page < pages ? <Link href={href(page + 1)} style={{ padding: '8px 14px', border: `1px solid ${HAIRLINE}`, color: INK, textDecoration: 'none' }}>Next →</Link>
-            : <span style={{ padding: '8px 14px', border: `1px solid ${HAIRLINE}`, opacity: 0.35 }}>Next →</span>}
+            : <Unavailable note="no later page" style={{ padding: '8px 14px', border: `1px dashed ${HAIRLINE}` }}>Next →</Unavailable>}
         </nav>
       )}
 

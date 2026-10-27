@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
 import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
+import Unavailable from '@/app/components/Unavailable';
 
 // Browsable index of Commons divisions (recorded votes), newest first. Each
 // links to the in-house division page. Data we already hold in mp_division_votes
@@ -108,13 +109,13 @@ export default async function DivisionsIndexPage({
           {pageNum > 1 ? (
             <Link href={href(pageNum - 1)} style={{ padding: '8px 14px', border: `1px solid ${HAIRLINE}`, color: INK, textDecoration: 'none' }}>← Previous</Link>
           ) : (
-            <span style={{ padding: '8px 14px', border: `1px solid ${HAIRLINE}`, opacity: 0.35 }}>← Previous</span>
+            <Unavailable note="no earlier page" style={{ padding: '8px 14px', border: `1px dashed ${HAIRLINE}` }}>← Previous</Unavailable>
           )}
           <span style={{ padding: '8px 14px', border: `1px solid ${HAIRLINE}`, background: 'rgba(122,22,18,0.06)' }}>{pageNum} / {totalPages}</span>
           {pageNum < totalPages ? (
             <Link href={href(pageNum + 1)} style={{ padding: '8px 14px', border: `1px solid ${HAIRLINE}`, color: INK, textDecoration: 'none' }}>Next →</Link>
           ) : (
-            <span style={{ padding: '8px 14px', border: `1px solid ${HAIRLINE}`, opacity: 0.35 }}>Next →</span>
+            <Unavailable note="no later page" style={{ padding: '8px 14px', border: `1px dashed ${HAIRLINE}` }}>Next →</Unavailable>
           )}
         </nav>
       )}

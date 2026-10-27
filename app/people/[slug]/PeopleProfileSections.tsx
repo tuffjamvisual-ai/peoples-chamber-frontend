@@ -229,7 +229,7 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
             <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', fontSize: '15px', lineHeight: 1.8 }}>
               {salary.scsBand && (
                 <div>
-                  <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>
+                  <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: '4px' }}>
                     Senior Civil Service grade
                   </div>
                   <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
@@ -239,7 +239,7 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
               )}
               {salary.actualPayFloor != null && salary.actualPayCeiling != null ? (
                 <div>
-                  <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>
+                  <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: '4px' }}>
                     Published pay band{salary.payPeriod ? ` (as at ${salary.payPeriod})` : ''}
                   </div>
                   <div style={{ fontSize: '22px', fontWeight: 'bold' }}>
@@ -248,16 +248,16 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
                   {salary.fte != null && (
                     <div style={{ marginTop: '10px', fontSize: '15px' }}>
                       {salary.fte >= 0.999 ? (
-                        <span style={{ opacity: 0.8 }}>Works full time (FTE 1.00)</span>
+                        <span >Works full time (FTE 1.00)</span>
                       ) : (
                         <>
                           <span style={{ fontWeight: 'bold', color: '#7a1612' }}>{salary.fte.toFixed(2)} FTE</span>
                           {', '}
-                          <span style={{ opacity: 0.85 }}>
+                          <span >
                             roughly {Math.round(salary.fte * 5)} day{Math.round(salary.fte * 5) === 1 ? '' : 's'} a week
                           </span>
                           {' · '}
-                          <span style={{ opacity: 0.75, fontStyle: 'italic' }}>
+                          <span style={{ fontStyle: 'italic' }}>
                             pay if full time ≈ £{Math.round(salary.actualPayFloor / salary.fte).toLocaleString()} to £{Math.round(salary.actualPayCeiling / salary.fte).toLocaleString()}
                           </span>
                         </>
@@ -267,13 +267,13 @@ export default function PeopleProfileSections({ paragraphs, currentRoles, pastRo
                 </div>
               ) : salary.scsBand ? (
                 <div>
-                  <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>
+                  <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: '4px' }}>
                     Cabinet Office published range for this grade
                   </div>
                   <div style={{ fontSize: '22px', fontWeight: 'bold' }}>
                     £{SCS_BAND_RANGE[salary.scsBand][0].toLocaleString()} to £{SCS_BAND_RANGE[salary.scsBand][1].toLocaleString()}
                   </div>
-                  <div style={{ fontSize: '15px', opacity: 0.7, marginTop: '6px', fontStyle: 'italic' }}>
+                  <div style={{ fontSize: '15px', marginTop: '6px', fontStyle: 'italic' }}>
                     Range from the 2025/26 Cabinet Office pay remit. Actual pay for each person is published quarterly in each department&apos;s organogram CSV.
                   </div>
                 </div>

@@ -108,7 +108,7 @@ export default function FloatingScrollDownButton() {
         borderRadius: '50%',
         border: '1px solid rgba(0,0,0,0.12)',
         background: '#ffffff',
-        color: '#1a1a1a',
+        color: '#14100d',
         boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
         display: 'flex',
         alignItems: 'center',

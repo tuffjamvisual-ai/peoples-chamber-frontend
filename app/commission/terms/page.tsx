@@ -78,7 +78,7 @@ export default function CommissionTermsPage() {
       <h2 style={h2}>Prices</h2>
       <p style={p}>If Open Govt is not VAT registered, no VAT is added.</p>
 
-      <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '36px', opacity: 0.7 }}>
+      <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '36px' }}>
         Last updated: 25 October 2026
       </p>
     </OpenGovShell>

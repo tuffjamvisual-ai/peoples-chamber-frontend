@@ -20,7 +20,8 @@ const mPageBtn = (disabled: boolean): CSSProperties => ({
   fontFamily: 'var(--font-special-elite), monospace',
   fontSize: '15px',
   cursor: disabled ? 'default' : 'pointer',
-  opacity: disabled ? 0.3 : 1,
+  textDecoration: disabled ? 'line-through' : 'none', // black ink rule: struck through when unavailable, never greyed
+  borderStyle: disabled ? 'dashed' : 'solid',
 });
 
 type Props = {
@@ -219,7 +220,7 @@ export default function BillsGridMobile({ initialBills, currentPage, totalPages,
       </div>
 
       <div className="px-4 pt-4">
-        <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', color: '#14100d', opacity: 0.7, marginBottom: '16px' }}>
+        <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', color: '#14100d', marginBottom: '16px' }}>
         {searching
           ? 'Searching…'
           : searchResults

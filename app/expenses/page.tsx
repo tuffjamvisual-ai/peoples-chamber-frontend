@@ -58,7 +58,7 @@ A transparent system is one that ordinary people can understand without speciali
 const INK = '#14100d';
 const INK_SOFT = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
-const ACCENT = '#6b2417';
+const ACCENT = '#7a1612';
 
 function fmtMoney(v: number | string | null | undefined): string {
   if (v === null || v === undefined || v === '') return '£0';

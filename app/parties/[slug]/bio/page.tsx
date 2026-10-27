@@ -163,7 +163,6 @@ export default async function PartyBio({ params }: { params: Promise<{ slug: str
               style={{
                 fontFamily: 'var(--font-special-elite), monospace',
                 fontSize: '16px',
-                opacity: 0.7,
                 marginBottom: '40px',
               }}
             >

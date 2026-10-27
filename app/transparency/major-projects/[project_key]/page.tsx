@@ -54,7 +54,7 @@ export default async function MajorProjectPage({ params }: Props) {
       <BackLink fallbackHref="/transparency/major-projects" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '18px', marginBottom: '22px' }}>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px' }}>
           <Link href="/transparency/major-projects" style={{ color: INK, textDecoration: 'none' }}>Transparency · Major projects</Link>
         </p>
         <h1 style={{ fontFamily: MONO, fontSize: 'clamp(26px, 3.6vw, 40px)', fontWeight: 'bold', letterSpacing: '-0.01em', marginBottom: '10px', lineHeight: 1.2 }}>

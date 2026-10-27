@@ -87,7 +87,7 @@ export default async function TrustFundedPage() {
       <BackLink fallbackHref="/transparency/donations" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px' }}>
           Shield for beneficial ownership · Trust donations
         </p>
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
@@ -119,9 +119,9 @@ export default async function TrustFundedPage() {
                 : `${recipientList[0]} +${recipientList.length - 1}`;
               return (
                 <tr key={t.name} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-                  <td style={{ padding: '6px', opacity: 0.6 }}>{i + 1}</td>
+                  <td style={{ padding: '6px' }}>{i + 1}</td>
                   <td style={{ padding: '6px' }}><strong>{t.name}</strong></td>
-                  <td style={{ padding: '6px', fontSize: '15px', opacity: 0.85 }}>{t.creator || <span style={{ opacity: 0.5 }}></span>}</td>
+                  <td style={{ padding: '6px', fontSize: '15px' }}>{t.creator || <span ></span>}</td>
                   <td style={{ padding: '6px', fontSize: '15px' }}>{recipientLabel}</td>
                   <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{t.count}</td>
                   <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(t.total).toLocaleString()}</td>
@@ -152,7 +152,7 @@ export default async function TrustFundedPage() {
                   ) : <strong>{r.trust_name}</strong>}
                 </td>
                 <td style={{ padding: '6px', fontSize: '15px' }}>{r.recipient_name || ''}</td>
-                <td style={{ padding: '6px', fontFamily: 'monospace', fontSize: '15px', opacity: 0.7 }}>{r.accepted_date}</td>
+                <td style={{ padding: '6px', fontFamily: 'monospace', fontSize: '15px' }}>{r.accepted_date}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(Number(r.amount || 0)).toLocaleString()}</td>
               </tr>
             ))}

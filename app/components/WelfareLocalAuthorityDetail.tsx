@@ -237,7 +237,7 @@ export default function WelfareLocalAuthorityDetail({ gss, embedded }: { gss: st
   return (
     <article
       style={{
-        color: '#1a140e',
+        color: '#14100d',
         fontFamily: SERIF,
       }}
     >

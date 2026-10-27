@@ -142,3 +142,7 @@ a:hover {
   .og-strip-row { max-width: 420px; }
   .og-strip-input, .og-strip-submit { padding-top: 7px; padding-bottom: 7px; }
 }
+
+/* Black ink rule (owner, 27 Oct 2026): placeholders in full black ink, set in italics so they are not mistaken for
+   typed text. Browsers show placeholders faded by default (Firefox also lowers their opacity). */
+input::placeholder, textarea::placeholder { color: #14100d; opacity: 1; font-style: italic; }

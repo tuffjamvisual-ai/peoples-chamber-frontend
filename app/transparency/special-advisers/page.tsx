@@ -113,7 +113,7 @@ export default async function SpecialAdvisersPage() {
       <BackLink fallbackHref="/transparency" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '28px' }}>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px' }}>
           Transparency · Special Advisers
         </p>
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '14px', lineHeight: 1.15 }}>
@@ -176,7 +176,7 @@ export default async function SpecialAdvisersPage() {
             <tbody>
               {activity.slice(0, 30).map((r, i) => (
                 <tr key={r.name} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-                  <td style={{ ...td, opacity: 0.6 }}>{i + 1}</td>
+                  <td style={{ ...td }}>{i + 1}</td>
                   <td style={td}>{r.name}</td>
                   <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace' }}>{r.gifts}</td>
                   <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace' }}>{r.hospitality}</td>
@@ -208,12 +208,12 @@ export default async function SpecialAdvisersPage() {
               {gifts.map((g, i) => (
                 <tr key={i} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                   <td style={td}>{g.spad_name}</td>
-                  <td style={{ ...td, fontSize: '15px', opacity: 0.75 }}>{g.area}</td>
-                  <td style={{ ...td, fontFamily: 'monospace', fontSize: '15px', opacity: 0.7 }}>{g.gift_date || 'n/a'}</td>
+                  <td style={{ ...td, fontSize: '15px' }}>{g.area}</td>
+                  <td style={{ ...td, fontFamily: 'monospace', fontSize: '15px' }}>{g.gift_date || 'n/a'}</td>
                   <td style={td}>{g.gift_descr || 'n/a'}</td>
                   <td style={td}>{g.donor || 'n/a'}</td>
                   <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace' }}>{g.value_gbp || 'n/a'}</td>
-                  <td style={{ ...td, fontSize: '15px', opacity: 0.85 }}>{g.outcome || 'n/a'}</td>
+                  <td style={{ ...td, fontSize: '15px' }}>{g.outcome || 'n/a'}</td>
                 </tr>
               ))}
             </tbody>
@@ -239,11 +239,11 @@ export default async function SpecialAdvisersPage() {
               {hosps.map((h, i) => (
                 <tr key={i} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                   <td style={td}>{h.spad_name}</td>
-                  <td style={{ ...td, fontSize: '15px', opacity: 0.75 }}>{h.area}</td>
-                  <td style={{ ...td, fontFamily: 'monospace', fontSize: '15px', opacity: 0.7 }}>{h.hosp_date || 'n/a'}</td>
+                  <td style={{ ...td, fontSize: '15px' }}>{h.area}</td>
+                  <td style={{ ...td, fontFamily: 'monospace', fontSize: '15px' }}>{h.hosp_date || 'n/a'}</td>
                   <td style={td}>{h.hosp_descr || 'n/a'}</td>
                   <td style={td}>{h.provider || 'n/a'}</td>
-                  <td style={{ ...td, fontSize: '15px', opacity: 0.85 }}>{h.purpose || 'n/a'}</td>
+                  <td style={{ ...td, fontSize: '15px' }}>{h.purpose || 'n/a'}</td>
                 </tr>
               ))}
             </tbody>
@@ -269,11 +269,11 @@ export default async function SpecialAdvisersPage() {
               {meets.map((m, i) => (
                 <tr key={i} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                   <td style={td}>{m.spad_name}</td>
-                  <td style={{ ...td, fontSize: '15px', opacity: 0.75 }}>{m.area}</td>
-                  <td style={{ ...td, fontFamily: 'monospace', fontSize: '15px', opacity: 0.7 }}>{m.meeting_date || 'n/a'}</td>
+                  <td style={{ ...td, fontSize: '15px' }}>{m.area}</td>
+                  <td style={{ ...td, fontFamily: 'monospace', fontSize: '15px' }}>{m.meeting_date || 'n/a'}</td>
                   <td style={td}>{m.media_org || 'n/a'}</td>
                   <td style={td}>{m.individual || 'n/a'}</td>
-                  <td style={{ ...td, fontSize: '15px', opacity: 0.85 }}>{m.purpose || 'n/a'}</td>
+                  <td style={{ ...td, fontSize: '15px' }}>{m.purpose || 'n/a'}</td>
                 </tr>
               ))}
             </tbody>
@@ -298,9 +298,9 @@ export default async function SpecialAdvisersPage() {
 function Tile({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
     <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '12px 14px', background: CREAM }}>
-      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
+      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: '4px' }}>{label}</div>
       <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '22px', fontWeight: 'bold', color: ACCENT }}>{value}</div>
-      <div style={{ fontSize: '15px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
+      <div style={{ fontSize: '15px', marginTop: '4px' }}>{sub}</div>
     </div>
   );
 }

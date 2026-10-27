@@ -227,7 +227,7 @@ function Th({
     >
       <span className="inline-flex items-center gap-1.5">
         {label}
-        {active && <span className="opacity-80">{dir === 'desc' ? '▼' : '▲'}</span>}
+        {active && <span>{dir === 'desc' ? '▼' : '▲'}</span>}
       </span>
     </th>
   )

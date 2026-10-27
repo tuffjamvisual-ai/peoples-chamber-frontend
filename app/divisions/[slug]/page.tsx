@@ -373,7 +373,6 @@ export default async function DivisionDetailPage({ params }: PageProps) {
             textTransform: 'uppercase',
             letterSpacing: '0.3em',
             marginBottom: '12px',
-            opacity: 0.85,
             transform: 'rotate(-0.2deg)',
           }}
         >
@@ -394,7 +393,7 @@ export default async function DivisionDetailPage({ params }: PageProps) {
           {title}
         </h1>
         {billId != null && billTitle && (
-          <p style={{ fontSize: '15px', opacity: 0.8, marginTop: '12px' }}>
+          <p style={{ fontSize: '15px', marginTop: '12px' }}>
             Vote on{' '}
             <Link href={`/bills/${billId}`} style={{ color: ACCENT, textDecoration: 'underline' }}>
               {billTitle}
@@ -415,9 +414,9 @@ export default async function DivisionDetailPage({ params }: PageProps) {
           transform: 'rotate(-0.15deg)',
         }}
       >
-        <span style={{ color: SUCCESS, fontWeight: 'bold' }}>{ayeTotal} Aye</span>
+        <span style={{ color: INK, fontWeight: 'bold' }}>{ayeTotal} Aye</span>
         {'  /  '}
-        <span style={{ color: DANGER, fontWeight: 'bold' }}>{noTotal} No</span>
+        <span style={{ color: INK, fontWeight: 'bold' }}>{noTotal} No</span>
         {'  ·  '}
         <span style={{ color: ACCENT }}>
           {ayeTotal > noTotal ? 'majority ' : ayeTotal < noTotal ? 'lost by ' : 'tied · margin '}
@@ -460,7 +459,7 @@ export default async function DivisionDetailPage({ params }: PageProps) {
       {boths.length > 0 && (
         <section style={{ marginTop: '32px', padding: '24px', background: CREAM, border: `1px solid ${INK_HAIRLINE}` }}>
           <h2 style={{ ...sectionH2, marginBottom: '12px' }}>Voted in both lobbies</h2>
-          <p style={{ fontSize: '15px', opacity: 0.7, marginBottom: '12px' }}>
+          <p style={{ fontSize: '15px', marginBottom: '12px' }}>
             Walking through both the Aye and No lobbies is a recorded form of deliberate abstention.
           </p>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px' }}>
@@ -468,7 +467,7 @@ export default async function DivisionDetailPage({ params }: PageProps) {
               <li key={v.member_id} style={{ padding: '4px 0' }}>
                 <MpVoteLink vote={v}>
                   {displayMpName(v.mp?.display_name ?? v.mp?.name) ?? `Member ${v.member_id}`}
-                  {v.mp?.party && <span style={{ opacity: 0.6 }}> · {normaliseParty(v.mp.party) || v.mp.party}</span>}
+                  {v.mp?.party && <span > · {normaliseParty(v.mp.party) || v.mp.party}</span>}
                 </MpVoteLink>
               </li>
             ))}
@@ -521,10 +520,10 @@ function VoteColumn({
       </h3>
       {groups.map((g) => (
         <div key={g.party} style={{ marginBottom: '20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.85 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
             <span style={{ display: 'inline-block', width: '0.7em', height: '0.7em', borderRadius: '50%', background: g.partyColour }} />
             <strong>{g.party}</strong>
-            <span style={{ opacity: 0.6 }}>({g.rows.length})</span>
+            <span >({g.rows.length})</span>
           </div>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: 1.55 }}>
             {g.rows.map((v) => (

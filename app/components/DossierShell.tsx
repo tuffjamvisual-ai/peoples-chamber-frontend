@@ -292,12 +292,12 @@ export default function DossierShell({
                 width: '21%',
                 textAlign: 'center',
                 fontFamily: 'var(--font-special-elite), monospace',
-                color: '#6b2417',
+                color: '#7a1612',
                 lineHeight: 1.1,
                 pointerEvents: 'none',
               }}
             >
-              <div style={{ color: '#2b2722', fontSize: 'clamp(17px, 2.85vw, 41px)', letterSpacing: '0.01em' }}>
+              <div style={{ color: '#14100d', fontSize: 'clamp(17px, 2.85vw, 41px)', letterSpacing: '0.01em' }}>
                 ISSUE {issue}
               </div>
             </div>

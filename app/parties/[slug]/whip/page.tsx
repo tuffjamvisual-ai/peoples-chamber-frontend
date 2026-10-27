@@ -202,7 +202,7 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
       </a>
 
       <header style={{ borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px' }}>
           {party.name} · Whip cohesion + rebellion
         </p>
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
@@ -224,7 +224,7 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>MPs who voted against most of their party most often</h2>
-        <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '14px' }}>MPs with at least 20 votes as a {party.name} MP. A division where the party split exactly evenly counts for no one. Each name links to the MP; the divisions listed are their most recent votes against the party.</p>
+        <p style={{ fontSize: '15px', marginBottom: '14px' }}>MPs with at least 20 votes as a {party.name} MP. A division where the party split exactly evenly counts for no one. Each name links to the MP; the divisions listed are their most recent votes against the party.</p>
         {topRebels.length === 0 && <p style={{ fontSize: '15px' }}>No {party.name} MP has voted against most of the party since the July 2024 election.</p>}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {topRebels.map((r, i) => {
@@ -233,11 +233,11 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
             return (
               <div key={r.memberId} style={{ borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '10px' }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
-                  <span style={{ opacity: 0.55, fontFamily: 'monospace' }}>{i + 1}.</span>
+                  <span style={{ fontFamily: 'monospace' }}>{i + 1}.</span>
                   <Link href={`/mps/${r.memberId}`} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold' }}>{r.name}</Link>
-                  {r.now && <span style={{ fontSize: '15px', opacity: 0.75 }}>({r.now})</span>}
+                  {r.now && <span style={{ fontSize: '15px' }}>({r.now})</span>}
                   <span style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>{r.rebellions} vote{r.rebellions === 1 ? '' : 's'} against</span>
-                  <span style={{ fontFamily: 'monospace', opacity: 0.65, fontSize: '15px' }}>{((r.rebellions / r.totalVotes) * 100).toFixed(1)}% of {r.totalVotes} votes</span>
+                  <span style={{ fontFamily: 'monospace', fontSize: '15px' }}>{((r.rebellions / r.totalVotes) * 100).toFixed(1)}% of {r.totalVotes} votes</span>
                 </div>
                 {shown.length > 0 && (
                   <div style={{ fontSize: '15px', marginTop: '5px', lineHeight: 1.55 }}>
@@ -279,7 +279,7 @@ export default async function PartyWhip({ params }: { params: Promise<{ slug: st
                 const title = d.title || `Division ${d.num}`;
                 return (
                   <tr key={d.key} style={{ borderBottom: `1px solid ${HAIRLINE}` }}>
-                    <td style={{ ...td, fontFamily: 'monospace', fontSize: '15px', opacity: 0.7 }}>{d.date}</td>
+                    <td style={{ ...td, fontFamily: 'monospace', fontSize: '15px' }}>{d.date}</td>
                     <td style={td}>
                       <Link href={`/divisions/pw-${d.date}-${d.num}-commons`} style={{ color: ACCENT, textDecoration: 'underline' }}>{title}</Link>
                     </td>
@@ -314,7 +314,7 @@ function WhipFrame({ party, children }: { party: Party; children: React.ReactNod
       </a>
 
       <header style={{ borderBottom: `1px solid ${HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px' }}>
           {party.name} · Whip cohesion + rebellion
         </p>
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
@@ -333,9 +333,9 @@ function WhipFrame({ party, children }: { party: Party; children: React.ReactNod
 function Tile({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
     <div style={{ border: `1px solid ${HAIRLINE}`, padding: '12px 14px', background: CREAM }}>
-      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
+      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: '4px' }}>{label}</div>
       <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '22px', fontWeight: 'bold', color: ACCENT }}>{value}</div>
-      <div style={{ fontSize: '15px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
+      <div style={{ fontSize: '15px', marginTop: '4px' }}>{sub}</div>
     </div>
   );
 }

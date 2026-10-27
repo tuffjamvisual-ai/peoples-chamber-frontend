@@ -361,7 +361,7 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
             </li>
           ))}
         </ol>,
-        <p key="n" style={{ ...para, fontSize: '14px', opacity: 0.8 }}>Petitions that reached 10,000 signatures in this Parliament.</p>,
+        <p key="n" style={{ ...para, fontSize: '14px' }}>Petitions that reached 10,000 signatures in this Parliament.</p>,
       ],
     }));
   }
@@ -483,7 +483,7 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
       )}
 
       {missing.length > 0 && (
-        <p style={{ ...para, marginTop: '20px', opacity: 0.8 }}>
+        <p style={{ ...para, marginTop: '20px' }}>
           Not shown for {NATION_NAME[nation] ? `this area (${NATION_NAME[nation]})` : 'this area'}:{' '}
           {missing.map((m) => { const r = reasonFor(m); return r ? `${m} (${r})` : `${m} (no figures held for this area)`; }).join('; ')}.
         </p>

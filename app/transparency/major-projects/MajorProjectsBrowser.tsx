@@ -142,7 +142,7 @@ export default function MajorProjectsBrowser({ projects, latestYear, noPlanCount
           No evaluation plan: projects whose department answered &ldquo;No&rdquo; to &ldquo;Does the project have an evaluation plan? (self reported)&rdquo; in the March 2025 data ({noPlanCount} projects).
         </p>
       )}
-      <p aria-live="polite" style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 18px', opacity: 0.8 }}>
+      <p aria-live="polite" style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase', margin: '0 0 18px' }}>
         {filtered ? `${count} of ${projects.length} projects` : `${projects.length} projects`}
         {filtered && (
           <>

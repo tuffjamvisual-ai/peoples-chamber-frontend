@@ -115,7 +115,7 @@ export default function AccountPage() {
             <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.16em', textTransform: 'uppercase', color: ACCENT, marginBottom: '12px' }}>
               Open Govt Weekly
             </h2>
-            <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, opacity: 0.75, marginBottom: '14px', maxWidth: '560px' }}>
+            <p style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.6, color: INK, marginBottom: '14px', maxWidth: '560px' }}>
               What government announced. What the evidence shows. What happened next. Reports, overlooked documents and public spending stories. Sign up now for the first issue.
             </p>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
@@ -138,7 +138,7 @@ export default function AccountPage() {
               {newsletterSaving ? 'Saving…' : 'Save preference'}
             </button>
             {newsletterSaved && (
-              <span style={{ fontFamily: MONO, fontSize: '14px', color: SUCCESS, marginLeft: '12px' }}>Saved.</span>
+              <span style={{ fontFamily: MONO, fontSize: '14px', color: INK, marginLeft: '12px' }}>Saved.</span>
             )}
           </div>
 

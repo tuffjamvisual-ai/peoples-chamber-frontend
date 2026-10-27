@@ -169,7 +169,7 @@ export default async function SecretariatPage({ params }: PageProps) {
       <BackLink fallbackHref="/secretariats" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px' }}>
           APPG Secretariat · Lobby firm dossier
         </p>
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '8px', lineHeight: 1.15 }}>
@@ -200,12 +200,12 @@ export default async function SecretariatPage({ params }: PageProps) {
               <li key={a.slug} style={{ padding: '14px 0', borderBottom: `1px solid ${INK_HAIRLINE}` }}>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'baseline', flexWrap: 'wrap' }}>
                   <strong style={{ fontSize: '15px' }}>{a.title}</strong>
-                  {a.category && <span style={{ fontSize: '15px', opacity: 0.6 }}>{a.category}</span>}
+                  {a.category && <span style={{ fontSize: '15px' }}>{a.category}</span>}
                 </div>
-                {a.purpose && <p style={{ fontSize: '15px', opacity: 0.75, lineHeight: 1.55, margin: '4px 0' }}>{a.purpose}</p>}
+                {a.purpose && <p style={{ fontSize: '15px', lineHeight: 1.55, margin: '4px 0' }}>{a.purpose}</p>}
                 {aOfficers.length > 0 && (
                   <div style={{ marginTop: '6px', fontSize: '15px' }}>
-                    <span style={{ opacity: 0.6 }}>Officered by: </span>
+                    <span >Officered by: </span>
                     {aOfficers.slice(0, 8).map((o, i) => (
                       <span key={i}>
                         {i > 0 && ', '}
@@ -214,19 +214,19 @@ export default async function SecretariatPage({ params }: PageProps) {
                         ) : (
                           o.name_at_time
                         )}
-                        <span style={{ opacity: 0.6 }}> ({o.role || 'Officer'})</span>
+                        <span > ({o.role || 'Officer'})</span>
                       </span>
                     ))}
-                    {aOfficers.length > 8 && <span style={{ opacity: 0.6 }}> +{aOfficers.length - 8} more</span>}
+                    {aOfficers.length > 8 && <span > +{aOfficers.length - 8} more</span>}
                   </div>
                 )}
                 {aFunders.length > 0 && (
                   <div style={{ marginTop: '6px', fontSize: '15px' }}>
-                    <span style={{ opacity: 0.6 }}>Paid by: </span>
+                    <span >Paid by: </span>
                     {aFunders.slice(0, 6).map((f, i) => (
-                      <span key={i}>{i > 0 && ', '}<strong>{f.source}</strong>{f.value_band && <span style={{ opacity: 0.6 }}> (£{f.value_band})</span>}</span>
+                      <span key={i}>{i > 0 && ', '}<strong>{f.source}</strong>{f.value_band && <span > (£{f.value_band})</span>}</span>
                     ))}
-                    {aFunders.length > 6 && <span style={{ opacity: 0.6 }}> +{aFunders.length - 6} more</span>}
+                    {aFunders.length > 6 && <span > +{aFunders.length - 6} more</span>}
                   </div>
                 )}
                 {a.website_url && (
@@ -261,9 +261,9 @@ const sectionH2: React.CSSProperties = {
 function Tile({ label, value, sub, accent }: { label: string; value: string; sub: string; accent: string }) {
   return (
     <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '12px 14px', background: CREAM }}>
-      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
+      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: '4px' }}>{label}</div>
       <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '22px', fontWeight: 'bold', color: accent }}>{value}</div>
-      <div style={{ fontSize: '15px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
+      <div style={{ fontSize: '15px', marginTop: '4px' }}>{sub}</div>
     </div>
   );
 }

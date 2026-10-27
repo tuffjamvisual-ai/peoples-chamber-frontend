@@ -16,7 +16,7 @@ export const revalidate = 86400;
 const INK = '#14100d';
 const INK_SOFT = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
-const ACCENT = '#6b2417';
+const ACCENT = '#7a1612';
 const SERIF = 'var(--font-special-elite), monospace';
 const MONO = 'var(--font-special-elite), monospace';
 
@@ -60,7 +60,7 @@ export default async function MpSecondJobsDetail({ params }: { params: Promise<{
       <article
         style={{
           padding: 'clamp(8px, 2vw, 24px) 0',
-          color: '#1a140e',
+          color: '#14100d',
           fontFamily: SERIF,
         }}
       >

@@ -234,7 +234,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
       <article
         style={{
           padding: 0,
-          color: '#1a140e',
+          color: '#14100d',
           fontFamily: 'var(--font-special-elite), monospace',
         }}
       >

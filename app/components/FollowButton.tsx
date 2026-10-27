@@ -74,7 +74,7 @@ export default function FollowButton({ kind, targetKey, label, variant = 'inline
       display: 'block', width: '100%', boxSizing: 'border-box', padding: '12px 16px', margin: '8px 0 0', border: 'none',
       borderTop: '1px solid rgba(20,16,13,0.25)', borderLeft: '4px solid transparent', background: 'transparent',
       fontWeight: following ? 'bold' : 'normal', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.08em',
-      color: INK, fontFamily: 'inherit', textAlign: 'left', cursor: waiting ? 'default' : 'pointer', opacity: waiting && !authLoading ? 0.6 : 1,
+      color: INK, fontFamily: 'inherit', textAlign: 'left', cursor: waiting ? 'progress' : 'pointer',
     };
     const onClick = () => {
       if (authLoading) return;

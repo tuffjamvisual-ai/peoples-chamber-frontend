@@ -9,7 +9,7 @@ import { useMemo, useRef, useState } from 'react';
 // current MPs — a 650-entry <select> would be a poor experience.
 
 const INK = '#14100d';
-const ACCENT = '#6b2417';
+const ACCENT = '#7a1612';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
 const CREAM = '#f4e8d4';
 const MONO = "var(--font-special-elite), monospace";

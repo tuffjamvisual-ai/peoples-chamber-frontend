@@ -23,7 +23,7 @@ export const servicesForDept = (slug: string) => DEPT_SERVICES[slug] || [];
 export const servicesForTopic = (slug: string) => TOPIC_SERVICES[slug] || [];
 
 const INK = '#14100d';
-const ACCENT = '#6b2417';
+const ACCENT = '#7a1612';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
 const TREND: Record<string, { label: string; fg: string; mark: string }> = {
   worsening: { label: 'Worsening', fg: '#7a1612', mark: '▼' },
@@ -59,7 +59,7 @@ export default async function ServiceIndicator({ services }: { services: string[
       <h2 style={{ fontSize: 'clamp(21px, 2.4vw, 27px)', fontWeight: 'bold', color: INK, marginBottom: '4px', letterSpacing: '-0.01em' }}>
         Public services performance
       </h2>
-      <p style={{ fontSize: '15px', color: INK, opacity: 0.75, marginBottom: '16px', maxWidth: '60ch' }}>
+      <p style={{ fontSize: '15px', color: INK, marginBottom: '16px', maxWidth: '60ch' }}>
         Latest official figures for these public services, with the direction of each measure over the long term.
         {worsening > 0 && <> <strong style={{ color: '#7a1612' }}>{worsening} worsening over the long term.</strong></>}
       </p>
@@ -68,7 +68,7 @@ export default async function ServiceIndicator({ services }: { services: string[
           const t = TREND[r.trend] || TREND.flat;
           return (
             <div key={r.service + i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '14px', padding: '15px 18px', borderTop: i ? `1px solid ${HAIRLINE}` : 'none', borderLeft: `4px solid ${t.fg}` }}>
-              <span style={{ fontSize: '16px', color: INK }}>{r.label} <span style={{ opacity: 0.6 }}>({fmtPeriod(r.period)})</span></span>
+              <span style={{ fontSize: '16px', color: INK }}>{r.label} <span >({fmtPeriod(r.period)})</span></span>
               <span style={{ display: 'flex', alignItems: 'baseline', gap: '12px', whiteSpace: 'nowrap' }}>
                 <strong style={{ fontSize: '23px', color: INK }}>{fmt(r.value, r.unit)}</strong>
                 <span style={{ fontSize: '15px', fontWeight: 'bold', color: t.fg }}>{t.mark} {t.label}</span>

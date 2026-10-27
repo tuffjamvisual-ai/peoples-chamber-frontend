@@ -15,7 +15,7 @@ export function generateStaticParams() { return []; }
 const INK = '#14100d';
 const INK_SOFT = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
-const ACCENT = '#6b2417';
+const ACCENT = '#7a1612';
 const FONT = 'var(--font-special-elite), monospace';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -51,7 +51,7 @@ export default async function LobbyingOrgPage({ params }: { params: Promise<{ sl
         className="no-hover-scale"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
       />
-      <article style={{ padding: 'clamp(8px, 2vw, 24px) 0', color: '#1a140e', fontFamily: FONT }}>
+      <article style={{ padding: 'clamp(8px, 2vw, 24px) 0', color: '#14100d', fontFamily: FONT }}>
         <header style={{ borderTop: `1.5px solid ${INK}`, borderBottom: `1.5px solid ${INK}`, padding: '14px 12px', textAlign: 'center', marginBottom: '28px' }}>
           <div style={{ fontSize: '15px', letterSpacing: '0.16em', fontVariant: 'small-caps', color: INK_SOFT, marginBottom: '4px' }}>
             <Link href="/lobbying" className="no-hover-scale" style={{ color: INK_SOFT, textDecoration: 'none' }}>Lobbying</Link> · {ORG_TYPE_LABEL[org.org_type]}

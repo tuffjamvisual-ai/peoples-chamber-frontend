@@ -84,7 +84,7 @@ export default async function CouncilsIndex() {
       <article
         style={{
           padding: 'clamp(8px, 2vw, 24px) 0',
-          color: '#1a140e',
+          color: '#14100d',
           fontFamily: SERIF,
         }}
       >

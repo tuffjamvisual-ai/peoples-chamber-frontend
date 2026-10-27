@@ -68,7 +68,7 @@ export default async function FreedomOfInformationPage() {
           <Link href="/transparency" style={{ color: INK, textDecoration: 'underline' }}>Transparency</Link>.
         </p>
         {source && (
-          <p style={{ opacity: 0.85, fontSize: '13px' }}>
+          <p style={{ fontSize: '13px' }}>
             Source: <a href={source.url} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>{source.label}</a>.
             Contains public sector information licensed under the Open Government Licence v3.0.
           </p>

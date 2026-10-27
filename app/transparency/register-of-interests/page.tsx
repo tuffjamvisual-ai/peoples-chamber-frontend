@@ -28,7 +28,7 @@ import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 export const revalidate = 3600;
 
 const INK = '#14100d';
-const ACCENT = '#6b2417';
+const ACCENT = '#7a1612';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
 const MONO = "var(--font-special-elite), monospace";
 const PAGE_LIMIT = 40;
@@ -96,7 +96,7 @@ function renderInterestText(text: string) {
     const isMeta = /^\((?:registered|updated|last)/i.test(line);
     if (isMeta) {
       return (
-        <div key={i} style={{ fontSize: '15px', color: INK, opacity: 0.7, marginTop: '6px', fontStyle: 'italic' }}>
+        <div key={i} style={{ fontSize: '15px', color: INK, marginTop: '6px', fontStyle: 'italic' }}>
           {line}
         </div>
       );
@@ -205,7 +205,7 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
       />
 
       <header style={{ marginBottom: '20px' }}>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '10px', color: INK, opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '10px', color: INK }}>
           Parliamentary Register
         </p>
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '14px', transform: 'rotate(-0.3deg)', textShadow: '1px 1px 0px rgba(0,0,0,0.1)' }}>
@@ -267,14 +267,14 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
               <p style={{ fontSize: '17px', fontWeight: 700, margin: '0 0 6px' }}>
                 {selectedMpName || 'This MP'} has no entries in the register
               </p>
-              <p style={{ fontSize: '15px', lineHeight: 1.6, margin: 0, opacity: 0.8 }}>
+              <p style={{ fontSize: '15px', lineHeight: 1.6, margin: 0 }}>
                 Nothing is recorded for this MP in the Register of Members&rsquo; Financial Interests. That is a valid state; not every MP has a registrable interest.
               </p>
             </>
           ) : (
             <>
               <p style={{ fontSize: '17px', fontWeight: 700, margin: '0 0 6px' }}>No register entries match your search</p>
-              <p style={{ fontSize: '15px', margin: 0, opacity: 0.8 }}>
+              <p style={{ fontSize: '15px', margin: 0 }}>
                 Try a different term or{' '}
                 <Link href="/transparency/register-of-interests" style={{ color: ACCENT, textDecoration: 'underline' }}>
                   clear the filters
@@ -307,7 +307,7 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
                   {bucketLabelForCategory(row.category_name)}
                 </span>
                 {row.created_when && (
-                  <span style={{ marginLeft: 'auto', fontFamily: MONO, fontSize: '15px', color: INK, opacity: 0.75 }}>
+                  <span style={{ marginLeft: 'auto', fontFamily: MONO, fontSize: '15px', color: INK }}>
                     {fmtDate(row.created_when)}
                   </span>
                 )}
@@ -327,7 +327,7 @@ export default async function RegisterOfInterestsPage({ searchParams }: { search
         />
       )}
 
-      <p style={{ marginTop: '28px', fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, opacity: 0.75, maxWidth: '760px' }}>
+      <p style={{ marginTop: '28px', fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, maxWidth: '760px' }}>
         Source: the Register of Members&rsquo; Financial Interests, published by the House of Commons and synced from the Parliament Members API. Entries are the Members&rsquo; own declarations. Covers 588 of 650 current MPs; the remainder have no registrable interests recorded.
       </p>
       <LastUpdated sourceKey="registered_interests" />

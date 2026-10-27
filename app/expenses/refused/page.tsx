@@ -17,7 +17,7 @@ export const revalidate = 3600;
 const INK = '#14100d';
 const INK_SOFT = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
-const ACCENT = '#6b2417';
+const ACCENT = '#7a1612';
 const DANGER = '#a64030';
 const WARN = '#7a4a16';
 
@@ -118,7 +118,7 @@ export default async function RefusedExpensesPage() {
       />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '24px', marginBottom: '28px' }}>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85, transform: 'rotate(-0.2deg)' }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', transform: 'rotate(-0.2deg)' }}>
           IPSA · Accountability ledger
         </p>
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15, transform: 'rotate(-0.3deg)' }}>
@@ -137,7 +137,7 @@ export default async function RefusedExpensesPage() {
         .rr-party-inline { display: none; }
         @media (max-width: 600px) {
           .rr-party { display: none; }
-          .rr-party-inline { display: block; font-weight: normal; font-size: 14px; opacity: 0.75; }
+          .rr-party-inline { display: block; font-weight: normal; font-size: 14px; }
         }
       `}</style>
 
@@ -164,11 +164,11 @@ export default async function RefusedExpensesPage() {
                 <td style={{ ...td, textAlign: 'left' }}>{yearLabel(y.year)}{isPartial(y.year) ? ' (so far)' : ''}</td>
                 <td style={{ ...td, textAlign: 'right' }}>
                   <span style={{ fontFamily: 'monospace' }}>{fmtMoney(y.refused)}</span>
-                  <span style={{ display: 'block', fontSize: '14px', opacity: 0.7 }}>{y.refusedCount.toLocaleString('en-GB')} claim{y.refusedCount === 1 ? '' : 's'}</span>
+                  <span style={{ display: 'block', fontSize: '14px' }}>{y.refusedCount.toLocaleString('en-GB')} claim{y.refusedCount === 1 ? '' : 's'}</span>
                 </td>
                 <td style={{ ...td, textAlign: 'right' }}>
                   <span style={{ fontFamily: 'monospace' }}>{fmtMoney(y.repaid)}</span>
-                  <span style={{ display: 'block', fontSize: '14px', opacity: 0.7 }}>{y.repaidCount.toLocaleString('en-GB')} claim{y.repaidCount === 1 ? '' : 's'}</span>
+                  <span style={{ display: 'block', fontSize: '14px' }}>{y.repaidCount.toLocaleString('en-GB')} claim{y.repaidCount === 1 ? '' : 's'}</span>
                 </td>
               </tr>
             ))}
@@ -205,7 +205,7 @@ export default async function RefusedExpensesPage() {
 
       <section style={{ marginBottom: '32px' }}>
         <h2 style={sectionH2}>Repaid, by MP</h2>
-        <p style={{ fontSize: '15px', opacity: 0.7, marginBottom: '12px', maxWidth: '60ch' }}>
+        <p style={{ fontSize: '15px', marginBottom: '12px', maxWidth: '60ch' }}>
           Repaid &ne; refused: a repayment is money the MP did receive but then returned, either voluntarily or after IPSA review.
         </p>
         <MpTable rows={repaidAgg} mpById={mpById} totalLabel="Total repaid" />
@@ -255,9 +255,9 @@ const td: React.CSSProperties = {
 function Tile({ label, value, sub, accent }: { label: string; value: string; sub: string; accent: string }) {
   return (
     <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '12px 14px', background: 'rgba(255,255,255,0.04)' }}>
-      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
+      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: '4px' }}>{label}</div>
       <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '22px', fontWeight: 'bold', color: accent }}>{value}</div>
-      <div style={{ fontSize: '15px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
+      <div style={{ fontSize: '15px', marginTop: '4px' }}>{sub}</div>
     </div>
   );
 }
@@ -272,7 +272,7 @@ function MpRows({ rows, mpById, start }: { rows: Agg[]; mpById: Map<number, MpLo
         const mp = mpById.get(a.member_id);
         return (
           <tr key={a.member_id} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-            <td style={{ ...td, opacity: 0.6 }}>{start + i + 1}</td>
+            <td style={{ ...td }}>{start + i + 1}</td>
             <td style={{ ...td, textAlign: 'left' }}>
               {mp ? (
                 <Link href={`/mps/${a.member_id}`} style={{ color: ACCENT, textDecoration: 'none', fontWeight: 'bold' }}>
@@ -283,7 +283,7 @@ function MpRows({ rows, mpById, start }: { rows: Agg[]; mpById: Map<number, MpLo
               )}
               {mp?.party && <span className="rr-party-inline">{mp.party}</span>}
             </td>
-            <td className="rr-party" style={{ ...td, textAlign: 'left', opacity: 0.75 }}>{mp?.party ?? ''}</td>
+            <td className="rr-party" style={{ ...td, textAlign: 'left' }}>{mp?.party ?? ''}</td>
             <td style={td}>{a.count}</td>
             <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(a.total)}</td>
           </tr>
@@ -311,7 +311,7 @@ function MpTable({ rows, mpById, totalLabel }: { rows: Agg[]; mpById: Map<number
   const rest = rows.slice(SHOWN);
   return (
     <>
-      <p style={{ fontSize: '15px', opacity: 0.75, margin: '0 0 8px' }}>{rows.length.toLocaleString('en-GB')} serving MP{rows.length === 1 ? '' : 's'}, highest first.</p>
+      <p style={{ fontSize: '15px', margin: '0 0 8px' }}>{rows.length.toLocaleString('en-GB')} serving MP{rows.length === 1 ? '' : 's'}, highest first.</p>
       <div className="rr-scroll"><table style={tableStyle}>
         <MpHead totalLabel={totalLabel} />
         <tbody><MpRows rows={rows.slice(0, SHOWN)} mpById={mpById} start={0} /></tbody>

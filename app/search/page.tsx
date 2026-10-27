@@ -22,7 +22,7 @@ const TYPE_META: Record<string, { label: string; color: string }> = {
   briefing:     { label: 'Report',        color: '#1a3a6e' },
   bill:         { label: 'Bill',          color: '#5c2a7a' },
   division:     { label: 'Division',      color: '#7a5c12' },
-  mp:           { label: 'MP',            color: '#3a3a3a' },
+  mp:           { label: 'MP',            color: '#14100d' },
 };
 const COUNCIL_META = { label: 'Council', color: '#1a5c5c' };
 
@@ -38,7 +38,7 @@ function fmtDate(iso: string): string {
 }
 
 function ResultRow({ r }: { r: SearchResult }) {
-  const meta = TYPE_META[r.type] ?? { label: r.type, color: '#3a3a3a' };
+  const meta = TYPE_META[r.type] ?? { label: r.type, color: '#14100d' };
   return (
     <li style={{ borderBottom: `1px dotted ${HAIRLINE}`, padding: '12px 0' }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
@@ -47,7 +47,7 @@ function ResultRow({ r }: { r: SearchResult }) {
             fontFamily: MONO,
             fontSize: '14px',
             letterSpacing: '0.1em',
-            color: meta.color,
+            color: INK,
             border: `1px solid ${meta.color}`,
             padding: '2px 6px',
             whiteSpace: 'nowrap',
@@ -107,7 +107,7 @@ function CouncilRow({ c }: { c: CouncilSearchResult }) {
             fontFamily: MONO,
             fontSize: '15px',
             letterSpacing: '0.1em',
-            color: COUNCIL_META.color,
+            color: INK,
             border: `1px solid ${COUNCIL_META.color}`,
             padding: '2px 6px',
             whiteSpace: 'nowrap',
@@ -148,7 +148,7 @@ function DonorRow({ d }: { d: DonorNameResult }) {
             fontFamily: MONO,
             fontSize: '15px',
             letterSpacing: '0.1em',
-            color: DONOR_META.color,
+            color: INK,
             border: `1px solid ${DONOR_META.color}`,
             padding: '2px 6px',
             whiteSpace: 'nowrap',
@@ -188,7 +188,7 @@ function OrgRow({ o }: { o: OrgListRow }) {
             fontFamily: MONO,
             fontSize: '15px',
             letterSpacing: '0.1em',
-            color: ORG_META.color,
+            color: INK,
             border: `1px solid ${ORG_META.color}`,
             padding: '2px 6px',
             whiteSpace: 'nowrap',

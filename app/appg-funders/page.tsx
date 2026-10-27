@@ -78,7 +78,7 @@ export default async function AppgFundersIndex() {
       <BackLink fallbackHref="/secretariats" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px' }}>
           Westminster lobbying · Funder index
         </p>
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
@@ -108,15 +108,15 @@ export default async function AppgFundersIndex() {
               const hasEcRecord = ecMatchedSlugs.has(slug) && donorPageSlug(r.name) === slug;
               return (
                 <tr key={r.name} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-                  <td style={{ padding: '6px', opacity: 0.6 }}>{i + 1}</td>
+                  <td style={{ padding: '6px' }}>{i + 1}</td>
                   <td style={{ padding: '6px' }}><strong>{r.name}</strong></td>
                   <td style={{ padding: '6px', textAlign: 'right', fontWeight: 'bold', fontFamily: 'monospace' }}>{r.appgs.size}</td>
-                  <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', opacity: 0.7 }}>{r.paymentLines}</td>
+                  <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{r.paymentLines}</td>
                   <td style={{ padding: '6px', fontSize: '15px' }}>
                     {hasEcRecord ? (
                       <Link href={`/donors/${slug}`} style={{ color: ACCENT, textDecoration: 'underline' }}>Donor profile &rarr;</Link>
                     ) : (
-                      <span style={{ opacity: 0.5 }}></span>
+                      <span ></span>
                     )}
                   </td>
                 </tr>
@@ -137,7 +137,7 @@ export default async function AppgFundersIndex() {
         </ul>
       </details>
 
-      <p style={{ fontSize: '15px', opacity: 0.6 }}>
+      <p style={{ fontSize: '15px' }}>
         An entry on this list is the public sponsor / funder of an APPG&rsquo;s secretariat costs; it does not mean every member of the group endorses the funder.
       </p>
       <ParliamentSourceCredit />

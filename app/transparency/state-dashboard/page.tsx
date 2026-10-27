@@ -7,7 +7,7 @@ import { balanceColumns, TWO_COLUMN_CSS } from '@/lib/balance-columns';
 export const revalidate = 3600;
 
 const INK = '#14100d';
-const ACCENT = '#6b2417';
+const ACCENT = '#7a1612';
 const HAIRLINE = 'rgba(20,16,13,0.22)';
 
 export const metadata: Metadata = {
@@ -81,7 +81,7 @@ export default async function StateDashboard() {
     const accent = TREND[cardTrend].fg;
     return (
       <section key={s} style={{ borderTop: `3px solid ${accent}`, padding: '14px 0 22px' }}>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', color: INK, opacity: 0.55, marginBottom: '10px' }}>{SERVICE_META[s].name}</p>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', color: INK, marginBottom: '10px' }}>{SERVICE_META[s].name}</p>
         {inds.map((r, i) => {
           const t = TREND[r.trend] || TREND.flat;
           const rt = r.recent_direction ? TREND[r.recent_direction] || TREND.flat : null;
@@ -91,7 +91,7 @@ export default async function StateDashboard() {
             <div key={r.indicator_key} style={{ borderTop: i ? `1px solid ${HAIRLINE}` : 'none', paddingTop: i ? '14px' : 0, marginTop: i ? '14px' : 0 }}>
               <div style={{ fontSize: '15px', color: INK, marginBottom: '6px', lineHeight: 1.3 }}>{r.label}</div>
               <div style={{ fontSize: '34px', fontWeight: 'bold', color: INK, lineHeight: 1 }}>{fmt(r.value, r.unit)}</div>
-              <div style={{ fontSize: '15px', color: INK, opacity: 0.6, marginTop: '6px' }}>As of {fmtPeriod(r.period)}</div>
+              <div style={{ fontSize: '15px', color: INK, marginTop: '6px' }}>As of {fmtPeriod(r.period)}</div>
               {d && r.baseline_period && (
                 <div style={{ fontSize: '15px', marginTop: '8px', lineHeight: 1.45 }}>
                   <span style={{ fontWeight: 'bold', color: t.fg, background: t.bg, padding: '2px 8px', borderRadius: 20 }}>{t.mark} {t.label}</span>{' '}
@@ -104,8 +104,8 @@ export default async function StateDashboard() {
                   <span style={{ color: INK }}>Recent: {r.recent_change}</span>
                 </div>
               )}
-              {r.definition_note && <div style={{ fontSize: '15px', color: INK, opacity: 0.75, marginTop: '10px', lineHeight: 1.55 }}>{r.definition_note}</div>}
-              <div style={{ fontSize: '15px', color: INK, opacity: 0.6, marginTop: '10px' }}>
+              {r.definition_note && <div style={{ fontSize: '15px', color: INK, marginTop: '10px', lineHeight: 1.55 }}>{r.definition_note}</div>}
+              <div style={{ fontSize: '15px', color: INK, marginTop: '10px' }}>
                 Source:{' '}
                 {r.source_url
                   ? <a href={r.source_url} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'underline' }}>{r.source_name}</a>
@@ -140,14 +140,14 @@ export default async function StateDashboard() {
       </header>
 
       {/* At-a-glance summary */}
-      <p style={{ fontSize: '15px', color: INK, opacity: 0.7, marginBottom: '8px' }}>Direction of each measure over the long term (the recent direction where no comparable starting figure exists)</p>
+      <p style={{ fontSize: '15px', color: INK, marginBottom: '8px' }}>Direction of each measure over the long term (the recent direction where no comparable starting figure exists)</p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0', marginBottom: '28px' }}>
         {(['worsening', 'flat', 'improving'] as const).map((k, i) => {
           const t = TREND[k];
           return (
             <div key={k} style={{ flex: '1 1 120px', padding: '16px 20px', borderLeft: i ? `1px solid ${HAIRLINE}` : 'none', textAlign: 'center' }}>
               <div style={{ fontSize: '34px', fontWeight: 'bold', lineHeight: 1, color: t.fg }}>{counts[k]}</div>
-              <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.12em', marginTop: '6px', color: INK, opacity: 0.75 }}>{t.mark} {t.label}</div>
+              <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.12em', marginTop: '6px', color: INK }}>{t.mark} {t.label}</div>
             </div>
           );
         })}
@@ -164,7 +164,7 @@ export default async function StateDashboard() {
         ))}
       </div>
 
-      <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '680px', color: INK, opacity: 0.7, marginTop: '32px' }}>
+      <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '680px', color: INK, marginTop: '32px' }}>
         Figures are for England, except the justice indicators (police, criminal courts and prisons), which cover England and Wales. Each figure is entered by hand from the source named on its card and shows the date it was last checked. Where a published measure changes, no change over the long term is shown rather than joining two different series.
       </p>
     </OpenGovShell>

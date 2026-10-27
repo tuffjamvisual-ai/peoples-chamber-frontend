@@ -61,7 +61,7 @@ export default function TransparencyHubPage() {
       <JsonLd data={JSONLD_WEBPAGE} />
       <style>{`
         .t-card h2 { transition: color 150ms ease; }
-        .t-card:hover h2 { color: #6b2417; text-decoration: underline; text-underline-offset: 3px; }
+        .t-card:hover h2 { color: #7a1612; text-decoration: underline; text-underline-offset: 3px; }
       `}</style>
 
       <BackLink
@@ -79,7 +79,7 @@ export default function TransparencyHubPage() {
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
           {SECTIONS.length} datasets covering how ministers, MPs, donors, contractors and former officials interact with the UK state, plus the daily press release feed and the full local council register. Each section links to a searchable list of the underlying records.
         </p>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px', opacity: 0.7 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px' }}>
           {SECTIONS.length} datasets · drawn from public registers
         </p>
       </header>
@@ -96,13 +96,13 @@ export default function TransparencyHubPage() {
                 className="t-card no-hover-scale"
                 style={{ display: 'block', padding: '14px 0 18px', borderTop: '1px solid rgba(20,16,13,0.25)', color: INK, textDecoration: 'none' }}
               >
-                <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', opacity: 0.55, marginBottom: '8px' }}>
+                <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '8px' }}>
                   Dataset · {String(i + 1).padStart(2, '0')}
                 </div>
                 <h2 style={{ fontSize: '21px', fontWeight: 'bold', marginBottom: '6px', lineHeight: 1.15 }}>
-                  {s.title} <span style={{ opacity: 0.55 }}>→</span>
+                  {s.title} <span >→</span>
                 </h2>
-                <p style={{ fontSize: '15px', lineHeight: 1.6, opacity: 0.85 }}>{s.description}</p>
+                <p style={{ fontSize: '15px', lineHeight: 1.6 }}>{s.description}</p>
               </Link>
             ))}
           </div>

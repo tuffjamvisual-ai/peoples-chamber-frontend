@@ -8,6 +8,7 @@ import BackLink from '../components/BackLink';
 import { DIRECTORY, LETTERS, directoryLetter } from '@/lib/directory';
 import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions';
 import DirectoryFilter from './DirectoryFilter';
+import Unavailable from '../components/Unavailable';
 
 export const metadata: Metadata = {
   title: { absolute: 'Directory: everything on Open Govt, A to Z' },
@@ -42,7 +43,7 @@ export default function DirectoryPage() {
       <nav aria-label="Jump to a letter" style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', margin: '0 0 16px', fontFamily: MONO, fontSize: '16px' }}>
         {letters.map((l) => groups.has(l)
           ? <a key={l} href={`#letter-${l === '#' ? 'other' : l}`} data-letter-link={l} className="no-hover-scale" style={{ display: 'inline-block', minWidth: '30px', padding: '5px 0', textAlign: 'center', color: ACCENT, border: `1px solid ${HAIRLINE}`, textDecoration: 'none', fontWeight: 'bold' }}>{l}</a>
-          : <span key={l} aria-hidden="true" style={{ display: 'inline-block', minWidth: '30px', padding: '5px 0', textAlign: 'center', color: INK, opacity: 0.35, border: '1px solid transparent' }}>{l}</span>)}
+          : <Unavailable key={l} note="no entries" style={{ display: 'inline-block', minWidth: '30px', padding: '5px 0', textAlign: 'center', border: '1px dashed transparent' }}>{l}</Unavailable>)}
       </nav>
 
       <DirectoryFilter />

@@ -351,7 +351,7 @@ export default async function DonorPage({ params }: PageProps) {
       <BackLink fallbackHref="/donors" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px' }}>
           Donor · Electoral Commission record
         </p>
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '8px', lineHeight: 1.15 }}>
@@ -376,7 +376,7 @@ export default async function DonorPage({ params }: PageProps) {
             <a href={`https://find-and-update.company-information.service.gov.uk/company/${crn}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '15px', color: ACCENT, textDecoration: 'underline' }}>Companies House {crn} ↗</a>
           )}
         </div>
-        {sampleAddress && <p style={{ fontSize: '15px', opacity: 0.7, marginTop: '8px' }}>{sampleAddress}</p>}
+        {sampleAddress && <p style={{ fontSize: '15px', marginTop: '8px' }}>{sampleAddress}</p>}
         {/* Follow this donor (job 74): a weekly email when the Electoral Commission publishes a new donation. */}
         <div style={{ marginTop: '14px' }}>
           <FollowButton kind="donor" targetKey={slug} label={canonicalName} />
@@ -401,7 +401,7 @@ export default async function DonorPage({ params }: PageProps) {
         {relatedNames.length > 0 && (
           <div style={{ marginTop: '14px' }}>
             <h2 style={{ ...sectionH2, marginBottom: '4px' }}>Other donor names that may be related</h2>
-            <p style={{ margin: '0 0 8px', opacity: 0.8, maxWidth: '70ch' }}>
+            <p style={{ margin: '0 0 8px', maxWidth: '70ch' }}>
               A name similarity only, not a confirmed identity: these names share the first and last word with this one once titles and punctuation are set aside. Each has its own page and totals.
             </p>
             <ul style={{ margin: 0, paddingLeft: '1.2em' }}>
@@ -440,12 +440,12 @@ export default async function DonorPage({ params }: PageProps) {
       {appgsFunded.length > 0 && (
         <section style={{ marginBottom: '28px', padding: '14px 16px', background: 'rgba(20,16,13,0.04)', borderLeft: `3px solid ${WARN}` }}>
           <h2 style={{ ...sectionH2, marginTop: 0, marginBottom: '8px' }}>Also funds {appgsFunded.length} APPG{appgsFunded.length === 1 ? '' : 's'}</h2>
-          <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '12px' }}>This donor pays the secretariat of these All-Party Parliamentary Groups. Officers of these groups are MPs running a lobby this donor underwrites.</p>
+          <p style={{ fontSize: '15px', marginBottom: '12px' }}>This donor pays the secretariat of these All-Party Parliamentary Groups. Officers of these groups are MPs running a lobby this donor underwrites.</p>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px' }}>
             {appgsFunded.map((a) => (
               <li key={a.slug} style={{ padding: '4px 0' }}>
                 <strong>{a.title}</strong>
-                {a.category && <span style={{ opacity: 0.6, fontSize: '15px' }}> · {a.category}</span>}
+                {a.category && <span style={{ fontSize: '15px' }}> · {a.category}</span>}
               </li>
             ))}
           </ul>
@@ -455,7 +455,7 @@ export default async function DonorPage({ params }: PageProps) {
       {contractRecords.length > 0 && (
         <section style={{ marginBottom: '28px', padding: '14px 16px', background: 'rgba(20,16,13,0.04)', borderLeft: `3px solid ${DANGER}` }}>
           <h2 style={{ ...sectionH2, marginTop: 0, marginBottom: '8px' }}>{matchedContracts.length === 0 ? `On ${matchedFrameworks.length} UK public framework${matchedFrameworks.length === 1 ? '' : 's'}` : `Also holds ${matchedContracts.length} UK public contract${matchedContracts.length === 1 ? '' : 's'}`}{matchedContracts.length === 0 ? '' : unpublishedValues === matchedContracts.length ? ' · values not published' : ` · ${fmtMoney(totalContractValue)}${unpublishedValues ? ` (value not published for ${unpublishedValues})` : ''}`}{matchedFrameworks.length && matchedContracts.length ? ` · on ${matchedFrameworks.length} framework${matchedFrameworks.length === 1 ? '' : 's'}` : ''}</h2>
-          <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '12px' }}>This donor&rsquo;s Companies House number also appears for a supplier on Find a Tender, the government&rsquo;s register of public contracts. Contracts are matched by that number only, never by name; no causal link is implied between the donations on this page and the contracts below.{matchedContracts.length > 0 ? ' Public bodies awarding the work:' : ''}</p>
+          <p style={{ fontSize: '15px', marginBottom: '12px' }}>This donor&rsquo;s Companies House number also appears for a supplier on Find a Tender, the government&rsquo;s register of public contracts. Contracts are matched by that number only, never by name; no causal link is implied between the donations on this page and the contracts below.{matchedContracts.length > 0 ? ' Public bodies awarding the work:' : ''}</p>
           {matchedContracts.length > 0 && (
           <table style={{ ...tableStyle, marginBottom: '8px' }}>
             <thead>
@@ -550,7 +550,7 @@ export default async function DonorPage({ params }: PageProps) {
                       r.name
                     )}
                   </td>
-                  <td style={{ ...td, textAlign: 'left', fontSize: '15px', opacity: 0.75 }}>{r.type || ''}</td>
+                  <td style={{ ...td, textAlign: 'left', fontSize: '15px' }}>{r.type || ''}</td>
                   <td style={td}>{r.count}</td>
                   <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(r.total)}</td>
                 </tr>
@@ -559,7 +559,7 @@ export default async function DonorPage({ params }: PageProps) {
           </tbody>
         </table>
         {recipientRows.length > 50 && (
-          <p style={{ fontSize: '15px', opacity: 0.7, marginTop: '8px' }}>Showing top 50 of {recipientRows.length}.</p>
+          <p style={{ fontSize: '15px', marginTop: '8px' }}>Showing top 50 of {recipientRows.length}.</p>
         )}
       </section>
 
@@ -588,11 +588,11 @@ export default async function DonorPage({ params }: PageProps) {
                     <td style={{ ...td, whiteSpace: 'nowrap' }}>{fmtDay(d.accepted_date || d.received_date)}</td>
                     <td style={{ ...td, textAlign: 'left', overflowWrap: 'anywhere' }}>
                       {mp ? <Link href={`/mps/${mp.member_id}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{d.recipient_name}</Link> : (d.recipient_name || 'Not recorded')}
-                      {d.accounting_unit_name && d.accounting_unit_name !== d.recipient_name && <span style={{ display: 'block', fontSize: '14px', opacity: 0.75 }}>{d.accounting_unit_name}</span>}
+                      {d.accounting_unit_name && d.accounting_unit_name !== d.recipient_name && <span style={{ display: 'block', fontSize: '14px' }}>{d.accounting_unit_name}</span>}
                     </td>
                     <td style={{ ...td, textAlign: 'left' }}>
                       {d.nature || 'n/a'}
-                      {notes && <span style={{ display: 'block', fontSize: '14px', color: DANGER }}>{notes}</span>}
+                      {notes && <span style={{ display: 'block', fontSize: '14px', color: ACCENT }}>{notes}</span>}
                     </td>
                     <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>{fmtMoney(d.amount)}</td>
                     <td style={{ ...td, whiteSpace: 'nowrap' }}>
@@ -629,9 +629,9 @@ const td: React.CSSProperties = { padding: '8px 6px', textAlign: 'center', fontS
 function Tile({ label, value, sub, accent }: { label: string; value: string; sub: string; accent: string }) {
   return (
     <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '12px 14px', background: CREAM }}>
-      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
+      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: '4px' }}>{label}</div>
       <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '22px', fontWeight: 'bold', color: accent }}>{value}</div>
-      <div style={{ fontSize: '15px', opacity: 0.65, marginTop: '4px' }}>{sub}</div>
+      <div style={{ fontSize: '15px', marginTop: '4px' }}>{sub}</div>
     </div>
   );
 }

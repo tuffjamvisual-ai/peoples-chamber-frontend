@@ -86,7 +86,7 @@ export default async function DonorsIndex() {
       <BackLink fallbackHref="/" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px' }}>
           Electoral Commission · Donor index
         </p>
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
@@ -113,7 +113,7 @@ export default async function DonorsIndex() {
         <tbody>
           {top.map((d, i) => (
             <tr key={d.donor_name} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-              <td data-label="#" style={{ padding: '6px', opacity: 0.6 }}>{i + 1}</td>
+              <td data-label="#" style={{ padding: '6px' }}>{i + 1}</td>
               <td data-label="" className="pt-card-title" style={{ padding: '6px' }}>
                 {donorPageSlug(d.donor_name) ? <Link href={`/donors/${donorPageSlug(d.donor_name)}`} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold' }}>
                   {d.donor_name}

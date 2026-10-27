@@ -48,7 +48,7 @@ export default async function LawsPage() {
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
           Bills that have received Royal Assent. The Acts that govern the country, ordered by most recent.
         </p>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px', opacity: 0.7 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '16px' }}>
           {(laws?.length || 0).toLocaleString()} Acts on the statute book
         </p>
       </header>

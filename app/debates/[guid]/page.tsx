@@ -248,7 +248,7 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
           {dehyphen(ov?.Title?.trim() || 'Debate')}
         </h1>
         {ov?.Location && (
-          <div style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase', color: INK, opacity: 0.55, marginTop: '8px' }}>{ov.Location}</div>
+          <div style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.12em', textTransform: 'uppercase', color: INK, marginTop: '8px' }}>{ov.Location}</div>
         )}
         {divisionIds.length > 0 && (
           <div style={{ marginTop: '14px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -277,7 +277,7 @@ export default async function DebatePage({ params }: { params: Promise<{ guid: s
 
       <div style={{ maxWidth: '46em', margin: '0 auto' }}>
         {groups.length === 0 ? (
-          <p style={{ fontFamily: MONO, fontSize: '15px', opacity: 0.7 }}>No transcript text is available for this debate.</p>
+          <p style={{ fontFamily: MONO, fontSize: '15px' }}>No transcript text is available for this debate.</p>
         ) : (
           groups.map((g, i) => (
             <Fragment key={i}>

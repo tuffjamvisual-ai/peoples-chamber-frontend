@@ -10,7 +10,7 @@ import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 
 export const revalidate = 3600
 
-const ACCENT = '#6b2417'
+const ACCENT = '#7a1612'
 const PAGE_LIMIT = 50    // rows per page: the only pager on these lists (23 Oct 2026)
 const OCID_RE = /^ocds-[a-z0-9]+-[A-Za-z0-9-]+$/   // as app/contracts/[ocid]/page.tsx accepts
 
@@ -206,7 +206,7 @@ export default async function TransparencySectionPage({
             Sources:{' '}
             {REVOLVING_DOOR_SOURCES.map((src, i) => (
               <span key={src.url}>
-                {i > 0 && <span className="opacity-30" aria-hidden> · </span>}
+                {i > 0 && <span aria-hidden> · </span>}
                 <a href={src.url} target="_blank" rel="noopener noreferrer" className="underline" style={{ color: ACCENT }}>{src.label}</a>
               </span>
             ))}
@@ -219,7 +219,7 @@ export default async function TransparencySectionPage({
             </p>
             <div className="mt-6 flex flex-wrap gap-3 text-[15px]">
               <Link href="/secretariats" className="font-mono underline" style={{ color: ACCENT }}>Who runs the groups &rarr;</Link>
-              <span className="opacity-30">·</span>
+              <span>·</span>
               <Link href="/appg-funders" className="font-mono underline" style={{ color: ACCENT }}>Who funds them &rarr;</Link>
             </div>
           </>
@@ -242,27 +242,27 @@ export default async function TransparencySectionPage({
         {section === 'donations' && (
           <div className="mt-6 flex flex-wrap gap-3 text-[15px]">
             <Link href="/donors" className="font-mono underline" style={{ color: ACCENT }}>Donor index &rarr;</Link>
-            <span className="opacity-30">·</span>
+            <span>·</span>
             <Link href="/donations/foreign" className="font-mono underline" style={{ color: ACCENT }}>Foreign source map &rarr;</Link>
-            <span className="opacity-30">·</span>
+            <span>·</span>
             <Link href="/donations/late-disclosed" className="font-mono underline" style={{ color: ACCENT }}>Late disclosed register &rarr;</Link>
-            <span className="opacity-30">·</span>
+            <span>·</span>
             <Link href="/donations/trust-funded" className="font-mono underline" style={{ color: ACCENT }}>Trust routed &rarr;</Link>
-            <span className="opacity-30">·</span>
+            <span>·</span>
             <Link href="/donations/impermissible" className="font-mono underline" style={{ color: ACCENT }}>Impermissible &rarr;</Link>
-            <span className="opacity-30">·</span>
+            <span>·</span>
             <Link href="/donations/bequest" className="font-mono underline" style={{ color: ACCENT }}>Bequests &rarr;</Link>
-            <span className="opacity-30">·</span>
+            <span>·</span>
             <Link href="/donations/leadership-contests" className="font-mono underline" style={{ color: ACCENT }}>Leadership race money &rarr;</Link>
-            <span className="opacity-30">·</span>
+            <span>·</span>
             <Link href="/donations/sponsored-visits" className="font-mono underline" style={{ color: ACCENT }}>Sponsored visits &rarr;</Link>
-            <span className="opacity-30">·</span>
+            <span>·</span>
             <Link href="/donations/government-contractors" className="font-mono underline" style={{ color: ACCENT }}>Contractors who donate &rarr;</Link>
-            <span className="opacity-30">·</span>
+            <span>·</span>
             <Link href="/donations/constituencies" className="font-mono underline" style={{ color: ACCENT }}>By constituency &rarr;</Link>
-            <span className="opacity-30">·</span>
+            <span>·</span>
             <Link href="/donations/double-dip" className="font-mono underline" style={{ color: ACCENT }}>Double dip &rarr;</Link>
-            <span className="opacity-30">·</span>
+            <span>·</span>
             <Link href="/explainers/donations" className="font-mono underline" style={{ color: ACCENT }}>What the data means &rarr;</Link>
           </div>
         )}

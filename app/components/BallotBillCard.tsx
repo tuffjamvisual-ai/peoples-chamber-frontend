@@ -119,10 +119,10 @@ export default function BallotBillCard({ bill, userVote = null, onClick }: Props
           {total > 0 ? (
             <>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '5px' }}>
-                <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '20px', fontWeight: 'bold', color: SUCCESS, lineHeight: 1 }}>
+                <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '20px', fontWeight: 'bold', color: INK, lineHeight: 1 }}>
                   {yesPercent}%<span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '14px', color: INK_SOFT, letterSpacing: '0.12em', marginLeft: '4px' }}>AYE</span>
                 </span>
-                <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '20px', fontWeight: 'bold', color: DANGER, lineHeight: 1 }}>
+                <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '20px', fontWeight: 'bold', color: INK, lineHeight: 1 }}>
                   <span style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '14px', color: INK_SOFT, letterSpacing: '0.12em', marginRight: '4px' }}>NO</span>{noPercent}%
                 </span>
               </div>
@@ -172,7 +172,6 @@ export default function BallotBillCard({ bill, userVote = null, onClick }: Props
             fontWeight: 'bold',
             letterSpacing: '0.18em',
             textTransform: 'uppercase',
-            opacity: 0.7,
             pointerEvents: 'none',
           }}
         >

@@ -29,7 +29,7 @@ const field: CSSProperties = {
   outline: 'none',
 };
 const label: CSSProperties = { display: 'block', fontSize: '15px', fontWeight: 'bold', marginBottom: '6px' };
-const hint: CSSProperties = { fontSize: '14px', opacity: 0.75, margin: '4px 0 0' };
+const hint: CSSProperties = { fontSize: '14px', margin: '4px 0 0' };
 const errorText: CSSProperties = { fontSize: '14px', color: ACCENT, fontWeight: 'bold', margin: '6px 0 0' };
 
 type Values = { name: string; email: string; organisation: string; question: string; deadline: string; publish: string; terms: boolean; website: string };
@@ -102,7 +102,7 @@ export default function CommissionForm() {
       </div>
 
       <div style={row}>
-        <label htmlFor="commission-organisation" style={label}>Organisation <span style={{ fontWeight: 'normal', opacity: 0.75 }}>(optional)</span></label>
+        <label htmlFor="commission-organisation" style={label}>Organisation <span style={{ fontWeight: 'normal' }}>(optional)</span></label>
         <input id="commission-organisation" name="organisation" type="text" autoComplete="organization" value={v.organisation} onChange={(e) => set('organisation', e.target.value)} style={border('organisation')} {...aria('organisation')} />
         {err('organisation')}
       </div>
@@ -115,7 +115,7 @@ export default function CommissionForm() {
       </div>
 
       <div style={row}>
-        <label htmlFor="commission-deadline" style={label}>Deadline <span style={{ fontWeight: 'normal', opacity: 0.75 }}>(optional)</span></label>
+        <label htmlFor="commission-deadline" style={label}>Deadline <span style={{ fontWeight: 'normal' }}>(optional)</span></label>
         <input id="commission-deadline" name="deadline" type="date" min={todayUk()} value={v.deadline} onChange={(e) => set('deadline', e.target.value)} style={{ ...border('deadline'), maxWidth: '240px' }} {...aria('deadline')} />
         {err('deadline')}
       </div>

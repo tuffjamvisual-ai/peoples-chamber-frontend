@@ -16,7 +16,7 @@ interface Props {
   linkedOcids?: string[]   // contracts: OCIDs with an on-site /contracts/<ocid> page
 }
 
-const ACCENT = '#6b2417'
+const ACCENT = '#7a1612'
 
 function formatAmount(v: unknown): string | null {
   const n = typeof v === 'number' ? v : typeof v === 'string' && v.trim() ? Number(v) : NaN
@@ -104,7 +104,7 @@ export default function TransparencyClient({ rows, sectionTitle, section, total,
             type="search"
             defaultValue={searchQuery}
             placeholder={PLACEHOLDER[section ?? ''] ?? 'Search…'}
-            className="flex-1 min-w-0 basis-48 bg-[#14100d]/5 border border-[#14100d]/20 text-[#14100d] text-[15px] rounded-sm px-4 py-3 leading-[1.7] placeholder:text-[#14100d]/40 focus:outline-none focus:border-[#14100d] transition-colors"
+            className="flex-1 min-w-0 basis-48 bg-[#14100d]/5 border border-[#14100d]/20 text-[#14100d] text-[15px] rounded-sm px-4 py-3 leading-[1.7] focus:outline-none focus:border-[#14100d] transition-colors"
           />
           <button
             type="submit"

@@ -31,14 +31,14 @@ const H2_CLS = 'text-[15px] uppercase tracking-[0.25em] mb-4 font-semibold';
 
 export function BudgetSlot({ budget }: { budget: DepartmentBudget | null }) {
   if (!budget) {
-    return <p className="text-[15px]" style={{ opacity: 0.7 }}>No published budget envelope is available for this department.</p>;
+    return <p className="text-[15px]" >No published budget envelope is available for this department.</p>;
   }
   return (
     <section>
       <h2 className={H2_CLS} style={{ color: ACCENT }}>Budget · {budget.year}</h2>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: '18px', flexWrap: 'wrap', marginBottom: '12px' }}>
-        <div style={{ fontSize: '30px', fontWeight: 'bold', color: '#6b2417', lineHeight: 1 }}>{fmtBn(totalSpend(budget))}</div>
-        <div style={{ fontSize: '15px', opacity: 0.75 }}>
+        <div style={{ fontSize: '30px', fontWeight: 'bold', color: '#7a1612', lineHeight: 1 }}>{fmtBn(totalSpend(budget))}</div>
+        <div style={{ fontSize: '15px' }}>
           Resource DEL {fmtBn(budget.resourceDel)} · Capital DEL {fmtBn(budget.capitalDel)}
           {budget.ame !== undefined && ` · AME ${fmtBn(budget.ame)}`}
         </div>
@@ -66,7 +66,7 @@ function shortSummary(text: string): string {
 
 export function AgenciesSlot({ agencies }: { agencies: Agency[] }) {
   if (!agencies || agencies.length === 0) {
-    return <p className="text-[15px]" style={{ opacity: 0.7 }}>No agencies or arm&apos;s length bodies are listed for this department.</p>;
+    return <p className="text-[15px]" >No agencies or arm&apos;s length bodies are listed for this department.</p>;
   }
   return (
     <section>
@@ -91,7 +91,7 @@ export function AgenciesSlot({ agencies }: { agencies: Agency[] }) {
               </span>
             )}
             {org.description && (
-              <p className="text-[15px] leading-[1.6] mt-1" style={{ opacity: 0.85 }}>{shortSummary(org.description)}</p>
+              <p className="text-[15px] leading-[1.6] mt-1" >{shortSummary(org.description)}</p>
             )}
           </li>
         ))}
@@ -109,7 +109,7 @@ export function ContactSlot({
 }) {
   const hasSocial = socialMedia && socialMedia.length > 0;
   if (!hasSocial && !pressPhone) {
-    return <p className="text-[15px]" style={{ opacity: 0.7 }}>No published contact details are available for this department.</p>;
+    return <p className="text-[15px]" >No published contact details are available for this department.</p>;
   }
   return (
     <section>

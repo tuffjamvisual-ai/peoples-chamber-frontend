@@ -20,7 +20,7 @@ import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 export const revalidate = 3600;
 
 const INK = '#14100d';
-const ACCENT = '#6b2417';
+const ACCENT = '#7a1612';
 
 const SOURCE_HEADER = {
   fontSize: 'clamp(20px, 2.8vw, 30px)',
@@ -109,7 +109,6 @@ function ReleaseList({ items, fallbackOrg }: { items: Release[]; fallbackOrg: st
                   fontSize: '15px',
                   lineHeight: 1.65,
                   color: INK,
-                  opacity: 0.85,
                   margin: 0,
                 }}
               >

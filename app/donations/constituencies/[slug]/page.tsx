@@ -122,7 +122,7 @@ export default async function AssociationPage({ params }: PageProps) {
       <BackLink fallbackHref="/donations/constituencies" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px' }}>
           Constituency association · Donations declared
         </p>
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '8px', lineHeight: 1.15 }}>
@@ -160,13 +160,13 @@ export default async function AssociationPage({ params }: PageProps) {
           <tbody>
             {donorRows.map((d, i) => (
               <tr key={d.name} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-                <td style={{ padding: '6px', opacity: 0.6 }}>{i + 1}</td>
+                <td style={{ padding: '6px' }}>{i + 1}</td>
                 <td style={{ padding: '6px' }}>
                   {donorPageSlug(d.name) ? <Link href={`/donors/${donorPageSlug(d.name)}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{d.name}</Link> : <>{d.name}</>}
                 </td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{d.count}</td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>£{Math.round(d.total).toLocaleString()}</td>
-                <td style={{ padding: '6px', fontSize: '15px', fontFamily: 'monospace', opacity: 0.7 }}>
+                <td style={{ padding: '6px', fontSize: '15px', fontFamily: 'monospace' }}>
                   {d.first && d.last ? (d.first === d.last ? d.first : `${d.first} → ${d.last}`) : ''}
                 </td>
               </tr>
@@ -187,7 +187,7 @@ function UnitChooser({ view }: { view: Extract<AssociationView, { kind: 'chooser
       <BackLink fallbackHref="/donations/constituencies" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px' }}>
           {view.national ? 'National party accounts · Donations declared' : 'Local party accounts · Choose a party'}
         </p>
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
@@ -230,7 +230,7 @@ function UnitChooser({ view }: { view: Extract<AssociationView, { kind: 'chooser
 function Tile({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '12px 14px', background: CREAM }}>
-      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', opacity: 0.7, marginBottom: '4px' }}>{label}</div>
+      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: '4px' }}>{label}</div>
       <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '22px', fontWeight: 'bold', color: ACCENT }}>{value}</div>
     </div>
   );

@@ -6,11 +6,11 @@ import type { CSSProperties } from 'react';
 import { useAuth } from '../context/AuthContext';
 
 const INK = '#14100d';
-const ACCENT = '#6b2417';
+const ACCENT = '#7a1612';
 
 const label: CSSProperties = {
   display: 'block', fontSize: '15px', textTransform: 'uppercase',
-  letterSpacing: '0.14em', opacity: 0.7, marginBottom: '6px',
+  letterSpacing: '0.14em', marginBottom: '6px',
 };
 
 const inputStyle: CSSProperties = {
@@ -36,7 +36,7 @@ export default function ResetPasswordClient({ token }: { token: string }) {
   if (!token) {
     return (
       <div style={{ maxWidth: '440px', margin: '0 auto', fontFamily: 'var(--font-special-elite), monospace', color: INK }}>
-        <p style={{ fontSize: '15px', opacity: 0.75 }}>
+        <p style={{ fontSize: '15px' }}>
           This reset link is invalid.{' '}
           <a href="/login" style={{ color: ACCENT, textDecoration: 'underline' }}>Return to sign in</a>
           {' '}and use Forgot password to request a new one.
@@ -88,7 +88,7 @@ export default function ResetPasswordClient({ token }: { token: string }) {
             value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
             style={{ ...inputStyle, marginBottom: '6px' }}
           />
-          <p style={{ margin: '0 0 18px', fontSize: '15px', opacity: 0.6 }}>8 or more characters, with a letter and a number.</p>
+          <p style={{ margin: '0 0 18px', fontSize: '15px' }}>8 or more characters, with a letter and a number.</p>
           <button type="submit" disabled={loading} style={buttonStyle}>
             {loading ? 'Saving…' : 'Set new password'}
           </button>

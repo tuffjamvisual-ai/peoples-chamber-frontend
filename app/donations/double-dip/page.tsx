@@ -40,7 +40,6 @@ const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.25)';
 const CREAM = '#ebe5d8';
 const ACCENT = '#7a1612';
-const DANGER = '#a64030';
 
 // Pull the entity name out of a free-text Register of Interests
 // "Payer: X" string. Strip anything from the first opening
@@ -165,7 +164,7 @@ export default async function DoubleDipPage() {
       <BackLink fallbackHref="/transparency/donations" label="← Back" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
 
       <header style={{ borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '20px', marginBottom: '24px' }}>
-        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px', opacity: 0.85 }}>
+        <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '12px' }}>
           Pattern across registers · MPs paid twice from the same source
         </p>
         <h1 style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', lineHeight: 1.15 }}>
@@ -191,16 +190,16 @@ export default async function DoubleDipPage() {
           <tbody>
             {matches.map((m, i) => (
               <tr key={`${m.memberId}-${m.donorName}`} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-                <td style={{ padding: '6px', opacity: 0.6 }}>{i + 1}</td>
+                <td style={{ padding: '6px' }}>{i + 1}</td>
                 <td style={{ padding: '6px' }}>
                   <Link href={`/mps/${m.memberId}`} style={{ color: ACCENT, textDecoration: 'underline', fontWeight: 'bold' }}>{m.mpName}</Link>
                 </td>
                 <td style={{ padding: '6px' }}>
                   {m.donorSlug ? <Link href={`/donors/${m.donorSlug}`} style={{ color: ACCENT, textDecoration: 'underline' }}>{m.donorName}</Link> : m.donorName}
-                  {m.payerAppearances > 1 && <span style={{ fontSize: '15px', opacity: 0.6, marginLeft: '6px' }}>· {m.payerAppearances} entries</span>}
+                  {m.payerAppearances > 1 && <span style={{ fontSize: '15px', marginLeft: '6px' }}>· {m.payerAppearances} entries</span>}
                 </td>
                 <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace' }}>{m.donationCount}</td>
-                <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold', color: DANGER }}>£{Math.round(m.donatedTotal).toLocaleString()}</td>
+                <td style={{ padding: '6px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold', color: INK }}>£{Math.round(m.donatedTotal).toLocaleString()}</td>
               </tr>
             ))}
           </tbody>
@@ -211,7 +210,7 @@ export default async function DoubleDipPage() {
         <strong>What this list isn&rsquo;t.</strong> A pairing of this kind is not in itself a rule breach. UK MPs are legally allowed to take outside employment income and accept political donations from the same body provided both are declared on their respective registers. What the list shows is the small number of cases where the public has been told the same fact twice in two different places without ever being shown the overlap. The interpretation belongs to the reader.
       </section>
 
-      <p style={{ fontSize: '15px', opacity: 0.6 }}>
+      <p style={{ fontSize: '15px' }}>
         Sources: parliament.uk Register of Members&rsquo; Financial Interests (category 1. Employment and earnings) matched against the Electoral Commission donations register. Payer name extracted from the Register entry by taking everything before the first comma or opening parenthesis. Matching a donation to an MP requires the EC recipient_name to include both the MP&rsquo;s first and last name.
       </p>
     </OpenGovShell>

@@ -8,7 +8,7 @@ import { safeReturnPath } from '@/lib/safe-return';
 import { VERIFY_TOKEN_TTL_DAYS, maskEmail } from '@/lib/auth-constants';
 
 const INK = '#14100d';
-const ACCENT = '#6b2417';
+const ACCENT = '#7a1612';
 
 function safeReturnTo(value: string | null): string {
   return safeReturnPath(value) ?? '/';
@@ -19,7 +19,6 @@ const label: CSSProperties = {
   fontSize: '15px',
   textTransform: 'uppercase',
   letterSpacing: '0.14em',
-  opacity: 0.7,
   marginBottom: '6px',
 };
 
@@ -70,7 +69,8 @@ function tab(active: boolean): CSSProperties {
     border: 'none',
     borderBottom: active ? `3px solid ${INK}` : '3px solid transparent',
     color: INK,
-    opacity: active ? 1 : 0.5,
+    // Black ink rule: the inactive tab is not greyed; the active one is bold and underlined.
+    fontWeight: active ? 'bold' : 'normal',
     fontFamily: 'inherit',
     fontSize: '17px',
     letterSpacing: '0.04em',
@@ -307,7 +307,7 @@ export default function MagazineLoginClient() {
 
             <button type="submit" disabled={loading} style={button}>{loading ? 'Signing in…' : 'Sign In'}</button>
 
-            <p style={{ marginTop: '16px', fontSize: '15px', opacity: 0.75 }}>
+            <p style={{ marginTop: '16px', fontSize: '15px' }}>
               New here?{' '}
               <button type="button" onClick={() => switchMode('signup')} style={ghostLink}>
                 Create an account
@@ -326,14 +326,14 @@ export default function MagazineLoginClient() {
 
             <label style={label} htmlFor="su-pw">Password</label>
             <input id="su-pw" type="password" autoComplete="new-password" required value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} style={{ ...input, marginBottom: '6px' }} />
-            <p style={{ margin: '0 0 18px', fontSize: '15px', opacity: 0.6 }}>8 or more characters, with a letter and a number.</p>
+            <p style={{ margin: '0 0 18px', fontSize: '15px' }}>8 or more characters, with a letter and a number.</p>
 
-            <label style={label} htmlFor="su-postcode">Postcode <span style={{ opacity: 0.6 }}>(optional)</span></label>
+            <label style={label} htmlFor="su-postcode">Postcode <span >(optional)</span></label>
             <input id="su-postcode" type="text" autoComplete="postal-code" value={signupPostcode} onChange={(e) => setSignupPostcode(e.target.value)} style={input} />
 
             <div style={{ border: '1px solid rgba(20,16,13,0.18)', padding: '14px', margin: '4px 0 20px' }}>
               <p style={{ margin: '0 0 4px', fontSize: '20px', fontWeight: 700 }}>Open Govt Weekly</p>
-              <p style={{ margin: '0 0 12px', fontSize: '14px', lineHeight: 1.5, opacity: 0.75 }}>What government announced. What the evidence shows. What happened next. Reports, overlooked documents and public spending stories. No gossip, no rewritten press releases. Sign up now for the first issue.</p>
+              <p style={{ margin: '0 0 12px', fontSize: '14px', lineHeight: 1.5 }}>What government announced. What the evidence shows. What happened next. Reports, overlooked documents and public spending stories. No gossip, no rewritten press releases. Sign up now for the first issue.</p>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
                 <input
                   id="su-newsletter"
@@ -350,7 +350,7 @@ export default function MagazineLoginClient() {
 
             <button type="submit" disabled={loading} style={button}>{loading ? 'Creating account…' : 'Create Account'}</button>
 
-            <p style={{ marginTop: '16px', fontSize: '15px', opacity: 0.75 }}>
+            <p style={{ marginTop: '16px', fontSize: '15px' }}>
               Already registered?{' '}
               <button type="button" onClick={() => switchMode('signin')} style={ghostLink}>
                 Sign in
@@ -402,7 +402,7 @@ export default function MagazineLoginClient() {
                 <button type="submit" disabled={loading} style={button}>{loading ? 'Sending…' : 'Send reset link'}</button>
               </form>
             )}
-            <p style={{ marginTop: '20px', fontSize: '15px', opacity: 0.75 }}>
+            <p style={{ marginTop: '20px', fontSize: '15px' }}>
               <button type="button" onClick={() => switchMode('signin')} style={ghostLink}>
                 ← Back to sign in
               </button>
@@ -416,7 +416,7 @@ export default function MagazineLoginClient() {
               {isForced ? 'Set a new password' : 'Change password'}
             </h2>
             {isForced && (
-              <p style={{ fontSize: '15px', opacity: 0.75, marginBottom: '20px', lineHeight: 1.5 }}>
+              <p style={{ fontSize: '15px', marginBottom: '20px', lineHeight: 1.5 }}>
                 You need to set a new password before continuing.
               </p>
             )}
@@ -426,12 +426,12 @@ export default function MagazineLoginClient() {
 
               <label style={label} htmlFor="cp-new">New password</label>
               <input id="cp-new" type="password" autoComplete="new-password" required value={cpNew} onChange={(e) => setCpNew(e.target.value)} style={{ ...input, marginBottom: '6px' }} />
-              <p style={{ margin: '0 0 18px', fontSize: '15px', opacity: 0.6 }}>8 or more characters, with a letter and a number.</p>
+              <p style={{ margin: '0 0 18px', fontSize: '15px' }}>8 or more characters, with a letter and a number.</p>
 
               <button type="submit" disabled={loading} style={button}>{loading ? 'Saving…' : 'Set new password'}</button>
             </form>
             {!isForced && (
-              <p style={{ marginTop: '20px', fontSize: '15px', opacity: 0.75 }}>
+              <p style={{ marginTop: '20px', fontSize: '15px' }}>
                 <button type="button" onClick={() => switchMode('signin')} style={ghostLink}>
                   ← Back to sign in
                 </button>

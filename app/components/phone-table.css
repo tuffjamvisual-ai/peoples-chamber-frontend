@@ -28,7 +28,7 @@
   /* A row wraps when the label and the value do not fit side by side (report 52: at 320px "£108,433,986" ran past its
      box), so the value then sits under its label. A number is never clipped or shortened. */
   .pt-cards td { display: flex; flex-wrap: wrap; justify-content: space-between; column-gap: 12px; row-gap: 0; padding: 2px 0 !important; text-align: right !important; border: 0 !important; overflow-wrap: normal; }
-  .pt-cards td::before { content: attr(data-label); text-align: left; text-transform: uppercase; letter-spacing: 0.06em; font-size: 14px; opacity: 0.7; flex: 0 0 auto; }
+  .pt-cards td::before { content: attr(data-label); text-align: left; text-transform: uppercase; letter-spacing: 0.06em; font-size: 14px; flex: 0 0 auto; }
   .pt-cards td[data-label=""]::before { content: none; }
   .pt-cards td.pt-card-title { display: block; text-align: left !important; font-size: 17px; padding-bottom: 4px !important; }
 }
