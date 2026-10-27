@@ -21,9 +21,9 @@ const HEAVY = new Set([
   '/api/sync-ministers-meetings', '/api/sync-agency-cache', '/api/sync-civil-service-salaries', '/api/check-hand-loaded-releases',
   '/api/recompute-activity-metrics', '/api/sync-standards-committee', '/api/sync-spad-transparency',
   '/api/send-member-digests',                                   // job 74
-  '/api/sync-electoral-commission-donations?sweep=1',           // day job 27 Oct, Part 3
+  '/api/sweep-electoral-commission-donations',                   // day job 27 Oct, Part 3
 ]);
-const NEW = new Set(['/api/send-member-digests', '/api/sync-electoral-commission-donations?sweep=1']);
+const NEW = new Set(['/api/send-member-digests', '/api/sweep-electoral-commission-donations']);
 const KEEP_FREE = [{ from: 2 * 60 + 40, to: 2 * 60 + 49 }];
 
 function expand(field: string, lo: number, hi: number): number[] {

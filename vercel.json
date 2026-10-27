@@ -101,6 +101,10 @@
       "schedule": "13 1 * * *"
     },
     {
+      "path": "/api/sweep-electoral-commission-donations",
+      "schedule": "17 21 * * *"
+    },
+    {
       "path": "/api/sync-commons-votes-api",
       "schedule": "23 9 * * *"
     },

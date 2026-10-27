@@ -23,6 +23,8 @@ export const CYCLE_HOURS: Record<string, number> = {
   '/api/sync-hansard-contributions': 3 * DAY_H,
   '/api/sync-person-cache': 3 * DAY_H,
   '/api/sync-electoral-commission-donations': 4 * DAY_H,
+  // The weekly full sweep (day job 27 Oct 2026, Part 3): starts on Saturdays and takes about 5 daily runs.
+  '/api/sweep-electoral-commission-donations': 8 * DAY_H,
   '/api/sync-mp-contributions': 7 * DAY_H,
   '/api/sync-bill-stages': 7 * DAY_H,
   '/api/sync-bill-commons-votes': 7 * DAY_H,

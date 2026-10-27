@@ -4,15 +4,20 @@
 // date window so the EC's /api/search/Donations sorted-by-date
 // returns are stable across page calls.
 //
-// The EC API is POST-only with form-encoded payload; sorted by
-// AcceptedDate desc; pages of up to 100 rows. Total record count
-// at first run: ~93,000. The script is idempotent — re-running
-// upserts the same rows by ec_ref.
+// The Commission's search, sorted by AcceptedDate desc. Total record count on 27 Oct 2026: 94,248. The script is
+// idempotent: re-running upserts the same rows by ec_ref.
+//
+// Date filter fixed on 27 Oct 2026 (day job Part 3, the bug found in job 79): the search filters by date only as
+// GET parameters date=Accepted&from=YYYY-MM-DD&to=YYYY-MM-DD (checked: January 2024 gives 458 donations by accepted
+// date, 1,205 by reported date, 94,248 with no filter) and returns at most 50 rows a page whatever is asked. The
+// script used to POST AcceptedFromDate/AcceptedToDate, which the search ignores, and step 100 rows a page, so every
+// run read the whole register and skipped every other block of 50.
 //
 // Usage: node scripts/sync-electoral-commission-donations.js
-//   --from=01/01/2001   start of date window (DD/MM/YYYY)
-//   --to=10/06/2026     end of date window (DD/MM/YYYY)
-//   --rows=100          page size (max 100)
+//   --from=01/01/2001   start of the accepted date window (DD/MM/YYYY or YYYY-MM-DD)
+//   --to=10/06/2026     end of the accepted date window (DD/MM/YYYY or YYYY-MM-DD)
+//   --date=Accepted     which date the window is on: Accepted (default), Reported or Received
+//   --rows=50           page size (the search's most is 50)
 
 require('dotenv').config({ path: '.env.local' });
 const { spawn } = require('child_process');
@@ -27,9 +32,18 @@ const args = Object.fromEntries(
   }),
 );
 
-const FROM = args.from || '01/01/2001';
-const TO = args.to || formatDdmmyyyy(new Date());
-const ROWS = Math.min(parseInt(args.rows || '100', 10) || 100, 100);
+const FROM = toIso(args.from || '01/01/2001');
+const TO = toIso(args.to || formatDdmmyyyy(new Date()));
+const DATE_FIELD = ['Accepted', 'Reported', 'Received'].includes(args.date) ? args.date : 'Accepted';
+const ROWS = Math.min(parseInt(args.rows || '50', 10) || 50, 50);
+
+// DD/MM/YYYY or YYYY-MM-DD -> YYYY-MM-DD, the form the search reads.
+function toIso(v) {
+  const m = String(v).match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (m) return `${m[3]}-${m[2]}-${m[1]}`;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(String(v))) return String(v);
+  console.error(`bad date: ${v} (use DD/MM/YYYY or YYYY-MM-DD)`); process.exit(1);
+}
 
 function formatDdmmyyyy(d) {
   const dd = String(d.getDate()).padStart(2, '0');
@@ -76,25 +90,24 @@ function psqlWrite(sql) {
 }
 
 async function fetchPage(start, rows) {
-  const body = new URLSearchParams({
+  const q = new URLSearchParams({
     rows: String(rows),
     start: String(start),
     query: '',
     sort: 'AcceptedDate',
     order: 'desc',
     includeOutsideSection75: 'true',
-    AcceptedFromDate: FROM,
-    AcceptedToDate: TO,
+    date: DATE_FIELD,
+    from: FROM,
+    to: TO,
   }).toString();
 
-  const res = await fetch('https://search.electoralcommission.org.uk/api/search/Donations', {
-    method: 'POST',
+  const res = await fetch(`https://search.electoralcommission.org.uk/api/search/Donations?${q}`, {
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
       'Accept': 'application/json',
       'User-Agent': 'Mozilla/5.0 PeoplesChamber/1.0',
     },
-    body,
+    signal: AbortSignal.timeout(30000),
   });
   if (!res.ok) throw new Error(`EC API HTTP ${res.status}`);
   return res.json();
@@ -177,7 +190,7 @@ function rowToSql(r) {
 }
 
 (async () => {
-  console.log(`EC donations sync — window ${FROM} to ${TO}, page size ${ROWS}`);
+  console.log(`EC donations sync: ${DATE_FIELD.toLowerCase()} dates ${FROM} to ${TO}, page size ${ROWS}`);
   // Probe total
   const probe = await fetchPage(0, 1);
   const total = probe.Total;
