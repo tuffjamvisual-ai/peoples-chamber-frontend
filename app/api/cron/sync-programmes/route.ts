@@ -13,8 +13,8 @@ import { withHeartbeat } from '@/lib/sync-heartbeat';
 // Never touches is_live, is_approved, or figure_value on existing rows.
 // Insert-only, draft-only — the same safety contract as every other sync cron.
 //
-// Schedule: 30 9 * * * (09:30 UTC, after sync-press-releases at 07:00 and
-// sync-commons-press-releases at 07:15 have both completed).
+// Schedule: 27 10 * * * (10:27 UTC since 27 Oct 2026, after the 08:17 and 08:33 runs of sync-press-releases and
+// sync-commons-press-releases have both completed).
 //
 // Manual single-programme test: GET ?slug=hs2 (auth still required).
 // Dry-run preview (no DB writes): GET ?dry=1 (auth still required).

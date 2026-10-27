@@ -6,7 +6,7 @@ import { refreshStore } from '@/lib/refresh-stores';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 180;
 
-// Daily at 04:45 UTC, after the donations (02:30) and contracts (03:00) syncs and the contractor refresh (03:30):
+// Daily at 04:45 UTC, after the donations (01:13) and contracts (01:53) syncs and the contractor refresh (03:27):
 // rebuilds the organisation summary behind /organisations (organisation_index and organisation_contracts, migration
 // 2026-10-27c; report 71). refresh_organisation_index() has its own 120 s limit. A failure returns 500, so the
 // heartbeat and the freshness monitor show it.

@@ -26,143 +26,143 @@
   "crons": [
     {
       "path": "/api/sync-mp-roster",
-      "schedule": "0 4 * * *"
+      "schedule": "7 4 * * *"
     },
     {
       "path": "/api/sync-mp-parties",
-      "schedule": "0 5 * * *"
+      "schedule": "27 4 * * *"
     },
     {
       "path": "/api/sync-press-releases",
-      "schedule": "0 */2 * * *"
+      "schedule": "17 */2 * * *"
     },
     {
       "path": "/api/sync-commons-press-releases",
-      "schedule": "15 */2 * * *"
+      "schedule": "33 */2 * * *"
     },
     {
       "path": "/api/check-press-release-liveness",
-      "schedule": "0 */2 * * *"
+      "schedule": "51 */2 * * *"
     },
     {
       "path": "/api/sync-voting-intention",
-      "schedule": "0 10 * * *"
+      "schedule": "47 10 * * *"
     },
     {
       "path": "/api/sync-bill-stages",
-      "schedule": "30 1,7,13,19 * * *"
+      "schedule": "35 1,7,13,19 * * *"
     },
     {
       "path": "/api/sync-bill-sponsors",
-      "schedule": "0 9 * * *"
+      "schedule": "13 9 * * *"
     },
     {
       "path": "/api/sync-civil-service-salaries",
-      "schedule": "30 9 * * 1"
+      "schedule": "53 9 * * 1"
     },
     {
       "path": "/api/sync-bill-commons-votes",
-      "schedule": "0 8 * * *"
+      "schedule": "3 9 * * *"
     },
     {
       "path": "/api/sync-department-contacts",
-      "schedule": "0 6 * * 1"
+      "schedule": "27 6 * * 1"
     },
     {
       "path": "/api/sync-agency-cache",
-      "schedule": "30 6 * * 1"
+      "schedule": "43 5 * * 1"
     },
     {
       "path": "/api/sync-person-cache",
-      "schedule": "0 7 * * *"
+      "schedule": "3 7 * * *"
     },
     {
       "path": "/api/sync-revolving-door",
-      "schedule": "0 6 * * 2"
+      "schedule": "25 6 * * 2"
     },
     {
       "path": "/api/sync-ministers-bars",
-      "schedule": "30 6 * * 2"
+      "schedule": "29 6 * * 2"
     },
     {
       "path": "/api/sync-govuk-data",
-      "schedule": "0 5 * * *"
+      "schedule": "23 5 * * *"
     },
     {
       "path": "/api/sync-ministers-meetings",
-      "schedule": "0 6 * * 0"
+      "schedule": "33 5 * * 0"
     },
     {
       "path": "/api/sync-ministers-hospitality",
-      "schedule": "0 9 * * 0"
+      "schedule": "7 10 * * 0"
     },
     {
       "path": "/api/sync-electoral-commission-donations",
-      "schedule": "30 2 * * *"
+      "schedule": "13 1 * * *"
     },
     {
       "path": "/api/sync-commons-votes-api",
-      "schedule": "0 9 * * *"
+      "schedule": "23 9 * * *"
     },
     {
       "path": "/api/sync-mp-contributions",
-      "schedule": "40 3,9,15,21 * * *"
+      "schedule": "43 3,9,15,21 * * *"
     },
     {
       "path": "/api/sync-debates",
-      "schedule": "30 5 * * *"
+      "schedule": "13 5 * * *"
     },
     {
       "path": "/api/sync-mp-written-questions",
-      "schedule": "0 3 * * *"
+      "schedule": "13 3 * * *"
     },
     {
       "path": "/api/recompute-activity-metrics",
-      "schedule": "35 12 * * 1"
+      "schedule": "43 12 * * 1"
     },
     {
       "path": "/api/sync-standards-committee",
-      "schedule": "0 13 * * 1"
+      "schedule": "13 13 * * 1"
     },
     {
       "path": "/api/sync-members-contributions",
-      "schedule": "15 */6 * * *"
+      "schedule": "23 */6 * * *"
     },
     {
       "path": "/api/sync-appgs",
-      "schedule": "30 14 * * 1"
+      "schedule": "47 14 * * 1"
     },
     {
       "path": "/api/sync-spad-transparency",
-      "schedule": "45 14 * * 1"
+      "schedule": "3 15 * * 1"
     },
     {
       "path": "/api/sync-department-staffing",
-      "schedule": "0 15 * * 1"
+      "schedule": "13 15 * * 1"
     },
     {
       "path": "/api/sync-department-budgets",
-      "schedule": "15 15 * * 1"
+      "schedule": "27 15 * * 1"
     },
     {
       "path": "/api/sync-committees",
-      "schedule": "30 11 * * *"
+      "schedule": "13 11 * * *"
     },
     {
       "path": "/api/sync-member-biography",
-      "schedule": "0 11,23 * * *"
+      "schedule": "3 11,23 * * *"
     },
     {
       "path": "/api/sync-reshuffle-tick",
-      "schedule": "0 */2 * * *"
+      "schedule": "5 */2 * * *"
     },
     {
       "path": "/api/sync-government-contracts",
-      "schedule": "0 3 * * *"
+      "schedule": "53 1 * * *"
     },
     {
       "path": "/api/refresh-contractor-matches",
-      "schedule": "30 3 * * *"
+      "schedule": "27 3 * * *"
     },
     {
       "path": "/api/refresh-organisation-index",
@@ -170,71 +170,71 @@
     },
     {
       "path": "/api/refresh-reader-stores",
-      "schedule": "20 4 * * *"
+      "schedule": "29 4 * * *"
     },
     {
       "path": "/api/sync-hansard-contributions",
-      "schedule": "0 2 * * *"
+      "schedule": "3 1 * * *"
     },
     {
       "path": "/api/monitor-freshness",
-      "schedule": "0 16 * * *"
+      "schedule": "3 17 * * *"
     },
     {
       "path": "/api/sync-committee-memberships",
-      "schedule": "0 12 * * *"
+      "schedule": "3 13 * * *"
     },
     {
       "path": "/api/cron/sync-programmes",
-      "schedule": "30 9 * * *"
+      "schedule": "27 10 * * *"
     },
     {
       "path": "/api/sync-petitions",
-      "schedule": "45 6 * * *"
+      "schedule": "43 6 * * *"
     },
     {
       "path": "/api/sync-lords-votes",
-      "schedule": "15 7 * * *"
+      "schedule": "27 7 * * *"
     },
     {
       "path": "/api/sync-edms",
-      "schedule": "45 7 * * *"
+      "schedule": "13 7 * * *"
     },
     {
       "path": "/api/sync-edms?retry=1",
-      "schedule": "55 7 * * *"
+      "schedule": "53 7 * * *"
     },
     {
       "path": "/api/sync-house-prices",
-      "schedule": "15 8 * * *"
+      "schedule": "27 8 * * *"
     },
     {
       "path": "/api/sync-homelessness",
-      "schedule": "20 8 * * 2"
+      "schedule": "25 10 * * 2"
     },
     {
       "path": "/api/sync-claimant-count",
-      "schedule": "25 8 * * *"
+      "schedule": "43 8 * * *"
     },
     {
       "path": "/api/sync-school-inspections",
-      "schedule": "30 8 * * 3"
+      "schedule": "43 10 * * 3"
     },
     {
       "path": "/api/sync-fuel-poverty",
-      "schedule": "35 8 * * 4"
+      "schedule": "23 10 * * 4"
     },
     {
       "path": "/api/sync-road-casualties",
-      "schedule": "40 8 * * 5"
+      "schedule": "45 10 * * 5"
     },
     {
       "path": "/api/check-hand-loaded-releases",
-      "schedule": "20 10 * * 1"
+      "schedule": "23 11 * * 1"
     },
     {
       "path": "/api/sync-connectivity",
-      "schedule": "45 8 1 * *"
+      "schedule": "41 10 1 * *"
     }
   ]
 }
