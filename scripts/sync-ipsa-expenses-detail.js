@@ -232,8 +232,16 @@ async function main() {
 
     const sqlScript = `
 BEGIN;
+-- first_seen_at (migration 2026-10-27d, job 74): when each claim first appeared, for the members' weekly digest. The
+-- year is deleted and reloaded, so the earliest time for each claim number is kept aside and put back; a claim number
+-- not seen before keeps the load time (the column default) and counts as new.
+CREATE TEMP TABLE keep_first_seen ON COMMIT DROP AS
+  SELECT member_id, claim_number, min(first_seen_at) AS first_seen_at FROM mp_expenses_detail
+  WHERE year = '${year}' AND claim_number IS NOT NULL GROUP BY member_id, claim_number;
 DELETE FROM mp_expenses_detail WHERE year = '${year}';
 \\copy mp_expenses_detail (claim_number, member_id, year, claim_date, mp_name, constituency, category, cost_type, short_description, details, journey_type, journey_from, journey_to, travel, nights, mileage, amount_claimed, amount_paid, amount_not_paid, amount_repaid, status, reason_if_not_paid, supply_month, supply_period) FROM '${stagePath}' WITH (FORMAT csv, NULL '');
+UPDATE mp_expenses_detail d SET first_seen_at = k.first_seen_at FROM keep_first_seen k
+  WHERE d.year = '${year}' AND d.member_id = k.member_id AND d.claim_number = k.claim_number AND d.first_seen_at <> k.first_seen_at;
 COMMIT;
 `.trim();
     const sqlPath = path.join(tmpDir, `${year}.sql`);

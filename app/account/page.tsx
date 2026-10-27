@@ -100,6 +100,16 @@ export default function AccountPage() {
             </button>
           </div>
 
+          {/* Follows, saved searches and the weekly email (job 74). */}
+          <div style={{ borderTop: `1px solid ${HAIRLINE}`, paddingTop: '20px', marginBottom: '32px' }}>
+            <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.16em', textTransform: 'uppercase', color: ACCENT, marginBottom: '12px' }}>
+              Following and saved searches
+            </h2>
+            <a href="/preferences" style={{ fontFamily: MONO, fontSize: '15px', color: ACCENT, textDecoration: 'underline' }}>
+              What you follow, your saved searches and your weekly email →
+            </a>
+          </div>
+
           {/* Newsletter preference */}
           <div style={{ borderTop: `1px solid ${HAIRLINE}`, paddingTop: '20px', marginBottom: '32px' }}>
             <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.16em', textTransform: 'uppercase', color: ACCENT, marginBottom: '12px' }}>

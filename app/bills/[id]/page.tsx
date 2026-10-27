@@ -18,6 +18,7 @@ import RelatedLinks from '@/app/components/RelatedLinks';
 import LastUpdated from '@/app/components/LastUpdated';
 import type { Metadata } from 'next'
 import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
+import FollowButton from '@/app/components/FollowButton';
 export const revalidate = 3600
 
 // Prerender a small set of bill pages at build time. The list does NOT need
@@ -262,6 +263,11 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
             [{billStageLine(bill)}]
           </div>
         )}
+
+        {/* Follow this bill (job 74): a weekly email when it reaches a new stage or is voted on. */}
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <FollowButton kind="bill" targetKey={String(bill.id)} label={bill.title} />
+        </div>
 
         {/* "A / BILL / TO" centrepiece */}
         <div style={{ textAlign: 'center', margin: '6px 0 22px' }}>

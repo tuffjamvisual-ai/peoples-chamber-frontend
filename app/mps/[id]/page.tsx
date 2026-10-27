@@ -707,6 +707,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       partyColour={partyColour}
       partyIsCoop={partyIsCoop}
       photoUrl={mp.photo_url ?? null}
+      followable
       sections={{
         memberId,
         paragraphs: (bioRes.data?.political_bio ?? '').split(/\n\n+/).map((p: string) => p.trim()).filter((p: string) => p.length > 0),

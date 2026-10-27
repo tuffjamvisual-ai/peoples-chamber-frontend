@@ -19,6 +19,7 @@ import { ecDonationSearchUrl } from '@/lib/ec-links';
 import { relatedDonorNames } from '@/lib/donor-related';
 import { donorRegistry } from '@/lib/donor-registry';
 import PhoneTable from '../../components/PhoneTable';
+import FollowButton from '../../components/FollowButton';
 
 export const revalidate = 86400;
 
@@ -375,6 +376,10 @@ export default async function DonorPage({ params }: PageProps) {
           )}
         </div>
         {sampleAddress && <p style={{ fontSize: '15px', opacity: 0.7, marginTop: '8px' }}>{sampleAddress}</p>}
+        {/* Follow this donor (job 74): a weekly email when the Electoral Commission publishes a new donation. */}
+        <div style={{ marginTop: '14px' }}>
+          <FollowButton kind="donor" targetKey={slug} label={canonicalName} />
+        </div>
       </header>
 
       <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px', marginBottom: '28px' }}>

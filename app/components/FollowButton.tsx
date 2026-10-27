@@ -1,0 +1,91 @@
+'use client';
+
+// Follow button on MP, bill and donor pages (job 74). Signed out, it leads to sign up and back to the page. Signed in,
+// one click follows or unfollows. A member's first follow (or saved search) first shows the consent box: unticked,
+// plain wording, linked to the privacy page; nothing is stored until it is ticked (lib/member-data.ts).
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useAuth } from '../context/AuthContext';
+import ConsentBox from './ConsentBox';
+
+const INK = '#14100d';
+const ACCENT = '#7a1612';
+const MONO = 'var(--font-special-elite), monospace';
+
+type Kind = 'mp' | 'bill' | 'donor';
+type State = { following: boolean; consented: boolean } | null;
+
+export default function FollowButton({ kind, targetKey, label }: { kind: Kind; targetKey: string; label: string }) {
+  const { user, authLoading } = useAuth();
+  const [state, setState] = useState<State>(null);
+  const [busy, setBusy] = useState(false);
+  const [askConsent, setAskConsent] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    let live = true;
+    fetch(`/api/follows?kind=${kind}&key=${encodeURIComponent(targetKey)}`, { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (live && d) setState({ following: !!d.following, consented: !!d.consented }); })
+      .catch(() => {});
+    return () => { live = false; };
+  }, [user, kind, targetKey]);
+
+  async function follow(consent: boolean) {
+    setBusy(true); setMessage(null);
+    try {
+      const r = await fetch('/api/follows', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind, key: targetKey, consent }) });
+      if (r.status === 409) { setAskConsent(true); return; }
+      if (r.status === 422) { setMessage('You follow the most pages allowed (100). Unfollow something on your preferences page first.'); return; }
+      if (!r.ok) { setMessage('That did not work. Please try again.'); return; }
+      setAskConsent(false);
+      setState({ following: true, consented: true });
+    } finally { setBusy(false); }
+  }
+
+  async function unfollow() {
+    setBusy(true); setMessage(null);
+    try {
+      const r = await fetch('/api/follows', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind, key: targetKey }) });
+      if (!r.ok) { setMessage('That did not work. Please try again.'); return; }
+      setState((s) => ({ following: false, consented: s?.consented ?? true }));
+    } finally { setBusy(false); }
+  }
+
+  const buttonStyle: React.CSSProperties = {
+    fontFamily: MONO, fontSize: '15px', letterSpacing: '0.06em', color: '#fff', background: ACCENT, border: `1.5px solid ${ACCENT}`,
+    borderRadius: '3px', padding: '7px 14px', cursor: 'pointer', textDecoration: 'none', display: 'inline-block', lineHeight: 1.3,
+  };
+  const quietStyle: React.CSSProperties = { ...buttonStyle, color: ACCENT, background: 'transparent' };
+
+  if (authLoading) return <div style={{ minHeight: '38px' }} aria-hidden="true" />;
+
+  if (!user) {
+    const here = typeof window !== 'undefined' ? window.location.pathname : '/';
+    return (
+      <div style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 16px' }}>
+        <Link href={`/login?mode=signup&returnTo=${encodeURIComponent(here)}`} className="no-hover-scale" style={quietStyle}>Follow</Link>
+        <span style={{ marginLeft: '10px' }}>Sign up free for a weekly email when this changes.</span>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 16px' }}>
+      {state?.following ? (
+        <>
+          <button type="button" onClick={unfollow} disabled={busy} aria-pressed="true" aria-label={`Unfollow ${label}`} style={quietStyle}>Following. Unfollow</button>
+          <span style={{ marginLeft: '10px' }}>You get a weekly email when something changes. <Link href="/preferences" style={{ color: ACCENT }}>Preferences</Link></span>
+        </>
+      ) : (
+        <>
+          <button type="button" onClick={() => follow(false)} disabled={busy || !state} aria-pressed="false" aria-label={`Follow ${label}`} style={{ ...buttonStyle, opacity: busy || !state ? 0.6 : 1 }}>Follow</button>
+          <span style={{ marginLeft: '10px' }}>Get a weekly email when this changes.</span>
+        </>
+      )}
+      {askConsent && <ConsentBox onAgree={() => follow(true)} onCancel={() => setAskConsent(false)} busy={busy} />}
+      {message && <p role="status" style={{ margin: '8px 0 0' }}>{message}</p>}
+    </div>
+  );
+}
