@@ -22,7 +22,7 @@ const { createClient } = require('@supabase/supabase-js');
 const WRITE = process.argv.includes('--write');
 const API = 'https://commonsvotes-api.parliament.uk/data';
 const DRY_SAMPLE = 20;
-const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
+const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function todo() {

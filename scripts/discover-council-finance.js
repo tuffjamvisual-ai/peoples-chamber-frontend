@@ -77,7 +77,7 @@ async function findAndOpen(queries, titleRe, opts = {}) {
 }
 
 (async () => {
-  const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
+  const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
   const { data: councils } = await db.from('councils').select('gss_code, name, type, country, section_114_year').limit(1000);
 
   await section('2a. Exceptional financial support', () => findAndOpen(['exceptional financial support local authorities 2026-27', 'exceptional financial support councils'], /exceptional-financial-support/i, { extra: '&filter_organisations=ministry-of-housing-communities-local-government', bodyRe: /exceptional financial support[^"]{0,400}/i }));

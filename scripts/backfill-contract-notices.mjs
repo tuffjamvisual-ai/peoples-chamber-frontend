@@ -34,8 +34,8 @@ const FROM = `${arg('from') || '2025-01-01'}T00:00:00`;
 const state = fs.existsSync(STATE) ? JSON.parse(fs.readFileSync(STATE, 'utf8')) : { from: FROM, cursor: null, done: false, pages: 0, months: {}, error: null };
 const save = () => fs.writeFileSync(STATE, JSON.stringify(state, null, 1));
 
-const db = WRITE ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } }) : null;
-if (WRITE && !process.env.SUPABASE_SERVICE_ROLE_KEY) { console.error('--write needs SUPABASE_SERVICE_ROLE_KEY'); process.exit(1); }
+const db = WRITE ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } }) : null;
+if (WRITE && !process.env.SUPABASE_SECRET_KEY) { console.error('--write needs SUPABASE_SECRET_KEY'); process.exit(1); }
 
 let requests = 0;
 async function getPage(url) {

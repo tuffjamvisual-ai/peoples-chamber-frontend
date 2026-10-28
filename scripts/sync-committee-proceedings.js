@@ -14,8 +14,8 @@ const { createClient } = require('@supabase/supabase-js');
 const ws = require('ws');
 
 const SUPABASE_URL = 'https://nwnsvnbudmfkhhwcjwwr.supabase.co';
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, { realtime: { transport: ws } });
+const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY;
+const supabase = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY, { realtime: { transport: ws } });
 
 // Real listing URL — `/work/publications/` 404s, the actual path is
 // `/publications/`. The page lists the latest 4 of each publication

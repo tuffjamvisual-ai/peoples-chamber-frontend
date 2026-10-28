@@ -73,7 +73,7 @@ const content = (path) => get(`https://www.gov.uk/api/content${path}`, 'json');
 
 (async () => {
   console.log(`=== Council finance import (${WRITE ? 'WRITE' : 'DRY RUN - nothing will be written'}) ===`);
-  const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
+  const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
   const { data: cs, error } = await db.from('councils').select('gss_code, name, short_name, type, country, section_114_year').limit(1000);
   if (error) throw new Error(`councils read: ${error.message}`);
   const eng = cs.filter((c) => c.country === 'England' && c.gss_code);

@@ -79,7 +79,7 @@ const num = (s) => (/^\d+(\.\d+)?$/.test(s) ? Number(s) : null);
     if (!(c in col)) fail(`no column ${c}`);
   }
 
-  const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.trim(), { auth: { persistSession: false } });
+  const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY.trim(), { auth: { persistSession: false } });
   const { data: councils, error } = await db.from('councils').select('slug, name, type, gss_code').eq('country', 'England');
   if (error) fail(error.message);
   const byGss = new Map(councils.map((c) => [c.gss_code, c]));

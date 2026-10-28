@@ -32,11 +32,11 @@ if (VERCEL_ENV !== 'production') {
 
 // On a production deploy these must be present; missing = real misconfiguration.
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SERVICE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SERVICE_KEY  = process.env.SUPABASE_SECRET_KEY;
 
 if (!SUPABASE_URL || !SERVICE_KEY) {
   console.error(
-    'sync-editorials: NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY ' +
+    'sync-editorials: NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SECRET_KEY ' +
     'missing on production deploy — failing build'
   );
   process.exit(1);

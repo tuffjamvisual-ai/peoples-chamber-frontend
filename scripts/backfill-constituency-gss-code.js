@@ -35,8 +35,8 @@ const { createClient } = require('@supabase/supabase-js');
 const { parse } = require('csv-parse/sync');
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-if (!SUPABASE_URL || !SUPABASE_KEY) { console.error('Supabase env vars not set (.env.local)'); process.exit(1); }
+const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY;
+if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) { console.error('Supabase env vars not set (.env.local)'); process.exit(1); }
 
 const ONS_LOOKUP_CSV_URL =
   'https://open-geography-portalx-ons.hub.arcgis.com/api/download/v1/items/9a876e4777bc47e392e670a7b8bc3f5c/csv?layers=0';
@@ -44,7 +44,7 @@ const ONS_LOOKUP_CSV_URL =
 const DRY_RUN = !process.argv.includes('--live');
 const UA = 'PeoplesChamber-ConstituencyGssBackfill/1.0 (https://opengovt.uk; contact@opengovt.uk)';
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY);
 
 // Identical normalisation to app/api/find-mp/route.ts's norm(), so a
 // constituency that matches there also matches here.

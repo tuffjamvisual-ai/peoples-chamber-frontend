@@ -23,24 +23,31 @@ const TIMEOUT_MS = 3000;
 const TTL_MS = 60 * 60 * 1000;
 const MAX_CACHED = 5000;
 const cache = new Map<string, { at: number; action: GoneAction }>();
+// Per check: set when a read fails, so that check's PASS is not cached (a slow first call after a cold start would
+// otherwise switch the check off for an hour).
+type Ctx = { failed: boolean };
 
-async function rest<T>(path: string): Promise<T | null> {
+async function rest<T>(ctx: Ctx, path: string): Promise<T | null> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return null;
+  const key = process.env.SUPABASE_SECRET_KEY;
+  // A failed check lets the request through to the page; the reason is logged (never the key) so it shows up.
+  if (!url || !key) { ctx.failed = true; console.error(`[url-gone] ${!url ? 'NEXT_PUBLIC_SUPABASE_URL' : 'SUPABASE_SECRET_KEY'} is not set in the proxy`); return null; }
   try {
     const res = await fetch(`${url}/rest/v1/${path}`, { headers: { apikey: key, authorization: `Bearer ${key}` }, signal: AbortSignal.timeout(TIMEOUT_MS) });
-    return res.ok ? ((await res.json()) as T) : null;
-  } catch {
+    if (!res.ok) { ctx.failed = true; console.error(`[url-gone] ${path.split('?')[0]}: HTTP ${res.status}`); return null; }
+    return (await res.json()) as T;
+  } catch (e) {
+    ctx.failed = true;
+    console.error(`[url-gone] ${path.split('?')[0]}: ${(e as Error).message}`);
     return null;
   }
 }
 
-async function departmentAction(slug: string): Promise<GoneAction> {
+async function departmentAction(ctx: Ctx, slug: string): Promise<GoneAction> {
   if (DEPARTMENT_SLUGS.has(slug)) return PASS;
   // "network-rail-infrastructure-ltd" is the organisation page "network-rail-infrastructure-limited".
   const names = [...new Set([slug, slug.replace(/(^|-)ltd(-|$)/g, '$1limited$2'), slug.replace(/(^|-)limited(-|$)/g, '$1ltd$2')])];
-  const rows = await rest<{ slug: string }[]>(`organisation_index?select=slug&slug=in.(${names.map(encodeURIComponent).join(',')})&limit=1`);
+  const rows = await rest<{ slug: string }[]>(ctx, `organisation_index?select=slug&slug=in.(${names.map(encodeURIComponent).join(',')})&limit=1`);
   if (rows == null) return PASS;
   return rows[0] ? { kind: 'redirect', location: `/organisations/${rows[0].slug}` } : { kind: 'gone' };
 }
@@ -53,26 +60,27 @@ function donorPattern(slug: string): string {
   return `^${any}${slug.split('-').map(tok).join(any)}${any}$`;
 }
 
-async function donorAction(slug: string): Promise<GoneAction> {
+async function donorAction(ctx: Ctx, slug: string): Promise<GoneAction> {
   // Long slugs are cut at 100 characters and "-2" marks a second name with the same slug: left to the page.
   if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug) || slug.length >= 95 || /-\d+$/.test(slug)) return PASS;
   const LIMIT = 50;
-  const rows = await rest<{ donor_name: string | null }[]>(`political_donations?select=donor_name&donor_name=imatch.${encodeURIComponent(donorPattern(slug))}&limit=${LIMIT}`);
+  const rows = await rest<{ donor_name: string | null }[]>(ctx, `political_donations?select=donor_name&donor_name=imatch.${encodeURIComponent(donorPattern(slug))}&limit=${LIMIT}`);
   if (rows == null) return PASS;
   if (rows.some((r) => r.donor_name && donorNameToSlug(r.donor_name.trim()) === slug)) return PASS;
   return rows.length < LIMIT ? { kind: 'gone' } : PASS;
 }
 
-async function newsAction(slug: string): Promise<GoneAction> {
+async function newsAction(ctx: Ctx, slug: string): Promise<GoneAction> {
   const safe = slug.replace(/[^a-z0-9-]/gi, '').toLowerCase();
   if (!safe) return PASS;
-  const rows = await rest<{ id: number }[]>(`press_releases?select=id&news_slug=eq.${encodeURIComponent(safe)}&limit=1`);
+  const rows = await rest<{ id: number }[]>(ctx, `press_releases?select=id&news_slug=eq.${encodeURIComponent(safe)}&limit=1`);
   if (rows == null || rows.length) return PASS;
   try {
     const res = await fetch(`https://www.gov.uk/api/content/government/news/${safe}`, { method: 'HEAD', signal: AbortSignal.timeout(TIMEOUT_MS) });
     if (res.ok) return { kind: 'redirect', location: `https://www.gov.uk/government/news/${safe}` };
     return res.status === 404 || res.status === 410 ? { kind: 'gone' } : PASS;
   } catch {
+    ctx.failed = true;
     return PASS;
   }
 }
@@ -83,7 +91,9 @@ export async function goneAction(section: 'departments' | 'donors' | 'news', raw
   const key = `${section}/${slug}`;
   const hit = cache.get(key);
   if (hit && Date.now() - hit.at < TTL_MS) return hit.action;
-  const action = section === 'departments' ? await departmentAction(slug) : section === 'donors' ? await donorAction(slug) : await newsAction(slug);
+  const ctx: Ctx = { failed: false };
+  const action = section === 'departments' ? await departmentAction(ctx, slug) : section === 'donors' ? await donorAction(ctx, slug) : await newsAction(ctx, slug);
+  if (ctx.failed) return action;
   if (cache.size >= MAX_CACHED) cache.delete(cache.keys().next().value as string);
   cache.set(key, { at: Date.now(), action });
   return action;

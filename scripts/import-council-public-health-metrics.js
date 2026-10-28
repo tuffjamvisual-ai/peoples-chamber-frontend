@@ -45,8 +45,8 @@ const { createClient } = require('@supabase/supabase-js');
 const XLSX = require('xlsx');
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY;
+const supabase = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY);
 
 // Barnsley/Sheffield: the welfare import scripts translate OLD->NEW
 // because the welfare tables use new 2025 codes. For this script, the

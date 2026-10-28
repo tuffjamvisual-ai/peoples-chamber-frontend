@@ -173,7 +173,7 @@ All scheduled for 2am:
 9. `/api/sync-press-releases`
 10. `/api/sync-revolving-door`
 
-**⚠️ Critical:** `SUPABASE_SERVICE_ROLE_KEY` must be set in Vercel environment variables for crons to work.
+**⚠️ Critical:** `SUPABASE_SECRET_KEY` (server only; replaced the anon and service role keys on 28 Oct 2026) must be set in Vercel environment variables for the site and crons to work.
 
 ### Recent Fixes
 
@@ -336,8 +336,7 @@ md:col-span-9                 // Wide strip
 - **Output:** `.next/`
 - **Environment Variables Required:**
   - `NEXT_PUBLIC_SUPABASE_URL`
-  - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-  - `SUPABASE_SERVICE_ROLE_KEY` (for crons)
+  - `SUPABASE_SECRET_KEY` (server only, every read and write)
   - `DATABASE_URL` (for direct DB access)
 
 ### Build Process

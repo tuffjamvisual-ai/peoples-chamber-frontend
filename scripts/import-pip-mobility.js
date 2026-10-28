@@ -44,7 +44,7 @@ const MOB = 'str:field:PIP_Monthly_new:V_F_PIP_MONTHLY:MOB_AWARD_TYPE';
 const MOB_V = 'str:value:PIP_Monthly_new:V_F_PIP_MONTHLY:MOB_AWARD_TYPE:C_PIP_MOB_AWARD_TYPE:';
 const AWARDS = [['enhanced', '1'], ['standard', '2'], ['nil', '3']];
 
-const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
+const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
 const period = (m) => `${m.slice(0, 4)}-${m.slice(4)}-01`;
 const q = (v) => (v == null ? 'NULL' : `'${String(v).replace(/'/g, "''")}'`);
 

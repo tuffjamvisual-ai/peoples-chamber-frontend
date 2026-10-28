@@ -92,7 +92,7 @@ function value(col, v, where) {
 }
 
 (async () => {
-  const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY);
   const { data: cur, error: curErr } = await sb.from('foi_statistics').select('period, period_year, period_quarter')
     .not('period_quarter', 'is', null).order('period_year', { ascending: false }).order('period_quarter', { ascending: false }).limit(1);
   if (curErr) fail(`reading foi_statistics: ${curErr.message}`);

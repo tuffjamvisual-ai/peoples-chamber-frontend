@@ -36,7 +36,7 @@ const API = 'https://members-api.parliament.uk/api/Members';
 const INTERESTS_API = 'https://interests-api.parliament.uk/api/v1/Interests'; // 20 per page at most
 const UA = 'opengovt-RegisterSync/1.0 (+https://opengovt.uk)';
 const THROTTLE_MS = 150;
-const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
+const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const today = new Date().toISOString().slice(0, 10);
 

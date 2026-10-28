@@ -28,7 +28,7 @@ const { createClient } = require('@supabase/supabase-js');
   if (!entries.length) { console.error('No step results were passed (STEPS_JSON is empty).'); process.exit(1); }
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const key = process.env.SUPABASE_SECRET_KEY;
   const db = url && key ? createClient(url, key, { auth: { persistSession: false } }) : null;
 
   const lines = [];

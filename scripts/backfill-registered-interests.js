@@ -8,7 +8,7 @@
  * need the service role key.
  *
  * Use to seed the table or close a sync gap. After this, the daily
- * cron handles ongoing maintenance (once SUPABASE_SERVICE_ROLE_KEY is
+ * cron handles ongoing maintenance (once SUPABASE_SECRET_KEY is
  * set in Vercel env so the route can run).
  *
  * Usage: DATABASE_URL=... node scripts/backfill-registered-interests.js

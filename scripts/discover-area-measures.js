@@ -27,7 +27,7 @@ const NOMIS_POP = 'https://www.nomisweb.co.uk/api/v01/dataset/NM_2002_1.data.csv
 const CODE_ALIASES = { E08000038: 'E08000016', E08000039: 'E08000019' };
 
 (async () => {
-  const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
+  const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
   async function all(table, cols, filter) {
     const out = [];
     for (let from = 0; ; from += 1000) {

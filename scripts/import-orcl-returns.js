@@ -42,7 +42,7 @@ const UA = { 'User-Agent': 'opengovt-import/1.0 (+https://opengovt.uk)' };
 const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
 const MONTH_RE = /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\b/i;
 
-const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
+const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
 
 function fail(msg) { console.error(`STOPPED: ${msg}`); process.exit(1); }
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

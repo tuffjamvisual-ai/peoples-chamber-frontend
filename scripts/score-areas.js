@@ -163,7 +163,7 @@ const r1 = (x) => (x == null ? '-' : Math.round(x * 10) / 10);
   if (!WRITE) { console.log('\nDRY RUN complete. Nothing was written.'); return; }
 
   console.log('\n--- Writing ---');
-  const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
+  const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
   const runStart = new Date().toISOString();
   for (let i = 0; i < rows.length; i += 500) {
     const now = new Date().toISOString();

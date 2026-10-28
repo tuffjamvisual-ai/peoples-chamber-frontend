@@ -197,7 +197,7 @@ function checkWard(w, expectedSeats, stv, tie) {
   return errs;
 }
 
-const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
+const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
 
 (async () => {
   if (!CSVS.length || !COUNCILS || !PARTIES) fail('give --csv, --councils and --parties');

@@ -28,7 +28,7 @@
 // Every write is an upsert on (council, source, period, category), so any
 // run can be repeated safely. Nothing is ever deleted.
 //
-// Requires NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (from
+// Requires NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY (from
 // .env.local locally, or GitHub Actions secrets).
 
 require('dotenv').config({ path: '.env.local', quiet: true });
@@ -61,9 +61,9 @@ const LAD_TO_COUNCIL_CODE = { E08000038: 'E08000016', E08000039: 'E08000019' };
 const SCOT_NAME_OVERRIDE = { 'Na h-Eileanan Siar': 'S12000013' };
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SERVICE_KEY = process.env.SUPABASE_SECRET_KEY;
 if (!SUPABASE_URL || !SERVICE_KEY) {
-  console.error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
+  console.error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SECRET_KEY');
   process.exit(1);
 }
 const db = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } });

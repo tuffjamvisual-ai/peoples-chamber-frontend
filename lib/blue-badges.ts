@@ -35,7 +35,6 @@ export const RANKING_PATH = '/councils/blue-badges';
 export const LOW_TEXT = `${LOW_DEFINITION} (DfT)`;
 export const ROUNDING_NOTE = 'DfT rounds council figures to the nearest 100, so they may not add up exactly to the figure for England.';
 export const SHARE_NOTE = 'Share of residents is worked out by Open Govt from DfT\'s figures and the population DfT uses.';
-export const APPLY_URL = 'https://www.gov.uk/apply-blue-badge';
 
 const num = (n: number) => n.toLocaleString('en-GB');
 export const yearOf = (d: string) => Number(d.slice(0, 4));

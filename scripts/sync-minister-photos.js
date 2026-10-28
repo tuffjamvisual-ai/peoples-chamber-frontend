@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const ANON_KEY = process.env.SUPABASE_SECRET_KEY;
 const DATABASE_URL = process.env.DATABASE_URL;
 const STORAGE_BASE = `${SUPABASE_URL}/storage/v1/object/public/photos/mps`;
 

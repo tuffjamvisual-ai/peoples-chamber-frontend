@@ -8,7 +8,7 @@
 //
 // DRY RUN BY DEFAULT: prints the sessions and checks every introduced_session_id in bill has a row.
 //   --sql=file.sql  writes one guarded transaction that replaces the table (for psql).
-//   --write         upserts the rows through the API with SUPABASE_SERVICE_ROLE_KEY; nothing is deleted. The daily
+//   --write         upserts the rows through the API with SUPABASE_SECRET_KEY; nothing is deleted. The daily
 //                   sync (.github/workflows/daily-sync.yml) runs this after the bills sync, so a new session gets its
 //                   name the day its first bill arrives (until then the site shows "Session 41").
 //
@@ -48,7 +48,7 @@ function sessionName(desc) {
 
   // The service role key when there is one (the nightly workflow): the anon key written into daily-sync.yml was
   // no longer valid ("Invalid API key"), which is what failed this step on 21 Oct 2026.
-  const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY);
   const used = new Set();
   for (let from = 0; ; from += 1000) {
     const { data, error } = await sb.from('bill').select('introduced_session_id').order('id').range(from, from + 999);
@@ -62,8 +62,8 @@ function sessionName(desc) {
   if (missing.length) throw new Error('some bill sessions have no calendar row; not writing');
 
   if (process.argv.includes('--write')) {
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!key) throw new Error('--write needs SUPABASE_SERVICE_ROLE_KEY');
+    const key = process.env.SUPABASE_SECRET_KEY;
+    if (!key) throw new Error('--write needs SUPABASE_SECRET_KEY');
     const admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, key, { auth: { persistSession: false } });
     const now = new Date().toISOString();
     const { error } = await admin.from('parliament_sessions').upsert(rows.map((r) => ({ ...r, source_url: SOURCE, fetched_at: now })), { onConflict: 'id' });

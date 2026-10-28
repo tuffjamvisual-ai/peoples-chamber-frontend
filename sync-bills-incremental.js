@@ -42,7 +42,7 @@ const API = 'https://bills-api.parliament.uk/api/v1';
 const DELAY_MS = 200;
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://nwnsvnbudmfkhhwcjwwr.supabase.co',
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
+  process.env.SUPABASE_SECRET_KEY,
   { auth: { persistSession: false } },
 );
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -80,7 +80,7 @@ const clean = (s) => {
 const placeholderTitle = (t) => !/[A-Za-z]/.test(t.replace(/\bBill\s*$/i, ''));
 
 (async () => {
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) throw new Error('SUPABASE_SERVICE_ROLE_KEY not set');
+  if (!process.env.SUPABASE_SECRET_KEY) throw new Error('SUPABASE_SECRET_KEY not set');
 
   const types = await getJson(`${API}/BillTypes`);
   const categoryByType = new Map((types.items || types).map((t) => [t.id, t.category]));

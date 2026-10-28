@@ -1,3 +1,6 @@
+// Server only (28 Oct 2026, report 84): this admin client holds SUPABASE_SECRET_KEY, so a browser import must fail
+// the build. 'server-only' is provided by Next.js itself.
+import 'server-only';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { fetchWithoutEmDashes } from './no-em-dash';
 
@@ -22,7 +25,7 @@ function get(): SupabaseClient {
   if (!client) {
     client = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      process.env.SUPABASE_SECRET_KEY!,
       { auth: { persistSession: false, autoRefreshToken: false } },
     );
   }
@@ -45,7 +48,7 @@ function getRead(): SupabaseClient {
   if (!readClient) {
     readClient = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      process.env.SUPABASE_SECRET_KEY!,
       { auth: { persistSession: false, autoRefreshToken: false }, global: { fetch: fetchWithoutEmDashes } },
     );
   }

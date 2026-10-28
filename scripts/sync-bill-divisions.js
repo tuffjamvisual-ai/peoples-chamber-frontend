@@ -18,8 +18,8 @@ const { createClient } = require('@supabase/supabase-js');
 const ws = require('ws');
 
 const SUPABASE_URL = 'https://nwnsvnbudmfkhhwcjwwr.supabase.co';
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, { realtime: { transport: ws } });
+const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY;
+const supabase = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY, { realtime: { transport: ws } });
 
 const SEARCH_URL = 'https://commonsvotes-api.parliament.uk/data/divisions.json/search';
 const MAP_FILE = path.join(__dirname, '../data/division-bill-map.json');

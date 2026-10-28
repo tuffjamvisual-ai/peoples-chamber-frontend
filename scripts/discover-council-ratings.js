@@ -69,7 +69,7 @@ async function section(name, fn) {
 
 (async () => {
   await section('1. Council tables we already hold', async () => {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL, key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL, key = process.env.SUPABASE_SECRET_KEY;
     if (!url || !key) { console.log('  Supabase settings not found in .env.local'); return; }
     const db = createClient(url, key, { auth: { persistSession: false } });
     const { data: councils } = await db.from('councils').select('gss_code, type, country').limit(1000);

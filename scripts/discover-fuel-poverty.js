@@ -16,8 +16,8 @@ const clean = (v) => String(v ?? '').replace(/\s+/g, ' ').trim();
 const short = (v) => { const s = clean(v); return s.length > 45 ? s.slice(0, 42) + '...' : s; };
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-if (!SUPABASE_URL || !SERVICE_KEY) { console.error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY'); process.exit(1); }
+const SERVICE_KEY = process.env.SUPABASE_SECRET_KEY;
+if (!SUPABASE_URL || !SERVICE_KEY) { console.error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SECRET_KEY'); process.exit(1); }
 const db = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } });
 
 async function main() {

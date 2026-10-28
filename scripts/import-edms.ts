@@ -7,7 +7,7 @@
 //   npx tsx scripts/import-edms.ts --dry-run   # fetch + build only, no writes
 //   npx tsx scripts/import-edms.ts             # full backfill, writes to DB
 //
-// Requires NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in
+// Requires NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY in
 // .env.local (no anon-key fallback: both tables are read-only to anon).
 
 import { config } from 'dotenv';
@@ -21,9 +21,9 @@ const CONCURRENCY = 3;
 const DELAY_MS = 250;
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SERVICE_KEY = process.env.SUPABASE_SECRET_KEY;
 if (!SUPABASE_URL || !SERVICE_KEY) {
-  console.error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local');
+  console.error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SECRET_KEY in .env.local');
   process.exit(1);
 }
 const db = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } });

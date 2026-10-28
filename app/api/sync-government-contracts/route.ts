@@ -163,7 +163,7 @@ async function GET_impl(req: Request) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
   const url0 = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const key = process.env.SUPABASE_SECRET_KEY;
   if (!url0 || !key) return NextResponse.json({ error: 'supabase env missing' }, { status: 500 });
   const supabase = createClient(url0, key);
 

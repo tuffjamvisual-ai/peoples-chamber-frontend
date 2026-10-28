@@ -486,7 +486,7 @@ const nationOf = (code) => ({ E: 'England', W: 'Wales', S: 'Scotland', N: 'North
 
   console.log('\n--- 7. Council codes against the site\'s councils table (read-only) ---');
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const key = process.env.SUPABASE_SECRET_KEY;
   const db = url && key ? createClient(url, key, { auth: { persistSession: false } }) : null;
   if (!db) console.log('  Supabase settings not found in .env.local; check skipped');
   else {

@@ -15,7 +15,7 @@ import { supabase } from '@/lib/supabase';
 import { PAGE_DESCRIPTIONS } from '@/lib/page-descriptions';
 import {
   loadLatestTwoYears, loadEnglandLostStolen, count, shareText, sharePct, change, changeText, pctChangeText, asAt, yearTo,
-  releaseFor, yearOf, OGL, OGL_URL, ROUNDING_NOTE, SHARE_NOTE, LOW_TEXT, APPLY_URL, RANKING_PATH, type BlueBadgeRow,
+  releaseFor, yearOf, OGL, OGL_URL, ROUNDING_NOTE, SHARE_NOTE, LOW_TEXT, RANKING_PATH, type BlueBadgeRow,
 } from '@/lib/blue-badges';
 
 export const revalidate = 86400;
@@ -124,9 +124,6 @@ export default async function BlueBadgesPage() {
           </p>
           <p style={para}>
             This summary is from the notes to DfT&rsquo;s <a href="https://www.gov.uk/government/statistical-data-sets/blue-badge-scheme-statistics-data-tables-dis" target="_blank" rel="noopener noreferrer" style={{ color: INK }}>Blue Badge data tables</a>.
-          </p>
-          <p style={para}>
-            <a href={APPLY_URL} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>Apply for or renew a Blue Badge on GOV.UK</a>
           </p>
         </section>
 

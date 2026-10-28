@@ -45,9 +45,9 @@ const { createClient } = require('@supabase/supabase-js');
 const { parse } = require('csv-parse/sync');
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-if (!SUPABASE_URL || !SUPABASE_KEY) { console.error('Supabase env vars not set (.env.local)'); process.exit(1); }
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY;
+if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) { console.error('Supabase env vars not set (.env.local)'); process.exit(1); }
+const supabase = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY);
 
 const ONS_LOOKUP_CSV_URL =
   'https://open-geography-portalx-ons.hub.arcgis.com/api/download/v1/items/ac27c7721e664440adcc9e862505c8bc/csv?layers=0';

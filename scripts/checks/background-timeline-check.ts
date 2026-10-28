@@ -9,8 +9,8 @@ import { validate } from '../../lib/background-timeline';
 
 process.loadEnvFile(`${__dirname}/../../.env.local`);
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-if (!url || !key) throw new Error('NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY must be set in .env.local');
+const key = process.env.SUPABASE_SECRET_KEY;
+if (!url || !key) throw new Error('NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY must be set in .env.local');
 const supabase = createClient(url, key, { auth: { persistSession: false } });
 
 const PAGE = 1000;

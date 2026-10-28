@@ -29,7 +29,7 @@ const slug = (s) => String(s || '').toLowerCase().replace(/&/g, 'and').replace(/
 const SAMPLE = ['Barnsley', 'Bedford', 'Kent', 'Leeds', 'Camden', 'Cornwall', 'Norfolk', 'Birmingham', 'Wiltshire', 'Hackney'];
 
 (async () => {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL, key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL, key = process.env.SUPABASE_SECRET_KEY;
   const db = createClient(url, key, { auth: { persistSession: false } });
   const { data: cs } = await db.from('councils').select('gss_code, name, short_name, type').limit(1000);
   const pick = SAMPLE.map((s) => (cs || []).find((c) => c.short_name === s || c.name.startsWith(s))).filter(Boolean);

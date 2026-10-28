@@ -1,11 +1,11 @@
 const { createClient } = require('@supabase/supabase-js');
 const ws = require('ws');
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY;
 const Anthropic = require('@anthropic-ai/sdk');
 
 const supabase = createClient(
   'https://nwnsvnbudmfkhhwcjwwr.supabase.co',
-  SUPABASE_KEY,
+  SUPABASE_SECRET_KEY,
   { realtime: { transport: ws } });
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });

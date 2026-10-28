@@ -93,7 +93,7 @@ function excelDate(v) {
 
 (async () => {
   console.log(`=== Council ratings import (${WRITE ? 'WRITE' : 'DRY RUN - nothing will be written'}) ===`);
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL, key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL, key = process.env.SUPABASE_SECRET_KEY;
   if (!url || !key) throw new Error('Supabase settings not found in .env.local');
   const db = createClient(url, key, { auth: { persistSession: false } });
   const { data: cs, error: cErr } = await db.from('councils').select('gss_code, name, short_name, type, country').limit(1000);

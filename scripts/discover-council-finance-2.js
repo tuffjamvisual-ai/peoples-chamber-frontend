@@ -32,7 +32,7 @@ async function section(name, fn) {
 }
 
 (async () => {
-  const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
+  const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
   const { data: councils } = await db.from('councils').select('gss_code, name, short_name, type, country').limit(1000);
   const eng = (councils || []).filter((c) => c.country === 'England');
   const byKey = new Map();

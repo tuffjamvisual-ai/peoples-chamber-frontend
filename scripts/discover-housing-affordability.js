@@ -75,7 +75,7 @@ const spearman = (pairs) => { const a = ranks(pairs.map((p) => p[0])), b = ranks
   console.log(`\n=== 2. Using "${pick.s}" (${pick.title.slice(0, 160)}) ===`);
   console.log(`  latest year column: ${latest.i} "${latest.label}"; years held ${yearCols[0].year} to ${latest.year}; name column ${nameCol}`);
 
-  const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
+  const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
   const { data: areas, error } = await db.from('area_ratings').select('area_gss_code, area_name, area_score, measures').order('area_gss_code');
   if (error) throw new Error(`area_ratings: ${error.message}`);
   const codes = new Set(areas.map((a) => a.area_gss_code));

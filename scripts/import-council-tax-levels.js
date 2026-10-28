@@ -95,7 +95,7 @@ const headerRow = (rows, first) => {
 };
 const core = (s) => clean(s).toLowerCase().replace(/&/g, 'and').replace(/\b(the|city|of|council|county|borough|islands?)\b/g, '').replace(/[^a-z]/g, '');
 
-const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
+const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
 
 (async () => {
   const { data: councils, error } = await db.from('councils').select('slug, name, gss_code, country').order('slug');

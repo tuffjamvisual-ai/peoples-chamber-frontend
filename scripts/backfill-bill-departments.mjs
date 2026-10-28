@@ -9,7 +9,7 @@ try { (await import('dotenv')).config({ path: '.env.local', quiet: true }); } ca
 const WRITE = process.argv.includes('--write');
 const API = 'https://bills-api.parliament.uk/api/v1/Bills';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
+const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
 
 async function get(id) {
   for (let i = 0; i < 4; i++) {

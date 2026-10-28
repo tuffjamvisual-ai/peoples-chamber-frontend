@@ -12,7 +12,7 @@
 // SI timelines are left to the daily cron, which reads the backlog newest first in its spare time (reading all 7,641
 // here would take about four hours at one request a second).
 // Writes: upsert by api_id, at most 500 rows per request (each its own transaction), 1 s between batches; it stops at
-// the first error and reports what was written. Uses SUPABASE_SERVICE_ROLE_KEY from .env.local and never prints it.
+// the first error and reports what was written. Uses SUPABASE_SECRET_KEY from .env.local and never prints it.
 
 import { config } from 'dotenv';
 config({ path: '.env.local', quiet: true });
@@ -96,8 +96,8 @@ async function allPages<T>(base: string): Promise<{ items: T[]; total: number }>
 
   if (!WRITE) { console.log(`would write ${siRows.length} SIs and ${trRows.length} treaties in batches of ${BATCH}`); return; }
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL, key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) throw new Error('NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in .env.local');
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL, key = process.env.SUPABASE_SECRET_KEY;
+  if (!url || !key) throw new Error('NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY must be set in .env.local');
   const db = createClient(url, key);
   for (const [table, list] of [['statutory_instruments', siRows], ['treaties', trRows]] as const) {
     let written = 0;

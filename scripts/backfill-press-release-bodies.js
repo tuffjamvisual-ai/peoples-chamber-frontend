@@ -7,9 +7,9 @@ require('dotenv').config({ path: '.env.local' });
 const { createClient } = require('@supabase/supabase-js');
 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const KEY = process.env.SUPABASE_SECRET_KEY;
 if (!URL || !KEY) {
-  console.error('Need NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY (or anon key) in .env.local');
+  console.error('Need NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SECRET_KEY (or anon key) in .env.local');
   process.exit(1);
 }
 

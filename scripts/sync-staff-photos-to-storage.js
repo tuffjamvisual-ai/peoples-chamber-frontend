@@ -8,7 +8,7 @@
  * Usage:
  *   node scripts/sync-staff-photos-to-storage.js [--limit=N]
  *
- * Required env: NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
+ * Required env: NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SECRET_KEY,
  *               DATABASE_URL (anon key for storage uploads; DB writes via
  *               direct psql since dept_* tables have read-only RLS).
  */
@@ -19,11 +19,11 @@ const { execSync } = require('child_process');
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 // Storage writes use the service key: the photos bucket no longer lets the public key list files (22 Oct 2026).
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SERVICE_KEY = process.env.SUPABASE_SECRET_KEY;
 const DATABASE_URL = process.env.DATABASE_URL;
 
 if (!SUPABASE_URL || !SERVICE_KEY || !DATABASE_URL) {
-  console.error('Missing env: need NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, DATABASE_URL');
+  console.error('Missing env: need NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SECRET_KEY, DATABASE_URL');
   process.exit(1);
 }
 

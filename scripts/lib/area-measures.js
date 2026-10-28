@@ -21,7 +21,7 @@ const CODE_ALIASES = { E08000038: 'E08000016', E08000039: 'E08000019' };
 
 
 async function buildAreaMeasures() {
-  const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
+  const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
   // Reads a whole table in pages of 1,000. orderBy (the table's unique key columns) gives
   // every page the same fixed order, so no row is missed or read twice between pages.
   async function all(table, cols, filter, orderBy = []) {

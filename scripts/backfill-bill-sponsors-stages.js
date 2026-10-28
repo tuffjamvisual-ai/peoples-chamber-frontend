@@ -27,7 +27,7 @@ const blank = (s) => !String(s ?? '').trim();
 const TODAY = new Date().toISOString().slice(0, 10);
 
 (async () => {
-  const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY);
   const bills = [];
   for (let from = 0; ; from += 1000) {
     const { data, error } = await sb.from('bill').select('id, parliament_id, title, sponsor_name, current_stage, stage_date, is_act, bill_withdrawn').order('id').range(from, from + 999);

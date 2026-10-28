@@ -30,7 +30,7 @@ const VARIANTS = [
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  process.env.SUPABASE_SECRET_KEY,
 );
 
 async function fetchOne(photoUrl, w, q) {

@@ -35,7 +35,7 @@ function plain(html) {
 const empty = (s, title) => { const t = plain(s); return !t || t.toLowerCase() === 'no description available' || t === (title || '').trim(); };
 
 (async () => {
-  const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY);
   const bills = [];
   for (let from = 0; ; from += 1000) {
     const { data, error } = await sb.from('bill').select('id, parliament_id, title, description, long_title, is_act, bill_withdrawn').order('id').range(from, from + 999);

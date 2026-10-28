@@ -38,8 +38,8 @@ const { createClient } = require('@supabase/supabase-js');
 const { parse } = require('csv-parse/sync');
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-if (!SUPABASE_URL || !SUPABASE_KEY) { console.error('Supabase env vars not set (.env.local)'); process.exit(1); }
+const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY;
+if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) { console.error('Supabase env vars not set (.env.local)'); process.exit(1); }
 
 const ONS_LOOKUP_CSV_URL =
   'https://open-geography-portalx-ons.hub.arcgis.com/api/download/v1/items/ac27c7721e664440adcc9e862505c8bc/csv?layers=0';
@@ -49,7 +49,7 @@ const DATASET_ID = 'ward-to-westminster-parliamentary-constituency-to-lad-to-cty
 const DRY_RUN = !process.argv.includes('--live');
 const UA = 'PeoplesChamber-WelfareGeographyBackfill/1.0 (https://opengovt.uk; contact@opengovt.uk)';
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY);
 
 async function fetchOnsLookup() {
   const res = await fetch(ONS_LOOKUP_CSV_URL, { headers: { 'User-Agent': UA } });

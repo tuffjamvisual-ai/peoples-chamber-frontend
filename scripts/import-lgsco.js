@@ -111,7 +111,7 @@ function pct(v, column, notes) {
 }
 
 (async () => {
-  const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY);
   const { data: councils, error } = await sb.from('councils').select('slug, name, short_name, gss_code').eq('country', 'England');
   if (error) fail(error.message);
   if (councils.length !== 317) fail(`expected 317 English councils, found ${councils.length}`);

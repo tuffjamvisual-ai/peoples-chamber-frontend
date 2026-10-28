@@ -26,7 +26,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
       NEXT_PUBLIC_SUPABASE_URL: https://nwnsvnbudmfkhhwcjwwr.supabase.co
 
     steps:
@@ -55,7 +55,7 @@ jobs:
           echo "── Secret presence (lengths only — values masked) ──"
           echo "ANTHROPIC_API_KEY:           ${#ANTHROPIC_API_KEY} chars, prefix '${ANTHROPIC_API_KEY:0:8}…'"
           echo "DATABASE_URL_RAW:            ${#DATABASE_URL_RAW} chars"
-          echo "SUPABASE_SERVICE_ROLE_KEY:   ${#SUPABASE_SERVICE_ROLE_KEY} chars"
+          echo "SUPABASE_SECRET_KEY:   ${#SUPABASE_SECRET_KEY} chars"
           echo "NEXT_PUBLIC_SUPABASE_URL:    $NEXT_PUBLIC_SUPABASE_URL"
           if [ -z "$ANTHROPIC_API_KEY" ]; then
             echo "::error::ANTHROPIC_API_KEY secret is empty — repo Secrets need it set"

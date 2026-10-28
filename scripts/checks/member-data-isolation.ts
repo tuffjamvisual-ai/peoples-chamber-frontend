@@ -1,6 +1,7 @@
 // Members only ever see and change their own rows (job 74). Runs the real lib/member-data.ts functions against an
 // in-memory database holding two members' rows (scripts/checks/fake-supabase.ts), and the real routes without a
-// session. Nothing touches the real database. Run: npx tsx scripts/checks/member-data-isolation.ts
+// session. Nothing touches the real database. Run: NODE_PATH=node_modules:node_modules/next/dist/compiled npx tsx --conditions=react-server scripts/checks/member-data-isolation.ts
+// (the Supabase client modules are server only; this resolves Next.js's own server-only marker)
 import dotenv from 'dotenv';
 import { NextRequest } from 'next/server';
 import { fakeSupabase } from './fake-supabase';

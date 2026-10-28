@@ -1,9 +1,9 @@
 process.loadEnvFile(`${__dirname}/../.env.local`); // the Supabase key lives in .env.local, never in this file
-if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) throw new Error('NEXT_PUBLIC_SUPABASE_ANON_KEY missing from .env.local');
+if (!process.env.SUPABASE_SECRET_KEY) throw new Error('SUPABASE_SECRET_KEY missing from .env.local');
 const { createClient } = require('@supabase/supabase-js');
 const s = createClient(
   'https://nwnsvnbudmfkhhwcjwwr.supabase.co',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  process.env.SUPABASE_SECRET_KEY
 );
 
 async function run() {

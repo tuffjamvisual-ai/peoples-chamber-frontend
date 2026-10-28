@@ -49,7 +49,7 @@ function slugifyName(name: string): string {
 // is unreachable at build (e.g. offline CI) so the build still succeeds.
 async function councilRedirects() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const key = process.env.SUPABASE_SECRET_KEY;
   if (!url || !key) return [];
   try {
     const res = await fetch(`${url}/rest/v1/councils?select=slug,name`, {
@@ -83,7 +83,7 @@ async function councilRedirects() {
 // added after the council redirects so those keep their place. No redirects if the DB is unreachable at build.
 async function agencyRedirects() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const key = process.env.SUPABASE_SECRET_KEY;
   if (!url || !key) return [];
   try {
     const res = await fetch(`${url}/rest/v1/agency_cache?select=slug`, {

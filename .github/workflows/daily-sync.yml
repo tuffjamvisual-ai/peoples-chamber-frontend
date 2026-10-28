@@ -15,7 +15,7 @@ jobs:
     # emails the owner.
     timeout-minutes: 60
     env:
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
       NEXT_PUBLIC_SUPABASE_URL: https://nwnsvnbudmfkhhwcjwwr.supabase.co
       # No anon key here: the one written in was no longer valid, and every step uses the service role key.
     

@@ -53,7 +53,7 @@ const num = (v) => { if (typeof v === 'number') return v; const s = cell(v).repl
   console.log(`"${title.slice(0, 180)}"`);
   console.log(`header row ${hi + 1}; code column ${codeCol}; name column ${nameCol}; years ${years[0].year} to ${years[years.length - 1].year} (${years.length})`);
 
-  const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
+  const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
   const { data: councils, error } = await db.from('councils').select('gss_code, name, type, country').order('gss_code');
   if (error) throw new Error(`councils: ${error.message}`);
   const byCode = new Map(councils.filter((c) => c.gss_code).map((c) => [c.gss_code, c]));

@@ -9,7 +9,7 @@
 // Two requests per instrument (detail and business items), at least 1 s apart, 20 s limit each (lib/parliament-si-
 // treaties.ts). Writes: upsert by api_id, one row at a time; never deletes. The API's ConcernsRaisedByCommittee and
 // MotionToStop flags already stored are kept. Stops at the first API or database error and says how far it got.
-// Uses SUPABASE_SERVICE_ROLE_KEY from .env.local and never prints it.
+// Uses SUPABASE_SECRET_KEY from .env.local and never prints it.
 import { config } from 'dotenv';
 config({ path: '.env.local', quiet: true });
 import { createClient } from '@supabase/supabase-js';
@@ -21,8 +21,8 @@ const DAYS = Number((args.find((a) => a.startsWith('--days=')) || '=365').split(
 const LIMIT = Number((args.find((a) => a.startsWith('--limit=')) || '=0').split('=')[1]) || 0;
 
 (async () => {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL, key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) throw new Error('NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in .env.local');
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL, key = process.env.SUPABASE_SECRET_KEY;
+  if (!url || !key) throw new Error('NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY must be set in .env.local');
   const db = createClient(url, key);
   const since = new Date(Date.now() - DAYS * 86400_000).toISOString().slice(0, 10);
   const { data, error } = await db.from('statutory_instruments').select('api_id, committee_concerns, prayed_against')

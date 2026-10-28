@@ -22,12 +22,12 @@ const { execSync } = require('child_process');
 const sharp = require('sharp');
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SERVICE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SERVICE_KEY  = process.env.SUPABASE_SECRET_KEY;
 const DATABASE_URL = process.env.DATABASE_URL;
 const DRY_RUN      = process.env.DRY_RUN === 'true';
 
 if (!SUPABASE_URL || !SERVICE_KEY) {
-  console.error('NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY missing');
+  console.error('NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SECRET_KEY missing');
   process.exit(1);
 }
 if (!DATABASE_URL && !DRY_RUN) {

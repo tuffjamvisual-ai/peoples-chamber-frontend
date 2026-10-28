@@ -5,7 +5,7 @@
 //           one click unsubscribe header.
 //   Part B (--real): change detection on production data, read only, for one MP, one bill and one donor followed a
 //           week ago; prints what the digest would say and writes the rendered email to the capture folder.
-// Run: npx tsx scripts/checks/member-digest-test.ts [--real] [--out <dir>]
+// Run: NODE_PATH=node_modules:node_modules/next/dist/compiled npx tsx --conditions=react-server scripts/checks/member-digest-test.ts [--real] [--out <dir>]
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';

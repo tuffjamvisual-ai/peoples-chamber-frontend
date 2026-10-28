@@ -47,7 +47,7 @@ const UA = { 'User-Agent': 'opengovt-import/1.0 (+https://opengovt.uk)' };
 const TODAY = new Date().toISOString().slice(0, 10);
 const FREQUENT = 10;
 
-const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
+const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
 
 async function readAll(table, cols, order) {
   const out = [];

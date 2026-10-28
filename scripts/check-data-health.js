@@ -28,7 +28,7 @@ const fs = require('fs');
 const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
 
-const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
+const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
 const PARL_START = '2024-07-04';
 const DAY = 86400000;
 const now = new Date();
@@ -75,7 +75,7 @@ function readSources() {
 }
 
 (async () => {
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) throw new Error('SUPABASE_SERVICE_ROLE_KEY not set');
+  if (!process.env.SUPABASE_SECRET_KEY) throw new Error('SUPABASE_SECRET_KEY not set');
 
   await check('Refresh jobs ran and succeeded', async () => {
     const { sources, maxAge } = readSources();

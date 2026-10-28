@@ -13,7 +13,7 @@ const sharp = require('sharp');
 //   4. Compute versioned URL with ?v=<unix-timestamp> cache buster so the
 //      Vercel image optimiser re-fetches the new bytes
 //   5. Update mps.photo_url via direct psql (DATABASE_URL bypasses RLS;
-//      SUPABASE_SERVICE_ROLE_KEY in Vercel is Sensitive and pulls empty
+//      SUPABASE_SECRET_KEY in Vercel is Sensitive and pulls empty
 //      so we can't rely on supabase-js for the write path)
 //   6. Cascade to dept_ministers.photo_url via member_id join
 //   7. Cascade to person_cache.photo via dept_ministers.slug join (the
@@ -55,7 +55,7 @@ if (!Number.isFinite(memberId)) {
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 // Storage writes use the service key: the photos bucket no longer lets the public key list files (22 Oct 2026).
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SERVICE_KEY = process.env.SUPABASE_SECRET_KEY;
 const DATABASE_URL = process.env.DATABASE_URL;
 // CRON_SECRET is set in Vercel but typically not in .env.local — accept it
 // via --secret=<...> CLI arg as a fallback so revalidation works locally
@@ -68,7 +68,7 @@ const CRON_SECRET = arg('secret') ||
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.thepeopleschamber.uk';
 
 if (!SUPABASE_URL || !SERVICE_KEY) {
-  console.error('NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY missing in env');
+  console.error('NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SECRET_KEY missing in env');
   process.exit(1);
 }
 if (!DATABASE_URL) {
