@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: "the-revolving-door",
   kicker: 'Political Ethics',
-  headline: "Former Ministers Can Lobby Government Again After Two Years",
+  headline: "Ex Ministers Can Lobby After Two Years. Reform Unanswered",
   standfirst: "Former ministers are barred from lobbying government for two years after leaving office, and then the restrictions end. David Cameron’s lobbying for Greensill broke no rule for that reason. An independent review reported in July 2026, and the government has yet to say what it will change.",
   summary: "Former ministers can lobby government again after two years. A review has reported, and the government has not yet responded.",
   publishedAt: '2026-06-11',

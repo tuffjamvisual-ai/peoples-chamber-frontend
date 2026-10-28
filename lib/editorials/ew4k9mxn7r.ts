@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'ew4k9mxn7r',
   kicker: 'Local Government',
-  headline: `£91m Reform Fund Added for Councils on Exceptional Support`,
+  headline: `£91m More for 14 Councils as 35 Need £1.5bn Support`,
   standfirst: `The government is giving 14 financially troubled councils £91 million to redesign expensive services in an attempt to reduce their reliance on Exceptional Financial Support. Those same 14 authorities have already been approved for about £460.4 million of Exceptional Financial Support in 2026/27. Across England, 35 councils have been approved for £1.5 billion this year.`,
   summary: "The government is giving 14 financially troubled councils £91m to reform services as 35 councils are approved for £1.5bn of exceptional support.",
   publishedAt: '2026-09-15',

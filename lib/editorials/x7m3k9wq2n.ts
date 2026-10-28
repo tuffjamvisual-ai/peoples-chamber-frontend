@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'x7m3k9wq2n',
   kicker: 'Social Policy',
-  headline: `Forced Adoption Apology Comes With £4m but No Compensation`,
+  headline: `Forced Adoption Apology Brings No Individual Compensation`,
   standfirst: `Keir Starmer apologised on behalf of the state on 2 July to mothers, adopted people and families harmed by historical forced adoption practices in England. The apology came with £4 million of support over three years. It did not include individual financial compensation.`,
   summary: "The state now accepts responsibility for forced adoption, but its £4m support package includes no individual compensation.",
   publishedAt: '2026-07-06',
