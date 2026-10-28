@@ -17,7 +17,7 @@ import { resolveOrgToDeptSlug } from '@/lib/govOrgSlug';
 import ArticleEndSignup from '../../components/ArticleEndSignup';
 import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 import SpadSource from '../../components/SpadSource';
-import { SPAD_LIST_ANCHOR, longDate, totalsLine, type SpadRow, type SpadReleaseRow } from '@/lib/spad-display';
+import { SPAD_LIST_ANCHOR, longDate, totalsLine, buildBackground, type SpadRow, type SpadReleaseRow, type SpadInterestRow, type SpadHistoryRow, type SpadPostRow, type SpadBackground } from '@/lib/spad-display';
 import SpadRosterTable from './SpadRosterTable';
 import QuarterSections, { type RosterRow, type GiftRow, type HospRow, type MeetRow } from './QuarterSections';
 
@@ -85,6 +85,19 @@ export default async function SpecialAdvisersPage() {
     appointments = (data ?? []) as SpadRow[];
   }
 
+  // Official background for each adviser in the list (owner, 28 Oct 2026): declared interests, the ministers they
+  // advised in every yearly list we hold, and ACOBA advice. Matched by exact name only.
+  let background: Record<string, SpadBackground> = {};
+  if (appointments.length) {
+    const [ints, hist, posts, editions] = await Promise.all([
+      fetchAll<SpadInterestRow>('spad_interests', 'adviser_name, department, period, entry_text, category, is_recusal, end_date_text, source_title, source_url, source_page'),
+      fetchAll<SpadHistoryRow>('spad_appointments', 'adviser_name, minister_title, as_at, source_url'),
+      fetchAll<SpadPostRow>('spad_post_appointments', 'adviser_name, former_department, new_employer, new_role, advice_date, conditions_text, source_url'),
+      supabase.from('spad_releases').select('as_at').then(({ data, error }) => { if (error) throw new Error(`/transparency/special-advisers spad_releases: ${error.message}`); return (data ?? []) as { as_at: string }[]; }),
+    ]);
+    background = buildBackground(appointments.map((a) => a.adviser_name), ints, hist, posts, editions.map((e) => e.as_at));
+  }
+
   const quarters = [...new Set([...roster, ...gifts, ...hosps, ...meets].map((r) => r.quarter))].sort((a, b) => quarterOrder(b) - quarterOrder(a));
   const deptSlugs: Record<string, string> = {};
   for (const area of new Set(roster.map((r) => r.area))) { const s = deptFor(area); if (s) deptSlugs[area] = s; }
@@ -116,7 +129,10 @@ export default async function SpecialAdvisersPage() {
           <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '62ch', margin: '0 0 14px' }}>
             One row per appointment: an adviser who works for two ministers is listed under each. Salaries are published only from £81,000, in bands of £5,000. Ministers with an Open Govt page are linked; members of the Lords have none.
           </p>
-          <SpadRosterTable rows={appointments} />
+          <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '62ch', margin: '0 0 14px' }}>
+            Declared interests are published by each department, not by the adviser. Every special adviser declares their interests to the permanent secretary of their department, who decides which are relevant enough to publish and how any conflict is managed, for example by a recusal: the adviser stays out of the matters named. The Cabinet Office publishes its advisers&rsquo; interests separately each year; most other departments print them inside their annual report and accounts. Each entry below is quoted word for word and linked to the document it comes from.
+          </p>
+          <SpadRosterTable rows={appointments} background={background} />
           <SpadSource slug={release.release_slug} url={release.source_url} />
         </section>
       )}

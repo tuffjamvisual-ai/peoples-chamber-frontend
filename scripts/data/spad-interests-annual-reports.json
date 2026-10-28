@@ -1,0 +1,472 @@
+{
+  "_about": "Special advisers' declared interests published inside departmental annual reports and accounts (owner's job, 28 Oct 2026). Transcribed word for word from each report's special adviser interests section; line breaks joined with a space and words split across lines rejoined. Every entry was checked by machine against the text of the report's PDF page before loading. page is the page of the PDF file named in source_url (not the printed page number). Loaded into spad_interests; the Cabinet Office's standalone publication is parsed by lib/spad-background.ts instead.",
+  "reports": [
+    {
+      "department": "HM Treasury",
+      "period": "2025/26",
+      "source_title": "HM Treasury annual report and accounts 2025 to 2026",
+      "source_url": "https://assets.publishing.service.gov.uk/media/6a7462d75a472b60f4ea6cbb/HM_Treasury_ARA_25-26.pdf",
+      "advisers": [
+        {
+          "name": "Shadi Brazell",
+          "page": 78,
+          "entries": [
+            "Ms Brazell is a Trustee of Cambridge House. She must recuse herself from any funding decision relating to her role as a Trustee of Cambridge House.",
+            "As of 14 May 2026 Ms Brazell has since left her position as Special Adviser at HM Treasury."
+          ]
+        },
+        {
+          "name": "John VanReenen",
+          "page": 78,
+          "entries": [
+            "Mr VanReenen remains employed by London School of Economics (LSE). He splits his time between LSE and his position as Special Adviser at HM Treasury.",
+            "Mr VanReenen therefore recuses himself from all matters relating to higher education policy and funding.",
+            "As of 16 March 2026, Mr VanReenen has since left his position as Special Adviser at HM Treasury."
+          ]
+        },
+        {
+          "name": "Anna Valero",
+          "page": 79,
+          "entries": [
+            "Ms Valero is on a career break from LSE, although she continues to be employed by them.",
+            "Ms Valero therefore recuses herself from all matters relating to higher education policy and funding.",
+            "Ms Valero has also declared her position as an elected council member of the Royal Economic Society Council. It is recommended that Ms Valero recuse herself from any funding or investment decisions related to this organisation.",
+            "As of 21 August 2025 Ms Valero has since left her position as a Special Adviser at HM Treasury."
+          ]
+        }
+      ]
+    },
+    {
+      "department": "MHCLG",
+      "period": "2025/26",
+      "source_title": "MHCLG annual report and accounts 2025 to 2026",
+      "source_url": "https://assets.publishing.service.gov.uk/media/6a5a11e660a6e36813cb43aa/MHCLG_Annual_Report_and_Accounts_2025-26.pdf",
+      "advisers": [
+        {
+          "name": "Jamie Williams",
+          "page": 66,
+          "entries": [
+            "Mr Williams’ brother held ministerial positions in the Cabinet Office and the Department for Science, Innovation and Technology."
+          ]
+        },
+        {
+          "name": "Liz Bates",
+          "page": 66,
+          "entries": [
+            "Ms Bates’ spouse/partner holds a ministerial position in the Ministry of Justice."
+          ]
+        },
+        {
+          "name": "Joe Corry-Roake",
+          "page": 66,
+          "entries": [
+            "Mr Corry-Roake’s family member is Chair of the London Housing Panel."
+          ]
+        },
+        {
+          "name": "Eve Mason",
+          "page": 66,
+          "entries": [
+            "Ms Mason held a part-time paid role at the Labour Party until 8 May 2026. Ms Mason's work as a special adviser was a part-time contract and the work for this organisation was performed outside these hours."
+          ]
+        }
+      ]
+    },
+    {
+      "department": "DESNZ",
+      "period": "2025/26",
+      "source_title": "DESNZ annual report and accounts 2025 to 2026",
+      "source_url": "https://assets.publishing.service.gov.uk/media/6a872033c607a3e82a75bfd1/desnz-annual-report-2025-26-print-ready-revised.pdf",
+      "advisers": [
+        {
+          "name": "Grace Pritchard",
+          "page": 106,
+          "entries": [
+            "Ms Pritchard held a part-time paid role with the Labour Party between the 2nd February and 26th February 2026. Ms Pritchard’s work for this organisation was performed outside of their hours as a Special Adviser in DESNZ. Ms Pritchard’s work as a Special Adviser was under a temporary part-time contract during this period."
+          ]
+        },
+        {
+          "name": "Tobias Garnett",
+          "page": 106,
+          "entries": [
+            "Mr Garnett is recused from involvement in discussions or matters relating to Apple Inc."
+          ]
+        }
+      ]
+    },
+    {
+      "department": "Defra",
+      "period": "2025/26",
+      "source_title": "Defra's annual report and accounts 2025 to 2026",
+      "source_url": "https://assets.publishing.service.gov.uk/media/6a74a43abde92a23046b24a0/Defra-ARA-2025-26-laid-15July26.pdf",
+      "advisers": [
+        {
+          "name": "Jamie Williams",
+          "page": 81,
+          "entries": [
+            "Jamie Williams' brother held ministerial positions in the Cabinet Office and the Department for Science, Innovation and Technology."
+          ]
+        },
+        {
+          "name": "Joe Corry-Roake",
+          "page": 81,
+          "entries": [
+            "Joe Corry-Roake held an unpaid role as a trustee for Grandparents Plus and was not included in discussions on any planning applications regarding Orchard Farm Kennington.",
+            "Mr. Corry-Roake was not included in discussions relating to the review of environmental regulation led by his father Dan Corry prior to publication; however, he was able to work on the recommendations."
+          ]
+        },
+        {
+          "name": "Oliver Longworth",
+          "page": 81,
+          "entries": [
+            "Oliver Longworth’s partner held a Special Adviser post at Number 10 whilst he was a special adviser in the department. Mr. Longworth was advised not to discuss departmental business with his partner."
+          ]
+        },
+        {
+          "name": "George Sanderson",
+          "page": 81,
+          "entries": [
+            "George Sanderson declared a previous employer, Hanbury Strategy, which has commercial interests in certain areas of the department’s work. Appropriate mitigations have been agreed and communicated to ensure Mr. Sanderson is not involved in advice or decisions relating to specific agreements or negotiations connected to this interest. Alternative special adviser cover is provided where appropriate."
+          ]
+        },
+        {
+          "name": "Benjamin Szreter",
+          "page": 81,
+          "entries": [
+            "Benjamin Szreter resigned from roles as a company director and trustee of the Albion Foundation, and from the Lost Boys Taskforce, around the time of taking up the departmental role.",
+            "Mr. Szreter also declared family connections to organisations with potential commercial interests related to the department. Mitigations are in place to ensure Mr. Szreter is not involved in relevant contractual or commercial matters."
+          ]
+        },
+        {
+          "name": "Eleanor Salter",
+          "page": 81,
+          "entries": [
+            "Eleanor Salter declared personal connections with civil servants in Defra and DESNZ and does not engage with those officials in one-to-one meetings in an official capacity.",
+            "Ms. Salter also declared that her partner is a journalist; mitigations are in place to ensure Ms. Salter does not respond to media enquiries involving that partner or discuss departmental business."
+          ]
+        },
+        {
+          "name": "Sophia Kewell",
+          "page": 81,
+          "entries": [
+            "Sophia Kewell declared that a sister is employed by a company that is a supplier to the department. Mitigations are in place to ensure Ms. Kewell does not participate in discussions or decisions relating to contract awards involving that company."
+          ]
+        }
+      ]
+    },
+    {
+      "department": "DBT",
+      "period": "2025/26",
+      "source_title": "Department for Business and Trade annual report and accounts 2025 to 2026 (large print)",
+      "source_url": "https://assets.publishing.service.gov.uk/media/6a562cbd31fb6daf31413648/dbt-annual-report-and-accounts-2025-to-2026-large-print.pdf",
+      "advisers": [
+        {
+          "name": "Darren Murphy",
+          "dates": "from 06/09/2025",
+          "page": 158,
+          "entries": [
+            "Mr Murphy is a Doctoral researcher at the University of Birmingham."
+          ]
+        },
+        {
+          "name": "Nicola Bartlett",
+          "dates": "from 06/09/2025",
+          "page": 158,
+          "entries": [
+            "Ms Bartlett is a Local Councillor for the West Green Ward at Haringey Borough Council."
+          ]
+        },
+        {
+          "name": "Billy French",
+          "dates": "from 06/09/2025",
+          "page": 158,
+          "entries": [
+            "Mr French’s partner is employed at Hoxton Ventures. No confidential policy should be discussed, and no privileged access should be granted to Hoxton Venture (as per usual restrictions)"
+          ]
+        },
+        {
+          "name": "Finn McGoldrick",
+          "dates": "until 05/09/2025",
+          "page": 158,
+          "entries": [
+            "Ms McGoldrick is a Local Councillor for the Norcot Ward at Reading Borough Council."
+          ]
+        },
+        {
+          "name": "Sophia Kewell",
+          "dates": "until 05/09/2025",
+          "page": 158,
+          "entries": [
+            "Ms Kewell held a position on the London Pension Fund Authority Board.",
+            "Ms Kewell was recused from any discussions affecting delivery of Osaka 2025."
+          ]
+        }
+      ]
+    },
+    {
+      "department": "FCDO",
+      "period": "2025/26",
+      "source_title": "FCDO annual report and accounts 2025 to 2026",
+      "source_url": "https://assets.publishing.service.gov.uk/media/6a61d75447af652afa0c8a73/FCDO_Annual_Report_2025_to_2026.pdf",
+      "advisers": [
+        {
+          "name": "Jessica Leigh",
+          "page": 104,
+          "entries": [
+            "Ms Leigh was a Lambeth Councillor until 7 May 2026."
+          ]
+        }
+      ]
+    },
+    {
+      "department": "Home Office",
+      "period": "2025/26",
+      "source_title": "Home Office annual report and accounts: 2025 to 2026",
+      "source_url": "https://assets.publishing.service.gov.uk/media/6a58e9953ae256c99b702f50/36.54_HO_ARA_25-26_WEB.pdf",
+      "advisers": [
+        {
+          "name": "Jamie Williams",
+          "page": 147,
+          "entries": [
+            "Mr Williams’ brother held ministerial positions in the Cabinet Office and the Department for Science, Innovation and Technology."
+          ]
+        },
+        {
+          "name": "Sophie Linden",
+          "page": 147,
+          "entries": [
+            "Ms Linden is recused from involvement in discussions or matters relating to Sheffield Hallam University."
+          ]
+        }
+      ]
+    },
+    {
+      "department": "Scotland Office",
+      "period": "2025/26",
+      "source_title": "Scotland Office and OAG Annual Report and Accounts 2025-2026",
+      "source_url": "https://assets.publishing.service.gov.uk/media/6a5897679e631544544137c1/SO_ARA_2025-26_12pt_version.pdf",
+      "advisers": [
+        {
+          "name": "Kieron Higgins",
+          "dates": "until 05/09/2025",
+          "page": 45,
+          "entries": [
+            "Kieron Higgins was a Scotland Office Special Adviser until 05/09/2025. Mr Higgins was shortlisted as a Labour candidate for the 2026 Scottish Parliament Elections which was called on the 7 May 2026. Mr Higgins was recused from matters that related to his prospective constituency. The Scotland Office Director was in regular discussion with Mr Higgins to ensure any further issues or conflicts of interest were considered."
+          ]
+        },
+        {
+          "name": "Amelia Tighe",
+          "page": 45,
+          "entries": [
+            "Ms Tighe held a part-time paid role with the Labour Party between 26 March and 7 May 2026. Ms Tighe's work for this organisation was performed outside their hours as a Special Adviser in the Scotland Office. Ms Tighe's work as a Special Adviser was under a temporary part-time contract during this period."
+          ]
+        }
+      ]
+    },
+    {
+      "department": "DSIT",
+      "period": "2025/26",
+      "source_title": "DSIT annual report and accounts 2025 to 2026",
+      "source_url": "https://assets.publishing.service.gov.uk/media/6a54f163a4890e65cce64dec/DSIT_ARA_2025-26_V2.8C_gov_uk_print_ready.pdf",
+      "advisers": [
+        {
+          "name": "Kirsty Innes",
+          "page": 93,
+          "entries": [
+            "Unpaid role as advisor for the Centre for British Progress"
+          ]
+        },
+        {
+          "name": "Darren Murphy",
+          "dates": "left 5 September 2025",
+          "page": 93,
+          "entries": [
+            "Doctoral researcher at the University of Birmingham"
+          ]
+        },
+        {
+          "name": "Nicola Bartlett",
+          "dates": "left 5 September 2025",
+          "page": 93,
+          "entries": [
+            "Local Councillor for the West Green Ward at Haringey Borough Council."
+          ]
+        }
+      ]
+    },
+    {
+      "department": "DHSC",
+      "period": "2024/25",
+      "source_title": "DHSC annual report and accounts: 2024 to 2025",
+      "source_url": "https://assets.publishing.service.gov.uk/media/69412ac0f9d902210154a4b8/dhsc-annual-report-and-accounts-2024-2025-print-ready-corrected.pdf",
+      "advisers": [
+        {
+          "name": "Caroline Elsom",
+          "dates": "Joined December 2022. Left May 2024",
+          "page": 137,
+          "entries": [
+            "Caroline’s partner is the Director of External Affairs at Waymap and is a Conservative councillor on Wandsworth Borough Council. He was the Conservative prospective Parliamentary candidate for Tooting constituency during the July 2024 General Election.",
+            "Caroline’s sister is a General Practice Specialist at Broad Lane Surgery.",
+            "Mitigation: Caroline would recuse herself from any involvement with interactions with the organisations above. Other than declaration no other mitigations were required."
+          ]
+        },
+        {
+          "name": "Robert Ede",
+          "dates": "Joined November 2022. Left July 2024",
+          "page": 137,
+          "entries": [
+            "Robert’s wife works in a government-facing role at Biogen UK.",
+            "Mitigation: Mitigations were in place including Robert not having any involvement with any dealings, discussion or advice related to Biogen and/or potential future contracts or bids. Robert also agreed to recuse himself from discussions of any report he authored before joining DHSC."
+          ]
+        },
+        {
+          "name": "Peter Wilson",
+          "dates": "Joined December 2023, Left May 2024",
+          "page": 137,
+          "entries": [
+            "Peter’s sister is a consultant paediatrician at St Richard’s Hospital. Peter’s brother-in-law is a GP partner at St Paul’s surgery, Winchester",
+            "Peter is the owner and sole director of PPW Consulting Limited, through which he conducted communications consulting work on a self-employed basis between November 2022 and December 2023, prior to his appointment as a special adviser.",
+            "Mitigation: Peter did not solicit new business or conduct any business whatsoever through the entity, or on behalf of or in concert with his former clients for the duration of his employment as a special adviser. Should any potential conflicts, or the perception of potential conflicts have arisen with respect to his former clients through his work as a special adviser, Peter would have declared this to the Permanent Secretary in a timely manner and recuse himself if appropriate."
+          ]
+        },
+        {
+          "name": "Fergus Cameron Watt",
+          "dates": "Joined November 2023, Left May 2024",
+          "page": 138,
+          "entries": [
+            "Fergus was recused from involvement in discussions or matters relating to Bain & Co."
+          ]
+        }
+      ]
+    },
+    {
+      "department": "DfE",
+      "period": "2024/25",
+      "source_title": "DfE consolidated annual report and accounts: 2024 to 2025",
+      "source_url": "https://assets.publishing.service.gov.uk/media/687794132bad77c3dae4dc67/DfE_consolidated_annual_report_and_accounts_2024_to_2025__web-optimised_version_.pdf",
+      "advisers": [
+        {
+          "name": "Rosemary Roche",
+          "dates": "from 11 July 2024",
+          "page": 132,
+          "entries": [
+            "Her father (Professor Patrick Roche) is the interim Principal of Hertford College, University of Oxford"
+          ]
+        },
+        {
+          "name": "Tim Waters",
+          "dates": "from 5 July 2024",
+          "page": 132,
+          "entries": [
+            "Mr Waters’ partner is the acting Head of Member Liaison at UNISON"
+          ]
+        }
+      ]
+    },
+    {
+      "department": "NIO",
+      "period": "2024/25",
+      "source_title": "Northern Ireland Office Annual Report and Accounts 2024 to 2025",
+      "source_url": "https://assets.publishing.service.gov.uk/media/6932b1765b5198836f3040ed/E03456845_-_NIO_ARA_24-25_Accessible.pdf",
+      "advisers": [
+        {
+          "name": "Aoife Forbes",
+          "dates": "until 30/05/2024",
+          "page": 50,
+          "entries": [
+            "Ms Forbes held a paid role in the Parliamentary Office of the Rt Hon Chris Heaton-Harris MP. Ms Forbes' work as a Special Adviser was a part-time contract and her work in the Parliamentary Office of Rt Hon Chris Heaton-Harris MP was performed outside these hours."
+          ]
+        },
+        {
+          "name": "Claire Tighe",
+          "dates": "current",
+          "page": 50,
+          "entries": [
+            "Ms Tighe is a Local Councillor for North Hanwell Ward, London Borough of Ealing (Elected Representative)"
+          ]
+        }
+      ]
+    },
+    {
+      "department": "MoJ",
+      "period": "2024/25",
+      "source_title": "Ministry of Justice annual report and accounts: 2024 to 2025",
+      "source_url": "https://assets.publishing.service.gov.uk/media/69034f73e2ebc0fb39a51fd9/HC1417_MOJ_Annual_Report_and_Accounts_2024-25_Print.pdf",
+      "advisers": [
+        {
+          "name": "Ellie Cumbo",
+          "page": 100,
+          "entries": [
+            "Ms Cumbo is a Local Councillor for the St Giles ward in the London Borough of Southwark"
+          ]
+        }
+      ]
+    }
+  ],
+  "no_entries": [
+    {
+      "department": "DCMS",
+      "period": "2025/26",
+      "source_title": "DCMS annual report and accounts 2025 to 2026",
+      "source_url": "https://assets.publishing.service.gov.uk/media/6a5a43d73ae256c99b702ffe/E03583066_-_DCMS_ARA_25-26_-_Web_Accessible.pdf",
+      "page": 42,
+      "says": "there are no relevant interests to be published"
+    },
+    {
+      "department": "DWP",
+      "period": "2025/26",
+      "source_title": "DWP annual report and accounts 2025 to 2026",
+      "source_url": "https://assets.publishing.service.gov.uk/media/6a4e43ba895317eadc3545b6/dwp_annual_report_and_accounts_2025_to_2026_print-ready.pdf",
+      "page": 200,
+      "says": "there are no relevant interests to be published"
+    },
+    {
+      "department": "DfT",
+      "period": "2025/26",
+      "source_title": "Department for Transport annual report and accounts 2025 to 2026 (large print)",
+      "source_url": "https://assets.publishing.service.gov.uk/media/6a57b34a2cbe5d1c179a65d7/dft-ara-2025-2026-large-print.pdf",
+      "page": 184,
+      "says": "there are no relevant interests to be published"
+    },
+    {
+      "department": "MoD",
+      "period": "2025/26",
+      "source_title": "Ministry of Defence annual report and accounts 2025 to 2026",
+      "source_url": "https://assets.publishing.service.gov.uk/media/6a5740ec2f6185941a9a650a/Ministry_of_Defence_annual_report_and_accounts_2025_to_2026.pdf",
+      "page": 113,
+      "says": "all Special Advisers have confirmed any relevant interests or confirmed that they have none (no list published)"
+    }
+  ],
+  "not_found": [
+    {
+      "department": "DHSC",
+      "period": "2025/26",
+      "note": "2025/26 report not on GOV.UK yet (2024/25 was published 16 December 2025)"
+    },
+    {
+      "department": "DfE",
+      "period": "2025/26",
+      "note": "2025/26 report not on GOV.UK yet (2024/25 was published 25 February 2026)"
+    },
+    {
+      "department": "NIO",
+      "period": "2025/26",
+      "note": "2025/26 report not on GOV.UK yet"
+    },
+    {
+      "department": "MoJ",
+      "period": "2025/26",
+      "note": "2025/26 report not on GOV.UK yet (2024/25 was published 30 October 2025)"
+    },
+    {
+      "department": "Attorney General's Office",
+      "period": "2025/26",
+      "note": "no annual report since 2023 to 2024 found on GOV.UK"
+    },
+    {
+      "department": "Wales Office",
+      "period": "2025/26",
+      "note": "latest annual report on GOV.UK is 2023 to 2024"
+    }
+  ]
+}

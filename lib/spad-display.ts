@@ -44,3 +44,43 @@ export function ministerShownName(name: string | null): string | null {
   if (!name) return null;
   return name.replace(/^(the\s+)?(rt\.?\s+(hon\.?\s+)?|right\s+honourable\s+)/i, '').replace(/(\s+(kcb|kc|qc|mp|obe|cbe|mbe|dbe|kbe|pc|cb))+\s*$/i, '').trim();
 }
+
+// An adviser's official background (owner, 28 Oct 2026): declared interests (word for word, recusals first), the
+// ministers they advised in each Cabinet Office yearly list, and ACOBA advice on later jobs. Built on the server.
+export type SpadInterestRow = { adviser_name: string; department: string; period: string; entry_text: string; category: string; is_recusal: boolean; end_date_text: string | null; source_title: string; source_url: string; source_page: number | null };
+export type SpadPostRow = { adviser_name: string; former_department: string; new_employer: string; new_role: string | null; advice_date: string; conditions_text: string | null; source_url: string };
+export type SpadHistoryRow = { adviser_name: string; minister_title: string; as_at: string; source_url: string };
+export type SpadBackground = {
+  interests: SpadInterestRow[];
+  history: { title: string; from: string; to: string; source_url: string }[];
+  posts: SpadPostRow[];
+};
+
+const monthYear = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+export const historyLine = (h: SpadBackground['history'][number]) => `${h.title}, ${h.from === h.to ? monthYear(h.from) : `${monthYear(h.from)} to ${monthYear(h.to)}`}`;
+
+// Per adviser name (exact match only): their interests, history and ACOBA advice. History joins the yearly lists in
+// which the adviser appears under the same minister title in consecutive editions ("March 2024 to March 2026").
+export function buildBackground(names: string[], interests: SpadInterestRow[], history: SpadHistoryRow[], posts: SpadPostRow[], editions: string[]): Record<string, SpadBackground> {
+  const order = [...new Set(editions)].sort();
+  const out: Record<string, SpadBackground> = {};
+  for (const name of new Set(names)) {
+    const ints = interests.filter((i) => i.adviser_name === name)
+      .sort((a, b) => Number(b.is_recusal) - Number(a.is_recusal) || b.period.localeCompare(a.period) || a.department.localeCompare(b.department));
+    const byTitle = new Map<string, SpadHistoryRow[]>();
+    for (const h of history.filter((x) => x.adviser_name === name)) byTitle.set(h.minister_title, [...(byTitle.get(h.minister_title) ?? []), h]);
+    const spans: SpadBackground['history'] = [];
+    for (const [title, rows] of byTitle) {
+      const dates = [...new Set(rows.map((r) => r.as_at))].sort();
+      let start = dates[0], prev = dates[0];
+      for (const d of [...dates.slice(1), null]) {
+        if (d && order.indexOf(d) === order.indexOf(prev) + 1) { prev = d; continue; }
+        spans.push({ title, from: start, to: prev, source_url: rows.find((r) => r.as_at === prev)!.source_url });
+        if (d) { start = d; prev = d; }
+      }
+    }
+    spans.sort((a, b) => b.to.localeCompare(a.to) || b.from.localeCompare(a.from));
+    out[name] = { interests: ints, history: spans, posts: posts.filter((p) => p.adviser_name === name).sort((a, b) => b.advice_date.localeCompare(a.advice_date)) };
+  }
+  return out;
+}

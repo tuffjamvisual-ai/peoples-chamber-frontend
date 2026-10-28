@@ -311,7 +311,12 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     const { data } = await supabase.from('spad_appointments')
       .select('adviser_name, minister_title, minister_name, minister_member_id, pay_band, salary_band_text, salary_band_min, notes')
       .eq('release_slug', rel.release_slug).eq('minister_member_id', memberId).order('id', { ascending: true });
-    return data && data.length ? { release: rel as SpadReleaseRow, rows: data as SpadRow[] } : null;
+    if (!data || !data.length) return null;
+    // How many declared interests (and recusals) each adviser has, for a short note per adviser.
+    const { data: ints } = await supabase.from('spad_interests').select('adviser_name, is_recusal').in('adviser_name', [...new Set(data.map((r) => r.adviser_name))]);
+    const interests: Record<string, { total: number; recusals: number }> = {};
+    for (const i of ints ?? []) { const c = (interests[i.adviser_name] ??= { total: 0, recusals: 0 }); c.total++; if (i.is_recusal) c.recusals++; }
+    return { release: rel as SpadReleaseRow, rows: data as SpadRow[], interests };
   })(), 5000).catch(() => null);
   const pMeetingsHosp = withTimeout(Promise.all([
     supabase

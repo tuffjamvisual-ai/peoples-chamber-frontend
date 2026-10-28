@@ -1,10 +1,11 @@
 // "Special advisers" on a minister's MP page (owner, 28 Oct 2026): the advisers the Cabinet Office lists for them,
-// with pay and salary band, linking to the full list on /transparency/special-advisers filtered to this minister.
+// with pay and salary band and a note of any declared interests, linking to the full list on
+// /transparency/special-advisers filtered to this minister, where the interests are shown word for word.
 import Link from 'next/link';
 import SpadSource from './SpadSource';
 import { SPAD_LIST_ANCHOR, longDate, type SpadRow, type SpadReleaseRow } from '@/lib/spad-display';
 
-export default function SpadAdvisersBlock({ rows, release, memberId, headingStyle }: { rows: SpadRow[]; release: SpadReleaseRow; memberId: number; headingStyle?: React.CSSProperties }) {
+export default function SpadAdvisersBlock({ rows, release, interests = {}, memberId, headingStyle }: { rows: SpadRow[]; release: SpadReleaseRow; interests?: Record<string, { total: number; recusals: number }>; memberId: number; headingStyle?: React.CSSProperties }) {
   if (!rows.length) return null;
   const titles = [...new Set(rows.map((r) => r.minister_title))];
   return (
@@ -18,6 +19,11 @@ export default function SpadAdvisersBlock({ rows, release, memberId, headingStyl
           <li key={`${r.adviser_name}|${r.minister_title}`} style={{ padding: '6px 0', borderBottom: '1px solid rgba(20,16,13,0.25)' }}>
             <strong>{r.adviser_name}</strong>: pay band {r.pay_band ?? 'not given'}, salary {r.salary_band_text ?? 'under £81,000 (not published)'}
             {r.notes.length > 0 && <span style={{ fontStyle: 'italic' }}> ({r.notes.join('; ')})</span>}
+            {interests[r.adviser_name] && (
+              <span style={{ display: 'block' }}>
+                Declared interests: {interests[r.adviser_name].total}{interests[r.adviser_name].recusals ? `, including ${interests[r.adviser_name].recusals} recusal${interests[r.adviser_name].recusals === 1 ? '' : 's'}` : ''} (see the full list)
+              </span>
+            )}
           </li>
         ))}
       </ul>

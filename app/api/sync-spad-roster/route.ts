@@ -4,10 +4,10 @@ import { createClient } from '@supabase/supabase-js';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { runSpadRosterSync } from '@/lib/spad-roster-sync';
 export const dynamic = 'force-dynamic';
-export const maxDuration = 60;
+export const maxDuration = 120;
 
-// The Cabinet Office's named list of special advisers and their cost totals, once a week (owner, 28 Oct 2026). The
-// work is in lib/spad-roster-sync.ts; ?force=1 rewrites the release even when it has not changed.
+// The Cabinet Office's named list of special advisers and their cost totals, and their declared interests and ACOBA
+// advice, once a week (owner, 28 Oct 2026). The work is in lib/spad-roster-sync.ts and lib/spad-background-sync.ts; ?force=1 rewrites the release even when it has not changed.
 
 async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;

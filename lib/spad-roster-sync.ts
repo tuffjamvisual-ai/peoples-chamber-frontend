@@ -5,6 +5,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { SyncBudget, politeFetch, isPoliteStop, loadCursor, saveCursor } from '@/lib/sync-budget';
 import { SPAD_SEARCH, SPAD_UA, parseRelease, dedupe, matchMinisters, type MpName } from '@/lib/spad-roster';
+import { runSpadBackgroundSync } from '@/lib/spad-background-sync';
 
 const ROUTE = '/api/sync-spad-roster';
 const CONTENT = 'https://www.gov.uk/api/content';
@@ -19,6 +20,8 @@ async function json<T>(url: string, budget: SyncBudget): Promise<T> {
 export async function runSpadRosterSync(opts: { supabase: SupabaseClient; maxDurationS: number; force?: boolean }): Promise<{ status: number; body: Record<string, unknown> }> {
   const { supabase } = opts;
   const budget = new SyncBudget(opts.maxDurationS);
+  // After the named list, the background: interests, ACOBA advice and the annual reports to read by hand.
+  const withBackground = async (body: Record<string, unknown>) => ({ status: 200, body: { ...body, background: await runSpadBackgroundSync(supabase, budget), elapsed_ms: budget.spent() } });
   try {
     // 1. The latest release (a "transparency" publication; the collection page has the same title).
     const search = await json<{ results: { title: string; link: string; format: string; public_timestamp: string }[] }>(SPAD_SEARCH, budget);
@@ -34,7 +37,7 @@ export async function runSpadRosterSync(opts: { supabase: SupabaseClient; maxDur
     const prev = await loadCursor<Cursor>(supabase, ROUTE, 400 * 86400_000);
     const { count: saved } = await supabase.from('spad_appointments').select('id', { count: 'exact', head: true }).eq('release_slug', slug);
     if (!opts.force && prev?.release_slug === slug && prev.updated === pub.public_updated_at && (saved ?? 0) > 0) {
-      return { status: 200, body: { ok: true, release: slug, unchanged: true, appointments: saved } };
+      return withBackground({ ok: true, release: slug, unchanged: true, appointments: saved });
     }
     const html = await json<{ details?: { body?: string } }>(`${CONTENT}${htmlPath}`, budget);
     const sourceUrl = `https://www.gov.uk${htmlPath}`;
@@ -67,7 +70,7 @@ export async function runSpadRosterSync(opts: { supabase: SupabaseClient; maxDur
     }
     await saveCursor(supabase, ROUTE, { release_slug: slug, updated: pub.public_updated_at } satisfies Cursor);
     if (unmatched.length) console.log(`[sync-spad-roster] ministers not matched to an MP: ${unmatched.join('; ')}`);
-    return { status: 200, body: { ok: true, release: slug, as_at: release.as_at, appointments: out.length, advisers: new Set(out.map((r) => r.adviser_name)).size, removed: stale.length, ministers_matched: ids.size, unmatched_ministers: unmatched, elapsed_ms: budget.spent() } };
+    return withBackground({ ok: true, release: slug, as_at: release.as_at, appointments: out.length, advisers: new Set(out.map((r) => r.adviser_name)).size, removed: stale.length, ministers_matched: ids.size, unmatched_ministers: unmatched });
   } catch (e) {
     if (isPoliteStop(e)) return { status: 200, body: { ok: true, partial: true, reason: (e as Error).message } };
     throw e;

@@ -110,10 +110,19 @@ export function parseRelease(html: string, meta: { slug: string; sourceUrl: stri
   if (!table) throw new Error('no "List of Special Advisers" table in the release');
   const appointments: SpadAppointment[] = [];
   const footnoteNames: Record<string, string[]> = {};
+  let lastTitle = '';
   for (const tr of table.querySelectorAll('tr')) {
     const tds = tr.querySelectorAll('td');
     if (tds.length < 3) continue;
-    const { title, name } = splitMinister(tds[0].text);
+    // A row that is a notice, not an adviser ("... was in the process of appointing her special advisers"): its pay
+    // band cell is not a band number.
+    if (!/^\s*\d{1,2}\s*$/.test(clean(tds[2].text))) continue;
+    const split = splitMinister(tds[0].text);
+    // July 2023 splits one minister over rows: "Secretary of State for ..." with no name, then "– The Rt Hon ..." with
+    // no title. A row with no title carries on the title above it.
+    const title = split.title || lastTitle;
+    const name = split.name;
+    lastTitle = title;
     const adviser = adviserName(tds[1]);
     if (!adviser) continue;
     const refs = tds[1].querySelectorAll('a[href^="#fn:"]').map((a) => (a.getAttribute('href') ?? '').slice(4));

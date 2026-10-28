@@ -286,7 +286,7 @@ interface Props {
   ministerMeetings?: MinisterMeeting[];
   ministerHospitality?: MinisterHospitality[];
   /** Special advisers this minister appointed (Cabinet Office named list), shown in Roles. */
-  spadAdvisers?: { release: SpadReleaseRow; rows: SpadRow[] } | null;
+  spadAdvisers?: { release: SpadReleaseRow; rows: SpadRow[]; interests?: Record<string, { total: number; recusals: number }> } | null;
   conductFindings?: ConductFinding[];
   activity?: ActivityMetrics | null;
   /** Recent Hansard chamber contributions (Members API ContributionSummary). */
@@ -1500,7 +1500,7 @@ export default function MagazineProfileSections({
           <div style={{ fontSize: '15px', lineHeight: '1.7' }}>
             <h2 style={sectionH2}>Roles</h2>
 
-            {spadAdvisers && <SpadAdvisersBlock rows={spadAdvisers.rows} release={spadAdvisers.release} memberId={memberId} headingStyle={sectionH3} />}
+            {spadAdvisers && <SpadAdvisersBlock rows={spadAdvisers.rows} release={spadAdvisers.release} interests={spadAdvisers.interests} memberId={memberId} headingStyle={sectionH3} />}
 
             {committeeMemberships.length > 0 && (
               <>
