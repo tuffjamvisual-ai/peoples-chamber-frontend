@@ -23,8 +23,9 @@ const HEAVY = new Set([
   '/api/send-member-digests',                                   // job 74
   '/api/sweep-electoral-commission-donations',                   // day job 27 Oct, Part 3
   '/api/sync-spad-roster',                                       // special advisers job, 28 Oct (light, held to the heavy rules)
+  '/api/sync-children-in-care',                                  // children in care job, 28 Oct (a 2 MB zip when DfE publishes)
 ]);
-const NEW = new Set(['/api/send-member-digests', '/api/sweep-electoral-commission-donations', '/api/sync-spad-roster']);
+const NEW = new Set(['/api/send-member-digests', '/api/sweep-electoral-commission-donations', '/api/sync-spad-roster', '/api/sync-children-in-care']);
 const KEEP_FREE = [{ from: 2 * 60 + 40, to: 2 * 60 + 49 }];
 
 function expand(field: string, lo: number, hi: number): number[] {

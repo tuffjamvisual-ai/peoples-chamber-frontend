@@ -23,6 +23,8 @@ import CouncilClaimantCountSection from '../../components/CouncilClaimantCountSe
 import CouncilSchoolInspectionsSection from '../../components/CouncilSchoolInspectionsSection';
 import CouncilEhcpSection from '../../components/CouncilEhcpSection';
 import CouncilRoadCasualtiesSection from '../../components/CouncilRoadCasualtiesSection';
+import CouncilRoadConditionSection from '../../components/CouncilRoadConditionSection';
+import CouncilChildrenInCareSection from '../../components/CouncilChildrenInCareSection';
 import CouncilFlyTippingSection from '../../components/CouncilFlyTippingSection';
 import CouncilPipMobilitySection from '../../components/CouncilPipMobilitySection';
 import CouncilBlueBadgesSection from '../../components/CouncilBlueBadgesSection';
@@ -623,6 +625,16 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                 countySlug={parent ? parent.slug : null}
               />
 
+              {/* Road condition (England, DfT, to March 2026, the last red, amber and green year): highway authorities;
+                  districts point to their county. */}
+              <CouncilRoadConditionSection
+                gssCode={c.gss_code}
+                country={c.country}
+                isDistrict={c.type === 'district'}
+                countyName={parent ? parent.name : null}
+                countySlug={parent ? parent.slug : null}
+              />
+
               {/* Fly-tipping: England (Defra) and Wales (StatsWales); a county's figures are its districts' total.
                   Scotland and Northern Ireland get one line: no official council figures are published. */}
               <CouncilFlyTippingSection gssCode={c.gss_code} country={c.country} />
@@ -646,6 +658,14 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                 countyName={parent ? parent.name : null}
                 countySlug={parent ? parent.slug : null}
                 fullListHref={`/councils/${c.slug}/schools`}
+              />
+              {/* Children in care (England, DfE): children's services councils; districts point to their county. */}
+              <CouncilChildrenInCareSection
+                gssCode={c.gss_code}
+                country={c.country}
+                isDistrict={c.type === 'district'}
+                countyName={parent ? parent.name : null}
+                countySlug={parent ? parent.slug : null}
               />
               {/* EHC plans (DfE timeliness, council_ehcp): education authorities; districts point to their county. */}
               <CouncilEhcpSection

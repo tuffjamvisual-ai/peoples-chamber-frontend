@@ -121,6 +121,8 @@ async function GET_impl(req: Request) {
     '/api/sync-statutory-instruments-treaties': '2026-10-27T13:26:54Z',  // first run 28 Oct 02:45 UTC
     '/api/sync-spad-roster': '2026-10-28T08:20:29Z',                 // special advisers job; first run Tue 3 Nov 11:36 UTC
     '/api/sync-blue-badges': '2026-10-28T13:00:00Z',                 // Blue Badges job (pushed 28 Oct); first run Wed 4 Nov 11:57 UTC
+    '/api/sync-children-in-care': '2026-10-28T17:00:00Z',            // children in care job (pushed 28 Oct); first run Thu 29 Oct 11:47 UTC
+    '/api/sync-road-condition': '2026-10-28T17:00:00Z',              // road condition job (pushed 28 Oct); first run Fri 30 Oct 11:53 UTC
   };
   // Run expected, zero rows normal: alerted only for a missed run or a failed one, never for a run of zero rows.
   // The reshuffle tick changes nothing unless reshuffle mode is on.
@@ -280,6 +282,40 @@ async function GET_impl(req: Request) {
       }
     }
   }
+  // Children in care (owner, 28 Oct 2026): DfE publishes the figures for 31 March of year Y in November of Y. From 1
+  // January of Y+2 with only Y held, the next release is late: a warning line daily until /api/sync-children-in-care
+  // loads it.
+  const childrenInCare: { newestYear: number | null; lateFrom: string | null; late: boolean } = { newestYear: null, lateFrom: null, late: false };
+  {
+    const { data: cic, error: cicErr } = await supabaseAdmin.from('council_children_in_care').select('year').eq('area_level', 'england').order('year', { ascending: false }).limit(1);
+    if (cicErr) console.error('monitor-freshness: children in care:', cicErr.message);
+    const y = cic?.[0]?.year ? Number(String(cic[0].year).slice(0, 4)) : null;
+    if (y != null) {
+      const lateFrom = new Date(Date.UTC(y + 2, 0, 1));
+      Object.assign(childrenInCare, { newestYear: y, lateFrom: lateFrom.toISOString().slice(0, 10), late: now >= lateFrom });
+      if (now >= lateFrom) {
+        emailAlerts.push({
+          label: 'Children in care by council (DfE)', page: '/councils/children-in-care', route: null, ageDays: null, lastRanAt: null, lastRows: null, lastStatus: null,
+          reason: `warning: DfE's children looked after figures for 31 March ${y + 1} were expected in November ${y + 1} and have not been loaded; the newest held is 31 March ${y}`,
+        });
+      }
+    }
+  }
+  // Road condition (owner, 28 Oct 2026): the year to March 2026 was the last red, amber and green year. The weekly check
+  // (/api/sync-road-condition) records any PAS 2161 tables it finds on DfT's page; a line is emailed while they are there.
+  const roadCondition: { checkedAt: string | null; pas2161Tables: string[] } = { checkedAt: null, pas2161Tables: [] };
+  {
+    const { data: rc, error: rcErr } = await supabaseAdmin.from('sync_cursor').select('cursor').eq('route', 'release:/api/sync-road-condition').maybeSingle();
+    if (rcErr) console.error('monitor-freshness: road condition:', rcErr.message);
+    const cur = rc?.cursor as { checkedAt?: string; pas2161Tables?: string[] } | undefined;
+    Object.assign(roadCondition, { checkedAt: cur?.checkedAt ?? null, pas2161Tables: cur?.pas2161Tables ?? [] });
+    if (roadCondition.pas2161Tables.length) {
+      emailAlerts.push({
+        label: 'Road condition by council (DfT)', page: '/councils/road-condition', route: null, ageDays: null, lastRanAt: null, lastRows: null, lastStatus: null,
+        reason: `notice: DfT's road condition page now has new tables (${roadCondition.pas2161Tables.join('; ')}), probably the PAS 2161 series; they are not loaded automatically, as they cannot be compared with red, amber and green`,
+      });
+    }
+  }
   const alertEmail = emailAlerts.length > 0
     ? await sendFreshnessAlert(emailAlerts)
     : { sent: false, reason: healedRoutes.size ? 'self_healed' : 'nothing_stale' };
@@ -354,6 +390,8 @@ async function GET_impl(req: Request) {
     cycles,
     failingItems,
     blueBadges,
+    childrenInCare,
+    roadCondition,
     members: { confirmed: memberCount ?? null, reviewResendPlanAt: MEMBERS_REVIEW_AT },
     emailedAlertCount: emailAlerts.length,
     selfHealed: [...healedRoutes],

@@ -83,6 +83,8 @@ const ALSO_KNOWN_AS: [string, string][] = [
   ['Gifts and Hospitality', '/transparency/hospitality'],
   ['Storm Overflows', '/sewage'],
   ['Disabled Parking Badges', '/councils/blue-badges'],
+  ['Children in Care', '/councils/children-in-care'],
+  ['Road Condition', '/councils/road-condition'],
   ['Local Councils', '/councils'],
   ['Benefits Spending', '/tools/welfare'],
   ['Research Commissions', '/commission'],
