@@ -1,7 +1,9 @@
 import { cache } from 'react';
 import { metaDescription } from '@/lib/meta-description';
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
+import { lookupMember, parliamentMemberUrl } from '@/lib/former-mps';
+import FormerMpProfile from './FormerMpProfile';
 import { supabase } from '@/lib/supabase';
 import { getHiddenBillIds } from '@/lib/hidden-bills';
 import { sumDeclaredDonations } from '@/lib/mpDonationsTotal';
@@ -138,7 +140,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     supabase.from('mp_division_votes').select('division_title, division_date').eq('member_id', memberId).in('vote_type', ['aye', 'no']).order('division_date', { ascending: false }).limit(1).maybeSingle(),
   ]);
 
-  if (!mp) return { title: 'MP profile' };
+  if (!mp) {
+    // A former MP not in our table (lib/former-mps.ts): a basic page from Parliament's record.
+    const m = await lookupMember(memberId);
+    if (m.kind !== 'former_mp') return { title: 'MP profile' };
+    const seat = m.mp.seats[m.mp.seats.length - 1]?.constituency;
+    const years = m.mp.firstYear && m.mp.lastYear ? ` (${m.mp.firstYear} to ${m.mp.lastYear})` : '';
+    return {
+      title: fitTitle(...(seat ? [`${m.mp.name}, former MP for ${seat}`] : []), `${m.mp.name}, former MP`),
+      description: metaDescription(`${m.mp.name}${m.mp.party ? `, ${m.mp.party}` : ''}, former MP${seat ? ` for ${seat}` : ''}${years}. Seats held and dates served, from UK Parliament's record.`),
+      alternates: { canonical: `/mps/${memberId}` },
+    };
+  }
 
   const name = displayMpName(mp.display_name || mp.name);
   const party = normaliseParty(mp.party) || mp.party || '';
@@ -279,7 +292,14 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       .eq('member_id', memberId)
       .order('end_date', { ascending: false, nullsFirst: true }),
   ]), 9000);
-  if (!mp) notFound();
+  if (!mp) {
+    // Not in our mps table: a former MP gets a basic page from Parliament's record; a member who only sat in the Lords
+    // goes to their Parliament page; anyone else is not found (owner's decision, 28 Oct 2026).
+    const m = await lookupMember(memberId);
+    if (m.kind === 'former_mp') return <FormerMpProfile mp={m.mp} />;
+    if (m.kind === 'lords_only') permanentRedirect(parliamentMemberUrl(memberId));
+    notFound();
+  }
   // A failed count read throws, like the page's other timeouts, rather than showing zero votes.
   if (voteCountsRes.error || !voteCountsRes.data) throw new Error(`mp_vote_counts(${memberId}): ${voteCountsRes.error?.message ?? 'no data'}`);
   const voteCounts = voteCountsRes.data as { all_votes: number; aye_no: number; aye_no_since: number; rebellions_since: number; rebellions_all: number };

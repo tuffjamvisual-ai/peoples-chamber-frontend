@@ -1,5 +1,14 @@
 import type { NextConfig } from "next";
 import { departments } from "./lib/departments";
+import { DEPARTMENT_SLUGS } from "./lib/url-gone";
+
+// proxy.ts answers 410 for a /departments/<slug> that is not a department (lib/url-gone.ts keeps its own short list so
+// the proxy does not load every department's data): the build stops if the two lists ever differ.
+{
+  const real = departments.map((d) => d.slug).sort().join(",");
+  const listed = [...DEPARTMENT_SLUGS].sort().join(",");
+  if (real !== listed) throw new Error(`lib/url-gone.ts DEPARTMENT_SLUGS differs from lib/departments: ${listed} vs ${real}`);
+}
 
 // Optional: opt-in bundle analyzer. Enable with:
 //   npm install -D @next/bundle-analyzer
@@ -123,13 +132,12 @@ const nextConfig: NextConfig = {
       { source: '/editorials/w7q2m9rk5t', destination: '/briefings/w7q2m9rk5t', statusCode: 301 as const },
       { source: '/editorials/r4n8k2wq7m', destination: '/briefings/r4n8k2wq7m', statusCode: 301 as const },
     ];
-    // Three addresses Search Console reported as Not found (16 Oct 2026): an old donor-page link
-    // that treated a council as a department, a peer (Lord Rowe-Beddoe, no MP page) and a
-    // debate no longer in the archive. Each goes to the page that now covers it.
+    // An address Search Console reported as Not found (16 Oct 2026): an old donor-page link that
+    // treated a council as a department. (Since 28 Oct 2026 a peer's /mps/<id> goes to their
+    // Parliament page from the MP page itself, lib/former-mps.ts, and a debate Hansard no longer
+    // holds goes to its sitting day on Hansard from the debate page.)
     const notFoundRedirects = [
       { source: '/departments/london-borough-of-enfield', destination: '/councils/enfield', statusCode: 301 as const },
-      { source: '/mps/3806', destination: '/mps', statusCode: 301 as const },
-      { source: '/debates/d0c004a3-7ec2-451d-8ae1-bf32a1165e98', destination: '/debates', statusCode: 301 as const },
     ];
     // /bills?page=N moved to /bills/page/N so every page is cached (owner's approval, 21 Oct 2026).
     const billsPageRedirects = [
@@ -184,6 +192,13 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      // Only www.opengovt.uk is indexed (owner, 28 Oct 2026): the vercel.app address and preview deployments carry
+      // noindex, so search engines never list a copy. Pages still open normally there.
+      {
+        source: '/:path*',
+        missing: [{ type: 'host' as const, value: 'www.opengovt.uk' }],
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex' }],
+      },
       {
         source: '/(.*)',
         headers: [

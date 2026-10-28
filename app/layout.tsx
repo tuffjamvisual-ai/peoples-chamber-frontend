@@ -56,9 +56,9 @@ export const metadata: Metadata = {
   },
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
-  alternates: {
-    canonical: "/",
-  },
+  // No canonical here (28 Oct 2026, Search Console): set in this layout it was inherited by every page without its
+  // own, so those pages named the homepage as their canonical (and the 404 page too). The homepage sets its own; any
+  // other page either sets one or has none, which search engines read as itself.
   // Link previews (25 Oct 2026, report 63): no title, description or url here, so Next.js fills og:title,
   // og:description, twitter:title and twitter:description from each page's own title and description (its
   // generateMetadata or metadata, lib/seo-title.ts, lib/page-descriptions.ts), and links to a page are not all

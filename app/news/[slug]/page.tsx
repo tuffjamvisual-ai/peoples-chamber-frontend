@@ -118,7 +118,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: release.title.replace(/\s+/g, ' ').trim(),
     description: metaDescription(description),
-    alternates: { canonical: `/news/${slug}` },
+    // The one address the release is linked at (any case or stray character in the address opens the same page).
+    alternates: { canonical: `/news/${slug.replace(/[^a-z0-9-]/gi, '').toLowerCase()}` },
     // A word-for-word copy of a GOV.UK release: kept for readers, never indexed, so the
     // GOV.UK original is the one search engines show (Search Console review, 16 Oct 2026).
     robots: { index: false, follow: true },

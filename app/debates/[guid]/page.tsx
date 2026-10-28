@@ -3,7 +3,7 @@ import ReadNext from '../../components/ReadNext';
 import { debateReadNext } from '@/lib/read-next';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { sanitizeHtml as sanitize } from '@/lib/html-sanitize';
 import OpenGovShell from '../../components/OpenGovShell';
@@ -55,8 +55,8 @@ type Debate = {
 
 // This debate's row in our debates table (its sitting date and the divisions held in it), read once per render.
 // The table keeps Hansard's own case, which is lower for some debates, while the address is always upper case.
-const debateRow = cache(async (guid: string): Promise<{ sitting_date: string | null; division_ids: unknown } | null> => {
-  const { data, error } = await supabase.from('debates').select('sitting_date, division_ids').in('hansard_ext_id', [guid, guid.toLowerCase()]).maybeSingle();
+const debateRow = cache(async (guid: string): Promise<{ sitting_date: string | null; division_ids: unknown; house: string | null } | null> => {
+  const { data, error } = await supabase.from('debates').select('sitting_date, division_ids, house').in('hansard_ext_id', [guid, guid.toLowerCase()]).maybeSingle();
   if (error) throw new Error(`debate ${guid} divisions: ${error.message}`);
   return data;
 });
@@ -180,13 +180,28 @@ export async function generateMetadata({ params }: { params: Promise<{ guid: str
   const fullTitle = d
     ? fitTitle(...(ov?.House && day ? [`${title}, ${ov.House} debate ${day}`] : []), ...(day ? [`${title}, ${day}`] : []), title)
     : title;
-  return { title: fullTitle, description, alternates: { canonical: `/debates/${guid.toUpperCase()}` } };
+  // A sitting's header record ("Commons Chamber", "Westminster Hall") only gathers the day's debates, so its page
+  // repeats their text: not indexed, its links still followed (owner's decision, 28 Oct 2026).
+  const header = !!d && !(d.Items ?? []).some((it) => plain(it.Value || '')) && (d.ChildDebates ?? []).length > 0;
+  return { title: fullTitle, description, alternates: { canonical: `/debates/${guid.toUpperCase()}` }, ...(header ? { robots: { index: false, follow: true } } : {}) };
+}
+
+// A debate still in our list whose Hansard record has gone (Hansard republishes some sitting headers under new IDs,
+// about 4 per cent of our rows on 28 Oct 2026) goes, permanently, to that sitting day on Hansard.
+function hansardDayUrl(row: { sitting_date: string | null; house: string | null }): string | null {
+  if (!row.sitting_date) return null;
+  return `https://hansard.parliament.uk/${row.house === 'Lords' ? 'Lords' : 'Commons'}/${row.sitting_date.slice(0, 10)}`;
 }
 
 export default async function DebatePage({ params }: { params: Promise<{ guid: string }> }) {
   const { guid } = await params;
   const debate = await getDebate(guid);
-  if (!debate || !debate.Overview) notFound();
+  if (!debate || !debate.Overview) {
+    const row = await debateRow(guid);
+    const day = row ? hansardDayUrl(row) : null;
+    if (day) permanentRedirect(day);
+    notFound();
+  }
 
   const ov = debate.Overview;
   const allDebateItems = allItems(debate);

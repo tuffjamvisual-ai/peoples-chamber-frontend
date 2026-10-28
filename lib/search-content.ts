@@ -3,6 +3,7 @@ import { govUrlToSlug } from '@/lib/govUrlSlug';
 import { DEPT_SLUG_TO_ORGS } from '@/lib/govOrgSlug';
 import { listSummary } from '@/lib/editorials/list-summary';
 import { displayMpName } from '@/lib/mp-name';
+import { searchFormerMps } from '@/lib/former-mps';
 
 export type SearchResultType =
   | 'editorial'
@@ -254,6 +255,17 @@ async function queryMPs(q: string, tsType: TsType): Promise<SearchResult[]> {
   }));
 }
 
+async function queryFormerMPs(q: string): Promise<SearchResult[]> {
+  const found = await searchFormerMps(q, PER_TABLE);
+  return found.map((m) => ({
+    type: 'mp' as const,
+    title: m.name,
+    constituency: m.constituency ? `Former MP for ${m.constituency}` : 'Former MP',
+    party: m.party ?? undefined,
+    url: `/mps/${m.memberId}`,
+  }));
+}
+
 // Council profiles (23 Oct 2026): matched on the council's name or short name, as the council search does, and
 // shown as their own group above the other results rather than mixed into them.
 export type CouncilSearchResult = { slug: string; name: string; typeLabel: string | null; country: string | null };
@@ -309,6 +321,9 @@ export async function searchContent(
   if (want('bill'))         tasks.push(queryBills(effectiveQ, tsType, from, to));
   if (want('division'))     tasks.push(queryDivisions(effectiveQ, tsType, from, to));
   if (want('mp'))           tasks.push(queryMPs(effectiveQ, tsType));
+  // Former MPs (28 Oct 2026): every former member has a page at /mps/<id> (lib/former-mps.ts), found here through
+  // Parliament's own member search.
+  if (want('mp'))           tasks.push(queryFormerMPs(effectiveQ));
 
   const settled = await Promise.allSettled(tasks);
 

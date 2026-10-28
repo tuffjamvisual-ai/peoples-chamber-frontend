@@ -14,7 +14,7 @@ import { metaDescription } from '@/lib/meta-description';
 
 import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import Link from 'next/link';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
@@ -37,6 +37,9 @@ const DANGER = '#a64030';
 //   pw-2026-04-28-515-commons   (TWFY / ParlParse canonical)
 //   pw-2026-04-28-515            (chamber omitted — defaults to commons)
 const SLUG_RE = /^pw-(\d{4}-\d{2}-\d{2})-(\d+)(?:-commons)?$/;
+// One address per division (28 Oct 2026, Search Console): the -commons form every link uses. The short form is
+// redirected to it permanently and every canonical names it.
+const fullSlug = (date: string, num: number | string) => `pw-${date}-${num}-commons`;
 
 // Procedural-motion explainers. For divisions whose titles are
 // parliamentary shorthand (King's Speech, programme motion, business of
@@ -196,7 +199,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: title.length > 200 ? title.slice(0, 197).trimEnd() + '…' : title,
     description,
-    alternates: { canonical: `/divisions/${slug}` },
+    alternates: { canonical: `/divisions/${fullSlug(m[1], parseInt(m[2], 10))}` },
   };
 }
 
@@ -244,6 +247,7 @@ export default async function DivisionDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const m = SLUG_RE.exec(slug);
   if (!m) notFound();
+  if (slug !== fullSlug(m[1], parseInt(m[2], 10))) permanentRedirect(`/divisions/${fullSlug(m[1], parseInt(m[2], 10))}`);
   const dateOnly = m[1];
   const divisionNumber = parseInt(m[2], 10);
 

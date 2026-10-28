@@ -16,7 +16,7 @@ import { departments } from '@/lib/departments';
 import { normaliseCompanyNumber } from '@/lib/organisations';
 import { donorNameToSlug, narrowTokens } from '@/lib/donor-slug';
 import { ecDonationSearchUrl } from '@/lib/ec-links';
-import { relatedDonorNames } from '@/lib/donor-related';
+import { relatedDonorNames, mainSpellingFor } from '@/lib/donor-related';
 import { donorRegistry } from '@/lib/donor-registry';
 import PhoneTable from '../../components/PhoneTable';
 import FollowButton from '../../components/FollowButton';
@@ -150,7 +150,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const name = (await resolveDonor(slug))?.name;
   if (!name) return { title: 'Donor' };
+  // A minor spelling of a much larger donor page is not indexed (lib/donor-related.ts); it links to that page.
+  const main = await mainSpellingFor(slug);
   return {
+    ...(main ? { robots: { index: false, follow: true } } : {}),
     title: `${name}: every UK political donation recorded by the Electoral Commission`,
     description: `Where ${name}'s money goes in UK politics: every party, MP, constituency association and All-Party Parliamentary Group they have given to or funded, with totals.`,
     alternates: { canonical: `/donors/${slug}` },
@@ -201,7 +204,10 @@ export default async function DonorPage({ params }: PageProps) {
   if (donations.length === 0) notFound();
 
   // Other donor pages with a similar name (lib/donor-related.ts): a name similarity only, nothing is combined.
-  const relatedNames = await relatedDonorNames(canonicalName, slug);
+  const [relatedFound, main] = await Promise.all([relatedDonorNames(canonicalName, slug), mainSpellingFor(slug)]);
+  const relatedNames = main && !relatedFound.some((r) => r.slug === main.slug)
+    ? [...relatedFound, main].sort((a, b) => a.name.localeCompare(b.name, 'en-GB'))
+    : relatedFound;
 
   // Roll-ups
   const total = donations.reduce((s, d) => s + (Number(d.amount) || 0), 0);

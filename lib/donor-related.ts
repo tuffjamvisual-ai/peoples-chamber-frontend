@@ -6,6 +6,7 @@
 import { supabase } from '@/lib/supabase';
 import { donorNameToSlug, donorPageSlug } from '@/lib/donor-slug';
 import { readAll } from '@/lib/read-all';
+import { donorRegistry, type DonorPageEntry } from '@/lib/donor-registry';
 
 // Personal titles removed before comparing names.
 const TITLES = new Set(['mr', 'mrs', 'ms', 'miss', 'mx', 'dr', 'sir', 'lord', 'lady', 'dame', 'baroness', 'baron', 'rt', 'hon', 'prof']);
@@ -75,4 +76,45 @@ export async function relatedDonorNames(name: string, ownSlug: string): Promise<
     if (slug && slug !== ownSlug) out.push({ name: label, slug });
   }
   return out.sort((a, b) => a.name.localeCompare(b.name, 'en-GB'));
+}
+
+// A donor page that is a minor spelling of a much larger one (owner's decision, 28 Oct 2026, Search Console: Google
+// treated pages such as "Hong Kong Governement", 1 record, as near copies of "Hong Kong Government", 31). The small
+// page keeps its records and stays open, but is not indexed, and links to the larger page. A minor spelling: the
+// same first and last word (donorNameKey), or names that differ by one or two letters. The larger page must have at
+// least 5 records and five times as many.
+const SMALL_MAX = 2;
+const LARGE_MIN = 5;
+
+function editDistanceAtMost(a: string, b: string, max: number): boolean {
+  if (Math.abs(a.length - b.length) > max) return false;
+  let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    const cur = [i];
+    let best = i;
+    for (let j = 1; j <= b.length; j++) {
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      best = Math.min(best, cur[j]);
+    }
+    if (best > max) return false;
+    prev = cur;
+  }
+  return prev[b.length] <= max;
+}
+
+export async function mainSpellingFor(slug: string): Promise<RelatedDonorName | null> {
+  const { bySlug } = await donorRegistry();
+  const own = bySlug.get(slug);
+  if (!own || own.records > SMALL_MAX) return null;
+  const ownWords = normalisedDonorWords(own.label).join(' ');
+  if (ownWords.length < 8) return null;
+  const ownKey = donorNameKey(own.label);
+  let best: { e: DonorPageEntry; records: number } | null = null;
+  for (const e of bySlug.values()) {
+    if (e.slug === slug || e.records < Math.max(LARGE_MIN, own.records * 5)) continue;
+    const words = normalisedDonorWords(e.label).join(' ');
+    const similar = (ownKey != null && donorNameKey(e.label) === ownKey) || (words.slice(0, 3) === ownWords.slice(0, 3) && editDistanceAtMost(ownWords, words, 2));
+    if (similar && (!best || e.records > best.records)) best = { e, records: e.records };
+  }
+  return best ? { name: best.e.label, slug: best.e.slug } : null;
 }

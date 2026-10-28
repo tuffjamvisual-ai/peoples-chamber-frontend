@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { goneAction, GONE_HTML } from '@/lib/url-gone'
 
 const RATE_LIMIT_WINDOW = 60 * 1000
 const MAX_REQUESTS = 60
@@ -26,8 +27,19 @@ function sweep(now: number) {
 // case most of Hansard's own IDs and the site's links use); any other spelling is 301'd to it here, before the page.
 const DEBATE_GUID = /^\/debates\/([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})\/?$/
 
-export function proxy(request: NextRequest) {
+// Department, donor and news addresses with no page (lib/url-gone.ts, owner's decision, 28 Oct 2026): a permanent
+// redirect to the page that now covers them, or 410 Gone, instead of a 404.
+const GONE_SECTION = /^\/(departments|donors|news)\/([^/]+)\/?$/
+
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
+  const gone = pathname.match(GONE_SECTION)
+  if (gone) {
+    const action = await goneAction(gone[1] as 'departments' | 'donors' | 'news', gone[2])
+    if (action.kind === 'redirect') return NextResponse.redirect(new URL(action.location, request.url), 308)
+    if (action.kind === 'gone') return new NextResponse(GONE_HTML, { status: 410, headers: { 'Content-Type': 'text/html; charset=utf-8', 'X-Robots-Tag': 'noindex', 'Cache-Control': 'public, max-age=0, s-maxage=86400' } })
+    return NextResponse.next()
+  }
   if (pathname.startsWith('/debates/')) {
     const guid = pathname.match(DEBATE_GUID)?.[1]
     if (guid && guid !== guid.toUpperCase()) {
@@ -64,5 +76,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/api/:path*', '/debates/:guid'],
+  matcher: ['/api/:path*', '/debates/:guid', '/departments/:slug', '/donors/:slug', '/news/:slug'],
 }
