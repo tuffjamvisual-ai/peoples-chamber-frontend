@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: "y9aa644amu",
   kicker: 'Investigation',
-  headline: "Luton Council Took Five Years to Chase Unpaid Developer Cash",
+  headline: "Luton Council Took Five Years to Chase £4m Developer Debt",
   standfirst: "Luton Borough Council failed to collect £4.19 million in developer contributions that had fallen due. Almost all of it came from one 2020 agreement, signed after the problem was found. Auditors will now investigate.",
   summary: "Luton council left £4.2m in developer payments uncollected, some from 2010 agreements. Auditors will examine a five year delay.",
   publishedAt: '2026-10-27',
