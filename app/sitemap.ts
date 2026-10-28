@@ -108,6 +108,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...(SHOW_BUDGET_CHOICES ? [{ url: `${SITE}/budget-trade-offs`, lastModified: now, changeFrequency: 'monthly' as const, priority: 0.8 }] : []),
     { url: `${SITE}/councils`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${SITE}/sewage`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${SITE}/councils/blue-badges`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     ...(SHOW_LEAGUE_TABLE ? [{ url: `${SITE}/councils/league-table`, lastModified: now, changeFrequency: 'monthly' as const, priority: 0.8 }] : []),
     { url: `${SITE}/second-jobs`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${SITE}/lobbying`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },

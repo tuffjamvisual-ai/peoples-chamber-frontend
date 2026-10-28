@@ -82,6 +82,7 @@ const ALSO_KNOWN_AS: [string, string][] = [
   ['Government Departments', '/departments'],
   ['Gifts and Hospitality', '/transparency/hospitality'],
   ['Storm Overflows', '/sewage'],
+  ['Disabled Parking Badges', '/councils/blue-badges'],
   ['Local Councils', '/councils'],
   ['Benefits Spending', '/tools/welfare'],
   ['Research Commissions', '/commission'],

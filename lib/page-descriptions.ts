@@ -26,6 +26,8 @@ export const PAGE_DESCRIPTIONS: Record<string, string> = {
     'Every treaty laid before Parliament under the 2010 Act: laid date, department, objection deadline, committee work and whether scrutiny ended.',
   '/directory':
     'Everything on Open Govt, A to Z: every section, list and tool on the site with a one line description, so you can find exactly what you need.',
+  '/councils/blue-badges':
+    'Blue Badges held and issued in every English council area: the share of residents with one, the change on the year, and who qualifies automatically.',
   '/expenses':
     'The ten MPs with the highest IPSA business costs in the latest year, ranked by total claimed across staffing, office, accommodation and travel.',
 };

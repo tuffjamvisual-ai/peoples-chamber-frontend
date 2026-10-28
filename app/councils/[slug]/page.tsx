@@ -25,6 +25,7 @@ import CouncilEhcpSection from '../../components/CouncilEhcpSection';
 import CouncilRoadCasualtiesSection from '../../components/CouncilRoadCasualtiesSection';
 import CouncilFlyTippingSection from '../../components/CouncilFlyTippingSection';
 import CouncilPipMobilitySection from '../../components/CouncilPipMobilitySection';
+import CouncilBlueBadgesSection from '../../components/CouncilBlueBadgesSection';
 import CouncilConnectivitySection from '../../components/CouncilConnectivitySection';
 import CouncilSewageSection from '../../components/CouncilSewageSection';
 import CouncilRatingsSection from '../../components/CouncilRatingsSection';
@@ -561,6 +562,16 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
               {/* Motability: PIP enhanced mobility rate, England and Wales (DWP Stat-Xplore); a county's figure adds up
                   its districts, each listed. Hidden where no figures are held. */}
               <CouncilPipMobilitySection gssCode={c.gss_code} />
+
+              {/* Blue Badges (England, DfT): issuing councils show their figures against England and their statistical
+                  neighbours; districts point to their county. */}
+              <CouncilBlueBadgesSection
+                gssCode={c.gss_code}
+                country={c.country}
+                isDistrict={c.type === 'district'}
+                countyName={parent ? parent.name : null}
+                countySlug={parent ? parent.slug : null}
+              />
 
               {/* Child poverty: same district/county logic as crime. */}
               <CouncilChildPovertySection

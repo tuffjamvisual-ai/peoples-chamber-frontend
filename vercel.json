@@ -149,6 +149,10 @@
       "schedule": "36 11 * * 2"
     },
     {
+      "path": "/api/sync-blue-badges",
+      "schedule": "57 11 * * 3"
+    },
+    {
       "path": "/api/sync-department-staffing",
       "schedule": "13 15 * * 1"
     },

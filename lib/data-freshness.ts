@@ -96,6 +96,7 @@ export const DATA_SOURCES: DataSource[] = [
   // (scripts/import-sewage.js, scripts/import-sewage-scotland.js — Scottish Water refuses automated
   // downloads, so its two workbooks are downloaded in a browser); the monitor emails when a new EA
   // year appears on data.gov.uk (see api/monitor-freshness).
+  { key: 'blue_badges',             table: 'council_blue_badges', column: 'updated_at', cadence: 'annual', label: 'Blue Badges by council', source: 'DfT Blue Badge scheme statistics (DIS0105, DIS0108)', page: '/councils/blue-badges', syncRoute: '/api/sync-blue-badges' },
   { key: 'sewage_overflows',        table: 'sewage_overflows', column: 'synced_at', cadence: 'quarterly', label: 'Storm overflow figures', source: 'Environment Agency storm overflow annual return; Scottish Water overflow event data; NI Water Event Duration Monitor data', page: '/sewage' /* loaded by hand; no automated sync */ },
   // Council area league table: written by scripts/score-areas.js --write, run by hand when its
   // source figures change (no automated sync).

@@ -120,6 +120,7 @@ async function GET_impl(req: Request) {
     '/api/sweep-electoral-commission-donations': '2026-10-27T12:56:53Z', // first run 27 Oct 21:17 UTC
     '/api/sync-statutory-instruments-treaties': '2026-10-27T13:26:54Z',  // first run 28 Oct 02:45 UTC
     '/api/sync-spad-roster': '2026-10-28T08:20:29Z',                 // special advisers job; first run Tue 3 Nov 11:36 UTC
+    '/api/sync-blue-badges': '2026-10-28T13:00:00Z',                 // Blue Badges job (pushed 28 Oct); first run Wed 4 Nov 11:57 UTC
   };
   // Run expected, zero rows normal: alerted only for a missed run or a failed one, never for a run of zero rows.
   // The reshuffle tick changes nothing unless reshuffle mode is on.
@@ -260,6 +261,25 @@ async function GET_impl(req: Request) {
       }
     }
   }
+  // Blue Badges (owner, 28 Oct 2026): DfT publishes once a year, the figures for 31 March of year Y in the winter of Y
+  // to Y+1 (2025's on 19 March 2026). From 1 April of Y+2 with only Y held, the next release is late: a warning line
+  // daily until /api/sync-blue-badges loads it.
+  const blueBadges: { newestYear: number | null; lateFrom: string | null; late: boolean } = { newestYear: null, lateFrom: null, late: false };
+  {
+    const { data: bb, error: bbErr } = await supabaseAdmin.from('council_blue_badges').select('year').eq('area_level', 'england').order('year', { ascending: false }).limit(1);
+    if (bbErr) console.error('monitor-freshness: blue badges:', bbErr.message);
+    const y = bb?.[0]?.year ? Number(String(bb[0].year).slice(0, 4)) : null;
+    if (y != null) {
+      const lateFrom = new Date(Date.UTC(y + 2, 3, 1));
+      Object.assign(blueBadges, { newestYear: y, lateFrom: lateFrom.toISOString().slice(0, 10), late: now >= lateFrom });
+      if (now >= lateFrom) {
+        emailAlerts.push({
+          label: 'Blue Badges by council (DfT)', page: '/councils/blue-badges', route: null, ageDays: null, lastRanAt: null, lastRows: null, lastStatus: null,
+          reason: `warning: DfT's Blue Badge figures for 31 March ${y + 1} were expected in the winter of ${y + 1} to ${y + 2} and have not been loaded; the newest held is 31 March ${y}`,
+        });
+      }
+    }
+  }
   const alertEmail = emailAlerts.length > 0
     ? await sendFreshnessAlert(emailAlerts)
     : { sent: false, reason: healedRoutes.size ? 'self_healed' : 'nothing_stale' };
@@ -333,6 +353,7 @@ async function GET_impl(req: Request) {
     serverErrors,
     cycles,
     failingItems,
+    blueBadges,
     members: { confirmed: memberCount ?? null, reviewResendPlanAt: MEMBERS_REVIEW_AT },
     emailedAlertCount: emailAlerts.length,
     selfHealed: [...healedRoutes],
