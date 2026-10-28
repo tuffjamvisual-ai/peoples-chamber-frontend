@@ -316,7 +316,11 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     const { data: ints } = await supabase.from('spad_interests').select('adviser_name, is_recusal').in('adviser_name', [...new Set(data.map((r) => r.adviser_name))]);
     const interests: Record<string, { total: number; recusals: number }> = {};
     for (const i of ints ?? []) { const c = (interests[i.adviser_name] ??= { total: 0, recusals: 0 }); c.total++; if (i.is_recusal) c.recusals++; }
-    return { release: rel as SpadReleaseRow, rows: data as SpadRow[], interests };
+    // Whether the minister still holds each listed post (Members API, weekly).
+    const { data: st } = await supabase.from('spad_minister_status').select('minister_title, still_in_post, left_on').eq('kind', 'listed').eq('member_id', memberId);
+    const leftOn: Record<string, string | null> = {};
+    for (const s of st ?? []) leftOn[s.minister_title] = s.still_in_post ? null : s.left_on;
+    return { release: rel as SpadReleaseRow, rows: data as SpadRow[], interests, leftOn };
   })(), 5000).catch(() => null);
   const pMeetingsHosp = withTimeout(Promise.all([
     supabase
@@ -745,7 +749,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         appgs: mpAppgs,
         ministerMeetings: meetings,
         ministerHospitality: hospitality,
-        spadAdvisers,
+        spadAdvisers: spadAdvisers ? { ...spadAdvisers, ministerName: fullName, gender: mp.gender ?? null } : null,
         contributions,
         conductFindings: conductRes.data || [],
         activity: activityRes.data || null,

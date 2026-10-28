@@ -6,10 +6,10 @@
 // narrowed. Each adviser with official background has a button that opens a panel under their row: declared
 // interests word for word (recusals first), the ministers they advised in each yearly list, and ACOBA advice, every
 // item linked to its source.
-import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import PhoneTable from '../../components/PhoneTable';
-import { historyLine, longDate, ministerShownName, salaryLabel, type SpadBackground, type SpadRow } from '@/lib/spad-display';
+import { historyLine, leftLabel, longDate, ministerShownName, salaryLabel, type SpadBackground, type SpadMinisterInfo, type SpadRow } from '@/lib/spad-display';
 
 const INK = '#14100d';
 const ACCENT = '#7a1612';
@@ -81,24 +81,36 @@ function BackgroundPanel({ name, bg }: { name: string; bg: SpadBackground }) {
   );
 }
 
-export default function SpadRosterTable({ rows, background = {} }: { rows: SpadRow[]; background?: Record<string, SpadBackground> }) {
+export default function SpadRosterTable({ rows, background = {}, ministerInfo = {}, asAtLabel = '31 March 2026', idPrefix = 'a' }: {
+  rows: SpadRow[]; background?: Record<string, SpadBackground>; ministerInfo?: Record<string, SpadMinisterInfo>; asAtLabel?: string; idPrefix?: string;
+}) {
+  // The minister as we show them: the list's name, or the Members API's where the list gives none.
+  const shownName = (r: SpadRow) => ministerShownName(r.minister_name) ?? ministerInfo[r.minister_title]?.api_name ?? null;
+  const left = (r: SpadRow) => ministerInfo[r.minister_title]?.left_on ?? null;
   const [minister, setMinister] = useState('');
   const [sort, setSort] = useState<'list' | 'salary'>('list');
   const [recusalsOnly, setRecusalsOnly] = useState(false);
   const [open, setOpen] = useState<Set<string>>(new Set());
+  const rootRef = useRef<HTMLDivElement>(null);
   const ministers = useMemo(() => {
     const m = new Map<string, string>();
     for (const r of rows) if (!m.has(ministerKey(r))) {
-      const name = ministerShownName(r.minister_name);
-      m.set(ministerKey(r), name ? `${name}: ${r.minister_title}` : r.minister_title);
+      const name = shownName(r);
+      const gone = left(r);
+      m.set(ministerKey(r), `${name ? `${name}: ` : ''}${r.minister_title}${gone ? ` ${leftLabel(gone)}` : ''}`);
     }
     return [...m];
-  }, [rows]);
+  }, [rows, ministerInfo]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     const want = new URLSearchParams(window.location.search).get('minister');
     // The page is statically cached, so the address is only known in the browser: read it once after loading.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (want && ministers.some(([k]) => k === want)) setMinister(want);
+    if (want && ministers.some(([k]) => k === want)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setMinister(want);
+      // A minister who has since left is in the folded group: open it and bring the table into view.
+      const fold = rootRef.current?.closest('details');
+      if (fold && !fold.open) { fold.open = true; rootRef.current?.scrollIntoView({ block: 'start' }); }
+    }
   }, [ministers]);
 
   const hasRecusal = (r: SpadRow) => (background[r.adviser_name]?.interests ?? []).some((i) => i.is_recusal);
@@ -121,8 +133,8 @@ export default function SpadRosterTable({ rows, background = {} }: { rows: SpadR
     <>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px 20px', alignItems: 'flex-end', margin: '0 0 12px' }}>
         <div style={{ flex: '1 1 260px', minWidth: 0 }}>
-          <label htmlFor="spad-minister" style={label}>Show the advisers of</label>
-          <select id="spad-minister" value={minister} onChange={(e) => setMinister(e.target.value)}
+          <label htmlFor={`spad-minister-${idPrefix}`} style={label}>Show the advisers of</label>
+          <select id={`spad-minister-${idPrefix}`} value={minister} onChange={(e) => setMinister(e.target.value)}
             style={{ width: '100%', maxWidth: '100%', fontFamily: MONO, fontSize: '15px', padding: '7px 8px', border: `1px solid ${INK}`, background: '#f4e8d4', color: INK }}>
             <option value="">Every minister ({rows.length} appointments)</option>
             {ministers.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
@@ -140,13 +152,13 @@ export default function SpadRosterTable({ rows, background = {} }: { rows: SpadR
       <p aria-live="polite" style={{ fontFamily: MONO, fontSize: '15px', margin: '0 0 8px' }}>
         Showing {shown.length} of {rows.length} appointments{minister ? ' for this minister' : ''}{recusalsOnly ? ', advisers with a recusal only' : ''}.
       </p>
-      <div style={{ containerType: 'inline-size' }}>
+      <div ref={rootRef} style={{ containerType: 'inline-size' }}>
       <PhoneTable>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK }}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${INK}` }}>
               <th style={th}>Special adviser</th>
-              <th style={th}>Appointing minister</th>
+              <th style={th}>Appointing minister at {asAtLabel}</th>
               <th style={th}>Pay band</th>
               <th style={th}>Salary band</th>
               <th style={th}>Notes</th>
@@ -154,13 +166,14 @@ export default function SpadRosterTable({ rows, background = {} }: { rows: SpadR
           </thead>
           <tbody>
             {shown.map((r) => {
-              const name = ministerShownName(r.minister_name);
+              const name = shownName(r);
+              const gone = left(r);
               const bg = background[r.adviser_name];
               const k = rowKey(r);
               const hasInterests = (bg?.interests.length ?? 0) > 0;
               const hasMore = !!bg && (hasInterests || bg.posts.length > 0 || bg.history.length > 1);
               const isOpen = open.has(k);
-              const panelId = `spad-bg-${k.replace(/[^A-Za-z0-9]+/g, '-')}`;
+              const panelId = `spad-bg-${idPrefix}-${k.replace(/[^A-Za-z0-9]+/g, '-')}`;
               return (
                 <Fragment key={k}>
                   <tr style={{ borderBottom: isOpen ? 0 : `1px solid ${HAIRLINE}` }}>
@@ -176,6 +189,8 @@ export default function SpadRosterTable({ rows, background = {} }: { rows: SpadR
                       {name && (r.minister_member_id != null
                         ? <Link href={`/mps/${r.minister_member_id}`} style={{ ...linkStyle, fontWeight: 'bold' }}>{name}</Link>
                         : <span style={{ fontWeight: 'bold' }}>{name}</span>)}
+                      {gone && <span> {leftLabel(gone)}</span>}
+                      {!r.minister_name && name && <span style={{ display: 'block', fontStyle: 'italic' }}>Name from the Members API; the list gives none.</span>}
                       <span style={{ display: 'block' }}>{r.minister_title}</span>
                     </td>
                     <td style={{ ...td, textAlign: 'center' }}>{r.pay_band ?? 'n/a'}</td>

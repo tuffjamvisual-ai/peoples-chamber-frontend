@@ -84,3 +84,23 @@ export function buildBackground(names: string[], interests: SpadInterestRow[], h
   }
   return out;
 }
+
+// Each listed minister's status today (spad_minister_status, from the Members API; owner, 28 Oct 2026).
+export type SpadMinisterStatus = {
+  kind: 'listed' | 'current'; minister_title: string; minister_name: string | null; member_id: number | null; gender: string | null;
+  post_name: string | null; started_on: string | null; left_on: string | null; still_in_post: boolean; area: string | null;
+};
+// What the table and the MP block need per listed minister title: when they left (null while in post), and a name
+// from the Members API when the list itself gives none.
+export type SpadMinisterInfo = { left_on: string | null; api_name: string | null };
+export const leftLabel = (iso: string) => `(left this post on ${longDate(iso)})`;
+// The Members API's display name without "Mr", "Mrs", "Ms" or "Dr".
+export const plainName = (n: string | null) => (n ? n.replace(/^(mr|mrs|ms|miss|dr)\.?\s+/i, '') : n);
+
+const QUARTER_END: Record<string, string> = { march: '03-31', june: '06-30', september: '09-30', december: '12-31' };
+// "April to June 2026" → "2026-06-30".
+export function quarterEndDate(q: string): string | null {
+  const m = q.match(/to\s+(march|june|september|december)\s+(\d{4})$/i);
+  return m ? `${m[2]}-${QUARTER_END[m[1].toLowerCase()]}` : null;
+}
+export const monthYearLabel = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' });

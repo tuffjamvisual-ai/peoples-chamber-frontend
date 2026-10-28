@@ -6,6 +6,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { SyncBudget, politeFetch, isPoliteStop, loadCursor, saveCursor } from '@/lib/sync-budget';
 import { SPAD_SEARCH, SPAD_UA, parseRelease, dedupe, matchMinisters, type MpName } from '@/lib/spad-roster';
 import { runSpadBackgroundSync } from '@/lib/spad-background-sync';
+import { syncMinisterStatus } from '@/lib/spad-minister-status';
 
 const ROUTE = '/api/sync-spad-roster';
 const CONTENT = 'https://www.gov.uk/api/content';
@@ -21,7 +22,11 @@ export async function runSpadRosterSync(opts: { supabase: SupabaseClient; maxDur
   const { supabase } = opts;
   const budget = new SyncBudget(opts.maxDurationS);
   // After the named list, the background: interests, ACOBA advice and the annual reports to read by hand.
-  const withBackground = async (body: Record<string, unknown>) => ({ status: 200, body: { ...body, background: await runSpadBackgroundSync(supabase, budget), elapsed_ms: budget.spent() } });
+  // Then whether each listed minister still holds the post (ministers change; owner, 28 Oct 2026).
+  const withBackground = async (body: Record<string, unknown>) => {
+    const ministers = await syncMinisterStatus(supabase, budget);
+    return { status: 200, body: { ...body, ministers, background: await runSpadBackgroundSync(supabase, budget), elapsed_ms: budget.spent() } };
+  };
   try {
     // 1. The latest release (a "transparency" publication; the collection page has the same title).
     const search = await json<{ results: { title: string; link: string; format: string; public_timestamp: string }[] }>(SPAD_SEARCH, budget);
