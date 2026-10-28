@@ -17,6 +17,7 @@ import { resolveOrgToDeptSlug } from '@/lib/govOrgSlug';
 import ArticleEndSignup from '../../components/ArticleEndSignup';
 import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 import SpadSource from '../../components/SpadSource';
+import { areaForPost } from '@/lib/spad-minister-status';
 import { SPAD_LIST_ANCHOR, longDate, totalsLine, buildBackground, plainName, quarterEndDate, monthYearLabel, type SpadRow, type SpadReleaseRow, type SpadInterestRow, type SpadHistoryRow, type SpadPostRow, type SpadBackground, type SpadMinisterStatus, type SpadMinisterInfo } from '@/lib/spad-display';
 import Link from 'next/link';
 import SpadRosterTable from './SpadRosterTable';
@@ -99,27 +100,42 @@ export default async function SpecialAdvisersPage() {
     background = buildBackground(appointments.map((a) => a.adviser_name), ints, hist, posts, editions.map((e) => e.as_at));
   }
 
-  // Who holds the posts today (Members API, recomputed weekly; owner, 28 Oct 2026). The list is dated 31 March 2026:
-  // a. ministers still in the same post, b. Cabinet ministers appointed since (no official list for them yet),
-  // c. advisers whose minister has since left.
+  // Who holds the posts today (Members API, recomputed weekly; owner, 28 Oct 2026). The list is dated 31 March 2026.
+  // Every Cabinet post is shown with TODAY's minister: where that is the person the list names for the post, their
+  // advisers from the list; otherwise "Waiting for update" and any advisers named for the department in quarterly
+  // declarations since the minister took office. Advisers of ministers who have since left are in a folded section.
   const { data: statusData, error: statusError } = await supabase.from('spad_minister_status')
-    .select('kind, minister_title, minister_name, member_id, gender, post_name, started_on, left_on, still_in_post, area');
+    .select('kind, minister_title, minister_name, member_id, gender, post_id, post_name, started_on, left_on, still_in_post, area');
   if (statusError) throw new Error(`/transparency/special-advisers spad_minister_status: ${statusError.message}`);
-  const status = (statusData ?? []) as SpadMinisterStatus[];
+  const status = (statusData ?? []) as (SpadMinisterStatus & { post_id: number | null })[];
   const listedStatus = new Map(status.filter((s) => s.kind === 'listed').map((s) => [s.minister_title, s]));
+  const current = status.filter((s) => s.kind === 'current');
+  const known = current.length > 0;
+  // The post today that each listed post became: the same post, or the post for the same department when it was
+  // renamed or merged ("Culture, Media and Sport" → "Digital, Culture, Media and Sport").
+  const todayFor = (l: SpadMinisterStatus & { post_id: number | null }) => {
+    const same = current.find((c) => c.post_id != null && c.post_id === l.post_id);
+    if (same) return same;
+    const area = areaForPost(l.post_name);
+    const byArea = area ? current.filter((c) => c.area === area && !status.some((x) => x.kind === 'listed' && x.post_id === c.post_id)) : [];
+    return byArea.length === 1 ? byArea[0] : null;
+  };
+  const shownTitles = new Set<string>();
+  const departments = current.map((c) => {
+    const sameTitles = [...listedStatus.values()].filter((l) => todayFor(l) === c && l.member_id != null && l.member_id === c.member_id).map((l) => l.minister_title);
+    sameTitles.forEach((x) => shownTitles.add(x));
+    const rows = appointments.filter((a) => sameTitles.includes(a.minister_title));
+    const advisersSince = [...new Set(roster.filter((r) => c.area && r.area === c.area && c.started_on && (quarterEndDate(r.quarter) ?? '') > c.started_on).map((r) => r.name))].sort();
+    return { post: c, rows, advisersSince };
+  });
+  const formerRows = known ? appointments.filter((a) => !shownTitles.has(a.minister_title)) : [];
   const info: Record<string, SpadMinisterInfo> = {};
-  for (const [title, s] of listedStatus) info[title] = { left_on: s.still_in_post ? null : s.left_on, api_name: plainName(s.minister_name) };
-  const known = status.length > 0;
+  for (const [title, s] of listedStatus) info[title] = { left_on: shownTitles.has(title) || s.still_in_post ? null : s.left_on, api_name: plainName(s.minister_name) };
   const stillTitles = new Set([...listedStatus.values()].filter((s) => s.still_in_post).map((s) => s.minister_title));
-  const groupA = known ? appointments.filter((a) => stillTitles.has(a.minister_title)) : appointments;
-  const groupC = known ? appointments.filter((a) => !stillTitles.has(a.minister_title)) : [];
-  const stillMembers = new Set([...listedStatus.values()].filter((s) => s.still_in_post).map((s) => s.member_id));
-  const groupB = status.filter((s) => s.kind === 'current' && !stillMembers.has(s.member_id))
-    .map((s) => ({ ...s, advisers: [...new Set(roster.filter((r) => s.area && r.area === s.area && s.started_on && (quarterEndDate(r.quarter) ?? '') > s.started_on).map((r) => r.name))].sort() }));
   // Link only to MP pages we have.
-  const bIds = groupB.map((s) => s.member_id).filter((x): x is number => x != null);
-  const { data: bMps } = bIds.length ? await supabase.from('mps').select('member_id').in('member_id', bIds) : { data: [] };
-  const mpPages = new Set((bMps ?? []).map((m: { member_id: number }) => m.member_id));
+  const cIds = current.map((s) => s.member_id).filter((x): x is number => x != null);
+  const { data: cMps } = cIds.length ? await supabase.from('mps').select('member_id').in('member_id', cIds) : { data: [] };
+  const mpPages = new Set((cMps ?? []).map((m: { member_id: number }) => m.member_id));
   const listedCount = listedStatus.size || new Set(appointments.map((a) => a.minister_title)).size;
   const pm = status.find((s) => s.kind === 'current' && /^prime minister/i.test(s.post_name ?? ''));
   const nextListDue = release ? `July ${Number(release.as_at.slice(0, 4)) + 1}` : '';
@@ -162,40 +178,47 @@ export default async function SpecialAdvisersPage() {
           <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '62ch', margin: '0 0 14px' }}>
             Declared interests are published by each department, not by the adviser. Every special adviser declares their interests to the permanent secretary of their department, who decides which are relevant enough to publish and how any conflict is managed, for example by a recusal: the adviser stays out of the matters named. The Cabinet Office publishes its advisers&rsquo; interests separately each year; most other departments print them inside their annual report and accounts. Each entry below is quoted word for word and linked to the document it comes from.
           </p>
-          <h3 style={groupH3}>Ministers still in the same post</h3>
-          <p style={{ fontSize: '15px', lineHeight: 1.7, margin: '0 0 10px' }}>Their advisers as listed at {longDate(release.as_at)}.</p>
-          <SpadRosterTable rows={groupA} background={background} ministerInfo={info} asAtLabel={longDate(release.as_at)} idPrefix="a" />
-
+          {!known && <SpadRosterTable rows={appointments} background={background} ministerInfo={info} asAtLabel={longDate(release.as_at)} idPrefix="a" />}
           {known && (
             <>
-              <h3 style={groupH3}>Ministers appointed since {longDate(release.as_at)}</h3>
-              <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '62ch', margin: '0 0 10px' }}>
-                No official list of special advisers yet. The Cabinet Office&rsquo;s next list is due in {nextListDue}. Advisers named in quarterly declarations since then:
-              </p>
-              <ul style={{ listStyle: 'none', margin: '0 0 8px', padding: 0, fontSize: '15px' }}>
-                {groupB.map((s) => (
-                  <li key={s.minister_title} style={{ padding: '8px 0', borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-                    {s.member_id != null && mpPages.has(s.member_id)
-                      ? <Link href={`/mps/${s.member_id}`} style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px', fontWeight: 'bold' }}>{plainName(s.minister_name)}</Link>
-                      : <strong>{plainName(s.minister_name)}</strong>}
-                    {', '}{s.post_name}{s.started_on ? `, since ${longDate(s.started_on)}` : ''}.
-                    <span style={{ display: 'block' }}>Advisers named in quarterly declarations since then: {s.advisers.length ? s.advisers.join(', ') : 'none yet'}.</span>
-                  </li>
-                ))}
-              </ul>
-              <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 18px' }}>
+              <h3 style={groupH3}>Each Cabinet post, with today&rsquo;s minister</h3>
+              {departments.map(({ post, rows, advisersSince }) => (
+                <div key={post.minister_title} style={{ padding: '12px 0 14px', borderBottom: `1px solid ${INK_HAIRLINE}` }}>
+                  <p style={{ fontSize: '17px', lineHeight: 1.5, margin: '0 0 4px' }}>
+                    <span style={{ fontWeight: 'bold' }}>{post.post_name}: </span>
+                    {post.member_id != null && mpPages.has(post.member_id)
+                      ? <Link href={`/mps/${post.member_id}`} style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px', fontWeight: 'bold' }}>{plainName(post.minister_name)}</Link>
+                      : <strong>{plainName(post.minister_name)}</strong>}
+                    {post.started_on ? <span>, since {longDate(post.started_on)}</span> : null}
+                  </p>
+                  {rows.length > 0 ? (
+                    <>
+                      <p style={{ fontSize: '15px', margin: '0 0 6px' }}>Their advisers as listed at {longDate(release.as_at)}:</p>
+                      <SpadRosterTable rows={rows} background={background} ministerInfo={info} asAtLabel={longDate(release.as_at)} idPrefix={`p${post.post_id ?? 'x'}`} compact />
+                    </>
+                  ) : (
+                    <>
+                      <p style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 2px' }}>Waiting for update</p>
+                      <p style={{ fontSize: '15px', lineHeight: 1.6, margin: 0 }}>
+                        The Cabinet Office has not yet published the special advisers for this minister. The next list is due in {nextListDue}. Advisers named in quarterly declarations since then: {advisersSince.length ? advisersSince.join(', ') : 'none yet'}.
+                      </p>
+                    </>
+                  )}
+                </div>
+              ))}
+              <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '10px 0 18px' }}>
                 Posts and dates: <a href="https://members-api.parliament.uk/" rel="noopener" style={{ color: ACCENT, textDecoration: 'underline', textUnderlineOffset: '3px' }}>UK Parliament Members API</a>, checked every week. Contains Parliamentary information licensed under the Open Parliament Licence v3.0.
               </p>
             </>
           )}
 
-          {groupC.length > 0 && (
+          {formerRows.length > 0 && (
             <details style={{ margin: '8px 0 0' }}>
-              <summary style={{ ...groupH3, cursor: 'pointer', display: 'list-item' }}>Advisers listed at {longDate(release.as_at)} whose minister has since left ({groupC.length})</summary>
+              <summary style={{ ...groupH3, cursor: 'pointer', display: 'list-item' }}>Advisers listed at {longDate(release.as_at)} whose minister has since left ({formerRows.length})</summary>
               <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '62ch', margin: '6px 0 10px' }}>
                 Special advisers&rsquo; appointments normally end when their minister leaves. Some may have been reappointed; the Cabinet Office has not yet published a new list.
               </p>
-              <SpadRosterTable rows={groupC} background={background} ministerInfo={info} asAtLabel={longDate(release.as_at)} idPrefix="c" />
+              <SpadRosterTable rows={formerRows} background={background} ministerInfo={info} asAtLabel={longDate(release.as_at)} idPrefix="c" />
             </details>
           )}
           <SpadSource slug={release.release_slug} url={release.source_url} />

@@ -81,8 +81,9 @@ function BackgroundPanel({ name, bg }: { name: string; bg: SpadBackground }) {
   );
 }
 
-export default function SpadRosterTable({ rows, background = {}, ministerInfo = {}, asAtLabel = '31 March 2026', idPrefix = 'a' }: {
+export default function SpadRosterTable({ rows, background = {}, ministerInfo = {}, asAtLabel = '31 March 2026', idPrefix = 'a', compact = false }: {
   rows: SpadRow[]; background?: Record<string, SpadBackground>; ministerInfo?: Record<string, SpadMinisterInfo>; asAtLabel?: string; idPrefix?: string;
+  compact?: boolean; // one minister's few advisers: no filters or sort
 }) {
   // The minister as we show them: the list's name, or the Members API's where the list gives none.
   const shownName = (r: SpadRow) => ministerShownName(r.minister_name) ?? ministerInfo[r.minister_title]?.api_name ?? null;
@@ -131,6 +132,7 @@ export default function SpadRosterTable({ rows, background = {}, ministerInfo = 
 
   return (
     <>
+      {!compact && (<>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px 20px', alignItems: 'flex-end', margin: '0 0 12px' }}>
         <div style={{ flex: '1 1 260px', minWidth: 0 }}>
           <label htmlFor={`spad-minister-${idPrefix}`} style={label}>Show the advisers of</label>
@@ -152,6 +154,7 @@ export default function SpadRosterTable({ rows, background = {}, ministerInfo = 
       <p aria-live="polite" style={{ fontFamily: MONO, fontSize: '15px', margin: '0 0 8px' }}>
         Showing {shown.length} of {rows.length} appointments{minister ? ' for this minister' : ''}{recusalsOnly ? ', advisers with a recusal only' : ''}.
       </p>
+      </>)}
       <div ref={rootRef} style={{ containerType: 'inline-size' }}>
       <PhoneTable>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK }}>

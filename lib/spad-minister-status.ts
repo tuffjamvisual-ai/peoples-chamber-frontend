@@ -29,6 +29,9 @@ const POST_AREA: [RegExp, string | null][] = [
   [/women and equalities/i, null], [/attorney general/i, null],
 ];
 
+// The department name for a post, as the quarterly declarations write it (null when there is none).
+export const areaForPost = (name: string | null) => (name ? POST_AREA.find(([re]) => re.test(name))?.[1] ?? null : null);
+
 export type MinisterStatusRow = {
   kind: 'listed' | 'current'; minister_title: string; release_slug: string | null; minister_name: string | null; member_id: number | null;
   gender: string | null; post_id: number | null; post_name: string | null; started_on: string | null; left_on: string | null;
@@ -81,7 +84,7 @@ export async function computeMinisterStatus(listed: { release_slug: string; as_a
   for (const { value: p } of posts) {
     if (/^minister of state/i.test(p.name)) continue;
     for (const h of (p.postHolders ?? []).filter((x) => !x.endDate)) {
-      out.push({ kind: 'current', minister_title: p.name, release_slug: null, minister_name: h.member.value.nameDisplayAs, member_id: h.member.value.id, gender: h.member.value.gender, post_id: p.id, post_name: p.name, started_on: h.startDate.slice(0, 10), left_on: null, still_in_post: true, area: POST_AREA.find(([re]) => re.test(p.name))?.[1] ?? null });
+      out.push({ kind: 'current', minister_title: p.name, release_slug: null, minister_name: h.member.value.nameDisplayAs, member_id: h.member.value.id, gender: h.member.value.gender, post_id: p.id, post_name: p.name, started_on: h.startDate.slice(0, 10), left_on: null, still_in_post: true, area: areaForPost(p.name) });
     }
   }
   return out;
