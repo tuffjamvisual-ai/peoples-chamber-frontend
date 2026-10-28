@@ -117,6 +117,7 @@ import dwpAlgorithm from './2qlh4c2zii';
 import s114Notices from './0w7zrd55z9';
 import lutonS106 from './y9aa644amu';
 import towerHamletsCare from './upk2tz9zw9';
+import sizewellC from './qahx28g34f';
 
 const allEditorials: EditorialRegistry = {
   [taggingRegime.slug]: taggingRegime,
@@ -233,6 +234,7 @@ const allEditorials: EditorialRegistry = {
   [s114Notices.slug]: s114Notices,
   [lutonS106.slug]: lutonS106,
   [towerHamletsCare.slug]: towerHamletsCare,
+  [sizewellC.slug]: sizewellC,
 };
 
 // Unpublished until their sources are added and checked (owner's decision, 22 Oct 2026). The files stay; leaving them
