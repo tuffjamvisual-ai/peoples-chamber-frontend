@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { revalidateTag } from 'next/cache';
 import { COUNCIL_LEAGUE_TAG } from '@/lib/council-league';
 
-// Called by scripts/score-areas.js and the council finance, ratings and neighbours imports after they write, so the
+// Called by scripts/score-areas.js and the council finance and ratings imports after they write, so the
 // cached council league data (lib/council-league.ts) is rebuilt on the next visit instead of within 6 hours. Needs
 // CRON_SECRET; refuses if it is not set.
 export const dynamic = 'force-dynamic';

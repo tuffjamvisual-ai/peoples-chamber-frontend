@@ -3,8 +3,6 @@
 //   * area_ratings (scripts/score-areas.js): area rating, services score, bands and
 //     band stability, one row per English district, unitary, metropolitan or London
 //     borough area.
-//   * council_statistical_neighbours (scripts/import-statistical-neighbours.js):
-//     each council's 15 most similar councils (MHCLG model, 1 July 2026).
 //   * council_finance_events and council_reserves (scripts/import-council-finance.js).
 //   * council_ratings (scripts/import-council-ratings.js): Ofsted children's services.
 //
@@ -88,7 +86,6 @@ export const MEASURE_RESPONSIBLE: Record<string, string> = {
   planning_major: 'Local planning authority (district or unitary council)',
   planning_nonmajor: 'Local planning authority (district or unitary council)',
 };
-export const STAT_NEIGHBOURS_URL = 'https://assets.publishing.service.gov.uk/media/6a452aee1c8bd7ce25a5e8fa/010726_MHCLG_Statistical_Neighbours.xlsx';
 
 export const MEASURE_TOPIC: Record<string, string> = {
   schools_quality: 'Schools and children', childrens_services: 'Schools and children',
@@ -126,7 +123,6 @@ export type LeagueRow = {
   servicesBand: number | null;
   servicesRanked: number;
   services: Record<string, number>;
-  peer: { rank: number; of: number } | null;
   flags: LeagueFlag[];
   excludedReason: string | null;
   methodVersion: string;
@@ -209,36 +205,34 @@ export type LeagueData = {
   stability: { versions: number; near: number; never: number; ranked: number };
   reservesYear: string | null;
   // Every English council's own flags (district flags without Ofsted, which counties hold),
-  // its Ofsted children's services grade, and its Statistical Neighbours.
+  // and its Ofsted children's services grade. No comparison with similar councils (owner's decision, 28 Oct 2026).
   flagsByCouncil: Map<string, LeagueFlag[]>;
   ofstedByCouncil: Map<string, { grade: string | null; rank: number | null }>;
-  neighboursOf: Map<string, string[]>;
 };
 
 // Built once and kept in Next's data cache (owner's approval, 21 Oct 2026): every council page's Ratings tab and the
 // league page used to rebuild it from six national tables on each render (about 12 reads, 0.4-0.5 s, 1.2 MB). The
 // cached copy is tagged COUNCIL_LEAGUE_TAG, refreshed every 6 hours, and refreshed at once when scripts/score-areas.js
-// or the council finance, ratings and neighbours imports write (they call /api/revalidate-councils). A failed read
+// or the council finance and ratings imports write (they call /api/revalidate-councils). A failed read
 // throws and is not cached. The Maps are stored as entry lists (the cache holds JSON) and rebuilt on read.
 export const COUNCIL_LEAGUE_TAG = 'council-league';
-type LeagueDataJson = Omit<LeagueData, 'flagsByCouncil' | 'ofstedByCouncil' | 'neighboursOf'> & {
+type LeagueDataJson = Omit<LeagueData, 'flagsByCouncil' | 'ofstedByCouncil'> & {
   flagsByCouncil: [string, LeagueFlag[]][];
   ofstedByCouncil: [string, { grade: string | null; rank: number | null }][];
-  neighboursOf: [string, string[]][];
 };
 const cachedLeagueJson = unstable_cache(async (): Promise<LeagueDataJson> => {
   const d = await buildLeagueData();
-  return { ...d, flagsByCouncil: [...d.flagsByCouncil], ofstedByCouncil: [...d.ofstedByCouncil], neighboursOf: [...d.neighboursOf] };
-}, ['council-league-v1'], { tags: [COUNCIL_LEAGUE_TAG], revalidate: 21600 });
+  return { ...d, flagsByCouncil: [...d.flagsByCouncil], ofstedByCouncil: [...d.ofstedByCouncil] };
+}, ['council-league-v2'], { tags: [COUNCIL_LEAGUE_TAG], revalidate: 21600 });
 
 // Read once per request: the league page and every council page's Ratings tab share it.
 export const getLeagueData = cache(async (): Promise<LeagueData> => {
   const j = await cachedLeagueJson();
-  return { ...j, flagsByCouncil: new Map(j.flagsByCouncil), ofstedByCouncil: new Map(j.ofstedByCouncil), neighboursOf: new Map(j.neighboursOf) };
+  return { ...j, flagsByCouncil: new Map(j.flagsByCouncil), ofstedByCouncil: new Map(j.ofstedByCouncil) };
 });
 
 async function buildLeagueData(): Promise<LeagueData> {
-  const [ratings, councils, events, reserveRows, ofstedRows, neighbours] = await Promise.all([
+  const [ratings, councils, events, reserveRows, ofstedRows] = await Promise.all([
     readAll<Record<string, unknown>>((f, t) => supabase.from('area_ratings')
       .select('area_gss_code, area_name, area_score, area_rank, area_band, areas_ranked, topic_scores, measures, services_score, services_rank, services_band, services_ranked, services_detail, band_changes, band_versions, near_band_boundary, excluded_reason, method_version')
       .order('area_gss_code').range(f, t)),
@@ -246,7 +240,6 @@ async function buildLeagueData(): Promise<LeagueData> {
     readAll<EventRow>((f, t) => supabase.from('council_finance_events').select('council_gss_code, event_type, period, event_date').order('council_gss_code').order('event_type').order('period').range(f, t)),
     readAll<ReserveRow>((f, t) => supabase.from('council_reserves').select('council_gss_code, financial_year, usable_start, usable_end, usable_change').order('council_gss_code').order('financial_year').range(f, t)),
     readAll<{ council_gss_code: string; value_grade: string | null; grade_rank: number | null }>((f, t) => supabase.from('council_ratings').select('council_gss_code, value_grade, grade_rank').eq('measure', 'ofsted_childrens_services').order('council_gss_code').order('period').range(f, t)),
-    readAll<{ council_gss_code: string; neighbour_rank: number; neighbour_gss_code: string }>((f, t) => supabase.from('council_statistical_neighbours').select('council_gss_code, neighbour_rank, neighbour_gss_code').order('council_gss_code').order('neighbour_rank').range(f, t)),
   ]);
 
   const byCode = new Map(councils.filter((c) => c.gss_code).map((c) => [c.gss_code, c]));
@@ -258,10 +251,6 @@ async function buildLeagueData(): Promise<LeagueData> {
     if (!cur || r.financial_year > cur.financial_year) reserves.set(r.council_gss_code, { ...r, usable_start: num(r.usable_start), usable_end: num(r.usable_end), usable_change: num(r.usable_change) });
   }
   const ofsted = new Map(ofstedRows.map((o) => [o.council_gss_code, { grade: o.value_grade, rank: num(o.grade_rank) }]));
-  const peersOf = new Map<string, string[]>();
-  for (const n of neighbours) peersOf.set(n.council_gss_code, [...(peersOf.get(n.council_gss_code) ?? []), n.neighbour_gss_code]);
-
-  const servicesBy = new Map(ratings.map((r) => [String(r.area_gss_code), num(r.services_score)]));
 
   const all: LeagueRow[] = ratings.map((r) => {
     const code = String(r.area_gss_code);
@@ -273,12 +262,6 @@ async function buildLeagueData(): Promise<LeagueData> {
       ...(county ? councilFlags(county.gss_code, true, events, reserves, ofsted, true) : []),
     ];
     const svc = num(r.services_score);
-    let peer: { rank: number; of: number } | null = null;
-    const peers = peersOf.get(code);
-    if (svc != null && peers) {
-      const group = [code, ...peers].map((p) => servicesBy.get(p)).filter((v): v is number => v != null);
-      peer = { rank: group.filter((v) => v > svc).length + 1, of: group.length };
-    }
     const topics = (r.topic_scores ?? {}) as Record<string, number>;
     const services = (r.services_detail ?? {}) as Record<string, number>;
     return {
@@ -301,7 +284,6 @@ async function buildLeagueData(): Promise<LeagueData> {
       servicesBand: num(r.services_band),
       servicesRanked: Number(r.services_ranked),
       services,
-      peer,
       flags,
       excludedReason: (r.excluded_reason as string | null) ?? null,
       methodVersion: String(r.method_version),
@@ -332,7 +314,7 @@ async function buildLeagueData(): Promise<LeagueData> {
     flagsByCouncil.set(c.gss_code, councilFlags(c.gss_code, false, events, reserves, ofsted, c.type !== 'district'));
   }
 
-  return { rows, separate, councils, measureInfo, stability, reservesYear, flagsByCouncil, ofstedByCouncil: ofsted, neighboursOf: peersOf };
+  return { rows, separate, councils, measureInfo, stability, reservesYear, flagsByCouncil, ofstedByCouncil: ofsted };
 }
 
 export type FinanceEvent = { event_type: string; period: string; event_date: string | null; amount_gbp: number | null; source: string; source_url: string };

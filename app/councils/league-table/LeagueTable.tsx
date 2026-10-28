@@ -26,7 +26,6 @@ export type ClientRow = {
   servicesRank: number | null;
   servicesBand: number | null;
   services: Record<string, number>;
-  peer: { rank: number; of: number } | null;
   flags: ClientFlag[];
   // Area view only: the two highest- and two lowest-scoring measures (score 0-100).
   extremes: { high: Extreme[]; low: Extreme[] };
@@ -53,10 +52,6 @@ const TYPES: { key: string; label: string }[] = [
   { key: 'district', label: 'District councils' },
 ];
 const BAND_WORDS = ['', 'top fifth', 'second fifth', 'middle fifth', 'fourth fifth', 'bottom fifth'];
-const ordinal = (k: number) => {
-  const s = ['th', 'st', 'nd', 'rd'], v = k % 100;
-  return `${k}${s[(v - 20) % 10] || s[v] || s[0]}`;
-};
 const fmt = (v: number | null | undefined) => (v == null ? 'n/a' : (Math.round(v * 10) / 10).toFixed(1));
 
 const btn = (on: boolean): CSSProperties => ({
@@ -140,7 +135,7 @@ export default function LeagueTable({ rows, topics, parts }: { rows: ClientRow[]
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 10px', maxWidth: '46em' }}>
         {view === 'area'
           ? 'How each area compares on eight topics: schools and children, safety, health, jobs and poverty, housing, environment, connectivity and local services. This describes the area, not how well the council is run: it is not a ranking of councils.'
-          : "How four of the services councils run compare for each area: schools, children's services, recycling and planning. It does not cover every council service. For a district, schools and children's services are run by its county council. “In its group” compares the area with the 15 councils most like it (government Statistical Neighbours)."}
+          : "How four of the services councils run compare for each area: schools, children's services, recycling and planning. It does not cover every council service. For a district, schools and children's services are run by its county council."}
       </p>
       <div aria-label="Council type" style={{ marginBottom: '4px' }}>
         {TYPES.map((t) => (
@@ -164,7 +159,6 @@ export default function LeagueTable({ rows, topics, parts }: { rows: ClientRow[]
               {head('name', 'Area', false)}
               <th style={th}>Band</th>
               <th className="lt-wide" style={{ ...th, textAlign: 'right' }}>Score</th>
-              {view === 'services' && <th className="lt-wide" style={{ ...th, textAlign: 'right' }}>In its group</th>}
               {cols.map((c) => head(c.key, c.label, true, 'lt-wide'))}
               <th style={th}>Warning flags</th>
             </tr>
@@ -193,7 +187,6 @@ export default function LeagueTable({ rows, topics, parts }: { rows: ClientRow[]
                         <span style={{ fontSize: '15px' }}> ({cols.filter((c) => (view === 'area' ? r.topics[c.key] : r.services[c.key]) != null).length}/{cols.length})</span>
                       )}
                     </td>
-                    {view === 'services' && <td className="lt-wide" style={tdNum}>{r.peer ? `${ordinal(r.peer.rank)} of ${r.peer.of}` : 'n/a'}</td>}
                     {cols.map((c) => <td key={c.key} className="lt-wide" style={tdNum}>{fmt(view === 'area' ? r.topics[c.key] : r.services[c.key])}</td>)}
                     <td style={{ ...td, color: ACCENT, fontSize: '15px' }}>
                       {r.flags.length === 0 ? '' : (
@@ -217,7 +210,6 @@ export default function LeagueTable({ rows, topics, parts }: { rows: ClientRow[]
                           {cols.map((c) => (
                             <div key={c.key}>{c.label}: <strong>{fmt(view === 'area' ? r.topics[c.key] : r.services[c.key])}</strong></div>
                           ))}
-                          {view === 'services' && <div>In its group: <strong>{r.peer ? `${ordinal(r.peer.rank)} of ${r.peer.of}` : 'n/a'}</strong></div>}
                         </div>
                         {(() => {
                           // What is behind the position: highest and lowest scores, from the same figures.

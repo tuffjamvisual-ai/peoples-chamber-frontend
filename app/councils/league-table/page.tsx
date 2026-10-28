@@ -1,6 +1,6 @@
 // /councils/league-table — area league table for England: an area rating (how the
 // area compares on eight topics) and, beside it, a council services score, with
-// each area's place among its Statistical Neighbours and dated warning flags.
+// dated warning flags.
 // Data: lib/council-league.ts (area_ratings written by scripts/score-areas.js;
 // method scripts/lib/area-scoring.js and scripts/lib/area-measures.js).
 //
@@ -16,7 +16,7 @@ import LeagueTable from './LeagueTable';
 import type { ClientRow } from './LeagueTable';
 import Link from 'next/link';
 import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
-import { getLeagueData, TOPIC_NAMES, SERVICE_PARTS, STAT_NEIGHBOURS_URL } from '@/lib/council-league';
+import { getLeagueData, TOPIC_NAMES, SERVICE_PARTS } from '@/lib/council-league';
 import type { MeasureDetail } from '@/lib/council-league';
 import ArticleEndSignup from '../../components/ArticleEndSignup';
 import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
@@ -107,7 +107,7 @@ export default async function LeagueTablePage() {
     areaScore: r.areaScore, areaRank: r.areaRank, areaBand: r.areaBand, nearBoundary: r.nearBoundary,
     bandChanges: r.bandChanges, bandVersions: r.bandVersions, topics: r.topics,
     servicesScore: r.servicesScore, servicesRank: r.servicesRank, servicesBand: r.servicesBand, services: r.services,
-    peer: r.peer, flags: r.flags.map((f) => ({ label: f.label, county: f.county, kind: f.kind })),
+    flags: r.flags.map((f) => ({ label: f.label, county: f.county, kind: f.kind })),
     extremes: measureExtremes(r.measures),
   });
   const rows = data.rows.map(toClient);
@@ -210,7 +210,7 @@ export default async function LeagueTablePage() {
             Roads use the Department for Transport’s adjusted counts of people killed or seriously injured. Police forces record injuries in different ways, and some changed systems in recent years; the adjusted figures correct for that so areas can be compared. They are counted per billion vehicle miles on the highway authority’s roads.
           </p>
           <p style={para}>
-            Crime is recorded crimes per 1,000 residents over 12 months, not counting antisocial behaviour. Greater Manchester’s published figures are incomplete, so its boroughs are not scored on crime. City of London and the Isles of Scilly are too small to compare fairly and are listed separately. Statistical Neighbours: <a href={STAT_NEIGHBOURS_URL} style={{ color: INK }}>Ministry of Housing, Communities and Local Government model, 1 July 2026</a>. Council finance: MHCLG revenue outturn 2024/25 (reserves), GOV.UK exceptional financial support and intervention pages.
+            Crime is recorded crimes per 1,000 residents over 12 months, not counting antisocial behaviour. Greater Manchester’s published figures are incomplete, so its boroughs are not scored on crime. City of London and the Isles of Scilly are too small to compare fairly and are listed separately. Council finance: MHCLG revenue outturn 2024/25 (reserves), GOV.UK exceptional financial support and intervention pages.
           </p>
           <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0, maxWidth: '46em' }}>
             Government sources are published under the Open Government Licence v3.0. Ofcom Connected Nations data is published by Ofcom. Police recorded crime from data.police.uk under the Open Government Licence.

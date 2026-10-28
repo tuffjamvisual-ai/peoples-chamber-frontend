@@ -1,17 +1,18 @@
 // "Ratings" tab for council pages (server component, England only). Reads the area
-// league table data through lib/council-league.ts (area_ratings, Statistical
-// Neighbours, finance events and reserves, Ofsted children's services).
+// league table data through lib/council-league.ts (area_ratings, finance events and
+// reserves, Ofsted children's services).
 //
 // District, unitary, metropolitan and London councils: area rating with every topic
-// and the figures behind it, council services score, similar councils, financial
-// health. County councils have no area rating of their own: they show their Ofsted
-// children's services grade, financial health, similar county councils and the
-// ratings of their districts. Councils outside England render nothing, so the tab
-// hides itself.
+// and the figures behind it, council services score, financial health. County
+// councils have no area rating of their own: they show their Ofsted children's
+// services grade, financial health and the ratings of their districts. No
+// comparison with similar or nearby councils (owner's decision, 28 Oct 2026).
+// Councils outside England render nothing, so the tab hides itself.
 //
 // Wording rule: the area rating describes the area, not how well the council is run.
 
 import type { CSSProperties } from 'react';
+import Link from 'next/link';
 import { SHOW_LEAGUE_TABLE } from '@/lib/feature-flags';
 import { getLeagueData, getCouncilFinance, TOPIC_NAMES, SERVICE_PARTS, MEASURE_TOPIC, formatPeriod, bandLabel, ordinal } from '@/lib/council-league';
 import type { LeagueRow, LeagueFlag, FinanceEvent, ReserveDetail } from '@/lib/council-league';
@@ -27,7 +28,6 @@ const small: CSSProperties = { fontFamily: MONO, fontSize: '15px', lineHeight: 1
 const section: CSSProperties = { borderTop: `1px solid ${INK_HAIRLINE}`, paddingTop: '20px', marginBottom: '28px' };
 const th: CSSProperties = { textAlign: 'left', padding: '6px 10px 6px 0', borderBottom: `1px solid ${INK}`, fontWeight: 'normal', verticalAlign: 'bottom' };
 const td: CSSProperties = { padding: '6px 10px 6px 0', borderBottom: `1px solid ${INK_HAIRLINE}`, verticalAlign: 'top' };
-const tdNum: CSSProperties = { ...td, textAlign: 'right', whiteSpace: 'nowrap' };
 
 const NARROW_CSS = `@media (max-width: 760px) {
   .cr-table { font-size: 15px !important; }
@@ -131,16 +131,15 @@ export default async function CouncilRatingsSection({
     return c ? <a href={`/councils/${c.slug}`} style={{ color: INK }}>{text}</a> : text;
   };
   const row = byCode.get(gssCode);
-  const neighbours = data.neighboursOf.get(gssCode) ?? [];
   const isCounty = type === 'county';
   if (!row && !isCounty) return null;
 
   // With the league table hidden (lib/feature-flags.ts), the tab keeps what is not a league score, topic score or
-  // rank: Ofsted grades, warning flags, similar councils and financial health.
+  // rank: Ofsted grades, warning flags and financial health.
   const show = SHOW_LEAGUE_TABLE;
   const linkToTable = show && (
     <p style={small}>
-      <a href="/councils/league-table" style={{ color: INK }}>See every area in the council area league table</a>, with how the scores are worked out and where every figure comes from.
+      <Link href="/councils/league-table" style={{ color: INK }}>See every area in the council area league table</Link>, with how the scores are worked out and where every figure comes from.
     </p>
   );
 
@@ -183,26 +182,6 @@ export default async function CouncilRatingsSection({
           </section>
         )}
         <FinanceHealth events={finance.events} reserves={finance.reserves} name={name} />
-        {neighbours.length > 0 && (
-          <section style={section}>
-            <h2 style={h2}>Similar county councils</h2>
-            <p style={para}>The councils the government’s Statistical Neighbours model (1 July 2026) judges most like {name}, most similar first.</p>
-            <div style={{ overflowX: 'auto' }}>
-              <table className="cr-table" style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, width: '100%' }}>
-                <thead><tr><th style={th}>Council</th><th style={th}>Ofsted children’s services</th><th style={th}>Warning flags</th></tr></thead>
-                <tbody>
-                  {[gssCode, ...neighbours].map((code) => (
-                    <tr key={code} style={code === gssCode ? { fontWeight: 'bold' } : undefined}>
-                      <td style={td}>{code === gssCode ? name : link(code)}</td>
-                      <td style={td}>{data.ofstedByCouncil.get(code)?.grade ?? 'n/a'}</td>
-                      <td style={{ ...td, fontSize: '15px', fontWeight: 'normal' }}><Flags flags={data.flagsByCouncil.get(code) ?? []} /></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        )}
         {linkToTable}
       </div>
     );
@@ -256,7 +235,6 @@ export default async function CouncilRatingsSection({
         {r.servicesRank != null ? (
           <p style={{ fontFamily: MONO, fontSize: '20px', lineHeight: 1.4, color: INK, margin: '0 0 10px' }}>
             <strong>{ordinal(r.servicesRank)}</strong> of {r.servicesRanked} · band {r.servicesBand} ({bandLabel(r.servicesBand)}) · score {fmt1(r.servicesScore)}
-            {r.peer && <> · <strong>{ordinal(r.peer.rank)} of {r.peer.of}</strong> among similar councils</>}
           </p>
         ) : (
           <p style={para}>{r.servicesScore != null ? `Not ranked (score ${fmt1(r.servicesScore)}).` : 'No council services score: figures for fewer than three of the four parts.'}</p>
@@ -275,34 +253,6 @@ export default async function CouncilRatingsSection({
         )}
       </section>
       </>}
-
-      {neighbours.length > 0 && (
-        <section style={section}>
-          <h2 style={h2}>Similar councils</h2>
-          <p style={para}>The 15 councils the government’s Statistical Neighbours model (1 July 2026) judges most like {name}, most similar first.{show && ' This is the fairest comparison.'}</p>
-          <div style={{ overflowX: 'auto' }}>
-            <table className="cr-table" style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, width: '100%' }}>
-              <thead>
-                <tr><th style={th}>Council</th>{show && <><th style={th}>Area band</th><th style={{ ...th, textAlign: 'right' }}>Services score</th></>}<th style={th}>Warning flags</th></tr>
-              </thead>
-              <tbody>
-                {[gssCode, ...neighbours].map((code) => {
-                  const n = byCode.get(code);
-                  return (
-                    <tr key={code} style={code === gssCode ? { fontWeight: 'bold' } : undefined}>
-                      <td style={td}>{code === gssCode ? name : link(code, n?.name)}</td>
-                      {show && <td style={td}>{n?.areaBand != null ? `${n.areaBand}${n.nearBoundary ? ' ≈' : ''}` : 'n/a'}</td>}
-                      {show && <td style={tdNum}>{fmt1(n?.servicesScore)}</td>}
-                      <td style={{ ...td, fontSize: '15px', fontWeight: 'normal' }}><Flags flags={n ? n.flags : data.flagsByCouncil.get(code) ?? []} /></td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-          {show && <p style={small}>≈ means close to the edge of its band.</p>}
-        </section>
-      )}
 
       <FinanceHealth events={finance.events} reserves={finance.reserves} name={name} />
       {linkToTable}

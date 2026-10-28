@@ -563,8 +563,8 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                   its districts, each listed. Hidden where no figures are held. */}
               <CouncilPipMobilitySection gssCode={c.gss_code} />
 
-              {/* Blue Badges (England, DfT): issuing councils show their figures against England and their statistical
-                  neighbours; districts point to their county. */}
+              {/* Blue Badges (England, DfT): issuing councils show their figures against England; districts point to
+                  their county. */}
               <CouncilBlueBadgesSection
                 gssCode={c.gss_code}
                 country={c.country}
@@ -583,15 +583,8 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                 isCounty={c.type === 'county'}
               />
 
-              {/* Fuel poverty: every English council has its own figure; a county's neighbourhoods come from its districts. */}
-              <CouncilFuelPovertySection
-                gssCode={c.gss_code}
-                neighbourhoodCodes={
-                  c.type === 'county'
-                    ? children.map((d) => d.gss_code).filter((g): g is string => !!g)
-                    : c.gss_code ? [c.gss_code] : []
-                }
-              />
+              {/* Fuel poverty: every English council has its own figure, shown with England's. */}
+              <CouncilFuelPovertySection gssCode={c.gss_code} />
             </>,
             housing: <>
               {/* House prices: every council with a published series, county
@@ -674,7 +667,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
               />
             </>,
             ratings: <>
-              {/* Area league table (England): area rating, council services score, similar councils, financial health. */}
+              {/* Area league table (England): area rating, council services score, financial health. */}
               <CouncilRatingsSection
                 gssCode={c.gss_code}
                 type={c.type}

@@ -1,9 +1,8 @@
 // "Blue Badges" section for English council pages, Work & benefits tab (server component; owner's approval, 28 Oct
 // 2026). Reads council_blue_badges (scripts/migrations/2026-10-28d-council-blue-badges.sql; DfT Blue Badge scheme
 // statistics). Badges are issued by county, unitary, metropolitan and London borough councils and the Isles of Scilly;
-// a district page gets one line pointing to its county. Compared with England and the council's five closest
-// statistical neighbours (council_statistical_neighbours, MHCLG model). Wording in lib/blue-badges.ts. No lost or
-// stolen figures here: DfT has published none by council since 2021 (England's are on /councils/blue-badges).
+// a district page gets one line pointing to its county. Compared with England only (no similar or nearby councils:
+// owner's decision, 28 Oct 2026). Wording in lib/blue-badges.ts. No lost or stolen figures here: DfT has published none by council since 2021 (England's are on /councils/blue-badges).
 
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
@@ -18,7 +17,6 @@ const ACCENT = '#7a1612';
 const MONO = 'var(--font-special-elite), monospace';
 const line = { fontFamily: MONO, fontSize: '15px', lineHeight: 1.55, color: INK, margin: '0 0 6px' } as const;
 const small = { fontFamily: MONO, fontSize: '15px', color: INK, lineHeight: 1.6, margin: '8px 0 0' } as const;
-const NEIGHBOURS_SHOWN = 5;
 
 function Heading() {
   return (
@@ -53,42 +51,16 @@ export default async function CouncilBlueBadgesSection({ gssCode, country, isDis
   const prevYear = `${Number(cur.year.slice(0, 4)) - 1}-03-31`;
   const prev = rows.find((r) => r.year.slice(0, 10) === prevYear);
 
-  const [nbRes, engRes] = await Promise.all([
-    supabase.from('council_statistical_neighbours').select('neighbour_rank, neighbour_gss_code').eq('council_gss_code', gssCode).order('neighbour_rank').limit(NEIGHBOURS_SHOWN),
-    supabase.from('council_blue_badges').select('ons_code, area_name, area_level, year, held, held_automatic, held_discretionary, issued, held_per_1000_population, lost, stolen, low_fields, rounded_to, source_url')
-      .eq('ons_code', 'E92000001').in('year', [cur.year, prevYear]),
-  ]);
-  if (nbRes.error) throw new Error(`council_statistical_neighbours ${gssCode}: ${nbRes.error.message}`);
-  if (engRes.error) throw new Error(`council_blue_badges England: ${engRes.error.message}`);
-  const nbCodes = (nbRes.data ?? []).map((n) => n.neighbour_gss_code as string);
-  let nbRows: BlueBadgeRow[] = [];
-  let slugs = new Map<string, string>();
-  if (nbCodes.length) {
-    const [b, c] = await Promise.all([
-      supabase.from('council_blue_badges').select('ons_code, area_name, area_level, year, held, held_automatic, held_discretionary, issued, held_per_1000_population, lost, stolen, low_fields, rounded_to, source_url')
-        .in('ons_code', nbCodes).in('year', [cur.year, prevYear]),
-      supabase.from('councils').select('gss_code, slug, short_name, name').in('gss_code', nbCodes),
-    ]);
-    if (b.error) throw new Error(`council_blue_badges neighbours of ${gssCode}: ${b.error.message}`);
-    if (c.error) throw new Error(`councils neighbours of ${gssCode}: ${c.error.message}`);
-    nbRows = (b.data ?? []) as BlueBadgeRow[];
-    slugs = new Map((c.data ?? []).map((r) => [r.gss_code as string, r.slug as string]));
-  }
-  const eng = (engRes.data ?? []) as BlueBadgeRow[];
-  const pick = (list: BlueBadgeRow[], code: string, year: string) => list.find((r) => r.ons_code === code && r.year.slice(0, 10) === year.slice(0, 10));
-  const engCur = pick(eng, 'E92000001', cur.year);
-  const engPrev = pick(eng, 'E92000001', prevYear);
-  const compare = [
-    { code: gssCode, name: cur.area_name, href: null as string | null, cur, prev, own: true },
-    ...nbCodes.map((code) => {
-      const c = pick(nbRows, code, cur.year);
-      return c ? { code, name: c.area_name, href: slugs.get(code) ? `/councils/${slugs.get(code)}` : null, cur: c, prev: pick(nbRows, code, prevYear), own: false } : null;
-    }).filter((x): x is NonNullable<typeof x> => !!x),
-    ...(engCur ? [{ code: 'E92000001', name: 'England', href: null, cur: engCur, prev: engPrev, own: false }] : []),
-  ];
+  const { data: engData, error: engErr } = await supabase.from('council_blue_badges').select('ons_code, area_name, area_level, year, held, held_automatic, held_discretionary, issued, held_per_1000_population, lost, stolen, low_fields, rounded_to, source_url')
+    .eq('ons_code', 'E92000001').in('year', [cur.year, prevYear]);
+  if (engErr) throw new Error(`council_blue_badges England: ${engErr.message}`);
+  const eng = (engData ?? []) as BlueBadgeRow[];
+  const engCur = eng.find((r) => r.year.slice(0, 10) === cur.year.slice(0, 10));
+  const engPrev = eng.find((r) => r.year.slice(0, 10) === prevYear);
+  const engChange = engCur ? change(engCur, engPrev) : null;
   // DfT's "[low]" wording is explained only where a figure shown here is low.
   const SHOWN = ['held', 'held_automatic', 'held_discretionary', 'issued'];
-  const hasLow = compare.some((r) => r.cur.low_fields.includes('held')) || cur.low_fields.some((f) => SHOWN.includes(f));
+  const hasLow = cur.low_fields.some((f) => SHOWN.includes(f));
   const rel = releaseFor(cur.year);
   const changeLine = changeText(cur, prev);
 
@@ -101,26 +73,7 @@ export default async function CouncilBlueBadgesSection({ gssCode, country, isDis
         <p style={line}>Of these, {count(cur, 'held_automatic')} qualified automatically and {count(cur, 'held_discretionary')} were assessed by the council.</p>
       )}
       <p style={line}>Issued in {yearTo(cur.year)}: <strong>{count(cur, 'issued')}</strong></p>
-      {changeLine && <p style={line}>Change on the year: {changeLine}</p>}
-
-      {compare.length > 1 && (
-        <>
-          <p style={{ ...small, margin: '14px 0 6px' }}>Compared with its {compare.length - 2 > 0 ? `${compare.length - 2} closest statistical neighbours (MHCLG model) and ` : ''}England:</p>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {compare.map((r) => {
-              const c = change(r.cur, r.prev);
-              return (
-                <li key={r.code} style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.55, color: INK, padding: '6px 0', borderBottom: `1px solid ${INK_HAIRLINE}`, overflowWrap: 'break-word' }}>
-                  <span style={{ fontWeight: r.own ? 'bold' : 'normal' }}>{r.href ? <Link href={r.href} style={{ color: INK }}>{r.name}</Link> : r.name}</span>
-                  <span style={{ display: 'block' }}>
-                    {shareText(r.cur)} of residents{c ? `, ${pctChangeText(c)} on the year` : ''}
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-        </>
-      )}
+      {changeLine && <p style={line}>Change on the year: {changeLine}{engChange ? `; England ${pctChangeText(engChange)}` : ''}</p>}
 
       <p style={small}>
         {SHARE_NOTE}

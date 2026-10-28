@@ -1,5 +1,5 @@
 // Load the latest DESNZ "Sub-regional fuel poverty data" release into
-// council_fuel_poverty and council_fuel_poverty_lsoa. See
+// council_fuel_poverty (council level only since 28 Oct 2026). See
 // scripts/migrations/2026-10-11l-council-fuel-poverty.sql. New annual
 // releases are picked up weekly by app/api/sync-fuel-poverty/route.ts.
 //
@@ -40,19 +40,17 @@ async function main() {
   console.log(`  councils: ${r.councils.length}; English councils missing (${missing.length}): ${missing.map((c) => `${c} ${names.get(c)}`).join('; ') || 'none'}`);
   for (const code of ['E06000001', 'E10000017', 'E08000016', 'E09000033']) {
     const c = r.councils.find((x) => x.council_gss_code === code);
-    const n = r.lsoas.filter((x) => x.council_gss_code === code).length;
-    if (c) console.log(`  spot ${code} ${names.get(code)}: ${c.fuel_poor.toLocaleString()} of ${c.households.toLocaleString()} (${c.percentage.toFixed(1)}%); neighbourhoods ${n}`);
+    if (c) console.log(`  spot ${code} ${names.get(code)}: ${c.fuel_poor.toLocaleString()} of ${c.households.toLocaleString()} (${c.percentage.toFixed(1)}%)`);
   }
   const problems: string[] = [];
   if (r.unmatchedCouncilCodes.length) problems.push(`council codes not in councils table: ${r.unmatchedCouncilCodes.join(' ')}`);
-  if (r.unmatchedLsoaCouncilCodes.length) problems.push(`neighbourhood council codes not in councils table: ${r.unmatchedLsoaCouncilCodes.join(' ')}`);
   if (missing.length) problems.push(`${missing.length} English councils have no figure`);
   if (problems.length) {
     console.log(`\nPROBLEMS — nothing written:\n  ${problems.join('\n  ')}`);
     process.exit(1);
   }
   if (!DRY_RUN) await writeRelease(db, r);
-  console.log(`\n${r.councils.length} council rows and ${r.lsoas.length.toLocaleString()} neighbourhood rows ${DRY_RUN ? 'computed' : 'written'} (${rel.dataYear} data)`);
+  console.log(`\n${r.councils.length} council rows ${DRY_RUN ? 'computed' : 'written'} (${rel.dataYear} data)`);
 }
 
 main().catch((e) => {

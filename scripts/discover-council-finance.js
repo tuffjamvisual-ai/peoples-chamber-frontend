@@ -1,8 +1,7 @@
-// READ-ONLY discovery for the council performance work: the Statistical Neighbours
-// model and the council financial health sources. Writes NOTHING anywhere.
+// READ-ONLY discovery for the council performance work: the council financial health
+// sources. Writes NOTHING anywhere. (The similar councils model section was removed on
+// 28 Oct 2026: no comparison with similar councils, owner's decision.)
 //
-//   1. MHCLG Statistical Neighbours model (1 July 2026): each English council's 15
-//      most similar councils. Sheets, columns, how many councils, codes matched.
 //   2. Financial health sources, found through GOV.UK's search and content APIs:
 //        a. Exceptional financial support (emergency government help to balance the budget)
 //        b. Government interventions (best value inspections, directions, commissioners)
@@ -21,7 +20,6 @@ const XLSX = require('xlsx');
 const { createClient } = require('@supabase/supabase-js');
 
 const UA = { 'User-Agent': 'opengovt-discovery/1.0 (read-only)' };
-const NEIGHBOURS = 'https://assets.publishing.service.gov.uk/media/6a452aee1c8bd7ce25a5e8fa/010726_MHCLG_Statistical_Neighbours.xlsx';
 const cell = (c) => String(c ?? '').replace(/\s+/g, ' ').trim();
 async function get(url, kind = 'text') {
   const res = await fetch(url, { headers: UA, redirect: 'follow' });
@@ -81,20 +79,6 @@ async function findAndOpen(queries, titleRe, opts = {}) {
 (async () => {
   const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
   const { data: councils } = await db.from('councils').select('gss_code, name, type, country, section_114_year').limit(1000);
-  const codes = new Set((councils || []).map((c) => c.gss_code));
-
-  await section('1. Statistical Neighbours model', async () => {
-    const wb = describe('010726_MHCLG_Statistical_Neighbours.xlsx', await get(NEIGHBOURS, 'buf'), 10);
-    for (const s of wb.SheetNames) {
-      const rows = XLSX.utils.sheet_to_json(wb.Sheets[s], { header: 1, blankrows: false, defval: '' });
-      const found = new Set();
-      for (const r of rows) for (const c of r) { const v = cell(c); if (/^E(06|07|08|09|10)\d{6}$/.test(v)) found.add(v); }
-      if (!found.size) continue;
-      const matched = [...found].filter((c) => codes.has(c) || codes.has({ E08000038: 'E08000016', E08000039: 'E08000019' }[c]));
-      const t = {}; for (const c of found) { const m = (councils || []).find((x) => x.gss_code === c); const k = m ? m.type : `not in councils (${c.slice(0, 3)})`; t[k] = (t[k] || 0) + 1; }
-      console.log(`    "${s}": ${found.size} distinct council codes; matched to our councils ${matched.length}; by type ${JSON.stringify(t)}`);
-    }
-  });
 
   await section('2a. Exceptional financial support', () => findAndOpen(['exceptional financial support local authorities 2026-27', 'exceptional financial support councils'], /exceptional-financial-support/i, { extra: '&filter_organisations=ministry-of-housing-communities-local-government', bodyRe: /exceptional financial support[^"]{0,400}/i }));
   await section('2b. Government interventions in councils', () => findAndOpen(['best value intervention local authority commissioners', 'local authority interventions best value inspection directions'], /intervention|best-value/i, { extra: '&filter_organisations=ministry-of-housing-communities-local-government', bodyRe: /intervention[^"]{0,400}/i }));

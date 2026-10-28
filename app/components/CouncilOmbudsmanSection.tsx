@@ -83,7 +83,7 @@ function change(cur: number, prev: number): string {
 }
 
 const P = ({ children, small }: { children: React.ReactNode; small?: boolean }) => (
-  <p style={{ fontFamily: MONO, fontSize: small ? '14px' : '15px', lineHeight: small ? 1.6 : 1.7, color: INK, margin: '0 0 10px' }}>{children}</p>
+  <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: small ? 1.6 : 1.7, color: INK, margin: '0 0 10px' }}>{children}</p>
 );
 
 export default async function CouncilOmbudsmanSection({ gssCode }: { gssCode: string | null }) {
