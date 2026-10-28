@@ -10,6 +10,9 @@
 //    syncRoute (Vercel routes "/api/..." and GitHub steps "/github-actions/...") is looked up in
 //    sync_heartbeat. Failed last run, or no run within the source's cadence, fails.
 //    The cadences are read from lib/data-freshness.ts so there is one list to maintain.
+//    A cron in the freshness monitor's go live register (CRON_ADDED in app/api/monitor-freshness/route.ts, rule 6)
+//    with no run yet is reported as waiting for its first scheduled run after going live, not as a failure, until an
+//    hour after that run was due (owner, 28 Oct 2026).
 //
 // 2. Is the data complete and correct? Compared with Parliament, not with dates, so a job
 //    that runs but writes the wrong thing is caught:
@@ -74,11 +77,38 @@ function readSources() {
   return { sources, maxAge };
 }
 
+// Go live dates from the freshness monitor's register (one list, rule 6) and schedules from vercel.json.
+function readGoLive() {
+  const root = path.join(__dirname, '..');
+  const text = fs.readFileSync(path.join(root, 'app', 'api', 'monitor-freshness', 'route.ts'), 'utf8');
+  const block = text.match(/CRON_ADDED[^{]*\{([^}]*)\}/);
+  if (!block) throw new Error('could not read CRON_ADDED in app/api/monitor-freshness/route.ts');
+  const goLive = new Map();
+  for (const m of block[1].matchAll(/'(\/[^']+)':\s*'([^']+)'/g)) goLive.set(m[1], new Date(m[2]));
+  const schedules = new Map();
+  for (const c of JSON.parse(fs.readFileSync(path.join(root, 'vercel.json'), 'utf8')).crons || []) schedules.set(c.path, c.schedule);
+  return { goLive, schedules };
+}
+
+// First time a vercel.json cron schedule (*, numbers, comma lists, */n steps) fires after a given time, within 40 days.
+function firstFireAfter(schedule, after) {
+  const [mi, h, dom, mo, dow] = schedule.trim().split(/\s+/);
+  const matches = (f, n) => f === '*' || f.split(',').some((p) => (p.startsWith('*/') ? n % Number(p.slice(2)) === 0 : Number(p) === n));
+  const t = new Date(after); t.setUTCSeconds(0, 0);
+  for (let d = new Date(t.getTime() + 60000); d - t < 40 * DAY; d = new Date(d.getTime() + 60000)) {
+    if (matches(mi, d.getUTCMinutes()) && matches(h, d.getUTCHours()) && matches(dom, d.getUTCDate()) && matches(mo, d.getUTCMonth() + 1) && matches(dow, d.getUTCDay())) return d;
+  }
+  return null;
+}
+const whenText = (d) => `${d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })} ${d.toISOString().slice(11, 16)} UTC`;
+
 (async () => {
   if (!process.env.SUPABASE_SECRET_KEY) throw new Error('SUPABASE_SECRET_KEY not set');
 
   await check('Refresh jobs ran and succeeded', async () => {
     const { sources, maxAge } = readSources();
+    const { goLive, schedules } = readGoLive();
+    const waiting = [];
     const { data, error } = await db.from('sync_heartbeat').select('route, last_ran_at, last_status, last_rows');
     if (error) throw new Error(error.message);
     const hb = new Map(data.map((r) => [r.route, r]));
@@ -89,7 +119,12 @@ function readSources() {
       seen.add(s.route);
       const h = hb.get(s.route);
       const limit = maxAge[s.cadence] ?? 9;
-      if (!h) { problems.push(`${s.label} (${s.route}): no run on record`); continue; }
+      if (!h) {
+        const first = goLive.has(s.route) && schedules.has(s.route) ? firstFireAfter(schedules.get(s.route), goLive.get(s.route)) : null;
+        if (first && now < new Date(first.getTime() + 3600000)) waiting.push(`${s.label} (${s.route}): waiting for first run on ${whenText(first)}`);
+        else problems.push(`${s.label} (${s.route}): no run on record`);
+        continue;
+      }
       const days = Math.floor((now - new Date(h.last_ran_at)) / DAY);
       if (h.last_status != null && (h.last_status < 200 || h.last_status >= 300)) problems.push(`${s.label} (${s.route}): last run failed (status ${h.last_status}, ${days} day${days === 1 ? '' : 's'} ago)`);
       else if (days > limit) problems.push(`${s.label} (${s.route}): last ran ${days} days ago (limit ${limit})`);
@@ -99,7 +134,8 @@ function readSources() {
       if (!r.route.startsWith('/github-actions/') || seen.has(r.route)) continue;
       if (r.last_status != null && (r.last_status < 200 || r.last_status >= 300)) problems.push(`${r.route}: last run failed`);
     }
-    problems.length ? fail('Refresh jobs ran and succeeded', problems.join('\n    ')) : pass('Refresh jobs ran and succeeded', `${seen.size} jobs checked`);
+    const notes = waiting.length ? `\n    ${waiting.join('\n    ')}` : '';
+    problems.length ? fail('Refresh jobs ran and succeeded', problems.join('\n    ') + notes) : pass('Refresh jobs ran and succeeded', `${seen.size} jobs checked${notes}`);
   });
 
   await check('Commons divisions complete', async () => {
