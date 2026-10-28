@@ -3,14 +3,13 @@
 // Walks gov.uk Content API search for the latest quarterly SpAd
 // transparency publications across every publishing department,
 // fetches each CSV attachment, parses gifts / hospitality / media
-// meetings into three dedicated tables, and rebuilds the
+// meetings into three dedicated tables, and adds the quarter's
 // special_advisers roster from the union of names in those CSVs.
 //
-// Current-quarter-only by design. Every successful run TRUNCATES
-// the four tables before writing. We deliberately do not keep an
-// archive. The next time a fresh quarter publishes, this run
-// replaces the last one. The site always shows "this is the most
-// recent published quarter".
+// Keeps every quarter (owner, 28 Oct 2026; before then each run emptied the four tables). A run upserts the latest
+// quarter: declarations by row_key (lib/spad-row-key.ts), the roster by (name, area, quarter). Within that quarter, a
+// row that a department's file no longer holds is removed, but only for the areas and streams this run read; other
+// quarters are never touched.
 //
 // Schedule: weekly Monday 15:03 UTC (vercel.json).
 //
@@ -26,6 +25,7 @@ import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { politeFetch, DOWNLOAD_TIMEOUT_MS, isPoliteStop } from '@/lib/sync-budget';
+import { withRowKeys } from '@/lib/spad-row-key';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 240;
 
@@ -199,6 +199,7 @@ async function GET_impl(req: Request) {
   const rosterSet = new Set<string>();   // key = `${name}|${area}`
   const rosterNames = new Map<string, string>(); // rosterKey -> first spelling seen
   const errors: string[] = [];
+  const readAreas = { gifts: new Set<string>(), hospitality: new Set<string>(), meetings: new Set<string>() };
 
   for (const pub of pubs) {
     if (Date.now() - startedAt > 180_000) { errors.push('time budget exhausted'); break; }
@@ -220,6 +221,7 @@ async function GET_impl(req: Request) {
 
         const nameCol = headerIndex(header, /(special\s+advisers?|adviser\s+name|name)/);
         if (nameCol < 0) continue;
+        readAreas[stream].add(area);
 
         for (let r = 1; r < rows.length; r++) {
           const row = rows[r];
@@ -272,39 +274,55 @@ async function GET_impl(req: Request) {
     }
   }
 
-  // Safety: the tables are emptied and refilled below. If this run read far fewer advisers than
-  // are saved now (publications failed to download, or a time-out), keep the saved data.
-  const { count: savedRoster } = await supabase.from('special_advisers').select('id', { count: 'exact', head: true });
+  // Safety: if this run read far fewer advisers for the quarter than are saved for it (publications failed to
+  // download, or a time out), change nothing.
+  const { count: savedRoster } = await supabase.from('special_advisers').select('id', { count: 'exact', head: true }).eq('quarter', latestQuarter);
   if (savedRoster && rosterSet.size < savedRoster * 0.6) {
-    return NextResponse.json({ ok: false, error: `only ${rosterSet.size} advisers read against ${savedRoster} saved; nothing replaced`, errors: errors.slice(0, 10) }, { status: 502 });
+    return NextResponse.json({ ok: false, error: `only ${rosterSet.size} advisers read against ${savedRoster} saved for ${latestQuarter}; nothing changed`, errors: errors.slice(0, 10) }, { status: 502 });
   }
 
-  // 4. Replace tables atomically (truncate-then-insert; no archive).
-  // Truncate via .delete() with neq trick — service role bypasses RLS.
-  await supabase.from('spad_gifts').delete().neq('id', -1);
-  await supabase.from('spad_hospitality').delete().neq('id', -1);
-  await supabase.from('spad_media_meetings').delete().neq('id', -1);
-  await supabase.from('special_advisers').delete().neq('id', -1);
-
-  // Insert in batches of 500
-  async function batchInsert(table: string, rows: unknown[]) {
+  // 4. Upsert the quarter; other quarters stay as they are.
+  async function upsert(table: string, rows: unknown[], onConflict: string, ignoreDuplicates: boolean) {
     let written = 0;
     for (let i = 0; i < rows.length; i += 500) {
       const slice = rows.slice(i, i + 500);
-      const { error } = await supabase.from(table).insert(slice);
-      if (error) { errors.push(`insert ${table}: ${error.message}`); break; }
+      const { error } = await supabase.from(table).upsert(slice, { onConflict, ignoreDuplicates });
+      if (error) throw new Error(`upsert ${table}: ${error.message}`);
       written += slice.length;
     }
     return written;
   }
+  // Rows of this quarter, in the areas this run read, that the files no longer hold.
+  async function removeStale(table: string, areas: Set<string>, keep: Set<string>, keyCol: 'row_key' | 'name') {
+    if (!areas.size) return 0;
+    const { data, error } = await supabase.from(table).select(`id, area, ${keyCol}`).eq('quarter', latestQuarter).in('area', [...areas]);
+    if (error) throw new Error(`read ${table}: ${error.message}`);
+    const stale = ((data ?? []) as unknown as Record<string, string | number>[])
+      .filter((r) => !keep.has(keyCol === 'name' ? `${r.name}|${r.area}` : String(r.row_key))).map((r) => r.id as number);
+    for (let i = 0; i < stale.length; i += 200) {
+      const { error: delError } = await supabase.from(table).delete().in('id', stale.slice(i, i + 200));
+      if (delError) throw new Error(`remove ${table}: ${delError.message}`);
+    }
+    return stale.length;
+  }
   const rosterRows = Array.from(rosterSet).map((k) => {
     const [name, area] = k.split('|');
-    return { name, area, quarter: latestQuarter };
+    return { name, area, quarter: latestQuarter, updated_at: new Date().toISOString() };
   });
-  const rosterWritten = await batchInsert('special_advisers', rosterRows);
-  const giftsWritten = await batchInsert('spad_gifts', gifts);
-  const hospsWritten = await batchInsert('spad_hospitality', hosps);
-  const meetsWritten = await batchInsert('spad_media_meetings', meets);
+  const giftRows = withRowKeys(gifts, ['quarter', 'area', 'spad_name', 'gift_date', 'gift_descr', 'donor', 'value_gbp', 'outcome']);
+  const hospRows = withRowKeys(hosps, ['quarter', 'area', 'spad_name', 'hosp_date', 'hosp_descr', 'provider', 'purpose']);
+  const meetRows = withRowKeys(meets, ['quarter', 'area', 'spad_name', 'meeting_date', 'media_org', 'individual', 'purpose']);
+  const rosterWritten = await upsert('special_advisers', rosterRows, 'name,area,quarter', false);
+  const giftsWritten = await upsert('spad_gifts', giftRows, 'row_key', true);
+  const hospsWritten = await upsert('spad_hospitality', hospRows, 'row_key', true);
+  const meetsWritten = await upsert('spad_media_meetings', meetRows, 'row_key', true);
+  const allRead = new Set([...readAreas.gifts, ...readAreas.hospitality, ...readAreas.meetings]);
+  const removed = {
+    roster: await removeStale('special_advisers', allRead, rosterSet, 'name'),
+    gifts: await removeStale('spad_gifts', readAreas.gifts, new Set(giftRows.map((r) => r.row_key)), 'row_key'),
+    hospitality: await removeStale('spad_hospitality', readAreas.hospitality, new Set(hospRows.map((r) => r.row_key)), 'row_key'),
+    media_meetings: await removeStale('spad_media_meetings', readAreas.meetings, new Set(meetRows.map((r) => r.row_key)), 'row_key'),
+  };
 
   return NextResponse.json({
     ok: errors.length === 0,
@@ -314,6 +332,7 @@ async function GET_impl(req: Request) {
     gifts: giftsWritten,
     hospitality: hospsWritten,
     media_meetings: meetsWritten,
+    removed_from_quarter: removed,
     elapsed_ms: Date.now() - startedAt,
     errors: errors.slice(0, 10),
   });

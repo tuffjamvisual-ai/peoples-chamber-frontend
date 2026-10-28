@@ -113,6 +113,7 @@ async function GET_impl(req: Request) {
     '/api/send-member-digests': '2026-10-27T12:34:22Z',               // job 74; first run 28 Oct 07:24 UTC
     '/api/sweep-electoral-commission-donations': '2026-10-27T12:56:53Z', // first run 27 Oct 21:17 UTC
     '/api/sync-statutory-instruments-treaties': '2026-10-27T13:26:54Z',  // first run 28 Oct 02:45 UTC
+    '/api/sync-spad-roster': '2026-10-28T08:20:29Z',                 // special advisers job; first run Tue 3 Nov 11:36 UTC
   };
   // Run expected, zero rows normal: alerted only for a missed run or a failed one, never for a run of zero rows.
   // The reshuffle tick changes nothing unless reshuffle mode is on.

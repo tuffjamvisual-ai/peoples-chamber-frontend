@@ -12,6 +12,8 @@ import { ecDonationSearchUrl } from '@/lib/ec-links';
 import { donorPageSlug } from '@/lib/donor-slug';
 import PhoneTable from '../../components/PhoneTable';
 import FollowButton from '../../components/FollowButton';
+import SpadAdvisersBlock from '../../components/SpadAdvisersBlock';
+import type { SpadRow, SpadReleaseRow } from '@/lib/spad-display';
 
 const COMMITTEE_ID_SET = new Set<number>(COMMITTEE_IDS);
 
@@ -283,6 +285,8 @@ interface Props {
   appgs?: AppgEntry[];
   ministerMeetings?: MinisterMeeting[];
   ministerHospitality?: MinisterHospitality[];
+  /** Special advisers this minister appointed (Cabinet Office named list), shown in Roles. */
+  spadAdvisers?: { release: SpadReleaseRow; rows: SpadRow[] } | null;
   conductFindings?: ConductFinding[];
   activity?: ActivityMetrics | null;
   /** Recent Hansard chamber contributions (Members API ContributionSummary). */
@@ -512,6 +516,7 @@ export default function MagazineProfileSections({
   appgs = [],
   ministerMeetings = [],
   ministerHospitality = [],
+  spadAdvisers = null,
   conductFindings = [],
   activity = null,
   contributions = [],
@@ -558,6 +563,7 @@ export default function MagazineProfileSections({
     edms: !!edms && (edms.startedCount > 0 || edms.signedCount > 0),
     interests: interests.length > 0,
     roles: !!(
+      (spadAdvisers?.rows.length ?? 0) > 0 ||
       committeeMemberships.length > 0 ||
       (bio?.government_posts && bio.government_posts.length > 0) ||
       (bio?.opposition_posts && bio.opposition_posts.length > 0) ||
@@ -1493,6 +1499,8 @@ export default function MagazineProfileSections({
         {active === 'roles' && (
           <div style={{ fontSize: '15px', lineHeight: '1.7' }}>
             <h2 style={sectionH2}>Roles</h2>
+
+            {spadAdvisers && <SpadAdvisersBlock rows={spadAdvisers.rows} release={spadAdvisers.release} memberId={memberId} headingStyle={sectionH3} />}
 
             {committeeMemberships.length > 0 && (
               <>

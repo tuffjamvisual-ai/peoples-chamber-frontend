@@ -24,6 +24,7 @@ import { storedSpellings } from '@/lib/donor-registry';
 import ArticleEndSignup from '../../components/ArticleEndSignup';
 import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
+import type { SpadRow, SpadReleaseRow } from '@/lib/spad-display';
 
 const BAND_RANK: Record<SalaryBand, number> = { pm: 4, sos: 3, minister_of_state: 2, puss: 1 };
 
@@ -302,6 +303,16 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   // resolve both start them immediately); each block still awaits its own
   // promise at its original position, so the surrounding processing is
   // unchanged. Net effect: wall-clock ~= slowest chain, not their sum.
+  // Special advisers this minister appointed, from the Cabinet Office's latest named list (owner, 28 Oct 2026).
+  // Shown in the Roles tab; an error or a slow answer leaves the block out rather than failing the page.
+  const pSpad = withTimeout((async () => {
+    const { data: rel } = await supabase.from('spad_releases').select('release_slug, as_at, headcount, fte, paybill, prior_paybill, source_url').order('as_at', { ascending: false }).limit(1).maybeSingle();
+    if (!rel) return null;
+    const { data } = await supabase.from('spad_appointments')
+      .select('adviser_name, minister_title, minister_name, minister_member_id, pay_band, salary_band_text, salary_band_min, notes')
+      .eq('release_slug', rel.release_slug).eq('minister_member_id', memberId).order('id', { ascending: true });
+    return data && data.length ? { release: rel as SpadReleaseRow, rows: data as SpadRow[] } : null;
+  })(), 5000).catch(() => null);
   const pMeetingsHosp = withTimeout(Promise.all([
     supabase
       .from('ministers_meetings')
@@ -456,6 +467,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   // so we fuzzy-match against the stripped MP name same as donations.
   // Both queries fire in parallel.
   const [meetingsRes, hospitalityRes] = await pMeetingsHosp;
+  const spadAdvisers = await pSpad;
   // Tighten with first-and-last word check, same as donations.
   const meetings = (meetingsRes.data || []).filter((m: { minister_name?: string | null }) => {
     const n = String(m.minister_name || '').toLowerCase();
@@ -728,6 +740,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         appgs: mpAppgs,
         ministerMeetings: meetings,
         ministerHospitality: hospitality,
+        spadAdvisers,
         contributions,
         conductFindings: conductRes.data || [],
         activity: activityRes.data || null,

@@ -1,26 +1,25 @@
-// /transparency/special-advisers — current-quarter Special Advisers
-// transparency surface.
+// /transparency/special-advisers: who advises each minister, and what special advisers declared.
 //
-// Reads the four current-only tables populated by
-// /api/sync-spad-transparency on a weekly cron. Renders:
-//   - current roster grouped by publishing area
-//   - gifts, hospitality, and media meetings tables filtered to
-//     non-empty rows (Nil Return rows are absent from these tables
-//     by design)
-//
-// No archive view. No per-quarter history. The page always shows
-// the most recent published quarter. The quarter label is read
-// from the data itself.
+// Two sources:
+//   - the Cabinet Office's yearly named list of special advisers with pay and salary bands and the cost totals
+//     (spad_appointments and spad_releases, from /api/sync-spad-roster; owner, 28 Oct 2026), shown in full with
+//     each appointing minister linked to their Open Govt page when we matched them;
+//   - the departments' quarterly returns of gifts, hospitality and meetings with senior media figures (the four
+//     quarterly tables, from /api/sync-spad-transparency, weekly). Every quarter is kept from April to June 2026
+//     on; QuarterSections shows one at a time with a selector, the latest first.
 
 import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import SeeAlso from '../../components/SeeAlso';
-import Link from 'next/link';
 import { resolveOrgToDeptSlug } from '@/lib/govOrgSlug';
 import ArticleEndSignup from '../../components/ArticleEndSignup';
 import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
+import SpadSource from '../../components/SpadSource';
+import { SPAD_LIST_ANCHOR, longDate, totalsLine, type SpadRow, type SpadReleaseRow } from '@/lib/spad-display';
+import SpadRosterTable from './SpadRosterTable';
+import QuarterSections, { type RosterRow, type GiftRow, type HospRow, type MeetRow } from './QuarterSections';
 
 // The returns label departments by short name. Map them to department pages; anything
 // not listed falls back to the GOV.UK name lookup, and unknown names get no link.
@@ -36,22 +35,15 @@ const deptFor = (area: string): string | null => AREA_DEPT[area] ?? resolveOrgTo
 export const revalidate = 3600;
 
 const INK = '#14100d';
-const INK_SOFT = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.25)';
-const CREAM = '#ebe5d8';
 const ACCENT = '#7a1612';
 
 export const metadata: Metadata = {
   title: "Special Advisers: Who Advises Each UK Minister",
   description:
-    'Every current UK Special Adviser, their department, and the gifts, hospitality and media meetings they declared in the latest published quarter.',
+    'Every UK special adviser named by the Cabinet Office, with their minister, pay band and salary band, and the gifts, hospitality and media meetings they declared each quarter.',
   alternates: { canonical: '/transparency/special-advisers' },
 };
-
-type RosterRow = { name: string; area: string; quarter: string };
-type GiftRow = { spad_name: string; area: string; gift_date: string | null; gift_descr: string | null; donor: string | null; value_gbp: string | null; outcome: string | null };
-type HospRow = { spad_name: string; area: string; hosp_date: string | null; hosp_descr: string | null; provider: string | null; purpose: string | null };
-type MeetRow = { spad_name: string; area: string; meeting_date: string | null; media_org: string | null; individual: string | null; purpose: string | null };
 
 async function fetchAll<T>(table: string, columns: string): Promise<T[]> {
   const PAGE = 1000;
@@ -67,46 +59,36 @@ async function fetchAll<T>(table: string, columns: string): Promise<T[]> {
   return out;
 }
 
+// "April to June 2026" → a number that sorts quarters in time order.
+const QUARTER_START = ['january', 'april', 'july', 'october'];
+const quarterOrder = (q: string) => {
+  const m = q.match(/^(\w+)\s+to\s+\w+\s+(\d{4})$/);
+  return m ? Number(m[2]) * 10 + QUARTER_START.indexOf(m[1].toLowerCase()) : 0;
+};
+
 export default async function SpecialAdvisersPage() {
-  const [roster, gifts, hosps, meets] = await Promise.all([
+  const [roster, gifts, hosps, meets, releaseRes] = await Promise.all([
     fetchAll<RosterRow>('special_advisers', 'name, area, quarter'),
-    fetchAll<GiftRow>('spad_gifts', 'spad_name, area, gift_date, gift_descr, donor, value_gbp, outcome'),
-    fetchAll<HospRow>('spad_hospitality', 'spad_name, area, hosp_date, hosp_descr, provider, purpose'),
-    fetchAll<MeetRow>('spad_media_meetings', 'spad_name, area, meeting_date, media_org, individual, purpose'),
+    fetchAll<GiftRow>('spad_gifts', 'spad_name, area, quarter, gift_date, gift_descr, donor, value_gbp, outcome'),
+    fetchAll<HospRow>('spad_hospitality', 'spad_name, area, quarter, hosp_date, hosp_descr, provider, purpose'),
+    fetchAll<MeetRow>('spad_media_meetings', 'spad_name, area, quarter, meeting_date, media_org, individual, purpose'),
+    supabase.from('spad_releases').select('release_slug, as_at, headcount, fte, paybill, prior_paybill, source_url').order('as_at', { ascending: false }).limit(1).maybeSingle(),
   ]);
-
-  const quarter = roster[0]?.quarter || '(no data yet)';
-
-  // Roster grouped by area
-  const byArea = new Map<string, RosterRow[]>();
-  for (const r of roster) {
-    if (!byArea.has(r.area)) byArea.set(r.area, []);
-    byArea.get(r.area)!.push(r);
+  if (releaseRes.error) throw new Error(`/transparency/special-advisers spad_releases: ${releaseRes.error.message}`);
+  const release = releaseRes.data as SpadReleaseRow | null;
+  let appointments: SpadRow[] = [];
+  if (release) {
+    const { data, error } = await supabase.from('spad_appointments')
+      .select('adviser_name, minister_title, minister_name, minister_member_id, pay_band, salary_band_text, salary_band_min, notes')
+      .eq('release_slug', release.release_slug).order('id', { ascending: true });
+    if (error) throw new Error(`/transparency/special-advisers spad_appointments: ${error.message}`);
+    appointments = (data ?? []) as SpadRow[];
   }
-  const areas = Array.from(byArea.entries()).sort((a, b) => b[1].length - a[1].length);
 
-  // Activity by SpAd
-  const giftCount = new Map<string, number>();
-  for (const g of gifts) giftCount.set(g.spad_name, (giftCount.get(g.spad_name) || 0) + 1);
-  const hospCount = new Map<string, number>();
-  for (const h of hosps) hospCount.set(h.spad_name, (hospCount.get(h.spad_name) || 0) + 1);
-  const meetCount = new Map<string, number>();
-  for (const m of meets) meetCount.set(m.spad_name, (meetCount.get(m.spad_name) || 0) + 1);
-
-  // Most active SpAds (any stream)
-  const allNames = new Set<string>([
-    ...gifts.map((g) => g.spad_name),
-    ...hosps.map((h) => h.spad_name),
-    ...meets.map((m) => m.spad_name),
-  ]);
-  type ActivityRow = { name: string; gifts: number; hospitality: number; meetings: number; total: number };
-  const activity: ActivityRow[] = Array.from(allNames).map((name) => {
-    const g = giftCount.get(name) || 0;
-    const h = hospCount.get(name) || 0;
-    const m = meetCount.get(name) || 0;
-    return { name, gifts: g, hospitality: h, meetings: m, total: g + h + m };
-  });
-  activity.sort((a, b) => b.total - a.total);
+  const quarters = [...new Set([...roster, ...gifts, ...hosps, ...meets].map((r) => r.quarter))].sort((a, b) => quarterOrder(b) - quarterOrder(a));
+  const deptSlugs: Record<string, string> = {};
+  for (const area of new Set(roster.map((r) => r.area))) { const s = deptFor(area); if (s) deptSlugs[area] = s; }
+  const totals = release ? totalsLine(release) : null;
 
   return (
     <OpenGovShell pageStamp="Transparency">
@@ -123,163 +105,24 @@ export default async function SpecialAdvisersPage() {
           Special Advisers are political appointees paid out of public funds. They are not civil servants, not ministers and not elected. They write speeches, brief ministers, set tone, and often drive policy. Their conduct sits outside the MPs&rsquo; Register of Interests and outside the standard civil service rules.
         </p>
         <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '62ch', marginTop: '12px' }}>
-          The Cabinet Office and the major Whitehall departments publish a quarterly return of each Special Adviser&rsquo;s gifts, hospitality, and meetings with senior media figures. This page is the consolidated view across every publishing department for the most recent quarter only. Older quarters are not retained.
-        </p>
-        <p style={{ marginTop: '14px', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase', color: ACCENT }}>
-          Quarter shown: {quarter}
+          Once a year the Cabinet Office publishes every special adviser by name, with the minister who appointed them and their pay band. The Cabinet Office and the major Whitehall departments also publish a quarterly return of each Special Adviser&rsquo;s gifts, hospitality, and meetings with senior media figures. This page brings both together; every quarter is kept from April to June 2026 on.
         </p>
       </header>
 
-      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '14px', marginBottom: '32px' }}>
-        <Tile label="Special Advisers" value={String(roster.length)} sub="on the current roster" />
-        <Tile label="Departments" value={String(areas.length)} sub="publishing this quarter" />
-        <Tile label="Declared gifts" value={String(gifts.length)} sub="non-nil entries" />
-        <Tile label="Declared hospitality" value={String(hosps.length)} sub="non-nil entries" />
-        <Tile label="Media meetings" value={String(meets.length)} sub="with senior media figures" />
-      </section>
-
-      <section style={{ marginBottom: '36px' }}>
-        <h2 style={sectionH2}>Current roster · {roster.length} Special Advisers</h2>
-        {areas.map(([area, list]) => (
-          <details key={area} style={{ marginBottom: '12px', borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '8px' }}>
-            <summary style={{ cursor: 'pointer', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', fontWeight: 'bold', padding: '6px 0', color: ACCENT, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              {area} · {list.length}
-            </summary>
-            {deptFor(area) && (
-              <p style={{ margin: '4px 0 0', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px' }}>
-                <Link href={`/departments/${deptFor(area)}`} style={{ color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' }}>Department page: ministers, budget and record →</Link>
-              </p>
-            )}
-            <ul style={{ listStyle: 'none', padding: '8px 0', margin: 0, columns: '2 280px', columnGap: '24px', fontSize: '15px', fontFamily: 'var(--font-special-elite), monospace' }}>
-              {list.sort((a, b) => a.name.localeCompare(b.name)).map((r) => (
-                <li key={`${r.area}|${r.name}`} style={{ padding: '2px 0', breakInside: 'avoid' }}>{r.name}</li>
-              ))}
-            </ul>
-          </details>
-        ))}
-      </section>
-
-      {activity.length > 0 && (
-        <section style={{ marginBottom: '36px' }}>
-          <h2 style={sectionH2}>Most active Special Advisers this quarter</h2>
-          <table style={tableStyle}>
-            <thead>
-              <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
-                <th style={th}>#</th>
-                <th style={th}>Special Adviser</th>
-                <th style={{ ...th, textAlign: 'right' }}>Gifts</th>
-                <th style={{ ...th, textAlign: 'right' }}>Hospitality</th>
-                <th style={{ ...th, textAlign: 'right' }}>Media meetings</th>
-                <th style={{ ...th, textAlign: 'right' }}>Total declared</th>
-              </tr>
-            </thead>
-            <tbody>
-              {activity.slice(0, 30).map((r, i) => (
-                <tr key={r.name} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-                  <td style={{ ...td }}>{i + 1}</td>
-                  <td style={td}>{r.name}</td>
-                  <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace' }}>{r.gifts}</td>
-                  <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace' }}>{r.hospitality}</td>
-                  <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace' }}>{r.meetings}</td>
-                  <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold' }}>{r.total}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {release && appointments.length > 0 && (
+        <section id={SPAD_LIST_ANCHOR} style={{ marginBottom: '40px', scrollMarginTop: '16px' }}>
+          <h2 style={sectionH2}>All special advisers in post at {longDate(release.as_at)}</h2>
+          {totals && <p style={{ fontSize: '17px', lineHeight: 1.6, fontWeight: 'bold', margin: '0 0 10px', maxWidth: '62ch' }}>{totals}</p>}
+          <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '62ch', margin: '0 0 14px' }}>
+            One row per appointment: an adviser who works for two ministers is listed under each. Salaries are published only from £81,000, in bands of £5,000. Ministers with an Open Govt page are linked; members of the Lords have none.
+          </p>
+          <SpadRosterTable rows={appointments} />
+          <SpadSource slug={release.release_slug} url={release.source_url} />
         </section>
       )}
 
-      {gifts.length > 0 && (
-        <section style={{ marginBottom: '36px' }}>
-          <h2 style={sectionH2}>Gifts</h2>
-          <table style={tableStyle}>
-            <thead>
-              <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
-                <th style={th}>Special Adviser</th>
-                <th style={th}>Area</th>
-                <th style={th}>Date</th>
-                <th style={th}>Gift</th>
-                <th style={th}>From</th>
-                <th style={{ ...th, textAlign: 'right' }}>Value (£)</th>
-                <th style={th}>Outcome</th>
-              </tr>
-            </thead>
-            <tbody>
-              {gifts.map((g, i) => (
-                <tr key={i} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-                  <td style={td}>{g.spad_name}</td>
-                  <td style={{ ...td, fontSize: '15px' }}>{g.area}</td>
-                  <td style={{ ...td, fontFamily: 'monospace', fontSize: '15px' }}>{g.gift_date || 'n/a'}</td>
-                  <td style={td}>{g.gift_descr || 'n/a'}</td>
-                  <td style={td}>{g.donor || 'n/a'}</td>
-                  <td style={{ ...td, textAlign: 'right', fontFamily: 'monospace' }}>{g.value_gbp || 'n/a'}</td>
-                  <td style={{ ...td, fontSize: '15px' }}>{g.outcome || 'n/a'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-      )}
-
-      {hosps.length > 0 && (
-        <section style={{ marginBottom: '36px' }}>
-          <h2 style={sectionH2}>Hospitality</h2>
-          <table style={tableStyle}>
-            <thead>
-              <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
-                <th style={th}>Special Adviser</th>
-                <th style={th}>Area</th>
-                <th style={th}>Date</th>
-                <th style={th}>Hospitality</th>
-                <th style={th}>Provider</th>
-                <th style={th}>Purpose</th>
-              </tr>
-            </thead>
-            <tbody>
-              {hosps.map((h, i) => (
-                <tr key={i} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-                  <td style={td}>{h.spad_name}</td>
-                  <td style={{ ...td, fontSize: '15px' }}>{h.area}</td>
-                  <td style={{ ...td, fontFamily: 'monospace', fontSize: '15px' }}>{h.hosp_date || 'n/a'}</td>
-                  <td style={td}>{h.hosp_descr || 'n/a'}</td>
-                  <td style={td}>{h.provider || 'n/a'}</td>
-                  <td style={{ ...td, fontSize: '15px' }}>{h.purpose || 'n/a'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-      )}
-
-      {meets.length > 0 && (
-        <section style={{ marginBottom: '36px' }}>
-          <h2 style={sectionH2}>Meetings with senior media figures</h2>
-          <table style={tableStyle}>
-            <thead>
-              <tr style={{ borderBottom: `2px solid ${INK}`, textAlign: 'left' }}>
-                <th style={th}>Special Adviser</th>
-                <th style={th}>Area</th>
-                <th style={th}>Date</th>
-                <th style={th}>Media organisation</th>
-                <th style={th}>Individual</th>
-                <th style={th}>Purpose</th>
-              </tr>
-            </thead>
-            <tbody>
-              {meets.map((m, i) => (
-                <tr key={i} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-                  <td style={td}>{m.spad_name}</td>
-                  <td style={{ ...td, fontSize: '15px' }}>{m.area}</td>
-                  <td style={{ ...td, fontFamily: 'monospace', fontSize: '15px' }}>{m.meeting_date || 'n/a'}</td>
-                  <td style={td}>{m.media_org || 'n/a'}</td>
-                  <td style={td}>{m.individual || 'n/a'}</td>
-                  <td style={{ ...td, fontSize: '15px' }}>{m.purpose || 'n/a'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-      )}
+      <h2 style={{ ...sectionH2, fontSize: '22px', color: ACCENT }}>Quarterly declarations</h2>
+      <QuarterSections quarters={quarters} roster={roster} gifts={gifts} hosps={hosps} meets={meets} deptSlugs={deptSlugs} />
 
       <SeeAlso links={[
         { href: '/transparency/revolving-door', label: 'Revolving Door', note: 'Former ministers and officials taking outside jobs, and the conditions attached' },
@@ -295,16 +138,6 @@ export default async function SpecialAdvisersPage() {
   );
 }
 
-function Tile({ label, value, sub }: { label: string; value: string; sub: string }) {
-  return (
-    <div style={{ border: `1px solid ${INK_HAIRLINE}`, padding: '12px 14px', background: CREAM }}>
-      <div style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: '4px' }}>{label}</div>
-      <div style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '22px', fontWeight: 'bold', color: ACCENT }}>{value}</div>
-      <div style={{ fontSize: '15px', marginTop: '4px' }}>{sub}</div>
-    </div>
-  );
-}
-
 const sectionH2: React.CSSProperties = {
   fontFamily: 'var(--font-special-elite), monospace',
   fontSize: '20px',
@@ -313,6 +146,3 @@ const sectionH2: React.CSSProperties = {
   paddingBottom: '6px',
   marginBottom: '12px',
 };
-const tableStyle: React.CSSProperties = { width: '100%', borderCollapse: 'collapse', fontSize: '15px', fontFamily: 'var(--font-special-elite), monospace' };
-const th: React.CSSProperties = { padding: '8px 6px', fontSize: '15px', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 'bold' };
-const td: React.CSSProperties = { padding: '8px 6px', fontSize: '15px', verticalAlign: 'top' };
