@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'st6k9mxq4w',
   kicker: 'Student Finance',
-  headline: `MPs Say Student Loans Were Wrongly Sold as Terms Changed`,
+  headline: `Treasury Committee: Student Loans Were Wrongly Sold`,
   standfirst: `In 2018, a Department for Education presentation gave prospective students one example of what repayment might cost. A graduate earning £27,000 would repay £15 a month. Neither that presentation nor an earlier one made clear that governments retained the power to change important loan terms after the money had been borrowed. The Treasury Committee says that amounted to wrongly selling.`,
   summary: "The Treasury Committee says student loans were wrongly sold because students were not told governments could change the terms afterwards.",
   publishedAt: '2026-07-16',

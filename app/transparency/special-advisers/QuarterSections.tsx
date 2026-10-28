@@ -70,7 +70,7 @@ export default function QuarterSections({ quarters, roster: allRoster, gifts: al
       </section>
 
       <section style={{ marginBottom: '36px' }}>
-        <h2 style={sectionH2}>Roster · {roster.length} Special Advisers</h2>
+        <h2 style={sectionH2}>{roster.length} advisers named in {quarter} declarations</h2>
         {areas.map(([area, list]) => (
           <details key={area} style={{ marginBottom: '12px', borderBottom: `1px solid ${INK_HAIRLINE}`, paddingBottom: '8px' }}>
             <summary style={{ cursor: 'pointer', fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', fontWeight: 'bold', padding: '6px 0', color: ACCENT, letterSpacing: '0.08em', textTransform: 'uppercase' }}>

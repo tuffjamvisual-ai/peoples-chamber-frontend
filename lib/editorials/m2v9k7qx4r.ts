@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'm2v9k7qx4r',
   kicker: 'Media and Power',
-  headline: `Streaming Ownership Left Out of Media Merger Test`,
+  headline: `Media Merger Test Still Ignores Who Owns Streaming Services`,
   standfirst: `Lisa Nandy is considering intervening in Paramount Skydance's proposed takeover of Warner Bros Discovery because of its potential effect on media plurality in Britain. Her statement to Parliament identified a problem in the law she would use to do it: programme services on demand are not currently inside the test of plurality of ownership.`,
   summary: "Britain updated its media merger rules in 2025, but streaming services are still outside the plurality test Lisa Nandy may use.",
   publishedAt: '2026-07-02',

@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'fxdep4e6wh',
   kicker: 'Housing',
-  headline: `Kirklees Graded C3: Condition Records for Around a Quarter`,
+  headline: `Kirklees Lacked Current Records for Three Quarters of Homes`,
   standfirst: `The Regulator of Social Housing has given Kirklees Council a C3 consumer grade after finding it held up to date condition and hazard information for around a quarter of its 21,286 homes.`,
   summary: "The social housing regulator graded Kirklees C3 after finding up to date condition records for around a quarter of its 21,286 homes.",
   publishedAt: '2026-10-22',

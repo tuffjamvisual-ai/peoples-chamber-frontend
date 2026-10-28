@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'td4k9mxw7r',
   kicker: 'Devolution',
-  headline: `Mayors Get Power to Set an Uncapped Overnight Stay Tax`,
+  headline: `Most Wanted a Cap. Mayors Get an Uncapped Overnight Tax`,
   standfirst: `English mayors and strategic authority leaders will be able to impose an uncapped percentage tax on overnight accommodation stays. In the consultation, 58 per cent of respondents supported a national rate cap. Sixty per cent opposed the model based on a percentage. The government rejected both majority positions.`,
   summary: "English mayors will be able to set an uncapped tax on overnight stays, although most consultation respondents backed a national cap.",
   publishedAt: '2026-09-10',

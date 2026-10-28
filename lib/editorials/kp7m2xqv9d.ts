@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'kp7m2xqv9d',
   kicker: 'Reading the Record',
-  headline: 'The MPs Who Miss the Most Commons Votes',
+  headline: '23 MPs Vote at Less Than Half the Average Commons Rate',
   standfirst: "MPs have voted in 69.8 per cent of the Commons divisions held while they sat this Parliament. Twenty three current MPs are below half that rate, including five members of the Cabinet.",
   summary: "MPs voted in 69.8 per cent of Commons divisions this Parliament. Twenty three current MPs managed less than half that.",
   publishedAt: '2026-06-30',

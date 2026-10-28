@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'gw4k9mxn7r',
   kicker: 'Public Ownership',
-  headline: `Water: Pathway to Public Control, but No Nationalisation`,
+  headline: `Water "Public Control" Plan Takes No Company Into Ownership`,
   standfirst: `The government has announced what it calls a "pathway to stronger public control" of England's water industry. No water company is being taken into public ownership. The distinction matters.`,
   summary: "The government has announced a “pathway to stronger public control” of water, but no company is being taken into public ownership.",
   publishedAt: '2026-09-30',

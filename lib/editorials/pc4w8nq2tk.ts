@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: "pc4w8nq2tk",
   kicker: 'Investigation',
-  headline: "Labour Leads Polls as Consumer Confidence Falls 11 Points",
+  headline: "Consumer Confidence Falls 11 Points, Sharpest Since Pandemic",
   standfirst: "Labour has led recent national polls since Andy Burnham became Prime Minister. In October consumer confidence suffered its biggest monthly fall since the start of the pandemic, and GfK said the optimism that followed his arrival had faded, days before John Healey’s first Budget.",
   summary: "Labour leads recent polls, but consumer confidence fell 11 points in October, its sharpest drop since the pandemic began.",
   publishedAt: '2026-10-24',

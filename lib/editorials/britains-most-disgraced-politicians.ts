@@ -3,7 +3,7 @@ import type { EditorialEntry } from './types';
 const piece: EditorialEntry = {
   slug: 'britains-most-disgraced-politicians',
   kicker: 'Political Accountability',
-  headline: `What Really Brought Down Britain's Disgraced Politicians`,
+  headline: `The Cover Up Didn't Always Sink Them: 11 Political Scandals`,
   standfirst: `At Newry Crown Court on 22 June, a jury convicted Jeffrey Donaldson of 18 sexual offences. His case belongs in any account of political disgrace, but it does not fit the comforting old line that the cover up is always worse than the original offence. Sometimes the original offence is worse.`,
   summary: "Eleven political scandals show the cover up is not always what brings politicians down, because sometimes the original offence is worse.",
   publishedAt: '2026-06-22',
