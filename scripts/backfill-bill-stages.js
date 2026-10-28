@@ -71,7 +71,7 @@ async function fetchStages(parliamentId) {
   for (let page = 0; page < 20; page++) {
     const res = await fetch(
       `https://bills-api.parliament.uk/api/v1/Bills/${parliamentId}/Stages?Take=${PAGE_SIZE}&Skip=${page * PAGE_SIZE}`,
-      { signal: AbortSignal.timeout(30000) },
+      { signal: AbortSignal.timeout(45000) }, // as lib/bill-stages.ts STAGES_TIMEOUT_MS (28 Oct 2026)
     );
     if (!res.ok) throw new Error(`Bills API ${res.status}`);
     const json = await res.json();

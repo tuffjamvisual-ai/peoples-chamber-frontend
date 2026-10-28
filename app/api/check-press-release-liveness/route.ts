@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
+import { ItemFailures, FLAG_AFTER_RUNS } from '@/lib/sync-item-failures';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -29,6 +30,9 @@ export const maxDuration = 300;
 // bodies are no longer read just to see which are empty (a second, small query finds those), and a failed database
 // write fails the run.
 
+// 28 Oct 2026 (owner): a release whose check fails FLAG_AFTER_RUNS runs in a row (lib/sync-item-failures.ts) is
+// stamped as checked (the back of the queue, about a week); the run returns 200 with partial: true, and the freshness
+// email names the release and its error.
 const BATCH = 500;
 const DELAY_MS = 250;
 const HEAD_TIMEOUT_MS = 15_000;
@@ -65,7 +69,14 @@ async function GET_impl(req: Request) {
     for (const r of nb || []) noBody.add(r.id as number);
   }
 
-  let checked = 0, removed = 0, restored = 0, filled = 0, transient = 0, dbErrors = 0, notReached = 0;
+  let checked = 0, removed = 0, restored = 0, filled = 0, transient = 0, dbErrors = 0, notReached = 0, flaggedFail = 0;
+  const failing = await ItemFailures.load(supabase, '/api/check-press-release-liveness');
+  // Not checked this run (an error answer or no answer): counted towards being flagged; once flagged, stamped as checked.
+  const notChecked = async (r: Row, error: string) => {
+    if (!failing.failed(r.id, r.gov_url ?? `release ${r.id}`, error)) return;
+    await write(r.id, { liveness_checked_at: nowIso() });
+    flaggedFail++;
+  };
   let stoppedBy: string | null = null;
   let lastDbError: string | null = null;
   const nowIso = () => new Date().toISOString();
@@ -99,23 +110,31 @@ async function GET_impl(req: Request) {
         restored++;
       } else {
         transient++;
+        await notChecked(r, `HEAD ${head.status}`);
         continue; // don't stamp checked — retry next run
       }
       checked++;
+      failing.succeeded(r.id);
     } catch (e) {
       if (isPoliteStop(e)) { stoppedBy = (e as Error).message; notReached = rows.length - i; break; }
       transient++;
+      await notChecked(r, (e as Error).message || 'no answer');
     }
     await sleep(DELAY_MS);
   }
 
+  const failuresSaved = await failing.save();
   if (dbErrors > 0) {
     return NextResponse.json({ ok: false, error: `press_releases update failed ${dbErrors} times: ${lastDbError}`, count: checked }, { status: 500 });
   }
   return NextResponse.json({
     ok: true,
     // The budget or a rate limit stopped the run before the end of its batch; those releases come first next run.
-    partial: stoppedBy !== null,
+    partial: stoppedBy !== null || flaggedFail > 0,
+    flagged_failed: flaggedFail,
+    flagged_after_runs: FLAG_AFTER_RUNS,
+    failing_items: failing.summary(),
+    failures_saved: failuresSaved,
     stopped_by: stoppedBy,
     not_reached: notReached,
     // Pages checked (live or removed); the heartbeat records this as the run's row count.

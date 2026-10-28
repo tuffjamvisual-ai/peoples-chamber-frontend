@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
+import { ItemFailures, FLAG_AFTER_RUNS } from '@/lib/sync-item-failures';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export const dynamic = 'force-dynamic';
@@ -35,6 +36,9 @@ const BATCH = 100;
 // (lib/sync-budget.ts) no member starts after 70 per cent of maxDuration, each request's timeout is cut to the time
 // left so the run ends by 80 per cent, and a 429 stops it cleanly (members not reached keep their old synced_at, so they
 // come first next run).
+// 28 Oct 2026 (owner): a member whose Biography fails FLAG_AFTER_RUNS runs in a row (lib/sync-item-failures.ts) is
+// marked as checked (the back of the queue); the run carries on, does not fail because of them, returns 200 with
+// partial: true, and the freshness email names the member and the error.
 const CALL_DELAY_MS = 300;
 
 interface CmteEntry {
@@ -106,9 +110,14 @@ async function GET_impl(req: Request) {
       { status: 500 },
     );
   }
-  const memberIds: number[] = ((candidates as { member_id: number }[]) || []).map(
+  const batchIds: number[] = ((candidates as { member_id: number }[]) || []).map(
     (r) => r.member_id,
   );
+  const failing = await ItemFailures.load(supabaseAdmin, '/api/sync-committee-memberships');
+  // Flagged members go after the others.
+  const memberIds = [...batchIds.filter((id) => !failing.isFlagged(id)), ...batchIds.filter((id) => failing.isFlagged(id))];
+  // Members whose Biography failed FLAG_AFTER_RUNS runs in a row: reported, not counted against the run.
+  const flaggedFailures: { member_id: number; status: number; message: string }[] = [];
 
   let processed = 0;
   let upserted = 0;
@@ -141,15 +150,24 @@ async function GET_impl(req: Request) {
     processed++;
 
     if (result.status !== 200) {
-      apiFailures.push({
+      const failure = {
         member_id: memberId,
         status: result.status,
         message: result.status ? `Biography API ${result.status}` : 'no answer (timeout or network error)',
-      });
+      };
+      if (!dryRun && failing.failed(memberId, `member ${memberId}`, failure.message)) {
+        // Failed FLAG_AFTER_RUNS runs in a row: marked as checked, so it goes to the back of the queue.
+        const { error: stateErr } = await supabaseAdmin
+          .from('committee_sync_state')
+          .upsert({ member_id: memberId, synced_at: new Date().toISOString() }, { onConflict: 'member_id' });
+        if (!stateErr) { flaggedFailures.push(failure); continue; }
+      }
+      apiFailures.push(failure);
       // Do not mark as synced on API failure — leave them at the head of the
       // queue so they are retried on the next run rather than skipped for a week.
       continue;
     }
+    if (!dryRun) failing.succeeded(memberId);
 
     const now = new Date().toISOString();
 
@@ -219,11 +237,12 @@ async function GET_impl(req: Request) {
   }
 
   const elapsed_ms = Date.now() - startedAt;
+  const failuresSaved = dryRun ? null : await failing.save();
   if (apiFailures.length) console.warn(`[sync-committee-memberships] Members API failed for ${apiFailures.length} of ${processed} members: ${apiFailures.map((f) => `${f.member_id} (${f.message})`).join(', ')}`);
   if (errors.length) console.error(`[sync-committee-memberships] ${errors.length} database write errors: ${errors.map((e) => `${e.member_id}: ${e.message}`).join('; ')}`);
   // Every member tried failed at the source: the Members API is down or refusing, which is a failed run (502).
-  const sourceDown = processed > 0 && apiFailures.length === processed;
-  if (apiFailures.length) partial = true;
+  const sourceDown = processed > flaggedFailures.length && apiFailures.length === processed - flaggedFailures.length;
+  if (apiFailures.length || flaggedFailures.length) partial = true;
 
   const base = {
     ok: errors.length === 0 && !sourceDown,
@@ -236,6 +255,11 @@ async function GET_impl(req: Request) {
     syncedAt: new Date().toISOString(),
     ...(errors.length ? { errors } : {}),
     ...(apiFailures.length ? { api_failures: apiFailures } : {}),
+    flagged_failed: flaggedFailures.length,
+    ...(flaggedFailures.length ? { flagged_failures: flaggedFailures } : {}),
+    flagged_after_runs: FLAG_AFTER_RUNS,
+    failing_items: failing.summary(),
+    failures_saved: failuresSaved,
   };
 
   if (dryRun) {

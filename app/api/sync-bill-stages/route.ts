@@ -5,6 +5,7 @@ import { refreshStore } from '@/lib/refresh-stores';
 import { fetchAllBillStages, deriveCurrentStage, BillNotFoundError } from '@/lib/bill-stages';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { SyncBudget, isPoliteStop } from '@/lib/sync-budget';
+import { ItemFailures, FLAG_AFTER_RUNS } from '@/lib/sync-item-failures';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -32,6 +33,11 @@ export const maxDuration = 300;
 // starts after 70 per cent of maxDuration, each request's timeout is cut to the time left so the run ends by 80 per
 // cent, a 429 stops it cleanly, a bill stopped part way is not saved (it stays first in the queue), and the response
 // says partial: true while bills were left.
+//
+// 28 Oct 2026 (owner, after report 79): a bill that fails FLAG_AFTER_RUNS runs in a row (lib/sync-item-failures.ts)
+// has its stages_synced_at moved on, so it goes to the back of the queue (tried again after STALE_DAYS); the run
+// carries on with the others, returns 200 with partial: true, and the freshness email names the bill and its error.
+// Bill 3031 had failed this way on every run and, as the only bill due at 07:35 on 28 Oct, made that run a 502.
 
 const RUN_CAP = 900; // bills read from the queue per run; the time budget usually stops it first
 const CONCURRENCY = 3;
@@ -71,8 +77,10 @@ async function GET_impl(req: Request) {
   if (selErr) return NextResponse.json({ error: selErr.message }, { status: 500 });
 
   const targets = rows || [];
-  const queue = [...targets];
-  let ok = 0, fail = 0, notFound = 0, skippedForTime = 0;
+  const failing = await ItemFailures.load(supabase, '/api/sync-bill-stages');
+  // Flagged bills still due go after the others.
+  const queue = [...targets.filter((r) => !failing.isFlagged(r.id)), ...targets.filter((r) => failing.isFlagged(r.id))];
+  let ok = 0, fail = 0, notFound = 0, skippedForTime = 0, flaggedFail = 0;
   let stoppedBy: string | null = null;
   const failures: Array<{ id: number; detail: string }> = [];
 
@@ -98,6 +106,7 @@ async function GET_impl(req: Request) {
           .eq('id', row.id);
         if (error) throw error;
         ok++;
+        failing.succeeded(row.id);
       } catch (err) {
         // Out of time or asked to stop: this bill is not saved and stays first in the queue.
         if (isPoliteStop(err)) { stoppedBy ??= (err as Error).message; skippedForTime += 1 + queue.length; queue.length = 0; return; }
@@ -105,11 +114,17 @@ async function GET_impl(req: Request) {
           // The Bills API no longer has this bill (24 Oct 2026). Its stored stages, current_stage and stage_date are
           // kept; only stages_synced_at moves, so it is retried after the normal stale window instead of every run.
           const { error: touchErr } = await supabase.from('bill').update({ stages_synced_at: new Date().toISOString() }).eq('id', row.id);
-          if (!touchErr) { notFound++; await sleep(DELAY_MS); continue; }
+          if (!touchErr) { notFound++; failing.succeeded(row.id); await sleep(DELAY_MS); continue; }
           err = touchErr;
         }
+        const detail = (err as Error).message;
+        if (failures.length < 20) failures.push({ id: row.id, detail });
+        if (failing.failed(row.id, `bill ${row.id} (Parliament bill ${row.parliament_id})`, detail)) {
+          // Failed FLAG_AFTER_RUNS runs in a row: to the back of the queue; it does not fail the run.
+          const { error: touchErr } = await supabase.from('bill').update({ stages_synced_at: new Date().toISOString() }).eq('id', row.id);
+          if (!touchErr) { flaggedFail++; await sleep(DELAY_MS); continue; }
+        }
         fail++;
-        if (failures.length < 20) failures.push({ id: row.id, detail: (err as Error).message });
       }
       await sleep(DELAY_MS);
     }
@@ -123,6 +138,7 @@ async function GET_impl(req: Request) {
 
   const { count: remaining } = await supabase.from('bill').select('id', { count: 'exact', head: true })
     .not('parliament_id', 'is', null).is('hidden_reason', null).or(`stages_synced_at.is.null,stages_synced_at.lt.${cutoff}`);
+  const failuresSaved = await failing.save();
   if (fail > 0) console.error(JSON.stringify({ route: '/api/sync-bill-stages', targeted: targets.length, ok, fail, not_found: notFound, skipped_for_time: skippedForTime, first_failures: failures.slice(0, 5) }));
   return NextResponse.json({
     targeted: targets.length,
@@ -130,15 +146,20 @@ async function GET_impl(req: Request) {
     fail,
     not_found: notFound,
     failures,
+    // Bills that failed FLAG_AFTER_RUNS runs in a row and were moved to the back of the queue.
+    flagged_failed: flaggedFail,
+    flagged_after_runs: FLAG_AFTER_RUNS,
+    failing_items: failing.summary(),
+    failures_saved: failuresSaved,
     skipped_for_time: skippedForTime,
     // Bills still due after this run (changed, or not refreshed for STALE_DAYS); they come first next run.
-    partial: skippedForTime > 0 || (remaining ?? 0) > 0,
+    partial: skippedForTime > 0 || (remaining ?? 0) > 0 || flaggedFail > 0,
     stopped_by: stoppedBy,
     still_due: remaining ?? null,
     stores_refresh: storesRefresh,
     duration_ms: Date.now() - started,
     syncedAt: new Date().toISOString(),
-  }, { status: targets.length > 0 && ok === 0 && notFound < targets.length && !(stoppedBy && fail === 0) ? 502 : 200 });
+  }, { status: targets.length > 0 && ok === 0 && notFound < targets.length && !(stoppedBy && fail === 0) && !(flaggedFail > 0 && fail === 0) ? 502 : 200 });
 }
 
 export const GET = withHeartbeat('/api/sync-bill-stages', GET_impl);

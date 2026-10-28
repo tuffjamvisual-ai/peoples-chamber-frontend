@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { SyncBudget, isPoliteStop } from '@/lib/sync-budget';
+import { ItemFailures, FLAG_AFTER_RUNS } from '@/lib/sync-item-failures';
 import { EDM_API, EDM_PARLIAMENT_START, fetchEdmJson, listEdmsResumable, buildEdmRows, writeEdm, type EdmListEntry, type EdmListPages } from '@/lib/edms';
 
 export const dynamic = 'force-dynamic';
@@ -37,6 +38,10 @@ export const maxDuration = 300;
 // change). A motion fetch could still run 30 s a try, four tries, past the 240 s mark. Now (lib/sync-budget.ts) every
 // try's timeout is cut to the time left, no motion starts after 70 per cent of maxDuration, the run ends by 80 per
 // cent, a 429 stops it cleanly, and the response says partial: true while the list or the motions were left part done.
+//
+// 28 Oct 2026 (owner): a motion that fails FLAG_AFTER_RUNS runs in a row (lib/sync-item-failures.ts) goes to the back
+// of the queue; the run carries on with the others, does not fail because of it, returns 200 with partial: true, and
+// the freshness email names the motion and its error.
 
 const CONCURRENCY = 3;
 const LIST_CONCURRENCY = 3;
@@ -104,13 +109,17 @@ async function GET_impl(req: Request) {
     .slice(0, ROLLING_REFRESH)
     .map(([id]) => ({ id, sponsorsCount: listCount.get(id) ?? null }));
 
-  const queue = [...changed, ...rolling];
+  const failing = await ItemFailures.load(supabase, ROUTE);
+  const all = [...changed, ...rolling];
+  const queue = [...all.filter((e) => !failing.isFlagged(e.id)), ...all.filter((e) => failing.isFlagged(e.id))];
   const total = queue.length;
   let processed = 0;
   let signatureRows = 0;
   let skippedForTime = 0;
   let stoppedBy: string | null = listed.stoppedBy;
   const failures: { id: number; error: string }[] = [];
+  // Motions that failed FLAG_AFTER_RUNS runs in a row: reported, not counted as failures of the run.
+  const flaggedFailures: { id: number; error: string }[] = [];
 
   async function worker() {
     while (queue.length > 0) {
@@ -127,15 +136,19 @@ async function GET_impl(req: Request) {
         await writeEdm(supabase, built);
         signatureRows += built.signatures.length;
         processed++;
+        failing.succeeded(entry.id);
       } catch (e) {
         // Out of time or asked to stop: this motion is left (it is still due next run).
         if (isPoliteStop(e)) { stoppedBy ??= (e as Error).message; skippedForTime += 1 + queue.length; queue.length = 0; return; }
-        failures.push({ id: entry.id, error: (e as Error).message });
+        const error = (e as Error).message;
+        if (failing.failed(entry.id, `motion ${entry.id}`, error)) flaggedFailures.push({ id: entry.id, error });
+        else failures.push({ id: entry.id, error });
       }
       await new Promise((r) => setTimeout(r, DELAY_MS));
     }
   }
   await Promise.all(Array.from({ length: CONCURRENCY }, worker));
+  const failuresSaved = await failing.save();
 
   const body = {
     ok: failures.length === 0 && listed.complete,
@@ -153,15 +166,22 @@ async function GET_impl(req: Request) {
     rows_written: processed,
     signature_rows: signatureRows,
     skipped_for_time: skippedForTime,
-    partial: skippedForTime > 0 || !listed.complete,
+    partial: skippedForTime > 0 || !listed.complete || flaggedFailures.length > 0,
     stopped_by: stoppedBy,
     failures: failures.slice(0, 20),
     failure_count: failures.length,
+    flagged_failed: flaggedFailures.length,
+    flagged_failures: flaggedFailures.slice(0, 20),
+    flagged_after_runs: FLAG_AFTER_RUNS,
+    failing_items: failing.summary(),
+    failures_saved: failuresSaved,
     duration_ms: Date.now() - started,
   };
   // 200 when anything was saved, or when there was nothing to do and the list was read in full.
   // A run stopped by the budget or a rate limit with nothing failed is a clean partial run (job 79).
-  const status = processed > 0 || (total === 0 && listed.complete) || (stoppedBy && failures.length === 0 && listed.pagesFailed === 0) ? 200 : 502;
+  // Only flagged motions failed: a partial run, not a failed one (28 Oct 2026).
+  const onlyFlagged = flaggedFailures.length > 0 && failures.length === 0 && listed.pagesFailed === 0;
+  const status = processed > 0 || (total === 0 && listed.complete) || (stoppedBy && failures.length === 0 && listed.pagesFailed === 0) || onlyFlagged ? 200 : 502;
   return NextResponse.json(body, { status });
 }
 

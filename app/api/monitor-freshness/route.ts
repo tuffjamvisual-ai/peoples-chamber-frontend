@@ -10,6 +10,7 @@ import type { CycleState } from '@/lib/sync-heartbeat';
 import vercelConfig from '../../../vercel.json';
 import { loadCursor } from '@/lib/sync-budget';
 import { SPAD_MANUAL_CHECKS_ROUTE } from '@/lib/spad-background-sync';
+import { FAILURES_PREFIX, FLAG_AFTER_RUNS, type ItemFailure } from '@/lib/sync-item-failures';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -38,6 +39,9 @@ const MEMBERS_REVIEW_AT = 300;
 // Sewage = storm overflow figures are loaded by hand once a year: checks the
 //          data.gov.uk page for an Environment Agency annual return newer than
 //          the year in sewage_overflows and emails daily until it is imported.
+// Items = an item that failed FLAG_AFTER_RUNS runs in a row in a queue sync (lib/sync-item-failures.ts, owner, 28 Oct
+//          2026): moved to the back of its queue by the sync; every one is named in the email with its error, daily,
+//          until it succeeds.
 // Bios  = written MP biographies flagged for review by the nightly syncs
 //          (lib/bio-review.ts): all outstanding flags are listed; flags raised
 //          in the last 24 hours are emailed.
@@ -239,6 +243,23 @@ async function GET_impl(req: Request) {
   for (const w of spadChecks?.warnings ?? []) {
     emailAlerts.push({ label: 'Special adviser interests (read by hand)', page: '/transparency/special-advisers', route: null, ageDays: null, lastRanAt: null, lastRows: null, lastStatus: null, reason: `warning: ${w}` });
   }
+  // Items failing in a queue sync (lib/sync-item-failures.ts): one line each.
+  const failingItems: Array<{ route: string; key: string } & ItemFailure> = [];
+  {
+    const { data: failRows, error: failErr } = await supabaseAdmin.from('sync_cursor').select('route, cursor').like('route', `${FAILURES_PREFIX}%`);
+    if (failErr) console.error('monitor-freshness: failing items:', failErr.message);
+    for (const r of failRows ?? []) {
+      const route = (r.route as string).slice(FAILURES_PREFIX.length);
+      for (const [key, f] of Object.entries((r.cursor as { items?: Record<string, ItemFailure> } | null)?.items ?? {})) {
+        if (f.runs < FLAG_AFTER_RUNS) continue;
+        failingItems.push({ route, key, ...f });
+        emailAlerts.push({
+          label: `${route}: ${f.label}`, page: route, route: null, ageDays: null, lastRanAt: null, lastRows: null, lastStatus: null,
+          reason: `failed ${f.runs} runs in a row (${f.firstAt.slice(0, 16).replace('T', ' ')} to ${f.lastAt.slice(0, 16).replace('T', ' ')} UTC), last error: ${f.error}; moved to the back of the queue`,
+        });
+      }
+    }
+  }
   const alertEmail = emailAlerts.length > 0
     ? await sendFreshnessAlert(emailAlerts)
     : { sent: false, reason: healedRoutes.size ? 'self_healed' : 'nothing_stale' };
@@ -311,6 +332,7 @@ async function GET_impl(req: Request) {
     missedRuns,
     serverErrors,
     cycles,
+    failingItems,
     members: { confirmed: memberCount ?? null, reviewResendPlanAt: MEMBERS_REVIEW_AT },
     emailedAlertCount: emailAlerts.length,
     selfHealed: [...healedRoutes],

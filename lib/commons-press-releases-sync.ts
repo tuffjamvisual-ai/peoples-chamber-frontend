@@ -13,6 +13,7 @@
 //   - returns partial: true (HTTP 200) when the budget stopped it, and fails (5xx) on a real error: a database
 //     error, an error answer from the API, or no page answering at all.
 
+import { ItemFailures } from '@/lib/sync-item-failures';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 export const COMMITTEES_API = 'https://committees-api.parliament.uk/api/Publications';
@@ -113,6 +114,12 @@ export async function runCommonsPressReleasesSync(deps: SyncDeps): Promise<SyncR
   const retried = new Set<number>();
   let stoppedByBudget = false;
   let gaveUpOn: number | null = null; // a page that did not answer twice in this run; the next run starts with it
+  // 28 Oct 2026 (owner): a page that gives no answer FLAG_AFTER_RUNS runs in a row (lib/sync-item-failures.ts) goes to
+  // the back of the queue, and a run in which only such pages failed returns 200 with partial: true instead of 504; the
+  // freshness email names the page.
+  const failing = await ItemFailures.load(supabase, '/api/sync-commons-press-releases');
+  queue.sort((a, b) => Number(failing.isFlagged(a)) - Number(failing.isFlagged(b)));
+  const deferred: number[] = [];
 
   async function readPage(skip: number, timeoutMs: number): Promise<{ items: Publication[] } | { noAnswer: true } | { error: string } | { limited: string }> {
     const ctrl = new AbortController();
@@ -198,17 +205,22 @@ export async function runCommonsPressReleasesSync(deps: SyncDeps): Promise<SyncR
       noAnswer.push({ skip, afterMs: Date.now() - started });
       queue.shift();
       // Try it once more at the end of this run (the API is usually ready by then); otherwise the next run does.
-      if (!retried.has(skip)) { retried.add(skip); queue.push(skip); } else { gaveUpOn = skip; queue.unshift(skip); break; }
-      continue;
+      if (!retried.has(skip)) { retried.add(skip); queue.push(skip); continue; }
+      const label = `Committees API page skip=${skip}`;
+      // Flagged: set aside for the next run (where it goes last), and this run carries on with the other pages.
+      if (failing.failed(skip, label, `no answer within ${Math.round(apiTimeoutMs / 1000)} s, twice in one run`)) { deferred.push(skip); continue; }
+      gaveUpOn = skip; queue.unshift(skip); break;
     }
     const writeErr = await writePage(page.items);
     if (writeErr) { failure = { status: 500, error: writeErr }; break; }
     pagesRead.push(skip);
+    failing.succeeded(skip);
     queue.shift();
   }
+  const failuresSaved = await failing.save();
 
   // Save where this pass stands (pages left to read), or clear it when the pass is complete.
-  const remaining = [...new Set(queue)];
+  const remaining = [...new Set([...queue, ...deferred])];
   let cursorSaved: boolean | null = null;
   if (remaining.length) {
     const { error } = await supabase.from('sync_cursor').upsert(
@@ -241,6 +253,9 @@ export async function runCommonsPressReleasesSync(deps: SyncDeps): Promise<SyncR
     unchanged,
     upserted,
     cursorSaved,
+    flaggedPages: failing.flaggedFailures,
+    failingItems: failing.summary(),
+    failuresSaved,
     durationMs: Date.now() - started,
     syncedAt: now,
     ...(failure ? { error: failure.error } : {}),
@@ -248,6 +263,8 @@ export async function runCommonsPressReleasesSync(deps: SyncDeps): Promise<SyncR
   if (failure) return { status: failure.status, body };
   // Asked to slow down: a clean stop, whatever was read is kept and the next run carries on.
   if (rateLimited) return { status: 200, body: { ...body, ok: true, partial: true } };
+  // Only pages flagged for failing FLAG_AFTER_RUNS runs in a row gave no answer: a partial run, named in the email.
+  if (!pagesRead.length && failing.flaggedFailures > 0 && noAnswer.every((n) => failing.isFlagged(n.skip))) return { status: 200, body: { ...body, ok: true, partial: true } };
   // No page answered at all: the source is down, so fail loudly (the position is kept for the next run).
   if (!pagesRead.length) return { status: 504, body: { ...body, ok: false, error: `committees-api: no page answered within ${Math.round(apiTimeoutMs / 1000)} s` } };
   return { status: 200, body };

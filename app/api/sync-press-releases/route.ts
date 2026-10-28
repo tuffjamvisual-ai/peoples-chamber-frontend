@@ -3,6 +3,7 @@ import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { createClient } from '@supabase/supabase-js';
 import { refreshStore } from '@/lib/refresh-stores';
 import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
+import { ItemFailures, FLAG_AFTER_RUNS } from '@/lib/sync-item-failures';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -12,6 +13,8 @@ export const maxDuration = 60;
 // maxDuration, the run ends by 80 per cent, and a 429 from GOV.UK stops it cleanly. Releases not reached are picked
 // up next run, which reads the newest 20 again (rewriting a release already saved changes nothing). A release whose
 // body could not be fetched no longer has its stored body overwritten with nothing.
+// 28 Oct 2026 (owner): a release whose body fails FLAG_AFTER_RUNS runs in a row (lib/sync-item-failures.ts) goes to the
+// back of the run's list; the run returns 200 with partial: true, and the freshness email names the release and error.
 const STORES_RESERVE_MS = 8_000; // kept for the stats refresh at the end
 
 type GovukSearchResult = {
@@ -49,7 +52,11 @@ async function GET_impl(req: Request) {
     if (!res.ok) return NextResponse.json({ error: `gov.uk ${res.status}` }, { status: 502 });
 
     const data = (await res.json()) as { results?: GovukSearchResult[] };
-    const results = data.results || [];
+    const failing = await ItemFailures.load(supabase, '/api/sync-press-releases');
+    const linkOf = (r: GovukSearchResult) => `https://www.gov.uk${r.link}`;
+    // Flagged releases go after the others.
+    const results = [...(data.results || []).filter((r) => !failing.isFlagged(linkOf(r))), ...(data.results || []).filter((r) => failing.isFlagged(linkOf(r)))];
+    let flaggedFail = 0;
 
     let upserted = 0;
     let bodiesFetched = 0;
@@ -67,6 +74,7 @@ async function GET_impl(req: Request) {
       // through to a friendly "summary above" message rather than erroring.
       // Added 2026-06-04 to close the last render-time gov.uk fetch.
       let body: string | null = null;
+      let bodyError: string | null = null;
       try {
         const bodyRes = await politeFetch(`https://www.gov.uk/api/content${item.link}`, {
           headers: { Accept: 'application/json', 'User-Agent': 'PeoplesChamber/1.0' },
@@ -75,12 +83,15 @@ async function GET_impl(req: Request) {
           const bodyData = (await bodyRes.json()) as { details?: { body?: string } };
           body = bodyData.details?.body || null;
           if (body) bodiesFetched++;
-        }
+        } else bodyError = `content API ${bodyRes.status}`;
       } catch (e) {
         // Out of time or asked to stop: this release is left for the next run.
         if (isPoliteStop(e)) { stoppedBy = (e as Error).message; notReached = results.length - i; break; }
-        // Otherwise swallowed: the sync should not fail on a single body fetch.
+        // Otherwise the sync does not fail on a single body fetch; the release is counted towards being flagged.
+        bodyError = (e as Error).message || 'no answer';
       }
+      if (bodyError) { if (failing.failed(govUrl, item.title, `body: ${bodyError}`)) flaggedFail++; }
+      else failing.succeeded(govUrl);
 
       const record = {
         title: item.title,
@@ -97,6 +108,7 @@ async function GET_impl(req: Request) {
       if (!error) upserted++;
       else { writeErrors++; lastWriteError = error.message; }
     }
+    const failuresSaved = await failing.save();
     if (writeErrors > 0 && upserted === 0) {
       return NextResponse.json({ ok: false, error: `press_releases upsert failed: ${lastWriteError}`, upserted }, { status: 500 });
     }
@@ -115,7 +127,11 @@ async function GET_impl(req: Request) {
 
     return NextResponse.json({
       ok: writeErrors === 0,
-      partial: stoppedBy !== null,
+      partial: stoppedBy !== null || flaggedFail > 0,
+      flagged_failed: flaggedFail,
+      flagged_after_runs: FLAG_AFTER_RUNS,
+      failing_items: failing.summary(),
+      failures_saved: failuresSaved,
       stopped_by: stoppedBy,
       not_reached: notReached,
       write_errors: writeErrors,

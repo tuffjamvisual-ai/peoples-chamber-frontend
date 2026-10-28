@@ -4,6 +4,7 @@ import { refreshStore } from '@/lib/refresh-stores';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
+import { ItemFailures, FLAG_AFTER_RUNS } from '@/lib/sync-item-failures';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -26,6 +27,9 @@ const RUN_CAP = 1500; // bills read from the queue per run; the time budget usua
 // is now lib/sync-budget.ts: no bill starts after 70 per cent of maxDuration, each request's timeout is cut to the time
 // left so the run ends by 80 per cent, a 429 stops it cleanly (the bill is not stamped, so it is first next run), and
 // the response says partial: true while bills were left.
+// 28 Oct 2026 (owner): a bill that fails FLAG_AFTER_RUNS runs in a row (lib/sync-item-failures.ts) has its
+// sponsors_synced_at moved on (the back of the queue); the run carries on, returns 200 with partial: true, and the
+// freshness email names the bill and its error.
 const PARLIAMENT_API = 'https://bills-api.parliament.uk/api/v1/Bills';
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -113,10 +117,13 @@ async function GET_impl(req: Request) {
     .limit(RUN_CAP);
   if (selErr) return NextResponse.json({ error: selErr.message }, { status: 500 });
 
-  const targets = rows || [];
+  const failing = await ItemFailures.load(supabase, '/api/sync-bill-sponsors');
+  // Flagged bills still due go after the others.
+  const targets = [...(rows || []).filter((r) => !failing.isFlagged(r.id)), ...(rows || []).filter((r) => failing.isFlagged(r.id))];
   let ok = 0,
     fail = 0,
-    notFound = 0;
+    notFound = 0,
+    flaggedFail = 0;
   const failures: Array<{ id: number; detail: string }> = [];
   let skippedForTime = 0;
   let stoppedBy: string | null = null;
@@ -136,23 +143,31 @@ async function GET_impl(req: Request) {
         .eq('id', row.id);
       if (error) throw error;
       ok++;
+      failing.succeeded(row.id);
     } catch (err) {
       if (isPoliteStop(err)) { stoppedBy = (err as Error).message; skippedForTime = targets.length - i; break; }
       if (err instanceof BillNotFoundError) {
         // The Bills API no longer has this bill (24 Oct 2026). Its stored sponsors are kept; only sponsors_synced_at
         // moves, so it is retried after the normal 30 days instead of every run.
         const { error: touchErr } = await supabase.from('bill').update({ sponsors_synced_at: new Date().toISOString() }).eq('id', row.id);
-        if (!touchErr) { notFound++; await sleep(120); continue; }
+        if (!touchErr) { notFound++; failing.succeeded(row.id); await sleep(120); continue; }
         err = touchErr;
       }
+      const detail = (err as Error).message;
+      if (failures.length < 20) failures.push({ id: row.id, detail });
+      if (failing.failed(row.id, `bill ${row.id} (Parliament bill ${row.parliament_id})`, detail)) {
+        // Failed FLAG_AFTER_RUNS runs in a row: to the back of the queue; it does not fail the run.
+        const { error: touchErr } = await supabase.from('bill').update({ sponsors_synced_at: new Date().toISOString() }).eq('id', row.id);
+        if (!touchErr) { flaggedFail++; await sleep(120); continue; }
+      }
       fail++;
-      if (failures.length < 20) failures.push({ id: row.id, detail: (err as Error).message });
     }
     await sleep(120);
   }
 
   // The topic bill lists read a stored copy of the bills' sponsoring departments (lib/refresh-stores.ts).
   const storesRefresh = ok > 0 ? await refreshStore(supabase, 'refresh_bill_stores') : null;
+  const failuresSaved = await failing.save();
 
   return NextResponse.json({
     targeted: targets.length,
@@ -160,13 +175,17 @@ async function GET_impl(req: Request) {
     fail,
     not_found: notFound,
     failures,
+    flagged_failed: flaggedFail,
+    flagged_after_runs: FLAG_AFTER_RUNS,
+    failing_items: failing.summary(),
+    failures_saved: failuresSaved,
     skipped_for_time: skippedForTime,
-    partial: skippedForTime > 0,
+    partial: skippedForTime > 0 || flaggedFail > 0,
     stopped_by: stoppedBy,
     stores_refresh: storesRefresh,
     duration_ms: Date.now() - started,
     syncedAt: new Date().toISOString(),
-  }, { status: targets.length > 0 && ok === 0 && notFound < targets.length && !(stoppedBy && fail === 0) ? 502 : 200 });
+  }, { status: targets.length > 0 && ok === 0 && notFound < targets.length && !(stoppedBy && fail === 0) && !(flaggedFail > 0 && fail === 0) ? 502 : 200 });
 }
 
 export const GET = withHeartbeat('/api/sync-bill-sponsors', GET_impl);

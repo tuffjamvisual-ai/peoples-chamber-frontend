@@ -35,7 +35,10 @@ export class BillNotFoundError extends Error {
 }
 
 // With a budget (the sync), each request's timeout is cut to the time left and a 429 throws RateLimited
-// (lib/sync-budget.ts); without one (scripts), a 30 s timeout as before.
+// (lib/sync-budget.ts); without one (scripts), the same 45 s timeout.
+// 28 Oct 2026: 45 s, was 30 s. Bill 3031 (Parliament bill 468, two stages, 408 bytes) timed out on every run: the Bills
+// API took 32.2 s to answer it when it was not cached, and 0.09 s once it was; other old bills took 1.5 to 4 s.
+export const STAGES_TIMEOUT_MS = 45_000;
 export async function fetchAllBillStages(parliamentId: number, budget?: SyncBudget): Promise<BillStagesJson> {
   const items: StageItem[] = [];
   let totalResults = 0;
@@ -43,7 +46,7 @@ export async function fetchAllBillStages(parliamentId: number, budget?: SyncBudg
 
   for (let page = 0; page < MAX_PAGES; page++) {
     const res = await politeFetch(`${PARLIAMENT_API}/${parliamentId}/Stages?Take=${PAGE_SIZE}&Skip=${page * PAGE_SIZE}`, { cache: 'no-store' },
-      { budget, timeoutMs: 30_000 });
+      { budget, timeoutMs: STAGES_TIMEOUT_MS });
     if (res.status === 404) throw new BillNotFoundError(parliamentId);
     if (!res.ok) throw new Error(`Bills API ${res.status}`);
     const json = await res.json();

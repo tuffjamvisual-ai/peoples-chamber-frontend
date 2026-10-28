@@ -4,6 +4,7 @@ import { flagBioReview, ukDate } from '@/lib/bio-review';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { SyncBudget, politeFetch, isPoliteStop, loadCursor, saveCursor } from '@/lib/sync-budget';
+import { ItemFailures, FLAG_AFTER_RUNS } from '@/lib/sync-item-failures';
 import { buildRepresentations, fetchHistory, sameRepresentations } from '@/lib/commons-representations';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -39,6 +40,9 @@ const CONCURRENCY = 6;
 // never reached. Now (lib/sync-budget.ts) each run starts after the last member it finished (sync_cursor, wrapping
 // round), every request has a timeout cut to the time left, no member starts after 70 per cent of maxDuration, the run
 // ends by 80 per cent, a 429 stops it cleanly, and the response says partial: true until a full round is done.
+// 28 Oct 2026 (owner): a member whose Biography fails FLAG_AFTER_RUNS runs in a row (lib/sync-item-failures.ts) goes
+// to the back of the run's order; the run returns 200 with partial: true, and the freshness email names the member and
+// the error.
 const ROUTE = '/api/sync-member-biography';
 const CURSOR_MAX_AGE_MS = 7 * 86_400_000;
 
@@ -64,18 +68,18 @@ function normPost(p: Record<string, unknown>): Post {
   };
 }
 
-async function fetchBiography(memberId: number, budget: SyncBudget): Promise<{ gov: Post[]; opp: Post[]; cmte: Post[] } | null> {
+async function fetchBiography(memberId: number, budget: SyncBudget): Promise<{ gov: Post[]; opp: Post[]; cmte: Post[] } | { error: string }> {
   try {
     const res = await politeFetch(`${MEMBERS_API}/${memberId}/Biography`, {
       headers: { 'User-Agent': 'PeoplesChamber/1.0 (bio-sync)', Accept: 'application/json' },
     }, { budget });
-    if (!res.ok) return null;
+    if (!res.ok) return { error: `Members API ${res.status}` };
     const v = ((await res.json())?.value ?? {}) as Record<string, unknown>;
     const arr = (k: string) => ((v[k] as Record<string, unknown>[]) || []).map(normPost).filter((p) => p.id != null);
     return { gov: arr('governmentPosts'), opp: arr('oppositionPosts'), cmte: arr('committeeMemberships') };
   } catch (e) {
     if (isPoliteStop(e)) throw e;
-    return null;
+    return { error: (e as Error).message || 'no answer' };
   }
 }
 
@@ -181,7 +185,11 @@ async function GET_impl(req: Request) {
   let after = 0;
   try { after = Number((await loadCursor<{ after?: number }>(supabase, ROUTE, CURSOR_MAX_AGE_MS))?.after) || 0; }
   catch (e) { return NextResponse.json({ error: (e as Error).message }, { status: 500 }); }
-  const order = [...memberIds.filter((id) => id > after), ...memberIds.filter((id) => id <= after)];
+  const failing = await ItemFailures.load(supabase, ROUTE);
+  const rotated = [...memberIds.filter((id) => id > after), ...memberIds.filter((id) => id <= after)];
+  // Flagged members go after the others.
+  const order = [...rotated.filter((id) => !failing.isFlagged(id)), ...rotated.filter((id) => failing.isFlagged(id))];
+  let flaggedFail = 0;
 
   // Members are handled 20 at a time: the Commons History for those 20 (one request), then their biographies. History
   // used to be read for every member first, which took up to 92 s before any member was handled (job 79 test).
@@ -206,7 +214,12 @@ async function GET_impl(req: Request) {
       catch (e) { stoppedBy ??= (e as Error).message; timedOut = true; return; }
       processed++;
       finished.add(memberId);
-      if (!bio) { apiMisses++; return; }
+      if ('error' in bio) {
+        apiMisses++;
+        if (failing.failed(memberId, `member ${memberId}`, bio.error)) flaggedFail++;
+        return;
+      }
+      failing.succeeded(memberId);
 
       const { data: rowArr } = await supabase
         .from('mp_biography')
@@ -262,10 +275,11 @@ async function GET_impl(req: Request) {
     newAfter = id;
   }
   const cursorSaved = await saveCursor(supabase, ROUTE, fullRound ? null : { after: newAfter });
+  const failuresSaved = await failing.save();
 
   return NextResponse.json({
     ok: true,
-    partial: !fullRound,
+    partial: !fullRound || flaggedFail > 0,
     stopped_by: stoppedBy,
     cursor_from: after,
     cursor_to: fullRound ? null : newAfter,
@@ -277,6 +291,10 @@ async function GET_impl(req: Request) {
     seats_updated: seatsUpdated,
     history_members: historyMembers,
     api_misses: apiMisses,
+    flagged_failed: flaggedFail,
+    flagged_after_runs: FLAG_AFTER_RUNS,
+    failing_items: failing.summary(),
+    failures_saved: failuresSaved,
     timed_out: timedOut,
     elapsed_ms: Date.now() - startedAt,
   });

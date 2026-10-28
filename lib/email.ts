@@ -213,10 +213,12 @@ export async function sendFreshnessAlert(stale: StaleSource[]) {
   };
 
   const lines = stale.map(fmt);
+  // Lines can carry outside text (a press release title, an error message; 28 Oct 2026), so they are escaped for HTML.
+  const esc = (x: string) => x.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const text = `Data freshness alert: ${stale.length} source${stale.length === 1 ? '' : 's'} overdue.\n\n${lines.join('\n')}\n`;
   const html = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.7;color:#14100d">
       <p style="margin:0 0 12px;font-weight:bold">Data freshness alert: ${stale.length} source${stale.length === 1 ? '' : 's'} overdue.</p>
-      <ul style="margin:0;padding-left:18px">${lines.map((l) => `<li style="margin:0 0 6px">${l}</li>`).join('')}</ul>
+      <ul style="margin:0;padding-left:18px">${lines.map((l) => `<li style="margin:0 0 6px">${esc(l)}</li>`).join('')}</ul>
     </div>`;
 
   return deliver('freshness alert', key, {
