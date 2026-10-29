@@ -120,6 +120,7 @@ import towerHamletsCare from './upk2tz9zw9';
 import bedfordWixams from './0qcn1ofw7f';
 import sizewellC from './qahx28g34f';
 import palantirMod from './j6axxkn4kr';
+import dwpAiPost from './sayvn6kccc';
 
 const allEditorials: EditorialRegistry = {
   [taggingRegime.slug]: taggingRegime,
@@ -239,6 +240,7 @@ const allEditorials: EditorialRegistry = {
   [bedfordWixams.slug]: bedfordWixams,
   [sizewellC.slug]: sizewellC,
   [palantirMod.slug]: palantirMod,
+  [dwpAiPost.slug]: dwpAiPost,
 };
 
 // Unpublished until their sources are added and checked (owner's decision, 22 Oct 2026). The files stay; leaving them
