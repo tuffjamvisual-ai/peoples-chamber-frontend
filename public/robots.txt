@@ -1,3 +1,13 @@
+# AI training crawlers are asked not to collect this site (owner, 29 Oct 2026).
+# Search engines, AI search and user requested fetches stay allowed under the rules for all crawlers below.
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: CCBot
+User-agent: meta-externalagent
+Disallow: /
+
 User-agent: *
 Allow: /
 Disallow: /api/
