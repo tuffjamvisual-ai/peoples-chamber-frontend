@@ -1,0 +1,37 @@
+import type { EditorialEntry } from './types';
+
+const piece: EditorialEntry = {
+  slug: "fcndv9yadp",
+  kicker: 'Investigation',
+  headline: "Derby Council Left 335 FOI Requests Waiting Over a Year",
+  standfirst: "The Information Commissioner found an \"exceptional level of systemic non-compliance\" at Derby City Council, which answered 29 per cent of requests due between January and July 2026 on time and still had one outstanding from October 2022.",
+  summary: "Derby Council had 335 FOI requests over a year old; 29 per cent due January to July 2026 were answered on time.",
+  publishedAt: '2026-10-29',
+  authorByline: "opengovt",
+  body: [
+    { type: 'paragraph', text: "Derby City Council had 335 freedom of information requests outstanding that it had received more than a year earlier, according to its own figures. The oldest dated from 24 October 2022 and should have been answered by 21 November that year. On 26 August 2026 the Information Commissioner served the council with an enforcement notice, saying he had \"grave concerns about the exceptional level of systemic non-compliance demonstrated by the council's performance\"." },
+    { type: 'paragraph', text: "The figures come from a spreadsheet of 1,018 outstanding requests that the council gave the Commissioner, measured at 27 July 2026. Of those, 891 were past their legal deadline, 662 had been received more than three months earlier and 512 more than six months earlier. Of the 779 requests due between 1 January and 24 July 2026, the council answered 226 on time, 29 per cent, and 90 late, 11 per cent. The other 463, 59 per cent, were still open and overdue." },
+    { type: 'paragraph', text: "Delays happened at every stage. Some requests had no response from the council service holding the information. Others were marked \"Open - Response received, sign off pending\", waiting for a senior manager's approval, and some were marked as ready to send but had not been sent. The notice said this showed \"delay at multiple points in the request handling process, including allocation, service response, clearance and issue\". It added that staffing pressures and clearance arrangements \"may explain how a backlog has arisen, but they do not remove the council's statutory obligations\"." },
+    { type: 'paragraph', text: "The council accepted that its performance had \"fallen below the standards required by legislation\". It blamed a prolonged period of reduced capacity in its information governance team, difficulty recruiting, rising demand, delays in getting information and approvals from its own services, and the backlog itself. It said these problems arose \"despite established policies, governance arrangements, monitoring processes and corporate oversight mechanisms remaining in place\". It said it had recruited eight posts since May 2026. A spokesperson told the Local Democracy Reporting Service: \"We accept that our performance has fallen below the required standards and we apologise to those affected.\"" },
+    { type: 'paragraph', text: "The Commissioner recognised that the council had engaged constructively, identified the causes and begun to make improvements, but said the scale, age and persistence of the delays were \"wholly incompatible\" with the public's right of access. The notice was signed by Phillip Angell, the regulator's Head of Freedom of Information and Transparency." },
+    { type: 'paragraph', text: "The delays reached individual requesters. The Local Democracy Reporting Service asked the council in December 2025 how many roadworks incidents there had been in each of Derby's 18 wards over five years. It received a reply on 4 September 2026, more than eight months later, saying the council did not hold the information. On 11 September the Commissioner upheld a separate complaint that the council had not answered a request within 20 working days, and ordered it to respond within 30 days." },
+    { type: 'paragraph', text: "The notice required the council to publish an action plan within 30 days and to name the senior officer accountable for delivering it. The plan, published in September, lists its owners only by job title: the data protection officer, the deputy data protection officer and the senior information risk owner. It aims to answer more than 90 per cent of new requests within 20 working days and to deal with every request received before 31 July 2026 by December 2026. Most of its measures are marked \"Implemented and ongoing\", including the monthly reporting to senior leadership and the corporate risk register entries that the council says were in place while the backlog grew. Automated logging of emailed requests is marked \"Not started\", with a target of February 2027. The plan says requests received within the past 12 months have been logged on the council's case management system. It does not say the same of older requests." },
+    { type: 'paragraph', text: "Derby has been run by a Labour minority administration led by Nadine Peatfield since June 2024. Paul Simpson was chief executive for six years until he resigned in spring 2026; Sam Dennis took over as interim chief executive in April." },
+    { type: 'paragraph', text: "The notice gives the council until 26 February 2027 to answer, or lawfully refuse, every request that was overdue on 26 August. If it fails to comply, the Commissioner can certify that failure to the High Court, which may deal with the council as if it had committed contempt of court. The council's published response accepts the notice and does not mention an appeal. It has not published updated figures showing how many of the 1,018 requests have since been closed." },
+  ],
+  evidence: {
+    recordsReviewed: [
+      { text: "Open Govt, Derby City Council", url: "https://www.opengovt.uk/councils/derby" },
+      { text: "Information Commissioner's Office, enforcement notice to Derby City Council, ENF0988402, 26 Aug 2026", url: "https://www.derby.gov.uk/media/derbycitycouncil/contentassets/documents/councilanddemocracy/foi/foienforcement/ico-enforcement-notice.pdf" },
+      { text: "Derby City Council, response to the ICO enforcement notice, Sep 2026", url: "https://www.derby.gov.uk/media/derbycitycouncil/contentassets/documents/councilanddemocracy/foi/foienforcement/dcc-response-to-ico-enforcement-action.pdf" },
+      { text: "Derby City Council, FOI and EIR Compliance Action Plan, Sep 2026", url: "https://www.derby.gov.uk/media/derbycitycouncil/contentassets/documents/councilanddemocracy/foi/foienforcement/dcc-foi-and-eir-compliance-action-plan-sept-2026-review.pdf" },
+      { text: "Information Commissioner's Office, decision notice IC-543580-Y3H4, 11 Sep 2026", url: "https://ico.org.uk/action-weve-taken/decision-notices/2026/09/ic-543580-y3h4/" },
+      { text: "Local Democracy Reporting Service via Erewash Sound, 14 Sep 2026", url: "https://www.erewashsound.com/news/derby/derby-city-council-faces-regulators-wrath-over-information-failures/" },
+      { text: "Derby City Council, interim chief executive named, Apr 2026", url: "https://derby.gov.uk/news/2026/april/interim-chief-executive-named-for-derby-city-council/" },
+      { text: "Derby City Council, AGM news, 20 May 2026", url: "https://derby.gov.uk/news/2026/may/agm-underlines-cabinets-commitment-to-deliver-a-derby-to-be-proud-of/" },
+    ],
+    lastChecked: '2026-10-29',
+  },
+};
+
+export default piece;
