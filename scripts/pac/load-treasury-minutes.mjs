@@ -6,6 +6,10 @@
 //   node scripts/pac/load-treasury-minutes.mjs <parsed.json>             rehearsal: the writes run, then ROLLBACK
 //   node scripts/pac/load-treasury-minutes.mjs <parsed.json> --apply     the same, then COMMIT
 //   node scripts/pac/load-treasury-minutes.mjs --summary                 read only: rows, needs review, moved and passed targets
+//   node scripts/pac/load-treasury-minutes.mjs --status                  read only: the status view (migration 2026-10-29e)
+// Stage 3 (owner, 29 Oct 2026, "go stage 3"): also the reports each progress report lists under "Reports completed"
+// (pac_progress_completed_reports). A completed report not answered in any loaded document is added to pac_reports
+// with its listed title and no department; an existing report row is never changed by a completed list.
 //
 // Documents marked excluded by the parser are skipped and listed. Where documents differ about a report or a
 // recommendation, the latest document's title, department and texts are kept. One transaction, SET LOCAL
@@ -26,10 +30,10 @@ function psql(sql) {
   return r.stdout;
 }
 const readOnly = (sql) => psql(`BEGIN READ ONLY;\nSET LOCAL statement_timeout = '60s';\n${sql}\nROLLBACK;\n`);
-const TABLES = ['pac_source_documents', 'pac_reports', 'pac_recommendations', 'pac_recommendation_events'];
+const TABLES = ['pac_source_documents', 'pac_reports', 'pac_recommendations', 'pac_recommendation_events', 'pac_progress_completed_reports'];
 function counts() {
   const out = readOnly(`SELECT ${TABLES.map((t) => `(SELECT count(*) FROM public.${t})`).join(', ')};`);
-  const line = out.split('\n').find((l) => /^\d+(\t\d+){3}$/.test(l));
+  const line = out.split('\n').find((l) => /^\d+(\t\d+){4}$/.test(l));
   return Object.fromEntries(line.split('\t').map((n, i) => [TABLES[i], +n]));
 }
 
@@ -61,7 +65,11 @@ function rowsFrom(docs) {
       });
     }
   }
-  return { used, excluded: docs.filter((d) => d.checks.excluded), documents, reports: [...reports.values()], recs: [...recs.values()], events };
+  const completed = [];
+  for (const d of used.filter((x) => x.kind === 'progress_report')) for (const s of d.sessions) for (const c of s.completed_list) {
+    completed.push({ cp_number: d.cp_number, session: s.session, report_number: c.report_number, title: c.title });
+  }
+  return { used, excluded: docs.filter((d) => d.checks.excluded), documents, reports: [...reports.values()], recs: [...recs.values()], events, completed };
 }
 
 const tagFor = (s) => { let t = 'pac_json'; while (s.includes(`$${t}$`)) t += '_x'; return t; };
@@ -81,10 +89,11 @@ SELECT '${table}', count(*) FILTER (WHERE inserted), count(*) FILTER (WHERE NOT 
 }
 
 function load(file, apply) {
-  const { used, excluded, documents, reports, recs, events } = rowsFrom(JSON.parse(readFileSync(file, 'utf8')));
+  const { used, excluded, documents, reports, recs, events, completed } = rowsFrom(JSON.parse(readFileSync(file, 'utf8')));
   console.log(`load-treasury-minutes: ${apply ? 'APPLY' : 'rehearsal, ends ROLLBACK'}; ${used.length} documents used, ${excluded.length} excluded`);
   for (const d of excluded) console.log(`  excluded ${d.cp_number} (${d.published_on}): ${d.checks.structural.join('; ')}`);
-  console.log(`  wanted: ${documents.length} documents, ${reports.length} reports, ${recs.length} recommendations, ${events.length} events`);
+  console.log(`  wanted: ${documents.length} documents, ${reports.length} reports, ${recs.length} recommendations, ${events.length} events, ${completed.length} completed report listings`);
+  for (const d of used) for (const c of d.corrections_applied ?? []) console.log(`  correction in ${c.cp_number} ${c.session} report ${c.report_number} (printed page ${c.printed_page}): "${c.raw_heading}" read as "${c.corrected_heading}"`);
   const before = counts();
   const sql = `BEGIN;
 SET LOCAL statement_timeout = '60s';
@@ -109,6 +118,14 @@ ${upsert('pac_recommendation_events', events,
     `JOIN public.pac_reports p ON p.session = src.session AND p.report_number = src.report_number
      JOIN public.pac_recommendations rec ON rec.report_id = p.id AND rec.rec_number = src.rec_number
      JOIN public.pac_source_documents doc ON doc.cp_number = src.cp_number`)}
+WITH src AS (SELECT DISTINCT ON (session, report_number) * FROM jsonb_to_recordset(${lit(completed)}) AS r(cp_number text, session text, report_number int, title text) ORDER BY session, report_number, cp_number DESC),
+up AS (INSERT INTO public.pac_reports (session, report_number, title) SELECT session, report_number, title FROM src ON CONFLICT (session, report_number) DO NOTHING RETURNING 1)
+SELECT 'pac_reports (from completed lists)', count(*), 0 FROM up;
+WITH src AS (SELECT * FROM jsonb_to_recordset(${lit(completed)}) AS r(cp_number text, session text, report_number int, title text)),
+up AS (INSERT INTO public.pac_progress_completed_reports (document_id, report_id)
+  SELECT DISTINCT d.id, p.id FROM src JOIN public.pac_source_documents d ON d.cp_number = src.cp_number JOIN public.pac_reports p ON p.session = src.session AND p.report_number = src.report_number
+  ON CONFLICT DO NOTHING RETURNING 1)
+SELECT 'pac_progress_completed_reports', count(*), 0 FROM up;
 ${apply ? 'COMMIT' : 'ROLLBACK'};
 `;
   const out = psql(sql);
@@ -161,7 +178,42 @@ function summary() {
   console.log(`target passed, no published confirmation of delivery as of the latest document: ${passed[0]} recommendations (latest target month ended before 29 Oct 2026)`);
 }
 
+// ---------- read only status report (the view from migration 2026-10-29e)
+function statusReport() {
+  const q = (sql) => readOnly(sql).split('\n').filter((l) => l && !/^(BEGIN|SET|ROLLBACK)$/.test(l)).map((l) => l.split('\t'));
+  const short = (t, n = 220) => (t && t.length > n ? `${t.slice(0, n)}...` : t ?? '');
+  console.log('counts by status:');
+  for (const [s, n] of q(`SELECT status, count(*) FROM public.pac_recommendation_status GROUP BY 1 ORDER BY 2 DESC;`)) console.log(`  ${s}: ${n}`);
+  const rec = `session || ' r' || report_number || ' rec ' || rec_number || ' (' || report_title || ')'`;
+  console.log('\nmost moved targets:');
+  for (const r of q(`SELECT ${rec}, times_target_moved, original_target_month, latest_target_month, latest_cp_number, status FROM public.pac_recommendation_status ORDER BY times_target_moved DESC, latest_target_month DESC NULLS LAST, recommendation_id LIMIT 10;`)) console.log(`  ${r[0]}: moved ${r[1]} times, ${r[2]} -> ${r[3]} (latest ${r[4]}, ${r[5]})`);
+  console.log('\nlongest overdue, target_passed_unconfirmed:');
+  for (const r of q(`SELECT ${rec}, coalesce(original_target_month::text, '-'), latest_target_month, latest_target_text, latest_cp_number, latest_published_on FROM public.pac_recommendation_status WHERE status = 'target_passed_unconfirmed' ORDER BY latest_target_month, recommendation_id LIMIT 10;`)) console.log(`  ${r[0]}: original ${r[1]}, latest ${r[2]} ("${r[3]}"), latest document ${r[4]} (${r[5]})`);
+  console.log('\nfive random rows of each status, with the source text:');
+  const rows = q(`SELECT * FROM (SELECT s.status, ${rec.replace(/(session|report_number|rec_number|report_title)/g, 's.$1')}, s.latest_cp_number, s.latest_published_on, s.latest_target_text, s.completed_in_cp_number, s.dropped_in_cp_number,
+      e.response, replace(left(coalesce(e.response_text, ''), 400), E'\n', ' '), coalesce(ie.implemented_text, ''), coalesce(id.cp_number, ''),
+      (SELECT string_agg(d.cp_number, ', ' ORDER BY d.published_on) FROM public.pac_recommendation_events x JOIN public.pac_source_documents d ON d.id = x.document_id WHERE x.recommendation_id = s.recommendation_id),
+      row_number() OVER (PARTITION BY s.status ORDER BY md5(s.recommendation_id::text || 'stage3')) k
+    FROM public.pac_recommendation_status s JOIN public.pac_recommendation_events e ON e.id = s.latest_event_id
+    LEFT JOIN LATERAL (SELECT x.implemented_text, x.document_id FROM public.pac_recommendation_events x WHERE x.recommendation_id = s.recommendation_id AND x.status = 'implemented' LIMIT 1) ie ON true
+    LEFT JOIN public.pac_source_documents id ON id.id = ie.document_id) t WHERE k <= 5 ORDER BY 1, 13;`);
+  for (const r of rows) {
+    const [status, name, cp, pub, target, completedIn, droppedIn, response, responseText, implText, implCp, docs] = r;
+    const why = {
+      implemented: `${implCp}: "Recommendation implemented${implText && implText !== 'Recommendation implemented' ? `: ${implText}` : ''}"`,
+      rejected: `${cp} response: ${short(responseText)}`,
+      report_completed: `${completedIn} lists the report under "Reports completed"; last entry for this recommendation ${cp} (${pub})`,
+      dropped_from_update: `last in ${cp} (${pub}); ${droppedIn} updates the report without it`,
+      target_passed_unconfirmed: `${cp} (${pub}) target "${target}"; ${short(responseText, 160)}`,
+      target_in_future: `${cp} (${pub}) target "${target}"`,
+      no_dated_target: `${cp} (${pub}) target "${target || '(none given)'}"; response ${response || 'not recognised'}: ${short(responseText, 160)}`,
+    }[status];
+    console.log(`  [${status}] ${name}; documents ${docs}\n      ${why}`);
+  }
+}
+
 const args = process.argv.slice(2);
-if (args.includes('--summary')) summary();
+if (args.includes('--status')) statusReport();
+else if (args.includes('--summary')) summary();
 else if (args[0] && !args[0].startsWith('--')) load(args[0], args.includes('--apply'));
-else { console.error('usage: node scripts/pac/load-treasury-minutes.mjs <parsed.json> [--apply] | --summary'); process.exit(1); }
+else { console.error('usage: node scripts/pac/load-treasury-minutes.mjs <parsed.json> [--apply] | --summary | --status'); process.exit(1); }

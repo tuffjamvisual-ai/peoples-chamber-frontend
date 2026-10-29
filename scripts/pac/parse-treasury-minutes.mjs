@@ -15,10 +15,17 @@
 // Months are the END of the period named, so a target counts as passed only once the whole period is over:
 //   Spring -> May, Summer -> August, Autumn -> November, Winter YYYY -> February YYYY+1, early -> April, mid -> July,
 //   late / end / during / a bare year -> December.
+// Corrections to a document's own printing errors come only from scripts/pac/corrections.json (each with the raw
+// text, the corrected text and the reason). Each one applied is logged; one whose raw text is not found exactly, on
+// the page given, stops the run.
 // The session that began in July 2024 is written "2024-25" in documents from 2025 and "2024-26" after it was
 // extended; both are stored as 2024-26, so one report is one row.
 
 import { readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const CORRECTIONS = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'corrections.json'), 'utf8'));
 import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
 
 // ---------- text with layout kept (about pdftotext -layout): pieces grouped into lines by y, joined by x gaps
@@ -261,6 +268,8 @@ function parseProgress(lines) {
     if (/^\s*Updates on reports with outstanding recommendations/i.test(t)) { mode = 'outstanding'; continue; }
     if (/^\s*Reports completed/i.test(t)) { mode = 'completed'; continue; }
     if (/^\s*#?\s*Report Title(\s+Page)?\s*$/.test(t) || /^\s*#\s*$/.test(t)) continue;
+    // The next session's heading ends a list ("Progress on the implementation of agreed recommendations ...").
+    if ((mode === 'outstanding' || mode === 'completed') && /^\s*(Government )?progress on the implementation of agreed recommendations/i.test(t)) { mode = null; continue; }
     if (mode === 'outstanding' || mode === 'completed') {
       const list = mode === 'outstanding' ? cur.outstanding_list : cur.completed_list;
       if ((m = t.match(/^\s*(\d{1,3})\s+(.*\S)\s*$/))) {
@@ -359,9 +368,20 @@ export async function parseFile(entry) {
   const lines = toLines(pages);
   const head = pages.slice(0, 3).join('\n');
   const cp = head.match(/\bCP\s?(\d{3,4})\b/);
+  const applied = [];
+  for (const c of CORRECTIONS.filter((x) => cp && x.cp_number === `CP ${cp[1]}`)) {
+    const onPage = lines.filter((l) => l.page === c.pdf_page);
+    const hits = onPage.filter((l) => clean(l.text) === c.raw_heading);
+    const other = onPage.filter((l) => clean(l.text) === c.other_raw_heading);
+    if (hits.length !== 1 || other.length !== 1) throw new Error(`correction for ${c.cp_number} report ${c.report_number}: raw heading found ${hits.length} times and the other heading ${other.length} times on PDF page ${c.pdf_page} (each must be found exactly once)`);
+    hits[0].text = hits[0].text.replace(c.raw_heading, c.corrected_heading);
+    if (clean(hits[0].text) !== c.corrected_heading) throw new Error(`correction for ${c.cp_number} report ${c.report_number}: could not apply`);
+    applied.push({ ...c, line: hits[0].n });
+    console.error(`correction applied: ${c.cp_number} ${c.session} report ${c.report_number}, printed page ${c.printed_page} (PDF page ${c.pdf_page}, line ${hits[0].n}): "${c.raw_heading}" -> "${c.corrected_heading}"`);
+  }
   const kind = /Progress\s+Report/i.test(pages[0]) ? 'progress_report' : 'treasury_minute';
   const body = kind === 'treasury_minute' ? parseTreasuryMinute(lines) : parseProgress(lines);
-  const doc = { ...entry, kind, cp_number: cp ? `CP ${cp[1]}` : null, pages_parsed: pages.length, ...body };
+  const doc = { ...entry, kind, cp_number: cp ? `CP ${cp[1]}` : null, pages_parsed: pages.length, corrections_applied: applied, ...body };
   doc.checks = checkDocument(doc);
   if (!doc.cp_number) { doc.checks.structural.push('no CP number found'); doc.checks.excluded = true; }
   doc.raw_lines = lines;
