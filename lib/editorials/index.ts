@@ -123,6 +123,7 @@ import palantirMod from './j6axxkn4kr';
 import dwpAiPost from './sayvn6kccc';
 import derbyFoi from './fcndv9yadp';
 import faamAircraft from './0m3n1skwru';
+import accessToWork from './ou8npnpzzm';
 
 const allEditorials: EditorialRegistry = {
   [taggingRegime.slug]: taggingRegime,
@@ -245,6 +246,7 @@ const allEditorials: EditorialRegistry = {
   [dwpAiPost.slug]: dwpAiPost,
   [derbyFoi.slug]: derbyFoi,
   [faamAircraft.slug]: faamAircraft,
+  [accessToWork.slug]: accessToWork,
 };
 
 // Unpublished until their sources are added and checked (owner's decision, 22 Oct 2026). The files stay; leaving them
