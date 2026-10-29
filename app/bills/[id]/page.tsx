@@ -20,6 +20,8 @@ import type { Metadata } from 'next'
 import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 import FollowButton from '@/app/components/FollowButton';
 import { getBillPublications, latestText } from '@/lib/bill-text';
+import Link from 'next/link';
+import { editorials } from '@/lib/editorials';
 export const revalidate = 3600
 
 // Prerender a small set of bill pages at build time. The list does NOT need
@@ -569,6 +571,34 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
           </div>
         </section>
       )}
+
+      {/* Investigations about this bill (owner's approval, 29 Oct 2026): pieces in the code registry that list it in
+          relatedBillIds, newest first. Read from the code, so no database query; shown only when one matches. */}
+      {(() => {
+        const pieces = Object.values(editorials)
+          .filter((e) => e.relatedBillIds?.includes(billId))
+          .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+        if (pieces.length === 0) return null;
+        return (
+          <section aria-labelledby="bill-investigations" style={{ marginBottom: '40px', borderTop: `1.5px solid ${INK}`, paddingTop: '24px' }}>
+            <h2 id="bill-investigations" style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.3em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
+              Investigations
+            </h2>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+              {pieces.map((e) => (
+                <li key={e.slug} style={{ padding: '10px 0', borderBottom: `1px solid ${INK_HAIRLINE}` }}>
+                  <Link href={`/${e.kind === 'briefing' ? 'briefings' : 'editorials'}/${e.slug}`} style={{ fontFamily: SERIF, fontSize: '18px', fontWeight: 'bold', lineHeight: 1.3, color: INK, textDecoration: 'underline', overflowWrap: 'break-word' }}>
+                    {e.headline}
+                  </Link>
+                  <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '6px 0 0' }}>
+                    {e.summary?.trim() ? e.summary : e.standfirst}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      })()}
 
       </article>
 

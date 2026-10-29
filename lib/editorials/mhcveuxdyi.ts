@@ -32,6 +32,7 @@ const piece: EditorialEntry = {
     lastChecked: '2026-10-29',
   },
   relatedMemberIds: [5062, 4831],
+  relatedBillIds: [2937],
 };
 
 export default piece;
