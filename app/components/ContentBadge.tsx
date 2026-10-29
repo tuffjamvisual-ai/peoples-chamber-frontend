@@ -1,8 +1,9 @@
 const ACCENT = '#7a1612';
 const MONO = "var(--font-special-elite), monospace";
 
+// Investigations carry no badge (owner's approval, 29 Oct 2026): their "Investigation" kicker in EditorialArticle
+// already says what they are. Briefings and commentary keep theirs.
 const LABELS = {
-  investigation: 'Open Govt · Investigation',
   briefing:      'Open Govt · Briefing',
   commentary:    'Open Govt · Commentary',
 };
@@ -17,7 +18,8 @@ export default function ContentBadge({
   const label =
     opinion        ? LABELS.commentary :
     kind === 'briefing' ? LABELS.briefing :
-    LABELS.investigation;
+    null;
+  if (!label) return null;
 
   return (
     <p
