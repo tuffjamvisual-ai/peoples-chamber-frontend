@@ -18,6 +18,8 @@ import { DEPARTMENT_BUDGETS } from '@/lib/department-budgets';
 import OpenGovShell from '../../components/OpenGovShell';
 import { getGovukDept } from '../../api/govuk-dept/route';
 import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+import { fetchWithoutEmDashes } from '@/lib/no-em-dash';
 import { editorials } from '@/lib/editorials';
 import { topics, matchWords } from '@/lib/topics';
 import { getDeptContext } from '../../api/department-context/route';
@@ -46,6 +48,15 @@ export const revalidate = 3600;
 // survives deploys, so those renders read from it instead of the database. A stale entry is read again before the page
 // is stored, so the page is never older than its revalidate period; revalidatePath and revalidateTag still refresh it.
 export const fetchCache = 'default-cache';
+
+// The Reports tab's investigations are kept in the data cache for 60 seconds only (owner's approval, 29 Oct 2026):
+// at the page's hour, a stale list outlived deploys and newly published investigations were missing for hours. A
+// positive revalidate keeps the page cached (no-store would make it fail to render statically); every other read keeps
+// its hour. Same server key and dash cleaning as lib/supabase.ts.
+const editorialsShortCache = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!, {
+  auth: { persistSession: false },
+  global: { fetch: (input, init) => fetchWithoutEmDashes(input, { ...init, next: { revalidate: 60 } }) },
+});
 
 export default async function DepartmentPage({ params }: PageProps) {
   const { slug } = await params;
@@ -88,7 +99,7 @@ export default async function DepartmentPage({ params }: PageProps) {
     (async (): Promise<InvestigationItem[]> => {
       const deptTopics = topics.filter((t) => t.departmentSlugs.includes(slug));
       const [edRes, brRes] = await Promise.all([
-        supabase
+        editorialsShortCache
           .from('editorials')
           .select('slug, headline, standfirst, summary, published_at, kicker, kind')
           .contains('related_dept_slugs', [slug])
