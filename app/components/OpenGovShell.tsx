@@ -101,6 +101,8 @@ export default function OpenGovShell({
               <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px 12px' }}>
                 <a href="/privacy" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Privacy</a>
                 <span aria-hidden >·</span>
+                <a href="/cookies" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Cookies</a>
+                <span aria-hidden >·</span>
                 <a href="/terms" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Terms</a>
                 <span aria-hidden >·</span>
                 <a href="/contact" style={{ color: '#14100d', textDecoration: 'none' }} className="no-hover-scale">Contact</a>
