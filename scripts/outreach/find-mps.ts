@@ -11,7 +11,9 @@
 //   front bench        members-api.parliament.uk government posts, opposition posts and every party's spokespersons
 //   constituencies     members-api.parliament.uk constituency search; a council name is resolved to its seats through
 //                      our database (welfare_constituency_geography, ONS lookup), read only
-// Only current Commons members are kept. Score: 3 for a question or speech on the terms, 2 for a front bench brief,
+// Only current Commons members, current posts and current committee memberships are kept: each post and committee
+// reason is checked again against the MP's own Members API biography (no end date, or one still to come). Government
+// ministers are left out of the ranking and listed separately, as not for outreach. Score: 3 for a question or speech on the terms, 2 for a front bench brief,
 // 2 for the seat, 1 for a committee; each counts once. Sorted by score, then by the amount of evidence, then by name.
 // Party is shown but plays no part in scoring or sorting. No email addresses are read or stored.
 import { config as loadEnv } from 'dotenv';
@@ -76,7 +78,10 @@ async function getJson<T>(url: string, what: string): Promise<T | null> {
   return null;
 }
 
-type Reason = { kind: 'question' | 'speech' | 'frontbench' | 'seat' | 'committee'; text: string; url: string; date?: string };
+// post: the post or committee name, for the check against the MP's biography.
+type Reason = { kind: 'question' | 'speech' | 'frontbench' | 'seat' | 'committee'; text: string; url: string; date?: string; post?: string };
+const NOW = new Date().toISOString();
+const open = (x: { startDate?: string | null; endDate?: string | null }) => (!x.endDate || x.endDate > NOW) && (!x.startDate || x.startDate <= NOW);
 const reasons = new Map<number, Reason[]>();
 const seen = new Set<string>();
 function add(id: number, r: Reason) {
@@ -138,26 +143,28 @@ async function spoken(term: string) {
 
 // c) Current members of each named Commons committee.
 type Committee = { id: number; name: string; house: string };
-type CommitteeMember = { roles: { endDate: string | null; role: { name: string } }[]; memberInfo: { mnisId: number; house: string; isCurrent: boolean } };
+type CommitteeMember = { roles: { startDate: string | null; endDate: string | null; role: { name: string } }[]; memberInfo: { mnisId: number; house: string; isCurrent: boolean } };
 async function committee(name: string, current: Committee[] | null) {
   const c = current?.find((x) => x.name.toLowerCase() === name.toLowerCase());
   if (!c) { if (current) failures.push(`committee "${name}": no current Commons committee with that exact name`); return; }
   const m = await getJson<{ items: CommitteeMember[] }>(`https://committees-api.parliament.uk/api/Committees/${c.id}/Members?MembershipStatus=Current&Take=100`, `committee members "${name}"`);
   for (const x of m?.items ?? []) {
     if (x.memberInfo?.house !== 'Commons' || !x.memberInfo.isCurrent) continue;
-    const role = x.roles.filter((r) => !r.endDate).map((r) => r.role.name).includes('Chair') ? 'Chair' : 'Member';
-    add(x.memberInfo.mnisId, { kind: 'committee', text: `${role}, ${c.name}`, url: `https://committees.parliament.uk/committee/${c.id}/` });
+    const current = x.roles.filter(open);
+    if (!current.length) continue;
+    const role = current.some((r) => r.role.name === 'Chair') ? 'Chair' : 'Member';
+    add(x.memberInfo.mnisId, { kind: 'committee', text: `${role}, ${c.name}`, url: `https://committees.parliament.uk/committee/${c.id}/`, post: c.name });
   }
   notes.push(`Committee "${c.name}" (id ${c.id}): ${m?.items.length ?? 0} current members from the committees API.`);
 }
 
 // d) Front bench: government and opposition posts for the department, and every party's spokespersons whose post
 // names the department's subject.
-type Post = { value: { name: string; postHolders: { endDate: string | null; member: { value: { id: number; latestHouseMembership: { house: number } } } }[] } };
+type Post = { value: { name: string; postHolders: { startDate: string | null; endDate: string | null; member: { value: { id: number; latestHouseMembership: { house: number } } } }[] } };
 function holders(p: Post, text: string) {
   for (const h of p.value.postHolders) {
-    if (h.endDate || h.member.value.latestHouseMembership.house !== 1) continue;
-    add(h.member.value.id, { kind: 'frontbench', text, url: `https://members.parliament.uk/member/${h.member.value.id}/career` });
+    if (!open(h) || h.member.value.latestHouseMembership.house !== 1) continue;
+    add(h.member.value.id, { kind: 'frontbench', text, url: `https://members.parliament.uk/member/${h.member.value.id}/career`, post: text });
   }
 }
 async function frontBench() {
@@ -218,6 +225,8 @@ async function seats() {
   }
 }
 
+type BioPost = { name: string; startDate: string | null; endDate: string | null };
+type Bio = { value: { governmentPosts?: BioPost[]; oppositionPosts?: BioPost[]; otherPosts?: BioPost[]; committeeMemberships?: BioPost[] } };
 type Member = { value: { id: number; nameDisplayAs: string; latestParty: { name: string } | null; latestHouseMembership: { house: number; membershipFrom: string; membershipEndDate: string | null; membershipStatus: { statusIsActive: boolean } | null } } };
 const SCORE: Record<Reason['kind'], number> = { question: 3, speech: 3, frontbench: 2, seat: 2, committee: 1 };
 const LABEL: Record<Reason['kind'], string> = { question: 'Question', speech: 'Speech', frontbench: 'Front bench', seat: 'Seat', committee: 'Committee' };
@@ -232,17 +241,38 @@ async function main() {
   await frontBench();
   await seats();
 
-  const rows: { id: number; name: string; party: string; seat: string; score: number; rs: Reason[] }[] = [];
-  for (const [id, rs] of reasons) {
+  type Row = { id: number; name: string; party: string; seat: string; score: number; rs: Reason[]; govPosts: string[] };
+  const rows: Row[] = [];
+  const ministers: Row[] = [];
+  let dropped = 0;
+  for (const [id, found] of reasons) {
     const m = await getJson<Member>(`${MEMBERS}/Members/${id}`, `member ${id}`);
     const h = m?.value.latestHouseMembership;
     if (!m || !h || h.house !== 1 || h.membershipEndDate || h.membershipStatus?.statusIsActive === false) continue;
+    // Keep a post or committee reason only if the MP's own record shows it open now.
+    const bio = await getJson<Bio>(`${MEMBERS}/Members/${id}/Biography`, `biography ${id}`);
+    const b = bio?.value;
+    const names = (xs: BioPost[] | undefined) => new Set((xs ?? []).filter(open).map((x) => x.name.trim().toLowerCase()));
+    const posts = b ? new Set([...names(b.governmentPosts), ...names(b.oppositionPosts), ...names(b.otherPosts)]) : null;
+    const comms = b ? names(b.committeeMemberships) : null;
+    const rs = found.filter((r) => {
+      const ok = r.kind === 'frontbench' ? !posts || posts.has((r.post ?? '').trim().toLowerCase())
+        : r.kind === 'committee' ? !comms || comms.has((r.post ?? '').trim().toLowerCase()) : true;
+      if (!ok) dropped++;
+      return ok;
+    });
+    if (!rs.length) continue;
+    const govPosts = (b?.governmentPosts ?? []).filter(open).map((x) => x.name);
     // Each kind of reason counts once; a question and a speech are the same kind of evidence.
     const kinds = new Set(rs.map((r) => (r.kind === 'speech' ? 'question' : r.kind)));
     const score = [...kinds].reduce((s, k) => s + SCORE[k as Reason['kind']], 0);
-    rows.push({ id, name: m.value.nameDisplayAs, party: m.value.latestParty?.name ?? '', seat: h.membershipFrom, score, rs });
+    const row = { id, name: m.value.nameDisplayAs, party: m.value.latestParty?.name ?? '', seat: h.membershipFrom, score, rs, govPosts };
+    (govPosts.length ? ministers : rows).push(row);
   }
-  rows.sort((a, b) => b.score - a.score || b.rs.length - a.rs.length || a.name.localeCompare(b.name));
+  const order = (a: Row, b: Row) => b.score - a.score || b.rs.length - a.rs.length || a.name.localeCompare(b.name);
+  rows.sort(order);
+  ministers.sort(order);
+  notes.push(`Biography check: ${dropped} post or committee reasons dropped because the MP's own record does not show them open now.`);
 
   const md: string[] = [
     `# MPs with a proven interest`, '',
@@ -250,7 +280,7 @@ async function main() {
     `Terms: ${terms.join('; ')}. Questions and speeches from ${since}.`,
     `Areas: ${areas.join('; ') || 'none'}. Committees: ${committees.join('; ') || 'none'}. Departments: ${depts.join('; ') || 'none'}.`, '',
     `Score: 3 question or speech on the terms, 2 front bench brief, 2 seat, 1 committee (each once). Party plays no part in scoring or sorting.`, '',
-    `${rows.length} current Commons members found.`, '',
+    `${rows.length} current Commons members ranked; ${ministers.length} government ministers listed separately, not for outreach.`, '',
     `| # | MP | Party | Constituency | Score | Reasons |`, `|---|---|---|---|---|---|`,
     ...rows.map((r, i) => `| ${i + 1} | [${r.name}](https://www.opengovt.uk/mps/${r.id}) (${r.id}) | ${r.party} | ${r.seat} | ${r.score} | ${[...new Set(r.rs.map((x) => LABEL[x.kind]))].join(', ')} |`),
     '', '## Evidence', '',
@@ -260,10 +290,18 @@ async function main() {
     for (const x of [...r.rs].sort((a, b) => SCORE[b.kind] - SCORE[a.kind] || (b.date ?? '').localeCompare(a.date ?? ''))) md.push(`- ${LABEL[x.kind]}: [${x.text}](${x.url})`);
     md.push('');
   }
+  md.push('## Ministers (not for outreach)', '', 'Current government ministers with a link to the story. A minister or body responsible for the decision gets the right of reply, not a pitch (outreach rules).', '');
+  for (const r of ministers) {
+    md.push(`### ${r.name}, ${r.seat}`, '', `Open Govt profile: https://www.opengovt.uk/mps/${r.id}`, '', `Current government posts: ${r.govPosts.join('; ')}`, '');
+    for (const x of r.rs) md.push(`- ${LABEL[x.kind]}: [${x.text}](${x.url})`);
+    md.push('');
+  }
+  if (!ministers.length) md.push('None.', '');
   md.push('## Sources', '', ...notes.map((n) => `- ${n}`), '', '## Failures', '', ...(failures.length ? failures.map((f) => `- ${f}`) : ['- None.']), '');
   mkdirSync(dirname(out), { recursive: true });
   writeFileSync(out, md.join('\n'));
-  console.log(`${rows.length} MPs written to ${out}`);
+  console.log(`${rows.length} MPs ranked and ${ministers.length} ministers listed separately, written to ${out}`);
+  console.log(`Ministers: ${ministers.map((r) => `${r.name} (${r.govPosts.join('; ')})`).join(', ') || 'none'}`);
   for (const [i, r] of rows.slice(0, 10).entries()) console.log(`${i + 1}. ${r.name} (${r.party}, ${r.seat}) score ${r.score}: ${[...new Set(r.rs.map((x) => LABEL[x.kind]))].join(', ')}`);
   console.log(failures.length ? `Failures:\n${failures.map((f) => `  ${f}`).join('\n')}` : 'No source failed.');
 }
