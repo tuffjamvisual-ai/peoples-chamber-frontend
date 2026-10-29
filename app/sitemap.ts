@@ -103,6 +103,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/donations/double-dip`, changeFrequency: 'weekly', priority: 0.9 },
     { url: `${SITE}/appg-funders`, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${SITE}/about`, changeFrequency: 'monthly', priority: 0.8 },
+    // Cookies and cookie settings (29 Oct 2026).
+    { url: `${SITE}/cookies`, changeFrequency: 'yearly', priority: 0.3 },
     // Commission research (launched 24 Oct 2026).
     { url: `${SITE}/commission`, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${SITE}/commission/terms`, changeFrequency: 'yearly', priority: 0.3 },

@@ -146,3 +146,8 @@ a:hover {
 /* Black ink rule (owner, 27 Oct 2026): placeholders in full black ink, set in italics so they are not mistaken for
    typed text. Browsers show placeholders faded by default (Firefox also lowers their opacity). */
 input::placeholder, textarea::placeholder { color: #14100d; opacity: 1; font-style: italic; }
+
+/* Cookie banner (app/components/CookieBanner.tsx, 29 Oct 2026): hidden before the first paint for a visitor who has
+   already chosen (CONSENT_HEAD_SCRIPT in lib/cookie-consent.ts adds og-cookies-set to <html>), so it never moves the
+   page. Only the server rendered question is hidden this way; the confirmation after a choice stays visible. */
+html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }

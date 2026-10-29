@@ -43,6 +43,7 @@ export default function SiteFooter() {
               <FootLink href="/about">About &amp; Methodology</FootLink>
               <FootLink href="/about#sources">Sources</FootLink>
               <FootLink href="/about#privacy">Privacy</FootLink>
+              <FootLink href="/cookies">Cookies</FootLink>
               <FootLink href="/about#terms">Terms</FootLink>
             </FootCol>
           </div>

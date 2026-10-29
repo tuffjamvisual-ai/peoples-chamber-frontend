@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import OpenGovShell from '../components/OpenGovShell'
 import BackLink from '../components/BackLink'
+import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
@@ -62,7 +63,7 @@ export default function PrivacyPage() {
 
         <h2 style={h2}>Cookies</h2>
         <p style={p}>
-          The site uses essential cookies required for the site to function: a session cookie that keeps you signed in for up to 30 days, and a small marker that tells the site you are signed in. We do not use advertising cookies. We do not use tracking cookies. We do not use Google Analytics.
+          The site uses essential cookies required for the site to function: a session cookie that keeps you signed in for up to 30 days, and a small marker that tells the site you are signed in. We do not use advertising cookies. Only if you accept additional cookies, we use PostHog cookies to see which pages you visit, in order, so we can improve the site; the data is stored in the European Union (Frankfurt), kept for one year and never used for advertising, and you can change your choice at any time at <Link href="/cookies" style={{ color: INK }}>/cookies</Link>. We do not use Google Analytics.
         </p>
         <p style={p}>
           The site also keeps a few things in your browser&rsquo;s own storage, which are never sent to us: your account name and email address while you are signed in, so pages can show that you are signed in, and, for the sign up note on search, how many searches you have made in this visit and whether you closed the note (remembered for 30 days).
@@ -75,7 +76,7 @@ export default function PrivacyPage() {
 
         <h2 style={h2}>Services that process data for us</h2>
         <p style={p}>
-          Supabase stores our database, in Amazon Web Services&rsquo; Ireland region (eu-west-1). Vercel hosts the site and runs the analytics above. Resend sends our emails: account confirmation, password reset, the newsletter, alert emails and commission requests. Stripe takes card payments for donations and commissioned research on its own secure page; we receive confirmation of the payment, not your card details.
+          Supabase stores our database, in Amazon Web Services&rsquo; Ireland region (eu-west-1). Vercel hosts the site and runs the analytics above. PostHog, only if you accept additional cookies, records which pages you visit, in its EU Cloud in Frankfurt. Resend sends our emails: account confirmation, password reset, the newsletter, alert emails and commission requests. Stripe takes card payments for donations and commissioned research on its own secure page; we receive confirmation of the payment, not your card details.
         </p>
 
         <h2 style={h2}>Data storage</h2>

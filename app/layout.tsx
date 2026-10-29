@@ -7,6 +7,9 @@ import NewsletterStrip from "./components/NewsletterStrip";
 import FloatingScrollDownButton from "./components/FloatingScrollDownButton";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import CookieBanner from "./components/CookieBanner";
+import PostHogLoader from "./components/PostHogLoader";
+import { CONSENT_HEAD_SCRIPT } from "@/lib/cookie-consent";
 
 // Special Elite (body copy) is loaded once here by next/font (25 Oct 2026, report 46): it preloads the font and adds a
 // fallback face sized to match it (adjustFontFallback), so text shown before the font arrives takes the same space and
@@ -135,8 +138,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${bebas.variable} ${specialElite.variable} h-full antialiased`}>
+    // suppressHydrationWarning: CONSENT_HEAD_SCRIPT may add og-cookies-set to <html> before React hydrates.
+    <html lang="en" className={`${bebas.variable} ${specialElite.variable} h-full antialiased`} suppressHydrationWarning>
       <head>
+        {/* Cookie consent (29 Oct 2026): marks a visitor who has already chosen, before the first paint, so the
+         * banner is hidden by CSS and never moves the page (lib/cookie-consent.ts). */}
+        <script dangerouslySetInnerHTML={{ __html: CONSENT_HEAD_SCRIPT }} />
         {/* RSS feed discovery — Reader apps, GSC and aggregators read this. */}
         <link
           rel="alternate"
@@ -150,6 +157,8 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col">
+        {/* GOV.UK style cookie banner, first on the page so keyboard users reach it first (owner, 29 Oct 2026). */}
+        <CookieBanner />
         <AuthProvider>
           {children}
           {/* The newsletter strip replaced the sign up pop up (26 Oct 2026, report 78). */}
@@ -161,6 +170,8 @@ export default function RootLayout({
         {/* Speed Insights, free tier only (owner's approval, 21 Oct 2026): one visit in five is sampled to stay under
          * the 10,000 events a rolling 30 days allows; Speed Insights Plus is not enabled. */}
         <SpeedInsights sampleRate={0.2} />
+        {/* PostHog page by page tracking, loaded only after a visitor accepts additional cookies. */}
+        <PostHogLoader />
       </body>
     </html>
   );
