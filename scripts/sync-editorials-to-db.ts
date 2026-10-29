@@ -19,49 +19,59 @@
 // Local mode, for guarded backfills: --sql <dir> writes <dir>/rehearse.sql (ends ROLLBACK) and <dir>/apply.sql (ends
 // COMMIT), one transaction with the 60 s and 5 s timeouts, run with psql. It reads the current rows (read only) to set
 // updated_at, and writes nothing itself.
+// 29 Oct 2026 (owner, "go stage C"): with EDITORIALS_FROM_DB=1 the database is the master copy (pieces are published
+// with scripts/publish-editorial.ts), so a deploy writes nothing; --sql still works. The row builder and SQL types are
+// exported for scripts/publish-editorial.ts, and importing this file runs nothing.
 
 import { config } from 'dotenv';
 import { writeFileSync } from 'node:fs';
+import { basename } from 'node:path';
 import { createClient } from '@supabase/supabase-js';
 import { editorials, UNPUBLISHED_EDITORIALS } from '../lib/editorials/index';
 import type { Block, EditorialEntry } from '../lib/editorials/types';
 import { topics } from '../lib/topics';
 
-config({ path: '.env.local', quiet: true });
+const RUN_DIRECTLY = basename(process.argv[1] ?? '') === 'sync-editorials-to-db.ts';
+if (RUN_DIRECTLY) config({ path: '.env.local', quiet: true });
 
 const sqlDirIndex = process.argv.indexOf('--sql');
-const SQL_DIR = sqlDirIndex >= 0 ? process.argv[sqlDirIndex + 1] : null;
-if (sqlDirIndex >= 0 && !SQL_DIR) { console.error('sync-editorials: --sql needs a directory'); process.exit(1); }
+const SQL_DIR = RUN_DIRECTLY && sqlDirIndex >= 0 ? process.argv[sqlDirIndex + 1] : null;
 
 // Vercel sets VERCEL_ENV to 'production' | 'preview' | 'development'.
 // Writes are intentionally restricted to production deploys only; local mode only writes SQL files.
 const VERCEL_ENV = process.env.VERCEL_ENV;
 
-if (VERCEL_ENV !== 'production' && !SQL_DIR) {
-  console.log(
-    `sync-editorials: VERCEL_ENV=${VERCEL_ENV ?? '(unset)'} — ` +
-    `writes only run on production deploys, skipping`
-  );
-  process.exit(0);
+const makeClient = (url: string, key: string) => createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+let supabase: ReturnType<typeof makeClient>;
+
+// Decides whether this run may go on; exits 0 (skip) or 1 (misconfigured) otherwise.
+function guard() {
+  if (sqlDirIndex >= 0 && !SQL_DIR) { console.error('sync-editorials: --sql needs a directory'); process.exit(1); }
+  if (process.env.EDITORIALS_FROM_DB === '1' && !SQL_DIR) {
+    console.log('sync-editorials: EDITORIALS_FROM_DB=1, the database is the master copy (scripts/publish-editorial.ts); writing nothing');
+    process.exit(0);
+  }
+  if (VERCEL_ENV !== 'production' && !SQL_DIR) {
+    console.log(
+      `sync-editorials: VERCEL_ENV=${VERCEL_ENV ?? '(unset)'} — ` +
+      `writes only run on production deploys, skipping`
+    );
+    process.exit(0);
+  }
+  // On a production deploy these must be present; missing = real misconfiguration.
+  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const SERVICE_KEY  = process.env.SUPABASE_SECRET_KEY;
+  if (!SUPABASE_URL || !SERVICE_KEY) {
+    console.error(
+      'sync-editorials: NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SECRET_KEY ' +
+      'missing on production deploy — failing build'
+    );
+    process.exit(1);
+  }
+  supabase = makeClient(SUPABASE_URL, SERVICE_KEY);
 }
 
-// On a production deploy these must be present; missing = real misconfiguration.
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SERVICE_KEY  = process.env.SUPABASE_SECRET_KEY;
-
-if (!SUPABASE_URL || !SERVICE_KEY) {
-  console.error(
-    'sync-editorials: NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SECRET_KEY ' +
-    'missing on production deploy — failing build'
-  );
-  process.exit(1);
-}
-
-const supabase = createClient(SUPABASE_URL, SERVICE_KEY, {
-  auth: { persistSession: false, autoRefreshToken: false },
-});
-
-function extractBodyText(blocks: Block[]): string {
+export function extractBodyText(blocks: Block[]): string {
   const parts: string[] = [];
   for (const block of blocks) {
     switch (block.type) {
@@ -94,7 +104,7 @@ function extractBodyText(blocks: Block[]): string {
 
 const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
 // evidence.lastChecked is written either as 2026-10-29 or as 29 October 2026; the date, or null if neither.
-function lastCheckedDate(v: string | undefined): string | null {
+export function lastCheckedDate(v: string | undefined): string | null {
   if (!v) return null;
   if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
   const m = v.trim().match(/^(\d{1,2}) ([A-Za-z]+) (\d{4})$/);
@@ -111,7 +121,19 @@ function topicPositions(slug: string): Record<string, number> {
   return out;
 }
 
+// Where a piece sits: its topics, whether it is unpublished, its registry position and its position in each topic.
+export type Placement = { topic_slugs: string[]; unpublished: boolean; registry_order: number | null; topic_positions: Record<string, number> };
+
 function buildRow(piece: EditorialEntry) {
+  return rowFor(piece, {
+    topic_slugs:     topics.filter((t) => t.editorialSlugs.includes(piece.slug)).map((t) => t.slug),
+    unpublished:     UNPUBLISHED_EDITORIALS.includes(piece.slug),
+    registry_order:  REGISTRY_ORDER.get(piece.slug) ?? null,
+    topic_positions: topicPositions(piece.slug),
+  });
+}
+
+export function rowFor(piece: EditorialEntry, place: Placement) {
   return {
     slug:                    piece.slug,
     headline:                piece.headline,
@@ -135,17 +157,17 @@ function buildRow(piece: EditorialEntry) {
     related_programme_slugs: piece.relatedProgrammeSlugs ?? null,
     explore:                 (piece.explore ?? null) as object | null,
     read_next:               piece.readNext ?? null,
-    topic_slugs:             topics.filter((t) => t.editorialSlugs.includes(piece.slug)).map((t) => t.slug),
-    unpublished:             UNPUBLISHED_EDITORIALS.includes(piece.slug),
-    registry_order:          REGISTRY_ORDER.get(piece.slug) ?? null,
-    topic_positions:         topicPositions(piece.slug) as object,
+    topic_slugs:             place.topic_slugs,
+    unpublished:             place.unpublished,
+    registry_order:          place.registry_order,
+    topic_positions:         place.topic_positions as object,
     // search_vec is GENERATED ALWAYS AS STORED — not supplied in upsert
   };
 }
 type Row = ReturnType<typeof buildRow>;
 
 // A stable string of a row's content, for deciding whether updated_at moves.
-function canon(v: unknown): string {
+export function canon(v: unknown): string {
   if (Array.isArray(v)) return `[${v.map(canon).join(',')}]`;
   if (v && typeof v === 'object') return `{${Object.keys(v).sort().filter((k) => (v as Record<string, unknown>)[k] !== undefined).map((k) => `${JSON.stringify(k)}:${canon((v as Record<string, unknown>)[k])}`).join(',')}}`;
   return JSON.stringify(v ?? null);
@@ -165,19 +187,28 @@ function withTimes(row: Row, stored: Record<string, unknown> | undefined, now: s
   return { ...row, synced_at: now, updated_at: same ? (storedUpdated as string | null) : now };
 }
 
+// The SQL type of every column a row carries.
+export const SQL_TYPES: Record<string, string> = {
+  slug: 'text', headline: 'text', standfirst: 'text', summary: 'text', published_at: 'date', author_byline: 'text', kind: 'text',
+  kicker: 'text', body_text: 'text', body_json: 'jsonb', related_dept_slugs: 'text[]', related_member_ids: 'int[]',
+  related_bill_ids: 'int[]', opinion: 'boolean', hero_image: 'text', hero_alt: 'text', evidence: 'jsonb', last_checked: 'date',
+  update_note: 'jsonb', related_programme_slugs: 'text[]', explore: 'jsonb', read_next: 'text[]', topic_slugs: 'text[]',
+  unpublished: 'boolean', registry_order: 'int', topic_positions: 'jsonb', synced_at: 'timestamptz', updated_at: 'timestamptz',
+};
+
+// A dollar quote tag that does not occur in the text.
+export function dollarTag(text: string, base = 'editorials_json'): string {
+  let tag = base;
+  while (text.includes(`$${tag}$`)) tag += '_x';
+  return tag;
+}
+
 function sqlFiles(rows: ReturnType<typeof withTimes>[], dir: string) {
   // One JSON literal, dollar quoted with a tag that cannot occur in the content.
   const json = JSON.stringify(rows);
-  let tag = 'editorials_json';
-  while (json.includes(`$${tag}$`)) tag += '_x';
+  const tag = dollarTag(json);
   const cols = Object.keys(rows[0]);
-  const types: Record<string, string> = {
-    slug: 'text', headline: 'text', standfirst: 'text', summary: 'text', published_at: 'date', author_byline: 'text', kind: 'text',
-    kicker: 'text', body_text: 'text', body_json: 'jsonb', related_dept_slugs: 'text[]', related_member_ids: 'int[]',
-    related_bill_ids: 'int[]', opinion: 'boolean', hero_image: 'text', hero_alt: 'text', evidence: 'jsonb', last_checked: 'date',
-    update_note: 'jsonb', related_programme_slugs: 'text[]', explore: 'jsonb', read_next: 'text[]', topic_slugs: 'text[]',
-    unpublished: 'boolean', registry_order: 'int', topic_positions: 'jsonb', synced_at: 'timestamptz', updated_at: 'timestamptz',
-  };
+  const types = SQL_TYPES;
   for (const c of cols) if (!types[c]) throw new Error(`no SQL type for ${c}`);
   const sql = (end: string) => `BEGIN;
 SET LOCAL statement_timeout = '60s';
@@ -193,6 +224,7 @@ ${end}
 }
 
 async function main() {
+  guard();
   const entries = Object.values(editorials);
   console.log(`sync-editorials: syncing ${entries.length} entries${SQL_DIR ? ` (SQL files to ${SQL_DIR}, nothing written)` : ''}`);
 
@@ -243,7 +275,7 @@ async function main() {
   }
 }
 
-main().catch((e) => {
+if (RUN_DIRECTLY) main().catch((e) => {
   console.error('sync-editorials: fatal error:', e);
   process.exit(1);
 });
