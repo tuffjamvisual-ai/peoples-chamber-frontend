@@ -263,6 +263,10 @@
     {
       "path": "/api/sync-connectivity",
       "schedule": "41 10 1 * *"
+    },
+    {
+      "path": "/api/sync-parliament-archive",
+      "schedule": "8,18,28,38,48,58 * * * *"
     }
   ]
 }

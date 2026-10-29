@@ -123,6 +123,7 @@ async function GET_impl(req: Request) {
     '/api/sync-blue-badges': '2026-10-28T13:00:00Z',                 // Blue Badges job (pushed 28 Oct); first run Wed 4 Nov 11:57 UTC
     '/api/sync-children-in-care': '2026-10-28T17:00:00Z',            // children in care job (pushed 28 Oct); first run Thu 29 Oct 11:47 UTC
     '/api/sync-road-condition': '2026-10-28T17:00:00Z',              // road condition job (pushed 28 Oct); first run Fri 30 Oct 11:53 UTC
+    '/api/sync-parliament-archive': '2026-10-29T22:00:00Z',          // Parliament archive backfill (pushed 29 Oct); every 10 minutes
   };
   // Run expected, zero rows normal: alerted only for a missed run or a failed one, never for a run of zero rows.
   // The reshuffle tick changes nothing unless reshuffle mode is on.
@@ -374,8 +375,24 @@ async function GET_impl(req: Request) {
     sewageRelease.error = (e as Error).message;
   }
 
+  // Parliament archive progress (owner's approval, 29 Oct 2026), read only: rows in each archive table and each
+  // source's cursor, finished_at and last_error. Reported in this JSON, never emailed; a failed read is noted, not fatal.
+  const parliamentArchive = await (async () => {
+    try {
+      const [q, sp, st] = await Promise.all([
+        supabaseAdmin.from('parliament_written_questions').select('id', { count: 'exact', head: true }),
+        supabaseAdmin.from('hansard_contributions').select('ext_id', { count: 'exact', head: true }),
+        supabaseAdmin.from('parliament_archive_sync_state').select('source, cursor, rows_done, finished_at, last_error, last_run_at'),
+      ]);
+      return { writtenQuestions: q.count ?? null, speeches: sp.count ?? null, sources: st.data ?? [], error: q.error?.message ?? sp.error?.message ?? st.error?.message ?? null };
+    } catch (e) {
+      return { error: (e as Error).message };
+    }
+  })();
+
   return NextResponse.json({
     ok: true,
+    parliamentArchive,
     bioReview,
     bioReviewEmail,
     sewageRelease,
