@@ -126,6 +126,7 @@ import faamAircraft from './0m3n1skwru';
 import accessToWork from './ou8npnpzzm';
 import foodResilience from './9kzu72dksk';
 import studentLevy from './x6ysojha6n';
+import hillsboroughLaw from './mhcveuxdyi';
 
 const allEditorials: EditorialRegistry = {
   [taggingRegime.slug]: taggingRegime,
@@ -251,6 +252,7 @@ const allEditorials: EditorialRegistry = {
   [accessToWork.slug]: accessToWork,
   [foodResilience.slug]: foodResilience,
   [studentLevy.slug]: studentLevy,
+  [hillsboroughLaw.slug]: hillsboroughLaw,
 };
 
 // Unpublished until their sources are added and checked (owner's decision, 22 Oct 2026). The files stay; leaving them
