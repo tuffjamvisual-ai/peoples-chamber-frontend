@@ -71,6 +71,11 @@ class Run {
   private lastRequest = 0;
   requests = 0;
   rows = 0;
+  // Duplicate primary keys dropped within an upsert batch, by source, this run (owner's approval, 29 Oct 2026: a
+  // debate can list the same contribution twice, and Postgres refuses a batch that updates one row twice). The running
+  // total is kept in each source's cursor as dupes_dropped; baseDupes is the total stored before this run.
+  readonly dupes: Record<string, number> = {};
+  private readonly baseDupes: Record<string, number> = {};
   // A local test (testOptions) writes rows but never the sync state, so the backfill cursor is untouched.
   constructor(readonly db: SupabaseClient, readonly budgetMs: number, readonly saveStateToo = true) {}
 
@@ -101,20 +106,31 @@ class Run {
   async state(source: string): Promise<State> {
     const { data, error } = await this.db.from('parliament_archive_sync_state').select('*').eq('source', source).maybeSingle();
     if (error) throw new Error(`state read: ${error.message}`);
+    if (!(source in this.baseDupes)) this.baseDupes[source] = Number((data as State | null)?.cursor?.dupes_dropped) || 0;
     return (data as State | null) ?? { source, cursor: null, rows_done: 0, last_run_at: null, last_error: null, finished_at: null };
   }
 
   async saveState(s: State) {
     if (!this.saveStateToo) return;
-    const { error } = await this.db.from('parliament_archive_sync_state').upsert({ ...s, last_run_at: new Date().toISOString() }, { onConflict: 'source' });
+    const dupes = (this.baseDupes[s.source] ?? 0) + (this.dupes[s.source] ?? 0);
+    const cursor = { ...(s.cursor ?? {}), dupes_dropped: dupes };
+    const { error } = await this.db.from('parliament_archive_sync_state').upsert({ ...s, cursor, last_run_at: new Date().toISOString() }, { onConflict: 'source' });
     if (error) throw new Error(`state save: ${error.message}`);
   }
 
-  async upsert(table: string, key: string, rows: Record<string, unknown>[]) {
+  // One copy per primary key: `better` says whether a later copy replaces the one kept so far.
+  async upsert(table: string, key: string, rows: Record<string, unknown>[], source: string, better: (next: Record<string, unknown>, kept: Record<string, unknown>) => boolean) {
     if (!rows.length) return;
-    const { error } = await this.db.from(table).upsert(rows, { onConflict: key });
+    const byKey = new Map<unknown, Record<string, unknown>>();
+    for (const row of rows) {
+      const kept = byKey.get(row[key]);
+      if (!kept || better(row, kept)) byKey.set(row[key], row);
+    }
+    const unique = [...byKey.values()];
+    this.dupes[source] = (this.dupes[source] ?? 0) + rows.length - unique.length;
+    const { error } = await this.db.from(table).upsert(unique, { onConflict: key });
     if (error) throw new Error(`${table} upsert: ${error.message}`);
-    this.rows += rows.length;
+    this.rows += unique.length;
   }
 }
 
@@ -167,7 +183,8 @@ async function runSpeeches(run: Run, s: State, from: string, until: string, topU
           url: `https://hansard.parliament.uk/Commons/${cur.date}/debates/${d.id}/${slug(deb.Overview?.Title ?? d.title)}#contribution-${i.ExternalId}`,
           fetched_at: new Date().toISOString(),
         }));
-        await run.upsert('hansard_contributions', 'ext_id', rows);
+        // Speeches: the copy with the longest text.
+        await run.upsert('hansard_contributions', 'ext_id', rows, 'speeches', (a, b) => String(a.contribution_text ?? '').length > String(b.contribution_text ?? '').length);
         cur.next = (cur.next ?? 0) + 1;
         if (!topUp) await save();
       }
@@ -189,6 +206,8 @@ async function runSpeeches(run: Run, s: State, from: string, until: string, topU
 type QCursor = { date: string; skip?: number; ids?: number[]; next?: number };
 type WQ = { id: number; uin: string; house: string; dateTabled: string | null; dateAnswered: string | null; askingMemberId: number | null; answeringMemberId: number | null; answeringBodyId: number | null; answeringBodyName: string | null; heading: string | null; questionText: string | null; answerText: string | null; isWithdrawn: boolean | null };
 const PAGE = 100;
+// Questions: the copy with the latest date_answered, or else the last one seen.
+const laterAnswer = (a: Record<string, unknown>, b: Record<string, unknown>) => String(a.date_answered ?? '') >= String(b.date_answered ?? '');
 
 async function runQuestions(run: Run, s: State, from: string, until: string, topUp: boolean) {
   const base = run.rows;
@@ -217,9 +236,9 @@ async function runQuestions(run: Run, s: State, from: string, until: string, top
           fetched_at: new Date().toISOString(),
         });
         cur.next = (cur.next ?? 0) + 1;
-        if (batch.length >= 20) { await run.upsert('parliament_written_questions', 'id', batch.splice(0)); if (!topUp) await save(); }
+        if (batch.length >= 20) { await run.upsert('parliament_written_questions', 'id', batch.splice(0), 'questions', laterAnswer); if (!topUp) await save(); }
       }
-      await run.upsert('parliament_written_questions', 'id', batch.splice(0));
+      await run.upsert('parliament_written_questions', 'id', batch.splice(0), 'questions', laterAnswer);
       const total = (cur as QCursor & { total?: number }).total ?? 0;
       const nextSkip = (cur.skip ?? 0) + PAGE;
       cur = nextSkip < total ? { date: cur.date, skip: nextSkip } : { date: addDays(cur.date, 1) };
@@ -290,7 +309,7 @@ async function GET_impl(req: Request) {
   }
 
   const partial = Object.values(results).some((r) => r === 'partial' || r === 'refused');
-  const body = { ok: true, rows_written: run.rows, requests: run.requests, results, partial, elapsed_ms: Date.now() - run.started, syncedAt: new Date().toISOString() };
+  const body = { ok: true, rows_written: run.rows, requests: run.requests, results, partial, dupes_dropped: run.dupes, elapsed_ms: Date.now() - run.started, syncedAt: new Date().toISOString() };
   console.log(`[sync-parliament-archive] ${body.elapsed_ms} ms, ${run.requests} requests, ${run.rows} rows, ${JSON.stringify(results)}`);
   return NextResponse.json(body);
 }
