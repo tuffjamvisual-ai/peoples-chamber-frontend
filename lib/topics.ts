@@ -51,7 +51,7 @@ export const topics: TopicDef[] = [
     words: ['housing', 'homeless', 'homelessness', 'renters', 'rent', 'rents', 'leasehold', 'leaseholders', 'tenant', 'tenants', 'tenancy', 'tenancies', 'landlord', 'landlords', 'planning', 'building safety', 'levelling up', 'social housing', 'park homes', 'commonhold'],
     exclude: [],
     billDepartments: ['Ministry of Housing, Communities and Local Government', 'Department for Levelling Up, Housing and Communities', 'Department for Communities and Local Government', 'Office of the Deputy Prime Minister'],
-    editorialSlugs: ['fxdep4e6wh', 'x4g3y1z5d8', 'cq4r8vn2mp', 'awsucrmvr1', 'ten-worst-performing-councils-england', 'nq7x4km2wp', 'bm4k9mxw7r', 'rs8k4mxw9n', 'wk4n9mxw7r', 'qm4n9mxw7r', 'ck8m2wq7x3', 'ew4k9mxn7r', 'cq8m4xw2hl', 'hz7w3nq5rk', '0w7zrd55z9', 'y9aa644amu', 'upk2tz9zw9'],
+    editorialSlugs: ['fxdep4e6wh', 'x4g3y1z5d8', 'cq4r8vn2mp', 'awsucrmvr1', 'ten-worst-performing-councils-england', 'nq7x4km2wp', 'bm4k9mxw7r', 'rs8k4mxw9n', 'wk4n9mxw7r', 'qm4n9mxw7r', 'ck8m2wq7x3', 'ew4k9mxn7r', 'cq8m4xw2hl', 'hz7w3nq5rk', '0w7zrd55z9', 'y9aa644amu', 'upk2tz9zw9', '0qcn1ofw7f'],
     pollWords: ['housing', 'home', 'homes', 'tenant', 'tenants', 'leasehold', 'council tax', 'empty home', 'empty homes'],
   },
   {
@@ -171,7 +171,7 @@ export const topics: TopicDef[] = [
     words: ['transport', 'rail', 'railway', 'railways', 'road', 'roads', 'hs2', 'bus', 'buses', 'aviation', 'driver', 'drivers', 'driving', 'highway', 'highways', 'cycling', 'electric vehicle', 'electric vehicles', 'motor vehicles', 'taxi', 'taxis', 'airport', 'airports', 'shipping', 'maritime'],
     exclude: [],
     billDepartments: ['Department for Transport'],
-    editorialSlugs: ['gx4k9mxw7r', 'k3p9w7nx2d'],
+    editorialSlugs: ['gx4k9mxw7r', 'k3p9w7nx2d', '0qcn1ofw7f'],
     pollWords: ['transport', 'rail', 'hs2', 'road', 'bus', 'driver'],
   },
   {
