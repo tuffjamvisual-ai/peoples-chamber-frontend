@@ -17,9 +17,11 @@ type Builder = any;
 type Order = { column: string; ascending?: boolean };
 type PgError = { message?: string; code?: string; details?: string | null; hint?: string | null };
 
-// A head (count only) request has no body, so its error can arrive with an empty message: use the code and details too.
-function describe(e: PgError): string {
-  return [e.message, e.code, e.details, e.hint].filter(Boolean).join(' | ') || 'unknown error';
+// A head (count only) request has no body, so its error can arrive with an empty message: use the code and details
+// too, and the HTTP status, which is all a failed head request keeps (29 Oct 2026). Never the URL, headers or key.
+function describe(e: PgError, status?: number, statusText?: string): string {
+  const http = status ? `HTTP ${status}${statusText ? ` ${statusText}` : ''}` : '';
+  return [e.message, e.code, e.details, e.hint, http].filter(Boolean).join(' | ') || 'unknown error';
 }
 
 export type ReadAllOptions = {
@@ -40,8 +42,8 @@ export async function readAll<T>(from: () => Builder, opts: ReadAllOptions): Pro
   const orders: Order[] = typeof opts.orderBy === 'string' ? [{ column: opts.orderBy }] : Array.isArray(opts.orderBy) ? opts.orderBy : [opts.orderBy];
   if (orders.length === 0) throw new Error(`${label}: orderBy is required`);
 
-  const { count, error: countErr } = await filter(from().select(opts.columns, { count: 'exact', head: true }));
-  if (countErr) throw new Error(`${label} count: ${describe(countErr)}`);
+  const { count, error: countErr, status: countStatus, statusText: countStatusText } = await filter(from().select(opts.columns, { count: 'exact', head: true }));
+  if (countErr) throw new Error(`${label} count: ${describe(countErr, countStatus, countStatusText)}`);
   const total = count ?? 0;
   const pages = Math.ceil(total / pageSize);
 
@@ -52,11 +54,11 @@ export async function readAll<T>(from: () => Builder, opts: ReadAllOptions): Pro
         let q = filter(from().select(opts.columns));
         for (const o of orders) q = q.order(o.column, { ascending: o.ascending ?? true });
         const start = (first + k) * pageSize;
-        return q.range(start, start + pageSize - 1) as PromiseLike<{ data: T[] | null; error: PgError | null }>;
+        return q.range(start, start + pageSize - 1) as PromiseLike<{ data: T[] | null; error: PgError | null; status?: number; statusText?: string }>;
       }),
     );
-    for (const { data, error } of batch) {
-      if (error) throw new Error(`${label}: ${describe(error)}`);
+    for (const { data, error, status, statusText } of batch) {
+      if (error) throw new Error(`${label}: ${describe(error, status, statusText)}`);
       rows.push(...(data ?? []));
     }
   }

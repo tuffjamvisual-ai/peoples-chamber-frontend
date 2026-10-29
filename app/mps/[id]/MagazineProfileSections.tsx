@@ -283,6 +283,8 @@ interface Props {
   sectorCrossRef?: SectorCrossRefEntry[];
   constituencyDonations?: Donation[];
   appgs?: AppgEntry[];
+  /** The Electoral Commission cross check of APPG funders failed for this render (page.tsx); shows one line instead. */
+  appgDonorCheckFailed?: boolean;
   ministerMeetings?: MinisterMeeting[];
   ministerHospitality?: MinisterHospitality[];
   /** Special advisers this minister appointed (Cabinet Office named list), shown in Roles. */
@@ -514,6 +516,7 @@ export default function MagazineProfileSections({
   sectorCrossRef = [],
   constituencyDonations = [],
   appgs = [],
+  appgDonorCheckFailed = false,
   ministerMeetings = [],
   ministerHospitality = [],
   spadAdvisers = null,
@@ -1620,6 +1623,11 @@ export default function MagazineProfileSections({
                 <p style={{ fontSize: '15px', lineHeight: 1.55, marginBottom: '12px', maxWidth: '60ch' }}>
                   APPGs are unofficial groups, drawn from across the parties, that MPs run on specific topics. Each group&rsquo;s registered funders are the entities paying for its secretariat, research and events. Officers are the MPs responsible for the group. Together they are the formal lobbying channel inside Westminster, the one that doesn&rsquo;t appear on the Register of Members&rsquo; Financial Interests.
                 </p>
+                {appgDonorCheckFailed && (
+                  <p style={{ fontSize: '15px', lineHeight: 1.55, color: '#14100d', margin: '0 0 12px', maxWidth: '60ch' }}>
+                    Electoral Commission donation figures for these funders could not be loaded just now.
+                  </p>
+                )}
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px', lineHeight: 1.55 }}>
                   {appgs.map((a) => (
                     <li key={a.slug} style={{ padding: '10px 0', borderBottom: inkDivider }}>

@@ -585,6 +585,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     value_band: string | null;
   };
   let mpAppgs: Array<AppgRow & { role: string | null; funders: AppgFunderRow[] }> = [];
+  let appgDonorCheckFailed = false;
   if (officerSlugs.length > 0) {
     const [appgsRes, fundersRes] = await Promise.all([
       supabase
@@ -608,7 +609,9 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     // funder with their EC donation total when matched.
     const funderNames = Array.from(new Set(((fundersRes.data || []) as AppgFunderRow[]).map((f) => f.source.trim()).filter((s) => s && s !== '(unspecified)')));
     const funderDonationByName = new Map<string, { totalAmount: number; donationCount: number }>();
-    if (funderNames.length > 0) {
+    // A failure of this cross check alone is logged and the page renders without the donation figures, with one line
+    // saying so, instead of the whole page failing (29 Oct 2026).
+    if (funderNames.length > 0) try {
       // Chunk the IN clause — PostgREST gets unhappy past ~200 names.
       // Every stored spelling of each name, quoted, so donor names saved with leading or trailing spaces match, and
       // every row via lib/read-all.ts (the old .limit(5000) still stopped at the API's 1,000 rows). 24 Oct 2026, report 37.
@@ -630,6 +633,10 @@ export default async function MPMagazineProfile({ params }: PageProps) {
           funderDonationByName.set(name, ex);
         }
       }
+    } catch (e) {
+      console.error(`/mps/${memberId} APPG funder donations cross check failed:`, e instanceof Error ? e.message : String(e));
+      funderDonationByName.clear();
+      appgDonorCheckFailed = true;
     }
 
     mpAppgs = ((appgsRes.data || []) as AppgRow[]).map((a) => ({
@@ -767,6 +774,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         sectorCrossRef: [],
         constituencyDonations: [],
         appgs: mpAppgs,
+        appgDonorCheckFailed,
         ministerMeetings: meetings,
         ministerHospitality: hospitality,
         spadAdvisers: spadAdvisers ? { ...spadAdvisers, ministerName: fullName, gender: mp.gender ?? null } : null,
