@@ -12,6 +12,12 @@
 # Uses the repository secret VERCEL_DEPLOY_HOOK: the URL of the project's deploy hook (Vercel project settings →
 # Git → Deploy Hooks).
 #
+# 29 Oct 2026 (owner's approval): Vercel's Ignored Build Step (scripts/vercel-ignore-build.sh) now skips a commit
+# whose changes are all outside the site. Such a push may have no Vercel build, so before looking for one this
+# compares the push (event.before to the pushed commit) with the same classifier (scripts/lib/site-change.sh); if
+# every changed file is outside the site, the push counts as deployed and the hook is not called. Any doubt (no
+# previous commit, a failed git read, an unknown file) falls through to the check below.
+#
 # Limits: the incident that caused this also slowed Actions, so this run may start late too. It still fires once
 # Actions recovers, which is better than no deployment at all. It never calls the hook for a commit that already
 # has a deployment, so it can't double-deploy.
@@ -34,10 +40,36 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      - name: Check out the pushed commits
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Count a push that changes nothing in the site as deployed
+        id: site
+        env:
+          BEFORE: ${{ github.event.before }}
+          SHA: ${{ github.sha }}
+        run: |
+          echo "site_change=yes" >> "$GITHUB_OUTPUT"
+          if ! [[ "$BEFORE" =~ ^[0-9a-f]{40}$ ]] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then echo "No previous commit to compare; checking for a build."; exit 0; fi
+          git cat-file -e "$BEFORE^{commit}" 2>/dev/null || git fetch --quiet --no-tags --depth=100 origin "$BEFORE" || { echo "Could not fetch $BEFORE; checking for a build."; exit 0; }
+          changed=$(git diff --name-only --no-renames "$BEFORE" "$SHA") || { echo "Could not compare; checking for a build."; exit 0; }
+          . scripts/lib/site-change.sh
+          if why=$(printf '%s\n' "$changed" | only_non_site_files); then
+            echo "Every file changed in this push is outside the site; Vercel skips its build, so nothing to check:"
+            printf '%s\n' "$changed" | sed 's/^/  /'
+            echo "site_change=no" >> "$GITHUB_OUTPUT"
+          else
+            echo "$why; checking for a build."
+          fi
+
       - name: Wait 5 minutes for Vercel to start the build
+        if: steps.site.outputs.site_change != 'no'
         run: sleep 300
 
       - name: Deploy through the hook if Vercel never started a build for this commit
+        if: steps.site.outputs.site_change != 'no'
         env:
           GH_TOKEN: ${{ github.token }}
           SHA: ${{ github.sha }}
