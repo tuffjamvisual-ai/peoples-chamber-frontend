@@ -71,7 +71,7 @@ export default function PrivacyPage() {
 
         <h2 style={h2}>Analytics</h2>
         <p style={p}>
-          We use Vercel Web Analytics to count page views and Vercel Speed Insights to measure how fast pages load. For each page view, Web Analytics records the page address, the page you came from, the time, your approximate location (country, region and city), and your browser, operating system and type of device. Speed Insights records the page, your network speed, browser, device, operating system and country, and the page&rsquo;s speed measurements, for one in five visits. They do not use third party cookies: Vercel tells visits apart with a code made from the request, which it deletes after 24 hours, and we only see totals that are not tied to any person or IP address.
+          We use Vercel Web Analytics to count page views and Vercel Speed Insights to measure how fast pages load. For each page view, Web Analytics records the page address, the page you came from, the time, your approximate location (country, region and city), and your browser, operating system and type of device. Speed Insights records the page, your network speed, browser, device, operating system and country, and the page&rsquo;s speed measurements, for one in five visits. They do not use third party cookies: Vercel tells visits apart with a code made from the request, which it deletes after 24 hours, and we only see totals that are not tied to any person or IP address. We also count how many visitors accept or reject additional cookies, as totals only.
         </p>
 
         <h2 style={h2}>Services that process data for us</h2>

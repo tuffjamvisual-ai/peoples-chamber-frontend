@@ -6,6 +6,7 @@
 // never moves the page. The choice is saved by writeConsent (lib/cookie-consent.ts).
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { track } from '@vercel/analytics';
 import { CONSENT_EVENT, readConsent, writeConsent } from '@/lib/cookie-consent';
 
 const INK = '#14100d';
@@ -45,6 +46,9 @@ export default function CookieBanner() {
     // The confirmation is set first, so this banner's own choice does not close it through CONSENT_EVENT.
     setState(analytics ? 'accepted' : 'rejected');
     writeConsent(analytics);
+    // How many visitors accept or reject, as totals only (Vercel Web Analytics custom event, cookieless; owner, 29 Oct
+    // 2026). Sent once per click, whatever the choice; nothing else is sent with it.
+    track('Cookie choice', { choice: analytics ? 'accepted' : 'rejected', where: 'banner' });
   };
 
   return (

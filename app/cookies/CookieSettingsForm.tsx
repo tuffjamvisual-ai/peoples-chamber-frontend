@@ -3,6 +3,7 @@
 // The cookie settings form on /cookies, as on GOV.UK: Yes or No to cookies that measure website use, saved with
 // writeConsent (lib/cookie-consent.ts), which also tells the banner and PostHog. No choice yet: No is selected.
 import { useEffect, useId, useRef, useState } from 'react';
+import { track } from '@vercel/analytics';
 import { readConsent, writeConsent } from '@/lib/cookie-consent';
 
 const INK = '#14100d';
@@ -45,6 +46,8 @@ export default function CookieSettingsForm() {
       onSubmit={(e) => {
         e.preventDefault();
         writeConsent(choice === 'yes');
+        // Totals of choices only (Vercel Web Analytics custom event, cookieless; owner, 29 Oct 2026).
+        track('Cookie choice', { choice: choice === 'yes' ? 'accepted' : 'rejected', where: 'settings' });
         setSaved(true);
       }}
       style={{ fontFamily: MONO, color: INK }}
