@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { revalidatePath } from 'next/cache';
+import { newsPath } from '@/lib/news-path';
 import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
 import { ItemFailures, FLAG_AFTER_RUNS } from '@/lib/sync-item-failures';
 export const dynamic = 'force-dynamic';
@@ -39,7 +41,7 @@ const HEAD_TIMEOUT_MS = 15_000;
 const UA = 'PeoplesChamber/1.0 (+https://www.opengovt.uk)';
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-type Row = { id: number; gov_url: string | null };
+type Row = { id: number; gov_url: string | null; removed_upstream: boolean | null };
 
 async function GET_impl(req: Request) {
   const budget = new SyncBudget(maxDuration);
@@ -55,7 +57,7 @@ async function GET_impl(req: Request) {
 
   const { data, error } = await supabase
     .from('press_releases')
-    .select('id, gov_url')
+    .select('id, gov_url, removed_upstream')
     .ilike('gov_url', '%gov.uk%')
     .order('liveness_checked_at', { ascending: true, nullsFirst: true })
     .limit(BATCH);
@@ -77,6 +79,7 @@ async function GET_impl(req: Request) {
     await write(r.id, { liveness_checked_at: nowIso() });
     flaggedFail++;
   };
+  const changedPaths = new Set<string | null>();
   let stoppedBy: string | null = null;
   let lastDbError: string | null = null;
   const nowIso = () => new Date().toISOString();
@@ -93,6 +96,7 @@ async function GET_impl(req: Request) {
       const head = await politeFetch(r.gov_url, { method: 'HEAD', headers: { 'User-Agent': UA } }, { budget, timeoutMs: HEAD_TIMEOUT_MS });
       if (head.status === 404 || head.status === 410) {
         await write(r.id, { removed_upstream: true, liveness_checked_at: nowIso() });
+        if (r.removed_upstream !== true) changedPaths.add(newsPath(r.gov_url));
         removed++;
       } else if (head.ok) {
         const patch: Record<string, unknown> = { removed_upstream: false, liveness_checked_at: nowIso() };
@@ -107,6 +111,8 @@ async function GET_impl(req: Request) {
           } catch (e) { if (isPoliteStop(e)) throw e; /* leave body null; next cycle retries */ }
         }
         await write(r.id, patch);
+        // The page changes only if the removed banner goes or a missing body is filled.
+        if (r.removed_upstream === true || patch.body) changedPaths.add(newsPath(r.gov_url));
         restored++;
       } else {
         transient++;
@@ -123,6 +129,9 @@ async function GET_impl(req: Request) {
     await sleep(DELAY_MS);
   }
 
+  // Refresh only the release pages this run changed (owner's approval, 29 Oct 2026, cache Stage 1).
+  changedPaths.delete(null);
+  for (const p of changedPaths) if (p) revalidatePath(p);
   const failuresSaved = await failing.save();
   if (dbErrors > 0) {
     return NextResponse.json({ ok: false, error: `press_releases update failed ${dbErrors} times: ${lastDbError}`, count: checked }, { status: 500 });
@@ -132,6 +141,7 @@ async function GET_impl(req: Request) {
     // The budget or a rate limit stopped the run before the end of its batch; those releases come first next run.
     partial: stoppedBy !== null || flaggedFail > 0,
     flagged_failed: flaggedFail,
+    pages_refreshed: changedPaths.size,
     flagged_after_runs: FLAG_AFTER_RUNS,
     failing_items: failing.summary(),
     failures_saved: failuresSaved,

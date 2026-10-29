@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { revalidatePath } from 'next/cache';
+import { newsPath } from '@/lib/news-path';
 import { createClient } from '@supabase/supabase-js';
 import { refreshStore } from '@/lib/refresh-stores';
 import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
@@ -59,6 +61,14 @@ async function GET_impl(req: Request) {
     let flaggedFail = 0;
 
     let upserted = 0;
+    let pagesRefreshed = 0;
+    // Releases already stored, so a changed one can have its page refreshed (owner's approval, 29 Oct 2026, cache
+    // Stage 1). New releases need nothing: their page renders on its first visit.
+    const urls = results.map((item) => `https://www.gov.uk${item.link}`);
+    const { data: storedRows } = urls.length
+      ? await supabase.from('press_releases').select('gov_url, title, description, body').in('gov_url', urls)
+      : { data: [] };
+    const stored = new Map(((storedRows ?? []) as { gov_url: string; title: string | null; description: string | null; body: string | null }[]).map((r) => [r.gov_url, r]));
     let bodiesFetched = 0;
     let writeErrors = 0;
     let lastWriteError: string | null = null;
@@ -105,8 +115,14 @@ async function GET_impl(req: Request) {
       const { error } = await supabase
         .from('press_releases')
         .upsert(record, { onConflict: 'gov_url' });
-      if (!error) upserted++;
-      else { writeErrors++; lastWriteError = error.message; }
+      if (!error) {
+        upserted++;
+        const old = stored.get(govUrl);
+        if (old && (old.title !== record.title || old.description !== record.description || (body && old.body !== body))) {
+          const p = newsPath(govUrl);
+          if (p) { revalidatePath(p); pagesRefreshed++; }
+        }
+      } else { writeErrors++; lastWriteError = error.message; }
     }
     const failuresSaved = await failing.save();
     if (writeErrors > 0 && upserted === 0) {
@@ -137,6 +153,7 @@ async function GET_impl(req: Request) {
       write_errors: writeErrors,
       fetched: results.length,
       upserted,
+      pages_refreshed: pagesRefreshed,
       bodiesFetched,
       trimmed,
       stats_refresh: statsRefresh,

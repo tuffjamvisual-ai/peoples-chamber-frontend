@@ -12,6 +12,8 @@ User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /internal/
+# Press release pages are noindex copies of GOV.UK and Commons committee pages (owner, 29 Oct 2026).
+Disallow: /news/
 
 Sitemap: https://www.opengovt.uk/sitemap.xml
 Sitemap: https://www.opengovt.uk/feed.xml

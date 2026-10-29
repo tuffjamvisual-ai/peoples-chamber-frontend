@@ -18,7 +18,9 @@ import type { EditorialEntry } from '@/lib/editorials/types'
 // Plain text of an HTML fragment, for comparing the summary with the body's opening.
 const plain = (html: string) => html.replace(/<[^>]+>/g, ' ').replace(/&[a-z#0-9]+;/gi, ' ').replace(/\s+/g, ' ').trim().toLowerCase()
 
-export const revalidate = 3600
+// Press release copies do not change once published, so a week is only a safety net (owner's approval, 29 Oct 2026,
+// cache Stage 1): the press release crons refresh any release they change (lib/news-path.ts, /api/revalidate).
+export const revalidate = 604800
 
 const SERIF = 'var(--font-special-elite), monospace'
 const INK = '#14100d'
@@ -55,7 +57,7 @@ async function getPressRelease(slug: string): Promise<PressRelease | null> {
 
 // No article pages are built ahead (owner's approval, 21 Oct 2026: build reliability; the build prerendered 100,
 // each making several reads at once against the database). generateStaticParams returning [] keeps the route
-// cached: each page renders on its first visit and is kept for an hour (revalidate above).
+// cached: each page renders on its first visit and is kept for a week, or until a cron changes it (revalidate above).
 export function generateStaticParams() { return [] }
 
 // Fallback for rows that pre-date the body-column rollout. Once the backfill
@@ -69,7 +71,7 @@ async function getBodyHtmlLive(govUrl: string): Promise<string | null> {
   if (!path) return null
   try {
     const res = await fetch(`https://www.gov.uk/api/content${path}`, {
-      next: { revalidate: 3600 },
+      next: { revalidate: 604800 },
       headers: { 'User-Agent': 'PeoplesChamber/1.0', Accept: 'application/json' },
     })
     if (!res.ok) return null

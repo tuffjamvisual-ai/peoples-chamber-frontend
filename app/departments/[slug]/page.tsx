@@ -49,13 +49,14 @@ export const revalidate = 3600;
 // is stored, so the page is never older than its revalidate period; revalidatePath and revalidateTag still refresh it.
 export const fetchCache = 'default-cache';
 
-// The Reports tab's investigations are kept in the data cache for 60 seconds only (owner's approval, 29 Oct 2026):
-// at the page's hour, a stale list outlived deploys and newly published investigations were missing for hours. A
-// positive revalidate keeps the page cached (no-store would make it fail to render statically); every other read keeps
-// its hour. Same server key and dash cleaning as lib/supabase.ts.
-const editorialsShortCache = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!, {
+// The Reports tab's investigations are a tagged read (owner's approval, 29 Oct 2026, cache Stage 1): cached for a day
+// under the 'editorials' tag, and refreshed as soon as an editorial is published, because the publish step runs
+// node scripts/revalidate.js --tag editorials after its database sync. Every other read keeps its hour. Same server
+// key and dash cleaning as lib/supabase.ts. (It replaced a 60 second read, which kept the whole page refreshing every
+// minute.)
+const editorialsTagged = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!, {
   auth: { persistSession: false },
-  global: { fetch: (input, init) => fetchWithoutEmDashes(input, { ...init, next: { revalidate: 60 } }) },
+  global: { fetch: (input, init) => fetchWithoutEmDashes(input, { ...init, next: { tags: ['editorials'], revalidate: 86400 } }) },
 });
 
 export default async function DepartmentPage({ params }: PageProps) {
@@ -99,7 +100,7 @@ export default async function DepartmentPage({ params }: PageProps) {
     (async (): Promise<InvestigationItem[]> => {
       const deptTopics = topics.filter((t) => t.departmentSlugs.includes(slug));
       const [edRes, brRes] = await Promise.all([
-        editorialsShortCache
+        editorialsTagged
           .from('editorials')
           .select('slug, headline, standfirst, summary, published_at, kicker, kind')
           .contains('related_dept_slugs', [slug])

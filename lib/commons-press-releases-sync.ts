@@ -14,6 +14,8 @@
 //     error, an error answer from the API, or no page answering at all.
 
 import { ItemFailures } from '@/lib/sync-item-failures';
+import { revalidatePath } from 'next/cache';
+import { newsPath } from '@/lib/news-path';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 export const COMMITTEES_API = 'https://committees-api.parliament.uk/api/Publications';
@@ -186,6 +188,8 @@ export async function runCommonsPressReleasesSync(deps: SyncDeps): Promise<SyncR
       }
       added += changed.filter((r) => !byUrl.has(r.gov_url)).length;
       updated += changed.filter((r) => byUrl.has(r.gov_url)).length;
+      // A report already stored whose details changed: refresh its page (new ones render on their first visit).
+      for (const r of changed) if (byUrl.has(r.gov_url)) { const p = newsPath(r.gov_url); if (p) revalidatePath(p); }
       unchanged += records.length - changed.length;
     }
     for (const p of items) done.add(p.id);
