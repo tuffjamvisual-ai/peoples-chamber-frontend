@@ -22,18 +22,25 @@ ALTER TABLE public.pac_progress_completed_reports ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.pac_progress_completed_reports FROM anon, authenticated;
 
 -- b. One row per recommendation: its latest event and one status, first match wins:
---   implemented                any document says "Recommendation implemented"
---   rejected                   the latest response is disagree
---   report_completed           a progress report dated after the latest event lists the report as completed
---   dropped_from_update        it appeared in a progress report's update, and a later progress report (after its
---                              latest event) updates the same report without it
---   target_passed_unconfirmed  the latest target month ended before the current month
---   target_in_future           the latest target month is this month or later
---   no_dated_target            the latest event has no target month (kept as written, or none given)
+--   implemented                 any document says "Recommendation implemented"
+--   split                       the bare number (4) was answered earlier, and a later document answers the same base
+--                               with letters (4a, 4b) instead; the parts carry the status (split_into lists them)
+--   rejected                    the latest response is disagree
+--   report_completed            a progress report dated after the latest event lists the report as completed
+--   not_listed_in_later_update  a progress report dated after the latest event updates the same report (it gives
+--                               "the remaining recommendations") but does not list this one, whether it last appeared
+--                               in a Treasury Minute or a progress report (not_listed_in_cp_number and _published_on)
+--   target_passed_unconfirmed   the latest target month ended before the current month
+--   target_in_future            the latest target month is this month or later
+--   no_dated_target             the latest event has no target month (kept as written, or none given)
 -- Months are the first day of the month that ends the period written (Summer 2027 is 2027-08-01), so a target has
 -- passed once its month is before the current month. times_target_moved counts each later month in the sequence: the
 -- first event's original target (if given), then each document's current target (revised, else target, else original).
-CREATE OR REPLACE VIEW public.pac_recommendation_status WITH (security_invoker = true) AS
+-- 29 Oct 2026 (owner, both approved): 'dropped_from_update' became 'not_listed_in_later_update' (also after a Treasury
+-- Minute), and 'split' was added. The view's columns changed, which CREATE OR REPLACE cannot do, so it is dropped and
+-- created again in one transaction (nothing depends on it).
+DROP VIEW IF EXISTS public.pac_recommendation_status;
+CREATE VIEW public.pac_recommendation_status WITH (security_invoker = true) AS
 WITH ev AS (
   SELECT e.*, d.published_on, d.kind AS document_kind, d.cp_number,
          -- The current target is the latest one written (revised, else target, else original), even when it is not
@@ -65,15 +72,20 @@ flags AS (
   SELECT l.recommendation_id,
     (SELECT min(x.implemented_month) FROM ev x WHERE x.recommendation_id = l.recommendation_id AND x.status = 'implemented') AS implemented_month,
     EXISTS (SELECT 1 FROM ev x WHERE x.recommendation_id = l.recommendation_id AND x.status = 'implemented') AS is_implemented,
+    -- Parts answered in a document dated after the bare number's latest event.
+    CASE WHEN r.rec_number ~ '^[0-9]+$' THEN
+      (SELECT array_agg(DISTINCT r2.rec_number ORDER BY r2.rec_number) FROM public.pac_recommendations r2
+        JOIN ev y ON y.recommendation_id = r2.id
+        WHERE r2.report_id = r.report_id AND r2.rec_number ~ ('^' || r.rec_number || '[a-z]$') AND y.published_on > l.published_on)
+    END AS split_into,
     (SELECT d2.cp_number FROM public.pac_progress_completed_reports c JOIN public.pac_source_documents d2 ON d2.id = c.document_id
       WHERE c.report_id = r.report_id AND d2.published_on > l.published_on ORDER BY d2.published_on LIMIT 1) AS completed_in,
-    CASE WHEN EXISTS (SELECT 1 FROM ev x WHERE x.recommendation_id = l.recommendation_id AND x.document_kind = 'progress_report') THEN
-      (SELECT d2.cp_number FROM public.pac_source_documents d2
-        WHERE d2.kind = 'progress_report' AND d2.published_on > l.published_on
-          AND EXISTS (SELECT 1 FROM public.pac_recommendation_events y JOIN public.pac_recommendations r2 ON r2.id = y.recommendation_id
-                      WHERE y.document_id = d2.id AND r2.report_id = r.report_id)
-        ORDER BY d2.published_on LIMIT 1)
-    END AS dropped_in
+    -- The first progress report after the latest event whose update covers this report.
+    (SELECT d2.id FROM public.pac_source_documents d2
+      WHERE d2.kind = 'progress_report' AND d2.published_on > l.published_on
+        AND EXISTS (SELECT 1 FROM public.pac_recommendation_events y JOIN public.pac_recommendations r2 ON r2.id = y.recommendation_id
+                    WHERE y.document_id = d2.id AND r2.report_id = r.report_id)
+      ORDER BY d2.published_on LIMIT 1) AS not_listed_in_document_id
   FROM latest l
   JOIN public.pac_recommendations r ON r.id = l.recommendation_id
 )
@@ -82,9 +94,10 @@ SELECT
   p.session, p.report_number, p.title AS report_title, p.department, r.rec_number,
   CASE
     WHEN f.is_implemented THEN 'implemented'
+    WHEN f.split_into IS NOT NULL THEN 'split'
     WHEN l.response = 'disagree' THEN 'rejected'
     WHEN f.completed_in IS NOT NULL THEN 'report_completed'
-    WHEN f.dropped_in IS NOT NULL THEN 'dropped_from_update'
+    WHEN f.not_listed_in_document_id IS NOT NULL THEN 'not_listed_in_later_update'
     WHEN l.current_month < date_trunc('month', current_date)::date THEN 'target_passed_unconfirmed'
     WHEN l.current_month IS NOT NULL THEN 'target_in_future'
     ELSE 'no_dated_target'
@@ -96,8 +109,10 @@ SELECT
   l.current_month AS latest_target_month,
   l.current_text AS latest_target_text,
   f.implemented_month,
+  f.split_into,
   f.completed_in AS completed_in_cp_number,
-  f.dropped_in AS dropped_in_cp_number,
+  nd.cp_number AS not_listed_in_cp_number,
+  nd.published_on AS not_listed_in_published_on,
   l.needs_review AS latest_needs_review,
   l.cp_number AS latest_cp_number,
   l.published_on AS latest_published_on,
@@ -106,6 +121,7 @@ FROM public.pac_recommendations r
 JOIN public.pac_reports p ON p.id = r.report_id
 JOIN latest l ON l.recommendation_id = r.id
 JOIN flags f ON f.recommendation_id = r.id
+LEFT JOIN public.pac_source_documents nd ON nd.id = f.not_listed_in_document_id
 LEFT JOIN moves m ON m.recommendation_id = r.id;
 COMMENT ON VIEW public.pac_recommendation_status IS
   'One status per Committee of Public Accounts recommendation, from HM Treasury Treasury Minutes and Progress Reports (GOV.UK, Open Government Licence v3.0). See migration 2026-10-29e for the order of precedence.';
