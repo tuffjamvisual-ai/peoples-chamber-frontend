@@ -14,6 +14,8 @@
 // 29 Oct 2026 (owner's approval, "go stage A"): every EditorialEntry field is written (migration 2026-10-29b), plus
 // topic_slugs (lib/topics.ts editorialSlugs membership), unpublished and updated_at (set only when a row's content
 // changes). The round trip check is scripts/checks/editorials-db-roundtrip.ts.
+// 29 Oct 2026 (option 1): also registry_order (position in the registry) and topic_positions (position in each
+// topic's editorialSlugs), migration 2026-10-29c, so pages read from the database can keep today's order.
 // Local mode, for guarded backfills: --sql <dir> writes <dir>/rehearse.sql (ends ROLLBACK) and <dir>/apply.sql (ends
 // COMMIT), one transaction with the 60 s and 5 s timeouts, run with psql. It reads the current rows (read only) to set
 // updated_at, and writes nothing itself.
@@ -102,6 +104,13 @@ function lastCheckedDate(v: string | undefined): string | null {
 
 // The database row for one piece: every EditorialEntry field. An absent optional field is NULL, except the three
 // older related_* arrays, which keep their existing convention of an empty array.
+const REGISTRY_ORDER = new Map(Object.keys(editorials).map((slug, i) => [slug, i]));
+function topicPositions(slug: string): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const t of topics) { const i = t.editorialSlugs.indexOf(slug); if (i >= 0) out[t.slug] = i; }
+  return out;
+}
+
 function buildRow(piece: EditorialEntry) {
   return {
     slug:                    piece.slug,
@@ -128,6 +137,8 @@ function buildRow(piece: EditorialEntry) {
     read_next:               piece.readNext ?? null,
     topic_slugs:             topics.filter((t) => t.editorialSlugs.includes(piece.slug)).map((t) => t.slug),
     unpublished:             UNPUBLISHED_EDITORIALS.includes(piece.slug),
+    registry_order:          REGISTRY_ORDER.get(piece.slug) ?? null,
+    topic_positions:         topicPositions(piece.slug) as object,
     // search_vec is GENERATED ALWAYS AS STORED — not supplied in upsert
   };
 }
@@ -141,7 +152,7 @@ function canon(v: unknown): string {
 }
 
 async function currentRows(): Promise<Map<string, Record<string, unknown>>> {
-  const cols = 'slug, headline, standfirst, summary, published_at, author_byline, kind, kicker, body_text, body_json, related_dept_slugs, related_member_ids, related_bill_ids, opinion, hero_image, hero_alt, evidence, last_checked, update_note, related_programme_slugs, explore, read_next, topic_slugs, unpublished, updated_at';
+  const cols = 'slug, headline, standfirst, summary, published_at, author_byline, kind, kicker, body_text, body_json, related_dept_slugs, related_member_ids, related_bill_ids, opinion, hero_image, hero_alt, evidence, last_checked, update_note, related_programme_slugs, explore, read_next, topic_slugs, unpublished, registry_order, topic_positions, updated_at';
   const { data, error } = await supabase.from('editorials').select(cols).range(0, 999);
   if (error) throw new Error(`reading current rows: ${error.message}`);
   return new Map(((data ?? []) as unknown as Record<string, unknown>[]).map((r) => [r.slug as string, r]));
@@ -165,7 +176,7 @@ function sqlFiles(rows: ReturnType<typeof withTimes>[], dir: string) {
     kicker: 'text', body_text: 'text', body_json: 'jsonb', related_dept_slugs: 'text[]', related_member_ids: 'int[]',
     related_bill_ids: 'int[]', opinion: 'boolean', hero_image: 'text', hero_alt: 'text', evidence: 'jsonb', last_checked: 'date',
     update_note: 'jsonb', related_programme_slugs: 'text[]', explore: 'jsonb', read_next: 'text[]', topic_slugs: 'text[]',
-    unpublished: 'boolean', synced_at: 'timestamptz', updated_at: 'timestamptz',
+    unpublished: 'boolean', registry_order: 'int', topic_positions: 'jsonb', synced_at: 'timestamptz', updated_at: 'timestamptz',
   };
   for (const c of cols) if (!types[c]) throw new Error(`no SQL type for ${c}`);
   const sql = (end: string) => `BEGIN;

@@ -3,7 +3,9 @@
 // compares it with the code object (object key order ignored), and compares topic_slugs with lib/topics.ts
 // editorialSlugs membership. Also reports rows that are not in the registry, and unpublished flags.
 //   npx tsx scripts/checks/editorials-db-roundtrip.ts
-// Exit 0 when every editorial is identical, 1 otherwise.
+// It also checks order (migration 2026-10-29c): the database order by registry_order must equal the registry order,
+// and each topic's order by topic_positions must equal its editorialSlugs order (published pieces only).
+// Exit 0 when every editorial is identical and every order matches, 1 otherwise.
 //
 // Reading a row back: a NULL column is an absent field; the three older related_* arrays store an absent field as an
 // empty array, so an empty one is read back as absent (no editorial sets an explicitly empty array, checked 29 Oct).
@@ -69,15 +71,37 @@ async function main() {
     const expectTopics = topics.filter((t) => t.editorialSlugs.includes(piece.slug)).map((t) => t.slug);
     if (canon(row.topic_slugs) !== canon(expectTopics)) fields.push('topic_slugs');
     if (row.unpublished !== false) fields.push('unpublished');
+    const expectPositions = Object.fromEntries(topics.flatMap((t) => { const i = t.editorialSlugs.indexOf(piece.slug); return i >= 0 ? [[t.slug, i]] : []; }));
+    if (canon(row.topic_positions) !== canon(expectPositions)) fields.push('topic_positions');
     if (fields.length) differences.push(`${piece.slug}: ${fields.join(', ')}`);
     else identical++;
   }
   const extra = [...rows.keys()].filter((s) => !editorials[s]);
   for (const s of extra) differences.push(`${s}: database row not in the registry${UNPUBLISHED_EDITORIALS.includes(s) ? ' (unpublished)' : ''}`);
 
+  // Order: the registry, and each topic's list, rebuilt from the database.
+  const orderProblems: string[] = [];
+  const dbOrder = [...rows.values()].filter((r) => editorials[r.slug as string]).sort((a, b) => (a.registry_order as number) - (b.registry_order as number)).map((r) => r.slug as string);
+  const codeOrder = Object.keys(editorials);
+  if (canon(dbOrder) !== canon(codeOrder)) {
+    const at = codeOrder.findIndex((s, i) => dbOrder[i] !== s);
+    orderProblems.push(`registry order differs from position ${at} (code ${codeOrder[at]}, database ${dbOrder[at]})`);
+  }
+  let topicsIdentical = 0;
+  for (const t of topics) {
+    const codeList = t.editorialSlugs.filter((s) => editorials[s]);
+    const dbList = [...rows.values()]
+      .filter((r) => editorials[r.slug as string] && (r.topic_positions as Record<string, number> | null)?.[t.slug] !== undefined)
+      .sort((a, b) => (a.topic_positions as Record<string, number>)[t.slug] - (b.topic_positions as Record<string, number>)[t.slug])
+      .map((r) => r.slug as string);
+    if (canon(dbList) === canon(codeList)) topicsIdentical++;
+    else orderProblems.push(`topic ${t.slug}: order differs`);
+  }
+
   console.log(`editorials round trip: ${entries.length} compared, ${identical} identical, ${rows.size} database rows`);
-  for (const d of differences) console.log(`  ${d}`);
-  process.exit(identical === entries.length && extra.length === 0 ? 0 : 1);
+  console.log(`order: registry ${orderProblems.some((p) => p.startsWith('registry')) ? 'DIFFERS' : 'identical'}; topics ${topicsIdentical} of ${topics.length} identical`);
+  for (const d of [...differences, ...orderProblems]) console.log(`  ${d}`);
+  process.exit(identical === entries.length && extra.length === 0 && orderProblems.length === 0 ? 0 : 1);
 }
 
 main().catch((e) => { console.error(`editorials round trip: ${(e as Error).message}`); process.exit(1); });
