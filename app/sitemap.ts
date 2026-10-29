@@ -45,6 +45,9 @@ async function fetchAllRows<T>(
 // it as a plain string, so every section fell through to an empty result.
 // Total URL count (static + transparency + departments + ~3.9k bills + 650 MPs)
 // is well under the 50k single-sitemap limit, so one file is simplest.
+// lastmod (owner's approval, 29 Oct 2026, Search Console): a URL carries a date only where we hold a true one, the
+// editorial's facts last checked or publish date, the division date and the bill's last update. Every other entry
+// has no lastModified, so a deploy no longer tells search engines that every page changed.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
@@ -64,79 +67,77 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   const staticEntries: MetadataRoute.Sitemap = [
-    { url: `${SITE}`, lastModified: now, changeFrequency: 'daily', priority: 1.0 },
-    { url: `${SITE}/bills`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
-    { url: `${SITE}/mps`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${SITE}/departments`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${SITE}/transparency`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
-    { url: `${SITE}/transparency/register-of-interests`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
-    { url: `${SITE}/money`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
-    { url: `${SITE}/reports`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${SITE}/laws`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE}`, changeFrequency: 'daily', priority: 1.0 },
+    { url: `${SITE}/bills`, changeFrequency: 'daily', priority: 0.8 },
+    { url: `${SITE}/mps`, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE}/departments`, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE}/transparency`, changeFrequency: 'daily', priority: 0.8 },
+    { url: `${SITE}/transparency/register-of-interests`, changeFrequency: 'daily', priority: 0.8 },
+    { url: `${SITE}/money`, changeFrequency: 'daily', priority: 0.9 },
+    { url: `${SITE}/reports`, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE}/laws`, changeFrequency: 'weekly', priority: 0.8 },
     // Laws made without a vote and treaties, from UK Parliament's APIs (report 81).
-    { url: `${SITE}/laws/made-without-a-vote`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
-    { url: `${SITE}/treaties`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
-    { url: `${SITE}/polls`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${SITE}/expenses`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${SITE}/expenses/refused`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
-    { url: `${SITE}/explainers/donations`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
-    { url: `${SITE}/donors`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
-    { url: `${SITE}/secretariats`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
-    { url: `${SITE}/transparency/special-advisers`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${SITE}/transparency/ministerial-directions`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${SITE}/transparency/major-projects`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${SITE}/transparency/freedom-of-information`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${SITE}/civil-service`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${SITE}/spending`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${SITE}/donations/foreign`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
-    { url: `${SITE}/donations/late-disclosed`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
-    { url: `${SITE}/donations/trust-funded`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
-    { url: `${SITE}/donations/impermissible`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
-    { url: `${SITE}/donations/bequest`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
-    { url: `${SITE}/donations/leadership-contests`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
-    { url: `${SITE}/donations/sponsored-visits`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
-    { url: `${SITE}/donations/government-contractors`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${SITE}/donations/constituencies`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
-    { url: `${SITE}/donations/double-dip`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
-    { url: `${SITE}/appg-funders`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
-    { url: `${SITE}/about`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${SITE}/laws/made-without-a-vote`, changeFrequency: 'daily', priority: 0.8 },
+    { url: `${SITE}/treaties`, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${SITE}/polls`, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE}/expenses`, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE}/expenses/refused`, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${SITE}/explainers/donations`, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${SITE}/donors`, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${SITE}/secretariats`, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${SITE}/transparency/special-advisers`, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE}/transparency/ministerial-directions`, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${SITE}/transparency/major-projects`, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${SITE}/transparency/freedom-of-information`, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${SITE}/civil-service`, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE}/spending`, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE}/donations/foreign`, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${SITE}/donations/late-disclosed`, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${SITE}/donations/trust-funded`, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${SITE}/donations/impermissible`, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${SITE}/donations/bequest`, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${SITE}/donations/leadership-contests`, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${SITE}/donations/sponsored-visits`, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${SITE}/donations/government-contractors`, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE}/donations/constituencies`, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${SITE}/donations/double-dip`, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${SITE}/appg-funders`, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${SITE}/about`, changeFrequency: 'monthly', priority: 0.8 },
     // Commission research (launched 24 Oct 2026).
-    { url: `${SITE}/commission`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
-    { url: `${SITE}/commission/terms`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
-    { url: `${SITE}/newsletter`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
-    ...(SHOW_YOUR_TAX_POUND ? [{ url: `${SITE}/your-tax-pound`, lastModified: now, changeFrequency: 'monthly' as const, priority: 0.8 }] : []),
-    ...(SHOW_BUDGET_CHOICES ? [{ url: `${SITE}/budget-trade-offs`, lastModified: now, changeFrequency: 'monthly' as const, priority: 0.8 }] : []),
-    { url: `${SITE}/councils`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
-    { url: `${SITE}/sewage`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${SITE}/councils/blue-badges`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${SITE}/councils/children-in-care`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${SITE}/councils/road-condition`, lastModified: now, changeFrequency: 'yearly', priority: 0.7 },
-    ...(SHOW_LEAGUE_TABLE ? [{ url: `${SITE}/councils/league-table`, lastModified: now, changeFrequency: 'monthly' as const, priority: 0.8 }] : []),
-    { url: `${SITE}/second-jobs`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${SITE}/lobbying`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${SITE}/organisations`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${SITE}/commission`, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${SITE}/commission/terms`, changeFrequency: 'yearly', priority: 0.3 },
+    { url: `${SITE}/newsletter`, changeFrequency: 'monthly', priority: 0.6 },
+    ...(SHOW_YOUR_TAX_POUND ? [{ url: `${SITE}/your-tax-pound`, changeFrequency: 'monthly' as const, priority: 0.8 }] : []),
+    ...(SHOW_BUDGET_CHOICES ? [{ url: `${SITE}/budget-trade-offs`, changeFrequency: 'monthly' as const, priority: 0.8 }] : []),
+    { url: `${SITE}/councils`, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${SITE}/sewage`, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${SITE}/councils/blue-badges`, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${SITE}/councils/children-in-care`, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${SITE}/councils/road-condition`, changeFrequency: 'yearly', priority: 0.7 },
+    ...(SHOW_LEAGUE_TABLE ? [{ url: `${SITE}/councils/league-table`, changeFrequency: 'monthly' as const, priority: 0.8 }] : []),
+    { url: `${SITE}/second-jobs`, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE}/lobbying`, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE}/organisations`, changeFrequency: 'weekly', priority: 0.7 },
     // Everything on the site, A to Z (owner, 27 Oct 2026).
-    { url: `${SITE}/directory`, lastModified: now, changeFrequency: 'weekly', priority: 0.6 },
-    { url: `${SITE}/committees`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${SITE}/topics`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE}/directory`, changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${SITE}/committees`, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE}/topics`, changeFrequency: 'weekly', priority: 0.8 },
     // The parties index and the 2024 manifesto comparison, which moved from /parties (report 64).
-    { url: `${SITE}/parties`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${SITE}/parties/manifestos`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${SITE}/parties`, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE}/parties/manifestos`, changeFrequency: 'monthly', priority: 0.7 },
     // The section pages the header links to (report 60).
-    ...SECTION_PAGES.map((s) => ({ url: `${SITE}/sections/${s.slug}`, lastModified: now, changeFrequency: 'monthly' as const, priority: 0.7 })),
-    { url: `${SITE}/divisions`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
+    ...SECTION_PAGES.map((s) => ({ url: `${SITE}/sections/${s.slug}`, changeFrequency: 'monthly' as const, priority: 0.7 })),
+    { url: `${SITE}/divisions`, changeFrequency: 'daily', priority: 0.8 },
   ];
 
   const transparencyEntries: MetadataRoute.Sitemap = transparencySections.map((s) => ({
     url: `${SITE}/transparency/${s}`,
-    lastModified: now,
     changeFrequency: 'daily',
     priority: 0.8,
   }));
 
   const deptEntries: MetadataRoute.Sitemap = departments.map((d) => ({
     url: `${SITE}/departments/${d.slug}`,
-    lastModified: now,
     changeFrequency: 'weekly',
     priority: 0.6,
   }));
@@ -181,13 +182,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   );
   const partyEntries: MetadataRoute.Sitemap = [];
   for (const p of parties) {
-    partyEntries.push({ url: `${SITE}/parties/${p.slug}`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 });
-    partyEntries.push({ url: `${SITE}/parties/${p.slug}/bio`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 });
+    partyEntries.push({ url: `${SITE}/parties/${p.slug}`, changeFrequency: 'weekly', priority: 0.7 });
+    partyEntries.push({ url: `${SITE}/parties/${p.slug}/bio`, changeFrequency: 'weekly', priority: 0.7 });
     if (p.recipient_name) {
-      partyEntries.push({ url: `${SITE}/parties/${p.slug}/money`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 });
+      partyEntries.push({ url: `${SITE}/parties/${p.slug}/money`, changeFrequency: 'weekly', priority: 0.8 });
     }
     if (p.mp_party_string) {
-      partyEntries.push({ url: `${SITE}/parties/${p.slug}/whip`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 });
+      partyEntries.push({ url: `${SITE}/parties/${p.slug}/whip`, changeFrequency: 'weekly', priority: 0.7 });
     }
   }
 
@@ -207,9 +208,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   );
   const votedBillIds = new Set<number>(votedBillIdRows.map((r) => r.bill_id));
   // Hidden bills (bill.hidden_reason: duplicates, bad records) are never listed; their pages return 404.
-  const allBills = await fetchAllRows<{ id: number; status: string | null; is_act: boolean | null; commons_division_id: number | null }>(
+  const allBills = await fetchAllRows<{ id: number; status: string | null; is_act: boolean | null; commons_division_id: number | null; last_update: string | null }>(
     'bill',
-    'id, status, is_act, commons_division_id',
+    'id, status, is_act, commons_division_id, last_update',
     // Ordered by id so paging is stable (24 Oct 2026, report 36): unordered pages can repeat or skip rows.
     (q) => q.is('hidden_reason', null).order('id', { ascending: true }),
   );
@@ -220,21 +221,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const hasDivision = b.commons_division_id != null;
     return hasVotes || activeStage || isAct || hasDivision;
   });
-  const billEntries: MetadataRoute.Sitemap = bills.map((b) => ({
-    url: `${SITE}/bills/${b.id}`,
-    lastModified: now,
-    changeFrequency: 'weekly',
-    priority: 0.6,
-  }));
+  // A bill's last update from the Bills API, where it is a valid date; otherwise no date is claimed.
+  const billEntries: MetadataRoute.Sitemap = bills.map((b) => {
+    const updated = b.last_update ? new Date(b.last_update) : null;
+    return {
+      url: `${SITE}/bills/${b.id}`,
+      ...(updated && !Number.isNaN(updated.getTime()) ? { lastModified: updated } : {}),
+      changeFrequency: 'weekly' as const,
+      priority: 0.6,
+    };
+  });
 
   const mps = await fetchAllRows<{ member_id: number }>(
     'mps',
     'member_id',
     (q) => q.eq('current_member', true),
   );
+  // No lastModified for MPs: on 29 Oct 2026, 638 of 650 current MPs (98.2 per cent) shared one updated_at date, so it
+  // does not say when a profile changed.
   const mpEntries: MetadataRoute.Sitemap = mps.map((m) => ({
     url: `${SITE}/mps/${m.member_id}`,
-    lastModified: now,
     changeFrequency: 'weekly',
     priority: 0.6,
   }));
@@ -250,7 +256,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const councils = await fetchAllRows<{ slug: string }>('councils', 'slug', (q) => q.order('slug', { ascending: true }));
   const councilEntries: MetadataRoute.Sitemap = councils.map((c) => ({
     url: `${SITE}/councils/${c.slug}`,
-    lastModified: now,
     changeFrequency: 'weekly',
     priority: 0.5,
   }));
@@ -278,7 +283,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Membership changes nightly; weekly changeFrequency matches the sync cadence.
   const committeeEntries: MetadataRoute.Sitemap = COMMITTEE_IDS.map((id) => ({
     url: `${SITE}/committees/${id}`,
-    lastModified: now,
     changeFrequency: 'weekly',
     priority: 0.7,
   }));
@@ -287,14 +291,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // (search engine check, 16 Oct 2026).
   const topicEntries: MetadataRoute.Sitemap = topics.map((t) => ({
     url: `${SITE}/topics/${t.slug}`,
-    lastModified: now,
     changeFrequency: 'weekly',
     priority: 0.8,
   }));
   const lobbyOrgs = await fetchAllRows<{ slug: string }>('lobby_org_rankings', 'slug', (q) => q.order('org_id'));
   const lobbyEntries: MetadataRoute.Sitemap = lobbyOrgs.filter((o) => o.slug).map((o) => ({
     url: `${SITE}/lobbying/${o.slug}`,
-    lastModified: now,
     changeFrequency: 'monthly',
     priority: 0.5,
   }));
@@ -304,7 +306,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const orgSlugs = await fetchAllRows<{ slug: string }>('organisation_index', 'slug', (q) => q.order('slug')).catch(() => [] as { slug: string }[]);
   const orgEntries: MetadataRoute.Sitemap = orgSlugs.map((o) => ({
     url: `${SITE}/organisations/${o.slug}`,
-    lastModified: now,
     changeFrequency: 'weekly',
     priority: 0.5,
   }));
@@ -314,7 +315,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const majorProjectKeys = await fetchMajorProjectKeys().catch(() => [] as string[]);
   const majorProjectEntries: MetadataRoute.Sitemap = majorProjectKeys.map((k) => ({
     url: `${SITE}${projectHref(k)}`,
-    lastModified: now,
     changeFrequency: 'yearly',
     priority: 0.5,
   }));
@@ -323,11 +323,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // past sessions rarely. A failed read leaves the session pages out rather than failing the sitemap.
   const billSessionIds = await fetchAllRows<{ session_id: number; is_current: boolean }>('parliament_session_bill_counts', 'session_id, is_current', (q) => q.order('session_id', { ascending: true })).catch(() => []);
   const billSessionEntries: MetadataRoute.Sitemap = [
-    { url: `${SITE}/bills/sessions`, lastModified: now, changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${SITE}/bills/sessions`, changeFrequency: 'weekly', priority: 0.6 },
     ...billSessionIds.map((r) => ({
       url: `${SITE}/bills/sessions/${r.session_id}`,
-      lastModified: now,
-      changeFrequency: r.is_current ? ('daily' as const) : ('yearly' as const),
+        changeFrequency: r.is_current ? ('daily' as const) : ('yearly' as const),
       priority: r.is_current ? 0.6 : 0.4,
     })),
   ];

@@ -1,13 +1,14 @@
 import { billSummary } from '@/lib/bill-summary';
-// /feed.xml — RSS 2.0 feed serving the 50 most recently updated MP
-// profiles and bills. Pulls from existing mps + bill tables with no new
-// indices required; sorts the unioned stream by recency and renders one
-// <item> block per entry.
+// /feed.xml, RSS 2.0: The latest Open Govt investigations, plus the 50 most recently updated MP profiles and bill stages.
+// Investigations come from the lib/editorials registry (the 20 newest by publishedAt; briefings are left out, as they
+// do not appear elsewhere in the feed); MPs and bills from the mps and bill tables. Every item is sorted by date,
+// newest first, and rendered as one <item> block.
 //
-// Added 2026-06-05 as SEO Phase 1 Task 4. ISR cached for 30 min.
+// Added 2026-06-05 as SEO Phase 1 Task 4; investigations added 29 Oct 2026 (owner's approval). ISR cached for 30 min.
 
 import { supabase } from '@/lib/supabase';
 import { displayMpName } from '@/lib/mp-name';
+import { editorials } from '@/lib/editorials';
 
 export const revalidate = 1800;
 
@@ -140,12 +141,30 @@ async function fetchBillItems(): Promise<FeedItem[]> {
   );
 }
 
+// The 20 newest investigations, at the same address the sitemap lists. Description: the piece's summary, else its
+// standfirst (the rule article lists use).
+function investigationItems(): FeedItem[] {
+  return Object.values(editorials)
+    .filter((e) => e.kind !== 'briefing')
+    .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+    .slice(0, 20)
+    .map((e) => ({
+      title: e.headline,
+      link: `${SITE}/editorials/${e.slug}`,
+      description: e.summary?.trim() ? e.summary : e.standfirst,
+      pubDate: rfc822(e.publishedAt),
+      pubDateSort: new Date(e.publishedAt).getTime() || 0,
+    }));
+}
+
 export async function GET() {
   const [mpItems, billItems] = await Promise.all([fetchMpItems(), fetchBillItems()]);
 
-  const merged = [...mpItems, ...billItems]
+  // The 50 MP and bill items as before, then every item, investigations included, newest first.
+  const updates = [...mpItems, ...billItems]
     .sort((a, b) => b.pubDateSort - a.pubDateSort)
     .slice(0, 50);
+  const merged = [...investigationItems(), ...updates].sort((a, b) => b.pubDateSort - a.pubDateSort);
 
   const itemsXml = merged
     .map(
@@ -165,7 +184,7 @@ export async function GET() {
   <channel>
     <title>opengovt, Recent Updates</title>
     <link>${SITE}/</link>
-    <description>The 50 most recently updated MP profiles and bill stages on opengovt, an independent record of how the United Kingdom is governed.</description>
+    <description>The latest Open Govt investigations, plus the 50 most recently updated MP profiles and bill stages.</description>
     <language>en-GB</language>
     <lastBuildDate>${buildDate}</lastBuildDate>
     <atom:link href="${SITE}/feed.xml" rel="self" type="application/rss+xml" />
