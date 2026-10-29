@@ -103,7 +103,7 @@ export const topics: TopicDef[] = [
     words: ['education', 'school', 'schools', 'teacher', 'teachers', 'pupil', 'pupils', 'university', 'universities', 'student', 'students', 'childcare', 'skills', 'apprentice', 'apprentices', 'apprenticeship', 'apprenticeships', 'special educational needs', 'academies', 'higher education'],
     exclude: [],
     billDepartments: ['Department for Education', 'Department for Children, Schools and Families', 'Department for Education and Skills', 'Department for Innovation, Universities and Skills'],
-    editorialSlugs: ['pc7m3wq9k2', 'st6k9mxq4w', 'mxredcgexu'],
+    editorialSlugs: ['pc7m3wq9k2', 'st6k9mxq4w', 'mxredcgexu', 'x6ysojha6n'],
     pollWords: ['school', 'education', 'tuition', 'university', 'childcare'],
   },
   {
