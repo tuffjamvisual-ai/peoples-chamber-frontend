@@ -5,7 +5,7 @@
 import { ImageResponse } from 'next/og';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { editorials } from '@/lib/editorials';
+import { getEditorial, editorialSlugsFor } from '@/lib/editorials-source';
 
 export const alt = 'Report headline from opengovt';
 export const size = { width: 1200, height: 630 };
@@ -14,9 +14,10 @@ export const revalidate = 86400;
 
 // Built at build time for every investigation (25 Oct 2026, report 43). Without this list the image route was dynamic
 // and drew the image again on every request (p95 1.2 s).
-export function generateStaticParams() {
-  return Object.entries(editorials).filter(([, p]) => p.kind !== 'briefing').map(([slug]) => ({ slug }));
+export async function generateStaticParams() {
+  return (await editorialSlugsFor('investigation')).map((slug) => ({ slug }));
 }
+export const dynamicParams = true;
 
 const INK = '#14100d';
 const CREAM = '#f4e8d4';
@@ -36,7 +37,7 @@ function headlineSize(text: string): number {
 
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const piece = editorials[slug];
+  const piece = await getEditorial(slug);
   const headline = piece && piece.kind !== 'briefing' ? piece.headline : 'UK politics, in the open';
   const kicker = piece && piece.kind !== 'briefing' ? (piece.opinion ? 'Commentary' : 'Report') : 'Independent · Nonpartisan';
 

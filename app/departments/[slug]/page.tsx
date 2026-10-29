@@ -20,7 +20,7 @@ import { getGovukDept } from '../../api/govuk-dept/route';
 import { supabase } from '@/lib/supabase';
 import { createClient } from '@supabase/supabase-js';
 import { fetchWithoutEmDashes } from '@/lib/no-em-dash';
-import { editorials } from '@/lib/editorials';
+import { editorialsBySlug } from '@/lib/editorials-source';
 import { topics, matchWords } from '@/lib/topics';
 import { getDeptContext } from '../../api/department-context/route';
 import BackLink from '../../components/BackLink';
@@ -111,10 +111,11 @@ export default async function DepartmentPage({ params }: PageProps) {
       ]);
       if (edRes.error && edRes.error.code !== 'PGRST116') throw new Error(`/departments/[slug] editorials: ${edRes.error.message}`);
       if (brRes.error && brRes.error.code !== 'PGRST116') throw new Error(`/departments/[slug] briefings: ${brRes.error.message}`);
+      const codeEditorials = await editorialsBySlug();
       const fromEditorials: InvestigationItem[] = (edRes.data ?? []).map((r) => ({
         slug: r.slug, headline: r.headline, standfirst: r.standfirst, summary: r.summary, published_at: r.published_at, kicker: r.kicker,
         href: `/${r.kind === 'briefing' ? 'briefings' : 'editorials'}/${r.slug}`,
-        type: editorials[r.slug]?.opinion ? 'Commentary' : r.kind === 'briefing' ? 'Briefing' : 'Investigation',
+        type: codeEditorials[r.slug]?.opinion ? 'Commentary' : r.kind === 'briefing' ? 'Briefing' : 'Investigation',
       }));
       const fromBriefings: InvestigationItem[] = ((brRes.data ?? []) as { slug: string; headline: string; summary: string | null; body: string | null; published_at: string | null; created_at: string }[])
         .filter((b) => deptTopics.some((t) => matchWords(`${b.headline} ${b.summary ?? ''}`, t.words, t.exclude)))

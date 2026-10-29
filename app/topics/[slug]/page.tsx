@@ -7,7 +7,7 @@ import ServiceIndicator, { servicesForTopic } from '../../components/ServiceIndi
 import BackLink from '../../components/BackLink';
 import { getTopic, topics, topicBillArgs, newestPerTitle, wholeWordsPattern, matchWords } from '@/lib/topics';
 import { departments } from '@/lib/departments';
-import { editorials } from '@/lib/editorials';
+import { editorialSet } from '@/lib/editorials-source';
 import { listSummary } from '@/lib/editorials/list-summary';
 import { readingLabel, textReadingLabel } from '@/lib/reading-time';
 import ContinueToArticle from '../../components/ContinueToArticle';
@@ -102,8 +102,9 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
   // Newest first (topic hubs now list every piece on the subject, 16 Oct 2026).
   // Reports on the topic: investigations and file briefings from editorialSlugs, plus published database
   // briefings whose headline and summary match the topic's words (owner's approval, 23 Oct 2026).
+  const set = await editorialSet();
   const relatedEditorials = [
-    ...topic.editorialSlugs.map((s) => editorials[s]).filter(Boolean).map((e) => ({
+    ...(set.topicSlugs[topic.slug] ?? []).map((s) => set.bySlug[s]).filter(Boolean).map((e) => ({
       href: `/${e.kind === 'briefing' ? 'briefings' : 'editorials'}/${e.slug}`, headline: e.headline, summary: listSummary(e), date: e.publishedAt || '', readingLabel: readingLabel(e),
     })),
     ...((briefRes.data || []) as { slug: string; headline: string; summary: string | null; body: string | null; published_at: string | null; created_at: string }[])

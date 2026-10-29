@@ -2,7 +2,7 @@ import { SHOW_LEAGUE_TABLE, SHOW_YOUR_TAX_POUND, SHOW_BUDGET_CHOICES } from '@/l
 import type { MetadataRoute } from 'next';
 import { supabase } from '@/lib/supabase';
 import { departments } from '@/lib/departments';
-import { editorials } from '@/lib/editorials';
+import { allEditorials } from '@/lib/editorials-source';
 import { editorialModifiedIso } from '@/lib/JsonLd';
 import { COMMITTEE_IDS } from '@/lib/committees';
 import { topics } from '@/lib/topics';
@@ -148,7 +148,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Every editorial registered in lib/editorials, driven off the registry
   // so new pieces are picked up automatically (no hardcoded slug list).
   // Briefings live at /briefings/<slug> (their /editorials/ address only redirects there).
-  const editorialEntries: MetadataRoute.Sitemap = Object.values(editorials).map((e) => ({
+  const editorialEntries: MetadataRoute.Sitemap = (await allEditorials()).map((e) => ({
     url: `${SITE}/${e.kind === 'briefing' ? 'briefings' : 'editorials'}/${e.slug}`,
     // The date the report's facts were last checked, else its publish date: the same rule as its NewsArticle
     // dateModified (lib/JsonLd.tsx editorialModifiedIso).

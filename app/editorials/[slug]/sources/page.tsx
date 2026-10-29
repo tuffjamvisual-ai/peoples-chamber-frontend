@@ -3,7 +3,7 @@
 import type { Metadata } from 'next';
 import { notFound, permanentRedirect } from 'next/navigation';
 import SourcesPage from '../../../components/SourcesPage';
-import { editorials } from '@/lib/editorials';
+import { getEditorial } from '@/lib/editorials-source';
 import type { EditorialEntry } from '@/lib/editorials/types';
 
 export const revalidate = 86400;
@@ -11,7 +11,7 @@ export function generateStaticParams() { return []; }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const piece = editorials[slug];
+  const piece = await getEditorial(slug);
   if (!piece || piece.kind === 'briefing') return { title: 'Sources', robots: { index: false, follow: true } };
   return {
     title: `Sources: ${piece.headline}`,
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function EditorialSourcesPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const piece = editorials[slug] as EditorialEntry | undefined;
+  const piece = (await getEditorial(slug)) as EditorialEntry | undefined;
   if (!piece) notFound();
   if (piece.kind === 'briefing') permanentRedirect(`/briefings/${slug}/sources`);
   const records = piece.evidence?.recordsReviewed ?? [];

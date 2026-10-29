@@ -210,8 +210,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 // Reports mentioning this MP (23 Oct 2026; up to 10 from 24 Oct 2026): every published piece whose relatedMemberIds
 // include the MP, newest first, from the editorial registry at build time (no database query, lib/mp-reports.ts). Up to
 // ten are shown, with a link to the full list at /mps/<id>/reports if there are more.
-function reportsFor(memberId: number, mpName: string): MpReports | null {
-  const all = mpReportItems(memberId);
+async function reportsFor(memberId: number, mpName: string): Promise<MpReports | null> {
+  const all = await mpReportItems(memberId);
   if (all.length === 0) return null;
   return { total: all.length, items: all.slice(0, MP_REPORTS_SHOWN), memberId, mpName };
 }
@@ -290,7 +290,10 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       .from('mp_committee_memberships')
       .select('committee_id, committee_name, role, start_date, end_date')
       .eq('member_id', memberId)
-      .order('end_date', { ascending: false, nullsFirst: true }),
+      .order('end_date', { ascending: false, nullsFirst: true })
+      // Ties in a fixed order (committee name, then start date), so the page is the same on every render.
+      .order('committee_name', { ascending: true })
+      .order('start_date', { ascending: true }),
   ]), 9000);
   if (!mp) {
     // Not in our mps table: a former MP gets a basic page from Parliament's record; a member who only sat in the Lords
@@ -810,7 +813,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         constituencyPetitions,
         petitionsLastUpdated: petitionsRes.lastUpdated,
         edms: mpEdms,
-        reports: reportsFor(memberId, fullName),
+        reports: await reportsFor(memberId, fullName),
       }}
       footer={
         <>

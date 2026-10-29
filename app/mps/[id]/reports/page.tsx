@@ -46,7 +46,7 @@ export default async function MpReportsPage({ params }: { params: Promise<{ id: 
   if (!Number.isInteger(memberId) || memberId <= 0) notFound();
   const name = await getMpName(memberId);
   if (!name) notFound();
-  const items = mpReportItems(memberId);
+  const items = await mpReportItems(memberId);
   if (items.length === 0) notFound();
 
   return (

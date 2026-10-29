@@ -116,7 +116,7 @@ const currentMps = memo(async () => {
 //    pieces on the same subject after the three ExploreNext shows, up to 2. ExploreNext's links (data pages, topic
 //    hubs, hand-picked and related pieces) are not repeated.
 async function editorialReadNextImpl(piece: EditorialEntry): Promise<ReadNextLink[]> {
-  const sel = exploreNextSelection(piece);
+  const sel = await exploreNextSelection(piece);
   const pick = new Picker(sel.hrefs);
   const text = piece.body.map((b) => ('text' in b && typeof b.text === 'string' ? b.text : '')).join(' ').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
   const mps = (await currentMps())

@@ -21,7 +21,7 @@ import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 import FollowButton from '@/app/components/FollowButton';
 import { getBillPublications, latestText } from '@/lib/bill-text';
 import Link from 'next/link';
-import { editorials } from '@/lib/editorials';
+import { editorialsForBill } from '@/lib/editorials-source';
 export const revalidate = 3600
 
 // Prerender a small set of bill pages at build time. The list does NOT need
@@ -114,6 +114,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
   const { id } = await params
   const billId = parseInt(id, 10)
   if (!Number.isFinite(billId)) notFound()
+  const billPieces = await editorialsForBill(billId)
 
   const [{ data: bill, error: billErr }, { data: lordsDivisionRows, error: lordsDivisionRowsErr }] = await Promise.all([
     supabase.from('bill').select('*').eq('id', billId).single(),
@@ -575,8 +576,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
       {/* Investigations about this bill (owner's approval, 29 Oct 2026): pieces in the code registry that list it in
           relatedBillIds, newest first. Read from the code, so no database query; shown only when one matches. */}
       {(() => {
-        const pieces = Object.values(editorials)
-          .filter((e) => e.relatedBillIds?.includes(billId))
+        const pieces = [...billPieces]
           .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
         if (pieces.length === 0) return null;
         return (

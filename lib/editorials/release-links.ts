@@ -4,7 +4,7 @@
 // checked" list: a record that links to the release's GOV.UK page, or that names GOV.UK and
 // quotes the release's title word for word. No guessing from subject or department.
 
-import { editorials } from './index';
+import { editorialSet, type EditorialSet } from '@/lib/editorials-source';
 import type { EditorialEntry } from './types';
 
 const norm = (s: string) =>
@@ -22,16 +22,17 @@ const govPath = (url: string) => {
 };
 
 type Index = { byPath: Map<string, Set<string>>; byTitle: Map<string, Set<string>> };
-let cache: Index | null = null;
+// One index per editorial set (lib/editorials-source.ts), so a switch to the database copy builds its own.
+const cache = new WeakMap<EditorialSet, Index>();
 
-function build(): Index {
+function build(set: EditorialSet): Index {
   const byPath = new Map<string, Set<string>>();
   const byTitle = new Map<string, Set<string>>();
   const put = (m: Map<string, Set<string>>, k: string, slug: string) => {
     if (!m.has(k)) m.set(k, new Set());
     m.get(k)!.add(slug);
   };
-  for (const e of Object.values(editorials) as EditorialEntry[]) {
+  for (const e of set.list as EditorialEntry[]) {
     for (const r of e.evidence?.recordsReviewed || []) {
       const text = typeof r === 'string' ? r : r.text;
       const url = typeof r === 'string' ? undefined : r.url;
@@ -50,20 +51,24 @@ function build(): Index {
 }
 
 /** Investigations and briefings whose checked records cite this exact release, newest first. */
-export function piecesExaminingRelease(title: string | null, govUrl: string | null): EditorialEntry[] {
-  cache ||= build();
+export async function piecesExaminingRelease(title: string | null, govUrl: string | null): Promise<EditorialEntry[]> {
+  const set = await editorialSet();
+  let index = cache.get(set);
+  if (!index) { index = build(set); cache.set(set, index); }
   const slugs = new Set<string>();
   const p = govUrl ? govPath(govUrl) : null;
-  if (p) for (const s of cache.byPath.get(p) || []) slugs.add(s);
-  if (title) for (const s of cache.byTitle.get(norm(title)) || []) slugs.add(s);
+  if (p) for (const s of index.byPath.get(p) || []) slugs.add(s);
+  if (title) for (const s of index.byTitle.get(norm(title)) || []) slugs.add(s);
   return [...slugs]
-    .map((s) => editorials[s])
+    .map((s) => set.bySlug[s])
     .filter((e): e is EditorialEntry => !!e)
     .sort((a, b) => (b.publishedAt || '').localeCompare(a.publishedAt || ''));
 }
 
 /** Every release key the index knows, for checks (titles normalised, paths lower-case). */
-export function releaseIndexForChecks() {
-  cache ||= build();
-  return { paths: [...cache.byPath.keys()], titles: [...cache.byTitle.keys()] };
+export async function releaseIndexForChecks() {
+  const set = await editorialSet();
+  let index = cache.get(set);
+  if (!index) { index = build(set); cache.set(set, index); }
+  return { paths: [...index.byPath.keys()], titles: [...index.byTitle.keys()] };
 }

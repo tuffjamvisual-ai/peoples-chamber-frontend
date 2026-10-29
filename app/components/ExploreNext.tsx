@@ -21,8 +21,8 @@ const HAIRLINE = 'rgba(20,16,13,0.18)';
 const FONT = 'var(--font-special-elite), monospace';
 
 
-export default function ExploreNext({ piece }: { piece: EditorialEntry }) {
-  const { base, data, next, latest } = exploreNextSelection(piece);
+export default async function ExploreNext({ piece }: { piece: EditorialEntry }) {
+  const { base, data, next, latest } = await exploreNextSelection(piece);
   if (!data.length && !next.length && !latest.length) return null;
 
   return (

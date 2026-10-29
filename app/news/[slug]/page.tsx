@@ -108,7 +108,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       hasMinister = !!started && !Number.isNaN(started.getTime()) && new Date(release.published_at) >= started
     }
   }
-  const hasReports = piecesExaminingRelease(release.title, release.gov_url).length > 0
+  const hasReports = (await piecesExaminingRelease(release.title, release.gov_url)).length > 0
   const date = release.published_at
     ? new Date(release.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' })
     : null
@@ -208,7 +208,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
   // releases GOV.UK has removed (that fetch would just 404).
   const bodyHtml = release.body || (release.removed_upstream ? null : await getBodyHtmlLive(release.gov_url || ''))
 
-  const examined = piecesExaminingRelease(release.title, release.gov_url)
+  const examined = await piecesExaminingRelease(release.title, release.gov_url)
   // Read next (lib/read-next.ts) once, after the full text (owner's request, 25 Oct 2026).
   const readNext = await newsReadNext({ id: release.id, title: release.title, organisation: release.organisation, body: release.body, description: release.description })
 

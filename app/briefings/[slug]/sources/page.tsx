@@ -7,7 +7,7 @@ import { notFound } from 'next/navigation';
 import OpenGovShell from '../../../components/OpenGovShell';
 import BackLink from '../../../components/BackLink';
 import SourcesPage, { backStyle, kickerStyle, h1Style } from '../../../components/SourcesPage';
-import { editorials } from '@/lib/editorials';
+import { getEditorial } from '@/lib/editorials-source';
 import type { EditorialEntry } from '@/lib/editorials/types';
 import { supabaseAdminRead as supabaseAdmin } from '@/lib/supabase-admin';
 
@@ -26,7 +26,7 @@ async function getDbBriefing(slug: string): Promise<{ headline: string; sources:
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const piece = editorials[slug];
+  const piece = await getEditorial(slug);
   const headline = piece && piece.kind === 'briefing' ? piece.headline : (await getDbBriefing(slug))?.headline;
   return {
     title: headline ? `Sources: ${headline}` : 'Sources',
@@ -39,7 +39,7 @@ export default async function BriefingSourcesPage({ params }: { params: Promise<
   const { slug } = await params;
   const articleHref = `/briefings/${slug}`;
 
-  const piece = editorials[slug] as EditorialEntry | undefined;
+  const piece = (await getEditorial(slug)) as EditorialEntry | undefined;
   if (piece && piece.kind === 'briefing') {
     const records = piece.evidence?.recordsReviewed ?? [];
     if (!records.length) notFound();

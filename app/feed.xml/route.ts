@@ -8,7 +8,7 @@ import { billSummary } from '@/lib/bill-summary';
 
 import { supabase } from '@/lib/supabase';
 import { displayMpName } from '@/lib/mp-name';
-import { editorials } from '@/lib/editorials';
+import { allEditorials } from '@/lib/editorials-source';
 
 export const revalidate = 1800;
 
@@ -143,8 +143,8 @@ async function fetchBillItems(): Promise<FeedItem[]> {
 
 // The 20 newest investigations, at the same address the sitemap lists. Description: the piece's summary, else its
 // standfirst (the rule article lists use).
-function investigationItems(): FeedItem[] {
-  return Object.values(editorials)
+async function investigationItems(): Promise<FeedItem[]> {
+  return (await allEditorials())
     .filter((e) => e.kind !== 'briefing')
     .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
     .slice(0, 20)
@@ -164,7 +164,7 @@ export async function GET() {
   const updates = [...mpItems, ...billItems]
     .sort((a, b) => b.pubDateSort - a.pubDateSort)
     .slice(0, 50);
-  const merged = [...investigationItems(), ...updates].sort((a, b) => b.pubDateSort - a.pubDateSort);
+  const merged = [...(await investigationItems()), ...updates].sort((a, b) => b.pubDateSort - a.pubDateSort);
 
   const itemsXml = merged
     .map(

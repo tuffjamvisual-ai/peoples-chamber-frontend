@@ -14,7 +14,7 @@ import { notFound } from 'next/navigation';
 import EditorialArticle from '../../components/EditorialArticle';
 import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
-import { editorials } from '@/lib/editorials';
+import { getEditorial } from '@/lib/editorials-source';
 import type { EditorialEntry } from '@/lib/editorials/types';
 import { supabaseAdminRead as supabaseAdmin } from '@/lib/supabase-admin';
 import { textReadingLabel } from '@/lib/reading-time';
@@ -59,7 +59,7 @@ function searchTitle(headline: string): Metadata['title'] {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const piece = editorials[slug];
+  const piece = await getEditorial(slug);
   if (piece && piece.kind === 'briefing') {
     return {
       title: searchTitle(piece.headline),
@@ -83,7 +83,7 @@ export default async function BriefingPage({ params }: { params: Promise<{ slug:
   const { slug } = await params;
 
   // 1. File-based briefing.
-  const piece = editorials[slug] as EditorialEntry | undefined;
+  const piece = (await getEditorial(slug)) as EditorialEntry | undefined;
   if (piece && piece.kind === 'briefing') {
     return <EditorialArticle piece={piece} stamp="Reports" backHref="/reports" basePath="/briefings" />;
   }

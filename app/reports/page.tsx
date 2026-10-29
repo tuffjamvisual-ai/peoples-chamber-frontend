@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import OpenGovShell from '../components/OpenGovShell';
 import BackLink from '../components/BackLink';
-import { editorials } from '@/lib/editorials';
+import { editorialSet, topicsOfIn } from '@/lib/editorials-source';
 import type { EditorialEntry } from '@/lib/editorials/types';
 import { listSummary } from '@/lib/editorials/list-summary';
 import { readingLabel, textReadingLabel } from '@/lib/reading-time';
@@ -45,7 +45,8 @@ function typeOf(e: EditorialEntry): ReportType {
 export default async function ReportsPage() {
   // Topics, as the topic pages assign them: investigations and file briefings by each topic's editorialSlugs, and
   // published database briefings by the topic's words on headline and summary.
-  const fileItems: Item[] = (Object.values(editorials) as EditorialEntry[]).map((e) => ({
+  const set = await editorialSet();
+  const fileItems: Item[] = (set.list as EditorialEntry[]).map((e) => ({
     href: `/${e.kind === 'briefing' ? 'briefings' : 'editorials'}/${e.slug}`,
     type: typeOf(e),
     kicker: e.kicker ?? null,
@@ -53,7 +54,7 @@ export default async function ReportsPage() {
     summary: listSummary(e),
     date: e.publishedAt,
     readingLabel: readingLabel(e),
-    topics: topics.filter((t) => t.editorialSlugs.includes(e.slug)).map((t) => t.slug),
+    topics: topicsOfIn(set, e.slug),
   }));
 
   const { data: dbRows, error: dbErr } = await supabase

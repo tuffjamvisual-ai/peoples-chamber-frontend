@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import JsonLd, { buildHomepageGraph } from '@/lib/JsonLd';
 import OpenGovShell from './components/OpenGovShell';
-import { editorials } from '@/lib/editorials';
+import { editorialsBySlug } from '@/lib/editorials-source';
 import { listSummary } from '@/lib/editorials/list-summary';
 import { readingLabel } from '@/lib/reading-time';
 import ContinueToArticle from './components/ContinueToArticle';
@@ -75,6 +75,7 @@ export default async function HomePage() {
   // sorted publishedAt DESC then by registry declaration order as tiebreaker.
   // Four pieces share publishedAt '2026-08-04' — the secondary sort is what
   // keeps the selection deterministic across rebuilds.
+  const editorials = await editorialsBySlug();
   const registryKeys = Object.keys(editorials);
   const investigations = registryKeys
     .map((slug, registryIndex) => ({ ...editorials[slug], registryIndex }))

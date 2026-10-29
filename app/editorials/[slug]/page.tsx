@@ -8,7 +8,7 @@ import { TITLE_SUFFIX, TITLE_MAX } from '@/lib/seo-title';
 import { notFound, permanentRedirect } from 'next/navigation';
 import EditorialArticle from '../../components/EditorialArticle';
 import { editorialReadNext } from '@/lib/read-next';
-import { editorials } from '@/lib/editorials';
+import { getEditorial, editorialSlugsFor } from '@/lib/editorials-source';
 import type { EditorialEntry } from '@/lib/editorials/types';
 import JsonLd, { buildEditorialArticle, buildBreadcrumbs } from '@/lib/JsonLd';
 
@@ -16,13 +16,15 @@ export const revalidate = 86400;
 // Every investigation is built at build time (25 Oct 2026, report 43): the pieces live in the code (lib/editorials), so
 // building them costs no database time, and visitors no longer wait for a render after each deploy (the first visit
 // to each piece used to render it, p95 about 1 s). Briefings are left out: they redirect to /briefings/[slug].
-export function generateStaticParams() {
-  return Object.entries(editorials).filter(([, p]) => p.kind !== 'briefing').map(([slug]) => ({ slug }));
+export async function generateStaticParams() {
+  return (await editorialSlugsFor('investigation')).map((slug) => ({ slug }));
 }
+// A piece published after the build renders on its first visit (lib/editorials-source.ts, 29 Oct 2026).
+export const dynamicParams = true;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const piece = editorials[slug];
+  const piece = await getEditorial(slug);
   if (!piece || piece.kind === 'briefing') return { title: 'Editorial' };
   const SITE_URL = 'https://www.opengovt.uk';
   // Description (owner's approval, 24 Oct 2026): the piece's summary where it has one, else its standfirst; the same
@@ -59,7 +61,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function EditorialPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const piece = editorials[slug] as EditorialEntry | undefined;
+  const piece = (await getEditorial(slug)) as EditorialEntry | undefined;
   if (!piece) notFound();
   if (piece.kind === 'briefing') permanentRedirect(`/briefings/${slug}`);
   return (
