@@ -16,6 +16,10 @@
 // ministers are left out of the ranking and listed separately, as not for outreach. Score: 3 for a question or speech on the terms, 2 for a front bench brief,
 // 2 for the seat, 1 for a committee; each counts once. Sorted by score, then by the amount of evidence, then by name.
 // Party is shown but plays no part in scoring or sorting. No email addresses are read or stored.
+// Written questions: the search matches words loosely, so at most WQ_MAX_PAGES pages (the best matches, which the API
+// returns first) are read per term, and the report says when a term was cut short. --answering-depts "a,b" restricts
+// them to questions answered by those departments, using the API's answeringBodies filter; the ids come from the
+// Members API answering bodies list. Progress lines go to stderr after each source.
 import { config as loadEnv } from 'dotenv';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
@@ -25,6 +29,7 @@ loadEnv({ path: '.env.local', quiet: true });
 
 const UA = 'opengovt.uk outreach research (https://www.opengovt.uk; contact@opengovt.uk)';
 const PAUSE_MS = 400;
+const WQ_MAX_PAGES = 5;
 const MEMBERS = 'https://members-api.parliament.uk/api';
 
 function opt(name: string): string {
@@ -52,15 +57,18 @@ const since = opt('since');
 const areas = list(opt('areas'));
 let committees = list(opt('committees'));
 let depts = list(opt('depts'));
+let answeringDepts = list(opt('answering-depts'));
 const out = opt('out');
 if (!terms.length || !/^\d{4}-\d{2}-\d{2}$/.test(since) || !out) {
-  console.error('Usage: --terms "a,b" --since YYYY-MM-DD [--areas ...] [--committees ...] [--depts ...] --out file.md');
+  console.error('Usage: --terms "a,b" --since YYYY-MM-DD [--areas ...] [--committees ...] [--depts ...] [--answering-depts ...] --out file.md');
   process.exit(1);
 }
 
 const failures: string[] = [];
 const notes: string[] = [];
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const started = Date.now();
+const progress = (msg: string) => console.error(`[find-mps ${Math.round((Date.now() - started) / 1000)}s] ${msg}`);
 
 // One GET with a pause first; retried at most twice on a network error, 429 or 5xx. Returns null on failure.
 async function getJson<T>(url: string, what: string): Promise<T | null> {
@@ -96,15 +104,35 @@ const day = (iso: string) => iso.slice(0, 10);
 const slug = (s: string) => s.trim().replace(/[^A-Za-z0-9]+/g, '').slice(0, 60) || 'Debate';
 
 // a) Written questions whose question text or heading contains the term.
-type WQ = { value: { askingMemberId: number; house: string; dateTabled: string; uin: string; questionText: string; heading: string | null; answeringBodyName: string } };
+type WQ = { value: { askingMemberId: number; house: string; dateTabled: string; uin: string; questionText: string; heading: string | null; answeringBodyId: number; answeringBodyName: string } };
+// Answering body ids for --answering-depts, resolved by exact name from the Members API (never assumed).
+const answeringIds: number[] = [];
+async function resolveAnsweringBodies() {
+  if (!answeringDepts.length) return;
+  const bodies = await getJson<{ id: number; name: string }[]>(`${MEMBERS}/Reference/AnsweringBodies`, 'answering bodies list');
+  if (!bodies) { failures.push('answering bodies: list unavailable, so written questions were not restricted'); return; }
+  answeringDepts = joinKnown(answeringDepts, bodies.map((b) => b.name));
+  const matched: string[] = [];
+  for (const name of answeringDepts) {
+    const b = bodies.find((x) => x.name.toLowerCase() === name.toLowerCase());
+    if (b) { answeringIds.push(b.id); matched.push(`${b.name} (${b.id})`); }
+    else failures.push(`answering department "${name}": not in the Members API answering bodies list`);
+  }
+  if (matched.length) notes.push(`Written questions restricted to questions answered by ${matched.join('; ')}: answering body ids from the Members API.`);
+}
 async function writtenQuestions(term: string) {
-  let kept = 0, scanned = 0;
+  let kept = 0, scanned = 0, total = 0, pages = 0;
+  const bodies = answeringIds.map((id) => `&answeringBodies=${id}`).join('');
   for (let skip = 0; ; skip += 100) {
-    const url = `https://questions-statements-api.parliament.uk/api/writtenquestions/questions?searchTerm=${encodeURIComponent(term)}&tabledWhenFrom=${since}&house=Commons&take=100&skip=${skip}`;
+    if (pages >= WQ_MAX_PAGES) break;
+    const url = `https://questions-statements-api.parliament.uk/api/writtenquestions/questions?searchTerm=${encodeURIComponent(term)}&tabledWhenFrom=${since}&house=Commons${bodies}&take=100&skip=${skip}`;
     const j = await getJson<{ totalResults: number; results: WQ[] }>(url, `written questions "${term}"`);
-    if (!j) return;
+    if (!j) break;
+    pages++;
+    total = j.totalResults;
     for (const { value: q } of j.results) {
       scanned++;
+      if (answeringIds.length && !answeringIds.includes(q.answeringBodyId)) continue;
       if (q.house !== 'Commons' || !(has(q.questionText, term) || has(q.heading, term))) continue;
       kept++;
       add(q.askingMemberId, {
@@ -115,7 +143,9 @@ async function writtenQuestions(term: string) {
     }
     if (skip + 100 >= j.totalResults || j.results.length === 0) break;
   }
-  notes.push(`Written questions "${term}": ${scanned} returned by the search, ${kept} with the term in the question or heading.`);
+  const cut = scanned < total ? ` Cut short: read the first ${scanned} of ${total} matches (${WQ_MAX_PAGES} pages).` : '';
+  notes.push(`Written questions "${term}": ${scanned} returned by the search, ${kept} with the term in the question or heading.${cut}`);
+  progress(`written questions "${term}": ${scanned} of ${total} read, ${kept} kept`);
 }
 
 // b) Spoken contributions that contain the term in the MP's own words.
@@ -232,14 +262,22 @@ const SCORE: Record<Reason['kind'], number> = { question: 3, speech: 3, frontben
 const LABEL: Record<Reason['kind'], string> = { question: 'Question', speech: 'Speech', frontbench: 'Front bench', seat: 'Seat', committee: 'Committee' };
 
 async function main() {
-  for (const t of terms) { await writtenQuestions(t); await spoken(t); }
+  await resolveAnsweringBodies();
+  for (const t of terms) {
+    await writtenQuestions(t);
+    await spoken(t);
+    progress(`Hansard "${t}" done`);
+  }
   if (committees.length) {
     const current = (await getJson<{ items: Committee[] }>('https://committees-api.parliament.uk/api/Committees?CommitteeStatus=Current&House=Commons&Take=300', 'current Commons committees'))?.items ?? null;
     if (current) committees = joinKnown(committees, current.map((c) => c.name));
     for (const c of committees) await committee(c, current);
+    progress('committees done');
   }
   await frontBench();
+  progress('front bench done');
   await seats();
+  progress(`seats done; checking ${reasons.size} members`);
 
   type Row = { id: number; name: string; party: string; seat: string; score: number; rs: Reason[]; govPosts: string[] };
   const rows: Row[] = [];
