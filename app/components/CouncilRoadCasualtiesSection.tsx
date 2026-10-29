@@ -7,11 +7,12 @@
 // highway authorities, so a district page gets one line pointing to its
 // county council instead.
 //
-// The trend is a single-series bar chart (killed or seriously injured,
-// adjusted, so years are comparable), one ink colour, native tooltips, with
-// every year and measure in the table under "Yearly figures".
+// The trend is a two line chart (killed, and seriously injured adjusted so years
+// are comparable) with native tooltips and HTML labels at 15 px, with every
+// year and measure in the table under "Yearly figures".
 
 import { supabase } from '@/lib/supabase';
+import './phone-table.css';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -152,36 +153,46 @@ export default async function CouncilRoadCasualtiesSection({
       {trend.some((t) => t.killed != null || t.serious != null) && (() => {
         // Two lines on one scale: killed, and seriously injured as DfT estimates it so that years can be compared
         // (KSI adjusted - killed; DfT guide to severity adjustments, Table 3). Rounded to whole people.
-        const W = 600, H = 170, padL = 40, padR = 12, padT = 10, padB = 22;
+        // The SVG holds only the lines and points and stretches to its box (non scaling strokes, points drawn as round
+        // caps so they stay round); every label is HTML text at 15 px, so it stays readable at 320 px (28 Oct 2026).
+        const W = 600, H = 170, padL = 6, padR = 8, padT = 10, padB = 10;
         const xs = (i: number) => padL + (trend.length === 1 ? 0 : (i * (W - padL - padR)) / (trend.length - 1));
         const ys = (v: number) => padT + (H - padT - padB) * (1 - v / maxT);
         const line = (k: 'killed' | 'serious') => trend.map((t, i) => (t[k] == null ? null : `${xs(i).toFixed(1)},${ys(t[k] as number).toFixed(1)}`)).filter(Boolean).join(' ');
         const ticks = [0, Math.round(maxT / 2), Math.round(maxT)];
+        const label = { fontFamily: MONO, fontSize: '15px', lineHeight: 1.2, color: INK } as const;
         return (
         <figure style={{ margin: '0 0 18px' }}>
           <figcaption style={{ fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '6px' }}>Killed and seriously injured each year</figcaption>
-          <svg
-            role="img"
-            aria-label={`Killed and seriously injured (estimated so that years can be compared) each year, ${years[0]} to ${latest}. Full figures are in the Yearly figures table below.`}
-            viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 'auto', display: 'block', fontFamily: MONO }}
-          >
-            {ticks.map((t) => (
-              <g key={t}>
-                <line x1={padL} x2={W - padR} y1={ys(t)} y2={ys(t)} stroke={INK_HAIRLINE} strokeWidth={1} />
-                <text x={padL - 6} y={ys(t) + 4} textAnchor="end" fontSize="15" fill={INK}>{fmtNum(t)}</text>
-              </g>
-            ))}
-            <polyline points={line('serious')} fill="none" stroke={INK} strokeWidth={2.5} />
-            <polyline points={line('killed')} fill="none" stroke={ACCENT} strokeWidth={2.5} strokeDasharray="6 4" />
-            {trend.map((t, i) => (
-              <g key={t.y}>
-                {t.serious != null && <circle cx={xs(i)} cy={ys(t.serious)} r={3.5} fill={INK}><title>{`${t.y}: ${fmtNum(t.serious)} seriously injured (estimated so that years can be compared)`}</title></circle>}
-                {t.killed != null && <circle cx={xs(i)} cy={ys(t.killed)} r={3.5} fill={ACCENT}><title>{`${t.y}: ${fmtNum(t.killed)} killed`}</title></circle>}
-              </g>
-            ))}
-            <text x={padL} y={H - 4} fontSize="15" fill={INK}>{years[0]}</text>
-            <text x={W - padR} y={H - 4} fontSize="15" fill={INK} textAnchor="end">{latest}</text>
-          </svg>
+          <div style={{ display: 'grid', gridTemplateColumns: 'auto minmax(0, 1fr)', columnGap: '6px' }}>
+            <div aria-hidden="true" style={{ position: 'relative' }}>
+              <span style={{ ...label, visibility: 'hidden', display: 'block', height: 0, overflow: 'hidden' }}>{fmtNum(ticks[2])}</span>
+              {ticks.map((t) => (
+                <span key={t} style={{ ...label, position: 'absolute', right: 0, top: `${(ys(t) / H) * 100}%`, transform: 'translateY(-50%)', whiteSpace: 'nowrap' }}>{fmtNum(t)}</span>
+              ))}
+            </div>
+            <svg
+              role="img"
+              aria-label={`Killed and seriously injured (estimated so that years can be compared) each year, ${years[0]} to ${latest}. Full figures are in the Yearly figures table below.`}
+              viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: '100%', height: 'clamp(150px, 28vw, 200px)', display: 'block' }}
+            >
+              {ticks.map((t) => (
+                <line key={t} x1={0} x2={W} y1={ys(t)} y2={ys(t)} stroke={INK_HAIRLINE} strokeWidth={1} vectorEffect="non-scaling-stroke" />
+              ))}
+              <polyline points={line('serious')} fill="none" stroke={INK} strokeWidth={2.5} vectorEffect="non-scaling-stroke" />
+              <polyline points={line('killed')} fill="none" stroke={ACCENT} strokeWidth={2.5} strokeDasharray="6 4" vectorEffect="non-scaling-stroke" />
+              {trend.map((t, i) => (
+                <g key={t.y}>
+                  {t.serious != null && <line x1={xs(i)} x2={xs(i)} y1={ys(t.serious)} y2={ys(t.serious)} stroke={INK} strokeWidth={7} strokeLinecap="round" vectorEffect="non-scaling-stroke"><title>{`${t.y}: ${fmtNum(t.serious)} seriously injured (estimated so that years can be compared)`}</title></line>}
+                  {t.killed != null && <line x1={xs(i)} x2={xs(i)} y1={ys(t.killed)} y2={ys(t.killed)} stroke={ACCENT} strokeWidth={7} strokeLinecap="round" vectorEffect="non-scaling-stroke"><title>{`${t.y}: ${fmtNum(t.killed)} killed`}</title></line>}
+                </g>
+              ))}
+            </svg>
+            <div aria-hidden="true" style={{ gridColumn: 2, display: 'flex', justifyContent: 'space-between', marginTop: '4px', ...label }}>
+              <span>{years[0]}</span>
+              <span>{latest}</span>
+            </div>
+          </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 18px', fontFamily: MONO, fontSize: '15px', color: INK, marginTop: '6px' }}>
             <span><span aria-hidden="true" style={{ display: 'inline-block', width: '22px', borderTop: `3px solid ${INK}`, verticalAlign: 'middle', marginRight: '6px' }} />Seriously injured (estimated so that years can be compared)</span>
             <span><span aria-hidden="true" style={{ display: 'inline-block', width: '22px', borderTop: `3px dashed ${ACCENT}`, verticalAlign: 'middle', marginRight: '6px' }} />Killed</span>
@@ -222,25 +233,27 @@ export default async function CouncilRoadCasualtiesSection({
       })()}
 
       {userRows.length > 0 && (
-        <table style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '14px' }}>
-          <caption style={{ textAlign: 'left', fontFamily: MONO, fontSize: '15px', color: INK, paddingBottom: '6px' }}>By road user, {latest}</caption>
+        <>
+        <p id="road-users-caption" style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: '0 0 6px' }}>By road user, {latest}</p>
+        <table aria-labelledby="road-users-caption" className="pt-cards" style={{ borderCollapse: 'collapse', fontFamily: MONO, fontSize: '15px', color: INK, marginBottom: '14px', width: '100%', maxWidth: '520px' }}>
           <thead>
             <tr style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-              <th style={{ textAlign: 'left', padding: '6px 20px 6px 0', fontWeight: 'bold' }}>Road user</th>
-              <th style={{ textAlign: 'right', padding: '6px 20px 6px 0', fontWeight: 'bold' }}>Killed</th>
+              <th style={{ textAlign: 'left', padding: '6px 12px 6px 0', fontWeight: 'bold' }}>Road user</th>
+              <th style={{ textAlign: 'right', padding: '6px 12px 6px 0', fontWeight: 'bold' }}>Killed</th>
               <th style={{ textAlign: 'right', padding: '6px 0', fontWeight: 'bold' }}>Seriously injured</th>
             </tr>
           </thead>
           <tbody>
             {userRows.map((u) => (
               <tr key={u.label} style={{ borderBottom: `1px solid ${INK_HAIRLINE}` }}>
-                <td style={{ padding: '6px 20px 6px 0' }}>{u.label}</td>
-                <td style={{ padding: '6px 20px 6px 0', textAlign: 'right' }}>{u.killed != null ? fmtNum(Number(u.killed)) : 'n/a'}</td>
-                <td style={{ padding: '6px 0', textAlign: 'right' }}>{u.serious != null ? fmtNum(u.serious) : 'n/a'}</td>
+                <td data-label="" className="pt-card-title" style={{ padding: '6px 12px 6px 0' }}>{u.label}</td>
+                <td data-label="Killed" style={{ padding: '6px 12px 6px 0', textAlign: 'right' }}>{u.killed != null ? fmtNum(Number(u.killed)) : 'n/a'}</td>
+                <td data-label="Seriously injured" style={{ padding: '6px 0', textAlign: 'right' }}>{u.serious != null ? fmtNum(u.serious) : 'n/a'}</td>
               </tr>
             ))}
           </tbody>
         </table>
+        </>
       )}
 
       <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 6px' }}>
