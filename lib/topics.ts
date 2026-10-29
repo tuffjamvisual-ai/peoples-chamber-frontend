@@ -142,7 +142,7 @@ export const topics: TopicDef[] = [
     words: ['climate', 'energy', 'net zero', 'carbon', 'renewable', 'renewables', 'electricity', 'emission', 'emissions', 'petroleum', 'environment', 'environmental', 'water', 'sewage', 'oil', 'gas', 'fracking'],
     exclude: [],
     billDepartments: ['Department for Energy Security and Net Zero', 'Department for Environment, Food and Rural Affairs', 'Department of Energy and Climate Change', 'Department for Business, Energy and Industrial Strategy'],
-    editorialSlugs: ['dw4k9mxw7r', 'pf7k3mxw9q', 'xf4k9mxw7r', 'hw9k4mxq2t', 'gw4k9mxn7r', 'vb8k4mxn9r', 'tn4k7mxw9r', 'mk4n9mxw7r', 'vt6k9mxw3n', 'qahx28g34f'],
+    editorialSlugs: ['dw4k9mxw7r', 'pf7k3mxw9q', 'xf4k9mxw7r', 'hw9k4mxq2t', 'gw4k9mxn7r', 'vb8k4mxn9r', 'tn4k7mxw9r', 'mk4n9mxw7r', 'vt6k9mxw3n', 'qahx28g34f', '0m3n1skwru'],
     pollWords: ['energy', 'oil', 'gas', 'climate', 'north sea', 'net zero'],
     dataPages: [
       { href: '/sewage', title: 'Sewage spills', description: 'How long storm overflows spilled sewage in every council area and constituency in England and Northern Ireland, and for each water company.' },
