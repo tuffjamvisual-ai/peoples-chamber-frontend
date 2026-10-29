@@ -34,6 +34,8 @@ export type EditorialEntry = {
     response?: string;
     lastChecked?: string;
   };
+  // Optional notes on changes made after publication, shown as "Updates" after the text (EditorialArticle).
+  updateNote?: { date: string; text: string }[];   // ISO date + what was added and why; newest first
   // Optional entity tags for the RelatedLinks block. When populated, a
   // "Related" aside renders after the evidence panel linking out to the
   // relevant department, MP, and bill pages. Omit entirely (or leave as

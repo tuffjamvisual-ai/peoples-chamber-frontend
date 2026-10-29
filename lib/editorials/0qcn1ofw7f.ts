@@ -24,6 +24,9 @@ const piece: EditorialEntry = {
   ],
   relatedDeptSlugs: ['transport'],
   relatedMemberIds: [4569],
+  updateNote: [
+    { date: '2026-10-29', text: "Added the local government minister's statement of 15 October 2026 on commissioners, and the council's capital programme report of 26 January 2026, which confirms the £33 million relates to Wixams and that the council's levy income forecast was halved." },
+  ],
   evidence: {
     recordsReviewed: [
       { text: "Open Govt, Bedford Borough Council", url: "https://www.opengovt.uk/councils/bedford" },

@@ -85,6 +85,17 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
           {piece.body.map((block, i) => (
             <Fragment key={`b${i}`}>{renderBlock(block, i)}</Fragment>
           ))}
+          {/* Updates to a published piece, newest first, after the text and before the evidence (owner's approval, 29 Oct 2026). */}
+          {piece.updateNote && piece.updateNote.length > 0 && (
+            <section aria-labelledby="article-updates" style={{ borderTop: `1px solid ${HAIRLINE}`, paddingTop: '16px', margin: '8px 0 24px' }}>
+              <h2 id="article-updates" style={{ fontSize: '15px', fontWeight: 'bold', letterSpacing: '0.18em', textTransform: 'uppercase', color: ACCENT, margin: '0 0 10px' }}>Updates</h2>
+              {piece.updateNote.map((u) => (
+                <p key={u.date + u.text.slice(0, 20)} style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 10px', overflowWrap: 'break-word' }}>
+                  Updated {new Date(u.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })}: {u.text}
+                </p>
+              ))}
+            </section>
+          )}
           {/* Newsletter sign-up after the article text, for readers who are not signed in (report 80). */}
           <ArticleEndSignup source={`article-end-${basePath.slice(1)}`} />
           {/* Read next once, after the last block and before the evidence and sources (owner's request, 25 Oct 2026). */}
