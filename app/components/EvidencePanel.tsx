@@ -32,6 +32,8 @@ export type EvidencePanelProps = {
   aiDisclosure?: string;
   // When set, the records row is one "Sources (N)" link to this page instead of the full list.
   sourcesHref?: string;
+  // The article already lists every source above the panel (30 Oct 2026): leave the records row out.
+  sourcesShownAbove?: boolean;
 };
 
 // AI-use disclosure temporarily removed from rendering (pending a decision on how
@@ -55,6 +57,7 @@ export default function EvidencePanel({
   lastChecked,
   correctionsEmail = 'contact@opengovt.uk',
   sourcesHref,
+  sourcesShownAbove = false,
   // aiDisclosure = DEFAULT_AI, // temporarily not rendered — see note above
 }: EvidencePanelProps) {
   return (
@@ -71,7 +74,7 @@ export default function EvidencePanel({
       <p style={{ fontFamily: MONO, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.2em', color: ACCENT, margin: '0 0 6px' }}>
         How this piece was checked
       </p>
-      {recordsReviewed && recordsReviewed.length > 0 && (
+      {recordsReviewed && recordsReviewed.length > 0 && !sourcesShownAbove && (
         sourcesHref ? (
           <Row label="Sources">
             <Link href={sourcesHref} style={linkStyle}>Sources ({recordsReviewed.length})</Link>

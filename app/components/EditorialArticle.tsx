@@ -6,7 +6,7 @@ import { Fragment } from 'react';
 import Link from 'next/link';
 import OpenGovShell from './OpenGovShell';
 import BackLink from './BackLink';
-import EvidencePanel from './EvidencePanel';
+import EvidencePanel, { type EvidenceRecord } from './EvidencePanel';
 import RelatedLinks from './RelatedLinks';
 import ReadNext from './ReadNext';
 import ArticleEndSignup from './ArticleEndSignup';
@@ -23,7 +23,30 @@ const INK_SOFT = '#14100d';
 const HAIRLINE = 'rgba(20,16,13,0.25)';
 const ACCENT = '#7a1612';
 
+const sourceLink = { color: INK, textDecoration: 'underline', textUnderlineOffset: '3px' } as const;
+
+// One source: its text linked to its url (same tab, rel noopener); a source made of two documents links each `match`
+// phrase where it first appears; plain text stays as written.
+function SourceLine({ record }: { record: EvidenceRecord }) {
+  if (typeof record === 'string') return <>{record}</>;
+  if (record.links?.length) {
+    const spots = record.links.map((l) => ({ ...l, at: record.text.indexOf(l.match) })).filter((l) => l.at >= 0).sort((x, y) => x.at - y.at);
+    const out: React.ReactNode[] = [];
+    let pos = 0;
+    for (const l of spots) {
+      if (l.at < pos) continue;
+      out.push(record.text.slice(pos, l.at));
+      out.push(<a key={l.at} href={l.url} rel="noopener" style={sourceLink}>{l.match}</a>);
+      pos = l.at + l.match.length;
+    }
+    out.push(record.text.slice(pos));
+    return <>{out}</>;
+  }
+  return record.url ? <a href={record.url} rel="noopener" style={sourceLink}>{record.text}</a> : <>{record.text}</>;
+}
+
 export default function EditorialArticle({ piece, stamp, backHref, basePath, readNext = [] }: { piece: EditorialEntry; stamp: string; backHref: string; basePath: '/editorials' | '/briefings'; readNext?: ReadNextLink[] }) {
+  const sources = piece.evidence?.recordsReviewed ?? [];
   return (
     <OpenGovShell pageStamp={stamp}>
       <BackLink fallbackHref={backHref} label="← Reports" className="no-hover-scale" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }} />
@@ -96,15 +119,25 @@ export default function EditorialArticle({ piece, stamp, backHref, basePath, rea
               ))}
             </section>
           )}
-          {/* Newsletter sign-up after the article text, for readers who are not signed in (report 80). */}
+          {/* Every source, in its stored order, straight after the text (owner's approval, 30 Oct 2026). The evidence
+              panel below then leaves out its "Sources (N)" link; the /sources page stays for emails that link to it. */}
+          {sources.length > 0 && (
+            <section aria-labelledby="article-sources" style={{ borderTop: `1px solid ${HAIRLINE}`, paddingTop: '16px', margin: '8px 0 24px' }}>
+              <h2 id="article-sources" style={{ fontSize: '15px', fontWeight: 'bold', letterSpacing: '0.18em', textTransform: 'uppercase', color: ACCENT, margin: '0 0 10px' }}>Sources</h2>
+              <ul style={{ margin: 0, paddingLeft: '1.1em' }}>
+                {sources.map((r, i) => <li key={i} style={{ fontSize: '15px', lineHeight: 1.6, color: INK, marginBottom: '6px', overflowWrap: 'anywhere' }}><SourceLine record={r} /></li>)}
+              </ul>
+            </section>
+          )}
+          {/* Newsletter sign-up after the sources, for readers who are not signed in (report 80). */}
           <ArticleEndSignup source={`article-end-${basePath.slice(1)}`} />
-          {/* Read next once, after the last block and before the evidence and sources (owner's request, 25 Oct 2026). */}
+          {/* Read next once, after the sign up and before the evidence (owner's request, 25 Oct 2026; order 30 Oct 2026). */}
           <ReadNext links={readNext} />
         </article>
 
       </div>
 
-      {piece.evidence && <EvidencePanel {...piece.evidence} sourcesHref={`${basePath}/${piece.slug}/sources`} />}
+      {piece.evidence && <EvidencePanel {...piece.evidence} sourcesHref={`${basePath}/${piece.slug}/sources`} sourcesShownAbove={sources.length > 0} />}
 
       <RelatedLinks
         variant="editorial"
