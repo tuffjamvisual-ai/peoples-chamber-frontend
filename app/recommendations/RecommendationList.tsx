@@ -16,6 +16,14 @@ const PAGE = 50;
 const select: React.CSSProperties = { fontSize: '16px', color: INK, background: 'transparent', border: '1px solid rgba(20,16,13,0.4)', padding: '6px 8px', maxWidth: '100%' };
 const label: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '15px', color: INK, minWidth: 0, maxWidth: '100%' };
 
+const GROUPS: Record<string, string[]> = {
+  open: ['target_in_future', 'no_dated_target'],
+  delivered: ['implemented', 'delivered_elsewhere'],
+  rejected: ['rejected'],
+  target_passed: ['target_passed_unchecked', 'target_passed_checked'],
+};
+const statusMatches = (s: string, filter: string) => !filter || (filter.startsWith('group:') ? (GROUPS[filter.slice(6)] ?? []).includes(s) : s === filter);
+
 function matches(r: ListReport | undefined, filter: string) {
   if (!filter) return true;
   if (!r) return false;
@@ -31,16 +39,21 @@ export default function RecommendationList({ reports, rows, departmentOptions, s
   const [department, setDepartment] = useState('');
   const [status, setStatus] = useState('');
   const [limit, setLimit] = useState(PAGE);
-  // ?department=<page slug> from a department page's tab.
+  // ?department=<page slug>&status=<open|delivered|rejected|target_passed> from a department page's tab.
   useEffect(() => {
     try {
-      const slug = new URLSearchParams(window.location.search).get('department');
+      const q = new URLSearchParams(window.location.search);
+      const slug = q.get('department');
+      const group = q.get('status');
       if (slug && pageNames[slug]) setDepartment(`page:${slug}`); // eslint-disable-line react-hooks/set-state-in-effect
+      if (group && GROUPS[group]) setStatus(`group:${group}`);
     } catch { /* no URL */ }
   }, [pageNames]);
-  const options = department.startsWith('page:') ? [{ value: department, label: `${pageNames[department.slice(5)]} (all on its page)` }, ...departmentOptions] : departmentOptions;
+  // A department page filter shows as the plain department name, in place of a body option with the same name.
+  const pageLabel = department.startsWith('page:') ? pageNames[department.slice(5)] : null;
+  const options = pageLabel ? [{ value: department, label: pageLabel }, ...departmentOptions.filter((o) => o.label !== pageLabel)] : departmentOptions;
   const matching = useMemo(
-    () => rows.filter(([key, , s]) => matches(reports[key], department) && (!status || s === status)),
+    () => rows.filter(([key, , s]) => matches(reports[key], department) && statusMatches(s, status)),
     [rows, reports, department, status],
   );
   const shown = matching.slice(0, limit);

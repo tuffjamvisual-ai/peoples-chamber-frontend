@@ -5,7 +5,7 @@ import OpenGovShell from '../../../../components/OpenGovShell';
 import BackLink from '../../../../components/BackLink';
 import {
   RECOMMENDATIONS_PUBLIC, recommendationDetail, wording, sessionWords, dayMonthYear, asPublished, documentWords, departmentWords, recommendationFor,
-  targetPassed, type EventRow, type SourceDocument,
+  targetPassed, effectiveStatus, type EventRow, type SourceDocument,
 } from '@/lib/pac';
 
 // /recommendations/[session]/[report]/[rec], e.g. /recommendations/2024-26/54/4b (owner's approval, 29 Oct 2026,
@@ -80,7 +80,8 @@ function Event({ e, open }: { e: EventRow & { document: SourceDocument }; open: 
 export default async function RecommendationPage({ params }: { params: Promise<Params> }) {
   const d = await load(params);
   if (!d) notFound();
-  const { row, events, evidence } = d;
+  const { events, evidence } = d;
+  const row = { ...d.row, status: effectiveStatus(d.row) }; // the target passed rule against today's date
   const w = await wording();
   const status = w.words(row);
   const addressedTo = recommendationFor(d.recommendation, row.department);

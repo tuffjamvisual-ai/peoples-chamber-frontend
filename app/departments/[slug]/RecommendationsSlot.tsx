@@ -1,18 +1,17 @@
 import Link from 'next/link';
-import {
-  RECOMMENDATIONS_OVERDUE, allStatus, wording, departmentSlugs, recPath, type StatusRow,
-} from '@/lib/pac';
+import { allStatus, wording, departmentSlugs, recPath, type StatusRow } from '@/lib/pac';
 
 // Department page "Recommendations" tab (owner's approval, 29 Oct 2026, "go stage 4"; fixes 30 Oct 2026): a count line
 // (open, delivered, rejected, target passed and being checked), then this department's Committee of Public Accounts
-// recommendations that are still open, the ones whose target has moved, the ones Open Govt checked after their target
-// passed, and short lists of delivered and rejected ones. Unchecked passed targets are only listed when
-// RECOMMENDATIONS_OVERDUE=1. Shown only when RECOMMENDATIONS_PUBLIC=1 (the caller checks).
+// recommendations that are still open, the ones whose target has moved, the ones whose target has passed (being checked
+// against later evidence, and checked by Open Govt), and short lists of delivered and rejected ones. "See all" opens
+// /recommendations filtered to this department and that status. Shown only when RECOMMENDATIONS_PUBLIC=1 (the caller
+// checks).
 type Item = { href: string; title: string; status: string };
 export type DepartmentRecommendations = {
   slug: string;
   counts: { open: number; delivered: number; rejected: number; beingChecked: number };
-  open: Item[]; moved: Item[]; checked: Item[]; unchecked: Item[]; delivered: Item[]; rejected: Item[];
+  open: Item[]; moved: Item[]; checked: Item[]; beingChecked: Item[]; delivered: Item[]; rejected: Item[];
 };
 
 const OPEN = new Set(['target_in_future', 'no_dated_target']);
@@ -31,9 +30,9 @@ export async function getDepartmentRecommendations(slug: string): Promise<Depart
     slug,
     counts: { open: of(OPEN).length, delivered: of(DELIVERED).length, rejected: mine.filter((r) => r.status === 'rejected').length, beingChecked: mine.filter((r) => r.status === 'target_passed_unchecked').length },
     open: of(OPEN).map(item),
-    moved: mine.filter((r) => r.times_target_moved > 0 && !CLOSED.has(r.status) && (RECOMMENDATIONS_OVERDUE || r.status !== 'target_passed_unchecked')).map(item),
+    moved: mine.filter((r) => r.times_target_moved > 0 && !CLOSED.has(r.status)).map(item),
     checked: mine.filter((r) => r.status === 'target_passed_checked').map(item),
-    unchecked: RECOMMENDATIONS_OVERDUE ? mine.filter((r) => r.status === 'target_passed_unchecked').map(item) : [],
+    beingChecked: mine.filter((r) => r.status === 'target_passed_unchecked').map(item),
     delivered: of(DELIVERED).slice(0, SHORT).map(item),
     rejected: mine.filter((r) => r.status === 'rejected').slice(0, SHORT).map(item),
   };
@@ -67,6 +66,7 @@ function List({ heading, items, more }: { heading: string; items: Item[]; more?:
 
 export function RecommendationsSlot({ data }: { data: DepartmentRecommendations }) {
   const all = `/recommendations?department=${data.slug}`;
+  const by = (status: string) => `${all}&status=${status}`;
   const c = data.counts;
   return (
     <section>
@@ -77,12 +77,12 @@ export function RecommendationsSlot({ data }: { data: DepartmentRecommendations 
       <p style={{ fontSize: '15px', lineHeight: 1.6, color: INK, fontWeight: 600, margin: '0 0 18px' }}>
         Open: {c.open}. Delivered: {c.delivered}. Rejected: {c.rejected}. Target passed, being checked: {c.beingChecked}.
       </p>
-      <List heading="Still open" items={data.open} />
+      <List heading="Still open" items={data.open} more={{ count: c.open, href: by('open') }} />
       <List heading="Targets moved" items={data.moved} />
-      <List heading="Target passed, checked by Open Govt" items={data.checked} />
-      <List heading="Target passed" items={data.unchecked} />
-      <List heading="Delivered" items={data.delivered} more={{ count: c.delivered, href: all }} />
-      <List heading="Rejected" items={data.rejected} more={{ count: c.rejected, href: all }} />
+      <List heading="Target passed, being checked" items={data.beingChecked} more={{ count: c.beingChecked, href: by('target_passed') }} />
+      <List heading="Target passed, checked by Open Govt" items={data.checked} more={{ count: data.checked.length, href: by('target_passed') }} />
+      <List heading="Delivered" items={data.delivered} more={{ count: c.delivered, href: by('delivered') }} />
+      <List heading="Rejected" items={data.rejected} more={{ count: c.rejected, href: by('rejected') }} />
     </section>
   );
 }

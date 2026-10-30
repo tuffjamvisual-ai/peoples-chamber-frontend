@@ -7,7 +7,7 @@ import BackLink from '../components/BackLink';
 import RecommendationList, { type ListRow, type ListReport } from './RecommendationList';
 import {
   RECOMMENDATIONS_PUBLIC, allStatus, wording, bodiesFor, departmentWords, departmentSlugs, sessionWords, recPath, documentWords,
-  STATUS_ORDER, STATUS_LABELS, asWritten, targetPassed,
+  STATUS_ORDER, STATUS_LABELS, datePart, targetPassed,
 } from '@/lib/pac';
 
 // /recommendations (owner's approval, 29 Oct 2026, "go stage 4"): the Committee of Public Accounts recommendations
@@ -54,9 +54,14 @@ export default async function RecommendationsPage() {
   });
   const departmentOptions = [
     ...[...seenBodies].map(([value, label]) => ({ value: `body:${value}`, label })).sort((a, b) => a.label.localeCompare(b.label)),
-    { value: 'other', label: 'Other bodies (no department page)' },
+    { value: 'other', label: 'Other bodies' },
   ];
-  const statusOptions = totals.map((t) => ({ value: t.key, label: t.label }));
+  // Groups first (the department tab's "See all" links open them), then each status.
+  const statusOptions = [
+    { value: 'group:open', label: 'Open' }, { value: 'group:delivered', label: 'Delivered' }, { value: 'group:rejected', label: 'Rejected' },
+    { value: 'group:target_passed', label: 'Target passed' },
+    ...totals.map((t) => ({ value: t.key, label: t.label })),
+  ];
   const pageNames = Object.fromEntries(departments.map((d) => [d.slug, d.name]));
 
   return (
@@ -102,7 +107,7 @@ export default async function RecommendationsPage() {
                 {r.report_title}: recommendation {r.rec_number}
               </Link>
               <span style={{ display: 'block', fontSize: '15px' }}>
-                Moved {r.times_target_moved} time{r.times_target_moved === 1 ? '' : 's'}, from “{w.firstTarget(r)}” to “{asWritten(r.latest_target_text)}”.{targetPassed(r.latest_target_month) ? ' Target passed.' : ''}{r.status !== 'target_in_future' ? ` ${w.text(r)}.` : ''}
+                Moved {r.times_target_moved} time{r.times_target_moved === 1 ? '' : 's'}, from {datePart(w.firstTarget(r))} to {datePart(r.latest_target_text)}.{targetPassed(r.latest_target_month) ? ' Target passed.' : ''}{r.status !== 'target_in_future' ? ` ${w.text(r)}.` : ''}
               </span>
             </li>
           ))}

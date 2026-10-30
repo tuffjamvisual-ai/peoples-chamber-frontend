@@ -55,7 +55,20 @@ async function readAll<T>(table: string, columns: string, order: string, filter?
 const STATUS_COLUMNS = 'recommendation_id, session, report_number, report_title, department, rec_number, status, latest_response, times_target_moved, original_target_month, latest_target_month, latest_target_text, implemented_month, split_into, completed_in_cp_number, not_listed_in_cp_number, not_listed_in_published_on, latest_cp_number, latest_published_on, evidence_title, evidence_url, evidence_delivered_on, review_checked_on, review_outcome, review_note';
 const EVENT_COLUMNS = 'id, recommendation_id, document_id, page, response, response_text, status, target_text, target_month, original_target_text, original_target_month, revised_target_text, revised_target_month, implemented_text, implemented_month, progress_text';
 
-export const allStatus = unstable_cache(() => readAll<StatusRow>('pac_recommendation_status', STATUS_COLUMNS, 'recommendation_id'), ['pac-status'], { tags: ['pac'], revalidate: DAY });
+const cachedStatus = unstable_cache(() => readAll<StatusRow>('pac_recommendation_status', STATUS_COLUMNS, 'recommendation_id'), ['pac-status'], { tags: ['pac'], revalidate: DAY });
+// The view works out "target passed" when it is read, and that read is cached for up to a day. So the rule is applied
+// again here, at render, against today's date: a target whose period has ended moves out of "target in future"
+// (an October 2026 target on 1 November 2026) without a code change. Pages using this revalidate every 86400 s.
+export function effectiveStatus(r: StatusRow, today = new Date()): StatusKey {
+  if (r.status !== 'target_in_future' || !targetPassed(r.latest_target_month, today)) return r.status;
+  const [y, m] = (r.latest_target_month ?? '').slice(0, 10).split('-').map(Number);
+  const afterTarget = new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 10); // first day after the target month
+  return r.review_outcome === 'no_later_evidence' && (r.review_checked_on ?? '') >= afterTarget ? 'target_passed_checked' : 'target_passed_unchecked';
+}
+export async function allStatus(): Promise<StatusRow[]> {
+  const today = new Date();
+  return (await cachedStatus()).map((r) => ({ ...r, status: effectiveStatus(r, today) }));
+}
 export const allDocuments = unstable_cache(() => readAll<SourceDocument>('pac_source_documents', 'id, kind, cp_number, title, published_on, url, pages', 'published_on'), ['pac-documents'], { tags: ['pac'], revalidate: DAY });
 // Every event's targets (as written and as months), without the long texts: for the first target as written, and
 // for the document each implemented recommendation was reported in.
@@ -91,13 +104,17 @@ export const recommendationDetail = unstable_cache(async (session: string, repor
 }, ['pac-recommendation-v2'], { tags: ['pac'], revalidate: DAY });
 
 // ---------- bodies: one canonical name per body named in pac_reports.department, and its department page (if any).
-// A report can name several bodies. Renamed departments take their current name (Department for Levelling Up,
-// Housing and Communities is the Ministry of Housing, Communities and Local Government; Department for Digital,
-// Culture, Media and Sport is the Department for Culture, Media and Sport). Department pages: Science, Innovation and
-// Technology and Business and Trade are on business-trade (now Business, Innovation, Science and Trade); HM Revenue
-// and Customs and NS&I are on treasury. Bodies with no department page are also in "Other bodies".
+// A report can name several bodies. A body's current name is shown; a report filed under an earlier name also shows
+// "(formerly ...)" (owner, 30 Oct 2026): the Department for Digital, Culture, Media and Sport (formerly Department for
+// Culture, Media and Sport); the Department for Business, Innovation, Science and Trade (formed July 2026, formerly
+// Department for Business and Trade or Department for Science, Innovation and Technology); the National
+// Infrastructure and Service Transformation Authority (formerly the Infrastructure and Projects Authority); the
+// Ministry of Housing, Communities and Local Government (formerly Department for Levelling Up, Housing and
+// Communities). HM Revenue and Customs and NS&I are on the treasury page. Bodies with no department page, and the
+// Operational Delivery Profession (a cross government profession, left for the owner to place), are "Other bodies".
 export type Body = { key: string; name: string; page: string | null };
-const BODIES: (Body & { re: RegExp })[] = [
+type BodyRule = Body & { re: RegExp; formerly?: { re: RegExp; label: string }[] };
+const BODIES: BodyRule[] = [
   { key: 'hm-treasury', name: 'HM Treasury', page: 'treasury', re: /\bHM Treasury\b|\bHMT\b|\bthe Treasury\b|^Treasury\b/i },
   { key: 'hmrc', name: 'HM Revenue and Customs', page: 'treasury', re: /\bHM Revenue (and|&) Customs\b|\bHMRC\b/i },
   { key: 'nsi', name: 'NS&I', page: 'treasury', re: /\bNS&I\b/ },
@@ -108,19 +125,25 @@ const BODIES: (Body & { re: RegExp })[] = [
   { key: 'dwp', name: 'Department for Work and Pensions', page: 'work-pensions', re: /\bWork and Pensions\b|\bDWP\b/i },
   { key: 'dft', name: 'Department for Transport', page: 'transport', re: /\bDepartment for Transport\b|\bDfT\b/ },
   { key: 'defra', name: 'Department for Environment, Food and Rural Affairs', page: 'environment', re: /\bEnvironment, (Food|Farming) (and|&) Rural Affairs\b|\bDefra\b/i },
-  { key: 'bist', name: 'Department for Business, Innovation, Science and Trade', page: 'business-trade', re: /\bBusiness, Innovation, Science and Trade\b|\bBIST\b/ },
-  { key: 'dbt', name: 'Department for Business and Trade', page: 'business-trade', re: /\bBusiness and Trade\b|\bDBT\b/ },
-  { key: 'dsit', name: 'Department for Science, Innovation and Technology', page: 'business-trade', re: /\bScience, Innovation and Technology\b|\bDSIT\b/ },
+  { key: 'bist', name: 'Department for Business, Innovation, Science and Trade', page: 'business-trade',
+    re: /\bBusiness, Innovation, Science and Trade\b|\bBIST\b|\bBusiness and Trade\b|\bDBT\b|\bScience, Innovation and Technology\b|\bDSIT\b/,
+    formerly: [
+      { re: /\bBusiness and Trade\b|\bDBT\b/, label: 'Department for Business and Trade' },
+      { re: /\bScience, Innovation and Technology\b|\bDSIT\b/, label: 'Department for Science, Innovation and Technology' },
+    ] },
   { key: 'beis', name: 'Department for Business, Energy and Industrial Strategy', page: null, re: /\bBusiness, Energy (and|&) Industrial Strategy\b|\bBEIS\b/i },
-  { key: 'mhclg', name: 'Ministry of Housing, Communities and Local Government', page: 'housing', re: /\bHousing, Communities and Local Government\b|\bLevelling Up, Housing and Communities\b|\bMHCLG\b|\bDLUHC\b/i },
+  { key: 'mhclg', name: 'Ministry of Housing, Communities and Local Government', page: 'housing', re: /\bHousing, Communities and Local Government\b|\bLevelling Up, Housing and Communities\b|\bMHCLG\b|\bDLUHC\b/i,
+    formerly: [{ re: /\bLevelling Up, Housing and Communities\b|\bDLUHC\b/i, label: 'Department for Levelling Up, Housing and Communities' }] },
   { key: 'homes-england', name: 'Homes England', page: null, re: /\bHomes England\b/i },
   { key: 'moj', name: 'Ministry of Justice', page: 'justice', re: /\bMinistry of Justice\b|\bMoJ\b/ },
   { key: 'mod', name: 'Ministry of Defence', page: 'defence', re: /\bMinistry of Defence\b|\bMoD\b|\bMOD\b/ },
-  { key: 'dcms', name: 'Department for Culture, Media and Sport', page: 'culture', re: /\bCulture, Media and Sport\b|\bDCMS\b/i },
+  { key: 'ddcms', name: 'Department for Digital, Culture, Media and Sport', page: 'culture', re: /\bCulture, Media and Sport\b|\bD?DCMS\b/i,
+    formerly: [{ re: /^(?![\s\S]*Digital, Culture)[\s\S]*\bCulture, Media and Sport\b/i, label: 'Department for Culture, Media and Sport' }] },
   { key: 'cabinet-office', name: 'Cabinet Office', page: 'cabinet-office', re: /\bCabinet Office\b/i },
   { key: 'fcdo', name: 'Foreign, Commonwealth and Development Office', page: 'foreign-office', re: /\bForeign, Commonwealth\b|\bFCDO\b/i },
-  { key: 'ipa', name: 'Infrastructure and Projects Authority', page: null, re: /\bInfrastructure and Projects Authority\b|\bIPA\b/ },
-  { key: 'nista', name: 'National Infrastructure and Service Transformation Authority', page: null, re: /\bNational Infrastructure and Service Transformation Authority\b|\bNISTA\b/ },
+  { key: 'nista', name: 'National Infrastructure and Service Transformation Authority', page: null,
+    re: /\bNational Infrastructure and Service Transformation Authority\b|\bNISTA\b|\bInfrastructure and Projects Authority\b|\bIPA\b/,
+    formerly: [{ re: /\bInfrastructure and Projects Authority\b|\bIPA\b/, label: 'the Infrastructure and Projects Authority' }] },
   { key: 'ofcom', name: 'Ofcom', page: null, re: /\bOfcom\b/ },
   { key: 'bbc', name: 'BBC', page: null, re: /\bBBC\b/ },
   { key: 'odp', name: 'Operational Delivery Profession', page: null, re: /\bOperational Delivery Profession\b|\bODP\b/ },
@@ -131,7 +154,19 @@ export function bodiesFor(text: string | null): Body[] {
   return BODIES.filter((b) => b.re.test(text)).map(({ key, name, page }) => ({ key, name, page }));
 }
 export const departmentSlugs = (text: string | null) => [...new Set(bodiesFor(text).map((b) => b.page).filter((p): p is string => !!p))];
-export const departmentWords = (text: string | null) => joinWords(bodiesFor(text).map((b) => b.name)) || (text ?? '');
+// The report's bodies by their current names, each with "(formerly ...)" when the report uses an earlier name.
+export function departmentWords(text: string | null): string {
+  if (!text) return '';
+  // In the order the report names them.
+  const at = (b: BodyRule) => { const m = new RegExp(b.re.source, b.re.flags.replace('g', '')).exec(text); return m ? m.index : Infinity; };
+  const names = BODIES.filter((b) => b.re.test(text)).sort((x, y) => at(x) - at(y)).map((b) => {
+    const current = b.name.replace(/^the /, '');
+    const usesCurrent = new RegExp(current.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i').test(text);
+    const old = (b.formerly ?? []).filter((f) => f.re.test(text)).map((f) => f.label);
+    return !usesCurrent && old.length ? `${b.name} (formerly ${old.join(' and ')})` : b.name;
+  });
+  return joinWords(names) || text;
+}
 const joinWords = (xs: string[]) => (xs.length <= 1 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
 
 // The body a recommendation is addressed to, read from its first words ("Companies House should ..."), when it is
@@ -174,6 +209,21 @@ export const documentShort = (d: SourceDocument) => `${d.title} (${d.cp_number})
 // Official text as published, with words the PDF broke across a line put back together ("semi- permanent"); a
 // shared hyphen before and, or or to ("short- and long-term") is left as printed.
 export const asPublished = (t: string | null) => (t ?? '').replace(/([a-z])- (?!and |or |to )([a-z])/g, '$1-$2');
+// "end of Summer 2026"; a target already written as an end or a deadline ("end of March 2026", "by end March 2029",
+// "Before the end of ...") is left as it is.
+export function endOf(t: string | null): string {
+  const w = asWritten(t);
+  return /^(end|by|before)\b/i.test(w) ? w : `end of ${w}`;
+}
+// The date part of a target as written, for short lists ("Spring 2027" from "Spring 2027, future updates to be
+// provided ..."); the first 40 characters and an ellipsis when no date part can be cut cleanly.
+const DATE_PART = /^(?:(?:by\s+(?:the\s+)?end(?:\s+of)?|end\s+of|end|early|mid|late|during|tbc)\s+)?(?:(?:January|February|March|April|May|June|July|August|September|October|November|December|Spring|Summer|Autumn|Winter)\s+)?\d{4}\b/i;
+export function datePart(t: string | null): string {
+  const w = asWritten(t).replace(/^ongoing\s+(until\s+)?/i, '');
+  const m = w.match(DATE_PART);
+  if (m) return m[0].replace(/^by\s+/i, '');
+  return w.length > 40 ? `${w.slice(0, 40).trimEnd()}…` : w;
+}
 // A target as the document writes it.
 export const asWritten = (t: string | null) => asPublished(t).replace(/\.$/, '').trim();
 // A target has passed once the month its period ends in is over (Summer 2026 passes on 1 September 2026; October 2026
@@ -218,7 +268,8 @@ export async function wording(): Promise<Wording> {
     switch (r.status) {
       case 'implemented': {
         const d = implementedIn.get(r.recommendation_id);
-        return [{ text: `Delivered (${r.implemented_month ? monthYear(r.implemented_month) : 'month not stated'}), per ${d ? documentShort(d) : 'Treasury Minute'}` }];
+        const per = d ? documentShort(d) : 'Treasury Minute';
+        return [{ text: r.implemented_month ? `Delivered (${monthYear(r.implemented_month)}), per ${per}` : `Delivered, per ${per}` }];
       }
       case 'delivered_elsewhere':
         return [{ text: `Delivered (${r.evidence_delivered_on ? monthYear(r.evidence_delivered_on) : 'month not stated'}), see ` }, { text: r.evidence_title ?? 'the publication', href: r.evidence_url ?? undefined }];
@@ -251,7 +302,8 @@ export async function wording(): Promise<Wording> {
         return [{ text: `Target passed (${asWritten(r.latest_target_text)}). No record of delivery found as of ${dayMonthYear(r.review_checked_on)}` }];
       case 'target_passed_unchecked': {
         const d = doc(r.latest_cp_number);
-        return [{ text: `Target passed (${asWritten(r.latest_target_text)}). Not yet recorded as delivered in a Treasury document, as of the ${d ? documentWords(d) : r.latest_cp_number}` }];
+        const latest = docs[docs.length - 1];
+        return [{ text: `Target passed (${endOf(r.latest_target_text)}). Last mentioned in ${d ? documentShort(d) : r.latest_cp_number}. Not recorded as delivered in any document up to ${latest ? documentShort(latest) : r.latest_cp_number}.` }];
       }
     }
   };
