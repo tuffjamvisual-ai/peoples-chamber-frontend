@@ -31,6 +31,10 @@ export type StatusRow = {
   completed_in_cp_number: string | null; not_listed_in_cp_number: string | null; not_listed_in_published_on: string | null;
   latest_cp_number: string; latest_published_on: string; evidence_title: string | null; evidence_url: string | null;
   evidence_delivered_on: string | null; review_checked_on: string | null; review_outcome: string | null; review_note: string | null;
+  review_url: string | null;
+  // Set only when the current target comes from a later letter or other publication (pac_target_updates, 2026-10-30b).
+  target_source_title: string | null; target_source_url: string | null; target_source_publisher: string | null;
+  target_source_dated: string | null; target_source_published_on: string | null; target_source_quote: string | null;
 };
 export type SourceDocument = { id: number; kind: 'treasury_minute' | 'progress_report'; cp_number: string; title: string; published_on: string; url: string; pages: number | null };
 export type EventRow = {
@@ -52,10 +56,10 @@ async function readAll<T>(table: string, columns: string, order: string, filter?
   }
 }
 
-const STATUS_COLUMNS = 'recommendation_id, session, report_number, report_title, department, rec_number, status, latest_response, times_target_moved, original_target_month, latest_target_month, latest_target_text, implemented_month, split_into, completed_in_cp_number, not_listed_in_cp_number, not_listed_in_published_on, latest_cp_number, latest_published_on, evidence_title, evidence_url, evidence_delivered_on, review_checked_on, review_outcome, review_note';
+const STATUS_COLUMNS = 'recommendation_id, session, report_number, report_title, department, rec_number, status, latest_response, times_target_moved, original_target_month, latest_target_month, latest_target_text, implemented_month, split_into, completed_in_cp_number, not_listed_in_cp_number, not_listed_in_published_on, latest_cp_number, latest_published_on, evidence_title, evidence_url, evidence_delivered_on, review_checked_on, review_outcome, review_note, review_url, target_source_title, target_source_url, target_source_publisher, target_source_dated, target_source_published_on, target_source_quote';
 const EVENT_COLUMNS = 'id, recommendation_id, document_id, page, response, response_text, status, target_text, target_month, original_target_text, original_target_month, revised_target_text, revised_target_month, implemented_text, implemented_month, progress_text';
 
-const cachedStatus = unstable_cache(() => readAll<StatusRow>('pac_recommendation_status', STATUS_COLUMNS, 'recommendation_id'), ['pac-status'], { tags: ['pac'], revalidate: DAY });
+const cachedStatus = unstable_cache(() => readAll<StatusRow>('pac_recommendation_status', STATUS_COLUMNS, 'recommendation_id'), ['pac-status-v2'], { tags: ['pac'], revalidate: DAY });
 // The view works out "target passed" when it is read, and that read is cached for up to a day. So the rule is applied
 // again here, at render, against today's date: a target whose period has ended moves out of "target in future"
 // (an October 2026 target on 1 November 2026) without a code change. Pages using this revalidate every 86400 s.
@@ -101,7 +105,7 @@ export const recommendationDetail = unstable_cache(async (session: string, repor
       .sort((a, b) => a.document.published_on.localeCompare(b.document.published_on)),
     evidence: (evidence.data ?? []) as Evidence[],
   };
-}, ['pac-recommendation-v2'], { tags: ['pac'], revalidate: DAY });
+}, ['pac-recommendation-v3'], { tags: ['pac'], revalidate: DAY });
 
 // ---------- bodies: one canonical name per body named in pac_reports.department, and its department page (if any).
 // A report can name several bodies. A body's current name is shown; a report filed under an earlier name also shows
@@ -283,7 +287,8 @@ export async function wording(): Promise<Wording> {
         return [{ text: r.implemented_month ? `Delivered (${monthYear(r.implemented_month)}), per ${per}` : `Delivered, per ${per}` }];
       }
       case 'delivered_elsewhere':
-        return [{ text: `Delivered (${r.evidence_delivered_on ? monthYear(r.evidence_delivered_on) : 'month not stated'}), see ` }, { text: r.evidence_title ?? 'the publication', href: r.evidence_url ?? undefined }];
+        return [{ text: 'Delivered, shown in ' }, { text: r.evidence_title ?? 'a later publication', href: r.evidence_url ?? undefined },
+          ...(r.evidence_delivered_on ? [{ text: ` (${dayMonthYear(r.evidence_delivered_on)})` }] : [])];
       case 'split': {
         const parts = r.split_into ?? [];
         const out: StatusLink[] = [{ text: 'Split into ' }];
@@ -305,8 +310,10 @@ export async function wording(): Promise<Wording> {
         const d = doc(r.not_listed_in_cp_number);
         return [{ text: `No longer listed as outstanding (${d ? documentWords(d) : 'progress report'})` }];
       }
-      case 'target_in_future':
-        return [{ text: `Target: ${asWritten(r.latest_target_text)}${moved(r)}` }];
+      case 'target_in_future': {
+        const source = targetSource(r);
+        return [{ text: `Target: ${asWritten(r.latest_target_text)}${moved(r)}${source ? '. ' : ''}` }, ...(source ? [{ text: source.text, href: source.href }] : [])];
+      }
       case 'no_dated_target':
         return [{ text: r.latest_target_text ? `No dated target: “${asWritten(r.latest_target_text)}”` : 'No dated target given' }];
       case 'target_passed_checked':
@@ -325,6 +332,31 @@ export async function wording(): Promise<Wording> {
     latestDocument: docs.length ? docs[docs.length - 1] : null,
     documents: docs,
   };
+}
+
+// A target set in a later letter or other publication, not a Treasury Minute: "Revised in a letter from the Ministry
+// of Justice, 23 July 2026", linking to it.
+export function targetSource(r: StatusRow): StatusLink | null {
+  if (!r.target_source_url) return null;
+  const from = r.target_source_publisher ? ` from ${/^the /i.test(r.target_source_publisher) ? '' : 'the '}${r.target_source_publisher}` : '';
+  const kind = /^letter\b/i.test(r.target_source_title ?? '') ? 'a letter' : 'a publication';
+  const on = r.target_source_dated ?? r.target_source_published_on;
+  return { text: `Revised in ${kind}${from}${on ? `, ${dayMonthYear(on)}` : ''}`, href: r.target_source_url };
+}
+
+// Open Govt's check that found a recommendation partly delivered (pac_recommendation_review, outcome
+// partly_delivered): "Later evidence (checked 30 October 2026): <note> Source: <site>", the site linking to the
+// publication. Shown only while the target has passed and the recommendation is still open (not once it is delivered
+// or closed). The short form, for the department tab's lists, cuts the note to about 200 characters.
+const siteName = (url: string) => { try { const h = new URL(url).hostname.replace(/^www\./, ''); return h === 'gov.uk' ? 'GOV.UK' : h; } catch { return 'the publication'; } };
+export function laterEvidence(r: StatusRow, short = false): StatusLink[] | null {
+  if (r.review_outcome !== 'partly_delivered' || !r.review_note) return null;
+  if (r.status !== 'target_passed_unchecked' && r.status !== 'target_passed_checked') return null;
+  let note = r.review_note.trim();
+  if (short && note.length > 200) note = `${note.slice(0, 200).replace(/\s+\S*$/, '').replace(/[,;:]$/, '')}…`;
+  const out: StatusLink[] = [{ text: `Later evidence (checked ${dayMonthYear(r.review_checked_on)}): ${note}` }];
+  if (r.review_url) out.push({ text: ' Source: ' }, { text: siteName(r.review_url), href: r.review_url });
+  return out;
 }
 
 // Labels for the totals boxes and the status filter. Every status has a box, so the boxes add up to the total.

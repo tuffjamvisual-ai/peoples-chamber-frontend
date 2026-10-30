@@ -5,7 +5,7 @@ import OpenGovShell from '../../../../components/OpenGovShell';
 import BackLink from '../../../../components/BackLink';
 import {
   RECOMMENDATIONS_PUBLIC, recommendationDetail, wording, sessionWords, dayMonthYear, asPublished, documentWords, departmentWords, recommendationFor,
-  targetPassed, effectiveStatus, bodyNotes, type EventRow, type SourceDocument,
+  targetPassed, effectiveStatus, bodyNotes, laterEvidence, targetSource, type StatusRow, type StatusLink, type EventRow, type SourceDocument,
 } from '@/lib/pac';
 
 // /recommendations/[session]/[report]/[rec], e.g. /recommendations/2024-26/54/4b (owner's approval, 29 Oct 2026,
@@ -51,6 +51,34 @@ function targetLine(label: string, text: string | null, month: string | null): s
   return `${label}: “${text}”${targetPassed(month) ? '. Target passed' : ''}`;
 }
 
+const linked = (parts: StatusLink[]) => parts.map((s, i) => (s.href ? <a key={i} href={s.href} style={link}>{s.text}</a> : <span key={i}>{s.text}</span>));
+
+// A target set after the Treasury Minutes, in a department's letter (pac_target_updates): the last entry in the
+// timeline, as "Revised in a letter from the Ministry of Justice, 23 July 2026". Not a Treasury Minute or progress report.
+function TargetUpdate({ row }: { row: StatusRow }) {
+  const source = targetSource(row);
+  if (!source) return null;
+  return (
+    <li style={{ borderLeft: '2px solid rgba(20,16,13,0.25)', padding: '0 0 18px 16px', margin: 0 }}>
+      <span style={{ display: 'block', ...small, fontSize: '16px', fontWeight: 600 }}>
+        <a href={source.href} style={link}>{source.text}</a>
+      </span>
+      {row.target_source_title && (
+        <span style={{ display: 'block', ...small, marginTop: '4px' }}>
+          {row.target_source_title}{row.target_source_published_on ? `, published ${dayMonthYear(row.target_source_published_on)}` : ''}
+        </span>
+      )}
+      {row.latest_target_text && <span style={{ display: 'block', ...small }}>{targetLine('Revised target', row.latest_target_text, row.latest_target_month)}</span>}
+      {row.target_source_quote && (
+        <details open style={{ marginTop: '6px' }}>
+          <summary style={{ ...small, cursor: 'pointer' }}>The letter’s words</summary>
+          <p style={{ ...p, fontSize: '15px', marginTop: '8px' }}>{asPublished(row.target_source_quote)}</p>
+        </details>
+      )}
+    </li>
+  );
+}
+
 function Event({ e, open }: { e: EventRow & { document: SourceDocument }; open: boolean }) {
   const pdf = `${e.document.url}${e.page ? `#page=${e.page}` : ''}`;
   const lines = [
@@ -85,6 +113,8 @@ export default async function RecommendationPage({ params }: { params: Promise<P
   const w = await wording();
   const status = w.words(row);
   const addressedTo = recommendationFor(d.recommendation, row.department);
+  const later = laterEvidence(row);
+  const hasUpdate = !!targetSource(row);
 
   return (
     <OpenGovShell pageStamp="Recommendations">
@@ -106,8 +136,9 @@ export default async function RecommendationPage({ params }: { params: Promise<P
 
       <section style={{ color: INK }}>
         <p style={{ ...p, fontSize: '18px', fontWeight: 600, border: '1px solid rgba(20,16,13,0.3)', padding: '12px 14px' }}>
-          {status.map((s, i) => (s.href ? <a key={i} href={s.href} style={link}>{s.text}</a> : <span key={i}>{s.text}</span>))}
+          {linked(status)}
         </p>
+        {later && <p style={p}>{linked(later)}</p>}
         {row.review_checked_on && (
           <p style={p}>Checked by Open Govt on {dayMonthYear(row.review_checked_on)}{row.review_note ? `: ${row.review_note}` : '.'}</p>
         )}
@@ -135,7 +166,8 @@ export default async function RecommendationPage({ params }: { params: Promise<P
 
         <h2 style={h2}>What the government has said</h2>
         <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {events.map((e, i) => <Event key={e.id} e={e} open={i === events.length - 1} />)}
+          {events.map((e, i) => <Event key={e.id} e={e} open={!hasUpdate && i === events.length - 1} />)}
+          <TargetUpdate row={row} />
         </ol>
         <p style={{ ...small, marginTop: '28px' }}>
           Source: HM Treasury, Treasury Minutes and Treasury Minutes Progress Reports, on GOV.UK under the Open Government Licence v3.0. Quoted text is as published.{' '}

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { allStatus, wording, departmentSlugs, recPath, relatedBodies, type StatusRow } from '@/lib/pac';
+import { allStatus, wording, departmentSlugs, recPath, relatedBodies, laterEvidence, type StatusRow, type StatusLink } from '@/lib/pac';
 
 // Department page "Recommendations" tab (owner's approval, 29 Oct 2026, "go stage 4"; fixes 30 Oct 2026): a count line
 // (open, delivered, rejected, target passed and being checked), then this department's Committee of Public Accounts
@@ -8,8 +8,8 @@ import { allStatus, wording, departmentSlugs, recPath, relatedBodies, type Statu
 // /recommendations filtered to this department and that status. Under the count line, "Also: <body> (<role>)" for a
 // body cross referenced to this department (lib/pac.ts "related"), linking to the list filtered to that body; its
 // recommendations are not counted here. Shown only when RECOMMENDATIONS_PUBLIC=1 (the caller
-// checks).
-type Item = { href: string; title: string; status: string };
+// checks). An item Open Govt found partly delivered also shows its "Later evidence" line, in short form.
+type Item = { href: string; title: string; status: string; later?: StatusLink[] };
 export type DepartmentRecommendations = {
   slug: string;
   related: { key: string; name: string; role: string }[];
@@ -27,7 +27,7 @@ export async function getDepartmentRecommendations(slug: string): Promise<Depart
   const mine = rows.filter((r) => departmentSlugs(r.department).includes(slug))
     .sort((a, b) => b.session.localeCompare(a.session) || b.report_number - a.report_number || a.rec_number.localeCompare(b.rec_number, 'en', { numeric: true }));
   if (!mine.length) return null;
-  const item = (r: StatusRow): Item => ({ href: recPath(r), title: `${r.report_title}: recommendation ${r.rec_number}`, status: w.text(r) });
+  const item = (r: StatusRow): Item => ({ href: recPath(r), title: `${r.report_title}: recommendation ${r.rec_number}`, status: w.text(r), later: laterEvidence(r, true) ?? undefined });
   const of = (keys: Set<string>) => mine.filter((r) => keys.has(r.status));
   return {
     slug,
@@ -58,6 +58,11 @@ function List({ heading, items, more }: { heading: string; items: Item[]; more?:
               <span style={{ display: 'block', fontSize: '15px', lineHeight: 1.45, fontWeight: 600, overflowWrap: 'anywhere' }}>{i.title}</span>
               <span style={{ display: 'block', fontSize: '15px', lineHeight: 1.5, marginTop: '3px', overflowWrap: 'anywhere' }}>{i.status}</span>
             </Link>
+            {i.later && (
+              <span style={{ display: 'block', fontSize: '15px', lineHeight: 1.5, marginTop: '3px', color: INK, overflowWrap: 'anywhere' }}>
+                {i.later.map((s, k) => (s.href ? <a key={k} href={s.href} style={link}>{s.text}</a> : <span key={k}>{s.text}</span>))}
+              </span>
+            )}
           </li>
         ))}
       </ol>
