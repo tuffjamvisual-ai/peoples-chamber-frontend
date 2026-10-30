@@ -387,7 +387,20 @@ async function GET_impl(req: Request) {
         supabaseAdmin.from('hansard_contributions').select('ext_id', { count: 'exact', head: true }),
         supabaseAdmin.from('parliament_archive_sync_state').select('source, cursor, rows_done, finished_at, last_error, last_run_at'),
       ]);
-      return { writtenQuestions: q.count ?? null, speeches: sp.count ?? null, sources: st.data ?? [], error: q.error?.message ?? sp.error?.message ?? st.error?.message ?? null };
+      // Debates from our own database, Stage 1 (owner, 30 Oct 2026): backfill progress from hansard_debates and the
+      // debates cursor (with_items and parents_filled are counted by the sync as each record is first stored), the
+      // text changes found by re-fetches, and the monthly check of 20 settled debates.
+      const hd = () => supabaseAdmin.from('hansard_debates').select('guid', { count: 'exact', head: true });
+      const [all, settled, gone, incomplete] = await Promise.all([hd(), hd().not('settled_at', 'is', null), hd().not('gone_at', 'is', null), hd().eq('incomplete', true)]);
+      const ds = (st.data ?? []).find((r) => r.source === 'debates');
+      const dc = (ds?.cursor ?? {}) as Record<string, unknown>;
+      const debates = all.error ? { error: all.error.message } : {
+        stored: all.count ?? null, withItems: Number(dc.with_items) || 0, parentsFilled: Number(dc.parents_filled) || 0,
+        settled: settled.count ?? null, gone: gone.count ?? null, incomplete: incomplete.count ?? null,
+        backfillDate: typeof dc.date === 'string' ? dc.date : null, backfillFinishedAt: ds?.finished_at ?? null,
+        textChanges: Number(dc.text_changes_total) || 0, monthlyCheck: dc.monthly ?? null,
+      };
+      return { writtenQuestions: q.count ?? null, speeches: sp.count ?? null, debates, sources: st.data ?? [], error: q.error?.message ?? sp.error?.message ?? st.error?.message ?? null };
     } catch (e) {
       return { error: (e as Error).message };
     }
