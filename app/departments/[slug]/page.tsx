@@ -27,6 +27,8 @@ import BackLink from '../../components/BackLink';
 import JsonLd, { buildDepartmentOrg } from '@/lib/JsonLd';
 import { DEPT_SLUG_TO_ORGS } from '@/lib/govOrgSlug';
 import { govUrlToSlug } from '@/lib/govUrlSlug';
+import { RECOMMENDATIONS_PUBLIC } from '@/lib/pac';
+import { getDepartmentRecommendations, RecommendationsSlot } from './RecommendationsSlot';
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
@@ -263,6 +265,15 @@ export default async function DepartmentPage({ params }: PageProps) {
   if (investigations.length > 0) {
     tabs.push({ id: 'investigations', label: 'Reports', rotate: '0.05deg' });
     slots.investigations = <InvestigationsSlot investigations={investigations} />;
+  }
+  // Recommendations tab (29 Oct 2026, "go stage 4"): Committee of Public Accounts recommendations, only when
+  // RECOMMENDATIONS_PUBLIC=1 and the department has any open, moved or checked ones (lib/pac.ts, cached under 'pac').
+  if (RECOMMENDATIONS_PUBLIC) {
+    const recommendations = await getDepartmentRecommendations(slug);
+    if (recommendations) {
+      tabs.push({ id: 'recommendations', label: 'Recommendations', rotate: '0.04deg' });
+      slots.recommendations = <RecommendationsSlot data={recommendations} />;
+    }
   }
   // B4 — programmes tab: only shown when at least one live programme is tagged.
   if (rawProgrammes.length > 0) {

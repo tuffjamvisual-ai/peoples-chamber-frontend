@@ -7,6 +7,7 @@
 //   node scripts/pac/load-treasury-minutes.mjs <parsed.json> --apply     the same, then COMMIT
 //   node scripts/pac/load-treasury-minutes.mjs --summary                 read only: rows, needs review, moved and passed targets
 //   node scripts/pac/load-treasury-minutes.mjs --status                  read only: the status view (migration 2026-10-29e)
+// Stage 4 (owner, 29 Oct 2026, "go stage 4"): after --apply it runs node scripts/revalidate.js --tag pac.
 // Stage 3 (owner, 29 Oct 2026, "go stage 3"): also the reports each progress report lists under "Reports completed"
 // (pac_progress_completed_reports). A completed report not answered in any loaded document is added to pac_reports
 // with its listed title and no department; an existing report row is never changed by a completed list.
@@ -139,6 +140,12 @@ ${apply ? 'COMMIT' : 'ROLLBACK'};
   console.log(`  rows before ${JSON.stringify(before)}`);
   console.log(`  rows after  ${JSON.stringify(after)}${apply ? '' : ' (rolled back)'}`);
   console.log(`load-treasury-minutes: ${changed} rows ${apply ? 'written' : 'would be written'}`);
+  // After an apply, refresh the cached recommendations pages (lib/pac.ts reads under the 'pac' tag).
+  if (apply) {
+    const r = spawnSync('node', ['scripts/revalidate.js', '--tag', 'pac'], { encoding: 'utf8' });
+    console.log(`  refresh: ${(r.stdout || r.stderr || '').trim()}`);
+    if (r.status !== 0) console.error('  the refresh failed; run it again: node scripts/revalidate.js --tag pac');
+  }
 }
 
 // ---------- read only summary
