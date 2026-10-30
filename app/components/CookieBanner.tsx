@@ -7,7 +7,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { track } from '@vercel/analytics';
-import { CONSENT_EVENT, bannerHiddenNow, readConsent, writeConsent } from '@/lib/cookie-consent';
+import { CONSENT_EVENT, readConsent, writeConsent } from '@/lib/cookie-consent';
 
 const INK = '#14100d';
 const PAPER = '#fbf4e6';
@@ -27,10 +27,9 @@ export default function CookieBanner() {
   const confirmRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // The browser's cookie is read after hydration; the server always renders the question. Before
-    // COOKIE_BANNER_HIDDEN_UNTIL (checked here, in the browser) the banner is not shown to anyone.
+    // The browser's cookie is read after hydration; the server always renders the question.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setState(readConsent() || bannerHiddenNow() ? 'hidden' : 'ask');
+    setState(readConsent() ? 'hidden' : 'ask');
     // A choice saved on /cookies while the banner is open closes it.
     const onChoice = () => setState((s) => (s === 'ask' || s === 'initial' ? 'hidden' : s));
     window.addEventListener(CONSENT_EVENT, onChoice);
