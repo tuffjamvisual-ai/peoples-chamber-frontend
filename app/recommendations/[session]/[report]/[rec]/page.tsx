@@ -67,8 +67,8 @@ const linked = (parts: StatusLink[]) => parts.map((s, i) => (s.href ? <a key={i}
 
 // A target set after the Treasury Minutes, in a department's letter (pac_target_updates): the last entry in the
 // timeline, as "Revised in a letter from the Ministry of Justice, 23 July 2026". Not a Treasury Minute or progress report.
-function TargetUpdate({ row }: { row: StatusRow }) {
-  const source = targetSource(row);
+function TargetUpdate({ row, docs }: { row: StatusRow; docs: SourceDocument[] }) {
+  const source = targetSource(row, docs);
   if (!source) return null;
   return (
     <li style={{ borderLeft: '2px solid rgba(20,16,13,0.25)', padding: '0 0 18px 16px', margin: 0 }}>
@@ -126,12 +126,14 @@ export default async function RecommendationPage({ params }: { params: Promise<P
   const status = w.words(row);
   const addressedTo = recommendationFor(d.recommendation, row.department);
   const later = laterEvidence(row);
-  const hasUpdate = !!targetSource(row);
+  const hasUpdate = !!row.target_source_url;
   // What the delivered_elsewhere publication shows (the first evidence row, the one the status line names).
   const shows = row.status === 'delivered_elsewhere' ? evidence.find((e) => e.evidence_url === row.evidence_url)?.note ?? null : null;
   const laterSources = [...new Set([
     ...(row.status === 'delivered_elsewhere' ? evidence.map((e) => laterSource(e.evidence_url, e.publisher, e.evidence_title)) : []),
-    hasUpdate ? laterSource(row.target_source_url, row.target_source_publisher, row.target_source_title) : null,
+    // A target read from a Treasury document itself (2024-26/3/6b) is covered by the HM Treasury sentence.
+    hasUpdate && !w.documents.some((d) => (row.target_source_title ?? '').includes(`(${d.cp_number})`))
+      ? laterSource(row.target_source_url, row.target_source_publisher, row.target_source_title) : null,
     later ? row.review_publisher ?? laterSource(row.review_url, null, null) : null,
   ].filter((x): x is string => !!x))];
 
@@ -188,7 +190,7 @@ export default async function RecommendationPage({ params }: { params: Promise<P
         <h2 style={h2}>What the government has said</h2>
         <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {events.map((e, i) => <Event key={e.id} e={e} open={!hasUpdate && i === events.length - 1} />)}
-          <TargetUpdate row={row} />
+          <TargetUpdate row={row} docs={w.documents} />
         </ol>
         <p style={{ ...small, marginTop: '28px' }}>
           Source: HM Treasury, Treasury Minutes and Treasury Minutes Progress Reports, on GOV.UK under the Open Government Licence v3.0. Quoted text is as published.{' '}

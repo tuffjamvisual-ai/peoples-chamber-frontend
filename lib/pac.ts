@@ -342,7 +342,7 @@ export async function wording(): Promise<Wording> {
         return [{ text: `No longer listed as outstanding (${d ? documentWords(d) : 'progress report'})` }];
       }
       case 'target_in_future': {
-        const source = targetSource(r);
+        const source = targetSource(r, docs);
         return [{ text: `Target: ${asWritten(r.latest_target_text)}${moved(r)}${source ? '. ' : ''}` }, ...(source ? [{ text: source.text, href: source.href }] : [])];
       }
       case 'no_dated_target':
@@ -366,9 +366,15 @@ export async function wording(): Promise<Wording> {
 }
 
 // A target set in a later letter or other publication, not a Treasury Minute: "Revised in a letter from the Ministry
-// of Justice, 23 July 2026", linking to it.
-export function targetSource(r: StatusRow): StatusLink | null {
+// of Justice, 23 July 2026", linking to it. One read from a Treasury document itself (its source_title names the CP
+// number, 2026-10-30d) is "Revised in the Treasury Minutes progress report, June 2026 (CP 1593), paragraph 6.4".
+export function targetSource(r: StatusRow, docs: SourceDocument[] = []): StatusLink | null {
   if (!r.target_source_url) return null;
+  const doc = docs.find((d) => (r.target_source_title ?? '').includes(`(${d.cp_number})`));
+  if (doc) {
+    const rest = (r.target_source_title ?? '').split(`(${doc.cp_number})`)[1] ?? '';
+    return { text: `Revised in the ${documentShort(doc)}${rest}`, href: r.target_source_url };
+  }
   const from = r.target_source_publisher ? ` from ${/^the /i.test(r.target_source_publisher) ? '' : 'the '}${r.target_source_publisher}` : '';
   const kind = /^letter\b/i.test(r.target_source_title ?? '') ? 'a letter' : 'a publication';
   const on = r.target_source_dated ?? r.target_source_published_on;
