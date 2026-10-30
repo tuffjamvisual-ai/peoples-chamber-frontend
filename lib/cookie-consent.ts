@@ -10,10 +10,17 @@ const ONE_YEAR_SEC = 60 * 60 * 24 * 365;
 
 export type ConsentPolicy = { analytics: boolean };
 
+// The banner is not shown to anyone before this time (owner's instruction, 30 Oct 2026). The date is checked in the
+// browser, so from this time it shows again exactly as before with no deploy. While it is hidden nothing else changes:
+// PostHog still loads only for a visitor whose og_cookies_policy says analytics true, and /cookies still saves a choice.
+export const COOKIE_BANNER_HIDDEN_UNTIL = '2026-11-07T00:00:00Z';
+export const bannerHiddenNow = (): boolean => Date.now() < Date.parse(COOKIE_BANNER_HIDDEN_UNTIL);
+
 // Runs in <head> before the page paints: a visitor who has already chosen gets the og-cookies-set class on <html>,
 // and the banner, which is in the page from the first paint for everyone else, is hidden by CSS. So the banner never
-// moves the page when it appears or goes.
-export const CONSENT_HEAD_SCRIPT = `try{if(document.cookie.split('; ').some(function(c){return c.indexOf('${CONSENT_COOKIE}=')===0}))document.documentElement.classList.add('og-cookies-set')}catch(e){}`;
+// moves the page when it appears or goes. Before COOKIE_BANNER_HIDDEN_UNTIL every visitor gets the class, so the
+// banner is hidden for all (the class only hides the banner).
+export const CONSENT_HEAD_SCRIPT = `try{if(Date.now()<${Date.parse(COOKIE_BANNER_HIDDEN_UNTIL)}||document.cookie.split('; ').some(function(c){return c.indexOf('${CONSENT_COOKIE}=')===0}))document.documentElement.classList.add('og-cookies-set')}catch(e){}`;
 
 export function readConsent(): ConsentPolicy | null {
   if (typeof document === 'undefined') return null;
