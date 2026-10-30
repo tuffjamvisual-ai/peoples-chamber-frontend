@@ -8,7 +8,6 @@ import { readingLabel } from '@/lib/reading-time';
 import ContinueToArticle from './components/ContinueToArticle';
 import { supabase } from '@/lib/supabase';
 import { govUrlToSlug } from '@/lib/govUrlSlug';
-import { normalizeOrg, resolveOrgHref } from '@/lib/govOrgSlug';
 import { departments } from '@/lib/departments';
 import AreaSearch from './components/AreaSearch';
 import NewsletterSignup from './components/NewsletterSignup';
@@ -106,31 +105,23 @@ export default async function HomePage() {
   // .not('removed_upstream', 'is', true) → SQL: removed_upstream IS NOT TRUE,
   // which correctly includes NULL rows (NULL IS NOT TRUE = true in PostgreSQL).
   // .limit(10): buffer so the block fills to 5 even if some rows have unusable slugs.
-  // agency_cache fetched once in parallel with press_releases; departments are
-  // resolved from the module-level DEPT_ORG_TO_SLUG constant (no DB query).
-  const [
-    { data: rawPressReleases },
-    { data: agencyRows },
-  ] = await Promise.all([
-    supabase
-      .from('press_releases')
-      .select('title, organisation, published_at, gov_url')
-      .not('removed_upstream', 'is', true)
-      .ilike('gov_url', '%gov.uk%')
-      .order('published_at', { ascending: false })
-      .limit(10),
-    supabase.from('agency_cache').select('slug, name'),
-  ]);
+  // Each item links only to its press release (owner, 30 Oct 2026), so the department or agency name is plain text and
+  // agency_cache is no longer read here.
+  const { data: rawPressReleases } = await supabase
+    .from('press_releases')
+    .select('title, organisation, published_at, gov_url')
+    .not('removed_upstream', 'is', true)
+    .ilike('gov_url', '%gov.uk%')
+    .order('published_at', { ascending: false })
+    .limit(10);
   const expensesYear = expensesYearShort(await latestExpensesYear());
-  const agencyExact = new Map<string, string>((agencyRows ?? []).map((r) => [r.name, r.slug]));
-  const agencyNorm = new Map<string, string>((agencyRows ?? []).map((r) => [normalizeOrg(r.name), r.slug]));
   const whitehallItems = (rawPressReleases ?? [])
     .flatMap((row) => {
       if (!row.gov_url) return [];
       const slug = govUrlToSlug(row.gov_url);
       if (!slug) return [];
       const org = row.organisation as string | null;
-      return [{ slug, title: row.title as string, organisation: org, publishedAt: row.published_at as string | null, orgHref: org ? resolveOrgHref(org, agencyExact, agencyNorm) : null }];
+      return [{ slug, title: row.title as string, organisation: org, publishedAt: row.published_at as string | null }];
     })
     .slice(0, 5);
 
@@ -216,17 +207,16 @@ export default async function HomePage() {
                     Government press releases, published as issued
                   </p>
                   <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-                    {whitehallItems.map(({ slug, title, organisation, publishedAt, orgHref }) => (
+                    {whitehallItems.map(({ slug, title, organisation, publishedAt }) => (
                       <li key={slug} style={{ borderBottom: '1px dotted rgba(20,16,13,0.15)', padding: '8px 0' }}>
-                        <a href={`/news/${slug}`} style={{ display: 'block', fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', textDecoration: 'none', lineHeight: 1.38 }}>
-                          {title}
+                        {/* One link per item, to its press release (owner, 30 Oct 2026): headline, name and date are one tap target. */}
+                        <a href={`/news/${slug}`} className="focus-ring" style={{ display: 'block', fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', textDecoration: 'none' }}>
+                          <span style={{ display: 'block', lineHeight: 1.38 }}>{title}</span>
+                          <span style={{ display: 'block', fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', marginTop: '3px' }}>
+                            {organisation}
+                            {organisation && publishedAt ? ' · ' : ''}{fmtGovDate(publishedAt)}
+                          </span>
                         </a>
-                        <span style={{ display: 'block', fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', color: '#14100d', marginTop: '3px' }}>
-                          {orgHref ? (
-                            <a href={orgHref} style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: '2px' }}>{organisation}</a>
-                          ) : organisation}
-                          {organisation && publishedAt ? ' · ' : ''}{fmtGovDate(publishedAt)}
-                        </span>
                       </li>
                     ))}
                   </ol>
