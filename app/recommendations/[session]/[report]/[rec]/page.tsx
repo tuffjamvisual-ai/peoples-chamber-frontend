@@ -132,7 +132,7 @@ export default async function RecommendationPage({ params }: { params: Promise<P
   const laterSources = [...new Set([
     ...(row.status === 'delivered_elsewhere' ? evidence.map((e) => laterSource(e.evidence_url, e.publisher, e.evidence_title)) : []),
     hasUpdate ? laterSource(row.target_source_url, row.target_source_publisher, row.target_source_title) : null,
-    later ? laterSource(row.review_url, null, null) : null,
+    later ? row.review_publisher ?? laterSource(row.review_url, null, null) : null,
   ].filter((x): x is string => !!x))];
 
   return (

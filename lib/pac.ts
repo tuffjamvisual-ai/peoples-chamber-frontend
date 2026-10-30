@@ -31,7 +31,7 @@ export type StatusRow = {
   completed_in_cp_number: string | null; not_listed_in_cp_number: string | null; not_listed_in_published_on: string | null;
   latest_cp_number: string; latest_published_on: string; evidence_title: string | null; evidence_url: string | null;
   evidence_delivered_on: string | null; review_checked_on: string | null; review_outcome: string | null; review_note: string | null;
-  review_url: string | null;
+  review_url: string | null; review_publisher: string | null;
   // Set only when the current target comes from a later letter or other publication (pac_target_updates, 2026-10-30b).
   target_source_title: string | null; target_source_url: string | null; target_source_publisher: string | null;
   target_source_dated: string | null; target_source_published_on: string | null; target_source_quote: string | null;
@@ -56,10 +56,10 @@ async function readAll<T>(table: string, columns: string, order: string, filter?
   }
 }
 
-const STATUS_COLUMNS = 'recommendation_id, session, report_number, report_title, department, rec_number, status, latest_response, times_target_moved, original_target_month, latest_target_month, latest_target_text, implemented_month, split_into, completed_in_cp_number, not_listed_in_cp_number, not_listed_in_published_on, latest_cp_number, latest_published_on, evidence_title, evidence_url, evidence_delivered_on, review_checked_on, review_outcome, review_note, review_url, target_source_title, target_source_url, target_source_publisher, target_source_dated, target_source_published_on, target_source_quote';
+const STATUS_COLUMNS = 'recommendation_id, session, report_number, report_title, department, rec_number, status, latest_response, times_target_moved, original_target_month, latest_target_month, latest_target_text, implemented_month, split_into, completed_in_cp_number, not_listed_in_cp_number, not_listed_in_published_on, latest_cp_number, latest_published_on, evidence_title, evidence_url, evidence_delivered_on, review_checked_on, review_outcome, review_note, review_url, target_source_title, target_source_url, target_source_publisher, target_source_dated, target_source_published_on, target_source_quote, review_publisher';
 const EVENT_COLUMNS = 'id, recommendation_id, document_id, page, response, response_text, status, target_text, target_month, original_target_text, original_target_month, revised_target_text, revised_target_month, implemented_text, implemented_month, progress_text';
 
-const cachedStatus = unstable_cache(() => readAll<StatusRow>('pac_recommendation_status', STATUS_COLUMNS, 'recommendation_id'), ['pac-status-v2'], { tags: ['pac'], revalidate: DAY });
+const cachedStatus = unstable_cache(() => readAll<StatusRow>('pac_recommendation_status', STATUS_COLUMNS, 'recommendation_id'), ['pac-status-v3'], { tags: ['pac'], revalidate: DAY });
 // The view works out "target passed" when it is read, and that read is cached for up to a day. So the rule is applied
 // again here, at render, against today's date: a target whose period has ended moves out of "target in future"
 // (an October 2026 target on 1 November 2026) without a code change. Pages using this revalidate every 86400 s.
@@ -105,7 +105,7 @@ export const recommendationDetail = unstable_cache(async (session: string, repor
       .sort((a, b) => a.document.published_on.localeCompare(b.document.published_on)),
     evidence: (evidence.data ?? []) as Evidence[],
   };
-}, ['pac-recommendation-v3'], { tags: ['pac'], revalidate: DAY });
+}, ['pac-recommendation-v4'], { tags: ['pac'], revalidate: DAY });
 
 // ---------- bodies: one canonical name per body named in pac_reports.department, and its department page (if any).
 // A report can name several bodies. A body's current name is shown; a report filed under an earlier name also shows
@@ -190,13 +190,33 @@ const joinWords = (xs: string[]) => (xs.length <= 1 ? xs.join('') : `${xs.slice(
 // organisation below, followed by should, must or needs to (with at most one aside such as "working with ...").
 // Anything else (an opening clause, a description, an unknown name) shows nothing, so the line is never a fragment
 // (owner's Preview check, 30 Oct 2026: the old rule took the words after the last comma and could name the wrong body).
-const OTHER_BODIES = /^(?:the\s+)?(?:NHS England|NHSE|NHSE&I|HS2 Ltd|APHA|UKHSA|HMPPS|HM Prison and Probation Service|Ofwat|Ofgem|OfS|SLC|Environment Agency|Natural England|Sellafield Ltd|NDA|Nuclear Decommissioning Authority|UKRI|Companies House|Insolvency Service|JCDU|BDUK|HMCTS|Cafcass|Electoral Commission|Office of Qualifications and Examinations Regulation|Public Sector Fraud Authority|Treasury Officer of Accounts|Government (?:Finance|People|Commercial) Function|Evaluation Task Force|DMO|Agency|Unit|Department)$/i;
+const OTHER_BODIES = ['NHS England', 'NHSE', 'NHSE&I', 'HS2 Ltd', 'APHA', 'UKHSA', 'HMPPS', 'HM Prison and Probation Service', 'Ofwat', 'Ofgem', 'OfS',
+  'SLC', 'Environment Agency', 'Natural England', 'Sellafield Ltd', 'NDA', 'Nuclear Decommissioning Authority', 'UKRI', 'Companies House',
+  'Insolvency Service', 'JCDU', 'BDUK', 'HMCTS', 'Cafcass', 'Electoral Commission', 'Office of Qualifications and Examinations Regulation',
+  'Public Sector Fraud Authority', 'Treasury Officer of Accounts', 'Government Finance Function', 'Government People Function',
+  'Government Commercial Function', 'Evaluation Task Force', 'DMO', 'Agency', 'Unit', 'Department'];
 const DEPARTMENT_ONLY = /^(?:the\s+)?department$/i;
-function isBodyName(part: string): boolean {
-  const p = part.trim();
-  if (OTHER_BODIES.test(p)) return true;
-  // A department's name or short name on its own, as the whole part (not a clause that happens to contain one).
-  return BODIES.some((b) => new RegExp(`^(?:[Tt]he\\s+)?(?:${b.re.source})(?:\\s+\\([A-Za-z&]+\\))?$`, b.re.flags.replace('g', '')).test(p));
+// A known name at the start of the text: a department in BODIES or a named organisation above, with an optional
+// "The" and "Department of/for" or "Ministry of" before it and an optional bracketed short name after it ("The
+// Home Office", "Department of Health and Social Care (DHSC)"), ending where the text ends or at a comma or "and".
+const NAME_PATTERNS = [
+  ...BODIES.map((b) => ({ source: b.re.source, flags: b.re.flags.replace('g', '') })),
+  ...OTHER_BODIES.map((n) => ({ source: n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), flags: 'i' })),
+].map(({ source, flags }) => new RegExp(`^(?:[Tt]he\\s+)?(?:(?:Department|Ministry)\\s+(?:of|for)\\s+)?(?:${source})(?:\\s+\\([A-Za-z&]+\\))?(?=$|,|\\s+and\\s)`, flags));
+// The opening split into body names (the longest known name each time, joined by commas or "and"), or null when
+// any part of it is not a known name.
+function bodyNames(subject: string): string[] | null {
+  const parts: string[] = [];
+  let rest = subject.trim();
+  while (rest) {
+    const len = Math.max(0, ...NAME_PATTERNS.map((re) => re.exec(rest)?.[0].length ?? 0));
+    if (!len) return null;
+    parts.push(rest.slice(0, len));
+    const after = rest.slice(len);
+    rest = after.replace(/^(?:,\s*(?:and\s+)?|\s+and\s+)/, '');
+    if (rest && rest === after) return null;
+  }
+  return parts;
 }
 export function recommendationFor(text: string | null, reportDepartment: string | null): string | null {
   if (!text) return null;
@@ -204,8 +224,8 @@ export function recommendationFor(text: string | null, reportDepartment: string 
   const m = t.match(/^([^,]{2,120}?)(?:,\s+(?:working with|together with|in consultation with|in collaboration with|with|led by)\b[^.]*?,)?\s+(?:should|must|needs? to)\b/);
   if (!m) return null;
   const subject = m[1].trim();
-  const parts = subject.split(/\s*,\s*|\s+and\s+/);
-  if (!parts.every(isBodyName)) return null;
+  const parts = bodyNames(subject);
+  if (!parts) return null;
   // Not shown when it names only the report's own department.
   const mine = new Set(bodiesFor(reportDepartment).map((b) => b.key));
   if (parts.every((p) => DEPARTMENT_ONLY.test(p.trim()) || (bodiesFor(p).length > 0 && bodiesFor(p).every((b) => mine.has(b.key))))) return null;
@@ -356,8 +376,8 @@ export function targetSource(r: StatusRow): StatusLink | null {
 }
 
 // Open Govt's check that found a recommendation partly delivered (pac_recommendation_review, outcome
-// partly_delivered): "Later evidence (checked 30 October 2026): <note> Source: <site>", the site linking to the
-// publication. Shown only while the target has passed and the recommendation is still open (not once it is delivered
+// partly_delivered): "Later evidence (checked 30 October 2026): <note> Source: <publisher>", linking to the
+// publication; the review's publisher (2026-10-30c) when it has one, otherwise the site name. Shown only while the target has passed and the recommendation is still open (not once it is delivered
 // or closed). The short form, for the department tab's lists, cuts the note to about 200 characters.
 const siteName = (url: string) => { try { const h = new URL(url).hostname.replace(/^www\./, ''); return h === 'gov.uk' ? 'GOV.UK' : h; } catch { return 'the publication'; } };
 export function laterEvidence(r: StatusRow, short = false): StatusLink[] | null {
@@ -366,7 +386,7 @@ export function laterEvidence(r: StatusRow, short = false): StatusLink[] | null 
   let note = r.review_note.trim();
   if (short && note.length > 200) note = `${note.slice(0, 200).replace(/\s+\S*$/, '').replace(/[,;:]$/, '')}…`;
   const out: StatusLink[] = [{ text: `Later evidence (checked ${dayMonthYear(r.review_checked_on)}): ${note}` }];
-  if (r.review_url) out.push({ text: ' Source: ' }, { text: siteName(r.review_url), href: r.review_url });
+  if (r.review_url) out.push({ text: ' Source: ' }, { text: r.review_publisher ?? siteName(r.review_url), href: r.review_url });
   return out;
 }
 
