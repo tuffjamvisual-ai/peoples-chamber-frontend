@@ -27,6 +27,7 @@ import BackLink from '../../components/BackLink';
 import JsonLd, { buildDepartmentOrg } from '@/lib/JsonLd';
 import { DEPT_SLUG_TO_ORGS } from '@/lib/govOrgSlug';
 import { govUrlToSlug } from '@/lib/govUrlSlug';
+import { loadDeptPressReleases } from '@/lib/press-releases-latest';
 import { RECOMMENDATIONS_PUBLIC } from '@/lib/pac';
 import { getDepartmentRecommendations, RecommendationsSlot } from './RecommendationsSlot';
 interface PageProps {
@@ -82,19 +83,8 @@ export default async function DepartmentPage({ params }: PageProps) {
     // historical org names for this department (handles renames like
     // BEIS → DBT). Returns [] when orgNames is empty (HMRC/DSIT gap
     // handled automatically — neither slug is in DEPT_SLUG_TO_ORGS).
-    (async () => {
-      if (orgNames.length === 0) return [];
-      const { data, error: dataErr2 } = await supabase
-        .from('press_releases')
-        .select('title, organisation, published_at, gov_url')
-        .in('organisation', orgNames)
-        .not('removed_upstream', 'is', true)
-        .not('gov_url', 'is', null)
-        .order('published_at', { ascending: false })
-        .limit(20);
-      if (dataErr2 && dataErr2.code !== 'PGRST116') throw new Error(`/departments/[slug] press_releases: ${dataErr2.message}`);
-      return data ?? [];
-    })(),
+    // Tagged 'press-releases-latest' (lib/press-releases-latest.ts), refreshed by the press release sync on new releases.
+    loadDeptPressReleases(orgNames),
     // B3 — Reports tab (owner's approval, 23 Oct 2026): investigations and file briefings whose related_dept_slugs
     // contain this slug (GIN index on related_dept_slugs), plus published database briefings matched by the words of
     // the topics this department belongs to, as topic pages match them. Drafts stay out: the public key only reads

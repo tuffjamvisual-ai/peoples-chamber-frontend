@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
+import { PRESS_RELEASES_LATEST_TAG } from '@/lib/press-releases-latest';
 import { newsPath } from '@/lib/news-path';
 import { createClient } from '@supabase/supabase-js';
 import { refreshStore } from '@/lib/refresh-stores';
@@ -62,8 +63,10 @@ async function GET_impl(req: Request) {
 
     let upserted = 0;
     let pagesRefreshed = 0;
+    let added = 0;
     // Releases already stored, so a changed one can have its page refreshed (owner's approval, 29 Oct 2026, cache
-    // Stage 1). New releases need nothing: their page renders on its first visit.
+    // Stage 1). A new release's own page renders on its first visit, but the lists of the latest releases (the front
+    // page and the department pages) are refreshed after the loop (owner, 30 Oct 2026).
     const urls = results.map((item) => `https://www.gov.uk${item.link}`);
     const { data: storedRows } = urls.length
       ? await supabase.from('press_releases').select('gov_url, title, description, body').in('gov_url', urls)
@@ -118,12 +121,16 @@ async function GET_impl(req: Request) {
       if (!error) {
         upserted++;
         const old = stored.get(govUrl);
+        if (!old) added++;
         if (old && (old.title !== record.title || old.description !== record.description || (body && old.body !== body))) {
           const p = newsPath(govUrl);
           if (p) { revalidatePath(p); pagesRefreshed++; }
         }
       } else { writeErrors++; lastWriteError = error.message; }
     }
+    // New releases: the 'press-releases-latest' read (front page and department pages) and the front page itself.
+    let latestRefreshed = false;
+    if (added > 0) { revalidateTag(PRESS_RELEASES_LATEST_TAG, 'max'); revalidatePath('/'); latestRefreshed = true; }
     const failuresSaved = await failing.save();
     if (writeErrors > 0 && upserted === 0) {
       return NextResponse.json({ ok: false, error: `press_releases upsert failed: ${lastWriteError}`, upserted }, { status: 500 });
@@ -154,6 +161,8 @@ async function GET_impl(req: Request) {
       fetched: results.length,
       upserted,
       pages_refreshed: pagesRefreshed,
+      added,
+      latest_refreshed: latestRefreshed,
       bodiesFetched,
       trimmed,
       stats_refresh: statsRefresh,

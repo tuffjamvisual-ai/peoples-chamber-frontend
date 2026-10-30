@@ -6,12 +6,12 @@ import { editorialsBySlug } from '@/lib/editorials-source';
 import { listSummary } from '@/lib/editorials/list-summary';
 import { readingLabel } from '@/lib/reading-time';
 import ContinueToArticle from './components/ContinueToArticle';
-import { supabase } from '@/lib/supabase';
 import { govUrlToSlug } from '@/lib/govUrlSlug';
 import { departments } from '@/lib/departments';
 import AreaSearch from './components/AreaSearch';
 import NewsletterSignup from './components/NewsletterSignup';
 import { latestExpensesYear, expensesYearShort } from '@/lib/expenses-year';
+import { loadLatestWhitehall } from '@/lib/press-releases-latest';
 import './home-front.css';
 
 function fmtGovDate(iso: string | null | undefined): string {
@@ -99,21 +99,10 @@ export default async function HomePage() {
   const b0 = slot1.body[0];
   const ledeText = b0 && b0.type === 'paragraph' ? b0.text : null;
 
-  // gov_url host filter: ilike '%gov.uk%' excludes committees.parliament.uk
-  // reports (which belong in their own labelled block, not under "Whitehall").
-  // URL host is the reliable signal; organisation is free text and varies.
-  // .not('removed_upstream', 'is', true) → SQL: removed_upstream IS NOT TRUE,
-  // which correctly includes NULL rows (NULL IS NOT TRUE = true in PostgreSQL).
-  // .limit(10): buffer so the block fills to 5 even if some rows have unusable slugs.
   // Each item links only to its press release (owner, 30 Oct 2026), so the department or agency name is plain text and
-  // agency_cache is no longer read here.
-  const { data: rawPressReleases } = await supabase
-    .from('press_releases')
-    .select('title, organisation, published_at, gov_url')
-    .not('removed_upstream', 'is', true)
-    .ilike('gov_url', '%gov.uk%')
-    .order('published_at', { ascending: false })
-    .limit(10);
+  // agency_cache is no longer read here. The read is tagged 'press-releases-latest' (lib/press-releases-latest.ts), which
+  // the press release sync refreshes whenever it stores a new release.
+  const rawPressReleases = await loadLatestWhitehall();
   const expensesYear = expensesYearShort(await latestExpensesYear());
   const whitehallItems = (rawPressReleases ?? [])
     .flatMap((row) => {
