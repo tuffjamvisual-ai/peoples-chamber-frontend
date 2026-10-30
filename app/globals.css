@@ -151,3 +151,7 @@ input::placeholder, textarea::placeholder { color: #14100d; opacity: 1; font-sty
    already chosen (CONSENT_HEAD_SCRIPT in lib/cookie-consent.ts adds og-cookies-set to <html>), so it never moves the
    page. Only the server rendered question is hidden this way; the confirmation after a choice stays visible. */
 html.og-cookies-set .og-cookie-banner[data-state="initial"] { display: none; }
+/* Above the fixed folders backdrop (.og-backdrop, z-index 0) and the page shell with its header (z-index 1, header
+   parts 5 inside it), so the banner is seen (30 Oct 2026). 50 stays under the layers that must cover it: the newsletter
+   strip (55), the scroll button and mobile menu (60, 70), dialogs (1000), toasts (9999) and the menu panel. */
+.og-cookie-banner { position: relative; z-index: 50; }
