@@ -7,7 +7,7 @@ import BackLink from '../components/BackLink';
 import RecommendationList, { type ListRow, type ListReport } from './RecommendationList';
 import {
   RECOMMENDATIONS_PUBLIC, allStatus, wording, bodiesFor, departmentWords, departmentSlugs, sessionWords, recPath, documentWords,
-  STATUS_ORDER, STATUS_LABELS, datePart, targetPassed,
+  STATUS_ORDER, STATUS_LABELS, datePart, targetPassed, BODY_NOTES,
 } from '@/lib/pac';
 
 // /recommendations (owner's approval, 29 Oct 2026, "go stage 4"): the Committee of Public Accounts recommendations
@@ -114,7 +114,7 @@ export default async function RecommendationsPage() {
         </ol>
 
         <h2 style={h2}>All recommendations</h2>
-        <RecommendationList reports={reports} rows={list} departmentOptions={departmentOptions} statusOptions={statusOptions} pageNames={pageNames} />
+        <RecommendationList reports={reports} rows={list} departmentOptions={departmentOptions} statusOptions={statusOptions} pageNames={pageNames} bodyNotes={BODY_NOTES} />
       </section>
     </OpenGovShell>
   );

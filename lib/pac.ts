@@ -111,9 +111,13 @@ export const recommendationDetail = unstable_cache(async (session: string, repor
 // Infrastructure and Service Transformation Authority (formerly the Infrastructure and Projects Authority); the
 // Ministry of Housing, Communities and Local Government (formerly Department for Levelling Up, Housing and
 // Communities). HM Revenue and Customs and NS&I are on the treasury page. Bodies with no department page, and the
-// Operational Delivery Profession (a cross government profession, left for the owner to place), are "Other bodies".
+// Operational Delivery Profession (a cross government profession, kept under its own name), are "Other bodies".
+// "related" (owner, 30 Oct 2026) cross references a body to a department page without filing its recommendations
+// there: the page shows "Also: <body> (<role>)" linking to the list filtered to that body, and the body's list and
+// recommendation pages show the note. Its recommendations are not added to that department's counts.
 export type Body = { key: string; name: string; page: string | null };
-type BodyRule = Body & { re: RegExp; formerly?: { re: RegExp; label: string }[] };
+type Related = { page: string; role: string; note: string };
+type BodyRule = Body & { re: RegExp; formerly?: { re: RegExp; label: string }[]; related?: Related };
 const BODIES: BodyRule[] = [
   { key: 'hm-treasury', name: 'HM Treasury', page: 'treasury', re: /\bHM Treasury\b|\bHMT\b|\bthe Treasury\b|^Treasury\b/i },
   { key: 'hmrc', name: 'HM Revenue and Customs', page: 'treasury', re: /\bHM Revenue (and|&) Customs\b|\bHMRC\b/i },
@@ -146,8 +150,15 @@ const BODIES: BodyRule[] = [
     formerly: [{ re: /\bInfrastructure and Projects Authority\b|\bIPA\b/, label: 'the Infrastructure and Projects Authority' }] },
   { key: 'ofcom', name: 'Ofcom', page: null, re: /\bOfcom\b/ },
   { key: 'bbc', name: 'BBC', page: null, re: /\bBBC\b/ },
-  { key: 'odp', name: 'Operational Delivery Profession', page: null, re: /\bOperational Delivery Profession\b|\bODP\b/ },
+  { key: 'odp', name: 'Operational Delivery Profession', page: null, re: /\bOperational Delivery Profession\b|\bODP\b/,
+    // Treasury Minutes, December 2025 (CP 1469), the introduction to report 48 of the 2024 to 2026 session.
+    related: { page: 'work-pensions', role: 'led by DWP’s Permanent Secretary',
+      note: 'A cross government profession. Its Head of Profession is the Permanent Secretary for the Department for Work and Pensions.' } },
 ];
+// Bodies cross referenced to a department page ("Also: ..."), and each body's note, from the "related" entries.
+export const relatedBodies = (page: string) => BODIES.filter((b) => b.related?.page === page).map((b) => ({ key: b.key, name: b.name, role: b.related!.role }));
+export const BODY_NOTES: Record<string, string> = Object.fromEntries(BODIES.filter((b) => b.related).map((b) => [b.key, b.related!.note]));
+export const bodyNotes = (text: string | null) => bodiesFor(text).map((b) => BODY_NOTES[b.key]).filter((n): n is string => !!n);
 export const BODY_LIST: Body[] = BODIES.map(({ key, name, page }) => ({ key, name, page }));
 export function bodiesFor(text: string | null): Body[] {
   if (!text) return [];

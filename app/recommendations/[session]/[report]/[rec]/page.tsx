@@ -5,7 +5,7 @@ import OpenGovShell from '../../../../components/OpenGovShell';
 import BackLink from '../../../../components/BackLink';
 import {
   RECOMMENDATIONS_PUBLIC, recommendationDetail, wording, sessionWords, dayMonthYear, asPublished, documentWords, departmentWords, recommendationFor,
-  targetPassed, effectiveStatus, type EventRow, type SourceDocument,
+  targetPassed, effectiveStatus, bodyNotes, type EventRow, type SourceDocument,
 } from '@/lib/pac';
 
 // /recommendations/[session]/[report]/[rec], e.g. /recommendations/2024-26/54/4b (owner's approval, 29 Oct 2026,
@@ -100,6 +100,7 @@ export default async function RecommendationPage({ params }: { params: Promise<P
           {row.report_title}: recommendation {row.rec_number}
         </h1>
         {row.department && <p style={{ ...small, margin: '0 0 4px' }}>Report department: {departmentWords(row.department)}</p>}
+        {bodyNotes(row.department).map((n) => <p key={n} style={{ ...small, margin: '0 0 4px' }}>{n}</p>)}
         {addressedTo && <p style={{ ...small, margin: '0 0 4px' }}>Recommendation for: {addressedTo}, as named in the recommendation</p>}
       </header>
 

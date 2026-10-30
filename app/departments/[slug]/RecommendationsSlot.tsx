@@ -1,15 +1,18 @@
 import Link from 'next/link';
-import { allStatus, wording, departmentSlugs, recPath, type StatusRow } from '@/lib/pac';
+import { allStatus, wording, departmentSlugs, recPath, relatedBodies, type StatusRow } from '@/lib/pac';
 
 // Department page "Recommendations" tab (owner's approval, 29 Oct 2026, "go stage 4"; fixes 30 Oct 2026): a count line
 // (open, delivered, rejected, target passed and being checked), then this department's Committee of Public Accounts
 // recommendations that are still open, the ones whose target has moved, the ones whose target has passed (being checked
 // against later evidence, and checked by Open Govt), and short lists of delivered and rejected ones. "See all" opens
-// /recommendations filtered to this department and that status. Shown only when RECOMMENDATIONS_PUBLIC=1 (the caller
+// /recommendations filtered to this department and that status. Under the count line, "Also: <body> (<role>)" for a
+// body cross referenced to this department (lib/pac.ts "related"), linking to the list filtered to that body; its
+// recommendations are not counted here. Shown only when RECOMMENDATIONS_PUBLIC=1 (the caller
 // checks).
 type Item = { href: string; title: string; status: string };
 export type DepartmentRecommendations = {
   slug: string;
+  related: { key: string; name: string; role: string }[];
   counts: { open: number; delivered: number; rejected: number; beingChecked: number };
   open: Item[]; moved: Item[]; checked: Item[]; beingChecked: Item[]; delivered: Item[]; rejected: Item[];
 };
@@ -28,6 +31,7 @@ export async function getDepartmentRecommendations(slug: string): Promise<Depart
   const of = (keys: Set<string>) => mine.filter((r) => keys.has(r.status));
   return {
     slug,
+    related: relatedBodies(slug),
     counts: { open: of(OPEN).length, delivered: of(DELIVERED).length, rejected: mine.filter((r) => r.status === 'rejected').length, beingChecked: mine.filter((r) => r.status === 'target_passed_unchecked').length },
     open: of(OPEN).map(item),
     moved: mine.filter((r) => r.times_target_moved > 0 && !CLOSED.has(r.status)).map(item),
@@ -77,6 +81,11 @@ export function RecommendationsSlot({ data }: { data: DepartmentRecommendations 
       <p style={{ fontSize: '15px', lineHeight: 1.6, color: INK, fontWeight: 600, margin: '0 0 18px' }}>
         Open: {c.open}. Delivered: {c.delivered}. Rejected: {c.rejected}. Target passed, being checked: {c.beingChecked}.
       </p>
+      {data.related.map((b) => (
+        <p key={b.key} style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: '-10px 0 18px' }}>
+          Also: <Link href={`/recommendations?department=${b.key}`} style={link}>{b.name}</Link> ({b.role})
+        </p>
+      ))}
       <List heading="Still open" items={data.open} more={{ count: c.open, href: by('open') }} />
       <List heading="Targets moved" items={data.moved} />
       <List heading="Target passed, being checked" items={data.beingChecked} more={{ count: c.beingChecked, href: by('target_passed') }} />

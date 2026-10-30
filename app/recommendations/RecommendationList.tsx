@@ -2,7 +2,8 @@
 // Filterable list of recommendations for /recommendations (filters by department and status, in the browser). The
 // data is compact (each report's title, line and bodies once; then one short row per recommendation) and the list
 // shows 50 at a time, so the page stays small. /recommendations?department=<department page slug> opens it filtered
-// to every body on that department's page (the department tab's link).
+// to every body on that department's page (the department tab's link); ?department=<body key> opens it filtered to
+// that body (a cross referenced body's "Also" link), with the body's note when it has one.
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 
@@ -33,8 +34,9 @@ function matches(r: ListReport | undefined, filter: string) {
   return true;
 }
 
-export default function RecommendationList({ reports, rows, departmentOptions, statusOptions, pageNames }: {
+export default function RecommendationList({ reports, rows, departmentOptions, statusOptions, pageNames, bodyNotes }: {
   reports: Record<string, ListReport>; rows: ListRow[]; departmentOptions: Option[]; statusOptions: Option[]; pageNames: Record<string, string>;
+  bodyNotes: Record<string, string>;
 }) {
   const [department, setDepartment] = useState('');
   const [status, setStatus] = useState('');
@@ -46,9 +48,10 @@ export default function RecommendationList({ reports, rows, departmentOptions, s
       const slug = q.get('department');
       const group = q.get('status');
       if (slug && pageNames[slug]) setDepartment(`page:${slug}`); // eslint-disable-line react-hooks/set-state-in-effect
+      else if (slug && departmentOptions.some((o) => o.value === `body:${slug}`)) setDepartment(`body:${slug}`);
       if (group && GROUPS[group]) setStatus(`group:${group}`);
     } catch { /* no URL */ }
-  }, [pageNames]);
+  }, [pageNames, departmentOptions]);
   // A department page filter shows as the plain department name, in place of a body option with the same name.
   const pageLabel = department.startsWith('page:') ? pageNames[department.slice(5)] : null;
   const options = pageLabel ? [{ value: department, label: pageLabel }, ...departmentOptions.filter((o) => o.label !== pageLabel)] : departmentOptions;
@@ -57,6 +60,7 @@ export default function RecommendationList({ reports, rows, departmentOptions, s
     [rows, reports, department, status],
   );
   const shown = matching.slice(0, limit);
+  const note = department.startsWith('body:') ? bodyNotes[department.slice(5)] : undefined;
   return (
     <section>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px 20px', margin: '0 0 16px' }}>
@@ -75,6 +79,7 @@ export default function RecommendationList({ reports, rows, departmentOptions, s
           </select>
         </label>
       </div>
+      {note && <p style={{ fontSize: '15px', lineHeight: 1.6, color: INK, margin: '0 0 12px', maxWidth: '46em' }}>{note}</p>}
       <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
         {shown.map(([key, rec, , words]) => {
           const r = reports[key];
