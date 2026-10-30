@@ -17,7 +17,6 @@ import { fetchMajorProjects } from '@/lib/major-projects';
 import { DEPARTMENT_BUDGETS } from '@/lib/department-budgets';
 import OpenGovShell from '../../components/OpenGovShell';
 import { getGovukDept } from '../../api/govuk-dept/route';
-import { supabase } from '@/lib/supabase';
 import { createClient } from '@supabase/supabase-js';
 import { fetchWithoutEmDashes } from '@/lib/no-em-dash';
 import { editorialsBySlug } from '@/lib/editorials-source';
@@ -30,6 +29,7 @@ import { govUrlToSlug } from '@/lib/govUrlSlug';
 import { loadDeptPressReleases } from '@/lib/press-releases-latest';
 import { RECOMMENDATIONS_PUBLIC } from '@/lib/pac';
 import { getDepartmentRecommendations, RecommendationsSlot } from './RecommendationsSlot';
+import { pageDb, setPageReadTimer } from '@/lib/page-reads';
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
@@ -47,9 +47,13 @@ export function generateStaticParams() {
 export const revalidate = 3600;
 // Database reads on this page go through Next's data cache (25 Oct 2026, report 43). Every deploy empties the page
 // cache, so the first visit after each deploy rendered the page from scratch; Supabase reads were never cached (754,130
-// reads in 48 h, none from the cache). With this line they are kept for the page's revalidate period, and that cache
-// survives deploys, so those renders read from it instead of the database. A stale entry is read again before the page
-// is stored, so the page is never older than its revalidate period; revalidatePath and revalidateTag still refresh it.
+// reads in 48 h, none from the cache). That cache survives deploys, so those renders read from it instead of the
+// database. Corrected 30 Oct 2026: this line alone keeps a read with no timer of its own FOR EVER (Next sets
+// INFINITE_CACHE), not for the page's revalidate period, so the hourly rebuild showed old rows. Every read here now
+// has its own timer: setPageReadTimer(revalidate) below makes pageDb() reads (lib/page-reads.ts) last the page's
+// period, under a tag where a sync refreshes one; other reads are tagged unstable_cache reads with their own timers.
+// A stale entry is read again before the page is stored. Keep it that way: a new read on this page must use pageDb()
+// or have its own timer, or it will never change.
 export const fetchCache = 'default-cache';
 
 // The Reports tab's investigations are a tagged read (owner's approval, 29 Oct 2026, cache Stage 1): cached for a day
@@ -63,6 +67,7 @@ const editorialsTagged = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, pro
 });
 
 export default async function DepartmentPage({ params }: PageProps) {
+  setPageReadTimer(revalidate);
   const { slug } = await params;
   const dept = departments.find((d) => d.slug === slug);
   // Old council URLs (e.g. /departments/leeds-city-council) are 308'd to
@@ -98,7 +103,7 @@ export default async function DepartmentPage({ params }: PageProps) {
           .contains('related_dept_slugs', [slug])
           .order('published_at', { ascending: false }),
         deptTopics.length
-          ? supabase.from('briefings').select('slug, headline, summary, body, published_at, created_at').eq('is_published', true)
+          ? pageDb().from('briefings').select('slug, headline, summary, body, published_at, created_at').eq('is_published', true)
           : Promise.resolve({ data: [], error: null }),
       ]);
       if (edRes.error && edRes.error.code !== 'PGRST116') throw new Error(`/departments/[slug] editorials: ${edRes.error.message}`);
@@ -120,7 +125,7 @@ export default async function DepartmentPage({ params }: PageProps) {
     // B4 — programmes tab: live policy_programmes tagged with this dept slug.
     // GIN index on dept_slugs (policy_programmes_dept_slugs_idx) makes the
     // @> containment fast. RLS enforces is_live=true for the anon client.
-    supabase
+    pageDb()
       .from('policy_programmes')
       .select('id, slug, name, status, summary')
       .contains('dept_slugs', [slug])
@@ -160,7 +165,7 @@ export default async function DepartmentPage({ params }: PageProps) {
   // The same read says which bodies have an agency page (owner's approval, 24 Oct 2026): only those are linked.
   const agencySlugs = childOrgsRaw.map((o) => o.url.split('/government/organisations/')[1] || '').filter(Boolean);
   const { data: agencyDescRows, error: agencyDescErr } = agencySlugs.length
-    ? await supabase.from('agency_cache').select('slug, description').in('slug', agencySlugs)
+    ? await pageDb().from('agency_cache').select('slug, description').in('slug', agencySlugs)
     : { data: [] as { slug: string; description: string | null }[], error: null };
   if (agencyDescErr) throw new Error(`/departments/[slug] agency_cache: ${agencyDescErr.message}`);
   const descBySlug = new Map((agencyDescRows || []).map((r) => [r.slug, (r.description || '').trim()]));

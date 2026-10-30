@@ -5,7 +5,7 @@
 // lib/pip-mobility.ts. Under the figure, one UK-wide line on Motability Scheme leases (Motability Operations).
 
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
+import { pageDb } from '@/lib/page-reads';
 import { changeLine, derivedNote, eligibleLine, sourceLine, UK_SCHEME_LINE, UK_SCHEME_SOURCE, type PipMobilityRow } from '@/lib/pip-mobility';
 
 const INK = '#14100d';
@@ -17,7 +17,7 @@ const small = { fontFamily: MONO, fontSize: '15px', color: INK_SOFT, lineHeight:
 
 export default async function CouncilPipMobilitySection({ gssCode }: { gssCode: string | null }) {
   if (!gssCode) return null;
-  const { data, error } = await supabase.from('council_pip_mobility')
+  const { data, error } = await pageDb().from('council_pip_mobility')
     .select('gss, period, enhanced, derived_from_districts, district_gss').eq('gss', gssCode).order('period', { ascending: false }).limit(13);
   if (error) throw new Error(`council_pip_mobility ${gssCode}: ${error.message}`);
   const rows = (data || []) as PipMobilityRow[];
@@ -30,8 +30,8 @@ export default async function CouncilPipMobilitySection({ gssCode }: { gssCode: 
   let districts: { name: string; slug: string; enhanced: number }[] = [];
   if (cur.derived_from_districts && cur.district_gss?.length) {
     const [cRes, dRes] = await Promise.all([
-      supabase.from('councils').select('gss_code, name, short_name, slug').in('gss_code', cur.district_gss),
-      supabase.from('council_pip_mobility').select('gss, enhanced').eq('period', cur.period).in('gss', cur.district_gss),
+      pageDb().from('councils').select('gss_code, name, short_name, slug').in('gss_code', cur.district_gss),
+      pageDb().from('council_pip_mobility').select('gss, enhanced').eq('period', cur.period).in('gss', cur.district_gss),
     ]);
     if (cRes.error) throw new Error(`councils for ${gssCode} districts: ${cRes.error.message}`);
     if (dRes.error) throw new Error(`council_pip_mobility districts of ${gssCode}: ${dRes.error.message}`);

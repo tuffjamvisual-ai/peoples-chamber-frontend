@@ -7,7 +7,7 @@
 // as count / percentage, so the county percentage is weighted correctly
 // rather than averaged.
 
-import { supabase } from '@/lib/supabase';
+import { pageDb } from '@/lib/page-reads';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -48,7 +48,7 @@ const fyLabel = (fye: number) => `${fye - 1}-${String(fye).slice(2)}`;
 // Shared by this section and the area summary (/your-area), so both show the same figure.
 export async function loadChildPoverty(gssCodes: string[]) {
   if (gssCodes.length === 0) return null;
-  const { data, error: dataErr } = await supabase
+  const { data, error: dataErr } = await pageDb()
     .from('council_child_poverty')
     .select('council_gss_code, measure, fye, children_count, percentage, release_label')
     .in('council_gss_code', gssCodes)

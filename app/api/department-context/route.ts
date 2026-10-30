@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { pageDb } from '@/lib/page-reads';
 
 export const revalidate = 3600;
 
 // Server-callable: used both by this route's GET handler and directly
 // by app/departments/[slug]/page.tsx at build time.
 export async function getDeptContext(slug: string): Promise<{ street_context: string | null }> {
-  const { data, error } = await supabase
+  const { data, error } = await pageDb()
     .from('department_context')
     .select('street_context, generated_at')
     .eq('slug', slug)

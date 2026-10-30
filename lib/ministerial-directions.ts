@@ -1,6 +1,6 @@
 // Ministerial directions (ministerial_directions, migration 2026-10-20a). Shared by
 // /transparency/ministerial-directions and the Directions tab on department pages.
-import { supabase } from '@/lib/supabase';
+import { pageDb } from '@/lib/page-reads';
 
 export type DirectionLetter = { title: string; url: string; format: 'pdf' | 'html'; kind: 'request' | 'direction' | 'other' };
 export type Direction = {
@@ -24,7 +24,7 @@ export const sortKey = (d: Direction) => d.direction_date ?? d.published_on;
 const byNewest = (a: Direction, b: Direction) => sortKey(b).localeCompare(sortKey(a));
 
 export async function fetchDirections(deptSlug?: string): Promise<Direction[]> {
-  let q = supabase.from('ministerial_directions').select(COLUMNS);
+  let q = pageDb().from('ministerial_directions').select(COLUMNS);
   if (deptSlug) q = q.contains('dept_slugs', [deptSlug]);
   const { data, error } = await q;
   if (error) throw new Error(`ministerial_directions: ${error.message}`); // fail the build rather than publish an empty list

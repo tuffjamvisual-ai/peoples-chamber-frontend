@@ -1,7 +1,7 @@
 // Children in care for council pages and /councils/children-in-care (council_children_in_care, migration 2026-10-28g;
 // owner's decisions, 28 Oct 2026). Wording and figures in one place so the council block and the ranking page agree.
 // Compared with England only. A figure DfE shows as a symbol is empty in the table and shown with DfE's own meaning.
-import { supabase } from '@/lib/supabase';
+import { pageDb } from '@/lib/page-reads';
 
 export type CareRow = {
   ons_code: string; area_name: string; area_level: 'england' | 'council'; year: string;
@@ -64,18 +64,18 @@ export const EXPLAINER = [
 export const ROUNDING_NOTE = 'DfE rounds England’s figures to the nearest 10; council figures are not rounded.';
 
 export async function loadArea(code: string): Promise<CareRow[]> {
-  const { data, error } = await supabase.from('council_children_in_care').select(COLS).in('ons_code', [code, 'E92000001']).order('year', { ascending: false }).limit(20);
+  const { data, error } = await pageDb().from('council_children_in_care').select(COLS).in('ons_code', [code, 'E92000001']).order('year', { ascending: false }).limit(20);
   if (error) throw new Error(`council_children_in_care ${code}: ${error.message}`);
   return (data ?? []) as CareRow[];
 }
 
 export async function loadLatestTwoYears(): Promise<{ latest: string | null; rows: CareRow[] }> {
-  const { data: top, error: topErr } = await supabase.from('council_children_in_care').select('year').eq('area_level', 'england').order('year', { ascending: false }).limit(1);
+  const { data: top, error: topErr } = await pageDb().from('council_children_in_care').select('year').eq('area_level', 'england').order('year', { ascending: false }).limit(1);
   if (topErr) throw new Error(`council_children_in_care latest year: ${topErr.message}`);
   const latest = (top?.[0]?.year as string | undefined) ?? null;
   if (!latest) return { latest: null, rows: [] };
   const prev = `${yearOf(latest) - 1}-03-31`;
-  const { data, error } = await supabase.from('council_children_in_care').select(COLS).in('year', [latest, prev]).limit(1000);
+  const { data, error } = await pageDb().from('council_children_in_care').select(COLS).in('year', [latest, prev]).limit(1000);
   if (error) throw new Error(`council_children_in_care ${latest}: ${error.message}`);
   return { latest, rows: (data ?? []) as CareRow[] };
 }

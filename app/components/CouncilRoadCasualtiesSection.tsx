@@ -11,7 +11,7 @@
 // are comparable) with native tooltips and HTML labels at 15 px, with every
 // year and measure in the table under "Yearly figures".
 
-import { supabase } from '@/lib/supabase';
+import { pageDb } from '@/lib/page-reads';
 import './phone-table.css';
 
 const INK = '#14100d';
@@ -47,7 +47,7 @@ function Heading() {
 // leads with. gssCode is the highway authority (the county council in two tier areas).
 export async function loadRoadHeadline(gssCode: string | null) {
   if (!gssCode || !/^[EWS]/.test(gssCode)) return null;
-  const { data, error: dataErr2 } = await supabase.from('council_road_casualties').select('year, measure, casualties').eq('council_gss_code', gssCode).order('year', { ascending: false }).limit(50);
+  const { data, error: dataErr2 } = await pageDb().from('council_road_casualties').select('year, measure, casualties').eq('council_gss_code', gssCode).order('year', { ascending: false }).limit(50);
   if (dataErr2 && dataErr2.code !== 'PGRST116') throw new Error(`CouncilRoadCasualtiesSection council_road_casualties: ${dataErr2.message}`);
   const rows = ((data ?? []) as { year: number; measure: string; casualties: number | null }[]);
   if (rows.length === 0) return null;
@@ -89,8 +89,8 @@ export default async function CouncilRoadCasualtiesSection({
   }
 
   const [{ data, error: dataErr }, { data: userData, error: userDataErr }] = await Promise.all([
-    supabase.from('council_road_casualties').select('year, measure, casualties, release_label').eq('council_gss_code', gssCode).order('year').limit(1000),
-    supabase.from('council_road_casualties_users').select('year, road_user, measure, casualties').eq('council_gss_code', gssCode).order('year', { ascending: false }).limit(1000),
+    pageDb().from('council_road_casualties').select('year, measure, casualties, release_label').eq('council_gss_code', gssCode).order('year').limit(1000),
+    pageDb().from('council_road_casualties_users').select('year, road_user, measure, casualties').eq('council_gss_code', gssCode).order('year', { ascending: false }).limit(1000),
   ]);
   // A failed read throws (owner's approval, 21 Oct 2026), so the last good version stays up.
   for (const e of [dataErr, userDataErr]) if (e && e.code !== 'PGRST116') throw new Error(`CouncilRoadCasualtiesSection (council_road_casualties, council_road_casualties_users): ${e.message}`);

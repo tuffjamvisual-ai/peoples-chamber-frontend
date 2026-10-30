@@ -8,7 +8,7 @@
 //   - where the Ombudsman publishes text instead of a figure ("None upheld", "no comp outcomes"), that text is shown.
 // Every council has its own figures: a county's are about county services, a district's about district services.
 
-import { supabase } from '@/lib/supabase';
+import { pageDb } from '@/lib/page-reads';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -88,7 +88,7 @@ const P = ({ children, small }: { children: React.ReactNode; small?: boolean }) 
 
 export default async function CouncilOmbudsmanSection({ gssCode }: { gssCode: string | null }) {
   if (!gssCode || !gssCode.startsWith('E')) return null;
-  const { data, error } = await supabase
+  const { data, error } = await pageDb()
     .from('council_ombudsman')
     .select('year, received_total, received_adult_social_care, received_benefits_tax, received_corporate_other, received_education_children, received_environment, received_highways_transport, received_housing, received_planning, received_other, decided_total, decided_invalid_incomplete, decided_advice_given, decided_referred_back, decided_closed_after_enquiries, not_upheld, upheld, uphold_pc, satisfactory_remedy_pc, compliance_cases, compliance_pc, on_time_cases, on_time_pc, notes')
     .eq('gss', gssCode)

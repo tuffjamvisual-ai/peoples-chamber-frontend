@@ -11,7 +11,7 @@
 // carrying a native tooltip, with the same figures in a table under
 // "Yearly figures".
 
-import { supabase } from '@/lib/supabase';
+import { pageDb } from '@/lib/page-reads';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -68,7 +68,7 @@ function Section({ children }: { children: React.ReactNode }) {
 // change this section leads with (the latest month that has an average price).
 export async function loadHousePriceHeadline(gssCode: string | null) {
   if (!gssCode) return null;
-  const { data, error: dataErr2 } = await supabase
+  const { data, error: dataErr2 } = await pageDb()
     .from('council_house_prices')
     .select('month, average_price, change_12m_pct')
     .eq('council_gss_code', gssCode)
@@ -90,7 +90,7 @@ export default async function CouncilHousePricesSection({ gssCode }: { gssCode: 
 
   // A council has at most ~380 monthly rows (Jan 1995 onwards), under
   // PostgREST's 1,000-row cap.
-  const { data, error: dataErr } = await supabase
+  const { data, error: dataErr } = await pageDb()
     .from('council_house_prices')
     .select(SELECT)
     .eq('council_gss_code', gssCode)

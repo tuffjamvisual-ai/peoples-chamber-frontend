@@ -6,7 +6,7 @@
 // Shown on education authorities. District councils issue no plans, so a district page gets one line pointing to its
 // county's Schools tab.
 
-import { supabase } from '@/lib/supabase';
+import { pageDb } from '@/lib/page-reads';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -72,8 +72,8 @@ export default async function CouncilEhcpSection({
   }
 
   const [{ data, error }, { data: latestRow }] = await Promise.all([
-    supabase.from('council_ehcp').select('year, plans_issued_ex, within_20_weeks_ex, pc_within_20_weeks_ex, over_1_year_ex, notes').eq('gss', gssCode).order('year', { ascending: false }),
-    supabase.from('council_ehcp').select('year').order('year', { ascending: false }).limit(1).maybeSingle(),
+    pageDb().from('council_ehcp').select('year, plans_issued_ex, within_20_weeks_ex, pc_within_20_weeks_ex, over_1_year_ex, notes').eq('gss', gssCode).order('year', { ascending: false }),
+    pageDb().from('council_ehcp').select('year').order('year', { ascending: false }).limit(1).maybeSingle(),
   ]);
   if (error || !data || data.length === 0) return null;
   const rows = data as Row[];

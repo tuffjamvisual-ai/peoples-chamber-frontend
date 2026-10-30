@@ -3,7 +3,7 @@
 // Shared by /transparency/major-projects, its project pages and the Major projects tab on department pages.
 // Owner's decisions (20 Oct 2026): costs are not compared between years until two years share a stated price basis
 // (expected March 2027); each year's cost shows its own basis. No rates, no "per X", no percentages.
-import { supabase } from '@/lib/supabase';
+import { pageDb } from '@/lib/page-reads';
 
 export type MajorProjectRow = {
   project_key: string; project_id: string | null; report_year: number; data_as_at: string; name: string;
@@ -45,7 +45,7 @@ function group(rows: MajorProjectRow[]): MajorProject[] {
 }
 
 async function latestReportYear(): Promise<number> {
-  const { data, error } = await supabase.from('major_projects').select('report_year').order('report_year', { ascending: false }).limit(1);
+  const { data, error } = await pageDb().from('major_projects').select('report_year').order('report_year', { ascending: false }).limit(1);
   if (error) throw error;
   return data?.[0]?.report_year ?? 0;
 }
@@ -54,17 +54,17 @@ async function latestReportYear(): Promise<number> {
 export async function fetchMajorProjects(deptSlug?: string): Promise<{ projects: MajorProject[]; latestYear: number }> {
   let rows: MajorProjectRow[];
   if (deptSlug) {
-    const { data: keys, error } = await supabase.from('major_projects').select('project_key').eq('dept_slug', deptSlug);
+    const { data: keys, error } = await pageDb().from('major_projects').select('project_key').eq('dept_slug', deptSlug);
     if (error) throw error;
     const ks = [...new Set((keys ?? []).map((k) => k.project_key as string))];
     if (ks.length === 0) return { projects: [], latestYear: 0 };
-    const { data, error: e2 } = await supabase.from('major_projects').select(TABLE_COLS).in('project_key', ks);
+    const { data, error: e2 } = await pageDb().from('major_projects').select(TABLE_COLS).in('project_key', ks);
     if (e2) throw e2;
     rows = (data ?? []) as MajorProjectRow[];
   } else {
     rows = [];
     for (let from = 0; ; from += 1000) {
-      const { data, error } = await supabase.from('major_projects').select(TABLE_COLS).order('project_key').order('report_year').range(from, from + 999);
+      const { data, error } = await pageDb().from('major_projects').select(TABLE_COLS).order('project_key').order('report_year').range(from, from + 999);
       if (error) throw error;
       rows.push(...((data ?? []) as MajorProjectRow[]));
       if (!data || data.length < 1000) break;
@@ -87,7 +87,7 @@ export type MajorProjectLine = {
   latest: Pick<MajorProjectRow, 'name' | 'department_code' | 'dept_slug' | 'rating' | 'rating_column' | 'rating_withheld' | 'end_date' | 'end_text' | 'report_year' | 'data_as_at'>;
 };
 export async function fetchMajorProjectList(): Promise<{ projects: MajorProjectLine[]; latestYear: number }> {
-  const { data, error } = await supabase.rpc('major_projects_list');
+  const { data, error } = await pageDb().rpc('major_projects_list');
   if (error || !data) throw new Error(`major_projects_list: ${error?.message ?? 'no data'}`);
   const { latest_year: latestYear, projects } = data as { latest_year: number; projects: (MajorProjectLine['latest'] & { project_key: string; no_plan_2025: boolean })[] };
   const lines = projects.map(({ project_key, no_plan_2025, ...latest }) => ({ key: project_key, name: latest.name, noPlan2025: no_plan_2025, latest }));
@@ -97,7 +97,7 @@ export async function fetchMajorProjectList(): Promise<{ projects: MajorProjectL
 
 // One project with its narratives, for /transparency/major-projects/[project_key].
 export async function fetchMajorProject(key: string): Promise<{ project: MajorProject | null; latestYear: number }> {
-  const { data, error } = await supabase.from('major_projects').select(ALL_COLS).eq('project_key', key);
+  const { data, error } = await pageDb().from('major_projects').select(ALL_COLS).eq('project_key', key);
   if (error) throw error;
   const rows = (data ?? []) as MajorProjectRow[];
   return { project: rows.length ? group(rows)[0] : null, latestYear: await latestReportYear() };
@@ -106,7 +106,7 @@ export async function fetchMajorProject(key: string): Promise<{ project: MajorPr
 export async function fetchMajorProjectKeys(): Promise<string[]> {
   const keys = new Set<string>();
   for (let from = 0; ; from += 1000) {
-    const { data, error } = await supabase.from('major_projects').select('project_key').order('project_key').range(from, from + 999);
+    const { data, error } = await pageDb().from('major_projects').select('project_key').order('project_key').range(from, from + 999);
     if (error) throw error;
     for (const r of data ?? []) keys.add(r.project_key as string);
     if (!data || data.length < 1000) break;

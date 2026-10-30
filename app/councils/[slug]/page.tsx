@@ -7,7 +7,7 @@ import { metaDescription } from '@/lib/meta-description';
 import { administrationLabel, seatsLine, seatName, type CouncilComposition } from '@/lib/council-composition';
 import { shortParty, type ElectionSummary } from '@/lib/council-election-summary';
 import { loadCouncilTax, type CouncilTax } from '@/lib/council-tax';
-import { supabase } from '@/lib/supabase';
+import { pageDb, setPageReadTimer } from '@/lib/page-reads';
 import { SHOW_COUNCIL_FOUNDED } from '@/lib/feature-flags';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../../components/OpenGovShell';
@@ -41,9 +41,13 @@ import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 export const revalidate = 21600;
 // Database reads on this page go through Next's data cache (25 Oct 2026, report 43). Every deploy empties the page
 // cache, so the first visit after each deploy rendered the page from scratch; Supabase reads were never cached (754,130
-// reads in 48 h, none from the cache). With this line they are kept for the page's revalidate period, and that cache
-// survives deploys, so those renders read from it instead of the database. A stale entry is read again before the page
-// is stored, so the page is never older than its revalidate period; revalidatePath and revalidateTag still refresh it.
+// reads in 48 h, none from the cache). That cache survives deploys, so those renders read from it instead of the
+// database. Corrected 30 Oct 2026: this line alone keeps a read with no timer of its own FOR EVER (Next sets
+// INFINITE_CACHE), not for the page's revalidate period, so the hourly rebuild showed old rows. Every read here now
+// has its own timer: setPageReadTimer(revalidate) below makes pageDb() reads (lib/page-reads.ts) last the page's
+// period, under a tag where a sync refreshes one; other reads are tagged unstable_cache reads with their own timers.
+// A stale entry is read again before the page is stored. Keep it that way: a new read on this page must use pageDb()
+// or have its own timer, or it will never change.
 export const fetchCache = 'default-cache';
 
 // No council pages are built ahead (owner's approval, 21 Oct 2026: build reliability; each makes about 45 reads).
@@ -186,8 +190,9 @@ function formatPoundsMillions(valuePounds: number): string {
 // removed here rather than left as misleading dead code.
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  setPageReadTimer(revalidate);
   const { slug } = await params;
-  const { data, error: dataErr } = await supabase.from('councils').select('name, type_label, country, political_control, population').eq('slug', slug).single();
+  const { data, error: dataErr } = await pageDb().from('councils').select('name, type_label, country, political_control, population').eq('slug', slug).single();
   if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`/councils/[slug] councils: ${dataErr.message}`);
   if (!data) return { title: 'Council not found' };
   // A description that says what the page offers, not just the council's type (all 382
@@ -202,10 +207,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function CouncilPage({ params }: { params: Promise<{ slug: string }> }) {
+  setPageReadTimer(revalidate);
   const { slug } = await params;
   // A database error must not become a 404: ISR would cache the 404 for hours (Hartlepool and
   // Knowsley were serving a cached 404 on 17 Oct 2026). Throwing keeps the last good page.
-  const { data: council, error: councilErr } = await supabase
+  const { data: council, error: councilErr } = await pageDb()
     .from('councils')
     .select('*')
     .eq('slug', slug)
@@ -226,19 +232,19 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
     byelections,
   ] = await Promise.all([
     c.parent_slug
-      ? supabase.from('councils').select('slug, name, short_name, political_control').eq('slug', c.parent_slug).single()
+      ? pageDb().from('councils').select('slug, name, short_name, political_control').eq('slug', c.parent_slug).single()
       : Promise.resolve({ data: null, error: null }),
     c.type === 'county'
-      ? supabase.from('councils').select('slug, name, short_name, political_control, gss_code').eq('parent_slug', c.slug).order('name')
+      ? pageDb().from('councils').select('slug, name, short_name, political_control, gss_code').eq('parent_slug', c.slug).order('name')
       : Promise.resolve({ data: [], error: null }),
-    supabase.from('council_composition').select('snapshot_year, total_seats, seats, majority_party, administration_code').eq('council_slug', c.slug).limit(1).maybeSingle(),
+    pageDb().from('council_composition').select('snapshot_year, total_seats, seats, majority_party, administration_code').eq('council_slug', c.slug).limit(1).maybeSingle(),
     // A failed read throws, so the last good page stays up (owner's approval, 21 Oct 2026); no data is null.
     loadElectionSummary(c.gss_code),
     loadCouncilTax(c.gss_code),
     c.type !== 'county'
-      ? supabase.from('council_public_health_metrics').select('metric_key, value, unit, source, nation, period_label').eq('council_gss_code', c.gss_code)
+      ? pageDb().from('council_public_health_metrics').select('metric_key, value, unit, source, nation, period_label').eq('council_gss_code', c.gss_code)
       : Promise.resolve({ data: [] }),
-    supabase.from('council_service_spending').select('service_category, value_pounds, source, period_label').eq('council_gss_code', c.gss_code),
+    pageDb().from('council_service_spending').select('service_category, value_pounds, source, period_label').eq('council_gss_code', c.gss_code),
     loadCouncilByelections(c.slug),
   ]);
   // A failed read throws (owner's approval, 21 Oct 2026), so the last good version stays up.

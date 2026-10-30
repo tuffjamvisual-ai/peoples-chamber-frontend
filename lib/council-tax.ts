@@ -4,7 +4,7 @@
 // previous year. Reads public.council_tax_levels (scripts/migrations/2026-10-18g-council-tax-levels.sql),
 // loaded from the government releases for England, Wales and Scotland.
 
-import { supabase } from '@/lib/supabase';
+import { pageDb } from '@/lib/page-reads';
 
 export type CouncilTax = {
   year: string;
@@ -28,7 +28,7 @@ export type CouncilTax = {
 
 export async function loadCouncilTax(gssCode: string | null): Promise<CouncilTax | null> {
   if (!gssCode) return null;
-  const { data, error } = await supabase
+  const { data, error } = await pageDb()
     .from('council_tax_levels')
     .select('*')
     .eq('council_gss_code', gssCode)

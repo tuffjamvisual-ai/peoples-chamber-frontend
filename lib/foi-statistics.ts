@@ -2,7 +2,7 @@
 // from the Cabinet Office's April to June 2026 release). Owner's decisions, 20 Oct 2026: counts as published, the
 // 20-day percentage as published and rounded to a whole number, the change on the same quarter a year earlier in
 // counts (a percentage only from a base of 20 or more), internal reviews and ICO complaints for the calendar year.
-import { supabase } from './supabase';
+import { pageDb } from '@/lib/page-reads';
 
 // The source line names the release the table was loaded from (source_url, kept up to date by the weekly import).
 export function foiSource(row: { period: string; source_url: string }): { label: string; url: string } {
@@ -72,7 +72,7 @@ export function periodName(period: string): string {
 
 // The latest quarter in the table, e.g. { period: 'Q2 2026', year: 2026, quarter: 2 }.
 export async function latestFoiQuarter(): Promise<{ period: string; year: number; quarter: number } | null> {
-  const { data, error: dataErr } = await supabase.from('foi_statistics').select('period, period_year, period_quarter')
+  const { data, error: dataErr } = await pageDb().from('foi_statistics').select('period, period_year, period_quarter')
     .not('period_quarter', 'is', null).order('period_year', { ascending: false }).order('period_quarter', { ascending: false }).limit(1).maybeSingle();
   if (dataErr && dataErr.code !== 'PGRST116') throw new Error(`foi-statistics foi_statistics: ${dataErr.message}`);
   return data ? { period: data.period as string, year: data.period_year as number, quarter: data.period_quarter as number } : null;
@@ -89,7 +89,7 @@ export async function getDeptFoi(slug: string): Promise<DeptFoi[]> {
   if (!latest) return [];
   const earlier = `Q${latest.quarter} ${latest.year - 1}`;
   const annual = String(latest.year - 1);
-  const { data, error } = await supabase.from('foi_statistics').select(COLS)
+  const { data, error } = await pageDb().from('foi_statistics').select(COLS)
     .in('body', bodies.map((b) => b.body)).in('period', [latest.period, earlier, annual]);
   // A failed read throws (owner's approval, 21 Oct 2026), so the department page keeps its last good version.
   if (error) throw new Error(`foi_statistics (department): ${error.message}`);
@@ -106,7 +106,7 @@ export async function getDeptFoi(slug: string): Promise<DeptFoi[]> {
 export async function getFoiLatestQuarter(): Promise<{ period: string; rows: FoiRow[] } | null> {
   const latest = await latestFoiQuarter();
   if (!latest) return null;
-  const { data, error } = await supabase.from('foi_statistics').select(COLS).eq('period', latest.period).order('body');
+  const { data, error } = await pageDb().from('foi_statistics').select(COLS).eq('period', latest.period).order('body');
   if (error) throw new Error(`foi_statistics (latest quarter): ${error.message}`);
   if (!data) return null;
   return { period: latest.period, rows: data as FoiRow[] };

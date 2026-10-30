@@ -11,7 +11,7 @@
 // comparable.
 
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
+import { pageDb } from '@/lib/page-reads';
 import { readAll } from '@/lib/read-all';
 
 const INK = '#14100d';
@@ -84,7 +84,7 @@ function latest(s: School): { date: string | null; text: string; predecessor: bo
 async function fetchSchools(code: string): Promise<School[]> {
   // (24 Oct 2026, report 36): every row via lib/read-all.ts, which throws on a failed page instead of stopping
   // quietly, so the page keeps its last good version rather than showing part of the figures. urn (the primary key) breaks ties between schools with the same name.
-  return readAll<School>(() => supabase.from('school_inspections'), {
+  return readAll<School>(() => pageDb().from('school_inspections'), {
     columns: SELECT,
     filter: (q) => q.eq('la_gss_code', code),
     orderBy: [{ column: 'school_name' }, { column: 'urn' }],

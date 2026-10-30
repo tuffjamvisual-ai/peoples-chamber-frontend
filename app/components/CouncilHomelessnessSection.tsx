@@ -11,7 +11,7 @@
 // tooltips, empty slots for quarters with no published figure, and the
 // figures in a table under "Quarterly figures".
 
-import { supabase } from '@/lib/supabase';
+import { pageDb } from '@/lib/page-reads';
 import { readAll } from '@/lib/read-all';
 
 const INK = '#14100d';
@@ -62,7 +62,7 @@ const shortQ = (p: string) => `Q${(Number(p.slice(5, 7)) + 2) / 3} ${p.slice(0, 
 async function fetchAll(codes: string[]): Promise<Row[]> {
   // (24 Oct 2026, report 36): every row via lib/read-all.ts, which throws on a failed page instead of stopping
   // quietly, so the page keeps its last good version rather than showing part of the figures. The order is the primary key (council_gss_code, period_start).
-  return readAll<Row>(() => supabase.from('council_homelessness'), {
+  return readAll<Row>(() => pageDb().from('council_homelessness'), {
     columns: SELECT,
     filter: (q) => q.in('council_gss_code', codes),
     orderBy: [{ column: 'period_start' }, { column: 'council_gss_code' }],

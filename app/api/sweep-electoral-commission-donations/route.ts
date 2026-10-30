@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
+import { DONATIONS_TAG } from '@/lib/page-reads';
 import { createClient } from '@supabase/supabase-js';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { SyncBudget, isPoliteStop, loadCursor, saveCursor } from '@/lib/sync-budget';
@@ -86,6 +88,8 @@ async function GET_impl(req: Request) {
     await new Promise((r) => setTimeout(r, 150));
   }
 
+  // /parties/[slug]/money reads political_donations under this tag (lib/page-reads.ts): refreshed after any write.
+  if (upserted > 0) revalidateTag(DONATIONS_TAG, 'max');
   const cursorSaved = await saveCursor(supabase, ROUTE, complete ? null : { ...sweep, start, total });
   const body = {
     ok: !failure,

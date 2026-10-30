@@ -3,7 +3,7 @@
 // council's figures being the total of its districts. Scotland and Northern Ireland publish no official council
 // figures, so their pages get one line saying so. The wording is in lib/fly-tipping.ts.
 
-import { supabase } from '@/lib/supabase';
+import { pageDb } from '@/lib/page-reads';
 import { flyTippingView, noFlyTippingFigures, type FlyTippingRow } from '@/lib/fly-tipping';
 
 const INK = '#14100d';
@@ -34,7 +34,7 @@ export default async function CouncilFlyTippingSection({ gssCode, country }: { g
     );
   }
   if (!gssCode) return null;
-  const { data, error } = await supabase.from('council_fly_tipping').select('*').eq('gss', gssCode).order('year', { ascending: false }).limit(5);
+  const { data, error } = await pageDb().from('council_fly_tipping').select('*').eq('gss', gssCode).order('year', { ascending: false }).limit(5);
   if (error || !data?.length) return null; // table not created yet, or no figures held
   const view = flyTippingView((data as FlyTippingRow[]).map((r) => ({ ...r, incidents_per_1000: r.incidents_per_1000 == null ? null : Number(r.incidents_per_1000) })));
   if (!view) return null;

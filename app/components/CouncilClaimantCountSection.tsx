@@ -11,7 +11,7 @@
 // to include Universal Credit (2013). The table under "Yearly and recent
 // figures" lists every year plus every month of the last 2 years.
 
-import { supabase } from '@/lib/supabase';
+import { pageDb } from '@/lib/page-reads';
 
 const INK = '#14100d';
 const INK_HAIRLINE = 'rgba(20,16,13,0.2)';
@@ -38,7 +38,7 @@ const fmtSigned = (n: number) => `${n > 0 ? '+' : n < 0 ? '−' : ''}${fmtNum(Ma
 // year earlier that this section leads with.
 export async function loadClaimantHeadline(gssCode: string | null) {
   if (!gssCode) return null;
-  const { data, error: dataErr2 } = await supabase
+  const { data, error: dataErr2 } = await pageDb()
     .from('council_claimant_count')
     .select('month, claimants, rate')
     .eq('council_gss_code', gssCode)
@@ -63,7 +63,7 @@ export async function loadClaimantHeadline(gssCode: string | null) {
 export default async function CouncilClaimantCountSection({ gssCode }: { gssCode: string | null }) {
   if (!gssCode) return null;
   // ~490 monthly rows per council (from January 1986), under PostgREST's 1,000-row cap.
-  const { data, error: dataErr } = await supabase
+  const { data, error: dataErr } = await pageDb()
     .from('council_claimant_count')
     .select('month, claimants, claimants_men, claimants_women, rate, rate_men, rate_women')
     .eq('council_gss_code', gssCode)

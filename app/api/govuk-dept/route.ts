@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { govukSlugs } from '@/lib/govuk-slugs';
-import { supabase } from '@/lib/supabase';
+import { pageDb, GOVUK_DEPT_TAG } from '@/lib/page-reads';
 import { jsonWithoutEmDashes } from '@/lib/no-em-dash'
 
 export const revalidate = 3600;
@@ -112,8 +112,8 @@ export async function getGovukDept(slug: string): Promise<GovukDeptData> {
     // /api/sync-department-contacts, so the gov.uk fetch is no longer
     // on the hot path.
     const [ministersRes, officialsRes, agenciesRes, contactsRes, mpRowsRes] = await Promise.all([
-      supabase.from('dept_ministers').select('*').eq('dept_slug', slug).order('id'),
-      supabase
+      pageDb([GOVUK_DEPT_TAG]).from('dept_ministers').select('*').eq('dept_slug', slug).order('id'),
+      pageDb([GOVUK_DEPT_TAG])
         // NB: dept_officials has no member_id column (officials are
         // civil servants, not MPs). member_id is resolved via the mps
         // name-join lower down instead.
@@ -121,13 +121,13 @@ export async function getGovukDept(slug: string): Promise<GovukDeptData> {
         .select('id, name, role, slug, category, photo_url, role_rank, appointment_date, previous_role')
         .eq('dept_slug', slug)
         .order('id'),
-      supabase.from('dept_agencies').select('*').eq('dept_slug', slug).order('name'),
-      supabase
+      pageDb([GOVUK_DEPT_TAG]).from('dept_agencies').select('*').eq('dept_slug', slug).order('name'),
+      pageDb()
         .from('department_contacts')
         .select('social_media_links, foi_email, press_phone')
         .eq('dept_slug', slug)
         .maybeSingle(),
-      supabase
+      pageDb()
         .from('mps')
         .select('member_id, name, display_name, photo_url')
         .eq('current_member', true),
@@ -141,7 +141,7 @@ export async function getGovukDept(slug: string): Promise<GovukDeptData> {
       .map((o: OfficialRow) => o.slug)
       .filter((s): s is string => !!s);
     const payRes = officialSlugs.length
-      ? await supabase
+      ? await pageDb()
           .from('person_cache')
           .select('slug, scs_band, actual_pay_floor, actual_pay_ceiling')
           .in('slug', officialSlugs)

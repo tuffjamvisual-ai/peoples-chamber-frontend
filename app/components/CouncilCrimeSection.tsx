@@ -12,7 +12,7 @@
 // legend needed), each bar carrying a native tooltip, with the same
 // figures available as a table under "Monthly figures".
 
-import { supabase } from '@/lib/supabase';
+import { pageDb } from '@/lib/page-reads';
 import { readAll } from '@/lib/read-all';
 
 const INK = '#14100d';
@@ -41,7 +41,7 @@ const SELECT = 'council_gss_code, source, period_type, period_start, period_labe
 async function fetchAll(codes: string[], fromDate: string | null): Promise<CrimeRow[]> {
   // (24 Oct 2026, report 36): every row via lib/read-all.ts, which throws on a failed page instead of stopping
   // quietly, so the page keeps its last good version rather than showing part of the figures. The 50,000 row cap is gone.
-  return readAll<CrimeRow>(() => supabase.from('council_crime_stats'), {
+  return readAll<CrimeRow>(() => pageDb().from('council_crime_stats'), {
     columns: SELECT,
     filter: (q) => {
       const byCouncil = q.in('council_gss_code', codes);
@@ -89,7 +89,7 @@ export async function loadCrime(gssCodes: string[], population: number | null) {
   if (gssCodes.length === 0) return null;
 
   // Latest period first (one cheap query), then just the window needed.
-  const { data: latestRow, error: latestRowErr } = await supabase
+  const { data: latestRow, error: latestRowErr } = await pageDb()
     .from('council_crime_stats')
     .select('source, period_type, period_start')
     .in('council_gss_code', gssCodes)

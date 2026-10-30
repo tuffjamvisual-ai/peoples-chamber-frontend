@@ -12,6 +12,7 @@ import AreaSearch from './components/AreaSearch';
 import NewsletterSignup from './components/NewsletterSignup';
 import { latestExpensesYear, expensesYearShort } from '@/lib/expenses-year';
 import { loadLatestWhitehall } from '@/lib/press-releases-latest';
+import { setPageReadTimer } from '@/lib/page-reads';
 import './home-front.css';
 
 function fmtGovDate(iso: string | null | undefined): string {
@@ -27,9 +28,13 @@ function fmtGovDate(iso: string | null | undefined): string {
 export const revalidate = 3600;
 // Database reads on this page go through Next's data cache (25 Oct 2026, report 43). Every deploy empties the page
 // cache, so the first visit after each deploy rendered the page from scratch; Supabase reads were never cached (754,130
-// reads in 48 h, none from the cache). With this line they are kept for the page's revalidate period, and that cache
-// survives deploys, so those renders read from it instead of the database. A stale entry is read again before the page
-// is stored, so the page is never older than its revalidate period; revalidatePath and revalidateTag still refresh it.
+// reads in 48 h, none from the cache). That cache survives deploys, so those renders read from it instead of the
+// database. Corrected 30 Oct 2026: this line alone keeps a read with no timer of its own FOR EVER (Next sets
+// INFINITE_CACHE), not for the page's revalidate period, so the hourly rebuild showed old rows. Every read here now
+// has its own timer: setPageReadTimer(revalidate) below makes pageDb() reads (lib/page-reads.ts) last the page's
+// period, under a tag where a sync refreshes one; other reads are tagged unstable_cache reads with their own timers.
+// A stale entry is read again before the page is stored. Keep it that way: a new read on this page must use pageDb()
+// or have its own timer, or it will never change.
 export const fetchCache = 'default-cache';
 
 const HOME_DESCRIPTION =
@@ -69,6 +74,7 @@ function todayIndex(): number {
 }
 
 export default async function HomePage() {
+  setPageReadTimer(revalidate);
 
   // Investigation pool: all entries where kind is absent (investigations only),
   // sorted publishedAt DESC then by registry declaration order as tiebreaker.

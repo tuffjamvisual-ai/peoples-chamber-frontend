@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
+import { GOVUK_DEPT_TAG } from '@/lib/page-reads';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { govukSlugs } from '@/lib/govuk-slugs';
 
@@ -365,6 +367,8 @@ async function GET_impl(req: Request) {
     await new Promise((r) => setTimeout(r, 200));
   }
 
+  // Department pages read these rows under the 'govuk-dept' tag (lib/page-reads.ts): refreshed after any write.
+  if (rowsWritten > 0) revalidateTag(GOVUK_DEPT_TAG, 'max');
   return NextResponse.json({
     ok: results.filter((r) => r.status === 'ok').length,
     fail: results.filter((r) => r.status === 'fail').length,

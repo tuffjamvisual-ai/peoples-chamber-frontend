@@ -8,7 +8,7 @@
 // (in wards electing several councillors each voter has several votes, which is
 // the usual basis councils and the press use for council wide shares).
 
-import { supabase } from '@/lib/supabase';
+import { pageDb } from '@/lib/page-reads';
 
 // Short names, matching the seats lines elsewhere on the council page. The register's
 // full names ("Conservative and Unionist Party", "Labour and Co-operative Party (joint
@@ -57,7 +57,7 @@ export type ElectionSummary = { date: string; wards: number; seats: number; part
 
 export async function loadElectionSummary(gssCode: string | null): Promise<ElectionSummary | null> {
   if (!gssCode) return null;
-  const { data: el, error } = await supabase
+  const { data: el, error } = await pageDb()
     .from('council_elections')
     .select('id, election_date, wards_contested, seats_contested, source_note, turnout_pct')
     .eq('council_gss_code', gssCode)
@@ -80,7 +80,7 @@ export async function loadElectionSummary(gssCode: string | null): Promise<Elect
 
   // seats_unfilled: seats left unfilled when too few candidates stood (migration 2026-10-19l).
   type WardRow = { id: number; election_id: number; ward_name: string; seats: number; seats_unfilled: number };
-  const { data: wardData, error: wErr } = await supabase.from('council_election_wards').select('id, election_id, ward_name, seats, seats_unfilled').in('election_id', ids).limit(1000);
+  const { data: wardData, error: wErr } = await pageDb().from('council_election_wards').select('id, election_id, ward_name, seats, seats_unfilled').in('election_id', ids).limit(1000);
   const wards = (wardData ?? []) as WardRow[];
   if (wErr) throw new Error(`council_election_wards ${gssCode}: ${wErr.message}`);
   if (!wards.length) return null;
@@ -100,7 +100,7 @@ export async function loadElectionSummary(gssCode: string | null): Promise<Elect
   const rows: { party_id: string | null; party_published: string | null; votes: number | null; elected: boolean }[] = [];
   for (let i = 0; i < wardIds.length; i += 100) {
     for (let from = 0; from < 20_000; from += 1000) {
-      const { data, error: cErr } = await supabase
+      const { data, error: cErr } = await pageDb()
         .from('council_election_candidates')
         .select('party_id, party_published, votes, elected')
         .in('ward_id', wardIds.slice(i, i + 100))
@@ -116,7 +116,7 @@ export async function loadElectionSummary(gssCode: string | null): Promise<Elect
   const pids = [...new Set(rows.map((r) => r.party_id).filter((p): p is string => !!p))];
   const names = new Map<string, string>();
   if (pids.length) {
-    const { data: pn, error: pnErr } = await supabase.from('party_names').select('party_id, party_name').in('party_id', pids);
+    const { data: pn, error: pnErr } = await pageDb().from('party_names').select('party_id, party_name').in('party_id', pids);
     if (pnErr && pnErr.code !== 'PGRST116') throw new Error(`council-election-summary party_names: ${pnErr.message}`);
     for (const p of (pn ?? []) as { party_id: string; party_name: string }[]) names.set(p.party_id, p.party_name);
   }

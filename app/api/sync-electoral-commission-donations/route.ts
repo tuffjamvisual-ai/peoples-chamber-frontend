@@ -6,6 +6,8 @@
 // full register was loaded out of band by the script. A pass that runs out of time carries on next run (job 79).
 
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
+import { DONATIONS_TAG } from '@/lib/page-reads';
 import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
@@ -101,6 +103,8 @@ async function GET_impl(req: Request) {
   }
 
   const complete = slice >= slices;
+  // /parties/[slug]/money reads political_donations under this tag (lib/page-reads.ts): refreshed after any write.
+  if (upserted > 0) revalidateTag(DONATIONS_TAG, 'max');
   const cursorSaved = await saveCursor(supabase, ROUTE, complete ? null : { ...pass, slice, start });
   const body = {
     ok: !failure,

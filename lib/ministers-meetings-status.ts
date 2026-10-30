@@ -2,7 +2,7 @@
 // ministers_meetings: each department's latest quarter, when GOV.UK published it, and any quarter that ended more than
 // three months ago with no return. Quarters are checked from January to March 2025 (the window reviewed on
 // 20 Oct 2026); the sync keeps returns from July 2024.
-import { supabase } from './supabase';
+import { pageDb } from '@/lib/page-reads';
 
 // Department page slug -> the GOV.UK organisation(s) the meetings sync reads (lib/ministers-meetings-source.ts).
 export const MEETINGS_ORGS_BY_DEPT: Record<string, { org: string; label?: string }[]> = {
@@ -72,7 +72,7 @@ const fmtDate = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString('en
 export async function getMeetingsStatus(slug: string, today = new Date()): Promise<MeetingsStatus[]> {
   const orgs = MEETINGS_ORGS_BY_DEPT[slug];
   if (!orgs) return [];
-  const { data, error } = await supabase.from('ministers_meetings_quarters').select('govuk_org_slug, quarter, published_on')
+  const { data, error } = await pageDb().from('ministers_meetings_quarters').select('govuk_org_slug, quarter, published_on')
     .in('govuk_org_slug', orgs.map((o) => o.org));
   // A failed read throws (owner's approval, 21 Oct 2026) rather than showing every quarter as missing.
   if (error) throw new Error(`ministers_meetings_quarters: ${error.message}`);

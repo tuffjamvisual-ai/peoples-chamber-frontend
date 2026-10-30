@@ -5,7 +5,7 @@
 // owner's decision, 28 Oct 2026). Wording in lib/blue-badges.ts. No lost or stolen figures here: DfT has published none by council since 2021 (England's are on /councils/blue-badges).
 
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
+import { pageDb } from '@/lib/page-reads';
 import {
   loadArea, count, shareText, change, changeText, pctChangeText, asAt, yearTo, releaseFor, OGL, OGL_URL,
   ROUNDING_NOTE, SHARE_NOTE, LOW_TEXT, RANKING_PATH, type BlueBadgeRow,
@@ -51,7 +51,7 @@ export default async function CouncilBlueBadgesSection({ gssCode, country, isDis
   const prevYear = `${Number(cur.year.slice(0, 4)) - 1}-03-31`;
   const prev = rows.find((r) => r.year.slice(0, 10) === prevYear);
 
-  const { data: engData, error: engErr } = await supabase.from('council_blue_badges').select('ons_code, area_name, area_level, year, held, held_automatic, held_discretionary, issued, held_per_1000_population, lost, stolen, low_fields, rounded_to, source_url')
+  const { data: engData, error: engErr } = await pageDb().from('council_blue_badges').select('ons_code, area_name, area_level, year, held, held_automatic, held_discretionary, issued, held_per_1000_population, lost, stolen, low_fields, rounded_to, source_url')
     .eq('ons_code', 'E92000001').in('year', [cur.year, prevYear]);
   if (engErr) throw new Error(`council_blue_badges England: ${engErr.message}`);
   const eng = (engData ?? []) as BlueBadgeRow[];

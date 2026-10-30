@@ -7,7 +7,7 @@
 //   - From 2024 DfT rounds council figures to the nearest 100 (rounded_to), and the page says so.
 //   - Lost or stolen badges: England only, on the ranking page (no council figures are published since 2021).
 
-import { supabase } from '@/lib/supabase';
+import { pageDb } from '@/lib/page-reads';
 
 // DfT's own definition of "[low]", from the tables' shorthand line ("[low] = a low value but not a real zero").
 export const LOW_DEFINITION = 'a low value but not a real zero';
@@ -86,26 +86,26 @@ export function changeText(cur: BlueBadgeRow, prev: BlueBadgeRow | undefined): s
 export const pctChangeText = (c: { pct: number } | null) => (c == null ? 'not published' : `${c.pct > 0 ? 'up ' : c.pct < 0 ? 'down ' : ''}${Math.abs(c.pct).toFixed(1)} per cent`);
 
 export async function loadArea(code: string): Promise<BlueBadgeRow[]> {
-  const { data, error } = await supabase.from('council_blue_badges').select(COLS).eq('ons_code', code).order('year', { ascending: false }).limit(20);
+  const { data, error } = await pageDb().from('council_blue_badges').select(COLS).eq('ons_code', code).order('year', { ascending: false }).limit(20);
   if (error) throw new Error(`council_blue_badges ${code}: ${error.message}`);
   return (data ?? []) as BlueBadgeRow[];
 }
 
 // Every row for the latest year and the year before (England, regions and councils).
 export async function loadLatestTwoYears(): Promise<{ latest: string | null; rows: BlueBadgeRow[] }> {
-  const { data: top, error: topErr } = await supabase.from('council_blue_badges').select('year').eq('area_level', 'england').order('year', { ascending: false }).limit(1);
+  const { data: top, error: topErr } = await pageDb().from('council_blue_badges').select('year').eq('area_level', 'england').order('year', { ascending: false }).limit(1);
   if (topErr) throw new Error(`council_blue_badges latest year: ${topErr.message}`);
   const latest = (top?.[0]?.year as string | undefined) ?? null;
   if (!latest) return { latest: null, rows: [] };
   const prev = `${yearOf(latest) - 1}-03-31`;
-  const { data, error } = await supabase.from('council_blue_badges').select(COLS).in('year', [latest, prev]).limit(1000);
+  const { data, error } = await pageDb().from('council_blue_badges').select(COLS).in('year', [latest, prev]).limit(1000);
   if (error) throw new Error(`council_blue_badges ${latest}: ${error.message}`);
   return { latest, rows: (data ?? []) as BlueBadgeRow[] };
 }
 
 // The newest England row with lost and stolen figures.
 export async function loadEnglandLostStolen(): Promise<BlueBadgeRow | null> {
-  const { data, error } = await supabase.from('council_blue_badges').select(COLS).eq('area_level', 'england').not('lost', 'is', null).order('year', { ascending: false }).limit(1);
+  const { data, error } = await pageDb().from('council_blue_badges').select(COLS).eq('area_level', 'england').not('lost', 'is', null).order('year', { ascending: false }).limit(1);
   if (error) throw new Error(`council_blue_badges lost and stolen: ${error.message}`);
   return ((data ?? [])[0] as BlueBadgeRow | undefined) ?? null;
 }

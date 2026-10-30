@@ -2,7 +2,7 @@
 // decisions, 28 Oct 2026). Wording in one place so the council block and the ranking page agree. Compared with England
 // only; England is DfT's figure as published, which leaves out Derbyshire from FYE 2019. A figure DfT flags as surveyed
 // by an alternative method is shown with DfT's warning and left out of the rankings.
-import { supabase } from '@/lib/supabase';
+import { pageDb } from '@/lib/page-reads';
 
 export type RoadRow = {
   ons_code: string; area_name: string; area_level: 'england' | 'council'; year: string;
@@ -65,18 +65,18 @@ export function changeText(cur: RoadRow | undefined, prev: RoadRow | undefined, 
 }
 
 export async function loadArea(code: string): Promise<RoadRow[]> {
-  const { data, error } = await supabase.from('council_road_condition').select(COLS).in('ons_code', [code, 'E92000001']).order('year', { ascending: false }).limit(60);
+  const { data, error } = await pageDb().from('council_road_condition').select(COLS).in('ons_code', [code, 'E92000001']).order('year', { ascending: false }).limit(60);
   if (error) throw new Error(`council_road_condition ${code}: ${error.message}`);
   return (data ?? []) as RoadRow[];
 }
 
 export async function loadLatestTwoYears(): Promise<{ latest: string | null; rows: RoadRow[] }> {
-  const { data: top, error: topErr } = await supabase.from('council_road_condition').select('year').eq('area_level', 'england').order('year', { ascending: false }).limit(1);
+  const { data: top, error: topErr } = await pageDb().from('council_road_condition').select('year').eq('area_level', 'england').order('year', { ascending: false }).limit(1);
   if (topErr) throw new Error(`council_road_condition latest year: ${topErr.message}`);
   const latest = (top?.[0]?.year as string | undefined) ?? null;
   if (!latest) return { latest: null, rows: [] };
   const prev = `${Number(latest.slice(0, 4)) - 1}-03-31`;
-  const { data, error } = await supabase.from('council_road_condition').select(COLS).in('year', [latest, prev]).limit(1000);
+  const { data, error } = await pageDb().from('council_road_condition').select(COLS).in('year', [latest, prev]).limit(1000);
   if (error) throw new Error(`council_road_condition ${latest}: ${error.message}`);
   return { latest, rows: (data ?? []) as RoadRow[] };
 }

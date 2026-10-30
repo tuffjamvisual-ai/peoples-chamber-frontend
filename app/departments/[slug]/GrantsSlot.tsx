@@ -4,7 +4,7 @@
 // Pure display: the page fetches with getDepartmentGrants() and passes the
 // result in, so this ships in the static HTML like the other slots.
 
-import { supabase } from '@/lib/supabase';
+import { pageDb } from '@/lib/page-reads';
 
 const ACCENT = '#7a1612';
 const INK = '#14100d';
@@ -21,7 +21,7 @@ export type DepartmentGrants = {
 };
 
 export async function getDepartmentGrants(slug: string): Promise<DepartmentGrants | null> {
-  const { data: summary, error: summaryErr } = await supabase
+  const { data: summary, error: summaryErr } = await pageDb()
     .from('government_grants_summary')
     .select('fy, body_name, award_count, total_amount')
     .eq('department_slug', slug)
@@ -32,7 +32,7 @@ export async function getDepartmentGrants(slug: string): Promise<DepartmentGrant
   const rows = summary.filter((r) => r.fy === fy);
 
   const [{ data: schemes, error: schemesErr }, { data: awards, error: awardsErr }] = await Promise.all([
-    supabase
+    pageDb()
       .from('government_grant_schemes')
       .select('title, managed_by, fy_value')
       .eq('department_slug', slug)
@@ -40,7 +40,7 @@ export async function getDepartmentGrants(slug: string): Promise<DepartmentGrant
       .not('fy_value', 'is', null)
       .order('fy_value', { ascending: false })
       .limit(10),
-    supabase
+    pageDb()
       .from('government_grants')
       .select('recipient_name, scheme_title, managed_by, amount')
       .eq('department_slug', slug)

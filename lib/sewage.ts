@@ -20,7 +20,7 @@
 // least one storm overflow; county councils are ranked against other counties
 // using the total of their districts.
 
-import { supabase } from '@/lib/supabase';
+import { pageDb } from '@/lib/page-reads';
 
 export type AreaType = 'constituency' | 'council';
 
@@ -80,7 +80,7 @@ async function readAll<T>(build: (from: number, to: number) => PromiseLike<{ dat
 
 export async function getAreaTotals(): Promise<AreaTotal[]> {
   const rows = await readAll<Record<string, unknown>>((from, to) =>
-    supabase.from('sewage_area_totals')
+    pageDb().from('sewage_area_totals')
       .select('area_type, area_gss_code, area_name, year, nation, overflows, overflows_with_data, overflows_spilled, spill_count, spill_hours')
       .order('area_type').order('area_gss_code').order('year')
       .range(from, to));
@@ -130,7 +130,7 @@ function toOverflow(r: Record<string, unknown>): Overflow {
 export async function getCouncilOverflows(codes: string[], year: number): Promise<Overflow[]> {
   if (codes.length === 0) return [];
   const rows = await readAll<Record<string, unknown>>((from, to) =>
-    supabase.from('sewage_overflows').select(OVERFLOW_COLUMNS)
+    pageDb().from('sewage_overflows').select(OVERFLOW_COLUMNS)
       .in('council_gss_code', codes).eq('year', year)
       .order('source').order('site_id')
       .range(from, to));
@@ -153,7 +153,7 @@ export type SourceStats = {
 
 export async function getCompanyAreaTotals(shown: { source: 'EA' | 'NIW' | 'SW'; year: number }[]): Promise<CompanyAreaRow[]> {
   const sets = await Promise.all(shown.map(({ source, year }) => readAll<Record<string, unknown>>((from, to) =>
-    supabase.from('sewage_company_area_totals')
+    pageDb().from('sewage_company_area_totals')
       .select('year, source, company, area_type, area_gss_code, overflows, overflows_with_data, overflows_spilled, spill_count, spill_hours')
       .eq('source', source).eq('year', year)
       .order('area_type').order('area_gss_code').order('company')
@@ -166,7 +166,7 @@ export async function getCompanyAreaTotals(shown: { source: 'EA' | 'NIW' | 'SW';
 }
 
 export async function getSourceStats(): Promise<SourceStats[]> {
-  const { data, error } = await supabase.from('sewage_source_stats')
+  const { data, error } = await pageDb().from('sewage_source_stats')
     .select('year, source, overflows, overflows_with_data, spill_count, spill_hours, tidal, nearest, unplaced_sites, sites_in_scotland, overflows_in_wales, volume_m3, volume_overflows');
   if (error) throw new Error(error.message);
   return ((data ?? []) as Record<string, unknown>[]).map((r) => ({
@@ -178,7 +178,7 @@ export async function getSourceStats(): Promise<SourceStats[]> {
 }
 
 export async function getCouncilRefs(): Promise<CouncilRef[]> {
-  const { data, error } = await supabase.from('councils').select('slug, name, short_name, type, gss_code, parent_slug').limit(1000);
+  const { data, error } = await pageDb().from('councils').select('slug, name, short_name, type, gss_code, parent_slug').limit(1000);
   if (error) throw new Error(`councils read: ${error.message}`);
   return (data ?? []) as CouncilRef[];
 }
