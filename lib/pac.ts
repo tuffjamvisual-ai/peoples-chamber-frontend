@@ -184,21 +184,32 @@ export function departmentWords(text: string | null): string {
 }
 const joinWords = (xs: string[]) => (xs.length <= 1 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
 
-// The body a recommendation is addressed to, read from its first words ("Companies House should ..."), when it is
-// not the report's own department. null when it cannot be read or is the department itself.
+// The body a recommendation is addressed to, when it is not (only) the report's own department: shown only when the
+// recommendation opens with body names ("MoJ and DfE, working with HMCTS, Cafcass and Local Authorities, in
+// consultation with the Judiciary, should ..." gives "MoJ and DfE"), each a department in BODIES or a named
+// organisation below, followed by should, must or needs to (with at most one aside such as "working with ...").
+// Anything else (an opening clause, a description, an unknown name) shows nothing, so the line is never a fragment
+// (owner's Preview check, 30 Oct 2026: the old rule took the words after the last comma and could name the wrong body).
+const OTHER_BODIES = /^(?:the\s+)?(?:NHS England|NHSE|NHSE&I|HS2 Ltd|APHA|UKHSA|HMPPS|HM Prison and Probation Service|Ofwat|Ofgem|OfS|SLC|Environment Agency|Natural England|Sellafield Ltd|NDA|Nuclear Decommissioning Authority|UKRI|Companies House|Insolvency Service|JCDU|BDUK|HMCTS|Cafcass|Electoral Commission|Office of Qualifications and Examinations Regulation|Public Sector Fraud Authority|Treasury Officer of Accounts|Government (?:Finance|People|Commercial) Function|Evaluation Task Force|DMO|Agency|Unit|Department)$/i;
+const DEPARTMENT_ONLY = /^(?:the\s+)?department$/i;
+function isBodyName(part: string): boolean {
+  const p = part.trim();
+  if (OTHER_BODIES.test(p)) return true;
+  // A department's name or short name on its own, as the whole part (not a clause that happens to contain one).
+  return BODIES.some((b) => new RegExp(`^(?:[Tt]he\\s+)?(?:${b.re.source})(?:\\s+\\([A-Za-z&]+\\))?$`, b.re.flags.replace('g', '')).test(p));
+}
 export function recommendationFor(text: string | null, reportDepartment: string | null): string | null {
   if (!text) return null;
   const t = text.replace(/^\(?[a-z]\)\s*/, '').replace(/^[•\s]+/, '').trim();
-  const m = t.match(/^(.{2,160}?)\s+(?:should|must|needs to|need to)\b/);
+  const m = t.match(/^([^,]{2,120}?)(?:,\s+(?:working with|together with|in consultation with|in collaboration with|with|led by)\b[^.]*?,)?\s+(?:should|must|needs? to)\b/);
   if (!m) return null;
-  let subject = m[1].split(/,\s+/).pop()!.replace(/^(and|but|then|also)\s+/i, '').trim();
-  if (subject.split(/\s+/).length > 12 || !/^[A-Z]|^the\s/i.test(subject)) return null;
-  if (/^(the\s+)?(departments?|government|it|they|we|this|each department|all departments)$/i.test(subject)) return null;
+  const subject = m[1].trim();
+  const parts = subject.split(/\s*,\s*|\s+and\s+/);
+  if (!parts.every(isBodyName)) return null;
+  // Not shown when it names only the report's own department.
   const mine = new Set(bodiesFor(reportDepartment).map((b) => b.key));
-  const named = bodiesFor(subject);
-  if (named.length && named.every((b) => mine.has(b.key))) return null;
-  subject = subject.charAt(0).toUpperCase() + subject.slice(1);
-  return subject;
+  if (parts.every((p) => DEPARTMENT_ONLY.test(p.trim()) || (bodiesFor(p).length > 0 && bodiesFor(p).every((b) => mine.has(b.key))))) return null;
+  return subject.charAt(0).toUpperCase() + subject.slice(1);
 }
 
 // ---------- wording (house style: no hyphens or dashes in our words; quotations are as written)

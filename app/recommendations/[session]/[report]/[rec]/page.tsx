@@ -51,6 +51,18 @@ function targetLine(label: string, text: string | null, month: string | null): s
   return `${label}: “${text}”${targetPassed(month) ? '. Target passed' : ''}`;
 }
 
+// Later evidence named in the source line: each publication by its publisher ("Ministry of Justice letter to the
+// Committee of Public Accounts", "Ministry of Justice on GOV.UK") or, when the row has no publisher, by its site.
+function laterSource(url: string | null, publisher: string | null, title: string | null): string | null {
+  if (!url) return null;
+  let host = '';
+  try { host = new URL(url).hostname.replace(/^www\./, ''); } catch { return null; }
+  if (host === 'committees.parliament.uk' && /^letter\b/i.test(title ?? '')) return publisher ? `${publisher} letter to the Committee of Public Accounts` : 'Letter to the Committee of Public Accounts';
+  if (host === 'gov.uk') return publisher ? `${publisher} on GOV.UK` : 'GOV.UK';
+  return publisher ? `${publisher} (${host})` : host;
+}
+const listWords = (xs: string[]) => (xs.length <= 1 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
+
 const linked = (parts: StatusLink[]) => parts.map((s, i) => (s.href ? <a key={i} href={s.href} style={link}>{s.text}</a> : <span key={i}>{s.text}</span>));
 
 // A target set after the Treasury Minutes, in a department's letter (pac_target_updates): the last entry in the
@@ -115,6 +127,13 @@ export default async function RecommendationPage({ params }: { params: Promise<P
   const addressedTo = recommendationFor(d.recommendation, row.department);
   const later = laterEvidence(row);
   const hasUpdate = !!targetSource(row);
+  // What the delivered_elsewhere publication shows (the first evidence row, the one the status line names).
+  const shows = row.status === 'delivered_elsewhere' ? evidence.find((e) => e.evidence_url === row.evidence_url)?.note ?? null : null;
+  const laterSources = [...new Set([
+    ...(row.status === 'delivered_elsewhere' ? evidence.map((e) => laterSource(e.evidence_url, e.publisher, e.evidence_title)) : []),
+    hasUpdate ? laterSource(row.target_source_url, row.target_source_publisher, row.target_source_title) : null,
+    later ? laterSource(row.review_url, null, null) : null,
+  ].filter((x): x is string => !!x))];
 
   return (
     <OpenGovShell pageStamp="Recommendations">
@@ -138,8 +157,10 @@ export default async function RecommendationPage({ params }: { params: Promise<P
         <p style={{ ...p, fontSize: '18px', fontWeight: 600, border: '1px solid rgba(20,16,13,0.3)', padding: '12px 14px' }}>
           {linked(status)}
         </p>
+        {shows && <p style={p}>What it shows: {shows}</p>}
         {later && <p style={p}>{linked(later)}</p>}
-        {row.review_checked_on && (
+        {/* A partly delivered check is shown once, as the Later evidence line above. */}
+        {row.review_checked_on && row.review_outcome !== 'partly_delivered' && (
           <p style={p}>Checked by Open Govt on {dayMonthYear(row.review_checked_on)}{row.review_note ? `: ${row.review_note}` : '.'}</p>
         )}
 
@@ -158,7 +179,7 @@ export default async function RecommendationPage({ params }: { params: Promise<P
             {evidence.map((e) => (
               <li key={e.id} style={{ ...small, fontSize: '16px', marginBottom: '8px' }}>
                 <a href={e.evidence_url} style={link}>{e.evidence_title}</a>
-                {e.publisher ? `, ${e.publisher}` : ''}{e.delivered_on ? `, ${dayMonthYear(e.delivered_on)}` : ''}{e.note ? `. ${e.note}` : ''}
+                {e.publisher ? `, ${e.publisher}` : ''}{e.delivered_on ? `, ${dayMonthYear(e.delivered_on)}` : ''}{e.note && e.note !== shows ? `. ${e.note}` : ''}
               </li>
             ))}
           </ul>
@@ -171,6 +192,7 @@ export default async function RecommendationPage({ params }: { params: Promise<P
         </ol>
         <p style={{ ...small, marginTop: '28px' }}>
           Source: HM Treasury, Treasury Minutes and Treasury Minutes Progress Reports, on GOV.UK under the Open Government Licence v3.0. Quoted text is as published.{' '}
+          {laterSources.length > 0 && <>Later evidence: {listWords(laterSources)}, linked above.{' '}</>}
           <Link href="/recommendations" style={link}>All recommendations</Link>
         </p>
       </section>
