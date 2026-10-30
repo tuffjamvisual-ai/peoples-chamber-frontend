@@ -1,6 +1,7 @@
 // Council byelections since May 2026 (owner's approval of the design, 30 Oct 2026): the rows of council_byelections
 // (migration 2026-10-30e, loaded by scripts/import-council-byelections.js) for one council, newest first, and the
 // sentence each one is shown as on /councils/[slug].
+import { unstable_cache } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 
 export type CouncilByelection = {
@@ -25,7 +26,7 @@ export type CouncilByelection = {
 
 // A failed read throws, so the last good page stays up. Until migration 2026-10-30e is applied the table does not
 // exist (Previews read the production database): that reads as no rows, so the section is simply not shown.
-export async function loadCouncilByelections(slug: string): Promise<CouncilByelection[]> {
+async function readCouncilByelections(slug: string): Promise<CouncilByelection[]> {
   const { data, error } = await supabase
     .from('council_byelections')
     .select('ward_name, poll_date, kind, winner_name, winner_party, winner_votes, runner_up_name, runner_up_party, runner_up_votes, turnout_pct, declaration_url, former_councillor, former_party_at_vacancy, former_party_source, vacancy_reason, joint_runners_up, status')
@@ -38,6 +39,12 @@ export async function loadCouncilByelections(slug: string): Promise<CouncilByele
   }
   return (data ?? []) as CouncilByelection[];
 }
+
+// Cached for the page's 6 hours under the 'council-byelections' tag (owner, 30 Oct 2026): the page's untagged fetch
+// cache kept the old Flintshire row after a write, and that cache survives deploys. Inside unstable_cache the read is
+// not also kept in the fetch cache. scripts/import-council-byelections.js refreshes the tag after every --write.
+const cachedCouncilByelections = unstable_cache(readCouncilByelections, ['council-byelections'], { tags: ['council-byelections'], revalidate: 21600 });
+export const loadCouncilByelections = (slug: string) => cachedCouncilByelections(slug);
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const longDate = (iso: string) => `${Number(iso.slice(8, 10))} ${MONTHS[Number(iso.slice(5, 7)) - 1]} ${iso.slice(0, 4)}`;

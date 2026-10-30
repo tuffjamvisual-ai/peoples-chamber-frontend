@@ -14,8 +14,8 @@
 //
 // DRY RUN BY DEFAULT: prints the rows per council and writes nothing.
 //   --write         upserts every row in one psql transaction (60 s statement and 5 s lock timeouts), keyed on
-//                   (council_slug, ward_name, poll_date), so a rerun changes nothing; then refreshes the affected
-//                   /councils/<slug> pages through scripts/revalidate.js
+//                   (council_slug, ward_name, poll_date), so a rerun changes nothing; then refreshes the
+//                   'council-byelections' cache tag and the affected /councils/<slug> pages through scripts/revalidate.js
 //   --sql=file.sql  also writes the upsert statement (no BEGIN or COMMIT) to file.sql, for a rehearsal inside
 //                   BEGIN ... ROLLBACK
 //   --dir=folder    where the two files are (default "Claude outputs/data/councils")
@@ -166,9 +166,9 @@ psql(`BEGIN;\nSET LOCAL statement_timeout = '60s';\nSET LOCAL lock_timeout = '5s
 console.log(`Saved: ${added} new and ${changed} changed rows (${rows.length - added - changed} unchanged rows left as they were).`);
 
 const slugs = [...new Set(rows.map((x) => slugOf.get(x.council)))].sort();
-const pathArgs = slugs.flatMap((s) => ['--path', `/councils/${s}`]);
+const pathArgs = ['--tag', 'council-byelections', ...slugs.flatMap((s) => ['--path', `/councils/${s}`])];
 try {
   execFileSync(process.execPath, [path.join(__dirname, 'revalidate.js'), ...pathArgs], { stdio: 'inherit' });
 } catch {
-  fail(`Saved, but the page refresh failed: run node scripts/revalidate.js with these ${slugs.length} paths, or they refresh within 6 hours.`);
+  fail(`Saved, but the page refresh failed: run node scripts/revalidate.js --tag council-byelections with these ${slugs.length} paths, or they refresh within 6 hours.`);
 }
