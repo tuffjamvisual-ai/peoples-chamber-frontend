@@ -31,7 +31,7 @@ const { ImapFlow } = require('imapflow');
 
 const SMTP = { host: 'smtp.ionos.co.uk', port: 587, secure: false, requireTLS: true };
 const IMAP = { host: 'imap.ionos.co.uk', port: 993, secure: true };
-const FROM_NAME = 'Open Govt';
+const FROM_NAME = 'opengovt';
 const LOG_DIR = path.join(__dirname, 'sent-log');
 
 const args = process.argv.slice(2);

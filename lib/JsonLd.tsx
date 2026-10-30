@@ -49,6 +49,8 @@ export function buildHomepageGraph() {
         name: "opengovt",
         alternateName: ['Open Govt', 'OpenGovt', 'opengovt.uk'],
         url: `${SITE}/`,
+        // The square opengovt stamp (public/brand-logo-512.png, 512 by 512, owner, 30 Oct 2026).
+        logo: { '@type': 'ImageObject', url: `${SITE}/brand-logo-512.png`, width: 512, height: 512 },
         description:
           'Independent UK Parliament tracker and government transparency record.',
         sameAs: [] as string[],
@@ -120,9 +122,9 @@ export function buildEditorialArticle(opts: {
       url: `${SITE}/`,
       logo: {
         '@type': 'ImageObject',
-        url: `${SITE}/logo.png`,
+        url: `${SITE}/brand-logo-512.png`,
         width: 512,
-        height: 279,
+        height: 512,
       },
     },
     mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE}/editorials/${opts.slug}` },

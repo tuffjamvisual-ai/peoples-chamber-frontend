@@ -51,7 +51,7 @@ const SITE_NAME = "opengovt";
 // The WebSite JSON-LD description, the same as the Organization's in lib/JsonLd.tsx (owner, 30 Oct 2026).
 const JSON_LD_DESCRIPTION = "Independent UK Parliament tracker and government transparency record.";
 const SITE_DESCRIPTION =
-  "The UK politics transparency app. See what every government department controls, what every party says, and who runs Britain.";
+  "opengovt: independent UK Parliament tracker and government transparency record.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -85,6 +85,13 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     images: [`${SITE_URL}/og-image.png`],
+  },
+  // The opengovt stamp (owner, 30 Oct 2026): the header wordmark, "OPEN" above "GOVT", rendered from HTML with the
+  // site's Bebas Neue; "OG" in the same stamp at 32px and below, where the full wordmark is not legible. app/favicon.ico
+  // (16 and 32px) is the same "OG" stamp, for browsers that ask for /favicon.ico.
+  icons: {
+    icon: [{ url: "/favicon-32.png", sizes: "32x32", type: "image/png" }],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
   },
   robots: {
     index: true,
