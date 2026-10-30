@@ -33,6 +33,7 @@ import CouncilSewageSection from '../../components/CouncilSewageSection';
 import CouncilRatingsSection from '../../components/CouncilRatingsSection';
 import CouncilOmbudsmanSection from '../../components/CouncilOmbudsmanSection';
 import { loadElectionSummary } from '@/lib/council-election-summary';
+import { loadCouncilByelections, resultSentence, contextSentence } from '@/lib/council-byelections';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import ArticleEndSignup from '../../components/ArticleEndSignup';
 import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
@@ -222,6 +223,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
   const [
     { data: parentRow, error: parentRowErr }, { data: childRows, error: childRowsErr }, { data: compRow, error: compRowErr },
     electionSummary, councilTax, { data: publicHealthRows }, { data: serviceSpendingRows, error: serviceSpendingRowsErr },
+    byelections,
   ] = await Promise.all([
     c.parent_slug
       ? supabase.from('councils').select('slug, name, short_name, political_control').eq('slug', c.parent_slug).single()
@@ -237,6 +239,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
       ? supabase.from('council_public_health_metrics').select('metric_key, value, unit, source, nation, period_label').eq('council_gss_code', c.gss_code)
       : Promise.resolve({ data: [] }),
     supabase.from('council_service_spending').select('service_category, value_pounds, source, period_label').eq('council_gss_code', c.gss_code),
+    loadCouncilByelections(c.slug),
   ]);
   // A failed read throws (owner's approval, 21 Oct 2026), so the last good version stays up.
   for (const e of [parentRowErr, childRowsErr, compRowErr]) if (e && e.code !== 'PGRST116') throw new Error(`/councils/[slug] (councils, council_composition): ${e.message}`);
@@ -245,7 +248,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
   const children: RelatedCouncil[] = (childRows || []) as RelatedCouncil[];
 
   const hasFinance = c.council_tax_band_d_pounds != null || c.revenue_budget_mn != null || c.ni_district_rate_poundage != null || councilTax != null;
-  const hasLeadership = c.political_control != null || c.chief_exec != null || c.chief_exec_note != null || c.leader_source_url != null;
+  const hasLeadership = c.political_control != null || c.chief_exec != null || c.chief_exec_note != null || c.leader_source_url != null || byelections.length > 0;
   const hasOverview =
     c.population != null || (SHOW_COUNCIL_FOUNDED && c.founded_year != null) || c.website_url != null;
 
@@ -400,6 +403,33 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                       sub={`As at May ${comp.snapshot_year}. "Independents and others" includes local parties. Source: Open Council Data UK (public domain).`}
                     />
                   )}
+                  {/* By-elections since May 2026 (owner's approval, 30 Oct 2026; lib/council-byelections.ts), newest
+                      first, each from the council's own declaration. The seats above are left as at May 2026. */}
+                  {byelections.length > 0 && <>
+                    {/* Under 640px the label sits above the list, so the sentences get the full width. */}
+                    <style>{'@media (max-width: 640px) { .cb-row > dt, .cb-row > dd { grid-column: 1 / -1; } .cb-row > dt { border-bottom: 0 !important; padding-bottom: 0 !important; } }'}</style>
+                    <DataRow
+                      className="cb-row"
+                      label="By-elections since May 2026"
+                      value={<>
+                        {comp && comp.total_seats > 0 && (
+                          <span style={{ display: 'block', marginBottom: '10px' }}>Seat totals are as at May 2026 and do not include the by-elections below.</span>
+                        )}
+                        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                          {byelections.map((r) => {
+                            const context = contextSentence(r);
+                            return (
+                              <li key={`${r.poll_date} ${r.ward_name}`} style={{ margin: '0 0 12px' }}>
+                                {resultSentence(r)}
+                                {context && <span style={{ display: 'block' }}>{context}</span>}
+                                <a href={r.declaration_url} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>Declaration of result</a>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </>}
+                    />
+                  </>}
                   {/* Shown only when the leader was read from a source (scripts/import-council-leaders.js, owner's
                       decision, 19 Oct 2026); the old backfilled value was often the ceremonial mayor or chair. */}
                   {c.leader_source_url && c.leader_role && (
@@ -948,10 +978,10 @@ function chiefExecSource(c: CouncilFull): React.ReactNode {
   );
 }
 
-function DataRow({ label, value, sub, valueColour }: { label: string; value: React.ReactNode | null; sub?: React.ReactNode | null; valueColour?: string }) {
+function DataRow({ label, value, sub, valueColour, className }: { label: string; value: React.ReactNode | null; sub?: React.ReactNode | null; valueColour?: string; className?: string }) {
   if (value == null || value === '') return null;
   return (
-    <div style={{ display: 'contents' }}>
+    <div className={className} style={{ display: 'contents' }}>
       <dt style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.04em', padding: '12px 16px 12px 0', borderBottom: `1px solid ${INK_HAIRLINE}`, color: INK_SOFT }}>
         {label}
       </dt>
