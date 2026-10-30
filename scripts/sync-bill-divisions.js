@@ -15,6 +15,7 @@
 const fs = require('fs');
 const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
+const { refreshOrQueue } = require('./bill-refresh-queue');
 const ws = require('ws');
 
 const SUPABASE_URL = 'https://nwnsvnbudmfkhhwcjwwr.supabase.co';
@@ -229,22 +230,25 @@ async function main() {
 
   // Update bill rows
   let updated = 0, errors = 0;
+  const changedIds = [];
   for (const m of matches) {
     // Fills bills that have no Commons division yet; never replaces one already saved
     // (app/api/sync-bill-commons-votes fills the same fields for Third Readings, and the two
     // used to overwrite each other).
-    const { error } = await supabase.from('bill').update({
+    const { data, error } = await supabase.from('bill').update({
       commons_division_id:    m.divisionId,
       commons_division_title: m.divisionTitle,
       commons_vote_date:      m.voteDate,
       commons_ayes:           m.ayes,
       commons_noes:           m.noes,
-    }).eq('id', m.billId).is('commons_division_id', null);
+    }).eq('id', m.billId).is('commons_division_id', null).select('id');
     if (error) { console.error(`  update error bill ${m.billId}:`, error.message); errors++; }
-    else updated++;
+    else { updated++; for (const r of data || []) changedIds.push(r.id); }
     await sleep(50);
   }
   console.log(`\n[bill-divisions] updated ${updated} bills (${errors} errors)`);
+  // Bills that got a Commons division: their pages keep for a week (scripts/bill-refresh-queue.js).
+  console.log(`[bill-divisions] bill pages: ${await refreshOrQueue(supabase, changedIds, 'sync-bill-divisions')}`);
 
   // Write division→bill_id mapping for sync-mp-votes.js
   const map = {};

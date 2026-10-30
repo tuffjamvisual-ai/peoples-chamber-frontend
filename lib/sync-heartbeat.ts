@@ -57,6 +57,8 @@ export function withHeartbeat(
   handler: (req: Request) => Promise<Response>,
 ): (req: Request) => Promise<Response> {
   return async (req: Request): Promise<Response> => {
+    // A local dry run (?dry=1, never on Vercel production) records no heartbeat: it wrote nothing.
+    if (process.env.VERCEL_ENV !== 'production' && new URL(req.url).searchParams.get('dry') === '1') return handler(req);
     let res: Response;
     try {
       res = await handler(req);

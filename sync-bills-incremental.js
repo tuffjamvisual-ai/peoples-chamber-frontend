@@ -34,6 +34,7 @@
 'use strict';
 try { require('dotenv').config({ path: '.env.local' }); } catch { /* the workflow sets the env directly */ }
 const { createClient } = require('@supabase/supabase-js');
+const { refreshOrQueue } = require('./scripts/bill-refresh-queue');
 
 const WRITE = process.argv.includes('--write');
 const ALL = process.argv.includes('--all');
@@ -130,6 +131,7 @@ const placeholderTitle = (t) => !/[A-Za-z]/.test(t.replace(/\bBill\s*$/i, ''));
   const keptFields = {};
 
   let updated = 0, added = 0, failed = 0, noSponsor = 0, unchanged = 0;
+  const changedIds = [];
   const failures = [];
   const examples = [];
   for (const b of list) {
@@ -179,11 +181,12 @@ const placeholderTitle = (t) => !/[A-Za-z]/.test(t.replace(/\bBill\s*$/i, ''));
         }
       }
       if (WRITE) {
-        const { error } = id
-          ? await supabase.from('bill').update(row).eq('id', id)
-          : await supabase.from('bill').insert(row);
+        const { data: saved, error } = id
+          ? await supabase.from('bill').update(row).eq('id', id).select('id')
+          : await supabase.from('bill').insert(row).select('id');
         if (error) throw new Error(error.message);
-      }
+        for (const r of saved || []) changedIds.push(r.id);
+      } else if (id) changedIds.push(id);
       if (id) updated++; else added++;
     } catch (e) {
       failed++;
@@ -199,5 +202,8 @@ const placeholderTitle = (t) => !/[A-Za-z]/.test(t.replace(/\bBill\s*$/i, ''));
   if (failures.length) console.log(`failures:\n  ${failures.join('\n  ')}`);
   // Any failed bill fails the run, so the workflow shows it (the bills that worked are saved).
   if (failed) { console.error(`FAILED: ${failed} of ${list.length} bills could not be ${WRITE ? 'saved' : 'read'}`); process.exit(1); }
+  // The changed bills' pages keep for a week: refresh them through the site, or queue them (scripts/bill-refresh-queue.js).
+  if (WRITE) console.log(`bill pages: ${await refreshOrQueue(supabase, changedIds, 'sync-bills-incremental')}`);
+  else console.log(`bill pages: would refresh ${new Set(changedIds).size} existing bills (and any added ones)`);
   console.log(WRITE ? 'WRITE complete.' : 'DRY RUN complete. Nothing was written.');
 })().catch((e) => { console.error('FAILED: ' + e.message); process.exit(1); });

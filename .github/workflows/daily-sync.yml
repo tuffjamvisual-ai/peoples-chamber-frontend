@@ -33,9 +33,13 @@ jobs:
       
       # Only bills Parliament changed since our newest saved update (about 1 minute). The full repair of every
       # bill runs on Sundays in bills-full-repair.yml.
+      # The changed bills' pages are refreshed through the site, or queued for /api/refresh-nightly-pages when the site
+      # refuses the call (scripts/bill-refresh-queue.js, owner 30 Oct 2026).
       - name: Sync bills (incremental)
         id: bills
         timeout-minutes: 20
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: node sync-bills-incremental.js --write
         continue-on-error: true
 
@@ -45,6 +49,8 @@ jobs:
         id: bill-divisions
         timeout-minutes: 15
         continue-on-error: true
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: node scripts/sync-bill-divisions.js
 
       # Session names and dates for the bill archive (/bills/sessions), from Parliament's calendar API. One request;

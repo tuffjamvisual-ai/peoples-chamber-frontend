@@ -8,10 +8,12 @@
 
 import { dataSource, newestTimestamp } from '@/lib/data-freshness';
 
-export default async function LastUpdated({ sourceKey }: { sourceKey: string }) {
+// `at`: a page's own date for the line instead of the table wide newest row (owner, 30 Oct 2026: a bill's Lords line
+// uses that bill's newest division, so a week long page does not read a table wide time that changes daily).
+export default async function LastUpdated({ sourceKey, at }: { sourceKey: string; at?: string | null }) {
   const src = dataSource(sourceKey);
   if (!src) return null;
-  const newest = await newestTimestamp(src);
+  const newest = at !== undefined ? (at ? new Date(at) : null) : await newestTimestamp(src);
   if (!newest) return null;
 
   const when = newest.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });

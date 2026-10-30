@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { getSessionUserId } from '@/lib/session';
 import { touchLastSeen } from '@/lib/touch-last-seen';
+import { revalidatePath } from 'next/cache';
 
 export const dynamic = 'force-dynamic';
 
@@ -139,6 +140,7 @@ export async function POST(request: NextRequest) {
       }
       const result = changed as { status: string; choice?: string; to?: string; votes?: { yes: number; no: number; abstain: number } };
       if (result.status === 'changed') {
+        revalidatePath(`/bills/${Number(billId)}`);
         return NextResponse.json({ success: true, changed: true, choice: result.to, votes: result.votes });
       }
       if (result.status === 'unchanged') {
@@ -191,6 +193,9 @@ export async function POST(request: NextRequest) {
         .eq('id', billId);
     }
     
+    // The bill page keeps for a week (cache Stage 2a part 2, owner, 30 Oct 2026): a vote refreshes its own bill.
+    revalidatePath(`/bills/${Number(billId)}`);
+
     // Get updated counts
     const { data: updatedBill } = await supabase
       .from('bill')

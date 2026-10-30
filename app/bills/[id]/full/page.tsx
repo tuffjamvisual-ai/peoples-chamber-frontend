@@ -17,7 +17,7 @@ import ParliamentSourceCredit from '@/app/components/ParliamentSourceCredit';
 import { getBillPublications, getBillText, latestText, actLink, inlineGroupCount, type ApiPublication as TextPublication, type TocEntry } from '@/lib/bill-text';
 import BillTextGroups from './BillTextGroups';
 
-export const revalidate = 3600  // rebuilt hourly from the cached Parliament answers (lib/bill-text.ts)
+export const revalidate = 604800  // a week, from the cached Parliament answers (lib/bill-text.ts); refreshed by the bill syncs (lib/bill-refresh.ts)
 
 // Prerender a deliberately tiny set. This page fetches live from the
 // Parliament Bills API during render, so every prerendered path is a real
@@ -105,11 +105,6 @@ function fmtSize(bytes?: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-// True when Parliament has not updated the bill for 90 days (see the Bills API cache below).
-function isSettled(lastUpdate: string | null): boolean {
-  const t = lastUpdate ? Date.parse(lastUpdate) : NaN
-  return Number.isFinite(t) && Date.now() - t > 90 * 24 * 60 * 60 * 1000
-}
 
 export default async function FullBillPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -129,7 +124,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
   let publications: ApiPublication[] = []
   let apiError: string | null = null
   try {
-    publications = (await getBillPublications(bill.parliament_id, isSettled(bill.last_update))) as ApiPublication[]
+    publications = (await getBillPublications(billId, bill.parliament_id)) as ApiPublication[]
   } catch (e) {
     console.error(`[full bill] ${billId}: ${(e as Error).message}`)
     apiError = 'Parliament’s Bills API could not be reached, so the bill’s text and documents are not shown. Try again later.'
@@ -137,7 +132,7 @@ export default async function FullBillPage({ params }: { params: Promise<{ id: s
   const latest = latestText(publications as TextPublication[])
   let text = null
   if (latest?.html) {
-    try { text = await getBillText(latest.html.url) } catch (e) { console.error(`[full bill] ${billId} text: ${(e as Error).message}`) }
+    try { text = await getBillText(billId, latest.html.url) } catch (e) { console.error(`[full bill] ${billId} text: ${(e as Error).message}`) }
   }
   const act = actLink(publications as TextPublication[])
   const inline = text ? inlineGroupCount(text) : 0

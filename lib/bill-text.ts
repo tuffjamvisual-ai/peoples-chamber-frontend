@@ -16,6 +16,9 @@
 // script, style, link or form.
 import { parse, type HTMLElement, NodeType, type Node } from 'node-html-parser';
 import { unstable_cache } from 'next/cache';
+import { billTag } from '@/lib/bill-refresh';
+
+const WEEK = 604800;
 
 export type ApiFile = { id: number; filename?: string; contentType?: string; contentLength?: number };
 export type ApiLink = { title?: string; url?: string; contentType?: string };
@@ -208,42 +211,44 @@ export async function fetchBillHtml(url: string): Promise<string | null> {
 // Good answers are kept a long time; an empty answer (no publications, no HTML text) for one hour at most; an error
 // is never kept (owner, 27 Oct 2026: an empty list or an error must never stay for more than an hour).
 const EMPTY = 'empty answer, kept for an hour';
-async function keepGoodLong<T>(key: string[], longSeconds: number, load: () => Promise<T | null>): Promise<T | null> {
+async function keepGoodLong<T>(key: string[], longSeconds: number, load: () => Promise<T | null>, tags: string[] = []): Promise<T | null> {
   let empty: { v: T | null } | null = null;
   try {
     return await unstable_cache(async () => {
       const v = await load();
       if (v == null) { empty = { v }; throw new Error(EMPTY); }
       return v;
-    }, key, { revalidate: longSeconds })();
+    }, key, { revalidate: longSeconds, tags })();
   } catch (e) {
     if ((e as Error)?.message !== EMPTY) throw e;
   }
-  return unstable_cache(async () => (empty ? empty.v : await load()), [...key, 'empty'], { revalidate: 3600 })();
+  return unstable_cache(async () => (empty ? empty.v : await load()), [...key, 'empty'], { revalidate: 3600, tags })();
 }
 
-// Every publication of a bill. A settled bill (not updated by Parliament for 90 days) keeps its answer for 30 days, a
-// current bill for a day (report 43). Throws when the Bills API cannot be read.
-export async function getBillPublications(parliamentId: number, settled: boolean): Promise<ApiPublication[]> {
-  const pubs = await keepGoodLong(['bill-publications-v2', String(parliamentId)], settled ? 30 * 86400 : 86400, async () => {
+// Every publication of a bill, kept for a week under the tag bill:<id> (owner, 30 Oct 2026, cache Stage 2a part 2;
+// was 30 days for a settled bill and a day for a current one): /api/sync-bill-stages checks the Publications count of
+// the bills going through Parliament now and refreshes the tag when it changes. An empty answer is kept for an hour.
+// Throws when the Bills API cannot be read. `billId` is the site's bill id (the /bills/<id> page).
+export async function getBillPublications(billId: number, parliamentId: number): Promise<ApiPublication[]> {
+  const pubs = await keepGoodLong(['bill-publications-v3', String(parliamentId)], WEEK, async () => {
     const res = await fetch(`https://bills-api.parliament.uk/api/v1/Bills/${parliamentId}/Publications`, {
       headers: { Accept: 'application/json', 'User-Agent': 'OpenGovt/1.0 (contact@opengovt.uk)' }, signal: AbortSignal.timeout(20000), cache: 'no-store',
     });
     if (!res.ok) throw new Error(`Parliament's Bills API answered HTTP ${res.status}`);
     const list = ((await res.json()) as { publications?: ApiPublication[] }).publications ?? [];
     return list.length ? list : null;
-  });
+  }, [billTag(billId)]);
   return pubs ?? [];
 }
 
-// The cleaned text of one version, kept for 24 hours (fetched on the first visit, then reused). Null when the version
-// has no readable HTML (kept for an hour, then tried again).
-export async function getBillText(url: string): Promise<CleanBill | null> {
-  return keepGoodLong(['bill-text-v1', url], 86400, async () => {
+// The cleaned text of one version, kept for a week under bill:<id> (was 24 hours; fetched on the first visit, then
+// reused). Null when the version has no readable HTML (kept for an hour, then tried again).
+export async function getBillText(billId: number, url: string): Promise<CleanBill | null> {
+  return keepGoodLong(['bill-text-v2', url], WEEK, async () => {
     const raw = await fetchBillHtml(url);
     const clean = raw ? cleanBillHtml(raw) : null;
     return clean && clean.groups.length ? clean : null;
-  });
+  }, [billTag(billId)]);
 }
 
 // The Act, once the bill has become one (legislation.gov.uk).

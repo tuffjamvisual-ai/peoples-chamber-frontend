@@ -12,13 +12,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const billId = Number(id);
   const g = Number(req.nextUrl.searchParams.get('g'));
   if (!Number.isSafeInteger(billId) || !Number.isSafeInteger(g) || g < 0) return NextResponse.json({ error: 'bad request' }, { status: 400 });
-  const { data: bill, error } = await supabase.from('bill').select('parliament_id, hidden_reason, last_update').eq('id', billId).maybeSingle();
+  const { data: bill, error } = await supabase.from('bill').select('parliament_id, hidden_reason').eq('id', billId).maybeSingle();
   if (error) return NextResponse.json({ error: 'bill lookup failed' }, { status: 500 });
   if (!bill || bill.parliament_id == null || bill.hidden_reason) return NextResponse.json({ error: 'not found' }, { status: 404 });
-  const settled = !!bill.last_update && Date.now() - Date.parse(bill.last_update) > 90 * 86400_000;
   try {
-    const latest = latestText(await getBillPublications(bill.parliament_id, settled));
-    const text = latest?.html ? await getBillText(latest.html.url) : null;
+    const latest = latestText(await getBillPublications(billId, bill.parliament_id));
+    const text = latest?.html ? await getBillText(billId, latest.html.url) : null;
     const group = text?.groups[g];
     if (!group) return NextResponse.json({ error: 'not found' }, { status: 404 });
     return NextResponse.json({ html: group.html }, { headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400' } });

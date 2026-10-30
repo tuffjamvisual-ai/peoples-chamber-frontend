@@ -22,7 +22,7 @@ import FollowButton from '@/app/components/FollowButton';
 import { getBillPublications, latestText } from '@/lib/bill-text';
 import Link from 'next/link';
 import { editorialsForBill } from '@/lib/editorials-source';
-export const revalidate = 3600
+export const revalidate = 604800  // a week; the bill syncs refresh a bill when its data changes (lib/bill-refresh.ts)
 
 // Prerender a small set of bill pages at build time. The list does NOT need
 // to be complete — its presence is what enables ISR caching for the whole
@@ -154,13 +154,12 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
     : null
 
   // The version the full bill page shows, for its link (owner, 27 Oct 2026). The same cached Bills API answer as
-  // /bills/[id]/full (lib/bill-text.ts: a day, or 30 days for a settled bill), so at most one call a day per bill; if it
+  // /bills/[id]/full (lib/bill-text.ts: a week under bill:<id>, refreshed when the Publications count changes); if it
   // cannot be read the link shows without a version.
   let fullBillVersion: string | null = null
   if (bill.parliament_id != null) {
     try {
-      const settled = !!bill.last_update && Date.now() - Date.parse(bill.last_update) > 90 * 86400_000
-      const latest = latestText(await getBillPublications(bill.parliament_id, settled))
+      const latest = latestText(await getBillPublications(billId, bill.parliament_id))
       if (latest) {
         const d = latest.date ? new Date(`${latest.date}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : ''
         fullBillVersion = `${latest.label}${d ? `, ${d}` : ''}`
@@ -733,7 +732,8 @@ function LordsVotesSection({ divisions }: { divisions: LordsDivision[] }) {
           </ul>
         </details>
       )}
-      <LastUpdated sourceKey="lords_divisions" />
+      {/* This bill's newest division (divisions are newest first), not the table wide time. */}
+      <LastUpdated sourceKey="lords_divisions" at={divisions[0]?.division_date ?? null} />
     </section>
   )
 }

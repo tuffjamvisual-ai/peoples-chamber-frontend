@@ -4,6 +4,8 @@
 //   npx tsx scripts/publish-editorial.ts <draft.ts> [--topic <slug>]... [--allow <name>]... [--rehearse | --apply]
 //
 // The draft exports an EditorialEntry (default export, or a named `piece`), as in "Claude outputs/drafts/<slug>.ts".
+// Updating an existing piece needs a draft from scripts/export-editorial.ts (its `exportedFrom` stamp) no older than the
+// live row (working rule 8); a new piece needs none.
 // --rehearse (the default) runs the write in a transaction and rolls it back; --apply commits it and then refreshes
 // the live site with scripts/revalidate.js (tags editorials, editorial:<slug> and editorial-links:mp|bill:<id> for every
 // MP and bill the piece names before or after, and every page that lists the piece). --rehearse prints that list.
@@ -118,6 +120,7 @@ async function main() {
   const abs = resolve(draftPath);
   const mod = (await import(pathToFileURL(abs).href)) as Record<string, unknown>;
   const loaded = (mod.default as { default?: unknown })?.default ?? mod.default ?? mod.piece;
+  const exportedFrom = (mod.default as { exportedFrom?: unknown })?.exportedFrom ?? mod.exportedFrom;
   const piece = loaded as EditorialEntry | undefined;
   if (!piece || typeof piece !== 'object' || typeof piece.slug !== 'string') fail(`${draftPath} does not export an EditorialEntry (default export or \`piece\`)`);
   const kind = piece.kind === 'briefing' ? 'briefings' : 'editorials';
@@ -182,6 +185,13 @@ async function main() {
     'committees', (SELECT coalesce(json_agg(id), '[]') FROM public.committees WHERE id = ANY(${intArray(intIds('committees'))}))
   )`);
   const existing = db.existing;
+  // Working rule 8 (owner, 30 Oct 2026): an update starts from the live row. The draft must come from
+  // scripts/export-editorial.ts, and the live row must not have been updated since that export.
+  if (existing) {
+    const liveAt = String(existing.updated_at ?? '');
+    if (typeof exportedFrom !== 'string' || !exportedFrom) problems.push(`this draft was not exported from the live row; run npx tsx scripts/export-editorial.ts ${piece.slug} first (it overwrites the draft), then make the edits again`);
+    else if (liveAt && Date.parse(liveAt) > Date.parse(exportedFrom)) problems.push(`the live row was updated at ${liveAt}, after this draft was exported (${exportedFrom}); export it again and redo the edits`);
+  }
   if (!existing && !/^[a-z0-9]{6,16}$/.test(piece.slug)) problems.push(`a new slug must be 6 to 16 lower case letters or digits ("${piece.slug}")`);
 
   const members = new Map(db.members.map((m) => [Number(m.id), m]));

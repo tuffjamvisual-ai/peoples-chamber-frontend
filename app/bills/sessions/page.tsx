@@ -7,7 +7,7 @@ import OpenGovShell from '../../components/OpenGovShell';
 import BackLink from '../../components/BackLink';
 import { getParliamentSessions, sessionDates, sessionTitle, SESSIONS_SOURCE_URL } from '@/lib/parliament-sessions';
 
-export const revalidate = 3600;
+export const revalidate = 604800;  // a week; the bill syncs refresh it after the stored views are rebuilt, when a bill changed
 
 export const metadata: Metadata = {
   title: 'UK Parliament Bills by Session, 2004 to Now',

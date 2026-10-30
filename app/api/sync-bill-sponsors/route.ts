@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { refreshStore } from '@/lib/refresh-stores';
+import { revalidateBillPages } from '@/lib/revalidate-bills';
+import { refreshBills, sponsorOf, sameJson } from '@/lib/bill-refresh';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
@@ -19,6 +21,10 @@ export const maxDuration = 300;
 // Also stores bill_type_id (the API's billTypeId) and sponsor_departments (the distinct sponsors[].organisation.name,
 // the sponsoring department of a government bill), which the topic pages match on (migration 2026-10-21m).
 
+// 30 Oct 2026 (owner, cache Stage 2a part 2): each bill's stored sponsors, type and departments are compared before
+// and after; only bills that changed are refreshed (lib/bill-refresh.ts), with the MP pages of their sponsors before
+// and after, and the stored views and list pages only when something changed. ?dry=1 (local tests only, never on
+// Vercel production) reads and compares but writes and refreshes nothing.
 const RUN_CAP = 1500; // bills read from the queue per run; the time budget usually stops it first
 // Time-budgeted (21 Oct 2026): 1,500 bills one at a time at about 1.5 s each could never finish in 300 s, so both
 // weekly runs timed out. No new bill starts after TIME_BUDGET_MS; each is saved as it is read, and the stalest go
@@ -104,11 +110,12 @@ async function GET_impl(req: Request) {
     );
   }
   const supabase = createClient(url, key);
+  const dry = process.env.VERCEL_ENV !== 'production' && new URL(req.url).searchParams.get('dry') === '1';
 
   const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const { data: rows, error: selErr } = await supabase
     .from('bill')
-    .select('id, parliament_id, sponsors_synced_at')
+    .select('id, parliament_id, sponsors_synced_at, sponsors, bill_type_id, sponsor_departments, sponsor_member_id')
     .not('parliament_id', 'is', null)
     // Hidden bills (bill.hidden_reason) have no page and are not refreshed (24 Oct 2026).
     .is('hidden_reason', null)
@@ -127,25 +134,34 @@ async function GET_impl(req: Request) {
   const failures: Array<{ id: number; detail: string }> = [];
   let skippedForTime = 0;
   let stoppedBy: string | null = null;
+  const changed = new Set<number>();
+  const changedSponsors = new Set<number>();
 
   for (const [i, row] of targets.entries()) {
     if (budget.stopStarting()) { stoppedBy = 'time budget'; skippedForTime = targets.length - i; break; }
     try {
       const { items, billTypeId, departments } = await fetchSponsors(row.parliament_id, budget);
-      const { error } = await supabase
-        .from('bill')
-        .update({
-          sponsors: { items },
-          bill_type_id: billTypeId,
-          sponsor_departments: departments,
-          sponsors_synced_at: new Date().toISOString(),
-        })
-        .eq('id', row.id);
-      if (error) throw error;
+      if (!sameJson(row.sponsors, { items }) || (row.bill_type_id ?? null) !== billTypeId || !sameJson(row.sponsor_departments ?? [], departments)) {
+        changed.add(row.id);
+        for (const m of sponsorOf(row)) changedSponsors.add(m);
+      }
+      if (!dry) {
+        const { error } = await supabase
+          .from('bill')
+          .update({
+            sponsors: { items },
+            bill_type_id: billTypeId,
+            sponsor_departments: departments,
+            sponsors_synced_at: new Date().toISOString(),
+          })
+          .eq('id', row.id);
+        if (error) throw error;
+      }
       ok++;
       failing.succeeded(row.id);
     } catch (err) {
       if (isPoliteStop(err)) { stoppedBy = (err as Error).message; skippedForTime = targets.length - i; break; }
+      if (dry) { fail++; if (failures.length < 20) failures.push({ id: row.id, detail: (err as Error).message }); continue; }
       if (err instanceof BillNotFoundError) {
         // The Bills API no longer has this bill (24 Oct 2026). Its stored sponsors are kept; only sponsors_synced_at
         // moves, so it is retried after the normal 30 days instead of every run.
@@ -165,9 +181,11 @@ async function GET_impl(req: Request) {
     await sleep(120);
   }
 
-  // The topic bill lists read a stored copy of the bills' sponsoring departments (lib/refresh-stores.ts).
-  const storesRefresh = ok > 0 ? await refreshStore(supabase, 'refresh_bill_stores') : null;
-  const failuresSaved = await failing.save();
+  // Only when something changed: the stored views first (the topic bill lists read a stored copy of the bills'
+  // sponsoring departments, lib/refresh-stores.ts), then the list pages, the changed bills and their sponsors' pages.
+  const storesRefresh = changed.size > 0 && !dry ? await refreshStore(supabase, 'refresh_bill_stores') : null;
+  const refreshed = changed.size > 0 && !dry ? (revalidateBillPages(), refreshBills(changed, changedSponsors)) : null;
+  const failuresSaved = dry ? false : await failing.save();
 
   return NextResponse.json({
     targeted: targets.length,
@@ -183,6 +201,9 @@ async function GET_impl(req: Request) {
     partial: skippedForTime > 0 || flaggedFail > 0,
     stopped_by: stoppedBy,
     stores_refresh: storesRefresh,
+    changed_bills: changed.size,
+    refreshed,
+    ...(dry ? { dry_run: true, would_refresh: { bills: changed.size, mps: changedSponsors.size } } : {}),
     duration_ms: Date.now() - started,
     syncedAt: new Date().toISOString(),
   }, { status: targets.length > 0 && ok === 0 && notFound < targets.length && !(stoppedBy && fail === 0) && !(flaggedFail > 0 && fail === 0) ? 502 : 200 });

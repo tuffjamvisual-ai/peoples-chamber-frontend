@@ -4,7 +4,8 @@ import { createClient } from '@supabase/supabase-js';
 import { refreshStore } from '@/lib/refresh-stores';
 import { fetchAllBillStages, deriveCurrentStage, BillNotFoundError } from '@/lib/bill-stages';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
-import { SyncBudget, isPoliteStop } from '@/lib/sync-budget';
+import { SyncBudget, isPoliteStop, politeFetch, loadCursor, saveCursor } from '@/lib/sync-budget';
+import { refreshBills, sponsorOf, sameJson } from '@/lib/bill-refresh';
 import { ItemFailures, FLAG_AFTER_RUNS } from '@/lib/sync-item-failures';
 
 export const dynamic = 'force-dynamic';
@@ -39,10 +40,22 @@ export const maxDuration = 300;
 // carries on with the others, returns 200 with partial: true, and the freshness email names the bill and its error.
 // Bill 3031 had failed this way on every run and, as the only bill due at 07:35 on 28 Oct, made that run a 502.
 
+// 30 Oct 2026 (owner, cache Stage 2a part 2): bill pages keep for a week, so each bill's stored stages are compared
+// before and after, and only bills that changed are refreshed (lib/bill-refresh.ts: /bills/<id>, /bills/<id>/full,
+// bill:<id> and the sponsors' MP pages); the stored views and the list pages only when something changed. Then the
+// Publications check: the bills going through Parliament now (bill_current) have their Publications count read from
+// the Bills API, PUBLICATIONS_PER_RUN a run in turn, within the time budget; a bill whose count changed is refreshed
+// (a new version of its text). The counts are kept in sync_cursor under PUBLICATIONS_CURSOR.
+// Local tests only (never on Vercel production): ?dry=1 reads and compares but writes and refreshes nothing, and says
+// how many bills it would refresh.
+
 const RUN_CAP = 900; // bills read from the queue per run; the time budget usually stops it first
 const CONCURRENCY = 3;
 const DELAY_MS = 150;
 const STALE_DAYS = 7;
+const PUBLICATIONS_PER_RUN = 60;
+const PUBLICATIONS_CURSOR = 'bill-publications-counts';
+type PubCursor = { counts: Record<string, number>; next: number };
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function GET_impl(req: Request) {
@@ -62,12 +75,13 @@ async function GET_impl(req: Request) {
     );
   }
   const supabase = createClient(url, key);
+  const dry = process.env.VERCEL_ENV !== 'production' && new URL(req.url).searchParams.get('dry') === '1';
 
   // Changed bills (NULL stages_synced_at) first, then the oldest sync.
   const cutoff = new Date(Date.now() - STALE_DAYS * 24 * 60 * 60 * 1000).toISOString();
   const { data: rows, error: selErr } = await supabase
     .from('bill')
-    .select('id, parliament_id, stages_synced_at')
+    .select('id, parliament_id, stages_synced_at, stages, current_stage, stage_date, sponsor_member_id')
     .not('parliament_id', 'is', null)
     // Hidden bills (bill.hidden_reason) have no page and are not refreshed (24 Oct 2026).
     .is('hidden_reason', null)
@@ -81,6 +95,9 @@ async function GET_impl(req: Request) {
   // Flagged bills still due go after the others.
   const queue = [...targets.filter((r) => !failing.isFlagged(r.id)), ...targets.filter((r) => failing.isFlagged(r.id))];
   let ok = 0, fail = 0, notFound = 0, skippedForTime = 0, flaggedFail = 0;
+  const changed = new Set<number>();
+  const changedSponsors = new Set<number>();
+  const day10 = (d: unknown) => (typeof d === 'string' ? d.slice(0, 10) : null);
   let stoppedBy: string | null = null;
   const failures: Array<{ id: number; detail: string }> = [];
 
@@ -95,21 +112,28 @@ async function GET_impl(req: Request) {
         // (future/scheduled sittings ignored), now from the COMPLETE list.
         const { current_stage, stage_date } = deriveCurrentStage(stages.items);
 
-        const { error } = await supabase
-          .from('bill')
-          .update({
-            stages,
-            stages_synced_at: new Date().toISOString(),
-            current_stage,
-            stage_date,
-          })
-          .eq('id', row.id);
-        if (error) throw error;
+        if (!sameJson(row.stages, stages) || row.current_stage !== current_stage || day10(row.stage_date) !== stage_date) {
+          changed.add(row.id);
+          for (const m of sponsorOf(row)) changedSponsors.add(m);
+        }
+        if (!dry) {
+          const { error } = await supabase
+            .from('bill')
+            .update({
+              stages,
+              stages_synced_at: new Date().toISOString(),
+              current_stage,
+              stage_date,
+            })
+            .eq('id', row.id);
+          if (error) throw error;
+        }
         ok++;
         failing.succeeded(row.id);
       } catch (err) {
         // Out of time or asked to stop: this bill is not saved and stays first in the queue.
         if (isPoliteStop(err)) { stoppedBy ??= (err as Error).message; skippedForTime += 1 + queue.length; queue.length = 0; return; }
+        if (dry) { fail++; if (failures.length < 20) failures.push({ id: row.id, detail: (err as Error).message }); continue; }
         if (err instanceof BillNotFoundError) {
           // The Bills API no longer has this bill (24 Oct 2026). Its stored stages, current_stage and stage_date are
           // kept; only stages_synced_at moves, so it is retried after the normal stale window instead of every run.
@@ -131,14 +155,44 @@ async function GET_impl(req: Request) {
   }
   await Promise.all(Array.from({ length: CONCURRENCY }, worker));
 
-  // Show the new stages on /bills and the session archive straight away (lib/revalidate-bills.ts).
-  if (ok > 0) revalidateBillPages();
-  // The session pages and topic bill lists read stored copies of the bills (lib/refresh-stores.ts).
-  const storesRefresh = ok > 0 ? await refreshStore(supabase, 'refresh_bill_stores') : null;
+  // The Publications check (see the top): bills going through Parliament now, in turn, while time is left.
+  const publications = { checked: 0, changed: 0, stopped_by: null as string | null };
+  try {
+    const { data: current, error: curErr } = await supabase.from('bill_current').select('id, parliament_id, sponsor_member_id').not('parliament_id', 'is', null).order('id');
+    if (curErr) throw new Error(`bill_current: ${curErr.message}`);
+    const list = (current ?? []) as { id: number; parliament_id: number; sponsor_member_id: number | null }[];
+    const cur = (await loadCursor<PubCursor>(supabase, PUBLICATIONS_CURSOR, 30 * 86400_000)) ?? { counts: {}, next: 0 };
+    let i = 0;
+    for (; i < Math.min(PUBLICATIONS_PER_RUN, list.length); i++) {
+      if (budget.stopStarting()) { publications.stopped_by = 'time budget'; break; }
+      const b = list[(cur.next + i) % list.length];
+      const res = await politeFetch(`https://bills-api.parliament.uk/api/v1/Bills/${b.parliament_id}/Publications`, { headers: { Accept: 'application/json', 'User-Agent': 'OpenGovt/1.0 (contact@opengovt.uk)' }, cache: 'no-store' }, { budget });
+      if (!res.ok) continue;
+      const n = (((await res.json()) as { publications?: unknown[] }).publications ?? []).length;
+      const before = cur.counts[String(b.id)];
+      if (before !== undefined && before !== n) {
+        publications.changed++;
+        changed.add(b.id);
+        for (const m of sponsorOf(b)) changedSponsors.add(m);
+      }
+      cur.counts[String(b.id)] = n;
+      publications.checked++;
+      await sleep(DELAY_MS);
+    }
+    cur.next = list.length ? (cur.next + i) % list.length : 0;
+    if (!dry) await saveCursor(supabase, PUBLICATIONS_CURSOR, cur);
+  } catch (err) {
+    publications.stopped_by = isPoliteStop(err) ? (err as Error).message : `error: ${(err as Error).message}`;
+  }
+
+  // Only when something changed: the stored views first (the session pages and topic bill lists read them,
+  // lib/refresh-stores.ts), then the list and session pages, and the changed bills with their sponsors' MP pages.
+  const storesRefresh = changed.size > 0 && !dry ? await refreshStore(supabase, 'refresh_bill_stores') : null;
+  const refreshed = changed.size > 0 && !dry ? (revalidateBillPages(), refreshBills(changed, changedSponsors)) : null;
 
   const { count: remaining } = await supabase.from('bill').select('id', { count: 'exact', head: true })
     .not('parliament_id', 'is', null).is('hidden_reason', null).or(`stages_synced_at.is.null,stages_synced_at.lt.${cutoff}`);
-  const failuresSaved = await failing.save();
+  const failuresSaved = dry ? false : await failing.save();
   if (fail > 0) console.error(JSON.stringify({ route: '/api/sync-bill-stages', targeted: targets.length, ok, fail, not_found: notFound, skipped_for_time: skippedForTime, first_failures: failures.slice(0, 5) }));
   return NextResponse.json({
     targeted: targets.length,
@@ -157,6 +211,10 @@ async function GET_impl(req: Request) {
     stopped_by: stoppedBy,
     still_due: remaining ?? null,
     stores_refresh: storesRefresh,
+    changed_bills: changed.size,
+    refreshed,
+    publications,
+    ...(dry ? { dry_run: true, would_refresh: { bills: changed.size, mps: changedSponsors.size } } : {}),
     duration_ms: Date.now() - started,
     syncedAt: new Date().toISOString(),
   }, { status: targets.length > 0 && ok === 0 && notFound < targets.length && !(stoppedBy && fail === 0) && !(flaggedFail > 0 && fail === 0) ? 502 : 200 });

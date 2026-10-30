@@ -12,6 +12,7 @@ import {
   type BillMatcher,
 } from '@/lib/lords-votes';
 import { isPoliteStop } from '@/lib/sync-budget';
+import { refreshBills } from '@/lib/bill-refresh';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -69,6 +70,9 @@ async function GET_impl(req: Request) {
   let voteRows = 0;
   let skippedForTime = 0;
   const failures: { id: number; error: string }[] = [];
+  // Bill pages keep for a week (owner, 30 Oct 2026, cache Stage 2a part 2): a division that is new, or whose bill or
+  // counts changed, refreshes its bill (and the bill it was linked to before), lib/bill-refresh.ts.
+  const changedBills = new Set<number>();
 
   async function worker() {
     while (queue.length > 0) {
@@ -81,6 +85,12 @@ async function GET_impl(req: Request) {
       try {
         const json = await fetchLordsJson(`${LORDS_VOTES_API}/${id}`);
         const built = await buildLordsDivisionRows(json, matcher);
+        const { data: before } = await supabase.from('lords_divisions').select('bill_id, content_count, not_content_count, motion_text').eq('division_id', id).maybeSingle();
+        const d = built.division as { bill_id: number | null; content_count: number; not_content_count: number; motion_text: string | null };
+        if (!before || before.bill_id !== d.bill_id || before.content_count !== d.content_count || before.not_content_count !== d.not_content_count || before.motion_text !== d.motion_text) {
+          if (d.bill_id) changedBills.add(d.bill_id);
+          if (before?.bill_id) changedBills.add(before.bill_id as number);
+        }
         await writeLordsDivision(supabase, built);
         voteRows += built.votes.length;
         processed++;
@@ -93,9 +103,11 @@ async function GET_impl(req: Request) {
   }
   await Promise.all(Array.from({ length: CONCURRENCY }, worker));
 
+  const refreshed = changedBills.size ? refreshBills(changedBills) : null;
   const body = {
     ok: failures.length === 0,
     start_date: startDate,
+    refreshed,
     total_queued: total,
     rows_written: processed,
     vote_rows: voteRows,

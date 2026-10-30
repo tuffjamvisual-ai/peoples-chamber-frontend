@@ -11,7 +11,7 @@ import {
   SESSION_GROUPS, type SessionBill, type SessionBillGroup,
 } from '@/lib/parliament-sessions';
 
-export const revalidate = 3600;
+export const revalidate = 604800;  // a week; the bill syncs refresh it after the stored views are rebuilt, when a bill changed
 export async function generateStaticParams() { return []; }
 
 type Props = { params: Promise<{ id: string }> };

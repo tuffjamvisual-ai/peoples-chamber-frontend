@@ -1,6 +1,7 @@
 import { readingStage, divisionBillSegment, billNameKey, billWindow } from '@/lib/bill-reading';
 import { NextResponse } from 'next/server';
 import { revalidateBillPages } from '@/lib/revalidate-bills';
+import { refreshBills, sponsorOf } from '@/lib/bill-refresh';
 import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
@@ -94,13 +95,17 @@ async function GET_impl(req: Request) {
     return NextResponse.json({ error: 'env missing' }, { status: 500 });
   }
   const supabase = createClient(url, key);
+  // 30 Oct 2026 (owner, cache Stage 2a part 2): only bills whose stored Commons vote changed are refreshed
+  // (lib/bill-refresh.ts, with their sponsors' MP pages), and the list pages only then. ?dry=1 (local tests only, never
+  // on Vercel production) reads and compares but writes and refreshes nothing.
+  const dry = process.env.VERCEL_ENV !== 'production' && new URL(req.url).searchParams.get('dry') === '1';
 
   // First pass: target only never-tried rows. Once tried_at is non-null
   // for every bill, switch to retrying the oldest. PostgREST's
   // order-with-nullsFirst is unreliable so we filter explicitly.
   let { data: rows, error: selErr } = await supabase
     .from('bill')
-    .select('id, parliament_id, title, stages')
+    .select('id, parliament_id, title, stages, sponsor_member_id, commons_division_id, commons_ayes, commons_noes')
     .or('commons_ayes.is.null,commons_ayes.eq.0')
     .not('parliament_id', 'is', null)
     // Hidden bills (bill.hidden_reason) have no page and are not refreshed (24 Oct 2026).
@@ -112,7 +117,7 @@ async function GET_impl(req: Request) {
     // has divisions that weren't there before.
     ({ data: rows, error: selErr } = await supabase
       .from('bill')
-      .select('id, parliament_id, title, stages')
+      .select('id, parliament_id, title, stages, sponsor_member_id, commons_division_id, commons_ayes, commons_noes')
       .or('commons_ayes.is.null,commons_ayes.eq.0')
       .not('parliament_id', 'is', null)
       .is('hidden_reason', null)
@@ -132,6 +137,8 @@ async function GET_impl(req: Request) {
   const failures: Array<{ id: number; detail: string }> = [];
   let skippedForTime = 0;
   let stoppedBy: string | null = null;
+  const changed = new Set<number>();
+  const changedSponsors = new Set<number>();
 
   for (const [i, bill] of targets.entries()) {
     if (budget.stopStarting()) { stoppedBy = 'time budget'; skippedForTime = targets.length - i; break; }
@@ -144,12 +151,16 @@ async function GET_impl(req: Request) {
       // next run, whether or not we got a match.
       const now = new Date().toISOString();
       if (!chosen) {
-        await supabase.from('bill').update({ commons_vote_tried_at: now }).eq('id', bill.id);
+        if (!dry) await supabase.from('bill').update({ commons_vote_tried_at: now }).eq('id', bill.id);
         noMatch++;
         failing.succeeded(bill.id);
         continue;
       }
-      const { error } = await supabase
+      if (bill.commons_division_id !== chosen.DivisionId || bill.commons_ayes !== chosen.AyeCount || bill.commons_noes !== chosen.NoCount) {
+        changed.add(bill.id);
+        for (const m of sponsorOf(bill)) changedSponsors.add(m);
+      }
+      const { error } = dry ? { error: null } : await supabase
         .from('bill')
         .update({
           commons_ayes: chosen.AyeCount,
@@ -165,6 +176,7 @@ async function GET_impl(req: Request) {
       failing.succeeded(bill.id);
     } catch (err) {
       if (isPoliteStop(err)) { stoppedBy = (err as Error).message; skippedForTime = targets.length - i; break; }
+      if (dry) { fail++; if (failures.length < 20) failures.push({ id: bill.id, detail: (err as Error).message }); continue; }
       const detail = (err as Error).message;
       if (failures.length < 20) failures.push({ id: bill.id, detail });
       if (failing.failed(bill.id, `bill ${bill.id} (${bill.title || `Parliament bill ${bill.parliament_id}`})`, detail)) {
@@ -177,9 +189,9 @@ async function GET_impl(req: Request) {
     await sleep(120);
   }
 
-  // Show the new Commons votes on /bills and the session archive straight away (lib/revalidate-bills.ts).
-  if (updated > 0) revalidateBillPages();
-  const failuresSaved = await failing.save();
+  // Only when a stored vote changed: the list and session pages, the changed bills and their sponsors' MP pages.
+  const refreshed = changed.size > 0 && !dry ? (revalidateBillPages(), refreshBills(changed, changedSponsors)) : null;
+  const failuresSaved = dry ? false : await failing.save();
 
   return NextResponse.json({
     targeted: targets.length,
@@ -193,6 +205,9 @@ async function GET_impl(req: Request) {
     failing_items: failing.summary(),
     failures_saved: failuresSaved,
     skipped_for_time: skippedForTime,
+    changed_bills: changed.size,
+    refreshed,
+    ...(dry ? { dry_run: true, would_refresh: { bills: changed.size, mps: changedSponsors.size } } : {}),
     partial: skippedForTime > 0 || flaggedFail > 0,
     stopped_by: stoppedBy,
     duration_ms: Date.now() - started,
