@@ -24,6 +24,12 @@ export const SHOW_DEMO_PAGES = false;
 // councils.founded_year is kept. Set to true to show it again.
 export const SHOW_COUNCIL_FOUNDED = false;
 
+// Committee of Public Accounts recommendations tracker (owner's approval, 30 Oct 2026, "go public"). '1': the
+// /recommendations pages, the department tab, the sitemap entries and the menu link exist; anything else: none of
+// them (the pages return 404). Read from the RECOMMENDATIONS_PUBLIC environment variable, passed through next.config
+// env so it is the same on the server and in the browser.
+export const RECOMMENDATIONS_PUBLIC = process.env.RECOMMENDATIONS_PUBLIC === '1';
+
 // What a page hidden by one of these switches says about itself: the not-found page's title (app/not-found.tsx),
 // kept out of search engines, instead of its own title and description.
 export const HIDDEN_PAGE_METADATA: Metadata = { title: 'Page not found', robots: { index: false, follow: false } };

@@ -8,6 +8,7 @@ import { COMMITTEE_IDS } from '@/lib/committees';
 import { topics } from '@/lib/topics';
 import { SECTION_PAGES } from '@/lib/site-nav';
 import { fetchMajorProjectKeys, projectHref } from '@/lib/major-projects';
+import { RECOMMENDATIONS_PUBLIC, allStatus, recPath } from '@/lib/pac';
 
 const SITE = 'https://www.opengovt.uk';
 
@@ -334,6 +335,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
   ];
 
+  // The recommendations tracker (30 Oct 2026, "go public"), only while RECOMMENDATIONS_PUBLIC is on: /recommendations
+  // and every recommendation page (not the filtered list addresses). lastmod is the newest date held for the
+  // recommendation: its latest Treasury document, or a later delivery evidence, Open Govt check or target update date
+  // when newer; the list takes the newest of them all. A failed read leaves them out rather than failing the sitemap.
+  const recommendationRows = RECOMMENDATIONS_PUBLIC ? await allStatus().catch(() => []) : [];
+  const newestDate = (...dates: (string | null)[]) => dates.filter((d): d is string => !!d).map((d) => d.slice(0, 10)).sort().pop();
+  const recommendationEntries: MetadataRoute.Sitemap = recommendationRows.map((r) => {
+    const d = newestDate(r.latest_published_on, r.evidence_delivered_on, r.review_checked_on, r.target_source_published_on);
+    return { url: `${SITE}${recPath(r)}`, changeFrequency: 'monthly' as const, priority: 0.5, ...(d ? { lastModified: new Date(d) } : {}) };
+  });
+  if (recommendationRows.length) {
+    const newest = newestDate(...recommendationEntries.map((e) => (e.lastModified ? new Date(e.lastModified).toISOString() : null)));
+    recommendationEntries.unshift({ url: `${SITE}/recommendations`, changeFrequency: 'weekly', priority: 0.7, ...(newest ? { lastModified: new Date(newest) } : {}) });
+  }
+
   return [
     ...staticEntries,
     ...topicEntries,
@@ -350,5 +366,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...divisionEntries,
     ...committeeEntries,
     ...majorProjectEntries,
+    ...recommendationEntries,
   ];
 }

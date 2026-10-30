@@ -3,7 +3,7 @@
 // section pages (app/sections/[slug]/page.tsx) and the "In this section" rows on the section landing pages
 // (SectionLinks.tsx), so they cannot drift apart.
 import { topics } from '@/lib/topics';
-import { SHOW_LEAGUE_TABLE, SHOW_YOUR_TAX_POUND, SHOW_BUDGET_CHOICES } from '@/lib/feature-flags';
+import { SHOW_LEAGUE_TABLE, SHOW_YOUR_TAX_POUND, SHOW_BUDGET_CHOICES, RECOMMENDATIONS_PUBLIC } from '@/lib/feature-flags';
 import { PAGE_DESCRIPTIONS, partyDescription, PARTY_NAMES, VOTE_ON_BILLS_DESCRIPTION } from '@/lib/page-descriptions';
 
 // href: the section's landing page, which carries its "In this section" row. page: where the header and the phone panel
@@ -53,6 +53,8 @@ export const NAV: NavItem[] = [
     { group: 'Parties', label: 'Restore Britain', href: '/parties/restore-britain/bio', compact: true, desc: partyDescription(PARTY_NAMES['restore-britain']) },
     { group: 'Parties', label: 'Your Party', href: '/parties/your-party/bio', compact: true, desc: partyDescription(PARTY_NAMES['your-party']) },
     { group: 'Departments', label: 'All Departments', href: '/departments', desc: 'All 23 UK government departments: Secretary of State, junior ministers, budget and a performance report.' },
+    // The recommendations tracker (30 Oct 2026), only while RECOMMENDATIONS_PUBLIC is on.
+    ...(RECOMMENDATIONS_PUBLIC ? [{ group: 'Departments', label: 'Recommendations', href: '/recommendations', desc: 'Committee of Public Accounts recommendations and the government’s answers in Treasury Minutes: its response, target dates and what happened next.' }] : []),
     { group: 'Departments', label: 'Department Budgets', href: '/spending', desc: 'Total Departmental Expenditure Limits for every UK government department, ranked.' },
     { group: 'Departments', label: 'Civil Service', href: '/civil-service', desc: 'Headcount and FTE for every UK government department, ranked.' },
     ...(SHOW_YOUR_TAX_POUND ? [{ group: 'Departments', label: 'Your Tax Pound', href: '/your-tax-pound' }] : []),

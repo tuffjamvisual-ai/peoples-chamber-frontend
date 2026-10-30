@@ -12,7 +12,7 @@ import { unstable_cache } from 'next/cache';
 import { createClient } from '@supabase/supabase-js';
 import { fetchWithoutEmDashes } from '@/lib/no-em-dash';
 
-export const RECOMMENDATIONS_PUBLIC = process.env.RECOMMENDATIONS_PUBLIC === '1';
+export { RECOMMENDATIONS_PUBLIC } from '@/lib/feature-flags';
 export const RECOMMENDATIONS_OVERDUE = process.env.RECOMMENDATIONS_OVERDUE === '1';
 
 const DAY = 86400;

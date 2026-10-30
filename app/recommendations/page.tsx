@@ -11,7 +11,8 @@ import {
 } from '@/lib/pac';
 
 // /recommendations (owner's approval, 29 Oct 2026, "go stage 4"): the Committee of Public Accounts recommendations
-// tracker. Only exists when RECOMMENDATIONS_PUBLIC=1 (Preview only for now); not in the sitemap or the navigation.
+// tracker. Only exists when RECOMMENDATIONS_PUBLIC=1; then it and every recommendation page are in the sitemap, and
+// the menu links to it under Departments (30 Oct 2026, "go public").
 // Data from lib/pac.ts, cached for a day under the 'pac' tag.
 export const revalidate = 86400;
 
