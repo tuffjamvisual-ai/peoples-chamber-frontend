@@ -21,7 +21,8 @@ const PAPER = '#f4e8d4';
 const INK = '#14100d';
 const ACCENT = '#7a1612';
 const FONT = 'var(--font-special-elite), monospace';
-const EXCLUDED = ['/signup', '/login', '/newsletter', '/privacy', '/terms', '/commission', '/account', '/reset-password'];
+// /recommendations (30 Oct 2026, tracker fixes item 13): long reference lists, where the strip covered content.
+const EXCLUDED = ['/signup', '/login', '/newsletter', '/privacy', '/terms', '/commission', '/account', '/reset-password', '/recommendations'];
 const SCROLL_SHARE = 0.6;
 const DWELL_MS = 45_000;
 const DONE_MS = 5_000;

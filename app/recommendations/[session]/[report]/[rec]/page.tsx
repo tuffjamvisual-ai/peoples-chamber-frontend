@@ -4,7 +4,8 @@ import { notFound } from 'next/navigation';
 import OpenGovShell from '../../../../components/OpenGovShell';
 import BackLink from '../../../../components/BackLink';
 import {
-  RECOMMENDATIONS_PUBLIC, recommendationDetail, statusContext, statusWords, sessionWords, monthYear, dayMonthYear, asPublished, type EventRow,
+  RECOMMENDATIONS_PUBLIC, recommendationDetail, wording, sessionWords, dayMonthYear, asPublished, documentWords, departmentWords, recommendationFor,
+  targetPassed, type EventRow, type SourceDocument,
 } from '@/lib/pac';
 
 // /recommendations/[session]/[report]/[rec], e.g. /recommendations/2024-26/54/4b (owner's approval, 29 Oct 2026,
@@ -44,24 +45,30 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 const RESPONSE: Record<string, string> = { agree: 'Agreed', partly: 'Partly agreed', disagree: 'Disagreed', notes: 'Noted' };
 const paragraphs = (t: string | null) => asPublished(t).split('\n').map((x) => x.trim()).filter(Boolean);
 
-function Event({ e }: { e: EventRow & { document: { title: string; cp_number: string; url: string; published_on: string; kind: string } } }) {
+// A target line as the document writes it, with "Target passed" once the month its period ends in is over.
+function targetLine(label: string, text: string | null, month: string | null): string | null {
+  if (!text) return null;
+  return `${label}: “${text}”${targetPassed(month) ? '. Target passed' : ''}`;
+}
+
+function Event({ e, open }: { e: EventRow & { document: SourceDocument }; open: boolean }) {
   const pdf = `${e.document.url}${e.page ? `#page=${e.page}` : ''}`;
-  const lines: string[] = [];
-  if (e.target_text) lines.push(`Target: “${e.target_text}”`);
-  if (e.original_target_text) lines.push(`Original target: “${e.original_target_text}”`);
-  if (e.revised_target_text) lines.push(`Revised target: “${e.revised_target_text}”`);
-  if (e.implemented_text) lines.push(e.implemented_text === 'Recommendation implemented' ? 'Recommendation implemented' : `Recommendation implemented: “${e.implemented_text}”`);
+  const lines = [
+    targetLine('Target', e.target_text, e.target_month),
+    targetLine('Original target', e.original_target_text, e.original_target_month),
+    targetLine('Revised target', e.revised_target_text, e.revised_target_month),
+    e.implemented_text ? (e.implemented_text === 'Recommendation implemented' ? 'Recommendation implemented' : `Recommendation implemented: “${e.implemented_text}”`) : null,
+  ].filter((l): l is string => !!l);
   const words = [...paragraphs(e.response_text), ...paragraphs(e.progress_text)];
   return (
     <li style={{ borderLeft: '2px solid rgba(20,16,13,0.25)', padding: '0 0 18px 16px', margin: 0 }}>
-      <span style={{ display: 'block', fontSize: '16px', fontWeight: 600, color: INK }}>{monthYear(e.document.published_on)}</span>
-      <span style={{ display: 'block', ...small }}>
-        <a href={pdf} style={link}>{e.document.title}</a> ({e.document.cp_number}{e.page ? `, PDF page ${e.page}` : ''})
+      <span style={{ display: 'block', ...small, fontSize: '16px', fontWeight: 600 }}>
+        <a href={pdf} style={link}>{documentWords(e.document)}</a>{e.page ? `, PDF page ${e.page}` : ''}
       </span>
       {e.response && <span style={{ display: 'block', ...small, marginTop: '4px' }}>Response: {RESPONSE[e.response] ?? `“${e.response}”`}</span>}
       {lines.map((l) => <span key={l} style={{ display: 'block', ...small }}>{l}</span>)}
       {words.length > 0 && (
-        <details style={{ marginTop: '6px' }}>
+        <details open={open} style={{ marginTop: '6px' }}>
           <summary style={{ ...small, cursor: 'pointer' }}>The government’s words</summary>
           {words.map((w, i) => <p key={i} style={{ ...p, fontSize: '15px', marginTop: '8px' }}>{w}</p>)}
         </details>
@@ -74,8 +81,9 @@ export default async function RecommendationPage({ params }: { params: Promise<P
   const d = await load(params);
   if (!d) notFound();
   const { row, events, evidence } = d;
-  const { ctx, implementedDocFor } = await statusContext();
-  const status = statusWords(row, { ...ctx, implementedDocument: implementedDocFor(row.recommendation_id) });
+  const w = await wording();
+  const status = w.words(row);
+  const addressedTo = recommendationFor(d.recommendation, row.department);
 
   return (
     <OpenGovShell pageStamp="Recommendations">
@@ -86,12 +94,12 @@ export default async function RecommendationPage({ params }: { params: Promise<P
         style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '-6%', marginBottom: '12px', color: INK, textDecoration: 'none', fontSize: 'clamp(18px, 2.2vw, 28px)', transform: 'rotate(-0.2deg)' }}
       />
       <header style={{ marginBottom: '3%' }}>
-        <p style={{ ...small, margin: '0 0 6px' }}>
-          Report {row.report_number} of the {sessionWords(row.session)}{row.department ? `. ${row.department}` : ''}
-        </p>
+        <p style={{ ...small, margin: '0 0 6px' }}>Report {row.report_number} of the {sessionWords(row.session)}</p>
         <h1 style={{ fontSize: 'clamp(26px, 3.6vw, 42px)', fontWeight: 'bold', letterSpacing: '-0.02em', margin: '0 0 8px', color: INK, overflowWrap: 'anywhere' }}>
           {row.report_title}: recommendation {row.rec_number}
         </h1>
+        {row.department && <p style={{ ...small, margin: '0 0 4px' }}>Report department: {departmentWords(row.department)}</p>}
+        {addressedTo && <p style={{ ...small, margin: '0 0 4px' }}>Recommendation for: {addressedTo}, as named in the recommendation</p>}
       </header>
 
       <section style={{ color: INK }}>
@@ -125,17 +133,8 @@ export default async function RecommendationPage({ params }: { params: Promise<P
 
         <h2 style={h2}>What the government has said</h2>
         <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {events.map((e) => <Event key={e.id} e={e} />)}
+          {events.map((e, i) => <Event key={e.id} e={e} open={i === events.length - 1} />)}
         </ol>
-        {row.split_into && row.split_into.length > 0 && (
-          <p style={p}>
-            Later documents answer this recommendation in parts:{' '}
-            {row.split_into.map((part, i) => (
-              <span key={part}>{i > 0 ? (i === row.split_into!.length - 1 ? ' and ' : ', ') : ''}<Link href={`/recommendations/${row.session}/${row.report_number}/${part}`} style={link}>{part}</Link></span>
-            ))}.
-          </p>
-        )}
-
         <p style={{ ...small, marginTop: '28px' }}>
           Source: HM Treasury, Treasury Minutes and Treasury Minutes Progress Reports, on GOV.UK under the Open Government Licence v3.0. Quoted text is as published.{' '}
           <Link href="/recommendations" style={link}>All recommendations</Link>

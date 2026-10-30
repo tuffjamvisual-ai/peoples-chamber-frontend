@@ -372,8 +372,9 @@ export async function parseFile(entry) {
   for (const c of CORRECTIONS.filter((x) => cp && x.cp_number === `CP ${cp[1]}`)) {
     const onPage = lines.filter((l) => l.page === c.pdf_page);
     const hits = onPage.filter((l) => clean(l.text) === c.raw_heading);
-    const other = onPage.filter((l) => clean(l.text) === c.other_raw_heading);
-    if (hits.length !== 1 || other.length !== 1) throw new Error(`correction for ${c.cp_number} report ${c.report_number}: raw heading found ${hits.length} times and the other heading ${other.length} times on PDF page ${c.pdf_page} (each must be found exactly once)`);
+    // other_raw_heading (optional): a second heading that must also be on the page, to be sure of the place.
+    const other = c.other_raw_heading ? onPage.filter((l) => clean(l.text) === c.other_raw_heading).length : 1;
+    if (hits.length !== 1 || other !== 1) throw new Error(`correction for ${c.cp_number} report ${c.report_number}: raw heading found ${hits.length} times${c.other_raw_heading ? ` and the other heading ${other} times` : ''} on PDF page ${c.pdf_page} (each must be found exactly once)`);
     hits[0].text = hits[0].text.replace(c.raw_heading, c.corrected_heading);
     if (clean(hits[0].text) !== c.corrected_heading) throw new Error(`correction for ${c.cp_number} report ${c.report_number}: could not apply`);
     applied.push({ ...c, line: hits[0].n });

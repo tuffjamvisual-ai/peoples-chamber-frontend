@@ -2,11 +2,12 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import OpenGovShell from '../components/OpenGovShell';
+import { departments } from '@/lib/departments';
 import BackLink from '../components/BackLink';
 import RecommendationList, { type ListRow, type ListReport } from './RecommendationList';
 import {
-  RECOMMENDATIONS_PUBLIC, allStatus, statusContext, statusText, departmentSlugs, departmentName, sessionWords, recPath, monthYear,
-  shownStatuses, STATUS_LABELS, targetWords, type StatusKey,
+  RECOMMENDATIONS_PUBLIC, allStatus, wording, bodiesFor, departmentWords, departmentSlugs, sessionWords, recPath, documentWords,
+  STATUS_ORDER, STATUS_LABELS, asWritten, targetPassed,
 } from '@/lib/pac';
 
 // /recommendations (owner's approval, 29 Oct 2026, "go stage 4"): the Committee of Public Accounts recommendations
@@ -26,27 +27,37 @@ const p: React.CSSProperties = { fontSize: '16px', lineHeight: 1.75, color: INK,
 
 export default async function RecommendationsPage() {
   if (!RECOMMENDATIONS_PUBLIC) notFound();
-  const [rows, { ctx, implementedDocFor, latestDocument }] = await Promise.all([allStatus(), statusContext()]);
-  const shown = new Set(shownStatuses());
-  const totals = shownStatuses().map((k) => ({ key: k, label: STATUS_LABELS[k], count: rows.filter((r) => r.status === k).length })).filter((t) => t.count > 0);
-  const text = (r: (typeof rows)[number]) => statusText(r, { ...ctx, implementedDocument: implementedDocFor(r.recommendation_id) });
+  const [rows, w] = await Promise.all([allStatus(), wording()]);
+  // The total and every box come from the same rows, so the boxes add up to the total.
+  const total = rows.length;
+  const totals = STATUS_ORDER.map((k) => ({ key: k, label: STATUS_LABELS[k], count: rows.filter((r) => r.status === k).length })).filter((t) => t.count > 0);
   const moved = [...rows].filter((r) => r.times_target_moved > 0)
     .sort((a, b) => b.times_target_moved - a.times_target_moved || (b.latest_target_month ?? '').localeCompare(a.latest_target_month ?? '') || a.recommendation_id - b.recommendation_id)
     .slice(0, 10);
   const sorted = [...rows].sort((a, b) => b.session.localeCompare(a.session) || b.report_number - a.report_number || a.rec_number.localeCompare(b.rec_number, 'en', { numeric: true }));
   const reports: Record<string, ListReport> = {};
+  const seenBodies = new Map<string, string>();
   const list: ListRow[] = sorted.map((r) => {
     const key = `${r.session}/${r.report_number}`;
-    reports[key] ??= {
-      title: r.report_title,
-      meta: `Report ${r.report_number}, ${sessionWords(r.session)}${r.department ? `. ${r.department}` : ''}`,
-      departments: departmentSlugs(r.department).length ? departmentSlugs(r.department) : ['other'],
-    };
-    return [key, r.rec_number, r.status, text(r)];
+    if (!reports[key]) {
+      const bodies = bodiesFor(r.department);
+      for (const b of bodies) seenBodies.set(b.key, b.name);
+      reports[key] = {
+        title: r.report_title,
+        meta: `Report ${r.report_number}, ${sessionWords(r.session)}. ${departmentWords(r.department)}`,
+        bodies: bodies.map((b) => b.key),
+        pages: departmentSlugs(r.department),
+        other: bodies.length === 0 || bodies.some((b) => !b.page),
+      };
+    }
+    return [key, r.rec_number, r.status, w.text(r)];
   });
-  const deptSlugs = [...new Set(Object.values(reports).flatMap((r) => r.departments))].filter((s) => s !== 'other');
-  const departmentOptions = [...deptSlugs.map((s) => ({ value: s, label: departmentName(s) })).sort((a, b) => a.label.localeCompare(b.label)), { value: 'other', label: 'Other bodies' }];
+  const departmentOptions = [
+    ...[...seenBodies].map(([value, label]) => ({ value: `body:${value}`, label })).sort((a, b) => a.label.localeCompare(b.label)),
+    { value: 'other', label: 'Other bodies (no department page)' },
+  ];
   const statusOptions = totals.map((t) => ({ value: t.key, label: t.label }));
+  const pageNames = Object.fromEntries(departments.map((d) => [d.slug, d.name]));
 
   return (
     <OpenGovShell pageStamp="Recommendations">
@@ -66,7 +77,7 @@ export default async function RecommendationsPage() {
           The Committee of Public Accounts examines how government spends public money and makes recommendations to departments. The government answers each recommendation in a Treasury Minute, saying whether it agrees and by when it will act, and reports on the ones still open in Treasury Minutes Progress Reports.
         </p>
         <p style={p}>
-          This tracker follows {rows.length.toLocaleString('en-GB')} recommendations through those documents{latestDocument ? `, up to the ${latestDocument.title} (${latestDocument.cp_number}, published ${monthYear(latestDocument.published_on)})` : ''}. The documents are published by HM Treasury on GOV.UK under the Open Government Licence v3.0.
+          This tracker follows {total.toLocaleString('en-GB')} recommendations through those documents{w.latestDocument ? `, up to the ${documentWords(w.latestDocument)}` : ''}. The documents are published by HM Treasury on GOV.UK under the Open Government Licence v3.0.
         </p>
 
         <h2 style={h2}>Where the recommendations stand</h2>
@@ -77,6 +88,10 @@ export default async function RecommendationsPage() {
               <span style={{ fontWeight: 600 }}>{t.count.toLocaleString('en-GB')}</span>
             </li>
           ))}
+          <li style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '8px 0', fontSize: '16px', fontWeight: 700 }}>
+            <span>Total</span>
+            <span>{total.toLocaleString('en-GB')}</span>
+          </li>
         </ul>
 
         <h2 style={h2}>Most moved targets</h2>
@@ -87,14 +102,14 @@ export default async function RecommendationsPage() {
                 {r.report_title}: recommendation {r.rec_number}
               </Link>
               <span style={{ display: 'block', fontSize: '15px' }}>
-                Moved {r.times_target_moved} time{r.times_target_moved === 1 ? '' : 's'}, from {monthYear(r.original_target_month)} to {targetWords(r)}.{r.status !== 'target_in_future' && shown.has(r.status as StatusKey) ? ` ${text(r)}` : ''}
+                Moved {r.times_target_moved} time{r.times_target_moved === 1 ? '' : 's'}, from “{w.firstTarget(r)}” to “{asWritten(r.latest_target_text)}”.{targetPassed(r.latest_target_month) ? ' Target passed.' : ''}{r.status !== 'target_in_future' ? ` ${w.text(r)}.` : ''}
               </span>
             </li>
           ))}
         </ol>
 
         <h2 style={h2}>All recommendations</h2>
-        <RecommendationList reports={reports} rows={list} departmentOptions={departmentOptions} statusOptions={statusOptions} />
+        <RecommendationList reports={reports} rows={list} departmentOptions={departmentOptions} statusOptions={statusOptions} pageNames={pageNames} />
       </section>
     </OpenGovShell>
   );
