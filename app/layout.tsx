@@ -86,9 +86,9 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     images: [`${SITE_URL}/og-image.png`],
   },
-  // The opengovt stamp (owner, 30 Oct 2026): the header wordmark, "OPEN" above "GOVT", rendered from HTML with the
-  // site's Bebas Neue; "OG" in the same stamp at 32px and below, where the full wordmark is not legible. app/favicon.ico
-  // (16 and 32px) is the same "OG" stamp, for browsers that ask for /favicon.ico.
+  // App icons (owner, 30 Oct 2026): apple-icon.png is the header wordmark (OpenGovShell.tsx brandStyle), one line in
+  // its stamp, rendered from HTML with the site's Bebas Neue; at 32px and below "OG" in the same stamp, where the full
+  // wordmark is not legible. app/favicon.ico (16 and 32px) is the same "OG" stamp, for browsers that ask for /favicon.ico.
   icons: {
     icon: [{ url: "/favicon-32.png", sizes: "32x32", type: "image/png" }],
     apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
