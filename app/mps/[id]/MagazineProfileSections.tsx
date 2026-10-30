@@ -1366,9 +1366,9 @@ export default function MagazineProfileSections({
                         </li>
                       ))}
                     </ul>
-                    {petitionsAnswer.asAt && (
+                    {petitionsAnswer.checkedOn && (
                       <p style={note}>
-                        Signature counts as at {fmtDate(petitionsAnswer.asAt)}. Source: UK Parliament Petitions (petition.parliament.uk).
+                        Counts for closed petitions are final. Open petitions are checked daily, most recently on {fmtDate(petitionsAnswer.checkedOn)}. Source: UK Parliament Petitions (petition.parliament.uk).
                       </p>
                     )}
                   </>

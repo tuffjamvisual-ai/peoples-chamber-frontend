@@ -104,7 +104,8 @@ async function GET_impl(req: Request) {
   await Promise.all(Array.from({ length: CONCURRENCY }, worker));
 
   noteChanged(dry ? 0 : rowsChanged);
-  const refreshed = !dry && rowsChanged > 0;
+  // After every run that checked petitions, not only when a count changed: the tab shows the date of the last check.
+  const refreshed = !dry && processed > 0;
   if (refreshed) revalidateTag(MP_PETITIONS_TAG, 'max');
   const body = {
     ok: failures.length === 0,
