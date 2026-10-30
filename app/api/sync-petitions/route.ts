@@ -9,7 +9,10 @@ import {
   PETITIONS_BASE,
 } from '@/lib/petitions';
 import { isPoliteStop } from '@/lib/sync-budget';
-import { refreshMps, refreshAllMps, isDryRun, REFRESH_BATCH } from '@/lib/mp-refresh';
+import { revalidateTag } from '@/lib/refresh-count';
+import { isDryRun } from '@/lib/mp-refresh';
+import { MP_PETITIONS_TAG } from '@/lib/mp-petitions';
+import { noteChanged } from '@/lib/refresh-count';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -40,10 +43,10 @@ async function GET_impl(req: Request) {
   }
 
   const started = Date.now();
-  // MP pages keep for a week (owner, 30 Oct 2026, cache Stage 2a part 3): only changed rows are written
-  // (lib/petitions.ts writePetitionChanges), and the MPs of the constituencies whose petitions list changed are
-  // refreshed; every MP page as one route pattern when at least REFRESH_BATCH changed. ?dry=1 (local tests only)
-  // compares but writes nothing.
+  // Only changed rows are written (lib/petitions.ts writePetitionChanges; owner, 30 Oct 2026, cache Stage 2a part 3).
+  // MP pages no longer show the counts (part 4): the Petitions tab reads them from /api/mps/[id]/petitions, whose tag
+  // (MP_PETITIONS_TAG) is refreshed when anything changed. No MP page is refreshed. ?dry=1 (local tests only) compares
+  // but writes nothing.
   const dry = isDryRun(req);
   const changedGss = new Set<string>();
   let rowsChanged = 0;
@@ -100,19 +103,14 @@ async function GET_impl(req: Request) {
   }
   await Promise.all(Array.from({ length: CONCURRENCY }, worker));
 
-  let mpsChanged = 0;
-  let mpRefresh: unknown = null;
-  if (changedGss.size) {
-    const { data: mpRows } = await supabase.from('mps').select('member_id, constituency_gss_code').eq('current_member', true).in('constituency_gss_code', [...changedGss]);
-    const ids = (mpRows ?? []).map((r) => r.member_id as number);
-    mpsChanged = ids.length;
-    if (!dry && ids.length) mpRefresh = ids.length >= REFRESH_BATCH ? refreshAllMps() : refreshMps(ids);
-  }
+  noteChanged(dry ? 0 : rowsChanged);
+  const refreshed = !dry && rowsChanged > 0;
+  if (refreshed) revalidateTag(MP_PETITIONS_TAG, 'max');
   const body = {
     ok: failures.length === 0,
     rows_changed: rowsChanged,
-    mps_changed: mpsChanged,
-    mp_refresh: mpRefresh,
+    constituencies_changed: changedGss.size,
+    tab_refreshed: refreshed,
     ...(dry ? { dry_run: true } : {}),
     open_at_threshold: openIds.length,
     closed_since_last_run: closedSinceLastRun.length,

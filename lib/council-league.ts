@@ -213,7 +213,7 @@ export type LeagueData = {
 
 // Built once and kept in Next's data cache (owner's approval, 21 Oct 2026): every council page's Ratings tab and the
 // league page used to rebuild it from six national tables on each render (about 12 reads, 0.4-0.5 s, 1.2 MB). The
-// cached copy is tagged COUNCIL_LEAGUE_TAG, refreshed every 6 hours, and refreshed at once when scripts/score-areas.js
+// cached copy is tagged COUNCIL_LEAGUE_TAG, kept for a week (6 hours until 30 Oct 2026), and refreshed at once when scripts/score-areas.js
 // or the council finance and ratings imports write (they call /api/revalidate-councils). A failed read
 // throws and is not cached. The Maps are stored as entry lists (the cache holds JSON) and rebuilt on read.
 export const COUNCIL_LEAGUE_TAG = 'council-league';
@@ -224,7 +224,7 @@ type LeagueDataJson = Omit<LeagueData, 'flagsByCouncil' | 'ofstedByCouncil'> & {
 const cachedLeagueJson = unstable_cache(async (): Promise<LeagueDataJson> => {
   const d = await buildLeagueData();
   return { ...d, flagsByCouncil: [...d.flagsByCouncil], ofstedByCouncil: [...d.ofstedByCouncil] };
-}, ['council-league-v2'], { tags: [COUNCIL_LEAGUE_TAG], revalidate: 21600 });
+}, ['council-league-v2'], { tags: [COUNCIL_LEAGUE_TAG], revalidate: 604800 });
 
 // Read once per request: the league page and every council page's Ratings tab share it.
 export const getLeagueData = cache(async (): Promise<LeagueData> => {

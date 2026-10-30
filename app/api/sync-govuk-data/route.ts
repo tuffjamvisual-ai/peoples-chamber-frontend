@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { revalidateTag } from 'next/cache';
+import { revalidateTag } from '@/lib/refresh-count';
 import { GOVUK_DEPT_TAG } from '@/lib/page-reads';
 import { refreshMps, isDryRun, sameValue } from '@/lib/mp-refresh';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
@@ -7,6 +7,7 @@ import { govukSlugs } from '@/lib/govuk-slugs';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { politeFetch, isPoliteStop } from '@/lib/sync-budget';
+import { noteChanged } from '@/lib/refresh-count';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -405,6 +406,7 @@ async function GET_impl(req: Request) {
 
   // Department pages read these rows under the 'govuk-dept' tag (lib/page-reads.ts): refreshed after any write; the
   // MP pages of ministers whose row changed (MP pages keep for a week).
+  noteChanged(dry ? 0 : rowsChanged);
   if (rowsChanged > 0 && !dry) revalidateTag(GOVUK_DEPT_TAG, 'max');
   const mpRefresh = !dry && changedMps.size ? refreshMps(changedMps) : null;
   return NextResponse.json({

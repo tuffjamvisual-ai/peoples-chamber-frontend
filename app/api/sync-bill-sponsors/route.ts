@@ -7,6 +7,7 @@ import { refreshBills, sponsorOf, sameJson } from '@/lib/bill-refresh';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
 import { ItemFailures, FLAG_AFTER_RUNS } from '@/lib/sync-item-failures';
+import { noteChanged } from '@/lib/refresh-count';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -185,6 +186,7 @@ async function GET_impl(req: Request) {
 
   // Only when something changed: the stored views first (the topic bill lists read a stored copy of the bills'
   // sponsoring departments, lib/refresh-stores.ts), then the list pages, the changed bills and their sponsors' pages.
+  noteChanged(dry ? 0 : changed.size);
   const storesRefresh = changed.size > 0 && !dry ? await refreshStore(supabase, 'refresh_bill_stores') : null;
   const refreshed = changed.size > 0 && !dry ? (revalidateBillPages(), refreshBills(changed, changedSponsors)) : null;
   const failuresSaved = dry ? false : await failing.save();

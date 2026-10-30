@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath } from '@/lib/refresh-count';
 import { flagBioReview, ukDate } from '@/lib/bio-review';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { politeFetch, isPoliteStop } from '@/lib/sync-budget';
 import { refreshMps, isDryRun } from '@/lib/mp-refresh';
 import { normaliseParty } from '@/lib/party-helpers';
+import { noteChanged } from '@/lib/refresh-count';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -141,6 +142,7 @@ async function GET_impl(req: Request) {
     const a = firstNames(before, party), b = firstNames(after, party);
     if (a.join(',') !== b.join(',')) for (const x of after) if (x.party === party) toRefresh.add(x.id);
   }
+  noteChanged(dry ? 0 : changes.length);
   const mpRefresh = !dry && toRefresh.size ? refreshMps(toRefresh) : null;
   if (!dry && changes.length > 0) revalidatePath('/mps');
 

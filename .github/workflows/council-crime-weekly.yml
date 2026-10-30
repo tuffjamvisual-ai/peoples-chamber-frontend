@@ -30,6 +30,9 @@ jobs:
     env:
       SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
       NEXT_PUBLIC_SUPABASE_URL: https://nwnsvnbudmfkhhwcjwwr.supabase.co
+      # The council pages are refreshed when a load adds a newer month (scripts/lib/refresh-site.js); if the site refuses
+      # GitHub's call, the refresh is queued for /api/refresh-nightly-pages (owner, 30 Oct 2026).
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

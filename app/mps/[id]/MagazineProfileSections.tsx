@@ -14,6 +14,7 @@ import PhoneTable from '../../components/PhoneTable';
 import FollowButton from '../../components/FollowButton';
 import SpadAdvisersBlock from '../../components/SpadAdvisersBlock';
 import type { SpadRow, SpadReleaseRow } from '@/lib/spad-display';
+import type { MpPetition, MpPetitionsAnswer } from '@/lib/mp-petitions';
 
 const COMMITTEE_ID_SET = new Set<number>(COMMITTEE_IDS);
 
@@ -339,10 +340,9 @@ interface Props {
   followable?: boolean;
   formerMember?: boolean;
   fullName?: string;
-  /** Petitions (10,000+ signatures only) most signed in this MP's constituency. */
-  constituencyPetitions?: ConstituencyPetition[];
-  /** Newest petitions sync time, for the tab's "last updated" line. */
-  petitionsLastUpdated?: string | null;
+  /** Whether the constituency has any petitions (10,000+ signatures only); the tab loads them from
+      /api/mps/[id]/petitions when opened (owner, 30 Oct 2026, cache Stage 2a part 4). */
+  petitionsAvailable?: boolean;
   /** Early Day Motions this MP started and signed (withdrawn signatures excluded). */
   edms?: MpEdms | null;
   /** Reports whose relatedMemberIds include this MP: up to five, newest first, and how many there are in all. */
@@ -351,20 +351,7 @@ interface Props {
 
 export type MpReports = { items: { href: string; headline: string; date: string; readingLabel: string; summary: string }[]; total: number; memberId: number; mpName: string };
 
-type ConstituencyPetition = {
-  petitionId: number;
-  title: string;
-  state: string;
-  localSignatures: number;
-  rank: number;
-  rankOutOf: number | null;
-  totalSignatures: number;
-  openedAt: string | null;
-  closedAt: string | null;
-  governmentResponseAt: string | null;
-  debatedOn: string | null;
-  url: string;
-};
+type ConstituencyPetition = MpPetition;
 
 type MpEdmEntry = {
   id: number;
@@ -535,8 +522,7 @@ export default function MagazineProfileSections({
   followable = false,
   formerMember = false,
   fullName = '',
-  constituencyPetitions = [],
-  petitionsLastUpdated = null,
+  petitionsAvailable = false,
   edms = null,
   reports = null,
 }: Props) {
@@ -561,7 +547,7 @@ export default function MagazineProfileSections({
     voting: (totalVotes ?? votes.length) > 0,
     bills: sponsoredBills.length > 0,
     house: contributions.length > 0,
-    petitions: constituencyPetitions.length > 0,
+    petitions: petitionsAvailable,
     edms: !!edms && (edms.startedCount > 0 || edms.signedCount > 0),
     interests: interests.length > 0,
     roles: !!(
@@ -690,6 +676,18 @@ export default function MagazineProfileSections({
   const [expenseClaimsFailed, setExpenseClaimsFailed] = useState(false);
   const expensesRequested = useRef(expensesDetail != null);
   const donationsRequested = useRef(false);
+  // The Petitions tab's list, read when the tab is opened (null while loading; failed shows a short message).
+  const [petitionsAnswer, setPetitionsAnswer] = useState<MpPetitionsAnswer | null>(null);
+  const [petitionsFailed, setPetitionsFailed] = useState(false);
+  const petitionsRequested = useRef(false);
+  const loadPetitions = useCallback(() => {
+    if (petitionsRequested.current) return;
+    petitionsRequested.current = true;
+    fetch(`/api/mps/${memberId}/petitions`)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+      .then((data: MpPetitionsAnswer) => setPetitionsAnswer(data))
+      .catch(() => setPetitionsFailed(true));
+  }, [memberId]);
   const loadExpenses = useCallback(() => {
     if (expensesRequested.current) return;
     expensesRequested.current = true;
@@ -711,7 +709,8 @@ export default function MagazineProfileSections({
   useEffect(() => {
     if (active === 'expenses') loadExpenses();
     if (active === 'donations') loadDonations();
-  }, [active, loadExpenses, loadDonations]);
+    if (active === 'petitions') loadPetitions();
+  }, [active, loadExpenses, loadDonations, loadPetitions]);
   useEffect(() => {
     const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
     if (saveData) return;
@@ -1310,7 +1309,10 @@ export default function MagazineProfileSections({
           </>
         )}
 
-        {active === 'petitions' && (() => {
+        {/* Petitions (owner, 30 Oct 2026, cache Stage 2a part 4): the heading and the note with its link to the petitions
+            site are always in the page, hidden unless the tab is open, so crawlers see them; the list, with its live
+            signature counts, is loaded from /api/mps/[id]/petitions when the tab opens. */}
+        {petitionsAvailable && (() => {
           const fmtNum = (n: number) => n.toLocaleString('en-GB');
           const ordinal = (n: number) => {
             const mod100 = n % 100;
@@ -1324,9 +1326,11 @@ export default function MagazineProfileSections({
             return `${ordinal(p.rank)} highest of the ${fmtNum(p.rankOutOf)} constituencies with signatures`;
           };
           const chip: React.CSSProperties = { fontSize: '15px', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '1px 6px', border: '1px solid #14100d', color: '#14100d', whiteSpace: 'nowrap' };
+          const note: React.CSSProperties = { fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: '#14100d', opacity: 1, margin: '18px 0 0' };
+          const list = petitionsAnswer?.petitions ?? [];
           return (
-            <>
-              <h2 style={sectionH2}>Petitions</h2>
+            <section hidden={active !== 'petitions'} aria-labelledby="mp-petitions-heading">
+              <h2 id="mp-petitions-heading" style={sectionH2}>Petitions</h2>
               <p style={{ fontSize: '15px', marginBottom: '12px', color: '#14100d' }}>
                 The petitions most signed by people in this constituency.
               </p>
@@ -1338,27 +1342,39 @@ export default function MagazineProfileSections({
                 <a href="https://petition.parliament.uk" target="_blank" rel="noopener noreferrer" style={inkLink}>UK Parliament petitions website</a>{' '}
                 that reached 10,000 signatures, the point at which the government must respond. Petitions with fewer signatures are not included. Constituency counts come from the petitions site, are based on the postcode each signer gives, and are updated daily.
               </p>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                {constituencyPetitions.map((p) => (
-                  <li key={p.petitionId} style={{ padding: '12px 0', borderBottom: inkDivider }}>
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'baseline', flexWrap: 'wrap' }}>
-                      <a href={p.url} target="_blank" rel="noopener noreferrer" style={{ ...inkLink, fontWeight: 'bold', fontSize: '15px' }}>{p.title}</a>
-                      <span style={chip}>{p.state === 'open' ? 'Open' : 'Closed'}</span>
-                      {p.governmentResponseAt && <span style={chip}>Government responded {fmtDate(p.governmentResponseAt)}</span>}
-                      {p.debatedOn && <span style={chip}>Debated {fmtDate(p.debatedOn)}</span>}
-                    </div>
-                    <div style={{ fontSize: '15px', marginTop: '4px', color: '#14100d' }}>
-                      <strong>{fmtNum(p.localSignatures)}</strong> {p.localSignatures === 1 ? 'signature' : 'signatures'} here · {rankText(p)} · {fmtNum(p.totalSignatures)} signatures in total
-                    </div>
-                  </li>
-                ))}
-              </ul>
-              {petitionsLastUpdated && (
-                <p style={{ fontFamily: 'var(--font-special-elite), monospace', fontSize: '15px', color: '#14100d', opacity: 1, margin: '18px 0 0' }}>
-                  Petition signatures last updated {fmtDate(petitionsLastUpdated)}. Source: UK Parliament Petitions (petition.parliament.uk).
-                </p>
+              {active === 'petitions' && (
+                petitionsFailed ? (
+                  <p role="status" style={note}>The petitions could not be loaded just now. Please try again later.</p>
+                ) : !petitionsAnswer ? (
+                  <p role="status" style={note}>Loading the petitions.</p>
+                ) : list.length === 0 ? (
+                  <p style={note}>No petition from this constituency has reached 10,000 signatures yet.</p>
+                ) : (
+                  <>
+                    <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                      {list.map((p) => (
+                        <li key={p.petitionId} style={{ padding: '12px 0', borderBottom: inkDivider }}>
+                          <div style={{ display: 'flex', gap: '8px', alignItems: 'baseline', flexWrap: 'wrap' }}>
+                            <a href={p.url} target="_blank" rel="noopener noreferrer" style={{ ...inkLink, fontWeight: 'bold', fontSize: '15px' }}>{p.title}</a>
+                            <span style={chip}>{p.state === 'open' ? 'Open' : 'Closed'}</span>
+                            {p.governmentResponseAt && <span style={chip}>Government responded {fmtDate(p.governmentResponseAt)}</span>}
+                            {p.debatedOn && <span style={chip}>Debated {fmtDate(p.debatedOn)}</span>}
+                          </div>
+                          <div style={{ fontSize: '15px', marginTop: '4px', color: '#14100d' }}>
+                            <strong>{fmtNum(p.localSignatures)}</strong> {p.localSignatures === 1 ? 'signature' : 'signatures'} here · {rankText(p)} · {fmtNum(p.totalSignatures)} signatures in total
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                    {petitionsAnswer.asAt && (
+                      <p style={note}>
+                        Signature counts as at {fmtDate(petitionsAnswer.asAt)}. Source: UK Parliament Petitions (petition.parliament.uk).
+                      </p>
+                    )}
+                  </>
+                )
               )}
-            </>
+            </section>
           );
         })()}
 

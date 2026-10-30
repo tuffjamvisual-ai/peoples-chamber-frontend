@@ -3,6 +3,7 @@ import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { createClient } from '@supabase/supabase-js';
 import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
 import { refreshMps, isDryRun, sameValue } from '@/lib/mp-refresh';
+import { noteChanged } from '@/lib/refresh-count';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -110,6 +111,7 @@ async function GET_impl(req: Request) {
     await sleep(50);
   }
 
+  noteChanged(dry ? 0 : changedMps.size);
   const mpRefresh = !dry && changedMps.size ? refreshMps(changedMps) : null;
   const body = {
     ok: failed === 0,

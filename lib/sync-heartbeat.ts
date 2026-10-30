@@ -10,6 +10,7 @@
 
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { isPoliteStop } from '@/lib/sync-budget';
+import { withRefreshCount, type RefreshCount } from '@/lib/refresh-count';
 
 // Response fields sync routes use for their written-row count, in priority order.
 const ROW_KEYS = ['rows_written', 'rowsWritten', 'rowsInserted', 'upserted', 'inserted', 'written', 'synced', 'processed', 'count', 'appgs', 'rows'];
@@ -52,6 +53,20 @@ export async function recordCycle(route: string, partial: boolean): Promise<void
   }
 }
 
+// The run's refresh result (owner, 30 Oct 2026, cache Stage 2a part 4): rows changed, items sent and 200 or 500, on the
+// route's sync_heartbeat row (columns from migration 2026-10-30i). Recorded after every run, so a later good run clears
+// an alert. A failure to record never fails the sync.
+export async function recordRefresh(route: string, c: Pick<RefreshCount, 'changed' | 'sent' | 'failed'>): Promise<void> {
+  try {
+    await supabaseAdmin.from('sync_heartbeat').update({
+      last_changed: c.changed, last_refresh_sent: c.sent, last_refresh_status: c.failed ? 500 : 200,
+      last_refresh_error: c.failed, last_refresh_at: new Date().toISOString(),
+    }).eq('route', route);
+  } catch {
+    // ignored, as for the heartbeat itself
+  }
+}
+
 export function withHeartbeat(
   route: string,
   handler: (req: Request) => Promise<Response>,
@@ -60,8 +75,10 @@ export function withHeartbeat(
     // A local dry run (?dry=1, never on Vercel production) records no heartbeat: it wrote nothing.
     if (process.env.VERCEL_ENV !== 'production' && new URL(req.url).searchParams.get('dry') === '1') return handler(req);
     let res: Response;
+    // Pages refreshed by this run, and rows it changed (lib/refresh-count.ts), recorded after it.
+    const { count, run } = withRefreshCount(req, () => handler(req));
     try {
-      res = await handler(req);
+      res = await run;
     } catch (e) {
       // A source asking us to stop (429) or the run's own time budget, raised where the route had no handling of its
       // own: a clean stop, not a failure; whatever the route saved before it is kept and the next run carries on.
@@ -69,6 +86,7 @@ export function withHeartbeat(
         const body = { ok: true, partial: true, stopped_by: (e as Error).message, syncedAt: new Date().toISOString() };
         await recordSyncRun(route, 200, null);
         await recordCycle(route, true);
+        await recordRefresh(route, count);
         return Response.json(body, { status: 200 });
       }
       // Any other uncaught error is recorded as a failed run (it used to leave no heartbeat at all), then rethrown.
@@ -88,6 +106,7 @@ export function withHeartbeat(
       }
       await recordSyncRun(route, res.status, rows);
       if (partial !== undefined && res.status >= 200 && res.status < 300) await recordCycle(route, partial);
+      await recordRefresh(route, count);
     }
     return res;
   };

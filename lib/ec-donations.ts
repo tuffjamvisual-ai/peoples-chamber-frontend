@@ -154,3 +154,47 @@ export async function fetchPage(start: number, from: string | null, to: string |
   if (!res.ok) throw new Error(`EC HTTP ${res.status}`);
   return res.json();
 }
+
+// Only real changes (owner, 30 Oct 2026, cache Stage 2a part 4): a chunk of mapped rows is compared with the stored
+// rows (same ec_ref) and only new or changed ones are upserted. Returns how many were written and the donor names of
+// the changed rows (before and after), whose donations an MP page can show (lib/ec-donations.ts mpsForDonors).
+// `dry` compares but writes nothing.
+const sameCell = (a: unknown, b: unknown) => {
+  if (a == null || b == null) return a == null && b == null;
+  if (typeof a === 'number' || typeof b === 'number') return Number(a) === Number(b);
+  if (typeof a === 'string' && typeof b === 'string' && /^\d{4}-\d{2}-\d{2}/.test(a) && /^\d{4}-\d{2}-\d{2}/.test(b)) return a.slice(0, 10) === b.slice(0, 10);
+  return JSON.stringify(a) === JSON.stringify(b);
+};
+export async function upsertChangedDonations(
+  db: import('@supabase/supabase-js').SupabaseClient, rows: Record<string, unknown>[], dry = false,
+): Promise<{ written: number; donors: string[] }> {
+  if (!rows.length) return { written: 0, donors: [] };
+  const cols = Object.keys(rows[0]).filter((c) => c !== 'updated_at');
+  const { data, error } = await db.from('political_donations').select(cols.join(', ')).in('ec_ref', rows.map((r) => r.ec_ref as string));
+  if (error) throw new Error(`political_donations read: ${error.message}`);
+  const stored = new Map(((data ?? []) as unknown as Record<string, unknown>[]).map((r) => [r.ec_ref as string, r]));
+  const changed = rows.filter((r) => { const o = stored.get(r.ec_ref as string); return !o || cols.some((c) => !sameCell(o[c], r[c])); });
+  const donors = new Set<string>();
+  for (const r of changed) for (const n of [r.donor_name, stored.get(r.ec_ref as string)?.donor_name]) if (typeof n === 'string' && n.trim()) donors.add(n.trim());
+  if (changed.length && !dry) {
+    const { error: upErr } = await db.from('political_donations').upsert(changed, { onConflict: 'ec_ref' });
+    if (upErr) throw new Error(`political_donations upsert: ${upErr.message}`);
+  }
+  return { written: changed.length, donors: [...donors] };
+}
+
+// The MPs whose page shows a donor's Electoral Commission total: officers of an APPG the donor funds (the APPG section
+// of /mps/[id] cross-references funders with political_donations).
+export async function mpsForDonors(db: import('@supabase/supabase-js').SupabaseClient, donors: string[]): Promise<number[]> {
+  const names = [...new Set(donors.map((d) => d.trim()).filter(Boolean))];
+  const slugs = new Set<string>();
+  for (let i = 0; i < names.length; i += 100) {
+    const { data, error } = await db.from('appg_funders').select('appg_slug, source').in('source', names.slice(i, i + 100));
+    if (error) throw new Error(`appg_funders read: ${error.message}`);
+    for (const r of data ?? []) slugs.add(r.appg_slug as string);
+  }
+  if (!slugs.size) return [];
+  const { data, error } = await db.from('appg_officers').select('member_id').in('appg_slug', [...slugs]).not('member_id', 'is', null);
+  if (error) throw new Error(`appg_officers read: ${error.message}`);
+  return [...new Set((data ?? []).map((r) => r.member_id as number))];
+}

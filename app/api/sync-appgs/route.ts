@@ -13,6 +13,7 @@ import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { createClient } from '@supabase/supabase-js';
 import { politeFetch, DOWNLOAD_TIMEOUT_MS, isPoliteStop } from '@/lib/sync-budget';
 import { refreshMps, isDryRun, sameValue } from '@/lib/mp-refresh';
+import { noteChanged } from '@/lib/refresh-count';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 240;
@@ -258,6 +259,7 @@ async function GET_impl(req: Request) {
       return NextResponse.json({ error: (e as Error).message, stage: 'officers or funders' }, { status: 500 });
     }
   }
+  noteChanged(dry ? 0 : changedMps.size);
   const mpRefresh = !dry && changedMps.size ? refreshMps(changedMps) : null;
 
   return NextResponse.json({

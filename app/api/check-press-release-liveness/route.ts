@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath } from '@/lib/refresh-count';
 import { newsPath } from '@/lib/news-path';
 import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
 import { ItemFailures, FLAG_AFTER_RUNS } from '@/lib/sync-item-failures';

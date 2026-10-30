@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath } from '@/lib/refresh-count';
 import { randomUUID } from 'node:crypto';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { sendBriefingNotification } from '@/lib/email';

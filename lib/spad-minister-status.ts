@@ -101,10 +101,20 @@ export async function syncMinisterStatus(supabase: SupabaseClient, budget: SyncB
   if (!listedCount || rows.filter((r) => r.kind === 'listed' && r.post_id == null && r.member_id != null).length > listedCount / 2) {
     throw new Error('Members API answers look wrong (most listed ministers had no post on the list date); nothing changed');
   }
+  // Ministers whose status changed (owner, 30 Oct 2026, cache Stage 2a part 4): their MP pages are refreshed.
+  const { data: before } = await supabase.from('spad_minister_status').select('kind, minister_title, member_id, still_in_post, left_on').eq('kind', 'listed');
+  const beforeBy = new Map(((before ?? []) as { minister_title: string; member_id: number | null; still_in_post: boolean; left_on: string | null }[]).map((r) => [r.minister_title, r]));
+  const changedMps = new Set<number>();
+  for (const r of rows.filter((x) => x.kind === 'listed')) {
+    const b = beforeBy.get(r.minister_title);
+    if (!b || b.still_in_post !== r.still_in_post || (b.left_on ?? null) !== (r.left_on ?? null) || b.member_id !== r.member_id) {
+      for (const m of [r.member_id, b?.member_id]) if (typeof m === 'number') changedMps.add(m);
+    }
+  }
   const now = new Date().toISOString();
   const { error: upError } = await supabase.from('spad_minister_status').upsert(rows.map((r) => ({ ...r, checked_at: now })), { onConflict: 'kind,minister_title' });
   if (upError) throw new Error(`spad_minister_status: ${upError.message}`);
   const { error: delError } = await supabase.from('spad_minister_status').delete().lt('checked_at', now);
   if (delError) throw new Error(`spad_minister_status remove: ${delError.message}`);
-  return { listed: listedCount, still_in_post: rows.filter((r) => r.kind === 'listed' && r.still_in_post).length, current_posts: rows.filter((r) => r.kind === 'current').length };
+  return { changed_mps: [...changedMps], listed: listedCount, still_in_post: rows.filter((r) => r.kind === 'listed' && r.still_in_post).length, current_posts: rows.filter((r) => r.kind === 'current').length };
 }

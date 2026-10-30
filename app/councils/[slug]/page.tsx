@@ -38,7 +38,7 @@ import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import ArticleEndSignup from '../../components/ArticleEndSignup';
 import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
 
-export const revalidate = 21600;
+export const revalidate = 604800;  // a week (owner, 30 Oct 2026, cache Stage 2a part 4): the council syncs refresh the council routes on a real new release
 // Database reads on this page go through Next's data cache (25 Oct 2026, report 43). Every deploy empties the page
 // cache, so the first visit after each deploy rendered the page from scratch; Supabase reads were never cached (754,130
 // reads in 48 h, none from the cache). That cache survives deploys, so those renders read from it instead of the

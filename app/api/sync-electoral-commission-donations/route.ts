@@ -6,13 +6,15 @@
 // full register was loaded out of band by the script. A pass that runs out of time carries on next run (job 79).
 
 import { NextResponse } from 'next/server';
-import { revalidateTag } from 'next/cache';
+import { revalidateTag } from '@/lib/refresh-count';
 import { DONATIONS_TAG } from '@/lib/page-reads';
 import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { SyncBudget, isPoliteStop, loadCursor, saveCursor } from '@/lib/sync-budget';
-import { ROWS, fetchPage, mapRow, type ECResponse } from '@/lib/ec-donations';
+import { ROWS, fetchPage, mapRow, upsertChangedDonations, mpsForDonors, type ECResponse } from '@/lib/ec-donations';
+import { refreshMps, isDryRun } from '@/lib/mp-refresh';
+import { noteChanged } from '@/lib/refresh-count';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -67,6 +69,11 @@ async function GET_impl(req: Request) {
   };
 
   let upserted = 0;
+  // Rows actually written, and the donors of changed rows: MP pages show a donor's total when the donor funds an APPG
+  // the MP is an officer of, so those MPs are refreshed. ?dry=1 (local tests only) compares but writes nothing.
+  const dry = isDryRun(req);
+  let written = 0;
+  const changedDonors = new Set<string>();
   let pages = 0;
   let stoppedBy: string | null = null;
   let failure: { status: number; error: string } | null = null;
@@ -88,8 +95,12 @@ async function GET_impl(req: Request) {
       const rows = (data.Result || []).map(mapRow).filter((r): r is Record<string, unknown> => r !== null);
       for (let b = 0; b < rows.length; b += SUB_BATCH) {
         const chunk = rows.slice(b, b + SUB_BATCH);
-        const { error } = await supabase.from('political_donations').upsert(chunk, { onConflict: 'ec_ref' });
-        if (error) { failure = { status: 500, error: `political_donations upsert: ${error.message}` }; break outer; }
+        // Only new or changed donations are written (owner, 30 Oct 2026, cache Stage 2a part 4).
+        try {
+          const res = await upsertChangedDonations(supabase, chunk, dry);
+          written += res.written;
+          for (const d of res.donors) changedDonors.add(d);
+        } catch (e) { failure = { status: 500, error: (e as Error).message }; break outer; }
         upserted += chunk.length;
         if (b + SUB_BATCH < rows.length) await new Promise((r) => setTimeout(r, 100));
       }
@@ -104,8 +115,12 @@ async function GET_impl(req: Request) {
 
   const complete = slice >= slices;
   // /parties/[slug]/money reads political_donations under this tag (lib/page-reads.ts): refreshed after any write.
-  if (upserted > 0) revalidateTag(DONATIONS_TAG, 'max');
-  const cursorSaved = await saveCursor(supabase, ROUTE, complete ? null : { ...pass, slice, start });
+  noteChanged(dry ? 0 : written);
+  let mpsChanged: number[] = [];
+  try { mpsChanged = changedDonors.size ? await mpsForDonors(supabase, [...changedDonors]) : []; } catch (e) { console.error(`donations: MP lookup failed: ${(e as Error).message}`); }
+  if (written > 0 && !dry) revalidateTag(DONATIONS_TAG, 'max');
+  const mpRefresh = !dry && mpsChanged.length ? refreshMps(mpsChanged) : null;
+  const cursorSaved = dry ? false : await saveCursor(supabase, ROUTE, complete ? null : { ...pass, slice, start });
   const body = {
     ok: !failure,
     partial: !complete,
@@ -114,6 +129,11 @@ async function GET_impl(req: Request) {
     resumed,
     pages,
     upserted,
+    written,
+    donors_changed: changedDonors.size,
+    mps_changed: mpsChanged.length,
+    mp_refresh: mpRefresh,
+    ...(dry ? { dry_run: true } : {}),
     pass: { reported_from: pass.passFrom.slice(0, 10), reported_to: pass.passTo.slice(0, 10), slices, slices_done: slice, next_page_start: complete ? null : start },
     cursor_saved: cursorSaved,
     elapsed_ms: Date.now() - startedAt,

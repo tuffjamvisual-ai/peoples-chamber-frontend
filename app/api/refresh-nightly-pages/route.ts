@@ -1,4 +1,5 @@
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag, noteChanged } from '@/lib/refresh-count';
+import { COUNCIL_LEAGUE_TAG } from '@/lib/council-league';
 import { NextResponse } from 'next/server';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import NIGHTLY from '@/lib/nightly-refresh-pages.json';
@@ -40,13 +41,32 @@ async function GET_impl(req: Request) {
   }
   const queue = await emptyBillQueue();
   const mps = await refreshNightlyMps();
-  return NextResponse.json({ ok: true, rows_written: NIGHTLY.paths.length, paths: NIGHTLY.paths, bill_queue: queue, mps, at: new Date().toISOString() });
+  const councils = await refreshQueuedCouncils();
+  return NextResponse.json({ ok: true, rows_written: NIGHTLY.paths.length, paths: NIGHTLY.paths, bill_queue: queue, mps, councils, at: new Date().toISOString() });
+}
+
+// Council pages a hand or GitHub loader could not get the site to refresh (scripts/lib/refresh-site.js queues them in
+// sync_cursor 'council-refresh-queue'; owner, 30 Oct 2026, cache Stage 2a part 4).
+async function refreshQueuedCouncils(): Promise<Record<string, unknown>> {
+  try {
+    const { data, error } = await supabaseAdmin.from('sync_cursor').select('cursor').eq('route', 'council-refresh-queue').maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!data) return { queued: false };
+    revalidateTag(COUNCIL_LEAGUE_TAG, 'max');
+    for (const p of ['/councils/[slug]', '/councils/[slug]/schools', '/councils/[slug]/sewage']) revalidatePath(p, 'page');
+    const { error: delErr } = await supabaseAdmin.from('sync_cursor').delete().eq('route', 'council-refresh-queue');
+    if (delErr) throw new Error(delErr.message);
+    return { queued: true, refreshed: true };
+  } catch (e) {
+    return { error: (e as Error).message };
+  }
 }
 
 async function refreshNightlyMps(): Promise<Record<string, unknown>> {
   const out: Record<string, unknown> = {};
   try {
     const queued = await queuedMps(supabaseAdmin);
+    noteChanged(queued.length);
     if (queued.length) { refreshMps(queued); await dequeueMps(supabaseAdmin, queued); }
     out.queued = queued.length;
   } catch (e) {

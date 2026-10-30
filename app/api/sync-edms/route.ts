@@ -5,6 +5,7 @@ import { SyncBudget, isPoliteStop } from '@/lib/sync-budget';
 import { ItemFailures, FLAG_AFTER_RUNS } from '@/lib/sync-item-failures';
 import { refreshMps, isDryRun, sameValue } from '@/lib/mp-refresh';
 import { EDM_API, EDM_PARLIAMENT_START, fetchEdmJson, listEdmsResumable, buildEdmRows, writeEdm, type EdmListEntry, type EdmListPages } from '@/lib/edms';
+import { noteChanged } from '@/lib/refresh-count';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -184,6 +185,7 @@ async function GET_impl(req: Request) {
   }
   await Promise.all(Array.from({ length: CONCURRENCY }, worker));
   const failuresSaved = dry ? false : await failing.save();
+  noteChanged(dry ? 0 : changedMps.size);
   const mpRefresh = !dry && changedMps.size ? refreshMps(changedMps) : null;
 
   const body = {

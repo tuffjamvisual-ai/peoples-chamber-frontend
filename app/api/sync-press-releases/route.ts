@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidatePath, revalidateTag, noteChanged } from '@/lib/refresh-count';
 import { PRESS_RELEASES_LATEST_TAG } from '@/lib/press-releases-latest';
 import { newsPath } from '@/lib/news-path';
 import { createClient } from '@supabase/supabase-js';
@@ -129,6 +129,8 @@ async function GET_impl(req: Request) {
       } else { writeErrors++; lastWriteError = error.message; }
     }
     // New releases: the 'press-releases-latest' read (front page and department pages) and the front page itself.
+    // Changes that refresh pages: new releases (the latest lists) and changed ones (their own pages).
+    noteChanged(added + pagesRefreshed);
     let latestRefreshed = false;
     if (added > 0) { revalidateTag(PRESS_RELEASES_LATEST_TAG, 'max'); revalidatePath('/'); latestRefreshed = true; }
     const failuresSaved = await failing.save();

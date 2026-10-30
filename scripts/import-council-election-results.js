@@ -377,5 +377,7 @@ const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABA
     }
   }
   console.log(`  party_names: ${partyRows.length} upserted; council_elections: ${nE}; wards: ${nW}; candidates: ${nC}`);
+  // The council pages keep for a week: refresh them now (owner, 30 Oct 2026; scripts/lib/refresh-site.js).
+  if ((nC) > 0) { const site = require('./lib/refresh-site'); await site.recordRefresh('import-council-election-results', { changed: nC, ...(await site.refreshCouncilPages()) }); }
   console.log('\nWRITE complete.');
 })().catch((e) => fail(e.message));

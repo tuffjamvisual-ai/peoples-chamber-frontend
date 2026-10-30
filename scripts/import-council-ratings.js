@@ -332,7 +332,8 @@ function excelDate(v) {
     if (error) throw new Error(`stale delete ${m}: ${error.message}`);
     console.log(`  ${m}: ${count || 0} rows no longer in the source removed`);
   }
-  // Rebuild the site's cached council league data now rather than within 6 hours.
-  await require('./lib/refresh-site').refreshCouncilPages();
+  // Rebuild the site's cached council league data and council pages now (they keep for a week), and record the result.
+  const site = require('./lib/refresh-site');
+  await site.recordRefresh('import-council-ratings', { changed: rows.length, ...(await site.refreshCouncilPages()) });
   console.log('\nWRITE complete.');
 })().catch((e) => { console.error('FAILED: ' + e.message); process.exit(1); });

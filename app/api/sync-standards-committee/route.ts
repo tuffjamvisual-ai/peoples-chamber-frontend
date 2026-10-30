@@ -16,6 +16,7 @@ import { createClient } from '@supabase/supabase-js';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { SyncBudget, politeFetch } from '@/lib/sync-budget';
 import { refreshMps, isDryRun, sameValue } from '@/lib/mp-refresh';
+import { noteChanged } from '@/lib/refresh-count';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
@@ -141,6 +142,7 @@ async function GET_impl(req: Request) {
       .upsert(changed, { onConflict: 'case_ref' });
     if (upErr) return NextResponse.json({ error: upErr.message }, { status: 500 });
   }
+  noteChanged(dry ? 0 : changedMps.size);
   const mpRefresh = !dry && changedMps.size ? refreshMps(changedMps) : null;
 
   return NextResponse.json({

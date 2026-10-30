@@ -13,6 +13,7 @@ import {
 } from '@/lib/lords-votes';
 import { isPoliteStop } from '@/lib/sync-budget';
 import { refreshBills } from '@/lib/bill-refresh';
+import { noteChanged } from '@/lib/refresh-count';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -103,6 +104,7 @@ async function GET_impl(req: Request) {
   }
   await Promise.all(Array.from({ length: CONCURRENCY }, worker));
 
+  noteChanged(changedBills.size);
   const refreshed = changedBills.size ? refreshBills(changedBills) : null;
   const body = {
     ok: failures.length === 0,

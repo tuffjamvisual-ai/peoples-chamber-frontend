@@ -40,10 +40,10 @@ async function readCouncilByelections(slug: string): Promise<CouncilByelection[]
   return (data ?? []) as CouncilByelection[];
 }
 
-// Cached for the page's 6 hours under the 'council-byelections' tag (owner, 30 Oct 2026): the page's untagged fetch
+// Cached for the page's week (was 6 hours) under the 'council-byelections' tag (owner, 30 Oct 2026): the page's untagged fetch
 // cache kept the old Flintshire row after a write, and that cache survives deploys. Inside unstable_cache the read is
 // not also kept in the fetch cache. scripts/import-council-byelections.js refreshes the tag after every --write.
-const cachedCouncilByelections = unstable_cache(readCouncilByelections, ['council-byelections'], { tags: ['council-byelections'], revalidate: 21600 });
+const cachedCouncilByelections = unstable_cache(readCouncilByelections, ['council-byelections'], { tags: ['council-byelections'], revalidate: 604800 });
 export const loadCouncilByelections = (slug: string) => cachedCouncilByelections(slug);
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];

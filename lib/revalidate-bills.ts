@@ -1,4 +1,4 @@
-import { revalidatePath } from 'next/cache';
+import { revalidatePath } from '@/lib/refresh-count';
 
 // After a bill sync writes: rebuild /bills, its later pages and the session archive on their next visit instead of
 // waiting for their revalidate times (owner's approval, 21 Oct 2026). Called by the Vercel bill crons and, for the

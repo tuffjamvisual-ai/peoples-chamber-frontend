@@ -160,5 +160,7 @@ const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABA
     replaced++;
   }
   console.log(`  council_composition: ${out.length} saved; councils.political_control filled: ${filled}; replaced: ${replaced}`);
+  // The council pages keep for a week: refresh them now (owner, 30 Oct 2026; scripts/lib/refresh-site.js).
+  if ((out.length) > 0) { const site = require('./lib/refresh-site'); await site.recordRefresh('import-council-composition', { changed: out.length, ...(await site.refreshCouncilPages()) }); }
   console.log('\nWRITE complete.');
 })().catch((e) => fail(e.message));

@@ -261,5 +261,7 @@ const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABA
     const { error: we } = await db.from('council_tax_levels').upsert(rows.slice(i, i + 200), { onConflict: 'council_gss_code,year' });
     if (we) fail(`write: ${we.message}`);
   }
+  // The council pages keep for a week: refresh them now (owner, 30 Oct 2026; scripts/lib/refresh-site.js).
+  if ((rows.length) > 0) { const site = require('./lib/refresh-site'); await site.recordRefresh('import-council-tax-levels', { changed: rows.length, ...(await site.refreshCouncilPages()) }); }
   console.log(`\n--- Writing ---\n  council_tax_levels: ${rows.length} rows for ${YEAR}\n\nWRITE complete.`);
 })();

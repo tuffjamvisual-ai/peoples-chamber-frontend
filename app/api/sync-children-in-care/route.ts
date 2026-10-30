@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath } from '@/lib/refresh-count';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { isPoliteStop } from '@/lib/sync-budget';
 import { newestReportingYear, latestReleaseZip, downloadZip, filesFromZip, DATA_FILES, buildRows, checkRows } from '@/lib/children-in-care-source';
+import { refreshCouncilRoutes } from '@/lib/council-refresh';
+import { isDryRun } from '@/lib/mp-refresh';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -28,6 +30,8 @@ async function GET_impl(req: Request) {
     if (newest == null) return NextResponse.json({ error: 'the DfE statistics API gives no reporting year (its data sets may have changed)' }, { status: 502 });
     if (stored != null && newest <= stored) return NextResponse.json({ status: 'up_to_date', stored_year: stored, newest_year: newest, rows_written: 0 });
 
+    // A local dry run (?dry=1, never on production) stops here: a newer release was found, so the council pages would be refreshed.
+    if (isDryRun(req)) return NextResponse.json({ dry_run: true, status: 'would_update', would_refresh: ['/councils/[slug]'] });
     const rel = await latestReleaseZip();
     if (rel.year < newest) return NextResponse.json({ status: 'release_page_not_updated', newest_year: newest, page_year: rel.year, rows_written: 0 });
     const rows = buildRows(filesFromZip(await downloadZip(rel.zipUrl), DATA_FILES), rel.pageUrl);
@@ -47,7 +51,7 @@ async function GET_impl(req: Request) {
       .update({ held_period: `${rel.year} (31 March ${check.years[0].slice(0, 4)} to ${rel.year})`, loaded_on: now.slice(0, 10) }).eq('key', 'children_in_care');
     if (hlErr) console.error(`[sync-children-in-care] hand_loaded_datasets: ${hlErr.message}`);
     revalidatePath('/councils/children-in-care');
-    revalidatePath('/councils/[slug]', 'page');
+    refreshCouncilRoutes(rows.length);
     return NextResponse.json({ status: 'updated', year: rel.year, previous_year: stored, rows_written: rows.length, england: check.england, council_sums: check.councilSums });
   } catch (e) {
     if (isPoliteStop(e)) throw e;

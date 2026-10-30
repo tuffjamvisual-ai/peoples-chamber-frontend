@@ -7,6 +7,8 @@ import { SyncBudget, politeFetch, isPoliteStop, loadCursor, saveCursor } from '@
 import { SPAD_SEARCH, SPAD_UA, parseRelease, dedupe, matchMinisters, type MpName } from '@/lib/spad-roster';
 import { runSpadBackgroundSync } from '@/lib/spad-background-sync';
 import { syncMinisterStatus } from '@/lib/spad-minister-status';
+import { refreshMps } from '@/lib/mp-refresh';
+import { noteChanged } from '@/lib/refresh-count';
 
 const ROUTE = '/api/sync-spad-roster';
 const CONTENT = 'https://www.gov.uk/api/content';
@@ -23,9 +25,25 @@ export async function runSpadRosterSync(opts: { supabase: SupabaseClient; maxDur
   const budget = new SyncBudget(opts.maxDurationS);
   // After the named list, the background: interests, ACOBA advice and the annual reports to read by hand.
   // Then whether each listed minister still holds the post (ministers change; owner, 28 Oct 2026).
+  // MP pages keep for a week (owner, 30 Oct 2026, cache Stage 2a part 4): the ministers whose special advisers block
+  // changed are refreshed: every minister on a new release (and on the one it replaces), those whose status changed,
+  // and the ministers of advisers whose interests changed.
+  const releaseMps = new Set<number>();
   const withBackground = async (body: Record<string, unknown>) => {
     const ministers = await syncMinisterStatus(supabase, budget);
-    return { status: 200, body: { ...body, ministers, background: await runSpadBackgroundSync(supabase, budget), elapsed_ms: budget.spent() } };
+    const background = await runSpadBackgroundSync(supabase, budget);
+    const mps = new Set<number>([...releaseMps, ...((ministers.changed_mps as number[] | undefined) ?? [])]);
+    const advisers = (background.changed_advisers as string[] | undefined) ?? [];
+    if (advisers.length) {
+      const { data: rel } = await supabase.from('spad_releases').select('release_slug').order('as_at', { ascending: false }).limit(1).maybeSingle();
+      if (rel) {
+        const { data: ap } = await supabase.from('spad_appointments').select('minister_member_id').eq('release_slug', rel.release_slug).in('adviser_name', advisers);
+        for (const a of ap ?? []) if (typeof a.minister_member_id === 'number') mps.add(a.minister_member_id);
+      }
+    }
+    noteChanged(mps.size);
+    const mpRefresh = mps.size ? refreshMps(mps) : null;
+    return { status: 200, body: { ...body, ministers, background, mps_changed: mps.size, mp_refresh: mpRefresh, elapsed_ms: budget.spent() } };
   };
   try {
     // 1. The latest release (a "transparency" publication; the collection page has the same title).
@@ -59,10 +77,17 @@ export async function runSpadRosterSync(opts: { supabase: SupabaseClient; maxDur
     const { ids, unmatched } = matchMinisters(rows, (mps ?? []) as MpName[]);
 
     // 4. Write: the release, then its appointments; appointments no longer in the list are removed (this release only).
+    // The ministers on the release being replaced lose or change their block too.
+    const { data: prevRel } = await supabase.from('spad_releases').select('release_slug').order('as_at', { ascending: false }).limit(1).maybeSingle();
+    if (prevRel) {
+      const { data: prevAp } = await supabase.from('spad_appointments').select('minister_member_id').eq('release_slug', prevRel.release_slug);
+      for (const a of prevAp ?? []) if (typeof a.minister_member_id === 'number') releaseMps.add(a.minister_member_id);
+    }
     const now = new Date().toISOString();
     const { error: relError } = await supabase.from('spad_releases').upsert({ ...release, updated_at: now }, { onConflict: 'release_slug' });
     if (relError) throw new Error(`spad_releases: ${relError.message}`);
     const out = rows.map((r) => ({ ...r, release_slug: slug, as_at: release.as_at, minister_member_id: r.minister_name ? ids.get(r.minister_name) ?? null : null, source_url: sourceUrl, updated_at: now }));
+    for (const r of out) if (typeof r.minister_member_id === 'number') releaseMps.add(r.minister_member_id);
     const { error: apError } = await supabase.from('spad_appointments').upsert(out, { onConflict: 'release_slug,adviser_name,minister_title' });
     if (apError) throw new Error(`spad_appointments: ${apError.message}`);
     const { data: existing, error: readError } = await supabase.from('spad_appointments').select('id, adviser_name, minister_title').eq('release_slug', slug);

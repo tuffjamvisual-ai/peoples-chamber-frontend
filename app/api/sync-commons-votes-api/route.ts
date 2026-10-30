@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { refreshStore, type StoreRefreshResult } from '@/lib/refresh-stores';
 import { politeFetch, isPoliteStop } from '@/lib/sync-budget';
 import { refreshAllMps, type MpRefresh } from '@/lib/mp-refresh';
+import { noteChanged } from '@/lib/refresh-count';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -283,6 +284,7 @@ async function GET_impl(req: Request) {
     // MP pages keep for a week (owner, 30 Oct 2026, cache Stage 2a part 3). A new division changes almost every MP's
     // counts, so the MP route is refreshed once as a pattern, after the stored counts above; nothing else here changes
     // an MP page (party on the day is reapplied to divisions already held, which changes nothing).
+    noteChanged(dryRun ? 0 : divisionsAdded);
     const mpRefresh: MpRefresh | null = !dryRun && divisionsAdded > 0 ? refreshAllMps() : null;
 
     // Statutory instruments are the Commons divisions on an SI (migration 2026-10-21n): add new ones and refresh

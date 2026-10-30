@@ -9,7 +9,7 @@ import CouncilSewageSection from '../../../components/CouncilSewageSection';
 import { getSubpageCouncil } from '@/lib/council-subpage';
 import { isCoveredCode } from '@/lib/sewage';
 
-export const revalidate = 21600;
+export const revalidate = 604800;  // a week (owner, 30 Oct 2026, cache Stage 2a part 4): the council syncs refresh the council routes on a real new release
 export function generateStaticParams() { return []; }
 
 const INK = '#14100d';

@@ -407,6 +407,8 @@ async function main() {
     console.log(`Written ${written} / ${allRows.length}`);
   }
 
+  // The council pages keep for a week: refresh them now (owner, 30 Oct 2026; scripts/lib/refresh-site.js).
+  if ((written) > 0) { const site = require('./lib/refresh-site'); await site.recordRefresh('import-council-service-spending', { changed: written, ...(await site.refreshCouncilPages()) }); }
   console.log('\nDone.');
 }
 

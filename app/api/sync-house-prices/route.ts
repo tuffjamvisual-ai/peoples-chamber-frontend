@@ -11,6 +11,8 @@ import {
   monthsBefore,
 } from '@/lib/house-prices';
 import { isPoliteStop } from '@/lib/sync-budget';
+import { refreshCouncilRoutes } from '@/lib/council-refresh';
+import { isDryRun } from '@/lib/mp-refresh';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -39,6 +41,8 @@ async function GET_impl(req: Request) {
       return NextResponse.json({ status: 'up_to_date', release: stored, rows_written: 0 });
     }
 
+    // A local dry run (?dry=1, never on production) stops here: a newer release was found, so the council pages would be refreshed.
+    if (isDryRun(req)) return NextResponse.json({ dry_run: true, status: 'would_update', would_refresh: ['/councils/[slug]'] });
     const { codes } = await loadCouncilCodes(supabase);
     const text = await downloadFullFile(latest.url);
     // First pass finds the latest month; rows from 12 months before it onwards.
@@ -51,6 +55,7 @@ async function GET_impl(req: Request) {
     const built = buildHousePriceRows(text, codes, latest.tag, fromMonth);
 
     const written = await writeHousePriceRows(supabase, built.rows);
+    const refreshed = refreshCouncilRoutes(written);
     return NextResponse.json({
       status: 'updated',
       release: latest.tag,
@@ -59,6 +64,7 @@ async function GET_impl(req: Request) {
       latest_month: built.latestMonth,
       councils_with_latest_price: built.councilsWithLatest.size,
       rows_written: written,
+      refreshed,
     });
   } catch (e) {
     if (isPoliteStop(e)) throw e; // a 429: stop cleanly (lib/sync-budget.ts)

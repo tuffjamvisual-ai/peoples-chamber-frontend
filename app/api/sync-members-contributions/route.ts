@@ -18,6 +18,7 @@ import { createClient } from '@supabase/supabase-js';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { RateLimited, retryAfterSeconds } from '@/lib/sync-budget';
 import { refreshMps, isDryRun } from '@/lib/mp-refresh';
+import { noteChanged } from '@/lib/refresh-count';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 270;
 
@@ -227,6 +228,7 @@ async function GET_impl(req: Request) {
     else break;
   }
   let cursorError: string | null = null;
+  noteChanged(dry ? 0 : changedMps.size);
   const mpRefresh = !dry && changedMps.size ? refreshMps(changedMps) : null;
   if (newAfter !== after && !dry) {
     const { error } = await supabase.from('sync_cursor').upsert(

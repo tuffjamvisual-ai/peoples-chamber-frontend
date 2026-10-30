@@ -458,6 +458,8 @@ async function main() {
     }
   }
 
+  // The council pages keep for a week: refresh them now (owner, 30 Oct 2026; scripts/lib/refresh-site.js).
+  if ((written) > 0) { const site = require('./lib/refresh-site'); await site.recordRefresh('import-council-public-health-metrics', { changed: written, ...(await site.refreshCouncilPages()) }); }
   console.log(`\nDone. ${written} rows written.`);
 }
 

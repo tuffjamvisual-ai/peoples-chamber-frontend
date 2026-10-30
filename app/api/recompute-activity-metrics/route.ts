@@ -16,6 +16,7 @@ import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { refreshMps, refreshAllMps, REFRESH_BATCH, sameValue } from '@/lib/mp-refresh';
+import { noteChanged } from '@/lib/refresh-count';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
 
@@ -61,6 +62,7 @@ async function GET_impl(req: Request) {
   try {
     const after = await snapshot();
     const changed = [...after.keys()].filter((id) => !before || !sameValue(before.get(id) ?? null, after.get(id)));
+    noteChanged(changed.length);
     mpRefresh = changed.length >= REFRESH_BATCH ? { ...refreshAllMps(), changed: changed.length } : refreshMps(changed);
   } catch (e) {
     mpRefresh = { error: (e as Error).message };

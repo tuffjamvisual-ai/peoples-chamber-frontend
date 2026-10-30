@@ -11,6 +11,8 @@ import {
   loadCouncilCodes,
 } from '@/lib/homelessness';
 import { isPoliteStop } from '@/lib/sync-budget';
+import { refreshCouncilRoutes } from '@/lib/council-refresh';
+import { isDryRun } from '@/lib/mp-refresh';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -37,6 +39,8 @@ async function GET_impl(req: Request) {
   try {
     const [files, stored, { codes }] = await Promise.all([listQuarterlyFiles(), storedSources(supabase), loadCouncilCodes(supabase)]);
     const todo = files.filter((f) => f.periodStart >= '2019-04-01' && stored.get(f.periodStart) !== f.url);
+    // A local dry run (?dry=1, never on production) stops here: what would be loaded, and the council pages refreshed.
+    if (isDryRun(req)) return NextResponse.json({ dry_run: true, would_load: todo.map((f) => f.periodLabel), would_refresh: todo.length ? ['/councils/[slug]'] : [] });
     let written = 0;
     const loaded: string[] = [];
     const failed: { period: string; error: string }[] = [];
@@ -56,7 +60,8 @@ async function GET_impl(req: Request) {
       }
     }
 
-    const body = { status: todo.length ? 'checked' : 'up_to_date', loaded, failed, skipped_for_time: skippedForTime, rows_written: written };
+    const refreshed = refreshCouncilRoutes(written);
+    const body = { status: todo.length ? 'checked' : 'up_to_date', loaded, failed, skipped_for_time: skippedForTime, rows_written: written, refreshed };
     return NextResponse.json(body, { status: failed.length ? 500 : 200 });
   } catch (e) {
     if (isPoliteStop(e)) throw e; // a 429: stop cleanly (lib/sync-budget.ts)

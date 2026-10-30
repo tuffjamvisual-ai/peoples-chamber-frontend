@@ -25,6 +25,7 @@ type Content = { title: string; base_path: string; first_published_at?: string; 
 
 export async function runSpadBackgroundSync(supabase: SupabaseClient, budget: SyncBudget): Promise<Record<string, unknown>> {
   const out: Record<string, unknown> = {};
+  const changedAdvisers = new Set<string>();
 
   // 1. Cabinet Office interests.
   const collection = await getJson<Content>(`${CONTENT}/government/collections/cabinet-office-publication-of-special-adviser-interests`, budget);
@@ -39,13 +40,19 @@ export async function runSpadBackgroundSync(supabase: SupabaseClient, budget: Sy
     const html = await getJson<Content>(`${CONTENT}${htmlPath}`, budget);
     const rows = parseCoInterests(html.details?.body ?? '', { period, sourceTitle: `Cabinet Office: ${pub.title}`, sourceUrl: `https://www.gov.uk${htmlPath}` });
     if (!rows.length) { co[period] = 0; continue; } // an edition we cannot read changes nothing
+    // Advisers whose entries were added or removed (owner, 30 Oct 2026): their ministers' MP pages are refreshed.
+    const { data: had } = await supabase.from('spad_interests').select('adviser_name, entry_text').eq('department', 'Cabinet Office').eq('period', period);
+    const hadKeys = new Set((had ?? []).map((r) => `${r.adviser_name}|${r.entry_text}`));
+    for (const r of rows) if (!hadKeys.has(`${r.adviser_name}|${r.entry_text}`)) changedAdvisers.add(r.adviser_name);
     const now = new Date().toISOString();
     const { error } = await supabase.from('spad_interests').upsert(rows.map((r) => ({ ...r, updated_at: now })), { onConflict: 'adviser_name,department,period,entry_text' });
     if (error) throw new Error(`spad_interests: ${error.message}`);
     const { data: saved, error: readError } = await supabase.from('spad_interests').select('id, adviser_name, entry_text').eq('department', 'Cabinet Office').eq('period', period);
     if (readError) throw new Error(`spad_interests read: ${readError.message}`);
     const keep = new Set(rows.map((r) => `${r.adviser_name}|${r.entry_text}`));
-    const stale = (saved ?? []).filter((r) => !keep.has(`${r.adviser_name}|${r.entry_text}`)).map((r) => r.id);
+    const staleRows = (saved ?? []).filter((r) => !keep.has(`${r.adviser_name}|${r.entry_text}`));
+    for (const r of staleRows) changedAdvisers.add(r.adviser_name);
+    const stale = staleRows.map((r) => r.id);
     if (stale.length) {
       const { error: delError } = await supabase.from('spad_interests').delete().in('id', stale);
       if (delError) throw new Error(`spad_interests remove: ${delError.message}`);
@@ -53,6 +60,7 @@ export async function runSpadBackgroundSync(supabase: SupabaseClient, budget: Sy
     co[period] = rows.length;
   }
   out.cabinet_office_interests = co;
+  out.changed_advisers = [...changedAdvisers];
 
   // 2. ACOBA letters.
   // Every ACOBA publication since 2023 (about 250, three pages): a text search misses some of them.

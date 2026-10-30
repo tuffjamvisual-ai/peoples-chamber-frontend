@@ -2,7 +2,7 @@
 // /mps/[id]/reports keep for a week, so each sync that changes an MP's data refreshes that MP's page, and only that
 // MP's: at most REFRESH_BATCH paths at a time. When nearly every MP changed at once (a new Commons division changes
 // every voter's counts) the route pattern is sent once instead (refreshAllMps).
-import { revalidatePath } from 'next/cache';
+import { revalidatePath } from '@/lib/refresh-count';
 
 export const REFRESH_BATCH = 300;
 

@@ -200,7 +200,17 @@ async function main() {
          travel_subsistence_spend = EXCLUDED.travel_subsistence_spend,
          other_costs_spend = EXCLUDED.other_costs_spend,
          total_spend = EXCLUDED.total_spend,
-         updated_at = now();`
+         updated_at = now()
+       -- Only real changes are written (owner, 30 Oct 2026, cache Stage 2a part 4); their MPs are refreshed below.
+       WHERE (mp_expenses_summary.mp_name, mp_expenses_summary.constituency, mp_expenses_summary.office_budget, mp_expenses_summary.office_spend,
+              mp_expenses_summary.staffing_budget, mp_expenses_summary.staffing_spend, mp_expenses_summary.winding_up_budget,
+              mp_expenses_summary.winding_up_spend, mp_expenses_summary.accommodation_budget, mp_expenses_summary.accommodation_spend,
+              mp_expenses_summary.travel_subsistence_spend, mp_expenses_summary.other_costs_spend, mp_expenses_summary.total_spend)
+         IS DISTINCT FROM (EXCLUDED.mp_name, EXCLUDED.constituency, EXCLUDED.office_budget, EXCLUDED.office_spend,
+              EXCLUDED.staffing_budget, EXCLUDED.staffing_spend, EXCLUDED.winding_up_budget, EXCLUDED.winding_up_spend,
+              EXCLUDED.accommodation_budget, EXCLUDED.accommodation_spend, EXCLUDED.travel_subsistence_spend,
+              EXCLUDED.other_costs_spend, EXCLUDED.total_spend)
+       RETURNING 'changed:' || member_id;`
     );
   }
   lines.push('COMMIT;');
@@ -208,8 +218,14 @@ async function main() {
   console.log(`Wrote SQL → ${sqlPath}`);
 
   console.log('Executing via psql...');
-  execFileSync('psql', [DATABASE_URL, '-v', 'ON_ERROR_STOP=1', '-f', sqlPath], { stdio: 'inherit' });
+  const out = execFileSync('psql', [DATABASE_URL, '-X', '-At', '-v', 'ON_ERROR_STOP=1', '-f', sqlPath], { encoding: 'utf8', maxBuffer: 1 << 26 });
   fs.unlinkSync(sqlPath);
+  // The MPs whose figures changed: their pages keep for a week, so they are refreshed now (scripts/lib/refresh-site.js).
+  const changed = [...new Set(out.split('\n').filter((l) => l.startsWith('changed:')).map((l) => Number(l.slice(8))))];
+  console.log(`Rows changed: ${changed.length} MPs (of ${all.length} rows read)`);
+  const site = require('./lib/refresh-site');
+  const r = await site.refreshMpPages(changed);
+  await site.recordRefresh('sync-ipsa-expenses', { changed: changed.length, ...r });
   console.log('Done.');
 }
 

@@ -59,7 +59,10 @@ async function GET_impl(req: Request) {
   const hb = new Map<string, {
     route: string; last_ran_at: string; last_status: number | null; last_rows: number | null;
     last_nonzero_at: string | null; consecutive_zero_runs: number;
+    last_changed?: number | null; last_refresh_sent?: number | null; last_refresh_status?: number | null; last_refresh_error?: string | null; last_refresh_at?: string | null;
   }>((hbRows || []).map((r) => [r.route as string, r]));
+  // Local tests only (never on Vercel production): ?dry=1 sends no email and triggers no self heal.
+  const dry = process.env.VERCEL_ENV !== 'production' && new URL(req.url).searchParams.get('dry') === '1';
 
   const alerts: StaleSource[] = [];
   const sources = [];
@@ -160,6 +163,24 @@ async function GET_impl(req: Request) {
     alerted.add(h.route);
   }
 
+  // Refreshes that failed or sent nothing (owner, 30 Oct 2026, cache Stage 2a part 4): pages now keep for a week, so a
+  // sync whose last run changed rows but whose refresh failed (not 200, or 202 queued) or sent nothing leaves pages
+  // old. Recorded by lib/sync-heartbeat.ts (and scripts/lib/refresh-site.js for scripts); cleared by a later good run.
+  const refreshFailures: Array<{ route: string; changed: number; sent: number; status: number | null; error: string | null; at: string | null }> = [];
+  for (const h of hb.values()) {
+    const changed = h.last_changed ?? 0;
+    if (changed <= 0) continue;
+    const okStatus = h.last_refresh_status === 200 || h.last_refresh_status === 202;
+    if (okStatus && (h.last_refresh_sent ?? 0) > 0) continue;
+    refreshFailures.push({ route: h.route, changed, sent: h.last_refresh_sent ?? 0, status: h.last_refresh_status ?? null, error: h.last_refresh_error ?? null, at: h.last_refresh_at ?? null });
+    alerts.push({
+      label: h.route, page: h.route, route: h.route, ageDays: ageInDays(new Date(h.last_ran_at), now),
+      lastRanAt: h.last_ran_at, lastRows: h.last_rows, lastStatus: h.last_status,
+      reason: `last run changed ${changed} rows but its page refresh ${okStatus ? 'sent nothing' : `failed (${h.last_refresh_status ?? 'no result'}${h.last_refresh_error ? `: ${h.last_refresh_error}` : ''})`}; its pages may stay old for up to a week`,
+    });
+    alerted.add(h.route);
+  }
+
   // Partial runs (job 79): lib/sync-heartbeat.ts keeps "cycle:<route>" in sync_cursor for every run that reports a
   // partial flag. Healthy while the current streak of partial runs is younger than the route's period.
   const cycles: Array<{ route: string; lastCompleteAt: string | null; partialSince: string | null; partialRuns: number; periodHours: number; overdue: boolean }> = [];
@@ -200,7 +221,7 @@ async function GET_impl(req: Request) {
   const origin = new URL(req.url).origin;
   for (const s of sources) {
     const route = s.syncRoute;
-    if (s.runStatus !== 'overdue' || !route) continue;
+    if (s.runStatus !== 'overdue' || !route || dry) continue;
     // GitHub workflow steps record their runs under /github-actions/...; they cannot be
     // started from here, so they are emailed rather than healed.
     if (!route.startsWith('/api/')) continue;
@@ -320,13 +341,13 @@ async function GET_impl(req: Request) {
       });
     }
   }
-  const alertEmail = emailAlerts.length > 0
+  const alertEmail = dry ? { sent: false, reason: 'dry run' } : emailAlerts.length > 0
     ? await sendFreshnessAlert(emailAlerts)
     : { sent: false, reason: healedRoutes.size ? 'self_healed' : 'nothing_stale' };
 
   // Database disk check: reported every run, emailed only when over a threshold.
   const { size: databaseSize, error: databaseSizeError } = await getDatabaseSize();
-  const databaseSizeEmail = databaseSize && databaseSize.level !== 'ok'
+  const databaseSizeEmail = dry ? { sent: false, reason: 'dry run' } : databaseSize && databaseSize.level !== 'ok'
     ? await sendDatabaseSizeAlert(databaseSize)
     : { sent: false, reason: databaseSize ? 'below_threshold' : 'size_unavailable' };
 
@@ -355,7 +376,7 @@ async function GET_impl(req: Request) {
     bioReview.outstanding = bioReview.all.length;
     bioReview.newLast24h = bioReview.all.filter((f) => f.flaggedAt && new Date(f.flaggedAt).getTime() >= dayAgo);
   }
-  const bioReviewEmail = await sendBioReviewAlert(bioReview.newLast24h, bioReview.outstanding);
+  const bioReviewEmail = dry ? { sent: false, reason: 'dry run' } : await sendBioReviewAlert(bioReview.newLast24h, bioReview.outstanding);
 
   // New Environment Agency storm overflow return (loaded by hand with scripts/import-sewage.js).
   const sewageRelease: { storedYear: number | null; latestListedYear: number | null; fileUrl: string | null; error?: string } = { storedYear: null, latestListedYear: null, fileUrl: null };
@@ -372,7 +393,7 @@ async function GET_impl(req: Request) {
     }
     if (sewageRelease.latestListedYear == null) sewageReleaseEmail = { sent: false, reason: 'no_return_links_found' };
     else if (sewageRelease.storedYear != null && sewageRelease.latestListedYear > sewageRelease.storedYear && sewageRelease.fileUrl) {
-      sewageReleaseEmail = await sendSewageReleaseAlert(sewageRelease.latestListedYear, sewageRelease.storedYear, sewageRelease.fileUrl);
+      sewageReleaseEmail = dry ? { sent: false, reason: 'dry run' } : await sendSewageReleaseAlert(sewageRelease.latestListedYear, sewageRelease.storedYear, sewageRelease.fileUrl);
     } else sewageReleaseEmail = { sent: false, reason: 'up_to_date' };
   } catch (e) {
     sewageRelease.error = (e as Error).message;
@@ -421,6 +442,7 @@ async function GET_impl(req: Request) {
     alertCount: alerts.length,
     missedRuns,
     serverErrors,
+    refreshFailures,
     cycles,
     failingItems,
     blueBadges,

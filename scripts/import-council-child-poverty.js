@@ -128,6 +128,8 @@ async function main() {
       if (uErr) throw new Error(`upsert: ${uErr.message}`);
     }
   }
+  // The council pages keep for a week: refresh them now (owner, 30 Oct 2026; scripts/lib/refresh-site.js).
+  if (!DRY_RUN && (all.length) > 0) { const site = require('./lib/refresh-site'); await site.recordRefresh('import-council-child-poverty', { changed: all.length, ...(await site.refreshCouncilPages()) }); }
   console.log(`\n${all.length.toLocaleString()} rows ${DRY_RUN ? 'computed' : 'written'}`);
 }
 

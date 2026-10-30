@@ -14,7 +14,7 @@
 //     error, an error answer from the API, or no page answering at all.
 
 import { ItemFailures } from '@/lib/sync-item-failures';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, noteChanged } from '@/lib/refresh-count';
 import { newsPath } from '@/lib/news-path';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
@@ -189,6 +189,8 @@ export async function runCommonsPressReleasesSync(deps: SyncDeps): Promise<SyncR
       added += changed.filter((r) => !byUrl.has(r.gov_url)).length;
       updated += changed.filter((r) => byUrl.has(r.gov_url)).length;
       // A report already stored whose details changed: refresh its page (new ones render on their first visit).
+      // Reports already stored whose details changed are refreshed; new ones render on their first visit (not counted).
+      noteChanged(changed.filter((r) => byUrl.has(r.gov_url) && newsPath(r.gov_url)).length);
       for (const r of changed) if (byUrl.has(r.gov_url)) { const p = newsPath(r.gov_url); if (p) revalidatePath(p); }
       unchanged += records.length - changed.length;
     }

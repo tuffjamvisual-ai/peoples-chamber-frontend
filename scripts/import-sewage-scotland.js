@@ -300,5 +300,7 @@ function eventsSheetTotals(file, year) {
   const { data: sumRows, error: sErr } = await db.rpc('refresh_sewage_summary');
   if (sErr) throw new Error(`refresh_sewage_summary: ${sErr.message}`);
   console.log(`  sewage summaries: rebuilt from all sources, ${sumRows} rows`);
+  // The council pages keep for a week: refresh them now (owner, 30 Oct 2026; scripts/lib/refresh-site.js).
+  if ((Number(totalRows) || 1) > 0) { const site = require('./lib/refresh-site'); await site.recordRefresh('import-sewage-scotland', { changed: Number(totalRows) || 1, ...(await site.refreshCouncilPages()) }); }
   console.log('\nWRITE complete.');
 })().catch((e) => { console.error('FAILED: ' + e.message); process.exit(1); });

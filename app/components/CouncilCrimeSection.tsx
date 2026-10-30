@@ -31,10 +31,9 @@ type CrimeRow = {
   is_total: boolean;
   count: number;
   rate_per_10k: number | null;
-  updated_at: string;
 };
 
-const SELECT = 'council_gss_code, source, period_type, period_start, period_label, crime_category, is_total, count, rate_per_10k, updated_at';
+const SELECT = 'council_gss_code, source, period_type, period_start, period_label, crime_category, is_total, count, rate_per_10k';
 
 // PostgREST returns at most 1,000 rows per call; a county's 24 months
 // across a dozen districts is several thousand, so page through.
@@ -63,8 +62,6 @@ const fmtMonth = (iso: string) =>
   new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' });
 const fmtMonthShort = (iso: string) =>
   new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-GB', { month: 'short', year: '2-digit', timeZone: 'UTC' });
-const fmtDate = (iso: string) =>
-  new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 
 function changeText(current: number, previous: number | null, period: string): string | null {
   if (previous == null || previous <= 0) return null;
@@ -105,7 +102,11 @@ export async function loadCrime(gssCodes: string[], population: number | null) {
   const fromDate = monthly ? addMonths(latest, -23) : addMonths(latest, -12);
   const rows = (await fetchAll(gssCodes, fromDate)).filter((r) => r.source === source);
   if (rows.length === 0) return null;
-  const updatedAt = rows.reduce((m, r) => (r.updated_at > m ? r.updated_at : m), rows[0].updated_at);
+  // The newest period the figures cover (owner, 30 Oct 2026, cache Stage 2a part 4), not when they were loaded: the weekly
+  // load restamped updated_at, so the old "last updated" line changed every week with no new data.
+  const newestPeriod = monthly
+    ? new Date(`${latest.slice(0, 10)}T00:00:00Z`).toLocaleDateString('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+    : rows.find((r) => r.period_start === latest)?.period_label ?? latest;
 
   let headline: CrimeHeadline;
   let categories: { name: string; count: number }[];
@@ -167,7 +168,7 @@ export async function loadCrime(gssCodes: string[], population: number | null) {
       .sort((a, b) => b.count - a.count);
   }
 
-  return { headline, categories, trend, updatedAt, source, monthly };
+  return { headline, categories, trend, newestPeriod, source, monthly };
 }
 
 export default async function CouncilCrimeSection({
@@ -181,7 +182,7 @@ export default async function CouncilCrimeSection({
 }) {
   const loaded = await loadCrime(gssCodes, population);
   if (!loaded) return null;
-  const { headline, categories, trend, updatedAt, source } = loaded;
+  const { headline, categories, trend, newestPeriod, source } = loaded;
   const maxTrend = Math.max(1, ...trend.map((t) => t.total));
 
   return (
@@ -260,7 +261,7 @@ export default async function CouncilCrimeSection({
         {SOURCE_NOTES[source] ?? ''}
       </p>
       <p style={{ fontFamily: MONO, fontSize: '15px', color: INK, margin: 0 }}>
-        Crime figures last updated {fmtDate(updatedAt)}.
+        The newest crime figures are for {newestPeriod}.
       </p>
     </section>
   );

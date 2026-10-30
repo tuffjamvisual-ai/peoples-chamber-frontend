@@ -3,6 +3,9 @@ import { createClient } from '@supabase/supabase-js';
 import { parse } from 'csv-parse/sync';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { refreshMps, isDryRun } from '@/lib/mp-refresh';
+import { mpsForMinisterNames } from '@/lib/mp-nightly';
+import { noteChanged } from '@/lib/refresh-count';
 import { politeFetch, DOWNLOAD_TIMEOUT_MS, isPoliteStop } from '@/lib/sync-budget';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -294,6 +297,9 @@ async function GET_impl(req: Request) {
     );
   }
   const supabase = createClient(url, key);
+  const dry = isDryRun(req);
+  const changedMinisters = new Set<string>();
+  let changedPubs = 0;
 
   const startedAt = Date.now();
   const budgetExhausted = () => Date.now() - startedAt > TIME_BUDGET_MS;
@@ -377,6 +383,17 @@ async function GET_impl(req: Request) {
           await sleep(DELAY_MS);
         }
 
+        // The ministers on this publication before and after (owner, 30 Oct 2026, cache Stage 2a part 4): their MP
+        // pages are refreshed, and only when the publication's rows actually changed.
+        const { data: oldRows } = await supabase.from('ministers_hospitality').select('minister_name, hospitality_date, donor, description, value').eq('source_publication_slug', slug);
+        const fp = (rows: { minister_name?: unknown; hospitality_date?: unknown; donor?: unknown; description?: unknown; value?: unknown }[]) =>
+          JSON.stringify(rows.map((r) => [r.minister_name, r.hospitality_date, r.donor, r.description, r.value == null ? null : Number(r.value)].map((x) => x ?? null)).map((x) => JSON.stringify(x)).sort());
+        if (fp((oldRows ?? []) as Record<string, unknown>[]) !== fp(rowsForPub as unknown as Record<string, unknown>[])) {
+          for (const r of [...(oldRows ?? []), ...rowsForPub]) changedMinisters.add(String((r as { minister_name?: unknown }).minister_name ?? ''));
+          changedPubs++;
+        }
+        if (dry) { counters.processed++; continue; }
+
         // Idempotent re-ingest: clear any prior rows tagged with this slug
         // before inserting fresh ones. Old pre-incremental-era rows with
         // NULL source_publication_slug are left in place (historical data).
@@ -413,8 +430,16 @@ async function GET_impl(req: Request) {
       totalSkipped += counters.skipped;
     }
 
+    const changedMps = await mpsForMinisterNames(supabase, [...changedMinisters]);
+    // Counted by the MP pages it changes (a minister who is not a current MP has no page to refresh).
+    noteChanged(dry ? 0 : changedMps.length);
+    const mpRefresh = !dry && changedMps.length ? refreshMps(changedMps) : null;
     return NextResponse.json({
       ok: true,
+      publications_changed: changedPubs,
+      mps_changed: changedMps.length,
+      mp_refresh: mpRefresh,
+      ...(dry ? { dry_run: true } : {}),
       processed_publications: totalProcessed,
       skipped_publications: totalSkipped,
       rows_added: totalRowsAdded,

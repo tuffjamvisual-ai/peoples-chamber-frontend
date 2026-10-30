@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, noteChanged } from '@/lib/refresh-count';
 import { flagBioReview, ukDate } from '@/lib/bio-review';
 import { buildRepresentations, fetchHistory } from '@/lib/commons-representations';
 
@@ -218,7 +218,7 @@ async function fillProfileGaps(supabase: SupabaseClient, dryRun = false) {
     const { error } = await supabase.from('mp_biography').upsert(row, { onConflict: 'member_id', ignoreDuplicates: true });
     if (!error) {
       biographyCreated.push(id);
-      revalidatePath(`/mps/${id}`);
+      { noteChanged(1); revalidatePath(`/mps/${id}`); }
       await flagBioReview(supabase, id, `New MP with no written biography yet (row created ${ukDate(null)})`);
     }
   }
@@ -233,7 +233,7 @@ async function fillProfileGaps(supabase: SupabaseClient, dryRun = false) {
     const { error } = await supabase.from('mp_contact').insert(row);
     if (!error) {
       contactCreated.push(id);
-      revalidatePath(`/mps/${id}`);
+      { noteChanged(1); revalidatePath(`/mps/${id}`); }
     }
   }
 
@@ -317,7 +317,7 @@ async function GET_impl(req: Request) {
     const { error: upErr } = await supabase.from('mps').upsert(record, { onConflict: 'member_id' });
     if (!upErr) {
       added.push({ member_id: id, name: record.display_name as string });
-      revalidatePath(`/mps/${id}`);
+      { noteChanged(1); revalidatePath(`/mps/${id}`); }
     }
   }
 
@@ -350,7 +350,7 @@ async function GET_impl(req: Request) {
         .eq('member_id', id);
       if (!rErr) {
         retired.push(id);
-        revalidatePath(`/mps/${id}`);
+        { noteChanged(1); revalidatePath(`/mps/${id}`); }
         await flagBioReview(supabase, id, `Left the Commons (${ukDate(today)})`);
       }
     }

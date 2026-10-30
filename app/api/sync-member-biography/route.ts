@@ -7,6 +7,7 @@ import { SyncBudget, politeFetch, isPoliteStop, loadCursor, saveCursor } from '@
 import { ItemFailures, FLAG_AFTER_RUNS } from '@/lib/sync-item-failures';
 import { buildRepresentations, fetchHistory, sameRepresentations } from '@/lib/commons-representations';
 import { refreshMps, isDryRun } from '@/lib/mp-refresh';
+import { noteChanged } from '@/lib/refresh-count';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -283,6 +284,7 @@ async function GET_impl(req: Request) {
   }
   const cursorSaved = dry ? false : await saveCursor(supabase, ROUTE, fullRound ? null : { after: newAfter });
   const failuresSaved = dry ? false : await failing.save();
+  noteChanged(dry ? 0 : changedMps.size);
   const mpRefresh = !dry && changedMps.size ? refreshMps(changedMps) : null;
 
   return NextResponse.json({

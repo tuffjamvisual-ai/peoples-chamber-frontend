@@ -62,30 +62,6 @@ function escapeIlike(s: string): string {
   return s.replace(/[\\%_]/g, (m) => `\\${m}`);
 }
 
-// How many of the constituency's most-signed petitions the Petitions tab shows.
-const PETITIONS_SHOWN = 20;
-
-// Row shape of the petition_constituency_signatures query with its embedded
-// petitions row (many-to-one via the petition_id foreign key, so PostgREST
-// returns a single object, not an array).
-type PetitionSignatureRow = {
-  petition_id: number;
-  signature_count: number;
-  rank_in_petition: number;
-  share_of_petition_pct: number | null;
-  petitions: {
-    action: string;
-    state: string;
-    signature_count: number;
-    constituency_count: number | null;
-    opened_at: string | null;
-    closed_at: string | null;
-    government_response_at: string | null;
-    debated_on: string | null;
-    url: string;
-  } | null;
-};
-
 // Early Day Motions: how many of each list the server sends to the tab
 // (20 show open, the rest sit behind a "Show all" fold).
 const EDMS_FETCHED = 500;
@@ -424,33 +400,14 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   // or a slow response degrade to an empty tab (hidden) rather than
   // breaking the whole profile.
   const constituencyGss = (mp.constituency_gss_code as string | null) ?? null;
-  const pPetitions: Promise<{ rows: PetitionSignatureRow[]; lastUpdated: string | null }> = constituencyGss
+  // Only whether the constituency has any (owner, 30 Oct 2026, cache Stage 2a part 4): the counts change daily, so the
+  // tab loads them from /api/mps/[id]/petitions when opened, and this page (kept for a week) holds none.
+  const pPetitions: Promise<boolean> = constituencyGss
     ? withTimeout(
-        Promise.all([
-          supabase
-            .from('petition_constituency_signatures')
-            .select('petition_id, signature_count, rank_in_petition, share_of_petition_pct, petitions(action, state, signature_count, constituency_count, opened_at, closed_at, government_response_at, debated_on, url)')
-            .eq('constituency_gss_code', constituencyGss)
-            .order('signature_count', { ascending: false })
-            .limit(PETITIONS_SHOWN),
-          // This constituency's own newest row (owner, 30 Oct 2026), not the table wide sync time: the sync writes a row
-          // only when its count changes, so updated_at is when this MP's figures last changed.
-          supabase
-            .from('petition_constituency_signatures')
-            .select('updated_at')
-            .eq('constituency_gss_code', constituencyGss)
-            .order('updated_at', { ascending: false })
-            .limit(1)
-            .maybeSingle(),
-        ]),
+        Promise.resolve(supabase.from('petition_constituency_signatures').select('petition_id').eq('constituency_gss_code', constituencyGss).limit(1)),
         5000,
-      )
-        .then(([sigRes, syncRes]) => ({
-          rows: (sigRes.data as unknown as PetitionSignatureRow[] | null) ?? [],
-          lastUpdated: (syncRes.data?.updated_at as string | undefined) ?? null,
-        }))
-        .catch(() => ({ rows: [], lastUpdated: null }))
-    : Promise.resolve({ rows: [], lastUpdated: null });
+      ).then((r) => (r.data ?? []).length > 0).catch(() => false)
+    : Promise.resolve(false);
 
   // Early Day Motions this MP started (primary sponsor) and signed
   // (sponsoring_order > 1, i.e. every signature except the primary
@@ -539,25 +496,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     lastUpdated: edmsRes.lastUpdated,
   };
 
-  const petitionsRes = await pPetitions;
-  // Drop any row whose joined petition is missing (should not happen given
-  // the foreign key, but never render a half-empty entry).
-  const constituencyPetitions = petitionsRes.rows
-    .filter((r) => r.petitions && r.petitions.action)
-    .map((r) => ({
-      petitionId: r.petition_id,
-      title: r.petitions!.action,
-      state: r.petitions!.state,
-      localSignatures: r.signature_count,
-      rank: r.rank_in_petition,
-      rankOutOf: r.petitions!.constituency_count,
-      totalSignatures: r.petitions!.signature_count,
-      openedAt: r.petitions!.opened_at,
-      closedAt: r.petitions!.closed_at,
-      governmentResponseAt: r.petitions!.government_response_at,
-      debatedOn: r.petitions!.debated_on,
-      url: r.petitions!.url,
-    }));
+  const petitionsAvailable = await pPetitions;
 
   // APPGs (All-Party Parliamentary Groups) this MP is officer of, with
   // each group's registered funders. Sourced from mySociety/appg-
@@ -810,8 +749,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         ),
         expenses: expensesRes.data || [],
         committeeMemberships: committeeMembershipsRes.data ?? [],
-        constituencyPetitions,
-        petitionsLastUpdated: petitionsRes.lastUpdated,
+        petitionsAvailable,
         edms: mpEdms,
         reports: await reportsFor(memberId, fullName),
       }}

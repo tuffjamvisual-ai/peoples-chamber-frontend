@@ -474,13 +474,30 @@ async function heartbeat(status, rows) {
   if (error) console.error(`heartbeat failed (non-fatal): ${error.message}`);
 }
 
+// The newest period stored for a source (owner, 30 Oct 2026, cache Stage 2a part 4): the council pages are refreshed
+// only when a load adds a newer period, not on every weekly reload of the same months.
+async function newestStored(source) {
+  const { data, error } = await db.from('council_crime_stats').select('period_start').eq('source', source).order('period_start', { ascending: false }).limit(1);
+  if (error) throw new Error(`newest period: ${error.message}`);
+  return data && data[0] ? String(data[0].period_start).slice(0, 10) : null;
+}
+const STORED_SOURCE = { 'police-uk': 'police_uk', psni: 'psni', scotland: 'scotland_rcs' };
+
 async function main() {
   console.log(`Council crime import — source ${SOURCE}${DRY_RUN ? ' (DRY RUN, no writes)' : ''}`);
+  const before = await newestStored(STORED_SOURCE[SOURCE] || SOURCE);
   let rows;
   if (SOURCE === 'police-uk') rows = await importPoliceUk();
   else if (SOURCE === 'psni') rows = await importPsni();
   else if (SOURCE === 'scotland') rows = await importScotland();
   else throw new Error('--source must be police-uk, psni or scotland');
+  const after = DRY_RUN ? before : await newestStored(STORED_SOURCE[SOURCE] || SOURCE);
+  const newPeriod = !!after && (!before || after > before);
+  console.log(`newest period: ${before || 'none'} before, ${after || 'none'} after${newPeriod ? ' (new data)' : ''}`);
+  if (newPeriod) {
+    const site = require('./lib/refresh-site');
+    await site.recordRefresh(`import-council-crime-${SOURCE}`, { changed: rows || 0, ...(await site.refreshCouncilPages()) });
+  }
   await heartbeat(200, rows);
 }
 

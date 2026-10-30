@@ -44,15 +44,21 @@ export async function mpsDueByDate(db: SupabaseClient, now = new Date()): Promis
   const d = (x: Date) => x.toISOString().slice(0, 10);
   const { data: meet, error: mErr } = await db.from('ministers_meetings').select('minister_name').gte('meeting_date', d(yesterday)).lte('meeting_date', d(today)).limit(5000);
   if (mErr) throw new Error(`ministers_meetings: ${mErr.message}`);
-  const names = [...new Set((meet ?? []).map((r) => String(r.minister_name ?? '').toLowerCase()).filter(Boolean))];
-  const meetings = new Set<number>();
-  if (names.length) {
-    const { data: mps, error } = await db.from('mps').select('member_id, display_name, name').eq('current_member', true);
-    if (error) throw new Error(`mps: ${error.message}`);
-    for (const m of mps ?? []) {
-      const key = mpNameKey(String(m.display_name || m.name || '')).toLowerCase();
-      if (key && names.some((n) => n.includes(key))) meetings.add(m.member_id as number);
-    }
+  const meetings = await mpsForMinisterNames(db, (meet ?? []).map((r) => String(r.minister_name ?? '')));
+  return { earnings: [...earnings], meetings };
+}
+
+// MPs whose page lists a minister's meetings or hospitality: the page matches minister_name containing the MP's name
+// key (app/mps/[id]/page.tsx), so the same match is made here.
+export async function mpsForMinisterNames(db: SupabaseClient, ministerNames: string[]): Promise<number[]> {
+  const names = [...new Set(ministerNames.map((n) => n.toLowerCase().trim()).filter(Boolean))];
+  if (!names.length) return [];
+  const { data: mps, error } = await db.from('mps').select('member_id, display_name, name').eq('current_member', true);
+  if (error) throw new Error(`mps: ${error.message}`);
+  const out: number[] = [];
+  for (const m of mps ?? []) {
+    const key = mpNameKey(String(m.display_name || m.name || '')).toLowerCase();
+    if (key && names.some((n) => n.includes(key))) out.push(m.member_id as number);
   }
-  return { earnings: [...earnings], meetings: [...meetings] };
+  return out;
 }

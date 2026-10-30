@@ -3,6 +3,9 @@ import { createClient } from '@supabase/supabase-js';
 import { DEPT_SLUGS, findPublications, fetchAttachments, meetingsCsvs, parseMeetingsCsv, type Fetched, type MeetingRow } from '@/lib/ministers-meetings-source';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { refreshMps, isDryRun } from '@/lib/mp-refresh';
+import { mpsForMinisterNames } from '@/lib/mp-nightly';
+import { noteChanged } from '@/lib/refresh-count';
 import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -97,6 +100,32 @@ async function GET_impl(req: Request) {
       return NextResponse.json({ ok: false, parsed: allRows.length, saved, note: 'fewer than 80% of the saved rows; table untouched', perDept }, { status: 500 });
     }
 
+    // MP pages keep for a week (owner, 30 Oct 2026, cache Stage 2a part 4): each minister's meetings are compared with
+    // the stored ones (on what the MP page shows); when no minister's list changed the table is not rewritten, and
+    // otherwise only the MPs of the ministers whose meetings changed are refreshed. ?dry=1 (local tests only) compares
+    // but writes nothing.
+    const dry = isDryRun(req);
+    const SHOWN = ['minister_name', 'minister_dept', 'meeting_date', 'organisation', 'purpose', 'quarter', 'source_publication_slug'] as const;
+    const byMinister = (rows: Record<string, unknown>[]) => {
+      const m = new Map<string, string[]>();
+      for (const r of rows) { const k = String(r.minister_name ?? '').trim(); if (!m.has(k)) m.set(k, []); m.get(k)!.push(JSON.stringify(SHOWN.map((c) => r[c] ?? null))); }
+      for (const v of m.values()) v.sort();
+      return m;
+    };
+    const stored: Record<string, unknown>[] = [];
+    for (let from = 0; ; from += 1000) {
+      const { data, error } = await supabase.from('ministers_meetings').select(SHOWN.join(', ')).order('id').range(from, from + 999);
+      if (error) return NextResponse.json({ ok: false, error: `stored meetings: ${error.message}` }, { status: 500 });
+      stored.push(...((data ?? []) as unknown as Record<string, unknown>[]));
+      if (!data || data.length < 1000) break;
+    }
+    const before = byMinister(stored), after = byMinister(allRows as unknown as Record<string, unknown>[]);
+    const changedMinisters = [...new Set([...before.keys(), ...after.keys()])].filter((k) => JSON.stringify(before.get(k) ?? []) !== JSON.stringify(after.get(k) ?? []));
+    const changedMps = await mpsForMinisterNames(supabase, changedMinisters);
+    if (dry || changedMinisters.length === 0) {
+      return NextResponse.json({ ok: true, partial: false, parsed: allRows.length, inserted: 0, unchanged: changedMinisters.length === 0, ministers_changed: changedMinisters.length, mps_changed: changedMps.length, ...(dry ? { dry_run: true } : {}), perDept });
+    }
+
     // Write only if there is clearly time to finish.
     const writeMs = Math.ceil(allRows.length / WRITE_BATCH) * WRITE_MS_PER_BATCH + 10_000;
     if (budget.msLeft() < writeMs) {
@@ -120,7 +149,9 @@ async function GET_impl(req: Request) {
     const { error: delErr } = await supabase.from('ministers_meetings').delete().or(`updated_at.is.null,updated_at.lt."${runMark}"`);
     if (delErr) return NextResponse.json({ ok: false, error: `old rows not deleted: ${delErr.message}`, inserted, perDept }, { status: 500 });
 
-    return NextResponse.json({ ok: true, partial: false, parsed: allRows.length, inserted, perDept, syncedAt: new Date().toISOString() });
+    noteChanged(changedMps.length);
+    const mpRefresh = changedMps.length ? refreshMps(changedMps) : null;
+    return NextResponse.json({ ok: true, partial: false, parsed: allRows.length, inserted, ministers_changed: changedMinisters.length, mps_changed: changedMps.length, mp_refresh: mpRefresh, perDept, syncedAt: new Date().toISOString() });
   } catch (err) {
     if (isPoliteStop(err) || (err as Error).message === 'collect stopped: time budget') {
       return NextResponse.json({ ok: true, partial: true, stopped_by: (err as Error).message, inserted: 0, note: 'stopped while collecting; table untouched' });

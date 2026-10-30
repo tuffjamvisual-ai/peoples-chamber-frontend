@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath } from '@/lib/refresh-count';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { SyncBudget, isPoliteStop } from '@/lib/sync-budget';
 import { findCurrentTables, fetchWorkbook, dis0108Year, buildRows, checkRows, newestRelease } from '@/lib/blue-badges-source';
+import { refreshCouncilRoutes } from '@/lib/council-refresh';
+import { isDryRun } from '@/lib/mp-refresh';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
@@ -40,6 +42,8 @@ async function GET_impl(req: Request) {
       return NextResponse.json({ status: 'up_to_date', stored_year: stored, tables_year: year, tables_updated: tables.updatedAt, release, release_error: releaseError, rows_written: 0 });
     }
 
+    // A local dry run (?dry=1, never on production) stops here: a newer release was found, so the council pages would be refreshed.
+    if (isDryRun(req)) return NextResponse.json({ dry_run: true, status: 'would_update', would_refresh: ['/councils/[slug]'] });
     const population = await fetchWorkbook(tables.dis0105, budget);
     const rows = buildRows({ year, dis0108, population, sourceUrls: { dis0108: tables.dis0108, population: tables.dis0105 }, populationTable: 'DIS0105' });
     const { data: councils, error: cErr } = await supabase.from('councils').select('gss_code').eq('country', 'England');
@@ -54,7 +58,7 @@ async function GET_impl(req: Request) {
       .update({ held_period: `${year} (held at 31 March ${year})`, loaded_on: now.slice(0, 10) }).eq('key', 'blue_badges');
     if (hlErr) console.error(`[sync-blue-badges] hand_loaded_datasets: ${hlErr.message}`);
     revalidatePath('/councils/blue-badges');
-    revalidatePath('/councils/[slug]', 'page');
+    refreshCouncilRoutes(rows.length);
     return NextResponse.json({ status: 'updated', year, previous_year: stored, rows_written: rows.length, england: check.england, council_sums: check.councilSums, release, release_error: releaseError });
   } catch (e) {
     if (isPoliteStop(e)) throw e; // a 429 or the time budget: a clean stop (lib/sync-budget.ts)

@@ -2,7 +2,7 @@
 // keep their pages and Parliament answers for a week, so whatever writes a bill's data refreshes that bill: its two
 // paths and the 'bill:<id>' tag (its publications and text, lib/bill-text.ts), and the page of each MP who sponsors it.
 // Only bills whose stored data actually changed are refreshed, at most REFRESH_BATCH at a time.
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidatePath, revalidateTag } from '@/lib/refresh-count';
 
 export const billTag = (id: number) => `bill:${id}`;
 export const REFRESH_BATCH = 300;
