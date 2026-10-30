@@ -207,7 +207,7 @@ export default async function SewagePage() {
             Northern Ireland: NI Water’s Event Duration Monitor data, with the council area and constituency as NI Water gives them. In {niYear}, {fmtInt(niReporting)} of {fmtInt(ni.length)} overflows reported figures; the rest are counted as overflows but add nothing to the totals. NI Water’s figures are recorded differently from England’s and Scotland’s, so each nation is shown in its own tables, not ranked together.
           </p>
           <p style={para}>
-            Wales is not included yet. Natural Resources Wales and Dwr Cymru Welsh Water publish their own figures, which Open Govt is working to add.
+            Wales is not included yet. Natural Resources Wales and Dwr Cymru Welsh Water publish their own figures, which opengovt is working to add.
           </p>
           <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, margin: 0, maxWidth: '46em' }}>
             Sources: Environment Agency, Event Duration Monitoring storm overflow annual return {eaYear}, and Office for National Statistics boundaries, both licensed under the Open Government Licence v3.0 (contains OS data © Crown copyright and database right 2026). Scottish Water, Reported Overflow Event Data to SEPA and Non-Reported Overflow Event Data (2026), licensed under the Open Government Licence. NI Water, Event Duration Monitor data, as published by NI Water.

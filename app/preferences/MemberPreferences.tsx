@@ -118,7 +118,7 @@ export default function MemberPreferences() {
       </section>
 
       <section style={{ marginBottom: '32px' }}>
-        <h2 style={h2}>Open Govt Weekly newsletter</h2>
+        <h2 style={h2}>opengovt Weekly newsletter</h2>
         <label style={{ ...p, display: 'flex', gap: '10px', alignItems: 'center', cursor: 'pointer' }}>
           <input type="checkbox" checked={prefs.newsletter} onChange={(e) => send('POST', '/api/preferences', { newsletter: e.target.checked })} style={{ width: '16px', height: '16px' }} />
           Send me the weekly newsletter

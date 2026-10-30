@@ -4,8 +4,8 @@ const MONO = "var(--font-special-elite), monospace";
 // Investigations carry no badge (owner's approval, 29 Oct 2026): their "Investigation" kicker in EditorialArticle
 // already says what they are. Briefings and commentary keep theirs.
 const LABELS = {
-  briefing:      'Open Govt · Briefing',
-  commentary:    'Open Govt · Commentary',
+  briefing:      'opengovt · Briefing',
+  commentary:    'opengovt · Commentary',
 };
 
 export default function ContentBadge({

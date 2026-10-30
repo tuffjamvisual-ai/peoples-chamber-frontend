@@ -26,7 +26,7 @@ export default function DonatePage() {
           Support this project
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
-          Opengovt is free, independent and unbranded. A single donation helps cover hosting, data and development. No subscription, no account, no catch.
+          opengovt is free, independent and unbranded. A single donation helps cover hosting, data and development. No subscription, no account, no catch.
         </p>
       </header>
 

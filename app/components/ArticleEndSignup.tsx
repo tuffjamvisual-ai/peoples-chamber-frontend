@@ -26,7 +26,7 @@ export default function ArticleEndSignup({ source, line = ARTICLE_LINE }: { sour
       style={{ visibility: authLoading ? 'hidden' : 'visible', margin: '32px 0', padding: '18px 0', borderTop: `1px solid ${INK}`, borderBottom: `1px solid ${INK}`, fontFamily: FONT, color: INK }}
     >
       <h2 id={`signup-head-${source}`} style={{ fontFamily: FONT, fontSize: '20px', fontWeight: 'bold', color: ACCENT, margin: '0 0 6px', lineHeight: 1.3 }}>
-        Get the Open Govt Weekly
+        Get the opengovt Weekly
       </h2>
       <p style={{ fontSize: '16px', lineHeight: 1.6, margin: 0 }}>
         {line}

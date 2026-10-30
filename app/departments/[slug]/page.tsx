@@ -216,7 +216,7 @@ export default async function DepartmentPage({ params }: PageProps) {
         ))}
         {dataPages.length > 0 && (
           <div className="mt-6">
-            <h3 className="text-[#14100d] text-[15px] uppercase tracking-[0.2em] font-bold mb-3">Data on Open Govt</h3>
+            <h3 className="text-[#14100d] text-[15px] uppercase tracking-[0.2em] font-bold mb-3">Data on opengovt</h3>
             {dataPages.map((d) => (
               <a key={d.href} href={d.href} className="block border border-[rgba(20,16,13,0.2)] px-4 py-3 mb-3 text-[#14100d] no-underline">
                 <span className="block text-[18px] font-bold mb-1">{d.title} →</span>

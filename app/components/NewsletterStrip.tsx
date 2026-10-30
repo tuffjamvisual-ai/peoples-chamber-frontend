@@ -168,7 +168,7 @@ export default function NewsletterStrip() {
         ) : state === 'error' ? (
           <p id="og-strip-text" role="alert" className="og-strip-text" style={{ color: ACCENT }}>{message}</p>
         ) : (
-          <p id="og-strip-text" className="og-strip-text">Get Open Govt Weekly by email</p>
+          <p id="og-strip-text" className="og-strip-text">Get opengovt Weekly by email</p>
         )}
         {state !== 'sent' && (
           <div className="og-strip-row">

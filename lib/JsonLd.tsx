@@ -50,7 +50,7 @@ export function buildHomepageGraph() {
         alternateName: ['Open Govt', 'OpenGovt', 'opengovt.uk'],
         url: `${SITE}/`,
         description:
-          'Independent UK Parliament tracker and government transparency platform.',
+          'Independent UK Parliament tracker and government transparency record.',
         sameAs: [] as string[],
       },
     ],

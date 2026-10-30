@@ -19,13 +19,13 @@ export const PAGE_DESCRIPTIONS: Record<string, string> = {
   '/transparency/hospitality':
     'Hospitality received by ministers, as published by each department: the minister, the date, who gave it, what it was, any guest and its value.',
   '/parties':
-    'The 15 UK parties Open Govt covers, each with its number of current MPs and a link to its promises against its record, its donations and its whip record.',
+    'The 15 UK parties opengovt covers, each with its number of current MPs and a link to its promises against its record, its donations and its whip record.',
   '/laws/made-without-a-vote':
     'Every statutory instrument laid before Parliament: laws ministers make without a full Act, with procedure, department, scrutiny and debates.',
   '/treaties':
     'Every treaty laid before Parliament under the 2010 Act: laid date, department, objection deadline, committee work and whether scrutiny ended.',
   '/directory':
-    'Everything on Open Govt, A to Z: every section, list and tool on the site with a one line description, so you can find exactly what you need.',
+    'Everything on opengovt, A to Z: every section, list and tool on the site with a one line description, so you can find exactly what you need.',
   '/councils/children-in-care':
     'Children in care in every English council area: the number looked after, the rate per 10,000 children against England and the change on the year.',
   '/councils/road-condition':
@@ -40,7 +40,7 @@ export const PAGE_DESCRIPTIONS: Record<string, string> = {
 // "Opengovt verdict", and links to the party's manifesto against its record on 11 themes, its money (every declared
 // donation) and its whip record (how often its MPs vote against the party line).
 export function partyDescription(name: string): string {
-  return `${name}: Open Govt's verdict, linking to its promises against its record on 11 themes, its donations and how often its MPs rebel.`;
+  return `${name}: opengovt's verdict, linking to its promises against its record on 11 themes, its donations and how often its MPs rebel.`;
 }
 
 // The parties' names as their pages show them (parties.name), for the section page rows.
@@ -65,4 +65,4 @@ export const PARTY_NAMES: Record<string, string> = {
 // "Vote on Bills" (the Vote section) opens /bills, the same page as "Bills", so its row describes the voting itself rather
 // than repeating the bill list's description. The bill pages offer Aye and No (Abstain was removed on 30 May 2026).
 export const VOTE_ON_BILLS_DESCRIPTION =
-  'Sign in to vote Aye or No on any bill going through Parliament, see how Open Govt users voted, and change your vote while the bill is still live.';
+  'Sign in to vote Aye or No on any bill going through Parliament, see how opengovt users voted, and change your vote while the bill is still live.';

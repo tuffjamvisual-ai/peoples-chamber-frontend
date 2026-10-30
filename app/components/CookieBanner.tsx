@@ -57,7 +57,7 @@ export default function CookieBanner() {
       className="og-cookie-banner"
       data-state={state}
       role="region"
-      aria-label="Cookies on Open Govt"
+      aria-label="Cookies on opengovt"
       style={{ background: PAPER, borderBottom: `2px solid ${INK}`, padding: '16px', boxSizing: 'border-box', width: '100%' }}
     >
       <div style={{ maxWidth: '1144px', margin: '0 auto' }}>
@@ -74,10 +74,10 @@ export default function CookieBanner() {
         ) : (
           <>
             <h2 style={{ fontFamily: MONO, fontSize: '20px', fontWeight: 'bold', lineHeight: 1.3, color: INK, margin: '0 0 10px' }}>
-              Cookies on Open Govt
+              Cookies on opengovt
             </h2>
             <p style={text}>We use some essential cookies to make this site work.</p>
-            <p style={text}>We&rsquo;d like to set additional cookies to understand how you use Open Govt, so we can improve it.</p>
+            <p style={text}>We&rsquo;d like to set additional cookies to understand how you use opengovt, so we can improve it.</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center', marginTop: '6px' }}>
               <button type="button" className="focus-ring" style={button} onClick={() => choose(true)}>
                 Accept additional cookies

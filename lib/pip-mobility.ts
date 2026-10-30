@@ -30,7 +30,7 @@ export function changeLine(cur: PipMobilityRow, prev: PipMobilityRow | undefined
 }
 
 export function derivedNote(districts: number): string {
-  return `Worked out by Open Govt by adding the DWP figures for its ${districts} district${districts === 1 ? '' : 's'}.`;
+  return `Worked out by opengovt by adding the DWP figures for its ${districts} district${districts === 1 ? '' : 's'}.`;
 }
 
 export const sourceLine = (period: string) => `Source: DWP Stat-Xplore, PIP, ${monthLabel(period)}`;

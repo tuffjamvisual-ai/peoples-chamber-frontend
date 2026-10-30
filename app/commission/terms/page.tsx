@@ -7,7 +7,7 @@ import BackLink from '../../components/BackLink';
 
 export const metadata: Metadata = {
   title: 'Terms for commissioned research',
-  description: 'The terms that apply when you commission research from Open Govt.',
+  description: 'The terms that apply when you commission research from opengovt.',
   alternates: { canonical: '/commission/terms' },
 };
 
@@ -64,7 +64,7 @@ export default function CommissionTermsPage() {
 
       <h2 style={h2}>Use and publication</h2>
       <p style={p}>The report is for the client&rsquo;s own use. Publishing it needs our written agreement.</p>
-      <p style={p}>If Open Govt ever publishes commissioned research, it is labelled &ldquo;Commissioned by&rdquo; with the client&rsquo;s name.</p>
+      <p style={p}>If opengovt ever publishes commissioned research, it is labelled &ldquo;Commissioned by&rdquo; with the client&rsquo;s name.</p>
 
       <h2 style={h2}>Confidentiality</h2>
       <p style={p}>We keep your request and your identity confidential, unless the research is published by agreement.</p>
@@ -76,7 +76,7 @@ export default function CommissionTermsPage() {
       </p>
 
       <h2 style={h2}>Prices</h2>
-      <p style={p}>If Open Govt is not VAT registered, no VAT is added.</p>
+      <p style={p}>If opengovt is not VAT registered, no VAT is added.</p>
 
       <p style={{ fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: '36px' }}>
         Last updated: 25 October 2026

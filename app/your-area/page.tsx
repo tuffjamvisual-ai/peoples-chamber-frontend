@@ -237,7 +237,7 @@ export default async function YourAreaPage({ searchParams }: { searchParams: Pro
     const t = title.toLowerCase();
     if (nation !== 'E' && (t === 'homelessness' || t === 'fuel poverty' || t === 'schools' || t === 'council area rating')) return 'published for England only';
     if (nation === 'N' && t.startsWith('road casualties')) return 'published for Great Britain only';
-    if (nation === 'W' && t === 'sewage spills') return 'Welsh figures are not on Open Govt yet';
+    if (nation === 'W' && t === 'sewage spills') return 'Welsh figures are not on opengovt yet';
     return null;
   };
   const add = (title: string, ok: unknown, card: () => Omit<Card, 'title'>) => {

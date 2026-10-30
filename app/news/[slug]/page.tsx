@@ -113,10 +113,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     ? new Date(release.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/London' })
     : null
   let description = [org ? `${org} announcement` : 'Announcement', date].filter(Boolean).join(', ')
-  if (hasMinister && hasReports) description += ', with the minister responsible and Open Govt’s related reports.'
+  if (hasMinister && hasReports) description += ', with the minister responsible and opengovt’s related reports.'
   else if (hasMinister) description += ', with the minister responsible.'
-  else if (hasReports) description += ', with Open Govt’s related reports.'
-  else description += deptSlug ? '. Linked to the department’s record on Open Govt.' : '.'
+  else if (hasReports) description += ', with opengovt’s related reports.'
+  else description += deptSlug ? '. Linked to the department’s record on opengovt.' : '.'
   return {
     title: release.title.replace(/\s+/g, ' ').trim(),
     description: metaDescription(description),
@@ -182,7 +182,7 @@ function InvestigationBox({ pieces, placement }: { pieces: EditorialEntry[]; pla
   const one = pieces.length === 1
   return (
     <aside
-      aria-label="Open Govt investigation of this announcement"
+      aria-label="opengovt investigation of this announcement"
       style={{ margin: placement === 'top' ? '0 0 28px' : '36px 0 0', padding: '14px 16px', border: `1.5px solid ${ACCENT}`, borderLeft: `5px solid ${ACCENT}`, background: 'rgba(107,36,23,0.05)', maxWidth: '680px' }}
     >
       <p style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: '15px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.18em', color: '#7a1612', margin: '0 0 8px' }}>

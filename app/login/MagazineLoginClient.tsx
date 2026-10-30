@@ -332,7 +332,7 @@ export default function MagazineLoginClient() {
             <input id="su-postcode" type="text" autoComplete="postal-code" value={signupPostcode} onChange={(e) => setSignupPostcode(e.target.value)} style={input} />
 
             <div style={{ border: '1px solid rgba(20,16,13,0.18)', padding: '14px', margin: '4px 0 20px' }}>
-              <p style={{ margin: '0 0 4px', fontSize: '20px', fontWeight: 700 }}>Open Govt Weekly</p>
+              <p style={{ margin: '0 0 4px', fontSize: '20px', fontWeight: 700 }}>opengovt Weekly</p>
               <p style={{ margin: '0 0 12px', fontSize: '15px', lineHeight: 1.5 }}>What government announced. What the evidence shows. What happened next. Reports, overlooked documents and public spending stories. No gossip, no rewritten press releases. Sign up now for the first issue.</p>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
                 <input
@@ -368,8 +368,8 @@ export default function MagazineLoginClient() {
               We have sent a confirmation link to <strong>{maskEmail(pendingEmail)}</strong>.
             </p>
             <p style={{ fontSize: '16px', lineHeight: 1.6, margin: '0 0 12px' }}>
-              Open the email from Open Govt and press <strong>Confirm my email</strong>. You will be signed in and taken back
-              {returnTo !== '/' ? ' to the page you were on' : ' to Open Govt'}, ready to vote.
+              Open the email from opengovt and press <strong>Confirm my email</strong>. You will be signed in and taken back
+              {returnTo !== '/' ? ' to the page you were on' : ' to opengovt'}, ready to vote.
             </p>
             <p style={{ fontSize: '15px', lineHeight: 1.6, margin: '0 0 20px' }}>
               The link expires after {VERIFY_TOKEN_TTL_DAYS} days. If it has not arrived in a few minutes, check your spam or junk folder.

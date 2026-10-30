@@ -33,7 +33,7 @@ export default function TermsPage() {
 
         <h2 style={h2}>The site</h2>
         <p style={p}>
-          Opengovt is an independent, nonpartisan transparency platform. It is not affiliated with GOV.UK, the UK Government, Parliament, any government department, local authority, public body, official public service, political party, campaign group, think tank or media organisation. The content is produced by independent journalists and is fact checked against primary sources.
+          opengovt is an independent, nonpartisan transparency platform. It is not affiliated with GOV.UK, the UK Government, Parliament, any government department, local authority, public body, official public service, political party, campaign group, think tank or media organisation. The content is produced by independent journalists and is fact checked against primary sources.
         </p>
 
         <h2 style={h2}>Accounts</h2>

@@ -58,7 +58,7 @@ export default async function PreferencesPage({ searchParams }: { searchParams: 
       )}
       {nl && (
         <section style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.7, color: INK, maxWidth: '640px', marginBottom: '32px' }}>
-          <h2 style={{ fontSize: '15px', letterSpacing: '0.16em', textTransform: 'uppercase', color: ACCENT, margin: '0 0 10px' }}>Open Govt Weekly</h2>
+          <h2 style={{ fontSize: '15px', letterSpacing: '0.16em', textTransform: 'uppercase', color: ACCENT, margin: '0 0 10px' }}>opengovt Weekly</h2>
           {!subscriber ? (
             <p style={{ margin: 0 }}>That link did not work. It may have been copied incompletely. <Link href="/newsletter" style={{ color: ACCENT }}>Sign up again</Link>.</p>
           ) : subscriber.status === 'confirmed' ? (

@@ -169,7 +169,7 @@ export default function LoginClient() {
               </div>
 
               <div className="rounded-lg border border-white/20 p-4 space-y-2">
-                <p className="text-xl text-white font-bold">Open Govt Weekly</p>
+                <p className="text-xl text-white font-bold">opengovt Weekly</p>
                 <p className="text-[15px] text-white/80 leading-relaxed">What government announced. What the evidence shows. What happened next. Reports, overlooked documents and public spending stories. No gossip, no rewritten press releases. Sign up now for the first issue.</p>
                 <div className="flex items-start gap-2 pt-1">
                   <input

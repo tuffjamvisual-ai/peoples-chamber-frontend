@@ -10,7 +10,7 @@ const ACCENT = '#7a1612';
 const MONO = 'var(--font-special-elite), monospace';
 
 export const CONSENT_TEXT =
-  'I agree that Open Govt keeps a list of what I follow and the searches I save, to send me a weekly email of what changed. What I follow could show my political views. I can stop the emails or delete the list at any time.';
+  'I agree that opengovt keeps a list of what I follow and the searches I save, to send me a weekly email of what changed. What I follow could show my political views. I can stop the emails or delete the list at any time.';
 
 export default function ConsentBox({ onAgree, onCancel, busy }: { onAgree: () => void; onCancel: () => void; busy: boolean }) {
   const [ticked, setTicked] = useState(false);

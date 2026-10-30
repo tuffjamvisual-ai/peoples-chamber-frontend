@@ -11,7 +11,7 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: 'Policy Topics',
   description:
-    'Every major policy area in one place: the department behind it, recent Commons votes, bills before Parliament, the MPs scrutinising it most, and how Open Govt users have voted.',
+    'Every major policy area in one place: the department behind it, recent Commons votes, bills before Parliament, the MPs scrutinising it most, and how opengovt users have voted.',
   alternates: { canonical: '/topics' },
 };
 
@@ -42,7 +42,7 @@ export default function TopicsIndexPage() {
           Policy Topics
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', color: INK }}>
-          Each topic gathers everything the site holds on a policy area in one place: the department responsible and how it is performing, the most recent Commons votes, the bills going through Parliament, the MPs scrutinising it hardest, the editorials, and how Open Govt users have voted.
+          Each topic gathers everything the site holds on a policy area in one place: the department responsible and how it is performing, the most recent Commons votes, the bills going through Parliament, the MPs scrutinising it hardest, the editorials, and how opengovt users have voted.
         </p>
       </header>
 

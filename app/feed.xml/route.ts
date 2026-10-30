@@ -184,7 +184,7 @@ export async function GET() {
   <channel>
     <title>opengovt, Recent Updates</title>
     <link>${SITE}/</link>
-    <description>The latest Open Govt investigations, plus the 50 most recently updated MP profiles and bill stages.</description>
+    <description>The latest opengovt investigations, plus the 50 most recently updated MP profiles and bill stages.</description>
     <language>en-GB</language>
     <lastBuildDate>${buildDate}</lastBuildDate>
     <atom:link href="${SITE}/feed.xml" rel="self" type="application/rss+xml" />

@@ -151,15 +151,15 @@ export async function savedSearchChange(db: SupabaseClient, s: SearchRow, now: D
 export function renderDigest(items: DigestItem[], unsubscribeUrl: string): { subject: string; text: string; html: string } {
   const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const prefs = `${SITE}/preferences`;
-  const subject = `Open Govt: ${plural(items.length, 'update')} on what you follow`;
+  const subject = `opengovt: ${plural(items.length, 'update')} on what you follow`;
   const text =
-    `What changed this week on the pages you follow on Open Govt.\n\n` +
+    `What changed this week on the pages you follow on opengovt.\n\n` +
     items.map((i) => `${i.heading}\n${i.lines.map((l) => `  ${l}`).join('\n')}\n  ${i.href}`).join('\n\n') +
     `\n\nUnfollow anything or change these emails: ${prefs}\n` +
     `Stop these emails: ${unsubscribeUrl}\n\n` +
     `You get this because you followed these pages on opengovt.uk. One email a week at most, only when something changed.\n`;
   const html = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.6;color:#14100d;max-width:600px">
-    <p style="margin:0 0 18px">What changed this week on the pages you follow on Open Govt.</p>
+    <p style="margin:0 0 18px">What changed this week on the pages you follow on opengovt.</p>
     ${items.map((i) => `<div style="border-top:1px solid #d8d2c4;padding:12px 0">
       <p style="margin:0 0 6px;font-weight:bold"><a href="${esc(i.href)}" style="color:#7a1612">${esc(i.heading)}</a></p>
       ${i.lines.map((l) => `<p style="margin:0 0 4px;font-size:15px">${esc(l)}</p>`).join('')}

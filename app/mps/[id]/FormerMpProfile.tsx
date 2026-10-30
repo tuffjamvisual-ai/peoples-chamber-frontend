@@ -50,7 +50,7 @@ export default function FormerMpProfile({ mp }: { mp: FormerMp }) {
           ))}
         </ul>
         <p style={line}>
-          {mp.name} is no longer an MP.{mp.sitsInLords ? ' They now sit in the House of Lords.' : ''} Open Govt keeps full profiles for current MPs; this page records the seats held and the dates served.
+          {mp.name} is no longer an MP.{mp.sitsInLords ? ' They now sit in the House of Lords.' : ''} opengovt keeps full profiles for current MPs; this page records the seats held and the dates served.
         </p>
         <p style={line}>
           <Link href="/mps" style={{ color: INK, textDecoration: 'underline' }}>Find your current MP</Link>.

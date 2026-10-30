@@ -11,15 +11,15 @@ export type DirectoryEntry = { name: string; href: string; desc: string };
 
 // Pages the menu does not list, with a plain one line description.
 const EXTRA: DirectoryEntry[] = [
-  { name: 'About Open Govt', href: '/about', desc: 'Who runs Open Govt, how the data is gathered and the editorial principles behind it.' },
+  { name: 'About opengovt', href: '/about', desc: 'Who runs opengovt, how the data is gathered and the editorial principles behind it.' },
   { name: 'APPG Funders', href: '/appg-funders', desc: 'Every organisation that funds one or more All Party Parliamentary Groups, ranked by groups funded.' },
   { name: 'APPG Secretariats', href: '/secretariats', desc: 'The firms and charities that run All Party Parliamentary Groups, ranked by the number of groups each runs.' },
   { name: 'Bills by Session', href: '/bills/sessions', desc: 'Every bill since the 2004 to 2005 session: which became law, which were withdrawn or ran out of time.' },
-  { name: 'Commission Terms', href: '/commission/terms', desc: 'The terms that apply when you commission research from Open Govt.' },
+  { name: 'Commission Terms', href: '/commission/terms', desc: 'The terms that apply when you commission research from opengovt.' },
   { name: 'Constituency Donations', href: '/donations/constituencies', desc: 'Every constituency association ranked by the donations it declared.' },
   { name: 'Council Search', href: '/councils/search', desc: 'Find a council by name, town or postcode.' },
-  { name: 'Directory', href: '/directory', desc: 'Everything on Open Govt, A to Z.' },
-  { name: 'Donate', href: '/donate', desc: 'Make a single donation to help keep Open Govt free and independent.' },
+  { name: 'Directory', href: '/directory', desc: 'Everything on opengovt, A to Z.' },
+  { name: 'Donate', href: '/donate', desc: 'Make a single donation to help keep opengovt free and independent.' },
   { name: 'Donations by Trusts', href: '/donations/trust-funded', desc: 'Political donations made through a trust rather than a named person, with who set up the trust.' },
   { name: 'Donations Disclosed Late', href: '/donations/late-disclosed', desc: 'Donations reported to the Electoral Commission more than 90 days after they were accepted.' },
   { name: 'Donations Explained', href: '/explainers/donations', desc: 'How the UK political donation rules work: thresholds, permissibility, timing and sanctions.' },
@@ -27,21 +27,21 @@ const EXTRA: DirectoryEntry[] = [
   { name: 'Donors Who Also Employ Their MP', href: '/donations/double-dip', desc: 'MPs paid by an organisation that has also given them a political donation.' },
   { name: 'Freedom of Information', href: '/transparency/freedom-of-information', desc: 'How many FOI requests each department received, how many were answered on time and how many were refused.' },
   { name: 'Government Contractors Who Donate', href: '/donations/government-contractors', desc: 'Companies holding public contracts that have also given political donations, matched by Companies House number.' },
-  { name: 'Home', href: '/', desc: 'The front page: the latest reports, votes and data from Open Govt.' },
-  { name: 'How This Site Is Made', href: '/how-this-site-is-made', desc: 'How Open Govt is written, edited and checked against primary sources.' },
+  { name: 'Home', href: '/', desc: 'The front page: the latest reports, votes and data from opengovt.' },
+  { name: 'How This Site Is Made', href: '/how-this-site-is-made', desc: 'How opengovt is written, edited and checked against primary sources.' },
   { name: 'Impermissible Donations', href: '/donations/impermissible', desc: 'Donations later found impermissible and returned, with the reason and the recipient.' },
   { name: 'Leadership Contest Donations', href: '/donations/leadership-contests', desc: 'Donations to party leadership candidates while they were standing, by contest.' },
   { name: 'Legacies to Parties', href: '/donations/bequest', desc: 'Every political donation left in a will.' },
   { name: 'Major Projects', href: '/transparency/major-projects', desc: 'Every project in the Government Major Projects Portfolio, with its delivery rating and whole life cost.' },
   { name: 'Ministerial Directions', href: '/transparency/ministerial-directions', desc: 'Every ministerial direction published since 2015: what was directed, by whom and when.' },
-  { name: 'Newsletter', href: '/newsletter', desc: 'Open Govt Weekly: the week’s investigations and public spending stories in one email.' },
-  { name: 'Past Polls', href: '/polls/archive', desc: 'Earlier Open Govt polls, kept as a record with their final results.' },
-  { name: 'Privacy', href: '/privacy', desc: 'What data Open Govt collects, why, how it is used and your rights.' },
+  { name: 'Newsletter', href: '/newsletter', desc: 'opengovt Weekly: the week’s investigations and public spending stories in one email.' },
+  { name: 'Past Polls', href: '/polls/archive', desc: 'Earlier opengovt polls, kept as a record with their final results.' },
+  { name: 'Privacy', href: '/privacy', desc: 'What data opengovt collects, why, how it is used and your rights.' },
   { name: 'Programmes', href: '/programmes', desc: 'Major government policy commitments, tracked over time.' },
   { name: 'Refused Expenses', href: '/expenses/refused', desc: 'Expense claims IPSA refused and money MPs repaid, by year, by MP and by reason.' },
   { name: 'Sponsored Visits', href: '/donations/sponsored-visits', desc: 'Trips paid for by governments and groups, declared as donations in kind.' },
   { name: 'Support', href: '/support', desc: 'Get help, report a data problem or suggest a feature.' },
-  { name: 'Terms', href: '/terms', desc: 'The terms and conditions for using Open Govt.' },
+  { name: 'Terms', href: '/terms', desc: 'The terms and conditions for using opengovt.' },
   { name: 'This Week in Parliament', href: '/this-week', desc: 'The bills coming up in the Commons over the next seven days, and the latest votes.' },
   { name: 'Transparency', href: '/transparency', desc: 'Ministers’ meetings, hospitality, donations, contracts and the revolving door, from public registers.' },
   { name: 'Unite the Kingdom', href: '/unite-kingdom', desc: 'The march Westminster does not want to understand.' },
@@ -49,7 +49,7 @@ const EXTRA: DirectoryEntry[] = [
   { name: 'Parliament Section', href: '/sections/parliament', desc: 'Everything on MPs, bills, votes, parties and departments in one list.' },
   { name: 'Local Section', href: '/sections/local', desc: 'Councils and sewage spills in your area, in one list.' },
   { name: 'Accountability Section', href: '/sections/accountability', desc: 'Registers of interests, expenses, lobbying, donations and contracts, in one list.' },
-  { name: 'Vote Section', href: '/sections/vote', desc: 'Open Govt polls and voting on bills, in one list.' },
+  { name: 'Vote Section', href: '/sections/vote', desc: 'opengovt polls and voting on bills, in one list.' },
 ];
 
 // Second names readers may look under. [name, href]
@@ -95,8 +95,8 @@ const ALSO_KNOWN_AS: [string, string][] = [
 // The menu's own name for a section where the menu has no description.
 const TOP_DESC: Record<string, string> = {
   '/search': 'Search bills, MPs, departments, contracts, donations and the rest of the public record.',
-  '/reports': 'Every Open Govt investigation and briefing, newest first, each checked against the public record.',
-  '/commission': 'Commission an independent, fully sourced research report from Open Govt.',
+  '/reports': 'Every opengovt investigation and briefing, newest first, each checked against the public record.',
+  '/commission': 'Commission an independent, fully sourced research report from opengovt.',
   '/contact': 'Corrections, data and press enquiries, and general questions.',
 };
 

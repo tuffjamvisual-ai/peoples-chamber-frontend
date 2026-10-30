@@ -8,7 +8,7 @@ import CookieSettingsForm from './CookieSettingsForm'
 // Every cookie's name, purpose and lifetime is on /cookies/details, as on gov.uk/help/cookie-details.
 export const metadata: Metadata = {
   title: 'Cookies',
-  description: 'How Open Govt uses cookies, and your cookie settings.',
+  description: 'How opengovt uses cookies, and your cookie settings.',
   alternates: { canonical: '/cookies' },
 }
 
@@ -34,7 +34,7 @@ export default function CookiesPage() {
 
       <section style={{ color: INK }}>
         <p style={p}>
-          Cookies are small files saved on your phone, tablet or computer when you visit a website. We use cookies to make Open Govt work and, if you agree, to understand how you use it so we can improve it.
+          Cookies are small files saved on your phone, tablet or computer when you visit a website. We use cookies to make opengovt work and, if you agree, to understand how you use it so we can improve it.
         </p>
 
         <h2 style={h2}>Essential cookies</h2>
@@ -48,7 +48,7 @@ export default function CookiesPage() {
         </p>
 
         <p style={p}>
-          <Link href="/cookies/details" style={{ color: INK, textDecoration: 'underline' }}>Details about cookies on Open Govt</Link>
+          <Link href="/cookies/details" style={{ color: INK, textDecoration: 'underline' }}>Details about cookies on opengovt</Link>
         </p>
 
         <h2 style={h2}>Change your cookie settings</h2>

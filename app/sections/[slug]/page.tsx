@@ -23,7 +23,7 @@ function find(slug: string) {
 }
 
 function intro(label: string) {
-  return `Every page in the ${label} section of Open Govt.`;
+  return `Every page in the ${label} section of opengovt.`;
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

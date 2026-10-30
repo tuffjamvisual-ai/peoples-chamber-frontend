@@ -163,7 +163,7 @@ export default async function RecommendationPage({ params }: { params: Promise<P
         {later && <p style={p}>{linked(later)}</p>}
         {/* A partly delivered check is shown once, as the Later evidence line above. */}
         {row.review_checked_on && row.review_outcome !== 'partly_delivered' && (
-          <p style={p}>Checked by Open Govt on {dayMonthYear(row.review_checked_on)}{row.review_note ? `: ${row.review_note}` : '.'}</p>
+          <p style={p}>Checked by opengovt on {dayMonthYear(row.review_checked_on)}{row.review_note ? `: ${row.review_note}` : '.'}</p>
         )}
 
         {d.conclusion && (<>

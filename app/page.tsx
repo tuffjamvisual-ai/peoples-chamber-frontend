@@ -141,7 +141,7 @@ export default async function HomePage() {
               <div className="og-lead">
             <div className="og-main">
               <p className="og-intro-line" style={{ fontFamily: "var(--font-special-elite), monospace", fontSize: 'clamp(16px, 1.9vw, 22px)', letterSpacing: '0.01em', color: '#14100d', marginBottom: '18px', lineHeight: 1.45 }}>
-                Open Govt is an independent record of how power is exercised across Britain, from Westminster to local councils.<br />
+                opengovt is an independent record of how power is exercised across Britain, from Westminster to local councils.<br />
                 Search what governments and politicians promised, what decisions were made, how public money was spent and what happened next.<br />
                 Follow the evidence. Examine the record.
               </p>
@@ -241,10 +241,10 @@ export default async function HomePage() {
                   and Latest from Whitehall. Labelled as a service so it reads apart from the journalism. Plain
                   server-rendered markup: no image and no script. */}
               <section className="og-promo" aria-labelledby="og-promo-head">
-                <div className="og-kicker">Open Govt service</div>
+                <div className="og-kicker">opengovt service</div>
                 <h2 id="og-promo-head" className="og-promo-head">Need a question answered from the public record?</h2>
                 <p>Commission an independent, fully sourced research report. Every figure cited; the findings are ours, not the client&rsquo;s.</p>
-                <p className="og-promo-price">One fee for any request: £295, including data not yet on Open Govt</p>
+                <p className="og-promo-price">One fee for any request: £295, including data not yet on opengovt</p>
                 <Link href="/commission" className="og-promo-btn">Commission research</Link>
               </section>
 
@@ -297,7 +297,7 @@ export default async function HomePage() {
               <div className="og-block og-card" id="newsletter">
                 <div className="og-kicker" style={{ color: 'var(--ink-soft)', letterSpacing: '0.18em' }}>Weekly newsletter</div>
                 <div className="og-head">What government announced. What the evidence shows. What happened next.</div>
-                <p>Open Govt Weekly brings you the most important investigations, overlooked documents, questionable claims and public spending stories from the week.</p>
+                <p>opengovt Weekly brings you the most important investigations, overlooked documents, questionable claims and public spending stories from the week.</p>
                 <p style={{ marginTop: '8px' }}>No Westminster gossip. No rewritten press releases. Just the facts worth knowing.</p>
                 <p style={{ marginTop: '8px', fontWeight: 700 }}>A weekly email. Sign up now for the first issue.</p>
                 <NewsletterSignup source="homepage" />
@@ -327,7 +327,7 @@ function HomepageEditorialIntro() {
         border: 0,
       }}
     >
-      <h2>Opengovt is an independent record of how the United Kingdom is governed.</h2>
+      <h2>opengovt is an independent record of how the United Kingdom is governed.</h2>
       <p>
         Every Member of Parliament has a profile here. Their voting record, their declared earnings, the bills they have sponsored, the hours they spend on second jobs, and a biographical note that reads as a political assessment rather than a press release. Each of the {departments.length} ministerial departments has its own institutional performance report against the public record of what it was set up to do. Every bill since 2010 is tracked through its stages of Parliament: which Members spoke for and against, how the division went on each reading, and whether it became law.
       </p>

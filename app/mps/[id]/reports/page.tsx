@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!name) return { title: 'Reports', robots: { index: false, follow: true } };
   return {
     title: `Reports mentioning ${name}`,
-    description: `Every Open Govt report that names ${name}, newest first.`,
+    description: `Every opengovt report that names ${name}, newest first.`,
     alternates: { canonical: `/mps/${memberId}/reports` },
     robots: { index: false, follow: true },
   };

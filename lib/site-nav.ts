@@ -26,7 +26,7 @@ export const NAV: NavItem[] = [
     { group: 'MPs', label: 'All MPs', href: '/mps', desc: 'Profiles of all 650 UK MPs: voting records, expenses, registered interests and contact details.' },
     { group: 'MPs', label: 'MP Activity', href: '/transparency/mp-activity', desc: 'Every current MP ranked by how often they have spoken in Parliament this term, from Hansard.' },
     { group: 'MPs', label: 'MP Earnings', href: '/earnings', desc: 'Every MP\'s personal earnings (salary, ministerial pay, outside earnings) beside their public spend.' },
-    { group: 'Parliament', label: 'Bills', href: '/bills', desc: 'The bills going through Parliament now: stage, sponsor, how MPs voted and how Open Govt users voted.' },
+    { group: 'Parliament', label: 'Bills', href: '/bills', desc: 'The bills going through Parliament now: stage, sponsor, how MPs voted and how opengovt users voted.' },
     { group: 'Parliament', label: 'Select Committees', href: '/committees', desc: 'Current membership of the 29 House of Commons select committees, from UK Parliament.' },
     { group: 'Parliament', label: 'Commons Debates', href: '/debates', desc: 'Every debate held in the House of Commons this Parliament, by date and section.' },
     { group: 'Parliament', label: 'Divisions', href: '/divisions', desc: 'Every recorded vote in the House of Commons since March 2016, with how the House divided.' },

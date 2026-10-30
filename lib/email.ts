@@ -159,17 +159,17 @@ export async function sendVerificationEmail(to: string, token: string, baseUrl: 
   const from = process.env.RESEND_FROM || 'opengovt <onboarding@resend.dev>';
   const link = `${baseUrl}/api/auth/verify?token=${encodeURIComponent(token)}`;
   const text =
-    `Welcome to Open Govt.\n\n` +
+    `Welcome to opengovt.\n\n` +
     `Confirm your email address to start voting on bills and polls. Open this link:\n${link}\n\n` +
     `You will be signed in and taken back to the page you were on. The link expires after ${VERIFY_TOKEN_TTL_DAYS} days.\n\n` +
     `If you did not create an account, you can ignore this email.\n`;
   return deliver('confirmation', key, {
     from,
     to,
-    subject: 'Confirm your Open Govt account',
+    subject: 'Confirm your opengovt account',
     text,
     html: `<div style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.6;color:#14100d;max-width:560px">
-      <p>Welcome to Open Govt.</p>
+      <p>Welcome to opengovt.</p>
       <p>Confirm your email address to start voting on bills and polls:</p>
       <p style="margin:22px 0"><a href="${link}" style="display:inline-block;background:#7a1612;color:#ffffff;padding:14px 24px;border-radius:4px;text-decoration:none;font-size:17px;font-weight:bold">Confirm my email</a></p>
       <p style="font-size:15px;color:#14100d">You will be signed in and taken back to the page you were on. The link expires after ${VERIFY_TOKEN_TTL_DAYS} days.</p>
@@ -339,12 +339,12 @@ export async function sendNewsletterConfirmation(to: string, token: string, base
   const confirm = `${baseUrl}/api/newsletter/confirm?token=${encodeURIComponent(token)}`;
   const unsubscribe = `${baseUrl}/api/newsletter/unsubscribe?token=${encodeURIComponent(token)}`;
   const text =
-    `Please confirm you want Open Govt Weekly: the week's investigations, overlooked documents and public spending stories, in one email.\n\n` +
+    `Please confirm you want opengovt Weekly: the week's investigations, overlooked documents and public spending stories, in one email.\n\n` +
     `Confirm: ${confirm}\n\n` +
     `If you did not ask for this, ignore this email and you will not be added.\n` +
     `Unsubscribe at any time: ${unsubscribe}\n`;
   const html = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#14100d">
-      <p>Please confirm you want Open Govt Weekly: the week's investigations, overlooked documents and public spending stories, in one email.</p>
+      <p>Please confirm you want opengovt Weekly: the week's investigations, overlooked documents and public spending stories, in one email.</p>
       <p><a href="${confirm}" style="display:inline-block;background:#7a1612;color:#ffffff;padding:10px 16px;text-decoration:none;font-weight:bold">Confirm my subscription</a></p>
       <p style="color:#14100d">If you did not ask for this, ignore this email and you will not be added.</p>
       <p style="color:#14100d;font-size:14px">Unsubscribe at any time: <a href="${unsubscribe}" style="color:#7a1612">${unsubscribe}</a></p>

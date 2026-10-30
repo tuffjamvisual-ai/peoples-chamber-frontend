@@ -48,6 +48,8 @@ const bebas = Bebas_Neue({
 
 const SITE_URL = "https://www.opengovt.uk";
 const SITE_NAME = "opengovt";
+// The WebSite JSON-LD description, the same as the Organization's in lib/JsonLd.tsx (owner, 30 Oct 2026).
+const JSON_LD_DESCRIPTION = "Independent UK Parliament tracker and government transparency record.";
 const SITE_DESCRIPTION =
   "The UK politics transparency app. See what every government department controls, what every party says, and who runs Britain.";
 
@@ -112,7 +114,7 @@ const JSON_LD = {
   name: SITE_NAME,
   alternateName: ["Open Govt", "OpenGovt", "opengovt.uk"],
   url: SITE_URL,
-  description: SITE_DESCRIPTION,
+  description: JSON_LD_DESCRIPTION,
   inLanguage: "en-GB",
   publisher: {
     "@type": "Organization",

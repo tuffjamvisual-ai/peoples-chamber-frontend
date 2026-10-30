@@ -113,7 +113,7 @@ export default function AccountPage() {
           {/* Newsletter preference */}
           <div style={{ borderTop: `1px solid ${HAIRLINE}`, paddingTop: '20px', marginBottom: '32px' }}>
             <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.16em', textTransform: 'uppercase', color: ACCENT, marginBottom: '12px' }}>
-              Open Govt Weekly
+              opengovt Weekly
             </h2>
             <p style={{ fontFamily: MONO, fontSize: '15px', lineHeight: 1.6, color: INK, marginBottom: '14px', maxWidth: '560px' }}>
               What government announced. What the evidence shows. What happened next. Reports, overlooked documents and public spending stories. Sign up now for the first issue.

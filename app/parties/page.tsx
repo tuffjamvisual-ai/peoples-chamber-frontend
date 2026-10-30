@@ -68,7 +68,7 @@ export default async function PartiesIndexPage() {
           Parties
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px', color: INK, margin: 0 }}>
-          The {SLUGS.length} parties Open Govt covers: what each promised, what it has done, who funds it and how its MPs vote.
+          The {SLUGS.length} parties opengovt covers: what each promised, what it has done, who funds it and how its MPs vote.
         </p>
       </header>
 

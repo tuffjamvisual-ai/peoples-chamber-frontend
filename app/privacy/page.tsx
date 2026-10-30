@@ -39,7 +39,7 @@ export default function PrivacyPage() {
           When you create an account, we collect your name, your email address and a password. Your email address is used to confirm your account, to sign you in, and, if you opt in, to send you the newsletter. When an account is created we send ourselves a short email with the name and email address, so we know a new account exists.
         </p>
         <p style={p}>
-          If you sign up for the newsletter without an account, we store only your email address, when you signed up, and whether you have confirmed or unsubscribed. It is used only to send Open Govt Weekly. You are added only after you click the confirmation link we email you, and every newsletter includes a link that unsubscribes you in a single click.
+          If you sign up for the newsletter without an account, we store only your email address, when you signed up, and whether you have confirmed or unsubscribed. It is used only to send opengovt Weekly. You are added only after you click the confirmation link we email you, and every newsletter includes a link that unsubscribes you in a single click.
         </p>
         <p style={p}>
           If you choose to provide it, we also collect your postcode, used solely to identify your parliamentary constituency and connect you with your local MP through the Find Your MP feature.

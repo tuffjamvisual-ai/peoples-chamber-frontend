@@ -18,7 +18,7 @@ export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: 'Reports',
-  description: 'Every Open Govt investigation and briefing, newest first, with its date and summary. Each piece is checked against the public record.',
+  description: 'Every opengovt investigation and briefing, newest first, with its date and summary. Each piece is checked against the public record.',
   alternates: { canonical: '/reports' },
 };
 

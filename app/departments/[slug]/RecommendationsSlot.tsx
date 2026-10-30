@@ -94,7 +94,7 @@ export function RecommendationsSlot({ data }: { data: DepartmentRecommendations 
       <List heading="Still open" items={data.open} more={{ count: c.open, href: by('open') }} />
       <List heading="Targets moved" items={data.moved} />
       <List heading="Target passed, being checked" items={data.beingChecked} more={{ count: c.beingChecked, href: by('target_passed') }} />
-      <List heading="Target passed, checked by Open Govt" items={data.checked} more={{ count: data.checked.length, href: by('target_passed') }} />
+      <List heading="Target passed, checked by opengovt" items={data.checked} more={{ count: data.checked.length, href: by('target_passed') }} />
       <List heading="Delivered" items={data.delivered} more={{ count: c.delivered, href: by('delivered') }} />
       <List heading="Rejected" items={data.rejected} more={{ count: c.rejected, href: by('rejected') }} />
     </section>

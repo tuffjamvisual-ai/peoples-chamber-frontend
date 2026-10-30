@@ -432,7 +432,7 @@ export default async function BillDetailPage({ params }: { params: Promise<{ id:
           {/* The count so far */}
           <div style={{ borderTop: `1px solid ${INK}`, marginTop: '24px', paddingTop: '20px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
             <VoteBar
-              label="Open Govt visitors' votes"
+              label="opengovt visitors' votes"
               totalLabel={`${totalVotes.toLocaleString()} ${totalVotes === 1 ? 'vote' : 'votes'}`}
               yesPct={yesPercent}
               noPct={noPercent}

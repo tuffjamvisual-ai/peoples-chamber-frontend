@@ -9,7 +9,7 @@ import BackLink from '../../components/BackLink'
 // and the deletion on reject (lib/cookie-consent.ts) removes it and every ph_* cookie and storage key.
 export const metadata: Metadata = {
   title: 'Details about cookies',
-  description: 'Every cookie Open Govt uses, what each one does and how long it lasts.',
+  description: 'Every cookie opengovt uses, what each one does and how long it lasts.',
   alternates: { canonical: '/cookies/details' },
 }
 
@@ -53,7 +53,7 @@ export default function CookieDetailsPage() {
 
       <header style={{ marginBottom: '4%' }}>
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '12px', color: INK }}>
-          Details about cookies on Open Govt
+          Details about cookies on opengovt
         </h1>
       </header>
 
@@ -73,7 +73,7 @@ export default function CookieDetailsPage() {
         <CookieTable
           caption="Additional cookies, set only if you accept them"
           rows={[
-            ['ph_…_posthog', 'Set by PostHog. Recognises your browser so the pages you view can be counted as one visit and put in order. The middle part of the name is Open Govt\u2019s PostHog project code.', '1 year'],
+            ['ph_…_posthog', 'Set by PostHog. Recognises your browser so the pages you view can be counted as one visit and put in order. The middle part of the name is opengovt\u2019s PostHog project code.', '1 year'],
           ]}
         />
         <p style={p}>

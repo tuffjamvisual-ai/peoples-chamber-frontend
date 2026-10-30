@@ -173,7 +173,7 @@ export default async function SpecialAdvisersPage() {
           </p>
           {known && <p style={{ fontSize: '15px', lineHeight: 1.7, fontWeight: 'bold', margin: '0 0 14px' }}>{stillTitles.size} of the {listedCount} appointing ministers are still in the same post.</p>}
           <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '62ch', margin: '0 0 14px' }}>
-            One row per appointment: an adviser who works for two ministers is listed under each. Salaries are published only from £81,000, in bands of £5,000. Ministers with an Open Govt page are linked; members of the Lords have none.
+            One row per appointment: an adviser who works for two ministers is listed under each. Salaries are published only from £81,000, in bands of £5,000. Ministers with an opengovt page are linked; members of the Lords have none.
           </p>
           <p style={{ fontSize: '15px', lineHeight: 1.7, maxWidth: '62ch', margin: '0 0 14px' }}>
             Declared interests are published by each department, not by the adviser. Every special adviser declares their interests to the permanent secretary of their department, who decides which are relevant enough to publish and how any conflict is managed, for example by a recusal: the adviser stays out of the matters named. The Cabinet Office publishes its advisers&rsquo; interests separately each year; most other departments print them inside their annual report and accounts. Each entry below is quoted word for word and linked to the document it comes from.

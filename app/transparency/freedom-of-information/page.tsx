@@ -64,7 +64,7 @@ export default async function FreedomOfInformationPage() {
         </p>
         <p style={{ marginBottom: '10px' }}>
           Department names link to their pages, where the Transparency tab also has the change on a year earlier and the
-          year&rsquo;s internal reviews and complaints to the Information Commissioner. More on Open Govt:{' '}
+          year&rsquo;s internal reviews and complaints to the Information Commissioner. More on opengovt:{' '}
           <Link href="/transparency" style={{ color: INK, textDecoration: 'underline' }}>Transparency</Link>.
         </p>
         {source && (

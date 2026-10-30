@@ -12,13 +12,13 @@ export const metadata: Metadata = {
 // Aligned 2026-07-11 to the clean, longer About text on the homepage (the old
 // version carried self-referential tells the reporting-texture rule bans).
 const paragraphs = [
-  `Opengovt tracks how power is used in Britain.`,
+  `opengovt tracks how power is used in Britain.`,
   `We record how MPs vote, what they declare, what they earn outside Parliament and what they claim in expenses. We also compare what councils charge residents with what they provide in return.`,
   `The record is drawn from named public sources: Hansard for divisions and debates, the Register of Members' Financial Interests for declarations, House of Commons data for expenses, the Electoral Commission for donations, Companies House for directorships, and government statistics for departmental performance. Each figure links back to where it came from.`,
   `MP profiles use caricatures instead of official portraits because politics already comes with enough image management. We are not here to add to it.`,
   `Our journalists publish without bylines. The work should stand or fall on whether it is accurate. Every factual claim is checked against a public record before publication; when something is wrong and it is found, it is corrected and the correction is logged.`,
   `Readers can also record how they would have voted on the same Commons divisions MPs faced, then compare their choices with their own MP's.`,
-  `Opengovt is independent. It is not part of Parliament, GOV.UK or any government body. It takes no government funding and carries no party label.`,
+  `opengovt is independent. It is not part of Parliament, GOV.UK or any government body. It takes no government funding and carries no party label.`,
 ];
 
 // Moved here from the homepage About block (audit reassessment, 16 Oct 2026), which is now one line.

@@ -11,7 +11,7 @@ import DirectoryFilter from './DirectoryFilter';
 import Unavailable from '../components/Unavailable';
 
 export const metadata: Metadata = {
-  title: { absolute: 'Directory: everything on Open Govt, A to Z' },
+  title: { absolute: 'Directory: everything on opengovt, A to Z' },
   description: PAGE_DESCRIPTIONS['/directory'],
   alternates: { canonical: '/directory' },
 };
@@ -36,7 +36,7 @@ export default function DirectoryPage() {
       <header style={{ marginBottom: '18px' }}>
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 'bold', letterSpacing: '-0.02em', margin: '0 0 10px', lineHeight: 1.1 }}>Directory</h1>
         <p style={{ fontSize: '16px', lineHeight: 1.7, maxWidth: '46em', margin: 0 }}>
-          Everything on Open Govt, A to Z: every section and list on the site, {DIRECTORY.length.toLocaleString('en-GB')} entries. Some pages are listed under more than one name.
+          Everything on opengovt, A to Z: every section and list on the site, {DIRECTORY.length.toLocaleString('en-GB')} entries. Some pages are listed under more than one name.
         </p>
       </header>
 

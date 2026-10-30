@@ -9,7 +9,7 @@ import CommissionForm from './CommissionForm';
 
 export const metadata: Metadata = {
   title: 'Commission research',
-  description: 'Commission an independent, fully sourced research report from Open Govt.',
+  description: 'Commission an independent, fully sourced research report from opengovt.',
   alternates: { canonical: '/commission' },
 };
 
@@ -59,14 +59,14 @@ export default function CommissionPage() {
           Commission research
         </h1>
         <p style={{ fontSize: '16px', lineHeight: 1.8, maxWidth: '720px' }}>
-          Open Govt answers specific questions about public money, decisions and accountability from the public record.
+          opengovt answers specific questions about public money, decisions and accountability from the public record.
           Every figure is sourced, every finding can be checked, and the conclusions are ours, not the client&rsquo;s.
         </p>
       </header>
 
       <section aria-label="The service" style={{ marginBottom: '5%' }}>
         <p className="cm-centred" style={{ fontSize: '17px', fontWeight: 'bold', lineHeight: 1.6, marginTop: 0, marginBottom: '4px' }}>One fee for every request: £295, paid once. No subscriptions, no extras.</p>
-        <p className="cm-centred" style={{ fontSize: '16px', lineHeight: 1.6, marginTop: 0, marginBottom: '18px' }}>Your fee covers research into any public record, including data not yet published on Open Govt.</p>
+        <p className="cm-centred" style={{ fontSize: '16px', lineHeight: 1.6, marginTop: 0, marginBottom: '18px' }}>Your fee covers research into any public record, including data not yet published on opengovt.</p>
         <div className="cm-service" style={{ borderTop: `3px solid ${INK}`, borderBottom: `1px solid ${HAIRLINE}`, padding: '16px 0 18px', display: 'flex', flexDirection: 'column' }}>
           <h2 style={{ ...h2, marginBottom: '6px' }}>{SERVICE.name}</h2>
           <p style={{ fontSize: '18px', fontWeight: 'bold', color: ACCENT, margin: '0 0 10px' }}>{SERVICE.price}</p>
