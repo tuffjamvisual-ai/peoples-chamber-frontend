@@ -420,7 +420,7 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                             const context = contextSentence(r);
                             return (
                               <li key={`${r.poll_date} ${r.ward_name}`} style={{ margin: '0 0 12px' }}>
-                                {resultSentence(r)}
+                                {resultSentence(r, c.gss_code.startsWith('S12'))}
                                 {jointRunnersUp(r) && <> {jointRunnersUp(r)}</>}
                                 {context && <span style={{ display: 'block' }}>{context}</span>}
                                 <span style={{ display: 'block' }}><a href={r.declaration_url} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>Declaration of result</a></span>

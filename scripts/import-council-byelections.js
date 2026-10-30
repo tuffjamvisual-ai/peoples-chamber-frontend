@@ -140,11 +140,30 @@ const values = rows.map((x) => `(${[slugOf.get(x.council), x.ward, x.poll_date, 
 const upsert = `INSERT INTO public.council_byelections (${COLS.join(', ')}) VALUES\n${values.join(',\n')}\n`
   + `ON CONFLICT (council_slug, ward_name, poll_date) DO UPDATE SET ${COLS.slice(3).map((c) => `${c} = EXCLUDED.${c}`).join(', ')}\n`
   + `WHERE (${COLS.slice(3).map((c) => `council_byelections.${c}`).join(', ')}) IS DISTINCT FROM (${COLS.slice(3).map((c) => `EXCLUDED.${c}`).join(', ')});\n`;
+
+// What a write would change, against the rows already saved (none before migration 2026-10-30e is applied).
+const saved = new Map();
+const exists = psql("SET statement_timeout = '60s';\nSELECT to_regclass('public.council_byelections') IS NOT NULL;").trim().split('\n').pop() === 't';
+if (exists) {
+  const json = psql(`SET statement_timeout = '60s';\nSELECT coalesce(json_agg(json_build_object(${COLS.map((c) => `'${c}', ${c}`).join(', ')})), '[]') FROM public.council_byelections;`).trim().split('\n').pop();
+  for (const r of JSON.parse(json)) saved.set(`${r.council_slug}|${r.ward_name}|${r.poll_date}`, r);
+}
+const same = (a, b, c) => (c === 'joint_runners_up' ? JSON.stringify(a == null ? null : JSON.parse(a)) === JSON.stringify(b ?? null)
+  : c === 'turnout_pct' ? (a == null ? null : Number(a)) === (b == null ? null : Number(b)) : (a ?? null) === (b ?? null));
+let added = 0, changed = 0;
+for (const x of rows) {
+  const r = saved.get(`${slugOf.get(x.council)}|${x.ward}|${x.poll_date}`);
+  if (!r) { added++; continue; }
+  const x2 = { ...x, council_slug: slugOf.get(x.council), ward_name: x.ward };
+  const diff = COLS.filter((c) => !same(x2[c], r[c], c));
+  if (diff.length) { changed++; console.log(`Changed, ${x.council}, ${x.ward}: ${diff.join(', ')}`); }
+}
+console.log(`Against the saved rows: ${added} new, ${changed} changed, ${rows.length - added - changed} unchanged${exists ? '' : ' (no table yet)'}.`);
 if (SQL) { fs.writeFileSync(SQL, upsert); console.log(`Upsert written to ${SQL} (${rows.length} rows).`); }
 if (!WRITE) { console.log('\nDry run: nothing written. Add --write to save.'); process.exit(0); }
 
 psql(`BEGIN;\nSET LOCAL statement_timeout = '60s';\nSET LOCAL lock_timeout = '5s';\n${upsert}COMMIT;\n`);
-console.log(`Saved: ${rows.length} rows upserted (unchanged rows are left as they were).`);
+console.log(`Saved: ${added} new and ${changed} changed rows (${rows.length - added - changed} unchanged rows left as they were).`);
 
 const slugs = [...new Set(rows.map((x) => slugOf.get(x.council)))].sort();
 const pathArgs = slugs.flatMap((s) => ['--path', `/councils/${s}`]);

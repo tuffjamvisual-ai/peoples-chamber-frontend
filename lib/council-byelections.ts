@@ -48,13 +48,17 @@ const pct = (n: number) => String(Number(n.toFixed(2)));
 // "<date>, <ward>: <winner> (<party>) elected with <votes> votes; <runner up> (<party>) <votes>. Turnout <x> per cent."
 // Without vote counts: "<winner> (<party>) elected. The council has not published vote counts." Parties are as on
 // the declaration. Never "gain" or "hold".
-export function resultSentence(r: CouncilByelection): string {
+// Scottish councils (stv: GSS code S12) elect by the single transferable vote, so the votes are first preferences
+// (owner, 30 Oct 2026): "<date>, <ward>: <winner> (<party>) elected. First preference votes: <winner> <votes>;
+// <runner up> (<party>) <votes>. Turnout <x> per cent."
+export function resultSentence(r: CouncilByelection, stv = false): string {
   const head = `${longDate(r.poll_date)}, ${r.ward_name}: `;
   if (r.winner_votes == null) return `${head}${withParty(r.winner_name, r.winner_party)} elected. The council has not published vote counts.`;
   const runnerUp = r.runner_up_name && r.runner_up_votes != null
     ? `; ${withParty(r.runner_up_name, r.runner_up_party)} ${n0(r.runner_up_votes)}`
     : '';
   const turnout = r.turnout_pct != null ? ` Turnout ${pct(r.turnout_pct)} per cent.` : '';
+  if (stv) return `${head}${withParty(r.winner_name, r.winner_party)} elected. First preference votes: ${r.winner_name} ${n0(r.winner_votes)}${runnerUp}.${turnout}`;
   return `${head}${withParty(r.winner_name, r.winner_party)} elected with ${n0(r.winner_votes)} votes${runnerUp}.${turnout}`;
 }
 
