@@ -33,7 +33,7 @@ import CouncilSewageSection from '../../components/CouncilSewageSection';
 import CouncilRatingsSection from '../../components/CouncilRatingsSection';
 import CouncilOmbudsmanSection from '../../components/CouncilOmbudsmanSection';
 import { loadElectionSummary } from '@/lib/council-election-summary';
-import { loadCouncilByelections, resultSentence, contextSentence } from '@/lib/council-byelections';
+import { loadCouncilByelections, resultSentence, jointRunnersUp, contextSentence } from '@/lib/council-byelections';
 import JsonLd, { buildBreadcrumbs } from '@/lib/JsonLd';
 import ArticleEndSignup from '../../components/ArticleEndSignup';
 import { DATA_SIGNUP_LINE } from '@/lib/signup-lines';
@@ -314,6 +314,9 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
 
   return (
     <OpenGovShell pageStamp="Councils">
+      {/* Phones (owner, 30 Oct 2026): under 640px each label sits above its value at full width, as the two columns
+          left the values a few letters wide at 320px. Nothing changes from 641px up. */}
+      <style>{'@media (max-width: 640px) { .council-dl > div > dt, .council-dl > div > dd { grid-column: 1 / -1; } .council-dl > div > dt { border-bottom: 0 !important; padding-bottom: 0 !important; } }'}</style>
       <JsonLd data={buildBreadcrumbs([{ name: 'Home', path: '/' }, { name: 'Councils', path: '/councils' }, { name: c.name, path: `/councils/${c.slug}` }])} />
       <BackLink
         fallbackHref="/councils"
@@ -403,17 +406,14 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                       sub={`As at May ${comp.snapshot_year}. "Independents and others" includes local parties. Source: Open Council Data UK (public domain).`}
                     />
                   )}
-                  {/* By-elections since May 2026 (owner's approval, 30 Oct 2026; lib/council-byelections.ts), newest
+                  {/* Byelections since May 2026 (owner's approval, 30 Oct 2026; lib/council-byelections.ts), newest
                       first, each from the council's own declaration. The seats above are left as at May 2026. */}
-                  {byelections.length > 0 && <>
-                    {/* Under 640px the label sits above the list, so the sentences get the full width. */}
-                    <style>{'@media (max-width: 640px) { .cb-row > dt, .cb-row > dd { grid-column: 1 / -1; } .cb-row > dt { border-bottom: 0 !important; padding-bottom: 0 !important; } }'}</style>
+                  {byelections.length > 0 && (
                     <DataRow
-                      className="cb-row"
-                      label="By-elections since May 2026"
+                      label="Byelections since May 2026"
                       value={<>
                         {comp && comp.total_seats > 0 && (
-                          <span style={{ display: 'block', marginBottom: '10px' }}>Seat totals are as at May 2026 and do not include the by-elections below.</span>
+                          <span style={{ display: 'block', marginBottom: '10px' }}>Seat totals are as at May 2026 and do not include the byelections below.</span>
                         )}
                         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                           {byelections.map((r) => {
@@ -421,15 +421,16 @@ export default async function CouncilPage({ params }: { params: Promise<{ slug: 
                             return (
                               <li key={`${r.poll_date} ${r.ward_name}`} style={{ margin: '0 0 12px' }}>
                                 {resultSentence(r)}
+                                {jointRunnersUp(r) && <> {jointRunnersUp(r)}</>}
                                 {context && <span style={{ display: 'block' }}>{context}</span>}
-                                <a href={r.declaration_url} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>Declaration of result</a>
+                                <span style={{ display: 'block' }}><a href={r.declaration_url} target="_blank" rel="noopener noreferrer" style={{ color: INK, textDecoration: 'underline' }}>Declaration of result</a></span>
                               </li>
                             );
                           })}
                         </ul>
                       </>}
                     />
-                  </>}
+                  )}
                   {/* Shown only when the leader was read from a source (scripts/import-council-leaders.js, owner's
                       decision, 19 Oct 2026); the old backfilled value was often the ceremonial mayor or chair. */}
                   {c.leader_source_url && c.leader_role && (
@@ -772,7 +773,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       <h2 style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, fontWeight: 'bold', margin: '0 0 14px' }}>
         {title}
       </h2>
-      <dl style={{ margin: 0, display: 'grid', gridTemplateColumns: 'minmax(180px, 220px) 1fr', gap: '0', borderTop: `1px solid ${INK_HAIRLINE}` }}>
+      <dl className="council-dl" style={{ margin: 0, display: 'grid', gridTemplateColumns: 'minmax(180px, 220px) 1fr', gap: '0', borderTop: `1px solid ${INK_HAIRLINE}` }}>
         {children}
       </dl>
     </section>
@@ -978,10 +979,10 @@ function chiefExecSource(c: CouncilFull): React.ReactNode {
   );
 }
 
-function DataRow({ label, value, sub, valueColour, className }: { label: string; value: React.ReactNode | null; sub?: React.ReactNode | null; valueColour?: string; className?: string }) {
+function DataRow({ label, value, sub, valueColour }: { label: string; value: React.ReactNode | null; sub?: React.ReactNode | null; valueColour?: string }) {
   if (value == null || value === '') return null;
   return (
-    <div className={className} style={{ display: 'contents' }}>
+    <div style={{ display: 'contents' }}>
       <dt style={{ fontFamily: MONO, fontSize: '15px', letterSpacing: '0.04em', padding: '12px 16px 12px 0', borderBottom: `1px solid ${INK_HAIRLINE}`, color: INK_SOFT }}>
         {label}
       </dt>

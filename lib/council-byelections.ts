@@ -1,4 +1,4 @@
-// Council by-elections since May 2026 (owner's approval of the design, 30 Oct 2026): the rows of council_byelections
+// Council byelections since May 2026 (owner's approval of the design, 30 Oct 2026): the rows of council_byelections
 // (migration 2026-10-30e, loaded by scripts/import-council-byelections.js) for one council, newest first, and the
 // sentence each one is shown as on /councils/[slug].
 import { supabase } from '@/lib/supabase';
@@ -19,6 +19,7 @@ export type CouncilByelection = {
   former_party_at_vacancy: string | null;
   former_party_source: 'council' | 'secondary' | null;
   vacancy_reason: string | null;
+  joint_runners_up: { name: string; party: string | null }[] | null;
   status: 'confirmed_council' | 'winner_only_council';
 };
 
@@ -27,7 +28,7 @@ export type CouncilByelection = {
 export async function loadCouncilByelections(slug: string): Promise<CouncilByelection[]> {
   const { data, error } = await supabase
     .from('council_byelections')
-    .select('ward_name, poll_date, kind, winner_name, winner_party, winner_votes, runner_up_name, runner_up_party, runner_up_votes, turnout_pct, declaration_url, former_councillor, former_party_at_vacancy, former_party_source, vacancy_reason, status')
+    .select('ward_name, poll_date, kind, winner_name, winner_party, winner_votes, runner_up_name, runner_up_party, runner_up_votes, turnout_pct, declaration_url, former_councillor, former_party_at_vacancy, former_party_source, vacancy_reason, joint_runners_up, status')
     .eq('council_slug', slug)
     .order('poll_date', { ascending: false })
     .order('ward_name');
@@ -55,6 +56,16 @@ export function resultSentence(r: CouncilByelection): string {
     : '';
   const turnout = r.turnout_pct != null ? ` Turnout ${pct(r.turnout_pct)} per cent.` : '';
   return `${head}${withParty(r.winner_name, r.winner_party)} elected with ${n0(r.winner_votes)} votes${runnerUp}.${turnout}`;
+}
+
+// Runners up tied on the same votes (Flintshire, Higher Kinnerton): "Joint runners up: A (party) and B (party), 21 votes
+// each." Names and parties as in the research file.
+export function jointRunnersUp(r: CouncilByelection): string | null {
+  const j = r.joint_runners_up;
+  if (!j || j.length < 2 || r.runner_up_votes == null || r.winner_votes == null) return null;
+  const people = j.map((p) => withParty(p.name, p.party));
+  const list = people.length === 2 ? `${people[0]} and ${people[1]}` : `${people.slice(0, -1).join(', ')} and ${people[people.length - 1]}`;
+  return `Joint runners up: ${list}, ${n0(r.runner_up_votes)} votes each.`;
 }
 
 // The line under the result: a postponed ordinary poll is labelled as such; otherwise who held the seat, with the

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Council by-elections since May 2026 (owner's approval of the design, 30 Oct 2026), into council_byelections
+// Council byelections since May 2026 (owner's approval of the design, 30 Oct 2026), into council_byelections
 // (migration 2026-10-30e-council-byelections.sql). Shown on /councils/[slug] under the seats.
 //
 // Reads the two research files (never retyped):
@@ -7,8 +7,10 @@
 // and loads only items with status "confirmed_council" or "winner_only_council" ("not_confirmed" is left out).
 //
 // Each council name is matched to the councils table exactly: the table's short_name, or its name without the
-// trailing " Council" (case and the "&"/"and" spelling ignored). Nothing is guessed: if any council is not matched,
-// the script lists them and stops without writing.
+// trailing " Council" (case and the "&"/"and" spelling ignored), or a fixed mapping in ALIASES (owner's approval,
+// 30 Oct 2026). Nothing is guessed: if any council is not matched, the script lists them and stops without writing.
+// EXCLUDE leaves out polls the page already shows elsewhere. Joint runners up are read from the item's note
+// ("Runners up tied on 21: A (party) and B (party)") into joint_runners_up.
 //
 // DRY RUN BY DEFAULT: prints the rows per council and writes nothing.
 //   --write         upserts every row in one psql transaction (60 s statement and 5 s lock timeouts), keyed on
@@ -34,6 +36,10 @@ const SQL = arg('sql');
 const DIR = arg('dir', path.join(__dirname, '..', 'Claude outputs', 'data', 'councils'));
 const FILES = ['byelections-since-may-2026-gains.json', 'byelections-since-may-2026-holds.json'];
 const LOAD = new Set(['confirmed_council', 'winner_only_council']);
+// Fixed name mappings (owner's approval, 30 Oct 2026): the research file's name -> councils.slug.
+const ALIASES = { 'Newcastle upon Tyne': 'newcastle' };
+// Left out (owner's approval, 30 Oct 2026): Bradford's postponed Idle & Thackley poll already shows under "Last election".
+const EXCLUDE = new Set(['Bradford|Idle & Thackley|2026-06-18']);
 const LEAVE_OUT = process.argv.includes('--leave-out-unmatched');
 const fail = (m) => { console.error(m); process.exit(1); };
 if (WRITE && LEAVE_OUT) fail('--leave-out-unmatched is for a rehearsal only, not with --write.');
@@ -57,6 +63,19 @@ for (const f of FILES) {
 }
 let rows = items.filter((x) => LOAD.has(x.status));
 const left = items.length - rows.length;
+const excluded = rows.filter((x) => EXCLUDE.has(`${x.council}|${x.ward}|${x.poll_date}`));
+if (excluded.length !== EXCLUDE.size) fail(`EXCLUDE: found ${excluded.length} of ${EXCLUDE.size} polls in the files; check the list.`);
+rows = rows.filter((x) => !excluded.includes(x));
+
+// Joint runners up, from the note: "Runners up tied on 21: A (party) and B (party)".
+const TIED = /^Runners up tied on (\d+): (.+?) \((.+?)\) and (.+?) \((.+?)\)$/;
+for (const x of rows) {
+  const m = TIED.exec(x.notes || '');
+  x.joint_runners_up = null;
+  if (!m) continue;
+  if (x.runner_up_name != null || Number(m[1]) !== x.runner_up_votes) fail(`${x.council}, ${x.ward}: the tied note does not agree with runner_up_name or runner_up_votes`);
+  x.joint_runners_up = JSON.stringify([{ name: m[2], party: m[3] }, { name: m[4], party: m[5] }]);
+}
 
 // Checks the table would refuse anyway, made here so a dry run shows them.
 const problems = [];
@@ -90,6 +109,11 @@ for (const c of councils) {
 const slugOf = new Map();
 const unmatched = [];
 for (const name of [...new Set(rows.map((x) => x.council))].sort()) {
+  if (ALIASES[name]) {
+    if (!councils.some((c) => c.slug === ALIASES[name])) fail(`ALIASES: ${ALIASES[name]} is not in the councils table`);
+    slugOf.set(name, ALIASES[name]);
+    continue;
+  }
   const hits = byName.get(norm(name));
   if (hits && hits.size === 1) slugOf.set(name, [...hits][0]);
   else unmatched.push(hits ? `${name} (more than one council: ${[...hits].join(', ')})` : name);
@@ -98,7 +122,8 @@ for (const name of [...new Set(rows.map((x) => x.council))].sort()) {
 // Report.
 const per = new Map();
 for (const x of rows) per.set(x.council, (per.get(x.council) || 0) + 1);
-console.log(`${items.length} items read, ${rows.length} to load (${rows.filter((x) => x.status === 'winner_only_council').length} winner only), ${left} not confirmed left out.`);
+console.log(`${items.length} items read, ${rows.length} to load (${rows.filter((x) => x.status === 'winner_only_council').length} winner only), ${left} not confirmed left out, ${excluded.length} excluded (${excluded.map((x) => `${x.council}, ${x.ward}`).join('; ')}).`);
+for (const x of rows) if (x.joint_runners_up) console.log(`Joint runners up, ${x.council}, ${x.ward}: ${x.joint_runners_up}`);
 console.log(`${per.size} councils:`);
 for (const [name, n] of [...per].sort((a, b) => a[0].localeCompare(b[0]))) console.log(`  ${(slugOf.get(name) || 'UNMATCHED').padEnd(32)} ${String(n).padStart(2)}  ${name}`);
 if (unmatched.length && !LEAVE_OUT) fail(`\nStopped, nothing written: ${unmatched.length} council name(s) not matched to the councils table:\n  ${unmatched.join('\n  ')}`);
@@ -110,8 +135,8 @@ if (unmatched.length) {
 
 // The upsert.
 const q = (v) => (v == null ? 'NULL' : typeof v === 'number' ? String(v) : `'${String(v).replace(/'/g, "''")}'`);
-const COLS = ['council_slug', 'ward_name', 'poll_date', 'kind', 'winner_name', 'winner_party', 'winner_votes', 'runner_up_name', 'runner_up_party', 'runner_up_votes', 'turnout_pct', 'declaration_url', 'former_councillor', 'former_party_at_vacancy', 'former_party_source', 'vacancy_reason', 'notes', 'status', 'checked_on'];
-const values = rows.map((x) => `(${[slugOf.get(x.council), x.ward, x.poll_date, x.kind, x.winner_name, x.winner_party, x.winner_votes, x.runner_up_name, x.runner_up_party, x.runner_up_votes, x.turnout_pct, x.declaration_url, x.former_councillor, x.former_party_at_vacancy, x.former_party_source, x.vacancy_reason, x.notes, x.status, x.checked_on].map(q).join(', ')})`);
+const COLS = ['council_slug', 'ward_name', 'poll_date', 'kind', 'winner_name', 'winner_party', 'winner_votes', 'runner_up_name', 'runner_up_party', 'runner_up_votes', 'turnout_pct', 'declaration_url', 'former_councillor', 'former_party_at_vacancy', 'former_party_source', 'vacancy_reason', 'joint_runners_up', 'notes', 'status', 'checked_on'];
+const values = rows.map((x) => `(${[slugOf.get(x.council), x.ward, x.poll_date, x.kind, x.winner_name, x.winner_party, x.winner_votes, x.runner_up_name, x.runner_up_party, x.runner_up_votes, x.turnout_pct, x.declaration_url, x.former_councillor, x.former_party_at_vacancy, x.former_party_source, x.vacancy_reason, x.joint_runners_up, x.notes, x.status, x.checked_on].map(q).join(', ')})`);
 const upsert = `INSERT INTO public.council_byelections (${COLS.join(', ')}) VALUES\n${values.join(',\n')}\n`
   + `ON CONFLICT (council_slug, ward_name, poll_date) DO UPDATE SET ${COLS.slice(3).map((c) => `${c} = EXCLUDED.${c}`).join(', ')}\n`
   + `WHERE (${COLS.slice(3).map((c) => `council_byelections.${c}`).join(', ')}) IS DISTINCT FROM (${COLS.slice(3).map((c) => `EXCLUDED.${c}`).join(', ')});\n`;
