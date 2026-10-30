@@ -32,6 +32,10 @@
 // Saves go in batches of ITEM_BATCH rows (owner, 30 Oct 2026): a whole debate in one upsert (up to 2,002 items) hit the
 // statement timeout at 15:28 on 30 Oct, and value_html roughly doubles each row.
 //
+// Archived speeches are never hard deleted (owner, 30 Oct 2026): a contribution Hansard drops from a re-published
+// debate gets removed_at (migration 2026-10-30g). Anything that reads the archive for readers (the Stage 2 debate page,
+// a future search) must filter removed_at IS NULL. The sync's own reads below see removed rows on purpose.
+//
 // Politeness: one request at a time, at least 0.5 s apart. HTTP 429 or 5xx: last_error is recorded, the cursor saved,
 // and the run ends cleanly (the next run tries again); nothing is retried in a loop. New requests stop at 80 per cent
 // of maxDuration.
@@ -232,13 +236,16 @@ class Run {
     }
   }
 
-  // Contributions Hansard no longer lists under a debate it has re-published.
-  async deleteContributions(extIds: string[]) {
+  // Contributions Hansard no longer lists under a debate it has re-published: marked removed_at, never deleted
+  // (owner, 30 Oct 2026: archived speeches are never hard deleted; migration 2026-10-30g). A later fetch that lists one
+  // again clears removed_at, as every stored row is written with removed_at null.
+  async markRemoved(extIds: string[]) {
+    const now = new Date().toISOString();
     for (let i = 0; i < extIds.length; i += ITEM_BATCH) {
       const batch = extIds.slice(i, i + ITEM_BATCH);
-      if (this.dry) { this.captured.push({ table: 'hansard_contributions:delete', rows: batch.map((ext_id) => ({ ext_id })) }); continue; }
-      const { error } = await this.db.from('hansard_contributions').delete().in('ext_id', batch);
-      if (error) throw new Error(`hansard_contributions delete: ${error.message}`);
+      if (this.dry) { this.captured.push({ table: 'hansard_contributions:removed', rows: batch.map((ext_id) => ({ ext_id })) }); continue; }
+      const { error } = await this.db.from('hansard_contributions').update({ removed_at: now }).in('ext_id', batch).is('removed_at', null);
+      if (error) throw new Error(`hansard_contributions mark removed: ${error.message}`);
     }
   }
 
@@ -260,7 +267,7 @@ class Run {
     const out: Stored[] = [];
     for (let from = 0; ; from += 1000) {
       const { data, error } = await this.db.from('hansard_contributions')
-        .select('ext_id, item_order, item_type, attributed_to, value_html')
+        .select('ext_id, item_order, item_type, attributed_to, value_html, removed_at')
         .in('debate_ext_id', [...new Set(ids)]).order('ext_id').range(from, from + 999);
       if (error) throw new Error(`hansard_contributions read: ${error.message}`);
       out.push(...((data ?? []) as Stored[]));
@@ -278,10 +285,11 @@ class Run {
       let owners: { ext_id: string; debate_ext_id: string | null }[];
       if (this.dry) owners = batch.filter((e) => this.dryOwners.has(e)).map((e) => ({ ext_id: e, debate_ext_id: this.dryOwners.get(e)! }));
       else {
-        const { data, error } = await this.db.from('hansard_contributions').select('ext_id, debate_ext_id').in('ext_id', batch);
+        const { data, error } = await this.db.from('hansard_contributions').select('ext_id, debate_ext_id').in('ext_id', batch).is('removed_at', null);
         if (error) throw new Error(`hansard_contributions read: ${error.message}`);
         owners = (data ?? []) as typeof owners;
       }
+      // A row marked removed under another debate is not kept there: this debate takes it back under its own id.
       for (const r of owners) if (!self.has(up(r.debate_ext_id))) out.add(r.ext_id);
     }
     return out;
@@ -316,7 +324,7 @@ type Overview = {
 };
 type Debate = { Overview?: Overview; Items?: DebateItem[] | null; ChildDebates?: Debate[] | null };
 type Known = { guid: string; fetched_at: string | null; settled_at: string | null; gone_at: string | null };
-type Stored = { ext_id: string; item_order: number | null; item_type: string | null; attributed_to: string | null; value_html: string | null };
+type Stored = { ext_id: string; item_order: number | null; item_type: string | null; attributed_to: string | null; value_html: string | null; removed_at?: string | null };
 
 async function debatesForDay(run: Run, date: string): Promise<Listed[]> {
   const sections = await run.getJson<string[]>(`${HANSARD}/overview/sectionsforday.json?date=${date}&house=Commons`);
@@ -391,6 +399,7 @@ async function storeDebate(run: Run, guid: string, deb: Debate, o: StoreOpts): P
       item_type: i.ItemType,
       attributed_to: (i.AttributedTo ?? '').trim() || null,
       value_html: i.Value ?? null,
+      removed_at: null,
     });
   });
   // Children the record has but the tree (or, on a re-fetch, hansard_debates) does not: their items are not stored.
@@ -413,14 +422,19 @@ async function storeDebate(run: Run, guid: string, deb: Debate, o: StoreOpts): P
   const byKey = new Map<unknown, Row>();
   for (const r of rows) { const kept = byKey.get(r.ext_id); if (!kept || longer(r, kept)) byKey.set(r.ext_id, r); }
   const unique = [...byKey.values()];
-  const same = o.known && stored.length === unique.length
-    && JSON.stringify(stored.map(fingerprint).sort()) === JSON.stringify(unique.map(fingerprint).sort());
+  // Compared with the rows not marked removed; a removed row listed again makes the debate changed, which clears it.
+  const live = stored.filter((r) => !r.removed_at);
+  const same = o.known && live.length === unique.length
+    && JSON.stringify(live.map(fingerprint).sort()) === JSON.stringify(unique.map(fingerprint).sort());
   const result = o.known ? (same ? 'unchanged' : 'changed') : 'stored';
   if (!same) {
     await run.upsert('hansard_contributions', 'ext_id', rows, 'speeches', longer);
     const keep = new Set(unique.map((r) => r.ext_id));
-    const stale = stored.map((r) => r.ext_id).filter((id) => !keep.has(id));
-    if (unique.length && stale.length) await run.deleteContributions(stale);
+    const stale = live.map((r) => r.ext_id).filter((id) => !keep.has(id));
+    // Only after a complete fetch: a 200 with an Overview and Items present (getDebate returns null for anything else,
+    // and errors and timeouts throw before this point), and at least one item stored from it.
+    const complete = Array.isArray(deb.Items) && deb.Items.length > 0 && unique.length > 0;
+    if (complete && stale.length) await run.markRemoved(stale);
     if (o.known) run.extra.changes.push({ guid, at: now, via: o.via });
   }
   if (!o.known) {

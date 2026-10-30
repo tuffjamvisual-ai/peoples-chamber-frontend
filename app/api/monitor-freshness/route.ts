@@ -384,7 +384,8 @@ async function GET_impl(req: Request) {
     try {
       const [q, sp, st] = await Promise.all([
         supabaseAdmin.from('parliament_written_questions').select('id', { count: 'exact', head: true }),
-        supabaseAdmin.from('hansard_contributions').select('ext_id', { count: 'exact', head: true }),
+        // Archive reads filter removed_at IS NULL (owner, 30 Oct 2026): speeches Hansard has dropped are kept, not counted.
+        supabaseAdmin.from('hansard_contributions').select('ext_id', { count: 'exact', head: true }).is('removed_at', null),
         supabaseAdmin.from('parliament_archive_sync_state').select('source, cursor, rows_done, finished_at, last_error, last_run_at'),
       ]);
       // Debates from our own database, Stage 1 (owner, 30 Oct 2026): backfill progress from hansard_debates and the
