@@ -20,6 +20,13 @@ cd "$(git rev-parse --show-toplevel)"
 
 branch="$(git rev-parse --abbrev-ref HEAD)"
 
+# 0. Production is deployed from main only (owner, 30 Oct 2026: day to day work goes to the "work" branch, which
+#    reaches production only through a fast forward of main on "go live").
+if [[ "$branch" != "main" ]]; then
+  echo "✗ Refusing to deploy: the current branch is $branch, not main."
+  exit 1
+fi
+
 # 1. Working tree must be clean.
 if [[ -n "$(git status --porcelain)" ]]; then
   echo "✗ Refusing to deploy: working tree has uncommitted changes."

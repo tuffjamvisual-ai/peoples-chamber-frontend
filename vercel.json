@@ -197,6 +197,10 @@
       "schedule": "29 4 * * *"
     },
     {
+      "path": "/api/refresh-nightly-pages",
+      "schedule": "15 5 * * *"
+    },
+    {
       "path": "/api/sync-hansard-contributions",
       "schedule": "3 1 * * *"
     },

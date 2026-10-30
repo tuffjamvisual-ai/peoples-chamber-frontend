@@ -124,6 +124,9 @@ async function GET_impl(req: Request) {
     '/api/sync-children-in-care': '2026-10-28T17:00:00Z',            // children in care job (pushed 28 Oct); first run Thu 29 Oct 11:47 UTC
     '/api/sync-road-condition': '2026-10-28T17:00:00Z',              // road condition job (pushed 28 Oct); first run Fri 30 Oct 11:53 UTC
     '/api/sync-parliament-archive': '2026-10-29T22:00:00Z',          // Parliament archive backfill (pushed 29 Oct); every 10 minutes
+    // Cache Stage 2b (committed to the work branch 30 Oct 2026; live at the next "go live"). This date covers a go live
+    // on 30 or 31 Oct: the 31 Oct 05:15 run is not checked, the 1 Nov run is. A later go live moves it in that push.
+    '/api/refresh-nightly-pages': '2026-10-31T05:45:00Z',            // nightly page refresh; first checked run 1 Nov 05:15 UTC
   };
   // Run expected, zero rows normal: alerted only for a missed run or a failed one, never for a run of zero rows.
   // The reshuffle tick changes nothing unless reshuffle mode is on.
