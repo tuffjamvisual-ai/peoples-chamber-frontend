@@ -5,7 +5,8 @@
 //
 // The draft exports an EditorialEntry (default export, or a named `piece`), as in "Claude outputs/drafts/<slug>.ts".
 // --rehearse (the default) runs the write in a transaction and rolls it back; --apply commits it and then refreshes
-// the live site with scripts/revalidate.js (tags editorials and editorial:<slug>, and every page that lists the piece).
+// the live site with scripts/revalidate.js (tags editorials, editorial:<slug> and editorial-links:mp|bill:<id> for every
+// MP and bill the piece names before or after, and every page that lists the piece). --rehearse prints that list.
 // --topic places a new piece at the end of each topic named; on an update the stored topics are kept unless the
 // --topic set differs (kept topics keep their position, added ones go at the end). --allow names a proper name that
 // may contain a hyphen (e.g. --allow "Manningham-Buller").
@@ -263,22 +264,29 @@ ${apply ? 'COMMIT' : 'ROLLBACK'};
   const after = rowCount();
   console.log(`  ${apply ? 'wrote' : 'would write'} 1 row (${r.inserted ? 'insert' : 'update'}), registry_order ${r.registry_order}, topic_positions ${JSON.stringify(r.topic_positions)}`);
   console.log(`  rows before ${before}, after ${after}${apply ? '' : ' (rolled back)'}`);
-  if (!apply) { console.log('publish-editorial: rehearsal done, nothing kept. Run again with --apply to publish.'); return; }
-
-  // Refresh the live site (rule 8's revalidate, plus every page that lists the piece).
+  // What the publish refreshes (cache Stage 2a, owner, 30 Oct 2026): the piece, the full list ('editorials': home,
+  // topics, departments, read next, feed, sitemap), and the linked reads of every MP and bill the piece names, both
+  // before the change (from the stored row, so a removed link is refreshed too) and after it.
   const oldMembers = ((existing?.related_member_ids as number[] | null) ?? []);
   const oldBills = ((existing?.related_bill_ids as number[] | null) ?? []);
   const oldDepts = ((existing?.related_dept_slugs as string[] | null) ?? []);
+  const allMembers = [...new Set([...oldMembers, ...memberIds])].sort((a, b) => a - b);
+  const allBills = [...new Set([...oldBills, ...billIds])].sort((a, b) => a - b);
+  const tags = ['editorials', `editorial:${piece.slug}`, ...allMembers.map((m) => `editorial-links:mp:${m}`), ...allBills.map((b) => `editorial-links:bill:${b}`)];
   const paths = [
     `/${kind}/${piece.slug}`, `/${kind}/${piece.slug}/sources`, '/reports', '/', '/feed.xml', '/sitemap.xml',
     ...[...new Set([...storedTopics, ...wanted])].map((t) => `/topics/${t}`),
     ...[...new Set([...oldDepts, ...(piece.relatedDeptSlugs ?? [])])].map((d) => `/departments/${d}`),
-    ...[...new Set([...oldMembers, ...memberIds])].flatMap((m) => [`/mps/${m}`, `/mps/${m}/reports`]),
-    ...[...new Set([...oldBills, ...billIds])].map((b) => `/bills/${b}`),
+    ...allMembers.flatMap((m) => [`/mps/${m}`, `/mps/${m}/reports`]),
+    ...allBills.map((b) => `/bills/${b}`),
   ];
-  const refresh = spawnSync('node', ['scripts/revalidate.js', '--tag', 'editorials', '--tag', `editorial:${piece.slug}`, ...paths.flatMap((p) => ['--path', p])], { encoding: 'utf8' });
-  console.log(`  refresh (${paths.length} paths, 2 tags): ${(refresh.stdout || refresh.stderr || '').trim()}`);
-  if (refresh.status !== 0) fail('published, but the refresh failed; run it again: node scripts/revalidate.js --tag editorials');
+  console.log(`  ${apply ? 'refreshing' : 'would refresh'} ${tags.length} tags: ${tags.join(', ')}`);
+  console.log(`  and ${paths.length} paths: ${paths.join(', ')}`);
+  if (!apply) { console.log('publish-editorial: rehearsal done, nothing kept. Run again with --apply to publish.'); return; }
+
+  const refresh = spawnSync('node', ['scripts/revalidate.js', ...tags.flatMap((t) => ['--tag', t]), ...paths.flatMap((p) => ['--path', p])], { encoding: 'utf8' });
+  console.log(`  refresh (${paths.length} paths, ${tags.length} tags): ${(refresh.stdout || refresh.stderr || '').trim()}`);
+  if (refresh.status !== 0) fail(`published, but the refresh failed; run it again: node scripts/revalidate.js ${tags.map((t) => `--tag ${t}`).join(' ')}`);
   console.log('publish-editorial: published. Now check the live page.');
 }
 
