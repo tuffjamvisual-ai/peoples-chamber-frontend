@@ -15,6 +15,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
+import { refreshMps, refreshAllMps, REFRESH_BATCH, sameValue } from '@/lib/mp-refresh';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
 
@@ -30,6 +31,22 @@ async function GET_impl(req: Request) {
   if (!url || !key) return NextResponse.json({ error: 'Supabase env missing' }, { status: 500 });
   const supabase = createClient(url, key);
 
+  // MP pages keep for a week (owner, 30 Oct 2026, cache Stage 2a part 3): the metrics are read before and after the
+  // recompute, and only MPs whose figures changed are refreshed (all of them as one route pattern when at least
+  // REFRESH_BATCH changed). The function itself still rewrites every row; changing that needs a function migration.
+  const COLS = 'member_id, divisions_voted, divisions_total, attendance_pct, rebellions_total, rebellion_rate_pct';
+  const snapshot = async () => {
+    const out = new Map<number, Record<string, unknown>>();
+    for (let from = 0; ; from += 1000) {
+      const { data: rows, error: e } = await supabase.from('mp_activity_metrics').select(COLS).order('member_id').range(from, from + 999);
+      if (e) throw new Error(e.message);
+      for (const r of (rows ?? []) as Record<string, unknown>[]) out.set(r.member_id as number, r);
+      if (!rows || rows.length < 1000) return out;
+    }
+  };
+  let before: Map<number, Record<string, unknown>> | null = null;
+  try { before = await snapshot(); } catch { before = null; }
+
   const startedAt = Date.now();
   let { data, error } = await supabase.rpc('recompute_mp_activity_metrics');
   let retried = false;
@@ -40,8 +57,18 @@ async function GET_impl(req: Request) {
   }
   if (error) return NextResponse.json({ ok: false, error: error.message, retried }, { status: 500 });
 
+  let mpRefresh: unknown = null;
+  try {
+    const after = await snapshot();
+    const changed = [...after.keys()].filter((id) => !before || !sameValue(before.get(id) ?? null, after.get(id)));
+    mpRefresh = changed.length >= REFRESH_BATCH ? { ...refreshAllMps(), changed: changed.length } : refreshMps(changed);
+  } catch (e) {
+    mpRefresh = { error: (e as Error).message };
+  }
+
   return NextResponse.json({
     ok: true,
+    mp_refresh: mpRefresh,
     ...(data as Record<string, unknown>),
     rows_written: (data as { members_written?: number } | null)?.members_written ?? null,
     retried,

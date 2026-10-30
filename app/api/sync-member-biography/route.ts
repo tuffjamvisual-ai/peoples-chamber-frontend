@@ -6,6 +6,7 @@ import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { SyncBudget, politeFetch, isPoliteStop, loadCursor, saveCursor } from '@/lib/sync-budget';
 import { ItemFailures, FLAG_AFTER_RUNS } from '@/lib/sync-item-failures';
 import { buildRepresentations, fetchHistory, sameRepresentations } from '@/lib/commons-representations';
+import { refreshMps, isDryRun } from '@/lib/mp-refresh';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
@@ -150,6 +151,10 @@ async function GET_impl(req: Request) {
 
   const startedAt = Date.now();
   const budget = new SyncBudget(maxDuration, { started: startedAt });
+  // MP pages keep for a week (owner, 30 Oct 2026, cache Stage 2a part 3): a member whose posts or seats changed has
+  // their page refreshed. ?dry=1 (local tests only) reads and compares but writes nothing.
+  const dry = isDryRun(req);
+  const changedMps = new Set<number>();
 
   // Overrides: member_id -> set of protected post ids.
   const overrideMap = new Map<number, Set<number>>();
@@ -241,6 +246,8 @@ async function GET_impl(req: Request) {
         && !((row.representations as { id: number }[] | null) || []).some((s) => ov.has(s.id))
         && !sameRepresentations(row.representations, seats);
       if (!g.changed && !o.changed && !m.changed && !seatsChanged) return;
+      changedMps.add(memberId);
+      if (dry) return;
 
       // NOTE: political_bio / description / biography are intentionally NOT in this
       // update — the handwritten narrative is permanently excluded from sync writes.
@@ -274,8 +281,9 @@ async function GET_impl(req: Request) {
     if (!finished.has(id)) { fullRound = false; break; }
     newAfter = id;
   }
-  const cursorSaved = await saveCursor(supabase, ROUTE, fullRound ? null : { after: newAfter });
-  const failuresSaved = await failing.save();
+  const cursorSaved = dry ? false : await saveCursor(supabase, ROUTE, fullRound ? null : { after: newAfter });
+  const failuresSaved = dry ? false : await failing.save();
+  const mpRefresh = !dry && changedMps.size ? refreshMps(changedMps) : null;
 
   return NextResponse.json({
     ok: true,
@@ -289,6 +297,9 @@ async function GET_impl(req: Request) {
     processed,
     updated,
     seats_updated: seatsUpdated,
+    mps_changed: changedMps.size,
+    mp_refresh: mpRefresh,
+    ...(dry ? { dry_run: true } : {}),
     history_members: historyMembers,
     api_misses: apiMisses,
     flagged_failed: flaggedFail,

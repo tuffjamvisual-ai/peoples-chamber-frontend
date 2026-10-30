@@ -5,10 +5,11 @@ import {
   collectPetitionIdsAtThreshold,
   fetchPetitionJson,
   buildPetitionRows,
-  writePetitionRows,
+  writePetitionChanges,
   PETITIONS_BASE,
 } from '@/lib/petitions';
 import { isPoliteStop } from '@/lib/sync-budget';
+import { refreshMps, refreshAllMps, isDryRun, REFRESH_BATCH } from '@/lib/mp-refresh';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -39,6 +40,13 @@ async function GET_impl(req: Request) {
   }
 
   const started = Date.now();
+  // MP pages keep for a week (owner, 30 Oct 2026, cache Stage 2a part 3): only changed rows are written
+  // (lib/petitions.ts writePetitionChanges), and the MPs of the constituencies whose petitions list changed are
+  // refreshed; every MP page as one route pattern when at least REFRESH_BATCH changed. ?dry=1 (local tests only)
+  // compares but writes nothing.
+  const dry = isDryRun(req);
+  const changedGss = new Set<string>();
+  let rowsChanged = 0;
 
   let openIds: number[];
   try {
@@ -78,7 +86,9 @@ async function GET_impl(req: Request) {
       try {
         const json = await fetchPetitionJson(`${PETITIONS_BASE}/petitions/${id}.json`);
         const built = buildPetitionRows(json);
-        await writePetitionRows(supabase, built);
+        const res = await writePetitionChanges(supabase, built, dry);
+        for (const g of res.changedGss) changedGss.add(g);
+        rowsChanged += res.written;
         constituencyRows += built.constRows.length;
         processed++;
       } catch (e) {
@@ -90,8 +100,20 @@ async function GET_impl(req: Request) {
   }
   await Promise.all(Array.from({ length: CONCURRENCY }, worker));
 
+  let mpsChanged = 0;
+  let mpRefresh: unknown = null;
+  if (changedGss.size) {
+    const { data: mpRows } = await supabase.from('mps').select('member_id, constituency_gss_code').eq('current_member', true).in('constituency_gss_code', [...changedGss]);
+    const ids = (mpRows ?? []).map((r) => r.member_id as number);
+    mpsChanged = ids.length;
+    if (!dry && ids.length) mpRefresh = ids.length >= REFRESH_BATCH ? refreshAllMps() : refreshMps(ids);
+  }
   const body = {
     ok: failures.length === 0,
+    rows_changed: rowsChanged,
+    mps_changed: mpsChanged,
+    mp_refresh: mpRefresh,
+    ...(dry ? { dry_run: true } : {}),
     open_at_threshold: openIds.length,
     closed_since_last_run: closedSinceLastRun.length,
     total_queued: total,

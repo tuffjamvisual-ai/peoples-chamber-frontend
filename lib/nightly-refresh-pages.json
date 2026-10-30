@@ -1,7 +1,6 @@
 {
-  "about": "Pages refreshed after the nightly workflow (.github/workflows/daily-context-update.yml) in place of its old redeploy, and again by the cron /api/refresh-nightly-pages at 05:15 UTC (owner's approval, 30 Oct 2026, cache Stage 2b). A path with [brackets] is a route pattern: every page of that route.",
+  "about": "Pages refreshed after the nightly workflow (.github/workflows/daily-context-update.yml) in place of its old redeploy, and again by the cron /api/refresh-nightly-pages at 05:15 UTC (owner's approval, 30 Oct 2026, cache Stage 2b). A path with [brackets] is a route pattern: every page of that route. /mps/[id] left the list on 30 Oct 2026 (cache Stage 2a part 3): only the MPs the nightly scripts changed are refreshed (lib/mp-nightly.ts).",
   "paths": [
-    "/mps/[id]",
     "/people/[slug]",
     "/second-jobs",
     "/second-jobs/[slug]",

@@ -3,6 +3,7 @@ import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
 import { ItemFailures, FLAG_AFTER_RUNS } from '@/lib/sync-item-failures';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { refreshMps, sameValue } from '@/lib/mp-refresh';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -129,6 +130,9 @@ async function GET_impl(req: Request) {
   const errors: { member_id: number; status?: number; message: string }[] = [];
   const apiFailures: { member_id: number; status: number; message: string }[] = [];
   const dryRunWould: DryMember[] = [];
+  // MP pages keep for a week (owner, 30 Oct 2026, cache Stage 2a part 3): a member whose memberships are new or changed
+  // against the stored rows has their page refreshed.
+  const changedMps = new Set<number>();
 
   for (const memberId of memberIds) {
     if (budget.stopStarting()) {
@@ -195,6 +199,16 @@ async function GET_impl(req: Request) {
       });
     }
 
+    if (rows.length) {
+      const { data: old } = await supabaseAdmin.from('mp_committee_memberships').select('committee_id, committee_name, role, start_date, end_date').eq('member_id', memberId);
+      const oldBy = new Map(((old ?? []) as Record<string, unknown>[]).map((r) => [`${r.committee_id}|${String(r.start_date).slice(0, 10)}`, r]));
+      const changed = rows.some((r) => {
+        const o = oldBy.get(`${r.committee_id}|${r.start_date}`);
+        return !o || !sameValue({ n: o.committee_name, r: o.role, e: o.end_date ? String(o.end_date).slice(0, 10) : null }, { n: r.committee_name, r: r.role, e: r.end_date });
+      });
+      if (changed) changedMps.add(memberId);
+    }
+
     if (dryRun) {
       dryRunWould.push({
         member_id: memberId,
@@ -237,6 +251,7 @@ async function GET_impl(req: Request) {
   }
 
   const elapsed_ms = Date.now() - startedAt;
+  const mpRefresh = !dryRun && changedMps.size ? refreshMps(changedMps) : null;
   const failuresSaved = dryRun ? null : await failing.save();
   if (apiFailures.length) console.warn(`[sync-committee-memberships] Members API failed for ${apiFailures.length} of ${processed} members: ${apiFailures.map((f) => `${f.member_id} (${f.message})`).join(', ')}`);
   if (errors.length) console.error(`[sync-committee-memberships] ${errors.length} database write errors: ${errors.map((e) => `${e.member_id}: ${e.message}`).join('; ')}`);
@@ -260,12 +275,15 @@ async function GET_impl(req: Request) {
     flagged_after_runs: FLAG_AFTER_RUNS,
     failing_items: failing.summary(),
     failures_saved: failuresSaved,
+    mps_changed: changedMps.size,
+    mp_refresh: mpRefresh,
   };
 
   if (dryRun) {
     return NextResponse.json({
       ...base,
       would: {
+        mp_pages_refreshed: changedMps.size,
         total_rows: dryRunWould.reduce((s, m) => s + m.total_entries, 0),
         current_memberships: dryRunWould.reduce((s, m) => s + m.current_memberships, 0),
         members: dryRunWould,

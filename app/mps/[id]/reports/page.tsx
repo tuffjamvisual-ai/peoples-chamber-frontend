@@ -12,7 +12,7 @@ import { displayMpName } from '@/lib/mp-name';
 // Every report that names an MP (owner's approval, 24 Oct 2026), the full list behind the profile's "Reports mentioning
 // this MP", newest first, from the editorial registry at build time (lib/mp-reports.ts). Rendered on first request and
 // cached like the profile; no searchParams. Not in the sitemap, and noindex, follow.
-export const revalidate = 21600;
+export const revalidate = 604800;  // a week (owner, 30 Oct 2026, cache Stage 2a part 3): the syncs refresh an MP's page when its data changes (lib/mp-refresh.ts)
 
 export function generateStaticParams() {
   return [];

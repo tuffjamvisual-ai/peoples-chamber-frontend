@@ -108,9 +108,12 @@ jobs:
           # "Payment: £X" amounts only: a rate ("£X a month", "per annum" and so on) is never added
           # (owner's approval, 23 Oct 2026). The table has no column for rates, so the second jobs
           # pages list regular pay from the register entries themselves.
+          # Only real changes are written (owner, 30 Oct 2026, cache Stage 2a part 3): rows whose figures changed are updated,
+          # new ones inserted, ones no longer earning deleted, and those MPs queued for a page refresh (sync_cursor
+          # 'mp-refresh-queue', emptied by /api/refresh-nightly-pages at 05:15 UTC).
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
           BEGIN;
-          DELETE FROM mp_outside_earnings_summary;
+          CREATE TEMP TABLE new_summary ON COMMIT DROP AS
           WITH payments AS (
             SELECT i.member_id, i.id AS parent_row_id,
               substring(c->>'interest' FROM 'Payment:\s*£([0-9][0-9,]*(?:\.[0-9]+)?)') AS amt_text
@@ -122,13 +125,28 @@ jobs:
               -- The same rate test as parsePayment in app/second-jobs/_lib/data.ts.
               AND c->>'interest' !~* 'Payment:\s*£[0-9][0-9,]*(\.[0-9]+)?\s*(a|per)\s+(month|quarter|year|annum|week|day|hour)\M'
           )
-          INSERT INTO mp_outside_earnings_summary (member_id, total_extracted, claim_count, source_count, updated_at)
           SELECT member_id,
-            SUM(replace(amt_text, ',', '')::numeric),
-            COUNT(*) FILTER (WHERE amt_text IS NOT NULL),
-            COUNT(DISTINCT parent_row_id) FILTER (WHERE amt_text IS NOT NULL),
-            now()
+            SUM(replace(amt_text, ',', '')::numeric) AS total_extracted,
+            COUNT(*) FILTER (WHERE amt_text IS NOT NULL)::int AS claim_count,
+            COUNT(DISTINCT parent_row_id) FILTER (WHERE amt_text IS NOT NULL)::int AS source_count
           FROM payments WHERE amt_text IS NOT NULL GROUP BY member_id;
+          CREATE TEMP TABLE changed_mps (member_id int) ON COMMIT DROP;
+          WITH gone AS (
+            DELETE FROM mp_outside_earnings_summary s WHERE NOT EXISTS (SELECT 1 FROM new_summary n WHERE n.member_id = s.member_id) RETURNING s.member_id
+          ), put AS (
+            INSERT INTO mp_outside_earnings_summary AS s (member_id, total_extracted, claim_count, source_count, updated_at)
+            SELECT member_id, total_extracted, claim_count, source_count, now() FROM new_summary
+            ON CONFLICT (member_id) DO UPDATE SET total_extracted = EXCLUDED.total_extracted, claim_count = EXCLUDED.claim_count,
+              source_count = EXCLUDED.source_count, updated_at = now()
+            WHERE (s.total_extracted, s.claim_count, s.source_count) IS DISTINCT FROM (EXCLUDED.total_extracted, EXCLUDED.claim_count, EXCLUDED.source_count)
+            RETURNING s.member_id
+          )
+          INSERT INTO changed_mps SELECT member_id FROM gone UNION SELECT member_id FROM put;
+          INSERT INTO sync_cursor (route, cursor, updated_at)
+          SELECT 'mp-refresh-queue', jsonb_build_object('ids', jsonb_agg(DISTINCT member_id)), now() FROM changed_mps HAVING count(*) > 0
+          ON CONFLICT (route) DO UPDATE SET updated_at = now(), cursor = jsonb_build_object('ids', (
+            SELECT jsonb_agg(DISTINCT x) FROM jsonb_array_elements(coalesce(sync_cursor.cursor->'ids', '[]'::jsonb) || EXCLUDED.cursor->'ids') AS x));
+          SELECT count(*) AS outside_earnings_mps_changed FROM changed_mps;
           COMMIT;
           SQL
         continue-on-error: true

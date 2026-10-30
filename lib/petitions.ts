@@ -178,3 +178,53 @@ export async function writePetitionRows(
     if (dErr) throw new Error(`stale constituency delete ${id}: ${dErr.message}`);
   }
 }
+
+// Only real changes (owner, 30 Oct 2026, cache Stage 2a part 3): the petition row is written when any of its fields
+// changed (not counting synced_at and updated_at), and only the constituency rows that are new or changed, with stale
+// ones deleted as above. Returns the constituencies whose MP page shows something different: every constituency with
+// the petition when a field the MP page shows changed (its title, state, total and dates), otherwise those whose own
+// row changed. `dry` compares but writes nothing.
+const SHOWN = ['action', 'state', 'signature_count', 'constituency_count', 'opened_at', 'closed_at', 'government_response_at', 'debated_on', 'url'] as const;
+const CONST_COLS = ['constituency_name', 'signature_count', 'rank_in_petition', 'share_of_petition_pct'] as const;
+const canon = (v: unknown): unknown =>
+  typeof v === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(v) ? new Date(/(Z|[+-]\d{2}:?\d{2})$/i.test(v) ? v : `${v}Z`).toISOString()
+    : typeof v === 'number' ? Number(v) : v == null ? null : Array.isArray(v) ? JSON.stringify(v) : v;
+const same = (a: Record<string, unknown>, b: Record<string, unknown>, cols: readonly string[]) => cols.every((c) => canon(a[c]) === canon(b[c]));
+
+export async function writePetitionChanges(
+  db: SupabaseClient,
+  { petition, constRows }: { petition: Record<string, unknown>; constRows: ConstituencyRow[] },
+  dry = false,
+): Promise<{ changedGss: string[]; written: number }> {
+  const id = petition.id as number;
+  const petitionCols = Object.keys(petition).filter((k) => k !== 'synced_at' && k !== 'updated_at');
+  const [{ data: oldP, error: pe }, { data: oldC, error: ce }] = await Promise.all([
+    db.from('petitions').select(petitionCols.join(', ')).eq('id', id).maybeSingle(),
+    db.from('petition_constituency_signatures').select(`constituency_gss_code, ${CONST_COLS.join(', ')}`).eq('petition_id', id).limit(5000),
+  ]);
+  if (pe || ce) throw new Error(`petition ${id} read: ${(pe ?? ce)!.message}`);
+  const old = oldP as Record<string, unknown> | null;
+  const oldBy = new Map(((oldC ?? []) as unknown as Record<string, unknown>[]).map((r) => [r.constituency_gss_code as string, r]));
+  const petitionChanged = !old || !same(old, petition, petitionCols);
+  const shownChanged = !old || !same(old, petition, SHOWN);
+  const changedRows = constRows.filter((r) => { const o = oldBy.get(r.constituency_gss_code); return !o || !same(o, r as unknown as Record<string, unknown>, CONST_COLS); });
+  const live = new Set(constRows.map((r) => r.constituency_gss_code));
+  const stale = [...oldBy.keys()].filter((g) => !live.has(g));
+  const changedGss = shownChanged ? [...new Set([...oldBy.keys(), ...live])] : [...changedRows.map((r) => r.constituency_gss_code), ...stale];
+  if (!dry) {
+    if (petitionChanged) {
+      const { error } = await db.from('petitions').upsert(petition, { onConflict: 'id' });
+      if (error) throw new Error(`petitions upsert ${id}: ${error.message}`);
+    }
+    for (let i = 0; i < changedRows.length; i += 500) {
+      const { error } = await db.from('petition_constituency_signatures').upsert(changedRows.slice(i, i + 500), { onConflict: 'petition_id,constituency_gss_code' });
+      if (error) throw new Error(`constituency upsert ${id}: ${error.message}`);
+    }
+    if (stale.length) {
+      if (stale.some((c) => !/^[A-Z0-9]+$/.test(c))) throw new Error(`Unexpected constituency code format on petition ${id}`);
+      const { error } = await db.from('petition_constituency_signatures').delete().eq('petition_id', id).in('constituency_gss_code', stale);
+      if (error) throw new Error(`stale constituency delete ${id}: ${error.message}`);
+    }
+  }
+  return { changedGss, written: (petitionChanged ? 1 : 0) + changedRows.length };
+}

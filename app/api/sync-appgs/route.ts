@@ -12,6 +12,7 @@ import { NextResponse } from 'next/server';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { createClient } from '@supabase/supabase-js';
 import { politeFetch, DOWNLOAD_TIMEOUT_MS, isPoliteStop } from '@/lib/sync-budget';
+import { refreshMps, isDryRun, sameValue } from '@/lib/mp-refresh';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 240;
@@ -173,34 +174,91 @@ async function GET_impl(req: Request) {
   }
   await Promise.all(Array.from({ length: CONCURRENCY }, () => worker()));
 
-  // 3. Write — upsert appgs, replace officers + funders wholesale
+  // 3. Write only what changed (owner, 30 Oct 2026, cache Stage 2a part 3; until then every APPG was upserted and every
+  // officer and funder deleted and inserted again, even when the time budget had cut the download short). An APPG
+  // whose row changed is upserted; one whose officers or funders changed has just its own officers or funders replaced.
+  // APPGs gone from the source lose their officers and funders only when every file was read. The MPs who are
+  // officers of a changed APPG (before or after) have their pages refreshed. ?dry=1 (local tests only) writes nothing.
+  const dry = isDryRun(req);
+  const readAllRows = async (table: string, cols: string) => {
+    const out: Record<string, unknown>[] = [];
+    for (let from = 0; ; from += 1000) {
+      const { data, error } = await supabase.from(table).select(cols).order('id').range(from, from + 999);
+      if (error) throw new Error(`${table}: ${error.message}`);
+      out.push(...((data ?? []) as unknown as Record<string, unknown>[]));
+      if (!data || data.length < 1000) return out;
+    }
+  };
+  const APPG_COLS = Object.keys(appgs[0] ?? {}).filter((k) => k !== 'scraped_at');
+  const OFF_COLS = ['member_id', 'name_at_time', 'party', 'role', 'removed'];
+  const FUND_COLS = ['source', 'description', 'value_band', 'received_date', 'registered_date', 'benefit_type'];
+  let storedAppgs: Record<string, unknown>[], storedOff: Record<string, unknown>[], storedFund: Record<string, unknown>[];
+  try {
+    [storedAppgs, storedOff, storedFund] = await Promise.all([
+      (async () => { const out: Record<string, unknown>[] = []; for (let from = 0; ; from += 1000) { const { data, error } = await supabase.from('appgs').select(['slug', ...APPG_COLS].join(', ')).order('slug').range(from, from + 999); if (error) throw new Error(`appgs: ${error.message}`); out.push(...((data ?? []) as unknown as Record<string, unknown>[])); if (!data || data.length < 1000) return out; } })(),
+      readAllRows('appg_officers', ['appg_slug', ...OFF_COLS].join(', ')),
+      readAllRows('appg_funders', ['appg_slug', ...FUND_COLS].join(', ')),
+    ]);
+  } catch (e) {
+    return NextResponse.json({ error: (e as Error).message, stage: 'read stored' }, { status: 500 });
+  }
+  const pickCols = (r: Record<string, unknown>, cols: string[]) => Object.fromEntries(cols.map((c) => [c, r[c] ?? null]));
+  const group = (rows: Record<string, unknown>[], cols: string[]) => {
+    const m = new Map<string, Record<string, unknown>[]>();
+    for (const r of rows) { const k = r.appg_slug as string; if (!m.has(k)) m.set(k, []); m.get(k)!.push(pickCols(r, cols)); }
+    return m;
+  };
+  // Order does not matter for officers and funders: compared as sorted lists.
+  const sameSet = (a: Record<string, unknown>[] = [], b: Record<string, unknown>[] = []) =>
+    a.length === b.length && sameValue(a.map((x) => JSON.stringify(x)).sort(), b.map((x) => JSON.stringify(x)).sort());
+  const appgBy = new Map(storedAppgs.map((r) => [r.slug as string, r]));
+  const offOld = group(storedOff, OFF_COLS), offNew = group(officers, OFF_COLS);
+  const fundOld = group(storedFund, FUND_COLS), fundNew = group(funders, FUND_COLS);
+  const changedAppgs = appgs.filter((a) => { const o = appgBy.get(a.slug as string); return !o || !sameValue(pickCols(o, APPG_COLS), pickCols(a, APPG_COLS)); });
+  const fetched = new Set(appgs.map((a) => a.slug as string));
+  const complete = appgs.length === files.length;
+  const offChanged = [...fetched].filter((slug) => !sameSet(offOld.get(slug), offNew.get(slug)));
+  const fundChanged = [...fetched].filter((slug) => !sameSet(fundOld.get(slug), fundNew.get(slug)));
+  const goneSlugs = complete ? [...new Set([...offOld.keys(), ...fundOld.keys()])].filter((slug) => !fetched.has(slug)) : [];
+  const touched = new Set([...changedAppgs.map((a) => a.slug as string), ...offChanged, ...fundChanged, ...goneSlugs]);
+  const changedMps = new Set<number>();
+  for (const slug of touched) for (const r of [...(offOld.get(slug) ?? []), ...(offNew.get(slug) ?? [])]) if (typeof r.member_id === 'number') changedMps.add(r.member_id);
+
   const upBATCH = 200;
   let appgsUp = 0;
-  for (let i = 0; i < appgs.length; i += upBATCH) {
-    const slice = appgs.slice(i, i + upBATCH);
-    const { error } = await supabase.from('appgs').upsert(slice, { onConflict: 'slug' });
-    if (error) return NextResponse.json({ error: error.message, stage: 'appgs', written: appgsUp }, { status: 500 });
-    appgsUp += slice.length;
-  }
-  const { error: dErr1 } = await supabase.from('appg_officers').delete().neq('id', -1);
-  if (dErr1) return NextResponse.json({ error: dErr1.message, stage: 'officers-delete' }, { status: 500 });
-  const { error: dErr2 } = await supabase.from('appg_funders').delete().neq('id', -1);
-  if (dErr2) return NextResponse.json({ error: dErr2.message, stage: 'funders-delete' }, { status: 500 });
-  const offBATCH = 500;
   let offUp = 0;
-  for (let i = 0; i < officers.length; i += offBATCH) {
-    const slice = officers.slice(i, i + offBATCH);
-    const { error } = await supabase.from('appg_officers').insert(slice);
-    if (error) return NextResponse.json({ error: error.message, stage: 'officers', written: offUp }, { status: 500 });
-    offUp += slice.length;
-  }
   let fundUp = 0;
-  for (let i = 0; i < funders.length; i += offBATCH) {
-    const slice = funders.slice(i, i + offBATCH);
-    const { error } = await supabase.from('appg_funders').insert(slice);
-    if (error) return NextResponse.json({ error: error.message, stage: 'funders', written: fundUp }, { status: 500 });
-    fundUp += slice.length;
+  if (!dry) {
+    for (let i = 0; i < changedAppgs.length; i += upBATCH) {
+      const slice = changedAppgs.slice(i, i + upBATCH);
+      const { error } = await supabase.from('appgs').upsert(slice, { onConflict: 'slug' });
+      if (error) return NextResponse.json({ error: error.message, stage: 'appgs', written: appgsUp }, { status: 500 });
+      appgsUp += slice.length;
+    }
+    const replace = async (table: string, slugs: string[], rows: Record<string, unknown>[]) => {
+      let n = 0;
+      for (let i = 0; i < slugs.length; i += 100) {
+        const part = slugs.slice(i, i + 100);
+        const { error: dErr } = await supabase.from(table).delete().in('appg_slug', part);
+        if (dErr) throw new Error(`${table} delete: ${dErr.message}`);
+        const set = new Set(part);
+        const add = rows.filter((r) => set.has(r.appg_slug as string));
+        for (let j = 0; j < add.length; j += 500) {
+          const { error } = await supabase.from(table).insert(add.slice(j, j + 500));
+          if (error) throw new Error(`${table} insert: ${error.message}`);
+          n += add.slice(j, j + 500).length;
+        }
+      }
+      return n;
+    };
+    try {
+      offUp = await replace('appg_officers', [...offChanged, ...goneSlugs], officers);
+      fundUp = await replace('appg_funders', [...fundChanged, ...goneSlugs], funders);
+    } catch (e) {
+      return NextResponse.json({ error: (e as Error).message, stage: 'officers or funders' }, { status: 500 });
+    }
   }
+  const mpRefresh = !dry && changedMps.size ? refreshMps(changedMps) : null;
 
   return NextResponse.json({
     ok: true,
@@ -208,6 +266,11 @@ async function GET_impl(req: Request) {
     officers: offUp,
     funders: fundUp,
     files_seen: files.length,
+    complete,
+    appgs_changed: touched.size,
+    mps_changed: changedMps.size,
+    mp_refresh: mpRefresh,
+    ...(dry ? { dry_run: true } : {}),
     elapsed_ms: Date.now() - startedAt,
     syncedAt: new Date().toISOString(),
   });

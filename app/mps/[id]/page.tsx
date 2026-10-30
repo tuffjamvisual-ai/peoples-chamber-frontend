@@ -46,7 +46,7 @@ const getMp = cache(async (memberId: number) => {
 // disabled after concurrent cabinet-page builds saturated Supabase —
 // a single slow MP could time out and fail the entire build. On-demand
 // ISR is equivalent for users after the first hit.
-export const revalidate = 21600;
+export const revalidate = 604800;  // a week (owner, 30 Oct 2026, cache Stage 2a part 3): the syncs refresh an MP's page when its data changes (lib/mp-refresh.ts)
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -279,7 +279,9 @@ export default async function MPMagazineProfile({ params }: PageProps) {
     supabase.rpc('mp_vote_counts', { p_member_id: memberId, p_since: PARL_START }),
     // Current register only (is_current). Historical rows added by the backfill
     // are retained but excluded from the profile's primary interests list.
-    supabase.from('mp_registered_interests').select('*').eq('member_id', memberId).eq('is_current', true).order('category_sort_order', { ascending: true }),
+    // Named columns, not '*': the nightly last_seen_date stamp (and the search vector) stay out of the page (owner, 30 Oct
+    // 2026, cache Stage 2a part 3).
+    supabase.from('mp_registered_interests').select('id, member_id, category_id, category_name, category_sort_order, interest_id, interest_text, created_when, last_amended_when, is_correction, child_interests, created_at, is_current, first_seen_date, source, donor_name, donor_amount, payment_type, received_date, accepted_date').eq('member_id', memberId).eq('is_current', true).order('category_sort_order', { ascending: true }),
     supabase.from('mp_expenses_summary').select('*').eq('member_id', memberId).order('year', { ascending: false }),
     // Individual expense claims are fetched by the Expenses tab when it opens (app/api/mps/[id]/expenses).
     supabase.from('dept_ministers').select('salary_band, dept_slug').eq('member_id', memberId).not('salary_band', 'is', null),
@@ -378,7 +380,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
   const pActivity = Promise.resolve(
     supabase
       .from('mp_activity_metrics')
-      .select('divisions_voted, divisions_total, attendance_pct, rebellions_total, rebellion_rate_pct, speeches_year, questions_year, refreshed_at')
+      .select('divisions_voted, divisions_total, attendance_pct, rebellions_total, rebellion_rate_pct, speeches_year, questions_year')
       .eq('member_id', memberId)
       .maybeSingle(),
   );
@@ -431,10 +433,13 @@ export default async function MPMagazineProfile({ params }: PageProps) {
             .eq('constituency_gss_code', constituencyGss)
             .order('signature_count', { ascending: false })
             .limit(PETITIONS_SHOWN),
+          // This constituency's own newest row (owner, 30 Oct 2026), not the table wide sync time: the sync writes a row
+          // only when its count changes, so updated_at is when this MP's figures last changed.
           supabase
-            .from('petitions')
-            .select('synced_at')
-            .order('synced_at', { ascending: false })
+            .from('petition_constituency_signatures')
+            .select('updated_at')
+            .eq('constituency_gss_code', constituencyGss)
+            .order('updated_at', { ascending: false })
             .limit(1)
             .maybeSingle(),
         ]),
@@ -442,7 +447,7 @@ export default async function MPMagazineProfile({ params }: PageProps) {
       )
         .then(([sigRes, syncRes]) => ({
           rows: (sigRes.data as unknown as PetitionSignatureRow[] | null) ?? [],
-          lastUpdated: (syncRes.data?.synced_at as string | undefined) ?? null,
+          lastUpdated: (syncRes.data?.updated_at as string | undefined) ?? null,
         }))
         .catch(() => ({ rows: [], lastUpdated: null }))
     : Promise.resolve({ rows: [], lastUpdated: null });
@@ -475,22 +480,17 @@ export default async function MPMagazineProfile({ params }: PageProps) {
         .gt('sponsoring_order', 1)
         .order('signed_at', { ascending: false })
         .limit(EDMS_FETCHED),
-      supabase
-        .from('early_day_motions')
-        .select('synced_at')
-        .order('synced_at', { ascending: false })
-        .limit(1)
-        .maybeSingle(),
     ]),
     5000,
   )
-    .then(([startedRes, signedRes, syncRes]) => ({
-      started: (startedRes.data as unknown as EdmTabData['started'] | null) ?? [],
-      signed: (signedRes.data as unknown as EdmTabData['signed'] | null) ?? [],
-      startedCount: startedRes.count ?? 0,
-      signedCount: signedRes.count ?? 0,
-      lastUpdated: (syncRes.data?.synced_at as string | undefined) ?? null,
-    }))
+    .then(([startedRes, signedRes]) => {
+      const started = (startedRes.data as unknown as EdmTabData['started'] | null) ?? [];
+      const signed = (signedRes.data as unknown as EdmTabData['signed'] | null) ?? [];
+      // This MP's own newest motion (owner, 30 Oct 2026), not the table wide sync time: the newest motion they tabled
+      // or signed (both lists are newest first).
+      const dates = [started[0]?.date_tabled, signed[0]?.signed_at].filter((d): d is string => !!d).sort();
+      return { started, signed, startedCount: startedRes.count ?? 0, signedCount: signedRes.count ?? 0, lastUpdated: dates.length ? dates[dates.length - 1] : null };
+    })
     .catch(() => ({ started: [], signed: [], startedCount: 0, signedCount: 0, lastUpdated: null }));
 
   // Ministerial diary — meetings + hospitality recorded by gov.uk.

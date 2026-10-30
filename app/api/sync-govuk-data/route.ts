@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { revalidateTag } from 'next/cache';
 import { GOVUK_DEPT_TAG } from '@/lib/page-reads';
+import { refreshMps, isDryRun, sameValue } from '@/lib/mp-refresh';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { govukSlugs } from '@/lib/govuk-slugs';
 
@@ -124,28 +125,40 @@ async function fetchOrg(govukSlug: string) {
   return res.json();
 }
 
-async function syncDept(supabase: SupabaseClient, deptSlug: string, govukSlug: string) {
+// A list is rewritten only when it differs from the stored one (owner, 30 Oct 2026, cache Stage 2a part 3: unchanged
+// rows are not rewritten), compared in order without updated_at; ministers whose row changed have their MP pages
+// refreshed. `dry` (?dry=1, local tests only) compares but writes nothing.
+const MIN_COLS = ['name', 'role', 'slug', 'is_secretary_of_state', 'photo_url', 'member_id', 'salary_band', 'resigned'] as const;
+const OFF_COLS = ['name', 'role', 'slug', 'category', 'role_rank', 'appointment_date', 'previous_role', 'photo_url'] as const;
+const AG_COLS = ['name', 'url', 'slug', 'acronym'] as const;
+const pick = (r: Record<string, unknown>, cols: readonly string[]) => Object.fromEntries(cols.map((c) => [c, r[c] ?? null]));
+const sameList = (a: Record<string, unknown>[], b: Record<string, unknown>[], cols: readonly string[]) =>
+  a.length === b.length && a.every((r, i) => sameValue(pick(r, cols), pick(b[i], cols)));
+
+async function syncDept(supabase: SupabaseClient, deptSlug: string, govukSlug: string, dry = false) {
   const data = await fetchOrg(govukSlug);
   const now = new Date().toISOString();
 
   // Pull existing rows so we can preserve photo_url / member_id /
   // salary_band / resigned across the delete+insert.
-  const [{ data: existingMins }, { data: existingOffs }] = await Promise.all([
+  const [{ data: existingMins }, { data: existingOffs }, { data: existingAgs }] = await Promise.all([
     supabase
       .from('dept_ministers')
-      .select('name, photo_url, member_id, salary_band, resigned')
-      .eq('dept_slug', deptSlug),
-    supabase.from('dept_officials').select('name, photo_url').eq('dept_slug', deptSlug),
-  ]);
+      .select(MIN_COLS.join(', '))
+      .eq('dept_slug', deptSlug)
+      .order('id'),
+    supabase.from('dept_officials').select(OFF_COLS.join(', ')).eq('dept_slug', deptSlug).order('id'),
+    supabase.from('dept_agencies').select(AG_COLS.join(', ')).eq('dept_slug', deptSlug).order('id'),
+  ]) as unknown as { data: Record<string, unknown>[] | null }[];
   const minByName = new Map<string, { photo_url: string | null; member_id: number | null; salary_band: string | null; resigned: boolean }>();
-  (existingMins || []).forEach((r) => minByName.set(r.name, {
-    photo_url: r.photo_url ?? null,
-    member_id: r.member_id ?? null,
-    salary_band: r.salary_band ?? null,
+  (existingMins || []).forEach((r) => minByName.set(r.name as string, {
+    photo_url: (r.photo_url as string | null) ?? null,
+    member_id: (r.member_id as number | null) ?? null,
+    salary_band: (r.salary_band as string | null) ?? null,
     resigned: !!r.resigned,
   }));
   const offByName = new Map<string, { photo_url: string | null }>();
-  (existingOffs || []).forEach((r) => offByName.set(r.name, { photo_url: r.photo_url ?? null }));
+  (existingOffs || []).forEach((r) => offByName.set(r.name as string, { photo_url: (r.photo_url as string | null) ?? null }));
 
   // The Prime Minister appears in some departments' ordered_ministers (e.g. the
   // Cabinet Office lists them as "Minister for the Union"). They are not a
@@ -257,17 +270,33 @@ async function syncDept(supabase: SupabaseClient, deptSlug: string, govukSlug: s
   // rename gov.uk splits ministers onto the new slug and the civil-service
   // board onto the old one. Deleting on empty would wipe the existing rows;
   // skipping preserves them until gov.uk finishes migrating.
-  if (ministers.length) {
-    await supabase.from('dept_ministers').delete().eq('dept_slug', deptSlug);
-    await supabase.from('dept_ministers').insert(ministers);
+  const minChanged = ministers.length > 0 && !sameList(existingMins || [], ministers as unknown as Record<string, unknown>[], MIN_COLS);
+  const offChanged = officials.length > 0 && !sameList(existingOffs || [], officials as unknown as Record<string, unknown>[], OFF_COLS);
+  const agChanged = agencies.length > 0 && !sameList(existingAgs || [], agencies as unknown as Record<string, unknown>[], AG_COLS);
+  // The MPs among the ministers added, removed or changed.
+  const mps = new Set<number>();
+  if (minChanged) {
+    const oldBy = new Map((existingMins || []).map((r) => [r.name as string, r]));
+    const newBy = new Map(ministers.map((r) => [r.name, r as unknown as Record<string, unknown>]));
+    for (const name of new Set([...oldBy.keys(), ...newBy.keys()])) {
+      const a = oldBy.get(name), b = newBy.get(name);
+      if (a && b && sameValue(pick(a, MIN_COLS), pick(b, MIN_COLS))) continue;
+      for (const r of [a, b]) if (typeof r?.member_id === 'number') mps.add(r.member_id);
+    }
   }
-  if (officials.length) {
-    await supabase.from('dept_officials').delete().eq('dept_slug', deptSlug);
-    await supabase.from('dept_officials').insert(officials);
-  }
-  if (agencies.length) {
-    await supabase.from('dept_agencies').delete().eq('dept_slug', deptSlug);
-    await supabase.from('dept_agencies').insert(agencies);
+  if (!dry) {
+    if (minChanged) {
+      await supabase.from('dept_ministers').delete().eq('dept_slug', deptSlug);
+      await supabase.from('dept_ministers').insert(ministers);
+    }
+    if (offChanged) {
+      await supabase.from('dept_officials').delete().eq('dept_slug', deptSlug);
+      await supabase.from('dept_officials').insert(officials);
+    }
+    if (agChanged) {
+      await supabase.from('dept_agencies').delete().eq('dept_slug', deptSlug);
+      await supabase.from('dept_agencies').insert(agencies);
+    }
   }
 
   return {
@@ -276,6 +305,8 @@ async function syncDept(supabase: SupabaseClient, deptSlug: string, govukSlug: s
     agencies: agencies.length,
     preserved_min: ministers.filter((m) => minByName.has(m.name)).length,
     preserved_off: officials.filter((o) => offByName.has(o.name)).length,
+    written: (minChanged ? ministers.length : 0) + (offChanged ? officials.length : 0) + (agChanged ? agencies.length : 0),
+    mps: [...mps],
   };
 }
 
@@ -295,6 +326,7 @@ async function GET_impl(req: Request) {
     );
   }
   const supabase = createClient(url, key);
+  const dry = isDryRun(req);
 
   // Manual override lock: departments listed in dept_sync_exclude are skipped
   // entirely, so a hand-set line-up (e.g. a fresh reshuffle appointment GOV.UK
@@ -334,7 +366,7 @@ async function GET_impl(req: Request) {
       const allActivePublished = stored
         .filter((r) => !r.resigned)
         .every((r) => govNames.has(normalizeName(r.name)));
-      if (headMatches && allActivePublished) {
+      if (headMatches && allActivePublished && !dry) {
         await supabase.from('dept_sync_exclude').delete().eq('dept_slug', deptSlug);
         excluded.delete(deptSlug);
         autoCleared.push(deptSlug);
@@ -347,14 +379,18 @@ async function GET_impl(req: Request) {
 
   const results: Array<{ deptSlug: string; status: 'ok' | 'fail' | 'skipped'; detail: string }> = [];
   let rowsWritten = 0;
+  let rowsChanged = 0;
+  const changedMps = new Set<number>();
   for (const [deptSlug, govukSlug] of Object.entries(govukSlugs)) {
     if (excluded.has(deptSlug)) {
       results.push({ deptSlug, status: 'skipped', detail: 'dept_sync_exclude (manual override active)' });
       continue;
     }
     try {
-      const r = await syncDept(supabase, deptSlug, govukSlug);
+      const r = await syncDept(supabase, deptSlug, govukSlug, dry);
       rowsWritten += r.ministers + r.officials + r.agencies;
+      rowsChanged += r.written;
+      for (const m of r.mps) changedMps.add(m);
       results.push({
         deptSlug,
         status: 'ok',
@@ -367,14 +403,21 @@ async function GET_impl(req: Request) {
     await new Promise((r) => setTimeout(r, 200));
   }
 
-  // Department pages read these rows under the 'govuk-dept' tag (lib/page-reads.ts): refreshed after any write.
-  if (rowsWritten > 0) revalidateTag(GOVUK_DEPT_TAG, 'max');
+  // Department pages read these rows under the 'govuk-dept' tag (lib/page-reads.ts): refreshed after any write; the
+  // MP pages of ministers whose row changed (MP pages keep for a week).
+  if (rowsChanged > 0 && !dry) revalidateTag(GOVUK_DEPT_TAG, 'max');
+  const mpRefresh = !dry && changedMps.size ? refreshMps(changedMps) : null;
   return NextResponse.json({
     ok: results.filter((r) => r.status === 'ok').length,
     fail: results.filter((r) => r.status === 'fail').length,
     skipped: results.filter((r) => r.status === 'skipped').length,
-    // Minister, official and agency rows written; the heartbeat records this as the run's row count.
+    // Minister, official and agency rows read and checked; the heartbeat records this as the run's row count. Only
+    // rows_changed were written (a list is rewritten only when it differs).
     rows_written: rowsWritten,
+    rows_changed: rowsChanged,
+    mps_changed: changedMps.size,
+    mp_refresh: mpRefresh,
+    ...(dry ? { dry_run: true } : {}),
     autoCleared,
     syncedAt: new Date().toISOString(),
     results,

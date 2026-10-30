@@ -5,6 +5,8 @@ import NIGHTLY from '@/lib/nightly-refresh-pages.json';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { refreshBills, REFRESH_BATCH } from '@/lib/bill-refresh';
 import { revalidateBillPages } from '@/lib/revalidate-bills';
+import { refreshMps, isDryRun } from '@/lib/mp-refresh';
+import { queuedMps, dequeueMps, mpsDueByDate } from '@/lib/mp-nightly';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,6 +19,9 @@ export const dynamic = 'force-dynamic';
 // It also empties bill_refresh_queue (owner, 30 Oct 2026, cache Stage 2a part 2, migration 2026-10-30h): bills the
 // nightly GitHub scripts changed but could not get the site to refresh. Each is refreshed (lib/bill-refresh.ts), then
 // its row is deleted, REFRESH_BATCH at a time. A queue that cannot be read is reported, not fatal.
+// MP pages (owner, 30 Oct 2026, cache Stage 2a part 3) are no longer all refreshed: only the MPs the nightly scripts
+// queued, and those whose date based content turned over (lib/mp-nightly.ts). ?dry=1 (local tests only) refreshes
+// nothing and says which MPs it would refresh.
 
 async function GET_impl(req: Request) {
   const expected = process.env.CRON_SECRET;
@@ -24,12 +29,38 @@ async function GET_impl(req: Request) {
   if (req.headers.get('authorization') !== `Bearer ${expected}`) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
+  const dry = isDryRun(req);
+  if (dry) {
+    const [queued, due] = await Promise.all([queuedMps(supabaseAdmin), mpsDueByDate(supabaseAdmin)]);
+    return NextResponse.json({ dry_run: true, mp_queue: queued.length, earnings_until_yesterday: due.earnings, meetings_dated_yesterday_or_today: due.meetings });
+  }
   for (const p of NIGHTLY.paths) {
     if (p.includes('[')) revalidatePath(p, 'page');
     else revalidatePath(p);
   }
   const queue = await emptyBillQueue();
-  return NextResponse.json({ ok: true, rows_written: NIGHTLY.paths.length, paths: NIGHTLY.paths, bill_queue: queue, at: new Date().toISOString() });
+  const mps = await refreshNightlyMps();
+  return NextResponse.json({ ok: true, rows_written: NIGHTLY.paths.length, paths: NIGHTLY.paths, bill_queue: queue, mps, at: new Date().toISOString() });
+}
+
+async function refreshNightlyMps(): Promise<Record<string, unknown>> {
+  const out: Record<string, unknown> = {};
+  try {
+    const queued = await queuedMps(supabaseAdmin);
+    if (queued.length) { refreshMps(queued); await dequeueMps(supabaseAdmin, queued); }
+    out.queued = queued.length;
+  } catch (e) {
+    out.queue_error = (e as Error).message;
+  }
+  try {
+    const due = await mpsDueByDate(supabaseAdmin);
+    refreshMps([...due.earnings, ...due.meetings]);
+    out.earnings_ended = due.earnings.length;
+    out.meetings_due = due.meetings.length;
+  } catch (e) {
+    out.dates_error = (e as Error).message;
+  }
+  return out;
 }
 
 async function emptyBillQueue(): Promise<{ refreshed: number; error?: string }> {

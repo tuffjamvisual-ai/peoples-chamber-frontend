@@ -3,6 +3,7 @@ import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { SyncBudget, isPoliteStop } from '@/lib/sync-budget';
 import { ItemFailures, FLAG_AFTER_RUNS } from '@/lib/sync-item-failures';
+import { refreshMps, isDryRun, sameValue } from '@/lib/mp-refresh';
 import { EDM_API, EDM_PARLIAMENT_START, fetchEdmJson, listEdmsResumable, buildEdmRows, writeEdm, type EdmListEntry, type EdmListPages } from '@/lib/edms';
 
 export const dynamic = 'force-dynamic';
@@ -60,6 +61,37 @@ async function GET_impl(req: Request) {
 
   const started = Date.now();
   const budget = new SyncBudget(maxDuration, { started });
+  // MP pages keep for a week (owner, 30 Oct 2026, cache Stage 2a part 3): each motion is compared with its stored copy
+  // and only the MPs whose page changes are refreshed. A change to what an MP page shows of the motion (title, number,
+  // date, status, signature count) changes every signer's page; otherwise only the members whose own signature
+  // changed. ?dry=1 (local tests only) reads and compares but writes nothing.
+  const dry = isDryRun(req);
+  const changedMps = new Set<number>();
+  const SHOWN = ['title', 'uin_with_suffix', 'date_tabled', 'signature_count', 'status', 'is_prayer', 'amendment_to_motion_id'] as const;
+  async function noteChangedMps(id: number, built: ReturnType<typeof buildEdmRows>) {
+    const [{ data: oldEdm }, { data: oldSigs }] = await Promise.all([
+      supabase.from('early_day_motions').select(`primary_sponsor_id, ${SHOWN.join(', ')}`).eq('id', id).maybeSingle(),
+      supabase.from('early_day_motion_signatures').select('member_id, sponsoring_order, signed_at, is_withdrawn, withdrawn_at').eq('edm_id', id),
+    ]);
+    const before = new Map(((oldSigs ?? []) as { member_id: number }[]).map((r) => [r.member_id, r]));
+    const after = new Map(built.signatures.map((r) => [r.member_id, r]));
+    const e = built.edm as Record<string, unknown>;
+    const old = oldEdm as Record<string, unknown> | null;
+    const motionChanged = !old || SHOWN.some((k) => !sameValue(old[k], e[k])) || old.primary_sponsor_id !== e.primary_sponsor_id;
+    if (motionChanged) {
+      for (const m of [...before.keys(), ...after.keys()]) changedMps.add(m);
+      for (const m of [old?.primary_sponsor_id, e.primary_sponsor_id]) if (typeof m === 'number') changedMps.add(m);
+      return;
+    }
+    for (const m of new Set([...before.keys(), ...after.keys()])) {
+      const a = before.get(m) as Record<string, unknown> | undefined;
+      const b = after.get(m) as unknown as Record<string, unknown> | undefined;
+      if (!a || !b || ['sponsoring_order', 'signed_at', 'is_withdrawn', 'withdrawn_at'].some((k) => !sameTime(a[k], b[k]))) changedMps.add(m);
+    }
+  }
+  // Timestamps come back from the database in its own format: compared as instants.
+  const sameTime = (a: unknown, b: unknown) =>
+    typeof a === 'string' && typeof b === 'string' && !isNaN(Date.parse(a)) && !isNaN(Date.parse(b)) ? Date.parse(a) === Date.parse(b) : sameValue(a, b);
 
   // Pages saved by an earlier run that stopped part way.
   let saved: EdmListPages | null = null;
@@ -73,7 +105,9 @@ async function GET_impl(req: Request) {
   const list = [...byId.values()];
   // Keep the pages for the next run while the list is incomplete; once complete (or out of step), start afresh.
   let cursorError: string | null = null;
-  if (!listed.complete && list.length > 0) {
+  if (dry) {
+    // A dry run keeps no list pages.
+  } else if (!listed.complete && list.length > 0) {
     const { error } = await supabase.from('sync_cursor').upsert({ route: ROUTE, cursor: listed.state, updated_at: new Date().toISOString() }, { onConflict: 'route' });
     if (error) cursorError = error.message;
   } else if (saved) {
@@ -133,7 +167,8 @@ async function GET_impl(req: Request) {
       try {
         const json = await fetchEdmJson(`${EDM_API}/EarlyDayMotion/${entry.id}`, 4, budget);
         const built = buildEdmRows(json, entry.sponsorsCount);
-        await writeEdm(supabase, built);
+        await noteChangedMps(entry.id, built);
+        if (!dry) await writeEdm(supabase, built);
         signatureRows += built.signatures.length;
         processed++;
         failing.succeeded(entry.id);
@@ -148,7 +183,8 @@ async function GET_impl(req: Request) {
     }
   }
   await Promise.all(Array.from({ length: CONCURRENCY }, worker));
-  const failuresSaved = await failing.save();
+  const failuresSaved = dry ? false : await failing.save();
+  const mpRefresh = !dry && changedMps.size ? refreshMps(changedMps) : null;
 
   const body = {
     ok: failures.length === 0 && listed.complete,
@@ -175,6 +211,9 @@ async function GET_impl(req: Request) {
     flagged_after_runs: FLAG_AFTER_RUNS,
     failing_items: failing.summary(),
     failures_saved: failuresSaved,
+    mps_changed: changedMps.size,
+    mp_refresh: mpRefresh,
+    ...(dry ? { dry_run: true } : {}),
     duration_ms: Date.now() - started,
   };
   // 200 when anything was saved, or when there was nothing to do and the list was read in full.

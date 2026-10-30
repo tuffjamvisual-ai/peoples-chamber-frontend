@@ -15,6 +15,7 @@ import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { SyncBudget, politeFetch } from '@/lib/sync-budget';
+import { refreshMps, isDryRun, sameValue } from '@/lib/mp-refresh';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
@@ -121,18 +122,37 @@ async function GET_impl(req: Request) {
     };
   });
 
-  // 3. Upsert
-  const { error: upErr } = await supabase
-    .from('mp_conduct_findings')
-    .upsert(rows, { onConflict: 'case_ref' });
-  if (upErr) return NextResponse.json({ error: upErr.message }, { status: 500 });
+  // 3. Only new or changed findings are written (owner, 30 Oct 2026, cache Stage 2a part 3), and the MPs they name
+  // (before and after) have their pages refreshed. ?dry=1 (local tests only) compares but writes nothing.
+  const dry = isDryRun(req);
+  const COLS = ['member_id', 'mp_name_at_time', 'closed_date', 'source', 'summary', 'url', 'source_published'] as const;
+  const { data: stored, error: stErr } = rows.length
+    ? await supabase.from('mp_conduct_findings').select(`case_ref, ${COLS.join(', ')}`).in('case_ref', rows.map((r) => r.case_ref))
+    : { data: [], error: null };
+  if (stErr) return NextResponse.json({ error: stErr.message }, { status: 500 });
+  const storedBy = new Map(((stored ?? []) as unknown as Record<string, unknown>[]).map((r) => [r.case_ref as string, r]));
+  const pick = (r: Record<string, unknown>) => Object.fromEntries(COLS.map((c) => [c, typeof r[c] === 'string' && /^\d{4}-\d{2}-\d{2}/.test(r[c] as string) && c !== 'summary' && c !== 'url' ? (r[c] as string).slice(0, 10) : r[c] ?? null]));
+  const changed = rows.filter((r) => { const o = storedBy.get(r.case_ref); return !o || !sameValue(pick(o), pick(r)); });
+  const changedMps = new Set<number>();
+  for (const r of changed) for (const m of [r.member_id, storedBy.get(r.case_ref)?.member_id]) if (typeof m === 'number') changedMps.add(m);
+  if (changed.length && !dry) {
+    const { error: upErr } = await supabase
+      .from('mp_conduct_findings')
+      .upsert(changed, { onConflict: 'case_ref' });
+    if (upErr) return NextResponse.json({ error: upErr.message }, { status: 500 });
+  }
+  const mpRefresh = !dry && changedMps.size ? refreshMps(changedMps) : null;
 
   return NextResponse.json({
     ok: true,
     reports_seen: reports.length,
     findings_extracted: findings.length,
     member_resolved: resolved,
-    upserted: rows.length,
+    upserted: dry ? 0 : changed.length,
+    unchanged: rows.length - changed.length,
+    mps_changed: changedMps.size,
+    mp_refresh: mpRefresh,
+    ...(dry ? { dry_run: true } : {}),
     partial: false,
     elapsed_ms: Date.now() - startedAt,
     syncedAt: new Date().toISOString(),

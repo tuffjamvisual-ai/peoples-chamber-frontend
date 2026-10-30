@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { createClient } from '@supabase/supabase-js';
 import { SyncBudget, politeFetch, isPoliteStop } from '@/lib/sync-budget';
+import { refreshMps, isDryRun, sameValue } from '@/lib/mp-refresh';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -39,6 +40,11 @@ async function GET_impl(req: Request) {
   const key = process.env.SUPABASE_SECRET_KEY;
   if (!url || !key) return NextResponse.json({ error: 'supabase env missing' }, { status: 500 });
   const supabase = createClient(url, key);
+  // MP pages keep for a week (owner, 30 Oct 2026, cache Stage 2a part 3): each MP's rows are compared with the stored
+  // ones and only MPs whose rows changed are refreshed. Rows are still written each run (updated_at orders the MPs
+  // stalest first). ?dry=1 (local tests only) reads and compares but writes nothing.
+  const dry = isDryRun(req);
+  const changedMps = new Set<number>();
 
   const { data: order, error: rpcErr } = await supabase.rpc('mp_contributions_stalest');
   if (rpcErr) return NextResponse.json({ error: rpcErr.message }, { status: 500 });
@@ -89,6 +95,14 @@ async function GET_impl(req: Request) {
     }).filter((r) => r.debate_website_id != null);
 
     if (rows.length) {
+      const { data: old } = await supabase.from('mp_contributions').select('*').eq('member_id', id).in('debate_website_id', rows.map((r) => r.debate_website_id));
+      const oldBy = new Map(((old ?? []) as Record<string, unknown>[]).map((r) => [String(r.debate_website_id), r]));
+      // The columns the MP page shows (a re-issued debate_id alone changes nothing on the page).
+      const SHOWN = ['debate_title', 'sitting_date', 'section', 'house', 'speech_count', 'question_count', 'intervention_count', 'answer_count', 'statement_count', 'total_contributions', 'hansard_url'];
+      const strip = (r: Record<string, unknown>) => Object.fromEntries(SHOWN.map((k) => [k, k === 'sitting_date' && typeof r[k] === 'string' ? (r[k] as string).slice(0, 10) : r[k]]));
+      if (rows.some((r) => { const o = oldBy.get(String(r.debate_website_id)); return !o || !sameValue(strip(o), strip(r)); })) changedMps.add(id);
+    }
+    if (rows.length && !dry) {
       const { error } = await supabase.from('mp_contributions').upsert(rows, { onConflict: 'member_id,debate_website_id' });
       if (error) { console.error(`[hansard] member ${id} upsert failed: ${error.message}`); failed++; dbFailed++; }
       else rows_written += rows.length;
@@ -96,8 +110,12 @@ async function GET_impl(req: Request) {
     await sleep(50);
   }
 
+  const mpRefresh = !dry && changedMps.size ? refreshMps(changedMps) : null;
   const body = {
     ok: failed === 0,
+    mps_changed: changedMps.size,
+    mp_refresh: mpRefresh,
+    ...(dry ? { dry_run: true } : {}),
     total_current_mps: memberIds.length,
     processed, withData, failed, rows_written,
     partial: stoppedBy !== null,

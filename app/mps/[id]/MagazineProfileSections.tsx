@@ -57,7 +57,6 @@ type ActivityMetrics = {
   rebellion_rate_pct: number | string | null;
   speeches_year: number | null;
   questions_year: number | null;
-  refreshed_at: string | null;
 };
 type MinisterMeeting = {
   id: number;

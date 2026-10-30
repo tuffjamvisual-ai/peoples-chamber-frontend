@@ -17,6 +17,7 @@ import { createClient } from '@supabase/supabase-js';
 
 import { withHeartbeat } from '@/lib/sync-heartbeat';
 import { RateLimited, retryAfterSeconds } from '@/lib/sync-budget';
+import { refreshMps, isDryRun } from '@/lib/mp-refresh';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 270;
 
@@ -151,6 +152,17 @@ async function GET_impl(req: Request) {
     return NextResponse.json(done({ ok: false, error: (e as Error).message, processed: 0 }), { status: 500 });
   }
   const targets = [...priority, ...sequence];
+  // Unchanged rows are not rewritten (owner, 30 Oct 2026, cache Stage 2a part 3): only an MP whose counts changed is
+  // saved, and only their page is refreshed (MP pages keep for a week). ?dry=1 (local tests only) writes nothing.
+  const dry = isDryRun(req);
+  const storedCounts = new Map<number, { s: number | null; q: number | null }>();
+  for (let i = 0; i < targets.length; i += 200) {
+    const { data: sc, error: scErr } = await supabase.from('mp_activity_metrics').select('member_id, speeches_year, questions_year').in('member_id', targets.slice(i, i + 200));
+    if (scErr) return NextResponse.json(done({ ok: false, error: `stored counts: ${scErr.message}`, processed: 0 }), { status: 500 });
+    for (const r of sc ?? []) storedCounts.set(r.member_id as number, { s: r.speeches_year as number | null, q: r.questions_year as number | null });
+  }
+  const changedMps = new Set<number>();
+  let unchanged = 0;
   if (targets.length === 0) return NextResponse.json(done({ ok: true, processed: 0, note: 'no rows in mp_activity_metrics' }));
 
   type State = 'pending' | 'fetched' | 'saved' | 'failed' | 'stopped';
@@ -187,6 +199,10 @@ async function GET_impl(req: Request) {
       try {
         const r = await speechesAndQuestions(id, deadline);
         state.set(id, 'fetched');
+        const old = storedCounts.get(id);
+        if (old && old.s === r.speeches && old.q === r.questions) { state.set(id, 'saved'); unchanged++; continue; }
+        changedMps.add(id);
+        if (dry) { state.set(id, 'saved'); continue; }
         pending.push({ member_id: id, speeches_year: r.speeches, questions_year: r.questions, refreshed_at: new Date().toISOString() });
         // Mid-run saves only while there is time; whatever is left is saved below, before returning.
         if (pending.length >= SAVE_EVERY && deadline - Date.now() >= RESERVE_MS) await save();
@@ -211,7 +227,8 @@ async function GET_impl(req: Request) {
     else break;
   }
   let cursorError: string | null = null;
-  if (newAfter !== after) {
+  const mpRefresh = !dry && changedMps.size ? refreshMps(changedMps) : null;
+  if (newAfter !== after && !dry) {
     const { error } = await supabase.from('sync_cursor').upsert(
       { route: ROUTE, cursor: { after: newAfter }, updated_at: new Date().toISOString() }, { onConflict: 'route' });
     if (error) cursorError = error.message;
@@ -228,6 +245,10 @@ async function GET_impl(req: Request) {
     rate_limited: rateLimited,
     // Stopped by the deadline or a rate limit with MPs not reached; they come first next run.
     partial: notStarted > 0,
+    unchanged,
+    mps_changed: changedMps.size,
+    mp_refresh: mpRefresh,
+    ...(dry ? { dry_run: true } : {}),
     cursor_from: after,
     cursor_to: newAfter,
     elapsed_ms: Date.now() - startedAt,

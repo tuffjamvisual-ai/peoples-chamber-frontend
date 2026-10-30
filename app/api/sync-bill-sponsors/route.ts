@@ -39,7 +39,7 @@ const RUN_CAP = 1500; // bills read from the queue per run; the time budget usua
 const PARLIAMENT_API = 'https://bills-api.parliament.uk/api/v1/Bills';
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-type ApiMember = { name?: string; party?: string; id?: number; memberFrom?: string };
+type ApiMember = { name?: string; party?: string; memberId?: number; memberFrom?: string };
 type ApiSponsor = {
   sortOrder?: number;
   member?: ApiMember | null;
@@ -80,7 +80,9 @@ async function fetchSponsors(parliamentId: number, budget: SyncBudget): Promise<
       return {
         name,
         party: m?.party ?? null,
-        memberId: m?.id ?? null,
+        // The Bills API's field is member.memberId (owner, 30 Oct 2026): this read member.id, which does not exist, so
+        // every stored memberId was null. Bills are corrected as the normal 30 day cycle reaches them.
+        memberId: m?.memberId ?? null,
         memberFrom: m?.memberFrom ?? null,
         sortOrder: s.sortOrder ?? i + 1,
         isMember: !!m,
