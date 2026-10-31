@@ -847,7 +847,7 @@ export default function MagazineProfileSections({
           .mp-sections-content { padding: 20px 2px !important; }
         }
         .mp-col-inline { display: none; }
-        @media (max-width: 640px) { .mp-col-wide { display: none !important; } .mp-col-inline { display: block; margin-top: 4px; font-size: 15px; font-family: monospace; } }
+        @container (max-width: 560px) { .mp-col-wide { display: none !important; } .mp-col-inline { display: block; margin-top: 4px; font-size: 15px; font-family: monospace; } }
       `}</style>
       <aside className="lg:col-span-1" style={{ marginLeft: '-13%' }}>
         <div
@@ -896,7 +896,7 @@ export default function MagazineProfileSections({
         </div>
       </aside>
 
-      <div className="lg:col-span-3 p-6 sm:p-8 mp-sections-content" style={{ color: '#14100d', fontFamily: 'var(--font-special-elite), monospace' }}>
+      <div className="lg:col-span-3 p-6 sm:p-8 mp-sections-content" style={{ color: '#14100d', fontFamily: 'var(--font-special-elite), monospace', containerType: 'inline-size' }}>
         {active === 'career' && (
           <>
             <h2 style={sectionH2}>Background</h2>
