@@ -3,7 +3,6 @@ import { Bebas_Neue } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
-import NewsletterStrip from "./components/NewsletterStrip";
 import FloatingScrollDownButton from "./components/FloatingScrollDownButton";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -170,8 +169,7 @@ export default function RootLayout({
         <CookieBanner />
         <AuthProvider>
           {children}
-          {/* The newsletter strip replaced the sign up pop up (26 Oct 2026, report 78). */}
-          <NewsletterStrip />
+          {/* Newsletter strip hidden (owner, 31 Oct 2026); the component is kept in app/components/NewsletterStrip.tsx to bring back later. */}
         </AuthProvider>
         {/* Floating jump-to-bottom arrow on every page (styled like the Claude chat app's). */}
         <FloatingScrollDownButton />
